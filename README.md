@@ -557,7 +557,7 @@ App.Person.reopenClass({
 DS.Adapter.create({
     createMany: function(store, type, array) {
         jQuery.ajax({
-            url: type.get('collectionUrl');,
+            url: type.get('collectionUrl'),
             data: array.mapProperty('data'),
             dataType: 'json',
             type: 'POST',
