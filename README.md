@@ -724,7 +724,7 @@ adapter has populated them.
 For example, if you request a `ModelArray`:
 
 ```javascript
-App.people = store.find(Person, { firstName: "Tom" })
+App.people = store.find(Person, { firstName: "Tom" });
 ```
 
 You will get back a `ModelArray` that is currently empty. Ember Data will then
