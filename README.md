@@ -528,6 +528,7 @@ DS.Adapter.create({
 
         jQuery.ajax({
             url: url.fmt(model.get('id')),
+            data: model.get('data'),
             dataType: 'json',
             type: 'POST',
             
