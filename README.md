@@ -724,7 +724,7 @@ adapter has populated them.
 For example, if you request a `ModelArray`:
 
 ```javascript
-App.people = store.find(Person, { firstName: "Tom" });
+App.people = App.store.find(Person, { firstName: "Tom" });
 ```
 
 You will get back a `ModelArray` that is currently empty. Ember Data will then
@@ -746,7 +746,7 @@ The same is true of models themselves. For instance, you can make a request
 for a single model:
 
 ```javascript
-App.person = store.find(Person, 1);
+App.person = App.store.find(Person, 1);
 ```
 
 You will immediately receive back a new unpopulated `Person` object. You can
@@ -780,7 +780,7 @@ You can also indicate to users when a model is saving, for example:
 
 ```html
 {{#with App.person}}
-    <h1 {{bindAttr class="isSaving">{{fullName}}</h1>
+    <h1 {{bindAttr class="isSaving"}}>{{fullName}}</h1>
 {{/with}}
 ```
 
