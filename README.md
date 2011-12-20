@@ -765,7 +765,7 @@ being loaded, you can use the model's `isLoaded` property:
 ```html
 {{#with App.person}}
     {{#if isLoaded}}
-        Hello, {{fullName!}}
+        Hello, {{fullName}}!
     {{else}}
         Loading...
     {{/if}}
