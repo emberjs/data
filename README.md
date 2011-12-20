@@ -536,7 +536,7 @@ DS.Adapter.create({
                 // In general, this hash will contain a new id, which the
                 // store will now use to index the model. Future calls to
                 // store.find(type, id) will find this model.
-                store.didCreateModel(model, data)
+                store.didCreateModel(model, data);
             }
         });
     })
@@ -595,7 +595,7 @@ DS.Adapter.create({
             success: function(data) {
                 // data is a hash of key/value pairs representing the model
                 // in its current state on the server.
-                store.didUpdateModel(model, data)
+                store.didUpdateModel(model, data);
             }
         });
     })
@@ -651,7 +651,7 @@ DS.Adapter.create({
             type: 'DELETE',
             
             success: function() {
-                store.didDeleteModel(model)
+                store.didDeleteModel(model);
             }
         });
     })
