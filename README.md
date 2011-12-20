@@ -615,7 +615,7 @@ App.Person.reopenClass({
 DS.Adapter.create({
     updateMany: function(store, type, array) {
         jQuery.ajax({
-            url: type.get('collectionUrl');,
+            url: type.get('collectionUrl'),
             data: array.mapProperty('data'),
             dataType: 'json',
             type: 'PUT',
@@ -674,7 +674,7 @@ App.Person.reopenClass({
 DS.Adapter.create({
     deleteMany: function(store, type, array) {
         jQuery.ajax({
-            url: type.get('collectionUrl');,
+            url: type.get('collectionUrl'),
             data: array.mapProperty('data'),
             dataType: 'json',
             type: 'DELETE',
