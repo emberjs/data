@@ -261,12 +261,8 @@ DS.Model = SC.Object.extend({
   },
 
   destroy: function() {
-    if (get(this, 'isDeleted') && !get(this, 'isDirty')) {
-      this._super();
-    } else {
-      var stateManager = get(this, 'stateManager');
-      stateManager.send('delete');
-    }
+    this.deleteRecord();
+    this._super();
   },
 
   loadingData: function() {
