@@ -151,7 +151,7 @@ var states = {
           didUpdate: function(manager) {
             manager.goToState('loaded');
           }
-        }),
+        })
       })
     }),
 
@@ -248,9 +248,13 @@ DS.Model = SC.Object.extend({
     stateManager.send('setProperty', { key: key, value: value });
   },
 
-  "deleteModel": function() {
-    var stateManager = get(this, 'stateManager');
-    stateManager.send('delete');
+  destroy: function() {
+    if (get(this, 'isDeleted')) {
+      this._super();
+    } else {
+      var stateManager = get(this, 'stateManager');
+      stateManager.send('delete');
+    }
   },
 
   loadingData: function() {
