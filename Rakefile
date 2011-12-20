@@ -56,23 +56,16 @@ end
 
 # Create ember:package tasks for each of the Ember packages
 namespace :ember do
-  %w(metal runtime handlebars views states datetime).each do |package|
+  %w(data).each do |package|
     task package => compile_package_task("ember-#{package}", "ember-#{package}")
   end
 end
 
-# Create a handlebars task
-task :handlebars => compile_package_task("handlebars")
-
-# Create a metamorph task
-task :metamorph => compile_package_task("metamorph")
-
 # Create a build task that depends on all of the package dependencies
-task :build => ["ember:metal", "ember:runtime", "ember:handlebars", "ember:views", "ember:states", "ember:datetime", :handlebars, :metamorph]
+task :build => ["ember:data"]
 
 distributions = {
-  "ember" => ["handlebars", "ember-metal", "ember-runtime", "ember-views", "ember-states", "metamorph", "ember-handlebars"],
-  "ember-datetime" => ["ember-datetime"]
+  "ember-data" => ["ember-data"]
 }
 
 distributions.each do |name, libraries|
@@ -170,17 +163,6 @@ namespace :release do
       puts "Bumping to version: #{EMBER_VERSION}"
 
       unless pretend?
-        # Bump the version of subcomponents required by the "umbrella" ember
-        # package.
-        contents = File.read("packages/ember/package.json")
-        contents.gsub! %r{"ember-(\w+)": .*$} do
-          %{"ember-#{$1}": "#{EMBER_VERSION}"}
-        end
-
-        File.open("packages/ember/package.json", "w") do |file|
-          file.write contents
-        end
-
         # Bump the version of each component package
         Dir["packages/ember*/package.json", "ember.json"].each do |package|
           contents = File.read(package)
@@ -191,15 +173,6 @@ namespace :release do
 
           File.open(package, "w") { |file| file.write contents }
         end
-
-        # Bump ember-metal/core version
-        contents = File.read("packages/ember-metal/lib/core.js")
-        current_version = contents.match(/@version ([\w\.]+)/) && $1
-        contents.gsub!(current_version, EMBER_VERSION);
-
-        File.open("packages/ember-metal/lib/core.js", "w") do |file|
-          file.write contents
-        end
       end
     end
 
@@ -208,7 +181,7 @@ namespace :release do
       puts "Commiting Version Bump"
       unless pretend?
         sh "git reset"
-        sh %{git add VERSION CHANGELOG packages/ember-metal/lib/core.js ember.json packages/**/package.json}
+        sh %{git add VERSION CHANGELOG packages/**/package.json}
         sh "git commit -m 'Version bump - #{EMBER_VERSION}'"
       end
     end
@@ -240,90 +213,6 @@ namespace :release do
     desc "Commit the new release"
     task :deploy => [:commit, :tag, :push]
   end
-
-
-  namespace :starter_kit do
-    ember_output = "tmp/starter-kit/js/libs/ember-#{EMBER_VERSION}.js"
-    ember_min_output = "tmp/starter-kit/js/libs/ember-#{EMBER_VERSION}.min.js"
-
-    task :pull => "tmp/starter-kit" do
-      Dir.chdir("tmp/starter-kit") do
-        sh "git pull origin master"
-      end
-    end
-
-    task :clean => :pull do
-      Dir.chdir("tmp/starter-kit") do
-        rm_rf Dir["js/libs/ember*.js"]
-      end
-    end
-
-    task "dist/starter-kit.#{EMBER_VERSION}.zip" => ["tmp/starter-kit/index.html"] do
-      mkdir_p "dist"
-
-      Dir.chdir("tmp") do
-        sh %{zip -r ../dist/starter-kit.#{EMBER_VERSION}.zip starter-kit -x "starter-kit/.git/*"}
-      end
-    end
-
-    file ember_output => [:clean, "tmp/starter-kit", "dist/ember.js"] do
-      sh "cp dist/ember.js #{ember_output}"
-    end
-
-    file ember_min_output => [:clean, "tmp/starter-kit", "dist/ember.min.js"] do
-      sh "cp dist/ember.min.js #{ember_min_output}"
-    end
-
-    file "tmp/starter-kit" do
-      mkdir_p "tmp"
-
-      Dir.chdir("tmp") do
-        sh "git clone git@github.com:emberjs/starter-kit.git"
-      end
-    end
-
-    file "tmp/starter-kit/index.html" => [ember_output, ember_min_output] do
-      index = File.read("tmp/starter-kit/index.html")
-      index.gsub! %r{<script src="js/libs/ember-\d\.\d.*</script>},
-        %{<script src="js/libs/ember-#{EMBER_VERSION}.min.js"></script>}
-
-      File.open("tmp/starter-kit/index.html", "w") { |f| f.write index }
-    end
-
-    task :index => "tmp/starter-kit/index.html"
-
-    task :update => :index do
-      puts "Updating starter-kit repo"
-      unless pretend?
-        Dir.chdir("tmp/starter-kit") do
-          sh "git add -A"
-          sh "git commit -m 'Updated to #{EMBER_VERSION}'"
-          sh "git tag v#{EMBER_VERSION}"
-
-          print "Are you sure you want to push the starter-kit repo to github? (y/N) "
-          res = STDIN.gets.chomp
-          if res == 'y'
-            sh "git push origin master"
-            sh "git push --tags"
-          else
-            puts "Not pushing"
-          end
-        end
-      end
-    end
-
-    desc "Build the Ember.js starter kit"
-    task :build => "dist/starter-kit.#{EMBER_VERSION}.zip"
-
-    task :prepare => [:build]
-
-    task :deploy => [:update]
-  end
-
-  task :prepare => ['framework:prepare', 'starter_kit:prepare']
-
-  task :deploy => ['framework:deploy', 'starter_kit:deploy']
-
 end
 
 task :default => :dist

@@ -2,3 +2,4 @@ bin/
 .bundle
 tmp/
 tests/source/
+dist/
