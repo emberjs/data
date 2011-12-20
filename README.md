@@ -422,7 +422,7 @@ use the loadMany method:
 ```javascript
 App.Person = DS.Model.extend();
 App.Person.reopenClass({
-    url: '/people?ids=%@"
+    url: '/people?ids=%@'
 });
 
 DS.Adapter.create({
