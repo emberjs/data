@@ -15,13 +15,13 @@ DS.Adapter = SC.Object.extend({
 
   createMany: function(store, type, models) {
     models.forEach(function(model) {
-      this.create(store, type, model);
+      this.createModel(store, type, model);
     }, this);
   },
 
   updateMany: function(store, type, models) {
     models.forEach(function(model) {
-      this.update(store, type, model);
+      this.updateModel(store, type, model);
     }, this);
   },
 

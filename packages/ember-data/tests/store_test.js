@@ -38,7 +38,7 @@ var isTrue = function(flag) {
 
 var isFalse = function(flag) {
   equals(getPath(stateManager, 'states.rootState.'+stateName + "." + flag), false, stateName + "." + flag + " should be false");
-}
+};
 
 test("the empty state", function() {
   stateName = "empty";
@@ -216,14 +216,16 @@ test("DS.Store passes only needed guids to findMany", function() {
 
   equals(get(objects, 'length'), 6, "the ModelArray returned from findMany has all the objects");
 
-  for (var i=0; i<3; i++) {
-    var object = objects.objectAt(i), hash = array[i];
+  var i, object, hash;
+  for (i=0; i<3; i++) {
+    object = objects.objectAt(i);
+    hash = array[i];
 
     equals(get(object, 'data'), hash);
   }
 
-  for (var i=3; i<6; i++) {
-    var object = objects.objectAt(i);
+  for (i=3; i<6; i++) {
+    object = objects.objectAt(i);
     ok(currentType.detectInstance(object), "objects are instances of the ModelArray's type");
   }
 });
@@ -257,7 +259,7 @@ test("loadMany takes an optional Object and passes it on to the Adapter", functi
 
   var adapter = DS.Adapter.create({
     findQuery: function(store, type, query) {
-      equal(type, Person, "The type was Person")
+      equal(type, Person, "The type was Person");
       equal(query, passedQuery, "The query was passed in");
     }
   });
@@ -290,7 +292,7 @@ test("a new model of a particular type is created via store.create(type)", funct
   var store = DS.Store.create();
   var Person = DS.Model.extend();
 
-  var person = store.create(Person);
+  var person = store.addModel(Person);
 
   equal(get(person, 'isLoaded'), true, "A newly created model is loaded");
   equal(get(person, 'isNew'), true, "A newly created model is new");
@@ -305,7 +307,7 @@ test("an initial data hash can be provided via store.create(type, hash)", functi
   var store = DS.Store.create();
   var Person = DS.Model.extend();
 
-  var person = store.create(Person, { name: "Brohuda Katz" });
+  var person = store.addModel(Person, { name: "Brohuda Katz" });
 
   equal(get(person, 'isLoaded'), true, "A newly created model is loaded");
   equal(get(person, 'isNew'), true, "A newly created model is new");
@@ -318,7 +320,7 @@ test("if an id is supplied in the initial data hash, it can be looked up using `
   var store = DS.Store.create();
   var Person = DS.Model.extend();
 
-  var person = store.create(Person, { id: 1, name: "Brohuda Katz" });
+  var person = store.addModel(Person, { id: 1, name: "Brohuda Katz" });
 
   var again = store.find(Person, 1);
 
@@ -338,7 +340,7 @@ test("a model receives a didLoad callback when it has finished loading", functio
 
   var adapter = DS.Adapter.create({
     find: function(store, type, id) {
-      store.load(Person, 1, { id: 1, name: "Foo" })
+      store.load(Person, 1, { id: 1, name: "Foo" });
     }
   });
 
@@ -361,11 +363,11 @@ test("a model receives a didUpdate callback when it has finished updating", func
 
   var adapter = DS.Adapter.create({
     find: function(store, type, id) {
-      store.load(Person, 1, { id: 1, name: "Foo" })
+      store.load(Person, 1, { id: 1, name: "Foo" });
     },
 
-    update: function(store, type, model) {
-      store.didUpdateModel(model)
+    updateModel: function(store, type, model) {
+      store.didUpdateModel(model);
     }
   });
 
@@ -392,8 +394,8 @@ test("a model receives a didUpdate callback when it has finished updating", func
   });
 
   var adapter = DS.Adapter.create({
-    create: function(store, type, model) {
-      store.didCreateModel(model, {})
+    createModel: function(store, type, model) {
+      store.didCreateModel(model, {});
     }
   });
 
@@ -403,7 +405,7 @@ test("a model receives a didUpdate callback when it has finished updating", func
 
   equal(callCount, 0, "precond - didUpdate callback was not called yet");
 
-  var person = store.create(Person, { name: "Newt Gingrich" });
+  var person = store.addModel(Person, { name: "Newt Gingrich" });
   store.commit();
 
   equal(callCount, 1, "didCreate called after commit");
