@@ -252,7 +252,7 @@ To include a model, return `true`. If a model should not be included,
 return `false` or `undefined`.
 
 ```javascript
-var oldPeople = store.filter(App.Person, function(data) {
+var oldPeople = App.store.filter(App.Person, function(data) {
     if (data.age > 80) { return true; }
 });
 ```
@@ -262,7 +262,7 @@ var oldPeople = store.filter(App.Person, function(data) {
 You can create new model with `create()`:
 
 ```javascript
-var wycats = store.create(App.Person,  { name: "Brohuda" });
+var wycats = App.store.create(App.Person,  { name: "Brohuda" });
 ```
 
 New models are not saved back to the persistence layer until the
