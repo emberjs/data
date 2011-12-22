@@ -379,7 +379,11 @@ DS.hasMany = function(type, options) {
 DS.attr.transforms = {
   string: {
     from: function(serialized) {
-      return String(serialized);
+      if ( serialized === null || serialized === undefined ) {
+        return ""
+      } else {
+        return String(serialized);
+      }
     },
 
     to: function(deserialized) {
