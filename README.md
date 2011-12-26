@@ -124,7 +124,7 @@ App.Tag = DS.Model.extend({
 
 App.Person = DS.Model.extend({
     name: DS.attr('string'),
-    tags: DS.hasMany(Tag)
+    tags: DS.hasMany(App.Tag)
 });
 ```
 
@@ -387,7 +387,7 @@ App.Person.reopenClass({
 
 DS.Adapter.create({
     find: function(store, type, id) {
-        var url = type.get('url');
+        var url = type.url;
         url = url.fmt(id);
 
         jQuery.getJSON(url, function(data) {
@@ -427,7 +427,7 @@ App.Person.reopenClass({
 
 DS.Adapter.create({
     findMany: function(store, type, ids) {
-        var url = type.get('url');
+        var url = type.url;
         url = url.fmt(ids.join(','));
         
         jQuery.getJSON(url, function(data) {
@@ -475,7 +475,7 @@ App.Person.reopenClass({
 
 DS.Adapter.create({
     findQuery: function(store, type, query, modelArray) {
-        var url = type.get('collectionUrl');
+        var url = type.collectionUrl;
         
         jQuery.getJSON(url, query, function(data) {
             // data is expected to be an Array of Hashes, in an order
@@ -524,7 +524,7 @@ App.Person.reopenClass({
 
 DS.Adapter.create({
     create: function(store, type, model) {
-        var url = type.get('url');
+        var url = type.url;
 
         jQuery.ajax({
             url: url.fmt(model.get('id')),
@@ -558,7 +558,7 @@ App.Person.reopenClass({
 DS.Adapter.create({
     createMany: function(store, type, array) {
         jQuery.ajax({
-            url: type.get('collectionUrl'),
+            url: type.collectionUrl,
             data: array.mapProperty('data'),
             dataType: 'json',
             type: 'POST',
@@ -586,7 +586,7 @@ App.Person.reopenClass({
 
 DS.Adapter.create({
     update: function(store, type, model) {
-        var url = type.get('url');
+        var url = type.url;
 
         jQuery.ajax({
             url: url.fmt(model.get('id')),
@@ -616,7 +616,7 @@ App.Person.reopenClass({
 DS.Adapter.create({
     updateMany: function(store, type, array) {
         jQuery.ajax({
-            url: type.get('collectionUrl'),
+            url: type.collectionUrl,
             data: array.mapProperty('data'),
             dataType: 'json',
             type: 'PUT',
@@ -644,7 +644,7 @@ App.Person.reopenClass({
 
 DS.Adapter.create({
     deleteModel: function(store, type, model) {
-        var url = type.get('url');
+        var url = type.url;
 
         jQuery.ajax({
             url: url.fmt(model.get('id')),
@@ -675,7 +675,7 @@ App.Person.reopenClass({
 DS.Adapter.create({
     deleteMany: function(store, type, array) {
         jQuery.ajax({
-            url: type.get('collectionUrl'),
+            url: type.collectionUrl,
             data: array.mapProperty('data'),
             dataType: 'json',
             type: 'DELETE',
@@ -725,7 +725,7 @@ adapter has populated them.
 For example, if you request a `ModelArray`:
 
 ```javascript
-App.people = App.store.find(Person, { firstName: "Tom" });
+App.people = App.store.find(App.Person, { firstName: "Tom" });
 ```
 
 You will get back a `ModelArray` that is currently empty. Ember Data will then
