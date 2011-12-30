@@ -166,7 +166,7 @@ test("when a DS.Model updates its attributes, it is marked dirty and listed in t
 test("when a newly created DS.Model updates its attributes, it is still listed in the created queue", function() {
   expect(9);
 
-  var yehuda = store.create(Person, { id: 2 });
+  var yehuda = store.createRecord(Person, { id: 2 });
 
   set(yehuda, 'name', "Yehuda Katz");
   equal(get(yehuda, 'isDirty'), true, "The person is now dirty");
@@ -181,7 +181,7 @@ test("when a newly created DS.Model updates its attributes, it is still listed i
     ok(false, "should not get here");
   });
 
-  var tom = store.create(Person, { id: 1 });
+  var tom = store.createRecord(Person, { id: 1 });
   set(tom, 'name', "Tom Dale");
 
   equal(get(tom, 'isDirty'), true, "The person is now dirty");
