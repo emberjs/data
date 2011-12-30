@@ -181,6 +181,25 @@ App.Person = DS.Model.extend({
 });
 ```
 
+It is also possible to change the data attribute that an association is mapped
+to. Suppose the JSON for a person looked like this:
+
+```javascript
+{
+    "id": 2,
+    "name": "Carsten Nielsen",
+    "tag_ids": [1, 2]
+}
+```
+
+In this case, you would specify the key in the association like this:
+
+```javascript
+App.Person = DS.Model.extend({
+    tags: DS.hasMany(Tag, { key: 'tag_ids' })
+});
+```
+
 ### Finding a Specific Model Instance
 
 You can retrieve a model by its unique ID by using the `find` method:
