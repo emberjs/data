@@ -292,7 +292,7 @@ test("a new model of a particular type is created via store.create(type)", funct
   var store = DS.Store.create();
   var Person = DS.Model.extend();
 
-  var person = store.addModel(Person);
+  var person = store.createRecord(Person);
 
   equal(get(person, 'isLoaded'), true, "A newly created model is loaded");
   equal(get(person, 'isNew'), true, "A newly created model is new");
@@ -307,7 +307,7 @@ test("an initial data hash can be provided via store.create(type, hash)", functi
   var store = DS.Store.create();
   var Person = DS.Model.extend();
 
-  var person = store.addModel(Person, { name: "Brohuda Katz" });
+  var person = store.createRecord(Person, { name: "Brohuda Katz" });
 
   equal(get(person, 'isLoaded'), true, "A newly created model is loaded");
   equal(get(person, 'isNew'), true, "A newly created model is new");
@@ -320,7 +320,7 @@ test("if an id is supplied in the initial data hash, it can be looked up using `
   var store = DS.Store.create();
   var Person = DS.Model.extend();
 
-  var person = store.addModel(Person, { id: 1, name: "Brohuda Katz" });
+  var person = store.createRecord(Person, { id: 1, name: "Brohuda Katz" });
 
   var again = store.find(Person, 1);
 
@@ -366,7 +366,7 @@ test("a model receives a didUpdate callback when it has finished updating", func
       store.load(Person, 1, { id: 1, name: "Foo" });
     },
 
-    updateModel: function(store, type, model) {
+    updateRecord: function(store, type, model) {
       store.didUpdateModel(model);
     }
   });
@@ -394,7 +394,7 @@ test("a model receives a didUpdate callback when it has finished updating", func
   });
 
   var adapter = DS.Adapter.create({
-    createModel: function(store, type, model) {
+    createRecord: function(store, type, model) {
       store.didCreateModel(model, {});
     }
   });
@@ -405,7 +405,7 @@ test("a model receives a didUpdate callback when it has finished updating", func
 
   equal(callCount, 0, "precond - didUpdate callback was not called yet");
 
-  var person = store.addModel(Person, { name: "Newt Gingrich" });
+  var person = store.createRecord(Person, { name: "Newt Gingrich" });
   store.commit();
 
   equal(callCount, 1, "didCreate called after commit");

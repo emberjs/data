@@ -141,7 +141,7 @@ DS.Store = SC.Object.extend({
   // . CREATE NEW MODEL .
   // ....................
 
-  addModel: function(type, hash) {
+  createRecord: function(type, hash) {
     hash = hash || {};
 
     var id = hash[getPath(type, 'proto.primaryKey')] || null;
@@ -166,8 +166,8 @@ DS.Store = SC.Object.extend({
   // . DELETE MODEL .
   // ................
 
-  removeModel: function(model) {
-    model.destroy();
+  deleteRecord: function(model) {
+    model.deleteRecord();
   },
 
   // ...............

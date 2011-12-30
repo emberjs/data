@@ -74,7 +74,7 @@ test("a filtered model array includes created elements", function() {
 
   equal(get(modelArray, 'length'), 2, "precond - The model Array should have the filtered objects on it");
 
-  person = store.addModel(Person, { name: "Scumbag Koz" });
+  person = store.createRecord(Person, { name: "Scumbag Koz" });
 
   equal(get(modelArray, 'length'), 3, "The model array has the new object on it");
 });

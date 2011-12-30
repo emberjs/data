@@ -142,7 +142,7 @@ test("when a store is committed, the adapter's commit method is called with crea
     });
   };
 
-  var tom = store.addModel(Person, { name: "Tom Dale" });
+  var tom = store.createRecord(Person, { name: "Tom Dale" });
 
   store.commit();
 
@@ -189,8 +189,8 @@ test("by default, commit calls createMany once per type", function() {
     store.didCreateModels(Person, array, records);
   };
 
-  var tom = store.addModel(Person, { name: "Tom Dale", updatedAt: null });
-  var yehuda = store.addModel(Person, { name: "Yehuda Katz" });
+  var tom = store.createRecord(Person, { name: "Tom Dale", updatedAt: null });
+  var yehuda = store.createRecord(Person, { name: "Yehuda Katz" });
 
   var callCount = 0;
   tom.addObserver('updatedAt', function() {
@@ -262,7 +262,7 @@ test("by default, createMany calls create once per record", function() {
   expect(6);
   var count = 1;
 
-  adapter.createModel = function(store, type, model) {
+  adapter.createRecord = function(store, type, model) {
     equal(type, Person, "the type is correct");
 
     if (count === 1) {
@@ -280,8 +280,8 @@ test("by default, createMany calls create once per record", function() {
     count++;
   };
 
-  var tom = store.addModel(Person, { name: "Tom Dale" });
-  var yehuda = store.addModel(Person, { name: "Yehuda Katz" });
+  var tom = store.createRecord(Person, { name: "Tom Dale" });
+  var yehuda = store.createRecord(Person, { name: "Yehuda Katz" });
 
   store.commit();
   equal(tom, store.find(Person, 1), "Once an ID is in, find returns the same object");
@@ -289,12 +289,12 @@ test("by default, createMany calls create once per record", function() {
   store.commit();
 });
 
-test("by default, updateMany calls updateModel once per record", function() {
+test("by default, updateMany calls updateRecord once per record", function() {
   expect(4);
 
   var count = 0;
 
-  adapter.updateModel = function(store, type, model) {
+  adapter.updateRecord = function(store, type, model) {
     equal(type, Person, "the type is correct");
 
     if (count === 0) {
@@ -325,12 +325,12 @@ test("by default, updateMany calls updateModel once per record", function() {
   store.commit();
 });
 
-test("by default, deleteMany calls deleteModel once per record", function() {
+test("by default, deleteMany calls deleteRecord once per record", function() {
   expect(4);
 
   var count = 0;
 
-  adapter.deleteModel = function(store, type, model) {
+  adapter.deleteRecord = function(store, type, model) {
     equal(type, Person, "the type is correct");
 
     if (count === 0) {

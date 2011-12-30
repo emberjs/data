@@ -260,6 +260,11 @@ DS.Model = SC.Object.extend({
     stateManager.send('setProperty', { key: key, value: value });
   },
 
+  deleteRecord: function() {
+    var stateManager = get(this, 'stateManager');
+    stateManager.send('delete');
+  },
+
   destroy: function() {
     this.deleteRecord();
     this._super();
