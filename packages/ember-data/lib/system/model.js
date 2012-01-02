@@ -345,8 +345,17 @@ var referencedFindMany = function(store, type, data, key) {
   return data ? get(data, key) : [];
 };
 
+var embeddedFindOne = function(store, type, data, key) {
+  var association = data ? get(data, key) : null;
+  return association ? store.load(type, association).id : null;
+};
+
+var referencedFindOne = function(store, type, data, key) {
+  return data ? get(data, key) : null;
+};
+
 DS.hasMany = function(type, options) {
-  var embedded = options && options.embedded, load;
+  var embedded = options && options.embedded;
 
   findMany = embedded ? embeddedFindMany : referencedFindMany;
 
@@ -374,6 +383,34 @@ DS.hasMany = function(type, options) {
     });
 
     return hasMany;
+  }).property().cacheable();
+};
+
+DS.hasOne = function(type, options) {
+  var embedded = options && options.embedded;
+  var hasOne;
+
+  findOne = embedded ? embeddedFindOne : referencedFindOne;
+
+  return SC.computed(function(key) {
+    if (hasOne === undefined) {
+      var data = get(this, 'data'), id;
+      var store = get(this, 'store');
+
+      key = (options && options.key) ? options.key : key;
+      id = findOne(store, type, data, key);
+      hasOne = id ? store.find(type, id) : null;
+
+      SC.addObserver(this, 'data', this, function() {
+        var data = get(this, 'data');
+
+        var id = findOne(store, type, data, key);
+        hasOne = id ? store.find(type, id) : null;
+
+        this.notifyPropertyChange(key);
+      });
+    }
+    return hasOne;
   }).property().cacheable();
 };
 
