@@ -414,6 +414,8 @@ DS.hasOne = function(type, options) {
       var data = get(this, 'data'), id;
       var store = get(this, 'store');
 
+      if (typeof type === 'string') { type = getPath(this, type); }
+
       key = (options && options.key) ? options.key : key;
       id = findOne(store, type, data, key);
       hasOne = id ? store.find(type, id) : null;
