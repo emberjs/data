@@ -154,3 +154,29 @@ test("updating the content of a ModelArray updates its content", function() {
   tag = tags.objectAt(0);
   equal(get(tag, 'name'), "smarmy", "the lookup was updated");
 });
+
+module("DS.hasOne");
+
+test("hasOne lazily loads associations as needed", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.hasOne(Tag)
+  });
+
+  var store = DS.Store.create();
+  store.loadMany(Tag, [5, 2, 12], [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
+  store.load(Person, 1, { id: 1, name: "Tom Dale", tag: 5 });
+
+  var person = store.find(Person, 1);
+  equals(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
+
+  equals(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
+  equals(getPath(person, 'tag.name'), "friendly", "the tag shuld have name");
+
+  strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
+  strictEqual(get(person, 'tag'), store.find(Tag, 5), "association object is the same as object retrieved directly");
+});
