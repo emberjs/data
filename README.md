@@ -552,7 +552,7 @@ DS.Adapter.create({
                 // In general, this hash will contain a new id, which the
                 // store will now use to index the model. Future calls to
                 // store.find(type, id) will find this model.
-                store.didCreateModel(model, data);
+                store.didCreateRecord(model, data);
             }
         });
     })
@@ -581,7 +581,7 @@ DS.Adapter.create({
             success: function(data) {
                 // data is an array of hashes in the same order as
                 // the original models that were sent.
-                store.didCreateModels(type, array, data);
+                store.didCreateRecords(type, array, data);
             }
         });
     })
@@ -590,8 +590,8 @@ DS.Adapter.create({
 
 ### updateRecord()
 
-Update is implemented the same as `create()`, except after the model has been
-saved, you should call the store's `didUpdateModel()` method.
+Update is implemented the same as `createRecord()`, except after the model has been
+saved, you should call the store's `didUpdateRecord()` method.
 
 ```javascript
 App.Person = DS.Model.extend();
@@ -611,7 +611,7 @@ DS.Adapter.create({
             success: function(data) {
                 // data is a hash of key/value pairs representing the model
                 // in its current state on the server.
-                store.didUpdateModel(model, data);
+                store.didUpdateRecord(model, data);
             }
         });
     })
@@ -639,7 +639,7 @@ DS.Adapter.create({
             success: function(data) {
                 // data is an array of hashes in the same order as
                 // the original models that were sent.
-                store.didUpdateModels(array);
+                store.didUpdateRecords(array);
             }
         });
     })
@@ -649,7 +649,7 @@ DS.Adapter.create({
 ### deleteRecord()
 
 To delete a model, implement the `deleteRecord()` method, and call the store's
-`didDeleteModel()` method when completed.
+`didDeleteRecord()` method when completed.
 
 ```javascript
 App.Person = DS.Model.extend();
@@ -667,7 +667,7 @@ DS.Adapter.create({
             type: 'DELETE',
             
             success: function() {
-                store.didDeleteModel(model);
+                store.didDeleteRecord(model);
             }
         });
     })
@@ -696,7 +696,7 @@ DS.Adapter.create({
             type: 'DELETE',
             
             success: function(data) {
-                store.didDeleteModels(array);
+                store.didDeleteRecords(array);
             }
         });
     })
