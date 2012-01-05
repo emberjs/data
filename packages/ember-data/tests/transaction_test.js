@@ -117,4 +117,3 @@ test("after a model is added to a transaction then deleted, it is not committed 
   transaction.commit();
   equals(commitCalls, 1, "commit was called when committing the transaction");
 });
-
