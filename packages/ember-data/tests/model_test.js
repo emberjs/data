@@ -243,7 +243,6 @@ test("when a newly created DS.Model updates its attributes, it is still listed i
   });
 });
 
-
 test("when a DS.Model is dirty, attempting to `load` new data raises an exception", function() {
   var yehuda = store.find(Person, 2);
   set(yehuda, 'name', "Yehuda Katz");
