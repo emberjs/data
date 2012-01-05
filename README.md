@@ -278,10 +278,10 @@ var oldPeople = App.store.filter(App.Person, function(data) {
 
 ### Creating New Models
 
-You can create new model with `create()`:
+You can create new model with `createRecord()`:
 
 ```javascript
-var wycats = App.store.create(App.Person,  { name: "Brohuda" });
+var wycats = App.store.createRecord(App.Person,  { name: "Brohuda" });
 ```
 
 New models are not saved back to the persistence layer until the
@@ -295,20 +295,16 @@ allows you to batch changes.
 
 ### Deleting Models
 
-To delete a model, call its `deleteModel()` method:
+To delete a model, call its `deleteRecord()` method:
 
 ```javascript
 var person = App.store.find(App.Person, 1);
-person.deleteModel();
+person.deleteRecord();
 ```
 
 The model will not be deleted in the persistence layer until the store's
 `commit()` method is called. However, deleted models will immediately be
 removed from model arrays and associations.
-
-**Note**: It's called `deleteModel` instead of `delete` because Internet Explorer
-will complain. Sorry.
-
 
 ### Model Lifecycle
 
@@ -524,7 +520,7 @@ models that have already been loaded will be included in the results. Otherwise,
 this is your opportunity to load any unloaded models of this type. The
 implementation is similar to findMany(); see above for an example.
             
-### create()
+### createRecord()
 
 When `commit()` is called on the store and there are models that need to be
 created on the server, the store will call the adapter's `create()` method.
@@ -542,7 +538,7 @@ App.Person.reopenClass({
 });
 
 DS.Adapter.create({
-    create: function(store, type, model) {
+    createRecord: function(store, type, model) {
         var url = type.url;
 
         jQuery.ajax({
@@ -556,16 +552,16 @@ DS.Adapter.create({
                 // In general, this hash will contain a new id, which the
                 // store will now use to index the model. Future calls to
                 // store.find(type, id) will find this model.
-                store.didCreateModel(model, data);
+                store.didCreateRecord(model, data);
             }
         });
     })
 });
 ```
 
-### createMany()
+### createRecords()
 
-For better efficiency, you can implement a `createMany` method on your adapter,
+For better efficiency, you can implement a `createRecords` method on your adapter,
 which should send all of the new models to the server at once.
 
 ```javascript
@@ -575,7 +571,7 @@ App.Person.reopenClass({
 });
 
 DS.Adapter.create({
-    createMany: function(store, type, array) {
+    createRecords: function(store, type, array) {
         jQuery.ajax({
             url: type.collectionUrl,
             data: array.mapProperty('data'),
@@ -585,17 +581,17 @@ DS.Adapter.create({
             success: function(data) {
                 // data is an array of hashes in the same order as
                 // the original models that were sent.
-                store.didCreateModels(type, array, data);
+                store.didCreateRecords(type, array, data);
             }
         });
     })
 });
 ```
 
-### update()
+### updateRecord()
 
-Update is implemented the same as `create()`, except after the model has been
-saved, you should call the store's `didUpdateModel()` method.
+Update is implemented the same as `createRecord()`, except after the model has been
+saved, you should call the store's `didUpdateRecord()` method.
 
 ```javascript
 App.Person = DS.Model.extend();
@@ -604,7 +600,7 @@ App.Person.reopenClass({
 });
 
 DS.Adapter.create({
-    update: function(store, type, model) {
+    updateRecord: function(store, type, model) {
         var url = type.url;
 
         jQuery.ajax({
@@ -615,16 +611,16 @@ DS.Adapter.create({
             success: function(data) {
                 // data is a hash of key/value pairs representing the model
                 // in its current state on the server.
-                store.didUpdateModel(model, data);
+                store.didUpdateRecord(model, data);
             }
         });
     })
 });
 ```
 
-### updateMany()
+### updateRecords()
 
-Again, `updateMany()` is very similar to `createMany()`.
+Again, `updateRecords()` is very similar to `createRecords()`.
 
 ```javascript
 App.Person = DS.Model.extend();
@@ -633,7 +629,7 @@ App.Person.reopenClass({
 });
 
 DS.Adapter.create({
-    updateMany: function(store, type, array) {
+    updateRecords: function(store, type, array) {
         jQuery.ajax({
             url: type.collectionUrl,
             data: array.mapProperty('data'),
@@ -643,17 +639,17 @@ DS.Adapter.create({
             success: function(data) {
                 // data is an array of hashes in the same order as
                 // the original models that were sent.
-                store.didUpdateModels(array);
+                store.didUpdateRecords(array);
             }
         });
     })
 });
 ```
 
-### deleteModel()
+### deleteRecord()
 
-To delete a model, implement the `deleteModel()` method, and call the store's
-`didDeleteModel()` method when completed.
+To delete a model, implement the `deleteRecord()` method, and call the store's
+`didDeleteRecord()` method when completed.
 
 ```javascript
 App.Person = DS.Model.extend();
@@ -662,7 +658,7 @@ App.Person.reopenClass({
 });
 
 DS.Adapter.create({
-    deleteModel: function(store, type, model) {
+    deleteRecord: function(store, type, model) {
         var url = type.url;
 
         jQuery.ajax({
@@ -671,17 +667,17 @@ DS.Adapter.create({
             type: 'DELETE',
             
             success: function() {
-                store.didDeleteModel(model);
+                store.didDeleteRecord(model);
             }
         });
     })
 });
 ```
 
-**Note**: The method is called `deleteModel` instead of `delete` because
+**Note**: The method is called `deleteRecord` instead of `delete` because
 Internet Explorer blows up if you have a method called `delete`. Sorry.
 
-### deleteMany()
+### deleteRecords()
 
 Are you getting it?
 
@@ -692,7 +688,7 @@ App.Person.reopenClass({
 });
 
 DS.Adapter.create({
-    deleteMany: function(store, type, array) {
+    deleteRecords: function(store, type, array) {
         jQuery.ajax({
             url: type.collectionUrl,
             data: array.mapProperty('data'),
@@ -700,7 +696,7 @@ DS.Adapter.create({
             type: 'DELETE',
             
             success: function(data) {
-                store.didDeleteModels(array);
+                store.didDeleteRecords(array);
             }
         });
     })
@@ -719,15 +715,15 @@ Here's what the default adapter's `commit()` method looks like:
 ```javascript
 commit: function(store, commitDetails) {
   commitDetails.updated.eachType(function(type, array) {
-    this.updateMany(store, type, array.slice());
+    this.updateRecords(store, type, array.slice());
   }, this);
 
   commitDetails.created.eachType(function(type, array) {
-    this.createMany(store, type, array.slice());
+    this.createRecords(store, type, array.slice());
   }, this);
 
   commitDetails.deleted.eachType(function(type, array) {
-    this.deleteMany(store, type, array.slice());
+    this.deleteRecords(store, type, array.slice());
   }, this);
 }
 ```
