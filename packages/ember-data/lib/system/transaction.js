@@ -119,7 +119,7 @@ DS.Transaction = Ember.Object.extend({
   create: function(type, hash) {
     var store = get(this, 'store');
 
-    return store.create(type, hash, this);
+    return store.createRecord(type, hash, this);
   },
 
   add: function(model) {
