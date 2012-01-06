@@ -144,7 +144,7 @@ DS.Store = SC.Object.extend({
   // . CREATE NEW MODEL .
   // ....................
 
-  create: function(type, hash, transaction) {
+  createRecord: function(type, hash, transaction) {
     hash = hash || {};
 
     var id = hash[getPath(type, 'proto.primaryKey')] || null;
@@ -175,8 +175,8 @@ DS.Store = SC.Object.extend({
   // . DELETE MODEL .
   // ................
 
-  deleteModel: function(model) {
-    model.deleteModel();
+  deleteRecord: function(model) {
+    model.deleteRecord();
   },
 
   // ...............
@@ -380,19 +380,19 @@ DS.Store = SC.Object.extend({
     get(this, 'defaultTransaction').commit();
   },
 
-  didUpdateModels: function(array, hashes) {
+  didUpdateRecords: function(array, hashes) {
     if (arguments.length === 2) {
       array.forEach(function(model, idx) {
-        this.didUpdateModel(model, hashes[idx]);
+        this.didUpdateRecord(model, hashes[idx]);
       }, this);
     } else {
       array.forEach(function(model) {
-        this.didUpdateModel(model);
+        this.didUpdateRecord(model);
       }, this);
     }
   },
 
-  didUpdateModel: function(model, hash) {
+  didUpdateRecord: function(model, hash) {
     if (arguments.length === 2) {
       var clientId = get(model, 'clientId');
       var data = this.clientIdToHashMap(model.constructor);
@@ -404,17 +404,17 @@ DS.Store = SC.Object.extend({
     model.adapterDidUpdate();
   },
 
-  didDeleteModels: function(array) {
+  didDeleteRecords: function(array) {
     array.forEach(function(model) {
       model.adapterDidDelete();
     });
   },
 
-  didDeleteModel: function(model) {
+  didDeleteRecord: function(model) {
     model.adapterDidDelete();
   },
 
-  didCreateModels: function(type, array, hashes) {
+  didCreateRecords: function(type, array, hashes) {
     var id, clientId, primaryKey = getPath(type, 'proto.primaryKey');
 
     var idToClientIdMap = this.idToClientIdMap(type);
@@ -436,7 +436,7 @@ DS.Store = SC.Object.extend({
     }
   },
 
-  didCreateModel: function(model, hash) {
+  didCreateRecord: function(model, hash) {
     var type = model.constructor;
 
     var id, clientId, primaryKey = getPath(type, 'proto.primaryKey');

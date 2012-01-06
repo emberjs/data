@@ -123,7 +123,7 @@ test("when a store is committed, the adapter's commit method is called with upda
     records.updated.eachType(function(type, array) {
       equal(type, Person, "the type is correct");
       equal(get(array, 'length'), 1, "the array is the right length");
-      store.didUpdateModels(array);
+      store.didUpdateRecords(array);
     });
   };
 
@@ -149,11 +149,11 @@ test("when a store is committed, the adapter's commit method is called with crea
     records.created.eachType(function(type, array) {
       equal(type, Person, "the type is correct");
       equal(get(array, 'length'), 1, "the array is the right length");
-      store.didCreateModels(Person, array, [{ id: 1, name: "Tom Dale" }])
+      store.didCreateRecords(Person, array, [{ id: 1, name: "Tom Dale" }]);
     });
   };
 
-  var tom = store.create(Person, { name: "Tom Dale" });
+  var tom = store.createRecord(Person, { name: "Tom Dale" });
 
   store.commit();
 
@@ -177,31 +177,31 @@ test("when a store is committed, the adapter's commit method is called with dele
     records.deleted.eachType(function(type, array) {
       equal(type, Person, "the type is correct");
       equal(get(array, 'length'), 1, "the array is the right length");
-      store.didDeleteModels(array);
+      store.didDeleteRecords(array);
     });
   };
 
   store.load(Person, { id: 1, name: "Tom Dale" });
   var tom = store.find(Person, 1);
 
-  tom.deleteModel();
+  tom.deleteRecord();
   store.commit();
 
   equal(get(tom, 'isDeleted'), true, "model is marked as deleted");
 });
 
-test("by default, commit calls createMany once per type", function() {
+test("by default, commit calls createRecords once per type", function() {
   expect(6);
 
-  adapter.createMany = function(store, type, array) {
+  adapter.createRecords = function(store, type, array) {
     equal(type, Person, "the type is correct");
     equal(get(array, 'length'), 2, "the array is the right length");
     var records = [{ id: 1, name: "Tom Dale", updatedAt: 'right nao' }, { id: 2, name: "Yehuda Katz" }];
-    store.didCreateModels(Person, array, records);
+    store.didCreateRecords(Person, array, records);
   };
 
-  var tom = store.create(Person, { name: "Tom Dale", updatedAt: null });
-  var yehuda = store.create(Person, { name: "Yehuda Katz" });
+  var tom = store.createRecord(Person, { name: "Tom Dale", updatedAt: null });
+  var yehuda = store.createRecord(Person, { name: "Yehuda Katz" });
 
   var callCount = 0;
   tom.addObserver('updatedAt', function() {
@@ -217,10 +217,10 @@ test("by default, commit calls createMany once per type", function() {
   store.commit();
 });
 
-test("by default, commit calls updateMany once per type", function() {
+test("by default, commit calls updateRecords once per type", function() {
   expect(9);
 
-  adapter.updateMany = function(store, type, array) {
+  adapter.updateRecords = function(store, type, array) {
     equal(type, Person, "the type is correct");
     equal(get(array, 'length'), 2, "the array is the right length");
 
@@ -228,7 +228,7 @@ test("by default, commit calls updateMany once per type", function() {
       equal(get(item, 'isSaving'), true, "the item is saving");
     });
 
-    store.didUpdateModels(array);
+    store.didUpdateRecords(array);
 
     array.forEach(function(item) {
       equal(get(item, 'isSaving'), false, "the item is no longer saving");
@@ -253,14 +253,14 @@ test("by default, commit calls updateMany once per type", function() {
   store.commit();
 });
 
-test("updateMany can return an array of Hashes to update the store with", function() {
+test("updateRecords can return an array of Hashes to update the store with", function() {
   expect(8);
 
-  adapter.updateMany = function(store, type, array) {
+  adapter.updateRecords = function(store, type, array) {
     equal(type, Person, "the type is correct");
     equal(get(array, 'length'), 2, "the array is the right length");
 
-    store.didUpdateModels(array, [ { id: 1, name: "Tom Dale", updatedAt: "now" }, { id: 2, name: "Yehuda Katz", updatedAt: "now!" } ]);
+    store.didUpdateRecords(array, [ { id: 1, name: "Tom Dale", updatedAt: "now" }, { id: 2, name: "Yehuda Katz", updatedAt: "now!" } ]);
 
     equal(get(array[0], 'updatedAt'), "now", "the data was inserted");
     equal(get(array[1], 'updatedAt'), "now!", "the data was inserted");
@@ -286,13 +286,13 @@ test("updateMany can return an array of Hashes to update the store with", functi
   store.commit();
 });
 
-test("by default, commit calls deleteMany once per type", function() {
+test("by default, commit calls deleteRecords once per type", function() {
   expect(4);
 
-  adapter.deleteMany = function(store, type, array) {
+  adapter.deleteRecords = function(store, type, array) {
     equal(type, Person, "the type is correct");
     equal(get(array, 'length'), 2, "the array is the right length");
-    store.didDeleteModels(array);
+    store.didDeleteRecords(array);
   };
 
   store.load(Person, { id: 1, name: "Braaaahm Dale" });
@@ -301,8 +301,8 @@ test("by default, commit calls deleteMany once per type", function() {
   var tom = store.find(Person, 1);
   var yehuda = store.find(Person, 2);
 
-  tom.deleteModel();
-  yehuda.deleteModel();
+  tom.deleteRecord();
+  yehuda.deleteRecord();
   store.commit();
 
   ok(get(tom, 'isDeleted'), "model is marked as deleted");
@@ -312,11 +312,11 @@ test("by default, commit calls deleteMany once per type", function() {
   store.commit();
 });
 
-test("by default, createMany calls create once per record", function() {
+test("by default, createRecords calls create once per record", function() {
   expect(8);
   var count = 1;
 
-  adapter.create = function(store, type, model) {
+  adapter.createRecord = function(store, type, model) {
     equal(type, Person, "the type is correct");
 
     if (count === 1) {
@@ -331,14 +331,14 @@ test("by default, createMany calls create once per record", function() {
     hash.id = count;
     hash.updatedAt = "now";
 
-    store.didCreateModel(model, hash);
+    store.didCreateRecord(model, hash);
     equal(get(model, 'updatedAt'), "now", "the model should receive the new information");
 
     count++;
   };
 
-  var tom = store.create(Person, { name: "Tom Dale" });
-  var yehuda = store.create(Person, { name: "Yehuda Katz" });
+  var tom = store.createRecord(Person, { name: "Tom Dale" });
+  var yehuda = store.createRecord(Person, { name: "Yehuda Katz" });
 
   store.commit();
   equal(tom, store.find(Person, 1), "Once an ID is in, find returns the same object");
@@ -346,12 +346,12 @@ test("by default, createMany calls create once per record", function() {
   store.commit();
 });
 
-test("by default, updateMany calls update once per record", function() {
+test("by default, updateRecords calls updateRecord once per record", function() {
   expect(10);
 
   var count = 0;
 
-  adapter.update = function(store, type, model) {
+  adapter.updateRecord = function(store, type, model) {
     equal(type, Person, "the type is correct");
 
     if (count === 0) {
@@ -366,7 +366,7 @@ test("by default, updateMany calls update once per record", function() {
 
     equal(model.get('isSaving'), true, "model is saving");
 
-    store.didUpdateModel(model);
+    store.didUpdateRecord(model);
 
     equal(model.get('isSaving'), false, "model is no longer saving");
     equal(model.get('isLoaded'), true, "model is saving");
@@ -387,22 +387,22 @@ test("by default, updateMany calls update once per record", function() {
   store.commit();
 });
 
-test("calling store.didUpdateModel can provide an optional hash", function() {
+test("calling store.didUpdateRecord can provide an optional hash", function() {
   expect(8);
 
   var count = 0;
 
-  adapter.update = function(store, type, model) {
+  adapter.updateRecord = function(store, type, model) {
     equal(type, Person, "the type is correct");
 
     if (count === 0) {
       equal(get(model, 'name'), "Tom Dale");
-      store.didUpdateModel(model, { id: 1, name: "Tom Dale", updatedAt: "now" });
+      store.didUpdateRecord(model, { id: 1, name: "Tom Dale", updatedAt: "now" });
       equal(get(model, 'isDirty'), false, "the model should not be dirty");
       equal(get(model, 'updatedAt'), "now", "the hash was updated");
     } else if (count === 1) {
       equal(get(model, 'name'), "Yehuda Katz");
-      store.didUpdateModel(model, { id: 2, name: "Yehuda Katz", updatedAt: "now!" });
+      store.didUpdateRecord(model, { id: 2, name: "Yehuda Katz", updatedAt: "now!" });
       equal(model.get('isDirty'), false, "the model should not be dirty");
       equal(get(model, 'updatedAt'), "now!", "the hash was updated");
     } else {
@@ -427,12 +427,12 @@ test("calling store.didUpdateModel can provide an optional hash", function() {
   store.commit();
 });
 
-test("by default, deleteMany calls deleteModel once per record", function() {
+test("by default, deleteRecords calls deleteRecord once per record", function() {
   expect(4);
 
   var count = 0;
 
-  adapter.deleteModel = function(store, type, model) {
+  adapter.deleteRecord = function(store, type, model) {
     equal(type, Person, "the type is correct");
 
     if (count === 0) {
@@ -445,7 +445,7 @@ test("by default, deleteMany calls deleteModel once per record", function() {
 
     count++;
 
-    store.didDeleteModel(model);
+    store.didDeleteRecord(model);
   };
 
   store.load(Person, { id: 1, name: "Tom Dale" });
@@ -454,8 +454,8 @@ test("by default, deleteMany calls deleteModel once per record", function() {
   var tom = store.find(Person, 1);
   var yehuda = store.find(Person, 2);
 
-  tom.deleteModel();
-  yehuda.deleteModel();
+  tom.deleteRecord();
+  yehuda.deleteRecord();
   store.commit();
 
   // there is nothing to commit, so eachType won't do anything
