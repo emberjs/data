@@ -373,11 +373,11 @@ DS.attr = function(type, options) {
     if (value === undefined) {
       if (!data) { return; }
 
-      return transformFrom(data[key]);
+      return transformFrom(data[key], this);
     } else {
       ember_assert("You cannot set a model attribute before its data is loaded.", !!data);
 
-      value = transformTo(value);
+      value = transformTo(value, this);
       this.setProperty(key, value);
       return value;
     }

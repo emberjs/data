@@ -109,6 +109,39 @@ test("a DS.Model can describe Date attributes", function() {
   convertsWhenSet('date', date, dateString);
 });
 
+test("a DS.Model attribute transform is given model instance to work with", function() {
+
+  DS.attr.transforms['test'] = {
+    from: function(value, instance) {
+      if (instance === model) {
+        counter++;
+      }
+      return value;
+    },
+
+    to: function(value, instance) {
+      if (instance === model) {
+        counter++;
+      }
+      return value;
+    }
+  };
+
+  var model = DS.Model.create({
+    test: DS.attr('test')
+  });
+
+  var counter = 0;
+
+  model.loadingData();
+  model.setData({});
+
+  model.set('test', "toto")
+  equal(counter, 1, "a to transform get a reference on model instance");
+  model.get('test');
+  equal(counter, 2, "a from transform get a reference on model instance");
+});
+
 test("it can specify which key to use when looking up properties on the hash", function() {
   var model = DS.Model.create({
     name: DS.attr('string', { key: 'full_name' })
