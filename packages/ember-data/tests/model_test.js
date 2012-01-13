@@ -123,6 +123,18 @@ test("it can specify which key to use when looking up properties on the hash", f
   equals(get(model, 'name'), "Pete", "retrieves correct value");
 });
 
+test("when a DS.Model created with default value shuld have this value", function() {
+
+    var array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
+    var Person = DS.Model.extend({ name: DS.attr('string', {defaultValue: 'Toto'}) });
+    var store = DS.Store.create();
+    store.loadMany(Person, array);
+    store.createRecord(Person, {id: 4});
+
+    equal(store.find(Person, 1).get('name'), "Scumbag Dale", "defaultValue should not affect loaded value");
+    equal(store.find(Person, 4).get('name'), "Toto", "shuld have defaultValue");
+});
+
 var Person, store, array;
 
 module("DS.Model updating", {
