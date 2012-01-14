@@ -35,16 +35,19 @@ App.store = DS.Store.create();
 ```
     
 You can tell the store how to talk to your backend by specifying an *adapter*.
-By default, the store will assume a RESTful JSON API. However, you can specify
-alternate adapters by setting the `adapter` property:
+Ember Data comes with a RESTful JSON API adapter. You can specify this adapter
+by setting the `adapter` property:
 
 ```javascript
 App.store = DS.Store.create({
-    adapter: 'DS.localStorageAdapter'
+    adapter: DS.RESTAdapter.create({ bulkCommit: false })
 });
 ```
 
-NOTE: The default RESTful adapter is in progress. For Rails applications, it
+NOTE:
+* The RESTAdapter will send bulk commits to your server by default. If you're
+just getting started, turning this off might be helpful.
+* The default RESTful adapter is in progress. For Rails applications, it
 will work seamlessly with the `active_model_serializers` gem's conventions. In
 the meantime, see the section on rolling your own adapter.
 
