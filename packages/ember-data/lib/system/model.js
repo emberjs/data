@@ -80,7 +80,7 @@ var DirtyState = DS.State.extend({
     manager.goToState('saving');
   },
 
-  saving: DS.State.extend({
+  saving: DS.State.create({
     isSaving: true,
 
     didUpdate: function(manager) {
@@ -95,7 +95,7 @@ var DirtyState = DS.State.extend({
     }
   }),
 
-  invalid: DS.State.extend({
+  invalid: DS.State.create({
     isValid: false,
 
     setProperty: function(manager, context) {
