@@ -251,9 +251,7 @@ DS.Store = Ember.Object.extend({
       model = this.createModel(type, clientId);
 
       // let the adapter set the data, possibly async
-      var adapter = get(this, '_adapter');
-      if (adapter && adapter.find) { adapter.find(this, type, id); }
-      else { throw fmt("Adapter is either null or does not implement `find` method", this); }
+      this.callAdapter(type, id);
     }
 
     return model;
@@ -261,6 +259,23 @@ DS.Store = Ember.Object.extend({
 
   /** @private
   */
+  callAdapter: function(type, id, array) {
+    var adapter = get(this, '_adapter');
+    if (Em.isArray(id)) {
+      // id => ids, array => query
+      if (adapter && adapter.findMany) { adapter.findMany(this, type, id, array); }
+      else { throw "Adapter is either null or do not implement `findMany` method"; }
+    } else if (Em.typeOf(id) === 'object') {
+      // id => query, array => array
+      if (adapter && adapter.findQuery) { adapter.findQuery(this, type, id, array); }
+      else { throw "Adapter is either null or do not implement `findQuery` method"; }
+    } else {
+      // id => id
+      if (adapter && adapter.find) { adapter.find(this, type, id); }
+      else { throw "Adapter is either null or do not implement `find` method"; }
+    }
+  },
+
   findMany: function(type, ids, query) {
     var idToClientIdMap = this.idToClientIdMap(type);
     var data = this.clientIdToHashMap(type), needed;
@@ -284,9 +299,7 @@ DS.Store = Ember.Object.extend({
     }
 
     if ((needed && get(needed, 'length') > 0) || query) {
-      var adapter = get(this, '_adapter');
-      if (adapter && adapter.findMany) { adapter.findMany(this, type, needed, query); }
-      else { throw fmt("Adapter is either null or does not implement `findMany` method", this); }
+      this.callAdapter(type, needed, query);
     }
 
     return this.createModelArray(type, clientIds);
@@ -294,9 +307,7 @@ DS.Store = Ember.Object.extend({
 
   findQuery: function(type, query) {
     var array = DS.AdapterPopulatedModelArray.create({ type: type, content: Ember.A([]), store: this });
-    var adapter = get(this, '_adapter');
-    if (adapter && adapter.findQuery) { adapter.findQuery(this, type, query, array); }
-    else { throw fmt("Adapter is either null or does not implement `findQuery` method", this); }
+    this.callAdapter(type, query, array);
     return array;
   },
 
@@ -590,6 +601,10 @@ DS.Store = Ember.Object.extend({
       var primaryKey = getPath(type, 'proto.primaryKey');
       ember_assert("A data hash was loaded for a model of type " + type.toString() + " but no primary key '" + primaryKey + "' was provided.", !!hash[primaryKey]);
       id = hash[primaryKey];
+    } else {
+      var primaryKey = getPath(type, 'proto.primaryKey');
+      hash = hash || {};
+      hash[primaryKey] = id;
     }
 
     var data = this.clientIdToHashMap(type);

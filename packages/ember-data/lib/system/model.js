@@ -173,6 +173,18 @@ var states = {
         manager.goToState('deleted');
       },
 
+      refresh: function(manager) {
+        var model = get(manager, 'model'),
+            store = get(model, 'store'),
+            hash = get(model, 'data'),
+            type = model.constructor,
+            id = store.idForHash(type, hash);
+
+        manager.goToState('loading');
+
+        store.callAdapter(type, id);
+      },
+
       created: DirtyState.create({
         stateName: 'created',
         isNew: true,
@@ -306,6 +318,11 @@ DS.Model = Ember.Object.extend({
   destroy: function() {
     this.deleteRecord();
     this._super();
+  },
+
+  refresh: function() {
+    var stateManager = get(this, 'stateManager');
+    stateManager.send('refresh');
   },
 
   loadingData: function() {
