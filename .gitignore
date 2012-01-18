@@ -3,3 +3,5 @@ bin/
 tmp/
 tests/source/
 dist/
+
+.DS_Store
