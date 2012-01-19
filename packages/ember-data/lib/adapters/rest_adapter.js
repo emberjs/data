@@ -2,12 +2,13 @@ var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
 
 DS.RESTAdapter = DS.Adapter.extend({
   createRecord: function(store, type, model) {
-    var root = this.rootForType(type);
+    var root = this.rootForType(type),
+        url = this.urlForModel(model, type),
+        data = {};
 
-    var data = {};
     data[root] = get(model, 'data');
 
-    this.ajax("/" + this.pluralize(root), "POST", {
+    this.ajax(url, "POST", {
       data: data,
       success: function(json) {
         store.didCreateRecord(model, json[root]);
@@ -37,13 +38,11 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   updateRecord: function(store, type, model) {
-    var id = get(model, 'id');
-    var root = this.rootForType(type);
+    var root = this.rootForType(type),
+        url = this.urlForModel(model, type);
 
     var data = {};
     data[root] = get(model, 'data');
-
-    var url = ["", this.pluralize(root), id].join("/");
 
     this.ajax(url, "PUT", {
       data: data,
@@ -75,10 +74,8 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   deleteRecord: function(store, type, model) {
-    var id = get(model, 'id');
-    var root = this.rootForType(type);
-
-    var url = ["", this.pluralize(root), id].join("/");
+    var root = this.rootForType(type)
+        url = this.urlForModel(model, type);
 
     this.ajax(url, "DELETE", {
       success: function(json) {
@@ -110,9 +107,13 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   find: function(store, type, id) {
-    var root = this.rootForType(type);
+    var url, root = this.rootForType(type);
 
-    var url = ["", this.pluralize(root), id].join("/");
+    if (this.isSingleton(type)) {
+      url = ["", root].join("/");
+    } else {
+      url = ["", this.pluralize(root), id].join("/");
+    }
 
     this.ajax(url, "GET", {
       success: function(json) {
@@ -171,6 +172,27 @@ DS.RESTAdapter = DS.Adapter.extend({
     var parts = type.toString().split(".");
     var name = parts[parts.length - 1];
     return name.replace(/([A-Z])/g, '_$1').toLowerCase().slice(1);
+  },
+
+  isSingleton: function(type) {
+    return type.isSingleton !== undefined ? type.isSingleton : false;
+  },
+
+  urlForModel: function(model, type) {
+    var root = this.rootForType(type);
+
+    if (this.isSingleton(type)) {
+      return ["", root].join("/");
+    } else {
+      var plural = this.pluralize(root);
+
+      if (get(model, "isNew")) {
+        return ["", plural].join("/");
+      } else {
+        var primaryKey = getPath(type, 'proto.primaryKey');
+        return ["", plural, get(model, primaryKey)].join("/");
+      }
+    }
   },
 
   ajax: function(url, type, hash) {

@@ -4,6 +4,7 @@ var get = SC.get, set = SC.set;
 
 var adapter, store, ajaxUrl, ajaxType, ajaxHash;
 var Person, person, people;
+var Account, account;
 
 module("the REST adapter", {
   setup: function() {
@@ -27,10 +28,19 @@ module("the REST adapter", {
       adapter: adapter
     });
 
-    Person = DS.Model.extend()
+    Person = DS.Model.extend();
     Person.toString = function() {
       return "App.Person";
-    }
+    };
+
+    Account = DS.Model.extend();
+    Account.toString = function() {
+      return "App.Account";
+    };
+    Account.reopenClass({
+      isSingleton: true
+    });
+
   },
 
   teardown: function() {
@@ -87,7 +97,7 @@ test("creating a person makes a POST to /people, with the data hash", function()
   equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
 });
 
-test("updating a person makes a POST to /people/:id with the data hash", function() {
+test("updating a person makes a PUT to /people/:id with the data hash", function() {
   set(adapter, 'bulkCommit', false);
 
   store.load(Person, { id: 1, name: "Yehuda Katz" });
@@ -326,3 +336,61 @@ test("deleting several people (with bulkCommit) makes a POST to /people/delete_m
   expectStates('deleted');
   expectStates('dirty', false);
 });
+
+test("creating a singleton account makes a POST to /account, with the data hash", function() {
+  set(adapter, 'bulkCommit', false);
+
+  account = store.createRecord(Account, { email: "michael@example.com" });
+
+  store.commit();
+
+  expectUrl("/account", "the collection at the singular of the model name");
+  expectType("POST");
+  expectData({ account: { email: "michael@example.com" } });
+
+  ajaxHash.success({ account: { id: 1, email: "michael@example.com" } });
+});
+
+test("updating a singleton account makes a PUT to /account with the data hash", function() {
+  set(adapter, 'bulkCommit', false);
+
+  store.load(Account, { id: 1, email: "michael@example.com" });
+
+  account = store.find(Account, 1);
+  set(account, 'email', "jeff@acme.com");
+
+  store.commit();
+
+  expectUrl("/account", "the singular of the model name without ID");
+  expectType("PUT");
+
+  ajaxHash.success({ account: { id: 1, email: "jeff@acme.com" } });
+});
+
+test("deleting a singleton account makes a DELETE to /account", function() {
+  set(adapter, 'bulkCommit', false);
+
+  store.load(Account, { id: 1, email: "michael@example.com" });
+
+  account = store.find(Account, 1);
+
+  account.deleteRecord();
+
+  store.commit();
+
+  expectUrl("/account", "the singular of the model name without ID");
+  expectType("DELETE");
+
+  ajaxHash.success({ success: true });
+});
+
+test("finding a singleton account makes a GET to /account", function() {
+  account = store.find(Account, "first");
+
+  expectUrl("/account", "the singular of the model name without ID");
+  expectType("GET");
+
+  ajaxHash.success({ account: { id: 1, email: "jeff@acme.com" } });
+});
+
+
