@@ -180,3 +180,50 @@ test("a model array that backs a collection view functions properly", function()
 
 });
 
+test("it can refresh AdapterPopulatedModelArray", function() {
+  var adapter = DS.Adapter.create(),
+      store = DS.Store.create({'adapter': adapter}),
+      Person = DS.Model.extend({ name: DS.attr('string') }),
+      count = 0, persons,
+      firstPage = [{id: 1, name: 'Yehuda'}, {id: 2, name: 'Tom'}],
+      firstPageRefresh = [{id: 1, name: 'Brohuda'}, {id: 6, name: 'Brotom'}],
+      secondPage = [{id: 3, name: 'Paul'}, {id: 4, name: 'Toto'}, {id: 5, name: 'Titi'}];
+  adapter.findQuery = function(store, type, query, array) {
+    if (type === Person && query) {
+      if (persons) {
+        equal(get(persons, 'isLoaded'), false, "AdapterPopulatedModelArray not isLoaded");
+      }
+      if (query.page === 1) {
+        if (count === 0) {
+          array.load(firstPage);
+        } else {
+          array.load(firstPageRefresh);
+        }
+      } else {
+        array.load(secondPage);
+      }
+      count++;
+    }
+  };
+  persons = store.findQuery(Person, {page: 1});
+  equal(getPath(persons, 'length'), 2, "model array has length");
+  equal(getPath(persons, 'firstObject.name'), "Yehuda", "model array loaded");
+  equal(count, 1, "counter increment");
+  persons.refresh();
+  equal(get(persons, 'isLoaded'), true, "model isLoaded");
+  equal(getPath(persons, 'length'), 2, "model array refresh length");
+  equal(count, 2, "counter increment");
+  Em.run.schedule('sync', function() {
+    equal(getPath(persons, 'firstObject.name'), "Brohuda", "model array refreshed with old id");
+    equal(getPath(persons, 'lastObject.name'), "Brotom", "model array refreshed with new id");
+  });
+  persons.set('query', {page: 2});
+  persons.refresh();
+  equal(get(persons, 'isLoaded'), true, "model isLoaded");
+  equal(getPath(persons, 'length'), 3, "model array refresh length");
+  equal(count, 3, "counter increment");
+  Em.run.schedule('sync', function() {
+    equal(getPath(persons, 'firstObject.name'), "Paul", "model array refreshed with new content");
+    equal(getPath(persons, 'lastObject.name'), "Titi", "model array refreshed with new content");
+  });
+});

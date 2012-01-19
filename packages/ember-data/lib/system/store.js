@@ -306,7 +306,7 @@ DS.Store = Ember.Object.extend({
   },
 
   findQuery: function(type, query) {
-    var array = DS.AdapterPopulatedModelArray.create({ type: type, content: Ember.A([]), store: this });
+    var array = DS.AdapterPopulatedModelArray.create({ type: type, content: Ember.A([]), store: this, query: query });
     this.callAdapter(type, query, array);
     return array;
   },
