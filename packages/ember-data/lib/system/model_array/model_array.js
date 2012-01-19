@@ -72,5 +72,36 @@ DS.ModelArray = Ember.ArrayProxy.extend({
     }
 
     return model;
+  },
+
+  order: Ember.computed(function(key, value) {
+    if (value !== undefined) {
+      var o, i, l, p;
+      if (!value) {
+        o = [];
+      } else if (typeof value === 'function') {
+        o = value;
+      } else {
+        o = value.split(',');
+        for (i = 0, l = o.length; i < l; i++) {
+          p = o[i];
+          p = p.replace(/^\s+|\s+$/,'');
+          p = p.replace(/\s+/,',');
+          p = p.split(',');
+          o[i] = {propertyName: p[0]};
+          if (p[1] && p[1] == 'DESC') o[i].descending = true;
+        }
+      }
+      return o;
+    }
+  }).cacheable(),
+
+  orderDidChange: Ember.observer(function() {
+    get(this, 'store').updateModelArrayOrder(this, get(this, 'type'));
+  }, 'order'),
+
+  orderBy: function(order) {
+    set(this, 'order', order);
+    return this;
   }
 });

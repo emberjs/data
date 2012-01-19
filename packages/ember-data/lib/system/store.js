@@ -515,6 +515,21 @@ DS.Store = Ember.Object.extend({
       modelArrays.remove(array);
       content.removeObject(clientId);
     }
+
+    this.updateModelArrayOrder(array, type);
+  },
+
+  updateModelArrayOrder: function(array, type) {
+    var content = get(array, 'content');
+    var property = get(array, 'sortByProperty');
+    if (!Em.empty(property)) {
+      var order = get(array, 'sortDirection'),
+          data = this.clientIdToHashMap(type);
+      content = content.sort(function(a, b) {
+        return (order === 'ASC' ? 1 : -1) * Ember.compare(data[a][property], data[b][property]);
+      });
+      content.replace(0, get(content, 'length'), content);
+    }
   },
 
   removeFromModelArrays: function(model) {
