@@ -3,13 +3,18 @@ require("ember-data/system/transaction");
 
 var get = Ember.get, set = Ember.set, getPath = Ember.getPath, fmt = Ember.String.fmt;
 
-var setDefaultValues = function(model, data) {
-  var value, key, keys = model.prototype;
+var setDefaultValues = function(type, data) {
+  var value, key, keys = get(type, 'proto');
   if (keys) {
     keys = Ember.meta(keys).descs;
     for (key in keys) {
       value = keys[key] && keys[key]._defaultValue;
-      if (data[key] === undefined && value !== undefined) { data[key] = value; }
+      if (data[key] === undefined && value !== undefined) {
+        if (typeof value === 'function') {
+          value = value.call(null, data);
+        }
+        data[key] = value;
+      }
     }
   }
   return data;
