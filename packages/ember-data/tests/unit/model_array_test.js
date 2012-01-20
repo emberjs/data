@@ -188,9 +188,9 @@ test("an ModelArray can be ordered", function() {
 
   equal(get(modelArray, 'length'), 3, "The model Array should have 3 objects on it");
   equal(modelArray.getEach('id').join(), '1,2,3', 'default order by load time');
-  modelArray.orderBy('name', 'DESC');
+  modelArray.orderBy('name DESC');
   equal(modelArray.getEach('id'), '2,1,3', 'order by name DESC');
-  modelArray.orderBy('name', 'ASC');
+  modelArray.orderBy('name');
   equal(modelArray.getEach('id'), '3,1,2', 'order by name ASC');
 
   store.load(Person, { name: "Other Katz", id: 4 });
@@ -204,10 +204,13 @@ test("an ModelArray can be ordered", function() {
   });
 
   equal(get(modelArray, 'length'), 3, "The model Array should have 3 objects on it");
-  modelArray.orderBy('name', 'DESC');
+  modelArray.orderBy('name DESC');
   equal(modelArray.getEach('id'), '2,1,3', 'order by name DESC');
 
   store.load(Person, { name: "Scumbag Paul", id: 5 });
 
   equal(modelArray.getEach('id'), '5,2,1,3', 'still order by name DESC after adding in a model');
+
+  modelArray.orderBy('name ASC, id DESC');
+  equal(modelArray.getEach('id'), '3,1,2,5', 'order model by two properties');
 });

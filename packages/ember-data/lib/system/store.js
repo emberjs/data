@@ -44,6 +44,26 @@ var OrderedSet = Ember.Object.extend({
   }
 });
 
+var compareHashes = function(order, hash1, hash2) {
+  var result = 0,
+      propertyName, len, i;
+
+  if (typeof order === 'function') {
+    result = order.call(null, hash1, hash2);
+  } else {
+    len = order ? order.length : 0;
+    for (i=0; result===0 && (i < len); i++) {
+      propertyName = order[i].propertyName;
+      result = Ember.compare(hash1[propertyName], hash2[propertyName]);
+      if ((result !== 0) && order[i].descending) {
+        result = (-1) * result;
+      }
+    }
+  }
+
+  if (result !== 0) return result;
+};
+
 // Implementors Note:
 //
 //   The variables in this file are consistently named according to the following
@@ -520,13 +540,12 @@ DS.Store = Ember.Object.extend({
   },
 
   updateModelArrayOrder: function(array, type) {
-    var content = get(array, 'content');
-    var property = get(array, 'sortByProperty');
-    if (!Em.empty(property)) {
-      var order = get(array, 'sortDirection'),
-          data = this.clientIdToHashMap(type);
+    var content = get(array, 'content'),
+        order = get(array, 'order');
+    if (!Em.empty(order)) {
+      var data = this.clientIdToHashMap(type);
       content = content.sort(function(a, b) {
-        return (order === 'ASC' ? 1 : -1) * Ember.compare(data[a][property], data[b][property]);
+        return compareHashes(order, data[a], data[b]);
       });
       content.replace(0, get(content, 'length'), content);
     }
