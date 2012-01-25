@@ -411,7 +411,7 @@ DS.Adapter.create({
             // root, simply do something like:
             //   store.load(type, id, data.person)
             store.load(type, id, data);
-        }
+        });
     }
 });
 ```
@@ -452,7 +452,7 @@ DS.Adapter.create({
             // like:
             //   store.loadMany(type, ids, data.people)
             store.loadMany(type, ids, data);
-        }
+        });
     }
 });
 ```
