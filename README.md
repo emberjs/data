@@ -23,6 +23,8 @@ No.
 * Handle error states
 * Better built-in attributes
 * Editing "forked" records and rolling back transactions
+* Out-of-the-box support for Rails apps that follow the `active_model_serializers` gem's conventions.
+* Handle partially-loaded records
 
 ### Creating a Store
 
@@ -44,11 +46,12 @@ App.store = DS.Store.create({
 });
 ```
 
-NOTE:
-* The RESTAdapter will send bulk commits to your server by default. If you're
-just getting started, turning this off might be helpful.
-* The default RESTful adapter is in progress. For Rails applications, it
-will work seamlessly with the `active_model_serializers` gem's conventions. In
+The REST adapter will send bulk commits to your server by default. If your
+REST API does not support bulk operations, you can turn them off by specifying the
+`bulkCommit` option (as illustrated above.)
+
+The RESTful adapter is still in progress. For Rails applications, we plan to make
+it work seamlessly with the `active_model_serializers` gem's conventions. In
 the meantime, see the section on rolling your own adapter.
 
 ### Defining Models
