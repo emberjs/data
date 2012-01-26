@@ -251,7 +251,7 @@ DS.Store = Ember.Object.extend({
       model = this.createModel(type, clientId);
 
       // let the adapter set the data, possibly async
-      this.callAdapter(type, id);
+      this.findFromAdapter(type, id);
     }
 
     return model;
@@ -259,7 +259,7 @@ DS.Store = Ember.Object.extend({
 
   /** @private
   */
-  callAdapter: function(type, id, array) {
+  findFromAdapter: function(type, id, array) {
     var adapter = get(this, '_adapter');
     if (Em.isArray(id)) {
       // id => ids, array => query
@@ -299,7 +299,7 @@ DS.Store = Ember.Object.extend({
     }
 
     if ((needed && get(needed, 'length') > 0) || query) {
-      this.callAdapter(type, needed, query);
+      this.findFromAdapter(type, needed, query);
     }
 
     return this.createModelArray(type, clientIds);
@@ -307,7 +307,7 @@ DS.Store = Ember.Object.extend({
 
   findQuery: function(type, query) {
     var array = DS.AdapterPopulatedModelArray.create({ type: type, content: Ember.A([]), store: this, query: query });
-    this.callAdapter(type, query, array);
+    this.findFromAdapter(type, query, array);
     return array;
   },
 

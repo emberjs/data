@@ -71,7 +71,7 @@ DS.AdapterPopulatedModelArray = DS.ModelArray.extend({
   refresh: function() {
     if (get(this, 'isLoaded')) {
       set(this, 'isLoaded', false);
-      get(this, 'store').callAdapter(get(this, 'type'), get(this, 'query'), this);
+      get(this, 'store').findFromAdapter(get(this, 'type'), get(this, 'query'), this);
     }
   }
 });

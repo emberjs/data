@@ -123,33 +123,6 @@ test("it can specify which key to use when looking up properties on the hash", f
   equals(get(model, 'name'), "Pete", "retrieves correct value");
 });
 
-test("it can refresh a model", function() {
-  var adapter = DS.Adapter.create(),
-      store = DS.Store.create({'adapter': adapter}),
-      Person = DS.Model.extend({ name: DS.attr('string') }),
-      count = 0, person;
-  adapter.find = function(store, type, id) {
-    if (type === Person && id === 1) {
-      if (person) {
-        equal(get(person, 'isLoaded'), false, "model not isLoaded");
-      }
-      if (count === 0) {
-        store.load(type, id, {name: 'Toto'});
-      } else {
-        store.load(type, id, {name: 'Titi'});
-      }
-      count++;
-    }
-  };
-  person = store.find(Person, 1);
-  equal(get(person, 'name'), "Toto", "model loaded");
-  equal(count, 1, "counter increment");
-  person.refresh();
-  equal(get(person, 'isLoaded'), true, "model isLoaded");
-  equal(get(person, 'name'), "Titi", "model refreshed");
-  equal(count, 2, "counter increment");
-});
-
 var Person, store, array;
 
 module("DS.Model updating", {
