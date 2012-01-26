@@ -264,15 +264,15 @@ DS.Store = Ember.Object.extend({
     if (Em.isArray(id)) {
       // id => ids, array => query
       if (adapter && adapter.findMany) { adapter.findMany(this, type, id, array); }
-      else { throw "Adapter is either null or do not implement `findMany` method"; }
+      else { throw "Adapter is either null or does not implement `findMany` method"; }
     } else if (Em.typeOf(id) === 'object') {
       // id => query, array => array
       if (adapter && adapter.findQuery) { adapter.findQuery(this, type, id, array); }
-      else { throw "Adapter is either null or do not implement `findQuery` method"; }
+      else { throw "Adapter is either null or does not implement `findQuery` method"; }
     } else {
       // id => id
       if (adapter && adapter.find) { adapter.find(this, type, id); }
-      else { throw "Adapter is either null or do not implement `find` method"; }
+      else { throw "Adapter is either null or does not implement `find` method"; }
     }
   },
 
