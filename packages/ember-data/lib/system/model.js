@@ -375,7 +375,7 @@ DS.attr = function(type, options) {
   var transformFrom = transform.from;
   var transformTo = transform.to;
 
-  var attr = Ember.computed(function(key, value) {
+  return Ember.computed(function(key, value) {
     var data = get(this, 'data');
 
     key = (options && options.key) ? options.key : key;
@@ -391,10 +391,7 @@ DS.attr = function(type, options) {
       this.setProperty(key, value);
       return value;
     }
-  }).property('data');
-
-  if (options && options.defaultValue) { attr._defaultValue = options.defaultValue; }
-  return attr;
+  }).property('data').meta({defaultValue: options ? options.defaultValue : undefined});
 };
 
 var embeddedFindRecord = function(store, type, data, key, one) {
