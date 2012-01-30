@@ -1,5 +1,8 @@
 abort "Please use Ruby 1.9 to build Ember.js!" if RUBY_VERSION !~ /^1\.9/
 
+require "rubygems"
+require "net/github-upload"
+
 require "bundler/setup"
 require "erb"
 require "uglifier"
@@ -74,7 +77,7 @@ distributions.each do |name, libraries|
   file "dist/#{name}.js" => :build do
     puts "Generating #{name}.js"
 
-    mkdir_p "dist"
+    mkdir_p "dist", :verbose => false
 
     File.open("dist/#{name}.js", "w") do |file|
       libraries.each do |library|
@@ -114,6 +117,50 @@ task :dist => distributions.keys.map {|name| "dist/#{name}.min.js"}
 desc "Clean build artifacts from previous builds"
 task :clean do
   sh "rm -rf tmp && rm -rf dist"
+end
+
+
+
+### UPLOAD LATEST EMBERJS BUILD TASK ###
+desc "Upload latest Ember Data build to GitHub repository"
+task :upload => :dist do
+  # setup
+  login = `git config github.user`.chomp  # your login for github
+  token = `git config github.token`.chomp # your token for github
+
+  # get repo from git config's origin url
+  origin = `git config remote.origin.url`.chomp # url to origin
+  # extract USERNAME/REPO_NAME
+  # sample urls: https://github.com/emberjs/ember.js.git
+  #              git://github.com/emberjs/ember.js.git
+  #              git@github.com:emberjs/ember.js.git
+  #              git@github.com:emberjs/ember.js
+
+  repo = origin.match(/github\.com[\/:](.+?)(\.git)?$/)[1]
+  puts "Uploading to repository: " + repo
+
+  gh = Net::GitHub::Upload.new(
+    :login => login,
+    :token => token
+  )
+
+  puts "Uploading ember-data-latest.js"
+  gh.replace(
+    :repos => repo,
+    :file  => 'dist/ember-data.js',
+    :name => 'ember-data-latest.js',
+    :content_type => 'application/json',
+    :description => "Ember Data Master"
+  )
+
+  puts "Uploading ember-data-latest.min.js"
+  gh.replace(
+    :repos => repo,
+    :file  => 'dist/ember-data.min.js',
+    :name => 'ember-data-latest.min.js',
+    :content_type => 'application/json',
+    :description => "Ember.js Data Master (minified)"
+  )
 end
 
 
