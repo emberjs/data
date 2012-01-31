@@ -131,6 +131,12 @@ test("a DS.Model can describe Date attributes", function() {
   convertsWhenSet('date', date, dateString);
 });
 
+test("a DS.Model can describe Object attributes", function() {
+  converts('object', undefined, {});
+  converts('object', {}, {});
+  converts('object', {a:1}, {a:1});
+});
+
 test("it can specify which key to use when looking up properties on the hash", function() {
   var model = DS.Model._create({
     name: DS.attr('string', { key: 'full_name' })
