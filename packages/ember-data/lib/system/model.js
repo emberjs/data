@@ -421,8 +421,17 @@ var hasAssociation = function(type, options, one) {
 
     key = (options && options.key) ? options.key : key;
     if (one) {
+      alternative = (options && options.alternative) ? options.alternative : null;
       id = findRecord(store, type, data, key, true);
-      association = id ? store.find(type, id) : null;
+      if (id) {
+        association = store.find(type, id);
+      } else {
+        if (typeof alternative == 'function') {
+          association = alternative(data);
+        } else {
+          association = alternative;
+        }
+      }
     } else {
       ids = findRecord(store, type, data, key);
       association = store.findMany(type, ids);
