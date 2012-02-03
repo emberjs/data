@@ -41,7 +41,8 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   updateRecord: function(store, type, model) {
-    var id = get(model, 'id');
+    var primaryKey = getPath(type, 'proto.primaryKey'),
+        id = get(model, primaryKey);
     var root = this.rootForType(type);
     var key = this.jsonKeyForType(type);
 
@@ -82,7 +83,8 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   deleteRecord: function(store, type, model) {
-    var id = get(model, 'id');
+    var primaryKey = getPath(type, 'proto.primaryKey'),
+        id = get(model, primaryKey);
     var root = this.rootForType(type);
 
     var url = ["", this.pluralize(root), id].join("/");

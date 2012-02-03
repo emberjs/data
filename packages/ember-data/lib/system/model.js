@@ -360,6 +360,16 @@ DS.Model = Ember.Object.extend({
   }
 });
 
+DS.Model.reopenClass({
+  typeForAssociation: function(association) {
+    var type = this.metaForProperty(association).type;
+    if (typeof type === 'string') {
+      type = getPath(this, type, false) || getPath(window, type);
+    }
+    return type;
+  }
+});
+
 DS.attr = function(type, options) {
   var transform = DS.attr.transforms[type];
   var transformFrom = transform.from;
@@ -398,17 +408,16 @@ var referencedFindRecord = function(store, type, data, key, one) {
 };
 
 var hasAssociation = function(type, options, one) {
-  var embedded = options && options.embedded, association,
+  var embedded = options && options.embedded,
     findRecord = embedded ? embeddedFindRecord : referencedFindRecord;
 
   return Ember.computed(function(key) {
-    if (association !== undefined) {
-      return association;
-    }
-    var data = get(this, 'data'), ids, id,
+    var data = get(this, 'data'), ids, id, association,
       store = get(this, 'store');
 
-    if (typeof type === 'string') { type = getPath(this, type); }
+    if (typeof type === 'string') {
+      type = getPath(this, type, false) || getPath(window, type);
+    }
 
     key = (options && options.key) ? options.key : key;
     if (one) {
@@ -419,30 +428,8 @@ var hasAssociation = function(type, options, one) {
       association = store.findMany(type, ids);
     }
 
-    Ember.addObserver(this, 'data', function() {
-      var data = get(this, 'data');
-
-      if (one) {
-        id = findRecord(store, type, data, key, true);
-        association = id ? store.find(type, id) : null;
-
-        this.notifyPropertyChange(key);
-      } else {
-        ids = findRecord(store, type, data, key);
-        store.findMany(type, ids);
-
-        var idToClientIdMap = store.idToClientIdMap(type);
-
-        var clientIds = ids.map(function(id) {
-          return idToClientIdMap[id];
-        });
-
-        set(association, 'content', Ember.A(clientIds));
-      }
-    });
-
     return association;
-  }).property().cacheable();
+  }).property('data').cacheable().meta({ type: type });
 };
 
 DS.hasMany = function(type, options) {
