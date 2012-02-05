@@ -146,7 +146,20 @@ DS.Transaction = Ember.Object.extend({
     var models = dirty.fetch(type);
     models.remove(model);
 
+    set(model, 'snapshot', null);
     set(model, 'transaction', null);
+  },
+
+  rollback: function() {
+    var dirty = get(this, 'dirty');
+    var rollbackFn = function(type, models) {
+      if (models.isEmpty()) { return; }
+      models.forEach(function(model) { model.rollback(); });
+    };
+
+    get(dirty, 'updated').forEach(rollbackFn);
+    get(dirty, 'created').forEach(rollbackFn);
+    get(dirty, 'deleted').forEach(rollbackFn);
   },
 
   commit: function() {
@@ -180,6 +193,6 @@ DS.Transaction = Ember.Object.extend({
     var store = get(this, 'store');
     var adapter = get(store, '_adapter');
     if (adapter && adapter.commit) { adapter.commit(store, commitDetails); }
-    else { throw fmt("Adapter is either null or do not implement `commit` method", this); }
+    else { throw "Adapter is either null or do not implement `commit` method"; }
   }
 });
