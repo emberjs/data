@@ -49,7 +49,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     this.ajax(url, "PUT", {
       data: data,
       success: function(json) {
-        store.didUpdateRecord(model, json[root]);
+        store.didUpdateRecord(model, data[root]);
       }
     });
   },
