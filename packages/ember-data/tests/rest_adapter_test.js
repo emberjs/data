@@ -113,7 +113,21 @@ test("updating a person makes a POST to /people/:id with the data hash", functio
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("PUT");
 
-  ajaxHash.success({ person: { id: 1, name: "Brohuda Brokatz" } });
+  ajaxHash.success({ person: { id: 1, name: "Brohuda Brokatz" } }, "success", {status: 201});
+  expectState('saving', false);
+
+  equal(person, store.find(Person, 1), "the same person is retrieved by the same ID");
+});
+
+test("updating a person works when the response is 204 no content", function() {
+  set(adapter, 'bulkCommit', false);
+
+  store.load(Person, { id: 1, name: "Yehuda Katz" });
+  person = store.find(Person, 1);
+  set(person, 'name', "Brohuda Brokatz");
+  store.commit();
+  expectState('saving');
+  ajaxHash.success(undefined, "success", {status: 204});
   expectState('saving', false);
 
   equal(person, store.find(Person, 1), "the same person is retrieved by the same ID");
@@ -129,7 +143,7 @@ test("updating a record with custom primaryKey", function() {
   store.commit();
 
   expectUrl("/roles/1", "the plural of the model name with its ID");
-  ajaxHash.success({ person: { id: 1, name: "Manager" } });
+  ajaxHash.success({ person: { id: 1, name: "Manager" } }, "success", {status: 201});
 })
 
 
