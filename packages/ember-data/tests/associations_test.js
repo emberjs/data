@@ -419,3 +419,21 @@ test("hasOne embedded associations work the same as referenced ones, and have th
   strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
   strictEqual(get(person, 'tag'), store.find(Tag, 5), "association object are the same as object retrieved directly");
 });
+
+test("hasOne associations allow an alternative parameter, called instead of null", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    tag: DS.hasOne(Tag, {alternative: "hello world"}),
+    second_tag: DS.hasOne(Tag, {alternative: function() { return "hola mundo"; }})
+  });
+
+  var store = DS.Store.create();
+  store.load(Person, 1, { id: 1 });
+
+  var person = store.find(Person, 1);
+  equals(get(person, 'tag'), "hello world");
+  equals(get(person, 'second_tag'), "hola mundo");
+});
