@@ -9,15 +9,15 @@ This release is definitely alpha-quality. The basics work, but there are for
 sure edge cases that are not yet handled. Please report any bugs or feature
 requests, and pull requests are always welcome.
 
-### Is It Good?
+#### Is It Good?
 
 Yes.
 
-### Is It "Production Ready™"?
+#### Is It "Production Ready™"?
 
 No.
 
-### Roadmap
+#### Roadmap
 
 * Manipulate associations client-side
 * Handle error states
@@ -121,60 +121,204 @@ DS.Model.extend({
 
 ### Associations
 
-Models can be associated with other models. Use the `DS.hasMany()` method
-to create a relationship from one model to others:
+Models can be associated with other models. Ember Data includes several
+built-in types to help you define how your models relate to each other.
+
+#### Has One
+
+A `hasOne` association declares that a model is associated with exactly
+one other model. For example, imagine we're writing a blog application that
+allows authors to post entries. Each author has a profile associated with
+their account that is displayed when visitors want to learn more about them.
 
 ```javascript
-App.Tag = DS.Model.extend({
-    name: DS.attr('string')
+App.Profile = DS.Model.extend({
+  about: DS.attr('string'),
+  postCount: DS.attr('number')
 });
 
-App.Person = DS.Model.extend({
-    name: DS.attr('string'),
-    tags: DS.hasMany(App.Tag)
+App.Author = DS.Model.extend({
+  profile: DS.hasOne(App.Profile),
+  name: DS.attr('string')
 });
 ```
 
-In this case, associations should be stored as an array of IDs. The JSON
-for a Person object might look like this:
+Now, when we have an `Author` record, we can easily find its related `Profile`:
 
 ```javascript
+var author = App.store.find(App.Author, 1);
+author.get('name'); // "Timothy Leary"
+author.get('profile'); // App.Profile
+author.getPath('profile.postCount'); // 1969
+```
+
+#### Belongs To
+
+Similar to `hasOne`, `belongsTo` sets up a one-to-one relationship from one model
+to another. Let's revise the example above so that, in addition to being able
+to find an author's profile, we can find the author associated with a profile:
+
+```javascript
+App.Profile = DS.Model.extend({
+  about: DS.attr('string'),
+  postCount: DS.attr('number'),
+  // Note that we can specify the association's type
+  // as a string, as it has not been defined yet.
+  author: DS.belongsTo('App.Author')
+});
+
+App.Author = DS.Model.extend({
+  profile: DS.hasOne(App.Profile),
+  name: DS.attr('string')
+});
+```
+
+So, when should you use `hasOne` and when should you use `belongsTo`? The difference
+is where the information about the relationship is stored at the persistence layer.
+
+The record with the `belongsTo` relationship will save changes to the association
+on itself. Conversely, the record with the `hasOne` relationship asks the persistence
+layer what record belongs to it. If the relationship changes, only the record with
+the `belongsTo` relationship must be saved.
+
+#### Has Many
+
+Use the `hasMany()` method to describe a relationship where multiple models belong
+to a single model. In our blog engine example, a single blog post may have multiple
+comments:
+
+```javascript
+App.Comment = DS.Model.extend({
+    content: DS.attr('string'),
+	post: DS.belongsTo('App.Post')
+});
+
+App.Post = DS.Model.extend({
+    content: DS.attr('string'),
+    comments: DS.hasMany(App.Comment)
+});
+```
+
+### Representing Associations
+
+#### One-to-One
+
+The default REST adapter supports several different variations for
+representing associations to best fit the needs of your application.
+We'll examine each of the different types of associations in turn.
+
+Let us first discuss a typical one-to-one relationship. We'll use the
+example of the `Profile` and `Author` from above. In that example, we
+have a `Profile` that belongs to an `Author`, and an `Author` that has
+one `Profile`. The simplest way to represent these two records' JSON
+structure is as follows:
+
+```javascript
+// Author
 {
-    "id": 1,
-    "name": "Tom Dale",
-    "tags": [1, 2]
+  "id": 1,
+  "name": "Tom Dale"
+}
+
+// Profile
+{
+  "id": 1,
+  "about": "Tom Dale is a software engineer that drinks too much beer.",
+  "postCount": 1984,
+  "author_id": 1
 }
 ```
 
-and the JSON for the Tag objects would be represented like this:
+Note that in the above example, the JSON for our `Author` does not contain
+any information about how to find its related `Profile`. If you were to
+request the profile, like this:
 
 ```javascript
-[{
-    "id": 1,
-    "name": "good-looking"
-},
+author.get('profile');
+```
 
+…the REST adapter would send a request to the URL
+`/profiles?author_id=1`. (Asking the `Profile` for its `Author` would
+not generate an additional request, because the ID of the associated
+`Author` is built-in to the response.)
+
+As a performance optimization, the REST API can return the ID of the
+`Profile` in the `Author` JSON:
+
+```javascript
+// Author with included Profile id
 {
-    "id": 2,
-    "name": "not-too-bright"
-}]
+  "id": 1,
+  "name": "Tom Dale",
+  "profile_id": 1
+}
+```
+
+Now, if you ask for the author's profile, one of two things will happen.
+If the `Profile` with that ID has already been loaded at any point
+during the execution of the app, it will be returned immediately without
+any additional requests. Otherwise, the REST adapter will make a request
+to `/profile/1` to load that specific profile.
+
+In some cases, if you know that you will always being using both records
+in an association, you may want to minimize the number of HTTP requests
+by including both records in the same JSON.
+
+One option is to embed the association directly in the parent record.
+For example, we could represent the entirety of the association above
+like this:
+
+```javascript
+{
+  "authors": [{
+    "id": 1,
+    "name": "Tom Dale",
+    "profile": {
+      "id": 1,
+      about: "Tom Dale is a software engineer that drinks too much beer.",
+      postCount: 1984,
+      author_id: 1
+    }
+  }]
+}
+```
+
+This solution is inefficient if youOne option is to use the format described above (with the ID embedded),
+then "sideloading" the records. For example, we could represent the
+entirety of the association above like this:
+
+```javascript
+{
+  "authors": [{
+    "id": 1,
+    "name": "Tom Dale",
+    "profile_id": 1
+  }],
+
+  "profiles": [{
+    "id": 1,
+    about: "Tom Dale is a software engineer that drinks too much beer.",
+    postCount: 1984,
+    author_id: 1
+  }]
+}
 ```
 
 However, imagine the JSON returned from the server for a Person looked like this:
 
 ```javascript
 {
+  "id": 1,
+  "name": "Tom Dale",
+  "tags": [{
     "id": 1,
-    "name": "Tom Dale",
-    "tags": [{
-        "id": 1,
-        "name": "good-looking"
-    },
-    
-    {
-        "id": 2,
-        "name": "not-too-bright"
-    }]
+    "name": "good-looking"
+  },
+
+  {
+    "id": 2,
+    "name": "not-too-bright"
+  }]
 }
 ```
 
