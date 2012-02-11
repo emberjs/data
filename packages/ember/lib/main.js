@@ -8438,7 +8438,10 @@ var ClassMixin = Ember.Mixin.create({
     This will return the original hash that was passed to `meta()`.
   */
   metaForProperty: function(key) {
-    return meta(get(this, 'proto'), false).descs[key]._meta;
+    var desc = meta(get(this, 'proto'), false).descs[key];
+
+    ember_assert("metaForProperty() could not find a computed property with key '"+key+"'.", !!desc && desc instanceof Ember.ComputedProperty);
+    return desc._meta || {};
   }
 
 });
@@ -10939,7 +10942,7 @@ Ember.EventDispatcher = Ember.Object.extend(
 
     This will be called after the browser sends a DOMContentReady event. By
     default, it will set up all of the listeners on the document body. If you
-    would like to register the listeners on different element, set the event
+    would like to register the listeners on a different element, set the event
     dispatcher's `root` property.
   */
   setup: function(addedEvents) {
@@ -10981,7 +10984,7 @@ Ember.EventDispatcher = Ember.Object.extend(
 
     rootElement.addClass('ember-application');
 
-    ember_assert('Unable to add "ember-application" class to rootElement. Make sure you the body or an element in the body.', rootElement.is('.ember-application'));
+    ember_assert('Unable to add "ember-application" class to rootElement. Make sure you set rootElement to the body or an element in the body.', rootElement.is('.ember-application'));
 
     for (event in events) {
       if (events.hasOwnProperty(event)) {
@@ -12379,7 +12382,7 @@ Ember.View = Ember.Object.extend(
         childViews = get(this, '_childViews'),
         parent     = get(this, '_parentView'),
         elementId  = get(this, 'elementId'),
-        childLen   = childViews.length;
+        childLen;
 
     // destroy the element -- this will avoid each child view destroying
     // the element over and over again...
@@ -12394,6 +12397,7 @@ Ember.View = Ember.Object.extend(
 
     this._super();
 
+    childLen = get(childViews, 'length');
     for (var i=childLen-1; i>=0; i--) {
       childViews[i].removedFromDOM = true;
       childViews[i].destroy();
@@ -12947,29 +12951,14 @@ Ember.ContainerView = Ember.View.extend({
 
       _childViews[idx] = view;
     }, this);
-  },
 
-  /**
-    Extends Ember.View's implementation of renderToBuffer to
-    set up an array observer on the child views array. This
-    observer will detect when child views are added or removed
-    and update the DOM to reflect the mutation.
-
-    Note that we set up this array observer in the `renderToBuffer`
-    method because any views set up previously will be rendered the first
-    time the container is rendered.
-
-    @private
-  */
-  renderToBuffer: function() {
-    var ret = this._super.apply(this, arguments);
-
+    // Sets up an array observer on the child views array. This
+    // observer will detect when child views are added or removed
+    // and update the DOM to reflect the mutation.
     get(this, 'childViews').addArrayObserver(this, {
       willChange: 'childViewsWillChange',
       didChange: 'childViewsDidChange'
     });
-
-    return ret;
   },
 
   /**
@@ -13014,7 +13003,7 @@ Ember.ContainerView = Ember.View.extend({
   childViewsWillChange: function(views, start, removed) {
     if (removed === 0) { return; }
 
-    var changedViews = views.slice(start, removed);
+    var changedViews = views.slice(start, start+removed);
     this.setParentView(changedViews, null);
 
     this.invokeForState('childViewsWillChange', views, start, removed);
@@ -13041,7 +13030,7 @@ Ember.ContainerView = Ember.View.extend({
     // No new child views were added; bail out.
     if (added === 0) return;
 
-    var changedViews = views.slice(start, added);
+    var changedViews = views.slice(start, start+added);
     this.setParentView(changedViews, this);
 
     // Let the current state handle the changes
@@ -13110,7 +13099,7 @@ Ember.ContainerView.states = {
   hasElement: {
     childViewsWillChange: function(view, views, start, removed) {
       for (var i=start; i<start+removed; i++) {
-        views[i].destroyElement();
+        views[i].remove();
       }
     },
 
@@ -13369,27 +13358,23 @@ Ember.State = Ember.Object.extend({
 
     if (!states) {
       states = {};
+
       for (var name in this) {
         if (name === "constructor") { continue; }
-        value = this.setupChild(name, this[name]);
-
-        if (value) {
-          foundStates = true;
-          states[name] = value;
-        }
+        this.setupChild(states, name, this[name]);
       }
 
-      if (foundStates) { set(this, 'states', states); }
+      set(this, 'states', states);
     } else {
       for (var name in states) {
-        this.setupChild(name, states[name]);
+        this.setupChild(states, name, states[name]);
       }
     }
 
     set(this, 'routes', {});
   },
 
-  setupChild: function(name, value) {
+  setupChild: function(states, name, value) {
     if (!value) { return false; }
 
     if (Ember.State.detect(value)) {
@@ -13399,10 +13384,8 @@ Ember.State = Ember.Object.extend({
     if (value.isState) {
       set(value, 'parentState', this);
       set(value, 'name', (get(this, 'name') || '') + '.' + name);
-      return value;
+      states[name] = value;
     }
-
-    return false;
   },
 
   enter: Ember.K,
@@ -13432,7 +13415,7 @@ Ember.StateManager = Ember.State.extend(
 
     var initialState = get(this, 'initialState');
 
-    if (!initialState && get(this, 'start')) {
+    if (!initialState && getPath(this, 'states.start')) {
       initialState = 'start';
     }
 
@@ -13591,6 +13574,7 @@ Ember.StateManager = Ember.State.extend(
 
     var stateManager = this;
 
+    exitStates.reverse();
     this.asyncEach(exitStates, function(state, transition) {
       state.exit(stateManager, transition);
     }, function() {
@@ -13607,7 +13591,7 @@ Ember.StateManager = Ember.State.extend(
         }
 
         // right now, start states cannot be entered asynchronously
-        while (startState = get(startState, initialState)) {
+        while (startState = get(get(startState, 'states'), initialState)) {
           enteredState = startState;
 
           if (log) { console.log("STATEMANAGER: Entering " + startState.name); }
@@ -13753,17 +13737,6 @@ Ember.ViewState = Ember.State.extend({
 
   // If we have the W3C range API, this process is relatively straight forward.
   if (supportsRange) {
-
-    // IE 9 supports ranges but doesn't define createContextualFragment
-    if (!Range.prototype.createContextualFragment) {
-      Range.prototype.createContextualFragment = function(html) {
-        var frag = document.createDocumentFragment(),
-             div = document.createElement("div");
-        frag.appendChild(div);
-        div.outerHTML = html;
-        return frag;
-      };
-    }
 
     // Get a range for the current morph. Optionally include the starting and
     // ending placeholders.
@@ -14025,6 +13998,7 @@ Ember.ViewState = Ember.State.extend({
     afterFunc = function(html) {
       // get the real starting node. see realNode for details.
       var end = document.getElementById(this.end);
+      var insertBefore = end.nextSibling;
       var parentNode = end.parentNode;
       var nextSibling;
       var node;
@@ -14038,7 +14012,7 @@ Ember.ViewState = Ember.State.extend({
       // placeholder.
       while (node) {
         nextSibling = node.nextSibling;
-        parentNode.insertBefore(node, end.nextSibling);
+        parentNode.insertBefore(node, insertBefore);
         node = nextSibling;
       }
     };
@@ -14728,6 +14702,7 @@ Ember.Metamorph = Ember.Mixin.create({
 
       Ember.run.schedule('render', this, function() {
         if (get(view, 'isDestroyed')) { return; }
+        view.invalidateRecursively('element');
         view._notifyWillInsertElement();
         morph.replaceWith(buffer.string());
         view.transitionTo('inDOM');
@@ -15668,28 +15643,30 @@ var EmberHandlebars = Ember.Handlebars, getPath = Ember.Handlebars.getPath;
 
 var ActionHelper = EmberHandlebars.ActionHelper = {};
 
-ActionHelper.registerAction = function(actionName, eventName, target, view) {
+ActionHelper.registerAction = function(actionName, eventName, target, view, context) {
   var actionId = (++jQuery.uuid).toString(),
-      existingHandler = view[eventName],
-      handler;
+      existingHandler = view[eventName];
+
+  function handler(event) {
+    if (Ember.$(event.target).closest('[data-ember-action]').attr('data-ember-action') === actionId) {
+      event.preventDefault();
+
+      if ('function' === typeof target.send) {
+        return target.send(actionName, { view: view, event: event, context: context });
+      } else {
+        return target[actionName].call(target, view, event, context);
+      }
+    }
+  }
 
   if (existingHandler) {
-    var handler = function(event) {
-      var ret;
-      if ($(event.target).closest('[data-ember-action]').attr('data-ember-action') === actionId) {
-        ret = target[actionName](event);
-      }
+    view[eventName] = function(event) {
+      var ret = handler.call(view, event);
       return ret !== false ? existingHandler.call(view, event) : ret;
     };
   } else {
-    var handler = function(event) {
-      if ($(event.target).closest('[data-ember-action]').attr('data-ember-action') === actionId) {
-        return target[actionName](event);
-      }
-    };
+    view[eventName] = handler;
   }
-
-  view[eventName] = handler;
 
   view.reopen({
     rerender: function() {
@@ -15709,12 +15686,13 @@ EmberHandlebars.registerHelper('action', function(actionName, options) {
   var hash = options.hash || {},
       eventName = options.hash.on || "click",
       view = options.data.view,
-      target;
+      target, context;
 
   if (view.isVirtual) { view = view.get('parentView'); }
   target = options.hash.target ? getPath(this, options.hash.target) : view;
+  context = options.contexts[0];
 
-  var actionId = ActionHelper.registerAction(actionName, eventName, target, view);
+  var actionId = ActionHelper.registerAction(actionName, eventName, target, view, context);
   return new EmberHandlebars.SafeString('data-ember-action="' + actionId + '"');
 });
 
