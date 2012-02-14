@@ -78,42 +78,48 @@ var DirtyState = DS.State.extend({
 
   willCommit: function(manager) {
     manager.goToState('saving');
-  },
-
-  saving: DS.State.extend({
-    isSaving: true,
-
-    didUpdate: function(manager) {
-      manager.goToState('loaded');
-    },
-
-    wasInvalid: function(manager, errors) {
-      var model = get(manager, 'model');
-
-      set(model, 'errors', errors);
-      manager.goToState('invalid');
-    }
-  }),
-
-  invalid: DS.State.extend({
-    isValid: false,
-
-    setProperty: function(manager, context) {
-      setProperty(manager, context);
-
-      var stateName = getPath(this, 'parentState.stateName'),
-          model = get(manager, 'model'),
-          errors = get(model, 'errors'),
-          key = context.key;
-
-      delete errors[key];
-
-      if (isEmptyObject(errors)) {
-        manager.goToState(stateName);
-      }
-    }
-  })
+  }
 });
+
+var createDirtyState = function(params) {
+  var paramsWithSubstates = jQuery.extend({}, params, {
+    saving: DS.State.create({
+      isSaving: true,
+
+      didUpdate: function(manager) {
+        manager.goToState('loaded');
+      },
+
+      wasInvalid: function(manager, errors) {
+        var model = get(manager, 'model');
+
+        set(model, 'errors', errors);
+        manager.goToState('invalid');
+      }
+    }),
+
+    invalid: DS.State.create({
+      isValid: false,
+
+      setProperty: function(manager, context) {
+        setProperty(manager, context);
+
+        var stateName = getPath(this, 'parentState.stateName'),
+            model = get(manager, 'model'),
+            errors = get(model, 'errors'),
+            key = context.key;
+
+        delete errors[key];
+
+        if (isEmptyObject(errors)) {
+          manager.goToState(stateName);
+        }
+      }
+    })
+  });
+
+  return DirtyState.create(paramsWithSubstates);
+};
 
 var states = {
   rootState: Ember.State.create({
@@ -173,7 +179,7 @@ var states = {
         manager.goToState('deleted');
       },
 
-      created: DirtyState.create({
+      created: createDirtyState({
         stateName: 'created',
         isNew: true,
 
@@ -182,7 +188,7 @@ var states = {
         }
       }),
 
-      updated: DirtyState.create({
+      updated: createDirtyState({
         stateName: 'updated',
 
         notifyModel: function(model) {
