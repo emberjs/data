@@ -4,13 +4,15 @@ DS.RESTAdapter = DS.Adapter.extend({
   createRecord: function(store, type, model) {
     var root = this.rootForType(type);
 
+    var key = this.jsonKeyForType(type);
+
     var data = {};
-    data[root] = get(model, 'data');
+    data[key] = get(model, 'data');
 
     this.ajax("/" + this.pluralize(root), "POST", {
       data: data,
       success: function(json) {
-        store.didCreateRecord(model, json[root]);
+        store.didCreateRecord(model, json[key]);
       }
     });
   },
@@ -23,15 +25,17 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type),
         plural = this.pluralize(root);
 
+    var key = this.pluralize(this.jsonKeyForType(type));
+    
     var data = {};
-    data[plural] = models.map(function(model) {
+    data[key] = models.map(function(model) {
       return get(model, 'data');
     });
 
     this.ajax("/" + this.pluralize(root), "POST", {
       data: data,
       success: function(json) {
-        store.didCreateRecords(type, models, json[plural]);
+        store.didCreateRecords(type, models, json[key]);
       }
     });
   },
@@ -40,16 +44,17 @@ DS.RESTAdapter = DS.Adapter.extend({
     var primaryKey = getPath(type, 'proto.primaryKey'),
         id = get(model, primaryKey);
     var root = this.rootForType(type);
+    var key = this.jsonKeyForType(type);
 
     var data = {};
-    data[root] = get(model, 'data');
+    data[key] = get(model, 'data');
 
     var url = ["", this.pluralize(root), id].join("/");
 
     this.ajax(url, "PUT", {
       data: data,
       success: function(json) {
-        store.didUpdateRecord(model, json[root]);
+        store.didUpdateRecord(model, json[key]);
       }
     });
   },
@@ -60,17 +65,19 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
 
     var root = this.rootForType(type),
-        plural = this.pluralize(root);
+        plural = this.pluralize(root)
+
+    var key = this.pluralize(this.jsonKeyForType(type));
 
     var data = {};
-    data[plural] = models.map(function(model) {
+    data[key] = models.map(function(model) {
       return get(model, 'data');
     });
 
-    this.ajax("/" + this.pluralize(root), "POST", {
+    this.ajax("/" + plural, "POST", {
       data: data,
       success: function(json) {
-        store.didUpdateRecords(models, json[plural]);
+        store.didUpdateRecords(models, json[key]);
       }
     });
   },
@@ -97,13 +104,14 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type),
         plural = this.pluralize(root),
         primaryKey = getPath(type, 'proto.primaryKey');
+        key = this.pluralize(this.jsonKeyForType(type));
 
     var data = {};
-    data[plural] = models.map(function(model) {
+    data[key] = models.map(function(model) {
       return get(model, primaryKey);
     });
 
-    this.ajax("/" + this.pluralize(root) + "/delete", "POST", {
+    this.ajax("/" + plural + "/delete", "POST", {
       data: data,
       success: function(json) {
         store.didDeleteRecords(models);
@@ -113,45 +121,51 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   find: function(store, type, id) {
     var root = this.rootForType(type);
+    var key = this.jsonKeyForType(type);
 
     var url = ["", this.pluralize(root), id].join("/");
 
     this.ajax(url, "GET", {
       success: function(json) {
-        store.load(type, json[root]);
+        store.load(type, json[key]);
       }
     });
   },
 
   findMany: function(store, type, ids) {
     var root = this.rootForType(type), plural = this.pluralize(root);
+    var key = this.pluralize(this.jsonKeyForType(type));
 
-    this.ajax("/" + plural, "GET", {
+    var url = "/" + plural;
+    
+    this.ajax(url, "GET", {
       data: { ids: ids },
       success: function(json) {
-        store.loadMany(type, ids, json[plural]);
+        store.loadMany(type, ids, json[key]);
       }
     });
-    var url = "/" + plural;
+    
   },
 
   findAll: function(store, type) {
     var root = this.rootForType(type), plural = this.pluralize(root);
-
+    var key = this.pluralize(this.jsonKeyForType(type));
+    
     this.ajax("/" + plural, "GET", {
       success: function(json) {
-        store.loadMany(type, json[plural]);
+        store.loadMany(type, json[key]);
       }
     });
   },
 
   findQuery: function(store, type, query, modelArray) {
     var root = this.rootForType(type), plural = this.pluralize(root);
+    var key = this.pluralize(this.jsonKeyForType(type));
 
     this.ajax("/" + plural, "GET", {
       data: query,
       success: function(json) {
-        modelArray.load(json[plural]);
+        modelArray.load(json[key]);
       }
     });
   },
@@ -165,14 +179,19 @@ DS.RESTAdapter = DS.Adapter.extend({
   pluralize: function(name) {
     return this.plurals[name] || name + "s";
   },
-
-  rootForType: function(type) {
-    if (type.url) { return type.url; }
-
-    // use the last part of the name as the URL
+  
+  nameForType: function(type) {
     var parts = type.toString().split(".");
     var name = parts[parts.length - 1];
-    return name.replace(/([A-Z])/g, '_$1').toLowerCase().slice(1);
+    return Ember.String.decamelize(name);
+  },
+
+  rootForType: function(type) {
+    return type.url || this.nameForType(type);
+  },
+  
+  jsonKeyForType: function(type) {
+    return type.jsonKey || this.nameForType(type);
   },
 
   ajax: function(url, type, hash) {

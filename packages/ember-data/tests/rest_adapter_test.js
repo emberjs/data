@@ -361,3 +361,39 @@ test("deleting several people (with bulkCommit) makes a POST to /people/delete_m
   expectStates('deleted');
   expectStates('dirty', false);
 });
+
+test("creating a person respects a custom json key", function() {
+  set(adapter, 'bulkCommit', false);
+  
+  Person.reopenClass({
+    jsonKey: 'p'
+  });
+
+  person = store.createRecord(Person, { name: "Tom Dale" });
+  store.commit();
+
+  expectUrl("/people", "the collection at the plural of the model name");
+  expectData({ p: { name: "Tom Dale" } });
+
+  ajaxHash.success({ p: { id: 1, name: "Tom Dale" } });
+
+  equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
+});
+
+test("creating a person respects a custom url", function() {
+  set(adapter, 'bulkCommit', false);
+  
+  Person.reopenClass({
+    url: 'v2/person'
+  });
+
+  person = store.createRecord(Person, { name: "Tom Dale" });
+  store.commit();
+
+  expectUrl("/v2/persons", "the collection at the plural of the root");
+  expectData({ person: { name: "Tom Dale" } });
+
+  ajaxHash.success({ person: { id: 1, name: "Tom Dale" } });
+
+  equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
+});
