@@ -391,7 +391,7 @@ DS.attr = function(type, options) {
       this.setProperty(key, value);
       return value;
     }
-  }).property('data');
+  }).property('data').meta({defaultValue: options ? options.defaultValue : undefined});
 };
 
 var embeddedFindRecord = function(store, type, data, key, one) {

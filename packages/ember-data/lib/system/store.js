@@ -3,6 +3,24 @@ require("ember-data/system/transaction");
 
 var get = Ember.get, set = Ember.set, getPath = Ember.getPath, fmt = Ember.String.fmt;
 
+var setDefaultValues = function(type, data) {
+  var value, attr, attrs = get(type, 'proto');
+  if (attrs) {
+    attrs = Ember.meta(attrs).descs;
+    for (attr in attrs) {
+      meta = attrs[attr] && type.metaForProperty(attr);
+      value = meta && meta.defaultValue;
+      if (data[attr] === undefined && value !== undefined) {
+        if (typeof value === 'function') {
+          value = value.call(null, data);
+        }
+        data[attr] = value;
+      }
+    }
+  }
+  return data;
+};
+
 var OrderedSet = Ember.Object.extend({
   init: function() {
     this.clear();
@@ -150,7 +168,7 @@ DS.Store = Ember.Object.extend({
     var id = hash[getPath(type, 'proto.primaryKey')] || null;
 
     var model = type.create({
-      data: hash || {},
+      data: setDefaultValues(type, hash || {}),
       store: this,
       transaction: transaction
     });
