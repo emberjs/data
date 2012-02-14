@@ -7,7 +7,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var data = {};
     data[root] = get(model, 'data');
 
-    this.ajax("/" + this.pluralize(root), "POST", {
+    this.ajax(this.buildURL(root), "POST", {
       data: data,
       success: function(json) {
         store.didCreateRecord(model, json[root]);
@@ -28,7 +28,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       return get(model, 'data');
     });
 
-    this.ajax("/" + this.pluralize(root), "POST", {
+    this.ajax(this.buildURL(root), "POST", {
       data: data,
       success: function(json) {
         store.didCreateRecords(type, models, json[plural]);
@@ -44,9 +44,9 @@ DS.RESTAdapter = DS.Adapter.extend({
     var data = {};
     data[root] = get(model, 'data');
 
-    var url = ["", this.pluralize(root), id].join("/");
+    var url = ["", store.namespace, this.pluralize(root), id].join("/");
 
-    this.ajax(url, "PUT", {
+    this.ajax(this.buildURL(root, id), "PUT", {
       data: data,
       success: function(json) {
         store.didUpdateRecord(model, json[root]);
@@ -67,7 +67,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       return get(model, 'data');
     });
 
-    this.ajax("/" + this.pluralize(root), "POST", {
+    this.ajax(this.buildURL(root), "POST", {
       data: data,
       success: function(json) {
         store.didUpdateRecords(models, json[plural]);
@@ -80,9 +80,7 @@ DS.RESTAdapter = DS.Adapter.extend({
         id = get(model, primaryKey);
     var root = this.rootForType(type);
 
-    var url = ["", this.pluralize(root), id].join("/");
-
-    this.ajax(url, "DELETE", {
+    this.ajax(this.buildURL(root, id), "DELETE", {
       success: function(json) {
         store.didDeleteRecord(model);
       }
@@ -103,7 +101,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       return get(model, primaryKey);
     });
 
-    this.ajax("/" + this.pluralize(root) + "/delete", "POST", {
+    this.ajax(this.buildURL(root, 'delete'), "POST", {
       data: data,
       success: function(json) {
         store.didDeleteRecords(models);
@@ -114,9 +112,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   find: function(store, type, id) {
     var root = this.rootForType(type);
 
-    var url = ["", this.pluralize(root), id].join("/");
-
-    this.ajax(url, "GET", {
+    this.ajax(this.buildURL(root, id), "GET", {
       success: function(json) {
         store.load(type, json[root]);
       }
@@ -126,7 +122,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   findMany: function(store, type, ids) {
     var root = this.rootForType(type), plural = this.pluralize(root);
 
-    this.ajax("/" + plural, "GET", {
+    this.ajax(this.buildURL(root), "GET", {
       data: { ids: ids },
       success: function(json) {
         store.loadMany(type, ids, json[plural]);
@@ -138,7 +134,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   findAll: function(store, type) {
     var root = this.rootForType(type), plural = this.pluralize(root);
 
-    this.ajax("/" + plural, "GET", {
+    this.ajax(this.buildURL(root), "GET", {
       success: function(json) {
         store.loadMany(type, json[plural]);
       }
@@ -148,7 +144,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   findQuery: function(store, type, query, modelArray) {
     var root = this.rootForType(type), plural = this.pluralize(root);
 
-    this.ajax("/" + plural, "GET", {
+    this.ajax(this.buildURL(root), "GET", {
       data: query,
       success: function(json) {
         modelArray.load(json[plural]);
@@ -181,6 +177,19 @@ DS.RESTAdapter = DS.Adapter.extend({
     hash.dataType = "json";
 
     jQuery.ajax(hash);
+  },
+
+  buildURL: function(model, suffix) {
+    url = [""];
+    if (this.namespace != undefined) {
+      url.push(this.namespace);
+    };
+    url.push(this.pluralize(model));
+    if (suffix != undefined) {
+      url.push(suffix);
+    };
+
+    return url.join("/");
   }
 });
 
