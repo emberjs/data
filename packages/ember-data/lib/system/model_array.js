@@ -75,5 +75,12 @@ DS.AdapterPopulatedModelArray = DS.ModelArray.extend({
     set(this, 'content', Ember.A(clientIds));
     set(this, 'isLoaded', true);
     this.endPropertyChanges();
+  },
+
+  refresh: function() {
+    if (get(this, 'isLoaded')) {
+      set(this, 'isLoaded', false);
+      get(this, 'store').findFromAdapter(get(this, 'type'), get(this, 'query'), this);
+    }
   }
 });
