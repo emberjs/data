@@ -48,8 +48,12 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(url, "PUT", {
       data: data,
-      success: function(json) {
-        store.didUpdateRecord(model, json[root]);
+      success: function(json, textStatus, jqXHR) {
+        if (jqXHR.status === 204) {
+          store.didUpdateRecord(model);
+        } else {
+          store.didUpdateRecord(model, json[root]);
+        }
       }
     });
   },
