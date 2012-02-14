@@ -118,3 +118,22 @@ test("after a model is added to a transaction then deleted, it is not committed 
   equals(commitCalls, 1, "commit was called when committing the transaction");
 });
 
+test("transaction can rollback", function() {
+  var tryToFind;
+  var store = DS.Store.create({adapter: DS.Adapter.create({
+    find: function() {
+      tryToFind = true;
+    }
+  })});
+
+  var transaction = store.transaction();
+
+  transaction.createRecord(Person, {id: 1, name: 'Toto'});
+
+  var person = store.find(Person, 1);
+  equal(get(person, 'id'), 1, "found person with id");
+  transaction.rollback();
+  tryToFind = false;
+  store.find(Person, 1);
+  equal(tryToFind, true, "not found person with id");
+});

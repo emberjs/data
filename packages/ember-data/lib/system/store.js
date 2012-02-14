@@ -179,6 +179,14 @@ DS.Store = Ember.Object.extend({
     model.deleteRecord();
   },
 
+  // ................
+  // . UNLOAD MODEL .
+  // ................
+
+  unloadRecord: function(model) {
+    this.unloadModel(model.constructor, get(model, 'clientId'));
+  },
+
   // ...............
   // . FIND MODELS .
   // ...............
@@ -587,9 +595,7 @@ DS.Store = Ember.Object.extend({
   load: function(type, id, hash) {
     if (hash === undefined) {
       hash = id;
-      var primaryKey = getPath(type, 'proto.primaryKey');
-      ember_assert("A data hash was loaded for a model of type " + type.toString() + " but no primary key '" + primaryKey + "' was provided.", !!hash[primaryKey]);
-      id = hash[primaryKey];
+      id = this.idForHash(type, hash);
     }
 
     var data = this.clientIdToHashMap(type);
@@ -679,6 +685,23 @@ DS.Store = Ember.Object.extend({
     set(model, 'clientId', clientId);
     model.loadingData();
     return model;
+  },
+
+  unloadModel: function(type, clientId) {
+    var model = get(this, 'models')[clientId],
+        id = get(model, 'id');
+
+    this.removeFromModelArrays(model);
+
+    delete this.clientIdToHashMap(type)[clientId];
+    Ember.A(this.clientIdList(type)).removeObject(clientId);
+
+    if (id) {
+      delete this.idToClientIdMap(type)[id];
+      Ember.A(this.idList(type)).removeObject(id);
+    }
+
+    model.destroy();
   }
 });
 

@@ -22,6 +22,11 @@ var cantLoadData = function() {
   throw "You cannot load data into the store when its associated model is in its current state";
 };
 
+var cantRollback = function() {
+  // TODO: get the current state name
+  throw "You cannot rollback when model is in its current state";
+};
+
 var isEmptyObject = function(obj) {
   for (var prop in obj) {
     if (!obj.hasOwnProperty(prop)) { continue; }
@@ -67,6 +72,7 @@ var DirtyState = DS.State.extend({
     var stateName = get(this, 'stateName'),
         model = get(manager, 'model');
 
+    set(model, 'errors', null);
     this.notifyModel(model);
 
     model.withTransaction(function (t) {
@@ -92,7 +98,9 @@ var DirtyState = DS.State.extend({
 
       set(model, 'errors', errors);
       manager.goToState('invalid');
-    }
+    },
+
+    rollback: cantRollback
   }),
 
   invalid: DS.State.extend({
@@ -165,6 +173,9 @@ var states = {
       willLoadData: Ember.K,
 
       setProperty: function(manager, context) {
+        var model = get(manager, 'model');
+        set(model, 'snapshot', Em.copy(get(model, 'data')));
+
         setProperty(manager, context);
         manager.goToState('updated');
       },
@@ -179,6 +190,15 @@ var states = {
 
         notifyModel: function(model) {
           model.didCreate();
+        },
+
+        rollback: function(manager) {
+          var model = get(manager, 'model'),
+              store = get(model, 'store');
+
+          if (store) {
+            store.unloadModel(model.constructor, get(model, 'clientId'));
+          }
         }
       }),
 
@@ -187,6 +207,22 @@ var states = {
 
         notifyModel: function(model) {
           model.didUpdate();
+        },
+
+        rollback: function(manager) {
+          var model = get(manager, 'model'),
+              type = model.constructor,
+              store = get(model, 'store');
+
+          model.beginPropertyChanges();
+          set(model, 'data', get(model, 'snapshot'));
+          model.endPropertyChanges();
+
+          if (store) {
+            store.hashWasUpdated(type, get(model, 'clientId'));
+          }
+
+          manager.goToState('loaded');
         }
       })
     }),
@@ -215,8 +251,22 @@ var states = {
         manager.goToState('saving');
       },
 
+      rollback: function(manager) {
+        var model = get(manager, 'model'),
+            type = model.constructor,
+            store = get(model, 'store');
+
+        if (store) {
+          store.updateModelArrays(type, get(model, 'clientId'), get(model, 'data'));
+        }
+
+        manager.goToState('loaded');
+      },
+
       saving: DS.State.create({
         isSaving: true,
+
+        rollback: cantRollback,
 
         didDelete: function(manager) {
           manager.goToState('saved');
@@ -232,7 +282,9 @@ var states = {
       }),
 
       saved: DS.State.create({
-        isDirty: false
+        isDirty: false,
+
+        rollback: cantRollback
       })
     }),
 
@@ -268,6 +320,8 @@ DS.Model = Ember.Object.extend({
   primaryKey: 'id',
   data: null,
   transaction: null,
+  errors: null,
+  snapshot: null,
 
   didLoad: Ember.K,
   didUpdate: Ember.K,
@@ -298,14 +352,18 @@ DS.Model = Ember.Object.extend({
     stateManager.send('setProperty', { key: key, value: value });
   },
 
+  id: Ember.computed(function(key, value) {
+    return get(get(this, 'data'), get(this, 'primaryKey'));
+  }, 'data', 'primaryKey').cacheable(),
+
   deleteRecord: function() {
     var stateManager = get(this, 'stateManager');
     stateManager.send('delete');
   },
 
-  destroy: function() {
-    this.deleteRecord();
-    this._super();
+  rollback: function() {
+    var stateManager = get(this, 'stateManager');
+    stateManager.send('rollback');
   },
 
   loadingData: function() {
