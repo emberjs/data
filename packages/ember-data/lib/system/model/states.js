@@ -422,7 +422,16 @@ var states = {
         waitingOn: function(manager, object) {
           waitingOn(manager, object);
           manager.goToState('updated.pending');
+        },
+
+        // If a saved model receives updates, eg. from a server-side
+        // push or as a result of a find(id) ajax callback returning
+        // load it again
+        setData: function(manager, data) {
+          manager.goToState('loading');
+          manager.send('setData', data);
         }
+
       }),
 
       // A record is in this state after it has been locally
