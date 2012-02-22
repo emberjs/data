@@ -59,11 +59,11 @@ var expectUrl = function(url, desc) {
 };
 
 var expectType = function(type) {
-  equal(type, ajaxType, "the HTTP method is " + type);
+  equal(ajaxType, type, "the HTTP method is " + type);
 };
 
 var expectData = function(hash) {
-  deepEqual(hash, ajaxHash.data, "the hash was passed along");
+  deepEqual(ajaxHash.data, hash, "the hash was passed along");
 };
 
 var expectState = function(state, value, p) {
@@ -300,7 +300,7 @@ test("creating several people (with bulkCommit) makes a POST to /people, with a 
   equal(yehuda, store.find(Person, 2), "it is now possible to retrieve the person by the ID supplied");
 });
 
-test("updating several people (with bulkCommit) makes a POST to /people with the data hash Array", function() {
+test("updating several people (with bulkCommit) makes a PUT to /people/bulk with the data hash Array", function() {
   store.loadMany(Person, [
     { id: 1, name: "Yehuda Katz" },
     { id: 2, name: "Carl Lerche" }
@@ -322,8 +322,8 @@ test("updating several people (with bulkCommit) makes a POST to /people with the
   store.commit();
   expectStates('saving');
 
-  expectUrl("/people", "the collection at the plural of the model name");
-  expectType("POST");
+  expectUrl("/people/bulk", "the collection at the plural of the model name");
+  expectType("PUT");
 
   ajaxHash.success({ people: [
     { id: 1, name: "Brohuda Brokatz" },
@@ -336,7 +336,7 @@ test("updating several people (with bulkCommit) makes a POST to /people with the
   equal(carl, store.find(Person, 2), "the same person is retrieved by the same ID");
 });
 
-test("deleting several people (with bulkCommit) makes a POST to /people/delete_many", function() {
+test("deleting several people (with bulkCommit) makes a DELETE to /people/bulk", function() {
   store.loadMany(Person, [
     { id: 1, name: "Yehuda Katz" },
     { id: 2, name: "Carl Lerche" }
@@ -359,8 +359,8 @@ test("deleting several people (with bulkCommit) makes a POST to /people/delete_m
   store.commit();
   expectStates('saving');
 
-  expectUrl("/people/delete", "the collection at the plural of the model name with 'delete'");
-  expectType("POST");
+  expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
+  expectType("DELETE");
 
   ajaxHash.success({ success: true });
 
