@@ -65,7 +65,7 @@ App.Person = DS.Model.extend();
 
 You can specify which attributes a model has by using `DS.attr`. An attribute
 represents a value that will exist in the underlying JSON representation of
-the object, and which you also want to expose through the Ember object.
+the object which you'd also want to expose through the Ember object.
 
 You can use attributes just like any other property, including as part of a
 computed property. These attributes ensure that the values can be retrieved
@@ -75,12 +75,11 @@ from the underlying JSON representation and persisted later as needed.
 App.Person = DS.Model.extend({
     firstName: DS.attr('string'),
     lastName: DS.attr('string'),
+    birthday: DS.attr('date'),
 
     fullName: function() {
         return this.get('firstName') + ' ' + this.get('lastName');
-    }.property('firstName', 'lastName'),
-
-    birthday: DS.attr('date')
+    }.property('firstName', 'lastName')
 });
 ```
 
@@ -190,7 +189,7 @@ comments:
 ```javascript
 App.Comment = DS.Model.extend({
     content: DS.attr('string'),
-	post: DS.belongsTo('App.Post')
+    post: DS.belongsTo('App.Post')
 });
 
 App.Post = DS.Model.extend({
@@ -283,7 +282,7 @@ like this:
 }
 ```
 
-This solution is inefficient if youOne option is to use the format described above (with the ID embedded),
+Another option is to use the format described above (with the ID embedded),
 then "sideloading" the records. For example, we could represent the
 entirety of the association above like this:
 
@@ -351,26 +350,24 @@ App.Person = DS.Model.extend({
 });
 ```
 
-### Finding a Specific Model Instance
+### Finding a Specific Record Instance
 
-You can retrieve a model by its unique ID by using the `find` method:
+You can retrieve a record by its unique ID by using the `find` method:
 
 ```javascript
 var model = App.store.find(App.Person, 1);
 ```
 
-If that specific model has already been loaded, it will be returned
+If that specific record has already been loaded, it will be returned
 immediately. Otherwise, an empty object will be returned. You can setup
 bindings and observers on the properties you're interested in; as soon
 as the data returns from the persistence layer, all of the attributes
 you specified will be updated automatically.
 
 Besides `find()`, all of the methods described below operate in a similar
-fashion. By returning empty objects, you can use the models returned from
-the store immediately in your views. They will be updated automatically
-as soon as the data is loaded.
+fashion.
 
-### Querying Model Instances
+### Querying Record Instances
 
 You can make a server query by passing an Object as the second parameter to
 find. In this case, you will get back a `ModelArray` object.
@@ -395,30 +392,30 @@ populated later, Ember's bindings will automatically update the DOM.
 This will allow you to ask the store for an Array of information, and keep your
 view code completely agnostic to how the Array becomes populated.
 
-Note: If manually retrieving models from a model array, you must use
+Note: If manually retrieving records from a `ModelArray`, you must use
 the `objectAt(index)` method. Since the object is not a JavaScript Array,
 using the `[]` notation will not work.
 
-### Finding All Models of a Type
+### Finding All Records of a Model Type
 
-To find all models of a certain type, use the store's `findAll()` method:
+To find all records of a certain type, use the store's `findAll()` method:
 
 ```javascript
-var models = App.store.findAll(App.Person);
+var people = App.store.findAll(App.Person);
 ```
 
-All currently loaded models of that type will be immediately returned
+All currently loaded records of that type will be immediately returned
 in a `ModelArray`. Your adapter will also have an opportunity to load
-additional models of that type if necessary.
+additional records of that type if necessary.
 
-### Filtering Loaded Models
+### Filtering Loaded Records
 
-You can filter all models of a type by calling the store's `filter()`
-method with a function that determines whether the model should
-be included or not. To avoid materializing model objects needlessly, only
+You can filter all records of a model type by calling the store's `filter()`
+method with a function that determines whether the record should
+be included or not. To avoid materializing record objects needlessly, only
 the raw data hash returned from the persistence layer is passed.
 
-To include a model, return `true`. If a model should not be included,
+To include a record, return `true`. If a record should not be included,
 return `false` or `undefined`.
 
 ```javascript
@@ -427,42 +424,42 @@ var oldPeople = App.store.filter(App.Person, function(data) {
 });
 ```
 
-### Creating New Models
+### Creating New Records
 
-You can create new model with `createRecord()`:
+You can create new record based on a particular model definition with `createRecord()`:
 
 ```javascript
 var wycats = App.store.createRecord(App.Person,  { name: "Brohuda" });
 ```
 
-New models are not saved back to the persistence layer until the
+New records are not saved back to the persistence layer until the
 store's `commit()` method is called.
 
-### Updating Models
+### Updating Records
 
-To update models, simply change a property on them. Updated models
+To update records, simply change a property on them. Updated records
 will not be saved until the store's `commit()` method is called, which
 allows you to batch changes.
 
-### Deleting Models
+### Deleting Records
 
-To delete a model, call its `deleteRecord()` method:
+To delete a record, call its `deleteRecord()` method:
 
 ```javascript
 var person = App.store.find(App.Person, 1);
 person.deleteRecord();
 ```
 
-The model will not be deleted in the persistence layer until the store's
-`commit()` method is called. However, deleted models will immediately be
-removed from model arrays and associations.
+The record will not be deleted in the persistence layer until the store's
+`commit()` method is called. However, deleted records will immediately be
+removed from its `ModelArray` and associations.
 
-### Model Lifecycle
+### Record Lifecycle
 
-You can be notified when certain events occur in a model's lifecycle by
+You can be notified when certain events occur in a record's lifecycle by
 implementing methods on them:
 
-* `didCreate` - called when the model has been successfully created in the persistence layer
+* `didCreate` - called when the record has been successfully created in the persistence layer
 * `didUpdate` - called when changes have been successfully saved to the persistence layer
 * `didLoad` - called when data has finished loading from the persistence layer
 
@@ -476,23 +473,23 @@ App.Person = DS.Model.extend({
 });
 ```
 
-You can also determine the state of a model by checking its state properties.
+You can also determine the state of a record by checking its state properties.
 
-* `isLoaded` - true when the model has finished loading, always true for models created locally.
-* `isDirty` - true for created, updated, or deleted models that have not yet been saved
-* `isSaving` - true if the model is in the process of being saved
-* `isDeleted` - true if the model has been deleted, either locally or on the server
-* `isError` - true if the model is in an error state
+* `isLoaded` - true when the record has finished loading, always true for models created locally.
+* `isDirty` - true for created, updated, or deleted records that have not yet been saved
+* `isSaving` - true if the record is in the process of being saved
+* `isDeleted` - true if the record has been deleted, either locally or on the server
+* `isError` - true if the record is in an error state
 
 ### Loading Data
 
 You can "pre-load" data into the store, so it's ready for your users
 as soon as they need it.
 
-To load an individual model, use the `load()` method:
+To load an individual record, use the `load()` method:
 
 ```javascript
-App.store.load(Person, {
+App.store.load(App.Person, {
     id: 1,
     firstName: "Peter",
     lastName: "Wagenet"
@@ -502,7 +499,7 @@ App.store.load(Person, {
 You can load multiple records using `loadMany()`:
 
 ```javascript
-App.store.loadMany(Person, [{
+App.store.loadMany(App.Person, [{
     id: 2,
     firstName: "Erik",
     lastName: "Brynjolsofosonsosnson"
@@ -542,8 +539,8 @@ Next, implement the methods your adapter needs, as described below.
 
 ### find()
 
-Implement `find()` to fetch and populate a model with a specific ID. Once the
-model has been found, call the store's `load()` method:
+Implement `find()` to fetch and populate a record with a specific ID. Once the
+record has been found, call the store's `load()` method:
 
 ```javascript
 App.Person = DS.Model.extend();
@@ -559,7 +556,7 @@ DS.Adapter.create({
         jQuery.getJSON(url, function(data) {
             // data is a Hash of key/value pairs. If your server returns a
             // root, simply do something like:
-            //   store.load(type, id, data.person)
+            // store.load(type, id, data.person)
             store.load(type, id, data);
         });
     }
@@ -577,7 +574,7 @@ the adapter. We are simply using `url` to illustrate how an adapter is written.
 
 ### findMany()
 
-Implement `findMany()` to fetch and populate all of the models for a given list
+Implement `findMany()` to fetch and populate all of the records for a given list
 of IDs. The default `findMany()` will repeatedly invoke `find()`, but this may
 be extremely inefficient. If you can, your server should support a way to find
 many items by a list of IDs.
@@ -600,7 +597,7 @@ DS.Adapter.create({
             // data is an Array of Hashes in the same order as the original
             // Array of IDs. If your server returns a root, simply do something
             // like:
-            //   store.loadMany(type, ids, data.people)
+            // store.loadMany(type, ids, data.people)
             store.loadMany(type, ids, data);
         });
     }
@@ -630,7 +627,7 @@ end
 ### findQuery()
 
 Called when the store's `find()` method is called with a query. Your adapter's
-`findQuery()` method will be passed a model array that you should populate with
+`findQuery()` method will be passed a `ModelArray` that you should populate with
 the results returned by the server.
 
 ```javascript
@@ -648,8 +645,8 @@ DS.Adapter.create({
             // determined by the server. This order may be specified in
             // the query, and will be reflected in the view.
             //
-            // If your server returns a root, simply:
-            //   modelArray.load(data.people)
+            // If your server returns a root, simply do something like:
+            // modelArray.load(data.people)
             modelArray.load(data);
         });
     })
@@ -668,12 +665,12 @@ loaded into the store at the same time.
 
 Invoked when `findAll()` is called on the store. If you do nothing, only
 models that have already been loaded will be included in the results. Otherwise,
-this is your opportunity to load any unloaded models of this type. The
+this is your opportunity to load any unloaded records of this type. The
 implementation is similar to findMany(); see above for an example.
             
 ### createRecord()
 
-When `commit()` is called on the store and there are models that need to be
+When `commit()` is called on the store and there are records that need to be
 created on the server, the store will call the adapter's `create()` method.
 
 Once the store calls the adapter's `create` method, it will be put into a
@@ -699,10 +696,10 @@ DS.Adapter.create({
             type: 'POST',
             
             success: function(data) {
-                // data is a hash of key/value pairs representing the model.
+                // data is a hash of key/value pairs representing the record.
                 // In general, this hash will contain a new id, which the
-                // store will now use to index the model. Future calls to
-                // store.find(type, id) will find this model.
+                // store will now use to index the record. Future calls to
+                // store.find(type, id) will find this record.
                 store.didCreateRecord(model, data);
             }
         });
@@ -731,7 +728,7 @@ DS.Adapter.create({
             
             success: function(data) {
                 // data is an array of hashes in the same order as
-                // the original models that were sent.
+                // the original records that were sent.
                 store.didCreateRecords(type, array, data);
             }
         });
@@ -741,7 +738,7 @@ DS.Adapter.create({
 
 ### updateRecord()
 
-Update is implemented the same as `createRecord()`, except after the model has been
+Update is implemented the same as `createRecord()`, except after the record has been
 saved, you should call the store's `didUpdateRecord()` method.
 
 ```javascript
@@ -760,7 +757,7 @@ DS.Adapter.create({
             type: 'PUT',
             
             success: function(data) {
-                // data is a hash of key/value pairs representing the model
+                // data is a hash of key/value pairs representing the record
                 // in its current state on the server.
                 store.didUpdateRecord(model, data);
             }
@@ -789,7 +786,7 @@ DS.Adapter.create({
             
             success: function(data) {
                 // data is an array of hashes in the same order as
-                // the original models that were sent.
+                // the original records that were sent.
                 store.didUpdateRecords(array);
             }
         });
@@ -799,7 +796,7 @@ DS.Adapter.create({
 
 ### deleteRecord()
 
-To delete a model, implement the `deleteRecord()` method, and call the store's
+To delete a record, implement the `deleteRecord()` method, and call the store's
 `didDeleteRecord()` method when completed.
 
 ```javascript
@@ -824,9 +821,6 @@ DS.Adapter.create({
     })
 });
 ```
-
-**Note**: The method is called `deleteRecord` instead of `delete` because
-Internet Explorer blows up if you have a method called `delete`. Sorry.
 
 ### deleteRecords()
 
@@ -857,7 +851,7 @@ DS.Adapter.create({
 ### commit()
 
 For maximum turbo-efficiency, you can package all pending changes (creates,
-updates, and deletes) into one megapackage of data awesomeness. To do so,
+updates, and deletes) into one mega package of data awesomeness. To do so,
 implement `commit()`, which will be called with everything that needs
 to be sent to the persistence layer.
 
@@ -881,8 +875,9 @@ commit: function(store, commitDetails) {
 
 ### Connecting to Views
 
-Ember Data will always return models or model arrays immediately, even though
-the underlying JSON objects have not yet been returned from the server.
+Ember Data will always return records or arrays of records of a certain type 
+immediately, even though the underlying JSON objects have not yet been returned 
+from the server.
 
 In general, this means that you can insert them into the DOM using Ember's
 Handlebars template engine, and they will automatically update when your
@@ -895,7 +890,7 @@ App.people = App.store.find(App.Person, { firstName: "Tom" });
 ```
 
 You will get back a `ModelArray` that is currently empty. Ember Data will then
-ask your adapter to populate the model Array, which will usually make an Ajax
+ask your adapter to populate the `ModelArray` with records, which will usually make an Ajax
 request. Howver, you can immediately refer to it in your templates:
 
 ```html
@@ -909,11 +904,11 @@ request. Howver, you can immediately refer to it in your templates:
 Once the Adapter calls `modelArray.load(array)`, the DOM will automatically
 populate with the new information.
 
-The same is true of models themselves. For instance, you can make a request
-for a single model:
+The same is true of records themselves. For instance, you can make a request
+for a single record:
 
 ```javascript
-App.person = App.store.find(Person, 1);
+App.person = App.store.find(App.Person, 1);
 ```
 
 You will immediately receive back a new unpopulated `Person` object. You can
@@ -926,8 +921,8 @@ refer to it in the view right away:
 Initially, this will be empty, but when your adapter calls `store.load(hash)`,
 it will update with the information provided.
 
-If you'd like to show different content while the model is in the process of
-being loaded, you can use the model's `isLoaded` property:
+If you'd like to show different content while a record is in the process of
+being loaded, you can use the record's `isLoaded` property:
 
 ```html
 {{#with App.person}}
@@ -939,11 +934,11 @@ being loaded, you can use the model's `isLoaded` property:
 {{/with}}
 ```
 
-Note that the same principle applies to model arrays, as well. Like models,
-model arrays have an `isLoaded` property that you can use to display different
+Note that the same principle applies to `ModelArray`s, as well. Like records, a
+`ModelArray` has an `isLoaded` property that you can use to display different
 content.
 
-You can also indicate to users when a model is saving, for example:
+You can also indicate to users when a record is saving, for example:
 
 ```html
 {{#with App.person}}
