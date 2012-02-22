@@ -30,7 +30,7 @@ var hasAssociation = function(type, options, one) {
   var embedded = options && options.embedded,
     findRecord = embedded ? embeddedFindRecord : referencedFindRecord;
 
-  return Ember.computed(function(key) {
+  return Ember.computed(function(key, value) {
     var data = get(this, 'data'), ids, id, association,
       store = get(this, 'store');
 
@@ -39,16 +39,32 @@ var hasAssociation = function(type, options, one) {
     }
 
     key = (options && options.key) ? options.key : key;
-    if (one) {
-      id = findRecord(store, type, data, key, true);
-      association = id ? store.find(type, id) : null;
-    } else {
-      ids = findRecord(store, type, data, key);
-      association = store.findMany(type, ids);
-      set(association, 'parentRecord', this);
-    }
 
-    return association;
+    if (arguments.length === 1){
+      //getter
+      if (one) {
+        id = findRecord(store, type, data, key, true);
+        association = id ? store.find(type, id) : null;
+      } else {
+        ids = findRecord(store, type, data, key);
+        association = store.findMany(type, ids);
+        set(association, 'parentRecord', this);
+      }
+
+      return association;
+
+    } else {
+      // setter
+      if (one) {
+        association = store.find(type, value);
+      } else {
+        association = store.findMany(type, value);
+      }
+      data[key] = association;
+      this.set('data', data);
+
+      return association;
+    }
   }).property('data').cacheable().meta({ type: type });
 };
 
