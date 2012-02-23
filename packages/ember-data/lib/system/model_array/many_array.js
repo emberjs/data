@@ -18,5 +18,19 @@ DS.ManyArray = DS.ModelArray.extend({
     });
 
     this._super(index, removed, added);
+  },
+
+  // Create a child record within the parentRecord
+  create: function(){
+    var record, 
+    parentRecord = get(this, 'parentRecord'),
+    type = get(this, 'type'),
+    args = [].slice.call(arguments),
+    store = args[1] || get(DS, 'defaultStore');
+
+    record = store.createRecord.call(store, type, args[0]);
+    this.pushObject(record);
+    
+    return record;
   }
 });

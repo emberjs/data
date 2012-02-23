@@ -319,6 +319,28 @@ test("updating the content of a ModelArray updates its content", function() {
   equal(get(tag, 'name'), "smarmy", "the lookup was updated");
 });
 
+test("can create child record from a hasMany association", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.hasMany(Tag)
+  });
+
+  var store = DS.Store.create();
+  store.load(Person, 1, { id: 1, name: "Tom Dale"});
+
+  var person = store.find(Person, 1);
+  person.get("tags").create({name:"cool"}, store);
+
+  equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
+  equal(getPath(person, 'tags.length'), 1, "tag is added to the parent record");
+  equal(get(person, 'tags').objectAt(0).get("name"), "cool", "tag values are passed along");
+
+});
+
 module("DS.hasOne");
 
 test("hasOne lazily loads associations as needed", function() {
@@ -446,3 +468,4 @@ test("hasOne embedded associations work the same as referenced ones, and have th
   strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
   strictEqual(get(person, 'tag'), store.find(Tag, 5), "association object are the same as object retrieved directly");
 });
+
