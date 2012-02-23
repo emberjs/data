@@ -315,6 +315,8 @@ DS.Store = Ember.Object.extend({
     var hash = clientIdToHashMap[clientId];
 
     this.updateModelArrays(type, clientId, hash);
+
+    if (this.get('commitAutomatically')) this.commit();
   },
 
   // ..............
