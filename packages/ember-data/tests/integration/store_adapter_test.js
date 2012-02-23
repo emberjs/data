@@ -554,3 +554,27 @@ test("can be created after the DS.Store", function() {
   store.find(Person, 1);
 });
 
+test("adapter should handle subsequent commits correctly", function() {
+  expect(4);
+  var id = 1;
+  
+  adapter.reopen({
+    createRecord: function(store, type, model) {
+      store.didCreateRecord(model, {id:id++});
+      ok(true, "record created");
+    },
+    updateRecord: function(store, type, model) {
+      store.didUpdateRecord(model, model.get('data'));
+      ok(true, "record updated");
+    }
+  })
+  
+  var person1 = store.createRecord(Person);
+  var person2 = store.createRecord(Person);
+  store.commit();
+  set(person1, 'name', 'brogrammer');
+  store.commit();
+  set(person2, 'name', 'wes');
+  store.commit();
+});
+
