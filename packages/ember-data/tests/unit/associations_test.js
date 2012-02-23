@@ -333,7 +333,7 @@ test("can create child record from a hasMany association", function() {
   store.load(Person, 1, { id: 1, name: "Tom Dale"});
 
   var person = store.find(Person, 1);
-  person.get("tags").create({name:"cool"}, store);
+  person.get("tags").create({name:"cool"});
 
   equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
   equal(getPath(person, 'tags.length'), 1, "tag is added to the parent record");

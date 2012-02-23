@@ -26,7 +26,7 @@ DS.ManyArray = DS.ModelArray.extend({
     parentRecord = get(this, 'parentRecord'),
     type = get(this, 'type'),
     args = [].slice.call(arguments),
-    store = args[1] || get(DS, 'defaultStore');
+    store = get(parentRecord, 'store');;
 
     record = store.createRecord.call(store, type, args[0]);
     this.pushObject(record);
