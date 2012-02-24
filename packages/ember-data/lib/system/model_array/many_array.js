@@ -21,7 +21,7 @@ DS.ManyArray = DS.ModelArray.extend({
   },
 
   // Create a child record within the parentRecord
-  create: function(){
+  createRecord: function(){
     var record, 
     parentRecord = get(this, 'parentRecord'),
     type = get(this, 'type'),
