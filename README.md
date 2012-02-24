@@ -15,7 +15,8 @@ Yes.
 
 #### Is It "Production Ready™"?
 
-No.
+No. Breaking changes, indexed by date, are listed in
+[`BREAKING_CHANGES.md`](https://github.com/emberjs/data/blob/master/BREAKING_CHANGES.md).
 
 #### Roadmap
 
@@ -957,4 +958,3 @@ To run unit tests, run `rackup` from the root directory and visit
 ### What next?
 
 Profit.
-
