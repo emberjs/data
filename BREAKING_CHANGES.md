@@ -63,7 +63,7 @@ var coolPeople = Person.filter(function(person) {
 Previously, a record's `data` property was a hash that contained the
 JSON representation of the record that should be sent to your
 persistence layer. Now that records store uncommitted changes in a
-separate hash, you should use the new `getJSON()` method to retrieve the
+separate hash, you should use the new `toJSON()` method to retrieve the
 data hash to be sent to the server.
 
 We could have fixed up the `data` property to return the JSON
