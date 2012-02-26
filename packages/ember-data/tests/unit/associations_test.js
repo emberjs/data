@@ -421,3 +421,36 @@ test("hasOne embedded associations work the same as referenced ones, and have th
   strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
   strictEqual(get(person, 'tag'), store.find(Tag, 5), "association object are the same as object retrieved directly");
 });
+
+test("if a record is set to another record with a hasOne association, the content should be assingned", function() {
+  expect(4);
+
+  var Father = DS.Model.extend({
+      name: DS.attr('string')
+  });
+
+  var Son = DS.Model.extend({
+    name: DS.attr('string'),
+    father: DS.hasOne(Father)
+  });
+
+  var store = DS.Store.create({
+    adapter: DS.Adapter.create({
+      find: function(store, type, id) {
+        return ;
+      }
+    })
+  });
+  store.load(Son, 1, {id: 1, name: "Luke"});
+  store.load(Father, 1, {id: 1, name: "Darth Vader"});
+
+  var son = store.find(Son, 1);
+  var father = store.find(Father, 1);
+  equal(son.get('name'), "Luke", "precond - retrieves object from store");
+  equal(father.get('name'), "Darth Vader", "precond - retrieves object from store");
+  equal(son.get('father'), undefined, "son does not have a father assigned");
+
+
+  son.set('father', father);
+  notEqual(son.get('father'), undefined, "son has a father assigned");
+});
