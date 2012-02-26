@@ -648,7 +648,7 @@ DS.Adapter.create({
             // modelArray.load(data.people)
             modelArray.load(data);
         });
-    })
+    }
 });
 ```
 
