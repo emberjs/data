@@ -407,6 +407,11 @@ All currently loaded records of that type will be immediately returned
 in a `ModelArray`. Your adapter will also have an opportunity to load
 additional records of that type if necessary.
 
+Whenever a new record is loaded into the store for the type in question,
+the `ModelArray` returned by `findAll` will update to reflect the new
+data. This means that you can pass it to a `#each` in an Ember template
+and it will stay up to date as new data is loaded.
+
 ### Filtering Loaded Records
 
 You can filter all records of a model type by calling the store's `filter()`
