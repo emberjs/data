@@ -43,6 +43,7 @@
     window.ENV = window.ENV || {};
     var extendPrototypes = location.search.match(/extendprototypes=([^&]+)/);
     ENV['EXTEND_PROTOTYPES'] = !!(extendPrototypes && decodeURIComponent(extendPrototypes[1]));
+    ENV['TESTING'] = true
 
 
     // hack qunit to not suck for Ember objects
