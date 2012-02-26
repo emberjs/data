@@ -138,7 +138,7 @@ App.Profile = DS.Model.extend({
 });
 
 App.Author = DS.Model.extend({
-  profile: DS.hasOne(App.Profile),
+  profile: DS.hasOne('App.Profile'),
   name: DS.attr('string')
 });
 ```
@@ -162,13 +162,11 @@ to find an author's profile, we can find the author associated with a profile:
 App.Profile = DS.Model.extend({
   about: DS.attr('string'),
   postCount: DS.attr('number'),
-  // Note that we can specify the association's type
-  // as a string, as it has not been defined yet.
   author: DS.belongsTo('App.Author')
 });
 
 App.Author = DS.Model.extend({
-  profile: DS.hasOne(App.Profile),
+  profile: DS.hasOne('App.Profile'),
   name: DS.attr('string')
 });
 ```
@@ -195,7 +193,7 @@ App.Comment = DS.Model.extend({
 
 App.Post = DS.Model.extend({
     content: DS.attr('string'),
-    comments: DS.hasMany(App.Comment)
+    comments: DS.hasMany('App.Comment')
 });
 ```
 
@@ -328,7 +326,7 @@ set the `embedded` option to true:
 
 ```javascript
 App.Person = DS.Model.extend({
-    tags: DS.hasMany(Tag, { embedded: true })
+    tags: DS.hasMany('App.Tag', { embedded: true })
 });
 ```
 
@@ -347,7 +345,7 @@ In this case, you would specify the key in the association like this:
 
 ```javascript
 App.Person = DS.Model.extend({
-    tags: DS.hasMany(Tag, { key: 'tag_ids' })
+    tags: DS.hasMany('App.Tag', { key: 'tag_ids' })
 });
 ```
 
