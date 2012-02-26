@@ -10,6 +10,26 @@ var DATA_PROXY = {
 };
 
 
+var compareHashes = function(order, hash1, hash2) {
+  var result = 0,
+      propertyName, len, i;
+
+  if (typeof order === 'function') {
+    result = order.call(null, hash1, hash2);
+  } else {
+    len = order ? order.length : 0;
+    for (i=0; result===0 && (i < len); i++) {
+      propertyName = order[i].propertyName;
+      result = Ember.compare(hash1[propertyName], hash2[propertyName]);
+      if ((result !== 0) && order[i].descending) {
+        result = (-1) * result;
+      }
+    }
+  }
+
+  if (result !== 0) return result;
+};
+
 // Implementors Note:
 //
 //   The variables in this file are consistently named according to the following
@@ -528,6 +548,20 @@ DS.Store = Ember.Object.extend({
     } else if (!shouldBeInArray && alreadyInArray) {
       modelArrays.remove(array);
       content.removeObject(clientId);
+    }
+
+    this.updateModelArrayOrder(array, type);
+  },
+
+  updateModelArrayOrder: function(array, type) {
+    var content = get(array, 'content'),
+        order = get(array, 'order');
+    if (!Em.empty(order)) {
+      var data = this.clientIdToHashMap(type);
+      content = content.sort(function(a, b) {
+        return compareHashes(order, data[a], data[b]);
+      });
+      content.replace(0, get(content, 'length'), content);
     }
   },
 

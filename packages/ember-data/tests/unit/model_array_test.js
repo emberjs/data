@@ -178,3 +178,39 @@ test("a model array that backs a collection view functions properly", function()
 
 });
 
+test("an ModelArray can be ordered", function() {
+  var Person = DS.Model.extend({name: DS.attr('string')});
+  var store = DS.Store.create();
+
+  store.loadMany(Person, array);
+
+  var modelArray = store.findAll(Person);
+
+  equal(get(modelArray, 'length'), 3, "The model Array should have 3 objects on it");
+  equal(modelArray.getEach('id').join(), '1,2,3', 'default order by load time');
+  modelArray.orderBy('name DESC');
+  equal(modelArray.getEach('id'), '2,1,3', 'order by name DESC');
+  modelArray.orderBy('name');
+  equal(modelArray.getEach('id'), '3,1,2', 'order by name ASC');
+
+  store.load(Person, { name: "Other Katz", id: 4 });
+
+  equal(modelArray.getEach('id'), '4,3,1,2', 'still in order by name DESC');
+  modelArray.orderBy('id');
+  equal(modelArray.getEach('id'), '1,2,3,4', 'now in order by id ASC');
+
+  modelArray = store.filter(Person, function(hash) {
+    return hash.name.match(/^Scumbag/);
+  });
+
+  equal(get(modelArray, 'length'), 3, "The model Array should have 3 objects on it");
+  modelArray.orderBy('name DESC');
+  equal(modelArray.getEach('id'), '2,1,3', 'order by name DESC');
+
+  store.load(Person, { name: "Scumbag Paul", id: 5 });
+
+  equal(modelArray.getEach('id'), '5,2,1,3', 'still order by name DESC after adding in a model');
+
+  modelArray.orderBy('name ASC, id DESC');
+  equal(modelArray.getEach('id'), '3,1,2,5', 'order model by two properties');
+});
