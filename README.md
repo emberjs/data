@@ -955,7 +955,7 @@ content or add a spinner alongside it, for instance.
 
 ## Unit Tests
 
-To run unit tests, run `rackup` from the root directory and visit
+To run unit tests, run `bundle exec rackup` from the root directory and visit
 `http://localhost:9292/tests/index.html?package=ember-data`.
 
 ### What next?
