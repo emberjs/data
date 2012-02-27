@@ -25,7 +25,7 @@ test("a model array is backed by models", function() {
   var modelArray = store.find(Person, [1,2,3]);
 
   for (var i=0, l=get(array, 'length'); i<l; i++) {
-    equal(get(modelArray.objectAt(i), 'data'), array[i], "a model array materializes objects on demand");
+    deepEqual(modelArray.objectAt(i).toJSON(), array[i], "a model array materializes objects on demand");
   }
 });
 
@@ -51,7 +51,7 @@ test("a model array can have a filter on it", function() {
   store.loadMany(Person, array);
 
   var modelArray = store.filter(Person, function(hash) {
-    if (hash.name.match(/Scumbag [KD]/)) { return true; }
+    if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
   });
 
   equal(get(modelArray, 'length'), 2, "The model Array should have the filtered objects on it");
@@ -71,7 +71,7 @@ test("a filtered model array includes created elements", function() {
   store.loadMany(Person, array);
 
   var modelArray = store.filter(Person, function(hash) {
-    if (hash.name.match(/Scumbag [KD]/)) { return true; }
+    if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
   });
 
   equal(get(modelArray, 'length'), 2, "precond - The model Array should have the filtered objects on it");
@@ -97,13 +97,13 @@ test("a model Array can update its filter", function() {
   store.loadMany(Person, array);
 
   var modelArray = store.filter(Person, function(hash) {
-    if (hash.name.match(/Scumbag [KD]/)) { return true; }
+    if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
   });
 
   equal(get(modelArray, 'length'), 2, "The model Array should have the filtered objects on it");
 
   modelArray.set('filterFunction', function(hash) {
-    if (hash.name.match(/Katz/)) { return true; }
+    if (hash.get('name').match(/Katz/)) { return true; }
   });
 
   equal(get(modelArray, 'length'), 1, "The model Array should have one object on it");

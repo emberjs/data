@@ -28,7 +28,7 @@
     "es5" : true,
     "browser" : true,
 
-    "boss" : false,
+    "boss" : true,
     "curly": false,
     "debug": false,
     "devel": false,

@@ -3,6 +3,13 @@ require("ember-data/system/transaction");
 
 var get = Ember.get, set = Ember.set, getPath = Ember.getPath, fmt = Ember.String.fmt;
 
+var DATA_PROXY = {
+  get: function(name) {
+    return this.savedData[name];
+  }
+};
+
+
 // Implementors Note:
 //
 //   The variables in this file are consistently named according to the following
@@ -50,11 +57,17 @@ DS.Store = Ember.Object.extend({
     The init method registers this store as the default if none is specified.
   */
   init: function() {
+    // Enforce API revisioning. See BREAKING_CHANGES.md for more.
+    var revision = get(this, 'revision');
+
+    if (revision !== DS.CURRENT_API_REVISION && !Ember.ENV.TESTING) {
+      throw new Error("Error: The Ember Data library has had breaking API changes since the last time you updated the library. Please review the list of breaking changes at https://github.com/emberjs/data/blob/master/BREAKING_CHANGES.md, then update your store's `revision` property to " + DS.CURRENT_API_REVISION);
+    }
+
     if (!get(DS, 'defaultStore') || get(this, 'isDefaultStore')) {
       set(DS, 'defaultStore', this);
     }
 
-    set(this, 'data', []);
     set(this, '_typeMap', {});
     set(this, 'recordCache', []);
     set(this, 'modelArrays', []);
@@ -113,9 +126,11 @@ DS.Store = Ember.Object.extend({
     // NOTE: A `transaction` is specified when the
     // `transaction.createRecord` API is used.
     var record = type._create({
-      store: this,
-      transaction: transaction || get(this, 'defaultTransaction')
+      store: this
     });
+
+    transaction = transaction || get(this, 'defaultTransaction');
+    transaction.adoptRecord(record);
 
     // Extract the primary key from the `properties` hash,
     // based on the `primaryKey` for the model type.
@@ -127,7 +142,7 @@ DS.Store = Ember.Object.extend({
     // extracted `id` with the hash.
     clientId = this.pushHash(hash, id, type);
 
-    record.send('setData', hash);
+    record.send('didChangeData');
 
     var recordCache = get(this, 'recordCache');
 
@@ -142,10 +157,7 @@ DS.Store = Ember.Object.extend({
     // Set the properties specified on the record.
     record.setProperties(properties);
 
-    // Update any model arrays. Most notably, add this record to
-    // the model arrays returned by `find(type)` and add it to
-    // any filtered arrays for whom this model passes the filter.
-    this.updateModelArrays(type, clientId, hash);
+    this.updateModelArrays(type, clientId, get(record, 'data'));
 
     return record;
   },
@@ -204,7 +216,7 @@ DS.Store = Ember.Object.extend({
     var model;
 
     var recordCache = get(this, 'recordCache');
-    var data = this.clientIdToHashMap(type);
+    var dataCache = this.clientIdToHashMap(type);
 
     // If there is already a clientId assigned for this
     // type/id combination, try to find an existing
@@ -219,8 +231,9 @@ DS.Store = Ember.Object.extend({
         // 'isLoading' state
         model = this.materializeRecord(type, clientId);
 
-        // immediately set its data
-        model.send('setData', data[clientId] || null);
+        if (dataCache[clientId]) {
+          model.send('didChangeData');
+        }
       }
     } else {
       clientId = this.pushHash(null, id, type);
@@ -296,7 +309,14 @@ DS.Store = Ember.Object.extend({
     return array;
   },
 
-  filter: function(type, filter) {
+  filter: function(type, query, filter) {
+    // allow an optional server query
+    if (arguments.length === 3) {
+      this.findQuery(type, query);
+    } else if (arguments.length === 2) {
+      filter = query;
+    }
+
     var array = DS.FilteredModelArray.create({ type: type, content: Ember.A([]), store: this, filterFunction: filter });
 
     this.registerModelArray(array, type, filter);
@@ -308,11 +328,8 @@ DS.Store = Ember.Object.extend({
   // . UPDATING .
   // ............
 
-  hashWasUpdated: function(type, clientId) {
-    var clientIdToHashMap = this.clientIdToHashMap(type);
-    var hash = clientIdToHashMap[clientId];
-
-    this.updateModelArrays(type, clientId, hash);
+  hashWasUpdated: function(type, clientId, record) {
+    this.updateModelArrays(type, clientId, get(record, 'data'));
   },
 
   // ..............
@@ -327,7 +344,7 @@ DS.Store = Ember.Object.extend({
   },
 
   didUpdateRecords: function(array, hashes) {
-    if (arguments.length === 2) {
+    if (hashes) {
       array.forEach(function(model, idx) {
         this.didUpdateRecord(model, hashes[idx]);
       }, this);
@@ -339,12 +356,12 @@ DS.Store = Ember.Object.extend({
   },
 
   didUpdateRecord: function(model, hash) {
-    if (arguments.length === 2) {
+    if (hash) {
       var clientId = get(model, 'clientId');
       var data = this.clientIdToHashMap(model.constructor);
 
       data[clientId] = hash;
-      model.send('setData', hash);
+      model.send('didChangeData');
     }
 
     model.send('didCommit');
@@ -360,6 +377,31 @@ DS.Store = Ember.Object.extend({
     model.send('didCommit');
   },
 
+  _didCreateRecord: function(record, hash, dataCache, clientId, primaryKey, idMap, idList) {
+    var recordData = get(record, 'data'), id, changes;
+
+    if (hash) {
+      dataCache[clientId] = hash;
+
+      // If the server returns a hash, we assume that the server's version
+      // of the data supercedes the local changes.
+      record.beginPropertyChanges();
+      record.send('didChangeData');
+      recordData.adapterDidUpdate(hash);
+      record.endPropertyChanges();
+
+      id = hash[primaryKey];
+
+      idMap[id] = clientId;
+      idList.push(id);
+    } else {
+      recordData.commit();
+    }
+
+    record.send('didCommit');
+  },
+
+
   didCreateRecords: function(type, array, hashes) {
     var id, clientId, primaryKey = getPath(type, 'proto.primaryKey');
 
@@ -369,16 +411,9 @@ DS.Store = Ember.Object.extend({
 
     for (var i=0, l=get(array, 'length'); i<l; i++) {
       var model = array[i], hash = hashes[i];
-      id = hash[primaryKey];
       clientId = get(model, 'clientId');
 
-      data[clientId] = hash;
-      model.send('setData', hash);
-
-      idToClientIdMap[id] = clientId;
-      idList.push(id);
-
-      model.send('didCommit');
+      this._didCreateRecord(model, hash, data, clientId, primaryKey, idToClientIdMap, idList);
     }
   },
 
@@ -403,21 +438,9 @@ DS.Store = Ember.Object.extend({
       ember_assert("The server did not return data, and you did not create a primary key (" + primaryKey + ") on the client", get(get(model, 'data'), primaryKey));
     }
 
-    // If a hash was provided, index it under the model's client ID
-    // and update the model.
-    if (arguments.length === 2) {
-      id = hash[primaryKey];
-
-      data[clientId] = hash;
-      set(model, 'data', hash);
-    }
-
     clientId = get(model, 'clientId');
 
-    idToClientIdMap[id] = clientId;
-    idList.push(id);
-
-    model.send('didCommit');
+    this._didCreateRecord(model, hash, data, clientId, primaryKey, idToClientIdMap, idList);
   },
 
   recordWasInvalid: function(record, errors) {
@@ -448,21 +471,30 @@ DS.Store = Ember.Object.extend({
   },
 
   updateModelArrayFilter: function(array, type, filter) {
-    var data = this.clientIdToHashMap(type);
-    var allClientIds = this.clientIdList(type), clientId, hash;
+    var dataCache = this.clientIdToHashMap(type);
+    var allClientIds = this.clientIdList(type), clientId, hash, proxy;
+
+    var recordCache = get(this, 'recordCache'), record;
 
     for (var i=0, l=allClientIds.length; i<l; i++) {
       clientId = allClientIds[i];
 
-      hash = data[clientId];
+      hash = dataCache[clientId];
 
-      if (hash) {
-        this.updateModelArray(array, filter, type, clientId, hash);
+      if (hash = dataCache[clientId]) {
+        if (record = recordCache[clientId]) {
+          proxy = get(record, 'data');
+        } else {
+          DATA_PROXY.savedData = hash;
+          proxy = DATA_PROXY;
+        }
+
+        this.updateModelArray(array, filter, type, clientId, proxy);
       }
     }
   },
 
-  updateModelArrays: function(type, clientId, hash) {
+  updateModelArrays: function(type, clientId, dataProxy) {
     var modelArrays = get(this, 'modelArrays'),
         modelArrayType, filter;
 
@@ -472,17 +504,17 @@ DS.Store = Ember.Object.extend({
 
       if (type !== modelArrayType) { return; }
 
-      this.updateModelArray(array, filter, type, clientId, hash);
+      this.updateModelArray(array, filter, type, clientId, dataProxy);
     }, this);
   },
 
-  updateModelArray: function(array, filter, type, clientId, hash) {
+  updateModelArray: function(array, filter, type, clientId, dataProxy) {
     var shouldBeInArray;
 
     if (!filter) {
       shouldBeInArray = true;
     } else {
-      shouldBeInArray = filter(hash);
+      shouldBeInArray = filter(dataProxy);
     }
 
     var content = get(array, 'content');
@@ -548,6 +580,10 @@ DS.Store = Ember.Object.extend({
     return this.typeMapFor(type).cidToHash;
   },
 
+  dataForClientId: function(type, clientId) {
+    return this.clientIdToHashMap(type)[clientId];
+  },
+
   /** @private
 
     For a given type and id combination, returns the client id used by the store.
@@ -587,7 +623,7 @@ DS.Store = Ember.Object.extend({
     if (hash === undefined) {
       hash = id;
       var primaryKey = getPath(type, 'proto.primaryKey');
-      ember_assert("A data hash was loaded for a model of type " + type.toString() + " but no primary key '" + primaryKey + "' was provided.", !!hash[primaryKey]);
+      ember_assert("A data hash was loaded for a model of type " + type.toString() + " but no primary key '" + primaryKey + "' was provided.", primaryKey in hash);
       id = hash[primaryKey];
     }
 
@@ -601,13 +637,14 @@ DS.Store = Ember.Object.extend({
 
       var model = recordCache[clientId];
       if (model) {
-        model.send('setData', hash);
+        model.send('didChangeData');
       }
     } else {
       clientId = this.pushHash(hash, id, type);
     }
 
-    this.updateModelArrays(type, clientId, hash);
+    DATA_PROXY.savedData = hash;
+    this.updateModelArrays(type, clientId, DATA_PROXY);
 
     return { id: id, clientId: clientId };
   },
@@ -675,10 +712,11 @@ DS.Store = Ember.Object.extend({
 
     get(this, 'recordCache')[clientId] = model = type._create({
       store: this,
-      clientId: clientId,
-      transaction: get(this, 'defaultTransaction')
+      clientId: clientId
     });
-    set(model, 'clientId', clientId);
+
+    get(this, 'defaultTransaction').adoptRecord(model);
+
     model.send('loadingData');
     return model;
   },

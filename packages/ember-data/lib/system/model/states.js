@@ -15,6 +15,14 @@ var isEmptyObject = function(object) {
   return true;
 };
 
+var hasDefinedProperties = function(object) {
+  for (var name in object) {
+    if (object.hasOwnProperty(name) && object[name]) { return true; }
+  }
+
+  return false;
+};
+
 DS.State = Ember.State.extend({
   isLoaded: stateProperty,
   isDirty: stateProperty,
@@ -32,27 +40,21 @@ DS.State = Ember.State.extend({
   dirtyType: stateProperty
 });
 
-var isEmptyObject = function(obj) {
-  for (var prop in obj) {
-    if (!obj.hasOwnProperty(prop)) { continue; }
-    return false;
-  }
-
-  return true;
-};
-
 var setProperty = function(manager, context) {
   var key = context.key, value = context.value;
 
   var model = get(manager, 'model'),
       data = get(model, 'data');
 
-  data[key] = value;
+  set(data, key, value);
+};
 
-  // At the end of the run loop, notify model arrays that
-  // this record has changed so they can re-evaluate its contents
-  // to determine membership.
-  Ember.run.once(model, model.notifyHashWasUpdated);
+var didChangeData = function(manager) {
+  var model = get(manager, 'model'),
+      data = get(model, 'data');
+
+  data._savedData = null;
+  model.notifyPropertyChange('data');
 };
 
 // The waitingOn event shares common functionality
@@ -113,6 +115,48 @@ var waitingOn = function(manager, object) {
 //   `isPending` property on all children will become `false`
 //   and the transaction will try to commit the records.
 
+// This mixin is mixed into various uncommitted states. Make
+// sure to mix it in *after* the class definition, so its
+// super points to the class definition.
+var Uncommitted = Ember.Mixin.create({
+  setProperty: setProperty,
+
+  deleteRecord: function(manager) {
+    this._super(manager);
+
+    var model = get(manager, 'model'),
+        dirtyType = get(this, 'dirtyType');
+
+    model.withTransaction(function(t) {
+      t.modelBecameClean(dirtyType, model);
+    });
+  }
+});
+
+// These mixins are mixed into substates of the concrete
+// subclasses of DirtyState.
+
+var CreatedUncommitted = Ember.Mixin.create({
+  deleteRecord: function(manager) {
+    this._super(manager);
+
+    manager.goToState('deleted.saved');
+  }
+});
+
+var UpdatedUncommitted = Ember.Mixin.create({
+  deleteRecord: function(manager) {
+    this._super(manager);
+
+    var model = get(manager, 'model');
+
+    model.withTransaction(function(t) {
+      t.modelBecameClean('created', model);
+    });
+
+    manager.goToState('deleted');
+  }
+});
 
 // The dirty state is a abstract state whose functionality is
 // shared between the `created` and `updated` states.
@@ -148,11 +192,7 @@ var DirtyState = DS.State.extend({
     },
 
     // EVENTS
-    setProperty: setProperty,
-
-    deleteRecord: function(manager) {
-      manager.goToState('deleted');
-    },
+    deleteRecord: Ember.K,
 
     waitingOn: function(manager, object) {
       waitingOn(manager, object);
@@ -162,7 +202,7 @@ var DirtyState = DS.State.extend({
     willCommit: function(manager) {
       manager.goToState('inFlight');
     }
-  }),
+  }, Uncommitted),
 
   // Once a record has been handed off to the adapter to be
   // saved, it is in the 'in flight' state. Changes to the
@@ -193,10 +233,7 @@ var DirtyState = DS.State.extend({
       manager.goToState('invalid');
     },
 
-    setData: function(manager, hash) {
-      var model = get(manager, 'model');
-      set(model, 'data', hash);
-    }
+    didChangeData: didChangeData
   }),
 
   // If a record becomes associated with a newly created
@@ -221,8 +258,6 @@ var DirtyState = DS.State.extend({
     // started to commit is in this state.
     uncommitted: DS.State.extend({
       // EVENTS
-      setProperty: setProperty,
-
       deleteRecord: function(manager) {
         var model = get(manager, 'model'),
             pendingQueue = get(model, 'pendingQueue'),
@@ -236,8 +271,6 @@ var DirtyState = DS.State.extend({
           tuple = pendingQueue[prop];
           Ember.removeObserver(tuple[0], 'id', tuple[1]);
         }
-
-        manager.goToState('deleted');
       },
 
       willCommit: function(manager) {
@@ -260,7 +293,7 @@ var DirtyState = DS.State.extend({
         var dirtyType = get(this, 'dirtyType');
         manager.goToState(dirtyType + '.uncommitted');
       }
-    }),
+    }, Uncommitted),
 
     // A pending record whose transaction has started
     // to commit is in this state. Since it has not yet
@@ -320,7 +353,7 @@ var DirtyState = DS.State.extend({
 
       delete errors[key];
 
-      if (isEmptyObject(errors)) {
+      if (!hasDefinedProperties(errors)) {
         manager.send('becameValid');
       }
     },
@@ -330,6 +363,41 @@ var DirtyState = DS.State.extend({
     }
   })
 });
+
+// The created and updated states are created outside the state
+// chart so we can reopen their substates and add mixins as
+// necessary.
+
+var createdState = DirtyState.create({
+  dirtyType: 'created',
+
+  // FLAGS
+  isNew: true,
+
+  // EVENTS
+  invokeLifecycleCallbacks: function(manager, model) {
+    model.didCreate();
+  }
+});
+
+var updatedState = DirtyState.create({
+  dirtyType: 'updated',
+
+  // EVENTS
+  invokeLifecycleCallbacks: function(manager, model) {
+    model.didUpdate();
+  }
+});
+
+// The created.uncommitted state and created.pending.uncommitted share
+// some logic defined in CreatedUncommitted.
+createdState.states.uncommitted.reopen(CreatedUncommitted);
+createdState.states.pending.states.uncommitted.reopen(CreatedUncommitted);
+
+// The updated.uncommitted state and updated.pending.uncommitted share
+// some logic defined in UpdatedUncommitted.
+updatedState.states.uncommitted.reopen(UpdatedUncommitted);
+updatedState.states.pending.states.uncommitted.reopen(UpdatedUncommitted);
 
 var states = {
   rootState: Ember.State.create({
@@ -356,9 +424,9 @@ var states = {
         manager.goToState('loading');
       },
 
-      setData: function(manager, hash) {
-        var model = get(manager, 'model');
-        set(model, 'data', hash);
+      didChangeData: function(manager) {
+        didChangeData(manager);
+
         manager.goToState('loaded.created');
       }
     }),
@@ -377,17 +445,9 @@ var states = {
       },
 
       // EVENTS
-      setData: function(manager, data) {
-        var model = get(manager, 'model');
-
-        model.beginPropertyChanges();
-        set(model, 'data', data);
-
-        if (data !== null) {
-          manager.send('loadedData');
-        }
-
-        model.endPropertyChanges();
+      didChangeData: function(manager, data) {
+        didChangeData(manager);
+        manager.send('loadedData');
       },
 
       loadedData: function(manager) {
@@ -415,6 +475,8 @@ var states = {
           manager.goToState('updated');
         },
 
+        didChangeData: didChangeData,
+
         deleteRecord: function(manager) {
           manager.goToState('deleted');
         },
@@ -428,29 +490,12 @@ var states = {
       // A record is in this state after it has been locally
       // created but before the adapter has indicated that
       // it has been saved.
-      created: DirtyState.create({
-        dirtyType: 'created',
-
-        // FLAGS
-        isNew: true,
-
-        // EVENTS
-        invokeLifecycleCallbacks: function(manager, model) {
-          model.didCreate();
-        }
-      }),
+      created: createdState,
 
       // A record is in this state if it has already been
       // saved to the server, but there are new local changes
       // that have not yet been saved.
-      updated: DirtyState.create({
-        dirtyType: 'updated',
-
-        // EVENTS
-        invokeLifecycleCallbacks: function(manager, model) {
-          model.didUpdate();
-        }
-      })
+      updated: updatedState,
     }),
 
     // A record is in this state if it was deleted from the store.
@@ -460,26 +505,27 @@ var states = {
       isLoaded: true,
       isDirty: true,
 
-      // TRANSITIONS
-      enter: function(manager) {
-        var model = get(manager, 'model');
-        var store = get(model, 'store');
-
-        if (store) {
-          store.removeFromModelArrays(model);
-        }
-
-        model.withTransaction(function(t) {
-          t.modelBecameDirty('deleted', model);
-        });
-      },
-
       // SUBSTATES
 
       // When a record is deleted, it enters the `start`
       // state. It will exit this state when the record's
       // transaction starts to commit.
       start: DS.State.create({
+        // TRANSITIONS
+        enter: function(manager) {
+          var model = get(manager, 'model');
+          var store = get(model, 'store');
+
+          if (store) {
+            store.removeFromModelArrays(model);
+          }
+
+          model.withTransaction(function(t) {
+            t.modelBecameDirty('deleted', model);
+          });
+        },
+
+        // EVENTS
         willCommit: function(manager) {
           manager.goToState('inFlight');
         }
@@ -512,6 +558,7 @@ var states = {
       // been saved, the record enters the `saved` substate
       // of `deleted`.
       saved: DS.State.create({
+        // FLAGS
         isDirty: false
       })
     }),

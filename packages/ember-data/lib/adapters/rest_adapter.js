@@ -6,9 +6,9 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     var data = {};
-    data[root] = get(model, 'data');
+    data[root] = model.toJSON();
 
-    this.ajax("/" + this.pluralize(root), "POST", {
+    this.ajax(this.buildURL(root), "POST", {
       data: data,
       success: function(json) {
         this.sideload(store, type, json, root);
@@ -27,10 +27,10 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     var data = {};
     data[plural] = models.map(function(model) {
-      return get(model, 'data');
+      return model.toJSON();
     });
 
-    this.ajax("/" + this.pluralize(root), "POST", {
+    this.ajax(this.buildURL(root), "POST", {
       data: data,
 
       success: function(json) {
@@ -45,15 +45,15 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     var data = {};
-    data[root] = get(model, 'data');
+    data[root] = model.toJSON();
 
-    var url = ["", this.pluralize(root), id].join("/");
+    var url = ["", store.namespace, this.pluralize(root), id].join("/");
 
-    this.ajax(url, "PUT", {
+    this.ajax(this.buildURL(root, id), "PUT", {
       data: data,
       success: function(json) {
         this.sideload(store, type, json, root);
-        store.didUpdateRecord(model, json[root]);
+        store.didUpdateRecord(model, json && json[root]);
       }
     });
   },
@@ -68,10 +68,10 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     var data = {};
     data[plural] = models.map(function(model) {
-      return get(model, 'data');
+      return model.toJSON();
     });
 
-    this.ajax("/" + this.pluralize(root) + "/bulk", "PUT", {
+    this.ajax(this.buildURL(root, "bulk"), "PUT", {
       data: data,
       success: function(json) {
         this.sideload(store, type, json, plural);
@@ -84,9 +84,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var id = get(model, 'id');
     var root = this.rootForType(type);
 
-    var url = ["", this.pluralize(root), id].join("/");
-
-    this.ajax(url, "DELETE", {
+    this.ajax(this.buildURL(root, id), "DELETE", {
       success: function(json) {
         if (json) { this.sideload(store, type, json); }
         store.didDeleteRecord(model);
@@ -107,7 +105,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       return get(model, 'id');
     });
 
-    this.ajax("/" + this.pluralize(root) + "/bulk", "DELETE", {
+    this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
       data: data,
       success: function(json) {
         if (json) { this.sideload(store, type, json); }
@@ -119,9 +117,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   find: function(store, type, id) {
     var root = this.rootForType(type);
 
-    var url = ["", this.pluralize(root), id].join("/");
-
-    this.ajax(url, "GET", {
+    this.ajax(this.buildURL(root, id), "GET", {
       success: function(json) {
         store.load(type, json[root]);
         this.sideload(store, type, json, root);
@@ -132,7 +128,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   findMany: function(store, type, ids) {
     var root = this.rootForType(type), plural = this.pluralize(root);
 
-    this.ajax("/" + plural, "GET", {
+    this.ajax(this.buildURL(root), "GET", {
       data: { ids: ids },
       success: function(json) {
         store.loadMany(type, ids, json[plural]);
@@ -144,7 +140,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   findAll: function(store, type) {
     var root = this.rootForType(type), plural = this.pluralize(root);
 
-    this.ajax("/" + plural, "GET", {
+    this.ajax(this.buildURL(root), "GET", {
       success: function(json) {
         store.loadMany(type, json[plural]);
         this.sideload(store, type, json, plural);
@@ -155,7 +151,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   findQuery: function(store, type, query, modelArray) {
     var root = this.rootForType(type), plural = this.pluralize(root);
 
-    this.ajax("/" + plural, "GET", {
+    this.ajax(this.buildURL(root), "GET", {
       data: query,
       success: function(json) {
         modelArray.load(json[plural]);
@@ -190,7 +186,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     hash.contentType = 'application/json';
     hash.context = this;
 
-    if (hash.data) {
+    if (hash.data && type !== 'GET') {
       hash.data = JSON.stringify(hash.data);
     }
 
@@ -226,6 +222,21 @@ DS.RESTAdapter = DS.Adapter.extend({
     } else {
       store.load(type, value);
     }
+  },
+
+  buildURL: function(model, suffix) {
+    var url = [""];
+
+    if (this.namespace !== undefined) {
+      url.push(this.namespace);
+    }
+
+    url.push(this.pluralize(model));
+    if (suffix !== undefined) {
+      url.push(suffix);
+    }
+
+    return url.join("/");
   }
 });
 

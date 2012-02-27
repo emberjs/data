@@ -161,11 +161,13 @@ test("DS.Store has a load method to load in a new record", function() {
   });
 
   var currentStore = DS.Store.create({ adapter: adapter });
-  var currentType = DS.Model.extend();
+  var currentType = DS.Model.extend({
+    name: DS.attr('string')
+  });
 
   var object = currentStore.find(currentType, 1);
 
-  equal(getPath(object, 'data.name'), "Scumbag Dale", "the data hash was inserted");
+  equal(object.toJSON().name, "Scumbag Dale", "the data hash was inserted");
 });
 
 var array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
@@ -178,14 +180,16 @@ test("DS.Store has a load method to load in an Array of records", function() {
   });
 
   var currentStore = DS.Store.create({ adapter: adapter });
-  var currentType = DS.Model.extend();
+  var currentType = DS.Model.extend({
+    name: DS.attr('string')
+  });
 
   var objects = currentStore.findMany(currentType, [1,2,3]);
 
   for (var i=0, l=get(objects, 'length'); i<l; i++) {
     var object = objects.objectAt(i), hash = array[i];
 
-    equal(get(object, 'data'), hash);
+    deepEqual(object.toJSON(), hash);
   }
 });
 
@@ -199,6 +203,22 @@ test("DS.Store loads individual models without explicit IDs", function() {
 
   var tom = store.find(Person, 1);
   equal(get(tom, 'name'), "Tom Dale", "the person was successfully loaded for the given ID");
+});
+
+test("can load data for the same record if it is not dirty", function() {
+  var store = DS.Store.create();
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  store.load(Person, { id: 1, name: "Tom Dale" });
+  var tom = store.find(Person, 1);
+
+  equal(get(tom, 'isDirty'), false, "precond - record is not dirty");
+  equal(get(tom, 'name'), "Tom Dale", "returns the correct name");
+
+  store.load(Person, { id: 1, name: "Captain Underpants" });
+  equal(get(tom, 'name'), "Captain Underpants", "updated record with new date");
 });
 
 test("DS.Store loads individual models without explicit IDs with a custom primaryKey", function() {
@@ -221,7 +241,9 @@ test("DS.Store passes only needed guids to findMany", function() {
   });
 
   var currentStore = DS.Store.create({ adapter: adapter });
-  var currentType = DS.Model.extend();
+  var currentType = DS.Model.extend({
+    name: DS.attr('string')
+  });
 
   currentStore.loadMany(currentType, [1,2,3], array);
 
@@ -234,7 +256,7 @@ test("DS.Store passes only needed guids to findMany", function() {
     object = objects.objectAt(i);
     hash = array[i];
 
-    equal(get(object, 'data'), hash);
+    deepEqual(object.toJSON(), hash);
   }
 
   for (i=3; i<6; i++) {
@@ -469,3 +491,12 @@ test("a model receives a didCreate callback when it has finished updating", func
   equal(callCount, 1, "didCreate called after commit");
 });
 
+test("an ID of 0 is allowed", function() {
+  var store = DS.Store.create();
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  store.load(Person, { id: 0, name: "Tom Dale" });
+});

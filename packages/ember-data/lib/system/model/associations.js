@@ -75,9 +75,9 @@ var hasAssociation = function(type, options, one) {
     meta.kind = 'hasMany';
   }
 
-  return Ember.computed(function(key) {
+  return Ember.computed(function(key, value) {
     var data = get(this, 'data'), ids, id, association,
-      store = get(this, 'store');
+        store = get(this, 'store');
 
     if (typeof type === 'string') {
       type = getPath(this, type, false) || getPath(window, type);

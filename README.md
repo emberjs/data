@@ -15,7 +15,8 @@ Yes.
 
 #### Is It "Production Ready™"?
 
-No.
+No. Breaking changes, indexed by date, are listed in
+[`BREAKING_CHANGES.md`](https://github.com/emberjs/data/blob/master/BREAKING_CHANGES.md).
 
 #### Roadmap
 
@@ -137,7 +138,7 @@ App.Profile = DS.Model.extend({
 });
 
 App.Author = DS.Model.extend({
-  profile: DS.hasOne(App.Profile),
+  profile: DS.hasOne('App.Profile'),
   name: DS.attr('string')
 });
 ```
@@ -161,13 +162,11 @@ to find an author's profile, we can find the author associated with a profile:
 App.Profile = DS.Model.extend({
   about: DS.attr('string'),
   postCount: DS.attr('number'),
-  // Note that we can specify the association's type
-  // as a string, as it has not been defined yet.
   author: DS.belongsTo('App.Author')
 });
 
 App.Author = DS.Model.extend({
-  profile: DS.hasOne(App.Profile),
+  profile: DS.hasOne('App.Profile'),
   name: DS.attr('string')
 });
 ```
@@ -194,7 +193,7 @@ App.Comment = DS.Model.extend({
 
 App.Post = DS.Model.extend({
     content: DS.attr('string'),
-    comments: DS.hasMany(App.Comment)
+    comments: DS.hasMany('App.Comment')
 });
 ```
 
@@ -327,7 +326,7 @@ set the `embedded` option to true:
 
 ```javascript
 App.Person = DS.Model.extend({
-    tags: DS.hasMany(Tag, { embedded: true })
+    tags: DS.hasMany('App.Tag', { embedded: true })
 });
 ```
 
@@ -346,7 +345,7 @@ In this case, you would specify the key in the association like this:
 
 ```javascript
 App.Person = DS.Model.extend({
-    tags: DS.hasMany(Tag, { key: 'tag_ids' })
+    tags: DS.hasMany('App.Tag', { key: 'tag_ids' })
 });
 ```
 
@@ -407,6 +406,11 @@ var people = App.store.findAll(App.Person);
 All currently loaded records of that type will be immediately returned
 in a `ModelArray`. Your adapter will also have an opportunity to load
 additional records of that type if necessary.
+
+Whenever a new record is loaded into the store for the type in question,
+the `ModelArray` returned by `findAll` will update to reflect the new
+data. This means that you can pass it to a `#each` in an Ember template
+and it will stay up to date as new data is loaded.
 
 ### Filtering Loaded Records
 
@@ -649,7 +653,7 @@ DS.Adapter.create({
             // modelArray.load(data.people)
             modelArray.load(data);
         });
-    })
+    }
 });
 ```
 
@@ -951,10 +955,9 @@ content or add a spinner alongside it, for instance.
 
 ## Unit Tests
 
-To run unit tests, run `rackup` from the root directory and visit
+To run unit tests, run `bundle exec rackup` from the root directory and visit
 `http://localhost:9292/tests/index.html?package=ember-data`.
 
 ### What next?
 
 Profit.
-

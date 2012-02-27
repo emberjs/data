@@ -6,6 +6,85 @@ var retrieveFromCurrentState = Ember.computed(function(key) {
   return get(getPath(this, 'stateManager.currentState'), key);
 }).property('stateManager.currentState').cacheable();
 
+// This object is a regular JS object for performance. It is only
+// used internally for bookkeeping purposes.
+var DataProxy = function(record) {
+  this.record = record;
+  this.unsavedData = {};
+};
+
+DataProxy.prototype = {
+  get: function(key) { return Ember.get(this, key); },
+  set: function(key, value) { return Ember.set(this, key, value); },
+
+  // TODO: Memoize
+  savedData: function() {
+    var savedData = this._savedData;
+    if (savedData) { return savedData; }
+
+    var record = this.record,
+        clientId = get(record, 'clientId'),
+        store = get(record, 'store');
+
+    if (store) {
+      savedData = store.dataForClientId(record.constructor, clientId);
+      this._savedData = savedData;
+      return savedData;
+    }
+  },
+
+  unknownProperty: function(key) {
+    var unsavedData = this.unsavedData,
+        savedData = this.savedData();
+
+    var value = unsavedData[key];
+
+    if (savedData && value === undefined) {
+      value = savedData[key];
+    }
+
+    return value;
+  },
+
+  setUnknownProperty: function(key, value) {
+    var record = this.record,
+        unsavedData = this.unsavedData;
+
+    unsavedData[key] = value;
+
+    // At the end of the run loop, notify model arrays that
+    // this record has changed so they can re-evaluate its contents
+    // to determine membership.
+    Ember.run.once(record, record.notifyHashWasUpdated);
+
+    return value;
+  },
+
+  commit: function() {
+    var record = this.record;
+
+    var unsavedData = this.unsavedData;
+    var savedData = this.savedData();
+
+    for (var prop in unsavedData) {
+      if (unsavedData.hasOwnProperty(prop)) {
+        savedData[prop] = unsavedData[prop];
+        delete unsavedData[prop];
+      }
+    }
+
+    record.notifyPropertyChange('data');
+  },
+
+  rollback: function() {
+    this.unsavedData = {};
+  },
+
+  adapterDidUpdate: function(data) {
+    this.unsavedData = {};
+  }
+};
+
 DS.Model = Ember.Object.extend({
   isLoaded: retrieveFromCurrentState,
   isDirty: retrieveFromCurrentState,
@@ -18,6 +97,9 @@ DS.Model = Ember.Object.extend({
 
   clientId: null,
   transaction: null,
+  stateManager: null,
+  pendingQueue: null,
+  errors: null,
 
   // because unknownProperty is used, any internal property
   // must be initialized here.
@@ -34,10 +116,36 @@ DS.Model = Ember.Object.extend({
     return data && get(data, primaryKey);
   }).property('primaryKey', 'data'),
 
-  data: null,
-  pendingQueue: null,
+  toJSON: function() {
+    var data = get(this, 'data'),
+        result = {},
+        type = this.constructor,
+        attributes = get(type, 'attributes'),
+        associations = get(type, 'associationsByName'),
+        primaryKey = get(this, 'primaryKey'),
+        id = get(this, 'id');
 
-  errors: null,
+    if (id) {
+      result[primaryKey] = id;
+    }
+
+    attributes.forEach(function(name, meta) {
+      var key = meta.options.key || name,
+          value = get(data, key)
+
+      if (value === undefined) {
+        value = meta.options.defaultValue;
+      }
+
+      result[key] = value;
+    }, this);
+
+    return result;
+  },
+
+  data: Ember.computed(function() {
+    return new DataProxy(this);
+  }).cacheable(),
 
   didLoad: Ember.K,
   didUpdate: Ember.K,
@@ -49,6 +157,7 @@ DS.Model = Ember.Object.extend({
     });
 
     set(this, 'pendingQueue', {});
+
     set(this, 'stateManager', stateManager);
     stateManager.goToState('empty');
   },
@@ -84,7 +193,7 @@ DS.Model = Ember.Object.extend({
   notifyHashWasUpdated: function() {
     var store = get(this, 'store');
     if (store) {
-      store.hashWasUpdated(this.constructor, get(this, 'clientId'));
+      store.hashWasUpdated(this.constructor, get(this, 'clientId'), this);
     }
   },
 
