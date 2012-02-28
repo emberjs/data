@@ -361,3 +361,19 @@ test("deleting several people (with bulkCommit) makes a POST to /people/delete_m
   expectStates('deleted');
   expectStates('dirty', false);
 });
+
+test("finding a person with baseUrl set to '/data/' makes a GET to /data/people/:id", function() {
+  set(adapter, 'baseUrl', '/data/');
+  person = store.find(Person, 1);
+
+  expectState('loaded', false);
+  expectUrl("/data/people/1", "the plural of the model name with the ID requested");
+  expectType("GET");
+
+  ajaxHash.success({ person: { id: 1, name: "Yehuda Katz" } });
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
+});
