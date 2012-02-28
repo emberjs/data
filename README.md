@@ -143,7 +143,7 @@ their account that is displayed when visitors want to learn more about them.
 ```javascript
 App.Profile = DS.Model.extend({
   about: DS.attr('string'),
-  postCount: DS.attr('number')
+  postCount: DS.attr('integer')
 });
 
 App.Author = DS.Model.extend({
@@ -170,7 +170,7 @@ to find an author's profile, we can find the author associated with a profile:
 ```javascript
 App.Profile = DS.Model.extend({
   about: DS.attr('string'),
-  postCount: DS.attr('number'),
+  postCount: DS.attr('integer'),
   author: DS.belongsTo('App.Author')
 });
 
