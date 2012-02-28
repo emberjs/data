@@ -394,6 +394,37 @@ DS.attr = function(type, options) {
   }).property('data');
 };
 
+DS.attrArray = function(type, options) {
+  var transform = DS.attr.transforms[type];
+  var transformFrom = transform.from;
+  var transformTo = transform.to;
+
+  return Ember.computed(function(key, value) {
+    var data = get(this, 'data'),
+      i, values = [];
+
+    key = (options && options.key) ? options.key : key;
+
+    if (value === undefined) {
+      if (data && jQuery.isArray(data[key])) {
+        for (i = 0; i < data[key].length; i++) {
+          values.push(transformFrom(data[key][i]));
+        }
+      }
+      return values;
+    } else {
+      ember_assert("You cannot set a model attribute before its data is loaded.", !!data);
+      if (jQuery.isArray(value)) {
+        for (i = 0; i < value.length; i++) {
+          values.push(transformTo(value[i]));
+        }
+      }
+      this.setProperty(key, values);
+      return values;
+    }
+  }).property('data');
+};
+
 var embeddedFindRecord = function(store, type, data, key, one) {
   var association = data ? get(data, key) : one ? null : [];
   if (one) {

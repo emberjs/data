@@ -84,6 +84,16 @@ App.Person = DS.Model.extend({
 });
 ```
 
+For attributes that contain an array of primitives you can use `DS.attrArray`:
+
+```javascript
+App.Person = DS.Model.extend({
+    firstName: DS.attr('string'),
+    middleNames: DS.attrArray('string'),
+    lastName: DS.attr('string')
+});
+```
+
 Valid attribute types are `string`, `integer`, `boolean`, and `date`. You
 can also register custom attribute types. For example, here's a `boolString`
 attribute type that converts booleans into the string `"Y"` or `"N"`:

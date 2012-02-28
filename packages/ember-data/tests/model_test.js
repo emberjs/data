@@ -112,6 +112,35 @@ test("a DS.Model can describe Date attributes", function() {
   convertsWhenSet('date', date, dateString);
 });
 
+test("a DS.Model can describe array attributes", function() {
+  var names = ['john', 'james', 'jack'];
+  var numbers = [5, 9, 456, 68];
+  var dates = [new Date(2011,11,11), new Date(2012,12,12)];
+  var bools = [true, false, false, false];
+
+  var model = DS.Model.create({
+    names: DS.attrArray('string'),
+    numbers: DS.attrArray('integer'),
+    dates: DS.attrArray('date'),
+    bools: DS.attrArray('boolean')
+  });
+
+  model.loadingData();
+  model.setData({});
+
+  model.set('names', names);
+  deepEqual(names, get(model, 'names'), "setting an array of strings returns the same array");
+
+  model.set('numbers', numbers);
+  deepEqual(numbers, get(model, 'numbers'), "setting an array of integers returns the same array");
+
+  model.set('dates', dates);
+  deepEqual(dates, get(model, 'dates'), "setting an array of dates returns the same array");
+
+  model.set('bools', bools);
+  deepEqual(bools, get(model, 'bools'), "setting an array of booleans returns the same array");
+});
+
 test("it can specify which key to use when looking up properties on the hash", function() {
   var model = DS.Model.create({
     name: DS.attr('string', { key: 'full_name' })
