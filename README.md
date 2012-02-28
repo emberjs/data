@@ -34,8 +34,16 @@ that holds loaded models, and is responsible for retrieving models that have
 not yet been loaded.
 
 ```javascript
-App.store = DS.Store.create();
+App.store = DS.Store.create({
+  revision: 2
+});
 ```
+
+> NOTE: The revision property is used by `ember-data` to notify you of
+> breaking changes to the public API before 1.0. For new applications,
+> just set the revision to this number. See
+> [BREAKING CHANGES](https://github.com/emberjs/data/blob/master/BREAKING_CHANGES.md)
+> for more information.
     
 You can tell the store how to talk to your backend by specifying an *adapter*.
 Ember Data comes with a RESTful JSON API adapter. You can specify this adapter
@@ -43,7 +51,8 @@ by setting the `adapter` property:
 
 ```javascript
 App.store = DS.Store.create({
-    adapter: DS.RESTAdapter.create({ bulkCommit: false })
+  revision: 2,
+  adapter: DS.RESTAdapter.create({ bulkCommit: false })
 });
 ```
 
@@ -535,7 +544,8 @@ To tell your store which adapter to use, set its `adapter` property:
 
 ```javascript
 App.store = DS.Store.create({
-    adapter: App.adapter
+  revision: 2,
+  adapter: App.adapter
 });
 ```
 

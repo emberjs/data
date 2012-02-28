@@ -35,6 +35,26 @@ App.Store = DS.Store.create({
 This will remove the exception about changes before revision 2. You will
 receive another warning if there is another change.
 
+## Revision 2
+
+### Number Attributes
+
+Previously, the attribute type used for number was `integer`. However,
+since it also is the correct attribute type for floats, you should now
+use `number`.
+
+```javascript
+// instead of
+App.Person = DS.Model.extend({
+  age: DS.attr('integer')
+});
+
+// do
+App.Person = DS.Model.extend({
+  age: DS.attr('number')
+});
+```
+
 ## Revision 1
 
 ### Filter Functions
