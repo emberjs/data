@@ -50,6 +50,19 @@ The REST adapter will send bulk commits to your server by default. If your
 REST API does not support bulk operations, you can turn them off by specifying the
 `bulkCommit` option (as illustrated above.)
 
+As well as `bulkCommit` the REST adapater also supports the following options:
+
+```javascript
+var adaptor = DS.RESTAdapter.create({
+    bulkCommit: false,
+    baseUrl: '/data/',
+    plurals: { person: 'people' }
+});
+```
+
+The REST adapter will default `baseUrl` to `'/'` and plurals will be empty and
+assume `'s'` should be appended to the singular modal name.
+
 The RESTful adapter is still in progress. For Rails applications, we plan to make
 it work seamlessly with the `active_model_serializers` gem's conventions. In
 the meantime, see the section on rolling your own adapter.
