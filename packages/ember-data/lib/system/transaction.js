@@ -107,7 +107,7 @@ DS.Transaction = Ember.Object.extend({
         models.forEach(function(model) {
           model.send('willCommit');
 
-          if (get(model, 'isPending') === false) {
+          if (get(model, 'isPending') === false && get(model, 'isValid') === true) {
             array.push(model);
           }
         });

@@ -200,8 +200,18 @@ var DirtyState = DS.State.extend({
     },
 
     willCommit: function(manager) {
-      manager.goToState('inFlight');
+      var model = get( manager, 'model' ), errors;
+      if ( 'function' === typeof model.validate ) {
+        model.validate()
+      }
+      errors = model.get('errors')
+      if ( errors && hasDefinedProperties( errors ) ) {
+        manager.goToState('invalid');
+      } else {
+        manager.goToState('inFlight');
+      }
     }
+    
   }, Uncommitted),
 
   // Once a record has been handed off to the adapter to be
