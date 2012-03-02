@@ -32,8 +32,8 @@ DS.Model.reopen({
     }
   },
   addError: function(key, value, message){
-    var errors = get(this, 'errors') || {};
-    errors[key] = message;
+    var errors = get(this, 'errors') || Ember.Object.create();
+    set(errors, key, message);
     set(this, 'errors', errors)
   },
   presence: function(key){

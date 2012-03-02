@@ -359,11 +359,19 @@ var DirtyState = DS.State.extend({
 
       var model = get(manager, 'model'),
           errors = get(model, 'errors'),
-          key = context.key;
+          key = context.key,
+          kcount = 0;
 
+      set(errors, key, null);
       delete errors[key];
 
-      if (!hasDefinedProperties(errors)) {
+      Ember.keys(errors).forEach(function(k){
+        if ( k[0] !== "_" && get(errors, k)) {
+          kcount++;
+        }
+      });
+
+      if (kcount === 0) {
         manager.send('becameValid');
       }
     },
