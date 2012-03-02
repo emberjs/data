@@ -349,6 +349,8 @@ var DirtyState = DS.State.extend({
     // FLAGS
     isValid: false,
 
+    willCommit: Em.K,
+
     // EVENTS
     deleteRecord: function(manager) {
       manager.goToState('deleted');
