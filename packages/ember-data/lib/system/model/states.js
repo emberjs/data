@@ -374,6 +374,7 @@ var DirtyState = DS.State.extend({
       });
 
       if (kcount === 0) {
+        set(model, 'errors', null);
         manager.send('becameValid');
       }
     },
