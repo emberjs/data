@@ -136,6 +136,15 @@ test("a DS.Model can describe Date attributes", function() {
   convertsWhenSet('date', date, dateString);
 });
 
+test("a DS.Model can describe array attributes", function(){
+  converts('array', null, null);
+  converts('array', undefined, null);
+  converts('array', '', null);
+  converts('array', [], []);
+  converts('array', [''], ['']);
+  converts('array', [1,true,"hello"], [1,true,"hello"]);
+});
+
 test("retrieving properties should return the same value as they would if they were not in the data hash if the record is not loaded", function() {
   var store = DS.Store.create({
     adapter: DS.Adapter.create({
