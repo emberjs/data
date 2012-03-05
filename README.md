@@ -86,10 +86,15 @@ App.Person = DS.Model.extend({
     firstName: DS.attr('string'),
     lastName: DS.attr('string'),
     birthday: DS.attr('date'),
+    luckyNumbers: DS.attr('array'),
 
     fullName: function() {
         return this.get('firstName') + ' ' + this.get('lastName');
-    }.property('firstName', 'lastName')
+    }.property('firstName', 'lastName'),
+
+    highestLuckyNumber: function() {
+        return Math.max.apply(Math, this.get('luckyNumbers'));
+    }.property('luckyNumbers.@each')
 });
 ```
 

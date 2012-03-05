@@ -103,6 +103,15 @@ DS.attr.transforms = {
     }
   },
 
+  array: {
+    from: function(serialized) {
+      return (Ember.isArray(serialized) ? serialized : null);
+    },
+    to: function(deserialized){
+      return (Ember.isArray(deserialized) ? deserialized : null);
+    }
+  },
+
   date: {
     from: function(serialized) {
       var type = typeof serialized;
