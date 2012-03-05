@@ -35,6 +35,87 @@ App.Store = DS.Store.create({
 This will remove the exception about changes before revision 2. You will
 receive another warning if there is another change.
 
+## Revision 3
+
+### JSON Keys Automatically De-camelize
+
+Previously, the key used to lookup an attribute from the JSON hash loaded
+into the store was the same as the attribute defined in your `DS.Model`.
+For example, if the model had a `firstName` attribute, we would look for
+the `firstName` property in the hash provided by the server..
+
+If you wanted to use a different key, you would need to provide an options
+hash with the `key` property set:
+
+```javascript
+App.Person = DS.Model.extend({
+  firstName: DS.attr('string', { key: 'first_name' }),
+  lastName: DS.attr('string', { key: 'last_name' }),
+  middleName: DS.attr('string', { key: 'middle_name' })
+});
+
+This obviously got very annoying very fast.
+
+Now, models can have a `namingConvention` object that is responsible for
+determining how record keys and hash keys are mapped. The `namingConvention`
+object should implement two functions, `keyToJSONKey` and `foreignKey`. You
+can create a subclass of `DS.Model` that you use in your application if you
+want to share a naming convention between all of your models:
+
+```javascript
+App.Model = DS.Model.extend({
+  namingConvention: {
+    // LOUD NAMING CONVENTION
+    // Changes fooKey to FOOKEY
+    keyToJSONKey: function(key) {
+      return key.toUpperCase();
+    },
+
+    // Determines the name of foreign keys in
+    // belongsTo relationships
+    foreignKey: function(key) {
+      return key.toUpperCase()+"_ID";
+    }
+  }
+});
+```
+
+By default, attributes are now de-camelized to determine hash keys,
+and `_id` is added to the association name to determine foreign keys.
+
+For example, here is a model and what JSON hash it would expect:
+
+```javascript
+App.Profile = DS.Model.extend({
+  person: DS.belongsTo('App.Person'),
+
+  firstName: DS.attr('string')
+});
+
+{
+  id: 1,
+  person_id: 3,
+  first_name: "Steve"
+}
+```
+
+If you want to revert to previous behavior, you can implement a simple naming convention
+object that returns the key passed to it:
+
+```javascript
+DS.Model.reopen({
+  namingConvention: {
+    keyToJSONKey: function(key) {
+      return key;
+    },
+
+    foreignKey: function(key) {
+      return key;
+    }
+  }
+});
+```
+
 ## Revision 2
 
 ### Number Attributes
