@@ -27,7 +27,7 @@ DS.ManyArray = DS.ModelArray.extend({
 
   assignInverse: function(record, parentRecord) {
     var associationMap = get(record.constructor, 'associations'),
-        possibleAssociations = associationMap.get(record.constructor),
+        possibleAssociations = associationMap.get(parentRecord.constructor),
         possible, actual;
 
     if (!possibleAssociations) { return; }
