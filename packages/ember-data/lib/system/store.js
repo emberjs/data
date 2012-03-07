@@ -3,12 +3,6 @@ require("ember-data/system/transaction");
 
 var get = Ember.get, set = Ember.set, getPath = Ember.getPath, fmt = Ember.String.fmt;
 
-var DATA_PROXY = {
-  get: function(name) {
-    return this.savedData[name];
-  }
-};
-
 
 // Implementors Note:
 //
@@ -551,6 +545,11 @@ DS.Store = Ember.Object.extend({
         if (record = recordCache[clientId]) {
           proxy = get(record, 'data');
         } else {
+          var DATA_PROXY = {
+            get: function(name) {
+              return this.savedData[name];
+            }
+          };
           DATA_PROXY.savedData = hash;
           proxy = DATA_PROXY;
         }
@@ -689,6 +688,11 @@ DS.Store = Ember.Object.extend({
       clientId = this.pushHash(hash, id, type);
     }
 
+    var DATA_PROXY = {
+      get: function(name) {
+        return this.savedData[name];
+      }
+    };
     DATA_PROXY.savedData = hash;
     this.updateModelArrays(type, clientId, DATA_PROXY);
 
