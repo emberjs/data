@@ -214,6 +214,7 @@ DS.Model = Ember.Object.extend({
       }
     }
 
+    key = options.key || get(this, 'namingConvention').keyToJSONKey(key);
     json[key] = records;
   },
 
