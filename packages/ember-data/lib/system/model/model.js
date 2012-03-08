@@ -206,6 +206,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       record: this
     });
 
+    set(this, 'errors', DS.Errors.create());
+
     set(this, 'pendingQueue', {});
 
     set(this, 'stateManager', stateManager);

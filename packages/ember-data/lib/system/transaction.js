@@ -154,9 +154,17 @@ DS.Transaction = Ember.Object.extend({
         records.forEach(function(record) {
           record.send('willCommit');
 
-          if (get(record, 'isPending') === false) {
+          var isValid = get(record, 'isValid');
+
+          if (isValid && get(record, 'isPending') === false) {
             array.push(record);
           }
+
+          if (!isValid) {
+            defaultTransaction.adoptRecord(record);
+            defaultTransaction.recordBecameInFlight('clean', record);
+          }
+
         });
 
         fn.call(binding, type, array);
@@ -179,6 +187,7 @@ DS.Transaction = Ember.Object.extend({
 
     var store = get(this, 'store');
     var adapter = get(store, '_adapter');
+    var defaultTransaction = get(store, 'defaultTransaction');
 
     this.removeCleanRecords();
 
