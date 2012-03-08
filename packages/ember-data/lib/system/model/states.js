@@ -375,6 +375,10 @@ var DirtyState = DS.State.extend({
       });
 
       manager.goToState('loaded');
+    },
+
+    becameInvalid: function(manager) {
+      manager.goToState('invalid');
     }
   }, Uncommitted),
 
@@ -409,12 +413,16 @@ var DirtyState = DS.State.extend({
     },
 
     becameInvalid: function(manager, errors) {
-      var record = get(manager, 'record');
+      if (errors) {
+        var record = get(manager, 'record'), key;
 
-      set(record, 'errors', errors);
-
-      manager.goToState('invalid');
-      manager.send('invokeLifecycleCallbacks');
+        for (key in errors) {
+          get(record, 'errors').add(key, errors[key]);
+        }
+      } else {
+        manager.goToState('invalid');
+        manager.send('invokeLifecycleCallbacks');
+      }
     },
 
     becameError: function(manager) {
@@ -552,14 +560,10 @@ var DirtyState = DS.State.extend({
       setProperty(manager, context);
 
       var record = get(manager, 'record'),
-          errors = get(record, 'errors'),
-          key = context.key;
+          errors = get(record, 'errors');
 
-      delete errors[key];
-
-      if (!hasDefinedProperties(errors)) {
-        manager.send('becameValid');
-      }
+      errors.remove('base');
+      errors.remove(context.key);
     },
 
     rollback: function(manager) {
