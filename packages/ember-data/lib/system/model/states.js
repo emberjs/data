@@ -224,6 +224,7 @@ var DirtyState = DS.State.extend({
     // EVENTS
     didCommit: function(manager) {
       manager.goToState('loaded');
+      if (manager.model.didCommit) { manager.model.didCommit(); }
     },
 
     becameInvalid: function(manager, errors) {
