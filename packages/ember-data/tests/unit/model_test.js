@@ -121,12 +121,14 @@ test("a DS.Model can describe Date attributes", function() {
   var dateString = "Sat, 31 Dec 2011 00:08:16 GMT";
   var date = new Date(dateString);
 
-  var model = DS.Model._create({
+  var store = DS.Store.create();
+
+  var Person = DS.Model.extend({
     updatedAt: DS.attr('date')
   });
 
-  model.send('loadingData');
-  model.send('didChangeData');
+  store.load(Person, { id: 1 });
+  var model = store.find(Person, 1);
 
   model.set('updatedAt', date);
   deepEqual(date, get(model, 'updatedAt'), "setting a date returns the same date");
@@ -181,115 +183,7 @@ test("it can specify which key to use when looking up properties on the hash", f
   equal(get(record, 'name'), "Pete", "retrieves correct value");
 });
 
-test("toJSON returns a hash containing the JSON representation of the record", function() {
-  var Model = DS.Model.extend({
-    firstName: DS.attr('string'),
-    lastName: DS.attr('string', { key: 'last_name' }),
-    country: DS.attr('string', { defaultValue: 'US' }),
-    isHipster: DS.attr('boolean', { defaultValue: false })
-  });
 
-  store.load(Model, { id: 1, firstName: "Tom", last_name: "Dale", other: "none" });
-  var record = store.find(Model, 1);
-
-  set(record, 'isHipster', true);
-
-  deepEqual(record.toJSON(), { id: 1, firstName: "Tom", last_name: "Dale", country: 'US', isHipster: true }, "the data is extracted by attribute");
-
-  record = Model.createRecord({ firstName: "Yehuda", lastName: "Katz", country: null });
-  deepEqual(record.toJSON(), { firstName: "Yehuda", last_name: "Katz", country: null, isHipster: false }, "the data is extracted by attribute");
-});
-
-test("toJSON includes associations when the association option is set", function() {
-  var PhoneNumber = DS.Model.extend({
-    number: DS.attr('string')
-  });
-
-  var Contact = DS.Model.extend({
-    name: DS.attr('string'),
-    phoneNumbers: DS.hasMany(PhoneNumber)
-  });
-
-  store.load(PhoneNumber, { id: 7, number: '123' });
-  store.load(PhoneNumber, { id: 8, number: '345' });
-
-  store.load(Contact, { id: 1, name: "Chad", phoneNumbers: [7, 8] });
-
-  var record = store.find(Contact, 1);
-
-  deepEqual(record.toJSON(), { id: 1, name: "Chad" }, "precond - associations not included by default");
-  deepEqual(record.toJSON({ associations: true }),
-            { id: 1, name: "Chad", phoneNumbers: [7,8] },
-            "associations are included when association flag is set");
-
-  store.load(PhoneNumber, { id: 9, number: '789' });
-  var phoneNumber = store.find(PhoneNumber, 9);
-
-  record.get('phoneNumbers').pushObject(phoneNumber);
-
-  deepEqual(record.toJSON({ associations: true }),
-            { id: 1, name: "Chad", phoneNumbers: [7,8,9] },
-            "association is updated after editing associations array");
-});
-
-test("toJSON includes embedded associations when an association is embedded", function() {
-  var PhoneNumber = DS.Model.extend({
-    number: DS.attr('string')
-  });
-
-  var Contact = DS.Model.extend({
-    name: DS.attr('string'),
-    phoneNumbers: DS.hasMany(PhoneNumber, {
-      embedded: true
-    })
-  });
-
-  store.load(Contact, { id: 1, name: "Chad", phoneNumbers: [{
-    id: 7,
-    number: '123'
-  },
-
-  {
-    id: 8,
-    number: '345'
-  }]});
-
-  var record = store.find(Contact, 1);
-
-  deepEqual(record.toJSON(), { id: 1, name: "Chad" }, "precond - associations not included by default");
-  deepEqual(record.toJSON({ associations: true }),
-            { id: 1, name: "Chad", phoneNumbers: [{
-                id: 7,
-                number: '123'
-              },
-              {
-                id: 8,
-                number: '345'
-              }
-            ]},
-            "associations are included when association flag is set");
-
-  store.load(PhoneNumber, { id: 9, number: '789' });
-  var phoneNumber = store.find(PhoneNumber, 9);
-
-  record.get('phoneNumbers').pushObject(phoneNumber);
-
-  deepEqual(record.toJSON({ associations: true }),
-            { id: 1, name: "Chad", phoneNumbers: [{
-                id: 7,
-                number: '123'
-              },
-              {
-                id: 8,
-                number: '345'
-              },
-              {
-                id: 9,
-                number: '789'
-              }
-            ]},
-            "association is updated after editing associations array");
-});
 
 var Person, store, array;
 

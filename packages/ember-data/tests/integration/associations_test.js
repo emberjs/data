@@ -14,7 +14,9 @@ module("Association/adapter integration test", {
 
     Comment = DS.Model.extend();
     Comment.reopen({
-      comments: DS.hasMany(Comment)
+      body: DS.attr('string'),
+      comments: DS.hasMany(Comment),
+      comment: DS.belongsTo(Comment)
     });
   },
 
@@ -104,3 +106,4 @@ test("if a parent record and an uncommitted pending child belong to different tr
     parentTransaction.commit();
   });
 });
+

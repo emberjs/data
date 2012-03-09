@@ -68,9 +68,12 @@ DS.Store = Ember.Object.extend({
       set(DS, 'defaultStore', this);
     }
 
-    set(this, 'typeMaps', {});
-    set(this, 'recordCache', []);
-    set(this, 'modelArraysByClientId', {});
+    // internal bookkeeping; not observable
+    this.typeMaps = {};
+    this.recordCache = [];
+    this.clientIdToId = {};
+    this.modelArraysByClientId = {};
+
     set(this, 'defaultTransaction', this.transaction());
 
     return this._super();
@@ -431,6 +434,7 @@ DS.Store = Ember.Object.extend({
 
       dataCache[clientId] = hash;
       model.send('didChangeData');
+      model.hashWasUpdated();
     }
 
     model.send('didCommit');
@@ -457,12 +461,13 @@ DS.Store = Ember.Object.extend({
       record.beginPropertyChanges();
       record.send('didChangeData');
       recordData.adapterDidUpdate(hash);
+      record.hashWasUpdated();
       record.endPropertyChanges();
 
       id = hash[primaryKey];
 
       typeMap.idToCid[id] = clientId;
-      typeMap.cidToId[clientId] = id;
+      this.clientIdToId[clientId] = id;
     } else {
       recordData.commit();
     }
@@ -627,7 +632,6 @@ DS.Store = Ember.Object.extend({
       return (typeMaps[guidForType] =
         {
           idToCid: {},
-          cidToId: {},
           clientIds: [],
           cidToHash: {},
           modelArrays: []
@@ -728,7 +732,7 @@ DS.Store = Ember.Object.extend({
     var typeMap = this.typeMapFor(type);
 
     var idToClientIdMap = typeMap.idToCid,
-        clientIdToIdMap = typeMap.cidToId,
+        clientIdToIdMap = this.clientIdToId,
         clientIds = typeMap.clientIds,
         dataCache = typeMap.cidToHash;
 
