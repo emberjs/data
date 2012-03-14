@@ -24,7 +24,8 @@ No. Breaking changes, indexed by date, are listed in
 * Handle error states
 * Better built-in attributes
 * Editing "forked" records and rolling back transactions
-* Out-of-the-box support for Rails apps that follow the `active_model_serializers` gem's conventions.
+* Out-of-the-box support for Rails apps that follow the
+  [`active_model_serializers`](https://github.com/josevalim/active_model_serializers) gem's conventions.
 * Handle partially-loaded records
 
 ### Creating a Store
@@ -35,23 +36,23 @@ not yet been loaded.
 
 ```javascript
 App.store = DS.Store.create({
-  revision: 2
+  revision: 3
 });
 ```
 
 > NOTE: The revision property is used by `ember-data` to notify you of
 > breaking changes to the public API before 1.0. For new applications,
 > just set the revision to this number. See
-> [BREAKING CHANGES](https://github.com/emberjs/data/blob/master/BREAKING_CHANGES.md)
+> [BREAKING_CHANGES.md](https://github.com/emberjs/data/blob/master/BREAKING_CHANGES.md)
 > for more information.
-    
+
 You can tell the store how to talk to your backend by specifying an *adapter*.
 Ember Data comes with a RESTful JSON API adapter. You can specify this adapter
 by setting the `adapter` property:
 
 ```javascript
 App.store = DS.Store.create({
-  revision: 2,
+  revision: 3,
   adapter: DS.RESTAdapter.create({ bulkCommit: false })
 });
 ```
@@ -93,7 +94,7 @@ App.Person = DS.Model.extend({
 });
 ```
 
-Valid attribute types are `string`, `integer`, `boolean`, and `date`. You
+Valid attribute types are `string`, `number`, `boolean`, and `date`. You
 can also register custom attribute types. For example, here's a `boolString`
 attribute type that converts booleans into the string `"Y"` or `"N"`:
 
@@ -103,7 +104,7 @@ DS.attr.transforms.boolString: {
         if (serialized === 'Y') {
             return true;
         }
-        
+
         return false;
     },
 
@@ -223,16 +224,21 @@ structure is as follows:
 ```javascript
 // Author
 {
-  "id": 1,
-  "name": "Tom Dale"
+  "author": {
+      "id": 1,
+      "name": "Tom Dale"
+    }
+  }
 }
 
 // Profile
 {
-  "id": 1,
-  "about": "Tom Dale is a software engineer that drinks too much beer.",
-  "postCount": 1984,
-  "author_id": 1
+  "profile": {
+    "id": 1,
+    "about": "Tom Dale is a software engineer that drinks too much beer.",
+    "postCount": 1984,
+    "author_id": 1
+  }
 }
 ```
 
@@ -255,9 +261,11 @@ As a performance optimization, the REST API can return the ID of the
 ```javascript
 // Author with included Profile id
 {
-  "id": 1,
-  "name": "Tom Dale",
-  "profile_id": 1
+  "author": {
+    "id": 1,
+    "name": "Tom Dale",
+    "profile_id": 1
+  }
 }
 ```
 
@@ -311,21 +319,23 @@ entirety of the association above like this:
 }
 ```
 
-However, imagine the JSON returned from the server for a Person looked like this:
+However, imagine the JSON returned from the server for a `Person` looked like this:
 
 ```javascript
 {
-  "id": 1,
-  "name": "Tom Dale",
-  "tags": [{
+  "person": {
     "id": 1,
-    "name": "good-looking"
-  },
+    "name": "Tom Dale",
+    "tags": [{
+      "id": 1,
+      "name": "good-looking"
+    },
 
-  {
-    "id": 2,
-    "name": "not-too-bright"
-  }]
+    {
+      "id": 2,
+      "name": "not-too-bright"
+    }]
+  }
 }
 ```
 
@@ -340,13 +350,15 @@ App.Person = DS.Model.extend({
 ```
 
 It is also possible to change the data attribute that an association is mapped
-to. Suppose the JSON for a person looked like this:
+to. Suppose the JSON for a `Person` looked like this:
 
 ```javascript
 {
+  "person": {
     "id": 2,
     "name": "Carsten Nielsen",
     "tag_ids": [1, 2]
+  }
 }
 ```
 
@@ -544,7 +556,7 @@ To tell your store which adapter to use, set its `adapter` property:
 
 ```javascript
 App.store = DS.Store.create({
-  revision: 2,
+  revision: 3,
   adapter: App.adapter
 });
 ```
@@ -606,7 +618,7 @@ DS.Adapter.create({
     findMany: function(store, type, ids) {
         var url = type.url;
         url = url.fmt(ids.join(','));
-        
+
         jQuery.getJSON(url, function(data) {
             // data is an Array of Hashes in the same order as the original
             // Array of IDs. If your server returns a root, simply do something
@@ -653,7 +665,7 @@ App.Person.reopenClass({
 DS.Adapter.create({
     findQuery: function(store, type, query, modelArray) {
         var url = type.collectionUrl;
-        
+
         jQuery.getJSON(url, query, function(data) {
             // data is expected to be an Array of Hashes, in an order
             // determined by the server. This order may be specified in
@@ -681,7 +693,7 @@ Invoked when `findAll()` is called on the store. If you do nothing, only
 models that have already been loaded will be included in the results. Otherwise,
 this is your opportunity to load any unloaded records of this type. The
 implementation is similar to findMany(); see above for an example.
-            
+
 ### createRecord()
 
 When `commit()` is called on the store and there are records that need to be
@@ -708,7 +720,7 @@ DS.Adapter.create({
             data: model.get('data'),
             dataType: 'json',
             type: 'POST',
-            
+
             success: function(data) {
                 // data is a hash of key/value pairs representing the record.
                 // In general, this hash will contain a new id, which the
@@ -739,7 +751,7 @@ DS.Adapter.create({
             data: array.mapProperty('data'),
             dataType: 'json',
             type: 'POST',
-            
+
             success: function(data) {
                 // data is an array of hashes in the same order as
                 // the original records that were sent.
@@ -769,7 +781,7 @@ DS.Adapter.create({
             url: url.fmt(model.get('id')),
             dataType: 'json',
             type: 'PUT',
-            
+
             success: function(data) {
                 // data is a hash of key/value pairs representing the record
                 // in its current state on the server.
@@ -797,7 +809,7 @@ DS.Adapter.create({
             data: array.mapProperty('data'),
             dataType: 'json',
             type: 'PUT',
-            
+
             success: function(data) {
                 // data is an array of hashes in the same order as
                 // the original records that were sent.
@@ -827,7 +839,7 @@ DS.Adapter.create({
             url: url.fmt(model.get('id')),
             dataType: 'json',
             type: 'DELETE',
-            
+
             success: function() {
                 store.didDeleteRecord(model);
             }
@@ -853,7 +865,7 @@ DS.Adapter.create({
             data: array.mapProperty('data'),
             dataType: 'json',
             type: 'DELETE',
-            
+
             success: function(data) {
                 store.didDeleteRecords(array);
             }
@@ -889,8 +901,8 @@ commit: function(store, commitDetails) {
 
 ### Connecting to Views
 
-Ember Data will always return records or arrays of records of a certain type 
-immediately, even though the underlying JSON objects have not yet been returned 
+Ember Data will always return records or arrays of records of a certain type
+immediately, even though the underlying JSON objects have not yet been returned
 from the server.
 
 In general, this means that you can insert them into the DOM using Ember's
