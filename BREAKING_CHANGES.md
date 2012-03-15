@@ -35,6 +35,20 @@ App.Store = DS.Store.create({
 This will remove the exception about changes before revision 2. You will
 receive another warning if there is another change.
 
+## Revision 4
+
+### Removal of hasOne
+
+Previously, the `DS.hasOne` and `DS.belongsTo` associations were aliased
+to one another. Now, `DS.belongsTo` remains but `DS.hasOne` has been
+removed. We are planning on having different semantics for `DS.hasOne`
+at a later date.
+
+Primarily, the semantic difference between the two are related to which
+record should be marked as dirty when the relationship changes. To
+ensure that the semantics of your application match the framework,
+please ensure that you are using `DS.belongsTo` at this time.
+
 ## Revision 3
 
 ### JSON Keys Automatically De-camelize
