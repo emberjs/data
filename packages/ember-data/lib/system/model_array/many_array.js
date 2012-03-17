@@ -68,5 +68,11 @@ DS.ManyArray = DS.ModelArray.extend({
     if (actual) {
       set(record, actual.name, remove ? null : parentRecord);
     }
+  },
+
+  updateWithRecords: function(records) {
+    var stateManager = get(this, 'stateManager'),
+        clientIds = Ember.A(records.getEach('clientId'));
+    stateManager.send('update', clientIds);
   }
 });

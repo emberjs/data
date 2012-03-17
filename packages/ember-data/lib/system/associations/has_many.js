@@ -15,14 +15,15 @@ var hasAssociation = function(type, options) {
   options = options || {};
 
   var embedded = options.embedded,
-      findRecord = embedded ? embeddedFindRecord : referencedFindRecord;
+      findRecord = embedded ? embeddedFindRecord : referencedFindRecord,
+      association;
 
   var meta = { type: type, isAssociation: true, options: options, kind: 'hasMany' };
 
   return Ember.computed(function(key, value) {
     var data = get(this, 'data'),
         store = get(this, 'store'),
-        ids, id, association;
+        ids, id;
 
     if (typeof type === 'string') {
       type = getPath(this, type, false) || getPath(window, type);
@@ -30,11 +31,15 @@ var hasAssociation = function(type, options) {
 
     key = options.key || key;
     ids = findRecord(store, type, data, key);
-    association = store.findMany(type, ids);
-    set(association, 'parentRecord', this);
+    if (association) {
+      association.updateWithRecords(store.findMany(type, ids));
+    } else {
+      association = store.findMany(type, ids);
+      set(association, 'parentRecord', this);
+    }
 
     return association;
-  }).property().cacheable().meta(meta);
+  }).property('data').cacheable().meta(meta);
 };
 
 DS.hasMany = function(type, options) {
