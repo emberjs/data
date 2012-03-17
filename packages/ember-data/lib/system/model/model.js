@@ -254,6 +254,14 @@ DS.Model = Ember.Object.extend({
     this.destroy();
   },
 
+  resetHash: function() {
+    get(this, 'data').rollback();
+    this.notifyPropertyChange('data');
+    set(this, 'errors', null);
+    get(this, 'stateManager').goToState('loaded.saved');
+    this.hashWasUpdated();
+  },
+
   waitingOn: function(record) {
     this.send('waitingOn', record);
   },

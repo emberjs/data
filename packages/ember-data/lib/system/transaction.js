@@ -34,6 +34,36 @@ DS.Transaction = Ember.Object.extend({
     defaultTransaction.adoptRecord(record);
   },
 
+  rollback: function() {
+    var buckets = get(this, 'buckets');
+
+    var rollbackModels = function(kind, type, models) {
+      if (models.isEmpty()) { return; }
+
+      models.forEach(function(model) {
+
+        model.send('rollback');
+
+        if (!get(model, 'isDirty')) {
+          this.removeFromBucket(kind, model);
+          this.addToBucket('clean', model);
+        }
+      }, this);
+    };
+
+    get(buckets, 'updated').forEach(function(type, models) {
+      rollbackModels.call(this, 'updated', type, models);
+    }, this);
+
+    get(buckets, 'created').forEach(function(type, models) {
+      rollbackModels.call(this, 'created', type, models);
+    }, this);
+
+    get(buckets, 'deleted').forEach(function(type, models) {
+      rollbackModels.call(this, 'deleted', type, models);
+    }, this);
+  },
+
   /**
     @private
 
