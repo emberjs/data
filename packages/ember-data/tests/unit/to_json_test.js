@@ -1,6 +1,6 @@
 var get = Ember.get, set = Ember.set;
 
-var store, Comment, adapter;
+var store, Comment, Post, adapter;
 
 module("DS.Model - toJSON", {
   setup: function() {
@@ -11,11 +11,16 @@ module("DS.Model - toJSON", {
       adapter: adapter
     });
 
+    Post = DS.Model.extend();
     Comment = DS.Model.extend();
+    Post.reopen({
+      comments: DS.hasMany(Comment)
+    });
     Comment.reopen({
       body: DS.attr('string'),
       comments: DS.hasMany(Comment),
-      comment: DS.belongsTo(Comment)
+      comment: DS.belongsTo(Comment),
+      post: DS.belongsTo(Post)
     });
   },
 
@@ -37,6 +42,21 @@ test("if a record is added to another record's hasMany association, it receives 
   var json = childRecord.toJSON();
 
   equal(json.comment_id, 1);
+});
+
+test("if a record is added to another record's of different type hasMany association, it receives a foreign key associated with the new object", function() {
+  store.load(Post, { id: 1, comments: [] });
+  store.load(Comment, { id: 1 });
+
+  var parentRecord = store.find(Post, 1);
+  var childRecord = store.find(Comment, 1);
+
+  get(parentRecord, 'comments').pushObject(childRecord);
+  equal(get(childRecord, 'post'), parentRecord);
+
+  var json = childRecord.toJSON();
+
+  equal(json.post_id, 1);
 });
 
 test("if a record has a foreign key when loaded, it is included in the toJSON output", function() {

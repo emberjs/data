@@ -12,11 +12,19 @@ module("Association/adapter integration test", {
       adapter: adapter
     });
 
+    Post = DS.Model.extend();
     Comment = DS.Model.extend();
+
+    Post.reopen({
+      title: DS.attr('string'),
+      comments: DS.hasMany(Comment)
+    });
+
     Comment.reopen({
       body: DS.attr('string'),
       comments: DS.hasMany(Comment),
-      comment: DS.belongsTo(Comment)
+      comment: DS.belongsTo(Comment),
+      post: DS.belongsTo(Post)
     });
   },
 
@@ -106,4 +114,3 @@ test("if a parent record and an uncommitted pending child belong to different tr
     parentTransaction.commit();
   });
 });
-
