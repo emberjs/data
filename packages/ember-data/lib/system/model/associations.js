@@ -99,7 +99,7 @@ var hasAssociation = function(type, options, one) {
         // Embedded belongsTo associations should not look for
         // a foreign key.
         if (embedded) {
-          key = options.key || key;
+          key = options.key || get(this, 'namingConvention').keyToJSONKey(key);
 
         // Non-embedded associations should look for a foreign key.
         // For example, instead of person, we might look for person_id
@@ -110,7 +110,7 @@ var hasAssociation = function(type, options, one) {
         association = id ? store.find(type, id) : null;
       }
     } else {
-      key = options.key || key;
+      key = options.key || get(this, 'namingConvention').keyToJSONKey(key);
       ids = findRecord(store, type, data, key);
       association = store.findMany(type, ids);
       set(association, 'parentRecord', this);
