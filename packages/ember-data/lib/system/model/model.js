@@ -90,6 +90,8 @@ DataProxy.prototype = {
 
   rollback: function() {
     this.unsavedData = {};
+
+    this.record.notifyPropertyChange('data');
   },
 
   adapterDidUpdate: function(data) {
@@ -342,6 +344,13 @@ DS.Model = Ember.Object.extend({
 
     stateManager.goToState('deleted.saved');
     this.destroy();
+  },
+
+  resetHash: function() {
+    get(this, 'data').rollback();
+    set(this, 'errors', null);
+    get(this, 'stateManager').goToState('loaded.saved');
+    this.hashWasUpdated();
   },
 
   waitingOn: function(record) {

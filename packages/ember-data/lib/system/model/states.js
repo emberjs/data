@@ -211,6 +211,17 @@ var DirtyState = DS.State.extend({
 
     willCommit: function(manager) {
       manager.goToState('inFlight');
+    },
+
+    rollback: function(manager) {
+      var dirtyType = get(this, 'dirtyType'),
+          model = get(manager, 'model');
+
+      if (dirtyType === 'updated') {
+        model.resetHash();
+      } else {
+        model.unloadRecord();
+      }
     }
   }, Uncommitted),
 
@@ -545,6 +556,13 @@ var states = {
         // EVENTS
         willCommit: function(manager) {
           manager.goToState('inFlight');
+        },
+
+        rollback: function(manager) {
+          var model = get(manager, 'model');
+
+          manager.goToState('loaded.saved');
+          model.hashWasUpdated();
         }
       }),
 
