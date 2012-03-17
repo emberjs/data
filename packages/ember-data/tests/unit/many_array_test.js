@@ -125,3 +125,15 @@ test("if an association's added and removed records are persisted, its isDirty i
   equal(get(people, 'isDirty'), false, "the association becomes clean after records are committed");
 });
 
+test("two instances of the same model will not share associations", function() {
+  store.loadMany(Group, [{ id: 1, people: [ 1, 2 ] }, { id: 2, people: [3, 4]}]);
+  store.loadMany(Person, [{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4}]);
+
+  var group1 = store.find(Group, 1);
+  var group2 = store.find(Group, 2);
+
+  console.log(group1.get('people'), group2.get('people'));
+  notEqual(group1.get('people'), group2.get('people'), "should not be the same");
+  equal(group1.get('people').getEach('id')[0], 1, "should be 1");
+  equal(group2.get('people').getEach('id')[0], 3, "should be 3");
+});

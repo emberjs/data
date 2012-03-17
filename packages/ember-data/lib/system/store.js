@@ -605,6 +605,24 @@ DS.Store = Ember.Object.extend({
     });
   },
 
+  updateAssociations: function(type, clientId, dataProxy) {
+    var recordCache = get(this, 'recordCache'),
+        record, records, manyArray, ids;
+
+    if (record = recordCache[clientId]) {
+      get(type, 'associationsByName').forEach(function(key, meta) {
+        if (meta.kind === 'hasMany') {
+          ids = dataProxy.get(key);
+          if (ids && get(ids, 'length') > 0) {
+            records = this.findMany(meta.type, ids);
+            get(record, meta.key).updateWithRecords(records);
+          }
+        }
+      }, this);
+    }
+
+  },
+
   // ............
   // . INDEXING .
   // ............
@@ -693,6 +711,8 @@ DS.Store = Ember.Object.extend({
 
     DATA_PROXY.savedData = hash;
     this.updateModelArrays(type, clientId, DATA_PROXY);
+
+    this.updateAssociations(type, clientId, DATA_PROXY);
 
     return { id: id, clientId: clientId };
   },
