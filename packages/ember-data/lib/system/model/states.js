@@ -200,8 +200,18 @@ var DirtyState = DS.State.extend({
     },
 
     willCommit: function(manager) {
-      manager.goToState('inFlight');
+      var model = get( manager, 'model' ), errors;
+      if ( 'function' === typeof model.validate ) {
+        model.validate()
+      }
+      errors = model.get('errors')
+      if ( errors && hasDefinedProperties( errors ) ) {
+        manager.goToState('invalid');
+      } else {
+        manager.goToState('inFlight');
+      }
     }
+    
   }, Uncommitted),
 
   // Once a record has been handed off to the adapter to be
@@ -339,6 +349,8 @@ var DirtyState = DS.State.extend({
     // FLAGS
     isValid: false,
 
+    willCommit: Em.K,
+
     // EVENTS
     deleteRecord: function(manager) {
       manager.goToState('deleted');
@@ -349,11 +361,20 @@ var DirtyState = DS.State.extend({
 
       var model = get(manager, 'model'),
           errors = get(model, 'errors'),
-          key = context.key;
+          key = context.key,
+          kcount = 0;
 
+      set(errors, key, null);
       delete errors[key];
 
-      if (!hasDefinedProperties(errors)) {
+      Ember.keys(errors).forEach(function(k){
+        if ( k[0] !== "_" && get(errors, k)) {
+          kcount++;
+        }
+      });
+
+      if (kcount === 0) {
+        set(model, 'errors', null);
         manager.send('becameValid');
       }
     },
