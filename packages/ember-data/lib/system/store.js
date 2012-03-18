@@ -71,6 +71,7 @@ DS.Store = Ember.Object.extend({
     // internal bookkeeping; not observable
     this.typeMaps = {};
     this.recordCache = [];
+    this.associationsCache = [];
     this.clientIdToId = {};
     this.modelArraysByClientId = {};
 
@@ -607,18 +608,31 @@ DS.Store = Ember.Object.extend({
 
   updateAssociations: function(type, clientId, dataProxy) {
     var recordCache = get(this, 'recordCache'),
-        record, records, manyArray, ids;
+        associationsCache = get(this, 'associationsCache'),
+        record, records, associations,
+        key, meta, ids, i, l;
 
     if (record = recordCache[clientId]) {
-      get(type, 'associationsByName').forEach(function(key, meta) {
-        if (meta.kind === 'hasMany') {
-          ids = dataProxy.get(key);
-          if (ids && get(ids, 'length') > 0) {
-            records = this.findMany(meta.type, ids);
-            get(record, meta.key).updateWithRecords(records);
+      associations = associationsCache[clientId];
+      if (!associations) {
+        associationsCache[clientId] = associations = [];
+        get(type, 'associationsByName').forEach(function(key, meta) {
+          if (meta.kind === 'hasMany') {
+            associations.push([key, meta]);
           }
+        });
+      }
+      for (i = 0, l = associations.length; i < l; i++) {
+        key = associations[i][0];
+        meta = associations[i][1];
+        ids = dataProxy.get(key);
+        if (ids && get(ids, 'length') > 0) {
+          records = this.findMany(meta.type, ids);
+        } else {
+          records = Ember.A([]);
         }
-      }, this);
+        get(record, meta.key).updateWithRecords(records);
+      }
     }
 
   },
