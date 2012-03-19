@@ -428,17 +428,19 @@ DS.Store = Ember.Object.extend({
     }
   },
 
-  didUpdateRecord: function(model, hash) {
+  didUpdateRecord: function(record, hash) {
     if (hash) {
-      var clientId = get(model, 'clientId'),
-          dataCache = this.typeMapFor(model.constructor).cidToHash;
+      var clientId = get(record, 'clientId'),
+          dataCache = this.typeMapFor(record.constructor).cidToHash;
 
       dataCache[clientId] = hash;
-      model.send('didChangeData');
-      model.hashWasUpdated();
+
+      // If the server returns a hash, we assume that the server's version
+      // of the data supercedes the local changes.
+      this.updateRecordHash(record, clientId, hash);
     }
 
-    model.send('didCommit');
+    record.send('didCommit');
   },
 
   didDeleteRecords: function(array) {
@@ -459,11 +461,7 @@ DS.Store = Ember.Object.extend({
 
       // If the server returns a hash, we assume that the server's version
       // of the data supercedes the local changes.
-      record.beginPropertyChanges();
-      record.send('didChangeData');
-      recordData.adapterDidUpdate(hash);
-      record.hashWasUpdated();
-      record.endPropertyChanges();
+      this.updateRecordHash(record, clientId, hash);
 
       id = hash[primaryKey];
 
@@ -604,6 +602,19 @@ DS.Store = Ember.Object.extend({
       var content = get(array, 'content');
       content.removeObject(clientId);
     });
+  },
+
+  updateRecordHash: function(record, clientId, hash) {
+    var recordData = get(record, 'data');
+
+    record.beginPropertyChanges();
+    record.send('didChangeData');
+    recordData.adapterDidUpdate(hash);
+    record.hashWasUpdated();
+    record.endPropertyChanges();
+
+    DATA_PROXY.savedData = hash;
+    this.updateAssociations(record.constructor, clientId, DATA_PROXY);
   },
 
   updateAssociations: function(type, clientId, dataProxy) {
