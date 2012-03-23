@@ -460,3 +460,33 @@ test("when a record depends on another record, we can delete the first record an
   equal(get(parentComment, 'isDirty'), false, "parent comment has been saved");
   ok(true, "no exception was thrown");
 });
+
+test("when the model is committed, it receives the didCommit callback", function() {
+  var id = 0,
+    comment, Comment, store;
+  expect(1);
+
+  store = DS.Store.create({
+    adapter: DS.Adapter.create({
+      createRecord: function(store, type, record) {
+        var hash = record.toJSON();
+        hash.id = ++id;
+        store.didCreateRecord(record, hash);
+      }
+    })
+  });
+
+  Comment = DS.Model.extend({
+    title: DS.attr('string'),
+
+
+    didCommit: function() {
+      ok(true, "the callback has been executed");
+    }
+  });
+
+  comment = store.createRecord(Comment);
+  Ember.run(function() {
+    store.commit();
+  });
+});
