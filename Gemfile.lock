@@ -32,10 +32,10 @@ GEM
       confparser
       net-github-upload (>= 0.0.6)
     httpclient (2.2.4)
-    json (1.6.4)
+    json (1.6.5)
     libxml-ruby (2.2.2)
     multi_json (1.0.4)
-    net-github-upload (0.0.7)
+    net-github-upload (0.0.8)
       faster_xml_simple
       httpclient
       json
