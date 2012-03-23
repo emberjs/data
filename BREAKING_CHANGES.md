@@ -67,6 +67,7 @@ App.Person = DS.Model.extend({
   lastName: DS.attr('string', { key: 'last_name' }),
   middleName: DS.attr('string', { key: 'middle_name' })
 });
+```
 
 This obviously got very annoying very fast.
 
