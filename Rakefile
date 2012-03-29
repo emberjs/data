@@ -1,10 +1,14 @@
-abort "Please use Ruby 1.9 to build Ember.js Data!" if RUBY_VERSION !~ /^1\.9/
+abort "Please use Ruby 1.9 to build Ember.js!" if RUBY_VERSION !~ /^1\.9/
 
 require "bundler/setup"
 require "erb"
 require 'rake-pipeline'
 require "ember_docs/cli"
 require "colored"
+
+def pipeline
+  Rake::Pipeline::Project.new("Assetfile")
+end
 
 desc "Strip trailing whitespace for JavaScript files in packages"
 task :strip_whitespace do
@@ -18,28 +22,17 @@ end
 
 desc "Build ember-data.js"
 task :dist do
-  Rake::Pipeline::Project.new("Assetfile").invoke
+  puts "Building Ember Data..."
+  pipeline.invoke
+  puts "Done"
 end
 
 desc "Clean build artifacts from previous builds"
 task :clean do
-  sh "rm -rf tmp dist tests/ember-data-tests.js"
+  puts "Cleaning build..."
+  pipeline.clean
+  puts "Done"
 end
-
-desc "Run jshint"
-task :jshint do
-  unless system("which jshint > /dev/null 2>&1")
-    abort "Please install jshint. `npm install -g jshint`"
-  end
-
-  if system("jshint packages/ember*")
-    puts "The JavaScript is clean".green
-  else
-    puts "The JavaScript is dirty".red
-    exit(1)
-  end
-end
-
 
 desc "Run tests with phantomjs"
 task :test, [:suite] => :dist do |t, args|
@@ -49,7 +42,11 @@ task :test, [:suite] => :dist do |t, args|
 
   suites = {
     :default => ["package=all"],
-    :all => ["package=all", "package=all&jquery=1.6.4", "package=all&extendprototypes=true", "package=all&extendprototypes=true&jquery=1.6.4"]
+    :all => ["package=all",
+              "package=all&jquery=1.6.4&nojshint=true",
+              "package=all&extendprototypes=true&nojshint=true",
+              "package=all&extendprototypes=true&jquery=1.6.4&nojshint=true",
+              "package=all&dist=build&nojshint=true"]
   }
 
   suite = args[:suite] || :default
