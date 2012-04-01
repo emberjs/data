@@ -1,81 +1,92 @@
-/**
- * Wait until the test condition is true or a timeout occurs. Useful for waiting
- * on a server response or for a ui change (fadeIn, etc.) to occur.
- *
- * @param testFx javascript condition that evaluates to a boolean,
- * it can be passed in as a string (e.g.: "1 == 1" or "$('#bar').is(':visible')" or
- * as a callback function.
- * @param onReady what to do when testFx condition is fulfilled,
- * it can be passed in as a string (e.g.: "1 == 1" or "$('#bar').is(':visible')" or
- * as a callback function.
- * @param timeOutMillis the max amount of time to wait. If not specified, 3 sec is used.
- */
+// PhantomJS QUnit Test Runner
 
-function waitFor(testFx, onReady, timeOutMillis) {
-  var maxtimeOutMillis = timeOutMillis ? timeOutMillis : 30001,
-       //< Default Max Timout is 3s, just kidding it's 30s
-      start = new Date().getTime(),
-      condition = false,
-      interval = setInterval(function() {
-      if ((new Date().getTime() - start < maxtimeOutMillis) && !condition) {
-        // If not time-out yet and condition not yet fulfilled
-        condition = (typeof(testFx) === "string" ? eval(testFx) : testFx()); //< defensive code
-      } else {
-        if (!condition) {
-          // If condition still not fulfilled (timeout but condition is 'false')
-          console.log("'waitFor()' timeout");
-          phantom.exit(1);
-        } else {
-          // Condition fulfilled (timeout and/or condition is 'true')
-          console.log("'waitFor()' finished in " + (new Date().getTime() - start) + "ms.");
-          typeof(onReady) === "string" ? eval(onReady) : onReady(); //< Do what it's supposed to do once the condition is fulfilled
-          clearInterval(interval); //< Stop this interval
-        }
-      }
-    }, 100); //< repeat check every 250ms
-};
-
-
-if (phantom.args.length === 0 || phantom.args.length > 2) {
-  console.log('Usage: run-qunit.js URL');
-  phantom.exit();
+var args = phantom.args;
+if (args.length < 1 || args.length > 2) {
+  console.log("Usage: " + phantom.scriptName + " <URL> <timeout>");
+  phantom.exit(1);
 }
 
-var page = new WebPage();
+var page = require('webpage').create();
 
-// Route "console.log()" calls from within the Page context to the main Phantom context (i.e. current "this")
-// hide these warnings ...
-
+var depRe = /^DEPRECATION:/;
 page.onConsoleMessage = function(msg) {
-  // annoying warnings are annoying
-  if (msg.indexOf('is deprecated') < 0) {
-    console.log(msg);
-  }
+  if (!depRe.test(msg)) console.log(msg);
 };
 
-page.open(phantom.args[0], function(status) {
-  if (status !== "success") {
-    console.log("Unable to access network");
-    phantom.exit();
+page.open(args[0], function(status) {
+  if (status !== 'success') {
+    console.error("Unable to access network");
+    phantom.exit(1);
   } else {
-    waitFor(function() {
-      return page.evaluate(function() {
-        var el = document.getElementById('qunit-testresult');
-        if (el && el.innerText.match('completed')) {
-          return true;
+    page.evaluate(addLogging);
+
+    var timeout = parseInt(args[1] || 30000, 10);
+    var start = Date.now();
+    var interval = setInterval(function() {
+      if (Date.now() > start + timeout) {
+        console.error("Tests timed out");
+        phantom.exit(1);
+      } else {
+        var qunitDone = page.evaluate(function() {
+          return window.qunitDone;
+        });
+
+        if (qunitDone) {
+          clearInterval(interval);
+          if (qunitDone.failed > 0) {
+            phantom.exit(1);
+          } else {
+            phantom.exit();
+          }
         }
-        return false;
-      });
-    }, function() {
-      var failedNum = page.evaluate(function() {
-        var el = document.getElementById('qunit-testresult');
-        console.log(el.innerText);
-        try {
-          return el.getElementsByClassName('failed')[0].innerHTML;
-        } catch (e) {}
-        return 10000;
-      });
-      phantom.exit((parseInt(failedNum, 10) > 0) ? 1 : 0);
-    });
+      }
+    }, 500);
   }
 });
+
+function addLogging() {
+  var testErrors = [];
+  var assertionErrors = [];
+
+  QUnit.moduleDone(function(context) {
+    if (context.failed) {
+      var msg = "Module Failed: " + context.name + "\n" + testErrors.join("\n");
+      console.error(msg);
+      testErrors = [];
+    }
+  });
+
+  QUnit.testDone(function(context) {
+    if (context.failed) {
+      var msg = "  Test Failed: " + context.name + assertionErrors.join("    ");
+      testErrors.push(msg);
+      assertionErrors = [];
+    }
+  });
+
+  QUnit.log(function(context) {
+    if (context.result) return;
+
+    var msg = "\n    Assertion Failed:";
+    if (context.message) {
+      msg += " " + context.message;
+    }
+
+    if (context.expected) {
+      msg += "\n      Expected: " + context.expected + ", Actual: " + context.actual;
+    }
+
+    assertionErrors.push(msg);
+  });
+
+  QUnit.done(function(context) {
+    var stats = [
+      "Time: " + context.runtime + "ms",
+      "Total: " + context.total,
+      "Passed: " + context.passed,
+      "Failed: " + context.failed
+    ];
+    console.log(stats.join(", "));
+    window.qunitDone = context;
+  });
+}

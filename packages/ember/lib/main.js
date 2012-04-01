@@ -1,4 +1,4 @@
-(function(exports) {
+(function() {
 /*global __fail__*/
 /**
   Define an assertion that will throw an exception if the condition is not
@@ -126,9 +126,9 @@ window.ember_deprecateFunc = function(message, func) {
   };
 };
 
-})({});
+})();
 
-(function(exports) {
+(function() {
 // lib/handlebars/base.js
 var Handlebars = {};
 
@@ -1199,13 +1199,13 @@ Handlebars.JavaScriptCompiler = function() {};
     // PUBLIC API: You can override these methods in a subclass to provide
     // alternative compiled forms for name lookup and buffering semantics
     nameLookup: function(parent, name, type) {
-			if (/^[0-9]+$/.test(name)) {
+      if (/^[0-9]+$/.test(name)) {
         return parent + "[" + name + "]";
       } else if (JavaScriptCompiler.isValidJavaScriptVariableName(name)) {
-	    	return parent + "." + name;
-			}
-			else {
-				return parent + "['" + name + "']";
+        return parent + "." + name;
+      }
+      else {
+        return parent + "['" + name + "']";
       }
     },
 
@@ -1419,7 +1419,7 @@ Handlebars.JavaScriptCompiler = function() {};
     lookup: function(name) {
       var topStack = this.topStack();
       this.source.push(topStack + " = (" + topStack + " === null || " + topStack + " === undefined || " + topStack + " === false ? " +
- 				topStack + " : " + this.nameLookup(topStack, name, 'context') + ");");
+        topStack + " : " + this.nameLookup(topStack, name, 'context') + ");");
     },
 
     pushStringParam: function(string) {
@@ -1622,12 +1622,12 @@ Handlebars.JavaScriptCompiler = function() {};
     compilerWords[reservedWords[i]] = true;
   }
 
-	JavaScriptCompiler.isValidJavaScriptVariableName = function(name) {
-		if(!JavaScriptCompiler.RESERVED_WORDS[name] && /^[a-zA-Z_$][0-9a-zA-Z_$]+$/.test(name)) {
-			return true;
-		}
-		return false;
-	}
+  JavaScriptCompiler.isValidJavaScriptVariableName = function(name) {
+    if(!JavaScriptCompiler.RESERVED_WORDS[name] && /^[a-zA-Z_$][0-9a-zA-Z_$]+$/.test(name)) {
+      return true;
+    }
+    return false;
+  }
 
 })(Handlebars.Compiler, Handlebars.JavaScriptCompiler);
 
@@ -1723,9 +1723,9 @@ Handlebars.template = Handlebars.VM.template;
 ;
 
 
-})({});
+})();
 
-(function(exports) {
+(function() {
 // ==========================================================================
 // Project:  Ember Metal
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -1861,9 +1861,11 @@ if ('undefined' === typeof ember_deprecateFunc) {
 */
 Ember.Logger = window.console || { log: Ember.K, warn: Ember.K, error: Ember.K };
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Metal
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -2015,9 +2017,11 @@ if (!platform.defineProperty) {
   platform.defineProperty.isSimulated = true;
 }
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Metal
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -2318,8 +2322,6 @@ Ember.wrap = function(func, superFunc) {
 };
 
 /**
-  @function
-
   Returns true if the passed object is an array or Array-like.
 
   Ember Array Protocol:
@@ -2331,6 +2333,11 @@ Ember.wrap = function(func, superFunc) {
   Unlike Ember.typeOf this method returns true even if the passed object is
   not formally array but appears to be array-like (i.e. implements Ember.Array)
 
+      Ember.isArray(); // false
+      Ember.isArray([]); // true
+      Ember.isArray( Ember.ArrayProxy.create({ content: [] }) ); // true
+
+  @name Ember.isArray
   @param {Object} obj The object to test
   @returns {Boolean}
 */
@@ -2347,6 +2354,15 @@ Ember.isArray = function(obj) {
   an array or array-like, returns the object.  Otherwise adds the object to
   an array.  If obj is null or undefined, returns an empty array.
 
+      Ember.makeArray();          => []
+      Ember.makeArray(null);      => []
+      Ember.makeArray(undefined); => []
+      Ember.makeArray('lindsay'); => ['lindsay'] 
+      Ember.makeArray([1,2,42]);  => [1,2,42]
+
+      var controller = Ember.ArrayProxy.create({ content: [] });
+      Ember.makeArray(controller) === controller;   => true
+
   @param {Object} obj the object
   @returns {Array}
 */
@@ -2357,9 +2373,11 @@ Ember.makeArray = function(obj) {
 
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Metal
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -2746,9 +2764,11 @@ Ember.isGlobalPath = function(path) {
   return !HAS_THIS.test(path) && IS_GLOBAL.test(path);
 };
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Metal
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -3157,9 +3177,11 @@ Ember.createPrototype = function(obj, props) {
   return ret;
 };
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Metal
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -3518,9 +3540,11 @@ Ember.cacheFor = function(obj, key) {
   }
 };
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 /*jshint newcap:false*/
 
 // NOTE: There is a bug in jshint that doesn't recognize `Object()` without `new`
@@ -3611,6 +3635,13 @@ Ember.ArrayUtils = {
     return obj.indexOf ? obj.indexOf.apply(obj, args) : arrayIndexOf.apply(obj, args);
   },
 
+  indexesOf: function(obj) {
+    var args = Array.prototype.slice.call(arguments, 1);
+    return args[0] === undefined ? [] : Ember.ArrayUtils.map(args[0], function(item) {
+      return Ember.ArrayUtils.indexOf(obj, item);
+    });
+  },
+
   removeObject: function(array, item) {
     var index = this.indexOf(array, item);
     if (index !== -1) { array.splice(index, 1); }
@@ -3635,9 +3666,11 @@ if (Ember.SHIM_ES5) {
   }
 }
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Metal
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -3889,9 +3922,11 @@ Ember.notifyBeforeObservers = function(obj, keyName) {
 };
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Metal
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -4501,9 +4536,11 @@ Ember.destroy = function (obj) {
   }
 };
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Metal
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -4765,9 +4802,11 @@ Ember.hasListeners = hasListeners;
 Ember.watchedEvents = watchedEvents;
 Ember.listenersFor = listenersFor;
 Ember.deferEvent = deferEvent;
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -5324,9 +5363,11 @@ Ember.beforeObserver = function(func) {
 
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -5885,9 +5926,11 @@ Ember.RunLoop.end = ember_deprecateFunc("Use Ember.run.end instead of Ember.RunL
 
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -6489,9 +6532,9 @@ mixinProperties(Binding,
   /**
     @see Ember.Binding.prototype.single
   */
-  single: function(from) {
+  single: function(from, placeholder) {
     var C = this, binding = new C(null, from);
-    return binding.single();
+    return binding.single(placeholder);
   },
 
   /**
@@ -6505,8 +6548,12 @@ mixinProperties(Binding,
   /**
     @see Ember.Binding.prototype.transform
   */
-  transform: function(func) {
-    var C = this, binding = new C();
+  transform: function(from, func) {
+    if (!func) {
+      func = from;
+      from = null;
+    }
+    var C = this, binding = new C(null, from);
     return binding.transform(func);
   },
 
@@ -6517,6 +6564,15 @@ mixinProperties(Binding,
     var C = this, binding = new C(null, from);
     return binding.notEmpty(placeholder);
   },
+
+  /**
+    @see Ember.Binding.prototype.notNull
+  */
+  notNull: function(from, placeholder) {
+    var C = this, binding = new C(null, from);
+    return binding.notNull(placeholder);
+  },
+
 
   /**
     @see Ember.Binding.prototype.bool
@@ -6532,6 +6588,14 @@ mixinProperties(Binding,
   not: function(from) {
     var C = this, binding = new C(null, from);
     return binding.not();
+  },
+
+  /**
+    @see Ember.Binding.prototype.isNull
+  */
+  isNull: function(from) {
+    var C = this, binding = new C(null, from);
+    return binding.isNull();
   },
 
   /**
@@ -6775,18 +6839,20 @@ Ember.oneWay = function(obj, to, from) {
   return new Ember.Binding(to, from).oneWay().connect(obj);
 };
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Metal
 // Copyright: ©2011 Strobe Inc. and contributors.
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 
-})({});
+})();
 
-(function(exports) {
+(function() {
 /**
  * @license
  * ==========================================================================
@@ -6817,9 +6883,11 @@ Ember.oneWay = function(obj, to, from) {
  * ==========================================================================
  */
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -6846,7 +6914,7 @@ if (typeof console === 'undefined') {
 var TYPE_MAP = {};
 var t ="Boolean Number String Function Array Date RegExp Object".split(" ");
 Ember.ArrayUtils.forEach(t, function(name) {
-	TYPE_MAP[ "[object " + name + "]" ] = name.toLowerCase();
+  TYPE_MAP[ "[object " + name + "]" ] = name.toLowerCase();
 });
 
 var toString = Object.prototype.toString;
@@ -6858,18 +6926,36 @@ var toString = Object.prototype.toString;
   It will return the same result across all browsers and includes a bit
   more detail.  Here is what will be returned:
 
-  | Return Value Constant | Meaning |
-  | 'string' | String primitive |
-  | 'number' | Number primitive |
-  | 'boolean' | Boolean primitive |
-  | 'null' | Null value |
-  | 'undefined' | Undefined value |
-  | 'function' | A function |
-  | 'array' | An instance of Array |
-  | 'class' | A Ember class (created using Ember.Object.extend()) |
-  | 'instance' | A Ember object instance |
-  | 'error' | An instance of the Error object |
-  | 'object' | A JavaScript object not inheriting from Ember.Object |
+      | Return Value  | Meaning                                              |
+      |---------------|------------------------------------------------------|
+      | 'string'      | String primitive                                     |
+      | 'number'      | Number primitive                                     |
+      | 'boolean'     | Boolean primitive                                    |
+      | 'null'        | Null value                                           |
+      | 'undefined'   | Undefined value                                      |
+      | 'function'    | A function                                           |
+      | 'array'       | An instance of Array                                 |
+      | 'class'       | A Ember class (created using Ember.Object.extend())  |
+      | 'instance'    | A Ember object instance                              |
+      | 'error'       | An instance of the Error object                      |
+      | 'object'      | A JavaScript object not inheriting from Ember.Object |
+
+  Examples:
+
+      Ember.typeOf();                      => 'undefined'
+      Ember.typeOf(null);                  => 'null'
+      Ember.typeOf(undefined);             => 'undefined'
+      Ember.typeOf('michael');             => 'string'
+      Ember.typeOf(101);                   => 'number'
+      Ember.typeOf(true);                  => 'boolean'
+      Ember.typeOf(Ember.makeArray);       => 'function'
+      Ember.typeOf([1,2,90]);              => 'array'
+      Ember.typeOf(Ember.Object.extend()); => 'class'
+      Ember.typeOf(Ember.Object.create()); => 'instance'
+      Ember.typeOf(new Error('teamocil')); => 'error'
+
+      // "normal" JavaScript object
+      Ember.typeOf({a: 'b'});              => 'object'
 
   @param item {Object} the item to check
   @returns {String} the type
@@ -6895,6 +6981,13 @@ Ember.typeOf = function(item) {
   from JSLint complaining about use of ==, which can be technically
   confusing.
 
+      Ember.none();             => true
+      Ember.none(null);         => true
+      Ember.none(undefined);    => true
+      Ember.none('');           => false
+      Ember.none([]);           => false
+      Ember.none(function(){}); => false
+
   @param {Object} obj Value to test
   @returns {Boolean}
 */
@@ -6905,16 +6998,23 @@ Ember.none = function(obj) {
 /**
   Verifies that a value is null or an empty string | array | function.
 
+  Constrains the rules on `Ember.none` by returning false for empty
+  string and empty arrays.
+
+      Ember.empty();               => true
+      Ember.empty(null);           => true
+      Ember.empty(undefined);      => true
+      Ember.empty('');             => true
+      Ember.empty([]);             => true
+      Ember.empty('tobias fünke'); => false
+      Ember.empty([0,1,2]);        => false
+
   @param {Object} obj Value to test
   @returns {Boolean}
 */
 Ember.empty = function(obj) {
   return obj === null || obj === undefined || (obj.length === 0 && typeof obj !== 'function');
 };
-
-/**
-  Ember.isArray defined in ember-metal/lib/utils
-**/
 
 /**
  This will compare two javascript values of possibly different types.
@@ -6926,6 +7026,10 @@ Ember.empty = function(obj) {
 
  The order is calculated based on Ember.ORDER_DEFINITION, if types are different.
  In case they have the same type an appropriate comparison for this type is made.
+
+    Ember.compare('hello', 'hello');  => 0
+    Ember.compare('abc', 'dfg');      => -1
+    Ember.compare(2, 1);              => 1
 
  @param {Object} v First value to compare
  @param {Object} w Second value to compare
@@ -7096,6 +7200,10 @@ Ember.inspect = function(obj) {
   internal objects.  For any other object that implements `isEqual()` it will 
   respect that method.
 
+      Ember.isEqual('hello', 'hello');  => true
+      Ember.isEqual(1, 2);              => false
+      Ember.isEqual([4,2], [4,2]);      => false
+
   @param {Object} a first object to compare
   @param {Object} b second object to compare
   @returns {Boolean}
@@ -7163,9 +7271,11 @@ Ember.Error = function() {
 
 Ember.Error.prototype = Ember.create(Error.prototype);
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc.
@@ -7358,9 +7468,11 @@ Ember.String = {
       replace(STRING_UNDERSCORE_REGEXP_2, '_').toLowerCase();
   }
 };
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -7429,9 +7541,11 @@ if (Ember.EXTEND_PROTOTYPES) {
 }
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -7539,9 +7653,11 @@ if (Ember.EXTEND_PROTOTYPES) {
 }
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -7575,18 +7691,22 @@ Ember._mixinBindings = function(obj, key, value, m) {
   return value;
 };
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -8355,9 +8475,11 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
 
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -8367,7 +8489,7 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
 // HELPERS
 // 
 
-var get = Ember.get, set = Ember.set, meta = Ember.meta;
+var get = Ember.get, set = Ember.set, meta = Ember.meta, map = Ember.ArrayUtils.map;
 
 /** @private */
 function none(obj) { return obj===null || obj===undefined; }
@@ -8438,6 +8560,17 @@ Ember.Array = Ember.Mixin.create(Ember.Enumerable, /** @scope Ember.Array.protot
   objectAt: function(idx) {
     if ((idx < 0) || (idx>=get(this, 'length'))) return undefined ;
     return get(this, idx);
+  },
+
+  /**
+    This returns the objects at the specified indexes, using objectAt.
+
+    @param {Array} indexes
+      An array of indexes of items to return.
+   */
+  objectsAt: function(indexes) {
+    var self = this;
+    return map(indexes, function(value,idx){ return self.objectAt(idx); });
   },
 
   /** @private (nodoc) - overrides Ember.Enumerable version */
@@ -8720,9 +8853,11 @@ Ember.Array = Ember.Mixin.create(Ember.Enumerable, /** @scope Ember.Array.protot
 
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -8769,9 +8904,11 @@ Ember.Comparable = Ember.Mixin.create( /** @scope Ember.Comparable.prototype */{
 });
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -8831,9 +8968,11 @@ Ember.Copyable = Ember.Mixin.create(
 
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -8933,9 +9072,11 @@ Ember.FROZEN_ERROR = "Frozen object cannot be modified.";
 
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -9047,9 +9188,11 @@ Ember.MutableEnumerable = Ember.Mixin.create(Ember.Enumerable,
 
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -9294,9 +9437,11 @@ Ember.MutableArray = Ember.Mixin.create(Ember.Array, Ember.MutableEnumerable,
 });
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -9789,9 +9934,11 @@ Ember.Observable = Ember.Mixin.create(/** @scope Ember.Observable.prototype */ {
 
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
 
 Ember.TargetActionSupport = Ember.Mixin.create({
@@ -9835,9 +9982,11 @@ Ember.TargetActionSupport = Ember.Mixin.create({
   }
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 var get = Ember.get, set = Ember.set, a_slice = Array.prototype.slice;
 
 /** @private */
@@ -9865,18 +10014,22 @@ Ember.Evented = Ember.Mixin.create({
   }
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -10184,9 +10337,11 @@ Ember.CoreObject = CoreObject;
 
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -10629,9 +10784,11 @@ Ember.Set.create = function(items) {
   }
 };
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -10649,9 +10806,11 @@ Ember.Object = Ember.CoreObject.extend(Ember.Observable);
 
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -10696,9 +10855,11 @@ Ember.Namespace = Ember.Object.extend({
 Ember.Namespace.NAMESPACES = [Ember];
 Ember.Namespace.PROCESSED = false;
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -10730,9 +10891,11 @@ Ember.Namespace.PROCESSED = false;
 Ember.Application = Ember.Namespace.extend();
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -10883,9 +11046,11 @@ Ember.ArrayProxy = Ember.Object.extend(Ember.MutableArray,
 
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -11086,9 +11251,11 @@ Ember.EachProxy = Ember.Object.extend({
 
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -11232,9 +11399,11 @@ if (Ember.EXTEND_PROTOTYPES) Ember.NativeArray.activate();
 
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 /**
   JavaScript (before ES6) does not have a Map implementation. Objects,
   which are often used as dictionaries, may only have Strings as keys.
@@ -11433,18 +11602,22 @@ Map.prototype = {
   }
 };
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Metal
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -11491,22 +11664,26 @@ Map.prototype = {
 
 Ember.ArrayController = Ember.ArrayProxy.extend();
 
-})({});
+})();
 
-(function(exports) {
 
-})({});
 
-(function(exports) {
+(function() {
+
+})();
+
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 
-})({});
+})();
 
-(function(exports) {
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -11517,9 +11694,11 @@ Ember.ArrayController = Ember.ArrayProxy.extend();
 ember_assert("Ember requires jQuery 1.6 or 1.7", window.jQuery && window.jQuery().jquery.match(/^1\.[67](.\d+)?$/));
 Ember.$ = window.jQuery;
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -11908,9 +12087,11 @@ Ember._RenderBuffer.prototype =
 
 };
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -12101,9 +12282,11 @@ Ember.EventDispatcher = Ember.Object.extend(
   }
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -12212,9 +12395,11 @@ Ember.Application = Ember.Namespace.extend(
 
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -12227,9 +12412,11 @@ Ember.Application = Ember.Namespace.extend(
 var queues = Ember.run.queues;
 queues.splice(Ember.$.inArray('actions', queues)+1, 0, 'render');
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -12237,9 +12424,11 @@ queues.splice(Ember.$.inArray('actions', queues)+1, 0, 'render');
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -13746,9 +13935,11 @@ Ember.View.applyAttributeBindings = function(elem, name, value) {
   }
 };
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -13783,9 +13974,11 @@ Ember.View.reopen({
   states: Ember.View.states
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -13838,9 +14031,11 @@ Ember.View.states.preRender = {
   }
 };
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -13924,9 +14119,11 @@ Ember.View.states.inBuffer = {
 };
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -14005,9 +14202,11 @@ Ember.View.states.inDOM = {
   }
 };
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -14042,9 +14241,11 @@ Ember.View.states.destroyed = {
 };
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -14052,9 +14253,11 @@ Ember.View.states.destroyed = {
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -14269,9 +14472,11 @@ Ember.ContainerView.reopen({
   states: Ember.ContainerView.states
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -14464,9 +14669,11 @@ Ember.CollectionView.CONTAINER_MAP = {
   select: 'option'
 };
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -14474,9 +14681,11 @@ Ember.CollectionView.CONTAINER_MAP = {
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember - JavaScript Application Framework
 // Copyright: ©2006-2011 Strobe Inc. and contributors.
@@ -14486,9 +14695,9 @@ Ember.CollectionView.CONTAINER_MAP = {
 
 /*globals jQuery*/
 
-})({});
+})();
 
-(function(exports) {
+(function() {
 var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
 
 Ember.State = Ember.Object.extend({
@@ -14556,9 +14765,11 @@ Ember.State = Ember.Object.extend({
   exit: Ember.K
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 var get = Ember.get, set = Ember.set, getPath = Ember.getPath, fmt = Ember.String.fmt;
 /**
   @class
@@ -14785,9 +14996,11 @@ Ember.StateManager = Ember.State.extend(
   }
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 var get = Ember.get, set = Ember.set;
 
 Ember.ViewState = Ember.State.extend({
@@ -14835,18 +15048,20 @@ Ember.ViewState = Ember.State.extend({
   }
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Statecharts
 // Copyright: ©2011 Living Social Inc. and contributors.
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 
-})({});
+})();
 
-(function(exports) {
+(function() {
 // ==========================================================================
 // Project:   metamorph
 // Copyright: ©2011 My Company Inc. All rights reserved.
@@ -15247,9 +15462,9 @@ Ember.ViewState = Ember.State.extend({
 })(this);
 
 
-})({});
+})();
 
-(function(exports) {
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -15415,9 +15630,11 @@ Ember.Handlebars.registerHelper('helperMissing', function(path, options) {
 });
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 /*jshint newcap:false*/
 var set = Ember.set, get = Ember.get, getPath = Ember.getPath;
 
@@ -15496,9 +15713,11 @@ Ember.Metamorph = Ember.Mixin.create({
 });
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -15675,9 +15894,11 @@ Ember._BindableSpanView = Ember.View.extend(Ember.Metamorph,
   }
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -16087,9 +16308,11 @@ EmberHandlebars.bindClasses = function(context, classBindings, view, bindAttrId)
 };
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -16221,9 +16444,11 @@ Ember.Handlebars.registerHelper('view', function(path, options) {
 });
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -16321,9 +16546,11 @@ Ember.Handlebars.registerHelper('collection', function(path, options) {
 
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -16347,9 +16574,11 @@ Ember.Handlebars.registerHelper('unbound', function(property, fn) {
   return getPath(context, property);
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -16386,9 +16615,11 @@ Ember.Handlebars.registerHelper('debugger', function() {
   debugger;
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 Ember.Handlebars.EachView = Ember.CollectionView.extend(Ember.Metamorph, {
   itemViewClass: Ember.View.extend(Ember.Metamorph)
 });
@@ -16404,9 +16635,11 @@ Ember.Handlebars.registerHelper('each', function(path, options) {
   return Ember.Handlebars.helpers.collection.call(this, 'Ember.Handlebars.EachView', options);
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 /**
   `template` allows you to render a template from inside another template.
   This allows you to re-use the same template in multiple places. For example:
@@ -16443,9 +16676,11 @@ Ember.Handlebars.registerHelper('template', function(name, options) {
   Ember.TEMPLATES[name](this, { data: options.data });
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 var EmberHandlebars = Ember.Handlebars, getPath = Ember.Handlebars.getPath;
 
 var ActionHelper = EmberHandlebars.ActionHelper = {
@@ -16490,9 +16725,11 @@ EmberHandlebars.registerHelper('action', function(actionName, options) {
   return new EmberHandlebars.SafeString('data-ember-action="' + actionId + '"');
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 var get = Ember.get, set = Ember.set;
 
 Ember.Handlebars.registerHelper('yield', function(options) {
@@ -16510,27 +16747,33 @@ Ember.Handlebars.registerHelper('yield', function(options) {
   template(this, options);
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -16564,9 +16807,11 @@ Ember.Checkbox = Ember.View.extend({
 });
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -16622,9 +16867,11 @@ Ember.TextSupport.KEY_EVENTS = {
   27: 'cancel'
 };
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -16647,9 +16894,11 @@ Ember.TextField = Ember.View.extend(Ember.TextSupport,
   size: null
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -16745,9 +16994,11 @@ Ember.Button = Ember.View.extend(Ember.TargetActionSupport, {
   }
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -16782,14 +17033,18 @@ Ember.TextArea = Ember.View.extend(Ember.TextSupport,
 
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 Ember.TabContainerView = Ember.View.extend();
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 var get = Ember.get, getPath = Ember.getPath;
 
 Ember.TabPaneView = Ember.View.extend({
@@ -16802,9 +17057,11 @@ Ember.TabPaneView = Ember.View.extend({
   }).property('tabsContainer.currentView')
 });
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 var get = Ember.get, setPath = Ember.setPath;
 
 Ember.TabView = Ember.View.extend({
@@ -16817,17 +17074,21 @@ Ember.TabView = Ember.View.extend({
   }
 });
 
-})({});
+})();
 
-(function(exports) {
 
-})({});
 
-(function(exports) {
+(function() {
+
+})();
+
+
+
+(function() {
 /*jshint eqeqeq:false */
 
 var set = Ember.set, get = Ember.get, getPath = Ember.getPath;
-var indexOf = Ember.ArrayUtils.indexOf;
+var indexOf = Ember.ArrayUtils.indexOf, indexesOf = Ember.ArrayUtils.indexesOf;
 
 Ember.Select = Ember.View.extend({
   tagName: 'select',
@@ -16835,7 +17096,9 @@ Ember.Select = Ember.View.extend({
     '{{#if prompt}}<option>{{prompt}}</option>{{/if}}' +
     '{{#each content}}{{view Ember.SelectOption contentBinding="this"}}{{/each}}'
   ),
+  attributeBindings: ['multiple'],
 
+  multiple: false,
   content: null,
   selection: null,
   prompt: null,
@@ -16852,6 +17115,30 @@ Ember.Select = Ember.View.extend({
   },
 
   change: function() {
+    if (get(this, 'multiple')) {
+      this._changeMultiple();
+    } else {
+      this._changeSingle();
+    }
+  },
+
+  selectionDidChange: Ember.observer(function() {
+    var selection = get(this, 'selection'),
+        isArray = Ember.isArray(selection);
+    if (get(this, 'multiple')) {
+      if (!isArray) {
+        set(this, 'selection', Ember.A([selection]));
+        return;
+      }
+      this._selectionDidChangeMultiple();
+    } else {
+      ember_assert("Select multiple is false, but you have specified an Array selection.", !isArray);
+      this._selectionDidChangeSingle();
+    }
+  }, 'selection'),
+
+
+  _changeSingle: function() {
     var selectedIndex = this.$()[0].selectedIndex,
         content = get(this, 'content'),
         prompt = get(this, 'prompt');
@@ -16863,7 +17150,22 @@ Ember.Select = Ember.View.extend({
     set(this, 'selection', content.objectAt(selectedIndex));
   },
 
-  selectionDidChange: Ember.observer(function() {
+  _changeMultiple: function() {
+    var options = this.$('option:selected'),
+        prompt = get(this, 'prompt'),
+        offset = prompt ? 1 : 0,
+        content = get(this, 'content');
+
+    if (!content){ return; }
+    if (options) {
+      var selectedIndexes = options.map(function(){
+        return this.index - offset;
+      });
+      set(this, 'selection', content.objectsAt(selectedIndexes));
+    }
+  },
+
+  _selectionDidChangeSingle: function() {
     var el = this.$()[0],
         content = get(this, 'content'),
         selection = get(this, 'selection'),
@@ -16872,7 +17174,23 @@ Ember.Select = Ember.View.extend({
 
     if (prompt) { selectionIndex += 1; }
     if (el) { el.selectedIndex = selectionIndex; }
-  }, 'selection')
+  },
+
+  _selectionDidChangeMultiple: function() {
+    var content = get(this, 'content'),
+        selection = get(this, 'selection'),
+        selectedIndexes = indexesOf(content, selection),
+        prompt = get(this, 'prompt'),
+        offset = prompt ? 1 : 0,
+        options = this.$('option');
+
+    if (options) {
+      options.each(function() {
+        this.selected = indexOf(selectedIndexes, this.index + offset) > -1;
+      });
+    }
+  }
+
 });
 
 Ember.SelectOption = Ember.View.extend({
@@ -16888,8 +17206,15 @@ Ember.SelectOption = Ember.View.extend({
   },
 
   selected: Ember.computed(function() {
-    // Primitives get passed through bindings as objects... since `new Number(4) !== 4`, we use `==` below
-    return get(this, 'content') == getPath(this, 'parentView.selection');
+    var content = get(this, 'content'),
+        selection = getPath(this, 'parentView.selection');
+    if (getPath(this, 'parentView.multiple')) {
+      return selection && indexOf(selection, content) > -1;
+    } else {
+      // Primitives get passed through bindings as objects... since
+      // `new Number(4) !== 4`, we use `==` below
+      return content == selection;
+    }
   }).property('content', 'parentView.selection'),
 
   labelPathDidChange: Ember.observer(function() {
@@ -16914,18 +17239,22 @@ Ember.SelectOption = Ember.View.extend({
 });
 
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -17017,23 +17346,25 @@ Ember.$(document).ready(
   }
 );
 
-})({});
+})();
 
-(function(exports) {
+
+
+(function() {
 // ==========================================================================
 // Project:   Ember Handlebar Views
 // Copyright: ©2011 Strobe Inc. and contributors.
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 
-})({});
+})();
 
-(function(exports) {
+(function() {
 // ==========================================================================
 // Project:   Ember
 // Copyright: ©2011 Strobe Inc. and contributors.
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 
-})({});
+})();
 
