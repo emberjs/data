@@ -349,7 +349,7 @@ var DirtyState = DS.State.extend({
     // FLAGS
     isValid: false,
 
-    enter: function(manager) {
+    exit: function(manager) {
       var model = get(manager, 'model');
 
       model.withTransaction(function (t) {
