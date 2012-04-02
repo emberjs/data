@@ -344,6 +344,15 @@ DS.Store = Ember.Object.extend({
     record.deleteRecord();
   },
 
+  /**
+    For symmetry, a record can be unloaded via the store.
+
+    @param {DS.Model} record
+  */
+  unloadRecord: function(record) {
+    record.unloadRecord();
+  },
+
   // ................
   // . FIND RECORDS .
   // ................
@@ -1491,6 +1500,23 @@ DS.Store = Ember.Object.extend({
 
     record.loadingData();
     return record;
+  },
+
+  dematerializeRecord: function(record) {
+    var id = get(record, 'id'),
+        clientId = get(record, 'clientId'),
+        type = this.typeForClientId(clientId),
+        typeMap = this.typeMapFor(type);
+
+    record.updateRecordArrays();
+
+    delete this.recordCache[clientId];
+    delete this.clientIdToId[clientId];
+    delete this.clientIdToType[clientId];
+    delete this.clientIdToHash[clientId];
+    delete this.recordArraysByClientId[clientId];
+
+    if (id) { delete typeMap.idToCid[id]; }
   },
 
   destroy: function() {

@@ -645,3 +645,52 @@ module("DS.Store - Adapter Callbacks", {
   }
 });
 
+var tryToFind, Record;
+
+module("DS.Store - unload record", {
+  setup: function() {
+    store = DS.Store.create({
+      adapter: DS.Adapter.create({
+        find: function() {
+          tryToFind = true;
+        }
+      })
+    });
+
+    Record = DS.Model.extend({
+      title: DS.attr('string')
+    });
+  },
+  teardown: function() {
+    store.destroy();
+  }
+});
+
+test("unload a dirty record", function() {
+  store.load(Record, {id: 1, title: 'toto'});
+
+  var record = store.find(Record, 1);
+  record.set('title', 'toto2');
+
+  equal(get(record, 'isDirty'), true, "record is dirty");
+  raises(function() {
+    record.unloadRecord();
+  }, "You can only unload a loaded non dirty record.", "can not unload dirty record");
+});
+
+test("unload a record", function() {
+  store.load(Record, {id: 1, title: 'toto'});
+
+  var record = store.find(Record, 1);
+  equal(get(record, 'id'), 1, "found record with id 1");
+  equal(get(record, 'isDirty'), false, "record is not dirty");
+
+  store.unloadRecord(record);
+
+  equal(get(record, 'isDirty'), false, "record is not dirty");
+  equal(get(record, 'isDeleted'), true, "record is deleted");
+
+  tryToFind = false;
+  store.find(Record, 1);
+  equal(tryToFind, true, "not found record with id 1");
+});
