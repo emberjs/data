@@ -6,7 +6,8 @@ DS.Transaction = Ember.Object.extend({
       clean:   Ember.Map.create(),
       created: Ember.Map.create(),
       updated: Ember.Map.create(),
-      deleted: Ember.Map.create()
+      deleted: Ember.Map.create(),
+      inflight: Ember.Map.create()
     });
   },
 
@@ -83,14 +84,21 @@ DS.Transaction = Ember.Object.extend({
         type = record.constructor;
 
     var records = bucket.get(type);
-    records.remove(record);
+
+    if (records) {
+      records.remove(record);
+    }
+  },
+
+  modelBecameInFlight: function(kind, record) {
+    this.removeFromBucket(kind, record);
+    this.addToBucket('inflight', record);
   },
 
   modelBecameClean: function(kind, record) {
     this.removeFromBucket(kind, record);
 
-    var defaultTransaction = getPath(this, 'store.defaultTransaction');
-    defaultTransaction.adoptRecord(record);
+    this.remove(record);
   },
 
   commit: function() {
