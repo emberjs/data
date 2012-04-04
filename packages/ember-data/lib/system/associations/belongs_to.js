@@ -10,6 +10,18 @@ var referencedFindRecord = function(store, type, data, key, one) {
   return get(data, key);
 };
 
+var setUpEmbeddedAssociation = function(record, association) {
+  if(get(association, 'parentRecord') !== record) {
+    set(association, 'parentRecord', record);
+    Ember.addObserver(association, 'isDirty', function() {
+      if(get(this,'isDirty')) {
+        var parentRecord = get(this, 'parentRecord');
+        parentRecord.send('becameDirty');
+      }
+    });
+  }
+};
+
 var hasAssociation = function(type, options, one) {
   options = options || {};
 
@@ -31,7 +43,7 @@ var hasAssociation = function(type, options, one) {
       this.send('setAssociation', { key: key, value: value === null ? null : get(value, 'clientId') });
       //data.setAssociation(key, get(value, 'clientId'));
       // put the client id in `key` in the data hash
-      return value;
+      association = value;
     } else {
       // Embedded belongsTo associations should not look for
       // a foreign key.
@@ -47,6 +59,9 @@ var hasAssociation = function(type, options, one) {
       association = id ? store.find(type, id) : null;
     }
 
+    if(embedded && association) {
+      setUpEmbeddedAssociation(this, association);
+    }
     return association;
   }).property('data').cacheable().meta(meta);
 };

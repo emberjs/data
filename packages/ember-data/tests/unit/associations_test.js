@@ -261,6 +261,45 @@ test("embedded associations work the same as referenced ones, and have the same 
   equal(getPath(kselden, 'tags.length'), 0, "if no association is provided, an empty list is returned");
 });
 
+test("embedded belong-to associates mark their parent as dirty when modified", function() {
+  var Species = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    species: DS.belongsTo(Species, { key: 'species_attributes', embedded: true })
+  });
+
+  var store = DS.Store.create({
+    adapter: DS.Adapter.create({
+      updateRecord: function(store, type, record) {
+        store.didUpdateRecord(record);
+      }
+    })
+  });
+  store.load(Person, 1, { id: 1, name: "Tom Dale", species_attributes: { id: 1, name: "Human" } });
+
+  var tom = store.find(Person, 1);
+  var species = get(tom, "species");
+  set(species, "name", "Machine");
+
+  equal(get(tom, 'isDirty'), true, "parent model should be dirty when embedded belongsTo is modified");
+
+  store.commit();
+  equal(get(tom, 'isDirty'), false, "parent model should be clean");
+
+  store.load(Species, 2, { id: 2, name: "Cyborg" });
+  var cyborg = store.find(Species, 2);
+  set(tom, "species", cyborg);
+
+  store.commit();
+  equal(get(tom, 'isDirty'), false, "parent model should be clean");
+
+  set(cyborg, "name", "Super Cyborg");
+  equal(get(tom, 'isDirty'), true, "parent model should be dirty when updated embedded belongsTo is modified");
+});
+
 test("it is possible to add a new item to an association", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
