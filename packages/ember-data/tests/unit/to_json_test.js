@@ -145,14 +145,21 @@ test("toJSON includes associations when the association option is set", function
             "association is updated after editing associations array");
 });
 
-test("toJSON includes embedded associations when an association is embedded", function() {
+test("toJSON includes embedded associations with default keys when an association is embedded", function() {
   var PhoneNumber = DS.Model.extend({
     number: DS.attr('string')
+  });
+  
+  var Country = DS.Model.extend({
+    code: DS.attr('string')
   });
 
   var Contact = DS.Model.extend({
     name: DS.attr('string'),
     phoneNumbers: DS.hasMany(PhoneNumber, {
+      embedded: true
+    }),
+    country: DS.belongsTo(Country, {
       embedded: true
     })
   });
@@ -165,11 +172,12 @@ test("toJSON includes embedded associations when an association is embedded", fu
   {
     id: 8,
     number: '345'
-  }]});
+  }],
+  country: {id: 1, code: 'AU'}});
 
   var record = store.find(Contact, 1);
 
-  deepEqual(record.toJSON(), { id: 1, name: "Chad" }, "precond - associations not included by default");
+  deepEqual(record.toJSON(), { id: 1, name: "Chad", country: {id: 1, code: 'AU'} }, "precond - has many associations not included by default");
   deepEqual(record.toJSON({ associations: true }),
             { id: 1, name: "Chad", phoneNumbers: [{
                 id: 7,
@@ -179,7 +187,8 @@ test("toJSON includes embedded associations when an association is embedded", fu
                 id: 8,
                 number: '345'
               }
-            ]},
+            ],
+            country: {id: 1, code: 'AU'}},
             "associations are included when association flag is set");
 
   store.load(PhoneNumber, { id: 9, number: '789' });
@@ -200,6 +209,78 @@ test("toJSON includes embedded associations when an association is embedded", fu
                 id: 9,
                 number: '789'
               }
-            ]},
+            ],
+            country: {id: 1, code: 'AU'}},
+            "association is updated after editing associations array");
+});
+
+test("toJSON includes embedded associations with custom keys when an association is embedded", function() {
+  var PhoneNumber = DS.Model.extend({
+    number: DS.attr('string')
+  });
+  
+  var Country = DS.Model.extend({
+    code: DS.attr('string')
+  });
+
+  var Contact = DS.Model.extend({
+    name: DS.attr('string'),
+    phoneNumbers: DS.hasMany(PhoneNumber, {
+      embedded: true,
+      key: "phone_number_attributes"
+    }),
+    country: DS.belongsTo(Country, {
+      embedded: true,
+      key: "homeland_attributes"
+    })
+  });
+
+  store.load(Contact, { id: 1, name: "Chad", phone_number_attributes: [{
+    id: 7,
+    number: '123'
+  },
+
+  {
+    id: 8,
+    number: '345'
+  }],
+  homeland_attributes: {id: 1, code: 'AU'}});
+
+  var record = store.find(Contact, 1);
+
+  deepEqual(record.toJSON(), { id: 1, name: "Chad", homeland_attributes: {id: 1, code: 'AU'} }, "precond - has many associations not included by default");
+  deepEqual(record.toJSON({ associations: true }),
+            { id: 1, name: "Chad", phone_number_attributes: [{
+                id: 7,
+                number: '123'
+              },
+              {
+                id: 8,
+                number: '345'
+              }
+            ],
+            homeland_attributes: {id: 1, code: 'AU'}},
+            "associations are included when association flag is set");
+
+  store.load(PhoneNumber, { id: 9, number: '789' });
+  var phoneNumber = store.find(PhoneNumber, 9);
+
+  record.get('phoneNumbers').pushObject(phoneNumber);
+
+  deepEqual(record.toJSON({ associations: true }),
+            { id: 1, name: "Chad", phone_number_attributes: [{
+                id: 7,
+                number: '123'
+              },
+              {
+                id: 8,
+                number: '345'
+              },
+              {
+                id: 9,
+                number: '789'
+              }
+            ],
+            homeland_attributes: {id: 1, code: 'AU'}},
             "association is updated after editing associations array");
 });
