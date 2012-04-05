@@ -267,16 +267,27 @@ DS.Store = Ember.Object.extend({
 
     You can check whether a query results `ModelArray` has loaded
     by checking its `isLoaded` property.
+
+    Unlike the find all, the `ModelArray` will not have new records
+    added automatically because we don't know if new records match
+    the server query performed.
+
+    To add new records, supply a filter function which returns true
+    if the new record belongs in the result:
+
+    App.Person.find({ initial: 'A' }, function(person){
+      return person.get("initial") == "A";
+    });
   */
   find: function(type, id, query) {
     if (id === undefined) {
       return this.findAll(type);
     }
 
-    if (query !== undefined) {
+    if (Ember.typeOf(id) === 'object') {
+      return this.findQuery(type, id, query);
+    } else if (query !== undefined) {
       return this.findMany(type, id, query);
-    } else if (Ember.typeOf(id) === 'object') {
-      return this.findQuery(type, id);
     }
 
     if (Ember.isArray(id)) {
@@ -403,8 +414,10 @@ DS.Store = Ember.Object.extend({
     return this.createManyArray(type, clientIds);
   },
 
-  findQuery: function(type, query) {
-    var array = DS.AdapterPopulatedModelArray.create({ type: type, content: Ember.A([]), store: this });
+  findQuery: function(type, query, filter) {
+    var array = DS.AdapterPopulatedModelArray.create({ type: type, content: Ember.A([]), store: this, filterFunction: filter });
+    this.registerModelArray(array, type);
+
     var adapter = get(this, '_adapter');
     if (adapter && adapter.findQuery) { adapter.findQuery(this, type, query, array); }
     else { throw fmt("Adapter is either null or does not implement `findQuery` method", this); }
