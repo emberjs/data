@@ -14,8 +14,12 @@ var referencedFindRecord = function(store, type, data, key, one) {
 var hasAssociation = function(type, options) {
   options = options || {};
 
-  var embedded = options.embedded,
-      findRecord = embedded ? embeddedFindRecord : referencedFindRecord;
+  var findRecord;
+
+  if (options.findRecord)
+    findRecord = options.findRecord;
+  else
+    findRecord = options.embedded ? embeddedFindRecord : referencedFindRecord;
 
   var meta = { type: type, isAssociation: true, options: options, kind: 'hasMany' };
 
