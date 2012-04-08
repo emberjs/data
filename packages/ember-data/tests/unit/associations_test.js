@@ -461,3 +461,30 @@ test("belongsTo embedded associations work the same as referenced ones, and have
   strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
   strictEqual(get(person, 'tag'), store.find(Tag, 5), "association object are the same as object retrieved directly");
 });
+
+test("should allow custom finders to be passed in options to hasMany so that complex/reference identities can be decomposed", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var customFinder = function(store, type, data, key, one) {
+    return Ember.get(data, key).map(function(record) {
+      var parts = record._ref.split('/');
+      return parseInt(parts[parts.length - 1], 10);
+    });
+  };
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.hasMany(Tag, { findRecord: customFinder })
+  });
+
+  var store = DS.Store.create();
+  store.load(Person, 1, { id: 1, name: "James Tucker", tags: [ { _ref: '/tag/5' } ] });
+  store.load(Tag, 5, { id: 5, name: "ReferencedTag" });
+
+  var person = store.find(Person, 1);
+  equal(get(person, 'name'), "James Tucker", "precond - retrieve person from store");
+
+  equal(get(person, 'tags').objectAt(0), store.find(Tag, 5), "the object ids were extraced from the ref url");
+});
