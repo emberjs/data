@@ -231,6 +231,37 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.send('deleteRecord');
   },
 
+  unloadRecord: function() {
+    var store = get(this, 'store'),
+        stateManager = get(this, 'stateManager'),
+        pendingQueue = get(this, 'pendingQueue'),
+        tuple, prop;
+
+    if (get(this, 'isPending')) {
+      for (prop in pendingQueue) {
+        if (!pendingQueue.hasOwnProperty(prop)) { continue; }
+
+        tuple = pendingQueue[prop];
+        Ember.removeObserver(tuple[0], 'id', tuple[1]);
+      }
+    }
+
+    if (store) {
+      store.unloadRecord(this.constructor, get(this, 'clientId'), this);
+    }
+
+    stateManager.goToState('deleted.saved');
+    this.destroy();
+  },
+
+  resetHash: function() {
+    get(this, 'data').rollback();
+    this.notifyPropertyChange('data');
+    set(this, 'errors', null);
+    get(this, 'stateManager').goToState('loaded.saved');
+    this.hashWasUpdated();
+  },
+
   waitingOn: function(record) {
     this.send('waitingOn', record);
   },
