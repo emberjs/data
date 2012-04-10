@@ -35,7 +35,18 @@ Set.prototype = {
 };
 
 var ManyArrayState = Ember.State.extend({
+  /**
+    If record is dirty, add it to the set of dirty records and add an observer
+    to send childWasSaved when the record becomes clean.
+
+    Returns true if the record needed to be added to the dirty set, and false
+    otherwise.
+   */
   recordWasAdded: function(manager, record) {
+    if(!get(record, 'isDirty')) {
+      return false;
+    }
+
     var dirty = manager.dirty, observer;
     dirty.add(record);
 
@@ -47,6 +58,7 @@ var ManyArrayState = Ember.State.extend({
     };
 
     record.addObserver('isDirty', observer);
+    return true;
   },
 
   recordWasRemoved: function(manager, record) {
@@ -67,8 +79,9 @@ var states = {
     isDirty: false,
 
     recordWasAdded: function(manager, record) {
-      this._super(manager, record);
-      manager.goToState('dirty');
+      if(this._super(manager, record)) {
+        manager.goToState('dirty');
+      }
     },
 
     update: function(manager, clientIds) {
