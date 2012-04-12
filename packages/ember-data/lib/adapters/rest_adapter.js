@@ -226,7 +226,13 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   buildURL: function(model, suffix) {
-    var url = [""];
+    var url = [];
+    
+    // avoid initial slash if specifying site
+    // avoid initial slash if redundant
+    if ( (model.substring(0, 4) !== 'http') && (model.substring(0, 1) !== '/')) {
+      url.push("");
+    }
 
     if (this.namespace !== undefined) {
       url.push(this.namespace);
