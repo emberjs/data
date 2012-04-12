@@ -227,7 +227,7 @@ var DirtyState = DS.State.extend({
           model = get(manager, 'model');
 
       model.withTransaction(function (t) {
-        t.modelBecameClean(dirtyType, model);
+        t.modelBecameInFlight(dirtyType, model);
       });
     },
 
@@ -348,6 +348,14 @@ var DirtyState = DS.State.extend({
   invalid: DS.State.extend({
     // FLAGS
     isValid: false,
+
+    exit: function(manager) {
+      var model = get(manager, 'model');
+
+      model.withTransaction(function (t) {
+        t.modelBecameClean('inflight', model);
+      });
+    },
 
     // EVENTS
     deleteRecord: function(manager) {
@@ -481,6 +489,15 @@ var states = {
       // If there are no local changes to a record, it remains
       // in the `saved` state.
       saved: DS.State.create({
+
+        enter: function(manager) {
+          var model = get(manager, 'model');
+
+          model.withTransaction(function(t) {
+            t.modelBecameClean('inflight', model);
+          });
+        },
+
         // EVENTS
         setProperty: function(manager, context) {
           setProperty(manager, context);
