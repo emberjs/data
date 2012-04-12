@@ -2,14 +2,12 @@ require("ember-data/system/model_array");
 
 var get = Ember.get, set = Ember.set;
 
-DS.AdapterPopulatedModelArray = DS.ModelArray.extend({
+DS.AdapterPopulatedModelArray = DS.FilteredModelArray.extend({
   query: null,
   isLoaded: false,
 
-  replace: function() {
-    var type = get(this, 'type').toString();
-    throw new Error("The result of a server query (on " + type + ") is immutable.");
-  },
+  // don't accept new records by default
+  filterFunction: function() { return false; },
 
   load: function(array) {
     var store = get(this, 'store'), type = get(this, 'type');
