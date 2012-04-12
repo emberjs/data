@@ -1,17 +1,17 @@
 GIT
+  remote: https://github.com/emberjs/docs-generator.git
+  revision: cfbb82496c1c342ff6da49fc46559dd8fddf8b55
+  specs:
+    ember-docs (0.1)
+      rack
+      thor
+
+GIT
   remote: https://github.com/livingsocial/rake-pipeline.git
   revision: b70ca6cad7655e58d13031f3e24df7dfc74f9030
   specs:
     rake-pipeline (0.6.0)
       rake (~> 0.9.0)
-      thor
-
-GIT
-  remote: https://github.com/wagenet/ember-docs.git
-  revision: b32c0cb5ceea286c755a17640cb7f6750543e71c
-  specs:
-    ember-docs (0.1)
-      rack
       thor
 
 GIT
