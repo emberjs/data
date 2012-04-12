@@ -37,11 +37,11 @@ DS.ManyArray = DS.ModelArray.extend({
     added = added.map(function(record) {
       ember_assert("You can only add records of " + (get(this, 'type') && get(this, 'type').toString()) + " to this association.", !get(this, 'type') || (get(this, 'type') === record.constructor));
 
-      if (pendingParent) {
+      var inverseAssociation = this.assignInverse(record, parentRecord);
+
+      if (inverseAssociation && pendingParent) {
         record.send('waitingOn', parentRecord);
       }
-
-      this.assignInverse(record, parentRecord);
 
       stateManager.send('recordWasAdded', record);
 
@@ -61,6 +61,12 @@ DS.ManyArray = DS.ModelArray.extend({
     this._super(index, removed, added);
   },
 
+  /**
+    Finds the belongsTo association of record for parentRecord and, if such an
+    association exists, assigns parentRecord to it.
+
+    Returns the association found, or undefined if no such association exists.
+  */
   assignInverse: function(record, parentRecord, remove) {
     var associationMap = get(record.constructor, 'associations'),
         possibleAssociations = associationMap.get(parentRecord.constructor),
@@ -79,6 +85,7 @@ DS.ManyArray = DS.ModelArray.extend({
 
     if (actual) {
       set(record, actual.name, remove ? null : parentRecord);
+      return actual;
     }
   }
 });

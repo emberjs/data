@@ -1,5 +1,5 @@
 var get = Ember.get, set = Ember.set;
-var store, Group, Person;
+var store, Group, Person, Destination;
 
 module("DS.ManyArray", {
   setup: function() {
@@ -7,8 +7,10 @@ module("DS.ManyArray", {
 
     Person = DS.Model.extend();
     Person.toString = function() { return "Person"; };
+    Destination = DS.Model.extend();
     Group = DS.Model.extend({
-      people: DS.hasMany(Person)
+      people: DS.hasMany(Person),
+      destinations: DS.hasMany(Destination)
     });
     Group.toString = function() { return "Group"; };
 
@@ -53,6 +55,36 @@ test("if an association has existing records added to it, its isDirty is true", 
 
   equal(get(people, 'isDirty'), true, "the association becomes dirty after a record is added");
   equal(get(people, 'length'), 3, "the length of the association has increased");
+});
+
+test("if an association with no inverse has existing clean records added to it, the records' isDirty remains false", function() {
+  store.load(Destination, { id: 1 });
+
+  var group = store.createRecord(Group, {});
+  var destinations = get(group, 'destinations');
+  var destination = store.find(Destination, 1);
+
+  equal(get(destination, 'isDirty'), false, "precond - associate is initially clean");
+  equal(get(destinations, 'isDirty'), false, "precond - many array is initially clean");
+  equal(get(destinations, 'length'), 0, "precond - associations are initially correct");
+  destinations.pushObject(destination);
+  equal(get(destinations, 'length'), 1, "associations have the right length after an associated record is added");
+  equal(get(destination, 'isDirty'), false, "associate remains clean when it lacks the inverse belongsTo relationship");
+  equal(get(destinations, 'isDirty'), false, "many array remains clean when added record remains clean");
+});
+
+test("if records with an inverse association are added to an unpersisted parent's association, they are in a pending state", function() {
+  store.loadMany(Person, [{ id: 1 }, { id: 2 }, { id: 3 }]);
+
+  var group = store.createRecord(Group, {});
+  var people = get(group, 'people');
+  var person = store.find(Person, 1);
+
+  equal(get(people, 'length'), 0, 'precond - associations are initially correct');
+  equal(get(person, 'isPending'), false, 'precond - associated record is initially not pending');
+  people.pushObject(person);
+  equal(get(people, 'length'), 1, 'after adding a record associations length increases');
+  equal(get(person, 'isPending'), true, 'after adding the associated record, it is in a pending state');
 });
 
 test("if an association has newly created records added to it, its isDirty is true", function() {
