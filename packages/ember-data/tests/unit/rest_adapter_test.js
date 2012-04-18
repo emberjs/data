@@ -1,29 +1,41 @@
 var get = Ember.get, set = Ember.set;
 
-var adapter, store, ajaxUrl, ajaxType, ajaxHash;
+var adapter, store, ajaxUrl, ajaxType, ajaxHash, ajaxErrorHandler;
+var userErrorHandlerXhr, userErrorHandlerAction, userErrorHandlerModels;
 var Person, person, people;
 var Role, role, roles;
 var Group, group;
 
 module("the REST adapter", {
   setup: function() {
-    ajaxUrl = undefined;
-    ajaxType = undefined;
-    ajaxHash = undefined;
+    resetMockXhr();
 
     adapter = DS.RESTAdapter.create({
-      ajax: function(url, type, hash) {
-        var success = hash.success, self = this;
+      jQuery: {
+        ajax: function( hash ) {
+          var success = hash.success;
 
-        ajaxUrl = url;
-        ajaxType = type;
-        ajaxHash = hash;
+          ajaxUrl = hash.url;
+          ajaxType = hash.type;
+          ajaxHash = hash;
+          ajaxErrorHandler = hash.error;
 
-        if (success) {
-          hash.success = function(json) {
-            success.call(self, json);
-          };
+          if(hash.data && typeof(hash.data) === "string") {
+            hash.data = JSON.parse(hash.data);
+          }
+
+          if (success) {
+            hash.success = function(json) {
+              success.call(store.adapter, json);
+            };
+          }
         }
+      },
+
+      error: function( jqXhr, textStatus, errorThrown, emberParams ) {
+        userErrorHandlerXhr = jqXhr;
+        userErrorHandlerAction = emberParams.action;
+        userErrorHandlerModels = emberParams.models;
       },
 
       plurals: {
@@ -63,12 +75,27 @@ module("the REST adapter", {
   },
 
   teardown: function() {
-    adapter.destroy();
-    store.destroy();
+    if (person) {
+      if( person.get('isSaving')) {
+        person.get('stateManager').goToState('saved');
+      }
+      person.destroy();
+    }
 
-    if (person) { person.destroy(); }
+    store.destroy();
+    adapter.destroy();
   }
 });
+
+var resetMockXhr = function() {
+  ajaxUrl =
+    ajaxType =
+    ajaxHash =
+    ajaxErrorHandler =
+    userErrorHandlerXhr =
+    userErrorHandlerAction =
+    userErrorHandlerModels = undefined;
+};
 
 var expectUrl = function(url, desc) {
   equal(ajaxUrl, url, "the URL is " + desc);
@@ -96,6 +123,125 @@ var expectStates = function(state, value) {
     expectState(state, value, person);
   });
 };
+
+var expectNoErrorHandlerInvoked = function( mockXhr ) {
+  mockXhr = mockXhr || {};
+  equal( typeof( ajaxErrorHandler ), "function", "RESTAdapter supplies an error handler to jQuery.ajax.");
+  ajaxErrorHandler( mockXhr, 'error', 'synthetic error'); // should not raise error, in particular no 'no method' error
+};
+
+var expectUserErrorHandlerInvoked = function( action, models ) {
+  var mockXhr = {};
+  if( arguments.length < 2 ){ models = [person]; }
+
+  equal( typeof( ajaxErrorHandler ), "function", "RESTAdapter supplies an error handler to jQuery.ajax.");
+  ajaxErrorHandler( mockXhr, 'error', 'synthetic error');
+  strictEqual( userErrorHandlerXhr, mockXhr, "User supplied error handlers are invoked on jQuery.ajax errors and passed jqXhr.");
+  strictEqual( userErrorHandlerAction, action, "User supplied error handlers are invoked on jQuery.ajax errors and passed action.");
+  deepEqual( userErrorHandlerModels, models, "User supplied error handlers are invoked on jQuery.ajax errors and passed models.");
+};
+
+var expectModelMarkedInvalidFromXhr = function( errors ) {
+  equal( typeof( ajaxErrorHandler ), "function", "RESTAdapter supplies an error handler to jQuery.ajax.");
+
+  var mockXhr = {
+    status:       422,
+    responseText: JSON.stringify({ errors: errors })
+  };
+  ajaxErrorHandler( mockXhr, 'error', 'synthetic error');
+
+  equal( person.get('isValid'), false, "Person is valid.");
+  deepEqual( person.get('errors'), errors, "Person has errors set.");
+  strictEqual( userErrorHandlerXhr, undefined, "User supplied error handlers are not invoked on jQuery.ajax 422 error.");
+};
+
+test("creating a single record with a server error invokes the user-specified error handler", function() {
+  set(adapter, 'bulkCommit', false);
+
+  person = store.createRecord(Person, { name: "Cyril Fluck" });
+  store.commit();
+  expectUserErrorHandlerInvoked('create');
+});
+
+test("updating a single record with a server error invokes the user-specified error handler", function() {
+  set(adapter, 'bulkCommit', false);
+
+  store.load(Person, { id: 1, name: "David J. Hamilton" });
+  person = store.find( Person, 1 );
+  person.set( 'name', 'Cyril Fluck');
+  store.commit();
+  expectUserErrorHandlerInvoked('update');
+});
+
+test("deleting a single record with a server error invokes the user-specified error handler", function() {
+  set(adapter, 'bulkCommit', false);
+
+  store.load(Person, { id: 1, name: "David J. Hamilton" });
+  person = store.find( Person, 1 );
+  person.deleteRecord();
+  store.commit();
+  expectUserErrorHandlerInvoked('delete');
+});
+
+test("creating a record with a 422 and no user-specified error handler does not raise an exception", function() {
+  set(adapter, 'bulkCommit', false);
+
+  person = store.createRecord(Person, { name: "Cyril Fluck" });
+  store.commit();
+
+  expectNoErrorHandlerInvoked({ status: 422, responseText: JSON.stringify({ errors: {}}) });
+});
+
+test("updating a record with a 422 and no user-specified error handler does not raise an exception", function() {
+  set(adapter, 'bulkCommit', false);
+
+  store.load(Person, { id: 1, name: "David J. Hamilton" });
+  person = store.find( Person, 1 );
+  person.set( 'name', 'Cyril Fluck');
+  store.commit();
+
+  expectNoErrorHandlerInvoked({ status: 422, responseText: JSON.stringify({ errors: {}}) });
+});
+
+test("creating a record with a 422 error marks the records as invalid", function(){
+  set(adapter, 'bulkCommit', false);
+
+  person = store.createRecord(Person, { name: "Cyril Fluck" });
+  store.commit();
+  expectModelMarkedInvalidFromXhr({ name: ["is French"]});
+  deepEqual( person.get('errors').name, ["is French"]);
+});
+
+test("updating a record with a 422 error marks the records as invalid", function(){
+  set(adapter, 'bulkCommit', false);
+
+  store.load(Person, { id: 1, name: "David J. Hamilton" });
+  person = store.find( Person, 1 );
+  person.set('name', 'Cyril Fluck');
+  store.commit();
+  expectModelMarkedInvalidFromXhr({ name: ["is English"]});
+  deepEqual( person.get('errors').name, ["is English"]);
+});
+
+test("finding a person by ID with a server error invokes the user-specified error handler", function() {
+  store.find( Person, 1 );
+  expectUserErrorHandlerInvoked('find', undefined);
+});
+
+test("finding many people by a list of IDs with a server error invokes the user-specified error handler", function() {
+  store.findMany( Person, [1,2,3]);
+  expectUserErrorHandlerInvoked('find', undefined);
+});
+
+test("finding all people with a server error invokes the user-specified error handler", function() {
+  store.findAll( Person );
+  expectUserErrorHandlerInvoked('find', undefined);
+});
+
+test("finding people by a query with a server error invokes the user-specified error handler", function() {
+  store.find( Person, { page: 1 });
+  expectUserErrorHandlerInvoked('find', undefined);
+});
 
 test("creating a person makes a POST to /people, with the data hash", function() {
   set(adapter, 'bulkCommit', false);
