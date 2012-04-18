@@ -261,6 +261,42 @@ test("embedded associations work the same as referenced ones, and have the same 
   equal(getPath(kselden, 'tags.length'), 0, "if no association is provided, an empty list is returned");
 });
 
+test("embedded hasMany associations work with computed properties", function() {
+  var Tag = DS.Model.extend({
+    // Use a non-default primaryKey to ensure that the primaryKey setting is
+    // honored.
+    primaryKey: '_id_',
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.hasMany(Tag, { embedded: true }),
+    numTags: Ember.computed(function() {
+      return this.getPath('tags.length');
+    }).property('tags.length').cacheable()
+  });
+
+  var store = DS.Store.create();
+  store.load(Person, {
+    id: 1, name: "Tom Dale", tags: [
+      { _id_: 5, name: "friendly" },
+      { _id_: 2, name: "smarmy" }
+    ]
+  });
+
+  // This test addresses Issue #191.  Without the fix, the following line will
+  // generate this error: "Adapter is either null or does not implement
+  // `findMany` method".
+  var person = store.find(Person, 1);
+  strictEqual(get(person, 'name'), "Tom Dale",
+        "precond - retrieves person record from store");
+  strictEqual(getPath(person, 'tags.length'), 2,
+        "the list of tags should have the correct length");
+  strictEqual(get(person, 'numTags'), 2,
+              "the computed property should give the right value");
+});
+
 test("it is possible to add a new item to an association", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
