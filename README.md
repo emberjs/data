@@ -57,9 +57,14 @@ App.store = DS.Store.create({
 });
 ```
 
-The REST adapter will send bulk commits to your server by default. If your
-REST API does not support bulk operations, you can turn them off by specifying the
-`bulkCommit` option (as illustrated above.)
+The `RESTAdapter` supports the following options:
+
+* `bulkCommit` (default: true): If your REST API does not support bulk
+  operations, you can turn them off by setting `bulkCommit` to false.
+
+* `namespace` (default: undefined): A leading URL component under which all
+  REST URLs reside, without leading slash, e.g. `api` (for
+  `/api/authors/1`-type URLs).
 
 The RESTful adapter is still in progress. For Rails applications, we plan to make
 it work seamlessly with the `active_model_serializers` gem's conventions. In
