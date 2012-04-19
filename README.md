@@ -99,7 +99,7 @@ can also register custom attribute types. For example, here's a `boolString`
 attribute type that converts booleans into the string `"Y"` or `"N"`:
 
 ```javascript
-DS.attr.transforms.boolString: {
+DS.attr.transforms.boolString = {
     from: function(serialized) {
         if (serialized === 'Y') {
             return true;
