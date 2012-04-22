@@ -303,6 +303,10 @@ like this:
 }
 ```
 
+If you do this, note that `Profile.find(1)` will still trigger an Ajax request
+until you access the embedded profile record for the first time
+(`Author.find(1).get('profile')`).
+
 Another option is to use the format described above (with the ID embedded),
 then "sideloading" the records. For example, we could represent the
 entirety of the association above like this:
