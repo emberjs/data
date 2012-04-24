@@ -17,6 +17,9 @@ DS.RESTAdapter = DS.Adapter.extend({
         this.sideload(store, type, json, root);
         store.didCreateRecord(record, json[root]);
       }
+    }, {
+      store: store,
+      record: record
     });
   },
 
@@ -56,6 +59,9 @@ DS.RESTAdapter = DS.Adapter.extend({
         this.sideload(store, type, json, root);
         store.didUpdateRecord(record, json && json[root]);
       }
+    }, {
+      store: store,
+      record: record
     });
   },
 
@@ -90,6 +96,9 @@ DS.RESTAdapter = DS.Adapter.extend({
         if (json) { this.sideload(store, type, json); }
         store.didDeleteRecord(record);
       }
+    }, {
+      store: store,
+      record: record
     });
   },
 
@@ -123,6 +132,8 @@ DS.RESTAdapter = DS.Adapter.extend({
         store.load(type, json[root]);
         this.sideload(store, type, json, root);
       }
+    }, {
+      store:  store
     });
   },
 
@@ -135,6 +146,8 @@ DS.RESTAdapter = DS.Adapter.extend({
         store.loadMany(type, ids, json[plural]);
         this.sideload(store, type, json, plural);
       }
+    }, {
+      store:  store
     });
   },
 
@@ -146,6 +159,8 @@ DS.RESTAdapter = DS.Adapter.extend({
         store.loadMany(type, json[plural]);
         this.sideload(store, type, json, plural);
       }
+    }, {
+      store:  store
     });
   },
 
@@ -158,6 +173,8 @@ DS.RESTAdapter = DS.Adapter.extend({
         recordArray.load(json[plural]);
         this.sideload(store, type, json, plural);
       }
+    }, {
+      store:  store
     });
   },
 
@@ -180,7 +197,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     return name.replace(/([A-Z])/g, '_$1').toLowerCase().slice(1);
   },
 
-  ajax: function(url, type, hash) {
+  jQuery: jQuery,
+  error:  jQuery.noop,
+
+  ajax: function(url, type, hash, adapterContext) {
+    var self = this;
     hash.url = url;
     hash.type = type;
     hash.dataType = 'json';
@@ -191,7 +212,14 @@ DS.RESTAdapter = DS.Adapter.extend({
       hash.data = JSON.stringify(hash.data);
     }
 
-    jQuery.ajax(hash);
+    hash.error = function(jqXHR, textStatus, errorThrown) {
+      if (jqXHR.status === 422 && adapterContext.record && adapterContext.store) {
+        var data = JSON.parse( jqXHR.responseText );
+        adapterContext.store.recordWasInvalid(adapterContext.record, data['errors']);
+      }
+    };
+
+    this.jQuery.ajax(hash);
   },
 
   sideload: function(store, type, json, root) {
