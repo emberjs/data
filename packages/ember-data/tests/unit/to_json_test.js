@@ -113,26 +113,58 @@ test("toJSON returns a hash containing the JSON representation of the record", f
   deepEqual(record.toJSON(), { first_name: "Yehuda", lastName: "Katz", country: null, is_hipster: false }, "the data is extracted by attribute");
 });
 
+test("toJSON includes custom associations keys for belongsTo when association options is set", function() {
+  var PhoneBook = DS.Model.extend({
+  });
+
+  var Avatar = DS.Model.extend({
+    url: DS.attr('string')
+  });
+
+  var Contact = DS.Model.extend({
+    name: DS.attr('string'),
+    phoneBook: DS.belongsTo(PhoneBook, {key: 'my_phone_book_id'}),
+    avatar: DS.belongsTo(Avatar, {key: 'my_avatar', embedded: true})
+  });
+
+  store.load(PhoneBook, {id: 1});
+  store.load(Contact, {id: 2, name: 'Chad', my_phone_book_id: 1, my_avatar: {id: 3, url: "http://example.com/fancy-face.jpg"}});
+
+  var record = store.find(Contact, 2);
+
+  deepEqual(record.toJSON({associations: true}),
+            {id:2, name: 'Chad', my_phone_book_id: 1, my_avatar: {id: 3, url: "http://example.com/fancy-face.jpg"}},
+            "associations have custom keys");
+});
+
 test("toJSON includes associations when the association option is set", function() {
   var PhoneNumber = DS.Model.extend({
     number: DS.attr('string')
   });
 
+  var Messenger = DS.Model.extend({
+    name: DS.attr('string'),
+    uid: DS.attr('string')
+  });
+
   var Contact = DS.Model.extend({
     name: DS.attr('string'),
-    phoneNumbers: DS.hasMany(PhoneNumber)
+    phoneNumbers: DS.hasMany(PhoneNumber),
+    messengers: DS.hasMany(Messenger, {key: 'messenger_ids'})
   });
 
   store.load(PhoneNumber, { id: 7, number: '123' });
   store.load(PhoneNumber, { id: 8, number: '345' });
 
-  store.load(Contact, { id: 1, name: "Chad", phone_numbers: [7, 8] });
+  store.load(Messenger, {id: 5, name: 'jabber', uid: 'me@home'});
+
+  store.load(Contact, { id: 1, name: "Chad", phone_numbers: [7, 8], messenger_ids: [5] });
 
   var record = store.find(Contact, 1);
 
   deepEqual(record.toJSON(), { id: 1, name: "Chad" }, "precond - associations not included by default");
   deepEqual(record.toJSON({ associations: true }),
-            { id: 1, name: "Chad", phone_numbers: [7,8] },
+            { id: 1, name: "Chad", phone_numbers: [7,8], messenger_ids: [5] },
             "associations are included when association flag is set");
 
   store.load(PhoneNumber, { id: 9, number: '789' });
@@ -141,7 +173,7 @@ test("toJSON includes associations when the association option is set", function
   record.get('phoneNumbers').pushObject(phoneNumber);
 
   deepEqual(record.toJSON({ associations: true }),
-            { id: 1, name: "Chad", phone_numbers: [7,8,9] },
+            { id: 1, name: "Chad", phone_numbers: [7,8,9], messenger_ids: [5] },
             "association is updated after editing associations array");
 });
 
