@@ -80,5 +80,20 @@ DS.ManyArray = DS.RecordArray.extend({
     if (actual) {
       set(record, actual.name, remove ? null : parentRecord);
     }
+  },
+
+  // Create a child record within the parentRecord
+  createRecord: function(){
+    var record, 
+    parentRecord = get(this, 'parentRecord'),
+    type = get(this, 'type'),
+    args = [].slice.call(arguments),
+    transaction = args[1] || parentRecord.get("transaction"),
+    store = get(parentRecord, 'store');
+
+    record = store.createRecord.call(store, type, args[0], transaction);
+    this.pushObject(record);
+    
+    return record;
   }
 });
