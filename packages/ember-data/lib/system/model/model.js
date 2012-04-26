@@ -101,9 +101,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @param {Object} options options passed to `toJSON`
   */
   addHasManyToJSON: function(json, data, meta, options) {
-    var key = meta.key,
-        manyArray = get(this, key),
+    var association_name = meta.key,
+        manyArray = get(this, association_name),
         records = [],
+        key = meta.options.key || association_name,
         clientId, id;
 
     if (meta.options.embedded) {
@@ -139,15 +140,15 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @param {Object} options options passed to `toJSON`
   */
   addBelongsToToJSON: function(json, data, meta, options) {
-    var key = meta.key, value, id;
-
-    if (options.embedded) {
-      key = options.key || get(this, 'namingConvention').keyToJSONKey(key);
-      value = get(data.record, key);
+    var association_name = meta.key, value, id, key;
+    if (meta.options.embedded) {
+      value = get(data.record, association_name);
+      key = meta.options.key || get(this, 'namingConvention').keyToJSONKey(association_name);
       json[key] = value ? value.toJSON(options) : null;
     } else {
-      key = options.key || get(this, 'namingConvention').foreignKey(key);
+      key = meta.options.key || get(this, 'namingConvention').foreignKey(association_name);
       id = data.get(key);
+
       json[key] = none(id) ? null : id;
     }
   },
