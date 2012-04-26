@@ -136,6 +136,26 @@ test("a DS.Model can describe Date attributes", function() {
   convertsWhenSet('date', date, dateString);
 });
 
+test("a DS.Model can describe JSON attributes", function() {
+  converts('json', null, null);
+  converts('json', undefined, undefined);
+
+  var jsonString = "{\"key\":\"value\",\"x\":42}";
+  var json = JSON.parse(jsonString);
+
+  var model = DS.Model._create({
+    structField: DS.attr('json')
+  });
+
+  model.send('loadingData');
+  model.send('didChangeData');
+
+  model.set('structField', json);
+  deepEqual(json, get(model, 'structField'), "setting JSON returns the same JSON");
+  convertsFromServer('json', jsonString, json);
+  convertsWhenSet('json', json, jsonString);
+});
+
 test("retrieving properties should return the same value as they would if they were not in the data hash if the record is not loaded", function() {
   var store = DS.Store.create({
     adapter: DS.Adapter.create({

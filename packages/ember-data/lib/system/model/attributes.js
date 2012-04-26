@@ -148,6 +148,16 @@ DS.attr.transforms = {
         return null;
       }
     }
+  },
+
+  json: {
+    from: function(serialized) {
+      return Ember.none(serialized) ? serialized : JSON.parse(serialized);
+    },
+
+    to: function(deserialized) {
+      return Ember.none(deserialized) ? deserialized : JSON.stringify(deserialized);
+    }
   }
 };
 
