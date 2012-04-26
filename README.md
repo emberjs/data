@@ -36,7 +36,7 @@ not yet been loaded.
 
 ```javascript
 App.store = DS.Store.create({
-  revision: 3
+  revision: 4
 });
 ```
 
@@ -52,7 +52,7 @@ by setting the `adapter` property:
 
 ```javascript
 App.store = DS.Store.create({
-  revision: 3,
+  revision: 4,
   adapter: DS.RESTAdapter.create({ bulkCommit: false })
 });
 ```
