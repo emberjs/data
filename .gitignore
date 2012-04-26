@@ -6,3 +6,5 @@ dist/
 
 .DS_Store
 .project
+
+tests/ember-data-tests.js

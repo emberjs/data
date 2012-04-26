@@ -14,7 +14,9 @@ module("Association/adapter integration test", {
 
     Comment = DS.Model.extend();
     Comment.reopen({
-      comments: DS.hasMany(Comment)
+      body: DS.attr('string'),
+      comments: DS.hasMany(Comment),
+      comment: DS.belongsTo(Comment)
     });
   },
 
@@ -33,13 +35,13 @@ test("when adding a record to an association that belongs to another record that
   parentRecord.get('comments').pushObject(childRecord);
 
   var createCalled = 0;
-  adapter.createRecord = function(store, type, model) {
+  adapter.createRecord = function(store, type, record) {
     createCalled++;
     if (createCalled === 1) {
-      equal(model, parentRecord, "parent record is committed first");
-      store.didCreateRecord(model, { id: 1 });
+      equal(record, parentRecord, "parent record is committed first");
+      store.didCreateRecord(record, { id: 1 });
     } else if (createCalled === 2) {
-      equal(model, childRecord, "child record is committed after its parent is committed");
+      equal(record, childRecord, "child record is committed after its parent is committed");
     }
   };
 
@@ -57,16 +59,16 @@ test("if a record is added to the store while a child is pending, auto-committin
   parentRecord.get('comments').pushObject(childRecord);
 
   var createCalled = 0;
-  adapter.createRecord = function(store, type, model) {
+  adapter.createRecord = function(store, type, record) {
     createCalled++;
     if (createCalled === 1) {
-      equal(model, parentRecord, "parent record is committed first");
+      equal(record, parentRecord, "parent record is committed first");
 
       Comment.createRecord();
 
-      store.didCreateRecord(model, { id: 1 });
+      store.didCreateRecord(record, { id: 1 });
     } else if (createCalled === 2) {
-      equal(model, childRecord, "child record is committed after its parent is committed");
+      equal(record, childRecord, "child record is committed after its parent is committed");
     } else {
       ok(false, "Third comment should not be saved");
     }
@@ -104,3 +106,4 @@ test("if a parent record and an uncommitted pending child belong to different tr
     parentTransaction.commit();
   });
 });
+

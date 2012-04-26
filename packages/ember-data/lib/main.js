@@ -20,6 +20,9 @@
 
 require("ember-data/core");
 require("ember-data/system/store");
-require("ember-data/system/model_array");
+require("ember-data/system/record_array");
 require("ember-data/system/model");
+require("ember-data/system/associations");
 require("ember-data/system/adapters");
+require("ember-data/adapters/fixture_adapter");
+require("ember-data/adapters/rest_adapter");
