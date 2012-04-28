@@ -20,10 +20,9 @@ No. Breaking changes, indexed by date, are listed in
 
 #### Roadmap
 
-* Manipulate associations client-side
 * Handle error states
 * Better built-in attributes
-* Editing "forked" records and rolling back transactions
+* Editing "forked" records
 * Out-of-the-box support for Rails apps that follow the
   [`active_model_serializers`](https://github.com/josevalim/active_model_serializers) gem's conventions.
 * Handle partially-loaded records
