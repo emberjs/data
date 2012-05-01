@@ -294,9 +294,9 @@ like this:
     "name": "Tom Dale",
     "profile": {
       "id": 1,
-      about: "Tom Dale is a software engineer that drinks too much beer.",
-      postCount: 1984,
-      author_id: 1
+      "about": "Tom Dale is a software engineer that drinks too much beer.",
+      "postCount": 1984,
+      "author_id": 1
     }
   }]
 }
@@ -316,9 +316,9 @@ entirety of the association above like this:
 
   "profiles": [{
     "id": 1,
-    about: "Tom Dale is a software engineer that drinks too much beer.",
-    postCount: 1984,
-    author_id: 1
+    "about": "Tom Dale is a software engineer that drinks too much beer.",
+    "postCount": 1984,
+    "author_id": 1
   }]
 }
 ```
