@@ -921,7 +921,7 @@ App.people = App.store.find(App.Person, { firstName: "Tom" });
 
 You will get back a `ModelArray` that is currently empty. Ember Data will then
 ask your adapter to populate the `ModelArray` with records, which will usually make an Ajax
-request. Howver, you can immediately refer to it in your templates:
+request. However, you can immediately refer to it in your templates:
 
 ```html
 <ul>
