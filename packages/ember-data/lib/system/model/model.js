@@ -295,6 +295,12 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
         if (cachedValue) {
           var ids = data.get(name) || [];
+          if (association.options.embedded) {
+            var primaryKey = association.type.proto().primaryKey;
+            ids = Ember.ArrayUtils.map(ids, function(obj) {
+              return get(obj, primaryKey);
+            });
+          }
           var clientIds = Ember.ArrayUtils.map(ids, function(id) {
             return store.clientIdForId(association.type, id);
           });
