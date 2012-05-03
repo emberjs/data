@@ -72,6 +72,18 @@ test("a newly created record is removed from a record array when it is deleted",
   });
 });
 
+test("a newly created record is removed from a collection when it is deleted", function() {
+  var store = DS.Store.create({ adapter: null }),
+      Group = DS.Model.extend({ people: DS.hasMany('Person') }),
+      group;
+
+  group = store.createRecord(Group);
+  group.get('people').pushObject(store.createRecord(Person));
+  equal(group.get('people').get('length'), 1, "length is 1 after adding record");
+  group.get('people').objectAt(0).deleteRecord();
+  equal(group.get('people').get('length'), 0, "length is 0 after deleting record");
+});
+
 test("a record array can have a filter on it", function() {
   var store = DS.Store.create();
 
