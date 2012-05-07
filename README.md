@@ -58,7 +58,7 @@ App.store = DS.Store.create({
 
 The `RESTAdapter` supports the following options:
 
-* `bulkCommit` (default: true): If your REST API does not support bulk
+* `bulkCommit` (default: false): If your REST API does not support bulk
   operations, you can turn them off by setting `bulkCommit` to false.
 
 * `namespace` (default: undefined): A leading URL component under which all
