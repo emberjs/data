@@ -65,6 +65,10 @@ The `RESTAdapter` supports the following options:
   REST URLs reside, without leading slash, e.g. `api` (for
   `/api/authors/1`-type URLs).
 
+* `url` (default: ""): A custom url for an API located on a different
+  url or a different subdomain, use the fully qualified domain name including
+  http, e.g. "http://api.emberjs.com".
+
 The RESTful adapter is still in progress. For Rails applications, we plan to make
 it work seamlessly with the `active_model_serializers` gem's conventions. In
 the meantime, see the section on rolling your own adapter.
