@@ -605,11 +605,15 @@ DS.Store = Ember.Object.extend({
     var array = DS.ManyArray.create({ type: type, content: clientIds, store: this });
 
     clientIds.forEach(function(clientId) {
-      var recordArrays = this.recordArraysForClientId(clientId);
-      recordArrays.add(array);
+      this.registerRecordArrayForClientId(array, clientId);
     }, this);
 
     return array;
+  },
+  
+  registerRecordArrayForClientId: function(array, clientId) {
+    var recordArrays = this.recordArraysForClientId(clientId);
+    recordArrays.add(array);
   },
 
   updateRecordArrayFilter: function(array, type, filter) {
