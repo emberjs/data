@@ -306,8 +306,17 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
             });
           }
           
+          var pendingRecords = cachedValue.filterProperty('isPending');
+          
           set(cachedValue, 'content', Ember.A(clientIds));
           cachedValue.fetch();
+          
+          // records which are pending should not be overwritten
+          // nor should they be fetched
+          var content = get(cachedValue, 'content');
+          Ember.ArrayUtils.forEach(pendingRecords, function(record) {
+            content.push(record.get('clientId'));
+          });
         }
       }
     }, this);
