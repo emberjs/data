@@ -107,3 +107,28 @@ test("if a parent record and an uncommitted pending child belong to different tr
   });
 });
 
+test("committing a transaction that creates a parent-child hierarchy does not overwrite the children", function() {
+  var id = 1;
+  var createCalled = 0;
+  adapter.createRecord = function(store, type, record) {
+    var json = record.toJSON();
+    json.id = id++;
+    createCalled++;
+    store.didCreateRecord(record, json);
+  };
+  
+  var parent = store.createRecord(Comment, {body: 'parent'});
+  parent.get('comments').createRecord({body: 'child'});
+  
+  Ember.run(function() {
+    store.commit();
+  });
+  
+  equal(createCalled, 2, "create was called twice");
+  
+  var comments = parent.getPath('comments');
+  var child = comments.objectAt(0);
+  
+  equal(child.get('body'), 'child', "child should be present");
+});
+
