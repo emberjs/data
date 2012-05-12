@@ -107,3 +107,44 @@ test("if a parent record and an uncommitted pending child belong to different tr
   });
 });
 
+test("modifying the parent and deleting a child inside a single transaction should work", function() {
+  
+  adapter.deleteRecord = function(store, type, record) {
+    store.didDeleteRecord(record);
+  };
+  adapter.find = function(store, type, id) {
+    var json = {id: id, body: "comment " + id};
+    if(id === 1) {
+      json.comments = [2, 3];
+    }
+    store.load(type, json);
+  };
+  adapter.updateRecord = function(store, type, record) {
+    var json = record.toJSON();
+    if(record.get('id') === 1) {
+      json.comments = [2, 3];
+    }
+    store.didUpdateRecord(record, json);
+  };
+  
+  var parent;
+  Ember.run(function() {
+    parent = store.find(Comment, 1);
+  });
+  
+  equal(parent.getPath('comments.length'), 2, 'parent record should have 2 children');
+  
+  var child = parent.get('comments').objectAt(0);
+  
+  parent.set('body', 'this is a new body');
+  child.deleteRecord();
+  
+  Ember.run(function() {
+    store.commit();
+  });
+  
+  equal(parent.get('body'), 'this is a new body', 'parent should be updated');
+  equal(parent.getPath('comments.length'), 1, 'child should have been deleted');
+  
+});
+
