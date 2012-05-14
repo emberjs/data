@@ -12,6 +12,19 @@ DS.ManyArray = DS.RecordArray.extend({
 
   parentRecord: null,
 
+  parentRecordDirtyDidChange: Ember.observer(function() {
+    var stateManager = get(this, 'stateManager'),
+        parentRecord = get(this, 'parentRecord');
+    if(!parentRecord) {
+      return;
+    }
+    if(get(parentRecord, 'isDirty')) {
+      stateManager.send('parentBecameDirty'); 
+    } else {
+      stateManager.send('parentBecameClean');
+    }
+  }, 'parentRecord.isDirty'),
+
   isDirty: Ember.computed(function() {
     return getPath(this, 'stateManager.currentState.isDirty');
   }).property('stateManager.currentState').cacheable(),
@@ -31,7 +44,7 @@ DS.ManyArray = DS.RecordArray.extend({
   // Overrides Ember.Array's replace method to implement
   replace: function(index, removed, added) {
     var parentRecord = get(this, 'parentRecord');
-    var pendingParent = parentRecord && !get(parentRecord, 'id');
+    var pendingParent = parentRecord && get(parentRecord, 'isDirty'); // && !get(parentRecord, 'id');
     var stateManager = get(this, 'stateManager');
     var store = get(this, 'store');
 

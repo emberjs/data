@@ -174,3 +174,45 @@ test("modifying the parent and deleting a child inside a single transaction shou
   
 });
 
+test("modifying the parent and adding a child inside a transaction should work", function() {
+  
+  var id = 1;
+  adapter.createRecord = function(store, type, record) {
+    var json = record.toJSON();
+    json.id = id++;
+    store.didCreateRecord(record, json);
+  };
+  adapter.find = function(store, type, id) {
+    var json = {id: id, body: "comment " + id, comments: []};
+    store.load(type, json);
+  };
+  adapter.updateRecord = function(store, type, record) {
+    var json = record.toJSON();
+    setTimeout(function() {
+      store.didUpdateRecord(record, json);
+    }, 10);
+  };
+  
+  var parent;
+  Ember.run(function() {
+    parent = store.find(Comment, 1);
+  });
+  
+  parent.get('comments').createRecord();
+  parent.set('body', 'this is a new body');
+  
+  Ember.run(function() {
+    store.commit();
+  });
+  
+  stop();
+  
+  setTimeout(function() {
+    equal(parent.get('body'), 'this is a new body', 'parent should be updated');
+    ok(parent.get('comments').objectAt(0), 'child should have been added');
+    
+    start();
+  }, 100);
+  
+});
+
