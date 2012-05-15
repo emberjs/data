@@ -15,7 +15,9 @@ DS.ManyArray = DS.RecordArray.extend({
   parentRecordDirtyDidChange: Ember.observer(function() {
     var stateManager = get(this, 'stateManager'),
         parentRecord = get(this, 'parentRecord');
-    if(!parentRecord) {
+    // without this check, this is hit before
+    // the parentRecord is done initializing
+    if(!getPath(this, 'parentRecord.stateManager')) {
       return;
     }
     if(get(parentRecord, 'isDirty')) {

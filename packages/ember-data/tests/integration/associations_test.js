@@ -175,12 +175,15 @@ test("modifying the parent and deleting a child inside a single transaction shou
 });
 
 test("modifying the parent and adding a child inside a transaction should work", function() {
-  
   var id = 1;
+  var didCreateRecordFuture;
+  var didUpdateRecordFuture;
   adapter.createRecord = function(store, type, record) {
     var json = record.toJSON();
     json.id = id++;
-    store.didCreateRecord(record, json);
+    didCreateRecordFuture = function() {
+      store.didCreateRecord(record, json);
+    };
   };
   adapter.find = function(store, type, id) {
     var json = {id: id, body: "comment " + id, comments: []};
@@ -188,9 +191,9 @@ test("modifying the parent and adding a child inside a transaction should work",
   };
   adapter.updateRecord = function(store, type, record) {
     var json = record.toJSON();
-    setTimeout(function() {
+    didUpdateRecordFuture = function() {
       store.didUpdateRecord(record, json);
-    }, 10);
+    }
   };
   
   var parent;
@@ -203,16 +206,14 @@ test("modifying the parent and adding a child inside a transaction should work",
   
   Ember.run(function() {
     store.commit();
+    // control the sequence of adapter call manually
+    didUpdateRecordFuture();
   });
   
-  stop();
+  didCreateRecordFuture();
   
-  setTimeout(function() {
-    equal(parent.get('body'), 'this is a new body', 'parent should be updated');
-    ok(parent.get('comments').objectAt(0), 'child should have been added');
-    
-    start();
-  }, 100);
+  equal(parent.get('body'), 'this is a new body', 'parent should be updated');
+  ok(parent.get('comments').objectAt(0), 'child should have been added');
   
 });
 
