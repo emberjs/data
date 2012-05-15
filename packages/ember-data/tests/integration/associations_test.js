@@ -193,7 +193,7 @@ test("modifying the parent and adding a child inside a transaction should work",
     var json = record.toJSON();
     didUpdateRecordFuture = function() {
       store.didUpdateRecord(record, json);
-    }
+    };
   };
   
   var parent;
@@ -214,6 +214,50 @@ test("modifying the parent and adding a child inside a transaction should work",
   
   equal(parent.get('body'), 'this is a new body', 'parent should be updated');
   ok(parent.get('comments').objectAt(0), 'child should have been added');
+  
+});
+
+test("modifying the parent, deleting a child, and modifying another child", function() {
+  
+  adapter.deleteRecord = function(store, type, record) {
+    store.didDeleteRecord(record);
+  };
+  adapter.find = function(store, type, id) {
+    var json = {id: id, body: "comment " + id};
+    if(id === 1) {
+      json.comments = [2, 3];
+    }
+    store.load(type, json);
+  };
+  adapter.updateRecord = function(store, type, record) {
+    var json = record.toJSON();
+    if(record.get('id') === 1) {
+      json.comments = [2, 3];
+    }
+    store.didUpdateRecord(record, json);
+  };
+  
+  var parent;
+  Ember.run(function() {
+    parent = store.find(Comment, 1);
+  });
+  
+  equal(parent.getPath('comments.length'), 2, 'parent record should have 2 children');
+  
+  var child1 = parent.get('comments').objectAt(0);
+  var child2 = parent.get('comments').objectAt(1);
+  
+  parent.set('body', 'this is a new parent body');
+  child1.deleteRecord();
+  child2.set('body', 'this is a new child body');
+  
+  Ember.run(function() {
+    store.commit();
+  });
+  
+  equal(parent.get('body'), 'this is a new parent body', 'parent should be updated');
+  equal(parent.getPath('comments.length'), 1, 'child1 should have been deleted');
+  equal(child2.get('body'), 'this is a new child body', 'child2 should have been updated');
   
 });
 

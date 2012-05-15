@@ -297,7 +297,17 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
           var key = association.options.key || get(this, 'namingConvention').keyToJSONKey(name),
               ids = data.get(key) || [];
           
-          var clientIds;   
+          // it is possible that the record has already been
+          // deleted and this association contains stale data
+          var primaryKey = association.type.proto().primaryKey;
+          ids = Ember.A(ids).filter(function(id) {
+            id = association.options.embedded ? id[primaryKey] : id;
+            var clientId = store.typeMapFor(association.type).idToCid[id];
+            var record = clientId && store.recordCache[clientId];
+            return !record || !record.get('isDeleted');
+          });
+          
+          var clientIds = []; 
           if(association.options.embedded) {
             clientIds = store.loadMany(association.type, ids).clientIds;
           } else {

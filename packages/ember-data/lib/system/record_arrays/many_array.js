@@ -72,7 +72,7 @@ DS.ManyArray = DS.RecordArray.extend({
       // TODO: null out inverse FK
       record = this.objectAt(i);
       this.assignInverse(record, parentRecord, true);
-      stateManager.send('recordWasAdded', record);
+      stateManager.send('recordWasRemoved', record);
     }
 
     this._super(index, removed, added);
