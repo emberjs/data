@@ -12,8 +12,8 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     var data = {};
     data[root] = record.toJSON();
-
-    this.ajax(this.buildURL(root), "POST", {
+    
+    this.ajax(this.buildNestedURL(store, type, record), "POST", {
       data: data,
       success: function(json) {
         this.sideload(store, type, json, root);
@@ -52,7 +52,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var data = {};
     data[root] = record.toJSON();
 
-    this.ajax(this.buildURL(root, id), "PUT", {
+    this.ajax(this.buildNestedURL(store, type, record, id), "PUT", {  
       data: data,
       success: function(json) {
         this.sideload(store, type, json, root);
@@ -87,7 +87,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var id = get(record, 'id');
     var root = this.rootForType(type);
 
-    this.ajax(this.buildURL(root, id), "DELETE", {
+    this.ajax(this.buildNestedURL(store, type, record, id), "DELETE", {
       success: function(json) {
         if (json) { this.sideload(store, type, json); }
         store.didDeleteRecord(record);
@@ -231,7 +231,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     Ember.assert("Namespace URL (" + this.namespace + ") must not start with slash", !this.namespace || this.namespace.toString().charAt(0) !== "/");
     Ember.assert("Record URL (" + record + ") must not start with slash", !record || record.toString().charAt(0) !== "/");
     Ember.assert("URL suffix (" + suffix + ") must not start with slash", !suffix || suffix.toString().charAt(0) !== "/");
-
+       
     if (this.namespace !== undefined) {
       url.push(this.namespace);
     }
@@ -242,6 +242,46 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
 
     return url.join("/");
+  },
+  
+  buildNestedURL: function(store, type, record, suffix){
+    var url = [], root=this.rootForType(type);
+    var parent_info = this.nestedParentFor(type);
+
+    if (parent_info !== undefined) {
+      var parent_name = parent_info[0],
+          parent_meta = parent_info[1],
+          parent = record.get(parent_name);
+
+      url.push(this.buildNestedURL(store,parent_meta['type'],parent,parent.get('id')));
+    } else {
+      url.push("");
+      if (this.namespace !== undefined) {
+        url.push(this.namespace);
+      }
+    }
+    
+    url.push(this.pluralize(root));
+    
+    if (suffix !== undefined){
+      url.push(suffix);
+    }
+    
+    return url.join("/");
+  },
+  
+  nestedParentFor: function(type) {
+    var nesteds=[];
+    if (typeof type === 'string') {
+      type = getPath(this, type, false) || getPath(window, type);
+    }
+    type.eachComputedProperty(function(name,meta){
+      if (meta.isAssociation && meta.kind==="belongsTo" && meta.options.nested){
+        nesteds.push([name, meta]);
+      }
+    });
+    return nesteds[0];
   }
+  
 });
 
