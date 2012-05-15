@@ -107,3 +107,157 @@ test("if a parent record and an uncommitted pending child belong to different tr
   });
 });
 
+test("committing a transaction that creates a parent-child hierarchy does not overwrite the children", function() {
+  var id = 1;
+  var createCalled = 0;
+  adapter.createRecord = function(store, type, record) {
+    var json = record.toJSON();
+    json.id = id++;
+    createCalled++;
+    store.didCreateRecord(record, json);
+  };
+  
+  var parent = store.createRecord(Comment, {body: 'parent'});
+  parent.get('comments').createRecord({body: 'child'});
+  
+  Ember.run(function() {
+    store.commit();
+  });
+  
+  equal(createCalled, 2, "create was called twice");
+  
+  var comments = parent.getPath('comments');
+  var child = comments.objectAt(0);
+  
+  equal(child.get('body'), 'child', "child should be present");
+
+});
+
+test("modifying the parent and deleting a child inside a single transaction should work", function() {
+  
+  adapter.deleteRecord = function(store, type, record) {
+    store.didDeleteRecord(record);
+  };
+  adapter.find = function(store, type, id) {
+    var json = {id: id, body: "comment " + id};
+    if(id === 1) {
+      json.comments = [2, 3];
+    }
+    store.load(type, json);
+  };
+  adapter.updateRecord = function(store, type, record) {
+    var json = record.toJSON();
+    if(record.get('id') === 1) {
+      json.comments = [2, 3];
+    }
+    store.didUpdateRecord(record, json);
+  };
+  
+  var parent;
+  Ember.run(function() {
+    parent = store.find(Comment, 1);
+  });
+  
+  equal(parent.getPath('comments.length'), 2, 'parent record should have 2 children');
+  
+  var child = parent.get('comments').objectAt(0);
+  
+  parent.set('body', 'this is a new body');
+  child.deleteRecord();
+  
+  Ember.run(function() {
+    store.commit();
+  });
+  
+  equal(parent.get('body'), 'this is a new body', 'parent should be updated');
+  equal(parent.getPath('comments.length'), 1, 'child should have been deleted');
+  
+});
+
+test("modifying the parent and adding a child inside a transaction should work", function() {
+  var id = 1;
+  var didCreateRecordFuture;
+  var didUpdateRecordFuture;
+  adapter.createRecord = function(store, type, record) {
+    var json = record.toJSON();
+    json.id = id++;
+    didCreateRecordFuture = function() {
+      store.didCreateRecord(record, json);
+    };
+  };
+  adapter.find = function(store, type, id) {
+    var json = {id: id, body: "comment " + id, comments: []};
+    store.load(type, json);
+  };
+  adapter.updateRecord = function(store, type, record) {
+    var json = record.toJSON();
+    didUpdateRecordFuture = function() {
+      store.didUpdateRecord(record, json);
+    };
+  };
+  
+  var parent;
+  Ember.run(function() {
+    parent = store.find(Comment, 1);
+  });
+  
+  parent.get('comments').createRecord();
+  parent.set('body', 'this is a new body');
+  
+  Ember.run(function() {
+    store.commit();
+    // control the sequence of adapter call manually
+    didUpdateRecordFuture();
+  });
+  
+  didCreateRecordFuture();
+  
+  equal(parent.get('body'), 'this is a new body', 'parent should be updated');
+  ok(parent.get('comments').objectAt(0), 'child should have been added');
+  
+});
+
+test("modifying the parent, deleting a child, and modifying another child", function() {
+  
+  adapter.deleteRecord = function(store, type, record) {
+    store.didDeleteRecord(record);
+  };
+  adapter.find = function(store, type, id) {
+    var json = {id: id, body: "comment " + id};
+    if(id === 1) {
+      json.comments = [2, 3];
+    }
+    store.load(type, json);
+  };
+  adapter.updateRecord = function(store, type, record) {
+    var json = record.toJSON();
+    if(record.get('id') === 1) {
+      json.comments = [2, 3];
+    }
+    store.didUpdateRecord(record, json);
+  };
+  
+  var parent;
+  Ember.run(function() {
+    parent = store.find(Comment, 1);
+  });
+  
+  equal(parent.getPath('comments.length'), 2, 'parent record should have 2 children');
+  
+  var child1 = parent.get('comments').objectAt(0);
+  var child2 = parent.get('comments').objectAt(1);
+  
+  parent.set('body', 'this is a new parent body');
+  child1.deleteRecord();
+  child2.set('body', 'this is a new child body');
+  
+  Ember.run(function() {
+    store.commit();
+  });
+  
+  equal(parent.get('body'), 'this is a new parent body', 'parent should be updated');
+  equal(parent.getPath('comments.length'), 1, 'child1 should have been deleted');
+  equal(child2.get('body'), 'this is a new child body', 'child2 should have been updated');
+  
+});
+

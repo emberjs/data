@@ -54,8 +54,10 @@ var ManyArrayState = Ember.State.extend({
     dirty.add(record);
 
     observer = function() {
-      record.removeObserver('isDirty', observer);
-      if (!get(record, 'isDirty')) { manager.send('childWasSaved', record); }
+      if (!get(record, 'isDirty')) {
+        record.removeObserver('isDirty', observer);
+        manager.send('childWasSaved', record);
+      }
     };
 
     record.addObserver('isDirty', observer);
@@ -70,11 +72,19 @@ var states = {
       this._super(manager, record);
       manager.goToState('dirty');
     },
+    
+    recordWasRemoved: function(manager, record) {
+      this._super(manager, record);
+      manager.goToState('dirty');
+    },
 
     update: function(manager, clientIds) {
       var manyArray = manager.manyArray;
       set(manyArray, 'content', clientIds);
-    }
+    },
+    
+    parentBecameDirty: Ember.K,
+    parentBecameClean: Ember.K
   }),
 
   dirty: ManyArrayState.create({
@@ -89,7 +99,26 @@ var states = {
 
     arrayBecameSaved: function(manager) {
       manager.goToState('clean');
+    },
+    
+    parentBecameDirty: function(manager) {
+      var dirty = manager.dirty;
+      dirty.list.forEach(function(record) {
+        if(!get(record, 'isPending')) {
+          record.send('waitingOn', this.manyArray.parentRecord);
+        }
+      }, manager);
+    },
+    
+    parentBecameClean: function(manager) {
+      var dirty = manager.dirty;
+      dirty.list.forEach(function(record) {
+        if(get(record, 'isPending')) {
+          record.send('doneWaitingOn', this.manyArray.parentRecord);
+        }
+      }, manager);
     }
+
   }) 
 };
 

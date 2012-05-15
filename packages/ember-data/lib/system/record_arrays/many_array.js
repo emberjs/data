@@ -12,6 +12,21 @@ DS.ManyArray = DS.RecordArray.extend({
 
   parentRecord: null,
 
+  parentRecordDirtyDidChange: Ember.observer(function() {
+    var stateManager = get(this, 'stateManager'),
+        parentRecord = get(this, 'parentRecord');
+    // without this check, this is hit before
+    // the parentRecord is done initializing
+    if(!getPath(this, 'parentRecord.stateManager')) {
+      return;
+    }
+    if(get(parentRecord, 'isDirty')) {
+      stateManager.send('parentBecameDirty'); 
+    } else {
+      stateManager.send('parentBecameClean');
+    }
+  }, 'parentRecord.isDirty'),
+
   isDirty: Ember.computed(function() {
     return getPath(this, 'stateManager.currentState.isDirty');
   }).property('stateManager.currentState').cacheable(),
@@ -31,8 +46,9 @@ DS.ManyArray = DS.RecordArray.extend({
   // Overrides Ember.Array's replace method to implement
   replace: function(index, removed, added) {
     var parentRecord = get(this, 'parentRecord');
-    var pendingParent = parentRecord && !get(parentRecord, 'id');
+    var pendingParent = parentRecord && get(parentRecord, 'isDirty'); // && !get(parentRecord, 'id');
     var stateManager = get(this, 'stateManager');
+    var store = get(this, 'store');
 
     added = added.map(function(record) {
       Ember.assert("You can only add records of " + (get(this, 'type') && get(this, 'type').toString()) + " to this association.", !get(this, 'type') || (get(this, 'type') === record.constructor));
@@ -44,18 +60,19 @@ DS.ManyArray = DS.RecordArray.extend({
       this.assignInverse(record, parentRecord);
 
       stateManager.send('recordWasAdded', record);
-
-      return record.get('clientId');
+      
+      var clientId = record.get('clientId');
+      store.registerRecordArrayForClientId(this, clientId);
+      
+      return clientId;
     }, this);
-
-    var store = this.store;
 
     var len = index+removed, record;
     for (var i = index; i < len; i++) {
       // TODO: null out inverse FK
       record = this.objectAt(i);
       this.assignInverse(record, parentRecord, true);
-      stateManager.send('recordWasAdded', record);
+      stateManager.send('recordWasRemoved', record);
     }
 
     this._super(index, removed, added);

@@ -292,18 +292,44 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     associations.forEach(function(name, association) {
       if (association.kind === 'hasMany') {
         cachedValue = this.cacheFor(name);
-
+        
         if (cachedValue) {
-          var key = association.options.key || name,
+          var key = association.options.key || get(this, 'namingConvention').keyToJSONKey(name),
               ids = data.get(key) || [];
-          var clientIds = Ember.ArrayUtils.map(ids, function(id) {
-            return store.clientIdForId(association.type, id);
+          
+          // it is possible that the record has already been
+          // deleted and this association contains stale data
+          var primaryKey = association.type.proto().primaryKey;
+          ids = Ember.A(ids).filter(function(id) {
+            id = association.options.embedded ? id[primaryKey] : id;
+            var clientId = store.typeMapFor(association.type).idToCid[id];
+            var record = clientId && store.recordCache[clientId];
+            return !record || !record.get('isDeleted');
           });
-
+          
+          var clientIds = []; 
+          if(association.options.embedded) {
+            clientIds = store.loadMany(association.type, ids).clientIds;
+          } else {
+            clientIds = Ember.ArrayUtils.map(ids, function(id) {
+              return store.clientIdForId(association.type, id);
+            });
+          }
+          
+          var pendingRecords = cachedValue.filterProperty('isPending');
+          
           set(cachedValue, 'content', Ember.A(clientIds));
           cachedValue.fetch();
+          
+          // records which are pending should not be overwritten
+          // nor should they be fetched
+          var content = get(cachedValue, 'content');
+          Ember.ArrayUtils.forEach(pendingRecords, function(record) {
+            content.pushObject(record.get('clientId'));
+          });
         }
       }
+      
     }, this);
   }, 'data'),
 
