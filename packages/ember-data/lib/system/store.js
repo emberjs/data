@@ -642,7 +642,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   recordForReference: function(reference) {
     return this.findByClientId(reference.type, reference.clientId);
   },
-
+  
   /**
     @private
 

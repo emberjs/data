@@ -402,7 +402,6 @@ DS.RESTAdapter = DS.Adapter.extend({
       }
     });
     return nesteds[0];
->>>>>>> nested resource routes working for create, update, delete
   }
   
 });
