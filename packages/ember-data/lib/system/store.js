@@ -357,7 +357,7 @@ DS.Store = Ember.Object.extend({
     @returns {Array} An Array of all clientIds for the
       specified ids.
   */
-  fetchMany: function(type, ids, query) {
+  fetchMany: function(type, ids, query, parent) {
     var typeMap = this.typeMapFor(type),
         idToClientIdMap = typeMap.idToCid,
         dataCache = typeMap.cidToHash,
@@ -368,7 +368,6 @@ DS.Store = Ember.Object.extend({
 
     if (ids) {
       needed = [];
-
       ids.forEach(function(id) {
         // Get the clientId for the given id
         var clientId = idToClientIdMap[id];
@@ -403,7 +402,7 @@ DS.Store = Ember.Object.extend({
     // If there are any needed ids, ask the adapter to load them
     if ((needed && get(needed, 'length') > 0) || query) {
       var adapter = get(this, '_adapter');
-      if (adapter && adapter.findMany) { adapter.findMany(this, type, needed, query); }
+      if (adapter && adapter.findMany) { adapter.findMany(this, type, needed, query, parent); }
       else { throw fmt("Adapter is either null or does not implement `findMany` method", this); }
     }
 
@@ -412,8 +411,8 @@ DS.Store = Ember.Object.extend({
 
   /** @private
   */
-  findMany: function(type, ids, query) {
-    var clientIds = this.fetchMany(type, ids, query);
+  findMany: function(type, ids, query, parent) {
+    var clientIds = this.fetchMany(type, ids, query, parent);
 
     return this.createManyArray(type, clientIds);
   },

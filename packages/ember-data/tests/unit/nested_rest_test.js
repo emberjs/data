@@ -61,8 +61,8 @@ module("the Nested REST adapter", {
     adapter.destroy();
     store.destroy();
 
-    if (person) { person.destroy(); }
     if (group) { group.destroy(); }
+    if (person) { person.destroy(); }
   }
 });
 
@@ -78,8 +78,8 @@ var expectType = function(type) {
 test("creating a nested person makes a POST to /group/<group_id>/people", function() {
   store.loadMany(Group, [{ id: 1, name: "Non Programmers" },
                          { id: 2, name: "Programmers"}] );
-  var grp=store.find(Group, 2);
-  var record=grp.get('people').createRecord({ name: "Tom Walpole"});
+  group=store.find(Group, 2);
+  person=group.get('people').createRecord({ name: "Tom Walpole"});
   store.commit();
   expectUrl("/groups/2/people", "the nested collection at the plural of the model name scoped by the parent resource");
   expectType("POST");
@@ -87,7 +87,7 @@ test("creating a nested person makes a POST to /group/<group_id>/people", functi
 });
 
 test("updating a nested person makes a PUT to /group/<group_id>/people/:id", function() {  
-  store.load(Group, { id: 1, name: "Programmers", people_ids: [1] });
+  store.load(Group, { id: 1, name: "Programmers", people: [1] });
   store.load(Person, { id: 1, name: "Tom Walpole", group_id: 1 });
 
   person = store.find(Person, 1);
@@ -103,7 +103,7 @@ test("updating a nested person makes a PUT to /group/<group_id>/people/:id", fun
 });
 
 test("deleting a person makes a DELETE to /group/<group_id>/people/:id", function() {
-  store.load(Group, { id: 1, name: "Programmers", people_ids: [1] });
+  store.load(Group, { id: 1, name: "Programmers", people: [1] });
   store.load(Person, { id: 1, name: "Tom Walpole", group_id: 1 });
   
   person = store.find(Person, 1);
@@ -117,3 +117,20 @@ test("deleting a person makes a DELETE to /group/<group_id>/people/:id", functio
   
   ajaxHash.success();
 });
+
+test("finding all nested people through a group makes a GET to /groups/<group_id>/people", function() {
+  store.load(Group, { id: 2, name: "Programmers", people: [1,2] });
+  group = store.find(Group, 2);
+  people = group.get('people');
+
+  expectUrl("/groups/2/people", "the nested plural of the model name");
+  expectType("GET");
+
+  ajaxHash.success({ people: [{ id: 1, name: "Yehuda Katz", group_id: 2 },
+                              { id: 2, name: "Thomas Walpole", group_id: 2} ] });
+
+  person = people.objectAt(0);
+
+  equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
+});
+

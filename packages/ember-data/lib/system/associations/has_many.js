@@ -13,7 +13,7 @@ var referencedFindRecord = function(store, type, data, key, one) {
 
 var hasAssociation = function(type, options) {
   options = options || {};
-
+  
   var embedded = options.embedded,
       findRecord = embedded ? embeddedFindRecord : referencedFindRecord;
 
@@ -30,7 +30,7 @@ var hasAssociation = function(type, options) {
 
     key = options.key || get(this, 'namingConvention').keyToJSONKey(key);
     ids = findRecord(store, type, data, key);
-    association = store.findMany(type, ids);
+    association = store.findMany(type, ids, undefined, this);
     set(association, 'parentRecord', this);
 
     return association;

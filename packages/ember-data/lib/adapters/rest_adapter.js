@@ -119,7 +119,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   find: function(store, type, id) {
     var root = this.rootForType(type);
-
+    
     this.ajax(this.buildURL(root, id), "GET", {
       success: function(json) {
         store.load(type, json[root]);
@@ -128,10 +128,18 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
-  findMany: function(store, type, ids) {
+  findMany: function(store, type, ids, query, parent) {
+    var options;
     var root = this.rootForType(type), plural = this.pluralize(root);
-
-    this.ajax(this.buildURL(root), "GET", {
+    var url="";
+    
+    if (parent){
+      url = this.buildNestedURL(store, type, undefined, undefined, parent);
+    } else {
+      url = this.buildURL(root);
+    }
+    
+    this.ajax(url, "GET", {
       data: { ids: ids },
       success: function(json) {
         store.loadMany(type, json[plural]);
@@ -244,15 +252,29 @@ DS.RESTAdapter = DS.Adapter.extend({
     return url.join("/");
   },
   
-  buildNestedURL: function(store, type, record, suffix){
+  buildNestedURL: function(store, type, record, suffix, parent){
     var url = [], root=this.rootForType(type);
+    var parent_meta;
+    
+    // if (parent === undefined){
+    //   var parent_info = this.nestedParentFor(type);
+    //   if (parent_info !== undefined) {
+    //     var parent_name = parent_info[0];
+    //     parent_meta = parent_info[1];
+    //     parent = record.get(parent_name);
+    //   }
+    // }
+    
     var parent_info = this.nestedParentFor(type);
-
     if (parent_info !== undefined) {
-      var parent_name = parent_info[0],
-          parent_meta = parent_info[1],
-          parent = record.get(parent_name);
-
+      var parent_name = parent_info[0];
+      parent_meta = parent_info[1];
+      parent = parent || record.get(parent_name);
+    } else {
+      parent = undefined;
+    }
+    
+    if (parent !== undefined){
       url.push(this.buildNestedURL(store,parent_meta['type'],parent,parent.get('id')));
     } else {
       url.push("");
@@ -266,10 +288,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     if (suffix !== undefined){
       url.push(suffix);
     }
-    
     return url.join("/");
   },
-  
+  nestedParent: function(type) {
+    
+  },
   nestedParentFor: function(type) {
     var nesteds=[];
     if (typeof type === 'string') {
