@@ -120,6 +120,8 @@ test("a DS.Model can describe Date attributes", function() {
 
   var dateString = "Sat, 31 Dec 2011 00:08:16 GMT";
   var date = new Date(dateString);
+  var inputDateString = "12-30-2011";
+  var inputDate = new Date(inputDateString).toUTCString();
 
   var store = DS.Store.create();
 
@@ -134,6 +136,7 @@ test("a DS.Model can describe Date attributes", function() {
   deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
   convertsFromServer('date', dateString, date);
   convertsWhenSet('date', date, dateString);
+  convertsWhenSet('date', inputDateString, inputDate);
 });
 
 test("retrieving properties should return the same value as they would if they were not in the data hash if the record is not loaded", function() {
