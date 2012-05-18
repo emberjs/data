@@ -367,14 +367,17 @@ DS.RESTAdapter = DS.Adapter.extend({
   
   buildNestedURL: function(store, type, record, suffix){
     var url = [], root=this.rootForType(type);
-    var parent_info = this.nestedParentFor(type);
+    var parent_info, parent_type;
+    
+    if (parent_info = this.nestedAssociationFor(type)) {
+      var parent_name = parent_info[0];
+      var parent_meta = parent_info[1];
+      parent = parent || record.get(parent_name);
+      parent_type = parent_meta['type'];
+    }
 
-    if (parent_info !== undefined) {
-      var parent_name = parent_info[0],
-          parent_meta = parent_info[1],
-          parent = record.get(parent_name);
-
-      url.push(this.buildNestedURL(store,parent_meta['type'],parent,parent.get('id')));
+    if (parent && parent_type){
+      url.push(this.buildNestedURL(store,parent_type,parent,parent.get('id')));
     } else {
       url.push("");
       if (this.namespace !== undefined) {
@@ -387,20 +390,19 @@ DS.RESTAdapter = DS.Adapter.extend({
     if (suffix !== undefined){
       url.push(suffix);
     }
-    
     return url.join("/");
   },
-  
-  nestedParentFor: function(type) {
-    var nesteds=[];
+  nestedAssociationFor: function(type) {
+    var nesteds=[], associations;
     if (typeof type === 'string') {
       type = getPath(this, type, false) || getPath(window, type);
     }
-    type.eachComputedProperty(function(name,meta){
-      if (meta.isAssociation && meta.kind==="belongsTo" && meta.options.nested){
-        nesteds.push([name, meta]);
-      }
-    });
+    
+    if (associations=get(type,'associationsByName')) {
+      associations.forEach(function(name,meta){ 
+        if (meta.options.nested) { nesteds.push([name,meta]); }
+      });
+    }
     return nesteds[0];
   }
   
