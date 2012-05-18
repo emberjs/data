@@ -254,28 +254,17 @@ DS.RESTAdapter = DS.Adapter.extend({
   
   buildNestedURL: function(store, type, record, suffix, parent){
     var url = [], root=this.rootForType(type);
-    var parent_meta;
+    var parent_info, parent_type;
     
-    // if (parent === undefined){
-    //   var parent_info = this.nestedParentFor(type);
-    //   if (parent_info !== undefined) {
-    //     var parent_name = parent_info[0];
-    //     parent_meta = parent_info[1];
-    //     parent = record.get(parent_name);
-    //   }
-    // }
-    
-    var parent_info = this.nestedParentFor(type);
-    if (parent_info !== undefined) {
+    if (parent_info = this.nestedAssociationFor(type)) {
       var parent_name = parent_info[0];
-      parent_meta = parent_info[1];
+      var parent_meta = parent_info[1];
       parent = parent || record.get(parent_name);
-    } else {
-      parent = undefined;
+      parent_type = parent_meta['type'];
     }
-    
-    if (parent !== undefined){
-      url.push(this.buildNestedURL(store,parent_meta['type'],parent,parent.get('id')));
+
+    if (parent && parent_type){
+      url.push(this.buildNestedURL(store,parent_type,parent,parent.get('id')));
     } else {
       url.push("");
       if (this.namespace !== undefined) {
@@ -290,19 +279,17 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
     return url.join("/");
   },
-  nestedParent: function(type) {
-    
-  },
-  nestedParentFor: function(type) {
-    var nesteds=[];
+  nestedAssociationFor: function(type) {
+    var nesteds=[], associations;
     if (typeof type === 'string') {
       type = getPath(this, type, false) || getPath(window, type);
     }
-    type.eachComputedProperty(function(name,meta){
-      if (meta.isAssociation && meta.kind==="belongsTo" && meta.options.nested){
-        nesteds.push([name, meta]);
-      }
-    });
+    
+    if (associations=get(type,'associationsByName')) {
+      associations.forEach(function(name,meta){ 
+        if (meta.options.nested) { nesteds.push([name,meta]); }
+      });
+    }
     return nesteds[0];
   }
   
