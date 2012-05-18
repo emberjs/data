@@ -3589,7 +3589,7 @@ Ember.computed = function(func) {
 Ember.cacheFor = function(obj, key) {
   var cache = meta(obj, false).cache;
 
-  if (cache && cache[key] !== undefined) {
+  if (cache && key in cache) {
     return cache[key];
   }
 };
@@ -7987,14 +7987,13 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
   */
   firstObject: Ember.computed(function() {
     if (get(this, 'length')===0) return undefined ;
-    if (Ember.Array && Ember.Array.detect(this)) return this.objectAt(0);
 
     // handle generic enumerables
     var context = popCtx(), ret;
     ret = this.nextObject(0, null, context);
     pushCtx(context);
     return ret ;
-  }).property().volatile(),
+  }).property('[]').cacheable(),
 
   /**
     Helper method returns the last object from a collection. If your enumerable
@@ -8012,18 +8011,14 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
   lastObject: Ember.computed(function() {
     var len = get(this, 'length');
     if (len===0) return undefined ;
-    if (Ember.Array && Ember.Array.detect(this)) {
-      return this.objectAt(len-1);
-    } else {
-      var context = popCtx(), idx=0, cur, last = null;
-      do {
-        last = cur;
-        cur = this.nextObject(idx++, last, context);
-      } while (cur !== undefined);
-      pushCtx(context);
-      return last;
-    }
-  }).property().volatile(),
+    var context = popCtx(), idx=0, cur, last = null;
+    do {
+      last = cur;
+      cur = this.nextObject(idx++, last, context);
+    } while (cur !== undefined);
+    pushCtx(context);
+    return last;
+  }).property('[]').cacheable(),
 
   /**
     Returns true if the passed object can be found in the receiver.  The
@@ -8558,6 +8553,7 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
     if (removing === -1) removing = null;
     if (adding   === -1) adding   = null;
 
+    Ember.propertyWillChange(this, '[]');
     if (hasDelta) Ember.propertyWillChange(this, 'length');
     Ember.sendEvent(this, '@enumerable:before', removing, adding);
 
@@ -8575,15 +8571,13 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
       optional start offset for the content change.  For unordered
       enumerables, you should always pass -1.
 
-    @param {Enumerable} added
-      optional enumerable containing items that were added to the set.  For
-      ordered enumerables, this should be an ordered array of items.  If no
-      items were added you can pass null.
+    @param {Ember.Enumerable|Number} removing
+      An enumerable of the objects to be removed or the number of items to
+      be removed.
 
-    @param {Enumerable} removes
-      optional enumerable containing items that were removed from the set.
-      For ordered enumerables, this should be an ordered array of items. If
-      no items were removed you can pass null.
+    @param {Ember.Enumerable|Numbe} adding
+      An enumerable of the objects to be added or the number of items to be
+      added.
 
     @returns {Object} receiver
   */
@@ -8605,6 +8599,7 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
 
     Ember.sendEvent(this, '@enumerable:change', removing, adding);
     if (hasDelta) Ember.propertyDidChange(this, 'length');
+    Ember.propertyDidChange(this, '[]');
 
     return this ;
   }
@@ -8729,6 +8724,14 @@ Ember.Array = Ember.Mixin.create(Ember.Enumerable, /** @scope Ember.Array.protot
   '[]': Ember.computed(function(key, value) {
     if (value !== undefined) this.replace(0, get(this, 'length'), value) ;
     return this ;
+  }).property().cacheable(),
+
+  firstObject: Ember.computed(function() {
+    return this.objectAt(0);
+  }).property().cacheable(),
+
+  lastObject: Ember.computed(function() {
+    return this.objectAt(get(this, 'length')-1);
   }).property().cacheable(),
 
   /** @private (nodoc) - optimized version from Enumerable */
@@ -8921,8 +8924,8 @@ Ember.Array = Ember.Mixin.create(Ember.Enumerable, /** @scope Ember.Array.protot
       startIdx = 0;
       removeAmt = addAmt = -1;
     } else {
-      if (!removeAmt) removeAmt=0;
-      if (!addAmt) addAmt=0;
+      if (removeAmt === undefined) removeAmt=-1;
+      if (addAmt    === undefined) addAmt=-1;
     }
 
     Ember.sendEvent(this, '@array:before', startIdx, removeAmt, addAmt);
@@ -8940,6 +8943,11 @@ Ember.Array = Ember.Mixin.create(Ember.Enumerable, /** @scope Ember.Array.protot
 
     // Make sure the @each proxy is set up if anyone is observing @each
     if (Ember.isWatching(this, '@each')) { get(this, '@each'); }
+
+    // Make sure we've cached these for the check in arrayContentDidChange
+    get(this, 'firstObject');
+    get(this, 'lastObject');
+
     return this;
   },
 
@@ -8950,8 +8958,8 @@ Ember.Array = Ember.Mixin.create(Ember.Enumerable, /** @scope Ember.Array.protot
       startIdx = 0;
       removeAmt = addAmt = -1;
     } else {
-      if (!removeAmt) removeAmt=0;
-      if (!addAmt) addAmt=0;
+      if (removeAmt === undefined) removeAmt=-1;
+      if (addAmt    === undefined) addAmt=-1;
     }
 
     var adding, lim;
@@ -8965,6 +8973,17 @@ Ember.Array = Ember.Mixin.create(Ember.Enumerable, /** @scope Ember.Array.protot
 
     this.enumerableContentDidChange(removeAmt, adding);
     Ember.sendEvent(this, '@array:change', startIdx, removeAmt, addAmt);
+
+    var length = get(this, 'length');
+    if (this.objectAt(0) !== get(this, 'firstObject')) {
+      Ember.propertyWillChange(this, 'firstObject');
+      Ember.propertyDidChange(this, 'firstObject');
+    }
+    if (this.objectAt(length-1) !== get(this, 'lastObject')) {
+      Ember.propertyWillChange(this, 'lastObject');
+      Ember.propertyDidChange(this, 'lastObject');
+    }
+
     return this;
   },
 
@@ -10533,9 +10552,11 @@ var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor, none = Ember.none
 
   ## Observing changes
 
-  When using `Ember.Set`, you can add an enumerable observer to the set to
-  be notified of specific objects that are added and removed from the set.
-  See `Ember.Enumerable` for more information on enumerables.
+  When using `Ember.Set`, you can observe the `"[]"` property to be
+  alerted whenever the content changes.  You can also add an enumerable
+  observer to the set to be notified of specific objects that are added and
+  removed from the set.  See `Ember.Enumerable` for more information on
+  enumerables.
 
   This is often unhelpful. If you are filtering sets of objects, for instance,
   it is very inefficient to re-filter all of the items each time the set
@@ -10593,16 +10614,28 @@ Ember.Set = Ember.CoreObject.extend(Ember.MutableEnumerable, Ember.Copyable, Emb
   */
   clear: function() {
     if (this.isFrozen) { throw new Error(Ember.FROZEN_ERROR); }
+
     var len = get(this, 'length');
+    if (len === 0) { return this; }
+
     var guid;
+
     this.enumerableContentWillChange(len, 0);
+    Ember.propertyWillChange(this, 'firstObject');
+    Ember.propertyWillChange(this, 'lastObject');
+
     for (var i=0; i < len; i++){
       guid = guidFor(this[i]);
       delete this[guid];
       delete this[i];
     }
+
     set(this, 'length', 0);
+
+    Ember.propertyDidChange(this, 'firstObject');
+    Ember.propertyDidChange(this, 'lastObject');
     this.enumerableContentDidChange(len, 0);
+
     return this;
   },
 
@@ -10778,12 +10811,12 @@ Ember.Set = Ember.CoreObject.extend(Ember.MutableEnumerable, Ember.Copyable, Emb
   /** @private - more optimized version */
   firstObject: Ember.computed(function() {
     return this.length > 0 ? this[0] : undefined;
-  }).property('[]').cacheable(),
+  }).property().cacheable(),
 
   /** @private - more optimized version */
   lastObject: Ember.computed(function() {
     return this.length > 0 ? this[this.length-1] : undefined;
-  }).property('[]').cacheable(),
+  }).property().cacheable(),
 
   /** @private (nodoc) - implements Ember.MutableEnumerable */
   addObject: function(obj) {
@@ -10798,11 +10831,16 @@ Ember.Set = Ember.CoreObject.extend(Ember.MutableEnumerable, Ember.Copyable, Emb
     if (idx>=0 && idx<len && (this[idx] === obj)) return this; // added
 
     added = [obj];
+
     this.enumerableContentWillChange(null, added);
+    Ember.propertyWillChange(this, 'lastObject');
+
     len = get(this, 'length');
     this[guid] = len;
     this[len] = obj;
     set(this, 'length', len+1);
+
+    Ember.propertyDidChange(this, 'lastObject');
     this.enumerableContentDidChange(null, added);
 
     return this;
@@ -10816,6 +10854,8 @@ Ember.Set = Ember.CoreObject.extend(Ember.MutableEnumerable, Ember.Copyable, Emb
     var guid = guidFor(obj),
         idx  = this[guid],
         len = get(this, 'length'),
+        isFirst = idx === 0,
+        isLast = idx === len-1,
         last, removed;
 
 
@@ -10823,6 +10863,8 @@ Ember.Set = Ember.CoreObject.extend(Ember.MutableEnumerable, Ember.Copyable, Emb
       removed = [obj];
 
       this.enumerableContentWillChange(removed, null);
+      if (isFirst) { Ember.propertyWillChange(this, 'firstObject'); }
+      if (isLast)  { Ember.propertyWillChange(this, 'lastObject'); }
 
       // swap items - basically move the item to the end so it can be removed
       if (idx < len-1) {
@@ -10835,6 +10877,8 @@ Ember.Set = Ember.CoreObject.extend(Ember.MutableEnumerable, Ember.Copyable, Emb
       delete this[len-1];
       set(this, 'length', len-1);
 
+      if (isFirst) { Ember.propertyDidChange(this, 'firstObject'); }
+      if (isLast)  { Ember.propertyDidChange(this, 'lastObject'); }
       this.enumerableContentDidChange(removed, null);
     }
 
@@ -11155,6 +11199,7 @@ Ember.ArrayProxy = Ember.Object.extend(Ember.MutableArray,
   /** @private (nodoc) */
   init: function() {
     this._super();
+    this.contentWillChange();
     this.contentDidChange();
   }
 
@@ -11193,7 +11238,7 @@ var EachArray = Ember.Object.extend(Ember.Array, {
   length: Ember.computed(function() {
     var content = this._content;
     return content ? get(content, 'length') : 0;
-  }).property('[]').cacheable()
+  }).property().cacheable()
 
 });
 
@@ -11724,6 +11769,35 @@ Map.prototype = {
 
 
 (function() {
+var loadHooks = {};
+var loaded = {};
+
+Ember.onLoad = function(name, callback) {
+  var object;
+
+  loadHooks[name] = loadHooks[name] || Ember.A();
+  loadHooks[name].pushObject(callback);
+
+  if (object = loaded[name]) {
+    callback(object);
+  }
+};
+
+Ember.runLoadHooks = function(name, object) {
+  loaded[name] = object;
+
+  var hooks = loadHooks[name];
+
+  loadHooks[name].forEach(function(callback) {
+    callback(object);
+  });
+};
+
+})();
+
+
+
+(function() {
 // ==========================================================================
 // Project:  Ember Runtime
 // Copyright: ©2011 Strobe Inc. and contributors.
@@ -11797,6 +11871,298 @@ Ember.ArrayController = Ember.ArrayProxy.extend();
 // Copyright: ©2011 Strobe Inc. and contributors.
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
+
+})();
+
+(function() {
+// ==========================================================================
+// Project:   Ember - JavaScript Application Framework
+// Copyright: ©2006-2011 Strobe Inc. and contributors.
+//            Portions ©2008-2011 Apple Inc. All rights reserved.
+// License:   Licensed under MIT license (see license.js)
+// ==========================================================================
+
+var get = Ember.get, set = Ember.set;
+
+/**
+  @class
+
+  An Ember.Application instance serves as the namespace in which you define your
+  application's classes. You can also override the configuration of your
+  application.
+
+  By default, Ember.Application will begin listening for events on the document.
+  If your application is embedded inside a page, instead of controlling the
+  entire document, you can specify which DOM element to attach to by setting
+  the `rootElement` property:
+
+      MyApp = Ember.Application.create({
+        rootElement: $('#my-app')
+      });
+
+  The root of an Ember.Application must not be removed during the course of the
+  page's lifetime. If you have only a single conceptual application for the
+  entire page, and are not embedding any third-party Ember applications
+  in your page, use the default document root for your application.
+
+  You only need to specify the root if your page contains multiple instances
+  of Ember.Application.
+
+  @extends Ember.Object
+*/
+Ember.Application = Ember.Namespace.extend(
+/** @scope Ember.Application.prototype */{
+
+  /**
+    The root DOM element of the Application.
+
+    Can be specified as DOMElement or a selector string.
+
+    @type DOMElement
+    @default 'body'
+  */
+  rootElement: 'body',
+
+  /**
+    @type Ember.EventDispatcher
+    @default null
+  */
+  eventDispatcher: null,
+
+  /**
+    @type Object
+    @default null
+  */
+  customEvents: null,
+
+  /** @private */
+  init: function() {
+    var eventDispatcher,
+        rootElement = get(this, 'rootElement');
+    this._super();
+
+    eventDispatcher = Ember.EventDispatcher.create({
+      rootElement: rootElement
+    });
+
+    set(this, 'eventDispatcher', eventDispatcher);
+
+    // jQuery 1.7 doesn't call the ready callback if already ready
+    if (Ember.$.isReady) {
+      Ember.run.once(this, this.didBecomeReady);
+    } else {
+      var self = this;
+      Ember.$(document).ready(function() {
+        Ember.run.once(self, self.didBecomeReady);
+      });
+    }
+  },
+
+  /**
+    Instantiate all controllers currently available on the namespace
+    and inject them onto a state manager.
+
+    Example:
+
+      App.PostsController = Ember.ArrayController.create();
+      App.CommentsController = Ember.ArrayController.create();
+
+      var stateManager = Ember.StateManager.create({
+        ...
+      });
+
+      App.injectControllers(stateManager);
+
+      stateManager.get('postsController')     // <App.PostsController:ember1234>
+      stateManager.get('commentsController')  // <App.CommentsController:ember1235>
+
+      stateManager.getPath('postsController.stateManager') // stateManager
+  */
+  inject: function(stateManager) {
+    var properties = Ember.A(Ember.keys(this)),
+        injections = get(this.constructor, 'injections'),
+        namespace = this, controller, name;
+
+    properties.forEach(function(property) {
+      injections.forEach(function(injection) {
+        injection(namespace, stateManager, property);
+      });
+    });
+  },
+
+  /** @private */
+  didBecomeReady: function() {
+    var eventDispatcher = get(this, 'eventDispatcher'),
+        stateManager    = get(this, 'stateManager'),
+        customEvents    = get(this, 'customEvents');
+
+    eventDispatcher.setup(customEvents);
+
+    this.ready();
+
+    if (stateManager) {
+      this.setupStateManager(stateManager);
+    }
+  },
+
+  /**
+    @private
+
+    If the application has a state manager, use it to route
+    to the current URL, and trigger a new call to `route`
+    whenever the URL changes.
+  */
+  setupStateManager: function(stateManager) {
+    var location = get(stateManager, 'location');
+
+    stateManager.route(location.getURL());
+    location.onUpdateURL(function(url) {
+      stateManager.route(url);
+    });
+  },
+
+  /**
+    Called when the Application has become ready.
+    The call will be delayed until the DOM has become ready.
+  */
+  ready: Ember.K,
+
+  /** @private */
+  destroy: function() {
+    get(this, 'eventDispatcher').destroy();
+    return this._super();
+  }
+});
+
+Ember.Application.reopenClass({
+  concatenatedProperties: ['injections'],
+  injections: Ember.A(),
+  registerInjection: function(callback) {
+    get(this, 'injections').pushObject(callback);
+  }
+});
+
+Ember.Application.registerInjection(function(app, stateManager, property) {
+  if (!/^[A-Z].*Controller$/.test(property)) { return; }
+
+  var name = property[0].toLowerCase() + property.substr(1),
+      controller = app[property].create();
+
+  stateManager.set(name, controller);
+  controller.set('target', stateManager);
+});
+
+})();
+
+
+
+(function() {
+var get = Ember.get, set = Ember.set;
+
+/**
+  This file implements the `location` API used by Ember's router.
+
+  That API is:
+
+  getURL: returns the current URL
+  setURL(path): sets the current URL
+  onUpdateURL(callback): triggers the callback when the URL changes
+
+  Calling setURL will not trigger onUpdateURL callbacks.
+*/
+
+/**
+  Ember.HashLocation implements the location API using the browser's
+  hash. At present, it relies on a hashchange event existing in the
+  browser.
+*/
+Ember.HashLocation = Ember.Object.extend({
+  init: function() {
+    set(this, 'location', get(this, 'location') || window.location);
+    set(this, 'callbacks', Ember.A());
+  },
+
+  /**
+    @private
+
+    Returns the current `location.hash`, minus the '#' at the front.
+  */
+  getURL: function() {
+    return get(this, 'location').hash.substr(1);
+  },
+
+  /**
+    @private
+
+    Set the `location.hash` and remembers what was set. This prevents
+    `onUpdateURL` callbacks from triggering when the hash was set by
+    `HashLocation`.
+  */
+  setURL: function(path) {
+    get(this, 'location').hash = path;
+    set(this, 'lastSetURL', path);
+  },
+
+  /**
+    @private
+
+    Register a callback to be invoked when the hash changes. These
+    callbacks will execute when the user presses the back or forward
+    button, but not after `setURL` is invoked.
+  */
+  onUpdateURL: function(callback) {
+    var self = this;
+
+    var hashchange = function() {
+      var path = location.hash.substr(1);
+      if (get(self, 'lastSetURL') === path) { return; }
+
+      set(self, 'lastSetURL', null);
+
+      callback(location.hash.substr(1));
+    };
+
+    get(this, 'callbacks').pushObject(hashchange);
+    window.addEventListener('hashchange', hashchange);
+  },
+
+  willDestroy: function() {
+    get(this, 'callbacks').forEach(function(callback) {
+      window.removeEventListener('hashchange', callback);
+    });
+    set(this, 'callbacks', null);
+  }
+});
+
+/**
+  Ember.Location returns an instance of the correct implementation of
+  the `location` API.
+
+  You can pass it a `style` ('hash', 'html5', 'none') to force a
+  particular implementation.
+*/
+Ember.Location = {
+  create: function(options) {
+    var style = options && options.style;
+    Ember.assert("you must provide a style to Ember.Location.create", !!style);
+
+    if (style === "hash") {
+      return Ember.HashLocation.create.apply(Ember.HashLocation, arguments);
+    }
+  }
+};
+
+})();
+
+
+
+(function() {
+
+})();
+
+
+
+(function() {
 
 })();
 
@@ -12423,151 +12789,6 @@ Ember.EventDispatcher = Ember.Object.extend(
     return this._super();
   }
 });
-
-})();
-
-
-
-(function() {
-// ==========================================================================
-// Project:   Ember - JavaScript Application Framework
-// Copyright: ©2006-2011 Strobe Inc. and contributors.
-//            Portions ©2008-2011 Apple Inc. All rights reserved.
-// License:   Licensed under MIT license (see license.js)
-// ==========================================================================
-var get = Ember.get, set = Ember.set;
-
-/**
-  @class
-
-  An Ember.Application instance serves as the namespace in which you define your
-  application's classes. You can also override the configuration of your
-  application.
-
-  By default, Ember.Application will begin listening for events on the document.
-  If your application is embedded inside a page, instead of controlling the
-  entire document, you can specify which DOM element to attach to by setting
-  the `rootElement` property:
-
-      MyApp = Ember.Application.create({
-        rootElement: $('#my-app')
-      });
-
-  The root of an Ember.Application must not be removed during the course of the
-  page's lifetime. If you have only a single conceptual application for the
-  entire page, and are not embedding any third-party Ember applications
-  in your page, use the default document root for your application.
-
-  You only need to specify the root if your page contains multiple instances
-  of Ember.Application.
-
-  @extends Ember.Object
-*/
-Ember.Application = Ember.Namespace.extend(
-/** @scope Ember.Application.prototype */{
-
-  /**
-    The root DOM element of the Application.
-
-    Can be specified as DOMElement or a selector string.
-
-    @type DOMElement
-    @default 'body'
-  */
-  rootElement: 'body',
-
-  /**
-    @type Ember.EventDispatcher
-    @default null
-  */
-  eventDispatcher: null,
-
-  /**
-    @type Object
-    @default null
-  */
-  customEvents: null,
-
-  /** @private */
-  init: function() {
-    var eventDispatcher,
-        rootElement = get(this, 'rootElement');
-    this._super();
-
-    eventDispatcher = Ember.EventDispatcher.create({
-      rootElement: rootElement
-    });
-
-    set(this, 'eventDispatcher', eventDispatcher);
-
-    // jQuery 1.7 doesn't call the ready callback if already ready
-    if (Ember.$.isReady) {
-      this.didBecomeReady();
-    } else {
-      var self = this;
-      Ember.$(document).ready(function() {
-        self.didBecomeReady();
-      });
-    }
-  },
-
-  /**
-    Instantiate all controllers currently available on the namespace
-    and inject them onto a state manager.
-
-    Example:
-
-      App.PostsController = Ember.ArrayController.create();
-      App.CommentsController = Ember.ArrayController.create();
-
-      var stateManager = Ember.StateManager.create({
-        ...
-      });
-
-      App.injectControllers(stateManager);
-
-      stateManager.get('postsController')     // <App.PostsController:ember1234>
-      stateManager.get('commentsController')  // <App.CommentsController:ember1235>
-
-      stateManager.getPath('postsController.stateManager') // stateManager
-  */
-  injectControllers: function(stateManager) {
-    var properties = Ember.A(Ember.keys(this)),
-        namespace = this, controller, name;
-
-    properties.forEach(function(property) {
-      if (!/^[A-Z].*Controller$/.test(property)) { return; }
-      name = property[0].toLowerCase() + property.substr(1);
-      controller = namespace[property].create();
-      stateManager.set(name, controller);
-      controller.set('stateManager', stateManager);
-    });
-  },
-
-  /** @private */
-  didBecomeReady: function() {
-    var eventDispatcher = get(this, 'eventDispatcher'),
-        customEvents    = get(this, 'customEvents');
-
-    eventDispatcher.setup(customEvents);
-
-    this.ready();
-  },
-
-  /**
-    Called when the Application has become ready.
-    The call will be delayed until the DOM has become ready.
-  */
-  ready: Ember.K,
-
-  /** @private */
-  destroy: function() {
-    get(this, 'eventDispatcher').destroy();
-    return this._super();
-  }
-});
-
-
 
 })();
 
@@ -15695,7 +15916,7 @@ Ember.CollectionView.CONTAINER_MAP = {
 (function() {
 var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
 
-Ember.State = Ember.Object.extend({
+Ember.State = Ember.Object.extend(Ember.Evented, {
   isState: true,
   parentState: null,
   start: null,
@@ -15711,8 +15932,23 @@ Ember.State = Ember.Object.extend({
     return path;
   }).property().cacheable(),
 
+  /**
+    @private
+
+    Override the default event firing from Ember.Evented to
+    also call methods with the given name.
+  */
+  fire: function(name) {
+    if (this[name]) {
+      this[name].apply(this, [].slice.call(arguments, 1));
+    }
+    this._super.apply(this, arguments);
+  },
+
   init: function() {
     var states = get(this, 'states'), foundStates;
+    set(this, 'childStates', Ember.A());
+
     var name;
 
     // As a convenience, loop over the properties
@@ -15752,10 +15988,23 @@ Ember.State = Ember.Object.extend({
 
     if (value.isState) {
       set(value, 'parentState', this);
+      get(this, 'childStates').pushObject(value);
       states[name] = value;
     }
   },
 
+  /**
+    A Boolean value indicating whether the state is a leaf state
+    in the state hierarchy. This is false if the state has child
+    states; otherwise it is true.
+
+    @property {Boolean}
+  */
+  isLeaf: Ember.computed(function() {
+    return !get(this, 'childStates').length;
+  }).cacheable(),
+
+  setupControllers: Ember.K,
   enter: Ember.K,
   exit: Ember.K
 });
@@ -15855,12 +16104,12 @@ var get = Ember.get, set = Ember.set, getPath = Ember.getPath, fmt = Ember.Strin
        robotManager.getPath('currentState.name') // 'poweredUp'
 
   Before transitioning into a new state the existing `currentState` will have its
-  `exit` method called with with the StateManager instance as its first argument and 
-  an object representing the the transition as its second argument.
+  `exit` method called with the StateManager instance as its first argument and 
+  an object representing the transition as its second argument.
 
   After transitioning into a new state the new `currentState` will have its
-  `enter` method called with with the StateManager instance as its first argument and 
-  an object representing the the transition as its second argument.
+  `enter` method called with the StateManager instance as its first argument and 
+  an object representing the transition as its second argument.
 
       robotManager = Ember.StateManager.create({
        initialState: 'poweredDown',
@@ -16127,6 +16376,8 @@ Ember.StateManager = Ember.State.extend(
   init: function() {
     this._super();
 
+    set(this, 'stateMeta', Ember.Map.create());
+
     var initialState = get(this, 'initialState');
 
     if (!initialState && getPath(this, 'states.start')) {
@@ -16194,35 +16445,68 @@ Ember.StateManager = Ember.State.extend(
     return ret;
   },
 
-  goToState: function(name) {
+  goToState: function() {
+    // not deprecating this yet so people don't constantly need to
+    // make trivial changes for little reason.
+    return this.transitionTo.apply(this, arguments);
+  },
+
+  pathForSegments: function(array) {
+    return Ember.ArrayUtils.map(array, function(tuple) {
+      Ember.assert("A segment passed to transitionTo must be an Array", Ember.typeOf(tuple) === "array");
+      return tuple[0];
+    }).join(".");
+  },
+
+  transitionTo: function(name, context) {
+    // 1. Normalize arguments
+    // 2. Ensure that we are in the correct state
+    // 3. Map provided path to context objects and send
+    //    appropriate setupControllers events
+
     if (Ember.empty(name)) { return; }
+
+    var segments;
+
+    if (Ember.typeOf(name) === "array") {
+      segments = Array.prototype.slice.call(arguments);
+    } else {
+      segments = [[name, context]];
+    }
+
+    var path = this.pathForSegments(segments);
 
     var currentState = get(this, 'currentState') || this, state, newState;
 
-    var exitStates = [], enterStates;
+    var exitStates = [], enterStates, resolveState;
 
     state = currentState;
 
-    if (state.routes[name]) {
+    if (state.routes[path]) {
       // cache hit
-      exitStates = state.routes[name].exitStates;
-      enterStates = state.routes[name].enterStates;
-      state = state.routes[name].futureState;
+
+      var route = state.routes[path];
+      exitStates = route.exitStates;
+      enterStates = route.enterStates;
+      state = route.futureState;
+      resolveState = route.resolveState;
     } else {
       // cache miss
 
-      newState = this.findStatesByRoute(currentState, name);
+      newState = this.findStatesByRoute(currentState, path);
 
       while (state && !newState) {
         exitStates.unshift(state);
 
         state = get(state, 'parentState');
         if (!state) {
-          newState = this.findStatesByRoute(this, name);
+          newState = this.findStatesByRoute(this, path);
           if (!newState) { return; }
         }
-        newState = this.findStatesByRoute(state, name);
+        newState = this.findStatesByRoute(state, path);
       }
+
+      resolveState = state;
 
       enterStates = newState.slice(0);
       exitStates = exitStates.slice(0);
@@ -16236,14 +16520,30 @@ Ember.StateManager = Ember.State.extend(
         }
       }
 
-      currentState.routes[name] = {
+      currentState.routes[path] = {
         exitStates: exitStates,
         enterStates: enterStates,
-        futureState: state
+        futureState: state,
+        resolveState: resolveState
       };
     }
 
     this.enterState(exitStates, enterStates, state);
+    this.triggerSetupContext(resolveState, segments);
+  },
+
+  triggerSetupContext: function(root, segments) {
+    var state = root;
+
+    Ember.ArrayUtils.forEach(segments, function(tuple) {
+      var path = tuple[0], context = tuple[1];
+
+      state = this.findStatesByRoute(state, path);
+      state = state[state.length-1];
+
+      state.fire('setupControllers', this, context);
+    }, this);
+    //getPath(root, path).setupControllers(this, context);
   },
 
   getState: function(name) {
@@ -16287,11 +16587,11 @@ Ember.StateManager = Ember.State.extend(
 
     exitStates = exitStates.slice(0).reverse();
     this.asyncEach(exitStates, function(state, transition) {
-      state.exit(stateManager, transition);
+      state.fire('exit', stateManager, transition);
     }, function() {
       this.asyncEach(enterStates, function(state, transition) {
         if (log) { console.log("STATEMANAGER: Entering " + get(state, 'path')); }
-        state.enter(stateManager, transition);
+        state.fire('enter', stateManager, transition);
       }, function() {
         var startState = state, enteredState, initialState;
 
@@ -16306,7 +16606,7 @@ Ember.StateManager = Ember.State.extend(
           enteredState = startState;
 
           if (log) { console.log("STATEMANAGER: Entering " + get(startState, 'path')); }
-          startState.enter(stateManager);
+          startState.fire('enter', stateManager);
 
           initialState = get(startState, 'initialState');
 
@@ -16320,6 +16620,176 @@ Ember.StateManager = Ember.State.extend(
     });
   }
 });
+
+})();
+
+
+
+(function() {
+var get = Ember.get, getPath = Ember.getPath;
+
+// The Ember Routable mixin assumes the existance of a simple
+// routing shim that supports the following three behaviors:
+//
+// * .getURL() - this is called when the page loads
+// * .setURL(newURL) - this is called from within the state
+//   manager when the state changes to a routable state
+// * .onURLChange(callback) - this happens when the user presses
+//   the back or forward button
+
+var escapeForRegex = function(text) {
+  return text.replace(/[\-\[\]{}()*+?.,\\\^\$|#\s]/g, "\\$&");
+};
+
+Ember._RouteMatcher = Ember.Object.extend({
+  state: null,
+
+  init: function() {
+    var route = this.route,
+        identifiers = [],
+        count = 1,
+        escaped;
+
+    // Strip off leading slash if present
+    if (route[0] === '/') {
+      route = this.route = route.substr(1);
+    }
+
+    escaped = escapeForRegex(route);
+
+    var regex = escaped.replace(/:([a-z_]+)(?=$|\/)/gi, function(match, id) {
+      identifiers[count++] = id;
+      return "([^/]+)";
+    });
+
+    this.identifiers = identifiers;
+    this.regex = new RegExp("^/?" + regex);
+  },
+
+  match: function(path) {
+    var match = path.match(this.regex);
+
+    if (match) {
+      var identifiers = this.identifiers,
+          hash = {};
+
+      for (var i=1, l=identifiers.length; i<l; i++) {
+        hash[identifiers[i]] = match[i];
+      }
+
+      return {
+        remaining: path.substr(match[0].length),
+        hash: hash
+      };
+    }
+  },
+
+  generate: function(hash) {
+    var identifiers = this.identifiers, route = this.route, id;
+    for (var i=1, l=identifiers.length; i<l; i++) {
+      id = identifiers[i];
+      route = route.replace(new RegExp(":" + id), hash[id]);
+    }
+    return route;
+  }
+});
+
+Ember.Routable = Ember.Mixin.create({
+  init: function() {
+    this.on('setupControllers', this, this.stashContext);
+
+    this._super();
+  },
+
+  stashContext: function(manager, context) {
+    var meta = get(manager, 'stateMeta'),
+        serialized = this.serialize(manager, context);
+
+    meta.set(this, serialized);
+
+    if (get(this, 'isRoutable')) {
+      this.updateRoute(manager, get(manager, 'location'));
+    }
+  },
+
+  updateRoute: function(manager, location) {
+    if (location && get(this, 'isLeaf')) {
+      var path = this.absoluteRoute(manager);
+      location.setURL(path);
+    }
+  },
+
+  absoluteRoute: function(manager) {
+    var parentState = get(this, 'parentState');
+    var path = '';
+
+    if (get(parentState, 'isRoutable')) {
+      path = parentState.absoluteRoute(manager);
+    }
+
+    var matcher = get(this, 'routeMatcher'),
+        hash = get(manager, 'stateMeta').get(this);
+
+    var generated = matcher.generate(hash);
+
+    if (generated !== "") {
+      return path + '/' + matcher.generate(hash);
+    } else {
+      return path;
+    }
+  },
+
+  isRoutable: Ember.computed(function() {
+    return typeof this.route === "string";
+  }).cacheable(),
+
+  routeMatcher: Ember.computed(function() {
+    return Ember._RouteMatcher.create({ route: get(this, 'route') });
+  }).cacheable(),
+
+  deserialize: function(manager, context) {
+    return context;
+  },
+
+  serialize: function(manager, context) {
+    return context;
+  },
+
+  routePath: function(manager, path) {
+    if (get(this, 'isLeaf')) { return; }
+
+    var childStates = get(this, 'childStates'), match;
+
+    childStates = childStates.sort(function(a, b) {
+      return getPath(b, 'route.length') - getPath(a, 'route.length');
+    });
+
+    var state = childStates.find(function(state) {
+      var matcher = get(state, 'routeMatcher');
+      if (match = matcher.match(path)) { return true; }
+    });
+
+    Ember.assert("Could not find state for path " + path, !!state);
+
+    var object = state.deserialize(manager, match.hash) || {};
+    manager.transitionTo(get(state, 'path'), object);
+    manager.send('routePath', match.remaining);
+  }
+});
+
+Ember.State.reopen(Ember.Routable);
+
+Ember.RoutableStateManager = Ember.Mixin.create({
+  route: function(path) {
+    if (path[0] === '/') {
+      path = path.substr(1);
+    }
+
+    this.send('routePath', path);
+  }
+});
+
+Ember.StateManager.reopen(Ember.RoutableStateManager);
 
 })();
 
@@ -18844,7 +19314,7 @@ EmberHandlebars.registerHelper('action', function(actionName, options) {
   if (hash.target) {
     target = getPath(this, hash.target, options);
   } else if (controller = options.data.keywords.controller) {
-    target = get(controller, 'stateManager');
+    target = get(controller, 'target');
   }
 
   target = target || view;
