@@ -105,18 +105,14 @@ DS.attr.transforms = {
 
   array: {
     from: function(serialized){
-      var type = Ember.typeOf(serialized);
-
-      if(type === 'array')
-        return serialized;
+      if(Ember.isArray(serialized))
+        return Ember.makeArray(serialized);
       else return [];
     },
 
     to: function(deserialized){
-      var type = Ember.typeOf(deserialized);
-
-      if(type === 'array')
-        return deserialized;
+      if(Ember.isArray(deserialized))
+        return Ember.makeArray(deserialized);
       else return [];
     },
   },
