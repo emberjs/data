@@ -124,7 +124,7 @@ test("when all records for a type are requested, the adapter's findAll method is
   };
 
   var array = store.findAll(Person);
-  equal(get(array, 'length'), 0, "The array is 0 length do far");
+  equal(get(array, 'length'), 0, "The array is 0 length so far");
 });
 
 test("if an adapter implements the generateIdForRecord method, it gets invoked when new records are created", function() {
