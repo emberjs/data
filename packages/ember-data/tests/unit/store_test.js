@@ -328,7 +328,7 @@ test("findAll(type) returns a record array of all records of a specific type", f
   strictEqual(results, store.findAll(Person), "subsequent calls to findAll return the same recordArray)");
 });
 
-test("findAllLoaded(type) returns a record array of all loaded records of a specific type", function() {
+test("all(type) returns a record array of all loaded records of a specific type", function() {
   var adapter = DS.Adapter.create({
     findAll: function(){
       equal(null, 1, "findAll() was called when it should not have been.");
@@ -343,7 +343,7 @@ test("findAllLoaded(type) returns a record array of all loaded records of a spec
 
   store.load(Person, 1, { id: 1, name: "Tom Dale" });
 
-  var results = store.findAllLoaded(Person);
+  var results = store.all(Person);
   equal(get(results, 'length'), 1, "record array should have the original object");
   equal(get(results.objectAt(0), 'name'), "Tom Dale", "record has the correct information");
 
@@ -351,7 +351,7 @@ test("findAllLoaded(type) returns a record array of all loaded records of a spec
   equal(get(results, 'length'), 2, "record array should have the new object");
   equal(get(results.objectAt(1), 'name'), "Yehuda Katz", "record has the correct information");
 
-  strictEqual(results, store.findAllLoaded(Person), "subsequent calls to findAllLoaded return the same recordArray)");
+  strictEqual(results, store.all(Person), "subsequent calls to all() return the same recordArray)");
 });
 
 

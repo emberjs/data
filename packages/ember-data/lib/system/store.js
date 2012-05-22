@@ -443,16 +443,16 @@ DS.Store = Ember.Object.extend({
     return array;
   },
 
-  findAllLoaded: function(type) {
+  all: function(type) {
     var typeMap = this.typeMapFor(type),
-        findAllLoadedCache = typeMap.findAllLoadedCache;
+        allLoadedCache = typeMap.allLoadedCache;
 
-    if (findAllLoadedCache) { return findAllLoadedCache; }
+    if (allLoadedCache) { return allLoadedCache; }
 
     var array = DS.RecordArray.create({ type: type, content: Ember.A([]), store: this });
     this.registerRecordArray(array, type);
 
-    typeMap.findAllLoadedCache = array;
+    typeMap.allLoadedCache = array;
     return array;
   },
 
