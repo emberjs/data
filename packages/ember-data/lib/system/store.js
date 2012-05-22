@@ -496,6 +496,19 @@ DS.Store = Ember.Object.extend({
     return array;
   },
 
+  all: function(type) {
+    var typeMap = this.typeMapFor(type),
+        allLoadedCache = typeMap.allLoadedCache;
+
+    if (allLoadedCache) { return allLoadedCache; }
+
+    var array = DS.RecordArray.create({ type: type, content: Ember.A([]), store: this });
+    this.registerRecordArray(array, type);
+
+    typeMap.allLoadedCache = array;
+    return array;
+  },
+
   filter: function(type, query, filter) {
     // allow an optional server query
     if (arguments.length === 3) {
