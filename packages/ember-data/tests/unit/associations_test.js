@@ -356,6 +356,27 @@ test("it is possible to add an item to an association, remove it, then add it ag
   equal(getPath(person, 'tags.length'), 2, "object is removed from the association");
 });
 
+test("it is possible to observe a property on an association, and still have the association load", function () {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.hasMany(Tag),
+    
+    numTagsObserver: function () {}.observes('tags.length')
+  });
+  
+  var store = DS.Store.create();
+
+  store.load(Person, { id: 1, name: "Tom Dale", tags: [ 1 ] });
+  store.load(Tag, { id: 1, name: "ember" });
+  
+  var person = store.find(Person, 1);
+  equal(getPath(person, 'tags.length'), 1, "tags association did load");
+});
+
 module("RecordArray");
 
 test("updating the content of a RecordArray updates its content", function() {
