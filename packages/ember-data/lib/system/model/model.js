@@ -205,6 +205,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       record: this
     });
 
+    set(this, 'errors', DS.Errors.create());
+    this.addObserver('errors.length', this, 'errorsLengthDidChange');
+
     set(this, 'pendingQueue', {});
 
     set(this, 'stateManager', stateManager);
@@ -306,6 +309,21 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       }
     }, this);
   }, 'data'),
+
+  errorsLengthDidChange: function(errors, key, length) {
+    var isValid = get(this, 'isValid'),
+        isDirty = get(this, 'isDirty');
+
+    if (!isValid && length === 0) {
+      this.send('becameValid');
+    } else if (isValid && length > 0) {
+      if (isDirty) {
+        this.send('becameInvalid');
+      } else {
+        get(this, 'errors').clear();
+      }
+    }
+  },
 
   /**
     @private
