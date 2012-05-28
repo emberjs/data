@@ -6,7 +6,7 @@ var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
 
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
-	
+
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
 
@@ -15,10 +15,14 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
+
       success: function(json) {
         this.sideload(store, type, json, root);
         store.didCreateRecord(record, json[root]);
-      }
+      },
+
+      store: store,
+      records: record
     });
   },
 
@@ -41,7 +45,10 @@ DS.RESTAdapter = DS.Adapter.extend({
       success: function(json) {
         this.sideload(store, type, json, plural);
         store.didCreateRecords(type, records, json[plural]);
-      }
+      },
+
+      store: store,
+      records: records
     });
   },
 
@@ -54,10 +61,14 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, id), "PUT", {
       data: data,
+
       success: function(json) {
         this.sideload(store, type, json, root);
         store.didUpdateRecord(record, json && json[root]);
-      }
+      },
+
+      store: store,
+      records: record
     });
   },
 
@@ -76,10 +87,14 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, "bulk"), "PUT", {
       data: data,
+
       success: function(json) {
         this.sideload(store, type, json, plural);
         store.didUpdateRecords(records, json[plural]);
-      }
+      },
+
+      store: store,
+      records: records
     });
   },
 
@@ -91,7 +106,10 @@ DS.RESTAdapter = DS.Adapter.extend({
       success: function(json) {
         if (json) { this.sideload(store, type, json); }
         store.didDeleteRecord(record);
-      }
+      },
+
+      store: store,
+      records: record
     });
   },
 
@@ -113,7 +131,10 @@ DS.RESTAdapter = DS.Adapter.extend({
       success: function(json) {
         if (json) { this.sideload(store, type, json); }
         store.didDeleteRecords(records);
-      }
+      },
+
+      store: store,
+      records: records
     });
   },
 
@@ -124,7 +145,9 @@ DS.RESTAdapter = DS.Adapter.extend({
       success: function(json) {
         this.sideload(store, type, json, root);
         store.load(type, json[root]);
-      }
+      },
+
+      store: store
     });
   },
 
@@ -136,7 +159,9 @@ DS.RESTAdapter = DS.Adapter.extend({
       success: function(json) {
         this.sideload(store, type, json, plural);
         store.loadMany(type, json[plural]);
-      }
+      },
+
+      store: store
     });
   },
 
@@ -147,7 +172,9 @@ DS.RESTAdapter = DS.Adapter.extend({
       success: function(json) {
         this.sideload(store, type, json, plural);
         store.loadMany(type, json[plural]);
-      }
+      },
+
+      store: store
     });
   },
 
@@ -159,7 +186,9 @@ DS.RESTAdapter = DS.Adapter.extend({
       success: function(json) {
         this.sideload(store, type, json, plural);
         recordArray.load(json[plural]);
-      }
+      },
+
+      store: store
     });
   },
 
@@ -193,7 +222,30 @@ DS.RESTAdapter = DS.Adapter.extend({
       hash.data = JSON.stringify(hash.data);
     }
 
-    jQuery.ajax(hash);
+    var store = hash.store,
+        records = Ember.makeArray(hash.records);
+    delete hash.store;
+    delete hash.records;
+
+    hash.error = function(jqXHR, textStatus, errorThrown) {
+      var data = Ember.$.parseJSON(jqXHR.responseText);
+      if (jqXHR.status === 422 && get(records, 'length') > 0) {
+        records.forEach(function(record) {
+          store.recordWasInvalid(record, data['errors']);
+        });
+      } else {
+        var error = data['error'] || (errorThrown && errorThrown.message) || textStatus;
+        if (get(records, 'length') > 0) {
+          records.forEach(function(record) {
+            store.recordHasError(record, error);
+          });
+        } else {
+          // TODO: Handle find errors
+        }
+      }
+    };
+
+    Ember.$.ajax(hash);
   },
 
   sideload: function(store, type, json, root) {
