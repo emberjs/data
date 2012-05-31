@@ -122,7 +122,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, id), "GET", {
       success: function(json) {
-        store.load(type, json[root]);
+        store.load(type, id, json[root]);
         this.sideload(store, type, json, root);
       }
     });
