@@ -12,8 +12,8 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     var data = {};
     data[root] = record.toJSON();
-
-    this.ajax(this.buildURL(root), "POST", {
+    
+    this.ajax(this.buildNestedURL(store, type, record), "POST", {
       data: data,
       success: function(json) {
         this.sideload(store, type, json, root);
@@ -52,7 +52,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var data = {};
     data[root] = record.toJSON();
 
-    this.ajax(this.buildURL(root, id), "PUT", {
+    this.ajax(this.buildNestedURL(store, type, record, id), "PUT", {  
       data: data,
       success: function(json) {
         this.sideload(store, type, json, root);
@@ -87,7 +87,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var id = get(record, 'id');
     var root = this.rootForType(type);
 
-    this.ajax(this.buildURL(root, id), "DELETE", {
+    this.ajax(this.buildNestedURL(store, type, record, id), "DELETE", {
       success: function(json) {
         if (json) { this.sideload(store, type, json); }
         store.didDeleteRecord(record);
@@ -119,7 +119,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   find: function(store, type, id) {
     var root = this.rootForType(type);
-
+    
     this.ajax(this.buildURL(root, id), "GET", {
       success: function(json) {
         store.load(type, json[root]);
@@ -128,10 +128,18 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
-  findMany: function(store, type, ids) {
+  findMany: function(store, type, ids, query, parent) {
+    var options;
     var root = this.rootForType(type), plural = this.pluralize(root);
-
-    this.ajax(this.buildURL(root), "GET", {
+    var url="";
+    
+    if (parent){
+      url = this.buildNestedURL(store, type, undefined, undefined, parent);
+    } else {
+      url = this.buildURL(root);
+    }
+    
+    this.ajax(url, "GET", {
       data: { ids: ids },
       success: function(json) {
         store.loadMany(type, json[plural]);
@@ -231,7 +239,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     Ember.assert("Namespace URL (" + this.namespace + ") must not start with slash", !this.namespace || this.namespace.toString().charAt(0) !== "/");
     Ember.assert("Record URL (" + record + ") must not start with slash", !record || record.toString().charAt(0) !== "/");
     Ember.assert("URL suffix (" + suffix + ") must not start with slash", !suffix || suffix.toString().charAt(0) !== "/");
-
+       
     if (this.namespace !== undefined) {
       url.push(this.namespace);
     }
@@ -242,6 +250,48 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
 
     return url.join("/");
+  },
+  
+  buildNestedURL: function(store, type, record, suffix, parent){
+    var url = [], root=this.rootForType(type);
+    var parent_info, parent_type;
+    
+    if (parent_info = this.nestedAssociationFor(type)) {
+      var parent_name = parent_info[0];
+      var parent_meta = parent_info[1];
+      parent = parent || record.get(parent_name);
+      parent_type = parent_meta['type'];
+    }
+
+    if (parent && parent_type){
+      url.push(this.buildNestedURL(store,parent_type,parent,parent.get('id')));
+    } else {
+      url.push("");
+      if (this.namespace !== undefined) {
+        url.push(this.namespace);
+      }
+    }
+    
+    url.push(this.pluralize(root));
+    
+    if (suffix !== undefined){
+      url.push(suffix);
+    }
+    return url.join("/");
+  },
+  nestedAssociationFor: function(type) {
+    var nesteds=[], associations;
+    if (typeof type === 'string') {
+      type = getPath(this, type, false) || getPath(window, type);
+    }
+    
+    if (associations=get(type,'associationsByName')) {
+      associations.forEach(function(name,meta){ 
+        if (meta.options.nested) { nesteds.push([name,meta]); }
+      });
+    }
+    return nesteds[0];
   }
+  
 });
 
