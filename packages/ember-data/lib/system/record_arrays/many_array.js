@@ -110,8 +110,6 @@ DS.ManyArray = DS.RecordArray.extend({
     return record;
   },
 
-  isLoaded:false,
-
   load:function (array) {
     var content = get(this, 'content'),
       store = get(this, 'store'),
