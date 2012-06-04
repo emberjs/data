@@ -413,14 +413,14 @@ DS.Store = Ember.Object.extend({
   /** @private
   */
   findMany: function(type, ids, query) {
-    var array = DS.ManyArray.create({ type:type, store:this }),
+    var array = DS.ManyArray.create({ type: type, store: this, isLoaded: false }),
         clientIds = this.fetchMany(type, ids, query, array);
 
-    return array.reopen({ content:clientIds });
+    return array.reopen({ content: clientIds });
   },
 
   findQuery: function(type, query) {
-    var array = DS.AdapterPopulatedRecordArray.create({ type: type, content: Ember.A([]), store: this });
+    var array = DS.AdapterPopulatedRecordArray.create({ type: type, content: Ember.A([]), store: this, isLoaded: false });
     var adapter = get(this, '_adapter');
     if (adapter && adapter.findQuery) { adapter.findQuery(this, type, query, array); }
     else { throw fmt("Adapter is either null or does not implement `findQuery` method", this); }
@@ -434,7 +434,7 @@ DS.Store = Ember.Object.extend({
 
     if (findAllCache) { return findAllCache; }
 
-    var array = DS.RecordArray.create({ type: type, content: Ember.A([]), store: this });
+    var array = DS.RecordArray.create({ type: type, content: Ember.A([]), store: this, isLoaded: false });
     this.registerRecordArray(array, type);
 
     var adapter = get(this, '_adapter');
