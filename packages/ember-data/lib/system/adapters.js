@@ -117,9 +117,12 @@ DS.Adapter = Ember.Object.extend({
     }, this);
   },
 
-  findMany: function(store, type, ids) {
+  findMany: function(store, type, ids, manyArray) {
+    store.registerManyArray(ids, manyArray);
+
     ids.forEach(function(id) {
-      this.find(store, type, id);
+      var record = store.materializeRecordById(type, id);
+      this.find(store, type, id, record);
     }, this);
   }
 });

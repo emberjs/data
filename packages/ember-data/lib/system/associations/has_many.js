@@ -31,6 +31,7 @@ var hasAssociation = function(type, options) {
     key = options.key || get(this, 'namingConvention').keyToJSONKey(key);
     ids = findRecord(store, type, data, key);
     association = store.findMany(type, ids);
+
     set(association, 'parentRecord', this);
 
     return association;
