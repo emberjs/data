@@ -108,5 +108,25 @@ DS.ManyArray = DS.RecordArray.extend({
     this.pushObject(record);
 
     return record;
+  },
+
+  isLoaded:false,
+
+  load:function (array) {
+    var content = get(this, 'content'),
+      store = get(this, 'store'),
+      type = get(this, 'type'),
+      hash = store.loadMany(type, array),
+      clientIds = Em.empty(content) ? hash.clientIds : content;
+
+    clientIds.forEach(function (clientId) {
+      var recordArrays = store.recordArraysForClientId(clientId);
+      recordArrays.add(array);
+    });
+
+    this.beginPropertyChanges();
+    set(this, 'content', Ember.A(clientIds));
+    set(this, 'isLoaded', true);
+    this.endPropertyChanges();
   }
 });
