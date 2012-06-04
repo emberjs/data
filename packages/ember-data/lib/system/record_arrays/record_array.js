@@ -25,6 +25,8 @@ DS.RecordArray = Ember.ArrayProxy.extend({
 
   // The store that created this record array.
   store: null,
+  
+  isLoaded: false,
 
   init: function() {
     set(this, 'recordCache', Ember.A([]));
@@ -62,5 +64,13 @@ DS.RecordArray = Ember.ArrayProxy.extend({
     }
 
     return record;
+  },
+
+  load:function (array) {
+    var store = get(this, 'store'),
+        type = get(this, 'type');
+
+    store.loadMany(type, array);
+    set(this, 'isLoaded', true);
   }
 });
