@@ -117,10 +117,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
-  find: function(store, type, id) {
+  find: function(store, type, id, query) {
     var root = this.rootForType(type);
 
     this.ajax(this.buildURL(root, id), "GET", {
+      data: query,
       success: function(json) {
         this.sideload(store, type, json, root);
         store.load(type, json[root]);

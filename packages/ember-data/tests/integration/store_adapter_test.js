@@ -44,6 +44,14 @@ test("when a single record is requested, the adapter's find method is called unl
   store.find(Person, 1);
 });
 
+test("a single record request can be customized with a query, which is passed to the adapter find method", function () {
+  adapter.find = function(store, type, id, query) {
+    deepEqual(query, {skills: {filter: 'technical'}}, "the find method is passed the requested query");
+  };
+
+  store.find(Person, 1, {skills: {filter: 'technical'}});
+});
+
 test("when a record is requested but has not yet been loaded, it should report its id", function() {
   adapter.find = Ember.K;
 
