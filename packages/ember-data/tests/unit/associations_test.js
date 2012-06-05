@@ -527,6 +527,26 @@ test("belongsTo embedded associations work the same as referenced ones, and have
   strictEqual(get(person, 'tag'), store.find(Tag, 5), "association object are the same as object retrieved directly");
 });
 
+test("belongsTo associations should update their counterpart on their parent record", function(){
+  var Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    people: DS.hasMany('Person')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.belongsTo('Tag')
+  });
+
+  var store = DS.Store.create();
+
+  store.load(Tag, {id: 1, name: "friendly"});
+  store.load(Person, {id: 1, name: "Tom Dale", tag_id: 1});
+
+  var tag = store.find(Tag, 1);
+  strictEqual(tag.getPath('people.length'), 1, "tag is updated with the new person");
+});
+
 test("embedded associations should respect namingConvention", function() {
   var MyCustomTag = DS.Model.extend({
     name: DS.attr('string')
