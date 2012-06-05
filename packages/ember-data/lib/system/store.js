@@ -288,9 +288,7 @@ DS.Store = Ember.Object.extend({
       return this.findAll(type);
     }
 
-    if (query !== undefined) {
-      return this.findMany(type, id, query);
-    } else if (Ember.typeOf(id) === 'object') {
+    if (Ember.typeOf(id) === 'object') {
       return this.findQuery(type, id);
     }
 
