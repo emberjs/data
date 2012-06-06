@@ -290,7 +290,7 @@ test("modified records are reset when their transaction is rolled back", functio
   equal(get(invalidPerson, 'transaction'), get(store, 'defaultTransaction'), "record should have been moved back to the default transaction");
 });
 
-test("modified records are reset when their transaction is rolled back", function() {
+test("modified uncommited invalid records are reset when their transaction is rolled back", function() {
   var store = DS.Store.create();
 
   store.load(Person, { id: 1, name: "Scumbag Tom" });

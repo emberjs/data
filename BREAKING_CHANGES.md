@@ -35,6 +35,15 @@ App.Store = DS.Store.create({
 This will remove the exception about changes before revision 2. You will
 receive another warning if there is another change.
 
+## Revision 5
+
+### Introduce DS.Errors object
+
+Previously, `errors` property on a record was a simple object mapping attributes
+to error messages. It is now a special object implemented in `DS.Errors`.
+It provides a simple API to manipulate association of error messages
+and attributes on the record.
+
 ## Revision 4
 
 ### Removal of hasOne
