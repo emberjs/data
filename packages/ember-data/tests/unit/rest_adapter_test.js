@@ -384,7 +384,7 @@ test("finding a group by ID with a customized query", function () {
   expectData({ people: { name: "kat" } });
 });
 
-test("finding a single group with a customized query discards the cache", function () {
+test("reloading a group with a customized query can bypass the cache", function () {
   group = store.find(Group, 2, { people: { name: "kat" } });
 
   expectData({ people: { name: "kat" } });
@@ -399,9 +399,10 @@ test("finding a single group with a customized query discards the cache", functi
 
   equal(group.get('people').objectAt(0).get('name'), "Yehuda Katz", "the filtered list of people contains the matching person");
 
+  // flush the existing group instance before loading a new one from the server
+  store.flush(Group, 2);
   group = store.find(Group, 2, { people: { name: "ale" } });
 
-  expectData({ people: { name: "ale" } });
   ajaxHash.success({
     group: {
       id: 2, name: "Big Group", people: [ 2 ]

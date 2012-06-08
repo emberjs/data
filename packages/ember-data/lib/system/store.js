@@ -306,12 +306,6 @@ DS.Store = Ember.Object.extend({
         dataCache = this.typeMapFor(type).cidToHash,
         record;
 
-    // if a query is given we discard the cache
-    if (query) {
-      this.flush(type, id);
-      clientId = undefined;
-    }
-
     // If there is already a clientId assigned for this
     // type/id combination, try to find an existing
     // record for that id and return. Otherwise,
