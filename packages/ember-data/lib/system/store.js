@@ -360,6 +360,7 @@ DS.Store = Ember.Object.extend({
       dataCache = typeMap.cidToHash;
       delete dataCache[clientId];
       delete this.clientIdToId[clientId];
+      delete typeMap.idToCid[id];
     }
   },
 
