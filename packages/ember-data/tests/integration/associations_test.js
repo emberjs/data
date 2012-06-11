@@ -106,4 +106,3 @@ test("if a parent record and an uncommitted pending child belong to different tr
     parentTransaction.commit();
   });
 });
-
