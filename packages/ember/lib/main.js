@@ -354,7 +354,7 @@ Ember.Logger = window.console || { log: Ember.K, warn: Ember.K, error: Ember.K }
 // as being ok unless both `newcap:false` and not `use strict`.
 // https://github.com/jshint/jshint/issues/392
 
-// Testing this is not ideal, but we want ArrayUtils to use native functions
+// Testing this is not ideal, but we want EnumerableUtils to use native functions
 // if available, but not to use versions created by libraries like Prototype
 /** @private */
 var isNativeFunc = function(func) {
@@ -422,7 +422,7 @@ var arrayIndexOf = isNativeFunc(Array.prototype.indexOf) ? Array.prototype.index
 };
 
 
-Ember.ArrayUtils = {
+Ember.EnumerableUtils = {
   map: function(obj) {
     var args = Array.prototype.slice.call(arguments, 1);
     return obj.map ? obj.map.apply(obj, args) : arrayMap.apply(obj, args);
@@ -440,8 +440,8 @@ Ember.ArrayUtils = {
 
   indexesOf: function(obj) {
     var args = Array.prototype.slice.call(arguments, 1);
-    return args[0] === undefined ? [] : Ember.ArrayUtils.map(args[0], function(item) {
-      return Ember.ArrayUtils.indexOf(obj, item);
+    return args[0] === undefined ? [] : Ember.EnumerableUtils.map(args[0], function(item) {
+      return Ember.EnumerableUtils.indexOf(obj, item);
     });
   },
 
@@ -984,7 +984,7 @@ Ember.makeArray = function(obj) {
 */
 /** @private */
 var guidFor = Ember.guidFor,
-    indexOf = Ember.ArrayUtils.indexOf;
+    indexOf = Ember.EnumerableUtils.indexOf;
 
 // This class is used internally by Ember.js and Ember Data.
 // Please do not use it at this time. We plan to clean it up
@@ -2260,7 +2260,7 @@ var guidFor = Ember.guidFor;
 
 var deferred = 0;
 var array_Slice = Array.prototype.slice;
-var array_ForEach = Ember.ArrayUtils.forEach;
+var array_ForEach = Ember.EnumerableUtils.forEach;
 
 /** @private */
 var ObserverSet = function () {
@@ -2517,7 +2517,7 @@ var guidFor = Ember.guidFor,
     GUID_KEY = Ember.GUID_KEY,
     META_KEY = Ember.META_KEY,
     notifyObservers = Ember.notifyObservers,
-    forEach = Ember.ArrayUtils.forEach,
+    forEach = Ember.EnumerableUtils.forEach,
     FIRST_KEY = /^([^\.\*]+)/,
     IS_PATH = /[\.\*]/;
 
@@ -3391,14 +3391,14 @@ Ember.deferEvent = deferEvent;
 // Ember.watch.flushPending
 // Ember.beginPropertyChanges, Ember.endPropertyChanges
 // Ember.guidFor
-// Ember.ArrayUtils
+// Ember.EnumerableUtils
 
 // ..........................................................
 // HELPERS
 //
 
 var slice = [].slice,
-    forEach = Ember.ArrayUtils.forEach;
+    forEach = Ember.EnumerableUtils.forEach;
 
 // invokes passed params - normalizing so you can pass target/func,
 // target/string or just func
@@ -4420,9 +4420,9 @@ Ember.oneWay = function(obj, to, from) {
 // ==========================================================================
 var Mixin, REQUIRED, Alias,
     classToString, superClassString,
-    a_map = Ember.ArrayUtils.map,
-    a_indexOf = Ember.ArrayUtils.indexOf,
-    a_forEach = Ember.ArrayUtils.forEach,
+    a_map = Ember.EnumerableUtils.map,
+    a_indexOf = Ember.EnumerableUtils.indexOf,
+    a_forEach = Ember.EnumerableUtils.forEach,
     a_slice = Array.prototype.slice,
     EMPTY_META = {}, // dummy for non-writable meta
     META_SKIP = { __emberproto__: true, __ember_count__: true },
@@ -5073,7 +5073,7 @@ Ember.beforeObserver = function(func) {
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 /*globals ENV */
-var indexOf = Ember.ArrayUtils.indexOf;
+var indexOf = Ember.EnumerableUtils.indexOf;
 
 // ........................................
 // TYPING & ARRAY MESSAGING
@@ -5081,7 +5081,7 @@ var indexOf = Ember.ArrayUtils.indexOf;
 
 var TYPE_MAP = {};
 var t ="Boolean Number String Function Array Date RegExp Object".split(" ");
-Ember.ArrayUtils.forEach(t, function(name) {
+Ember.EnumerableUtils.forEach(t, function(name) {
 	TYPE_MAP[ "[object " + name + "]" ] = name.toLowerCase();
 });
 
@@ -5870,7 +5870,7 @@ if (Ember.EXTEND_PROTOTYPES) {
 
 var get = Ember.get, set = Ember.set;
 var a_slice = Array.prototype.slice;
-var a_indexOf = Ember.ArrayUtils.indexOf;
+var a_indexOf = Ember.EnumerableUtils.indexOf;
 
 var contexts = [];
 /** @private */
@@ -6631,7 +6631,7 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
 // HELPERS
 //
 
-var get = Ember.get, set = Ember.set, meta = Ember.meta, map = Ember.ArrayUtils.map, cacheFor = Ember.cacheFor;
+var get = Ember.get, set = Ember.set, meta = Ember.meta, map = Ember.EnumerableUtils.map, cacheFor = Ember.cacheFor;
 
 /** @private */
 function none(obj) { return obj===null || obj===undefined; }
@@ -7252,7 +7252,7 @@ Ember.FROZEN_ERROR = "Frozen object cannot be modified.";
 // Copyright: ©2011 Strobe Inc. and contributors.
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
-var forEach = Ember.ArrayUtils.forEach;
+var forEach = Ember.EnumerableUtils.forEach;
 
 /**
   @class
@@ -7377,7 +7377,7 @@ var EMPTY = [];
 // HELPERS
 //
 
-var get = Ember.get, set = Ember.set, forEach = Ember.ArrayUtils.forEach;
+var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach;
 
 /**
   @class
@@ -8965,7 +8965,7 @@ Ember.Object = Ember.CoreObject.extend(Ember.Observable);
 // Copyright: ©2011 Strobe Inc. and contributors.
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
-var indexOf = Ember.ArrayUtils.indexOf;
+var indexOf = Ember.EnumerableUtils.indexOf;
 
 /**
   @private
@@ -9418,7 +9418,7 @@ Ember.ObjectProxy = Ember.Object.extend(
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 var set = Ember.set, get = Ember.get, guidFor = Ember.guidFor;
-var forEach = Ember.ArrayUtils.forEach;
+var forEach = Ember.EnumerableUtils.forEach;
 
 var EachArray = Ember.Object.extend(Ember.Array, {
 
@@ -9708,7 +9708,7 @@ var NativeArray = Ember.Mixin.create(Ember.MutableArray, Ember.Observable, Ember
 
 // Remove any methods implemented natively so we don't override them
 var ignore = ['length'];
-Ember.ArrayUtils.forEach(NativeArray.keys(), function(methodName) {
+Ember.EnumerableUtils.forEach(NativeArray.keys(), function(methodName) {
   if (Array.prototype[methodName]) ignore.push(methodName);
 });
 
@@ -9827,7 +9827,7 @@ Ember.Controller = Ember.Object.extend(Ember.ControllerMixin);
 
 
 (function() {
-var get = Ember.get, set = Ember.set, forEach = Ember.ArrayUtils.forEach;
+var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach;
 
 Ember.SortableMixin = Ember.Mixin.create(Ember.MutableEnumerable, {
   sortProperties: null,
@@ -10474,8 +10474,8 @@ Ember.$ = window.jQuery;
 // ==========================================================================
 
 var get = Ember.get, set = Ember.set;
-var forEach = Ember.ArrayUtils.forEach;
-var indexOf = Ember.ArrayUtils.indexOf;
+var forEach = Ember.EnumerableUtils.forEach;
+var indexOf = Ember.EnumerableUtils.indexOf;
 
 /** @private */
 var ClassSet = function() {
@@ -11235,7 +11235,7 @@ Ember.ControllerMixin.reopen({
 var get = Ember.get, set = Ember.set, addObserver = Ember.addObserver;
 var getPath = Ember.getPath, meta = Ember.meta, fmt = Ember.String.fmt;
 var a_slice = Array.prototype.slice;
-var a_forEach = Ember.ArrayUtils.forEach;
+var a_forEach = Ember.EnumerableUtils.forEach;
 
 var childViewsProperty = Ember.computed(function() {
   var childViews = get(this, '_childViews');
@@ -12918,7 +12918,7 @@ Ember.View = Ember.Object.extend(Ember.Evented,
 
     // remove view from childViews array.
     var childViews = get(this, '_childViews');
-    Ember.ArrayUtils.removeObject(childViews, view);
+    Ember.EnumerableUtils.removeObject(childViews, view);
 
     this.propertyDidChange('childViews');
 
@@ -13568,7 +13568,7 @@ Ember.View.states.destroyed = {
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
 var get = Ember.get, set = Ember.set, meta = Ember.meta;
-var forEach = Ember.ArrayUtils.forEach;
+var forEach = Ember.EnumerableUtils.forEach;
 
 var childViewsProperty = Ember.computed(function() {
   return get(this, '_childViews');
@@ -15048,7 +15048,7 @@ Ember.StateManager = Ember.State.extend(
   },
 
   pathForSegments: function(array) {
-    return Ember.ArrayUtils.map(array, function(tuple) {
+    return Ember.EnumerableUtils.map(array, function(tuple) {
       Ember.assert("A segment passed to transitionTo must be an Array", Ember.typeOf(tuple) === "array");
       return tuple[0];
     }).join(".");
@@ -15131,7 +15131,7 @@ Ember.StateManager = Ember.State.extend(
   triggerSetupContext: function(root, segments) {
     var state = root;
 
-    Ember.ArrayUtils.forEach(segments, function(tuple) {
+    Ember.EnumerableUtils.forEach(segments, function(tuple) {
       var path = tuple[0],
           context = tuple[1];
 
@@ -16995,7 +16995,7 @@ Ember._HandlebarsBoundView = Ember._MetamorphView.extend({
 // ==========================================================================
 var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt;
 var getPath = Ember.Handlebars.getPath, normalizePath = Ember.Handlebars.normalizePath;
-var forEach = Ember.ArrayUtils.forEach;
+var forEach = Ember.EnumerableUtils.forEach;
 
 var EmberHandlebars = Ember.Handlebars, helpers = EmberHandlebars.helpers;
 
@@ -17463,7 +17463,7 @@ EmberHandlebars.bindClasses = function(context, classBindings, view, bindAttrId,
 
 // TODO: Don't require the entire module
 var get = Ember.get, set = Ember.set;
-var indexOf = Ember.ArrayUtils.indexOf;
+var indexOf = Ember.EnumerableUtils.indexOf;
 var PARENT_VIEW_PATH = /^parentView\./;
 var EmberHandlebars = Ember.Handlebars;
 
@@ -18832,7 +18832,7 @@ Ember.TabView = Ember.View.extend({
 /*jshint eqeqeq:false */
 
 var set = Ember.set, get = Ember.get, getPath = Ember.getPath;
-var indexOf = Ember.ArrayUtils.indexOf, indexesOf = Ember.ArrayUtils.indexesOf;
+var indexOf = Ember.EnumerableUtils.indexOf, indexesOf = Ember.EnumerableUtils.indexesOf;
 
 /**
   @class
