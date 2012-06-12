@@ -4,7 +4,6 @@ var get = Ember.get, set = Ember.set;
 
 DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
   query: null,
-  isLoaded: false,
 
   replace: function() {
     var type = get(this, 'type').toString();

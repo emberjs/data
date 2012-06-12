@@ -25,7 +25,7 @@ DS.ManyArray = DS.RecordArray.extend({
       return store.clientIdToId[clientId];
     });
 
-    store.fetchMany(type, ids);
+    store.findMany(type, ids, this);
   },
 
   // Overrides Ember.Array's replace method to implement

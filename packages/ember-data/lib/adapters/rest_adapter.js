@@ -6,7 +6,7 @@ var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
 
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
-	
+
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
 
@@ -117,38 +117,23 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
-  find: function(store, type, id) {
+  find: function(store, type, id, record) {
     var root = this.rootForType(type);
 
     this.ajax(this.buildURL(root, id), "GET", {
       success: function(json) {
         this.sideload(store, type, json, root);
-        store.load(type, json[root]);
+        store.didFindRecord(record, json[root]);
       }
     });
   },
 
-  findMany: function(store, type, ids) {
-    var root = this.rootForType(type), plural = this.pluralize(root);
-
-    this.ajax(this.buildURL(root), "GET", {
-      data: { ids: ids },
-      success: function(json) {
-        this.sideload(store, type, json, plural);
-        store.loadMany(type, json[plural]);
-      }
-    });
+  findMany: function(store, type, ids, recordArray) {
+    this.findQuery(store, type, {ids: ids}, recordArray);
   },
 
-  findAll: function(store, type) {
-    var root = this.rootForType(type), plural = this.pluralize(root);
-
-    this.ajax(this.buildURL(root), "GET", {
-      success: function(json) {
-        this.sideload(store, type, json, plural);
-        store.loadMany(type, json[plural]);
-      }
-    });
+  findAll: function(store, type, recordArray) {
+    this.findQuery(store, type, null, recordArray);
   },
 
   findQuery: function(store, type, query, recordArray) {
@@ -158,7 +143,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: query,
       success: function(json) {
         this.sideload(store, type, json, plural);
-        recordArray.load(json[plural]);
+        store.didFindRecords(recordArray, json[plural]);
       }
     });
   },

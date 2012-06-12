@@ -31,11 +31,11 @@ test("when a single record is requested, the adapter's find method is called unl
 
   var count = 0;
 
-  adapter.find = function(store, type, id) {
+  adapter.find = function(store, type, id, record) {
     equal(type, Person, "the find method is called with the correct type");
     equal(count, 0, "the find method is only called once");
 
-    store.load(type, id, { id: 1, name: "Braaaahm Dale" });
+    store.didFindRecord(record, { id: 1, name: "Braaaahm Dale" });
 
     count++;
   };
@@ -64,28 +64,31 @@ test("when multiple records are requested, the adapter's findMany method is call
 });
 
 test("when multiple records are requested, the adapter's find method is called multiple times if findMany is not implemented", function() {
-  expect(3);
+  expect(5);
 
   var count = 0;
-  adapter.find = function(store, type, id) {
+  adapter.find = function(store, type, id, record) {
     count++;
 
+    store.didFindRecord(record, {id: id});
     equal(id, count);
   };
 
-  store.findMany(Person, [1,2,3]);
-  store.findMany(Person, [1,2,3]);
+  var manyArray = store.findMany(Person, [1,2,3]);
+  equal(get(manyArray, 'isLoaded'), true, "The array is loaded");
+  manyArray = store.findMany(Person, [1,2,3]);
+  equal(get(manyArray, 'isLoaded'), true, "The array is loaded");
 });
 
 test("when many records are requested with query parameters, the adapter's findQuery method is called", function() {
-  expect(6);
+  expect(7);
   adapter.findQuery = function(store, type, query, recordArray) {
     equal(type, Person, "the find method is called with the correct type");
 
     stop();
 
     setTimeout(function() {
-      recordArray.load([{ id: 1, name: "Peter Wagenet" }, { id: 2, name: "Brohuda Katz" }]);
+      store.didFindRecords(recordArray, [{ id: 1, name: "Peter Wagenet" }, { id: 2, name: "Brohuda Katz" }]);
       start();
     }, 100);
   };
@@ -102,17 +105,18 @@ test("when many records are requested with query parameters, the adapter's findQ
       equal(added, 2, "2 items are being added");
 
       equal(get(array, 'length'), 2, "The array is now populated");
+      equal(get(array, 'isLoaded'), true, "The array is loaded");
       equal(get(array.objectAt(0), 'name'), "Peter Wagenet", "The array is populated correctly");
     }
   });
 });
 
 test("when all records for a type are requested, the adapter's findAll method is called", function() {
-  expect(2);
+  expect(3);
 
   var count = 0;
 
-  adapter.findAll = function(store, type) {
+  adapter.findAll = function(store, type, recordArray) {
     count++;
 
     if (count === 1) {
@@ -121,8 +125,9 @@ test("when all records for a type are requested, the adapter's findAll method is
       setTimeout(function() {
         start();
 
-        store.load(type, { id: 1, name: "Braaaahm Dale" });
+        store.didFindRecords(recordArray, [{ id: 1, name: "Braaaahm Dale" }]);
         equal(get(array, 'length'), 1, "The array is now 1 length");
+        equal(get(array, 'isLoaded'), true, "The array is loaded");
 
         store.findAll(Person);
       }, 100);
@@ -652,7 +657,7 @@ test("can be created after the DS.Store", function() {
 
 test("the filter method can optionally take a server query as well", function() {
   adapter.findQuery = function(store, type, query, array) {
-    array.load([
+    store.didFindRecords(array, [
       { id: 1, name: "Yehuda Katz" },
       { id: 2, name: "Tom Dale" }
     ]);

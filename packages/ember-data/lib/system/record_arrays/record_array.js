@@ -26,6 +26,9 @@ DS.RecordArray = Ember.ArrayProxy.extend({
   // The store that created this record array.
   store: null,
 
+  isLoaded: false,
+  isError: false,
+
   objectAtContent: function(index) {
     var content = get(this, 'content'),
         clientId = content.objectAt(index),
@@ -34,5 +37,14 @@ DS.RecordArray = Ember.ArrayProxy.extend({
     if (clientId !== undefined) {
       return store.findByClientId(get(this, 'type'), clientId);
     }
+  },
+
+  load: function (array) {
+    var store = get(this, 'store'),
+        type = get(this, 'type');
+
+    store.loadMany(type, array);
+
+    set(this, 'isLoaded', true);
   }
 });
