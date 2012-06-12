@@ -288,9 +288,7 @@ DS.Store = Ember.Object.extend({
       return this.findAll(type);
     }
 
-    if (query !== undefined) {
-      return this.findMany(type, id, query);
-    } else if (Ember.typeOf(id) === 'object') {
+    if (Ember.typeOf(id) === 'object') {
       return this.findQuery(type, id);
     }
 
@@ -300,10 +298,10 @@ DS.Store = Ember.Object.extend({
 
     var clientId = this.typeMapFor(type).idToCid[id];
 
-    return this.findByClientId(type, clientId, id);
+    return this.findByClientId(type, clientId, id, query);
   },
 
-  findByClientId: function(type, clientId, id) {
+  findByClientId: function(type, clientId, id, query) {
     var recordCache = get(this, 'recordCache'),
         dataCache, record;
 
@@ -335,11 +333,36 @@ DS.Store = Ember.Object.extend({
 
       // let the adapter set the data, possibly async
       var adapter = get(this, '_adapter');
-      if (adapter && adapter.find) { adapter.find(this, type, id); }
+      if (adapter && adapter.find) { adapter.find(this, type, id, query); }
       else { throw fmt("Adapter is either null or does not implement `find` method", this); }
     }
 
     return record;
+  },
+
+  // ................
+  // . FLUSH RECORD .
+  // ................
+
+  /**
+    A record can be flushed from the cache.
+
+    @param {Class} type A model class
+    @param {String|Number} id
+  */
+  flush: function(type, id) {
+    var typeMap = this.typeMapFor(type),
+        clientId = typeMap.idToCid[id],
+        recordCache, dataCache;
+
+    if (clientId !== undefined) {
+      recordCache = get(this, 'recordCache');
+      delete recordCache[clientId];
+      dataCache = typeMap.cidToHash;
+      delete dataCache[clientId];
+      delete this.clientIdToId[clientId];
+      delete typeMap.idToCid[id];
+    }
   },
 
   /**

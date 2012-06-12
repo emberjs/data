@@ -376,6 +376,45 @@ test("additional data can be sideloaded in a GET", function() {
   equal(get(get(store.find(Group, 1), 'people').objectAt(0), 'name'), "Yehuda Katz", "the items are in the association");
 });
 
+test("finding a group by ID with a customized query", function () {
+  group = store.find(Group, 2, { people: { name: "kat" } });
+
+  expectUrl("/groups/2", "the plural of the model name with the ID requested");
+  expectType("GET");
+  expectData({ people: { name: "kat" } });
+});
+
+test("reloading a group with a customized query can bypass the cache", function () {
+  group = store.find(Group, 2, { people: { name: "kat" } });
+
+  expectData({ people: { name: "kat" } });
+  ajaxHash.success({
+    group: {
+      id: 2, name: "Big Group", people: [ 1 ]
+    },
+    people: [{
+      id: 1, name: "Yehuda Katz"
+    }]
+  });
+
+  equal(group.get('people').objectAt(0).get('name'), "Yehuda Katz", "the filtered list of people contains the matching person");
+
+  // flush the existing group instance before loading a new one from the server
+  store.flush(Group, 2);
+  group = store.find(Group, 2, { people: { name: "ale" } });
+
+  ajaxHash.success({
+    group: {
+      id: 2, name: "Big Group", people: [ 2 ]
+    },
+    people: [{
+      id: 2, name: "Tom Dale"
+    }]
+  });
+
+  equal(group.get('people').objectAt(0).get('name'), "Tom Dale", "the filtered list of people contains the new matching person");
+});
+
 test("finding many people by a list of IDs", function() {
   store.load(Group, { id: 1, people: [ 1, 2, 3 ] });
 
