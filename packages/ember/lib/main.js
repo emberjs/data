@@ -8183,7 +8183,7 @@ Ember.Evented = Ember.Mixin.create({
     Ember.addListener(this, name, target, method, xform);
   },
 
-  fire: function(name) {
+  trigger: function(name) {
     Ember.sendEvent.apply(null, [this, name].concat(a_slice.call(arguments, 1)));
   },
 
@@ -12569,7 +12569,7 @@ Ember.View = Ember.Object.extend(Ember.Evented,
   */
   _notifyWillInsertElement: function() {
     this.invokeRecursively(function(view) {
-      view.fire('willInsertElement');
+      view.trigger('willInsertElement');
     });
   },
 
@@ -12581,7 +12581,7 @@ Ember.View = Ember.Object.extend(Ember.Evented,
   */
   _notifyDidInsertElement: function() {
     this.invokeRecursively(function(view) {
-      view.fire('didInsertElement');
+      view.trigger('didInsertElement');
     });
   },
 
@@ -12593,7 +12593,7 @@ Ember.View = Ember.Object.extend(Ember.Evented,
   */
   _notifyWillRerender: function() {
     this.invokeRecursively(function(view) {
-      view.fire('willRerender');
+      view.trigger('willRerender');
     });
   },
 
@@ -12632,7 +12632,7 @@ Ember.View = Ember.Object.extend(Ember.Evented,
   */
   _notifyWillDestroyElement: function() {
     this.invokeRecursively(function(view) {
-      view.fire('willDestroyElement');
+      view.trigger('willDestroyElement');
     });
   },
 
@@ -13062,7 +13062,7 @@ Ember.View = Ember.Object.extend(Ember.Evented,
   }, 'isVisible'),
 
   _notifyBecameVisible: function() {
-    this.fire('becameVisible');
+    this.trigger('becameVisible');
 
     this.forEachChildView(function(view) {
       var isVisible = get(view, 'isVisible');
@@ -13074,7 +13074,7 @@ Ember.View = Ember.Object.extend(Ember.Evented,
   },
 
   _notifyBecameHidden: function() {
-    this.fire('becameHidden');
+    this.trigger('becameHidden');
     this.forEachChildView(function(view) {
       var isVisible = get(view, 'isVisible');
 
@@ -13118,7 +13118,7 @@ Ember.View = Ember.Object.extend(Ember.Evented,
     Override the default event firing from Ember.Evented to
     also call methods with the given name.
   */
-  fire: function(name) {
+  trigger: function(name) {
     if (this[name]) {
       this[name].apply(this, [].slice.call(arguments, 1));
     }
@@ -14382,7 +14382,7 @@ Ember.State = Ember.Object.extend(Ember.Evented,
     Override the default event firing from Ember.Evented to
     also call methods with the given name.
   */
-  fire: function(name) {
+  trigger: function(name) {
     if (this[name]) {
       this[name].apply(this, [].slice.call(arguments, 1));
     }
@@ -15138,7 +15138,7 @@ Ember.StateManager = Ember.State.extend(
       state = this.findStatesByRoute(state, path);
       state = state[state.length-1];
 
-      state.fire(get(this, 'transitionEvent'), this, context);
+      state.trigger(get(this, 'transitionEvent'), this, context);
     }, this);
   },
 
@@ -15183,11 +15183,11 @@ Ember.StateManager = Ember.State.extend(
 
     exitStates = exitStates.slice(0).reverse();
     this.asyncEach(exitStates, function(state, transition) {
-      state.fire('exit', stateManager, transition);
+      state.trigger('exit', stateManager, transition);
     }, function() {
       this.asyncEach(enterStates, function(state, transition) {
         if (log) { Ember.Logger.log("STATEMANAGER: Entering " + get(state, 'path')); }
-        state.fire('enter', stateManager, transition);
+        state.trigger('enter', stateManager, transition);
       }, function() {
         var startState = state,
             enteredState,
@@ -15202,7 +15202,7 @@ Ember.StateManager = Ember.State.extend(
           enteredState = startState;
 
           if (log) { Ember.Logger.log("STATEMANAGER: Entering " + get(startState, 'path')); }
-          startState.fire('enter', stateManager);
+          startState.trigger('enter', stateManager);
 
           initialState = get(startState, 'initialState');
 
