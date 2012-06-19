@@ -20,23 +20,7 @@ No. Breaking changes, indexed by date, are listed in
 
 #### Getting ember-data
 
-Currently you must build ember-data.js yourself.  Clone the repository, run `bundle` then `rake dist`. You'll find ember-data.js in the `dist` directory.
-
-```
-0 HAL:0 work/ember-data % bundle
-Using rake (0.9.2.2) 
-Using colored (1.2) 
-....
-Your bundle is complete! Use `bundle show [gemname]` to see where a bundled gem is installed.
-
-0 HAL:0 work/ember-data % rake dist
-Building Ember Data...
-Done
-
-0 HAL:0 work/ember-data % ls dist 
-ember-data-spade.js  ember-data.min.js	 modules/
-ember-data.js	     ember-data.prod.js
-```
+Currently you must build ember-data.js yourself.  Clone the repository, run `bundle` then `bundle exec rake dist`. You'll find ember-data.js in the `dist` directory.
 
 #### Roadmap
 
