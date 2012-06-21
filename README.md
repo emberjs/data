@@ -1,4 +1,4 @@
-## Ember Data
+## Ember Data [![Build Status](https://secure.travis-ci.org/emberjs/data.png?branch=master)](http://travis-ci.org/emberjs/data)
 
 Ember Data is a library for loading models from a persistence layer (such as
 a JSON API), updating those models, then saving the changes. It provides many
