@@ -139,32 +139,15 @@ Models can be associated with other models. Ember Data includes several
 built-in types to help you define how your models relate to each other.
 
 #### Has One
+Previously, the `DS.hasOne` and `DS.belongsTo` associations were aliased
+to one another. Now, `DS.belongsTo` remains but `DS.hasOne` has been
+removed. We are planning on having different semantics for `DS.hasOne`
+at a later date.
 
-A `hasOne` association declares that a model is associated with exactly
-one other model. For example, imagine we're writing a blog application that
-allows authors to post entries. Each author has a profile associated with
-their account that is displayed when visitors want to learn more about them.
-
-```javascript
-App.Profile = DS.Model.extend({
-  about: DS.attr('string'),
-  postCount: DS.attr('number')
-});
-
-App.Author = DS.Model.extend({
-  profile: DS.hasOne('App.Profile'),
-  name: DS.attr('string')
-});
-```
-
-Now, when we have an `Author` record, we can easily find its related `Profile`:
-
-```javascript
-var author = App.store.find(App.Author, 1);
-author.get('name'); // "Timothy Leary"
-author.get('profile'); // App.Profile
-author.getPath('profile.postCount'); // 1969
-```
+Primarily, the semantic difference between the two are related to which
+record should be marked as dirty when the relationship changes. To
+ensure that the semantics of your application match the framework,
+please ensure that you are using `DS.belongsTo` at this time.
 
 #### Belongs To
 
