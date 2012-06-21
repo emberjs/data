@@ -1,6 +1,6 @@
 var get = Ember.get, set = Ember.set;
 
-var adapter, store, ajaxUrl, ajaxType, ajaxHash;
+var adapter, store, ajaxUrl, ajaxType, ajaxHash, ajaxErrorHandler;
 var Person, person, people;
 var Role, role, roles;
 var Group, group;
@@ -10,19 +10,27 @@ module("the REST adapter", {
     ajaxUrl = undefined;
     ajaxType = undefined;
     ajaxHash = undefined;
+    ajaxErrorHandler = undefined;
 
     adapter = DS.RESTAdapter.create({
-      ajax: function(url, type, hash) {
-        var success = hash.success, self = this;
+      jQuery: {
+        ajax: function(hash) {
+          var success = hash.success;
 
-        ajaxUrl = url;
-        ajaxType = type;
-        ajaxHash = hash;
+          ajaxUrl = hash.url;
+          ajaxType = hash.type;
+          ajaxHash = hash;
+          ajaxErrorHandler = hash.error;
 
-        if (success) {
-          hash.success = function(json) {
-            success.call(self, json);
-          };
+          if (hash.data && typeof(hash.data) === "string") {
+            hash.data = JSON.parse(hash.data);
+          }
+
+          if (success) {
+            hash.success = function(json) {
+              success.call(store.adapter, json);
+            };
+          }
         }
       },
 
@@ -63,10 +71,15 @@ module("the REST adapter", {
   },
 
   teardown: function() {
-    adapter.destroy();
-    store.destroy();
+    if (person) {
+      if(person.get('isSaving')) {
+        person.get('stateManager').goToState('saved');
+      }
+      person.destroy();
+    }
 
-    if (person) { person.destroy(); }
+    store.destroy();
+    adapter.destroy();
   }
 });
 
@@ -96,6 +109,39 @@ var expectStates = function(state, value) {
     expectState(state, value, person);
   });
 };
+
+var expectModelMarkedInvalidFromXhr = function(errors) {
+  equal(typeof(ajaxErrorHandler), "function", "RESTAdapter supplies an error handler to jQuery.ajax.");
+
+  var mockXhr = {
+    status:       422,
+    responseText: JSON.stringify({ errors: errors })
+  };
+  ajaxErrorHandler(mockXhr, 'error', 'synthetic error');
+
+  equal(person.get('isValid'), false, "Person is invalidated.");
+  deepEqual(person.get('errors'), errors, "Person has errors set.");
+};
+
+test("creating a record with a 422 error marks the records as invalid", function(){
+  set(adapter, 'bulkCommit', false);
+
+  person = store.createRecord(Person, { name: "Cyril Fluck" });
+  store.commit();
+  expectModelMarkedInvalidFromXhr({ name: ["is French"]});
+  deepEqual(person.get('errors').name, ["is French"]);
+});
+
+test("updating a record with a 422 error marks the records as invalid", function(){
+  set(adapter, 'bulkCommit', false);
+
+  store.load(Person, { id: 1, name: "David J. Hamilton" });
+  person = store.find( Person, 1 );
+  person.set('name', 'Cyril Fluck');
+  store.commit();
+  expectModelMarkedInvalidFromXhr({ name: ["is English"]});
+  deepEqual(person.get('errors').name, ["is English"]);
+});
 
 test("creating a person makes a POST to /people, with the data hash", function() {
   person = store.createRecord(Person, { name: "Tom Dale" });
