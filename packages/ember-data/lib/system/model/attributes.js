@@ -103,6 +103,20 @@ DS.attr.transforms = {
     }
   },
 
+  array: {
+    from: function(serialized){
+      if(Ember.isArray(serialized))
+        return Ember.makeArray(serialized);
+      else return [];
+    },
+
+    to: function(deserialized){
+      if(Ember.isArray(deserialized))
+        return Ember.makeArray(deserialized);
+      else return [];
+    },
+  },
+
   date: {
     from: function(serialized) {
       var type = typeof serialized;

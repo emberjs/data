@@ -114,6 +114,13 @@ test("a DS.Model can describe Boolean attributes", function() {
   converts('boolean', false, false);
 });
 
+test("a DS.Model can describe Array attributes", function() {
+  converts('array', [1, 2, 3], [1, 2, 3]);
+  converts('array', ["a", "b", "c"], ["a", "b", "c"]);
+  converts('array', [], []);
+  converts('array', null, []);
+});
+
 test("a DS.Model can describe Date attributes", function() {
   converts('date', null, null);
   converts('date', undefined, undefined);
