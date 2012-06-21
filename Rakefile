@@ -9,6 +9,40 @@ def pipeline
   Rake::Pipeline::Project.new("Assetfile")
 end
 
+def setup_uploader
+  require './lib/github_uploader'
+
+  # get the github user name
+  login = `git config github.user`.chomp
+
+  # get repo from git config's origin url
+  origin = `git config remote.origin.url`.chomp # url to origin
+  # extract USERNAME/REPO_NAME
+  # sample urls: https://github.com/emberjs/ember.js.git
+  #              git://github.com/emberjs/ember.js.git
+  #              git@github.com:emberjs/ember.js.git
+  #              git@github.com:emberjs/ember.js
+
+  repoUrl = origin.match(/github\.com[\/:]((.+?)\/(.+?))(\.git)?$/)
+  username = repoUrl[2] # username part of origin url
+  repo = repoUrl[3] # repository name part of origin url
+
+  token = ENV["GH_OAUTH_TOKEN"]
+  uploader = GithubUploader.new(login, username, repo, token)
+  uploader.authorize
+
+  uploader
+end
+
+def upload_file(uploader, filename, description, file)
+  print "Uploading #{filename}..."
+  if uploader.upload_file(filename, description, file)
+    puts "Success"
+  else
+    puts "Failure"
+  end
+end
+
 desc "Strip trailing whitespace for JavaScript files in packages"
 task :strip_whitespace do
   Dir["packages/**/*.js"].each do |name|
@@ -31,6 +65,15 @@ task :clean do
   puts "Cleaning build..."
   pipeline.clean
   puts "Done"
+end
+
+desc "Upload latest Ember Data build to GitHub repository"
+task :upload_latest => :dist do
+  uploader = setup_uploader
+
+  # Upload minified first, so non-minified shows up on top
+  upload_file(uploader, 'ember-data-latest.min.js', "Ember Data Master (minified)", "dist/ember-data.min.js")
+  upload_file(uploader, 'ember-data-latest.js', "Ember Data Master", "dist/ember-data.js")
 end
 
 desc "Run tests with phantomjs"
