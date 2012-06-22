@@ -805,6 +805,50 @@ test("if you specify a namespace then it is prepended onto all URLs", function()
   store.load(Person, { id: 1 });
 });
 
+test("if you specify a url on the Model then it is used for all URLs", function() {
+  Person.url = 'human';
+  person = store.find(Person, 1);
+  expectUrl("/humans/1", "the url of the model, used as the name and followed by the id");
+
+  ajaxHash.success({ human: { id: 1, name: "Yehuda Katz" } });
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
+  delete Person.url;
+});
+
+test("if you specify a root on the Model then it is used to load data", function() {
+  Person.root = 'my_person';
+  person = store.find(Person, 1);
+  expectUrl("/people/1", "the url of the model, used as the name and followed by the id");
+
+  ajaxHash.success({ my_person: { id: 1, name: "Yehuda Katz" } });
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
+  delete Person.root;
+});
+
+test("if you specify a root and url on the Model then it is used to load data", function() {
+  Person.root = 'my_person';
+  Person.url = 'human';
+  person = store.find(Person, 1);
+  expectUrl("/humans/1", "the url of the model, used as the name and followed by the id");
+
+  ajaxHash.success({ my_person: { id: 1, name: "Yehuda Katz" } });
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
+  delete Person.root;
+  delete Person.url;
+});
+
 test("sideloaded data is loaded prior to primary data (to ensure relationship coherence)", function() {
   expect(1);
 
