@@ -34,5 +34,11 @@ DS.RecordArray = Ember.ArrayProxy.extend({
     if (clientId !== undefined) {
       return store.findByClientId(get(this, 'type'), clientId);
     }
+  },
+
+  load: function(array) {
+    var store = get(this, 'store'), type = get(this, 'type');
+
+    store.loadMany(type, array);
   }
 });

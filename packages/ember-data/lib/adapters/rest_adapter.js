@@ -6,7 +6,7 @@ var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
 
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
-	
+
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
 
@@ -15,7 +15,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
-      context: this,
       success: function(json) {
         this.didCreateRecord(store, type, record, json);
       }
@@ -44,7 +43,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
-      context: this,
       success: function(json) {
         this.didCreateRecords(store, type, records, json);
       }
@@ -52,10 +50,11 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   didCreateRecords: function(store, type, records, json) {
-    var root = this.pluralize(this.rootForType(type));
+    var root = this.rootForType(type),
+        plural = this.pluralize(root);
 
-    this.sideload(store, type, json, root);
-    store.didCreateRecords(type, records, json[root]);
+    this.sideload(store, type, json, plural);
+    store.didCreateRecords(records, json[plural]);
   },
 
   updateRecord: function(store, type, record) {
@@ -67,7 +66,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, id), "PUT", {
       data: data,
-      context: this,
       success: function(json) {
         this.didUpdateRecord(store, type, record, json);
       }
@@ -96,7 +94,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, "bulk"), "PUT", {
       data: data,
-      context: this,
       success: function(json) {
         this.didUpdateRecords(store, type, records, json);
       }
@@ -104,10 +101,11 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   didUpdateRecords: function(store, type, records, json) {
-    var root = this.pluralize(this.rootForType(type));
+    var root = this.rootForType(type),
+        plural = this.pluralize(root);
 
-    this.sideload(store, type, json, root);
-    store.didUpdateRecords(records, json[root]);
+    this.sideload(store, type, json, plural);
+    store.didUpdateRecords(records, json[plural]);
   },
 
   deleteRecord: function(store, type, record) {
@@ -115,7 +113,6 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     this.ajax(this.buildURL(root, id), "DELETE", {
-      context: this,
       success: function(json) {
         this.didDeleteRecord(store, type, record, json);
       }
@@ -142,7 +139,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
       data: data,
-      context: this,
       success: function(json) {
         this.didDeleteRecords(store, type, records, json);
       }
@@ -154,50 +150,48 @@ DS.RESTAdapter = DS.Adapter.extend({
     store.didDeleteRecords(records);
   },
 
-  find: function(store, type, id) {
+  find: function(store, type, id, record) {
     var root = this.rootForType(type);
 
     this.ajax(this.buildURL(root, id), "GET", {
       success: function(json) {
-        this.sideload(store, type, json, root);
-        store.load(type, json[root]);
+        this.didFindRecord(store, type, record, json);
       }
     });
   },
 
-  findMany: function(store, type, ids) {
-    var root = this.rootForType(type), plural = this.pluralize(root);
+  didFindRecord: function(store, type, record, json) {
+    var root = this.rootForType(type);
 
-    this.ajax(this.buildURL(root), "GET", {
-      data: { ids: ids },
-      success: function(json) {
-        this.sideload(store, type, json, plural);
-        store.loadMany(type, json[plural]);
-      }
-    });
+    this.sideload(store, type, json, root);
+    store.didFindRecord(record, json[root]);
   },
 
-  findAll: function(store, type) {
-    var root = this.rootForType(type), plural = this.pluralize(root);
+  findMany: function(store, type, ids, recordArray) {
+    this.findQuery(store, type, { ids: ids }, recordArray);
+  },
 
-    this.ajax(this.buildURL(root), "GET", {
-      success: function(json) {
-        this.sideload(store, type, json, plural);
-        store.loadMany(type, json[plural]);
-      }
-    });
+  findAll: function(store, type, recordArray) {
+    this.findQuery(store, type, null, recordArray);
   },
 
   findQuery: function(store, type, query, recordArray) {
-    var root = this.rootForType(type), plural = this.pluralize(root);
+    var root = this.rootForType(type);
 
     this.ajax(this.buildURL(root), "GET", {
       data: query,
       success: function(json) {
-        this.sideload(store, type, json, plural);
-        recordArray.load(json[plural]);
+        this.didFindQuery(store, type, recordArray, json);
       }
     });
+  },
+
+  didFindQuery: function(store, type, recordArray, json) {
+    var root = this.rootForType(type),
+        plural = this.pluralize(root);
+
+    this.sideload(store, type, json, plural);
+    store.didFindQuery(recordArray, json[plural]);
   },
 
   // HELPERS

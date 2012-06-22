@@ -332,7 +332,7 @@ test("a Record Array can update its filter and notify array observers", function
   test("a Record Array can update its filter after server-side creates multiple records", function() {
     setup({
       createRecords: function(store, type, records) {
-        store.didCreateRecords(Person, records, [
+        store.didCreateRecords(records, [
           {id: 4, name: "Scumbag Server-side Mike"},
           {id: 5, name: "Scumbag Server-side David"}
         ]);

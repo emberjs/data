@@ -29,7 +29,7 @@ DS.ManyArray = DS.RecordArray.extend({
         store = get(this, 'store'),
         type = get(this, 'type');
 
-    store.fetchUnloadedClientIds(type, clientIds);
+    store.fetchUnloadedClientIds(type, clientIds, this);
   },
 
   // Overrides Ember.Array's replace method to implement

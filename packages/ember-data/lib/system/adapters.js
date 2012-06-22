@@ -117,9 +117,12 @@ DS.Adapter = Ember.Object.extend({
     }, this);
   },
 
-  findMany: function(store, type, ids) {
-    ids.forEach(function(id) {
-      this.find(store, type, id);
+  findMany: function(store, type, ids, manyArray) {
+    var clientIds = store.clientIdsForIds(type, ids);
+
+    ids.forEach(function(id, index) {
+      var record = store.findByClientId(type, clientIds[index], id);
+      this.find(store, type, id, record);
     }, this);
   }
 });
