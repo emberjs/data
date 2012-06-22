@@ -1,3 +1,7 @@
+// Version: v0.9.8.1-404-g010feb0
+// Last commit: 010feb0 (2012-06-21 14:36:53 -0400)
+
+
 (function() {
 /*global __fail__*/
 
@@ -149,6 +153,10 @@ window.ember_deprecateFunc  = Ember.deprecateFunc("ember_deprecateFunc is deprec
 
 })();
 
+// Version: v0.9.8.1-404-g010feb0
+// Last commit: 010feb0 (2012-06-21 14:36:53 -0400)
+
+
 (function() {
 // ==========================================================================
 // Project:  Ember Metal
@@ -158,10 +166,15 @@ window.ember_deprecateFunc  = Ember.deprecateFunc("ember_deprecateFunc is deprec
 /*globals Em:true ENV */
 
 if ('undefined' === typeof Ember) {
+  // Create core object. Make it act like an instance of Ember.Namespace so that
+  // objects assigned to it are given a sane string representation.
+  Ember = {};
+}
+
 /**
   @namespace
   @name Ember
-  @version 0.9.8.1
+  @version 1.0.pre
 
   All Ember methods and functions are defined inside of this namespace.
   You generally should not add new properties to this namespace as it may be
@@ -179,15 +192,9 @@ if ('undefined' === typeof Ember) {
   performance optimizations.
 */
 
-// Create core object. Make it act like an instance of Ember.Namespace so that
-// objects assigned to it are given a sane string representation.
-Ember = {};
-
 // aliases needed to keep minifiers from removing the global context
 if ('undefined' !== typeof window) {
   window.Em = window.Ember = Em = Ember;
-}
-
 }
 
 // Make sure these are set whether Ember was already defined or not
@@ -200,10 +207,10 @@ Ember.toString = function() { return "Ember"; };
 /**
   @static
   @type String
-  @default '0.9.8.1'
+  @default '1.0.pre'
   @constant
 */
-Ember.VERSION = '0.9.8.1';
+Ember.VERSION = '1.0.pre';
 
 /**
   @static
@@ -216,6 +223,7 @@ Ember.VERSION = '0.9.8.1';
 */
 Ember.ENV = 'undefined' === typeof ENV ? {} : ENV;
 
+Ember.config = Ember.config || {};
 
 // ..........................................................
 // BOOTSTRAP
@@ -1171,6 +1179,32 @@ Map.prototype = {
   }
 };
 
+var MapWithDefault = Ember.MapWithDefault = function(options) {
+  Map.call(this);
+  this.defaultValue = options.defaultValue;
+};
+
+MapWithDefault.create = function(options) {
+  if (options) {
+    return new MapWithDefault(options);
+  } else {
+    return new Map();
+  }
+};
+
+MapWithDefault.prototype = Ember.create(Map.prototype);
+
+MapWithDefault.prototype.get = function(key) {
+  var hasValue = this.has(key);
+
+  if (hasValue) {
+    return Map.prototype.get.call(this, key);
+  } else {
+    var defaultValue = this.defaultValue(key);
+    this.set(key, defaultValue);
+    return defaultValue;
+  }
+};
 
 })();
 
@@ -1304,6 +1338,12 @@ Ember.get = get;
   @returns {Object} the passed value.
 */
 Ember.set = set;
+
+if (Ember.config.overrideAccessors) {
+  Ember.config.overrideAccessors();
+  get = Ember.get;
+  set = Ember.set;
+}
 
 // ..........................................................
 // PATHS
@@ -8416,6 +8456,10 @@ CoreObject.PrototypeMixin = Ember.Mixin.create(
   }
 });
 
+if (Ember.config.overridePrototypeMixin) {
+  Ember.config.overridePrototypeMixin(CoreObject.PrototypeMixin);
+}
+
 CoreObject.__super__ = null;
 
 var ClassMixin = Ember.Mixin.create(
@@ -8532,6 +8576,10 @@ var ClassMixin = Ember.Mixin.create(
   }
 
 });
+
+if (Ember.config.overrideClassMixin) {
+  Ember.config.overrideClassMixin(ClassMixin);
+}
 
 CoreObject.ClassMixin = ClassMixin;
 ClassMixin.apply(CoreObject);
@@ -9380,8 +9428,8 @@ delegateDesc = Ember.computed(delegate).volatile();
 /**
   @class
 
-  `Ember.ObjectProxy` forwards all properties to a proxied `content`
-  object.
+  `Ember.ObjectProxy` forwards all properties not defined by the proxy itself
+  to a proxied `content` object.
 
       object = Ember.Object.create({
         name: 'Foo'
@@ -9399,13 +9447,37 @@ delegateDesc = Ember.computed(delegate).volatile();
       proxy.set('description', 'Foo is a whizboo baz');
       object.get('description') // => 'Foo is a whizboo baz'
 
-  While `content` is unset, new properties will be silently discarded.
+  While `content` is unset, setting a property to be delegated will throw an Error.
 
       proxy = Ember.ObjectProxy.create({
-        content: null
+        content: null,
+        flag: null
       });
-      proxy.set('blackHole', 'data');
-      proxy.get('blackHole') // => undefined
+      proxy.set('flag', true);
+      proxy.get('flag'); // => true
+      proxy.get('foo'); // => undefined
+      proxy.set('foo', 'data'); // throws Error
+
+  Delegated properties can be bound to and will change when content is updated.
+
+  Computed properties on the proxy itself can depend on delegated properties.
+
+      ProxyWithComputedProperty = Ember.ObjectProxy.extend({
+        fullName: function () {
+          var firstName = this.get('firstName'),
+              lastName = this.get('lastName');
+          if (firstName && lastName) {
+            return firstName + ' ' + lastName;
+          }
+          return firstName || lastName;
+        }.property('firstName', 'lastName')
+      });
+      proxy = ProxyWithComputedProperty.create();
+      proxy.get('fullName'); => undefined
+      proxy.set('content', {
+        firstName: 'Tom', lastName: 'Dale'
+      }); // triggers property change for fullName on proxy
+      proxy.get('fullName'); => 'Tom Dale'
 */
 Ember.ObjectProxy = Ember.Object.extend(
 /** @scope Ember.ObjectProxy.prototype */ {
@@ -9426,9 +9498,10 @@ Ember.ObjectProxy = Ember.Object.extend(
   /** @private */
   delegateSet: function (key, value) {
     var content = get(this, 'content');
-    if (content) {
-      return set(content, key, value);
+    if (!content) {
+      throw new Error('Unable to delegate set without content for property: ' + key);
     }
+    return set(content, key, value);
   },
   /** @private */
   willWatchProperty: function (key) {
@@ -10252,15 +10325,15 @@ Ember.Application = Ember.Namespace.extend(
 
     if (router) {
       set(this, 'router', router);
-    }
 
-    // By default, the router's namespace is the current application.
-    //
-    // This allows it to find model classes when a state has a
-    // route like `/posts/:post_id`. In that case, it would first
-    // convert `post_id` into `Post`, and then look it up on its
-    // namespace.
-    set(router, 'namespace', this);
+      // By default, the router's namespace is the current application.
+      //
+      // This allows it to find model classes when a state has a
+      // route like `/posts/:post_id`. In that case, it would first
+      // convert `post_id` into `Post`, and then look it up on its
+      // namespace.
+      set(router, 'namespace', this);
+    }
 
     Ember.runLoadHooks('application', this);
 
@@ -11216,7 +11289,6 @@ Ember.EventDispatcher = Ember.Object.extend(
 
       if (action.eventName === eventName) {
         evt.preventDefault();
-        evt.stopPropagation();
         return handler(evt);
       }
     });
@@ -11811,8 +11883,8 @@ var invokeForState = {
   by the event manager will still trigger method calls on the descendent.
 
       OuterView = Ember.View.extend({
+        template: Ember.Handlebars.compile("outer {{#view InnerView}}inner{{/view}} outer"),
         eventManager: Ember.Object.create({
-          template: Ember.Handlebars.compile("outer {{#view InnerView}}inner{{/view}} outer"),
           mouseEnter: function(event, view){
             // view might be instance of either
             // OutsideView or InnerView depending on
@@ -18469,10 +18541,10 @@ ActionHelper.registerAction = function(actionName, eventName, target, view, cont
       AView = Ember.View.extend({
         templateName; 'a-template',
         anActionName: function(event){}
-      })
+      });
 
-      aView = AView.create()
-      aView.appendTo('body')
+      aView = AView.create();
+      aView.appendTo('body');
 
   Will results in the following rendered HTML
 
@@ -18482,24 +18554,25 @@ ActionHelper.registerAction = function(actionName, eventName, target, view, cont
         </div>
       </div>
 
-  Clicking "click me" will trigger the `anActionName` method of the `aView` object with a 
-  `jQuery.Event` object as its argument. The `jQuery.Event` object will be extended to include
-  a `view` property that is set to the original view interacted with (in this case the `aView` object).
+  Clicking "click me" will trigger the `anActionName` method of the `aView`
+  object with a  `jQuery.Event` object as its argument. The `jQuery.Event`
+  object will be extended to include a `view` property that is set to the
+  original view interacted with (in this case the `aView` object).
 
   ### Event Propagation
 
   Events triggered through the action helper will automatically have
-  `.preventDefault()` and `.stopPropagation()` called on them. You do not need
-  to do so in your event handlers, and you do not need to return `false`.
+  `.preventDefault()` called on them. You do not need to do so in your event
+  handlers. To stop propagation of the event, simply return `false` from your
+  handler.
 
-  If you need the default handler to trigger, or if you need propagation,
-  you should either register your own event handler, or use event methods on
-  your view class.
+  If you need the default handler to trigger you should either register your
+  own event handler, or use event methods on your view class.
 
   ### Specifying an Action Target
 
-  A `target` option can be provided to change which object will receive the method call. This option must be
-  a string representing a path to an object:
+  A `target` option can be provided to change which object will receive the
+  method call. This option must be a string representing a path to an object:
 
       <script type="text/x-handlebars" data-template-name='a-template'>
         <div {{action "anActionName" target="MyApplication.someObject"}}>
@@ -18507,12 +18580,13 @@ ActionHelper.registerAction = function(actionName, eventName, target, view, cont
         </div>
       </script>
 
-  Clicking "click me" in the rendered HTML of the above template will trigger the 
-  `anActionName` method of the object at `MyApplication.someObject`.  The first argument 
-  to this method will be a `jQuery.Event` extended to include a `view` property that is 
-  set to the original view interacted with.
+  Clicking "click me" in the rendered HTML of the above template will trigger
+  the  `anActionName` method of the object at `MyApplication.someObject`.
+  The first argument to this method will be a `jQuery.Event` extended to
+  include a `view` property that is set to the original view interacted with.
 
-  A path relative to the template's `Ember.View` instance can also be used as a target:
+  A path relative to the template's `Ember.View` instance can also be used as
+  a target:
 
       <script type="text/x-handlebars" data-template-name='a-template'>
         <div {{action "anActionName" target="parentView"}}>
@@ -18520,16 +18594,16 @@ ActionHelper.registerAction = function(actionName, eventName, target, view, cont
         </div>
       </script>
 
-  Clicking "click me" in the rendered HTML of the above template will trigger the 
-  `anActionName` method of the view's parent view.
+  Clicking "click me" in the rendered HTML of the above template will trigger
+  the `anActionName` method of the view's parent view.
 
-  The `{{action}}` helper is `Ember.StateManager` aware. If the target of
-  the action is an `Ember.StateManager` instance `{{action}}` will use the `send`
-  functionality of StateManagers. The documentation for `Ember.StateManager` has additional
-  information about this use.
+  The `{{action}}` helper is `Ember.StateManager` aware. If the target of the
+  action is an `Ember.StateManager` instance `{{action}}` will use the `send`
+  functionality of StateManagers. The documentation for `Ember.StateManager`
+  has additional information about this use.
 
-  If an action's target does not implement a method that matches the supplied action name
-  an error will be thrown.
+  If an action's target does not implement a method that matches the supplied
+  action name an error will be thrown.
 
       <script type="text/x-handlebars" data-template-name='a-template'>
         <div {{action "aMethodNameThatIsMissing"}}>
@@ -18543,17 +18617,18 @@ ActionHelper.registerAction = function(actionName, eventName, target, view, cont
         templateName; 'a-template',
         // note: no method 'aMethodNameThatIsMissing'
         anActionName: function(event){}
-      })
+      });
 
-      aView = AView.create()
-      aView.appendTo('body')
+      aView = AView.create();
+      aView.appendTo('body');
 
-  Will throw `Uncaught TypeError: Cannot call method 'call' of undefined` when "click me" is clicked.
-
+  Will throw `Uncaught TypeError: Cannot call method 'call' of undefined` when
+  "click me" is clicked.
 
   ### Specifying DOM event type
-  By default the `{{action}}` helper registers for DOM `click` events. You can supply an
-  `on` option to the helper to specify a different DOM event name:
+
+  By default the `{{action}}` helper registers for DOM `click` events. You can
+  supply an `on` option to the helper to specify a different DOM event name:
 
       <script type="text/x-handlebars" data-template-name='a-template'>
         <div {{action "aMethodNameThatIsMissing" on="doubleClick"}}>
@@ -18563,15 +18638,17 @@ ActionHelper.registerAction = function(actionName, eventName, target, view, cont
 
   See `Ember.EventDispatcher` for a list of acceptable DOM event names.
 
-  Because `{{action}}` depends on Ember's event dispatch system it will only function if
-  an `Ember.EventDispatcher` instance is available. An `Ember.EventDispatcher` instance 
-  will be created when a new `Ember.Application` is created. Having an instance of
-  `Ember.Application` will satisfy this requirement.
+  Because `{{action}}` depends on Ember's event dispatch system it will only
+  function if an `Ember.EventDispatcher` instance is available. An
+  `Ember.EventDispatcher` instance will be created when a new
+  `Ember.Application` is created. Having an instance of `Ember.Application`
+  will satisfy this requirement.
 
   ### Specifying a context
-  By default the `{{action}}` helper passes the current Handlebars context along in the
-  `jQuery.Event` object. You may specify an alternative object to pass as the context by
-  providing a property path:
+
+  By default the `{{action}}` helper passes the current Handlebars context
+  along in the `jQuery.Event` object. You may specify an alternative object to
+  pass as the context by providing a property path:
 
       <script type="text/x-handlebars" data-template-name='a-template'>
         {{#each person in people}}
@@ -19529,6 +19606,10 @@ Ember.$(document).ready(
 // ==========================================================================
 
 })();
+
+// Version: v0.9.8.1-404-g010feb0
+// Last commit: 010feb0 (2012-06-21 14:36:53 -0400)
+
 
 (function() {
 // ==========================================================================

@@ -9,6 +9,9 @@
   <script type="text/javascript" src="minispade.js"></script>
 
   <script type="text/javascript">
+    // Tests should time out after 5 seconds
+    QUnit.config.testTimeout = 5000;
+
     // Handle JSHint
     QUnit.config.urlConfig.push('nojshint');
 
@@ -78,6 +81,82 @@
   </script>
 
   <script>
+    (function() {
+      window.Ember = { config: {} };
+
+      var syncForTest = function(fn) {
+        var callSuper;
+
+        if (typeof fn !== "function") { callSuper = true; }
+
+        return function() {
+          var override = false;
+          if (Ember.run && !Ember.run.currentRunloop) {
+            Ember.run.begin();
+            override = true;
+          }
+
+          if (callSuper) {
+            var ret = this._super.apply(this, arguments);
+          } else {
+            var ret = fn.apply(this, arguments);
+          }
+
+          if (override) {
+            Ember.run.end();
+          }
+
+          return ret;
+        }
+      }
+
+      Ember.config.overrideAccessors = function() {
+        Ember.set = syncForTest(Ember.set);
+        Ember.get = syncForTest(Ember.get);
+      };
+
+      Ember.config.overrideClassMixin = function(ClassMixin) {
+        ClassMixin.reopen({
+          create: syncForTest()
+        })
+      };
+
+      Ember.config.overridePrototypeMixin = function(PrototypeMixin) {
+        PrototypeMixin.reopen({
+          destroy: syncForTest()
+        })
+      };
+
+      minispade.register('ember-data/~test-setup', function() {
+        run = Ember.run;
+
+        Ember.View.reopen({
+          _insertElementLater: syncForTest()
+        });
+
+        DS.Store.reopen({
+          createRecord: syncForTest(),
+          deleteRecord: syncForTest(),
+          load: syncForTest(),
+          loadMany: syncForTest(),
+          didCreateRecord: syncForTest(),
+          didCreateRecords: syncForTest(),
+          didUpdateRecord: syncForTest(),
+          didUpdateRecords: syncForTest()
+        });
+
+        DS.Model.reopen({
+          deleteRecord: syncForTest()
+        });
+
+        DS.Transaction.reopen({
+          commit: syncForTest(),
+        });
+      });
+    })();
+  </script>
+
+  <script>
     document.write(unescape('%3Cscript src="../dist/modules/ember.js"%3E%3C/script%3E'));
   </script>
 
@@ -136,11 +215,6 @@
 
       len = packages.length;
 
-      // There is no require for this in the code
-      if (dist == 'spade') {
-        minispade.require('ember');
-      }
-
       for (idx=0; idx<len; idx++) {
         packageName = packages[idx];
         re = new RegExp('^'+packageName+'/([^/]+)');
@@ -148,6 +222,8 @@
         if (dist == 'spade') {
           minispade.require(packageName);
         }
+
+        minispade.require('ember-data/~test-setup');
 
         for (moduleName in minispade.modules) {
           if (!minispade.modules.hasOwnProperty(moduleName)) { continue; }
