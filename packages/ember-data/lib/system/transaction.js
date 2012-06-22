@@ -1,5 +1,5 @@
 var get = Ember.get, set = Ember.set, getPath = Ember.getPath, fmt = Ember.String.fmt,
-    removeObject = Ember.EnumerableUtils.removeObject;
+    removeObject = Ember.EnumerableUtils.removeObject, forEach = Ember.EnumerableUtils.forEach;
 
 /**
   A transaction allows you to collect multiple records into a unit of work
@@ -88,11 +88,11 @@ DS.Transaction = Ember.Object.extend({
   */
   init: function() {
     set(this, 'buckets', {
-      clean:    Ember.Map.create(),
-      created:  Ember.Map.create(),
-      updated:  Ember.Map.create(),
-      deleted:  Ember.Map.create(),
-      inflight: Ember.Map.create()
+      clean:    Ember.OrderedSet.create(),
+      created:  Ember.OrderedSet.create(),
+      updated:  Ember.OrderedSet.create(),
+      deleted:  Ember.OrderedSet.create(),
+      inflight: Ember.OrderedSet.create()
     });
 
     this.dirtyRelationships = {
@@ -147,30 +147,22 @@ DS.Transaction = Ember.Object.extend({
     moved back to the store's default transaction.
   */
   commit: function() {
-    var self = this,
-        iterate;
-
     var store = get(this, 'store');
     var adapter = get(store, '_adapter');
 
-    var bucketTypes = [ 'updated', 'created', 'deleted' ],
-        commitDetails = {}, bucketType, array;
-
-    var concat = function(type, records) {
-      array = array.concat(records.toArray());
-
-      records.forEach(function(record) {
+    var iterate = function(records) {
+      var array = records.toArray();
+      forEach(array, function(record) {
         record.send('willCommit');
       });
+      return array;
     };
 
-    for (var i=0; bucketType=bucketTypes[i]; i++) {
-      array = Ember.A();
-      var bucket = this.bucketForType(bucketType);
-
-      bucket.forEach(concat);
-      commitDetails[bucketType] = array;
-    }
+    var commitDetails = {
+      created: iterate(this.bucketForType('created')),
+      updated: iterate(this.bucketForType('updated')),
+      deleted: iterate(this.bucketForType('deleted'))
+    };
 
     this.removeCleanRecords();
 
@@ -200,13 +192,11 @@ DS.Transaction = Ember.Object.extend({
     // the record to roll back, it should also move itself out of
     // the dirty bucket and into the clean bucket.
     ['created', 'updated', 'deleted', 'inflight'].forEach(function(bucketType) {
-      dirty = this.bucketForType(bucketType);
-
-      dirty.forEach(function(type, records) {
-        records.forEach(function(record) {
-          record.send('rollback');
-        });
+      var records = this.bucketForType(bucketType);
+      forEach(records, function(record) {
+        record.send('rollback');
       });
+      records.clear();
     }, this);
 
     // Now that all records in the transaction are guaranteed to be
@@ -237,14 +227,11 @@ DS.Transaction = Ember.Object.extend({
     Removes all of the records in the transaction's clean bucket.
   */
   removeCleanRecords: function() {
-    var clean = this.bucketForType('clean'),
-        self = this;
-
-    clean.forEach(function(type, records) {
-      records.forEach(function(record) {
-        self.remove(record);
-      });
-    });
+    var clean = this.bucketForType('clean');
+    clean.forEach(function(record) {
+      this.remove(record);
+    }, this);
+    clean.clear();
   },
 
   /**
@@ -296,17 +283,7 @@ DS.Transaction = Ember.Object.extend({
     @param {String} bucketType one of `clean`, `created`, `updated`, or `deleted`
   */
   addToBucket: function(bucketType, record) {
-    var bucket = this.bucketForType(bucketType),
-        type = record.constructor;
-
-    var records = bucket.get(type);
-
-    if (!records) {
-      records = Ember.OrderedSet.create();
-      bucket.set(type, records);
-    }
-
-    records.add(record);
+    this.bucketForType(bucketType).add(record);
   },
 
   /**
@@ -317,11 +294,7 @@ DS.Transaction = Ember.Object.extend({
     @param {String} bucketType one of `clean`, `created`, `updated`, or `deleted`
   */
   removeFromBucket: function(bucketType, record) {
-    var bucket = this.bucketForType(bucketType),
-        type = record.constructor;
-
-    var records = bucket.get(type);
-    records.remove(record);
+    this.bucketForType(bucketType).remove(record);
   },
 
   /**
@@ -470,7 +443,6 @@ DS.Transaction = Ember.Object.extend({
   */
   recordBecameClean: function(kind, record) {
     this.removeFromBucket(kind, record);
-
     this.remove(record);
   }
 });

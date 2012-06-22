@@ -609,10 +609,8 @@ module("DS.Adapter - shouldCommit()", {
   },
 
   teardown: function() {
-    Ember.run(function() {
-      adapter.destroy();
-      store.destroy();
-    });
+    adapter.destroy();
+    store.destroy();
   }
 });
 
