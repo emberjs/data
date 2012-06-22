@@ -150,42 +150,27 @@ DS.Transaction = Ember.Object.extend({
     var self = this,
         iterate;
 
-    iterate = function(bucketType, fn, binding) {
-      var dirty = self.bucketForType(bucketType);
+    var store = get(this, 'store');
+    var adapter = get(store, '_adapter');
 
-      dirty.forEach(function(type, records) {
-        if (records.isEmpty()) { return; }
+    var bucketTypes = [ 'updated', 'created', 'deleted' ],
+        commitDetails = {}, bucketType, array;
 
-        var array = [];
+    var concat = function(type, records) {
+      array = array.concat(records.toArray());
 
-        records.forEach(function(record) {
-          record.send('willCommit');
-
-          if (get(record, 'isPending') === false) {
-            array.push(record);
-          }
-        });
-
-        fn.call(binding, type, array);
+      records.forEach(function(record) {
+        record.send('willCommit');
       });
     };
 
-    var commitDetails = {
-      updated: {
-        eachType: function(fn, binding) { iterate('updated', fn, binding); }
-      },
+    for (var i=0; bucketType=bucketTypes[i]; i++) {
+      array = Ember.A();
+      var bucket = this.bucketForType(bucketType);
 
-      created: {
-        eachType: function(fn, binding) { iterate('created', fn, binding); }
-      },
-
-      deleted: {
-        eachType: function(fn, binding) { iterate('deleted', fn, binding); }
-      }
-    };
-
-    var store = get(this, 'store');
-    var adapter = get(store, '_adapter');
+      bucket.forEach(concat);
+      commitDetails[bucketType] = array;
+    }
 
     this.removeCleanRecords();
 

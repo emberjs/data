@@ -85,16 +85,32 @@ DS.Adapter = Ember.Object.extend({
   */
   generateIdForRecord: null,
 
-  commit: function(store, commitDetails) {
-    commitDetails.updated.eachType(function(type, array) {
-      this.updateRecords(store, type, array.slice());
-    }, this);
+  shouldCommit: function(record, relationships) {
+    return true;
+  },
 
-    commitDetails.created.eachType(function(type, array) {
+  groupByType: function(enumerable) {
+    var map = Ember.MapWithDefault.create({
+      defaultValue: function() { return Ember.A(); }
+    });
+
+    enumerable.forEach(function(item) {
+      map.get(item.constructor).pushObject(item);
+    });
+
+    return map;
+  },
+
+  commit: function(store, commitDetails) {
+    this.groupByType(commitDetails.created).forEach(function(type, array) {
       this.createRecords(store, type, array.slice());
     }, this);
 
-    commitDetails.deleted.eachType(function(type, array) {
+    this.groupByType(commitDetails.updated).forEach(function(type, array) {
+      this.updateRecords(store, type, array.slice());
+    }, this);
+
+    this.groupByType(commitDetails.deleted).forEach(function(type, array) {
       this.deleteRecords(store, type, array.slice());
     }, this);
   },

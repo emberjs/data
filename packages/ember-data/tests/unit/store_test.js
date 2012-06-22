@@ -587,3 +587,83 @@ test("an ID of 0 is allowed", function() {
   store.load(Person, { id: 0, name: "Tom Dale" });
   equal(store.findAll(Person).objectAt(0).get('name'), "Tom Dale", "found record with id 0");
 });
+
+var store, adapter, shouldCommit, commit;
+
+module("DS.Adapter - shouldCommit()", {
+  setup: function() {
+    shouldCommit = commit = null;
+
+    adapter = DS.Adapter.create({
+      shouldCommit: function() {
+        if (shouldCommit) { shouldCommit.apply(this, arguments); }
+      },
+
+      commit: function() {
+        if (commit) { commit.apply(this, arguments); }
+      }
+    });
+    store = DS.Store.create({
+      adapter: adapter
+    });
+  },
+
+  teardown: function() {
+    Ember.run(function() {
+      adapter.destroy();
+      store.destroy();
+    });
+  }
+});
+
+var async = function(callback, timeout) {
+  stop();
+
+  timeout = setTimeout(function() {
+    start();
+    ok(false, "Timeout was reached");
+  }, timeout || 100);
+
+  return function() {
+    clearTimeout(timeout);
+
+    start();
+    callback();
+  };
+};
+
+var Post = DS.Model.extend({
+  title: DS.attr('string'),
+  body: DS.attr('string')
+});
+
+var Comment = DS.Model.extend({
+  body: DS.attr('string'),
+  post: DS.belongsTo(Post)
+});
+
+Post.reopen({
+  comments: DS.hasMany(Comment)
+});
+
+test("A dirty record is passed to shouldCommit", function() {
+  shouldCommit = async(function(record, relationships) {
+    equal(record, post);
+    deepEqual(relationships.whereChild, null);
+    deepEqual(relationships.whereNewParent, null);
+    deepEqual(relationships.whereOldParent, null);
+  });
+
+  store.load(Post, { id: 1, title: "ZOMG", body: "FIRST!" });
+  var post = store.find(Post, 1);
+  post.set('title', "WATMAN");
+  store.commit();
+});
+
+test("A new record is passed to shouldCommit", function() { });
+
+test("A deleted record is passed to shouldCommit", function() { });
+
+test("A clean record that has been moved is passed to shouldCommit", function() { });
+
+test("A dirty record that has been moved is passed to shouldCommit", function() { });

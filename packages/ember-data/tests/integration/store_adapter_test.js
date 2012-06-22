@@ -226,7 +226,7 @@ test("when a store is committed, the adapter's commit method is called with upda
   expect(2);
 
   adapter.commit = function(store, records) {
-    records.updated.eachType(function(type, array) {
+    this.groupByType(records.updated).forEach(function(type, array) {
       equal(type, Person, "the type is correct");
       equal(get(array, 'length'), 1, "the array is the right length");
       store.didUpdateRecords(array);
@@ -240,7 +240,7 @@ test("when a store is committed, the adapter's commit method is called with upda
 
   store.commit();
 
-  // there is nothing to commit, so eachType won't do anything
+  // there is nothing to commit, so there won't be any records
   store.commit();
 });
 
@@ -248,11 +248,11 @@ test("when a store is committed, the adapter's commit method is called with crea
   expect(3);
 
   adapter.commit = function(store, records) {
-    records.updated.eachType(function() {
+    this.groupByType(records.updated).forEach(function() {
       ok(false, "updated should not be populated");
     });
 
-    records.created.eachType(function(type, array) {
+    this.groupByType(records.created).forEach(function(type, array) {
       equal(type, Person, "the type is correct");
       equal(get(array, 'length'), 1, "the array is the right length");
       store.didCreateRecords(Person, array, [{ id: 1, name: "Tom Dale" }]);
@@ -272,15 +272,15 @@ test("when a store is committed, the adapter's commit method is called with dele
   expect(3);
 
   adapter.commit = function(store, records) {
-    records.updated.eachType(function() {
+    this.groupByType(records.updated).forEach(function() {
       ok(false, "updated should not be populated");
     });
 
-    records.created.eachType(function() {
+    this.groupByType(records.created).forEach(function() {
       ok(false, "updated should not be populated");
     });
 
-    records.deleted.eachType(function(type, array) {
+    this.groupByType(records.deleted).forEach(function(type, array) {
       equal(type, Person, "the type is correct");
       equal(get(array, 'length'), 1, "the array is the right length");
       store.didDeleteRecords(array);
@@ -355,7 +355,7 @@ test("by default, commit calls updateRecords once per type", function() {
 
   equal(get(store.find(Person, 2), "name"), "Yehuda Katz", "record was updated");
 
-  // there is nothing to commit, so eachType won't do anything
+  // there is nothing to commit, so there won't be any records
   store.commit();
 });
 
@@ -388,7 +388,7 @@ test("updateRecords can return an array of Hashes to update the store with", fun
   equal(get(store.find(Person, 1), "name"), "Tom Dale", "record was updated");
   equal(get(store.find(Person, 2), "name"), "Yehuda Katz", "record was updated");
 
-  // there is nothing to commit, so eachType won't do anything
+  // there is nothing to commit, so there won't be any records
   store.commit();
 });
 
@@ -414,7 +414,7 @@ test("by default, commit calls deleteRecords once per type", function() {
   ok(get(tom, 'isDeleted'), "record is marked as deleted");
   ok(!get(tom, 'isDirty'), "record is marked as not being dirty");
 
-  // there is nothing to commit, so eachType won't do anything
+  // there is nothing to commit, so there won't be any records
   store.commit();
 });
 
@@ -489,7 +489,7 @@ test("by default, updateRecords calls updateRecord once per record", function() 
 
   store.commit();
 
-  // there is nothing to commit, so eachType won't do anything
+  // there is nothing to commit, so there won't be any records
   store.commit();
 });
 
@@ -529,7 +529,7 @@ test("calling store.didUpdateRecord can provide an optional hash", function() {
 
   store.commit();
 
-  // there is nothing to commit, so eachType won't do anything
+  // there is nothing to commit, so there won't be any records
   store.commit();
 });
 
@@ -564,7 +564,7 @@ test("by default, deleteRecords calls deleteRecord once per record", function() 
   yehuda.deleteRecord();
   store.commit();
 
-  // there is nothing to commit, so eachType won't do anything
+  // there is nothing to commit, so there won't be any records
   store.commit();
 });
 
