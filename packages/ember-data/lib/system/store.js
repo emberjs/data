@@ -472,7 +472,7 @@ DS.Store = Ember.Object.extend({
   },
 
   findQuery: function(type, query) {
-    var array = DS.AdapterPopulatedRecordArray.create({ type: type, content: Ember.A([]), store: this });
+    var array = DS.AdapterPopulatedRecordArray.create({ type: type, content: Ember.A([]), store: this, query: query });
     var adapter = get(this, '_adapter');
     if (adapter && adapter.findQuery) { adapter.findQuery(this, type, query, array); }
     else { throw fmt("Adapter is either null or does not implement `findQuery` method", this); }
@@ -480,20 +480,7 @@ DS.Store = Ember.Object.extend({
   },
 
   findAll: function(type) {
-
-    var typeMap = this.typeMapFor(type),
-        findAllCache = typeMap.findAllCache;
-
-    if (findAllCache) { return findAllCache; }
-
-    var array = DS.RecordArray.create({ type: type, content: Ember.A([]), store: this });
-    this.registerRecordArray(array, type);
-
-    var adapter = get(this, '_adapter');
-    if (adapter && adapter.findAll) { adapter.findAll(this, type); }
-
-    typeMap.findAllCache = array;
-    return array;
+    return this.findQuery(type, null);
   },
 
   all: function(type) {

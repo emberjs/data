@@ -149,12 +149,14 @@ test("when many records are requested with query parameters, the adapter's findQ
 });
 
 test("when all records for a type are requested, the adapter's findAll method is called", function() {
-  expect(2);
+  expect(3);
 
   var count = 0;
 
-  adapter.findAll = function(store, type) {
+  adapter.findQuery = function(store, type, query, array) {
     count++;
+
+    equal(query, null, "query should be null");
 
     if (count === 1) {
       stop();
@@ -162,10 +164,10 @@ test("when all records for a type are requested, the adapter's findAll method is
       setTimeout(function() {
         start();
 
-        store.load(type, { id: 1, name: "Braaaahm Dale" });
+        array.load([{ id: 1, name: "Braaaahm Dale" }]);
         equal(get(array, 'length'), 1, "The array is now 1 length");
 
-        store.findAll(Person);
+        store.all(Person);
       }, 100);
     } else {
       ok(false, "Should not get here");

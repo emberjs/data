@@ -177,17 +177,6 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
-  findAll: function(store, type) {
-    var root = this.rootForType(type), plural = this.pluralize(root);
-
-    this.ajax(this.buildURL(root), "GET", {
-      success: function(json) {
-        this.sideload(store, type, json, plural);
-        store.loadMany(type, json[plural]);
-      }
-    });
-  },
-
   findQuery: function(store, type, query, recordArray) {
     var root = this.rootForType(type), plural = this.pluralize(root);
 
