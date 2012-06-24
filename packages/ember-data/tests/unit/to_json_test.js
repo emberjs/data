@@ -296,3 +296,25 @@ test("custom belongsTo keys are applied", function() {
   equal(json.related_id, 1, "applied standard key to JSON");
   equal(json.my_custom_key, 1, "applied custom key to JSON");
 });
+
+test("toJSON respects readOnly meta", function() {
+  var store = DS.Store.create();
+
+  var Model = DS.Model.extend({
+    name: DS.attr('string'),
+    readOnlyName: DS.attr('string', {readOnly: true})
+  });
+
+  store.load(Model, {
+    id: 1,
+    name: "John Doe",
+    readOnlyName: 'Jane Doe'
+  });
+
+  var record = store.find(Model, 1);
+
+  var json = record.toJSON();
+
+  equal(json.name, "John Doe", "serialized attribute correctly");
+  ok(!json.hasOwnProperty('readOnlyName'), "ignored readOnly attribute");
+});

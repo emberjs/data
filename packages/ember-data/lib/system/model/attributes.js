@@ -37,6 +37,22 @@ function getAttr(record, options, key) {
   return value;
 }
 
+  /**
+    Defines an attribute on a DS.Model of a specified type.
+    By default, data ships with four attribute types:
+      'string', 'number', 'boolean' and 'date'.
+    You can define your own transform by appending to DS.attr.transforms.
+
+    DS.attr takes an optional hash as a second parameter, currently
+    supported options are:
+      'defaultValue': Sets the attribute to a default if none is supplied by the user.
+      'key': Use a custom key in the JSON.
+      'readOnly': Do not include this attribute in the JSON representation.
+
+    @param {String} type the attribute type
+    @param {Object} options a hash of options
+  */
+
 DS.attr = function(type, options) {
   var transform = DS.attr.transforms[type];
   Ember.assert("Could not find model attribute of type " + type, !!transform);
