@@ -34,7 +34,9 @@ test("if a record is added to another record's hasMany association, it receives 
   get(parentRecord, 'comments').pushObject(childRecord);
   equal(get(childRecord, 'comment'), parentRecord);
 
-  var json = childRecord.toJSON();
+  var json = adapter.toJSON(childRecord, {
+    includeForeignKeys: true
+  });
 
   equal(json.comment_id, 1);
 });
@@ -45,7 +47,7 @@ test("if a record has a foreign key when loaded, it is included in the toJSON ou
 
   var childRecord = store.find(Comment, 2);
 
-  var json = childRecord.toJSON();
+  var json = adapter.toJSON(childRecord, { includeForeignKeys: true });
 
   equal(json.comment_id, 1);
 });
@@ -85,7 +87,7 @@ test("it can specify a naming convention", function() {
   ok(otherModelRecord, "precond - finds loaded OtherModel");
   equal(get(tom, 'otherModel'), otherModelRecord, "materializes correct record when retrieving belongsTo association");
 
-  deepEqual(tom.toJSON(), {
+  deepEqual(adapter.toJSON(tom, { includeForeignKeys: true, namingConvention: convention }), {
     id: 1,
     first_name: "Tom",
     lastName: "Dale",
@@ -291,7 +293,9 @@ test("custom belongsTo keys are applied", function() {
   var record = store.find(Model, 1);
   record.set('related_custom', store.find(RelatedModel, 1));
 
-  var json = record.toJSON();
+  var json = adapter.toJSON(record, {
+    includeForeignKeys: true
+  });
 
   equal(json.related_id, 1, "applied standard key to JSON");
   equal(json.my_custom_key, 1, "applied custom key to JSON");

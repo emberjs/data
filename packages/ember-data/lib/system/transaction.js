@@ -79,6 +79,8 @@ var get = Ember.get, set = Ember.set, getPath = Ember.getPath, fmt = Ember.Strin
   calling commit.
 */
 
+var arrayDefault = function() { return []; };
+
 DS.Transaction = Ember.Object.extend({
   /**
     @private
@@ -96,9 +98,9 @@ DS.Transaction = Ember.Object.extend({
     });
 
     this.dirtyRelationships = {
-      byChild: Ember.Map.create(),
-      byNewParent: Ember.Map.create(),
-      byOldParent: Ember.Map.create()
+      byChild: Ember.MapWithDefault.create({ defaultValue: arrayDefault }),
+      byNewParent: Ember.MapWithDefault.create({ defaultValue: arrayDefault }),
+      byOldParent: Ember.MapWithDefault.create({ defaultValue: arrayDefault }),
     };
   },
 
@@ -149,6 +151,7 @@ DS.Transaction = Ember.Object.extend({
   commit: function() {
     var store = get(this, 'store');
     var adapter = get(store, '_adapter');
+    var relationships = get(this, 'dirtyRelationships');
 
     var iterate = function(records) {
       var array = records.toArray();
@@ -158,15 +161,35 @@ DS.Transaction = Ember.Object.extend({
       return array;
     };
 
+    var byChild = relationships.byChild,
+        byOldParent = relationships.byOldParent,
+        byNewParent = relationships.byNewParent;
+
+    // If a record is part of a dirty relationship, it should be
+    // included together with the updated elements.
+    var extra = [];
+    this.bucketForType('clean').forEach(function(record) {
+      if (byChild.get(record).length || byOldParent.get(record).length || byNewParent.get(record).length) {
+        record.send('willCommit');
+        extra.push(record);
+      }
+    });
+
     var commitDetails = {
       created: iterate(this.bucketForType('created')),
-      updated: iterate(this.bucketForType('updated')),
+      updated: iterate(this.bucketForType('updated')).concat(extra),
       deleted: iterate(this.bucketForType('deleted'))
+    };
+
+    relationships = {
+      byChild: byChild.copy(),
+      byOldParent: byOldParent.copy(),
+      byNewParent: byNewParent.copy()
     };
 
     this.removeCleanRecords();
 
-    if (adapter && adapter.commit) { adapter.commit(store, commitDetails); }
+    if (adapter && adapter.commit) { adapter.commit(store, commitDetails, relationships); }
     else { throw fmt("Adapter is either null or does not implement `commit` method", this); }
   },
 
@@ -393,15 +416,7 @@ DS.Transaction = Ember.Object.extend({
 
   addRelationshipTo: function(type, record, description) {
     var map = this.dirtyRelationships[type];
-
-    var relationships = map.get(record);
-
-    if (!relationships) {
-      relationships = [ description ];
-      map.set(record, relationships);
-    } else {
-      relationships.push(description);
-    }
+    map.get(record).push(description);
   },
 
   /**

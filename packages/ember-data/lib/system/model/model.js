@@ -139,16 +139,16 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @param {Object} meta information about the association
     @param {Object} options options passed to `toJSON`
   */
-  addBelongsToToJSON: function(json, data, meta, options) {
+  addBelongsToToJSON: function(json, meta, options) {
     var key = meta.key, value, id;
 
     if (meta.options.embedded) {
       key = meta.options.key || get(this, 'namingConvention').keyToJSONKey(key);
-      value = get(data.record, key);
+      value = get(this, key);
       json[key] = value ? value.toJSON(options) : null;
     } else {
-      key = meta.options.key || get(this, 'namingConvention').foreignKey(key);
-      id = data.get(key);
+      key = meta.options.key || options.namingConvention.foreignKey(key);
+      id = get(get(this, meta.key), 'id');
       json[key] = none(id) ? null : id;
     }
   },
@@ -158,6 +158,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     attributes or associations (such as `embedded` or `key`).
   */
   toJSON: function(options) {
+    options = options || {};
+
     var data = get(this, 'data'),
         result = {},
         type = this.constructor,
@@ -165,9 +167,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
         primaryKey = get(this, 'primaryKey'),
         id = get(this, 'id'),
         store = get(this, 'store'),
+        includeForeignKeys = options.includeForeignKeys,
         associations;
-
-    options = options || {};
 
     // delegate to `addIdToJSON` callback
     this.addIdToJSON(result, id, primaryKey);
@@ -182,8 +183,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     associations.forEach(function(key, meta) {
       if (options.associations && meta.kind === 'hasMany') {
         this.addHasManyToJSON(result, data, meta, options);
-      } else if (meta.kind === 'belongsTo') {
-        this.addBelongsToToJSON(result, data, meta, options);
+      } else if (meta.kind === 'belongsTo' && includeForeignKeys) {
+        this.addBelongsToToJSON(result, meta, options);
       }
     }, this);
 
@@ -297,8 +298,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
         if (cachedValue) {
           var key = association.options.key || get(this, 'namingConvention').keyToJSONKey(name),
               ids = data.get(key) || [];
-          
-          var clientIds;   
+
+          var clientIds;
           if(association.options.embedded) {
             clientIds = store.loadMany(association.type, ids).clientIds;
           } else {
@@ -306,7 +307,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
               return store.clientIdForId(association.type, id);
             });
           }
-          
+
           set(cachedValue, 'content', Ember.A(clientIds));
           cachedValue.fetch();
         }

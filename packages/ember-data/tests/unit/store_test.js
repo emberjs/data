@@ -614,22 +614,6 @@ module("DS.Adapter - shouldCommit()", {
   }
 });
 
-var async = function(callback, timeout) {
-  stop();
-
-  timeout = setTimeout(function() {
-    start();
-    ok(false, "Timeout was reached");
-  }, timeout || 100);
-
-  return function() {
-    clearTimeout(timeout);
-
-    start();
-    callback();
-  };
-};
-
 var Post = DS.Model.extend({
   title: DS.attr('string'),
   body: DS.attr('string')

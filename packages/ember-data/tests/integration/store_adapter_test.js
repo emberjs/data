@@ -217,7 +217,12 @@ test("if an adapter implements the generateIdForRecord method, it gets invoked w
 
   set(comment, 'post', post);
 
-  equal(comment.toJSON().post_id, "id-2", "assigned id is immediately available in JSON form of record");
+  equal(comment.toJSON({
+    namingConvention: {
+      foreignKey: function(key) { return key + '_id'; }
+    },
+    includeForeignKeys: true
+  }).post_id, "id-2", "assigned id is immediately available in JSON form of record");
 
   store.commit();
 });

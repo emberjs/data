@@ -115,11 +115,8 @@ test("if an association's added and removed records are persisted, its isDirty i
 
   equal(get(people, 'isDirty'), true, "the association becomes dirty after a record is added and a record is removed");
 
-  equal(get(person3, 'isDirty'), true, "precond - person 3 is dirty");
-
   store.commit();
 
-  equal(get(person3, 'isDirty'), false, "precond - person 3 is clean");
   equal(get(people, 'isDirty'), false, "the association becomes clean after records are committed");
 });
 

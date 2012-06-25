@@ -85,6 +85,23 @@ DS.Adapter = Ember.Object.extend({
   */
   generateIdForRecord: null,
 
+  namingConvention: {
+    keyToJSONKey: function(key) {
+      // TODO: Strip off `is` from the front. Example: `isHipster` becomes `hipster`
+      return Ember.String.decamelize(key);
+    },
+
+    foreignKey: function(key) {
+      return Ember.String.decamelize(key) + '_id';
+    }
+  },
+
+  toJSON: function(record, options) {
+    options = options || {};
+    options.namingConvention = options.namingConvention || this.namingConvention;
+    return record.toJSON(options);
+  },
+
   shouldCommit: function(record, relationships) {
     return true;
   },
@@ -101,12 +118,34 @@ DS.Adapter = Ember.Object.extend({
     return map;
   },
 
-  commit: function(store, commitDetails) {
+  commit: function(store, commitDetails, relationships) {
+    // nº1: determine which records the adapter actually l'cares about
+    // nº2: for each relationship, give the adapter an opportunity to mark
+    //      related records as l'pending
+    // nº3: trigger l'save on l'non-pending records
+
+    var updated = Ember.A();
+    commitDetails.updated.forEach(function(record) {
+      var shouldCommit;
+
+      if (!record.get('isDirty')) {
+        shouldCommit = this.shouldCommit(record, relationships);
+
+        if (!shouldCommit) {
+          store.didUpdateRecord(record);
+        } else {
+          updated.pushObject(record);
+        }
+      } else {
+        updated.pushObject(record);
+      }
+    }, this);
+
     this.groupByType(commitDetails.created).forEach(function(type, array) {
       this.createRecords(store, type, array.slice());
     }, this);
 
-    this.groupByType(commitDetails.updated).forEach(function(type, array) {
+    this.groupByType(updated).forEach(function(type, array) {
       this.updateRecords(store, type, array.slice());
     }, this);
 

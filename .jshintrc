@@ -22,8 +22,8 @@
         "strictEqual",
         "module",
         "expect",
-        "async",
-        "minispade"
+        "minispade",
+        "async"
     ],
 
     "node" : false,

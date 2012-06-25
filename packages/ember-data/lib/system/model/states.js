@@ -709,6 +709,10 @@ var states = {
           manager.goToState('deleted');
         },
 
+        willCommit: function(manager) {
+          manager.goToState('relationshipsInFlight');
+        },
+
         waitingOn: function(manager, object) {
           waitingOn(manager, object);
           manager.goToState('updated.pending');
@@ -721,6 +725,32 @@ var states = {
           } else {
             record.trigger('didUpdate', record);
           }
+        }
+      }),
+
+      relationshipsInFlight: Ember.State.create({
+        // TRANSITIONS
+        enter: function(manager) {
+          var record = get(manager, 'record');
+
+          record.withTransaction(function (t) {
+            t.recordBecameInFlight('clean', record);
+          });
+        },
+
+        // EVENTS
+        didSaveData: Ember.K,
+
+        didCommit: function(manager) {
+          var record = get(manager, 'record');
+
+          record.withTransaction(function(t) {
+            t.recordBecameClean('inflight', record);
+          });
+
+          manager.goToState('saved');
+
+          manager.send('invokeLifecycleCallbacks');
         }
       }),
 
