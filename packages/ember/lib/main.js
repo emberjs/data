@@ -1,5 +1,5 @@
-// Version: v0.9.8.1-404-g010feb0
-// Last commit: 010feb0 (2012-06-21 14:36:53 -0400)
+// Version: v0.9.8.1-428-g857a614
+// Last commit: 857a614 (2012-06-25 15:25:18 -0400)
 
 
 (function() {
@@ -16,22 +16,12 @@ if ('undefined' === typeof Ember) {
 /**
   Define an assertion that will throw an exception if the condition is not
   met.  Ember build tools will remove any calls to Ember.assert() when
-  doing a production build.
+  doing a production build. Example:
 
-  ## Examples
-
-      #js:
-
-      // pass a simple Boolean value
-      Ember.assert('must pass a valid object', !!obj);
-
-      // pass a function.  If the function returns false the assertion fails
-      // any other return value (including void) will pass.
-      Ember.assert('a passed record must have a firstName', function() {
-        if (obj instanceof Ember.Record) {
-          return !Ember.empty(obj.firstName);
-        }
-      });
+      // Test for truthiness
+      Ember.assert('Must pass a valid object', obj);
+      // Fail unconditionally
+      Ember.assert('This code path should never be run')
 
   @static
   @function
@@ -40,12 +30,10 @@ if ('undefined' === typeof Ember) {
     thrown if the assertion fails.
 
   @param {Boolean} test
-    Must return true for the assertion to pass.  If you pass a function it
-    will be executed.  If the function returns false an exception will be
+    Must be truthy for the assertion to pass. If falsy, an exception will be
     thrown.
 */
 Ember.assert = function(desc, test) {
-  if ('function' === typeof test) test = test()!==false;
   if (!test) throw new Error("assertion failed: "+desc);
 };
 
@@ -60,12 +48,9 @@ Ember.assert = function(desc, test) {
     A warning to display.
 
   @param {Boolean} test
-    An optional boolean or function. If the test returns false, the warning
-    will be displayed.
+    An optional boolean. If falsy, the warning will be displayed.
 */
 Ember.warn = function(message, test) {
-  if (arguments.length === 1) { test = false; }
-  if ('function' === typeof test) test = test()!==false;
   if (!test) {
     Ember.Logger.warn("WARNING: "+message);
     if ('trace' in Ember.Logger) Ember.Logger.trace();
@@ -83,14 +68,12 @@ Ember.warn = function(message, test) {
     A description of the deprecation.
 
   @param {Boolean} test
-    An optional boolean or function. If the test returns false, the deprecation
-    will be displayed.
+    An optional boolean. If falsy, the deprecation will be displayed.
 */
 Ember.deprecate = function(message, test) {
   if (Ember && Ember.TESTING_DEPRECATION) { return; }
 
   if (arguments.length === 1) { test = false; }
-  if ('function' === typeof test) { test = test()!==false; }
   if (test) { return; }
 
   if (Ember && Ember.ENV.RAISE_ON_DEPRECATION) { throw new Error(message); }
@@ -153,8 +136,8 @@ window.ember_deprecateFunc  = Ember.deprecateFunc("ember_deprecateFunc is deprec
 
 })();
 
-// Version: v0.9.8.1-404-g010feb0
-// Last commit: 010feb0 (2012-06-21 14:36:53 -0400)
+// Version: v0.9.8.1-449-ge271aff
+// Last commit: e271aff (2012-06-26 08:56:41 -0700)
 
 
 (function() {
@@ -811,7 +794,6 @@ Ember.meta = function meta(obj, writable) {
       descs: {},
       watching: {},
       values: {},
-      lastSetValues: {},
       cache:  {},
       source: obj
     });
@@ -824,7 +806,6 @@ Ember.meta = function meta(obj, writable) {
     ret.descs    = o_create(ret.descs);
     ret.values   = o_create(ret.values);
     ret.watching = o_create(ret.watching);
-    ret.lastSetValues = {};
     ret.cache    = {};
     ret.source   = obj;
 
@@ -1005,6 +986,26 @@ Ember.makeArray = function(obj) {
 var guidFor = Ember.guidFor,
     indexOf = Ember.ArrayPolyfills.indexOf;
 
+var copy = function(obj) {
+  var output = {};
+
+  for (var prop in obj) {
+    if (obj.hasOwnProperty(prop)) { output[prop] = obj[prop]; }
+  }
+
+  return output;
+};
+
+var copyMap = function(original, newObject) {
+  var keys = original.keys.copy(),
+      values = copy(original.values);
+
+  newObject.keys = keys;
+  newObject.values = values;
+
+  return newObject;
+};
+
 // This class is used internally by Ember.js and Ember Data.
 // Please do not use it at this time. We plan to clean it up
 // and add many tests soon.
@@ -1061,6 +1062,15 @@ OrderedSet.prototype = {
 
   toArray: function() {
     return this.list.slice();
+  },
+
+  copy: function() {
+    var set = new OrderedSet();
+
+    set.presenceSet = copy(this.presenceSet);
+    set.list = this.list.slice();
+
+    return set;
   }
 };
 
@@ -1176,6 +1186,10 @@ Map.prototype = {
       var guid = guidFor(key);
       callback.call(self, key, values[guid]);
     });
+  },
+
+  copy: function() {
+    return copyMap(this, new Map());
   }
 };
 
@@ -1204,6 +1218,12 @@ MapWithDefault.prototype.get = function(key) {
     this.set(key, defaultValue);
     return defaultValue;
   }
+};
+
+MapWithDefault.prototype.copy = function() {
+  return copyMap(this, new MapWithDefault({
+    defaultValue: this.defaultValue
+  }));
 };
 
 })();
@@ -5998,9 +6018,11 @@ function xform(target, method, params) {
   libraries by implementing only methods that mostly correspond to the
   JavaScript 1.8 API.
 
+  @extends Ember.Mixin
   @since Ember 0.9
 */
-Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
+Ember.Enumerable = Ember.Mixin.create(
+  /** @scope Ember.Enumerable.prototype */ {
 
   /** @private - compatibility */
   isEnumerable: true,
@@ -6031,9 +6053,9 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
     The default implementation of this method simply looks up the index.
     This works great on any Array-like objects.
 
-    @param index {Number} the current index of the iteration
-    @param previousObject {Object} the value returned by the last call to nextObject.
-    @param context {Object} a context object you can use to maintain state.
+    @param {Number} index the current index of the iteration
+    @param {Object} previousObject the value returned by the last call to nextObject.
+    @param {Object} context a context object you can use to maintain state.
     @returns {Object} the next object in the iteration or undefined
   */
   nextObject: Ember.required(Function),
@@ -6128,7 +6150,7 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
     to give your iterator function access to the current object.
 
     @param {Function} callback The callback to execute
-    @param {Object} target The target object to use
+    @param {Object} [target] The target object to use
     @returns {Object} receiver
   */
   forEach: function(callback, target) {
@@ -6150,7 +6172,7 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
   /**
     Alias for mapProperty
 
-    @params key {String} name of the property
+    @param {String} key name of the property
     @returns {Array} The mapped array.
   */
   getEach: function(key) {
@@ -6193,7 +6215,7 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
     to give your iterator function access to the current object.
 
     @param {Function} callback The callback to execute
-    @param {Object} target The target object to use
+    @param {Object} [target] The target object to use
     @returns {Array} The mapped array.
   */
   map: function(callback, target) {
@@ -6208,7 +6230,7 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
     Similar to map, this specialized function returns the value of the named
     property on all items in the enumeration.
 
-    @params key {String} name of the property
+    @param {String} key name of the property
     @returns {Array} The mapped array.
   */
   mapProperty: function(key) {
@@ -6238,7 +6260,7 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
     to give your iterator function access to the current object.
 
     @param {Function} callback The callback to execute
-    @param {Object} target The target object to use
+    @param {Object} [target] The target object to use
     @returns {Array} A filtered array.
   */
   filter: function(callback, target) {
@@ -6254,8 +6276,8 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
     can pass an optional second argument with the target value.  Otherwise
     this will match any property that evaluates to true.
 
-    @params key {String} the property to test
-    @param value {String} optional value to test against.
+    @param {String} key the property to test
+    @param {String} [value] optional value to test against.
     @returns {Array} filtered array
   */
   filterProperty: function(key, value) {
@@ -6283,7 +6305,7 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
     to give your iterator function access to the current object.
 
     @param {Function} callback The callback to execute
-    @param {Object} target The target object to use
+    @param {Object} [target] The target object to use
     @returns {Object} Found item or null.
   */
   find: function(callback, target) {
@@ -6309,8 +6331,8 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
 
     This method works much like the more generic find() method.
 
-    @params key {String} the property to test
-    @param value {String} optional value to test against.
+    @param {String} key the property to test
+    @param {String} [value] optional value to test against.
     @returns {Object} found item or null
   */
   findProperty: function(key, value) {
@@ -6341,7 +6363,7 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
           if (people.every(isEngineer)) { Paychecks.addBigBonus(); }
 
     @param {Function} callback The callback to execute
-    @param {Object} target The target object to use
+    @param {Object} [target] The target object to use
     @returns {Boolean}
   */
   every: function(callback, target) {
@@ -6354,8 +6376,8 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
     Returns true if the passed property resolves to true for all items in the
     enumerable.  This method is often simpler/faster than using a callback.
 
-    @params key {String} the property to test
-    @param value {String} optional value to test against.
+    @param {String} key the property to test
+    @param {String} [value] optional value to test against.
     @returns {Array} filtered array
   */
   everyProperty: function(key, value) {
@@ -6387,7 +6409,7 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
           if (people.some(isManager)) { Paychecks.addBiggerBonus(); }
 
     @param {Function} callback The callback to execute
-    @param {Object} target The target object to use
+    @param {Object} [target] The target object to use
     @returns {Array} A filtered array.
   */
   some: function(callback, target) {
@@ -6400,8 +6422,8 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
     Returns true if the passed property resolves to true for any item in the
     enumerable.  This method is often simpler/faster than using a callback.
 
-    @params key {String} the property to test
-    @param value {String} optional value to test against.
+    @param {String} key the property to test
+    @param {String} [value] optional value to test against.
     @returns {Boolean} true
   */
   someProperty: function(key, value) {
@@ -6455,8 +6477,8 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
     implements it.  This method corresponds to the implementation in
     Prototype 1.6.
 
-    @param methodName {String} the name of the method
-    @param args {Object...} optional arguments to pass as well.
+    @param {String} methodName the name of the method
+    @param {Object...} args optional arguments to pass as well.
     @returns {Array} return values from calling invoke.
   */
   invoke: function(methodName) {
@@ -6646,7 +6668,7 @@ Ember.Enumerable = Ember.Mixin.create( /** @lends Ember.Enumerable */ {
       An enumerable of the objects to be removed or the number of items to
       be removed.
 
-    @param {Ember.Enumerable|Numbe} adding
+    @param {Ember.Enumerable|Number} adding
       An enumerable of the objects to be added or the number of items to be
       added.
 
@@ -7105,6 +7127,7 @@ Ember.Array = Ember.Mixin.create(Ember.Enumerable, /** @scope Ember.Array.protot
 
   You should implement the compare() method.
 
+  @extends Ember.Mixin
   @since Ember 0.9
 */
 Ember.Comparable = Ember.Mixin.create( /** @scope Ember.Comparable.prototype */{
@@ -7162,6 +7185,7 @@ var get = Ember.get, set = Ember.set;
 
   Note that frozenCopy() will only work if you also implement Ember.Freezable.
 
+  @extends Ember.Mixin
   @since Ember 0.9
 */
 Ember.Copyable = Ember.Mixin.create(
@@ -7273,6 +7297,7 @@ var get = Ember.get, set = Ember.set;
   Ember.Copyable protocol, which defines a frozenCopy() method that will return
   a frozen object, if the object implements this method as well.
 
+  @extends Ember.Mixin
   @since Ember 0.9
 */
 Ember.Freezable = Ember.Mixin.create(
@@ -8240,7 +8265,13 @@ function xform(target, method, params) {
   method.apply(target, args);
 }
 
-Ember.Evented = Ember.Mixin.create({
+/**
+ @class
+
+ @extends Ember.Mixin
+ */
+Ember.Evented = Ember.Mixin.create(
+  /** @scope Ember.Evented.prototype */ {
   on: function(name, target, method) {
     if (!method) {
       method = target;
@@ -8463,7 +8494,7 @@ if (Ember.config.overridePrototypeMixin) {
 CoreObject.__super__ = null;
 
 var ClassMixin = Ember.Mixin.create(
-/** @scope Ember.CoreObject */ {
+/** @scope Ember.ClassMixin.prototype */ {
 
   ClassMixin: Ember.required(),
 
@@ -9936,7 +9967,8 @@ Ember.ControllerMixin = Ember.Mixin.create({
     By default, a controller's `target` is set to the router after it is
     instantiated by `Ember.Application#initialize`.
   */
-  target: null
+  target: null,
+  store: null
 });
 
 Ember.Controller = Ember.Object.extend(Ember.ControllerMixin);
@@ -9948,7 +9980,14 @@ Ember.Controller = Ember.Object.extend(Ember.ControllerMixin);
 (function() {
 var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach;
 
-Ember.SortableMixin = Ember.Mixin.create(Ember.MutableEnumerable, {
+/**
+ @class
+
+ @extends Ember.Mixin
+ @extends Ember.MutableEnumerable
+*/
+Ember.SortableMixin = Ember.Mixin.create(Ember.MutableEnumerable,
+  /** @scope Ember.Observable.prototype */ {
   sortProperties: null,
   sortAscending: true,
 
@@ -10139,6 +10178,8 @@ Ember.SortableMixin = Ember.Mixin.create(Ember.MutableEnumerable, {
 // Copyright: ©2011 Strobe Inc. and contributors.
 // License:   Licensed under MIT license (see license.js)
 // ==========================================================================
+var get = Ember.get, set = Ember.set;
+
 /**
   @class
 
@@ -10177,8 +10218,6 @@ Ember.SortableMixin = Ember.Mixin.create(Ember.MutableEnumerable, {
 
   @extends Ember.ArrayProxy
 */
-
-var get = Ember.get, set = Ember.set;
 
 Ember.ArrayController = Ember.ArrayProxy.extend(Ember.ControllerMixin,
   Ember.SortableMixin);
@@ -10430,7 +10469,7 @@ Ember.Application.registerInjection({
   injection: function(app, router, property) {
     if (!/^[A-Z].*Controller$/.test(property)) { return; }
 
-    var name = property[0].toLowerCase() + property.substr(1),
+    var name = property.charAt(0).toLowerCase() + property.substr(1),
         controller = app[property].create();
 
     router.set(name, controller);
@@ -11479,7 +11518,7 @@ Ember.ControllerMixin.reopen({
       controller = get(controllers, name + 'Controller');
 
       Ember.assert("The name you supplied " + name + " did not resolve to a view " + viewClassName, !!viewClass);
-      Ember.assert("The name you supplied " + name + " did not resolve to a controller " + name + 'Controller', !!controller);
+      Ember.assert("The name you supplied " + name + " did not resolve to a controller " + name + 'Controller', (!!controller && !!context) || !context);
     }
 
     if (controller && context) { controller.set('content', context); }
@@ -11927,6 +11966,7 @@ var invokeForState = {
   Handlebars helper. See `Handlebars.helpers.view` for additional information.
 
   @extends Ember.Object
+  @extends Ember.Evented
 */
 Ember.View = Ember.Object.extend(Ember.Evented,
 /** @scope Ember.View.prototype */ {
@@ -14628,6 +14668,8 @@ var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
 
 /**
   @class
+
+  @extends Ember.Object
 */
 Ember.State = Ember.Object.extend(Ember.Evented,
 /** @scope Ember.State.prototype */{
@@ -14636,7 +14678,7 @@ Ember.State = Ember.Object.extend(Ember.Evented,
   /**
     A reference to the parent state.
 
-    @type {Ember.State}
+    @type Ember.State
   */
   parentState: null,
   start: null,
@@ -14714,7 +14756,8 @@ Ember.State = Ember.Object.extend(Ember.Evented,
       }
     }
 
-    set(this, 'routes', {});
+    set(this, 'pathsCache', {});
+    set(this, 'pathsCacheNoContext', {});
   },
 
   /** @private */
@@ -15347,9 +15390,9 @@ Ember.StateManager = Ember.State.extend(
     return possible;
   },
 
-  findStatesByRoute: function(state, route) {
-    if (!route || route === "") { return undefined; }
-    var r = route.split('.'),
+  findStatesByPath: function(state, path) {
+    if (!path || path === "") { return undefined; }
+    var r = path.split('.'),
         ret = [];
 
     for (var i=0, len = r.length; i < len; i++) {
@@ -15371,105 +15414,118 @@ Ember.StateManager = Ember.State.extend(
     return this.transitionTo.apply(this, arguments);
   },
 
-  pathForSegments: function(array) {
-    return Ember.ArrayPolyfills.map.call(array, function(tuple) {
-      Ember.assert("A segment passed to transitionTo must be an Array", Ember.typeOf(tuple) === "array");
-      return tuple[0];
-    }).join(".");
-  },
-
-  transitionTo: function(name, context) {
+  transitionTo: function(path, context) {
     // 1. Normalize arguments
     // 2. Ensure that we are in the correct state
     // 3. Map provided path to context objects and send
     //    appropriate transitionEvent events
 
-    if (Ember.empty(name)) { return; }
+    if (Ember.empty(path)) { return; }
 
-    var segments;
-
-    if (Ember.typeOf(name) === "array") {
-      segments = [].slice.call(arguments);
-    } else {
-      segments = [[name, context]];
-    }
-
-    var path = this.pathForSegments(segments),
+    var contexts = context ? Array.prototype.slice.call(arguments, 1) : [],
         currentState = get(this, 'currentState') || this,
-        state = currentState,
-        newState,
+        resolveState = currentState,
         exitStates = [],
+        matchedContexts = [],
+        cachedPath,
         enterStates,
-        resolveState;
+        state,
+        initialState,
+        stateIdx,
+        useContext;
 
-    if (state.routes[path]) {
-      // cache hit
+    if (!context && (cachedPath = currentState.pathsCacheNoContext[path])) {
+      // fast path
 
-      var route = state.routes[path];
-      exitStates = route.exitStates;
-      enterStates = route.enterStates;
-      state = route.futureState;
-      resolveState = route.resolveState;
+      exitStates = cachedPath.exitStates;
+      enterStates = cachedPath.enterStates;
+      resolveState = cachedPath.resolveState;
     } else {
-      // cache miss
+      // normal path
 
-      newState = this.findStatesByRoute(currentState, path);
+      if ((cachedPath = currentState.pathsCache[path])) {
+        // cache hit
 
-      while (state && !newState) {
-        exitStates.unshift(state);
+        exitStates = cachedPath.exitStates;
+        enterStates = cachedPath.enterStates;
+        resolveState = cachedPath.resolveState;
+      } else {
+        // cache miss
 
-        state = get(state, 'parentState');
-        if (!state) {
-          newState = this.findStatesByRoute(this, path);
-          if (!newState) { return; }
+        enterStates = this.findStatesByPath(currentState, path);
+
+        while (resolveState && !enterStates) {
+          exitStates.unshift(resolveState);
+
+          resolveState = get(resolveState, 'parentState');
+          if (!resolveState) {
+            enterStates = this.findStatesByPath(this, path);
+            if (!enterStates) { return; }
+          }
+          enterStates = this.findStatesByPath(resolveState, path);
         }
-        newState = this.findStatesByRoute(state, path);
+
+        while (enterStates.length > 0 && enterStates[0] === exitStates[0]) {
+          resolveState = enterStates.shift();
+          exitStates.shift();
+        }
+
+        currentState.pathsCache[name] = {
+          exitStates: exitStates,
+          enterStates: enterStates,
+          resolveState: resolveState
+        };
       }
 
-      resolveState = state;
+      stateIdx = enterStates.length-1;
+      while (contexts.length > 0) {
+        if (stateIdx >= 0) {
+          state = enterStates[stateIdx--];
+        } else {
+          state = enterStates[0] ? get(enterStates[0], 'parentState') : resolveState;
+          if (!state) { throw "Cannot match all contexts to states"; }
+          enterStates.unshift(state);
+          exitStates.unshift(state);
+        }
 
-      enterStates = newState.slice(0);
-      exitStates = exitStates.slice(0);
+        useContext = context && (!get(state, 'isRoutable') || get(state, 'isDynamic'));
+        matchedContexts.unshift(useContext ? contexts.pop() : null);
+      }
 
       if (enterStates.length > 0) {
         state = enterStates[enterStates.length - 1];
 
-        var initialState;
-        while(initialState = get(state, 'initialState')) {
+        while(true) {
+          initialState = get(state, 'initialState') || 'start';
           state = getPath(state, 'states.'+initialState);
+          if (!state) { break; }
           enterStates.push(state);
-          segments.push([initialState, context]);
         }
 
-        while (enterStates.length > 0 && enterStates[0] === exitStates[0]) {
-          enterStates.shift();
+        while (enterStates.length > 0) {
+          if (enterStates[0] !== exitStates[0]) { break; }
+
+          if (enterStates.length === matchedContexts.length) {
+            if (this.getStateMeta(enterStates[0], 'context') !== matchedContexts[0]) { break; }
+            matchedContexts.shift();
+          }
+
+          resolveState = enterStates.shift();
           exitStates.shift();
         }
       }
-
-      currentState.routes[path] = {
-        exitStates: exitStates,
-        enterStates: enterStates,
-        futureState: state,
-        resolveState: resolveState
-      };
     }
 
-    this.enterState(exitStates, enterStates, state);
-    this.triggerSetupContext(resolveState, segments);
+    this.enterState(exitStates, enterStates, enterStates[enterStates.length-1] || resolveState);
+    this.triggerSetupContext(enterStates, matchedContexts);
   },
 
-  triggerSetupContext: function(root, segments) {
-    var state = root;
+  triggerSetupContext: function(enterStates, contexts) {
+    var offset = enterStates.length - contexts.length;
+    Ember.assert("More contexts provided than states", offset >= 0);
 
-    arrayForEach.call(segments, function(tuple) {
-      var path = tuple[0],
-          context = tuple[1];
-
-      state = this.findStatesByRoute(state, path);
-      state = state[state.length-1];
-
-      state.trigger(get(this, 'transitionEvent'), this, context);
+    arrayForEach.call(enterStates, function(state, idx) {
+      state.trigger(get(this, 'transitionEvent'), this, contexts[idx-offset]);
     }, this);
   },
 
@@ -15498,28 +15554,7 @@ Ember.StateManager = Ember.State.extend(
       state.trigger('enter', stateManager);
     });
 
-    var startState = state,
-        enteredState,
-        initialState = get(startState, 'initialState');
-
-    if (!initialState) {
-      initialState = 'start';
-    }
-
-    while (startState = get(get(startState, 'states'), initialState)) {
-      enteredState = startState;
-
-      if (log) { Ember.Logger.log("STATEMANAGER: Entering " + get(startState, 'path')); }
-      startState.trigger('enter', stateManager);
-
-      initialState = get(startState, 'initialState');
-
-      if (!initialState) {
-        initialState = 'start';
-      }
-    }
-
-    set(this, 'currentState', enteredState || state);
+    set(this, 'currentState', state);
   }
 });
 
@@ -15598,7 +15633,9 @@ Ember.Routable = Ember.Mixin.create({
   */
   stashContext: function(manager, context) {
     var serialized = this.serialize(manager, context);
+    Ember.assert('serialize must return a hash', !serialized || typeof serialized === 'object');
 
+    manager.setStateMeta(this, 'context', context);
     manager.setStateMeta(this, 'serialized', serialized);
 
     if (get(this, 'isRoutable') && !get(manager, 'isRouting')) {
@@ -15674,8 +15711,21 @@ Ember.Routable = Ember.Mixin.create({
     string property.
   */
   routeMatcher: Ember.computed(function() {
-    if (get(this, 'route')) {
-      return Ember._RouteMatcher.create({ route: get(this, 'route') });
+    var route = get(this, 'route');
+    if (route) {
+      return Ember._RouteMatcher.create({ route: route });
+    }
+  }).cacheable(),
+
+  /**
+    @private
+
+    Check whether the route has dynamic segments
+  */
+  isDynamic: Ember.computed(function() {
+    var routeMatcher = get(this, 'routeMatcher');
+    if (routeMatcher) {
+      return routeMatcher.identifiers.length > 0;
     }
   }).cacheable(),
 
@@ -15826,7 +15876,7 @@ Ember.Routable = Ember.Mixin.create({
 
     Ember.assert("Could not find state for path " + path, !!state);
 
-    var object = state.deserialize(manager, match.hash) || {};
+    var object = state.deserialize(manager, match.hash);
     manager.transitionTo(get(state, 'path'), object);
     manager.send('routePath', match.remaining);
   },
@@ -15941,7 +15991,7 @@ Ember._RouteMatcher = Ember.Object.extend({
 
       return {
         remaining: path.substr(match[0].length),
-        hash: hash
+        hash: identifiers.length > 0 ? hash : null
       };
     }
   },
@@ -15966,17 +16016,352 @@ var get = Ember.get, getPath = Ember.getPath, set = Ember.set;
 /**
   @class
 
-  `Ember.Router` is a state manager used for routing.
+  `Ember.Router` is the subclass of `Ember.StateManager` responsible for providing URL-based
+  application state detection. The `Ember.Router` instance of an application detects the browser URL
+  at application load time and attempts to match it to a specific application state. Additionally
+  the router will update the URL to reflect an application's state changes over time.
 
-  A special `Router` property name is recognized on applications:
+  ## Adding a Router Instance to Your Application
+  An instance of Ember.Router can be associated with an instance of Ember.Application in one of two ways:
 
-      var app = Ember.Application.create({
-        Router: Ember.Router.extend(...)
+  You can provide a subclass of Ember.Router as the `Router` property of your application. An instance
+  of this Router class will be instantiated and route detection will be enabled when the application's
+  `initialize` method is called. The Router instance will be available as the `router` property
+  of the application:
+
+      App = Ember.Application.create({
+        Router: Ember.Router.extend({ ... })
       });
-      app.initialize();
 
-  Here, `app.initialize` will instantiate the `app.Router` and assign the
-  instance to the `app.stateManager` property.
+      App.initialize();
+      App.get('router') // an instance of App.Router
+
+  If you want to define a Router instance elsewhere, you can pass the instance to the application's
+  `initialize` method:
+
+      App = Ember.Application.create();
+      aRouter = Ember.Router.create({ ... });
+
+      App.initialize(aRouter);
+      App.get('router') // aRouter
+
+  ## Adding Routes to a Router
+  The `initialState` property of Ember.Router instances is named `root`. The state stored in this
+  property should be a subclass of Ember.Route. The `root` route should itself have states that are
+  also subclasses of Ember.Route and have `route` properties describing the URL pattern you would
+  like to detect.
+
+      App = Ember.Application.create({
+        Router: Ember.Router.extend({
+          root: Ember.Route.extend({
+            index: Ember.Route.extend({
+              route: '/'
+            }),
+            ... additional Ember.Routes ...
+          })
+        })
+      });
+      App.initialize();
+
+
+  When an application loads, Ember will parse the URL and attempt to find an Ember.Route within
+  the application's states that matches. (The example URL-matching below will use the default
+  'hash syntax' provided by `Ember.HashLocation`.)
+
+  In the following route structure:
+
+      App = Ember.Application.create({
+        Router: Ember.Router.extend({
+          root: Ember.Route.extend({
+            aRoute: Ember.Route.extend({
+              route: '/'
+            }),
+            bRoute: Ember.Route.extend({
+              route: '/alphabeta'
+            })
+          })
+        })
+      });
+      App.initialize();
+
+  Loading the page at the URL '#/' will detect the route property of 'root.aRoute' ('/') and
+  transition the router first to the state named 'root' and then to the substate 'aRoute'.
+
+  Respectively, loading the page at the URL '#/alphabeta' would detect the route property of
+  'root.bRoute' ('/alphabeta') and transition the router first to the state named 'root' and
+  then to the substate 'bRoute'.
+
+  ## Route Transition Events
+  Transitioning between Ember.Route instances (including the transition into the detected
+  route when loading the application)  triggers the same transition events as state transitions for
+  base `Ember.State`s. However, the default `setup` transition event is named `connectOutlets` on
+  Ember.Router instances (see 'Changing View Hierarchy in Response To State Change').
+
+  The following route structure when loaded with the URL "#/"
+
+      App = Ember.Application.create({
+        Router: Ember.Router.extend({
+          root: Ember.Route.extend({
+            aRoute: Ember.Route.extend({
+              route: '/',
+              enter: function(router) {
+                console.log("entering root.aRoute from", router.getPath('currentState.name'));
+              },
+              connectOutlets: function(router) {
+                console.log("entered root.aRoute, fully transitioned to", router.getPath('currentState.path'));
+              }
+            })
+          })
+        })
+      });
+      App.initialize();
+
+  Will result in console output of:
+
+      'entering root.aRoute from root'
+      'entered root.aRoute, fully transitioned to root.aRoute '
+
+  Ember.Route has two additional callbacks for handling URL serialization and deserialization. See
+  'Serializing/Deserializing URLs'
+
+  ## Routes With Dynamic Segments
+  An Ember.Route's `route` property can reference dynamic sections of the URL by prefacing a URL segment
+  with the ':' character.  The values of these dynamic segments will be passed as a hash to the
+  `deserialize` method of the matching Route (see 'Serializing/Deserializing URLs').
+
+  ## Serializing/Deserializing URLs
+  Ember.Route has two callbacks for associating a particular object context with a URL: `serialize`
+  for converting an object into a parameters hash to fill dynamic segments of a URL and `deserialize`
+  for converting a hash of dynamic segments from the URL into the appropriate object.
+
+  ### Deserializing A URL's Dynamic Segments
+  When an application is first loaded or the URL is changed manually (e.g. through the browser's
+  back button) the `deserialize` method of the URL's matching Ember.Route will be called with
+  the application's router as its first argument and a hash of the URLs dynamic segments and values
+  as its second argument.
+
+  The following route structure when loaded with the URL "#/fixed/thefirstvalue/anotherFixed/thesecondvalue":
+
+      App = Ember.Application.create({
+        Router: Ember.Router.extend({
+          root: Ember.Route.extend({
+            aRoute: Ember.Route.extend({
+              route: '/fixed/:dynamicSectionA/anotherFixed/:dynamicSectionB',
+              deserialize: function(router, params) {}
+            })
+          })
+        })
+      });
+      App.initialize();
+
+  Will call the 'deserialize' method of the Route instance at the path 'root.aRoute' with the
+  following hash as its second argument:
+
+      {
+        dynamicSectionA: 'thefirstvalue',
+        dynamicSectionB: 'thesecondvalue'
+      }
+
+  Within `deserialize` you should use this information to retrieve or create an appropriate context
+  object for the given URL (e.g. by loading from a remote API or accessing the browser's
+  `localStorage`). This object must be the `return` value of `deserialize` and will be
+  passed to the Route's `connectOutlets` and `serialize` methods.
+
+  When an application's state is changed from within the application itself, the context provided for
+  the transition will be passed and `deserialize` is not called (see 'Transitions Between States').
+
+  ### Serializing An Object For URLs with Dynamic Segments
+  When transitioning into a Route whose `route` property contains dynamic segments the Route's
+  `serialize` method is called with the Route's router as the first argument and the Route's
+  context as the second argument.  The return value of `serialize` will be use to populate the
+  dynamic segments and should be a object with keys that match the names of the dynamic sections.
+
+  Given the following route structure:
+
+      App = Ember.Application.create({
+        Router: Ember.Router.extend({
+          root: Ember.Route.extend({
+            aRoute: Ember.Route.extend({
+              route: '/'
+            }),
+            bRoute: Ember.Route.extend({
+              route: '/staticSection/:someDynamicSegment',
+              serialize: function(router, context) {
+                return {
+                  someDynamicSegment: context.get('name')
+                }
+              }
+            })
+          })
+        })
+      });
+      App.initialize();
+
+
+  Transitioning to "root.bRoute" with a context of `Object.create({name: 'Yehuda'})` will call
+  the Route's `serialize` method with the context as its second argument and update the URL to
+  '#/staticSection/Yehuda'.
+
+  ## Transitions Between States
+  Once a routed application has initialized its state based on the entry URL, subsequent transitions to other
+  states will update the URL if the entered Route has a `route` property. Given the following route structure
+  loaded at the URL '#/':
+
+      App = Ember.Application.create({
+        Router: Ember.Router.extend({
+          root: Ember.Route.extend({
+            aRoute: Ember.Route.extend({
+              route: '/',
+              moveElsewhere: Ember.Route.transitionTo('bRoute')
+            }),
+            bRoute: Ember.Route.extend({
+              route: '/someOtherLocation'
+            })
+          })
+        })
+      });
+      App.initialize();
+
+  And application code:
+
+      App.get('router').send('moveElsewhere');
+
+  Will transition the application's state to 'root.bRoute' and trigger an update of the URL to
+  '#/someOtherLocation'.
+
+  For URL patterns with dynamic segments a context can be supplied as the second argument to `send`.
+  The router will match dynamic segments names to keys on this object and fill in the URL with the
+  supplied values. Given the following state structure loaded at the URL '#/':
+
+      App = Ember.Application.create({
+        Router: Ember.Router.extend({
+          root: Ember.Route.extend({
+            aRoute: Ember.Route.extend({
+              route: '/',
+              moveElsewhere: Ember.Route.transitionTo('bRoute')
+            }),
+            bRoute: Ember.Route.extend({
+              route: '/a/route/:dynamicSection/:anotherDynamicSection',
+              connectOutlets: function(router, context) {},
+            })
+          })
+        })
+      });
+      App.initialize();
+
+  And application code:
+
+      App.get('router').send('moveElsewhere', {
+        dynamicSection: '42',
+        anotherDynamicSection: 'Life'
+      });
+
+  Will transition the application's state to 'root.bRoute' and trigger an update of the URL to
+  '#/a/route/42/Life'.
+
+  The context argument will also be passed as the second argument to the `serialize` method call.
+
+  ## Injection of Controller Singletons
+  During application initialization Ember will detect properties of the application ending in 'Controller',
+  create singleton instances of each class, and assign them as a properties on the router.  The property name
+  will be the UpperCamel name converted to lowerCamel format. These controller classes should be subclasses
+  of Ember.ObjectController, Ember.ArrayController, Ember.Controller, or a custom Ember.Object that includes the
+  Ember.ControllerMixin mixin.
+
+      App = Ember.Application.create({
+        FooController: Ember.Object.create(Ember.ControllerMixin),
+        Router: Ember.Router.extend({ ... })
+      });
+
+      App.getPath('router.fooController'); // instance of App.FooController
+
+  The controller singletons will have their `namespace` property set to the application and their `target`
+  property set to the application's router singleton for easy integration with Ember's user event system.
+  See 'Changing View Hierarchy in Response To State Change' and 'Responding to User-initiated Events'
+
+  ## Responding to User-initiated Events
+  Controller instances injected into the router at application initialization have their `target` property
+  set to the application's router instance. These controllers will also be the default `context` for their
+  associated views.  Uses of the `{{action}}` helper will automatically target the application's router.
+
+  Given the following application entered at the URL '#/':
+
+      App = Ember.Application.create({
+        Router: Ember.Router.extend({
+          root: Ember.Route.extend({
+            aRoute: Ember.Route.extend({
+              route: '/',
+              anActionOnTheRouter: function(router, context) {
+                router.transitionTo('anotherState', context);
+              }
+            })
+            anotherState: Ember.Route.extend({
+              route: '/differentUrl',
+              connectOutlets: function(router, context) {
+
+              }
+            })
+          })
+        })
+      });
+      App.initialize();
+
+  The following template:
+
+      <script type="text/x-handlebars" data-template-name="aView">
+          <h1><a {{action anActionOnTheRouter}}>{{title}}</a></h1>
+      </script>
+
+  Will delegate `click` events on the rendered `h1` to the application's router instance. In this case the
+  `anActionOnTheRouter` method of the state at 'root.aRoute' will be called with the view's controller
+  as the context argument. This context will be passed to the `connectOutlets` as its second argument.
+
+  Different `context` can be supplied from within the `{{action}}` helper, allowing specific context passing
+  between application states:
+
+      <script type="text/x-handlebars" data-template-name="photos">
+        {{#each photo in controller}}
+          <h1><a {{action showPhoto context="photo"}}>{{title}}</a></h1>
+        {{/each}}
+      </script>
+
+  See Handlebars.helpers.actions for additional usage examples.
+
+
+  ## Changing View Hierarchy in Response To State Change
+  Changes in application state that change the URL should be accompanied by associated changes in view
+  hierarchy.  This can be accomplished by calling 'connectOutlet' on the injected controller singletons from
+  within the 'connectOutlets' event of an Ember.Route:
+
+      App = Ember.Application.create({
+        OneController: Ember.ObjectController.extend(),
+        OneView: Ember.View.extend(),
+
+        AnotherController: Ember.ObjectController.extend(),
+        AnotherView: Ember.View.extend(),
+
+        Router: Ember.Router.extend({
+          root: Ember.Route.extend({
+            aRoute: Ember.Route.extend({
+              route: '/',
+              connectOutlets: function(router, context) {
+                router.get('oneController').connectOutlet('another');
+              },
+            })
+          })
+        })
+      });
+      App.initialize();
+
+
+  This will detect the '{{outlet}}' portion of `oneController`'s view (an instance of `App.OneView`) and
+  fill it with a rendered instance of `App.AnotherView` whose `context` will be the single instance of
+  `App.AnotherController` stored on the router in the `anotherController` property.
+
+  For more information about Outlets, see `Ember.Handlebars.helpers.outlet`. For additional information on
+  the `connectOutlet` method, see `Ember.Controller.connectOutlet`. For more information on
+  controller injections, see `Ember.Application#initialize()`. For additional information about view context,
+  see `Ember.View`.
 
   @extends Ember.StateManager
 */
@@ -16034,6 +16419,7 @@ Ember.Router = Ember.StateManager.extend(
     var currentState = get(this, 'currentState') || this,
         state = this.findStateByPath(currentState, path);
 
+    Ember.assert(Ember.String.fmt("Could not find route with path '%@'", [path]), !!state);
     Ember.assert("To get a URL for a state, it must have a `route` property.", !!get(state, 'routeMatcher'));
 
     var location = get(this, 'location'),
@@ -16051,9 +16437,21 @@ Ember.Router = Ember.StateManager.extend(
     var targetState = this.findStateByPath(currentState, targetStateName);
 
     Ember.assert("Your target state name " + targetStateName + " for event " + eventName + " did not resolve to a state", !!targetState);
-    var hash = targetState.serialize(this, context);
+
+    var hash = this.serializeRecursively(targetState, context);
 
     return this.urlFor(targetStateName, hash);
+  },
+
+  /** @private */
+  serializeRecursively: function(state, hash) {
+    hash = state.serialize(this, hash);
+    var parentState = state.get("parentState");
+    if (parentState && parentState instanceof Ember.Route) {
+      return this.serializeRecursively(parentState, hash);
+    } else {
+      return hash;
+    }
   },
 
   /** @private */
@@ -17525,7 +17923,7 @@ EmberHandlebars.registerHelper('boundIf', function(property, fn) {
 */
 EmberHandlebars.registerHelper('with', function(context, options) {
   if (arguments.length === 4) {
-    var keywordName, path;
+    var keywordName, path, rootPath, normalized;
 
     Ember.assert("If you pass more than one argument to the with helper, it must be in the form #with foo as bar", arguments[1] === "as");
     options = arguments[3];
@@ -17537,10 +17935,14 @@ EmberHandlebars.registerHelper('with', function(context, options) {
     if (Ember.isGlobal(path)) {
       Ember.bind(options.data.keywords, keywordName, path);
     } else {
+      normalized = normalizePath(this, path, options.data);
+      path = normalized.path;
+      rootPath = normalized.root;
+
       // This is a workaround for the fact that you cannot bind separate objects
       // together. When we implement that functionality, we should use it here.
-      var contextKey = Ember.$.expando + Ember.guidFor(this);
-      options.data.keywords[contextKey] = this;
+      var contextKey = Ember.$.expando + Ember.guidFor(rootPath);
+      options.data.keywords[contextKey] = rootPath;
 
       // if the path is '' ("this"), just bind directly to the current context
       var contextPath = path ? contextKey + '.' + path : contextKey;
@@ -19236,7 +19638,85 @@ var indexOf = Ember.EnumerableUtils.indexOf, indexesOf = Ember.EnumerableUtils.i
   The Ember.Select view class renders a
   [select](https://developer.mozilla.org/en/HTML/Element/select) HTML element,
   allowing the user to choose from a list of options. The selected option(s)
-  are updated live in the `selection` property.
+  are updated live in the `selection` property, while the corresponding value
+  is updated in the `value` property.
+
+  ### Using Strings
+  The simplest version of an Ember.Select takes an array of strings for the options
+  of a select box and a valueBinding to set the value.
+
+  Example:
+
+      App.controller = Ember.Object.create({
+        selected: null,
+        content: [
+          "Yehuda",
+          "Tom"
+        ]
+      })
+
+      {{view Ember.Select
+             contentBinding="App.controller.content"
+             valueBinding="App.controller.selected"
+      }}
+
+  Would result in the following HTML:
+
+      <select class="ember-select">
+        <option value="Yehuda">Yehuda</option>
+        <option value="Tom">Tom</option>
+      </select>
+
+  Selecting Yehuda from the select box will set `App.controller.selected` to "Yehuda"
+
+  ### Using Objects
+  An Ember.Select can also take an array of JS or Ember objects.
+
+  When using objects you need to supply optionLabelPath and optionValuePath parameters
+  which will be used to get the label and value for each of the options.
+
+  Usually you will bind to either the selection or the value attribute of the select.
+
+  Use selectionBinding if you would like to set the whole object as a property on the target.
+  Use valueBinding if you would like to set just the value.
+
+  Example using selectionBinding:
+
+      App.controller = Ember.Object.create({
+        selectedPerson: null,
+        selectedPersonId: null,
+        content: [
+          Ember.Object.create({firstName: "Yehuda", id: 1}),
+          Ember.Object.create({firstName: "Tom",    id: 2})
+        ]
+      })
+
+      {{view Ember.Select
+             contentBinding="App.controller.content"
+             optionLabelPath="content.firstName"
+             optionValuePath="content.id"
+             selectionBinding="App.controller.selectedPerson"
+             prompt="Please Select"}}
+
+      <select class="ember-select">
+        <option value>Please Select</option>
+        <option value="1">Yehuda</option>
+        <option value="2">Tom</option>
+      </select>
+
+  Selecting Yehuda here will set `App.controller.selectedPerson` to
+  the Yehuda object.
+
+  Example using valueBinding:
+
+      {{view Ember.Select
+             contentBinding="App.controller.content"
+             optionLabelPath="content.firstName"
+             optionValuePath="content.id"
+             valueBinding="App.controller.selectedPersonId"
+             prompt="Please Select"}}
+
+  Selecting Yehuda in this case will set `App.controller.selectedPersonId` to 1.
 
   @extends Ember.View
 */
@@ -19607,8 +20087,8 @@ Ember.$(document).ready(
 
 })();
 
-// Version: v0.9.8.1-404-g010feb0
-// Last commit: 010feb0 (2012-06-21 14:36:53 -0400)
+// Version: v0.9.8.1-449-ge271aff
+// Last commit: e271aff (2012-06-26 08:56:41 -0700)
 
 
 (function() {
