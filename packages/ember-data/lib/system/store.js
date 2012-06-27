@@ -473,6 +473,7 @@ DS.Store = Ember.Object.extend({
 
   findQuery: function(type, query) {
     var array = DS.AdapterPopulatedRecordArray.create({ type: type, content: Ember.A([]), store: this });
+    this.registerRecordArray(array, type);
     var adapter = get(this, '_adapter');
     if (adapter && adapter.findQuery) { adapter.findQuery(this, type, query, array); }
     else { throw fmt("Adapter is either null or does not implement `findQuery` method", this); }
