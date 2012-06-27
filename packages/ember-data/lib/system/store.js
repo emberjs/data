@@ -558,13 +558,13 @@ DS.Store = Ember.Object.extend({
           dataCache = this.typeMapFor(record.constructor).cidToHash;
 
       dataCache[clientId] = hash;
+      record.send('didCommit');
       record.send('didChangeData');
       record.hashWasUpdated();
     } else {
       record.send('didSaveData');
+      record.send('didCommit');
     }
-
-    record.send('didCommit');
   },
 
   didDeleteRecords: function(array) {
@@ -579,6 +579,8 @@ DS.Store = Ember.Object.extend({
 
   _didCreateRecord: function(record, hash, typeMap, clientId, primaryKey) {
     var recordData = get(record, 'data'), id, changes;
+
+    record.send('didCommit');
 
     if (hash) {
       typeMap.cidToHash[clientId] = hash;
@@ -598,8 +600,6 @@ DS.Store = Ember.Object.extend({
     } else {
       recordData.commit();
     }
-
-    record.send('didCommit');
   },
 
 

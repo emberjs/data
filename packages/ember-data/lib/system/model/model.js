@@ -14,13 +14,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   isDeleted: retrieveFromCurrentState,
   isError: retrieveFromCurrentState,
   isNew: retrieveFromCurrentState,
-  isPending: retrieveFromCurrentState,
   isValid: retrieveFromCurrentState,
 
   clientId: null,
   transaction: null,
   stateManager: null,
-  pendingQueue: null,
   errors: null,
 
   // because unknownProperty is used, any internal property
@@ -207,8 +205,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       record: this
     });
 
-    set(this, 'pendingQueue', {});
-
     set(this, 'stateManager', stateManager);
     stateManager.goToState('empty');
   },
@@ -235,10 +231,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
   deleteRecord: function() {
     this.send('deleteRecord');
-  },
-
-  waitingOn: function(record) {
-    this.send('waitingOn', record);
   },
 
   notifyHashWasUpdated: function() {
