@@ -101,22 +101,6 @@ test("if a parent record and an uncommitted pending child belong to different tr
   parentTransaction.commit();
 });
 
-var async = function(callback, timeout) {
-  stop();
-
-  timeout = setTimeout(function() {
-    start();
-    ok(false, "Timeout was reached");
-  }, timeout || 100);
-
-  return function() {
-    clearTimeout(timeout);
-
-    start();
-    callback();
-  };
-};
-
 test("an association has an isLoaded flag that indicates whether the ManyArray has finished loaded", function() {
   expect(7);
 

@@ -84,6 +84,22 @@
     (function() {
       window.Ember = { config: {} };
 
+      window.async = function(callback, timeout) {
+        stop();
+
+        timeout = setTimeout(function() {
+          start();
+          ok(false, "Timeout was reached");
+        }, timeout || 100);
+
+        return function() {
+          clearTimeout(timeout);
+
+          start();
+          callback.apply(this, arguments);
+        };
+      };
+
       var syncForTest = function(fn) {
         var callSuper;
 
