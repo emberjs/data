@@ -1,6 +1,11 @@
+/**
+  These tests ensure that Ember Data works with Ember.js' application
+  initialization and dependency injection APIs.
+*/
+
 var app;
 
-module("Application boot", {
+module("Ember.Application integration", {
   setup: function() {
     var Router = Ember.Router.extend({
       root: Ember.Route.extend()
@@ -18,14 +23,15 @@ module("Application boot", {
   }
 });
 
-test("It injects the store into the router", function() {
+test("it should inject a store instance into the router", function() {
   app.initialize();
 
   ok(app.getPath('router.store') instanceof DS.Store, "the store was injected");
 });
 
-test("It injects the store into controllers", function() {
+test("it should inject the store into instantiated controllers", function() {
   app.initialize();
 
   ok(app.getPath('router.fooController.store') instanceof DS.Store, "the store was injected");
 });
+
