@@ -81,6 +81,10 @@ DS.ManyArray = DS.RecordArray.extend({
       stateManager.send('recordWasAdded', record);
     }
 
+    added.forEach(function(clientId){
+      store.recordArraysForClientId(clientId).add(this);
+    },this);
+
     this._super(index, removed, added);
   },
 
