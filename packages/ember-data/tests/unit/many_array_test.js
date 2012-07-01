@@ -123,3 +123,14 @@ test("if an association's added and removed records are persisted, its isDirty i
   equal(get(people, 'isDirty'), false, "the association becomes clean after records are committed");
 });
 
+test("if a record is independently deleted, it does not contain the deleted record", function() {
+  var group = store.createRecord(Group);
+  var people = get(group, 'people');
+  var person = store.createRecord(Person, {});
+
+  people.pushObject(person);
+  person.deleteRecord();
+
+  equal(people.contains(person), false, "it does not contain a deleted record");
+});
+
