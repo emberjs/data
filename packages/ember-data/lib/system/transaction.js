@@ -79,7 +79,7 @@ var get = Ember.get, set = Ember.set, getPath = Ember.getPath, fmt = Ember.Strin
   calling commit.
 */
 
-DS.Transaction = Ember.Object.extend({
+DS.Transaction = Ember.Object.extend(Ember.Evented, {
   /**
     @private
 
@@ -189,6 +189,8 @@ DS.Transaction = Ember.Object.extend({
 
     this.removeCleanRecords();
 
+    set(this, 'isSaving', true);
+
     if (adapter && adapter.commit) { adapter.commit(store, commitDetails); }
     else { throw fmt("Adapter is either null or does not implement `commit` method", this); }
   },
@@ -228,6 +230,12 @@ DS.Transaction = Ember.Object.extend({
     // clean, migrate them all to the store's default transaction.
     this.removeCleanRecords();
   },
+
+  /**
+   * Indicate that this transaction is busy saving associated records
+   * @type {Boolean}
+   */
+  isSaving: false,
 
   /**
     @private
@@ -476,6 +484,27 @@ DS.Transaction = Ember.Object.extend({
 
   /**
     @private
+   */
+  isClean: function() {
+    var dirty, isEmpty = true;
+
+    ['created', 'updated', 'deleted', 'inflight'].forEach(function(bucketType) {
+      if (!isEmpty) { return; }
+
+      dirty = this.bucketForType(bucketType);
+
+      dirty.forEach(function(type, records) {
+        if (!isEmpty) { return; }
+
+        isEmpty = records.isEmpty();
+      });
+    }, this);
+
+    return isEmpty;
+  },
+
+  /**
+    @private
 
     Called by a record's state manager to indicate that the record has entered
     a clean state. The record will be moved from its current dirty or inflight bucket and into
@@ -487,5 +516,10 @@ DS.Transaction = Ember.Object.extend({
     this.removeFromBucket(kind, record);
 
     this.remove(record);
+
+    if (get(this, 'isSaving') && this.isClean()) {
+      set(this, 'isSaving', false);
+      this.trigger('didCommit');
+    }
   }
 });
