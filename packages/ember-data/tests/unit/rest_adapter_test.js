@@ -157,7 +157,9 @@ test("updating a person makes a PUT to /people/:id with the data hash", function
   set(person, 'name', "Brohuda Brokatz");
 
   expectState('dirty');
+  
   store.commit();
+  expectData({person: {name: "Brohuda Brokatz"}});
   expectState('saving');
 
   expectUrl("/people/1", "the plural of the model name with its ID");
