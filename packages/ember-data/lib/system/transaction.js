@@ -179,6 +179,7 @@ DS.Transaction = Ember.Object.extend({
   commit: function() {
     var store = get(this, 'store');
     var adapter = get(store, '_adapter');
+    var defaultTransaction = get(store, 'defaultTransaction');
 
     var iterate = function(records) {
       var set = records.copy();
@@ -196,6 +197,10 @@ DS.Transaction = Ember.Object.extend({
       deleted: iterate(this.bucketForType('deleted')),
       relationships: relationships
     };
+
+    if (this === defaultTransaction) {
+      set(store, 'defaultTransaction', store.transaction());
+    }
 
     this.removeCleanRecords();
 
