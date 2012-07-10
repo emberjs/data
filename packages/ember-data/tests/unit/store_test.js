@@ -587,3 +587,11 @@ test("an ID of 0 is allowed", function() {
   store.load(Person, { id: 0, name: "Tom Dale" });
   equal(store.findAll(Person).objectAt(0).get('name'), "Tom Dale", "found record with id 0");
 });
+
+test("You can give a path to adapter class to store", function() {
+
+  var store = DS.Store.create({adapter: 'DS.RESTAdapter'});
+
+  equal(store.get('_adapter') instanceof DS.RESTAdapter, true, "adapter was correctly instantiated");
+
+});

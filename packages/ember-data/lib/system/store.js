@@ -3,7 +3,7 @@
 require("ember-data/system/record_arrays");
 require("ember-data/system/transaction");
 
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath, fmt = Ember.String.fmt;
+var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
 
 var DATA_PROXY = {
   get: function(name) {
@@ -135,9 +135,8 @@ DS.Store = Ember.Object.extend({
   */
   _adapter: Ember.computed(function() {
     var adapter = get(this, 'adapter');
-    if (typeof adapter === 'string') {
-      return getPath(this, adapter, false) || getPath(window, adapter);
-    }
+    if (typeof adapter === 'string') { adapter = getPath(window, adapter); }
+    if (DS.Adapter.detect(adapter)) { adapter = adapter.create(); }
     return adapter;
   }).property('adapter').cacheable(),
 
@@ -343,7 +342,7 @@ DS.Store = Ember.Object.extend({
       // let the adapter set the data, possibly async
       var adapter = get(this, '_adapter');
       if (adapter && adapter.find) { adapter.find(this, type, id); }
-      else { throw fmt("Adapter is either null or does not implement `find` method", this); }
+      else { throw "Adapter is either null or does not implement `find` method"; }
     }
 
     return record;
@@ -412,7 +411,7 @@ DS.Store = Ember.Object.extend({
 
     var adapter = get(this, '_adapter');
     if (adapter && adapter.findMany) { adapter.findMany(this, type, neededIds); }
-    else { throw fmt("Adapter is either null or does not implement `findMany` method", this); }
+    else { throw "Adapter is either null or does not implement `findMany` method"; }
   },
 
   /**
@@ -475,7 +474,7 @@ DS.Store = Ember.Object.extend({
     var array = DS.AdapterPopulatedRecordArray.create({ type: type, content: Ember.A([]), store: this });
     var adapter = get(this, '_adapter');
     if (adapter && adapter.findQuery) { adapter.findQuery(this, type, query, array); }
-    else { throw fmt("Adapter is either null or does not implement `findQuery` method", this); }
+    else { throw "Adapter is either null or does not implement `findQuery` method"; }
     return array;
   },
 
