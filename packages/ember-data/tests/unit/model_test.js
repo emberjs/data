@@ -26,7 +26,7 @@ test("can have a property set on it", function() {
 });
 
 test("setting a property on a record that has not changed does not cause it to become dirty", function() {
-  store.load(Person, { id: 1, name: "Peter", is_drug_addict: true });
+  store.load(Person, { id: 1, name: "Peter", isDrugAddict: true });
   var person = store.find(Person, 1);
 
   equal(person.get('isDirty'), false, "precond - person record should not be dirty");
@@ -51,108 +51,9 @@ test("a record reports its unique id via the `id` property", function() {
   equal(get(record, 'id'), 2, "reports id as foobar when primaryKey is set");
 });
 
-var converts = function(type, provided, expected) {
-  var testStore = DS.Store.create();
-
-  var Model = DS.Model.extend({
-    name: DS.attr(type)
-  });
-
-  testStore.load(Model, { id: 1, name: provided });
-  testStore.load(Model, { id: 2 });
-
-  var record = testStore.find(Model, 1);
-  deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
-
-  record = testStore.find(Model, 2);
-  set(record, 'name', provided);
-  deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
-};
-
-var convertsFromServer = function(type, provided, expected) {
-  var testStore = DS.Store.create();
-
-  var Model = DS.Model.extend({
-    name: DS.attr(type)
-  });
-
-  testStore.load(Model, { id: 1, name: provided });
-  var record = testStore.find(Model, 1);
-
-  deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
-};
-
-var convertsWhenSet = function(type, provided, expected) {
-  var testStore = DS.Store.create();
-
-  var Model = DS.Model.extend({
-    name: DS.attr(type)
-  });
-
-  testStore.load(Model, { id: 2 });
-  var record = testStore.find(Model, 2);
-
-  set(record, 'name', provided);
-  deepEqual(record.toJSON().name, expected, type + " saves " + provided + " as " + expected);
-};
-
-test("a DS.Model can describe String attributes", function() {
-  converts('string', "Scumbag Tom", "Scumbag Tom");
-  converts('string', 1, "1");
-  converts('string', null, null);
-  converts('string', undefined, null);
-  convertsFromServer('string', undefined, null);
-});
-
-test("a DS.Model can describe Number attributes", function() {
-  converts('number', "1", 1);
-  converts('number', "0", 0);
-  converts('number', 1, 1);
-  converts('number', 0, 0);
-  converts('number', null, null);
-  converts('number', undefined, null);
-  converts('number', true, 1);
-  converts('number', false, 0);
-});
-
-test("a DS.Model can describe Boolean attributes", function() {
-  converts('boolean', "1", true);
-  converts('boolean', "", false);
-  converts('boolean', 1, true);
-  converts('boolean', 0, false);
-  converts('boolean', null, false);
-  converts('boolean', true, true);
-  converts('boolean', false, false);
-});
-
-test("a DS.Model can describe Date attributes", function() {
-  converts('date', null, null);
-  converts('date', undefined, undefined);
-
-  var dateString = "Sat, 31 Dec 2011 00:08:16 GMT";
-  var date = new Date(dateString);
-
-  var store = DS.Store.create();
-
-  var Person = DS.Model.extend({
-    updatedAt: DS.attr('date')
-  });
-
-  store.load(Person, { id: 1 });
-  var record = store.find(Person, 1);
-
-  record.set('updatedAt', date);
-  deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
-  convertsFromServer('date', dateString, date);
-  convertsWhenSet('date', date, dateString);
-});
-
 test("retrieving properties should return the same value as they would if they were not in the data hash if the record is not loaded", function() {
   var store = DS.Store.create({
-    adapter: DS.Adapter.create({
-      // no-op
-      find: Ember.K
-    })
+    adapter: DS.Adapter.create({ find: Ember.K })
   });
 
   // TODO :
@@ -203,17 +104,6 @@ test("it should cache attributes", function() {
   strictEqual(get(record, 'updatedAt'), get(record, 'updatedAt'), "second get still returns the same object");
 });
 
-test("it can specify which key to use when looking up properties on the hash", function() {
-  var Model = DS.Model.extend({
-    name: DS.attr('string', { key: 'full_name' })
-  });
-
-  store.load(Model, { id: 1, name: "Steve", full_name: "Pete" });
-  var record = store.find(Model, 1);
-
-  equal(get(record, 'name'), "Pete", "retrieves correct value");
-});
-
 module("DS.Model updating", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
@@ -247,22 +137,6 @@ test("a DS.Model can have a defaultValue", function() {
   set(tag, 'name', null);
 
   equal(get(tag, 'name'), null, "null doesn't shadow defaultValue");
-});
-
-test("it should modify the property of the hash specified by the `key` option", function() {
-  var store = DS.Store.create();
-  var Person = DS.Model.extend({
-    name: DS.attr('string', { key: 'full_name' })
-  });
-
-  store.load(Person, { id: 1, name: "Steve", full_name: "Peter" });
-  var record = store.find(Person, 1);
-
-  record.set('name', "Colin");
-
-  var data = record.toJSON();
-  equal(get(data, 'full_name'), "Colin", "properly modified full_name property");
-  strictEqual(get(data, 'name'), undefined, "does not include non-defined attributes");
 });
 
 test("when a DS.Model updates its attributes, its changes affect its filtered Array membership", function() {

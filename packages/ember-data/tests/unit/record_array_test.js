@@ -19,18 +19,18 @@ module("DS.Store", {
 });
 
 test("a record array is backed by records", function() {
-  var store = DS.Store.create({ adapter: null });
+  var store = DS.Store.create();
   store.loadMany(Person, [1,2,3], array);
 
   var recordArray = store.find(Person, [1,2,3]);
 
   for (var i=0, l=get(array, 'length'); i<l; i++) {
-    deepEqual(recordArray.objectAt(i).toJSON(), array[i], "a record array materializes objects on demand");
+    deepEqual(recordArray.objectAt(i).getProperties('id', 'name'), array[i], "a record array materializes objects on demand");
   }
 });
 
 test("a loaded record is removed from a record array when it is deleted", function() {
-  var store = DS.Store.create({ adapter: null });
+  var store = DS.Store.create();
   store.loadMany(Person, [1,2,3], array);
 
   var scumbag = store.find(Person, 1);
@@ -47,7 +47,7 @@ test("a loaded record is removed from a record array when it is deleted", functi
 
 // GitHub Issue #168
 test("a newly created record is removed from a record array when it is deleted", function() {
-  var store = DS.Store.create({ adapter: null }),
+  var store = DS.Store.create(),
       recordArray;
 
   recordArray = store.findAll(Person);
@@ -119,7 +119,7 @@ test("a record array returns undefined when asking for a member outside of its c
 
 // This tests for a bug in the recordCache, where the records were being cached in the incorrect order.
 test("a record array should be able to be enumerated in any order", function() {
-  var store = DS.Store.create({ adapter: null });
+  var store = DS.Store.create();
   store.loadMany(Person, [1,2,3], array);
 
   var recordArray = store.find(Person);

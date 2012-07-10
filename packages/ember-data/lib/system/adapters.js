@@ -40,6 +40,8 @@
    For more information about the adapter API, please see `README.md`.
 */
 
+var get = Ember.get;
+
 DS.Adapter = Ember.Object.extend({
   /**
     The `find()` method is invoked when the store is asked for a record that
@@ -84,6 +86,18 @@ DS.Adapter = Ember.Object.extend({
         }
   */
   generateIdForRecord: null,
+
+  materialize: function(record, hash) {
+    record.materializeAttributes(hash);
+
+    get(record.constructor, 'associationsByName').forEach(function(name, meta) {
+      if (meta.kind === 'hasMany') {
+        record.materializeHasMany(name, hash[name]);
+      } else if (meta.kind === 'belongsTo') {
+        record.materializeBelongsTo(name, hash[name]);
+      }
+    });
+  },
 
   namingConvention: {
     keyToJSONKey: function(key) {

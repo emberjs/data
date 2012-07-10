@@ -2,34 +2,21 @@ var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
 
 require("ember-data/system/model/model");
 
-var embeddedFindRecord = function(store, type, data, key) {
-  var association = get(data, key);
-  return association ? store.loadMany(type, association).ids : [];
-};
-
-var referencedFindRecord = function(store, type, data, key, one) {
-  return get(data, key);
-};
-
 var hasAssociation = function(type, options) {
   options = options || {};
-
-  var embedded = options.embedded,
-      findRecord = embedded ? embeddedFindRecord : referencedFindRecord;
 
   var meta = { type: type, isAssociation: true, options: options, kind: 'hasMany' };
 
   return Ember.computed(function(key, value) {
-    var data = get(this, 'data'),
+    var data = get(this, 'data').hasMany,
         store = get(this, 'store'),
-        ids, id, association;
+        ids, association;
 
     if (typeof type === 'string') {
       type = getPath(this, type, false) || getPath(window, type);
     }
 
-    key = options.key || get(this, 'namingConvention').keyToJSONKey(key);
-    ids = findRecord(store, type, data, key);
+    ids = data[key];
     association = store.findMany(type, ids || []);
     set(association, 'parentRecord', this);
 

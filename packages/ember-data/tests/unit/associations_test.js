@@ -41,7 +41,7 @@ test("hasMany lazily loads associations as needed", function() {
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     tags: DS.hasMany(Tag),
-    pets: DS.hasMany(Pet, { key: 'pet_ids'})
+    pets: DS.hasMany(Pet)
   });
 
   var store = DS.Store.create({
@@ -91,7 +91,7 @@ test("hasMany lazily loads associations as needed", function() {
 
   equal(get(get(kselden, 'tags'), 'length'), 0, "an association that has not been supplied returns an empty array");
 
-  store.load(Person, 4, { id: 4, name: "Cyvid Hamluck", pet_ids: [4] });
+  store.load(Person, 4, { id: 4, name: "Cyvid Hamluck", pets: [4] });
   var cyvid = store.find(Person, 4);
   equal(get(cyvid, 'name'), "Cyvid Hamluck", "precond - retrieves person record from store");
 
@@ -99,7 +99,7 @@ test("hasMany lazily loads associations as needed", function() {
   equal(get(pets, 'length'), 1, "the list of pets should have the correct length");
   equal(get(pets.objectAt(0), 'name'), "fluffy", "the first pet should be correct");
 
-  store.load(Person, 4, { id: 4, name: "Cyvid Hamluck", pet_ids: [4, 12] });
+  store.load(Person, 4, { id: 4, name: "Cyvid Hamluck", pets: [4, 12] });
   equal(pets, get(cyvid, 'pets'), "an association returns the same object every time");
   equal(get(get(cyvid, 'pets'), 'length'), 2, "the length is updated after new data is loaded");
 
@@ -157,33 +157,6 @@ test("should be able to retrieve the type for a belongsTo association specified 
   });
 
   equal(Person.typeForAssociation('tags'), Tag, "returns the association type");
-});
-
-test("hasMany allows associations to be mapped to a user-specified key", function() {
-  var Tag = DS.Model.extend({
-    name: DS.attr('string')
-  });
-
-  var Person = DS.Model.extend({
-    name: DS.attr('string'),
-    tags: DS.hasMany(Tag, { key: 'tag_ids' })
-  });
-
-  var store = DS.Store.create();
-  store.loadMany(Tag, [5, 2, 8], [
-    { id: 5, name: 'curmudgeon' },
-    { id: 2, name: 'cuddly' },
-    { id: 8, name: 'drunk' }
-  ]);
-  store.load(Person, 1, { id: 1, name: 'Carsten Nielsen', tag_ids: [2, 8] });
-
-  var person = store.find(Person, 1);
-  equal(get(person, 'name'), "Carsten Nielsen", "precond - retrieves person record from store");
-  equal(getPath(person, 'tags.length'), 2, "the list of tags should have the correct length");
-  equal(get(get(person, 'tags').objectAt(0), 'name'), "cuddly", "the first tag should be a Tag");
-
-  strictEqual(get(person, 'tags').objectAt(0), get(person, 'tags').objectAt(0), "the returned object is always the same");
-  strictEqual(get(person, 'tags').objectAt(0), store.find(Tag, 2), "association objects are the same as objects retrieved directly");
 });
 
 test("associations work when declared with a string path", function() {
@@ -265,34 +238,6 @@ test("associations work when the data hash has not been loaded", function() {
 
   equal(get(person, 'isLoaded'), false, "isLoaded should be false");
   equal(getPath(person, 'tags.length'), 0, "tags should be empty");
-});
-
-test("embedded associations work the same as referenced ones, and have the same identity map functionality", function() {
-  var Tag = DS.Model.extend({
-    name: DS.attr('string')
-  });
-
-  var Person = DS.Model.extend({
-    name: DS.attr('string'),
-    tags: DS.hasMany(Tag, { embedded: true })
-  });
-
-  var store = DS.Store.create();
-  store.load(Person, 1, { id: 1, name: "Tom Dale", tags: [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }] });
-
-  var person = store.find(Person, 1);
-  equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
-
-  equal(getPath(person, 'tags.length'), 2, "the list of tags should have the correct length");
-  equal(get(get(person, 'tags').objectAt(0), 'name'), "friendly", "the first tag should be a Tag");
-
-  strictEqual(get(person, 'tags').objectAt(0), get(person, 'tags').objectAt(0), "the returned object is always the same");
-  strictEqual(get(person, 'tags').objectAt(0), store.find(Tag, 5), "association objects are the same as objects retrieved directly");
-
-  store.load(Person, 2, { id: 2, name: "KSelden" });
-  var kselden = store.find(Person, 2);
-
-  equal(getPath(kselden, 'tags.length'), 0, "if no association is provided, an empty list is returned");
 });
 
 test("it is possible to add a new item to an association", function() {
@@ -429,7 +374,7 @@ test("belongsTo lazily loads associations as needed", function() {
 
   var store = DS.Store.create();
   store.loadMany(Tag, [5, 2, 12], [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
-  store.load(Person, 1, { id: 1, name: "Tom Dale", tag_id: 5 });
+  store.load(Person, 1, { id: 1, name: "Tom Dale", tag: 5 });
 
   var person = store.find(Person, 1);
   equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
@@ -439,32 +384,6 @@ test("belongsTo lazily loads associations as needed", function() {
 
   strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
   strictEqual(get(person, 'tag'), store.find(Tag, 5), "association object is the same as object retrieved directly");
-});
-
-test("belongsTo allows associations to be mapped to a user-specified key", function() {
-  var Tag = DS.Model.extend({
-    name: DS.attr('string')
-  });
-
-  var Person = DS.Model.extend({
-    name: DS.attr('string'),
-    tag: DS.belongsTo(Tag, { key: 'tag_id' })
-  });
-
-  var store = DS.Store.create();
-  store.loadMany(Tag, [5, 2, 8], [
-    { id: 5, name: 'curmudgeon' },
-    { id: 2, name: 'cuddly' },
-    { id: 8, name: 'drunk' }
-  ]);
-  store.load(Person, 1, { id: 1, name: 'Carsten Nielsen', tag_id: 2 });
-
-  var person = store.find(Person, 1);
-  equal(get(person, 'name'), "Carsten Nielsen", "precond - retrieves person record from store");
-  equal(getPath(person, 'tag.name'), "cuddly", "the tag should be a Tag");
-
-  strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
-  strictEqual(get(person, 'tag'), store.find(Tag, 2), "association object are the same as object retrieved directly");
 });
 
 test("associations work when the data hash has not been loaded", function() {
@@ -490,7 +409,7 @@ test("associations work when the data hash has not been loaded", function() {
 
           setTimeout(function() {
             start();
-            store.load(type, id, { id: 1, name: "Tom Dale", tag_id: 2 });
+            store.load(type, id, { id: 1, name: "Tom Dale", tag: 2 });
 
             equal(get(person, 'name'), "Tom Dale", "The person is now populated");
             equal(get(person, 'tag') instanceof Tag, true, "the tag Model already exists");
@@ -521,103 +440,9 @@ test("associations work when the data hash has not been loaded", function() {
   equal(get(person, 'tag'), null, "tag should be null");
 });
 
-test("belongsTo embedded associations work the same as referenced ones, and have the same identity map functionality", function() {
-  var Tag = DS.Model.extend({
-    name: DS.attr('string')
-  });
-
-  var Person = DS.Model.extend({
-    name: DS.attr('string'),
-    tag: DS.belongsTo(Tag, { embedded: true })
-  });
-
-  var store = DS.Store.create();
-  store.load(Person, 1, { id: 1, name: "Tom Dale", tag: { id: 5, name: "friendly" } });
-
-  var person = store.find(Person, 1);
-  equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
-
-  equal(getPath(person, 'tag.name'), "friendly", "the first tag should be a Tag");
-
-  strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
-  strictEqual(get(person, 'tag'), store.find(Tag, 5), "association object are the same as object retrieved directly");
-});
-
-test("embedded associations should respect namingConvention", function() {
-  var MyCustomTag = DS.Model.extend({
-    name: DS.attr('string')
-  });
-
-  var Person = DS.Model.extend({
-    name: DS.attr('string'),
-    myCustomTags: DS.hasMany(MyCustomTag, { embedded: true })
-  });
-
-  var store = DS.Store.create();
-  store.load(Person, 1, { id: 1, name: "Tom Dale", my_custom_tag: { id: 5, name: "UN-friendly" }, my_custom_tags: [ { id: 5, name: "UN-friendly" } ] });
-
-  var person = store.find(Person, 1);
-  equal(getPath(person, 'myCustomTags.firstObject.name'), "UN-friendly", "hasMany tag should be set properly");
-});
-
-test("lazy-loaded embedded association should work", function() {
-  stop();
-
-  var Tag = DS.Model.extend({
-    name: DS.attr('string')
-  });
-
-  var Person = DS.Model.extend({
-    name: DS.attr('string'),
-    tags: DS.hasMany(Tag, { embedded: true })
-  });
-  Person.toString = function() { return 'Person'; };
-
-  var Account = DS.Model.extend({
-    person: DS.belongsTo(Person)
-  });
-  Account.toString = function() { return 'Account'; };
-
-  var data = {
-    'Person': {
-      '1': { id: 1, name: "Wes", tags: [ { id: 5, name: "bro" } ] }
-    },
-    'Account': {
-      '1': { id: 1, person_id: 1 }
-    }
-  };
-
-  var store = DS.Store.create({
-    adapter: DS.Adapter.create({
-      find: function(store, type, id) {
-        ok(!id.name, "id should be an integer");
-        setTimeout(function() {
-          var json = data[type][id];
-          store.load(type, json);
-        }, 1);
-      }
-    })
-  });
-
-  var timer = setTimeout(function() {
-    ok(false, 'tags were never loaded');
-    start();
-  }, 1000);
-
-  var account = store.find(Account, 1);
-  Ember.addObserver(account, 'person.tags.length', function() {
-    if(account.getPath('person.tags.length') === 1) {
-      start();
-      clearTimeout(timer);
-      var tags = account.getPath('person.tags');
-      equal(tags.objectAt(0).get('name'), 'bro', 'tag should be set');
-    }
-  });
-});
-
 test("calling createRecord and passing in an undefined value for an association should be treated as if null", function () {
   expect(1);
-  
+
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -626,10 +451,10 @@ test("calling createRecord and passing in an undefined value for an association 
     name: DS.attr('string'),
     tag: DS.belongsTo(Tag, { embedded: true })
   });
-  
+
   var store = DS.Store.create();
 
   store.createRecord(Person, {tag: undefined});
-  
+
   ok(true);
 });

@@ -18,11 +18,18 @@ module("DS.Store and DS.Adapter integration test", {
   setup: function() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
-      name: DS.attr('string')
+      name: DS.attr('string'),
+      firstName: DS.attr('string'),
+      lastName: DS.attr('string')
     });
 
     adapter = DS.Adapter.create();
     store = DS.Store.create({ adapter: adapter });
+  },
+
+  teardown: function() {
+    adapter.destroy();
+    store.destroy();
   }
 });
 
@@ -307,7 +314,7 @@ test("by default, commit calls createRecords once per type", function() {
   adapter.createRecords = function(store, type, array) {
     equal(type, Person, "the type is correct");
     equal(get(array, 'length'), 2, "the array is the right length");
-    var records = [{ id: 1, name: "Tom Dale", updated_at: 'right nao' }, { id: 2, name: "Yehuda Katz" }];
+    var records = [{ id: 1, name: "Tom Dale", updatedAt: 'right nao' }, { id: 2, name: "Yehuda Katz" }];
     store.didCreateRecords(Person, array, records);
   };
 
@@ -371,7 +378,7 @@ test("updateRecords can return an array of Hashes to update the store with", fun
     equal(type, Person, "the type is correct");
     equal(get(array, 'length'), 2, "the array is the right length");
 
-    store.didUpdateRecords(array, [ { id: 1, name: "Tom Dale", updated_at: "now" }, { id: 2, name: "Yehuda Katz", updated_at: "now!" } ]);
+    store.didUpdateRecords(array, [ { id: 1, name: "Tom Dale", updatedAt: "now" }, { id: 2, name: "Yehuda Katz", updatedAt: "now!" } ]);
 
     equal(get(array[0], 'updatedAt'), "now", "the data was inserted");
     equal(get(array[1], 'updatedAt'), "now!", "the data was inserted");
@@ -440,7 +447,7 @@ test("by default, createRecords calls createRecord once per record", function() 
 
     var hash = get(record, 'data');
     hash.id = count;
-    hash.updated_at = "now";
+    hash.updatedAt = "now";
 
     store.didCreateRecord(record, hash);
     equal(get(record, 'updatedAt'), "now", "the record should receive the new information");
@@ -508,12 +515,12 @@ test("calling store.didUpdateRecord can provide an optional hash", function() {
 
     if (count === 0) {
       equal(get(record, 'name'), "Tom Dale");
-      store.didUpdateRecord(record, { id: 1, name: "Tom Dale", updated_at: "now" });
+      store.didUpdateRecord(record, { id: 1, name: "Tom Dale", updatedAt: "now" });
       equal(get(record, 'isDirty'), false, "the record should not be dirty");
       equal(get(record, 'updatedAt'), "now", "the hash was updated");
     } else if (count === 1) {
       equal(get(record, 'name'), "Yehuda Katz");
-      store.didUpdateRecord(record, { id: 2, name: "Yehuda Katz", updated_at: "now!" });
+      store.didUpdateRecord(record, { id: 2, name: "Yehuda Katz", updatedAt: "now!" });
       equal(record.get('isDirty'), false, "the record should not be dirty");
       equal(get(record, 'updatedAt'), "now!", "the hash was updated");
     } else {
@@ -750,4 +757,39 @@ test("can rollback after sucessives updates", function() {
 
   equal(person.get('isDirty'), false, "person is not dirty");
   equal(person.get('name'), "Paul Bro", "person changed the name back to Paul Bro");
+});
+
+module("DS.Adapter - Record Materialization", {
+  setup: function() {
+    Person = DS.Model.extend({
+      updatedAt: DS.attr('string'),
+      name: DS.attr('string'),
+      firstName: DS.attr('string'),
+      lastName: DS.attr('string')
+    });
+
+    adapter = DS.Adapter.create();
+    store = DS.Store.create({ adapter: adapter });
+  },
+
+  teardown: function() {
+    adapter.destroy();
+    store.destroy();
+  }
+});
+
+test("the adapter's materialize method should provide attributes to a record", function() {
+  store.load(Person, { id: 1, FIRST_NAME: "Yehuda", lAsTnAmE: "Katz" });
+
+  adapter.materialize = function(record, hash) {
+    record.materializeAttributes({
+      firstName: hash.FIRST_NAME,
+      lastName: hash.lAsTnAmE
+    });
+  };
+
+  var person = store.find(Person, 1);
+
+  equal(person.get('firstName'), "Yehuda");
+  equal(person.get('lastName'), "Katz");
 });

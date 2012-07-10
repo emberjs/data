@@ -7,7 +7,7 @@ var get = Ember.get, set = Ember.set, getPath = Ember.getPath, fmt = Ember.Strin
 
 var DATA_PROXY = {
   get: function(name) {
-    return this.savedData[name];
+    return this.data[name];
   }
 };
 
@@ -108,12 +108,14 @@ DS.Store = Ember.Object.extend({
 
     This is used only by the record's DataProxy. Do not use this directly.
   */
-  dataForRecord: function(record) {
+  materializeData: function(record) {
     var type = record.constructor,
         clientId = get(record, 'clientId'),
-        typeMap = this.typeMapFor(type);
+        typeMap = this.typeMapFor(type),
+        adapter = get(this, '_adapter'),
+        hash = typeMap.cidToHash[clientId];
 
-    return typeMap.cidToHash[clientId];
+    adapter.materialize(record, hash);
   },
 
   /**
@@ -124,7 +126,7 @@ DS.Store = Ember.Object.extend({
 
     @property {DS.Adapter|String}
   */
-  adapter: null,
+  adapter: 'DS.Adapter',
 
   /**
     @private
@@ -136,8 +138,13 @@ DS.Store = Ember.Object.extend({
   _adapter: Ember.computed(function() {
     var adapter = get(this, 'adapter');
     if (typeof adapter === 'string') {
-      return getPath(this, adapter, false) || getPath(window, adapter);
+      adapter = getPath(this, adapter, false) || getPath(window, adapter);
     }
+
+    if (DS.Adapter.detect(adapter)) {
+      adapter = adapter.create();
+    }
+
     return adapter;
   }).property('adapter').cacheable(),
 
@@ -196,13 +203,13 @@ DS.Store = Ember.Object.extend({
     // extracted `id` with the hash.
     clientId = this.pushHash(hash, id, type);
 
-    record.send('didChangeData');
-
-    var recordCache = get(this, 'recordCache');
-
     // Now that we have a clientId, attach it to the record we
     // just created.
     set(record, 'clientId', clientId);
+
+    record.send('loadedData');
+
+    var recordCache = get(this, 'recordCache');
 
     // Store the record we just created in the record cache for
     // this clientId.
@@ -210,8 +217,6 @@ DS.Store = Ember.Object.extend({
 
     // Set the properties specified on the record.
     record.setProperties(properties);
-
-    this.updateRecordArrays(type, clientId, get(record, 'data'));
 
     return record;
   },
@@ -330,7 +335,7 @@ DS.Store = Ember.Object.extend({
         dataCache = this.typeMapFor(type).cidToHash;
 
         if (typeof dataCache[clientId] === 'object') {
-          record.send('didChangeData');
+          record.send('loadedData');
         }
       }
     } else {
@@ -526,7 +531,13 @@ DS.Store = Ember.Object.extend({
     // give us any more trouble after this.
 
     if (get(record, 'isDeleted')) { return; }
-    this.updateRecordArrays(type, clientId, get(record, 'data'));
+
+    var dataCache = this.typeMapFor(record.constructor).cidToHash,
+        hash = dataCache[clientId];
+
+    if (typeof hash === 'object') {
+      this.updateRecordArrays(type, clientId);
+    }
   },
 
   // ..............
@@ -553,17 +564,17 @@ DS.Store = Ember.Object.extend({
   },
 
   didUpdateRecord: function(record, hash) {
+    record.send('didCommit');
+
     if (hash) {
       var clientId = get(record, 'clientId'),
           dataCache = this.typeMapFor(record.constructor).cidToHash;
 
       dataCache[clientId] = hash;
-      record.send('didCommit');
+
       record.send('didChangeData');
-      record.hashWasUpdated();
     } else {
-      record.send('didSaveData');
-      record.send('didCommit');
+      record.adapterDidCommit();
     }
   },
 
@@ -587,18 +598,14 @@ DS.Store = Ember.Object.extend({
 
       // If the server returns a hash, we assume that the server's version
       // of the data supercedes the local changes.
-      record.beginPropertyChanges();
       record.send('didChangeData');
-      recordData.adapterDidUpdate();
-      record.hashWasUpdated();
-      record.endPropertyChanges();
 
       id = hash[primaryKey];
 
       typeMap.idToCid[id] = clientId;
       this.clientIdToId[clientId] = id;
     } else {
-      recordData.commit();
+      record.adapterDidCommit();
     }
   },
 
@@ -630,7 +637,7 @@ DS.Store = Ember.Object.extend({
     if (hash) {
       Ember.assert("The server must provide a primary key: " + primaryKey, get(hash, primaryKey));
     } else {
-      Ember.assert("The server did not return data, and you did not create a primary key (" + primaryKey + ") on the client", get(get(record, 'data'), primaryKey));
+      Ember.assert("The server did not return data, and you did not create a primary key (" + primaryKey + ") on the client", get(get(record, 'data').attributes, primaryKey));
     }
 
     clientId = get(record, 'clientId');
@@ -672,38 +679,36 @@ DS.Store = Ember.Object.extend({
         clientId, hash, proxy;
 
     var recordCache = get(this, 'recordCache'),
-        foundRecord,
+        shouldFilter,
         record;
 
     for (var i=0, l=clientIds.length; i<l; i++) {
       clientId = clientIds[i];
-      foundRecord = false;
+      shouldFilter = false;
 
       hash = dataCache[clientId];
+
       if (typeof hash === 'object') {
         if (record = recordCache[clientId]) {
-          if (!get(record, 'isDeleted')) {
-            proxy = get(record, 'data');
-            foundRecord = true;
-          }
+          if (!get(record, 'isDeleted')) { shouldFilter = true; }
         } else {
-          DATA_PROXY.savedData = hash;
-          proxy = DATA_PROXY;
-          foundRecord = true;
+          shouldFilter = true;
         }
 
-        if (foundRecord) { this.updateRecordArray(array, filter, type, clientId, proxy); }
+        if (shouldFilter) {
+          this.updateRecordArray(array, filter, type, clientId);
+        }
       }
     }
   },
 
-  updateRecordArrays: function(type, clientId, dataProxy) {
+  updateRecordArrays: function(type, clientId) {
     var recordArrays = this.typeMapFor(type).recordArrays,
         filter;
 
     recordArrays.forEach(function(array) {
       filter = get(array, 'filterFunction');
-      this.updateRecordArray(array, filter, type, clientId, dataProxy);
+      this.updateRecordArray(array, filter, type, clientId);
     }, this);
 
     // loop through all manyArrays containing an unloaded copy of this
@@ -719,13 +724,14 @@ DS.Store = Ember.Object.extend({
     }
   },
 
-  updateRecordArray: function(array, filter, type, clientId, dataProxy) {
-    var shouldBeInArray;
+  updateRecordArray: function(array, filter, type, clientId) {
+    var shouldBeInArray, record;
 
     if (!filter) {
       shouldBeInArray = true;
     } else {
-      shouldBeInArray = filter(dataProxy);
+      record = this.findByClientId(type, clientId);
+      shouldBeInArray = filter(record);
     }
 
     var content = get(array, 'content');
@@ -854,14 +860,13 @@ DS.Store = Ember.Object.extend({
 
       var record = recordCache[clientId];
       if (record) {
-        record.send('didChangeData');
+        record.send('loadedData');
       }
     } else {
       clientId = this.pushHash(hash, id, type);
     }
 
-    DATA_PROXY.savedData = hash;
-    this.updateRecordArrays(type, clientId, DATA_PROXY);
+    this.updateRecordArrays(type, clientId);
 
     return { id: id, clientId: clientId };
   },

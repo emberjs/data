@@ -174,6 +174,17 @@ var hasDefinedProperties = function(object) {
   return false;
 };
 
+var didChangeData = function(manager) {
+  var record = get(manager, 'record');
+  record.notifyPropertyChange('data');
+};
+
+// Whenever a property is set, recompute all dependent filters
+var updateRecordArrays = function(manager) {
+  var record = manager.get('record');
+  record.updateRecordArraysLater();
+};
+
 DS.State = Ember.State.extend({
   isLoaded: stateProperty,
   isDirty: stateProperty,
@@ -189,32 +200,6 @@ DS.State = Ember.State.extend({
   // type of dirty state it is.
   dirtyType: stateProperty
 });
-
-var setProperty = function(manager, context) {
-  var key = context.key, value = context.value;
-
-  var record = get(manager, 'record'),
-      data = get(record, 'data');
-
-  set(data, key, value);
-};
-
-var setAssociation = function(manager, context) {
-  var key = context.key, value = context.value;
-
-  var record = get(manager, 'record'),
-      data = get(record, 'data');
-
-  data.setAssociation(key, value);
-};
-
-var didChangeData = function(manager) {
-  var record = get(manager, 'record'),
-      data = get(record, 'data');
-
-  data._savedData = null;
-  record.notifyPropertyChange('data');
-};
 
 // Implementation notes:
 //
@@ -282,8 +267,7 @@ var DirtyState = DS.State.extend({
     },
 
     // EVENTS
-    setProperty: setProperty,
-    setAssociation: setAssociation,
+    setProperty: updateRecordArrays,
 
     willCommit: function(manager) {
       manager.transitionTo('inFlight');
@@ -302,10 +286,9 @@ var DirtyState = DS.State.extend({
 
     rollback: function(manager) {
       var record = get(manager, 'record'),
-          dirtyType = get(this, 'dirtyType'),
-          data = get(record, 'data');
+          dirtyType = get(this, 'dirtyType');
 
-      data.rollback();
+      record.notifyPropertyChange('data');
 
       record.withTransaction(function(t) {
         t.recordBecameClean(dirtyType, record);
@@ -380,11 +363,7 @@ var DirtyState = DS.State.extend({
       manager.transitionTo('deleted');
     },
 
-    setAssociation: setAssociation,
-
     setProperty: function(manager, context) {
-      setProperty(manager, context);
-
       var record = get(manager, 'record'),
           errors = get(record, 'errors'),
           key = context.key;
@@ -394,6 +373,8 @@ var DirtyState = DS.State.extend({
       if (!hasDefinedProperties(errors)) {
         manager.send('becameValid');
       }
+
+      updateRecordArrays(manager);
     },
 
     rollback: function(manager) {
@@ -457,16 +438,6 @@ updatedState.states.uncommitted.reopen({
   }
 });
 
-updatedState.states.inFlight.reopen({
-  didSaveData: function(manager) {
-    var record = get(manager, 'record'),
-        data = get(record, 'data');
-
-    data.saveData();
-    data.adapterDidUpdate();
-  }
-});
-
 var states = {
   rootState: Ember.State.create({
     // FLAGS
@@ -491,9 +462,8 @@ var states = {
         manager.transitionTo('loading');
       },
 
-      didChangeData: function(manager) {
+      loadedData: function(manager) {
         didChangeData(manager);
-
         manager.transitionTo('loaded.created');
       }
     }),
@@ -512,12 +482,8 @@ var states = {
       },
 
       // EVENTS
-      didChangeData: function(manager, data) {
-        didChangeData(manager);
-        manager.send('loadedData');
-      },
-
       loadedData: function(manager) {
+        didChangeData(manager);
         manager.transitionTo('loaded');
       }
     }),
@@ -539,16 +505,17 @@ var states = {
 
         // EVENTS
         setProperty: function(manager, context) {
-          setProperty(manager, context);
-          manager.transitionTo('updated');
-        },
+          var attributes = getPath(manager, 'record.data.attributes');
 
-        setAssociation: function(manager, context) {
-          setAssociation(manager, context);
-          manager.transitionTo('updated');
+          if (attributes[context.key] !== context.value) {
+            manager.transitionTo('updated');
+          }
+
+          updateRecordArrays(manager);
         },
 
         didChangeData: didChangeData,
+        loadedData: didChangeData,
 
         deleteRecord: function(manager) {
           manager.transitionTo('deleted');
@@ -579,8 +546,6 @@ var states = {
         },
 
         // EVENTS
-        didSaveData: Ember.K,
-
         didCommit: function(manager) {
           var record = get(manager, 'record');
 
@@ -644,10 +609,9 @@ var states = {
         },
 
         rollback: function(manager) {
-          var record = get(manager, 'record'),
-              data = get(record, 'data');
+          var record = get(manager, 'record');
+          record.notifyPropertyChange('data');
 
-          data.rollback();
           record.withTransaction(function(t) {
             t.recordBecameClean('deleted', record);
           });

@@ -107,7 +107,7 @@
 
         return function() {
           var override = false;
-          if (Ember.run && !Ember.run.currentRunloop) {
+          if (Ember.run && !Ember.run.currentRunLoop) {
             Ember.run.begin();
             override = true;
           }
@@ -155,14 +155,16 @@
           deleteRecord: syncForTest(),
           load: syncForTest(),
           loadMany: syncForTest(),
+          filter: syncForTest(),
           didCreateRecord: syncForTest(),
           didCreateRecords: syncForTest(),
           didUpdateRecord: syncForTest(),
-          didUpdateRecords: syncForTest()
+          didUpdateRecords: syncForTest(),
         });
 
         DS.Model.reopen({
-          deleteRecord: syncForTest()
+          deleteRecord: syncForTest(),
+          dataDidChange: Ember.observer(syncForTest(), 'data')
         });
 
         DS.Transaction.reopen({

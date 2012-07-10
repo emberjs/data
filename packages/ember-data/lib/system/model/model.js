@@ -1,5 +1,4 @@
 require("ember-data/system/model/states");
-require("ember-data/system/model/data_proxy");
 
 var get = Ember.get, set = Ember.set, getPath = Ember.getPath, none = Ember.none;
 
@@ -26,7 +25,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   primaryKey: 'id',
   id: Ember.computed(function(key, value) {
     var primaryKey = get(this, 'primaryKey'),
-        data = get(this, 'data');
+        data = get(this, 'data').attributes;
 
     if (arguments.length === 2) {
       set(data, primaryKey, value);
@@ -69,10 +68,18 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @param {Ember.Map} attributes a Map of attributes
     @param {DataProxy} data the record's data, accessed with `get` and `set`.
   */
-  addAttributesToJSON: function(json, attributes, data) {
+  addAttributesToJSON: function(json, attributes, data, options) {
+    var getKeyName;
+
+    if (options && options.namingConvention) {
+      getKeyName = options.namingConvention.keyToJSONKey;
+    } else {
+      getKeyName = function(key) { return key; };
+    }
+
     attributes.forEach(function(name, meta) {
-      var key = meta.key(this.constructor),
-          value = get(data, key);
+      var key = getKeyName(name),
+          value = get(data, name);
 
       if (value === undefined) {
         value = meta.options.defaultValue;
@@ -172,7 +179,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.addIdToJSON(result, id, primaryKey);
 
     // delegate to `addAttributesToJSON` callback
-    this.addAttributesToJSON(result, attributes, data);
+    this.addAttributesToJSON(result, attributes, data, options);
 
     associations = get(type, 'associationsByName');
 
@@ -189,10 +196,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     return result;
   },
 
-  data: Ember.computed(function() {
-    return new DS._DataProxy(this);
-  }).cacheable(),
-
   didLoad: Ember.K,
   didUpdate: Ember.K,
   didCreate: Ember.K,
@@ -200,12 +203,24 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   becameInvalid: Ember.K,
   becameError: Ember.K,
 
+  data: Ember.computed(function() {
+    get(this, 'store').materializeData(this);
+    return this._data;
+  }).property().cacheable(),
+
   init: function() {
     var stateManager = DS.StateManager.create({
       record: this
     });
 
     set(this, 'stateManager', stateManager);
+
+    this._data = {
+      attributes: {},
+      belongsTo: {},
+      hasMany: {}
+    };
+
     stateManager.goToState('empty');
   },
 
@@ -233,7 +248,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.send('deleteRecord');
   },
 
-  notifyHashWasUpdated: function() {
+  updateRecordArrays: function() {
     var store = get(this, 'store');
     if (store) {
       store.hashWasUpdated(this.constructor, get(this, 'clientId'), this);
@@ -269,36 +284,40 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     }
   },
 
-  /** @private */
-  hashWasUpdated: function() {
-    // At the end of the run loop, notify record arrays that
-    // this record has changed so they can re-evaluate its contents
-    // to determine membership.
-    Ember.run.once(this, this.notifyHashWasUpdated);
+  /**
+    If the adapter did not return a hash in response to a commit,
+    merge the changed attributes and associations into the existing
+    saved data.
+  */
+  adapterDidCommit: function() {
+    var attributes = get(this, 'data').attributes;
+
+    get(this.constructor, 'attributes').forEach(function(name, meta) {
+      attributes[name] = get(this, name);
+    }, this);
   },
 
   dataDidChange: Ember.observer(function() {
     var associations = get(this.constructor, 'associationsByName'),
-        data = get(this, 'data'), store = get(this, 'store'),
+        hasMany = get(this, 'data').hasMany, store = get(this, 'store'),
         idToClientId = store.idToClientId,
         cachedValue;
+
+    this.updateRecordArraysLater();
 
     associations.forEach(function(name, association) {
       if (association.kind === 'hasMany') {
         cachedValue = this.cacheFor(name);
 
         if (cachedValue) {
-          var key = association.options.key || get(this, 'namingConvention').keyToJSONKey(name),
-              ids = data.get(key) || [];
+          var key = name,
+              ids = hasMany[key] || [];
 
           var clientIds;
-          if(association.options.embedded) {
-            clientIds = store.loadMany(association.type, ids).clientIds;
-          } else {
-            clientIds = Ember.EnumerableUtils.map(ids, function(id) {
-              return store.clientIdForId(association.type, id);
-            });
-          }
+
+          clientIds = Ember.EnumerableUtils.map(ids, function(id) {
+            return store.clientIdForId(association.type, id);
+          });
 
           set(cachedValue, 'content', Ember.A(clientIds));
           cachedValue.fetch();
@@ -306,6 +325,23 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       }
     }, this);
   }, 'data'),
+
+  updateRecordArraysLater: function() {
+    Ember.run.once(this, this.updateRecordArrays);
+  },
+
+  materializeAttributes: function(attributes) {
+    Ember.assert("Must pass a hash of attributes to materializeAttributes", !!attributes);
+    this._data.attributes = attributes;
+  },
+
+  materializeHasMany: function(name, ids) {
+    this._data.hasMany[name] = ids;
+  },
+
+  materializeBelongsTo: function(name, id) {
+    this._data.belongsTo[name] = id;
+  },
 
   /**
     @private
