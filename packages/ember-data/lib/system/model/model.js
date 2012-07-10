@@ -295,6 +295,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     get(this.constructor, 'attributes').forEach(function(name, meta) {
       attributes[name] = get(this, name);
     }, this);
+
+    this.updateRecordArraysLater();
   },
 
   dataDidChange: Ember.observer(function() {
