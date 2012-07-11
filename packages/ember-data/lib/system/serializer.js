@@ -45,11 +45,11 @@ DS.Serializer = Ember.Object.extend({
   },
 
   addBelongsTo: function() {
-
+    Ember.assert("Serializers must implement addBelongsTo", false);
   },
 
   addHasMany: function() {
-
+    Ember.assert("Serializers must implement addHasMany", false);
   },
 
   addId: function(hash, record) {
