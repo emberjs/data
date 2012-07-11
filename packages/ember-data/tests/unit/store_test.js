@@ -1,5 +1,13 @@
 var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
 
+var testSerializer = DS.Serializer.create({
+  primaryKey: function() { return 'id'; }
+});
+
+var TestAdapter = DS.Adapter.extend({
+  serializer: testSerializer
+});
+
 module("DS.Store", {
   teardown: function() {
     set(DS, 'defaultStore', null);
@@ -138,7 +146,7 @@ module("DS.Store working with a DS.Adapter");
 test("Calling Store#find invokes its adapter#find", function() {
   expect(4);
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     find: function(store, type, id) {
       ok(true, "Adapter#find was called");
       equal(store, currentStore, "Adapter#find was called with the right store");
@@ -154,7 +162,7 @@ test("Calling Store#find invokes its adapter#find", function() {
 });
 
 test("DS.Store has a load method to load in a new record", function() {
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     find: function(store, type, id) {
       store.load(type, id, { id: 1, name: "Scumbag Dale" });
     }
@@ -167,13 +175,14 @@ test("DS.Store has a load method to load in a new record", function() {
 
   var object = currentStore.find(currentType, 1);
 
-  equal(object.toJSON().name, "Scumbag Dale", "the data hash was inserted");
+  equal(adapter.toJSON(object).name, "Scumbag Dale", "the data hash was inserted");
 });
 
 var array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
 
 test("DS.Store has a load method to load in an Array of records", function() {
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
+
     findMany: function(store, type, ids) {
       store.loadMany(type, ids, array);
     }
@@ -189,7 +198,7 @@ test("DS.Store has a load method to load in an Array of records", function() {
   for (var i=0, l=get(objects, 'length'); i<l; i++) {
     var object = objects.objectAt(i), hash = array[i];
 
-    deepEqual(object.toJSON(), hash);
+    deepEqual(adapter.toJSON(object, { includeId: true }), hash);
   }
 });
 
@@ -234,7 +243,7 @@ test("DS.Store loads individual records without explicit IDs with a custom prima
 test("DS.Store passes only needed guids to findMany", function() {
   expect(8);
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     findMany: function(store, type, ids) {
       deepEqual(ids, [4,5,6], "only needed ids are passed");
     }
@@ -256,7 +265,7 @@ test("DS.Store passes only needed guids to findMany", function() {
     object = objects.objectAt(i);
     hash = array[i];
 
-    deepEqual(object.toJSON(), hash);
+    deepEqual(adapter.toJSON(object, { includeId: true }), hash);
   }
 
   for (i=3; i<6; i++) {
@@ -295,7 +304,7 @@ test("loadMany takes an optional Object and passes it on to the Adapter", functi
     name: DS.attr('string')
   });
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     findQuery: function(store, type, query) {
       equal(type, Person, "The type was Person");
       equal(query, passedQuery, "The query was passed in");
@@ -379,7 +388,7 @@ test("records inside a collection view should have their ids updated", function(
   });
 
   var idCounter = 1;
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     createRecord: function(store, type, record) {
       store.didCreateRecord(record, {name: record.get('name'), id: idCounter++});
     }
@@ -416,7 +425,7 @@ test("a record receives a didLoad callback when it has finished loading", functi
     }
   });
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     find: function(store, type, id) {
       store.load(Person, 1, { id: 1, name: "Foo" });
     }
@@ -443,7 +452,7 @@ test("a record receives a didUpdate callback when it has finished updating", fun
     }
   });
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     find: function(store, type, id) {
       store.load(Person, 1, { id: 1, name: "Foo" });
     },
@@ -479,7 +488,7 @@ test("a record receives a didCreate callback when it has finished updating", fun
     }
   });
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     createRecord: function(store, type, record) {
       equal(callCount, 0, "didCreate callback was not called untill didCreateRecord is called");
 
@@ -513,7 +522,7 @@ test("a record receives a didDelete callback when it has finished deleting", fun
     }
   });
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     find: function(store, type, id) {
       store.load(Person, 1, { id: 1, name: "Foo" });
     },
@@ -552,7 +561,7 @@ test("a record receives a becameInvalid callback when it became invalid", functi
     }
   });
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     find: function(store, type, id) {
       store.load(Person, 1, { id: 1, name: "Foo" });
     },
