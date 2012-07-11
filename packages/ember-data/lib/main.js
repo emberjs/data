@@ -25,5 +25,6 @@ require("ember-data/system/model");
 require("ember-data/system/associations");
 require("ember-data/system/adapters");
 require("ember-data/system/application_ext");
+require("ember-data/system/serializer");
 require("ember-data/adapters/fixture_adapter");
 require("ember-data/adapters/rest_adapter");

@@ -51,3 +51,11 @@ DS.Model.reopenClass({
     return map;
   }).cacheable()
 });
+
+DS.Model.reopen({
+  eachAssociation: function(callback, binding) {
+    get(this.constructor, 'associationsByName').forEach(function(name, association) {
+      callback.call(binding, name, association);
+    });
+  }
+});

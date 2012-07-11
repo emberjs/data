@@ -7,11 +7,22 @@ DS.Model.reopenClass({
     var map = Ember.Map.create();
 
     this.eachComputedProperty(function(name, meta) {
-      if (meta.isAttribute) { map.set(name, meta); }
+      if (meta.isAttribute) {
+        meta.name = name;
+        map.set(name, meta);
+      }
     });
 
     return map;
   }).cacheable()
+});
+
+DS.Model.reopen({
+  eachAttribute: function(callback, binding) {
+    get(this.constructor, 'attributes').forEach(function(name, meta) {
+      callback.call(binding, name, meta);
+    }, binding);
+  }
 });
 
 function getAttr(record, options, key) {

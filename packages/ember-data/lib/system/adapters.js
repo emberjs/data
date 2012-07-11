@@ -110,12 +110,6 @@ DS.Adapter = Ember.Object.extend({
     }
   },
 
-  toJSON: function(record, options) {
-    options = options || {};
-    options.namingConvention = options.namingConvention || this.namingConvention;
-    return record.toJSON(options);
-  },
-
   shouldCommit: function(record, relationships) {
     return true;
   },
