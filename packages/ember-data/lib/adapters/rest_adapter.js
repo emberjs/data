@@ -4,14 +4,26 @@ require('ember-data/adapters/adapter');
 
 var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
 
+var serializer = DS.Serializer.create({
+  primaryKey: function(record) {
+    return 'id';
+  }
+});
+
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
 	
+  serializer: serializer,
+
+  materializeBelongsTo: function(record, hash, name) {
+    record.materializeBelongsTo(name, hash[name + "_id"]);
+  },
+
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
 
     var data = {};
-    data[root] = record.toJSON();
+    data[root] = this.toJSON(record, { includeId: true });
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
@@ -39,8 +51,8 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     var data = {};
     data[plural] = records.map(function(record) {
-      return record.toJSON();
-    });
+      return this.toJSON(record, { includeId: true });
+    }, this);
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
@@ -63,7 +75,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     var data = {};
-    data[root] = record.toJSON();
+    data[root] = this.toJSON(record);
 
     this.ajax(this.buildURL(root, id), "PUT", {
       data: data,
@@ -90,9 +102,7 @@ DS.RESTAdapter = DS.Adapter.extend({
         plural = this.pluralize(root);
 
     var data = {};
-    data[plural] = records.map(function(record) {
-      return record.toJSON();
-    });
+    data[plural] = records.map(this.toJSON, this);
 
     this.ajax(this.buildURL(root, "bulk"), "PUT", {
       data: data,

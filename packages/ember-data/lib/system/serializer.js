@@ -53,8 +53,16 @@ DS.Serializer = Ember.Object.extend({
   },
 
   addId: function(hash, record) {
-    var primaryKey = this.primaryKey(record);
-    hash[primaryKey] = get(record, 'id');
+    var id = get(record, 'id');
+
+    if (id !== undefined) {
+      var primaryKey = this.primaryKey(record);
+      hash[primaryKey] = id;
+    }
+  },
+
+  primaryKey: function() {
+    Ember.assert("Serializers must implement primaryKey", false);
   }
 });
 

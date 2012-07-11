@@ -88,26 +88,31 @@ DS.Adapter = Ember.Object.extend({
   generateIdForRecord: null,
 
   materialize: function(record, hash) {
-    record.materializeAttributes(hash);
+    this.materializeAttributes(record, hash);
 
     get(record.constructor, 'associationsByName').forEach(function(name, meta) {
       if (meta.kind === 'hasMany') {
-        record.materializeHasMany(name, hash[name]);
+        this.materializeHasMany(record, hash, name);
       } else if (meta.kind === 'belongsTo') {
-        record.materializeBelongsTo(name, hash[name]);
+        this.materializeBelongsTo(record, hash, name);
       }
-    });
+    }, this);
   },
 
-  namingConvention: {
-    keyToJSONKey: function(key) {
-      // TODO: Strip off `is` from the front. Example: `isHipster` becomes `hipster`
-      return Ember.String.decamelize(key);
-    },
+  materializeAttributes: function(record, hash) {
+    record.materializeAttributes(hash);
+  },
 
-    foreignKey: function(key) {
-      return Ember.String.decamelize(key) + '_id';
-    }
+  materializeHasMany: function(record, hash, name) {
+    record.materializeHasMany(name, hash[name]);
+  },
+
+  materializeBelongsTo: function(record, hash, name) {
+    record.materializeBelongsTo(name, hash[name]);
+  },
+
+  toJSON: function(record, options) {
+    return get(this, 'serializer').toJSON(record, options);
   },
 
   shouldCommit: function(record, relationships) {

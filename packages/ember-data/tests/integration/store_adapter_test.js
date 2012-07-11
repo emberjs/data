@@ -793,3 +793,61 @@ test("the adapter's materialize method should provide attributes to a record", f
   equal(person.get('firstName'), "Yehuda");
   equal(person.get('lastName'), "Katz");
 });
+
+test("by default, the adapter's materialize method calls materializeAttributes", function() {
+  expect(1);
+
+  store.load(Person, { id: 1, FIRST_NAME: "Yehuda", lAsTnAmE: "Katz" });
+
+  adapter.materializeAttributes = function(record, hash) {
+    deepEqual(hash, {
+      id: 1,
+      FIRST_NAME: "Yehuda",
+      lAsTnAmE: "Katz"
+    });
+  };
+
+  var person = store.find(Person, 1);
+});
+
+test("by default, the adapter's materialize method call materializeHasMany", function() {
+  expect(3);
+
+  Person.reopen({
+    children: DS.hasMany(Person)
+  });
+
+  store.load(Person, { id: 1, children: [ 1, 2, 3 ] });
+
+  adapter.materializeHasMany = function(record, hash, name) {
+    equal(record.constructor, Person);
+    deepEqual(hash, {
+      id: 1,
+      children: [ 1, 2, 3 ]
+    });
+    equal(name, 'children');
+  };
+
+  var person = store.find(Person, 1);
+});
+
+test("by default, the adapter's materialize method call materializeBelongsTo", function() {
+  expect(3);
+
+  Person.reopen({
+    father: DS.belongsTo(Person)
+  });
+
+  store.load(Person, { id: 1, father: 2 });
+
+  adapter.materializeBelongsTo = function(record, hash, name) {
+    equal(record.constructor, Person);
+    deepEqual(hash, {
+      id: 1,
+      father: 2
+    });
+    equal(name, 'father');
+  };
+
+  var person = store.find(Person, 1);
+});
