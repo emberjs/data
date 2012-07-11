@@ -51,40 +51,6 @@ test("a record reports its unique id via the `id` property", function() {
   equal(get(record, 'id'), 2, "reports id as foobar when primaryKey is set");
 });
 
-test("retrieving properties should return the same value as they would if they were not in the data hash if the record is not loaded", function() {
-  var store = DS.Store.create({
-    adapter: DS.Adapter.create({ find: Ember.K })
-  });
-
-  // TODO :
-  // Investigate why this test fail with DS.attr `name` and jshint because of this :
-  // if (typeof String.prototype.name !== 'function') {
-  //   String.prototype.name = function () {
-  //     if (ix.test(this)) {
-  //         return this;
-  //     }
-  //     if (nx.test(this)) {
-  //         return '"' + this.replace(nxg, function (a) {
-  //             var c = escapes[a];
-  //             if (c) {
-  //                 return c;
-  //             }
-  //             return '\\u' + ('0000' + a.charCodeAt().toString(16)).slice(-4);
-  //         }) + '"';
-  //     }
-  //     return '"' + this + '"';
-  //   };
-  // }
-
-  var Person = DS.Model.extend({
-    firstName: DS.attr('string')
-  });
-
-  var record = store.find(Person, 1);
-
-  strictEqual(get(record, 'firstName'), null, "returns null value");
-});
-
 test("it should cache attributes", function() {
   var store = DS.Store.create();
 
