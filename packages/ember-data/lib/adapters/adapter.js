@@ -186,3 +186,4 @@ DS.Adapter = Ember.Object.extend({
     }, this);
   }
 });
+

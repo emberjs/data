@@ -1,5 +1,5 @@
 require("ember-data/core");
-require("ember-data/system/adapters");
+require("ember-data/adapters/adapter");
 
 DS.fixtureAdapter = DS.Adapter.create({
   find: function(store, type, id) {
