@@ -609,7 +609,7 @@ test("if a created record is marked as invalid by the server, it enters an error
     equal(type, Person, "the type is correct");
 
     if (get(record, 'name').indexOf('Bro') === -1) {
-      store.recordWasInvalid(record, { name: ['common... name requires a "bro"'] });
+      store.recordWasInvalid(record, Ember.Object.create({ name: ['common... name requires a "bro"'] }));
     } else {
       store.didCreateRecord(record);
     }
@@ -645,7 +645,7 @@ test("if an updated record is marked as invalid by the server, it enters an erro
     equal(type, Person, "the type is correct");
 
     if (get(record, 'name').indexOf('Bro') === -1) {
-      store.recordWasInvalid(record, { name: ['common... name requires a "bro"'] });
+      store.recordWasInvalid(record, Ember.Object.create({ name: ['common... name requires a "bro"'] }));
     } else {
       store.didUpdateRecord(record);
     }

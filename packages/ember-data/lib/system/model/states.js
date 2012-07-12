@@ -555,7 +555,9 @@ var DirtyState = DS.State.extend({
           errors = get(record, 'errors'),
           key = context.key;
 
-      delete errors[key];
+      if (errors !== undefined) {
+        errors.set(key, null);
+      }
 
       if (!hasDefinedProperties(errors)) {
         manager.send('becameValid');
