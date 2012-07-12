@@ -20,22 +20,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   stateManager: null,
   errors: null,
 
-  // because unknownProperty is used, any internal property
-  // must be initialized here.
-  primaryKey: 'id',
-  id: Ember.computed(function(key, value) {
-    var primaryKey = get(this, 'primaryKey'),
-        data = get(this, 'data').attributes;
-
-    if (arguments.length === 2) {
-      set(data, primaryKey, value);
-      return value;
-    }
-
-    var id = get(data, primaryKey);
-    return id ? id : this._id;
-  }).property('primaryKey', 'data'),
-
   // The following methods are callbacks invoked by `toJSON`. You
   // can override one of the callbacks to override specific behavior,
   // or toJSON itself.
@@ -204,9 +188,20 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   becameError: Ember.K,
 
   data: Ember.computed(function() {
-    get(this, 'store').materializeData(this);
+    if (!this._data) {
+      this.materializeData();
+    }
+
     return this._data;
   }).property().cacheable(),
+
+  materializeData: function() {
+    this.setupData();
+    get(this, 'store').materializeData(this);
+    this.notifyPropertyChange('data');
+  },
+
+  _data: null,
 
   init: function() {
     var stateManager = DS.StateManager.create({
@@ -214,12 +209,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     });
 
     set(this, 'stateManager', stateManager);
-
-    this._data = {
-      attributes: {},
-      belongsTo: {},
-      hasMany: {}
-    };
 
     stateManager.goToState('empty');
   },
@@ -252,24 +241,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var store = get(this, 'store');
     if (store) {
       store.hashWasUpdated(this.constructor, get(this, 'clientId'), this);
-    }
-  },
-
-  unknownProperty: function(key) {
-    var data = get(this, 'data');
-
-    if (data && key in data) {
-      Ember.assert("You attempted to access the " + key + " property on a record without defining an attribute.", false);
-    }
-  },
-
-  setUnknownProperty: function(key, value) {
-    var data = get(this, 'data');
-
-    if (data && key in data) {
-      Ember.assert("You attempted to set the " + key + " property on a record without defining an attribute.", false);
-    } else {
-      return this._super(key, value);
     }
   },
 
@@ -332,9 +303,26 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     Ember.run.once(this, this.updateRecordArrays);
   },
 
+  setupData: function() {
+    this._data = {
+      attributes: {},
+      belongsTo: {},
+      hasMany: {},
+      id: null
+    };
+  },
+
+  materializeId: function(id) {
+    set(this, 'id', id);
+  },
+
   materializeAttributes: function(attributes) {
     Ember.assert("Must pass a hash of attributes to materializeAttributes", !!attributes);
     this._data.attributes = attributes;
+  },
+
+  materializeAttribute: function(name, value) {
+    this._data.attributes[name] = value;
   },
 
   materializeHasMany: function(name, ids) {

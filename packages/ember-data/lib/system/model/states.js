@@ -176,7 +176,7 @@ var hasDefinedProperties = function(object) {
 
 var didChangeData = function(manager) {
   var record = get(manager, 'record');
-  record.notifyPropertyChange('data');
+  record.materializeData();
 };
 
 // Whenever a property is set, recompute all dependent filters

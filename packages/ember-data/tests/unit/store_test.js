@@ -230,6 +230,7 @@ test("can load data for the same record if it is not dirty", function() {
   equal(get(tom, 'name'), "Captain Underpants", "updated record with new date");
 });
 
+/*
 test("DS.Store loads individual records without explicit IDs with a custom primaryKey", function() {
   var store = DS.Store.create();
   var Person = DS.Model.extend({ name: DS.attr('string'), primaryKey: 'key' });
@@ -239,6 +240,7 @@ test("DS.Store loads individual records without explicit IDs with a custom prima
   var tom = store.find(Person, 1);
   equal(get(tom, 'name'), "Tom Dale", "the person was successfully loaded for the given ID");
 });
+*/
 
 test("DS.Store passes only needed guids to findMany", function() {
   expect(8);
@@ -283,6 +285,7 @@ test("loadMany extracts ids from an Array of hashes if no ids are specified", fu
   equal(get(store.find(Person, 1), 'name'), "Scumbag Dale", "correctly extracted id for loaded data");
 });
 
+/*
 test("loadMany uses a model's primaryKey if one is provided to extract ids", function() {
   var store = DS.Store.create();
 
@@ -296,6 +299,7 @@ test("loadMany uses a model's primaryKey if one is provided to extract ids", fun
   store.loadMany(Person, array);
   equal(get(store.find(Person, 1), 'name'), "Scumbag Dale", "correctly extracted id for loaded data");
 });
+*/
 
 test("loadMany takes an optional Object and passes it on to the Adapter", function() {
   var passedQuery = { page: 1 };
@@ -383,9 +387,7 @@ test("if an id is supplied in the initial data hash, it can be looked up using `
 });
 
 test("records inside a collection view should have their ids updated", function() {
-  var Person = DS.Model.extend({
-    id: DS.attr("number")
-  });
+  var Person = DS.Model.extend();
 
   var idCounter = 1;
   var adapter = TestAdapter.create({
@@ -399,7 +401,7 @@ test("records inside a collection view should have their ids updated", function(
   });
 
   var container = Ember.CollectionView.create({
-    content: store.findAll(Person)
+    content: store.find(Person)
   });
 
   container.appendTo('#qunit-fixture');

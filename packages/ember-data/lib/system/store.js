@@ -16,6 +16,7 @@ var DATA_PROXY = {
 // the server.
 var UNLOADED = 'unloaded';
 var LOADING = 'loading';
+var MATERIALIZED = { materialized: true };
 
 // Implementors Note:
 //
@@ -105,8 +106,6 @@ DS.Store = Ember.Object.extend({
 
   /**
     @private
-
-    This is used only by the record's DataProxy. Do not use this directly.
   */
   materializeData: function(record) {
     var type = record.constructor,
@@ -115,6 +114,9 @@ DS.Store = Ember.Object.extend({
         adapter = get(this, '_adapter'),
         hash = typeMap.cidToHash[clientId];
 
+    typeMap.cidToHash[clientId] = MATERIALIZED;
+
+    record.setupData();
     adapter.materialize(record, hash);
   },
 
@@ -181,10 +183,7 @@ DS.Store = Ember.Object.extend({
     transaction = transaction || get(this, 'defaultTransaction');
     transaction.adoptRecord(record);
 
-    // Extract the primary key from the `properties` hash,
-    // based on the `primaryKey` for the model type.
-    var primaryKey = get(record, 'primaryKey'),
-        id = properties[primaryKey] || null;
+    var id = properties.id;
 
     // If the passed properties do not include a primary key,
     // give the adapter an opportunity to generate one.
@@ -330,7 +329,7 @@ DS.Store = Ember.Object.extend({
       if (!record) {
         // create a new instance of the model type in the
         // 'isLoading' state
-        record = this.materializeRecord(type, clientId);
+        record = this.materializeRecord(type, clientId, id);
 
         dataCache = this.typeMapFor(type).cidToHash;
 
@@ -535,7 +534,7 @@ DS.Store = Ember.Object.extend({
     var dataCache = this.typeMapFor(record.constructor).cidToHash,
         hash = dataCache[clientId];
 
-    if (typeof hash === 'object') {
+    if (typeof hash === "object") {
       this.updateRecordArrays(type, clientId);
     }
   },
@@ -588,7 +587,7 @@ DS.Store = Ember.Object.extend({
     record.send('didCommit');
   },
 
-  _didCreateRecord: function(record, hash, typeMap, clientId, primaryKey) {
+  _didCreateRecord: function(record, hash, typeMap, clientId) {
     var recordData = get(record, 'data'), id, changes;
 
     record.send('didCommit');
@@ -600,7 +599,7 @@ DS.Store = Ember.Object.extend({
       // of the data supercedes the local changes.
       record.send('didChangeData');
 
-      id = hash[primaryKey];
+      id = get(this, '_adapter').extractId(record.constructor, hash);
 
       typeMap.idToCid[id] = clientId;
       this.clientIdToId[clientId] = id;
@@ -611,38 +610,25 @@ DS.Store = Ember.Object.extend({
 
 
   didCreateRecords: function(type, array, hashes) {
-    var primaryKey = type.proto().primaryKey,
-        typeMap = this.typeMapFor(type),
+    var typeMap = this.typeMapFor(type),
         clientId;
 
     for (var i=0, l=get(array, 'length'); i<l; i++) {
       var record = array[i], hash = hashes[i];
       clientId = get(record, 'clientId');
 
-      this._didCreateRecord(record, hash, typeMap, clientId, primaryKey);
+      this._didCreateRecord(record, hash, typeMap, clientId);
     }
   },
 
   didCreateRecord: function(record, hash) {
     var type = record.constructor,
         typeMap = this.typeMapFor(type),
-        clientId, primaryKey;
-
-    // The hash is optional, but if it is not provided, the client must have
-    // provided a primary key.
-
-    primaryKey = type.proto().primaryKey;
-
-    // TODO: Make Ember.assert more flexible
-    if (hash) {
-      Ember.assert("The server must provide a primary key: " + primaryKey, get(hash, primaryKey));
-    } else {
-      Ember.assert("The server did not return data, and you did not create a primary key (" + primaryKey + ") on the client", get(get(record, 'data').attributes, primaryKey));
-    }
+        clientId;
 
     clientId = get(record, 'clientId');
 
-    this._didCreateRecord(record, hash, typeMap, clientId, primaryKey);
+    this._didCreateRecord(record, hash, typeMap, clientId);
   },
 
   recordWasInvalid: function(record, errors) {
@@ -845,9 +831,9 @@ DS.Store = Ember.Object.extend({
   load: function(type, id, hash) {
     if (hash === undefined) {
       hash = id;
-      var primaryKey = type.proto().primaryKey;
-      Ember.assert("A data hash was loaded for a record of type " + type.toString() + " but no primary key '" + primaryKey + "' was provided.", primaryKey in hash);
-      id = hash[primaryKey];
+
+      var adapter = get(this, '_adapter');
+      id = adapter.extractId(type, hash);
     }
 
     var typeMap = this.typeMapFor(type),
@@ -877,10 +863,11 @@ DS.Store = Ember.Object.extend({
     if (hashes === undefined) {
       hashes = ids;
       ids = [];
-      var primaryKey = type.proto().primaryKey;
+
+      var adapter = get(this, '_adapter');
 
       ids = Ember.EnumerableUtils.map(hashes, function(hash) {
-        return hash[primaryKey];
+        return adapter.extractId(type, hash);
       });
     }
 
@@ -936,8 +923,9 @@ DS.Store = Ember.Object.extend({
     get(this, 'recordCache')[clientId] = record = type._create({
       store: this,
       clientId: clientId,
-      _id: id
     });
+
+    set(record, 'id', id);
 
     get(this, 'defaultTransaction').adoptRecord(record);
 

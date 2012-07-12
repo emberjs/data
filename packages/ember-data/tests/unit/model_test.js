@@ -2,9 +2,21 @@ var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
 
 var Person, store, array;
 
+var testSerializer = DS.Serializer.create({
+  primaryKey: function() {
+    return 'id';
+  }
+});
+
+var TestAdapter = DS.Adapter.extend({
+  serializer: testSerializer
+});
+
 module("DS.Model", {
   setup: function() {
-    store = DS.Store.create();
+    store = DS.Store.create({
+      adapter: TestAdapter.create()
+    });
 
     Person = DS.Model.extend({
       name: DS.attr('string'),
@@ -40,15 +52,6 @@ test("a record reports its unique id via the `id` property", function() {
 
   var record = store.find(Person, 1);
   equal(get(record, 'id'), 1, "reports id as id by default");
-
-  var PersonWithPrimaryKey = DS.Model.extend({
-    primaryKey: 'foobar'
-  });
-
-  store.load(PersonWithPrimaryKey, { id: 1, foobar: 2 });
-  record = store.find(PersonWithPrimaryKey, 2);
-
-  equal(get(record, 'id'), 2, "reports id as foobar when primaryKey is set");
 });
 
 test("it should cache attributes", function() {

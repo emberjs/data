@@ -19,6 +19,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     record.materializeBelongsTo(name, hash[name + "_id"]);
   },
 
+  materializeAttribute: function(record, hash, name) {
+    var underscoredName = Ember.String.decamelize(name);
+    record.materializeAttribute(name, hash[underscoredName]);
+  },
+
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
 

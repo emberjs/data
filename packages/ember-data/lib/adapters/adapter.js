@@ -87,7 +87,12 @@ DS.Adapter = Ember.Object.extend({
   */
   generateIdForRecord: null,
 
+  extractId: function(type, hash) {
+    return hash.id;
+  },
+
   materialize: function(record, hash) {
+    this.materializeId(record, hash);
     this.materializeAttributes(record, hash);
 
     get(record.constructor, 'associationsByName').forEach(function(name, meta) {
@@ -99,8 +104,18 @@ DS.Adapter = Ember.Object.extend({
     }, this);
   },
 
+  materializeId: function(record, hash) {
+    record.materializeId(this.extractId(record.constructor, hash));
+  },
+
   materializeAttributes: function(record, hash) {
-    record.materializeAttributes(hash);
+    record.eachAttribute(function(name, attribute) {
+      this.materializeAttribute(record, hash, name);
+    }, this);
+  },
+
+  materializeAttribute: function(record, hash, name) {
+    record.materializeAttribute(name, hash[name]);
   },
 
   materializeHasMany: function(record, hash, name) {
