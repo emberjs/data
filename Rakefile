@@ -24,7 +24,7 @@ def setup_uploader
   #              git@github.com:emberjs/ember.js
 
   repoUrl = origin.match(/github\.com[\/:]((.+?)\/(.+?))(\.git)?$/)
-  username = repoUrl[2] # username part of origin url
+  username = ENV["GH_USERNAME"] || repoUrl[2] # username part of origin url
   repo = repoUrl[3] # repository name part of origin url
 
   token = ENV["GH_OAUTH_TOKEN"]
