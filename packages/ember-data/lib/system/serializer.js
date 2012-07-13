@@ -203,7 +203,9 @@ DS.Serializer = Ember.Object.extend({
   },
 
   materializeFromJSON: function(record, hash) {
-    record.materializeId(this.extractId(record.constructor, hash));
+    if (Ember.none(get(record, 'id'))) {
+      record.materializeId(this.extractId(record.constructor, hash));
+    }
 
     this.materializeAttributes(record, hash);
     this.materializeRelationships(record, hash);
