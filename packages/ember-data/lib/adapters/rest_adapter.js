@@ -7,6 +7,15 @@ var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
 var serializer = DS.Serializer.create({
   primaryKey: function(record) {
     return 'id';
+  },
+
+  extractBelongsTo: function(record, hash, relationship) {
+    return hash[relationship.key + "_id"];
+  },
+
+  extractAttribute: function(type, hash, attributeName) {
+    var underscoredName = Ember.String.decamelize(attributeName);
+    return hash[underscoredName];
   }
 });
 
@@ -14,15 +23,6 @@ DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
 	
   serializer: serializer,
-
-  materializeBelongsTo: function(record, hash, name) {
-    record.materializeBelongsTo(name, hash[name + "_id"]);
-  },
-
-  materializeAttribute: function(record, hash, name) {
-    var underscoredName = Ember.String.decamelize(name);
-    record.materializeAttribute(name, hash[underscoredName]);
-  },
 
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);

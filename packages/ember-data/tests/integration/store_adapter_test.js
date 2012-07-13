@@ -759,6 +759,8 @@ test("can rollback after sucessives updates", function() {
   equal(person.get('name'), "Paul Bro", "person changed the name back to Paul Bro");
 });
 
+var serializer;
+
 module("DS.Adapter - Record Materialization", {
   setup: function() {
     Person = DS.Model.extend({
@@ -768,7 +770,10 @@ module("DS.Adapter - Record Materialization", {
       lastName: DS.attr('string')
     });
 
-    adapter = DS.Adapter.create();
+    serializer = DS.Serializer.create();
+    adapter = DS.Adapter.create({
+      serializer: serializer
+    });
     store = DS.Store.create({ adapter: adapter });
   },
 
@@ -794,12 +799,12 @@ test("the adapter's materialize method should provide attributes to a record", f
   equal(person.get('lastName'), "Katz");
 });
 
-test("by default, the adapter's materialize method calls materializeAttributes", function() {
+test("when materializing a record, the serializer's materializeAttributes method should be invoked", function() {
   expect(1);
 
   store.load(Person, { id: 1, FIRST_NAME: "Yehuda", lAsTnAmE: "Katz" });
 
-  adapter.materializeAttributes = function(record, hash) {
+  serializer.materializeAttributes = function(record, hash) {
     deepEqual(hash, {
       id: 1,
       FIRST_NAME: "Yehuda",
@@ -810,7 +815,7 @@ test("by default, the adapter's materialize method calls materializeAttributes",
   var person = store.find(Person, 1);
 });
 
-test("by default, the adapter's materialize method call materializeHasMany", function() {
+test("when materializing a record, the serializer's extractHasMany method should be invoked", function() {
   expect(3);
 
   Person.reopen({
@@ -819,19 +824,19 @@ test("by default, the adapter's materialize method call materializeHasMany", fun
 
   store.load(Person, { id: 1, children: [ 1, 2, 3 ] });
 
-  adapter.materializeHasMany = function(record, hash, name) {
+  serializer.extractHasMany = function(record, hash, relationship) {
     equal(record.constructor, Person);
     deepEqual(hash, {
       id: 1,
       children: [ 1, 2, 3 ]
     });
-    equal(name, 'children');
+    equal(relationship.key, 'children');
   };
 
   var person = store.find(Person, 1);
 });
 
-test("by default, the adapter's materialize method call materializeBelongsTo", function() {
+test("when materializing a record, the serializer's extractBelongsTo method should be invoked", function() {
   expect(3);
 
   Person.reopen({
@@ -840,13 +845,13 @@ test("by default, the adapter's materialize method call materializeBelongsTo", f
 
   store.load(Person, { id: 1, father: 2 });
 
-  adapter.materializeBelongsTo = function(record, hash, name) {
+  serializer.extractBelongsTo = function(record, hash, relationship) {
     equal(record.constructor, Person);
     deepEqual(hash, {
       id: 1,
       father: 2
     });
-    equal(name, 'father');
+    equal(relationship.key, 'father');
   };
 
   var person = store.find(Person, 1);

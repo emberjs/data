@@ -31,31 +31,27 @@ test("calling toJSON with a record invokes addAttributes", function() {
   deepEqual(json, { title: "Ohai" });
 });
 
-test("by default, addAttributes calls attributeName", function() {
+test("by default, addAttributes calls keyForAttributeName", function() {
+  expect(2);
+
   post = store.createRecord(Post, { title: "Ohai" });
 
-  serializer.attributeName = function(attribute) {
-    return "__" + attribute.name + "__";
+  serializer.keyForAttributeName = function(type, name) {
+    equal(type, Post, "keyForAttributeName should receive type as first parameter");
+    equal(name, "title", "keyForAttributeName should receive name as second parameter");
+
+    return "__" + name + "__";
   };
 
-  var json = serializer.toJSON(post);
-
-  deepEqual(json, { __title__: "Ohai" });
+  serializer.toJSON(post);
 });
 
 test("the default addAttributes uses a specified defaultValue", function() {
-  expect(3);
-
   Post.reopen({
     body: DS.attr('string', { defaultValue: 'FIRST' })
   });
 
   post = store.createRecord(Post, { title: "Ohai" });
-
-  serializer.attributeName = function(attribute, record) {
-    equal(record, post);
-    return attribute.name;
-  };
 
   var json = serializer.toJSON(post);
 
@@ -63,7 +59,7 @@ test("the default addAttributes uses a specified defaultValue", function() {
 });
 
 test("the default addAttributes calls transform", function() {
-  serializer.transform = function(value, attribute) {
+  serializer.transformValueToJSON = function(value, attributeType) {
     return value.toUpperCase();
   };
 
@@ -89,11 +85,11 @@ module("Adapter serialization with an ID", {
 });
 
 test("calling toJSON with a record and includeId: true invokes addId", function() {
-  serializer.addId = function(hash, record) {
-    hash.__id__ = "EWOT";
+  serializer.addId = function(hash, type, id) {
+    hash.__id__ = id;
   };
 
-  var post = store.createRecord(Post);
+  var post = store.createRecord(Post, { id: "EWOT" });
   var json = serializer.toJSON(post, { includeId: true });
 
   deepEqual(json, { __id__: "EWOT" });
@@ -102,8 +98,8 @@ test("calling toJSON with a record and includeId: true invokes addId", function(
 test("by default, addId calls primaryKey", function() {
   expect(2);
 
-  serializer.primaryKey = function(record) {
-    equal(record, post);
+  serializer.primaryKey = function(type) {
+    equal(type, Post);
     return "__key__";
   };
 

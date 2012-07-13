@@ -66,6 +66,8 @@ DS.Adapter = Ember.Object.extend({
   */
   find: null,
 
+  serializer: DS.Serializer.create(),
+
   /**
     If the globally unique IDs for your records should be generated on the client,
     implement the `generateIdForRecord()` method. This method will be invoked
@@ -87,47 +89,16 @@ DS.Adapter = Ember.Object.extend({
   */
   generateIdForRecord: null,
 
-  extractId: function(type, hash) {
-    return hash.id;
-  },
-
   materialize: function(record, hash) {
-    this.materializeId(record, hash);
-    this.materializeAttributes(record, hash);
-
-    get(record.constructor, 'associationsByName').forEach(function(name, meta) {
-      if (meta.kind === 'hasMany') {
-        this.materializeHasMany(record, hash, name);
-      } else if (meta.kind === 'belongsTo') {
-        this.materializeBelongsTo(record, hash, name);
-      }
-    }, this);
-  },
-
-  materializeId: function(record, hash) {
-    record.materializeId(this.extractId(record.constructor, hash));
-  },
-
-  materializeAttributes: function(record, hash) {
-    record.eachAttribute(function(name, attribute) {
-      this.materializeAttribute(record, hash, name);
-    }, this);
-  },
-
-  materializeAttribute: function(record, hash, name) {
-    record.materializeAttribute(name, hash[name]);
-  },
-
-  materializeHasMany: function(record, hash, name) {
-    record.materializeHasMany(name, hash[name]);
-  },
-
-  materializeBelongsTo: function(record, hash, name) {
-    record.materializeBelongsTo(name, hash[name]);
+    get(this, 'serializer').materializeFromJSON(record, hash);
   },
 
   toJSON: function(record, options) {
     return get(this, 'serializer').toJSON(record, options);
+  },
+
+  extractId: function(type, hash) {
+    return get(this, 'serializer').extractId(type, hash);
   },
 
   shouldCommit: function(record, relationships) {
