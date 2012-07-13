@@ -199,7 +199,7 @@ DS.Serializer = Ember.Object.extend({
   */
 
   transformValueFromJSON: function(value, attributeType) {
-
+    return value;
   },
 
   materializeFromJSON: function(record, hash) {
@@ -212,8 +212,13 @@ DS.Serializer = Ember.Object.extend({
   },
 
   materializeAttributes: function(record, hash) {
+    var value;
+
     record.eachAttribute(function(name, attribute) {
-      record.materializeAttribute(name, this.extractAttribute(record.constructor, hash, name));
+      value = this.extractAttribute(record.constructor, hash, name);
+      value = this.transformValueFromJSON(value, attribute.type);
+
+      record.materializeAttribute(name, value);
     }, this);
   },
 

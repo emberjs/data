@@ -57,7 +57,7 @@ test("when materializing a record, the serializer's materializeAttributes method
   var person = store.find(Person, 1);
 });
 
-test("materializeId is called when loading a record but not when materializing it afterwards", function() {
+test("extractId is called when loading a record but not when materializing it afterwards", function() {
   expect(2);
 
   serializer.extractId = function(type, hash) {
@@ -71,6 +71,36 @@ test("materializeId is called when loading a record but not when materializing i
 
   // Find record to ensure it gets materialized
   var person = store.find(Person, 1);
+});
+
+test("when materializing a record, the serializer's extractAttribute is called for each attribute defined on the model", function() {
+  expect(9);
+
+  var DrugDealer = DS.Model.extend({
+    firstName: DS.attr('string'),
+    lastName: DS.attr('string'),
+    yearsIncarcerated: DS.attr('number')
+  });
+
+  // Keep a hash of which attribute names extractAttribute
+  // has been called with, and `tick` them off as we go along.
+  var attributes = {
+    firstName: true,
+    lastName: true,
+    yearsIncarcerated: true
+  };
+
+  store.load(DrugDealer, { id: 1, firstName: "Patrick", lastName: "Gibson", yearsIncarcerated: 42 });
+
+  serializer.extractAttribute = function(type, hash, attributeName) {
+    deepEqual(hash, { id: 1, firstName: "Patrick", lastName: "Gibson", yearsIncarcerated: 42 }, "opaque hash should be passed to extractAttribute");
+    equal(type, DrugDealer, "model type is passed to extractAttribute");
+
+    ok(attributes.hasOwnProperty(attributeName), "the attribute name is present");
+    delete attributes[attributeName];
+  };
+
+  store.find(DrugDealer, 1);
 });
 
 test("when materializing a record, the serializer's extractHasMany method should be invoked", function() {
@@ -113,4 +143,28 @@ test("when materializing a record, the serializer's extractBelongsTo method shou
   };
 
   var person = store.find(Person, 1);
+});
+
+test("when materializing a record, transformValueFromJSON is called to convert the value from JSON into a JavaScript value", function() {
+  expect(2);
+
+  var Bowler = DS.Model.extend({
+    favoriteDrink: DS.attr('string'),
+    hasSpecialLadyFriend: DS.attr('boolean')
+  });
+
+  var typeToValueMap = {
+    "string": "white russian",
+    "boolean": "FALSE"
+  };
+
+  store.load(Bowler, { id: 'dude', favoriteDrink: "white russian", hasSpecialLadyFriend: "FALSE" });
+  serializer.transformValueFromJSON = function(value, attributeType) {
+    strictEqual(typeToValueMap[attributeType], value, "correct value and type pair should be passed");
+    delete typeToValueMap[attributeType];
+
+    return value;
+  };
+
+  store.find(Bowler, 'dude');
 });
