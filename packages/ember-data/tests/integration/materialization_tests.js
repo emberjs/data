@@ -57,6 +57,33 @@ test("when materializing a record, the serializer's materializeAttributes method
   var person = store.find(Person, 1);
 });
 
+test("when materializing a record, the serializer's materializeAttribute method should be invoked for each attribute", function() {
+  expect(8);
+
+  store.load(Person, { id: 1, FIRST_NAME: "Yehuda", lAsTnAmE: "Katz" });
+
+  var attributes = {
+    firstName: 'string',
+    lastName: 'string',
+    updatedAt: 'string',
+    name: 'string'
+  };
+
+  serializer.materializeAttribute = function(record, hash, attributeName, attributeType) {
+    deepEqual(hash, {
+      id: 1,
+      FIRST_NAME: "Yehuda",
+      lAsTnAmE: "Katz"
+    });
+
+    var expectedType = attributes[attributeName];
+    equal(expectedType, attributeType, "The attribute type should be correct");
+    delete attributes[attributeName];
+  };
+
+  var person = store.find(Person, 1);
+});
+
 test("extractId is called when loading a record but not when materializing it afterwards", function() {
   expect(2);
 

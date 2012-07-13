@@ -212,14 +212,16 @@ DS.Serializer = Ember.Object.extend({
   },
 
   materializeAttributes: function(record, hash) {
-    var value;
-
     record.eachAttribute(function(name, attribute) {
-      value = this.extractAttribute(record.constructor, hash, name);
-      value = this.transformValueFromJSON(value, attribute.type);
-
-      record.materializeAttribute(name, value);
+      this.materializeAttribute(record, hash, name, attribute.type);
     }, this);
+  },
+
+  materializeAttribute: function(record, hash, attributeName, attributeType) {
+    var value = this.extractAttribute(record.constructor, hash, attributeName);
+    value = this.transformValueFromJSON(value, attributeType);
+
+    record.materializeAttribute(attributeName, value);
   },
 
   extractAttribute: function(type, hash, attributeName) {
