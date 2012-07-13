@@ -83,6 +83,11 @@ DS.attr = function(type, options) {
     if (arguments.length === 2) {
       value = transformTo(value);
 
+      if(meta.options.readOnly){
+        Ember.warn("You can't set the read-only attribute: " + key);
+        value = getAttr(this, options, key);
+      }
+
       if (value !== getAttr(this, options, key)) {
         this.setProperty(key, value);
       }
