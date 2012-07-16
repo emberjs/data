@@ -68,6 +68,10 @@ DS.Adapter = Ember.Object.extend({
 
   serializer: DS.Serializer.create(),
 
+  registerTransform: function(attributeType, transform) {
+    get(this, 'serializer').registerTransform(attributeType, transform);
+  },
+
   /**
     If the globally unique IDs for your records should be generated on the client,
     implement the `generateIdForRecord()` method. This method will be invoked

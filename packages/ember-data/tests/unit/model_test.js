@@ -58,7 +58,7 @@ test("it should cache attributes", function() {
   var store = DS.Store.create();
 
   var Post = DS.Model.extend({
-    updatedAt: DS.attr('date')
+    updatedAt: DS.attr('string')
   });
 
   var dateString = "Sat, 31 Dec 2011 00:08:16 GMT";

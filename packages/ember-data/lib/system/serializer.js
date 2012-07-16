@@ -1,6 +1,25 @@
-var get = Ember.get;
+var get = Ember.get, set = Ember.set;
+
+var passthrough = {
+  fromJSON: function(value) {
+    return value;
+  },
+
+  toJSON: function(value) {
+    return value;
+  }
+};
 
 DS.Serializer = Ember.Object.extend({
+  init: function() {
+    // By default, the JSON types are passthrough transforms
+    this.transforms = {
+      'string': passthrough,
+      'number': passthrough,
+      'boolean': passthrough
+    };
+  },
+
   /**
     NAMING CONVENTIONS
 
@@ -142,7 +161,10 @@ DS.Serializer = Ember.Object.extend({
   */
 
   transformValueToJSON: function(value, attributeType) {
-    return value;
+    var transform = this.transforms[attributeType];
+
+    Ember.assert("You tried to use a attribute type (" + attributeType + ") that has not been registered", transform);
+    return transform.toJSON(value);
   },
 
   toJSON: function(record, options) {
@@ -183,10 +205,12 @@ DS.Serializer = Ember.Object.extend({
 
   addRelationships: function(hash, record) {
     record.eachAssociation(function(name, relationship) {
+      var key = this.keyForAttributeName(record.constructor, name);
+
       if (relationship.kind === 'belongsTo') {
-        this.addBelongsTo(hash, record, relationship);
+        this.addBelongsTo(hash, record, key, relationship);
       } else if (relationship.kind === 'hasMany') {
-        this.addHasMany(hash, record, relationship);
+        this.addHasMany(hash, record, key, relationship);
       }
     }, this);
   },
@@ -199,7 +223,10 @@ DS.Serializer = Ember.Object.extend({
   */
 
   transformValueFromJSON: function(value, attributeType) {
-    return value;
+    var transform = this.transforms[attributeType];
+
+    Ember.assert("You tried to use a attribute type (" + attributeType + ") that has not been registered", transform);
+    return transform.fromJSON(value);
   },
 
   materializeFromJSON: function(record, hash) {
@@ -250,6 +277,14 @@ DS.Serializer = Ember.Object.extend({
 
   extractBelongsTo: function(record, hash, relationship) {
     return hash[relationship.key];
+  },
+
+  /**
+    TRANSFORMS
+  */
+
+  registerTransform: function(type, transform) {
+    this.transforms[type] = transform;
   }
 });
 

@@ -152,8 +152,9 @@ test("calling toJSON with a record with relationships invokes addRelationships",
 });
 
 test("the default addRelationships calls addBelongsTo", function() {
-  serializer.addBelongsTo = function(hash, record, relationship) {
+  serializer.addBelongsTo = function(hash, record, key, relationship) {
     equal(relationship.kind, "belongsTo");
+    equal(key, 'post');
     equal(record, comment);
   };
 
@@ -161,8 +162,9 @@ test("the default addRelationships calls addBelongsTo", function() {
 });
 
 test("the default addRelationships calls addHasMany", function() {
-  serializer.addHasMany = function(hash, record, relationship) {
+  serializer.addHasMany = function(hash, record, key, relationship) {
     equal(relationship.kind, "hasMany");
+    equal(key, 'comments');
     equal(record, post);
   };
 

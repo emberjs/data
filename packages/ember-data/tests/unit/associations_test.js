@@ -441,20 +441,19 @@ test("associations work when the data hash has not been loaded", function() {
 });
 
 test("calling createRecord and passing in an undefined value for an association should be treated as if null", function () {
-  expect(1);
-
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tag: DS.belongsTo(Tag, { embedded: true })
+    tag: DS.belongsTo(Tag)
   });
 
   var store = DS.Store.create();
 
-  store.createRecord(Person, {tag: undefined});
+  store.createRecord(Person, {id: 1, tag: undefined});
 
-  ok(true);
+  var person = store.find(Person, 1);
+  equal(person.get('tag'), null, "undefined values should return null associations");
 });

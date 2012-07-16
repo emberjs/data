@@ -215,6 +215,12 @@ test("if an adapter implements the generateIdForRecord method, it gets invoked w
     }
   });
 
+  var serializer = adapter.get('serializer');
+
+  serializer.addBelongsTo = function(hash, record, key, relationship) {
+    hash[key + "_id"] = record.get(relationship.key).get('id');
+  };
+
   var store = DS.Store.create({
     adapter: adapter
   });
@@ -224,12 +230,7 @@ test("if an adapter implements the generateIdForRecord method, it gets invoked w
 
   set(comment, 'post', post);
 
-  equal(comment.toJSON({
-    namingConvention: {
-      foreignKey: function(key) { return key + '_id'; }
-    },
-    includeForeignKeys: true
-  }).post_id, "id-2", "assigned id is immediately available in JSON form of record");
+  equal(comment.toJSON().post_id, "id-2", "assigned id is immediately available in JSON form of record");
 
   store.commit();
 });
