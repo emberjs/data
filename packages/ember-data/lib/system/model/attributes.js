@@ -8,6 +8,8 @@ DS.Model.reopenClass({
 
     this.eachComputedProperty(function(name, meta) {
       if (meta.isAttribute) {
+        Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.toString(), name !== 'id');
+
         meta.name = name;
         map.set(name, meta);
       }
@@ -49,6 +51,7 @@ DS.attr = function(type, options) {
     var data;
 
     if (arguments.length === 2) {
+      Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.toString(), key !== 'id');
       this.setProperty(key, value);
     } else {
       value = getAttr(this, options, key);

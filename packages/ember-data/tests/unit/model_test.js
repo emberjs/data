@@ -54,6 +54,19 @@ test("a record reports its unique id via the `id` property", function() {
   equal(get(record, 'id'), 1, "reports id as id by default");
 });
 
+test("trying to set an `id` attribute should raise", function() {
+  Person = DS.Model.extend({
+    id: DS.attr('number'),
+    name: "Scumdale"
+  });
+
+  raises(function() {
+    store.load(Person, { id: 1, name: "Scumdale" });
+    var person = store.find(Person, 1);
+    person.get('name');
+  }, /You may not set `id`/);
+});
+
 test("it should cache attributes", function() {
   var store = DS.Store.create();
 
