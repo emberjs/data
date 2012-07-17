@@ -73,6 +73,17 @@ DS.Serializer = Ember.Object.extend({
     }
   },
 
+  _primaryKey: function(type) {
+    var mapping = this.mappingForType(type),
+        primaryKey = mapping && mapping.primaryKey;
+
+    if (primaryKey) {
+      return primaryKey;
+    } else {
+      return this.primaryKey(type);
+    }
+  },
+
   primaryKey: function(type) {
     return "id";
   },
@@ -233,7 +244,7 @@ DS.Serializer = Ember.Object.extend({
   },
 
   addId: function(hash, type, id) {
-    var primaryKey = this.primaryKey(type);
+    var primaryKey = this._primaryKey(type);
     hash[primaryKey] = id;
   },
 
@@ -291,7 +302,7 @@ DS.Serializer = Ember.Object.extend({
   },
 
   extractId: function(type, hash) {
-    var primaryKey = this.primaryKey(type);
+    var primaryKey = this._primaryKey(type);
     return hash[primaryKey];
   },
 
@@ -306,15 +317,12 @@ DS.Serializer = Ember.Object.extend({
   },
 
   extractHasMany: function(record, hash, relationship) {
-    return this._extractRelationship(record, hash, relationship);
+    var key = this._keyForHasMany(record.constructor, relationship.key);
+    return hash[key];
   },
 
   extractBelongsTo: function(record, hash, relationship) {
-    return this._extractRelationship(record, hash, relationship);
-  },
-
-  _extractRelationship: function(record, hash, relationship) {
-    var key = this._keyForAttributeName(record.constructor, relationship.key);
+    var key = this._keyForBelongsTo(record.constructor, relationship.key);
     return hash[key];
   },
 

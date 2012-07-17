@@ -24,7 +24,7 @@ var MockModel = Ember.Object.extend({
   },
 
   materializeId: function(id) {
-
+    this.materializedId = id;
   },
 
   materializeAttribute: function(name, value) {
@@ -182,5 +182,40 @@ test("mapped relationships are respected when materializing a record from JSON",
   });
 });
 
-//test("mapped primary keys are respected when serializing a record to JSON");
-//test("mapped primary keys are respected when materializing a record from JSON");
+test("mapped primary keys are respected when serializing a record to JSON", function() {
+  serializer.map(Person, {
+    primaryKey: '__id__'
+  });
+
+  serializer.map(Address, {
+    primaryKey: 'ID'
+  });
+
+  var person = Person.create({ id: 1 });
+  var address = Address.create({ id: 2 });
+
+  var personJSON = serializer.toJSON(person, { includeId: true });
+  var addressJSON = serializer.toJSON(address, { includeId: true });
+
+  deepEqual(personJSON, { __id__: 1 });
+  deepEqual(addressJSON, { ID: 2 });
+});
+
+test("mapped primary keys are respected when materializing a record from JSON", function() {
+  serializer.map(Person, {
+    primaryKey: '__id__'
+  });
+
+  serializer.map(Address, {
+    primaryKey: 'ID'
+  });
+
+  var person = Person.create();
+  var address = Address.create();
+
+  serializer.materializeFromJSON(person, { __id__: 1 });
+  serializer.materializeFromJSON(address, { ID: 2 });
+
+  equal(person.materializedId, 1);
+  equal(address.materializedId, 2);
+});

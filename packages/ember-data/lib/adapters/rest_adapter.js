@@ -5,17 +5,12 @@ require('ember-data/system/adapter');
 var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
 
 var serializer = DS.Serializer.create({
-  primaryKey: function(record) {
-    return 'id';
+  keyForBelongsTo: function(type, name) {
+    return this.keyForAttributeName(type, name) + "_id";
   },
 
-  extractBelongsTo: function(record, hash, relationship) {
-    return hash[relationship.key + "_id"];
-  },
-
-  extractAttribute: function(type, hash, attributeName) {
-    var underscoredName = Ember.String.decamelize(attributeName);
-    return hash[underscoredName];
+  keyForAttributeName: function(type, name) {
+    return Ember.String.decamelize(name);
   }
 });
 
