@@ -18,6 +18,8 @@ DS.Serializer = Ember.Object.extend({
       'number': passthrough,
       'boolean': passthrough
     };
+
+    this.mappings = Ember.Map.create();
   },
 
   /**
@@ -35,8 +37,40 @@ DS.Serializer = Ember.Object.extend({
       also used when serializing a record.
   */
 
+  _keyForAttributeName: function(type, name) {
+    return this._keyForJSONKey('keyForAttributeName', type, name);
+  },
+
   keyForAttributeName: function(type, name) {
     return name;
+  },
+
+  _keyForBelongsTo: function(type, name) {
+    return this._keyForJSONKey('keyForBelongsTo', type, name);
+  },
+
+  keyForBelongsTo: function(type, name) {
+    return this.keyForAttributeName(type, name);
+  },
+
+  _keyForHasMany: function(type, name) {
+    return this._keyForJSONKey('keyForHasMany', type, name);
+  },
+
+  keyForHasMany: function(type, name) {
+    return this.keyForAttributeName(type, name);
+  },
+
+  _keyForJSONKey: function(publicMethod, type, name) {
+    var mapping = this.mappingForType(type),
+        mappingOptions = mapping && mapping[name],
+        key = mappingOptions && mappingOptions.key;
+
+    if (key) {
+      return key;
+    } else {
+      return this[publicMethod](type, name);
+    }
   },
 
   primaryKey: function(type) {
@@ -192,7 +226,7 @@ DS.Serializer = Ember.Object.extend({
   },
 
   addAttribute: function(hash, record, attributeName, attributeType) {
-    var key = this.keyForAttributeName(record.constructor, attributeName);
+    var key = this._keyForAttributeName(record.constructor, attributeName);
     var value = get(record, attributeName);
 
     hash[key] = this.transformValueToJSON(value, attributeType);
@@ -205,7 +239,7 @@ DS.Serializer = Ember.Object.extend({
 
   addRelationships: function(hash, record) {
     record.eachAssociation(function(name, relationship) {
-      var key = this.keyForAttributeName(record.constructor, name);
+      var key = this._keyForAttributeName(record.constructor, name);
 
       if (relationship.kind === 'belongsTo') {
         this.addBelongsTo(hash, record, key, relationship);
@@ -252,7 +286,7 @@ DS.Serializer = Ember.Object.extend({
   },
 
   extractAttribute: function(type, hash, attributeName) {
-    var key = this.keyForAttributeName(type, attributeName);
+    var key = this._keyForAttributeName(type, attributeName);
     return hash[key];
   },
 
@@ -272,11 +306,16 @@ DS.Serializer = Ember.Object.extend({
   },
 
   extractHasMany: function(record, hash, relationship) {
-    return hash[relationship.key];
+    return this._extractRelationship(record, hash, relationship);
   },
 
   extractBelongsTo: function(record, hash, relationship) {
-    return hash[relationship.key];
+    return this._extractRelationship(record, hash, relationship);
+  },
+
+  _extractRelationship: function(record, hash, relationship) {
+    var key = this._keyForAttributeName(record.constructor, relationship.key);
+    return hash[key];
   },
 
   /**
@@ -285,6 +324,18 @@ DS.Serializer = Ember.Object.extend({
 
   registerTransform: function(type, transform) {
     this.transforms[type] = transform;
+  },
+
+  /**
+    MAPPING CONVENIENCE
+  */
+
+  map: function(type, mappings) {
+    this.mappings.set(type, mappings);
+  },
+
+  mappingForType: function(type) {
+    return this.mappings.get(type);
   }
 });
 
