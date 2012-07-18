@@ -11,10 +11,14 @@ module("Ember.Application integration", {
       root: Ember.Route.extend()
     });
 
-    app = Ember.Application.create({
-      Router: Router,
-      Store: DS.Store,
-      FooController: Ember.Controller.extend()
+    Ember.run(function() {
+      app = Ember.Application.create({
+        Router: Router,
+        Store: DS.Store,
+        FooController: Ember.Controller.extend(),
+        ApplicationView: Ember.View.extend(),
+        ApplicationController: Ember.View.extend()
+      });
     });
   },
 

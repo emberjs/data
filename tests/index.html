@@ -41,6 +41,7 @@
     QUnit.config.urlConfig.push('extendprototypes');
 
     window.ENV = window.ENV || {};
+
     var extendPrototypes = location.search.match(/extendprototypes=([^&]+)/);
     ENV['EXTEND_PROTOTYPES'] = !!(extendPrototypes && decodeURIComponent(extendPrototypes[1]));
     ENV['TESTING'] = true
@@ -82,7 +83,7 @@
 
   <script>
     (function() {
-      window.Ember = { config: {} };
+      window.Ember = { config: {}, testing: true };
 
       window.async = function(callback, timeout) {
         stop();
@@ -106,20 +107,23 @@
         if (typeof fn !== "function") { callSuper = true; }
 
         return function() {
-          var override = false;
+          var override = false, ret;
+
           if (Ember.run && !Ember.run.currentRunLoop) {
             Ember.run.begin();
             override = true;
           }
 
-          if (callSuper) {
-            var ret = this._super.apply(this, arguments);
-          } else {
-            var ret = fn.apply(this, arguments);
-          }
-
-          if (override) {
-            Ember.run.end();
+          try {
+            if (callSuper) {
+              ret = this._super.apply(this, arguments);
+            } else {
+              ret = fn.apply(this, arguments);
+            }
+          } finally {
+            if (override) {
+              Ember.run.end();
+            }
           }
 
           return ret;
@@ -156,6 +160,7 @@
           load: syncForTest(),
           loadMany: syncForTest(),
           filter: syncForTest(),
+          find: syncForTest(),
           didCreateRecord: syncForTest(),
           didCreateRecords: syncForTest(),
           didUpdateRecord: syncForTest(),

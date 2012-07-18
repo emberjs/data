@@ -3,10 +3,11 @@ var Person;
 
 module("DS.RecordArray");
 
-var array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
+var array;
 
 module("DS.Store", {
   setup: function() {
+    array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
     Person = DS.Model.extend({
       name: DS.attr('string')
     });
@@ -50,11 +51,13 @@ test("a newly created record is removed from a record array when it is deleted",
   var store = DS.Store.create(),
       recordArray;
 
-  recordArray = store.findAll(Person);
+  recordArray = store.find(Person);
 
   var scumbag = store.createRecord(Person, {
     name: "Scumbag Dale"
   });
+
+  equal(get(recordArray, 'length'), 1, "precond - record array already has the first created item");
 
   // guarantee coalescence
   Ember.run(function() {

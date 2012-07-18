@@ -3547,6 +3547,7 @@ Ember.run.end = function() {
   finally {
     run.currentRunLoop = run.currentRunLoop.prev();
   }
+  //if (!jQuery.isEmptyObject(timers)) { debugger; }
 };
 
 /**
@@ -3754,6 +3755,8 @@ Ember.run.later = function(target, method) {
   run.once(timers, invokeLaterTimers);
   return guid;
 };
+
+Ember.run.timers = timers;
 
 /** @private */
 function invokeOnceTimer(guid, onceTimers) {
