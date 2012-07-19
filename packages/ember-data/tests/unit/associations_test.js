@@ -447,7 +447,7 @@ test("calling createRecord and passing in an undefined value for an association 
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tag: DS.belongsTo(Tag)
+    tag: DS.belongsTo(Tag),
   });
 
   var store = DS.Store.create();
@@ -455,5 +455,6 @@ test("calling createRecord and passing in an undefined value for an association 
   store.createRecord(Person, {id: 1, tag: undefined});
 
   var person = store.find(Person, 1);
+
   strictEqual(person.get('tag'), null, "undefined values should return null associations");
 });

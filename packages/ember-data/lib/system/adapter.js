@@ -253,6 +253,7 @@ DS.Adapter = Ember.Object.extend({
 });
 
 DS.Adapter.reopenClass({
+<<<<<<< HEAD
   registerTransform: function(attributeType, transform) {
     var registeredTransforms = this._registeredTransforms || {};
 
@@ -273,5 +274,17 @@ DS.Adapter.reopenClass({
     }
 
     this._registeredMappings = mappings;
+=======
+  map: function(type, mappings) {
+    var existingMappings = this.mappings || Ember.Map.create(),
+        mappingsForType = existingMappings.get(type) || {};
+
+    for (var prop in mappings) {
+      mappingsForType[prop] = mappings[prop];
+    }
+
+    existingMappings.set(type, mappingsForType);
+    this.mappings = existingMappings;
+>>>>>>> 7d4ec94... Work on setting up the merge
   }
 });

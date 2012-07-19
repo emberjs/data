@@ -361,3 +361,28 @@ test("can rollback after sucessives updates", function() {
   equal(person.get('isDirty'), false, "person is not dirty");
   equal(person.get('name'), "Paul Bro", "person changed the name back to Paul Bro");
 });
+
+test("mappings registered on an adapter class are applied to the serializer of adapter instances", function() {
+  var MyAdapter = DS.Adapter.extend();
+
+  MyAdapter.map(Person, {
+    primaryKey: 'id!'
+  });
+
+  MyAdapter.map(Person, {
+    name: { key: 'name!' }
+  });
+
+  var adapter = MyAdapter.create();
+  store.set('adapter', adapter);
+
+  store.load(Person, {
+    'id!': 1,
+    'name!': "Tom Dale"
+  });
+
+  var person = store.find(Person, 1);
+
+  equal(person.get('id'), 1);
+  equal(person.get('name'), "Tom Dale");
+});

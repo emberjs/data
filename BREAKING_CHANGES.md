@@ -35,6 +35,304 @@ App.Store = DS.Store.create({
 This will remove the exception about changes before revision 2. You will
 receive another warning if there is another change.
 
+## Revision 5
+
+This is an extremely large refactor that changes many of the underlying
+semantics and object responsibilities. Primarily, we have moved many
+semantics that were hard-coded to relational databases to the REST
+adapter.
+
+This means that Ember Data should work just as well with
+key-value stores as relational databases, or whatever persistence
+technology you choose. Additionally, changing between different
+types of back-end servers should have minimal impact on the Ember.js
+application itself.
+
+This work also makes the FixtureAdapter less coupled to a particular
+backend, and sets the stage for local caching of Ember Data objects.
+
+### Mapping
+
+Before, if you wanted to map key names from your server-provided
+data to your models, you would do this:
+
+```javascript
+App.Post = DS.Model.extend({
+  title: DS.attr('string', { key: 'TITLE' });
+});
+```
+
+Now, all mapping is done via `Adapter.map`. You will now do this:
+
+```javascript
+App.Adapter.map('App.Post', {
+  title: { key: 'TITLE' }
+});
+```
+
+This API works for attributes, belongs to associations and has many
+associations.
+
+If you want to define a custom primary key, you will now do:
+
+```javascript
+App.Adapter.map('App.Post', {
+  primaryKey: '_id'
+});
+```
+
+If you are using the RESTAdapter, you would do:
+
+```javascript
+DS.RESTAdapter.map('App.Post', {
+  primaryKey: '_id',
+  title: { key: 'TITLE' }
+});
+```
+
+### ID as an Attribute
+
+Some applications were erroneously declaring `id` as an attribute on
+their models. You do not need to do this. With this revision, you will
+start to see an error if you try.
+
+For example, if you were doing this:
+
+```javascript
+App.Person = DS.Model.extend({
+  id: DS.attr('number'),
+  name: DS.attr('string')
+});
+```
+
+replace it with:
+
+```javascript
+App.Person = DS.Model.extend({
+  name: DS.attr('string')
+});
+```
+
+### Change in `record.toJSON`
+
+In this revision, the record's `toJSON` method delegates directly to the
+adapter. This should not have any significant changes to the returned
+values (assuming you moved your mappings over to `store.map` as
+described above).
+
+The one exception is that `toJSON` will no longer include the `id` by
+default. If you would like to include the `id`, call:
+
+```javascript
+record.toJSON({ includeId: true });
+```
+
+If you were using `record.toJSON` in a custom adapter, make sure to
+include IDs where needed.
+
+### Fixtures
+
+Because mappings and transforms are now defined on a per-adapter basis,
+you can use your app's attribute names in your fixtures, and not have to
+transform them based on your backend requirements.
+
+Before:
+
+```javascript
+App.Post = DS.Model.extend({
+  primaryKey: '__id!__',
+  name: DS.attr('string', { key: '!idbNAME!' }
+});
+
+App.Post.FIXTURES = [
+  {
+    '__id__!': 1,
+    '!idbNAME!': "Tom Dale"
+  },
+  {
+    '__id__!': 2,
+    '!idbNAME!': "Yehuda Katz"
+  }
+]
+```
+
+After:
+
+```javascript
+DS.RESTAdapter.map('App.Post', {
+  primaryKey: '__id!__',
+  name: { key: '!idbNAME!' }
+});
+
+App.Post.FIXTURES = [
+  {
+    id: 1,
+    name: "Tom Dale"
+  },
+  {
+    id: 2,
+    name: "Yehuda Katz"
+  }
+]
+```
+
+This simplifies your fixtures, because:
+
+* It allows you to describe your fixtures in the language of your
+  domain, rather than the language of your backend
+* It allows you to avoid modifying your fixtures if your backend API
+  changes.
+
+### Pending Records
+
+Previously, transactions would automatically determine the dependencies
+between records when saving.
+
+For example, if you had these models:
+
+```javascript
+App.Deck = DS.Model.extend({
+  name: DS.attr('string'),
+  cards: DS.hasMany('App.Card')
+});
+
+App.Card = DS.Model.extend({
+  front: DS.attr('string'),
+  back: DS.attr('string'),
+  deck: DS.belongsTo('App.Deck')
+});
+```
+
+If you created a deck and a related card at the same time, the
+transaction would automatically put the `Card` into a pending state
+until the adapter assigned the `Deck` an `id`.
+
+Unfortunately, this hardcoded relational semantics into the application,
+and also exposed adapter concerns into the application.
+
+At present, you will need to handle these dependencies yourself, by
+observing the parent's `id` property. We plan to introduce a convenience
+in `DS.Adapter` to simplify this case.
+
+If you are using the `RESTAdapter`, you may have temporary issues with
+records created using this pattern. In the interim, make sure not to
+create graphs of records in the same transaction with foreign key
+dependencies.
+
+### Transforms
+
+Previously, custom transforms were hardcoded into Ember Data, and there
+was a temporary API for adding new transforms. Additionally, these
+transforms were defined per-application, making it impossible for
+fixtures to use different serialization than the server. Fixing this
+also paves the way for local caching.
+
+There is now a supported API for adding new transforms to your
+application's adapter.
+
+```javascript
+// your backend uses Cocoa-style YES/NO for booleans
+App.CocoaAdapter.registerTransform('boolean', {
+  fromJSON: function(value) {
+    if (value === 'YES') {
+      return true;
+    } else if (value === 'NO') {
+      return false;
+    }
+  },
+
+  toJSON: function(value) {
+    if (value === true) {
+      return 'YES';
+    } else if (value === false) {
+      return 'NO';
+    }
+  }
+});
+```
+
+Once you have done this, you can define attributes that use the
+transform like this:
+
+```javascript
+App.Person = DS.Model.extend({
+  name: DS.attr('string'),
+  isDrugDealer: DS.attr('boolean') 
+});
+```
+
+In general, you want to keep these types generic, so they can be
+replaced with other serialization if the backend changes requirements,
+and to support simple fixtures. For example, in this case, you would
+not want to define `cocoaBoolean` as a type and use it throughout your
+application.
+
+### Naming Conventions
+
+Previously, app-wide naming conventions were defined in a model
+superclass using a `namingConvention` object.
+
+Now, you need to define a custom serializer for your adapter:
+
+```javascript
+var store = DS.Store.create({
+  adapter: DS.RESTAdapter.create({
+    serializer: DS.Serializer.create({
+      // `post` becomes `postId`. By default, the RESTAdapter's
+      // serializer adds `_id` to the decamelized name.
+      keyForBelongsTo: function(type, name) {
+        return this.keyForAttributeName(type, name) + "Id";
+      },
+
+      // `firstName` stays as `firstName`. By default, the
+      // RESTAdapter's serializer decamelizes name.
+      keyForAttributeName: function(type, name) {
+        return name;
+      }
+    })
+  })
+});
+```
+
+Take a look at the Ember Data guide for more information about custom
+serializers.
+
+### Adapter Semantics
+
+If you were using the REST Adapter before, your app should continue to
+work. However, if you built a custom adapter, many of the APIs have
+changed.
+
+See (http://emberjs.com/guides/ember-data)[the Ember Data guide] for
+more information.
+
+Some examples:
+
+* An adapter is now responsible for saving relationship changes
+* If a record is involved in a relationship change, an adapter is now
+  responsible for determining whether any server work needs to be done.
+  For example, a relational adapter may not need to do anything to a
+  `Post` when a `Comment` was moved into it. A key-value adapter may
+  not want to do anything to the `Comment` in the same situation.
+* An adapter is now responsible for transforming data hashes it receives
+  from the server into attributes and associations (via its serializer)
+* An adapter is now fully responsible for transforming records into
+  JSON hashes to send to the server (via its serializer)
+* The `commit` adapter method has been renamed to `save`. You may
+  still need to override `commit` in very custom scenarios. The default
+  `commit` method now coalesces relationship changes (via the
+  new `shouldCommit` adapter hook) and passes them to `save`. Most
+  adapters will never need to override any of these methods.
+* Instead of receiving a set of `commitDetails` iterators, the `save`
+  method receives a list of all changed records. A new `groupByType`
+  convenience method allows you to group the changed records by type.
+  The default `save` method does this automatically, which means that
+  the existing `createRecords`, `updateRecords`, and `deleteRecords`
+  APIs have not changed.
+
+There are a number of added conveniences for building custom adapters.
+If you want to learn more, check out the guide.
+
 ## Revision 4
 
 ### Removal of hasOne
