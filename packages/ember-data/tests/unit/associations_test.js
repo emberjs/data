@@ -457,3 +457,20 @@ test("calling createRecord and passing in an undefined value for an association 
   var person = store.find(Person, 1);
   equal(person.get('tag'), null, "undefined values should return null associations");
 });
+
+
+test("if a record is independently deleted, RecordArray which didn contain it, should no longer", function() {
+  var store = DS.Store.create();
+  var Person = DS.Model.extend({
+    people: DS.hasMany('Person'),
+  });
+  var parent = store.createRecord(Person);
+  var people = get(parent, 'people');
+  var person = store.createRecord(Person, {});
+
+  people.pushObject(person);
+  person.deleteRecord();
+
+  equal(people.contains(person), false, "it does not contain a deleted record");
+});
+
