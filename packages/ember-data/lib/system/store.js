@@ -929,12 +929,9 @@ DS.Store = Ember.Object.extend({
     clientIds.push(clientId);
 
     // add clientId to typeMap of superclass
-    var superclass = type.superclass;
-    while (DS.Model.detect(superclass)) {
-      typeMap = this.typeMapFor(superclass);
+    while ((type = type.superclass) && DS.Model.detect(type)) {
+      typeMap = this.typeMapFor(type);
       typeMap.clientIds.push(clientId);
-
-      superclass = superclass.superclass;
     }
 
     return clientId;
