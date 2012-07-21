@@ -9,7 +9,9 @@ module("Application boot", {
     app = Ember.Application.create({
       Router: Router,
       Store: DS.Store,
-      FooController: Ember.Controller.extend()
+      FooController: Ember.Controller.extend(),
+      ApplicationView: Ember.View,
+      ApplicationController: Ember.Controller
     });
   },
 
