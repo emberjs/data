@@ -1,7 +1,7 @@
 require("ember-data/system/record_arrays/record_array");
 require("ember-data/system/record_arrays/many_array_states");
 
-var get = Ember.get, set = Ember.set, setPath = Ember.setPath;
+var get = Ember.get, set = Ember.set;
 
 DS.ManyArray = DS.RecordArray.extend({
   init: function() {
