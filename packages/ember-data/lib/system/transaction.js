@@ -1,4 +1,4 @@
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath, fmt = Ember.String.fmt,
+var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt,
     removeObject = Ember.EnumerableUtils.removeObject;
 
 /**
@@ -130,7 +130,7 @@ DS.Transaction = Ember.Object.extend({
     Ember.assert("Once a record has changed, you cannot move it into a different transaction", !get(record, 'isDirty'));
 
     var recordTransaction = get(record, 'transaction'),
-        defaultTransaction = getPath(this, 'store.defaultTransaction');
+        defaultTransaction = get(this, 'store.defaultTransaction');
 
     Ember.assert("Models cannot belong to more than one transaction at a time.", recordTransaction === defaultTransaction);
 
@@ -242,7 +242,7 @@ DS.Transaction = Ember.Object.extend({
     @param {DS.Model} record
   */
   remove: function(record) {
-    var defaultTransaction = getPath(this, 'store.defaultTransaction');
+    var defaultTransaction = get(this, 'store.defaultTransaction');
     defaultTransaction.adoptRecord(record);
   },
 

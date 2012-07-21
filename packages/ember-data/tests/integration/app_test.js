@@ -9,7 +9,9 @@ module("Application boot", {
     app = Ember.Application.create({
       Router: Router,
       Store: DS.Store,
-      FooController: Ember.Controller.extend()
+      FooController: Ember.Controller.extend(),
+      ApplicationView: Ember.View,
+      ApplicationController: Ember.Controller
     });
   },
 
@@ -21,11 +23,11 @@ module("Application boot", {
 test("It injects the store into the router", function() {
   app.initialize();
 
-  ok(app.getPath('router.store') instanceof DS.Store, "the store was injected");
+  ok(app.get('router.store') instanceof DS.Store, "the store was injected");
 });
 
 test("It injects the store into controllers", function() {
   app.initialize();
 
-  ok(app.getPath('router.fooController.store') instanceof DS.Store, "the store was injected");
+  ok(app.get('router.fooController.store') instanceof DS.Store, "the store was injected");
 });
