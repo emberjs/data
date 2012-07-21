@@ -360,6 +360,14 @@ test("findAll(type) returns a record array of all child records of a generic typ
   equal(get(allStudents, 'length'), 2, "record array contains all student records");
   equal(get(allTeachers, 'length'), 1, "record array contains all teacher records");
   equal(get(allModels, 'length'), 4, "record array contains all model records");
+
+  store.find(Student, 4).deleteRecord();
+
+  equal(get(allLectures, 'length'), 1, "record array contains all lecture records");
+  equal(get(allPersons, 'length'), 2, "record array contains all person records");
+  equal(get(allStudents, 'length'), 1, "record array contains all student records");
+  equal(get(allTeachers, 'length'), 1, "record array contains all teacher records");
+  equal(get(allModels, 'length'), 3, "record array contains all model records");
 });
 
 test("a new record of a particular type is created via store.createRecord(type)", function() {
