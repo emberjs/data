@@ -328,6 +328,24 @@ test("findAll(type) returns a record array of all records of a specific type", f
   strictEqual(results, store.findAll(Person), "subsequent calls to findAll return the same recordArray)");
 });
 
+test("findAll(type) returns a record array of all child records of a generic type", function() {
+  var store = DS.Store.create({ adapter: DS.Adapter.create() });
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+  var Student = Person.extend();
+  var Teacher = Person.extend();
+
+  store.load(Student, 1, { id: 1, name: "Tobias Fünke" });
+  store.load(Teacher, 2, { id: 2, name: "Carl Weathers" });
+
+  var results = store.findAll(Person);
+  equal(get(results, 'length'), 2, "record array contains all child records");
+
+  store.load(Student, 3, { id: 3, name: "Buster Bluth" });
+  equal(get(results, 'length'), 3, "record array should have the new object");
+});
+
 test("a new record of a particular type is created via store.createRecord(type)", function() {
   var store = DS.Store.create();
   var Person = DS.Model.extend({
