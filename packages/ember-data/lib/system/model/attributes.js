@@ -1,4 +1,4 @@
-var get = Ember.get, getPath = Ember.getPath;
+var get = Ember.get;
 
 require("ember-data/system/model/model");
 

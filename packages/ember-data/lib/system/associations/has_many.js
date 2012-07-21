@@ -1,4 +1,4 @@
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
+var get = Ember.get, set = Ember.set;
 
 require("ember-data/system/model/model");
 
@@ -25,7 +25,7 @@ var hasAssociation = function(type, options) {
         ids, id, association;
 
     if (typeof type === 'string') {
-      type = getPath(this, type, false) || getPath(window, type);
+      type = get(this, type, false) || get(window, type);
     }
 
     key = options.key || get(this, 'namingConvention').keyToJSONKey(key);

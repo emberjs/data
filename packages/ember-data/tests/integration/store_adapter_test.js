@@ -11,7 +11,7 @@
  the given record orrecord arrayay changes state appropriately.
 */
 
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
+var get = Ember.get, set = Ember.set;
 var Person, store, adapter;
 
 module("DS.Store and DS.Adapter integration test", {
@@ -618,7 +618,7 @@ test("if a created record is marked as invalid by the server, it enters an error
   var yehuda = store.createRecord(Person, { id: 1, name: "Yehuda Katz" });
 
   var hasNameError,
-      observer = function() { hasNameError = yehuda.getPath('errors.name'); };
+      observer = function() { hasNameError = yehuda.get('errors.name'); };
 
   Ember.addObserver(yehuda, 'errors.name', observer);
 

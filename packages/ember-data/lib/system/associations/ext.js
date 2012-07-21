@@ -1,4 +1,4 @@
-var get = Ember.get, getPath = Ember.getPath;
+var get = Ember.get;
 
 DS.Model.reopenClass({
   typeForAssociation: function(name) {
@@ -15,7 +15,7 @@ DS.Model.reopenClass({
             typeList = map.get(type);
 
         if (typeof type === 'string') {
-          type = getPath(this, type, false) || getPath(window, type);
+          type = get(this, type, false) || get(window, type);
           meta.type = type;
         }
 
@@ -40,7 +40,7 @@ DS.Model.reopenClass({
         type = meta.type;
 
         if (typeof type === 'string') {
-          type = getPath(this, type, false) || getPath(window, type);
+          type = get(this, type, false) || get(window, type);
           meta.type = type;
         }
 

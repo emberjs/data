@@ -1,4 +1,4 @@
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
+var get = Ember.get, set = Ember.set;
 
 module("DS.Store", {
   teardown: function() {
@@ -43,12 +43,12 @@ module("DS.StateManager", {
 
 var isTrue = function(flag) {
   var state = stateName.split('.').join('.states.');
-  equal(getPath(stateManager, 'states.rootState.states.'+ state + "." + flag), true, stateName + "." + flag + " should be true");
+  equal(get(stateManager, 'states.rootState.states.'+ state + "." + flag), true, stateName + "." + flag + " should be true");
 };
 
 var isFalse = function(flag) {
   var state = stateName.split('.').join('.states.');
-  equal(getPath(stateManager, 'states.rootState.states.'+ state + "." + flag), false, stateName + "." + flag + " should be false");
+  equal(get(stateManager, 'states.rootState.states.'+ state + "." + flag), false, stateName + "." + flag + " should be false");
 };
 
 test("the empty state", function() {
