@@ -79,6 +79,7 @@ DS.Store = Ember.Object.extend({
     this.typeMaps = {};
     this.recordCache = [];
     this.clientIdToId = {};
+    this.cidToHash = [];
     this.recordArraysByClientId = {};
 
     // Internally, we maintain a map of all unloaded IDs requested by
@@ -113,7 +114,7 @@ DS.Store = Ember.Object.extend({
         clientId = get(record, 'clientId'),
         typeMap = this.typeMapFor(type);
 
-    return typeMap.cidToHash[clientId];
+    return this.cidToHash[clientId];
   },
 
   /**
@@ -327,7 +328,7 @@ DS.Store = Ember.Object.extend({
         // 'isLoading' state
         record = this.materializeRecord(type, clientId);
 
-        dataCache = this.typeMapFor(type).cidToHash;
+        dataCache = this.cidToHash;
 
         if (typeof dataCache[clientId] === 'object') {
           record.send('didChangeData');
@@ -361,7 +362,7 @@ DS.Store = Ember.Object.extend({
   neededClientIds: function(type, clientIds) {
     var neededClientIds = [],
         typeMap = this.typeMapFor(type),
-        dataCache = typeMap.cidToHash,
+        dataCache = this.cidToHash,
         clientId;
 
     for (var i=0, l=clientIds.length; i<l; i++) {
@@ -559,7 +560,7 @@ DS.Store = Ember.Object.extend({
   didUpdateRecord: function(record, hash) {
     if (hash) {
       var clientId = get(record, 'clientId'),
-          dataCache = this.typeMapFor(record.constructor).cidToHash;
+          dataCache = this.cidToHash;
 
       dataCache[clientId] = hash;
       record.send('didChangeData');
@@ -585,7 +586,7 @@ DS.Store = Ember.Object.extend({
     var recordData = get(record, 'data'), id, changes;
 
     if (hash) {
-      typeMap.cidToHash[clientId] = hash;
+      this.cidToHash[clientId] = hash;
 
       // If the server returns a hash, we assume that the server's version
       // of the data supercedes the local changes.
@@ -671,7 +672,7 @@ DS.Store = Ember.Object.extend({
 
   updateRecordArrayFilter: function(array, type, filter) {
     var typeMap = this.typeMapFor(type),
-        dataCache = typeMap.cidToHash,
+        dataCache = this.cidToHash,
         clientIds = typeMap.clientIds,
         clientId, hash, proxy;
 
@@ -790,7 +791,6 @@ DS.Store = Ember.Object.extend({
         {
           idToCid: {},
           clientIds: [],
-          cidToHash: {},
           recordArrays: []
       });
     }
@@ -855,7 +855,7 @@ DS.Store = Ember.Object.extend({
     }
 
     var typeMap = this.typeMapFor(type),
-        dataCache = typeMap.cidToHash,
+        dataCache = this.cidToHash,
         clientId = typeMap.idToCid[id],
         recordCache = get(this, 'recordCache');
 
@@ -913,7 +913,7 @@ DS.Store = Ember.Object.extend({
     var idToClientIdMap = typeMap.idToCid,
         clientIdToIdMap = this.clientIdToId,
         clientIds = typeMap.clientIds,
-        dataCache = typeMap.cidToHash;
+        dataCache = this.cidToHash;
 
     var clientId = ++this.clientIdCounter;
 
@@ -928,12 +928,11 @@ DS.Store = Ember.Object.extend({
 
     clientIds.push(clientId);
 
-    // update all record arrays for superclass of this type
+    // add clientId to typeMap of superclass
     var superclass = type.superclass;
     while (DS.Model.detect(superclass)) {
       typeMap = this.typeMapFor(superclass);
       typeMap.clientIds.push(clientId);
-      typeMap.cidToHash[clientId] = hash;
 
       superclass = superclass.superclass;
     }

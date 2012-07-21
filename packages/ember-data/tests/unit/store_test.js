@@ -330,6 +330,7 @@ test("findAll(type) returns a record array of all records of a specific type", f
 
 test("findAll(type) returns a record array of all child records of a generic type", function() {
   var store = DS.Store.create({ adapter: DS.Adapter.create() });
+  var Lecture = DS.Model.extend();
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -338,12 +339,27 @@ test("findAll(type) returns a record array of all child records of a generic typ
 
   store.load(Student, 1, { id: 1, name: "Tobias Fünke" });
   store.load(Teacher, 2, { id: 2, name: "Carl Weathers" });
+  store.load(Lecture, 3, { id: 3 });
 
-  var results = store.findAll(Person);
-  equal(get(results, 'length'), 2, "record array contains all child records");
+  var allLectures = store.findAll(Lecture);
+  var allPersons = store.findAll(Person);
+  var allStudents = store.findAll(Student);
+  var allTeachers = store.findAll(Teacher);
+  var allModels = store.findAll(DS.Model);
 
-  store.load(Student, 3, { id: 3, name: "Buster Bluth" });
-  equal(get(results, 'length'), 3, "record array should have the new object");
+  equal(get(allLectures, 'length'), 1, "record array contains all lecture records");
+  equal(get(allPersons, 'length'), 2, "record array contains all person records");
+  equal(get(allStudents, 'length'), 1, "record array contains all student records");
+  equal(get(allTeachers, 'length'), 1, "record array contains all teacher records");
+  equal(get(allModels, 'length'), 3, "record array contains all model records");
+
+  store.load(Student, 4, { id: 4, name: "Buster Bluth" });
+
+  equal(get(allLectures, 'length'), 1, "record array contains all lecture records");
+  equal(get(allPersons, 'length'), 3, "record array contains all person records");
+  equal(get(allStudents, 'length'), 2, "record array contains all student records");
+  equal(get(allTeachers, 'length'), 1, "record array contains all teacher records");
+  equal(get(allModels, 'length'), 4, "record array contains all model records");
 });
 
 test("a new record of a particular type is created via store.createRecord(type)", function() {
