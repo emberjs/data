@@ -1,10 +1,10 @@
 require("ember-data/system/model/states");
 require("ember-data/system/model/data_proxy");
 
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath, none = Ember.none;
+var get = Ember.get, set = Ember.set, none = Ember.none;
 
 var retrieveFromCurrentState = Ember.computed(function(key) {
-  return get(getPath(this, 'stateManager.currentState'), key);
+  return get(get(this, 'stateManager.currentState'), key);
 }).property('stateManager.currentState').cacheable();
 
 DS.Model = Ember.Object.extend(Ember.Evented, {

@@ -810,7 +810,7 @@ test("sideloaded data is loaded prior to primary data (to ensure relationship co
 
   group = store.find(Group, 1);
   group.on("didLoad", function() {
-    equal(group.getPath('people.firstObject').get('name'), "Tom Dale", "sideloaded data are already loaded");
+    equal(group.get('people.firstObject').get('name'), "Tom Dale", "sideloaded data are already loaded");
   });
 
   ajaxHash.success({
@@ -829,7 +829,7 @@ test("additional data can be sideloaded with associations in correct order", fun
   store.adapter.mappings = {'comments': Comment};
 
   var comments = store.filter(Comment, function(data) {
-    equal(store.find(Comment, data.get('id')).getPath('person.id'), 1);
+    equal(store.find(Comment, data.get('id')).get('person.id'), 1);
   });
 
   group = store.find(Group, 1);

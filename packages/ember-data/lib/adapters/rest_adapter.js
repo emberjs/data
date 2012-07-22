@@ -2,7 +2,7 @@ require("ember-data/core");
 require('ember-data/system/adapters');
 /*global jQuery*/
 
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
+var get = Ember.get, set = Ember.set;
 
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
@@ -251,7 +251,7 @@ DS.RESTAdapter = DS.Adapter.extend({
         sideloadedType = get(mappings, prop);
 
         if (typeof sideloadedType === 'string') {
-          sideloadedType = getPath(window, sideloadedType);
+          sideloadedType = get(window, sideloadedType);
         }
 
         Ember.assert("Your server returned a hash with the key " + prop + " but you have no mapping for it", !!sideloadedType);

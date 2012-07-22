@@ -1,4 +1,4 @@
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath, guidFor = Ember.guidFor;
+var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor;
 
 /**
   This file encapsulates the various states that a record can transition
@@ -27,7 +27,7 @@ var get = Ember.get, set = Ember.set, getPath = Ember.getPath, guidFor = Ember.g
   string. You can determine a record's current state by getting its manager's
   current state path:
 
-        record.getPath('stateManager.currentState.path');
+        record.get('stateManager.currentState.path');
         //=> "created.uncommitted"
 
   The `DS.Model` states are themselves stateless. What we mean is that,
@@ -113,7 +113,7 @@ var get = Ember.get, set = Ember.set, getPath = Ember.getPath, guidFor = Ember.g
   state in a more user-friendly way than examining its state path. For example,
   instead of doing this:
 
-      var statePath = record.getPath('stateManager.currentState.path');
+      var statePath = record.get('stateManager.currentState.path');
       if (statePath === 'created.inFlight') {
         doSomething();
       }
