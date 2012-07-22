@@ -133,32 +133,6 @@ test("should be able to retrieve the type for a hasMany association specified us
   equal(Person.typeForAssociation('tags'), Tag, "returns the association type");
 });
 
-test("should be able to retrieve the type for a belongsTo association from its metadata", function() {
-  var Tag = DS.Model.extend({
-    name: DS.attr('string')
-  });
-
-  var Person = DS.Model.extend({
-    name: DS.attr('string'),
-    tags: DS.belongsTo(Tag)
-  });
-
-  equal(Person.typeForAssociation('tags'), Tag, "returns the association type");
-});
-
-test("should be able to retrieve the type for a belongsTo association specified using a string from its metadata", function() {
-  window.Tag = DS.Model.extend({
-    name: DS.attr('string')
-  });
-
-  var Person = DS.Model.extend({
-    name: DS.attr('string'),
-    tags: DS.belongsTo('Tag')
-  });
-
-  equal(Person.typeForAssociation('tags'), Tag, "returns the association type");
-});
-
 test("associations work when declared with a string path", function() {
   window.App = {};
 
@@ -362,6 +336,32 @@ test("can create child record from a hasMany association", function() {
 
 module("DS.belongsTo");
 
+test("should be able to retrieve the type for a belongsTo association from its metadata", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.belongsTo(Tag)
+  });
+
+  equal(Person.typeForAssociation('tags'), Tag, "returns the association type");
+});
+
+test("should be able to retrieve the type for a belongsTo association specified using a string from its metadata", function() {
+  window.Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo('Tag')
+  });
+
+  equal(Person.typeForAssociation('tag'), Tag, "returns the association type");
+});
+
 test("belongsTo lazily loads associations as needed", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
@@ -380,7 +380,7 @@ test("belongsTo lazily loads associations as needed", function() {
   equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
   equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
-  equal(getPath(person, 'tag.name'), "friendly", "the tag shuld have name");
+  equal(getPath(person, 'tag.name'), "friendly", "the tag should have name");
 
   strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
   strictEqual(get(person, 'tag'), store.find(Tag, 5), "association object is the same as object retrieved directly");
