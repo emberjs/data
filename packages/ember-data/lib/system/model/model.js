@@ -321,7 +321,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     also call methods with the given name.
   */
   trigger: function(name) {
-    this[name].apply(this, [].slice.call(arguments, 1));
+    Ember.tryInvoke(this, name, [].slice.call(arguments, 1));
     this._super.apply(this, arguments);
   }
 });
