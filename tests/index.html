@@ -101,6 +101,12 @@
         };
       };
 
+      window.invokeAsync = function(callback, timeout) {
+        timeout = timeout || 1;
+
+        setTimeout(async(callback, timeout+100), timeout);
+      };
+
       var syncForTest = function(fn) {
         var callSuper;
 

@@ -23,7 +23,8 @@
         "module",
         "expect",
         "minispade",
-        "async"
+        "async",
+        "invokeAsync"
     ],
 
     "node" : false,
