@@ -33,57 +33,6 @@ module("DS.Store and DS.Adapter integration test", {
   }
 });
 
-test("when a single record is requested, the adapter's find method is called unless it's loaded", function() {
-  expect(2);
-
-  var count = 0;
-
-  adapter.find = function(store, type, id) {
-    equal(type, Person, "the find method is called with the correct type");
-    equal(count, 0, "the find method is only called once");
-
-    store.load(type, id, { id: 1, name: "Braaaahm Dale" });
-
-    count++;
-  };
-
-  store.find(Person, 1);
-  store.find(Person, 1);
-});
-
-test("when a record is requested but has not yet been loaded, it should report its id", function() {
-  adapter.find = Ember.K;
-
-  var record = store.find(Person, 1);
-  equal(get(record, 'id'), 1, "should report its id while loading");
-});
-
-
-test("when multiple records are requested, the adapter's findMany method is called", function() {
-  expect(1);
-
-  adapter.findMany = function(store, type, ids) {
-    deepEqual(ids, [1,2,3], "ids are passed");
-  };
-
-  store.findMany(Person, [1,2,3]);
-  store.findMany(Person, [1,2,3]);
-});
-
-test("when multiple records are requested, the adapter's find method is called multiple times if findMany is not implemented", function() {
-  expect(3);
-
-  var count = 0;
-  adapter.find = function(store, type, id) {
-    count++;
-
-    equal(id, count);
-  };
-
-  store.findMany(Person, [1,2,3]);
-  store.findMany(Person, [1,2,3]);
-});
-
 test("when an association is loaded, the adapter's find method should not be called if all its IDs are already loaded", function() {
   expect(0);
 
@@ -112,47 +61,6 @@ test("when an association is loaded, the adapter's find method should not be cal
   person.get('comments');
 
   store.load(Person, { id: 1, comments: [ 1 ] });
-});
-
-test("when a store already has all needed records records, it should not call findMany on the adapter", function() {
-  expect(0);
-
-  adapter.find = function(store, type, id) {
-    ok(false, "This should not be called");
-  };
-
-  store.load(Person, { id: 1 });
-  store.findMany(Person, [ 1 ]);
-});
-
-test("when many records are requested with query parameters, the adapter's findQuery method is called", function() {
-  expect(6);
-  adapter.findQuery = function(store, type, query, recordArray) {
-    equal(type, Person, "the find method is called with the correct type");
-
-    stop();
-
-    setTimeout(function() {
-      recordArray.load([{ id: 1, name: "Peter Wagenet" }, { id: 2, name: "Brohuda Katz" }]);
-      start();
-    }, 100);
-  };
-
-  var array = store.find(Person, { page: 1 });
-  equal(get(array, 'length'), 0, "The array is 0 length do far");
-
-  array.addArrayObserver(this, {
-    willChange: function(target, start, removed, added) {
-      equal(removed, 0, "0 items are being removed");
-    },
-
-    didChange: function(target, start, removed, added) {
-      equal(added, 2, "2 items are being added");
-
-      equal(get(array, 'length'), 2, "The array is now populated");
-      equal(get(array.objectAt(0), 'name'), "Peter Wagenet", "The array is populated correctly");
-    }
-  });
 });
 
 test("when all records for a type are requested, the adapter's findAll method is called", function() {

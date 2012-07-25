@@ -5,7 +5,7 @@
 
 var app;
 
-module("Ember.Application integration", {
+module("Ember.Application extensions", {
   setup: function() {
     var Router = Ember.Router.extend({
       root: Ember.Route.extend()

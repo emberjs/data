@@ -1,9 +1,8 @@
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
+var get = Ember.get, set = Ember.set;
 
-var store, adapter;
-var Comment;
+var store, adapter, Comment;
 
-module("Association/adapter integration test", {
+module("Associations", {
   setup: function() {
     adapter = DS.Adapter.create();
 
