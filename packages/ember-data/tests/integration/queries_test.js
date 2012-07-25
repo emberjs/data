@@ -20,32 +20,32 @@ module("Queries", {
   }
 });
 
-test("when many records are requested with query parameters, the adapter's findQuery method is called", function() {
-  expect(6);
+test("When a query is made, the adapter should receive a record array it can populate with the results of the query.", function() {
+  expect(7);
+
   adapter.findQuery = function(store, type, query, recordArray) {
     equal(type, Person, "the find method is called with the correct type");
 
     stop();
 
+    // Simulate latency to ensure correct behavior in asynchronous conditions.
+    // Once 100ms has passed, load the results of the query into the record array.
     setTimeout(function() {
       recordArray.load([{ id: 1, name: "Peter Wagenet" }, { id: 2, name: "Brohuda Katz" }]);
-      start();
     }, 100);
   };
 
-  var array = store.find(Person, { page: 1 });
-  equal(get(array, 'length'), 0, "The array is 0 length do far");
+  var queryResults = store.find(Person, { page: 1 });
+  equal(get(queryResults, 'length'), 0, "the record array has a length of zero before the results are loaded");
+  equal(get(queryResults, 'isLoaded'), false, "the record array's `isLoaded` property is false");
 
-  array.addArrayObserver(this, {
-    willChange: function(target, start, removed, added) {
-      equal(removed, 0, "0 items are being removed");
-    },
+  queryResults.one('didLoad', function() {
+    start();
 
-    didChange: function(target, start, removed, added) {
-      equal(added, 2, "2 items are being added");
+    equal(get(queryResults, 'length'), 2, "the record array has a length of 2 after the results are loaded");
+    equal(get(queryResults, 'isLoaded'), true, "the record array's `isLoaded` property should be true");
 
-      equal(get(array, 'length'), 2, "The array is now populated");
-      equal(get(array.objectAt(0), 'name'), "Peter Wagenet", "The array is populated correctly");
-    }
+    equal(queryResults.objectAt(0).get('name'), "Peter Wagenet", "the first record is 'Peter Wagenet'");
+    equal(queryResults.objectAt(1).get('name'), "Brohuda Katz", "the second record is 'Brohuda Katz'");
   });
 });
