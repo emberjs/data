@@ -33,34 +33,6 @@ module("DS.Store and DS.Adapter integration test", {
   }
 });
 
-
-test("by default, commit calls createRecords once per type", function() {
-  expect(6);
-
-  adapter.createRecords = function(store, type, array) {
-    equal(type, Person, "the type is correct");
-    equal(get(array, 'length'), 2, "the array is the right length");
-    var records = [{ id: 1, name: "Tom Dale", updatedAt: 'right nao' }, { id: 2, name: "Yehuda Katz" }];
-    store.didCreateRecords(Person, array, records);
-  };
-
-  var tom = store.createRecord(Person, { name: "Tom Dale", updatedAt: null });
-  var yehuda = store.createRecord(Person, { name: "Yehuda Katz" });
-
-  var callCount = 0;
-  tom.addObserver('updatedAt', function() {
-    callCount++;
-    equal(get(tom, 'updatedAt'), 'right nao', "property returned from adapter is updated");
-  });
-
-  store.commit();
-  equal(callCount, 1, "calls observer on the record when it has been changed");
-
-  equal(tom, store.find(Person, 1), "Once an ID is in, find returns the same object");
-  equal(yehuda, store.find(Person, 2), "Once an ID is in, find returns the same object");
-  store.commit();
-});
-
 test("by default, commit calls updateRecords once per type", function() {
   expect(9);
 
