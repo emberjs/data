@@ -5,7 +5,7 @@
 
 var app;
 
-module("Ember.Application extensions", {
+module("Ember.Application Extensions", {
   setup: function() {
     var Router = Ember.Router.extend({
       root: Ember.Route.extend()
@@ -27,13 +27,13 @@ module("Ember.Application extensions", {
   }
 });
 
-test("it should inject a store instance into the router", function() {
+test("If a Store property exists on an Ember.Application, it should be instantiated.", function() {
   app.initialize();
 
   ok(app.getPath('router.store') instanceof DS.Store, "the store was injected");
 });
 
-test("it should inject the store into instantiated controllers", function() {
+test("If a store is instantiated, it should be made available to each controller.", function() {
   app.initialize();
 
   ok(app.getPath('router.fooController.store') instanceof DS.Store, "the store was injected");
