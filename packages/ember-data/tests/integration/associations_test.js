@@ -121,3 +121,35 @@ test("an association has an isLoaded flag that indicates whether the ManyArray h
   array = store.findMany(Comment, [ 1, 2, 3 ]);
   equal(get(array, 'isLoaded'), false, "isLoaded should not be true when first created");
 });
+
+var Person;
+
+test("When a hasMany association is accessed, the adapter's findMany method should not be called if all the records in the association are already loaded", function() {
+  expect(0);
+
+  adapter.findMany = function() {
+    ok(false, "The adapter's find method should not be called");
+  };
+
+  Person = DS.Model.extend({
+    updatedAt: DS.attr('string'),
+    name: DS.attr('string')
+  });
+
+  Comment = DS.Model.extend({
+    person: DS.belongsTo(Person)
+  });
+
+  Person.reopen({
+    comments: DS.hasMany(Comment)
+  });
+
+  store.load(Person, { id: 1, comments: [ 1 ] });
+  store.load(Comment, { id: 1 });
+
+  var person = store.find(Person, 1);
+
+  person.get('comments');
+
+  store.load(Person, { id: 1, comments: [ 1 ] });
+});

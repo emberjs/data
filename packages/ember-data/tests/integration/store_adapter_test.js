@@ -33,36 +33,6 @@ module("DS.Store and DS.Adapter integration test", {
   }
 });
 
-test("when an association is loaded, the adapter's find method should not be called if all its IDs are already loaded", function() {
-  expect(0);
-
-  adapter.findMany = function() {
-    ok(false, "The adapter's find method should not be called");
-  };
-
-  Person = DS.Model.extend({
-    updatedAt: DS.attr('string'),
-    name: DS.attr('string')
-  });
-
-  var Comment = DS.Model.extend({
-    person: DS.belongsTo(Person)
-  });
-
-  Person.reopen({
-    comments: DS.hasMany(Comment)
-  });
-
-  store.load(Person, { id: 1, comments: [ 1 ] });
-  store.load(Comment, { id: 1 });
-
-  var person = store.find(Person, 1);
-
-  person.get('comments');
-
-  store.load(Person, { id: 1, comments: [ 1 ] });
-});
-
 
 test("by default, commit calls createRecords once per type", function() {
   expect(6);
