@@ -33,33 +33,6 @@ module("DS.Store and DS.Adapter integration test", {
   }
 });
 
-
-test("by default, commit calls deleteRecords once per type", function() {
-  expect(4);
-
-  adapter.deleteRecords = function(store, type, array) {
-    equal(type, Person, "the type is correct");
-    equal(get(array, 'length'), 2, "the array is the right length");
-    store.didDeleteRecords(array);
-  };
-
-  store.load(Person, { id: 1, name: "Braaaahm Dale" });
-  store.load(Person, { id: 2, name: "Gentile Katz" });
-
-  var tom = store.find(Person, 1);
-  var yehuda = store.find(Person, 2);
-
-  tom.deleteRecord();
-  yehuda.deleteRecord();
-  store.commit();
-
-  ok(get(tom, 'isDeleted'), "record is marked as deleted");
-  ok(!get(tom, 'isDirty'), "record is marked as not being dirty");
-
-  // there is nothing to commit, so there won't be any records
-  store.commit();
-});
-
 test("by default, createRecords calls createRecord once per record", function() {
   expect(8);
   var count = 1;
