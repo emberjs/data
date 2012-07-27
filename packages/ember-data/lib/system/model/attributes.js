@@ -121,7 +121,7 @@ DS.attr.transforms = {
       } else if (serialized === null || serialized === undefined) {
         // if the value is not present in the data,
         // return undefined, not null.
-        return serialized;
+        return undefined;
       } else {
         return null;
       }
