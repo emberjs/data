@@ -31,38 +31,38 @@ test("The `commit` method should call `createRecords` once per type.", function(
   });
 });
 
-test("by default, commit calls updateRecords once per type", function() {
-  expect(9);
+test("The `commit` method should call `updateRecords` once per type.", function() {
+  expect(2);
 
   adapter.updateRecords = function(store, type, array) {
-    equal(type, Person, "the type is correct");
-    equal(get(array, 'length'), 2, "the array is the right length");
-
-    array.forEach(function(item) {
-      equal(get(item, 'isSaving'), true, "the item is saving");
-    });
-
-    store.didUpdateRecords(array);
-
-    array.forEach(function(item) {
-      equal(get(item, 'isSaving'), false, "the item is no longer saving");
-      equal(get(item, 'isLoaded'), true, "the item is loaded");
-    });
+    equal(type, Person, "the type is Person");
+    equal(get(array, 'length'), 2, "the array has two items");
   };
 
-  store.load(Person, { id: 1, name: "Braaaahm Dale" });
-  store.load(Person, { id: 2, name: "Gentile Katz" });
+  var tom = Person.create({ name: "Tom Dale", updatedAt: null });
+  var yehuda = Person.create({ name: "Yehuda Katz" });
 
-  var tom = store.find(Person, 1);
-  var yehuda = store.find(Person, 2);
+  adapter.commit(storeStub, {
+    updated: [tom, yehuda],
+    deleted: [],
+    created: []
+  });
+});
 
-  set(tom, "name", "Tom Dale");
-  set(yehuda, "name", "Yehuda Katz");
+test("The `commit` method should call `deleteRecords` once per type.", function() {
+  expect(2);
 
-  store.commit();
+  adapter.deleteRecords = function(store, type, array) {
+    equal(type, Person, "the type is Person");
+    equal(get(array, 'length'), 2, "the array has two items");
+  };
 
-  equal(get(store.find(Person, 2), "name"), "Yehuda Katz", "record was updated");
+  var tom = Person.create({ name: "Tom Dale", updatedAt: null });
+  var yehuda = Person.create({ name: "Yehuda Katz" });
 
-  // there is nothing to commit, so there won't be any records
-  store.commit();
+  adapter.commit(storeStub, {
+    updated: [],
+    deleted: [tom, yehuda],
+    created: []
+  });
 });

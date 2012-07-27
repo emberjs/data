@@ -599,3 +599,167 @@ test("an ID of 0 is allowed", function() {
   equal(store.findAll(Person).objectAt(0).get('name'), "Tom Dale", "found record with id 0");
 });
 
+var StubModel, stubAdapter, store;
+
+var receivedEvent = function(record, event) {
+  return -1 !== record.receivedEvents.indexOf(event);
+};
+
+module("DS.Store - Adapter Callbacks", {
+  setup: function() {
+    StubModel = Ember.Object.extend({
+      init: function() {
+        this.resetEvents();
+      },
+
+      send: function(event) {
+        this.receivedEvents.push(event);
+      },
+
+      resetEvents: function() {
+        this.receivedEvents = [];
+      },
+
+      setupData: Ember.K
+    });
+
+    StubModel.reopenClass({
+      _create: function() {
+        return this.create.apply(this, arguments);
+      }
+    });
+
+    stubAdapter = Ember.Object.create({
+      extractId: function(type, hash) {
+        return hash.id;
+      },
+
+      materialize: function(record, hash) {
+        record.materializedData = hash;
+      }
+    });
+
+    store = DS.Store.create({ adapter: stubAdapter });
+  },
+
+  teardown: function() {
+    stubAdapter.destroy();
+    store.destroy();
+  }
+});
+
+test("An adapter can notify the store that records were updated by calling `didUpdateRecord`.", function() {
+  expect(11);
+
+  var tom, yehuda, transaction;
+
+  stubAdapter.commit = function(store, commitDetails, relationships) {
+    var updatedRecords = commitDetails.updated;
+
+    equal(get(updatedRecords, 'length'), 2, "precond - two updated records are passed to `commit`");
+
+    ok(!receivedEvent(tom, 'didCommit'), "didCommit was not sent");
+    ok(!receivedEvent(yehuda, 'didCommit'), "didCommit was not sent");
+    ok(!receivedEvent(tom, 'didChangeData'), "didChangeData was not sent");
+    ok(!receivedEvent(yehuda, 'didChangeData'), "didChangeData was not sent");
+
+    store.didUpdateRecord(tom, { id: 1, name: "Tom Dale", updatedAt: "now" });
+    store.didUpdateRecord(yehuda, { id: 2, name: "Yehuda Katz", updatedAt: "now!" });
+
+    ok(receivedEvent(tom, 'didCommit'), "didCommit was sent");
+    ok(receivedEvent(yehuda, 'didCommit'), "didCommit was sent");
+    ok(receivedEvent(tom, 'didChangeData'), "didChangeData was sent");
+    ok(receivedEvent(yehuda, 'didChangeData'), "didChangeData was sent");
+
+    store.materializeData(tom);
+    store.materializeData(yehuda);
+
+    deepEqual(tom.materializedData, {
+      id: 1,
+      name: "Tom Dale",
+      updatedAt: "now"
+    }, "hash provided to `didUpdateRecord` for tom replaces the hash provided to `load`");
+
+    deepEqual(yehuda.materializedData, {
+      id: 2,
+      name: "Yehuda Katz",
+      updatedAt: "now!"
+    }, "hash provided to `didUpdateRecord` for yehuda replaces the hash provided to `load`");
+  };
+
+  store.load(StubModel, { id: 1, name: "Braaaahm Dale" });
+  store.load(StubModel, { id: 2, name: "Gentile Katz" });
+
+  tom = store.find(StubModel, 1);
+  yehuda = store.find(StubModel, 2);
+  transaction = tom.get('transaction');
+
+  transaction.recordBecameDirty('updated', tom);
+  transaction.recordBecameDirty('updated', yehuda);
+
+  tom.resetEvents();
+  yehuda.resetEvents();
+
+  store.commit();
+
+  // there is nothing to commit, so there won't be any records
+  store.commit();
+});
+
+test("An adapter can notify the store that multiple records were updated by passing an array to `didUpdateRecords`.", function() {
+  expect(11);
+
+  var tom, yehuda, transaction;
+
+  stubAdapter.commit = function(store, commitDetails, relationships) {
+    var updatedRecords = commitDetails.updated;
+
+    equal(get(updatedRecords, 'length'), 2, "precond - two updated records are passed to `commit`");
+
+    ok(!receivedEvent(tom, 'didCommit'), "didCommit was not sent");
+    ok(!receivedEvent(yehuda, 'didCommit'), "didCommit was not sent");
+    ok(!receivedEvent(tom, 'didChangeData'), "didChangeData was not sent");
+    ok(!receivedEvent(yehuda, 'didChangeData'), "didChangeData was not sent");
+
+    store.didUpdateRecords(updatedRecords, [ { id: 1, name: "Tom Dale", updatedAt: "now" }, { id: 2, name: "Yehuda Katz", updatedAt: "now!" } ]);
+
+    ok(receivedEvent(tom, 'didCommit'), "didCommit was sent");
+    ok(receivedEvent(yehuda, 'didCommit'), "didCommit was sent");
+    ok(receivedEvent(tom, 'didChangeData'), "didChangeData was sent");
+    ok(receivedEvent(yehuda, 'didChangeData'), "didChangeData was sent");
+
+    store.materializeData(tom);
+    store.materializeData(yehuda);
+
+    deepEqual(tom.materializedData, {
+      id: 1,
+      name: "Tom Dale",
+      updatedAt: "now"
+    }, "hash provided to `didUpdateRecords` for tom replaces the hash provided to `load`");
+
+    deepEqual(yehuda.materializedData, {
+      id: 2,
+      name: "Yehuda Katz",
+      updatedAt: "now!"
+    }, "hash provided to `didUpdateRecords` for yehuda replaces the hash provided to `load`");
+  };
+
+  store.load(StubModel, { id: 1, name: "Braaaahm Dale" });
+  store.load(StubModel, { id: 2, name: "Gentile Katz" });
+
+  tom = store.find(StubModel, 1);
+  yehuda = store.find(StubModel, 2);
+  transaction = tom.get('transaction');
+
+  transaction.recordBecameDirty('updated', tom);
+  transaction.recordBecameDirty('updated', yehuda);
+
+  tom.resetEvents();
+  yehuda.resetEvents();
+
+  store.commit();
+
+  // there is nothing to commit, so the adapter's commit method
+  // should not be called again.
+  store.commit();
+});
