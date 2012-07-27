@@ -638,11 +638,11 @@ test("An adapter can notify the store that records were updated by calling `didU
     yehuda.shouldHaveBeenCalled('adapterDidCommit', 1);
   };
 
-  store.load(DS.StubModel, { id: 1 });
-  store.load(DS.StubModel, { id: 2 });
+  store.load(DS.MockModel, { id: 1 });
+  store.load(DS.MockModel, { id: 2 });
 
-  tom = store.find(DS.StubModel, 1);
-  yehuda = store.find(DS.StubModel, 2);
+  tom = store.find(DS.MockModel, 1);
+  yehuda = store.find(DS.MockModel, 2);
 
   tom.spyOn('adapterDidCommit');
   yehuda.spyOn('adapterDidCommit');
@@ -687,11 +687,11 @@ test("An adapter can notify the store that records were updated and provide new 
     }, "hash provided to `didUpdateRecord` for yehuda replaces the hash provided to `load`");
   };
 
-  store.load(DS.StubModel, { id: 1, name: "Braaaahm Dale" });
-  store.load(DS.StubModel, { id: 2, name: "Gentile Katz" });
+  store.load(DS.MockModel, { id: 1, name: "Braaaahm Dale" });
+  store.load(DS.MockModel, { id: 2, name: "Gentile Katz" });
 
-  tom = store.find(DS.StubModel, 1);
-  yehuda = store.find(DS.StubModel, 2);
+  tom = store.find(DS.MockModel, 1);
+  yehuda = store.find(DS.MockModel, 2);
 
   tom.becomeDirty('updated');
   yehuda.becomeDirty('updated');
@@ -719,11 +719,11 @@ test("An adapter can notify the store that a record was updated by calling `didU
     yehuda.shouldHaveBeenCalled('adapterDidCommit', 1);
   };
 
-  store.load(DS.StubModel, { id: 1 });
-  store.load(DS.StubModel, { id: 2 });
+  store.load(DS.MockModel, { id: 1 });
+  store.load(DS.MockModel, { id: 2 });
 
-  tom = store.find(DS.StubModel, 1);
-  yehuda = store.find(DS.StubModel, 2);
+  tom = store.find(DS.MockModel, 1);
+  yehuda = store.find(DS.MockModel, 2);
 
   tom.spyOn('adapterDidCommit');
   yehuda.spyOn('adapterDidCommit');
@@ -769,11 +769,11 @@ test("An adapter can notify the store that a record was updated and provide new 
     }, "hash provided to `didUpdateRecord` for yehuda replaces the hash provided to `load`");
   };
 
-  store.load(DS.StubModel, { id: 1, name: "Braaaahm Dale" });
-  store.load(DS.StubModel, { id: 2, name: "Gentile Katz" });
+  store.load(DS.MockModel, { id: 1, name: "Braaaahm Dale" });
+  store.load(DS.MockModel, { id: 2, name: "Gentile Katz" });
 
-  tom = store.find(DS.StubModel, 1);
-  yehuda = store.find(DS.StubModel, 2);
+  tom = store.find(DS.MockModel, 1);
+  yehuda = store.find(DS.MockModel, 2);
 
   tom.becomeDirty('updated');
   yehuda.becomeDirty('updated');
@@ -804,11 +804,11 @@ test("An adapter can notify the store that records were deleted by calling `didD
     yehuda.shouldHaveReceived('didCommit');
   };
 
-  store.load(DS.StubModel, { id: 1, name: "Braaaahm Dale" });
-  store.load(DS.StubModel, { id: 2, name: "Gentile Katz" });
+  store.load(DS.MockModel, { id: 1, name: "Braaaahm Dale" });
+  store.load(DS.MockModel, { id: 2, name: "Gentile Katz" });
 
-  tom = store.find(DS.StubModel, 1);
-  yehuda = store.find(DS.StubModel, 2);
+  tom = store.find(DS.MockModel, 1);
+  yehuda = store.find(DS.MockModel, 2);
   transaction = tom.get('transaction');
 
   transaction.recordBecameDirty('deleted', tom);

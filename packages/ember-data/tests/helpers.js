@@ -1,4 +1,4 @@
-DS.Stub = Ember.Object.extend({
+DS.MockObject = Ember.Object.extend({
   init: function() {
     this.spyMeta = {};
   },
@@ -31,7 +31,7 @@ DS.Stub = Ember.Object.extend({
   }
 });
 
-DS.StubModel = DS.Stub.extend({
+DS.MockModel = DS.MockObject.extend({
   init: function() {
     this.resetEvents();
 
@@ -73,7 +73,7 @@ DS.StubModel = DS.Stub.extend({
   setupData: Ember.K
 });
 
-DS.StubModel.reopenClass({
+DS.MockModel.reopenClass({
   _create: function() {
     return this.create.apply(this, arguments);
   }
