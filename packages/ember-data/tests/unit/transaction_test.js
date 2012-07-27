@@ -191,15 +191,7 @@ test("a record that is in the deleted state cannot be moved into a new transacti
 });
 
 test("a record that is in the clean state is moved back to the default transaction after its transaction is committed", function() {
-  var commitCalled = 0;
-
-  var store = DS.Store.create({
-    adapter: DS.Adapter.create({
-      commit: function() {
-        commitCalled++;
-      }
-    })
-  });
+  var store = DS.Store.create();
 
   store.load(Person, { id: 1 });
 
@@ -209,7 +201,6 @@ test("a record that is in the clean state is moved back to the default transacti
   transaction.add(person);
   transaction.commit();
 
-  equal(commitCalled, 1, "should attempt to commit records");
   equal(get(person, 'transaction'), get(store, 'defaultTransaction'), "record should have been moved back to the default transaction");
 });
 

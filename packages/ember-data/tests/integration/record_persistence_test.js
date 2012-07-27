@@ -45,7 +45,7 @@ test("When a store is committed, the adapter's `commit` method should be called 
 });
 
 test("When a store is committed, the adapter's `commit` method should be called with records that have been created.", function() {
-  expect(4);
+  expect(3);
 
   adapter.commit = function(store, records) {
     equal(get(records.updated, 'length'), 0, "no records are marked as being updated");

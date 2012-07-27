@@ -189,8 +189,10 @@ DS.Transaction = Ember.Object.extend({
 
     this.removeCleanRecords();
 
-    if (adapter && adapter.commit) { adapter.commit(store, commitDetails, relationships); }
-    else { throw fmt("Adapter is either null or does not implement `commit` method", this); }
+    if (commitDetails.created.length || commitDetails.updated.length || commitDetails.deleted.length) {
+      if (adapter && adapter.commit) { adapter.commit(store, commitDetails, relationships); }
+      else { throw fmt("Adapter is either null or does not implement `commit` method", this); }
+    }
   },
 
   /**
