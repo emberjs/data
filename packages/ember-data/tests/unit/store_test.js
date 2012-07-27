@@ -328,6 +328,33 @@ test("findAll(type) returns a record array of all records of a specific type", f
   strictEqual(results, store.findAll(Person), "subsequent calls to findAll return the same recordArray)");
 });
 
+test("all(type) returns a record array of all loaded records of a specific type", function() {
+  var adapter = DS.Adapter.create({
+    findAll: function(){
+      equal(null, 1, "findAll() was called when it should not have been.");
+    }
+  });
+  var store = DS.Store.create({ 
+    adapter: adapter
+  });
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  store.load(Person, 1, { id: 1, name: "Tom Dale" });
+
+  var results = store.all(Person);
+  equal(get(results, 'length'), 1, "record array should have the original object");
+  equal(get(results.objectAt(0), 'name'), "Tom Dale", "record has the correct information");
+
+  store.load(Person, 2, { id: 2, name: "Yehuda Katz" });
+  equal(get(results, 'length'), 2, "record array should have the new object");
+  equal(get(results.objectAt(1), 'name'), "Yehuda Katz", "record has the correct information");
+
+  strictEqual(results, store.all(Person), "subsequent calls to all() return the same recordArray)");
+});
+
+
 test("a new record of a particular type is created via store.createRecord(type)", function() {
   var store = DS.Store.create();
   var Person = DS.Model.extend({
