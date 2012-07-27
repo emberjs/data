@@ -57,5 +57,10 @@ DS.Model.reopen({
     get(this.constructor, 'associationsByName').forEach(function(name, association) {
       callback.call(binding, name, association);
     });
+  },
+  doInverseAssignment: function(callback) {
+    this._performingInverseAssignment = true;
+    callback.call(this);
+    this._performingInverseAssignment = false;
   }
 });

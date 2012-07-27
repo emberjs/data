@@ -41,10 +41,12 @@ DS.ManyArray = DS.RecordArray.extend({
     added = added.map(function(record) {
       Ember.assert("You can only add records of " + (get(this, 'type') && get(this, 'type').toString()) + " to this association.", !get(this, 'type') || (get(this, 'type') === record.constructor));
 
-      var oldParent = this.assignInverse(record, parentRecord);
+      if (!parentRecord._performingInverseAssignment) {
+        var oldParent = this.assignInverse(record, parentRecord);
 
-      record.get('transaction')
-        .relationshipBecameDirty(record, oldParent, parentRecord);
+        record.get('transaction')
+          .relationshipBecameDirty(record, oldParent, parentRecord);
+      }
 
       stateManager.send('recordWasAdded', record);
 
@@ -57,10 +59,12 @@ DS.ManyArray = DS.RecordArray.extend({
     for (var i = index; i < len; i++) {
       // TODO: null out inverse FK
       record = this.objectAt(i);
-      var oldParent = this.assignInverse(record, parentRecord, true);
+      if (!parentRecord._performingInverseAssignment) {
+        var oldParent = this.assignInverse(record, parentRecord, true);
 
-      record.get('transaction')
-        .relationshipBecameDirty(record, parentRecord, null);
+        record.get('transaction')
+          .relationshipBecameDirty(record, parentRecord, null);
+      }
 
       stateManager.send('recordWasAdded', record);
     }
@@ -86,7 +90,9 @@ DS.ManyArray = DS.RecordArray.extend({
 
     if (actual) {
       oldParent = get(record, actual.name);
-      set(record, actual.name, remove ? null : parentRecord);
+      record.doInverseAssignment(function(){
+        set(record, actual.name, remove ? null : parentRecord);
+      });
       return oldParent;
     }
   },
