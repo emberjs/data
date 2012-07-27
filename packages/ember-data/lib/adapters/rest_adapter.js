@@ -64,6 +64,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     var data = {};
     data[root] = record.toJSON();
+    delete data[root][get(record, 'primaryKey')];
 
     this.ajax(this.buildURL(root, id), "PUT", {
       data: data,
