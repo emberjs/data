@@ -74,6 +74,7 @@
     });
   };
 
+
   minispade.register('ember-data/~test-setup', function() {
     Ember.View.reopen({
       _insertElementLater: syncForTest()
