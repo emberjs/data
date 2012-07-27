@@ -1,10 +1,10 @@
-var store, serializer;
+var Adapter, adapter, store, serializer;
 
 module("Record Attribute Transforms", {
   setup: function() {
-    store = DS.Store.create();
+    Adapter = DS.Adapter.extend();
 
-    store.registerTransform('unobtainium', {
+    Adapter.registerTransform('unobtainium', {
       toJSON: function(value) {
         return 'toJSON';
       },
@@ -14,31 +14,18 @@ module("Record Attribute Transforms", {
       }
     });
 
-    serializer = store.getPath('_adapter.serializer');
+    adapter = Adapter.create();
+    store = DS.Store.create({
+      adapter: adapter
+    });
+    serializer = adapter.get('serializer');
   },
 
   teardown: function() {
-    //serializer.destroy();
+    serializer.destroy();
+    adapter.destroy();
     store.destroy();
   }
-});
-
-test("registered transformations should be called when serializing and materializing records", function() {
-  var value;
-
-  value = serializer.transformValueFromJSON('unknown', 'unobtainium');
-  equal(value, 'fromJSON', "the fromJSON transform was called");
-
-  value = serializer.transformValueToJSON('unknown', 'unobtainium');
-  equal(value, 'toJSON', "the toJSON transform was called");
-
-  raises(function() {
-    serializer.transformValueFromJSON('unknown', 'obtainium');
-  });
-
-  raises(function() {
-    serializer.transformValueToJSON('unknown', 'obtainium');
-  });
 });
 
 test("transformed values should be materialized on the record", function() {

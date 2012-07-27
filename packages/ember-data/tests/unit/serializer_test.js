@@ -219,3 +219,41 @@ test("mapped primary keys are respected when materializing a record from JSON", 
   equal(person.materializedId, 1);
   equal(address.materializedId, 2);
 });
+
+module("DS.Serializer - Transform API", {
+  setup: function() {
+    serializer = DS.Serializer.create();
+
+    serializer.registerTransform('unobtainium', {
+      toJSON: function(value) {
+        return 'toJSON';
+      },
+
+      fromJSON: function(value) {
+        return 'fromJSON';
+      }
+    });
+  },
+
+  teardown: function() {
+    serializer.destroy();
+  }
+});
+
+test("registered transformations should be called when serializing and materializing records", function() {
+  var value;
+
+  value = serializer.transformValueFromJSON('unknown', 'unobtainium');
+  equal(value, 'fromJSON', "the fromJSON transform was called");
+
+  value = serializer.transformValueToJSON('unknown', 'unobtainium');
+  equal(value, 'toJSON', "the toJSON transform was called");
+
+  raises(function() {
+    serializer.transformValueFromJSON('unknown', 'obtainium');
+  });
+
+  raises(function() {
+    serializer.transformValueToJSON('unknown', 'obtainium');
+  });
+});

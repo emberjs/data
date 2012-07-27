@@ -43,6 +43,26 @@
 var get = Ember.get;
 
 DS.Adapter = Ember.Object.extend({
+
+  init: function() {
+    var serializer = get(this, 'serializer'),
+        transforms = this.constructor._registeredTransforms,
+        superclass = this.constructor,
+        prop;
+
+    // Loop through all of the transforms registered on this class
+    // and any superclasses, and register them on the serializer.
+    do {
+      for (prop in transforms) {
+        if (!transforms.hasOwnProperty(prop)) { continue; }
+        serializer.registerTransform(prop, transforms[prop]);
+      }
+
+      superclass = superclass.superclass;
+      if (superclass) { transforms = superclass._registeredTransforms; }
+    } while (superclass);
+  },
+
   /**
     The `find()` method is invoked when the store is asked for a record that
     has not previously been loaded. In response to `find()` being called, you
@@ -182,3 +202,12 @@ DS.Adapter = Ember.Object.extend({
   }
 });
 
+DS.Adapter.reopenClass({
+  registerTransform: function(attributeType, transform) {
+    var registeredTransforms = this._registeredTransforms || {};
+
+    registeredTransforms[attributeType] = transform;
+
+    this._registeredTransforms = registeredTransforms;
+  }
+});
