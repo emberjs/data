@@ -255,7 +255,7 @@ test("when a store is committed, the adapter's commit method is called with crea
     records.created.eachType(function(type, array) {
       equal(type, Person, "the type is correct");
       equal(get(array, 'length'), 1, "the array is the right length");
-      store.didCreateRecords(Person, array, [{ id: 1, name: "Tom Dale" }]);
+      store.didCreateRecords(array, [{ id: 1, name: "Tom Dale" }]);
     });
   };
 
@@ -303,7 +303,7 @@ test("by default, commit calls createRecords once per type", function() {
     equal(type, Person, "the type is correct");
     equal(get(array, 'length'), 2, "the array is the right length");
     var records = [{ id: 1, name: "Tom Dale", updated_at: 'right nao' }, { id: 2, name: "Yehuda Katz" }];
-    store.didCreateRecords(Person, array, records);
+    store.didCreateRecords(array, records);
   };
 
   var tom = store.createRecord(Person, { name: "Tom Dale", updatedAt: null });
