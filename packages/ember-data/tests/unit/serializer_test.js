@@ -40,29 +40,30 @@ var MockModel = Ember.Object.extend({
   }
 });
 
-var serializer, Person, Address;
+var serializer, Person;
 
 module("DS.Serializer - Mapping API", {
   setup: function() {
     serializer = DS.Serializer.create();
     Person = MockModel.extend();
-    Address = MockModel.extend();
+    window.Address = MockModel.extend();
   },
 
   teardown: function() {
     serializer.destroy();
+    window.Address = null;
   }
 });
 
-test("mapped attributes are respected when serializing a record to JSON", function() {
+test("Mapped attributes should be used when serializing a record to JSON.", function() {
   Person.attributes = { firstName: 'string' };
-  Address.attributes = { firstName: 'string' };
+  window.Address.attributes = { firstName: 'string' };
 
   serializer.map(Person, {
     firstName: { key: 'FIRST_NAME' }
   });
 
-  serializer.map(Address, {
+  serializer.map('Address', {
     firstName: { key: 'first_name' }
   });
 
@@ -70,7 +71,7 @@ test("mapped attributes are respected when serializing a record to JSON", functi
     firstName: "Tom"
   });
 
-  var address = Address.create({
+  var address = window.Address.create({
     firstName: "Spruce"
   });
 
@@ -83,20 +84,20 @@ test("mapped attributes are respected when serializing a record to JSON", functi
   });
 });
 
-test("mapped attributes are respected when materializing a record from JSON", function() {
+test("Mapped attributes should be used when materializing a record from JSON.", function() {
   Person.attributes = { firstName: 'string' };
-  Address.attributes = { firstName: 'string' };
+  window.Address.attributes = { firstName: 'string' };
 
   serializer.map(Person, {
     firstName: { key: 'FIRST_NAME' }
   });
 
-  serializer.map(Address, {
+  serializer.map('Address', {
     firstName: { key: 'first_name' }
   });
 
   var person = Person.create();
-  var address = Address.create();
+  var address = window.Address.create();
 
   serializer.materializeFromJSON(person, { FIRST_NAME: "Tom" });
   serializer.materializeFromJSON(address, { first_name: "Spruce" });
@@ -105,22 +106,22 @@ test("mapped attributes are respected when materializing a record from JSON", fu
   deepEqual(address.get('materializedAttributes'), { firstName: "Spruce" });
 });
 
-test("mapped relationships are respected when serializing a record to JSON", function() {
+test("Mapped relationships should be used when serializing a record to JSON.", function() {
   expect(8);
 
   Person.associations = { addresses: 'hasMany' };
-  Address.associations = { person: 'belongsTo' };
+  window.Address.associations = { person: 'belongsTo' };
 
   serializer.map(Person, {
     addresses: { key: 'ADDRESSES!' }
   });
 
-  serializer.map(Address, {
+  serializer.map('Address', {
     person: { key: 'MY_PEEP' }
   });
 
   var person = Person.create();
-  var address = Address.create();
+  var address = window.Address.create();
 
   serializer.addHasMany = function(hash, record, key, relationship) {
     ok(typeof hash === 'object', "a hash to build is passed");
@@ -152,18 +153,18 @@ test("mapped relationships are respected when serializing a record to JSON", fun
 
 test("mapped relationships are respected when materializing a record from JSON", function() {
   Person.associations = { addresses: 'hasMany' };
-  Address.associations = { person: 'belongsTo' };
+  window.Address.associations = { person: 'belongsTo' };
 
   serializer.map(Person, {
     addresses: { key: 'ADDRESSES!' }
   });
 
-  serializer.map(Address, {
+  serializer.map('Address', {
     person: { key: 'MY_PEEP' }
   });
 
   var person = Person.create();
-  var address = Address.create();
+  var address = window.Address.create();
 
   serializer.materializeFromJSON(person, {
     'ADDRESSES!': [ 1, 2, 3 ]
@@ -187,12 +188,12 @@ test("mapped primary keys are respected when serializing a record to JSON", func
     primaryKey: '__id__'
   });
 
-  serializer.map(Address, {
+  serializer.map('Address', {
     primaryKey: 'ID'
   });
 
   var person = Person.create({ id: 1 });
-  var address = Address.create({ id: 2 });
+  var address = window.Address.create({ id: 2 });
 
   var personJSON = serializer.toJSON(person, { includeId: true });
   var addressJSON = serializer.toJSON(address, { includeId: true });
@@ -206,12 +207,12 @@ test("mapped primary keys are respected when materializing a record from JSON", 
     primaryKey: '__id__'
   });
 
-  serializer.map(Address, {
+  serializer.map('Address', {
     primaryKey: 'ID'
   });
 
   var person = Person.create();
-  var address = Address.create();
+  var address = window.Address.create();
 
   serializer.materializeFromJSON(person, { __id__: 1 });
   serializer.materializeFromJSON(address, { ID: 2 });

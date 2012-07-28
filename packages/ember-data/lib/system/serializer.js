@@ -343,7 +343,30 @@ DS.Serializer = Ember.Object.extend({
   },
 
   mappingForType: function(type) {
+    this._reifyMappings();
     return this.mappings.get(type);
-  }
+  },
+
+  _reifyMappings: function() {
+    if (this._didReifyMappings) { return; }
+
+    var mappings = this.mappings,
+        reifiedMappings = Ember.Map.create();
+
+    mappings.forEach(function(key, mapping) {
+      if (typeof key === 'string') {
+        var type = Ember.get(window, key);
+        Ember.assert("Could not find model at path" + key, type);
+
+        reifiedMappings.set(type, mapping);
+      } else {
+        reifiedMappings.set(key, mapping);
+      }
+    });
+
+    this.mappings = reifiedMappings;
+
+    this._didReifyMappings = true;
+  },
 });
 
