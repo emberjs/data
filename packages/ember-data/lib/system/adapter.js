@@ -45,22 +45,67 @@ var get = Ember.get;
 DS.Adapter = Ember.Object.extend({
 
   init: function() {
-    var serializer = get(this, 'serializer'),
-        transforms = this.constructor._registeredTransforms,
-        superclass = this.constructor,
-        prop;
+    var serializer = get(this, 'serializer');
 
-    // Loop through all of the transforms registered on this class
-    // and any superclasses, and register them on the serializer.
-    do {
-      for (prop in transforms) {
-        if (!transforms.hasOwnProperty(prop)) { continue; }
-        serializer.registerTransform(prop, transforms[prop]);
-      }
+    this.registerSerializerTransforms(this.constructor, serializer, {});
+    this.registerSerializerMappings(this.constructor, serializer);
+  },
 
-      superclass = superclass.superclass;
-      if (superclass) { transforms = superclass._registeredTransforms; }
-    } while (superclass);
+  /**
+    @private
+
+    This method recursively climbs the superclass hierarchy and
+    registers any class-registered transforms on the adapter's
+    serializer.
+
+    Once it registers a transform for a given type, it ignores
+    subsequent transforms for the same attribute type.
+
+    @param {Class} klass the DS.Adapter subclass to extract the
+      transforms from
+    @param {DS.Serializer} serializer the serializer to register
+      the transforms onto
+    @param {Object} seen a hash of attributes already seen
+  */
+  registerSerializerTransforms: function(klass, serializer, seen) {
+    var transforms = klass._registeredTransforms, superclass, prop;
+
+    for (prop in transforms) {
+      if (!transforms.hasOwnProperty(prop) || prop in seen) { continue; }
+      seen[prop] = true;
+
+      serializer.registerTransform(prop, transforms[prop]);
+    }
+
+    if (superclass = klass.superclass) {
+      this.registerSerializerTransforms(superclass, serializer, seen);
+    }
+  },
+
+  /**
+    @private
+
+    This method recursively climbs the superclass hierarchy and
+    registers any class-registered mappings on the adapter's
+    serializer.
+
+    @param {Class} klass the DS.Adapter subclass to extract the
+      transforms from
+    @param {DS.Serializer} serializer the serializer to register the
+      mappings onto
+  */
+  registerSerializerMappings: function(klass, serializer) {
+    var mappings = klass._registeredMappings, superclass, prop;
+
+    if (superclass = klass.superclass) {
+      this.registerSerializerMappings(superclass, serializer);
+    }
+
+    if (!mappings) { return; }
+
+    mappings.forEach(function(type, mapping) {
+      serializer.map(type, mapping);
+    }, this);
   },
 
   /**
@@ -209,5 +254,19 @@ DS.Adapter.reopenClass({
     registeredTransforms[attributeType] = transform;
 
     this._registeredTransforms = registeredTransforms;
+  },
+
+  map: function(type, mapping) {
+    var mappings = this._registeredMappings || Ember.MapWithDefault.create({
+      defaultValue: function() { return {}; }
+    });
+    var mappingsForType = mappings.get(type);
+
+    for (var prop in mapping) {
+      if (!mapping.hasOwnProperty(prop)) { continue; }
+      mappingsForType[prop] = mapping[prop];
+    }
+
+    this._registeredMappings = mappings;
   }
 });

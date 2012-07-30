@@ -66,17 +66,16 @@ test("The `commit` method should call `deleteRecords` once per type.", function(
     created: []
   });
 });
-var serializerMock, typesPassed, transformsPassed;
+
+var serializerMock, transformsPassed;
 
 module("DS.Adapter - Transformations", {
   setup: function() {
-    typesPassed = [];
-    transformsPassed = [];
+    transformsPassed = {};
 
-    serializerMock = DS.MockObject.create({
+    serializerMock = Ember.Object.create({
       registerTransform: function(type, transforms) {
-        typesPassed.push(type);
-        transformsPassed.push(transforms);
+        transformsPassed[type] = transforms;
       }
     });
   },
@@ -96,7 +95,7 @@ test("Transformations registered on an adapter class should be set on the adapte
 
   var Adapter = DS.Adapter.extend();
 
-  Adapter.registerTransform('unobtainium', {
+  var parentUnobtainium = {
     toJSON: function(value) {
       return 'toJSON';
     },
@@ -104,11 +103,13 @@ test("Transformations registered on an adapter class should be set on the adapte
     fromJSON: function(value) {
       return 'fromJSON';
     }
-  });
+  };
+
+  Adapter.registerTransform('unobtainium', parentUnobtainium);
 
   var ChildAdapter = Adapter.extend();
 
-  ChildAdapter.registerTransform('adamantium', {
+  var childAdamantium = {
     toJSON: function(value) {
       return 'adamantium toJSON';
     },
@@ -116,15 +117,110 @@ test("Transformations registered on an adapter class should be set on the adapte
     fromJSON: function(value) {
       return 'adamantium fromJSON';
     }
+  };
+
+  ChildAdapter.registerTransform('adamantium', childAdamantium);
+
+  var parentOtherType = {
+    toJSON: function(value) {
+      return 'otherType toJSON';
+    },
+
+    fromJSON: function(value) {
+      return 'otherType fromJSON';
+    }
+  };
+
+  Adapter.registerTransform('otherType', parentOtherType);
+
+  ChildAdapter.create({
+    serializer: serializerMock
+  });
+
+  deepEqual(transformsPassed, {
+    unobtainium: parentUnobtainium,
+    adamantium: childAdamantium,
+    otherType: parentOtherType
+  });
+});
+
+test("Transforms registered subclasses take precedence over super classes.", function() {
+  var ParentAdapter = DS.Adapter.extend();
+  var ChildAdapter = ParentAdapter.extend();
+
+  var childUnobtainium = {
+    toJSON: Ember.K,
+    fromJSON: Ember.K
+  };
+
+  var parentUnobtainium = {
+    toJSON: Ember.K,
+    fromJSON: Ember.K
+  };
+
+  ChildAdapter.registerTransform('unobtainium', childUnobtainium);
+  ParentAdapter.registerTransform('unobtainium', parentUnobtainium);
+
+  ChildAdapter.create({
+    serializer: serializerMock
+  });
+
+  deepEqual(transformsPassed, {
+    unobtainium: childUnobtainium
+  });
+});
+
+var mappingsPassed;
+
+module("DS.Adapter - Mapping", {
+  setup: function() {
+    mappingsPassed = {};
+
+    serializerMock = Ember.Object.create({
+      map: function(type, mappings) {
+        var mappingsForType = mappingsPassed[type] = mappingsPassed[type] || {};
+
+        for (var prop in mappings) {
+          if (!mappings.hasOwnProperty(prop)) { continue; }
+
+          mappingsForType[prop] = mappings[prop];
+        }
+      }
+    });
+  },
+
+  teardown: function() {
+    serializerMock.destroy();
+  }
+});
+
+test("Mappings registered on an adapter class should be set on the adapter's serializer at initialization time.", function() {
+  var Adapter = DS.Adapter.extend();
+
+  Adapter.map('App.Person', {
+    firstName: { key: 'FIRST_NAME' }
+  });
+
+  var ChildAdapter = Adapter.extend();
+
+  ChildAdapter.map('App.Person', {
+    lastName: { key: 'LAST_NAME' }
+  });
+
+  Adapter.map('App.Person', {
+    middleName: { key: 'MIDDLE_NAME' },
+    lastName: { key: 'SHOULD_NOT_WORK' }
   });
 
   ChildAdapter.create({
     serializer: serializerMock
   });
 
-  equal(typesPassed.length, 2, "two types were registered");
-  equal(transformsPassed.length, 2, "two transforms were registered");
-
-  contains(typesPassed, 'unobtainium', "unobtainium is registered");
-  contains(typesPassed, 'adamantium', "adamantium is registered");
+  deepEqual(mappingsPassed, {
+    'App.Person': {
+      firstName: { key: 'FIRST_NAME' },
+      lastName: { key: 'LAST_NAME' },
+      middleName: { key: 'MIDDLE_NAME' }
+    }
+  });
 });
