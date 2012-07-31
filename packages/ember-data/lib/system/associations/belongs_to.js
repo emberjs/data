@@ -8,7 +8,7 @@ var hasAssociation = function(type, options, one) {
 
   return Ember.computed(function(key, value) {
     if (arguments.length === 2) {
-      return value;
+      return value === undefined ? null : value;
     }
 
     var data = get(this, 'data').belongsTo,
