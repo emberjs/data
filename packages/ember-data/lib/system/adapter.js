@@ -40,12 +40,17 @@
    For more information about the adapter API, please see `README.md`.
 */
 
-var get = Ember.get;
+var get = Ember.get, set = Ember.set;
 
 DS.Adapter = Ember.Object.extend({
 
   init: function() {
     var serializer = get(this, 'serializer');
+
+    if (Ember.Object.detect(serializer)) {
+      serializer = serializer.create();
+      set(this, 'serializer', serializer);
+    }
 
     this.registerSerializerTransforms(this.constructor, serializer, {});
     this.registerSerializerMappings(this.constructor, serializer);
@@ -131,7 +136,7 @@ DS.Adapter = Ember.Object.extend({
   */
   find: null,
 
-  serializer: DS.Serializer.create(),
+  serializer: DS.Serializer,
 
   registerTransform: function(attributeType, transform) {
     get(this, 'serializer').registerTransform(attributeType, transform);
