@@ -515,3 +515,44 @@ test("can ask if record with a given id is loaded", function() {
   equal(store.recordIsLoaded(Person, 1), true, 'should have person with id 1');
   equal(store.recordIsLoaded(Person, 4), false, 'should not have person with id 2');
 });
+
+test("a listener can be added to a record", function() {
+  var count = 0;
+  var F = function() { count++; };
+  var record = store.createRecord(Person);
+
+  record.on('event!', F);
+  record.trigger('event!');
+
+  equal(count, 1, "the event was triggered");
+
+  record.trigger('event!');
+
+  equal(count, 2, "the event was triggered");
+});
+
+test("when an event is triggered on a record the method with the same name is invoked with arguments", function(){
+  var count = 0;
+  var F = function() { count++; };
+  var record = store.createRecord(Person);
+
+  record.eventNamedMethod = F;
+
+  record.trigger('eventNamedMethod');
+
+  equal(count, 1, "the corresponding method was called");
+});
+
+test("when a method is invoked from an event with the same name the arguments are passed through", function(){
+  var eventMethodArgs = null;
+  var F = function() { eventMethodArgs = arguments; };
+  var record = store.createRecord(Person);
+
+  record.eventThatTriggersMethod = F;
+
+  record.trigger('eventThatTriggersMethod', 1, 2);
+
+  equal( eventMethodArgs[0], 1);
+  equal( eventMethodArgs[1], 2);
+});
+
