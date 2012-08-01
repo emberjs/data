@@ -46,6 +46,19 @@ test("the filter method should be aliased", function() {
   Person.filter(filter);
 });
 
+test("the recordIsLoaded method should be aliased", function() {
+  expect(2);
+
+  var id = 1;
+
+  store.recordIsLoaded = function(type, passedId) {
+    equal(type, Person, "recordIsLoaded called with correct type");
+    equal(passedId, id, "recordIsLoaded was called with correct arguments");
+  };
+
+  Person.isLoaded(id);
+});
+
 test("the create method should raise an exception", function() {
   raises(function() {
     Person.create();

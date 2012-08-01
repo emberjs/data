@@ -1,4 +1,4 @@
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
+var get = Ember.get, set = Ember.set;
 
 var Person, store, array;
 
@@ -119,5 +119,108 @@ test("a DS.Model can have a defaultValue", function() {
   set(tag, 'name', null);
 
   equal(get(tag, 'name'), null, "null doesn't shadow defaultValue");
+});
+
+test("when a DS.Model updates its attributes, its changes affect its filtered Array membership", function() {
+  var people = store.filter(Person, function(hash) {
+    if (hash.get('name').match(/Katz$/)) { return true; }
+  });
+
+  equal(get(people, 'length'), 1, "precond - one item is in the RecordArray");
+
+  var person = people.objectAt(0);
+
+  equal(get(person, 'name'), "Scumbag Katz", "precond - the item is correct");
+
+  set(person, 'name', "Yehuda Katz");
+
+  equal(get(people, 'length'), 1, "there is still one item");
+  equal(get(person, 'name'), "Yehuda Katz", "it has the updated item");
+
+  set(person, 'name', "Yehuda Katz-Foo");
+
+  equal(get(people, 'length'), 0, "there are now no items");
+});
+
+module("with a simple Person model", {
+  setup: function() {
+    array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
+    Person = DS.Model.extend({
+      name: DS.attr('string')
+    });
+    store = DS.Store.create();
+    store.loadMany(Person, array);
+  },
+  teardown: function() {
+    Person = null;
+    store = null;
+    array = null;
+  }
+});
+
+test("when a DS.Model updates its attributes, its changes affect its filtered Array membership", function() {
+  var people = store.filter(Person, function(hash) {
+    if (hash.get('name').match(/Katz$/)) { return true; }
+  });
+
+  equal(get(people, 'length'), 1, "precond - one item is in the RecordArray");
+
+  var person = people.objectAt(0);
+
+  equal(get(person, 'name'), "Scumbag Katz", "precond - the item is correct");
+
+  set(person, 'name', "Yehuda Katz");
+
+  equal(get(people, 'length'), 1, "there is still one item");
+  equal(get(person, 'name'), "Yehuda Katz", "it has the updated item");
+
+  set(person, 'name', "Yehuda Katz-Foo");
+
+  equal(get(people, 'length'), 0, "there are now no items");
+});
+
+test("can ask if record with a given id is loaded", function() {
+  equal(store.recordIsLoaded(Person, 1), true, 'should have person with id 1');
+  equal(store.recordIsLoaded(Person, 4), false, 'should not have person with id 2');
+});
+
+test("a listener can be added to a record", function() {
+  var count = 0;
+  var F = function() { count++; };
+  var record = store.createRecord(Person);
+
+  record.on('event!', F);
+  record.trigger('event!');
+
+  equal(count, 1, "the event was triggered");
+
+  record.trigger('event!');
+
+  equal(count, 2, "the event was triggered");
+});
+
+test("when an event is triggered on a record the method with the same name is invoked with arguments", function(){
+  var count = 0;
+  var F = function() { count++; };
+  var record = store.createRecord(Person);
+
+  record.eventNamedMethod = F;
+
+  record.trigger('eventNamedMethod');
+
+  equal(count, 1, "the corresponding method was called");
+});
+
+test("when a method is invoked from an event with the same name the arguments are passed through", function(){
+  var eventMethodArgs = null;
+  var F = function() { eventMethodArgs = arguments; };
+  var record = store.createRecord(Person);
+
+  record.eventThatTriggersMethod = F;
+
+  record.trigger('eventThatTriggersMethod', 1, 2);
+
+  equal( eventMethodArgs[0], 1);
+  equal( eventMethodArgs[1], 2);
 });
 

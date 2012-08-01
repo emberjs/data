@@ -2,7 +2,7 @@ require("ember-data/core");
 require('ember-data/system/adapter');
 /*global jQuery*/
 
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
+var get = Ember.get, set = Ember.set;
 
 var serializer = DS.Serializer.create({
   keyForBelongsTo: function(type, name) {
@@ -261,7 +261,7 @@ DS.RESTAdapter = DS.Adapter.extend({
         sideloadedType = get(mappings, prop);
 
         if (typeof sideloadedType === 'string') {
-          sideloadedType = getPath(window, sideloadedType);
+          sideloadedType = get(window, sideloadedType);
         }
 
         Ember.assert("Your server returned a hash with the key " + prop + " but you have no mapping for it", !!sideloadedType);

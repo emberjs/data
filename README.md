@@ -18,6 +18,10 @@ Yes.
 No. Breaking changes, indexed by date, are listed in
 [`BREAKING_CHANGES.md`](https://github.com/emberjs/data/blob/master/BREAKING_CHANGES.md).
 
+#### Getting ember-data
+
+Currently you must build ember-data.js yourself.  Clone the repository, run `bundle` then `rake dist`. You'll find ember-data.js in the `dist` directory.
+
 #### Roadmap
 
 * Handle error states
@@ -770,6 +774,7 @@ DS.Adapter.create({
 
         jQuery.ajax({
             url: url.fmt(model.get('id')),
+            data: model.get('data'),
             dataType: 'json',
             type: 'PUT',
 

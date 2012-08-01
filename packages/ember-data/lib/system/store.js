@@ -3,7 +3,7 @@
 require("ember-data/system/record_arrays");
 require("ember-data/system/transaction");
 
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath, fmt = Ember.String.fmt;
+var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt;
 
 var DATA_PROXY = {
   get: function(name) {
@@ -179,7 +179,7 @@ DS.Store = Ember.Object.extend({
   _adapter: Ember.computed(function() {
     var adapter = get(this, 'adapter');
     if (typeof adapter === 'string') {
-      adapter = getPath(this, adapter, false) || getPath(window, adapter);
+      adapter = get(this, adapter, false) || get(window, adapter);
     }
 
     if (DS.Adapter.detect(adapter)) {
@@ -552,6 +552,10 @@ DS.Store = Ember.Object.extend({
     this.registerRecordArray(array, type, filter);
 
     return array;
+  },
+
+  recordIsLoaded: function(type, id) {
+    return !Ember.none(this.typeMapFor(type).idToCid[id]);
   },
 
   // ............

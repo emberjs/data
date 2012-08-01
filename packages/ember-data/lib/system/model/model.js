@@ -1,9 +1,9 @@
 require("ember-data/system/model/states");
 
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath, none = Ember.none;
+var get = Ember.get, set = Ember.set, none = Ember.none;
 
 var retrieveFromCurrentState = Ember.computed(function(key) {
-  return get(getPath(this, 'stateManager.currentState'), key);
+  return get(get(this, 'stateManager.currentState'), key);
 }).property('stateManager.currentState').cacheable();
 
 DS.Model = Ember.Object.extend(Ember.Evented, {
@@ -197,7 +197,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     also call methods with the given name.
   */
   trigger: function(name) {
-    this[name].apply(this, [].slice.call(arguments, 1));
+    Ember.tryInvoke(this, name, [].slice.call(arguments, 1));
     this._super.apply(this, arguments);
   }
 });
@@ -217,6 +217,7 @@ var storeAlias = function(methodName) {
 };
 
 DS.Model.reopenClass({
+  isLoaded: storeAlias('recordIsLoaded'),
   find: storeAlias('find'),
   filter: storeAlias('filter'),
 

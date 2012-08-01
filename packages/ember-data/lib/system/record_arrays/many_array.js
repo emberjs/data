@@ -1,7 +1,7 @@
 require("ember-data/system/record_arrays/record_array");
 require("ember-data/system/record_arrays/many_array_states");
 
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath, setPath = Ember.setPath;
+var get = Ember.get, set = Ember.set;
 
 DS.ManyArray = DS.RecordArray.extend({
   init: function() {
@@ -13,11 +13,11 @@ DS.ManyArray = DS.RecordArray.extend({
   parentRecord: null,
 
   isDirty: Ember.computed(function() {
-    return getPath(this, 'stateManager.currentState.isDirty');
+    return get(this, 'stateManager.currentState.isDirty');
   }).property('stateManager.currentState').cacheable(),
 
   isLoaded: Ember.computed(function() {
-    return getPath(this, 'stateManager.currentState.isLoaded');
+    return get(this, 'stateManager.currentState.isLoaded');
   }).property('stateManager.currentState').cacheable(),
 
   send: function(event, context) {

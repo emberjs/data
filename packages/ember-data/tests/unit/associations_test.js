@@ -1,6 +1,6 @@
 /*global Tag App*/
 
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath;
+var get = Ember.get, set = Ember.set;
 
 module("DS.Model");
 
@@ -80,7 +80,7 @@ test("hasMany lazily loads associations as needed", function() {
   var wycats = store.find(Person, 2);
   equal(get(wycats, 'name'), "Yehuda Katz", "precond - retrieves person record from store");
 
-  equal(getPath(wycats, 'tags.length'), 1, "the list of tags should have the correct length");
+  equal(get(wycats, 'tags.length'), 1, "the list of tags should have the correct length");
   equal(get(get(wycats, 'tags').objectAt(0), 'name'), "oohlala", "the first tag should be a Tag");
 
   strictEqual(get(wycats, 'tags').objectAt(0), get(wycats, 'tags').objectAt(0), "the returned object is always the same");
@@ -178,7 +178,7 @@ test("associations work when declared with a string path", function() {
   var person = store.find(App.Person, 1);
   equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
-  equal(getPath(person, 'tags.length'), 2, "the list of tags should have the correct length");
+  equal(get(person, 'tags.length'), 2, "the list of tags should have the correct length");
 });
 
 test("associations work when the data hash has not been loaded", function() {
@@ -210,9 +210,9 @@ test("associations work when the data hash has not been loaded", function() {
           store.loadMany(type, ids, [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }]);
 
           equal(get(person, 'name'), "Tom Dale", "precond - the person is still Tom Dale");
-          equal(getPath(person, 'tags.length'), 2, "the tags object still exists");
-          equal(get(getPath(person, 'tags').objectAt(0), 'name'), "friendly", "Tom Dale is now friendly");
-          equal(get(getPath(person, 'tags').objectAt(0), 'isLoaded'), true, "Tom Dale is now loaded");
+          equal(get(person, 'tags.length'), 2, "the tags object still exists");
+          equal(get(get(person, 'tags').objectAt(0), 'name'), "friendly", "Tom Dale is now friendly");
+          equal(get(get(person, 'tags').objectAt(0), 'isLoaded'), true, "Tom Dale is now loaded");
         }, 1);
       },
 
@@ -227,8 +227,8 @@ test("associations work when the data hash has not been loaded", function() {
           store.load(type, id, { id: 1, name: "Tom Dale", tags: [5, 2] });
 
           equal(get(person, 'name'), "Tom Dale", "The person is now populated");
-          equal(getPath(person, 'tags.length'), 2, "the tags Array already exists");
-          equal(get(getPath(person, 'tags').objectAt(0), 'isLoaded'), false, "the tag objects exist, but are not yet loaded");
+          equal(get(person, 'tags.length'), 2, "the tags Array already exists");
+          equal(get(get(person, 'tags').objectAt(0), 'isLoaded'), false, "the tag objects exist, but are not yet loaded");
         }, 1);
       }
     })
@@ -237,7 +237,7 @@ test("associations work when the data hash has not been loaded", function() {
   var person = store.find(Person, 1);
 
   equal(get(person, 'isLoaded'), false, "isLoaded should be false");
-  equal(getPath(person, 'tags.length'), 0, "tags should be empty");
+  equal(get(person, 'tags.length'), 0, "tags should be empty");
 });
 
 test("it is possible to add a new item to an association", function() {
@@ -288,7 +288,7 @@ test("it is possible to remove an item from an association", function() {
 
   get(person, 'tags').removeObject(tag);
 
-  equal(getPath(person, 'tags.length'), 0, "object is removed from the association");
+  equal(get(person, 'tags.length'), 0, "object is removed from the association");
 });
 
 test("it is possible to add an item to an association, remove it, then add it again", function() {
@@ -314,7 +314,7 @@ test("it is possible to add an item to an association, remove it, then add it ag
   tags.removeAt(0);
   tags.pushObject(tag1);
 
-  equal(getPath(person, 'tags.length'), 2, "object is removed from the association");
+  equal(get(person, 'tags.length'), 2, "object is removed from the association");
 });
 
 module("RecordArray");
@@ -356,7 +356,7 @@ test("can create child record from a hasMany association", function() {
   person.get("tags").createRecord({name:"cool"});
 
   equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
-  equal(getPath(person, 'tags.length'), 1, "tag is added to the parent record");
+  equal(get(person, 'tags.length'), 1, "tag is added to the parent record");
   equal(get(person, 'tags').objectAt(0).get("name"), "cool", "tag values are passed along");
 });
 
@@ -380,7 +380,7 @@ test("belongsTo lazily loads associations as needed", function() {
   equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
   equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
-  equal(getPath(person, 'tag.name'), "friendly", "the tag shuld have name");
+  equal(get(person, 'tag.name'), "friendly", "the tag shuld have name");
 
   strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
   strictEqual(get(person, 'tag'), store.find(Tag, 5), "association object is the same as object retrieved directly");
@@ -413,7 +413,7 @@ test("associations work when the data hash has not been loaded", function() {
 
             equal(get(person, 'name'), "Tom Dale", "The person is now populated");
             equal(get(person, 'tag') instanceof Tag, true, "the tag Model already exists");
-            equal(getPath(person, 'tag.isLoaded'), false, "the tag objects exist, but are not yet loaded");
+            equal(get(person, 'tag.isLoaded'), false, "the tag objects exist, but are not yet loaded");
           }, 1);
         } else if (type === Tag) {
           equal(type, Tag, "type should be Tag");
@@ -426,8 +426,8 @@ test("associations work when the data hash has not been loaded", function() {
             store.load(type, 2, { id: 2, name: "friendly" });
 
             equal(get(person, 'name'), "Tom Dale", "precond - the person is still Tom Dale");
-            equal(getPath(person, 'tag.name'), "friendly", "Tom Dale is now friendly");
-            equal(getPath(person, 'tag.isLoaded'), true, "Tom Dale is now loaded");
+            equal(get(person, 'tag.name'), "friendly", "Tom Dale is now friendly");
+            equal(get(person, 'tag.isLoaded'), true, "Tom Dale is now loaded");
           }, 1);
         }
       }

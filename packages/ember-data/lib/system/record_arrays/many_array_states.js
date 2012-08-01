@@ -1,4 +1,4 @@
-var get = Ember.get, set = Ember.set, getPath = Ember.getPath, guidFor = Ember.guidFor;
+var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor;
 
 var Set = function() {
   this.hash = {};
@@ -125,7 +125,7 @@ DS.ManyArrayStateManager = Ember.StateManager.extend({
   init: function() {
     this._super();
     this.dirty = new Set();
-    this.counter = getPath(this, 'manyArray.length');
+    this.counter = get(this, 'manyArray.length');
   },
 
   decrement: function(count) {
