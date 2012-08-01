@@ -24,80 +24,25 @@ module("Associations", {
   }
 });
 
-test("when adding a record to an association that belongs to another record that has not yet been saved, only the parent record is saved", function() {
-  expect(2);
+test("when modifying a child record's belongsTo relationship, its parent hasMany relationships should be updated", function() {
+  // Changes to one side should not require run-loop synchronization to
+  // propagate to the other side
+  Ember.run(function() {
+    store.load(Comment, { id: 1, body: "parent" });
+    store.load(Comment, { id: 2, body: "child" });
 
-  var transaction = store.transaction();
-  var parentRecord = transaction.createRecord(Comment);
-  var childRecord = transaction.createRecord(Comment);
+    var parent = store.find(Comment, 1), child = store.find(Comment, 2);
 
-  parentRecord.get('comments').pushObject(childRecord);
+    equal(parent.get('comments.length'), 0, "precond - the parent has no child comments yet");
 
-  var createCalled = 0;
-  adapter.createRecord = function(store, type, record) {
-    createCalled++;
-    if (createCalled === 1) {
-      equal(record, parentRecord, "parent record is committed first");
-      store.didCreateRecord(record, { id: 1 });
-    } else if (createCalled === 2) {
-      equal(record, childRecord, "child record is committed after its parent is committed");
-    }
-  };
+    child.set('comment', parent);
 
-  transaction.commit();
-});
+    deepEqual(parent.get('comments').toArray(), [ child ] , "there should be a child comment");
 
-test("if a record is added to the store while a child is pending, auto-committing the child record should not commit the new record", function() {
-  expect(2);
+    child.set('comment', null);
 
-  var parentRecord = Comment.createRecord();
-  var childRecord = Comment.createRecord();
-
-  parentRecord.get('comments').pushObject(childRecord);
-
-  var createCalled = 0;
-  adapter.createRecord = function(store, type, record) {
-    createCalled++;
-    if (createCalled === 1) {
-      equal(record, parentRecord, "parent record is committed first");
-
-      Comment.createRecord();
-
-      store.didCreateRecord(record, { id: 1 });
-    } else if (createCalled === 2) {
-      equal(record, childRecord, "child record is committed after its parent is committed");
-    } else {
-      ok(false, "Third comment should not be saved");
-    }
-  };
-
-  store.commit();
-});
-
-test("if a parent record and an uncommitted pending child belong to different transactions, committing the parent's transaction does not cause the child's transaction to commit", function() {
-  expect(1);
-
-  var parentTransaction = store.transaction();
-  var childTransaction = store.transaction();
-
-  var parentRecord = parentTransaction.createRecord(Comment);
-  var childRecord = childTransaction.createRecord(Comment);
-
-  parentRecord.get('comments').pushObject(childRecord);
-
-  var createCalled = 0;
-  adapter.createRecord = function(store, type, record) {
-    createCalled++;
-    if (createCalled === 1) {
-      equal(record, parentRecord, "parent record is committed");
-
-      store.didCreateRecord(record, { id: 1 });
-    } else {
-      ok(false, "Child comment should not be saved");
-    }
-  };
-
-  parentTransaction.commit();
+    deepEqual(parent.get('comments').toArray(), [ ], "the parent comments array should be empty");
+  });
 });
 
 test("an association has an isLoaded flag that indicates whether the ManyArray has finished loaded", function() {

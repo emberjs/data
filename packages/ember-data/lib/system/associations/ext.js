@@ -1,5 +1,18 @@
 var get = Ember.get;
 
+DS.Model.reopen({
+  didDefineProperty: function(proto, key, value) {
+    if (value instanceof Ember.Descriptor) {
+      var meta = value.meta();
+
+      if (meta.isAssociation && meta.kind === 'belongsTo') {
+        Ember.addObserver(proto, key, null, 'belongsToDidChange');
+        Ember.addBeforeObserver(proto, key, null, 'belongsToWillChange');
+      }
+    }
+  }
+});
+
 DS.Model.reopenClass({
   typeForAssociation: function(name) {
     var association = get(this, 'associationsByName').get(name);
