@@ -131,29 +131,6 @@ DS.Store = Ember.Object.extend({
   adapter: 'DS.Adapter',
 
   /**
-    This function registers a transform for a given attribute type.
-
-    Example:
-
-        store.registerTransform('unobtainium', {
-          toJSON: function(value) {
-            return "cannot be obtained";
-          },
-
-          fromJSON: function(value) {
-            return "how was this obtained?";
-          }
-        });
-
-    @param {String} attributeType the attribute type
-    @param {Object} transform a transform containing toJSON and fromJSON
-      keys (see the example for more information)
-  */
-  registerTransform: function(attributeType, transform) {
-    get(this, '_adapter').registerTransform(attributeType, transform);
-  },
-
-  /**
     Returns a JSON representation of the record using the adapter's
     serialization strategy.
 
