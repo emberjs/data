@@ -16,7 +16,7 @@ test("can create a new transaction", function() {
   ok(DS.Transaction.detectInstance(transaction), "transaction is an instance of DS.Transaction");
 });
 
-test("default transaction gets commited when store.commit() is called.", function() {
+test("default transaction gets commited when store.commit() is called", function() {
   var commitCalled = 0;
 
   var store = DS.Store.create({
@@ -36,7 +36,7 @@ test("default transaction gets commited when store.commit() is called.", functio
   equal(commitCalled, 1, "should call commit on default transaction");
 });
 
-test("new default transaction is created after store.commit() is called.", function() {
+test("new default transaction is created after store.commit() is called", function() {
   var defaultCommitCalled = 0;
   var newCommitCalled = 0;
 
@@ -70,7 +70,7 @@ test("new default transaction is created after store.commit() is called.", funct
   equal(newCommitCalled, 1, "second store.commit() should call commit on new default transaction");
 });
 
-test("default transaction gets rolled back when store.rollback() is called.", function() {
+test("default transaction gets rolled back when store.rollback() is called", function() {
   var rollbackCalled = 0;
 
   var store = DS.Store.create({
@@ -90,7 +90,7 @@ test("default transaction gets rolled back when store.rollback() is called.", fu
   equal(rollbackCalled, 1, "should call rollback on default transaction");
 });
 
-test("new default transaction is created after store.rollback() is called.", function() {
+test("new default transaction is created after store.rollback() is called", function() {
   var defaultRollbackCalled = 0;
   var newRollbackCalled = 0;
 
