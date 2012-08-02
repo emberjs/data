@@ -544,6 +544,13 @@ DS.Store = Ember.Object.extend({
     defaultTransaction.commit();
   },
 
+  rollback: function() {
+    var defaultTransaction = get(this, 'defaultTransaction');
+    set(this, 'defaultTransaction', this.transaction());
+
+    defaultTransaction.rollback();
+  },
+
   didUpdateRecords: function(array, hashes) {
     if (hashes) {
       array.forEach(function(record, idx) {

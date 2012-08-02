@@ -16,6 +16,114 @@ test("can create a new transaction", function() {
   ok(DS.Transaction.detectInstance(transaction), "transaction is an instance of DS.Transaction");
 });
 
+test("default transaction gets commited when store.commit() is called", function() {
+  var commitCalled = 0;
+
+  var store = DS.Store.create({
+    adapter: DS.Adapter.create({})
+  });
+
+  var transaction = DS.Transaction.create({
+    store: store,
+    commit: function() {
+      commitCalled++;
+    }
+  });
+
+  store.set('defaultTransaction', transaction);
+  store.commit();
+
+  equal(commitCalled, 1, "should call commit on default transaction");
+});
+
+test("new default transaction is created after store.commit() is called", function() {
+  var defaultCommitCalled = 0;
+  var newCommitCalled = 0;
+
+  var defaultTransaction = DS.Transaction.create({
+    commit: function() {
+      defaultCommitCalled++;
+    }
+  });
+
+  var newTransaction = DS.Transaction.create({
+    commit: function() {
+      newCommitCalled++;
+    }
+  });
+
+  var store = DS.Store.create({
+    adapter: DS.Adapter.create({}),
+    transaction: function() {
+      return newTransaction;
+    }
+  });
+
+  store.set('defaultTransaction', defaultTransaction);
+  store.commit();
+
+  equal(store.get('defaultTransaction'), newTransaction, "store should have new default transaction");
+
+  store.commit();
+
+  equal(defaultCommitCalled, 1, "second store.commit() should not call commit on previous default transaction");
+  equal(newCommitCalled, 1, "second store.commit() should call commit on new default transaction");
+});
+
+test("default transaction gets rolled back when store.rollback() is called", function() {
+  var rollbackCalled = 0;
+
+  var store = DS.Store.create({
+    adapter: DS.Adapter.create({})
+  });
+
+  var transaction = DS.Transaction.create({
+    store: store,
+    rollback: function() {
+      rollbackCalled++;
+    }
+  });
+
+  store.set('defaultTransaction', transaction);
+  store.rollback();
+
+  equal(rollbackCalled, 1, "should call rollback on default transaction");
+});
+
+test("new default transaction is created after store.rollback() is called", function() {
+  var defaultRollbackCalled = 0;
+  var newRollbackCalled = 0;
+
+  var defaultTransaction = DS.Transaction.create({
+    rollback: function() {
+      defaultRollbackCalled++;
+    }
+  });
+
+  var newTransaction = DS.Transaction.create({
+    rollback: function() {
+      newRollbackCalled++;
+    }
+  });
+
+  var store = DS.Store.create({
+    adapter: DS.Adapter.create({}),
+    transaction: function() {
+      return newTransaction;
+    }
+  });
+
+  store.set('defaultTransaction', defaultTransaction);
+  store.rollback();
+
+  equal(store.get('defaultTransaction'), newTransaction, "store should have new default transaction");
+
+  store.rollback();
+
+  equal(defaultRollbackCalled, 1, "second store.rollback() should not call rollback on previous default transaction");
+  equal(newRollbackCalled, 1, "second store.rollback() should call rollback on new default transaction");
+});
+
 test("after a record is created from a transaction, it is not committed when store.commit() is called but is committed when transaction.commit() is called", function() {
   var commitCalls = 0;
 
