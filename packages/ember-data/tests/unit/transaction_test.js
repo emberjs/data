@@ -16,6 +16,60 @@ test("can create a new transaction", function() {
   ok(DS.Transaction.detectInstance(transaction), "transaction is an instance of DS.Transaction");
 });
 
+test("default transaction gets commited when store.commit() is called.", function() {
+  var commitCalled = 0;
+
+  var store = DS.Store.create({
+    adapter: DS.Adapter.create({})
+  });
+
+  var transaction = DS.Transaction.create({
+    store: store,
+    commit: function() {
+      commitCalled++;
+    }
+  });
+
+  store.set('defaultTransaction', transaction);
+  store.commit();
+
+  equal(commitCalled, 1, "should call commit on default transaction");
+});
+
+test("new default transaction is created after store.commit() is called.", function() {
+  var defaultCommitCalled = 0;
+  var newCommitCalled = 0;
+
+  var defaultTransaction = DS.Transaction.create({
+    commit: function() {
+      defaultCommitCalled++;
+    }
+  });
+
+  var newTransaction = DS.Transaction.create({
+    commit: function() {
+      newCommitCalled++;
+    }
+  });
+
+  var store = DS.Store.create({
+    adapter: DS.Adapter.create({}),
+    transaction: function() {
+      return newTransaction;
+    }
+  });
+
+  store.set('defaultTransaction', defaultTransaction);
+  store.commit();
+
+  equal(store.get('defaultTransaction'), newTransaction, "store should have new default transaction");
+
+  store.commit();
+
+  equal(defaultCommitCalled, 1, "second store.commit() should not call commit on previous default transaction");
+  equal(newCommitCalled, 1, "second store.commit() should call commit on new default transaction");
+});
+
 test("after a record is created from a transaction, it is not committed when store.commit() is called but is committed when transaction.commit() is called", function() {
   var commitCalls = 0;
 
