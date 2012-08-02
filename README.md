@@ -142,18 +142,6 @@ DS.Model.extend({
 Models can be associated with other models. Ember Data includes several
 built-in types to help you define how your models relate to each other.
 
-#### Has One
-
-Previously, the `DS.hasOne` and `DS.belongsTo` associations were aliased
-to one another. Now, `DS.belongsTo` remains but `DS.hasOne` has been
-removed. We are planning on having different semantics for `DS.hasOne`
-at a later date.
-
-Primarily, the semantic difference between the two are related to which
-record should be marked as dirty when the relationship changes. To
-ensure that the semantics of your application match the framework,
-please ensure that you are using `DS.belongsTo` at this time.
-
 #### Belongs To
 
 `belongsTo` sets up a one-to-one relationship from one model to
@@ -175,6 +163,18 @@ App.Author = DS.Model.extend({
 
 For now, please make sure you are using `belongsTo` on both ends of
 one-to-one relationships, and not `hasOne`.
+
+#### Has One
+
+Previously, the `DS.hasOne` and `DS.belongsTo` associations were aliased
+to one another. Now, `DS.belongsTo` remains but `DS.hasOne` has been
+removed. We are planning on having different semantics for `DS.hasOne`
+at a later date.
+
+Primarily, the semantic difference between the two are related to which
+record should be marked as dirty when the relationship changes. To
+ensure that the semantics of your application match the framework,
+please ensure that you are using `DS.belongsTo` at this time.
 
 #### Has Many
 
