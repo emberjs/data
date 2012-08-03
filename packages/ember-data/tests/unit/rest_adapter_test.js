@@ -4,6 +4,7 @@ var adapter, store, ajaxUrl, ajaxType, ajaxHash;
 var Person, person, people;
 var Role, role, roles;
 var Group, group;
+var Skill, skills;
 
 module("the REST adapter", {
   setup: function() {
@@ -35,8 +36,17 @@ module("the REST adapter", {
       adapter: adapter
     });
 
-    Person = DS.Model.extend({
+    Skill = DS.Model.extend({
       name: DS.attr('string')
+    });
+
+    Skill.toString = function() {
+      return "App.Skill";
+    };
+	
+    Person = DS.Model.extend({
+      name: DS.attr('string'),
+      skills: DS.hasMany(Skill, { nested : true })
     });
 
     Person.toString = function() {
@@ -845,4 +855,26 @@ test("additional data can be sideloaded with associations in correct order", fun
       id: 1, name: "Yehuda Katz"
     }]
   });
+});
+
+test("gettings nested property \"skills\" from a person makes a GET to /people/:id/skills", function() {
+  store.load(Person, { id: 1, name: "Stefan Schulze" });
+
+  person = store.find(Person, 1);
+
+  expectState('new', false);
+  expectState('loaded');
+  expectState('dirty', false);
+
+  skills = person.get 'skills'
+
+  expectUrl("/people/1/skills", "the plural of the model name with model ID and the plural of the nested model name");
+  expectType("GET");
+  
+  ajaxHash.success({ skills: [{ id: 1, name: "Developer" }] });
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(skills.objectAt(0), store.find(Skill, 1), "the record is now in the store and a nested value of the person, all nested records can be looked up without another Ajax request");
 });

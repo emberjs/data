@@ -199,6 +199,18 @@ DS.RESTAdapter = DS.Adapter.extend({
       }
     });
   },
+  
+  findNested: function(store, type, parent, recordArray) {
+    var root = this.rootForType(type), plural = this.pluralize(root);
+    var parentRoot = this.rootForImplementation(parent);
+
+    this.ajax(this.buildURL(parentRoot, [get(parent, "id"), plural].join("/")), "GET", {
+      success: function(json) {
+        this.sideload(store, type, jsonc, plural);
+        recordArray.load(json[plural]);
+      }
+    });
+  },
 
   // HELPERS
 
@@ -210,6 +222,14 @@ DS.RESTAdapter = DS.Adapter.extend({
     return this.plurals[name] || name + "s";
   },
 
+  rootForImplementation: function(implementation) {
+    if (implementation.url) { return implementation.url; }
+  
+    // use the first part of the name as the type
+    parts = type.toString().split(':');
+    return this.rootForType(parts[0]);
+  },
+  
   rootForType: function(type) {
     if (type.url) { return type.url; }
 
