@@ -15,6 +15,7 @@ var hasAssociation = function(type, options) {
   options = options || {};
 
   var embedded = options.embedded,
+      nested = options.nested,
       findRecord = embedded ? embeddedFindRecord : referencedFindRecord;
 
   var meta = { type: type, isAssociation: true, options: options, kind: 'hasMany' };
@@ -23,14 +24,19 @@ var hasAssociation = function(type, options) {
     var data = get(this, 'data'),
         store = get(this, 'store'),
         ids, id, association;
+		
+    if (nested) {
+      association = store.findNested(this, type);
+    } else {
+        if (typeof type === 'string') {
+        type = get(this, type, false) || get(window, type);
+      }
 
-    if (typeof type === 'string') {
-      type = get(this, type, false) || get(window, type);
+      key = options.key || get(this, 'namingConvention').keyToJSONKey(key);
+      ids = findRecord(store, type, data, key);
+      association = store.findMany(type, ids || []);
     }
-
-    key = options.key || get(this, 'namingConvention').keyToJSONKey(key);
-    ids = findRecord(store, type, data, key);
-    association = store.findMany(type, ids || []);
+    
     set(association, 'parentRecord', this);
 
     return association;

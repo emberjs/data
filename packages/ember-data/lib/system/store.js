@@ -478,6 +478,14 @@ DS.Store = Ember.Object.extend({
     else { throw fmt("Adapter is either null or does not implement `findQuery` method", this); }
     return array;
   },
+  
+  findNested: function(parent, type) {
+    var array = DS.AdapterPopulatedRecordArray.create({ type: type, content: Ember.A([]), store: this });
+    var adapter = get(this, '_adapter');
+    if (adapter && adapter.findNested) { adapter.findNested(this, parent, type, array); }
+    else { throw fmt("Adapter is either null or does not implement `findNested` method", this); }
+    return array;
+  },
 
   findAll: function(type) {
 
