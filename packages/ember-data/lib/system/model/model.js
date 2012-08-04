@@ -61,20 +61,18 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   _data: null,
 
   init: function() {
-    var stateManager = DS.StateManager.create({
-      record: this
-    });
-
+    var stateManager = DS.StateManager.create({ record: this });
     set(this, 'stateManager', stateManager);
+
+    this._relationshipLinks = {};
 
     stateManager.goToState('empty');
   },
 
-  destroy: function() {
+  willDestroy: function() {
     if (!get(this, 'isDeleted')) {
       this.deleteRecord();
     }
-    this._super();
   },
 
   send: function(name, context) {

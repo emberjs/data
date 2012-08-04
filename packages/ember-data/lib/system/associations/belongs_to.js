@@ -23,26 +23,6 @@ var hasAssociation = function(type, options, one) {
   }).property('data').cacheable().meta(meta);
 };
 
-var inverseNameFor = function(record, inverseType) {
-  var associationMap = get(record.constructor, 'associations'),
-      possibleAssociations = associationMap.get(inverseType),
-      possible, actual, oldValue;
-
-  if (!possibleAssociations) { return; }
-
-  for (var i = 0, l = possibleAssociations.length; i < l; i++) {
-    possible = possibleAssociations[i];
-
-    if (possible.kind === 'hasMany') {
-      actual = possible;
-      break;
-    }
-  }
-
-  if (actual) { return actual.name; }
-};
-
-
 DS.belongsTo = function(type, options) {
   Ember.assert("The type passed to DS.belongsTo must be defined", !!type);
   return hasAssociation(type, options);
@@ -60,23 +40,29 @@ DS.belongsTo = function(type, options) {
 DS.Model.reopen({
   /** @private */
   belongsToWillChange: Ember.beforeObserver(function(record, key) {
-    var oldParent = get(record, key);
-    if (oldParent) {
-      var inverseName = inverseNameFor(oldParent, record.constructor),
-          inverseHasMany = get(oldParent, inverseName);
-
-      inverseHasMany.removeFromContent(record);
+    if (!record._relationshipLinks[key]) {
+      record._relationshipLinks[key] = DS.OneToManyLink.create({
+        oldParent: get(record, key),
+        belongsToName: key,
+        child: record
+      });
     }
   }),
 
   /** @private */
   belongsToDidChange: Ember.immediateObserver(function(record, key) {
-    var newParent = get(record, key);
-    if (newParent) {
-      var inverseName = inverseNameFor(newParent, record.constructor),
-          inverseHasMany = get(newParent, inverseName);
+    var link = record._relationshipLinks[key],
+        newParent = get(record, key);
 
-      inverseHasMany.addToContent(record);
-    }
-  })
+    link.newParent = newParent;
+    link.sync();
+  }),
+
+  destroyChildLink: function(key) {
+    delete this._relationshipLinks[key];
+  },
+
+  destroyParentLink: function(key, child) {
+    this._relationshipLinks[key].remove(child);
+  }
 });

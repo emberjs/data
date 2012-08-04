@@ -19,6 +19,7 @@ var hasAssociation = function(type, options) {
     ids = data[key];
     association = store.findMany(type, ids || []);
     set(association, 'owner', this);
+    set(association, 'name', key);
 
     return association;
   }).property().cacheable().meta(meta);

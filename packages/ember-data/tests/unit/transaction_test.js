@@ -1,3 +1,5 @@
+/*global QUnit*/
+
 var get = Ember.get, set = Ember.set;
 
 var Person = DS.Model.extend({
@@ -5,12 +7,18 @@ var Person = DS.Model.extend({
   foo: DS.attr('string')
 });
 
-module("DS.Transaction");
+var transaction;
+
+module("DS.Transaction", {
+  teardown: function() {
+    if (transaction) { transaction.destroy(); }
+  }
+});
 
 test("can create a new transaction", function() {
   var store = DS.Store.create();
 
-  var transaction = store.transaction();
+  transaction = store.transaction();
 
   ok(transaction, "transaction is created");
   ok(DS.Transaction.detectInstance(transaction), "transaction is an instance of DS.Transaction");
@@ -27,7 +35,7 @@ test("after a record is created from a transaction, it is not committed when sto
     })
   });
 
-  var transaction = store.transaction();
+  transaction = store.transaction();
   transaction.createRecord(Person, {});
 
   store.commit();
@@ -50,7 +58,7 @@ test("after a record is added to a transaction then updated, it is not committed
 
   store.load(Person, { id: 1, name: "Yehuda Katz" });
 
-  var transaction = store.transaction();
+  transaction = store.transaction();
   var record = store.find(Person, 1);
   transaction.add(record);
 
@@ -80,7 +88,7 @@ test("a record is removed from a transaction after the records become clean", fu
     })
   });
 
-  var transaction = store.transaction();
+  transaction = store.transaction();
   var record = transaction.createRecord(Person, {});
 
   transaction.commit();
@@ -108,7 +116,7 @@ test("after a record is added to a transaction then deleted, it is not committed
 
   store.load(Person, { id: 1, name: "Yehuda Katz" });
 
-  var transaction = store.transaction();
+  transaction = store.transaction();
   var record = store.find(Person, 1);
   transaction.add(record);
 
@@ -134,7 +142,7 @@ test("a record that is clean can be removed from a transaction", function() {
 
   store.load(Person, { id: 1, name: "Yehuda Katz" });
 
-  var transaction = store.transaction();
+  transaction = store.transaction();
   var record = store.find(Person, 1);
 
   transaction.add(record);
@@ -155,7 +163,7 @@ test("a record that is in the created state cannot be moved into a new transacti
   var store = DS.Store.create();
 
   var person = store.createRecord(Person);
-  var transaction = store.transaction();
+  transaction = store.transaction();
 
   raises(function() {
     transaction.add(person);
@@ -169,7 +177,7 @@ test("a record that is in the updated state cannot be moved into a new transacti
   var person = store.find(Person, 1);
 
   person.set('name', "Scumdale");
-  var transaction = store.transaction();
+  transaction = store.transaction();
 
   raises(function() {
     transaction.add(person);
@@ -183,7 +191,7 @@ test("a record that is in the deleted state cannot be moved into a new transacti
   var person = store.find(Person, 1);
 
   person.deleteRecord();
-  var transaction = store.transaction();
+  transaction = store.transaction();
 
   raises(function() {
     transaction.add(person);
@@ -197,7 +205,7 @@ test("a record that is in the clean state is moved back to the default transacti
 
   var person = store.find(Person, 1);
 
-  var transaction = store.transaction();
+  transaction = store.transaction();
   transaction.add(person);
   transaction.commit();
 
@@ -224,7 +232,7 @@ test("modified records are reset when their transaction is rolled back", functio
   var anotherUpdatedPerson = store.find(Person, 3);
   var invalidPerson = store.find(Person, 4);
 
-  var transaction = store.transaction();
+  transaction = store.transaction();
   transaction.add(updatedPerson);
   transaction.add(deletedPerson);
   transaction.add(anotherUpdatedPerson);
@@ -288,7 +296,7 @@ test("modified records are reset when their transaction is rolled back", functio
 
   var person = store.find(Person, 1);
 
-  var transaction = store.transaction();
+  transaction = store.transaction();
   transaction.add(person);
 
   person.set('name', 'toto');
@@ -326,10 +334,29 @@ module("DS.Transaction - relationships", {
   },
 
   teardown: function() {
+    if (transaction) { transaction.destroy(); }
     adapter.destroy();
     store.destroy();
   }
 });
+
+function expectRelationship(object, kind, description) {
+  if (object) {
+    var relationships = transaction.dirtyRelationships[kind].get(object),
+        count = description.count || 1;
+
+    QUnit.push(relationships.length === count, relationships.length, count, "There should be " + count + " dirty relationships in " + kind);
+    QUnit.push(relationships[0].oldParent === description.oldParent, relationships[0].oldParent, description.oldParent, "oldParent is incorrect");
+    QUnit.push(relationships[0].newParent === description.newParent, relationships[0].newParent, description.newParent, "newParent is incorrect");
+    QUnit.push(relationships[0].child === description.child, relationships[0].child, description.child, "child is incorrect");
+  }
+}
+
+function expectRelationships(description) {
+  expectRelationship(description.oldParent, 'byOldParent', description);
+  expectRelationship(description.newParent, 'byNewParent', description);
+  expectRelationship(description.child, 'byChild', description);
+}
 
 test("If both the parent and child are clean and in the same transaction, a dirty relationship is added to the transaction null->A", function() {
   store.load(Post, { id: 1, title: "Ohai", body: "FIRST POST ZOMG" });
@@ -338,7 +365,7 @@ test("If both the parent and child are clean and in the same transaction, a dirt
   var post = store.find(Post, 1);
   var comment = store.find(Comment, 1);
 
-  var transaction = store.transaction();
+  transaction = store.transaction();
 
   transaction.add(post);
   transaction.add(comment);
@@ -347,8 +374,11 @@ test("If both the parent and child are clean and in the same transaction, a dirt
 
   var relationships = transaction.dirtyRelationships;
 
-  deepEqual(relationships.byChild.get(comment), [ { oldParent: null, newParent: post, child: comment } ]);
-  deepEqual(relationships.byNewParent.get(post), [ { oldParent: null, newParent: post, child: comment } ]);
+  expectRelationships({
+    oldParent: null,
+    newParent: post,
+    child: comment
+  });
 });
 
 test("If a child is removed from a parent, a dirty relationship is added to the transaction A->null", function() {
@@ -358,7 +388,7 @@ test("If a child is removed from a parent, a dirty relationship is added to the 
   var post = store.find(Post, 1);
   var comment = store.find(Comment, 1);
 
-  var transaction = store.transaction();
+  transaction = store.transaction();
 
   transaction.add(post);
   transaction.add(comment);
@@ -367,8 +397,11 @@ test("If a child is removed from a parent, a dirty relationship is added to the 
 
   var relationships = transaction.dirtyRelationships;
 
-  deepEqual(relationships.byChild.get(comment), [ { oldParent: post, newParent: null, child: comment } ]);
-  deepEqual(relationships.byOldParent.get(post), [ { oldParent: post, newParent: null, child: comment } ]);
+  expectRelationships({
+    oldParent: post,
+    newParent: null,
+    child: comment
+  });
 });
 
 test("If a child is removed from a parent it was recently added to, the dirty relationship is removed. null->A, A->null", function() {
@@ -378,7 +411,7 @@ test("If a child is removed from a parent it was recently added to, the dirty re
   var post = store.find(Post, 1);
   var comment = store.find(Comment, 1);
 
-  var transaction = store.transaction();
+  transaction = store.transaction();
 
   transaction.add(post);
   transaction.add(comment);
@@ -403,7 +436,7 @@ test("If a child was added to one parent, and then another, the changes coalesce
   var post3 = store.find(Post, 3);
   var comment = store.find(Comment, 1);
 
-  var transaction = store.transaction();
+  transaction = store.transaction();
 
   transaction.add(post);
   transaction.add(comment);
@@ -415,8 +448,10 @@ test("If a child was added to one parent, and then another, the changes coalesce
 
   var relationships = transaction.dirtyRelationships;
 
-  deepEqual(relationships.byChild.get(comment), [ { child: comment, oldParent: post, newParent: post3 } ]);
-  deepEqual(relationships.byOldParent.get(post), [ { child: comment, oldParent: post, newParent: post3 } ]);
-  deepEqual(relationships.byNewParent.get(post3), [ { child: comment, oldParent: post, newParent: post3 } ]);
+  expectRelationships({
+    oldParent: post,
+    newParent: post3,
+    child: comment
+  });
 });
 

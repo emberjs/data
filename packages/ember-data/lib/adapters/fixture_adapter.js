@@ -124,6 +124,11 @@ DS.FixtureAdapter = DS.Adapter.extend({
   */
   simulateRemoteCall: function(callback, store, type, record) {
     if (get(this, 'simulateRemoteResponse')) {
+      try {
+        throw new Error("CATCHING L'STACK");
+      } catch(e) {
+        callback.zomgStack = e.stack;
+      }
       setTimeout(callback, get(this, 'latency'));
     } else {
       callback();
