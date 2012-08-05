@@ -16,6 +16,12 @@ test("the first store becomes the default store", function() {
   equal(get(DS, 'defaultStore'), store, "the first store is the default");
 });
 
+test("the first store remains the default store when creating more stores", function() {
+  var store = DS.Store.create();
+  DS.Store.create();
+  equal(get(DS, 'defaultStore'), store, "the first store is the default");
+});
+
 test("a specific store can be supplied as the default store", function() {
   DS.Store.create();
   var store = DS.Store.create({ isDefaultStore: true });
@@ -28,6 +34,15 @@ test("when a store is destroyed, it removes itself as the default store", functi
   var store = DS.Store.create({ isDefaultStore: true });
 
   equal(get(DS, 'defaultStore'), store, "precond - store creates itself as default store");
+  store.destroy();
+
+  equal(get(DS, 'defaultStore'), null, "default store is set to null after previous default was destroyed");
+});
+
+test("when the default store is destroyed, no other available store will automatically become the new default", function() {
+  var store = DS.Store.create({ isDefaultStore: true });
+  var second_store = DS.Store.create();
+
   store.destroy();
 
   equal(get(DS, 'defaultStore'), null, "default store is set to null after previous default was destroyed");
