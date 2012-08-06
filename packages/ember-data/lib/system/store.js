@@ -5,12 +5,6 @@ require("ember-data/system/transaction");
 
 var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt;
 
-var DATA_PROXY = {
-  get: function(name) {
-    return this.data[name];
-  }
-};
-
 // These values are used in the data cache when clientIds are
 // needed but the underlying data has not yet been loaded by
 // the server.
