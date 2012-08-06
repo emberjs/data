@@ -6,14 +6,14 @@ var get = Ember.get, set = Ember.set;
 
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
-	
+
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
 
     var data = {};
     data[root] = record.toJSON();
 
-    this.ajax(this.buildURL(root), "POST", {
+    this.ajax(this.buildURL(type), "POST", {
       data: data,
       context: this,
       success: function(json) {
@@ -34,15 +34,14 @@ DS.RESTAdapter = DS.Adapter.extend({
       return this._super(store, type, records);
     }
 
-    var root = this.rootForType(type),
-        plural = this.pluralize(root);
+    var root = this.rootForType(type, true);
 
     var data = {};
-    data[plural] = records.map(function(record) {
+    data[root] = records.map(function(record) {
       return record.toJSON();
     });
 
-    this.ajax(this.buildURL(root), "POST", {
+    this.ajax(this.buildURL(type), "POST", {
       data: data,
       context: this,
       success: function(json) {
@@ -65,7 +64,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var data = {};
     data[root] = record.toJSON();
 
-    this.ajax(this.buildURL(root, id), "PUT", {
+    this.ajax(this.buildURL(type, id), "PUT", {
       data: data,
       context: this,
       success: function(json) {
@@ -86,15 +85,14 @@ DS.RESTAdapter = DS.Adapter.extend({
       return this._super(store, type, records);
     }
 
-    var root = this.rootForType(type),
-        plural = this.pluralize(root);
+    var root = this.rootForType(type, true);
 
     var data = {};
-    data[plural] = records.map(function(record) {
+    data[root] = records.map(function(record) {
       return record.toJSON();
     });
 
-    this.ajax(this.buildURL(root, "bulk"), "PUT", {
+    this.ajax(this.buildURL(type, "bulk"), "PUT", {
       data: data,
       context: this,
       success: function(json) {
@@ -112,9 +110,8 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   deleteRecord: function(store, type, record) {
     var id = get(record, 'id');
-    var root = this.rootForType(type);
 
-    this.ajax(this.buildURL(root, id), "DELETE", {
+    this.ajax(this.buildURL(type, id), "DELETE", {
       context: this,
       success: function(json) {
         this.didDeleteRecord(store, type, record, json);
@@ -132,15 +129,14 @@ DS.RESTAdapter = DS.Adapter.extend({
       return this._super(store, type, records);
     }
 
-    var root = this.rootForType(type),
-        plural = this.pluralize(root);
+    var root = this.rootForType(type, true);
 
     var data = {};
-    data[plural] = records.map(function(record) {
+    data[root] = records.map(function(record) {
       return get(record, 'id');
     });
 
-    this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
+    this.ajax(this.buildURL(type, 'bulk'), "DELETE", {
       data: data,
       context: this,
       success: function(json) {
@@ -157,7 +153,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   find: function(store, type, id) {
     var root = this.rootForType(type);
 
-    this.ajax(this.buildURL(root, id), "GET", {
+    this.ajax(this.buildURL(type, id), "GET", {
       success: function(json) {
         this.sideload(store, type, json, root);
         store.load(type, json[root]);
@@ -166,36 +162,36 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   findMany: function(store, type, ids) {
-    var root = this.rootForType(type), plural = this.pluralize(root);
+    var root = this.rootForType(type, true);
 
-    this.ajax(this.buildURL(root), "GET", {
+    this.ajax(this.buildURL(type), "GET", {
       data: { ids: ids },
       success: function(json) {
-        this.sideload(store, type, json, plural);
-        store.loadMany(type, json[plural]);
+        this.sideload(store, type, json, root);
+        store.loadMany(type, json[root]);
       }
     });
   },
 
   findAll: function(store, type) {
-    var root = this.rootForType(type), plural = this.pluralize(root);
+    var root = this.rootForType(type, true);
 
-    this.ajax(this.buildURL(root), "GET", {
+    this.ajax(this.buildURL(type), "GET", {
       success: function(json) {
-        this.sideload(store, type, json, plural);
-        store.loadMany(type, json[plural]);
+        this.sideload(store, type, json, root);
+        store.loadMany(type, json[root]);
       }
     });
   },
 
   findQuery: function(store, type, query, recordArray) {
-    var root = this.rootForType(type), plural = this.pluralize(root);
+    var root = this.rootForType(type, true);
 
-    this.ajax(this.buildURL(root), "GET", {
+    this.ajax(this.buildURL(type), "GET", {
       data: query,
       success: function(json) {
-        this.sideload(store, type, json, plural);
-        recordArray.load(json[plural]);
+        this.sideload(store, type, json, root);
+        recordArray.load(json[root]);
       }
     });
   },
@@ -210,13 +206,37 @@ DS.RESTAdapter = DS.Adapter.extend({
     return this.plurals[name] || name + "s";
   },
 
-  rootForType: function(type) {
-    if (type.url) { return type.url; }
-
-    // use the last part of the name as the URL
+  resourceForType: function(type) {
+    // use the last part of the name as resource name
     var parts = type.toString().split(".");
     var name = parts[parts.length - 1];
     return name.replace(/([A-Z])/g, '_$1').toLowerCase().slice(1);
+  },
+
+  urlForType: function(type) {
+    var name;
+
+    if (type.url) {
+      name = type.url;
+    } else {
+      name = this.resourceForType(type);
+    }
+
+    return this.pluralize(name);
+  },
+
+  rootForType: function(type, plural) {
+    var name;
+
+    if (type.root) {
+      name = type.root;
+    } else if (type.url) {
+      name = type.url;
+    } else {
+      name = this.resourceForType(type);
+    }
+
+    return plural ? this.pluralize(name) : name;
   },
 
   ajax: function(url, type, hash) {
@@ -285,18 +305,19 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
   },
 
-  buildURL: function(record, suffix) {
+  buildURL: function(type, suffix) {
+    var resource = this.urlForType(type);
     var url = [""];
 
     Ember.assert("Namespace URL (" + this.namespace + ") must not start with slash", !this.namespace || this.namespace.toString().charAt(0) !== "/");
-    Ember.assert("Record URL (" + record + ") must not start with slash", !record || record.toString().charAt(0) !== "/");
+    Ember.assert("Record URL (" + resource + ") must not start with slash", !resource || resource.toString().charAt(0) !== "/");
     Ember.assert("URL suffix (" + suffix + ") must not start with slash", !suffix || suffix.toString().charAt(0) !== "/");
 
     if (this.namespace !== undefined) {
       url.push(this.namespace);
     }
 
-    url.push(this.pluralize(record));
+    url.push(resource);
     if (suffix !== undefined) {
       url.push(suffix);
     }
