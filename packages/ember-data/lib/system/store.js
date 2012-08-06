@@ -100,6 +100,16 @@ DS.Store = Ember.Object.extend({
 
   /**
     @private
+
+    Instructs the store to materialize the data for a given record.
+
+    To materialize a record, the store first retrieves the opaque hash that was
+    passed to either `load()` or `loadMany()`. Then, the hash and the record
+    are passed to the adapter's `materialize()` method, which allow the adapter
+    to translate arbitrary hash data structures into the normalized form
+    the record expects.
+
+   @param {DS.Model} record
   */
   materializeData: function(record) {
     var type = record.constructor,
@@ -110,7 +120,13 @@ DS.Store = Ember.Object.extend({
 
     typeMap.cidToHash[clientId] = MATERIALIZED;
 
+    // Ensures the record's data structures are setup
+    // before being populated by the adapter.
     record.setupData();
+
+    // Instructs the adapter to extract information from the
+    // opaque hash and materialize the record's attributes and
+    // relationships.
     adapter.materialize(record, hash);
   },
 
