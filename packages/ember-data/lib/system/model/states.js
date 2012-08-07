@@ -607,6 +607,12 @@ createdState.states.uncommitted.reopen({
   }
 });
 
+createdState.states.pending.states.uncommitted.reopen({
+  rollback: function(manager) {
+    manager.goToState('deleted.saved');
+  }
+});
+
 // The updated.uncommitted state and updated.pending.uncommitted share
 // some logic defined in UpdatedUncommitted.
 updatedState.states.uncommitted.reopen(UpdatedUncommitted);
