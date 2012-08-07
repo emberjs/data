@@ -35,11 +35,11 @@ var get = Ember.get, set = Ember.set;
 */
 DS.ManyArray = DS.RecordArray.extend({
   init: function() {
-    set(this, 'stateManager', DS.ManyArrayStateManager.create({ manyArray: this }));
+    //set(this, 'stateManager', DS.ManyArrayStateManager.create({ manyArray: this }));
 
     this._super.apply(this, arguments);
     this._initted = true;
-    this._linksToSync = Ember.OrderedSet.create();
+    this._changesToSync = Ember.OrderedSet.create();
   },
 
   /**
@@ -51,16 +51,19 @@ DS.ManyArray = DS.RecordArray.extend({
   */
   owner: null,
 
-  isDirty: Ember.computed(function() {
-    return get(this, 'stateManager.currentState.isDirty');
-  }).property('stateManager.currentState').cacheable(),
+  // LOADING STATE
 
-  isLoaded: Ember.computed(function() {
-    return get(this, 'stateManager.currentState.isLoaded');
-  }).property('stateManager.currentState').cacheable(),
+  isLoaded: false,
 
-  send: function(event, context) {
-    this.get('stateManager').send(event, context);
+  loadingRecordsCount: function(count) {
+    this.loadingRecordsCount = count;
+  },
+
+  loadedRecord: function() {
+    this.loadingRecordsCount--;
+    if (this.loadingRecordsCount === 0) {
+      set(this, 'isLoaded', true);
+    }
   },
 
   fetch: function() {
@@ -82,29 +85,34 @@ DS.ManyArray = DS.RecordArray.extend({
     this._super(index, removed, added);
   },
 
+  arrangedContentDidChange: Ember.observer(function() {
+    this.fetch();
+  }, 'content'),
+
   arrayContentWillChange: function(index, removed, added) {
     if (this._initted) {
       var owner = get(this, 'owner'),
           name = get(this, 'name');
 
       // This code is the first half of code that continues inside
-      // of arrayContentDidChange. It gets or creates a link from
+      // of arrayContentDidChange. It gets or creates a change from
       // the child object, adds the current owner as the old
       // parent if this is the first time the object was removed
       // from a ManyArray, and sets `newParent` to null.
       //
       // Later, if the object is added to another ManyArray,
       // the `arrayContentDidChange` will set `newParent` on
-      // the link.
+      // the change.
       for (var i=index; i<index+removed; i++) {
-        var record = this.objectAt(i);
+        var record = this.materializedObjectAt(i);
+        if (!record) { continue; }
 
-        var link = DS.OneToManyLink.forChildAndParent(record, owner);
-        link.hasManyName = name;
+        var change = DS.OneToManyChange.forChildAndParent(record, owner);
+        change.hasManyName = name;
 
-        if (link.oldParent === undefined) { link.oldParent = owner; }
-        link.newParent = null;
-        this._linksToSync.add(link);
+        if (change.oldParent === undefined) { change.oldParent = owner; }
+        change.newParent = null;
+        this._changesToSync.add(change);
       }
     }
 
@@ -112,43 +120,46 @@ DS.ManyArray = DS.RecordArray.extend({
   },
 
   arrayContentDidChange: function(index, removed, added) {
+    this._super.apply(this, arguments);
+
     if (this._initted) {
       var owner = get(this, 'owner'),
           name = get(this, 'name');
 
       // This code is the second half of code that started in
-      // `arrayContentWillChange`. It gets or creates a link
+      // `arrayContentWillChange`. It gets or creates a change
       // from the child object, and adds the current owner as
       // the new parent.
       for (var i=index; i<index+added; i++) {
-        var record = this.objectAt(i);
+        var record = this.materializedObjectAt(i);
+        if (!record) { continue; }
 
-        var link = DS.OneToManyLink.forChildAndParent(record, owner);
-        link.hasManyName = name;
+        var change = DS.OneToManyChange.forChildAndParent(record, owner);
+        change.hasManyName = name;
 
         // The oldParent will be looked up in `sync` if it
         // was not set by `belongsToWillChange`.
-        link.newParent = owner;
-        this._linksToSync.add(link);
+        change.newParent = owner;
+        this._changesToSync.add(change);
       }
+
+      // We wait until the array has finished being
+      // mutated before syncing the OneToManyChanges created
+      // in arrayContentWillChange, so that the array
+      // membership test in the sync() logic operates
+      // on the final results.
+      this._changesToSync.forEach(function(change) {
+        change.sync();
+      });
+      this._changesToSync.clear();
     }
-
-    // We wait until the array has finished being
-    // mutated before syncing the OneToManyLinks created
-    // in arrayContentWillChange, so that the array
-    // membership test in the sync() logic operates
-    // on the final results.
-    this._linksToSync.forEach(function(link) { link.sync(); });
-    this._linksToSync.clear();
-
-    return this._super.apply(this, arguments);
   },
 
   /**
     @private
   */
   assignInverse: function(record) {
-    var inverseName = DS.inverseNameFor(record, get(this, 'owner.constructor'), 'belongsTo'),
+    var inverseName = DS.inverseNameFor(record.constructor, get(this, 'owner.constructor'), 'belongsTo'),
         owner = get(this, 'owner'),
         currentInverse;
 
@@ -166,7 +177,7 @@ DS.ManyArray = DS.RecordArray.extend({
     @private
   */
   removeInverse: function(record) {
-    var inverseName = DS.inverseNameFor(record, get(this, 'owner.constructor'), 'belongsTo');
+    var inverseName = DS.inverseNameFor(record.constructor, get(this, 'owner.constructor'), 'belongsTo');
 
     if (inverseName) {
       var currentInverse = get(record, inverseName);

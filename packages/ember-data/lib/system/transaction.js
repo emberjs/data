@@ -103,6 +103,8 @@ DS.Transaction = Ember.Object.extend({
       deleted:  Ember.OrderedSet.create(),
       inflight: Ember.OrderedSet.create()
     });
+
+    set(this, 'relationships', Ember.OrderedSet.create());
   },
 
   /**
@@ -121,6 +123,12 @@ DS.Transaction = Ember.Object.extend({
     return store.createRecord(type, hash, this);
   },
 
+  isEqualOrDefault: function(other) {
+    if (this === other || other === get(this, 'store.defaultTransaction')) {
+      return true;
+    }
+  },
+
   /**
     Adds an existing record to this transaction. Only records without
     modficiations (i.e., records whose `isDirty` property is `false`)
@@ -129,15 +137,28 @@ DS.Transaction = Ember.Object.extend({
     @param {DS.Model} record the record to add to the transaction
   */
   add: function(record) {
-    // we could probably make this work if someone has a valid use case. Do you?
-    Ember.assert("Once a record has changed, you cannot move it into a different transaction", !get(record, 'isDirty'));
-
     var recordTransaction = get(record, 'transaction'),
         defaultTransaction = get(this, 'store.defaultTransaction');
+
+    // Make `add` idempotent
+    if (recordTransaction === this) { return; }
+
+    // XXX it should be possible to move a dirty transaction from the default transaction
+
+    // we could probably make this work if someone has a valid use case. Do you?
+    Ember.assert("Once a record has changed, you cannot move it into a different transaction", !get(record, 'isDirty'));
 
     Ember.assert("Models cannot belong to more than one transaction at a time.", recordTransaction === defaultTransaction);
 
     this.adoptRecord(record);
+  },
+
+  relationshipBecameDirty: function(relationship) {
+    get(this, 'relationships').add(relationship);
+  },
+
+  relationshipBecameClean: function(relationship) {
+    get(this, 'relationships').remove(relationship);
   },
 
   /**

@@ -70,6 +70,8 @@ DS.MockModel = DS.MockObject.extend({
     this.get('transaction').recordBecameDirty(type, this);
   },
 
+  eachAttribute: Ember.K,
+  eachRelationshipChange: Ember.K,
   setupData: Ember.K
 });
 

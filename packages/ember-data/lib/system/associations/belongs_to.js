@@ -40,29 +40,57 @@ DS.belongsTo = function(type, options) {
 DS.Model.reopen({
   /** @private */
   belongsToWillChange: Ember.beforeObserver(function(record, key) {
-    if (!record._relationshipLinks[key]) {
-      record._relationshipLinks[key] = DS.OneToManyLink.create({
+    if (!record.hasChildChange(key) && get(record, 'isLoaded')) {
+      record.addChildChange(key, DS.OneToManyChange.create({
         oldParent: get(record, key),
         belongsToName: key,
         child: record
-      });
+      }));
     }
   }),
 
   /** @private */
   belongsToDidChange: Ember.immediateObserver(function(record, key) {
-    var link = record._relationshipLinks[key],
-        newParent = get(record, key);
+    if (get(record, 'isLoaded')) {
+      var change = record.getChildChange(key),
+          newParent = get(record, key);
 
-    link.newParent = newParent;
-    link.sync();
+      change.newParent = newParent;
+      change.sync();
+    }
   }),
 
-  destroyChildLink: function(key) {
-    delete this._relationshipLinks[key];
+  hasChildChange: function(key) {
+    return key in this._relationshipChanges;
   },
 
-  destroyParentLink: function(key, child) {
-    this._relationshipLinks[key].remove(child);
+  eachRelationshipChange: function(callback, binding) {
+    for (var prop in this._relationshipChanges) {
+      if (!this._relationshipChanges.hasOwnProperty(prop)) { continue; }
+      callback.call(binding, prop, this._relationshipChanges[prop]);
+    }
+  },
+
+  getChildChange: function(key) {
+    return this._relationshipChanges[key];
+  },
+
+  getRelationshipChange: function(key) {
+    return this._relationshipChanges[key];
+  },
+
+  addChildChange: function(key, change) {
+    get(this, 'transaction').relationshipBecameDirty(change);
+    this._relationshipChanges[key] = change;
+  },
+
+  destroyChildChange: function(key) {
+    var change = this._relationshipChanges[key];
+    get(this, 'transaction').relationshipBecameClean(change);
+    delete this._relationshipChanges[key];
+  },
+
+  destroyParentChange: function(key, child) {
+    this._relationshipChanges[key].remove(child);
   }
 });

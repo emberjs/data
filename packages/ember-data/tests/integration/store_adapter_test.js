@@ -52,7 +52,7 @@ test("by default, createRecords calls createRecord once per record", function() 
     hash.id = count;
     hash.updatedAt = "now";
 
-    store.didCreateRecord(record, hash);
+    store.didSaveRecord(record, hash);
     equal(get(record, 'updatedAt'), "now", "the record should receive the new information");
 
     count++;
@@ -87,7 +87,7 @@ test("by default, updateRecords calls updateRecord once per record", function() 
 
     equal(record.get('isSaving'), true, "record is saving");
 
-    store.didUpdateRecord(record);
+    store.didSaveRecord(record);
 
     equal(record.get('isSaving'), false, "record is no longer saving");
     equal(record.get('isLoaded'), true, "record is saving");
@@ -108,7 +108,7 @@ test("by default, updateRecords calls updateRecord once per record", function() 
   store.commit();
 });
 
-test("calling store.didUpdateRecord can provide an optional hash", function() {
+test("calling store.didSaveRecord can provide an optional hash", function() {
   expect(8);
 
   var count = 0;
@@ -118,12 +118,12 @@ test("calling store.didUpdateRecord can provide an optional hash", function() {
 
     if (count === 0) {
       equal(get(record, 'name'), "Tom Dale");
-      store.didUpdateRecord(record, { id: 1, name: "Tom Dale", updatedAt: "now" });
+      store.didSaveRecord(record, { id: 1, name: "Tom Dale", updatedAt: "now" });
       equal(get(record, 'isDirty'), false, "the record should not be dirty");
       equal(get(record, 'updatedAt'), "now", "the hash was updated");
     } else if (count === 1) {
       equal(get(record, 'name'), "Yehuda Katz");
-      store.didUpdateRecord(record, { id: 2, name: "Yehuda Katz", updatedAt: "now!" });
+      store.didSaveRecord(record, { id: 2, name: "Yehuda Katz", updatedAt: "now!" });
       equal(record.get('isDirty'), false, "the record should not be dirty");
       equal(get(record, 'updatedAt'), "now!", "the hash was updated");
     } else {
@@ -166,7 +166,7 @@ test("by default, deleteRecords calls deleteRecord once per record", function() 
 
     count++;
 
-    store.didDeleteRecord(record);
+    store.didSaveRecord(record);
   };
 
   store.load(Person, { id: 1, name: "Tom Dale" });
@@ -193,7 +193,7 @@ test("if an existing model is edited then deleted, deleteRecord is called on the
     equal(get(record, 'id'), 'deleted-record', "should pass correct record to deleteRecord");
     equal(count, 1, "should only call deleteRecord method of adapter once");
 
-    store.didDeleteRecord(record);
+    store.didSaveRecord(record);
   };
 
   adapter.updateRecord = function() {
@@ -226,7 +226,7 @@ test("if a created record is marked as invalid by the server, it enters an error
     if (get(record, 'name').indexOf('Bro') === -1) {
       store.recordWasInvalid(record, { name: ['common... name requires a "bro"'] });
     } else {
-      store.didCreateRecord(record);
+      store.didSaveRecord(record);
     }
   };
 
@@ -271,7 +271,7 @@ test("if an updated record is marked as invalid by the server, it enters an erro
     if (get(record, 'name').indexOf('Bro') === -1) {
       store.recordWasInvalid(record, { name: ['common... name requires a "bro"'] });
     } else {
-      store.didUpdateRecord(record);
+      store.didSaveRecord(record);
     }
   };
 
@@ -335,7 +335,7 @@ test("can rollback after sucessives updates", function() {
   store.load(Person, 1, {name: "Paul Chavard"});
   store.set('adapter', 'App.adapter');
   adapter.updateRecord = function(store, type, record) {
-    store.didUpdateRecord(record);
+    store.didSaveRecord(record);
   };
   // Expose the adapter to global namespace
   window.App = {adapter: adapter};
@@ -352,6 +352,7 @@ test("can rollback after sucessives updates", function() {
 
   equal(person.get('name'), "Paul Chavard", "person name is back to Paul Chavard");
 
+  window.billy = true;
   person.set('name', 'Paul Bro');
   equal(person.get('name'), "Paul Bro", "person changed the name");
   equal(person.get('isDirty'), true, "person is dirty");

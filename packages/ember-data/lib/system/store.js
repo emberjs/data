@@ -130,6 +130,10 @@ DS.Store = Ember.Object.extend({
     adapter.materialize(record, hash);
   },
 
+  recordIsMaterialized: function(clientId) {
+    return !!get(this, 'recordCache')[clientId];
+  },
+
   /**
     The adapter to use to communicate to a backend server or other persistence layer.
 
@@ -479,11 +483,10 @@ DS.Store = Ember.Object.extend({
 
     var neededClientIds = this.neededClientIds(type, clientIds),
         manyArray = this.createManyArray(type, Ember.A(clientIds)),
-        loadedCount = clientIds.length - neededClientIds.length,
         loadingRecordArrays = this.loadingRecordArrays,
         clientId, i, l;
 
-    manyArray.send('loadedRecords', loadedCount);
+    manyArray.loadingRecordsCount(neededClientIds.length);
 
     if (neededClientIds.length) {
       for (i=0, l=neededClientIds.length; i<l; i++) {
@@ -580,85 +583,79 @@ DS.Store = Ember.Object.extend({
     defaultTransaction.commit();
   },
 
-  didUpdateRecords: function(array, hashes) {
-    if (hashes) {
-      array.forEach(function(record, idx) {
-        this.didUpdateRecord(record, hashes[idx]);
-      }, this);
-    } else {
-      array.forEach(function(record) {
-        this.didUpdateRecord(record);
-      }, this);
+  didSaveRecord: function(record, hash) {
+    if (get(record, 'isNew')) {
+      this.didCreateRecord(record);
+    } else if (get(record, 'isDeleted')) {
+      this.didDeleteRecord(record);
     }
-  },
-
-  didUpdateRecord: function(record, hash) {
-    record.send('didCommit');
 
     if (hash) {
-      var clientId = get(record, 'clientId'),
-          dataCache = this.typeMapFor(record.constructor).cidToHash;
-
-      dataCache[clientId] = hash;
-
-      record.send('didChangeData');
+      // We're about to clobber the entire data hash with new
+      // data, so clear out any remaining unacknowledged changes
+      record.removeInFlightDirtyFactors();
+      this.updateId(record, hash);
+      this.updateRecordHash(record, hash);
     } else {
-      record.adapterDidCommit();
+      this.didUpdateAttributes(record);
+      this.didUpdateRelationships(record);
     }
   },
 
-  didDeleteRecords: function(array) {
-    array.forEach(function(record) {
-      record.send('didCommit');
+  didSaveRecords: function(array, hashes) {
+    array.forEach(function(record, index) {
+      this.didSaveRecord(record, hashes && hashes[index]);
+    }, this);
+  },
+
+  didUpdateAttribute: function(record, attributeName, value) {
+    record.adapterDidUpdateAttribute(attributeName, value);
+  },
+
+  didUpdateAttributes: function(record) {
+    record.eachAttribute(function(attributeName) {
+      this.didUpdateAttribute(record, attributeName);
+    }, this);
+  },
+
+  didUpdateRelationship: function(record, relationshipName) {
+    var change = record.getRelationshipChange(relationshipName);
+    change.didUpdateRelationship(relationshipName, record);
+  },
+
+  didUpdateRelationships: function(record) {
+    record.eachRelationshipChange(function(name, change) {
+      change.didUpdateRelationship(record, name);
     });
   },
 
+  updateRecordHash: function(record, hash) {
+    var clientId = get(record, 'clientId'),
+        dataCache = this.typeMapFor(record.constructor).cidToHash;
+
+    dataCache[clientId] = hash;
+
+    record.send('didChangeData');
+  },
+
+  updateId: function(record, hash) {
+    var typeMap = this.typeMapFor(record.constructor),
+        clientId = get(record, 'clientId'),
+        oldId = get(record, 'id'),
+        id = get(this, '_adapter').extractId(record.constructor, hash);
+
+    Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned a data hash in response to a find or update that had a different id than the one you sent.", oldId === undefined || id === oldId);
+
+    typeMap.idToCid[id] = clientId;
+    this.clientIdToId[clientId] = id;
+  },
+
   didDeleteRecord: function(record) {
-    record.send('didCommit');
+    record.adapterDidDelete();
   },
 
-  _didCreateRecord: function(record, hash, typeMap, clientId) {
-    var recordData = get(record, 'data'), id, changes;
-
-    record.send('didCommit');
-
-    if (hash) {
-      typeMap.cidToHash[clientId] = hash;
-
-      // If the server returns a hash, we assume that the server's version
-      // of the data supercedes the local changes.
-      record.send('didChangeData');
-
-      id = get(this, '_adapter').extractId(record.constructor, hash);
-
-      typeMap.idToCid[id] = clientId;
-      this.clientIdToId[clientId] = id;
-    } else {
-      record.adapterDidCommit();
-    }
-  },
-
-
-  didCreateRecords: function(type, array, hashes) {
-    var typeMap = this.typeMapFor(type),
-        clientId;
-
-    for (var i=0, l=get(array, 'length'); i<l; i++) {
-      var record = array[i], hash = hashes[i];
-      clientId = get(record, 'clientId');
-
-      this._didCreateRecord(record, hash, typeMap, clientId);
-    }
-  },
-
-  didCreateRecord: function(record, hash) {
-    var type = record.constructor,
-        typeMap = this.typeMapFor(type),
-        clientId;
-
-    clientId = get(record, 'clientId');
-
-    this._didCreateRecord(record, hash, typeMap, clientId);
+  didCreateRecord: function(record) {
+    record.adapterDidCreate();
   },
 
   recordWasInvalid: function(record, errors) {
@@ -733,7 +730,7 @@ DS.Store = Ember.Object.extend({
 
     if (manyArrays) {
       for (var i=0, l=manyArrays.length; i<l; i++) {
-        manyArrays[i].send('loadedRecords', 1);
+        manyArrays[i].loadedRecord();
       }
 
       this.loadingRecordArrays[clientId] = null;

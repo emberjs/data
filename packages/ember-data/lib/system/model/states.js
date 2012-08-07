@@ -179,6 +179,21 @@ var didChangeData = function(manager) {
   record.materializeData();
 };
 
+var setProperty = function(manager, context) {
+  var value = context.value,
+      key = context.key,
+      record = get(manager, 'record'),
+      adapterValue = get(record, 'data.attributes')[key];
+
+  if (value === adapterValue) {
+    record.removeDirtyFactor(key);
+  } else {
+    record.addDirtyFactor(key);
+  }
+
+  updateRecordArrays(manager);
+};
+
 // Whenever a property is set, recompute all dependent filters
 var updateRecordArrays = function(manager) {
   var record = manager.get('record');
@@ -267,10 +282,21 @@ var DirtyState = DS.State.extend({
     },
 
     // EVENTS
-    setProperty: updateRecordArrays,
+    setProperty: setProperty,
 
     willCommit: function(manager) {
       manager.transitionTo('inFlight');
+    },
+
+    becameClean: function(manager) {
+      var record = get(manager, 'record'),
+          dirtyType = get(this, 'dirtyType');
+
+      record.withTransaction(function(t) {
+        t.recordBecameClean(dirtyType, record);
+      });
+
+      manager.transitionTo('loaded.saved');
     },
 
     becameInvalid: function(manager) {
@@ -285,16 +311,10 @@ var DirtyState = DS.State.extend({
     },
 
     rollback: function(manager) {
-      var record = get(manager, 'record'),
-          dirtyType = get(this, 'dirtyType');
+      var record = get(manager, 'record');
 
       record.notifyPropertyChange('data');
-
-      record.withTransaction(function(t) {
-        t.recordBecameClean(dirtyType, record);
-      });
-
-      manager.transitionTo('loaded.saved');
+      record.removeDirtyFactors();
     }
   }),
 
@@ -309,6 +329,9 @@ var DirtyState = DS.State.extend({
     enter: function(manager) {
       var dirtyType = get(this, 'dirtyType'),
           record = get(manager, 'record');
+
+      // create inFlightDirtyFactors
+      record.becameInFlight();
 
       record.withTransaction(function (t) {
         t.recordBecameInFlight(dirtyType, record);
@@ -332,6 +355,8 @@ var DirtyState = DS.State.extend({
       var record = get(manager, 'record');
 
       set(record, 'errors', errors);
+
+      record.restoreDirtyFactors();
 
       manager.transitionTo('invalid');
       manager.send('invokeLifecycleCallbacks');
@@ -360,6 +385,7 @@ var DirtyState = DS.State.extend({
 
     // EVENTS
     deleteRecord: function(manager) {
+      get(manager, 'record').clearRelationships();
       manager.transitionTo('deleted');
     },
 
@@ -374,7 +400,7 @@ var DirtyState = DS.State.extend({
         manager.send('becameValid');
       }
 
-      updateRecordArrays(manager);
+      setProperty(manager, context);
     },
 
     rollback: function(manager) {
@@ -401,7 +427,18 @@ var createdState = DirtyState.create({
   dirtyType: 'created',
 
   // FLAGS
-  isNew: true
+  isNew: true,
+
+  // TRANSITIONS
+  setup: function(manager) {
+    var record = get(manager, 'record');
+    record.addDirtyFactor('@created');
+  },
+
+  exit: function(manager) {
+    var record = get(manager, 'record');
+    record.removeDirtyFactor('@created');
+  }
 });
 
 var updatedState = DirtyState.create({
@@ -411,6 +448,8 @@ var updatedState = DirtyState.create({
 createdState.states.uncommitted.reopen({
   deleteRecord: function(manager) {
     var record = get(manager, 'record');
+
+    record.clearRelationships();
 
     record.withTransaction(function(t) {
       t.recordBecameClean('created', record);
@@ -429,6 +468,8 @@ createdState.states.uncommitted.reopen({
 updatedState.states.uncommitted.reopen({
   deleteRecord: function(manager) {
     var record = get(manager, 'record');
+
+    get(manager, 'record').clearRelationships();
 
     record.withTransaction(function(t) {
       t.recordBecameClean('updated', record);
@@ -504,20 +545,16 @@ var states = {
       saved: DS.State.create({
 
         // EVENTS
-        setProperty: function(manager, context) {
-          var attributes = get(manager, 'record.data.attributes');
-
-          if (attributes[context.key] !== context.value) {
-            manager.transitionTo('updated');
-          }
-
-          updateRecordArrays(manager);
-        },
-
+        setProperty: setProperty,
         didChangeData: didChangeData,
         loadedData: didChangeData,
 
+        becameDirty: function(manager) {
+          manager.transitionTo('updated');
+        },
+
         deleteRecord: function(manager) {
+          get(manager, 'record').clearRelationships();
           manager.transitionTo('deleted');
         },
 
@@ -581,11 +618,19 @@ var states = {
       isDirty: true,
 
       // TRANSITIONS
-      enter: function(manager) {
+      setup: function(manager) {
         var record = get(manager, 'record'),
             store = get(record, 'store');
 
+        record.addDirtyFactor('@deleted');
+
         store.removeFromRecordArrays(record);
+      },
+
+      exit: function(manager) {
+        var record = get(manager, 'record');
+
+        record.removeDirtyFactor('@deleted');
       },
 
       // SUBSTATES
@@ -610,11 +655,18 @@ var states = {
 
         rollback: function(manager) {
           var record = get(manager, 'record');
+
           record.notifyPropertyChange('data');
+          record.removeDirtyFactors();
+        },
+
+        becameClean: function(manager) {
+          var record = get(manager, 'record');
 
           record.withTransaction(function(t) {
             t.recordBecameClean('deleted', record);
           });
+
           manager.transitionTo('loaded.saved');
         }
       }),
@@ -630,6 +682,9 @@ var states = {
         // TRANSITIONS
         enter: function(manager) {
           var record = get(manager, 'record');
+
+          // create inFlightDirtyFactors
+          record.becameInFlight();
 
           record.withTransaction(function (t) {
             t.recordBecameInFlight('deleted', record);

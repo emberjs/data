@@ -81,7 +81,7 @@ test("a filtered record array includes created elements", function() {
 test("a Record Array can update its filter", function() {
   set(store, 'adapter', DS.Adapter.create({
     deleteRecord: function(store, type, record) {
-      store.didDeleteRecord(record);
+      store.didSaveRecord(record);
     }
   }));
 
@@ -122,7 +122,7 @@ test("a Record Array can update its filter", function() {
 test("a Record Array can update its filter and notify array observers", function() {
   set(store, 'adapter', DS.Adapter.create({
     deleteRecord: function(store, type, record) {
-      store.didDeleteRecord(record);
+      store.didSaveRecord(record);
     }
   }));
 
@@ -263,7 +263,7 @@ test("it is possible to filter loaded records by dirtiness", function() {
   equal(filter.get('length'), 0, "the now-dirty record is not in the filter");
 
   store.commit();
-  store.didUpdateRecord(person);
+  store.didSaveRecord(person);
 
   equal(filter.get('length'), 1, "the clean record is back in the filter");
 });
@@ -285,7 +285,7 @@ test("it is possible to filter created records by dirtiness", function() {
   equal(filter.get('length'), 0, "the dirty record is not in the filter");
 
   store.commit();
-  store.didCreateRecord(person);
+  store.didSaveRecord(person);
 
   equal(filter.get('length'), 1, "the clean record is in the filter");
 });
@@ -332,7 +332,7 @@ var setup = function(serverCallbacks) {
 test("a Record Array can update its filter after server-side updates one record", function() {
   setup({
     updateRecord: function(store, type, record) {
-      store.didUpdateRecord(record, {id: 1, name: "Scumbag Server-side Dale"});
+      store.didSaveRecord(record, {id: 1, name: "Scumbag Server-side Dale"});
     }
   });
 
@@ -346,7 +346,7 @@ test("a Record Array can update its filter after server-side updates one record"
 test("a Record Array can update its filter after server-side updates multiple records", function() {
   setup({
     updateRecords: function(store, type, records) {
-      store.didUpdateRecords(records, [
+      store.didSaveRecords(records, [
         {id: 1, name: "Scumbag Server-side Dale"},
         {id: 2, name: "Scumbag Server-side Katz"}
       ]);
@@ -363,7 +363,7 @@ test("a Record Array can update its filter after server-side updates multiple re
 test("a Record Array can update its filter after server-side creates one record", function() {
   setup({
     createRecord: function(store, type, record) {
-      store.didCreateRecord(record, {id: 4, name: "Scumbag Server-side Tim"});
+      store.didSaveRecord(record, {id: 4, name: "Scumbag Server-side Tim"});
     }
   });
 
@@ -377,7 +377,7 @@ test("a Record Array can update its filter after server-side creates one record"
 test("a Record Array can update its filter after server-side creates multiple records", function() {
   setup({
     createRecords: function(store, type, records) {
-      store.didCreateRecords(Person, records, [
+      store.didSaveRecords(records, [
         {id: 4, name: "Scumbag Server-side Mike"},
         {id: 5, name: "Scumbag Server-side David"}
       ]);

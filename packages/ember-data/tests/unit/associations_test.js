@@ -44,6 +44,14 @@ test("hasMany lazily loads associations as needed", function() {
     pets: DS.hasMany(Pet)
   });
 
+  Tag.reopen({
+    person: DS.belongsTo(Person)
+  });
+
+  Pet.reopen({
+    person: DS.belongsTo(Person)
+  });
+
   var store = DS.Store.create({
     adapter: DS.Adapter.create({
       find: function(store, type, id) {
@@ -197,6 +205,10 @@ test("associations work when the data hash has not been loaded", function() {
 
   Person.toString = function() { return "Person"; };
 
+  Tag.reopen({
+    person: DS.belongsTo(Person)
+  });
+
   var store = DS.Store.create({
     adapter: DS.Adapter.create({
       findMany: function(store, type, ids) {
@@ -250,6 +262,10 @@ test("it is possible to add a new item to an association", function() {
     tags: DS.hasMany(Tag)
   });
 
+  Tag.reopen({
+    people: DS.belongsTo(Person)
+  });
+
   var store = DS.Store.create();
 
   store.load(Person, { id: 1, name: "Tom Dale", tags: [ 1 ] });
@@ -276,6 +292,10 @@ test("it is possible to remove an item from an association", function() {
     tags: DS.hasMany(Tag)
   });
 
+  Tag.reopen({
+    person: DS.belongsTo(Person)
+  });
+
   var store = DS.Store.create();
 
   store.load(Person, { id: 1, name: "Tom Dale", tags: [ 1 ] });
@@ -299,6 +319,10 @@ test("it is possible to add an item to an association, remove it, then add it ag
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     tags: DS.hasMany(Tag)
+  });
+
+  Tag.reopen({
+    person: DS.belongsTo(Person)
   });
 
   var store = DS.Store.create();
@@ -349,6 +373,10 @@ test("can create child record from a hasMany association", function() {
     tags: DS.hasMany(Tag)
   });
 
+  Tag.reopen({
+    person: DS.belongsTo(Person)
+  });
+
   var store = DS.Store.create();
   store.load(Person, 1, { id: 1, name: "Tom Dale"});
 
@@ -366,10 +394,16 @@ test("belongsTo lazily loads associations as needed", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
+  Tag.toString = function() { return "Tag"; };
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     tag: DS.belongsTo(Tag)
+  });
+  Person.toString = function() { return "Person"; };
+
+  Tag.reopen({
+    people: DS.hasMany(Person)
   });
 
   var store = DS.Store.create();
@@ -448,6 +482,10 @@ test("calling createRecord and passing in an undefined value for an association 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     tag: DS.belongsTo(Tag),
+  });
+
+  Tag.reopen({
+    person: DS.belongsTo(Person)
   });
 
   var store = DS.Store.create();

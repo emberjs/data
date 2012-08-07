@@ -64,7 +64,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var stateManager = DS.StateManager.create({ record: this });
     set(this, 'stateManager', stateManager);
 
-    this._relationshipLinks = {};
+    this._relationshipChanges = {};
+    this._dirtyFactors = Ember.OrderedSet.create();
 
     stateManager.goToState('empty');
   },
@@ -92,21 +93,18 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.send('deleteRecord');
   },
 
+  clearRelationships: function() {
+    this.eachAssociation(function(name, relationship) {
+      if (relationship.kind === 'belongsTo') {
+        set(this, name, null);
+      }
+    }, this);
+  },
+
   updateRecordArrays: function() {
     var store = get(this, 'store');
     if (store) {
       store.hashWasUpdated(this.constructor, get(this, 'clientId'), this);
-    }
-  },
-
-  namingConvention: {
-    keyToJSONKey: function(key) {
-      // TODO: Strip off `is` from the front. Example: `isHipster` becomes `hipster`
-      return Ember.String.decamelize(key);
-    },
-
-    foreignKey: function(key) {
-      return Ember.String.decamelize(key) + '_id';
     }
   },
 
@@ -148,7 +146,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
           });
 
           set(cachedValue, 'content', Ember.A(clientIds));
-          cachedValue.fetch();
         }
       }
     }, this);
@@ -186,6 +183,117 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
   materializeBelongsTo: function(name, id) {
     this._data.belongsTo[name] = id;
+  },
+
+  // DIRTINESS FACTORS
+  //
+  // These methods allow the manipulation of various "dirtiness factors" on
+  // the current record. A dirtiness factor can be:
+  //
+  // * the name of a dirty attribute
+  // * the name of a dirty relationship
+  // * @created, if the record was created
+  // * @deleted, if the record was deleted
+  //
+  // This allows adapters to acknowledge updates to any of the dirtiness
+  // factors one at a time, and keeps the bookkeeping for full acknowledgement
+  // in the record itself.
+
+  addDirtyFactor: function(name) {
+    var becameDirty;
+
+    if (this._dirtyFactors.isEmpty()) { becameDirty = true; }
+    this._dirtyFactors.add(name);
+
+    if (becameDirty && name !== '@created' && name !== '@deleted') {
+      this.send('becameDirty');
+    }
+  },
+
+  removeDirtyFactor: function(name) {
+    var becameClean = true;
+
+    if (this._dirtyFactors.isEmpty()) { becameClean = false; }
+    this._dirtyFactors.remove(name);
+    if (!this._dirtyFactors.isEmpty()) { becameClean = false; }
+
+    if (becameClean && name !== '@created' && name !== '@deleted') {
+      this.send('becameClean');
+    }
+  },
+
+  removeDirtyFactors: function() {
+    this._dirtyFactors.clear();
+    this.send('becameClean');
+  },
+
+  becameInFlight: function() {
+    this._inFlightDirtyFactors = this._dirtyFactors.copy();
+    this._dirtyFactors.clear();
+  },
+
+  restoreDirtyFactors: function() {
+    this._inFlightDirtyFactors.forEach(function(factor) {
+      this._dirtyFactors.add(factor);
+    }, this);
+
+    this._inFlightDirtyFactors.clear();
+  },
+
+  removeInFlightDirtyFactor: function(name) {
+    if (this._inFlightDirtyFactors.has(name)) {
+      this._inFlightDirtyFactors.remove(name);
+      if (this._inFlightDirtyFactors.isEmpty()) { this.send('didCommit'); }
+    }
+  },
+
+  removeInFlightDirtyFactors: function() {
+    if (!this._inFlightDirtyFactors.isEmpty()) {
+      this._inFlightDirtyFactors.clear();
+      this.send('didCommit');
+    }
+  },
+
+  // FOR USE DURING COMMIT PROCESS
+
+  adapterDidUpdateAttribute: function(attributeName, value) {
+    this.removeInFlightDirtyFactor(attributeName);
+
+    // If a value is passed in, update the internal attributes and clear
+    // the attribute cache so it picks up the new value. Otherwise,
+    // collapse the current value into the internal attributes because
+    // the adapter has acknowledged it.
+    if (value !== undefined) {
+      get(this, 'data.attributes')[attributeName] = value;
+      this.notifyPropertyChange(attributeName);
+    } else {
+      value = get(this, attributeName);
+      get(this, 'data.attributes')[attributeName] = value;
+    }
+
+    this.updateRecordArraysLater();
+  },
+
+  adapterDidUpdateRelationship: function(relationshipName) {
+    var change = this._relationshipChanges[relationshipName];
+
+    Ember.assert("You cannot update a relationship that was not changed", change);
+
+    change.didUpdateRelationship(relationshipName, this);
+
+    this.updateRecordArraysLater();
+  },
+
+  adapterDidDelete: function() {
+    this.removeInFlightDirtyFactor('@deleted');
+
+    this.updateRecordArraysLater();
+  },
+
+  adapterDidCreate: function() {
+    this.removeInFlightDirtyFactor('@created');
+
+    this.updateRecordArraysLater();
   },
 
   /**

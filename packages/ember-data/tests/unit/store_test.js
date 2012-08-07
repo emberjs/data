@@ -392,7 +392,7 @@ test("records inside a collection view should have their ids updated", function(
   var idCounter = 1;
   var adapter = TestAdapter.create({
     createRecord: function(store, type, record) {
-      store.didCreateRecord(record, {name: record.get('name'), id: idCounter++});
+      store.didSaveRecord(record, {name: record.get('name'), id: idCounter++});
     }
   });
 
@@ -460,9 +460,9 @@ test("a record receives a didUpdate callback when it has finished updating", fun
     },
 
     updateRecord: function(store, type, record) {
-      equal(callCount, 0, "didUpdate callback was not called untill didUpdateRecord is called");
+      equal(callCount, 0, "didUpdate callback was not called until didSaveRecord is called");
 
-      store.didUpdateRecord(record);
+      store.didSaveRecord(record);
     }
   });
 
@@ -492,9 +492,9 @@ test("a record receives a didCreate callback when it has finished updating", fun
 
   var adapter = TestAdapter.create({
     createRecord: function(store, type, record) {
-      equal(callCount, 0, "didCreate callback was not called untill didCreateRecord is called");
+      equal(callCount, 0, "didCreate callback was not called untill didSaveRecord is called");
 
-      store.didCreateRecord(record);
+      store.didSaveRecord(record);
     }
   });
 
@@ -530,9 +530,9 @@ test("a record receives a didDelete callback when it has finished deleting", fun
     },
 
     deleteRecord: function(store, type, record) {
-      equal(callCount, 0, "didDelete callback was not called untill didDeleteRecord is called");
+      equal(callCount, 0, "didDelete callback was not called until didSaveRecord is called");
 
-      store.didDeleteRecord(record);
+      store.didSaveRecord(record);
     }
   });
 
@@ -622,203 +622,3 @@ module("DS.Store - Adapter Callbacks", {
   }
 });
 
-test("An adapter can notify the store that records were updated by calling `didUpdateRecords`.", function() {
-  expect(3);
-
-  var tom, yehuda;
-
-  stubAdapter.commit = function(store, commitDetails, relationships) {
-    var updatedRecords = commitDetails.updated;
-
-    equal(get(updatedRecords, 'length'), 2, "precond - two updated records are passed to `commit`");
-
-    store.didUpdateRecords([tom, yehuda]);
-
-    tom.shouldHaveBeenCalled('adapterDidCommit', 1);
-    yehuda.shouldHaveBeenCalled('adapterDidCommit', 1);
-  };
-
-  store.load(DS.MockModel, { id: 1 });
-  store.load(DS.MockModel, { id: 2 });
-
-  tom = store.find(DS.MockModel, 1);
-  yehuda = store.find(DS.MockModel, 2);
-
-  tom.spyOn('adapterDidCommit');
-  yehuda.spyOn('adapterDidCommit');
-
-  tom.becomeDirty('updated');
-  yehuda.becomeDirty('updated');
-
-  store.commit();
-});
-
-test("An adapter can notify the store that records were updated and provide new data by calling `didUpdateRecords`.", function() {
-  expect(11);
-
-  var tom, yehuda, transaction;
-
-  stubAdapter.commit = function(store, commitDetails, relationships) {
-    var updatedRecords = commitDetails.updated;
-
-    equal(get(updatedRecords, 'length'), 2, "precond - two updated records are passed to `commit`");
-
-    tom.shouldNotHaveReceived('didCommit', 'didChangeData');
-    yehuda.shouldNotHaveReceived('didCommit', 'didChangeData');
-
-    store.didUpdateRecords([tom, yehuda], [ { id: 1, name: "Tom Dale", updatedAt: "now" }, { id: 2, name: "Yehuda Katz", updatedAt: "now!" } ]);
-
-    tom.shouldHaveReceived('didCommit', 'didChangeData');
-    yehuda.shouldHaveReceived('didCommit', 'didChangeData');
-
-    store.materializeData(tom);
-    store.materializeData(yehuda);
-
-    deepEqual(tom.materializedData, {
-      id: 1,
-      name: "Tom Dale",
-      updatedAt: "now"
-    }, "hash provided to `didUpdateRecord` for tom replaces the hash provided to `load`");
-
-    deepEqual(yehuda.materializedData, {
-      id: 2,
-      name: "Yehuda Katz",
-      updatedAt: "now!"
-    }, "hash provided to `didUpdateRecord` for yehuda replaces the hash provided to `load`");
-  };
-
-  store.load(DS.MockModel, { id: 1, name: "Braaaahm Dale" });
-  store.load(DS.MockModel, { id: 2, name: "Gentile Katz" });
-
-  tom = store.find(DS.MockModel, 1);
-  yehuda = store.find(DS.MockModel, 2);
-
-  tom.becomeDirty('updated');
-  yehuda.becomeDirty('updated');
-
-  tom.resetEvents();
-  yehuda.resetEvents();
-
-  store.commit();
-});
-
-test("An adapter can notify the store that a record was updated by calling `didUpdateRecord`.", function() {
-  expect(3);
-
-  var tom, yehuda;
-
-  stubAdapter.commit = function(store, commitDetails, relationships) {
-    var updatedRecords = commitDetails.updated;
-
-    equal(get(updatedRecords, 'length'), 2, "precond - two updated records are passed to `commit`");
-
-    store.didUpdateRecord(tom);
-    store.didUpdateRecord(yehuda);
-
-    tom.shouldHaveBeenCalled('adapterDidCommit', 1);
-    yehuda.shouldHaveBeenCalled('adapterDidCommit', 1);
-  };
-
-  store.load(DS.MockModel, { id: 1 });
-  store.load(DS.MockModel, { id: 2 });
-
-  tom = store.find(DS.MockModel, 1);
-  yehuda = store.find(DS.MockModel, 2);
-
-  tom.spyOn('adapterDidCommit');
-  yehuda.spyOn('adapterDidCommit');
-
-  tom.becomeDirty('updated');
-  yehuda.becomeDirty('updated');
-
-  store.commit();
-});
-
-test("An adapter can notify the store that a record was updated and provide new data by calling `didUpdateRecord`.", function() {
-  expect(11);
-
-  var tom, yehuda, transaction;
-
-  stubAdapter.commit = function(store, commitDetails, relationships) {
-    var updatedRecords = commitDetails.updated;
-
-    equal(get(updatedRecords, 'length'), 2, "precond - two updated records are passed to `commit`");
-
-    tom.shouldNotHaveReceived('didCommit', 'didChangeData');
-    yehuda.shouldNotHaveReceived('didCommit', 'didChangeData');
-
-    store.didUpdateRecord(tom, { id: 1, name: "Tom Dale", updatedAt: "now" });
-    store.didUpdateRecord(yehuda, { id: 2, name: "Yehuda Katz", updatedAt: "now!" });
-
-    tom.shouldHaveReceived('didCommit', 'didChangeData');
-    yehuda.shouldHaveReceived('didCommit', 'didChangeData');
-
-    store.materializeData(tom);
-    store.materializeData(yehuda);
-
-    deepEqual(tom.materializedData, {
-      id: 1,
-      name: "Tom Dale",
-      updatedAt: "now"
-    }, "hash provided to `didUpdateRecord` for tom replaces the hash provided to `load`");
-
-    deepEqual(yehuda.materializedData, {
-      id: 2,
-      name: "Yehuda Katz",
-      updatedAt: "now!"
-    }, "hash provided to `didUpdateRecord` for yehuda replaces the hash provided to `load`");
-  };
-
-  store.load(DS.MockModel, { id: 1, name: "Braaaahm Dale" });
-  store.load(DS.MockModel, { id: 2, name: "Gentile Katz" });
-
-  tom = store.find(DS.MockModel, 1);
-  yehuda = store.find(DS.MockModel, 2);
-
-  tom.becomeDirty('updated');
-  yehuda.becomeDirty('updated');
-
-  tom.resetEvents();
-  yehuda.resetEvents();
-
-  store.commit();
-});
-
-test("An adapter can notify the store that records were deleted by calling `didDeleteRecords`.", function() {
-  expect(7);
-
-  var tom, yehuda, transaction;
-
-  stubAdapter.commit = function(store, commitDetails, relationships) {
-    var deletedRecords = commitDetails.deleted;
-
-    equal(get(deletedRecords, 'length'), 2, "precond - two updated records are passed to `commit`");
-
-    tom.shouldNotHaveReceived('didCommit', 'didChangeData');
-    yehuda.shouldNotHaveReceived('didCommit', 'didChangeData');
-
-    store.didDeleteRecord(tom);
-    store.didDeleteRecord(yehuda);
-
-    tom.shouldHaveReceived('didCommit');
-    yehuda.shouldHaveReceived('didCommit');
-  };
-
-  store.load(DS.MockModel, { id: 1, name: "Braaaahm Dale" });
-  store.load(DS.MockModel, { id: 2, name: "Gentile Katz" });
-
-  tom = store.find(DS.MockModel, 1);
-  yehuda = store.find(DS.MockModel, 2);
-  transaction = tom.get('transaction');
-
-  transaction.recordBecameDirty('deleted', tom);
-  transaction.recordBecameDirty('deleted', yehuda);
-
-  tom.resetEvents();
-  yehuda.resetEvents();
-
-  store.commit();
-
-  // there is nothing to commit, so there won't be any records
-  store.commit();
-});

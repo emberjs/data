@@ -52,6 +52,10 @@ module("the REST adapter", {
       return "App.Group";
     };
 
+    Person.reopen({
+      group: DS.belongsTo(Group)
+    });
+
     Role = DS.Model.extend({
       name: DS.attr('string'),
       primaryKey: '_id'

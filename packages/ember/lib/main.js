@@ -142,8 +142,8 @@ window.ember_deprecateFunc  = Ember.deprecateFunc("ember_deprecateFunc is deprec
 
 })();
 
-// Version: v0.9.8.1-679-gf60dd79
-// Last commit: f60dd79 (2012-08-01 14:17:02 -0700)
+// Version: v0.9.8.1-681-g3b58164
+// Last commit: 3b58164 (2012-08-01 15:04:49 -0700)
 
 
 (function() {
@@ -1126,6 +1126,13 @@ OrderedSet.prototype = {
 
   isEmpty: function() {
     return this.list.length === 0;
+  },
+
+  has: function(obj) {
+    var guid = guidFor(obj),
+        presenceSet = this.presenceSet;
+
+    return guid in presenceSet;
   },
 
   forEach: function(fn, self) {
@@ -9156,6 +9163,7 @@ Ember.ArrayProxy = Ember.Object.extend(Ember.MutableArray,
     var arrangedContent = get(this, 'arrangedContent'),
         len = arrangedContent ? get(arrangedContent, 'length') : 0;
 
+    this.arrangedContentWillChange(this);
     this.arrangedContentArrayWillChange(this, 0, len, undefined);
 
     if (arrangedContent) {
@@ -9179,8 +9187,12 @@ Ember.ArrayProxy = Ember.Object.extend(Ember.MutableArray,
       });
     }
 
+    this.arrangedContentDidChange(this);
     this.arrangedContentArrayDidChange(this, 0, undefined, len);
   }, 'arrangedContent'),
+
+  arrangedContentWillChange: Ember.K,
+  arrangedContentDidChange: Ember.K,
 
   /** @private (nodoc) */
   objectAt: function(idx) {
@@ -20626,8 +20638,8 @@ Ember.onLoad('application', bootstrap);
 
 })();
 
-// Version: v0.9.8.1-679-gf60dd79
-// Last commit: f60dd79 (2012-08-01 14:17:02 -0700)
+// Version: v0.9.8.1-681-g3b58164
+// Last commit: 3b58164 (2012-08-01 15:04:49 -0700)
 
 
 (function() {

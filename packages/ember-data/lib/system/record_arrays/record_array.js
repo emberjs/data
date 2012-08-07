@@ -34,5 +34,14 @@ DS.RecordArray = Ember.ArrayProxy.extend({
     if (clientId !== undefined) {
       return store.findByClientId(get(this, 'type'), clientId);
     }
-  }
+  },
+
+  materializedObjectAt: function(index) {
+    var clientId = get(this, 'content').objectAt(index);
+    if (!clientId) { return; }
+
+    if (get(this, 'store').recordIsMaterialized(clientId)) {
+      return this.objectAt(index);
+    }
+  },
 });

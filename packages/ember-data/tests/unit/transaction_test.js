@@ -340,22 +340,18 @@ module("DS.Transaction - relationships", {
   }
 });
 
-function expectRelationship(object, kind, description) {
-  if (object) {
-    var relationships = transaction.dirtyRelationships[kind].get(object),
-        count = description.count || 1;
-
-    QUnit.push(relationships.length === count, relationships.length, count, "There should be " + count + " dirty relationships in " + kind);
-    QUnit.push(relationships[0].oldParent === description.oldParent, relationships[0].oldParent, description.oldParent, "oldParent is incorrect");
-    QUnit.push(relationships[0].newParent === description.newParent, relationships[0].newParent, description.newParent, "newParent is incorrect");
-    QUnit.push(relationships[0].child === description.child, relationships[0].child, description.child, "child is incorrect");
-  }
-}
-
 function expectRelationships(description) {
-  expectRelationship(description.oldParent, 'byOldParent', description);
-  expectRelationship(description.newParent, 'byNewParent', description);
-  expectRelationship(description.child, 'byChild', description);
+  var relationships = transaction.get('relationships').toArray(),
+      relationship = relationships[0],
+      count = description.count === undefined ? 1 : description.count;
+
+  QUnit.push(relationships.length === count, relationships.length, count, "There should be " + count + " dirty relationships");
+
+  if (count) {
+    QUnit.push(relationship.oldParent === description.oldParent, relationship.oldParent, description.oldParent, "oldParent is incorrect");
+    QUnit.push(relationship.newParent === description.newParent, relationship.newParent, description.newParent, "newParent is incorrect");
+    QUnit.push(relationship.child === description.child, relationship.child, description.child, "child is incorrect");
+  }
 }
 
 test("If both the parent and child are clean and in the same transaction, a dirty relationship is added to the transaction null->A", function() {
@@ -371,8 +367,6 @@ test("If both the parent and child are clean and in the same transaction, a dirt
   transaction.add(comment);
 
   post.get('comments').pushObject(comment);
-
-  var relationships = transaction.dirtyRelationships;
 
   expectRelationships({
     oldParent: null,
@@ -394,8 +388,6 @@ test("If a child is removed from a parent, a dirty relationship is added to the 
   transaction.add(comment);
 
   post.get('comments').removeObject(comment);
-
-  var relationships = transaction.dirtyRelationships;
 
   expectRelationships({
     oldParent: post,
@@ -419,10 +411,7 @@ test("If a child is removed from a parent it was recently added to, the dirty re
   post.get('comments').removeObject(comment);
   post.get('comments').pushObject(comment);
 
-  var relationships = transaction.dirtyRelationships;
-
-  deepEqual(relationships.byChild.get(comment), [ ]);
-  deepEqual(relationships.byOldParent.get(post), [ ]);
+  expectRelationships({ count: 0 });
 });
 
 test("If a child was added to one parent, and then another, the changes coalesce. A->B, B->C", function() {
@@ -445,8 +434,6 @@ test("If a child was added to one parent, and then another, the changes coalesce
   post2.get('comments').pushObject(comment);
   post2.get('comments').removeObject(comment);
   post3.get('comments').pushObject(comment);
-
-  var relationships = transaction.dirtyRelationships;
 
   expectRelationships({
     oldParent: post,

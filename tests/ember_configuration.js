@@ -87,10 +87,12 @@
       loadMany: syncForTest(),
       filter: syncForTest(),
       find: syncForTest(),
-      didCreateRecord: syncForTest(),
-      didCreateRecords: syncForTest(),
-      didUpdateRecord: syncForTest(),
-      didUpdateRecords: syncForTest(),
+      didSaveRecord: syncForTest(),
+      didSaveRecords: syncForTest(),
+      didUpdateAttribute: syncForTest(),
+      didUpdateAttributes: syncForTest(),
+      didUpdateRelationship: syncForTest(),
+      didUpdateRelationships: syncForTest(),
     });
 
     DS.Model.reopen({

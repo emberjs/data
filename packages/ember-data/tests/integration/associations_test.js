@@ -35,6 +35,7 @@ test("when modifying a child record's belongsTo relationship, its parent hasMany
 
     equal(parent.get('comments.length'), 0, "precond - the parent has no child comments yet");
 
+    window.billy = true;
     child.set('comment', parent);
 
     deepEqual(parent.get('comments').toArray(), [ child ] , "there should be a child comment");
