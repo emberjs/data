@@ -126,6 +126,7 @@ DS.Transaction = Ember.Object.extend({
     @param {DS.Model} record the record to add to the transaction
   */
   add: function(record) {
+    Ember.assert("Only instances of DS.Model may be part of a transaction. Attempted to add: " + record, record instanceof DS.Model);
     // we could probably make this work if someone has a valid use case. Do you?
     Ember.assert("Once a record has changed, you cannot move it into a different transaction", !get(record, 'isDirty'));
 
