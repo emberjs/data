@@ -8,8 +8,7 @@ var get = Ember.get, set = Ember.set;
   in response to queries.
 */
 
-DS.RecordArray = Ember.ArrayProxy.extend({
-
+DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
   /**
     The model type contained by this record array.
 
@@ -22,6 +21,8 @@ DS.RecordArray = Ember.ArrayProxy.extend({
   // for the client id at the same index is materialized, if
   // necessary, by the store.
   content: null,
+
+  isLoaded: false,
 
   // The store that created this record array.
   store: null,

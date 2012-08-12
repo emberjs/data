@@ -63,6 +63,7 @@ DS.ManyArray = DS.RecordArray.extend({
     this.loadingRecordsCount--;
     if (this.loadingRecordsCount === 0) {
       set(this, 'isLoaded', true);
+      this.trigger('didLoad');
     }
   },
 

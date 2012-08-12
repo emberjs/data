@@ -47,9 +47,9 @@ test("when modifying a child record's belongsTo relationship, its parent hasMany
 });
 
 test("an association has an isLoaded flag that indicates whether the ManyArray has finished loaded", function() {
-  expect(7);
+  expect(8);
 
-  var array;
+  var array, hasLoaded;
 
   adapter.find = function(store, type, id) {
     setTimeout(async(function() {
@@ -65,6 +65,11 @@ test("an association has an isLoaded flag that indicates whether the ManyArray h
   };
 
   array = store.findMany(Comment, [ 1, 2, 3 ]);
+
+  array.on('didLoad', function() {
+    ok(true, "didLoad was triggered");
+  });
+
   equal(get(array, 'isLoaded'), false, "isLoaded should not be true when first created");
 });
 

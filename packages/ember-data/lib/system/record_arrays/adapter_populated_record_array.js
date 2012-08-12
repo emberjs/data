@@ -2,9 +2,8 @@ require("ember-data/system/record_arrays/record_array");
 
 var get = Ember.get, set = Ember.set;
 
-DS.AdapterPopulatedRecordArray = DS.RecordArray.extend(Ember.Evented, {
+DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
   query: null,
-  isLoaded: false,
 
   replace: function() {
     var type = get(this, 'type').toString();
