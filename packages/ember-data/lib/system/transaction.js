@@ -161,8 +161,14 @@ DS.Transaction = Ember.Object.extend({
         records.forEach(function(record) {
           record.send('willCommit');
 
-          if (get(record, 'isPending') === false) {
+          var isValid = get(record, 'isValid');
+
+          if (isValid && get(record, 'isPending') === false) {
             array.push(record);
+          }
+
+          if (!isValid) {
+            get(store, 'defaultTransaction').adoptRecord(record);
           }
         });
 

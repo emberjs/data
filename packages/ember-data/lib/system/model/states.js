@@ -349,7 +349,12 @@ var DirtyState = DS.State.extend({
     },
 
     willCommit: function(manager) {
-      manager.goToState('inFlight');
+      var record = get(manager, 'record');
+      record.validate();
+
+      if (getPath(record, 'errors.isEmpty')) {
+        manager.goToState('inFlight');
+      }
     },
 
     becameInvalid: function(manager) {
