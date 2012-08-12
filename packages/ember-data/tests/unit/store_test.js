@@ -65,7 +65,6 @@ test("the empty state", function() {
   isFalse("isDirty");
   isFalse("isSaving");
   isFalse("isDeleted");
-  isFalse("isError");
 });
 
 test("the loading state", function() {
@@ -74,7 +73,6 @@ test("the loading state", function() {
   isFalse("isDirty");
   isFalse("isSaving");
   isFalse("isDeleted");
-  isFalse("isError");
 });
 
 test("the loaded state", function() {
@@ -83,7 +81,6 @@ test("the loaded state", function() {
   isFalse("isDirty");
   isFalse("isSaving");
   isFalse("isDeleted");
-  isFalse("isError");
 });
 
 test("the updated state", function() {
@@ -92,7 +89,6 @@ test("the updated state", function() {
   isTrue("isDirty");
   isFalse("isSaving");
   isFalse("isDeleted");
-  isFalse("isError");
 });
 
 test("the saving state", function() {
@@ -101,7 +97,6 @@ test("the saving state", function() {
   isTrue("isDirty");
   isTrue("isSaving");
   isFalse("isDeleted");
-  isFalse("isError");
 });
 
 test("the deleted state", function() {
@@ -110,7 +105,6 @@ test("the deleted state", function() {
   isTrue("isDirty");
   isFalse("isSaving");
   isTrue("isDeleted");
-  isFalse("isError");
 });
 
 test("the deleted.saving state", function() {
@@ -119,7 +113,6 @@ test("the deleted.saving state", function() {
   isTrue("isDirty");
   isTrue("isSaving");
   isTrue("isDeleted");
-  isFalse("isError");
 });
 
 test("the deleted.saved state", function() {
@@ -128,17 +121,6 @@ test("the deleted.saved state", function() {
   isFalse("isDirty");
   isFalse("isSaving");
   isTrue("isDeleted");
-  isFalse("isError");
-});
-
-
-test("the error state", function() {
-  stateName = "error";
-  isFalse("isLoaded");
-  isFalse("isDirty");
-  isFalse("isSaving");
-  isFalse("isDeleted");
-  isTrue("isError");
 });
 
 module("DS.Store working with a DS.Adapter");
@@ -322,7 +304,7 @@ test("loadMany takes an optional Object and passes it on to the Adapter", functi
   store.find(Person, passedQuery);
 });
 
-test("findAll(type) returns a record array of all records of a specific type", function() {
+test("all(type) returns a record array of all records of a specific type", function() {
   var store = DS.Store.create({ adapter: DS.Adapter.create() });
   var Person = DS.Model.extend({
     name: DS.attr('string')
@@ -330,7 +312,7 @@ test("findAll(type) returns a record array of all records of a specific type", f
 
   store.load(Person, 1, { id: 1, name: "Tom Dale" });
 
-  var results = store.findAll(Person);
+  var results = store.all(Person);
   equal(get(results, 'length'), 1, "record array should have the original object");
   equal(get(results.objectAt(0), 'name'), "Tom Dale", "record has the correct information");
 
@@ -338,7 +320,7 @@ test("findAll(type) returns a record array of all records of a specific type", f
   equal(get(results, 'length'), 2, "record array should have the new object");
   equal(get(results.objectAt(1), 'name'), "Yehuda Katz", "record has the correct information");
 
-  strictEqual(results, store.findAll(Person), "subsequent calls to findAll return the same recordArray)");
+  strictEqual(results, store.all(Person), "subsequent calls to all return the same recordArray)");
 });
 
 test("a new record of a particular type is created via store.createRecord(type)", function() {
@@ -596,7 +578,7 @@ test("an ID of 0 is allowed", function() {
   });
 
   store.load(Person, { id: 0, name: "Tom Dale" });
-  equal(store.findAll(Person).objectAt(0).get('name'), "Tom Dale", "found record with id 0");
+  equal(store.all(Person).objectAt(0).get('name'), "Tom Dale", "found record with id 0");
 });
 
 var stubAdapter, store;

@@ -177,6 +177,8 @@ DS.Transaction = Ember.Object.extend({
     moved back to the store's default transaction.
   */
   commit: function() {
+    if (!this.validate()) { return; }
+
     var store = get(this, 'store');
     var adapter = get(store, '_adapter');
 
@@ -201,7 +203,7 @@ DS.Transaction = Ember.Object.extend({
 
     if (commitDetails.created.length || commitDetails.updated.length || commitDetails.deleted.length || !relationships.isEmpty()) {
       if (adapter && adapter.commit) { adapter.commit(store, commitDetails); }
-      else { throw fmt("Adapter is either null or does not implement `commit` method", this); }
+      else { throw "Adapter is either null or does not implement `commit` method"; }
     }
   },
 
@@ -219,9 +221,6 @@ DS.Transaction = Ember.Object.extend({
     current transaction should not be used again.
   */
   rollback: function() {
-    var store = get(this, 'store'),
-        dirty;
-
     // Loop through all of the records in each of the dirty states
     // and initiate a rollback on them. As a side effect of telling
     // the record to roll back, it should also move itself out of
@@ -237,6 +236,36 @@ DS.Transaction = Ember.Object.extend({
     // Now that all records in the transaction are guaranteed to be
     // clean, migrate them all to the store's default transaction.
     this.removeCleanRecords();
+  },
+
+  /**
+  */
+  validate: function() {
+    var store = get(this, 'store'),
+        valid = true;
+
+    this.bucketForType('deleted').forEach(function(record) {
+      get(record, 'errors').clear();
+    });
+
+    ['created', 'updated'].forEach(function(bucketType) {
+      var records = this.bucketForType(bucketType);
+      forEach(records, function(record) {
+        // Remove old errors
+        get(record, 'errors').clear();
+
+        // Check for new validation errors
+        var errors = record.validate();
+
+        // If ther is some validation errors, add them
+        if (!Ember.isEmpty(errors)) {
+          store.recordWasInvalid(record, errors);
+          valid = false;
+        }
+      });
+    }, this);
+
+    return valid;
   },
 
   /**

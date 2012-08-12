@@ -35,6 +35,9 @@ var get = Ember.get, set = Ember.set;
 */
 DS.ManyArray = DS.RecordArray.extend({
   init: function() {
+    var errors = DS.Errors.create();
+    set(this, 'errors', errors);
+
     this._super.apply(this, arguments);
     this._changesToSync = Ember.OrderedSet.create();
   },
@@ -51,6 +54,7 @@ DS.ManyArray = DS.RecordArray.extend({
   // LOADING STATE
 
   isLoaded: false,
+  isError: Ember.computed.not('errors.isEmpty'),
 
   loadingRecordsCount: function(count) {
     this.loadingRecordsCount = count;
@@ -69,7 +73,7 @@ DS.ManyArray = DS.RecordArray.extend({
         store = get(this, 'store'),
         type = get(this, 'type');
 
-    store.fetchUnloadedClientIds(type, clientIds);
+    store.fetchUnloadedClientIds(type, clientIds, this);
   },
 
   // Overrides Ember.Array's replace method to implement
@@ -198,6 +202,14 @@ DS.ManyArray = DS.RecordArray.extend({
     this.pushObject(record);
 
     return record;
+  },
+
+  load: function(array) {
+    var owner = get(this, 'owner'),
+        store = get(owner, 'store') || get(this, 'store'),
+        type = get(this, 'type');
+
+    store.loadMany(type, array);
   },
 
   /**

@@ -320,7 +320,7 @@ test("deleting a record with custom primaryKey", function() {
 */
 
 test("finding all people makes a GET to /people", function() {
-  people = store.find(Person);
+  people = store.findAll(Person);
 
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
@@ -336,7 +336,7 @@ test("finding all people makes a GET to /people", function() {
 });
 
 test("finding all can sideload data", function() {
-  var groups = store.find(Group);
+  var groups = store.findAll(Group);
 
   expectUrl("/groups", "the plural of the model name");
   expectType("GET");

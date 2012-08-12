@@ -147,7 +147,7 @@ test("a record array that backs a collection view functions properly", function(
   store.load(Person, 5, { name: "Other Katz" });
 
   var container = Ember.CollectionView.create({
-    content: store.findAll(Person)
+    content: store.all(Person)
   });
 
   container.appendTo('#qunit-fixture');

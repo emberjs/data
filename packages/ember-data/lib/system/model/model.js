@@ -41,8 +41,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   didUpdate: Ember.K,
   didCreate: Ember.K,
   didDelete: Ember.K,
+  didError: Ember.K,
   becameInvalid: Ember.K,
-  becameError: Ember.K,
 
   data: Ember.computed(function() {
     if (!this._data) {
@@ -68,6 +68,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     set(this, 'stateManager', stateManager);
 
     this.setup();
+
+    var errors = DS.Errors.create();
+    set(this, 'errors', errors);
 
     stateManager.goToState('empty');
   },
@@ -258,6 +261,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.suspendAssociationObservers(function() {
       this.notifyPropertyChange('data');
     });
+
+    get(this, 'errors').clear();
   },
 
   isDirtyBecause: function(reason) {
@@ -393,6 +398,7 @@ var storeAlias = function(methodName) {
 DS.Model.reopenClass({
   isLoaded: storeAlias('recordIsLoaded'),
   find: storeAlias('find'),
+  all: storeAlias('all'),
   filter: storeAlias('filter'),
 
   _create: DS.Model.create,
