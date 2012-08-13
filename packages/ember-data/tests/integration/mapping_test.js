@@ -27,7 +27,6 @@ test("Attributes mapped on an adapter class should be used when materializing a 
     adapter: ChildAdapter
   });
 
-  window.billy = true;
   store.load(Person, {
     id: 1,
     FIRST_NAME: "Chuck",
@@ -36,7 +35,6 @@ test("Attributes mapped on an adapter class should be used when materializing a 
 
   var chuck = store.find(Person, 1);
   chuck.get('data');
-  window.billy = false;
 
   equal(chuck.get('firstName'), "Chuck", "first name is Chuck");
   equal(chuck.get('lastName'), "Testa", "last name is Testa");

@@ -352,7 +352,6 @@ test("can rollback after sucessives updates", function() {
 
   equal(person.get('name'), "Paul Chavard", "person name is back to Paul Chavard");
 
-  window.billy = true;
   person.set('name', 'Paul Bro');
   equal(person.get('name'), "Paul Bro", "person changed the name");
   equal(person.get('isDirty'), true, "person is dirty");
