@@ -44,6 +44,18 @@ DS.Model.reopenClass({
     return map;
   }).cacheable(),
 
+  associationNames: Ember.computed(function() {
+    var names = { hasMany: [], belongsTo: [] };
+
+    this.eachComputedProperty(function(name, meta) {
+      if (meta.isAssociation) {
+        names[meta.kind].push(name);
+      }
+    });
+
+    return names;
+  }).cacheable(),
+
   associationsByName: Ember.computed(function() {
     var map = Ember.Map.create(), type;
 

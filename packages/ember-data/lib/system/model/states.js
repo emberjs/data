@@ -311,10 +311,7 @@ var DirtyState = DS.State.extend({
     },
 
     rollback: function(manager) {
-      var record = get(manager, 'record');
-
-      record.notifyPropertyChange('data');
-      record.removeDirtyFactors();
+      get(manager, 'record').rollback();
     }
   }),
 
@@ -654,10 +651,7 @@ var states = {
         },
 
         rollback: function(manager) {
-          var record = get(manager, 'record');
-
-          record.notifyPropertyChange('data');
-          record.removeDirtyFactors();
+          get(manager, 'record').rollback();
         },
 
         becameClean: function(manager) {

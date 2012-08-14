@@ -55,7 +55,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   materializeData: function() {
     this.setupData();
     get(this, 'store').materializeData(this);
-    this.notifyPropertyChange('data');
+
+    this.suspendAssociationObservers(function() {
+      this.notifyPropertyChange('data');
+    });
   },
 
   _data: null,
@@ -64,10 +67,14 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var stateManager = DS.StateManager.create({ record: this });
     set(this, 'stateManager', stateManager);
 
-    this._relationshipChanges = {};
-    this._dirtyFactors = Ember.OrderedSet.create();
+    this.setup();
 
     stateManager.goToState('empty');
+  },
+
+  setup: function() {
+    this._relationshipChanges = {};
+    this._dirtyFactors = Ember.OrderedSet.create();
   },
 
   willDestroy: function() {
@@ -225,6 +232,26 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   removeDirtyFactors: function() {
     this._dirtyFactors.clear();
     this.send('becameClean');
+  },
+
+  rollback: function() {
+    this.setup();
+    this.send('becameClean');
+
+    this.suspendAssociationObservers(function() {
+      this.notifyPropertyChange('data');
+    });
+  },
+
+  suspendAssociationObservers: function(callback, binding) {
+    var observers = get(this.constructor, 'associationNames').belongsTo;
+    var self = this;
+
+    Ember._suspendObservers(self, observers, null, 'belongsToDidChange', function() {
+      Ember._suspendBeforeObservers(self, observers, null, 'belongsToWillChange', function() {
+        callback.call(binding || self);
+      });
+    });
   },
 
   becameInFlight: function() {
