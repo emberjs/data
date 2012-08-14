@@ -86,9 +86,9 @@ DS.ManyArray = DS.RecordArray.extend({
     this._super(index, removed, added);
   },
 
-  arrangedContentDidChange: Ember.observer(function() {
+  arrangedContentDidChange: function() {
     this.fetch();
-  }, 'content'),
+  },
 
   arrayContentWillChange: function(index, removed, added) {
     if (this._initted) {
