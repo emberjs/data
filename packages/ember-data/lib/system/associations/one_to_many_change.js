@@ -62,28 +62,26 @@ DS.OneToManyChange.prototype = {
     them all into that transaction.
   */
   ensureSameTransaction: function(child, oldParent, newParent, hasManyName, belongsToName) {
-    var childTransaction = get(child, 'transaction');
+    var transactions = Ember.A([
+      get(child, 'transaction')
+    ]);
 
-    if (newParent) {
-      var newParentTransaction = get(newParent, 'transaction');
-      if (!childTransaction.isEqualOrDefault(newParentTransaction)) {
-        throw new Error("You modified the " + belongsToName + " of a record (" + child + ") to " + newParent + " or added it to the " + hasManyName + " of " + newParent + "but you previously put " + newParent + " into a different transaction.");
+    if (oldParent) { transactions.pushObject(get(oldParent, 'transaction')); }
+    if (newParent) { transactions.pushObject(get(newParent, 'transaction')); }
+
+    var transaction = transactions.reduce(function(prev, t) {
+      if (!get(t, 'isDefault')) {
+        if (prev === null) { return t; }
+        Ember.assert("All records in a changed relationship must be in the same transaction. You tried to change the relationship between records when one is in " + t + " and the other is in " + prev, t === prev);
       }
 
-      // This call is idempotent, but will raise an exception if newParent
-      // is in the defaultTransaction and dirty.
-      childTransaction.add(newParent);
-    }
+      return prev;
+    }, null);
 
-    if (oldParent) {
-      var oldParentTransaction = get(oldParent, 'transaction');
-      if (!childTransaction.isEqualOrDefault(oldParentTransaction)) {
-        throw new Error("You modified the " + belongsToName + " of a record (" + child + ") from " + oldParent + " or removed it from the " + hasManyName + " of " + oldParent + "but you previously put " + oldParent + " into a different transaction.");
-      }
-
-      // This call is idempotent, but will raise an exception if oldParent
-      // is in the defaultTransaction and dirty.
-      childTransaction.add(oldParent);
+    if (transaction) {
+      transaction.add(child);
+      if (oldParent) { transaction.add(oldParent); }
+      if (newParent) { transaction.add(newParent); }
     }
   },
 

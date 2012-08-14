@@ -129,6 +129,10 @@ DS.Transaction = Ember.Object.extend({
     }
   },
 
+  isDefault: Ember.computed(function() {
+    return this === get(this, 'store.defaultTransaction');
+  }),
+
   /**
     Adds an existing record to this transaction. Only records without
     modficiations (i.e., records whose `isDirty` property is `false`)
@@ -137,6 +141,8 @@ DS.Transaction = Ember.Object.extend({
     @param {DS.Model} record the record to add to the transaction
   */
   add: function(record) {
+    Ember.assert("You must pass a record into transaction.add()", record instanceof DS.Model);
+
     var recordTransaction = get(record, 'transaction'),
         defaultTransaction = get(this, 'store.defaultTransaction');
 
