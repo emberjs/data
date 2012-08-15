@@ -357,6 +357,11 @@ DS.Transaction = Ember.Object.extend({
     this.addToBucket('inflight', record);
   },
 
+  recordIsMoving: function(kind, record) {
+    this.removeFromBucket(kind, record);
+    this.addToBucket('clean', record);
+  },
+
   /**
     @private
 

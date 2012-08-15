@@ -126,17 +126,6 @@ DS.OneToManyChange.prototype = {
     // infinite loop.
 
 
-    // Only set the belongsTo on the child if it is not already the
-    // newParent. This happens if the change happened from the
-    // ManyArray side.
-    if (get(child, belongsToName) !== newParent) {
-      set(child, belongsToName, newParent);
-    }
-
-    if (get(child, 'isLoaded')) {
-      child.addDirtyFactor(belongsToName);
-    }
-
     // If there is an `oldParent`, use the idempotent `removeObject`
     // to ensure that the record is no longer in its ManyArray. The
     // `removeObject` method only has an effect if:
@@ -162,6 +151,17 @@ DS.OneToManyChange.prototype = {
       if (get(newParent, 'isLoaded')) {
         newParent.addDirtyFactor(hasManyName);
       }
+    }
+
+    // Only set the belongsTo on the child if it is not already the
+    // newParent. This happens if the change happened from the
+    // ManyArray side.
+    if (get(child, belongsToName) !== newParent) {
+      set(child, belongsToName, newParent);
+    }
+
+    if (get(child, 'isLoaded')) {
+      child.addDirtyFactor(belongsToName);
     }
 
     // If this change is later reversed (A->B followed by B->A),

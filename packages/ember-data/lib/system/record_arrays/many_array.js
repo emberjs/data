@@ -35,10 +35,7 @@ var get = Ember.get, set = Ember.set;
 */
 DS.ManyArray = DS.RecordArray.extend({
   init: function() {
-    //set(this, 'stateManager', DS.ManyArrayStateManager.create({ manyArray: this }));
-
     this._super.apply(this, arguments);
-    this._initted = true;
     this._changesToSync = Ember.OrderedSet.create();
   },
 
@@ -91,10 +88,10 @@ DS.ManyArray = DS.RecordArray.extend({
   },
 
   arrayContentWillChange: function(index, removed, added) {
-    if (this._initted) {
-      var owner = get(this, 'owner'),
-          name = get(this, 'name');
+    var owner = get(this, 'owner'),
+        name = get(this, 'name');
 
+    if (!owner._suspendedAssociations) {
       // This code is the first half of code that continues inside
       // of arrayContentDidChange. It gets or creates a change from
       // the child object, adds the current owner as the old
@@ -123,10 +120,10 @@ DS.ManyArray = DS.RecordArray.extend({
   arrayContentDidChange: function(index, removed, added) {
     this._super.apply(this, arguments);
 
-    if (this._initted) {
-      var owner = get(this, 'owner'),
-          name = get(this, 'name');
+    var owner = get(this, 'owner'),
+        name = get(this, 'name');
 
+    if (!owner._suspendedAssociations) {
       // This code is the second half of code that started in
       // `arrayContentWillChange`. It gets or creates a change
       // from the child object, and adds the current owner as

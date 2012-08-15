@@ -449,8 +449,9 @@ createdState.states.uncommitted.reopen({
     record.clearRelationships();
 
     record.withTransaction(function(t) {
-      t.recordBecameClean('created', record);
+      t.recordIsMoving('created', record);
     });
+
     manager.transitionTo('deleted.saved');
   }
 });
@@ -469,7 +470,7 @@ updatedState.states.uncommitted.reopen({
     get(manager, 'record').clearRelationships();
 
     record.withTransaction(function(t) {
-      t.recordBecameClean('updated', record);
+      t.recordIsMoving('updated', record);
     });
 
     manager.transitionTo('deleted');

@@ -104,6 +104,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.eachAssociation(function(name, relationship) {
       if (relationship.kind === 'belongsTo') {
         set(this, name, null);
+      } else if (relationship.kind === 'hasMany') {
+        get(this, name).clear();
       }
     }, this);
   },
@@ -243,15 +245,34 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     });
   },
 
+  /**
+    @private
+
+    The goal of this method is to temporarily disable specific observers
+    that take action in response to application changes.
+
+    This allows the system to make changes (such as materialization and
+    rollback) that should not trigger secondary behavior (such as setting an
+    inverse relationship or marking records as dirty).
+
+    The specific implementation will likely change as Ember proper provides
+    better infrastructure for suspending groups of observers, and if Array
+    observation becomes more unified with regular observers.
+  */
   suspendAssociationObservers: function(callback, binding) {
     var observers = get(this.constructor, 'associationNames').belongsTo;
     var self = this;
 
-    Ember._suspendObservers(self, observers, null, 'belongsToDidChange', function() {
-      Ember._suspendBeforeObservers(self, observers, null, 'belongsToWillChange', function() {
-        callback.call(binding || self);
+    try {
+      this._suspendedAssociations = true;
+      Ember._suspendObservers(self, observers, null, 'belongsToDidChange', function() {
+        Ember._suspendBeforeObservers(self, observers, null, 'belongsToWillChange', function() {
+          callback.call(binding || self);
+        });
       });
-    });
+    } finally {
+      this._suspendedAssociations = false;
+    }
   },
 
   becameInFlight: function() {
