@@ -75,6 +75,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   setup: function() {
     this._relationshipChanges = {};
     this._dirtyFactors = Ember.OrderedSet.create();
+    this._dirtyReasons = { hasMany: 0, belongsTo: 0, attribute: 0 };
   },
 
   willDestroy: function() {
@@ -209,21 +210,34 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   // in the record itself.
 
   addDirtyFactor: function(name) {
-    var becameDirty;
+    var dirtyFactors = this._dirtyFactors, becameDirty;
+    if (dirtyFactors.has(name)) { return; }
 
     if (this._dirtyFactors.isEmpty()) { becameDirty = true; }
-    this._dirtyFactors.add(name);
+
+    this._addDirtyFactor(name);
 
     if (becameDirty && name !== '@created' && name !== '@deleted') {
       this.send('becameDirty');
     }
   },
 
-  removeDirtyFactor: function(name) {
-    var becameClean = true;
+  _addDirtyFactor: function(name) {
+    this._dirtyFactors.add(name);
 
-    if (this._dirtyFactors.isEmpty()) { becameClean = false; }
+    var reason = get(this.constructor, 'fields').get(name);
+    this._dirtyReasons[reason]++;
+  },
+
+  removeDirtyFactor: function(name) {
+    var dirtyFactors = this._dirtyFactors, becameClean = true;
+    if (!dirtyFactors.has(name)) { return; }
+
     this._dirtyFactors.remove(name);
+
+    var reason = get(this.constructor, 'fields').get(name);
+    this._dirtyReasons[reason]--;
+
     if (!this._dirtyFactors.isEmpty()) { becameClean = false; }
 
     if (becameClean && name !== '@created' && name !== '@deleted') {
@@ -233,6 +247,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
   removeDirtyFactors: function() {
     this._dirtyFactors.clear();
+    this._dirtyReasons = { hasMany: 0, belongsTo: 0, attribute: 0 };
     this.send('becameClean');
   },
 
@@ -243,6 +258,14 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.suspendAssociationObservers(function() {
       this.notifyPropertyChange('data');
     });
+  },
+
+  isDirtyBecause: function(reason) {
+    return this._dirtyReasons[reason] > 0;
+  },
+
+  isCommittingBecause: function(reason) {
+    return this._inFlightDirtyReasons[reason] > 0;
   },
 
   /**
@@ -277,27 +300,34 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
   becameInFlight: function() {
     this._inFlightDirtyFactors = this._dirtyFactors.copy();
+    this._inFlightDirtyReasons = this._dirtyReasons;
     this._dirtyFactors.clear();
+    this._dirtyReasons = { hasMany: 0, belongsTo: 0, attribute: 0 };
   },
 
   restoreDirtyFactors: function() {
     this._inFlightDirtyFactors.forEach(function(factor) {
-      this._dirtyFactors.add(factor);
+      this._addDirtyFactor(factor);
     }, this);
 
     this._inFlightDirtyFactors.clear();
+    this._inFlightDirtyReasons = null;
   },
 
   removeInFlightDirtyFactor: function(name) {
     if (this._inFlightDirtyFactors.has(name)) {
       this._inFlightDirtyFactors.remove(name);
-      if (this._inFlightDirtyFactors.isEmpty()) { this.send('didCommit'); }
+      if (this._inFlightDirtyFactors.isEmpty()) {
+        this._inFlightDirtyReasons = null;
+        this.send('didCommit');
+      }
     }
   },
 
   removeInFlightDirtyFactors: function() {
     if (!this._inFlightDirtyFactors.isEmpty()) {
       this._inFlightDirtyFactors.clear();
+      this._inFlightDirtyReasons = null;
       this.send('didCommit');
     }
   },

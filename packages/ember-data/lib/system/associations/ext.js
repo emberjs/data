@@ -74,6 +74,20 @@ DS.Model.reopenClass({
     });
 
     return map;
+  }).cacheable(),
+
+  fields: Ember.computed(function() {
+    var map = Ember.Map.create(), type;
+
+    this.eachComputedProperty(function(name, meta) {
+      if (meta.isAssociation) {
+        map.set(name, meta.kind);
+      } else if (meta.isAttribute) {
+        map.set(name, 'attribute');
+      }
+    });
+
+    return map;
   }).cacheable()
 });
 

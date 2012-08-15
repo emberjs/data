@@ -185,18 +185,21 @@ DS.Transaction = Ember.Object.extend({
       forEach(array, function(record) {
         record.send('willCommit');
       });
-      return array;
+      return Ember.A(array);
     };
+
+    var relationships = get(this, 'relationships');
 
     var commitDetails = {
       created: iterate(this.bucketForType('created')),
       updated: iterate(this.bucketForType('updated')),
-      deleted: iterate(this.bucketForType('deleted'))
+      deleted: iterate(this.bucketForType('deleted')),
+      relationships: relationships
     };
 
     this.removeCleanRecords();
 
-    if (commitDetails.created.length || commitDetails.updated.length || commitDetails.deleted.length) {
+    if (commitDetails.created.length || commitDetails.updated.length || commitDetails.deleted.length || !relationships.isEmpty()) {
       if (adapter && adapter.commit) { adapter.commit(store, commitDetails); }
       else { throw fmt("Adapter is either null or does not implement `commit` method", this); }
     }

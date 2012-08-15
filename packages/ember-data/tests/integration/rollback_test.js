@@ -58,6 +58,23 @@ test("A loaded record in a transaction with changed attributes should revert to 
   testSetAndRollback(post, 'title', "Developing Interplanetary-Scale Apps");
 });
 
+test("A loaded record that is deleted and then rolled back is not dirty.", function() {
+  store.load(Post, { id: 1, title: "MongoDB on Mars" });
+
+  var post = store.find(Post, 1);
+  var transaction = store.transaction();
+
+  transaction.add(post);
+
+  post.deleteRecord();
+  ok(post.get('isDirty'), "record is dirty");
+  ok(post.get('isDeleted'), "record is deleted");
+
+  transaction.rollback();
+  ok(!post.get('isDirty'), "record is not dirty");
+  ok(!post.get('isDeleted'), "record is not deleted");
+});
+
 // UPDATED
 
 test("A loaded record in a transaction with a changed belongsTo should revert to the old relationship when the transaction is rolled back. (A=>null)", function() {

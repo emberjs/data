@@ -175,7 +175,7 @@ DS.Adapter = Ember.Object.extend({
     return get(this, 'serializer').extractId(type, hash);
   },
 
-  shouldCommit: function(record, relationships) {
+  shouldCommit: function(record) {
     return true;
   },
 
@@ -191,7 +191,7 @@ DS.Adapter = Ember.Object.extend({
     return map;
   },
 
-  commit: function(store, commitDetails, relationships) {
+  commit: function(store, commitDetails) {
     // nº1: determine which records the adapter actually l'cares about
     // nº2: for each relationship, give the adapter an opportunity to mark
     //      related records as l'pending
@@ -199,26 +199,25 @@ DS.Adapter = Ember.Object.extend({
 
     var updated = Ember.A();
     commitDetails.updated.forEach(function(record) {
-      var shouldCommit;
+      var shouldCommit = this.shouldCommit(record);
 
-      if (!record.get('isDirty')) {
-        shouldCommit = this.shouldCommit(record, relationships);
-
-        if (!shouldCommit) {
-          store.didUpdateRecord(record);
-        } else {
-          updated.pushObject(record);
-        }
+      if (!shouldCommit) {
+        store.didSaveRecord(record);
       } else {
         updated.pushObject(record);
       }
     }, this);
 
+    commitDetails.updated = updated;
+    this.save(store, commitDetails);
+  },
+
+  save: function(store, commitDetails) {
     this.groupByType(commitDetails.created).forEach(function(type, array) {
       this.createRecords(store, type, array.slice());
     }, this);
 
-    this.groupByType(updated).forEach(function(type, array) {
+    this.groupByType(commitDetails.updated).forEach(function(type, array) {
       this.updateRecords(store, type, array.slice());
     }, this);
 
