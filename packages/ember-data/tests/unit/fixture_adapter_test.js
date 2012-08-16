@@ -76,7 +76,7 @@ test("should load data for a type asynchronously when it is requested", function
   }, 1000);
 });
 
-test("should create record asynchronously when it is commited", function() {
+test("should create record asynchronously when it is committed", function() {
   stop();
 
   var paul = store.createRecord(Person, {firstName: 'Paul', lastName: 'Chavard', height: 70});
@@ -98,7 +98,7 @@ test("should create record asynchronously when it is commited", function() {
   }, 1000);
 });
 
-test("should update record asynchronously when it is commited", function() {
+test("should update record asynchronously when it is committed", function() {
   stop();
 
   var paul = store.findByClientId(Person, store.load(Person, 1, {first_name: 'Paul', last_name: 'Chavard', height: 70}).clientId);
@@ -121,7 +121,7 @@ test("should update record asynchronously when it is commited", function() {
   }, 1000);
 });
 
-test("should delete record asynchronously when it is commited", function() {
+test("should delete record asynchronously when it is committed", function() {
   stop();
 
   var paul = store.findByClientId(Person, store.load(Person, 1, {first_name: 'Paul', last_name: 'Chavard', height: 70}).clientId);
