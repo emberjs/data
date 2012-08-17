@@ -1,7 +1,7 @@
 var set = Ember.set;
 
-Ember.onLoad('application', function(app) {
-  app.registerInjection({
+Ember.onLoad('Ember.Application', function(Application) {
+  Application.registerInjection({
     name: "store",
     before: "controllers",
 
@@ -12,7 +12,7 @@ Ember.onLoad('application', function(app) {
     }
   });
 
-  app.registerInjection({
+  Application.registerInjection({
     name: "giveStoreToControllers",
 
     injection: function(app, stateManager, property) {

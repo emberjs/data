@@ -28,13 +28,13 @@ module("Ember.Application Extensions", {
 });
 
 test("If a Store property exists on an Ember.Application, it should be instantiated.", function() {
-  app.initialize();
+  Ember.run(function() { app.initialize(); });
 
   ok(app.get('router.store') instanceof DS.Store, "the store was injected");
 });
 
 test("If a store is instantiated, it should be made available to each controller.", function() {
-  app.initialize();
+  Ember.run(function() { app.initialize(); });
 
   ok(app.get('router.fooController.store') instanceof DS.Store, "the store was injected");
 });
