@@ -4,7 +4,7 @@ DS.OneToManyChange = function(options) {
   this.oldParent = options.oldParent;
   this.child = options.child;
   this.belongsToName = options.belongsToName;
-  this.commited = {};
+  this.committed = {};
 };
 
 DS.OneToManyChange.create = function(options) {
