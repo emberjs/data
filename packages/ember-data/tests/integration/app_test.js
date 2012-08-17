@@ -20,7 +20,7 @@ module("Application boot", {
   },
 
   teardown: function() {
-    app.destroy();
+    Ember.run(function() { app.destroy(); });
   }
 });
 
@@ -38,13 +38,13 @@ test("It only injects capitalized controllers into the router", function() {
 });
 
 test("It injects the store into the router", function() {
-  app.initialize();
+  Ember.run(function() { app.initialize(); });
 
   ok(app.get('router.store') instanceof DS.Store, "the store was injected");
 });
 
 test("It injects the store into controllers", function() {
-  app.initialize();
+  Ember.run(function() { app.initialize(); });
 
   ok(app.get('router.fooController.store') instanceof DS.Store, "the store was injected");
 });

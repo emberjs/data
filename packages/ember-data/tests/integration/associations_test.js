@@ -21,7 +21,9 @@ module("Association/adapter integration test", {
   },
 
   teardown: function() {
-    store.destroy();
+    Ember.run(function() {
+      store.destroy();
+    });
   }
 });
 
