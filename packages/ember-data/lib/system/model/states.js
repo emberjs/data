@@ -382,8 +382,8 @@ var DirtyState = DS.State.extend({
 
     // EVENTS
     deleteRecord: function(manager) {
-      get(manager, 'record').clearRelationships();
       manager.transitionTo('deleted');
+      get(manager, 'record').clearRelationships();
     },
 
     setProperty: function(manager, context) {
@@ -446,13 +446,12 @@ createdState.states.uncommitted.reopen({
   deleteRecord: function(manager) {
     var record = get(manager, 'record');
 
-    record.clearRelationships();
-
     record.withTransaction(function(t) {
       t.recordIsMoving('created', record);
     });
 
     manager.transitionTo('deleted.saved');
+    record.clearRelationships();
   }
 });
 
@@ -467,13 +466,12 @@ updatedState.states.uncommitted.reopen({
   deleteRecord: function(manager) {
     var record = get(manager, 'record');
 
-    get(manager, 'record').clearRelationships();
-
     record.withTransaction(function(t) {
       t.recordIsMoving('updated', record);
     });
 
     manager.transitionTo('deleted');
+    get(manager, 'record').clearRelationships();
   }
 });
 
@@ -552,8 +550,8 @@ var states = {
         },
 
         deleteRecord: function(manager) {
-          get(manager, 'record').clearRelationships();
           manager.transitionTo('deleted');
+          get(manager, 'record').clearRelationships();
         },
 
         willCommit: function(manager) {

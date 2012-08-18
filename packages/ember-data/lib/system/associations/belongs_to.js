@@ -40,57 +40,28 @@ DS.belongsTo = function(type, options) {
 DS.Model.reopen({
   /** @private */
   belongsToWillChange: Ember.beforeObserver(function(record, key) {
-    if (!record.hasChildChange(key) && get(record, 'isLoaded')) {
-      record.addChildChange(key, DS.OneToManyChange.create({
-        oldParent: get(record, key),
-        belongsToName: key,
-        child: record
-      }));
+    if (get(record, 'isLoaded')) {
+      var oldParent = get(record, key);
+
+      var childId = get(record, 'clientId'),
+          store = get(record, 'store');
+
+      var change = DS.OneToManyChange.forChildAndParent(childId, store, { belongsToName: key });
+
+      if (change.oldParent === undefined) {
+        change.oldParent = oldParent ? get(oldParent, 'clientId') : null;
+      }
     }
   }),
 
   /** @private */
   belongsToDidChange: Ember.immediateObserver(function(record, key) {
     if (get(record, 'isLoaded')) {
-      var change = record.getChildChange(key),
+      var change = get(record, 'store').relationshipChangeFor(get(record, 'clientId'), key),
           newParent = get(record, key);
 
-      change.newParent = newParent;
+      change.newParent = newParent ? get(newParent, 'clientId') : null;
       change.sync();
     }
-  }),
-
-  hasChildChange: function(key) {
-    return key in this._relationshipChanges;
-  },
-
-  eachRelationshipChange: function(callback, binding) {
-    for (var prop in this._relationshipChanges) {
-      if (!this._relationshipChanges.hasOwnProperty(prop)) { continue; }
-      callback.call(binding, prop, this._relationshipChanges[prop]);
-    }
-  },
-
-  getChildChange: function(key) {
-    return this._relationshipChanges[key];
-  },
-
-  getRelationshipChange: function(key) {
-    return this._relationshipChanges[key];
-  },
-
-  addChildChange: function(key, change) {
-    get(this, 'transaction').relationshipBecameDirty(change);
-    this._relationshipChanges[key] = change;
-  },
-
-  destroyChildChange: function(key) {
-    var change = this._relationshipChanges[key];
-    get(this, 'transaction').relationshipBecameClean(change);
-    delete this._relationshipChanges[key];
-  },
-
-  destroyParentChange: function(key, child) {
-    this._relationshipChanges[key].remove(child);
-  }
+  })
 });

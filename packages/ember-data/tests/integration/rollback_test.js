@@ -564,6 +564,7 @@ test("A deleted record should be restored to a hasMany relationship if the trans
 
   var transaction = store.transaction();
   transaction.add(post);
+  transaction.add(comment1);
 
   ok(!post.get('isDirty'), "precond - record should not yet be dirty");
   ok(!comment1.get('isDirty'), "precond - record should not yet be dirty");

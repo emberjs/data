@@ -74,7 +74,9 @@ DS.Store = Ember.Object.extend({
     this.typeMaps = {};
     this.recordCache = [];
     this.clientIdToId = {};
+    this.clientIdToType = {};
     this.recordArraysByClientId = {};
+    this.relationshipChanges = {};
 
     // Internally, we maintain a map of all unloaded IDs requested by
     // a ManyArray. As the adapter loads hashes into the store, the
@@ -618,15 +620,17 @@ DS.Store = Ember.Object.extend({
     }, this);
   },
 
-  didUpdateRelationship: function(record, relationshipName) {
-    var change = record.getRelationshipChange(relationshipName);
-    change.didUpdateRelationship(relationshipName, record);
+  didUpdateRelationships: function(record) {
+    var changes = this.relationshipChangesFor(get(record, 'clientId')), change;
+
+    for (var name in changes) {
+      if (!changes.hasOwnProperty(name)) { continue; }
+      changes[name].adapterDidUpdate();
+    }
   },
 
-  didUpdateRelationships: function(record) {
-    record.eachRelationshipChange(function(name, change) {
-      change.didUpdateRelationship(record, name);
-    });
+  didUpdateRelationship: function(relationship) {
+    relationship.adapterDidUpdate();
   },
 
   updateRecordHash: function(record, hash) {
@@ -839,6 +843,14 @@ DS.Store = Ember.Object.extend({
     }, this);
   },
 
+  typeForClientId: function(clientId) {
+    return this.clientIdToType[clientId];
+  },
+
+  idForClientId: function(clientId) {
+    return this.clientIdToId[clientId];
+  },
+
   // ................
   // . LOADING DATA .
   // ................
@@ -921,12 +933,14 @@ DS.Store = Ember.Object.extend({
 
     var idToClientIdMap = typeMap.idToCid,
         clientIdToIdMap = this.clientIdToId,
+        clientIdToTypeMap = this.clientIdToType,
         clientIds = typeMap.clientIds,
         dataCache = typeMap.cidToHash;
 
     var clientId = ++this.clientIdCounter;
 
     dataCache[clientId] = hash;
+    clientIdToTypeMap[clientId] = type;
 
     // if we're creating an item, this process will be done
     // later, once the object has been persisted.
@@ -966,5 +980,40 @@ DS.Store = Ember.Object.extend({
     }
 
     return this._super();
+  },
+
+  // ........................
+  // . RELATIONSHIP CHANGES .
+  // ........................
+
+  addRelationshipChangeFor: function(clientId, key, change) {
+    var changes = this.relationshipChanges;
+    if (!(clientId in changes)) {
+      changes[clientId] = {};
+    }
+
+    changes[clientId][key] = change;
+  },
+
+  removeRelationshipChangeFor: function(clientId, key, change) {
+    var changes = this.relationshipChanges;
+    if (!(clientId in changes)) {
+      return;
+    }
+
+    delete changes[clientId][key];
+  },
+
+  relationshipChangeFor: function(clientId, key) {
+    var changes = this.relationshipChanges;
+    if (!(clientId in changes)) {
+      return;
+    }
+
+    return changes[clientId][key];
+  },
+
+  relationshipChangesFor: function(clientId) {
+    return this.relationshipChanges[clientId];
   }
 });

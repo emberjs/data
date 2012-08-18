@@ -348,9 +348,9 @@ function expectRelationships(description) {
   QUnit.push(relationships.length === count, relationships.length, count, "There should be " + count + " dirty relationships");
 
   if (count) {
-    QUnit.push(relationship.oldParent === description.oldParent, relationship.oldParent, description.oldParent, "oldParent is incorrect");
-    QUnit.push(relationship.newParent === description.newParent, relationship.newParent, description.newParent, "newParent is incorrect");
-    QUnit.push(relationship.child === description.child, relationship.child, description.child, "child is incorrect");
+    QUnit.push(relationship.getOldParent() === description.oldParent, relationship.oldParent, description.oldParent, "oldParent is incorrect");
+    QUnit.push(relationship.getNewParent() === description.newParent, relationship.newParent, description.newParent, "newParent is incorrect");
+    QUnit.push(relationship.getChild() === description.child, relationship.child, description.child, "child is incorrect");
   }
 }
 

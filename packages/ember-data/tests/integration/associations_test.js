@@ -103,3 +103,49 @@ test("When a hasMany association is accessed, the adapter's findMany method shou
 
   store.load(Person, { id: 1, comments: [ 1 ] });
 });
+
+//test("When a record with a hasMany association is deleted, its associated record is materialized and its belongsTo is changed", function() {
+  //expect(3);
+
+  //adapter.findMany = function(store, type, ids) {
+    //setTimeout(async(function() {
+      //// loading the comment doesn't raise an exception
+      //store.load(Comment, { id: 2, person: 1 });
+    //}), 1);
+  //};
+
+  //adapter.updateRecord = function(store, type, record) {
+    //var comment = store.find(Comment, 2);
+    //equal(record, comment, "The record passed to update is the child record");
+    //equal(comment.get('person'), null, "The comment's person is null");
+  //};
+
+  //adapter.deleteRecord = function(store, type, record) {
+    //equal(record, person, "the person is deleted as expected");
+  //};
+
+  //Person = DS.Model.extend({
+    //updatedAt: DS.attr('string'),
+    //name: DS.attr('string')
+  //});
+
+  //Person.toString = function() { return "Person"; };
+
+  //Comment = DS.Model.extend({
+    //person: DS.belongsTo(Person)
+  //});
+
+  //Comment.toString = function() { return "Comment"; };
+
+  //Person.reopen({
+    //comments: DS.hasMany(Comment)
+  //});
+
+  //store.load(Person, { id: 1, name: "Tom Dale", comments: [ 2 ] });
+
+  //var person = store.find(Person, 1);
+
+  //person.deleteRecord();
+
+  //store.commit();
+//});

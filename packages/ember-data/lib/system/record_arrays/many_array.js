@@ -102,13 +102,14 @@ DS.ManyArray = DS.RecordArray.extend({
       // the `arrayContentDidChange` will set `newParent` on
       // the change.
       for (var i=index; i<index+removed; i++) {
-        var record = this.materializedObjectAt(i);
-        if (!record) { continue; }
+        var clientId = get(this, 'content').objectAt(i);
+        //var record = this.objectAt(i);
+        //if (!record) { continue; }
 
-        var change = DS.OneToManyChange.forChildAndParent(record, owner);
+        var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), { parentType: owner.constructor });
         change.hasManyName = name;
 
-        if (change.oldParent === undefined) { change.oldParent = owner; }
+        if (change.oldParent === undefined) { change.oldParent = get(owner, 'clientId'); }
         change.newParent = null;
         this._changesToSync.add(change);
       }
@@ -129,15 +130,14 @@ DS.ManyArray = DS.RecordArray.extend({
       // from the child object, and adds the current owner as
       // the new parent.
       for (var i=index; i<index+added; i++) {
-        var record = this.materializedObjectAt(i);
-        if (!record) { continue; }
+        var clientId = get(this, 'content').objectAt(i);
 
-        var change = DS.OneToManyChange.forChildAndParent(record, owner);
+        var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), { parentType: owner.constructor });
         change.hasManyName = name;
 
         // The oldParent will be looked up in `sync` if it
         // was not set by `belongsToWillChange`.
-        change.newParent = owner;
+        change.newParent = get(owner, 'clientId');
         this._changesToSync.add(change);
       }
 

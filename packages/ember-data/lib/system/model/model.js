@@ -352,16 +352,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.updateRecordArraysLater();
   },
 
-  adapterDidUpdateRelationship: function(relationshipName) {
-    var change = this._relationshipChanges[relationshipName];
-
-    Ember.assert("You cannot update a relationship that was not changed", change);
-
-    change.didUpdateRelationship(relationshipName, this);
-
-    this.updateRecordArraysLater();
-  },
-
   adapterDidDelete: function() {
     this.removeInFlightDirtyFactor('@deleted');
 
