@@ -86,8 +86,6 @@ DS.Store = Ember.Object.extend({
     this.loadingRecordArrays = {};
 
     set(this, 'defaultTransaction', this.transaction());
-
-    return this._super();
   },
 
   /**
@@ -996,7 +994,7 @@ DS.Store = Ember.Object.extend({
     changes[clientId][key] = change;
   },
 
-  removeRelationshipChangeFor: function(clientId, key, change) {
+  removeRelationshipChangeFor: function(clientId, key) {
     var changes = this.relationshipChanges;
     if (!(clientId in changes)) {
       return;
