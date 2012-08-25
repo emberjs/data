@@ -11,6 +11,7 @@ var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt;
 var UNLOADED = 'unloaded';
 var LOADING = 'loading';
 var MATERIALIZED = { materialized: true };
+var CREATED = { created: true };
 
 // Implementors Note:
 //
@@ -124,10 +125,12 @@ DS.Store = Ember.Object.extend({
     // before being populated by the adapter.
     record.setupData();
 
-    // Instructs the adapter to extract information from the
-    // opaque hash and materialize the record's attributes and
-    // relationships.
-    adapter.materialize(record, hash);
+    if (hash !== CREATED) {
+      // Instructs the adapter to extract information from the
+      // opaque hash and materialize the record's attributes and
+      // relationships.
+      adapter.materialize(record, hash);
+    }
   },
 
   recordIsMaterialized: function(clientId) {
