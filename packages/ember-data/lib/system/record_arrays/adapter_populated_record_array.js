@@ -4,6 +4,14 @@ var get = Ember.get, set = Ember.set;
 
 DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
   query: null,
+  isError: Ember.computed.not('errors.isEmpty'),
+
+  init: function() {
+    this._super();
+
+    var errors = DS.Errors.create();
+    set(this, 'errors', errors);
+  },
 
   replace: function() {
     var type = get(this, 'type').toString();

@@ -4,20 +4,77 @@ require('ember-data/system/adapter');
 
 var get = Ember.get, set = Ember.set;
 
-var serializer = DS.Serializer.create({
+DS.RESTSerializer = DS.Serializer.create({
   keyForBelongsTo: function(type, name) {
     return this.keyForAttributeName(type, name) + "_id";
   },
 
   keyForAttributeName: function(type, name) {
     return Ember.String.decamelize(name);
+  },
+
+  attributeNameForKey: function(type, key) {
+    if (!this._attributeNamesByKey) {
+      this._attributeNamesByKey = {};
+
+      get(type, 'attributes').forEach(function(name) {
+        this._attributeNamesByKey[this._keyForAttributeName(type, name)] = name;
+      }, this);
+    }
+
+    return this._attributeNamesByKey[key];
+  },
+
+  materializeError: function(record, jqXHR) {
+    var errorMessage = this._parseResponseText(jqXHR)['error'] || jqXHR.textStatus;
+
+    return DS.ServerError.create({
+      code: jqXHR.status,
+      message: errorMessage,
+      isFatal: this.errorIsFatal(record, jqXHR)
+    });
+  },
+
+  materializeValidationErrors: function(record, jqXHR) {
+    var errorsHash = this._parseResponseText(jqXHR)['errors'],
+        key, attribute, errors = [],
+        serializer = get(this, 'serializer');
+
+    for (key in errorsHash) {
+      if (errorsHash.hasOwnProperty(key)) {
+        attribute = this.attributeNameForKey(record.constructor, key);
+        if (attribute) {
+          errors.push(DS.ServerValidationError.create({
+            message: errorsHash[key],
+            attribute: attribute
+          }));
+        }
+      }
+    }
+
+    return errors;
+  },
+
+  errorIsFatal: function(record, jqXHR) {
+    return jqXHR.status === 403;
+  },
+
+  _parseResponseText: function(jqXHR) {
+    var data = {};
+    if (jqXHR.responseJSON) {
+      data = jqXHR.responseJSON;
+    } else {
+      try { data = JSON.parse(jqXHR.responseText); } catch (e) {}
+      jqXHR.responseJSON = data;
+    }
+    return data;
   }
 });
 
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
-	
-  serializer: serializer,
+
+  serializer: DS.RESTSerializer,
 
   shouldCommit: function(record) {
     if (record.isCommittingBecause('attribute') || record.isCommittingBecause('belongsTo')) {
@@ -33,9 +90,11 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
-      context: this,
       success: function(json) {
         this.didCreateRecord(store, type, record, json);
+      },
+      error: function(jqXHR) {
+        this.handleError(store, [record], jqXHR);
       }
     });
   },
@@ -62,9 +121,11 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
-      context: this,
       success: function(json) {
         this.didCreateRecords(store, type, records, json);
+      },
+      error: function(jqXHR) {
+        this.handleError(store, records, jqXHR);
       }
     });
   },
@@ -85,9 +146,11 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, id), "PUT", {
       data: data,
-      context: this,
       success: function(json) {
         this.didUpdateRecord(store, type, record, json);
+      },
+      error: function(jqXHR) {
+        this.handleError(store, [record], jqXHR);
       }
     });
   },
@@ -112,9 +175,11 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, "bulk"), "PUT", {
       data: data,
-      context: this,
       success: function(json) {
         this.didUpdateRecords(store, type, records, json);
+      },
+      error: function(jqXHR) {
+        this.handleError(store, records, jqXHR);
       }
     });
   },
@@ -131,9 +196,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     this.ajax(this.buildURL(root, id), "DELETE", {
-      context: this,
       success: function(json) {
         this.didDeleteRecord(store, type, record, json);
+      },
+      error: function(jqXHR) {
+        this.handleError(store, [record], jqXHR);
       }
     });
   },
@@ -158,9 +225,11 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
       data: data,
-      context: this,
       success: function(json) {
         this.didDeleteRecords(store, type, records, json);
+      },
+      error: function(jqXHR) {
+        this.handleError(store, records, jqXHR);
       }
     });
   },
@@ -170,38 +239,22 @@ DS.RESTAdapter = DS.Adapter.extend({
     store.didSaveRecords(records);
   },
 
-  find: function(store, type, id) {
+  find: function(store, type, id, record) {
     var root = this.rootForType(type);
 
     this.ajax(this.buildURL(root, id), "GET", {
       success: function(json) {
         this.sideload(store, type, json, root);
         store.load(type, json[root]);
+      },
+      error: function(jqXHR) {
+        this.handleError(store, [record], jqXHR);
       }
     });
   },
 
-  findMany: function(store, type, ids) {
-    var root = this.rootForType(type), plural = this.pluralize(root);
-
-    this.ajax(this.buildURL(root), "GET", {
-      data: { ids: ids },
-      success: function(json) {
-        this.sideload(store, type, json, plural);
-        store.loadMany(type, json[plural]);
-      }
-    });
-  },
-
-  findAll: function(store, type) {
-    var root = this.rootForType(type), plural = this.pluralize(root);
-
-    this.ajax(this.buildURL(root), "GET", {
-      success: function(json) {
-        this.sideload(store, type, json, plural);
-        store.loadMany(type, json[plural]);
-      }
-    });
+  findMany: function(store, type, ids, recordArray) {
+    this.findQuery(store, type, {ids: ids}, recordArray);
   },
 
   findQuery: function(store, type, query, recordArray) {
@@ -212,6 +265,9 @@ DS.RESTAdapter = DS.Adapter.extend({
       success: function(json) {
         this.sideload(store, type, json, plural);
         recordArray.load(json[plural]);
+      },
+      error: function(jqXHR) {
+        this.handleError(store, recordArray, jqXHR);
       }
     });
   },
@@ -318,6 +374,28 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
 
     return url.join("/");
+  },
+
+  handleError: function(store, records, jqXHR) {
+    var error, serializer = get(this, 'serializer');
+
+    if (jqXHR.status === 422) {
+      records.forEach(function(record) {
+        error = serializer.materializeValidationErrors(record, jqXHR);
+
+        store.recordWasInvalid(record, error);
+      });
+    } else {
+      error = serializer.materializeError(records, jqXHR);
+
+      if (DS.RecordArray.detectInstance(records)) {
+        store.recordArrayDidError(records, error);
+      } else {
+        records.forEach(function(record) {
+          store.recordDidError(record, error);
+        });
+      }
+    }
   }
 });
 

@@ -224,7 +224,13 @@ test("if a created record is marked as invalid by the server, it enters an error
     equal(type, Person, "the type is correct");
 
     if (get(record, 'name').indexOf('Bro') === -1) {
-      store.recordWasInvalid(record, { name: ['common... name requires a "bro"'] });
+      var errors = [
+        DS.ServerValidationError.create({
+          message: 'common... name requires a "bro"',
+          attribute: 'name'
+        })
+      ];
+      store.recordWasInvalid(record, errors);
     } else {
       store.didSaveRecord(record);
     }
@@ -233,22 +239,18 @@ test("if a created record is marked as invalid by the server, it enters an error
   var yehuda = store.createRecord(Person, { id: 1, name: "Yehuda Katz" });
 
   var hasNameError,
-      observer = function() { hasNameError = yehuda.get('errors.name'); };
+      observer = function() { hasNameError = yehuda.get('errors').findByAttributeName('name')[0]; };
 
-  Ember.addObserver(yehuda, 'errors.name', observer);
+  Ember.addObserver(yehuda, 'errors.isValid', observer);
 
   store.commit();
 
   equal(get(yehuda, 'isValid'), false, "the record is invalid");
-  ok(hasNameError, "should trigger errors.name observer on invalidation");
+  ok(hasNameError, "should trigger errors.isValid observer on invalidation");
 
   set(yehuda, 'updatedAt', true);
   equal(get(yehuda, 'isValid'), false, "the record is still invalid");
 
-  // This tests that we handle undefined values without blowing up
-  var errors = get(yehuda, 'errors');
-  set(errors, 'other_bound_property', undefined);
-  set(yehuda, 'errors', errors);
   set(yehuda, 'name', "Brohuda Brokatz");
 
   equal(get(yehuda, 'isValid'), true, "the record is no longer invalid after changing");
@@ -269,7 +271,13 @@ test("if an updated record is marked as invalid by the server, it enters an erro
     equal(type, Person, "the type is correct");
 
     if (get(record, 'name').indexOf('Bro') === -1) {
-      store.recordWasInvalid(record, { name: ['common... name requires a "bro"'] });
+      var errors = [
+        DS.ServerValidationError.create({
+          message: 'common... name requires a "bro"',
+          attribute: 'name'
+        })
+      ];
+      store.recordWasInvalid(record, errors);
     } else {
       store.didSaveRecord(record);
     }
