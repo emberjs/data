@@ -6,6 +6,7 @@ DS.OneToManyChange = function(options) {
   this.belongsToName = options.belongsToName;
   this.store = options.store;
   this.committed = {};
+  this.awaiting = 0;
 };
 
 /** @private */
@@ -326,6 +327,7 @@ DS.OneToManyChange.prototype = {
 
   /** @private */
   adapterDidUpdate: function() {
+    if (this.awaiting > 0) { return; }
     var belongsToName = this.getBelongsToName();
     var hasManyName = this.getHasManyName();
     var oldParent, newParent, child;
@@ -334,5 +336,17 @@ DS.OneToManyChange.prototype = {
     if (newParent = this.getNewParent()) { newParent.removeInFlightDirtyFactor(hasManyName); }
     if (child = this.getChild())         { child.removeInFlightDirtyFactor(belongsToName); }
     this.destroy();
+  },
+
+  wait: function() {
+    this.awaiting++;
+  },
+
+  done: function() {
+    this.awaiting--;
+
+    if (this.awaiting === 0) {
+      this.adapterDidUpdate();
+    }
   }
 };

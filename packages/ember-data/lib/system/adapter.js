@@ -181,11 +181,11 @@ DS.Adapter = Ember.Object.extend({
 
   groupByType: function(enumerable) {
     var map = Ember.MapWithDefault.create({
-      defaultValue: function() { return Ember.A(); }
+      defaultValue: function() { return Ember.OrderedSet.create(); }
     });
 
     enumerable.forEach(function(item) {
-      map.get(item.constructor).pushObject(item);
+      map.get(item.constructor).add(item);
     });
 
     return map;
@@ -197,14 +197,14 @@ DS.Adapter = Ember.Object.extend({
     //      related records as l'pending
     // nº3: trigger l'save on l'non-pending records
 
-    var updated = Ember.A();
+    var updated = Ember.OrderedSet.create();
     commitDetails.updated.forEach(function(record) {
       var shouldCommit = this.shouldCommit(record);
 
       if (!shouldCommit) {
         store.didSaveRecord(record);
       } else {
-        updated.pushObject(record);
+        updated.add(record);
       }
     }, this);
 
@@ -213,16 +213,16 @@ DS.Adapter = Ember.Object.extend({
   },
 
   save: function(store, commitDetails) {
-    this.groupByType(commitDetails.created).forEach(function(type, array) {
-      this.createRecords(store, type, array.slice());
+    this.groupByType(commitDetails.created).forEach(function(type, set) {
+      this.createRecords(store, type, set.copy());
     }, this);
 
-    this.groupByType(commitDetails.updated).forEach(function(type, array) {
-      this.updateRecords(store, type, array.slice());
+    this.groupByType(commitDetails.updated).forEach(function(type, set) {
+      this.updateRecords(store, type, set.copy());
     }, this);
 
-    this.groupByType(commitDetails.deleted).forEach(function(type, array) {
-      this.deleteRecords(store, type, array.slice());
+    this.groupByType(commitDetails.deleted).forEach(function(type, set) {
+      this.deleteRecords(store, type, set.copy());
     }, this);
   },
 

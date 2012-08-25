@@ -75,6 +75,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   setup: function() {
     this._relationshipChanges = {};
     this._dirtyFactors = Ember.OrderedSet.create();
+    this._inFlightDirtyFactors = Ember.OrderedSet.create();
     this._dirtyReasons = { hasMany: 0, belongsTo: 0, attribute: 0 };
   },
 
@@ -315,6 +316,20 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   removeInFlightDirtyFactor: function(name) {
+    // It is possible for a record to have been materialized
+    // or loaded after the transaction was committed. This
+    // can happen with relationship changes involving
+    // unmaterialized records that subsequently load.
+    //
+    // XXX If a record is materialized after it was involved
+    // while it is involved in a relationship change, update
+    // it to be in the same state as if it had already been
+    // materialized.
+    //
+    // For now, this means that we have a blind spot where
+    // a record was loaded and its relationships changed
+    // while the adapter is in the middle of persisting
+    // a relationship change involving it.
     if (this._inFlightDirtyFactors.has(name)) {
       this._inFlightDirtyFactors.remove(name);
       if (this._inFlightDirtyFactors.isEmpty()) {

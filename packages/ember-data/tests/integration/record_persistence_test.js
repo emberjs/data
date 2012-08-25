@@ -24,11 +24,11 @@ test("When a store is committed, the adapter's `commit` method should be called 
   expect(2);
 
   adapter.commit = function(store, records) {
-    this.groupByType(records.updated).forEach(function(type, array) {
+    this.groupByType(records.updated).forEach(function(type, set) {
       equal(type, Person, "the type is correct");
-      equal(get(array, 'length'), 1, "the array is the right length");
+      equal(get(set.toArray(), 'length'), 1, "the array is the right length");
 
-      store.didSaveRecords(array);
+      store.didSaveRecords(set);
     });
   };
 
@@ -48,13 +48,13 @@ test("When a store is committed, the adapter's `commit` method should be called 
   expect(3);
 
   adapter.commit = function(store, records) {
-    equal(get(records.updated, 'length'), 0, "no records are marked as being updated");
+    equal(get(records.updated.toArray(), 'length'), 0, "no records are marked as being updated");
 
-    this.groupByType(records.created).forEach(function(type, array) {
+    this.groupByType(records.created).forEach(function(type, set) {
       equal(type, Person, "the type is correct");
-      equal(get(array, 'length'), 1, "the array is the right length");
+      equal(get(set.toArray(), 'length'), 1, "the array is the right length");
 
-      store.didSaveRecords(array, [{ id: 1, name: "Tom Dale" }]);
+      store.didSaveRecords(set, [{ id: 1, name: "Tom Dale" }]);
     });
   };
 
@@ -88,14 +88,14 @@ test("when a store is committed, the adapter's `commit` method should be called 
   expect(5);
 
   adapter.commit = function(store, records) {
-    equal(get(records.updated, 'length'), 0, "no records are marked as updated");
-    equal(get(records.created, 'length'), 0, "no records are marked as created");
+    equal(records.updated.isEmpty(), true, "no records are marked as updated");
+    equal(records.created.isEmpty(), true, "no records are marked as created");
 
-    this.groupByType(records.deleted).forEach(function(type, array) {
+    this.groupByType(records.deleted).forEach(function(type, set) {
       equal(type, Person, "the type is correct");
-      equal(get(array, 'length'), 1, "the array is the right length");
+      equal(get(set.toArray(), 'length'), 1, "the array is the right length");
 
-      store.didSaveRecords(array);
+      store.didSaveRecords(set);
     });
   };
 
@@ -116,7 +116,7 @@ test("An adapter can notify the store that records were updated by calling `didS
   adapter.commit = function(store, commitDetails, relationships) {
     var updatedRecords = commitDetails.updated;
 
-    equal(get(updatedRecords, 'length'), 2, "two updated records are passed to `commit`");
+    equal(get(updatedRecords.toArray(), 'length'), 2, "two updated records are passed to `commit`");
 
     store.didSaveRecords([tom, yehuda]);
 
@@ -150,7 +150,7 @@ test("An adapter can notify the store that records were updated and provide new 
   adapter.commit = function(store, commitDetails, relationships) {
     var updatedRecords = commitDetails.updated;
 
-    equal(get(updatedRecords, 'length'), 2, "precond - two updated records are passed to `commit`");
+    equal(get(updatedRecords.toArray(), 'length'), 2, "precond - two updated records are passed to `commit`");
 
     store.didSaveRecords([tom, yehuda], [ { id: 1, name: "Tom Dale", updatedAt: "now" }, { id: 2, name: "Yehuda Katz", updatedAt: "now!" } ]);
 
@@ -183,7 +183,7 @@ test("An adapter can notify the store that a record was updated by calling `didS
   adapter.commit = function(store, commitDetails, relationships) {
     var updatedRecords = commitDetails.updated;
 
-    equal(get(updatedRecords, 'length'), 2, "precond - two updated records are passed to `commit`");
+    equal(get(updatedRecords.toArray(), 'length'), 2, "precond - two updated records are passed to `commit`");
 
     store.didSaveRecord(tom);
     store.didSaveRecord(yehuda);
@@ -218,7 +218,7 @@ test("An adapter can notify the store that a record was updated and provide new 
   adapter.commit = function(store, commitDetails, relationships) {
     var updatedRecords = commitDetails.updated;
 
-    equal(get(updatedRecords, 'length'), 2, "precond - two updated records are passed to `commit`");
+    equal(get(updatedRecords.toArray(), 'length'), 2, "precond - two updated records are passed to `commit`");
 
     store.didSaveRecord(tom, { id: 1, name: "Tom Dale", updatedAt: "now" });
     store.didSaveRecord(yehuda, { id: 2, name: "Yehuda Katz", updatedAt: "now!" });
@@ -252,7 +252,7 @@ test("An adapter can notify the store that records were deleted by calling `didS
   adapter.commit = function(store, commitDetails, relationships) {
     var deletedRecords = commitDetails.deleted;
 
-    equal(get(deletedRecords, 'length'), 2, "precond - two updated records are passed to `commit`");
+    equal(get(deletedRecords.toArray(), 'length'), 2, "precond - two updated records are passed to `commit`");
 
     store.didSaveRecords([tom, yehuda]);
 
@@ -283,7 +283,7 @@ test("An adapter can notify the store that a record was deleted by calling `didS
   adapter.commit = function(store, commitDetails, relationships) {
     var deletedRecords = commitDetails.deleted;
 
-    equal(get(deletedRecords, 'length'), 2, "precond - two updated records are passed to `commit`");
+    equal(get(deletedRecords.toArray(), 'length'), 2, "precond - two updated records are passed to `commit`");
 
     store.didSaveRecord(tom);
     store.didSaveRecord(yehuda);

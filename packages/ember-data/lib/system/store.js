@@ -605,8 +605,9 @@ DS.Store = Ember.Object.extend({
   },
 
   didSaveRecords: function(array, hashes) {
-    array.forEach(function(record, index) {
-      this.didSaveRecord(record, hashes && hashes[index]);
+    var i = 0;
+    array.forEach(function(record) {
+      this.didSaveRecord(record, hashes && hashes[i++]);
     }, this);
   },
 

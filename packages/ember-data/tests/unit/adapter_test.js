@@ -16,9 +16,9 @@ module("DS.Adapter", {
 test("The `commit` method should call `createRecords` once per type.", function() {
   expect(2);
 
-  adapter.createRecords = function(store, type, array) {
+  adapter.createRecords = function(store, type, set) {
     equal(type, Person, "the passed type is Person");
-    equal(get(array, 'length'), 2, 'the array is has two items');
+    equal(get(set.toArray(), 'length'), 2, 'the array is has two items');
   };
 
   var tom = Person.create({ name: "Tom Dale", updatedAt: null });
@@ -34,9 +34,9 @@ test("The `commit` method should call `createRecords` once per type.", function(
 test("The `commit` method should call `updateRecords` once per type.", function() {
   expect(2);
 
-  adapter.updateRecords = function(store, type, array) {
+  adapter.updateRecords = function(store, type, set) {
     equal(type, Person, "the type is Person");
-    equal(get(array, 'length'), 2, "the array has two items");
+    equal(get(set.toArray(), 'length'), 2, "the array has two items");
   };
 
   var tom = Person.create({ name: "Tom Dale", updatedAt: null });
@@ -52,9 +52,9 @@ test("The `commit` method should call `updateRecords` once per type.", function(
 test("The `commit` method should call `deleteRecords` once per type.", function() {
   expect(2);
 
-  adapter.deleteRecords = function(store, type, array) {
+  adapter.deleteRecords = function(store, type, set) {
     equal(type, Person, "the type is Person");
-    equal(get(array, 'length'), 2, "the array has two items");
+    equal(get(set.toArray(), 'length'), 2, "the array has two items");
   };
 
   var tom = Person.create({ name: "Tom Dale", updatedAt: null });
