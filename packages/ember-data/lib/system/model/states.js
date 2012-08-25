@@ -500,7 +500,6 @@ var states = {
       },
 
       loadedData: function(manager) {
-        didChangeData(manager);
         manager.transitionTo('loaded.created');
       }
     }),
