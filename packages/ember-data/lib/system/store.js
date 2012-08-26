@@ -654,7 +654,6 @@ DS.Store = Ember.Object.extend({
     @return {DS.RecordArray}
   */
   findAll: function(type) {
-
     var typeMap = this.typeMapFor(type),
         findAllCache = typeMap.findAllCache;
 
@@ -696,6 +695,8 @@ DS.Store = Ember.Object.extend({
 
     @param {Class} type
     @param {Function} filter
+
+    @return {DS.FilteredRecordArray}
   */
   filter: function(type, query, filter) {
     // allow an optional server query
@@ -1054,6 +1055,18 @@ DS.Store = Ember.Object.extend({
   // . RECORD ARRAYS .
   // .................
 
+  /**
+    @private
+
+    Register a RecordArray for a given type to be backed by
+    a filter function. This will cause the array to update
+    automatically when records of that type change attribute
+    values or states.
+
+    @param {DS.RecordArray} array
+    @param {Class} type
+    @param {Function} filter
+  */
   registerRecordArray: function(array, type, filter) {
     var recordArrays = this.typeMapFor(type).recordArrays;
 
@@ -1062,6 +1075,19 @@ DS.Store = Ember.Object.extend({
     this.updateRecordArrayFilter(array, type, filter);
   },
 
+  /**
+    @private
+
+    Create a `DS.ManyArray` for a type and list of clientIds
+    and index the `ManyArray` under each clientId. This allows
+    us to efficiently remove records from `ManyArray`s when
+    they are deleted.
+
+    @param {Class} type
+    @param {Array} clientIds
+
+    @return {DS.ManyArray}
+  */
   createManyArray: function(type, clientIds) {
     var array = DS.ManyArray.create({ type: type, content: clientIds, store: this });
 
@@ -1073,6 +1099,15 @@ DS.Store = Ember.Object.extend({
     return array;
   },
 
+  /**
+    @private
+
+    This method is invoked if the `filterFunction` property is
+    changed on a `DS.FilteredRecordArray`.
+
+    It essentially re-runs the filter from scratch. This same
+    method is invoked when the filter is created in th first place.
+  */
   updateRecordArrayFilter: function(array, type, filter) {
     var typeMap = this.typeMapFor(type),
         cidToHash = this.clientIdToHash,
@@ -1099,6 +1134,20 @@ DS.Store = Ember.Object.extend({
     }
   },
 
+  /**
+    @private
+
+    This method is invoked whenever data is loaded into the store
+    by the adapter or updated by the adapter, or when an attribute
+    changes on a record.
+
+    It updates all filters that a record belongs to.
+
+    To avoid thrashing, it only runs once per run loop per record.
+
+    @param {Class} type
+    @param {Number|String} clientId
+  */
   updateRecordArrays: function(type, clientId) {
     var recordArrays = this.typeMapFor(type).recordArrays,
         filter;
@@ -1121,6 +1170,16 @@ DS.Store = Ember.Object.extend({
     }
   },
 
+  /**
+    @private
+
+    Update an individual filter.
+
+    @param {DS.FilteredRecordArray} array
+    @param {Function} filter
+    @param {Class} type
+    @param {Number|String} clientId
+  */
   updateRecordArray: function(array, filter, type, clientId) {
     var shouldBeInArray, record;
 
@@ -1145,6 +1204,14 @@ DS.Store = Ember.Object.extend({
     }
   },
 
+  /**
+    @private
+
+    When a record is deleted, it is removed from all its
+    record arrays.
+
+    @param {DS.Model} record
+  */
   removeFromRecordArrays: function(record) {
     var clientId = get(record, 'clientId');
     var recordArrays = this.recordArraysForClientId(clientId);
@@ -1159,6 +1226,12 @@ DS.Store = Ember.Object.extend({
   // . INDEXING .
   // ............
 
+  /**
+    @private
+
+    Return a list of all `DS.RecordArray`s a clientId is
+    part of.
+  */
   recordArraysForClientId: function(clientId) {
     var recordArrays = get(this, 'recordArraysByClientId');
     var ret = recordArrays[clientId];
