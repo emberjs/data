@@ -219,9 +219,6 @@ DS.Transaction = Ember.Object.extend({
     current transaction should not be used again.
   */
   rollback: function() {
-    var store = get(this, 'store'),
-        dirty;
-
     // Loop through all of the records in each of the dirty states
     // and initiate a rollback on them. As a side effect of telling
     // the record to roll back, it should also move itself out of

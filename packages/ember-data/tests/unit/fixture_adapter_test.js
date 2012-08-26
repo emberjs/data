@@ -101,7 +101,7 @@ test("should create record asynchronously when it is committed", function() {
 test("should update record asynchronously when it is committed", function() {
   stop();
 
-  var paul = store.findByClientId(Person, store.load(Person, 1, {first_name: 'Paul', last_name: 'Chavard', height: 70}).clientId);
+  var paul = store.findByClientId(Person, store.load(Person, 1, {firstName: 'Paul', lastName: 'Chavard', height: 70}).clientId);
 
   paul.set('height', 80);
 
@@ -124,7 +124,7 @@ test("should update record asynchronously when it is committed", function() {
 test("should delete record asynchronously when it is committed", function() {
   stop();
 
-  var paul = store.findByClientId(Person, store.load(Person, 1, {first_name: 'Paul', last_name: 'Chavard', height: 70}).clientId);
+  var paul = store.findByClientId(Person, store.load(Person, 1, { firstName: 'Paul', lastName: 'Chavard', height: 70}).clientId);
 
   paul.deleteRecord();
 

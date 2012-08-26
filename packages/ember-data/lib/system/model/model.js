@@ -94,6 +94,18 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     if (transaction) { fn(transaction); }
   },
 
+  loadingData: function() {
+    this.send('loadingData');
+  },
+
+  loadedData: function() {
+    this.send('loadedData');
+  },
+
+  didChangeData: function() {
+    this.send('didChangeData');
+  },
+
   setProperty: function(key, value) {
     this.send('setProperty', { key: key, value: value });
   },
@@ -377,6 +389,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.removeInFlightDirtyFactor('@created');
 
     this.updateRecordArraysLater();
+  },
+
+  adapterDidInvalidate: function(errors) {
+    this.send('becameInvalid', errors);
   },
 
   /**

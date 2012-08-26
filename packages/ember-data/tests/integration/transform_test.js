@@ -38,6 +38,6 @@ test("transformed values should be materialized on the record", function() {
   var person = store.find(Person, 1);
   equal(person.get('name'), 'fromJSON', "value of attribute on the record should be transformed");
 
-  var json = store.toJSON(person);
+  var json = adapter.toJSON(person);
   equal(json.name, "toJSON", "value of attribute in the JSON hash should be transformed");
 });

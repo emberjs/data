@@ -23,7 +23,7 @@ test("a record array is backed by records", function() {
   var store = DS.Store.create();
   store.loadMany(Person, [1,2,3], array);
 
-  var recordArray = store.find(Person, [1,2,3]);
+  var recordArray = store.findMany(Person, [1,2,3]);
 
   for (var i=0, l=get(array, 'length'); i<l; i++) {
     deepEqual(recordArray.objectAt(i).getProperties('id', 'name'), array[i], "a record array materializes objects on demand");

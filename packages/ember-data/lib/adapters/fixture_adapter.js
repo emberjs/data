@@ -27,7 +27,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
     Implement this method in order to provide provide json for CRUD methods
   */
   mockJSON: function(type, record) {
-    return record.toJSON({associations: true});
+    return this.toJSON(record, { includeId: true });
   },
 
   /*
