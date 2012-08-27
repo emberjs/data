@@ -101,7 +101,7 @@ DS.Store = Ember.Object.extend({
     adapter, while rolling back a transaction reverses all
     changes made to records added to the transaction.
 
-    Atore has an implicit (default) transaction, which tracks changes
+    A store has an implicit (default) transaction, which tracks changes
     made to records not explicitly added to a transaction.
 
     @see {DS.Transaction}
