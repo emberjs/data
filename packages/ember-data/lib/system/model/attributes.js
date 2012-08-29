@@ -117,6 +117,12 @@ DS.attr.transforms = {
       var type = typeof serialized;
 
       if (type === "string" || type === "number") {
+        // this is a fix for Safari 5.1.5 on Mac which does not accept timestamps as yyyy-mm-dd
+        var dateRegex = /^\d{4}-\d{2}-\d{2}$/;
+        if (serialized.search(dateRegex) !== -1){
+          serialized = serialized + "T00:00:00Z";
+        }
+
         return new Date(serialized);
       } else if (serialized === null || serialized === undefined) {
         // if the value is not present in the data,
