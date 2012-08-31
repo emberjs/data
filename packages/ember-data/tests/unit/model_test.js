@@ -8,7 +8,8 @@ module("DS.Model", {
 
     Person = DS.Model.extend({
       name: DS.attr('string'),
-      isDrugAddict: DS.attr('boolean')
+      isDrugAddict: DS.attr('boolean'),
+      alternateNameBinding: 'name'
     });
   },
 
