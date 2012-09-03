@@ -325,6 +325,42 @@ Post.reopen({
   comments: DS.hasMany(Comment)
 });
 
+test("Whan a transaction is commited, it will dispatch didCommit event", function() {
+  expect(3);
+
+  var store = DS.Store.create({
+    adapter: DS.Adapter.create({
+      updateRecord: function(store, type, record) {
+        ok(record, 'did commit');
+        store.didUpdateRecord(record);
+      }
+    })
+  });
+
+  store.load(Person, { id: 1, name: "Scumbag Tom" });
+  store.load(Post, { id: 1, title: "Hello world" });
+
+  var person = store.find(Person, 1),
+      post = store.find(Post, 1);
+
+  var count = 0;
+
+  var transaction = store.transaction();
+  transaction.add(person);
+  transaction.add(post);
+
+  transaction.on('didCommit', function() {
+    count++;
+  });
+
+  person.set('name', 'Scumbag Paul');
+  post.set('title', 'Hello world!');
+
+  transaction.commit();
+
+  equal(count, 1, "records were commited");
+});
+
 var store, adapter;
 module("DS.Transaction - relationships", {
   setup: function() {
