@@ -26,6 +26,9 @@ DS.RecordArray = Ember.ArrayProxy.extend({
   // The store that created this record array.
   store: null,
 
+  // Has the recordArray been loaded via findAll.
+  didFindAllRecords: false,
+
   objectAtContent: function(index) {
     var content = get(this, 'content'),
         clientId = content.objectAt(index),

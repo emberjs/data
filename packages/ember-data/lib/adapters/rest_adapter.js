@@ -184,6 +184,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       success: function(json) {
         this.sideload(store, type, json, plural);
         store.loadMany(type, json[plural]);
+        store.typeMapFor(type).findAllCache.set('didFindAllRecords', true);
       }
     });
   },
