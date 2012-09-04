@@ -328,6 +328,19 @@ test("finding all people makes a GET to /people", function() {
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
+test("finding all sets the recordArray's didFindAllRecords flag", function() {
+  people = store.find(Person);
+
+  equal(false, people.get('didFindAllRecords'), "didFindAllRecords is initially false");
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+
+  ajaxHash.success({ people: [{ id: 1, name: "Yehuda Katz" }] });
+
+  equal(true, people.get('didFindAllRecords'), "The RecordArray was informed of the successful request");
+});
+
 test("finding all can sideload data", function() {
   var groups = store.find(Group);
 
