@@ -91,6 +91,7 @@ DS.Store = Ember.Object.extend({
     this.clientIdToHash = {};
     this.recordArraysByClientId = {};
     this.relationshipChanges = {};
+    this.sinceTokensByType = {};
 
     // Internally, we maintain a map of all unloaded IDs requested by
     // a ManyArray. As the adapter loads hashes into the store, the
@@ -447,8 +448,8 @@ DS.Store = Ember.Object.extend({
 
     // let the adapter set the data, possibly async
     var adapter = get(this, '_adapter');
-    if (adapter && adapter.find) { adapter.find(this, type, id); }
-    else { throw fmt("Adapter is either null or does not implement `find` method", this); }
+    if (adapter && adapter.find) { adapter.find(this, type, id, record); }
+    else { throw "Adapter is either null or does not implement `find` method"; }
 
     return record;
   },
@@ -561,7 +562,7 @@ DS.Store = Ember.Object.extend({
 
     var adapter = get(this, '_adapter');
     if (adapter && adapter.findMany) { adapter.findMany(this, type, neededIds); }
-    else { throw fmt("Adapter is either null or does not implement `findMany` method", this); }
+    else { throw "Adapter is either null or does not implement `findMany` method"; }
   },
 
   /**
@@ -647,45 +648,79 @@ DS.Store = Ember.Object.extend({
 
     @param {Class} type
     @param {Object} query an opaque query to be used by the adapter
+    @return {DS.AdapterPopulatedRecordArray}
   */
   findQuery: function(type, query) {
-    var array = DS.AdapterPopulatedRecordArray.create({ type: type, content: Ember.A([]), store: this });
+    var array = DS.AdapterPopulatedRecordArray.create({ type: type, query: query, content: Ember.A([]), store: this });
     var adapter = get(this, '_adapter');
     if (adapter && adapter.findQuery) { adapter.findQuery(this, type, query, array); }
-    else { throw fmt("Adapter is either null or does not implement `findQuery` method", this); }
+    else { throw "Adapter is either null or does not implement `findQuery` method"; }
     return array;
   },
 
   /**
     @private
 
+    This method returns an array of all records adapter can find.
+    It triggers the adapter's `findAll` method to give it an opportunity to populate
+    the array with records of that type.
+
+    @param {Class} type
+    @return {DS.AdapterPopulatedRecordArray}
+  */
+  findAll: function(type) {
+    var array = this.all(type);
+    this.fetchAll(type, array);
+    return array;
+  },
+
+  /**
+    @private
+  */
+  fetchAll: function(type, array) {
+    var sinceToken = this.sinceTokensByType[type],
+        adapter = get(this, '_adapter');
+
+    set(array, 'isUpdating', true);
+
+    if (adapter && adapter.findAll) { adapter.findAll(this, type, sinceToken); }
+    else { throw "Adapter is either null or does not implement `findAll` method"; }
+  },
+
+  /**
+  */
+  sinceForType: function(type, sinceToken) {
+    this.sinceTokensByType[type] = sinceToken;
+  },
+
+  /**
+  */
+  didUpdateAll: function(type) {
+    var findAllCache = this.typeMapFor(type).findAllCache;
+    set(findAllCache, 'isUpdating', false);
+  },
+
+  /**
     This method returns a filtered array that contains all of the known records
     for a given type.
 
-    It also triggers the adapter's `findAll` method to give it an opportunity
-    to populate records of that type.
-
-    Note that because it's just a filter, the array may have items in it before
-    the adapter's `findAll` method provides data. It will also have any locally
+    Note that because it's just a filter, it will have any locally
     created records of the type.
 
-    Also note that multiple calls to `findAll` for a given type will always
+    Also note that multiple calls to `all` for a given type will always
     return the same RecordArray.
 
     @param {Class} type
     @return {DS.RecordArray}
   */
-  findAll: function(type) {
+  all: function(type) {
     var typeMap = this.typeMapFor(type),
         findAllCache = typeMap.findAllCache;
 
     if (findAllCache) { return findAllCache; }
 
-    var array = DS.RecordArray.create({ type: type, content: Ember.A([]), store: this });
+    var array = DS.RecordArray.create({ type: type, content: Ember.A([]), store: this, isLoaded: true });
     this.registerRecordArray(array, type);
-
-    var adapter = get(this, '_adapter');
-    if (adapter && adapter.findAll) { adapter.findAll(this, type); }
 
     typeMap.findAllCache = array;
     return array;
@@ -1457,6 +1492,13 @@ DS.Store = Ember.Object.extend({
 
     record.loadingData();
     return record;
+  },
+
+  materializeRecordById: function(type, id) {
+    var clientId = this.typeMapFor(type).idToCid[id];
+    if (clientId) {
+      return this.materializeRecord(type, clientId, id);
+    }
   },
 
   destroy: function() {
