@@ -20,6 +20,8 @@ DS.Serializer = Ember.Object.extend({
     };
 
     this.mappings = Ember.Map.create();
+
+    this.attributeNamesByKey = Ember.Map.create();
   },
 
   /**
@@ -86,6 +88,20 @@ DS.Serializer = Ember.Object.extend({
 
   primaryKey: function(type) {
     return "id";
+  },
+
+  attributeNameForKey: function(type, key) {
+    var attributeNamesByKey = this.attributeNamesByKey.get(type);
+
+    if (!attributeNamesByKey) {
+      attributeNamesByKey = {};
+      get(type, 'attributes').forEach(function(name) {
+        attributeNamesByKey[this._keyForAttributeName(type, name)] = name;
+      }, this);
+      this.attributeNamesByKey.set(type, attributeNamesByKey);
+    }
+
+    return attributeNamesByKey[key];
   },
 
   /**

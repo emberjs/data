@@ -20,6 +20,7 @@
 
 require("ember-data/core");
 require("ember-data/system/store");
+require("ember-data/system/errors");
 require("ember-data/system/record_arrays");
 require("ember-data/system/model");
 require("ember-data/system/associations");

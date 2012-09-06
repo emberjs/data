@@ -892,6 +892,17 @@ DS.Store = Ember.Object.extend({
   },
 
   /**
+    This method allows the adapter to specify that a record
+    could not be saved due to backend problem.
+
+    @param {DS.Model} record
+    @param {DS.AdapterError} error
+  */
+  recordDidError: function(record, error) {
+    record.adapterDidError(error);
+  },
+
+  /**
     This is a lower-level API than `didSaveRecord` that allows an
     adapter to acknowledge the persistence of a single attribute.
 
