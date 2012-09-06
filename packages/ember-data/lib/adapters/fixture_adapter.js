@@ -71,16 +71,6 @@ DS.FixtureAdapter = DS.Adapter.extend({
     }
   },
 
-  findAll: function(store, type) {
-    var fixtures = this.fixturesForType(type);
-
-    Ember.assert("Unable to find fixtures for model type "+type.toString(), !!fixtures);
-
-    this.simulateRemoteCall(function() {
-      store.loadMany(type, fixtures);
-    }, store, type);
-  },
-
   findQuery: function(store, type, query, array) {
     var fixtures = this.fixturesForType(type);
     

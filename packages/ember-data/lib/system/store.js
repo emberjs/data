@@ -472,7 +472,7 @@ DS.Store = Ember.Object.extend({
   },
 
   findQuery: function(type, query) {
-    var array = DS.AdapterPopulatedRecordArray.create({ type: type, content: Ember.A([]), store: this });
+    var array = DS.AdapterPopulatedRecordArray.create({ type: type, content: Ember.A([]), store: this, query: query });
     var adapter = get(this, '_adapter');
     if (adapter && adapter.findQuery) { adapter.findQuery(this, type, query, array); }
     else { throw fmt("Adapter is either null or does not implement `findQuery` method", this); }
@@ -480,19 +480,19 @@ DS.Store = Ember.Object.extend({
   },
 
   findAll: function(type) {
+    return this.findQuery(type, null);
+  },
 
+  all: function(type) {
     var typeMap = this.typeMapFor(type),
-        findAllCache = typeMap.findAllCache;
+        allLoadedCache = typeMap.allLoadedCache;
 
-    if (findAllCache) { return findAllCache; }
+    if (allLoadedCache) { return allLoadedCache; }
 
     var array = DS.RecordArray.create({ type: type, content: Ember.A([]), store: this });
     this.registerRecordArray(array, type);
 
-    var adapter = get(this, '_adapter');
-    if (adapter && adapter.findAll) { adapter.findAll(this, type); }
-
-    typeMap.findAllCache = array;
+    typeMap.allLoadedCache = array;
     return array;
   },
 
@@ -669,6 +669,14 @@ DS.Store = Ember.Object.extend({
     return array;
   },
 
+  /**
+    @private
+  
+    This function helps populate (or depopulate) a recordArray by going through
+    all known clientIds for the given type and testing them against the filter.
+    The decision to add or remove is handled by updateRecordArray(), but this
+    prepares the appropriate data needed for each check.
+  */
   updateRecordArrayFilter: function(array, type, filter) {
     var typeMap = this.typeMapFor(type),
         dataCache = typeMap.cidToHash,
@@ -723,7 +731,19 @@ DS.Store = Ember.Object.extend({
     }
   },
 
-  updateRecordArray: function(array, filter, type, clientId, dataProxy) {
+
+  /**
+    @private
+  
+    Test to see if record of given type with clientId should be included 
+    in a given recordArray, once the filter is applied to it's dataProxy.
+    
+    If it should be included, add the clientId to the recordArray, and the 
+    recordArray itself to the recordArrayForClientId map. Otherwise, we ensure
+    the recordArray is removed from the recordArrayForClientId, and that
+    the clientId is removed from the recordArray.
+  */
+  updateRecordArray: function(recordArray, filter, type, clientId, dataProxy) {
     var shouldBeInArray;
 
     if (!filter) {
@@ -732,16 +752,16 @@ DS.Store = Ember.Object.extend({
       shouldBeInArray = filter(dataProxy);
     }
 
-    var content = get(array, 'content');
+    var content = get(recordArray, 'content');
     var alreadyInArray = content.indexOf(clientId) !== -1;
 
-    var recordArrays = this.recordArraysForClientId(clientId);
+    var recordArraysForClientId = this.recordArraysForClientId(clientId);
 
     if (shouldBeInArray && !alreadyInArray) {
-      recordArrays.add(array);
+      recordArraysForClientId.add(recordArray);
       content.pushObject(clientId);
     } else if (!shouldBeInArray && alreadyInArray) {
-      recordArrays.remove(array);
+      recordArraysForClientId.remove(recordArray);
       content.removeObject(clientId);
     }
   },

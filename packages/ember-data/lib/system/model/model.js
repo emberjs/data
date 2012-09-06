@@ -297,8 +297,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
         if (cachedValue) {
           var key = association.options.key || get(this, 'namingConvention').keyToJSONKey(name),
               ids = data.get(key) || [];
-          
-          var clientIds;   
+
+          var clientIds;
           if(association.options.embedded) {
             clientIds = store.loadMany(association.type, ids).clientIds;
           } else {
@@ -306,7 +306,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
               return store.clientIdForId(association.type, id);
             });
           }
-          
+
           set(cachedValue, 'content', Ember.A(clientIds));
           cachedValue.fetch();
         }
@@ -342,6 +342,7 @@ var storeAlias = function(methodName) {
 
 DS.Model.reopenClass({
   isLoaded: storeAlias('recordIsLoaded'),
+  all: storeAlias('all'),
   find: storeAlias('find'),
   filter: storeAlias('filter'),
 
