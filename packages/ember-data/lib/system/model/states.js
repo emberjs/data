@@ -660,6 +660,16 @@ var states = {
           });
 
           manager.transitionTo('loaded.saved');
+        },
+
+        removeRecord: function(manager) {
+          var record = get(manager, 'record');
+
+          record.withTransaction(function(t) {
+            t.recordBecameClean('deleted', record);
+          });
+
+          manager.goToState('saved');
         }
       }),
 
@@ -707,7 +717,10 @@ var states = {
         invokeLifecycleCallbacks: function(manager) {
           var record = get(manager, 'record');
           record.trigger('didDelete', record);
-        }
+        },
+
+        // EVENTS
+        removeRecord: Ember.K
       })
     }),
 

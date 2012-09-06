@@ -3,7 +3,7 @@ require('ember-data/system/adapter');
 require('ember-data/serializers/rest_serializer');
 /*global jQuery*/
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach;
 
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
@@ -34,7 +34,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   didCreateRecord: function(store, type, record, json) {
     var root = this.rootForType(type);
 
-    this.sideload(store, type, json, root);
+    this.sideUpdates(store, type, json, root);
     store.didSaveRecord(record, json[root]);
   },
 
@@ -64,7 +64,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   didCreateRecords: function(store, type, records, json) {
     var root = this.pluralize(this.rootForType(type));
 
-    this.sideload(store, type, json, root);
+    this.sideUpdates(store, type, json, root);
     store.didSaveRecords(records, json[root]);
   },
 
@@ -87,7 +87,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   didUpdateRecord: function(store, type, record, json) {
     var root = this.rootForType(type);
 
-    this.sideload(store, type, json, root);
+    this.sideUpdates(store, type, json, root);
     store.didSaveRecord(record, json && json[root]);
   },
 
@@ -117,7 +117,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   didUpdateRecords: function(store, type, records, json) {
     var root = this.pluralize(this.rootForType(type));
 
-    this.sideload(store, type, json, root);
+    this.sideUpdates(store, type, json, root);
     store.didSaveRecords(records, json[root]);
   },
 
@@ -134,7 +134,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   didDeleteRecord: function(store, type, record, json) {
-    if (json) { this.sideload(store, type, json); }
+    if (json) { this.sideUpdates(store, type, json); }
     store.didSaveRecord(record);
   },
 
@@ -162,7 +162,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   didDeleteRecords: function(store, type, records, json) {
-    if (json) { this.sideload(store, type, json); }
+    if (json) { this.sideUpdates(store, type, json); }
     store.didSaveRecords(records);
   },
 
@@ -179,7 +179,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   didFindRecord: function(store, type, json) {
     var root = this.rootForType(type);
 
-    this.sideload(store, type, json, root);
+    this.sideUpdates(store, type, json, root);
     store.load(type, json[root]);
   },
 
@@ -198,7 +198,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.pluralize(this.rootForType(type)),
         since = this.extractSince(json);
 
-    this.sideload(store, type, json, root);
+    this.sideUpdates(store, type, json, root);
     store.loadMany(type, json[root]);
 
     // this registers the id with the store, so it will be passed
@@ -222,7 +222,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   didFindQuery: function(store, type, json, recordArray) {
     var root = this.pluralize(this.rootForType(type));
 
-    this.sideload(store, type, json, root);
+    this.sideUpdates(store, type, json, root);
     recordArray.load(json[root]);
   },
 
@@ -241,7 +241,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   didFindMany: function(store, type, json) {
     var root = this.pluralize(this.rootForType(type));
 
-    this.sideload(store, type, json, root);
+    this.sideUpdates(store, type, json, root);
     store.loadMany(type, json[root]);
   },
 
@@ -276,6 +276,43 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
 
     jQuery.ajax(hash);
+  },
+
+  sideUpdates: function(store, type, json, root) {
+    this.sideDelete(store, type, json, root);
+    this.sideload(store, type, json, root);
+  },
+
+  sideDelete: function(store, type, json, root) {
+    var mappings = get(this, 'mappings'),
+        deleteMapping = get(this, 'deleteMapping'),
+        deletedTypeIds,
+        deletedType,
+        deletedIds,
+        record;
+
+    if (json && json[deleteMapping]) {
+      var deleteRecordById = function(id) {
+        if (!store.recordIsLoaded(deletedType, id)) { return; }
+
+        record = store.find(deletedType, id);
+        record.send('deleteRecord');
+        record.send('removeRecord');
+      };
+
+      deletedTypeIds = json[deleteMapping];
+      delete json[deleteMapping];
+
+      for (var prop in deletedTypeIds) {
+        Ember.assert("Your server returned a hash with the key " + prop + " but you have no mappings", !!mappings);
+
+        deletedType = get(mappings, prop);
+
+        Ember.assert("Your server returned a hash with the key " + prop + " but you have no mapping for it", !!deletedType);
+
+        forEach(deletedTypeIds[prop], deleteRecordById);
+      }
+    }
   },
 
   sideload: function(store, type, json, root) {
