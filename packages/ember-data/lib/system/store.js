@@ -573,8 +573,8 @@ DS.Store = Ember.Object.extend({
 
   didDeleteRecords: function(array) {
     array.forEach(function(record) {
-      record.send('didCommit');
-    });
+      this.didDeleteRecord(record);
+    }, this);
   },
 
   didDeleteRecord: function(record) {
