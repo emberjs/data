@@ -424,6 +424,7 @@ var storeAlias = function(methodName) {
 DS.Model.reopenClass({
   isLoaded: storeAlias('recordIsLoaded'),
   find: storeAlias('find'),
+  findFixtures: storeAlias('findFixtures'),
   filter: storeAlias('filter'),
 
   _create: DS.Model.create,
