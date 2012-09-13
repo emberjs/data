@@ -177,7 +177,7 @@ DS.Store = Ember.Object.extend({
     @property {DS.Adapter|String}
   */
   adapter: 'DS.Adapter',
-
+  fixtureAdapter: 'DS.FixtureAdapter',
   /**
     @private
 
@@ -226,6 +226,18 @@ DS.Store = Ember.Object.extend({
     return adapter;
   }).property('adapter').cacheable(),
 
+  _fixtureAdapter: Ember.computed(function() {
+    var fixtureAdapter = get(this, 'fixtureAdapter');
+    if (typeof fixtureAdapter === 'string') {
+      fixtureAdapter = get(this, fixtureAdapter, false) || get(window, fixtureAdapter);
+    }
+
+    if (DS.Adapter.detect(fixtureAdapter)) {
+      fixtureAdapter = fixtureAdapter.create();
+    }
+
+    return fixtureAdapter;
+  }).property('fixtureAdapter').cacheable(),
   /**
     @private
 
@@ -669,6 +681,21 @@ DS.Store = Ember.Object.extend({
     return array;
   },
 
+  findFixtures: function(type) {
+    var typeMap = this.typeMapFor(type),
+        findAllCache = typeMap.findAllCache;
+
+    if (findAllCache) { return findAllCache; }
+
+    var array = DS.RecordArray.create({ type: type, content: Ember.A([]), store: this });
+    this.registerRecordArray(array, type);
+
+    var fixtureAdapter = get(this, '_fixtureAdapter');
+    if (fixtureAdapter && fixtureAdapter.findAll) { fixtureAdapter.findAll(this, type); }
+
+    typeMap.findAllCache = array;
+    return array;
+  },
   /**
     Takes a type and filter function, and returns a live RecordArray that
     remains up to date as new records are loaded into the store or created
