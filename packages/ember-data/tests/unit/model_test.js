@@ -35,6 +35,28 @@ test("setting a property on a record that has not changed does not cause it to b
   equal(person.get('isDirty'), false, "record does not become dirty after setting property to old value");
 });
 
+test("does not set a readOnly Property", function() {
+  Person.reopen({
+    foobar: DS.attr('string', {readOnly: true})
+  });
+
+  var record = store.createRecord(Person);
+  set(record, 'foobar', 'bar');
+
+  equal(get(record, 'foobar'), null, "readOnly property was not set on the record");
+});
+
+test("sets readOnly properties using store.load", function() {
+  Person.reopen({
+    foobar: DS.attr('string', {readOnly: true})
+  });
+
+  var record = store.load(Person, { id: 1, foobar: 'bar'});
+  set(record, 'foobar', 'bar');
+
+  equal(get(record, 'foobar'), 'bar', "readOnly property was loaded on the record");
+});
+
 test("a record reports its unique id via the `id` property", function() {
   store.load(Person, { id: 1 });
 

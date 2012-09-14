@@ -66,6 +66,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     The default implementation gets the current value of each
     attribute from the `data`, and uses a `defaultValue` if
     specified in the `DS.attr` definition.
+    Attributes can be skipped by setting readOnly to true in
+    the 'DS.attr' definition.
 
     @param {Object} json the JSON hash being build
     @param {Ember.Map} attributes a Map of attributes
@@ -73,6 +75,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   */
   addAttributesToJSON: function(json, attributes, data) {
     attributes.forEach(function(name, meta) {
+      if(meta.options.readOnly){ return; }
+
       var key = meta.key(this.constructor),
           value = get(data, key);
 
