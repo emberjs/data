@@ -234,7 +234,7 @@ module("DS.Model - Dirty Factors", {
 
     Model = DS.Model.extend({
       send: function() {
-        events.push([this, arguments]);
+        events.push([this, Array.prototype.slice.call(arguments)]);
       }
     });
 
@@ -265,7 +265,7 @@ test("Calling addDirtyFactor() with an attribute should cause the record to beco
 
   equal(events.length, 1, "one event was sent");
   strictEqual(events[0][0], record, "send should be called with the record");
-  deepEqual(events[0][1], { 0: 'becameDirty' }, "becameDirty event was sent");
+  deepEqual(events[0][1], ['becameDirty'], "becameDirty event was sent");
 
   ok(record.isDirtyBecause('attribute'), "record is dirty because an attribute changed");
 
@@ -286,7 +286,7 @@ test("Calling addDirtyFactor() with an attribute should cause the record to beco
   equal(events.length, 2, "two events were sent");
 
   strictEqual(events[1][0], record, "send should be called with the record");
-  deepEqual(events[1][1], { 0: 'becameClean' }, "becameClean event was sent");
+  deepEqual(events[1][1], ['becameClean'], "becameClean event was sent");
 
   ok(!record.isDirtyBecause('attribute'), "record is no longer dirty because an attribute changed");
 
@@ -304,7 +304,7 @@ test("Calling addDirtyFactor() with an belongsTo should cause the record to beco
 
   equal(events.length, 1, "one event was sent");
   strictEqual(events[0][0], record, "send should be called with the record");
-  deepEqual(events[0][1], { 0: 'becameDirty' }, "becameDirty event was sent");
+  deepEqual(events[0][1], ['becameDirty'], "becameDirty event was sent");
 
   ok(record.isDirtyBecause('belongsTo'), "record is dirty because belongsTo changed");
 
@@ -325,7 +325,7 @@ test("Calling addDirtyFactor() with an belongsTo should cause the record to beco
   equal(events.length, 2, "two events were sent");
 
   strictEqual(events[1][0], record, "send should be called with the record");
-  deepEqual(events[1][1], { 0: 'becameClean' }, "becameClean event was sent");
+  deepEqual(events[1][1], ['becameClean'], "becameClean event was sent");
 
   ok(!record.isDirtyBecause('belongsTo'), "record is no longer dirty because a belongsTo changed");
 
@@ -343,7 +343,7 @@ test("Calling addDirtyFactor() with a hasMany should cause the record to become 
 
   equal(events.length, 1, "one event was sent");
   strictEqual(events[0][0], record, "send should be called with the record");
-  deepEqual(events[0][1], { 0: 'becameDirty' }, "becameDirty event was sent");
+  deepEqual(events[0][1], ['becameDirty'], "becameDirty event was sent");
 
   ok(record.isDirtyBecause('hasMany'), "record is dirty because hasMany changed");
 
@@ -364,7 +364,7 @@ test("Calling addDirtyFactor() with a hasMany should cause the record to become 
   equal(events.length, 2, "two events were sent");
 
   strictEqual(events[1][0], record, "send should be called with the record");
-  deepEqual(events[1][1], { 0: 'becameClean' }, "becameClean event was sent");
+  deepEqual(events[1][1], ['becameClean'], "becameClean event was sent");
 
   ok(!record.isDirtyBecause('hasMany'), "record is no longer dirty because a hasMany changed");
 
