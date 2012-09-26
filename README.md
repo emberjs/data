@@ -142,22 +142,11 @@ DS.Model.extend({
 Models can be associated with other models. Ember Data includes several
 built-in types to help you define how your models relate to each other.
 
-#### Has One
-Previously, the `DS.hasOne` and `DS.belongsTo` associations were aliased
-to one another. Now, `DS.belongsTo` remains but `DS.hasOne` has been
-removed. We are planning on having different semantics for `DS.hasOne`
-at a later date.
-
-Primarily, the semantic difference between the two are related to which
-record should be marked as dirty when the relationship changes. To
-ensure that the semantics of your application match the framework,
-please ensure that you are using `DS.belongsTo` at this time.
-
 #### Belongs To
 
-Similar to `hasOne`, `belongsTo` sets up a one-to-one relationship from one model
-to another. Let's revise the example above so that, in addition to being able
-to find an author's profile, we can find the author associated with a profile:
+`belongsTo` sets up a one-to-one relationship from one model to
+another. In the following example, in addition to being able to find an
+author's profile, we can also find the author associated with a profile:
 
 ```javascript
 App.Profile = DS.Model.extend({
@@ -167,18 +156,25 @@ App.Profile = DS.Model.extend({
 });
 
 App.Author = DS.Model.extend({
-  profile: DS.hasOne('App.Profile'),
+  profile: DS.belongsTo('App.Profile'),
   name: DS.attr('string')
 });
 ```
 
-So, when should you use `hasOne` and when should you use `belongsTo`? The difference
-is where the information about the relationship is stored at the persistence layer.
+For now, please make sure you are using `belongsTo` on both ends of
+one-to-one relationships, and not `hasOne`.
 
-The record with the `belongsTo` relationship will save changes to the association
-on itself. Conversely, the record with the `hasOne` relationship asks the persistence
-layer what record belongs to it. If the relationship changes, only the record with
-the `belongsTo` relationship must be saved.
+#### Has One
+
+Previously, the `DS.hasOne` and `DS.belongsTo` associations were aliased
+to one another. Now, `DS.belongsTo` remains but `DS.hasOne` has been
+removed. We are planning on having different semantics for `DS.hasOne`
+at a later date.
+
+Primarily, the semantic difference between the two are related to which
+record should be marked as dirty when the relationship changes. To
+ensure that the semantics of your application match the framework,
+please ensure that you are using `DS.belongsTo` at this time.
 
 #### Has Many
 
