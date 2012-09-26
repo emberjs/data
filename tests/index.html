@@ -34,7 +34,7 @@
   <script>
     // Load custom version of jQuery if possible
     var jQueryMatch = location.search.match(/jquery=([^&]+)/),
-        jQueryVersion = jQueryMatch ? jQueryMatch[1] : "1.8.0",
+        jQueryVersion = jQueryMatch ? jQueryMatch[1] : "1.8.2",
         url = 'http://ajax.googleapis.com/ajax/libs/jquery/'+jQueryVersion+'/jquery.js';
 
     if (jQueryVersion !== 'none') {
@@ -48,7 +48,7 @@
     if (jQueryVersion !== 'none' && !window.jQuery) {
       if (console && console.warn) { console.warn("Unable to load jQuery "+jQueryVersion+". Using default."); }
 
-      loadScript('jquery-1.7.1.js');
+      loadScript('jquery-1.8.2.js');
     }
   </script>
 
