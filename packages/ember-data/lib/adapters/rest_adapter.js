@@ -187,6 +187,8 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   findMany: function(store, type, ids) {
+    ids = this.get('serializer').serializeIds(ids);
+
     var root = this.rootForType(type), plural = this.pluralize(root);
 
     this.ajax(this.buildURL(root), "GET", {

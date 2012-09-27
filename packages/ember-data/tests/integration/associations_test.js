@@ -57,7 +57,7 @@ test("an association has an isLoaded flag that indicates whether the ManyArray h
       equal(array.get('isLoaded'), false, "Before loading, the array isn't isLoaded");
       store.load(type, { id: id });
 
-      if (id === 3) {
+      if (id === '3') {
         equal(array.get('isLoaded'), true, "After loading all records, the array isLoaded");
       } else {
         equal(array.get('isLoaded'), false, "After loading some records, the array isn't isLoaded");

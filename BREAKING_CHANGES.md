@@ -35,6 +35,37 @@ App.Store = DS.Store.create({
 This will remove the exception about changes before revision 2. You will
 receive another warning if there is another change.
 
+## Revision 6
+
+### String-normalized IDs
+
+Because a record's ID may be serialized and deserialized into the URL
+when using Ember.Router, it is common that the type of the ID is lost
+during this process. For example, if a Post has an ID of `42`,
+serializing it to the URL `/post/42` causes the ID to be coerced into a
+string. Once this happens, there is later ambiguity about whether the
+true ID is the number `42` or the string `"42"`.
+
+To resolve this ambiguity, the store now automatically coerces all IDs
+to strings. If your existing code uses numbers for IDs, they should
+continue to work with minimal change to your application.
+
+Do note that if you ask a record for its `id`, it will always report the
+string representation:
+
+```javascript
+var post = App.Post.find(1);
+post.get('id'); // "1"
+```
+
+This may also have repercussions to your adapter. DS.Serializer now has
+a `serializeId` method that can be overridden to ensure that IDs are
+correctly formatted before being sent to the persistence layer. If you
+are using a custom adapter, make sure that methods like `findMany` are
+using the serializer's `serializeId` or `serializeIds` methods, if they
+include IDs in the data payload and your backend expects them to be in
+non-string format.
+
 ## Revision 5
 
 This is an extremely large refactor that changes many of the underlying
