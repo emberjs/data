@@ -55,7 +55,7 @@ test("hasMany lazily loads associations as needed", function() {
   var store = DS.Store.create({
     adapter: DS.Adapter.create({
       find: function(store, type, id) {
-        if (type === Tag && id === 12) {
+        if (type === Tag && id === '12') {
           store.load(type, 12, {
             id: 12,
             name: "oohlala"
@@ -213,7 +213,7 @@ test("associations work when the data hash has not been loaded", function() {
     adapter: DS.Adapter.create({
       findMany: function(store, type, ids) {
         equal(type, Tag, "type should be Tag");
-        deepEqual(ids, [5, 2], "ids should be 5 and 2");
+        deepEqual(ids, ['5', '2'], "ids should be 5 and 2");
 
         stop();
 

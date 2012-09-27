@@ -49,7 +49,7 @@ test("When multiple records are requested, the adapter's `findMany` method shoul
   expect(1);
 
   adapter.findMany = function(store, type, ids) {
-    deepEqual(ids, [1,2,3], "ids are passed");
+    deepEqual(ids, ['1','2','3'], "ids are passed");
   };
 
   store.findMany(Person, [1,2,3]);

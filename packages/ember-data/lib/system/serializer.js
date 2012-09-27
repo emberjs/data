@@ -245,7 +245,8 @@ DS.Serializer = Ember.Object.extend({
 
   addId: function(hash, type, id) {
     var primaryKey = this._primaryKey(type);
-    hash[primaryKey] = id;
+
+    hash[primaryKey] = this.serializeId(id);
   },
 
   addRelationships: function(hash, record) {
@@ -262,6 +263,23 @@ DS.Serializer = Ember.Object.extend({
 
   addBelongsTo: Ember.K,
   addHasMany: Ember.K,
+
+  /**
+   Allows IDs to be normalized before being sent back to the
+   persistence layer. Because the store coerces all IDs to strings
+   for consistency, this is the opportunity for the serializer to,
+   for example, convert numerical IDs back into number form.
+  */
+  serializeId: function(id) {
+    if (isNaN(id)) { return id; }
+    return +id;
+  },
+
+  serializeIds: function(ids) {
+    return Ember.EnumerableUtils.map(ids, function(id) {
+      return this.serializeId(id);
+    }, this);
+  },
 
   /**
     DESERIALIZATION
@@ -303,7 +321,12 @@ DS.Serializer = Ember.Object.extend({
 
   extractId: function(type, hash) {
     var primaryKey = this._primaryKey(type);
-    return hash[primaryKey];
+
+    // Ensure that we coerce IDs to strings so that record
+    // IDs remain consistent between application runs; especially
+    // if the ID is serialized and later deserialized from the URL,
+    // when type information will have been lost.
+    return hash[primaryKey]+'';
   },
 
   materializeRelationships: function(record, hash) {
@@ -367,6 +390,6 @@ DS.Serializer = Ember.Object.extend({
     this.mappings = reifiedMappings;
 
     this._didReifyMappings = true;
-  },
+  }
 });
 

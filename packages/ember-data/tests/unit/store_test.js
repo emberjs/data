@@ -178,6 +178,29 @@ test("DS.Store has a load method to load in a new record", function() {
   equal(adapter.toJSON(object).name, "Scumbag Dale", "the data hash was inserted");
 });
 
+test("IDs provided as numbers are coerced to strings", function() {
+  var adapter = TestAdapter.create({
+    find: function(store, type, id) {
+      equal(typeof id, 'string', "id has been normalized to a string");
+      store.load(type, id, { id: 1, name: "Scumbag Sylvain" });
+    }
+  });
+
+  var currentStore = DS.Store.create({ adapter: adapter });
+  var currentType = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var object = currentStore.find(currentType, 1);
+  equal(typeof object.get('id'), 'string', "id was coerced to a string");
+
+  currentStore.load(currentType, { id: 2, name: "Scumbag Sam Saffron" });
+  object = currentStore.find(currentType, 2);
+  ok(object, "object was found");
+  equal(typeof object.get('id'), 'string', "id is a string despite being supplied and searched for as a number");
+});
+
+
 var array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
 
 test("DS.Store has a load method to load in an Array of records", function() {
@@ -247,7 +270,7 @@ test("DS.Store passes only needed guids to findMany", function() {
 
   var adapter = TestAdapter.create({
     findMany: function(store, type, ids) {
-      deepEqual(ids, [4,5,6], "only needed ids are passed");
+      deepEqual(ids, ['4','5','6'], "only needed ids are passed");
     }
   });
 

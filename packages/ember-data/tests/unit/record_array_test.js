@@ -7,7 +7,7 @@ var array;
 
 module("DS.Store", {
   setup: function() {
-    array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
+    array = [{ id: '1', name: "Scumbag Dale" }, { id: '2', name: "Scumbag Katz" }, { id: '3', name: "Scumbag Bryn" }];
     Person = DS.Model.extend({
       name: DS.attr('string')
     });
