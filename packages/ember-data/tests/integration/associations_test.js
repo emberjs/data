@@ -106,6 +106,46 @@ test("When a hasMany association is accessed, the adapter's findMany method shou
   store.load(Person, { id: 1, comments: [ 1 ] });
 });
 
+test("When adding a child to a parent, then commit, the parent should come back to a clean state", function() {
+  expect(1);
+
+  adapter.shouldCommit = function(record) {
+    //behaves like DS.RESTAdapter, a parent record should not be commited when adding a child
+    if (record.isCommittingBecause('attribute') || record.isCommittingBecause('belongsTo')) {
+      return true;
+    }
+  };
+
+  adapter.createRecord = function(store, type, record) {
+    store.didSaveRecord(record, this.toJSON(record));
+  };
+
+  adapter.updateRecord = function(store, type, record) {
+    store.didSaveRecord(record, this.toJSON(record));
+  };
+
+  Person = DS.Model.extend({
+    updatedAt: DS.attr('string'),
+    name: DS.attr('string')
+  });
+
+  Comment = DS.Model.extend({
+    person: DS.belongsTo(Person)
+  });
+
+  Person.reopen({
+    comments: DS.hasMany(Comment)
+  });
+
+  store.load(Person, { id: 1});
+  var person = store.find(Person, 1);
+
+  person.get('comments').createRecord(Comment);
+  store.commit();
+  equal(person.get('stateManager.currentState.path'), "rootState.loaded.saved");
+  
+});
+
 //test("When a record with a hasMany association is deleted, its associated record is materialized and its belongsTo is changed", function() {
   //expect(3);
 
