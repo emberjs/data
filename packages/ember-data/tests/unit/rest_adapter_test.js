@@ -1,6 +1,6 @@
 var get = Ember.get, set = Ember.set;
 
-var adapter, store, ajaxUrl, ajaxType, ajaxHash;
+var adapter, store, ajaxUrl, ajaxType, ajaxHash, ajaxContentType;
 var Person, person, people;
 var Role, role, roles;
 var Group, group;
@@ -10,6 +10,7 @@ module("the REST adapter", {
     ajaxUrl = undefined;
     ajaxType = undefined;
     ajaxHash = undefined;
+    ajaxContentType = "application/x-www-form-urlencoded; charset=UTF-8";
 
     adapter = DS.RESTAdapter.create({
       ajax: function(url, type, hash) {
@@ -18,6 +19,11 @@ module("the REST adapter", {
         ajaxUrl = url;
         ajaxType = type;
         ajaxHash = hash;
+        if(ajaxType === 'PUT' || ajaxType === 'POST') {
+          ajaxContentType = "application/json; charset=utf-8";
+        } else {
+          ajaxContentType = "application/x-www-form-urlencoded; charset=UTF-8";
+        }
 
         if (success) {
           hash.success = function(json) {
@@ -85,6 +91,10 @@ var expectType = function(type) {
   equal(type, ajaxType, "the HTTP method is " + type);
 };
 
+var expectContentType = function(contentType) {
+  equal(contentType, ajaxContentType, "the Content-type is " + contentType);
+};
+
 var expectData = function(hash) {
   deepEqual(hash, ajaxHash.data, "the hash was passed along");
 };
@@ -113,6 +123,7 @@ test("creating a person makes a POST to /people, with the data hash", function()
 
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
+  expectContentType("application/json; charset=utf-8");
   expectData({ person: { name: "Tom Dale" } });
 
   ajaxHash.success({ person: { id: 1, name: "Tom Dale" } });
@@ -134,6 +145,7 @@ test("singular creations can sideload data", function() {
 
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
+  expectContentType("application/json; charset=utf-8");
   expectData({ person: { name: "Tom Dale" } });
 
   ajaxHash.success({
@@ -166,6 +178,7 @@ test("updating a person makes a PUT to /people/:id with the data hash", function
 
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("PUT");
+  expectContentType("application/json; charset=utf-8");
 
   ajaxHash.success({ person: { id: 1, name: "Brohuda Brokatz" } });
   expectState('saving', false);
@@ -191,6 +204,7 @@ test("updates are not required to return data", function() {
 
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("PUT");
+  expectContentType("application/json; charset=utf-8");
 
   ajaxHash.success();
   expectState('saving', false);
@@ -220,6 +234,7 @@ test("singular updates can sideload data", function() {
 
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("PUT");
+  expectContentType("application/json; charset=utf-8");
 
   ajaxHash.success({
     person: { id: 1, name: "Brohuda Brokatz" },
@@ -266,6 +281,7 @@ test("deleting a person makes a DELETE to /people/:id", function() {
 
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("DELETE");
+  expectContentType("application/x-www-form-urlencoded; charset=UTF-8");
 
   ajaxHash.success();
   expectState('deleted');
@@ -293,6 +309,7 @@ test("singular deletes can sideload data", function() {
 
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("DELETE");
+  expectContentType("application/x-www-form-urlencoded; charset=UTF-8");
 
   ajaxHash.success({
     groups: [{ id: 1, name: "Group 1" }]
@@ -340,6 +357,7 @@ test("finding all can sideload data", function() {
 
   expectUrl("/groups", "the plural of the model name");
   expectType("GET");
+  expectContentType("application/x-www-form-urlencoded; charset=UTF-8");
 
   ajaxHash.success({
     groups: [{ id: 1, name: "Group 1", people: [ 1 ] }],
@@ -361,6 +379,7 @@ test("finding a person by ID makes a GET to /people/:id", function() {
   expectState('loaded', false);
   expectUrl("/people/1", "the plural of the model name with the ID requested");
   expectType("GET");
+  expectContentType("application/x-www-form-urlencoded; charset=UTF-8");
 
   ajaxHash.success({ person: { id: 1, name: "Yehuda Katz" } });
 
@@ -403,6 +422,7 @@ test("finding many people by a list of IDs", function() {
 
   expectUrl("/people");
   expectType("GET");
+  expectContentType("application/x-www-form-urlencoded; charset=UTF-8");
   expectData({ ids: [ 1, 2, 3 ] });
 
   ajaxHash.success({
@@ -473,6 +493,7 @@ test("additional data can be sideloaded in a GET with many IDs", function() {
 
   expectUrl("/groups");
   expectType("GET");
+  expectContentType("application/x-www-form-urlencoded; charset=UTF-8");
   expectData({ ids: [ 1 ] });
 
   ajaxHash.success({
@@ -513,6 +534,7 @@ test("finding people by a query", function() {
 
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("GET");
+  expectContentType("application/x-www-form-urlencoded; charset=UTF-8");
   expectData({ page: 1 });
 
   ajaxHash.success({
@@ -549,6 +571,7 @@ test("finding people by a query can sideload data", function() {
 
   expectUrl("/groups", "the collection at the plural of the model name");
   expectType("GET");
+  expectContentType("application/x-www-form-urlencoded; charset=UTF-8");
   expectData({ page: 1 });
 
   ajaxHash.success({
@@ -598,6 +621,7 @@ test("creating several people (with bulkCommit) makes a POST to /people, with a 
 
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
+  expectContentType("application/json; charset=utf-8");
   expectData({ people: [ { name: "Tom Dale" }, { name: "Yehuda Katz" } ] });
 
   ajaxHash.success({ people: [ { id: 1, name: "Tom Dale" }, { id: 2, name: "Yehuda Katz" } ] });
@@ -623,6 +647,7 @@ test("bulk commits can sideload data", function() {
 
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
+  expectContentType("application/json; charset=utf-8");
   expectData({ people: [ { name: "Tom Dale" }, { name: "Yehuda Katz" } ] });
 
   ajaxHash.success({
@@ -665,6 +690,7 @@ test("updating several people (with bulkCommit) makes a PUT to /people/bulk with
 
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
+  expectContentType("application/json; charset=utf-8");
 
   ajaxHash.success({ people: [
     { id: 1, name: "Brohuda Brokatz" },
@@ -707,6 +733,7 @@ test("bulk updates can sideload data", function() {
 
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
+  expectContentType("application/json; charset=utf-8");
 
   ajaxHash.success({
     people: [
@@ -752,6 +779,7 @@ test("deleting several people (with bulkCommit) makes a PUT to /people/bulk", fu
 
   expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
   expectType("DELETE");
+  expectContentType("application/x-www-form-urlencoded; charset=UTF-8");
 
   ajaxHash.success();
 
@@ -791,6 +819,7 @@ test("bulk deletes can sideload data", function() {
 
   expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
   expectType("DELETE");
+  expectContentType("application/x-www-form-urlencoded; charset=UTF-8");
 
   ajaxHash.success({
     groups: [{ id: 1, name: "Group 1" }]
