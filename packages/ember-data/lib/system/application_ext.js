@@ -14,6 +14,7 @@ Ember.onLoad('Ember.Application', function(Application) {
 
   Application.registerInjection({
     name: "giveStoreToControllers",
+    after: ['store','controllers'],
 
     injection: function(app, stateManager, property) {
       if (/^[A-Z].*Controller$/.test(property)) {
