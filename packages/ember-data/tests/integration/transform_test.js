@@ -106,18 +106,3 @@ test("the default date transform", function() {
   equal(result, true, "string is transformed into a date");
   equal(person.get('born').toString(), date.toString(), "date.toString and transformed date.toString values match");
 });
-
-test("a DS.Model can use a Rails-like datestamp", function() {
-  var dateString = "2012-04-18";
-  var dateObject = new Date("Thur, Apr 12 2012 00:00:00 GMT");
-  var store = DS.Store.create();
-  var Person = DS.Model.extend({
-    updatedAt: DS.attr('date');
-  });
-
-  store.load(Person, { id: 1, updatedAt: dateString });
-  var record = store.find(Person, 1);
-  dateFromRecord = record.get("updatedAt");
-
-  deepEqual(dateFromRecord,dateObject, "loading a rails datestamp yields an equivalent javascript date object");
-});
