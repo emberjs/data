@@ -8,42 +8,11 @@
   <script type="text/javascript" src="handlebars-1.0.0.beta.6.js"></script>
   <script type="text/javascript" src="minispade.js"></script>
 
+  <script type="text/javascript" src="qunit_configuration.js"></script>
   <script type="text/javascript">
-    // Tests should time out after 5 seconds
-    QUnit.config.testTimeout = 5000;
-
-    // Handle JSHint
-    QUnit.config.urlConfig.push('nojshint');
-
-    var noJsHint = location.search.match(/nojshint=([^&]+)/);
-    jsHint = !(noJsHint && decodeURIComponent(noJsHint[1]));
-
-    var jsHintReporter = function (file, errors) {
-      if (!errors) { return ''; }
-
-      var len = errors.length,
-          str = '',
-          error, idx;;
-
-      if (len === 0) { return ''; }
-
-      for (idx=0; idx<len; idx++) {
-        error = errors[idx];
-        str += file  + ': line ' + error.line + ', col ' +
-            error.character + ', ' + error.reason + '\n';
-      };
-
-      return str + "\n" + len + ' error' + ((len === 1) ? '' : 's');
-    }
-
-
-    // Handle extending prototypes
-    QUnit.config.urlConfig.push('extendprototypes');
-
-    window.ENV = window.ENV || {};
-    var extendPrototypes = location.search.match(/extendprototypes=([^&]+)/);
-    ENV['EXTEND_PROTOTYPES'] = !!(extendPrototypes && decodeURIComponent(extendPrototypes[1]));
-    ENV['TESTING'] = true
+    window.loadScript = function(url) {
+      document.write(unescape('%3Cscript src="'+url+'"%3E%3C/script%3E'));
+    };
   </script>
 </head>
 <body>
@@ -57,7 +26,7 @@
   <script>
     // Load jshint if being used (can cause failurs in old environments if always loaded)
     if (jsHint) {
-      document.write(unescape('%3Cscript src="jshint.js"%3E%3C/script%3E'));
+      loadScript('jshint.js');
     }
     // Close the script tag to make sure document.write happens
   </script>
@@ -65,9 +34,11 @@
   <script>
     // Load custom version of jQuery if possible
     var jQueryMatch = location.search.match(/jquery=([^&]+)/),
-        jQueryVersion = jQueryMatch ? jQueryMatch[1] : "1.8.0";
+        jQueryVersion = jQueryMatch ? jQueryMatch[1] : "1.8.2",
+        url = 'http://ajax.googleapis.com/ajax/libs/jquery/'+jQueryVersion+'/jquery.js';
+
     if (jQueryVersion !== 'none') {
-      document.write(unescape('%3Cscript src="http://ajax.googleapis.com/ajax/libs/jquery/'+jQueryVersion+'/jquery.js"%3E%3C/script%3E'));
+      loadScript(url);
     }
     // Close the script tag to make sure document.write happens
   </script>
@@ -76,88 +47,15 @@
     // Fallback to default jQuery
     if (jQueryVersion !== 'none' && !window.jQuery) {
       if (console && console.warn) { console.warn("Unable to load jQuery "+jQueryVersion+". Using default."); }
-      document.write(unescape('%3Cscript src="jquery-1.7.1.js"%3E%3C/script%3E'));
+
+      loadScript('jquery-1.8.2.js');
     }
   </script>
 
-  <script>
-    (function() {
-      window.Ember = { config: {} };
-
-      var syncForTest = function(fn) {
-        var callSuper;
-
-        if (typeof fn !== "function") { callSuper = true; }
-
-        return function() {
-          var override = false;
-          if (Ember.run && !Ember.run.currentRunloop) {
-            Ember.run.begin();
-            override = true;
-          }
-
-          if (callSuper) {
-            var ret = this._super.apply(this, arguments);
-          } else {
-            var ret = fn.apply(this, arguments);
-          }
-
-          if (override) {
-            Ember.run.end();
-          }
-
-          return ret;
-        }
-      }
-
-      Ember.config.overrideAccessors = function() {
-        Ember.set = syncForTest(Ember.set);
-        Ember.get = syncForTest(Ember.get);
-      };
-
-      Ember.config.overrideClassMixin = function(ClassMixin) {
-        ClassMixin.reopen({
-          create: syncForTest()
-        })
-      };
-
-      Ember.config.overridePrototypeMixin = function(PrototypeMixin) {
-        PrototypeMixin.reopen({
-          destroy: syncForTest()
-        })
-      };
-
-      minispade.register('ember-data/~test-setup', function() {
-        run = Ember.run;
-
-        Ember.View.reopen({
-          _insertElementLater: syncForTest()
-        });
-
-        DS.Store.reopen({
-          createRecord: syncForTest(),
-          deleteRecord: syncForTest(),
-          load: syncForTest(),
-          loadMany: syncForTest(),
-          didCreateRecord: syncForTest(),
-          didCreateRecords: syncForTest(),
-          didUpdateRecord: syncForTest(),
-          didUpdateRecords: syncForTest()
-        });
-
-        DS.Model.reopen({
-          deleteRecord: syncForTest()
-        });
-
-        DS.Transaction.reopen({
-          commit: syncForTest(),
-        });
-      });
-    })();
-  </script>
+  <script type="text/javascript" src="ember_configuration.js"></script>
 
   <script>
-    document.write(unescape('%3Cscript src="../dist/modules/ember.js"%3E%3C/script%3E'));
+    loadScript('../dist/modules/ember.js');
   </script>
 
   <script>
@@ -173,30 +71,13 @@
     var emberFile = distros[dist];
     if (!emberFile) { throw 'Unknown dist'; }
 
-    document.write(unescape('%3Cscript src="../dist/'+emberFile+'"%3E%3C/script%3E'));
+    loadScript('../dist/'+emberFile);
     // Close the script tag to make sure document.write happens
   </script>
 
   <script type="text/javascript" src="ember-data-tests.js"></script>
 
   <script type="text/javascript">
-
-    // hack qunit to not suck for Ember objects
-    var originalTypeof = QUnit.jsDump.typeOf;
-
-    QUnit.jsDump.typeOf = function(obj) {
-      if (Ember && Ember.Object && Ember.Object.detectInstance(obj)) {
-        return "emberObject";
-      }
-
-      return originalTypeof.call(this, obj);
-    };
-
-    QUnit.jsDump.parsers.emberObject = function(obj) {
-      return obj.toString();
-    }
-
-
     // Load Tests and Depenencies
     var packages = location.search.match(/package=([^&]+)/),
         packageName, el, idx, len, re, match, moduleName;
@@ -224,6 +105,7 @@
         }
 
         minispade.require('ember-data/~test-setup');
+        minispade.require('ember-data/~tests/helpers');
 
         for (moduleName in minispade.modules) {
           if (!minispade.modules.hasOwnProperty(moduleName)) { continue; }
@@ -236,6 +118,8 @@
             }
 
             if (jsHint) {
+              module("JSHint");
+
               // JSHint all modules in this package, tests and code
               // (closure to preserve variable values)
               (function() {
