@@ -6,7 +6,7 @@ var get = Ember.get, set = Ember.set;
 
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
-	
+
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
 
@@ -262,6 +262,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   sideloadAssociations: function(store, type, json, prop, loaded) {
+    if (loaded[prop]) { return; }
     loaded[prop] = true;
 
     get(type, 'associationsByName').forEach(function(key, meta) {
@@ -269,7 +270,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       if (meta.kind === 'belongsTo') {
         key = this.pluralize(key);
       }
-      if (json[key] && !loaded[key]) {
+      if (json[key]) {
         this.sideloadAssociations(store, meta.type, json, key, loaded);
       }
     }, this);
