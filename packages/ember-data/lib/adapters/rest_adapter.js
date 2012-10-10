@@ -192,11 +192,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     store.load(type, json[root]);
   },
 
-  findAll: function(store, type, sinceToken) {
+  findAll: function(store, type, since) {
     var root = this.rootForType(type);
 
     this.ajax(this.buildURL(root), "GET", {
-      data: sinceToken ? {since: sinceToken} : null,
+      data: this.sinceQuery(since),
       success: function(json) {
         this.didFindAll(store, type, json);
       }
@@ -204,14 +204,15 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   didFindAll: function(store, type, json) {
-    var root = this.pluralize(this.rootForType(type));
+    var root = this.pluralize(this.rootForType(type)),
+        since = this.extractSince(json);
 
     this.sideload(store, type, json, root);
     store.loadMany(type, json[root]);
 
     // this registers the id with the store, so it will be passed
     // into the next call to `findAll`
-    if (json.since_token) { store.sinceForType(type, json.since_token); }
+    if (since) { store.sinceForType(type, since); }
 
     store.didUpdateAll(type);
   },
@@ -294,6 +295,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     for (var prop in json) {
       if (!json.hasOwnProperty(prop)) { continue; }
       if (prop === root) { continue; }
+      if (prop === get(this, 'meta')) { continue; }
 
       sideloadedType = type.typeForAssociation(prop);
 
@@ -355,6 +357,24 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
 
     return url.join("/");
+  },
+
+  meta: 'meta',
+  since: 'since',
+
+  sinceQuery: function(since) {
+    var query = {};
+    query[get(this, 'since')] = since;
+    return since ? query : null;
+  },
+
+  extractSince: function(json) {
+    var meta = this.extractMeta(json);
+    return meta[get(this, 'since')] || null;
+  },
+
+  extractMeta: function(json) {
+    return json[get(this, 'meta')] || {};
   }
 });
 

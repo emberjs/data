@@ -24,9 +24,9 @@ module("Finding All Records of a Type", {
 });
 
 test("When all records for a type are requested, the store should call the adapter's `findAll` method.", function() {
-  expect(4);
+  expect(5);
 
-  adapter.findAll = function(store, type, sinceToken) {
+  adapter.findAll = function(store, type, since) {
     ok(true, "the adapter's findAll method should be invoked");
 
     // Simulate latency to ensure correct behavior in asynchronous conditions.
@@ -35,6 +35,9 @@ test("When all records for a type are requested, the store should call the adapt
 
       equal(get(allRecords, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
       equal(allRecords.objectAt(0).get('name'), "Braaaahm Dale", "the first item in the record array is Braaaahm Dale");
+
+      // Only one record array per type should ever be created (identity map)
+      strictEqual(allRecords, store.all(Person), "the same record array is returned every time all records of a type are requested");
     });
   };
 
