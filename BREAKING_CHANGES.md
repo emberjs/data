@@ -93,10 +93,10 @@ App.Post = DS.Model.extend({
 });
 ```
 
-Now, all mapping is done via `Adapter.map`. You will now do this:
+Now, all mapping is done via `DS.Adapter.map`. You will now do this:
 
 ```javascript
-App.Adapter.map('App.Post', {
+DS.Adapter.map('App.Post', {
   title: { key: 'TITLE' }
 });
 ```
@@ -107,7 +107,7 @@ associations.
 If you want to define a custom primary key, you will now do:
 
 ```javascript
-App.Adapter.map('App.Post', {
+DS.Adapter.map('App.Post', {
   primaryKey: '_id'
 });
 ```
