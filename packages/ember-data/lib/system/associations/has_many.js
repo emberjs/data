@@ -17,7 +17,7 @@ var hasAssociation = function(type, options) {
     }
 
     ids = data[key];
-    association = store.findMany(type, ids || []);
+    association = store.findMany(type, ids || [], this, meta);
     set(association, 'owner', this);
     set(association, 'name', key);
 

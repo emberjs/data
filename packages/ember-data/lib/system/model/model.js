@@ -379,6 +379,34 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.updateRecordArraysLater();
   },
 
+  adapterDidUpdateHasMany: function(name) {
+    this.removeInFlightDirtyFactor(name);
+
+    var cachedValue = this.cacheFor(name),
+        hasMany = get(this, 'data').hasMany,
+        store = get(this, 'store');
+
+    var associations = get(this.constructor, 'associationsByName'),
+        association = associations.get(name),
+        idToClientId = store.idToClientId;
+
+    if (cachedValue) {
+      var key = name,
+          ids = hasMany[key] || [];
+
+      var clientIds;
+
+      clientIds = Ember.EnumerableUtils.map(ids, function(id) {
+        return store.clientIdForId(association.type, id);
+      });
+
+      set(cachedValue, 'content', Ember.A(clientIds));
+      set(cachedValue, 'isLoaded', true);
+    }
+
+    this.updateRecordArraysLater();
+  },
+
   adapterDidDelete: function() {
     this.removeInFlightDirtyFactor('@deleted');
 

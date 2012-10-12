@@ -584,7 +584,7 @@ DS.Store = Ember.Object.extend({
     * ask the adapter to load the unloaded elements, by invoking
       findMany with the still-unloaded IDs.
   */
-  findMany: function(type, ids) {
+  findMany: function(type, ids, record, relationship) {
     // 1. Convert ids to client ids
     // 2. Determine which of the client ids need to be loaded
     // 3. Create a new ManyArray whose content is ALL of the clientIds
@@ -593,6 +593,14 @@ DS.Store = Ember.Object.extend({
     //    the needed clientIds
     // 6. Ask the adapter to load the records for the unloaded clientIds (but
     //    convert them back to ids)
+
+    if (!Ember.isArray(ids)) {
+      var adapter = get(this, '_adapter');
+      if (adapter && adapter.findAssociation) { adapter.findAssociation(this, record, relationship, ids); }
+      else { throw fmt("Adapter is either null or does not implement `findMany` method", this); }
+
+      return this.createManyArray(type, Ember.A());
+    }
 
     ids = map(ids, function(id) { return coerceId(id); });
     var clientIds = this.clientIdsForIds(type, ids);
@@ -975,6 +983,11 @@ DS.Store = Ember.Object.extend({
     relationship.adapterDidUpdate();
   },
 
+  materializeHasMany: function(record, name, ids) {
+    record.materializeHasMany(name, ids);
+    record.adapterDidUpdateHasMany(name);
+  },
+
   /**
     This allows an adapter to acknowledge all relationship changes
     for a given record.
@@ -1245,6 +1258,8 @@ DS.Store = Ember.Object.extend({
 
     Return a list of all `DS.RecordArray`s a clientId is
     part of.
+
+    @return {Object(clientId: Ember.OrderedSet)}
   */
   recordArraysForClientId: function(clientId) {
     var recordArrays = get(this, 'recordArraysByClientId');

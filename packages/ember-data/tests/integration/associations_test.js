@@ -106,6 +106,80 @@ test("When a hasMany association is accessed, the adapter's findMany method shou
   store.load(Person, { id: 1, comments: [ 1 ] });
 });
 
+test("An adapter can materialize a hash and get it back later in a findAssociation hook", function() {
+  expect(8);
+
+  stop();
+
+  Person = DS.Model.extend({
+    updatedAt: DS.attr('string'),
+    name: DS.attr('string')
+  });
+
+  Person.toString = function() { return "Person"; };
+
+  Comment = DS.Model.extend({
+    person: DS.belongsTo(Person)
+  });
+
+  Comment.toString = function() { return "Comment"; };
+
+  Person.reopen({
+    comments: DS.hasMany(Comment)
+  });
+
+  adapter.set('serializer.extractHasMany', function(record, hash, relationship) {
+    return { url: hash.comments };
+  });
+
+  adapter.find = function(store, type, id) {
+    equal(type, Person);
+    equal(id, 1);
+
+    setTimeout(function() {
+      store.load(Person, { id: 1, comments: "/posts/1/comments" });
+      next();
+    }, 1);
+  };
+
+  adapter.findMany = function() {
+    start();
+    throw new Error("Should not get here");
+  };
+
+  adapter.findAssociation = function(store, record, relationship, details) {
+    equal(relationship.type, Comment);
+    equal(relationship.key, 'comments');
+    equal(details.url, "/posts/1/comments");
+
+    setTimeout(function() {
+      store.loadMany(relationship.type, [
+        { id: 1, body: "First" },
+        { id: 2, body: "Second" }
+      ]);
+
+      store.materializeHasMany(record, relationship.key, [ 1, 2 ]);
+
+      setTimeout(function() {
+        done();
+      }, 1);
+    }, 1);
+  };
+
+  var person = store.find(Person, 1), comments;
+
+  function next() {
+    comments = person.get('comments');
+    equal(comments.get('isLoaded'), false);
+  }
+
+  function done() {
+    start();
+    equal(comments.get('isLoaded'), true);
+    equal(comments.get('length'), 2);
+  }
+});
+
 //test("When a record with a hasMany association is deleted, its associated record is materialized and its belongsTo is changed", function() {
   //expect(3);
 

@@ -97,7 +97,8 @@
 
     DS.Model.reopen({
       deleteRecord: syncForTest(),
-      dataDidChange: Ember.observer(syncForTest(), 'data')
+      dataDidChange: Ember.observer(syncForTest(), 'data'),
+      updateRecordArraysLater: syncForTest()
     });
 
     DS.Transaction.reopen({
