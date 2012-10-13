@@ -1,17 +1,35 @@
 require("ember-data/core");
-require('ember-data/system/adapters');
+require('ember-data/system/adapter');
 /*global jQuery*/
 
 var get = Ember.get, set = Ember.set;
 
+var serializer = DS.Serializer.create({
+  keyForBelongsTo: function(type, name) {
+    return this.keyForAttributeName(type, name) + "_id";
+  },
+
+  keyForAttributeName: function(type, name) {
+    return Ember.String.decamelize(name);
+  }
+});
+
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
 	
+  serializer: serializer,
+
+  shouldCommit: function(record) {
+    if (record.isCommittingBecause('attribute') || record.isCommittingBecause('belongsTo')) {
+      return true;
+    }
+  },
+
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
 
     var data = {};
-    data[root] = record.toJSON();
+    data[root] = this.toJSON(record, { includeId: true });
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
@@ -26,7 +44,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     this.sideload(store, type, json, root);
-    store.didCreateRecord(record, json[root]);
+    store.didSaveRecord(record, json[root]);
   },
 
   createRecords: function(store, type, records) {
@@ -38,9 +56,10 @@ DS.RESTAdapter = DS.Adapter.extend({
         plural = this.pluralize(root);
 
     var data = {};
-    data[plural] = records.map(function(record) {
-      return record.toJSON();
-    });
+    data[plural] = [];
+    records.forEach(function(record) {
+      data[plural].push(this.toJSON(record, { includeId: true }));
+    }, this);
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
@@ -55,7 +74,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.pluralize(this.rootForType(type));
 
     this.sideload(store, type, json, root);
-    store.didCreateRecords(type, records, json[root]);
+    store.didSaveRecords(records, json[root]);
   },
 
   updateRecord: function(store, type, record) {
@@ -63,7 +82,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     var data = {};
-    data[root] = record.toJSON();
+    data[root] = this.toJSON(record);
 
     this.ajax(this.buildURL(root, id), "PUT", {
       data: data,
@@ -78,7 +97,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     this.sideload(store, type, json, root);
-    store.didUpdateRecord(record, json && json[root]);
+    store.didSaveRecord(record, json && json[root]);
   },
 
   updateRecords: function(store, type, records) {
@@ -90,9 +109,10 @@ DS.RESTAdapter = DS.Adapter.extend({
         plural = this.pluralize(root);
 
     var data = {};
-    data[plural] = records.map(function(record) {
-      return record.toJSON();
-    });
+    data[plural] = [];
+    records.forEach(function(record) {
+      data[plural].push(record.toJSON());
+    }, this);
 
     this.ajax(this.buildURL(root, "bulk"), "PUT", {
       data: data,
@@ -107,7 +127,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.pluralize(this.rootForType(type));
 
     this.sideload(store, type, json, root);
-    store.didUpdateRecords(records, json[root]);
+    store.didSaveRecords(records, json[root]);
   },
 
   deleteRecord: function(store, type, record) {
@@ -124,7 +144,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didDeleteRecord: function(store, type, record, json) {
     if (json) { this.sideload(store, type, json); }
-    store.didDeleteRecord(record);
+    store.didSaveRecord(record);
   },
 
   deleteRecords: function(store, type, records) {
@@ -136,8 +156,9 @@ DS.RESTAdapter = DS.Adapter.extend({
         plural = this.pluralize(root);
 
     var data = {};
-    data[plural] = records.map(function(record) {
-      return get(record, 'id');
+    data[plural] = [];
+    records.forEach(function(record) {
+      data[plural].push(get(record, 'id'));
     });
 
     this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
@@ -151,7 +172,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didDeleteRecords: function(store, type, records, json) {
     if (json) { this.sideload(store, type, json); }
-    store.didDeleteRecords(records);
+    store.didSaveRecords(records);
   },
 
   find: function(store, type, id) {
@@ -166,6 +187,8 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   findMany: function(store, type, ids) {
+    ids = this.get('serializer').serializeIds(ids);
+
     var root = this.rootForType(type), plural = this.pluralize(root);
 
     this.ajax(this.buildURL(root), "GET", {

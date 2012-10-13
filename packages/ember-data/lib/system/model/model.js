@@ -1,5 +1,4 @@
 require("ember-data/system/model/states");
-require("ember-data/system/model/data_proxy");
 
 var get = Ember.get, set = Ember.set, none = Ember.none;
 
@@ -14,185 +13,29 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   isDeleted: retrieveFromCurrentState,
   isError: retrieveFromCurrentState,
   isNew: retrieveFromCurrentState,
-  isPending: retrieveFromCurrentState,
   isValid: retrieveFromCurrentState,
 
   clientId: null,
   transaction: null,
   stateManager: null,
-  pendingQueue: null,
   errors: null,
 
-  // because unknownProperty is used, any internal property
-  // must be initialized here.
-  primaryKey: 'id',
-  id: Ember.computed(function(key, value) {
-    var primaryKey = get(this, 'primaryKey'),
-        data = get(this, 'data');
-
-    if (arguments.length === 2) {
-      set(data, primaryKey, value);
-      return value;
-    }
-
-    var id = get(data, primaryKey);
-    return id ? id : this._id;
-  }).property('primaryKey', 'data'),
-
-  // The following methods are callbacks invoked by `toJSON`. You
-  // can override one of the callbacks to override specific behavior,
-  // or toJSON itself.
-  //
-  // If you override toJSON, you can invoke these callbacks manually
-  // to get the default behavior.
-
   /**
-    Add the record's primary key to the JSON hash.
+    Create a JSON representation of the record, using the serialization
+    strategy of the store's adapter.
 
-    The default implementation uses the record's specified `primaryKey`
-    and the `id` computed property, which are passed in as parameters.
+    Available options:
 
-    @param {Object} json the JSON hash being built
-    @param {Number|String} id the record's id
-    @param {String} key the primaryKey for the record
-  */
-  addIdToJSON: function(json, id, key) {
-    if (id) { json[key] = id; }
-  },
+    * `includeId`: `true` if the record's ID should be included in the
+      JSON representation.
 
-  /**
-    Add the attributes' current values to the JSON hash.
-
-    The default implementation gets the current value of each
-    attribute from the `data`, and uses a `defaultValue` if
-    specified in the `DS.attr` definition.
-
-    @param {Object} json the JSON hash being build
-    @param {Ember.Map} attributes a Map of attributes
-    @param {DataProxy} data the record's data, accessed with `get` and `set`.
-  */
-  addAttributesToJSON: function(json, attributes, data) {
-    attributes.forEach(function(name, meta) {
-      var key = meta.key(this.constructor),
-          value = get(data, key);
-
-      if (value === undefined) {
-        value = meta.options.defaultValue;
-      }
-
-      json[key] = value;
-    }, this);
-  },
-
-  /**
-    Add the value of a `hasMany` association to the JSON hash.
-
-    The default implementation honors the `embedded` option
-    passed to `DS.hasMany`. If embedded, `toJSON` is recursively
-    called on the child records. If not, the `id` of each
-    record is added.
-
-    Note that if a record is not embedded and does not
-    yet have an `id` (usually provided by the server), it
-    will not be included in the output.
-
-    @param {Object} json the JSON hash being built
-    @param {DataProxy} data the record's data, accessed with `get` and `set`.
-    @param {Object} meta information about the association
-    @param {Object} options options passed to `toJSON`
-  */
-  addHasManyToJSON: function(json, data, meta, options) {
-    var key = meta.key,
-        manyArray = get(this, key),
-        records = [], i, l,
-        clientId, id;
-
-    if (meta.options.embedded) {
-      // TODO: Avoid materializing embedded hashes if possible
-      manyArray.forEach(function(record) {
-        records.push(record.toJSON(options));
-      });
-    } else {
-      var clientIds = get(manyArray, 'content');
-
-      for (i=0, l=clientIds.length; i<l; i++) {
-        clientId = clientIds[i];
-        id = get(this, 'store').clientIdToId[clientId];
-
-        if (id !== undefined) {
-          records.push(id);
-        }
-      }
-    }
-
-    key = meta.options.key || get(this, 'namingConvention').keyToJSONKey(key);
-    json[key] = records;
-  },
-
-  /**
-    Add the value of a `belongsTo` association to the JSON hash.
-
-    The default implementation always includes the `id`.
-
-    @param {Object} json the JSON hash being built
-    @param {DataProxy} data the record's data, accessed with `get` and `set`.
-    @param {Object} meta information about the association
-    @param {Object} options options passed to `toJSON`
-  */
-  addBelongsToToJSON: function(json, data, meta, options) {
-    var key = meta.key, value, id;
-
-    if (meta.options.embedded) {
-      key = meta.options.key || get(this, 'namingConvention').keyToJSONKey(key);
-      value = get(data.record, key);
-      json[key] = value ? value.toJSON(options) : null;
-    } else {
-      key = meta.options.key || get(this, 'namingConvention').foreignKey(key);
-      id = data.get(key);
-      json[key] = none(id) ? null : id;
-    }
-  },
-  /**
-    Create a JSON representation of the record, including its `id`,
-    attributes and associations. Honor any settings defined on the
-    attributes or associations (such as `embedded` or `key`).
+    @param {Object} options
+    @returns {Object} an object whose values are primitive JSON values only
   */
   toJSON: function(options) {
-    var data = get(this, 'data'),
-        result = {},
-        type = this.constructor,
-        attributes = get(type, 'attributes'),
-        primaryKey = get(this, 'primaryKey'),
-        id = get(this, 'id'),
-        store = get(this, 'store'),
-        associations;
-
-    options = options || {};
-
-    // delegate to `addIdToJSON` callback
-    this.addIdToJSON(result, id, primaryKey);
-
-    // delegate to `addAttributesToJSON` callback
-    this.addAttributesToJSON(result, attributes, data);
-
-    associations = get(type, 'associationsByName');
-
-    // add associations, delegating to `addHasManyToJSON` and
-    // `addBelongsToToJSON`.
-    associations.forEach(function(key, meta) {
-      if (options.associations && meta.kind === 'hasMany') {
-        this.addHasManyToJSON(result, data, meta, options);
-      } else if (meta.kind === 'belongsTo') {
-        this.addBelongsToToJSON(result, data, meta, options);
-      }
-    }, this);
-
-    return result;
+    var store = get(this, 'store');
+    return store.toJSON(this, options);
   },
-
-  data: Ember.computed(function() {
-    return new DS._DataProxy(this);
-  }).cacheable(),
 
   didLoad: Ember.K,
   didUpdate: Ember.K,
@@ -201,22 +44,45 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   becameInvalid: Ember.K,
   becameError: Ember.K,
 
-  init: function() {
-    var stateManager = DS.StateManager.create({
-      record: this
+  data: Ember.computed(function() {
+    if (!this._data) {
+      this.materializeData();
+    }
+
+    return this._data;
+  }).property().cacheable(),
+
+  materializeData: function() {
+    this.setupData();
+    get(this, 'store').materializeData(this);
+
+    this.suspendAssociationObservers(function() {
+      this.notifyPropertyChange('data');
     });
+  },
 
-    set(this, 'pendingQueue', {});
+  _data: null,
 
+  init: function() {
+    var stateManager = DS.StateManager.create({ record: this });
     set(this, 'stateManager', stateManager);
+
+    this.setup();
+
     stateManager.goToState('empty');
   },
 
-  destroy: function() {
+  setup: function() {
+    this._relationshipChanges = {};
+    this._dirtyFactors = Ember.OrderedSet.create();
+    this._inFlightDirtyFactors = Ember.OrderedSet.create();
+    this._dirtyReasons = { hasMany: 0, belongsTo: 0, attribute: 0 };
+  },
+
+  willDestroy: function() {
     if (!get(this, 'isDeleted')) {
       this.deleteRecord();
     }
-    this._super();
   },
 
   send: function(name, context) {
@@ -228,6 +94,18 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     if (transaction) { fn(transaction); }
   },
 
+  loadingData: function() {
+    this.send('loadingData');
+  },
+
+  loadedData: function() {
+    this.send('loadedData');
+  },
+
+  didChangeData: function() {
+    this.send('didChangeData');
+  },
+
   setProperty: function(key, value) {
     this.send('setProperty', { key: key, value: value });
   },
@@ -236,83 +114,314 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.send('deleteRecord');
   },
 
-  waitingOn: function(record) {
-    this.send('waitingOn', record);
+  clearRelationships: function() {
+    this.eachAssociation(function(name, relationship) {
+      if (relationship.kind === 'belongsTo') {
+        set(this, name, null);
+      } else if (relationship.kind === 'hasMany') {
+        get(this, name).clear();
+      }
+    }, this);
   },
 
-  notifyHashWasUpdated: function() {
+  updateRecordArrays: function() {
     var store = get(this, 'store');
     if (store) {
       store.hashWasUpdated(this.constructor, get(this, 'clientId'), this);
     }
   },
 
-  unknownProperty: function(key) {
-    var data = get(this, 'data');
+  /**
+    If the adapter did not return a hash in response to a commit,
+    merge the changed attributes and associations into the existing
+    saved data.
+  */
+  adapterDidCommit: function() {
+    var attributes = get(this, 'data').attributes;
 
-    if (data && key in data) {
-      Ember.assert("You attempted to access the " + key + " property on a record without defining an attribute.", false);
-    }
-  },
+    get(this.constructor, 'attributes').forEach(function(name, meta) {
+      attributes[name] = get(this, name);
+    }, this);
 
-  setUnknownProperty: function(key, value) {
-    var data = get(this, 'data');
-
-    if (data && key in data) {
-      Ember.assert("You attempted to set the " + key + " property on a record without defining an attribute.", false);
-    } else {
-      return this._super(key, value);
-    }
-  },
-
-  namingConvention: {
-    keyToJSONKey: function(key) {
-      // TODO: Strip off `is` from the front. Example: `isHipster` becomes `hipster`
-      return Ember.String.decamelize(key);
-    },
-
-    foreignKey: function(key) {
-      return Ember.String.decamelize(key) + '_id';
-    }
-  },
-
-  /** @private */
-  hashWasUpdated: function() {
-    // At the end of the run loop, notify record arrays that
-    // this record has changed so they can re-evaluate its contents
-    // to determine membership.
-    Ember.run.once(this, this.notifyHashWasUpdated);
+    this.updateRecordArraysLater();
   },
 
   dataDidChange: Ember.observer(function() {
     var associations = get(this.constructor, 'associationsByName'),
-        data = get(this, 'data'), store = get(this, 'store'),
+        hasMany = get(this, 'data').hasMany, store = get(this, 'store'),
         idToClientId = store.idToClientId,
         cachedValue;
+
+    this.updateRecordArraysLater();
 
     associations.forEach(function(name, association) {
       if (association.kind === 'hasMany') {
         cachedValue = this.cacheFor(name);
 
         if (cachedValue) {
-          var key = association.options.key || get(this, 'namingConvention').keyToJSONKey(name),
-              ids = data.get(key) || [];
-          
-          var clientIds;   
-          if(association.options.embedded) {
-            clientIds = store.loadMany(association.type, ids).clientIds;
-          } else {
-            clientIds = Ember.EnumerableUtils.map(ids, function(id) {
-              return store.clientIdForId(association.type, id);
-            });
-          }
-          
+          var key = name,
+              ids = hasMany[key] || [];
+
+          var clientIds;
+
+          clientIds = Ember.EnumerableUtils.map(ids, function(id) {
+            return store.clientIdForId(association.type, id);
+          });
+
           set(cachedValue, 'content', Ember.A(clientIds));
-          cachedValue.fetch();
         }
       }
     }, this);
   }, 'data'),
+
+  updateRecordArraysLater: function() {
+    Ember.run.once(this, this.updateRecordArrays);
+  },
+
+  setupData: function() {
+    this._data = {
+      attributes: {},
+      belongsTo: {},
+      hasMany: {},
+      id: null
+    };
+  },
+
+  materializeId: function(id) {
+    set(this, 'id', id);
+  },
+
+  materializeAttributes: function(attributes) {
+    Ember.assert("Must pass a hash of attributes to materializeAttributes", !!attributes);
+    this._data.attributes = attributes;
+  },
+
+  materializeAttribute: function(name, value) {
+    this._data.attributes[name] = value;
+  },
+
+  materializeHasMany: function(name, ids) {
+    this._data.hasMany[name] = ids;
+  },
+
+  materializeBelongsTo: function(name, id) {
+    this._data.belongsTo[name] = id;
+  },
+
+  // DIRTINESS FACTORS
+  //
+  // These methods allow the manipulation of various "dirtiness factors" on
+  // the current record. A dirtiness factor can be:
+  //
+  // * the name of a dirty attribute
+  // * the name of a dirty relationship
+  // * @created, if the record was created
+  // * @deleted, if the record was deleted
+  //
+  // This allows adapters to acknowledge updates to any of the dirtiness
+  // factors one at a time, and keeps the bookkeeping for full acknowledgement
+  // in the record itself.
+
+  addDirtyFactor: function(name) {
+    var dirtyFactors = this._dirtyFactors, becameDirty;
+    if (dirtyFactors.has(name)) { return; }
+
+    if (this._dirtyFactors.isEmpty()) { becameDirty = true; }
+
+    this._addDirtyFactor(name);
+
+    if (becameDirty && name !== '@created' && name !== '@deleted') {
+      this.send('becameDirty');
+    }
+  },
+
+  _addDirtyFactor: function(name) {
+    this._dirtyFactors.add(name);
+
+    var reason = get(this.constructor, 'fields').get(name);
+    this._dirtyReasons[reason]++;
+  },
+
+  removeDirtyFactor: function(name) {
+    var dirtyFactors = this._dirtyFactors, becameClean = true;
+    if (!dirtyFactors.has(name)) { return; }
+
+    this._dirtyFactors.remove(name);
+
+    var reason = get(this.constructor, 'fields').get(name);
+    this._dirtyReasons[reason]--;
+
+    if (!this._dirtyFactors.isEmpty()) { becameClean = false; }
+
+    if (becameClean && name !== '@created' && name !== '@deleted') {
+      this.send('becameClean');
+    }
+  },
+
+  removeDirtyFactors: function() {
+    this._dirtyFactors.clear();
+    this._dirtyReasons = { hasMany: 0, belongsTo: 0, attribute: 0 };
+    this.send('becameClean');
+  },
+
+  rollback: function() {
+    this.setup();
+    this.send('becameClean');
+
+    this.suspendAssociationObservers(function() {
+      this.notifyPropertyChange('data');
+    });
+  },
+
+  isDirtyBecause: function(reason) {
+    return this._dirtyReasons[reason] > 0;
+  },
+
+  isCommittingBecause: function(reason) {
+    return this._inFlightDirtyReasons[reason] > 0;
+  },
+
+  /**
+    @private
+
+    The goal of this method is to temporarily disable specific observers
+    that take action in response to application changes.
+
+    This allows the system to make changes (such as materialization and
+    rollback) that should not trigger secondary behavior (such as setting an
+    inverse relationship or marking records as dirty).
+
+    The specific implementation will likely change as Ember proper provides
+    better infrastructure for suspending groups of observers, and if Array
+    observation becomes more unified with regular observers.
+  */
+  suspendAssociationObservers: function(callback, binding) {
+    var observers = get(this.constructor, 'associationNames').belongsTo;
+    var self = this;
+
+    try {
+      this._suspendedAssociations = true;
+      Ember._suspendObservers(self, observers, null, 'belongsToDidChange', function() {
+        Ember._suspendBeforeObservers(self, observers, null, 'belongsToWillChange', function() {
+          callback.call(binding || self);
+        });
+      });
+    } finally {
+      this._suspendedAssociations = false;
+    }
+  },
+
+  becameInFlight: function() {
+    this._inFlightDirtyFactors = this._dirtyFactors.copy();
+    this._inFlightDirtyReasons = this._dirtyReasons;
+    this._dirtyFactors.clear();
+    this._dirtyReasons = { hasMany: 0, belongsTo: 0, attribute: 0 };
+  },
+
+  restoreDirtyFactors: function() {
+    this._inFlightDirtyFactors.forEach(function(factor) {
+      this._addDirtyFactor(factor);
+    }, this);
+
+    this._inFlightDirtyFactors.clear();
+    this._inFlightDirtyReasons = null;
+  },
+
+  removeInFlightDirtyFactor: function(name) {
+    // It is possible for a record to have been materialized
+    // or loaded after the transaction was committed. This
+    // can happen with relationship changes involving
+    // unmaterialized records that subsequently load.
+    //
+    // XXX If a record is materialized after it was involved
+    // while it is involved in a relationship change, update
+    // it to be in the same state as if it had already been
+    // materialized.
+    //
+    // For now, this means that we have a blind spot where
+    // a record was loaded and its relationships changed
+    // while the adapter is in the middle of persisting
+    // a relationship change involving it.
+    if (this._inFlightDirtyFactors.has(name)) {
+      this._inFlightDirtyFactors.remove(name);
+      if (this._inFlightDirtyFactors.isEmpty()) {
+        this._inFlightDirtyReasons = null;
+        this.send('didCommit');
+      }
+    }
+  },
+
+  removeInFlightDirtyFactors: function() {
+    if (!this._inFlightDirtyFactors.isEmpty()) {
+      this._inFlightDirtyFactors.clear();
+      this._inFlightDirtyReasons = null;
+      this.send('didCommit');
+    }
+  },
+
+  // FOR USE DURING COMMIT PROCESS
+
+  adapterDidUpdateAttribute: function(attributeName, value) {
+    this.removeInFlightDirtyFactor(attributeName);
+
+    // If a value is passed in, update the internal attributes and clear
+    // the attribute cache so it picks up the new value. Otherwise,
+    // collapse the current value into the internal attributes because
+    // the adapter has acknowledged it.
+    if (value !== undefined) {
+      get(this, 'data.attributes')[attributeName] = value;
+      this.notifyPropertyChange(attributeName);
+    } else {
+      value = get(this, attributeName);
+      get(this, 'data.attributes')[attributeName] = value;
+    }
+
+    this.updateRecordArraysLater();
+  },
+
+  adapterDidUpdateHasMany: function(name) {
+    this.removeInFlightDirtyFactor(name);
+
+    var cachedValue = this.cacheFor(name),
+        hasMany = get(this, 'data').hasMany,
+        store = get(this, 'store');
+
+    var associations = get(this.constructor, 'associationsByName'),
+        association = associations.get(name),
+        idToClientId = store.idToClientId;
+
+    if (cachedValue) {
+      var key = name,
+          ids = hasMany[key] || [];
+
+      var clientIds;
+
+      clientIds = Ember.EnumerableUtils.map(ids, function(id) {
+        return store.clientIdForId(association.type, id);
+      });
+
+      set(cachedValue, 'content', Ember.A(clientIds));
+      set(cachedValue, 'isLoaded', true);
+    }
+
+    this.updateRecordArraysLater();
+  },
+
+  adapterDidDelete: function() {
+    this.removeInFlightDirtyFactor('@deleted');
+
+    this.updateRecordArraysLater();
+  },
+
+  adapterDidCreate: function() {
+    this.removeInFlightDirtyFactor('@created');
+
+    this.updateRecordArraysLater();
+  },
+
+  adapterDidInvalidate: function(errors) {
+    this.send('becameInvalid', errors);
+  },
 
   /**
     @private

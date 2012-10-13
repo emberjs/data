@@ -3,25 +3,65 @@ require("ember-data/system/record_arrays/many_array_states");
 
 var get = Ember.get, set = Ember.set;
 
+/**
+  A ManyArray is a RecordArray that represents the contents of a has-many
+  association.
+
+  The ManyArray is instantiated lazily the first time the association is
+  requested.
+
+  ### Inverses
+
+  Often, the associations in Ember Data applications will have
+  an inverse. For example, imagine the following models are
+  defined:
+
+      App.Post = DS.Model.extend({
+        comments: DS.hasMany('App.Comment')
+      });
+
+      App.Comment = DS.Model.extend({
+        post: DS.belongsTo('App.Post')
+      });
+
+  If you created a new instance of `App.Post` and added
+  a `App.Comment` record to its `comments` has-many
+  association, you would expect the comment's `post`
+  property to be set to the post that contained
+  the has-many.
+
+  We call the record to which an association belongs the
+  association's _owner_.
+*/
 DS.ManyArray = DS.RecordArray.extend({
   init: function() {
-    set(this, 'stateManager', DS.ManyArrayStateManager.create({ manyArray: this }));
-
-    return this._super();
+    this._super.apply(this, arguments);
+    this._changesToSync = Ember.OrderedSet.create();
   },
 
-  parentRecord: null,
+  /**
+    @private
 
-  isDirty: Ember.computed(function() {
-    return get(this, 'stateManager.currentState.isDirty');
-  }).property('stateManager.currentState').cacheable(),
+    The record to which this association belongs.
 
-  isLoaded: Ember.computed(function() {
-    return get(this, 'stateManager.currentState.isLoaded');
-  }).property('stateManager.currentState').cacheable(),
+    @property {DS.Model}
+  */
+  owner: null,
 
-  send: function(event, context) {
-    this.get('stateManager').send(event, context);
+  // LOADING STATE
+
+  isLoaded: false,
+
+  loadingRecordsCount: function(count) {
+    this.loadingRecordsCount = count;
+  },
+
+  loadedRecord: function() {
+    this.loadingRecordsCount--;
+    if (this.loadingRecordsCount === 0) {
+      set(this, 'isLoaded', true);
+      this.trigger('didLoad');
+    }
   },
 
   fetch: function() {
@@ -34,91 +74,162 @@ DS.ManyArray = DS.RecordArray.extend({
 
   // Overrides Ember.Array's replace method to implement
   replaceContent: function(index, removed, added) {
-    var parentRecord = get(this, 'parentRecord');
-    var pendingParent = parentRecord && !get(parentRecord, 'id');
-    var stateManager = get(this, 'stateManager');
-
     // Map the array of record objects into an array of  client ids.
     added = added.map(function(record) {
       Ember.assert("You can only add records of " + (get(this, 'type') && get(this, 'type').toString()) + " to this association.", !get(this, 'type') || (get(this, 'type') === record.constructor));
-
-      // If the record to which this many array belongs does not yet
-      // have an id, notify the newly-added record that it must wait
-      // for the parent to receive an id before the child can be
-      // saved.
-      if (pendingParent) {
-        record.send('waitingOn', parentRecord);
-      }
-
-      var oldParent = this.assignInverse(record, parentRecord);
-
-      record.get('transaction')
-        .relationshipBecameDirty(record, oldParent, parentRecord);
-
-      stateManager.send('recordWasAdded', record);
-
       return record.get('clientId');
     }, this);
-
-    var store = this.store;
-
-    var len = index+removed, record;
-    for (var i = index; i < len; i++) {
-      // TODO: null out inverse FK
-      record = this.objectAt(i);
-      var oldParent = this.assignInverse(record, parentRecord, true);
-
-      record.get('transaction')
-        .relationshipBecameDirty(record, parentRecord, null);
-
-      // If we put the child record into a pending state because
-      // we were waiting on the parent record to get an id, we
-      // can tell the child it no longer needs to wait.
-      if (pendingParent) {
-        record.send('doneWaitingOn', parentRecord);
-      }
-
-      stateManager.send('recordWasAdded', record);
-    }
 
     this._super(index, removed, added);
   },
 
-  assignInverse: function(record, parentRecord, remove) {
-    var associationMap = get(record.constructor, 'associations'),
-        possibleAssociations = associationMap.get(parentRecord.constructor),
-        possible, actual, oldParent;
+  arrangedContentDidChange: function() {
+    this.fetch();
+  },
 
-    if (!possibleAssociations) { return; }
+  arrayContentWillChange: function(index, removed, added) {
+    var owner = get(this, 'owner'),
+        name = get(this, 'name');
 
-    for (var i = 0, l = possibleAssociations.length; i < l; i++) {
-      possible = possibleAssociations[i];
+    if (!owner._suspendedAssociations) {
+      // This code is the first half of code that continues inside
+      // of arrayContentDidChange. It gets or creates a change from
+      // the child object, adds the current owner as the old
+      // parent if this is the first time the object was removed
+      // from a ManyArray, and sets `newParent` to null.
+      //
+      // Later, if the object is added to another ManyArray,
+      // the `arrayContentDidChange` will set `newParent` on
+      // the change.
+      for (var i=index; i<index+removed; i++) {
+        var clientId = get(this, 'content').objectAt(i);
+        //var record = this.objectAt(i);
+        //if (!record) { continue; }
 
-      if (possible.kind === 'belongsTo') {
-        actual = possible;
-        break;
+        var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), { parentType: owner.constructor });
+        change.hasManyName = name;
+
+        if (change.oldParent === undefined) { change.oldParent = get(owner, 'clientId'); }
+        change.newParent = null;
+        this._changesToSync.add(change);
       }
     }
 
-    if (actual) {
-      oldParent = get(record, actual.name);
-      set(record, actual.name, remove ? null : parentRecord);
-      return oldParent;
+    return this._super.apply(this, arguments);
+  },
+
+  arrayContentDidChange: function(index, removed, added) {
+    this._super.apply(this, arguments);
+
+    var owner = get(this, 'owner'),
+        name = get(this, 'name');
+
+    if (!owner._suspendedAssociations) {
+      // This code is the second half of code that started in
+      // `arrayContentWillChange`. It gets or creates a change
+      // from the child object, and adds the current owner as
+      // the new parent.
+      for (var i=index; i<index+added; i++) {
+        var clientId = get(this, 'content').objectAt(i);
+
+        var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), { parentType: owner.constructor });
+        change.hasManyName = name;
+
+        // The oldParent will be looked up in `sync` if it
+        // was not set by `belongsToWillChange`.
+        change.newParent = get(owner, 'clientId');
+        this._changesToSync.add(change);
+      }
+
+      // We wait until the array has finished being
+      // mutated before syncing the OneToManyChanges created
+      // in arrayContentWillChange, so that the array
+      // membership test in the sync() logic operates
+      // on the final results.
+      this._changesToSync.forEach(function(change) {
+        change.sync();
+      });
+      this._changesToSync.clear();
     }
   },
 
-  // Create a child record within the parentRecord
+  /**
+    @private
+  */
+  assignInverse: function(record) {
+    var inverseName = DS.inverseNameFor(record.constructor, get(this, 'owner.constructor'), 'belongsTo'),
+        owner = get(this, 'owner'),
+        currentInverse;
+
+    if (inverseName) {
+      currentInverse = get(record, inverseName);
+      if (currentInverse !== owner) {
+        set(record, inverseName, owner);
+      }
+    }
+
+    return currentInverse;
+  },
+
+  /**
+    @private
+  */
+  removeInverse: function(record) {
+    var inverseName = DS.inverseNameFor(record.constructor, get(this, 'owner.constructor'), 'belongsTo');
+
+    if (inverseName) {
+      var currentInverse = get(record, inverseName);
+      if (currentInverse === get(this, 'owner')) {
+        set(record, inverseName, null);
+      }
+    }
+  },
+
+  // Create a child record within the owner
   createRecord: function(hash, transaction) {
-    var parentRecord = get(this, 'parentRecord'),
-        store = get(parentRecord, 'store'),
+    var owner = get(this, 'owner'),
+        store = get(owner, 'store'),
         type = get(this, 'type'),
         record;
 
-    transaction = transaction || get(parentRecord, 'transaction');
+    transaction = transaction || get(owner, 'transaction');
 
     record = store.createRecord.call(store, type, hash, transaction);
     this.pushObject(record);
 
     return record;
+  },
+
+  /**
+    METHODS FOR USE BY INVERSE RELATIONSHIPS
+    ========================================
+
+    These methods exists so that belongsTo relationships can
+    set their inverses without causing an infinite loop.
+
+    This creates two APIs:
+
+    * the normal enumerable API, which is used by clients
+      of the `ManyArray` and triggers a change to inverse
+      `belongsTo` relationships.
+    * `removeFromContent` and `addToContent`, which are
+      used by inverse relationships and do not trigger a
+      change to `belongsTo` relationships.
+
+    Unlike the normal `addObject` and `removeObject` APIs,
+    these APIs manipulate the `content` array without
+    triggering side-effects.
+  */
+
+  /** @private */
+  removeFromContent: function(record) {
+    var clientId = get(record, 'clientId');
+    get(this, 'content').removeObject(clientId);
+  },
+
+  /** @private */
+  addToContent: function(record) {
+    var clientId = get(record, 'clientId');
+    get(this, 'content').addObject(clientId);
   }
 });

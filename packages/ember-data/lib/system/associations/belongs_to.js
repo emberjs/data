@@ -1,53 +1,25 @@
 var get = Ember.get, set = Ember.set,
     none = Ember.none;
 
-var embeddedFindRecord = function(store, type, data, key, one) {
-  var association = get(data, key);
-  return none(association) ? undefined : store.load(type, association).id;
-};
-
-var referencedFindRecord = function(store, type, data, key, one) {
-  return get(data, key);
-};
-
 var hasAssociation = function(type, options, one) {
   options = options || {};
-
-  var embedded = options.embedded,
-      findRecord = embedded ? embeddedFindRecord : referencedFindRecord;
 
   var meta = { type: type, isAssociation: true, options: options, kind: 'belongsTo' };
 
   return Ember.computed(function(key, value) {
-    var data = get(this, 'data'), ids, id, association,
-        store = get(this, 'store');
+    if (arguments.length === 2) {
+      return value === undefined ? null : value;
+    }
+
+    var data = get(this, 'data').belongsTo,
+        store = get(this, 'store'), id;
 
     if (typeof type === 'string') {
       type = get(this, type, false) || get(window, type);
     }
 
-    if (arguments.length === 2) {
-      key = options.key || get(this, 'namingConvention').foreignKey(key);
-      this.send('setAssociation', { key: key, value: Ember.none(value) ? null : get(value, 'clientId') });
-      //data.setAssociation(key, get(value, 'clientId'));
-      // put the client id in `key` in the data hash
-      return value;
-    } else {
-      // Embedded belongsTo associations should not look for
-      // a foreign key.
-      if (embedded) {
-        key = options.key || get(this, 'namingConvention').keyToJSONKey(key);
-
-      // Non-embedded associations should look for a foreign key.
-      // For example, instead of person, we might look for person_id
-      } else {
-        key = options.key || get(this, 'namingConvention').foreignKey(key);
-      }
-      id = findRecord(store, type, data, key, true);
-      association = id ? store.find(type, id) : null;
-    }
-
-    return association;
+    id = data[key];
+    return id ? store.find(type, id) : null;
   }).property('data').cacheable().meta(meta);
 };
 
@@ -55,3 +27,41 @@ DS.belongsTo = function(type, options) {
   Ember.assert("The type passed to DS.belongsTo must be defined", !!type);
   return hasAssociation(type, options);
 };
+
+/**
+  These observers observe all `belongsTo` relationships on the record. See
+  `associations/ext` to see how these observers get their dependencies.
+
+  The observers use `removeFromContent` and `addToContent` to avoid
+  going through the public Enumerable API that would try to set the
+  inverse (again) and trigger an infinite loop.
+*/
+
+DS.Model.reopen({
+  /** @private */
+  belongsToWillChange: Ember.beforeObserver(function(record, key) {
+    if (get(record, 'isLoaded')) {
+      var oldParent = get(record, key);
+
+      var childId = get(record, 'clientId'),
+          store = get(record, 'store');
+
+      var change = DS.OneToManyChange.forChildAndParent(childId, store, { belongsToName: key });
+
+      if (change.oldParent === undefined) {
+        change.oldParent = oldParent ? get(oldParent, 'clientId') : null;
+      }
+    }
+  }),
+
+  /** @private */
+  belongsToDidChange: Ember.immediateObserver(function(record, key) {
+    if (get(record, 'isLoaded')) {
+      var change = get(record, 'store').relationshipChangeFor(get(record, 'clientId'), key),
+          newParent = get(record, key);
+
+      change.newParent = newParent ? get(newParent, 'clientId') : null;
+      change.sync();
+    }
+  })
+});
