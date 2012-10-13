@@ -208,7 +208,7 @@ DS.Serializer = Ember.Object.extend({
   transformValueToJSON: function(value, attributeType) {
     var transform = this.transforms[attributeType];
 
-    Ember.assert("You tried to use a attribute type (" + attributeType + ") that has not been registered", transform);
+    Ember.assert("You tried to use an attribute type (" + attributeType + ") that has not been registered", transform);
     return transform.toJSON(value);
   },
 
