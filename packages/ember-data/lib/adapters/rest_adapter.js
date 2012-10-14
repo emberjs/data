@@ -1,23 +1,14 @@
 require("ember-data/core");
 require('ember-data/system/adapter');
+require('ember-data/serializers/rest_serializer');
 /*global jQuery*/
 
 var get = Ember.get, set = Ember.set;
 
-var serializer = DS.Serializer.create({
-  keyForBelongsTo: function(type, name) {
-    return this.keyForAttributeName(type, name) + "_id";
-  },
-
-  keyForAttributeName: function(type, name) {
-    return Ember.String.decamelize(name);
-  }
-});
-
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
-	
-  serializer: serializer,
+
+  serializer: DS.RESTSerializer,
 
   shouldCommit: function(record) {
     if (record.isCommittingBecause('attribute') || record.isCommittingBecause('belongsTo')) {
