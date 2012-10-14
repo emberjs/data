@@ -46,6 +46,18 @@ test("the filter method should be aliased", function() {
   Person.filter(filter);
 });
 
+test("the all method should be aliased", function() {
+  expect(1);
+
+  var all = function() {};
+
+  store.all = function(type) {
+    equal(type, Person, "filter called with correct type");
+  };
+
+  Person.all();
+});
+
 test("the recordIsLoaded method should be aliased", function() {
   expect(2);
 

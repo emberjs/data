@@ -355,6 +355,67 @@ test("finding all can sideload data", function() {
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
+test("finding all people with since makes a GET to /people", function() {
+  people = store.find(Person);
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+
+  ajaxHash.success({ meta: {since: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
+
+  people = store.find(Person);
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+  expectData({since: '123'});
+
+  ajaxHash.success({ meta: {since: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
+
+  person = people.objectAt(1);
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(person, store.find(Person, 2), "the record is now in the store, and can be looked up by ID without another Ajax request");
+
+  people.update();
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+  expectData({since: '1234'});
+
+  ajaxHash.success({ meta: {since: '12345'}, people: [{ id: 3, name: "Dan Gebhardt" }] });
+
+  equal(people.get('length'), 3, 'should have 3 records now');
+});
+
+test("meta and since are configurable", function() {
+  store.set('_adapter.meta', 'metaObject');
+  store.set('_adapter.since', 'sinceToken');
+
+  people = store.find(Person);
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+
+  ajaxHash.success({ metaObject: {sinceToken: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
+
+  people.update();
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+  expectData({sinceToken: '123'});
+
+  ajaxHash.success({ metaObject: {sinceToken: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
+
+  person = people.objectAt(1);
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(person, store.find(Person, 2), "the record is now in the store, and can be looked up by ID without another Ajax request");
+});
+
 test("finding a person by ID makes a GET to /people/:id", function() {
   person = store.find(Person, 1);
 

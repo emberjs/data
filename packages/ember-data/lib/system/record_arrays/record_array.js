@@ -23,6 +23,7 @@ DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
   content: null,
 
   isLoaded: false,
+  isUpdating: false,
 
   // The store that created this record array.
   store: null,
@@ -45,4 +46,13 @@ DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
       return this.objectAt(index);
     }
   },
+
+  update: function() {
+    if (get(this, 'isUpdating')) { return; }
+
+    var store = get(this, 'store'),
+        type = get(this, 'type');
+
+    store.fetchAll(type, this);
+  }
 });

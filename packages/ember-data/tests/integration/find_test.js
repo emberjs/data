@@ -21,12 +21,13 @@ module("Finding Records", {
 });
 
 test("When a single record is requested, the adapter's find method should be called unless it's loaded.", function() {
-  expect(2);
+  expect(3);
 
   var count = 0;
 
-  adapter.find = function(store, type, id) {
+  adapter.find = function(store, type, id, record) {
     equal(type, Person, "the find method is called with the correct type");
+    equal(record.get('id'), id, 'the find method is called with record');
     equal(count, 0, "the find method is only called once");
 
     store.load(type, id, { id: 1, name: "Braaaahm Dale" });
@@ -57,13 +58,14 @@ test("When multiple records are requested, the adapter's `findMany` method shoul
 });
 
 test("When multiple records are requested, the default adapter should call the `find` method once per record if findMany is not implemented", function() {
-  expect(3);
+  expect(6);
 
   var count = 0;
-  adapter.find = function(store, type, id) {
+  adapter.find = function(store, type, id, record) {
     count++;
 
     equal(id, count);
+    equal(record.get('id'), count, 'the find method is called with record');
   };
 
   store.findMany(Person, [1,2,3]);
