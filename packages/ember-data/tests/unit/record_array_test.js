@@ -65,7 +65,7 @@ test("a newly created record is removed from a record array when it is deleted",
   var store = DS.Store.create(),
       recordArray;
 
-  recordArray = store.find(Person);
+  recordArray = store.all(Person);
 
   var scumbag = store.createRecord(Person, {
     name: "Scumbag Dale"
@@ -93,7 +93,7 @@ test("a record array returns undefined when asking for a member outside of its c
 
   store.loadMany(Person, array);
 
-  var recordArray = store.find(Person);
+  var recordArray = store.all(Person);
 
   strictEqual(recordArray.objectAt(20), undefined, "objects outside of the range just return undefined");
 });
@@ -103,7 +103,7 @@ test("a record array should be able to be enumerated in any order", function() {
   var store = DS.Store.create();
   store.loadMany(Person, [1,2,3], array);
 
-  var recordArray = store.find(Person);
+  var recordArray = store.all(Person);
 
   equal(get(recordArray.objectAt(2), 'id'), 3, "should retrieve correct record at index 3");
   equal(get(recordArray.objectAt(0), 'id'), 1, "should retrieve correct record at index 0");
@@ -147,7 +147,7 @@ test("a record array that backs a collection view functions properly", function(
   store.load(Person, 5, { name: "Other Katz" });
 
   var container = Ember.CollectionView.create({
-    content: store.findAll(Person)
+    content: store.all(Person)
   });
 
   container.appendTo('#qunit-fixture');
