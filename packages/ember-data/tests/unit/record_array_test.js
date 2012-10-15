@@ -105,8 +105,8 @@ test("a record array should be able to be enumerated in any order", function() {
 
   var recordArray = store.all(Person);
 
-  equal(get(recordArray.objectAt(2), 'id'), 3, "should retrieve correct record at index 3");
-  equal(get(recordArray.objectAt(0), 'id'), 1, "should retrieve correct record at index 0");
+  equal(get(recordArray.objectAt(2), 'id'), 3, "should retrieve correct record at index 2");
+  equal(get(recordArray.objectAt(1), 'id'), 2, "should retrieve correct record at index 1");
   equal(get(recordArray.objectAt(0), 'id'), 1, "should retrieve correct record at index 0");
 });
 
