@@ -109,7 +109,7 @@ DS.ManyArray = DS.RecordArray.extend({
         var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), { parentType: owner.constructor });
         change.hasManyName = name;
 
-        if (change.oldParent === undefined) { change.oldParent = get(owner, 'clientId'); }
+        if (change.oldParent === undefined || change.oldParent === null) { change.oldParent = get(owner, 'clientId'); }
         change.newParent = null;
         this._changesToSync.add(change);
       }
