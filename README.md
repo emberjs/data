@@ -478,6 +478,7 @@ implementing methods on them:
 * `didCreate` - called when the record has been successfully created in the persistence layer
 * `didUpdate` - called when changes have been successfully saved to the persistence layer
 * `didLoad` - called when data has finished loading from the persistence layer
+* `didDelete` - called when the record has been successfully deleted in the persistence layer
 
 For example:
 
