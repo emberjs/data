@@ -149,6 +149,36 @@ test("singular creations can sideload data", function() {
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
+test("singular creations can sidedelete data", function(){
+  adapter.deleteMapping = '_deleted';
+  adapter.mappings = {
+    groups: Group
+  };
+
+  store.load(Group, { id: 1, name: "Coffee Addicts" });
+
+  person = store.createRecord(Person, { name: "David J. Hamilton" });
+
+  expectState('new');
+  store.commit();
+  expectState('saving');
+
+  expectUrl("/people", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ person: { name: "David J. Hamilton" } });
+
+  ajaxHash.success({
+    person: { id: 1, name: "David J. Hamilton" },
+    _deleted: { groups: [1, 2]}
+  });
+
+  expectState('saving', false);
+
+  group = Group.find(1);
+  equal(get(group, 'isDeleted'), true, "the loaded data sidedeleted successfully");
+  equal(Group.isLoaded(2), false, "no stub was created for unloaded sidedeleted data");
+});
+
 test("updating a person makes a PUT to /people/:id with the data hash", function() {
   store.load(Person, { id: 1, name: "Yehuda Katz" });
 
@@ -234,6 +264,43 @@ test("singular updates can sideload data", function() {
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
+test("singular updates can sidedelete data", function() {
+  adapter.deleteMapping = '_deleted';
+  adapter.mappings = {
+    groups: Group
+  };
+
+  store.load(Group, { id: 1, name: "Coffee Addicts" });
+
+  store.load(Person, { id: 1, name: "David J. Hamilton" });
+
+  person = store.find(Person, 1);
+
+  expectState('new', false);
+  expectState('loaded');
+  expectState('dirty', false);
+
+  set(person, 'name', "Some Brit");
+
+  expectState('dirty');
+  store.commit();
+  expectState('saving');
+
+  expectUrl("/people/1", "the plural of the model name with its ID");
+  expectType("PUT");
+
+  ajaxHash.success({
+    person: { id: 1, name: "David J. Hamilton" },
+    _deleted: { groups: [1, 2]}
+  });
+
+  expectState('saving', false);
+
+  group = Group.find(1);
+  equal(get(group, 'isDeleted'), true, "the loaded data sidedeleted successfully");
+  equal(Group.isLoaded(2), false, "no stub was created for unloaded sidedeleted data");
+});
+
 /*
 test("updating a record with custom primaryKey", function() {
   store.load(Role, { _id: 1, name: "Developer" });
@@ -304,6 +371,43 @@ test("singular deletes can sideload data", function() {
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
+test("singular deletes can sidedelete data", function() {
+  adapter.deleteMapping = '_deleted';
+  adapter.mappings = {
+    groups: Group
+  };
+
+  store.load(Group, { id: 1, name: "Coffee Addicts" });
+
+  store.load(Person, { id: 1, name: "David J. Hamilton" });
+
+  person = store.find(Person, 1);
+
+  expectState('new', false);
+  expectState('loaded');
+  expectState('dirty', false);
+
+  person.deleteRecord();
+
+  expectState('dirty');
+  expectState('deleted');
+  store.commit();
+  expectState('saving');
+
+  expectUrl("/people/1", "the plural of the model name with its ID");
+  expectType("DELETE");
+
+  ajaxHash.success({
+    _deleted: { groups: [1, 2]}
+  });
+
+  expectState('deleted');
+
+  group = Group.find(1);
+  equal(get(group, 'isDeleted'), true, "the loaded data sidedeleted successfully");
+  equal(Group.isLoaded(2), false, "no stub was created for unloaded sidedeleted data");
+});
+
 /*
 test("deleting a record with custom primaryKey", function() {
   store.load(Role, { _id: 1, name: "Developer" });
@@ -353,6 +457,29 @@ test("finding all can sideload data", function() {
   expectState('dirty', false);
 
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
+});
+
+test("finding all can sidedelete data", function() {
+  adapter.deleteMapping = '_deleted';
+  adapter.mappings = {
+    groups: Group
+  };
+
+  store.load(Group, { id: 1, name: "Coffee Addicts" });
+
+  store.find(Person);
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+
+  ajaxHash.success({
+    people: [{ id: 1, name: "David J. Hamilton" }],
+    _deleted: { groups: [1, 2]}
+  });
+
+  group = Group.find(1);
+  equal(get(group, 'isDeleted'), true, "the loaded data sidedeleted successfully");
+  equal(Group.isLoaded(2), false, "no stub was created for unloaded sidedeleted data");
 });
 
 test("finding all people with since makes a GET to /people", function() {
@@ -445,6 +572,26 @@ test("additional data can be sideloaded in a GET", function() {
 
   equal(get(store.find(Person, 1), 'name'), "Yehuda Katz", "the items are sideloaded");
   equal(get(get(store.find(Group, 1), 'people').objectAt(0), 'name'), "Yehuda Katz", "the items are in the association");
+});
+
+test("additional data can be sidedeleted in a GET", function() {
+  adapter.deleteMapping = '_deleted';
+  adapter.mappings = {
+    groups: Group
+  };
+
+  store.load(Group, { id: 1, name: "Coffee Addicts" });
+
+  store.find(Person, 1);
+
+  ajaxHash.success({
+    person: { id: 1, name: "David J. Hamilton" },
+    _deleted: { groups: [1, 2]}
+  });
+
+  group = Group.find(1);
+  equal(get(group, 'isDeleted'), true, "the loaded data sidedeleted successfully");
+  equal(Group.isLoaded(2), false, "no stub was created for unloaded sidedeleted data");
 });
 
 test("finding many people by a list of IDs", function() {
@@ -567,6 +714,30 @@ test("additional data can be sideloaded in a GET with many IDs", function() {
   });
 });
 
+test("additional data can be sidedeleted in a GET with many IDs", function() {
+  adapter.deleteMapping = '_deleted';
+  adapter.mappings = {
+    groups: Group
+  };
+
+  store.load(Group, { id: 1, name: "Coffee Addicts" });
+
+  store.findMany(Person, [1]);
+
+  expectUrl("/people");
+  expectType("GET");
+  expectData({ ids: [ 1 ] });
+
+  ajaxHash.success({
+    people: [{ id: 1, name: "David J. Hamilton" }],
+    _deleted: { groups: [1, 2]}
+  });
+
+  group = Group.find(1);
+  equal(get(group, 'isDeleted'), true, "the loaded data sidedeleted successfully");
+  equal(Group.isLoaded(2), false, "no stub was created for unloaded sidedeleted data");
+});
+
 test("finding people by a query", function() {
   var people = store.find(Person, { page: 1 });
 
@@ -645,6 +816,29 @@ test("finding people by a query can sideload data", function() {
   });
 });
 
+test("finding people by a query can sidedelete data", function() {
+  adapter.deleteMapping = '_deleted';
+  adapter.mappings = {
+    groups: Group
+  };
+
+  store.load(Group, { id: 1, name: "Coffee Addicts" });
+  store.find(Person, { page: 1 });
+
+  expectUrl("/people", "the collection at the plural of the model name");
+  expectType("GET");
+  expectData({ page: 1 });
+
+  ajaxHash.success({
+    people: [{ id: 1, name: "David J. Hamilton" }],
+    _deleted: { groups: [1, 2]}
+  });
+
+  group = Group.find(1);
+  equal(get(group, 'isDeleted'), true, "the loaded data sidedeleted successfully");
+  equal(Group.isLoaded(2), false, "no stub was created for unloaded sidedeleted data");
+});
+
 test("creating several people (with bulkCommit) makes a POST to /people, with a data hash Array", function() {
   set(adapter, 'bulkCommit', true);
 
@@ -698,6 +892,43 @@ test("bulk commits can sideload data", function() {
 
   group = store.find(Group, 1);
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
+});
+
+test("bulk commits can sidedelete data", function() {
+  set(adapter, 'bulkCommit', true);
+
+  adapter.deleteMapping = '_deleted';
+  adapter.mappings = {
+    groups: Group
+  };
+
+  store.load(Group, { id: 1, name: "Coffee Addicts" });
+
+  var tom = store.createRecord(Person, { name: "Tom Dale" });
+  var yehuda = store.createRecord(Person, { name: "Yehuda Katz" });
+
+  adapter.mappings = { groups: Group };
+
+  people = [ tom, yehuda ];
+
+  expectStates('new');
+  store.commit();
+  expectStates('saving');
+
+  expectUrl("/people", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ people: [ { name: "Tom Dale" }, { name: "Yehuda Katz" } ] });
+
+  ajaxHash.success({
+    people: [ { id: 1, name: "Tom Dale" }, { id: 2, name: "Yehuda Katz" } ],
+    _deleted: { groups: [1, 2]}
+  });
+
+  expectStates('saving', false);
+
+  group = Group.find(1);
+  equal(get(group, 'isDeleted'), true, "the loaded data sidedeleted successfully");
+  equal(Group.isLoaded(2), false, "no stub was created for unloaded sidedeleted data");
 });
 
 test("updating several people (with bulkCommit) makes a PUT to /people/bulk with the data hash Array", function() {
@@ -786,6 +1017,55 @@ test("bulk updates can sideload data", function() {
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
+test("bulk updates can sidedelete data", function() {
+  set(adapter, 'bulkCommit', true);
+
+  adapter.deleteMapping = '_deleted';
+  adapter.mappings = {
+    groups: Group
+  };
+
+  store.load(Group, { id: 1, name: "Coffee Addicts" });
+
+  store.loadMany(Person, [
+    { id: 1, name: "Yehuda Katz" },
+    { id: 2, name: "David J. Hamilton" }
+  ]);
+
+  var yehuda = store.find(Person, 1);
+  var david = store.find(Person, 2);
+
+  people = [ yehuda, david ];
+
+  expectStates('new', false);
+  expectStates('loaded');
+  expectStates('dirty', false);
+
+  set(yehuda, 'name', "Brohuda Brokatz");
+  set(david, 'name', "Some Brit");
+
+  expectStates('dirty');
+  store.commit();
+  expectStates('saving');
+
+  expectUrl("/people/bulk", "the collection at the plural of the model name");
+  expectType("PUT");
+
+  ajaxHash.success({
+    people: [
+      { id: 1, name: "Brohuda Brokatz" },
+      { id: 2, name: "Some Brit" }
+    ],
+    _deleted: { groups: [1, 2]}
+  });
+
+  expectStates('saving', false);
+
+  group = Group.find(1);
+  equal(get(group, 'isDeleted'), true, "the loaded data sidedeleted successfully");
+  equal(Group.isLoaded(2), false, "no stub was created for unloaded sidedeleted data");
+});
+
 test("deleting several people (with bulkCommit) makes a PUT to /people/bulk", function() {
   set(adapter, 'bulkCommit', true);
 
@@ -865,6 +1145,54 @@ test("bulk deletes can sideload data", function() {
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
+test("bulk deletes can sidedelete data", function() {
+  set(adapter, 'bulkCommit', true);
+
+  adapter.deleteMapping = '_deleted';
+  adapter.mappings = {
+    groups: Group
+  };
+
+  store.load(Group, { id: 1, name: "Coffee Addicts" });
+
+  store.loadMany(Person, [
+    { id: 1, name: "Yehuda Katz" },
+    { id: 2, name: "David J. Hamilton" }
+  ]);
+
+  var yehuda = store.find(Person, 1);
+  var david = store.find(Person, 2);
+
+  people = [ yehuda, david ];
+
+  expectStates('new', false);
+  expectStates('loaded');
+  expectStates('dirty', false);
+
+  yehuda.deleteRecord();
+  david.deleteRecord();
+
+  expectStates('dirty');
+  expectStates('deleted');
+  store.commit();
+  expectStates('saving');
+
+  expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
+  expectType("DELETE");
+
+  ajaxHash.success({
+    _deleted: { groups: [1, 2]}
+  });
+
+  expectStates('saving', false);
+  expectStates('deleted');
+  expectStates('dirty', false);
+
+  group = Group.find(1);
+  equal(get(group, 'isDeleted'), true, "the loaded data sidedeleted successfully");
+  equal(Group.isLoaded(2), false, "no stub was created for unloaded sidedeleted data");
+});
+
 test("if you specify a namespace then it is prepended onto all URLs", function() {
   set(adapter, 'namespace', 'ember');
   person = store.find(Person, 1);
@@ -913,6 +1241,70 @@ test("additional data can be sideloaded with associations in correct order", fun
       id: 1, name: "Yehuda Katz"
     }]
   });
+});
+
+test("clean records can be sidedeleted", function(){
+  adapter.deleteMapping = '_deleted';
+  adapter.mappings = {
+    groups: Group
+  };
+
+  store.load(Group, { id: 1, name: "Coffee Addicts" });
+
+  store.find(Person, 1);
+
+  ajaxHash.success({
+    person: { id: 1, name: "David J. Hamilton" },
+    _deleted: { groups: [1, 2]}
+  });
+
+  group = Group.find(1);
+  equal(get(group, 'isDeleted'), true, "the loaded data sidedeleted successfully");
+  equal(Group.isLoaded(2), false, "no stub was created for unloaded sidedeleted data");
+});
+
+test("dirty records can be sidedeleted", function(){
+  adapter.deleteMapping = '_deleted';
+  adapter.mappings = {
+    people: Person
+  };
+
+  store.load(Person, { id: 1, name: "David J. Hamilton" });
+
+  person = store.find(Person, 1);
+  person.set("name", "Some Brit");
+
+  expectState("dirty");
+
+  store.find(Group, 1);
+  ajaxHash.success({
+    group: { id: 1, name: "Coffee Addicts" },
+    _deleted: { people: [1, 2]}
+  });
+
+  expectState("dirty", false);
+  equal(get(person, "isDeleted"), true, "the loaded data sidedeleted successfully");
+  equal(Person.isLoaded(2), false, "no stub was created for unloaded sidedeleted data");
+});
+
+test("adapters can specify the sidedelete mapping", function(){
+  adapter.deleteMapping = 'killed-with-fire';
+  adapter.mappings = {
+    groups: Group
+  };
+
+  store.load(Group, { id: 1, name: "Coffee Addicts" });
+
+  store.find(Person, 1);
+
+  ajaxHash.success({
+    person: { id: 1, name: "David J. Hamilton" },
+    'killed-with-fire': { groups: [1, 2]}
+  });
+
+  group = Group.find(1);
+  equal(get(group, 'isDeleted'), true, "the loaded data sidedeleted successfully");
+  equal(Group.isLoaded(2), false, "no stub was created for unloaded sidedeleted data");
 });
 
 test("data loaded from the server is converted from underscores to camelcase", function() {
