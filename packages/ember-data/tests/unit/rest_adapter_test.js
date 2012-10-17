@@ -67,13 +67,9 @@ module("the REST adapter", {
   },
 
   teardown: function() {
+    person = null;
     adapter.destroy();
     store.destroy();
-
-    if (person) {
-      person.destroy();
-      person = null;
-    }
   }
 });
 
@@ -275,7 +271,7 @@ test("add/commit/delete/commit a person from a group, group lifecycle", function
   store.load(Group, { id: 1, name: "Whiskey drinkers"});
   store.load(Person, { id: 1, name: "Tom Dale"});
 
-  var 
+  var
     person = store.find(Person, 1),
     group = store.find(Group, 1);
 
@@ -1005,4 +1001,66 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
   expectType("POST");
   expectData({ person: { name: "Sam Woodard", person_type_id: "1" } });
   ajaxHash.success({ person: { name: 'Sam Woodard', person_type_id: 1}});
+});
+
+test("creating a record with a 422 error marks the records as invalid", function(){
+  person = store.createRecord(Person, { name: "" });
+  store.commit();
+
+  var mockXHR = {
+    status:       422,
+    responseText: JSON.stringify({ errors: { name: ["can't be blank"]} })
+  };
+
+  ajaxHash.error(mockXHR);
+
+  expectState('valid', false);
+  deepEqual(person.get('errors'), { name: ["can't be blank"]}, "the person has the errors");
+});
+
+test("updating a record with a 422 error marks the records as invalid", function(){
+  store.load(Person, { id: 1, name: "John Doe" });
+  person = store.find(Person, 1);
+  person.set('name', '');
+  store.commit();
+
+  var mockXHR = {
+    status:       422,
+    responseText: JSON.stringify({ errors: { name: ["can't be blank"]} })
+  };
+
+  ajaxHash.error(mockXHR);
+
+  expectState('valid', false);
+  deepEqual(person.get('errors'), { name: ["can't be blank"]}, "the person has the errors");
+});
+
+test("creating a record with a 500 error marks the record as error", function() {
+  person = store.createRecord(Person, { name: "" });
+  store.commit();
+
+  var mockXHR = {
+    status:       500,
+    responseText: 'Internal Server Error'
+  };
+
+  ajaxHash.error(mockXHR);
+
+  expectState('error');
+});
+
+test("updating a record with a 500 error marks the record as error", function() {
+  store.load(Person, { id: 1, name: "John Doe" });
+  person = store.find(Person, 1);
+  person.set('name', 'Jane Doe');
+  store.commit();
+
+  var mockXHR = {
+    status:       500,
+    responseText: 'Internal Server Error'
+  };
+
+  ajaxHash.error(mockXHR);
+
+  expectState('error');
 });

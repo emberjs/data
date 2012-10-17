@@ -954,6 +954,17 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
+     This method allows the adapter to specify that a record
+     could not be saved because the server returned an unhandled
+     error.
+
+     @param {DS.Model} record
+  */
+  recordWasError: function(record) {
+    record.adapterDidError();
+  },
+
+  /**
     This is a lower-level API than `didSaveRecord` that allows an
     adapter to acknowledge the persistence of a single attribute.
 
