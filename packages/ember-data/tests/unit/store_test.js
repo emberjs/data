@@ -515,7 +515,7 @@ test("a record receives a didCreate callback when it has finished updating", fun
 
   var adapter = TestAdapter.create({
     createRecord: function(store, type, record) {
-      equal(callCount, 0, "didCreate callback was not called untill didSaveRecord is called");
+      equal(callCount, 0, "didCreate callback was not called until didSaveRecord is called");
 
       store.didSaveRecord(record);
     }
