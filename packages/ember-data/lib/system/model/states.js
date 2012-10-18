@@ -27,8 +27,8 @@ var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor;
   string. You can determine a record's current state by getting its manager's
   current state path:
 
-        record.get('stateManager.currentState.path');
-        //=> "created.uncommitted"
+      record.get('stateManager.currentState.path');
+      //=> "created.uncommitted"
 
   The `DS.Model` states are themselves stateless. What we mean is that,
   though each instance of a record also has a unique instance of a

@@ -105,7 +105,7 @@ should not be used again.
     `updated` bucket.
 * Stores descriptions of changed relationships. When a relationship
   changes, information about its old parent, new parent, and new child
-  is saved in the transaction. 
+  is saved in the transaction.
 * Raises an exception if changes in relationships are made between
   records that are in different transactions.
 * Able to move records into itself from another transaction if it is
@@ -134,7 +134,7 @@ client IDs that belong to that record.
 
 * Notifies the transaction if the relationship is modified
 * Tracks aggregate state of member records via `isLoaded` flag
-* Updates added records to point ther inverse association to the new
+* Updates added records to point their inverse association to the new
   parent.
 
 ### DS.AdapterPopulatedRecordArray
