@@ -496,3 +496,24 @@ test("calling createRecord and passing in an undefined value for an association 
 
   strictEqual(person.get('tag'), null, "undefined values should return null associations");
 });
+
+test("belongsTo associations will respect their inverse hasMany association", function() {
+  var Book = DS.Model.extend({
+    name: DS.attr('string'),
+    author: DS.belongsTo('Author')
+  });
+
+  var Author = DS.Model.extend({
+    name: DS.attr('string'),
+    books: DS.hasMany('Book')
+  });
+
+  var store = DS.Store.create();
+  store.load(Book, { id: 1, name: "floops", author_id: 1});
+  store.load(Author, { id: 1, name: "Andy"});
+
+  var book = store.find(Book,1);
+  var author = store.find(Author,1);
+
+  equal(book,book.getPath('author.books').objectAt(0), "able to obtain the inverse hasMany object");
+});
