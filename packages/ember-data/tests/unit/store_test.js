@@ -364,6 +364,49 @@ test("all(type) returns a record array of all records of a specific type", funct
   strictEqual(results, store.all(Person), "subsequent calls to all return the same recordArray)");
 });
 
+test("all(type) returns a record array of all child records of a generic type", function() {
+  var store = DS.Store.create();
+
+  var Lecture = DS.Model.extend();
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+  var Student = Person.extend();
+  var Teacher = Person.extend();
+
+  store.load(Student, 1, { id: 1, name: "Tobias Fünke" });
+  store.load(Teacher, 2, { id: 2, name: "Carl Weathers" });
+  store.load(Lecture, 3, { id: 3 });
+
+  var allLectures = store.all(Lecture);
+  var allPersons = store.all(Person);
+  var allStudents = store.all(Student);
+  var allTeachers = store.all(Teacher);
+  var allModels = store.all(DS.Model);
+
+  equal(get(allLectures, 'length'), 1, "precond - record array contains all lecture records");
+  equal(get(allPersons, 'length'), 2, "precond - record array contains all person records");
+  equal(get(allStudents, 'length'), 1, "precond - record array contains all student records");
+  equal(get(allTeachers, 'length'), 1, "precond - record array contains all teacher records");
+  equal(get(allModels, 'length'), 3, "precond - record array contains all model records");
+
+  store.load(Student, 4, { id: 4, name: "Buster Bluth" });
+
+  equal(get(allLectures, 'length'), 1, "adding a student - record array contains all lecture records");
+  equal(get(allPersons, 'length'), 3, "adding a student - record array contains all person records");
+  equal(get(allStudents, 'length'), 2, "adding a student - record array contains all student records");
+  equal(get(allTeachers, 'length'), 1, "adding a student - record array contains all teacher records");
+  equal(get(allModels, 'length'), 4, "adding a student - record array contains all model records");
+
+  store.find(Student, 4).deleteRecord();
+
+  equal(get(allLectures, 'length'), 1, "removing a student - record array contains all lecture records");
+  equal(get(allPersons, 'length'), 2, "removing a student - record array contains all person records");
+  equal(get(allStudents, 'length'), 1, "removing a student - record array contains all student records");
+  equal(get(allTeachers, 'length'), 1, "removing a student - record array contains all teacher records");
+  equal(get(allModels, 'length'), 3, "removing a student - record array contains all model records");
+});
+
 test("a new record of a particular type is created via store.createRecord(type)", function() {
   var store = DS.Store.create();
   var Person = DS.Model.extend({

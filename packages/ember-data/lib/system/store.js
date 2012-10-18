@@ -1226,6 +1226,12 @@ DS.Store = Ember.Object.extend({
 
       this.loadingRecordArrays[clientId] = null;
     }
+
+    // update all record arrays for superclass of this type
+    var superclass = type.superclass;
+    if (DS.Model.detect(superclass)) {
+      this.updateRecordArrays(superclass, clientId);
+    }
   },
 
   /**
@@ -1466,6 +1472,12 @@ DS.Store = Ember.Object.extend({
     }
 
     clientIds.push(clientId);
+
+    // add clientId to typeMap of superclass
+    while ((type = type.superclass) && DS.Model.detect(type)) {
+      typeMap = this.typeMapFor(type);
+      typeMap.clientIds.push(clientId);
+    }
 
     return clientId;
   },
