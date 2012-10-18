@@ -288,7 +288,7 @@ transform like this:
 ```javascript
 App.Person = DS.Model.extend({
   name: DS.attr('string'),
-  isDrugDealer: DS.attr('boolean') 
+  isDrugDealer: DS.attr('boolean')
 });
 ```
 
@@ -334,7 +334,7 @@ If you were using the REST Adapter before, your app should continue to
 work. However, if you built a custom adapter, many of the APIs have
 changed.
 
-See (http://emberjs.com/guides/ember-data)[the Ember Data guide] for
+See [the Ember Data guide](http://emberjs.com/guides/ember-data) for
 more information.
 
 Some examples:
