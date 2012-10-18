@@ -248,6 +248,34 @@ DS.Adapter = Ember.Object.extend({
     ids.forEach(function(id) {
       this.find(store, type, id);
     }, this);
+  },
+
+  materializeError: function(record, errorMessage, options) {
+    options = options || {};
+    options.message = errorMessage;
+    return DS.AdapterError.create(options);
+  },
+
+  materializeValidationErrors: function(record, errorsHash) {
+    var key, attribute, errors = [], messages,
+        serializer = get(this, 'serializer');
+
+    for (key in errorsHash) {
+      if (errorsHash.hasOwnProperty(key)) {
+        attribute = serializer.attributeNameForKey(record.constructor, key);
+        if (attribute) {
+          messages = Ember.makeArray(errorsHash[key]);
+          for (var i = 0, l = messages.length; i < l; i++) {
+            errors.push(DS.AdapterValidationError.create({
+              message: messages[i],
+              attribute: attribute
+            }));
+          }
+        }
+      }
+    }
+
+    return errors;
   }
 });
 

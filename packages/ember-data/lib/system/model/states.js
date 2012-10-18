@@ -299,15 +299,18 @@ var DirtyState = DS.State.extend({
       manager.transitionTo('loaded.saved');
     },
 
-    becameInvalid: function(manager) {
+    becameInvalid: function(manager, errors) {
       var dirtyType = get(this, 'dirtyType'),
           record = get(manager, 'record');
+
+      get(record, 'errors').add(errors);
 
       record.withTransaction(function (t) {
         t.recordBecameInFlight(dirtyType, record);
       });
 
       manager.transitionTo('invalid');
+      manager.send('invokeLifecycleCallbacks');
     },
 
     rollback: function(manager) {
@@ -351,7 +354,7 @@ var DirtyState = DS.State.extend({
     becameInvalid: function(manager, errors) {
       var record = get(manager, 'record');
 
-      set(record, 'errors', errors);
+      get(record, 'errors').add(errors);
 
       record.restoreDirtyFactors();
 
@@ -359,9 +362,18 @@ var DirtyState = DS.State.extend({
       manager.send('invokeLifecycleCallbacks');
     },
 
-    becameError: function(manager) {
-      manager.transitionTo('error');
-      manager.send('invokeLifecycleCallbacks');
+    didError: function(manager, error) {
+      var record = get(manager, 'record');
+
+      get(record, 'errors').add(error);
+
+      if (get(error, 'isFatal')) {
+        manager.transitionTo('error');
+        manager.send('invokeLifecycleCallbacks');
+      } else {
+        manager.transitionTo('uncommitted');
+        record.trigger('didError', record);
+      }
     }
   }),
 
@@ -391,9 +403,9 @@ var DirtyState = DS.State.extend({
           errors = get(record, 'errors'),
           key = context.key;
 
-      set(errors, key, null);
+      errors.remove(key);
 
-      if (!hasDefinedProperties(errors)) {
+      if (!errors.hasErrorsOfType(DS.ValidationError)) {
         manager.send('becameValid');
       }
 
@@ -694,6 +706,20 @@ var states = {
           manager.transitionTo('saved');
 
           manager.send('invokeLifecycleCallbacks');
+        },
+
+        didError: function(manager, error) {
+          var record = get(manager, 'record');
+
+          get(record, 'errors').add(error);
+
+          if (get(error, 'isFatal')) {
+            manager.transitionTo('error');
+            manager.send('invokeLifecycleCallbacks');
+          } else {
+            manager.transitionTo('uncommitted');
+            record.trigger('didError', record);
+          }
         }
       }),
 
@@ -718,10 +744,9 @@ var states = {
       isError: true,
 
       // EVENTS
-
       invokeLifecycleCallbacks: function(manager) {
         var record = get(manager, 'record');
-        record.trigger('becameError', record);
+        record.trigger('didError', record);
       }
     })
   })

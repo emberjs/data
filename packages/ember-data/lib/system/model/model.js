@@ -41,8 +41,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   didUpdate: Ember.K,
   didCreate: Ember.K,
   didDelete: Ember.K,
+  didError: Ember.K,
   becameInvalid: Ember.K,
-  becameError: Ember.K,
 
   data: Ember.computed(function() {
     if (!this._data) {
@@ -66,6 +66,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   init: function() {
     var stateManager = DS.StateManager.create({ record: this });
     set(this, 'stateManager', stateManager);
+
+    var errors = DS.Errors.create();
+    set(this, 'errors', errors);
 
     this.setup();
 
@@ -421,6 +424,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
   adapterDidInvalidate: function(errors) {
     this.send('becameInvalid', errors);
+  },
+
+  adapterDidError: function(error) {
+    this.send('didError', error);
   },
 
   /**

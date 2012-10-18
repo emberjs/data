@@ -16,7 +16,7 @@ var serializer = DS.Serializer.create({
 
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
-	
+
   serializer: serializer,
 
   shouldCommit: function(record) {
@@ -33,9 +33,11 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
-      context: this,
       success: function(json) {
         this.didCreateRecord(store, type, record, json);
+      },
+      error: function(jqXHR) {
+        this.handleError(store, [record], jqXHR);
       }
     });
   },
@@ -63,9 +65,11 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
-      context: this,
       success: function(json) {
         this.didCreateRecords(store, type, records, json);
+      },
+      error: function(jqXHR) {
+        this.handleError(store, records, jqXHR);
       }
     });
   },
@@ -86,9 +90,11 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, id), "PUT", {
       data: data,
-      context: this,
       success: function(json) {
         this.didUpdateRecord(store, type, record, json);
+      },
+      error: function(jqXHR) {
+        this.handleError(store, [record], jqXHR);
       }
     });
   },
@@ -116,9 +122,11 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, "bulk"), "PUT", {
       data: data,
-      context: this,
       success: function(json) {
         this.didUpdateRecords(store, type, records, json);
+      },
+      error: function(jqXHR) {
+        this.handleError(store, records, jqXHR);
       }
     });
   },
@@ -135,9 +143,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     this.ajax(this.buildURL(root, id), "DELETE", {
-      context: this,
       success: function(json) {
         this.didDeleteRecord(store, type, record, json);
+      },
+      error: function(jqXHR) {
+        this.handleError(store, [record], jqXHR);
       }
     });
   },
@@ -163,9 +173,11 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
       data: data,
-      context: this,
       success: function(json) {
         this.didDeleteRecords(store, type, records, json);
+      },
+      error: function(jqXHR) {
+        this.handleError(store, records, jqXHR);
       }
     });
   },
@@ -306,6 +318,44 @@ DS.RESTAdapter = DS.Adapter.extend({
     } else {
       store.load(type, value);
     }
+  },
+
+  handleError: function(store, records, jqXHR) {
+    var responseHash = this.parseResponseText(jqXHR);
+
+    if (jqXHR.status === 422) {
+      records.forEach(function(record) {
+        var errors = this.materializeValidationErrors(record, responseHash['errors']);
+
+        store.recordWasInvalid(record, errors);
+      });
+    } else {
+      var errorMessage = responseHash['error'] || jqXHR.textStatus;
+
+      records.forEach(function(record) {
+        var error = this.materializeError(record, errorMessage, {
+          isFatal: this.errorIsFatal(record, jqXHR),
+          code: jqXHR.status
+        });
+
+        store.recordDidError(record, error);
+      }, this);
+    }
+  },
+
+  errorIsFatal: function(record, jqXHR) {
+    return jqXHR.status === 403;
+  },
+
+  parseResponseText: function(jqXHR) {
+    var data = {};
+    if (jqXHR.responseJSON) {
+      data = jqXHR.responseJSON;
+    } else {
+      try { data = JSON.parse(jqXHR.responseText); } catch (e) {}
+      jqXHR.responseJSON = data;
+    }
+    return data;
   },
 
   buildURL: function(record, suffix) {
