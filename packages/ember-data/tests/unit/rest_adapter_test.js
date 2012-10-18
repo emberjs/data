@@ -89,13 +89,15 @@ var expectData = function(hash) {
   deepEqual(hash, ajaxHash.data, "the hash was passed along");
 };
 
-var expectState = function(state, value, p) {
-  p = p || person;
+var expectState = function(state, value, record) {
+  record = record || person;
 
   if (value === undefined) { value = true; }
 
-  var flag = "is" + state.charAt(0).toUpperCase() + state.substr(1);
-  equal(get(p, flag), value, "the person is " + (value === false ? "not " : "") + state);
+  var flag = "is" + state.charAt(0).toUpperCase() + state.substr(1),
+      recordFriendlyType = record.constructor.toString().replace(/^App\./,'');
+  recordFriendlyType = recordFriendlyType.charAt(0).toLowerCase() + recordFriendlyType.substr(1);
+  equal(get(record, flag), value, "the " + recordFriendlyType + " is " + (value === false ? "not " : "") + state);
 };
 
 var expectStates = function(state, value) {
@@ -172,6 +174,42 @@ test("updating a person makes a PUT to /people/:id with the data hash", function
 
   equal(person, store.find(Person, 1), "the same person is retrieved by the same ID");
   equal(get(person, 'name'), "Brohuda Brokatz", "the hash should be updated");
+});
+
+test("committing an update to a person's group leaves the group in a clean state (update returns hash)", function() {
+  store.load(Person, { id: 1, name: "Yehuda Katz" });
+  store.load(Group, { id: 1, name: "Emberenos" });
+
+  person = store.find(Person, 1);
+  group = store.find(Group, 1);
+
+  set(person, 'group', group);
+
+  expectState('dirty', true, person);
+  expectState('dirty', true, group);
+  store.commit();
+
+  ajaxHash.success({ person: { id: 1, name: "Yehuda Katz", groupId: 1 } });
+  expectState('dirty', false, person);
+  expectState('dirty', false, group);
+});
+
+test("committing an update to a person's group leaves the group in a clean state (update does not return hash)", function() {
+  store.load(Person, { id: 1, name: "Yehuda Katz" });
+  store.load(Group, { id: 1, name: "Emberenos" });
+
+  person = store.find(Person, 1);
+  group = store.find(Group, 1);
+
+  set(person, 'group', group);
+
+  expectState('dirty', true, person);
+  expectState('dirty', true, group);
+  store.commit();
+
+  ajaxHash.success({});
+  expectState('dirty', false, person);
+  expectState('dirty', false, group);
 });
 
 test("updates are not required to return data", function() {
