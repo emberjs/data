@@ -442,3 +442,56 @@ test("If a child was added to one parent, and then another, the changes coalesce
   });
 });
 
+test("the store should have a new defaultTransaction after commit from store", function() {
+  store.load(Post, { id: 1, title: "Ohai" });
+
+  var record = store.find(Post, 1);
+  var transaction = record.get('transaction');
+  var defaultTransaction = store.get('defaultTransaction');
+
+  equal(transaction, defaultTransaction, 'record is in the defaultTransaction');
+
+  store.commit();
+
+  var newDefaultTransaction = store.get('defaultTransaction');
+  transaction = record.get('transaction');
+
+  ok(defaultTransaction !== newDefaultTransaction, "store should have a new defaultTransaction");
+  equal(transaction, newDefaultTransaction, 'record is in the new defaultTransaction');
+});
+
+test("the store should have a new defaultTransaction after commit from defaultTransaction", function() {
+  store.load(Post, { id: 1, title: "Ohai" });
+
+  var record = store.find(Post, 1);
+  var transaction = record.get('transaction');
+  var defaultTransaction = store.get('defaultTransaction');
+
+  equal(transaction, defaultTransaction, 'record is in the defaultTransaction');
+
+  defaultTransaction.commit();
+
+  var newDefaultTransaction = store.get('defaultTransaction');
+  transaction = record.get('transaction');
+
+  ok(defaultTransaction !== newDefaultTransaction, "store should have a new defaultTransaction");
+  equal(transaction, newDefaultTransaction, 'record is in the new defaultTransaction');
+});
+
+test("the store should have a new defaultTransaction after commit from record's transaction", function() {
+  store.load(Post, { id: 1, title: "Ohai" });
+
+  var record = store.find(Post, 1);
+  var transaction = record.get('transaction');
+  var defaultTransaction = store.get('defaultTransaction');
+
+  equal(transaction, defaultTransaction, 'record is in the defaultTransaction');
+
+  transaction.commit();
+
+  var newDefaultTransaction = store.get('defaultTransaction');
+  transaction = record.get('transaction');
+
+  ok(defaultTransaction !== newDefaultTransaction, "store should have a new defaultTransaction");
+  equal(transaction, newDefaultTransaction, 'record is in the new defaultTransaction');
+});
