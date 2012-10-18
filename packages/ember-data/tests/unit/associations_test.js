@@ -515,5 +515,5 @@ test("belongsTo associations will respect their inverse hasMany association", fu
   var book = store.find(Book,1);
   var author = store.find(Author,1);
 
-  equal(book,book.getPath('author.books').objectAt(0), "able to obtain the inverse hasMany object");
+  equal(book,book.get('author.books').objectAt(0), "able to obtain the inverse hasMany object");
 });
