@@ -16,7 +16,8 @@ DS.Serializer = Ember.Object.extend({
     this.transforms = {
       'string': passthrough,
       'number': passthrough,
-      'boolean': passthrough
+      'boolean': passthrough,
+      'date': passthrough
     };
 
     this.mappings = Ember.Map.create();
