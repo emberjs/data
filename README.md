@@ -72,6 +72,8 @@ The `RESTAdapter` supports the following options:
 * `url` (default: ""): A custom url for an API located on a different
   url or a different subdomain, use the fully qualified domain name including
   http, e.g. "http://api.emberjs.com".
+  NOTE: This will only work if your server and browser support
+[CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing).
 
 The RESTful adapter is still in progress. For Rails applications, we plan to make
 it work seamlessly with the `active_model_serializers` gem's conventions. In
