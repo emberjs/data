@@ -827,10 +827,7 @@ DS.Store = Ember.Object.extend({
     a transaction.
   */
   commit: function() {
-    var defaultTransaction = get(this, 'defaultTransaction');
-    set(this, 'defaultTransaction', this.transaction());
-
-    defaultTransaction.commit();
+    get(this, 'defaultTransaction').commit();
   },
 
   /**
