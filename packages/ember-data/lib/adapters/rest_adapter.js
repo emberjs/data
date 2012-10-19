@@ -246,7 +246,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     hash.url = url;
     hash.type = type;
     hash.dataType = 'json';
-    hash.contentType = 'application/json; charset=utf-8';
+    if(type === 'PUT' || type === 'POST') {
+      hash.contentType = 'application/json; charset=utf-8';
+    } else {
+      hash.contentType = 'application/x-www-form-urlencoded; charset=UTF-8';
+    }
     hash.context = this;
 
     if (hash.data && type !== 'GET') {
