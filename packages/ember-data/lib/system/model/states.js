@@ -27,8 +27,8 @@ var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor;
   string. You can determine a record's current state by getting its manager's
   current state path:
 
-        record.get('stateManager.currentState.path');
-        //=> "created.uncommitted"
+      record.get('stateManager.currentPath');
+      //=> "created.uncommitted"
 
   The `DS.Model` states are themselves stateless. What we mean is that,
   though each instance of a record also has a unique instance of a
@@ -85,7 +85,7 @@ var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor;
   which will be passed as the second parameter to the event handler.
 
   Events should transition to a different state if appropriate. This can be
-  done by calling the state manager's `goToState()` method with a path to the
+  done by calling the state manager's `transitionTo()` method with a path to the
   desired state. The state manager will attempt to resolve the state path
   relative to the current state. If no state is found at that path, it will
   attempt to resolve it relative to the current state's parent, and then its
@@ -99,12 +99,12 @@ var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor;
         * inFlight
 
   If we are currently in the `start` state, calling
-  `goToState('inFlight')` would transition to the `created.inFlight` state,
-  while calling `goToState('updated.inFlight')` would transition to
+  `transitionTo('inFlight')` would transition to the `created.inFlight` state,
+  while calling `transitionTo('updated.inFlight')` would transition to
   the `updated.inFlight` state.
 
   Remember that *only events* should ever cause a state transition. You should
-  never call `goToState()` from outside a state's event handler. If you are
+  never call `transitionTo()` from outside a state's event handler. If you are
   tempted to do so, create a new event and send that to the state manager.
 
   #### Flags
@@ -113,7 +113,7 @@ var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor;
   state in a more user-friendly way than examining its state path. For example,
   instead of doing this:
 
-      var statePath = record.get('stateManager.currentState.path');
+      var statePath = record.get('stateManager.currentPath');
       if (statePath === 'created.inFlight') {
         doSomething();
       }
@@ -174,6 +174,32 @@ var hasDefinedProperties = function(object) {
   return false;
 };
 
+var didChangeData = function(manager) {
+  var record = get(manager, 'record');
+  record.materializeData();
+};
+
+var setProperty = function(manager, context) {
+  var value = context.value,
+      key = context.key,
+      record = get(manager, 'record'),
+      adapterValue = get(record, 'data.attributes')[key];
+
+  if (value === adapterValue) {
+    record.removeDirtyFactor(key);
+  } else {
+    record.addDirtyFactor(key);
+  }
+
+  updateRecordArrays(manager);
+};
+
+// Whenever a property is set, recompute all dependent filters
+var updateRecordArrays = function(manager) {
+  var record = manager.get('record');
+  record.updateRecordArraysLater();
+};
+
 DS.State = Ember.State.extend({
   isLoaded: stateProperty,
   isDirty: stateProperty,
@@ -182,7 +208,6 @@ DS.State = Ember.State.extend({
   isError: stateProperty,
   isNew: stateProperty,
   isValid: stateProperty,
-  isPending: stateProperty,
 
   // For states that are substates of a
   // DirtyState (updated or created), it is
@@ -190,54 +215,6 @@ DS.State = Ember.State.extend({
   // type of dirty state it is.
   dirtyType: stateProperty
 });
-
-var setProperty = function(manager, context) {
-  var key = context.key, value = context.value;
-
-  var record = get(manager, 'record'),
-      data = get(record, 'data');
-
-  set(data, key, value);
-};
-
-var setAssociation = function(manager, context) {
-  var key = context.key, value = context.value;
-
-  var record = get(manager, 'record'),
-      data = get(record, 'data');
-
-  data.setAssociation(key, value);
-};
-
-var didChangeData = function(manager) {
-  var record = get(manager, 'record'),
-      data = get(record, 'data');
-
-  data._savedData = null;
-  record.notifyPropertyChange('data');
-};
-
-// The waitingOn event shares common functionality
-// between the different dirty states, but each is
-// treated slightly differently. This method is exposed
-// so that each implementation can invoke the common
-// behavior, and then implement the behavior specific
-// to the state.
-var waitingOn = function(manager, object) {
-  var record = get(manager, 'record'),
-      pendingQueue = get(record, 'pendingQueue'),
-      objectGuid = guidFor(object);
-
-  var observer = function() {
-    if (get(object, 'id')) {
-      manager.send('doneWaitingOn', object);
-      Ember.removeObserver(object, 'id', observer);
-    }
-  };
-
-  pendingQueue[objectGuid] = [object, observer];
-  Ember.addObserver(object, 'id', observer);
-};
 
 // Implementation notes:
 //
@@ -266,51 +243,6 @@ var waitingOn = function(manager, object) {
 //   did not yet report that it was successfully saved.
 // * isValid: No client-side validations have failed and the
 //   adapter did not report any server-side validation failures.
-// * isPending: A record `isPending` when it belongs to an
-//   association on another record and that record has not been
-//   saved. A record in this state cannot be saved because it
-//   lacks a "foreign key" that will be supplied by its parent
-//   association when the parent record has been created. When
-//   the adapter reports that the parent has saved, the
-//   `isPending` property on all children will become `false`
-//   and the transaction will try to commit the records.
-
-// This mixin is mixed into various uncommitted states. Make
-// sure to mix it in *after* the class definition, so its
-// super points to the class definition.
-var Uncommitted = Ember.Mixin.create({
-  setProperty: setProperty,
-  setAssociation: setAssociation
-});
-
-// These mixins are mixed into substates of the concrete
-// subclasses of DirtyState.
-
-var CreatedUncommitted = Ember.Mixin.create({
-  deleteRecord: function(manager) {
-    var record = get(manager, 'record');
-    this._super(manager);
-
-    record.withTransaction(function(t) {
-      t.recordBecameClean('created', record);
-    });
-    manager.goToState('deleted.saved');
-  }
-});
-
-var UpdatedUncommitted = Ember.Mixin.create({
-  deleteRecord: function(manager) {
-    this._super(manager);
-
-    var record = get(manager, 'record');
-
-    record.withTransaction(function(t) {
-      t.recordBecameClean('updated', record);
-    });
-
-    manager.goToState('deleted');
-  }
-});
 
 // The dirty state is a abstract state whose functionality is
 // shared between the `created` and `updated` states.
@@ -318,6 +250,15 @@ var UpdatedUncommitted = Ember.Mixin.create({
 // The deleted state shares the `isDirty` flag with the
 // subclasses of `DirtyState`, but with a very different
 // implementation.
+//
+// Dirty states have three child states:
+//
+// `uncommitted`: the store has not yet handed off the record
+//   to be saved.
+// `inFlight`: the store has handed off the record to be saved,
+//   but the adapter has not yet acknowledged success.
+// `invalid`: the record has invalid information and cannot be
+//   send to the adapter yet.
 var DirtyState = DS.State.extend({
   initialState: 'uncommitted',
 
@@ -327,8 +268,8 @@ var DirtyState = DS.State.extend({
   // SUBSTATES
 
   // When a record first becomes dirty, it is `uncommitted`.
-  // This means that there are local pending changes,
-  // but they have not yet begun to be saved.
+  // This means that there are local pending changes, but they
+  // have not yet begun to be saved, and are not invalid.
   uncommitted: DS.State.extend({
     // TRANSITIONS
     enter: function(manager) {
@@ -341,15 +282,21 @@ var DirtyState = DS.State.extend({
     },
 
     // EVENTS
-    deleteRecord: Ember.K,
-
-    waitingOn: function(manager, object) {
-      waitingOn(manager, object);
-      manager.goToState('pending');
-    },
+    setProperty: setProperty,
 
     willCommit: function(manager) {
-      manager.goToState('inFlight');
+      manager.transitionTo('inFlight');
+    },
+
+    becameClean: function(manager) {
+      var record = get(manager, 'record'),
+          dirtyType = get(this, 'dirtyType');
+
+      record.withTransaction(function(t) {
+        t.recordBecameClean(dirtyType, record);
+      });
+
+      manager.transitionTo('loaded.saved');
     },
 
     becameInvalid: function(manager) {
@@ -360,23 +307,13 @@ var DirtyState = DS.State.extend({
         t.recordBecameInFlight(dirtyType, record);
       });
 
-      manager.goToState('invalid');
+      manager.transitionTo('invalid');
     },
 
     rollback: function(manager) {
-      var record = get(manager, 'record'),
-          dirtyType = get(this, 'dirtyType'),
-          data = get(record, 'data');
-
-      data.rollback();
-
-      record.withTransaction(function(t) {
-        t.recordBecameClean(dirtyType, record);
-      });
-
-      manager.goToState('saved');
+      get(manager, 'record').rollback();
     }
-  }, Uncommitted),
+  }),
 
   // Once a record has been handed off to the adapter to be
   // saved, it is in the 'in flight' state. Changes to the
@@ -389,6 +326,9 @@ var DirtyState = DS.State.extend({
     enter: function(manager) {
       var dirtyType = get(this, 'dirtyType'),
           record = get(manager, 'record');
+
+      // create inFlightDirtyFactors
+      record.becameInFlight();
 
       record.withTransaction(function (t) {
         t.recordBecameInFlight(dirtyType, record);
@@ -404,7 +344,7 @@ var DirtyState = DS.State.extend({
         t.recordBecameClean('inflight', record);
       });
 
-      manager.goToState('saved');
+      manager.transitionTo('saved');
       manager.send('invokeLifecycleCallbacks', dirtyType);
     },
 
@@ -413,117 +353,16 @@ var DirtyState = DS.State.extend({
 
       set(record, 'errors', errors);
 
-      manager.goToState('invalid');
+      record.restoreDirtyFactors();
+
+      manager.transitionTo('invalid');
       manager.send('invokeLifecycleCallbacks');
     },
 
     becameError: function(manager) {
-      manager.goToState('error');
+      manager.transitionTo('error');
       manager.send('invokeLifecycleCallbacks');
-    },
-
-    didChangeData: didChangeData
-  }),
-
-  // If a record becomes associated with a newly created
-  // parent record, it will be `pending` until the parent
-  // record has successfully persisted. Once this happens,
-  // this record can use the parent's primary key as its
-  // foreign key.
-  //
-  // If the record's transaction had already started to
-  // commit, the record will transition to the `inFlight`
-  // state. If it had not, the record will transition to
-  // the `uncommitted` state.
-  pending: DS.State.extend({
-    initialState: 'uncommitted',
-
-    // FLAGS
-    isPending: true,
-
-    // SUBSTATES
-
-    // A pending record whose transaction has not yet
-    // started to commit is in this state.
-    uncommitted: DS.State.extend({
-      // EVENTS
-      deleteRecord: function(manager) {
-        var record = get(manager, 'record'),
-            pendingQueue = get(record, 'pendingQueue'),
-            tuple;
-
-        // since we are leaving the pending state, remove any
-        // observers we have registered on other records.
-        for (var prop in pendingQueue) {
-          if (!pendingQueue.hasOwnProperty(prop)) { continue; }
-
-          tuple = pendingQueue[prop];
-          Ember.removeObserver(tuple[0], 'id', tuple[1]);
-        }
-      },
-
-      willCommit: function(manager) {
-        manager.goToState('committing');
-      },
-
-      doneWaitingOn: function(manager, object) {
-        var record = get(manager, 'record'),
-            pendingQueue = get(record, 'pendingQueue'),
-            objectGuid = guidFor(object);
-
-        delete pendingQueue[objectGuid];
-
-        if (isEmptyObject(pendingQueue)) {
-          manager.send('doneWaiting');
-        }
-      },
-
-      doneWaiting: function(manager) {
-        var dirtyType = get(this, 'dirtyType');
-        manager.goToState(dirtyType + '.uncommitted');
-      }
-    }, Uncommitted),
-
-    // A pending record whose transaction has started
-    // to commit is in this state. Since it has not yet
-    // been sent to the adapter, it is not `inFlight`
-    // until all of its dependencies have been committed.
-    committing: DS.State.extend({
-      // FLAGS
-      isSaving: true,
-
-      // EVENTS
-      doneWaitingOn: function(manager, object) {
-        var record = get(manager, 'record'),
-            pendingQueue = get(record, 'pendingQueue'),
-            objectGuid = guidFor(object);
-
-        delete pendingQueue[objectGuid];
-
-        if (isEmptyObject(pendingQueue)) {
-          manager.send('doneWaiting');
-        }
-      },
-
-      doneWaiting: function(manager) {
-        var record = get(manager, 'record'),
-            transaction = get(record, 'transaction');
-
-        // Now that the record is no longer pending, schedule
-        // the transaction to commit.
-        Ember.run.once(transaction, transaction.commit);
-      },
-
-      willCommit: function(manager) {
-        var record = get(manager, 'record'),
-            pendingQueue = get(record, 'pendingQueue');
-
-        if (isEmptyObject(pendingQueue)) {
-          var dirtyType = get(this, 'dirtyType');
-          manager.goToState(dirtyType + '.inFlight');
-        }
-      }
-    })
+    }
   }),
 
   // A record is in the `invalid` state when its client-side
@@ -543,14 +382,11 @@ var DirtyState = DS.State.extend({
 
     // EVENTS
     deleteRecord: function(manager) {
-      manager.goToState('deleted');
+      manager.transitionTo('deleted');
+      get(manager, 'record').clearRelationships();
     },
 
-    setAssociation: setAssociation,
-
     setProperty: function(manager, context) {
-      setProperty(manager, context);
-
       var record = get(manager, 'record'),
           errors = get(record, 'errors'),
           key = context.key;
@@ -560,6 +396,8 @@ var DirtyState = DS.State.extend({
       if (!hasDefinedProperties(errors)) {
         manager.send('becameValid');
       }
+
+      setProperty(manager, context);
     },
 
     rollback: function(manager) {
@@ -568,7 +406,7 @@ var DirtyState = DS.State.extend({
     },
 
     becameValid: function(manager) {
-      manager.goToState('uncommitted');
+      manager.transitionTo('uncommitted');
     },
 
     invokeLifecycleCallbacks: function(manager) {
@@ -586,38 +424,54 @@ var createdState = DirtyState.create({
   dirtyType: 'created',
 
   // FLAGS
-  isNew: true
+  isNew: true,
+
+  // TRANSITIONS
+  setup: function(manager) {
+    var record = get(manager, 'record');
+    record.addDirtyFactor('@created');
+  },
+
+  exit: function(manager) {
+    var record = get(manager, 'record');
+    record.removeDirtyFactor('@created');
+  }
 });
 
 var updatedState = DirtyState.create({
   dirtyType: 'updated'
 });
 
-// The created.uncommitted state and created.pending.uncommitted share
-// some logic defined in CreatedUncommitted.
-createdState.states.uncommitted.reopen(CreatedUncommitted);
-createdState.states.pending.states.uncommitted.reopen(CreatedUncommitted);
-
-// The created.uncommitted state needs to immediately transition to the
-// deleted state if it is rolled back.
 createdState.states.uncommitted.reopen({
-  rollback: function(manager) {
-    this._super(manager);
-    manager.goToState('deleted.saved');
+  deleteRecord: function(manager) {
+    var record = get(manager, 'record');
+
+    record.withTransaction(function(t) {
+      t.recordIsMoving('created', record);
+    });
+
+    manager.transitionTo('deleted.saved');
+    record.clearRelationships();
   }
 });
 
-// The updated.uncommitted state and updated.pending.uncommitted share
-// some logic defined in UpdatedUncommitted.
-updatedState.states.uncommitted.reopen(UpdatedUncommitted);
-updatedState.states.pending.states.uncommitted.reopen(UpdatedUncommitted);
-updatedState.states.inFlight.reopen({
-  didSaveData: function(manager) {
-    var record = get(manager, 'record'),
-        data = get(record, 'data');
+createdState.states.uncommitted.reopen({
+  rollback: function(manager) {
+    this._super(manager);
+    manager.transitionTo('deleted.saved');
+  }
+});
 
-    data.saveData();
-    data.adapterDidUpdate();
+updatedState.states.uncommitted.reopen({
+  deleteRecord: function(manager) {
+    var record = get(manager, 'record');
+
+    record.withTransaction(function(t) {
+      t.recordIsMoving('updated', record);
+    });
+
+    manager.transitionTo('deleted');
+    get(manager, 'record').clearRelationships();
   }
 });
 
@@ -631,7 +485,6 @@ var states = {
     isError: false,
     isNew: false,
     isValid: true,
-    isPending: false,
 
     // SUBSTATES
 
@@ -643,13 +496,11 @@ var states = {
     empty: DS.State.create({
       // EVENTS
       loadingData: function(manager) {
-        manager.goToState('loading');
+        manager.transitionTo('loading');
       },
 
-      didChangeData: function(manager) {
-        didChangeData(manager);
-
-        manager.goToState('loaded.created');
+      loadedData: function(manager) {
+        manager.transitionTo('loaded.created');
       }
     }),
 
@@ -667,13 +518,9 @@ var states = {
       },
 
       // EVENTS
-      didChangeData: function(manager, data) {
-        didChangeData(manager);
-        manager.send('loadedData');
-      },
-
       loadedData: function(manager) {
-        manager.goToState('loaded');
+        didChangeData(manager);
+        manager.transitionTo('loaded');
       }
     }),
 
@@ -693,25 +540,21 @@ var states = {
       saved: DS.State.create({
 
         // EVENTS
-        setProperty: function(manager, context) {
-          setProperty(manager, context);
-          manager.goToState('updated');
-        },
-
-        setAssociation: function(manager, context) {
-          setAssociation(manager, context);
-          manager.goToState('updated');
-        },
-
+        setProperty: setProperty,
         didChangeData: didChangeData,
+        loadedData: didChangeData,
+
+        becameDirty: function(manager) {
+          manager.transitionTo('updated');
+        },
 
         deleteRecord: function(manager) {
-          manager.goToState('deleted');
+          manager.transitionTo('deleted');
+          get(manager, 'record').clearRelationships();
         },
 
-        waitingOn: function(manager, object) {
-          waitingOn(manager, object);
-          manager.goToState('updated.pending');
+        willCommit: function(manager) {
+          manager.transitionTo('relationshipsInFlight');
         },
 
         invokeLifecycleCallbacks: function(manager, dirtyType) {
@@ -721,6 +564,30 @@ var states = {
           } else {
             record.trigger('didUpdate', record);
           }
+        }
+      }),
+
+      relationshipsInFlight: Ember.State.create({
+        // TRANSITIONS
+        enter: function(manager) {
+          var record = get(manager, 'record');
+
+          record.withTransaction(function (t) {
+            t.recordBecameInFlight('clean', record);
+          });
+        },
+
+        // EVENTS
+        didCommit: function(manager) {
+          var record = get(manager, 'record');
+
+          record.withTransaction(function(t) {
+            t.recordBecameClean('inflight', record);
+          });
+
+          manager.transitionTo('saved');
+
+          manager.send('invokeLifecycleCallbacks');
         }
       }),
 
@@ -737,17 +604,28 @@ var states = {
 
     // A record is in this state if it was deleted from the store.
     deleted: DS.State.create({
+      initialState: 'uncommitted',
+      dirtyType: 'deleted',
+
       // FLAGS
       isDeleted: true,
       isLoaded: true,
       isDirty: true,
 
       // TRANSITIONS
-      enter: function(manager) {
+      setup: function(manager) {
         var record = get(manager, 'record'),
             store = get(record, 'store');
 
+        record.addDirtyFactor('@deleted');
+
         store.removeFromRecordArrays(record);
+      },
+
+      exit: function(manager) {
+        var record = get(manager, 'record');
+
+        record.removeDirtyFactor('@deleted');
       },
 
       // SUBSTATES
@@ -755,7 +633,7 @@ var states = {
       // When a record is deleted, it enters the `start`
       // state. It will exit this state when the record's
       // transaction starts to commit.
-      start: DS.State.create({
+      uncommitted: DS.State.create({
         // TRANSITIONS
         enter: function(manager) {
           var record = get(manager, 'record');
@@ -767,18 +645,21 @@ var states = {
 
         // EVENTS
         willCommit: function(manager) {
-          manager.goToState('inFlight');
+          manager.transitionTo('inFlight');
         },
 
         rollback: function(manager) {
-          var record = get(manager, 'record'),
-              data = get(record, 'data');
+          get(manager, 'record').rollback();
+        },
 
-          data.rollback();
+        becameClean: function(manager) {
+          var record = get(manager, 'record');
+
           record.withTransaction(function(t) {
             t.recordBecameClean('deleted', record);
           });
-          manager.goToState('loaded');
+
+          manager.transitionTo('loaded.saved');
         }
       }),
 
@@ -794,6 +675,9 @@ var states = {
         enter: function(manager) {
           var record = get(manager, 'record');
 
+          // create inFlightDirtyFactors
+          record.becameInFlight();
+
           record.withTransaction(function (t) {
             t.recordBecameInFlight('deleted', record);
           });
@@ -807,7 +691,7 @@ var states = {
             t.recordBecameClean('inflight', record);
           });
 
-          manager.goToState('saved');
+          manager.transitionTo('saved');
 
           manager.send('invokeLifecycleCallbacks');
         }

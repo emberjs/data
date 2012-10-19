@@ -1,4 +1,17 @@
-var get = Ember.get;
+var get = Ember.get, set = Ember.set;
+
+DS.Model.reopen({
+  didDefineProperty: function(proto, key, value) {
+    if (value instanceof Ember.Descriptor) {
+      var meta = value.meta();
+
+      if (meta.isAssociation && meta.kind === 'belongsTo') {
+        Ember.addObserver(proto, key, null, 'belongsToDidChange');
+        Ember.addBeforeObserver(proto, key, null, 'belongsToWillChange');
+      }
+    }
+  }
+});
 
 DS.Model.reopenClass({
   typeForAssociation: function(name) {
@@ -31,6 +44,18 @@ DS.Model.reopenClass({
     return map;
   }).cacheable(),
 
+  associationNames: Ember.computed(function() {
+    var names = { hasMany: [], belongsTo: [] };
+
+    this.eachComputedProperty(function(name, meta) {
+      if (meta.isAssociation) {
+        names[meta.kind].push(name);
+      }
+    });
+
+    return names;
+  }).cacheable(),
+
   associationsByName: Ember.computed(function() {
     var map = Ember.Map.create(), type;
 
@@ -49,5 +74,53 @@ DS.Model.reopenClass({
     });
 
     return map;
+  }).cacheable(),
+
+  fields: Ember.computed(function() {
+    var map = Ember.Map.create(), type;
+
+    this.eachComputedProperty(function(name, meta) {
+      if (meta.isAssociation) {
+        map.set(name, meta.kind);
+      } else if (meta.isAttribute) {
+        map.set(name, 'attribute');
+      }
+    });
+
+    return map;
   }).cacheable()
 });
+
+DS.Model.reopen({
+  eachAssociation: function(callback, binding) {
+    get(this.constructor, 'associationsByName').forEach(function(name, association) {
+      callback.call(binding, name, association);
+    });
+  }
+});
+
+DS.inverseNameFor = function(modelType, inverseModelType, inverseAssociationKind) {
+  var associationMap = get(modelType, 'associations'),
+      possibleAssociations = associationMap.get(inverseModelType),
+      possible, actual, oldValue;
+
+  if (!possibleAssociations) { return; }
+
+  for (var i = 0, l = possibleAssociations.length; i < l; i++) {
+    possible = possibleAssociations[i];
+
+    if (possible.kind === inverseAssociationKind) {
+      actual = possible;
+      break;
+    }
+  }
+
+  if (actual) { return actual.name; }
+};
+
+DS.inverseTypeFor = function(modelType, associationName) {
+  var associations = get(modelType, 'associationsByName'),
+      association = associations.get(associationName);
+
+  if (association) { return association.type; }
+};

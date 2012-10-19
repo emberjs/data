@@ -1,5 +1,5 @@
 require("ember-data/core");
-require("ember-data/system/adapters");
+require("ember-data/system/adapter");
 
 var get = Ember.get;
 
@@ -27,7 +27,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
     Implement this method in order to provide provide json for CRUD methods
   */
   mockJSON: function(type, record) {
-    return record.toJSON({associations: true});
+    return this.toJSON(record, { includeId: true });
   },
 
   /*
@@ -63,7 +63,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
         return ids.indexOf(item.id) !== -1;
       });
     }
-  
+
     if (fixtures) {
       this.simulateRemoteCall(function() {
         store.loadMany(type, fixtures);
@@ -83,7 +83,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
   findQuery: function(store, type, query, array) {
     var fixtures = this.fixturesForType(type);
-    
+
     Ember.assert("Unable to find fixtures for model type "+type.toString(), !!fixtures);
 
     fixtures = this.queryFixtures(fixtures, query);
@@ -101,7 +101,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
     fixture.id = this.generateIdForRecord(store, record);
 
     this.simulateRemoteCall(function() {
-      store.didCreateRecord(record, fixture);
+      store.didSaveRecord(record, fixture);
     }, store, type, record);
   },
 
@@ -109,13 +109,13 @@ DS.FixtureAdapter = DS.Adapter.extend({
     var fixture = this.mockJSON(type, record);
 
     this.simulateRemoteCall(function() {
-      store.didUpdateRecord(record, fixture);
+      store.didSaveRecord(record, fixture);
     }, store, type, record);
   },
 
   deleteRecord: function(store, type, record) {
     this.simulateRemoteCall(function() {
-      store.didDeleteRecord(record);
+      store.didSaveRecord(record);
     }, store, type, record);
   },
 

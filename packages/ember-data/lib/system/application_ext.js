@@ -1,25 +1,29 @@
 var set = Ember.set;
 
-Ember.onLoad('application', function(app) {
-  app.registerInjection({
+Ember.onLoad('Ember.Application', function(Application) {
+  Application.registerInjection({
     name: "store",
     before: "controllers",
 
     injection: function(app, stateManager, property) {
+      if (!stateManager) { return; }
       if (property === 'Store') {
         set(stateManager, 'store', app[property].create());
       }
     }
   });
 
-  app.registerInjection({
+  Application.registerInjection({
     name: "giveStoreToControllers",
+    after: ['store','controllers'],
 
     injection: function(app, stateManager, property) {
+      if (!stateManager) { return; }
       if (/^[A-Z].*Controller$/.test(property)) {
         var controllerName = property.charAt(0).toLowerCase() + property.substr(1);
         var store = stateManager.get('store');
         var controller = stateManager.get(controllerName);
+        if(!controller) { return; }
 
         controller.set('store', store);
       }

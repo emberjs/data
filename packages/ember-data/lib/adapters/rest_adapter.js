@@ -1,17 +1,26 @@
 require("ember-data/core");
-require('ember-data/system/adapters');
+require('ember-data/system/adapter');
+require('ember-data/serializers/rest_serializer');
 /*global jQuery*/
 
 var get = Ember.get, set = Ember.set;
 
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
-	
+
+  serializer: DS.RESTSerializer,
+
+  shouldCommit: function(record) {
+    if (record.isCommittingBecause('attribute') || record.isCommittingBecause('belongsTo')) {
+      return true;
+    }
+  },
+
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
 
     var data = {};
-    data[root] = record.toJSON();
+    data[root] = this.toJSON(record, { includeId: true });
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
@@ -26,7 +35,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     this.sideload(store, type, json, root);
-    store.didCreateRecord(record, json[root]);
+    store.didSaveRecord(record, json[root]);
   },
 
   createRecords: function(store, type, records) {
@@ -38,9 +47,10 @@ DS.RESTAdapter = DS.Adapter.extend({
         plural = this.pluralize(root);
 
     var data = {};
-    data[plural] = records.map(function(record) {
-      return record.toJSON();
-    });
+    data[plural] = [];
+    records.forEach(function(record) {
+      data[plural].push(this.toJSON(record, { includeId: true }));
+    }, this);
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
@@ -55,7 +65,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.pluralize(this.rootForType(type));
 
     this.sideload(store, type, json, root);
-    store.didCreateRecords(type, records, json[root]);
+    store.didSaveRecords(records, json[root]);
   },
 
   updateRecord: function(store, type, record) {
@@ -63,7 +73,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     var data = {};
-    data[root] = record.toJSON();
+    data[root] = this.toJSON(record);
 
     this.ajax(this.buildURL(root, id), "PUT", {
       data: data,
@@ -78,7 +88,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     this.sideload(store, type, json, root);
-    store.didUpdateRecord(record, json && json[root]);
+    store.didSaveRecord(record, json && json[root]);
   },
 
   updateRecords: function(store, type, records) {
@@ -90,9 +100,10 @@ DS.RESTAdapter = DS.Adapter.extend({
         plural = this.pluralize(root);
 
     var data = {};
-    data[plural] = records.map(function(record) {
-      return record.toJSON();
-    });
+    data[plural] = [];
+    records.forEach(function(record) {
+      data[plural].push(record.toJSON());
+    }, this);
 
     this.ajax(this.buildURL(root, "bulk"), "PUT", {
       data: data,
@@ -107,7 +118,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.pluralize(this.rootForType(type));
 
     this.sideload(store, type, json, root);
-    store.didUpdateRecords(records, json[root]);
+    store.didSaveRecords(records, json[root]);
   },
 
   deleteRecord: function(store, type, record) {
@@ -124,7 +135,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didDeleteRecord: function(store, type, record, json) {
     if (json) { this.sideload(store, type, json); }
-    store.didDeleteRecord(record);
+    store.didSaveRecord(record);
   },
 
   deleteRecords: function(store, type, records) {
@@ -136,8 +147,9 @@ DS.RESTAdapter = DS.Adapter.extend({
         plural = this.pluralize(root);
 
     var data = {};
-    data[plural] = records.map(function(record) {
-      return get(record, 'id');
+    data[plural] = [];
+    records.forEach(function(record) {
+      data[plural].push(get(record, 'id'));
     });
 
     this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
@@ -151,7 +163,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didDeleteRecords: function(store, type, records, json) {
     if (json) { this.sideload(store, type, json); }
-    store.didDeleteRecords(records);
+    store.didSaveRecords(records);
   },
 
   find: function(store, type, id) {
@@ -159,45 +171,78 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, id), "GET", {
       success: function(json) {
-        this.sideload(store, type, json, root);
-        store.load(type, json[root]);
+        this.didFindRecord(store, type, json);
       }
     });
   },
 
-  findMany: function(store, type, ids) {
-    var root = this.rootForType(type), plural = this.pluralize(root);
+  didFindRecord: function(store, type, json) {
+    var root = this.rootForType(type);
+
+    this.sideload(store, type, json, root);
+    store.load(type, json[root]);
+  },
+
+  findAll: function(store, type, since) {
+    var root = this.rootForType(type);
 
     this.ajax(this.buildURL(root), "GET", {
-      data: { ids: ids },
+      data: this.sinceQuery(since),
       success: function(json) {
-        this.sideload(store, type, json, plural);
-        store.loadMany(type, json[plural]);
+        this.didFindAll(store, type, json);
       }
     });
   },
 
-  findAll: function(store, type) {
-    var root = this.rootForType(type), plural = this.pluralize(root);
+  didFindAll: function(store, type, json) {
+    var root = this.pluralize(this.rootForType(type)),
+        since = this.extractSince(json);
 
-    this.ajax(this.buildURL(root), "GET", {
-      success: function(json) {
-        this.sideload(store, type, json, plural);
-        store.loadMany(type, json[plural]);
-      }
-    });
+    this.sideload(store, type, json, root);
+    store.loadMany(type, json[root]);
+
+    // this registers the id with the store, so it will be passed
+    // into the next call to `findAll`
+    if (since) { store.sinceForType(type, since); }
+
+    store.didUpdateAll(type);
   },
 
   findQuery: function(store, type, query, recordArray) {
-    var root = this.rootForType(type), plural = this.pluralize(root);
+    var root = this.rootForType(type);
 
     this.ajax(this.buildURL(root), "GET", {
       data: query,
       success: function(json) {
-        this.sideload(store, type, json, plural);
-        recordArray.load(json[plural]);
+        this.didFindQuery(store, type, json, recordArray);
       }
     });
+  },
+
+  didFindQuery: function(store, type, json, recordArray) {
+    var root = this.pluralize(this.rootForType(type));
+
+    this.sideload(store, type, json, root);
+    recordArray.load(json[root]);
+  },
+
+  findMany: function(store, type, ids) {
+    var root = this.rootForType(type);
+    ids = get(this, 'serializer').serializeIds(ids);
+
+    this.ajax(this.buildURL(root), "GET", {
+      data: {ids: ids},
+      success: function(json) {
+        this.didFindMany(store, type, json);
+      }
+    });
+  },
+
+  didFindMany: function(store, type, json) {
+    var root = this.pluralize(this.rootForType(type));
+
+    this.sideload(store, type, json, root);
+    store.loadMany(type, json[root]);
   },
 
   // HELPERS
@@ -241,6 +286,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     for (var prop in json) {
       if (!json.hasOwnProperty(prop)) { continue; }
       if (prop === root) { continue; }
+      if (prop === get(this, 'meta')) { continue; }
 
       sideloadedType = type.typeForAssociation(prop);
 
@@ -285,8 +331,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
   },
 
+  url: "",
+
   buildURL: function(record, suffix) {
-    var url = [""];
+    var url = [this.url];
 
     Ember.assert("Namespace URL (" + this.namespace + ") must not start with slash", !this.namespace || this.namespace.toString().charAt(0) !== "/");
     Ember.assert("Record URL (" + record + ") must not start with slash", !record || record.toString().charAt(0) !== "/");
@@ -302,6 +350,24 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
 
     return url.join("/");
+  },
+
+  meta: 'meta',
+  since: 'since',
+
+  sinceQuery: function(since) {
+    var query = {};
+    query[get(this, 'since')] = since;
+    return since ? query : null;
+  },
+
+  extractSince: function(json) {
+    var meta = this.extractMeta(json);
+    return meta[get(this, 'since')] || null;
+  },
+
+  extractMeta: function(json) {
+    return json[get(this, 'meta')] || {};
   }
 });
 
