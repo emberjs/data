@@ -171,16 +171,16 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, id), "GET", {
       success: function(json) {
-        this.didFindRecord(store, type, json);
+        this.didFindRecord(store, type, json, id);
       }
     });
   },
 
-  didFindRecord: function(store, type, json) {
+  didFindRecord: function(store, type, json, id) {
     var root = this.rootForType(type);
 
     this.sideload(store, type, json, root);
-    store.load(type, json[root]);
+    store.load(type, id, json[root]);
   },
 
   findAll: function(store, type, since) {

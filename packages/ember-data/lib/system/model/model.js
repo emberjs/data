@@ -4,7 +4,7 @@ var get = Ember.get, set = Ember.set, none = Ember.none;
 
 var retrieveFromCurrentState = Ember.computed(function(key) {
   return get(get(this, 'stateManager.currentState'), key);
-}).property('stateManager.currentState').cacheable();
+}).property('stateManager.currentState');
 
 DS.Model = Ember.Object.extend(Ember.Evented, {
   isLoaded: retrieveFromCurrentState,
@@ -50,7 +50,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     }
 
     return this._data;
-  }).property().cacheable(),
+  }).property(),
 
   materializeData: function() {
     this.setupData();

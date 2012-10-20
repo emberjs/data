@@ -16,7 +16,7 @@ DS.Model.reopenClass({
     });
 
     return map;
-  }).cacheable()
+  })
 });
 
 DS.Model.reopen({
@@ -61,6 +61,6 @@ DS.attr = function(type, options) {
   // `data` is never set directly. However, it may be
   // invalidated from the state manager's setData
   // event.
-  }).property('data').cacheable().meta(meta);
+  }).property('data').meta(meta);
 };
 

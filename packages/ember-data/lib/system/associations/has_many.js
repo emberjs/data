@@ -22,7 +22,7 @@ var hasAssociation = function(type, options) {
     set(association, 'name', key);
 
     return association;
-  }).property().cacheable().meta(meta);
+  }).property().meta(meta);
 };
 
 DS.hasMany = function(type, options) {
