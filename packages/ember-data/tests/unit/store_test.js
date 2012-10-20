@@ -1,5 +1,13 @@
 var get = Ember.get, set = Ember.set;
 
+var testSerializer = DS.Serializer.create({
+  primaryKey: function() { return 'id'; }
+});
+
+var TestAdapter = DS.Adapter.extend({
+  serializer: testSerializer
+});
+
 module("DS.Store", {
   teardown: function() {
     set(DS, 'defaultStore', null);
@@ -138,7 +146,7 @@ module("DS.Store working with a DS.Adapter");
 test("Calling Store#find invokes its adapter#find", function() {
   expect(4);
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     find: function(store, type, id) {
       ok(true, "Adapter#find was called");
       equal(store, currentStore, "Adapter#find was called with the right store");
@@ -154,7 +162,7 @@ test("Calling Store#find invokes its adapter#find", function() {
 });
 
 test("DS.Store has a load method to load in a new record", function() {
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     find: function(store, type, id) {
       store.load(type, id, { id: 1, name: "Scumbag Dale" });
     }
@@ -167,13 +175,37 @@ test("DS.Store has a load method to load in a new record", function() {
 
   var object = currentStore.find(currentType, 1);
 
-  equal(object.toJSON().name, "Scumbag Dale", "the data hash was inserted");
+  equal(adapter.toJSON(object).name, "Scumbag Dale", "the data hash was inserted");
 });
+
+test("IDs provided as numbers are coerced to strings", function() {
+  var adapter = TestAdapter.create({
+    find: function(store, type, id) {
+      equal(typeof id, 'string', "id has been normalized to a string");
+      store.load(type, id, { id: 1, name: "Scumbag Sylvain" });
+    }
+  });
+
+  var currentStore = DS.Store.create({ adapter: adapter });
+  var currentType = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var object = currentStore.find(currentType, 1);
+  equal(typeof object.get('id'), 'string', "id was coerced to a string");
+
+  currentStore.load(currentType, { id: 2, name: "Scumbag Sam Saffron" });
+  object = currentStore.find(currentType, 2);
+  ok(object, "object was found");
+  equal(typeof object.get('id'), 'string', "id is a string despite being supplied and searched for as a number");
+});
+
 
 var array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
 
 test("DS.Store has a load method to load in an Array of records", function() {
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
+
     findMany: function(store, type, ids) {
       store.loadMany(type, ids, array);
     }
@@ -189,7 +221,7 @@ test("DS.Store has a load method to load in an Array of records", function() {
   for (var i=0, l=get(objects, 'length'); i<l; i++) {
     var object = objects.objectAt(i), hash = array[i];
 
-    deepEqual(object.toJSON(), hash);
+    deepEqual(adapter.toJSON(object, { includeId: true }), hash);
   }
 });
 
@@ -221,6 +253,7 @@ test("can load data for the same record if it is not dirty", function() {
   equal(get(tom, 'name'), "Captain Underpants", "updated record with new date");
 });
 
+/*
 test("DS.Store loads individual records without explicit IDs with a custom primaryKey", function() {
   var store = DS.Store.create();
   var Person = DS.Model.extend({ name: DS.attr('string'), primaryKey: 'key' });
@@ -230,13 +263,14 @@ test("DS.Store loads individual records without explicit IDs with a custom prima
   var tom = store.find(Person, 1);
   equal(get(tom, 'name'), "Tom Dale", "the person was successfully loaded for the given ID");
 });
+*/
 
 test("DS.Store passes only needed guids to findMany", function() {
   expect(8);
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     findMany: function(store, type, ids) {
-      deepEqual(ids, [4,5,6], "only needed ids are passed");
+      deepEqual(ids, ['4','5','6'], "only needed ids are passed");
     }
   });
 
@@ -256,7 +290,7 @@ test("DS.Store passes only needed guids to findMany", function() {
     object = objects.objectAt(i);
     hash = array[i];
 
-    deepEqual(object.toJSON(), hash);
+    deepEqual(adapter.toJSON(object, { includeId: true }), hash);
   }
 
   for (i=3; i<6; i++) {
@@ -274,6 +308,7 @@ test("loadMany extracts ids from an Array of hashes if no ids are specified", fu
   equal(get(store.find(Person, 1), 'name'), "Scumbag Dale", "correctly extracted id for loaded data");
 });
 
+/*
 test("loadMany uses a model's primaryKey if one is provided to extract ids", function() {
   var store = DS.Store.create();
 
@@ -287,6 +322,7 @@ test("loadMany uses a model's primaryKey if one is provided to extract ids", fun
   store.loadMany(Person, array);
   equal(get(store.find(Person, 1), 'name'), "Scumbag Dale", "correctly extracted id for loaded data");
 });
+*/
 
 test("loadMany takes an optional Object and passes it on to the Adapter", function() {
   var passedQuery = { page: 1 };
@@ -295,7 +331,7 @@ test("loadMany takes an optional Object and passes it on to the Adapter", functi
     name: DS.attr('string')
   });
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     findQuery: function(store, type, query) {
       equal(type, Person, "The type was Person");
       equal(query, passedQuery, "The query was passed in");
@@ -309,7 +345,7 @@ test("loadMany takes an optional Object and passes it on to the Adapter", functi
   store.find(Person, passedQuery);
 });
 
-test("findAll(type) returns a record array of all records of a specific type", function() {
+test("all(type) returns a record array of all records of a specific type", function() {
   var store = DS.Store.create({ adapter: DS.Adapter.create() });
   var Person = DS.Model.extend({
     name: DS.attr('string')
@@ -317,7 +353,7 @@ test("findAll(type) returns a record array of all records of a specific type", f
 
   store.load(Person, 1, { id: 1, name: "Tom Dale" });
 
-  var results = store.findAll(Person);
+  var results = store.all(Person);
   equal(get(results, 'length'), 1, "record array should have the original object");
   equal(get(results.objectAt(0), 'name'), "Tom Dale", "record has the correct information");
 
@@ -325,7 +361,7 @@ test("findAll(type) returns a record array of all records of a specific type", f
   equal(get(results, 'length'), 2, "record array should have the new object");
   equal(get(results.objectAt(1), 'name'), "Yehuda Katz", "record has the correct information");
 
-  strictEqual(results, store.findAll(Person), "subsequent calls to findAll return the same recordArray)");
+  strictEqual(results, store.all(Person), "subsequent calls to all return the same recordArray)");
 });
 
 test("a new record of a particular type is created via store.createRecord(type)", function() {
@@ -374,14 +410,12 @@ test("if an id is supplied in the initial data hash, it can be looked up using `
 });
 
 test("records inside a collection view should have their ids updated", function() {
-  var Person = DS.Model.extend({
-    id: DS.attr("number")
-  });
+  var Person = DS.Model.extend();
 
   var idCounter = 1;
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     createRecord: function(store, type, record) {
-      store.didCreateRecord(record, {name: record.get('name'), id: idCounter++});
+      store.didSaveRecord(record, {name: record.get('name'), id: idCounter++});
     }
   });
 
@@ -390,7 +424,7 @@ test("records inside a collection view should have their ids updated", function(
   });
 
   var container = Ember.CollectionView.create({
-    content: store.findAll(Person)
+    content: store.all(Person)
   });
 
   container.appendTo('#qunit-fixture');
@@ -416,7 +450,7 @@ test("a record receives a didLoad callback when it has finished loading", functi
     }
   });
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     find: function(store, type, id) {
       store.load(Person, 1, { id: 1, name: "Foo" });
     }
@@ -443,15 +477,15 @@ test("a record receives a didUpdate callback when it has finished updating", fun
     }
   });
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     find: function(store, type, id) {
       store.load(Person, 1, { id: 1, name: "Foo" });
     },
 
     updateRecord: function(store, type, record) {
-      equal(callCount, 0, "didUpdate callback was not called untill didUpdateRecord is called");
+      equal(callCount, 0, "didUpdate callback was not called until didSaveRecord is called");
 
-      store.didUpdateRecord(record);
+      store.didSaveRecord(record);
     }
   });
 
@@ -479,11 +513,11 @@ test("a record receives a didCreate callback when it has finished updating", fun
     }
   });
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     createRecord: function(store, type, record) {
-      equal(callCount, 0, "didCreate callback was not called untill didCreateRecord is called");
+      equal(callCount, 0, "didCreate callback was not called until didSaveRecord is called");
 
-      store.didCreateRecord(record);
+      store.didSaveRecord(record);
     }
   });
 
@@ -513,15 +547,15 @@ test("a record receives a didDelete callback when it has finished deleting", fun
     }
   });
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     find: function(store, type, id) {
       store.load(Person, 1, { id: 1, name: "Foo" });
     },
 
     deleteRecord: function(store, type, record) {
-      equal(callCount, 0, "didDelete callback was not called untill didDeleteRecord is called");
+      equal(callCount, 0, "didDelete callback was not called until didSaveRecord is called");
 
-      store.didDeleteRecord(record);
+      store.didSaveRecord(record);
     }
   });
 
@@ -552,7 +586,7 @@ test("a record receives a becameInvalid callback when it became invalid", functi
     }
   });
 
-  var adapter = DS.Adapter.create({
+  var adapter = TestAdapter.create({
     find: function(store, type, id) {
       store.load(Person, 1, { id: 1, name: "Foo" });
     },
@@ -585,5 +619,29 @@ test("an ID of 0 is allowed", function() {
   });
 
   store.load(Person, { id: 0, name: "Tom Dale" });
-  equal(store.findAll(Person).objectAt(0).get('name'), "Tom Dale", "found record with id 0");
+  equal(store.all(Person).objectAt(0).get('name'), "Tom Dale", "found record with id 0");
 });
+
+var stubAdapter, store;
+
+module("DS.Store - Adapter Callbacks", {
+  setup: function() {
+    stubAdapter = Ember.Object.create({
+      extractId: function(type, hash) {
+        return hash.id;
+      },
+
+      materialize: function(record, hash) {
+        record.materializedData = hash;
+      }
+    });
+
+    store = DS.Store.create({ adapter: stubAdapter });
+  },
+
+  teardown: function() {
+    stubAdapter.destroy();
+    store.destroy();
+  }
+});
+

@@ -40,6 +40,8 @@ test("should load data for a type asynchronously when it is requested", function
     height: 70
   }];
 
+  stop();
+
   var ebryn = store.find(Person, 'ebryn');
 
   equal(get(ebryn, 'isLoaded'), false, "record from fixtures is returned in the loading state");
@@ -51,6 +53,8 @@ test("should load data for a type asynchronously when it is requested", function
     ok(get(ebryn, 'isLoaded'), "data loads asynchronously");
     equal(get(ebryn, 'height'), 70, "data from fixtures is loaded correctly");
 
+    stop();
+
     var wycats = store.find(Person, 'wycats');
     wycats.addObserver('isLoaded', function() {
       clearTimeout(timer);
@@ -60,15 +64,11 @@ test("should load data for a type asynchronously when it is requested", function
       equal(get(wycats, 'height'), 65, "subsequent requested records contain correct information");
     });
 
-    stop();
-
     timer = setTimeout(function() {
       start();
       ok(false, "timeout exceeded waiting for fixture data");
     }, 1000);
   });
-
-  stop();
 
   var timer = setTimeout(function() {
     start();
@@ -76,7 +76,9 @@ test("should load data for a type asynchronously when it is requested", function
   }, 1000);
 });
 
-test("should create record asynchronously when it is commited", function() {
+test("should create record asynchronously when it is committed", function() {
+  stop();
+
   var paul = store.createRecord(Person, {firstName: 'Paul', lastName: 'Chavard', height: 70});
 
   paul.on('didCreate', function() {
@@ -90,16 +92,16 @@ test("should create record asynchronously when it is commited", function() {
 
   store.commit();
 
-  stop();
-
   var timer = setTimeout(function() {
     start();
     ok(false, "timeout exceeded waiting for fixture data");
   }, 1000);
 });
 
-test("should update record asynchronously when it is commited", function() {
-  var paul = store.findByClientId(Person, store.load(Person, 1, {first_name: 'Paul', last_name: 'Chavard', height: 70}).clientId);
+test("should update record asynchronously when it is committed", function() {
+  stop();
+
+  var paul = store.findByClientId(Person, store.load(Person, 1, {firstName: 'Paul', lastName: 'Chavard', height: 70}).clientId);
 
   paul.set('height', 80);
 
@@ -113,16 +115,16 @@ test("should update record asynchronously when it is commited", function() {
 
   store.commit();
 
-  stop();
-
   var timer = setTimeout(function() {
     start();
     ok(false, "timeout exceeded waiting for fixture data");
   }, 1000);
 });
 
-test("should delete record asynchronously when it is commited", function() {
-  var paul = store.findByClientId(Person, store.load(Person, 1, {first_name: 'Paul', last_name: 'Chavard', height: 70}).clientId);
+test("should delete record asynchronously when it is committed", function() {
+  stop();
+
+  var paul = store.findByClientId(Person, store.load(Person, 1, { firstName: 'Paul', lastName: 'Chavard', height: 70}).clientId);
 
   paul.deleteRecord();
 
@@ -135,8 +137,6 @@ test("should delete record asynchronously when it is commited", function() {
   });
 
   store.commit();
-
-  stop();
 
   var timer = setTimeout(function() {
     start();

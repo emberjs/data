@@ -4,6 +4,7 @@ var get = Ember.get;
 
 DS.FilteredRecordArray = DS.RecordArray.extend({
   filterFunction: null,
+  isLoaded: true,
 
   replace: function() {
     var type = get(this, 'type').toString();

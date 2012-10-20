@@ -18,404 +18,19 @@ module("DS.Store and DS.Adapter integration test", {
   setup: function() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
-      name: DS.attr('string')
+      name: DS.attr('string'),
+      firstName: DS.attr('string'),
+      lastName: DS.attr('string')
     });
 
     adapter = DS.Adapter.create();
     store = DS.Store.create({ adapter: adapter });
+  },
+
+  teardown: function() {
+    adapter.destroy();
+    store.destroy();
   }
-});
-
-test("when a single record is requested, the adapter's find method is called unless it's loaded", function() {
-  expect(2);
-
-  var count = 0;
-
-  adapter.find = function(store, type, id) {
-    equal(type, Person, "the find method is called with the correct type");
-    equal(count, 0, "the find method is only called once");
-
-    store.load(type, id, { id: 1, name: "Braaaahm Dale" });
-
-    count++;
-  };
-
-  store.find(Person, 1);
-  store.find(Person, 1);
-});
-
-test("when a record is requested but has not yet been loaded, it should report its id", function() {
-  adapter.find = Ember.K;
-
-  var record = store.find(Person, 1);
-  equal(get(record, 'id'), 1, "should report its id while loading");
-});
-
-
-test("when multiple records are requested, the adapter's findMany method is called", function() {
-  expect(1);
-
-  adapter.findMany = function(store, type, ids) {
-    deepEqual(ids, [1,2,3], "ids are passed");
-  };
-
-  store.findMany(Person, [1,2,3]);
-  store.findMany(Person, [1,2,3]);
-});
-
-test("when multiple records are requested, the adapter's find method is called multiple times if findMany is not implemented", function() {
-  expect(3);
-
-  var count = 0;
-  adapter.find = function(store, type, id) {
-    count++;
-
-    equal(id, count);
-  };
-
-  store.findMany(Person, [1,2,3]);
-  store.findMany(Person, [1,2,3]);
-});
-
-test("when an association is loaded, the adapter's find method should not be called if all its IDs are already loaded", function() {
-  expect(0);
-
-  adapter.findMany = function() {
-    ok(false, "The adapter's find method should not be called");
-  };
-
-  Person = DS.Model.extend({
-    updatedAt: DS.attr('string'),
-    name: DS.attr('string')
-  });
-
-  var Comment = DS.Model.extend({
-    person: DS.belongsTo(Person)
-  });
-
-  Person.reopen({
-    comments: DS.hasMany(Comment)
-  });
-
-  store.load(Person, { id: 1, comments: [ 1 ] });
-  store.load(Comment, { id: 1 });
-
-  var person = store.find(Person, 1);
-
-  person.get('comments');
-
-  store.load(Person, { id: 1, comments: [ 1 ] });
-});
-
-test("when a store already has all needed records records, it should not call findMany on the adapter", function() {
-  expect(0);
-
-  adapter.find = function(store, type, id) {
-    ok(false, "This should not be called");
-  };
-
-  store.load(Person, { id: 1 });
-  store.findMany(Person, [ 1 ]);
-});
-
-test("when many records are requested with query parameters, the adapter's findQuery method is called", function() {
-  expect(6);
-  adapter.findQuery = function(store, type, query, recordArray) {
-    equal(type, Person, "the find method is called with the correct type");
-
-    stop();
-
-    setTimeout(function() {
-      recordArray.load([{ id: 1, name: "Peter Wagenet" }, { id: 2, name: "Brohuda Katz" }]);
-      start();
-    }, 100);
-  };
-
-  var array = store.find(Person, { page: 1 });
-  equal(get(array, 'length'), 0, "The array is 0 length do far");
-
-  array.addArrayObserver(this, {
-    willChange: function(target, start, removed, added) {
-      equal(removed, 0, "0 items are being removed");
-    },
-
-    didChange: function(target, start, removed, added) {
-      equal(added, 2, "2 items are being added");
-
-      equal(get(array, 'length'), 2, "The array is now populated");
-      equal(get(array.objectAt(0), 'name'), "Peter Wagenet", "The array is populated correctly");
-    }
-  });
-});
-
-test("when all records for a type are requested, the adapter's findAll method is called", function() {
-  expect(2);
-
-  var count = 0;
-
-  adapter.findAll = function(store, type) {
-    count++;
-
-    if (count === 1) {
-      stop();
-
-      setTimeout(function() {
-        start();
-
-        store.load(type, { id: 1, name: "Braaaahm Dale" });
-        equal(get(array, 'length'), 1, "The array is now 1 length");
-
-        store.findAll(Person);
-      }, 100);
-    } else {
-      ok(false, "Should not get here");
-    }
-  };
-
-  var array = store.findAll(Person);
-  equal(get(array, 'length'), 0, "The array is 0 length do far");
-});
-
-test("if an adapter implements the generateIdForRecord method, it gets invoked when new records are created", function() {
-  expect(7);
-
-  var idCount = 0;
-
-  var Comment = DS.Model.extend();
-  var Post = DS.Model.extend({
-    primaryKey: 'fooId',
-    comments: DS.hasMany(Comment)
-  });
-
-  Comment.reopen({
-    primaryKey: '__ID',
-    post: DS.belongsTo(Post)
-  });
-
-  var adapter = DS.Adapter.create({
-    generateIdForRecord: function(passedStore, record) {
-      equal(store, passedStore, "should pass store as first parameter");
-      ok(true, "generateIdForRecord should be called");
-      return "id-" + (++idCount);
-    },
-
-    createRecord: function(store, type, record) {
-      if (type === Comment) {
-        equal(get(record, 'id'), 'id-1', "created record should be assigned correct id");
-      } else {
-        equal(get(record, 'id'), 'id-2', "second record should be assigned the correct id");
-      }
-    }
-  });
-
-  var store = DS.Store.create({
-    adapter: adapter
-  });
-
-  var comment = store.createRecord(Comment);
-  var post = store.createRecord(Post);
-
-  set(comment, 'post', post);
-
-  equal(comment.toJSON().post_id, "id-2", "assigned id is immediately available in JSON form of record");
-
-  store.commit();
-});
-
-test("when a store is committed, the adapter's commit method is called with updates", function() {
-  expect(2);
-
-  adapter.commit = function(store, records) {
-    records.updated.eachType(function(type, array) {
-      equal(type, Person, "the type is correct");
-      equal(get(array, 'length'), 1, "the array is the right length");
-      store.didUpdateRecords(array);
-    });
-  };
-
-  store.load(Person, { id: 1, name: "Braaaahm Dale" });
-  var tom = store.find(Person, 1);
-
-  set(tom, "name", "Tom Dale");
-
-  store.commit();
-
-  // there is nothing to commit, so eachType won't do anything
-  store.commit();
-});
-
-test("when a store is committed, the adapter's commit method is called with creates", function() {
-  expect(3);
-
-  adapter.commit = function(store, records) {
-    records.updated.eachType(function() {
-      ok(false, "updated should not be populated");
-    });
-
-    records.created.eachType(function(type, array) {
-      equal(type, Person, "the type is correct");
-      equal(get(array, 'length'), 1, "the array is the right length");
-      store.didCreateRecords(Person, array, [{ id: 1, name: "Tom Dale" }]);
-    });
-  };
-
-  var tom = store.createRecord(Person, { name: "Tom Dale" });
-
-  store.commit();
-
-  equal(tom, store.find(Person, 1), "Once an ID is in, find returns the same object");
-
-  store.commit();
-});
-
-test("when a store is committed, the adapter's commit method is called with deletes", function() {
-  expect(3);
-
-  adapter.commit = function(store, records) {
-    records.updated.eachType(function() {
-      ok(false, "updated should not be populated");
-    });
-
-    records.created.eachType(function() {
-      ok(false, "updated should not be populated");
-    });
-
-    records.deleted.eachType(function(type, array) {
-      equal(type, Person, "the type is correct");
-      equal(get(array, 'length'), 1, "the array is the right length");
-      store.didDeleteRecords(array);
-    });
-  };
-
-  store.load(Person, { id: 1, name: "Tom Dale" });
-  var tom = store.find(Person, 1);
-
-  tom.deleteRecord();
-  store.commit();
-
-  equal(get(tom, 'isDeleted'), true, "record is marked as deleted");
-});
-
-test("by default, commit calls createRecords once per type", function() {
-  expect(6);
-
-  adapter.createRecords = function(store, type, array) {
-    equal(type, Person, "the type is correct");
-    equal(get(array, 'length'), 2, "the array is the right length");
-    var records = [{ id: 1, name: "Tom Dale", updated_at: 'right nao' }, { id: 2, name: "Yehuda Katz" }];
-    store.didCreateRecords(Person, array, records);
-  };
-
-  var tom = store.createRecord(Person, { name: "Tom Dale", updatedAt: null });
-  var yehuda = store.createRecord(Person, { name: "Yehuda Katz" });
-
-  var callCount = 0;
-  tom.addObserver('updatedAt', function() {
-    callCount++;
-    equal(get(tom, 'updatedAt'), 'right nao', "property returned from adapter is updated");
-  });
-
-  store.commit();
-  equal(callCount, 1, "calls observer on the record when it has been changed");
-
-  equal(tom, store.find(Person, 1), "Once an ID is in, find returns the same object");
-  equal(yehuda, store.find(Person, 2), "Once an ID is in, find returns the same object");
-  store.commit();
-});
-
-test("by default, commit calls updateRecords once per type", function() {
-  expect(9);
-
-  adapter.updateRecords = function(store, type, array) {
-    equal(type, Person, "the type is correct");
-    equal(get(array, 'length'), 2, "the array is the right length");
-
-    array.forEach(function(item) {
-      equal(get(item, 'isSaving'), true, "the item is saving");
-    });
-
-    store.didUpdateRecords(array);
-
-    array.forEach(function(item) {
-      equal(get(item, 'isSaving'), false, "the item is no longer saving");
-      equal(get(item, 'isLoaded'), true, "the item is loaded");
-    });
-  };
-
-  store.load(Person, { id: 1, name: "Braaaahm Dale" });
-  store.load(Person, { id: 2, name: "Gentile Katz" });
-
-  var tom = store.find(Person, 1);
-  var yehuda = store.find(Person, 2);
-
-  set(tom, "name", "Tom Dale");
-  set(yehuda, "name", "Yehuda Katz");
-
-  store.commit();
-
-  equal(get(store.find(Person, 2), "name"), "Yehuda Katz", "record was updated");
-
-  // there is nothing to commit, so eachType won't do anything
-  store.commit();
-});
-
-test("updateRecords can return an array of Hashes to update the store with", function() {
-  expect(8);
-
-  adapter.updateRecords = function(store, type, array) {
-    equal(type, Person, "the type is correct");
-    equal(get(array, 'length'), 2, "the array is the right length");
-
-    store.didUpdateRecords(array, [ { id: 1, name: "Tom Dale", updated_at: "now" }, { id: 2, name: "Yehuda Katz", updated_at: "now!" } ]);
-
-    equal(get(array[0], 'updatedAt'), "now", "the data was inserted");
-    equal(get(array[1], 'updatedAt'), "now!", "the data was inserted");
-    equal(get(array[0], 'isDirty'), false, "the object is not dirty");
-    equal(get(array[1], 'isDirty'), false, "the object is not dirty");
-  };
-
-  store.load(Person, { id: 1, name: "Braaaahm Dale" });
-  store.load(Person, { id: 2, name: "Gentile Katz" });
-
-  var tom = store.find(Person, 1);
-  var yehuda = store.find(Person, 2);
-
-  set(tom, "name", "Tom Dale");
-  set(yehuda, "name", "Yehuda Katz");
-
-  store.commit();
-
-  equal(get(store.find(Person, 1), "name"), "Tom Dale", "record was updated");
-  equal(get(store.find(Person, 2), "name"), "Yehuda Katz", "record was updated");
-
-  // there is nothing to commit, so eachType won't do anything
-  store.commit();
-});
-
-test("by default, commit calls deleteRecords once per type", function() {
-  expect(4);
-
-  adapter.deleteRecords = function(store, type, array) {
-    equal(type, Person, "the type is correct");
-    equal(get(array, 'length'), 2, "the array is the right length");
-    store.didDeleteRecords(array);
-  };
-
-  store.load(Person, { id: 1, name: "Braaaahm Dale" });
-  store.load(Person, { id: 2, name: "Gentile Katz" });
-
-  var tom = store.find(Person, 1);
-  var yehuda = store.find(Person, 2);
-
-  tom.deleteRecord();
-  yehuda.deleteRecord();
-  store.commit();
-
-  ok(get(tom, 'isDeleted'), "record is marked as deleted");
-  ok(!get(tom, 'isDirty'), "record is marked as not being dirty");
-
-  // there is nothing to commit, so eachType won't do anything
-  store.commit();
 });
 
 test("by default, createRecords calls createRecord once per record", function() {
@@ -435,9 +50,9 @@ test("by default, createRecords calls createRecord once per record", function() 
 
     var hash = get(record, 'data');
     hash.id = count;
-    hash.updated_at = "now";
+    hash.updatedAt = "now";
 
-    store.didCreateRecord(record, hash);
+    store.didSaveRecord(record, hash);
     equal(get(record, 'updatedAt'), "now", "the record should receive the new information");
 
     count++;
@@ -472,7 +87,7 @@ test("by default, updateRecords calls updateRecord once per record", function() 
 
     equal(record.get('isSaving'), true, "record is saving");
 
-    store.didUpdateRecord(record);
+    store.didSaveRecord(record);
 
     equal(record.get('isSaving'), false, "record is no longer saving");
     equal(record.get('isLoaded'), true, "record is saving");
@@ -489,11 +104,11 @@ test("by default, updateRecords calls updateRecord once per record", function() 
 
   store.commit();
 
-  // there is nothing to commit, so eachType won't do anything
+  // there is nothing to commit, so there won't be any records
   store.commit();
 });
 
-test("calling store.didUpdateRecord can provide an optional hash", function() {
+test("calling store.didSaveRecord can provide an optional hash", function() {
   expect(8);
 
   var count = 0;
@@ -503,12 +118,12 @@ test("calling store.didUpdateRecord can provide an optional hash", function() {
 
     if (count === 0) {
       equal(get(record, 'name'), "Tom Dale");
-      store.didUpdateRecord(record, { id: 1, name: "Tom Dale", updated_at: "now" });
+      store.didSaveRecord(record, { id: 1, name: "Tom Dale", updatedAt: "now" });
       equal(get(record, 'isDirty'), false, "the record should not be dirty");
       equal(get(record, 'updatedAt'), "now", "the hash was updated");
     } else if (count === 1) {
       equal(get(record, 'name'), "Yehuda Katz");
-      store.didUpdateRecord(record, { id: 2, name: "Yehuda Katz", updated_at: "now!" });
+      store.didSaveRecord(record, { id: 2, name: "Yehuda Katz", updatedAt: "now!" });
       equal(record.get('isDirty'), false, "the record should not be dirty");
       equal(get(record, 'updatedAt'), "now!", "the hash was updated");
     } else {
@@ -529,7 +144,7 @@ test("calling store.didUpdateRecord can provide an optional hash", function() {
 
   store.commit();
 
-  // there is nothing to commit, so eachType won't do anything
+  // there is nothing to commit, so there won't be any records
   store.commit();
 });
 
@@ -551,7 +166,7 @@ test("by default, deleteRecords calls deleteRecord once per record", function() 
 
     count++;
 
-    store.didDeleteRecord(record);
+    store.didSaveRecord(record);
   };
 
   store.load(Person, { id: 1, name: "Tom Dale" });
@@ -564,7 +179,7 @@ test("by default, deleteRecords calls deleteRecord once per record", function() 
   yehuda.deleteRecord();
   store.commit();
 
-  // there is nothing to commit, so eachType won't do anything
+  // there is nothing to commit, so there won't be any records
   store.commit();
 });
 
@@ -578,7 +193,7 @@ test("if an existing model is edited then deleted, deleteRecord is called on the
     equal(get(record, 'id'), 'deleted-record', "should pass correct record to deleteRecord");
     equal(count, 1, "should only call deleteRecord method of adapter once");
 
-    store.didDeleteRecord(record);
+    store.didSaveRecord(record);
   };
 
   adapter.updateRecord = function() {
@@ -611,7 +226,7 @@ test("if a created record is marked as invalid by the server, it enters an error
     if (get(record, 'name').indexOf('Bro') === -1) {
       store.recordWasInvalid(record, { name: ['common... name requires a "bro"'] });
     } else {
-      store.didCreateRecord(record);
+      store.didSaveRecord(record);
     }
   };
 
@@ -656,7 +271,7 @@ test("if an updated record is marked as invalid by the server, it enters an erro
     if (get(record, 'name').indexOf('Bro') === -1) {
       store.recordWasInvalid(record, { name: ['common... name requires a "bro"'] });
     } else {
-      store.didUpdateRecord(record);
+      store.didSaveRecord(record);
     }
   };
 
@@ -720,7 +335,7 @@ test("can rollback after sucessives updates", function() {
   store.load(Person, 1, {name: "Paul Chavard"});
   store.set('adapter', 'App.adapter');
   adapter.updateRecord = function(store, type, record) {
-    store.didUpdateRecord(record);
+    store.didSaveRecord(record);
   };
   // Expose the adapter to global namespace
   window.App = {adapter: adapter};
@@ -754,4 +369,29 @@ test("can rollback after sucessives updates", function() {
 
   equal(person.get('isDirty'), false, "person is not dirty");
   equal(person.get('name'), "Paul Bro", "person changed the name back to Paul Bro");
+});
+
+test("mappings registered on an adapter class are applied to the serializer of adapter instances", function() {
+  var MyAdapter = DS.Adapter.extend();
+
+  MyAdapter.map(Person, {
+    primaryKey: 'id!'
+  });
+
+  MyAdapter.map(Person, {
+    name: { key: 'name!' }
+  });
+
+  var adapter = MyAdapter.create();
+  store.set('adapter', adapter);
+
+  store.load(Person, {
+    'id!': 1,
+    'name!': "Tom Dale"
+  });
+
+  var person = store.find(Person, 1);
+
+  equal(person.get('id'), 1);
+  equal(person.get('name'), "Tom Dale");
 });

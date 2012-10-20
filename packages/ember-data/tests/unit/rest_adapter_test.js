@@ -52,6 +52,10 @@ module("the REST adapter", {
       return "App.Group";
     };
 
+    Person.reopen({
+      group: DS.belongsTo(Group)
+    });
+
     Role = DS.Model.extend({
       name: DS.attr('string'),
       primaryKey: '_id'
@@ -230,6 +234,7 @@ test("singular updates can sideload data", function() {
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
+/*
 test("updating a record with custom primaryKey", function() {
   store.load(Role, { _id: 1, name: "Developer" });
 
@@ -241,7 +246,7 @@ test("updating a record with custom primaryKey", function() {
   expectUrl("/roles/1", "the plural of the model name with its ID");
   ajaxHash.success({ role: { _id: 1, name: "Manager" } });
 });
-
+*/
 
 test("deleting a person makes a DELETE to /people/:id", function() {
   store.load(Person, { id: 1, name: "Tom Dale" });
@@ -299,6 +304,7 @@ test("singular deletes can sideload data", function() {
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
+/*
 test("deleting a record with custom primaryKey", function() {
   store.load(Role, { _id: 1, name: "Developer" });
 
@@ -311,6 +317,7 @@ test("deleting a record with custom primaryKey", function() {
   expectUrl("/roles/1", "the plural of the model name with its ID");
   ajaxHash.success();
 });
+*/
 
 test("finding all people makes a GET to /people", function() {
   people = store.find(Person);
@@ -346,6 +353,67 @@ test("finding all can sideload data", function() {
   expectState('dirty', false);
 
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
+});
+
+test("finding all people with since makes a GET to /people", function() {
+  people = store.find(Person);
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+
+  ajaxHash.success({ meta: {since: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
+
+  people = store.find(Person);
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+  expectData({since: '123'});
+
+  ajaxHash.success({ meta: {since: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
+
+  person = people.objectAt(1);
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(person, store.find(Person, 2), "the record is now in the store, and can be looked up by ID without another Ajax request");
+
+  people.update();
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+  expectData({since: '1234'});
+
+  ajaxHash.success({ meta: {since: '12345'}, people: [{ id: 3, name: "Dan Gebhardt" }] });
+
+  equal(people.get('length'), 3, 'should have 3 records now');
+});
+
+test("meta and since are configurable", function() {
+  store.set('_adapter.meta', 'metaObject');
+  store.set('_adapter.since', 'sinceToken');
+
+  people = store.find(Person);
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+
+  ajaxHash.success({ metaObject: {sinceToken: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
+
+  people.update();
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+  expectData({sinceToken: '123'});
+
+  ajaxHash.success({ metaObject: {sinceToken: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
+
+  person = people.objectAt(1);
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(person, store.find(Person, 2), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
 test("finding a person by ID makes a GET to /people/:id", function() {
@@ -815,7 +883,15 @@ test("bulk deletes can sideload data", function() {
 test("if you specify a namespace then it is prepended onto all URLs", function() {
   set(adapter, 'namespace', 'ember');
   person = store.find(Person, 1);
-  expectUrl("/ember/people/1", "the namespace, followed by by the plural of the model name and the id");
+  expectUrl("/ember/people/1", "the namespace, followed by the plural of the model name and the id");
+
+  store.load(Person, { id: 1 });
+});
+
+test("if you specify a url then that custom url is used", function() {
+  set(adapter, 'url', 'http://api.ember.dev');
+  person = store.find(Person, 1);
+  expectUrl("http://api.ember.dev/people/1", "the custom url, followed by the plural of the model name and the id");
 
   store.load(Person, { id: 1 });
 });
@@ -860,4 +936,17 @@ test("additional data can be sideloaded with associations in correct order", fun
       id: 1, name: "Yehuda Katz"
     }]
   });
+});
+
+test("data loaded from the server is converted from underscores to camelcase", function() {
+  Person.reopen({
+    lastName: DS.attr('string')
+  });
+
+  store.load(Person, { id: 1, name: "Tom", last_name: "Dale" });
+
+  var person = store.find(Person, 1);
+
+  equal(person.get('name'), "Tom", "precond - data was materialized");
+  equal(person.get('lastName'), "Dale", "the attribute name was camelized");
 });

@@ -8,8 +8,7 @@ var get = Ember.get, set = Ember.set;
   in response to queries.
 */
 
-DS.RecordArray = Ember.ArrayProxy.extend({
-
+DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
   /**
     The model type contained by this record array.
 
@@ -23,6 +22,9 @@ DS.RecordArray = Ember.ArrayProxy.extend({
   // necessary, by the store.
   content: null,
 
+  isLoaded: false,
+  isUpdating: false,
+
   // The store that created this record array.
   store: null,
 
@@ -34,5 +36,23 @@ DS.RecordArray = Ember.ArrayProxy.extend({
     if (clientId !== undefined) {
       return store.findByClientId(get(this, 'type'), clientId);
     }
+  },
+
+  materializedObjectAt: function(index) {
+    var clientId = get(this, 'content').objectAt(index);
+    if (!clientId) { return; }
+
+    if (get(this, 'store').recordIsMaterialized(clientId)) {
+      return this.objectAt(index);
+    }
+  },
+
+  update: function() {
+    if (get(this, 'isUpdating')) { return; }
+
+    var store = get(this, 'store'),
+        type = get(this, 'type');
+
+    store.fetchAll(type, this);
   }
 });
