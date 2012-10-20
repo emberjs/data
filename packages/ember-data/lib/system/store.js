@@ -236,7 +236,7 @@ DS.Store = Ember.Object.extend({
     }
 
     return adapter;
-  }).property('adapter').cacheable(),
+  }).property('adapter'),
 
   /**
     @private

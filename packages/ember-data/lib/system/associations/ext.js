@@ -42,7 +42,7 @@ DS.Model.reopenClass({
     });
 
     return map;
-  }).cacheable(),
+  }),
 
   associationNames: Ember.computed(function() {
     var names = { hasMany: [], belongsTo: [] };
@@ -54,7 +54,7 @@ DS.Model.reopenClass({
     });
 
     return names;
-  }).cacheable(),
+  }),
 
   associationsByName: Ember.computed(function() {
     var map = Ember.Map.create(), type;
@@ -74,7 +74,7 @@ DS.Model.reopenClass({
     });
 
     return map;
-  }).cacheable(),
+  }),
 
   fields: Ember.computed(function() {
     var map = Ember.Map.create(), type;
@@ -88,7 +88,7 @@ DS.Model.reopenClass({
     });
 
     return map;
-  }).cacheable()
+  })
 });
 
 DS.Model.reopen({

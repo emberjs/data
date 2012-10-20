@@ -20,7 +20,7 @@ var hasAssociation = function(type, options, one) {
 
     id = data[key];
     return id ? store.find(type, id) : null;
-  }).property('data').cacheable().meta(meta);
+  }).property('data').meta(meta);
 };
 
 DS.belongsTo = function(type, options) {
