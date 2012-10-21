@@ -18,7 +18,7 @@ var hasAssociation = function(type, options, one) {
       type = get(this, type, false) || get(window, type);
     }
 
-    id = options.embedded ? store.load(type, data[key]).id : data[key];
+    id = (options.embedded && data[key]) ? store.load(type, data[key]).id : data[key];
     return id ? store.find(type, id) : null;
   }).property('data').meta(meta);
 };
