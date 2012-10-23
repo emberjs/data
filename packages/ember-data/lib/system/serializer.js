@@ -269,7 +269,7 @@ DS.Serializer = Ember.Object.extend({
       hash[key] = value ? value.toJSON(options) : null;
     } else {
       id = record.get(key);
-      hash[key] = none(id) ? null : id;
+      hash[key] = Ember.none(id) ? null : id;
     }
 
   },
