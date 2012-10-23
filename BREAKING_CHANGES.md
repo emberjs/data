@@ -35,7 +35,7 @@ App.Store = DS.Store.create({
 This will remove the exception about changes before revision 2. You will
 receive another warning if there is another change.
 
-## Revision 6
+#Revision 6
 
 ### String-normalized IDs
 
@@ -325,17 +325,11 @@ var store = DS.Store.create({
 });
 ```
 
-Take a look at the Ember Data guide for more information about custom
-serializers.
-
 ### Adapter Semantics
 
 If you were using the REST Adapter before, your app should continue to
 work. However, if you built a custom adapter, many of the APIs have
 changed.
-
-See [the Ember Data guide](http://emberjs.com/guides/ember-data) for
-more information.
 
 Some examples:
 
@@ -360,9 +354,6 @@ Some examples:
   The default `save` method does this automatically, which means that
   the existing `createRecords`, `updateRecords`, and `deleteRecords`
   APIs have not changed.
-
-There are a number of added conveniences for building custom adapters.
-If you want to learn more, check out the guide.
 
 ## Revision 4
 
