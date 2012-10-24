@@ -35,7 +35,69 @@ App.Store = DS.Store.create({
 This will remove the exception about changes before revision 2. You will
 receive another warning if there is another change.
 
-#Revision 6
+# Revision 7
+
+### Acknowledging Relationships
+
+Previously, we said that in order for your adapter to acknowledge a
+record as having been fully saved on the server, you would call
+`store.didSaveRecord`. In theory, this would mark all attributes and
+relationships as having been saved by the server.
+
+However, this was too tightly coupled to adapters that change
+relationships by updating foreign keys. It was buggy in general, and
+didn't work at all for adapters using other strategies for persisting
+relationships.
+
+Now, the adapter must treat relationships as separate entities which
+they acknowledge independently from records participating in them.
+
+**NOTE** that if you are using the REST Adapter, we have updated it to
+reflect these new semantics and no changes in your app should be
+required.
+
+There are three basic scenarios by which an adapter can
+save a relationship.
+
+#### Foreign Key
+
+An adapter can save all relationship changes by updating
+a foreign key on the child record. If it does this, it
+should acknowledge the changes when the child record is
+saved.
+
+    record.eachAssociation(function(name, meta) {
+      if (meta.kind === 'belongsTo') {
+        store.didUpdateRelationship(record, name);
+      }
+    });
+
+    store.didSaveRecord(record, hash);
+
+#### Embedded in Parent
+
+An adapter can save one-to-many relationships by embedding
+IDs (or records) in the parent object. In this case, the
+relationship is not considered acknowledged until both the
+old parent and new parent have acknowledged the change.
+
+In this case, the adapter should keep track of the old
+parent and new parent, and acknowledge the relationship
+change once both have acknowledged. If one of the two
+sides does not exist (e.g. the new parent does not exist
+because of nulling out the belongs-to relationship),
+the adapter should acknowledge the relationship once
+the other side has acknowledged.
+
+#### Separate Entity
+
+An adapter can save relationships as separate entities
+on the server. In this case, they should acknowledge
+the relationship as saved once the server has
+acknowledged the entity.
+
+
+# Revision 6
 
 ### String-normalized IDs
 

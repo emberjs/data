@@ -41,11 +41,19 @@ DS.RESTAdapter = DS.Adapter.extend({
     store.didSaveRecord(record, hash);
   },
 
+  didSaveRecords: function(store, records, array) {
+    var i = 0;
+
+    records.forEach(function(record) {
+      this.didSaveRecord(store, record, array && array[i++]);
+    }, this);
+  },
+
   didCreateRecord: function(store, type, record, json) {
     var root = this.rootForType(type);
 
     this.sideload(store, type, json, root);
-    store.didSaveRecord(record, json[root]);
+    this.didSaveRecord(store, record, json[root]);
   },
 
   createRecords: function(store, type, records) {
@@ -75,7 +83,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.pluralize(this.rootForType(type));
 
     this.sideload(store, type, json, root);
-    store.didSaveRecords(records, json[root]);
+    this.didSaveRecords(store, records, json[root]);
   },
 
   updateRecord: function(store, type, record) {
@@ -98,7 +106,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     this.sideload(store, type, json, root);
-    store.didSaveRecord(record, json && json[root]);
+    this.didSaveRecord(store, record, json && json[root]);
   },
 
   updateRecords: function(store, type, records) {
@@ -128,7 +136,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.pluralize(this.rootForType(type));
 
     this.sideload(store, type, json, root);
-    store.didSaveRecords(records, json[root]);
+    this.didSaveRecords(store, records, json[root]);
   },
 
   deleteRecord: function(store, type, record) {
@@ -173,7 +181,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didDeleteRecords: function(store, type, records, json) {
     if (json) { this.sideload(store, type, json); }
-    store.didSaveRecords(records);
+    this.didSaveRecords(store, records);
   },
 
   find: function(store, type, id) {
