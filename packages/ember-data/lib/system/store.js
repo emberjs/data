@@ -865,12 +865,11 @@ DS.Store = Ember.Object.extend({
     if (hash) {
       // We're about to clobber the entire data hash with new
       // data, so clear out any remaining unacknowledged changes
-      record.removeInFlightDirtyFactors();
+      record.removeInFlightDirtyFactorsForAttributes();
       this.updateId(record, hash);
       this.updateRecordHash(record, hash);
     } else {
       this.didUpdateAttributes(record);
-      this.didUpdateRelationships(record);
     }
   },
 
@@ -1004,13 +1003,11 @@ DS.Store = Ember.Object.extend({
     This allows an adapter to acknowledge that it has saved all
     necessary aspects of a relationship change.
 
-    The primary use-case for calling this method directly is an
-    adapter that saves relationships as separate entities (as
-    a "join table" or separate HTTP resource, for example).
-
-    @param {DS.OneToManyChange} relationship
+    @param {DS.Model} record
+    @param {DS.Model} relationshipName
   */
-  didUpdateRelationship: function(relationship) {
+  didUpdateRelationship: function(record, relationshipName) {
+    var relationship = this.relationshipChangeFor(get(record, 'clientId'), relationshipName);
     relationship.adapterDidUpdate();
   },
 
