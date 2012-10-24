@@ -311,6 +311,65 @@ test("it is possible to remove an item from an association", function() {
   equal(get(person, 'tags.length'), 0, "object is removed from the association");
 });
 
+test("loading an association then deleting the owner", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.hasMany(Tag)
+  });
+
+  Tag.reopen({
+    person: DS.belongsTo(Person)
+  });
+
+  var store = DS.Store.create();
+
+  store.load(Person, { id: 1, name: "Tom Dale", tags: [1] });
+  store.load(Tag, { id: 1, name: "ember", person: 1 });
+
+  var person = store.find(Person, 1);
+  var tag = person.get('tags').objectAt(0);
+
+  equal(get(tag, 'name'), "ember", "precond - associations work");
+  person.deleteRecord();
+  strictEqual(tag.get('person'), null, "deleting the owner should nullify it in the child");
+  tag.deleteRecord();
+  
+});
+
+test("adding a child then deleting the owner", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.hasMany(Tag)
+  });
+
+  Tag.reopen({
+    person: DS.belongsTo(Person)
+  });
+
+  var store = DS.Store.create();
+
+  store.load(Person, { id: 1, name: "Tom Dale", tags: [] });
+  store.load(Tag, { id: 1, name: "ember", person: 1 });
+
+  var person = store.find(Person, 1);
+  var tag = store.find(Tag, 1);
+  person.get('tags').pushObject(tag);
+
+  equal(person.get('tags').objectAt(0).get('name'), "ember", "precond - associations work");
+  person.deleteRecord();
+  strictEqual(tag.get('person'), null, "deleting the owner should nullify it in the child");
+  tag.deleteRecord();
+  
+});
+
 test("it is possible to add an item to an association, remove it, then add it again", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
