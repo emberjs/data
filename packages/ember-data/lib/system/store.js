@@ -862,10 +862,8 @@ DS.Store = Ember.Object.extend({
       this.didDeleteRecord(record);
     }
 
+    record.removeInFlightDirtyFactors();
     if (hash) {
-      // We're about to clobber the entire data hash with new
-      // data, so clear out any remaining unacknowledged changes
-      record.removeInFlightDirtyFactors();
       this.updateId(record, hash);
       this.updateRecordHash(record, hash);
     } else {
