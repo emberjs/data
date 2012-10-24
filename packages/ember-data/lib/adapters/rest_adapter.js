@@ -31,16 +31,6 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
-  didSaveRecord: function(store, record, hash) {
-    record.eachAssociation(function(name, meta) {
-      if (meta.kind === 'belongsTo') {
-        store.didUpdateRelationship(record, name);
-      }
-    });
-
-    store.didSaveRecord(record, hash);
-  },
-
   didCreateRecord: function(store, type, record, json) {
     var root = this.rootForType(type);
 
