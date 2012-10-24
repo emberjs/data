@@ -225,7 +225,7 @@ DS.Serializer = Ember.Object.extend({
 
     this.addAttributes(hash, record);
 
-    this.addRelationships(hash, record);
+    this.addRelationships(hash, record, options);
 
     return hash;
   },
@@ -249,20 +249,52 @@ DS.Serializer = Ember.Object.extend({
     hash[primaryKey] = this.serializeId(id);
   },
 
-  addRelationships: function(hash, record) {
+  addRelationships: function(hash, record, options) {
     record.eachAssociation(function(name, relationship) {
       var key = this._keyForAttributeName(record.constructor, name);
 
       if (relationship.kind === 'belongsTo') {
-        this.addBelongsTo(hash, record, key, relationship);
+        this.addBelongsTo(hash, record, key, relationship, options);
       } else if (relationship.kind === 'hasMany') {
-        this.addHasMany(hash, record, key, relationship);
+        this.addHasMany(hash, record, key, relationship, options);
       }
     }, this);
   },
 
-  addBelongsTo: Ember.K,
-  addHasMany: Ember.K,
+  addBelongsTo: function(hash, record, key, relationship, options) {
+    var value, id;
+
+    if (relationship.options.embedded) {
+      value = get(record, key);
+      hash[key] = value ? value.toJSON(options) : null;
+    } else {
+      id = record.get(key);
+      hash[key] = Ember.none(id) ? null : id;
+    }
+
+  },
+  addHasMany: function(hash, record, key, relationship, options) {
+    var manyArray = get(record, key),
+        records = [];
+
+    if (relationship.options.embedded) {
+      manyArray.forEach(function(record) {
+        records.push(record.toJSON(options));
+      });
+    } else {
+      var clientIds = get(manyArray, 'content'), id;
+
+      for (var i=0, l=clientIds.length; i<l; i++) {
+        id = get(record, 'store').clientIdToId[clientIds[i]];
+
+        if (id !== undefined) {
+          records.push(id);
+        }
+      }
+    }
+
+    hash[key] = records;
+  },
 
   /**
    Allows IDs to be normalized before being sent back to the
