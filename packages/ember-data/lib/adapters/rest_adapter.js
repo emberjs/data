@@ -77,23 +77,25 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   createRecord: function(store, type, record) {
-    var root = this.rootForType(type);
+    waitForParents(record, function() {
+      var root = this.rootForType(type);
 
-    var data = {};
-    data[root] = this.serialize(record, { includeId: true });
+      var data = {};
+      data[root] = this.serialize(record, { includeId: true });
 
-    this.ajax(this.buildURL(root), "POST", {
-      data: data,
-      context: this,
-      success: function(json) {
-        Ember.run(this, function(){
-          this.didCreateRecord(store, type, record, json);
-        });
-      },
-      error: function(xhr) {
-        this.didError(store, type, record, xhr);
-      }
-    });
+      this.ajax(this.buildURL(root), "POST", {
+        data: data,
+        context: this,
+        success: function(json) {
+          Ember.run(this, function(){
+            this.didCreateRecord(store, type, record, json);
+          });
+        },
+        error: function(xhr) {
+          this.didError(store, type, record, xhr);
+        }
+      });
+    }, this);
   },
 
   dirtyRecordsForRecordChange: function(dirtySet, record) {
@@ -153,24 +155,26 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   updateRecord: function(store, type, record) {
-    var id = get(record, 'id');
-    var root = this.rootForType(type);
+    waitForParents(record, function() {
+      var id = get(record, 'id');
+      var root = this.rootForType(type);
 
-    var data = {};
-    data[root] = this.serialize(record);
+      var data = {};
+      data[root] = this.serialize(record);
 
-    this.ajax(this.buildURL(root, id), "PUT", {
-      data: data,
-      context: this,
-      success: function(json) {
-        Ember.run(this, function(){
-          this.didSaveRecord(store, type, record, json);
-        });
-      },
-      error: function(xhr) {
-        this.didError(store, type, record, xhr);
-      }
-    });
+      this.ajax(this.buildURL(root, id), "PUT", {
+        data: data,
+        context: this,
+        success: function(json) {
+          Ember.run(this, function(){
+            this.didSaveRecord(store, type, record, json);
+          });
+        },
+        error: function(xhr) {
+          this.didError(store, type, record, xhr);
+        }
+      });
+    }, this);
   },
 
   updateRecords: function(store, type, records) {
@@ -366,3 +370,29 @@ DS.RESTAdapter = DS.Adapter.extend({
   }
 });
 
+function waitForParents(record, callback, context) {
+  var observers = new Ember.Set();
+
+  record.eachRelationship(function(name, meta) {
+    var relationship = record.cacheFor(name);
+
+    if (meta.kind === 'belongsTo' && relationship && get(relationship, 'isNew')) {
+      var observer = function() {
+        relationship.removeObserver('id', context, observer);
+        observers.remove(name);
+        finish();
+      };
+
+      relationship.addObserver('id', context, observer);
+      observers.add(name);
+    }
+  });
+
+  finish();
+
+  function finish() {
+    if (observers.length === 0) {
+      callback.call(context);
+    }
+  }
+}

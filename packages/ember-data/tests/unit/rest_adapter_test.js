@@ -1030,3 +1030,101 @@ test("updating a record with a 500 error marks the record as error", function() 
 
   expectState('error');
 });
+
+test("delaying create when the parent is new", function() {
+  group = store.createRecord(Group, { name: "Engineers" });
+
+  person = store.createRecord(Person, { name: "John" });
+  person.set('group', group);
+
+  ok(!group.hasObserverFor('id'), "The group's ID is not yet being observed");
+
+  adapter.createRecord(store, Person, person);
+
+  ok(!ajaxHash, "The AJAX call has not yet been made");
+  ok(group.hasObserverFor('id'), "The group's ID is being observed");
+
+  var observer = group.observersForKey('id')[0],
+      target = observer[0],
+      callback = observer[1];
+
+  callback.call(target);
+
+  ok(ajaxHash, "The AJAX call has been made");
+  ok(!group.hasObserverFor('id'), "The group's ID is no longer being observed");
+});
+
+test("immediately creating when the parent is already loaded", function() {
+  store.load(Group, { id: 1, name: "Engineers" });
+  group = store.find(Group, 1);
+
+  person = store.createRecord(Person, { name: "John" });
+  person.set('group', group);
+
+  ok(!group.hasObserverFor('id'), "The group's ID is not being observed");
+
+  adapter.createRecord(store, Person, person);
+
+  ok(ajaxHash, "The AJAX call has been made");
+  ok(!group.hasObserverFor('id'), "The group's ID is not being observed");
+});
+
+test("immediately creating when there is no parent", function() {
+  person = store.createRecord(Person, { name: "John" });
+
+  adapter.createRecord(store, Person, person);
+
+  ok(ajaxHash, "The AJAX call has been made");
+});
+
+test("delaying update when the parent is new", function() {
+  group = store.createRecord(Group, { name: "Engineers" });
+
+  store.load(Person, { id: 1, name: "John" });
+  person = store.find(Person, 1);
+  person.set('name', 'Jonathan');
+  person.set('group', group);
+
+  ok(!group.hasObserverFor('id'), "The group's ID is not yet being observed");
+
+  adapter.updateRecord(store, Person, person);
+
+  ok(!ajaxHash, "The AJAX call has not yet been made");
+  ok(group.hasObserverFor('id'), "The group's ID is being observed");
+
+  var observer = group.observersForKey('id')[0],
+      target = observer[0],
+      callback = observer[1];
+
+  callback.call(target);
+
+  ok(ajaxHash, "The AJAX call has been made");
+  ok(!group.hasObserverFor('id'), "The group's ID is no longer being observed");
+});
+
+test("immediately updating when the parent is already loaded", function() {
+  store.load(Group, { id: 1, name: "Engineers" });
+  group = store.find(Group, 1);
+
+  store.load(Person, { id: 1, name: "John" });
+  person = store.find(Person, 1);
+  person.set('name', 'Jonathan');
+  person.set('group', group);
+
+  ok(!group.hasObserverFor('id'), "The group's ID is not being observed");
+
+  adapter.updateRecord(store, Person, person);
+
+  ok(ajaxHash, "The AJAX call has been made");
+  ok(!group.hasObserverFor('id'), "The group's ID is not being observed");
+});
+
+test("immediately updating when there is no parent", function() {
+  store.load(Person, { id: 1, name: "John" });
+  person = store.find(Person, 1);
+  person.set('name', 'Jonathan');
+
+  adapter.updateRecord(store, Person, person);
+
+  ok(ajaxHash, "The AJAX call has been made");
+});
