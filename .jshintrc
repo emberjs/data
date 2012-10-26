@@ -24,7 +24,8 @@
         "expect",
         "minispade",
         "async",
-        "invokeAsync"
+        "invokeAsync",
+        "jQuery"
     ],
 
     "node" : false,

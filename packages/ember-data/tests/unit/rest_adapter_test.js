@@ -104,6 +104,44 @@ var expectStates = function(state, value) {
   });
 };
 
+test("Calling ajax() calls JQuery.ajax with json data", function() {
+  var adapter, ajaxHash, oldJQueryAjax = jQuery.ajax;
+
+  try {
+    // replace jQuery.ajax()
+    jQuery.ajax = function(hash) {
+      ajaxHash = hash;
+    };
+
+    adapter = DS.RESTAdapter.create();
+
+    adapter.ajax('/foo', 'GET', {extra: 'special'});
+    ok(ajaxHash, 'jQuery.ajax was called');
+    equal(ajaxHash.url, '/foo', 'Request URL is the given value');
+    equal(ajaxHash.type, 'GET', 'Request method is the given value');
+    equal(ajaxHash.dataType, 'json', 'Request data type is JSON');
+    equal(ajaxHash.contentType, 'application/json; charset=utf-8', 'Request content type is JSON');
+    equal(ajaxHash.context, adapter, 'Request context is the adapter');
+    equal(ajaxHash.extra, 'special', 'Extra options are passed through');
+
+    adapter.ajax('/foo', 'POST', {});
+    ok(!ajaxHash.data, 'Data not set when not provided');
+
+    adapter.ajax('/foo', 'GET', {data: 'unsupported'});
+    equal(ajaxHash.data, 'unsupported', 'Data untouched for unsupported methods');
+
+    adapter.ajax('/foo', 'POST', {data: {id: 1, name: 'Bar'}});
+    equal(ajaxHash.data, JSON.stringify({id: 1, name: 'Bar'}), 'Data serialized for POST requests');
+
+    adapter.ajax('/foo', 'PUT', {data: {id: 1, name: 'Bar'}});
+    equal(ajaxHash.data, JSON.stringify({id: 1, name: 'Bar'}), 'Data serialized for PUT requests');
+
+  } finally {
+    // restore jQuery.ajax()
+    jQuery.ajax = oldJQueryAjax;
+  }
+});
+
 test("creating a person makes a POST to /people, with the data hash", function() {
   person = store.createRecord(Person, { name: "Tom Dale" });
 
