@@ -153,7 +153,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didDeleteRecord: function(store, type, record, json) {
     if (json) { this.sideload(store, type, json); }
-    store.didSaveRecord(record);
+    this.didSaveRecord(store, record);
   },
 
   deleteRecords: function(store, type, records) {
