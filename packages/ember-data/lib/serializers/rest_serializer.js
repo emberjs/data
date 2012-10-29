@@ -10,9 +10,8 @@ DS.RESTSerializer = DS.Serializer.create({
   },
 
   addBelongsTo: function(hash, record, key, relationship) {
-    var hashKey = this._keyForBelongsTo(record.constructor, key),
-        id = get(record, key+'.id');
+    var id = get(record, relationship.key+'.id');
 
-    if (!Ember.none(id)) { hash[hashKey] = id; }
+    if (!Ember.none(id)) { hash[key] = id; }
   }
 });
