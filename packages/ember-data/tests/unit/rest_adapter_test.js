@@ -431,6 +431,21 @@ test("finding a person by ID makes a GET to /people/:id", function() {
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
+test("finding a person by an ID-alias populates the store", function() {
+  person = store.find(Person, 'me');
+
+  expectState('loaded', false);
+  expectUrl("/people/me", "the plural of the model name with the ID requested");
+  expectType("GET");
+
+  ajaxHash.success({ person: { id: 1, name: "Yehuda Katz" } });
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(person, store.find(Person, 'me'), "the record is now in the store, and can be looked up by the alias without another Ajax request");
+});
+
 test("additional data can be sideloaded in a GET", function() {
   group = store.find(Group, 1);
 
@@ -868,7 +883,15 @@ test("bulk deletes can sideload data", function() {
 test("if you specify a namespace then it is prepended onto all URLs", function() {
   set(adapter, 'namespace', 'ember');
   person = store.find(Person, 1);
-  expectUrl("/ember/people/1", "the namespace, followed by by the plural of the model name and the id");
+  expectUrl("/ember/people/1", "the namespace, followed by the plural of the model name and the id");
+
+  store.load(Person, { id: 1 });
+});
+
+test("if you specify a url then that custom url is used", function() {
+  set(adapter, 'url', 'http://api.ember.dev');
+  person = store.find(Person, 1);
+  expectUrl("http://api.ember.dev/people/1", "the custom url, followed by the plural of the model name and the id");
 
   store.load(Person, { id: 1 });
 });

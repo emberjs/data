@@ -39,7 +39,7 @@ not yet been loaded.
 
 ```javascript
 App.store = DS.Store.create({
-  revision: 4
+  revision: 6
 });
 ```
 
@@ -55,7 +55,7 @@ by setting the `adapter` property:
 
 ```javascript
 App.store = DS.Store.create({
-  revision: 4,
+  revision: 6,
   adapter: DS.RESTAdapter.create({ bulkCommit: false })
 });
 ```
@@ -68,6 +68,12 @@ The `RESTAdapter` supports the following options:
 * `namespace` (default: undefined): A leading URL component under which all
   REST URLs reside, without leading slash, e.g. `api` (for
   `/api/authors/1`-type URLs).
+
+* `url` (default: ""): A custom url for an API located on a different
+  url or a different subdomain, use the fully qualified domain name including
+  http, e.g. "http://api.emberjs.com".
+  NOTE: This will only work if your server and browser support
+[CORS](http://en.wikipedia.org/wiki/Cross-origin_resource_sharing).
 
 The RESTful adapter is still in progress. For Rails applications, we plan to make
 it work seamlessly with the `active_model_serializers` gem's conventions. In
@@ -478,6 +484,7 @@ implementing methods on them:
 * `didCreate` - called when the record has been successfully created in the persistence layer
 * `didUpdate` - called when changes have been successfully saved to the persistence layer
 * `didLoad` - called when data has finished loading from the persistence layer
+* `didDelete` - called when the record has been successfully deleted in the persistence layer
 
 For example:
 

@@ -23,6 +23,7 @@ Ember.onLoad('Ember.Application', function(Application) {
         var controllerName = property.charAt(0).toLowerCase() + property.substr(1);
         var store = stateManager.get('store');
         var controller = stateManager.get(controllerName);
+        if(!controller) { return; }
 
         controller.set('store', store);
       }

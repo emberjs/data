@@ -186,7 +186,7 @@ test("it is possible to filter by computed properties", function() {
     name: DS.attr('string'),
     upperName: Ember.computed(function() {
       return this.get('name').toUpperCase();
-    }).property('name').cacheable()
+    }).property('name')
   });
 
   var filter = store.filter(Person, function(person) {
@@ -210,7 +210,7 @@ test("a filter created after a record is already loaded works", function() {
     name: DS.attr('string'),
     upperName: Ember.computed(function() {
       return this.get('name').toUpperCase();
-    }).property('name').cacheable()
+    }).property('name')
   });
 
   store.load(Person, { id: 1, name: "Tom Dale" });

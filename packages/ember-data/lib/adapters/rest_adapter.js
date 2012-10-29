@@ -31,11 +31,29 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
+  didSaveRecord: function(store, record, hash) {
+    record.eachAssociation(function(name, meta) {
+      if (meta.kind === 'belongsTo') {
+        store.didUpdateRelationship(record, name);
+      }
+    });
+
+    store.didSaveRecord(record, hash);
+  },
+
+  didSaveRecords: function(store, records, array) {
+    var i = 0;
+
+    records.forEach(function(record) {
+      this.didSaveRecord(store, record, array && array[i++]);
+    }, this);
+  },
+
   didCreateRecord: function(store, type, record, json) {
     var root = this.rootForType(type);
 
     this.sideload(store, type, json, root);
-    store.didSaveRecord(record, json[root]);
+    this.didSaveRecord(store, record, json[root]);
   },
 
   createRecords: function(store, type, records) {
@@ -65,7 +83,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.pluralize(this.rootForType(type));
 
     this.sideload(store, type, json, root);
-    store.didSaveRecords(records, json[root]);
+    this.didSaveRecords(store, records, json[root]);
   },
 
   updateRecord: function(store, type, record) {
@@ -88,7 +106,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     this.sideload(store, type, json, root);
-    store.didSaveRecord(record, json && json[root]);
+    this.didSaveRecord(store, record, json && json[root]);
   },
 
   updateRecords: function(store, type, records) {
@@ -118,7 +136,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.pluralize(this.rootForType(type));
 
     this.sideload(store, type, json, root);
-    store.didSaveRecords(records, json[root]);
+    this.didSaveRecords(store, records, json[root]);
   },
 
   deleteRecord: function(store, type, record) {
@@ -135,7 +153,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didDeleteRecord: function(store, type, record, json) {
     if (json) { this.sideload(store, type, json); }
-    store.didSaveRecord(record);
+    this.didSaveRecord(store, record);
   },
 
   deleteRecords: function(store, type, records) {
@@ -163,7 +181,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didDeleteRecords: function(store, type, records, json) {
     if (json) { this.sideload(store, type, json); }
-    store.didSaveRecords(records);
+    this.didSaveRecords(store, records);
   },
 
   find: function(store, type, id) {
@@ -171,16 +189,16 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, id), "GET", {
       success: function(json) {
-        this.didFindRecord(store, type, json);
+        this.didFindRecord(store, type, json, id);
       }
     });
   },
 
-  didFindRecord: function(store, type, json) {
+  didFindRecord: function(store, type, json, id) {
     var root = this.rootForType(type);
 
     this.sideload(store, type, json, root);
-    store.load(type, json[root]);
+    store.load(type, id, json[root]);
   },
 
   findAll: function(store, type, since) {
@@ -331,8 +349,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
   },
 
+  url: "",
+
   buildURL: function(record, suffix) {
-    var url = [""];
+    var url = [this.url];
 
     Ember.assert("Namespace URL (" + this.namespace + ") must not start with slash", !this.namespace || this.namespace.toString().charAt(0) !== "/");
     Ember.assert("Record URL (" + record + ") must not start with slash", !record || record.toString().charAt(0) !== "/");
