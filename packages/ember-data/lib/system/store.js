@@ -1602,13 +1602,6 @@ DS.Store = Ember.Object.extend(DS.Mappable, {
     if (adapter) { return adapter; }
 
     return this.get('_adapter');
-  },
-
-  serializerForType: function(type) {
-    this._reifyMappings('serializers');
-
-    var serializer = this._serializersMap.get(type);
-    if (serializer) { return serializer; }
   }
 });
 
@@ -1619,13 +1612,5 @@ DS.Store.reopenClass({
     map.set(type, adapter);
 
     this._adaptersMap = map;
-  },
-
-  registerSerializer: function(type, serializer) {
-    var map = this._serializersMap || new Ember.Map();
-
-    map.set(type, serializer);
-
-    this._serializersMap = map;
   }
 });
