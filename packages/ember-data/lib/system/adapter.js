@@ -113,6 +113,10 @@ DS.Adapter = Ember.Object.extend({
     }, this);
   },
 
+  serializerForType: function(store, type) {
+    return store.serializerForType(type) || get(this, 'serializer');
+  },
+
   /**
     The `find()` method is invoked when the store is asked for a record that
     has not previously been loaded. In response to `find()` being called, you

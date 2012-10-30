@@ -2,6 +2,7 @@
 
 require("ember-data/system/record_arrays");
 require("ember-data/system/transaction");
+require("ember-data/system/mixins/mappable");
 
 var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt;
 
@@ -61,7 +62,7 @@ var map = Ember.EnumerableUtils.map;
     You can learn more about writing a custom adapter by reading the `DS.Adapter`
     documentation.
 */
-DS.Store = Ember.Object.extend({
+DS.Store = Ember.Object.extend(DS.Mappable, {
 
   /**
     Many methods can be invoked without specifying which store should be used.
@@ -143,7 +144,7 @@ DS.Store = Ember.Object.extend({
   materializeData: function(record) {
     var clientId = get(record, 'clientId'),
         cidToHash = this.clientIdToHash,
-        adapter = get(this, '_adapter'),
+        adapter = this.adapterForType(record.constructor),
         hash = cidToHash[clientId];
 
     cidToHash[clientId] = MATERIALIZED;
@@ -207,7 +208,7 @@ DS.Store = Ember.Object.extend({
     @param {Object} options an options hash
   */
   toJSON: function(record, options) {
-    return get(this, '_adapter').toJSON(record, options);
+    return this.adapterForType(record.constructor).toJSON(record, options);
   },
 
   /**
@@ -446,7 +447,7 @@ DS.Store = Ember.Object.extend({
     var record = this.materializeRecord(type, clientId, id);
 
     // let the adapter set the data, possibly async
-    var adapter = get(this, '_adapter');
+    var adapter = this.adapterForType(type);
     if (adapter && adapter.find) { adapter.find(this, type, id); }
     else { throw "Adapter is either null or does not implement `find` method"; }
 
@@ -559,7 +560,7 @@ DS.Store = Ember.Object.extend({
 
     if (!neededIds.length) { return; }
 
-    var adapter = get(this, '_adapter');
+    var adapter = this.adapterForType(type);
     if (adapter && adapter.findMany) { adapter.findMany(this, type, neededIds); }
     else { throw "Adapter is either null or does not implement `findMany` method"; }
   },
@@ -595,7 +596,7 @@ DS.Store = Ember.Object.extend({
     //    convert them back to ids)
 
     if (!Ember.isArray(ids)) {
-      var adapter = get(this, '_adapter');
+      var adapter = this.adapterForType(type);
       if (adapter && adapter.findAssociation) { adapter.findAssociation(this, record, relationship, ids); }
       else { throw fmt("Adapter is either null or does not implement `findMany` method", this); }
 
@@ -651,7 +652,7 @@ DS.Store = Ember.Object.extend({
   */
   findQuery: function(type, query) {
     var array = DS.AdapterPopulatedRecordArray.create({ type: type, query: query, content: Ember.A([]), store: this });
-    var adapter = get(this, '_adapter');
+    var adapter = this.adapterForType(type);
     if (adapter && adapter.findQuery) { adapter.findQuery(this, type, query, array); }
     else { throw "Adapter is either null or does not implement `findQuery` method"; }
     return array;
@@ -678,7 +679,7 @@ DS.Store = Ember.Object.extend({
   */
   fetchAll: function(type, array) {
     var sinceToken = this.typeMapFor(type).sinceToken,
-        adapter = get(this, '_adapter');
+        adapter = this.adapterForType(type);
 
     set(array, 'isUpdating', true);
 
@@ -1156,7 +1157,8 @@ DS.Store = Ember.Object.extend({
     var typeMap = this.typeMapFor(record.constructor),
         clientId = get(record, 'clientId'),
         oldId = get(record, 'id'),
-        id = get(this, '_adapter').extractId(record.constructor, hash);
+        type = record.constructor,
+        id = this.adapterForType(type).extractId(type, hash);
 
     Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned a data hash in response to a find or update that had a different id than the one you sent.", oldId === undefined || id === oldId);
 
@@ -1441,7 +1443,7 @@ DS.Store = Ember.Object.extend({
     if (hash === undefined) {
       hash = id;
 
-      var adapter = get(this, '_adapter');
+      var adapter = this.adapterForType(type);
       id = adapter.extractId(type, hash);
     }
 
@@ -1474,7 +1476,7 @@ DS.Store = Ember.Object.extend({
       hashes = ids;
       ids = [];
 
-      var adapter = get(this, '_adapter');
+      var adapter = this.adapterForType(type);
 
       ids = map(hashes, function(hash) {
         return adapter.extractId(type, hash);
@@ -1586,5 +1588,44 @@ DS.Store = Ember.Object.extend({
 
   relationshipChangesFor: function(clientId) {
     return this.relationshipChanges[clientId];
+  },
+
+  // ......................
+  // . PER-TYPE ADAPTERS
+  // ......................
+
+  adapterForType: function(type) {
+    this._reifyMappings('adapters');
+
+    var adapter = this._adaptersMap.get(type);
+
+    if (adapter) { return adapter; }
+
+    return this.get('_adapter');
+  },
+
+  serializerForType: function(type) {
+    this._reifyMappings('serializers');
+
+    var serializer = this._serializersMap.get(type);
+    if (serializer) { return serializer; }
+  }
+});
+
+DS.Store.reopenClass({
+  registerAdapter: function(type, adapter) {
+    var map = this._adaptersMap || new Ember.Map();
+
+    map.set(type, adapter);
+
+    this._adaptersMap = map;
+  },
+
+  registerSerializer: function(type, serializer) {
+    var map = this._serializersMap || new Ember.Map();
+
+    map.set(type, serializer);
+
+    this._serializersMap = map;
   }
 });
