@@ -266,7 +266,7 @@ test("DS.Store loads individual records without explicit IDs with a custom prima
 */
 
 test("DS.Store passes only needed guids to findMany", function() {
-  expect(8);
+  expect(11);
 
   var adapter = TestAdapter.create({
     findMany: function(store, type, ids) {
@@ -284,6 +284,7 @@ test("DS.Store passes only needed guids to findMany", function() {
   var objects = currentStore.findMany(currentType, [1,2,3,4,5,6]);
 
   equal(get(objects, 'length'), 6, "the RecordArray returned from findMany has all the objects");
+  equal(get(objects, 'isLoaded'), false, "the RecordArrays' isLoaded flag is false");
 
   var i, object, hash;
   for (i=0; i<3; i++) {
@@ -297,6 +298,11 @@ test("DS.Store passes only needed guids to findMany", function() {
     object = objects.objectAt(i);
     ok(currentType.detectInstance(object), "objects are instances of the RecordArray's type");
   }
+
+  currentStore.loadMany(currentType, [4,5,6], [{ id: 4 }, { id: 5 }, { id: 6 }]);
+
+  equal(objects.everyProperty('isLoaded'), true, "every objects' isLoaded is true");
+  equal(get(objects, 'isLoaded'), true, "after all objects are loaded, the RecordArrays' isLoaded flag is true");
 });
 
 test("loadMany extracts ids from an Array of hashes if no ids are specified", function() {
