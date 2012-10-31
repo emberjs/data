@@ -196,6 +196,12 @@ module("DS.Adapter - Mapping", {
 
 test("Mappings registered on an adapter class should be set on the adapter's serializer at initialization time.", function() {
   var Adapter = DS.Adapter.extend();
+  var oldLookup = Ember.lookup;
+  Ember.lookup = {
+    App: {}
+  };
+
+  Ember.lookup.App.Person = Ember.Object.extend();
 
   Adapter.map('App.Person', {
     firstName: { key: 'FIRST_NAME' }
@@ -223,4 +229,6 @@ test("Mappings registered on an adapter class should be set on the adapter's ser
       middleName: { key: 'MIDDLE_NAME' }
     }
   });
+
+  Ember.lookup = oldLookup;
 });

@@ -62,7 +62,7 @@ var map = Ember.EnumerableUtils.map;
     You can learn more about writing a custom adapter by reading the `DS.Adapter`
     documentation.
 */
-DS.Store = Ember.Object.extend(DS.Mappable, {
+DS.Store = Ember.Object.extend(DS._Mappable, {
 
   /**
     Many methods can be invoked without specifying which store should be used.
@@ -1603,10 +1603,9 @@ DS.Store = Ember.Object.extend(DS.Mappable, {
   // ......................
 
   adapterForType: function(type) {
-    this._reifyMappings('adapters');
+    this._adaptersMap = this.createInstanceMapFor('adapters');
 
     var adapter = this._adaptersMap.get(type);
-
     if (adapter) { return adapter; }
 
     return this.get('_adapter');
@@ -1614,11 +1613,26 @@ DS.Store = Ember.Object.extend(DS.Mappable, {
 });
 
 DS.Store.reopenClass({
-  registerAdapter: function(type, adapter) {
-    var map = this._adaptersMap || new Ember.Map();
-
+  registerAdapter: DS._Mappable.generateMapFunctionFor('adapters', function(type, adapter, map) {
     map.set(type, adapter);
+  }),
 
-    this._adaptersMap = map;
+  transformMapKey: function(key) {
+    if (typeof key === 'string') {
+      var transformedKey;
+      transformedKey = get(Ember.lookup, key);
+      Ember.assert("Could not find model at path " + key, transformedKey);
+      return transformedKey;
+    } else {
+      return key;
+    }
+  },
+
+  transformMapValue: function(key, value) {
+    if (Ember.Object.detect(value)) {
+      return value.create();
+    }
+
+    return value;
   }
 });

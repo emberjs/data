@@ -42,7 +42,7 @@
 
 var get = Ember.get, set = Ember.set;
 
-DS.Adapter = Ember.Object.extend({
+DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
   init: function() {
     var serializer = get(this, 'serializer');
@@ -52,8 +52,10 @@ DS.Adapter = Ember.Object.extend({
       set(this, 'serializer', serializer);
     }
 
+    this._attributesMap = this.createInstanceMapFor('attributes');
+
     this.registerSerializerTransforms(this.constructor, serializer, {});
-    this.registerSerializerMappings(this.constructor, serializer);
+    this.registerSerializerMappings(serializer);
   },
 
   /**
@@ -99,14 +101,8 @@ DS.Adapter = Ember.Object.extend({
     @param {DS.Serializer} serializer the serializer to register the
       mappings onto
   */
-  registerSerializerMappings: function(klass, serializer) {
-    var mappings = klass._registeredMappings, superclass, prop;
-
-    if (superclass = klass.superclass) {
-      this.registerSerializerMappings(superclass, serializer);
-    }
-
-    if (!mappings) { return; }
+  registerSerializerMappings: function(serializer) {
+    var mappings = this._attributesMap;
 
     mappings.forEach(function(type, mapping) {
       serializer.map(type, mapping);
@@ -301,17 +297,21 @@ DS.Adapter.reopenClass({
     this._registeredTransforms = registeredTransforms;
   },
 
-  map: function(type, mapping) {
-    var mappings = this._registeredMappings || Ember.MapWithDefault.create({
-      defaultValue: function() { return {}; }
-    });
-    var mappingsForType = mappings.get(type);
+  map: DS._Mappable.generateMapFunctionFor('attributes', function(key, newValue, map) {
+    var existingValue = map.get(key);
 
-    for (var prop in mapping) {
-      if (!mapping.hasOwnProperty(prop)) { continue; }
-      mappingsForType[prop] = mapping[prop];
+    for (var prop in newValue) {
+      if (!newValue.hasOwnProperty(prop)) { continue; }
+      existingValue[prop] = newValue[prop];
+    }
+  }),
+
+  resolveMapConflict: function(oldValue, newValue, mappingsKey) {
+    for (var prop in oldValue) {
+      if (!oldValue.hasOwnProperty(prop)) { continue; }
+      newValue[prop] = oldValue[prop];
     }
 
-    this._registeredMappings = mappings;
+    return newValue;
   }
 });
