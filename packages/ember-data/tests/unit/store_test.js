@@ -305,6 +305,28 @@ test("DS.Store passes only needed guids to findMany", function() {
   equal(get(objects, 'isLoaded'), true, "after all objects are loaded, the RecordArrays' isLoaded flag is true");
 });
 
+test("a findManys' isLoaded is true when all objects are loaded", function() {
+  expect(2);
+
+  var adapter = TestAdapter.create({
+    findMany: function(store, type, ids) {
+      ok(false, "findMany should not have been called");
+    }
+  });
+
+  var currentStore = DS.Store.create({ adapter: adapter });
+  var currentType = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  currentStore.loadMany(currentType, [1,2,3], array);
+
+  var objects = currentStore.findMany(currentType, [1,2,3]);
+
+  equal(get(objects, 'length'), 3, "the RecordArray returned from findMany has all the objects");
+  equal(get(objects, 'isLoaded'), true, "the RecordArrays' isLoaded flag is true");
+});
+
 test("loadMany extracts ids from an Array of hashes if no ids are specified", function() {
   var store = DS.Store.create();
 

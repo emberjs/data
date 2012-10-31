@@ -631,6 +631,9 @@ DS.Store = Ember.Object.extend(DS.Mappable, {
       }
 
       this.fetchMany(type, neededClientIds);
+    } else {
+      // all requested records are available
+      manyArray.set('isLoaded', true);
     }
 
     return manyArray;
