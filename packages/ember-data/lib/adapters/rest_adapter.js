@@ -329,13 +329,16 @@ DS.RESTAdapter = DS.Adapter.extend({
   sideloadAssociations: function(store, type, json, prop, loaded) {
     loaded[prop] = true;
 
-    get(type, 'associationsByName').forEach(function(key, meta) {
-      key = meta.key || key;
-      if (meta.kind === 'belongsTo') {
-        key = this.pluralize(key);
-      }
-      if (json[key] && !loaded[key]) {
-        this.sideloadAssociations(store, meta.type, json, key, loaded);
+    Ember.get(type, 'associationsByName').forEach(function(key, meta) {
+      var root = this.rootForType(meta.type),
+          plural = this.pluralize(root);
+
+      if (json[plural]) {
+        if (!loaded[plural]) {
+          this.sideloadAssociations(store, meta.type, json, plural, loaded);
+        } else {
+          this.loadValue(store, meta.type, json[plural]);
+        }
       }
     }, this);
 
