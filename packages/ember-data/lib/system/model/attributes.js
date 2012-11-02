@@ -47,6 +47,39 @@ DS.attr = function(type, options) {
     options: options
   };
 
+  var isArray = (type.search(/\[\]/g) > -1);
+
+  if (isArray) {
+    var arrayProxy = Ember.Object.create({
+      change: function() {
+        var content = Ember.copy(this.get('content'));
+        this.get('model')
+          .setProperty(this.get('key'), content);
+      }.observes('content.@each')
+    });
+
+    return Ember.computed(function(key, value) {
+      var data;
+
+      if (!arrayProxy.get('key')) {
+        var me = this;
+        arrayProxy.reopen({
+          key: key,
+          model: me,
+          content: me.get('_data.attributes.%@'.fmt(key))
+        });
+      }
+
+      if (arguments.length === 2) {
+        // the key contains '[]', so it can't be 'id'
+        arrayProxy.set('content', value);
+      } else {
+        value = arrayProxy.get('content');
+      }
+      return value;
+    }).property('data').meta(meta);
+  }
+
   return Ember.computed(function(key, value) {
     var data;
 
