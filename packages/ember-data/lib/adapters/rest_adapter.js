@@ -162,12 +162,13 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
 
     var root = this.rootForType(type),
-        plural = this.pluralize(root);
+        plural = this.pluralize(root),
+        serializer = get(this, 'serializer');
 
     var data = {};
     data[plural] = [];
     records.forEach(function(record) {
-      data[plural].push(get(record, 'id'));
+      data[plural].push(serializer.serializeId( get(record, 'id') ));
     });
 
     this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
