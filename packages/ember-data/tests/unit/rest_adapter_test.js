@@ -830,6 +830,7 @@ test("deleting several people (with bulkCommit) makes a PUT to /people/bulk", fu
 
   expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
   expectType("DELETE");
+  expectData({ people: [1, 2] });
 
   ajaxHash.success();
 
@@ -869,6 +870,7 @@ test("bulk deletes can sideload data", function() {
 
   expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
   expectType("DELETE");
+  expectData({ people: [1, 2] });
 
   ajaxHash.success({
     groups: [{ id: 1, name: "Group 1" }]
