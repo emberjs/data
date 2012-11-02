@@ -120,7 +120,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var data = {};
     data[plural] = [];
     records.forEach(function(record) {
-      data[plural].push(record.toJSON());
+      data[plural].push(this.toJSON(record, { includeId: true }));
     }, this);
 
     this.ajax(this.buildURL(root, "bulk"), "PUT", {

@@ -741,6 +741,7 @@ test("updating several people (with bulkCommit) makes a PUT to /people/bulk with
 
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
+  expectData({ people: [{ id: 1, name: "Brohuda Brokatz" }, { id: 2, name: "Brocarl Brolerche" }] });
 
   ajaxHash.success({ people: [
     { id: 1, name: "Brohuda Brokatz" },
@@ -783,6 +784,7 @@ test("bulk updates can sideload data", function() {
 
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
+  expectData({ people: [{ id: 1, name: "Brohuda Brokatz" }, { id: 2, name: "Brocarl Brolerche" }] });
 
   ajaxHash.success({
     people: [
