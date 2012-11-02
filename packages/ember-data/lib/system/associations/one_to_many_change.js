@@ -279,14 +279,15 @@ DS.OneToManyChange.prototype = {
     // infinite loop.
 
 
-    // If there is an `oldParent`, use the idempotent `removeObject`
-    // to ensure that the record is no longer in its ManyArray. The
-    // `removeObject` method only has an effect if:
+    // If there is an `oldParent` and the `oldParent` is different to
+    // the `newParent`, use the idempotent `removeObject` to ensure
+    // that the record is no longer in its ManyArray. The `removeObject`
+    // method only has an effect if:
     //
     // 1. The change happened from the belongsTo side
     // 2. The record was moved to a new parent without explicitly
     //    removing it from the old parent first.
-    if (oldParent) {
+    if (oldParent && oldParent !== newParent) {
       get(oldParent, hasManyName).removeObject(child);
 
       if (get(oldParent, 'isLoaded')) {
