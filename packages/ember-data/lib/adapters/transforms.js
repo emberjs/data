@@ -1,39 +1,56 @@
-var transforms = {
+DS.Transforms = Ember.Object.extend({
   string: {
-    from: function(serialized) {
+    fromJSON: function(serialized) {
       return Ember.none(serialized) ? null : String(serialized);
     },
 
-    to: function(deserialized) {
+    toJSON: function(deserialized) {
       return Ember.none(deserialized) ? null : String(deserialized);
     }
   },
 
   number: {
-    from: function(serialized) {
+    fromJSON: function(serialized) {
       return Ember.none(serialized) ? null : Number(serialized);
     },
 
-    to: function(deserialized) {
+    toJSON: function(deserialized) {
       return Ember.none(deserialized) ? null : Number(deserialized);
     }
   },
 
+  // Handles the following boolean inputs:
+  // "TrUe", "t", "f", "FALSE", 0, (non-zero), or boolean true/false
   'boolean': {
-    from: function(serialized) {
-      return Boolean(serialized);
+    fromJSON: function(serialized) {
+      var type = typeof serialized;
+
+      if (type === "boolean") {
+        return serialized;
+      } else if (type === "string") {
+        return serialized.match(/^true$|^t$|^1$/i) !== null;
+      } else if (type === "number") {
+        return serialized === 1;
+      } else {
+        return false;
+      }
     },
 
-    to: function(deserialized) {
+    toJSON: function(deserialized) {
       return Boolean(deserialized);
     }
   },
 
   date: {
-    from: function(serialized) {
+    fromJSON: function(serialized) {
       var type = typeof serialized;
 
       if (type === "string" || type === "number") {
+        // this is a fix for Safari 5.1.5 on Mac which does not accept timestamps as yyyy-mm-dd
+        if (serialized.search(/^\d{4}-\d{2}-\d{2}$/) !== -1){
+          serialized += "T00:00:00Z";
+        }
+
         return new Date(serialized);
       } else if (serialized === null || serialized === undefined) {
         // if the value is not present in the data,
@@ -44,7 +61,7 @@ var transforms = {
       }
     },
 
-    to: function(date) {
+    toJSON: function(date) {
       if (date instanceof Date) {
         var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -75,6 +92,4 @@ var transforms = {
       }
     }
   }
-};
-
-
+});
