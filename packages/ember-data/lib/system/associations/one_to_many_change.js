@@ -19,7 +19,7 @@ DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
   var childType = store.typeForClientId(childClientId), key;
 
   if (options.parentType) {
-    key = inverseBelongsToForHasMany(options.parentType, childType, options.hasManyName);
+    key = inverseBelongsToName(options.parentType, childType, options.hasManyName);
   } else {
     key = options.belongsToName;
   }
@@ -82,7 +82,7 @@ DS.OneToManyChange.prototype = {
 
       var childType = store.typeForClientId(this.child);
       var inverseType = DS.inverseTypeFor(childType, this.belongsToName);
-      name = DS.inverseNameFor(inverseType, childType, 'hasMany');
+      name = inverseHasManyName(inverseType, childType, this.belongsToName);
       this.hasManyName = name;
     }
 
@@ -352,7 +352,7 @@ DS.OneToManyChange.prototype = {
   }
 };
 
-function inverseBelongsToForHasMany(parentType, childType, hasManyName) {
+function inverseBelongsToName(parentType, childType, hasManyName) {
   // Get the options passed to the parent's DS.hasMany()
   var options = parentType.metaForProperty(hasManyName).options;
   var belongsToName;
@@ -362,4 +362,15 @@ function inverseBelongsToForHasMany(parentType, childType, hasManyName) {
   }
 
   return DS.inverseNameFor(childType, parentType, 'belongsTo');
+}
+
+function inverseHasManyName(parentType, childType, belongsToName) {
+  var options = childType.metaForProperty(belongsToName).options;
+  var hasManyName;
+
+  if (hasManyName = options.inverse) {
+    return hasManyName;
+  }
+
+  return DS.inverseNameFor(parentType, childType, 'hasMany');
 }
