@@ -88,7 +88,7 @@ DS.attr = function(type, options) {
         observeArray(value, key, this);
       } else if (typeof value === 'object') {
         var proxyKey = '%@Proxy'.fmt(key);
-        if (this.get(proxyKey) === undefined) {
+        if (get(this, proxyKey) === undefined) {
           var model = this;
 
           var proxy = Ember.ObjectProxy.create({
