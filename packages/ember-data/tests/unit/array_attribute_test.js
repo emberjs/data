@@ -18,7 +18,7 @@ module("DS.arrayAttr", {
     array = [
               { id: '1', name: "Scumbag Dale", problems: ['booze'] }, 
               { id: '2', name: "Scumbag Katz", problems: ['skag'] }, 
-              { id: '3', name: "Scumbag Bryn", problems: ['laydeez'] }
+              { id: '3', name: "Scumbag Bryn",}
             ];
 
     store = DS.Store.create({
@@ -37,7 +37,7 @@ module("DS.arrayAttr", {
 
     Person = DS.Model.extend({
       name: DS.attr('string'),
-      problems: DS.attr('string[]')
+      problems: DS.attr('string[]', {defaultValue: []})
     });
 
     store.loadMany(Person, [1,2,3], array);
@@ -59,4 +59,10 @@ test('the record should become dirty when array properties change', function() {
   get(dale, 'problems').pushObject('cash flow');
   equal(get(dale, 'problems.length'), 2, 'less money mo problems');
   equal(get(dale, 'isDirty'), true, 'the model should be dirty now.');
+
+  var bryn = store.find(Person, 3);
+  equal(get(bryn, 'isDirty'), false, 'Bryn should still be clean');
+  get(bryn, 'problems').pushObject('laydeez');
+  equal(get(bryn, 'problems')[0], 'laydeez', 'Default array should be present');
+  ok(get(bryn, 'isDirty'), 'Pushing an object to the default should make it dirty');
 });
