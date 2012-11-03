@@ -49,8 +49,6 @@ DS.attr = function(type, options) {
   };
 
   return Ember.computed(function(key, value) {
-    var data;
-
     function observeArray(arr, path, target) {
       arr.addObserver('[]', this, function() {
         target.setProperty(path, Ember.copy(arr));
@@ -59,16 +57,17 @@ DS.attr = function(type, options) {
 
     function observeObject(proxy, path, child) {
       function triggerChanges() {
-        val = get(this, pathToVal);
-        this.triggerChanges(pathToVal, val);
+        this.triggerChanges();
       }
-      if (child === undefined) child = proxy.get('content');
+
+      if (child === undefined) child = get(proxy, 'content');
+
       for (var key in child) {
         var pathToVal = path.fmt(key);
-        if (typeof get(child, key) === 'object') {
-          var val = get(child, key);
+        var val = get(proxy, pathToVal);
+        if (typeof val === 'object') {
           if (Ember.isArray(val)) {
-            observeArray(val, pathToVal, proxy.get('model'));
+            observeArray(val, pathToVal, proxy.get('record'));
           } else {
             var childPath = pathToVal + '.%@';
             observeObject(proxy, childPath, val);
@@ -89,19 +88,16 @@ DS.attr = function(type, options) {
       } else if (typeof value === 'object') {
         var proxyKey = '%@Proxy'.fmt(key);
         if (get(this, proxyKey) === undefined) {
-          var model = this;
-
+          var record = this;
           var proxy = Ember.ObjectProxy.create({
             content: Ember.Object.create(value),
-            model: model,
+            record: record,
             triggerChanges: function() {
-              this.get('model').setProperty(key, this.get('content'));
+              this.get('record').setProperty(key, this.get('content'));
             }
           });
 
-          var path = 'content.%@';
-
-          observeObject(proxy, path);
+          observeObject(proxy, 'content.%@');
 
           set(this, proxyKey, proxy);
         }

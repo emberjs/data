@@ -119,7 +119,9 @@ module('DS.objectAttr', {
 });
 
 test('Changes to nested objects cause the model to become dirty', function() {
+  
   var dale = store.find(Person, 1);
+  
   set(dale, 'bio.age', 17);
   equal(get(dale, 'bio.age'), 17, 'you can set a nested object value');
   ok(dale.get('isDirty'), 'modifying a nested object makes dale dirty');
@@ -135,4 +137,5 @@ test('Changes to nested objects cause the model to become dirty', function() {
   get(bryn, 'bio.nested.array').pushObject('two');
   ok(get(bryn, 'isDirty'), 'modifying an array in a nested object throws dirt');
   equal(get(bryn, 'bio.nested.array')[1], 'two', 'the changes appear in the array');
+
 });
