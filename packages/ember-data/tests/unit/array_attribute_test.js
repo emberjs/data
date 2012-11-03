@@ -51,7 +51,6 @@ module("DS.arrayAttr", {
 
 test('the record should become dirty when array properties change', function() {
   var dale = store.find(Person, 1);
-  console.log(dale);
   equal(get(dale, 'problems')[0], 'booze', 'the array has some values');
 
   equal(get(dale, 'isDirty'), false, 'the array is not dirty yet');

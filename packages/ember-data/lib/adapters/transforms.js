@@ -74,7 +74,7 @@ var transforms = {
         return null;
       }
     }
-  },
+  }
 };
 
 
