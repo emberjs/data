@@ -18,7 +18,7 @@ module("the nested REST adapter", {
         ajaxUrl = url;
         ajaxType = type;
         ajaxHash = hash;
-
+        
         if (success) {
           hash.success = function(json) {
             success.call(self, json);
@@ -52,6 +52,10 @@ module("the nested REST adapter", {
       return "App.Group";
     };
 
+    Person.reopen({
+      group: DS.belongsTo(Group)
+    });
+    
     Role = DS.Model.extend({
       name: DS.attr('string'),
       primaryKey: '_id'
@@ -72,6 +76,11 @@ module("the nested REST adapter", {
     }
   }
 });
+
+// var wait = function(ms) {
+//   ms += new Date().getTime();
+//   while (new Date() < ms){}
+// }
 
 var expectUrl = function(url, desc) {
   equal(ajaxUrl, url, "the URL is " + desc);
@@ -117,6 +126,54 @@ test("creating a person makes a POST to /people, with the data hash", function()
   equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
 });
 
+test("creating a person (with nested url set) makes a POST to /groups/:group_id/people, with the data hash", function() {
+  Person.url = 'groups/%@/person';
+  
+  group = store.find(Group, 1);
+  
+  person = store.createRecord(Person, { name: "Tom Dale" });
+  person.set('group', group);
+
+  expectState('new');
+  store.commit();
+  expectState('saving');
+
+  expectUrl("/groups/1/people", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ person: { group_id: "1", name: "Tom Dale" } });
+
+  ajaxHash.success({ person: { id: 1, name: "Tom Dale" } });
+  expectState('saving', false);
+
+  equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
+});
+
+// test("creating a group and a person (with nested url set) makes a POST to /groups/:group_id/people, with the data hash", function() {
+//   Person.url = 'groups/%@/person';
+//   
+//   person = store.createRecord(Person, { name: "Tom Dale" });
+//   
+//   group = Group.createRecord({ name: "Group 1" });
+//   group.get('people').pushObject(person);
+//   person.set('group', group);
+//   
+//   console.log(group.get('people'))
+//   
+//   //console.log(person);
+//   expectState('saving', undefined, group);
+//   store.commit();
+//   expectState('saving');
+// 
+//   expectUrl("/groups/1/people", "the collection at the plural of the model name");
+//   expectType("POST");
+//   expectData({ person: { group_id: "1", name: "Tom Dale" } });
+// 
+//   ajaxHash.success({ person: { id: 1, group_id: "1", name: "Tom Dale" } });
+//   expectState('saving', false);
+// 
+//   equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
+// });
+
 test("singular creations can sideload data", function() {
   adapter.mappings = {
     groups: Group
@@ -161,6 +218,35 @@ test("updating a person makes a PUT to /people/:id with the data hash", function
   expectState('saving');
 
   expectUrl("/people/1", "the plural of the model name with its ID");
+  expectType("PUT");
+
+  ajaxHash.success({ person: { id: 1, name: "Brohuda Brokatz" } });
+  expectState('saving', false);
+
+  equal(person, store.find(Person, 1), "the same person is retrieved by the same ID");
+  equal(get(person, 'name'), "Brohuda Brokatz", "the hash should be updated");
+});
+
+test("updating a person (with nested url set) makes a PUT to /groups/:group_id/people/:id with the data hash", function() {
+  Person.url = 'groups/%@/person';
+
+  store.load(Group, { id: 1, name: "Group 1" });
+  group = store.find(Group, 1);
+  
+  store.load(Person, { id: 1, name: "Yehuda Katz", group_id: group.get('id') });
+  person = store.find(Person, 1);
+
+  expectState('new', false);
+  expectState('loaded');
+  expectState('dirty', false);
+
+  set(person, 'name', "Brohuda Brokatz");
+
+  expectState('dirty');
+  store.commit();
+  expectState('saving');
+
+  expectUrl("/groups/1/people/1", "the plural of the model name with its ID");
   expectType("PUT");
 
   ajaxHash.success({ person: { id: 1, name: "Brohuda Brokatz" } });
@@ -230,6 +316,7 @@ test("singular updates can sideload data", function() {
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
+/*
 test("updating a record with custom primaryKey", function() {
   store.load(Role, { _id: 1, name: "Developer" });
 
@@ -241,7 +328,7 @@ test("updating a record with custom primaryKey", function() {
   expectUrl("/roles/1", "the plural of the model name with its ID");
   ajaxHash.success({ role: { _id: 1, name: "Manager" } });
 });
-
+*/
 
 test("deleting a person makes a DELETE to /people/:id", function() {
   store.load(Person, { id: 1, name: "Tom Dale" });
@@ -264,6 +351,59 @@ test("deleting a person makes a DELETE to /people/:id", function() {
 
   ajaxHash.success();
   expectState('deleted');
+});
+
+test("deleting a person (with nested url set) makes a DELETE to /groups/:group_id/people/:id", function() {
+  Person.url = 'groups/%@/person';
+  
+  store.load(Group, { id: 1, name: "Group 1" });
+  group = store.find(Group, 1);
+  
+  store.load(Person, { id: 1, name: "Tom Dale", group_id: group.get('id') });
+  person = store.find(Person, 1);
+
+  expectState('new', false);
+  expectState('loaded');
+  expectState('dirty', false);
+
+  person.deleteRecord();
+  
+  expectState('dirty');
+  expectState('deleted');
+  store.commit();
+  expectState('saving');
+
+  expectUrl("/groups/1/people/1", "the plural of the model name with its ID");
+  expectType("DELETE");
+
+  ajaxHash.success();
+  expectState('deleted');
+});
+
+test("add/commit/delete/commit a person from a group, group lifecycle", function() {
+  store.load(Group, { id: 1, name: "Whiskey drinkers"});
+  store.load(Person, { id: 1, name: "Tom Dale"});
+
+  var 
+    person = store.find(Person, 1),
+    group = store.find(Group, 1);
+
+  group.get('people').pushObject(person);
+  equal(group.get('isDirty'), true, "The group should be dirty after adding child");
+  store.commit();
+  equal(group.get('isSaving'), true, "The group should be saving");
+  ajaxHash.success();
+  equal(group.get('isDirty'), false, "The record should no longer be dirty");
+  equal(group.get('isSaving'), false, "The record should no longer be saving");
+
+  person.deleteRecord();
+  equal(group.get('isDirty'), true, "The group should be dirty after deleting a child");
+  store.commit();
+  equal(group.get('isSaving'), true, "The group should be saving");
+  ajaxHash.success();
+
+  equal(group.get('isDirty'), false, "The group should no longer be dirty");
+  equal(group.get('isSaving'), false, "The group should no longer be saving");
 });
 
 test("singular deletes can sideload data", function() {
@@ -299,6 +439,7 @@ test("singular deletes can sideload data", function() {
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
+/*
 test("deleting a record with custom primaryKey", function() {
   store.load(Role, { _id: 1, name: "Developer" });
 
@@ -311,11 +452,29 @@ test("deleting a record with custom primaryKey", function() {
   expectUrl("/roles/1", "the plural of the model name with its ID");
   ajaxHash.success();
 });
+*/
 
 test("finding all people makes a GET to /people", function() {
   people = store.find(Person);
 
   expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+
+  ajaxHash.success({ people: [{ id: 1, name: "Yehuda Katz" }] });
+
+  person = people.objectAt(0);
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
+});
+
+test("finding all people (with nested url set) makes a GET to /groups/:group_id/people", function() {
+  Person.url = 'groups/%@/person';
+  
+  people = store.find(Person, {parent_id: 1});
+  expectUrl("/groups/1/people", "the plural of the model name");
   expectType("GET");
 
   ajaxHash.success({ people: [{ id: 1, name: "Yehuda Katz" }] });
@@ -348,6 +507,67 @@ test("finding all can sideload data", function() {
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
+test("finding all people with since makes a GET to /people", function() {
+  people = store.find(Person);
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+
+  ajaxHash.success({ meta: {since: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
+
+  people = store.find(Person);
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+  expectData({since: '123'});
+
+  ajaxHash.success({ meta: {since: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
+
+  person = people.objectAt(1);
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(person, store.find(Person, 2), "the record is now in the store, and can be looked up by ID without another Ajax request");
+
+  people.update();
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+  expectData({since: '1234'});
+
+  ajaxHash.success({ meta: {since: '12345'}, people: [{ id: 3, name: "Dan Gebhardt" }] });
+
+  equal(people.get('length'), 3, 'should have 3 records now');
+});
+
+test("meta and since are configurable", function() {
+  store.set('_adapter.meta', 'metaObject');
+  store.set('_adapter.since', 'sinceToken');
+
+  people = store.find(Person);
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+
+  ajaxHash.success({ metaObject: {sinceToken: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
+
+  people.update();
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+  expectData({sinceToken: '123'});
+
+  ajaxHash.success({ metaObject: {sinceToken: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
+
+  person = people.objectAt(1);
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(person, store.find(Person, 2), "the record is now in the store, and can be looked up by ID without another Ajax request");
+});
+
 test("finding a person by ID makes a GET to /people/:id", function() {
   person = store.find(Person, 1);
 
@@ -361,6 +581,21 @@ test("finding a person by ID makes a GET to /people/:id", function() {
   expectState('dirty', false);
 
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
+});
+
+test("finding a person by an ID-alias populates the store", function() {
+  person = store.find(Person, 'me');
+
+  expectState('loaded', false);
+  expectUrl("/people/me", "the plural of the model name with the ID requested");
+  expectType("GET");
+
+  ajaxHash.success({ person: { id: 1, name: "Yehuda Katz" } });
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(person, store.find(Person, 'me'), "the record is now in the store, and can be looked up by the alias without another Ajax request");
 });
 
 test("additional data can be sideloaded in a GET", function() {
@@ -658,6 +893,7 @@ test("updating several people (with bulkCommit) makes a PUT to /people/bulk with
 
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
+  expectData({ people: [{ id: 1, name: "Brohuda Brokatz" }, { id: 2, name: "Brocarl Brolerche" }] });
 
   ajaxHash.success({ people: [
     { id: 1, name: "Brohuda Brokatz" },
@@ -700,6 +936,7 @@ test("bulk updates can sideload data", function() {
 
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
+  expectData({ people: [{ id: 1, name: "Brohuda Brokatz" }, { id: 2, name: "Brocarl Brolerche" }] });
 
   ajaxHash.success({
     people: [
@@ -745,6 +982,7 @@ test("deleting several people (with bulkCommit) makes a PUT to /people/bulk", fu
 
   expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
   expectType("DELETE");
+  expectData({ people: [1, 2] });
 
   ajaxHash.success();
 
@@ -784,6 +1022,7 @@ test("bulk deletes can sideload data", function() {
 
   expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
   expectType("DELETE");
+  expectData({ people: [1, 2] });
 
   ajaxHash.success({
     groups: [{ id: 1, name: "Group 1" }]
@@ -800,7 +1039,15 @@ test("bulk deletes can sideload data", function() {
 test("if you specify a namespace then it is prepended onto all URLs", function() {
   set(adapter, 'namespace', 'ember');
   person = store.find(Person, 1);
-  expectUrl("/ember/people/1", "the namespace, followed by by the plural of the model name and the id");
+  expectUrl("/ember/people/1", "the namespace, followed by the plural of the model name and the id");
+
+  store.load(Person, { id: 1 });
+});
+
+test("if you specify a url then that custom url is used", function() {
+  set(adapter, 'url', 'http://api.ember.dev');
+  person = store.find(Person, 1);
+  expectUrl("http://api.ember.dev/people/1", "the custom url, followed by the plural of the model name and the id");
 
   store.load(Person, { id: 1 });
 });
@@ -847,82 +1094,45 @@ test("additional data can be sideloaded with associations in correct order", fun
   });
 });
 
-test("creating a person makes a POST to /groups/1/people, with the data hash", function() {    
-  Person = Person.reopen({
-    group: DS.belongsTo(Group)
+test("data loaded from the server is converted from underscores to camelcase", function() {
+  Person.reopen({
+    lastName: DS.attr('string')
   });
 
-  var associations = get(Person, 'associations');
-  deepEqual(associations.get(Group), [
-    { name: "group", kind: "belongsTo" }
-  ]);
-    
-  Person.reopenClass({
-    url: 'groups/%@/person'
-  });
-  
-  store.adapter.mappings = {'people': Person};
-  
-  group = store.find(Group, 1);
-  person = store.createRecord(Person, { name: "Person 1", group: group });
+  store.load(Person, { id: 1, name: "Tom", last_name: "Dale" });
 
-  expectState('new');
-  store.commit();
-  expectState('saving');
+  var person = store.find(Person, 1);
 
-  expectUrl("/groups/1/people", "the url with the parentId and the collection at the plural of the model name");
-  expectType("POST");
-  expectData({ person: { name: "Person 1", group_id: 1 } });
-
-  ajaxHash.success({ person: { id: 1, name: "Person 1" } });
-  expectState('saving', false);
-
-  equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
+  equal(person.get('name'), "Tom", "precond - data was materialized");
+  equal(person.get('lastName'), "Dale", "the attribute name was camelized");
 });
 
-test("if you specify a url on the Model then it is used for all URLs", function() {
-  Person.reopenClass({
-    url: 'human'
-  });
-  
-  person = store.find(Person, 1);
-  expectUrl("/humans/1", "the url of the model, used as the name and followed by the id");
-
-  ajaxHash.success({ person: { id: 1, name: "Yehuda Katz" } });
-
-  expectState('loaded');
-  expectState('dirty', false);
-
-  equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
-  delete Person.url;
-});
-
-test("if you specify a root on the Model then it is used to load data", function() {
-  Person.root = 'my_person';
-  person = store.find(Person, 1);
-  expectUrl("/people/1", "the url of the model, used as the name and followed by the id");
-
-  ajaxHash.success({ my_person: { id: 1, name: "Yehuda Katz" } });
-
-  expectState('loaded');
-  expectState('dirty', false);
-
-  equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
-  delete Person.root;
-});
-
-test("if you specify a root and url on the Model then it is used to load data", function() {
-  Person.root = 'my_person';
-  Person.url = 'human';
-  person = store.find(Person, 1);
-  expectUrl("/humans/1", "the url of the model, used as the name and followed by the id");
-
-  ajaxHash.success({ my_person: { id: 1, name: "Yehuda Katz" } });
-
-  expectState('loaded');
-  expectState('dirty', false);
-
-  equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
-  delete Person.root;
-  delete Person.url;
-});
+// test("When a record with a belongsTo is saved the foreign key should be sent.", function () {
+//   var PersonType = DS.Model.extend({
+//     title: DS.attr("string"),
+//     people: DS.hasMany(Person)
+//   });
+//   
+//   PersonType.toString = function() {
+//     return "App.PersonType";
+//   };
+// 
+//   Person.reopen({
+//     personType: DS.belongsTo(PersonType)
+//   });
+// 
+//   store.load(PersonType, {id: 1, title: "Developer"});
+//   var personType = store.find(PersonType, 1);
+// 
+//   // FIXME this mass-assignment of a belongs to is broken.  It must be set separately.
+//   // var person = store.createRecord(Person, {name: 'Sam Woodard', personType: personType});
+//   var person = store.createRecord(Person, {name: 'Sam Woodard'});
+//   person.set('personType', personType);
+// 
+//   store.commit();
+// 
+//   expectUrl('/people');
+//   expectType("POST");
+//   expectData({ person: { name: "Sam Woodard", person_type_id: "1" } });
+//   ajaxHash.success({ person: { name: 'Sam Woodard', person_type_id: 1}});
+// });
