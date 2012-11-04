@@ -150,6 +150,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var associations = get(this.constructor, 'associationsByName'),
         hasMany = get(this, 'data').hasMany, store = get(this, 'store'),
         idToClientId = store.idToClientId,
+        adapter= store.get('_adapter'),
         cachedValue;
 
     this.updateRecordArraysLater();
@@ -165,6 +166,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
           var clientIds;
 
           clientIds = Ember.EnumerableUtils.map(ids, function(id) {
+            if (association.options.embedded === true && typeof id === "object") {
+                id = adapter.serializer.extractId(association.type, id);
+            }
             return store.clientIdForId(association.type, id);
           });
 
