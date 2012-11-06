@@ -271,7 +271,13 @@ DS.RESTAdapter = DS.Adapter.extend({
   // define a plurals hash in your subclass to define
   // special-case pluralization
   pluralize: function(name) {
-    return this.plurals[name] || name + "s";
+    var plural;
+    if (name.slice(-1) === 'y') {
+      plural = name.slice(0, -1) + "ies";
+    } else {
+      plural = name + "s";
+    }
+    return this.plurals[name] || plural;
   },
 
   rootForType: function(type) {
