@@ -722,11 +722,22 @@ DS.Store = Ember.Object.extend(DS.Mappable, {
 
     if (findAllCache) { return findAllCache; }
 
-    var array = DS.RecordArray.create({ type: type, content: Ember.A([]), store: this, isLoaded: true });
+    var array = this.newRecordArray(type);
+    Ember.assert("You can only register an instance or subclass of DS.RecordArray", array instanceof DS.RecordArray);
+
     this.registerRecordArray(array, type);
 
     typeMap.findAllCache = array;
     return array;
+  },
+
+  /**
+   * Override to supply a subclass of DS.RecordArray 
+    @param {Class} type
+    @return {DS.RecordArray}
+  **/
+  newRecordArray: function(type){
+    return DS.RecordArray.create({ type: type, content: Ember.A([]), store: this, isLoaded: true });
   },
 
   /**
