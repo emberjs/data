@@ -1647,6 +1647,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }
   },
 
+  recordHasOneDidChange: function(dirtySet, parent, relationship) {
+    var adapter = this.adapterForType(parent.constructor);
+
+    if (adapter.dirtyRecordsForHasOneChange) {
+      adapter.dirtyRecordsForHasOneChange(dirtySet, parent, relationship);
+    }
+  },
+
   recordHasManyDidChange: function(dirtySet, parent, relationship) {
     var adapter = this.adapterForType(parent.constructor);
 

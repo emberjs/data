@@ -28,6 +28,8 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
+  dirtyRecordsForHasOneChange: Ember.K,
+
   dirtyRecordsForHasManyChange: Ember.K,
 
   didSaveRecord: function(store, record, hash) {

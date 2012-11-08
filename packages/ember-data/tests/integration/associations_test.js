@@ -223,6 +223,104 @@ test("When adding a child to a parent, then commit, the parent should come back 
   //equal(person.get('stateManager.currentState.path'), "rootState.loaded.saved");
 });
 
+test("deleting the parent of a one-to-many relationship clears the relationship", function() {
+  var parent, child;
+
+  store.load(Comment, { id: 1, body: "Parent" });
+  store.load(Comment, { id: 2, body: "Child" });
+
+  parent = store.find(Comment, 1);
+  child = store.find(Comment, 2);
+
+  equal(child.get('comment'), null, "the child should not yet belong to anyone");
+
+  parent.get('comments').addObject(child);
+
+  equal(child.get('comment'), parent, "the child should now belong to the parent");
+
+  parent.deleteRecord();
+
+  equal(child.get('comment'), null, "the child should no longer belong to anyone");
+});
+
+test("deleting the child of a one-to-many relationship clears the relationship", function() {
+  var parent, child;
+
+  store.load(Comment, { id: 1, body: "Parent" });
+  store.load(Comment, { id: 2, body: "Child" });
+
+  parent = store.find(Comment, 1);
+  child = store.find(Comment, 2);
+
+  deepEqual(parent.get('comments').toArray(), [], "the parent should not yet have any children");
+
+  child.set('comment', parent);
+
+  deepEqual(parent.get('comments').toArray(), [ child ], "the parent should now have the child");
+
+  child.deleteRecord();
+
+  deepEqual(parent.get('comments').toArray(), [], "the parent should no longer have any children");
+});
+
+test("deleting the parent of a one-to-one relationship clears the relationship", function() {
+  var Attachment, parent, child;
+
+  Attachment = DS.Model.extend({
+    filename: DS.attr('string'),
+    comment: DS.belongsTo(Comment)
+  });
+
+  Comment.reopen({
+    attachment: DS.hasOne(Attachment)
+  });
+
+  store.load(Comment, { id: 1, body: "Parent" });
+  store.load(Attachment, { id: 1, filename: "child.mp3" });
+
+  parent = store.find(Comment, 1);
+  child = store.find(Attachment, 1);
+
+  equal(child.get('comment'), null, "the child should not yet belong to anyone");
+
+  parent.set('attachment', child);
+
+  equal(child.get('comment'), parent, "the child should now belong to the parent");
+
+  parent.deleteRecord();
+
+  equal(child.get('comment'), null, "the child should no longer belong to anyone");
+});
+
+test("deleting the child of a one-to-one relationship clears the relationship", function() {
+  var Attachment, parent, child;
+
+  Attachment = DS.Model.extend({
+    filename: DS.attr('string'),
+    comment: DS.belongsTo(Comment)
+  });
+
+  Comment.reopen({
+    attachment: DS.hasOne(Attachment)
+  });
+
+  store.load(Comment, { id: 1, body: "Parent" });
+  store.load(Attachment, { id: 1, filename: "child.mp3" });
+
+  parent = store.find(Comment, 1);
+  child = store.find(Attachment, 1);
+
+  equal(parent.get('attachment'), null, "the parent should not yet have a child");
+
+  child.set('comment', parent);
+
+  equal(parent.get('attachment'), child, "the parent should now have the child");
+
+  child.deleteRecord();
+
+  equal(parent.get('attachment'), null, "the parent should no longer have a child");
+});
+
 //test("When a record with a hasMany association is deleted, its associated record is materialized and its belongsTo is changed", function() {
   //expect(3);
 

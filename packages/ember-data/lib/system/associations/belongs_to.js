@@ -43,10 +43,10 @@ DS.Model.reopen({
       var childId = get(record, 'clientId'),
           store = get(record, 'store');
 
-      var change = DS.OneToManyChange.forChildAndParent(childId, store, { belongsToName: key });
+      var change = DS.RelationshipChange.findOrCreate(childId, store, { belongsToName: key });
 
-      if (change.oldParent === undefined) {
-        change.oldParent = oldParent ? get(oldParent, 'clientId') : null;
+      if (get(change, 'oldParent') === undefined) {
+        set(change, 'oldParent', oldParent ? get(oldParent, 'clientId') : null);
       }
     }
   }),
@@ -57,7 +57,7 @@ DS.Model.reopen({
       var change = get(record, 'store').relationshipChangeFor(get(record, 'clientId'), key),
           newParent = get(record, key);
 
-      change.newParent = newParent ? get(newParent, 'clientId') : null;
+      set(change, 'newParent', newParent ? get(newParent, 'clientId') : null);
       change.sync();
     }
   })

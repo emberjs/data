@@ -34,9 +34,14 @@ DS.Model.reopen({
       // the computed property.
       var meta = value.meta();
 
-      if (meta.isAssociation && meta.kind === 'belongsTo') {
-        Ember.addObserver(proto, key, null, 'belongsToDidChange');
-        Ember.addBeforeObserver(proto, key, null, 'belongsToWillChange');
+      if (meta.isAssociation) {
+        if (meta.kind === 'belongsTo') {
+          Ember.addObserver(proto, key, null, 'belongsToDidChange');
+          Ember.addBeforeObserver(proto, key, null, 'belongsToWillChange');
+        } else if (meta.kind === 'hasOne') {
+          Ember.addObserver(proto, key, null, 'hasOneDidChange');
+          Ember.addBeforeObserver(proto, key, null, 'hasOneWillChange');
+        }
       }
     }
   }
@@ -155,7 +160,7 @@ DS.Model.reopenClass({
     @readOnly
   */
   associationNames: Ember.computed(function() {
-    var names = { hasMany: [], belongsTo: [] };
+    var names = { hasMany: [], belongsTo: [], hasOne: [] };
 
     this.eachComputedProperty(function(name, meta) {
       if (meta.isAssociation) {
@@ -355,4 +360,11 @@ DS._inverseTypeFor = function(modelType, associationName) {
       association = associations.get(associationName);
 
   if (association) { return association.type; }
+};
+
+DS._inverseKindFor = function(modelType, associationName) {
+  var associations = get(modelType, 'associationsByName'),
+      association = associations.get(associationName);
+
+  if (association) { return association.kind; }
 };

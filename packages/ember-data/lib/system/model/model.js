@@ -113,7 +113,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
   clearRelationships: function() {
     this.eachAssociation(function(name, relationship) {
-      if (relationship.kind === 'belongsTo') {
+      if (relationship.kind === 'belongsTo' || relationship.kind === 'hasOne') {
         set(this, name, null);
       } else if (relationship.kind === 'hasMany') {
         get(this, name).clear();
@@ -185,6 +185,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this._data = {
       attributes: {},
       belongsTo: {},
+      hasOne: {},
       hasMany: {},
       id: null
     };
@@ -209,6 +210,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
   materializeBelongsTo: function(name, id) {
     this._data.belongsTo[name] = id;
+  },
+
+  materializeHasOne: function(name, id) {
+    this._data.hasOne[name] = id;
   },
 
   rollback: function() {
@@ -239,14 +244,19 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     observation becomes more unified with regular observers.
   */
   suspendAssociationObservers: function(callback, binding) {
-    var observers = get(this.constructor, 'associationNames').belongsTo;
+    var belongsToAssociations = get(this.constructor, 'associationNames').belongsTo;
+    var hasOneAssociations = get(this.constructor, 'associationNames').hasOne;
     var self = this;
 
     try {
       this._suspendedAssociations = true;
-      Ember._suspendObservers(self, observers, null, 'belongsToDidChange', function() {
-        Ember._suspendBeforeObservers(self, observers, null, 'belongsToWillChange', function() {
-          callback.call(binding || self);
+      Ember._suspendObservers(self, belongsToAssociations, null, 'belongsToDidChange', function() {
+        Ember._suspendBeforeObservers(self, belongsToAssociations, null, 'belongsToWillChange', function() {
+          Ember._suspendObservers(self, hasOneAssociations, null, 'hasOneDidChange', function() {
+            Ember._suspendBeforeObservers(self, hasOneAssociations, null, 'hasOneWillChange', function() {
+              callback.call(binding || self);
+            });
+          });
         });
       });
     } finally {
