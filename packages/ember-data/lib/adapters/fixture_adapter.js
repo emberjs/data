@@ -78,6 +78,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
     this.simulateRemoteCall(function() {
       store.loadMany(type, fixtures);
+      store.didUpdateAll(type);
     }, store, type);
   },
 
