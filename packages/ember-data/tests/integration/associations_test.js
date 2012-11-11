@@ -4,7 +4,9 @@ var store, adapter, Comment;
 
 module("Associations", {
   setup: function() {
-    adapter = DS.Adapter.create();
+    adapter = DS.Adapter.create({
+      serializer: DS.RESTSerializer
+    });
 
     store = DS.Store.create({
       isDefaultStore: true,
@@ -24,6 +26,27 @@ module("Associations", {
       store.destroy();
     });
   }
+});
+
+
+test("when loading child record containing a belongsTo relationship, its parent hasMany relationship should be updated to include the child record", function() {
+  // Changes to one side should not require run-loop synchronization to
+  // propagate to the other side
+  Ember.run(function() {
+    store.load(Comment, { id: 1, body: "parent" });
+    var parent = store.find(Comment, 1);
+
+    equal(parent.get('comments.length'), 0, "precond - the parent has no child comments yet");
+
+    store.load(Comment, { id: 2, body: "child", comment_id: 1 });
+
+    var child = store.find(Comment, 2);
+
+    equal(child.get('comment'), parent, 'The belongsTo relationship should be set');
+
+
+    deepEqual(parent.get('comments').toArray(), [ child ] , "there should be a child comment");
+  });
 });
 
 test("when modifying a child record's belongsTo relationship, its parent hasMany relationships should be updated", function() {
