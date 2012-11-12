@@ -1,24 +1,11 @@
+require('ember-data/adapters/transforms');
+
 var get = Ember.get, set = Ember.set;
-
-var passthrough = {
-  fromJSON: function(value) {
-    return value;
-  },
-
-  toJSON: function(value) {
-    return value;
-  }
-};
 
 DS.Serializer = Ember.Object.extend({
   init: function() {
-    // By default, the JSON types are passthrough transforms
-    this.transforms = {
-      'string': passthrough,
-      'number': passthrough,
-      'boolean': passthrough
-    };
-
+    // By default, the JSON types are the transforms defined in DS.Transforms
+    this.transforms = DS.Transforms.create();
     this.mappings = Ember.Map.create();
   },
 
@@ -251,11 +238,15 @@ DS.Serializer = Ember.Object.extend({
 
   addRelationships: function(hash, record) {
     record.eachAssociation(function(name, relationship) {
-      var key = this._keyForAttributeName(record.constructor, name);
+      var key;
 
       if (relationship.kind === 'belongsTo') {
+        key = this._keyForBelongsTo(record.constructor, name);
+
         this.addBelongsTo(hash, record, key, relationship);
       } else if (relationship.kind === 'hasMany') {
+        key = this._keyForHasMany(record.constructor, name);
+
         this.addHasMany(hash, record, key, relationship);
       }
     }, this);

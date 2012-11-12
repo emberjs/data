@@ -351,12 +351,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     }
   },
 
-  removeInFlightDirtyFactors: function() {
-    if (!this._inFlightDirtyFactors.isEmpty()) {
-      this._inFlightDirtyFactors.clear();
-      this._inFlightDirtyReasons = null;
-      this.send('didCommit');
-    }
+  removeInFlightDirtyFactorsForAttributes: function() {
+    this.eachAttribute(function(name) {
+      this.removeInFlightDirtyFactor(name);
+    }, this);
   },
 
   // FOR USE DURING COMMIT PROCESS

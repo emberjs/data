@@ -106,7 +106,10 @@ DS.ManyArray = DS.RecordArray.extend({
         //var record = this.objectAt(i);
         //if (!record) { continue; }
 
-        var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), { parentType: owner.constructor });
+        var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), {
+          parentType: owner.constructor,
+          hasManyName: name
+        });
         change.hasManyName = name;
 
         if (change.oldParent === undefined) { change.oldParent = get(owner, 'clientId'); }
@@ -132,7 +135,10 @@ DS.ManyArray = DS.RecordArray.extend({
       for (var i=index; i<index+added; i++) {
         var clientId = get(this, 'content').objectAt(i);
 
-        var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), { parentType: owner.constructor });
+        var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), {
+          parentType: owner.constructor,
+          hasManyName: name
+        });
         change.hasManyName = name;
 
         // The oldParent will be looked up in `sync` if it
@@ -150,38 +156,6 @@ DS.ManyArray = DS.RecordArray.extend({
         change.sync();
       });
       this._changesToSync.clear();
-    }
-  },
-
-  /**
-    @private
-  */
-  assignInverse: function(record) {
-    var inverseName = DS.inverseNameFor(record.constructor, get(this, 'owner.constructor'), 'belongsTo'),
-        owner = get(this, 'owner'),
-        currentInverse;
-
-    if (inverseName) {
-      currentInverse = get(record, inverseName);
-      if (currentInverse !== owner) {
-        set(record, inverseName, owner);
-      }
-    }
-
-    return currentInverse;
-  },
-
-  /**
-    @private
-  */
-  removeInverse: function(record) {
-    var inverseName = DS.inverseNameFor(record.constructor, get(this, 'owner.constructor'), 'belongsTo');
-
-    if (inverseName) {
-      var currentInverse = get(record, inverseName);
-      if (currentInverse === get(this, 'owner')) {
-        set(record, inverseName, null);
-      }
     }
   },
 

@@ -271,6 +271,32 @@ test("deleting a person makes a DELETE to /people/:id", function() {
   expectState('deleted');
 });
 
+test("add/commit/delete/commit a person from a group, group lifecycle", function() {
+  store.load(Group, { id: 1, name: "Whiskey drinkers"});
+  store.load(Person, { id: 1, name: "Tom Dale"});
+
+  var 
+    person = store.find(Person, 1),
+    group = store.find(Group, 1);
+
+  group.get('people').pushObject(person);
+  equal(group.get('isDirty'), true, "The group should be dirty after adding child");
+  store.commit();
+  equal(group.get('isSaving'), true, "The group should be saving");
+  ajaxHash.success();
+  equal(group.get('isDirty'), false, "The record should no longer be dirty");
+  equal(group.get('isSaving'), false, "The record should no longer be saving");
+
+  person.deleteRecord();
+  equal(group.get('isDirty'), true, "The group should be dirty after deleting a child");
+  store.commit();
+  equal(group.get('isSaving'), true, "The group should be saving");
+  ajaxHash.success();
+
+  equal(group.get('isDirty'), false, "The group should no longer be dirty");
+  equal(group.get('isSaving'), false, "The group should no longer be saving");
+});
+
 test("singular deletes can sideload data", function() {
   adapter.mappings = {
     groups: Group
@@ -741,6 +767,7 @@ test("updating several people (with bulkCommit) makes a PUT to /people/bulk with
 
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
+  expectData({ people: [{ id: 1, name: "Brohuda Brokatz" }, { id: 2, name: "Brocarl Brolerche" }] });
 
   ajaxHash.success({ people: [
     { id: 1, name: "Brohuda Brokatz" },
@@ -783,6 +810,7 @@ test("bulk updates can sideload data", function() {
 
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
+  expectData({ people: [{ id: 1, name: "Brohuda Brokatz" }, { id: 2, name: "Brocarl Brolerche" }] });
 
   ajaxHash.success({
     people: [
@@ -828,6 +856,7 @@ test("deleting several people (with bulkCommit) makes a PUT to /people/bulk", fu
 
   expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
   expectType("DELETE");
+  expectData({ people: [1, 2] });
 
   ajaxHash.success();
 
@@ -867,6 +896,7 @@ test("bulk deletes can sideload data", function() {
 
   expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
   expectType("DELETE");
+  expectData({ people: [1, 2] });
 
   ajaxHash.success({
     groups: [{ id: 1, name: "Group 1" }]
@@ -949,4 +979,30 @@ test("data loaded from the server is converted from underscores to camelcase", f
 
   equal(person.get('name'), "Tom", "precond - data was materialized");
   equal(person.get('lastName'), "Dale", "the attribute name was camelized");
+});
+
+test("When a record with a belongsTo is saved the foreign key should be sent.", function () {
+  var PersonType = DS.Model.extend({
+    title: DS.attr("string"),
+    people: DS.hasMany(Person)
+  });
+
+  Person.reopen({
+    personType: DS.belongsTo(PersonType)
+  });
+
+  store.load(PersonType, {id: 1, title: "Developer"});
+  var personType = store.find(PersonType, 1);
+
+  // FIXME this mass-assignment of a belongs to is broken.  It must be set separately.
+  // var person = store.createRecord(Person, {name: 'Sam Woodard', personType: personType});
+  var person = store.createRecord(Person, {name: 'Sam Woodard'});
+  person.set('personType', personType);
+
+  store.commit();
+
+  expectUrl('/people');
+  expectType("POST");
+  expectData({ person: { name: "Sam Woodard", person_type_id: "1" } });
+  ajaxHash.success({ person: { name: 'Sam Woodard', person_type_id: 1}});
 });
