@@ -27,6 +27,12 @@ DS.RESTAdapter = DS.Adapter.extend({
       context: this,
       success: function(json) {
         this.didCreateRecord(store, type, record, json);
+      },
+      statusCode: {
+        422: function(jqXHR, textStatus, errorThrown) {
+          var json = jQuery.parseJSON(jqXHR.responseText);
+          this.recordWasInvalid(store, type, record, json);
+        }
       }
     });
   },
@@ -51,6 +57,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     records.forEach(function(record) {
       this.didSaveRecord(store, record, array && array[i++]);
     }, this);
+  },
 
   didCreateRecord: function(store, type, record, json) {
     var root = this.rootForType(type);
@@ -78,7 +85,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       context: this,
       success: function(json) {
         this.didCreateRecords(store, type, records, json);
-      }
+      },
     });
   },
 
