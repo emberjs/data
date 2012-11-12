@@ -375,4 +375,100 @@ test("Calling addDirtyFactor() with a hasMany should cause the record to become 
   ok(record.isDirtyBecause('hasMany'), "record is dirty because hasMany changed");
 });
 
+var converts = function(type, provided, expected) {
+  var testStore = DS.Store.create();
+
+  var Model = DS.Model.extend({
+    name: DS.attr(type)
+  });
+
+  testStore.load(Model, { id: 1, name: provided });
+  testStore.load(Model, { id: 2 });
+
+  var record = testStore.find(Model, 1);
+  deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
+
+  // See: Github issue #421
+  // record = testStore.find(Model, 2);
+  // set(record, 'name', provided);
+  // deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
+};
+
+var convertsFromServer = function(type, provided, expected) {
+  var testStore = DS.Store.create();
+
+  var Model = DS.Model.extend({
+    name: DS.attr(type)
+  });
+
+  testStore.load(Model, { id: 1, name: provided });
+  var record = testStore.find(Model, 1);
+
+  deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
+};
+
+var convertsWhenSet = function(type, provided, expected) {
+  var testStore = DS.Store.create();
+
+  var Model = DS.Model.extend({
+    name: DS.attr(type)
+  });
+
+  testStore.load(Model, { id: 2 });
+  var record = testStore.find(Model, 2);
+
+  set(record, 'name', provided);
+  deepEqual(record.toJSON().name, expected, type + " saves " + provided + " as " + expected);
+};
+
+test("a DS.Model can describe String attributes", function() {
+  converts('string', "Scumbag Tom", "Scumbag Tom");
+  converts('string', 1, "1");
+  converts('string', null, null);
+  converts('string', undefined, null);
+  convertsFromServer('string', undefined, null);
+});
+
+test("a DS.Model can describe Number attributes", function() {
+  converts('number', "1", 1);
+  converts('number', "0", 0);
+  converts('number', 1, 1);
+  converts('number', 0, 0);
+  converts('number', null, null);
+  converts('number', undefined, null);
+  converts('number', true, 1);
+  converts('number', false, 0);
+});
+
+test("a DS.Model can describe Boolean attributes", function() {
+  converts('boolean', "1", true);
+  converts('boolean', "", false);
+  converts('boolean', 1, true);
+  converts('boolean', 0, false);
+  converts('boolean', null, false);
+  converts('boolean', true, true);
+  converts('boolean', false, false);
+});
+
+test("a DS.Model can describe Date attributes", function() {
+  converts('date', null, null);
+  converts('date', undefined, undefined);
+
+  var dateString = "Sat, 31 Dec 2011 00:08:16 GMT";
+  var date = new Date(dateString);
+
+  var store = DS.Store.create();
+
+  var Person = DS.Model.extend({
+    updatedAt: DS.attr('date')
+  });
+
+  store.load(Person, { id: 1 });
+  var record = store.find(Person, 1);
+
+  record.set('updatedAt', date);
+  deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
+  convertsFromServer('date', dateString, date);
+  convertsWhenSet('date', date, dateString);
+});
 
