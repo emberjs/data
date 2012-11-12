@@ -27,8 +27,18 @@ DS.RESTAdapter = DS.Adapter.extend({
       context: this,
       success: function(json) {
         this.didCreateRecord(store, type, record, json);
+      },
+      statusCode: {
+        422: function(jqXHR, textStatus, errorThrown) {
+          var json = jQuery.parseJSON(jqXHR.responseText);
+          this.recordWasInvalid(store, type, record, json);
+        }
       }
     });
+  },
+
+  recordWasInvalid: function(store, type, record, json) {
+    store.recordWasInvalid(record, json); 
   },
 
   didCreateRecord: function(store, type, record, json) {
@@ -274,6 +284,12 @@ DS.RESTAdapter = DS.Adapter.extend({
     if (hash.data && type !== 'GET') {
       hash.data = JSON.stringify(hash.data);
     }
+
+    // Add callbacks for error statuses
+    if (hash.statusCode === undefined) { hash.statusCode = {}; }
+    hash.statusCode['404'] = function() {
+      if (this.error404 !== undefined) this.error404();
+    };
 
     jQuery.ajax(hash);
   },
