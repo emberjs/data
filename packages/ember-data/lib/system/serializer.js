@@ -323,21 +323,63 @@ DS.Serializer = Ember.Object.extend({
   materializeRelationships: function(record, hash) {
     record.eachAssociation(function(name, relationship) {
       if (relationship.kind === 'hasMany') {
-        record.materializeHasMany(name, this.extractHasMany(record, hash, relationship));
+        this.materializeHasMany(name, record, hash, relationship);
       } else if (relationship.kind === 'belongsTo') {
-        record.materializeBelongsTo(name, this.extractBelongsTo(record, hash, relationship));
+        this.materializeBelongsTo(name, record, hash, relationship);
       }
     }, this);
   },
 
-  extractHasMany: function(record, hash, relationship) {
-    var key = this._keyForHasMany(record.constructor, relationship.key);
+  materializeHasMany: function(name, record, hash, relationship) {
+    record.materializeHasMany(name, this.extractHasMany(record.constructor, hash, relationship.key));
+  },
+
+  materializeBelongsTo: function(name, record, hash, relationship) {
+    record.materializeBelongsTo(name, this.extractBelongsTo(record.constructor, hash, relationship.key));
+  },
+
+  extractHasMany: function(type, hash, name) {
+    var key = this._keyForHasMany(type, name);
     return hash[key];
   },
 
-  extractBelongsTo: function(record, hash, relationship) {
-    var key = this._keyForBelongsTo(record.constructor, relationship.key);
+  extractBelongsTo: function(type, hash, name) {
+    var key = this._keyForBelongsTo(type, name);
     return hash[key];
+  },
+
+  _extractEmbeddedRelationship: function(type, hash, name, relationshipType) {
+    var key = this['_keyFor' + relationshipType](type, name),
+        mappings = this.mappingForType(type),
+        mapping = mappings && mappings[name];
+
+    if (mapping && mapping.embedded === 'load') {
+      return this['extractEmbedded' + relationshipType](type, hash, key);
+    }
+  },
+
+  _extractEmbeddedBelongsTo: function(type, hash, name) {
+    return this._extractEmbeddedRelationship(type, hash, name, 'BelongsTo');
+  },
+
+  extractEmbeddedBelongsTo: function(type, hash, key) {
+    return hash[key];
+  },
+
+  _extractEmbeddedHasMany: function(type, hash, name) {
+    return this._extractEmbeddedRelationship(type, hash, name, 'HasMany');
+  },
+
+  extractEmbeddedHasMany: function(type, hash, key) {
+    return hash[key];
+  },
+
+  replaceEmbeddedBelongsTo: function(type, hash, name, id) {
+    hash[this._keyForBelongsTo(type, name)] = id;
+  },
+
+  replaceEmbeddedHasMany: function(type, hash, name, ids) {
+    hash[this._keyForHasMany(type, name)] = ids;
   },
 
   /**
@@ -369,7 +411,7 @@ DS.Serializer = Ember.Object.extend({
 
     mappings.forEach(function(key, mapping) {
       if (typeof key === 'string') {
-        var type = Ember.get(window, key);
+        var type = Ember.get(Ember.lookup, key);
         Ember.assert("Could not find model at path" + key, type);
 
         reifiedMappings.set(type, mapping);

@@ -220,7 +220,7 @@ test("When adding a child to a parent, then commit, the parent should come back 
   store.load(Person, { id: 1});
   var person = store.find(Person, 1);
 
-  person.get('comments').createRecord(Comment);
+  person.get('comments').createRecord();
   store.commit();
   equal(person.get('isDirty'), false, "The record should no longer be dirty");
   equal(person.get('isSaving'), false, "The record should no longer be saving");

@@ -139,13 +139,13 @@ test("when materializing a record, the serializer's extractHasMany method should
 
   store.load(Person, { id: 1, children: [ 1, 2, 3 ] });
 
-  serializer.extractHasMany = function(record, hash, relationship) {
-    equal(record.constructor, Person);
+  serializer.extractHasMany = function(type, hash, name) {
+    equal(type, Person);
     deepEqual(hash, {
       id: 1,
       children: [ 1, 2, 3 ]
     });
-    equal(relationship.key, 'children');
+    equal(name, 'children');
   };
 
   var person = store.find(Person, 1);
@@ -160,13 +160,13 @@ test("when materializing a record, the serializer's extractBelongsTo method shou
 
   store.load(Person, { id: 1, father: 2 });
 
-  serializer.extractBelongsTo = function(record, hash, relationship) {
-    equal(record.constructor, Person);
+  serializer.extractBelongsTo = function(type, hash, name) {
+    equal(type, Person);
     deepEqual(hash, {
       id: 1,
       father: 2
     });
-    equal(relationship.key, 'father');
+    equal(name, 'father');
   };
 
   var person = store.find(Person, 1);

@@ -1161,12 +1161,17 @@ DS.Store = Ember.Object.extend(DS.Mappable, {
         clientId = get(record, 'clientId'),
         oldId = get(record, 'id'),
         type = record.constructor,
-        id = this.adapterForType(type).extractId(type, hash);
+        id = this.indexHash(type, hash);
 
     Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned a data hash in response to a find or update that had a different id than the one you sent.", oldId === undefined || id === oldId);
 
     typeMap.idToCid[id] = clientId;
     this.clientIdToId[clientId] = id;
+  },
+
+  indexHash: function(type, hash) {
+    this.adapterForType(type).extractEmbeddedData(this, type, hash);
+    return this.adapterForType(type).extractId(type, hash);
   },
 
   // .................
@@ -1447,7 +1452,7 @@ DS.Store = Ember.Object.extend(DS.Mappable, {
       hash = id;
 
       var adapter = this.adapterForType(type);
-      id = adapter.extractId(type, hash);
+      id = this.indexHash(type, hash);
     }
 
     id = coerceId(id);
@@ -1482,8 +1487,8 @@ DS.Store = Ember.Object.extend(DS.Mappable, {
       var adapter = this.adapterForType(type);
 
       ids = map(hashes, function(hash) {
-        return adapter.extractId(type, hash);
-      });
+        return this.indexHash(type, hash);
+      }, this);
     }
 
     for (var i=0, l=get(ids, 'length'); i<l; i++) {

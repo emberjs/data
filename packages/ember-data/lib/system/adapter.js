@@ -175,6 +175,47 @@ DS.Adapter = Ember.Object.extend({
     return get(this, 'serializer').extractId(type, hash);
   },
 
+  extractEmbeddedData: function(store, type, hash) {
+    var serializer = get(this, 'serializer');
+
+    type.eachAssociation(function(name, association) {
+      var hashesToLoad, hashToLoad, typeToLoad;
+
+      if (association.kind === 'hasMany') {
+        this._extractEmbeddedHasMany(store, serializer, type, hash, association);
+      } else if (association.kind === 'belongsTo') {
+        this._extractEmbeddedBelongsTo(store, serializer, type, hash, association);
+      }
+    }, this);
+  },
+
+  _extractEmbeddedHasMany: function(store, serializer, type, hash, association) {
+    var hashesToLoad = serializer._extractEmbeddedHasMany(type, hash, association.key),
+        typeToLoad = association.type;
+
+    if (hashesToLoad) {
+      var ids = [];
+
+      for (var i=0, l=hashesToLoad.length; i<l; i++) {
+        var hashToLoad = hashesToLoad[i];
+        ids.push(store.adapterForType(typeToLoad).extractId(typeToLoad, hashToLoad));
+      }
+      serializer.replaceEmbeddedHasMany(type, hash, association.key, ids);
+      store.loadMany(association.type, hashesToLoad);
+    }
+  },
+
+  _extractEmbeddedBelongsTo: function(store, serializer, type, hash, association) {
+    var hashToLoad = serializer._extractEmbeddedBelongsTo(type, hash, association.key),
+        typeToLoad = association.type;
+
+    if (hashToLoad) {
+      var id = store.adapterForType(typeToLoad).extractId(typeToLoad, hashToLoad);
+      serializer.replaceEmbeddedBelongsTo(type, hash, association.key, id);
+      store.load(association.type, hashToLoad);
+    }
+  },
+
   shouldCommit: function(record) {
     return true;
   },
