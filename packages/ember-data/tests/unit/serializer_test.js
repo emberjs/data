@@ -75,11 +75,11 @@ test("Mapped attributes should be used when serializing a record to JSON.", func
     firstName: "Spruce"
   });
 
-  deepEqual(serializer.toJSON(person), {
+  deepEqual(serializer.toData(person), {
     FIRST_NAME: "Tom"
   });
 
-  deepEqual(serializer.toJSON(address), {
+  deepEqual(serializer.toData(address), {
     first_name: "Spruce"
   });
 });
@@ -99,8 +99,8 @@ test("Mapped attributes should be used when materializing a record from JSON.", 
   var person = Person.create();
   var address = window.Address.create();
 
-  serializer.materializeFromJSON(person, { FIRST_NAME: "Tom" });
-  serializer.materializeFromJSON(address, { first_name: "Spruce" });
+  serializer.materializeFromData(person, { FIRST_NAME: "Tom" });
+  serializer.materializeFromData(address, { first_name: "Spruce" });
 
   deepEqual(person.get('materializedAttributes'), { firstName: "Tom" });
   deepEqual(address.get('materializedAttributes'), { firstName: "Spruce" });
@@ -147,8 +147,8 @@ test("Mapped relationships should be used when serializing a record to JSON.", f
     });
   };
 
-  serializer.toJSON(person);
-  serializer.toJSON(address);
+  serializer.toData(person);
+  serializer.toData(address);
 });
 
 test("mapped relationships are respected when materializing a record from JSON", function() {
@@ -166,11 +166,11 @@ test("mapped relationships are respected when materializing a record from JSON",
   var person = Person.create();
   var address = window.Address.create();
 
-  serializer.materializeFromJSON(person, {
+  serializer.materializeFromData(person, {
     'ADDRESSES!': [ 1, 2, 3 ]
   });
 
-  serializer.materializeFromJSON(address, {
+  serializer.materializeFromData(address, {
     'MY_PEEP': 1
   });
 
@@ -195,8 +195,8 @@ test("mapped primary keys are respected when serializing a record to JSON", func
   var person = Person.create({ id: 1 });
   var address = window.Address.create({ id: 2 });
 
-  var personJSON = serializer.toJSON(person, { includeId: true });
-  var addressJSON = serializer.toJSON(address, { includeId: true });
+  var personJSON = serializer.toData(person, { includeId: true });
+  var addressJSON = serializer.toData(address, { includeId: true });
 
   deepEqual(personJSON, { __id__: 1 });
   deepEqual(addressJSON, { ID: 2 });
@@ -214,8 +214,8 @@ test("mapped primary keys are respected when materializing a record from JSON", 
   var person = Person.create();
   var address = window.Address.create();
 
-  serializer.materializeFromJSON(person, { __id__: 1 });
-  serializer.materializeFromJSON(address, { ID: 2 });
+  serializer.materializeFromData(person, { __id__: 1 });
+  serializer.materializeFromData(address, { ID: 2 });
 
   equal(person.materializedId, 1);
   equal(address.materializedId, 2);
@@ -226,12 +226,12 @@ module("DS.Serializer - Transform API", {
     serializer = DS.Serializer.create();
 
     serializer.registerTransform('unobtainium', {
-      toJSON: function(value) {
-        return 'toJSON';
+      toData: function(value) {
+        return 'toData';
       },
 
-      fromJSON: function(value) {
-        return 'fromJSON';
+      fromData: function(value) {
+        return 'fromData';
       }
     });
   },
@@ -244,17 +244,17 @@ module("DS.Serializer - Transform API", {
 test("registered transformations should be called when serializing and materializing records", function() {
   var value;
 
-  value = serializer.transformValueFromJSON('unknown', 'unobtainium');
-  equal(value, 'fromJSON', "the fromJSON transform was called");
+  value = serializer.transformValueFromData('unknown', 'unobtainium');
+  equal(value, 'fromData', "the fromData transform was called");
 
-  value = serializer.transformValueToJSON('unknown', 'unobtainium');
-  equal(value, 'toJSON', "the toJSON transform was called");
+  value = serializer.transformValueToData('unknown', 'unobtainium');
+  equal(value, 'toData', "the toData transform was called");
 
   raises(function() {
-    serializer.transformValueFromJSON('unknown', 'obtainium');
+    serializer.transformValueFromData('unknown', 'obtainium');
   });
 
   raises(function() {
-    serializer.transformValueToJSON('unknown', 'obtainium');
+    serializer.transformValueToData('unknown', 'obtainium');
   });
 });

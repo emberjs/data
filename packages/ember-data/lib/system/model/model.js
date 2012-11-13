@@ -32,9 +32,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @param {Object} options
     @returns {Object} an object whose values are primitive JSON values only
   */
-  toJSON: function(options) {
+  toData: function(options) {
     var store = get(this, 'store');
-    return store.toJSON(this, options);
+    return store.toData(this, options);
   },
 
   didLoad: Ember.K,
@@ -127,7 +127,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   updateRecordArrays: function() {
     var store = get(this, 'store');
     if (store) {
-      store.hashWasUpdated(this.constructor, get(this, 'clientId'), this);
+      store.dataWasUpdated(this.constructor, get(this, 'clientId'), this);
     }
   },
 

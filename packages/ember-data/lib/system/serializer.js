@@ -84,10 +84,10 @@ DS.Serializer = Ember.Object.extend({
     These methods are designed in layers, like a delicious 7-layer
     cake (but with fewer layers).
 
-    The main entry point for serialization is the `toJSON`
+    The main entry point for serialization is the `toData`
     method, which takes the record and options.
 
-    The `toJSON` method is responsible for:
+    The `toData` method is responsible for:
 
     * turning the record's attributes (`DS.attr`) into
       attributes on the JSON object.
@@ -100,18 +100,18 @@ DS.Serializer = Ember.Object.extend({
     relationships on the JSON hash.
 
     For very custom serialization, you can implement your
-    own `toJSON` method. In general, however, you will want
+    own `toData` method. In general, however, you will want
     to override the hooks described below.
 
     ## Adding the ID
 
-    The default `toJSON` will optionally call your serializer's
+    The default `toData` will optionally call your serializer's
     `addId` method with the JSON hash it is creating, the
-    record's type, and the record's ID. The `toJSON` method
+    record's type, and the record's ID. The `toData` method
     will not call `addId` if the record's ID is undefined.
 
     Your adapter must specifically request ID inclusion by
-    passing `{ includeId: true }` as an option to `toJSON`.
+    passing `{ includeId: true }` as an option to `toData`.
 
     NOTE: You may not want to include the ID when updating an
     existing record, because your server will likely disallow
@@ -136,7 +136,7 @@ DS.Serializer = Ember.Object.extend({
 
     ## Adding Attributes
 
-    By default, the serializer's `toJSON` method will call
+    By default, the serializer's `toData` method will call
     `addAttributes` with the JSON object it is creating
     and the record to serialize.
 
@@ -150,13 +150,13 @@ DS.Serializer = Ember.Object.extend({
     1. It will call `keyForAttributeName` to determine
        the key to use in the JSON hash.
     2. It will get the value from the record.
-    3. It will call `transformValueToJSON` with the attribute's
+    3. It will call `transformValueToData` with the attribute's
        value and attribute type to convert it into a
        JSON-compatible value. For example, it will convert a
        Date into a String.
 
     If your backend expects a JSON object with attributes as
-    keys at the root, you can just override the `transformValueToJSON`
+    keys at the root, you can just override the `transformValueToData`
     and `keyForAttributeName` methods in your serializer
     subclass and let the base class do the heavy lifting.
 
@@ -166,7 +166,7 @@ DS.Serializer = Ember.Object.extend({
 
     ## Adding Relationships
 
-    By default, `toJSON` will call your serializer's
+    By default, `toData` will call your serializer's
     `addRelationships` method with the JSON object that is
     being built and the record being serialized. The default
     implementation of this method is to loop over all of the
@@ -192,14 +192,14 @@ DS.Serializer = Ember.Object.extend({
     of new features should not break existing adapters.
   */
 
-  transformValueToJSON: function(value, attributeType) {
+  transformValueToData: function(value, attributeType) {
     var transform = this.transforms[attributeType];
 
     Ember.assert("You tried to use an attribute type (" + attributeType + ") that has not been registered", transform);
-    return transform.toJSON(value);
+    return transform.toData(value);
   },
 
-  toJSON: function(record, options) {
+  toData: function(record, options) {
     options = options || {};
 
     var hash = {}, id;
@@ -227,7 +227,7 @@ DS.Serializer = Ember.Object.extend({
     var key = this._keyForAttributeName(record.constructor, attributeName);
     var value = get(record, attributeName);
 
-    hash[key] = this.transformValueToJSON(value, attributeType);
+    hash[key] = this.transformValueToData(value, attributeType);
   },
 
   addId: function(hash, type, id) {
@@ -276,14 +276,14 @@ DS.Serializer = Ember.Object.extend({
     DESERIALIZATION
   */
 
-  transformValueFromJSON: function(value, attributeType) {
+  transformValueFromData: function(value, attributeType) {
     var transform = this.transforms[attributeType];
 
     Ember.assert("You tried to use a attribute type (" + attributeType + ") that has not been registered", transform);
-    return transform.fromJSON(value);
+    return transform.fromData(value);
   },
 
-  materializeFromJSON: function(record, hash) {
+  materializeFromData: function(record, hash) {
     if (Ember.none(get(record, 'id'))) {
       record.materializeId(this.extractId(record.constructor, hash));
     }
@@ -300,7 +300,7 @@ DS.Serializer = Ember.Object.extend({
 
   materializeAttribute: function(record, hash, attributeName, attributeType) {
     var value = this.extractAttribute(record.constructor, hash, attributeName);
-    value = this.transformValueFromJSON(value, attributeType);
+    value = this.transformValueFromData(value, attributeType);
 
     record.materializeAttribute(attributeName, value);
   },
