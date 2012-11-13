@@ -14,9 +14,14 @@ module("Associations", {
     Comment = DS.Model.extend();
     Comment.reopen({
       body: DS.attr('string'),
-      comments: DS.hasMany(Comment),
-      comment: DS.belongsTo(Comment)
+      comments: DS.hasMany(Comment, {inverse: 'comment'}),
+      comment: DS.belongsTo(Comment, {inverse: 'comments'}),
+      referenceComment: DS.belongsTo(Comment, {inverse: 'commentReferences'}),
+      commentReferences: DS.hasMany(Comment, {inverse: 'referenceComment'})
     });
+
+
+
   },
 
   teardown: function() {
@@ -24,6 +29,23 @@ module("Associations", {
       store.destroy();
     });
   }
+});
+
+test("If a model has 2 belongsTo relationships to the same model it should be possible to set them to two different values", function() {
+    store.load(Comment, { id: 1, body: "comment 1" });
+    store.load(Comment, { id: 2, body: "comment 2" });
+    store.load(Comment, { id: 3, body: "comment 3" });
+    var comment1 = store.find(Comment, 1);
+    var comment2 = store.find(Comment, 2);
+
+    var comment3 = store.find(Comment, 3);
+    comment3.setProperties({
+      comment: comment1,
+      referenceComment: comment2
+    });
+
+    equal(comment3.get('comment'), comment1, 'The comment is set correctly');
+    equal(comment3.get('referenceComment', comment2, 'The reference comment is set correctly'));
 });
 
 test("when modifying a child record's belongsTo relationship, its parent hasMany relationships should be updated", function() {
