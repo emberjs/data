@@ -304,7 +304,17 @@ DS.RESTAdapter = DS.Adapter.extend({
       hash.data = JSON.stringify(hash.data);
     }
 
+    // Add callbacks for error statuses
+    if (hash.statusCode === undefined) { hash.statusCode = {}; }
+    hash.statusCode['404'] = this.errorResponse;
+    hash.statusCode['403'] = this.errorResponse;
+    hash.statusCode['500'] = this.errorResponse;
+
     jQuery.ajax(hash);
+  },
+
+  errorResponse: function(jqXHR, textStatus) {
+    if (this.responseError !== undefined) this.responseError(jqXHR, textStatus);
   },
 
   sideload: function(store, type, json, root) {
