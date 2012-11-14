@@ -5,12 +5,12 @@ module("Record Attribute Transforms", {
     Adapter = DS.Adapter.extend();
 
     Adapter.registerTransform('unobtainium', {
-      toJSON: function(value) {
-        return 'toJSON';
+      toData: function(value) {
+        return 'toData';
       },
 
-      fromJSON: function(value) {
-        return 'fromJSON';
+      fromData: function(value) {
+        return 'fromData';
       }
     });
 
@@ -36,10 +36,10 @@ test("transformed values should be materialized on the record", function() {
   store.load(Person, { id: 1, name: "James Cameron" });
 
   var person = store.find(Person, 1);
-  equal(person.get('name'), 'fromJSON', "value of attribute on the record should be transformed");
+  equal(person.get('name'), 'fromData', "value of attribute on the record should be transformed");
 
-  var json = adapter.toJSON(person);
-  equal(json.name, "toJSON", "value of attribute in the JSON hash should be transformed");
+  var json = adapter.toData(person);
+  equal(json.name, "toData", "value of attribute in the JSON hash should be transformed");
 });
 
 module("Default DS.Transforms", {
