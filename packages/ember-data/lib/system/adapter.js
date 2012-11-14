@@ -42,7 +42,7 @@
 
 var get = Ember.get, set = Ember.set;
 
-DS.Adapter = Ember.Object.extend(DS._Mappable, {
+DS.Adapter = Ember.Object.extend({
 
   init: function() {
     var serializer = get(this, 'serializer');
@@ -52,10 +52,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
       set(this, 'serializer', serializer);
     }
 
-    this._attributesMap = this.createInstanceMapFor('attributes');
-
     this.registerSerializerTransforms(this.constructor, serializer, {});
-    this.registerSerializerMappings(serializer);
+    this.registerSerializerMappings(this.constructor, serializer);
   },
 
   /**
@@ -101,8 +99,14 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {DS.Serializer} serializer the serializer to register the
       mappings onto
   */
-  registerSerializerMappings: function(serializer) {
-    var mappings = this._attributesMap;
+  registerSerializerMappings: function(klass, serializer) {
+    var mappings = klass._registeredMappings, superclass, prop;
+
+    if (superclass = klass.superclass) {
+      this.registerSerializerMappings(superclass, serializer);
+    }
+
+    if (!mappings) { return; }
 
     mappings.forEach(function(type, mapping) {
       serializer.map(type, mapping);
@@ -123,7 +127,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
         url = url.fmt(id);
 
         jQuery.getJSON(url, function(data) {
-            // data is a hash of key/value pairs. If your server returns a
+            // data is a Hash of key/value pairs. If your server returns a
             // root, simply do something like:
             // store.load(type, id, data.person)
             store.load(type, id, data);
@@ -159,57 +163,16 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   generateIdForRecord: null,
 
-  materialize: function(record, data) {
-    get(this, 'serializer').materializeFromData(record, data);
+  materialize: function(record, hash) {
+    get(this, 'serializer').materializeFromJSON(record, hash);
   },
 
-  toData: function(record, options) {
-    return get(this, 'serializer').toData(record, options);
+  toJSON: function(record, options) {
+    return get(this, 'serializer').toJSON(record, options);
   },
 
-  extractId: function(type, data) {
-    return get(this, 'serializer').extractId(type, data);
-  },
-
-  extractEmbeddedData: function(store, type, data) {
-    var serializer = get(this, 'serializer');
-
-    type.eachAssociation(function(name, association) {
-      var dataListToLoad, dataToLoad, typeToLoad;
-
-      if (association.kind === 'hasMany') {
-        this._extractEmbeddedHasMany(store, serializer, type, data, association);
-      } else if (association.kind === 'belongsTo') {
-        this._extractEmbeddedBelongsTo(store, serializer, type, data, association);
-      }
-    }, this);
-  },
-
-  _extractEmbeddedHasMany: function(store, serializer, type, data, association) {
-    var dataListToLoad = serializer._extractEmbeddedHasMany(type, data, association.key),
-        typeToLoad = association.type;
-
-    if (dataListToLoad) {
-      var ids = [];
-
-      for (var i=0, l=dataListToLoad.length; i<l; i++) {
-        var dataToLoad = dataListToLoad[i];
-        ids.push(store.adapterForType(typeToLoad).extractId(typeToLoad, dataToLoad));
-      }
-      serializer.replaceEmbeddedHasMany(type, data, association.key, ids);
-      store.loadMany(association.type, dataListToLoad);
-    }
-  },
-
-  _extractEmbeddedBelongsTo: function(store, serializer, type, data, association) {
-    var dataToLoad = serializer._extractEmbeddedBelongsTo(type, data, association.key),
-        typeToLoad = association.type;
-
-    if (dataToLoad) {
-      var id = store.adapterForType(typeToLoad).extractId(typeToLoad, dataToLoad);
-      serializer.replaceEmbeddedBelongsTo(type, data, association.key, id);
-      store.load(association.type, dataToLoad);
-    }
+  extractId: function(type, hash) {
+    return get(this, 'serializer').extractId(type, hash);
   },
 
   shouldCommit: function(record) {
@@ -297,21 +260,17 @@ DS.Adapter.reopenClass({
     this._registeredTransforms = registeredTransforms;
   },
 
-  map: DS._Mappable.generateMapFunctionFor('attributes', function(key, newValue, map) {
-    var existingValue = map.get(key);
+  map: function(type, mapping) {
+    var mappings = this._registeredMappings || Ember.MapWithDefault.create({
+      defaultValue: function() { return {}; }
+    });
+    var mappingsForType = mappings.get(type);
 
-    for (var prop in newValue) {
-      if (!newValue.hasOwnProperty(prop)) { continue; }
-      existingValue[prop] = newValue[prop];
-    }
-  }),
-
-  resolveMapConflict: function(oldValue, newValue, mappingsKey) {
-    for (var prop in oldValue) {
-      if (!oldValue.hasOwnProperty(prop)) { continue; }
-      newValue[prop] = oldValue[prop];
+    for (var prop in mapping) {
+      if (!mapping.hasOwnProperty(prop)) { continue; }
+      mappingsForType[prop] = mapping[prop];
     }
 
-    return newValue;
+    this._registeredMappings = mappings;
   }
 });

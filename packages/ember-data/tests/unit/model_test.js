@@ -418,7 +418,7 @@ var convertsWhenSet = function(type, provided, expected) {
   var record = testStore.find(Model, 2);
 
   set(record, 'name', provided);
-  deepEqual(record.toData().name, expected, type + " saves " + provided + " as " + expected);
+  deepEqual(record.toJSON().name, expected, type + " saves " + provided + " as " + expected);
 };
 
 test("a DS.Model can describe String attributes", function() {

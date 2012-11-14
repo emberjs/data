@@ -18,12 +18,9 @@ module("Mapping Attributes", {
 });
 
 test("Attributes mapped on an adapter class should be used when materializing a record.", function() {
-  ParentAdapter.map('Person', {
-    lastName: { key: 'LAST_NAME' }
-  });
-
   ChildAdapter.map('Person', {
-    firstName: { key: 'FIRST_NAME' }
+    firstName: { key: 'FIRST_NAME' },
+    lastName: { key: 'LAST_NAME' }
   });
 
   store = DS.Store.create({

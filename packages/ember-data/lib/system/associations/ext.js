@@ -88,18 +88,14 @@ DS.Model.reopenClass({
     });
 
     return map;
-  }),
-
-  eachAssociation: function(callback, binding) {
-    get(this, 'associationsByName').forEach(function(name, association) {
-      callback.call(binding, name, association);
-    });
-  }
+  })
 });
 
 DS.Model.reopen({
   eachAssociation: function(callback, binding) {
-    this.constructor.eachAssociation(callback, binding);
+    get(this.constructor, 'associationsByName').forEach(function(name, association) {
+      callback.call(binding, name, association);
+    });
   }
 });
 
