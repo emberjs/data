@@ -2,6 +2,131 @@ require('ember-data/adapters/transforms');
 
 var get = Ember.get, set = Ember.set;
 
+/**
+  The serializer is responsible for converting the data returned from the
+  adapter into the semantics expected by records in Ember Data. It is also
+  responsible for converting a record into the form expected by the adapter
+  when saving changes that have been made locally.
+
+  Typically, your application's `DS.Adapter` is responsible for both creating
+  a serializer as well as calling the appropriate methods when it needs to
+  materialize data or serialize a record.
+
+  ## Serialization
+
+  These methods are responsible for taking a record and
+  producing a JSON object.
+
+  These methods are designed in layers, like a delicious 7-layer
+  cake (but with fewer layers).
+
+  The main entry point for serialization is the `toData`
+  method, which takes the record and options.
+
+  The `toData` method is responsible for:
+
+  * turning the record's attributes (`DS.attr`) into
+    attributes on the JSON object.
+  * optionally adding the record's ID onto the hash
+  * adding relationships (`DS.hasMany` and `DS.belongsTo`)
+    to the JSON object.
+
+  Depending on the backend, the serializer can choose
+  whether to include the `hasMany` or `belongsTo`
+  relationships on the JSON hash.
+
+  For very custom serialization, you can implement your
+  own `toData` method. In general, however, you will want
+  to override the hooks described below.
+
+  ### Adding the ID
+
+  The default `toData` will optionally call your serializer's
+  `addId` method with the JSON hash it is creating, the
+  record's type, and the record's ID. The `toData` method
+  will not call `addId` if the record's ID is undefined.
+
+  Your adapter must specifically request ID inclusion by
+  passing `{ includeId: true }` as an option to `toData`.
+
+  NOTE: You may not want to include the ID when updating an
+  existing record, because your server will likely disallow
+  changing an ID after it is created, and the PUT request
+  itself will include the record's identification.
+
+  By default, `addId` will:
+
+  1. Get the primary key name for the record by calling
+     the serializer's `primaryKey` with the record's type.
+     Unless you override the `primaryKey` method, this
+     will be `'id'`.
+  2. Assign the record's ID to the primary key in the
+     JSON hash being built.
+
+  If your backend expects a JSON object with the primary
+  key at the root, you can just override the `primaryKey`
+  method on your serializer subclass.
+
+  Otherwise, you can override the `addId` method for
+  more specialized handling.
+
+  ### Adding Attributes
+
+  By default, the serializer's `toData` method will call
+  `addAttributes` with the JSON object it is creating
+  and the record to serialize.
+
+  The `addAttributes` method will then call `addAttribute`
+  in turn, with the JSON object, the record to serialize,
+  the attribute's name and its type.
+
+  Finally, the `addAttribute` method will serialize the
+  attribute:
+
+  1. It will call `keyForAttributeName` to determine
+     the key to use in the JSON hash.
+  2. It will get the value from the record.
+  3. It will call `transformValueToData` with the attribute's
+     value and attribute type to convert it into a
+     JSON-compatible value. For example, it will convert a
+     Date into a String.
+
+  If your backend expects a JSON object with attributes as
+  keys at the root, you can just override the `transformValueToData`
+  and `keyForAttributeName` methods in your serializer
+  subclass and let the base class do the heavy lifting.
+
+  If you need something more specialized, you can probably
+  override `addAttribute` and let the default `addAttributes`
+  handle the nitty gritty.
+
+  ### Adding Relationships
+
+  By default, `toData` will call your serializer's
+  `addRelationships` method with the JSON object that is
+  being built and the record being serialized. The default
+  implementation of this method is to loop over all of the
+  relationships defined on your record type and:
+
+  * If the relationship is a `DS.hasMany` relationship,
+    call `addHasMany` with the JSON object, the record
+    and a description of the relationship.
+  * If the relationship is a `DS.belongsTo` relationship,
+    call `addBelongsTo` with the JSON object, the record
+    and a description of the relationship.
+
+  The relationship description has the following keys:
+
+  * `type`: the class of the associated information (the
+    first parameter to `DS.hasMany` or `DS.belongsTo`)
+  * `kind`: either `hasMany` or `belongsTo`
+
+  The relationship description may get additional
+  information in the future if more capabilities or
+  relationship types are added. However, it will
+  remain backwards-compatible, so the mere existence
+  of new features should not break existing adapters.
+*/
 DS.Serializer = Ember.Object.extend({
   init: function() {
     // By default, the JSON types are the transforms defined in DS.Transforms
@@ -24,30 +149,178 @@ DS.Serializer = Ember.Object.extend({
       also used when serializing a record.
   */
 
+  /**
+    @private
+
+    This method is called to get a key used in the data from
+    an attribute name. It first checks for any mappings before
+    calling the public hook `keyForAttributeName`.
+
+    @param {DS.Model subclass} type the type of the record with
+      the attribute name `name`
+    @param {String} name the attribute name to convert into a key
+
+    @returns {String} the key
+  */
   _keyForAttributeName: function(type, name) {
     return this._keyForJSONKey('keyForAttributeName', type, name);
   },
 
+  /**
+    A hook you can use in your serializer subclass to customize
+    how an unmapped attribute name is converted into a key.
+
+    By default, this method returns the `name` parameter.
+
+    For example, if the attribute names in your JSON are underscored,
+    you will want to convert them into JavaScript conventional
+    camelcase:
+
+    ```javascript
+    App.MySerializer = DS.Serializer.extend({
+      // ...
+
+      keyForAttributeName: function(type, name) {
+        return name.camelize();
+      }
+    });
+    ```
+
+    @param {DS.Model subclass} type the type of the record with
+      the attribute name `name`
+    @param {String} name the attribute name to convert into a key
+
+    @returns {String} the key
+  */
   keyForAttributeName: function(type, name) {
     return name;
   },
 
+  /**
+    @private
+
+    This method is called to get a key used in the data from
+    a belongsTo association. It first checks for any mappings before
+    calling the public hook `keyForBelongsTo`.
+
+    @param {DS.Model subclass} type the type of the record with
+      the `belongsTo` association.
+    @param {String} name the association name to convert into a key
+
+    @returns {String} the key
+  */
   _keyForBelongsTo: function(type, name) {
     return this._keyForJSONKey('keyForBelongsTo', type, name);
   },
 
+  /**
+    A hook you can use in your serializer subclass to customize
+    how an unmapped `belongsTo` association is converted into
+    a key.
+
+    By default, this method calls `keyForAttributeName`, so if
+    your naming convention is uniform across attributes and
+    associations, you can use the default here and override
+    just `keyForAttributeName` as needed.
+
+    For example, if the `belongsTo` names in your JSON always
+    begin with `BT_` (e.g. `BT_posts`), you can strip out the
+    `BT_` prefix:"
+
+    ```javascript
+    App.MySerializer = DS.Serializer.extend({
+      // ...
+      keyForBelongsTo: function(type, name) {
+        return name.match(/^BT_(.*)$/)[1].camelize();
+      }
+    });
+    ```
+
+    @param {DS.Model subclass} type the type of the record with
+      the `belongsTo` association.
+    @param {String} name the association name to convert into a key
+
+    @returns {String} the key
+  */
   keyForBelongsTo: function(type, name) {
     return this.keyForAttributeName(type, name);
   },
 
+  /**
+    @private
+
+    This method is called to get a key used in the data from
+    a hasMany association. It first checks for any mappings before
+    calling the public hook `keyForHasMany`.
+
+    @param {DS.Model subclass} type the type of the record with
+      the `hasMany` association.
+    @param {String} name the association name to convert into a key
+
+    @returns {String} the key
+  */
   _keyForHasMany: function(type, name) {
     return this._keyForJSONKey('keyForHasMany', type, name);
   },
 
+  /**
+    A hook you can use in your serializer subclass to customize
+    how an unmapped `hasMany` association is converted into
+    a key.
+
+    By default, this method calls `keyForAttributeName`, so if
+    your naming convention is uniform across attributes and
+    associations, you can use the default here and override
+    just `keyForAttributeName` as needed.
+
+    For example, if the `hasMany` names in your JSON always
+    begin with the "table name" for the current type (e.g.
+    `post_comments`), you can strip out the prefix:"
+
+    ```javascript
+    App.MySerializer = DS.Serializer.extend({
+      // ...
+      keyForHasMany: function(type, name) {
+        // if your App.BlogPost has many App.BlogComment, the key from
+        // the server would look like: `blog_post_blog_comments`
+        //
+        // 1. Convert the type into a string and underscore the
+        //    second part (App.BlogPost -> blog_post)
+        // 2. Extract the part after `blog_post_` (`blog_comments`)
+        // 3. Underscore it, to become `blogComments`
+        var typeString = type.toString().split(".")[1].underscore();
+        return name.match(new RegExp("^" + typeString + "_(.*)$"))[1].camelize();
+      }
+    });
+    ```
+
+    @param {DS.Model subclass} type the type of the record with
+      the `belongsTo` association.
+    @param {String} name the association name to convert into a key
+
+    @returns {String} the key
+  */
   keyForHasMany: function(type, name) {
     return this.keyForAttributeName(type, name);
   },
 
+  /**
+    @private
+
+    An internal method that handles checking whether a mapping
+    exists for a particular attribute or association name before
+    calling the public hooks.
+
+    If a mapping is found, and the mapping has a key defined,
+    use that instead of invoking the hook.
+
+    @param {String} publicMethod the public hook to invoke if
+      a mapping is not found (e.g. `keyForAttributeName`)
+    @param {DS.Model subclass} type the type of the record with
+      the attribute or association name.
+    @param {String} name the attribute or association name to
+      convert into a key
+  */
   _keyForJSONKey: function(publicMethod, type, name) {
     var mapping = this.mappingForType(type),
         mappingOptions = mapping && mapping[name],
@@ -60,6 +333,19 @@ DS.Serializer = Ember.Object.extend({
     }
   },
 
+  /**
+    @private
+
+    This method is called to get the primary key for a given
+    type.
+
+    If a primary key configuration exists for this type, this
+    method will return the configured value. Otherwise, it will
+    call the public `primaryKey` hook.
+
+    @param {DS.Model subclass} type
+    @returns {String} the primary key for the type
+  */
   _primaryKey: function(type) {
     var mapping = this.mappingForType(type),
         primaryKey = mapping && mapping.primaryKey;
@@ -71,134 +357,72 @@ DS.Serializer = Ember.Object.extend({
     }
   },
 
+  /**
+    A hook you can use in your serializer to specify a conventional
+    primary key.
+
+    By default, this method will return the string `id`.
+
+    In general, you should not override this hook to specify a special
+    primary key for an individual type; use `configure` instead.
+
+    For example, if your primary key is always `__id__`:
+
+    ```javascript
+    App.MySerializer = DS.Serializer.extend({
+      // ...
+      primaryKey: function(type) {
+        return '__id__';
+      }
+    });
+    ```
+
+    In another example, if the primary key always includes the
+    underscored version of the type before the string `id`:
+
+    ```javascript
+    App.MySerializer = DS.Serializer.extend({
+      // ...
+      primaryKey: function(type) {
+        // If the type is `BlogPost`, this will return
+        // `blog_post_id`.
+        var typeString = type.toString.split(".")[1].underscore();
+        return typeString + "_id";
+      }
+    });
+    ```
+
+    @param {DS.Model subclass} type
+    @returns {String} the primary key for the type
+  */
   primaryKey: function(type) {
     return "id";
   },
 
   /**
     SERIALIZATION
-
-    These methods are responsible for taking a record and
-    producing a JSON object.
-
-    These methods are designed in layers, like a delicious 7-layer
-    cake (but with fewer layers).
-
-    The main entry point for serialization is the `toData`
-    method, which takes the record and options.
-
-    The `toData` method is responsible for:
-
-    * turning the record's attributes (`DS.attr`) into
-      attributes on the JSON object.
-    * optionally adding the record's ID onto the hash
-    * adding relationships (`DS.hasMany` and `DS.belongsTo`)
-      to the JSON object.
-
-    Depending on the backend, the serializer can choose
-    whether to include the `hasMany` or `belongsTo`
-    relationships on the JSON hash.
-
-    For very custom serialization, you can implement your
-    own `toData` method. In general, however, you will want
-    to override the hooks described below.
-
-    ## Adding the ID
-
-    The default `toData` will optionally call your serializer's
-    `addId` method with the JSON hash it is creating, the
-    record's type, and the record's ID. The `toData` method
-    will not call `addId` if the record's ID is undefined.
-
-    Your adapter must specifically request ID inclusion by
-    passing `{ includeId: true }` as an option to `toData`.
-
-    NOTE: You may not want to include the ID when updating an
-    existing record, because your server will likely disallow
-    changing an ID after it is created, and the PUT request
-    itself will include the record's identification.
-
-    By default, `addId` will:
-
-    1. Get the primary key name for the record by calling
-       the serializer's `primaryKey` with the record's type.
-       Unless you override the `primaryKey` method, this
-       will be `'id'`.
-    2. Assign the record's ID to the primary key in the
-       JSON hash being built.
-
-    If your backend expects a JSON object with the primary
-    key at the root, you can just override the `primaryKey`
-    method on your serializer subclass.
-
-    Otherwise, you can override the `addId` method for
-    more specialized handling.
-
-    ## Adding Attributes
-
-    By default, the serializer's `toData` method will call
-    `addAttributes` with the JSON object it is creating
-    and the record to serialize.
-
-    The `addAttributes` method will then call `addAttribute`
-    in turn, with the JSON object, the record to serialize,
-    the attribute's name and its type.
-
-    Finally, the `addAttribute` method will serialize the
-    attribute:
-
-    1. It will call `keyForAttributeName` to determine
-       the key to use in the JSON hash.
-    2. It will get the value from the record.
-    3. It will call `transformValueToData` with the attribute's
-       value and attribute type to convert it into a
-       JSON-compatible value. For example, it will convert a
-       Date into a String.
-
-    If your backend expects a JSON object with attributes as
-    keys at the root, you can just override the `transformValueToData`
-    and `keyForAttributeName` methods in your serializer
-    subclass and let the base class do the heavy lifting.
-
-    If you need something more specialized, you can probably
-    override `addAttribute` and let the default `addAttributes`
-    handle the nitty gritty.
-
-    ## Adding Relationships
-
-    By default, `toData` will call your serializer's
-    `addRelationships` method with the JSON object that is
-    being built and the record being serialized. The default
-    implementation of this method is to loop over all of the
-    relationships defined on your record type and:
-
-    * If the relationship is a `DS.hasMany` relationship,
-      call `addHasMany` with the JSON object, the record
-      and a description of the relationship.
-    * If the relationship is a `DS.belongsTo` relationship,
-      call `addBelongsTo` with the JSON object, the record
-      and a description of the relationship.
-
-    The relationship description has the following keys:
-
-    * `type`: the class of the associated information (the
-      first parameter to `DS.hasMany` or `DS.belongsTo`)
-    * `kind`: either `hasMany` or `belongsTo`
-
-    The relationship description may get additional
-    information in the future if more capabilities or
-    relationship types are added. However, it will
-    remain backwards-compatible, so the mere existence
-    of new features should not break existing adapters.
   */
 
-  transformValueToData: function(value, attributeType) {
-    var transform = this.transforms[attributeType];
+  /**
+    The main entry point for serializing a record. While you can consider this
+    a hook that can be overridden in your serializer, you will have to manually
+    handle serialization. For most cases, there are more granular hooks that you
+    can override.
 
-    Ember.assert("You tried to use an attribute type (" + attributeType + ") that has not been registered", transform);
-    return transform.toData(value);
-  },
+    If overriding this method, these are the responsibilities that you will need
+    to implement yourself:
 
+    * If the option hash contains `includeId`, add the record's ID to the serialized form.
+      By default, `toData` calls `addId` if appropriate.
+    * Add the record's attributes to the serialized form. By default, `toData` calls
+      `addAttributes`.
+    * Add the record's relationships to the serialized form. By default, `toData` calls
+      `addRelationships`.
+
+    @param {DS.Model} record the record to serialize
+    @param {Object} [options] a hash of options
+    @returns {any} the serialized form of the record
+  */
   toData: function(record, options) {
     options = options || {};
 
@@ -206,7 +430,7 @@ DS.Serializer = Ember.Object.extend({
 
     if (options.includeId) {
       if (id = get(record, 'id')) {
-        this.addId(hash, record.constructor, id);
+        this._addId(hash, record.constructor, id);
       }
     }
 
@@ -217,55 +441,255 @@ DS.Serializer = Ember.Object.extend({
     return hash;
   },
 
-  addAttributes: function(hash, record) {
+  /**
+    @private
+
+    Given an attribute type and value, convert the value into the
+    serialized form using the transform registered for that type.
+
+    @param {any} value the value to convert to the serialized form
+    @param {String} attributeType the registered type (e.g. `string`
+      or `boolean`)
+    @returns {any} the serialized form of the value
+  */
+  transformValueToData: function(value, attributeType) {
+    var transform = this.transforms[attributeType];
+
+    Ember.assert("You tried to use an attribute type (" + attributeType + ") that has not been registered", transform);
+    return transform.toData(value);
+  },
+
+  /**
+    A hook you can use to change how attributes are added to the serialized
+    representation of a record.
+
+    By default, `addAttributes` simply loops over all of the attributes of the
+    passed record, maps the attribute name to the key for the serialized form,
+    and invokes any registered transforms on the value. It then invokes the
+    more granular `addAttribute` with the key and transformed value.
+
+    Since you can override `keyForAttributeName`, `addAttribute`, and register
+    custom tranforms, you should rarely need to override this hook.
+
+    @param {any} data the serialized representation that is being built
+    @param {DS.Model} record the record to serialize
+  */
+  addAttributes: function(data, record) {
     record.eachAttribute(function(name, attribute) {
-      this.addAttribute(hash, record, name, attribute.type);
+      this._addAttribute(data, record, name, attribute.type);
     }, this);
   },
 
-  addAttribute: function(hash, record, attributeName, attributeType) {
+  /**
+    @private
+
+    This method looks up the key for the attribute name and transforms the
+    attribute's value using registered transforms.
+
+    Specifically:
+
+    1. Look up the key for the attribute name. If available, this will use
+       any registered mappings. Otherwise, it will invoke the public
+       `keyForAttributeName` hook.
+    2. Get the value from the record using the `attributeName`.
+    3. Transform the value using registered transforms for the `attributeType`.
+    4. Invoke the public `addAttribute` hook with the hash, key, and
+       transformed value.
+
+    @param {any} data the serialized representation being built
+    @param {DS.Model} record the record to serialize
+    @param {String} attributeName the name of the attribute on the record
+    @param {String} attributeType the type of the attribute (e.g. `string`
+      or `boolean`)
+  */
+  _addAttribute: function(data, record, attributeName, attributeType) {
     var key = this._keyForAttributeName(record.constructor, attributeName);
     var value = get(record, attributeName);
 
-    hash[key] = this.transformValueToData(value, attributeType);
+    this.addAttribute(data, key, this.transformValueToData(value, attributeType));
   },
 
-  addId: function(hash, type, id) {
+  /**
+    A hook you can use to customize how the key/value pair is added to
+    the serialized data.
+
+    @param {any} data the serialized representation that is being built
+    @param {String} key the key to add to the serialized data
+    @param {any} value the value to add to the serialized data
+  */
+  addAttribute: function(data, key, value) {
+    data[key] = value;
+  },
+
+  /**
+    @private
+
+    This method looks up the primary key for the `type` and invokes
+    `serializeId` on the `id`.
+
+    It then invokes the public `addId` hook with the primary key and
+    the serialized id.
+
+    @param {any} data the serialized representation that is being built
+    @param {Ember.Model subclass} type
+    @param {any} id the materialized id from the record
+  */
+  _addId: function(hash, type, id) {
     var primaryKey = this._primaryKey(type);
 
-    hash[primaryKey] = this.serializeId(id);
+    this.addId(hash, primaryKey, this.serializeId(id));
   },
 
-  addRelationships: function(hash, record) {
+  /**
+    A hook you can use to customize how the record's id is added to
+    the serialized data.
+
+    The `addId` hook is called with:
+
+    * the serialized representation being built
+    * the resolved primary key (taking configurations and the
+      `primaryKey` hook into consideration)
+    * the serialized id (after calling the `serializeId` hook)
+
+    @param {any} data the serialized representation that is being built
+    @param {String} key the resolved primary key
+    @param {id} id the serialized id
+  */
+  addId: function(data, key, id) {
+    data[key] = id;
+  },
+
+  /**
+    A hook you can use to change how relationships are added to the serialized
+    representation of a record.
+
+    By default, `addAttributes` loops over all of the relationships of the
+    passed record, maps the relationship names to the key for the serialized form,
+    and then invokes the public `addBelongsTo` and `addHasMany` hooks.
+
+    Since you can override `keyForBelongsTo`, `keyForHasMany`, `addBelongsTo`,
+    `addHasMany`, and register mappings, you should rarely need to override this
+    hook.
+
+    @param {any} data the serialized representation that is being built
+    @param {DS.Model} record the record to serialize
+  */
+  addRelationships: function(data, record) {
     record.eachAssociation(function(name, relationship) {
       var key;
 
       if (relationship.kind === 'belongsTo') {
-        key = this._keyForBelongsTo(record.constructor, name);
-
-        this.addBelongsTo(hash, record, key, relationship);
+        this._addBelongsTo(data, record, name, relationship);
       } else if (relationship.kind === 'hasMany') {
-        key = this._keyForHasMany(record.constructor, name);
-
-        this.addHasMany(hash, record, key, relationship);
+        this._addHasMany(data, record, name, relationship);
       }
     }, this);
   },
 
+  /**
+    @private
+
+    This method converts the relationship name to a key for serialization,
+    and then invokes the public `addBelongsTo` hook.
+
+    @param {any} data the serialized representation that is being built
+    @param {DS.Model} record the record to serialize
+    @param {String} name the relationship name
+    @param {Object} relationship an object representing the relationship
+  */
+  _addBelongsTo: function(data, record, name, relationship) {
+    key = this._keyForBelongsTo(record.constructor, name);
+    this.addBelongsTo(data, record, key, relationship);
+  },
+
+  /**
+    @private
+
+    This method converts the relationship name to a key for serialization,
+    and then invokes the public `addHasMany` hook.
+
+    @param {any} data the serialized representation that is being built
+    @param {DS.Model} record the record to serialize
+    @param {String} name the relationship name
+    @param {Object} relationship an object representing the relationship
+  */
+  _addHasMany: function(data, record, name, relationship) {
+    key = this._keyForHasMany(record.constructor, name);
+    this.addHasMany(data, record, key, relationship);
+  },
+
+  /**
+    A hook you can use to add a `belongsTo` relationship to the
+    serialized representation.
+
+    The specifics of this hook are very adapter-specific, so there
+    is no default implementation. You can see `DS.RESTSerializer`
+    for an example of an implementation of the `addBelongsTo` hook.
+
+    The `belongsTo` relationship object has the following properties:
+
+    * **type** a subclass of DS.Model that is the type of the
+      relationship. This is the first parameter to DS.belongsTo
+    * **options** the options passed to the call to DS.belongsTo
+    * **kind** always `belongsTo`
+
+    Additional properties may be added in the future.
+
+    @param {any} data the serialized representation that is being built
+    @param {DS.Model} record the record to serialize
+    @param {String} key the key for the serialized object
+    @param {Object} relationship an object representing the relationship
+  */
   addBelongsTo: Ember.K,
+
+  /**
+    A hook you can use to add a `hasMany` relationship to the
+    serialized representation.
+
+    The specifics of this hook are very adapter-specific, so there
+    is no default implementation. You may not need to implement this,
+    for example, if your backend only expects associations on the
+    child of a one to many relationship.
+
+    The `hasMany` relationship object has the following properties:
+
+    * **type** a subclass of DS.Model that is the type of the
+      relationship. This is the first parameter to DS.hasMany
+    * **options** the options passed to the call to DS.hasMany
+    * **kind** always `hasMany`
+
+    Additional properties may be added in the future.
+
+    @param {any} data the serialized representation that is being built
+    @param {DS.Model} record the record to serialize
+    @param {String} key the key for the serialized object
+    @param {Object} relationship an object representing the relationship
+  */
   addHasMany: Ember.K,
 
   /**
-   Allows IDs to be normalized before being sent back to the
-   persistence layer. Because the store coerces all IDs to strings
-   for consistency, this is the opportunity for the serializer to,
-   for example, convert numerical IDs back into number form.
+    A hook you can use to normalize IDs before adding them to the
+    serialized representation.
+
+    Because the store coerces all IDs to strings for consistency,
+    this is the opportunity for the serializer to, for example,
+    convert numerical IDs back into number form.
+
+    @param {String} id the id from the record
+    @returns {any} the serialized representation of the id
   */
   serializeId: function(id) {
     if (isNaN(id)) { return id; }
     return +id;
   },
 
+  /**
+    @private
+
+    This method serializes a list of IDs using `serializeId`
+
+    @returns {Array} an array of serialized IDs
+  */
   serializeIds: function(ids) {
     return Ember.EnumerableUtils.map(ids, function(id) {
       return this.serializeId(id);
