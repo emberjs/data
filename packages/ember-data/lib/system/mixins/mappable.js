@@ -1,128 +1,66 @@
 var classify = Ember.String.classify, get = Ember.get;
 
 /**
-@private
+  @private
 
-  The Mappable mixin is designed for classes that would like to
-  behave as a map for configuration purposes.
+  The Mappable mixin is designed to assist classes that need supply a mapping
+  API on their class, then reify that mapping to make it available on their
+  instances.
 
-  For example, the DS.Adapter class can behave like a map, with
-  more semantic API, via the `map` API:
+  For example, DS.Store uses this mixin to implement the `registerAdapter` API.
+  API consumers can call `registerAdapter`, which adds entries to the
+  `_adaptersMap` private property.
 
-    DS.Adapter.map('App.Person', { firstName: { keyName: 'FIRST' } });
+  The first time an adapter is looked up, the instance calls `_reifyMappings`
+  with the mapping name. This collapse all of the registered mappings in the
+  entire class hierarchy into a mapping on the instance.
 
-  Class configuration via a map-like API has a few common requirements
-  that differentiate it from the standard Ember.Map implementation.
+  This mixin is not currently designed for public consumption. It's API does
+  not yet expose the firm yet yielding API contours that Ember.js developers
+  expect. If you want to make this available more broadly, please clean it up
+  first.
+*/
+DS.Mappable = Ember.Mixin.create({
+  _reifyMappings: function(mappingName) {
+    var mappingsKey = '_' + mappingName + 'Map',
+        flag = '_didReify' + classify(mappingName) + 'Mappings';
 
-  First, values often are provided as strings that should be normalized
-  into classes the first time the configuration options are used.
+    if (this[flag]) { return; }
+    this[flag] = true;
 
-  Second, the values configured on parent classes should also be taken
-  into account.
-
-  Finally, setting the value of a key sometimes should merge with the
-  previous value, rather than replacing it.
-
-  This mixin provides a instance method, `createInstanceMapFor`, that
-  will reify all of the configuration options set on an instance's
-  constructor and provide it for the instance to use.
-
-  Classes can implement certain hooks that allow them to customize
-  the requirements listed above:
-
-  * `resolveMapConflict` - called when a value is set for an existing
-    value
-  * `transformMapKey` - allows a key name (for example, a global path
-    to a class) to be normalized
-  * `transformMapValue` - allows a value (for example, a class that
-    should be instantiated) to be normalized
-
-  Classes that implement this mixin should also implement a class
-  method built using the `generateMapFunctionFor` method:
-
-    DS.Adapter.reopenClass({
-      map: DS.Mappable.generateMapFunctionFor('attributes', function(key, newValue, map) {
-        var existingValue = map.get(key);
-
-        for (var prop in newValue) {
-          if (!newValue.hasOwnProperty(prop)) { continue; }
-          existingValue[prop] = newValue[prop];
-        }
-      })
-    });
-
-   The function passed to `generateMapFunctionFor` is invoked every time a
-   new value is added to the map.
-**/
-
-var resolveMapConflict = function(oldValue, newValue, mappingsKey) {
-  return oldValue;
-};
-
-var transformMapKey = function(key, value) {
-  return key;
-};
-
-var transformMapValue = function(key, value) {
-  return value;
-};
-
-DS._Mappable = Ember.Mixin.create({
-  createInstanceMapFor: function(mapName) {
-    var instanceMeta = Ember.metaPath(this, ['DS.Mappable'], true);
-
-    instanceMeta.values = instanceMeta.values || {};
-
-    if (instanceMeta.values[mapName]) { return instanceMeta.values[mapName]; }
-
-    var instanceMap = instanceMeta.values[mapName] = new Ember.Map();
+    var mapping = this[mappingsKey] = new Ember.Map();
 
     var klass = this.constructor;
 
     while (klass && klass !== DS.Store) {
-      this._copyMap(mapName, klass, instanceMap);
+      this._reifyMappingForClass(mappingsKey, klass, mapping);
       klass = klass.superclass;
     }
-
-    instanceMeta.values[mapName] = instanceMap;
-    return instanceMap;
   },
 
-  _copyMap: function(mapName, klass, instanceMap) {
-    var classMeta = Ember.metaPath(klass, ['DS.Mappable'], true);
-
-    var classMap = classMeta[mapName];
-    if (classMap) {
-      classMap.forEach(eachMap, this);
+  _reifyMappingForClass: function(mappingsKey, klass, mapping) {
+    var classAdapterMap = klass[mappingsKey];
+    if (classAdapterMap) {
+      classAdapterMap.forEach(eachAdapterMap);
     }
 
-    function eachMap(key, value) {
-      var transformedKey = (klass.transformMapKey || transformMapKey)(key, value);
-      var transformedValue = (klass.transformMapValue || transformMapValue)(key, value);
+    function eachAdapterMap(key, object) {
+      var type;
 
-      var oldValue = instanceMap.get(transformedKey);
-      var newValue = transformedValue;
-
-      if (oldValue) {
-        newValue = (this.constructor.resolveMapConflict || resolveMapConflict)(oldValue, newValue, mapName);
+      if (typeof key === 'string') {
+        type = get(Ember.lookup, key);
+        Ember.assert("Could not find model at path " + key, type);
+      } else {
+        type = key;
       }
 
-      instanceMap.set(transformedKey, newValue);
+      if (!mapping.get(type, object)) {
+        if (Ember.Object.detect(object)) {
+          object = object.create();
+        }
+
+        mapping.set(type, object);
+      }
     }
-  },
-
-
+  }
 });
-
-DS._Mappable.generateMapFunctionFor = function(mapName, transform) {
-  return function(key, value) {
-    var meta = Ember.metaPath(this, ['DS.Mappable'], true);
-    var map = meta[mapName] || Ember.MapWithDefault.create({
-      defaultValue: function() { return {}; }
-    });
-
-    transform.call(this, key, value, map);
-
-    meta[mapName] = map;
-  };
-};

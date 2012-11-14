@@ -35,42 +35,7 @@ App.Store = DS.Store.create({
 This will remove the exception about changes before revision 2. You will
 receive another warning if there is another change.
 
-## Revision 8
-
-### Making Data Format-Agnostic
-
-Previously, many areas of Ember Data assumed that data exchanged with
-the adapter was represented in JSON form. Many of the serializer APIs
-cemented this bias by including JSON in method names.
-
-While we anticipate that most Ember.js applications will continue to use
-JSON as the primary mechanism for data interchange with a server, we
-also want to support innovation in how data is exchanged.
-
-For example, MongoDB can exchange data as BSON--a binary encoded
-serialization of JSON. Or, if you are writing a data-heavy application,
-we want you to be free to transmit data to the client in whatever form
-is most efficient. Now that mainstream browsers support JavaScript
-`Blob` objects and `TypedArray`s, we anticipate this use case will
-become more and more common.
-
-To that end, we have made two changes:
-
-1. Any information that the store needs from data provided by the
-   adapter is interpreted via the serializer. For example, instead of
-   asking for the ID of a data hash via `data.id`, the store will call the
-   adapter's `extractId` method. This change should not affect
-   applications.
-2. Any methods that contained the term `JSON` have been replaced with
-   versions that use `Data`. For example,
-   `DS.Serializer`'s `toJSON` method has been renamed to `toData`.
-   Similarly, the `transformValueFromJSON` method has been renamed to
-   `transformValueFromData`. This change should only affect applications
-   that use customized serializers, or were calling `toJSON` on records.
-   Because only names and not semantics have changed, this should be a
-   quick find and replace to bring your app up-to-date.
-
-## Revision 7
+# Revision 7
 
 ### Acknowledging Relationships
 
@@ -132,7 +97,7 @@ the relationship as saved once the server has
 acknowledged the entity.
 
 
-## Revision 6
+# Revision 6
 
 ### String-normalized IDs
 

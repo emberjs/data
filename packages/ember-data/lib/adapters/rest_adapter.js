@@ -20,15 +20,25 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     var data = {};
-    data[root] = this.toData(record, { includeId: true });
+    data[root] = this.toJSON(record, { includeId: true });
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
       context: this,
       success: function(json) {
         this.didCreateRecord(store, type, record, json);
+      },
+      statusCode: {
+        422: function(jqXHR, textStatus, errorThrown) {
+          var json = jQuery.parseJSON(jqXHR.responseText);
+          this.recordWasInvalid(store, type, record, json);
+        }
       }
     });
+  },
+
+  recordWasInvalid: function(store, type, record, json) {
+    store.recordWasInvalid(record, json); 
   },
 
   didSaveRecord: function(store, record, hash) {
@@ -67,7 +77,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var data = {};
     data[plural] = [];
     records.forEach(function(record) {
-      data[plural].push(this.toData(record, { includeId: true }));
+      data[plural].push(this.toJSON(record, { includeId: true }));
     }, this);
 
     this.ajax(this.buildURL(root), "POST", {
@@ -75,7 +85,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       context: this,
       success: function(json) {
         this.didCreateRecords(store, type, records, json);
-      }
+      },
     });
   },
 
@@ -91,7 +101,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     var data = {};
-    data[root] = this.toData(record);
+    data[root] = this.toJSON(record);
 
     this.ajax(this.buildURL(root, id), "PUT", {
       data: data,
@@ -120,7 +130,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var data = {};
     data[plural] = [];
     records.forEach(function(record) {
-      data[plural].push(this.toData(record, { includeId: true }));
+      data[plural].push(this.toJSON(record, { includeId: true }));
     }, this);
 
     this.ajax(this.buildURL(root, "bulk"), "PUT", {
@@ -294,7 +304,17 @@ DS.RESTAdapter = DS.Adapter.extend({
       hash.data = JSON.stringify(hash.data);
     }
 
+    // Add callbacks for error statuses
+    if (hash.statusCode === undefined) { hash.statusCode = {}; }
+    hash.statusCode['404'] = this.errorResponse;
+    hash.statusCode['403'] = this.errorResponse;
+    hash.statusCode['500'] = this.errorResponse;
+
     jQuery.ajax(hash);
+  },
+
+  errorResponse: function(jqXHR, textStatus) {
+    if (this.responseError !== undefined) this.responseError(jqXHR, textStatus);
   },
 
   sideload: function(store, type, json, root) {

@@ -139,13 +139,13 @@ test("when materializing a record, the serializer's extractHasMany method should
 
   store.load(Person, { id: 1, children: [ 1, 2, 3 ] });
 
-  serializer.extractHasMany = function(type, hash, name) {
-    equal(type, Person);
+  serializer.extractHasMany = function(record, hash, relationship) {
+    equal(record.constructor, Person);
     deepEqual(hash, {
       id: 1,
       children: [ 1, 2, 3 ]
     });
-    equal(name, 'children');
+    equal(relationship.key, 'children');
   };
 
   var person = store.find(Person, 1);
@@ -160,19 +160,19 @@ test("when materializing a record, the serializer's extractBelongsTo method shou
 
   store.load(Person, { id: 1, father: 2 });
 
-  serializer.extractBelongsTo = function(type, hash, name) {
-    equal(type, Person);
+  serializer.extractBelongsTo = function(record, hash, relationship) {
+    equal(record.constructor, Person);
     deepEqual(hash, {
       id: 1,
       father: 2
     });
-    equal(name, 'father');
+    equal(relationship.key, 'father');
   };
 
   var person = store.find(Person, 1);
 });
 
-test("when materializing a record, transformValueFromData is called to convert the value from data into a JavaScript value", function() {
+test("when materializing a record, transformValueFromJSON is called to convert the value from JSON into a JavaScript value", function() {
   expect(2);
 
   var Bowler = DS.Model.extend({
@@ -186,7 +186,7 @@ test("when materializing a record, transformValueFromData is called to convert t
   };
 
   store.load(Bowler, { id: 'dude', favoriteDrink: "white russian", hasSpecialLadyFriend: "FALSE" });
-  serializer.transformValueFromData = function(value, attributeType) {
+  serializer.transformValueFromJSON = function(value, attributeType) {
     strictEqual(typeToValueMap[attributeType], value, "correct value and type pair should be passed");
     delete typeToValueMap[attributeType];
 

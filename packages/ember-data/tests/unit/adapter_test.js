@@ -96,12 +96,12 @@ test("Transformations registered on an adapter class should be set on the adapte
   var Adapter = DS.Adapter.extend();
 
   var parentUnobtainium = {
-    toData: function(value) {
-      return 'toData';
+    toJSON: function(value) {
+      return 'toJSON';
     },
 
-    fromData: function(value) {
-      return 'fromData';
+    fromJSON: function(value) {
+      return 'fromJSON';
     }
   };
 
@@ -110,24 +110,24 @@ test("Transformations registered on an adapter class should be set on the adapte
   var ChildAdapter = Adapter.extend();
 
   var childAdamantium = {
-    toData: function(value) {
-      return 'adamantium toData';
+    toJSON: function(value) {
+      return 'adamantium toJSON';
     },
 
-    fromData: function(value) {
-      return 'adamantium fromData';
+    fromJSON: function(value) {
+      return 'adamantium fromJSON';
     }
   };
 
   ChildAdapter.registerTransform('adamantium', childAdamantium);
 
   var parentOtherType = {
-    toData: function(value) {
-      return 'otherType toData';
+    toJSON: function(value) {
+      return 'otherType toJSON';
     },
 
-    fromData: function(value) {
-      return 'otherType fromData';
+    fromJSON: function(value) {
+      return 'otherType fromJSON';
     }
   };
 
@@ -149,13 +149,13 @@ test("Transforms registered subclasses take precedence over super classes.", fun
   var ChildAdapter = ParentAdapter.extend();
 
   var childUnobtainium = {
-    toData: Ember.K,
-    fromData: Ember.K
+    toJSON: Ember.K,
+    fromJSON: Ember.K
   };
 
   var parentUnobtainium = {
-    toData: Ember.K,
-    fromData: Ember.K
+    toJSON: Ember.K,
+    fromJSON: Ember.K
   };
 
   ChildAdapter.registerTransform('unobtainium', childUnobtainium);
@@ -196,12 +196,6 @@ module("DS.Adapter - Mapping", {
 
 test("Mappings registered on an adapter class should be set on the adapter's serializer at initialization time.", function() {
   var Adapter = DS.Adapter.extend();
-  var oldLookup = Ember.lookup;
-  Ember.lookup = {
-    App: {}
-  };
-
-  Ember.lookup.App.Person = Ember.Object.extend();
 
   Adapter.map('App.Person', {
     firstName: { key: 'FIRST_NAME' }
@@ -229,6 +223,4 @@ test("Mappings registered on an adapter class should be set on the adapter's ser
       middleName: { key: 'MIDDLE_NAME' }
     }
   });
-
-  Ember.lookup = oldLookup;
 });
