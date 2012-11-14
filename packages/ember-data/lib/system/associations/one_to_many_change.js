@@ -254,12 +254,12 @@ DS.OneToManyChange.prototype = {
       // If our lastParent clientId is not null, there will always be a
       // materialized lastParent.
       var lastParent = this.getLastParent();
-      if (lastParent) {
+      if (lastParent && hasManyName) {
         get(lastParent, hasManyName).removeObject(child);
       }
 
       // Don't do anything if the belongsTo is going from null back to null
-      if (oldParent) {
+      if (oldParent && hasManyName) {
         get(oldParent, hasManyName).addObject(child);
       }
 
@@ -286,7 +286,7 @@ DS.OneToManyChange.prototype = {
     // 1. The change happened from the belongsTo side
     // 2. The record was moved to a new parent without explicitly
     //    removing it from the old parent first.
-    if (oldParent) {
+    if (oldParent && hasManyName) {
       get(oldParent, hasManyName).removeObject(child);
 
       if (get(oldParent, 'isLoaded')) {
@@ -298,7 +298,7 @@ DS.OneToManyChange.prototype = {
     // to ensure that the record is in its ManyArray. The `addObject`
     // method only has an effect if the change happened from the
     // belongsTo side.
-    if (newParent) {
+    if (newParent && hasManyName) {
       get(newParent, hasManyName).addObject(child);
 
       if (get(newParent, 'isLoaded')) {
