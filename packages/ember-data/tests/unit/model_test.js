@@ -18,9 +18,19 @@ module("DS.Model", {
       adapter: TestAdapter.create()
     });
 
+    store.adapter.registerTransform('[]', {
+      fromJSON: function(serialized) {
+        return serialized;
+      },
+
+      toJSON: function(deserialized) {
+        return JSON.stringify(deserialized);
+      }
+    });
     Person = DS.Model.extend({
       name: DS.attr('string'),
-      isDrugAddict: DS.attr('boolean')
+      isDrugAddict: DS.attr('boolean'),
+      convictions: DS.attr('[]')
     });
   },
 
@@ -105,6 +115,8 @@ test("a DS.Model can update its attributes", function() {
 
   set(person, 'name', "Brohuda Katz");
   equal(get(person, 'name'), "Brohuda Katz", "setting took hold");
+  set(person, 'convictions', ['petty theft']);
+  equal('petty theft', get(person, 'convictions')[0], 'array attr is set');
 });
 
 test("a DS.Model can have a defaultValue", function() {
