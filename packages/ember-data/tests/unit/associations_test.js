@@ -312,33 +312,40 @@ test("it is possible to remove an item from an association", function() {
 });
 
 test("it is possible to add an item to an association, remove it, then add it again", function() {
-  var Tag = DS.Model.extend({
-    name: DS.attr('string')
-  });
+  var Tag = DS.Model.extend();
+  var Person = DS.Model.extend();
 
-  var Person = DS.Model.extend({
+  Tag.reopen({
+    name: DS.attr('string'),
+    person: DS.belongsTo(Person)
+  });
+  Person.reopen({
     name: DS.attr('string'),
     tags: DS.hasMany(Tag)
   });
-
-  Tag.reopen({
-    person: DS.belongsTo(Person)
-  });
+  Tag.toString = function() { return "App.Tag"; };
+  Person.toString = function() { return "App.Person"; };
 
   var store = DS.Store.create();
 
   var person = store.createRecord(Person);
   var tag1 = store.createRecord(Tag);
   var tag2 = store.createRecord(Tag);
+  var tag3 = store.createRecord(Tag);
 
   var tags = get(person, 'tags');
 
-  tags.pushObject(tag1);
-  tags.pushObject(tag2);
-  tags.removeAt(0);
-  tags.pushObject(tag1);
-
+  tags.pushObjects([tag1, tag2, tag3]);
+  tags.removeObject(tag2);
+  equal(tags.objectAt(0), tag1);
+  equal(tags.objectAt(1), tag3);
   equal(get(person, 'tags.length'), 2, "object is removed from the association");
+
+  tags.insertAt(0, tag2);
+  equal(get(person, 'tags.length'), 3, "object is added back to the association");
+  equal(tags.objectAt(0), tag2);
+  equal(tags.objectAt(1), tag1);
+  equal(tags.objectAt(2), tag3);
 });
 
 module("RecordArray");
