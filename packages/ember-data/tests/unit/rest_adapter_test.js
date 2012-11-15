@@ -1003,6 +1003,6 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
 
   expectUrl('/people');
   expectType("POST");
-  expectData({ person: { name: "Sam Woodard", person_type_id: 1 } });
+  expectData({ person: { name: "Sam Woodard", person_type_id: "1" } });
   ajaxHash.success({ person: { name: 'Sam Woodard', person_type_id: 1}});
 });
