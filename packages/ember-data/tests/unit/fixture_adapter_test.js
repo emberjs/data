@@ -143,3 +143,26 @@ test("should delete record asynchronously when it is committed", function() {
     ok(false, "timeout exceeded waiting for fixture data");
   }, 1000);
 });
+
+test("should follow isUpdating semantics", function() {
+  stop();
+
+  Person.FIXTURES = [{
+    id: "twinturbo",
+    firstName: "Adam",
+    lastName: "Hawkins",
+    height: 65
+  }];
+
+  var result = store.findAll(Person);
+
+  result.addObserver('isUpdating', function() {
+    start();
+    equal(get(result, 'isUpdating'), false, "isUpdating is set when it shouldn't be");
+  });
+
+  var timer = setTimeout(function() {
+    start();
+    ok(false, "timeout exceeded waiting for fixture data");
+  }, 1000);
+});
