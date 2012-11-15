@@ -11,11 +11,11 @@ DS.Transforms = Ember.Object.extend({
 
   number: {
     fromData: function(serialized) {
-      return Ember.none(serialized) ? null : Number(serialized);
+      return Ember.empty(serialized) ? null : Number(serialized);
     },
 
     toData: function(deserialized) {
-      return Ember.none(deserialized) ? null : Number(deserialized);
+      return Ember.empty(deserialized) ? null : Number(deserialized);
     }
   },
 
