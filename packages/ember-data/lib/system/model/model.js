@@ -53,7 +53,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   }).property(),
 
   materializeData: function() {
-    this.setupData();
     get(this, 'store').materializeData(this);
 
     this.suspendAssociationObservers(function() {
