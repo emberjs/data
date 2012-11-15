@@ -576,8 +576,6 @@ DS.Serializer = Ember.Object.extend({
   */
   addRelationships: function(data, record) {
     record.eachAssociation(function(name, relationship) {
-      var key;
-
       if (relationship.kind === 'belongsTo') {
         this._addBelongsTo(data, record, name, relationship);
       } else if (relationship.kind === 'hasMany') {
@@ -598,7 +596,7 @@ DS.Serializer = Ember.Object.extend({
     @param {Object} relationship an object representing the relationship
   */
   _addBelongsTo: function(data, record, name, relationship) {
-    key = this._keyForBelongsTo(record.constructor, name);
+    var key = this._keyForBelongsTo(record.constructor, name);
     this.addBelongsTo(data, record, key, relationship);
   },
 
@@ -614,7 +612,7 @@ DS.Serializer = Ember.Object.extend({
     @param {Object} relationship an object representing the relationship
   */
   _addHasMany: function(data, record, name, relationship) {
-    key = this._keyForHasMany(record.constructor, name);
+    var key = this._keyForHasMany(record.constructor, name);
     this.addHasMany(data, record, key, relationship);
   },
 
