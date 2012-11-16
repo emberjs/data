@@ -45,7 +45,7 @@ test("If a model has 2 belongsTo relationships to the same model it should be po
     });
 
     equal(comment3.get('comment'), comment1, 'The comment is set correctly');
-    equal(comment3.get('referenceComment', comment2, 'The reference comment is set correctly'));
+    equal(comment3.get('referenceComment'), comment2, 'The reference comment is set correctly');
 });
 
 test("when modifying a child record's belongsTo relationship, its parent hasMany relationships should be updated", function() {
