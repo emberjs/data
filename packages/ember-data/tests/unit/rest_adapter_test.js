@@ -275,7 +275,7 @@ test("add/commit/delete/commit a person from a group, group lifecycle", function
   store.load(Group, { id: 1, name: "Whiskey drinkers"});
   store.load(Person, { id: 1, name: "Tom Dale"});
 
-  var 
+  var
     person = store.find(Person, 1),
     group = store.find(Group, 1);
 
@@ -359,6 +359,19 @@ test("finding all people makes a GET to /people", function() {
   expectState('dirty', false);
 
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
+});
+
+test("finding all while server returns an empty array does not fail", function() {
+  people = store.find(Person);
+
+  expectUrl("/people", "the plural of the model name");
+  expectType("GET");
+
+  ajaxHash.success([]);
+
+  person = people;
+
+  expectState('loaded');
 });
 
 test("finding all can sideload data", function() {

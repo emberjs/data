@@ -1491,7 +1491,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     var clientIds = Ember.A([]);
 
     if (dataList === undefined) {
-      dataList = ids;
+      dataList = ids || [];
       ids = [];
 
       var adapter = this.adapterForType(type);
