@@ -157,6 +157,7 @@ test("should follow isUpdating semantics", function() {
   var result = store.findAll(Person);
 
   result.addObserver('isUpdating', function() {
+    clearTimeout(timer);
     start();
     equal(get(result, 'isUpdating'), false, "isUpdating is set when it shouldn't be");
   });
