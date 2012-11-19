@@ -105,4 +105,14 @@ test("the default date transform", function() {
   var result = (person.get('born') instanceof Date); 
   equal(result, true, "string is transformed into a date");
   equal(person.get('born').toString(), date.toString(), "date.toString and transformed date.toString values match");
+
+  var timestamp = 293810400, // 1979-04-24 @ 08:00:00
+      date2 = new Date(timestamp);
+
+  store.load(Person, {id: 2, born: timestamp});
+  var person2 = store.find(Person, 2);
+
+  var result2 = (person.get('born') instanceof Date);
+  equal(result2, true, "timestamp is transformed into a date");
+  equal(person2.get('born').toString(), date2.toString(), "date.toString and transformed date.toString values match");
 });
