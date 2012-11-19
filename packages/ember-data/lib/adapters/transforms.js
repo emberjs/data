@@ -47,7 +47,7 @@ DS.Transforms = Ember.Object.extend({
 
       if (type === "string" || type === "number") {
         // this is a fix for Safari 5.1.5 on Mac which does not accept timestamps as yyyy-mm-dd
-        if (serialized.search(/^\d{4}-\d{2}-\d{2}$/) !== -1){
+        if (type === "string" && serialized.search(/^\d{4}-\d{2}-\d{2}$/) !== -1){
           serialized += "T00:00:00Z";
         }
 
