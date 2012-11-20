@@ -397,7 +397,7 @@ test("all(type) can return a subclass of RecordArray", function(){
 
   var store = DS.Store.create({ 
     adapter: DS.Adapter.create(),
-    newRecordArray: function(type){
+    createRecordArray: function(type){
       return DerivedRecordArray.create({type: type, content: Ember.A([]), store: this});
     }
   });
