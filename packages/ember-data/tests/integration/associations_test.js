@@ -183,12 +183,7 @@ test("An adapter can materialize a hash and get it back later in a findAssociati
 test("When adding a child to a parent, then commit, the parent should come back to a clean state", function() {
   expect(2);
 
-  adapter.shouldCommit = function(record) {
-    //behaves like DS.RESTAdapter, a parent record should not be commited when adding a child
-    if (record.isCommittingBecause('attribute') || record.isCommittingBecause('belongsTo')) {
-      return true;
-    }
-  };
+  adapter.dirtyRecordsForHasManyChange = Ember.K;
 
   var didSaveRecord = function(store, record, hash) {
     record.eachAssociation(function(name, meta) {

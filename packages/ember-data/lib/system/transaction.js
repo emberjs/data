@@ -1,13 +1,6 @@
 var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt,
     removeObject = Ember.EnumerableUtils.removeObject, forEach = Ember.EnumerableUtils.forEach;
 
-var RelationshipLink = function(parent, child) {
-  this.oldParent = parent;
-  this.child = child;
-};
-
-
-
 /**
   A transaction allows you to collect multiple records into a unit of work
   that can be committed or rolled back as a group.
@@ -208,6 +201,13 @@ DS.Transaction = Ember.Object.extend({
       if (adapter && adapter.commit) { adapter.commit(store, commitDetails); }
       else { throw fmt("Adapter is either null or does not implement `commit` method", this); }
     }
+
+    // Once we've committed the transaction, there is no need to
+    // keep the OneToManyChanges around. Destroy them so they
+    // can be garbage collected.
+    relationships.forEach(function(relationship) {
+      relationship.destroy();
+    });
   },
 
   /**

@@ -180,18 +180,13 @@ var didChangeData = function(manager) {
 };
 
 var setProperty = function(manager, context) {
-  var value = context.value,
+  var record = get(manager, 'record'),
+      store = get(record, 'store'),
       key = context.key,
-      record = get(manager, 'record'),
-      adapterValue = get(record, 'data.attributes')[key];
+      oldValue = context.oldValue,
+      newValue = context.value;
 
-  if (value === adapterValue) {
-    record.removeDirtyFactor(key);
-  } else {
-    record.addDirtyFactor(key);
-  }
-
-  updateRecordArrays(manager);
+  store.recordAttributeDidChange(record, key, newValue, oldValue);
 };
 
 // Whenever a property is set, recompute all dependent filters
@@ -284,6 +279,8 @@ var DirtyState = DS.State.extend({
     // EVENTS
     setProperty: setProperty,
 
+    becomeDirty: Ember.K,
+
     willCommit: function(manager) {
       manager.transitionTo('inFlight');
     },
@@ -327,7 +324,6 @@ var DirtyState = DS.State.extend({
       var dirtyType = get(this, 'dirtyType'),
           record = get(manager, 'record');
 
-      // create inFlightDirtyFactors
       record.becameInFlight();
 
       record.withTransaction(function (t) {
@@ -352,8 +348,6 @@ var DirtyState = DS.State.extend({
       var record = get(manager, 'record');
 
       set(record, 'errors', errors);
-
-      record.restoreDirtyFactors();
 
       manager.transitionTo('invalid');
       manager.send('invokeLifecycleCallbacks');
@@ -400,6 +394,8 @@ var DirtyState = DS.State.extend({
       setProperty(manager, context);
     },
 
+    becomeDirty: Ember.K,
+
     rollback: function(manager) {
       manager.send('becameValid');
       manager.send('rollback');
@@ -424,18 +420,7 @@ var createdState = DirtyState.create({
   dirtyType: 'created',
 
   // FLAGS
-  isNew: true,
-
-  // TRANSITIONS
-  setup: function(manager) {
-    var record = get(manager, 'record');
-    record.addDirtyFactor('@created');
-  },
-
-  exit: function(manager) {
-    var record = get(manager, 'record');
-    record.removeDirtyFactor('@created');
-  }
+  isNew: true
 });
 
 var updatedState = DirtyState.create({
@@ -544,7 +529,7 @@ var states = {
         didChangeData: didChangeData,
         loadedData: didChangeData,
 
-        becameDirty: function(manager) {
+        becomeDirty: function(manager) {
           manager.transitionTo('updated');
         },
 
@@ -617,15 +602,7 @@ var states = {
         var record = get(manager, 'record'),
             store = get(record, 'store');
 
-        record.addDirtyFactor('@deleted');
-
         store.removeFromRecordArrays(record);
-      },
-
-      exit: function(manager) {
-        var record = get(manager, 'record');
-
-        record.removeDirtyFactor('@deleted');
       },
 
       // SUBSTATES
@@ -652,6 +629,8 @@ var states = {
           get(manager, 'record').rollback();
         },
 
+        becomeDirty: Ember.K,
+
         becameClean: function(manager) {
           var record = get(manager, 'record');
 
@@ -675,7 +654,6 @@ var states = {
         enter: function(manager) {
           var record = get(manager, 'record');
 
-          // create inFlightDirtyFactors
           record.becameInFlight();
 
           record.withTransaction(function (t) {

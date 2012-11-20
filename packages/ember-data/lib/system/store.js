@@ -865,18 +865,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object} data optional data (see above)
   */
   didSaveRecord: function(record, data) {
-    if (get(record, 'isNew')) {
-      this.didCreateRecord(record);
-    } else if (get(record, 'isDeleted')) {
-      this.didDeleteRecord(record);
-    }
+    record.adapterDidCommit();
 
     if (data) {
-      // We're about to replace all existing attributes and relationships
-      // because we have new data, so clear out any remaining unacknowledged
-      // changes.
-
-      record.removeInFlightDirtyFactorsForAttributes();
       this.updateId(record, data);
       this.updateRecordData(record, data);
     } else {
@@ -904,32 +895,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     list.forEach(function(record) {
       this.didSaveRecord(record, dataList && dataList[i++]);
     }, this);
-  },
-
-  /**
-    TODO: Do we need this?
-  */
-  didDeleteRecord: function(record) {
-    record.adapterDidDelete();
-  },
-
-  /**
-    This method allows the adapter to acknowledge just that
-    a record was created, but defer acknowledging specific
-    attributes or relationships.
-
-    This is most useful for adapters that have a multi-step
-    creation process (first, create the record on the backend,
-    then make a separate request to add the attributes).
-
-    When acknowledging a newly created record using a more
-    fine-grained approach, you *must* call `didCreateRecord`,
-    or the record will remain in in-flight limbo forever.
-
-    @param {DS.Model} record
-  */
-  didCreateRecord: function(record) {
-    record.adapterDidCreate();
   },
 
   /**
@@ -1619,6 +1584,38 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (adapter) { return adapter; }
 
     return this.get('_adapter');
+  },
+
+  // ..............................
+  // . RECORD CHANGE NOTIFICATION .
+  // ..............................
+  recordAttributeDidChange: function(record, attributeName, newValue, oldValue) {
+    var dirtySet = new Ember.OrderedSet(),
+        adapter = this.adapterForType(record.constructor);
+
+    if (adapter.dirtyRecordsForAttributeChange) {
+      adapter.dirtyRecordsForAttributeChange(dirtySet, record, attributeName, newValue, oldValue);
+    }
+
+    dirtySet.forEach(function(record) {
+      record.adapterDidDirty();
+    });
+  },
+
+  recordBelongsToDidChange: function(dirtySet, child, relationship) {
+    var adapter = this.adapterForType(child.constructor);
+
+    if (adapter.dirtyRecordsForBelongsToChange) {
+      adapter.dirtyRecordsForBelongsToChange(dirtySet, child, relationship);
+    }
+  },
+
+  recordHasManyDidChange: function(dirtySet, parent, relationship) {
+    var adapter = this.adapterForType(parent.constructor);
+
+    if (adapter.dirtyRecordsForHasManyChange) {
+      adapter.dirtyRecordsForHasManyChange(dirtySet, parent, relationship);
+    }
   }
 });
 

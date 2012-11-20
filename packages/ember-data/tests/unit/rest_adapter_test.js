@@ -67,13 +67,13 @@ module("the REST adapter", {
   },
 
   teardown: function() {
-    adapter.destroy();
-    store.destroy();
-
     if (person) {
       person.destroy();
       person = null;
     }
+
+    adapter.destroy();
+    store.destroy();
   }
 });
 
@@ -269,32 +269,6 @@ test("deleting a person makes a DELETE to /people/:id", function() {
 
   ajaxHash.success();
   expectState('deleted');
-});
-
-test("add/commit/delete/commit a person from a group, group lifecycle", function() {
-  store.load(Group, { id: 1, name: "Whiskey drinkers"});
-  store.load(Person, { id: 1, name: "Tom Dale"});
-
-  var 
-    person = store.find(Person, 1),
-    group = store.find(Group, 1);
-
-  group.get('people').pushObject(person);
-  equal(group.get('isDirty'), true, "The group should be dirty after adding child");
-  store.commit();
-  equal(group.get('isSaving'), true, "The group should be saving");
-  ajaxHash.success();
-  equal(group.get('isDirty'), false, "The record should no longer be dirty");
-  equal(group.get('isSaving'), false, "The record should no longer be saving");
-
-  person.deleteRecord();
-  equal(group.get('isDirty'), true, "The group should be dirty after deleting a child");
-  store.commit();
-  equal(group.get('isSaving'), true, "The group should be saving");
-  ajaxHash.success();
-
-  equal(group.get('isDirty'), false, "The group should no longer be dirty");
-  equal(group.get('isSaving'), false, "The group should no longer be saving");
 });
 
 test("singular deletes can sideload data", function() {

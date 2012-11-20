@@ -25,6 +25,38 @@ def upload_file(uploader, filename, description, file)
   end
 end
 
+def git_update
+end
+
+directory "tmp"
+
+file "tmp/ember.js" => "tmp" do
+  cd "tmp" do
+    sh "git clone https://github.com/emberjs/ember.js.git"
+  end
+end
+
+task :update_ember_git => ["tmp/ember.js"] do
+  cd "tmp/ember.js" do
+    sh "git fetch origin"
+    sh "git reset --hard origin/master"
+  end
+end
+
+file "tmp/ember.js/dist/ember.js"
+
+file "packages/ember/lib/main.js" => [:update_ember_git, "tmp/ember.js/dist/ember.js"] do
+  cd "tmp/ember.js" do
+    sh "rake dist"
+    cp "dist/ember.js", "../../packages/ember/lib/main.js"
+  end
+end
+
+namespace :ember do
+  desc "Update Ember.js to master (packages/ember/lib/main.js)"
+  task :update => "packages/ember/lib/main.js"
+end
+
 desc "Strip trailing whitespace for JavaScript files in packages"
 task :strip_whitespace do
   Dir["packages/**/*.js"].each do |name|

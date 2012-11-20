@@ -35,6 +35,259 @@ App.Store = DS.Store.create({
 This will remove the exception about changes before revision 2. You will
 receive another warning if there is another change.
 
+## Revision 9
+
+### Adapter-Specified Record Dirtying
+
+One of the goals of Ember Data is to separate application semantics from
+server semantics. For example, you should be able to use a simple
+backend like MongoDB during development. When deploying to production,
+you may want to use a database better equipped to handle scale, like
+PostgreSQL. Despite the many differences between these two database
+technologies, switching between them should not require you to
+rewrite your application.
+
+Ember Data accomplishes this by isolating server-specific code in the
+_adapter_. The adapter is responsible for translating
+application-specific semantics into the appropriate actions for the
+current backend.
+
+To do this, the store must be able to provide as much information as
+possible to the adapter, so that developers can write adapters for
+key-value stores, like Riak and MongoDB; JSON APIs powered by relational
+databases, like Rails talking to PostgreSQL or MySQL; novel transport
+mechanisms, like WebSockets; local databases, like IndexedDB; and
+whatever other persistence schemes may be dreamed up in the future.
+
+Previously, the store would gather up as much information as possible as
+changes happened in the application. Only when the current transaction
+was committed (via `transaction.commit()` or `store.commit()`) would all
+of the information about what changed be bundled up and sent to the
+adapter to be saved.
+
+Remember that the store needs to keep track of the state of records so
+it knows what needs to be saved. In particular, a record loaded into the
+store starts off "clean"—this means that, as far as we know, the copy we
+have on the client is the same as the copy on the server.
+
+A record becomes "dirty" when we change it in some way from the version
+we received from the server.
+
+Obviously, a record becomes dirty if we change an attribute. For
+example, if we change a record's `firstName` attribute from `"Peter"` to
+`"Louis"`, the record is dirty.
+
+But what happens if the _relationship_ between two records changes?
+Which records should be considered dirty?
+
+Consider the case where we have two `App.User` records, `user1` and
+`user2`, and an `App.Post` record, `post`, which represents a blog post.
+We want to change the author of the post from `user1` to `user2`:
+
+```javascript
+post.get('author');
+//=> user1
+post.set('author', user2);
+```
+
+Now, which of these records should we consider dirty? That is, which of
+these records needs to be sent to the adapter to be saved? Just the
+post? The old author, `user1`? The new author, `user2`? All three?
+
+Your answer to this question depends heavily on how you are encoding
+your relationships, which itself depends heavily on the persistence
+strategy you're using.
+
+If you're using a key-value store, like IndexedDB or Riak, your instinct
+is probably to save one-to-many relationships on the parent. For
+example, if you were sending the JSON for `user2` to your server via
+XHR, it would probably look something like this:
+
+```javascript
+{
+  "author": {
+    "name": "Tony",
+    "posts": [1, 2, 3]
+  }
+}
+```
+
+If, on the other hand, you were using a relational database with
+something like Ruby on Rails, your instinct would probably be to encode
+the relationship as a _foreign key_ on the child. In other words, when
+this relationship changed, you would send `post` to the server via a
+JSON representation that looked like this:
+
+```javascript
+{
+  "post": {
+    "title": "Allen Ginsberg on Node.js",
+    "body": "I saw the best minds of my generation destroyed by madness, starving hysterical naked, dragging themselves through the negro streets at dawn looking for an angry fix,\
+angelheaded hipsters burning for the ancient heavenly connection to the starry dynamo in the machinery of night,\
+who poverty and tatters and hollow-eyed and high sat up smoking in the supernatural darkness of cold-water flats floating across the tops of cities contemplating jazz",
+
+    "author_id": 1
+  }
+}
+```
+
+Previously, Ember Data implemented a strategy of picking the "lowest
+common denominator." In other words, because we did not know what
+information the adapter needed, or how it would encode relationships, we
+simply marked **all** records involved in a relationship change (old
+parent, new parent, and child) as dirty. If the adapter did not need to
+send changes to the server for a particular record, it was the
+responsibility of the adapter to immediately release those unneeded records.
+
+This strategy served us well, until we came to the case of **embedded
+records** (which we are working on, but have not yet finished). In this
+case, choosing the "lowest common denominator" strategy and marking all
+records that could _possibly_ be dirty quickly became pathological.
+
+Imagine the case where you are writing a blog app. For legacy reasons,
+your JSON API embeds comments inside of posts, which are themselves
+embedded inside a root blog object. So, for example, when your app asks
+for a particular blog, it receives back a JSON payload that looks like
+this:
+
+```javascript
+{
+  "blog": {
+    "title": "Shit HN Says",
+    "posts": [{
+      "title": "Achieving Roflscale",
+      "comments": [{
+        "body": "Why not choose a more lightweight solution?",
+        "upvotes": 256
+      }]
+    }]
+  }
+}
+```
+
+Let's say we want to upvote the comment:
+
+```javascript
+comment.incrementProperty('upvotes');
+```
+
+In this particular case, we actually need to mark the **entire graph as
+dirty**. And because the store had no visibility into whether or not the
+adapter treated records as embedded, the "lowest common denominator"
+rule that we had used before meant that we would *have to mark entire
+graphs as dirty if a single attribute changed*.
+
+We knew we would be pilloried if we tried to suggest that as a serious
+solution to the problem.
+
+So, after much discussion, we have introduced several new hooks into the
+adapter. These hooks allow the store to ask the adapter about dirtying
+semantics *as soon as changes happen*. This is a fundamental change from
+how the adapter/store relationship worked before.
+
+Previously, the *only* time the store conferred with the adapter was
+when committing a transaction (with the exception of `extractId`, which
+is used to preprocess data payloads from the adapter).
+
+Now, every time an attribute or relationship changes, it is the
+adapter's responsibility to populate the set of records which the store
+should consider dirty. 
+
+Here are the hooks available at present:
+
+* `dirtyRecordsForAttributeChange`
+* `dirtyRecordsForBelongsToChange`
+* `dirtyRecordsForHasManyChange`
+
+Each hook gets passed a `dirtySet` that it should populate with records
+to consider dirty, via the `add()` method.
+
+An implementation of the attribute change hook might look like this:
+
+```javascript
+dirtyRecordsForAttributeChange: function(dirtySet, record, attributeName, newValue, oldValue) {
+  // Only mark the record as dirty if the new value
+  // is different from the old value
+  if (newValue !== oldValue) {
+    dirtySet.add(record);
+  }
+}
+```
+
+If you are implementing an adapter with relational semantics, you can
+tell the store to only dirty child records in response to relationship
+changes like this:
+
+```javascript
+dirtyRecordsForBelongsToChange: function(dirtySet, child) {
+  dirtySet.add(child);
+}
+```
+
+Adapters with key-value semantics would simply implement the same hook
+for has-many changes:
+
+```javascript
+dirtyRecordsForHasManyChange: function(dirtySet, parent) {
+  dirtySet.add(parent);
+}
+```
+
+As we explore this brave new world together, you can expect similar
+"runtime hooks" (as opposed to commit-time hooks) to appear in the
+adapter API.
+
+#### TL;DR
+
+Adapters can now tell the store which records become dirty in response
+to changes. If you are using the built-in `DS.RESTAdapter`, these
+changes do not affect you.
+
+### Removal of Dirty Factors
+
+Previously, your adapter could query a record for the reasons it had
+been considered dirty. For example, `record.isDirtyBecause('belongsTo')`
+would return `true` if the adapter was dirty because one of its
+`belongsTo` relationships had changed.
+
+This was necessary because the adapter received all of the records
+associated with a relationship change at once, and had to "reverse
+engineer" what had happened and which records it cared about (see above
+section for more discussion.)
+
+Now, because adapters are notified about changes as they happen, and
+can control which items are marked as dirty, it is no longer necessary
+for adapters to be able to introspect records for _why_ they are dirty;
+de facto, if they are being given to the adapter, it is because the
+adapter told the store it wanted them to be dirty.
+
+Therefore, `DS.Model`'s `isDirtyBecause()` method has been removed. If
+you still need this information in your adapter, it will be your
+responsibility to do any bookkeeping in the
+`dirtyRecordsForAttributeChange` hook described above.
+
+### Single Commit Acknowledgment Hook
+
+Previously, the store took responsibility for tracking *which* things
+were dirty about a record. Only after all "dirty factors" had been
+acknowledged by the adapter as saved would the store transition the
+record back into the "clean" state.
+
+Now, responsibility for transitioning a record is solely the adapter's.
+This architecture lays the groundwork for the ability to have multiple
+adapters; for example, you can imagine having an IndexedDB-based
+write-through cache adapter for offline mode, and a WebSockets-based
+adapter for when your user has an internet connection.
+
+Previous "acknowledgement" API methods on the store have been removed,
+such as `didSaveRecord()` and `didDeleteRecord()`. Now, the only
+acknowledgement an adapter can perform is `didSaveRecord()`, which tells
+the store that all changes to the record have been saved.
+
+If saving changes to a record is not an atomic operation in your
+adapter, keeping track of which more granular operations have occurred
+is now the responsibility of the adapter.
+
 ## Revision 8
 
 ### Making Data Format-Agnostic

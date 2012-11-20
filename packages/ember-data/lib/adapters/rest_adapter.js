@@ -10,12 +10,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   serializer: DS.RESTSerializer,
 
-  shouldCommit: function(record) {
-    if (record.isCommittingBecause('attribute') || record.isCommittingBecause('belongsTo')) {
-      return true;
-    }
-  },
-
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
 
@@ -30,6 +24,8 @@ DS.RESTAdapter = DS.Adapter.extend({
       }
     });
   },
+
+  dirtyRecordsForHasManyChange: Ember.K,
 
   didSaveRecord: function(store, record, hash) {
     record.eachAssociation(function(name, meta) {

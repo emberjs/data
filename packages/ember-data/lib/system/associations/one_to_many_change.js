@@ -16,12 +16,19 @@ DS.OneToManyChange.create = function(options) {
 
 /** @private */
 DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
+  // Get the type of the child based on the child's client ID
   var childType = store.typeForClientId(childClientId), key;
 
+  // If the name of the belongsTo side of the relationship is specified,
+  // use that
+  // If the type of the parent is specified, look it up on the child's type
+  // definition.
   if (options.parentType) {
     key = inverseBelongsToName(options.parentType, childType, options.hasManyName);
-  } else {
+  } else if (options.belongsToName) {
     key = options.belongsToName;
+  } else {
+    Ember.assert("You must pass either a parentType or belongsToName option to OneToManyChange.forChildAndParent", false);
   }
 
   var change = store.relationshipChangeFor(childClientId, key);
@@ -132,18 +139,6 @@ DS.OneToManyChange.prototype = {
         child, oldParent, newParent, transaction;
 
     store.removeRelationshipChangeFor(childClientId, belongsToName);
-
-    if (child = this.getChild()) {
-      child.removeDirtyFactor(belongsToName);
-    }
-
-    if (oldParent = this.getOldParent()) {
-      oldParent.removeDirtyFactor(hasManyName);
-    }
-
-    if (newParent = this.getNewParent()) {
-      newParent.removeDirtyFactor(hasManyName);
-    }
 
     if (transaction = this.transaction) {
       transaction.relationshipBecameClean(this);
@@ -279,6 +274,8 @@ DS.OneToManyChange.prototype = {
     // infinite loop.
 
 
+    var dirtySet = new Ember.OrderedSet();
+
     // If there is an `oldParent` and the `oldParent` is different to
     // the `newParent`, use the idempotent `removeObject` to ensure
     // that the record is no longer in its ManyArray. The `removeObject`
@@ -290,8 +287,13 @@ DS.OneToManyChange.prototype = {
     if (oldParent && oldParent !== newParent) {
       get(oldParent, hasManyName).removeObject(child);
 
+      // TODO: This implementation causes a race condition in key-value
+      // stores. The fix involves buffering changes that happen while
+      // a record is loading. A similar fix is required for other parts
+      // of ember-data, and should be done as new infrastructure, not
+      // a one-off hack. [tomhuda]
       if (get(oldParent, 'isLoaded')) {
-        oldParent.addDirtyFactor(hasManyName);
+        this.store.recordHasManyDidChange(dirtySet, oldParent, this);
       }
     }
 
@@ -303,7 +305,7 @@ DS.OneToManyChange.prototype = {
       get(newParent, hasManyName).addObject(child);
 
       if (get(newParent, 'isLoaded')) {
-        newParent.addDirtyFactor(hasManyName);
+        this.store.recordHasManyDidChange(dirtySet, newParent, this);
       }
     }
 
@@ -315,10 +317,12 @@ DS.OneToManyChange.prototype = {
         set(child, belongsToName, newParent);
       }
 
-      if (get(child, 'isLoaded')) {
-        child.addDirtyFactor(belongsToName);
-      }
+      this.store.recordBelongsToDidChange(dirtySet, child, this);
     }
+
+    dirtySet.forEach(function(record) {
+      record.adapterDidDirty();
+    });
 
     // If this change is later reversed (A->B followed by B->A),
     // we will need to remove the child from this parent. Save
@@ -333,9 +337,6 @@ DS.OneToManyChange.prototype = {
     var hasManyName = this.getHasManyName();
     var oldParent, newParent, child;
 
-    if (oldParent = this.getOldParent()) { oldParent.removeInFlightDirtyFactor(hasManyName); }
-    if (newParent = this.getNewParent()) { newParent.removeInFlightDirtyFactor(hasManyName); }
-    if (child = this.getChild())         { child.removeInFlightDirtyFactor(belongsToName); }
     this.destroy();
   },
 
