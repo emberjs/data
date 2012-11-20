@@ -553,6 +553,11 @@ var states = {
           get(manager, 'record').clearRelationships();
         },
 
+        unloadRecord: function(manager) {
+          manager.transitionTo('deleted.saved');
+          get(manager, 'record').clearRelationships();
+        },
+
         willCommit: function(manager) {
           manager.transitionTo('relationshipsInFlight');
         },
@@ -703,6 +708,13 @@ var states = {
       saved: DS.State.create({
         // FLAGS
         isDirty: false,
+
+        setup: function(manager) {
+          var record = get(manager, 'record'),
+              store = get(record, 'store');
+
+          store.dematerializeRecord(record);
+        },
 
         invokeLifecycleCallbacks: function(manager) {
           var record = get(manager, 'record');
