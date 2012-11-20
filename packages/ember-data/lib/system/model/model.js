@@ -114,6 +114,12 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.send('deleteRecord');
   },
 
+  unloadRecord: function() {
+    Ember.assert("You can only unload a loaded, non-dirty record.", !get(this, 'isDirty'));
+
+    this.send('unloadRecord');
+  },
+
   clearRelationships: function() {
     this.eachAssociation(function(name, relationship) {
       if (relationship.kind === 'belongsTo') {
@@ -407,8 +413,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
   adapterDidDelete: function() {
     this.removeInFlightDirtyFactor('@deleted');
-
-    this.updateRecordArraysLater();
   },
 
   adapterDidCreate: function() {
