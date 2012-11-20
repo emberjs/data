@@ -421,6 +421,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.send('becameInvalid', errors);
   },
 
+  adapterDidError: function() {
+    this.send('becameError');
+  },
+
   /**
     @private
 
