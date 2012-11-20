@@ -27,6 +27,9 @@ DS.RESTAdapter = DS.Adapter.extend({
       context: this,
       success: function(json) {
         this.didCreateRecord(store, type, record, json);
+      },
+      error: function(xhr) {
+        this.context.didError(store, type, record, xhr);
       }
     });
   },
@@ -98,6 +101,9 @@ DS.RESTAdapter = DS.Adapter.extend({
       context: this,
       success: function(json) {
         this.didUpdateRecord(store, type, record, json);
+      },
+      error: function(xhr) {
+        this.context.didError(store, type, record, xhr);
       }
     });
   },
@@ -262,6 +268,15 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.sideload(store, type, json, root);
     store.loadMany(type, json[root]);
+  },
+
+  didError: function(store, type, record, xhr) {
+    if (xhr.status === 422) {
+      var data = JSON.parse(xhr.responseText);
+      store.recordWasInvalid(record, data['errors']);
+    } else {
+      store.recordWasError(record);
+    }
   },
 
   // HELPERS

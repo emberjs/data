@@ -264,6 +264,18 @@ test("if a created record is marked as invalid by the server, it enters an error
   Ember.removeObserver(yehuda, 'errors.name', observer);
 });
 
+test("if a created record is marked as erred by the server, it enters an error state", function() {
+  adapter.createRecord = function(store, type, record) {
+    store.recordWasError(record);
+  };
+
+  var person = store.createRecord(Person, { id: 1, name: "John Doe" });
+
+  store.commit();
+
+  ok(get(person, 'isError'), "the record is in the error state");
+});
+
 test("if an updated record is marked as invalid by the server, it enters an error state", function() {
   adapter.updateRecord = function(store, type, record) {
     equal(type, Person, "the type is correct");
@@ -299,6 +311,20 @@ test("if an updated record is marked as invalid by the server, it enters an erro
   equal(get(yehuda, 'isDirty'), false, "record is no longer new");
 
   // Test key mapping
+});
+
+test("if a created record is marked as erred by the server, it enters an error state", function() {
+  adapter.updateRecord = function(store, type, record) {
+    store.recordWasError(record);
+  };
+
+  store.load(Person, { id: 1, name: "John Doe" });
+  var person = store.find(Person, 1);
+  person.set('name', "Jonathan Doe");
+
+  store.commit();
+
+  ok(get(person, 'isError'), "the record is in the error state");
 });
 
 test("can be created after the DS.Store", function() {
