@@ -1596,7 +1596,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     delete this.recordCache[clientId];
     delete this.clientIdToId[clientId];
     delete this.clientIdToType[clientId];
-    delete this.clientIdToHash[clientId];
+    delete this.clientIdToData[clientId];
     delete this.recordArraysByClientId[clientId];
 
     if (id) { delete typeMap.idToCid[id]; }
