@@ -1,21 +1,42 @@
 var get = Ember.get, set = Ember.set;
 
-var store, adapter, Comment;
+var store, adapter, Comment, Post, Author, Category, Review;
 
 module("Associations", {
   setup: function() {
-    adapter = DS.Adapter.create();
+    adapter = DS.Adapter.create({
+      serializer: DS.RESTSerializer
+    });
 
     store = DS.Store.create({
       isDefaultStore: true,
       adapter: adapter
     });
 
+
+    Post = DS.Model.extend({
+      comments: DS.hasMany('Comment'),
+    });
+    Author = DS.Model.extend({
+      comments: DS.hasMany('Comment'),
+    });
+    Category = DS.Model.extend({
+      comments: DS.hasMany('Comment'),
+    });
+
+
+
     Comment = DS.Model.extend();
     Comment.reopen({
       body: DS.attr('string'),
       comments: DS.hasMany(Comment),
-      comment: DS.belongsTo(Comment)
+      comment: DS.belongsTo(Comment),
+    });
+
+    Review = DS.Model.extend({
+      post: DS.belongsTo(Post),
+      author: DS.belongsTo(Author),
+      category: DS.belongsTo(Category)
     });
   },
 
@@ -24,6 +45,14 @@ module("Associations", {
       store.destroy();
     });
   }
+});
+
+
+test("loading data for a model with more than 2 belongsTo twice doesn't die", function() {
+    store.load(Review, { id: 1});
+    store.find(Review, 1);
+    store.load(Review, { id: 1});
+    expect(0);
 });
 
 test("when modifying a child record's belongsTo relationship, its parent hasMany relationships should be updated", function() {
