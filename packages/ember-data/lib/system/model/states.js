@@ -436,8 +436,8 @@ createdState.states.uncommitted.reopen({
       t.recordIsMoving('created', record);
     });
 
-    manager.transitionTo('deleted.saved');
     record.clearRelationships();
+    manager.transitionTo('deleted.saved');
   }
 });
 
