@@ -990,7 +990,7 @@ test("creating a record with a 422 error marks the records as invalid", function
     responseText: JSON.stringify({ errors: { name: ["can't be blank"]} })
   };
 
-  ajaxHash.error(mockXHR);
+  ajaxHash.error.call(ajaxHash.context, mockXHR);
 
   expectState('valid', false);
   deepEqual(person.get('errors'), { name: ["can't be blank"]}, "the person has the errors");
@@ -1007,7 +1007,7 @@ test("updating a record with a 422 error marks the records as invalid", function
     responseText: JSON.stringify({ errors: { name: ["can't be blank"]} })
   };
 
-  ajaxHash.error(mockXHR);
+  ajaxHash.error.call(ajaxHash.context, mockXHR);
 
   expectState('valid', false);
   deepEqual(person.get('errors'), { name: ["can't be blank"]}, "the person has the errors");
@@ -1022,7 +1022,7 @@ test("creating a record with a 500 error marks the record as error", function() 
     responseText: 'Internal Server Error'
   };
 
-  ajaxHash.error(mockXHR);
+  ajaxHash.error.call(ajaxHash.context, mockXHR);
 
   expectState('error');
 });
@@ -1038,7 +1038,7 @@ test("updating a record with a 500 error marks the record as error", function() 
     responseText: 'Internal Server Error'
   };
 
-  ajaxHash.error(mockXHR);
+  ajaxHash.error.call(ajaxHash.context, mockXHR);
 
   expectState('error');
 });
