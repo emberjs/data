@@ -416,6 +416,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   adapterDidCreate: function() {
+    if (get(this, 'isError')) {
+      set(this, 'isError', false);
+    }
+
     this.removeInFlightDirtyFactor('@created');
 
     this.updateRecordArraysLater();
