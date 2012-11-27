@@ -29,7 +29,7 @@ DS.RESTAdapter = DS.Adapter.extend({
         this.didCreateRecord(store, type, record, json);
       },
       error: function(xhr) {
-        this.context.didError(store, type, record, xhr);
+        this.didError(store, type, record, xhr);
       }
     });
   },
@@ -103,7 +103,7 @@ DS.RESTAdapter = DS.Adapter.extend({
         this.didUpdateRecord(store, type, record, json);
       },
       error: function(xhr) {
-        this.context.didError(store, type, record, xhr);
+        this.didError(store, type, record, xhr);
       }
     });
   },
