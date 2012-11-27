@@ -19,7 +19,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
   /*
     Implement this method in order to query fixtures data
   */
-  queryFixtures: function(fixtures, query) {
+  queryFixtures: function(fixtures, query, type) {
     return fixtures;
   },
 
@@ -86,7 +86,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
     Ember.assert("Unable to find fixtures for model type "+type.toString(), !!fixtures);
 
-    fixtures = this.queryFixtures(fixtures, query);
+    fixtures = this.queryFixtures(fixtures, query, type);
 
     if (fixtures) {
       this.simulateRemoteCall(function() {
