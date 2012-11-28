@@ -113,25 +113,22 @@ can also register custom attribute types. For example, here's a `boolString`
 attribute type that converts booleans into the string `"Y"` or `"N"`:
 
 ```javascript
-var myCustomAdapter = DS.RESTAdapter.create();
-myCustomAdapter.serializer.transforms.reopen({
-    boolString: {
-        fromData: function(serialized) {
-            if (serialized === 'Y') {
-                return true;
-            }
-    
-            return false;
-        },
-    
-        toData: function(deserialized) {
-            if (deserialized) {
-                return "Y";
-            }
-            return "N";
+DS.Adapter.registerTransform("boolstring", {
+    fromData: function(serialized) {
+        if (serialized === 'Y') {
+            return true;
         }
+    
+        return false;
+    },
+    
+    toData: function(deserialized) {
+        if (deserialized) {
+            return "Y";
+        }
+        return "N";
     }
-})
+});
 ```
 
 Built-in attribute types are currently very primitive. Please help us
