@@ -74,15 +74,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
   setup: function() {
     this._relationshipChanges = {};
-    this._dirtyFactors = Ember.OrderedSet.create();
-    this._inFlightDirtyFactors = Ember.OrderedSet.create();
-    this._dirtyReasons = { hasMany: 0, belongsTo: 0, attribute: 0 };
-  },
-
-  willDestroy: function() {
-    if (!get(this, 'isDeleted')) {
-      this.deleteRecord();
-    }
   },
 
   send: function(name, context) {
@@ -106,8 +97,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.send('didChangeData');
   },
 
-  setProperty: function(key, value) {
-    this.send('setProperty', { key: key, value: value });
+  setProperty: function(key, value, oldValue) {
+    this.send('setProperty', { key: key, value: value, oldValue: oldValue });
   },
 
   deleteRecord: function() {
@@ -149,6 +140,12 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       attributes[name] = get(this, name);
     }, this);
 
+    this.send('didCommit');
+    this.updateRecordArraysLater();
+  },
+
+  adapterDidDirty: function() {
+    this.send('becomeDirty');
     this.updateRecordArraysLater();
   },
 
@@ -214,62 +211,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this._data.belongsTo[name] = id;
   },
 
-  // DIRTINESS FACTORS
-  //
-  // These methods allow the manipulation of various "dirtiness factors" on
-  // the current record. A dirtiness factor can be:
-  //
-  // * the name of a dirty attribute
-  // * the name of a dirty relationship
-  // * @created, if the record was created
-  // * @deleted, if the record was deleted
-  //
-  // This allows adapters to acknowledge updates to any of the dirtiness
-  // factors one at a time, and keeps the bookkeeping for full acknowledgement
-  // in the record itself.
-
-  addDirtyFactor: function(name) {
-    var dirtyFactors = this._dirtyFactors, becameDirty;
-    if (dirtyFactors.has(name)) { return; }
-
-    if (this._dirtyFactors.isEmpty()) { becameDirty = true; }
-
-    this._addDirtyFactor(name);
-
-    if (becameDirty && name !== '@created' && name !== '@deleted') {
-      this.send('becameDirty');
-    }
-  },
-
-  _addDirtyFactor: function(name) {
-    this._dirtyFactors.add(name);
-
-    var reason = get(this.constructor, 'fields').get(name);
-    this._dirtyReasons[reason]++;
-  },
-
-  removeDirtyFactor: function(name) {
-    var dirtyFactors = this._dirtyFactors, becameClean = true;
-    if (!dirtyFactors.has(name)) { return; }
-
-    this._dirtyFactors.remove(name);
-
-    var reason = get(this.constructor, 'fields').get(name);
-    this._dirtyReasons[reason]--;
-
-    if (!this._dirtyFactors.isEmpty()) { becameClean = false; }
-
-    if (becameClean && name !== '@created' && name !== '@deleted') {
-      this.send('becameClean');
-    }
-  },
-
-  removeDirtyFactors: function() {
-    this._dirtyFactors.clear();
-    this._dirtyReasons = { hasMany: 0, belongsTo: 0, attribute: 0 };
-    this.send('becameClean');
-  },
-
   rollback: function() {
     this.setup();
     this.send('becameClean');
@@ -277,14 +218,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.suspendAssociationObservers(function() {
       this.notifyPropertyChange('data');
     });
-  },
-
-  isDirtyBecause: function(reason) {
-    return this._dirtyReasons[reason] > 0;
-  },
-
-  isCommittingBecause: function(reason) {
-    return this._inFlightDirtyReasons[reason] > 0;
   },
 
   /**
@@ -318,55 +251,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   becameInFlight: function() {
-    this._inFlightDirtyFactors = this._dirtyFactors.copy();
-    this._inFlightDirtyReasons = this._dirtyReasons;
-    this._dirtyFactors.clear();
-    this._dirtyReasons = { hasMany: 0, belongsTo: 0, attribute: 0 };
-  },
-
-  restoreDirtyFactors: function() {
-    this._inFlightDirtyFactors.forEach(function(factor) {
-      this._addDirtyFactor(factor);
-    }, this);
-
-    this._inFlightDirtyFactors.clear();
-    this._inFlightDirtyReasons = null;
-  },
-
-  removeInFlightDirtyFactor: function(name) {
-    // It is possible for a record to have been materialized
-    // or loaded after the transaction was committed. This
-    // can happen with relationship changes involving
-    // unmaterialized records that subsequently load.
-    //
-    // XXX If a record is materialized after it was involved
-    // while it is involved in a relationship change, update
-    // it to be in the same state as if it had already been
-    // materialized.
-    //
-    // For now, this means that we have a blind spot where
-    // a record was loaded and its relationships changed
-    // while the adapter is in the middle of persisting
-    // a relationship change involving it.
-    if (this._inFlightDirtyFactors.has(name)) {
-      this._inFlightDirtyFactors.remove(name);
-      if (this._inFlightDirtyFactors.isEmpty()) {
-        this._inFlightDirtyReasons = null;
-        this.send('didCommit');
-      }
-    }
-  },
-
-  removeInFlightDirtyFactorsForAttributes: function() {
-    this.eachAttribute(function(name) {
-      this.removeInFlightDirtyFactor(name);
-    }, this);
   },
 
   // FOR USE DURING COMMIT PROCESS
 
   adapterDidUpdateAttribute: function(attributeName, value) {
-    this.removeInFlightDirtyFactor(attributeName);
 
     // If a value is passed in, update the internal attributes and clear
     // the attribute cache so it picks up the new value. Otherwise,
@@ -384,8 +273,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   adapterDidUpdateHasMany: function(name) {
-    this.removeInFlightDirtyFactor(name);
-
     var cachedValue = this.cacheFor(name),
         hasMany = get(this, 'data').hasMany,
         store = get(this, 'store');
@@ -407,16 +294,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       set(cachedValue, 'content', Ember.A(clientIds));
       set(cachedValue, 'isLoaded', true);
     }
-
-    this.updateRecordArraysLater();
-  },
-
-  adapterDidDelete: function() {
-    this.removeInFlightDirtyFactor('@deleted');
-  },
-
-  adapterDidCreate: function() {
-    this.removeInFlightDirtyFactor('@created');
 
     this.updateRecordArraysLater();
   },

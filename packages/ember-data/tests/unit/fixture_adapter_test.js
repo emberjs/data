@@ -159,6 +159,7 @@ test("should follow isUpdating semantics", function() {
   result.addObserver('isUpdating', function() {
     clearTimeout(timer);
     start();
+    clearTimeout(timer);
     equal(get(result, 'isUpdating'), false, "isUpdating is set when it shouldn't be");
   });
 

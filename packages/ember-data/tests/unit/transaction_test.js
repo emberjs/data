@@ -79,7 +79,7 @@ test("a record is removed from a transaction after the records become clean", fu
       createRecord: function(store, type, record) {
         createCalls++;
 
-        store.didCreateRecord(record, { id: 1 });
+        store.didSaveRecord(record, { id: 1 });
       },
 
       updateRecords: function() {

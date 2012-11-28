@@ -1,7 +1,9 @@
 var get = Ember.get, set = Ember.set,
     none = Ember.none;
 
-var hasAssociation = function(type, options, one) {
+DS.belongsTo = function(type, options) {
+  Ember.assert("The first argument DS.belongsTo must be a model type or string, like DS.belongsTo(App.Person)", !!type && (typeof type === 'string' || DS.Model.detect(type)));
+
   options = options || {};
 
   var meta = { type: type, isAssociation: true, options: options, kind: 'belongsTo' };
@@ -21,11 +23,6 @@ var hasAssociation = function(type, options, one) {
     id = data[key];
     return id ? store.find(type, id) : null;
   }).property('data').meta(meta);
-};
-
-DS.belongsTo = function(type, options) {
-  Ember.assert("The type passed to DS.belongsTo must be defined", !!type);
-  return hasAssociation(type, options);
 };
 
 /**

@@ -54,8 +54,31 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
     this._attributesMap = this.createInstanceMapFor('attributes');
 
+    this._outstandingOperations = new Ember.MapWithDefault({
+      defaultValue: function() { return 0; }
+    });
+
+    this._dependencies = new Ember.MapWithDefault({
+      defaultValue: function() { return new Ember.OrderedSet(); }
+    });
+
     this.registerSerializerTransforms(this.constructor, serializer, {});
     this.registerSerializerMappings(serializer);
+  },
+
+  dirtyRecordsForAttributeChange: function(dirtySet, record, attributeName, newValue, oldValue) {
+    // TODO: Custom equality checking [tomhuda]
+    if (newValue !== oldValue) {
+      dirtySet.add(record);
+    }
+  },
+
+  dirtyRecordsForBelongsToChange: function(dirtySet, child) {
+    dirtySet.add(child);
+  },
+
+  dirtyRecordsForHasManyChange: function(dirtySet, parent) {
+    dirtySet.add(parent);
   },
 
   /**
@@ -212,10 +235,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     }
   },
 
-  shouldCommit: function(record) {
-    return true;
-  },
-
   groupByType: function(enumerable) {
     var map = Ember.MapWithDefault.create({
       defaultValue: function() { return Ember.OrderedSet.create(); }
@@ -228,24 +247,13 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     return map;
   },
 
+  processRelationship: function(relationship) {
+    // TODO: Track changes to relationships made after a
+    // materialization request but before the adapter
+    // responds. [tomhuda]
+  },
+
   commit: function(store, commitDetails) {
-    // nº1: determine which records the adapter actually l'cares about
-    // nº2: for each relationship, give the adapter an opportunity to mark
-    //      related records as l'pending
-    // nº3: trigger l'save on l'non-pending records
-
-    var updated = Ember.OrderedSet.create();
-    commitDetails.updated.forEach(function(record) {
-      var shouldCommit = this.shouldCommit(record);
-
-      if (!shouldCommit) {
-        store.didSaveRecord(record);
-      } else {
-        updated.add(record);
-      }
-    }, this);
-
-    commitDetails.updated = updated;
     this.save(store, commitDetails);
   },
 

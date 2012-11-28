@@ -47,12 +47,14 @@ DS.attr = function(type, options) {
     options: options
   };
 
-  return Ember.computed(function(key, value) {
+  return Ember.computed(function(key, value, oldValue) {
     var data;
 
-    if (arguments.length === 2) {
+    if (arguments.length > 1) {
+      // TODO: If there is a cached oldValue, use it [tomhuda]
+      oldValue = get(this, 'data.attributes')[key];
       Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.toString(), key !== 'id');
-      this.setProperty(key, value);
+      this.setProperty(key, value, oldValue);
     } else {
       value = getAttr(this, options, key);
     }
