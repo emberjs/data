@@ -88,7 +88,7 @@ DS.OneToManyChange.prototype = {
       if (!parent) { return; }
 
       var childType = store.typeForClientId(this.child);
-      var inverseType = DS.inverseTypeFor(childType, this.belongsToName);
+      var inverseType = DS._inverseTypeFor(childType, this.belongsToName);
       name = inverseHasManyName(inverseType, childType, this.belongsToName);
       this.hasManyName = name;
     }
@@ -110,7 +110,7 @@ DS.OneToManyChange.prototype = {
 
       var childType = store.typeForClientId(this.child);
       var parentType = store.typeForClientId(parent);
-      name = DS.inverseNameFor(childType, parentType, 'belongsTo', this.hasManyName);
+      name = DS._inverseNameFor(childType, parentType, 'belongsTo', this.hasManyName);
 
       this.belongsToName = name;
     }
@@ -366,7 +366,7 @@ function inverseBelongsToName(parentType, childType, hasManyName) {
     return belongsToName;
   }
 
-  return DS.inverseNameFor(childType, parentType, 'belongsTo');
+  return DS._inverseNameFor(childType, parentType, 'belongsTo');
 }
 
 function inverseHasManyName(parentType, childType, belongsToName) {
@@ -377,5 +377,5 @@ function inverseHasManyName(parentType, childType, belongsToName) {
     return hasManyName;
   }
 
-  return DS.inverseNameFor(parentType, childType, 'hasMany');
+  return DS._inverseNameFor(parentType, childType, 'hasMany');
 }
