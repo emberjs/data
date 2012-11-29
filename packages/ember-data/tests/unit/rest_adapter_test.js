@@ -13,7 +13,9 @@ module("the REST adapter", {
 
     adapter = DS.RESTAdapter.create({
       ajax: function(url, type, hash) {
-        var success = hash.success, self = this;
+        var success = hash.success,
+            error = hash.error,
+            self = this;
 
         ajaxUrl = url;
         ajaxType = type;
@@ -22,6 +24,12 @@ module("the REST adapter", {
         if (success) {
           hash.success = function(json) {
             success.call(self, json);
+          };
+        }
+
+        if (error) {
+          hash.error = function() {
+            error.apply(self, arguments);
           };
         }
       },
