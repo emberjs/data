@@ -118,6 +118,10 @@ DS.Model.reopenClass({
       // If the computed property is an association, add
       // it to the map.
       if (meta.isAssociation) {
+        if (typeof meta.type === 'string') {
+          meta.type = Ember.get(Ember.lookup, meta.type);
+        }
+
         var associationsForType = map.get(meta.type);
 
         associationsForType.push({ name: name, kind: meta.kind });
@@ -196,7 +200,7 @@ DS.Model.reopenClass({
         type = meta.type;
 
         if (typeof type === 'string') {
-          type = get(this, type, false) || get(window, type);
+          type = get(this, type, false) || get(Ember.lookup, type);
           meta.type = type;
         }
 

@@ -17,7 +17,7 @@ DS.belongsTo = function(type, options) {
         store = get(this, 'store'), id;
 
     if (typeof type === 'string') {
-      type = get(this, type, false) || get(window, type);
+      type = get(this, type, false) || get(Ember.lookup, type);
     }
 
     id = data[key];

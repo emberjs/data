@@ -13,7 +13,7 @@ var hasAssociation = function(type, options) {
         ids, association;
 
     if (typeof type === 'string') {
-      type = get(this, type, false) || get(window, type);
+      type = get(this, type, false) || get(Ember.lookup, type);
     }
 
     ids = data[key];

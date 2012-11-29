@@ -230,7 +230,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   _adapter: Ember.computed(function() {
     var adapter = get(this, 'adapter');
     if (typeof adapter === 'string') {
-      adapter = get(this, adapter, false) || get(window, adapter);
+      adapter = get(this, adapter, false) || get(Ember.lookup, adapter);
     }
 
     if (DS.Adapter.detect(adapter)) {

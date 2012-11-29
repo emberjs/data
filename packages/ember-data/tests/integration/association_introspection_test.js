@@ -32,24 +32,23 @@ test("DS.Model class computed property `associations` returns a map keyed on typ
 });
 
 test("DS.Model class computed property `associations` returns a map keyed on types when types are specified as strings", function() {
-  var oldLookup = Ember.lookup;
+  Blog = DS.Model.extend({
+    admins: DS.hasMany('User'),
+    owner: DS.belongsTo('User'),
+
+    posts: DS.hasMany('Post')
+  });
+
   Ember.lookup = {
     User: DS.Model.extend(),
-    Post: DS.Model.extend(),
-
-    Blog: DS.Model.extend({
-      admins: DS.hasMany('User'),
-      owner: DS.belongsTo('User'),
-
-      posts: DS.hasMany('Post')
-    })
+    Post: DS.Model.extend()
   };
 
   var associations = Ember.get(Blog, 'associations');
 
   var expected = [{ name: 'admins', kind: 'hasMany'  }, { name: 'owner', kind: 'belongsTo' }];
-  deepEqual(associations.get(User), expected, "user associations returns expected array");
+  deepEqual(associations.get(Ember.lookup.User), expected, "user associations returns expected array");
 
   expected = [{ name: 'posts', kind: 'hasMany' }];
-  deepEqual(associations.get(Post), expected, "post associations returns expected array");
+  deepEqual(associations.get(Ember.lookup.Post), expected, "post associations returns expected array");
 });
