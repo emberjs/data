@@ -1,6 +1,6 @@
 var store, Comment, Post;
 
-module("Rolling back transactions", {
+module("Transaction Rollback", {
   setup: function() {
     store = DS.Store.create();
 

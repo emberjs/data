@@ -6,7 +6,7 @@
 var get = Ember.get;
 var store, Person, findCalled;
 
-module("Integration test - DS.Model class methods", {
+module("DS.Model Class Method Aliases", {
   setup: function() {
     store = DS.Store.create({
       isDefaultStore: true
