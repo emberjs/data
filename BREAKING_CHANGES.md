@@ -280,7 +280,7 @@ write-through cache adapter for offline mode, and a WebSockets-based
 adapter for when your user has an internet connection.
 
 Previous "acknowledgement" API methods on the store have been removed,
-such as `didSaveRecord()` and `didDeleteRecord()`. Now, the only
+such as `didCreateRecord()` and `didDeleteRecord()`. Now, the only
 acknowledgement an adapter can perform is `didSaveRecord()`, which tells
 the store that all changes to the record have been saved.
 
