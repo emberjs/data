@@ -471,6 +471,10 @@ DS.RESTAdapter.map('App.Post', {
 });
 ```
 
+### Embedded relationships
+
+Using `{ embedded: true }` for nesting the concrete objects of a relationship into the parents JSON is no longer supported.
+
 ### ID as an Attribute
 
 Some applications were erroneously declaring `id` as an attribute on
