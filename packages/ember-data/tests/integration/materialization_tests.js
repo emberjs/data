@@ -12,7 +12,7 @@ module("Record Materialization", {
       lastName: DS.attr('string')
     });
 
-    serializer = DS.Serializer.create();
+    serializer = DS.JSONSerializer.create();
     adapter = DS.Adapter.create({
       serializer: serializer
     });
@@ -172,7 +172,7 @@ test("when materializing a record, the serializer's extractBelongsTo method shou
   var person = store.find(Person, 1);
 });
 
-test("when materializing a record, transformValueFromData is called to convert the value from data into a JavaScript value", function() {
+test("when materializing a record, deserializeValue is called to convert the value from data into a JavaScript value", function() {
   expect(2);
 
   var Bowler = DS.Model.extend({
@@ -186,7 +186,7 @@ test("when materializing a record, transformValueFromData is called to convert t
   };
 
   store.load(Bowler, { id: 'dude', favoriteDrink: "white russian", hasSpecialLadyFriend: "FALSE" });
-  serializer.transformValueFromData = function(value, attributeType) {
+  serializer.deserializeValue = function(value, attributeType) {
     strictEqual(typeToValueMap[attributeType], value, "correct value and type pair should be passed");
     delete typeToValueMap[attributeType];
 

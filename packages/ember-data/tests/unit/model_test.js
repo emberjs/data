@@ -2,7 +2,7 @@ var get = Ember.get, set = Ember.set;
 
 var Person, store, array;
 
-var testSerializer = DS.Serializer.create({
+var testSerializer = DS.JSONSerializer.create({
   primaryKey: function() {
     return 'id';
   }
@@ -267,7 +267,7 @@ var convertsWhenSet = function(type, provided, expected) {
   var record = testStore.find(Model, 2);
 
   set(record, 'name', provided);
-  deepEqual(record.toData().name, expected, type + " saves " + provided + " as " + expected);
+  deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
 };
 
 test("a DS.Model can describe String attributes", function() {

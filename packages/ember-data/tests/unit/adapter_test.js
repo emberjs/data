@@ -96,8 +96,8 @@ test("Transformations registered on an adapter class should be set on the adapte
   var Adapter = DS.Adapter.extend();
 
   var parentUnobtainium = {
-    toData: function(value) {
-      return 'toData';
+    serialize: function(value) {
+      return 'serialize';
     },
 
     fromData: function(value) {
@@ -110,8 +110,8 @@ test("Transformations registered on an adapter class should be set on the adapte
   var ChildAdapter = Adapter.extend();
 
   var childAdamantium = {
-    toData: function(value) {
-      return 'adamantium toData';
+    serialize: function(value) {
+      return 'adamantium serialize';
     },
 
     fromData: function(value) {
@@ -122,8 +122,8 @@ test("Transformations registered on an adapter class should be set on the adapte
   ChildAdapter.registerTransform('adamantium', childAdamantium);
 
   var parentOtherType = {
-    toData: function(value) {
-      return 'otherType toData';
+    serialize: function(value) {
+      return 'otherType serialize';
     },
 
     fromData: function(value) {
@@ -149,12 +149,12 @@ test("Transforms registered subclasses take precedence over super classes.", fun
   var ChildAdapter = ParentAdapter.extend();
 
   var childUnobtainium = {
-    toData: Ember.K,
+    serialize: Ember.K,
     fromData: Ember.K
   };
 
   var parentUnobtainium = {
-    toData: Ember.K,
+    serialize: Ember.K,
     fromData: Ember.K
   };
 

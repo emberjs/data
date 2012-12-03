@@ -1,6 +1,6 @@
 var get = Ember.get;
 
-DS.RESTSerializer = DS.Serializer.extend({
+DS.RESTSerializer = DS.JSONSerializer.extend({
   keyForBelongsTo: function(type, name) {
     return this.keyForAttributeName(type, name) + "_id";
   },

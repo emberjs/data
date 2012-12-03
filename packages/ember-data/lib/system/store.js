@@ -198,7 +198,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Returns a JSON representation of the record using the adapter's
     serialization strategy. This method exists primarily to enable
     a record, which has access to its store (but not the store's
-    adapter) to provide a `toData()` convenience.
+    adapter) to provide a `serialize()` convenience.
 
     The available options are:
 
@@ -208,8 +208,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {DS.Model} record the record to serialize
     @param {Object} options an options hash
   */
-  toData: function(record, options) {
-    return this.adapterForType(record.constructor).toData(record, options);
+  serialize: function(record, options) {
+    return this.adapterForType(record.constructor).serialize(record, options);
   },
 
   /**

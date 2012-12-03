@@ -32,9 +32,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @param {Object} options
     @returns {Object} an object whose values are primitive JSON values only
   */
-  toData: function(options) {
+  serialize: function(options) {
     var store = get(this, 'store');
-    return store.toData(this, options);
+    return store.serialize(this, options);
   },
 
   didLoad: Ember.K,

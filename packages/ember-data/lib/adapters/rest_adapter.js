@@ -14,7 +14,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     var data = {};
-    data[root] = this.toData(record, { includeId: true });
+    data[root] = this.serialize(record, { includeId: true });
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
@@ -66,7 +66,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var data = {};
     data[plural] = [];
     records.forEach(function(record) {
-      data[plural].push(this.toData(record, { includeId: true }));
+      data[plural].push(this.serialize(record, { includeId: true }));
     }, this);
 
     this.ajax(this.buildURL(root), "POST", {
@@ -90,7 +90,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     var data = {};
-    data[root] = this.toData(record);
+    data[root] = this.serialize(record);
 
     this.ajax(this.buildURL(root, id), "PUT", {
       data: data,
@@ -122,7 +122,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var data = {};
     data[plural] = [];
     records.forEach(function(record) {
-      data[plural].push(this.toData(record, { includeId: true }));
+      data[plural].push(this.serialize(record, { includeId: true }));
     }, this);
 
     this.ajax(this.buildURL(root, "bulk"), "PUT", {
@@ -249,13 +249,28 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   findMany: function(store, type, ids) {
     var root = this.rootForType(type);
-    ids = get(this, 'serializer').serializeIds(ids);
+    ids = this.serializeIds(ids);
 
     this.ajax(this.buildURL(root), "GET", {
       data: {ids: ids},
       success: function(json) {
         this.didFindMany(store, type, json);
       }
+    });
+  },
+
+  /**
+    @private
+
+    This method serializes a list of IDs using `serializeId`
+
+    @returns {Array} an array of serialized IDs
+  */
+  serializeIds: function(ids) {
+    var serializer = get(this, 'serializer');
+
+    return Ember.EnumerableUtils.map(ids, function(id) {
+      return serializer.serializeId(id);
     });
   },
 

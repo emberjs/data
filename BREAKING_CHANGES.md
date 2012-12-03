@@ -35,6 +35,58 @@ App.Store = DS.Store.create({
 This will remove the exception about changes before revision 2. You will
 receive another warning if there is another change.
 
+## Revision 10
+
+In Revision 8, we started the work of making serializers agnostic to the
+underlying serialization format.
+
+This was a good start but did not go far enough. Additionally, many
+people hated our initial API naming decisions, so some of the changes
+in this revision are an attempt to evolve the naming in a more intuitive
+direction.
+
+### JSON Serializer
+
+Despite our attempts in Revision 8, there were still some lingering JSON
+semantics in `DS.Serializer`. Now, we have extracted all of these into a
+new class called `DS.JSONSerializer`, which inherits from
+`DS.Serializer`.
+
+`DS.Serializer` is an abstract base class that implements hooks for
+serializing records common to all serialization formats, whether they
+are JSON, typed arrays, binary representations, or whatever other format
+your server engineers dream up.
+
+`DS.JSONSerializer` is a concrete implementation that encodes specific
+JSON semantics. If your adapter needs to "speak JSON" and you need to
+customize how that happens, you should now subclass `DS.JSONSerializer`
+instead of `DS.Serializer`.
+
+Additionally, `DS.RESTAdapter` uses a subclass of `DS.JSONSerializer`
+called `DS.RESTSerializer`. The `RESTSerializer` adds relational
+semantics to the `JSONSerializer`, encoding one-to-many relationships as
+foreign keys on child records.
+
+#### TL;DR
+
+If you are using the REST adapter, no changes are necessary.
+
+If your app was subclassing `DS.Serializer`, change it to subclass
+`DS.JSONSerializer`.
+
+If you are serializing to binary representations, hooray! You can use
+`DS.Serializer` and you will not need to fight against assumptions about
+it being JSON. This is a very advanced use case that most users will not
+need to worry about.
+
+### fromData/toData Rename
+
+Feedback about our rename of the `toJSON` method to `toData` and
+`fromJSON` to `fromData` was not positive. Instead, we are now changing
+these to `serialize` and `deserialize`, respectively. This change
+applies to `DS.Model`, `DS.Serializer`, and the serializer's transform
+API.
+
 ## Revision 9
 
 ### Adapter-Specified Record Dirtying

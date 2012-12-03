@@ -1,20 +1,23 @@
-DS.Transforms = Ember.Object.extend({
+/**
+  DS.Transforms is a hash of transforms used by DS.Serializer.
+*/
+DS.JSONTransforms = {
   string: {
-    fromData: function(serialized) {
+    deserialize: function(serialized) {
       return Ember.none(serialized) ? null : String(serialized);
     },
 
-    toData: function(deserialized) {
+    serialize: function(deserialized) {
       return Ember.none(deserialized) ? null : String(deserialized);
     }
   },
 
   number: {
-    fromData: function(serialized) {
+    deserialize: function(serialized) {
       return Ember.none(serialized) ? null : Number(serialized);
     },
 
-    toData: function(deserialized) {
+    serialize: function(deserialized) {
       return Ember.none(deserialized) ? null : Number(deserialized);
     }
   },
@@ -22,7 +25,7 @@ DS.Transforms = Ember.Object.extend({
   // Handles the following boolean inputs:
   // "TrUe", "t", "f", "FALSE", 0, (non-zero), or boolean true/false
   'boolean': {
-    fromData: function(serialized) {
+    deserialize: function(serialized) {
       var type = typeof serialized;
 
       if (type === "boolean") {
@@ -36,13 +39,13 @@ DS.Transforms = Ember.Object.extend({
       }
     },
 
-    toData: function(deserialized) {
+    serialize: function(deserialized) {
       return Boolean(deserialized);
     }
   },
 
   date: {
-    fromData: function(serialized) {
+    deserialize: function(serialized) {
       var type = typeof serialized;
 
       if (type === "string" || type === "number") {
@@ -61,7 +64,7 @@ DS.Transforms = Ember.Object.extend({
       }
     },
 
-    toData: function(date) {
+    serialize: function(date) {
       if (date instanceof Date) {
         var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
@@ -92,4 +95,4 @@ DS.Transforms = Ember.Object.extend({
       }
     }
   }
-});
+};

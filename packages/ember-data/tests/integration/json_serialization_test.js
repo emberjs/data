@@ -8,7 +8,7 @@ module("Adapter serialization with attributes only", {
       title: DS.attr('string')
     });
 
-    serializer = DS.Serializer.create();
+    serializer = DS.JSONSerializer.create();
   },
   teardown: function() {
     post.destroy();
@@ -17,7 +17,7 @@ module("Adapter serialization with attributes only", {
   }
 });
 
-test("calling toData with a record invokes addAttributes", function() {
+test("calling serialize with a record invokes addAttributes", function() {
   post = store.createRecord(Post, { title: "Ohai" });
 
   serializer.addAttributes = function(hash, record) {
@@ -26,7 +26,7 @@ test("calling toData with a record invokes addAttributes", function() {
     });
   };
 
-  var json = serializer.toData(post);
+  var json = serializer.serialize(post);
 
   deepEqual(json, { title: "Ohai" });
 });
@@ -43,7 +43,7 @@ test("by default, addAttributes calls keyForAttributeName", function() {
     return "__" + name + "__";
   };
 
-  serializer.toData(post);
+  serializer.serialize(post);
 });
 
 test("the default addAttributes uses a specified defaultValue", function() {
@@ -53,19 +53,19 @@ test("the default addAttributes uses a specified defaultValue", function() {
 
   post = store.createRecord(Post, { title: "Ohai" });
 
-  var json = serializer.toData(post);
+  var json = serializer.serialize(post);
 
   deepEqual(json, { title: "Ohai", body: "FIRST" });
 });
 
 test("the default addAttributes calls transform", function() {
-  serializer.transformValueToData = function(value, attributeType) {
+  serializer.serializeValue = function(value, attributeType) {
     return value.toUpperCase();
   };
 
   post = store.createRecord(Post, { title: "Ohai" });
 
-  var json = serializer.toData(post);
+  var json = serializer.serialize(post);
 
   deepEqual(json, { title: "OHAI" });
 });
@@ -76,7 +76,7 @@ module("Adapter serialization with an ID", {
 
     Post = DS.Model.extend();
 
-    serializer = DS.Serializer.create();
+    serializer = DS.JSONSerializer.create();
   },
   teardown: function() {
     serializer.destroy();
@@ -84,13 +84,13 @@ module("Adapter serialization with an ID", {
   }
 });
 
-test("calling toData with a record and includeId: true invokes addId", function() {
+test("calling serialize with a record and includeId: true invokes addId", function() {
   serializer.addId = function(hash, type, id) {
     hash.__id__ = id;
   };
 
   var post = store.createRecord(Post, { id: "EWOT" });
-  var json = serializer.toData(post, { includeId: true });
+  var json = serializer.serialize(post, { includeId: true });
 
   deepEqual(json, { __id__: "EWOT" });
 });
@@ -104,7 +104,7 @@ test("by default, addId calls primaryKey", function() {
   };
 
   var post = store.createRecord(Post, { id: "EWOT" });
-  var json = serializer.toData(post, { includeId: true });
+  var json = serializer.serialize(post, { includeId: true });
 
   deepEqual(json, { __key__: "EWOT" });
 });
@@ -125,7 +125,7 @@ module("Adapter serialization with relationships", {
       comments: DS.hasMany(Comment)
     });
 
-    serializer = DS.Serializer.create();
+    serializer = DS.JSONSerializer.create();
 
     post = store.createRecord(Post);
     comment = store.createRecord(Comment);
@@ -141,14 +141,14 @@ module("Adapter serialization with relationships", {
   }
 });
 
-test("calling toData with a record with relationships invokes addRelationships", function() {
+test("calling serialize with a record with relationships invokes addRelationships", function() {
   expect(1);
 
   serializer.addRelationships = function(hash, record) {
     equal(record, post);
   };
 
-  serializer.toData(post);
+  serializer.serialize(post);
 });
 
 test("the default addRelationships calls addBelongsTo", function() {
@@ -158,7 +158,7 @@ test("the default addRelationships calls addBelongsTo", function() {
     equal(record, comment);
   };
 
-  serializer.toData(comment);
+  serializer.serialize(comment);
 });
 
 test("the default addRelationships calls addHasMany", function() {
@@ -168,5 +168,5 @@ test("the default addRelationships calls addHasMany", function() {
     equal(record, post);
   };
 
-  serializer.toData(post);
+  serializer.serialize(post);
 });

@@ -1,3 +1,5 @@
+require('ember-data/serializers/json_serializer');
+
 /**
   An adapter is an object that receives requests from a store and
   translates them into the appropriate action to take against your
@@ -155,7 +157,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   find: null,
 
-  serializer: DS.Serializer,
+  serializer: DS.JSONSerializer,
 
   registerTransform: function(attributeType, transform) {
     get(this, 'serializer').registerTransform(attributeType, transform);
@@ -183,11 +185,11 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   generateIdForRecord: null,
 
   materialize: function(record, data) {
-    get(this, 'serializer').materializeFromData(record, data);
+    get(this, 'serializer').materialize(record, data);
   },
 
-  toData: function(record, options) {
-    return get(this, 'serializer').toData(record, options);
+  serialize: function(record, options) {
+    return get(this, 'serializer').serialize(record, options);
   },
 
   extractId: function(type, data) {

@@ -196,7 +196,7 @@ test("When adding a child to a parent, then commit, the parent should come back 
   };
 
   adapter.createRecord = function(store, type, record) {
-    didSaveRecord(store, record, this.toData(record));
+    didSaveRecord(store, record, this.serialize(record));
   };
 
   Person = DS.Model.extend({

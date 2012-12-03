@@ -42,9 +42,9 @@ var MockModel = Ember.Object.extend({
 
 var serializer, Person;
 
-module("DS.Serializer - Mapping API", {
+module("DS.JSONSerializer - Mapping API", {
   setup: function() {
-    serializer = DS.Serializer.create();
+    serializer = DS.JSONSerializer.create();
     Person = MockModel.extend();
     window.Address = MockModel.extend();
   },
@@ -75,11 +75,11 @@ test("Mapped attributes should be used when serializing a record to JSON.", func
     firstName: "Spruce"
   });
 
-  deepEqual(serializer.toData(person), {
+  deepEqual(serializer.serialize(person), {
     FIRST_NAME: "Tom"
   });
 
-  deepEqual(serializer.toData(address), {
+  deepEqual(serializer.serialize(address), {
     first_name: "Spruce"
   });
 });
@@ -99,8 +99,8 @@ test("Mapped attributes should be used when materializing a record from JSON.", 
   var person = Person.create();
   var address = window.Address.create();
 
-  serializer.materializeFromData(person, { FIRST_NAME: "Tom" });
-  serializer.materializeFromData(address, { first_name: "Spruce" });
+  serializer.materialize(person, { FIRST_NAME: "Tom" });
+  serializer.materialize(address, { first_name: "Spruce" });
 
   deepEqual(person.get('materializedAttributes'), { firstName: "Tom" });
   deepEqual(address.get('materializedAttributes'), { firstName: "Spruce" });
@@ -147,8 +147,8 @@ test("Mapped relationships should be used when serializing a record to JSON.", f
     });
   };
 
-  serializer.toData(person);
-  serializer.toData(address);
+  serializer.serialize(person);
+  serializer.serialize(address);
 });
 
 test("mapped relationships are respected when materializing a record from JSON", function() {
@@ -166,11 +166,11 @@ test("mapped relationships are respected when materializing a record from JSON",
   var person = Person.create();
   var address = window.Address.create();
 
-  serializer.materializeFromData(person, {
+  serializer.materialize(person, {
     'ADDRESSES!': [ 1, 2, 3 ]
   });
 
-  serializer.materializeFromData(address, {
+  serializer.materialize(address, {
     'MY_PEEP': 1
   });
 
@@ -195,8 +195,8 @@ test("mapped primary keys are respected when serializing a record to JSON", func
   var person = Person.create({ id: 1 });
   var address = window.Address.create({ id: 2 });
 
-  var personJSON = serializer.toData(person, { includeId: true });
-  var addressJSON = serializer.toData(address, { includeId: true });
+  var personJSON = serializer.serialize(person, { includeId: true });
+  var addressJSON = serializer.serialize(address, { includeId: true });
 
   deepEqual(personJSON, { __id__: 1 });
   deepEqual(addressJSON, { ID: 2 });
@@ -214,24 +214,24 @@ test("mapped primary keys are respected when materializing a record from JSON", 
   var person = Person.create();
   var address = window.Address.create();
 
-  serializer.materializeFromData(person, { __id__: 1 });
-  serializer.materializeFromData(address, { ID: 2 });
+  serializer.materialize(person, { __id__: 1 });
+  serializer.materialize(address, { ID: 2 });
 
   equal(person.materializedId, 1);
   equal(address.materializedId, 2);
 });
 
-module("DS.Serializer - Transform API", {
+module("DS.JSONSerializer - Transform API", {
   setup: function() {
-    serializer = DS.Serializer.create();
+    serializer = DS.JSONSerializer.create();
 
     serializer.registerTransform('unobtainium', {
-      toData: function(value) {
-        return 'toData';
+      serialize: function(value) {
+        return 'serialize';
       },
 
-      fromData: function(value) {
-        return 'fromData';
+      deserialize: function(value) {
+        return 'deserialize';
       }
     });
   },
@@ -244,17 +244,17 @@ module("DS.Serializer - Transform API", {
 test("registered transformations should be called when serializing and materializing records", function() {
   var value;
 
-  value = serializer.transformValueFromData('unknown', 'unobtainium');
-  equal(value, 'fromData', "the fromData transform was called");
+  value = serializer.deserializeValue('unknown', 'unobtainium');
+  equal(value, 'deserialize', "the deserialize transform was called");
 
-  value = serializer.transformValueToData('unknown', 'unobtainium');
-  equal(value, 'toData', "the toData transform was called");
+  value = serializer.serializeValue('unknown', 'unobtainium');
+  equal(value, 'serialize', "the serialize transform was called");
 
   raises(function() {
-    serializer.transformValueFromData('unknown', 'obtainium');
+    serializer.deserializeValue('unknown', 'obtainium');
   });
 
   raises(function() {
-    serializer.transformValueToData('unknown', 'obtainium');
+    serializer.serializeValue('unknown', 'obtainium');
   });
 });
