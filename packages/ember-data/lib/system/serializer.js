@@ -545,7 +545,7 @@ DS.Serializer = Ember.Object.extend({
         mappings = this.mappingForType(type),
         mapping = mappings && mappings[name];
 
-    if (mapping && mapping.embedded === 'load') {
+    if (mapping && mapping.embedded) {
       return this['extractEmbedded' + relationshipType](type, hash, key);
     }
   },

@@ -3,6 +3,8 @@ require('ember-data/transforms/json_transforms');
 
 var get = Ember.get, set = Ember.set;
 
+var generatedId = 0;
+
 DS.JSONSerializer = DS.Serializer.extend({
   init: function() {
     this._super();
@@ -48,11 +50,15 @@ DS.JSONSerializer = DS.Serializer.extend({
   extractId: function(type, hash) {
     var primaryKey = this._primaryKey(type);
 
-    // Ensure that we coerce IDs to strings so that record
-    // IDs remain consistent between application runs; especially
-    // if the ID is serialized and later deserialized from the URL,
-    // when type information will have been lost.
-    return hash[primaryKey]+'';
+    if (hash.hasOwnProperty(primaryKey)) {
+      // Ensure that we coerce IDs to strings so that record
+      // IDs remain consistent between application runs; especially
+      // if the ID is serialized and later deserialized from the URL,
+      // when type information will have been lost.
+      return hash[primaryKey]+'';
+    } else {
+      return hash[primaryKey] = "<generated>" + (++generatedId);
+    }
   },
 
   extractHasMany: function(type, hash, key) {
