@@ -98,6 +98,60 @@ test("a record array returns undefined when asking for a member outside of its c
   strictEqual(recordArray.objectAt(20), undefined, "objects outside of the range just return undefined");
 });
 
+test("if an association record is deleted, it is removed from the association", function() {
+  var store = DS.Store.create();
+
+  var Tag = DS.Model.extend({
+    people: DS.hasMany(Person)
+  });
+
+  Person.reopen({
+    tag: DS.belongsTo(Tag)
+  });
+
+  store.load(Person, {id: '1'} );
+  store.load(Tag, { id: '1', people: ['1'] });
+
+  var tag = store.find(Tag, 1);
+  var people = get(tag, 'people');
+  var person1 = store.find(Person, 1);
+
+  equal( get(people,'length'), 1, "the record exists in the association");
+
+  person1.deleteRecord();
+
+  equal( get(people,'length'), 0, "the record is removed from the association");
+});
+
+test("if an association record is created and then deleted, it is removed from the association", function() {
+  var store = DS.Store.create();
+
+  var Tag = DS.Model.extend({
+    people: DS.hasMany(Person)
+  });
+
+  Person.reopen({
+    tag: DS.belongsTo(Tag)
+  });
+
+  store.load(Tag, { id: '1', people: [] });
+
+  var tag = store.find(Tag, 1);
+  var people = get(tag, 'people');
+  var person = store.createRecord(Person, {});
+
+  equal( get(people,'length'), 0, "there are no associations");
+
+  people.pushObject(person);
+
+  equal( get(people,'length'), 1, "the record exists in the association");
+
+  person.deleteRecord();
+
+  equal( get(people,'length'), 0, "the record is removed from the association");
+});
+
+
 // This tests for a bug in the recordCache, where the records were being cached in the incorrect order.
 test("a record array should be able to be enumerated in any order", function() {
   var store = DS.Store.create();
@@ -176,4 +230,3 @@ test("a record array that backs a collection view functions properly", function(
   container.destroy();
 
 });
-
