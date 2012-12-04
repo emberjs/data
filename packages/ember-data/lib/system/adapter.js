@@ -462,6 +462,19 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   /**
     @private
 
+    Determines whether dirty records for a particular association
+    should be preserved in the face of re-materialization.
+
+    @param {Object} association the association meta information
+    @return {Boolean}
+  */
+  shouldPreserveDirtyRecords: function(association) {
+    return false;
+  },
+
+  /**
+    @private
+
     This method recursively climbs the superclass hierarchy and
     registers any class-registered transforms on the adapter's
     serializer.

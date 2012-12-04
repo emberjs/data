@@ -100,6 +100,9 @@ test("creating a parent and child in the same commit", function() {
     expectState(comment, 'saving', true);
     expectStates([person, comment], 'error', false);
 
+    deepEqual(person.get('comments').toArray(), [ comment ], "The person has the comment");
+    equal(comment.get('person'), person, "The comment belongs to the person");
+
     equal(requests.length, 2, "A second request is attempted");
     equal(requests[1].url, "/comments", "The comment is created second");
     equal(requests[1].data.comment.person_id, 1, "The submitted comment attributes include the person_id");
@@ -115,6 +118,9 @@ test("creating a parent and child in the same commit", function() {
 
     expectStates([person, comment], 'saving', false);
     expectStates([person, comment], 'error', false);
+
+    deepEqual(person.get('comments').toArray(), [ comment ], "The person has the comment");
+    equal(comment.get('person'), person, "The comment belongs to the person");
   });
 });
 
@@ -148,6 +154,9 @@ test("creating a parent and updating a child in the same commit", function() {
     expectState(comment, 'saving', true);
     expectStates([person, comment], 'error', false);
 
+    deepEqual(person.get('comments').toArray(), [ comment ], "The person has the comment");
+    equal(comment.get('person'), person, "The comment belongs to the person");
+
     equal(requests.length, 2, "A second request is attempted");
     equal(requests[1].url, "/comments/2", "The comment is updated second");
     equal(requests[1].data.comment.person_id, 1, "The submitted comment attributes include the person_id");
@@ -161,5 +170,8 @@ test("creating a parent and updating a child in the same commit", function() {
 
     expectStates([person, comment], 'saving', false);
     expectStates([person, comment], 'error', false);
+
+    deepEqual(person.get('comments').toArray(), [ comment ], "The person has the comment");
+    equal(comment.get('person'), person, "The comment belongs to the person");
   });
 });
