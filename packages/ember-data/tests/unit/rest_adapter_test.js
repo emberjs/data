@@ -1043,7 +1043,7 @@ test("updating a record with a 500 error marks the record as error", function() 
   expectState('error');
 });
 
-test("When adding a chile to a parent, then commit, then edit the parent then revert, the child should still be associated to the parent", function () {
+test("When adding a child to a parent, then commit, then edit the parent then revert, the child should still be associated to the parent", function () {
   var Comment = DS.Model.extend({
     person: DS.belongsTo(Person)
   });
