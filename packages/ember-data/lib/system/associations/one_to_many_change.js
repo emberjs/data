@@ -213,17 +213,14 @@ DS.OneToManyChange.prototype = {
     return transaction;
   },
 
-  /** @private */
-  sync: function() {
+  findAffected: function() {
     var oldParentClientId = this.oldParent,
         newParentClientId = this.newParent,
         hasManyName = this.getHasManyName(),
         belongsToName = this.getBelongsToName(),
         child = this.getChild(),
         oldParent, newParent;
-
-    //Ember.assert("You specified a hasMany (" + hasManyName + ") on " + (!belongsToName && (newParent || oldParent || this.lastParent).constructor) + " but did not specify an inverse belongsTo on " + child.constructor, belongsToName);
-
+    
     // This code path is reached if a child record was added to a new ManyArray
     // without being removed from its old ManyArray. Below, this method will
     // ensure (via `removeObject`) that the record is no longer in the old
@@ -241,6 +238,52 @@ DS.OneToManyChange.prototype = {
       oldParent = this.getOldParent();
     }
 
+  },
+
+  callChangeEvents: function(){
+    var oldParentClientId = this.oldParent,
+        newParentClientId = this.newParent,
+        hasManyName = this.getHasManyName(),
+        belongsToName = this.getBelongsToName(),
+        child = this.getChild(),
+        oldParent, newParent;
+    
+    var dirtySet = new Ember.OrderedSet();
+    // This code path is reached if a child record was added to a new ManyArray
+    oldParent = this.getOldParent();
+    newParent = this.getNewParent();
+    // TODO: This implementation causes a race condition in key-value
+    // stores. The fix involves buffering changes that happen while
+    // a record is loading. A similar fix is required for other parts
+    // of ember-data, and should be done as new infrastructure, not
+    // a one-off hack. [tomhuda]
+    if (oldParent &&  get(oldParent, 'isLoaded')) {
+      this.store.recordHasManyDidChange(dirtySet, oldParent, this);
+    }
+    if (newParent && get(newParent, 'isLoaded')) {
+      this.store.recordHasManyDidChange(dirtySet, newParent, this);
+    }
+    if (child) {
+      this.store.recordBelongsToDidChange(dirtySet, child, this);
+    }
+    dirtySet.forEach(function(record) {
+      record.adapterDidDirty();
+    });
+  },
+
+  /** @private */
+  sync: function() {
+    var oldParentClientId = this.oldParent,
+        newParentClientId = this.newParent,
+        hasManyName = this.getHasManyName(),
+        belongsToName = this.getBelongsToName(),
+        child = this.getChild(),
+        oldParent, newParent;
+    
+     this.findAffected();
+    //Ember.assert("You specified a hasMany (" + hasManyName + ") on " + (!belongsToName && (newParent || oldParent || this.lastParent).constructor) + " but did not specify an inverse belongsTo on " + child.constructor, belongsToName);
+
+    oldParent = this.getOldParent();
     // Coalesce changes from A to B and back to A.
     if (oldParentClientId === newParentClientId) {
       // If we have gone from oldParent to newParent and back to oldParent,
@@ -272,13 +315,13 @@ DS.OneToManyChange.prototype = {
     var transaction = this.ensureSameTransaction(child, oldParent, newParent, hasManyName, belongsToName);
 
     transaction.relationshipBecameDirty(this);
+    this.callChangeEvents();
 
     // Next, make sure that all three side of the association reflect the
     // state of the OneToManyChange, while making sure to avoid an
     // infinite loop.
 
 
-    var dirtySet = new Ember.OrderedSet();
 
     // If there is an `oldParent` and the `oldParent` is different to
     // the `newParent`, use the idempotent `removeObject` to ensure
@@ -288,17 +331,9 @@ DS.OneToManyChange.prototype = {
     // 1. The change happened from the belongsTo side
     // 2. The record was moved to a new parent without explicitly
     //    removing it from the old parent first.
-    if (oldParent && oldParent !== newParent) {
+    if (oldParent) {
       get(oldParent, hasManyName).removeObject(child);
 
-      // TODO: This implementation causes a race condition in key-value
-      // stores. The fix involves buffering changes that happen while
-      // a record is loading. A similar fix is required for other parts
-      // of ember-data, and should be done as new infrastructure, not
-      // a one-off hack. [tomhuda]
-      if (get(oldParent, 'isLoaded')) {
-        this.store.recordHasManyDidChange(dirtySet, oldParent, this);
-      }
     }
 
     // If there is a `newParent`, use the idempotent `addObject`
@@ -307,10 +342,6 @@ DS.OneToManyChange.prototype = {
     // belongsTo side.
     if (newParent) {
       get(newParent, hasManyName).addObject(child);
-
-      if (get(newParent, 'isLoaded')) {
-        this.store.recordHasManyDidChange(dirtySet, newParent, this);
-      }
     }
 
     if (child) {
@@ -320,13 +351,8 @@ DS.OneToManyChange.prototype = {
       if (get(child, belongsToName) !== newParent) {
         set(child, belongsToName, newParent);
       }
-
-      this.store.recordBelongsToDidChange(dirtySet, child, this);
     }
 
-    dirtySet.forEach(function(record) {
-      record.adapterDidDirty();
-    });
 
     // If this change is later reversed (A->B followed by B->A),
     // we will need to remove the child from this parent. Save
