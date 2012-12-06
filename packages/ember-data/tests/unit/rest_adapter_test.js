@@ -1042,3 +1042,31 @@ test("updating a record with a 500 error marks the record as error", function() 
 
   expectState('error');
 });
+
+test("When adding a chile to a parent, then commit, then edit the parent then revert, the child should still be associated to the parent", function () {
+  var Comment = DS.Model.extend({
+    person: DS.belongsTo(Person)
+  });
+
+  Person.reopen({
+    comments: DS.hasMany(Comment)
+  });
+
+  store.load(Person, { id: 1, name: "Sam Woodard"});
+  var person = store.find(Person, 1);
+
+  person.get('comments').createRecord();
+
+  equal(1, person.get('comments.length'), "the person has the comment before saving");
+
+  store.commit();
+
+  equal(1, person.get('comments.length'), "the person has the comment after saving");
+
+  person.set('name', "Yehuda Katz");
+
+  person.get("transaction").rollback();
+
+  equal("Sam Woodard", person.get("name"), "the person's name was reverted");
+  equal(1, person.get('comments.length'), "the person has the comment after rolling back");
+});
