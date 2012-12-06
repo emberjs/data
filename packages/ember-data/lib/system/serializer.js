@@ -757,6 +757,18 @@ DS.Serializer = Ember.Object.extend({
     this.transforms[type] = transform;
   },
 
+  registerEnumeratedTransform: function(type, objects) {
+    var transform = {
+      deserialize: function(deserialized) {
+        return objects.objectAt(deserialized);
+      },
+      serialize: function(serialized) {
+        return objects.indexOf(serialized);
+      }
+    };
+    this.registerTransform(type, transform);
+  },
+
   /**
     MAPPING CONVENIENCE
   */
