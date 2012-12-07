@@ -1052,6 +1052,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   didUpdateRelationship: function(record, relationshipName) {
     var relationship = this.relationshipChangeFor(get(record, 'clientId'), relationshipName);
+    //TODO(Igor)
     if (relationship) { relationship.adapterDidUpdate(); }
   },
 
@@ -1589,23 +1590,25 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (!(clientId in changes)) {
       changes[clientId] = {};
     }
-    if (!(childKey in changes[clientId])) {
+    if (!(parentId in changes[clientId])) {
       changes[clientId][parentId] = {};
     }
-    changes[clientId][parentId][key] = change;
+    if (!(key in changes[clientId][parentId])) {
+      changes[clientId][parentId][key] = {};
+    }
+    changes[clientId][parentId][key][change.type] = change;
   },
 
-  removeRelationshipChangeFor: function(clientId, childKey, parentId, parentKey) {
+  removeRelationshipChangeFor: function(clientId, childKey, parentId, parentKey, type) {
     var changes = this.relationshipChanges;
     var key = childKey + parentKey;
-    if (!(clientId in changes) || !(parentId in changes[clientId])){ 
+    if (!(clientId in changes) || !(parentId in changes[clientId]) || !(key in changes[clientId][parentId])){ 
       return;
     }
-
-    delete changes[clientId][parentId][key];
+    delete changes[clientId][parentId][key][type];
   },
 
-  relationshipChangeFor: function(clientId, childKey, parentId, parentKey) {
+  relationshipChangeFor: function(clientId, childKey, parentId, parentKey, type) {
     var changes = this.relationshipChanges;
     clientId = clientId || 0;
     childKey = childKey || "";
@@ -1615,30 +1618,45 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (!(clientId in changes) || !(parentId in changes[clientId])){ 
       return;
     }
-    return changes[clientId][parentId][key];
+    if(type){
+      return changes[clientId][parentId][key][type];
+    }
+    else{
+      return changes[clientId][parentId][key]["add"] || changes[clientId][parentId][key]["remove"];
+    }
+  },
+
+  relationshipChangePairsFor: function(clientId){
+    var toReturn = [];
+    //TODO(Igor) What about the other side 
+    var changesObject = this.relationshipChanges[clientId];
+    for (var objKey in changesObject){
+      if(changesObject.hasOwnProperty(objKey)){
+        for (var changeKey in changesObject[objKey]){
+          if(changesObject[objKey].hasOwnProperty(changeKey)){
+            toReturn.push(changesObject[objKey][changeKey]);
+          }
+        }
+      }
+    }
+    return toReturn;
   },
 
   relationshipChangesFor: function(clientId) {
     var toReturn = [];
-    /*
-    var flatten = function(array) {
-      var r = [];
-      forEach(array, function(el) {
-        r.push.apply(r, Ember.isArray(el)  ? flatten(el) : [el]);
-      });
-      return r;
-    }; 
-    */  
-    //TODO(Igor) What about the other side 
-    var changesObject = this.relationshipChanges[clientId];
-    forEach(changesObject, function(obj){
-      forEach(obj, function(change){
-        toReturn.push(change);
-      });
-    });
-    return toReturn;
+    var relationshipPairs = this.relationshipChangePairsFor(clientId);
+    forEach(relationshipPairs, function(pair){ 
+      var addedChange = pair["add"];
+      var removedChange = pair["remove"];
+      if(addedChange){
+        toReturn.push(addedChange);
+      } 
+      if(removedChange){
+        toReturn.push(removedChange);
+      } 
+    }); 
+   return toReturn;
   },
-
   // ......................
   // . PER-TYPE ADAPTERS
   // ......................

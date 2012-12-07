@@ -158,7 +158,7 @@ DS.OneToManyChange.prototype = {
         store = this.store,
         child, oldParent, newParent, lastParent, transaction;
 
-    store.removeRelationshipChangeFor(childClientId, belongsToName);
+    store.removeRelationshipChangeFor(childClientId, belongsToName, this.parentId, hasManyName, this.type);
 
     if (transaction = this.transaction) {
       transaction.relationshipBecameClean(this);
@@ -297,19 +297,14 @@ DS.OneToManyChange.prototype = {
 
 
   coalesce: function(){
-    var allChanges = this.store.relationshipChangesFor(this.child);
-   //TODO(Igor)-Perf
-    forEach(allChanges, function(change){
-      forEach(allChanges, function(otherChange){
-        if (change.child === otherChange.child && change.newParent === otherChange.newParent && change.type !== otherChange.type){
-          if(!change.alreadySeen && !otherChange.alreadySeen){
-            change.alreadySeen = true;
-            otherChange.alreadySeen = true;
-            change.destroy();
-            otherChange.destroy();
-          }
-        }
-      });
+    var relationshipPairs = this.store.relationshipChangePairsFor(this.child);
+    forEach(relationshipPairs, function(pair){
+      var addedChange = pair["add"];
+      var removedChange = pair["remove"];
+      if(addedChange && removedChange){
+        addedChange.destroy();
+        removedChange.destroy();
+      }
     });
   },
 
