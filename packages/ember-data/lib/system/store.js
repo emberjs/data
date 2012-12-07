@@ -1581,47 +1581,42 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
   addRelationshipChangeFor: function(clientId, childKey, parentId, parentKey, change) {
     clientId = clientId || 0;
-    childKey = childKey || 0;
+    childKey = childKey || "";
     parentId = parentId || 0;
-    parentKey = parentKey || 0;
+    parentKey = parentKey || "";
+    var key = childKey + parentKey;
     var changes = this.relationshipChanges;
     if (!(clientId in changes)) {
       changes[clientId] = {};
     }
     if (!(childKey in changes[clientId])) {
-      changes[clientId][childKey] = {};
+      changes[clientId][parentId] = {};
     }
-    if (!(parentId in changes[clientId][childKey])) {
-      changes[clientId][childKey][parentId] = {};
-    }
-
-    changes[clientId][childKey][parentId][parentKey] = change;
+    changes[clientId][parentId][key] = change;
   },
 
   removeRelationshipChangeFor: function(clientId, childKey, parentId, parentKey) {
     var changes = this.relationshipChanges;
-    if (!(clientId in changes) || !(childKey in changes[clientId]) || 
-      !(parentId in changes[clientId][childKey]) || !(parentKey in changes[clientId][childKey][parentId])){
+    var key = childKey + parentKey;
+    if (!(clientId in changes) || !(parentId in changes[clientId])){ 
       return;
     }
 
-    delete changes[clientId][childKey][parentId][parentKey];
+    delete changes[clientId][parentId][key];
   },
 
   relationshipChangeFor: function(clientId, childKey, parentId, parentKey) {
     var changes = this.relationshipChanges;
     clientId = clientId || 0;
-    childKey = childKey || 0;
+    childKey = childKey || "";
     parentId = parentId || 0;
-    parentKey = parentKey || 0;
-    if (!(clientId in changes) || !(childKey in changes[clientId]) || 
-      !(parentId in changes[clientId][childKey]) || !(parentKey in changes[clientId][childKey][parentId])){
+    parentKey = parentKey || "";
+    var key = childKey + parentKey;
+    if (!(clientId in changes) || !(parentId in changes[clientId])){ 
       return;
     }
-    return changes[clientId][childKey][parentId][parentKey];
+    return changes[clientId][parentId][key];
   },
-
-
 
   relationshipChangesFor: function(clientId) {
     var flatten = function(array) {

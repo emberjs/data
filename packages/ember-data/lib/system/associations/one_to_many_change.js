@@ -54,7 +54,7 @@ DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
       store: store
     });
 
-    store.addRelationshipChangeFor(childClientId, key,null,null, change);
+    store.addRelationshipChangeFor(childClientId, key, options.parentId , null, change);
   }
 
   change.belongsToName = key;

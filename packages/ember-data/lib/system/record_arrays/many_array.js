@@ -108,7 +108,8 @@ DS.ManyArray = DS.RecordArray.extend({
 
         var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), {
           parentType: owner.constructor,
-          hasManyName: name
+          hasManyName: name,
+          parentId: owner.get('clientId')
         });
         change.hasManyName = name;
 
@@ -137,7 +138,8 @@ DS.ManyArray = DS.RecordArray.extend({
 
         var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), {
           parentType: owner.constructor,
-          hasManyName: name
+          hasManyName: name,
+          parentId: owner.get('clientId')
         });
         change.hasManyName = name;
 
