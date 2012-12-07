@@ -105,7 +105,7 @@ DS.ManyArray = DS.RecordArray.extend({
         var clientId = get(this, 'content').objectAt(i);
         //var record = this.objectAt(i);
         //if (!record) { continue; }
-
+        
         var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), {
           parentType: owner.constructor,
           hasManyName: name,

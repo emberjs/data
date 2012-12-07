@@ -12,20 +12,6 @@ DS.OneToManyChange = function(options) {
   this.parentId = options.parentId;
 };
 
-DS.RelationshipChange = function(options) {
-  this.oldParent = options.oldParent;
-  this.child = options.child;
-  this.belongsToName = options.belongsToName;
-  this.store = options.store;
-  this.committed = {};
-  this.awaiting = 0;
-};
-
-/** @private */
-DS.RelationshipChange.create = function(options) {
-  return new DS.OneToManyChange(options);
-};
-
 /** @private */
 DS.OneToManyChange.create = function(options) {
   return new DS.OneToManyChange(options);
@@ -43,6 +29,20 @@ DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
   // definition.
   if (options.parentType) {
     key = inverseBelongsToName(options.parentType, childType, options.hasManyName);
+    //TODO(Igor) Move this logic to a OneToManyChange specific place
+    if (options.type === "add" && store.recordIsMaterialized(childClientId)) {
+      var child = store.findByClientId(null, childClientId);
+      var oldParent = get(child, key);
+      if (oldParent){
+        var correspondingChange = DS.OneToManyChange.forChildAndParent(childClientId, store, {
+            parentType: options.parentType,
+            hasManyName: options.hasManyName,
+            parentId: oldParent.get('clientId'),
+            type: "remove"
+          }); 
+       correspondingChange.sync();
+      } 
+    }
   } else if (options.belongsToName) {
     key = options.belongsToName;
   } else {
@@ -209,12 +209,12 @@ DS.OneToManyChange.prototype = {
     default transaction, and the rest are in a different transaction, move
     them all into that transaction.
   */
-  ensureSameTransaction: function(child, oldParent, newParent, hasManyName, belongsToName) {
+  ensureSameTransaction: function(child, parentRecord, hasManyName, belongsToName) {
     var transactions = Ember.A();
 
     if (child)     { transactions.pushObject(get(child, 'transaction')); }
-    if (oldParent) { transactions.pushObject(get(oldParent, 'transaction')); }
-    if (newParent) { transactions.pushObject(get(newParent, 'transaction')); }
+    if (parentRecord) { transactions.pushObject(get(parentRecord, 'transaction')); }
+    //if (newParent) { transactions.pushObject(get(newParent, 'transaction')); }
 
     var transaction = transactions.reduce(function(prev, t) {
       if (!get(t, 'isDefault')) {
@@ -227,8 +227,8 @@ DS.OneToManyChange.prototype = {
 
     if (transaction) {
       transaction.add(child);
-      if (oldParent) { transaction.add(oldParent); }
-      if (newParent) { transaction.add(newParent); }
+      if (parentRecord) { transaction.add(parentRecord); }
+      //if (newParent) { transaction.add(newParent); }
     } else {
       transaction = transactions.objectAt(0);
     }
@@ -355,7 +355,8 @@ DS.OneToManyChange.prototype = {
     //Ember.assert("You specified a belongsTo (" + belongsToName + ") on " + child.constructor + " but did not specify an inverse hasMany on " + (!hasManyName && (newParent || oldParent || this.lastParentRecord).constructor), hasManyName);
 
     //newParent = this.getNewParent();
-    var transaction = this.ensureSameTransaction(child, oldParent, newParent, hasManyName, belongsToName);
+    var parentRecord = this.getParent();
+    var transaction = this.ensureSameTransaction(child, parentRecord, hasManyName, belongsToName);
 
     transaction.relationshipBecameDirty(this);
   
@@ -374,8 +375,8 @@ DS.OneToManyChange.prototype = {
     // 2. The record was moved to a new parent without explicitly
     //    removing it from the old parent first.
 
-    var parentRecord = this.getParent();
     if (this.type === "add"){
+      
       parentRecord.suspendAssociationObservers(function(){
         get(parentRecord, hasManyName).addObject(child);
       });

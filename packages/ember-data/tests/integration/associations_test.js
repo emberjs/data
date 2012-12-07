@@ -47,6 +47,25 @@ test("when modifying a child record's belongsTo relationship, its parent hasMany
   });
 });
 
+test("when adding a record to a hasMany it should be removed from its old manyArray, if there was one", function() {
+  // Changes to one side should not require run-loop synchronization to
+  // propagate to the other side
+  Ember.run(function() {
+    store.load(Comment, { id: 3, body: "new parent" });
+    store.load(Comment, { id: 2, body: "child", comment:1 });
+    store.load(Comment, { id: 1, body: "old parent", comments: [2] });
+
+    var oldParent = store.find(Comment, 1), child = store.find(Comment, 2), newParent = store.find(Comment, 3);
+
+    equal(oldParent.get('comments.length'), 1, "precond - old parent has 1 child comment");
+
+    newParent.get('comments').addObject(child);
+    
+    equal(oldParent.get('comments.length'), 0, "old parent has no child comments");
+
+  });
+});
+
 test("an association has an isLoaded flag that indicates whether the ManyArray has finished loaded", function() {
   expect(8);
 
