@@ -5,7 +5,7 @@ require("ember-data/system/transaction");
 require("ember-data/system/mixins/mappable");
 
 var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt;
-
+var forEach = Ember.EnumerableUtils.forEach;
 // These values are used in the data cache when clientIds are
 // needed but the underlying data has not yet been loaded by
 // the server.
@@ -1619,15 +1619,24 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   relationshipChangesFor: function(clientId) {
+    var toReturn = [];
+    /*
     var flatten = function(array) {
       var r = [];
-      array.forEach(function(el) {
+      forEach(array, function(el) {
         r.push.apply(r, Ember.isArray(el)  ? flatten(el) : [el]);
       });
       return r;
-    };   
+    }; 
+    */  
     //TODO(Igor) What about the other side 
-    flatten(this.relationshipChanges[clientId]);
+    var changesObject = this.relationshipChanges[clientId];
+    forEach(changesObject, function(obj){
+      forEach(obj, function(change){
+        toReturn.push(change);
+      });
+    });
+    return toReturn;
   },
 
   // ......................

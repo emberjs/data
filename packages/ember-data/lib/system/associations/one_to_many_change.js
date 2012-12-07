@@ -1,4 +1,5 @@
 var get = Ember.get, set = Ember.set;
+var forEach = Ember.EnumerableUtils.forEach;
 
 DS.OneToManyChange = function(options) {
   this.oldParent = options.oldParent;
@@ -7,6 +8,8 @@ DS.OneToManyChange = function(options) {
   this.store = options.store;
   this.committed = {};
   this.awaiting = 0;
+  this.type = options.type;
+  this.parentId = options.parentId;
 };
 
 DS.RelationshipChange = function(options) {
@@ -46,12 +49,14 @@ DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
     Ember.assert("You must pass either a parentType or belongsToName option to OneToManyChange.forChildAndParent", false);
   }
 
-  var change = store.relationshipChangeFor(childClientId, key);
-
+  //var change = store.relationshipChangeFor(childClientId, key);
+  var change;
   if (!change) {
     change = DS.OneToManyChange.create({
       child: childClientId,
-      store: store
+      parentId: options.parentId,
+      store: store,
+      type: options.type
     });
 
     store.addRelationshipChangeFor(childClientId, key, options.parentId , null, change);
@@ -172,6 +177,10 @@ DS.OneToManyChange.prototype = {
     }
   },
 
+  getParent: function(){
+    return this.getByClientId(this.parentId);
+  },
+
   /** @private */
   getChild: function() {
     return this.getByClientId(this.child);
@@ -286,8 +295,27 @@ DS.OneToManyChange.prototype = {
     });
   },
 
+
+  coalesce: function(){
+    var allChanges = this.store.relationshipChangesFor(this.child);
+   //TODO(Igor)-Perf
+    forEach(allChanges, function(change){
+      forEach(allChanges, function(otherChange){
+        if (change.child === otherChange.child && change.newParent === otherChange.newParent && change.type !== otherChange.type){
+          if(!change.alreadySeen && !otherChange.alreadySeen){
+            change.alreadySeen = true;
+            otherChange.alreadySeen = true;
+            change.destroy();
+            otherChange.destroy();
+          }
+        }
+      });
+    });
+  },
+
   /** @private */
   sync: function() {
+    this.findAffected();
     var oldParentClientId = this.oldParent,
         newParentClientId = this.newParent,
         hasManyName = this.getHasManyName(),
@@ -295,11 +323,11 @@ DS.OneToManyChange.prototype = {
         child = this.getChild(),
         oldParent, newParent;
     
-     this.findAffected();
     //Ember.assert("You specified a hasMany (" + hasManyName + ") on " + (!belongsToName && (newParent || oldParent || this.lastParent).constructor) + " but did not specify an inverse belongsTo on " + child.constructor, belongsToName);
 
     oldParent = this.getOldParent();
     // Coalesce changes from A to B and back to A.
+  /*
     if (oldParentClientId === newParentClientId) {
       // If we have gone from oldParent to newParent and back to oldParent,
       // there must be a materialized child.
@@ -323,20 +351,19 @@ DS.OneToManyChange.prototype = {
       this.destroy();
       return;
     }
-
+    */
     //Ember.assert("You specified a belongsTo (" + belongsToName + ") on " + child.constructor + " but did not specify an inverse hasMany on " + (!hasManyName && (newParent || oldParent || this.lastParentRecord).constructor), hasManyName);
 
-    newParent = this.getNewParent();
+    //newParent = this.getNewParent();
     var transaction = this.ensureSameTransaction(child, oldParent, newParent, hasManyName, belongsToName);
 
     transaction.relationshipBecameDirty(this);
+  
     this.callChangeEvents();
 
     // Next, make sure that all three side of the association reflect the
     // state of the OneToManyChange, while making sure to avoid an
     // infinite loop.
-
-
 
     // If there is an `oldParent` and the `oldParent` is different to
     // the `newParent`, use the idempotent `removeObject` to ensure
@@ -346,33 +373,34 @@ DS.OneToManyChange.prototype = {
     // 1. The change happened from the belongsTo side
     // 2. The record was moved to a new parent without explicitly
     //    removing it from the old parent first.
-    if (oldParent) {
-      get(oldParent, hasManyName).removeObject(child);
 
-    }
-
-    // If there is a `newParent`, use the idempotent `addObject`
-    // to ensure that the record is in its ManyArray. The `addObject`
-    // method only has an effect if the change happened from the
-    // belongsTo side.
-    if (newParent) {
-      get(newParent, hasManyName).addObject(child);
-    }
-
-    if (child) {
-      // Only set the belongsTo on the child if it is not already the
-      // newParent. This happens if the change happened from the
-      // ManyArray side.
-      if (get(child, belongsToName) !== newParent) {
-        set(child, belongsToName, newParent);
+    var parentRecord = this.getParent();
+    if (this.type === "add"){
+      parentRecord.suspendAssociationObservers(function(){
+        get(parentRecord, hasManyName).addObject(child);
+      });
+      if (get(child, belongsToName) !== parentRecord) {
+        child.suspendAssociationObservers(function(){
+          set(child, belongsToName, parentRecord);
+        });
       }
     }
-
+    else {
+      parentRecord.suspendAssociationObservers(function(){
+        get(parentRecord, hasManyName).removeObject(child);
+      });
+      if (get(child, belongsToName)) {
+        child.suspendAssociationObservers(function(){
+          set(child, belongsToName, null);
+        });
+      }
+    }
 
     // If this change is later reversed (A->B followed by B->A),
     // we will need to remove the child from this parent. Save
     // it off as `lastParent` so we can do that.
     this.lastParent = newParentClientId;
+    this.coalesce();
   },
 
   /** @private */
