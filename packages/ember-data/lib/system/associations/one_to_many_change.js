@@ -104,7 +104,7 @@ DS.OneToManyChange.prototype = {
     var name = this.hasManyName, store = this.store, parent;
 
     if (!name) {
-      parent = this.oldParent || this.newParent;
+      parent = this.parentId;
       if (!parent) { return; }
 
       var childType = store.typeForClientId(this.child);
@@ -237,55 +237,21 @@ DS.OneToManyChange.prototype = {
     return transaction;
   },
 
-  findAffected: function() {
-    var oldParentClientId = this.oldParent,
-        newParentClientId = this.newParent,
-        hasManyName = this.getHasManyName(),
-        belongsToName = this.getBelongsToName(),
-        child = this.getChild(),
-        oldParent, newParent;
-    
-    // This code path is reached if a child record was added to a new ManyArray
-    // without being removed from its old ManyArray. Below, this method will
-    // ensure (via `removeObject`) that the record is no longer in the old
-    // ManyArray.
-    if (oldParentClientId === undefined) {
-      // Since the child was added to a ManyArray, we know it was materialized.
-      oldParent = get(child, belongsToName);
-
-      if (oldParent) {
-        this.oldParent = get(oldParent, 'clientId');
-      } else {
-        this.oldParent = null;
-      }
-    } else {
-      oldParent = this.getOldParent();
-    }
-
-  },
-
   callChangeEvents: function(){
-    var oldParentClientId = this.oldParent,
-        newParentClientId = this.newParent,
-        hasManyName = this.getHasManyName(),
+    var hasManyName = this.getHasManyName(),
         belongsToName = this.getBelongsToName(),
         child = this.getChild(),
-        oldParent, newParent;
+        parentRecord = this.getParent();
     
     var dirtySet = new Ember.OrderedSet();
-    // This code path is reached if a child record was added to a new ManyArray
-    oldParent = this.getOldParent();
-    newParent = this.getNewParent();
+    
     // TODO: This implementation causes a race condition in key-value
     // stores. The fix involves buffering changes that happen while
     // a record is loading. A similar fix is required for other parts
     // of ember-data, and should be done as new infrastructure, not
     // a one-off hack. [tomhuda]
-    if (oldParent &&  get(oldParent, 'isLoaded')) {
-      this.store.recordHasManyDidChange(dirtySet, oldParent, this);
-    }
-    if (newParent && get(newParent, 'isLoaded')) {
-      this.store.recordHasManyDidChange(dirtySet, newParent, this);
+    if (parentRecord && get(parentRecord, 'isLoaded')) {
+      this.store.recordHasManyDidChange(dirtySet, parentRecord, this);
     }
     if (child) {
       this.store.recordBelongsToDidChange(dirtySet, child, this);
@@ -294,7 +260,6 @@ DS.OneToManyChange.prototype = {
       record.adapterDidDirty();
     });
   },
-
 
   coalesce: function(){
     var relationshipPairs = this.store.relationshipChangePairsFor(this.child);
@@ -310,7 +275,6 @@ DS.OneToManyChange.prototype = {
 
   /** @private */
   sync: function() {
-    this.findAffected();
     var hasManyName = this.getHasManyName(),
         belongsToName = this.getBelongsToName(),
         child = this.getChild(),
