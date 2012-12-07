@@ -9,10 +9,25 @@ DS.OneToManyChange = function(options) {
   this.awaiting = 0;
 };
 
+DS.RelationshipChange = function(options) {
+  this.oldParent = options.oldParent;
+  this.child = options.child;
+  this.belongsToName = options.belongsToName;
+  this.store = options.store;
+  this.committed = {};
+  this.awaiting = 0;
+};
+
+/** @private */
+DS.RelationshipChange.create = function(options) {
+  return new DS.OneToManyChange(options);
+};
+
 /** @private */
 DS.OneToManyChange.create = function(options) {
   return new DS.OneToManyChange(options);
 };
+
 
 /** @private */
 DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
@@ -39,7 +54,7 @@ DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
       store: store
     });
 
-    store.addRelationshipChangeFor(childClientId, key, change);
+    store.addRelationshipChangeFor(childClientId, key,null,null, change);
   }
 
   change.belongsToName = key;

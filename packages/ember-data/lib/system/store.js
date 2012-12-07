@@ -1579,35 +1579,60 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // . RELATIONSHIP CHANGES .
   // ........................
 
-  addRelationshipChangeFor: function(clientId, key, change) {
+  addRelationshipChangeFor: function(clientId, childKey, parentId, parentKey, change) {
+    clientId = clientId || 0;
+    childKey = childKey || 0;
+    parentId = parentId || 0;
+    parentKey = parentKey || 0;
     var changes = this.relationshipChanges;
     if (!(clientId in changes)) {
       changes[clientId] = {};
     }
+    if (!(childKey in changes[clientId])) {
+      changes[clientId][childKey] = {};
+    }
+    if (!(parentId in changes[clientId][childKey])) {
+      changes[clientId][childKey][parentId] = {};
+    }
 
-    changes[clientId][key] = change;
+    changes[clientId][childKey][parentId][parentKey] = change;
   },
 
-  removeRelationshipChangeFor: function(clientId, key) {
+  removeRelationshipChangeFor: function(clientId, childKey, parentId, parentKey) {
     var changes = this.relationshipChanges;
-    if (!(clientId in changes)) {
+    if (!(clientId in changes) || !(childKey in changes[clientId]) || 
+      !(parentId in changes[clientId][childKey]) || !(parentKey in changes[clientId][childKey][parentId])){
       return;
     }
 
-    delete changes[clientId][key];
+    delete changes[clientId][childKey][parentId][parentKey];
   },
 
-  relationshipChangeFor: function(clientId, key) {
+  relationshipChangeFor: function(clientId, childKey, parentId, parentKey) {
     var changes = this.relationshipChanges;
-    if (!(clientId in changes)) {
+    clientId = clientId || 0;
+    childKey = childKey || 0;
+    parentId = parentId || 0;
+    parentKey = parentKey || 0;
+    if (!(clientId in changes) || !(childKey in changes[clientId]) || 
+      !(parentId in changes[clientId][childKey]) || !(parentKey in changes[clientId][childKey][parentId])){
       return;
     }
-
-    return changes[clientId][key];
+    return changes[clientId][childKey][parentId][parentKey];
   },
+
+
 
   relationshipChangesFor: function(clientId) {
-    return this.relationshipChanges[clientId];
+    var flatten = function(array) {
+      var r = [];
+      array.forEach(function(el) {
+        r.push.apply(r, Ember.isArray(el)  ? flatten(el) : [el]);
+      });
+      return r;
+    };   
+    //TODO(Igor) What about the other side 
+    flatten(this.relationshipChanges[clientId]);
   },
 
   // ......................
