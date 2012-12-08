@@ -9,6 +9,7 @@ module("Persisting Records", {
       firstName: DS.attr('string'),
       lastName: DS.attr('string')
     });
+    Person[Ember.GUID_KEY+'_name'] = 'Person'; // To test error messages
 
     adapter = DS.Adapter.create();
     store = DS.Store.create({ adapter: adapter });
@@ -307,4 +308,31 @@ test("An adapter can notify the store that a record was deleted by calling `didS
   store.commit();
 });
 
+test("An error is raised when attempting to set a property while a record is being saved", function() {
+  expect(3);
 
+  var tom;
+
+  adapter.commit = function(store, commitDetails, relationships) {
+  };
+
+  var finishSaving = function() {
+    store.didSaveRecord(tom);
+  };
+
+  store.load(Person, { id: 1 });
+  tom = store.find(Person, 1);
+  tom.set('name', "Tom Dale");
+  store.commit();
+  ok(tom.get('isDirty'), "tom is dirty");
+  try {
+    tom.set('name', "Tommy Bahama");
+  } catch(e) {
+    var expectedMessage = "Attempted to handle event `setProperty` on <Person:" + Ember.guidFor(tom) + "> ";
+    expectedMessage +=    "while in state rootState.loaded.updated.inFlight. Called with ";
+    expectedMessage +=    "{key: name , value: Tommy Bahama , oldValue: null}";
+    equal(e.message, expectedMessage);
+  }
+  finishSaving();
+  ok(!tom.get('isDirty'), "tom is not dirty");
+});
