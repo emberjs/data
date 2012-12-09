@@ -220,6 +220,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     });
   },
 
+  toStringExtension: function() {
+    return get(this, 'id');
+  },
+
   /**
     @private
 
