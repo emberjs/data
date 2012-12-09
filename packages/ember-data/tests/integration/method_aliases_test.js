@@ -82,7 +82,7 @@ test("the createRecord method should be aliased", function() {
 
   var hash = {};
 
-  store = DS.Store.create({
+  store = DS.Store.createWithMixin({
     isDefaultStore: true,
 
     createRecord: function(type, passedHash, transaction) {
