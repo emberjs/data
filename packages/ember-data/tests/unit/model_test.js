@@ -54,6 +54,13 @@ test("a record reports its unique id via the `id` property", function() {
   equal(get(record, 'id'), 1, "reports id as id by default");
 });
 
+test("a record's id is included in its toString represenation", function() {
+  store.load(Person, { id: 1 });
+
+  var record = store.find(Person, 1);
+  equal(record.toString(), '<(subclass of DS.Model):'+Ember.guidFor(record)+':1>', "reports id in toString");
+});
+
 test("trying to set an `id` attribute should raise", function() {
   Person = DS.Model.extend({
     id: DS.attr('number'),
