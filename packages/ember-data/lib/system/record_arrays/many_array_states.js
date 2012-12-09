@@ -76,7 +76,7 @@ var states = {
     }
   }),
 
-  clean: LoadedState.create({
+  clean: LoadedState.createWithMixins({
     isLoaded: true,
     isDirty: false,
 
@@ -91,7 +91,7 @@ var states = {
     }
   }),
 
-  dirty: LoadedState.create({
+  dirty: LoadedState.createWithMixins({
     isLoaded: true,
     isDirty: true,
 

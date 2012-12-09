@@ -142,8 +142,8 @@ if ('undefined' !== typeof window) {
 
 })();
 
-// Version: v1.0.0-pre.2-85-g924d377
-// Last commit: 924d377 (2012-12-08 19:31:08 -0800)
+// Version: v1.0.0-pre.2-89-gb65b078
+// Last commit: b65b078 (2012-12-08 23:42:24 -0800)
 
 
 (function() {
@@ -9443,6 +9443,7 @@ function makeCtor() {
 
           Ember.assert("Ember.Object.create no longer supports defining computed properties.", !(value instanceof Ember.ComputedProperty));
           Ember.assert("Ember.Object.create no longer supports defining bindings.", keyName.substr(-7) !== "Binding");
+          Ember.assert("Ember.Object.create no longer supports calling _super.", !(typeof value === 'function' && value.toString().indexOf('_super') !== -1));
 
           if (concatenatedProperties && concatenatedProperties.indexOf(keyName) >= 0) {
             var baseValue = this[keyName];
@@ -11723,8 +11724,11 @@ var get = Ember.get, set = Ember.set;
   App.MyView = Ember.View.extend();
   ```
 
-  After all of your classes are defined, call `App.initialize()` to start the
-  application.
+  Calling `Ember.Application.create()` will automatically initialize your
+  application by calling the `Ember.Application.initialize()` method. If you
+  need to delay initialization, you can pass `{autoinit: false}` to the
+  `Ember.Application.create()` method, and call `App.initialize()`
+  later.
 
   Because `Ember.Application` inherits from `Ember.Namespace`, any classes
   you create will have useful string representations when calling `toString()`.
@@ -21765,17 +21769,13 @@ EmberHandlebars.ViewHelper = Ember.Object.create({
           //
           // is converted to this:
           //
-          //     classNameBinding="bindingContext.isGreen:green"
+          //     classNameBinding="context.isGreen:green"
           var parsedPath = Ember.View._parsePropertyPath(full);
           path = this.contextualizeBindingPath(parsedPath.path, data);
           if (path) { extensions.classNameBindings[b] = path + parsedPath.classNames; }
         }
       }
     }
-
-    // Make the current template context available to the view
-    // for the bindings set up above.
-    extensions.bindingContext = thisContext;
 
     return Ember.$.extend(hash, extensions);
   },
@@ -21791,9 +21791,9 @@ EmberHandlebars.ViewHelper = Ember.Object.create({
     } else if (Ember.isGlobalPath(path)) {
       return null;
     } else if (path === 'this') {
-      return 'bindingContext';
+      return 'context';
     } else {
-      return 'bindingContext.' + path;
+      return 'context.' + path;
     }
   },
 
@@ -24186,8 +24186,8 @@ Ember Handlebars
 
 
 })();
-// Version: v1.0.0-pre.2-85-g924d377
-// Last commit: 924d377 (2012-12-08 19:31:08 -0800)
+// Version: v1.0.0-pre.2-89-gb65b078
+// Last commit: b65b078 (2012-12-08 23:42:24 -0800)
 
 
 (function() {
