@@ -328,7 +328,7 @@ test("An error is raised when attempting to set a property while a record is bei
   try {
     tom.set('name', "Tommy Bahama");
   } catch(e) {
-    var expectedMessage = "Attempted to handle event `setProperty` on <Person:" + Ember.guidFor(tom) + "> ";
+    var expectedMessage = "Attempted to handle event `setProperty` on <Person:" + Ember.guidFor(tom) + ":1> ";
     expectedMessage +=    "while in state rootState.loaded.updated.inFlight. Called with ";
     expectedMessage +=    "{key: name , value: Tommy Bahama , oldValue: null}";
     equal(e.message, expectedMessage);
