@@ -163,6 +163,10 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     get(this, 'serializer').registerTransform(attributeType, transform);
   },
 
+  registerEnumeratedTransform: function(attributeType, objects) {
+    get(this, 'serializer').registerEnumeratedTransform(attributeType, objects);
+  },
+
   /**
     If the globally unique IDs for your records should be generated on the client,
     implement the `generateIdForRecord()` method. This method will be invoked
