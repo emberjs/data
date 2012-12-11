@@ -14,13 +14,13 @@ DS.InMemoryAdapter = DS.Adapter.extend({
   },
 
   queryRecords: function(records, query) {
-    records
+    return records;
   },
 
   storeRecord: function(type, record) {
     var records = this.recordsForType(type);
 
-    records.set(this.extractId(type, record), record)
+    records.set(this.extractId(type, record), record);
   },
 
   // This is here because Ember.Map does not provide
@@ -50,7 +50,7 @@ DS.InMemoryAdapter = DS.Adapter.extend({
   findQuery: function(store, type, query, array) {
     var records = this.loadedRecordsForType(type);
 
-    results = this.queryRecords(records, query);
+    var results = this.queryRecords(records, query);
 
     if (results) {
       this.simulateRemoteCall(function() {
@@ -81,7 +81,7 @@ DS.InMemoryAdapter = DS.Adapter.extend({
   updateRecord: function(store, type, record) {
     var inMemoryRecord = this.serialize(record, { includeId: true });
 
-    this.storeRecord(type, inMemoryRecord)
+    this.storeRecord(type, inMemoryRecord);
 
     this.simulateRemoteCall(function() {
       store.didSaveRecord(record, inMemoryRecord);
