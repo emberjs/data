@@ -115,3 +115,40 @@ test("find queries loaded records", function() {
   equal(adam.get('name'), attributes.name, 'Attribute materialized');
   equal(adam.get('profile'), attributes.profile, 'Complex object materialized');
 });
+
+test("findQuery is implemented with a method to override", function() {
+  adapter.queryRecords = function(records, query) {
+    return records.filter(function(record) {
+      return record.profile.get('skills').contains(query.skill);
+    });
+  };
+
+  var adamsAttributes = {
+    id: '1',
+    name: "Adam Hawkins",
+    profile: ComplexObject.create({
+      skills: ['ruby', 'javascript'],
+      music: 'Trance'
+    })
+  };
+
+  var paulsAttributes = {
+    id: '2',
+    name: "Paul Chavard",
+    profile: ComplexObject.create({
+      skills: ['ruby', 'javascript', 'French'],
+      music: 'Funny french stuff'
+    })
+  };
+
+  adapter.storeRecord(Person, adamsAttributes);
+  adapter.storeRecord(Person, paulsAttributes);
+
+  var results = store.find(Person, {skill: 'French'})
+
+  equal(results.get('length'), 1, 'Records filtered correctly');
+
+  var paul = results.get('firstObject');
+  equal(paul.get('name'), 'Paul Chavard');
+});
+

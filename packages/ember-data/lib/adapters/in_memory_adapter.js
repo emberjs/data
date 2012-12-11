@@ -13,6 +13,10 @@ DS.InMemoryAdapter = DS.Adapter.extend({
     this.map = Ember.Map.create();
   },
 
+  queryRecords: function(records, query) {
+    records
+  },
+
   storeRecord: function(type, record) {
     var records = this.recordsForType(type);
 
@@ -39,6 +43,18 @@ DS.InMemoryAdapter = DS.Adapter.extend({
     if (records.has(id)) {
       this.simulateRemoteCall(function() {
         store.load(type, records.get(id));
+      }, store, type);
+    }
+  },
+
+  findQuery: function(store, type, query, array) {
+    var records = this.loadedRecordsForType(type);
+
+    results = this.queryRecords(records, query);
+
+    if (results) {
+      this.simulateRemoteCall(function() {
+        array.load(results);
       }, store, type);
     }
   },
