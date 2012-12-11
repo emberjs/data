@@ -59,6 +59,15 @@ DS.InMemoryAdapter = DS.Adapter.extend({
     }
   },
 
+  findAll: function(store, type) {
+    var records = this.loadedRecordsForType(type);
+
+    this.simulateRemoteCall(function() {
+      store.loadMany(type, records);
+      store.didUpdateAll(type);
+    }, store, type);
+  },
+
   createRecord: function(store, type, record) {
     var inMemoryRecord = this.serialize(record, { includeId: true });
 

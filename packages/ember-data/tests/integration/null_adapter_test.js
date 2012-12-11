@@ -152,3 +152,31 @@ test("findQuery is implemented with a method to override", function() {
   equal(paul.get('name'), 'Paul Chavard');
 });
 
+test("findAll is implemented", function() {
+  var adamsAttributes = {
+    id: '1',
+    name: "Adam Hawkins",
+    profile: ComplexObject.create({
+      skills: ['ruby', 'javascript'],
+      music: 'Trance'
+    })
+  };
+
+  var paulsAttributes = {
+    id: '2',
+    name: "Paul Chavard",
+    profile: ComplexObject.create({
+      skills: ['ruby', 'javascript', 'French'],
+      music: 'Funny french stuff'
+    })
+  };
+
+  adapter.storeRecord(Person, adamsAttributes);
+  adapter.storeRecord(Person, paulsAttributes);
+
+  var results = store.find(Person);
+
+  equal(results.get('length'), 2, "All records returned");
+  equal(get(results, 'isUpdating'), false, "results not updating");
+});
+
