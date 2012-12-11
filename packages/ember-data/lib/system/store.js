@@ -1445,8 +1445,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   load: function(type, id, data) {
     if (data === undefined) {
       data = id;
-
-      var adapter = this.adapterForType(type);
       id = this.preprocessData(type, data);
     }
 
@@ -1477,10 +1475,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     if (dataList === undefined) {
       dataList = ids;
-      ids = [];
-
-      var adapter = this.adapterForType(type);
-
       ids = map(dataList, function(data) {
         return this.preprocessData(type, data);
       }, this);
