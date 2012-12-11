@@ -1,19 +1,79 @@
 var get = Ember.get, set = Ember.set;
 
 /**
-  The serializer is responsible for converting the data returned from the
-  adapter into the semantics expected by records in Ember Data. It is also
-  responsible for converting a record into the form expected by the adapter
-  when saving changes that have been made locally.
+  A serializer is responsible for serializing and deserializing a group of
+  records.
 
-  Typically, your application's `DS.Adapter` is responsible for both creating
-  a serializer as well as calling the appropriate methods when it needs to
+  `DS.Serializer` is an abstract base class designed to help you build a
+  serializer that can read to and write from any serialized form.  While most
+  applications will use `DS.JSONSerializer`, which reads and writes JSON, the
+  serializer architecture allows your adapter to transmit things like XML,
+  strings, or custom binary data.
+
+  Typically, your application's `DS.Adapter` is responsible for both creating a
+  serializer as well as calling the appropriate methods when it needs to
   materialize data or serialize a record.
+
+  The serializer API is designed as a series of layered hooks that you can
+  override to customize any of the individual steps of serialization and
+  deserialization.
+
+  The hooks are organized by the three responsibilities of the serializer:
+
+  1. Determining naming conventions
+  2. Serializing records into a serialized form
+  3. Deserializing records from a serialized form
+
+  Because Ember Data lazily materializes records, the deserialization
+  step, and therefore the hooks you implement, are split into two phases:
+
+  1. Extraction, where the serialized forms for multiple records are
+     extracted from a single payload. The IDs of each record are also
+     extracted for indexing.
+  2. Materialization, where a newly-created record has its attributes
+     and relationships initialized based on the serialized form loaded
+     by the adapter.
+
+  Additionally, a serializer can convert values from their JavaScript
+  versions into their serialized versions via a declarative API.
+
+  ## Naming Conventions
+
+  One of the most common uses of the serializer is to map attribute names
+  from the serialized form to your `DS.Model`. For example, in your model,
+  you may have an attribute called `firstName`:
+
+  ```javascript
+  App.Person = DS.Model.extend({
+    firstName: DS.attr('string')
+  });
+  ```
+
+  However, because the web API your adapter is communicating with is
+  legacy, it calls this attribute `FIRST_NAME`.
+
+  You can determine the attribute name used in the serialized form
+  by implementing `keyForAttributeName`:
+
+  ```javascript
+    keyForAttributeName: function(type, name) {
+      return name.underscore.toUpperCase();
+    }
+  ```
+
+  If your attribute names are not predictable, you can re-map them
+  one-by-one using the `map` API:
+
+  ```javascript
+  App.Person.map('App.Person', {
+    firstName: { key: '*API_USER_FIRST_NAME*' }
+  });
+  ```
 
   ## Serialization
 
-  These methods are responsible for taking a record and
-  producing a JSON object.
+  During the serialization process, a record or records are converted
+  from Ember.js objects into their serialized form.
 
   These methods are designed in layers, like a delicious 7-layer
   cake (but with fewer layers).

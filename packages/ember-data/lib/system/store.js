@@ -1443,6 +1443,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object} data the data to load
   */
   load: function(type, id, data) {
+    if (typeof id === 'object' && typeof data === 'object') {
+      var providedId = data.id;
+      data = id;
+      id = providedId;
+    }
+
     if (data === undefined) {
       data = id;
 
