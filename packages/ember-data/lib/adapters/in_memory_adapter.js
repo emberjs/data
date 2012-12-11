@@ -13,6 +13,12 @@ DS.InMemoryAdapter = DS.Adapter.extend({
     this.map = Ember.Map.create();
   },
 
+  storeRecord: function(type, record) {
+    var records = this.recordsForType(type);
+
+    records.set(this.extractId(type, record), record)
+  },
+
   // This is here because Ember.Map does not provide
   // a way to turn itself into a generic collection
   loadedRecordsForType: function(type) {
@@ -25,6 +31,16 @@ DS.InMemoryAdapter = DS.Adapter.extend({
     });
 
     return collection;
+  },
+
+  find: function(store, type, id) {
+    var records = this.recordsForType(type);
+
+    if (records.has(id)) {
+      this.simulateRemoteCall(function() {
+        store.load(type, records.get(id));
+      }, store, type);
+    }
   },
 
   createRecord: function(store, type, record) {
@@ -66,20 +82,12 @@ DS.InMemoryAdapter = DS.Adapter.extend({
     }
   },
 
-  storeRecord: function(type, record) {
-    var records = this.recordsForType(type);
-
-    records.set(this.extractId(type, record), record)
-  },
-
   deleteLoadedRecord: function(type, record) {
     var records = this.recordsForType(type);
 
     records.remove(this.extractId(type, record));
   },
-  /*
-    @private
-  */
+
   simulateRemoteCall: function(callback, store, type, record) {
     if (get(this, 'simulateRemoteResponse')) {
       setTimeout(callback, get(this, 'latency'));

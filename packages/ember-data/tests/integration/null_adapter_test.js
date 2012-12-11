@@ -97,3 +97,21 @@ test("records are deleted", function() {
   var inMemoryRecords = adapter.loadedRecordsForType(Person);
   equal(inMemoryRecords.length, 0, "In memory objects updated");
 });
+
+test("find queries loaded records", function() {
+  var attributes = {
+    id: '1',
+    name: "Adam Hawkins",
+    profile: ComplexObject.create({
+      skills: ['ruby', 'javascript'],
+      music: 'Trance'
+    })
+  };
+
+  adapter.storeRecord(Person, attributes);
+
+  var adam = store.find(Person, 1);
+
+  equal(adam.get('name'), attributes.name, 'Attribute materialized');
+  equal(adam.get('profile'), attributes.profile, 'Complex object materialized');
+});
