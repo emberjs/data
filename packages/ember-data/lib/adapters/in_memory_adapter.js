@@ -13,25 +13,22 @@ DS.InMemoryAdapter = DS.Adapter.extend({
     this.map = Ember.Map.create();
   },
 
-  recordsForType: function(type) {
-    if(this.map.has(type)) {
-      return this.map.get(type);
-    } else {
-      this.map.set(type, Ember.A());
-      return this.map.get(type);
-    }
-  },
+  // This is here because Ember.Map does not provide
+  // a way to turn itself into a generic collection
+  loadedRecordsForType: function(type) {
+    var records = this.recordsForType(type);
 
-  storeRecord: function(type, record) {
-    var records = this.recordsForType(type, record);
+    var collection = Ember.A();
 
-    records.pushObject(record);
+    records.forEach(function(id, object){
+      collection.pushObject(object);
+    });
+
+    return collection;
   },
 
   createRecord: function(store, type, record) {
     var inMemoryRecord = this.serialize(record, { includeId: true });
-
-    // inMemoryRecord.id = this.generateIdForRecord(store, record);
 
     this.storeRecord(type, inMemoryRecord);
 
@@ -40,6 +37,46 @@ DS.InMemoryAdapter = DS.Adapter.extend({
     }, store, type, record);
   },
 
+  updateRecord: function(store, type, record) {
+    var inMemoryRecord = this.serialize(record, { includeId: true });
+
+    this.storeRecord(type, inMemoryRecord)
+
+    this.simulateRemoteCall(function() {
+      store.didSaveRecord(record, inMemoryRecord);
+    }, store, type, record);
+  },
+
+  deleteRecord: function(store, type, record) {
+    this.deleteLoadedRecord(type, record);
+
+    this.simulateRemoteCall(function() {
+      store.didSaveRecord(record);
+    }, store, type, record);
+  },
+
+  // Internal helpers
+
+  recordsForType: function(type) {
+    if(this.map.has(type)) {
+      return this.map.get(type);
+    } else {
+      this.map.set(type, Ember.Map.create());
+      return this.map.get(type);
+    }
+  },
+
+  storeRecord: function(type, record) {
+    var records = this.recordsForType(type);
+
+    records.set(this.extractId(type, record), record)
+  },
+
+  deleteLoadedRecord: function(type, record) {
+    var records = this.recordsForType(type);
+
+    records.remove(this.extractId(type, record));
+  },
   /*
     @private
   */
