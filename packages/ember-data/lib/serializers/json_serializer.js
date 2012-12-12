@@ -57,7 +57,7 @@ DS.JSONSerializer = DS.Serializer.extend({
       // when type information will have been lost.
       return hash[primaryKey]+'';
     } else {
-      return hash[primaryKey] = "<generated>" + (++generatedId);
+      return null;
     }
   },
 

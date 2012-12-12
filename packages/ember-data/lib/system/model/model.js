@@ -53,7 +53,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   }).property(),
 
   materializeData: function() {
-    this.setupData();
     get(this, 'store').materializeData(this);
 
     this.suspendAssociationObservers(function() {
@@ -181,7 +180,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     Ember.run.once(this, this.updateRecordArrays);
   },
 
-  setupData: function() {
+  setupData: function(prematerialized) {
     this._data = {
       attributes: {},
       belongsTo: {},

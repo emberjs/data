@@ -184,8 +184,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   generateIdForRecord: null,
 
-  materialize: function(record, data) {
-    get(this, 'serializer').materialize(record, data);
+  materialize: function(record, data, prematerialized) {
+    get(this, 'serializer').materialize(record, data, prematerialized);
   },
 
   serialize: function(record, options) {

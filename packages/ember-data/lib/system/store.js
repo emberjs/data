@@ -91,6 +91,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     this.clientIdToId = {};
     this.clientIdToType = {};
     this.clientIdToData = {};
+    this.clientIdToPrematerializedData = {};
     this.recordArraysByClientId = {};
     this.relationshipChanges = {};
 
@@ -150,6 +151,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     cidToData[clientId] = MATERIALIZED;
 
+    var prematerialized = this.clientIdToPrematerializedData[clientId];
+
     // Ensures the record's data structures are setup
     // before being populated by the adapter.
     record.setupData();
@@ -158,7 +161,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       // Instructs the adapter to extract information from the
       // opaque data and materialize the record's attributes and
       // relationships.
-      adapter.materialize(record, data);
+      adapter.materialize(record, data, prematerialized);
     }
   },
 
@@ -1442,16 +1445,18 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {String|Number} id
     @param {Object} data the data to load
   */
-  load: function(type, id, data) {
-    if (typeof id === 'object' && typeof data === 'object') {
-      var providedId = data.id;
-      data = id;
-      id = providedId;
+  load: function(type, data, prematerialized) {
+    if (typeof data === 'number' || typeof data === 'string') {
+      id = data;
+      data = prematerialized;
+      prematerialized = null;
     }
 
-    if (data === undefined) {
-      data = id;
+    var id;
 
+    if (prematerialized) {
+      id = prematerialized.id;
+    } else if (id === undefined) {
       var adapter = this.adapterForType(type);
       id = this.preprocessData(type, data);
     }
@@ -1460,10 +1465,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var typeMap = this.typeMapFor(type),
         cidToData = this.clientIdToData,
-        clientId = typeMap.idToCid[id];
+        clientId = typeMap.idToCid[id],
+        cidToPrematerialized = this.clientIdToPrematerializedData;
 
     if (clientId !== undefined) {
       cidToData[clientId] = data;
+      cidToPrematerialized[clientId] = prematerialized;
 
       var record = this.recordCache[clientId];
       if (record) {
@@ -1471,6 +1478,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       }
     } else {
       clientId = this.pushData(data, id, type);
+      cidToPrematerialized[clientId] = prematerialized;
     }
 
     this.updateRecordArrays(type, clientId);

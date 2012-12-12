@@ -551,13 +551,19 @@ DS.Serializer = Ember.Object.extend({
   //. MATERIALIZATION HOOKS
   //.........................
 
-  materialize: function(record, serialized) {
+  materialize: function(record, serialized, prematerialized) {
+    var id;
     if (Ember.none(get(record, 'id'))) {
-      record.materializeId(this.extractId(record.constructor, serialized));
+      if (prematerialized && prematerialized.hasOwnProperty('id')) {
+        id = prematerialized.id;
+      } else {
+        id = this.extractId(record.constructor, serialized);
+      }
+      record.materializeId(id);
     }
 
-    this.materializeAttributes(record, serialized);
-    this.materializeRelationships(record, serialized);
+    this.materializeAttributes(record, serialized, prematerialized);
+    this.materializeRelationships(record, serialized, prematerialized);
   },
 
   deserializeValue: function(value, attributeType) {
@@ -567,9 +573,13 @@ DS.Serializer = Ember.Object.extend({
     return transform.deserialize(value);
   },
 
-  materializeAttributes: function(record, serialized) {
+  materializeAttributes: function(record, serialized, prematerialized) {
     record.eachAttribute(function(name, attribute) {
-      this.materializeAttribute(record, serialized, name, attribute.type);
+      if (prematerialized && prematerialized.hasOwnProperty(name)) {
+        record.materializeAttribute(name, prematerialized[name]);
+      } else {
+        this.materializeAttribute(record, serialized, name, attribute.type);
+      }
     }, this);
   },
 
@@ -580,12 +590,20 @@ DS.Serializer = Ember.Object.extend({
     record.materializeAttribute(attributeName, value);
   },
 
-  materializeRelationships: function(record, hash) {
+  materializeRelationships: function(record, hash, prematerialized) {
     record.eachAssociation(function(name, relationship) {
       if (relationship.kind === 'hasMany') {
-        this.materializeHasMany(name, record, hash, relationship);
+        if (prematerialized && prematerialized.hasOwnProperty(name)) {
+          record.materializeHasMany(name, prematerialized[name]);
+        } else {
+          this.materializeHasMany(name, record, hash, relationship, prematerialized);
+        }
       } else if (relationship.kind === 'belongsTo') {
-        this.materializeBelongsTo(name, record, hash, relationship);
+        if (prematerialized && prematerialized.hasOwnProperty(name)) {
+          record.materializeBelongsTo(name, prematerialized[name]);
+        } else {
+          this.materializeBelongsTo(name, record, hash, relationship, prematerialized);
+        }
       }
     }, this);
   },

@@ -201,7 +201,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     this.sideload(store, type, json, root);
-    store.load(type, id, json[root]);
+    store.load(type, json[root], { id: id });
   },
 
   findAll: function(store, type, since) {
