@@ -93,11 +93,10 @@ API.
 
 One of the goals of Ember Data is to separate application semantics from
 server semantics. For example, you should be able to use a simple
-backend like MongoDB during development. When deploying to production,
-you may want to use a database better equipped to handle scale, like
-PostgreSQL. Despite the many differences between these two database
-technologies, switching between them should not require you to
-rewrite your application.
+backend during development. Then, when deploying to production,
+switch to a database better equipped to handle scale.
+Even significant differences between the two database
+technologies should not require you to rewrite your application.
 
 Ember Data accomplishes this by isolating server-specific code in the
 _adapter_. The adapter is responsible for translating
