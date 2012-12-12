@@ -414,8 +414,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     its `isLoaded` property.
   */
   find: function(type, id) {
-    if (id === undefined) {
+    if (arguments.length === 1) {
       return this.findAll(type);
+    }
+
+    if ('undefined' === typeof id || id === null) {
+      throw new Ember.Error(fmt('Cannot find %@ for type %@.', [id + '', type]));
     }
 
     // We are passed a query instead of an id.
