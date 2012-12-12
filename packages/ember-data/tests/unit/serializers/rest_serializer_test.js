@@ -22,27 +22,45 @@ test("keyForBelongsTo returns the key appended with '_id'", function() {
 });
 
 test("Calling extract on a JSON payload with multiple records will tear them apart and call loader", function() {
-  throw new Error("This test is pending");
-  var Group = DS.Model.extend();
+  var App = Ember.Namespace.create({
+    toString: function() { return "App"; }
+  });
+
+  App.Group = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  App.Post = DS.Model.extend({
+    title: DS.attr('string'),
+    groups: DS.hasMany(App.Group)
+  });
 
   serializer.mappings = {
-    groups: Group
+    groups: App.Group
   };
 
   var payload = {
     post: {
       id: 1,
-      title: "Fifty Ways to Bereave Your Lover"
+      title: "Fifty Ways to Bereave Your Lover",
+      groups: [1]
     },
 
-    groups: [{ id: 1, name: "To..." }]
+    groups: [{ id: 1, name: "Trolls" }]
   };
 
+  var callCount = 0;
   var loader = {
-    load: function(type, data, prematerialized) { }
+    load: function(type, data, prematerialized) {
+      callCount++;
+    }
   };
 
-  serializer.extract(payload, loader);
+  serializer.extract(loader, payload, {
+    type: App.Post
+  });
+
+  equal(callCount, 2, "two records were loaded from single payload");
 
   //this.extractRecord(type, structure, loader)
 

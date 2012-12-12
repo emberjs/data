@@ -10,6 +10,12 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   serializer: DS.RESTSerializer,
 
+  init: function() {
+    this._super.apply(this, arguments);
+
+    get(this, 'serializer').plurals = this.plurals;
+  },
+
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
 
@@ -49,10 +55,19 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   didCreateRecord: function(store, type, record, json) {
-    var root = this.rootForType(type);
+    var loader = {
+      loadMain: function(type, data, prematerialized) {
+        store.didSaveRecord(record, data, prematerialized);
+      },
 
-    this.sideload(store, type, json, root);
-    this.didSaveRecord(store, record, json[root]);
+      load: function() {
+        store.load.apply(store, arguments);
+      }
+    };
+
+    get(this, 'serializer').extract(loader, json, {
+      type: type
+    });
   },
 
   createRecords: function(store, type, records) {
@@ -198,10 +213,20 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   didFindRecord: function(store, type, json, id) {
-    var root = this.rootForType(type);
+    var loader = {
+      loadMain: function() {
+        store.load.apply(store, arguments);
+      },
 
-    this.sideload(store, type, json, root);
-    store.load(type, json[root], { id: id });
+      load: function() {
+        store.load.apply(store, arguments);
+      }
+    };
+
+    this.extract(loader, json, {
+      type: type,
+      id: id
+    });
   },
 
   findAll: function(store, type, since) {
@@ -290,25 +315,6 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
   },
 
-  // HELPERS
-
-  plurals: {},
-
-  // define a plurals hash in your subclass to define
-  // special-case pluralization
-  pluralize: function(name) {
-    return this.plurals[name] || name + "s";
-  },
-
-  rootForType: function(type) {
-    if (type.url) { return type.url; }
-
-    // use the last part of the name as the URL
-    var parts = type.toString().split(".");
-    var name = parts[parts.length - 1];
-    return name.replace(/([A-Z])/g, '_$1').toLowerCase().slice(1);
-  },
-
   ajax: function(url, type, hash) {
     hash.url = url;
     hash.type = type;
@@ -323,60 +329,17 @@ DS.RESTAdapter = DS.Adapter.extend({
     jQuery.ajax(hash);
   },
 
-  sideload: function(store, type, json, root) {
-    var sideloadedType, mappings, loaded = {};
-
-    loaded[root] = true;
-
-    for (var prop in json) {
-      if (!json.hasOwnProperty(prop)) { continue; }
-      if (prop === root) { continue; }
-      if (prop === get(this, 'meta')) { continue; }
-
-      sideloadedType = type.typeForAssociation(prop);
-
-      if (!sideloadedType) {
-        mappings = get(this, 'mappings');
-        Ember.assert("Your server returned a hash with the key " + prop + " but you have no mappings", !!mappings);
-
-        sideloadedType = get(mappings, prop);
-
-        if (typeof sideloadedType === 'string') {
-          sideloadedType = get(window, sideloadedType);
-        }
-
-        Ember.assert("Your server returned a hash with the key " + prop + " but you have no mapping for it", !!sideloadedType);
-      }
-
-      this.sideloadAssociations(store, sideloadedType, json, prop, loaded);
-    }
-  },
-
-  sideloadAssociations: function(store, type, json, prop, loaded) {
-    loaded[prop] = true;
-
-    get(type, 'associationsByName').forEach(function(key, meta) {
-      key = meta.key || key;
-      if (meta.kind === 'belongsTo') {
-        key = this.pluralize(key);
-      }
-      if (json[key] && !loaded[key]) {
-        this.sideloadAssociations(store, meta.type, json, key, loaded);
-      }
-    }, this);
-
-    this.loadValue(store, type, json[prop]);
-  },
-
-  loadValue: function(store, type, value) {
-    if (value instanceof Array) {
-      store.loadMany(type, value);
-    } else {
-      store.load(type, value);
-    }
-  },
-
   url: "",
+
+  rootForType: function(type) {
+    var serializer = get(this, 'serializer');
+    return serializer.rootForType(type);
+  },
+
+  pluralize: function(string) {
+    var serializer = get(this, 'serializer');
+    return serializer.pluralize(string);
+  },
 
   buildURL: function(record, suffix) {
     var url = [this.url];

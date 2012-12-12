@@ -547,9 +547,14 @@ DS.Serializer = Ember.Object.extend({
   keyForHasMany: function(type, name) {
     return this.keyForAttributeName(type, name);
   },
+
   //.........................
   //. MATERIALIZATION HOOKS
   //.........................
+
+  extract: function() {
+    throw new Error("You must implement DS.Serializer's extract method");
+  },
 
   materialize: function(record, serialized, prematerialized) {
     var id;
