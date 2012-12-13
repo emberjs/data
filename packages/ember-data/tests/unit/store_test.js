@@ -237,6 +237,26 @@ test("DS.Store loads individual records without explicit IDs", function() {
   equal(get(tom, 'name'), "Tom Dale", "the person was successfully loaded for the given ID");
 });
 
+test("DS.Store loads individual records that access associations during initialization", function() {
+  var store = DS.Store.create();
+  var Person = DS.Model.extend();
+
+  Person.reopen({
+    init: function() {
+      this._super.apply(this, arguments);
+      this.get('children');
+    },
+    name: DS.attr('string'),
+    children: DS.hasMany(Person)
+  });
+
+  store.load(Person, { id: 1, name: "John Doe" });
+
+  var person = store.find(Person, 1);
+
+  equal(get(person, 'name'), "John Doe", "person attributes are properly set up");
+});
+
 test("can load data for the same record if it is not dirty", function() {
   var store = DS.Store.create();
   var Person = DS.Model.extend({
