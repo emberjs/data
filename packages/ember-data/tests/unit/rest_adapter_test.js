@@ -4,6 +4,7 @@ var adapter, store, ajaxUrl, ajaxType, ajaxHash;
 var Person, person, people;
 var Role, role, roles;
 var Group, group;
+var SharedInterest;
 
 module("the REST adapter", {
   setup: function() {
@@ -43,9 +44,18 @@ module("the REST adapter", {
       return "App.Person";
     };
 
+    SharedInterest = DS.Model.extend({
+      name: DS.attr('string')
+    });
+
+    SharedInterest.toString = function() {
+      return "App.SharedInterest";
+    };
+
     Group = DS.Model.extend({
       name: DS.attr('string'),
-      people: DS.hasMany(Person)
+      people: DS.hasMany(Person),
+      sharedInterests: DS.hasMany(SharedInterest)
     });
 
     Group.toString = function() {
@@ -460,6 +470,22 @@ test("additional data can be sideloaded in a GET", function() {
 
   equal(get(store.find(Person, 1), 'name'), "Yehuda Katz", "the items are sideloaded");
   equal(get(get(store.find(Group, 1), 'people').objectAt(0), 'name'), "Yehuda Katz", "the items are in the association");
+});
+
+test("sideloading respects naming convention", function() {
+  group = store.find(Group, 1);
+
+  ajaxHash.success({
+    group: {
+      id: 1, name: "Group 1", shared_interests: [ 1 ]
+    },
+    shared_interests: [{
+      id: 1, name: "Balloons"
+    }]
+  });
+
+  equal(get(store.find(SharedInterest, 1), 'name'), "Balloons", "the items are sideloaded");
+  equal(get(get(store.find(Group, 1), 'sharedInterests').objectAt(0), 'name'), "Balloons", "the items are in the association");
 });
 
 test("finding many people by a list of IDs", function() {
