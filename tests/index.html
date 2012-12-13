@@ -82,55 +82,48 @@
     var packages = location.search.match(/package=([^&]+)/),
         packageName, el, idx, len, re, match, moduleName;
 
-    if (!packages) {
-      el = document.getElementById('qunit-header');
-      el.innerHTML = 'Add package=package1,package2 in the URL to test packages';
+    if(!packages || packages[1] == 'all') {
+      packages = ['ember-data']
     } else {
-      if (packages[1] === 'all') {
-        packages = [
-          'ember-data'
-        ];
-      } else {
-        packages = packages[1].split(',');
+      packages = packages[1].split(',');
+    }
+
+    len = packages.length;
+
+    for (idx=0; idx<len; idx++) {
+      packageName = packages[idx];
+      re = new RegExp('^'+packageName+'/([^/]+)');
+
+      if (dist == 'spade') {
+        minispade.require(packageName);
       }
 
-      len = packages.length;
+      minispade.require('ember-data/~test-setup');
+      minispade.require('ember-data/~tests/helpers');
 
-      for (idx=0; idx<len; idx++) {
-        packageName = packages[idx];
-        re = new RegExp('^'+packageName+'/([^/]+)');
+      for (moduleName in minispade.modules) {
+        if (!minispade.modules.hasOwnProperty(moduleName)) { continue; }
 
-        if (dist == 'spade') {
-          minispade.require(packageName);
-        }
+        match = moduleName.match(re);
+        if (match) {
+          if (match[1] === '~tests') {
+            // Only require the actual tests since we already required the module
+            minispade.require(moduleName);
+          }
 
-        minispade.require('ember-data/~test-setup');
-        minispade.require('ember-data/~tests/helpers');
+          if (jsHint) {
+            module("JSHint");
 
-        for (moduleName in minispade.modules) {
-          if (!minispade.modules.hasOwnProperty(moduleName)) { continue; }
-
-          match = moduleName.match(re);
-          if (match) {
-            if (match[1] === '~tests') {
-              // Only require the actual tests since we already required the module
-              minispade.require(moduleName);
-            }
-
-            if (jsHint) {
-              module("JSHint");
-
-              // JSHint all modules in this package, tests and code
-              // (closure to preserve variable values)
-              (function() {
-                var jshintModule = moduleName;
-                test(jshintModule+' should pass jshint', function() {
-                  var passed = JSHINT(minispade.modules[jshintModule], JSHINTRC),
-                      errors = jsHintReporter(jshintModule, JSHINT.errors);
-                  ok(passed, jshintModule+" should pass jshint."+(errors ? "\n"+errors : ''));
-                });
-              })();
-            }
+            // JSHint all modules in this package, tests and code
+            // (closure to preserve variable values)
+            (function() {
+              var jshintModule = moduleName;
+              test(jshintModule+' should pass jshint', function() {
+                var passed = JSHINT(minispade.modules[jshintModule], JSHINTRC),
+                    errors = jsHintReporter(jshintModule, JSHINT.errors);
+                ok(passed, jshintModule+" should pass jshint."+(errors ? "\n"+errors : ''));
+              });
+            })();
           }
         }
       }
