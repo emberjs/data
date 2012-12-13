@@ -67,12 +67,12 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var stateManager = DS.StateManager.create({ record: this });
     set(this, 'stateManager', stateManager);
 
-    this.setup();
+    this._setup();
 
     stateManager.goToState('empty');
   },
 
-  setup: function() {
+  _setup: function() {
     this._relationshipChanges = {};
   },
 
@@ -212,7 +212,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   rollback: function() {
-    this.setup();
+    this._setup();
     this.send('becameClean');
 
     this.suspendAssociationObservers(function() {
