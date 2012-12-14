@@ -223,6 +223,25 @@ test("When adding a child to a parent, then commit, the parent should come back 
   //equal(person.get('stateManager.currentState.path'), "rootState.loaded.saved");
 });
 
+test("deleting a new record clears its relationships", function() {
+  var parent, child;
+
+  store.load(Comment, { id: 1, body: "Child" });
+
+  child = store.find(Comment, 1);
+  parent = store.createRecord(Comment);
+
+  equal(child.get('comment'), null, "the child should not yet belong to anyone");
+
+  parent.get('comments').addObject(child);
+
+  equal(child.get('comment'), parent, "the child should now belong to the parent");
+
+  parent.deleteRecord();
+
+  equal(child.get('comment'), null, "the child should no longer belong to anyone");
+});
+
 //test("When a record with a hasMany association is deleted, its associated record is materialized and its belongsTo is changed", function() {
   //expect(3);
 

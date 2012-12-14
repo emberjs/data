@@ -782,7 +782,13 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
-    TODO: What is this method trying to do?
+    This method returns if a certain record is already loaded 
+    in the store. Use this function to know beforehand if a find() 
+    will result in a request or that it will be a cache hit.
+
+    @param {Class} type
+    @param {string} id
+    @return {boolean}
   */
   recordIsLoaded: function(type, id) {
     return !Ember.none(this.typeMapFor(type).idToCid[id]);
@@ -1491,10 +1497,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     if (dataList === undefined) {
       dataList = ids;
-      ids = [];
-
-      var adapter = this.adapterForType(type);
-
       ids = map(dataList, function(data) {
         return this.preprocessData(type, data);
       }, this);

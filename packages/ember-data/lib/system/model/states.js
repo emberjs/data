@@ -1,4 +1,5 @@
-var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor;
+var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor,
+    arrayMap = Ember.ArrayPolyfills.map;
 
 /**
   This file encapsulates the various states that a record can transition
@@ -435,8 +436,8 @@ createdState.states.uncommitted.reopen({
       t.recordIsMoving('created', record);
     });
 
-    manager.transitionTo('deleted.saved');
     record.clearRelationships();
+    manager.transitionTo('deleted.saved');
   }
 });
 
@@ -720,5 +721,17 @@ var states = {
 DS.StateManager = Ember.StateManager.extend({
   record: null,
   initialState: 'rootState',
-  states: states
+  states: states,
+  unhandledEvent: function(manager, originalEvent) {
+    var record = manager.get('record'),
+        contexts = [].slice.call(arguments, 2),
+        errorMessage;
+    errorMessage  = "Attempted to handle event `" + originalEvent + "` ";
+    errorMessage += "on " + record.toString() + " while in state ";
+    errorMessage += get(this, 'currentState.path') + ". Called with ";
+    errorMessage += arrayMap.call(contexts, function(context){
+                      return Ember.inspect(context);
+                    }).join(', ');
+    throw new Ember.Error(errorMessage);
+  }
 });

@@ -26,7 +26,9 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: data,
       context: this,
       success: function(json) {
-        this.didCreateRecord(store, type, record, json);
+        Ember.run(this, function(){
+          this.didCreateRecord(store, type, record, json);
+        });
       },
       error: function(xhr) {
         this.didError(store, type, record, xhr);
@@ -88,7 +90,9 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: data,
       context: this,
       success: function(json) {
-        this.didCreateRecords(store, type, records, json);
+        Ember.run(this, function(){
+          this.didCreateRecords(store, type, records, json);
+        });
       }
     });
   },
@@ -111,7 +115,9 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: data,
       context: this,
       success: function(json) {
-        this.didUpdateRecord(store, type, record, json);
+        Ember.run(this, function(){
+          this.didUpdateRecord(store, type, record, json);
+        });
       },
       error: function(xhr) {
         this.didError(store, type, record, xhr);
@@ -144,7 +150,9 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: data,
       context: this,
       success: function(json) {
-        this.didUpdateRecords(store, type, records, json);
+        Ember.run(this, function(){
+          this.didUpdateRecords(store, type, records, json);
+        });
       }
     });
   },
@@ -163,7 +171,9 @@ DS.RESTAdapter = DS.Adapter.extend({
     this.ajax(this.buildURL(root, id), "DELETE", {
       context: this,
       success: function(json) {
-        this.didDeleteRecord(store, type, record, json);
+        Ember.run(this, function(){
+          this.didDeleteRecord(store, type, record, json);
+        });
       }
     });
   },
@@ -192,7 +202,9 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: data,
       context: this,
       success: function(json) {
-        this.didDeleteRecords(store, type, records, json);
+        Ember.run(this, function(){
+          this.didDeleteRecords(store, type, records, json);
+        });
       }
     });
   },
@@ -207,7 +219,9 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, id), "GET", {
       success: function(json) {
-        this.didFindRecord(store, type, json, id);
+        Ember.run(this, function(){
+          this.didFindRecord(store, type, json, id);
+        });
       }
     });
   },
@@ -235,7 +249,9 @@ DS.RESTAdapter = DS.Adapter.extend({
     this.ajax(this.buildURL(root), "GET", {
       data: this.sinceQuery(since),
       success: function(json) {
-        this.didFindAll(store, type, json);
+        Ember.run(this, function(){
+          this.didFindAll(store, type, json);
+        });
       }
     });
   },
@@ -260,7 +276,9 @@ DS.RESTAdapter = DS.Adapter.extend({
     this.ajax(this.buildURL(root), "GET", {
       data: query,
       success: function(json) {
-        this.didFindQuery(store, type, json, recordArray);
+        Ember.run(this, function(){
+          this.didFindQuery(store, type, json, recordArray);
+        });
       }
     });
   },
@@ -279,7 +297,9 @@ DS.RESTAdapter = DS.Adapter.extend({
     this.ajax(this.buildURL(root), "GET", {
       data: {ids: ids},
       success: function(json) {
-        this.didFindMany(store, type, json);
+        Ember.run(this, function(){
+          this.didFindMany(store, type, json);
+        });
       }
     });
   },
