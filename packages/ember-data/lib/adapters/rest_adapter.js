@@ -322,30 +322,37 @@ DS.RESTAdapter = DS.Adapter.extend({
     return this.plurals[name] || name + "s";
   },
 
-  // extracts the root from an embedded url:
-  //   "blah/blah/posts"   => "posts"
-  //   "posts"             => "posts"
+  singularize: function(name) {
+    var singlular;
+    for (singlular in this.plurals) {
+      if (this.plurals[singlular] === name) {
+        return singlular;
+      }
+    }
+    return name.replace(/s$/, "");
+  },
+
   rootForType: function(type) {
-    return this.urlForType(type).replace(/.*\//, "");
+    return this.singularize(this.pluralizedRootForType(type));
   },
 
   pluralizedRootForType: function(type) {
-    // if the user has typed in a url, it is safe to assume they
-    // already pluralized it
     if (type.url) {
-      return this.rootForType(type);
+      return this.urlForType(type).replace(/.*\//, "");
     } else {
-      return this.pluralize(this.rootForType(type));
+      return this.urlForType(type);
     }
   },
 
+  // the url is always pluralized by default
   urlForType: function(type) {
     if (type.url) { return type.url; }
 
     // use the last part of the name as the URL
     var parts = type.toString().split(".");
     var name = parts[parts.length - 1];
-    return name.replace(/([A-Z])/g, '_$1').toLowerCase().slice(1);
+    name = name.replace(/([A-Z])/g, '_$1').toLowerCase().slice(1);
+    return this.pluralize(name);
   },
 
   ajax: function(url, type, hash) {
@@ -428,13 +435,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       url.push(this.namespace);
     }
 
-    // don't pluralize if the record is an embedded url, the user will have
-    // already done it when defining it
-    if (/\//.test(record)) {
-      url.push(record);
-    } else {
-      url.push(this.pluralize(record));
-    }
+    url.push(record);
 
     if (suffix !== undefined) {
       url.push(suffix);
