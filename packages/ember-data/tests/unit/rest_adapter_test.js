@@ -335,6 +335,27 @@ test("finding all people makes a GET to /people", function() {
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
+test("finding all people via an embedded URL works", function() {
+
+  Person.reopenClass({
+    url: "some/path/to/people"
+  });
+
+  people = store.find(Person);
+
+  expectUrl("/some/path/to/people", "the plural of the model name");
+  expectType("GET");
+
+  ajaxHash.success({ people: [{ id: 1, name: "Yehuda Katz" }] });
+
+  person = people.objectAt(0);
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
+});
+
 test("finding all can sideload data", function() {
   var groups = store.find(Group);
 
@@ -421,6 +442,26 @@ test("finding a person by ID makes a GET to /people/:id", function() {
 
   expectState('loaded', false);
   expectUrl("/people/1", "the plural of the model name with the ID requested");
+  expectType("GET");
+
+  ajaxHash.success({ person: { id: 1, name: "Yehuda Katz" } });
+
+  expectState('loaded');
+  expectState('dirty', false);
+
+  equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
+});
+
+test("finding a person by via an embedded url works", function() {
+
+  Person.reopenClass({
+    url: "some/path/to/people"
+  });
+
+  person = store.find(Person, 1);
+
+  expectState('loaded', false);
+  expectUrl("/some/path/to/people/1", "the plural of the model name with the ID requested");
   expectType("GET");
 
   ajaxHash.success({ person: { id: 1, name: "Yehuda Katz" } });
@@ -1041,4 +1082,9 @@ test("updating a record with a 500 error marks the record as error", function() 
   ajaxHash.error.call(ajaxHash.context, mockXHR);
 
   expectState('error');
+});
+
+test ("singularize works", function() {
+  equal(adapter.singularize('posts'), "post", "singularize doesn't handle regular plurals");
+  equal(adapter.singularize('people'), "person", "singularize doesn't handle special plurals");
 });
