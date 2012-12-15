@@ -4,21 +4,21 @@
 DS.JSONTransforms = {
   string: {
     deserialize: function(serialized) {
-      return Ember.none(serialized) ? null : String(serialized);
+      return Ember.isNone(serialized) ? null : String(serialized);
     },
 
     serialize: function(deserialized) {
-      return Ember.none(deserialized) ? null : String(deserialized);
+      return Ember.isNone(deserialized) ? null : String(deserialized);
     }
   },
 
   number: {
     deserialize: function(serialized) {
-      return Ember.none(serialized) ? null : Number(serialized);
+      return Ember.isNone(serialized) ? null : Number(serialized);
     },
 
     serialize: function(deserialized) {
-      return Ember.none(deserialized) ? null : Number(deserialized);
+      return Ember.isNone(deserialized) ? null : Number(deserialized);
     }
   },
 

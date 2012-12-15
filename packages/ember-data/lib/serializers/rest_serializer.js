@@ -12,6 +12,6 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   addBelongsTo: function(hash, record, key, relationship) {
     var id = get(record, relationship.key+'.id');
 
-    if (!Ember.none(id)) { hash[key] = id; }
+    if (!Ember.isNone(id)) { hash[key] = id; }
   }
 });
