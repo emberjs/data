@@ -297,7 +297,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // client-side ID generators will use something like uuid.js
     // to avoid conflicts.
     var adapter;
-    if (Ember.none(id)) {
+    if (Ember.isNone(id)) {
       adapter = get(this, 'adapter');
       if (adapter && adapter.generateIdForRecord) {
         id = coerceId(adapter.generateIdForRecord(this, record));
@@ -788,7 +788,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {boolean}
   */
   recordIsLoaded: function(type, id) {
-    return !Ember.none(this.typeMapFor(type).idToCid[id]);
+    return !Ember.isNone(this.typeMapFor(type).idToCid[id]);
   },
 
   // ............
