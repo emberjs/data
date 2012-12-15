@@ -6,6 +6,7 @@ require("ember-data/system/mixins/mappable");
 
 var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt;
 var forEach = Ember.EnumerableUtils.forEach;
+var EnumerableUtils = Ember.EnumerableUtils;
 // These values are used in the data cache when clientIds are
 // needed but the underlying data has not yet been loaded by
 // the server.
@@ -125,6 +126,31 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return DS.Transaction.create({ store: this });
   },
 
+  ensureSameTransaction: function(records){
+    var transactions = Ember.A();
+    EnumerableUtils.forEach( records, function(record){
+      if (record){ transactions.pushObject(get(record, 'transaction')); }
+    }); 
+    
+    var transaction = transactions.reduce(function(prev, t) {
+      if (!get(t, 'isDefault')) {
+        if (prev === null) { return t; }
+        Ember.assert("All records in a changed relationship must be in the same transaction. You tried to change the relationship between records when one is in " + t + " and the other is in " + prev, t === prev);
+      }
+
+      return prev;
+    }, null);
+
+    if (transaction) {
+      EnumerableUtils.forEach( records, function(record){
+        if (record){ transaction.add(record); }
+      }); 
+    } else { 
+      transaction = transactions.objectAt(0);
+    }     
+    return transaction;
+    
+   },
   /**
     @private
 
@@ -1622,6 +1648,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       return changes[clientId][parentId][key][type];
     }
     else{
+      //TODO(Igor) what if both present
       return changes[clientId][parentId][key]["add"] || changes[clientId][parentId][key]["remove"];
     }
   },

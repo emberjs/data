@@ -343,14 +343,23 @@ module("DS.Transaction - relationships", {
 function expectRelationships(description) {
   var relationships = transaction.get('relationships').toArray(),
       relationship = relationships[0],
-      count = description.count === undefined ? 1 : description.count;
+      count = description.count === undefined ? description.length : description.count;
 
+  if(description.count === undefined && (!description[0] || !description[1])){
+    count = 1;
+  }
   QUnit.push(relationships.length === count, relationships.length, count, "There should be " + count + " dirty relationships");
 
   if (count) {
-    QUnit.push(relationship.getOldParent() === description.oldParent, relationship.oldParent, description.oldParent, "oldParent is incorrect");
-    QUnit.push(relationship.getNewParent() === description.newParent, relationship.newParent, description.newParent, "newParent is incorrect");
-    QUnit.push(relationship.getChild() === description.child, relationship.child, description.child, "child is incorrect");
+    if(description[0]){
+      QUnit.push(relationships[0].getParent() === description[0].parent, relationships[0].getParent(), description[0].parent, "oldParent is incorrect");
+      QUnit.push(relationships[0].getChild() === description[0].child, relationships[0].child, description[0].child, "child in relationship 0 is incorrect");
+  }
+    if(description[1]){
+      var relPosition = count === 2 ? 1 : 0;
+      QUnit.push(relationships[relPosition].getChild() === description[1].child, relationships[relPosition].child, description[1].child, "child in relationship 1 is incorrect");
+      QUnit.push(relationships[relPosition].getParent() === description[1].parent, relationships[relPosition].parent, description[1].parent, "newParent is incorrect");
+  }
   }
 }
 
@@ -368,11 +377,9 @@ test("If both the parent and child are clean and in the same transaction, a dirt
 
   post.get('comments').pushObject(comment);
 
-  expectRelationships({
-    oldParent: null,
-    newParent: post,
-    child: comment
-  });
+  expectRelationships(
+    [null,{parent: post, child: comment}]
+  );
 });
 
 test("If a child is removed from a parent, a dirty relationship is added to the transaction A->null", function() {
@@ -389,11 +396,10 @@ test("If a child is removed from a parent, a dirty relationship is added to the 
 
   post.get('comments').removeObject(comment);
 
-  expectRelationships({
-    oldParent: post,
-    newParent: null,
-    child: comment
-  });
+  expectRelationships(
+    [{parent: post,
+      child: comment}]
+  );
 });
 
 test("If a child is removed from a parent it was recently added to, the dirty relationship is removed. null->A, A->null", function() {
@@ -435,11 +441,7 @@ test("If a child was added to one parent, and then another, the changes coalesce
   post2.get('comments').removeObject(comment);
   post3.get('comments').pushObject(comment);
 
-  expectRelationships({
-    oldParent: post,
-    newParent: post3,
-    child: comment
-  });
+  expectRelationships([{parent:post, child:comment},{parent:post3, child:comment}]);
 });
 
 test("the store should have a new defaultTransaction after commit from store", function() {

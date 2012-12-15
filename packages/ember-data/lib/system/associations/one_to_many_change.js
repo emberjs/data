@@ -1,5 +1,6 @@
 var get = Ember.get, set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;
+var EnumerableUtils = Ember.EnumerableUtils;
 
 DS.RelationshipChange = function(options) {
   this.oldParent = options.oldParent;
@@ -94,6 +95,22 @@ DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
   return change;
 };
 
+DS.OneToManyChange.ensureSameTransaction = function(changes, store){
+  var records = Ember.A();
+  EnumerableUtils.forEach(changes, function(change){
+    if(change){
+      records.addObject(change.getParent());  
+      records.addObject(change.getChild());  
+    }
+  });
+  var transaction = store.ensureSameTransaction(records);
+  EnumerableUtils.forEach(changes, function(change){
+    if(change){
+      change.transaction = transaction;  
+    }
+ });
+};
+
 DS.RelationshipChange.prototype = {
   /**
     Get the child type and ID, if available.
@@ -104,29 +121,6 @@ DS.RelationshipChange.prototype = {
     return this.getTypeAndIdFor(this.child);
   },
 
-  /**
-    Get the old parent type and ID, if available.
-
-    @returns {Array} an array of type and ID
-  */
-  getOldParentTypeAndId: function() {
-    return this.getTypeAndIdFor(this.oldParent);
-  },
-
-  /**
-    Get the new parent type and ID, if available.
-
-    @returns {Array} an array of type and ID
-  */
-  getNewParentTypeAndId: function() {
-    return this.getTypeAndIdFor(this.newParent);
-  },
-
-  /**
-    Get the name of the relationship on the hasMany side.
-
-    @returns {String}
-  */
   getHasManyName: function() {
     var name = this.hasManyName, store = this.store, parent;
 
@@ -213,21 +207,6 @@ DS.RelationshipChange.prototype = {
     return this.getByClientId(this.child);
   },
 
-  /** @private */
-  getOldParent: function() {
-    return this.getByClientId(this.oldParent);
-  },
-
-  /** @private */
-  getNewParent: function() {
-    return this.getByClientId(this.newParent);
-  },
-
-  /** @private */
-  getLastParent: function() {
-    return this.getByClientId(this.lastParent);
-  },
-
   /**
     @private
 
@@ -236,29 +215,11 @@ DS.RelationshipChange.prototype = {
     default transaction, and the rest are in a different transaction, move
     them all into that transaction.
   */
-  ensureSameTransaction: function(child, parentRecord, hasManyName, belongsToName) {
-    var transactions = Ember.A();
+  ensureSameTransaction: function() {
+    var child = this.getChild(),
+      parentRecord = this.getParent();
 
-    if (child)     { transactions.pushObject(get(child, 'transaction')); }
-    if (parentRecord) { transactions.pushObject(get(parentRecord, 'transaction')); }
-    //if (newParent) { transactions.pushObject(get(newParent, 'transaction')); }
-
-    var transaction = transactions.reduce(function(prev, t) {
-      if (!get(t, 'isDefault')) {
-        if (prev === null) { return t; }
-        Ember.assert("All records in a changed relationship must be in the same transaction. You tried to change the relationship between records when one is in " + t + " and the other is in " + prev, t === prev);
-      }
-
-      return prev;
-    }, null);
-
-    if (transaction) {
-      transaction.add(child);
-      if (parentRecord) { transaction.add(parentRecord); }
-      //if (newParent) { transaction.add(newParent); }
-    } else {
-      transaction = transactions.objectAt(0);
-    }
+    var transaction = this.store.ensureSameTransaction([child, parentRecord]);
 
     this.transaction = transaction;
     return transaction;

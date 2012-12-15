@@ -45,6 +45,7 @@ DS.Model.reopen({
       if (oldParent){
         var change = DS.OneToManyChange.forChildAndParent(childId, store, { belongsToName: key, parentId: get(oldParent,'clientId'), type: "remove" });
         change.sync();
+        this._changeToSync = change;
       }
     }
   }),
@@ -58,7 +59,9 @@ DS.Model.reopen({
             store = get(record, 'store');
         var change = DS.OneToManyChange.forChildAndParent(childId, store, { belongsToName: key, parentId: get(newParent, 'clientId'), type: "add" });
         change.sync();
+        DS.OneToManyChange.ensureSameTransaction([change, this._changeToSync], store);
       }
+      this._changeToSync = null;
     }
   })
 });
