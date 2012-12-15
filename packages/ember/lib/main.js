@@ -5933,12 +5933,12 @@ Ember.typeOf = function(item) {
   confusing.
 
   ```javascript
-  Ember.none();              // true
-  Ember.none(null);          // true
-  Ember.none(undefined);     // true
-  Ember.none('');            // false
-  Ember.none([]);            // false
-  Ember.none(function(){});  // false
+  Ember.isNone();              // true
+  Ember.isNone(null);          // true
+  Ember.isNone(undefined);     // true
+  Ember.isNone('');            // false
+  Ember.isNone([]);            // false
+  Ember.isNone(function(){});  // false
   ```
 
   @method none
@@ -5946,7 +5946,7 @@ Ember.typeOf = function(item) {
   @param {Object} obj Value to test
   @return {Boolean}
 */
-Ember.none = function(obj) {
+Ember.isNone = function(obj) {
   return obj === null || obj === undefined;
 };
 
@@ -5954,7 +5954,7 @@ Ember.none = function(obj) {
   Verifies that a value is `null` or an empty string, empty array,
   or empty function.
 
-  Constrains the rules on `Ember.none` by returning false for empty
+  Constrains the rules on `Ember.isNone` by returning false for empty
   string and empty arrays.
 
   ```javascript
@@ -9773,7 +9773,7 @@ Ember.CoreObject = CoreObject;
 @submodule ember-runtime
 */
 
-var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor, none = Ember.none;
+var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor, none = Ember.isNone;
 
 /**
   An unordered collection of objects.
@@ -21224,7 +21224,7 @@ EmberHandlebars.registerHelper('bind', function(property, options) {
   }
 
   return bind.call(context, property, options, false, function(result) {
-    return !Ember.none(result);
+    return !Ember.isNone(result);
   });
 });
 
@@ -21295,7 +21295,7 @@ EmberHandlebars.registerHelper('with', function(context, options) {
     }
 
     return bind.call(this, path, options, true, function(result) {
-      return !Ember.none(result);
+      return !Ember.isNone(result);
     });
   } else {
     Ember.assert("You must pass exactly one argument to the with helper", arguments.length === 2);
