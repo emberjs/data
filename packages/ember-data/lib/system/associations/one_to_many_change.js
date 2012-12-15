@@ -9,7 +9,7 @@ DS.RelationshipChange = function(options) {
   this.committed = {};
   this.awaiting = 0;
   this.changeType = options.changeType;
-  this.parentId = options.parentId;
+  this.parentClientId = options.parentClientId;
 };
 
 DS.RelationshipChangeAdd = function(options){
@@ -63,7 +63,7 @@ DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
         var correspondingChange = DS.OneToManyChange.forChildAndParent(childClientId, store, {
             parentType: options.parentType,
             hasManyName: options.hasManyName,
-            parentId: oldParent.get('clientId'),
+            parentClientId: oldParent.get('clientId'),
             changeType: "remove"
           }); 
        correspondingChange.sync();
@@ -80,12 +80,12 @@ DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
   if (!change) {
     change = DS.OneToManyChange.create({
       child: childClientId,
-      parentId: options.parentId,
+      parentClientId: options.parentClientId,
       store: store,
       changeType: options.changeType
     });
 
-    store.addRelationshipChangeFor(childClientId, key, options.parentId , null, change);
+    store.addRelationshipChangeFor(childClientId, key, options.parentClientId , null, change);
   }
 
   change.belongsToName = key;
@@ -123,7 +123,7 @@ DS.RelationshipChange.prototype = {
     var name = this.hasManyName, store = this.store, parent;
 
     if (!name) {
-      parent = this.parentId;
+      parent = this.parentClientId;
       if (!parent) { return; }
 
       var childType = store.typeForClientId(this.child);
@@ -177,7 +177,7 @@ DS.RelationshipChange.prototype = {
         store = this.store,
         child, oldParent, newParent, lastParent, transaction;
 
-    store.removeRelationshipChangeFor(childClientId, belongsToName, this.parentId, hasManyName, this.changeType);
+    store.removeRelationshipChangeFor(childClientId, belongsToName, this.parentClientId, hasManyName, this.changeType);
 
     if (transaction = this.transaction) {
       transaction.relationshipBecameClean(this);
@@ -197,7 +197,7 @@ DS.RelationshipChange.prototype = {
   },
 
   getParent: function(){
-    return this.getByClientId(this.parentId);
+    return this.getByClientId(this.parentClientId);
   },
 
   /** @private */

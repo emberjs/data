@@ -1605,42 +1605,42 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // . RELATIONSHIP CHANGES .
   // ........................
 
-  addRelationshipChangeFor: function(clientId, childKey, parentId, parentKey, change) {
+  addRelationshipChangeFor: function(clientId, childKey, parentClientId, parentKey, change) {
     var key = childKey + parentKey;
     var changes = this.relationshipChanges;
     if (!(clientId in changes)) {
       changes[clientId] = {};
     }
-    if (!(parentId in changes[clientId])) {
-      changes[clientId][parentId] = {};
+    if (!(parentClientId in changes[clientId])) {
+      changes[clientId][parentClientId] = {};
     }
-    if (!(key in changes[clientId][parentId])) {
-      changes[clientId][parentId][key] = {};
+    if (!(key in changes[clientId][parentClientId])) {
+      changes[clientId][parentClientId][key] = {};
     }
-    changes[clientId][parentId][key][change.changeType] = change;
+    changes[clientId][parentClientId][key][change.changeType] = change;
   },
 
-  removeRelationshipChangeFor: function(clientId, childKey, parentId, parentKey, type) {
+  removeRelationshipChangeFor: function(clientId, childKey, parentClientId, parentKey, type) {
     var changes = this.relationshipChanges;
     var key = childKey + parentKey;
-    if (!(clientId in changes) || !(parentId in changes[clientId]) || !(key in changes[clientId][parentId])){ 
+    if (!(clientId in changes) || !(parentClientId in changes[clientId]) || !(key in changes[clientId][parentClientId])){ 
       return;
     }
-    delete changes[clientId][parentId][key][type];
+    delete changes[clientId][parentClientId][key][type];
   },
 
-  relationshipChangeFor: function(clientId, childKey, parentId, parentKey, type) {
+  relationshipChangeFor: function(clientId, childKey, parentClientId, parentKey, type) {
     var changes = this.relationshipChanges;
     var key = childKey + parentKey;
-    if (!(clientId in changes) || !(parentId in changes[clientId])){ 
+    if (!(clientId in changes) || !(parentClientId in changes[clientId])){ 
       return;
     }
     if(type){
-      return changes[clientId][parentId][key][type];
+      return changes[clientId][parentClientId][key][type];
     }
     else{
       //TODO(Igor) what if both present
-      return changes[clientId][parentId][key]["add"] || changes[clientId][parentId][key]["remove"];
+      return changes[clientId][parentClientId][key]["add"] || changes[clientId][parentClientId][key]["remove"];
     }
   },
 
