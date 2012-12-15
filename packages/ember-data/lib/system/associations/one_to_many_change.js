@@ -1,6 +1,5 @@
 var get = Ember.get, set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;
-var EnumerableUtils = Ember.EnumerableUtils;
 
 DS.RelationshipChange = function(options) {
   this.oldParent = options.oldParent;
@@ -9,7 +8,7 @@ DS.RelationshipChange = function(options) {
   this.store = options.store;
   this.committed = {};
   this.awaiting = 0;
-  this.type = options.type;
+  this.changeType = options.changeType;
   this.parentId = options.parentId;
 };
 
@@ -38,10 +37,10 @@ DS.RelationshipChangeRemove.create = function(options) {
 
 DS.OneToManyChange = {};
 DS.OneToManyChange.create = function(options){
-  if(options.type === "add"){
+  if(options.changeType === "add"){
     return DS.RelationshipChangeAdd.create(options);   
   }
-  if(options.type === "remove"){
+  if(options.changeType === "remove"){
     return DS.RelationshipChangeRemove.create(options);   
   }
 };
@@ -57,8 +56,7 @@ DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
   // definition.
   if (options.parentType) {
     key = inverseBelongsToName(options.parentType, childType, options.hasManyName);
-    //TODO(Igor) Move this logic to a OneToManyChange specific place
-    if (options.type === "add" && store.recordIsMaterialized(childClientId)) {
+    if (options.changeType === "add" && store.recordIsMaterialized(childClientId)) {
       var child = store.findByClientId(null, childClientId);
       var oldParent = get(child, key);
       if (oldParent){
@@ -66,7 +64,7 @@ DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
             parentType: options.parentType,
             hasManyName: options.hasManyName,
             parentId: oldParent.get('clientId'),
-            type: "remove"
+            changeType: "remove"
           }); 
        correspondingChange.sync();
       } 
@@ -84,7 +82,7 @@ DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
       child: childClientId,
       parentId: options.parentId,
       store: store,
-      type: options.type
+      changeType: options.changeType
     });
 
     store.addRelationshipChangeFor(childClientId, key, options.parentId , null, change);
@@ -97,14 +95,14 @@ DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
 
 DS.OneToManyChange.ensureSameTransaction = function(changes, store){
   var records = Ember.A();
-  EnumerableUtils.forEach(changes, function(change){
+  forEach(changes, function(change){
     if(change){
       records.addObject(change.getParent());  
       records.addObject(change.getChild());  
     }
   });
   var transaction = store.ensureSameTransaction(records);
-  EnumerableUtils.forEach(changes, function(change){
+  forEach(changes, function(change){
     if(change){
       change.transaction = transaction;  
     }
@@ -179,7 +177,7 @@ DS.RelationshipChange.prototype = {
         store = this.store,
         child, oldParent, newParent, lastParent, transaction;
 
-    store.removeRelationshipChangeFor(childClientId, belongsToName, this.parentId, hasManyName, this.type);
+    store.removeRelationshipChangeFor(childClientId, belongsToName, this.parentId, hasManyName, this.changeType);
 
     if (transaction = this.transaction) {
       transaction.relationshipBecameClean(this);
@@ -287,7 +285,7 @@ DS.RelationshipChange.prototype = {
 DS.RelationshipChangeAdd.prototype = Ember.create(DS.RelationshipChange.create({}));
 DS.RelationshipChangeRemove.prototype = Ember.create(DS.RelationshipChange.create({}));
 
-DS.RelationshipChangeAdd.prototype.type = "add";
+DS.RelationshipChangeAdd.prototype.changeType = "add";
 DS.RelationshipChangeAdd.prototype.sync = function() {
   var hasManyName = this.getHasManyName(),
       belongsToName = this.getBelongsToName(),
@@ -314,7 +312,7 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
   this.coalesce();
 };
 
-DS.RelationshipChangeRemove.prototype.type = "remove";
+DS.RelationshipChangeRemove.prototype.changeType = "remove";
 DS.RelationshipChangeRemove.prototype.sync = function() {
   var hasManyName = this.getHasManyName(),
       belongsToName = this.getBelongsToName(),

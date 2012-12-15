@@ -6,7 +6,6 @@ require("ember-data/system/mixins/mappable");
 
 var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt;
 var forEach = Ember.EnumerableUtils.forEach;
-var EnumerableUtils = Ember.EnumerableUtils;
 // These values are used in the data cache when clientIds are
 // needed but the underlying data has not yet been loaded by
 // the server.
@@ -128,7 +127,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
   ensureSameTransaction: function(records){
     var transactions = Ember.A();
-    EnumerableUtils.forEach( records, function(record){
+    forEach( records, function(record){
       if (record){ transactions.pushObject(get(record, 'transaction')); }
     }); 
     
@@ -142,7 +141,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }, null);
 
     if (transaction) {
-      EnumerableUtils.forEach( records, function(record){
+      forEach( records, function(record){
         if (record){ transaction.add(record); }
       }); 
     } else { 
@@ -1607,10 +1606,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // ........................
 
   addRelationshipChangeFor: function(clientId, childKey, parentId, parentKey, change) {
-    clientId = clientId || 0;
-    childKey = childKey || "";
-    parentId = parentId || 0;
-    parentKey = parentKey || "";
     var key = childKey + parentKey;
     var changes = this.relationshipChanges;
     if (!(clientId in changes)) {
@@ -1622,7 +1617,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (!(key in changes[clientId][parentId])) {
       changes[clientId][parentId][key] = {};
     }
-    changes[clientId][parentId][key][change.type] = change;
+    changes[clientId][parentId][key][change.changeType] = change;
   },
 
   removeRelationshipChangeFor: function(clientId, childKey, parentId, parentKey, type) {
@@ -1636,10 +1631,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
   relationshipChangeFor: function(clientId, childKey, parentId, parentKey, type) {
     var changes = this.relationshipChanges;
-    clientId = clientId || 0;
-    childKey = childKey || "";
-    parentId = parentId || 0;
-    parentKey = parentKey || "";
     var key = childKey + parentKey;
     if (!(clientId in changes) || !(parentId in changes[clientId])){ 
       return;

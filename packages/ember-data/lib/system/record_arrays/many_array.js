@@ -110,7 +110,7 @@ DS.ManyArray = DS.RecordArray.extend({
           parentType: owner.constructor,
           hasManyName: name,
           parentId: owner.get('clientId'),
-          type: "remove"
+          changeType: "remove"
         });
         change.hasManyName = name;
 
@@ -142,7 +142,7 @@ DS.ManyArray = DS.RecordArray.extend({
           parentType: owner.constructor,
           hasManyName: name,
           parentId: owner.get('clientId'),
-          type: "add"
+          changeType: "add"
         });
         change.hasManyName = name;
 
