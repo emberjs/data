@@ -1,6 +1,6 @@
 require("ember-data/system/model/states");
 
-var get = Ember.get, set = Ember.set, none = Ember.isNone;
+var get = Ember.get, set = Ember.set;
 
 var retrieveFromCurrentState = Ember.computed(function(key) {
   return get(get(this, 'stateManager.currentState'), key);
