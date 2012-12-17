@@ -574,6 +574,41 @@ test("additional data can be sideloaded in a GET with many IDs", function() {
   });
 });
 
+test("the number of records fetched by findMany can be limited by fetchBatchSize", function(){
+  equal(ajaxUrl, undefined, "no Ajax calls have been made yet");
+
+  set(adapter, 'fetchBatchSize', 2);
+
+  var people = store.findMany(Person, [ 1, 2, 3 ]);
+
+  // Uses a while loop to fire off multiple ajax requests, so we will
+  // only see the last one. TODO: make it capture a list of requests
+  // made within the test.
+  expectUrl("/people");
+  expectType("GET");
+  expectData({ ids: [ 3 ] });
+
+  ajaxHash.success({
+    people: [
+      // { id: 1, name: "Rein Heinrichs" },
+      // { id: 2, name: "Tom Dale" },
+      { id: 3, name: "Yehuda Katz" }
+    ]
+  });
+
+  // var rein = people.objectAt(0);
+  // equal(get(rein, 'name'), "Rein Heinrichs");
+  // equal(get(rein, 'id'), 1);
+
+  // var tom = people.objectAt(1);
+  // equal(get(tom, 'name'), "Tom Dale");
+  // equal(get(tom, 'id'), 2);
+
+  var yehuda = people.objectAt(2);
+  equal(get(yehuda, 'name'), "Yehuda Katz");
+  equal(get(yehuda, 'id'), 3);
+});
+
 test("finding people by a query", function() {
   var people = store.find(Person, { page: 1 });
 

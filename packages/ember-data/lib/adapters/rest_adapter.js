@@ -4,6 +4,7 @@ require('ember-data/serializers/rest_serializer');
 /*global jQuery*/
 
 var get = Ember.get, set = Ember.set, merge = Ember.merge;
+var get = Ember.get, set = Ember.set, getWithDefault = Ember.getWithDefault;
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -75,6 +76,8 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     return !reference.parent;
   },
+
+  fetchBatchSize: undefined,
 
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
@@ -266,17 +269,26 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   findMany: function(store, type, ids) {
-    var root = this.rootForType(type);
-    ids = this.serializeIds(ids);
+    var root = this.rootForType(type),
+        batchSize = getWithDefault(this, 'fetchBatchSize', ids.length),
+        batch, rest = ids, success;
 
-    this.ajax(this.buildURL(root), "GET", {
-      data: {ids: ids},
-      success: function(json) {
-        Ember.run(this, function(){
-          this.didFindMany(store, type, json);
-        });
-      }
-    });
+    success = function(json) {
+      Ember.run(this, function(){
+        this.didFindMany(store, type, json);
+      });
+    };
+
+    while(rest.length > 0) {
+      batch = rest.slice(0, batchSize);
+      rest = rest.slice(batchSize);
+      ids = this.serializeIds(batch);
+
+      this.ajax(this.buildURL(root), "GET", {
+        data: {ids: ids},
+        success: success
+      });
+    }
   },
 
   /**
