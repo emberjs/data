@@ -728,7 +728,7 @@ DS.StateManager = Ember.StateManager.extend({
         errorMessage;
     errorMessage  = "Attempted to handle event `" + originalEvent + "` ";
     errorMessage += "on " + record.toString() + " while in state ";
-    errorMessage += get(this, 'currentState.path') + ". Called with ";
+    errorMessage += get(manager, 'currentState.path') + ". Called with ";
     errorMessage += arrayMap.call(contexts, function(context){
                       return Ember.inspect(context);
                     }).join(', ');
