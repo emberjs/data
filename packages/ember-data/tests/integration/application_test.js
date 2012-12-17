@@ -1,47 +1,92 @@
-/**
-  These tests ensure that Ember Data works with Ember.js' application
-  initialization and dependency injection APIs.
-*/
+var app, container;
 
-var app;
+if (Ember.Application.initializer) {
+  /**
+    These tests ensure that Ember Data works with Ember.js' application
+    initialization and dependency injection APIs.
+  */
 
-module("Ember.Application Extensions", {
-  setup: function() {
-    var Router = Ember.Router.extend({
-      root: Ember.Route.extend()
-    });
-
-    Ember.run(function() {
-      app = Ember.Application.create({
-        Router: Router,
-        Store: DS.Store,
-        FooController: Ember.Controller.extend(),
-        ApplicationView: Ember.View.extend(),
-        BazController: {},
-        ApplicationController: Ember.View.extend()
+  module("Ember.Application Extensions", {
+    setup: function() {
+      Ember.run(function() {
+        app = Ember.Application.create({
+          router: false,
+          Store: DS.Store,
+          FooController: Ember.Controller.extend(),
+          ApplicationView: Ember.View.extend(),
+          BazController: {},
+          ApplicationController: Ember.View.extend()
+        });
       });
-    });
-  },
 
-  teardown: function() {
-    app.destroy();
-  }
-});
+      container = app.container;
+    },
 
-test("If a Store property exists on an Ember.Application, it should be instantiated.", function() {
-  Ember.run(function() { app.initialize(); });
+    teardown: function() {
+      app.destroy();
+    }
+  });
 
-  ok(app.get('router.store') instanceof DS.Store, "the store was injected");
-});
+  test("If a Store property exists on an Ember.Application, it should be instantiated.", function() {
+    ok(container.lookup('store:main') instanceof DS.Store, "the store was instantiated");
+  });
 
-test("If a store is instantiated, it should be made available to each controller.", function() {
-  Ember.run(function() { app.initialize(); });
+  test("If a store is instantiated, it should be made available to each controller.", function() {
+    var fooController = container.lookup('controller:foo');
+    ok(fooController.get('store') instanceof DS.Store, "the store was injected");
+  });
+}
 
-  ok(app.get('router.fooController.store') instanceof DS.Store, "the store was injected");
-});
+if (Ember.Application.registerInjection) {
+  /**
+    These tests ensure that Ember Data works with Ember.js' application
+    initialization and dependency injection APIs.
+  */
 
-test("It doesn't try to inject the store into non-controllers", function() {
-  Ember.run(function() { app.initialize(); });
+  module("Ember.Application Extensions", {
+    setup: function() {
+      var Router = Ember.Router.extend({
+        root: Ember.Route.extend()
+      });
 
-  equal(app.get('router.bazController.store'), undefined, "the function was not injected");
-});
+      Ember.run(function() {
+        app = Ember.Application.create({
+          Router: Router,
+          Store: DS.Store,
+          FooController: Ember.Controller.extend(),
+          ApplicationView: Ember.View.extend(),
+          BazController: {},
+          ApplicationController: Ember.View.extend()
+        });
+      });
+    },
+
+    teardown: function() {
+      app.destroy();
+    }
+  });
+
+  test("If a Store property exists on an Ember.Application, it should be instantiated.", function() {
+    Ember.run(function() { app.initialize(); });
+
+    ok(app.get('router.store') instanceof DS.Store, "the store was injected");
+  });
+
+  test("If a store is instantiated, it should be made available to each controller.", function() {
+    Ember.run(function() { app.initialize(); });
+
+    ok(app.get('router.fooController.store') instanceof DS.Store, "the store was injected");
+  });
+
+  test("It doesn't try to inject the store into non-controllers", function() {
+    Ember.run(function() { app.initialize(); });
+
+    equal(app.get('router.bazController.store'), undefined, "the function was not injected");
+  });
+}
+
+if (!Ember.Application.registerInjection && !Ember.Application.initializer) {
+  test("Should support either the old or new initialization API", function() {
+    ok(false, "Should not get here");
+  });
+}

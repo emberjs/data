@@ -31,36 +31,54 @@ var set = Ember.set;
 */
 
 Ember.onLoad('Ember.Application', function(Application) {
-  Application.registerInjection({
-    name: "store",
-    before: "controllers",
+  if (Application.registerInjection) {
+    Application.registerInjection({
+      name: "store",
+      before: "controllers",
 
-    // If a store subclass is defined, like App.Store,
-    // instantiate it and inject it into the router.
-    injection: function(app, stateManager, property) {
-      if (!stateManager) { return; }
-      if (property === 'Store') {
-        set(stateManager, 'store', app[property].create());
+      // If a store subclass is defined, like App.Store,
+      // instantiate it and inject it into the router.
+      injection: function(app, stateManager, property) {
+        if (!stateManager) { return; }
+        if (property === 'Store') {
+          set(stateManager, 'store', app[property].create());
+        }
       }
-    }
-  });
+    });
 
-  Application.registerInjection({
-    name: "giveStoreToControllers",
-    after: ['store','controllers'],
+    Application.registerInjection({
+      name: "giveStoreToControllers",
+      after: ['store','controllers'],
 
-    // For each controller, set its `store` property
-    // to the DS.Store instance we created above.
-    injection: function(app, stateManager, property) {
-      if (!stateManager) { return; }
-      if (/^[A-Z].*Controller$/.test(property)) {
-        var controllerName = property.charAt(0).toLowerCase() + property.substr(1);
-        var store = stateManager.get('store');
-        var controller = stateManager.get(controllerName);
-        if(!controller) { return; }
+      // For each controller, set its `store` property
+      // to the DS.Store instance we created above.
+      injection: function(app, stateManager, property) {
+        if (!stateManager) { return; }
+        if (/^[A-Z].*Controller$/.test(property)) {
+          var controllerName = property.charAt(0).toLowerCase() + property.substr(1);
+          var store = stateManager.get('store');
+          var controller = stateManager.get(controllerName);
+          if(!controller) { return; }
 
-        controller.set('store', store);
+          controller.set('store', store);
+        }
       }
-    }
-  });
+    });
+  } else if (Application.initializer) {
+    Application.initializer({
+      name: "store",
+
+      initialize: function(container, application) {
+        container.register('store', 'main', application.Store);
+      }
+    });
+
+    Application.initializer({
+      name: "giveStoreToControllers",
+
+      initialize: function(container) {
+        container.typeInjection('controller', 'store', 'store:main');
+      }
+    });
+  }
 });
