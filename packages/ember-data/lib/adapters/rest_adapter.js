@@ -3,8 +3,7 @@ require('ember-data/system/adapter');
 require('ember-data/serializers/rest_serializer');
 /*global jQuery*/
 
-var get = Ember.get, set = Ember.set, merge = Ember.merge;
-var get = Ember.get, set = Ember.set, getWithDefault = Ember.getWithDefault;
+var get = Ember.get, set = Ember.set, merge = Ember.merge, getWithDefault = Ember.getWithDefault;
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -64,6 +63,7 @@ var get = Ember.get, set = Ember.set, getWithDefault = Ember.getWithDefault;
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
   since: 'since',
+  fetchBatchSize: undefined,
 
   serializer: DS.RESTSerializer,
 
@@ -76,8 +76,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     return !reference.parent;
   },
-
-  fetchBatchSize: undefined,
 
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
