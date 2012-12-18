@@ -428,7 +428,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   createMessage: function(root, value) {
     var message = DS.RESTMessage.create({'root': root});
-    message.set('data', value);
+    message.set('data', value || {});
     return message;
   },
 
