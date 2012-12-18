@@ -38,6 +38,8 @@ DS.Model.reopen({
         Ember.addObserver(proto, key, null, 'belongsToDidChange');
         Ember.addBeforeObserver(proto, key, null, 'belongsToWillChange');
       }
+
+      meta.parentType = proto.constructor;
     }
   }
 });

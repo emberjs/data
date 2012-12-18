@@ -1,4 +1,5 @@
 /*globals Ember*/
+/*jshint eqnull:true*/
 
 require("ember-data/system/record_arrays");
 require("ember-data/system/transaction");
@@ -33,7 +34,7 @@ var CREATED = { created: true };
 // ID into the URL, and if we later try to deserialize that URL and find the
 // corresponding record, we will not know if it is a string or a number.
 var coerceId = function(id) {
-  return id+'';
+  return id == null ? null : id+'';
 };
 
 var map = Ember.EnumerableUtils.map;
@@ -94,6 +95,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     this.clientIdToPrematerializedData = {};
     this.recordArraysByClientId = {};
     this.relationshipChanges = {};
+    this.recordReferences = {};
 
     // Internally, we maintain a map of all unloaded IDs requested by
     // a ManyArray. As the adapter loads data into the store, the
@@ -300,7 +302,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // client-side ID generators will use something like uuid.js
     // to avoid conflicts.
     var adapter;
-    if (Ember.none(id)) {
+    if (Ember.isNone(id)) {
       adapter = get(this, 'adapter');
       if (adapter && adapter.generateIdForRecord) {
         id = coerceId(adapter.generateIdForRecord(this, record));
@@ -517,20 +519,21 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     In preparation for loading, this method also marks any unloaded
     `clientId`s as loading.
   */
-  neededClientIds: function(type, clientIds) {
-    var neededClientIds = [],
+  neededReferences: function(type, references) {
+    var neededReferences = [],
         cidToData = this.clientIdToData,
-        clientId;
+        reference;
 
-    for (var i=0, l=clientIds.length; i<l; i++) {
-      clientId = clientIds[i];
-      if (cidToData[clientId] === UNLOADED) {
-        neededClientIds.push(clientId);
-        cidToData[clientId] = LOADING;
+    for (var i=0, l=references.length; i<l; i++) {
+      reference = references[i];
+
+      if (cidToData[reference.clientId] === UNLOADED) {
+        neededReferences.push(reference);
+        cidToData[reference.clientId] = LOADING;
       }
     }
 
-    return neededClientIds;
+    return neededReferences;
   },
 
   /**
@@ -543,9 +546,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     then converts the needed `clientId`s to IDs and invokes `findMany`
     on the adapter.
   */
-  fetchUnloadedClientIds: function(type, clientIds) {
-    var neededClientIds = this.neededClientIds(type, clientIds);
-    this.fetchMany(type, neededClientIds);
+  fetchUnloadedReferences: function(type, references) {
+    var neededReferences = this.neededReferences(type, references);
+    this.fetchMany(type, neededReferences);
   },
 
   /**
@@ -557,20 +560,36 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     It is used both by a brand new association (via the `findMany`
     method) or when the data underlying an existing association
-    changes (via the `fetchUnloadedClientIds` method).
+    changes (via the `fetchUnloadedReferences` method).
   */
-  fetchMany: function(type, clientIds) {
-    var clientIdToId = this.clientIdToId;
+  fetchMany: function(type, references) {
+    if (!references.length) { return; }
 
-    var neededIds = map(clientIds, function(clientId) {
-      return clientIdToId[clientId];
+    var ids = map(references, function(reference) {
+      return reference.id;
     });
 
-    if (!neededIds.length) { return; }
-
     var adapter = this.adapterForType(type);
-    if (adapter && adapter.findMany) { adapter.findMany(this, type, neededIds); }
+    if (adapter && adapter.findMany) { adapter.findMany(this, type, ids); }
     else { throw "Adapter is either null or does not implement `findMany` method"; }
+  },
+
+  referenceForId: function(type, id) {
+    var clientId = this.clientIdForId(type, id);
+    return this.referenceForClientId(clientId);
+  },
+
+  referenceForClientId: function(clientId) {
+    var references = this.recordReferences;
+
+    if (references[clientId]) {
+      return references[clientId];
+    }
+
+    return references[clientId] = {
+      id: this.idForClientId(clientId),
+      clientId: clientId
+    };
   },
 
   /**
@@ -605,27 +624,34 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     if (!Ember.isArray(ids)) {
       var adapter = this.adapterForType(type);
-      if (adapter && adapter.findAssociation) { adapter.findAssociation(this, record, relationship, ids); }
+      if (adapter && adapter.findHasMany) { adapter.findHasMany(this, record, relationship, ids); }
       else { throw fmt("Adapter is either null or does not implement `findMany` method", this); }
 
       return this.createManyArray(type, Ember.A());
     }
 
-    ids = map(ids, function(id) { return coerceId(id); });
-    var clientIds = this.clientIdsForIds(type, ids);
+    // Coerce server IDs into Record Reference
+    var references = map(ids, function(reference) {
+      if (typeof reference !== 'object' && reference !== null) {
+        return this.referenceForId(type, reference);
+      }
 
-    var neededClientIds = this.neededClientIds(type, clientIds),
-        manyArray = this.createManyArray(type, Ember.A(clientIds)),
+      return reference;
+    }, this);
+
+    var neededReferences = this.neededReferences(type, references),
+        manyArray = this.createManyArray(type, Ember.A(references)),
         loadingRecordArrays = this.loadingRecordArrays,
-        clientId, i, l;
+        reference, clientId, i, l;
 
     // Start the decrementing counter on the ManyArray at the number of
     // records we need to load from the adapter
-    manyArray.loadingRecordsCount(neededClientIds.length);
+    manyArray.loadingRecordsCount(neededReferences.length);
 
-    if (neededClientIds.length) {
-      for (i=0, l=neededClientIds.length; i<l; i++) {
-        clientId = neededClientIds[i];
+    if (neededReferences.length) {
+      for (i=0, l=neededReferences.length; i<l; i++) {
+        reference = neededReferences[i];
+        clientId = reference.clientId;
 
         // keep track of the record arrays that a given loading record
         // is part of. This way, if the same record is in multiple
@@ -638,10 +664,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         }
       }
 
-      this.fetchMany(type, neededClientIds);
+      this.fetchMany(type, neededReferences);
     } else {
       // all requested records are available
       manyArray.set('isLoaded', true);
+
+      Ember.run.once(function() {
+        manyArray.trigger('didLoad');
+      });
     }
 
     return manyArray;
@@ -791,7 +821,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {boolean}
   */
   recordIsLoaded: function(type, id) {
-    return !Ember.none(this.typeMapFor(type).idToCid[id]);
+    return !Ember.isNone(this.typeMapFor(type).idToCid[id]);
   },
 
   // ............
@@ -1064,11 +1094,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (relationship) { relationship.adapterDidUpdate(); }
   },
 
-  materializeHasMany: function(record, name, ids) {
-    record.materializeHasMany(name, ids);
-    record.adapterDidUpdateHasMany(name);
-  },
-
   /**
     This allows an adapter to acknowledge all relationship changes
     for a given record.
@@ -1154,10 +1179,11 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         type = record.constructor,
         id = this.preprocessData(type, data);
 
-    Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === undefined || id === oldId);
+    Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId);
 
     typeMap.idToCid[id] = clientId;
     this.clientIdToId[clientId] = id;
+    this.referenceForClientId(clientId).id = id;
   },
 
   /**
@@ -1174,7 +1200,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {String} id the id represented by the data
   */
   preprocessData: function(type, data) {
-    this.adapterForType(type).extractEmbeddedData(this, type, data);
     return this.adapterForType(type).extractId(type, data);
   },
 
@@ -1321,13 +1346,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     var alreadyInArray = content.indexOf(clientId) !== -1;
 
     var recordArrays = this.recordArraysForClientId(clientId);
+    var reference = this.referenceForClientId(clientId);
 
-    if (shouldBeInArray && !alreadyInArray) {
+    if (shouldBeInArray) {
       recordArrays.add(array);
-      content.pushObject(clientId);
-    } else if (!shouldBeInArray && alreadyInArray) {
+      array.addReference(reference);
+    } else if (!shouldBeInArray) {
       recordArrays.remove(array);
-      content.removeObject(clientId);
+      array.removeReference(reference);
     }
   },
 
@@ -1340,12 +1366,11 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {DS.Model} record
   */
   removeFromRecordArrays: function(record) {
-    var clientId = get(record, 'clientId');
-    var recordArrays = this.recordArraysForClientId(clientId);
+    var reference = get(record, 'reference');
+    var recordArrays = this.recordArraysForClientId(reference.clientId);
 
     recordArrays.forEach(function(array) {
-      var content = get(array, 'content');
-      content.removeObject(clientId);
+      array.removeReference(reference);
     });
   },
 
@@ -1489,12 +1514,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     this.updateRecordArrays(type, clientId);
 
-    return { id: id, clientId: clientId };
+    return this.referenceForClientId(clientId);
   },
 
   loadMany: function(type, ids, dataList) {
-    var clientIds = Ember.A([]);
-
     if (dataList === undefined) {
       dataList = ids;
       ids = map(dataList, function(data) {
@@ -1502,12 +1525,23 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       }, this);
     }
 
-    for (var i=0, l=get(ids, 'length'); i<l; i++) {
-      var loaded = this.load(type, ids[i], dataList[i]);
-      clientIds.pushObject(loaded.clientId);
-    }
+    return map(ids, function(id, i) {
+      return this.load(type, id, dataList[i]);
+    }, this);
+  },
 
-    return { clientIds: clientIds, ids: ids };
+  loadHasMany: function(record, key, ids) {
+    record.materializeHasMany(key, ids);
+
+    // Update any existing many arrays that use the previous IDs,
+    // if necessary.
+    record.hasManyDidChange(key);
+
+    var association = record.cacheFor(key);
+
+    // TODO (tomdale) this assumes that loadHasMany *always* means
+    // that the records for the provided IDs are loaded.
+    if (association) { set(association, 'isLoaded', true); }
   },
 
   /** @private

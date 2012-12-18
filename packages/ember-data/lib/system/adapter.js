@@ -55,6 +55,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     }
 
     this._attributesMap = this.createInstanceMapFor('attributes');
+    this._configurationsMap = this.createInstanceMapFor('configurations');
 
     this._outstandingOperations = new Ember.MapWithDefault({
       defaultValue: function() { return 0; }
@@ -127,11 +128,11 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
       mappings onto
   */
   registerSerializerMappings: function(serializer) {
-    var mappings = this._attributesMap;
+    var mappings = this._attributesMap,
+        configurations = this._configurationsMap;
 
-    mappings.forEach(function(type, mapping) {
-      serializer.map(type, mapping);
-    }, this);
+    mappings.forEach(serializer.map, serializer);
+    configurations.forEach(serializer.configure, serializer);
   },
 
   /**

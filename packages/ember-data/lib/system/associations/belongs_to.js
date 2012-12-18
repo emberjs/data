@@ -1,5 +1,5 @@
 var get = Ember.get, set = Ember.set,
-    none = Ember.none;
+    none = Ember.isNone;
 
 DS.belongsTo = function(type, options) {
   Ember.assert("The first argument DS.belongsTo must be a model type or string, like DS.belongsTo(App.Person)", !!type && (typeof type === 'string' || DS.Model.detect(type)));
@@ -21,7 +21,12 @@ DS.belongsTo = function(type, options) {
     }
 
     id = data[key];
-    return id ? store.find(type, id) : null;
+
+    if (typeof id === 'object') {
+      return store.findByClientId(type, id.clientId);
+    } else {
+      return id ? store.find(type, id) : null;
+    }
   }).property('data').meta(meta);
 };
 

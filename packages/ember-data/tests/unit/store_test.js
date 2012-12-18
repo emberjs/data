@@ -336,22 +336,6 @@ test("loadMany extracts ids from an Array of hashes if no ids are specified", fu
   equal(get(store.find(Person, 1), 'name'), "Scumbag Dale", "correctly extracted id for loaded data");
 });
 
-/*
-test("loadMany uses a model's primaryKey if one is provided to extract ids", function() {
-  var store = DS.Store.create();
-
-  var array = [{ key: 1, name: "Scumbag Dale" }, { key: 2, name: "Scumbag Katz" }, { key: 3, name: "Scumbag Bryn" }];
-
-  var Person = DS.Model.extend({
-    name: DS.attr('string'),
-    primaryKey: "key"
-  });
-
-  store.loadMany(Person, array);
-  equal(get(store.find(Person, 1), 'name'), "Scumbag Dale", "correctly extracted id for loaded data");
-});
-*/
-
 test("loadMany takes an optional Object and passes it on to the Adapter", function() {
   var passedQuery = { page: 1 };
 

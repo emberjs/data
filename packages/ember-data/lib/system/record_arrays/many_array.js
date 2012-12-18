@@ -1,5 +1,4 @@
 require("ember-data/system/record_arrays/record_array");
-require("ember-data/system/record_arrays/many_array_states");
 
 var get = Ember.get, set = Ember.set;
 
@@ -65,11 +64,11 @@ DS.ManyArray = DS.RecordArray.extend({
   },
 
   fetch: function() {
-    var clientIds = get(this, 'content'),
+    var references = get(this, 'content'),
         store = get(this, 'store'),
         type = get(this, 'type');
 
-    store.fetchUnloadedClientIds(type, clientIds);
+    store.fetchUnloadedReferences(type, references);
   },
 
   // Overrides Ember.Array's replace method to implement
@@ -77,7 +76,7 @@ DS.ManyArray = DS.RecordArray.extend({
     // Map the array of record objects into an array of  client ids.
     added = added.map(function(record) {
       Ember.assert("You can only add records of " + (get(this, 'type') && get(this, 'type').toString()) + " to this association.", !get(this, 'type') || (get(this, 'type') === record.constructor));
-      return record.get('clientId');
+      return get(record, 'reference');
     }, this);
 
     this._super(index, removed, added);
@@ -102,11 +101,11 @@ DS.ManyArray = DS.RecordArray.extend({
       // the `arrayContentDidChange` will set `newParent` on
       // the change.
       for (var i=index; i<index+removed; i++) {
-        var clientId = get(this, 'content').objectAt(i);
+        var reference = get(this, 'content').objectAt(i);
         //var record = this.objectAt(i);
         //if (!record) { continue; }
 
-        var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), {
+        var change = DS.OneToManyChange.forChildAndParent(reference.clientId, get(this, 'store'), {
           parentType: owner.constructor,
           hasManyName: name
         });
@@ -133,9 +132,9 @@ DS.ManyArray = DS.RecordArray.extend({
       // from the child object, and adds the current owner as
       // the new parent.
       for (var i=index; i<index+added; i++) {
-        var clientId = get(this, 'content').objectAt(i);
+        var reference = get(this, 'content').objectAt(i);
 
-        var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), {
+        var change = DS.OneToManyChange.forChildAndParent(reference.clientId, get(this, 'store'), {
           parentType: owner.constructor,
           hasManyName: name
         });
@@ -197,13 +196,11 @@ DS.ManyArray = DS.RecordArray.extend({
 
   /** @private */
   removeFromContent: function(record) {
-    var clientId = get(record, 'clientId');
-    get(this, 'content').removeObject(clientId);
+    get(this, 'content').removeObject(get(record, 'reference'));
   },
 
   /** @private */
   addToContent: function(record) {
-    var clientId = get(record, 'clientId');
-    get(this, 'content').addObject(clientId);
+    get(this, 'content').addObject(get(record, 'reference'));
   }
 });

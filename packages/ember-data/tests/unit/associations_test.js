@@ -356,16 +356,14 @@ test("updating the content of a RecordArray updates its content", function() {
   });
 
   var store = DS.Store.create();
-  var loaded = store.loadMany(Tag, [5, 2, 12], [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
+  var references = store.loadMany(Tag, [5, 2, 12], [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
 
-  var clientIds = loaded.clientIds;
-
-  var tags = DS.RecordArray.create({ content: Ember.A([clientIds[0], clientIds[1]]), store: store, type: Tag });
+  var tags = DS.RecordArray.create({ content: Ember.A(references.slice(0, 2)), store: store, type: Tag });
 
   var tag = tags.objectAt(0);
   equal(get(tag, 'name'), "friendly", "precond - we're working with the right tags");
 
-  set(tags, 'content', Ember.A([clientIds[1], clientIds[2]]));
+  set(tags, 'content', Ember.A(references.slice(1, 3)));
   tag = tags.objectAt(0);
   equal(get(tag, 'name'), "smarmy", "the lookup was updated");
 });

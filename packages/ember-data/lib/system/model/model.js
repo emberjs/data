@@ -1,6 +1,6 @@
 require("ember-data/system/model/states");
 
-var get = Ember.get, set = Ember.set, none = Ember.none;
+var get = Ember.get, set = Ember.set, none = Ember.isNone, map = Ember.EnumerableUtils.map;
 
 var retrieveFromCurrentState = Ember.computed(function(key) {
   return get(get(this, 'stateManager.currentState'), key);
@@ -16,6 +16,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   isValid: retrieveFromCurrentState,
 
   clientId: null,
+  id: null,
   transaction: null,
   stateManager: null,
   errors: null,
@@ -149,32 +150,32 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   dataDidChange: Ember.observer(function() {
-    var associations = get(this.constructor, 'associationsByName'),
-        hasMany = get(this, 'data').hasMany, store = get(this, 'store'),
-        idToClientId = store.idToClientId,
-        cachedValue;
+    var associations = get(this.constructor, 'associationsByName');
 
     this.updateRecordArraysLater();
 
     associations.forEach(function(name, association) {
       if (association.kind === 'hasMany') {
-        cachedValue = this.cacheFor(name);
-
-        if (cachedValue) {
-          var key = name,
-              ids = hasMany[key] || [];
-
-          var clientIds;
-
-          clientIds = Ember.EnumerableUtils.map(ids, function(id) {
-            return store.clientIdForId(association.type, id);
-          });
-
-          set(cachedValue, 'content', Ember.A(clientIds));
-        }
+        this.hasManyDidChange(association.key);
       }
     }, this);
   }, 'data'),
+
+  hasManyDidChange: function(key) {
+    var cachedValue = this.cacheFor(key);
+
+    if (cachedValue) {
+      var type = get(this.constructor, 'associationsByName').get(key).type;
+      var store = get(this, 'store');
+      var ids = this._data.hasMany[key] || [];
+
+      var references = map(ids, function(id) {
+        return store.referenceForId(type, id);
+      });
+
+      set(cachedValue, 'content', Ember.A(references));
+    }
+  },
 
   updateRecordArraysLater: function() {
     Ember.run.once(this, this.updateRecordArrays);
@@ -187,6 +188,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       hasMany: {},
       id: null
     };
+
+    this.notifyPropertyChange('data');
   },
 
   materializeId: function(id) {
@@ -275,31 +278,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.updateRecordArraysLater();
   },
 
-  adapterDidUpdateHasMany: function(name) {
-    var cachedValue = this.cacheFor(name),
-        hasMany = get(this, 'data').hasMany,
-        store = get(this, 'store');
-
-    var associations = get(this.constructor, 'associationsByName'),
-        association = associations.get(name),
-        idToClientId = store.idToClientId;
-
-    if (cachedValue) {
-      var key = name,
-          ids = hasMany[key] || [];
-
-      var clientIds;
-
-      clientIds = Ember.EnumerableUtils.map(ids, function(id) {
-        return store.clientIdForId(association.type, id);
-      });
-
-      set(cachedValue, 'content', Ember.A(clientIds));
-      set(cachedValue, 'isLoaded', true);
-    }
-
-    this.updateRecordArraysLater();
-  },
+  reference: Ember.computed(function() {
+    return get(this, 'store').referenceForClientId(get(this, 'clientId'));
+  }),
 
   adapterDidInvalidate: function(errors) {
     this.send('becameInvalid', errors);

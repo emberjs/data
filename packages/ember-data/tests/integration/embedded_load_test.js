@@ -1,6 +1,6 @@
 var originalLookup = Ember.lookup, lookup;
 
-var Adapter, store;
+var Adapter, store, adapter;
 
 var Person = DS.Model.extend();
 
@@ -20,12 +20,11 @@ module("Embedded Load", {
     lookup.Person = Person;
     lookup.Comment = Comment;
 
-    Adapter = DS.Adapter.extend();
+    Adapter = DS.RESTAdapter.extend();
 
-    store = DS.Store.create({
-      adapter: Adapter
-    });
+    store = DS.Store.create();
   },
+
   teardown: function() {
     Ember.lookup = originalLookup;
   }
@@ -38,7 +37,10 @@ Ember.ArrayPolyfills.forEach.call([[Comment, "as a type"], ["Comment", "as a str
       user: { embedded: 'load' }
     });
 
-    store.load(Comment, {
+    adapter = Adapter.create();
+    store.set('adapter', adapter);
+
+    adapter.load(store, Comment, {
       id: 1,
       user: {
         id: 2,
@@ -46,7 +48,7 @@ Ember.ArrayPolyfills.forEach.call([[Comment, "as a type"], ["Comment", "as a str
       }
     });
 
-    store.load(Comment, {
+    adapter.load(store, Comment, {
       id: 2,
       user: {
         id: 2,
@@ -71,13 +73,16 @@ Ember.ArrayPolyfills.forEach.call([Person, "Person"], function(mapping) {
       comments: { embedded: 'load' }
     });
 
-    store.load(Person, {
+    adapter = Adapter.create();
+    store.set('adapter', adapter);
+
+    adapter.load(store, Person, {
       id: 1,
       name: "Erik Brynroflsson",
       comments: [{ id: 1 }, { id: 2 }]
     });
 
-    store.load(Person, {
+    adapter.load(store, Person, {
       id: 2,
       name: "Patrick Gibson",
       comments: [{ id: 1 }, { id: 2 }]

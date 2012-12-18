@@ -35,9 +35,9 @@ test("Calling extract on a JSON payload with multiple records will tear them apa
     groups: DS.hasMany(App.Group)
   });
 
-  serializer.mappings = {
-    groups: App.Group
-  };
+  serializer.configure(App.Group, {
+    sideloadAs: 'groups'
+  });
 
   var payload = {
     post: {
@@ -49,10 +49,16 @@ test("Calling extract on a JSON payload with multiple records will tear them apa
     groups: [{ id: 1, name: "Trolls" }]
   };
 
-  var callCount = 0;
+  var loadCallCount = 0,
+      loadMainCallCount = 0;
+
   var loader = {
     load: function(type, data, prematerialized) {
-      callCount++;
+      loadCallCount++;
+    },
+
+    loadMain: function(type, data, prematerialized) {
+      loadMainCallCount++;
     }
   };
 
@@ -60,7 +66,8 @@ test("Calling extract on a JSON payload with multiple records will tear them apa
     type: App.Post
   });
 
-  equal(callCount, 2, "two records were loaded from single payload");
+  equal(loadMainCallCount, 1, "one main record was loaded from a single payload");
+  equal(loadCallCount, 1, "one secondary record was loaded from a single payload");
 
   //this.extractRecord(type, structure, loader)
 

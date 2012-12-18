@@ -154,11 +154,10 @@ test("a record array that backs a collection view functions properly", function(
 
   function compareArrays() {
     var recordArray = container.content;
-    var recordCache = store.get('recordCache');
     var content = recordArray.get('content');
     for(var i = 0; i < content.length; i++) {
-      var clientId = content.objectAt(i);
-      var record = recordCache[clientId];
+      var clientId = content.objectAt(i).clientId;
+      var record = store.findByClientId(get(recordArray, 'type'), clientId);
       equal(record && record.clientId, clientId, "The entries in the record cache should have matching client ids.");
     }
   }

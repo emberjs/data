@@ -13,10 +13,10 @@ DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
   load: function(array) {
     var store = get(this, 'store'), type = get(this, 'type');
 
-    var clientIds = store.loadMany(type, array).clientIds;
+    var references = store.loadMany(type, array);
 
     this.beginPropertyChanges();
-    set(this, 'content', Ember.A(clientIds));
+    set(this, 'content', Ember.A(references));
     set(this, 'isLoaded', true);
     this.endPropertyChanges();
 

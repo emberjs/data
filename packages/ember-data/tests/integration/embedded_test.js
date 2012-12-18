@@ -5,19 +5,27 @@ module("Embedded Records without IDs", {
   setup: function() {
     var attr = DS.attr;
 
-    Post = DS.Model.extend({
+    var App = Ember.Namespace.create({
+      toString: function() { return "App"; }
+    });
+
+    Post = App.Post = DS.Model.extend({
       title: attr('string')
     });
 
-    Comment = DS.Model.extend({
+    Comment = App.Comment = DS.Model.extend({
       title: attr('string'),
 
       post: DS.belongsTo(Post)
     });
 
-    serializer = DS.JSONSerializer.create();
+    Post.reopen({
+      comments: DS.hasMany(Comment)
+    });
 
-    Adapter = DS.Adapter.extend({
+    serializer = DS.RESTSerializer.create();
+
+    Adapter = DS.RESTAdapter.extend({
       serializer: serializer
     });
 
@@ -25,15 +33,20 @@ module("Embedded Records without IDs", {
       post: { embedded: 'always' }
     });
 
-    store = DS.Store.create({
-      adapter: Adapter.create()
+    Adapter.map(Post, {
+      comments: { embedded: 'always' }
     });
 
+    adapter = Adapter.create();
+
+    store = DS.Store.create({
+      adapter: adapter
+    });
   }
 });
 
 test("An embedded record can be accessed via a belongsTo relationship but does not have an ID", function() {
-  store.load(Comment, {
+  adapter.load(store, Comment, {
     id: 1,
     title: "Why not use a more lightweight solution?",
 
@@ -42,7 +55,7 @@ test("An embedded record can be accessed via a belongsTo relationship but does n
     }
   });
 
-  store.load(Comment, {
+  adapter.load(store, Comment, {
     id: 2,
     title: "I do not trust it",
 
@@ -62,4 +75,27 @@ test("An embedded record can be accessed via a belongsTo relationship but does n
 
   equal(post2.get('title'), "Katz's Recent Foray into JavaScript", "the embedded record is found and its attributed are materialized");
   equal(post2.get('id'), null, "the embedded record does not have an id");
+});
+
+test("Embedded records can be accessed via a hasMany relationship without having IDs", function() {
+  adapter.load(store, Post, {
+    id: 1,
+    title: "A New MVC Framework in Under 100 Lines of Code",
+
+    comments: [{
+      title: "Why not use a more lightweight solution?"
+    }, {
+      title: "This does not seem to reflect the Unix philosophy haha"
+    }]
+  });
+
+  var post = store.find(Post, 1);
+
+  var comments = post.get('comments');
+
+  var comment1 = comments.objectAt(0);
+  var comment2 = comments.objectAt(1);
+
+  equal(comment1.get('title'), "Why not use a more lightweight solution?");
+  equal(comment2.get('title'), "This does not seem to reflect the Unix philosophy haha");
 });

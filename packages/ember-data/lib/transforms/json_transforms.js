@@ -1,24 +1,26 @@
+var none = Ember.isNone;
+
 /**
   DS.Transforms is a hash of transforms used by DS.Serializer.
 */
 DS.JSONTransforms = {
   string: {
     deserialize: function(serialized) {
-      return Ember.none(serialized) ? null : String(serialized);
+      return none(serialized) ? null : String(serialized);
     },
 
     serialize: function(deserialized) {
-      return Ember.none(deserialized) ? null : String(deserialized);
+      return none(deserialized) ? null : String(deserialized);
     }
   },
 
   number: {
     deserialize: function(serialized) {
-      return Ember.none(serialized) ? null : Number(serialized);
+      return none(serialized) ? null : Number(serialized);
     },
 
     serialize: function(deserialized) {
-      return Ember.none(deserialized) ? null : Number(deserialized);
+      return none(deserialized) ? null : Number(deserialized);
     }
   },
 

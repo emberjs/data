@@ -106,7 +106,7 @@ test("When a hasMany association is accessed, the adapter's findMany method shou
   store.load(Person, { id: 1, comments: [ 1 ] });
 });
 
-test("An adapter can materialize a hash and get it back later in a findAssociation hook", function() {
+test("An adapter can materialize a hash and get it back later in a findHasMany hook", function() {
   expect(8);
 
   stop();
@@ -147,7 +147,7 @@ test("An adapter can materialize a hash and get it back later in a findAssociati
     throw new Error("Should not get here");
   };
 
-  adapter.findAssociation = function(store, record, relationship, details) {
+  adapter.findHasMany = function(store, record, relationship, details) {
     equal(relationship.type, Comment);
     equal(relationship.key, 'comments');
     equal(details.url, "/posts/1/comments");
@@ -158,7 +158,7 @@ test("An adapter can materialize a hash and get it back later in a findAssociati
         { id: 2, body: "Second" }
       ]);
 
-      store.materializeHasMany(record, relationship.key, [ 1, 2 ]);
+      store.loadHasMany(record, relationship.key, [ 1, 2 ]);
 
       setTimeout(function() {
         done();

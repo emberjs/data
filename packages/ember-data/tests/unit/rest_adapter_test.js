@@ -24,14 +24,14 @@ module("the REST adapter", {
             success.call(self, json);
           };
         }
-      },
-
-      plurals: {
-        person: 'people'
       }
     });
 
     serializer = get(adapter, 'serializer');
+
+    serializer.plurals = {
+      person: 'people'
+    };
 
     store = DS.Store.create({
       adapter: adapter
@@ -44,6 +44,10 @@ module("the REST adapter", {
     Person.toString = function() {
       return "App.Person";
     };
+
+    serializer.configure(Person, {
+      sideloadAs: "people"
+    });
 
     Group = DS.Model.extend({
       name: DS.attr('string'),
@@ -123,9 +127,9 @@ test("creating a person makes a POST to /people, with the data hash", function()
 });
 
 test("singular creations can sideload data", function() {
-  serializer.mappings = {
-    groups: Group
-  };
+  serializer.configure(Group, {
+    sideloadAs: 'groups'
+  });
 
   person = store.createRecord(Person, { name: "Tom Dale" });
 
@@ -201,9 +205,7 @@ test("updates are not required to return data", function() {
 });
 
 test("singular updates can sideload data", function() {
-  adapter.mappings = {
-    groups: Group
-  };
+  serializer.configure(Group, { sideloadAs: 'groups' });
 
   store.load(Person, { id: 1, name: "Yehuda Katz" });
 
@@ -235,20 +237,6 @@ test("singular updates can sideload data", function() {
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
-/*
-test("updating a record with custom primaryKey", function() {
-  store.load(Role, { _id: 1, name: "Developer" });
-
-  role = store.find(Role, 1);
-
-  set(role, 'name', "Manager");
-  store.commit();
-
-  expectUrl("/roles/1", "the plural of the model name with its ID");
-  ajaxHash.success({ role: { _id: 1, name: "Manager" } });
-});
-*/
-
 test("deleting a person makes a DELETE to /people/:id", function() {
   store.load(Person, { id: 1, name: "Tom Dale" });
 
@@ -273,9 +261,7 @@ test("deleting a person makes a DELETE to /people/:id", function() {
 });
 
 test("singular deletes can sideload data", function() {
-  adapter.mappings = {
-    groups: Group
-  };
+  serializer.configure(Group, { sideloadAs: 'groups' });
 
   store.load(Person, { id: 1, name: "Tom Dale" });
 
@@ -391,8 +377,9 @@ test("finding all people with since makes a GET to /people", function() {
 });
 
 test("meta and since are configurable", function() {
-  store.set('_adapter.meta', 'metaObject');
-  store.set('_adapter.since', 'sinceToken');
+  set(serializer, 'meta', 'metaObject');
+  set(serializer, 'since', 'sinceToken');
+  set(adapter, 'since', 'lastToken');
 
   people = store.find(Person);
 
@@ -405,7 +392,7 @@ test("meta and since are configurable", function() {
 
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
-  expectData({sinceToken: '123'});
+  expectData({lastToken: '123'});
 
   ajaxHash.success({ metaObject: {sinceToken: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
 
@@ -690,7 +677,7 @@ test("bulk commits can sideload data", function() {
   var tom = store.createRecord(Person, { name: "Tom Dale" });
   var yehuda = store.createRecord(Person, { name: "Yehuda Katz" });
 
-  adapter.mappings = { groups: Group };
+  serializer.configure(Group, { sideloadAs: 'groups' });
 
   people = [ tom, yehuda ];
 
@@ -758,9 +745,7 @@ test("updating several people (with bulkCommit) makes a PUT to /people/bulk with
 test("bulk updates can sideload data", function() {
   set(adapter, 'bulkCommit', true);
 
-  adapter.mappings = {
-    groups: Group
-  };
+  serializer.configure(Group, { sideloadAs: 'groups' });
 
   store.loadMany(Person, [
     { id: 1, name: "Yehuda Katz" },
@@ -843,9 +828,7 @@ test("deleting several people (with bulkCommit) makes a PUT to /people/bulk", fu
 test("bulk deletes can sideload data", function() {
   set(adapter, 'bulkCommit', true);
 
-  adapter.mappings = {
-    groups: Group
-  };
+  serializer.configure(Group, { sideloadAs: 'groups' });
 
   store.loadMany(Person, [
     { id: 1, name: "Yehuda Katz" },
@@ -922,7 +905,7 @@ test("additional data can be sideloaded with associations in correct order", fun
     person: DS.belongsTo(Person)
   });
 
-  store.adapter.mappings = {'comments': Comment};
+  serializer.configure(Comment, { sideloadAs: 'comments' });
 
   var comments = store.filter(Comment, function(data) {
     equal(store.find(Comment, data.get('id')).get('person.id'), 1);

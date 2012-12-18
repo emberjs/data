@@ -1,14 +1,90 @@
-var get = Ember.get;
+var get = Ember.get, map = Ember.ArrayPolyfills.map;
 
 DS.RESTSerializer = DS.JSONSerializer.extend({
+  meta: 'meta',
+  since: 'since',
+
+  init: function() {
+    this._super();
+    this.sideloadMapping = Ember.Map.create();
+  },
+
+  configure: function(type, configuration) {
+    var sideloadAs = configuration.sideloadAs;
+
+    if (sideloadAs) {
+      this.sideloadMapping.set(sideloadAs, type);
+      delete configuration.sideloadAs;
+    }
+
+    this._super.apply(this, arguments);
+  },
+
   extract: function(loader, json, options) {
+    if (!json) { loader.acknowledge(); return; }
+
     var type = options.type,
         root = this.rootForType(type),
+        multiple = options.multiple,
         id = options.id;
 
-    loader.loadMain(type, json[root], { id: id });
+    if (multiple) {
+      root = this.pluralize(root);
+    }
 
     this.sideload(loader, type, json, root);
+    this.extractMeta(loader, type, json);
+
+    if (multiple) {
+      loader.loadMainArray(type, json[root]);
+    } else {
+      this.extractSingle(loader, type, json[root]);
+    }
+  },
+
+  extractSingle: function(loader, type, json) {
+    var mapping = this.mappingForType(type);
+    var embeddedData, prematerialized = {};
+
+    var associations = type.eachAssociation(function(name, association) {
+      if (!mapping || !mapping[name]) { return; }
+
+      if (mapping[name].embedded) {
+        embeddedData = json[this.keyFor(association)];
+
+        if (embeddedData) {
+          if (association.kind === 'belongsTo') {
+            this.extractEmbeddedBelongsTo(loader, association, embeddedData, prematerialized);
+          } else if (association.kind === 'hasMany') {
+            this.extractEmbeddedHasMany(loader, association, embeddedData, prematerialized);
+          }
+        }
+      }
+    }, this);
+
+    loader.loadMain(type, json, prematerialized);
+  },
+
+  extractEmbeddedHasMany: function(loader, association, array, prematerialized) {
+    var references = map.call(array, function(item) {
+      return loader.load(association.type, item);
+    });
+
+    prematerialized[association.key] = references;
+  },
+
+  extractEmbeddedBelongsTo: function(loader, association, data, prematerialized) {
+    var recordReference = loader.load(association.type, data);
+    prematerialized[association.key] = recordReference;
+  },
+
+  extractMeta: function(loader, type, json) {
+    var meta = json[get(this, 'meta')], since;
+    if (!meta) { return; }
+
+    if (since = meta[get(this, 'since')]) {
+      loader.sinceForType(type, since);
+    }
   },
 
   sideload: function(loader, type, json, root) {
@@ -24,10 +100,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
       sideloadedType = type.typeForAssociation(prop);
 
       if (!sideloadedType) {
-        mappings = get(this, 'mappings');
-        Ember.assert("Your server returned a hash with the key " + prop + " but you have no mappings", !!mappings);
-
-        sideloadedType = get(mappings, prop);
+        sideloadedType = this.sideloadMapping.get(prop);
 
         if (typeof sideloadedType === 'string') {
           sideloadedType = get(window, sideloadedType);
@@ -68,8 +141,6 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
   // HELPERS
 
-  plurals: {},
-
   // define a plurals hash in your subclass to define
   // special-case pluralization
   pluralize: function(name) {
@@ -84,7 +155,15 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   },
 
   keyForBelongsTo: function(type, name) {
-    return this.keyForAttributeName(type, name) + "_id";
+    var mapping = this.mappingForType(type);
+
+    var key = this.keyForAttributeName(type, name);
+
+    if (mapping && mapping[name] && mapping[name].embedded) {
+      return key;
+    }
+
+    return key + "_id";
   },
 
   keyForAttributeName: function(type, name) {
@@ -94,6 +173,6 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   addBelongsTo: function(hash, record, key, relationship) {
     var id = get(record, relationship.key+'.id');
 
-    if (!Ember.none(id)) { hash[key] = id; }
+    if (!Ember.isNone(id)) { hash[key] = id; }
   }
 });

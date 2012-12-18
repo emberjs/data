@@ -559,7 +559,7 @@ DS.Serializer = Ember.Object.extend({
 
   materialize: function(record, serialized, prematerialized) {
     var id;
-    if (Ember.none(get(record, 'id'))) {
+    if (Ember.isNone(get(record, 'id'))) {
       if (prematerialized && prematerialized.hasOwnProperty('id')) {
         id = prematerialized.id;
       } else {
@@ -756,6 +756,18 @@ DS.Serializer = Ember.Object.extend({
     return this._keyFromMappingOrHook('keyForBelongsTo', type, name);
   },
 
+  keyFor: function(description) {
+    var type = description.parentType,
+        name = description.key;
+
+    switch (description.kind) {
+      case 'belongsTo':
+        return this._keyForBelongsTo(type, name);
+      case 'hasMany':
+        return this._keyForHasMany(type, name);
+    }
+  },
+
   /**
     @private
 
@@ -849,8 +861,8 @@ DS.Serializer = Ember.Object.extend({
     this.mappings.set(type, mappings);
   },
 
-  configure: function(type, configurations) {
-    this.configurations.set(type, configurations);
+  configure: function(type, configuration) {
+    this.configurations.set(type, configuration);
   },
 
   mappingForType: function(type) {
@@ -859,6 +871,7 @@ DS.Serializer = Ember.Object.extend({
   },
 
   configurationForType: function(type) {
+    this._reifyConfigurations();
     return this.configurations.get(type);
   },
 
@@ -882,6 +895,28 @@ DS.Serializer = Ember.Object.extend({
     this.mappings = reifiedMappings;
 
     this._didReifyMappings = true;
+  },
+
+  _reifyConfigurations: function() {
+    if (this._didReifyConfigurations) { return; }
+
+    var configurations = this.configurations,
+        reifiedConfigurations = Ember.Map.create();
+
+    configurations.forEach(function(key, mapping) {
+      if (typeof key === 'string') {
+        var type = Ember.get(Ember.lookup, key);
+        Ember.assert("Could not find model at path" + key, type);
+
+        reifiedConfigurations.set(type, mapping);
+      } else {
+        reifiedConfigurations.set(key, mapping);
+      }
+    });
+
+    this.configurations = reifiedConfigurations;
+
+    this._didReifyConfigurations = true;
   }
 });
 
