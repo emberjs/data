@@ -46,7 +46,7 @@ DS.OneToManyChange.create = function(options){
 };
 
 /** @private */
-DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
+DS.OneToManyChange.createChange = function(childClientId, store, options) {
   // Get the type of the child based on the child's client ID
   var childType = store.typeForClientId(childClientId), key;
 
@@ -56,41 +56,42 @@ DS.OneToManyChange.forChildAndParent = function(childClientId, store, options) {
   // definition.
   if (options.parentType) {
     key = inverseBelongsToName(options.parentType, childType, options.hasManyName);
-    if (options.changeType === "add" && store.recordIsMaterialized(childClientId)) {
-      var child = store.findByClientId(null, childClientId);
-      var oldParent = get(child, key);
-      if (oldParent){
-        var correspondingChange = DS.OneToManyChange.forChildAndParent(childClientId, store, {
-            parentType: options.parentType,
-            hasManyName: options.hasManyName,
-            parentClientId: oldParent.get('clientId'),
-            changeType: "remove"
-          }); 
-       correspondingChange.sync();
-      } 
-    }
+    DS.OneToManyChange.maintainInvariant( options, store, childClientId, key );
   } else if (options.belongsToName) {
     key = options.belongsToName;
   } else {
     Ember.assert("You must pass either a parentType or belongsToName option to OneToManyChange.forChildAndParent", false);
   }
 
-  //var change = store.relationshipChangeFor(childClientId, key);
-  var change;
-  if (!change) {
-    change = DS.OneToManyChange.create({
+  var change = DS.OneToManyChange.create({
       child: childClientId,
       parentClientId: options.parentClientId,
       store: store,
       changeType: options.changeType
-    });
+  });
 
-    store.addRelationshipChangeFor(childClientId, key, options.parentClientId , null, change);
-  }
+  store.addRelationshipChangeFor(childClientId, key, options.parentClientId , null, change);
 
   change.belongsToName = key;
 
   return change;
+};
+
+
+DS.OneToManyChange.maintainInvariant = function(options, store, childClientId, key){
+  if (options.changeType === "add" && store.recordIsMaterialized(childClientId)) {
+    var child = store.findByClientId(null, childClientId);
+    var oldParent = get(child, key);
+    if (oldParent){
+      var correspondingChange = DS.OneToManyChange.createChange(childClientId, store, {
+          parentType: options.parentType,
+          hasManyName: options.hasManyName,
+          parentClientId: oldParent.get('clientId'),
+          changeType: "remove"
+        }); 
+     correspondingChange.sync();
+    } 
+  }
 };
 
 DS.OneToManyChange.ensureSameTransaction = function(changes, store){
