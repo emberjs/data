@@ -128,7 +128,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   registerSerializerMappings: function(serializer) {
     var mappings = this._attributesMap;
-
     mappings.forEach(function(type, mapping) {
       serializer.map(type, mapping);
     }, this);
@@ -156,6 +155,12 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
       }
   */
   find: null,
+
+  /**
+    Implement this method if you need to reset internal bookkeeping
+    when the store is reset.
+  */
+  reset: Ember.K,
 
   serializer: DS.JSONSerializer,
 

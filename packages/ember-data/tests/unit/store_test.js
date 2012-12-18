@@ -722,3 +722,25 @@ test("unload a record", function() {
   store.find(Record, 1);
   equal(tryToFind, true, "not found record with id 1");
 });
+
+module("DS.Store - reset", {
+  setup: function() {
+    store = DS.Store.create({
+      adapter: DS.Adapter.create()
+    });
+  },
+
+  teardown: function() {
+    store.destroy();
+  }
+});
+
+test("reset also calls the adapter's reset method", function() {
+  expect(1);
+
+  store.get('_adapter').reset = function() {
+    ok("Adapter's reset method called");
+  };
+
+  store.reset();
+});

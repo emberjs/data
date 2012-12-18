@@ -21,11 +21,8 @@ module("Embedded Load", {
     lookup.Comment = Comment;
 
     Adapter = DS.Adapter.extend();
-
-    store = DS.Store.create({
-      adapter: Adapter
-    });
   },
+
   teardown: function() {
     Ember.lookup = originalLookup;
   }
@@ -36,6 +33,10 @@ Ember.ArrayPolyfills.forEach.call([[Comment, "as a type"], ["Comment", "as a str
   test("A belongsTo association can be marked as embedded via the `map` API (" + testString + ")", function() {
     Adapter.map(mapping, {
       user: { embedded: 'load' }
+    });
+
+    store = DS.Store.create({
+      adapter: Adapter
     });
 
     store.load(Comment, {
@@ -69,6 +70,10 @@ Ember.ArrayPolyfills.forEach.call([Person, "Person"], function(mapping) {
   test("A hasMany association can be marked as embedded via the `map` API", function() {
     Adapter.map(mapping, {
       comments: { embedded: 'load' }
+    });
+
+    store = DS.Store.create({
+      adapter: Adapter
     });
 
     store.load(Person, {
