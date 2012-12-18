@@ -20,29 +20,30 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     this._super.apply(this, arguments);
   },
 
-  extract: function(loader, json, options) {
-    if (!json) { loader.acknowledge(); return; }
-
-    var type = options.type,
-        root = this.rootForType(type),
-        multiple = options.multiple,
-        id = options.id;
-
-    if (multiple) {
-      root = this.pluralize(root);
-    }
+  extract: function(loader, json, type) {
+    var root = this.rootForType(type);
 
     this.sideload(loader, type, json, root);
     this.extractMeta(loader, type, json);
 
-    if (multiple) {
-      loader.loadMainArray(type, json[root]);
-    } else {
-      this.extractSingle(loader, type, json[root]);
+    if (json[root]) {
+      this.extractRecordRepresentation(loader, type, json[root]);
     }
   },
 
-  extractSingle: function(loader, type, json) {
+  extractMany: function(loader, json, type) {
+    var root = this.rootForType(type);
+    root = this.pluralize(root);
+
+    this.sideload(loader, type, json, root);
+    this.extractMeta(loader, type, json);
+
+    if (json[root]) {
+      loader.loadMany(type, json[root]);
+    }
+  },
+
+  extractRecordRepresentation: function(loader, type, json) {
     var mapping = this.mappingForType(type);
     var embeddedData, prematerialized = {};
 
@@ -62,7 +63,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
       }
     }, this);
 
-    loader.loadMain(type, json, prematerialized);
+    loader.load(type, json, prematerialized);
   },
 
   extractEmbeddedHasMany: function(loader, association, array, prematerialized) {
@@ -132,10 +133,10 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   loadValue: function(loader, type, value) {
     if (value instanceof Array) {
       for (var i=0; i < value.length; i++) {
-        loader.load(type, value[i]);
+        loader.sideload(type, value[i]);
       }
     } else {
-      loader.load(type, value);
+      loader.sideload(type, value);
     }
   },
 

@@ -1485,7 +1485,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var id;
 
-    if (prematerialized) {
+    if (prematerialized && prematerialized.id) {
       id = prematerialized.id;
     } else if (id === undefined) {
       var adapter = this.adapterForType(type);

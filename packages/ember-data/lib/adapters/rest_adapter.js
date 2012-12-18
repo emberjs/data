@@ -5,33 +5,22 @@ require('ember-data/serializers/rest_serializer');
 
 var get = Ember.get, set = Ember.set, merge = Ember.merge;
 
-function loaderFor(store, record, id) {
+function loaderFor(store, id) {
   return {
-    acknowledge: function() {
-      store.didSaveRecord(record);
-    },
-
-    loadMain: function(type, data, prematerialized) {
-      if (record) {
-        store.didSaveRecord(record, data, prematerialized);
-      } else {
-        if (id) {
-          prematerialized = prematerialized || {};
-          prematerialized.id = id;
-        }
-
-        return store.load(type, data, prematerialized);
-      }
-    },
-
-    load: function() {
-      return store.load.apply(store, arguments);
+    load: function(type, data, prematerialized) {
+      return store.load(type, data, prematerialized);
     },
 
     loadMany: function(type, array) {
-      for (var i=0, l=array.length; i<l; i++) {
-        store.load(type, array[i]);
-      }
+      return store.loadMany(type, array);
+    },
+
+    sideload: function(type, data) {
+      return store.load(type, data);
+    },
+
+    sideloadMany: function(type, array) {
+      return store.loadMany(type, array);
     },
 
     sinceForType: function(type, since) {
@@ -54,7 +43,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   load: function(store, type, payload) {
     var loader = loaderFor(store, null, this.extractId(type, payload));
-    get(this, 'serializer').extractSingle(loader, type, payload);
+    get(this, 'serializer').extractRecordRepresentation(loader, type, payload);
   },
 
   createRecord: function(store, type, record) {
@@ -68,7 +57,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       context: this,
       success: function(json) {
         Ember.run(this, function(){
-          this.didSaveRecord(store, type, record, json);
+          this.didCreateRecord(store, type, record, json);
         });
       },
       error: function(xhr) {
@@ -79,34 +68,60 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   dirtyRecordsForHasManyChange: Ember.K,
 
-  didSaveRecord: function(store, type, record, json) {
-    var loader = loaderFor(store, record);
+  didCreateRecord: function(store, type, record, json) {
+    store.didSaveRecord(record);
 
-    get(this, 'serializer').extract(loader, json, {
-      type: type
-    });
+    if (json) {
+      var loader = loaderFor(store);
+      var serializer = get(this, 'serializer');
+
+      loader.load = function(type, data, prematerialized) {
+        store.updateId(record, data);
+        store.load(type, data, prematerialized);
+      };
+
+      get(this, 'serializer').extract(loader, json, type);
+    }
+  },
+
+  didCreateRecords: function(store, type, records, json) {
+    records.forEach(function(record) {
+      store.didSaveRecord(record);
+    }, this);
+
+    records = records.toArray();
+
+    if (json) {
+      var loader = loaderFor(store);
+      loader.loadMany = function(type, array) {
+        for (var i = 0; i < array.length; i++) {
+          store.updateId(records[i], array[i]);
+        }
+        store.loadMany(type, array);
+      };
+
+      get(this, 'serializer').extractMany(loader, json, type);
+    }
+  },
+
+  didSaveRecord: function(store, type, record, json) {
+    store.didSaveRecord(record);
+
+    if (json) {
+      var loader = loaderFor(store);
+      get(this, 'serializer').extract(loader, json, type);
+    }
   },
 
   didSaveRecords: function(store, type, records, json) {
-    var self = this;
+    records.forEach(function(record) {
+      store.didSaveRecord(record);
+    }, this);
 
-    var loader = loaderFor(store);
-    loader.loadMainArray = function(type, array) {
-      var i = 0;
-
-      records.forEach(function(record) {
-        store.didSaveRecord(record, array && array[i++]);
-      });
-    };
-
-    loader.acknowledge = function() {
-      records.forEach(store.didSaveRecord, store);
-    };
-
-    get(this, 'serializer').extract(loader, json, {
-      multiple: true,
-      type: type
-    });
+    if (json) {
+      var loader = loaderFor(store);
+      get(this, 'serializer').extractMany(loader, json, type);
+    }
   },
 
   createRecords: function(store, type, records) {
@@ -128,7 +143,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       context: this,
       success: function(json) {
         Ember.run(this, function(){
-          this.didSaveRecords(store, type, records, json);
+          this.didCreateRecords(store, type, records, json);
         });
       }
     });
@@ -233,11 +248,16 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   didFindRecord: function(store, type, json, id) {
-    var loader = loaderFor(store, null, id);
+    var loader = loaderFor(store);
 
-    get(this, 'serializer').extract(loader, json, {
-      type: type
-    });
+    loader.load = function(type, data, prematerialized) {
+      prematerialized = prematerialized || {};
+      prematerialized.id = id;
+
+      return store.load(type, data, prematerialized);
+    };
+
+    get(this, 'serializer').extract(loader, json, type);
   },
 
   findAll: function(store, type, since) {
@@ -257,19 +277,9 @@ DS.RESTAdapter = DS.Adapter.extend({
     var loader = loaderFor(store),
         serializer = get(this, 'serializer');
 
-    loader.loadMainArray = function(type, data) {
-      loader.loadMany(type, data);
-    };
-
-    serializer.extract(loader, json, { type: type, multiple: true });
-
-    var since = this.extractSince(json);
-
-    // this registers the id with the store, so it will be passed
-    // into the next call to `findAll`
-    if (since) { store.sinceForType(type, since); }
-
     store.didUpdateAll(type);
+
+    serializer.extractMany(loader, json, type);
   },
 
   findQuery: function(store, type, query, recordArray) {
@@ -287,14 +297,11 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didFindQuery: function(store, type, json, recordArray) {
     var loader = loaderFor(store);
-    loader.loadMainArray = function(type, data) {
+    loader.loadMany = function(type, data) {
       recordArray.load(data);
     };
 
-    get(this, 'serializer').extract(loader, json, {
-      multiple: true,
-      type: type
-    });
+    get(this, 'serializer').extractMany(loader, json, type);
   },
 
   findMany: function(store, type, ids) {
@@ -328,14 +335,8 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didFindMany: function(store, type, json) {
     var loader = loaderFor(store);
-    loader.loadMainArray = function(type, data) {
-      loader.loadMany(type, data);
-    };
 
-    get(this, 'serializer').extract(loader, json, {
-      multiple: true,
-      type: type
-    });
+    get(this, 'serializer').extractMany(loader, json, type);
   },
 
   didError: function(store, type, record, xhr) {
@@ -396,15 +397,6 @@ DS.RESTAdapter = DS.Adapter.extend({
     var query = {};
     query[get(this, 'since')] = since;
     return since ? query : null;
-  },
-
-  extractSince: function(json) {
-    var meta = this.extractMeta(json);
-    return meta[get(this, 'since')] || null;
-  },
-
-  extractMeta: function(json) {
-    return json[get(this, 'meta')] || {};
   }
 });
 

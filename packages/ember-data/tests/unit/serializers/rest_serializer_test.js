@@ -53,18 +53,16 @@ test("Calling extract on a JSON payload with multiple records will tear them apa
       loadMainCallCount = 0;
 
   var loader = {
-    load: function(type, data, prematerialized) {
+    sideload: function(type, data, prematerialized) {
       loadCallCount++;
     },
 
-    loadMain: function(type, data, prematerialized) {
+    load: function(type, data, prematerialized) {
       loadMainCallCount++;
     }
   };
 
-  serializer.extract(loader, payload, {
-    type: App.Post
-  });
+  serializer.extract(loader, payload, App.Post);
 
   equal(loadMainCallCount, 1, "one main record was loaded from a single payload");
   equal(loadCallCount, 1, "one secondary record was loaded from a single payload");
