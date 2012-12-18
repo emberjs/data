@@ -1,5 +1,5 @@
-// Version: v1.0.0-pre.2-69-g55888ee
-// Last commit: 55888ee (2012-12-07 14:54:37 -0800)
+// Version: v1.0.0-pre.2-115-g4646983
+// Last commit: 4646983 (2012-12-13 18:34:01 -0800)
 
 
 (function() {
@@ -142,8 +142,8 @@ if ('undefined' !== typeof window) {
 
 })();
 
-// Version: v1.0.0-pre.2-89-gb65b078
-// Last commit: b65b078 (2012-12-08 23:42:24 -0800)
+// Version: v1.0.0-pre.2-115-g4646983
+// Last commit: 4646983 (2012-12-13 18:34:01 -0800)
 
 
 (function() {
@@ -380,6 +380,13 @@ Ember.handleErrors = function(func, context) {
   }
 };
 
+Ember.merge = function(original, updates) {
+  for (var prop in updates) {
+    if (!updates.hasOwnProperty(prop)) { continue; }
+    original[prop] = updates[prop];
+  }
+};
+
 })();
 
 
@@ -458,15 +465,24 @@ var time = (function() {
 
 
 Ember.Instrumentation.instrument = function(name, payload, callback, binding) {
-  var listeners = cache[name];
+  var listeners = cache[name], timeName, ret;
+
+  if (Ember.STRUCTURED_PROFILE) {
+    timeName = name + ": " + payload.object;
+    console.time(timeName);
+  }
 
   if (!listeners) {
     listeners = populateListeners(name);
   }
 
-  if (listeners.length === 0) { return callback.call(binding); }
+  if (listeners.length === 0) {
+    ret = callback.call(binding);
+    if (Ember.STRUCTURED_PROFILE) { console.timeEnd(timeName); }
+    return ret;
+  }
 
-  var beforeValues = [], listener, ret, i, l;
+  var beforeValues = [], listener, i, l;
 
   try {
     for (i=0, l=listeners.length; i<l; i++) {
@@ -482,6 +498,10 @@ Ember.Instrumentation.instrument = function(name, payload, callback, binding) {
     for (i=0, l=listeners.length; i<l; i++) {
       listener = listeners[i];
       listener.after(name, time(), payload, beforeValues[i]);
+    }
+
+    if (Ember.STRUCTURED_PROFILE) {
+      console.timeEnd(timeName);
     }
   }
 
@@ -637,6 +657,11 @@ var utils = Ember.EnumerableUtils = {
     return elements === undefined ? [] : utils.map(elements, function(item) {
       return utils.indexOf(obj, item);
     });
+  },
+
+  addObject: function(array, item) {
+    var index = utils.indexOf(array, item);
+    if (index === -1) { array.push(item); }
   },
 
   removeObject: function(array, item) {
@@ -5402,7 +5427,7 @@ function processNames(paths, root, seen) {
 
     if (obj && obj.toString === classToString) {
       obj[NAME_KEY] = paths.join('.');
-    } else if (obj && get(obj, 'isNamespace')) {
+    } else if (obj && obj.isNamespace) {
       if (seen[guidFor(obj)]) { continue; }
       seen[guidFor(obj)] = true;
       processNames(paths, obj, seen);
@@ -5463,7 +5488,7 @@ classToString = function() {
   var Namespace = Ember.Namespace, namespace;
 
   // TODO: Namespace should really be in Metal
-  if (Namespace) {
+  if (Namespace && !Ember.BOOTED) {
     if (!this[NAME_KEY] && !classToString.processed) {
       if (!Namespace.PROCESSED) {
         findNamespaces();
@@ -5480,17 +5505,26 @@ classToString = function() {
     }
   }
 
+  var ret;
+
   if (this[NAME_KEY]) {
-    return this[NAME_KEY];
+    ret = this[NAME_KEY];
   } else {
     var str = superClassString(this);
     if (str) {
-      return "(subclass of " + str + ")";
+      ret = "(subclass of " + str + ")";
     } else {
-      return "(unknown mixin)";
+      ret = "(unknown mixin)";
     }
   }
+
+  this.toString = makeToString(ret);
+  return ret;
 };
+
+function makeToString(ret) {
+  return function() { return ret; };
+}
 
 MixinPrototype.toString = classToString;
 
@@ -5933,48 +5967,50 @@ Ember.typeOf = function(item) {
   confusing.
 
   ```javascript
-  Ember.none();              // true
-  Ember.none(null);          // true
-  Ember.none(undefined);     // true
-  Ember.none('');            // false
-  Ember.none([]);            // false
-  Ember.none(function(){});  // false
+  Ember.isNone();              // true
+  Ember.isNone(null);          // true
+  Ember.isNone(undefined);     // true
+  Ember.isNone('');            // false
+  Ember.isNone([]);            // false
+  Ember.isNone(function(){});  // false
   ```
 
-  @method none
+  @method isNone
   @for Ember
   @param {Object} obj Value to test
   @return {Boolean}
 */
-Ember.none = function(obj) {
+Ember.isNone = function(obj) {
   return obj === null || obj === undefined;
 };
+Ember.none = Ember.deprecateFunc("Ember.none is deprecated. Please use Ember.isNone instead.", Ember.isNone);
 
 /**
   Verifies that a value is `null` or an empty string, empty array,
   or empty function.
 
-  Constrains the rules on `Ember.none` by returning false for empty
+  Constrains the rules on `Ember.isNone` by returning false for empty
   string and empty arrays.
 
   ```javascript
-  Ember.empty();                // true
-  Ember.empty(null);            // true
-  Ember.empty(undefined);       // true
-  Ember.empty('');              // true
-  Ember.empty([]);              // true
-  Ember.empty('Adam Hawkins');  // false
-  Ember.empty([0,1,2]);         // false
+  Ember.isEmpty();                // true
+  Ember.isEmpty(null);            // true
+  Ember.isEmpty(undefined);       // true
+  Ember.isEmpty('');              // true
+  Ember.isEmpty([]);              // true
+  Ember.isEmpty('Adam Hawkins');  // false
+  Ember.isEmpty([0,1,2]);         // false
   ```
 
-  @method empty
+  @method isEmpty
   @for Ember
   @param {Object} obj Value to test
   @return {Boolean}
 */
-Ember.empty = function(obj) {
+Ember.isEmpty = function(obj) {
   return obj === null || obj === undefined || (obj.length === 0 && typeof obj !== 'function') || (typeof obj === 'object' && Ember.get(obj, 'length') === 0);
 };
+Ember.empty = Ember.deprecateFunc("Ember.empty is deprecated. Please use Ember.isEmpty instead.", Ember.isEmpty) ;
 
 /**
  This will compare two javascript values of possibly different types.
@@ -9438,12 +9474,24 @@ function makeCtor() {
         for (var keyName in properties) {
           if (!properties.hasOwnProperty(keyName)) { continue; }
 
-          var desc = m.descs[keyName],
-              value = properties[keyName];
+          var value = properties[keyName],
+              IS_BINDING = Ember.IS_BINDING;
+
+          if (IS_BINDING.test(keyName)) {
+            var bindings = m.bindings;
+            if (!bindings) {
+              bindings = m.bindings = { __emberproto__: this };
+            } else if (bindings.__emberproto__ !== this) {
+              bindings = m.bindings = o_create(m.bindings);
+              bindings.__emberproto__ = this;
+            }
+            bindings[keyName] = value;
+          }
+
+          var desc = m.descs[keyName];
 
           Ember.assert("Ember.Object.create no longer supports defining computed properties.", !(value instanceof Ember.ComputedProperty));
-          Ember.assert("Ember.Object.create no longer supports defining bindings.", keyName.substr(-7) !== "Binding");
-          Ember.assert("Ember.Object.create no longer supports calling _super.", !(typeof value === 'function' && value.toString().indexOf('_super') !== -1));
+          Ember.assert("Ember.Object.create no longer supports defining methods that call _super.", !(typeof value === 'function' && value.toString().indexOf('_super') !== -1));
 
           if (concatenatedProperties && concatenatedProperties.indexOf(keyName) >= 0) {
             var baseValue = this[keyName];
@@ -9597,7 +9645,7 @@ CoreObject.PrototypeMixin = Mixin.create({
 
         App.Teacher = App.Person.extend({
           toStringExtension: function(){
-            return @get('fullName');
+            return this.get('fullName');
           }
         });
         teacher = App.Teacher.create()
@@ -9606,12 +9654,18 @@ CoreObject.PrototypeMixin = Mixin.create({
     @method toString
     @return {String} string representation
   */
-  toString: function() {
-    var hasToStringExtension = Ember.typeOf(this.toStringExtension) === 'function',
+  toString: function toString() {
+    var hasToStringExtension = typeof this.toStringExtension === 'function',
         extension = hasToStringExtension ? ":" + this.toStringExtension() : '';
-    return '<'+this.constructor.toString()+':'+guidFor(this)+extension+'>';
+    var ret = '<'+this.constructor.toString()+':'+guidFor(this)+extension+'>';
+    this.toString = makeToString(ret);
+    return ret;
   }
 });
+
+function makeToString(ret) {
+  return function() { return ret; };
+}
 
 if (Ember.config.overridePrototypeMixin) {
   Ember.config.overridePrototypeMixin(CoreObject.PrototypeMixin);
@@ -9773,7 +9827,7 @@ Ember.CoreObject = CoreObject;
 @submodule ember-runtime
 */
 
-var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor, none = Ember.none;
+var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor, none = Ember.isNone;
 
 /**
   An unordered collection of objects.
@@ -12118,6 +12172,8 @@ Ember.Application = Ember.Namespace.extend(
     if (router && router instanceof Ember.Router) {
       this.startRouting(router);
     }
+
+    Ember.BOOTED = true;
   },
 
   createApplicationView: function (router) {
@@ -12336,6 +12392,7 @@ Ember.RenderBuffer = function(tagName) {
   return new Ember._RenderBuffer(tagName);
 };
 
+
 Ember._RenderBuffer = function(tagName) {
   this.elementTag = tagName;
   this.childBuffers = [];
@@ -12345,16 +12402,29 @@ Ember._RenderBuffer.prototype =
 /** @scope Ember.RenderBuffer.prototype */ {
 
   /**
-    Array of class-names which will be applied in the class attribute.
+    @private
 
-    You should not maintain this array yourself, rather, you should use
-    the `addClass()` method of `Ember.RenderBuffer.`
+    An internal set used to de-dupe class names when `addClass()` is
+    used. After each call to `addClass()`, the `classes` property
+    will be updated.
 
     @property elementClasses
     @type Array
     @default []
   */
   elementClasses: null,
+
+  /**
+    Array of class names which will be applied in the class attribute.
+
+    You can use `setClasses()` to set this property directly. If you
+    use `addClass()`, it will be maintained for you.
+
+    @property classes
+    @type Array
+    @default []
+  */
+  classes: null,
 
   /**
     The id in of the element, to be applied in the id attribute.
@@ -12446,8 +12516,13 @@ Ember._RenderBuffer.prototype =
     // lazily create elementClasses
     var elementClasses = this.elementClasses = (this.elementClasses || new ClassSet());
     this.elementClasses.add(className);
+    this.classes = this.elementClasses.list;
 
     return this;
+  },
+
+  setClasses: function(classNames) {
+    this.classes = classNames;
   },
 
   /**
@@ -12650,13 +12725,13 @@ Ember._RenderBuffer.prototype =
     var element = document.createElement(this.elementTag),
         $element = Ember.$(element),
         id = this.elementId,
-        classes = this.elementClasses,
+        classes = this.classes,
         attrs = this.elementAttributes,
         style = this.elementStyle,
         styleBuffer = '', prop;
 
     if (id) { $element.attr('id', id); }
-    if (classes) { $element.attr('class', classes.toDOM()); }
+    if (classes) { $element.attr('class', classes.join(' ')); }
 
     if (style) {
       for (prop in style) {
@@ -12715,7 +12790,7 @@ Ember._RenderBuffer.prototype =
 
     if (tag) {
       var id = this.elementId,
-          classes = this.elementClasses,
+          classes = this.classes,
           attrs = this.elementAttributes,
           style = this.elementStyle,
           styleBuffer = '', prop;
@@ -12723,7 +12798,7 @@ Ember._RenderBuffer.prototype =
       content.push("<" + tag);
 
       if (id) { content.push(' id="' + this._escapeAttribute(id) + '"'); }
-      if (classes) { content.push(' class="' + this._escapeAttribute(classes.toDOM()) + '"'); }
+      if (classes) { content.push(' class="' + this._escapeAttribute(classes.join(' ')) + '"'); }
 
       if (style) {
         content.push(' style="');
@@ -13251,15 +13326,18 @@ Ember.ControllerMixin.reopen({
 
 
 (function() {
+var states = {};
+
 /**
 @module ember
 @submodule ember-views
 */
 
 var get = Ember.get, set = Ember.set, addObserver = Ember.addObserver, removeObserver = Ember.removeObserver;
-var meta = Ember.meta, fmt = Ember.String.fmt;
+var meta = Ember.meta, guidFor = Ember.guidFor, fmt = Ember.String.fmt;
 var a_slice = [].slice;
 var a_forEach = Ember.EnumerableUtils.forEach;
+var a_addObject = Ember.EnumerableUtils.addObject;
 
 var childViewsProperty = Ember.computed(function() {
   var childViews = this._childViews;
@@ -13290,21 +13368,23 @@ Ember.warn("The VIEW_PRESERVES_CONTEXT flag has been removed and the functionali
 */
 Ember.TEMPLATES = {};
 
-var invokeForState = {
-  preRender: {},
-  inBuffer: {},
-  hasElement: {},
-  inDOM: {},
-  destroyed: {}
-};
-
 Ember.CoreView = Ember.Object.extend(Ember.Evented, {
+  isView: true,
+
+  states: states,
+
   init: function() {
     this._super();
 
     // Register the view for event handling. This hash is used by
     // Ember.EventDispatcher to dispatch incoming events.
-    if (!this.isVirtual) Ember.View.views[get(this, 'elementId')] = this;
+    if (!this.isVirtual) Ember.View.views[this.elementId] = this;
+
+    this.addBeforeObserver('elementId', function() {
+      throw new Error("Changing a view's elementId after creation is not allowed");
+    });
+
+    this.transitionTo('preRender');
   },
 
   /**
@@ -13316,16 +13396,16 @@ Ember.CoreView = Ember.Object.extend(Ember.Evented, {
     @default null
   */
   parentView: Ember.computed(function() {
-    var parent = get(this, '_parentView');
+    var parent = this._parentView;
 
     if (parent && parent.isVirtual) {
       return get(parent, 'parentView');
     } else {
       return parent;
     }
-  }).property('_parentView').volatile(),
+  }).property('_parentView'),
 
-  state: 'preRender',
+  state: null,
 
   _parentView: null,
 
@@ -13333,7 +13413,7 @@ Ember.CoreView = Ember.Object.extend(Ember.Evented, {
   concreteView: Ember.computed(function() {
     if (!this.isVirtual) { return this; }
     else { return get(this, 'parentView'); }
-  }).property('_parentView').volatile(),
+  }).property('parentView').volatile(),
 
   /**
     Creates a new `renderBuffer` with the passed `tagName`. You can override
@@ -13345,7 +13425,7 @@ Ember.CoreView = Ember.Object.extend(Ember.Evented, {
     @return {Ember.RenderBuffer}
   */
   renderBuffer: function(tagName) {
-    tagName = tagName || get(this, 'tagName');
+    tagName = tagName || this.tagName;
 
     // Explicitly check for null or undefined, as tagName
     // may be an empty string, which would evaluate to false.
@@ -13356,10 +13436,10 @@ Ember.CoreView = Ember.Object.extend(Ember.Evented, {
     return Ember.RenderBuffer(tagName);
   },
 
-  instrumentName: 'render.core_view',
+  instrumentName: 'core_view',
 
   instrumentDetails: function(hash) {
-    hash.type = this.constructor.toString();
+    hash.object = this.toString();
   },
 
   /**
@@ -13381,7 +13461,7 @@ Ember.CoreView = Ember.Object.extend(Ember.Evented, {
       be used.
   */
   renderToBuffer: function(parentBuffer, bufferOperation) {
-    var name = get(this, 'instrumentName'),
+    var name = 'render.' + this.instrumentName,
         details = {};
 
     this.instrumentDetails(details);
@@ -13407,7 +13487,7 @@ Ember.CoreView = Ember.Object.extend(Ember.Evented, {
     // provided buffer operation (for example, `insertAfter` will
     // insert a new buffer after the "parent buffer").
     if (parentBuffer) {
-      var tagName = get(this, 'tagName');
+      var tagName = this.tagName;
       if (tagName === null || tagName === undefined) {
         tagName = 'div';
       }
@@ -13453,7 +13533,7 @@ Ember.CoreView = Ember.Object.extend(Ember.Evented, {
   },
 
   willDestroy: function() {
-    var parent = get(this, '_parentView');
+    var parent = this._parentView;
 
     // destroy the element -- this will avoid each child view destroying
     // the element over and over again...
@@ -13464,19 +13544,17 @@ Ember.CoreView = Ember.Object.extend(Ember.Evented, {
     // the DOM again.
     if (parent) { parent.removeChild(this); }
 
-    this.state = 'destroyed';
+    this.transitionTo('destroyed');
 
     // next remove view from global hash
-    if (!this.isVirtual) delete Ember.View.views[get(this, 'elementId')];
+    if (!this.isVirtual) delete Ember.View.views[this.elementId];
   },
 
   clearRenderedChildren: Ember.K,
+  triggerRecursively: Ember.K,
   invokeRecursively: Ember.K,
-  invalidateRecursively: Ember.K,
   transitionTo: Ember.K,
-  destroyElement: Ember.K,
-  _notifyWillInsertElement: Ember.K,
-  _notifyDidInsertElement: Ember.K
+  destroyElement: Ember.K
 });
 
 /**
@@ -14199,7 +14277,7 @@ Ember.View = Ember.CoreView.extend(
       return controller;
     }
 
-    parentView = get(this, '_parentView');
+    parentView = this._parentView;
     if (parentView) {
       return get(parentView, '_context');
     }
@@ -14334,53 +14412,14 @@ Ember.View = Ember.CoreView.extend(
   },
 
   /**
-    Return the nearest ancestor that is an `Ember.CollectionView`
-
-    @property collectionView
-    @return Ember.CollectionView
-  */
-  collectionView: Ember.computed(function() {
-    return this.nearestOfType(Ember.CollectionView);
-  }),
-
-  /**
-    Return the nearest ancestor that is a direct child of
-    an `Ember.CollectionView`
-
-    @property itemView
-    @return Ember.View
-  */
-  itemView: Ember.computed(function() {
-    return this.nearestChildOf(Ember.CollectionView);
-  }),
-
-  /**
-    Return the nearest ancestor that has the property
-    `content`.
-
-    @property contentView
-    @return Ember.View
-  */
-  contentView: Ember.computed(function() {
-    return this.nearestWithProperty('content');
-  }),
-
-  /**
     @private
 
-    When the parent view changes, recursively invalidate
-    `collectionView`, `itemView,` and `contentView`.
+    When the parent view changes, recursively invalidate `controller`
 
     @method _parentViewDidChange
   */
   _parentViewDidChange: Ember.observer(function() {
     if (this.isDestroying) { return; }
-
-    this.invokeRecursively(function(view) {
-      view.propertyDidChange('collectionView');
-      view.propertyDidChange('itemView');
-      view.propertyDidChange('contentView');
-    });
 
     if (get(this, 'parentView.controller') && !get(this, 'controller')) {
       this.notifyPropertyChange('controller');
@@ -14428,6 +14467,7 @@ Ember.View = Ember.CoreView.extend(
     if (template) {
       var context = get(this, 'context');
       var keywords = this.cloneKeywords();
+      var output;
 
       var data = {
         view: this,
@@ -14444,47 +14484,11 @@ Ember.View = Ember.CoreView.extend(
       Ember.assert('template must be a function. Did you mean to call Ember.Handlebars.compile("...") or specify templateName instead?', typeof template === 'function');
       // The template should write directly to the render buffer instead
       // of returning a string.
-      var output = template(context, { data: data });
+      output = template(context, { data: data });
 
       // If the template returned a string instead of writing to the buffer,
       // push the string onto the buffer.
       if (output !== undefined) { buffer.push(output); }
-    }
-  },
-
-  invokeForState: function(name) {
-    var stateName = this.state, args, fn;
-
-    // try to find the function for the state in the cache
-    if (fn = invokeForState[stateName][name]) {
-      args = a_slice.call(arguments);
-      args[0] = this;
-
-      return fn.apply(this, args);
-    }
-
-    // otherwise, find and cache the function for this state
-    var parent = this, states = parent.states, state;
-
-    while (states) {
-      state = states[stateName];
-
-      while (state) {
-        fn = state[name];
-
-        if (fn) {
-          invokeForState[stateName][name] = fn;
-
-          args = a_slice.call(arguments, 1);
-          args.unshift(this);
-
-          return fn.apply(this, args);
-        }
-
-        state = state.parentState;
-      }
-
-      states = states.parent;
     }
   },
 
@@ -14505,7 +14509,7 @@ Ember.View = Ember.CoreView.extend(
     @method rerender
   */
   rerender: function() {
-    return this.invokeForState('rerender');
+    return this.currentState.rerender(this);
   },
 
   clearRenderedChildren: function() {
@@ -14533,12 +14537,9 @@ Ember.View = Ember.CoreView.extend(
 
     @method _applyClassNameBindings
   */
-  _applyClassNameBindings: function() {
-    var classBindings = get(this, 'classNameBindings'),
-        classNames = get(this, 'classNames'),
-        elem, newClass, dasherizedClass;
-
-    if (!classBindings) { return; }
+  _applyClassNameBindings: function(classBindings) {
+    var classNames = this.classNames,
+    elem, newClass, dasherizedClass;
 
     // Loop through all of the configured bindings. These will be either
     // property names ('isUrgent') or property paths relative to the view
@@ -14583,7 +14584,7 @@ Ember.View = Ember.CoreView.extend(
       if (dasherizedClass) {
         // Ensure that it gets into the classNames array
         // so it is displayed when we render.
-        classNames.push(dasherizedClass);
+        a_addObject(classNames, dasherizedClass);
 
         // Save a reference to the class name so we can remove it
         // if the observer fires. Remember that this variable has
@@ -14608,11 +14609,8 @@ Ember.View = Ember.CoreView.extend(
     @method _applyAttributeBindings
     @param {Ember.RenderBuffer} buffer
   */
-  _applyAttributeBindings: function(buffer) {
-    var attributeBindings = get(this, 'attributeBindings'),
-        attributeValue, elem, type;
-
-    if (!attributeBindings) { return; }
+  _applyAttributeBindings: function(buffer, attributeBindings) {
+    var attributeValue, elem, type;
 
     a_forEach(attributeBindings, function(binding) {
       var split = binding.split(':'),
@@ -14679,9 +14677,9 @@ Ember.View = Ember.CoreView.extend(
   */
   element: Ember.computed(function(key, value) {
     if (value !== undefined) {
-      return this.invokeForState('setElement', value);
+      return this.currentState.setElement(this, value);
     } else {
-      return this.invokeForState('getElement');
+      return this.currentState.getElement(this);
     }
   }).property('_parentView'),
 
@@ -14698,7 +14696,7 @@ Ember.View = Ember.CoreView.extend(
     @return {jQuery} the CoreQuery object for the DOM node
   */
   $: function(sel) {
-    return this.invokeForState('$', sel);
+    return this.currentState.$(this, sel);
   },
 
   mutateChildViews: function(callback) {
@@ -14817,7 +14815,7 @@ Ember.View = Ember.CoreView.extend(
   */
   _insertElement: function (fn) {
     this._scheduledInsert = null;
-    this.invokeForState('insertElement', fn);
+    this.currentState.insertElement(this, fn);
   },
 
   /**
@@ -14850,26 +14848,11 @@ Ember.View = Ember.CoreView.extend(
     // important than elements get garbage collected.
     this.destroyElement();
     this.invokeRecursively(function(view) {
-      view.clearRenderedChildren();
+      if (view.clearRenderedChildren) { view.clearRenderedChildren(); }
     });
   },
 
-  /**
-    The ID to use when trying to locate the element in the DOM. If you do not
-    set the elementId explicitly, then the view's GUID will be used instead.
-    This ID must be set at the time the view is created.
-
-    @property elementId
-    @type String
-  */
-  elementId: Ember.computed(function(key, value) {
-    return value !== undefined ? value : Ember.guidFor(this);
-  }),
-
-  // TODO: Perhaps this should be removed from the production build somehow.
-  _elementIdDidChange: Ember.beforeObserver(function() {
-    throw "Changing a view's elementId after creation is not allowed.";
-  }, 'elementId'),
+  elementId: null,
 
   /**
     Attempts to discover the element in the parent element. The default
@@ -14883,7 +14866,7 @@ Ember.View = Ember.CoreView.extend(
     @return {DOMElement} The discovered element
   */
   findElementInParentElement: function(parentElem) {
-    var id = "#" + get(this, 'elementId');
+    var id = "#" + this.elementId;
     return Ember.$(id)[0] || Ember.$(id, parentElem)[0];
   },
 
@@ -14940,67 +14923,37 @@ Ember.View = Ember.CoreView.extend(
     @param fn {Function}
   */
   invokeRecursively: function(fn) {
-    fn.call(this, this);
+    var childViews = [this], currentViews, view;
 
-    this.forEachChildView(function(view) {
-      view.invokeRecursively(fn);
-    });
+    while (childViews.length) {
+      currentViews = childViews.slice();
+      childViews = [];
+
+      for (var i=0, l=currentViews.length; i<l; i++) {
+        view = currentViews[i];
+        fn.call(view, view);
+        if (view._childViews) {
+          childViews.push.apply(childViews, view._childViews);
+        }
+      }
+    }
   },
 
-  /**
-    Invalidates the cache for a property on all child views.
+  triggerRecursively: function(eventName) {
+    var childViews = [this], currentViews, view;
 
-    @method invalidateRecursively
-  */
-  invalidateRecursively: function(key) {
-    this.forEachChildView(function(view) {
-      view.propertyDidChange(key);
-    });
-  },
+    while (childViews.length) {
+      currentViews = childViews.slice();
+      childViews = [];
 
-  /**
-    @private
-
-    Invokes the receiver's `willInsertElement()` method if it exists and then
-    invokes the same on all child views.
-
-    NOTE: In some cases this was called when the element existed. This no longer
-    works so we let people know. We can remove this warning code later.
-
-    @method _notifyWillInsertElement
-  */
-  _notifyWillInsertElement: function() {
-    this.invokeRecursively(function(view) {
-      view.trigger('willInsertElement');
-    });
-  },
-
-  /**
-    @private
-
-    Invokes the receiver's `didInsertElement()` method if it exists and then
-    invokes the same on all child views.
-
-    @method _notifyDidInsertElement
-  */
-  _notifyDidInsertElement: function() {
-    this.invokeRecursively(function(view) {
-      view.trigger('didInsertElement');
-    });
-  },
-
-  /**
-    @private
-
-    Triggers the `willClearRender` event (which invokes the `willClearRender()`
-    method if it exists) on this view and all child views.
-
-    @method _notifyWillClearRender
-  */
-  _notifyWillClearRender: function() {
-    this.invokeRecursively(function(view) {
-      view.trigger('willClearRender');
-    });
+      for (var i=0, l=currentViews.length; i<l; i++) {
+        view = currentViews[i];
+        if (view.trigger) { view.trigger(eventName); }
+        if (view._childViews) {
+          childViews.push.apply(childViews, view._childViews);
+        }
+      }
+    }
   },
 
   /**
@@ -15022,7 +14975,7 @@ Ember.View = Ember.CoreView.extend(
     @return {Ember.View} receiver
   */
   destroyElement: function() {
-    return this.invokeForState('destroyElement');
+    return this.currentState.destroyElement(this);
   },
 
   /**
@@ -15047,11 +15000,8 @@ Ember.View = Ember.CoreView.extend(
     @method _notifyWillDestroyElement
   */
   _notifyWillDestroyElement: function() {
-    this._notifyWillClearRender();
-
-    this.invokeRecursively(function(view) {
-      view.trigger('willDestroyElement');
-    });
+    this.triggerRecursively('willClearRender');
+    this.triggerRecursively('willDestroyElement');
   },
 
   _elementWillChange: Ember.beforeObserver(function() {
@@ -15082,7 +15032,7 @@ Ember.View = Ember.CoreView.extend(
   */
   parentViewDidChange: Ember.K,
 
-  instrumentName: 'render.view',
+  instrumentName: 'view',
 
   instrumentDetails: function(hash) {
     hash.template = get(this, 'templateName');
@@ -15098,7 +15048,7 @@ Ember.View = Ember.CoreView.extend(
   },
 
   renderToBufferIfNeeded: function () {
-    return this.invokeForState('renderToBufferIfNeeded', this);
+    return this.currentState.renderToBufferIfNeeded(this, this);
   },
 
   beforeRender: function(buffer) {
@@ -15110,16 +15060,21 @@ Ember.View = Ember.CoreView.extend(
   applyAttributesToBuffer: function(buffer) {
     // Creates observers for all registered class name and attribute bindings,
     // then adds them to the element.
-    this._applyClassNameBindings();
+    var classNameBindings = get(this, 'classNameBindings');
+    if (classNameBindings.length) {
+      this._applyClassNameBindings(classNameBindings);
+    }
 
     // Pass the render buffer so the method can apply attributes directly.
     // This isn't needed for class name bindings because they use the
     // existing classNames infrastructure.
-    this._applyAttributeBindings(buffer);
+    var attributeBindings = get(this, 'attributeBindings');
+    if (attributeBindings.length) {
+      this._applyAttributeBindings(buffer, attributeBindings);
+    }
 
-
-    a_forEach(get(this, 'classNames'), function(name){ buffer.addClass(name); });
-    buffer.id(get(this, 'elementId'));
+    buffer.setClasses(this.classNames);
+    buffer.id(this.elementId);
 
     var role = get(this, 'ariaRole');
     if (role) {
@@ -15263,6 +15218,8 @@ Ember.View = Ember.CoreView.extend(
     @method init
   */
   init: function() {
+    this.elementId = this.elementId || guidFor(this);
+
     this._super();
 
     // setup child views. be sure to clone the child views array first
@@ -15284,7 +15241,7 @@ Ember.View = Ember.CoreView.extend(
   },
 
   appendChild: function(view, options) {
-    return this.invokeForState('appendChild', view, options);
+    return this.currentState.appendChild(this, view, options);
   },
 
   /**
@@ -15339,7 +15296,7 @@ Ember.View = Ember.CoreView.extend(
     @return {Ember.View} receiver
   */
   removeFromParent: function() {
-    var parent = get(this, '_parentView');
+    var parent = this._parentView;
 
     // Remove DOM element from parent
     this.remove();
@@ -15360,7 +15317,7 @@ Ember.View = Ember.CoreView.extend(
     // calling this._super() will nuke computed properties and observers,
     // so collect any information we need before calling super.
     var childViews = this._childViews,
-        parent     = get(this, '_parentView'),
+        parent = this._parentView,
         childLen;
 
     // destroy the element -- this will avoid each child view destroying
@@ -15380,7 +15337,7 @@ Ember.View = Ember.CoreView.extend(
     // the DOM again.
     if (parent) { parent.removeChild(this); }
 
-    this.state = 'destroyed';
+    this.transitionTo('destroyed');
 
     childLen = childViews.length;
     for (var i=childLen-1; i>=0; i--) {
@@ -15405,18 +15362,20 @@ Ember.View = Ember.CoreView.extend(
     @return {Ember.View} new instance
   */
   createChildView: function(view, attrs) {
+    if (view.isView && view._parentView === this) { return view; }
+
     if (Ember.CoreView.detect(view)) {
       attrs = attrs || {};
       attrs._parentView = this;
       attrs.templateData = attrs.templateData || get(this, 'templateData');
 
-      view = view.createWithMixins(attrs);
+      view = view.create(attrs);
 
       // don't set the property on a virtual view, as they are invisible to
       // consumers of the view API
       if (view.viewName) { set(get(this, 'concreteView'), view.viewName, view); }
     } else {
-      Ember.assert('You must pass instance or subclass of View', view instanceof Ember.CoreView);
+      Ember.assert('You must pass instance or subclass of View', view.isView);
       Ember.assert("You can only pass attributes when a class is provided", !attrs);
 
       if (!get(view, 'templateData')) {
@@ -15494,11 +15453,12 @@ Ember.View = Ember.CoreView.extend(
 
   clearBuffer: function() {
     this.invokeRecursively(function(view) {
-      this.buffer = null;
+      view.buffer = null;
     });
   },
 
   transitionTo: function(state, children) {
+    this.currentState = this.states[state];
     this.state = state;
 
     if (children !== false) {
@@ -15522,7 +15482,7 @@ Ember.View = Ember.CoreView.extend(
     @param evt {Event}
   */
   handleEvent: function(eventName, evt) {
-    return this.invokeForState('handleEvent', eventName, evt);
+    return this.currentState.handleEvent(this, eventName, evt);
   }
 
 });
@@ -15585,7 +15545,6 @@ var DOMManager = {
 };
 
 Ember.View.reopen({
-  states: Ember.View.states,
   domManager: DOMManager
 });
 
@@ -15726,6 +15685,8 @@ Ember.View.applyAttributeBindings = function(elem, name, value) {
   }
 };
 
+Ember.View.states = states;
+
 })();
 
 
@@ -15738,44 +15699,40 @@ Ember.View.applyAttributeBindings = function(elem, name, value) {
 
 var get = Ember.get, set = Ember.set;
 
-Ember.View.states = {
-  _default: {
-    // appendChild is only legal while rendering the buffer.
-    appendChild: function() {
-      throw "You can't use appendChild outside of the rendering process";
-    },
+Ember.View.states._default = {
+  // appendChild is only legal while rendering the buffer.
+  appendChild: function() {
+    throw "You can't use appendChild outside of the rendering process";
+  },
 
-    $: function() {
-      return undefined;
-    },
+  $: function() {
+    return undefined;
+  },
 
-    getElement: function() {
-      return null;
-    },
+  getElement: function() {
+    return null;
+  },
 
-    // Handle events from `Ember.EventDispatcher`
-    handleEvent: function() {
-      return true; // continue event propagation
-    },
+  // Handle events from `Ember.EventDispatcher`
+  handleEvent: function() {
+    return true; // continue event propagation
+  },
 
-    destroyElement: function(view) {
-      set(view, 'element', null);
-      if (view._scheduledInsert) {
-        Ember.run.cancel(view._scheduledInsert);
-        view._scheduledInsert = null;
-      }
-      return view;
-    },
-
-    renderToBufferIfNeeded: function () {
-      return false;
+  destroyElement: function(view) {
+    set(view, 'element', null);
+    if (view._scheduledInsert) {
+      Ember.run.cancel(view._scheduledInsert);
+      view._scheduledInsert = null;
     }
-  }
-};
+    return view;
+  },
 
-Ember.View.reopen({
-  states: Ember.View.states
-});
+  renderToBufferIfNeeded: function () {
+    return false;
+  },
+
+  rerender: Ember.K
+};
 
 })();
 
@@ -15787,18 +15744,18 @@ Ember.View.reopen({
 @submodule ember-views
 */
 
-Ember.View.states.preRender = {
-  parentState: Ember.View.states._default,
+var preRender = Ember.View.states.preRender = Ember.create(Ember.View.states._default);
 
+Ember.merge(preRender, {
   // a view leaves the preRender state once its element has been
   // created (createElement).
   insertElement: function(view, fn) {
     view.createElement();
-    view._notifyWillInsertElement();
+    view.triggerRecursively('willInsertElement');
     // after createElement, the view will be in the hasElement state.
     fn.call(view);
     view.transitionTo('inDOM');
-    view._notifyDidInsertElement();
+    view.triggerRecursively('didInsertElement');
   },
 
   renderToBufferIfNeeded: function(view) {
@@ -15813,7 +15770,7 @@ Ember.View.states.preRender = {
     }
     return value;
   }
-};
+});
 
 })();
 
@@ -15827,9 +15784,9 @@ Ember.View.states.preRender = {
 
 var get = Ember.get, set = Ember.set, meta = Ember.meta;
 
-Ember.View.states.inBuffer = {
-  parentState: Ember.View.states._default,
+var inBuffer = Ember.View.states.inBuffer = Ember.create(Ember.View.states._default);
 
+Ember.merge(inBuffer, {
   $: function(view, sel) {
     // if we don't have an element yet, someone calling this.$() is
     // trying to update an element that isn't in the DOM. Instead,
@@ -15844,7 +15801,7 @@ Ember.View.states.inBuffer = {
   rerender: function(view) {
     Ember.deprecate("Something you did caused a view to re-render after it rendered but before it was inserted into the DOM. Because this is avoidable and the cause of significant performance issues in applications, this behavior is deprecated. If you want to use the debugger to find out what caused this, you can set ENV.RAISE_ON_DEPRECATION to true.");
 
-    view._notifyWillClearRender();
+    view.triggerRecursively('willClearRender');
 
     view.clearRenderedChildren();
     view.renderToBuffer(view.buffer, 'replaceWith');
@@ -15856,7 +15813,7 @@ Ember.View.states.inBuffer = {
   appendChild: function(view, childView, options) {
     var buffer = view.buffer;
 
-    childView = this.createChildView(childView, options);
+    childView = view.createChildView(childView, options);
     view._childViews.push(childView);
 
     childView.renderToBuffer(buffer);
@@ -15901,7 +15858,7 @@ Ember.View.states.inBuffer = {
 
     return value;
   }
-};
+});
 
 
 })();
@@ -15916,9 +15873,9 @@ Ember.View.states.inBuffer = {
 
 var get = Ember.get, set = Ember.set, meta = Ember.meta;
 
-Ember.View.states.hasElement = {
-  parentState: Ember.View.states._default,
+var hasElement = Ember.View.states.hasElement = Ember.create(Ember.View.states._default);
 
+Ember.merge(hasElement, {
   $: function(view, sel) {
     var elem = get(view, 'element');
     return sel ? Ember.$(sel, elem) : Ember.$(elem);
@@ -15944,7 +15901,7 @@ Ember.View.states.hasElement = {
   // once the view has been inserted into the DOM, rerendering is
   // deferred to allow bindings to synchronize.
   rerender: function(view) {
-    view._notifyWillClearRender();
+    view.triggerRecursively('willClearRender');
 
     view.clearRenderedChildren();
 
@@ -15988,15 +15945,15 @@ Ember.View.states.hasElement = {
       return true; // continue event propagation
     }
   }
-};
+});
 
-Ember.View.states.inDOM = {
-  parentState: Ember.View.states.hasElement,
+var inDOM = Ember.View.states.inDOM = Ember.create(hasElement);
 
+Ember.merge(inDOM, {
   insertElement: function(view, fn) {
     throw "You can't insert an element into the DOM that has already been inserted";
   }
-};
+});
 
 })();
 
@@ -16010,9 +15967,9 @@ Ember.View.states.inDOM = {
 
 var destroyedError = "You can't call %@ on a destroyed view", fmt = Ember.String.fmt;
 
-Ember.View.states.destroyed = {
-  parentState: Ember.View.states._default,
+var destroyed = Ember.View.states.destroyed = Ember.create(Ember.View.states._default);
 
+Ember.merge(destroyed, {
   appendChild: function() {
     throw fmt(destroyedError, ['appendChild']);
   },
@@ -16037,7 +15994,7 @@ Ember.View.states.destroyed = {
   // Since element insertion is scheduled, don't do anything if
   // the view has been destroyed between scheduling and execution
   insertElement: Ember.K
-};
+});
 
 
 })();
@@ -16051,6 +16008,8 @@ Ember.View.states.destroyed = {
 
 
 (function() {
+var states = {};
+
 /**
 @module ember
 @submodule ember-views
@@ -16293,6 +16252,7 @@ var childViewsProperty = Ember.computed(function() {
 */
 
 Ember.ContainerView = Ember.View.extend({
+  states: states,
 
   init: function() {
     this._super();
@@ -16384,7 +16344,7 @@ Ember.ContainerView = Ember.View.extend({
     var changedViews = views.slice(start, start+removed);
     this.initializeViews(changedViews, null, null);
 
-    this.invokeForState('childViewsWillChange', views, start, removed);
+    this.currentState.childViewsWillChange(this, views, start, removed);
   },
 
   /**
@@ -16414,7 +16374,7 @@ Ember.ContainerView = Ember.View.extend({
     this.initializeViews(changedViews, this, get(this, 'templateData'));
 
     // Let the current state handle the changes
-    this.invokeForState('childViewsDidChange', views, start, added);
+    this.currentState.childViewsDidChange(this, views, start, added);
   },
 
   initializeViews: function(views, parentView, templateData) {
@@ -16449,84 +16409,90 @@ Ember.ContainerView = Ember.View.extend({
   }, 'currentView'),
 
   _ensureChildrenAreInDOM: function () {
-    this.invokeForState('ensureChildrenAreInDOM', this);
+    this.currentState.ensureChildrenAreInDOM(this);
   }
 });
 
-// Ember.ContainerView extends the default view states to provide different
-// behavior for childViewsWillChange and childViewsDidChange.
-Ember.ContainerView.states = {
-  parent: Ember.View.states,
+states._default = {};
+states.preRender = Ember.create(states._default);
+states.destroyed = Ember.create(states._default);
+states.inBuffer = Ember.create(states._default);
+states.hasElement = Ember.create(states._default);
+states.inDOM = Ember.create(states.hasElement);
 
-  inBuffer: {
-    childViewsDidChange: function(parentView, views, start, added) {
-      var buffer = parentView.buffer,
-          startWith, prev, prevBuffer, view;
+var viewStates = Ember.View.states, viewState;
 
-      // Determine where to begin inserting the child view(s) in the
-      // render buffer.
-      if (start === 0) {
-        // If views were inserted at the beginning, prepend the first
-        // view to the render buffer, then begin inserting any
-        // additional views at the beginning.
-        view = views[start];
-        startWith = start + 1;
-        view.renderToBuffer(buffer, 'prepend');
-      } else {
-        // Otherwise, just insert them at the same place as the child
-        // views mutation.
-        view = views[start - 1];
-        startWith = start;
-      }
+for (var stateName in viewStates) {
+  if (!viewStates.hasOwnProperty(stateName)) { continue; }
+  Ember.merge(states[stateName], viewStates[stateName]);
+}
 
-      for (var i=startWith; i<start+added; i++) {
-        prev = view;
-        view = views[i];
-        prevBuffer = prev.buffer;
-        view.renderToBuffer(prevBuffer, 'insertAfter');
-      }
+Ember.merge(states._default, {
+  childViewsWillChange: Ember.K,
+  childViewsDidChange: Ember.K,
+  ensureChildrenAreInDOM: Ember.K
+});
+
+Ember.merge(states.inBuffer, {
+  childViewsDidChange: function(parentView, views, start, added) {
+    var buffer = parentView.buffer,
+        startWith, prev, prevBuffer, view;
+
+    // Determine where to begin inserting the child view(s) in the
+    // render buffer.
+    if (start === 0) {
+      // If views were inserted at the beginning, prepend the first
+      // view to the render buffer, then begin inserting any
+      // additional views at the beginning.
+      view = views[start];
+      startWith = start + 1;
+      view.renderToBuffer(buffer, 'prepend');
+    } else {
+      // Otherwise, just insert them at the same place as the child
+      // views mutation.
+      view = views[start - 1];
+      startWith = start;
+    }
+
+    for (var i=startWith; i<start+added; i++) {
+      prev = view;
+      view = views[i];
+      prevBuffer = prev.buffer;
+      view.renderToBuffer(prevBuffer, 'insertAfter');
+    }
+  }
+});
+
+Ember.merge(states.hasElement, {
+  childViewsWillChange: function(view, views, start, removed) {
+    for (var i=start; i<start+removed; i++) {
+      views[i].remove();
     }
   },
 
-  hasElement: {
-    childViewsWillChange: function(view, views, start, removed) {
-      for (var i=start; i<start+removed; i++) {
-        views[i].remove();
-      }
-    },
+  childViewsDidChange: function(view, views, start, added) {
+    Ember.run.scheduleOnce('render', view, '_ensureChildrenAreInDOM');
+  },
 
-    childViewsDidChange: function(view, views, start, added) {
-      Ember.run.scheduleOnce('render', this, '_ensureChildrenAreInDOM');
-    },
-
-    ensureChildrenAreInDOM: function(view) {
-      var childViews = view.get('childViews'), i, len, childView, previous, buffer;
-      for (i = 0, len = childViews.length; i < len; i++) {
-        childView = childViews[i];
-        buffer = childView.renderToBufferIfNeeded();
-        if (buffer) {
-          childView._notifyWillInsertElement();
-          if (previous) {
-            previous.domManager.after(previous, buffer.string());
-          } else {
-            view.domManager.prepend(view, buffer.string());
-          }
-          childView.transitionTo('inDOM');
-          childView.propertyDidChange('element');
-          childView._notifyDidInsertElement();
+  ensureChildrenAreInDOM: function(view) {
+    var childViews = view.get('childViews'), i, len, childView, previous, buffer;
+    for (i = 0, len = childViews.length; i < len; i++) {
+      childView = childViews[i];
+      buffer = childView.renderToBufferIfNeeded();
+      if (buffer) {
+        childView.triggerRecursively('willInsertElement');
+        if (previous) {
+          previous.domManager.after(previous, buffer.string());
+        } else {
+          view.domManager.prepend(view, buffer.string());
         }
-        previous = childView;
+        childView.transitionTo('inDOM');
+        childView.propertyDidChange('element');
+        childView.triggerRecursively('didInsertElement');
       }
+      previous = childView;
     }
   }
-};
-
-Ember.ContainerView.states.inDOM = {
-  parentState: Ember.ContainerView.states.hasElement
-};
-
-Ember.ContainerView.reopen({
-  states: Ember.ContainerView.states
 });
 
 })();
@@ -16794,7 +16760,7 @@ Ember.CollectionView = Ember.ContainerView.extend(
     var removingAll = removedCount === len;
 
     if (removingAll) {
-      this.invokeForState('empty');
+      this.currentState.empty(this);
     }
 
     for (idx = start + removedCount - 1; idx >= start; idx--) {
@@ -17983,7 +17949,7 @@ Ember.StateManager = Ember.State.extend({
 
   transitionTo: function(path, context) {
     // XXX When is transitionTo called with no path
-    if (Ember.empty(path)) { return; }
+    if (Ember.isEmpty(path)) { return; }
 
     // The ES6 signature of this function is `path, ...contexts`
     var contexts = context ? Array.prototype.slice.call(arguments, 1) : [],
@@ -18535,7 +18501,7 @@ Ember.Routable = Ember.Mixin.create({
   serialize: function(manager, context) {
     var modelClass, routeMatcher, namespace, param, id;
 
-    if (Ember.empty(context)) { return ''; }
+    if (Ember.isEmpty(context)) { return ''; }
 
     if (modelClass = this.modelClassFor(get(manager, 'namespace'))) {
       param = paramForClass(modelClass);
@@ -20601,6 +20567,113 @@ Ember.Handlebars.registerHelper('helperMissing', function(path, options) {
   throw new Ember.Error(Ember.String.fmt(error, [view, path, this]));
 });
 
+/**
+  Register a bound handlebars helper. Bound helpers behave similarly to regular
+  handlebars helpers, with the added ability to re-render when the underlying data
+  changes.
+
+  ## Simple example
+
+  ```javascript
+  Ember.Handlebars.registerBoundHelper('capitalize', function(value) {
+    return value.toUpperCase();
+  });
+  ```
+
+  The above bound helper can be used inside of templates as follows:
+
+  ```handlebars
+  {{capitalize name}}
+  ```
+
+  In this case, when the `name` property of the template's context changes,
+  the rendered value of the helper will update to reflect this change.
+
+  ## Example with options
+
+  Like normal handlebars helpers, bound helpers have access to the options
+  passed into the helper call.
+
+  ```javascript
+  Ember.Handlebars.registerBoundHelper('repeat', function(value, options) {
+    var count = options.hash.count;
+    var a = [];
+    while(a.length < count){
+        a.push(value);
+    }
+    return a.join('');
+  });
+  ```
+
+  This helper could be used in a template as follows:
+
+  ```handlebars
+  {{repeat text count=3}}
+  ```
+
+  ## Example with extra dependencies
+
+  The `Ember.Handlebars.registerBoundHelper` method takes a variable length
+  third parameter which indicates extra dependencies on the passed in value.
+  This allows the handlebars helper to update when these dependencies change.
+
+  ```javascript
+  Ember.Handlebars.registerBoundHelper('capitalizeName', function(value) {
+    return value.get('name').toUpperCase();
+  }, 'name');
+  ```
+
+  @method registerBoundHelper
+  @for Ember.Handlebars
+  @param {String} name
+  @param {Function} function
+  @param {String} dependentKeys*
+*/
+Ember.Handlebars.registerBoundHelper = function(name, fn) {
+  var dependentKeys = Array.prototype.slice.call(arguments, 2);
+  Ember.Handlebars.registerHelper(name, function(property, options) {
+    var data = options.data,
+      view = data.view,
+      currentContext = (options.contexts && options.contexts[0]) || this,
+      pathRoot, path, normalized,
+      observer, loc;
+
+    normalized = Ember.Handlebars.normalizePath(currentContext, property, data);
+
+    pathRoot = normalized.root;
+    path = normalized.path;
+    
+    var bindView = new Ember._SimpleHandlebarsView(
+      path, pathRoot, !options.hash.unescaped, options.data
+    );
+    bindView.normalizedValue = function() {
+      var value = Ember._SimpleHandlebarsView.prototype.normalizedValue.call(bindView);
+      return fn.call(view, value, options);
+    };
+
+    view.appendChild(bindView);
+
+    observer = function() {
+      Ember.run.scheduleOnce('render', bindView, 'rerender');
+    };
+
+    Ember.addObserver(pathRoot, path, observer);
+    loc = 0;
+    while(loc < dependentKeys.length) {
+      Ember.addObserver(pathRoot, path + '.' + dependentKeys[loc], observer);
+      loc += 1;
+    }
+
+    view.one('willClearRender', function() {
+      Ember.removeObserver(pathRoot, path, observer);
+      loc = 0;
+      while(loc < dependentKeys.length) {
+        Ember.removeObserver(pathRoot, path + '.' + dependentKeys[loc], observer);
+        loc += 1;
+      }
+    });
+  });
+};
 
 })();
 
@@ -20672,11 +20745,13 @@ var DOMManager = {
 
     Ember.run.schedule('render', this, function() {
       if (get(view, 'isDestroyed')) { return; }
-      view.invalidateRecursively('element');
-      view._notifyWillInsertElement();
+      view.invokeRecursively(function(view) {
+        view.propertyDidChange('element');
+      });
+      view.triggerRecursively('willInsertElement');
       morph.replaceWith(buffer.string());
       view.transitionTo('inDOM');
-      view._notifyDidInsertElement();
+      view.triggerRecursively('didInsertElement');
     });
   },
 
@@ -20747,19 +20822,43 @@ Ember._SimpleMetamorphView = Ember.CoreView.extend(Ember._Metamorph);
 
 (function() {
 /*globals Handlebars */
-
+/*jshint newcap:false*/
 /**
 @module ember
 @submodule ember-handlebars
 */
 
 var get = Ember.get, set = Ember.set, handlebarsGet = Ember.Handlebars.get;
-Ember._SimpleHandlebarsView = Ember._SimpleMetamorphView.extend({
-  instrumentName: 'render.simpleHandlebars',
+function SimpleHandlebarsView(path, pathRoot, isEscaped, templateData) {
+  this.path = path;
+  this.pathRoot = pathRoot;
+  this.isEscaped = isEscaped;
+  this.templateData = templateData;
 
-  normalizedValue: Ember.computed(function() {
-    var path = get(this, 'path'),
-        pathRoot  = get(this, 'pathRoot'),
+  this.morph = Metamorph();
+  this.state = 'preRender';
+  this.updateId = null;
+}
+
+Ember._SimpleHandlebarsView = SimpleHandlebarsView;
+
+SimpleHandlebarsView.prototype = {
+  isVirtual: true,
+  isView: true,
+
+  destroy: function () {
+    if (this.updateId) {
+      Ember.run.cancel(this.updateId);
+      this.updateId = null;
+    }
+    this.morph = null;
+  },
+
+  propertyDidChange: Ember.K,
+
+  normalizedValue: function() {
+    var path = this.path,
+        pathRoot = this.pathRoot,
         result, templateData;
 
     // Use the pathRoot as the result if no path is provided. This
@@ -20769,18 +20868,28 @@ Ember._SimpleHandlebarsView = Ember._SimpleMetamorphView.extend({
     if (path === '') {
       result = pathRoot;
     } else {
-      templateData = get(this, 'templateData');
+      templateData = this.templateData;
       result = handlebarsGet(pathRoot, path, { data: templateData });
     }
 
     return result;
-  }).property('path', 'pathRoot').volatile(),
+  },
 
-  render: function(buffer) {
+  renderToBuffer: function(buffer) {
+    var string = '';
+
+    string += this.morph.startTag();
+    string += this.render();
+    string += this.morph.endTag();
+
+    buffer.push(string);
+  },
+
+  render: function() {
     // If not invoked via a triple-mustache ({{{foo}}}), escape
     // the content of the template.
-    var escape = get(this, 'isEscaped');
-    var result = get(this, 'normalizedValue');
+    var escape = this.isEscaped;
+    var result = this.normalizedValue();
 
     if (result === null || result === undefined) {
       result = "";
@@ -20789,8 +20898,7 @@ Ember._SimpleHandlebarsView = Ember._SimpleMetamorphView.extend({
     }
 
     if (escape) { result = Handlebars.Utils.escapeExpression(result); }
-    buffer.push(result);
-    return;
+    return result;
   },
 
   rerender: function() {
@@ -20802,17 +20910,22 @@ Ember._SimpleHandlebarsView = Ember._SimpleMetamorphView.extend({
         throw new Error("Something you did tried to replace an {{expression}} before it was inserted into the DOM.");
       case 'hasElement':
       case 'inDOM':
-        this.domManager.replace(this);
+        this.updateId = Ember.run.scheduleOnce('render', this, 'update');
         break;
     }
 
     return this;
   },
 
+  update: function () {
+    this.updateId = null;
+    this.morph.html(this.render());
+  },
+
   transitionTo: function(state) {
     this.state = state;
   }
-});
+};
 
 /**
   `Ember._HandlebarsBoundView` is a private view created by the Handlebars
@@ -21130,15 +21243,11 @@ function simpleBind(property, options) {
       if (result === null || result === undefined) { result = ""; }
       data.buffer.push(result);
     } else {
-      var bindView = Ember._SimpleHandlebarsView.create().setProperties({
-        path: path,
-        pathRoot: pathRoot,
-        isEscaped: !options.hash.unescaped,
-        previousContext: currentContext,
-        templateData: options.data
-      });
+      var bindView = new Ember._SimpleHandlebarsView(
+        path, pathRoot, !options.hash.unescaped, options.data
+      );
 
-      view.createChildView(bindView);
+      bindView._parentView = view;
       view.appendChild(bindView);
 
       observer = function() {
@@ -21224,7 +21333,7 @@ EmberHandlebars.registerHelper('bind', function(property, options) {
   }
 
   return bind.call(context, property, options, false, function(result) {
-    return !Ember.none(result);
+    return !Ember.isNone(result);
   });
 });
 
@@ -21295,7 +21404,7 @@ EmberHandlebars.registerHelper('with', function(context, options) {
     }
 
     return bind.call(this, path, options, true, function(result) {
-      return !Ember.none(result);
+      return !Ember.isNone(result);
     });
   } else {
     Ember.assert("You must pass exactly one argument to the with helper", arguments.length === 2);
@@ -21482,6 +21591,7 @@ EmberHandlebars.registerHelper('bindAttr', function(options) {
   var classBindings = attrs['class'];
   if (classBindings !== null && classBindings !== undefined) {
     var classResults = EmberHandlebars.bindClasses(this, classBindings, view, dataId, options);
+
     ret.push('class="' + Handlebars.Utils.escapeExpression(classResults.join(' ')) + '"');
     delete attrs['class'];
   }
@@ -21769,7 +21879,7 @@ EmberHandlebars.ViewHelper = Ember.Object.create({
           //
           // is converted to this:
           //
-          //     classNameBinding="context.isGreen:green"
+          //     classNameBinding="_parentView.context.isGreen:green"
           var parsedPath = Ember.View._parsePropertyPath(full);
           path = this.contextualizeBindingPath(parsedPath.path, data);
           if (path) { extensions.classNameBindings[b] = path + parsedPath.classNames; }
@@ -21791,9 +21901,9 @@ EmberHandlebars.ViewHelper = Ember.Object.create({
     } else if (Ember.isGlobalPath(path)) {
       return null;
     } else if (path === 'this') {
-      return 'context';
+      return '_parentView.context';
     } else {
-      return 'context.' + path;
+      return '_parentView.context.' + path;
     }
   },
 
@@ -22164,6 +22274,7 @@ Ember.Handlebars.registerHelper('collection', function(path, options) {
   var fn = options.fn;
   var data = options.data;
   var inverse = options.inverse;
+  var view = options.data.view;
 
   // If passed a path string, convert that into an object.
   // Otherwise, just default to the standard class.
@@ -22221,6 +22332,8 @@ Ember.Handlebars.registerHelper('collection', function(path, options) {
     }).property('content');
     delete hash.eachHelper;
   }
+
+  var viewString = view.toString();
 
   var viewOptions = Ember.Handlebars.ViewHelper.propertiesFromHTMLOptions({ data: data, hash: itemHash }, this);
   hash.itemViewClass = itemViewClass.extend(viewOptions);
@@ -23311,19 +23424,17 @@ Ember.Button = Ember.View.extend(Ember.TargetActionSupport, {
   }).property('target'),
 
   // Defaults to 'button' if tagName is 'input' or 'button'
-  type: Ember.computed(function(key, value) {
-    var tagName = this.get('tagName');
-    if (value !== undefined) { this._type = value; }
-    if (this._type !== undefined) { return this._type; }
+  type: Ember.computed(function(key) {
+    var tagName = this.tagName;
     if (tagName === 'input' || tagName === 'button') { return 'button'; }
-  }).property('tagName'),
+  }).property(),
 
   disabled: false,
 
   // Allow 'a' tags to act like buttons
   href: Ember.computed(function() {
-    return this.get('tagName') === 'a' ? '#' : null;
-  }).property('tagName'),
+    return this.tagName === 'a' ? '#' : null;
+  }).property(),
 
   mouseDown: function() {
     if (!get(this, 'disabled')) {
@@ -23890,7 +24001,8 @@ Ember.Select = Ember.View.extend(
     @type String
     @default null
   */
-  value: Ember.computed(function(key) {
+  value: Ember.computed(function(key, value) {
+    if (arguments.length === 2) { return value; }
     var valuePath = get(this, 'optionValuePath').replace(/^content\.?/, '');
     return valuePath ? get(this, 'selection.' + valuePath) : get(this, 'selection');
   }).property('selection'),
@@ -24186,8 +24298,8 @@ Ember Handlebars
 
 
 })();
-// Version: v1.0.0-pre.2-89-gb65b078
-// Last commit: b65b078 (2012-12-08 23:42:24 -0800)
+// Version: v1.0.0-pre.2-115-g4646983
+// Last commit: 4646983 (2012-12-13 18:34:01 -0800)
 
 
 (function() {

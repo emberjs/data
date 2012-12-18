@@ -1,6 +1,6 @@
 var get = Ember.get, set = Ember.set;
 
-var adapter, store, ajaxUrl, ajaxType, ajaxHash;
+var adapter, store, serializer, ajaxUrl, ajaxType, ajaxHash;
 var Person, person, people;
 var Role, role, roles;
 var Group, group;
@@ -31,6 +31,8 @@ module("the REST adapter", {
       }
     });
 
+    serializer = get(adapter, 'serializer');
+
     store = DS.Store.create({
       adapter: adapter
     });
@@ -57,8 +59,7 @@ module("the REST adapter", {
     });
 
     Role = DS.Model.extend({
-      name: DS.attr('string'),
-      primaryKey: '_id'
+      name: DS.attr('string')
     });
 
     Role.toString = function() {
@@ -122,7 +123,7 @@ test("creating a person makes a POST to /people, with the data hash", function()
 });
 
 test("singular creations can sideload data", function() {
-  adapter.mappings = {
+  serializer.mappings = {
     groups: Group
   };
 

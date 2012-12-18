@@ -188,6 +188,7 @@ var get = Ember.get, set = Ember.set;
 DS.Serializer = Ember.Object.extend({
   init: function() {
     this.mappings = Ember.Map.create();
+    this.configurations = Ember.Map.create();
   },
 
   //.......................
@@ -663,8 +664,8 @@ DS.Serializer = Ember.Object.extend({
     @returns {String} the primary key for the type
   */
   _primaryKey: function(type) {
-    var mapping = this.mappingForType(type),
-        primaryKey = mapping && mapping.primaryKey;
+    var config = this.configurationForType(type),
+        primaryKey = config && config.primaryKey;
 
     if (primaryKey) {
       return primaryKey;
@@ -848,9 +849,17 @@ DS.Serializer = Ember.Object.extend({
     this.mappings.set(type, mappings);
   },
 
+  configure: function(type, configurations) {
+    this.configurations.set(type, configurations);
+  },
+
   mappingForType: function(type) {
     this._reifyMappings();
     return this.mappings.get(type);
+  },
+
+  configurationForType: function(type) {
+    return this.configurations.get(type);
   },
 
   _reifyMappings: function() {

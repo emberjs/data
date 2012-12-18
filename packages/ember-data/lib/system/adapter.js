@@ -42,7 +42,7 @@ require('ember-data/serializers/json_serializer');
    For more information about the adapter API, please see `README.md`.
 */
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get, set = Ember.set, merge = Ember.merge;
 
 DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
@@ -310,17 +310,25 @@ DS.Adapter.reopenClass({
   map: DS._Mappable.generateMapFunctionFor('attributes', function(key, newValue, map) {
     var existingValue = map.get(key);
 
-    for (var prop in newValue) {
-      if (!newValue.hasOwnProperty(prop)) { continue; }
-      existingValue[prop] = newValue[prop];
+    merge(existingValue, newValue);
+  }),
+
+  configure: DS._Mappable.generateMapFunctionFor('configurations', function(key, newValue, map) {
+    var existingValue = map.get(key);
+
+    // If a mapping configuration is provided, peel it off and apply it
+    // using the DS.Adapter.map API.
+    var mappings = newValue.mappings;
+    if (mappings) {
+      this.map(key, mappings);
+      delete newValue.mappings;
     }
+
+    merge(existingValue, newValue);
   }),
 
   resolveMapConflict: function(oldValue, newValue, mappingsKey) {
-    for (var prop in oldValue) {
-      if (!oldValue.hasOwnProperty(prop)) { continue; }
-      newValue[prop] = oldValue[prop];
-    }
+    merge(newValue, oldValue);
 
     return newValue;
   }

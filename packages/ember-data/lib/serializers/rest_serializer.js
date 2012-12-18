@@ -77,8 +77,6 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   },
 
   rootForType: function(type) {
-    if (type.url) { return type.url; }
-
     // use the last part of the name as the URL
     var parts = type.toString().split(".");
     var name = parts[parts.length - 1];
