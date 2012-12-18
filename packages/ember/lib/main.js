@@ -1,5 +1,5 @@
-// Version: v1.0.0-pre.2-115-g4646983
-// Last commit: 4646983 (2012-12-13 18:34:01 -0800)
+// Version: v1.0.0-pre.2-117-gc8aa80a
+// Last commit: c8aa80a (2012-12-15 12:48:26 -0800)
 
 
 (function() {
@@ -142,8 +142,8 @@ if ('undefined' !== typeof window) {
 
 })();
 
-// Version: v1.0.0-pre.2-115-g4646983
-// Last commit: 4646983 (2012-12-13 18:34:01 -0800)
+// Version: v1.0.0-pre.2-117-gc8aa80a
+// Last commit: c8aa80a (2012-12-15 12:48:26 -0800)
 
 
 (function() {
@@ -5426,6 +5426,7 @@ function processNames(paths, root, seen) {
     paths[idx] = key;
 
     if (obj && obj.toString === classToString) {
+      obj.toString = makeToString(paths.join('.'));
       obj[NAME_KEY] = paths.join('.');
     } else if (obj && obj.isNamespace) {
       if (seen[guidFor(obj)]) { continue; }
@@ -5516,9 +5517,9 @@ classToString = function() {
     } else {
       ret = "(unknown mixin)";
     }
+    this.toString = makeToString(ret);
   }
 
-  this.toString = makeToString(ret);
   return ret;
 };
 
@@ -12173,7 +12174,9 @@ Ember.Application = Ember.Namespace.extend(
       this.startRouting(router);
     }
 
-    Ember.BOOTED = true;
+    if (!Ember.testing) {
+      Ember.BOOTED = true;
+    }
   },
 
   createApplicationView: function (router) {
@@ -12242,6 +12245,8 @@ Ember.Application = Ember.Namespace.extend(
   ready: Ember.K,
 
   willDestroy: function() {
+    Ember.BOOTED = false;
+
     get(this, 'eventDispatcher').destroy();
     if (this._createdRouter)          { this._createdRouter.destroy(); }
     if (this._createdApplicationView) { this._createdApplicationView.destroy(); }
@@ -24298,8 +24303,8 @@ Ember Handlebars
 
 
 })();
-// Version: v1.0.0-pre.2-115-g4646983
-// Last commit: 4646983 (2012-12-13 18:34:01 -0800)
+// Version: v1.0.0-pre.2-117-gc8aa80a
+// Last commit: c8aa80a (2012-12-15 12:48:26 -0800)
 
 
 (function() {
