@@ -1,5 +1,6 @@
 require("ember-data/core");
 require('ember-data/system/adapter');
+require('ember-data/adapters/rest_message');
 require('ember-data/serializers/rest_serializer');
 /*global jQuery*/
 
@@ -13,11 +14,11 @@ DS.RESTAdapter = DS.Adapter.extend({
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
 
-    var data = {};
-    data[root] = this.serialize(record, { includeId: true });
+    var message = this.createMessage(root);
+    message.setContent(this.serialize(record, { includeId: true }));
 
     this.ajax(this.buildURL(root), "POST", {
-      data: data,
+      data: message.serialized(),
       context: this,
       success: function(json) {
         Ember.run(this, function(){
@@ -52,9 +53,9 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didCreateRecord: function(store, type, record, json) {
     var root = this.rootForType(type);
-
+    var message = this.createMessage(root, json);
     this.sideload(store, type, json, root);
-    this.didSaveRecord(store, record, json[root]);
+    this.didSaveRecord(store, record, message.getContent());
   },
 
   createRecords: function(store, type, records) {
@@ -65,14 +66,15 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type),
         plural = this.pluralize(root);
 
-    var data = {};
-    data[plural] = [];
+    var message = this.createMessage(plural);
+    var serializedRecords = [];
     records.forEach(function(record) {
-      data[plural].push(this.serialize(record, { includeId: true }));
+      serializedRecords.push(this.serialize(record, { includeId: true }));
     }, this);
+    message.setContent(serializedRecords);
 
     this.ajax(this.buildURL(root), "POST", {
-      data: data,
+      data: message.serialized(),
       context: this,
       success: function(json) {
         Ember.run(this, function(){
@@ -84,20 +86,21 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didCreateRecords: function(store, type, records, json) {
     var root = this.pluralize(this.rootForType(type));
+    var message = this.createMessage(root, json);
 
     this.sideload(store, type, json, root);
-    this.didSaveRecords(store, records, json[root]);
+    this.didSaveRecords(store, records, message.getContent());
   },
 
   updateRecord: function(store, type, record) {
     var id = get(record, 'id');
     var root = this.rootForType(type);
 
-    var data = {};
-    data[root] = this.serialize(record);
+    var message = this.createMessage(root);
+    message.setContent(this.serialize(record));
 
     this.ajax(this.buildURL(root, id), "PUT", {
-      data: data,
+      data: message.serialized(),
       context: this,
       success: function(json) {
         Ember.run(this, function(){
@@ -112,9 +115,10 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didUpdateRecord: function(store, type, record, json) {
     var root = this.rootForType(type);
+    var message = this.createMessage(root, json);
 
     this.sideload(store, type, json, root);
-    this.didSaveRecord(store, record, json && json[root]);
+    this.didSaveRecord(store, record, json && message.getContent());
   },
 
   updateRecords: function(store, type, records) {
@@ -125,14 +129,15 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type),
         plural = this.pluralize(root);
 
-    var data = {};
-    data[plural] = [];
+    var message = this.createMessage(plural);
+    var serializedRecords = [];
     records.forEach(function(record) {
-      data[plural].push(this.serialize(record, { includeId: true }));
+      serializedRecords.push(this.serialize(record, { includeId: true }));
     }, this);
+    message.setContent(serializedRecords);
 
     this.ajax(this.buildURL(root, "bulk"), "PUT", {
-      data: data,
+      data: message.serialized(),
       context: this,
       success: function(json) {
         Ember.run(this, function(){
@@ -144,9 +149,10 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didUpdateRecords: function(store, type, records, json) {
     var root = this.pluralize(this.rootForType(type));
+    var message = this.createMessage(root, json);
 
     this.sideload(store, type, json, root);
-    this.didSaveRecords(store, records, json[root]);
+    this.didSaveRecords(store, records, message.getContent());
   },
 
   deleteRecord: function(store, type, record) {
@@ -177,14 +183,15 @@ DS.RESTAdapter = DS.Adapter.extend({
         plural = this.pluralize(root),
         serializer = get(this, 'serializer');
 
-    var data = {};
-    data[plural] = [];
+    var message = this.createMessage(plural);
+    var serializedRecords = [];
     records.forEach(function(record) {
-      data[plural].push(serializer.serializeId( get(record, 'id') ));
+      serializedRecords.push(serializer.serializeId( get(record, 'id') ));
     });
+    message.setContent(serializedRecords);
 
     this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
-      data: data,
+      data: message.serialized(),
       context: this,
       success: function(json) {
         Ember.run(this, function(){
@@ -213,9 +220,10 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didFindRecord: function(store, type, json, id) {
     var root = this.rootForType(type);
+    var message = this.createMessage(root, json);
 
     this.sideload(store, type, json, root);
-    store.load(type, id, json[root]);
+    store.load(type, id, message.getContent());
   },
 
   findAll: function(store, type, since) {
@@ -234,9 +242,10 @@ DS.RESTAdapter = DS.Adapter.extend({
   didFindAll: function(store, type, json) {
     var root = this.pluralize(this.rootForType(type)),
         since = this.extractSince(json);
+    var message = this.createMessage(root, json);
 
     this.sideload(store, type, json, root);
-    store.loadMany(type, json[root]);
+    store.loadMany(type, message.getContent());
 
     // this registers the id with the store, so it will be passed
     // into the next call to `findAll`
@@ -260,9 +269,10 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didFindQuery: function(store, type, json, recordArray) {
     var root = this.pluralize(this.rootForType(type));
+    var message = this.createMessage(root, json);
 
     this.sideload(store, type, json, root);
-    recordArray.load(json[root]);
+    recordArray.load(message.getContent());
   },
 
   findMany: function(store, type, ids) {
@@ -296,9 +306,10 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didFindMany: function(store, type, json) {
     var root = this.pluralize(this.rootForType(type));
+    var message = this.createMessage(root, json);
 
     this.sideload(store, type, json, root);
-    store.loadMany(type, json[root]);
+    store.loadMany(type, message.getContent());
   },
 
   didError: function(store, type, record, xhr) {
@@ -413,6 +424,12 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
 
     return url.join("/");
+  },
+
+  createMessage: function(root, value) {
+    var message = DS.RESTMessage.create({'root': root});
+    message.set('data', value);
+    return message;
   },
 
   meta: 'meta',
