@@ -85,6 +85,16 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       set(DS, 'defaultStore', this);
     }
 
+    this.reset();
+  },
+
+  /**
+    Reset the internal bookkeeping. Call this when you don't
+    want to `destroy()` the store. This is primarily used
+    for testings. This will also call the adapter's reset
+    method.
+  */
+  reset: function() {
     // internal bookkeeping; not observable
     this.typeMaps = {};
     this.recordCache = [];
@@ -102,6 +112,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     this.loadingRecordArrays = {};
 
     set(this, 'defaultTransaction', this.transaction());
+
+    get(this, '_adapter').reset();
   },
 
   /**
