@@ -454,7 +454,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // let the adapter set the data, possibly async
     var adapter = this.adapterForType(type);
     if (adapter && adapter.find) { adapter.find(this, type, id); }
-    else { throw "Adapter is either null or does not implement `find` method"; }
+    else { throw new Error("Adapter is either null or does not implement `find` method"); }
 
     return record;
   },
@@ -567,7 +567,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var adapter = this.adapterForType(type);
     if (adapter && adapter.findMany) { adapter.findMany(this, type, neededIds); }
-    else { throw "Adapter is either null or does not implement `findMany` method"; }
+    else { throw new Error("Adapter is either null or does not implement `findMany` method"); }
   },
 
   /**
@@ -603,7 +603,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (!Ember.isArray(ids)) {
       var adapter = this.adapterForType(type);
       if (adapter && adapter.findAssociation) { adapter.findAssociation(this, record, relationship, ids); }
-      else { throw fmt("Adapter is either null or does not implement `findMany` method", this); }
+      else { throw new Error("Adapter is either null or does not implement `findMany` method"); }
 
       return this.createManyArray(type, Ember.A());
     }
@@ -662,7 +662,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     var array = DS.AdapterPopulatedRecordArray.create({ type: type, query: query, content: Ember.A([]), store: this });
     var adapter = this.adapterForType(type);
     if (adapter && adapter.findQuery) { adapter.findQuery(this, type, query, array); }
-    else { throw "Adapter is either null or does not implement `findQuery` method"; }
+    else { throw new Error("Adapter is either null or does not implement `findQuery` method"); }
     return array;
   },
 
@@ -692,7 +692,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     set(array, 'isUpdating', true);
 
     if (adapter && adapter.findAll) { adapter.findAll(this, type, sinceToken); }
-    else { throw "Adapter is either null or does not implement `findAll` method"; }
+    else { throw new Error("Adapter is either null or does not implement `findAll` method"); }
   },
 
   /**
