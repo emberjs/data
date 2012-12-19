@@ -137,7 +137,9 @@ DS.RESTAdapter = DS.Adapter.extend({
     var serializer = get(this, 'serializer'),
         mappings = serializer.mappingForType(type);
 
-    serializer.eachEmbeddedRecord(record, function(embeddedRecord) {
+    serializer.eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
+      if (embeddedType === 'load') { return; }
+
       this.didSaveRecord(store, embeddedRecord.constructor, embeddedRecord);
     }, this);
 

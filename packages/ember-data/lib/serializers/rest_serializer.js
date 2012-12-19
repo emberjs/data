@@ -49,20 +49,14 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
     var reference = loader.load(type, json);
 
-    var associations = type.eachAssociation(function(name, association) {
-      if (!mapping || !mapping[name]) { return; }
+    this.eachEmbeddedHasMany(type, function(name, relationship) {
+      var embeddedData = json[this.keyFor(relationship)];
+      this.extractEmbeddedHasMany(loader, relationship, embeddedData, reference, prematerialized);
+    }, this);
 
-      if (mapping[name].embedded) {
-        embeddedData = json[this.keyFor(association)];
-
-        if (embeddedData) {
-          if (association.kind === 'belongsTo') {
-            this.extractEmbeddedBelongsTo(loader, association, embeddedData, reference, prematerialized);
-          } else if (association.kind === 'hasMany') {
-            this.extractEmbeddedHasMany(loader, association, embeddedData, reference, prematerialized);
-          }
-        }
-      }
+    this.eachEmbeddedBelongsTo(type, function(name, relationship) {
+      var embeddedData = json[this.keyFor(relationship)];
+      this.extractEmbeddedBelongsTo(loader, relationship, embeddedData, reference, prematerialized);
     }, this);
 
     loader.prematerialize(reference, prematerialized);
@@ -214,26 +208,38 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   eachEmbeddedBelongsToRecord: function(record, callback, binding) {
     var type = record.constructor;
 
-    record.eachAssociation(function(name, relationship) {
-      if (this.embeddedType(type, name) === 'always') {
-        if (relationship.kind === 'belongsTo') {
-          var embeddedRecord = get(record, name);
-          if (embeddedRecord) { callback.call(binding, embeddedRecord); }
-        }
-      }
-    }, this);
+    this.eachEmbeddedBelongsTo(record.constructor, function(name, relationship, embeddedType) {
+      var embeddedRecord = get(record, name);
+      if (embeddedRecord) { callback.call(binding, embeddedRecord, embeddedType); }
+    });
   },
 
   eachEmbeddedHasManyRecord: function(record, callback, binding) {
     var type = record.constructor;
 
-    record.eachAssociation(function(name, relationship) {
-      if (this.embeddedType(type, name) === 'always') {
-        if (relationship.kind === 'hasMany') {
-          var array = get(record, name);
-          for (var i=0, l=get(array, 'length'); i<l; i++) {
-            callback.call(binding, array.objectAt(i));
-          }
+    this.eachEmbeddedHasMany(record.constructor, function(name, relationship, embeddedType) {
+      var array = get(record, name);
+      for (var i=0, l=get(array, 'length'); i<l; i++) {
+        callback.call(binding, array.objectAt(i), embeddedType);
+      }
+    });
+  },
+
+  eachEmbeddedHasMany: function(type, callback, binding) {
+    this.eachEmbeddedRelationship(type, 'hasMany', callback, binding);
+  },
+
+  eachEmbeddedBelongsTo: function(type, callback, binding) {
+    this.eachEmbeddedRelationship(type, 'belongsTo', callback, binding);
+  },
+
+  eachEmbeddedRelationship: function(type, kind, callback, binding) {
+    type.eachAssociation(function(name, relationship) {
+      var embeddedType = this.embeddedType(type, name);
+
+      if (embeddedType) {
+        if (relationship.kind === kind) {
+          callback.call(binding, name, relationship, embeddedType);
         }
       }
     }, this);
