@@ -1,7 +1,7 @@
 var store, Adapter, adapter, serializer;
 var Post, Comment;
 
-module("Embedded Records without IDs", {
+module("Embedded BelongsTo Relationships without IDs", {
   setup: function() {
     var attr = DS.attr;
 
@@ -19,10 +19,6 @@ module("Embedded Records without IDs", {
       post: DS.belongsTo(Post)
     });
 
-    Post.reopen({
-      comments: DS.hasMany(Comment)
-    });
-
     serializer = DS.RESTSerializer.create();
 
     Adapter = DS.RESTAdapter.extend({
@@ -31,10 +27,6 @@ module("Embedded Records without IDs", {
 
     Adapter.map(Comment, {
       post: { embedded: 'always' }
-    });
-
-    Adapter.map(Post, {
-      comments: { embedded: 'always' }
     });
 
     adapter = Adapter.create();
@@ -77,25 +69,49 @@ test("An embedded record can be accessed via a belongsTo relationship but does n
   equal(post2.get('id'), null, "the embedded record does not have an id");
 });
 
-test("Embedded records can be accessed via a hasMany relationship without having IDs", function() {
-  adapter.load(store, Post, {
+asyncTest("Embedded belongsTo relationships can be saved when embedded: always is true", function() {
+  adapter.load(store, Comment, {
     id: 1,
-    title: "A New MVC Framework in Under 100 Lines of Code",
+    title: "Why not use a more lightweight solution?",
 
-    comments: [{
-      title: "Why not use a more lightweight solution?"
-    }, {
-      title: "This does not seem to reflect the Unix philosophy haha"
-    }]
+    post: {
+      title: "A New MVC Framework in Under 100 Lines of Code"
+    }
   });
 
-  var post = store.find(Post, 1);
+  adapter.ajax = function(url, type, hash) {
+    deepEqual(hash.data, {
+      comment: {
+        title: "Why not use a more lightweight solution?",
+        post: {
+          title: "A New Lightweight MVC Framework in Under 100 Lines of Code"
+        }
+      }
+    });
 
-  var comments = post.get('comments');
+    setTimeout(function() {
+      hash.success.call(hash.context);
+      done();
+    });
+  };
 
-  var comment1 = comments.objectAt(0);
-  var comment2 = comments.objectAt(1);
+  var transaction = store.transaction();
 
-  equal(comment1.get('title'), "Why not use a more lightweight solution?");
-  equal(comment2.get('title'), "This does not seem to reflect the Unix philosophy haha");
+  var comment = store.find(Comment, 1);
+  var post = comment.get('post');
+
+  transaction.add(post);
+  transaction.add(comment);
+
+  post.set('title', "A New Lightweight MVC Framework in Under 100 Lines of Code");
+  equal(post.get('isDirty'), true, "post becomes dirty after changing a property");
+  equal(comment.get('isDirty'), true, "comment becomes dirty when its embedded post becomes dirty");
+
+  transaction.commit();
+
+  function done() {
+    equal(post.get('isDirty'), false, "post becomes clean after commit");
+    equal(comment.get('isDirty'), false, "comment becomes clean after commit");
+    start();
+  }
 });

@@ -586,10 +586,17 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       return references[clientId];
     }
 
+    var type = this.clientIdToType[clientId];
+
     return references[clientId] = {
       id: this.idForClientId(clientId),
-      clientId: clientId
+      clientId: clientId,
+      type: type
     };
+  },
+
+  recordForReference: function(reference) {
+    return this.findByClientId(reference.type, reference.clientId);
   },
 
   /**
@@ -1286,6 +1293,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }
   },
 
+  updateRecordArraysLater: function(type, clientId) {
+    Ember.run.once(this, function() {
+      this.updateRecordArrays(type, clientId);
+    });
+  },
+
   /**
     @private
 
@@ -1515,6 +1528,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     this.updateRecordArrays(type, clientId);
 
     return this.referenceForClientId(clientId);
+  },
+
+  prematerialize: function(reference, prematerialized) {
+    this.clientIdToPrematerializedData[reference.clientId] = prematerialized;
   },
 
   loadMany: function(type, ids, dataList) {

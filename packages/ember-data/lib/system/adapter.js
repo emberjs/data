@@ -70,18 +70,23 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   },
 
   dirtyRecordsForAttributeChange: function(dirtySet, record, attributeName, newValue, oldValue) {
-    // TODO: Custom equality checking [tomhuda]
     if (newValue !== oldValue) {
-      dirtySet.add(record);
+      // If this record is embedded, add its parent
+      // to the dirty set.
+      this.dirtyRecordsForRecordChange(dirtySet, record);
     }
   },
 
+  dirtyRecordsForRecordChange: function(dirtySet, record) {
+    dirtySet.add(record);
+  },
+
   dirtyRecordsForBelongsToChange: function(dirtySet, child) {
-    dirtySet.add(child);
+    this.dirtyRecordsForRecordChange(dirtySet, child);
   },
 
   dirtyRecordsForHasManyChange: function(dirtySet, parent) {
-    dirtySet.add(parent);
+    this.dirtyRecordsForRecordChange(dirtySet, parent);
   },
 
   /**
@@ -261,18 +266,34 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   },
 
   save: function(store, commitDetails) {
+    var adapter = this;
+
+    function filter(records) {
+      var filteredSet = Ember.OrderedSet.create();
+
+      records.forEach(function(record) {
+        if (adapter.shouldSave(record)) {
+          filteredSet.add(record);
+        }
+      });
+
+      return filteredSet;
+    }
+
     this.groupByType(commitDetails.created).forEach(function(type, set) {
-      this.createRecords(store, type, set.copy());
+      this.createRecords(store, type, filter(set));
     }, this);
 
     this.groupByType(commitDetails.updated).forEach(function(type, set) {
-      this.updateRecords(store, type, set.copy());
+      this.updateRecords(store, type, filter(set));
     }, this);
 
     this.groupByType(commitDetails.deleted).forEach(function(type, set) {
-      this.deleteRecords(store, type, set.copy());
+      this.deleteRecords(store, type, filter(set));
     }, this);
   },
+
+  shouldSave: Ember.K,
 
   createRecords: function(store, type, records) {
     records.forEach(function(record) {

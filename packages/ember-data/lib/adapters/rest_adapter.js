@@ -23,6 +23,10 @@ function loaderFor(store, id) {
       return store.loadMany(type, array);
     },
 
+    prematerialize: function(reference, prematerialized) {
+      store.prematerialize(reference, prematerialized);
+    },
+
     sinceForType: function(type, since) {
       store.sinceForType(type, since);
     }
@@ -39,6 +43,12 @@ DS.RESTAdapter = DS.Adapter.extend({
     this._super.apply(this, arguments);
 
     get(this, 'serializer').plurals = this.plurals || {};
+  },
+
+  shouldSave: function(record) {
+    var reference = get(record, 'reference');
+
+    return !reference.parent;
   },
 
   load: function(store, type, payload) {
@@ -66,6 +76,23 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
+  dirtyRecordsForRecordChange: function(dirtySet, record) {
+    dirtySet.add(record);
+
+    get(this, 'serializer').eachEmbeddedRecord(record, function(embeddedRecord) {
+      if (dirtySet.has(embeddedRecord)) { return; }
+      this.dirtyRecordsForRecordChange(dirtySet, embeddedRecord);
+    }, this);
+
+    var reference = record.get('reference');
+
+    if (reference.parent) {
+      var store = get(record, 'store');
+      var parent = store.recordForReference(reference.parent);
+      this.dirtyRecordsForRecordChange(dirtySet, parent);
+    }
+  },
+
   dirtyRecordsForHasManyChange: Ember.K,
 
   didCreateRecord: function(store, type, record, json) {
@@ -77,7 +104,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
       loader.load = function(type, data, prematerialized) {
         store.updateId(record, data);
-        store.load(type, data, prematerialized);
+        return store.load(type, data, prematerialized);
       };
 
       get(this, 'serializer').extract(loader, json, type);
@@ -107,9 +134,16 @@ DS.RESTAdapter = DS.Adapter.extend({
   didSaveRecord: function(store, type, record, json) {
     store.didSaveRecord(record);
 
+    var serializer = get(this, 'serializer'),
+        mappings = serializer.mappingForType(type);
+
+    serializer.eachEmbeddedRecord(record, function(embeddedRecord) {
+      this.didSaveRecord(store, embeddedRecord.constructor, embeddedRecord);
+    }, this);
+
     if (json) {
       var loader = loaderFor(store);
-      get(this, 'serializer').extract(loader, json, type);
+      serializer.extract(loader, json, type);
     }
   },
 

@@ -59,7 +59,9 @@ test("Calling extract on a JSON payload with multiple records will tear them apa
 
     load: function(type, data, prematerialized) {
       loadMainCallCount++;
-    }
+    },
+
+    prematerialize: Ember.K
   };
 
   serializer.extract(loader, payload, App.Post);

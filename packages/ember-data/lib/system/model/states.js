@@ -500,7 +500,10 @@ var states = {
       // TRANSITIONS
       exit: function(manager) {
         var record = get(manager, 'record');
-        record.trigger('didLoad');
+
+        Ember.run.once(function() {
+          record.trigger('didLoad');
+        });
       },
 
       // EVENTS

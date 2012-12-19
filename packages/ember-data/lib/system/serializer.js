@@ -867,7 +867,7 @@ DS.Serializer = Ember.Object.extend({
 
   mappingForType: function(type) {
     this._reifyMappings();
-    return this.mappings.get(type);
+    return this.mappings.get(type) || {};
   },
 
   configurationForType: function(type) {

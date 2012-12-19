@@ -87,6 +87,7 @@
       loadMany: syncForTest(),
       filter: syncForTest(),
       find: syncForTest(),
+      findByClientId: syncForTest(),
       findMany: syncForTest(),
       didSaveRecord: syncForTest(),
       didSaveRecords: syncForTest(),

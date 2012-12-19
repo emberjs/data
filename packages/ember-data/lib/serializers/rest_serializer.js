@@ -47,6 +47,8 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     var mapping = this.mappingForType(type);
     var embeddedData, prematerialized = {};
 
+    var reference = loader.load(type, json);
+
     var associations = type.eachAssociation(function(name, association) {
       if (!mapping || !mapping[name]) { return; }
 
@@ -55,28 +57,31 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
         if (embeddedData) {
           if (association.kind === 'belongsTo') {
-            this.extractEmbeddedBelongsTo(loader, association, embeddedData, prematerialized);
+            this.extractEmbeddedBelongsTo(loader, association, embeddedData, reference, prematerialized);
           } else if (association.kind === 'hasMany') {
-            this.extractEmbeddedHasMany(loader, association, embeddedData, prematerialized);
+            this.extractEmbeddedHasMany(loader, association, embeddedData, reference, prematerialized);
           }
         }
       }
     }, this);
 
-    loader.load(type, json, prematerialized);
+    loader.prematerialize(reference, prematerialized);
   },
 
-  extractEmbeddedHasMany: function(loader, association, array, prematerialized) {
+  extractEmbeddedHasMany: function(loader, association, array, parent, prematerialized) {
     var references = map.call(array, function(item) {
-      return loader.load(association.type, item);
+      var reference = loader.load(association.type, item);
+      reference.parent = parent;
+      return reference;
     });
 
     prematerialized[association.key] = references;
   },
 
-  extractEmbeddedBelongsTo: function(loader, association, data, prematerialized) {
+  extractEmbeddedBelongsTo: function(loader, association, data, parent, prematerialized) {
     var recordReference = loader.load(association.type, data);
     prematerialized[association.key] = recordReference;
+    recordReference.parent = parent;
   },
 
   extractMeta: function(loader, type, json) {
@@ -172,8 +177,65 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   },
 
   addBelongsTo: function(hash, record, key, relationship) {
-    var id = get(record, relationship.key+'.id');
+    var mapping = this.mappingForType(record.constructor);
 
-    if (!Ember.isNone(id)) { hash[key] = id; }
+    if (mapping && mapping[relationship.key] && mapping[relationship.key].embedded) {
+      var embedded = get(record, relationship.key);
+      var value = embedded ? this.serialize(embedded, { includeId: true }) : null;
+      hash[key] = value;
+    } else {
+      var id = get(record, relationship.key+'.id');
+      if (!Ember.isNone(id)) { hash[key] = id; }
+    }
+  },
+
+  addHasMany: function(hash, record, key, relationship) {
+    var array = [];
+
+    this.eachEmbeddedHasManyRecord(record, function(embeddedRecord) {
+      array.push(this.serialize(embeddedRecord, { includeId: true }));
+    }, this);
+
+    hash[key] = array;
+  },
+
+  // EMBEDDED HELPERS
+  embeddedType: function(type, name) {
+    var mapping = this.mappingForType(type)[name];
+
+    return mapping && mapping.embedded;
+  },
+
+  eachEmbeddedRecord: function(record, callback, binding) {
+    this.eachEmbeddedBelongsToRecord(record, callback, binding);
+    this.eachEmbeddedHasManyRecord(record, callback, binding);
+  },
+
+  eachEmbeddedBelongsToRecord: function(record, callback, binding) {
+    var type = record.constructor;
+
+    record.eachAssociation(function(name, relationship) {
+      if (this.embeddedType(type, name) === 'always') {
+        if (relationship.kind === 'belongsTo') {
+          var embeddedRecord = get(record, name);
+          if (embeddedRecord) { callback.call(binding, embeddedRecord); }
+        }
+      }
+    }, this);
+  },
+
+  eachEmbeddedHasManyRecord: function(record, callback, binding) {
+    var type = record.constructor;
+
+    record.eachAssociation(function(name, relationship) {
+      if (this.embeddedType(type, name) === 'always') {
+        if (relationship.kind === 'hasMany') {
+          var array = get(record, name);
+          for (var i=0, l=get(array, 'length'); i<l; i++) {
+            callback.call(binding, array.objectAt(i));
+          }
+        }
+      }
+    }, this);
   }
 });
