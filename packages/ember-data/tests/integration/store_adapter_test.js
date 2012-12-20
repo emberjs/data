@@ -310,7 +310,7 @@ test("if a created record is marked as invalid by the server, it enters an error
 
   equal(get(yehuda, 'isNew'), true, "precond - record is still new");
 
-  store.commit();
+  get(yehuda, 'transaction').commit();
   equal(get(yehuda, 'isValid'), true, "record remains valid after committing");
   equal(get(yehuda, 'isNew'), false, "record is no longer new");
 
@@ -359,7 +359,7 @@ test("if an updated record is marked as invalid by the server, it enters an erro
   equal(get(yehuda, 'isValid'), true, "the record is no longer invalid after changing");
   equal(get(yehuda, 'isDirty'), true, "the record has outstanding changes");
 
-  store.commit();
+  get(yehuda, 'transaction').commit();
   equal(get(yehuda, 'isValid'), true, "record remains valid after committing");
   equal(get(yehuda, 'isDirty'), false, "record is no longer new");
 
