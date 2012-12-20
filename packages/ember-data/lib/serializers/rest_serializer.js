@@ -73,7 +73,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   },
 
   extractEmbeddedBelongsTo: function(loader, association, data, parent, prematerialized) {
-    var recordReference = loader.load(association.type, data);
+    var recordReference = loader.sideload(association.type, data);
     prematerialized[association.key] = recordReference;
     recordReference.parent = parent;
   },
