@@ -74,6 +74,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
   setup: function() {
     this._relationshipChanges = {};
+    this._changesToSync = {};
   },
 
   send: function(name, context) {

@@ -42,11 +42,10 @@ DS.Model.reopen({
 
       var childId = get(record, 'clientId'),
           store = get(record, 'store');
-
-      var change = DS.OneToManyChange.forChildAndParent(childId, store, { belongsToName: key });
-
-      if (change.oldParent === undefined) {
-        change.oldParent = oldParent ? get(oldParent, 'clientId') : null;
+      if (oldParent){
+        var change = DS.OneToManyChange.createChange(childId, store, { belongsToName: key, parentClientId: get(oldParent,'clientId'), changeType: "remove" });
+        change.sync();
+        this._changesToSync[key] = change;
       }
     }
   }),
@@ -54,11 +53,17 @@ DS.Model.reopen({
   /** @private */
   belongsToDidChange: Ember.immediateObserver(function(record, key) {
     if (get(record, 'isLoaded')) {
-      var change = get(record, 'store').relationshipChangeFor(get(record, 'clientId'), key),
-          newParent = get(record, key);
-
-      change.newParent = newParent ? get(newParent, 'clientId') : null;
-      change.sync();
+      var newParent = get(record, key);
+      if(newParent){
+        var childId = get(record, 'clientId'),
+            store = get(record, 'store');
+        var change = DS.OneToManyChange.createChange(childId, store, { belongsToName: key, parentClientId: get(newParent, 'clientId'), changeType: "add" });
+        change.sync();
+        if(this._changesToSync[key]){
+          DS.OneToManyChange.ensureSameTransaction([change, this._changesToSync[key]], store);
+        }
+      }
     }
+    delete this._changesToSync[key];
   })
 });
