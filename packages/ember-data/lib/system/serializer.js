@@ -1,4 +1,10 @@
-var get = Ember.get, set = Ember.set;
+var get = Ember.get, set = Ember.set, map = Ember.ArrayPolyfills.map;
+
+function mustImplement(name) {
+  return function() {
+    throw new Ember.Error("Your serializer " + this.toString() + " does not implement the required method " + name);
+  };
+}
 
 /**
   A serializer is responsible for serializing and deserializing a group of
@@ -191,6 +197,44 @@ DS.Serializer = Ember.Object.extend({
     this.configurations = Ember.Map.create();
   },
 
+  extract: mustImplement('extract'),
+  extractMany: mustImplement('extractMany'),
+
+  extractRecordRepresentation: function(loader, type, json) {
+    var mapping = this.mappingForType(type);
+    var embeddedData, prematerialized = {};
+
+    var reference = loader.load(type, json);
+
+    this.eachEmbeddedHasMany(type, function(name, relationship) {
+      var embeddedData = json[this.keyFor(relationship)];
+      this.extractEmbeddedHasMany(loader, relationship, embeddedData, reference, prematerialized);
+    }, this);
+
+    this.eachEmbeddedBelongsTo(type, function(name, relationship) {
+      var embeddedData = json[this.keyFor(relationship)];
+      this.extractEmbeddedBelongsTo(loader, relationship, embeddedData, reference, prematerialized);
+    }, this);
+
+    loader.prematerialize(reference, prematerialized);
+  },
+
+  extractEmbeddedHasMany: function(loader, association, array, parent, prematerialized) {
+    var references = map.call(array, function(item) {
+      var reference = loader.load(association.type, item);
+      reference.parent = parent;
+      return reference;
+    });
+
+    prematerialized[association.key] = references;
+  },
+
+  extractEmbeddedBelongsTo: function(loader, association, data, parent, prematerialized) {
+    var recordReference = loader.sideload(association.type, data);
+    prematerialized[association.key] = recordReference;
+    recordReference.parent = parent;
+  },
+
   //.......................
   //. SERIALIZATION HOOKS
   //.......................
@@ -344,7 +388,7 @@ DS.Serializer = Ember.Object.extend({
     serialized representation.
 
     The specifics of this hook are very adapter-specific, so there
-    is no default implementation. You can see `DS.RESTSerializer`
+    is no default implementation. You can see `DS.JSONSerializer`
     for an example of an implementation of the `addBelongsTo` hook.
 
     The `belongsTo` relationship object has the following properties:
@@ -553,10 +597,6 @@ DS.Serializer = Ember.Object.extend({
   //. MATERIALIZATION HOOKS
   //.........................
 
-  extract: function() {
-    throw new Error("You must implement DS.Serializer's extract method");
-  },
-
   materialize: function(record, serialized, prematerialized) {
     var id;
     if (Ember.isNone(get(record, 'id'))) {
@@ -640,14 +680,6 @@ DS.Serializer = Ember.Object.extend({
 
   _extractEmbeddedHasMany: function(type, hash, name) {
     return this._extractEmbeddedRelationship(type, hash, name, 'HasMany');
-  },
-
-  extractEmbeddedBelongsTo: function(type, hash, key) {
-    return this.extractBelongsTo(type, hash, key);
-  },
-
-  extractEmbeddedHasMany: function(type, hash, key) {
-    return this.extractHasMany(type, hash, key);
   },
 
   /**
@@ -917,6 +949,59 @@ DS.Serializer = Ember.Object.extend({
     this.configurations = reifiedConfigurations;
 
     this._didReifyConfigurations = true;
+  },
+
+  // EMBEDDED HELPERS
+
+  embeddedType: function(type, name) {
+    var mapping = this.mappingForType(type)[name];
+
+    return mapping && mapping.embedded;
+  },
+
+  eachEmbeddedRecord: function(record, callback, binding) {
+    this.eachEmbeddedBelongsToRecord(record, callback, binding);
+    this.eachEmbeddedHasManyRecord(record, callback, binding);
+  },
+
+  eachEmbeddedBelongsToRecord: function(record, callback, binding) {
+    var type = record.constructor;
+
+    this.eachEmbeddedBelongsTo(record.constructor, function(name, relationship, embeddedType) {
+      var embeddedRecord = get(record, name);
+      if (embeddedRecord) { callback.call(binding, embeddedRecord, embeddedType); }
+    });
+  },
+
+  eachEmbeddedHasManyRecord: function(record, callback, binding) {
+    var type = record.constructor;
+
+    this.eachEmbeddedHasMany(record.constructor, function(name, relationship, embeddedType) {
+      var array = get(record, name);
+      for (var i=0, l=get(array, 'length'); i<l; i++) {
+        callback.call(binding, array.objectAt(i), embeddedType);
+      }
+    });
+  },
+
+  eachEmbeddedHasMany: function(type, callback, binding) {
+    this.eachEmbeddedRelationship(type, 'hasMany', callback, binding);
+  },
+
+  eachEmbeddedBelongsTo: function(type, callback, binding) {
+    this.eachEmbeddedRelationship(type, 'belongsTo', callback, binding);
+  },
+
+  eachEmbeddedRelationship: function(type, kind, callback, binding) {
+    type.eachAssociation(function(name, relationship) {
+      var embeddedType = this.embeddedType(type, name);
+
+      if (embeddedType) {
+        if (relationship.kind === kind) {
+          callback.call(binding, name, relationship, embeddedType);
+        }
+      }
+    }, this);
   }
 });
 
