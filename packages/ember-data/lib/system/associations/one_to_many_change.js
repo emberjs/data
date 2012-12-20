@@ -89,6 +89,7 @@ DS.OneToManyChange.maintainInvariant = function(options, store, childClientId, k
           parentClientId: oldParent.get('clientId'),
           changeType: "remove"
         }); 
+      store.addRelationshipChangeFor(childClientId, key, options.parentClientId , null, correspondingChange);
      correspondingChange.sync();
     } 
   }
@@ -97,16 +98,12 @@ DS.OneToManyChange.maintainInvariant = function(options, store, childClientId, k
 DS.OneToManyChange.ensureSameTransaction = function(changes, store){
   var records = Ember.A();
   forEach(changes, function(change){
-    if(change){
-      records.addObject(change.getParent());  
-      records.addObject(change.getChild());  
-    }
+    records.addObject(change.getParent());  
+    records.addObject(change.getChild());  
   });
   var transaction = store.ensureSameTransaction(records);
   forEach(changes, function(change){
-    if(change){
-      change.transaction = transaction;  
-    }
+    change.transaction = transaction;  
  });
 };
 
