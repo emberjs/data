@@ -105,9 +105,11 @@ DS.ManyArray = DS.RecordArray.extend({
         //var record = this.objectAt(i);
         //if (!record) { continue; }
 
-        var change = DS.OneToManyChange.forChildAndParent(reference.clientId, get(this, 'store'), {
+        var change = DS.OneToManyChange.createChange(reference.clientId, get(this, 'store'), {
           parentType: owner.constructor,
-          hasManyName: name
+          hasManyName: name,
+          parentClientId: owner.get('clientId'),
+          changeType: "remove"
         });
         change.hasManyName = name;
 
@@ -124,7 +126,8 @@ DS.ManyArray = DS.RecordArray.extend({
     this._super.apply(this, arguments);
 
     var owner = get(this, 'owner'),
-        name = get(this, 'name');
+        name = get(this, 'name'),
+        store = get(this, 'store');
 
     if (!owner._suspendedAssociations) {
       // This code is the second half of code that started in
@@ -134,9 +137,11 @@ DS.ManyArray = DS.RecordArray.extend({
       for (var i=index; i<index+added; i++) {
         var reference = get(this, 'content').objectAt(i);
 
-        var change = DS.OneToManyChange.forChildAndParent(reference.clientId, get(this, 'store'), {
+        var change = DS.OneToManyChange.createChange(reference.clientId, store, {
           parentType: owner.constructor,
-          hasManyName: name
+          hasManyName: name,
+          parentClientId: owner.get('clientId'),
+          changeType: "add"
         });
         change.hasManyName = name;
 
@@ -154,6 +159,7 @@ DS.ManyArray = DS.RecordArray.extend({
       this._changesToSync.forEach(function(change) {
         change.sync();
       });
+      DS.OneToManyChange.ensureSameTransaction(this._changesToSync, store);
       this._changesToSync.clear();
     }
   },

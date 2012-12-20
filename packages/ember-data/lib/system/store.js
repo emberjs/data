@@ -6,7 +6,7 @@ require("ember-data/system/transaction");
 require("ember-data/system/mixins/mappable");
 
 var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt;
-
+var forEach = Ember.EnumerableUtils.forEach;
 // These values are used in the data cache when clientIds are
 // needed but the underlying data has not yet been loaded by
 // the server.
@@ -128,6 +128,31 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return DS.Transaction.create({ store: this });
   },
 
+  ensureSameTransaction: function(records){
+    var transactions = Ember.A();
+    forEach( records, function(record){
+      if (record){ transactions.pushObject(get(record, 'transaction')); }
+    });
+
+    var transaction = transactions.reduce(function(prev, t) {
+      if (!get(t, 'isDefault')) {
+        if (prev === null) { return t; }
+        Ember.assert("All records in a changed relationship must be in the same transaction. You tried to change the relationship between records when one is in " + t + " and the other is in " + prev, t === prev);
+      }
+
+      return prev;
+    }, null);
+
+    if (transaction) {
+      forEach( records, function(record){
+        if (record){ transaction.add(record); }
+      });
+    } else {
+      transaction = transactions.objectAt(0);
+    }
+    return transaction;
+
+   },
   /**
     @private
 
@@ -819,8 +844,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
-    This method returns if a certain record is already loaded 
-    in the store. Use this function to know beforehand if a find() 
+    This method returns if a certain record is already loaded
+    in the store. Use this function to know beforehand if a find()
     will result in a request or that it will be a cache hit.
 
     @param {Class} type
@@ -1098,6 +1123,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   didUpdateRelationship: function(record, relationshipName) {
     var relationship = this.relationshipChangeFor(get(record, 'clientId'), relationshipName);
+    //TODO(Igor)
     if (relationship) { relationship.adapterDidUpdate(); }
   },
 
@@ -1646,37 +1672,76 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // . RELATIONSHIP CHANGES .
   // ........................
 
-  addRelationshipChangeFor: function(clientId, key, change) {
+  addRelationshipChangeFor: function(clientId, childKey, parentClientId, parentKey, change) {
+    var key = childKey + parentKey;
     var changes = this.relationshipChanges;
     if (!(clientId in changes)) {
       changes[clientId] = {};
     }
-
-    changes[clientId][key] = change;
+    if (!(parentClientId in changes[clientId])) {
+      changes[clientId][parentClientId] = {};
+    }
+    if (!(key in changes[clientId][parentClientId])) {
+      changes[clientId][parentClientId][key] = {};
+    }
+    changes[clientId][parentClientId][key][change.changeType] = change;
   },
 
-  removeRelationshipChangeFor: function(clientId, key) {
+  removeRelationshipChangeFor: function(clientId, childKey, parentClientId, parentKey, type) {
     var changes = this.relationshipChanges;
-    if (!(clientId in changes)) {
+    var key = childKey + parentKey;
+    if (!(clientId in changes) || !(parentClientId in changes[clientId]) || !(key in changes[clientId][parentClientId])){
       return;
     }
-
-    delete changes[clientId][key];
+    delete changes[clientId][parentClientId][key][type];
   },
 
-  relationshipChangeFor: function(clientId, key) {
+  relationshipChangeFor: function(clientId, childKey, parentClientId, parentKey, type) {
     var changes = this.relationshipChanges;
-    if (!(clientId in changes)) {
+    var key = childKey + parentKey;
+    if (!(clientId in changes) || !(parentClientId in changes[clientId])){
       return;
     }
+    if(type){
+      return changes[clientId][parentClientId][key][type];
+    }
+    else{
+      //TODO(Igor) what if both present
+      return changes[clientId][parentClientId][key]["add"] || changes[clientId][parentClientId][key]["remove"];
+    }
+  },
 
-    return changes[clientId][key];
+  relationshipChangePairsFor: function(clientId){
+    var toReturn = [];
+    //TODO(Igor) What about the other side
+    var changesObject = this.relationshipChanges[clientId];
+    for (var objKey in changesObject){
+      if(changesObject.hasOwnProperty(objKey)){
+        for (var changeKey in changesObject[objKey]){
+          if(changesObject[objKey].hasOwnProperty(changeKey)){
+            toReturn.push(changesObject[objKey][changeKey]);
+          }
+        }
+      }
+    }
+    return toReturn;
   },
 
   relationshipChangesFor: function(clientId) {
-    return this.relationshipChanges[clientId];
+    var toReturn = [];
+    var relationshipPairs = this.relationshipChangePairsFor(clientId);
+    forEach(relationshipPairs, function(pair){
+      var addedChange = pair["add"];
+      var removedChange = pair["remove"];
+      if(addedChange){
+        toReturn.push(addedChange);
+      }
+      if(removedChange){
+        toReturn.push(removedChange);
+      }
+    });
+   return toReturn;
   },
-
   // ......................
   // . PER-TYPE ADAPTERS
   // ......................
@@ -1693,6 +1758,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // ..............................
   // . RECORD CHANGE NOTIFICATION .
   // ..............................
+
   recordAttributeDidChange: function(record, attributeName, newValue, oldValue) {
     var dirtySet = new Ember.OrderedSet(),
         adapter = this.adapterForType(record.constructor);
@@ -1712,6 +1778,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (adapter.dirtyRecordsForBelongsToChange) {
       adapter.dirtyRecordsForBelongsToChange(dirtySet, child, relationship);
     }
+
+    // adapterDidDirty is called by the RelationshipChange that created
+    // the dirtySet.
   },
 
   recordHasManyDidChange: function(dirtySet, parent, relationship) {
@@ -1720,6 +1789,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (adapter.dirtyRecordsForHasManyChange) {
       adapter.dirtyRecordsForHasManyChange(dirtySet, parent, relationship);
     }
+
+    // adapterDidDirty is called by the RelationshipChange that created
+    // the dirtySet.
   }
 });
 
