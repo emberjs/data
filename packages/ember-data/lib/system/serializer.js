@@ -665,11 +665,9 @@ DS.Serializer = Ember.Object.extend({
   },
 
   _extractEmbeddedRelationship: function(type, hash, name, relationshipType) {
-    var key = this['_keyFor' + relationshipType](type, name),
-        mappings = this.mappingForType(type),
-        mapping = mappings && mappings[name];
+    var key = this['_keyFor' + relationshipType](type, name);
 
-    if (mapping && mapping.embedded) {
+    if (this.embeddedType(type, name)) {
       return this['extractEmbedded' + relationshipType](type, hash, key);
     }
   },
@@ -866,9 +864,7 @@ DS.Serializer = Ember.Object.extend({
       convert into a key
   */
   _keyFromMappingOrHook: function(publicMethod, type, name) {
-    var mapping = this.mappingForType(type),
-        mappingOptions = mapping && mapping[name],
-        key = mappingOptions && mappingOptions.key;
+    var key = this.mappingOption(type, name, 'key');
 
     if (key) {
       return key;
@@ -951,12 +947,16 @@ DS.Serializer = Ember.Object.extend({
     this._didReifyConfigurations = true;
   },
 
+  mappingOption: function(type, name, option) {
+    var mapping = this.mappingForType(type)[name];
+
+    return mapping && mapping[option];
+  },
+
   // EMBEDDED HELPERS
 
   embeddedType: function(type, name) {
-    var mapping = this.mappingForType(type)[name];
-
-    return mapping && mapping.embedded;
+    return this.mappingOption(type, name, 'embedded');
   },
 
   eachEmbeddedRecord: function(record, callback, binding) {
