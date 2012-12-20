@@ -109,12 +109,14 @@ App.Person = DS.Model.extend({
 ```
 
 Valid attribute types are `string`, `number`, `boolean`, and `date`. You
-can also register custom attribute types. For example, here's a `boolString`
-attribute type that converts booleans into the string `"Y"` or `"N"`:
+can also register custom attribute types on an adapter. For example, here's
+a `boolString` attribute type that converts booleans into the string `"Y"`
+or `"N"`:
 
 ```javascript
-DS.attr.transforms.boolString = {
-    from: function(serialized) {
+// Against any ember-data adapter.
+DS.RESTAdapter.registerTransform('boolString', {
+    deserialize: function(serialized){
         if (serialized === 'Y') {
             return true;
         }
@@ -122,13 +124,13 @@ DS.attr.transforms.boolString = {
         return false;
     },
 
-    to: function(deserialized) {
+    serialize: function(deserialized) {
         if (deserialized) {
             return "Y";
         }
         return "N";
     }
-}
+});
 ```
 
 Built-in attribute types are currently very primitive. Please help us
@@ -268,33 +270,6 @@ during the execution of the app, it will be returned immediately without
 any additional requests. Otherwise, the REST adapter will make a request
 to `/profile/1` to load that specific profile.
 
-In some cases, if you know that you will always being using both records
-in an association, you may want to minimize the number of HTTP requests
-by including both records in the same JSON.
-
-One option is to embed the association directly in the parent record.
-For example, we could represent the entirety of the association above
-like this:
-
-```javascript
-{
-  "authors": [{
-    "id": 1,
-    "name": "Tom Dale",
-    "profile": {
-      "id": 1,
-      "about": "Tom Dale is a software engineer that drinks too much beer.",
-      "postCount": 1984,
-      "author_id": 1
-    }
-  }]
-}
-```
-
-If you do this, note that `Profile.find(1)` will still trigger an Ajax request
-until you access the embedded profile record for the first time
-(`Author.find(1).get('profile')`).
-
 Another option is to use the format described above (with the ID embedded),
 then "sideloading" the records. For example, we could represent the
 entirety of the association above like this:
@@ -337,14 +312,19 @@ However, imagine the JSON returned from the server for a `Person` looked like th
 ```
 
 In this case, instead of the association being an array of ids, it is an
-array of *embedded* objects. To have the store understand these correctly,
-set the `embedded` option to true:
+array of *embedded* objects. **The API for declaring data embedded is
+rapidly changing.** Embedded data can be flagged on the serializer of the
+`FixtureAdapter` or `RESTAdapter`.
 
-```javascript
-App.Person = DS.Model.extend({
-    tags: DS.hasMany('App.Tag', { embedded: true })
+``` javascript
+// This must be on an instance of the serializer.
+App.store.adapter.serializer.map('App.MyDataClass', {
+  anAttribute: { embedded: 'load' }
 });
 ```
+
+`RESTAdapter` only supports `hasMany` relations, `FixtureAdapter` supports
+both `hasMany` and `belongsTo` relations.
 
 It is also possible to change the data attribute that an association is mapped
 to. Suppose the JSON for a `Person` looked like this:
@@ -359,11 +339,16 @@ to. Suppose the JSON for a `Person` looked like this:
 }
 ```
 
-In this case, you would specify the key in the association like this:
+In this case, you would specify the key on the adapter like this:
 
 ```javascript
 App.Person = DS.Model.extend({
-    tags: DS.hasMany('App.Tag', { key: 'tag_ids' })
+    tags: DS.hasMany('App.Tag')
+});
+
+// Whichever adapter your store uses
+DS.RESTAdapter.map('App.Person', {
+    tags: { key: 'tag_ids' }
 });
 ```
 
@@ -498,11 +483,12 @@ App.Person = DS.Model.extend({
 
 You can also determine the state of a record by checking its state properties.
 
+* `isNew` - true when the record has not been persisted.
 * `isLoaded` - true when the record has finished loading, always true for models created locally.
-* `isDirty` - true for created, updated, or deleted records that have not yet been saved
-* `isSaving` - true if the record is in the process of being saved
-* `isDeleted` - true if the record has been deleted, either locally or on the server
-* `isError` - true if the record is in an error state
+* `isDirty` - true for created, updated, or deleted records that have not yet been saved.
+* `isSaving` - true if the record is in the process of being saved.
+* `isDeleted` - true if the record has been deleted, either locally or on the server.
+* `isError` - true if the record is in an error state.
 
 ### Loading Data
 
