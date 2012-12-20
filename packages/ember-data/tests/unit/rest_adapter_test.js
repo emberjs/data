@@ -348,7 +348,7 @@ test("finding all people with since makes a GET to /people", function() {
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
 
-  ajaxHash.success({ meta: {since: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
+  ajaxHash.success({ meta: { since: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
 
   people = store.find(Person);
 
@@ -356,7 +356,7 @@ test("finding all people with since makes a GET to /people", function() {
   expectType("GET");
   expectData({since: '123'});
 
-  ajaxHash.success({ meta: {since: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
+  ajaxHash.success({ meta: { since: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
 
   person = people.objectAt(1);
 
@@ -371,14 +371,17 @@ test("finding all people with since makes a GET to /people", function() {
   expectType("GET");
   expectData({since: '1234'});
 
-  ajaxHash.success({ meta: {since: '12345'}, people: [{ id: 3, name: "Dan Gebhardt" }] });
+  ajaxHash.success({ meta: { since: '12345'}, people: [{ id: 3, name: "Dan Gebhardt" }] });
 
   equal(people.get('length'), 3, 'should have 3 records now');
 });
 
 test("meta and since are configurable", function() {
-  set(serializer, 'meta', 'metaObject');
-  set(serializer, 'since', 'sinceToken');
+  serializer.configure({
+    meta: 'metaObject',
+    since: 'sinceToken'
+  });
+
   set(adapter, 'since', 'lastToken');
 
   people = store.find(Person);

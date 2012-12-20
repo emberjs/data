@@ -14,9 +14,18 @@ DS.JSONSerializer = DS.Serializer.extend({
     }
 
     this.sideloadMapping = Ember.Map.create();
+
+    this.configure({
+      meta: 'meta',
+      since: 'since'
+    });
   },
 
   configure: function(type, configuration) {
+    if (type && !configuration) {
+      return this._super(type);
+    }
+
     var sideloadAs = configuration.sideloadAs;
 
     if (sideloadAs) {
@@ -112,9 +121,6 @@ DS.JSONSerializer = DS.Serializer.extend({
 
   // EXTRACTION
 
-  meta: 'meta',
-  since: 'since',
-
   extract: function(loader, json, type) {
     var root = this.rootForType(type);
 
@@ -139,10 +145,10 @@ DS.JSONSerializer = DS.Serializer.extend({
   },
 
   extractMeta: function(loader, type, json) {
-    var meta = json[get(this, 'meta')], since;
+    var meta = json[this.configOption(type, 'meta')], since;
     if (!meta) { return; }
 
-    if (since = meta[get(this, 'since')]) {
+    if (since = meta[this.configOption(type, 'since')]) {
       loader.sinceForType(type, since);
     }
   },
@@ -155,7 +161,7 @@ DS.JSONSerializer = DS.Serializer.extend({
     for (var prop in json) {
       if (!json.hasOwnProperty(prop)) { continue; }
       if (prop === root) { continue; }
-      if (prop === get(this, 'meta')) { continue; }
+      if (prop === this.configOption(type, 'meta')) { continue; }
 
       sideloadedType = type.typeForAssociation(prop);
 

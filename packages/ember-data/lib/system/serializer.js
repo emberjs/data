@@ -195,6 +195,7 @@ DS.Serializer = Ember.Object.extend({
   init: function() {
     this.mappings = Ember.Map.create();
     this.configurations = Ember.Map.create();
+    this.globalConfigurations = {};
   },
 
   extract: mustImplement('extract'),
@@ -890,7 +891,15 @@ DS.Serializer = Ember.Object.extend({
   },
 
   configure: function(type, configuration) {
-    this.configurations.set(type, configuration);
+    if (type && !configuration) {
+      Ember.merge(this.globalConfigurations, type);
+      return;
+    }
+
+    var config = Ember.create(this.globalConfigurations);
+    Ember.merge(config, configuration);
+
+    this.configurations.set(type, config);
   },
 
   mappingForType: function(type) {
@@ -900,7 +909,7 @@ DS.Serializer = Ember.Object.extend({
 
   configurationForType: function(type) {
     this._reifyConfigurations();
-    return this.configurations.get(type);
+    return this.configurations.get(type) || this.globalConfigurations;
   },
 
   _reifyMappings: function() {
@@ -951,6 +960,12 @@ DS.Serializer = Ember.Object.extend({
     var mapping = this.mappingForType(type)[name];
 
     return mapping && mapping[option];
+  },
+
+  configOption: function(type, option) {
+    var config = this.configurationForType(type);
+
+    return config[option];
   },
 
   // EMBEDDED HELPERS
