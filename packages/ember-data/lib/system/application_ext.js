@@ -70,6 +70,9 @@ Ember.onLoad('Ember.Application', function(Application) {
 
       initialize: function(container, application) {
         container.register('store', 'main', application.Store);
+
+        // eagerly load the store so a defaultStore exists
+        container.lookup('store:main');
       }
     });
 
