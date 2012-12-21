@@ -68,8 +68,6 @@ DS.loaderFor = loaderFor;
     * `updateRecords()`
     * `deleteRecords()`
     * `commit()`
-
-   For more information about the adapter API, please see `README.md`.
 */
 
 var get = Ember.get, set = Ember.set, merge = Ember.merge;

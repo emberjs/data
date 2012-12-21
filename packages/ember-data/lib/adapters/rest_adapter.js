@@ -5,6 +5,61 @@ require('ember-data/serializers/rest_serializer');
 
 var get = Ember.get, set = Ember.set, merge = Ember.merge;
 
+/**
+  The REST adapter allows your store to communicate with an HTTP server by
+  transmitting JSON via XHR. Most Ember.js apps that consume a JSON API
+  should use the REST adapter.
+
+  This adapter is designed around the idea that the JSON exchanged with
+  the server should be conventional.
+
+  ## JSON Structure
+
+  The REST adapter expects the JSON returned from your server to follow
+  these conventions.
+
+  ### Object Root
+
+  The JSON payload should be an object that contains the record inside a
+  root property. For example, in response to a `GET` request for
+  `/posts/1`, the JSON should look like this:
+
+  ```js
+  {
+    "post": {
+      title: "I'm Running to Reform the W3C's Tag",
+      author: "Yehuda Katz"
+    }
+  }
+  ```
+
+  ### Conventional Names
+
+  Attribute names in your JSON payload should be the camelized versions of the
+  the attributes in your Ember.js models.
+
+  For example, if you have a `Person` model:
+
+  ```js
+  App.Person = DS.Model.extend({
+    firstName: DS.attr('string'),
+    lastName: DS.attr('string'),
+    occupation: DS.attr('string')
+  });
+  ```
+
+  The JSON returned should look like this:
+
+  ```js
+  {
+    "person": {
+      "first_name": "Barack",
+      "last_name": "Obama",
+      "occupation": "President"
+    }
+  }
+  ```
+*/
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
   since: 'since',
