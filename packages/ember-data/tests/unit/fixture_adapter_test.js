@@ -4,7 +4,7 @@ var store, Person;
 module("DS.FixtureAdapter", {
   setup: function() {
     store = DS.Store.create({
-      adapter: 'DS.fixtureAdapter'
+      adapter: 'DS.FixtureAdapter'
     });
 
     Person = DS.Model.extend({
