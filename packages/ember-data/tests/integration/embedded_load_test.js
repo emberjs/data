@@ -54,11 +54,20 @@ Ember.ArrayPolyfills.forEach.call([[Comment, "as a type"], ["Comment", "as a str
       }
     });
 
+    store.load(Comment, 3, {
+      user: {
+        id: 3,
+        name: "Yehuda Katz"
+      }
+    });
+
     var comment1 = store.find(Comment, 1);
     var comment2 = store.find(Comment, 2);
+    var comment3 = store.find(Comment, 3);
     var user = store.find(Person, 2);
 
     strictEqual(user.get('name'), "Yehuda Katz", "user is addressable by its ID despite being loaded via embedding");
+    strictEqual(comment3.get('user.name'), "Yehuda Katz", "user is addressable by its ID despite being loaded via embedding (alternate load syntax)");
 
     strictEqual(comment1.get('user'), user, "association references the globally addressable record");
     strictEqual(comment2.get('user'), user, "associations are identical");

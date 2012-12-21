@@ -742,7 +742,9 @@ DS.Serializer = Ember.Object.extend({
         mappingOptions = mapping && mapping[name],
         key = mappingOptions && mappingOptions.key;
 
-    if (key) {
+    if (mappingOptions && mappingOptions.embedded === 'load') {
+      return name;
+    } else if (key) {
       return key;
     } else {
       return this[publicMethod](type, name);
