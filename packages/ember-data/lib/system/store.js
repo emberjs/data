@@ -353,6 +353,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // the `loaded` state.
     record.loadedData();
 
+    // Make sure the data is set up so the record doesn't
+    // try to materialize its nonexistent data.
+    record.setupData();
+
     // Store the record we just created in the record cache for
     // this clientId.
     this.recordCache[clientId] = record;
@@ -1759,8 +1763,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // . RECORD CHANGE NOTIFICATION .
   // ..............................
 
-  recordAttributeDidChange: function(record, attributeName, newValue, oldValue) {
-    var dirtySet = new Ember.OrderedSet(),
+  recordAttributeDidChange: function(reference, attributeName, newValue, oldValue) {
+    var record = this.recordForReference(reference),
+        dirtySet = new Ember.OrderedSet(),
         adapter = this.adapterForType(record.constructor);
 
     if (adapter.dirtyRecordsForAttributeChange) {

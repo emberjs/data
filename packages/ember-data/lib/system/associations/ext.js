@@ -39,6 +39,11 @@ DS.Model.reopen({
         Ember.addBeforeObserver(proto, key, null, 'belongsToWillChange');
       }
 
+      if (meta.isAttribute) {
+        Ember.addObserver(proto, key, null, 'attributeDidChange');
+        Ember.addBeforeObserver(proto, key, null, 'attributeWillChange');
+      }
+
       meta.parentType = proto.constructor;
     }
   }

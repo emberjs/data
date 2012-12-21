@@ -54,6 +54,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   }).property(),
 
   materializeData: function() {
+    this.send('materializingData');
+
     get(this, 'store').materializeData(this);
 
     this.suspendAssociationObservers(function() {
@@ -160,6 +162,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
         this.hasManyDidChange(association.key);
       }
     }, this);
+
+    this.send('finishedMaterializing');
   }, 'data'),
 
   hasManyDidChange: function(key) {
@@ -189,8 +193,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       hasMany: {},
       id: null
     };
-
-    this.notifyPropertyChange('data');
   },
 
   materializeId: function(id) {

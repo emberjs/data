@@ -19,12 +19,47 @@ DS.Model.reopenClass({
   })
 });
 
+var AttributeChange = DS.AttributeChange = function(options) {
+  this.reference = options.reference;
+  this.store = options.store;
+  this.name = options.name;
+  this.oldValue = options.oldValue;
+};
+
+AttributeChange.createChange = function(options) {
+  return new AttributeChange(options);
+};
+
+AttributeChange.prototype = {
+  sync: function() {
+    this.store.recordAttributeDidChange(this.reference, this.name, this.value, this.oldValue);
+
+    // TODO: Use this object in the commit process
+    this.destroy();
+  },
+
+  destroy: function() {
+    delete this.store.recordForReference(this.reference)._changesToSync[this.name];
+  }
+};
+
 DS.Model.reopen({
   eachAttribute: function(callback, binding) {
     get(this.constructor, 'attributes').forEach(function(name, meta) {
       callback.call(binding, name, meta);
     }, binding);
-  }
+  },
+
+  attributeWillChange: Ember.beforeObserver(function(record, key) {
+    var reference = get(record, 'reference'),
+        store = get(record, 'store');
+
+    record.send('willSetProperty', { reference: reference, store: store, name: key });
+  }),
+
+  attributeDidChange: Ember.observer(function(record, key) {
+    record.send('didSetProperty', { name: key });
+  })
 });
 
 function getAttr(record, options, key) {
@@ -51,10 +86,7 @@ DS.attr = function(type, options) {
     var data;
 
     if (arguments.length > 1) {
-      // TODO: If there is a cached oldValue, use it [tomhuda]
-      oldValue = get(this, 'data.attributes')[key];
-      Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.toString(), key !== 'id');
-      this.setProperty(key, value, oldValue);
+      Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
     } else {
       value = getAttr(this, options, key);
     }
