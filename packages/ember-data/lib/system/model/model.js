@@ -37,6 +37,17 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     return store.serialize(this, options);
   },
 
+  /*
+    Reload the record's data, bypassing the local cached copy
+    and fetching everything from the server again.
+  */
+  reload: function() {
+    var store = get(this, 'store'),
+        adapter = store.get('adapter');
+
+    adapter.find(store, this.constructor, this.get("id"));
+  },
+
   didLoad: Ember.K,
   didUpdate: Ember.K,
   didCreate: Ember.K,
