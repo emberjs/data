@@ -45,6 +45,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var store = get(this, 'store'),
         adapter = store.get('adapter');
 
+    Ember.assert("You can only reload with a proper adapter", Ember.typeOf(adapter.find) === "function");
     adapter.find(store, this.constructor, this.get("id"));
   },
 

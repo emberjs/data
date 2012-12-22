@@ -9,7 +9,10 @@ var testSerializer = DS.JSONSerializer.create({
 });
 
 var TestAdapter = DS.Adapter.extend({
-  serializer: testSerializer
+  serializer: testSerializer,
+  find: function(store, type, id) {
+    return store.find(type, id);
+  }
 });
 
 module("DS.Model", {
@@ -59,6 +62,16 @@ test("a record's id is included in its toString represenation", function() {
 
   var record = store.find(Person, 1);
   equal(record.toString(), '<(subclass of DS.Model):'+Ember.guidFor(record)+':1>', "reports id in toString");
+});
+
+test("a record can reload itself", function() {
+  store.load(Person, { id: 1, name: "Yehuda" });
+
+  var record = store.find(Person, 1);
+  store.load(Person, { id: 1, name: "Tomhuda" });
+  record.reload();
+
+  equal(get(record, 'name'), "Tomhuda", "name was not reloaded properly");
 });
 
 test("trying to set an `id` attribute should raise", function() {
