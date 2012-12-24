@@ -79,6 +79,10 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     dirtySet.add(child);
   },
 
+  dirtyRecordsForHasOneChange: function(dirtySet, parent) {
+    dirtySet.add(parent);
+  },
+
   dirtyRecordsForHasManyChange: function(dirtySet, parent) {
     dirtySet.add(parent);
   },
@@ -204,6 +208,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
       if (association.kind === 'hasMany') {
         this._extractEmbeddedHasMany(store, serializer, type, data, association);
+      } else if (association.kind === 'hasOne') {
+        this._extractEmbeddedHasOne(store, serializer, type, data, association);
       } else if (association.kind === 'belongsTo') {
         this._extractEmbeddedBelongsTo(store, serializer, type, data, association);
       }
@@ -223,6 +229,17 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
       }
       serializer.replaceEmbeddedHasMany(type, data, association.key, ids);
       store.loadMany(association.type, dataListToLoad);
+    }
+  },
+
+  _extractEmbeddedHasOne: function(store, serializer, type, data, association) {
+    var dataToLoad = serializer._extractEmbeddedHasOne(type, data, association.key),
+        typeToLoad = association.type;
+
+    if (dataToLoad) {
+      var id = store.adapterForType(typeToLoad).extractId(typeToLoad, dataToLoad);
+      serializer.replaceEmbeddedHasOne(type, data, association.key, id);
+      store.load(association.type, dataToLoad);
     }
   },
 

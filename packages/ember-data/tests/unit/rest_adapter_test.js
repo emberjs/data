@@ -916,6 +916,31 @@ test("sideloaded data is loaded prior to primary data (to ensure relationship co
   });
 });
 
+
+test("additional data can be embedded within belongsTo associations", function() {
+  var Comment = DS.Model.extend({
+    person: DS.belongsTo(Person),
+    text: DS.attr('string')
+  });
+
+  store.adapter.mappings = {'comments': Comment};
+  store.adapter.serializer.map(Comment, {
+    person: { embedded: 'load' }
+  });
+
+  var comment = store.find(Comment, 1);
+  comment.on('didLoad', function() {
+    equal(comment.get('text'), 'hello');
+    equal(comment.get('person.name'), "Yehuda Katz", 'embedded belongsTo is loaded correctly');
+  });
+
+  ajaxHash.success({
+    comments: [{
+      id: 1, person: {id: 1, name: "Yehuda Katz"}, text: 'hello'
+    }]
+  });
+});
+
 test("additional data can be sideloaded with associations in correct order", function() {
   var Comment = DS.Model.extend({
     person: DS.belongsTo(Person)

@@ -90,3 +90,23 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
   equal(post.get('youComments.length'), 1, "youComments had the post added");
   equal(post.get('everyoneWeKnowComments.length'), 0, "everyoneWeKnowComments has no posts");
 });
+
+test("When a record is added to a has-one association, the inverse belongsTo is determined automatically", function() {
+  var Person = DS.Model.extend(),
+      Address = DS.Model.extend();
+
+  Person.reopen({
+    address: DS.hasOne(Address)
+  });
+  Address.reopen({
+    person: DS.belongsTo(Person)
+  });
+
+  var person = store.createRecord(Person),
+      address = store.createRecord(Address);
+
+  equal(address.get('person'), null, "no person has been set on the address");
+
+  person.set('address', address);
+  equal(address.get('person'), person, "person was set on the address");
+});

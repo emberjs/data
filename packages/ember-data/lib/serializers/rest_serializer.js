@@ -5,6 +5,10 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     return this.keyForAttributeName(type, name) + "_id";
   },
 
+  keyForHasOne: function(type, name) {
+    return this.keyForAttributeName(type, name) + "_id";
+  },
+
   keyForAttributeName: function(type, name) {
     return Ember.String.decamelize(name);
   },

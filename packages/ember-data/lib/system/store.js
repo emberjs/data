@@ -1453,6 +1453,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       data = id;
       id = this.preprocessData(type, data);
     }
+    else {
+      this.adapterForType(type).extractEmbeddedData(this, type, data);
+    }
 
     id = coerceId(id);
 
@@ -1479,15 +1482,20 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   loadMany: function(type, ids, dataList) {
     var clientIds = Ember.A([]);
 
-    if (dataList === undefined) {
+    var idsProvided = dataList !== undefined;
+    if (! idsProvided) {
       dataList = ids;
-      ids = map(dataList, function(data) {
-        return this.preprocessData(type, data);
-      }, this);
+      ids = Ember.A([]);
     }
 
-    for (var i=0, l=get(ids, 'length'); i<l; i++) {
-      var loaded = this.load(type, ids[i], dataList[i]);
+    for (var i=0, l=get(dataList, 'length'); i<l; i++) {
+      var loaded;
+      if (idsProvided) {
+        loaded = this.load(type, ids[i], dataList[i]);
+      } else {
+        loaded = this.load(type, dataList[i]);
+        ids.pushObject(loaded.id);
+      }
       clientIds.pushObject(loaded.clientId);
     }
 
@@ -1644,6 +1652,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     if (adapter.dirtyRecordsForBelongsToChange) {
       adapter.dirtyRecordsForBelongsToChange(dirtySet, child, relationship);
+    }
+  },
+
+  recordHasOneDidChange: function(dirtySet, parent, relationship) {
+    var adapter = this.adapterForType(parent.constructor);
+
+    if (adapter.dirtyRecordsForHasOneChange) {
+      adapter.dirtyRecordsForHasOneChange(dirtySet, parent, relationship);
     }
   },
 

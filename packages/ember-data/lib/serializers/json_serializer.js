@@ -59,12 +59,20 @@ DS.JSONSerializer = DS.Serializer.extend({
     return hash[key];
   },
 
+  extractHasOne: function(type, hash, key) {
+    return hash[key];
+  },
+
   extractBelongsTo: function(type, hash, key) {
     return hash[key];
   },
 
   replaceEmbeddedBelongsTo: function(type, hash, name, id) {
     hash[this._keyForBelongsTo(type, name)] = id;
+  },
+
+  replaceEmbeddedHasOne: function(type, hash, name, id) {
+    hash[this._keyForHasOne(type, name)] = id;
   },
 
   replaceEmbeddedHasMany: function(type, hash, name, ids) {

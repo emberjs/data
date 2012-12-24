@@ -3,6 +3,7 @@ var MockModel = Ember.Object.extend({
     this.materializedAttributes = {};
     this.hasMany = {};
     this.belongsTo = {};
+    this.hasOne = {};
   },
 
   eachAttribute: function(callback, binding) {
@@ -37,6 +38,10 @@ var MockModel = Ember.Object.extend({
 
   materializeBelongsTo: function(name, id) {
     this.belongsTo[name] = id;
+  },
+
+  materializeHasOne: function(name, id) {
+    this.hasOne[name] = id;
   }
 });
 
@@ -107,13 +112,14 @@ test("Mapped attributes should be used when materializing a record from JSON.", 
 });
 
 test("Mapped relationships should be used when serializing a record to JSON.", function() {
-  expect(8);
+  expect(12);
 
-  Person.associations = { addresses: 'hasMany' };
+  Person.associations = { addresses: 'hasMany', heart: 'hasOne' };
   window.Address.associations = { person: 'belongsTo' };
 
   serializer.map(Person, {
-    addresses: { key: 'ADDRESSES!' }
+    addresses: { key: 'ADDRESSES!' },
+    heart: { key: '<3' }
   });
 
   serializer.map('Address', {
@@ -147,16 +153,29 @@ test("Mapped relationships should be used when serializing a record to JSON.", f
     });
   };
 
+  serializer.addHasOne = function(hash, record, key, relationship) {
+    ok(typeof hash === 'object', "a hash to build is passed");
+    equal(record, person, "the record to serialize should be passed");
+    equal(key, '<3', "the key to add to the hash respects the mapping");
+
+    // The mocked record uses a simplified relationship description
+    deepEqual(relationship, {
+      kind: 'hasOne',
+      key: 'heart'
+    });
+  };
+
   serializer.serialize(person);
   serializer.serialize(address);
 });
 
 test("mapped relationships are respected when materializing a record from JSON", function() {
-  Person.associations = { addresses: 'hasMany' };
+  Person.associations = { addresses: 'hasMany', heart: 'hasOne' };
   window.Address.associations = { person: 'belongsTo' };
 
   serializer.map(Person, {
-    addresses: { key: 'ADDRESSES!' }
+    addresses: { key: 'ADDRESSES!' },
+    heart: { key: '<3' }
   });
 
   serializer.map('Address', {
@@ -167,7 +186,8 @@ test("mapped relationships are respected when materializing a record from JSON",
   var address = window.Address.create();
 
   serializer.materialize(person, {
-    'ADDRESSES!': [ 1, 2, 3 ]
+    'ADDRESSES!': [ 1, 2, 3 ],
+    '<3': 1
   });
 
   serializer.materialize(address, {
@@ -176,6 +196,10 @@ test("mapped relationships are respected when materializing a record from JSON",
 
   deepEqual(person.hasMany, {
     addresses: [ 1, 2, 3 ]
+  });
+
+  deepEqual(person.hasOne, {
+    heart: 1
   });
 
   deepEqual(address.belongsTo, {
