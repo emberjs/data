@@ -488,11 +488,11 @@ test("calling createRecord and passing in an undefined value for an association 
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tag: DS.belongsTo(Tag),
+    tag: DS.belongsTo(Tag)
   });
 
   Tag.reopen({
-    person: DS.belongsTo(Person)
+    person: DS.hasOne(Person)
   });
 
   var store = DS.Store.create();
@@ -504,3 +504,244 @@ test("calling createRecord and passing in an undefined value for an association 
   strictEqual(person.get('tag'), null, "undefined values should return null associations");
 });
 
+test("changing a one-to-one relationship A=>B=>A should clean up the record", function() {
+  var store = DS.Store.create();
+  var Kidney = DS.Model.extend();
+  var Person = DS.Model.extend();
+
+  Kidney.reopen({
+    person: DS.belongsTo(Person)
+  });
+  Kidney.toString = function() { return "Kidney"; };
+
+  Person.reopen({
+    name: DS.attr('string'),
+    kidneys: DS.hasMany(Kidney)
+  });
+  Person.toString = function() { return "Person"; };
+
+  store.load(Person, { id: 1, name: "John Doe", kidneys: [1, 2] });
+  store.load(Person, { id: 2, name: "Jane Doe", kidneys: [3]});
+  store.load(Kidney, { id: 1, person: 1 });
+  store.load(Kidney, { id: 2, person: 1 });
+  store.load(Kidney, { id: 3, person: 2 });
+
+  var john = store.find(Person, 1);
+  var jane = store.find(Person, 2);
+  var kidney1 = store.find(Kidney, 1);
+  var kidney2 = store.find(Kidney, 2);
+  var kidney3 = store.find(Kidney, 3);
+
+  deepEqual(john.get('kidneys').toArray(), [kidney1, kidney2], "precond - john should have the first two kidneys");
+  deepEqual(jane.get('kidneys').toArray(), [kidney3], "precond - jane should have the third kidney");
+  equal(kidney2.get('person'), john, "precond - second kidney should be in john");
+
+  kidney2.set('person', jane);
+
+  deepEqual(john.get('kidneys').toArray(), [kidney1], "precond - john should have only the first kidney");
+  deepEqual(jane.get('kidneys').toArray(), [kidney3, kidney2], "precond - jane should have the other two kidneys");
+  equal(kidney2.get('person'), jane, "precond - second kidney should be in jane");
+
+  kidney2.set('person', john);
+
+  deepEqual(john.get('kidneys').toArray(), [kidney1, kidney2], "john should have the first two kidneys again");
+  deepEqual(jane.get('kidneys').toArray(), [kidney3], "jane should have the third kidney again");
+  equal(kidney2.get('person'), john, "second kidney should be in john again");
+});
+
+test("changing a one-to-one relationship A=>B=>A should clean up the record", function() {
+  var store = DS.Store.create();
+  var Heart = DS.Model.extend();
+  var Person = DS.Model.extend();
+
+  Heart.reopen({
+    person: DS.belongsTo(Person)
+  });
+  Heart.toString = function() { return "Heart"; };
+
+  Person.reopen({
+    name: DS.attr('string'),
+    heart: DS.hasOne(Heart)
+  });
+  Person.toString = function() { return "Person"; };
+
+  store.load(Person, { id: 1, name: "John Doe", heart: 1 });
+  store.load(Person, { id: 2, name: "Jane Doe" });
+  store.load(Heart, { id: 1, person: 1 });
+
+  var john = store.find(Person, 1);
+  var jane = store.find(Person, 2);
+  var heart = store.find(Heart, 1);
+
+  equal(john.get('heart'), heart, "precond - john should have the heart");
+  equal(jane.get('heart'), null, "precond - jane should have no heart");
+  equal(heart.get('person'), john, "precond - the heart should be in john");
+
+  heart.set('person', jane);
+
+  equal(john.get('heart'), null, "precond - john should have no heart");
+  equal(jane.get('heart'), heart, "precond - jane should have the heart");
+  equal(heart.get('person'), jane, "precond - the heart should be in jane");
+
+  heart.set('person', john);
+
+  equal(john.get('heart'), heart, "john should have the heart again");
+  equal(jane.get('heart'), null, "jane should no longer have the heart");
+  equal(heart.get('person'), john, "the heart should be in john again");
+});
+
+module("DS.hasOne");
+
+test("getting the association when the data has been loaded", function() {
+  var Person = DS.Model.extend(),
+    Address = DS.Model.extend(),
+    store = DS.Store.create();
+
+  Person.reopen({
+    name: DS.attr('string'),
+    address: DS.hasOne(Address)
+  });
+  Person.toString = function() { return "Person"; };
+
+  Address.reopen({
+    street: DS.attr('string'),
+    person: DS.belongsTo(Person)
+  });
+  Address.toString = function() { return "Address"; };
+
+  store.loadMany(Person, [1, 2], [{ id: 1, name: "John Doe", address: 3 }, { id: 2, name: "Homeless Bob" }]);
+  store.loadMany(Address, [2, 3, 4], [{ id: 2, street: "123 Main St" }, { id: 3, street: "456 Side St", person: 1 }, { id: 4, street: "789 Through Way" }]);
+
+  var john = store.find(Person, 1);
+  equal(get(john, 'address') instanceof Address, true, "the address property returns an address");
+  equal(get(john, 'address.street'), "456 Side St", "the address has a street");
+
+  strictEqual(get(john, 'address'), get(john, 'address'), "the returned object is always the same");
+  strictEqual(get(john, 'address'), store.find(Address, 3), "association object is the same as object retrieved directly");
+
+  var bob = store.find(Person, 2);
+  ok(!get(bob, 'address'), "a person may not always have an address");
+});
+
+test("getting the association when the data has not been loaded", function() {
+  expect(14);
+
+  var Heart = DS.Model.extend();
+  var Person = DS.Model.extend();
+
+  Heart.reopen({
+    pressure: DS.attr('string'),
+    person: DS.belongsTo(Person)
+  });
+  Person.reopen({
+    name: DS.attr('string'),
+    heart: DS.hasOne(Heart)
+  });
+  Heart.toString = function() { return "App.Heart"; };
+  Person.toString = function() { return "App.Person"; };
+
+  var store = DS.Store.create({
+    adapter: DS.Adapter.create({
+      find: function(store, type, id) {
+        if (type === Person) {
+          equal(type, Person, "type should be Person");
+          equal(id, 1, "id should be 1");
+
+          stop();
+
+          setTimeout(function() {
+            start();
+            store.load(type, id, { id: 1, name: "Tom Dale", heart: 2 });
+
+            equal(get(person, 'name'), "Tom Dale", "the person is now populated");
+            equal(get(person, 'isLoaded'), true, "the person is now loaded");
+            equal(get(person, 'heart') instanceof Heart, true, "the person has a heart");
+            equal(get(person, 'heart.isLoaded'), false, "the heart object exists, but is not yet loaded");
+          }, 1);
+        } else if (type === Heart) {
+          equal(type, Heart, "type should be Heart");
+          equal(id, 2, "id should be 2");
+
+          stop();
+
+          setTimeout(function() {
+            start();
+            store.load(type, 2, { id: 2, pressure: "100 kPa" });
+
+            equal(get(person, 'name'), "Tom Dale", "precond - the person is still Tom Dale");
+            equal(get(person, 'isLoaded'), true, "Tom Dale is still loaded");
+            equal(get(person, 'heart.pressure'), "100 kPa", "Tom Dale now has a beating heart");
+            equal(get(person, 'heart.isLoaded'), true, "Tom Dale's heart is now loaded");
+          }, 1);
+        }
+      }
+    })
+  });
+
+  var person = store.find(Person, 1);
+
+  equal(get(person, 'isLoaded'), false, "isLoaded should be false");
+  equal(get(person, 'heart'), null, "heart should be null");
+});
+
+test("creating a record with an undefined value for the association should be treated as null", function () {
+  var store = DS.Store.create();
+  var Heart = DS.Model.extend();
+  var Person = DS.Model.extend();
+
+  Heart.reopen({
+    pressure: DS.attr('string'),
+    person: DS.belongsTo(Person)
+  });
+  Person.reopen({
+    name: DS.attr('string'),
+    heart: DS.hasOne(Heart)
+  });
+
+  store.createRecord(Person, { id: 1, heart: undefined });
+  var person = store.find(Person, 1);
+
+  strictEqual(person.get('heart'), null, "undefined values should return null associations");
+});
+
+test("changing A=>B=>A should restore the associations", function() {
+  var store = DS.Store.create();
+  var Heart = DS.Model.extend();
+  var Person = DS.Model.extend();
+
+  Heart.reopen({
+    pressure: DS.attr('string'),
+    person: DS.belongsTo(Person)
+  });
+  Heart.toString = function() { return "Heart"; };
+
+  Person.reopen({
+    name: DS.attr('string'),
+    heart: DS.hasOne(Heart)
+  });
+  Person.toString = function() { return "Person"; };
+
+  store.load(Person, { id: 1, heart: 1 });
+  store.load(Heart, { id: 1, person: 1 });
+  store.load(Heart, { id: 2 });
+
+  var person = store.find(Person, 1);
+  var heart1 = store.find(Heart, 1);
+  var heart2 = store.find(Heart, 2);
+
+  equal(person.get('heart'), heart1, "precond - person should have the first heart");
+  equal(heart1.get('person'), person, "precond - first heart should be in the person");
+  equal(heart2.get('person'), null, "precond - second heart should be awaiting implantation");
+
+  person.set('heart', heart2);
+
+  equal(person.get('heart'), heart2, "precond - person should have the second heart");
+  equal(heart1.get('person'), null, "precond - first heart should be on the operating table");
+  equal(heart2.get('person'), person, "precond - second heart should be in the person");
+
+  person.set('heart', heart1);
+
+  equal(person.get('heart'), heart1, "person should have the first heart again");
+  equal(heart1.get('person'), person, "first heart should be in the person again");
+  equal(heart2.get('person'), null, "second heart should be out of the person again");
+});

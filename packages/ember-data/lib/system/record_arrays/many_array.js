@@ -106,14 +106,13 @@ DS.ManyArray = DS.RecordArray.extend({
         //var record = this.objectAt(i);
         //if (!record) { continue; }
 
-        var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), {
+        var change = DS.RelationshipChange.findOrCreate(clientId, get(this, 'store'), {
           parentType: owner.constructor,
           hasManyName: name
         });
-        change.hasManyName = name;
 
-        if (change.oldParent === undefined) { change.oldParent = get(owner, 'clientId'); }
-        change.newParent = null;
+        if (get(change, 'oldParent') === undefined) { set(change, 'oldParent', get(owner, 'clientId')); }
+        set(change, 'newParent', null);
         this._changesToSync.add(change);
       }
     }
@@ -135,15 +134,14 @@ DS.ManyArray = DS.RecordArray.extend({
       for (var i=index; i<index+added; i++) {
         var clientId = get(this, 'content').objectAt(i);
 
-        var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), {
+        var change = DS.RelationshipChange.findOrCreate(clientId, get(this, 'store'), {
           parentType: owner.constructor,
           hasManyName: name
         });
-        change.hasManyName = name;
 
         // The oldParent will be looked up in `sync` if it
         // was not set by `belongsToWillChange`.
-        change.newParent = get(owner, 'clientId');
+        set(change, 'newParent', get(owner, 'clientId'));
         this._changesToSync.add(change);
       }
 

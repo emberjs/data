@@ -56,6 +56,29 @@ test("By default, changing the relationship between two records does not cause t
   ok(!comment.get('isDirty'), "comment should not be dirty");
 });
 
+test("By default, changing a one-to-one relationship causes both records to become dirty", function() {
+  var Post = DS.Model.extend();
+
+  var Attachment = DS.Model.extend({
+    post: DS.belongsTo(Post)
+  });
+
+  Post.reopen({
+    attachment: DS.hasOne(Attachment)
+  });
+
+  store.load(Post, { id: 1, comments: [1] });
+  store.load(Attachment, { id: 1, post: 1 });
+
+  var post = store.find(Post, 1);
+  var attachment = store.find(Attachment, 1);
+
+  attachment.set('post', null);
+
+  ok(post.get('isDirty'), "post should be dirty");
+  ok(attachment.get('isDirty'), "attachment should be dirty");
+});
+
 test("If dirtyRecordsForAttributeChange does not add the record to the dirtyRecords set, it does not become dirty", function() {
   store.load(Person, { id: 1, firstName: "Yehuda" });
   var wycats = store.find(Person, 1);

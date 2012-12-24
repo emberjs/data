@@ -20,3 +20,9 @@ test("keyForBelongsTo returns the key appended with '_id'", function() {
   equal(serializer.keyForBelongsTo(DS.Model, 'person'), 'person_id');
   equal(serializer.keyForBelongsTo(DS.Model, 'homeTown'), 'home_town_id');
 });
+
+
+test("keyForHasOne returns the key appended with '_id'", function() {
+  equal(serializer.keyForHasOne(DS.Model, 'person'), 'person_id');
+  equal(serializer.keyForHasOne(DS.Model, 'homeTown'), 'home_town_id');
+});

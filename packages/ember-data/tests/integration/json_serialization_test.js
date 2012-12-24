@@ -109,7 +109,7 @@ test("by default, addId calls primaryKey", function() {
   deepEqual(json, { __key__: "EWOT" });
 });
 
-var Comment, comment;
+var Attachment, Comment, attachment, comment;
 
 module("Adapter serialization with relationships", {
   setup: function() {
@@ -117,20 +117,27 @@ module("Adapter serialization with relationships", {
 
     Post = DS.Model.extend();
 
+    Attachment = DS.Model.extend({
+      post: DS.belongsTo(Post)
+    });
+
     Comment = DS.Model.extend({
       post: DS.belongsTo(Post)
     });
 
     Post.reopen({
-      comments: DS.hasMany(Comment)
+      comments: DS.hasMany(Comment),
+      attachment: DS.hasOne(Attachment)
     });
 
     serializer = DS.JSONSerializer.create();
 
     post = store.createRecord(Post);
     comment = store.createRecord(Comment);
+    attachment = store.createRecord(Attachment);
 
     post.get('comments').pushObject(comment);
+    post.set('attachment', attachment);
   },
 
   teardown: function() {
@@ -152,6 +159,8 @@ test("calling serialize with a record with relationships invokes addRelationship
 });
 
 test("the default addRelationships calls addBelongsTo", function() {
+  expect(3);
+
   serializer.addBelongsTo = function(hash, record, key, relationship) {
     equal(relationship.kind, "belongsTo");
     equal(key, 'post');
@@ -162,9 +171,23 @@ test("the default addRelationships calls addBelongsTo", function() {
 });
 
 test("the default addRelationships calls addHasMany", function() {
+  expect(3);
+
   serializer.addHasMany = function(hash, record, key, relationship) {
     equal(relationship.kind, "hasMany");
     equal(key, 'comments');
+    equal(record, post);
+  };
+
+  serializer.serialize(post);
+});
+
+test("the default addRelationships calls addHasOne", function() {
+  expect(3);
+
+  serializer.addHasOne = function(hash, record, key, relationship) {
+    equal(relationship.kind, "hasOne");
+    equal(key, 'attachment');
     equal(record, post);
   };
 

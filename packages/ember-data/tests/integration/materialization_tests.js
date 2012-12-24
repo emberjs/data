@@ -151,6 +151,27 @@ test("when materializing a record, the serializer's extractHasMany method should
   var person = store.find(Person, 1);
 });
 
+test("when materializing a record, the serializer's extractHasOne method should be invoked", function() {
+  expect(3);
+
+  Person.reopen({
+    protege: DS.hasOne(Person)
+  });
+
+  store.load(Person, { id: 1, protege: 2 });
+
+  serializer.extractHasOne = function(type, hash, name) {
+    equal(type, Person);
+    deepEqual(hash, {
+      id: 1,
+      protege: 2
+    });
+    equal(name, 'protege');
+  };
+
+  var person = store.find(Person, 1);
+});
+
 test("when materializing a record, the serializer's extractBelongsTo method should be invoked", function() {
   expect(3);
 
