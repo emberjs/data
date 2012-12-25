@@ -352,13 +352,13 @@ function expectRelationships(description) {
 
   if (count) {
     if(description[0]){
-      QUnit.push(relationships[0].getParent() === description[0].parent, relationships[0].getParent(), description[0].parent, "oldParent is incorrect");
-      QUnit.push(relationships[0].getChild() === description[0].child, relationships[0].child, description[0].child, "child in relationship 0 is incorrect");
+      QUnit.push(relationships[0].getSecondRecord() === description[0].parent, relationships[0].getSecondRecord(), description[0].parent, "oldParent is incorrect");
+      QUnit.push(relationships[0].getFirstRecord() === description[0].child, relationships[0].child, description[0].child, "child in relationship 0 is incorrect");
     }
     if(description[1]){
       var relPosition = count === 2 ? 1 : 0;
-      QUnit.push(relationships[relPosition].getChild() === description[1].child, relationships[relPosition].child, description[1].child, "child in relationship 1 is incorrect");
-      QUnit.push(relationships[relPosition].getParent() === description[1].parent, relationships[relPosition].parent, description[1].parent, "newParent is incorrect");
+      QUnit.push(relationships[relPosition].getFirstRecord() === description[1].child, relationships[relPosition].child, description[1].child, "child in relationship 1 is incorrect");
+      QUnit.push(relationships[relPosition].getSecondRecord() === description[1].parent, relationships[relPosition].parent, description[1].parent, "newParent is incorrect");
     }
   }
 }
