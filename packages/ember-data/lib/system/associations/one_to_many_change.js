@@ -2,7 +2,6 @@ var get = Ember.get, set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;
 
 DS.RelationshipChange = function(options) {
-  this.oldParent = options.oldParent;
   this.child = options.child;
   this.belongsToName = options.belongsToName;
   this.hasManyName = options.hasManyName;
@@ -38,7 +37,8 @@ DS.RelationshipChangeRemove.create = function(options) {
 DS.OneToManyChange = {};
 DS.OneToNoneChange = {};
 DS.ManyToNoneChange = {};
-DS.OneToManyChange.create = function(options){
+
+DS.RelationshipChange._createChange = function(options){
   if(options.changeType === "add"){
     return DS.RelationshipChangeAdd.create(options);
   }
@@ -97,7 +97,7 @@ DS.RelationshipChange.createChange = function(firstRecordClientId, secondRecordC
 /** @private */
 DS.OneToNoneChange.createChange = function(childClientId, parentClientId, store, options) {
   var key = options.key;
-  var change = DS.OneToManyChange.create({
+  var change = DS.RelationshipChange._createChange({
       child: childClientId,
       store: store,
       changeType: options.changeType
@@ -112,7 +112,7 @@ DS.OneToNoneChange.createChange = function(childClientId, parentClientId, store,
 /** @private */
 DS.ManyToNoneChange.createChange = function(childClientId, parentClientId, store, options) {
   var key = options.key;
-  var change = DS.OneToManyChange.create({
+  var change = DS.RelationshipChange._createChange({
       parentClientId: childClientId,
       store: store,
       changeType: options.changeType,
@@ -142,7 +142,7 @@ DS.OneToManyChange.createChange = function(childClientId, parentClientId, store,
     Ember.assert("You must pass either a parentType or belongsToName option to OneToManyChange.forChildAndParent", false);
   }
 
-  var change = DS.OneToManyChange.create({
+  var change = DS.RelationshipChange._createChange({
       child: childClientId,
       parentClientId: parentClientId,
       store: store,
@@ -332,10 +332,8 @@ DS.RelationshipChange.prototype = {
       var addedChange = pair["add"];
       var removedChange = pair["remove"];
       if(addedChange && removedChange) {
-        window.coalescing = true;
         addedChange.destroy();
         removedChange.destroy();
-        window.coalescing = false;
       }
     });
   }
