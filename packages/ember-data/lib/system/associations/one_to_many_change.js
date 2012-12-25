@@ -5,6 +5,7 @@ DS.RelationshipChange = function(options) {
   this.oldParent = options.oldParent;
   this.child = options.child;
   this.belongsToName = options.belongsToName;
+  this.hasManyName = options.hasManyName;
   this.store = options.store;
   this.committed = {};
   this.changeType = options.changeType;
@@ -36,6 +37,7 @@ DS.RelationshipChangeRemove.create = function(options) {
 
 DS.OneToManyChange = {};
 DS.OneToNoneChange = {};
+DS.ManyToNoneChange = {};
 DS.OneToManyChange.create = function(options){
   if(options.changeType === "add"){
     return DS.RelationshipChangeAdd.create(options);
@@ -87,6 +89,9 @@ DS.RelationshipChange.createChange = function(firstRecordClientId, secondRecordC
   else if (changeType === "oneToNone"){
     return DS.OneToNoneChange.createChange(firstRecordClientId, "", store, options); 
   }
+  else if (changeType === "manyToNone"){
+    return DS.ManyToNoneChange.createChange(firstRecordClientId, "", store, options); 
+  }
 };
 
 /** @private */
@@ -103,6 +108,21 @@ DS.OneToNoneChange.createChange = function(childClientId, parentClientId, store,
   change.belongsToName = key;
   return change;
 };  
+
+/** @private */
+DS.ManyToNoneChange.createChange = function(childClientId, parentClientId, store, options) {
+  var key = options.key;
+  var change = DS.OneToManyChange.create({
+      parentClientId: childClientId,
+      store: store,
+      changeType: options.changeType,
+      hasManyName: options.key
+  });
+
+  store.addRelationshipChangeFor(childClientId, key, parentClientId, null, change);
+  return change;
+};  
+
 
 /** @private */
 DS.OneToManyChange.createChange = function(childClientId, parentClientId, store, options) {
@@ -126,7 +146,7 @@ DS.OneToManyChange.createChange = function(childClientId, parentClientId, store,
       child: childClientId,
       parentClientId: parentClientId,
       store: store,
-      changeType: options.changeType
+      changeType: options.changeType,
   });
 
   store.addRelationshipChangeFor(childClientId, key, parentClientId, null, change);
@@ -339,7 +359,7 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
 
   this.callChangeEvents();
 
-  if (parentRecord) {
+  if (parentRecord && child) {
     parentRecord.suspendAssociationObservers(function(){
       get(parentRecord, hasManyName).addObject(child);
     });
@@ -369,7 +389,7 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
 
   this.callChangeEvents();
 
-  if (parentRecord) {
+  if (parentRecord && child) {
     parentRecord.suspendAssociationObservers(function(){
       get(parentRecord, hasManyName).removeObject(child);
     });
