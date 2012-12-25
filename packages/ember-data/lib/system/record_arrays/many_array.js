@@ -105,12 +105,12 @@ DS.ManyArray = DS.RecordArray.extend({
         //var record = this.objectAt(i);
         //if (!record) { continue; }
 
-        var change = DS.OneToManyChange.createChange(reference.clientId, owner.get('clientId'), get(this, 'store'), {
+        var change = DS.RelationshipChange.createChange(owner.get('clientId'), reference.clientId, get(this, 'store'), {
           parentType: owner.constructor,
-          hasManyName: name,
-          changeType: "remove"
+          changeType: "remove",
+          kind: "hasMany",
+          key: name
         });
-        change.hasManyName = name;
 
         this._changesToSync.add(change);
       }
@@ -134,10 +134,11 @@ DS.ManyArray = DS.RecordArray.extend({
       for (var i=index; i<index+added; i++) {
         var reference = get(this, 'content').objectAt(i);
 
-        var change = DS.OneToManyChange.createChange(reference.clientId, owner.get('clientId'), store, {
+        var change = DS.RelationshipChange.createChange(owner.get('clientId'), reference.clientId, store, {
           parentType: owner.constructor,
-          hasManyName: name,
-          changeType: "add"
+          changeType: "add",
+          kind:"hasMany",
+          key: name
         });
         change.hasManyName = name;
 

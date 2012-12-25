@@ -73,6 +73,17 @@ DS.RelationshipChange.determineRelationshipType = function(recordType, knownSide
  
 };
 
+DS.RelationshipChange.createChange = function(firstRecordClientId, secondRecordClientId, store, options){
+  // Get the type of the child based on the child's client ID
+  var firstRecordType = store.typeForClientId(firstRecordClientId), key, changeType;
+  changeType = DS.RelationshipChange.determineRelationshipType(firstRecordType, options);
+  if (changeType === "oneToMany"){
+    return DS.OneToManyChange.createChange(firstRecordClientId, secondRecordClientId, store, options); 
+  }
+  else if (changeType === "manyToOne"){
+    return DS.OneToManyChange.createChange(secondRecordClientId, firstRecordClientId, store, options); 
+  }
+};
 
 /** @private */
 DS.OneToManyChange.createChange = function(childClientId, parentClientId, store, options) {
@@ -84,10 +95,10 @@ DS.OneToManyChange.createChange = function(childClientId, parentClientId, store,
   // If the type of the parent is specified, look it up on the child's type
   // definition.
   if (options.parentType) {
-    key = inverseBelongsToName(options.parentType, childType, options.hasManyName);
+    key = inverseBelongsToName(options.parentType, childType, options.key);
     DS.OneToManyChange.maintainInvariant( options, store, childClientId, key );
-  } else if (options.belongsToName) {
-    key = options.belongsToName;
+  } else if (options.key) {
+    key = options.key;
   } else {
     Ember.assert("You must pass either a parentType or belongsToName option to OneToManyChange.forChildAndParent", false);
   }
@@ -115,7 +126,8 @@ DS.OneToManyChange.maintainInvariant = function(options, store, childClientId, k
       var correspondingChange = DS.OneToManyChange.createChange(childClientId, oldParent.get('clientId'), store, {
           parentType: options.parentType,
           hasManyName: options.hasManyName,
-          changeType: "remove"
+          changeType: "remove",
+          key: options.key
         });
       store.addRelationshipChangeFor(childClientId, key, options.parentClientId , null, correspondingChange);
      correspondingChange.sync();
