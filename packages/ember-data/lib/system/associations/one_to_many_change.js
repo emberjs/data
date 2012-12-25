@@ -187,6 +187,7 @@ DS.OneToManyChange.ensureSameTransaction = function(changes, store){
 };
 
 DS.RelationshipChange.prototype = {
+
   /**
     Get the child type and ID, if available.
 
@@ -226,7 +227,7 @@ DS.RelationshipChange.prototype = {
 
       var childType = store.typeForClientId(this.child);
       var parentType = store.typeForClientId(parent);
-      name = DS._inverseAssociationFor(childType, parentType, 'belongsTo', this.hasManyName).name;
+      name = DS._inverseAssociationFor(childType, parentType).name;
 
       this.belongsToName = name;
     }
@@ -411,7 +412,7 @@ function inverseBelongsToName(parentType, childType, hasManyName) {
     return belongsToName;
   }
 
-  return DS._inverseAssociationFor(childType, parentType, 'belongsTo').name;
+  return DS._inverseAssociationFor(childType, parentType).name;
 }
 
 function inverseHasManyName(parentType, childType, belongsToName) {
@@ -422,5 +423,5 @@ function inverseHasManyName(parentType, childType, belongsToName) {
     return hasManyName;
   }
 
-  return DS._inverseAssociationFor(parentType, childType, 'hasMany').name;
+  return DS._inverseAssociationFor(parentType, childType).name;
 }
