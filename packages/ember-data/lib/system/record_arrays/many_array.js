@@ -177,36 +177,6 @@ DS.ManyArray = DS.RecordArray.extend({
     this.pushObject(record);
 
     return record;
-  },
-
-  /**
-    METHODS FOR USE BY INVERSE RELATIONSHIPS
-    ========================================
-
-    These methods exists so that belongsTo relationships can
-    set their inverses without causing an infinite loop.
-
-    This creates two APIs:
-
-    * the normal enumerable API, which is used by clients
-      of the `ManyArray` and triggers a change to inverse
-      `belongsTo` relationships.
-    * `removeFromContent` and `addToContent`, which are
-      used by inverse relationships and do not trigger a
-      change to `belongsTo` relationships.
-
-    Unlike the normal `addObject` and `removeObject` APIs,
-    these APIs manipulate the `content` array without
-    triggering side-effects.
-  */
-
-  /** @private */
-  removeFromContent: function(record) {
-    get(this, 'content').removeObject(get(record, 'reference'));
-  },
-
-  /** @private */
-  addToContent: function(record) {
-    get(this, 'content').addObject(get(record, 'reference'));
   }
+
 });
