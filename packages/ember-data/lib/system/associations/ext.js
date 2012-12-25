@@ -322,23 +322,14 @@ DS.Model.reopen({
   Ember Data uses the name of the association returned to reflect the changed
   relationship on the other side.
 */
-DS._inverseNameFor = function(modelType, inverseModelType, inverseAssociationKind) {
+DS._inverseAssociationFor = function(modelType, inverseModelType) {
   var associationMap = get(modelType, 'associations'),
       possibleAssociations = associationMap.get(inverseModelType),
       possible, actual, oldValue;
 
   if (!possibleAssociations) { return; }
-
-  for (var i = 0, l = possibleAssociations.length; i < l; i++) {
-    possible = possibleAssociations[i];
-
-    if (possible.kind === inverseAssociationKind) {
-      actual = possible;
-      break;
-    }
-  }
-
-  if (actual) { return actual.name; }
+  if (possibleAssociations.length > 1) { return; }
+  return possibleAssociations[0];
 };
 
 /**

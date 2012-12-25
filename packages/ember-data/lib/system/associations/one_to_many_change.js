@@ -44,11 +44,40 @@ DS.OneToManyChange.create = function(options){
   }
 };
 
+
+DS.RelationshipChange.determineRelationshipType = function(recordType, knownSide){
+  var knownKey = knownSide.key, key, type, otherContainerType,assoc;
+  var knownContainerType = knownSide.kind;
+  var options = recordType.metaForProperty(knownKey).options;
+  var otherType = DS._inverseTypeFor(recordType, knownKey);
+    
+  if(options.inverse){
+    key = options.inverse;
+    otherContainerType = get(otherType, 'associationsByName').get(key).kind; 
+  } 
+  else if(assoc = DS._inverseAssociationFor(otherType, recordType)){
+    key = assoc.name;
+    otherContainerType = assoc.kind;
+  } 
+  if(!key){
+    return knownContainerType === "belongsTo" ? "oneToNone" : "manyToNone";
+  }
+  else{
+    if(otherContainerType === "belongsTo"){
+      return knownContainerType === "belongsTo" ? "oneToOne" : "manyToOne";
+    }
+    else{
+      return knownContainerType === "belongsTo" ? "oneToMany" : "manyToMany";
+    }
+  } 
+ 
+};
+
 /** @private */
 DS.OneToManyChange.createChange = function(childClientId, store, options) {
   // Get the type of the child based on the child's client ID
   var childType = store.typeForClientId(childClientId), key;
-
+  
   // If the name of the belongsTo side of the relationship is specified,
   // use that
   // If the type of the parent is specified, look it up on the child's type
@@ -146,7 +175,7 @@ DS.RelationshipChange.prototype = {
 
       var childType = store.typeForClientId(this.child);
       var parentType = store.typeForClientId(parent);
-      name = DS._inverseNameFor(childType, parentType, 'belongsTo', this.hasManyName);
+      name = DS._inverseAssociationFor(childType, parentType, 'belongsTo', this.hasManyName).name;
 
       this.belongsToName = name;
     }
@@ -333,7 +362,7 @@ function inverseBelongsToName(parentType, childType, hasManyName) {
     return belongsToName;
   }
 
-  return DS._inverseNameFor(childType, parentType, 'belongsTo');
+  return DS._inverseAssociationFor(childType, parentType, 'belongsTo').name;
 }
 
 function inverseHasManyName(parentType, childType, belongsToName) {
@@ -344,5 +373,5 @@ function inverseHasManyName(parentType, childType, belongsToName) {
     return hasManyName;
   }
 
-  return DS._inverseNameFor(parentType, childType, 'hasMany');
+  return DS._inverseAssociationFor(parentType, childType, 'hasMany').name;
 }
