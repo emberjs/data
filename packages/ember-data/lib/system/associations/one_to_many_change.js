@@ -73,8 +73,9 @@ DS.RelationshipChange.determineRelationshipType = function(recordType, knownSide
  
 };
 
+
 /** @private */
-DS.OneToManyChange.createChange = function(childClientId, store, options) {
+DS.OneToManyChange.createChange = function(childClientId, parentClientId, store, options) {
   // Get the type of the child based on the child's client ID
   var childType = store.typeForClientId(childClientId), key;
   
@@ -93,12 +94,12 @@ DS.OneToManyChange.createChange = function(childClientId, store, options) {
 
   var change = DS.OneToManyChange.create({
       child: childClientId,
-      parentClientId: options.parentClientId,
+      parentClientId: parentClientId,
       store: store,
       changeType: options.changeType
   });
 
-  store.addRelationshipChangeFor(childClientId, key, options.parentClientId, null, change);
+  store.addRelationshipChangeFor(childClientId, key, parentClientId, null, change);
 
   change.belongsToName = key;
 
@@ -111,10 +112,9 @@ DS.OneToManyChange.maintainInvariant = function(options, store, childClientId, k
     var child = store.findByClientId(null, childClientId);
     var oldParent = get(child, key);
     if (oldParent){
-      var correspondingChange = DS.OneToManyChange.createChange(childClientId, store, {
+      var correspondingChange = DS.OneToManyChange.createChange(childClientId, oldParent.get('clientId'), store, {
           parentType: options.parentType,
           hasManyName: options.hasManyName,
-          parentClientId: oldParent.get('clientId'),
           changeType: "remove"
         });
       store.addRelationshipChangeFor(childClientId, key, options.parentClientId , null, correspondingChange);
