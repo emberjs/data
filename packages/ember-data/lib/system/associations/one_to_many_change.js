@@ -39,6 +39,7 @@ DS.RelationshipChangeRemove.create = function(options) {
 DS.OneToManyChange = {};
 DS.OneToNoneChange = {};
 DS.ManyToNoneChange = {};
+DS.OneToOneChange = {};
 
 DS.RelationshipChange._createChange = function(options){
   if(options.changeType === "add"){
@@ -94,6 +95,9 @@ DS.RelationshipChange.createChange = function(firstRecordClientId, secondRecordC
   else if (changeType === "manyToNone"){
     return DS.ManyToNoneChange.createChange(firstRecordClientId, "", store, options); 
   }
+  else if (changeType === "oneToOne"){
+    return DS.OneToOneChange.createChange(firstRecordClientId, secondRecordClientId, store, options); 
+  }
 };
 
 /** @private */
@@ -127,6 +131,57 @@ DS.ManyToNoneChange.createChange = function(childClientId, parentClientId, store
   return change;
 };  
 
+
+/** @private */
+DS.OneToOneChange.createChange = function(childClientId, parentClientId, store, options) {
+  // Get the type of the child based on the child's client ID
+  var childType = store.typeForClientId(childClientId), key;
+  
+  // If the name of the belongsTo side of the relationship is specified,
+  // use that
+  // If the type of the parent is specified, look it up on the child's type
+  // definition.
+  if (options.parentType) {
+    key = inverseBelongsToName(options.parentType, childType, options.key);
+    //DS.OneToOneChange.maintainInvariant( options, store, childClientId, key );
+  } else if (options.key) {
+    key = options.key;
+  } else {
+    Ember.assert("You must pass either a parentType or belongsToName option to OneToManyChange.forChildAndParent", false);
+  }
+
+  var change = DS.RelationshipChange._createChange({
+      firstRecordClientId: childClientId,
+      secondRecordClientId: parentClientId,
+      firstRecordKind: "belongsTo",
+      secondRecordKind: "belongsTo",
+      store: store,
+      changeType: options.changeType,
+      firstRecordName:  key
+  });
+
+  store.addRelationshipChangeFor(childClientId, key, parentClientId, null, change);
+
+
+  return change;
+};
+
+DS.OneToOneChange.maintainInvariant = function(options, store, childClientId, key){
+  if (options.changeType === "add" && store.recordIsMaterialized(childClientId)) {
+    var child = store.findByClientId(null, childClientId);
+    var oldParent = get(child, key);
+    if (oldParent){
+      var correspondingChange = DS.OneToOneChange.createChange(childClientId, oldParent.get('clientId'), store, {
+          parentType: options.parentType,
+          hasManyName: options.hasManyName,
+          changeType: "remove",
+          key: options.key
+        });
+      store.addRelationshipChangeFor(childClientId, key, options.parentClientId , null, correspondingChange);
+     correspondingChange.sync();
+    }
+  }
+};
 
 /** @private */
 DS.OneToManyChange.createChange = function(childClientId, parentClientId, store, options) {
@@ -367,6 +422,9 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
 
   if (secondRecord && firstRecord) {
     if(this.secondRecordKind === "belongsTo"){
+      secondRecord.suspendAssociationObservers(function(){
+        set(secondRecord, secondRecordName, firstRecord);
+      });
 
      }
      else if(this.secondRecordKind === "hasMany"){
@@ -383,6 +441,9 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
       });
     }
     else if(this.firstdRecordKind === "hasMany"){
+      firstRecord.suspendAssociationObservers(function(){
+        get(firstRecord, firstRecordName).addObject(secondRecord);
+      });
     }
   }
 
@@ -406,7 +467,7 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
 
   if (secondRecord && firstRecord) {
     if(this.secondRecordKind === "belongsTo"){
-
+        set(secondRecord, secondRecordName, null);
      }
      else if(this.secondRecordKind === "hasMany"){
        secondRecord.suspendAssociationObservers(function(){
@@ -422,6 +483,9 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
       });
      }
      else if(this.firstdRecordKind === "hasMany"){
+       firstRecord.suspendAssociationObservers(function(){
+        get(firstRecord, firstRecordName).removeObject(secondRecord);
+      });
     }
   }
 
