@@ -40,6 +40,7 @@ DS.OneToManyChange = {};
 DS.OneToNoneChange = {};
 DS.ManyToNoneChange = {};
 DS.OneToOneChange = {};
+DS.ManyToManyChange = {};
 
 DS.RelationshipChange._createChange = function(options){
   if(options.changeType === "add"){
@@ -98,6 +99,9 @@ DS.RelationshipChange.createChange = function(firstRecordClientId, secondRecordC
   else if (changeType === "oneToOne"){
     return DS.OneToOneChange.createChange(firstRecordClientId, secondRecordClientId, store, options); 
   }
+  else if (changeType === "manyToMany"){
+    return DS.ManyToManyChange.createChange(firstRecordClientId, secondRecordClientId, store, options); 
+  }
 };
 
 /** @private */
@@ -131,6 +135,33 @@ DS.ManyToNoneChange.createChange = function(childClientId, parentClientId, store
   return change;
 };  
 
+
+/** @private */
+DS.ManyToManyChange.createChange = function(childClientId, parentClientId, store, options) {
+  // Get the type of the child based on the child's client ID
+  var childType = store.typeForClientId(childClientId), key;
+  
+  // If the name of the belongsTo side of the relationship is specified,
+  // use that
+  // If the type of the parent is specified, look it up on the child's type
+  // definition.
+  key = options.key;
+
+  var change = DS.RelationshipChange._createChange({
+      firstRecordClientId: childClientId,
+      secondRecordClientId: parentClientId,
+      firstRecordKind: "hasMany",
+      secondRecordKind: "hasMany",
+      store: store,
+      changeType: options.changeType,
+      firstRecordName:  key
+  });
+
+  store.addRelationshipChangeFor(childClientId, key, parentClientId, null, change);
+
+
+  return change;
+};
 
 /** @private */
 DS.OneToOneChange.createChange = function(childClientId, parentClientId, store, options) {
