@@ -282,6 +282,31 @@ test("it is possible to add a new item to an association", function() {
   equal(get(person, 'tags').objectAt(1), tag, "newly added association works");
 });
 
+test("it is possible to add a new item to an association at the time of record creation", function () {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.hasMany(Tag)
+  });
+
+  Tag.reopen({
+    people: DS.belongsTo(Person)
+  });
+
+  var store = DS.Store.create();
+
+  store.load(Person, { id: 1, name: "Tom Dale"});
+
+  var person = store.find(Person, 1);
+
+  var tag = store.createRecord(Tag, { name: "js", people: person });
+
+  equal(get(person, 'tags').objectAt(0), tag, "newly added association works");  
+});
+
 test("it is possible to remove an item from an association", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
