@@ -163,7 +163,7 @@ DS.JSONSerializer = DS.Serializer.extend({
       if (prop === root) { continue; }
       if (prop === this.configOption(type, 'meta')) { continue; }
 
-      sideloadedType = type.typeForAssociation(prop);
+      sideloadedType = type.typeForRelationship(prop);
 
       if (!sideloadedType) {
         sideloadedType = this.sideloadMapping.get(prop);
@@ -175,20 +175,20 @@ DS.JSONSerializer = DS.Serializer.extend({
         Ember.assert("Your server returned a hash with the key " + prop + " but you have no mapping for it", !!sideloadedType);
       }
 
-      this.sideloadAssociations(loader, sideloadedType, json, prop, loaded);
+      this.sideloadRelationships(loader, sideloadedType, json, prop, loaded);
     }
   },
 
-  sideloadAssociations: function(loader, type, json, prop, loaded) {
+  sideloadRelationships: function(loader, type, json, prop, loaded) {
     loaded[prop] = true;
 
-    get(type, 'associationsByName').forEach(function(key, meta) {
+    get(type, 'relationshipsByName').forEach(function(key, meta) {
       key = meta.key || key;
       if (meta.kind === 'belongsTo') {
         key = this.pluralize(key);
       }
       if (json[key] && !loaded[key]) {
-        this.sideloadAssociations(loader, meta.type, json, key, loaded);
+        this.sideloadRelationships(loader, meta.type, json, key, loaded);
       }
     }, this);
 

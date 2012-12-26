@@ -201,7 +201,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     "changes" to unmaterialized records do not trigger mass
     materialization.
 
-    For example, if a parent record in an association with a large
+    For example, if a parent record in a relationship with a large
     number of children is deleted, we want to avoid materializing
     those children.
 
@@ -568,7 +568,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   /**
     @private
 
-    This method is the entry point that associations use to update
+    This method is the entry point that relationships use to update
     themselves when their underlying data changes.
 
     First, it determines which of its `clientId`s are still unloaded,
@@ -587,8 +587,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     `clientId`s into IDs, and then invokes the adapter's `findMany`
     method.
 
-    It is used both by a brand new association (via the `findMany`
-    method) or when the data underlying an existing association
+    It is used both by a brand new relationship (via the `findMany`
+    method) or when the data underlying an existing relationship
     changes (via the `fetchUnloadedReferences` method).
   */
   fetchMany: function(type, references) {
@@ -631,9 +631,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   /**
     @private
 
-    `findMany` is the entry point that associations use to generate a
+    `findMany` is the entry point that relationships use to generate a
     new `ManyArray` for the list of IDs specified by the server for
-    the association.
+    the relationship.
 
     Its responsibilities are:
 
@@ -1090,7 +1090,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     should acknowledge the changes when the child record is
     saved.
 
-        record.eachAssociation(function(name, meta) {
+        record.eachRelationship(function(name, meta) {
           if (meta.kind === 'belongsTo') {
             store.didUpdateRelationship(record, name);
           }
@@ -1584,11 +1584,11 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // if necessary.
     record.hasManyDidChange(key);
 
-    var association = record.cacheFor(key);
+    var relationship = record.cacheFor(key);
 
     // TODO (tomdale) this assumes that loadHasMany *always* means
     // that the records for the provided IDs are loaded.
-    if (association) { set(association, 'isLoaded', true); }
+    if (relationship) { set(relationship, 'isLoaded', true); }
   },
 
   /** @private

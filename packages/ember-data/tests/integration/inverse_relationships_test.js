@@ -1,6 +1,6 @@
 var Post, Comment, store;
 
-module('Inverse Associations', {
+module('Inverse Relationships', {
   setup: function() {
     store = DS.Store.create();
   },
@@ -10,7 +10,7 @@ module('Inverse Associations', {
   }
 });
 
-test("When a record is added to a has-many association, the inverse belongsTo is determined automatically", function() {
+test("When a record is added to a has-many relationship, the inverse belongsTo is determined automatically", function() {
   Post = DS.Model.extend();
 
   Comment = DS.Model.extend({
@@ -30,7 +30,7 @@ test("When a record is added to a has-many association, the inverse belongsTo is
   equal(comment.get('post'), post, "post was set on the comment");
 });
 
-test("When a record is added to a has-many association, the inverse belongsTo can be set explicitly", function() {
+test("When a record is added to a has-many relationship, the inverse belongsTo can be set explicitly", function() {
   Post = DS.Model.extend();
 
   Comment = DS.Model.extend({

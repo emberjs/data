@@ -577,20 +577,20 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   extractEmbeddedData: function(store, type, data) {
     var serializer = get(this, 'serializer');
 
-    type.eachAssociation(function(name, association) {
+    type.eachRelationship(function(name, relationship) {
       var dataListToLoad, dataToLoad, typeToLoad;
 
-      if (association.kind === 'hasMany') {
-        this._extractEmbeddedHasMany(store, serializer, type, data, association);
-      } else if (association.kind === 'belongsTo') {
-        this._extractEmbeddedBelongsTo(store, serializer, type, data, association);
+      if (relationship.kind === 'hasMany') {
+        this._extractEmbeddedHasMany(store, serializer, type, data, relationship);
+      } else if (relationship.kind === 'belongsTo') {
+        this._extractEmbeddedBelongsTo(store, serializer, type, data, relationship);
       }
     }, this);
   },
 
-  _extractEmbeddedHasMany: function(store, serializer, type, data, association) {
-    var dataListToLoad = serializer._extractEmbeddedHasMany(type, data, association.key),
-        typeToLoad = association.type;
+  _extractEmbeddedHasMany: function(store, serializer, type, data, relationship) {
+    var dataListToLoad = serializer._extractEmbeddedHasMany(type, data, relationship.key),
+        typeToLoad = relationship.type;
 
     if (dataListToLoad) {
       var ids = [];
@@ -599,19 +599,19 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
         var dataToLoad = dataListToLoad[i];
         ids.push(store.adapterForType(typeToLoad).extractId(typeToLoad, dataToLoad));
       }
-      serializer.replaceEmbeddedHasMany(type, data, association.key, ids);
-      store.loadMany(association.type, dataListToLoad);
+      serializer.replaceEmbeddedHasMany(type, data, relationship.key, ids);
+      store.loadMany(relationship.type, dataListToLoad);
     }
   },
 
-  _extractEmbeddedBelongsTo: function(store, serializer, type, data, association) {
-    var dataToLoad = serializer._extractEmbeddedBelongsTo(type, data, association.key),
-        typeToLoad = association.type;
+  _extractEmbeddedBelongsTo: function(store, serializer, type, data, relationship) {
+    var dataToLoad = serializer._extractEmbeddedBelongsTo(type, data, relationship.key),
+        typeToLoad = relationship.type;
 
     if (dataToLoad) {
       var id = store.adapterForType(typeToLoad).extractId(typeToLoad, dataToLoad);
-      serializer.replaceEmbeddedBelongsTo(type, data, association.key, id);
-      store.load(association.type, dataToLoad);
+      serializer.replaceEmbeddedBelongsTo(type, data, relationship.key, id);
+      store.load(relationship.type, dataToLoad);
     }
   },
 

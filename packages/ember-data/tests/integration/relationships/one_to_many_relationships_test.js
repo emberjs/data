@@ -173,7 +173,7 @@ test("Deleting a newly created record removes it from any inverse hasMany arrays
   deepEqual(post.get('comments').toArray(), [], "the post should no longer have any comments");
 });
 
-//test("When a record with a hasMany association is deleted, its associated record is materialized and its belongsTo is changed", function() {
+//test("When a record with a hasMany relationship is deleted, its associated record is materialized and its belongsTo is changed", function() {
   //store.load(App.Post, { id: 1, title: "NEW! Ember Table", comments: [ 2 ] });
   //store.load(App.Comment, { id: 2, body: "Needs more async", post: 1 });
 

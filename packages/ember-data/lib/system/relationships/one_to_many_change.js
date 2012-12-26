@@ -280,13 +280,13 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
   this.callChangeEvents();
 
   if (parentRecord) {
-    parentRecord.suspendAssociationObservers(function(){
+    parentRecord.suspendRelationshipObservers(function(){
       get(parentRecord, hasManyName).addObject(child);
     });
   }
 
   if (child && get(child, belongsToName) !== parentRecord) {
-    child.suspendAssociationObservers(function(){
+    child.suspendRelationshipObservers(function(){
       set(child, belongsToName, parentRecord);
     });
   }
@@ -310,13 +310,13 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
   this.callChangeEvents();
 
   if (parentRecord) {
-    parentRecord.suspendAssociationObservers(function(){
+    parentRecord.suspendRelationshipObservers(function(){
       get(parentRecord, hasManyName).removeObject(child);
     });
   }
 
   if (child && get(child, belongsToName)) {
-    child.suspendAssociationObservers(function(){
+    child.suspendRelationshipObservers(function(){
       set(child, belongsToName, null);
     });
   }

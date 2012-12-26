@@ -1,7 +1,7 @@
 var Blog, User, Post;
 var lookup, oldLookup;
 
-module("Association Introspection", {
+module("Relationship Introspection", {
   setup: function() {
     oldLookup = Ember.lookup;
     Ember.lookup = {};
@@ -21,17 +21,17 @@ module("Association Introspection", {
   }
 });
 
-test("DS.Model class computed property `associations` returns a map keyed on types", function() {
-  var associations = Ember.get(Blog, 'associations');
+test("DS.Model class computed property `relationships` returns a map keyed on types", function() {
+  var relationships = Ember.get(Blog, 'relationships');
 
   var expected = [{ name: 'admins', kind: 'hasMany'  }, { name: 'owner', kind: 'belongsTo' }];
-  deepEqual(associations.get(User), expected, "user associations returns expected array");
+  deepEqual(relationships.get(User), expected, "user relationships returns expected array");
 
   expected = [{ name: 'posts', kind: 'hasMany' }];
-  deepEqual(associations.get(Post), expected, "post associations returns expected array");
+  deepEqual(relationships.get(Post), expected, "post relationships returns expected array");
 });
 
-test("DS.Model class computed property `associations` returns a map keyed on types when types are specified as strings", function() {
+test("DS.Model class computed property `relationships` returns a map keyed on types when types are specified as strings", function() {
   Blog = DS.Model.extend({
     admins: DS.hasMany('User'),
     owner: DS.belongsTo('User'),
@@ -44,11 +44,11 @@ test("DS.Model class computed property `associations` returns a map keyed on typ
     Post: DS.Model.extend()
   };
 
-  var associations = Ember.get(Blog, 'associations');
+  var relationships = Ember.get(Blog, 'relationships');
 
   var expected = [{ name: 'admins', kind: 'hasMany'  }, { name: 'owner', kind: 'belongsTo' }];
-  deepEqual(associations.get(Ember.lookup.User), expected, "user associations returns expected array");
+  deepEqual(relationships.get(Ember.lookup.User), expected, "user relationships returns expected array");
 
   expected = [{ name: 'posts', kind: 'hasMany' }];
-  deepEqual(associations.get(Ember.lookup.Post), expected, "post associations returns expected array");
+  deepEqual(relationships.get(Ember.lookup.Post), expected, "post relationships returns expected array");
 });

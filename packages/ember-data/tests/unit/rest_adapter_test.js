@@ -450,7 +450,7 @@ test("additional data can be sideloaded in a GET", function() {
   });
 
   equal(get(store.find(Person, 1), 'name'), "Yehuda Katz", "the items are sideloaded");
-  equal(get(get(store.find(Group, 1), 'people').objectAt(0), 'name'), "Yehuda Katz", "the items are in the association");
+  equal(get(get(store.find(Group, 1), 'people').objectAt(0), 'name'), "Yehuda Katz", "the items are in the relationship");
 });
 
 test("finding many people by a list of IDs", function() {
@@ -462,7 +462,7 @@ test("finding many people by a list of IDs", function() {
 
   var people = get(group, 'people');
 
-  equal(get(people, 'length'), 3, "there are three people in the association already");
+  equal(get(people, 'length'), 3, "there are three people in the relationship already");
 
   people.forEach(function(person) {
     equal(get(person, 'isLoaded'), false, "the person is being loaded");
@@ -903,7 +903,7 @@ test("sideloaded data is loaded prior to primary data (to ensure relationship co
   });
 });
 
-test("additional data can be sideloaded with associations in correct order", function() {
+test("additional data can be sideloaded with relationships in correct order", function() {
   var Comment = DS.Model.extend({
     person: DS.belongsTo(Person)
   });

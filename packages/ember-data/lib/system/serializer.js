@@ -220,19 +220,19 @@ DS.Serializer = Ember.Object.extend({
     loader.prematerialize(reference, prematerialized);
   },
 
-  extractEmbeddedHasMany: function(loader, association, array, parent, prematerialized) {
+  extractEmbeddedHasMany: function(loader, relationship, array, parent, prematerialized) {
     var references = map.call(array, function(item) {
-      var reference = loader.load(association.type, item);
+      var reference = loader.load(relationship.type, item);
       reference.parent = parent;
       return reference;
     });
 
-    prematerialized[association.key] = references;
+    prematerialized[relationship.key] = references;
   },
 
-  extractEmbeddedBelongsTo: function(loader, association, data, parent, prematerialized) {
-    var recordReference = loader.sideload(association.type, data);
-    prematerialized[association.key] = recordReference;
+  extractEmbeddedBelongsTo: function(loader, relationship, data, parent, prematerialized) {
+    var recordReference = loader.sideload(relationship.type, data);
+    prematerialized[relationship.key] = recordReference;
     recordReference.parent = parent;
   },
 
@@ -375,7 +375,7 @@ DS.Serializer = Ember.Object.extend({
     @param {DS.Model} record the record to serialize
   */
   addRelationships: function(data, record) {
-    record.eachAssociation(function(name, relationship) {
+    record.eachRelationship(function(name, relationship) {
       if (relationship.kind === 'belongsTo') {
         this._addBelongsTo(data, record, name, relationship);
       } else if (relationship.kind === 'hasMany') {
@@ -414,7 +414,7 @@ DS.Serializer = Ember.Object.extend({
 
     The specifics of this hook are very adapter-specific, so there
     is no default implementation. You may not need to implement this,
-    for example, if your backend only expects associations on the
+    for example, if your backend only expects relationships on the
     child of a one to many relationship.
 
     The `hasMany` relationship object has the following properties:
@@ -522,12 +522,12 @@ DS.Serializer = Ember.Object.extend({
 
   /**
     A hook you can use in your serializer subclass to customize
-    how an unmapped `belongsTo` association is converted into
+    how an unmapped `belongsTo` relationship is converted into
     a key.
 
     By default, this method calls `keyForAttributeName`, so if
     your naming convention is uniform across attributes and
-    associations, you can use the default here and override
+    relationships, you can use the default here and override
     just `keyForAttributeName` as needed.
 
     For example, if the `belongsTo` names in your JSON always
@@ -544,8 +544,8 @@ DS.Serializer = Ember.Object.extend({
     ```
 
     @param {DS.Model subclass} type the type of the record with
-      the `belongsTo` association.
-    @param {String} name the association name to convert into a key
+      the `belongsTo` relationship.
+    @param {String} name the relationship name to convert into a key
 
     @returns {String} the key
   */
@@ -555,12 +555,12 @@ DS.Serializer = Ember.Object.extend({
 
   /**
     A hook you can use in your serializer subclass to customize
-    how an unmapped `hasMany` association is converted into
+    how an unmapped `hasMany` relationship is converted into
     a key.
 
     By default, this method calls `keyForAttributeName`, so if
     your naming convention is uniform across attributes and
-    associations, you can use the default here and override
+    relationships, you can use the default here and override
     just `keyForAttributeName` as needed.
 
     For example, if the `hasMany` names in your JSON always
@@ -585,8 +585,8 @@ DS.Serializer = Ember.Object.extend({
     ```
 
     @param {DS.Model subclass} type the type of the record with
-      the `belongsTo` association.
-    @param {String} name the association name to convert into a key
+      the `belongsTo` relationship.
+    @param {String} name the relationship name to convert into a key
 
     @returns {String} the key
   */
@@ -638,7 +638,7 @@ DS.Serializer = Ember.Object.extend({
   },
 
   materializeRelationships: function(record, hash, prematerialized) {
-    record.eachAssociation(function(name, relationship) {
+    record.eachRelationship(function(name, relationship) {
       if (relationship.kind === 'hasMany') {
         if (prematerialized && prematerialized.hasOwnProperty(name)) {
           record.materializeHasMany(name, prematerialized[name]);
@@ -774,12 +774,12 @@ DS.Serializer = Ember.Object.extend({
     @private
 
     This method is called to get a key used in the data from
-    a belongsTo association. It first checks for any mappings before
+    a belongsTo relationship. It first checks for any mappings before
     calling the public hook `keyForBelongsTo`.
 
     @param {DS.Model subclass} type the type of the record with
-      the `belongsTo` association.
-    @param {String} name the association name to convert into a key
+      the `belongsTo` relationship.
+    @param {String} name the relationship name to convert into a key
 
     @returns {String} the key
   */
@@ -803,12 +803,12 @@ DS.Serializer = Ember.Object.extend({
     @private
 
     This method is called to get a key used in the data from
-    a hasMany association. It first checks for any mappings before
+    a hasMany relationship. It first checks for any mappings before
     calling the public hook `keyForHasMany`.
 
     @param {DS.Model subclass} type the type of the record with
-      the `hasMany` association.
-    @param {String} name the association name to convert into a key
+      the `hasMany` relationship.
+    @param {String} name the relationship name to convert into a key
 
     @returns {String} the key
   */
@@ -851,7 +851,7 @@ DS.Serializer = Ember.Object.extend({
     @private
 
     An internal method that handles checking whether a mapping
-    exists for a particular attribute or association name before
+    exists for a particular attribute or relationship name before
     calling the public hooks.
 
     If a mapping is found, and the mapping has a key defined,
@@ -860,8 +860,8 @@ DS.Serializer = Ember.Object.extend({
     @param {String} publicMethod the public hook to invoke if
       a mapping is not found (e.g. `keyForAttributeName`)
     @param {DS.Model subclass} type the type of the record with
-      the attribute or association name.
-    @param {String} name the attribute or association name to
+      the attribute or relationship name.
+    @param {String} name the attribute or relationship name to
       convert into a key
   */
   _keyFromMappingOrHook: function(publicMethod, type, name) {
@@ -1008,7 +1008,7 @@ DS.Serializer = Ember.Object.extend({
   },
 
   eachEmbeddedRelationship: function(type, kind, callback, binding) {
-    type.eachAssociation(function(name, relationship) {
+    type.eachRelationship(function(name, relationship) {
       var embeddedType = this.embeddedType(type, name);
 
       if (embeddedType) {

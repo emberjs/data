@@ -58,7 +58,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
     get(this, 'store').materializeData(this);
 
-    this.suspendAssociationObservers(function() {
+    this.suspendRelationshipObservers(function() {
       this.notifyPropertyChange('data');
     });
   },
@@ -115,7 +115,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   clearRelationships: function() {
-    this.eachAssociation(function(name, relationship) {
+    this.eachRelationship(function(name, relationship) {
       if (relationship.kind === 'belongsTo') {
         set(this, name, null);
       } else if (relationship.kind === 'hasMany') {
@@ -133,7 +133,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
   /**
     If the adapter did not return a hash in response to a commit,
-    merge the changed attributes and associations into the existing
+    merge the changed attributes and relationships into the existing
     saved data.
   */
   adapterDidCommit: function() {
@@ -153,13 +153,13 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   dataDidChange: Ember.observer(function() {
-    var associations = get(this.constructor, 'associationsByName');
+    var relationships = get(this.constructor, 'relationshipsByName');
 
     this.updateRecordArraysLater();
 
-    associations.forEach(function(name, association) {
-      if (association.kind === 'hasMany') {
-        this.hasManyDidChange(association.key);
+    relationships.forEach(function(name, relationship) {
+      if (relationship.kind === 'hasMany') {
+        this.hasManyDidChange(relationship.key);
       }
     }, this);
 
@@ -170,7 +170,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var cachedValue = this.cacheFor(key);
 
     if (cachedValue) {
-      var type = get(this.constructor, 'associationsByName').get(key).type;
+      var type = get(this.constructor, 'relationshipsByName').get(key).type;
       var store = get(this, 'store');
       var ids = this._data.hasMany[key] || [];
 
@@ -220,7 +220,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.setup();
     this.send('becameClean');
 
-    this.suspendAssociationObservers(function() {
+    this.suspendRelationshipObservers(function() {
       this.notifyPropertyChange('data');
     });
   },
@@ -243,19 +243,19 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     better infrastructure for suspending groups of observers, and if Array
     observation becomes more unified with regular observers.
   */
-  suspendAssociationObservers: function(callback, binding) {
-    var observers = get(this.constructor, 'associationNames').belongsTo;
+  suspendRelationshipObservers: function(callback, binding) {
+    var observers = get(this.constructor, 'relationshipNames').belongsTo;
     var self = this;
 
     try {
-      this._suspendedAssociations = true;
+      this._suspendedRelationships = true;
       Ember._suspendObservers(self, observers, null, 'belongsToDidChange', function() {
         Ember._suspendBeforeObservers(self, observers, null, 'belongsToWillChange', function() {
           callback.call(binding || self);
         });
       });
     } finally {
-      this._suspendedAssociations = false;
+      this._suspendedRelationships = false;
     }
   },
 

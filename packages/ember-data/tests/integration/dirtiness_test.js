@@ -144,7 +144,7 @@ test("When adding a newly created record to a hasMany relationship, the parent s
   adapter.dirtyRecordsForHasManyChange = Ember.K;
 
   function didSaveRecord(store, record, hash) {
-    record.eachAssociation(function(name, relationship) {
+    record.eachRelationship(function(name, relationship) {
       if (relationship.kind === 'belongsTo') {
         store.didUpdateRelationship(record, name);
       }

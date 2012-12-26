@@ -4,7 +4,7 @@ var get = Ember.get, set = Ember.set;
 
 module("DS.Model");
 
-test("exposes a hash of the associations on a model", function() {
+test("exposes a hash of the relationships on a model", function() {
   var Occupation = DS.Model.extend();
 
   var Person = DS.Model.extend({
@@ -16,20 +16,20 @@ test("exposes a hash of the associations on a model", function() {
     parent: DS.belongsTo(Person)
   });
 
-  var associations = get(Person, 'associations');
-  deepEqual(associations.get(Person), [
+  var relationships = get(Person, 'relationships');
+  deepEqual(relationships.get(Person), [
     { name: "people", kind: "hasMany" },
     { name: "parent", kind: "belongsTo" }
   ]);
 
-  deepEqual(associations.get(Occupation), [
+  deepEqual(relationships.get(Occupation), [
     { name: "occupations", kind: "hasMany" }
   ]);
 });
 
 module("DS.hasMany");
 
-test("hasMany lazily loads associations as needed", function() {
+test("hasMany lazily loads relationships as needed", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -79,11 +79,11 @@ test("hasMany lazily loads associations as needed", function() {
   equal(get(tags.objectAt(0), 'name'), "friendly", "the first tag should be a Tag");
 
   store.load(Person, 1, { id: 1, name: "Tom Dale", tags: [5, 2] });
-  equal(tags, get(person, 'tags'), "an association returns the same object every time");
+  equal(tags, get(person, 'tags'), "a relationship returns the same object every time");
   equal(get(get(person, 'tags'), 'length'), 2, "the length is updated after new data is loaded");
 
   strictEqual(get(person, 'tags').objectAt(0), get(person, 'tags').objectAt(0), "the returned object is always the same");
-  strictEqual(get(person, 'tags').objectAt(0), store.find(Tag, 5), "association objects are the same as objects retrieved directly");
+  strictEqual(get(person, 'tags').objectAt(0), store.find(Tag, 5), "relationship objects are the same as objects retrieved directly");
 
   var wycats = store.find(Person, 2);
   equal(get(wycats, 'name'), "Yehuda Katz", "precond - retrieves person record from store");
@@ -92,12 +92,12 @@ test("hasMany lazily loads associations as needed", function() {
   equal(get(get(wycats, 'tags').objectAt(0), 'name'), "oohlala", "the first tag should be a Tag");
 
   strictEqual(get(wycats, 'tags').objectAt(0), get(wycats, 'tags').objectAt(0), "the returned object is always the same");
-  strictEqual(get(wycats, 'tags').objectAt(0), store.find(Tag, 12), "association objects are the same as objects retrieved directly");
+  strictEqual(get(wycats, 'tags').objectAt(0), store.find(Tag, 12), "relationship objects are the same as objects retrieved directly");
 
   store.load(Person, 3, { id: 3, name: "KSelden" });
   var kselden = store.find(Person, 3);
 
-  equal(get(get(kselden, 'tags'), 'length'), 0, "an association that has not been supplied returns an empty array");
+  equal(get(get(kselden, 'tags'), 'length'), 0, "a relationship that has not been supplied returns an empty array");
 
   store.load(Person, 4, { id: 4, name: "Cyvid Hamluck", pets: [4] });
   var cyvid = store.find(Person, 4);
@@ -108,14 +108,14 @@ test("hasMany lazily loads associations as needed", function() {
   equal(get(pets.objectAt(0), 'name'), "fluffy", "the first pet should be correct");
 
   store.load(Person, 4, { id: 4, name: "Cyvid Hamluck", pets: [4, 12] });
-  equal(pets, get(cyvid, 'pets'), "an association returns the same object every time");
+  equal(pets, get(cyvid, 'pets'), "a relationship returns the same object every time");
   equal(get(get(cyvid, 'pets'), 'length'), 2, "the length is updated after new data is loaded");
 
   var newTag = store.createRecord(Tag);
   get(wycats, 'tags').pushObject(newTag);
 });
 
-test("should be able to retrieve the type for a hasMany association from its metadata", function() {
+test("should be able to retrieve the type for a hasMany relationship from its metadata", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -125,10 +125,10 @@ test("should be able to retrieve the type for a hasMany association from its met
     tags: DS.hasMany(Tag)
   });
 
-  equal(Person.typeForAssociation('tags'), Tag, "returns the association type");
+  equal(Person.typeForRelationship('tags'), Tag, "returns the relationship type");
 });
 
-test("should be able to retrieve the type for a hasMany association specified using a string from its metadata", function() {
+test("should be able to retrieve the type for a hasMany relationship specified using a string from its metadata", function() {
   window.Tag = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -138,10 +138,10 @@ test("should be able to retrieve the type for a hasMany association specified us
     tags: DS.hasMany('Tag')
   });
 
-  equal(Person.typeForAssociation('tags'), Tag, "returns the association type");
+  equal(Person.typeForRelationship('tags'), Tag, "returns the relationship type");
 });
 
-test("should be able to retrieve the type for a belongsTo association from its metadata", function() {
+test("should be able to retrieve the type for a belongsTo relationship from its metadata", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -151,10 +151,10 @@ test("should be able to retrieve the type for a belongsTo association from its m
     tags: DS.belongsTo(Tag)
   });
 
-  equal(Person.typeForAssociation('tags'), Tag, "returns the association type");
+  equal(Person.typeForRelationship('tags'), Tag, "returns the relationship type");
 });
 
-test("should be able to retrieve the type for a belongsTo association specified using a string from its metadata", function() {
+test("should be able to retrieve the type for a belongsTo relationship specified using a string from its metadata", function() {
   window.Tag = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -164,10 +164,10 @@ test("should be able to retrieve the type for a belongsTo association specified 
     tags: DS.belongsTo('Tag')
   });
 
-  equal(Person.typeForAssociation('tags'), Tag, "returns the association type");
+  equal(Person.typeForRelationship('tags'), Tag, "returns the relationship type");
 });
 
-test("associations work when declared with a string path", function() {
+test("relationships work when declared with a string path", function() {
   window.App = {};
 
   App.Person = DS.Model.extend({
@@ -189,7 +189,7 @@ test("associations work when declared with a string path", function() {
   equal(get(person, 'tags.length'), 2, "the list of tags should have the correct length");
 });
 
-test("associations work when the data hash has not been loaded", function() {
+test("relationships work when the data hash has not been loaded", function() {
   expect(13);
 
   var Tag = DS.Model.extend({
@@ -252,7 +252,7 @@ test("associations work when the data hash has not been loaded", function() {
   equal(get(person, 'tags.length'), 0, "tags should be empty");
 });
 
-test("it is possible to add a new item to an association", function() {
+test("it is possible to add a new item to a relationship", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -274,15 +274,15 @@ test("it is possible to add a new item to an association", function() {
   var person = store.find(Person, 1);
   var tag = get(person, 'tags').objectAt(0);
 
-  equal(get(tag, 'name'), "ember", "precond - associations work");
+  equal(get(tag, 'name'), "ember", "precond - relationships work");
 
   tag = store.createRecord(Tag, { name: "js" });
   get(person, 'tags').pushObject(tag);
 
-  equal(get(person, 'tags').objectAt(1), tag, "newly added association works");
+  equal(get(person, 'tags').objectAt(1), tag, "newly added relationship works");
 });
 
-test("it is possible to remove an item from an association", function() {
+test("it is possible to remove an item from a relationship", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -304,14 +304,14 @@ test("it is possible to remove an item from an association", function() {
   var person = store.find(Person, 1);
   var tag = get(person, 'tags').objectAt(0);
 
-  equal(get(tag, 'name'), "ember", "precond - associations work");
+  equal(get(tag, 'name'), "ember", "precond - relationships work");
 
   get(person, 'tags').removeObject(tag);
 
-  equal(get(person, 'tags.length'), 0, "object is removed from the association");
+  equal(get(person, 'tags.length'), 0, "object is removed from the relationship");
 });
 
-test("it is possible to add an item to an association, remove it, then add it again", function() {
+test("it is possible to add an item to a relationship, remove it, then add it again", function() {
   var Tag = DS.Model.extend();
   var Person = DS.Model.extend();
 
@@ -339,10 +339,10 @@ test("it is possible to add an item to an association, remove it, then add it ag
   tags.removeObject(tag2);
   equal(tags.objectAt(0), tag1);
   equal(tags.objectAt(1), tag3);
-  equal(get(person, 'tags.length'), 2, "object is removed from the association");
+  equal(get(person, 'tags.length'), 2, "object is removed from the relationship");
 
   tags.insertAt(0, tag2);
-  equal(get(person, 'tags.length'), 3, "object is added back to the association");
+  equal(get(person, 'tags.length'), 3, "object is added back to the relationship");
   equal(tags.objectAt(0), tag2);
   equal(tags.objectAt(1), tag1);
   equal(tags.objectAt(2), tag3);
@@ -368,7 +368,7 @@ test("updating the content of a RecordArray updates its content", function() {
   equal(get(tag, 'name'), "smarmy", "the lookup was updated");
 });
 
-test("can create child record from a hasMany association", function() {
+test("can create child record from a hasMany relationship", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -395,7 +395,7 @@ test("can create child record from a hasMany association", function() {
 
 module("DS.belongsTo");
 
-test("belongsTo lazily loads associations as needed", function() {
+test("belongsTo lazily loads relationships as needed", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -422,10 +422,10 @@ test("belongsTo lazily loads associations as needed", function() {
   equal(get(person, 'tag.name'), "friendly", "the tag shuld have name");
 
   strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
-  strictEqual(get(person, 'tag'), store.find(Tag, 5), "association object is the same as object retrieved directly");
+  strictEqual(get(person, 'tag'), store.find(Tag, 5), "relationship object is the same as object retrieved directly");
 });
 
-test("associations work when the data hash has not been loaded", function() {
+test("relationships work when the data hash has not been loaded", function() {
   expect(12);
 
   var Tag = DS.Model.extend({
@@ -479,7 +479,7 @@ test("associations work when the data hash has not been loaded", function() {
   equal(get(person, 'tag'), null, "tag should be null");
 });
 
-test("calling createRecord and passing in an undefined value for an association should be treated as if null", function () {
+test("calling createRecord and passing in an undefined value for a relationship should be treated as if null", function () {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -499,6 +499,6 @@ test("calling createRecord and passing in an undefined value for an association 
 
   var person = store.find(Person, 1);
 
-  strictEqual(person.get('tag'), null, "undefined values should return null associations");
+  strictEqual(person.get('tag'), null, "undefined values should return null relationships");
 });
 

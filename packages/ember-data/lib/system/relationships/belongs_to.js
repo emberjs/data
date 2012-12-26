@@ -6,7 +6,7 @@ DS.belongsTo = function(type, options) {
 
   options = options || {};
 
-  var meta = { type: type, isAssociation: true, options: options, kind: 'belongsTo' };
+  var meta = { type: type, isRelationship: true, options: options, kind: 'belongsTo' };
 
   return Ember.computed(function(key, value) {
     if (arguments.length === 2) {
@@ -32,7 +32,7 @@ DS.belongsTo = function(type, options) {
 
 /**
   These observers observe all `belongsTo` relationships on the record. See
-  `associations/ext` to see how these observers get their dependencies.
+  `relationships/ext` to see how these observers get their dependencies.
 
   The observers use `removeFromContent` and `addToContent` to avoid
   going through the public Enumerable API that would try to set the

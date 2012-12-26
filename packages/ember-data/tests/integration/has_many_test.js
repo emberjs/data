@@ -61,7 +61,7 @@ test("A hasMany relationship has an isLoaded flag that indicates whether the Man
   equal(get(array, 'isLoaded'), false, "isLoaded should not be true when first created");
 });
 
-test("When a hasMany association is accessed, the adapter's findMany method should not be called if all the records in the association are already loaded", function() {
+test("When a hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function() {
   expect(0);
 
   adapter.findMany = function() {

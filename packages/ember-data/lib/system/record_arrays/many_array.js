@@ -4,14 +4,14 @@ var get = Ember.get, set = Ember.set;
 
 /**
   A ManyArray is a RecordArray that represents the contents of a has-many
-  association.
+  relationship.
 
-  The ManyArray is instantiated lazily the first time the association is
+  The ManyArray is instantiated lazily the first time the relationship is
   requested.
 
   ### Inverses
 
-  Often, the associations in Ember Data applications will have
+  Often, the relationships in Ember Data applications will have
   an inverse. For example, imagine the following models are
   defined:
 
@@ -25,12 +25,12 @@ var get = Ember.get, set = Ember.set;
 
   If you created a new instance of `App.Post` and added
   a `App.Comment` record to its `comments` has-many
-  association, you would expect the comment's `post`
+  relationship, you would expect the comment's `post`
   property to be set to the post that contained
   the has-many.
 
-  We call the record to which an association belongs the
-  association's _owner_.
+  We call the record to which a relationship belongs the
+  relationship's _owner_.
 */
 DS.ManyArray = DS.RecordArray.extend({
   init: function() {
@@ -41,7 +41,7 @@ DS.ManyArray = DS.RecordArray.extend({
   /**
     @private
 
-    The record to which this association belongs.
+    The record to which this relationship belongs.
 
     @property {DS.Model}
   */
@@ -75,7 +75,7 @@ DS.ManyArray = DS.RecordArray.extend({
   replaceContent: function(index, removed, added) {
     // Map the array of record objects into an array of  client ids.
     added = added.map(function(record) {
-      Ember.assert("You can only add records of " + (get(this, 'type') && get(this, 'type').toString()) + " to this association.", !get(this, 'type') || (get(this, 'type') === record.constructor));
+      Ember.assert("You can only add records of " + (get(this, 'type') && get(this, 'type').toString()) + " to this relationship.", !get(this, 'type') || (get(this, 'type') === record.constructor));
       return get(record, 'reference');
     }, this);
 
@@ -90,7 +90,7 @@ DS.ManyArray = DS.RecordArray.extend({
     var owner = get(this, 'owner'),
         name = get(this, 'name');
 
-    if (!owner._suspendedAssociations) {
+    if (!owner._suspendedRelationships) {
       // This code is the first half of code that continues inside
       // of arrayContentDidChange. It gets or creates a change from
       // the child object, adds the current owner as the old
@@ -129,7 +129,7 @@ DS.ManyArray = DS.RecordArray.extend({
         name = get(this, 'name'),
         store = get(this, 'store');
 
-    if (!owner._suspendedAssociations) {
+    if (!owner._suspendedRelationships) {
       // This code is the second half of code that started in
       // `arrayContentWillChange`. It gets or creates a change
       // from the child object, and adds the current owner as

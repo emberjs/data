@@ -32,7 +32,7 @@ module("Embedded Load", {
 
 Ember.ArrayPolyfills.forEach.call([[Comment, "as a type"], ["Comment", "as a string"]], function(testInfo) {
   var mapping = testInfo[0], testString = testInfo[1];
-  test("A belongsTo association can be marked as embedded via the `map` API (" + testString + ")", function() {
+  test("A belongsTo relationship can be marked as embedded via the `map` API (" + testString + ")", function() {
     Adapter.map(mapping, {
       user: { embedded: 'load' }
     });
@@ -62,13 +62,13 @@ Ember.ArrayPolyfills.forEach.call([[Comment, "as a type"], ["Comment", "as a str
 
     strictEqual(user.get('name'), "Yehuda Katz", "user is addressable by its ID despite being loaded via embedding");
 
-    strictEqual(comment1.get('user'), user, "association references the globally addressable record");
-    strictEqual(comment2.get('user'), user, "associations are identical");
+    strictEqual(comment1.get('user'), user, "relationship references the globally addressable record");
+    strictEqual(comment2.get('user'), user, "relationships are identical");
   });
 });
 
 Ember.ArrayPolyfills.forEach.call([Person, "Person"], function(mapping) {
-  test("A hasMany association can be marked as embedded via the `map` API", function() {
+  test("A hasMany relationship can be marked as embedded via the `map` API", function() {
     Adapter.map(mapping, {
       comments: { embedded: 'load' }
     });
