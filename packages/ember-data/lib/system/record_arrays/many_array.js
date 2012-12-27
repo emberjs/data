@@ -105,16 +105,13 @@ DS.ManyArray = DS.RecordArray.extend({
         //var record = this.objectAt(i);
         //if (!record) { continue; }
 
-        var change = DS.OneToManyChange.createChange(reference.clientId, get(this, 'store'), {
+        var change = DS.RelationshipChange.createChange(owner.get('clientId'), reference.clientId, get(this, 'store'), {
           parentType: owner.constructor,
-          hasManyName: name,
-          parentClientId: owner.get('clientId'),
-          changeType: "remove"
+          changeType: "remove",
+          kind: "hasMany",
+          key: name
         });
-        change.hasManyName = name;
 
-        if (change.oldParent === undefined) { change.oldParent = get(owner, 'clientId'); }
-        change.newParent = null;
         this._changesToSync.add(change);
       }
     }
@@ -137,17 +134,14 @@ DS.ManyArray = DS.RecordArray.extend({
       for (var i=index; i<index+added; i++) {
         var reference = get(this, 'content').objectAt(i);
 
-        var change = DS.OneToManyChange.createChange(reference.clientId, store, {
+        var change = DS.RelationshipChange.createChange(owner.get('clientId'), reference.clientId, store, {
           parentType: owner.constructor,
-          hasManyName: name,
-          parentClientId: owner.get('clientId'),
-          changeType: "add"
+          changeType: "add",
+          kind:"hasMany",
+          key: name
         });
         change.hasManyName = name;
 
-        // The oldParent will be looked up in `sync` if it
-        // was not set by `belongsToWillChange`.
-        change.newParent = get(owner, 'clientId');
         this._changesToSync.add(change);
       }
 
@@ -177,36 +171,6 @@ DS.ManyArray = DS.RecordArray.extend({
     this.pushObject(record);
 
     return record;
-  },
-
-  /**
-    METHODS FOR USE BY INVERSE RELATIONSHIPS
-    ========================================
-
-    These methods exists so that belongsTo relationships can
-    set their inverses without causing an infinite loop.
-
-    This creates two APIs:
-
-    * the normal enumerable API, which is used by clients
-      of the `ManyArray` and triggers a change to inverse
-      `belongsTo` relationships.
-    * `removeFromContent` and `addToContent`, which are
-      used by inverse relationships and do not trigger a
-      change to `belongsTo` relationships.
-
-    Unlike the normal `addObject` and `removeObject` APIs,
-    these APIs manipulate the `content` array without
-    triggering side-effects.
-  */
-
-  /** @private */
-  removeFromContent: function(record) {
-    get(this, 'content').removeObject(get(record, 'reference'));
-  },
-
-  /** @private */
-  addToContent: function(record) {
-    get(this, 'content').addObject(get(record, 'reference'));
   }
+
 });

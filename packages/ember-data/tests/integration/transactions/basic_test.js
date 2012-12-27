@@ -308,4 +308,3 @@ test("modified records are reset when their transaction is rolled back", functio
 
   equal(person.get('isValid'), true, "invalid record is now marked as valid");
 });
-

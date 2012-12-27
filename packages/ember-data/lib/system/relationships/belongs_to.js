@@ -34,9 +34,6 @@ DS.belongsTo = function(type, options) {
   These observers observe all `belongsTo` relationships on the record. See
   `relationships/ext` to see how these observers get their dependencies.
 
-  The observers use `removeFromContent` and `addToContent` to avoid
-  going through the public Enumerable API that would try to set the
-  inverse (again) and trigger an infinite loop.
 */
 
 DS.Model.reopen({
@@ -48,7 +45,7 @@ DS.Model.reopen({
       var childId = get(record, 'clientId'),
           store = get(record, 'store');
       if (oldParent){
-        var change = DS.OneToManyChange.createChange(childId, store, { belongsToName: key, parentClientId: get(oldParent,'clientId'), changeType: "remove" });
+        var change = DS.RelationshipChange.createChange(childId, get(oldParent, 'clientId'), store, { key: key, kind:"belongsTo", changeType: "remove" });
         change.sync();
         this._changesToSync[key] = change;
       }
@@ -62,7 +59,7 @@ DS.Model.reopen({
       if(newParent){
         var childId = get(record, 'clientId'),
             store = get(record, 'store');
-        var change = DS.OneToManyChange.createChange(childId, store, { belongsToName: key, parentClientId: get(newParent, 'clientId'), changeType: "add" });
+        var change = DS.RelationshipChange.createChange(childId, get(newParent, 'clientId'), store, { key: key, kind:"belongsTo", changeType: "add" });
         change.sync();
         if(this._changesToSync[key]){
           DS.OneToManyChange.ensureSameTransaction([change, this._changesToSync[key]], store);
