@@ -101,7 +101,8 @@ DS.RESTAdapter = DS.Adapter.extend({
   dirtyRecordsForRecordChange: function(dirtySet, record) {
     dirtySet.add(record);
 
-    get(this, 'serializer').eachEmbeddedRecord(record, function(embeddedRecord) {
+    get(this, 'serializer').eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
+      if (embeddedType !== 'always') { return; }
       if (dirtySet.has(embeddedRecord)) { return; }
       this.dirtyRecordsForRecordChange(dirtySet, embeddedRecord);
     }, this);

@@ -1,4 +1,4 @@
-var get = Ember.get, set = Ember.set, map = Ember.ArrayPolyfills.map;
+var get = Ember.get, set = Ember.set, map = Ember.ArrayPolyfills.map, isNone = Ember.isNone;
 
 function mustImplement(name) {
   return function() {
@@ -209,31 +209,52 @@ DS.Serializer = Ember.Object.extend({
 
     this.eachEmbeddedHasMany(type, function(name, relationship) {
       var embeddedData = json[this.keyFor(relationship)];
-      this.extractEmbeddedHasMany(loader, relationship, embeddedData, reference, prematerialized);
+      if (!isNone(embeddedData)) {
+        this.extractEmbeddedHasMany(loader, relationship, embeddedData, reference, prematerialized);
+      }
     }, this);
 
     this.eachEmbeddedBelongsTo(type, function(name, relationship) {
       var embeddedData = json[this.keyFor(relationship)];
-      this.extractEmbeddedBelongsTo(loader, relationship, embeddedData, reference, prematerialized);
+      if (!isNone(embeddedData)) {
+        this.extractEmbeddedBelongsTo(loader, relationship, embeddedData, reference, prematerialized);
+      }
     }, this);
 
     loader.prematerialize(reference, prematerialized);
+
+    return reference;
   },
 
   extractEmbeddedHasMany: function(loader, relationship, array, parent, prematerialized) {
     var references = map.call(array, function(item) {
-      var reference = loader.load(relationship.type, item);
-      reference.parent = parent;
+      if (!item) { return; }
+
+      var reference = this.extractRecordRepresentation(loader, relationship.type, item);
+
+      // If the embedded record should also be saved back when serializing the parent,
+      // make sure we set its parent since it will not have an ID.
+      var embeddedType = this.embeddedType(parent.type, relationship.key);
+      if (embeddedType === 'always') {
+        reference.parent = parent;
+      }
+
       return reference;
-    });
+    }, this);
 
     prematerialized[relationship.key] = references;
   },
 
   extractEmbeddedBelongsTo: function(loader, relationship, data, parent, prematerialized) {
-    var recordReference = loader.sideload(relationship.type, data);
-    prematerialized[relationship.key] = recordReference;
-    recordReference.parent = parent;
+    var reference = loader.sideload(relationship.type, data);
+    prematerialized[relationship.key] = reference;
+
+    // If the embedded record should also be saved back when serializing the parent,
+    // make sure we set its parent since it will not have an ID.
+    var embeddedType = this.embeddedType(parent.type, relationship.key);
+    if (embeddedType === 'always') {
+      reference.parent = parent;
+    }
   },
 
   //.......................

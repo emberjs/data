@@ -201,3 +201,109 @@ asyncTest("Embedded hasMany relationships can be saved when embedded: always is 
     start();
   }
 });
+
+test("Embedded records can themselves contain embedded records", function() {
+  adapter.load(store, Post, {
+    id: 1,
+    title: "A New MVC Framework in Under 100 Lines of Code",
+
+    comments: [{
+      title: "Why not use a more lightweight solution?",
+      user: {
+        name: "mongodb_user"
+      }
+    },
+    {
+      title: "This does not seem to reflect the Unix philosophy haha",
+      user: {
+        name: "microuser"
+      }
+    }]
+  });
+
+  var post = store.find(Post, 1);
+  var comment1 = post.get('comments.firstObject');
+  var user1 = comment1.get('user');
+
+  equal(user1.get('name'), "mongodb_user", "user record was materialized correctly");
+  equal(comment1.get('title'), "Why not use a more lightweight solution?", "comment record was materialized correctly");
+  equal(post.get('title'), "A New MVC Framework in Under 100 Lines of Code", "post record was materialized correctly");
+});
+
+asyncTest("Embedded records that contain embedded records can be saved", function() {
+  adapter.load(store, Post, {
+    id: 1,
+    title: "A New MVC Framework in Under 100 Lines of Code",
+
+    comments: [{
+      title: "Why not use a more lightweight solution?",
+      user: {
+        name: "mongodb_user"
+      }
+    },
+    {
+      title: "This does not seem to reflect the Unix philosophy haha",
+      user: {
+        name: "microuser"
+      }
+    }]
+  });
+
+  adapter.ajax = function(url, type, hash) {
+    deepEqual(hash.data, {
+      post: {
+        title: "A New MVC Framework in Under 100 Lines of Code",
+
+        comments: [{
+          title: "Wouldn't a more lightweight solution be better? This feels very monolithic.",
+          user: {
+            name: "mongodb_user"
+          }
+        },
+        {
+          title: "This does not seem to reflect the Unix philosophy haha",
+          user: {
+            name: "microuser"
+          }
+        }]
+      }
+    });
+
+    setTimeout(function() {
+      hash.success.call(hash.context);
+      done();
+    });
+  };
+
+  var transaction = store.transaction();
+
+  var post = store.find(Post, 1);
+  var comment1 = post.get('comments').objectAt(0);
+  var comment2 = post.get('comments').objectAt(1);
+  var user1 = comment1.get('user');
+  var user2 = comment2.get('user');
+
+  transaction.add(post);
+  transaction.add(comment1);
+  transaction.add(comment2);
+  transaction.add(user1);
+  transaction.add(user2);
+
+  comment1.set('title', "Wouldn't a more lightweight solution be better? This feels very monolithic.");
+  equal(post.get('isDirty'), true, "post becomes dirty after changing a property");
+  equal(comment1.get('isDirty'), true, "comment becomes dirty when its parent post becomes dirty");
+  equal(comment2.get('isDirty'), true, "comment becomes dirty when its parent post becomes dirty");
+  equal(user1.get('isDirty'), true, "user becomes dirty when its parent post becomes dirty");
+  equal(user2.get('isDirty'), true, "user becomes dirty when its parent post becomes dirty");
+
+  transaction.commit();
+
+  function done() {
+    equal(post.get('isDirty'), false, "post becomes clean after commit");
+    equal(comment1.get('isDirty'), false, "comment becomes clean after commit");
+    equal(comment2.get('isDirty'), false, "comment becomes clean after commit");
+    equal(user1.get('isDirty'), false, "user becomes clean after commit");
+    equal(user2.get('isDirty'), false, "user becomes clean after commit");
+    start();
+  }
+});
