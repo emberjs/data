@@ -13,7 +13,7 @@ Person.reopen({
   comments: DS.hasMany(Comment)
 });
 
-module("Embedded Load", {
+module("Embedded Loading", {
   setup: function() {
     lookup = Ember.lookup = {};
 
