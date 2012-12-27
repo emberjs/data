@@ -462,6 +462,73 @@ test("additional data can be sideloaded in a GET", function() {
   equal(get(get(store.find(Group, 1), 'people').objectAt(0), 'name'), "Yehuda Katz", "the items are in the association");
 });
 
+test("Each association type will only be sideloaded once", function() {
+  var associationCount = 0, Fan, Player, Coach, Team;
+  adapter.reopen({
+    loadValue: function(store, type, value) {
+      associationCount++;
+      this._super(store, type, value);
+    }
+  });
+
+  Fan = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  Fan.toString = function() {
+    return "App.Fan";
+  };
+
+  Player = DS.Model.extend({
+    name: DS.attr('string'),
+    fans: DS.hasMany(Fan)
+  });
+
+  Player.toString = function() {
+    return "App.Player";
+  };
+
+  Coach = DS.Model.extend({
+    name: DS.attr('string'),
+    fans: DS.hasMany(Fan),
+    players: DS.hasMany(Player)
+  });
+
+  Coach.toString = function() {
+    return "App.Coach";
+  };
+
+  Team = DS.Model.extend({
+    name: DS.attr('string'),
+    coach: DS.belongsTo(Coach),
+    fans: DS.hasMany(Fan),
+    players: DS.hasMany(Player)
+  });
+
+  Team.toString = function() {
+    return "App.Team";
+  };
+
+  store.find(Team, 1);
+
+  ajaxHash.success({
+    coach: {
+      id: 1, name: "Peter Wagenet", fans: [ 1 ], players: [ 1 ]
+    },
+    fans: [{
+      id: 1, name: "Yehuda Katz"
+    }],
+    players: [{
+      id: 1, name: "Tom Dale", fans: [ 1 ]
+    }],
+    team: {
+      id: 1, name: "Seattle Seahawks", fans: [ 1 ], players: [ 1 ], coach_id: 1
+    }
+  });
+
+  equal(associationCount, 3, "Each association type was sideloaded once");
+});
+
 test("finding many people by a list of IDs", function() {
   store.load(Group, { id: 1, people: [ 1, 2, 3 ] });
 

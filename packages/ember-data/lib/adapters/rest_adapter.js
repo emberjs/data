@@ -371,6 +371,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   sideloadAssociations: function(store, type, json, prop, loaded) {
+    if (loaded[prop]) { return; }
     loaded[prop] = true;
 
     get(type, 'associationsByName').forEach(function(key, meta) {
