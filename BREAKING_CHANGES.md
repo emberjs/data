@@ -35,6 +35,166 @@ App.Store = DS.Store.create({
 This will remove the exception about changes before revision 2. You will
 receive another warning if there is another change.
 
+## Revision 11
+
+### Payload Extraction
+
+Previously, the serializer was responsible for materializing a single
+record. The adapter was responsible for decomposing multi-record
+payloads into digestible chunks that the serializer could handle.
+
+For example, the REST adapter supports "sideloading", which allows you
+to include related records in a compact way. For example, the JSON
+payload for a blog post and its comments may look like this:
+
+```js
+{
+  "post": {
+    "id": 1,
+    "title": "Rails is omakase",
+    "comment_ids": [1, 2, 3]
+  },
+
+  "comments": [{
+    "id": 1,
+    "body": "But is it _lightweight_ omakase?"
+  },
+  {
+    "id": 2,
+    "body": "I for one welcome our new omakase overlords"
+  },
+  {
+    "id": 3,
+    "body": "Put me on the fast track to a delicious dinner"
+  }
+}
+```
+
+Previously, the adapter would tease out each of the individual record
+representations here, then pass them, one at a time, to the serializer.
+
+We realized that conceptually it made more sense for the serializer to
+be responsible for extracting records from the entire payload.
+
+This became particularly important for us as we were working on the new
+embedded feature. Because records may now include other records embedded
+inside their JSON representation (arbitrarily deep), the lines between
+the entire payload and an individual record representation became
+blurred.
+
+### New Adapter Acknowledgment API
+
+Previously, if you were writing a custom adapter, you would acknowledge
+that you had saved outstanding changes to your persistence layer by
+invoking the related method on the store. For example, if the store
+asked your adapter to update a given record, you would call
+`store.didSaveRecord(record);` when you had completed the operation.
+
+Because we noticed that there was significant boilerplate around this
+operation, especially given the changes described above, the
+acknowledgment hooks now live on the adapter and not the store. This
+allows us to implement default behavior that interacts with both the
+serializer and the store on your behalf, making authoring adapters
+easier.
+
+For example, instead of this:
+
+```js
+updateRecord: function(store, type, record) {
+  this.ajax('/person/'+record.get('id'), {
+    success: function(json) {
+      store.didSaveRecord(record, json);
+    }
+  });
+}
+```
+
+You would now call the adapter's own `didSaveRecord`:
+
+```js
+updateRecord: function(store, type, record) {
+  this.ajax('/person/'+record.get('id'), {
+    success: function(json) {
+      this.didSaveRecord(store, type, record, json);
+    }
+  });
+}
+```
+
+Making this small change automatically gives you support for
+sideloaded and embedded records.
+
+Previously, if the store asked your adapter to find a record by calling
+its `find` method, you could simply load the record with the given ID
+into the store by calling `store.load()`:
+
+```js
+find: function(store, type, id) {
+  var url = type.url;
+  url = url.fmt(id);
+
+  jQuery.getJSON(url, function(data) {
+    store.load(type, id, data);
+  });
+}
+```
+
+Now, you should instead call the adapter's own `didFindRecord`
+acknowledgment method:
+
+```js
+find: function(store, type, id) {
+  var url = type.url,
+      self = this;
+
+  url = url.fmt(id);
+
+  jQuery.getJSON(url, function(data) {
+    self.didFindRecord(store, type, data, id);
+  });
+}
+```
+
+Like with the above improvements, this small change automatically add
+support for sideloaded and embedded records when your JSON server
+responds to a request for a record.
+
+Similarly, you should call the new adapter hooks `didFindAll`,
+`didFindQuery`, and `didFindMany` when acknowledging the associated
+operation.
+
+### Normalized Relationship Names
+
+Throughout Ember Data, we were referring to relationships as either
+"relationships" or "associations." We have now tightened up our
+terminology (and the related APIs) to always refer to them as
+relationships.
+
+For example, `DS.Model`'s `eachAssociation` became `eachRelationship`.
+
+### Loading Data
+
+Previously, some features of the store, such as `load()`, assumed a
+single adapter.
+
+If you want to load data from your backend without the application
+asking for it (for example, through a WebSockets stream), use this API:
+
+```js
+store.adapterForType(App.Person).load(store, App.Person, payload);
+```
+
+This API will also handle sideloaded and embedded data. We plan to add a
+more convenient version of this API in the future.
+
+#### TL;DR
+
+If you are using the REST adapter, no changes are necessary. You can now
+include embedded records.
+
+If you were manually loading data into the store, use the new
+`Adapter#load` API instead of `Store#load`.
+
 ## Revision 10
 
 In Revision 8, we started the work of making serializers agnostic to the

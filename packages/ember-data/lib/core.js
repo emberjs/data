@@ -1,3 +1,4 @@
 window.DS = Ember.Namespace.create({
-  CURRENT_API_REVISION: 10
+  // this one goes to 11
+  CURRENT_API_REVISION: 11
 });

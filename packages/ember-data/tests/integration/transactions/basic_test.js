@@ -7,32 +7,33 @@ var Person = DS.Model.extend({
   foo: DS.attr('string')
 });
 
-var transaction;
+var transaction, store;
 
-module("DS.Transaction", {
+module("Transactions", {
+  setup: function() {
+    store = DS.Store.create();
+  },
+
   teardown: function() {
     if (transaction) { transaction.destroy(); }
+    store.destroy();
   }
 });
 
-test("can create a new transaction", function() {
-  var store = DS.Store.create();
-
+test("Stores can create a new transaction", function() {
   transaction = store.transaction();
 
   ok(transaction, "transaction is created");
   ok(DS.Transaction.detectInstance(transaction), "transaction is an instance of DS.Transaction");
 });
 
-test("after a record is created from a transaction, it is not committed when store.commit() is called but is committed when transaction.commit() is called", function() {
+test("If a record is created from a transaction, it is not committed when store.commit() is called but is committed when transaction.commit() is called", function() {
   var commitCalls = 0;
 
-  var store = DS.Store.create({
-    adapter: DS.Adapter.create({
-      createRecords: function() {
-        commitCalls++;
-      }
-    })
+  store.adapter = DS.Adapter.create({
+    createRecords: function() {
+      commitCalls++;
+    }
   });
 
   transaction = store.transaction();
@@ -45,15 +46,13 @@ test("after a record is created from a transaction, it is not committed when sto
   equal(commitCalls, 1, "commit was called when committing the transaction");
 });
 
-test("after a record is added to a transaction then updated, it is not committed when store.commit() is called but is committed when transaction.commit() is called", function() {
+test("If a record is added to a transaction then updated, it is not committed when store.commit() is called but is committed when transaction.commit() is called", function() {
   var commitCalls = 0;
 
-  var store = DS.Store.create({
-    adapter: DS.Adapter.create({
-      updateRecords: function() {
-        commitCalls++;
-      }
-    })
+  store.adapter = DS.Adapter.create({
+    updateRecords: function() {
+      commitCalls++;
+    }
   });
 
   store.load(Person, { id: 1, name: "Yehuda Katz" });
@@ -308,190 +307,4 @@ test("modified records are reset when their transaction is rolled back", functio
   transaction.rollback();
 
   equal(person.get('isValid'), true, "invalid record is now marked as valid");
-});
-
-var Post = DS.Model.extend({
-  title: DS.attr('string'),
-  body: DS.attr('string')
-});
-
-var Comment = DS.Model.extend({
-  body: DS.attr('string'),
-  post: DS.belongsTo(Post)
-});
-
-Post.reopen({
-  comments: DS.hasMany(Comment)
-});
-
-var store, adapter;
-module("DS.Transaction - relationships", {
-  setup: function() {
-    adapter = DS.Adapter.create();
-    store = DS.Store.create({
-      adapter: adapter
-    });
-  },
-
-  teardown: function() {
-    if (transaction) { transaction.destroy(); }
-    adapter.destroy();
-    store.destroy();
-  }
-});
-
-function expectRelationships(description) {
-  var relationships = transaction.get('relationships').toArray(),
-      relationship = relationships[0],
-      count = description.count === undefined ? 1 : description.count;
-
-  QUnit.push(relationships.length === count, relationships.length, count, "There should be " + count + " dirty relationships");
-
-  if (count) {
-    QUnit.push(relationship.getOldParent() === description.oldParent, relationship.oldParent, description.oldParent, "oldParent is incorrect");
-    QUnit.push(relationship.getNewParent() === description.newParent, relationship.newParent, description.newParent, "newParent is incorrect");
-    QUnit.push(relationship.getChild() === description.child, relationship.child, description.child, "child is incorrect");
-  }
-}
-
-test("If both the parent and child are clean and in the same transaction, a dirty relationship is added to the transaction null->A", function() {
-  store.load(Post, { id: 1, title: "Ohai", body: "FIRST POST ZOMG" });
-  store.load(Comment, { id: 1, body: "Kthx" });
-
-  var post = store.find(Post, 1);
-  var comment = store.find(Comment, 1);
-
-  transaction = store.transaction();
-
-  transaction.add(post);
-  transaction.add(comment);
-
-  post.get('comments').pushObject(comment);
-
-  expectRelationships({
-    oldParent: null,
-    newParent: post,
-    child: comment
-  });
-});
-
-test("If a child is removed from a parent, a dirty relationship is added to the transaction A->null", function() {
-  store.load(Comment, { id: 1, body: "Kthx" });
-  store.load(Post, { id: 1, title: "Ohai", body: "FIRST POST ZOMG", comments: [ 1 ] });
-
-  var post = store.find(Post, 1);
-  var comment = store.find(Comment, 1);
-
-  transaction = store.transaction();
-
-  transaction.add(post);
-  transaction.add(comment);
-
-  post.get('comments').removeObject(comment);
-
-  expectRelationships({
-    oldParent: post,
-    newParent: null,
-    child: comment
-  });
-});
-
-test("If a child is removed from a parent it was recently added to, the dirty relationship is removed. null->A, A->null", function() {
-  store.load(Comment, { id: 1, body: "Kthx" });
-  store.load(Post, { id: 1, title: "Ohai", body: "FIRST POST ZOMG", comments: [ 1 ] });
-
-  var post = store.find(Post, 1);
-  var comment = store.find(Comment, 1);
-
-  transaction = store.transaction();
-
-  transaction.add(post);
-  transaction.add(comment);
-
-  post.get('comments').removeObject(comment);
-  post.get('comments').pushObject(comment);
-
-  expectRelationships({ count: 0 });
-});
-
-test("If a child was added to one parent, and then another, the changes coalesce. A->B, B->C", function() {
-  store.load(Comment, { id: 1, body: "Kthx" });
-  store.load(Post, { id: 1, title: "Ohai", body: "FIRST POST ZOMG", comments: [ 1 ] });
-  store.load(Post, { id: 2, title: "ZOMG", body: "SECOND POST WAT" });
-  store.load(Post, { id: 3, title: "ORLY?", body: "Why am I still here?" });
-
-  var post = store.find(Post, 1);
-  var post2 = store.find(Post, 2);
-  var post3 = store.find(Post, 3);
-  var comment = store.find(Comment, 1);
-
-  transaction = store.transaction();
-
-  transaction.add(post);
-  transaction.add(comment);
-
-  post.get('comments').removeObject(comment);
-  post2.get('comments').pushObject(comment);
-  post2.get('comments').removeObject(comment);
-  post3.get('comments').pushObject(comment);
-
-  expectRelationships({
-    oldParent: post,
-    newParent: post3,
-    child: comment
-  });
-});
-
-test("the store should have a new defaultTransaction after commit from store", function() {
-  store.load(Post, { id: 1, title: "Ohai" });
-
-  var record = store.find(Post, 1);
-  var transaction = record.get('transaction');
-  var defaultTransaction = store.get('defaultTransaction');
-
-  equal(transaction, defaultTransaction, 'record is in the defaultTransaction');
-
-  store.commit();
-
-  var newDefaultTransaction = store.get('defaultTransaction');
-  transaction = record.get('transaction');
-
-  ok(defaultTransaction !== newDefaultTransaction, "store should have a new defaultTransaction");
-  equal(transaction, newDefaultTransaction, 'record is in the new defaultTransaction');
-});
-
-test("the store should have a new defaultTransaction after commit from defaultTransaction", function() {
-  store.load(Post, { id: 1, title: "Ohai" });
-
-  var record = store.find(Post, 1);
-  var transaction = record.get('transaction');
-  var defaultTransaction = store.get('defaultTransaction');
-
-  equal(transaction, defaultTransaction, 'record is in the defaultTransaction');
-
-  defaultTransaction.commit();
-
-  var newDefaultTransaction = store.get('defaultTransaction');
-  transaction = record.get('transaction');
-
-  ok(defaultTransaction !== newDefaultTransaction, "store should have a new defaultTransaction");
-  equal(transaction, newDefaultTransaction, 'record is in the new defaultTransaction');
-});
-
-test("the store should have a new defaultTransaction after commit from record's transaction", function() {
-  store.load(Post, { id: 1, title: "Ohai" });
-
-  var record = store.find(Post, 1);
-  var transaction = record.get('transaction');
-  var defaultTransaction = store.get('defaultTransaction');
-
-  equal(transaction, defaultTransaction, 'record is in the defaultTransaction');
-
-  transaction.commit();
-
-  var newDefaultTransaction = store.get('defaultTransaction');
-  transaction = record.get('transaction');
-
-  ok(defaultTransaction !== newDefaultTransaction, "store should have a new defaultTransaction");
-  equal(transaction, newDefaultTransaction, 'record is in the new defaultTransaction');
 });

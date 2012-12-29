@@ -400,7 +400,7 @@ test("can rollback after sucessives updates", function() {
 test("mappings registered on an adapter class are applied to the serializer of adapter instances", function() {
   var MyAdapter = DS.Adapter.extend();
 
-  MyAdapter.map(Person, {
+  MyAdapter.configure(Person, {
     primaryKey: 'id!'
   });
 

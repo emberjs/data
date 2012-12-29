@@ -112,6 +112,7 @@
           }
 
           if (jsHint) {
+            if (typeof minispade.modules[moduleName] !== 'string') { continue; }
             module("JSHint");
 
             // JSHint all modules in this package, tests and code

@@ -14,12 +14,12 @@ var MockModel = Ember.Object.extend({
     }
   },
 
-  eachAssociation: function(callback, binding) {
-    var associations = this.constructor.associations;
+  eachRelationship: function(callback, binding) {
+    var relationships = this.constructor.relationships;
 
-    for (var prop in associations) {
-      if (!associations.hasOwnProperty(prop)) { continue; }
-      callback.call(binding, prop, { key: prop, kind: associations[prop] });
+    for (var prop in relationships) {
+      if (!relationships.hasOwnProperty(prop)) { continue; }
+      callback.call(binding, prop, { key: prop, kind: relationships[prop] });
     }
   },
 
@@ -109,8 +109,8 @@ test("Mapped attributes should be used when materializing a record from JSON.", 
 test("Mapped relationships should be used when serializing a record to JSON.", function() {
   expect(8);
 
-  Person.associations = { addresses: 'hasMany' };
-  window.Address.associations = { person: 'belongsTo' };
+  Person.relationships = { addresses: 'hasMany' };
+  window.Address.relationships = { person: 'belongsTo' };
 
   serializer.map(Person, {
     addresses: { key: 'ADDRESSES!' }
@@ -152,8 +152,8 @@ test("Mapped relationships should be used when serializing a record to JSON.", f
 });
 
 test("mapped relationships are respected when materializing a record from JSON", function() {
-  Person.associations = { addresses: 'hasMany' };
-  window.Address.associations = { person: 'belongsTo' };
+  Person.relationships = { addresses: 'hasMany' };
+  window.Address.relationships = { person: 'belongsTo' };
 
   serializer.map(Person, {
     addresses: { key: 'ADDRESSES!' }
@@ -184,11 +184,11 @@ test("mapped relationships are respected when materializing a record from JSON",
 });
 
 test("mapped primary keys are respected when serializing a record to JSON", function() {
-  serializer.map(Person, {
+  serializer.configure(Person, {
     primaryKey: '__id__'
   });
 
-  serializer.map('Address', {
+  serializer.configure('Address', {
     primaryKey: 'ID'
   });
 
@@ -203,11 +203,11 @@ test("mapped primary keys are respected when serializing a record to JSON", func
 });
 
 test("mapped primary keys are respected when materializing a record from JSON", function() {
-  serializer.map(Person, {
+  serializer.configure(Person, {
     primaryKey: '__id__'
   });
 
-  serializer.map('Address', {
+  serializer.configure('Address', {
     primaryKey: 'ID'
   });
 

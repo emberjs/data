@@ -3,6 +3,8 @@ require('ember-data/transforms/json_transforms');
 
 var get = Ember.get, set = Ember.set;
 
+var generatedId = 0;
+
 DS.JSONSerializer = DS.Serializer.extend({
   init: function() {
     this._super();
@@ -10,6 +12,28 @@ DS.JSONSerializer = DS.Serializer.extend({
     if (!get(this, 'transforms')) {
       this.set('transforms', DS.JSONTransforms);
     }
+
+    this.sideloadMapping = Ember.Map.create();
+
+    this.configure({
+      meta: 'meta',
+      since: 'since'
+    });
+  },
+
+  configure: function(type, configuration) {
+    if (type && !configuration) {
+      return this._super(type);
+    }
+
+    var sideloadAs = configuration.sideloadAs;
+
+    if (sideloadAs) {
+      this.sideloadMapping.set(sideloadAs, type);
+      delete configuration.sideloadAs;
+    }
+
+    this._super.apply(this, arguments);
   },
 
   addId: function(data, key, id) {
@@ -48,11 +72,15 @@ DS.JSONSerializer = DS.Serializer.extend({
   extractId: function(type, hash) {
     var primaryKey = this._primaryKey(type);
 
-    // Ensure that we coerce IDs to strings so that record
-    // IDs remain consistent between application runs; especially
-    // if the ID is serialized and later deserialized from the URL,
-    // when type information will have been lost.
-    return hash[primaryKey]+'';
+    if (hash.hasOwnProperty(primaryKey)) {
+      // Ensure that we coerce IDs to strings so that record
+      // IDs remain consistent between application runs; especially
+      // if the ID is serialized and later deserialized from the URL,
+      // when type information will have been lost.
+      return hash[primaryKey]+'';
+    } else {
+      return null;
+    }
   },
 
   extractHasMany: function(type, hash, key) {
@@ -63,11 +91,132 @@ DS.JSONSerializer = DS.Serializer.extend({
     return hash[key];
   },
 
-  replaceEmbeddedBelongsTo: function(type, hash, name, id) {
-    hash[this._keyForBelongsTo(type, name)] = id;
+  addBelongsTo: function(hash, record, key, relationship) {
+    var type = record.constructor,
+        name = relationship.key,
+        value = null,
+        embeddedChild;
+
+    if (this.embeddedType(type, name)) {
+      if (embeddedChild = get(record, name)) {
+        value = this.serialize(embeddedChild, { include: true });
+      }
+
+      hash[key] = value;
+    } else {
+      var id = get(record, relationship.key+'.id');
+      if (!Ember.isNone(id)) { hash[key] = id; }
+    }
   },
 
-  replaceEmbeddedHasMany: function(type, hash, name, ids) {
-    hash[this._keyForHasMany(type, name)] = ids;
+  addHasMany: function(hash, record, key, relationship) {
+    var array = [];
+
+    this.eachEmbeddedHasManyRecord(record, function(embeddedRecord) {
+      array.push(this.serialize(embeddedRecord, { includeId: true }));
+    }, this);
+
+    hash[key] = array;
+  },
+
+  // EXTRACTION
+
+  extract: function(loader, json, type) {
+    var root = this.rootForType(type);
+
+    this.sideload(loader, type, json, root);
+    this.extractMeta(loader, type, json);
+
+    if (json[root]) {
+      this.extractRecordRepresentation(loader, type, json[root]);
+    }
+  },
+
+  extractMany: function(loader, json, type) {
+    var root = this.rootForType(type);
+    root = this.pluralize(root);
+
+    this.sideload(loader, type, json, root);
+    this.extractMeta(loader, type, json);
+
+    if (json[root]) {
+      loader.loadMany(type, json[root]);
+    }
+  },
+
+  extractMeta: function(loader, type, json) {
+    var meta = json[this.configOption(type, 'meta')], since;
+    if (!meta) { return; }
+
+    if (since = meta[this.configOption(type, 'since')]) {
+      loader.sinceForType(type, since);
+    }
+  },
+
+  sideload: function(loader, type, json, root) {
+    var sideloadedType, mappings, loaded = {};
+
+    loaded[root] = true;
+
+    for (var prop in json) {
+      if (!json.hasOwnProperty(prop)) { continue; }
+      if (prop === root) { continue; }
+      if (prop === this.configOption(type, 'meta')) { continue; }
+
+      sideloadedType = type.typeForRelationship(prop);
+
+      if (!sideloadedType) {
+        sideloadedType = this.sideloadMapping.get(prop);
+
+        if (typeof sideloadedType === 'string') {
+          sideloadedType = get(Ember.lookup, sideloadedType);
+        }
+
+        Ember.assert("Your server returned a hash with the key " + prop + " but you have no mapping for it", !!sideloadedType);
+      }
+
+      this.sideloadRelationships(loader, sideloadedType, json, prop, loaded);
+    }
+  },
+
+  sideloadRelationships: function(loader, type, json, prop, loaded) {
+    loaded[prop] = true;
+
+    get(type, 'relationshipsByName').forEach(function(key, meta) {
+      key = meta.key || key;
+      if (meta.kind === 'belongsTo') {
+        key = this.pluralize(key);
+      }
+      if (json[key] && !loaded[key]) {
+        this.sideloadRelationships(loader, meta.type, json, key, loaded);
+      }
+    }, this);
+
+    this.loadValue(loader, type, json[prop]);
+  },
+
+  loadValue: function(loader, type, value) {
+    if (value instanceof Array) {
+      for (var i=0; i < value.length; i++) {
+        loader.sideload(type, value[i]);
+      }
+    } else {
+      loader.sideload(type, value);
+    }
+  },
+
+  // HELPERS
+
+  // define a plurals hash in your subclass to define
+  // special-case pluralization
+  pluralize: function(name) {
+    return this.plurals[name] || name + "s";
+  },
+
+  rootForType: function(type) {
+    // use the last part of the name as the URL
+    var parts = type.toString().split(".");
+    var name = parts[parts.length - 1];
+    return name.replace(/([A-Z])/g, '_$1').toLowerCase().slice(1);
   }
 });

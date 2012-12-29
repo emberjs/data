@@ -1,19 +1,85 @@
-var get = Ember.get, set = Ember.set;
+var get = Ember.get, set = Ember.set, map = Ember.ArrayPolyfills.map, isNone = Ember.isNone;
+
+function mustImplement(name) {
+  return function() {
+    throw new Ember.Error("Your serializer " + this.toString() + " does not implement the required method " + name);
+  };
+}
 
 /**
-  The serializer is responsible for converting the data returned from the
-  adapter into the semantics expected by records in Ember Data. It is also
-  responsible for converting a record into the form expected by the adapter
-  when saving changes that have been made locally.
+  A serializer is responsible for serializing and deserializing a group of
+  records.
 
-  Typically, your application's `DS.Adapter` is responsible for both creating
-  a serializer as well as calling the appropriate methods when it needs to
+  `DS.Serializer` is an abstract base class designed to help you build a
+  serializer that can read to and write from any serialized form.  While most
+  applications will use `DS.JSONSerializer`, which reads and writes JSON, the
+  serializer architecture allows your adapter to transmit things like XML,
+  strings, or custom binary data.
+
+  Typically, your application's `DS.Adapter` is responsible for both creating a
+  serializer as well as calling the appropriate methods when it needs to
   materialize data or serialize a record.
+
+  The serializer API is designed as a series of layered hooks that you can
+  override to customize any of the individual steps of serialization and
+  deserialization.
+
+  The hooks are organized by the three responsibilities of the serializer:
+
+  1. Determining naming conventions
+  2. Serializing records into a serialized form
+  3. Deserializing records from a serialized form
+
+  Because Ember Data lazily materializes records, the deserialization
+  step, and therefore the hooks you implement, are split into two phases:
+
+  1. Extraction, where the serialized forms for multiple records are
+     extracted from a single payload. The IDs of each record are also
+     extracted for indexing.
+  2. Materialization, where a newly-created record has its attributes
+     and relationships initialized based on the serialized form loaded
+     by the adapter.
+
+  Additionally, a serializer can convert values from their JavaScript
+  versions into their serialized versions via a declarative API.
+
+  ## Naming Conventions
+
+  One of the most common uses of the serializer is to map attribute names
+  from the serialized form to your `DS.Model`. For example, in your model,
+  you may have an attribute called `firstName`:
+
+  ```javascript
+  App.Person = DS.Model.extend({
+    firstName: DS.attr('string')
+  });
+  ```
+
+  However, because the web API your adapter is communicating with is
+  legacy, it calls this attribute `FIRST_NAME`.
+
+  You can determine the attribute name used in the serialized form
+  by implementing `keyForAttributeName`:
+
+  ```javascript
+    keyForAttributeName: function(type, name) {
+      return name.underscore.toUpperCase();
+    }
+  ```
+
+  If your attribute names are not predictable, you can re-map them
+  one-by-one using the `map` API:
+
+  ```javascript
+  App.Person.map('App.Person', {
+    firstName: { key: '*API_USER_FIRST_NAME*' }
+  });
+  ```
 
   ## Serialization
 
-  These methods are responsible for taking a record and
-  producing a JSON object.
+  During the serialization process, a record or records are converted
+  from Ember.js objects into their serialized form.
 
   These methods are designed in layers, like a delicious 7-layer
   cake (but with fewer layers).
@@ -128,6 +194,67 @@ var get = Ember.get, set = Ember.set;
 DS.Serializer = Ember.Object.extend({
   init: function() {
     this.mappings = Ember.Map.create();
+    this.configurations = Ember.Map.create();
+    this.globalConfigurations = {};
+  },
+
+  extract: mustImplement('extract'),
+  extractMany: mustImplement('extractMany'),
+
+  extractRecordRepresentation: function(loader, type, json) {
+    var mapping = this.mappingForType(type);
+    var embeddedData, prematerialized = {};
+
+    var reference = loader.load(type, json);
+
+    this.eachEmbeddedHasMany(type, function(name, relationship) {
+      var embeddedData = json[this.keyFor(relationship)];
+      if (!isNone(embeddedData)) {
+        this.extractEmbeddedHasMany(loader, relationship, embeddedData, reference, prematerialized);
+      }
+    }, this);
+
+    this.eachEmbeddedBelongsTo(type, function(name, relationship) {
+      var embeddedData = json[this.keyFor(relationship)];
+      if (!isNone(embeddedData)) {
+        this.extractEmbeddedBelongsTo(loader, relationship, embeddedData, reference, prematerialized);
+      }
+    }, this);
+
+    loader.prematerialize(reference, prematerialized);
+
+    return reference;
+  },
+
+  extractEmbeddedHasMany: function(loader, relationship, array, parent, prematerialized) {
+    var references = map.call(array, function(item) {
+      if (!item) { return; }
+
+      var reference = this.extractRecordRepresentation(loader, relationship.type, item);
+
+      // If the embedded record should also be saved back when serializing the parent,
+      // make sure we set its parent since it will not have an ID.
+      var embeddedType = this.embeddedType(parent.type, relationship.key);
+      if (embeddedType === 'always') {
+        reference.parent = parent;
+      }
+
+      return reference;
+    }, this);
+
+    prematerialized[relationship.key] = references;
+  },
+
+  extractEmbeddedBelongsTo: function(loader, relationship, data, parent, prematerialized) {
+    var reference = loader.sideload(relationship.type, data);
+    prematerialized[relationship.key] = reference;
+
+    // If the embedded record should also be saved back when serializing the parent,
+    // make sure we set its parent since it will not have an ID.
+    var embeddedType = this.embeddedType(parent.type, relationship.key);
+    if (embeddedType === 'always') {
+      reference.parent = parent;
+    }
   },
 
   //.......................
@@ -269,7 +396,7 @@ DS.Serializer = Ember.Object.extend({
     @param {DS.Model} record the record to serialize
   */
   addRelationships: function(data, record) {
-    record.eachAssociation(function(name, relationship) {
+    record.eachRelationship(function(name, relationship) {
       if (relationship.kind === 'belongsTo') {
         this._addBelongsTo(data, record, name, relationship);
       } else if (relationship.kind === 'hasMany') {
@@ -283,7 +410,7 @@ DS.Serializer = Ember.Object.extend({
     serialized representation.
 
     The specifics of this hook are very adapter-specific, so there
-    is no default implementation. You can see `DS.RESTSerializer`
+    is no default implementation. You can see `DS.JSONSerializer`
     for an example of an implementation of the `addBelongsTo` hook.
 
     The `belongsTo` relationship object has the following properties:
@@ -308,7 +435,7 @@ DS.Serializer = Ember.Object.extend({
 
     The specifics of this hook are very adapter-specific, so there
     is no default implementation. You may not need to implement this,
-    for example, if your backend only expects associations on the
+    for example, if your backend only expects relationships on the
     child of a one to many relationship.
 
     The `hasMany` relationship object has the following properties:
@@ -416,12 +543,12 @@ DS.Serializer = Ember.Object.extend({
 
   /**
     A hook you can use in your serializer subclass to customize
-    how an unmapped `belongsTo` association is converted into
+    how an unmapped `belongsTo` relationship is converted into
     a key.
 
     By default, this method calls `keyForAttributeName`, so if
     your naming convention is uniform across attributes and
-    associations, you can use the default here and override
+    relationships, you can use the default here and override
     just `keyForAttributeName` as needed.
 
     For example, if the `belongsTo` names in your JSON always
@@ -438,8 +565,8 @@ DS.Serializer = Ember.Object.extend({
     ```
 
     @param {DS.Model subclass} type the type of the record with
-      the `belongsTo` association.
-    @param {String} name the association name to convert into a key
+      the `belongsTo` relationship.
+    @param {String} name the relationship name to convert into a key
 
     @returns {String} the key
   */
@@ -449,12 +576,12 @@ DS.Serializer = Ember.Object.extend({
 
   /**
     A hook you can use in your serializer subclass to customize
-    how an unmapped `hasMany` association is converted into
+    how an unmapped `hasMany` relationship is converted into
     a key.
 
     By default, this method calls `keyForAttributeName`, so if
     your naming convention is uniform across attributes and
-    associations, you can use the default here and override
+    relationships, you can use the default here and override
     just `keyForAttributeName` as needed.
 
     For example, if the `hasMany` names in your JSON always
@@ -479,25 +606,32 @@ DS.Serializer = Ember.Object.extend({
     ```
 
     @param {DS.Model subclass} type the type of the record with
-      the `belongsTo` association.
-    @param {String} name the association name to convert into a key
+      the `belongsTo` relationship.
+    @param {String} name the relationship name to convert into a key
 
     @returns {String} the key
   */
   keyForHasMany: function(type, name) {
     return this.keyForAttributeName(type, name);
   },
+
   //.........................
   //. MATERIALIZATION HOOKS
   //.........................
 
-  materialize: function(record, serialized) {
+  materialize: function(record, serialized, prematerialized) {
+    var id;
     if (Ember.isNone(get(record, 'id'))) {
-      record.materializeId(this.extractId(record.constructor, serialized));
+      if (prematerialized && prematerialized.hasOwnProperty('id')) {
+        id = prematerialized.id;
+      } else {
+        id = this.extractId(record.constructor, serialized);
+      }
+      record.materializeId(id);
     }
 
-    this.materializeAttributes(record, serialized);
-    this.materializeRelationships(record, serialized);
+    this.materializeAttributes(record, serialized, prematerialized);
+    this.materializeRelationships(record, serialized, prematerialized);
   },
 
   deserializeValue: function(value, attributeType) {
@@ -507,9 +641,13 @@ DS.Serializer = Ember.Object.extend({
     return transform.deserialize(value);
   },
 
-  materializeAttributes: function(record, serialized) {
+  materializeAttributes: function(record, serialized, prematerialized) {
     record.eachAttribute(function(name, attribute) {
-      this.materializeAttribute(record, serialized, name, attribute.type);
+      if (prematerialized && prematerialized.hasOwnProperty(name)) {
+        record.materializeAttribute(name, prematerialized[name]);
+      } else {
+        this.materializeAttribute(record, serialized, name, attribute.type);
+      }
     }, this);
   },
 
@@ -520,12 +658,20 @@ DS.Serializer = Ember.Object.extend({
     record.materializeAttribute(attributeName, value);
   },
 
-  materializeRelationships: function(record, hash) {
-    record.eachAssociation(function(name, relationship) {
+  materializeRelationships: function(record, hash, prematerialized) {
+    record.eachRelationship(function(name, relationship) {
       if (relationship.kind === 'hasMany') {
-        this.materializeHasMany(name, record, hash, relationship);
+        if (prematerialized && prematerialized.hasOwnProperty(name)) {
+          record.materializeHasMany(name, prematerialized[name]);
+        } else {
+          this.materializeHasMany(name, record, hash, relationship, prematerialized);
+        }
       } else if (relationship.kind === 'belongsTo') {
-        this.materializeBelongsTo(name, record, hash, relationship);
+        if (prematerialized && prematerialized.hasOwnProperty(name)) {
+          record.materializeBelongsTo(name, prematerialized[name]);
+        } else {
+          this.materializeBelongsTo(name, record, hash, relationship, prematerialized);
+        }
       }
     }, this);
   },
@@ -541,11 +687,9 @@ DS.Serializer = Ember.Object.extend({
   },
 
   _extractEmbeddedRelationship: function(type, hash, name, relationshipType) {
-    var key = this['_keyFor' + relationshipType](type, name),
-        mappings = this.mappingForType(type),
-        mapping = mappings && mappings[name];
+    var key = this['_keyFor' + relationshipType](type, name);
 
-    if (mapping && mapping.embedded === 'load') {
+    if (this.embeddedType(type, name)) {
       return this['extractEmbedded' + relationshipType](type, hash, key);
     }
   },
@@ -556,14 +700,6 @@ DS.Serializer = Ember.Object.extend({
 
   _extractEmbeddedHasMany: function(type, hash, name) {
     return this._extractEmbeddedRelationship(type, hash, name, 'HasMany');
-  },
-
-  extractEmbeddedBelongsTo: function(type, hash, key) {
-    return this.extractBelongsTo(type, hash, key);
-  },
-
-  extractEmbeddedHasMany: function(type, hash, key) {
-    return this.extractHasMany(type, hash, key);
   },
 
   /**
@@ -580,8 +716,8 @@ DS.Serializer = Ember.Object.extend({
     @returns {String} the primary key for the type
   */
   _primaryKey: function(type) {
-    var mapping = this.mappingForType(type),
-        primaryKey = mapping && mapping.primaryKey;
+    var config = this.configurationForType(type),
+        primaryKey = config && config.primaryKey;
 
     if (primaryKey) {
       return primaryKey;
@@ -659,12 +795,12 @@ DS.Serializer = Ember.Object.extend({
     @private
 
     This method is called to get a key used in the data from
-    a belongsTo association. It first checks for any mappings before
+    a belongsTo relationship. It first checks for any mappings before
     calling the public hook `keyForBelongsTo`.
 
     @param {DS.Model subclass} type the type of the record with
-      the `belongsTo` association.
-    @param {String} name the association name to convert into a key
+      the `belongsTo` relationship.
+    @param {String} name the relationship name to convert into a key
 
     @returns {String} the key
   */
@@ -672,16 +808,28 @@ DS.Serializer = Ember.Object.extend({
     return this._keyFromMappingOrHook('keyForBelongsTo', type, name);
   },
 
+  keyFor: function(description) {
+    var type = description.parentType,
+        name = description.key;
+
+    switch (description.kind) {
+      case 'belongsTo':
+        return this._keyForBelongsTo(type, name);
+      case 'hasMany':
+        return this._keyForHasMany(type, name);
+    }
+  },
+
   /**
     @private
 
     This method is called to get a key used in the data from
-    a hasMany association. It first checks for any mappings before
+    a hasMany relationship. It first checks for any mappings before
     calling the public hook `keyForHasMany`.
 
     @param {DS.Model subclass} type the type of the record with
-      the `hasMany` association.
-    @param {String} name the association name to convert into a key
+      the `hasMany` relationship.
+    @param {String} name the relationship name to convert into a key
 
     @returns {String} the key
   */
@@ -724,7 +872,7 @@ DS.Serializer = Ember.Object.extend({
     @private
 
     An internal method that handles checking whether a mapping
-    exists for a particular attribute or association name before
+    exists for a particular attribute or relationship name before
     calling the public hooks.
 
     If a mapping is found, and the mapping has a key defined,
@@ -733,14 +881,12 @@ DS.Serializer = Ember.Object.extend({
     @param {String} publicMethod the public hook to invoke if
       a mapping is not found (e.g. `keyForAttributeName`)
     @param {DS.Model subclass} type the type of the record with
-      the attribute or association name.
-    @param {String} name the attribute or association name to
+      the attribute or relationship name.
+    @param {String} name the attribute or relationship name to
       convert into a key
   */
   _keyFromMappingOrHook: function(publicMethod, type, name) {
-    var mapping = this.mappingForType(type),
-        mappingOptions = mapping && mapping[name],
-        key = mappingOptions && mappingOptions.key;
+    var key = this.mappingOption(type, name, 'key');
 
     if (key) {
       return key;
@@ -765,9 +911,26 @@ DS.Serializer = Ember.Object.extend({
     this.mappings.set(type, mappings);
   },
 
+  configure: function(type, configuration) {
+    if (type && !configuration) {
+      Ember.merge(this.globalConfigurations, type);
+      return;
+    }
+
+    var config = Ember.create(this.globalConfigurations);
+    Ember.merge(config, configuration);
+
+    this.configurations.set(type, config);
+  },
+
   mappingForType: function(type) {
     this._reifyMappings();
-    return this.mappings.get(type);
+    return this.mappings.get(type) || {};
+  },
+
+  configurationForType: function(type) {
+    this._reifyConfigurations();
+    return this.configurations.get(type) || this.globalConfigurations;
   },
 
   _reifyMappings: function() {
@@ -790,6 +953,91 @@ DS.Serializer = Ember.Object.extend({
     this.mappings = reifiedMappings;
 
     this._didReifyMappings = true;
+  },
+
+  _reifyConfigurations: function() {
+    if (this._didReifyConfigurations) { return; }
+
+    var configurations = this.configurations,
+        reifiedConfigurations = Ember.Map.create();
+
+    configurations.forEach(function(key, mapping) {
+      if (typeof key === 'string') {
+        var type = Ember.get(Ember.lookup, key);
+        Ember.assert("Could not find model at path" + key, type);
+
+        reifiedConfigurations.set(type, mapping);
+      } else {
+        reifiedConfigurations.set(key, mapping);
+      }
+    });
+
+    this.configurations = reifiedConfigurations;
+
+    this._didReifyConfigurations = true;
+  },
+
+  mappingOption: function(type, name, option) {
+    var mapping = this.mappingForType(type)[name];
+
+    return mapping && mapping[option];
+  },
+
+  configOption: function(type, option) {
+    var config = this.configurationForType(type);
+
+    return config[option];
+  },
+
+  // EMBEDDED HELPERS
+
+  embeddedType: function(type, name) {
+    return this.mappingOption(type, name, 'embedded');
+  },
+
+  eachEmbeddedRecord: function(record, callback, binding) {
+    this.eachEmbeddedBelongsToRecord(record, callback, binding);
+    this.eachEmbeddedHasManyRecord(record, callback, binding);
+  },
+
+  eachEmbeddedBelongsToRecord: function(record, callback, binding) {
+    var type = record.constructor;
+
+    this.eachEmbeddedBelongsTo(record.constructor, function(name, relationship, embeddedType) {
+      var embeddedRecord = get(record, name);
+      if (embeddedRecord) { callback.call(binding, embeddedRecord, embeddedType); }
+    });
+  },
+
+  eachEmbeddedHasManyRecord: function(record, callback, binding) {
+    var type = record.constructor;
+
+    this.eachEmbeddedHasMany(record.constructor, function(name, relationship, embeddedType) {
+      var array = get(record, name);
+      for (var i=0, l=get(array, 'length'); i<l; i++) {
+        callback.call(binding, array.objectAt(i), embeddedType);
+      }
+    });
+  },
+
+  eachEmbeddedHasMany: function(type, callback, binding) {
+    this.eachEmbeddedRelationship(type, 'hasMany', callback, binding);
+  },
+
+  eachEmbeddedBelongsTo: function(type, callback, binding) {
+    this.eachEmbeddedRelationship(type, 'belongsTo', callback, binding);
+  },
+
+  eachEmbeddedRelationship: function(type, kind, callback, binding) {
+    type.eachRelationship(function(name, relationship) {
+      var embeddedType = this.embeddedType(type, name);
+
+      if (embeddedType) {
+        if (relationship.kind === kind) {
+          callback.call(binding, name, relationship, embeddedType);
+        }
+      }
+    }, this);
   }
 });
 

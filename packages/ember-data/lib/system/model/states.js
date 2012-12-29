@@ -180,14 +180,17 @@ var didChangeData = function(manager) {
   record.materializeData();
 };
 
-var setProperty = function(manager, context) {
-  var record = get(manager, 'record'),
-      store = get(record, 'store'),
-      key = context.key,
-      oldValue = context.oldValue,
-      newValue = context.value;
+var willSetProperty = function(manager, context) {
+  context.oldValue = get(get(manager, 'record'), context.name);
 
-  store.recordAttributeDidChange(record, key, newValue, oldValue);
+  var change = DS.AttributeChange.createChange(context);
+  get(manager, 'record')._changesToSync[context.attributeName] = change;
+};
+
+var didSetProperty = function(manager, context) {
+  var change = get(manager, 'record')._changesToSync[context.attributeName];
+  change.value = get(get(manager, 'record'), context.name);
+  change.sync();
 };
 
 // Whenever a property is set, recompute all dependent filters
@@ -278,7 +281,8 @@ var DirtyState = DS.State.extend({
     },
 
     // EVENTS
-    setProperty: setProperty,
+    willSetProperty: willSetProperty,
+    didSetProperty: didSetProperty,
 
     becomeDirty: Ember.K,
 
@@ -294,7 +298,7 @@ var DirtyState = DS.State.extend({
         t.recordBecameClean(dirtyType, record);
       });
 
-      manager.transitionTo('loaded.saved');
+      manager.transitionTo('loaded.materializing');
     },
 
     becameInvalid: function(manager) {
@@ -381,10 +385,12 @@ var DirtyState = DS.State.extend({
       get(manager, 'record').clearRelationships();
     },
 
-    setProperty: function(manager, context) {
+    willSetProperty: willSetProperty,
+
+    didSetProperty: function(manager, context) {
       var record = get(manager, 'record'),
           errors = get(record, 'errors'),
-          key = context.key;
+          key = context.name;
 
       set(errors, key, null);
 
@@ -392,7 +398,7 @@ var DirtyState = DS.State.extend({
         manager.send('becameValid');
       }
 
-      setProperty(manager, context);
+      didSetProperty(manager, context);
     },
 
     becomeDirty: Ember.K,
@@ -497,16 +503,11 @@ var states = {
     // Usually, this process is asynchronous, using an
     // XHR to retrieve the data.
     loading: DS.State.create({
-      // TRANSITIONS
-      exit: function(manager) {
-        var record = get(manager, 'record');
-        record.trigger('didLoad');
-      },
-
       // EVENTS
-      loadedData: function(manager) {
-        didChangeData(manager);
-        manager.transitionTo('loaded');
+      loadedData: didChangeData,
+
+      materializingData: function(manager) {
+        manager.transitionTo('loaded.materializing.firstTime');
       }
     }),
 
@@ -521,14 +522,45 @@ var states = {
 
       // SUBSTATES
 
+      materializing: DS.State.create({
+        // FLAGS
+        isLoaded: false,
+
+        // EVENTS
+        willSetProperty: Ember.K,
+        didSetProperty: Ember.K,
+
+        didChangeData: didChangeData,
+
+        finishedMaterializing: function(manager) {
+          manager.transitionTo('loaded.saved');
+        },
+
+        // SUBSTATES
+        firstTime: DS.State.create({
+          exit: function(manager) {
+            var record = get(manager, 'record');
+
+            Ember.run.once(function() {
+              record.trigger('didLoad');
+            });
+          }
+        })
+      }),
+
       // If there are no local changes to a record, it remains
       // in the `saved` state.
       saved: DS.State.create({
-
         // EVENTS
-        setProperty: setProperty,
+        willSetProperty: willSetProperty,
+        didSetProperty: didSetProperty,
+
         didChangeData: didChangeData,
         loadedData: didChangeData,
+
+        materializingData: function(manager) {
+          manager.transitionTo('loaded.materializing');
+        },
 
         becomeDirty: function(manager) {
           manager.transitionTo('updated');
@@ -644,7 +676,7 @@ var states = {
             t.recordBecameClean('deleted', record);
           });
 
-          manager.transitionTo('loaded.saved');
+          manager.transitionTo('loaded.materializing');
         }
       }),
 

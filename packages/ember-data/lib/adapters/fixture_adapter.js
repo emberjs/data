@@ -131,5 +131,3 @@ DS.FixtureAdapter = DS.Adapter.extend({
     }
   }
 });
-
-DS.fixtureAdapter = DS.FixtureAdapter.create();

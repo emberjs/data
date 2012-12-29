@@ -1,6 +1,6 @@
 var originalLookup = Ember.lookup, lookup;
 
-var Adapter, store;
+var Adapter, store, adapter;
 
 var Person = DS.Model.extend();
 
@@ -13,19 +13,18 @@ Person.reopen({
   comments: DS.hasMany(Comment)
 });
 
-module("Embedded Load", {
+module("Embedded Loading", {
   setup: function() {
     lookup = Ember.lookup = {};
 
     lookup.Person = Person;
     lookup.Comment = Comment;
 
-    Adapter = DS.Adapter.extend();
+    Adapter = DS.RESTAdapter.extend();
 
-    store = DS.Store.create({
-      adapter: Adapter
-    });
+    store = DS.Store.create();
   },
+
   teardown: function() {
     Ember.lookup = originalLookup;
   }
@@ -33,12 +32,15 @@ module("Embedded Load", {
 
 Ember.ArrayPolyfills.forEach.call([[Comment, "as a type"], ["Comment", "as a string"]], function(testInfo) {
   var mapping = testInfo[0], testString = testInfo[1];
-  test("A belongsTo association can be marked as embedded via the `map` API (" + testString + ")", function() {
+  test("A belongsTo relationship can be marked as embedded via the `map` API (" + testString + ")", function() {
     Adapter.map(mapping, {
       user: { embedded: 'load' }
     });
 
-    store.load(Comment, {
+    adapter = Adapter.create();
+    store.set('adapter', adapter);
+
+    adapter.load(store, Comment, {
       id: 1,
       user: {
         id: 2,
@@ -46,7 +48,7 @@ Ember.ArrayPolyfills.forEach.call([[Comment, "as a type"], ["Comment", "as a str
       }
     });
 
-    store.load(Comment, {
+    adapter.load(store, Comment, {
       id: 2,
       user: {
         id: 2,
@@ -60,24 +62,27 @@ Ember.ArrayPolyfills.forEach.call([[Comment, "as a type"], ["Comment", "as a str
 
     strictEqual(user.get('name'), "Yehuda Katz", "user is addressable by its ID despite being loaded via embedding");
 
-    strictEqual(comment1.get('user'), user, "association references the globally addressable record");
-    strictEqual(comment2.get('user'), user, "associations are identical");
+    strictEqual(comment1.get('user'), user, "relationship references the globally addressable record");
+    strictEqual(comment2.get('user'), user, "relationships are identical");
   });
 });
 
 Ember.ArrayPolyfills.forEach.call([Person, "Person"], function(mapping) {
-  test("A hasMany association can be marked as embedded via the `map` API", function() {
+  test("A hasMany relationship can be marked as embedded via the `map` API", function() {
     Adapter.map(mapping, {
       comments: { embedded: 'load' }
     });
 
-    store.load(Person, {
+    adapter = Adapter.create();
+    store.set('adapter', adapter);
+
+    adapter.load(store, Person, {
       id: 1,
       name: "Erik Brynroflsson",
       comments: [{ id: 1 }, { id: 2 }]
     });
 
-    store.load(Person, {
+    adapter.load(store, Person, {
       id: 2,
       name: "Patrick Gibson",
       comments: [{ id: 1 }, { id: 2 }]

@@ -29,15 +29,22 @@ DS.Model.reopen({
     // Check if the value being set is a computed property.
     if (value instanceof Ember.Descriptor) {
 
-      // If it is, get the metadata for the association. This is
+      // If it is, get the metadata for the relationship. This is
       // populated by the `DS.belongsTo` helper when it is creating
       // the computed property.
       var meta = value.meta();
 
-      if (meta.isAssociation && meta.kind === 'belongsTo') {
+      if (meta.isRelationship && meta.kind === 'belongsTo') {
         Ember.addObserver(proto, key, null, 'belongsToDidChange');
         Ember.addBeforeObserver(proto, key, null, 'belongsToWillChange');
       }
+
+      if (meta.isAttribute) {
+        Ember.addObserver(proto, key, null, 'attributeDidChange');
+        Ember.addBeforeObserver(proto, key, null, 'attributeWillChange');
+      }
+
+      meta.parentType = proto.constructor;
     }
   }
 });
@@ -69,20 +76,20 @@ DS.Model.reopenClass({
           comments: DS.hasMany(App.Comment)
         });
 
-    Calling `App.Post.typeForAssociation('comments')` will return `App.Comment`.
+    Calling `App.Post.typeForRelationship('comments')` will return `App.Comment`.
 
-    @param {String} name the name of the association
-    @return {subclass of DS.Model} the type of the association, or undefined
+    @param {String} name the name of the relationship
+    @return {subclass of DS.Model} the type of the relationship, or undefined
   */
-  typeForAssociation: function(name) {
-    var association = get(this, 'associationsByName').get(name);
-    return association && association.type;
+  typeForRelationship: function(name) {
+    var relationship = get(this, 'relationshipsByName').get(name);
+    return relationship && relationship.type;
   },
 
   /**
-    The model's associations as a map, keyed on the type of the
-    association. The value of each entry is an array containing a descriptor
-    for each association with that type, describing the name of the association
+    The model's relationships as a map, keyed on the type of the
+    relationship. The value of each entry is an array containing a descriptor
+    for each relationship with that type, describing the name of the relationship
     as well as the type.
 
     For example, given the following model definition:
@@ -95,19 +102,19 @@ DS.Model.reopenClass({
         });
 
     This computed property would return a map describing these
-    associations, like this:
+    relationships, like this:
 
-        var associations = Ember.get(App.Blog, 'associations');
+        var relationships = Ember.get(App.Blog, 'relationships');
         associatons.get(App.User);
         //=> [ { name: 'users', kind: 'hasMany' },
         //     { name: 'owner', kind: 'belongsTo' } ]
-        associations.get(App.Post);
+        relationships.get(App.Post);
         //=> [ { name: 'posts', kind: 'hasMany' } ]
 
     @type Ember.Map
     @readOnly
   */
-  associations: Ember.computed(function() {
+  relationships: Ember.computed(function() {
     var map = new Ember.MapWithDefault({
       defaultValue: function() { return []; }
     });
@@ -115,16 +122,16 @@ DS.Model.reopenClass({
     // Loop through each computed property on the class
     this.eachComputedProperty(function(name, meta) {
 
-      // If the computed property is an association, add
+      // If the computed property is a relationship, add
       // it to the map.
-      if (meta.isAssociation) {
+      if (meta.isRelationship) {
         if (typeof meta.type === 'string') {
           meta.type = Ember.get(Ember.lookup, meta.type);
         }
 
-        var associationsForType = map.get(meta.type);
+        var relationshipsForType = map.get(meta.type);
 
-        associationsForType.push({ name: name, kind: meta.kind });
+        relationshipsForType.push({ name: name, kind: meta.kind });
       }
     });
 
@@ -132,8 +139,8 @@ DS.Model.reopenClass({
   }),
 
   /**
-    A hash containing lists of the model's associations, grouped
-    by the association kind. For example, given a model with this
+    A hash containing lists of the model's relationships, grouped
+    by the relationship kind. For example, given a model with this
     definition:
 
         App.Blog = DS.Model.extend({
@@ -145,20 +152,20 @@ DS.Model.reopenClass({
 
     This property would contain the following:
 
-       var associationNames = Ember.get(App.Blog, 'associationNames');
-       associationNames.hasMany;
+       var relationshipNames = Ember.get(App.Blog, 'relationshipNames');
+       relationshipNames.hasMany;
        //=> ['users', 'posts']
-       associationNames.belongsTo;
+       relationshipNames.belongsTo;
        //=> ['owner']
 
     @type Object
     @readOnly
   */
-  associationNames: Ember.computed(function() {
+  relationshipNames: Ember.computed(function() {
     var names = { hasMany: [], belongsTo: [] };
 
     this.eachComputedProperty(function(name, meta) {
-      if (meta.isAssociation) {
+      if (meta.isRelationship) {
         names[meta.kind].push(name);
       }
     });
@@ -167,8 +174,8 @@ DS.Model.reopenClass({
   }),
 
   /**
-    A map whose keys are the associations of a model and whose values are
-    association descriptors.
+    A map whose keys are the relationships of a model and whose values are
+    relationship descriptors.
 
     For example, given a model with this
     definition:
@@ -182,20 +189,20 @@ DS.Model.reopenClass({
 
     This property would contain the following:
 
-       var associationsByName = Ember.get(App.Blog, 'associationsByName');
-       associationsByName.get('users');
+       var relationshipsByName = Ember.get(App.Blog, 'relationshipsByName');
+       relationshipsByName.get('users');
        //=> { key: 'users', kind: 'hasMany', type: App.User }
-       associationsByName.get('owner');
+       relationshipsByName.get('owner');
        //=> { key: 'owner', kind: 'belongsTo', type: App.User }
 
     @type Ember.Map
     @readOnly
   */
-  associationsByName: Ember.computed(function() {
+  relationshipsByName: Ember.computed(function() {
     var map = Ember.Map.create(), type;
 
     this.eachComputedProperty(function(name, meta) {
-      if (meta.isAssociation) {
+      if (meta.isRelationship) {
         meta.key = name;
         type = meta.type;
 
@@ -245,7 +252,7 @@ DS.Model.reopenClass({
     var map = Ember.Map.create(), type;
 
     this.eachComputedProperty(function(name, meta) {
-      if (meta.isAssociation) {
+      if (meta.isRelationship) {
         map.set(name, meta.kind);
       } else if (meta.isAttribute) {
         map.set(name, 'attribute');
@@ -256,45 +263,45 @@ DS.Model.reopenClass({
   }),
 
   /**
-    Given a callback, iterates over each of the associations in the model,
-    invoking the callback with the name of each association and its association
+    Given a callback, iterates over each of the relationships in the model,
+    invoking the callback with the name of each relationship and its relationship
     descriptor.
 
     @param {Function} callback the callback to invoke
     @param {any} binding the value to which the callback's `this` should be bound
   */
-  eachAssociation: function(callback, binding) {
-    get(this, 'associationsByName').forEach(function(name, association) {
-      callback.call(binding, name, association);
+  eachRelationship: function(callback, binding) {
+    get(this, 'relationshipsByName').forEach(function(name, relationship) {
+      callback.call(binding, name, relationship);
     });
   }
 });
 
 DS.Model.reopen({
   /**
-    Given a callback, iterates over each of the associations in the model,
-    invoking the callback with the name of each association and its association
+    Given a callback, iterates over each of the relationships in the model,
+    invoking the callback with the name of each relationship and its relationship
     descriptor.
 
     @param {Function} callback the callback to invoke
     @param {any} binding the value to which the callback's `this` should be bound
   */
-  eachAssociation: function(callback, binding) {
-    this.constructor.eachAssociation(callback, binding);
+  eachRelationship: function(callback, binding) {
+    this.constructor.eachRelationship(callback, binding);
   }
 });
 
 /**
   @private
 
-  Helper method to look up the name of the inverse of an association.
+  Helper method to look up the name of the inverse of a relationship.
 
   In a has-many relationship, there are always two sides: the `belongsTo` side
   and the `hasMany` side. When one side changes, the other side should be updated
   automatically.
 
-  Given a model, the model of the inverse, and the kind of the association, this
-  helper returns the name of the association on the inverse.
+  Given a model, the model of the inverse, and the kind of the relationship, this
+  helper returns the name of the relationship on the inverse.
 
   For example, imagine the following two associated models:
 
@@ -312,33 +319,24 @@ DS.Model.reopen({
       DS._inverseNameFor(App.Comment, App.Post, 'hasMany');
       //=> 'comments'
 
-  Ember Data uses the name of the association returned to reflect the changed
+  Ember Data uses the name of the relationship returned to reflect the changed
   relationship on the other side.
 */
-DS._inverseNameFor = function(modelType, inverseModelType, inverseAssociationKind) {
-  var associationMap = get(modelType, 'associations'),
-      possibleAssociations = associationMap.get(inverseModelType),
+DS._inverseRelationshipFor = function(modelType, inverseModelType) {
+  var relationshipMap = get(modelType, 'relationships'),
+      possibleRelationships = relationshipMap.get(inverseModelType),
       possible, actual, oldValue;
 
-  if (!possibleAssociations) { return; }
-
-  for (var i = 0, l = possibleAssociations.length; i < l; i++) {
-    possible = possibleAssociations[i];
-
-    if (possible.kind === inverseAssociationKind) {
-      actual = possible;
-      break;
-    }
-  }
-
-  if (actual) { return actual.name; }
+  if (!possibleRelationships) { return; }
+  if (possibleRelationships.length > 1) { return; }
+  return possibleRelationships[0];
 };
 
 /**
   @private
 
-  Given a model and an association name, returns the model type of
-  the named association.
+  Given a model and a relationship name, returns the model type of
+  the named relationship.
 
       App.Post = DS.Model.extend({
         comments: DS.hasMany('App.Comment')
@@ -347,12 +345,12 @@ DS._inverseNameFor = function(modelType, inverseModelType, inverseAssociationKin
       DS._inverseTypeFor(App.Post, 'comments');
       //=> App.Comment
   @param {DS.Model class} modelType
-  @param {String} associationName
+  @param {String} relationshipName
   @return {DS.Model class}
 */
-DS._inverseTypeFor = function(modelType, associationName) {
-  var associations = get(modelType, 'associationsByName'),
-      association = associations.get(associationName);
+DS._inverseTypeFor = function(modelType, relationshipName) {
+  var relationships = get(modelType, 'relationshipsByName'),
+      relationship = relationships.get(relationshipName);
 
-  if (association) { return association.type; }
+  if (relationship) { return relationship.type; }
 };

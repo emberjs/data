@@ -6,7 +6,7 @@ DS.belongsTo = function(type, options) {
 
   options = options || {};
 
-  var meta = { type: type, isAssociation: true, options: options, kind: 'belongsTo' };
+  var meta = { type: type, isRelationship: true, options: options, kind: 'belongsTo' };
 
   return Ember.computed(function(key, value) {
     if (arguments.length === 2) {
@@ -21,17 +21,19 @@ DS.belongsTo = function(type, options) {
     }
 
     id = data[key];
-    return id ? store.find(type, id) : null;
+
+    if (typeof id === 'object') {
+      return store.findByClientId(type, id.clientId);
+    } else {
+      return id ? store.find(type, id) : null;
+    }
   }).property('data').meta(meta);
 };
 
 /**
   These observers observe all `belongsTo` relationships on the record. See
-  `associations/ext` to see how these observers get their dependencies.
+  `relationships/ext` to see how these observers get their dependencies.
 
-  The observers use `removeFromContent` and `addToContent` to avoid
-  going through the public Enumerable API that would try to set the
-  inverse (again) and trigger an infinite loop.
 */
 
 DS.Model.reopen({
@@ -42,11 +44,10 @@ DS.Model.reopen({
 
       var childId = get(record, 'clientId'),
           store = get(record, 'store');
-
-      var change = DS.OneToManyChange.forChildAndParent(childId, store, { belongsToName: key });
-
-      if (change.oldParent === undefined) {
-        change.oldParent = oldParent ? get(oldParent, 'clientId') : null;
+      if (oldParent){
+        var change = DS.RelationshipChange.createChange(childId, get(oldParent, 'clientId'), store, { key: key, kind:"belongsTo", changeType: "remove" });
+        change.sync();
+        this._changesToSync[key] = change;
       }
     }
   }),
@@ -54,11 +55,17 @@ DS.Model.reopen({
   /** @private */
   belongsToDidChange: Ember.immediateObserver(function(record, key) {
     if (get(record, 'isLoaded')) {
-      var change = get(record, 'store').relationshipChangeFor(get(record, 'clientId'), key),
-          newParent = get(record, key);
-
-      change.newParent = newParent ? get(newParent, 'clientId') : null;
-      change.sync();
+      var newParent = get(record, key);
+      if(newParent){
+        var childId = get(record, 'clientId'),
+            store = get(record, 'store');
+        var change = DS.RelationshipChange.createChange(childId, get(newParent, 'clientId'), store, { key: key, kind:"belongsTo", changeType: "add" });
+        change.sync();
+        if(this._changesToSync[key]){
+          DS.OneToManyChange.ensureSameTransaction([change, this._changesToSync[key]], store);
+        }
+      }
     }
+    delete this._changesToSync[key];
   })
 });

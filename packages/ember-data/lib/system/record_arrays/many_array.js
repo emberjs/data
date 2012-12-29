@@ -1,18 +1,17 @@
 require("ember-data/system/record_arrays/record_array");
-require("ember-data/system/record_arrays/many_array_states");
 
 var get = Ember.get, set = Ember.set;
 
 /**
   A ManyArray is a RecordArray that represents the contents of a has-many
-  association.
+  relationship.
 
-  The ManyArray is instantiated lazily the first time the association is
+  The ManyArray is instantiated lazily the first time the relationship is
   requested.
 
   ### Inverses
 
-  Often, the associations in Ember Data applications will have
+  Often, the relationships in Ember Data applications will have
   an inverse. For example, imagine the following models are
   defined:
 
@@ -26,12 +25,12 @@ var get = Ember.get, set = Ember.set;
 
   If you created a new instance of `App.Post` and added
   a `App.Comment` record to its `comments` has-many
-  association, you would expect the comment's `post`
+  relationship, you would expect the comment's `post`
   property to be set to the post that contained
   the has-many.
 
-  We call the record to which an association belongs the
-  association's _owner_.
+  We call the record to which a relationship belongs the
+  relationship's _owner_.
 */
 DS.ManyArray = DS.RecordArray.extend({
   init: function() {
@@ -42,7 +41,7 @@ DS.ManyArray = DS.RecordArray.extend({
   /**
     @private
 
-    The record to which this association belongs.
+    The record to which this relationship belongs.
 
     @property {DS.Model}
   */
@@ -65,19 +64,19 @@ DS.ManyArray = DS.RecordArray.extend({
   },
 
   fetch: function() {
-    var clientIds = get(this, 'content'),
+    var references = get(this, 'content'),
         store = get(this, 'store'),
         type = get(this, 'type');
 
-    store.fetchUnloadedClientIds(type, clientIds);
+    store.fetchUnloadedReferences(type, references);
   },
 
   // Overrides Ember.Array's replace method to implement
   replaceContent: function(index, removed, added) {
     // Map the array of record objects into an array of  client ids.
     added = added.map(function(record) {
-      Ember.assert("You can only add records of " + (get(this, 'type') && get(this, 'type').toString()) + " to this association.", !get(this, 'type') || (get(this, 'type') === record.constructor));
-      return record.get('clientId');
+      Ember.assert("You can only add records of " + (get(this, 'type') && get(this, 'type').toString()) + " to this relationship.", !get(this, 'type') || (get(this, 'type') === record.constructor));
+      return get(record, 'reference');
     }, this);
 
     this._super(index, removed, added);
@@ -91,7 +90,7 @@ DS.ManyArray = DS.RecordArray.extend({
     var owner = get(this, 'owner'),
         name = get(this, 'name');
 
-    if (!owner._suspendedAssociations) {
+    if (!owner._suspendedRelationships) {
       // This code is the first half of code that continues inside
       // of arrayContentDidChange. It gets or creates a change from
       // the child object, adds the current owner as the old
@@ -102,18 +101,17 @@ DS.ManyArray = DS.RecordArray.extend({
       // the `arrayContentDidChange` will set `newParent` on
       // the change.
       for (var i=index; i<index+removed; i++) {
-        var clientId = get(this, 'content').objectAt(i);
+        var reference = get(this, 'content').objectAt(i);
         //var record = this.objectAt(i);
         //if (!record) { continue; }
 
-        var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), {
+        var change = DS.RelationshipChange.createChange(owner.get('clientId'), reference.clientId, get(this, 'store'), {
           parentType: owner.constructor,
-          hasManyName: name
+          changeType: "remove",
+          kind: "hasMany",
+          key: name
         });
-        change.hasManyName = name;
 
-        if (change.oldParent === undefined) { change.oldParent = get(owner, 'clientId'); }
-        change.newParent = null;
         this._changesToSync.add(change);
       }
     }
@@ -125,25 +123,25 @@ DS.ManyArray = DS.RecordArray.extend({
     this._super.apply(this, arguments);
 
     var owner = get(this, 'owner'),
-        name = get(this, 'name');
+        name = get(this, 'name'),
+        store = get(this, 'store');
 
-    if (!owner._suspendedAssociations) {
+    if (!owner._suspendedRelationships) {
       // This code is the second half of code that started in
       // `arrayContentWillChange`. It gets or creates a change
       // from the child object, and adds the current owner as
       // the new parent.
       for (var i=index; i<index+added; i++) {
-        var clientId = get(this, 'content').objectAt(i);
+        var reference = get(this, 'content').objectAt(i);
 
-        var change = DS.OneToManyChange.forChildAndParent(clientId, get(this, 'store'), {
+        var change = DS.RelationshipChange.createChange(owner.get('clientId'), reference.clientId, store, {
           parentType: owner.constructor,
-          hasManyName: name
+          changeType: "add",
+          kind:"hasMany",
+          key: name
         });
         change.hasManyName = name;
 
-        // The oldParent will be looked up in `sync` if it
-        // was not set by `belongsToWillChange`.
-        change.newParent = get(owner, 'clientId');
         this._changesToSync.add(change);
       }
 
@@ -155,6 +153,7 @@ DS.ManyArray = DS.RecordArray.extend({
       this._changesToSync.forEach(function(change) {
         change.sync();
       });
+      DS.OneToManyChange.ensureSameTransaction(this._changesToSync, store);
       this._changesToSync.clear();
     }
   },
@@ -172,38 +171,6 @@ DS.ManyArray = DS.RecordArray.extend({
     this.pushObject(record);
 
     return record;
-  },
-
-  /**
-    METHODS FOR USE BY INVERSE RELATIONSHIPS
-    ========================================
-
-    These methods exists so that belongsTo relationships can
-    set their inverses without causing an infinite loop.
-
-    This creates two APIs:
-
-    * the normal enumerable API, which is used by clients
-      of the `ManyArray` and triggers a change to inverse
-      `belongsTo` relationships.
-    * `removeFromContent` and `addToContent`, which are
-      used by inverse relationships and do not trigger a
-      change to `belongsTo` relationships.
-
-    Unlike the normal `addObject` and `removeObject` APIs,
-    these APIs manipulate the `content` array without
-    triggering side-effects.
-  */
-
-  /** @private */
-  removeFromContent: function(record) {
-    var clientId = get(record, 'clientId');
-    get(this, 'content').removeObject(clientId);
-  },
-
-  /** @private */
-  addToContent: function(record) {
-    var clientId = get(record, 'clientId');
-    get(this, 'content').addObject(clientId);
   }
+
 });
