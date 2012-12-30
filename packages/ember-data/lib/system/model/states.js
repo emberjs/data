@@ -297,9 +297,11 @@ var DirtyState = DS.State.extend({
       manager.transitionTo('loaded.saved');
     },
 
-    becameInvalid: function(manager) {
+    becameInvalid: function(manager, errors) {
       var dirtyType = get(this, 'dirtyType'),
           record = get(manager, 'record');
+
+      set(record, 'errors', errors);
 
       record.withTransaction(function (t) {
         t.recordBecameInFlight(dirtyType, record);
