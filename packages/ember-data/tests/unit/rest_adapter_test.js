@@ -11,7 +11,12 @@ module("the REST adapter", {
     ajaxType = undefined;
     ajaxHash = undefined;
 
-    adapter = DS.RESTAdapter.create({
+    var Adapter = DS.RESTAdapter.extend();
+    Adapter.configure('plurals', {
+      person: 'people'
+    });
+
+    adapter = Adapter.create({
       ajax: function(url, type, hash) {
         var success = hash.success, self = this;
 
@@ -28,10 +33,6 @@ module("the REST adapter", {
     });
 
     serializer = get(adapter, 'serializer');
-
-    serializer.plurals = {
-      person: 'people'
-    };
 
     store = DS.Store.create({
       adapter: adapter

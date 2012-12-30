@@ -68,8 +68,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   init: function() {
     this._super.apply(this, arguments);
-
-    get(this, 'serializer').plurals = this.plurals || {};
   },
 
   shouldSave: function(record) {
