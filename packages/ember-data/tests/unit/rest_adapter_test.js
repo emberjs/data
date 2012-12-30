@@ -892,7 +892,7 @@ test("sideloaded data is loaded prior to primary data (to ensure relationship co
   expect(1);
 
   group = store.find(Group, 1);
-  group.on("didLoad", function() {
+  group.then(function(group) {
     equal(group.get('people.firstObject').get('name'), "Tom Dale", "sideloaded data are already loaded");
   });
 

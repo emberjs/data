@@ -1,4 +1,7 @@
 require("ember-data/system/model/states");
+require("ember-data/system/mixins/load_promise");
+
+var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
 
 var get = Ember.get, set = Ember.set, none = Ember.isNone, map = Ember.EnumerableUtils.map;
 
@@ -6,7 +9,7 @@ var retrieveFromCurrentState = Ember.computed(function(key) {
   return get(get(this, 'stateManager.currentState'), key);
 }).property('stateManager.currentState');
 
-DS.Model = Ember.Object.extend(Ember.Evented, {
+DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   isLoaded: retrieveFromCurrentState,
   isDirty: retrieveFromCurrentState,
   isSaving: retrieveFromCurrentState,
@@ -66,6 +69,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   _data: null,
 
   init: function() {
+    this._super();
+
     var stateManager = DS.StateManager.create({ record: this });
     set(this, 'stateManager', stateManager);
 

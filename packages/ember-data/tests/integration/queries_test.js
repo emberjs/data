@@ -21,7 +21,7 @@ module("Queries", {
 });
 
 test("When a query is made, the adapter should receive a record array it can populate with the results of the query.", function() {
-  expect(7);
+  expect(8);
 
   adapter.findQuery = function(store, type, query, recordArray) {
     equal(type, Person, "the find method is called with the correct type");
@@ -40,12 +40,16 @@ test("When a query is made, the adapter should receive a record array it can pop
   equal(get(queryResults, 'isLoaded'), false, "the record array's `isLoaded` property is false");
 
   queryResults.one('didLoad', function() {
-    start();
-
     equal(get(queryResults, 'length'), 2, "the record array has a length of 2 after the results are loaded");
     equal(get(queryResults, 'isLoaded'), true, "the record array's `isLoaded` property should be true");
 
     equal(queryResults.objectAt(0).get('name'), "Peter Wagenet", "the first record is 'Peter Wagenet'");
     equal(queryResults.objectAt(1).get('name'), "Brohuda Katz", "the second record is 'Brohuda Katz'");
+  });
+
+  queryResults.then(function(resolvedValue) {
+    start();
+
+    equal(resolvedValue, queryResults, "The promise was resolved with the query results");
   });
 });

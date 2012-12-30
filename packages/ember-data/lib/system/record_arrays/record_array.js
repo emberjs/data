@@ -1,4 +1,8 @@
+require("ember-data/system/mixins/load_promise");
+
 var get = Ember.get, set = Ember.set;
+
+var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
 
 /**
   A record array is an array that contains records of a certain type. The record
@@ -8,7 +12,7 @@ var get = Ember.get, set = Ember.set;
   in response to queries.
 */
 
-DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
+DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, LoadPromise, {
   /**
     The model type contained by this record array.
 

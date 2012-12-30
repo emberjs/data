@@ -35,7 +35,7 @@ module("Has-Many Relationships", {
 });
 
 test("A hasMany relationship has an isLoaded flag that indicates whether the ManyArray has finished loaded", function() {
-  expect(8);
+  expect(9);
 
   var array, hasLoaded;
 
@@ -56,6 +56,10 @@ test("A hasMany relationship has an isLoaded flag that indicates whether the Man
 
   array.on('didLoad', function() {
     ok(true, "didLoad was triggered");
+  });
+
+  array.then(function(resolvedValue) {
+    equal(resolvedValue, array, "the promise was resolved with itself");
   });
 
   equal(get(array, 'isLoaded'), false, "isLoaded should not be true when first created");
