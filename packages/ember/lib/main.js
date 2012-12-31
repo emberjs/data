@@ -1,5 +1,5 @@
-// Version: v1.0.0-pre.2-232-g9f8959d
-// Last commit: 9f8959d (2012-12-30 13:59:55 -0800)
+// Version: v1.0.0-pre.2-154-g4eb5f08
+// Last commit: 4eb5f08 (2012-12-16 23:32:56 -0800)
 
 
 (function() {
@@ -142,8 +142,8 @@ if ('undefined' !== typeof window) {
 
 })();
 
-// Version: v1.0.0-pre.2-232-g9f8959d
-// Last commit: 9f8959d (2012-12-30 13:59:55 -0800)
+// Version: v1.0.0-pre.2-233-g2db13c3
+// Last commit: 2db13c3 (2012-12-30 16:18:06 -0800)
 
 
 (function() {
@@ -5935,27 +5935,31 @@ define("rsvp",
     var noop = function() {};
 
     var invokeCallback = function(type, promise, callback, event) {
-      var value, error;
+      var hasCallback = typeof callback === 'function',
+          value, error, succeeded, failed;
 
-      if (callback) {
+      if (hasCallback) {
         try {
           value = callback(event.detail);
+          succeeded = true;
         } catch(e) {
+          failed = true;
           error = e;
         }
       } else {
         value = event.detail;
+        succeeded = true;
       }
 
-      if (value instanceof Promise) {
+      if (value && typeof value.then === 'function') {
         value.then(function(value) {
           promise.resolve(value);
         }, function(error) {
           promise.reject(error);
         });
-      } else if (callback && value) {
+      } else if (hasCallback && succeeded) {
         promise.resolve(value);
-      } else if (error) {
+      } else if (failed) {
         promise.reject(error);
       } else {
         promise[type](value);
@@ -24926,8 +24930,8 @@ Ember States
 
 
 })();
-// Version: v1.0.0-pre.2-232-g9f8959d
-// Last commit: 9f8959d (2012-12-30 13:59:55 -0800)
+// Version: v1.0.0-pre.2-233-g2db13c3
+// Last commit: 2db13c3 (2012-12-30 16:18:06 -0800)
 
 
 (function() {
