@@ -726,4 +726,54 @@ test("unload a record", function() {
   tryToFind = false;
   store.find(Record, 1);
   equal(tryToFind, true, "not found record with id 1");
+
+});
+
+module("DS.Store - unload record with relationships");
+
+test("can commit store after unload record with relationships", function() {
+
+  var store = DS.Store.create({
+    adapter: DS.Adapter.create({
+
+      find: function() {
+        tryToFind = true;
+      },
+      createRecord: function(store, type, record) {
+        this.didCreateRecord(store, type, record);
+      }
+    })
+  });
+  var like, product, brand;
+
+  var Brand = DS.Model.extend({
+    name: DS.attr('string')
+  });
+  var Product = DS.Model.extend({
+    description: DS.attr('string'),
+    brand: DS.belongsTo(Brand)
+  });
+  var Like = DS.Model.extend({
+    product: DS.belongsTo(Product)
+  });
+
+  store.load(Brand, {id: 1, name: 'EmberJS'});
+  brand = store.find(Brand, 1);
+
+  store.load(Product, {id: 1, description: 'toto', brand: brand});
+  product = store.find(Product, 1);
+
+  like = store.createRecord(Like, {id: 1, product: product});
+  store.commit();
+
+  store.unloadRecord(product);
+  // can commit because `product` is not in transactionBucketTypes
+  store.commit();
+
+  tryToFind = false;
+  product = store.find(Product, 1);
+  ok(tryToFind, "not found record with id 1");
+
+  store.destroy();
+
 });
