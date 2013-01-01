@@ -706,7 +706,7 @@ DS.Adapter.reopenClass({
 
     // If a mapping configuration is provided, peel it off and apply it
     // using the DS.Adapter.map API.
-    var mappings = newValue.mappings;
+    var mappings = newValue && newValue.mappings;
     if (mappings) {
       this.map(key, mappings);
       delete newValue.mappings;

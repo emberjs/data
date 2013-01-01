@@ -210,7 +210,8 @@ DS.JSONSerializer = DS.Serializer.extend({
   // define a plurals hash in your subclass to define
   // special-case pluralization
   pluralize: function(name) {
-    return this.plurals[name] || name + "s";
+    var plurals = this.configurations.get('plurals');
+    return (plurals && plurals[name]) || name + "s";
   },
 
   rootForType: function(type) {

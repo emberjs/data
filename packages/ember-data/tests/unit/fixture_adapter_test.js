@@ -46,7 +46,7 @@ test("should load data for a type asynchronously when it is requested", function
 
   equal(get(ebryn, 'isLoaded'), false, "record from fixtures is returned in the loading state");
 
-  ebryn.on('didLoad', function() {
+  ebryn.then(function() {
     clearTimeout(timer);
     start();
 
@@ -56,7 +56,7 @@ test("should load data for a type asynchronously when it is requested", function
     stop();
 
     var wycats = store.find(Person, 'wycats');
-    wycats.on('didLoad', function() {
+    wycats.then(function() {
       clearTimeout(timer);
       start();
 
