@@ -408,11 +408,11 @@ DS.RelationshipChange.prototype = {
     // of ember-data, and should be done as new infrastructure, not
     // a one-off hack. [tomhuda]
     if (parentRecord && get(parentRecord, 'isLoaded')) {
-      this.store.recordHasManyDidChange(dirtySet, parentRecord, this);
+      this.store.recordHasManyDidChange(dirtySet, parentRecord, hasManyName);
     }
 
     if (child) {
-      this.store.recordBelongsToDidChange(dirtySet, child, this);
+      this.store.recordBelongsToDidChange(dirtySet, child, belongsToName);
     }
 
     dirtySet.forEach(function(record) {

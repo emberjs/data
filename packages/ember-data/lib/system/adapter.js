@@ -442,7 +442,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   },
 
   dirtyRecordsForAttributeChange: function(dirtySet, record, attributeName, newValue, oldValue) {
-    if (newValue !== oldValue) {
+    var notDirty = get(this, 'serializer').mappingOption(record.constructor, attributeName, 'notDirty');
+    if (!notDirty && newValue !== oldValue) {
       // If this record is embedded, add its parent
       // to the dirty set.
       this.dirtyRecordsForRecordChange(dirtySet, record);
@@ -453,12 +454,18 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     dirtySet.add(record);
   },
 
-  dirtyRecordsForBelongsToChange: function(dirtySet, child) {
-    this.dirtyRecordsForRecordChange(dirtySet, child);
+  dirtyRecordsForBelongsToChange: function(dirtySet, child, attributeName) {
+    var notDirty = get(this, 'serializer').mappingOption(child.constructor, attributeName, 'notDirty');
+    if (!notDirty ) {
+      this.dirtyRecordsForRecordChange(dirtySet, child);
+    }
   },
 
-  dirtyRecordsForHasManyChange: function(dirtySet, parent) {
-    this.dirtyRecordsForRecordChange(dirtySet, parent);
+  dirtyRecordsForHasManyChange: function(dirtySet, parent, attributeName) {
+    var notDirty = get(this, 'serializer').mappingOption(parent.constructor, attributeName, 'notDirty');
+    if (!notDirty ) {
+      this.dirtyRecordsForRecordChange(dirtySet, parent);
+    }
   },
 
   /**
