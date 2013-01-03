@@ -1520,13 +1520,13 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object} data the data to load
   */
   load: function(type, data, prematerialized) {
+    var id;
+
     if (typeof data === 'number' || typeof data === 'string') {
       id = data;
       data = prematerialized;
       prematerialized = null;
     }
-
-    var id;
 
     if (prematerialized && prematerialized.id) {
       id = prematerialized.id;
