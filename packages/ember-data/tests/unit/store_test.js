@@ -387,6 +387,7 @@ test("all(type) returns a record array of all records of a specific type", funct
 });
 
 test("a new record of a particular type is created via store.createRecord(type)", function() {
+  expect(6);
   var store = DS.Store.create();
   var Person = DS.Model.extend({
     name: DS.attr('string')
@@ -409,6 +410,7 @@ test("a new record of a particular type is created via store.createRecord(type)"
 });
 
 test("an initial data hash can be provided via store.createRecord(type, hash)", function() {
+  expect(6);
   var store = DS.Store.create();
   var Person = DS.Model.extend({
     name: DS.attr('string')
