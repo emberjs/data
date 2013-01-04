@@ -180,6 +180,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
       var ids = this._data.hasMany[key] || [];
 
       var references = map(ids, function(id) {
+        // if it was already a reference, return the reference
+        if (typeof id === 'object') { return id; }
         return store.referenceForId(type, id);
       });
 

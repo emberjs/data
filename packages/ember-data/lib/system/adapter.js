@@ -10,6 +10,12 @@ function loaderFor(store) {
       return store.loadMany(type, array);
     },
 
+    updateId: function(record, data) {
+      return store.updateId(record, data);
+    },
+
+    populateArray: Ember.K,
+
     sideload: function(type, data) {
       return store.load(type, data);
     },
@@ -189,18 +195,9 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
       store.didSaveRecord(record);
     }, this);
 
-    records = records.toArray();
-
     if (payload) {
       var loader = DS.loaderFor(store);
-      loader.loadMany = function(type, array) {
-        for (var i = 0; i < array.length; i++) {
-          store.updateId(records[i], array[i]);
-        }
-        store.loadMany(type, array);
-      };
-
-      get(this, 'serializer').extractMany(loader, payload, type);
+      get(this, 'serializer').extractMany(loader, payload, type, records);
     }
   },
 
@@ -403,7 +400,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   didFindQuery: function(store, type, payload, recordArray) {
     var loader = DS.loaderFor(store);
-    loader.loadMany = function(type, data) {
+
+    loader.populateArray = function(data) {
       recordArray.load(data);
     };
 

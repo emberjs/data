@@ -121,18 +121,19 @@ DS.JSONSerializer = DS.Serializer.extend({
 
   // EXTRACTION
 
-  extract: function(loader, json, type) {
+  extract: function(loader, json, type, record) {
     var root = this.rootForType(type);
 
     this.sideload(loader, type, json, root);
     this.extractMeta(loader, type, json);
 
     if (json[root]) {
+      if (record) { loader.updateId(record, json[root]); }
       this.extractRecordRepresentation(loader, type, json[root]);
     }
   },
 
-  extractMany: function(loader, json, type) {
+  extractMany: function(loader, json, type, records) {
     var root = this.rootForType(type);
     root = this.pluralize(root);
 
@@ -140,7 +141,16 @@ DS.JSONSerializer = DS.Serializer.extend({
     this.extractMeta(loader, type, json);
 
     if (json[root]) {
-      loader.loadMany(type, json[root]);
+      var objects = json[root], references = [];
+      if (records) { records = records.toArray(); }
+
+      for (var i = 0; i < objects.length; i++) {
+        if (records) { loader.updateId(records[i], objects[i]); }
+        var reference = this.extractRecordRepresentation(loader, type, objects[i]);
+        references.push(reference);
+      }
+
+      loader.populateArray(references);
     }
   },
 

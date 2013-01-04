@@ -5,7 +5,7 @@ require("ember-data/system/record_arrays");
 require("ember-data/system/transaction");
 require("ember-data/system/mixins/mappable");
 
-var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt;
+var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt, once = Ember.run.once;
 var forEach = Ember.EnumerableUtils.forEach;
 // These values are used in the data cache when clientIds are
 // needed but the underlying data has not yet been loaded by
@@ -1548,14 +1548,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
       var record = this.recordCache[clientId];
       if (record) {
-        record.loadedData();
+        once(record, 'loadedData');
       }
     } else {
       clientId = this.pushData(data, id, type);
       cidToPrematerialized[clientId] = prematerialized;
     }
 
-    this.updateRecordArrays(type, clientId);
+    this.updateRecordArraysLater(type, clientId);
 
     return this.referenceForClientId(clientId);
   },
