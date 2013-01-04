@@ -110,11 +110,19 @@ DS.JSONSerializer = DS.Serializer.extend({
   },
 
   addHasMany: function(hash, record, key, relationship) {
-    var array = [];
+    var type = record.constructor,
+        name = relationship.key,
+        array = [],
+        self = this,
+        target;
 
-    this.eachEmbeddedHasManyRecord(record, function(embeddedRecord) {
-      array.push(this.serialize(embeddedRecord, { includeId: true }));
-    }, this);
+    if (this.embeddedType(type, name)) {
+      if (target = get(record, name)) {
+        target.forEach(function (record) {
+          array.push(self.serialize(record, { includeId: true }));
+        });
+      }
+    }
 
     hash[key] = array;
   },
