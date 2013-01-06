@@ -10,10 +10,8 @@ DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
     throw new Error("The result of a server query (on " + type + ") is immutable.");
   },
 
-  load: function(array) {
+  load: function(references) {
     var store = get(this, 'store'), type = get(this, 'type');
-
-    var references = store.loadMany(type, array);
 
     this.beginPropertyChanges();
     set(this, 'content', Ember.A(references));

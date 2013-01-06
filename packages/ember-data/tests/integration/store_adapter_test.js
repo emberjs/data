@@ -16,7 +16,9 @@ var Person, store, adapter;
 
 module("DS.Store and DS.Adapter integration test", {
   setup: function() {
-    Person = DS.Model.extend({
+    var App = Ember.Namespace.create({ name: "App" });
+
+    App.Person = Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
       firstName: DS.attr('string'),
@@ -341,10 +343,10 @@ test("can be created after the DS.Store", function() {
 
 test("the filter method can optionally take a server query as well", function() {
   adapter.findQuery = function(store, type, query, array) {
-    array.load([
+    this.didFindQuery(store, type, { persons: [
       { id: 1, name: "Yehuda Katz" },
       { id: 2, name: "Tom Dale" }
-    ]);
+    ]}, array);
   };
 
   var filter = store.filter(Person, { page: 1 }, function(data) {

@@ -8,7 +8,9 @@ var array;
 module("DS.Store", {
   setup: function() {
     array = [{ id: '1', name: "Scumbag Dale" }, { id: '2', name: "Scumbag Katz" }, { id: '3', name: "Scumbag Bryn" }];
-    Person = DS.Model.extend({
+    var App = Ember.Namespace.create({ name: "App" });
+
+    App.Person = Person = DS.Model.extend({
       name: DS.attr('string')
     });
   },
@@ -122,22 +124,24 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
   expect(2);
 
   var store = DS.Store.create({
-    adapter: {
+    adapter: DS.Adapter.extend({
       findQuery: function(store, type, query, recordArray) {
         stop();
 
+        var self = this;
+
         setTimeout(function() {
-          recordArray.load(array);
-          equal(get(array, 'isLoaded'), true, "The array is now loaded");
+          self.didFindQuery(store, type, { persons: array }, recordArray);
+          equal(get(people, 'isLoaded'), true, "The array is now loaded");
           start();
         }, 100);
       }
-    }
+    })
   });
 
-  var array = store.find(Person, { page: 1 });
+  var people = store.find(Person, { page: 1 });
 
-  equal(get(array, 'isLoaded'), false, "The array is not yet loaded");
+  equal(get(people, 'isLoaded'), false, "The array is not yet loaded");
 });
 
 test("a record array that backs a collection view functions properly", function() {

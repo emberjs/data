@@ -3,7 +3,9 @@ var Person, store, adapter;
 
 module("Queries", {
   setup: function() {
-    Person = DS.Model.extend({
+    var App = Ember.Namespace.create({ name: "App" });
+
+    Person = App.Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
       firstName: DS.attr('string'),
@@ -28,10 +30,12 @@ test("When a query is made, the adapter should receive a record array it can pop
 
     stop();
 
+    var self = this;
+
     // Simulate latency to ensure correct behavior in asynchronous conditions.
     // Once 100ms has passed, load the results of the query into the record array.
     setTimeout(function() {
-      recordArray.load([{ id: 1, name: "Peter Wagenet" }, { id: 2, name: "Brohuda Katz" }]);
+      self.didFindQuery(store, type, { persons: [{ id: 1, name: "Peter Wagenet" }, { id: 2, name: "Brohuda Katz" }] }, recordArray);
     }, 100);
   };
 

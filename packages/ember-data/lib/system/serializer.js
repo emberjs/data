@@ -201,11 +201,15 @@ DS.Serializer = Ember.Object.extend({
   extract: mustImplement('extract'),
   extractMany: mustImplement('extractMany'),
 
-  extractRecordRepresentation: function(loader, type, json) {
+  extractRecordRepresentation: function(loader, type, json, shouldSideload) {
     var mapping = this.mappingForType(type);
-    var embeddedData, prematerialized = {};
+    var embeddedData, prematerialized = {}, reference;
 
-    var reference = loader.load(type, json);
+    if (shouldSideload) {
+      reference = loader.sideload(type, json);
+    } else {
+      reference = loader.load(type, json);
+    }
 
     this.eachEmbeddedHasMany(type, function(name, relationship) {
       var embeddedData = json[this.keyFor(relationship)];
@@ -230,7 +234,7 @@ DS.Serializer = Ember.Object.extend({
     var references = map.call(array, function(item) {
       if (!item) { return; }
 
-      var reference = this.extractRecordRepresentation(loader, relationship.type, item);
+      var reference = this.extractRecordRepresentation(loader, relationship.type, item, true);
 
       // If the embedded record should also be saved back when serializing the parent,
       // make sure we set its parent since it will not have an ID.

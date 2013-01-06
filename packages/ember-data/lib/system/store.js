@@ -5,7 +5,7 @@ require("ember-data/system/record_arrays");
 require("ember-data/system/transaction");
 require("ember-data/system/mixins/mappable");
 
-var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt;
+var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt, once = Ember.run.once;
 var forEach = Ember.EnumerableUtils.forEach;
 // These values are used in the data cache when clientIds are
 // needed but the underlying data has not yet been loaded by
@@ -364,6 +364,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // Set the properties specified on the record.
     record.setProperties(properties);
 
+    // Resolve record promise
+    Ember.run(record, 'resolve', record);
+
     return record;
   },
 
@@ -491,6 +494,18 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     else { throw "Adapter is either null or does not implement `find` method"; }
 
     return record;
+  },
+
+  reloadRecord: function(record) {
+    var type = record.constructor,
+        adapter = this.adapterForType(type),
+        id = get(record, 'id');
+
+    Ember.assert("You cannot update a record without an ID", id);
+    Ember.assert("You tried to update a record but you have no adapter (for " + type + ")", adapter);
+    Ember.assert("You tried to update a record but your adapter does not implement `find`", adapter.find);
+
+    adapter.find(this, type, id);
   },
 
   /**
@@ -1520,13 +1535,13 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object} data the data to load
   */
   load: function(type, data, prematerialized) {
+    var id;
+
     if (typeof data === 'number' || typeof data === 'string') {
       id = data;
       data = prematerialized;
       prematerialized = null;
     }
-
-    var id;
 
     if (prematerialized && prematerialized.id) {
       id = prematerialized.id;
@@ -1548,14 +1563,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
       var record = this.recordCache[clientId];
       if (record) {
-        record.loadedData();
+        once(record, 'loadedData');
       }
     } else {
       clientId = this.pushData(data, id, type);
       cidToPrematerialized[clientId] = prematerialized;
     }
 
-    this.updateRecordArrays(type, clientId);
+    this.updateRecordArraysLater(type, clientId);
 
     return this.referenceForClientId(clientId);
   },

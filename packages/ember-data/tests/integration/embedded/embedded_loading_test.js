@@ -2,9 +2,13 @@ var originalLookup = Ember.lookup, lookup;
 
 var Adapter, store, adapter;
 
-var Person = DS.Model.extend();
+var App = Ember.Namespace.create({
+  name: "App"
+});
 
-var Comment = DS.Model.extend({
+var Person = App.Person = DS.Model.extend();
+
+var Comment = App.Comment = DS.Model.extend({
   user: DS.belongsTo(Person)
 });
 
@@ -101,6 +105,123 @@ Ember.ArrayPolyfills.forEach.call([Person, "Person"], function(mapping) {
 
     strictEqual(person1.get('comments').objectAt(0), comment1);
     strictEqual(person2.get('comments').objectAt(0), comment1);
+  });
+
+  asyncTest("An embedded hasMany relationship can be extracted if the JSON is returned in response to a find", function() {
+    Adapter.map(mapping, {
+      comments: { embedded: 'load' }
+    });
+
+    adapter = Adapter.create();
+    store.set('adapter', adapter);
+
+    adapter.find = function(store, type, id) {
+      var self = this;
+
+      setTimeout(function() {
+        Ember.run(function() {
+          self.didFindRecord(store, type, {
+            person: {
+              id: 1,
+              name: "Erik Brynroflsson",
+              comments: [{ id: 1 }, { id: 2 }]
+            }
+          }, id);
+        });
+
+        done();
+      });
+    };
+
+    store.find(Person, 1);
+
+    function done() {
+      start();
+
+      var person1 = store.find(Person, 1);
+      var comment1 = store.find(Comment, 1);
+      var comment2 = store.find(Comment, 2);
+
+      strictEqual(person1.get('comments').objectAt(0), comment1);
+    }
+  });
+
+  asyncTest("An embedded hasMany relationship can be extracted if the JSON is returned in response to a findAll", function() {
+    Adapter.map(mapping, {
+      comments: { embedded: 'load' }
+    });
+
+    adapter = Adapter.create();
+    store.set('adapter', adapter);
+
+    adapter.findAll = function(store, type) {
+      var self = this;
+
+      setTimeout(function() {
+        Ember.run(function() {
+          self.didFindAll(store, type, {
+            persons: [{
+              id: 1,
+              name: "Erik Brynroflsson",
+              comments: [{ id: 1 }, { id: 2 }]
+            }, {
+              id: 2,
+              name: "Patrick Gibson",
+              comments: [{ id: 1 }, { id: 2 }]
+            }]
+          });
+        });
+
+        done();
+      });
+    };
+
+    store.find(Person);
+
+    function done() {
+      start();
+
+      var person1 = store.find(Person, 1);
+      var person2 = store.find(Person, 2);
+      var comment1 = store.find(Comment, 1);
+      var comment2 = store.find(Comment, 2);
+
+      strictEqual(person1.get('comments').objectAt(0), comment1);
+      strictEqual(person2.get('comments').objectAt(0), comment1);
+    }
+  });
+
+  test("Loading the same record with embedded hasMany multiple times works correctly", function() {
+    Adapter.map(mapping, {
+      comments: { embedded: 'load' }
+    });
+
+    adapter = Adapter.create();
+    store.set('adapter', adapter);
+
+    Ember.run(function() {
+      adapter.load(store, Person, {
+        id: 1,
+        name: "Erik Brynroflsson",
+        comments: [{ id: 1 }, { id: 2 }]
+      });
+    });
+
+    var person = store.find(Person, 1);
+    person.get('comments');
+
+    // Load the same data twice
+    Ember.run(function() {
+      adapter.load(store, Person, {
+        id: 1,
+        name: "Erik Brynroflsson",
+        comments: [{ id: 1 }, { id: 2 }]
+      });
+    });
+
+    var comment1 = person.get('comments').objectAt(0);
+
+    equal(comment1.get('id'), 1, "comment with ID 1 was loaded");
   });
 });
 
