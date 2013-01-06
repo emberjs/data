@@ -82,6 +82,16 @@ inside their JSON representation (arbitrarily deep), the lines between
 the entire payload and an individual record representation became
 blurred.
 
+If you are sideloading data in your application and you are using 
+DS.RESTAdapter, you will need to utilize the new DS.RESTAdapter method 
+for configuration:
+
+```js
+DS.RESTAdapter.configure('App.Post', {
+  sideloadAs: 'posts' 
+});
+```
+
 ### New Adapter Acknowledgment API
 
 Previously, if you were writing a custom adapter, you would acknowledge
@@ -189,8 +199,9 @@ more convenient version of this API in the future.
 
 #### TL;DR
 
-If you are using the REST adapter, no changes are necessary. You can now
-include embedded records.
+If you are using the REST adapter, you can now include embedded records
+without making any changes.  Additionally, if you are sideloading records,
+you will need to make the changes described in the Payload Extraction section.
 
 If you were manually loading data into the store, use the new
 `Adapter#load` API instead of `Store#load`.
