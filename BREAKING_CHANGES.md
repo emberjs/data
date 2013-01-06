@@ -83,8 +83,8 @@ the entire payload and an individual record representation became
 blurred.
 
 If you are sideloading data in your application and you are using 
-DS.RESTAdapter, you will need to utilize the new DS.RESTAdapter method 
-for configuration:
+DS.RESTAdapter, you will need to utilize the new DS.RESTAdapter configure
+method for configuration:
 
 ```js
 DS.RESTAdapter.configure('App.Post', {
