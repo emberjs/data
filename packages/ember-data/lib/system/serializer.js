@@ -914,7 +914,8 @@ DS.Serializer = Ember.Object.extend({
       },
       serialize: function(serialized) {
         return objects.indexOf(serialized);
-      }
+      },
+      values: objects
     };
     this.registerTransform(type, transform);
   },
