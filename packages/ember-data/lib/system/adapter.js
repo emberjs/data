@@ -548,7 +548,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     in your app, but you want to persist those as 0,1,2 in your backend.
     You would first register the transform on your adapter instance:
 
-    adapter.registerEnumeratedTransform('priority', ['low', 'medium', 'high']);
+    adapter.registerEnumTransform('priority', ['low', 'medium', 'high']);
 
     You would then refer to the 'priority' DS.attr in your model:
     App.Task = DS.Model.extend({
@@ -565,8 +565,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {Array} array of String objects to use for the enumerated values.  
       This is an ordered list and the index values will be used for the transform.
   */
-  registerEnumeratedTransform: function(attributeType, objects) {
-    get(this, 'serializer').registerEnumeratedTransform(attributeType, objects);
+  registerEnumTransform: function(attributeType, objects) {
+    get(this, 'serializer').registerEnumTransform(attributeType, objects);
   },
 
   /**

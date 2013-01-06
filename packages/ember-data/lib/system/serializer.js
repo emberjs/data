@@ -907,7 +907,7 @@ DS.Serializer = Ember.Object.extend({
     this.transforms[type] = transform;
   },
 
-  registerEnumeratedTransform: function(type, objects) {
+  registerEnumTransform: function(type, objects) {
     var transform = {
       deserialize: function(deserialized) {
         return objects.objectAt(deserialized);
