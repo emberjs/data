@@ -225,8 +225,12 @@ DS.JSONSerializer = DS.Serializer.extend({
   },
 
   rootForType: function(type) {
+    var typeString = type.toString();
+
+    Ember.assert("Your model must not be anonymous. It was " + type, typeString.charAt(0) !== '(');
+
     // use the last part of the name as the URL
-    var parts = type.toString().split(".");
+    var parts = typeString.split(".");
     var name = parts[parts.length - 1];
     return name.replace(/([A-Z])/g, '_$1').toLowerCase().slice(1);
   }

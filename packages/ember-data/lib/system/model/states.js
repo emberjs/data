@@ -1,5 +1,5 @@
 var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor,
-    arrayMap = Ember.ArrayPolyfills.map;
+    once = Ember.run.once, arrayMap = Ember.ArrayPolyfills.map;
 
 /**
   This file encapsulates the various states that a record can transition
@@ -201,6 +201,7 @@ var updateRecordArrays = function(manager) {
 
 DS.State = Ember.State.extend({
   isLoaded: stateProperty,
+  isReloading: stateProperty,
   isDirty: stateProperty,
   isSaving: stateProperty,
   isDeleted: stateProperty,
@@ -471,6 +472,7 @@ var states = {
   rootState: Ember.State.create({
     // FLAGS
     isLoaded: false,
+    isReloading: false,
     isDirty: false,
     isSaving: false,
     isDeleted: false,
@@ -548,6 +550,32 @@ var states = {
         })
       }),
 
+      reloading: DS.State.create({
+        // FLAGS
+        isReloading: true,
+
+        // TRANSITIONS
+        enter: function(manager) {
+          var record = get(manager, 'record'),
+              store = get(record, 'store');
+
+          store.reloadRecord(record);
+        },
+
+        exit: function(manager) {
+          var record = get(manager, 'record');
+
+          once(record, 'trigger', 'didReload');
+        },
+
+        // EVENTS
+        loadedData: didChangeData,
+
+        materializingData: function(manager) {
+          manager.transitionTo('loaded.materializing');
+        }
+      }),
+
       // If there are no local changes to a record, it remains
       // in the `saved` state.
       saved: DS.State.create({
@@ -557,6 +585,10 @@ var states = {
 
         didChangeData: didChangeData,
         loadedData: didChangeData,
+
+        reloadRecord: function(manager) {
+          manager.transitionTo('loaded.reloading');
+        },
 
         materializingData: function(manager) {
           manager.transitionTo('loaded.materializing');

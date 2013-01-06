@@ -11,6 +11,7 @@ var retrieveFromCurrentState = Ember.computed(function(key) {
 
 DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   isLoaded: retrieveFromCurrentState,
+  isReloading: retrieveFromCurrentState,
   isDirty: retrieveFromCurrentState,
   isSaving: retrieveFromCurrentState,
   isDeleted: retrieveFromCurrentState,
@@ -42,6 +43,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   didLoad: Ember.K,
+  didReload: Ember.K,
   didUpdate: Ember.K,
   didCreate: Ember.K,
   didDelete: Ember.K,
@@ -107,6 +109,17 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
   setProperty: function(key, value, oldValue) {
     this.send('setProperty', { key: key, value: value, oldValue: oldValue });
+  },
+
+  /**
+    Reload the record from the adapter.
+
+    This will only work if the record has already finished loading
+    and has not yet been modified (`isLoaded` but not `isDirty`,
+    or `isSaving`).
+  */
+  reload: function() {
+    this.send('reloadRecord');
   },
 
   deleteRecord: function() {

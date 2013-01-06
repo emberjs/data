@@ -496,6 +496,18 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return record;
   },
 
+  reloadRecord: function(record) {
+    var type = record.constructor,
+        adapter = this.adapterForType(type),
+        id = get(record, 'id');
+
+    Ember.assert("You cannot update a record without an ID", id);
+    Ember.assert("You tried to update a record but you have no adapter (for " + type + ")", adapter);
+    Ember.assert("You tried to update a record but your adapter does not implement `find`", adapter.find);
+
+    adapter.find(this, type, id);
+  },
+
   /**
     @private
 
