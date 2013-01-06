@@ -83,8 +83,8 @@ the entire payload and an individual record representation became
 blurred.
 
 If you are sideloading data in your application and you are using 
-DS.RESTAdapter, you will need to utilize the new DS.RESTAdapter configure
-method for configuration:
+JSONSerializer (like the DS.RESTAdapter does by default), you will need 
+to utilize the DS.Adapter configure method for configuration:
 
 ```js
 DS.RESTAdapter.configure('App.Post', {
