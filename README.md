@@ -535,6 +535,10 @@ App.store.loadMany(App.Person, [{
 }]);
 ```
 
+This can also become useful when you're changing the data outside of Ember Data,
+such as by doing a custom AJAX request. You can then use `App.store.load` to update
+the loaded data.
+
 ## Adapter API
 
 An adapter is an object that receives requests from a store and translates
