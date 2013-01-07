@@ -78,10 +78,11 @@ Ember.onLoad('Ember.Application', function(Application) {
     });
 
     Application.initializer({
-      name: "giveStoreToControllers",
+      name: "injectStore",
 
       initialize: function(container) {
         container.typeInjection('controller', 'store', 'store:main');
+        container.typeInjection('route', 'store', 'store:main');
       }
     });
   }
