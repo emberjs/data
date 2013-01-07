@@ -572,47 +572,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     return get(this, 'serializer').extractId(type, data);
   },
 
-  extractEmbeddedData: function(store, type, data) {
-    var serializer = get(this, 'serializer');
-
-    type.eachRelationship(function(name, relationship) {
-      var dataListToLoad, dataToLoad, typeToLoad;
-
-      if (relationship.kind === 'hasMany') {
-        this._extractEmbeddedHasMany(store, serializer, type, data, relationship);
-      } else if (relationship.kind === 'belongsTo') {
-        this._extractEmbeddedBelongsTo(store, serializer, type, data, relationship);
-      }
-    }, this);
-  },
-
-  _extractEmbeddedHasMany: function(store, serializer, type, data, relationship) {
-    var dataListToLoad = serializer._extractEmbeddedHasMany(type, data, relationship.key),
-        typeToLoad = relationship.type;
-
-    if (dataListToLoad) {
-      var ids = [];
-
-      for (var i=0, l=dataListToLoad.length; i<l; i++) {
-        var dataToLoad = dataListToLoad[i];
-        ids.push(store.adapterForType(typeToLoad).extractId(typeToLoad, dataToLoad));
-      }
-      serializer.replaceEmbeddedHasMany(type, data, relationship.key, ids);
-      store.loadMany(relationship.type, dataListToLoad);
-    }
-  },
-
-  _extractEmbeddedBelongsTo: function(store, serializer, type, data, relationship) {
-    var dataToLoad = serializer._extractEmbeddedBelongsTo(type, data, relationship.key),
-        typeToLoad = relationship.type;
-
-    if (dataToLoad) {
-      var id = store.adapterForType(typeToLoad).extractId(typeToLoad, dataToLoad);
-      serializer.replaceEmbeddedBelongsTo(type, data, relationship.key, id);
-      store.load(relationship.type, dataToLoad);
-    }
-  },
-
   groupByType: function(enumerable) {
     var map = Ember.MapWithDefault.create({
       defaultValue: function() { return Ember.OrderedSet.create(); }
