@@ -116,3 +116,40 @@ test("the default date transform", function() {
   equal(result2, true, "timestamp is transformed into a date");
   equal(person2.get('born').toString(), date2.toString(), "date.toString and transformed date.toString values match");
 });
+
+
+module("Enum Transforms", {
+  setup: function() {
+    adapter = DS.Adapter.create();
+    adapter.registerEnumTransform('materials', ['unobtainium', 'kindaobtainium', 'veryobtainium']);
+  
+    store = DS.Store.create({
+      adapter: adapter
+    });
+  
+    serializer = adapter.get('serializer');
+  
+    Person = DS.Model.extend({
+      material: DS.attr('materials')
+    });
+  },
+  teardown: function() {
+    serializer.destroy();
+    adapter.destroy();
+    store.destroy();
+  }
+});
+
+test("correct transforms are applied", function() {
+  var json, person;
+  store.load(Person, {
+    id: 1,
+    material: 2
+  });
+  
+  person = store.find(Person, 1);
+  equal(person.get('material'), 'veryobtainium', 'value of the attribute on the record should be transformed');
+  
+  json = adapter.serialize(person);
+  equal(json.material, 2, 'value of the attribute in the JSON hash should be transformed');
+});
