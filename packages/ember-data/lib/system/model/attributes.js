@@ -9,6 +9,7 @@ DS.Model.reopenClass({
     this.eachComputedProperty(function(name, meta) {
       if (meta.isAttribute) {
         Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.toString(), name !== 'id');
+        Ember.assert("The attribute name `reference` is reserved for internal use for now " + this.toString(), name !== 'reference');
 
         meta.name = name;
         map.set(name, meta);
@@ -87,6 +88,7 @@ DS.attr = function(type, options) {
 
     if (arguments.length > 1) {
       Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
+      Ember.assert("The attribute name `reference` is reserved for internal use for now " + this.constructor.toString(), key !== 'reference');
     } else {
       value = getAttr(this, options, key);
     }
