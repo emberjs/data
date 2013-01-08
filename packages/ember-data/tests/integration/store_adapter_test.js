@@ -63,7 +63,6 @@ asyncTest("Records loaded multiple times and retrieved in recordArray are ready 
   };
 
   var people, people2;
-
   people = store.findQuery(Person, {q: 'bla'});
   people.one('didLoad', function() {
 
@@ -78,12 +77,11 @@ asyncTest("Records loaded multiple times and retrieved in recordArray are ready 
 
       var person = people.objectAt(0);
       ok( person.get('isLoaded'), 'record is loaded' );
+      // delete record will not throw exception
       person.deleteRecord();
 
 
     });
-
-
   });
 
 });
