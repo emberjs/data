@@ -76,7 +76,7 @@ DS.ManyArray = DS.RecordArray.extend({
     // Map the array of record objects into an array of  client ids.
     added = added.map(function(record) {
       Ember.assert("You can only add records of " + (get(this, 'type') && get(this, 'type').toString()) + " to this relationship.", !get(this, 'type') || (get(this, 'type') === record.constructor));
-      return get(record, 'reference');
+      return get(record, '_reference');
     }, this);
 
     this._super(index, removed, added);

@@ -301,7 +301,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     this.updateRecordArraysLater();
   },
 
-  reference: Ember.computed(function() {
+  _reference: Ember.computed(function() {
     return get(this, 'store').referenceForClientId(get(this, 'clientId'));
   }),
 

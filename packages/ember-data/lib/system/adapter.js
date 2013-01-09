@@ -540,6 +540,36 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
+    A public method that allows you to register an enumerated 
+    type on your adapter.  This is useful if you want to utilize
+    a text representation of an integer value.
+
+    Eg: Say you want to utilize "low","medium","high" text strings
+    in your app, but you want to persist those as 0,1,2 in your backend.
+    You would first register the transform on your adapter instance:
+
+    adapter.registerEnumTransform('priority', ['low', 'medium', 'high']);
+
+    You would then refer to the 'priority' DS.attr in your model:
+    App.Task = DS.Model.extend({
+      priority: DS.attr('priority') 
+    });
+
+    And lastly, you would set/get the text representation on your model instance,
+    but the transformed result will be the index number of the type.
+
+    App:   myTask.get('priority') => 'low'
+    Server Response / Load:  { myTask: {priority: 0} }
+
+    @param {String} type of the transform
+    @param {Array} array of String objects to use for the enumerated values.  
+      This is an ordered list and the index values will be used for the transform.
+  */
+  registerEnumTransform: function(attributeType, objects) {
+    get(this, 'serializer').registerEnumTransform(attributeType, objects);
+  },
+
+  /**
     If the globally unique IDs for your records should be generated on the client,
     implement the `generateIdForRecord()` method. This method will be invoked
     each time you create a new record, and the value returned from it will be
@@ -570,47 +600,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
   extractId: function(type, data) {
     return get(this, 'serializer').extractId(type, data);
-  },
-
-  extractEmbeddedData: function(store, type, data) {
-    var serializer = get(this, 'serializer');
-
-    type.eachRelationship(function(name, relationship) {
-      var dataListToLoad, dataToLoad, typeToLoad;
-
-      if (relationship.kind === 'hasMany') {
-        this._extractEmbeddedHasMany(store, serializer, type, data, relationship);
-      } else if (relationship.kind === 'belongsTo') {
-        this._extractEmbeddedBelongsTo(store, serializer, type, data, relationship);
-      }
-    }, this);
-  },
-
-  _extractEmbeddedHasMany: function(store, serializer, type, data, relationship) {
-    var dataListToLoad = serializer._extractEmbeddedHasMany(type, data, relationship.key),
-        typeToLoad = relationship.type;
-
-    if (dataListToLoad) {
-      var ids = [];
-
-      for (var i=0, l=dataListToLoad.length; i<l; i++) {
-        var dataToLoad = dataListToLoad[i];
-        ids.push(store.adapterForType(typeToLoad).extractId(typeToLoad, dataToLoad));
-      }
-      serializer.replaceEmbeddedHasMany(type, data, relationship.key, ids);
-      store.loadMany(relationship.type, dataListToLoad);
-    }
-  },
-
-  _extractEmbeddedBelongsTo: function(store, serializer, type, data, relationship) {
-    var dataToLoad = serializer._extractEmbeddedBelongsTo(type, data, relationship.key),
-        typeToLoad = relationship.type;
-
-    if (dataToLoad) {
-      var id = store.adapterForType(typeToLoad).extractId(typeToLoad, dataToLoad);
-      serializer.replaceEmbeddedBelongsTo(type, data, relationship.key, id);
-      store.load(relationship.type, dataToLoad);
-    }
   },
 
   groupByType: function(enumerable) {

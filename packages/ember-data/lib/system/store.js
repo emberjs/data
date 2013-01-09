@@ -1424,7 +1424,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {DS.Model} record
   */
   removeFromRecordArrays: function(record) {
-    var reference = get(record, 'reference');
+    var reference = get(record, '_reference');
     var recordArrays = this.recordArraysForClientId(reference.clientId);
 
     recordArrays.forEach(function(array) {
