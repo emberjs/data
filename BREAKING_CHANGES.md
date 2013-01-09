@@ -66,7 +66,7 @@ payload for a blog post and its comments may look like this:
   {
     "id": 3,
     "body": "Put me on the fast track to a delicious dinner"
-  }
+  }]
 }
 ```
 
