@@ -12,7 +12,7 @@ var Comment = App.Comment = DS.Model.extend({
   user: DS.belongsTo(Person)
 });
 
-var Group = DS.Model.extend({
+var Group = App.Group = DS.Model.extend({
   name: DS.attr('string'),
   people: DS.hasMany(Person)
 });
