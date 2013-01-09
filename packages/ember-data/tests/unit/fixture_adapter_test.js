@@ -168,3 +168,28 @@ test("should follow isUpdating semantics", function() {
     ok(false, "timeout exceeded waiting for fixture data");
   }, 1000);
 });
+
+test("should coerce integer ids into string", function() {
+  stop();
+
+  Person.FIXTURES = [{
+    id: 1,
+    firstName: "Adam",
+    lastName: "Hawkins",
+    height: 65
+  }];
+
+  var result = Person.find("1");
+
+  result.then(function() {
+    clearTimeout(timer);
+    start();
+    clearTimeout(timer);
+    equal(get(result, 'id'), "1", "should load integer model id");
+  });
+
+  var timer = setTimeout(function() {
+    start();
+    ok(false, "timeout exceeded waiting for fixture data");
+  }, 1000);
+});
