@@ -24,8 +24,7 @@ DS.belongsTo = function(type, options) {
 
     if(!id) {
       return null;
-    }
-    else if (typeof id === 'object') {
+    } else if (typeof id === 'object') {
       return store.findByClientId(type, id.clientId);
     } else {
       return store.find(type, id);
