@@ -425,6 +425,29 @@ test("belongsTo lazily loads relationships as needed", function() {
   strictEqual(get(person, 'tag'), store.find(Tag, 5), "relationship object is the same as object retrieved directly");
 });
 
+test("belongsTo returns null when the id is not available", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+  Tag.toString = function() { return "Tag"; };
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo(Tag)
+  });
+  Person.toString = function() { return "Person"; };
+
+  Tag.reopen({
+    people: DS.hasMany(Person)
+  });
+
+  var store = DS.Store.create();
+  store.load(Person, 1, { id: 1, name: "Tom Dale", tag: null });
+
+  var person = store.find(Person, 1);
+  equal(get(person, 'tag'), null, "the tag property should return a null");
+});
+
 test("relationships work when the data hash has not been loaded", function() {
   expect(12);
 
