@@ -42,6 +42,12 @@ function verifySynchronizedOneToMany(post, comment, expectedHasMany) {
   deepEqual(post.get('comments').toArray(), expectedHasMany);
 }
 
+test("Referencing a null belongsTo relationship returns null", function(){
+  store.load(App.Comment, { id: 1, post: null, body: "child with intentionally null parent" });
+  var comment = store.find(App.Comment, 1);
+  equal(comment.get('post'), null, "null belongsTo relationship returns null");
+});
+
 test("When setting a record's belongsTo relationship to another record, that record should be added to the inverse hasMany array", function() {
   store.load(App.Post, { id: 1, title: "parent" });
   store.load(App.Comment, { id: 2, body: "child" });

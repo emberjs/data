@@ -22,10 +22,13 @@ DS.belongsTo = function(type, options) {
 
     id = data[key];
 
-    if (typeof id === 'object') {
+    if(!id) {
+      return null;
+    }
+    else if (typeof id === 'object') {
       return store.findByClientId(type, id.clientId);
     } else {
-      return id ? store.find(type, id) : null;
+      return store.find(type, id);
     }
   }).property('data').meta(meta);
 };
