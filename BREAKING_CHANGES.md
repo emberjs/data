@@ -82,6 +82,16 @@ inside their JSON representation (arbitrarily deep), the lines between
 the entire payload and an individual record representation became
 blurred.
 
+If you are sideloading data in your application and you are using 
+JSONSerializer (like the DS.RESTAdapter does by default), you will need 
+to utilize the DS.Adapter configure method for configuration:
+
+```js
+DS.RESTAdapter.configure('App.Post', {
+  sideloadAs: 'posts' 
+});
+```
+
 ### New Adapter Acknowledgment API
 
 Previously, if you were writing a custom adapter, you would acknowledge
@@ -187,10 +197,38 @@ store.adapterForType(App.Person).load(store, App.Person, payload);
 This API will also handle sideloaded and embedded data. We plan to add a
 more convenient version of this API in the future.
 
+#### Changes to Dirtying Records
+
+If you previously implemented the developer hooks in your adapter for 
+```dirtyRecordsForHasManyChange``` or any of the other dirtyRecords hooks,
+you will need to double check how you're utilizing the passed in arguments.
+
+A description of the relationship is now passed in representing both sides
+of the relationship.  
+
+For example, if you had this previously:
+```js
+dirtyRecordsForHasManyChange: function(dirtySet, parent, relationship){
+  if (relationship.hasManyName === "people") {
+    dirtySet.add(parent);
+  }
+}
+```
+
+You would now use this:
+```js
+dirtyRecordsForHasManyChange: function(dirtySet, parent, relationship){
+  if (relationship.secondRecordName === "people") {
+    dirtySet.add(parent);
+  }
+}
+```
+
 #### TL;DR
 
-If you are using the REST adapter, no changes are necessary. You can now
-include embedded records.
+If you are using the REST adapter, you can now include embedded records
+without making any changes.  Additionally, if you are sideloading records,
+you will need to make the changes described in the Payload Extraction section.
 
 If you were manually loading data into the store, use the new
 `Adapter#load` API instead of `Store#load`.
