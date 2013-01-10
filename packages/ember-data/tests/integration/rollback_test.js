@@ -2,7 +2,7 @@ var store, Comment, Post;
 
 module("Transaction Rollback", {
   setup: function() {
-    store = DS.Store.create();
+    store = DS.Store.create({ adapter: 'DS.Adapter' });
 
     Post = DS.Model.extend({
       title: DS.attr('string')
