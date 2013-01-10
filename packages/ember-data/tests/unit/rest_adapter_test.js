@@ -20,9 +20,9 @@ module("the REST adapter", {
       ajax: function(url, type, hash) {
         var success = hash.success, self = this;
 
-        ajaxUrl = url;
-        ajaxType = type;
-        ajaxHash = hash;
+        ajaxUrl = setOrPush(ajaxUrl, url);
+        ajaxType = setOrPush(ajaxType, type);
+        ajaxHash = setOrPush(ajaxHash, hash);
 
         if (success) {
           hash.success = function(json) {
@@ -83,16 +83,61 @@ module("the REST adapter", {
   }
 });
 
+var setOrPush = function(current, next){
+  if (Ember.isArray(current)){
+    current.push(next);
+    return current;
+  } else {
+    return next;
+  }
+};
+
 var expectUrl = function(url, desc) {
-  equal(ajaxUrl, url, "the URL is " + desc);
+  var actualUrl;
+  if (Ember.isArray(ajaxUrl)) {
+    actualUrl = ajaxUrl[0];
+  } else {
+    actualUrl = ajaxUrl;
+  }
+  equal(actualUrl, url, "the URL is " + desc);
 };
 
 var expectType = function(type) {
-  equal(type, ajaxType, "the HTTP method is " + type);
+  var actualType;
+  if (Ember.isArray(ajaxType)) {
+    actualType = ajaxType[0];
+  } else {
+    actualType = ajaxType;
+  }
+  equal(type, actualType, "the HTTP method is " + type);
 };
 
 var expectData = function(hash) {
-  deepEqual(hash, ajaxHash.data, "the hash was passed along");
+  var actualHash;
+  if (Ember.isArray(ajaxHash)) {
+    actualHash = ajaxHash[0];
+  } else {
+    actualHash = ajaxHash;
+  }
+  deepEqual(hash, actualHash.data, "the hash was passed along");
+};
+
+var accumulateAjaxRequests = function(){
+  ajaxUrl = [];
+  ajaxType = [];
+  ajaxHash = [];
+};
+
+var nextRequest = function(){
+  if (Ember.isArray(ajaxUrl)){
+    ajaxUrl.shift();
+  }
+  if (Ember.isArray(ajaxType)){
+    ajaxType.shift();
+  }
+  if (Ember.isArray(ajaxHash)){
+    ajaxHash.shift();
+  }
 };
 
 var expectState = function(state, value, p) {
@@ -572,6 +617,53 @@ test("additional data can be sideloaded in a GET with many IDs", function() {
   people.forEach(function(person) {
     equal(get(person, 'isLoaded'), true, "the person is being loaded");
   });
+});
+
+test("the number of records fetched by findMany can be limited by fetchBatchSize", function(){
+  equal(ajaxUrl, undefined, "no Ajax calls have been made yet");
+
+  set(adapter, 'fetchBatchSize', 2);
+
+  accumulateAjaxRequests();
+
+  var people = store.findMany(Person, [ 1, 2, 3 ]);
+
+  equal(2, ajaxUrl.length, "two Ajax requests have been made");
+
+  expectUrl("/people");
+  expectType("GET");
+  expectData({ ids: [ 1, 2 ] });
+
+  ajaxHash[0].success({
+    people: [
+      { id: 1, name: "Rein Heinrichs" },
+      { id: 2, name: "Tom Dale" }
+    ]
+  });
+
+  nextRequest();
+
+  expectUrl("/people");
+  expectType("GET");
+  expectData({ ids: [ 3 ] });
+
+  ajaxHash[0].success({
+    people: [
+      { id: 3, name: "Yehuda Katz" }
+    ]
+  });
+
+  var rein = people.objectAt(0);
+  equal(get(rein, 'name'), "Rein Heinrichs");
+  equal(get(rein, 'id'), 1);
+
+  var tom = people.objectAt(1);
+  equal(get(tom, 'name'), "Tom Dale");
+  equal(get(tom, 'id'), 2);
+
+  var yehuda = people.objectAt(2);
+  equal(get(yehuda, 'name'), "Yehuda Katz");
+  equal(get(yehuda, 'id'), 3);
 });
 
 test("finding people by a query", function() {
