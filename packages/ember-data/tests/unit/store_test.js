@@ -143,6 +143,11 @@ test("the error state", function() {
 
 module("DS.Store working with a DS.Adapter");
 
+test("RESTAdapter is default adapter for DS.Store", function () {
+  var currentStore = DS.Store.create();
+  ok(DS.RESTAdapter.detectInstance(currentStore.get('_adapter')), "Store's adapter is instance of RESTAdapter");
+});
+
 test("Calling Store#find invokes its adapter#find", function() {
   expect(4);
 
