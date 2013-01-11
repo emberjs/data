@@ -35,6 +35,57 @@ module("DS.Store and DS.Adapter integration test", {
   }
 });
 
+
+asyncTest("Records loaded multiple times and retrieved in recordArray are ready to send state events", function() {
+
+  adapter.findQuery = function(store, type, query, recordArray) {
+    var self = this;
+
+    setTimeout(function() {
+      Ember.run(function() {
+        
+        // use different recordArray based on the call
+        var recordArray = (!!people2) ? people2 : people;
+
+        self.didFindQuery(store, type, {
+          persons: [{
+            id: 1,
+            name: "Mickael Ramírez"
+          }, {
+            id: 2,
+            name: "Johny Fontana"
+          }]
+        }, recordArray);
+
+      });
+
+    });
+  };
+
+  var people, people2;
+  people = store.findQuery(Person, {q: 'bla'});
+  people.one('didLoad', function() {
+
+    people2 = store.findQuery(Person, {q: 'bla2'});
+    people2.one('didLoad', function() {
+
+      start();
+      expect(3);
+
+      equal( people2.get('length'), 2, 'return the elements' );
+      ok( people2.get('isLoaded'), 'array is loaded' );
+
+      var person = people.objectAt(0);
+      ok( person.get('isLoaded'), 'record is loaded' );
+      // delete record will not throw exception
+      person.deleteRecord();
+
+
+    });
+  });
+
+});
+
 test("by default, createRecords calls createRecord once per record", function() {
   expect(8);
   var count = 1;
