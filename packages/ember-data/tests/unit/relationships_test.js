@@ -411,7 +411,7 @@ test("belongsTo lazily loads relationships as needed", function() {
     people: DS.hasMany(Person)
   });
 
-  var store = DS.Store.create();
+  var store = DS.Store.create({ adapter: 'DS.Adapter' });
   store.loadMany(Tag, [5, 2, 12], [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
   store.load(Person, 1, { id: 1, name: "Tom Dale", tag: 5 });
 
