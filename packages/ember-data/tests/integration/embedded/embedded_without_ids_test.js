@@ -1,5 +1,5 @@
 var store, Adapter, adapter;
-var Post, Comment, User, Pingback;
+var Post, Comment, User, Pingback, Like;
 var attr = DS.attr;
 
 module("Embedded Relationships Without IDs", {
@@ -15,13 +15,15 @@ module("Embedded Relationships Without IDs", {
       user: DS.belongsTo(User)
     });
 
-    Pingback = App.Pingback = DS.Model.extend({
-    });
+    Pingback = App.Pingback = DS.Model.extend();
+
+    Like = App.Like = DS.Model.extend();
 
     Post = App.Post = DS.Model.extend({
       title: attr('string'),
       comments: DS.hasMany(Comment),
-      pingbacks: DS.hasMany(Pingback)
+      pingbacks: DS.hasMany(Pingback),
+      likes: DS.hasMany(Like)
     });
 
     Adapter = DS.RESTAdapter.extend();
@@ -32,7 +34,8 @@ module("Embedded Relationships Without IDs", {
 
     Adapter.map(Post, {
       comments: { embedded: 'always' },
-      pingbacks: { embedded: 'always' }
+      pingbacks: { embedded: 'always' },
+      likes: { embedded: 'load' }
     });
 
     adapter = Adapter.create();
@@ -157,7 +160,9 @@ asyncTest("Embedded hasMany relationships can be saved when embedded: always is 
     },
     {
       title: "This does not seem to reflect the Unix philosophy haha"
-    }]
+    }],
+
+    likes: [{ id: 1 }, { id: 2 }]
   });
 
   adapter.ajax = function(url, type, hash) {
