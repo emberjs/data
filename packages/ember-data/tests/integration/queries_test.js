@@ -35,7 +35,9 @@ test("When a query is made, the adapter should receive a record array it can pop
     // Simulate latency to ensure correct behavior in asynchronous conditions.
     // Once 100ms has passed, load the results of the query into the record array.
     setTimeout(function() {
-      self.didFindQuery(store, type, { persons: [{ id: 1, name: "Peter Wagenet" }, { id: 2, name: "Brohuda Katz" }] }, recordArray);
+      Ember.run(function() {
+        self.didFindQuery(store, type, { persons: [{ id: 1, name: "Peter Wagenet" }, { id: 2, name: "Brohuda Katz" }] }, recordArray);
+      });
     }, 100);
   };
 
