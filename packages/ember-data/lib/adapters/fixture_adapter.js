@@ -13,7 +13,14 @@ DS.FixtureAdapter = DS.Adapter.extend({
     Implement this method in order to provide data associated with a type
   */
   fixturesForType: function(type) {
-    return type.FIXTURES ? Ember.A(type.FIXTURES) : null;
+    if (type.FIXTURES) {
+      var fixtures = Ember.A(type.FIXTURES);
+      return fixtures.map(function(fixture){
+        fixture.id = fixture.id + '';
+        return fixture;
+      });
+    }
+    return null;
   },
 
   /*
