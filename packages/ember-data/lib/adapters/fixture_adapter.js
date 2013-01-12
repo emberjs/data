@@ -17,7 +17,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
       var fixtures = Ember.A(type.FIXTURES);
       return fixtures.map(function(fixture){
         if(!fixture.id){
-          throw new Error('ids must be defined in FIXTURES');
+          throw new Error('the id property must be defined for fixture %@'.fmt(fixture));
         }
         fixture.id = fixture.id + '';
         return fixture;
