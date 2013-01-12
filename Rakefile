@@ -9,25 +9,6 @@ def pipeline
   Rake::Pipeline::Project.new("Assetfile")
 end
 
-def setup_uploader
-  require 'github_downloads'
-  uploader = GithubDownloads::Uploader.new
-  uploader.authorize
-  uploader
-end
-
-def upload_file(uploader, filename, description, file)
-  print "Uploading #{filename}..."
-  if uploader.upload_file(filename, description, file)
-    puts "Success"
-  else
-    puts "Failure"
-  end
-end
-
-def git_update
-end
-
 directory "tmp"
 
 file "tmp/ember.js" => "tmp" do
@@ -81,14 +62,27 @@ task :clean do
   puts "Done"
 end
 
-desc "Upload latest Ember Data build to GitHub repository"
-task :upload_latest => :dist do
-  uploader = setup_uploader
-
-  # Upload minified first, so non-minified shows up on top
-  upload_file(uploader, 'ember-data-latest.min.js', "Ember Data Master (minified)", "dist/ember-data.min.js")
-  upload_file(uploader, 'ember-data-latest.js', "Ember Data Master", "dist/ember-data.js")
+desc "Upload latest ember-data.js build to GitHub repository"
+task :commit_latest => [:clean, :dist] do
+  raise "Save your changes" unless `git status --porcelain`.empty?
+  unless `git branch`.include?("dist")
+    puts "Creating a new dist branch"
+    system 'git checkout --orphan dist'
+    puts "Removing junk in index"
+    system 'git rm --cached -r .'
+    puts "Removing non-dist files"
+    system "rm -rf `find * -type d -prune -o -type f | grep -ve '^dist$'`"
+    puts "Removing silly dotfiles"
+    system "rm -rf `find .* -type d -prune -o -type f | grep -ve '^.git$' | grep -ve '^dist$'`"
+  else
+    system 'git checkout dist'
+  end
+  puts "Committing latest release builds ember-data.js"
+  system 'git add dist/ember-data.min.js'
+  system 'git add dist/ember-data.js'
+  system 'git commit -m "Pushing latests builds of ember-data.js"'
 end
+
 
 desc "Run tests with phantomjs"
 task :test, [:suite] => :dist do |t, args|
