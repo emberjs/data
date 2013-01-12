@@ -66,9 +66,10 @@ DS.ManyArray = DS.RecordArray.extend({
   fetch: function() {
     var references = get(this, 'content'),
         store = get(this, 'store'),
-        type = get(this, 'type');
+        type = get(this, 'type'),
+        owner = get(this, 'owner');
 
-    store.fetchUnloadedReferences(type, references);
+    store.fetchUnloadedReferences(type, references, owner);
   },
 
   // Overrides Ember.Array's replace method to implement
