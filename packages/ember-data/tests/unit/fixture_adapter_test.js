@@ -193,3 +193,18 @@ test("should coerce integer ids into string", function() {
     ok(false, "timeout exceeded waiting for fixture data");
   }, 1000);
 });
+
+test("should throw if ids are not defined in the FIXTURES", function() {
+
+  Person.FIXTURES = [{
+    firstName: "Adam",
+    lastName: "Hawkins",
+    height: 65
+  }];
+
+  raises(function(){
+    Person.find("1");
+  }, /ids must be defined in FIXTURES/);
+
+  
+});
