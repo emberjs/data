@@ -590,9 +590,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     then converts the needed `clientId`s to IDs and invokes `findMany`
     on the adapter.
   */
-  fetchUnloadedReferences: function(type, references) {
+  fetchUnloadedReferences: function(type, references, owner) {
     var neededReferences = this.neededReferences(type, references);
-    this.fetchMany(type, neededReferences);
+    this.fetchMany(type, neededReferences, owner);
   },
 
   /**
@@ -606,7 +606,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     method) or when the data underlying an existing relationship
     changes (via the `fetchUnloadedReferences` method).
   */
-  fetchMany: function(type, references) {
+  fetchMany: function(type, references, owner) {
     if (!references.length) { return; }
 
     var ids = map(references, function(reference) {
@@ -614,7 +614,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     });
 
     var adapter = this.adapterForType(type);
-    if (adapter && adapter.findMany) { adapter.findMany(this, type, ids); }
+    if (adapter && adapter.findMany) { adapter.findMany(this, type, ids, owner); }
     else { throw "Adapter is either null or does not implement `findMany` method"; }
   },
 
@@ -715,7 +715,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         }
       }
 
-      this.fetchMany(type, neededReferences);
+      this.fetchMany(type, neededReferences, record);
     } else {
       // all requested records are available
       manyArray.set('isLoaded', true);

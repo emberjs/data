@@ -502,3 +502,115 @@ test("calling createRecord and passing in an undefined value for a relationship 
   strictEqual(person.get('tag'), null, "undefined values should return null relationships");
 });
 
+test("findMany is passed the owner record for adapters when some of the object graph is already loaded", function() {
+  var Occupation = DS.Model.extend({
+    description: DS.attr('string')
+  });
+
+  Occupation.toString = function() { return "Occupation"; };
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    occupations: DS.hasMany(Occupation)
+  });
+
+  Person.toString = function() { return "Person"; };
+
+  Occupation.reopen({
+    person: DS.belongsTo(Person)
+  });
+
+  var store = DS.Store.create({
+    adapter: DS.Adapter.create({
+      findMany: function(store, type, ids, owner) {
+        equal(type, Occupation, "type should be Occupation");
+        deepEqual(ids, ['5', '2'], "ids should be 5 and 2");
+        equal(get(owner, 'id'), 1, "the owner record id should be 1");
+
+        stop();
+
+        setTimeout(function() {
+          start();
+          store.loadMany(type, ids, [{ id: 5, description: "fifth" }, { id: 2, description: "second" }]);
+
+          equal(get(person, 'name'), "Tom Dale", "the person is still Tom Dale");
+          equal(get(person, 'occupations.length'), 2, "the occupation objects still exist");
+          equal(get(get(person, 'occupations').objectAt(0), 'description'), "fifth", "the occupation is the fifth");
+          equal(get(get(person, 'occupations').objectAt(0), 'isLoaded'), true, "the occupation is now loaded");
+        }, 1);
+      }
+    })
+  });
+
+  store.load(Person, 1, { id: 1, name: "Tom Dale", occupations: [5, 2] });
+
+  var person = store.find(Person, 1);
+
+  equal(get(person, 'isLoaded'), true, "isLoaded should be true");
+  equal(get(person, 'occupations.length'), 2, "the list of occupations should have the correct length");
+
+});
+
+test("findMany is passed the owner record for adapters when none of the object graph is loaded", function() {
+  var Occupation = DS.Model.extend({
+    description: DS.attr('string')
+  });
+
+  Occupation.toString = function() { return "Occupation"; };
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    occupations: DS.hasMany(Occupation)
+  });
+
+  Person.toString = function() { return "Person"; };
+
+  Occupation.reopen({
+    person: DS.belongsTo(Person)
+  });
+
+  var store = DS.Store.create({
+    adapter: DS.Adapter.create({
+      findMany: function(store, type, ids, owner) {
+        equal(type, Occupation, "type should be Occupation");
+        deepEqual(ids, ['5', '2'], "ids should be 5 and 2");
+        equal(get(owner, 'id'), 1, "the owner record id should be 1");
+
+        stop();
+
+        setTimeout(function() {
+          start();
+          store.loadMany(type, ids, [{ id: 5, description: "fifth" }, { id: 2, description: "second" }]);
+
+          equal(get(person, 'name'), "Tom Dale", "the person is still Tom Dale");
+          equal(get(person, 'occupations.length'), 2, "the occupation objects still exist");
+          equal(get(get(person, 'occupations').objectAt(0), 'description'), "fifth", "the occupation is the fifth");
+          equal(get(get(person, 'occupations').objectAt(0), 'isLoaded'), true, "the occupation is now loaded");
+        }, 1);
+      },
+
+      find: function(store, type, id) {
+        equal(type, Person, "type should be Person");
+        equal(id, 1, "id should be 1");
+
+        stop();
+
+        setTimeout(function() {
+          start();
+          store.load(type, id, { id: 1, name: "Tom Dale", occupations: [5, 2] });
+
+          equal(get(person, 'name'), "Tom Dale", "The person is now populated");
+          equal(get(person, 'occupations.length'), 2, "the occupations Array already exists");
+          equal(get(get(person, 'occupations').objectAt(0), 'isLoaded'), false, "the occupation objects exist, but are not yet loaded");
+        }, 1);
+      }
+    })
+  });
+
+  var person = store.find(Person, 1);
+
+  equal(get(person, 'isLoaded'), false, "isLoaded should be false");
+  equal(get(person, 'occupations.length'), 0, "occupations should be empty");
+
+});
+
