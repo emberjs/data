@@ -76,7 +76,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     return !reference.parent;
   },
 
-  getDataForRecord: function(type, record, includeId) {
+  extractRecordData: function(type, record, includeId) {
     var root = this.rootForType(type);
 
     var data = {};
@@ -85,7 +85,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     return data;
   },
 
-  getDataForRecords: function(type, records, includeId) {
+  extractRecordsData: function(type, records, includeId) {
     var root = this.rootForType(type),
       plural = this.pluralize(root);
 
@@ -98,13 +98,13 @@ DS.RESTAdapter = DS.Adapter.extend({
     return data;
   },
 
-  getDataForCreateRecord: function(type, record) {
-    return this.getDataForRecord(type, record, true);
+  extractCreateRecordData: function(type, record) {
+    return this.extractRecordData(type, record, true);
   },
 
   createRecord: function(store, type, record) {
     this.ajax(this.buildURL(this.rootForType(type)), "POST", {
-      data: this.getDataForCreateRecord(type, record),
+      data: this.extractCreateRecordData(type, record),
       context: this,
       success: function(json) {
         Ember.run(this, function(){
@@ -149,8 +149,8 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
 
-  getDataForCreateRecords: function(type, records) {
-    return this.getDataForRecords(type, records, true);
+  extractCreateRecordsData: function(type, records) {
+    return this.extractRecordsData(type, records, true);
   },
 
   createRecords: function(store, type, records) {
@@ -159,7 +159,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
 
     this.ajax(this.buildURL(this.rootForType(type)), "POST", {
-      data: this.getDataForCreateRecords(type, records),
+      data: this.extractCreateRecordsData(type, records),
       context: this,
       success: function(json) {
         Ember.run(this, function(){
@@ -169,15 +169,15 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
-  getDataForUpdateRecord: function(type, record) {
-    return this.getDataForRecord(type, record, false);
+  extractUpdateRecordData: function(type, record) {
+    return this.extractRecordData(type, record, false);
   },
 
   updateRecord: function(store, type, record) {
     var id = get(record, 'id');
 
     this.ajax(this.buildURL(this.rootForType(type), id), "PUT", {
-      data: this.getDataForUpdateRecord(type, record),
+      data: this.extractUpdateRecordData(type, record),
       context: this,
       success: function(json) {
         Ember.run(this, function(){
@@ -190,8 +190,8 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
-  getDataForUpdateRecords: function(type, records) {
-    return this.getDataForRecords(type, records, true);
+  extractUpdateRecordsData: function(type, records) {
+    return this.extractRecordsData(type, records, true);
   },
 
   updateRecords: function(store, type, records) {
@@ -200,7 +200,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
 
     this.ajax(this.buildURL(this.rootForType(type), "bulk"), "PUT", {
-      data: this.getDataForUpdateRecords(type, records),
+      data: this.extractUpdateRecordsData(type, records),
       context: this,
       success: function(json) {
         Ember.run(this, function(){
@@ -224,7 +224,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
-  getDataForDeleteRecords: function(type, records) {
+  extractDeleteRecordData: function(type, records) {
     var root = this.rootForType(type),
       plural = this.pluralize(root),
       serializer = get(this, 'serializer');
@@ -244,7 +244,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
 
     this.ajax(this.buildURL(this.rootForType(type), 'bulk'), "DELETE", {
-      data: this.getDataForDeleteRecords(type, records),
+      data: this.extractDeleteRecordData(type, records),
       context: this,
       success: function(json) {
         Ember.run(this, function(){
