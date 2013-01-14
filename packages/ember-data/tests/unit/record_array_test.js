@@ -131,16 +131,17 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
         var self = this;
 
         setTimeout(function() {
-          self.didFindQuery(store, type, { persons: array }, recordArray);
-          equal(get(people, 'isLoaded'), true, "The array is now loaded");
-          start();
+          Ember.run(function() {
+            self.didFindQuery(store, type, { persons: array }, recordArray);
+            equal(get(people, 'isLoaded'), true, "The array is now loaded");
+            start();
+          });
         }, 100);
       }
     })
   });
 
   var people = store.find(Person, { page: 1 });
-
   equal(get(people, 'isLoaded'), false, "The array is not yet loaded");
 });
 
