@@ -265,7 +265,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
-  findMany: function(store, type, ids) {
+  findMany: function(store, type, ids, owner) {
     var root = this.rootForType(type);
     ids = this.serializeIds(ids);
 
