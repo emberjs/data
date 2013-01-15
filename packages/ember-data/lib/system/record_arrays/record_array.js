@@ -38,7 +38,7 @@ DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, LoadPromise, {
         store = get(this, 'store');
 
     if (reference) {
-      return store.findByClientId(get(this, 'type'), reference.clientId);
+      return store.recordForReference(reference);
     }
   },
 
@@ -46,7 +46,7 @@ DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, LoadPromise, {
     var reference = get(this, 'content').objectAt(index);
     if (!reference) { return; }
 
-    if (get(this, 'store').recordIsMaterialized(reference.clientId)) {
+    if (get(this, 'store').recordIsMaterialized(reference)) {
       return this.objectAt(index);
     }
   },
