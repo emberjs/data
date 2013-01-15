@@ -676,7 +676,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (!Ember.isArray(ids)) {
       var adapter = this.adapterForType(type);
       if (adapter && adapter.findHasMany) { adapter.findHasMany(this, record, relationship, ids); }
-      else { throw fmt("Adapter is either null or does not implement `findMany` method", this); }
+      else { throw fmt("Adapter is either null or does not implement `findHasMany` method", this); }
 
       return this.createManyArray(type, Ember.A());
     }
