@@ -652,6 +652,39 @@ test("A deleted record should be restored to a belongsTo relationship if the tra
   deepEqual(post.get('comments').toArray(), [ comment1 ], "property is rolled back to its original value");
 });
 
+test("A deleted record should remove itself from the hasMany relationship after deleting & rolling back then deleting & committing", function() {
+  store.adapter = DS.RESTAdapter.create();
+
+  store.load(Post, { id: 1, title: "My Darkest Node.js Fantasies", comments: [ 1, 2 ] });
+  store.load(Comment, { id: 1, title: "I don't see the appeal of Rails these days when Node.js and Django are both as mature and inherently more scalable than Rails", post: 1 });
+  store.load(Comment, { id: 2, title: "I was skeptical about http://App.net before I paid the $$, but now I am all excited about it.", post: 1 });
+
+  var comment1 = store.find(Comment, 1);
+  var comment2 = store.find(Comment, 2);
+  var post = store.find(Post, 1);
+
+  equal(post.get('comments.length'), 2, "precond - record should have 2 associated models");
+
+  comment1.deleteRecord();
+  ok(comment1.get('isDeleted'), "precond - record should be in deleted state");
+
+  post.get('transaction').rollback();
+  ok(!comment1.get('isDeleted'), "precond - record should not be in deleted state");
+  ok(!comment1.get('isDirty'), "precond - record should not be dirty");
+
+  comment1.deleteRecord();
+  ok(comment1.get('isDeleted'), "precond - record should be in deleted state");
+
+  post.get('transaction').commit();
+
+  equal(post.get('comments.length'), 1, "deleted record should be removed from the hasMany relationship");
+
+  comment2.deleteRecord();
+  post.get('transaction').rollback();
+
+  equal(comment2.get('isDirty'), true, "deleted record should rollback correctly");
+});
+
 //test("A deleted record in a transaction with changed attributes should revert to the old attributes when the transaction is rolled back.");
 //test("A deleted record in a transaction with a changed belongsTo should revert to the old relationship when the transaction is rolled back.");
 //test("A deleted record in a transaction with a changed hasMany should revert to the old relationship when the transaction is rolled back.");
