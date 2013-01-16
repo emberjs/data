@@ -51,30 +51,3 @@ asyncTest("Adding a new embedded record to an unsaved record: Both records use t
 
   transaction.commit();
 });
-
-// asyncTest("Adding a new embedded record to an existing record: Triggers a PUT request for the existing record.", function() {
-//   adapter.ajax = function(url, type, hash) {
-//     equal(url, '/posts');
-//     equal(type, 'PUT');
-//     equal(hash.data.post.comments.length, 1);
-//
-//     setTimeout(function() {
-//       hash.success.call(hash.context);
-//       start();
-//     });
-//   };
-//
-//   adapter.load(store, Post, {
-//     id: 2,
-//     title: "This is an existing post"
-//   });
-//
-//   var transaction = store.transaction();
-//   var post = store.find(Post, 2);
-//
-//   transaction.add(post);
-//
-//   post.get('comments').createRecord({ title: 'This embedded record is unsaved' });
-//
-//   transaction.commit();
-// });
