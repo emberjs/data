@@ -682,7 +682,8 @@ test("A deleted record should remove itself from the hasMany relationship after 
   comment2.deleteRecord();
   post.get('transaction').rollback();
 
-  equal(comment2.get('isDirty'), true, "deleted record should rollback correctly");
+  equal(comment2.get('isDirty'), false, "deleted record should rollback correctly");
+  equal(post.get('comments.length'), 1, "deleted record should be restored to the hasMany relationship");
 });
 
 //test("A deleted record in a transaction with changed attributes should revert to the old attributes when the transaction is rolled back.");
