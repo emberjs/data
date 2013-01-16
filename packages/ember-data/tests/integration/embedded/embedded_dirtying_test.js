@@ -1,6 +1,6 @@
 var attr = DS.attr;
 var Post, Comment, User, Vote, Blog;
-var Adapter, App;
+var Adapter;
 var adapter, store, post;
 var forEach = Ember.EnumerableUtils.forEach;
 
@@ -18,27 +18,25 @@ var forEach = Ember.EnumerableUtils.forEach;
 
 module("Dirtying of Embedded Records", {
   setup: function() {
-    App = Ember.Namespace.create({ name: "App" });
-
-    User = App.User = DS.Model.extend({
+    User = DS.Model.extend({
       name: attr('string')
     });
 
-    Vote = App.Vote = DS.Model.extend({
+    Vote = DS.Model.extend({
       voter: attr('string')
     });
 
-    Comment = App.Comment = DS.Model.extend({
+    Comment = DS.Model.extend({
       title: attr('string'),
       user: DS.belongsTo(User),
       votes: DS.hasMany(Vote)
     });
 
-    Blog = App.Blog = DS.Model.extend({
+    Blog = DS.Model.extend({
       title: attr('string')
     });
 
-    Post = App.Post = DS.Model.extend({
+    Post = DS.Model.extend({
       title: attr('string'),
       comments: DS.hasMany(Comment),
       blog: DS.belongsTo(Blog)
@@ -85,7 +83,7 @@ module("Dirtying of Embedded Records", {
       {
         title: "This does not seem to reflect the Unix philosophy haha",
         user: {
-          name: "microuser",
+          name: "microuser"
         },
         votes: [ { voter: "ebryn" } ]
       }]
@@ -95,7 +93,7 @@ module("Dirtying of Embedded Records", {
   },
 
   teardown: function() {
-    App.destroy();
+      store.destroy();
   }
 });
 

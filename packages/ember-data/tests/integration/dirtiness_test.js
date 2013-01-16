@@ -12,6 +12,10 @@ module("Attribute Changes and Dirtiness", {
     Person = DS.Model.extend({
       firstName: DS.attr('string')
     });
+  },
+
+  teardown: function() {
+    store.destroy();
   }
 });
 
