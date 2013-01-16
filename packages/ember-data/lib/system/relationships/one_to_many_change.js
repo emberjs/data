@@ -419,7 +419,7 @@ DS.RelationshipChange.prototype = {
     if (parentRecord && child) {
       var embeddedType = this.store.adapterForType(parentRecord.constructor).get('serializer').embeddedType(parentRecord.constructor, hasManyName);
       if (embeddedType === 'always') {
-        child.get('_reference').parent = parentRecord;
+        child.get('_reference').parent = parentRecord.get('_reference');
       }
     }
 
