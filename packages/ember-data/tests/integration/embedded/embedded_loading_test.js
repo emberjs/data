@@ -12,8 +12,14 @@ var Comment = App.Comment = DS.Model.extend({
   user: DS.belongsTo(Person)
 });
 
+var Group = App.Group = DS.Model.extend({
+  name: DS.attr('string'),
+  people: DS.hasMany(Person)
+});
+
 Person.reopen({
   name: DS.attr('string'),
+  group: DS.belongsTo(Group),
   comments: DS.hasMany(Comment)
 });
 
@@ -219,3 +225,33 @@ Ember.ArrayPolyfills.forEach.call([Person, "Person"], function(mapping) {
   });
 });
 
+test("A nested belongsTo relationship can be marked as embedded via the `map` API", function() {
+    Adapter.map(Comment, {
+      user: { embedded: 'load' }
+    });
+
+    Adapter.map(Person, {
+      group: { embedded: 'load' }
+    });
+
+    adapter = Adapter.create();
+    store.set('adapter', adapter);
+
+    adapter.load(store, Comment, {
+      id: 1,
+      user: {
+        id: 2,
+        name: "Yehuda Katz",
+        group: {
+          id: 3,
+          name: "Developers"
+        }
+      }
+    });
+
+    var comment = store.find(Comment, 1);
+    var group = store.find(Group, 3);
+
+    strictEqual(group.get('name'), "Developers", "Group is addressable by its ID despite being loaded via embedding");
+    strictEqual(comment.get('user.group'), group, "relationship references the globally addressable record");
+});
