@@ -31,7 +31,7 @@ Currently you must build ember-data.js yourself.  Clone the repository, run `bun
 * Better built-in attributes
 * Editing "forked" records
 * Out-of-the-box support for Rails apps that follow the
-  [`active_model_serializers`](https://github.com/josevalim/active_model_serializers) gem's conventions.
+  [`active_model_serializers`](https://github.com/rails-api/active_model_serializers) gem's conventions.
 * Handle partially-loaded records
 
 ## Unit Tests
