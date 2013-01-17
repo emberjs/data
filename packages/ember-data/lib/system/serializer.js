@@ -250,7 +250,7 @@ DS.Serializer = Ember.Object.extend({
   },
 
   extractEmbeddedBelongsTo: function(loader, relationship, data, parent, prematerialized) {
-    var reference = loader.sideload(relationship.type, data);
+    var reference = this.extractRecordRepresentation(loader, relationship.type, data, true);
     prematerialized[relationship.key] = reference;
 
     // If the embedded record should also be saved back when serializing the parent,
