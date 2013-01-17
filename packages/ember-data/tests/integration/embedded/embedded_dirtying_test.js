@@ -146,3 +146,9 @@ test("Modifyng a record embedded via embedded loading should not dirty the tree"
   assertTreeIs('clean');
   ok(blog.get('isDirty'), true, "embedded load record is dirty");
 });
+
+test("Deleting a record embedded via a hasMany relationship should dirty the entire tree", function() {
+    var vote = post.get('comments.firstObject.votes.firstObject');
+    vote.deleteRecord();
+    assertTreeIs('dirty');
+});
