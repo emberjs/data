@@ -328,7 +328,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // to avoid conflicts.
     var adapter;
     if (Ember.isNone(id)) {
-      adapter = get(this, 'adapter');
+      adapter = this.adapterForType(type);
       if (adapter && adapter.generateIdForRecord) {
         id = coerceId(adapter.generateIdForRecord(this, record));
         properties.id = id;
