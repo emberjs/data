@@ -87,7 +87,7 @@ test("When a hasMany relationship is accessed, the adapter's findMany method sho
 // common use case of this is to provide a URL to a collection that
 // is loaded later.
 asyncTest("An serializer can materialize a hasMany as an opaque token that can be lazily fetched via the adapter's findHasMany hook", function() {
-  expect(8);
+  expect(10);
 
   // When a payload comes in from the server, replace the string
   // with an object. This can technically be anything; we just need
@@ -148,6 +148,17 @@ asyncTest("An serializer can materialize a hasMany as an opaque token that can b
 
   function done() {
     start();
+    equal(comments.get('isLoaded'), true);
+    equal(comments.get('length'), 2);
+
+    // Check that reloading doesn't clear association
+    store.load(App.Person, { id: 1, comments: "/posts/1/comments" });
+    setTimeout(function() {
+      afterReload();
+    }, 1);
+  }
+
+  function afterReload() {
     equal(comments.get('isLoaded'), true);
     equal(comments.get('length'), 2);
   }
