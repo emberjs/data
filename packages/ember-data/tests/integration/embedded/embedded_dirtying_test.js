@@ -44,6 +44,10 @@ module("Dirtying of Embedded Records", {
       blog: DS.belongsTo(Blog)
     });
 
+    Comment.reopen({
+      post: DS.belongsTo(Post)
+    });
+
     Adapter = DS.RESTAdapter.extend();
 
     Adapter.map(Comment, {
@@ -91,6 +95,7 @@ module("Dirtying of Embedded Records", {
   },
 
   teardown: function() {
+    store.destroy();
     App.destroy();
   }
 });
@@ -101,22 +106,20 @@ function assertEmbeddedLoadNotDirtied() {
 }
 
 function assertTreeIs(state) {
-  var comment1 = post.get('comments.firstObject');
-  var comment2 = post.get('comments.lastObject');
-  var user1 = comment1.get('user');
-  var user2 = comment2.get('user');
-  var vote1 = comment1.get('votes.firstObject');
-  var vote2 = comment1.get('votes.lastObject');
-  var vote3 = comment2.get('votes.firstObject');
-
-  var records = [post, comment1, comment2, user1, user2, vote1, vote2, vote3];
-
-  var isDirty = state === 'dirty';
-
-  records.forEach(function(record) {
-    equal(record.get('isDirty'), isDirty, record.toString() + " should be " + state);
+  post.get('comments').forEach(function(comment) {
+    assertRecordIs(comment, state);
+    if (comment.get('user')) {
+      assertRecordIs(comment.get('user'), state);
+    }
+    comment.get('votes').forEach(function(vote) {
+      assertRecordIs(vote, state);
+    });
   });
+}
 
+function assertRecordIs(record, state) {
+  var isDirty = state === 'dirty';
+  equal(record.get('isDirty'), isDirty, record.toString() + " should be " + state);
 }
 
 test("Modifying a record that contains embedded records should dirty the entire tree", function() {
@@ -136,6 +139,21 @@ test("Modifying a record embedded via a belongsTo relationship should dirty the 
 test("Modifying a record embedded via a hasMany relationship should dirty the entire tree", function() {
   var vote = post.get('comments.firstObject.votes.firstObject');
   vote.set('voter', "[dead]");
+  assertTreeIs('dirty');
+});
+
+test("Creating a record embedded via a hasMany relationship should dirty the entire tree", function() {
+  var comment = store.createRecord(Comment, {
+    post: post,
+    title: 'A new comment'
+  });
+  equal(comment.get('isDirty'), true, "New comment should be dirty");
+  assertTreeIs('dirty');
+});
+
+test("Creating a record embedded via a hasMany relationship should dirty the entire tree", function() {
+  var comment = post.get('comments').createRecord({ title: 'A new comment' });
+  equal(comment.get('isDirty'), true, "New comment should be dirty");
   assertTreeIs('dirty');
 });
 

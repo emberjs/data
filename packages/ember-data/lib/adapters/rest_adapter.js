@@ -97,12 +97,24 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   dirtyRecordsForRecordChange: function(dirtySet, record) {
+    this._dirtyTree(dirtySet, record);
+  },
+
+  dirtyRecordsForHasManyChange: function(dirtySet, record, relationship) {
+    var embeddedType = get(this, 'serializer').embeddedType(record.constructor, relationship.secondRecordName);
+
+    if (embeddedType === 'always') {
+      this._dirtyTree(dirtySet, record);
+    }
+  },
+
+  _dirtyTree: function(dirtySet, record) {
     dirtySet.add(record);
 
     get(this, 'serializer').eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
       if (embeddedType !== 'always') { return; }
       if (dirtySet.has(embeddedRecord)) { return; }
-      this.dirtyRecordsForRecordChange(dirtySet, embeddedRecord);
+      this._dirtyTree(dirtySet, embeddedRecord);
     }, this);
 
     var reference = record.get('_reference');
@@ -110,11 +122,9 @@ DS.RESTAdapter = DS.Adapter.extend({
     if (reference.parent) {
       var store = get(record, 'store');
       var parent = store.recordForReference(reference.parent);
-      this.dirtyRecordsForRecordChange(dirtySet, parent);
+      this._dirtyTree(dirtySet, parent);
     }
   },
-
-  dirtyRecordsForHasManyChange: Ember.K,
 
   createRecords: function(store, type, records) {
     if (get(this, 'bulkCommit') === false) {

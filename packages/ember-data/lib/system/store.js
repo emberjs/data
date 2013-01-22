@@ -1680,12 +1680,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (id) { delete typeMap.idToCid[id]; }
   },
 
-  destroy: function() {
+  willDestroy: function() {
     if (get(DS, 'defaultStore') === this) {
       set(DS, 'defaultStore', null);
     }
-
-    return this._super();
   },
 
   // ........................
