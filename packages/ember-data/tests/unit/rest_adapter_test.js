@@ -1,6 +1,6 @@
 var get = Ember.get, set = Ember.set;
 
-var adapter, store, serializer, ajaxUrl, ajaxType, ajaxHash;
+var adapter, store, serializer, ajaxUrl, ajaxType, ajaxHash, overwriteAjax;
 var Person, person, people;
 var Role, role, roles;
 var Group, group;
@@ -10,26 +10,31 @@ module("the REST adapter", {
     ajaxUrl = undefined;
     ajaxType = undefined;
     ajaxHash = undefined;
+    overwriteAjax = true;
 
     var Adapter = DS.RESTAdapter.extend();
     Adapter.configure('plurals', {
       person: 'people'
     });
 
-    adapter = Adapter.create({
+    adapter = Adapter.createWithMixins({
       ajax: function(url, type, hash) {
-        var success = hash.success, self = this;
+        if (overwriteAjax) {
+          var success = hash.success, self = this;
 
-        hash.context = adapter;
+          hash.context = adapter;
 
-        ajaxUrl = url;
-        ajaxType = type;
-        ajaxHash = hash;
+          ajaxUrl = url;
+          ajaxType = type;
+          ajaxHash = hash;
 
-        if (success) {
-          hash.success = function(json) {
-            success.call(self, json);
-          };
+          if (success) {
+            hash.success = function(json) {
+              success.call(self, json);
+            };
+          }
+        } else {
+          return this._super(url, type, hash);
         }
       }
     });
@@ -1067,3 +1072,35 @@ test("updating a record with a 500 error marks the record as error", function() 
 
   expectState('error');
 });
+
+test("the content-type should not be set to application/json if no body submitted", function() {
+  var jQueryAjax = jQuery.ajax;
+  jQuery.ajax = function(options) {
+    equal(options.contentType, undefined, "the content-type is undefined");
+  };
+
+  overwriteAjax = false;
+  person = store.find(Person, 1);
+
+  jQuery.ajax = jQueryAjax;
+});
+
+test("the content-type should not be set to application/json if no body submitted", function() {
+
+  store.load(Person, { id: 1, name: "John Doe" });
+  person = store.find(Person, 1);
+  person.set('name', 'Jane Doe');
+
+
+  var jQueryAjax = jQuery.ajax;
+  jQuery.ajax = function(options) {
+    equal(options.contentType, "application/json; charset=utf-8", "the content-type is 'application/json; charset=utf-8'");
+  };
+
+  overwriteAjax = false;
+  store.commit();
+
+  jQuery.ajax = jQueryAjax;
+
+});
+
