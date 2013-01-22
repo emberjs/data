@@ -113,9 +113,9 @@ DS.RESTAdapter = DS.Adapter.extend({
       this.dirtyRecordsForRecordChange(dirtySet, parent);
     }
   },
-
-  dirtyRecordsForHasManyChange: Ember.K,
-
+  dirtyRecordsForHasManyChange: function(dirtySet, parent) {
+    this.dirtyRecordsForRecordChange(dirtySet, parent);
+  },
   createRecords: function(store, type, records) {
     if (get(this, 'bulkCommit') === false) {
       return this._super(store, type, records);
