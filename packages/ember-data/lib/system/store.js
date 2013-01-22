@@ -176,6 +176,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         adapter = this.adapterForType(record.constructor),
         data = cidToData[clientId];
 
+    // Do not call `materialize` with undefined data.
+    Ember.assert(fmt('materializeData failed: No data found for clientId "%@"', [clientId]), data);
+
     cidToData[clientId] = MATERIALIZED;
 
     var prematerialized = this.clientIdToPrematerializedData[clientId];
