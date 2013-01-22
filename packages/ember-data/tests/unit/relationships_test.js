@@ -348,6 +348,48 @@ test("it is possible to add an item to a relationship, remove it, then add it ag
   equal(tags.objectAt(2), tag3);
 });
 
+test("fetching a hasMany relationship should be overrideable", function() {
+  expect(5);
+
+  var store = DS.Store.create();
+
+  var Pet = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    pets: DS.hasMany(Pet, { foo: 'bar' }),
+
+    getHasMany: function(key, type, meta) {
+      equal(key, 'pets', "getHasMany is called with key as a first argument");
+      equal(type, Pet, "getHasMany is called with type as a second argument");
+      deepEqual(meta.options, { foo: 'bar' }, "getHasMany is called with options as a third argument");
+
+      return 'foo';
+    }
+  });
+
+  Pet.reopen({
+    person: DS.belongsTo(Person, { foo: 'bar' })
+  });
+
+  store.load(Person, 1, { id: 1, name: "Messi" });
+
+  var person = store.find(Person, 1);
+  var pets    = person.get('pets');
+
+  equal(pets, 'foo', 'value returned from getHasMany is returned as found relationship');
+
+  var otherObject = Ember.Object.create({person: person});
+
+  var otherPets = otherObject.get('person.pets');
+
+  equal(otherPets, 'foo', 'getHasMany is used also when getting property with a path');
+});
+
+
+
 module("RecordArray");
 
 test("updating the content of a RecordArray updates its content", function() {
@@ -644,3 +686,42 @@ test("belongsTo supports relationships to models with id 0", function() {
   strictEqual(get(person, 'tag'), store.find(Tag, 0), "relationship object is the same as object retrieved directly");
 });
 
+test("fetching a belongsTo relationship should be overrideable", function() {
+  expect(5);
+
+  var store = DS.Store.create();
+
+  var Pet = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    pets: DS.hasMany(Pet)
+  });
+
+  Pet.reopen({
+    person: DS.belongsTo(Person, { foo: 'bar' }),
+
+    getBelongsTo: function(key, type, meta) {
+      equal(key, 'person', "getBelongsTo is called with key as a first argument");
+      equal(type, Person, "getBelongsTo is called with type as a second argument");
+      deepEqual(meta.options, { foo: 'bar' }, "getBelongsTo is called with options as a third argument");
+
+      return 'foo';
+    }
+  });
+
+  store.load(Pet, 1, { id: 1, name: "fluffy" });
+
+  var pet    = store.find(Pet, 1);
+  var person = pet.get('person');
+
+  equal(person, 'foo', 'value returned from getBelongsTo is returned as found relationship');
+
+  var otherObject = Ember.Object.create({pet: pet});
+
+  var otherPerson = otherObject.get('pet.person');
+
+  equal(otherPerson, 'foo', 'getBelongsTo is used also when getting property with a path');
+});

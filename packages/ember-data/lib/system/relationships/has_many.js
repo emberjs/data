@@ -2,15 +2,12 @@ var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach;
 
 require("ember-data/system/model/model");
 
-var hasRelationship = function(type, options) {
-  options = options || {};
-
-  var meta = { type: type, isRelationship: true, options: options, kind: 'hasMany' };
-
-  return Ember.computed(function(key, value) {
+DS.Model.reopen({
+  getHasMany: function(key, type, meta) {
     var data = get(this, 'data').hasMany,
         store = get(this, 'store'),
-        ids, relationship;
+        ids, relationship,
+        options = meta.options;
 
     if (typeof type === 'string') {
       type = get(this, type, false) || get(Ember.lookup, type);
@@ -26,6 +23,16 @@ var hasRelationship = function(type, options) {
     set(relationship, 'isPolymorphic', options.polymorphic);
 
     return relationship;
+  }
+});
+
+var hasRelationship = function(type, options) {
+  options = options || {};
+
+  var meta = { type: type, isRelationship: true, options: options, kind: 'hasMany' };
+
+  return Ember.computed(function(key, value) {
+    return this.getHasMany(key, type, meta);
   }).property().meta(meta);
 };
 

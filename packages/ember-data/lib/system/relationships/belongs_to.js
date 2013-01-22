@@ -18,34 +18,7 @@ DS.belongsTo = function(type, options) {
       return value === undefined ? null : value;
     }
 
-    var data = get(this, 'data').belongsTo,
-        store = get(this, 'store'), belongsTo;
-
-    belongsTo = data[key];
-
-    // TODO (tomdale) The value of the belongsTo in the data hash can be
-    // one of:
-    // 1. null/undefined
-    // 2. a record reference
-    // 3. a tuple returned by the serializer's polymorphism code
-    //
-    // We should really normalize #3 to be the same as #2 to reduce the
-    // complexity here.
-
-    if (isNone(belongsTo)) {
-      return null;
-    }
-
-    // The data has been normalized to a record reference, so
-    // just ask the store for the record for that reference,
-    // materializing it if necessary.
-    if (belongsTo.clientId) {
-      return store.recordForReference(belongsTo);
-    }
-
-    // The data has been normalized into a type/id pair by the
-    // serializer's polymorphism code.
-    return store.findById(belongsTo.type, belongsTo.id);
+    return this.getBelongsTo(key, type, meta);
   }).property('data').meta(meta);
 };
 
@@ -87,4 +60,37 @@ DS.Model.reopen({
     }
     delete this._changesToSync[key];
   })
+});
+
+DS.Model.reopen({
+  getBelongsTo: function(key, type, meta) {
+    var data = get(this, 'data').belongsTo,
+        store = get(this, 'store'), belongsTo;
+
+    belongsTo = data[key];
+
+    // TODO (tomdale) The value of the belongsTo in the data hash can be
+    // one of:
+    // 1. null/undefined
+    // 2. a record reference
+    // 3. a tuple returned by the serializer's polymorphism code
+    //
+    // We should really normalize #3 to be the same as #2 to reduce the
+    // complexity here.
+
+    if (isNone(belongsTo)) {
+      return null;
+    }
+
+    // The data has been normalized to a record reference, so
+    // just ask the store for the record for that reference,
+    // materializing it if necessary.
+    if (belongsTo.clientId) {
+      return store.recordForReference(belongsTo);
+    }
+
+    // The data has been normalized into a type/id pair by the
+    // serializer's polymorphism code.
+    return store.findById(belongsTo.type, belongsTo.id);
+  }
 });
