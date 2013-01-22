@@ -1,6 +1,6 @@
 var attr = DS.attr;
 var Post, Comment, User, Vote, Blog;
-var Adapter, App;
+var Adapter;
 var adapter, store, post;
 var forEach = Ember.EnumerableUtils.forEach;
 
@@ -18,30 +18,32 @@ var forEach = Ember.EnumerableUtils.forEach;
 
 module("Dirtying of Embedded Records", {
   setup: function() {
-    App = Ember.Namespace.create({ name: "App" });
-
-    User = App.User = DS.Model.extend({
+    User = DS.Model.extend({
       name: attr('string')
     });
 
-    Vote = App.Vote = DS.Model.extend({
+    Vote = DS.Model.extend({
       voter: attr('string')
     });
 
-    Comment = App.Comment = DS.Model.extend({
+    Comment = DS.Model.extend({
       title: attr('string'),
       user: DS.belongsTo(User),
       votes: DS.hasMany(Vote)
     });
 
-    Blog = App.Blog = DS.Model.extend({
+    Blog = DS.Model.extend({
       title: attr('string')
     });
 
-    Post = App.Post = DS.Model.extend({
+    Post = DS.Model.extend({
       title: attr('string'),
       comments: DS.hasMany(Comment),
       blog: DS.belongsTo(Blog)
+    });
+
+    Comment.reopen({
+      post: DS.belongsTo(Post)
     });
 
     Adapter = DS.RESTAdapter.extend();
@@ -81,7 +83,7 @@ module("Dirtying of Embedded Records", {
       {
         title: "This does not seem to reflect the Unix philosophy haha",
         user: {
-          name: "microuser",
+          name: "microuser"
         },
         votes: [ { voter: "ebryn" } ]
       }]
@@ -91,7 +93,7 @@ module("Dirtying of Embedded Records", {
   },
 
   teardown: function() {
-    App.destroy();
+      store.destroy();
   }
 });
 
@@ -101,22 +103,19 @@ function assertEmbeddedLoadNotDirtied() {
 }
 
 function assertTreeIs(state) {
-  var comment1 = post.get('comments.firstObject');
-  var comment2 = post.get('comments.lastObject');
-  var user1 = comment1.get('user');
-  var user2 = comment2.get('user');
-  var vote1 = comment1.get('votes.firstObject');
-  var vote2 = comment1.get('votes.lastObject');
-  var vote3 = comment2.get('votes.firstObject');
-
-  var records = [post, comment1, comment2, user1, user2, vote1, vote2, vote3];
-
-  var isDirty = state === 'dirty';
-
-  records.forEach(function(record) {
-    equal(record.get('isDirty'), isDirty, record.toString() + " should be " + state);
+  post.get('comments').forEach(function(comment) {
+    assertRecordIs(comment, state);
+    if (comment.get('user')) {
+      assertRecordIs(comment.get('user'), state);
+    }
+    comment.get('votes').forEach(function(vote) {
+      assertRecordIs(vote, state);
+    });
   });
-
+}
+function assertRecordIs(record, state) {
+  var isDirty = state === 'dirty';
+  equal(record.get('isDirty'), isDirty, record.toString() + " should be " + state);
 }
 
 test("Modifying a record that contains embedded records should dirty the entire tree", function() {
@@ -136,6 +135,15 @@ test("Modifying a record embedded via a belongsTo relationship should dirty the 
 test("Modifying a record embedded via a hasMany relationship should dirty the entire tree", function() {
   var vote = post.get('comments.firstObject.votes.firstObject');
   vote.set('voter', "[dead]");
+  assertTreeIs('dirty');
+});
+
+test("Creating a record embedded via a hasMany relationship should dirty the entire tree", function() {
+  var comment = Comment.createRecord({
+      post: post,
+      title: 'A new comment'
+  });
+  equal(comment.get('isDirty'), true, "New comment should be dirty");
   assertTreeIs('dirty');
 });
 

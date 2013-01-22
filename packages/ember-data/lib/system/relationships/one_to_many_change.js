@@ -392,6 +392,14 @@ DS.RelationshipChange.prototype = {
       this.store.recordBelongsToDidChange(dirtySet, child, this);
     }
 
+    //Set the parent on the child's reference if the child is "always" embedded within the parent
+    if (parentRecord && child) {
+      var embeddedType = this.store.adapterForType(parentRecord.constructor).get('serializer').embeddedType(parentRecord.constructor, hasManyName);
+      if (embeddedType === 'always') {
+        child.get('_reference').parent = parentRecord.get('_reference');
+      }
+    }
+
     dirtySet.forEach(function(record) {
       record.adapterDidDirty();
     });
