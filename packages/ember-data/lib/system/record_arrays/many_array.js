@@ -162,11 +162,19 @@ DS.ManyArray = DS.RecordArray.extend({
     var owner = get(this, 'owner'),
         store = get(owner, 'store'),
         type = get(this, 'type'),
+        hasManyName = get(this, 'name'),
         record;
 
     transaction = transaction || get(owner, 'transaction');
 
     record = store.createRecord.call(store, type, hash, transaction);
+
+    var embeddedType = store.adapterForType(owner.constructor).get('serializer').embeddedType(owner.constructor, hasManyName);
+    if (embeddedType === 'always') {
+      var reference = get(record, '_reference');
+      reference.parent = get(owner, '_reference');
+    }
+
     this.pushObject(record);
 
     return record;
