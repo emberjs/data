@@ -104,6 +104,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var embeddedType = get(this, 'serializer').embeddedType(record.constructor, relationship.secondRecordName);
 
     if (embeddedType === 'always') {
+      relationship.childReference.parent = relationship.parentReference;
       this._dirtyTree(dirtySet, record);
     }
   },

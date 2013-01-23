@@ -2,6 +2,8 @@ var get = Ember.get, set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;
 
 DS.RelationshipChange = function(options) {
+  this.parentReference = options.parentReference;
+  this.childReference = options.childReference;
   this.firstRecordReference = options.firstRecordReference;
   this.firstRecordKind = options.firstRecordKind;
   this.firstRecordName = options.firstRecordName;
@@ -57,7 +59,7 @@ DS.RelationshipChange.determineRelationshipType = function(recordType, knownSide
   var knownContainerType = knownSide.kind;
   var options = recordType.metaForProperty(knownKey).options;
   var otherType = DS._inverseTypeFor(recordType, knownKey);
-    
+
   if(options.inverse){
     key = options.inverse;
     otherContainerType = get(otherType, 'relationshipsByName').get(key).kind; 
@@ -91,10 +93,10 @@ DS.RelationshipChange.createChange = function(firstRecordReference, secondRecord
     return DS.OneToManyChange.createChange(secondRecordReference, firstRecordReference, store, options);
   }
   else if (changeType === "oneToNone"){
-    return DS.OneToNoneChange.createChange(firstRecordReference, {}, store, options);
+    return DS.OneToNoneChange.createChange(firstRecordReference, secondRecordReference, store, options);
   }
   else if (changeType === "manyToNone"){
-    return DS.ManyToNoneChange.createChange(firstRecordReference, {}, store, options);
+    return DS.ManyToNoneChange.createChange(firstRecordReference, secondRecordReference, store, options);
   }
   else if (changeType === "oneToOne"){
     return DS.OneToOneChange.createChange(firstRecordReference, secondRecordReference, store, options);
@@ -108,6 +110,8 @@ DS.RelationshipChange.createChange = function(firstRecordReference, secondRecord
 DS.OneToNoneChange.createChange = function(childReference, parentReference, store, options) {
   var key = options.key;
   var change = DS.RelationshipChange._createChange({
+      parentReference: parentReference,
+      childReference: childReference,
       firstRecordReference: childReference,
       store: store,
       changeType: options.changeType,
@@ -118,12 +122,14 @@ DS.OneToNoneChange.createChange = function(childReference, parentReference, stor
   store.addRelationshipChangeFor(childReference, key, parentReference, null, change);
 
   return change;
-};  
+};
 
 /** @private */
 DS.ManyToNoneChange.createChange = function(childReference, parentReference, store, options) {
   var key = options.key;
   var change = DS.RelationshipChange._createChange({
+      parentReference: childReference,
+      childReference: parentReference,
       secondRecordReference: childReference,
       store: store,
       changeType: options.changeType,
@@ -133,14 +139,14 @@ DS.ManyToNoneChange.createChange = function(childReference, parentReference, sto
 
   store.addRelationshipChangeFor(childReference, key, parentReference, null, change);
   return change;
-};  
+};
 
 
 /** @private */
 DS.ManyToManyChange.createChange = function(childReference, parentReference, store, options) {
   // Get the type of the child based on the child's client ID
   var childType = childReference.type, key;
-  
+
   // If the name of the belongsTo side of the relationship is specified,
   // use that
   // If the type of the parent is specified, look it up on the child's type
@@ -148,6 +154,8 @@ DS.ManyToManyChange.createChange = function(childReference, parentReference, sto
   key = options.key;
 
   var change = DS.RelationshipChange._createChange({
+      parentReference: parentReference,
+      childReference: childReference,
       firstRecordReference: childReference,
       secondRecordReference: parentReference,
       firstRecordKind: "hasMany",
@@ -167,7 +175,7 @@ DS.ManyToManyChange.createChange = function(childReference, parentReference, sto
 DS.OneToOneChange.createChange = function(childReference, parentReference, store, options) {
   // Get the type of the child based on the child's client ID
   var childType = childReference.type, key;
-  
+
   // If the name of the belongsTo side of the relationship is specified,
   // use that
   // If the type of the parent is specified, look it up on the child's type
@@ -182,6 +190,8 @@ DS.OneToOneChange.createChange = function(childReference, parentReference, store
   }
 
   var change = DS.RelationshipChange._createChange({
+      parentReference: parentReference,
+      childReference: childReference,
       firstRecordReference: childReference,
       secondRecordReference: parentReference,
       firstRecordKind: "belongsTo",
@@ -218,7 +228,7 @@ DS.OneToOneChange.maintainInvariant = function(options, store, childReference, k
 DS.OneToManyChange.createChange = function(childReference, parentReference, store, options) {
   // Get the type of the child based on the child's client ID
   var childType = childReference.type, key;
-  
+
   // If the name of the belongsTo side of the relationship is specified,
   // use that
   // If the type of the parent is specified, look it up on the child's type
@@ -233,6 +243,8 @@ DS.OneToManyChange.createChange = function(childReference, parentReference, stor
   }
 
   var change = DS.RelationshipChange._createChange({
+      parentReference: parentReference,
+      childReference: childReference,
       firstRecordReference: childReference,
       secondRecordReference: parentReference,
       firstRecordKind: "belongsTo",
@@ -319,13 +331,13 @@ DS.RelationshipChange.prototype = {
 
   /** @private */
   destroy: function() {
-    var childReference = this.firstRecordReference,
+    var childReference = this.childReference,
         belongsToName = this.getFirstRecordName(),
         hasManyName = this.getSecondRecordName(),
         store = this.store,
         child, oldParent, newParent, lastParent, transaction;
 
-    store.removeRelationshipChangeFor(childReference, belongsToName, this.secondRecordReference, hasManyName, this.changeType);
+    store.removeRelationshipChangeFor(childReference, belongsToName, this.parentReference, hasManyName, this.changeType);
 
     if (transaction = this.transaction) {
       transaction.relationshipBecameClean(this);
