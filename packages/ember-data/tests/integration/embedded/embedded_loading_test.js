@@ -1,6 +1,6 @@
 var originalLookup = Ember.lookup, lookup;
 
-var Adapter, store, adapter;
+var Adapter, store, serializer, adapter;
 
 var App = Ember.Namespace.create({
   name: "App"
@@ -255,3 +255,44 @@ test("A nested belongsTo relationship can be marked as embedded via the `map` AP
     strictEqual(group.get('name'), "Developers", "Group is addressable by its ID despite being loaded via embedding");
     strictEqual(comment.get('user.group'), group, "relationship references the globally addressable record");
 });
+
+test("updating a embedded record with a belongsTo relationship is serialize correctly.", function() {
+    Adapter.map(Comment, {
+      user: { embedded: 'load' }
+    });
+
+    Adapter.map(Person, {
+      group: { embedded: 'load' }
+    });
+
+    adapter = Adapter.create();
+    serializer = adapter.get('serializer');
+    store.set('adapter', adapter);
+
+    adapter.load(store, Comment, {
+      id: 1,
+      user: {
+        id: 2,
+        name: "Yehuda Katz",
+        group: {
+          id: 3,
+          name: "Developers"
+        }
+      }
+    });
+    adapter.load(store, Person, {
+      id: 4,
+      name: "Peter Pan"
+    });
+
+    var comment = store.find(Comment, 1);
+    var yehuda = store.find(Person, 2);
+    var peter = store.find(Person, 4);
+
+    comment.set('user', peter);
+    strictEqual(comment.get('user'), peter, "updated relationship references the globally addressable record");
+
+    var commentJSON = serializer.serialize(comment, { includeId: true });
+    deepEqual(commentJSON, { id: 1, user: { id: 4, name: "Peter Pan", group: null }});
+});
+
