@@ -327,6 +327,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // this clientId.
     this.recordCache[clientId] = record;
 
+    record.materializeData();
+
     // Set the properties specified on the record.
     record.setProperties(properties);
 
