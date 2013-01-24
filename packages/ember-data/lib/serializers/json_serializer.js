@@ -99,7 +99,7 @@ DS.JSONSerializer = DS.Serializer.extend({
 
     if (this.embeddedType(type, name)) {
       if (embeddedChild = get(record, name)) {
-        value = this.serialize(embeddedChild, { include: true });
+        value = this.serialize(embeddedChild, { includeId: true });
       }
 
       hash[key] = value;
