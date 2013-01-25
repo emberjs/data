@@ -329,6 +329,9 @@ DS._inverseRelationshipFor = function(modelType, inverseModelType) {
 
   if (!possibleRelationships) { return; }
   if (possibleRelationships.length > 1) { return; }
+  if (possibleRelationships.length === 0 && inverseModelType.superclass) {
+    return DS._inverseRelationshipFor(modelType, inverseModelType.superclass);
+  }
   return possibleRelationships[0];
 };
 

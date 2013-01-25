@@ -2,6 +2,7 @@ require('ember-data/system/serializer');
 require('ember-data/transforms/json_transforms');
 
 var get = Ember.get, set = Ember.set;
+var map = Ember.EnumerableUtils.map;
 
 var generatedId = 0;
 
@@ -83,7 +84,30 @@ DS.JSONSerializer = DS.Serializer.extend({
     }
   },
 
+  /**
+    Returns an array of id-type tuples based on the payload
+
+    @return {Array}
+  */
   extractHasMany: function(type, hash, key) {
+    var ids = hash[key];
+    if(!ids) {
+      return ids;
+    }
+
+    var hasManyType = type.typeForRelationship(key);
+
+    return map(ids, function(id) {
+      return {id: id, type: hasManyType};
+    });
+  },
+
+  /**
+    Returns an array of id-type tuples based on the payload
+
+    @return {Array}
+  */
+  extractHasManyPolymorphic: function(type, hash, key) {
     return hash[key];
   },
 

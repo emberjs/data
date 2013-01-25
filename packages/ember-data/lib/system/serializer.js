@@ -681,8 +681,15 @@ DS.Serializer = Ember.Object.extend({
   },
 
   materializeHasMany: function(name, record, hash, relationship) {
-    var key = this._keyForHasMany(record.constructor, relationship.key);
-    record.materializeHasMany(name, this.extractHasMany(record.constructor, hash, key));
+    var key = this._keyForHasMany(record.constructor, relationship.key),
+        ids;
+    if(relationship.options && relationship.options.polymorphic) {
+      ids = this.extractHasManyPolymorphic(record.constructor, hash, key);
+    } else {
+      ids = this.extractHasMany(record.constructor, hash, key);
+    }
+
+    record.materializeHasMany(name, ids);
   },
 
   materializeBelongsTo: function(name, record, hash, relationship) {

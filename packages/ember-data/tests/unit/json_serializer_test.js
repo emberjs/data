@@ -1,3 +1,5 @@
+var map = Ember.EnumerableUtils.map;
+
 var MockModel = Ember.Object.extend({
   init: function() {
     this.materializedAttributes = {};
@@ -153,6 +155,11 @@ test("Mapped relationships should be used when serializing a record to JSON.", f
 
 test("mapped relationships are respected when materializing a record from JSON", function() {
   Person.relationships = { addresses: 'hasMany' };
+  Person.reopenClass({
+    typeForRelationship: function( name ) {
+      return window.Address;
+    }
+  });
   window.Address.relationships = { person: 'belongsTo' };
 
   serializer.map(Person, {
@@ -175,7 +182,7 @@ test("mapped relationships are respected when materializing a record from JSON",
   });
 
   deepEqual(person.hasMany, {
-    addresses: [ 1, 2, 3 ]
+    addresses: map([ 1, 2, 3 ], function(id) { return {id: id, type: window.Address};})
   });
 
   deepEqual(address.belongsTo, {

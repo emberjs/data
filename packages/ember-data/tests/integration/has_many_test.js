@@ -14,17 +14,30 @@ module("Has-Many Relationships", {
       name: 'App'
     });
 
-    App.Post = DS.Model.extend({
+    App.User = DS.Model.extend({
+      name: DS.attr('string')
+    });
+
+    App.Message = DS.Model.extend({
+      user: DS.belongsTo(App.User),
+      created_at: DS.attr('date')
+    });
+
+    App.Post = App.Message.extend({
       title: DS.attr('string')
     });
 
-    App.Comment = DS.Model.extend({
+    App.Comment = App.Message.extend({
       body: DS.attr('string'),
       post: DS.belongsTo(App.Post)
     });
 
     App.Post.reopen({
       comments: DS.hasMany(App.Comment)
+    });
+
+    App.User.reopen({
+      messages: DS.hasMany(App.Message, {polymorphic: true})
     });
   },
 
@@ -78,15 +91,13 @@ test("When a hasMany relationship is accessed, the adapter's findMany method sho
   var post = store.find(App.Post, 1);
 
   post.get('comments');
-
-  store.load(App.Post, { id: 1, comments: [ 1 ] });
 });
 
 // This tests the case where a serializer materializes a has-many
 // relationship as a reference that it can fetch lazily. The most
 // common use case of this is to provide a URL to a collection that
 // is loaded later.
-asyncTest("An serializer can materialize a hasMany as an opaque token that can be lazily fetched via the adapter's findHasMany hook", function() {
+asyncTest("A serializer can materialize a hasMany as an opaque token that can be lazily fetched via the adapter's findHasMany hook", function() {
   expect(8);
 
   // When a payload comes in from the server, replace the string
@@ -151,4 +162,125 @@ asyncTest("An serializer can materialize a hasMany as an opaque token that can b
     equal(comments.get('isLoaded'), true);
     equal(comments.get('length'), 2);
   }
+});
+
+test("When a polymorphic hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function() {
+  expect(4);
+
+  adapter.findMany = function() {
+    ok(false, "The adapter's find method should not be called");
+  };
+
+  serializer.extractHasManyPolymorphic = function( type, hash, key) {
+    equal(type, App.User, "We work on the user");
+    equal(key, "messages", "We load the messages polymorphic association");
+    deepEqual(hash[key], [{id: 1, type: "post"}, {id: 3, type: 'comment'}], "We load the two messages");
+    return [{id: 1, type: App.Post}, {id: 3, type: App.Comment}];
+  };
+
+  store.load(App.User, { id: 1, messages: [ {id: 1, type: 'post'}, {id: 3, type: 'comment'} ] });
+  store.load(App.Post, { id: 1 });
+  store.load(App.Comment, { id: 3 });
+
+  var user = store.find(App.User, 1);
+
+  var messages = user.get('messages');
+
+  equal(messages.get('length'), 2, "The messages are correctly loaded");
+});
+
+test("When a polymorphic hasMany relationship is accessed, the store can call multiple adapters' findMany method if the records are not loaded", function() {
+  expect(6);
+
+  adapter.findMany = function() {
+    ok(true, "The adapter's find method should be called");
+  };
+
+  serializer.extractHasManyPolymorphic = function( type, hash, key) {
+    equal(type, App.User, "We work on the user");
+    equal(key, "messages", "We load the messages polymorphic association");
+    deepEqual(hash[key], [{id: 1, type: "post"}, {id: 3, type: 'comment'}], "We load the two messages");
+    return [{id: 1, type: App.Post}, {id: 3, type: App.Comment}];
+  };
+
+  store.load(App.User, { id: 1, messages: [ {id: 1, type: 'post'}, {id: 3, type: 'comment'} ] });
+
+  var user = store.find(App.User, 1);
+
+  var messages = user.get('messages');
+
+  equal(messages.get('length'), 2, "The messages are correctly loaded");
+});
+
+test("A record can't be created from a polymorphic hasMany relationship", function() {
+  expect(1);
+  store.load(App.User, { id: 1, messages: [] });
+  var user = store.find(App.User, 1),
+      messages = user.get('messages');
+
+  raises(
+    function() { messages.createRecord(); },
+    /You can not create records of App.Message on this polymorphic relationship/,
+    "Creating records directly on a polymorphic hasMany is disallowed"
+  );
+});
+
+test("Only records of the same type can be added to a monomorphic hasMany relationship", function() {
+  expect(1);
+  store.load(App.Post, { id: 1 });
+  store.load(App.Post, { id: 2 });
+  var post = store.find(App.Post, 1),
+      message = store.find(App.Post, 2);
+
+  raises(
+    function() { post.get('comments').pushObject(message); },
+    /You can only add records of App.Comment to this relationship/,
+    "Adding records of a different type on a monomorphic hasMany is disallowed"
+  );
+});
+
+test("Only records of the same base type can be added to a polymorphic hasMany relationship", function() {
+  expect(2);
+  store.load(App.User, { id: 1 });
+  store.load(App.User, { id: 2 });
+  store.load(App.Post, { id: 1 });
+  store.load(App.Comment, { id: 3 });
+
+  var user = store.find(App.User, 1),
+      anotherUser = store.find(App.User, 2),
+      messages = user.get('messages'),
+      post = store.find(App.Post, 1),
+      comment = store.find(App.Comment, 3);
+
+  messages.pushObject(post);
+  messages.pushObject(comment);
+
+  equal(messages.get('length'), 2, "The messages are correctly added");
+
+  raises(
+    function() { messages.pushObject(anotherUser); },
+    /You can only add records of App.Message to this relationship/,
+    "Adding records of a different base type on a polymorphic hasMany is disallowed"
+  );
+});
+
+test("A record can be removed from a polymorphic association", function() {
+  expect(4);
+
+  serializer.extractHasManyPolymorphic = function( type, hash, key) {
+    equal(type, App.User, "We work on the user");
+    equal(key, "messages", "We load the messages polymorphic association");
+    deepEqual(hash[key], [{id: 3, type: 'comment'}], "We load the message");
+    return [{id: 3, type: App.Comment}];
+  };
+
+  store.load(App.User, { id: 1 , messages: [{id: 3, type: 'comment'}]});
+  store.load(App.Comment, { id: 3 });
+
+  var user = store.find(App.User, 1),
+      comment = store.find(App.Comment, 3),
+      messages = user.get('messages'),
+      removedObject = messages.popObject();
+
+  equal(removedObject, comment, "The message is correctly removed");
 });
