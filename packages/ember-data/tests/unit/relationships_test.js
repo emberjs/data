@@ -189,7 +189,7 @@ test("relationships work when declared with a string path", function() {
   equal(get(person, 'tags.length'), 2, "the list of tags should have the correct length");
 });
 
-test("relationships work when the data hash has not been loaded", function() {
+test("hasMany relationships work when the data hash has not been loaded", function() {
   expect(13);
 
   var Tag = DS.Model.extend({
@@ -425,7 +425,7 @@ test("belongsTo lazily loads relationships as needed", function() {
   strictEqual(get(person, 'tag'), store.find(Tag, 5), "relationship object is the same as object retrieved directly");
 });
 
-test("relationships work when the data hash has not been loaded", function() {
+test("belongsTo relationships work when the data hash has not been loaded", function() {
   expect(12);
 
   var Tag = DS.Model.extend({

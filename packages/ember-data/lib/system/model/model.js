@@ -201,8 +201,15 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
       var ids = this._data.hasMany[key] || [];
 
       var references = map(ids, function(id) {
-        // if it was already a reference, return the reference
-        if (typeof id === 'object') { return id; }
+        if (typeof id === 'object') {
+          if( id.clientId ) {
+            // if it was already a reference, return the reference
+            return id;
+          } else {
+            // <id, type> tuple for a polymorphic association.
+            return store.referenceForId(id.type, id.id);
+          }
+        }
         return store.referenceForId(type, id);
       });
 
@@ -236,12 +243,41 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     this._data.attributes[name] = value;
   },
 
-  materializeHasMany: function(name, ids) {
-    this._data.hasMany[name] = ids;
+  materializeHasMany: function(name, tuplesOrReferencesOrOpaque) {
+    var tuplesOrReferencesOrOpaqueType = typeof tuplesOrReferencesOrOpaque;
+    if (tuplesOrReferencesOrOpaque && tuplesOrReferencesOrOpaqueType !== 'string' && tuplesOrReferencesOrOpaque.length > 1) { Ember.assert('materializeHasMany expects tuples, references or opaque token, not ' + tuplesOrReferencesOrOpaque[0], tuplesOrReferencesOrOpaque[0].hasOwnProperty('id') && tuplesOrReferencesOrOpaque[0].type); }
+    if( tuplesOrReferencesOrOpaqueType === "string" ) {
+      this._data.hasMany[name] = tuplesOrReferencesOrOpaque;
+    } else {
+      var references = tuplesOrReferencesOrOpaque;
+
+      if (tuplesOrReferencesOrOpaque && Ember.isArray(tuplesOrReferencesOrOpaque)) {
+        references = this._convertTuplesToReferences(tuplesOrReferencesOrOpaque);
+      }
+
+      this._data.hasMany[name] = references;
+    }
   },
 
-  materializeBelongsTo: function(name, id) {
-    this._data.belongsTo[name] = id;
+  materializeBelongsTo: function(name, tupleOrReference) {
+    if (tupleOrReference) { Ember.assert('materializeBelongsTo expects a tuple or a reference, not a ' + tupleOrReference, !tupleOrReference || (tupleOrReference.hasOwnProperty('id') && tupleOrReference.hasOwnProperty('type'))); }
+
+    this._data.belongsTo[name] = tupleOrReference;
+  },
+
+  _convertTuplesToReferences: function(tuplesOrReferences) {
+    return map(tuplesOrReferences, function(tupleOrReference) {
+      return this._convertTupleToReference(tupleOrReference);
+    }, this);
+  },
+
+  _convertTupleToReference: function(tupleOrReference) {
+    var store = get(this, 'store');
+    if(tupleOrReference.clientId) {
+      return tupleOrReference;
+    } else {
+      return store.referenceForId(tupleOrReference.type, tupleOrReference.id);
+    }
   },
 
   rollback: function() {

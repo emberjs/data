@@ -47,6 +47,15 @@ DS.ManyArray = DS.RecordArray.extend({
   */
   owner: null,
 
+  /**
+    @private
+
+    `true` if the relationship is polymorphic, `false` otherwise.
+
+    @property {Boolean}
+  */
+  isPolymorphic: false,
+
   // LOADING STATE
 
   isLoaded: false,
@@ -66,17 +75,16 @@ DS.ManyArray = DS.RecordArray.extend({
   fetch: function() {
     var references = get(this, 'content'),
         store = get(this, 'store'),
-        type = get(this, 'type'),
         owner = get(this, 'owner');
 
-    store.fetchUnloadedReferences(type, references, owner);
+    store.fetchUnloadedReferences(references, owner);
   },
 
   // Overrides Ember.Array's replace method to implement
   replaceContent: function(index, removed, added) {
     // Map the array of record objects into an array of  client ids.
     added = added.map(function(record) {
-      Ember.assert("You can only add records of " + (get(this, 'type') && get(this, 'type').toString()) + " to this relationship.", !get(this, 'type') || (get(this, 'type') === record.constructor));
+      Ember.assert("You can only add records of " + (get(this, 'type') && get(this, 'type').toString()) + " to this relationship.", !get(this, 'type') || (get(this, 'type').detectInstance(record)) );
       return get(record, '_reference');
     }, this);
 
@@ -163,6 +171,8 @@ DS.ManyArray = DS.RecordArray.extend({
         store = get(owner, 'store'),
         type = get(this, 'type'),
         record;
+
+    Ember.assert("You can not create records of " + (get(this, 'type') && get(this, 'type').toString()) + " on this polymorphic relationship.", !get(this, 'isPolymorphic'));
 
     transaction = transaction || get(owner, 'transaction');
 
