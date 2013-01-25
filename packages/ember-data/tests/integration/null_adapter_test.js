@@ -14,6 +14,8 @@ module("InMemoryAdapter & PassThroughSerializer", {
       profile: DS.attr('object'),
     });
 
+    App.Person.FIXTURES = [];
+
     adapter = DS.InMemoryAdapter.create();
     store = DS.Store.create({ adapter: adapter });
   },
@@ -42,7 +44,7 @@ test("records are persisted as is", function() {
   equal(adam.get('name'), attributes.name, 'Attribute materialized');
   equal(adam.get('profile'), attributes.profile, 'Complex object materialized');
 
-  var inMemoryRecords = adapter.loadedRecordsForType(App.Person);
+  var inMemoryRecords = adapter.recordsForType(App.Person);
   equal(inMemoryRecords.length, 1, "In memory objects updated");
 
   var inMemoryProfile = inMemoryRecords[0].profile;
@@ -71,7 +73,7 @@ test("records are updated as is", function() {
 
   equal(adam.get('name'), 'Adam Andrew Hawkins', 'Attribute materialized');
 
-  var inMemoryRecords = adapter.loadedRecordsForType(App.Person);
+  var inMemoryRecords = adapter.recordsForType(App.Person);
   equal(inMemoryRecords.length, 1, "In memory objects updated");
 
   var inMemoryObject = inMemoryRecords[0];
@@ -96,7 +98,7 @@ test("records are deleted", function() {
   adam.deleteRecord();
   store.commit();
 
-  var inMemoryRecords = adapter.loadedRecordsForType(App.Person);
+  var inMemoryRecords = adapter.recordsForType(App.Person);
   equal(inMemoryRecords.length, 0, "In memory objects updated");
 });
 

@@ -8,9 +8,8 @@ DS.InMemoryAdapter = DS.Adapter.extend({
 
   simulateRemoteReseponse: false,
 
-  init: function() {
-    this._super();
-    this.map = Ember.Map.create();
+  recordsForType: function(type) {
+    return type.FIXTURES;
   },
 
   queryRecords: function(records, query) {
@@ -20,37 +19,25 @@ DS.InMemoryAdapter = DS.Adapter.extend({
   storeRecord: function(type, record) {
     var records = this.recordsForType(type);
 
-    records.set(this.extractId(type, record), record);
-  },
+    this.deleteLoadedRecord(type, record);
 
-  // This is here because Ember.Map does not provide
-  // a way to turn itself into a generic collection
-  loadedRecordsForType: function(type) {
-    var records = this.recordsForType(type);
-
-    var collection = Ember.A();
-
-    records.forEach(function(id, object){
-      collection.pushObject(object);
-    });
-
-    return collection;
+    records.push(record);
   },
 
   find: function(store, type, id) {
     var records = this.recordsForType(type);
+    var record = this.findRecordById(records, id);
 
-    if (records.has(id)) {
+    if (record) {
       var adapter = this;
-
       this.simulateRemoteCall(function() {
-        adapter.didFindRecord(store, type, records.get(id), id);
+        adapter.didFindRecord(store, type, record, id);
       }, store, type);
     }
   },
 
   findQuery: function(store, type, query, array) {
-    var records = this.loadedRecordsForType(type);
+    var records = this.recordsForType(type);
 
     var results = this.queryRecords(records, query);
 
@@ -64,7 +51,7 @@ DS.InMemoryAdapter = DS.Adapter.extend({
   },
 
   findAll: function(store, type) {
-    var records = this.loadedRecordsForType(type);
+    var records = this.recordsForType(type);
 
     var adapter = this;
     this.simulateRemoteCall(function() {
@@ -107,20 +94,36 @@ DS.InMemoryAdapter = DS.Adapter.extend({
   },
 
   // Internal helpers
+  deleteLoadedRecord: function(type, record) {
+    var id = this.extractId(type, record);
 
-  recordsForType: function(type) {
-    if(this.map.has(type)) {
-      return this.map.get(type);
-    } else {
-      this.map.set(type, Ember.Map.create());
-      return this.map.get(type);
+    var existingRecord = this.findExistingRecord(type, record);
+
+    if(existingRecord) {
+      var records = this.recordsForType(type, record);
+      var index = records.indexOf(existingRecord);
+      records.splice(index, 1);
+      return true;
     }
   },
 
-  deleteLoadedRecord: function(type, record) {
+  findExistingRecord: function(type, record) {
     var records = this.recordsForType(type);
+    var id = this.extractId(type, record);
 
-    records.remove(this.extractId(type, record));
+    return this.findRecordById(records, id);
+  },
+
+  findRecordById: function(records, id) {
+    var adapter = this;
+
+    return records.find(function(r) {
+      if(''+get(r, 'id') === ''+id) {
+        return true;
+      } else {
+        return false;
+      }
+    });
   },
 
   simulateRemoteCall: function(callback, store, type, record) {
