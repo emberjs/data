@@ -1,10 +1,10 @@
 require("ember-data/system/adapter");
-require("ember-data/serializers/null_serializer");
+require("ember-data/serializers/pass_through_serializer");
 
 var get = Ember.get;
 
 DS.InMemoryAdapter = DS.Adapter.extend({
-  serializer: DS.NullSerializer,
+  serializer: DS.PassThroughSerializer,
 
   simulateRemoteReseponse: false,
 
@@ -41,8 +41,10 @@ DS.InMemoryAdapter = DS.Adapter.extend({
     var records = this.recordsForType(type);
 
     if (records.has(id)) {
+      var adapter = this;
+
       this.simulateRemoteCall(function() {
-        store.load(type, records.get(id));
+        adapter.didFindRecord(store, type, records.get(id), id);
       }, store, type);
     }
   },
@@ -53,8 +55,10 @@ DS.InMemoryAdapter = DS.Adapter.extend({
     var results = this.queryRecords(records, query);
 
     if (results) {
+      var adapter = this;
+
       this.simulateRemoteCall(function() {
-        array.load(results);
+        adapter.didFindQuery(store, type, results, array); 
       }, store, type);
     }
   },
@@ -62,9 +66,9 @@ DS.InMemoryAdapter = DS.Adapter.extend({
   findAll: function(store, type) {
     var records = this.loadedRecordsForType(type);
 
+    var adapter = this;
     this.simulateRemoteCall(function() {
-      store.loadMany(type, records);
-      store.didUpdateAll(type);
+      adapter.didFindAll(store, type, records);
     }, store, type);
   },
 
@@ -73,8 +77,10 @@ DS.InMemoryAdapter = DS.Adapter.extend({
 
     this.storeRecord(type, inMemoryRecord);
 
+    var adapter = this;
+
     this.simulateRemoteCall(function() {
-      store.didSaveRecord(record, inMemoryRecord);
+      adapter.didCreateRecord(store, type, record, inMemoryRecord);
     }, store, type, record);
   },
 
@@ -83,16 +89,20 @@ DS.InMemoryAdapter = DS.Adapter.extend({
 
     this.storeRecord(type, inMemoryRecord);
 
+    var adapter = this;
+
     this.simulateRemoteCall(function() {
-      store.didSaveRecord(record, inMemoryRecord);
+      adapter.didSaveRecord(store, type, record, inMemoryRecord);
     }, store, type, record);
   },
 
   deleteRecord: function(store, type, record) {
     this.deleteLoadedRecord(type, record);
 
+    var adapter = this; 
+
     this.simulateRemoteCall(function() {
-      store.didSaveRecord(record);
+      adapter.didSaveRecord(store, type, record);
     }, store, type, record);
   },
 

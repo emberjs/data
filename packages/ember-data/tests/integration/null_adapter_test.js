@@ -1,13 +1,15 @@
 var get = Ember.get, set = Ember.set;
-var ComplexObject, Person, store, adapter;
+var App, ComplexObject, Person, store, adapter;
 
 ComplexObject = Ember.Object.extend({
 
 });
 
-module("InMemoryAdapter & NullSerializer", {
+module("InMemoryAdapter & PassThroughSerializer", {
   setup: function() {
-    Person = DS.Model.extend({
+    App = Ember.Namespace.create();
+
+    App.Person = DS.Model.extend({
       name: DS.attr('string'),
       profile: DS.attr('object'),
     });
@@ -32,15 +34,15 @@ test("records are persisted as is", function() {
     })
   };
 
-  store.createRecord(Person, attributes);
+  store.createRecord(App.Person, attributes);
   store.commit();
 
-  var adam = store.find(Person, 1);
+  var adam = store.find(App.Person, 1);
 
   equal(adam.get('name'), attributes.name, 'Attribute materialized');
   equal(adam.get('profile'), attributes.profile, 'Complex object materialized');
 
-  var inMemoryRecords = adapter.loadedRecordsForType(Person);
+  var inMemoryRecords = adapter.loadedRecordsForType(App.Person);
   equal(inMemoryRecords.length, 1, "In memory objects updated");
 
   var inMemoryProfile = inMemoryRecords[0].profile;
@@ -59,17 +61,17 @@ test("records are updated as is", function() {
     })
   };
 
-  store.createRecord(Person, attributes);
+  store.createRecord(App.Person, attributes);
   store.commit();
 
-  var adam = store.find(Person, 1);
+  var adam = store.find(App.Person, 1);
 
   adam.set('name', 'Adam Andrew Hawkins');
   store.commit();
 
   equal(adam.get('name'), 'Adam Andrew Hawkins', 'Attribute materialized');
 
-  var inMemoryRecords = adapter.loadedRecordsForType(Person);
+  var inMemoryRecords = adapter.loadedRecordsForType(App.Person);
   equal(inMemoryRecords.length, 1, "In memory objects updated");
 
   var inMemoryObject = inMemoryRecords[0];
@@ -87,14 +89,14 @@ test("records are deleted", function() {
     })
   };
 
-  store.createRecord(Person, attributes);
+  store.createRecord(App.Person, attributes);
   store.commit();
 
-  var adam = store.find(Person, 1);
+  var adam = store.find(App.Person, 1);
   adam.deleteRecord();
   store.commit();
 
-  var inMemoryRecords = adapter.loadedRecordsForType(Person);
+  var inMemoryRecords = adapter.loadedRecordsForType(App.Person);
   equal(inMemoryRecords.length, 0, "In memory objects updated");
 });
 
@@ -108,9 +110,9 @@ test("find queries loaded records", function() {
     })
   };
 
-  adapter.storeRecord(Person, attributes);
+  adapter.storeRecord(App.Person, attributes);
 
-  var adam = store.find(Person, 1);
+  var adam = store.find(App.Person, 1);
 
   equal(adam.get('name'), attributes.name, 'Attribute materialized');
   equal(adam.get('profile'), attributes.profile, 'Complex object materialized');
@@ -135,10 +137,10 @@ test("findQuery returns all records by default", function() {
     })
   };
 
-  adapter.storeRecord(Person, adamsAttributes);
-  adapter.storeRecord(Person, paulsAttributes);
+  adapter.storeRecord(App.Person, adamsAttributes);
+  adapter.storeRecord(App.Person, paulsAttributes);
 
-  var results = store.find(Person, {skill: 'French'});
+  var results = store.find(App.Person, {skill: 'French'});
 
   equal(results.get('length'), 2, 'Records loaded correctly');
 });
@@ -168,10 +170,10 @@ test("findQuery is implemented with a method to override", function() {
     })
   };
 
-  adapter.storeRecord(Person, adamsAttributes);
-  adapter.storeRecord(Person, paulsAttributes);
+  adapter.storeRecord(App.Person, adamsAttributes);
+  adapter.storeRecord(App.Person, paulsAttributes);
 
-  var results = store.find(Person, {skill: 'French'});
+  var results = store.find(App.Person, {skill: 'French'});
 
   equal(results.get('length'), 1, 'Records filtered correctly');
 
@@ -198,10 +200,10 @@ test("findAll is implemented", function() {
     })
   };
 
-  adapter.storeRecord(Person, adamsAttributes);
-  adapter.storeRecord(Person, paulsAttributes);
+  adapter.storeRecord(App.Person, adamsAttributes);
+  adapter.storeRecord(App.Person, paulsAttributes);
 
-  var results = store.find(Person);
+  var results = store.find(App.Person);
 
   equal(results.get('length'), 2, "All records returned");
   equal(get(results, 'isUpdating'), false, "results not updating");

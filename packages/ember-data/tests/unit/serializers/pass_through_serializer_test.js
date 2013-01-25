@@ -2,9 +2,11 @@ var get = Ember.get, set = Ember.set;
 
 var serializer;
 
-module("DS.NullSerializer", {
+module("DS.PassThroughSerializer", {
   setup: function() {
-    serializer = DS.NullSerializer.create();
+    serializer = DS.PassThroughSerializer.create();
+
+    serializer.transforms = {};
 
     serializer.registerTransform('unobtainium', {
       serialize: function(value) {
