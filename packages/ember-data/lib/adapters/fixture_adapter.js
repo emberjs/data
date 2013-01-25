@@ -4,7 +4,7 @@ require("ember-data/serializers/rest_serializer");
 var get = Ember.get;
 
 DS.FixtureAdapter = DS.Adapter.extend({
-  simulateRemoteReseponse: true,
+  simulateRemoteResponse: true,
 
   latency: 100,
 
@@ -93,13 +93,6 @@ DS.FixtureAdapter = DS.Adapter.extend({
     this.simulateRemoteCall(function() {
       adapter.didSaveRecord(store, type, record);
     }, store, type, record);
-  },
-
-  // Internal helpers
-  constructObject: function(object) {
-    {
-
-    }
   },
 
   deleteLoadedRecord: function(type, record) {
