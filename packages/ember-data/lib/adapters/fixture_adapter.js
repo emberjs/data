@@ -1,138 +1,139 @@
-require("ember-data/core");
 require("ember-data/system/adapter");
+require("ember-data/serializers/rest_serializer");
 
 var get = Ember.get;
 
 DS.FixtureAdapter = DS.Adapter.extend({
+  simulateRemoteReseponse: true,
 
-  simulateRemoteResponse: true,
+  latency: 100,
 
-  latency: 50,
+  recordsForType: function(type) {
+    if(Ember.isNone(type.FIXTURES)) type.FIXTURES = [];
 
-  /*
-    Implement this method in order to provide data associated with a type
-  */
-  fixturesForType: function(type) {
-    if (type.FIXTURES) {
-      var fixtures = Ember.A(type.FIXTURES);
-      return fixtures.map(function(fixture){
-        if(!fixture.id){
-          throw new Error('the id property must be defined for fixture %@'.fmt(fixture));
-        }
-        fixture.id = fixture.id + '';
-        return fixture;
-      });
-    }
-    return null;
+    return type.FIXTURES;
   },
 
-  /*
-    Implement this method in order to query fixtures data
-  */
-  queryFixtures: function(fixtures, query, type) {
-    return fixtures;
+  queryRecords: function(records, query) {
+    return records;
   },
 
-  /*
-    Implement this method in order to provide provide json for CRUD methods
-  */
-  mockJSON: function(type, record) {
-    return this.serialize(record, { includeId: true });
-  },
+  storeRecord: function(type, record) {
+    var records = this.recordsForType(type);
 
-  /*
-    Adapter methods
-  */
-  generateIdForRecord: function(store, record) {
-    return Ember.guidFor(record);
+    this.deleteLoadedRecord(type, record);
+
+    records.push(record);
   },
 
   find: function(store, type, id) {
-    var fixtures = this.fixturesForType(type);
+    var records = this.recordsForType(type);
+    var record = this.findRecordById(records, id);
 
-    Ember.assert("Unable to find fixtures for model type "+type.toString(), !!fixtures);
-
-    if (fixtures) {
-      fixtures = fixtures.findProperty('id', id);
-    }
-
-    if (fixtures) {
+    if (record) {
+      var adapter = this;
       this.simulateRemoteCall(function() {
-        store.load(type, fixtures);
+        adapter.didFindRecord(store, type, record, id);
       }, store, type);
     }
   },
 
-  findMany: function(store, type, ids) {
-    var fixtures = this.fixturesForType(type);
+  findQuery: function(store, type, query, array) {
+    var records = this.recordsForType(type);
 
-    Ember.assert("Unable to find fixtures for model type "+type.toString(), !!fixtures);
+    var results = this.queryRecords(records, query);
 
-    if (fixtures) {
-      fixtures = fixtures.filter(function(item) {
-        return ids.indexOf(item.id) !== -1;
-      });
-    }
+    if (results) {
+      var adapter = this;
 
-    if (fixtures) {
       this.simulateRemoteCall(function() {
-        store.loadMany(type, fixtures);
+        adapter.didFindQuery(store, type, results, array); 
       }, store, type);
     }
   },
 
   findAll: function(store, type) {
-    var fixtures = this.fixturesForType(type);
+    var records = this.recordsForType(type);
 
-    Ember.assert("Unable to find fixtures for model type "+type.toString(), !!fixtures);
-
+    var adapter = this;
     this.simulateRemoteCall(function() {
-      store.loadMany(type, fixtures);
-      store.didUpdateAll(type);
+      adapter.didFindAll(store, type, records);
     }, store, type);
   },
 
-  findQuery: function(store, type, query, array) {
-    var fixtures = this.fixturesForType(type);
-
-    Ember.assert("Unable to find fixtures for model type "+type.toString(), !!fixtures);
-
-    fixtures = this.queryFixtures(fixtures, query, type);
-
-    if (fixtures) {
-      this.simulateRemoteCall(function() {
-        array.load(fixtures);
-      }, store, type);
-    }
-  },
-
   createRecord: function(store, type, record) {
-    var fixture = this.mockJSON(type, record);
+    var inMemoryRecord = this.serialize(record, { includeId: true });
 
-    fixture.id = this.generateIdForRecord(store, record);
+    this.storeRecord(type, inMemoryRecord);
+
+    var adapter = this;
 
     this.simulateRemoteCall(function() {
-      store.didSaveRecord(record, fixture);
+      adapter.didCreateRecord(store, type, record, inMemoryRecord);
     }, store, type, record);
   },
 
   updateRecord: function(store, type, record) {
-    var fixture = this.mockJSON(type, record);
+    var inMemoryRecord = this.serialize(record, { includeId: true });
+
+    this.storeRecord(type, inMemoryRecord);
+
+    var adapter = this;
 
     this.simulateRemoteCall(function() {
-      store.didSaveRecord(record, fixture);
+      adapter.didSaveRecord(store, type, record, inMemoryRecord);
     }, store, type, record);
   },
 
   deleteRecord: function(store, type, record) {
+    this.deleteLoadedRecord(type, record);
+
+    var adapter = this; 
+
     this.simulateRemoteCall(function() {
-      store.didSaveRecord(record);
+      adapter.didSaveRecord(store, type, record);
     }, store, type, record);
   },
 
-  /*
-    @private
-  */
+  // Internal helpers
+  constructObject: function(object) {
+    {
+
+    }
+  },
+
+  deleteLoadedRecord: function(type, record) {
+    var id = this.extractId(type, record);
+
+    var existingRecord = this.findExistingRecord(type, record);
+
+    if(existingRecord) {
+      var records = this.recordsForType(type, record);
+      var index = records.indexOf(existingRecord);
+      records.splice(index, 1);
+      return true;
+    }
+  },
+
+  findExistingRecord: function(type, record) {
+    var records = this.recordsForType(type);
+    var id = this.extractId(type, record);
+
+    return this.findRecordById(records, id);
+  },
+
+  findRecordById: function(records, id) {
+    var adapter = this;
+
+    return records.find(function(r) {
+      if(''+get(r, 'id') === ''+id) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+  },
+
   simulateRemoteCall: function(callback, store, type, record) {
     if (get(this, 'simulateRemoteResponse')) {
       setTimeout(callback, get(this, 'latency'));

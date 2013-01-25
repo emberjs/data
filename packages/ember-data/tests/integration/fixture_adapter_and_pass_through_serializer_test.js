@@ -5,7 +5,7 @@ ComplexObject = Ember.Object.extend({
 
 });
 
-module("InMemoryAdapter & PassThroughSerializer", {
+module("FixtureAdapter & PassThroughSerializer", {
   setup: function() {
     App = Ember.Namespace.create();
 
@@ -16,7 +16,11 @@ module("InMemoryAdapter & PassThroughSerializer", {
 
     App.Person.FIXTURES = [];
 
-    adapter = DS.InMemoryAdapter.create();
+    adapter = DS.FixtureAdapter.create({
+      simulateRemoteResponse: false,
+      serializer: DS.PassThroughSerializer.create()
+    });
+
     store = DS.Store.create({ adapter: adapter });
   },
 

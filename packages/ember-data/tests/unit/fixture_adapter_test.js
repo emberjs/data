@@ -1,17 +1,19 @@
 var get = Ember.get, set = Ember.set;
-var store, Person;
+var store, Person, App;
 
 module("DS.FixtureAdapter", {
   setup: function() {
-    store = DS.Store.create({
-      adapter: 'DS.FixtureAdapter'
-    });
+    App = Ember.Namespace.create();
 
-    Person = DS.Model.extend({
+    App.Person = DS.Model.extend({
       firstName: DS.attr('string'),
       lastName: DS.attr('string'),
 
       height: DS.attr('number')
+    });
+
+    store = DS.Store.create({
+      adapter: DS.FixtureAdapter.create()
     });
   },
   teardown: function() {
@@ -19,12 +21,12 @@ module("DS.FixtureAdapter", {
       store.destroy();
     });
     store = null;
-    Person = null;
+    App.Person = null;
   }
 });
 
 test("should load data for a type asynchronously when it is requested", function() {
-  Person.FIXTURES = [{
+  App.Person.FIXTURES = [{
     id: 'wycats',
     firstName: "Yehuda",
     lastName: "Katz",
@@ -42,7 +44,7 @@ test("should load data for a type asynchronously when it is requested", function
 
   stop();
 
-  var ebryn = store.find(Person, 'ebryn');
+  var ebryn = store.find(App.Person, 'ebryn');
 
   equal(get(ebryn, 'isLoaded'), false, "record from fixtures is returned in the loading state");
 
@@ -55,7 +57,7 @@ test("should load data for a type asynchronously when it is requested", function
 
     stop();
 
-    var wycats = store.find(Person, 'wycats');
+    var wycats = store.find(App.Person, 'wycats');
     wycats.then(function() {
       clearTimeout(timer);
       start();
@@ -79,7 +81,7 @@ test("should load data for a type asynchronously when it is requested", function
 test("should create record asynchronously when it is committed", function() {
   stop();
 
-  var paul = store.createRecord(Person, {firstName: 'Paul', lastName: 'Chavard', height: 70});
+  var paul = store.createRecord(App.Person, {firstName: 'Paul', lastName: 'Chavard', height: 70});
 
   paul.on('didCreate', function() {
     clearTimeout(timer);
@@ -101,7 +103,7 @@ test("should create record asynchronously when it is committed", function() {
 test("should update record asynchronously when it is committed", function() {
   stop();
 
-  var paul = store.findByClientId(Person, store.load(Person, 1, {firstName: 'Paul', lastName: 'Chavard', height: 70}).clientId);
+  var paul = store.findByClientId(App.Person, store.load(App.Person, 1, {firstName: 'Paul', lastName: 'Chavard', height: 70}).clientId);
 
   paul.set('height', 80);
 
@@ -124,7 +126,7 @@ test("should update record asynchronously when it is committed", function() {
 test("should delete record asynchronously when it is committed", function() {
   stop();
 
-  var paul = store.findByClientId(Person, store.load(Person, 1, { firstName: 'Paul', lastName: 'Chavard', height: 70}).clientId);
+  var paul = store.findByClientId(App.Person, store.load(App.Person, 1, { firstName: 'Paul', lastName: 'Chavard', height: 70}).clientId);
 
   paul.deleteRecord();
 
@@ -147,14 +149,14 @@ test("should delete record asynchronously when it is committed", function() {
 test("should follow isUpdating semantics", function() {
   stop();
 
-  Person.FIXTURES = [{
+  App.Person.FIXTURES = [{
     id: "twinturbo",
     firstName: "Adam",
     lastName: "Hawkins",
     height: 65
   }];
 
-  var result = store.findAll(Person);
+  var result = store.findAll(App.Person);
 
   result.addObserver('isUpdating', function() {
     clearTimeout(timer);
@@ -172,14 +174,14 @@ test("should follow isUpdating semantics", function() {
 test("should coerce integer ids into string", function() {
   stop();
 
-  Person.FIXTURES = [{
+  App.Person.FIXTURES = [{
     id: 1,
     firstName: "Adam",
     lastName: "Hawkins",
     height: 65
   }];
 
-  var result = Person.find("1");
+  var result = App.Person.find("1");
 
   result.then(function() {
     clearTimeout(timer);
@@ -196,15 +198,13 @@ test("should coerce integer ids into string", function() {
 
 test("should throw if ids are not defined in the FIXTURES", function() {
 
-  Person.FIXTURES = [{
+  App.Person.FIXTURES = [{
     firstName: "Adam",
     lastName: "Hawkins",
     height: 65
   }];
 
   raises(function(){
-    Person.find("1");
+    App.Person.find("1");
   }, /the id property must be defined for fixture/);
-
-  
 });
