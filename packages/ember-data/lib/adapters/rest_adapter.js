@@ -321,7 +321,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     hash.contentType = 'application/json; charset=utf-8';
     hash.context = this;
 
-    if (this.url !== '') {
+    if (this.url !== '' && type === 'GET') {
       hash.dataType = 'jsonp';
       hash.jsonp = false;
     }

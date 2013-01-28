@@ -24,7 +24,7 @@ module("the REST adapter", {
         ajaxType = type;
         ajaxHash = hash;
 
-        if (this.url !== '') {
+        if (this.url !== '' && type === 'GET') {
           ajaxHash.dataType = 'jsonp';
           ajaxHash.jsonp = false;
         }
@@ -897,9 +897,11 @@ test("if you specify a url then that custom url is used", function() {
   store.load(Person, { id: 1 });
 });
 
-test("if you specify a url then that custom url is used and jsonp dataType is used", function() {
+test("if you specify a url then that custom url is used and jsonp dataType is used on GET requests", function() {
   set(adapter, 'url', 'http://api.ember.dev');
   person = store.find(Person, 1);
+
+  expectType("GET");
   expectDataType("jsonp", "the custom url, results in dataType of jsonp");
 
   store.load(Person, { id: 1 });
