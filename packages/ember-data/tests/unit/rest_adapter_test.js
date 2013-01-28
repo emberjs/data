@@ -24,6 +24,11 @@ module("the REST adapter", {
         ajaxType = type;
         ajaxHash = hash;
 
+        if (this.url !== '') {
+          ajaxHash.dataType = 'jsonp';
+          ajaxHash.jsonp = false;
+        }
+
         if (success) {
           hash.success = function(json) {
             success.call(self, json);
@@ -93,6 +98,10 @@ var expectType = function(type) {
 
 var expectData = function(hash) {
   deepEqual(hash, ajaxHash.data, "the hash was passed along");
+};
+
+var expectDataType = function(hash) {
+  deepEqual(hash, ajaxHash.dataType, "the hash data type was passed along");
 };
 
 var expectState = function(state, value, p) {
@@ -884,6 +893,14 @@ test("if you specify a url then that custom url is used", function() {
   set(adapter, 'url', 'http://api.ember.dev');
   person = store.find(Person, 1);
   expectUrl("http://api.ember.dev/people/1", "the custom url, followed by the plural of the model name and the id");
+
+  store.load(Person, { id: 1 });
+});
+
+test("if you specify a url then that custom url is used and jsonp dataType is used", function() {
+  set(adapter, 'url', 'http://api.ember.dev');
+  person = store.find(Person, 1);
+  expectDataType("jsonp", "the custom url, results in dataType of jsonp");
 
   store.load(Person, { id: 1 });
 });
