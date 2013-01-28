@@ -170,3 +170,60 @@ test("the default addRelationships calls addHasMany", function() {
 
   serializer.serialize(post);
 });
+
+test("loadValue should be called once per sideloaded type", function() {
+  var payload, loader, K = Ember.K, loadedTypes = [], App = Ember.Namespace.create({
+    toString: function() { return "App"; }
+  });
+
+  App.Fan = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  App.Player = DS.Model.extend({
+    name: DS.attr('string'),
+    fans: DS.hasMany(App.Fan)
+  });
+
+  App.Coach = DS.Model.extend({
+    name: DS.attr('string'),
+    fans: DS.hasMany(App.Fan),
+    players: DS.hasMany(App.Player)
+  });
+
+  serializer.configure(App.Coach, {
+    sideloadAs: 'coaches'
+  });
+
+  App.Team = DS.Model.extend({
+    name: DS.attr('string'),
+    mascots: DS.hasMany(App.Coach),
+    fans: DS.hasMany(App.Fan),
+    players: DS.hasMany(App.Player)
+  });
+
+  payload = {
+    coaches: [{
+      id: 1, name: "Peter Wagenet", fans: [ 1 ], players: [ 1 ]
+    }],
+    fans: [{
+      id: 1, name: "Yehuda Katz"
+    }],
+    players: [{
+      id: 1, name: "Tom Dale", fans: [ 1 ]
+    }],
+    team: {
+      id: 1, name: "49ers", fans: [ 1 ], players: [ 1 ], coaches: [ 1 ]
+    }
+  };
+
+  loader = { load: K, loadMany: K, prematerialize: K, sinceForType: K };
+
+  serializer.loadValue = function(store, type, value) {
+    loadedTypes.push(type);
+  };
+
+  serializer.extract(loader, payload, App.Team);
+
+  equal(loadedTypes.length, 3, "Loaded: " + loadedTypes.join(", "));
+});
