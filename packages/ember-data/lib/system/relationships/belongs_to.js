@@ -25,7 +25,11 @@ DS.belongsTo = function(type, options) {
     if(!id) {
       return null;
     } else if (typeof id === 'object') {
-      return store.recordForReference(id);
+      if (id.type) {
+        return store.recordForReference(id);
+      } else {
+        return store.find(type, id.id);
+      }
     } else {
       return store.find(type, id);
     }
