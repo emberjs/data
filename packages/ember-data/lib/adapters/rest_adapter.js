@@ -100,6 +100,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     this._invalidTree(invalidSet, record);
   },
 
+  validRecords: function(validSet, record) {
+    this._validTree(validSet, record);
+  },
+
   _invalidTree: function(invalidSet, record) {
     invalidSet.add(record);
 
@@ -108,6 +112,10 @@ DS.RESTAdapter = DS.Adapter.extend({
       if (invalidSet.has(embeddedRecord)) { return; }
       this._invalidTree(invalidSet, embeddedRecord);
     }, this);
+  },
+
+  _validTree: function(validSet, record) {
+    this._dirtyTree(validSet, record);
   },
 
   dirtyRecordsForRecordChange: function(dirtySet, record) {

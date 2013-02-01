@@ -1008,7 +1008,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     invalid state and be ready to commit again.
     
     The embedded records which were sent with the request will
-    become invalid too.
+    become invalid too. If one of them is updated the record and
+    all of the embedded records will move out of the invalid state.
 
     TODO: We should probably automate the process of converting
     server names to attribute names using the existing serializer
@@ -1027,6 +1028,22 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     invalidSet.forEach(function(record) {
       record.adapterDidInvalidate({});
+    });
+  },
+
+  /**
+    This method allows the adapter to specify that an invalid record
+    became valid. The record, all of his parents and all objects embedded
+    in the parents will became Valid.
+  */
+  recordBecameValid: function(record) {
+    var validSet = new Ember.OrderedSet(),
+        adapter = this.adapterForType(record.constructor);
+
+    adapter.validRecords(validSet, record);
+
+    validSet.forEach(function(record) {
+      record.adapterDidValidate();
     });
   },
 

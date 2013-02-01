@@ -396,7 +396,8 @@ var DirtyState = DS.State.extend({
       set(errors, key, null);
 
       if (!hasDefinedProperties(errors)) {
-        manager.send('becameValid');
+        var store = get(record, 'store');
+        store.recordBecameValid(record);
       }
 
       didSetProperty(manager, context);
