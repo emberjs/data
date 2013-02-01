@@ -403,6 +403,7 @@ var DirtyState = DS.State.extend({
     },
 
     becomeDirty: Ember.K,
+    becameInvalid: Ember.K,
 
     rollback: function(manager) {
       manager.send('becameValid');

@@ -96,6 +96,20 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
+  invalidRecords: function(invalidSet, record) {
+    this._invalidTree(invalidSet, record);
+  },
+
+  _invalidTree: function(invalidSet, record) {
+    invalidSet.add(record);
+
+    get(this, 'serializer').eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
+      if (embeddedType !== 'always') { return; }
+      if (invalidSet.has(embeddedRecord)) { return; }
+      this._invalidTree(invalidSet, embeddedRecord);
+    }, this);
+  },
+
   dirtyRecordsForRecordChange: function(dirtySet, record) {
     this._dirtyTree(dirtySet, record);
   },
