@@ -105,7 +105,7 @@ DS.JSONSerializer = DS.Serializer.extend({
       hash[key] = value;
     } else {
       var id = get(record, relationship.key+'.id');
-      if (!Ember.isNone(id)) { hash[key] = id; }
+      hash[key] = id;
     }
   },
 
