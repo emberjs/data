@@ -308,7 +308,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   didError: function(store, type, record, xhr) {
     if (xhr.status === 422) {
       var data = JSON.parse(xhr.responseText);
-      store.recordWasInvalid(record, data['errors']);
+      store.recordWasInvalid(record, Ember.Object.create(data['errors']));
     } else {
       this._super.apply(this, arguments);
     }
