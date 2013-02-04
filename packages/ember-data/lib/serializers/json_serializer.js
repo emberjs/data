@@ -113,7 +113,7 @@ DS.JSONSerializer = DS.Serializer.extend({
     Adds a has-many relationship to the JSON hash being built.
 
     The default REST semantics are to only add a has-many relationship if it
-    is embedded. If the relationship was initially loaded by ID, we assume that
+    is embedded. If the relationship was initially loaded by ID, we assume 
     that was done as a performance optimization, and that changes to the
     has-many should be saved as foreign key changes on the child's belongs-to
     relationship.
