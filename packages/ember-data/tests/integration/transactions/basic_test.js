@@ -30,11 +30,11 @@ test("Stores can create a new transaction", function() {
 test("If a record is created from a transaction, it is not committed when store.commit() is called but is committed when transaction.commit() is called", function() {
   var commitCalls = 0;
 
-  store.adapter = DS.Adapter.create({
+  set(store, 'adapter', DS.Adapter.create({
     createRecords: function() {
       commitCalls++;
     }
-  });
+  }));
 
   transaction = store.transaction();
   transaction.createRecord(Person, {});
@@ -49,11 +49,11 @@ test("If a record is created from a transaction, it is not committed when store.
 test("If a record is added to a transaction then updated, it is not committed when store.commit() is called but is committed when transaction.commit() is called", function() {
   var commitCalls = 0;
 
-  store.adapter = DS.Adapter.create({
+  set(store, 'adapter', DS.Adapter.create({
     updateRecords: function() {
       commitCalls++;
     }
-  });
+  }));
 
   store.load(Person, { id: 1, name: "Yehuda Katz" });
 
