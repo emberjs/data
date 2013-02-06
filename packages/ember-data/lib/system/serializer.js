@@ -910,10 +910,10 @@ DS.Serializer = Ember.Object.extend({
   registerEnumTransform: function(type, objects) {
     var transform = {
       deserialize: function(deserialized) {
-        return objects.objectAt(deserialized);
+        return Ember.A(objects).objectAt(deserialized);
       },
       serialize: function(serialized) {
-        return objects.indexOf(serialized);
+        return Ember.EnumerableUtils.indexOf(objects, serialized);
       },
       values: objects
     };
