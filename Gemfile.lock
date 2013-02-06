@@ -1,81 +1,58 @@
 GIT
-  remote: https://github.com/emberjs/docs-generator.git
-  revision: cfbc2a3aabc08de305224b290ad8f37f3ef5f847
+  remote: https://github.com/emberjs/ember-dev.git
+  revision: a8d16307d65fc4ccb8395a53bb7654b7a084cefc
+  branch: master
   specs:
-    ember-docs (0.1)
+    ember-dev (0.1)
+      colored
+      execjs
+      grit
+      kicker
       rack
-      thor
+      rake-pipeline (~> 0.8.0)
+      rake-pipeline-web-filters (~> 0.7.0)
+      uglifier
 
 GIT
   remote: https://github.com/livingsocial/rake-pipeline.git
-  revision: 543f4322fe70facee9572d29ddabf7f090dad68a
+  revision: ee992cbcda5172075062be035bcbef2cf1b0ff5d
   specs:
-    rake-pipeline (0.6.0)
-      rake (~> 0.9.0)
+    rake-pipeline (0.8.0)
+      json
+      rake (~> 10.0.0)
       thor
-
-GIT
-  remote: https://github.com/wycats/rake-pipeline-web-filters.git
-  revision: 81a22fb0808dfdeab8ed92d5d8c898ad198b9938
-  specs:
-    rake-pipeline-web-filters (0.6.0)
-      rack
-      rake-pipeline (~> 0.6)
 
 GEM
   remote: http://rubygems.org/
   specs:
     colored (1.2)
+    diff-lcs (1.2.0)
     execjs (1.4.0)
       multi_json (~> 1.0)
-    faraday (0.8.1)
-      multipart-post (~> 1.1)
-    github_api (0.6.1)
-      faraday (~> 0.8.1)
-      hashie (~> 1.2.0)
-      multi_json (~> 1.3)
-      nokogiri (~> 1.5.2)
-      oauth2
-    github_downloads (0.1.1)
-      github_api (~> 0.6.0)
-      rest-client (~> 1.6.7)
-    hashie (1.2.0)
-    httpauth (0.1)
-    json (1.7.3)
-    jwt (0.1.4)
-      json (>= 1.2.4)
-    kicker (2.5.0)
-      rb-fsevent
-    mime-types (1.19)
-    multi_json (1.3.6)
-    multipart-post (1.1.5)
-    nokogiri (1.5.5)
-    oauth2 (0.8.0)
-      faraday (~> 0.8)
-      httpauth (~> 0.1)
-      jwt (~> 0.1.4)
-      multi_json (~> 1.0)
-      rack (~> 1.2)
-    rack (1.4.1)
-    rake (0.9.5)
-    rb-fsevent (0.9.1)
-    rest-client (1.6.7)
-      mime-types (>= 1.16)
-    thor (0.15.2)
-    uglifier (1.0.4)
+    grit (2.5.0)
+      diff-lcs (~> 1.1)
+      mime-types (~> 1.15)
+      posix-spawn (~> 0.3.6)
+    json (1.7.6)
+    kicker (2.6.1)
+      listen
+    listen (0.7.2)
+    mime-types (1.20.1)
+    multi_json (1.5.0)
+    posix-spawn (0.3.6)
+    rack (1.5.1)
+    rake (10.0.3)
+    rake-pipeline-web-filters (0.7.0)
+      rack
+      rake-pipeline (~> 0.6)
+    thor (0.17.0)
+    uglifier (1.3.0)
       execjs (>= 0.3.0)
-      multi_json (>= 1.0.2)
+      multi_json (~> 1.0, >= 1.0.2)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
-  colored
-  ember-docs!
-  github_downloads
-  kicker
-  rack
-  rake
+  ember-dev!
   rake-pipeline!
-  rake-pipeline-web-filters!
-  uglifier (~> 1.0.3)
