@@ -1,96 +1,10 @@
-Encoding.default_external = "UTF-8" if defined?(Encoding)
-
-require "rake-pipeline-web-filters"
-require "json"
-require "uglifier"
-
-class EmberProductionFilter < Rake::Pipeline::Filter
-  def generate_output(inputs, output)
-    inputs.each do |input|
-      result = File.read(input.fullpath)
-      result.gsub!(%r{^(\s)*Ember\.(assert|deprecate|warn)\((.*)\).*$}, "")
-      output.write result
-    end
-  end
-end
-
-class EmberLicenseFilter < Rake::Pipeline::Filter
-  def generate_output(inputs, output)
-    inputs.each do |input|
-      file = File.read(input.fullpath)
-      license = File.read("generators/license.js")
-      output.write "#{license}\n\n#{file}"
-    end
-  end
-end
-
-class JSHintRC < Rake::Pipeline::Filter
-  def generate_output(inputs, output)
-    inputs.each do |input|
-      file = File.read(input.fullpath)
-      jshintrc = File.read(".jshintrc")
-      output.write "var JSHINTRC = #{jshintrc};\n\n#{file}"
-    end
-  end
-end
+instance_eval File.read(EmberDev.support_path.join('Assetfile'))
 
 distros = {
   :full    => %w(ember-data)
 }
 
 output "dist"
-
-input "packages" do
-  output "tests"
-
-  match "*/tests/**/*.js" do
-    minispade :rewrite_requires => true, :string => true, :module_id_generator => proc { |input|
-      id = input.path.dup
-      id.sub!(/\.js$/, '')
-      id.sub!(/\/main$/, '')
-      id.sub!('/tests', '/~tests')
-      id
-    }
-
-    concat "ember-data-tests.js"
-  end
-
-  match "ember-data-tests.js" do
-    filter JSHintRC
-  end
-end
-
-input "packages" do
-  match "*/lib/**/*.js" do
-    minispade :rewrite_requires => true, :string => true, :module_id_generator => proc { |input|
-      id = input.path.dup
-      id.sub!('/lib/', '/')
-      id.sub!(/\.js$/, '')
-      id.sub!(/\/main$/, '')
-      id
-    }
-
-    concat "ember-data-spade.js"
-  end
-end
-
-input "packages" do
-  match "*/lib/**/main.js" do
-    neuter(
-      :additional_dependencies => proc { |input|
-        Dir.glob(File.join(File.dirname(input.fullpath),'**','*.js'))
-      },
-      :path_transform => proc { |path, input|
-        package, path = path.split('/', 2)
-        current_package = input.path.split('/', 2)[0]
-        current_package == package && path ? File.join(package, "lib", "#{path}.js") : nil
-      },
-      :closure_wrap => true
-    ) do |filename|
-      File.join("modules/", filename.gsub('/lib/main.js', '.js'))
-    end
-  end
-end
 
 distros.each do |name, modules|
   name = "ember-data"
@@ -101,14 +15,19 @@ distros.each do |name, modules|
       concat(module_paths){ ["#{name}.js", "#{name}.prod.js"] }
     end
 
+    match "#{name}.js" do
+      filter VersionInfo
+    end
+
     # Strip dev code
     match "#{name}.prod.js" do
-      filter(EmberProductionFilter) { ["#{name}.prod.js", "#{name}.min.js"] }
+      filter(EmberStripDebugMessagesFilter) { ["#{name}.prod.js", "min/#{name}.js"] }
     end
 
     # Minify
-    match "#{name}.min.js" do
+    match "min/#{name}.js" do
       uglify{ "#{name}.min.js" }
+      filter VersionInfo
       filter EmberLicenseFilter
     end
   end
