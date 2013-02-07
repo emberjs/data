@@ -153,7 +153,7 @@ Ember.ArrayPolyfills.forEach.call([Person, "Person"], function(mapping) {
             post: {
               id: 3,
               title: "Embedded via sideload",
-              comments: [3]
+              comment_ids: [3]
             } 
           }, id);
         });
@@ -362,5 +362,34 @@ test("updating a embedded record with a belongsTo relationship is serialize corr
     strictEqual(comment.get('user'), peter, "updated relationship references the globally addressable record");
 
     var commentJSON = serializer.serialize(comment, { includeId: true });
-    deepEqual(commentJSON, { id: 1, user: { id: 4, name: "Peter Pan", group: null }});
+    deepEqual(commentJSON, { id: 1, post_id: null, user: { id: 4, name: "Peter Pan", group: null }});
+});
+
+test("sideloading a record with an embedded hasMany relationship", function() {
+  Adapter.map(Person, {
+    comments: { embedded: 'always' }
+  });
+
+  adapter = Adapter.create();
+  serializer = adapter.get('serializer');
+  serializer.configure(Person, {
+    sideloadAs: 'people'
+  });
+  store.set('adapter', adapter);
+
+  adapter.didFindRecord(store, Group, {
+    group: {id: 1},
+    people: [{
+      id: 2,
+      name: "Yehuda Katz",
+      group: 1,
+      comments: [{
+        id: 3
+      }]
+    }]
+  }, 1);
+
+  var person = store.find(Person, 2);
+  var comment = store.find(Comment, 3);
+  equal(Ember.get(person, 'comments.firstObject'), comment);
 });
