@@ -474,3 +474,37 @@ test("mappings registered on an adapter class are applied to the serializer of a
   equal(person.get('id'), 1);
   equal(person.get('name'), "Tom Dale");
 });
+
+test("the adapter is notified of each record attribute change when a record is created or modified", function() {
+  expect(12);
+  
+  var count = 0;
+
+  adapter.dirtyRecordsForAttributeChange = function(dirtySet, record, attributeName, newValue, oldValue) {
+    count++;
+
+    if (count === 1) {
+      equal(attributeName, 'firstName', "the attributeName is correct");
+      equal(newValue, 'foo', "the newValue is correct");
+    } else if (count === 2) {
+      equal(attributeName, 'lastName', "the attributeName is correct");
+      equal(newValue, 'bar', "the newValue is correct");
+    } else {
+      ok(false, "should not have invoked more than 2 times");
+    }
+
+    equal(oldValue, null, "the oldValue is correct");
+  };
+
+  // Test creation.
+  store.createRecord(Person, { id: 1, firstName: 'foo', lastName: 'bar' });
+
+  // Test changing properties.
+  count = 0;
+  store.load(Person, { id: 2 });
+
+  var person = store.find(Person, 2);
+
+  person.set('firstName', 'foo');
+  person.set('lastName', 'bar');
+});
