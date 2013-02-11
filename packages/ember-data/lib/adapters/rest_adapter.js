@@ -8,7 +8,28 @@ require('ember-data/serializers/rest_serializer');
   @submodule data-adapters
 */
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get, set  = Ember.set;
+
+var Node = function(reference) {
+  this.reference = reference;
+  this.record = reference.record;
+  this.dirtyType = get(this.record, 'dirtyType');
+  this.children = Ember.Set.create();
+  this.parents = Ember.Set.create();
+};
+
+Node.prototype = {
+  addChild: function(childNode) {
+    this.children.add(childNode);
+    childNode.parents.add(this);
+  },
+
+  isRoot: function() {
+    return this.parents.every(function(parent) {
+      return !get(parent, 'record.isDirty') && parent.isRoot();
+    });
+  }
+};
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -81,10 +102,143 @@ DS.RESTAdapter = DS.Adapter.extend({
     this._super.apply(this, arguments);
   },
 
+  save: function(store, commitDetails) {
+    if(get(this, 'bulkCommit') !== false) {
+      return this.saveBulk(store, commitDetails);
+    }
+    var adapter = this;
+
+    var rootNodes = this._createDependencyGraph(store, commitDetails);
+
+    function createNestedPromise(node) {
+      var promise;
+      if(!adapter.shouldSave(node.record) || !node.dirtyType) {
+        // return an "identity" promise if we don't want to do anything
+        promise = Ember.RSVP.resolve();
+      } else if(node.dirtyType === "created") {
+        promise = adapter.createRecord(store, node.reference.type, node.record);
+      } else if(node.dirtyType === "updated") {
+        promise = adapter.updateRecord(store, node.reference.type, node.record);
+      } else if(node.dirtyType === "deleted") {
+        promise = adapter.deleteRecord(store, node.reference.type, node.record);
+      }
+      if(node.children.length > 0) {
+        promise = promise.then(function() {
+          var childPromises = node.children.map(createNestedPromise);
+          return Ember.RSVP.all(childPromises);
+        });
+      }
+      return promise;
+    }
+
+    return Ember.RSVP.all(rootNodes.map(createNestedPromise));
+  },
+
+  // slightly more complex algorithm that will be
+  // less optimal if bulkCommit is not available
+  saveBulk: function(store, commitDetails) {
+    var adapter = this;
+
+    var rootNodes = this._createDependencyGraph(store, commitDetails);
+
+    function createNestedPromises(nodes) {
+
+      // 2d partition on operation and type
+      var map = Ember.MapWithDefault.create({
+        defaultValue: function() {
+          return Ember.MapWithDefault.create({
+            defaultValue: function() {
+              return Ember.OrderedSet.create();
+            }
+          });
+        }
+      });
+
+      nodes.forEach(function(node) {
+        var operation = adapter.shouldSave(node.record) && node.dirtyType || 'noop';
+        map.get(operation).get(node.record.constructor).add(node);
+      });
+
+      function flatten(arr) {
+        return arr.reduce(function(a, b) {
+          return a.concat(b);
+        }, []);
+      }
+
+      var promises = map.keys.toArray().map(function(operation) {
+        var typeMap = map.get(operation);
+        return typeMap.keys.toArray().map(function(type) {
+          var nodes = typeMap.get(type);
+          var records = Ember.OrderedSet.create();
+          nodes.forEach(function(node) { records.add(node.record); });
+          var promise = null;
+          if (nodes.isEmpty() || operation === 'noop') {
+            promise = Ember.RSVP.resolve();
+          } else if (operation === "deleted") {
+            promise = adapter.deleteRecords(store, type, records);
+          } else if (operation === "created") {
+            promise = adapter.createRecords(store, type, records);
+          } else if (operation === "updated") {
+            promise = adapter.updateRecords(store, type, records);
+          }
+          return promise.then(function() {
+            var children = Ember.A(nodes.toArray()).map(function(node) { return node.children.toArray(); });
+            return createNestedPromises(flatten(children));
+          });
+        });
+      });
+
+      return Ember.RSVP.all(flatten(promises));
+    }
+
+    return createNestedPromises(rootNodes);
+  },
+
+  _createDependencyGraph: function(store, commitDetails) {
+    var adapter = this;
+    var referenceToNode = Ember.MapWithDefault.create({
+      defaultValue: function(reference) {
+        return new Node(reference);
+      }
+    });
+
+    commitDetails.relationships.forEach(function(r) {
+      var childNode = referenceToNode.get(r.childReference);
+      var parentNode = referenceToNode.get(r.parentReference);
+
+      // In the non-embedded case, there is a potential request race
+      // condition where the parent returns the id of a deleted child.
+      // To solve for this we make the child delete complete first.
+      if(r.changeType === 'remove' && adapter.shouldSave(childNode.record) && adapter.shouldSave(parentNode.record)) {
+        childNode.addChild(parentNode);
+      } else {
+        parentNode.addChild(childNode);
+      }
+    });
+
+    var rootNodes = Ember.Set.create();
+    function filter(record) {
+      var node = referenceToNode.get(get(record, '_reference'));
+      if(node.isRoot()) {
+        rootNodes.add(node);
+      }
+    }
+
+    commitDetails.created.forEach(filter);
+    commitDetails.updated.forEach(filter);
+    commitDetails.deleted.forEach(filter);
+
+    return rootNodes;
+  },
+
   shouldSave: function(record) {
     var reference = get(record, '_reference');
 
     return !reference.parent;
+  },
+
+  shouldPreserveDirtyRecords: function(relationship) {
+    return relationship.kind === 'hasMany';
   },
 
   dirtyRecordsForRecordChange: function(dirtySet, record) {
@@ -139,7 +293,9 @@ DS.RESTAdapter = DS.Adapter.extend({
     var adapter = this;
 
     if (get(this, 'bulkCommit') === false) {
-      return this._super(store, type, records);
+      return Ember.RSVP.all(records.map(function(record) {
+        return this.createRecord(store, type, record);
+      }, this));
     }
 
     var root = this.rootForType(type),
@@ -182,7 +338,9 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root, plural, adapter, data;
 
     if (get(this, 'bulkCommit') === false) {
-      return this._super(store, type, records);
+      return Ember.RSVP.all(records.map(function(record) {
+        return this.updateRecord(store, type, record);
+      }, this));
     }
 
     root = this.rootForType(type);
@@ -223,7 +381,9 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root, plural, serializer, adapter, data;
 
     if (get(this, 'bulkCommit') === false) {
-      return this._super(store, type, records);
+      return Ember.RSVP.all(records.map(function(record) {
+        return this.deleteRecord(store, type, record);
+      }, this));
     }
 
     root = this.rootForType(type),

@@ -961,7 +961,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     a transaction.
   */
   commit: function() {
-    get(this, 'defaultTransaction').commit();
+    return get(this, 'defaultTransaction').commit();
   },
 
   /**
