@@ -200,22 +200,27 @@ DS.Transaction = Ember.Object.extend({
 
     this.removeCleanRecords();
 
-    var commitDetails = get(this, 'commitDetails'),
-        relationships = get(this, 'relationships');
+    var commitDetails = get(this, 'commitDetails');
+    var relationshipChanges = get(this, 'relationships');
+    var adapterPromises = [];
 
     forEach(commitDetails, function(adapter, commitDetails) {
       Ember.assert("You tried to commit records but you have no adapter", adapter);
       Ember.assert("You tried to commit records but your adapter does not implement `commit`", adapter.commit);
 
-      adapter.commit(store, commitDetails);
+      if (!commitDetails.created.isEmpty() || !commitDetails.updated.isEmpty() || !commitDetails.deleted.isEmpty() || !relationshipChanges.isEmpty()) {
+        adapterPromises.push(adapter.commit(store, commitDetails, relationshipChanges));
+      }
     });
 
     // Once we've committed the transaction, there is no need to
     // keep the OneToManyChanges around. Destroy them so they
     // can be garbage collected.
-    relationships.forEach(function(relationship) {
-      relationship.destroy();
+    relationshipChanges.forEach(function(relationshipChange) {
+      relationshipChange.destroy();
     });
+
+    return Ember.RSVP.all(adapterPromises);
   },
 
   /**
