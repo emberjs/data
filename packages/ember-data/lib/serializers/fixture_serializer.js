@@ -11,6 +11,10 @@ DS.FixtureSerializer = DS.Serializer.extend({
     return value;
   },
 
+  addId: function(data, key, id) {
+    data[key] = id;
+  },
+
   addAttribute: function(hash, key, value) {
     hash[key] = value;
   },

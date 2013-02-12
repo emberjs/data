@@ -48,10 +48,10 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
   storeFixture: function(type, fixture) {
     if(!type.FIXTURES) {
-      type.FIXTURES = []
+      type.FIXTURES = [];
     }
 
-    fixtures = type.FIXTURES
+    var fixtures = type.FIXTURES;
 
     this.deleteLoadedFixture(type, fixture);
 
@@ -172,9 +172,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
     var existingFixture = this.findExistingFixture(type, record);
 
     if(existingFixture) {
-      var fixtures = this.fixturesForType(type, record);
-      var index = records.indexOf(existingRecord);
-      records.splice(index, 1);
+      var index = type.FIXTURES.indexOf(existingFixture);
+      type.FIXTURES.splice(index, 1);
       return true;
     }
   },

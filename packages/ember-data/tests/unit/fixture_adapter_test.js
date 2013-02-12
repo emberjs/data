@@ -148,7 +148,7 @@ test("should create record asynchronously when it is committed", function() {
 
     equal(Person.FIXTURES.length, 1, "Record added to FIXTURES");
 
-    var fixture = Person.FIXTURES[0]
+    var fixture = Person.FIXTURES[0];
 
     equal(fixture.firstName, 'Paul');
     equal(fixture.lastName, 'Chavard');
@@ -181,7 +181,7 @@ test("should update record asynchronously when it is committed", function() {
 
     equal(Person.FIXTURES.length, 1, "Record FIXTURES updated");
 
-    var fixture = Person.FIXTURES[0]
+    var fixture = Person.FIXTURES[0];
 
     equal(fixture.firstName, 'Paul');
     equal(fixture.lastName, 'Chavard');
