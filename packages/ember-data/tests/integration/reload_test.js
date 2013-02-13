@@ -94,3 +94,27 @@ asyncTest("If a record is modified, it cannot be reloaded", function() {
     }, /uncommitted/);
   }
 });
+
+
+asyncTest("When a record is loaded a second time, isLoaded stays true", function() {
+  store.load(Person, { id: 1, name: "Tom Dale" });
+
+  var person = store.find(Person, 1);
+
+  equal(get(person, 'isLoaded'), true, "The person is loaded");
+
+  function isLoadedDidChange() {
+    // This shouldn't be hit
+    equal(get(person, 'isLoaded'), true, "The person is still loaded after change");
+  }
+  person.addObserver('isLoaded', isLoadedDidChange);
+
+  // Reload the record
+  store.load(Person, { id: 1, name: "Tom Dale" });
+  equal(get(person, 'isLoaded'), true, "The person is still loaded after load");
+
+  person.removeObserver('isLoaded', isLoadedDidChange);
+
+  start();
+
+});
