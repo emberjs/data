@@ -181,7 +181,7 @@ test("relationships work when declared with a string path", function() {
 
   var store = DS.Store.create();
   store.loadMany(App.Tag, [5, 2, 12], [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
-  store.load(App.Person, 1, { id: 1, name: "Tom Dale", tags: [5, 2] });
+  store.load(App.Person, 1, { id: 1, name: "Tom Dale", tag_ids: [5, 2] });
 
   var person = store.find(App.Person, 1);
   equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
@@ -268,7 +268,7 @@ test("it is possible to add a new item to a relationship", function() {
 
   var store = DS.Store.create();
 
-  store.load(Person, { id: 1, name: "Tom Dale", tags: [ 1 ] });
+  store.load(Person, { id: 1, name: "Tom Dale", tag_ids: [ 1 ] });
   store.load(Tag, { id: 1, name: "ember" });
 
   var person = store.find(Person, 1);
@@ -298,7 +298,7 @@ test("it is possible to remove an item from a relationship", function() {
 
   var store = DS.Store.create();
 
-  store.load(Person, { id: 1, name: "Tom Dale", tags: [ 1 ] });
+  store.load(Person, { id: 1, name: "Tom Dale", tag_ids: [ 1 ] });
   store.load(Tag, { id: 1, name: "ember" });
 
   var person = store.find(Person, 1);

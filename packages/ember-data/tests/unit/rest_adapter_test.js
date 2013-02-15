@@ -330,7 +330,7 @@ test("finding all can sideload data", function() {
   expectType("GET");
 
   ajaxHash.success({
-    groups: [{ id: 1, name: "Group 1", people: [ 1 ] }],
+    groups: [{ id: 1, name: "Group 1", person_ids: [ 1 ] }],
     people: [{ id: 1, name: "Yehuda Katz" }]
   });
 
@@ -443,7 +443,7 @@ test("additional data can be sideloaded in a GET", function() {
 
   ajaxHash.success({
     group: {
-      id: 1, name: "Group 1", people: [ 1 ]
+      id: 1, name: "Group 1", person_ids: [ 1 ]
     },
     people: [{
       id: 1, name: "Yehuda Katz"
@@ -455,7 +455,7 @@ test("additional data can be sideloaded in a GET", function() {
 });
 
 test("finding many people by a list of IDs", function() {
-  store.load(Group, { id: 1, people: [ 1, 2, 3 ] });
+  store.load(Group, { id: 1, person_ids: [ 1, 2, 3 ] });
 
   var group = store.find(Group, 1);
 
@@ -499,7 +499,7 @@ test("finding many people by a list of IDs", function() {
 });
 
 test("finding many people by a list of IDs doesn't rely on the returned array order matching the passed list of ids", function() {
-  store.load(Group, { id: 1, people: [ 1, 2, 3 ] });
+  store.load(Group, { id: 1, person_ids: [ 1, 2, 3 ] });
 
   var group = store.find(Group, 1);
 
@@ -545,7 +545,7 @@ test("additional data can be sideloaded in a GET with many IDs", function() {
 
   ajaxHash.success({
     groups: [
-      { id: 1, people: [ 1, 2, 3 ] }
+      { id: 1, person_ids: [ 1, 2, 3 ] }
     ],
     people: [
       { id: 1, name: "Rein Heinrichs" },
@@ -621,7 +621,7 @@ test("finding people by a query can sideload data", function() {
 
   ajaxHash.success({
     groups: [
-      { id: 1, name: "Group 1", people: [ 1, 2, 3 ] }
+      { id: 1, name: "Group 1", person_ids: [ 1, 2, 3 ] }
     ],
     people: [
       { id: 1, name: "Rein Heinrichs" },
@@ -900,7 +900,7 @@ test("sideloaded data is loaded prior to primary data (to ensure relationship co
     people: [
       { id: 1, name: "Tom Dale" }
     ],
-    group: { id: 1, name: "Tilde team", people: [1] }
+    group: { id: 1, name: "Tilde team", person_ids: [1] }
   });
 });
 
