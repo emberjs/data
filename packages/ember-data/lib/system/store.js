@@ -792,6 +792,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     set(findAllCache, 'isUpdating', false);
   },
 
+  didLoadAll: function(type) {
+    var findAllCache = this.typeMapFor(type).findAllCache;
+    set(findAllCache, 'isLoaded', true);
+    Ember.run.once(function() {
+      findAllCache.trigger('didLoad');
+    });
+  },
+
   /**
     This method returns a filtered array that contains all of the known records
     for a given type.
@@ -811,7 +819,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     if (findAllCache) { return findAllCache; }
 
-    var array = DS.RecordArray.create({ type: type, content: Ember.A([]), store: this, isLoaded: true });
+    var array = DS.RecordArray.create({ type: type, content: Ember.A([]), store: this, isLoaded: false });
     this.registerRecordArray(array, type);
 
     typeMap.findAllCache = array;
