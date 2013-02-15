@@ -253,6 +253,24 @@ DS.JSONSerializer = DS.Serializer.extend({
     return (plurals && plurals[name]) || name + "s";
   },
 
+  // use the same plurals hash to determine
+  // special-case singularization
+  singularize: function(name) {
+    var plurals = this.configurations.get('plurals');
+    if (plurals) {
+      for (var i in plurals) {
+        if (plurals[i] === name) {
+          return i;
+        }
+      }
+    }
+    if (name.lastIndexOf('s') === name.length - 1) {
+      return name.substring(0, name.length - 1);
+    } else {
+      return name;
+    }
+  },
+
   rootForType: function(type) {
     var typeString = type.toString();
 

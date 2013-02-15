@@ -5,6 +5,9 @@ var serializer;
 module("DS.RESTSerializer", {
   setup: function() {
     serializer = DS.RESTSerializer.create();
+    serializer.configure('plurals', {
+      person: 'people'
+    });
   },
   teardown: function() {
     serializer.destroy();
@@ -18,7 +21,14 @@ test("keyForAttributeName returns decamelized property name", function() {
 
 test("keyForBelongsTo returns the key appended with '_id'", function() {
   equal(serializer.keyForBelongsTo(DS.Model, 'person'), 'person_id');
+  equal(serializer.keyForBelongsTo(DS.Model, 'town'), 'town_id');
   equal(serializer.keyForBelongsTo(DS.Model, 'homeTown'), 'home_town_id');
+});
+
+test("keyForHasMany returns the singularized key appended with '_ids'", function() {
+  equal(serializer.keyForHasMany(DS.Model, 'people'), 'person_ids');
+  equal(serializer.keyForHasMany(DS.Model, 'towns'), 'town_ids');
+  equal(serializer.keyForHasMany(DS.Model, 'homeTowns'), 'home_town_ids');
 });
 
 test("Calling extract on a JSON payload with multiple records will tear them apart and call loader", function() {
