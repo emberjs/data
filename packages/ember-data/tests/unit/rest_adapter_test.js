@@ -204,7 +204,7 @@ test("updating a person makes a PUT to /people/:id with the data hash", function
 
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("PUT");
-  expectData({ person: { name: "Brohuda Brokatz" } });
+  expectData({ person: { name: "Brohuda Brokatz", group_id: null } });
 
   ajaxHash.success({ person: { id: 1, name: "Brohuda Brokatz" } });
   expectState('saving', false);
@@ -999,7 +999,7 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
 
   expectUrl('/people');
   expectType("POST");
-  expectData({ person: { name: "Sam Woodard", person_type_id: "1", group_id: null } });
+  expectData({ person: { name: "Sam Woodard", person_type_id: 1, group_id: null } });
   ajaxHash.success({ person: { name: 'Sam Woodard', person_type_id: 1}});
 });
 
