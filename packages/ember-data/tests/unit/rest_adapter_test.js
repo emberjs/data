@@ -204,6 +204,7 @@ test("updating a person makes a PUT to /people/:id with the data hash", function
 
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("PUT");
+  expectData({ person: { name: "Brohuda Brokatz" } });
 
   ajaxHash.success({ person: { id: 1, name: "Brohuda Brokatz" } });
   expectState('saving', false);
