@@ -24,8 +24,13 @@ module("DS.FixtureAdapter", {
     App.Person = Person;
     App.Phone = Phone;
     Ember.lookup.App = App;
+
+    // Enable setTimeout.
+    Ember.testing = false;
   },
   teardown: function() {
+    Ember.testing = true;
+
     Ember.run(function() {
       store.destroy();
       App.destroy();

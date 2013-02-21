@@ -152,7 +152,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
     }
 
     if (get(this, 'simulateRemoteResponse')) {
-      setTimeout(response, get(this, 'latency'));
+      // Schedule with setTimeout
+      Ember.run.later(context, callback, get(this, 'latency'));
     } else {
       response();
     }
