@@ -104,6 +104,30 @@ test("should load data for a type asynchronously when it is requested", function
   }, 1000);
 });
 
+test("should load data asynchronously at the end of the runloop when simulateRemoteResponse is false", function() {
+  Person.FIXTURES = [{
+    id: 'wycats',
+    firstName: "Yehuda"
+  }];
+
+  store = DS.Store.create({
+    adapter: DS.FixtureAdapter.create({
+      simulateRemoteResponse: false
+    })
+  });
+
+  var wycats;
+
+  Ember.run(function() {
+    wycats = store.find(Person, 'wycats');
+    ok(!get(wycats, 'isLoaded'), 'isLoaded is false initially');
+    ok(!get(wycats, 'firstName'), 'record properties are undefined initially');
+  });
+
+  ok(get(wycats, 'isLoaded'), 'isLoaded is true after runloop finishes');
+  equal(get(wycats, 'firstName'), 'Yehuda', 'record properties are defined after runloop finishes');
+});
+
 test("should create record asynchronously when it is committed", function() {
   stop();
 
@@ -234,5 +258,5 @@ test("should throw if ids are not defined in the FIXTURES", function() {
     Person.find("1");
   }, /the id property must be defined for fixture/);
 
-  
+
 });

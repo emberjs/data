@@ -147,15 +147,12 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @private
   */
   simulateRemoteCall: function(callback, context) {
-    function response() {
-      Ember.run(context, callback);
-    }
-
     if (get(this, 'simulateRemoteResponse')) {
       // Schedule with setTimeout
       Ember.run.later(context, callback, get(this, 'latency'));
     } else {
-      response();
+      // Asynchronous, but at the of the runloop with zero latency
+      Ember.run.once(context, callback);
     }
   }
 });
