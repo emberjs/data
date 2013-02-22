@@ -142,6 +142,28 @@ test("When changing a record's belongsTo, it should be removed from its old inve
   verifySynchronizedOneToMany(newParent, child);
 });
 
+test("Records can be reordered with Array#replace", function() {
+  var post, comments, comment2, comment3;
+
+  store.load(App.Post, { id: 1, comments: [ 1, 2, 3, 4 ] });
+  store.loadMany(App.Comment, [
+    { id: 1, post: 1 },
+    { id: 2, post: 1 },
+    { id: 3, post: 1 },
+    { id: 4, post: 1 }
+  ]);
+
+  post = store.find(App.Post, 1);
+  comment2 = store.find(App.Comment, 2);
+  comment3 = store.find(App.Comment, 3);
+
+  comments = post.get('comments');
+  deepEqual(comments.mapProperty('id'), [ '1', '2', '3', '4' ], 'Comments are in their original order');
+
+  comments.replace(1, 2, [ comment3, comment2 ]);
+  deepEqual(comments.mapProperty('id'), [ '1', '3', '2', '4' ], 'Comments 2 and 3 have swapped places');
+});
+
 test("Deleting a record removes it from any inverse hasMany arrays to which it belongs.", function() {
   var post, comment;
 

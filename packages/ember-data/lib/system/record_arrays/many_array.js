@@ -35,7 +35,7 @@ var get = Ember.get, set = Ember.set;
 DS.ManyArray = DS.RecordArray.extend({
   init: function() {
     this._super.apply(this, arguments);
-    this._changesToSync = Ember.OrderedSet.create();
+    this._changesToSync = DS.ChangeSet.create();
   },
 
   /**
@@ -149,9 +149,8 @@ DS.ManyArray = DS.RecordArray.extend({
       // in arrayContentWillChange, so that the array
       // membership test in the sync() logic operates
       // on the final results.
-      this._changesToSync.forEach(function(change) {
-        change.sync();
-      });
+      this._changesToSync.sync();
+
       DS.OneToManyChange.ensureSameTransaction(this._changesToSync, store);
       this._changesToSync.clear();
     }
