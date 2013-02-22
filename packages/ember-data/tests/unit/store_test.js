@@ -61,6 +61,7 @@ var isFalse = function(flag) {
 
 test("the empty state", function() {
   stateName = "empty";
+  isFalse("isLoading");
   isFalse("isLoaded");
   isFalse("isDirty");
   isFalse("isSaving");
@@ -70,6 +71,7 @@ test("the empty state", function() {
 
 test("the loading state", function() {
   stateName = "loading";
+  isTrue("isLoading");
   isFalse("isLoaded");
   isFalse("isDirty");
   isFalse("isSaving");
@@ -79,6 +81,7 @@ test("the loading state", function() {
 
 test("the loaded state", function() {
   stateName = "loaded";
+  isFalse("isLoading");
   isTrue("isLoaded");
   isFalse("isDirty");
   isFalse("isSaving");
@@ -88,6 +91,7 @@ test("the loaded state", function() {
 
 test("the updated state", function() {
   stateName = "loaded.updated";
+  isFalse("isLoading");
   isTrue("isLoaded");
   isTrue("isDirty");
   isFalse("isSaving");
@@ -97,6 +101,7 @@ test("the updated state", function() {
 
 test("the saving state", function() {
   stateName = "loaded.updated.inFlight";
+  isFalse("isLoading");
   isTrue("isLoaded");
   isTrue("isDirty");
   isTrue("isSaving");
@@ -106,6 +111,7 @@ test("the saving state", function() {
 
 test("the deleted state", function() {
   stateName = "deleted";
+  isFalse("isLoading");
   isTrue("isLoaded");
   isTrue("isDirty");
   isFalse("isSaving");
@@ -115,6 +121,7 @@ test("the deleted state", function() {
 
 test("the deleted.saving state", function() {
   stateName = "deleted.inFlight";
+  isFalse("isLoading");
   isTrue("isLoaded");
   isTrue("isDirty");
   isTrue("isSaving");
@@ -124,6 +131,7 @@ test("the deleted.saving state", function() {
 
 test("the deleted.saved state", function() {
   stateName = "deleted.saved";
+  isFalse("isLoading");
   isTrue("isLoaded");
   isFalse("isDirty");
   isFalse("isSaving");
@@ -134,6 +142,7 @@ test("the deleted.saved state", function() {
 
 test("the error state", function() {
   stateName = "error";
+  isFalse("isLoading");
   isFalse("isLoaded");
   isFalse("isDirty");
   isFalse("isSaving");
