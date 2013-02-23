@@ -1,4 +1,4 @@
-var get = Ember.get, set = Ember.set;
+var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt;
 var forEach = Ember.EnumerableUtils.forEach;
 
 DS.RelationshipChange = function(options) {
@@ -528,11 +528,13 @@ function inverseBelongsToName(parentType, childType, hasManyName) {
 
 function inverseHasManyName(parentType, childType, belongsToName) {
   var options = childType.metaForProperty(belongsToName).options;
-  var hasManyName;
+  var hasManyName, inverseRelationship;
 
   if (hasManyName = options.inverse) {
     return hasManyName;
   }
 
-  return DS._inverseRelationshipFor(parentType, childType).name;
+  inverseRelationship = DS._inverseRelationshipFor(parentType, childType);
+  Ember.assert(fmt('Inverse relationship not found or ambiguous: parent %@, child %@, property %@; if ambiguous, add an `inverse` option on the property.', [parentType, childType, belongsToName]), inverseRelationship);
+  return inverseRelationship.name;
 }
