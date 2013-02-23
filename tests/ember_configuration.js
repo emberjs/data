@@ -104,7 +104,7 @@
       didUpdateAttribute: syncForTest(),
       didUpdateAttributes: syncForTest(),
       didUpdateRelationship: syncForTest(),
-      didUpdateRelationships: syncForTest(),
+      didUpdateRelationships: syncForTest()
     });
 
     DS.Model.reopen({
@@ -119,7 +119,7 @@
     });
 
     DS.Transaction.reopen({
-      commit: syncForTest(),
+      commit: syncForTest()
     });
   });
 
