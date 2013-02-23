@@ -973,15 +973,16 @@ test("creating a record with a 422 error marks the records as invalid", function
   person = store.createRecord(Person, { name: "" });
   store.commit();
 
+  var errors = { name: ["can't be blank"]};
+
   var mockXHR = {
     status:       422,
-    responseText: JSON.stringify({ errors: { name: ["can't be blank"]} })
+    responseText: JSON.stringify({ errors: errors })
   };
-
   ajaxHash.error.call(ajaxHash.context, mockXHR);
 
   expectState('valid', false);
-  deepEqual(person.get('errors'), { name: ["can't be blank"]}, "the person has the errors");
+  deepEqual(person.get('errors'), Ember.Object.create(errors), "the person has the errors");
 });
 
 test("updating a record with a 422 error marks the records as invalid", function(){
@@ -990,15 +991,17 @@ test("updating a record with a 422 error marks the records as invalid", function
   person.set('name', '');
   store.commit();
 
+  var errors = { name: ["can't be blank"]};
+
   var mockXHR = {
     status:       422,
-    responseText: JSON.stringify({ errors: { name: ["can't be blank"]} })
+    responseText: JSON.stringify({ errors: errors })
   };
 
   ajaxHash.error.call(ajaxHash.context, mockXHR);
 
   expectState('valid', false);
-  deepEqual(person.get('errors'), { name: ["can't be blank"]}, "the person has the errors");
+  deepEqual(person.get('errors'), Ember.Object.create(errors), "the person has the errors");
 });
 
 test("creating a record with a 500 error marks the record as error", function() {
