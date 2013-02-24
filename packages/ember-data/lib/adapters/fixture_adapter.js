@@ -46,7 +46,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
     Ember.assert('Not implemented: You must override the DS.FixtureAdapter::queryFixtures method to support querying the fixture store.');
   },
 
-  storeFixture: function(type, fixture) {
+  updateFixtures: function(type, fixture) {
     if(!type.FIXTURES) {
       type.FIXTURES = [];
     }
@@ -136,7 +136,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
     fixture.id = this.generateIdForRecord(store, record);
 
-    this.storeFixture(type, fixture);
+    this.updateFixtures(type, fixture);
 
     this.simulateRemoteCall(function() {
       this.didCreateRecord(store, type, record, fixture);
@@ -146,7 +146,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
   updateRecord: function(store, type, record) {
     var fixture = this.mockJSON(type, record);
 
-    this.storeFixture(type, fixture);
+    this.updateFixtures(type, fixture);
 
     this.simulateRemoteCall(function() {
       this.didUpdateRecord(store, type, record, fixture);

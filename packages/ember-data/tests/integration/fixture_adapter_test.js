@@ -112,7 +112,7 @@ test("find queries loaded records", function() {
     })
   };
 
-  adapter.storeFixture(App.Person, attributes);
+  adapter.updateFixtures(App.Person, attributes);
 
   var adam = store.find(App.Person, 1);
 
