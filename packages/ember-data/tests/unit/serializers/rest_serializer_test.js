@@ -31,6 +31,11 @@ test("keyForHasMany returns the singularized key appended with '_ids'", function
   equal(serializer.keyForHasMany(DS.Model, 'homeTowns'), 'home_town_ids');
 });
 
+test("keyForHasOne returns the key appended with '_id'", function() {
+  equal(serializer.keyForHasOne(DS.Model, 'person'), 'person_id');
+  equal(serializer.keyForHasOne(DS.Model, 'homeTown'), 'home_town_id');
+});
+
 test("Calling extract on a JSON payload with multiple records will tear them apart and call loader", function() {
   var App = Ember.Namespace.create({
     toString: function() { return "App"; }
@@ -88,4 +93,3 @@ test("Calling extract on a JSON payload with multiple records will tear them apa
     //});
   //}
 });
-

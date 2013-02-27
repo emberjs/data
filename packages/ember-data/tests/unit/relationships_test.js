@@ -486,11 +486,11 @@ test("calling createRecord and passing in an undefined value for a relationship 
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tag: DS.belongsTo(Tag),
+    tag: DS.belongsTo(Tag)
   });
 
   Tag.reopen({
-    person: DS.belongsTo(Person)
+    person: DS.hasOne(Person)
   });
 
   var store = DS.Store.create();
@@ -614,3 +614,116 @@ test("findMany is passed the owner record for adapters when none of the object g
 
 });
 
+module("DS.hasOne");
+
+test("getting the association when the data has been loaded", function() {
+  var Person = DS.Model.extend(),
+    Address = DS.Model.extend(),
+    store = DS.Store.create({ adapter: 'DS.Adapter' });
+
+  Person.reopen({
+    name: DS.attr('string'),
+    address: DS.hasOne(Address)
+  });
+  Person.toString = function() { return "Person"; };
+
+  Address.reopen({
+    street: DS.attr('string'),
+    person: DS.belongsTo(Person)
+  });
+  Address.toString = function() { return "Address"; };
+
+  store.loadMany(Person, [1, 2], [{ id: 1, name: "John Doe", address: 3 }, { id: 2, name: "Homeless Bob" }]);
+  store.loadMany(Address, [2, 3, 4], [{ id: 2, street: "123 Main St" }, { id: 3, street: "456 Side St", person: 1 }, { id: 4, street: "789 Through Way" }]);
+
+  var john = store.find(Person, 1);
+  equal(get(john, 'address') instanceof Address, true, "the address property returns an address");
+  equal(get(john, 'address.street'), "456 Side St", "the address has a street");
+
+  strictEqual(get(john, 'address'), get(john, 'address'), "the returned object is always the same");
+  strictEqual(get(john, 'address'), store.find(Address, 3), "association object is the same as object retrieved directly");
+
+  var bob = store.find(Person, 2);
+  ok(!get(bob, 'address'), "a person may not always have an address");
+});
+
+test("getting the association when the data has not been loaded", function() {
+  expect(14);
+
+  var Heart = DS.Model.extend();
+  var Person = DS.Model.extend();
+
+  Heart.reopen({
+    pressure: DS.attr('string'),
+    person: DS.belongsTo(Person)
+  });
+  Person.reopen({
+    name: DS.attr('string'),
+    heart: DS.hasOne(Heart)
+  });
+  Heart.toString = function() { return "App.Heart"; };
+  Person.toString = function() { return "App.Person"; };
+
+  var store = DS.Store.create({
+    adapter: DS.Adapter.create({
+      find: function(store, type, id) {
+        if (type === Person) {
+          equal(type, Person, "type should be Person");
+          equal(id, 1, "id should be 1");
+
+          stop();
+
+          setTimeout(function() {
+            start();
+            store.load(type, id, { id: 1, name: "Tom Dale", heart: 2 });
+
+            equal(get(person, 'name'), "Tom Dale", "the person is now populated");
+            equal(get(person, 'isLoaded'), true, "the person is now loaded");
+            equal(get(person, 'heart') instanceof Heart, true, "the person has a heart");
+            equal(get(person, 'heart.isLoaded'), false, "the heart object exists, but is not yet loaded");
+          }, 1);
+        } else if (type === Heart) {
+          equal(type, Heart, "type should be Heart");
+          equal(id, 2, "id should be 2");
+
+          stop();
+
+          setTimeout(function() {
+            start();
+            store.load(type, 2, { id: 2, pressure: "100 kPa" });
+
+            equal(get(person, 'name'), "Tom Dale", "precond - the person is still Tom Dale");
+            equal(get(person, 'isLoaded'), true, "Tom Dale is still loaded");
+            equal(get(person, 'heart.pressure'), "100 kPa", "Tom Dale now has a beating heart");
+            equal(get(person, 'heart.isLoaded'), true, "Tom Dale's heart is now loaded");
+          }, 1);
+        }
+      }
+    })
+  });
+
+  var person = store.find(Person, 1);
+
+  equal(get(person, 'isLoaded'), false, "isLoaded should be false");
+  equal(get(person, 'heart'), null, "heart should be null");
+});
+
+test("creating a record with an undefined value for the association should be treated as null", function () {
+  var store = DS.Store.create();
+  var Heart = DS.Model.extend();
+  var Person = DS.Model.extend();
+
+  Heart.reopen({
+    pressure: DS.attr('string'),
+    person: DS.belongsTo(Person)
+  });
+  Person.reopen({
+    name: DS.attr('string'),
+    heart: DS.hasOne(Heart)
+  });
+
+  store.createRecord(Person, { id: 1, heart: undefined });
+  var person = store.find(Person, 1);
+
+  strictEqual(person.get('heart'), null, "undefined values should return null associations");
+});

@@ -25,7 +25,7 @@ module("One-to-One Relationships", {
     });
 
     App.Post.reopen({
-      comment: DS.belongsTo(App.Comment)
+      comment: DS.hasOne(App.Comment)
     });
   },
 
@@ -41,7 +41,7 @@ function verifySynchronizedOneToOne(post, comment, expectedHasMany) {
   equal(post.get('comment'), comment);
 }
 
-test("When setting a record's belongsTo relationship to another record, that record should be added to the inverse belongsTo", function() {
+test("When setting a record's belongsTo relationship to another record, that record should be added to the inverse hasOne", function() {
   store.load(App.Post, { id: 1, title: "parent" });
   store.load(App.Comment, { id: 2, body: "child" });
 
@@ -51,6 +51,18 @@ test("When setting a record's belongsTo relationship to another record, that rec
   comment.set('post', post);
   verifySynchronizedOneToOne(post, comment);
 });
+
+test("When setting a record's hasOne relationship to another record, that record should be added to the inverse belongsTo", function() {
+  store.load(App.Post, { id: 1, title: "parent" });
+  store.load(App.Comment, { id: 2, body: "child" });
+
+  var post = store.find(App.Post, 1),
+      comment = store.find(App.Comment, 2);
+
+  post.set('comment', comment);
+  verifySynchronizedOneToOne(post, comment);
+});
+
 /*
 test("When setting a record's belongsTo relationship to null, that record should be removed from the inverse hasMany array", function() {
   store.load(App.Post, { id: 1, title: "parent", comments: [2, 3] });

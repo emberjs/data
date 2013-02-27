@@ -210,6 +210,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     this._data = {
       attributes: {},
       belongsTo: {},
+      hasOne: {},
       hasMany: {},
       id: null
     };
@@ -234,6 +235,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
   materializeBelongsTo: function(name, id) {
     this._data.belongsTo[name] = id;
+  },
+
+  materializeHasOne: function(name, id) {
+    this._data.hasOne[name] = id;
   },
 
   rollback: function() {
@@ -264,14 +269,19 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     observation becomes more unified with regular observers.
   */
   suspendRelationshipObservers: function(callback, binding) {
-    var observers = get(this.constructor, 'relationshipNames').belongsTo;
+    var belongsToObservers = get(this.constructor, 'relationshipNames').belongsTo;
+    var hasOneObservers = get(this.constructor, 'relationshipNames').hasOne;
     var self = this;
 
     try {
       this._suspendedRelationships = true;
-      Ember._suspendObservers(self, observers, null, 'belongsToDidChange', function() {
-        Ember._suspendBeforeObservers(self, observers, null, 'belongsToWillChange', function() {
-          callback.call(binding || self);
+      Ember._suspendObservers(self, belongsToObservers, null, 'belongsToDidChange', function() {
+        Ember._suspendBeforeObservers(self, belongsToObservers, null, 'belongsToWillChange', function() {
+          Ember._suspendObservers(self, hasOneObservers, null, 'hasOneDidChange', function() {
+            Ember._suspendBeforeObservers(self, hasOneObservers, null, 'hasOneWillChange', function() {
+              callback.call(binding || self);
+            });
+          });
         });
       });
     } finally {

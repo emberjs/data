@@ -1,13 +1,18 @@
 var store, Adapter, adapter;
-var Post, Comment, User, Pingback, Like;
+var Post, Comment, User, Pingback, Like, Avatar;
 var attr = DS.attr;
 
 module("Embedded Relationships Without IDs", {
   setup: function() {
     var App = Ember.Namespace.create({ name: "App" });
 
+    Avatar = App.Avatar = DS.Model.extend({
+      filename: DS.attr('string')
+    });
+
     User = App.User = DS.Model.extend({
-      name: attr('string')
+      name: attr('string'),
+      avatar: DS.hasOne(Avatar)
     });
 
     Comment = App.Comment = DS.Model.extend({
@@ -27,6 +32,10 @@ module("Embedded Relationships Without IDs", {
     });
 
     Adapter = DS.RESTAdapter.extend();
+
+    Adapter.map(User, {
+      avatar: { embedded: 'always' }
+    });
 
     Adapter.map(Comment, {
       user: { embedded: 'always' }
@@ -93,6 +102,7 @@ asyncTest("Embedded belongsTo relationships can be saved when embedded: always i
       comment: {
         title: "Why not use a more lightweight solution?",
         user: {
+          avatar: null,
           name: "mongodb_expert"
         }
       }
@@ -121,6 +131,82 @@ asyncTest("Embedded belongsTo relationships can be saved when embedded: always i
   function done() {
     equal(user.get('isDirty'), false, "user becomes clean after commit");
     equal(comment.get('isDirty'), false, "comment becomes clean after commit");
+    start();
+  }
+});
+
+test("An embedded record can be accessed via a hasOne relationship but does not have an ID", function() {
+  adapter.load(store, User, {
+    id: 1,
+    name: "John Doe",
+    avatar: {
+      filename: "photo.jpg"
+    }
+  });
+
+  adapter.load(store, User, {
+    id: 2,
+    name: "Jane Doe",
+    avatar: {
+      filename: "photo2.jpg"
+    }
+  });
+
+  var user1 = store.find(User, 1);
+  var user2 = store.find(User, 2);
+
+  var avatar1 = user1.get('avatar');
+  var avatar2 = user2.get('avatar');
+
+  equal(avatar1.get('filename'), "photo.jpg", "the embedded record is found and its attributes are materialized");
+  equal(avatar1.get('id'), null, "the embedded record does not have an id");
+
+  equal(avatar2.get('filename'), "photo2.jpg", "the embedded record is found and its attributed are materialized");
+  equal(avatar2.get('id'), null, "the embedded record does not have an id");
+});
+
+asyncTest("Embedded hasOne relationships can be saved when embedded: always is true", function() {
+  adapter.load(store, User, {
+    id: 1,
+    name: "John Doe",
+    avatar: {
+      filename: "photo.jpg"
+    }
+  });
+
+  adapter.ajax = function(url, type, hash) {
+    deepEqual(hash.data, {
+      user: {
+        name: "John Doe",
+        avatar: {
+          filename: "photo2.jpg"
+        }
+      }
+    });
+
+    setTimeout(function() {
+      hash.success.call(hash.context);
+      done();
+    });
+  };
+
+  var transaction = store.transaction();
+
+  var user = store.find(User, 1);
+  var avatar = user.get('avatar');
+
+  transaction.add(avatar);
+  transaction.add(user);
+
+  avatar.set('filename', 'photo2.jpg');
+  equal(avatar.get('isDirty'), true, "avatar becomes dirty after changing a property");
+  equal(user.get('isDirty'), true, "user becomes dirty when its embedded avatar becomes dirty");
+
+  transaction.commit();
+
+  function done() {
+    equal(avatar.get('isDirty'), false, "avatar becomes clean after commit");
+    equal(user.get('isDirty'), false, "user becomes clean after commit");
     start();
   }
 });
@@ -269,12 +355,14 @@ asyncTest("Embedded records that contain embedded records can be saved", functio
         comments: [{
           title: "Wouldn't a more lightweight solution be better? This feels very monolithic.",
           user: {
+            avatar: null,
             name: "mongodb_user"
           }
         },
         {
           title: "This does not seem to reflect the Unix philosophy haha",
           user: {
+            avatar: null,
             name: "microuser"
           }
         }],

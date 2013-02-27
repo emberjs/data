@@ -34,9 +34,14 @@ DS.Model.reopen({
       // the computed property.
       var meta = value.meta();
 
-      if (meta.isRelationship && meta.kind === 'belongsTo') {
-        Ember.addObserver(proto, key, null, 'belongsToDidChange');
-        Ember.addBeforeObserver(proto, key, null, 'belongsToWillChange');
+      if (meta.isRelationship) {
+        if (meta.kind === 'belongsTo') {
+          Ember.addObserver(proto, key, null, 'belongsToDidChange');
+          Ember.addBeforeObserver(proto, key, null, 'belongsToWillChange');
+        } else if (meta.kind === 'hasOne') {
+          Ember.addObserver(proto, key, null, 'hasOneDidChange');
+          Ember.addBeforeObserver(proto, key, null, 'hasOneWillChange');
+        }
       }
 
       if (meta.isAttribute) {
@@ -162,7 +167,7 @@ DS.Model.reopenClass({
     @readOnly
   */
   relationshipNames: Ember.computed(function() {
-    var names = { hasMany: [], belongsTo: [] };
+    var names = { hasMany: [], belongsTo: [], hasOne: [] };
 
     this.eachComputedProperty(function(name, meta) {
       if (meta.isRelationship) {

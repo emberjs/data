@@ -1,5 +1,5 @@
 var attr = DS.attr;
-var Post, Comment, User, Vote, Blog;
+var Post, Comment, User, Vote, Blog, Avatar;
 var Adapter, App;
 var adapter, store, post;
 var forEach = Ember.EnumerableUtils.forEach;
@@ -15,13 +15,21 @@ var forEach = Ember.EnumerableUtils.forEach;
 // belongsTo /    \
 //          /      \ hasMany
 //       User     Votes
+//        /
+//       /
+//    Avatar
 
 module("Dirtying of Embedded Records", {
   setup: function() {
     App = Ember.Namespace.create({ name: "App" });
 
+    Avatar = App.Avatar = DS.Model.extend({
+      filename: attr('string')
+    });
+
     User = App.User = DS.Model.extend({
-      name: attr('string')
+      name: attr('string'),
+      avatar: DS.hasOne(Avatar)
     });
 
     Vote = App.Vote = DS.Model.extend({
@@ -49,6 +57,10 @@ module("Dirtying of Embedded Records", {
     });
 
     Adapter = DS.RESTAdapter.extend();
+
+    Adapter.map(User, {
+      avatar: { embedded: 'always' }
+    });
 
     Adapter.map(Comment, {
       user: { embedded: 'always' },
@@ -78,6 +90,9 @@ module("Dirtying of Embedded Records", {
       comments: [{
         title: "Why not use a more lightweight solution?",
         user: {
+          avatar: {
+            filename: "mongodb_user.jpg"
+          },
           name: "mongodb_user"
         },
         votes: [ { voter: "tomdale" }, { voter: "wycats" } ]
@@ -85,6 +100,9 @@ module("Dirtying of Embedded Records", {
       {
         title: "This does not seem to reflect the Unix philosophy haha",
         user: {
+          avatar: {
+            filename: "microuser.jpg"
+          },
           name: "microuser",
         },
         votes: [ { voter: "ebryn" } ]
@@ -110,6 +128,10 @@ function assertTreeIs(state) {
     assertRecordIs(comment, state);
     if (comment.get('user')) {
       assertRecordIs(comment.get('user'), state);
+
+      if (comment.get('user.avatar')) {
+        assertRecordIs(comment.get('user.avatar'), state);
+      }
     }
     comment.get('votes').forEach(function(vote) {
       assertRecordIs(vote, state);
@@ -132,6 +154,13 @@ test("Modifying a record that contains embedded records should dirty the entire 
 test("Modifying a record embedded via a belongsTo relationship should dirty the entire tree", function() {
   var user = post.get('comments.firstObject.user');
   user.set('name', "[dead]");
+  assertTreeIs('dirty');
+  assertEmbeddedLoadNotDirtied();
+});
+
+test("Modifying a record embedded via a hasOne relationship should dirty the entire tree", function() {
+  var avatar = post.get('comments.firstObject.user.avatar');
+  avatar.set('filename', "photo2.jpg");
   assertTreeIs('dirty');
   assertEmbeddedLoadNotDirtied();
 });
