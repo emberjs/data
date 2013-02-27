@@ -10,3 +10,4 @@ dist/
 .github-upload-token
 
 tests/ember-data-tests.js
+*gem
