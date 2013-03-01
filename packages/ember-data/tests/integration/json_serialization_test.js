@@ -109,23 +109,30 @@ test("by default, addId calls primaryKey", function() {
   deepEqual(json, { __key__: "EWOT" });
 });
 
+var App, adapter;
 var Comment, comment;
 
-module("Adapter serialization with relationships", {
+module("DS.JSONSerializer with relationships", {
   setup: function() {
-    store = DS.Store.create();
+    App = Ember.Namespace.create({ name: "App" });
 
-    Post = DS.Model.extend();
+    adapter = DS.Adapter.create({ serializer: DS.JSONSerializer });
 
-    Comment = DS.Model.extend({
-      post: DS.belongsTo(Post)
+    serializer = DS.JSONSerializer.create();
+
+    store = DS.Store.create({ adapter: adapter });
+
+    App.Post = Post = DS.Model.extend();
+
+    App.Comment = Comment = DS.Model.extend({
+      post: DS.belongsTo(Post),
+      body: DS.attr("string")
     });
 
     Post.reopen({
-      comments: DS.hasMany(Comment)
+      comments: DS.hasMany(Comment),
+      title: DS.attr("string")
     });
-
-    serializer = DS.JSONSerializer.create();
 
     post = store.createRecord(Post);
     comment = store.createRecord(Comment);
@@ -137,8 +144,61 @@ module("Adapter serialization with relationships", {
     post.destroy();
     comment.destroy();
     serializer.destroy();
+    adapter.destroy();
     store.destroy();
   }
+});
+
+test("id may optionally be included in the JSON", function() {
+  var post, json;
+
+  store.load(Post, { id: 1, title: "Welcome to My Blog" });
+
+  post = store.find(Post, 1);
+
+  json = serializer.serialize(post);
+  deepEqual(json, { title: "Welcome to My Blog" });
+
+  json = serializer.serialize(post, { includeId: true });
+  deepEqual(json, { id: 1, title: "Welcome to My Blog" });
+});
+
+test("belongsTo relationships should be included in the JSON", function() {
+  var comment, json;
+
+  store.load(Post, { id: 1, title: "Welcome to My Blog", comments: [ 2 ] });
+  store.load(Comment, { id: 2, body: "So 90's, dude.", post: 1 });
+
+  comment = store.find(Comment, 2);
+
+  json = serializer.serialize(comment);
+
+  deepEqual(json, { body: "So 90's, dude.", post: "1" });
+});
+
+test("blank belongsTo relationships should be included in the JSON", function() {
+  var comment, json;
+
+  store.load(Comment, { id: 2, body: "So 90's, dude." });
+
+  comment = store.find(Comment, 2);
+
+  json = serializer.serialize(comment);
+
+  deepEqual(json, { body: "So 90's, dude.", post: null });
+});
+
+test("hasMany relationships should not be included in the JSON", function() {
+  var post, json;
+
+  store.load(Post, { id: 1, title: "Welcome to My Blog", comments: [ 2 ] });
+  store.load(Comment, { id: 2, body: "So 90's, dude.", post: 1 });
+
+  post = store.find(Post, 1);
+
+  json = serializer.serialize(post);
+
+  deepEqual(json, { title: "Welcome to My Blog" });
 });
 
 test("calling serialize with a record with relationships invokes addRelationships", function() {
