@@ -1626,6 +1626,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         clientIds = typeMap.clientIds,
         cidToData = this.clientIdToData;
 
+    Ember.assert('The id ' + id + ' has already been used with another record of type ' + type.toString() + '.', !id || !idToClientIdMap[id]);
+
     var clientId = ++this.clientIdCounter;
 
     cidToData[clientId] = data;
