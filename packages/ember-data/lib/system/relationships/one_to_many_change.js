@@ -235,7 +235,7 @@ DS.OneToManyChange.createChange = function(childReference, parentReference, stor
   // definition.
   if (options.parentType) {
     key = inverseBelongsToName(options.parentType, childType, options.key);
-    DS.OneToManyChange.maintainInvariant( options, store, childReference, key );
+    DS.OneToManyChange.maintainInvariant( options, store, childReference, parentReference, key );
   } else if (options.key) {
     key = options.key;
   } else {
@@ -261,11 +261,13 @@ DS.OneToManyChange.createChange = function(childReference, parentReference, stor
 };
 
 
-DS.OneToManyChange.maintainInvariant = function(options, store, childReference, key){
+DS.OneToManyChange.maintainInvariant = function(options, store, childReference, parentReference, key){
   if (options.changeType === "add" && store.recordIsMaterialized(childReference)) {
-    var child = store.recordForReference(childReference);
-    var oldParent = get(child, key);
-    if (oldParent){
+    var child = store.recordForReference(childReference),
+        oldParent = get(child, key),
+        newParent = store.recordForReference(parentReference);
+
+    if (oldParent && oldParent !== newParent) {
       var correspondingChange = DS.OneToManyChange.createChange(childReference, oldParent.get('_reference'), store, {
           parentType: options.parentType,
           hasManyName: options.hasManyName,
