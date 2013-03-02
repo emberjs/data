@@ -20,7 +20,7 @@ if (Ember.Application.initializer) {
         });
       });
 
-      container = app.container;
+      container = app.__container__;
     },
 
     teardown: function() {

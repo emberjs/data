@@ -1,0 +1,14 @@
+---
+name: Ember Data
+assetfile: 'Assetfile'
+testing_suites:
+  default:
+    - "package=all"
+  all:
+    - "package=all"
+    - "package=all&jquery=1.8.0&nojshint=true" 
+    - "package=all&extendprototypes=true&nojshint=true"
+    - "package=all&extendprototypes=true&jquery=1.8.0&nojshint=true"
+    - "package=all&dist=build&nojshint=true"
+testing_packages:
+  - ember-data

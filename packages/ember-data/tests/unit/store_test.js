@@ -476,6 +476,10 @@ test("records inside a collection view should have their ids updated", function(
   container.content.forEach(function(person, index) {
     equal(person.get('id'), index + 1, "The record's id should be correct.");
   });
+
+  Ember.run(function() {
+    container.destroy();
+  });
 });
 
 module("DS.State - Lifecycle Callbacks");

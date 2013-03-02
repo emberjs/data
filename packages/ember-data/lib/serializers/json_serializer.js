@@ -218,6 +218,7 @@ DS.JSONSerializer = DS.Serializer.extend({
   },
 
   sideloadRelationships: function(loader, type, json, prop, loaded) {
+    if (loaded[prop]) { return; }
     loaded[prop] = true;
 
     get(type, 'relationshipsByName').forEach(function(key, meta) {
@@ -225,7 +226,7 @@ DS.JSONSerializer = DS.Serializer.extend({
       if (meta.kind === 'belongsTo') {
         key = this.pluralize(key);
       }
-      if (json[key] && !loaded[key]) {
+      if (json[key]) {
         this.sideloadRelationships(loader, meta.type, json, key, loaded);
       }
     }, this);
@@ -250,6 +251,24 @@ DS.JSONSerializer = DS.Serializer.extend({
   pluralize: function(name) {
     var plurals = this.configurations.get('plurals');
     return (plurals && plurals[name]) || name + "s";
+  },
+
+  // use the same plurals hash to determine
+  // special-case singularization
+  singularize: function(name) {
+    var plurals = this.configurations.get('plurals');
+    if (plurals) {
+      for (var i in plurals) {
+        if (plurals[i] === name) {
+          return i;
+        }
+      }
+    }
+    if (name.lastIndexOf('s') === name.length - 1) {
+      return name.substring(0, name.length - 1);
+    } else {
+      return name;
+    }
   },
 
   rootForType: function(type) {

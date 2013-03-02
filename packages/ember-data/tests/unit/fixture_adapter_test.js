@@ -1,5 +1,5 @@
 var get = Ember.get, set = Ember.set;
-var store, Person;
+var store, Person, Phone, App;
 
 module("DS.FixtureAdapter", {
   setup: function() {
@@ -11,15 +11,33 @@ module("DS.FixtureAdapter", {
       firstName: DS.attr('string'),
       lastName: DS.attr('string'),
 
-      height: DS.attr('number')
+      height: DS.attr('number'),
+
+      phones: DS.hasMany('App.Phone')
     });
+
+    Phone = DS.Model.extend({
+      person: DS.belongsTo('App.Person')
+    });
+
+    App = Ember.Namespace.create();
+    App.Person = Person;
+    App.Phone = Phone;
+    Ember.lookup.App = App;
+
+    // Enable setTimeout.
+    Ember.testing = false;
   },
   teardown: function() {
+    Ember.testing = true;
+
     Ember.run(function() {
       store.destroy();
+      App.destroy();
     });
     store = null;
     Person = null;
+    Phone = null;
   }
 });
 
@@ -37,7 +55,16 @@ test("should load data for a type asynchronously when it is requested", function
     firstName: "Erik",
     lastName: "Brynjolffsosysdfon",
 
-    height: 70
+    height: 70,
+    phones: [1, 2]
+  }];
+
+  Phone.FIXTURES = [{
+    id: 1,
+    person: 'ebryn'
+  }, {
+    id: 2,
+    person: 'ebryn'
   }];
 
   stop();
@@ -52,6 +79,7 @@ test("should load data for a type asynchronously when it is requested", function
 
     ok(get(ebryn, 'isLoaded'), "data loads asynchronously");
     equal(get(ebryn, 'height'), 70, "data from fixtures is loaded correctly");
+    equal(get(ebryn, 'phones.length'), 2, "relationships from fixtures is loaded correctly");
 
     stop();
 
@@ -74,6 +102,30 @@ test("should load data for a type asynchronously when it is requested", function
     start();
     ok(false, "timeout exceeded waiting for fixture data");
   }, 1000);
+});
+
+test("should load data asynchronously at the end of the runloop when simulateRemoteResponse is false", function() {
+  Person.FIXTURES = [{
+    id: 'wycats',
+    firstName: "Yehuda"
+  }];
+
+  store = DS.Store.create({
+    adapter: DS.FixtureAdapter.create({
+      simulateRemoteResponse: false
+    })
+  });
+
+  var wycats;
+
+  Ember.run(function() {
+    wycats = store.find(Person, 'wycats');
+    ok(!get(wycats, 'isLoaded'), 'isLoaded is false initially');
+    ok(!get(wycats, 'firstName'), 'record properties are undefined initially');
+  });
+
+  ok(get(wycats, 'isLoaded'), 'isLoaded is true after runloop finishes');
+  equal(get(wycats, 'firstName'), 'Yehuda', 'record properties are defined after runloop finishes');
 });
 
 test("should create record asynchronously when it is committed", function() {
@@ -206,5 +258,5 @@ test("should throw if ids are not defined in the FIXTURES", function() {
     Person.find("1");
   }, /the id property must be defined for fixture/);
 
-  
+
 });
