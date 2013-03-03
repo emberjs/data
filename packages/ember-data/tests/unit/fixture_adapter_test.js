@@ -27,6 +27,9 @@ module("DS.FixtureAdapter", {
 
     // Enable setTimeout.
     Ember.testing = false;
+
+    Person.FIXTURES = [];
+    Phone.FIXTURES = [];
   },
   teardown: function() {
     Ember.testing = true;
@@ -131,6 +134,8 @@ test("should load data asynchronously at the end of the runloop when simulateRem
 test("should create record asynchronously when it is committed", function() {
   stop();
 
+  equal(Person.FIXTURES.length, 0, "Fixtures is empty");
+
   var paul = store.createRecord(Person, {firstName: 'Paul', lastName: 'Chavard', height: 70});
 
   paul.on('didCreate', function() {
@@ -140,6 +145,15 @@ test("should create record asynchronously when it is committed", function() {
     equal(get(paul, 'isNew'), false, "data loads asynchronously");
     equal(get(paul, 'isDirty'), false, "data loads asynchronously");
     equal(get(paul, 'height'), 70, "data from fixtures is saved correctly");
+
+    equal(Person.FIXTURES.length, 1, "Record added to FIXTURES");
+
+    var fixture = Person.FIXTURES[0];
+
+    equal(fixture.id, Ember.guidFor(paul));
+    equal(fixture.firstName, 'Paul');
+    equal(fixture.lastName, 'Chavard');
+    equal(fixture.height, 70);
   });
 
   store.commit();
@@ -153,6 +167,8 @@ test("should create record asynchronously when it is committed", function() {
 test("should update record asynchronously when it is committed", function() {
   stop();
 
+  equal(Person.FIXTURES.length, 0, "Fixtures is empty");
+
   var paul = store.findByClientId(Person, store.load(Person, 1, {firstName: 'Paul', lastName: 'Chavard', height: 70}).clientId);
 
   paul.set('height', 80);
@@ -163,6 +179,14 @@ test("should update record asynchronously when it is committed", function() {
 
     equal(get(paul, 'isDirty'), false, "data loads asynchronously");
     equal(get(paul, 'height'), 80, "data from fixtures is saved correctly");
+
+    equal(Person.FIXTURES.length, 1, "Record FIXTURES updated");
+
+    var fixture = Person.FIXTURES[0];
+
+    equal(fixture.firstName, 'Paul');
+    equal(fixture.lastName, 'Chavard');
+    equal(fixture.height, 80);
   });
 
   store.commit();
@@ -176,7 +200,9 @@ test("should update record asynchronously when it is committed", function() {
 test("should delete record asynchronously when it is committed", function() {
   stop();
 
-  var paul = store.findByClientId(Person, store.load(Person, 1, { firstName: 'Paul', lastName: 'Chavard', height: 70}).clientId);
+  equal(Person.FIXTURES.length, 0, "Fixtures empty");
+
+  var paul = store.findByClientId(Person, store.load(Person, 1, {firstName: 'Paul', lastName: 'Chavard', height: 70}).clientId);
 
   paul.deleteRecord();
 
@@ -186,6 +212,8 @@ test("should delete record asynchronously when it is committed", function() {
 
     equal(get(paul, 'isDeleted'), true, "data deleted asynchronously");
     equal(get(paul, 'isDirty'), false, "data deleted asynchronously");
+
+    equal(Person.FIXTURES.length, 0, "Record removed from FIXTURES");
   });
 
   store.commit();
@@ -247,7 +275,6 @@ test("should coerce integer ids into string", function() {
 });
 
 test("should throw if ids are not defined in the FIXTURES", function() {
-
   Person.FIXTURES = [{
     firstName: "Adam",
     lastName: "Hawkins",
@@ -257,6 +284,4 @@ test("should throw if ids are not defined in the FIXTURES", function() {
   raises(function(){
     Person.find("1");
   }, /the id property must be defined for fixture/);
-
-
 });

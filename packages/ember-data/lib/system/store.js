@@ -1547,7 +1547,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (prematerialized && prematerialized.id) {
       id = prematerialized.id;
     } else if (id === undefined) {
-      var adapter = this.adapterForType(type);
       id = this.preprocessData(type, data);
     }
 
@@ -1625,6 +1624,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         clientIdToTypeMap = this.clientIdToType,
         clientIds = typeMap.clientIds,
         cidToData = this.clientIdToData;
+
+    Ember.assert('The id ' + id + ' has already been used with another record of type ' + type.toString() + '.', !id || !idToClientIdMap[id]);
 
     var clientId = ++this.clientIdCounter;
 

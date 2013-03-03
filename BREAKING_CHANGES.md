@@ -35,6 +35,115 @@ App.Store = DS.Store.create({
 This will remove the exception about changes before revision 2. You will
 receive another warning if there is another change.
 
+## Revision 12
+
+Several changes have been made to serialization conventions for the
+JSON and REST adapters.
+
+### Foreign Key IDs for Arrays
+
+In order to be consistent with singular foreign keys, the REST serializer
+now serializes arrays of foreign keys with the singular form of the key name
+suffixed with `_ids`. Therefore, just as `author_id` represents a single
+author, `author_ids` (and not `authors`) now represents an array of authors
+associated with a parent record.
+
+Custom `key` mappings can be configured to override these defaults as needed.
+
+### Sideload by Type
+
+When loading data, the previous convention was to expect sideloaded data
+to be included alongside a parent record based on the name of its relationship.
+
+For instance, given the following model:
+
+```js
+App.Contact  = DS.Model.extend({
+  name:         DS.attr('string'),
+  phoneNumbers: DS.hasMany('App.PhoneNumber'),
+  homeAddress:  DS.belongsTo('App.Address')
+  workAddress:  DS.belongsTo('App.Address')
+});
+```
+
+... the following payload would be deserialized properly:
+
+```js
+{
+  "contact": {
+    "id": 1,
+    "name": "Dan",
+    "phone_numbers": [1, 2],
+    "home_address_id": 3
+    "work_address_id": 4
+  },
+  "phoneNumbers": [
+    {
+      "id": 1,
+      "number": "555-1212"
+    },
+    {
+      "id": 2,
+      "number": "555-2222"
+    }
+  ],
+  "homeAddress": [
+    {
+      "id": 3,
+      "zip_code": "03086"
+    }
+  ],
+  "workAddress": [
+    {
+      "id": 4,
+      "zip_code": "94107"
+    }
+  ]
+}
+```
+
+Now, `homeAddress` and `workAddress` will be expected to be sideloaded
+together as `addresses` because they are the same type. Furthermore, the
+default root naming conventions (underscore and lowercase) will now also
+be applied to sideloaded root names.
+
+The new, more consistent and concise conventions for sideloading are:
+
+```js
+{
+  "contact": {
+    "id": 1,
+    "name": "Dan",
+    "phone_number_ids": [1, 2],
+    "home_address_id": 3
+    "work_address_id": 4
+  },
+  "phone_numbers": [
+    {
+      "id": 1,
+      "number": "555-1212"
+    },
+    {
+      "id": 2,
+      "number": "555-2222"
+    }
+  ],
+  "addresses": [
+    {
+      "id": 3,
+      "zip_code": "03086"
+    },
+    {
+      "id": 4,
+      "zip_code": "94107"
+    }
+  ]
+}
+```
+
+Custom `sideloadAs` and `key` mappings can still be configured to override
+these defaults as required.
+
 ## Revision 11
 
 ### Payload Extraction
@@ -52,7 +161,7 @@ payload for a blog post and its comments may look like this:
   "post": {
     "id": 1,
     "title": "Rails is omakase",
-    "comment_ids": [1, 2, 3]
+    "comments": [1, 2, 3]
   },
 
   "comments": [{

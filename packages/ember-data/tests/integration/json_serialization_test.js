@@ -204,16 +204,16 @@ test("loadValue should be called once per sideloaded type", function() {
 
   payload = {
     coaches: [{
-      id: 1, name: "Peter Wagenet", fans: [ 1 ], players: [ 1 ]
+      id: 1, name: "Peter Wagenet", fan_ids: [ 1 ], player_ids: [ 1 ]
     }],
     fans: [{
       id: 1, name: "Yehuda Katz"
     }],
     players: [{
-      id: 1, name: "Tom Dale", fans: [ 1 ]
+      id: 1, name: "Tom Dale", fan_ids: [ 1 ]
     }],
     team: {
-      id: 1, name: "49ers", fans: [ 1 ], players: [ 1 ], coaches: [ 1 ]
+      id: 1, name: "49ers", fan_ids: [ 1 ], player_ids: [ 1 ], coach_ids: [ 1 ]
     }
   };
 
