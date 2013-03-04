@@ -24,6 +24,7 @@ module("Inverse test", {
 });
 
 test("One to one relationships should be identified correctly", function() {
+  var type;
 
   App.Post = DS.Model.extend({
     title: DS.attr('string')
@@ -35,11 +36,13 @@ test("One to one relationships should be identified correctly", function() {
   }); 
 
   App.Post.reopen({
-    comment: DS.belongsTo(App.Comment)
+    comment: DS.hasOne(App.Comment)
   });
 
-  var type = DS.RelationshipChange.determineRelationshipType(App.Post, {key: "comment", kind: "belongsTo"});
- 
+  type = DS.RelationshipChange.determineRelationshipType(App.Post, {key: "comment", kind: "hasOne"});
+  equal(type, "oneToOne", "Relationship type is oneToOne");
+
+  type = DS.RelationshipChange.determineRelationshipType(App.Comment, {key: "post", kind: "belongsTo"});
   equal(type, "oneToOne", "Relationship type is oneToOne");
 });
 

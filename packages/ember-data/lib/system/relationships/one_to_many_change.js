@@ -72,8 +72,8 @@ DS.RelationshipChange.determineRelationshipType = function(recordType, knownSide
     return knownContainerType === "belongsTo" ? "oneToNone" : "manyToNone";
   }
   else{
-    if(otherContainerType === "belongsTo"){
-      return knownContainerType === "belongsTo" ? "oneToOne" : "manyToOne";
+    if(otherContainerType === "belongsTo" || otherContainerType === "hasOne"){
+      return knownContainerType === "belongsTo" || knownContainerType === "hasOne" ? "oneToOne" : "manyToOne";
     }
     else{
       return knownContainerType === "belongsTo" ? "oneToMany" : "manyToMany";

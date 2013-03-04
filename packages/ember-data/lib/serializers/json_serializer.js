@@ -98,11 +98,48 @@ DS.JSONSerializer = DS.Serializer.extend({
     return hash[key];
   },
 
+  extractHasOne: function(type, hash, key) {
+    return hash[key];
+  },
+
   addBelongsTo: function(hash, record, key, relationship) {
     var type = record.constructor,
         name = relationship.key,
         value = null,
-        embeddedChild;
+        embeddedParent;
+
+    if (this.embeddedType(type, name)) {
+      if (embeddedParent = get(record, name)) {
+        value = this.serialize(embeddedParent, { includeId: true });
+      }
+
+      hash[key] = value;
+    } else {
+      var id = get(record, relationship.key+'.id');
+      if (!Ember.isNone(id)) { hash[key] = id; }
+    }
+  },
+
+  /**
+    Adds a has-one relationship to the JSON hash being built.
+
+    The default REST semantics are to only add a has-one relationship if it
+    is embedded. If the relationship was initially loaded by ID, we assume that
+    that was done as a performance optimization, and that changes to the
+    has-one should be saved as foreign key changes on the child's belongs-to
+    relationship.
+
+    @param {Object} hash the JSON being built
+    @param {DS.Model} record the record being serialized
+    @param {String} key the JSON key into which the serialized relationship
+      should be saved
+    @param {Object} relationship metadata about the relationship being serialized
+  */
+  addHasOne: function(hash, record, key, relationship) {
+    var type = record.constructor,
+      name = relationship.key,
+      value = null,
+      embeddedChild;
 
     if (this.embeddedType(type, name)) {
       if (embeddedChild = get(record, name)) {
@@ -110,9 +147,6 @@ DS.JSONSerializer = DS.Serializer.extend({
       }
 
       hash[key] = value;
-    } else {
-      var id = get(record, relationship.key+'.id');
-      if (!Ember.isNone(id)) { hash[key] = id; }
     }
   },
 

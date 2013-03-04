@@ -66,5 +66,9 @@ DS.FixtureSerializer = DS.Serializer.extend({
 
   extractBelongsTo: function(type, hash, key) {
     return hash[key];
+  },
+
+  extractHasOne: function(type, hash, key) {
+    return hash[key];
   }
 });

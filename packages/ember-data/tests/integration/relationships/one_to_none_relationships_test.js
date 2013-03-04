@@ -15,8 +15,13 @@ module("One-to-None Relationships", {
       toString: function() { return "App"; }
     });
 
+    App.Attachment = DS.Model.extend({
+      filename: DS.attr('string')
+    });
+
     App.Post = DS.Model.extend({
-      title: DS.attr('string')
+      title: DS.attr('string'),
+      attachment: DS.hasOne(App.Attachment)
     });
 
     App.Comment = DS.Model.extend({
@@ -51,7 +56,7 @@ test("Setting a record's belongsTo relationship to another record, should work",
 });
 
 test("Setting a record's belongsTo relationship to null should work", function() {
-  store.load(App.Post, { id: 1, title: "parent", comments: [2, 3] });
+  store.load(App.Post, { id: 1, title: "parent" });
   store.load(App.Comment, { id: 2, body: "child", post: 1 });
   store.load(App.Comment, { id: 3, body: "child", post: 1 });
 
@@ -61,4 +66,26 @@ test("Setting a record's belongsTo relationship to null should work", function()
 
   comment1.set('post', null);
   equal(comment1.get('post'), null, "belongsTo relationship has been set to null");
+});
+
+test("Setting a record's hasOne relationship to another record, should work", function() {
+  store.load(App.Post, { id: 1, title: "parent" });
+  store.load(App.Attachment, { id: 2, filename: "episode.mp3" });
+
+  var post = store.find(App.Post, 1),
+      attachment = store.find(App.Attachment, 2);
+
+  post.set('attachment', attachment);
+  deepEqual(post.get('attachment'), attachment, "post should have the correct attachment set");
+});
+
+test("Setting a record's hasOne relationship to null should work", function() {
+  store.load(App.Post, { id: 1, title: "parent", attachment: 2 });
+  store.load(App.Attachment, { id: 2, filename: "episode.mp3" });
+
+  var post = store.find(App.Post, 1),
+      attachment = store.find(App.Attachment, 2);
+
+  post.set('attachment', null);
+  equal(post.get('attachment'), null, "attachment has been set to null");
 });

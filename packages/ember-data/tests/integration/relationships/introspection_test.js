@@ -1,4 +1,4 @@
-var Blog, User, Post;
+var Blog, User, Post, Config;
 var lookup, oldLookup;
 
 module("Relationship Introspection", {
@@ -8,10 +8,11 @@ module("Relationship Introspection", {
 
     User = DS.Model.extend();
     Post = DS.Model.extend();
+    Config = DS.Model.extend();
     Blog = DS.Model.extend({
       admins: DS.hasMany(User),
       owner: DS.belongsTo(User),
-
+      config: DS.hasOne(Config),
       posts: DS.hasMany(Post)
     });
   },
@@ -29,19 +30,23 @@ test("DS.Model class computed property `relationships` returns a map keyed on ty
 
   expected = [{ name: 'posts', kind: 'hasMany' }];
   deepEqual(relationships.get(Post), expected, "post relationships returns expected array");
+
+  expected = [{ name: 'config', kind: 'hasOne' }];
+  deepEqual(relationships.get(Config), expected, "config relationships returns expected array");
 });
 
 test("DS.Model class computed property `relationships` returns a map keyed on types when types are specified as strings", function() {
   Blog = DS.Model.extend({
     admins: DS.hasMany('User'),
     owner: DS.belongsTo('User'),
-
+    config: DS.hasOne('Config'),
     posts: DS.hasMany('Post')
   });
 
   Ember.lookup = {
     User: DS.Model.extend(),
-    Post: DS.Model.extend()
+    Post: DS.Model.extend(),
+    Config: DS.Model.extend()
   };
 
   var relationships = Ember.get(Blog, 'relationships');
@@ -51,4 +56,7 @@ test("DS.Model class computed property `relationships` returns a map keyed on ty
 
   expected = [{ name: 'posts', kind: 'hasMany' }];
   deepEqual(relationships.get(Ember.lookup.Post), expected, "post relationships returns expected array");
+
+  expected = [{ name: 'config', kind: 'hasOne' }];
+  deepEqual(relationships.get(Ember.lookup.Config), expected, "config relationships returns expected array");
 });
