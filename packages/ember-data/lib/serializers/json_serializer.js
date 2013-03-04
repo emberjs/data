@@ -251,7 +251,7 @@ DS.JSONSerializer = DS.Serializer.extend({
         if (typeof value === 'string') {
           this.sideloadMapping.set(key, get(Ember.lookup, value));
         }
-      });
+      }, this);
       this.sideloadMapping.normalized = true;
     }
   },
