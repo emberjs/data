@@ -952,10 +952,7 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
   store.load(PersonType, {id: 1, title: "Developer"});
   var personType = store.find(PersonType, 1);
 
-  // FIXME this mass-assignment of a belongs to is broken.  It must be set separately.
-  // var person = store.createRecord(Person, {name: 'Sam Woodard', personType: personType});
-  var person = store.createRecord(Person, {name: 'Sam Woodard'});
-  person.set('personType', personType);
+  var person = store.createRecord(Person, {name: 'Sam Woodard', personType: personType});
 
   store.commit();
 
