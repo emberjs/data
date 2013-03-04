@@ -46,10 +46,6 @@ module("the REST adapter", {
       return "App.Person";
     };
 
-    serializer.configure(Person, {
-      sideloadAs: "people"
-    });
-
     Group = DS.Model.extend({
       name: DS.attr('string'),
       people: DS.hasMany(Person)
@@ -128,10 +124,6 @@ test("creating a person makes a POST to /people, with the data hash", function()
 });
 
 test("singular creations can sideload data", function() {
-  serializer.configure(Group, {
-    sideloadAs: 'groups'
-  });
-
   person = store.createRecord(Person, { name: "Tom Dale" });
 
   expectState('new');
@@ -919,7 +911,7 @@ test("additional data can be sideloaded with relationships in correct order", fu
 
   ajaxHash.success({
     group: {
-      id: 1, name: "Group 1", people: [ 1 ]
+      id: 1, name: "Group 1", person_ids: [ 1 ]
     },
     comments: [{
       id: 1, person_id: 1, text: 'hello'
@@ -949,6 +941,10 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
     people: DS.hasMany(Person)
   });
 
+  PersonType.toString = function() {
+    return "App.PersonType";
+  };
+
   Person.reopen({
     personType: DS.belongsTo(PersonType)
   });
@@ -956,10 +952,7 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
   store.load(PersonType, {id: 1, title: "Developer"});
   var personType = store.find(PersonType, 1);
 
-  // FIXME this mass-assignment of a belongs to is broken.  It must be set separately.
-  // var person = store.createRecord(Person, {name: 'Sam Woodard', personType: personType});
-  var person = store.createRecord(Person, {name: 'Sam Woodard'});
-  person.set('personType', personType);
+  var person = store.createRecord(Person, {name: 'Sam Woodard', personType: personType});
 
   store.commit();
 
