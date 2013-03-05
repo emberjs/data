@@ -134,8 +134,6 @@ DS.FixtureAdapter = DS.Adapter.extend({
   createRecord: function(store, type, record) {
     var fixture = this.mockJSON(type, record);
 
-    fixture.id = this.generateIdForRecord(store, record);
-
     this.updateFixtures(type, fixture);
 
     this.simulateRemoteCall(function() {
