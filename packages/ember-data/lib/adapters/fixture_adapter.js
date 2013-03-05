@@ -65,13 +65,6 @@ DS.FixtureAdapter = DS.Adapter.extend({
     return this.serialize(record, { includeId: true });
   },
 
-  /*
-    Adapter methods
-  */
-  generateIdForRecord: function(store, record) {
-    return Ember.guidFor(record);
-  },
-
   find: function(store, type, id) {
     var fixtures = this.fixturesForType(type),
         fixture;
@@ -134,7 +127,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
   createRecord: function(store, type, record) {
     var fixture = this.mockJSON(type, record);
 
-    fixture.id = this.generateIdForRecord(store, record);
+    fixture.id = Ember.guidFor(record);
 
     this.updateFixtures(type, fixture);
 
