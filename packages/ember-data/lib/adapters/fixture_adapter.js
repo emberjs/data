@@ -46,6 +46,18 @@ DS.FixtureAdapter = DS.Adapter.extend({
     Ember.assert('Not implemented: You must override the DS.FixtureAdapter::queryFixtures method to support querying the fixture store.');
   },
 
+  updateFixtures: function(type, fixture) {
+    if(!type.FIXTURES) {
+      type.FIXTURES = [];
+    }
+
+    var fixtures = type.FIXTURES;
+
+    this.deleteLoadedFixture(type, fixture);
+
+    fixtures.push(fixture);
+  },
+
   /*
     Implement this method in order to provide provide json for CRUD methods
   */
@@ -124,6 +136,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
     fixture.id = this.generateIdForRecord(store, record);
 
+    this.updateFixtures(type, fixture);
+
     this.simulateRemoteCall(function() {
       this.didCreateRecord(store, type, record, fixture);
     }, this);
@@ -132,12 +146,18 @@ DS.FixtureAdapter = DS.Adapter.extend({
   updateRecord: function(store, type, record) {
     var fixture = this.mockJSON(type, record);
 
+    this.updateFixtures(type, fixture);
+
     this.simulateRemoteCall(function() {
       this.didUpdateRecord(store, type, record, fixture);
     }, this);
   },
 
   deleteRecord: function(store, type, record) {
+    var fixture = this.mockJSON(type, record);
+
+    this.deleteLoadedFixture(type, fixture);
+
     this.simulateRemoteCall(function() {
       this.didDeleteRecord(store, type, record);
     }, this);
@@ -146,6 +166,37 @@ DS.FixtureAdapter = DS.Adapter.extend({
   /*
     @private
   */
+ deleteLoadedFixture: function(type, record) {
+    var id = this.extractId(type, record);
+
+    var existingFixture = this.findExistingFixture(type, record);
+
+    if(existingFixture) {
+      var index = type.FIXTURES.indexOf(existingFixture);
+      type.FIXTURES.splice(index, 1);
+      return true;
+    }
+  },
+
+  findExistingFixture: function(type, record) {
+    var fixtures = this.fixturesForType(type);
+    var id = this.extractId(type, record);
+
+    return this.findFixtureById(fixtures, id);
+  },
+
+  findFixtureById: function(fixtures, id) {
+    var adapter = this;
+
+    return Ember.A(fixtures).find(function(r) {
+      if(''+get(r, 'id') === ''+id) {
+        return true;
+      } else {
+        return false;
+      }
+    });
+  },
+
   simulateRemoteCall: function(callback, context) {
     if (get(this, 'simulateRemoteResponse')) {
       // Schedule with setTimeout
