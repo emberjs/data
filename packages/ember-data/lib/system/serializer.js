@@ -202,7 +202,6 @@ DS.Serializer = Ember.Object.extend({
   extractMany: mustImplement('extractMany'),
 
   extractRecordRepresentation: function(loader, type, json, shouldSideload) {
-    var mapping = this.mappingForType(type);
     var embeddedData, prematerialized = {}, reference;
 
     if (shouldSideload) {
