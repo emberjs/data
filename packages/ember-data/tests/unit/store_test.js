@@ -414,6 +414,25 @@ test("a new record of a particular type is created via store.createRecord(type)"
   equal(get(person, 'name'), "Braaahm Dale", "Even if no hash is supplied, `set` still worked");
 });
 
+test("a new record with a specific id can't be created if this id is already used in the store", function() {
+  var store = DS.Store.create();
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+  });
+  Person.reopenClass({
+    toString: function() {
+      return 'Person';
+    }
+  });
+  store.createRecord(Person, {id: 5});
+
+  raises(
+    function() { store.createRecord(Person, {id: 5}); },
+    /The id 5 has already been used with another record of type Person/,
+    "Creating a record with an if an id already in used in the store is disallowed"
+  );
+});
+
 test("an initial data hash can be provided via store.createRecord(type, hash)", function() {
   expect(6);
   var store = DS.Store.create();
