@@ -163,7 +163,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
     if (payload) {
       var loader = DS.loaderFor(store);
-      var serializer = get(this, 'serializer');
 
       loader.load = function(type, data, prematerialized) {
         store.updateId(record, data);
