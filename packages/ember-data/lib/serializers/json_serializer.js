@@ -108,12 +108,11 @@ DS.JSONSerializer = DS.Serializer.extend({
       if (embeddedChild = get(record, name)) {
         value = this.serialize(embeddedChild, { includeId: true });
       }
-
-      hash[key] = value;
     } else {
-      var id = get(record, relationship.key+'.id');
-      if (!Ember.isNone(id)) { hash[key] = id; }
+      value = get(record, relationship.key+'.id');
     }
+
+    hash[key] = value;
   },
 
   /**
