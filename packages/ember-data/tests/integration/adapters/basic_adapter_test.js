@@ -43,3 +43,25 @@ test("The sync object is consulted to load data", function() {
     equal(get(person, 'id'), "1", "The id is still the same");
   }));
 });
+
+test("A camelizeKeys() convenience will camelize all of the keys", function() {
+  Person.sync = {
+    find: function(id, process) {
+      setTimeout(async(function() {
+        process({ id: 1, first_name: "Tom", last_name: "Dale" })
+          .camelizeKeys()
+          .load();
+      }));
+    }
+  };
+
+  var person = Person.find(1);
+
+  equal(get(person, 'id'), "1", "The id is the coerced ID passed to find");
+
+  person.on('didLoad', async(function() {
+    equal(get(person, 'firstName'), "Tom");
+    equal(get(person, 'lastName'), "Dale");
+    equal(get(person, 'id'), "1", "The id is still the same");
+  }));
+});

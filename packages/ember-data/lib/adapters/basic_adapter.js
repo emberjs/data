@@ -1,3 +1,5 @@
+var camelize = Ember.String.camelize;
+
 var ObjectProcessor = function(json, type, store) {
   this.json = json;
   this.type = type;
@@ -7,6 +9,18 @@ var ObjectProcessor = function(json, type, store) {
 ObjectProcessor.prototype = {
   load: function() {
     this.store.load(this.type, this.json);
+  },
+
+  camelizeKeys: function() {
+    var json = this.json, value;
+
+    for (var prop in json) {
+      value = json[prop];
+      delete json[prop];
+      json[camelize(prop)] = value;
+    }
+
+    return this;
   }
 };
 
