@@ -120,9 +120,11 @@ test("the default date transform", function() {
 
 module("Enum Transforms", {
   setup: function() {
-    adapter = DS.Adapter.create();
-    adapter.registerEnumTransform('materials', ['unobtainium', 'kindaobtainium', 'veryobtainium']);
-  
+    Adapter = DS.Adapter.extend();
+
+    Adapter.registerEnumTransform('materials', ['unobtainium', 'kindaobtainium', 'veryobtainium']);
+
+    adapter = Adapter.create();
     store = DS.Store.create({
       adapter: adapter
     });
