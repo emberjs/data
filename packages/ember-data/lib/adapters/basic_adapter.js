@@ -1,4 +1,17 @@
-var camelize = Ember.String.camelize;
+var camelize = Ember.String.camelize,
+    get = Ember.get,
+    registeredTransforms;
+
+var passthruTransform = {
+  serialize: function(value) { return value; },
+  deserialize: function(value) { return value; }
+};
+
+var defaultTransforms = {
+  string: passthruTransform,
+  boolean: passthruTransform,
+  number: passthruTransform
+};
 
 var ObjectProcessor = function(json, type, store) {
   this.json = json;
@@ -8,7 +21,7 @@ var ObjectProcessor = function(json, type, store) {
 
 ObjectProcessor.prototype = {
   load: function() {
-    this.store.load(this.type, this.json);
+    this.store.load(this.type, {}, this.json);
   },
 
   camelizeKeys: function() {
@@ -19,6 +32,26 @@ ObjectProcessor.prototype = {
       delete json[prop];
       json[camelize(prop)] = value;
     }
+
+    return this;
+  },
+
+  applyTransforms: function(transformType) {
+    var transforms = registeredTransforms[transformType],
+        json = this.json;
+
+    Ember.assert("You are trying to apply the '" + transformType + "' transforms, but you didn't register any transforms with that name", transforms);
+
+    get(this.type, 'attributes').forEach(function(name, attribute) {
+      var attributeType = attribute.type,
+          value = json[name];
+
+      var transform = transforms[attributeType] || defaultTransforms[attributeType];
+
+      Ember.assert("Your model specified the '" + attributeType + "' type for the '" + name + "' attribute, but no transform for that type was registered", transform);
+
+      json[name] = transform.deserialize(value);
+    });
 
     return this;
   }
@@ -41,3 +74,13 @@ DS.BasicAdapter = DS.Adapter.extend({
     sync.find(id, processorFactory(store, type));
   }
 });
+
+DS.registerTransforms = function(kind, object) {
+  registeredTransforms[kind] = object;
+};
+
+DS.clearTransforms = function() {
+  registeredTransforms = {};
+};
+
+DS.clearTransforms();
