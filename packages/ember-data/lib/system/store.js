@@ -672,7 +672,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     //    the needed clientIds
     // 6. Ask the adapter to load the records for the unloaded clientIds (but
     //    convert them back to ids)
-
+    
     if (!Ember.isArray(ids)) {
       var adapter = this.adapterForType(type);
       if (adapter && adapter.findHasMany) { adapter.findHasMany(this, record, relationship, ids); }

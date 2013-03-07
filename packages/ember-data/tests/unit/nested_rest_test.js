@@ -10,8 +10,13 @@ module("the Nested REST adapter", {
     ajaxUrl = undefined;
     ajaxType = undefined;
     ajaxHash = undefined;
-
-    adapter = DS.RESTAdapter.create({
+    
+    var Adapter = DS.RESTAdapter.extend();
+    Adapter.configure('plurals', {
+      person: 'people'
+    });
+    
+    adapter = Adapter.create({
       ajax: function(url, type, hash) {
         var success = hash.success, self = this;
 
@@ -24,10 +29,6 @@ module("the Nested REST adapter", {
             success.call(self, json);
           };
         }
-      },
-
-      plurals: {
-        person: 'people'
       }
     });
 
@@ -35,7 +36,13 @@ module("the Nested REST adapter", {
       adapter: adapter
     });
 
-    Person=DS.Model.extend();
+    Person=DS.Model.extend({
+      name: DS.attr('string')
+    });
+
+    Person.toString = function() {
+      return "App.Person";
+    };      
 
     Group=DS.Model.extend({
       name: DS.attr('string'),
@@ -43,14 +50,9 @@ module("the Nested REST adapter", {
     });
     
     Person.reopen({
-      name: DS.attr('string'),
       group: DS.belongsTo(Group, {nested: true})
     });
 
-    Person.toString = function() {
-      return "App.Person";
-    };
-        
     Group.toString = function() {
       return "App.Group";
     };
@@ -58,11 +60,18 @@ module("the Nested REST adapter", {
   },
 
   teardown: function() {
+    if (group) { 
+      group.destroy(); 
+      group=null;
+    }
+    if (person) { 
+      person.destroy(); 
+      person=null;
+    }
+
     adapter.destroy();
     store.destroy();
 
-    if (group) { group.destroy(); }
-    if (person) { person.destroy(); }
   }
 });
 
@@ -93,7 +102,6 @@ test("updating a nested person makes a PUT to /group/<group_id>/people/:id", fun
   person = store.find(Person, 1);
 
   set(person, 'name', "Brohuda Brokatz");
-
   store.commit();
 
   expectUrl("/groups/1/people/1", "the plural of the model name with its ID");
@@ -109,7 +117,6 @@ test("deleting a person makes a DELETE to /group/<group_id>/people/:id", functio
   person = store.find(Person, 1);
 
   person.deleteRecord();
-
   store.commit();
 
   expectUrl("/groups/1/people/1", "the plural of the model name with its ID");
@@ -119,8 +126,9 @@ test("deleting a person makes a DELETE to /group/<group_id>/people/:id", functio
 });
 
 test("finding all nested people through a group makes a GET to /groups/<group_id>/people", function() {
-  store.load(Group, { id: 2, name: "Programmers", people: [1,2] });
+  store.load(Group, { id: 2, name: "Programmers", person_ids: [1,2] });
   group = store.find(Group, 2);
+  
   people = group.get('people');
 
   expectUrl("/groups/2/people", "the nested plural of the model name");

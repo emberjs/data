@@ -50,6 +50,8 @@ DS.Model.reopen({
         var change = DS.RelationshipChange.createChange(childReference, get(oldParent, '_reference'), store, { key: key, kind:"belongsTo", changeType: "remove" });
         change.sync();
         this._changesToSync[key] = change;
+        this._previousBelongsTo = this.previousBelongsTo || {};
+        this._previousBelongsTo[key] = oldParent;
       }
     }
   }),

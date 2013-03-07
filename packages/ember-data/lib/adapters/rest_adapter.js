@@ -78,7 +78,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
-
     var data = {};
     data[root] = this.serialize(record, { includeId: true });
     
@@ -158,7 +157,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     var data = {};
     data[root] = this.serialize(record);
-
+    
     this.ajax(this.buildNestedURL(store, type, record, id), "PUT", {  
       data: data,
       context: this,
@@ -277,10 +276,15 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   findMany: function(store, type, ids, owner) {
-    var root = this.rootForType(type);
+    var root = this.rootForType(type), url;
     ids = this.serializeIds(ids);
-
-    this.ajax(this.buildURL(root), "GET", {
+    
+    if (owner){
+      url = this.buildNestedURL(store, type, undefined, undefined, owner);
+    } else {
+      url = this.buildURL(root);
+    }
+    this.ajax(url, "GET", {
       data: {ids: ids},
       success: function(json) {
         Ember.run(this, function(){
@@ -365,14 +369,14 @@ DS.RESTAdapter = DS.Adapter.extend({
     return since ? query : null;
   },
   
-  buildNestedURL: function(store, type, record, suffix){
+  buildNestedURL: function(store, type, record, suffix, parent){
     var url = [], root=this.rootForType(type);
     var parent_info, parent_type;
     
-    if (parent_info = this.nestedAssociationFor(type)) {
+    if (parent_info = this.nestedRelationshipFor(type)) {
       var parent_name = parent_info[0];
       var parent_meta = parent_info[1];
-      parent = parent || record.get(parent_name);
+      parent = parent || record.get(parent_name) || record._previousBelongsTo[parent_name];
       parent_type = parent_meta['type'];
     }
 
@@ -392,14 +396,15 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
     return url.join("/");
   },
-  nestedAssociationFor: function(type) {
-    var nesteds=[], associations;
-    if (typeof type === 'string') {
-      type = getPath(this, type, false) || getPath(window, type);
-    }
+  
+  nestedRelationshipFor: function(type) {
+    var nesteds=[], relationships;
+    // if (typeof type === 'string') {
+    //   type = getPath(this, type, false) || getPath(window, type);
+    // }
     
-    if (associations=get(type,'associationsByName')) {
-      associations.forEach(function(name,meta){ 
+    if (relationships=get(type,'relationshipsByName')) {
+      relationships.forEach(function(name,meta){ 
         if (meta.options.nested) { nesteds.push([name,meta]); }
       });
     }
