@@ -1,4 +1,5 @@
-instance_eval File.read(EmberDev.support_path.join('Assetfile'))
+require 'ember-dev'
+instance_eval File.read(::EmberDev.support_path.join('Assetfile'))
 
 distros = {
   :full    => %w(ember-data)
