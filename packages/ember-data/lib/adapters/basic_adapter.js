@@ -13,11 +13,42 @@ var defaultTransforms = {
   number: passthruTransform
 };
 
-var ObjectProcessor = function(json, type, store) {
+function camelizeKeys(json) {
+  var value;
+
+  for (var prop in json) {
+    value = json[prop];
+    delete json[prop];
+    json[camelize(prop)] = value;
+  }
+}
+
+function munge(json, callback) {
+  callback(json);
+}
+
+function applyTransforms(json, type, transformType) {
+  var transforms = registeredTransforms[transformType];
+
+  Ember.assert("You are trying to apply the '" + transformType + "' transforms, but you didn't register any transforms with that name", transforms);
+
+  get(type, 'attributes').forEach(function(name, attribute) {
+    var attributeType = attribute.type,
+        value = json[name];
+
+    var transform = transforms[attributeType] || defaultTransforms[attributeType];
+
+    Ember.assert("Your model specified the '" + attributeType + "' type for the '" + name + "' attribute, but no transform for that type was registered", transform);
+
+    json[name] = transform.deserialize(value);
+  });
+}
+
+function ObjectProcessor(json, type, store) {
   this.json = json;
   this.type = type;
   this.store = store;
-};
+}
 
 ObjectProcessor.prototype = {
   load: function() {
@@ -25,44 +56,74 @@ ObjectProcessor.prototype = {
   },
 
   camelizeKeys: function() {
-    var json = this.json, value;
+    camelizeKeys(this.json);
+    return this;
+  },
 
-    for (var prop in json) {
-      value = json[prop];
-      delete json[prop];
-      json[camelize(prop)] = value;
-    }
-
+  munge: function(callback) {
+    munge(this.json, callback);
     return this;
   },
 
   applyTransforms: function(transformType) {
-    var transforms = registeredTransforms[transformType],
-        json = this.json;
+    applyTransforms(this.json, this.type, transformType);
+    return this;
+  }
+};
 
-    Ember.assert("You are trying to apply the '" + transformType + "' transforms, but you didn't register any transforms with that name", transforms);
+function processorFactory(store, type) {
+  return function(json) {
+    return new ObjectProcessor(json, type, store);
+  };
+}
 
-    get(this.type, 'attributes').forEach(function(name, attribute) {
-      var attributeType = attribute.type,
-          value = json[name];
+function ArrayProcessor(json, type, array, store) {
+  this.json = json;
+  this.type = type;
+  this.array = array;
+  this.store = store;
+}
 
-      var transform = transforms[attributeType] || defaultTransforms[attributeType];
+ArrayProcessor.prototype = {
+  load: function() {
+    var store = this.store,
+        type = this.type;
 
-      Ember.assert("Your model specified the '" + attributeType + "' type for the '" + name + "' attribute, but no transform for that type was registered", transform);
+    var references = this.json.map(function(object) {
+      return store.load(type, {}, object);
+    });
 
-      json[name] = transform.deserialize(value);
+    this.array.load(references);
+  },
+
+  camelizeKeys: function() {
+    this.json.forEach(camelizeKeys);
+    return this;
+  },
+
+  munge: function(callback) {
+    this.json.forEach(function(object) {
+      munge(object, callback);
+    });
+    return this;
+  },
+
+  applyTransforms: function(transformType) {
+    var type = this.type;
+
+    this.json.forEach(function(object) {
+      applyTransforms(object, type, transformType);
     });
 
     return this;
   }
 };
 
-var processorFactory = function(store, type) {
+function arrayProcessorFactory(store, type, array) {
   return function(json) {
-    return new ObjectProcessor(json, type, store);
+    return new ArrayProcessor(json, type, array, store);
   };
-};
-
+}
 
 DS.BasicAdapter = DS.Adapter.extend({
   find: function(store, type, id) {
@@ -72,6 +133,15 @@ DS.BasicAdapter = DS.Adapter.extend({
     Ember.assert("The sync code on " + type + " does not implement find(), but you are trying to find id '" + id + "'.", sync.find);
 
     sync.find(id, processorFactory(store, type));
+  },
+
+  findQuery: function(store, type, query, recordArray) {
+    var sync = type.sync;
+
+    Ember.assert("You are trying to use the BasicAdapter to query " + type + " but " + type + ".sync was not found", sync);
+    Ember.assert("The sync code on " + type + " does not implement query(), but you are trying to query " + type + ".", sync.query);
+
+    sync.query(query, arrayProcessorFactory(store, type, recordArray));
   }
 });
 

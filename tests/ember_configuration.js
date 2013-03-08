@@ -28,7 +28,11 @@
       clearTimeout(timeout);
 
       start();
-      callback.apply(this, arguments);
+
+      var args = arguments;
+      Ember.run(function() {
+        callback.apply(this, args);
+      });
     };
   };
 

@@ -344,6 +344,7 @@ DS.Model.reopenClass({
   isLoaded: storeAlias('recordIsLoaded'),
   find: storeAlias('find'),
   all: storeAlias('all'),
+  query: storeAlias('findQuery'),
   filter: storeAlias('filter'),
 
   _create: DS.Model.create,
