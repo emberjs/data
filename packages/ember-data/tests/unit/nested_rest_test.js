@@ -142,3 +142,25 @@ test("finding all nested people through a group makes a GET to /groups/<group_id
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
+test("if you specify a namespace then it is prepended onto all nested URLs", function() {
+  set(adapter, 'namespace', 'ember');
+  store.load(Group, { id: 2, name: "Programmers", person_ids: [1,2] });
+  group = store.find(Group, 2);
+  
+  people = group.get('people');
+
+  expectUrl("/ember/groups/2/people", "the namespace, followed by the nested url path");
+});
+
+test("if you specify a url then that custom url is used for nested URLs", function() {
+  set(adapter, 'url', 'http://api.ember.dev');
+  store.load(Group, { id: 2, name: "Programmers", person_ids: [1,2] });
+  group = store.find(Group, 2);
+  
+  people = group.get('people');
+  
+  expectUrl("http://api.ember.dev/groups/2/people", "the custom url, followed by the nested url path");
+
+  store.load(Person, { id: 1 });
+});
+

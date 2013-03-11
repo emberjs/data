@@ -383,7 +383,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     if (parent && parent_type){
       url.push(this.buildNestedURL(store,parent_type,parent,parent.get('id')));
     } else {
-      url.push("");
+      url.push(this.url);
       if (this.namespace !== undefined) {
         url.push(this.namespace);
       }
