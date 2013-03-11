@@ -33,11 +33,13 @@ test("When all records for a type are requested, the store should call the adapt
     invokeAsync(function() {
       store.loadMany(type, [{ id: 1, name: "Braaaahm Dale" }]);
 
-      equal(get(allRecords, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
-      equal(allRecords.objectAt(0).get('name'), "Braaaahm Dale", "the first item in the record array is Braaaahm Dale");
+      Ember.run.next(function() {
+        equal(get(allRecords, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
+        equal(allRecords.objectAt(0).get('name'), "Braaaahm Dale", "the first item in the record array is Braaaahm Dale");
 
-      // Only one record array per type should ever be created (identity map)
-      strictEqual(allRecords, store.all(Person), "the same record array is returned every time all records of a type are requested");
+        // Only one record array per type should ever be created (identity map)
+        strictEqual(allRecords, store.all(Person), "the same record array is returned every time all records of a type are requested");
+      });
     });
   };
 

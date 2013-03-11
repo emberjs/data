@@ -42,13 +42,16 @@ test("A hasMany relationship has an isLoaded flag that indicates whether the Man
   adapter.find = function(store, type, id) {
     setTimeout(async(function() {
       equal(array.get('isLoaded'), false, "Before loading, the array isn't isLoaded");
-      store.load(type, { id: id });
 
-      if (id === '3') {
-        equal(array.get('isLoaded'), true, "After loading all records, the array isLoaded");
-      } else {
-        equal(array.get('isLoaded'), false, "After loading some records, the array isn't isLoaded");
-      }
+      Ember.run.next(function() {
+        store.load(type, { id: id });
+
+        if (id === '3') {
+          equal(array.get('isLoaded'), true, "After loading all records, the array isLoaded");
+        } else {
+          equal(array.get('isLoaded'), false, "After loading some records, the array isn't isLoaded");
+        }
+      });
     }), 1);
   };
 
