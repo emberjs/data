@@ -220,7 +220,7 @@ test("A basic adapter receives a call to find<Relationship> for relationships", 
       }));
     },
 
-    findPhoneNumbers: function(person, process) {
+    findPhoneNumbers: function(person, options, process) {
       setTimeout(async(function() {
         process([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]).load();
       }));
@@ -246,8 +246,63 @@ test("A basic adapter receives a call to find<Relationship> for relationships", 
       }));
     },
 
-    findHasMany: function(person, relationship, process) {
-      equal(relationship, 'phoneNumbers');
+    findHasMany: function(person, options, process) {
+      equal(options.relationship, 'phoneNumbers');
+      setTimeout(async(function() {
+        process([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]).load();
+      }));
+    }
+  };
+
+  Person.find(1).then(function(person) {
+    return person.get('phoneNumbers');
+  }).then(async(function(phoneNumbers) {
+    equal(phoneNumbers.get('length'), 2, "There are now two phone numbers");
+    equal(phoneNumbers.objectAt(0).get('number'), 1234567, "The first phone number was loaded in");
+    equal(phoneNumbers.objectAt(1).get('number'), 9543256, "The second phone number was loaded in");
+  }));
+});
+
+test("Metadata passed for a relationship will get passed to find<Relationship>", function() {
+  expect(4);
+
+  Person.sync = {
+    find: function(id, process) {
+      setTimeout(async(function() {
+        process({ id: 1, firstName: "Tom", lastName: "Dale", phoneNumbers: 'http://example.com/people/1/phone_numbers' }).load();
+      }));
+    },
+
+    findPhoneNumbers: function(person, options, process) {
+      equal(options.data, 'http://example.com/people/1/phone_numbers', "The metadata was passed");
+      setTimeout(async(function() {
+        process([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]).load();
+      }));
+    }
+  };
+
+  Person.find(1).then(function(person) {
+    return person.get('phoneNumbers');
+  }).then(async(function(phoneNumbers) {
+    equal(phoneNumbers.get('length'), 2, "There are now two phone numbers");
+    equal(phoneNumbers.objectAt(0).get('number'), 1234567, "The first phone number was loaded in");
+    equal(phoneNumbers.objectAt(1).get('number'), 9543256, "The second phone number was loaded in");
+  }));
+});
+
+test("Metadata passed for a relationship will get passed to findHasMany", function() {
+  expect(5);
+
+  Person.sync = {
+    find: function(id, process) {
+      setTimeout(async(function() {
+        process({ id: 1, firstName: "Tom", lastName: "Dale", phoneNumbers: 'http://example.com/people/1/phone_numbers' }).load();
+      }));
+    },
+
+    findHasMany: function(person, options, process) {
+      equal(options.data, 'http://example.com/people/1/phone_numbers', "The metadata was passed");
+      equal(options.relationship, 'phoneNumbers', "The relationship name was passed");
       setTimeout(async(function() {
         process([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]).load();
       }));

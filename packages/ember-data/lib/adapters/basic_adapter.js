@@ -170,15 +170,20 @@ DS.BasicAdapter = DS.Adapter.extend({
     sync.query(query, arrayProcessorFactory(store, type, recordArray));
   },
 
-  findHasMany: function(store, record, relationship, any) {
+  findHasMany: function(store, record, relationship, data) {
     var name = capitalize(relationship.key),
         sync = record.constructor.sync,
         processor = hasManyProcessorFactory(store, record, relationship);
 
+    var options = {
+      relationship: relationship.key,
+      data: data
+    };
+
     if (sync['find'+name]) {
-      sync['find' + name](record, processor);
+      sync['find' + name](record, options, processor);
     } else if (sync.findHasMany) {
-      sync.findHasMany(record, relationship.key, processor);
+      sync.findHasMany(record, options, processor);
     } else {
       Ember.assert("You are trying to use the BasicAdapter to find the " + relationship.key + " has-many relationship, but " + record.constructor + ".sync did not implement findHasMany or find" + name + ".", false);
     }
