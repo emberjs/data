@@ -1,6 +1,6 @@
 var get = Ember.get;
 
-var store, adapter, Person;
+var store, adapter, Person, PhoneNumber;
 module("Basic Adapter", {
   setup: function() {
     adapter = DS.BasicAdapter.create();
@@ -8,11 +8,21 @@ module("Basic Adapter", {
       adapter: adapter
     });
 
-    var attr = DS.attr;
+    var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
     Person = DS.Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
       createdAt: attr('date')
+    });
+
+    PhoneNumber = DS.Model.extend({
+      areaCode: attr('number'),
+      number: attr('number'),
+      person: belongsTo(Person)
+    });
+
+    Person.reopen({
+      phoneNumbers: hasMany(PhoneNumber)
     });
 
     DS.registerTransforms('test', {
@@ -198,5 +208,58 @@ test("A query's processor supports munge across all elements in its Array", func
       lastName: "Dale"
     });
   });
+});
+
+test("A basic adapter receives a call to find<Relationship> for relationships", function() {
+  expect(3);
+
+  Person.sync = {
+    find: function(id, process) {
+      setTimeout(async(function() {
+        process({ id: 1, firstName: "Tom", lastName: "Dale" }).load();
+      }));
+    },
+
+    findPhoneNumbers: function(person, process) {
+      setTimeout(async(function() {
+        process([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]).load();
+      }));
+    }
+  };
+
+  Person.find(1).then(function(person) {
+    return person.get('phoneNumbers');
+  }).then(async(function(phoneNumbers) {
+    equal(phoneNumbers.get('length'), 2, "There are now two phone numbers");
+    equal(phoneNumbers.objectAt(0).get('number'), 1234567, "The first phone number was loaded in");
+    equal(phoneNumbers.objectAt(1).get('number'), 9543256, "The second phone number was loaded in");
+  }));
+});
+
+test("A basic adapter receives a call to find<Relationship> for relationships", function() {
+  expect(4);
+
+  Person.sync = {
+    find: function(id, process) {
+      setTimeout(async(function() {
+        process({ id: 1, firstName: "Tom", lastName: "Dale" }).load();
+      }));
+    },
+
+    findHasMany: function(person, relationship, process) {
+      equal(relationship, 'phoneNumbers');
+      setTimeout(async(function() {
+        process([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]).load();
+      }));
+    }
+  };
+
+  Person.find(1).then(function(person) {
+    return person.get('phoneNumbers');
+  }).then(async(function(phoneNumbers) {
+    equal(phoneNumbers.get('length'), 2, "There are now two phone numbers");
+    equal(phoneNumbers.objectAt(0).get('number'), 1234567, "The first phone number was loaded in");
+    equal(phoneNumbers.objectAt(1).get('number'), 9543256, "The second phone number was loaded in");
+  }));
 });
 

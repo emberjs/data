@@ -17,7 +17,7 @@ var hasRelationship = function(type, options) {
     }
 
     ids = data[key];
-    relationship = store.findMany(type, ids || [], this, meta);
+    relationship = store.findMany(type, ids, this, meta);
     set(relationship, 'owner', this);
     set(relationship, 'name', key);
 

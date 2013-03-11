@@ -1,5 +1,7 @@
 var camelize = Ember.String.camelize,
+    capitalize = Ember.String.capitalize,
     get = Ember.get,
+    map = Ember.ArrayPolyfills.map,
     registeredTransforms;
 
 var passthruTransform = {
@@ -125,6 +127,30 @@ function arrayProcessorFactory(store, type, array) {
   };
 }
 
+var HasManyProcessor = function(json, store, record, relationship) {
+  this.json = json;
+  this.store = store;
+  this.record = record;
+  this.type = record.constructor;
+  this.relationship = relationship;
+};
+
+HasManyProcessor.prototype = Ember.create(ArrayProcessor.prototype);
+
+HasManyProcessor.prototype.load = function() {
+  var store = this.store;
+  var ids = map.call(this.json, function(obj) { return obj.id; });
+
+  store.loadMany(this.relationship.type, this.json);
+  store.loadHasMany(this.record, this.relationship.key, ids);
+};
+
+function hasManyProcessorFactory(store, record, relationship) {
+  return function(json) {
+    return new HasManyProcessor(json, store, record, relationship);
+  };
+}
+
 DS.BasicAdapter = DS.Adapter.extend({
   find: function(store, type, id) {
     var sync = type.sync;
@@ -142,6 +168,20 @@ DS.BasicAdapter = DS.Adapter.extend({
     Ember.assert("The sync code on " + type + " does not implement query(), but you are trying to query " + type + ".", sync.query);
 
     sync.query(query, arrayProcessorFactory(store, type, recordArray));
+  },
+
+  findHasMany: function(store, record, relationship, any) {
+    var name = capitalize(relationship.key),
+        sync = record.constructor.sync,
+        processor = hasManyProcessorFactory(store, record, relationship);
+
+    if (sync['find'+name]) {
+      sync['find' + name](record, processor);
+    } else if (sync.findHasMany) {
+      sync.findHasMany(record, relationship.key, processor);
+    } else {
+      Ember.assert("You are trying to use the BasicAdapter to find the " + relationship.key + " has-many relationship, but " + record.constructor + ".sync did not implement findHasMany or find" + name + ".", false);
+    }
   }
 });
 
