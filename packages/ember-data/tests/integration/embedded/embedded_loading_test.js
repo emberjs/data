@@ -256,43 +256,63 @@ test("A nested belongsTo relationship can be marked as embedded via the `map` AP
     strictEqual(comment.get('user.group'), group, "relationship references the globally addressable record");
 });
 
-test("updating a embedded record with a belongsTo relationship is serialize correctly.", function() {
-    Adapter.map(Comment, {
-      user: { embedded: 'load' }
-    });
+test("An embedded belongsTo relationship is serialized as a foreign key", function() {
+  Adapter.map(Comment, {
+    user: { embedded: 'load' }
+  });
 
-    Adapter.map(Person, {
-      group: { embedded: 'load' }
-    });
+  adapter = Adapter.create();
+  serializer = adapter.get('serializer');
+  store.set('adapter', adapter);
 
-    adapter = Adapter.create();
-    serializer = adapter.get('serializer');
-    store.set('adapter', adapter);
+  adapter.load(store, Comment, {
+    id: 1,
+    user: {
+      id: 2,
+      name: "Yehuda Katz",
+      group_id: 3
+    }
+  });
 
-    adapter.load(store, Comment, {
-      id: 1,
-      user: {
-        id: 2,
-        name: "Yehuda Katz",
-        group: {
-          id: 3,
-          name: "Developers"
-        }
-      }
-    });
-    adapter.load(store, Person, {
-      id: 4,
-      name: "Peter Pan"
-    });
-
-    var comment = store.find(Comment, 1);
-    var yehuda = store.find(Person, 2);
-    var peter = store.find(Person, 4);
-
-    comment.set('user', peter);
-    strictEqual(comment.get('user'), peter, "updated relationship references the globally addressable record");
-
-    var commentJSON = serializer.serialize(comment, { includeId: true });
-    deepEqual(commentJSON, { id: 1, user: { id: 4, name: "Peter Pan", group: null }});
+  var comment = store.find(Comment, 1);
+  var commentJSON = serializer.serialize(comment);
+  deepEqual(commentJSON, { user_id: 2 });
 });
 
+test("updating an embedded record with a belongsTo relationship is serialized correctly.", function() {
+  Adapter.map(Comment, {
+    user: { embedded: 'always' }
+  });
+
+  Adapter.map(Person, {
+    group: { embedded: 'always' }
+  });
+
+  adapter = Adapter.create();
+  serializer = adapter.get('serializer');
+  store.set('adapter', adapter);
+
+  adapter.load(store, Comment, {
+    id: 1,
+    user: {
+      id: 2,
+      name: "Yehuda Katz",
+      group: {
+        id: 3,
+        name: "Developers"
+      }
+    }
+  });
+  adapter.load(store, Person, {
+    id: 4,
+    name: "Peter Pan"
+  });
+
+  var comment = store.find(Comment, 1);
+  var peter = store.find(Person, 4);
+
+  comment.set('user', peter);
+  strictEqual(comment.get('user'), peter, "updated relationship references the globally addressable record");
+  var commentJSON = serializer.serialize(comment, { includeId: true });
+  deepEqual(commentJSON, { id: 1, user: { id: 4, name: "Peter Pan", group: null }});
+});
