@@ -228,9 +228,7 @@ DS.JSONSerializer = DS.Serializer.extend({
       }
 
       sideloadedType = this.sideloadMapping.get(prop);
-      Ember.assert("Your server returned a hash with the key " + prop +
-                   " but you have no mapping for it",
-                   !!sideloadedType);
+      Ember.assert("Your server returned a hash with the key " + prop + " but you have no mapping for it", !!sideloadedType);
 
       this.loadValue(loader, sideloadedType, json[prop]);
     }
