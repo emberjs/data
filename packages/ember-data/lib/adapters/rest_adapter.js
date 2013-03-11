@@ -63,6 +63,7 @@ var get = Ember.get, set = Ember.set, merge = Ember.merge;
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
   since: 'since',
+  updateViaPATCH: false,
 
   serializer: DS.RESTSerializer,
 
@@ -153,13 +154,15 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   updateRecord: function(store, type, record) {
-    var id = get(record, 'id');
-    var root = this.rootForType(type);
+    var id = get(record, 'id'),
+        root = this.rootForType(type),
+        requestMethod = get(this, 'updateViaPATCH') ? "PATCH" : "PUT";
+
 
     var data = {};
     data[root] = this.serialize(record);
 
-    this.ajax(this.buildURL(root, id), "PUT", {
+    this.ajax(this.buildURL(root, id), requestMethod, {
       data: data,
       context: this,
       success: function(json) {
@@ -179,7 +182,8 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
 
     var root = this.rootForType(type),
-        plural = this.pluralize(root);
+        plural = this.pluralize(root),
+        requestMethod = get(this, 'updateViaPATCH') ? "PATCH" : "PUT";
 
     var data = {};
     data[plural] = [];
@@ -187,7 +191,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       data[plural].push(this.serialize(record, { includeId: true }));
     }, this);
 
-    this.ajax(this.buildURL(root, "bulk"), "PUT", {
+    this.ajax(this.buildURL(root, "bulk"), requestMethod, {
       data: data,
       context: this,
       success: function(json) {
