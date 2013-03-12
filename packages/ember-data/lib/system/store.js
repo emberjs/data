@@ -1374,11 +1374,106 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }
   },
 
-  updateRecordArraysLater: function(type, clientId) {
-    Ember.run.once(this, function() {
-      this.updateRecordArrays(type, clientId);
-    });
+  clientIdsToUpdate: {},
+  typesToUpdate: [],
+
+  doRecordArrayUpdate: function() {
+    for (var i = 0; i < this.typesToUpdate.length; i++) {
+      var type = this.typesToUpdate[i];
+      var clientIds = this.clientIdsToUpdate[type] || [];
+      if (clientIds.length > 1) {
+        this.fastUpdateRecordArrays(type, clientIds);
+      } else if (clientIds.length === 1) {
+        // if only one record has changed, use the old method
+        // this is only really to make the arrayContentDidChange
+        // report accurrate information and make the tests pass.
+        // This could be removed if that is not important, along
+        // with the old updateRecordArray and updateRecordArrays
+        this.updateRecordArrays(type, clientIds[0]);
+      }
+      delete this.clientIdsToUpdate[type];
+    }
+    this.typesToUpdate = [];
   },
+
+  /**
+    @private
+
+    This method is invoked when loading a large number of records
+    into the store in a single runloop. It ensures that records
+    are loaded fast and only fires notifications once all records
+    are loaded.
+
+    @param {Class} type
+    @param {Array} clientIds
+  */
+  fastUpdateRecordArrays: function(type, clientIds) {
+      var clientId, i, j;
+      var recordArrays = this.typeMapFor(type).recordArrays;
+
+      var mapContentToClientIds = function (c) {
+        return c.clientId;
+      };
+
+      for (i = 0; i < recordArrays.length; i++) {
+        var array             = recordArrays[i];
+        var filter            = get(array, "filterFunction");
+        var content           = get(array, "content");
+        var contentClientIds  = map(content, mapContentToClientIds);
+        var shouldBeInArray   = true;
+
+        for (j = 0; j < clientIds.length; j++) {
+          clientId            = clientIds[j];
+          var record              = this.clientIdToData[clientId];
+          var clientRecordArrays  = this.recordArraysForClientId(clientId);
+          var reference           = this.referenceForClientId(clientId);
+
+          if (filter) {
+            record = this.findByClientId(type, clientId);
+            shouldBeInArray = filter(record);
+          }
+
+          if (shouldBeInArray) {
+            clientRecordArrays.add(array);
+            if (!~contentClientIds.indexOf(clientId)) {
+              content.push(reference);
+            }
+          } else {
+            clientRecordArrays.remove(array);
+            array.removeReference(reference);
+          }
+        }
+        content.arrayContentDidChange();
+      }
+
+      for (i = 0; i < clientIds.length; i++) {
+        clientId = clientIds[i];
+        // loop through all manyArrays containing an unloaded copy of this
+        // clientId and notify them that the record was loaded.
+        var manyArrays = this.loadingRecordArrays[clientId];
+        if(manyArrays) {
+          for(j = 0; j < manyArrays.length; j++) {
+            manyArrays[j].loadedRecord();
+            this.loadingRecordArrays[clientId] = null;
+          }
+        }
+      }
+
+    },
+
+  updateRecordArraysLater: function(type, clientId) {
+    if (this.typesToUpdate.indexOf(type) === -1) {
+      this.typesToUpdate.push(type);
+    }
+    if (!this.clientIdsToUpdate[type]) {
+      this.clientIdsToUpdate[type] = [];
+    }
+    if(this.clientIdsToUpdate[type].indexOf(clientId) === -1) {
+      this.clientIdsToUpdate[type].push(clientId);
+    }
+    Ember.run.once(this, this.doRecordArrayUpdate);
+  },
+
 
   /**
     @private
