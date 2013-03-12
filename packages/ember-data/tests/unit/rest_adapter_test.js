@@ -1053,7 +1053,7 @@ test("creating a record with a 422 error marks the records as invalid", function
 
   expectState('valid', false);
 
-  deepEqual(person.get('errors'), { name: ["can't be blank"]}, "the person has the errors");
+  deepEqual(person.get('errors.name'), ["can't be blank"], "the person has the errors");
 });
 
 test("updating a record with a 422 error marks the records as invalid", function(){
@@ -1074,7 +1074,8 @@ test("updating a record with a 422 error marks the records as invalid", function
 
   expectState('valid', false);
 
-  deepEqual(person.get('errors'), { name: ["can't be blank"], updatedAt: ["can't be blank"] }, "the person has the errors");
+  deepEqual(person.get('errors.name'), ["can't be blank"], "the person has the errors");
+  deepEqual(person.get('errors.updatedAt'), ["can't be blank"], "the person has the errors");
 });
 
 test("creating a record with a 500 error marks the record as error", function() {

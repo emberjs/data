@@ -168,14 +168,6 @@ var stateProperty = Ember.computed(function(key) {
   }
 }).property();
 
-var hasDefinedProperties = function(object) {
-  for (var name in object) {
-    if (object.hasOwnProperty(name) && object[name]) { return true; }
-  }
-
-  return false;
-};
-
 var didChangeData = function(manager) {
   var record = get(manager, 'record');
   record.materializeData();
@@ -287,8 +279,18 @@ var DirtyState = DS.State.extend({
       manager.transitionTo('loaded.materializing');
     },
 
-    becameInvalid: function(manager) {
-      manager.transitionTo('invalid');
+    becameInvalid: function(manager, errors) {
+      var recordErrors = get(manager, 'record.errors');
+
+      if (errors) {
+        for (var key in errors) {
+          recordErrors.add(key, errors[key]);
+        }
+      }
+
+      if (!get(recordErrors, 'isEmpty')) {
+        manager.transitionTo('invalid');
+      }
     },
 
     rollback: function(manager) {
@@ -332,9 +334,12 @@ var DirtyState = DS.State.extend({
     didChangeData: didChangeData,
 
     becameInvalid: function(manager, errors) {
-      var record = get(manager, 'record');
+      var record = get(manager, 'record'),
+          recordErrors = get(record, 'errors');
 
-      set(record, 'errors', errors);
+      for (var key in errors) {
+        recordErrors.add(key, errors[key]);
+      }
 
       manager.transitionTo('invalid');
       manager.send('invokeLifecycleCallbacks');
@@ -374,9 +379,9 @@ var DirtyState = DS.State.extend({
           errors = get(record, 'errors'),
           key = context.name;
 
-      set(errors, key, null);
+      errors.remove(key);
 
-      if (!hasDefinedProperties(errors)) {
+      if (get(errors, 'isEmpty')) {
         manager.send('becameValid');
       }
 
@@ -386,6 +391,9 @@ var DirtyState = DS.State.extend({
     becomeDirty: Ember.K,
 
     rollback: function(manager) {
+      var errors = get(manager, 'record.errors');
+      errors.clear();
+
       manager.send('becameValid');
       manager.send('rollback');
     },
