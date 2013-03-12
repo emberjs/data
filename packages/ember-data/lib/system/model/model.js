@@ -5,7 +5,10 @@ var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
 
 var get = Ember.get, set = Ember.set, none = Ember.isNone, map = Ember.EnumerableUtils.map;
 
-var retrieveFromCurrentState = Ember.computed(function(key) {
+var retrieveFromCurrentState = Ember.computed(function(key, value) {
+  if (arguments.length > 1) {
+    throw new Error('Cannot Set: ' + key + ' on: ' + this.toString() );
+  }
   return get(get(this, 'stateManager.currentState'), key);
 }).property('stateManager.currentState');
 
