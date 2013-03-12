@@ -53,10 +53,6 @@ function ObjectProcessor(json, type, store) {
 }
 
 ObjectProcessor.prototype = {
-  load: function() {
-    this.store.load(this.type, {}, this.json);
-  },
-
   camelizeKeys: function() {
     camelizeKeys(this.json);
     return this;
@@ -73,9 +69,19 @@ ObjectProcessor.prototype = {
   }
 };
 
-function processorFactory(store, type) {
+function LoadObjectProcessor() {
+  ObjectProcessor.apply(this, arguments);
+}
+
+LoadObjectProcessor.prototype = Ember.create(ObjectProcessor.prototype);
+
+LoadObjectProcessor.prototype.load = function() {
+  this.store.load(this.type, {}, this.json);
+};
+
+function loadObjectProcessorFactory(store, type) {
   return function(json) {
-    return new ObjectProcessor(json, type, store);
+    return new LoadObjectProcessor(json, type, store);
   };
 }
 
@@ -151,6 +157,21 @@ function hasManyProcessorFactory(store, record, relationship) {
   };
 }
 
+function CreateProcessor(record, store, type) {
+  this.record = record;
+  ObjectProcessor.call(this, record.toJSON(), type, store);
+}
+
+CreateProcessor.prototype = Ember.create(ObjectProcessor.prototype);
+
+CreateProcessor.prototype.save = function() {};
+
+function createProcessorFactory(store, type) {
+  return function(record) {
+    return new CreateProcessor(record, store, type);
+  };
+}
+
 DS.BasicAdapter = DS.Adapter.extend({
   find: function(store, type, id) {
     var sync = type.sync;
@@ -158,7 +179,7 @@ DS.BasicAdapter = DS.Adapter.extend({
     Ember.assert("You are trying to use the BasicAdapter to find id '" + id + "' of " + type + " but " + type + ".sync was not found", sync);
     Ember.assert("The sync code on " + type + " does not implement find(), but you are trying to find id '" + id + "'.", sync.find);
 
-    sync.find(id, processorFactory(store, type));
+    sync.find(id, loadObjectProcessorFactory(store, type));
   },
 
   findQuery: function(store, type, query, recordArray) {
@@ -187,6 +208,12 @@ DS.BasicAdapter = DS.Adapter.extend({
     } else {
       Ember.assert("You are trying to use the BasicAdapter to find the " + relationship.key + " has-many relationship, but " + record.constructor + ".sync did not implement findHasMany or find" + name + ".", false);
     }
+  },
+
+  createRecord: function(store, type, record) {
+    var sync = type.sync;
+
+    sync.createRecord(record, createProcessorFactory(store, type));
   }
 });
 

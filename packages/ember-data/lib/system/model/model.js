@@ -42,6 +42,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     return store.serialize(this, options);
   },
 
+  toJSON: function() {
+    var serializer = DS.JSONSerializer.create();
+    return serializer.serialize(this);
+  },
+
   didLoad: Ember.K,
   didReload: Ember.K,
   didUpdate: Ember.K,
@@ -280,6 +285,12 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   becameInFlight: function() {
+  },
+
+  // FOR USE BY THE BASIC ADAPTER
+
+  save: function() {
+    this.get('store').scheduleSave(this);
   },
 
   // FOR USE DURING COMMIT PROCESS

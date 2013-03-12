@@ -104,6 +104,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // `isLoaded` and fires a `didLoad` event.
     this.loadingRecordArrays = {};
 
+    this._recordsToSave = Ember.OrderedSet.create();
+
     set(this, 'defaultTransaction', this.transaction());
   },
 
@@ -912,6 +914,39 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (typeof data === "object") {
       this.updateRecordArrays(type, clientId);
     }
+  },
+
+  // .................
+  // . BASIC ADAPTER .
+  // .................
+
+  scheduleSave: function(record) {
+    this._recordsToSave.add(record);
+    Ember.run.once(this, 'flushSavedRecords');
+  },
+
+  flushSavedRecords: function() {
+    var created = Ember.OrderedSet.create();
+    var updated = Ember.OrderedSet.create();
+    var deleted = Ember.OrderedSet.create();
+
+    this._recordsToSave.forEach(function(record) {
+      if (get(record, 'isNew')) {
+        created.add(record);
+      } else if (get(record, 'isDeleted')) {
+        deleted.add(record);
+      } else {
+        updated.add(record);
+      }
+    });
+
+    this._recordsToSave.clear();
+
+    get(this, '_adapter').commit(this, {
+      created: created,
+      updated: updated,
+      deleted: deleted
+    });
   },
 
   // ..............
