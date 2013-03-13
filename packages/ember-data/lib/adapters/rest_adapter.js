@@ -76,14 +76,35 @@ DS.RESTAdapter = DS.Adapter.extend({
     return !reference.parent;
   },
 
-  createRecord: function(store, type, record) {
+  extractRecordData: function(type, record, includeId) {
     var root = this.rootForType(type);
 
     var data = {};
-    data[root] = this.serialize(record, { includeId: true });
+    data[root] = this.serialize(record, { includeId: includeId });
 
-    this.ajax(this.buildURL(root), "POST", {
-      data: data,
+    return data;
+  },
+
+  extractRecordsData: function(type, records, includeId) {
+    var root = this.rootForType(type),
+      plural = this.pluralize(root);
+
+    var data = {};
+    data[plural] = [];
+    records.forEach(function(record) {
+      data[plural].push(this.serialize(record, { includeId: includeId }));
+    }, this);
+
+    return data;
+  },
+
+  extractCreateRecordData: function(type, record) {
+    return this.extractRecordData(type, record, true);
+  },
+
+  createRecord: function(store, type, record) {
+    this.ajax(this.buildURL(this.rootForType(type)), "POST", {
+      data: this.extractCreateRecordData(type, record),
       context: this,
       success: function(json) {
         Ember.run(this, function(){
@@ -127,22 +148,18 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
   },
 
+
+  extractCreateRecordsData: function(type, records) {
+    return this.extractRecordsData(type, records, true);
+  },
+
   createRecords: function(store, type, records) {
     if (get(this, 'bulkCommit') === false) {
       return this._super(store, type, records);
     }
 
-    var root = this.rootForType(type),
-        plural = this.pluralize(root);
-
-    var data = {};
-    data[plural] = [];
-    records.forEach(function(record) {
-      data[plural].push(this.serialize(record, { includeId: true }));
-    }, this);
-
-    this.ajax(this.buildURL(root), "POST", {
-      data: data,
+    this.ajax(this.buildURL(this.rootForType(type)), "POST", {
+      data: this.extractCreateRecordsData(type, records),
       context: this,
       success: function(json) {
         Ember.run(this, function(){
@@ -152,15 +169,15 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
+  extractUpdateRecordData: function(type, record) {
+    return this.extractRecordData(type, record, false);
+  },
+
   updateRecord: function(store, type, record) {
     var id = get(record, 'id');
-    var root = this.rootForType(type);
 
-    var data = {};
-    data[root] = this.serialize(record);
-
-    this.ajax(this.buildURL(root, id), "PUT", {
-      data: data,
+    this.ajax(this.buildURL(this.rootForType(type), id), "PUT", {
+      data: this.extractUpdateRecordData(type, record),
       context: this,
       success: function(json) {
         Ember.run(this, function(){
@@ -173,22 +190,17 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
+  extractUpdateRecordsData: function(type, records) {
+    return this.extractRecordsData(type, records, true);
+  },
+
   updateRecords: function(store, type, records) {
     if (get(this, 'bulkCommit') === false) {
       return this._super(store, type, records);
     }
 
-    var root = this.rootForType(type),
-        plural = this.pluralize(root);
-
-    var data = {};
-    data[plural] = [];
-    records.forEach(function(record) {
-      data[plural].push(this.serialize(record, { includeId: true }));
-    }, this);
-
-    this.ajax(this.buildURL(root, "bulk"), "PUT", {
-      data: data,
+    this.ajax(this.buildURL(this.rootForType(type), "bulk"), "PUT", {
+      data: this.extractUpdateRecordsData(type, records),
       context: this,
       success: function(json) {
         Ember.run(this, function(){
@@ -212,14 +224,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
-  deleteRecords: function(store, type, records) {
-    if (get(this, 'bulkCommit') === false) {
-      return this._super(store, type, records);
-    }
-
+  extractDeleteRecordData: function(type, records) {
     var root = this.rootForType(type),
-        plural = this.pluralize(root),
-        serializer = get(this, 'serializer');
+      plural = this.pluralize(root),
+      serializer = get(this, 'serializer');
 
     var data = {};
     data[plural] = [];
@@ -227,8 +235,16 @@ DS.RESTAdapter = DS.Adapter.extend({
       data[plural].push(serializer.serializeId( get(record, 'id') ));
     });
 
-    this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
-      data: data,
+    return data;
+  },
+
+  deleteRecords: function(store, type, records) {
+    if (get(this, 'bulkCommit') === false) {
+      return this._super(store, type, records);
+    }
+
+    this.ajax(this.buildURL(this.rootForType(type), 'bulk'), "DELETE", {
+      data: this.extractDeleteRecordData(type, records),
       context: this,
       success: function(json) {
         Ember.run(this, function(){
