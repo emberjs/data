@@ -30,7 +30,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
       var fixtures = Ember.A(type.FIXTURES);
       return fixtures.map(function(fixture){
         if(!fixture.id){
-          throw new Error(fmt('the id property must be defined for fixture %@', [fixture]));
+          throw new Error(fmt('the id property must be defined for fixture %@', [JSON.stringify(fixture)]));
         }
         fixture.id = fixture.id + '';
         return fixture;
