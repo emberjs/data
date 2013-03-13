@@ -328,3 +328,13 @@ test("a DS.Model can describe Date attributes", function() {
   convertsWhenSet('date', date, dateString);
 });
 
+test("don't allow setting", function(){
+  var store = DS.Store.create();
+
+  var Person = DS.Model.extend();
+  var record = store.createRecord(Person);
+
+  raises(function(){
+    record.set('isLoaded', true);
+  }, "raised error when trying to set an unsettable record");
+});
