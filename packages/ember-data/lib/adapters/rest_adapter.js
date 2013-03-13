@@ -325,6 +325,15 @@ DS.RESTAdapter = DS.Adapter.extend({
       hash.data = JSON.stringify(hash.data);
     }
 
+    if (this.apiHeaders !== undefined) {
+      var headers = this.apiHeaders;
+      hash.beforeSend = function (xhr) {
+        for (var i = 0; i < headers.length; i++) {
+          xhr.setRequestHeader(headers[i][0], headers[i][1]);
+        }        
+      };
+    }
+
     jQuery.ajax(hash);
   },
 
