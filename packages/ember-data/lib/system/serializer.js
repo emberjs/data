@@ -62,17 +62,26 @@ function mustImplement(name) {
   by implementing `keyForAttributeName`:
 
   ```javascript
-    keyForAttributeName: function(type, name) {
-      return name.underscore.toUpperCase();
-    }
+  keyForAttributeName: function(type, name) {
+    return name.underscore.toUpperCase();
+  }
   ```
 
   If your attribute names are not predictable, you can re-map them
-  one-by-one using the `map` API:
+  one-by-one using the adapter's `map` API:
 
   ```javascript
-  App.Person.map('App.Person', {
+  App.Adapter.map('App.Person', {
     firstName: { key: '*API_USER_FIRST_NAME*' }
+  });
+  ```
+
+  This API will also work for relationships and primary keys. For
+  example:
+
+  ```javascript
+  App.Adapter.map('App.Person', {
+    primaryKey: '_id'
   });
   ```
 
