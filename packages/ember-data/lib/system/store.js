@@ -1368,7 +1368,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         }
 
         if (shouldFilter) {
-          this.updateRecordArray(array, filter, type, clientId);
+          this.updateRecordArraysLater(type, clientId);
         }
       }
     }
@@ -1381,16 +1381,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     for (var i = 0; i < this.typesToUpdate.length; i++) {
       var type = this.typesToUpdate[i];
       var clientIds = this.clientIdsToUpdate[type] || [];
-      if (clientIds.length > 1) {
-        this.fastUpdateRecordArrays(type, clientIds);
-      } else if (clientIds.length === 1) {
-        // if only one record has changed, use the old method
-        // this is only really to make the arrayContentDidChange
-        // report accurrate information and make the tests pass.
-        // This could be removed if that is not important, along
-        // with the old updateRecordArray and updateRecordArrays
-        this.updateRecordArrays(type, clientIds[0]);
-      }
+      this.updateRecordArrays(type, clientIds);
       delete this.clientIdsToUpdate[type];
     }
     this.typesToUpdate = [];
@@ -1407,59 +1398,62 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Class} type
     @param {Array} clientIds
   */
-  fastUpdateRecordArrays: function(type, clientIds) {
-      var clientId, i, j;
-      var recordArrays = this.typeMapFor(type).recordArrays;
+  updateRecordArrays: function(type, clientIds) {
+    // ensure clientIds is an array
+    clientIds = [].concat(clientIds);
 
-      var mapContentToClientIds = function (c) {
-        return c.clientId;
-      };
+    var clientId, i, j;
+    var recordArrays = this.typeMapFor(type).recordArrays;
 
-      for (i = 0; i < recordArrays.length; i++) {
-        var array             = recordArrays[i];
-        var filter            = get(array, "filterFunction");
-        var content           = get(array, "content");
-        var contentClientIds  = map(content, mapContentToClientIds);
-        var shouldBeInArray   = true;
+    var mapContentToClientIds = function (c) {
+      return c.clientId;
+    };
 
-        for (j = 0; j < clientIds.length; j++) {
-          clientId            = clientIds[j];
-          var record              = this.clientIdToData[clientId];
-          var clientRecordArrays  = this.recordArraysForClientId(clientId);
-          var reference           = this.referenceForClientId(clientId);
+    for (i = 0; i < recordArrays.length; i++) {
+      var array             = recordArrays[i];
+      var filter            = get(array, "filterFunction");
+      var content           = get(array, "content");
+      var contentClientIds  = map(content, mapContentToClientIds);
+      var shouldBeInArray   = true;
 
-          if (filter) {
-            record = this.findByClientId(type, clientId);
-            shouldBeInArray = filter(record);
-          }
+      for (j = 0; j < clientIds.length; j++) {
+        clientId            = clientIds[j];
+        var record              = this.clientIdToData[clientId];
+        var clientRecordArrays  = this.recordArraysForClientId(clientId);
+        var reference           = this.referenceForClientId(clientId);
 
-          if (shouldBeInArray) {
-            clientRecordArrays.add(array);
-            if (!~contentClientIds.indexOf(clientId)) {
-              content.push(reference);
-            }
-          } else {
-            clientRecordArrays.remove(array);
-            array.removeReference(reference);
-          }
+        if (filter) {
+          record = this.findByClientId(type, clientId);
+          shouldBeInArray = filter(record);
         }
-        content.arrayContentDidChange();
-      }
 
-      for (i = 0; i < clientIds.length; i++) {
-        clientId = clientIds[i];
-        // loop through all manyArrays containing an unloaded copy of this
-        // clientId and notify them that the record was loaded.
-        var manyArrays = this.loadingRecordArrays[clientId];
-        if(manyArrays) {
-          for(j = 0; j < manyArrays.length; j++) {
-            manyArrays[j].loadedRecord();
-            this.loadingRecordArrays[clientId] = null;
+        if (shouldBeInArray) {
+          clientRecordArrays.add(array);
+          if (!~contentClientIds.indexOf(clientId)) {
+            content.push(reference);
           }
+        } else {
+          clientRecordArrays.remove(array);
+          array.removeReference(reference);
         }
       }
+      content.arrayContentDidChange();
+    }
 
-    },
+    for (i = 0; i < clientIds.length; i++) {
+      clientId = clientIds[i];
+      // loop through all manyArrays containing an unloaded copy of this
+      // clientId and notify them that the record was loaded.
+      var manyArrays = this.loadingRecordArrays[clientId];
+      if(manyArrays) {
+        for(j = 0; j < manyArrays.length; j++) {
+          manyArrays[j].loadedRecord();
+          this.loadingRecordArrays[clientId] = null;
+        }
+      }
+    }
+
+  },
 
   updateRecordArraysLater: function(type, clientId) {
     if (this.typesToUpdate.indexOf(type) === -1) {
@@ -1472,77 +1466,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       this.clientIdsToUpdate[type].push(clientId);
     }
     Ember.run.once(this, this.doRecordArrayUpdate);
-  },
-
-
-  /**
-    @private
-
-    This method is invoked whenever data is loaded into the store
-    by the adapter or updated by the adapter, or when an attribute
-    changes on a record.
-
-    It updates all filters that a record belongs to.
-
-    To avoid thrashing, it only runs once per run loop per record.
-
-    @param {Class} type
-    @param {Number|String} clientId
-  */
-  updateRecordArrays: function(type, clientId) {
-    var recordArrays = this.typeMapFor(type).recordArrays,
-        filter;
-
-    recordArrays.forEach(function(array) {
-      filter = get(array, 'filterFunction');
-      this.updateRecordArray(array, filter, type, clientId);
-    }, this);
-
-    // loop through all manyArrays containing an unloaded copy of this
-    // clientId and notify them that the record was loaded.
-    var manyArrays = this.loadingRecordArrays[clientId];
-
-    if (manyArrays) {
-      for (var i=0, l=manyArrays.length; i<l; i++) {
-        manyArrays[i].loadedRecord();
-      }
-
-      this.loadingRecordArrays[clientId] = null;
-    }
-  },
-
-  /**
-    @private
-
-    Update an individual filter.
-
-    @param {DS.FilteredRecordArray} array
-    @param {Function} filter
-    @param {Class} type
-    @param {Number|String} clientId
-  */
-  updateRecordArray: function(array, filter, type, clientId) {
-    var shouldBeInArray, record;
-
-    if (!filter) {
-      shouldBeInArray = true;
-    } else {
-      record = this.findByClientId(type, clientId);
-      shouldBeInArray = filter(record);
-    }
-
-    var content = get(array, 'content');
-
-    var recordArrays = this.recordArraysForClientId(clientId);
-    var reference = this.referenceForClientId(clientId);
-
-    if (shouldBeInArray) {
-      recordArrays.add(array);
-      array.addReference(reference);
-    } else if (!shouldBeInArray) {
-      recordArrays.remove(array);
-      array.removeReference(reference);
-    }
   },
 
   /**
