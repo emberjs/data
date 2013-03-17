@@ -978,6 +978,9 @@ test("creating a record with a 422 error marks the records as invalid", function
 });
 
 test("updating a record with a 422 error marks the records as invalid", function(){
+  Person.reopen({
+    updatedAt: DS.attr('date')
+  });
   store.load(Person, { id: 1, name: "John Doe" });
   person = store.find(Person, 1);
   person.set('name', '');
@@ -985,13 +988,13 @@ test("updating a record with a 422 error marks the records as invalid", function
 
   var mockXHR = {
     status:       422,
-    responseText: JSON.stringify({ errors: { name: ["can't be blank"]} })
+    responseText: JSON.stringify({ errors: { name: ["can't be blank"], updated_at: ["can't be blank"] } })
   };
 
   ajaxHash.error.call(ajaxHash.context, mockXHR);
 
   expectState('valid', false);
-  deepEqual(person.get('errors'), { name: ["can't be blank"]}, "the person has the errors");
+  deepEqual(person.get('errors'), { name: ["can't be blank"], updatedAt: ["can't be blank"] }, "the person has the errors");
 });
 
 test("creating a record with a 500 error marks the record as error", function() {

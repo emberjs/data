@@ -1,5 +1,7 @@
 require('ember-data/serializers/json_serializer');
 
+var get = Ember.get;
+
 DS.RESTSerializer = DS.JSONSerializer.extend({
   keyForAttributeName: function(type, name) {
     return Ember.String.decamelize(name);
@@ -31,5 +33,18 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
   keyForPolymorphicType: function(key) {
     return key.replace(/_id$/, '_type');
+  },
+
+  extractValidationErrors: function(type, json) {
+    var errors = {};
+
+    get(type, 'attributes').forEach(function(name) {
+      var key = this._keyForAttributeName(type, name);
+      if (json['errors'].hasOwnProperty(key)) {
+        errors[name] = json['errors'][key];
+      }
+    }, this);
+
+    return errors;
   }
 });
