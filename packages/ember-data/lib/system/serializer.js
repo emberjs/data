@@ -394,6 +394,16 @@ DS.Serializer = Ember.Object.extend({
   addId: Ember.K,
 
   /**
+    Creates an empty hash that will be filled in by the hooks called from the
+    `serialize()` method.
+
+    @return {Object}
+  */
+  createSerializedForm: function() {
+    return {};
+  },
+
+  /**
     A hook you can use to change how relationships are added to the serialized
     representation of a record.
 
