@@ -1,4 +1,4 @@
-var get = Ember.get, set = Ember.set, guidFor = Ember.guidFor,
+var get = Ember.get, set = Ember.set,
     once = Ember.run.once, arrayMap = Ember.ArrayPolyfills.map;
 
 /**
@@ -159,14 +159,6 @@ var stateProperty = Ember.computed(function(key) {
   }
 }).property();
 
-var isEmptyObject = function(object) {
-  for (var name in object) {
-    if (object.hasOwnProperty(name)) { return false; }
-  }
-
-  return true;
-};
-
 var hasDefinedProperties = function(object) {
   for (var name in object) {
     if (object.hasOwnProperty(name) && object[name]) { return true; }
@@ -191,12 +183,6 @@ var didSetProperty = function(manager, context) {
   var change = get(manager, 'record')._changesToSync[context.attributeName];
   change.value = get(get(manager, 'record'), context.name);
   change.sync();
-};
-
-// Whenever a property is set, recompute all dependent filters
-var updateRecordArrays = function(manager) {
-  var record = manager.get('record');
-  record.updateRecordArraysLater();
 };
 
 DS.State = Ember.State.extend({
@@ -543,7 +529,7 @@ var states = {
           exit: function(manager) {
             var record = get(manager, 'record');
 
-            Ember.run.once(function() {
+            once(function() {
               record.trigger('didLoad');
             });
           }

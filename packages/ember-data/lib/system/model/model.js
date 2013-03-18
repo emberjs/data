@@ -3,7 +3,7 @@ require("ember-data/system/mixins/load_promise");
 
 var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
 
-var get = Ember.get, set = Ember.set, none = Ember.isNone, map = Ember.EnumerableUtils.map;
+var get = Ember.get, set = Ember.set, map = Ember.EnumerableUtils.map;
 
 var retrieveFromCurrentState = Ember.computed(function(key, value) {
   if (arguments.length > 1) {
