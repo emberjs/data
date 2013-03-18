@@ -65,10 +65,8 @@ DS.JSONTransforms = {
         }
 
         return date;
-      } else if (serialized === null || serialized === undefined) {
-        // if the value is not present in the data,
-        // return undefined, not null.
-        return serialized;
+      } else if (serialized === undefined) {
+        return undefined;
       } else {
         return null;
       }
@@ -90,7 +88,6 @@ DS.JSONTransforms = {
             utcHours = date.getUTCHours(),
             utcMinutes = date.getUTCMinutes(),
             utcSeconds = date.getUTCSeconds();
-
 
         var dayOfWeek = days[utcDay];
         var dayOfMonth = pad(utcDayOfMonth);
