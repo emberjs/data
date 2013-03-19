@@ -35,7 +35,7 @@ module("Has-Many Relationships", {
 });
 
 test("A hasMany relationship has an isLoaded flag that indicates whether the ManyArray has finished loaded", function() {
-  expect(9);
+  expect(10);
 
   var array, hasLoaded;
 
@@ -44,17 +44,17 @@ test("A hasMany relationship has an isLoaded flag that indicates whether the Man
       equal(array.get('isLoaded'), false, "Before loading, the array isn't isLoaded");
       store.load(type, { id: id });
 
-      if (id === '3') {
-        equal(array.get('isLoaded'), true, "After loading all records, the array isLoaded");
-      } else {
-        equal(array.get('isLoaded'), false, "After loading some records, the array isn't isLoaded");
-      }
+      // The isLoaded flag change is deferred, so this should be `false`
+      // even after all of the records have been loaded.
+      // This becoming `true` is tested below in the on('didLoad') event listener.
+      equal(array.get('isLoaded'), false, "After loading some records, the array isn't isLoaded");
     }), 1);
   };
 
   array = store.findMany(App.Comment, [ 1, 2, 3 ]);
 
   array.on('didLoad', function() {
+    equal(array.get('isLoaded'), true, "After loading all records, the array isLoaded");
     ok(true, "didLoad was triggered");
   });
 

@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/emberjs/ember-dev.git
-  revision: a0e3e6816bfd093d7a732b77d7f08395ab48a61e
+  revision: 2f17d36959adb2dc7b172fe9c8b34a4b99725507
   branch: master
   specs:
     ember-dev (0.1)
@@ -17,7 +17,7 @@ GIT
 
 GIT
   remote: https://github.com/livingsocial/rake-pipeline.git
-  revision: ee992cbcda5172075062be035bcbef2cf1b0ff5d
+  revision: 65b1e744defa208e313703d89f3453447cc103b2
   specs:
     rake-pipeline (0.8.0)
       json
@@ -29,21 +29,21 @@ GEM
   specs:
     colored (1.2)
     diff-lcs (1.2.1)
-    ember-source (1.0.0.pre4.2)
-      handlebars-source (>= 1.0.0.rc2, < 1.0.0.rc3)
+    ember-source (1.0.0.rc1.4)
+      handlebars-source (>= 1.0.0.rc3, < 1.0.0.rc4)
     execjs (1.4.0)
       multi_json (~> 1.0)
     grit (2.5.0)
       diff-lcs (~> 1.1)
       mime-types (~> 1.15)
       posix-spawn (~> 0.3.6)
-    handlebars-source (1.0.0.rc.2)
+    handlebars-source (1.0.0.rc.3)
     json (1.7.7)
     kicker (2.6.1)
       listen
     listen (0.7.3)
     mime-types (1.21)
-    multi_json (1.6.1)
+    multi_json (1.7.0)
     posix-spawn (0.3.6)
     rack (1.5.2)
     rake (10.0.3)
@@ -60,5 +60,5 @@ PLATFORMS
 
 DEPENDENCIES
   ember-dev!
-  ember-source (= 1.0.0.pre4.2)
+  ember-source (= 1.0.0.rc1.4)
   rake-pipeline!

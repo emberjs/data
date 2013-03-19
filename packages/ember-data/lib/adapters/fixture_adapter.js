@@ -2,7 +2,8 @@ require("ember-data/core");
 require("ember-data/system/adapter");
 require('ember-data/serializers/fixture_serializer');
 
-var get = Ember.get;
+var get = Ember.get, fmt = Ember.String.fmt,
+    dump = Ember.get(window, 'JSON.stringify') || function(object) { return object.toString(); };
 
 /**
   `DS.FixtureAdapter` is an adapter that loads records from memory.
@@ -30,7 +31,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
       var fixtures = Ember.A(type.FIXTURES);
       return fixtures.map(function(fixture){
         if(!fixture.id){
-          throw new Error('the id property must be defined for fixture %@'.fmt(fixture));
+          throw new Error(fmt('the id property must be defined for fixture %@', [dump(fixture)]));
         }
         fixture.id = fixture.id + '';
         return fixture;
