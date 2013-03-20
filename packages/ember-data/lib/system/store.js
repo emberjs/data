@@ -885,7 +885,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   filter: function(type, query, filter, suffix) {
     // allow an optional server query
-    if (arguments.length === 3) {
+    if (arguments.length >= 3) {
       this.findQuery(type, query, suffix);
     } else if (arguments.length === 2) {
       filter = query;
