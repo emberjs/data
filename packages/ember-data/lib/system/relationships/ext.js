@@ -208,6 +208,8 @@ DS.Model.reopenClass({
           type = get(this, type, false) || get(Ember.lookup, type);
         }
 
+        Ember.assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.",  type);
+
         if (!types.contains(type)) {
           types.push(type);
         }
