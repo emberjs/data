@@ -1877,7 +1877,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }
 
     dirtySet.forEach(function(record) {
-      record.adapterDidDirty();
+      record.adapterDidDirty({name: attributeName});
     });
   },
 

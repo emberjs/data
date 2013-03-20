@@ -166,8 +166,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     this.updateRecordArraysLater();
   },
 
-  adapterDidDirty: function() {
-    this.send('becomeDirty');
+  adapterDidDirty: function(context) {
+    this.send('becomeDirty', context);
     this.updateRecordArraysLater();
   },
 

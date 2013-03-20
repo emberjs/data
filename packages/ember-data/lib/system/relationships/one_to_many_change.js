@@ -371,7 +371,8 @@ DS.RelationshipChange.prototype = {
     var hasManyName = this.getSecondRecordName(),
         belongsToName = this.getFirstRecordName(),
         child = this.getFirstRecord(),
-        parentRecord = this.getSecondRecord();
+        parentRecord = this.getSecondRecord(),
+        context, attributeName;
 
     var dirtySet = new Ember.OrderedSet();
 
@@ -389,7 +390,8 @@ DS.RelationshipChange.prototype = {
     }
 
     dirtySet.forEach(function(record) {
-      record.adapterDidDirty();
+      attributeName = (record === child) ? belongsToName : hasManyName;
+      record.adapterDidDirty({name: attributeName});
     });
   },
 
