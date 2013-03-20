@@ -260,10 +260,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
-  findQuery: function(store, type, query, recordArray) {
+  findQuery: function(store, type, query, recordArray, suffix) {
     var root = this.rootForType(type);
 
-    this.ajax(this.buildURL(root), "GET", {
+    this.ajax(this.buildURL(root, suffix), "GET", {
       data: query,
       success: function(json) {
         Ember.run(this, function(){
