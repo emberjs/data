@@ -24,6 +24,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   transaction: null,
   stateManager: null,
   errors: null,
+  dirtyCounter: 0,
 
   /**
     Create a JSON representation of the record, using the serialization
@@ -158,6 +159,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   adapterDidCommit: function() {
     var attributes = get(this, 'data').attributes;
 
+    this.dirtyCounter = 0;
+
     get(this.constructor, 'attributes').forEach(function(name, meta) {
       attributes[name] = get(this, name);
     }, this);
@@ -168,6 +171,19 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
   adapterDidDirty: function() {
     this.send('becomeDirty');
+    this.dirtyCounter++;
+    this.updateRecordArraysLater();
+  },
+
+  removedFromDirtySet: function(){
+    this.dirtyCounter--;
+    if (this.dirtyCounter === 0){
+      this.adapterDidClean();
+    } 
+  },
+
+  adapterDidClean: function() {
+    this.send('becameClean');
     this.updateRecordArraysLater();
   },
 

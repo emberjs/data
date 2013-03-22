@@ -176,7 +176,10 @@ var willSetProperty = function(manager, context) {
   context.oldValue = get(get(manager, 'record'), context.name);
 
   var change = DS.AttributeChange.createChange(context);
-  get(manager, 'record')._changesToSync[context.name] = change;
+  var changesToSync = get(manager, 'record')._changesToSync;
+  if (!changesToSync[context.name]){
+    changesToSync[context.name] = change;
+  }
 };
 
 var didSetProperty = function(manager, context) {
@@ -571,6 +574,8 @@ var states = {
 
         didChangeData: didChangeData,
         loadedData: didChangeData,
+        
+        becameClean: Ember.K,
 
         reloadRecord: function(manager) {
           manager.transitionTo('loaded.reloading');

@@ -24,6 +24,7 @@ var AttributeChange = DS.AttributeChange = function(options) {
   this.store = options.store;
   this.name = options.name;
   this.oldValue = options.oldValue;
+  this.dirtySet = options.dirtySet;
 };
 
 AttributeChange.createChange = function(options) {
@@ -32,10 +33,15 @@ AttributeChange.createChange = function(options) {
 
 AttributeChange.prototype = {
   sync: function() {
-    this.store.recordAttributeDidChange(this.reference, this.name, this.value, this.oldValue);
-
+    if(this.value === this.oldValue){
+      this.destroy();
+      this.store.recordAttributeReverted(this);
+    }
+    else{
+      this.store.recordAttributeDidChange(this);
+    } 
     // TODO: Use this object in the commit process
-    this.destroy();
+  //this.destroy();
   },
 
   destroy: function() {

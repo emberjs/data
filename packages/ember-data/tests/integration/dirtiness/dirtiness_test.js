@@ -10,7 +10,8 @@ module("Attribute Changes and Dirtiness", {
     });
 
     Person = DS.Model.extend({
-      firstName: DS.attr('string')
+      firstName: DS.attr('string'),
+      lastName: DS.attr('string')
     });
   }
 });
@@ -23,6 +24,33 @@ test("By default, if a record's attribute is changed, it becomes dirty", functio
 
   ok(wycats.get('isDirty'), "record has become dirty");
 });
+
+test("By default, if a record's attribute is changed and then changed back, it is not dirty anymore", function() {
+  store.load(Person, { id: 1, firstName: "Yehuda" });
+  var wycats = store.find(Person, 1);
+
+  wycats.set('firstName', "Brohuda");
+  ok(wycats.get('isDirty'), "record has become dirty");
+
+  wycats.set('firstName', "Yehuda");
+  ok(!wycats.get('isDirty'), "record is not dirty anymore");
+});
+
+test("If record's attributes changed and some changed back, it is still dirty ", function() {
+  store.load(Person, { id: 1, firstName: "Yehuda", lastName: "Katz" });
+  var wycats = store.find(Person, 1);
+
+  wycats.set('firstName', "Brohuda");
+  wycats.set('lastName', "Catz");
+  ok(wycats.get('isDirty'), "record has become dirty");
+
+  wycats.set('firstName', "Yehuda");
+  ok(wycats.get('isDirty'), "record is still dirty");
+  
+  wycats.set('lastName', "Katz");
+  ok(!wycats.get('isDirty'), "record is not dirty");
+});
+
 
 test("By default, a newly created record is dirty", function() {
   var wycats = store.createRecord(Person);
