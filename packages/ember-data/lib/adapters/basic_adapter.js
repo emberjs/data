@@ -157,18 +157,20 @@ function hasManyProcessorFactory(store, record, relationship) {
   };
 }
 
-function CreateProcessor(record, store, type) {
+function SaveProcessor(record, store, type, includeId) {
   this.record = record;
-  ObjectProcessor.call(this, record.toJSON(), type, store);
+  ObjectProcessor.call(this, record.toJSON({ includeId: includeId }), type, store);
 }
 
-CreateProcessor.prototype = Ember.create(ObjectProcessor.prototype);
+SaveProcessor.prototype = Ember.create(ObjectProcessor.prototype);
 
-CreateProcessor.prototype.save = function() {};
+SaveProcessor.prototype.save = function(callback) {
+  callback(this.json);
+};
 
-function createProcessorFactory(store, type) {
+function saveProcessorFactory(store, type, includeId) {
   return function(record) {
-    return new CreateProcessor(record, store, type);
+    return new SaveProcessor(record, store, type, includeId);
   };
 }
 
@@ -212,8 +214,17 @@ DS.BasicAdapter = DS.Adapter.extend({
 
   createRecord: function(store, type, record) {
     var sync = type.sync;
+    sync.createRecord(record, saveProcessorFactory(store, type));
+  },
 
-    sync.createRecord(record, createProcessorFactory(store, type));
+  updateRecord: function(store, type, record) {
+    var sync = type.sync;
+    sync.updateRecord(record, saveProcessorFactory(store, type, true));
+  },
+
+  deleteRecord: function(store, type, record) {
+    var sync = type.sync;
+    sync.deleteRecord(record, saveProcessorFactory(store, type, true));
   }
 });
 

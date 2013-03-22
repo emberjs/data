@@ -42,9 +42,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     return store.serialize(this, options);
   },
 
-  toJSON: function() {
+  toJSON: function(options) {
     var serializer = DS.JSONSerializer.create();
-    return serializer.serialize(this);
+    return serializer.serialize(this, options);
   },
 
   didLoad: Ember.K,
@@ -139,6 +139,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
   clearRelationships: function() {
     this.eachRelationship(function(name, relationship) {
+      // if the relationship is unmaterialized, move on
+      if (this.cacheFor(name) === undefined) { return; }
+
       if (relationship.kind === 'belongsTo') {
         set(this, name, null);
       } else if (relationship.kind === 'hasMany') {
