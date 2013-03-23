@@ -593,6 +593,9 @@ test("A deleted record should be restored to a belongsTo relationship if the tra
   var post = store.find(Post, 1);
   var comment1 = store.find(Comment, 1);
 
+  ok(comment1.get('post'), 'precond - belongsTo set');
+  ok(!Ember.isEmpty(post.get('comments')), 'precond - hasMany set');
+
   var oldValue = comment1.get('post');
 
   var transaction = store.transaction();
