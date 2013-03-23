@@ -42,7 +42,7 @@ test("belongTo is properly serialized into a hash, and deserialized from a hash"
 
   var person   = App.Person.createRecord({id: 1, name: 'Zach'});
   var home     = App.Address.createRecord({street: 'Main', person: person, id: 1});
-  var jsonHome = {street: 'Main', person: {id: 1}};
+  var jsonHome = {street: 'Main', 'person.id': 1};
 
   var serializedHome = serializer.serialize(home);
   deepEqual(serializedHome, jsonHome);

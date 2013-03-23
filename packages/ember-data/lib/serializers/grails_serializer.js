@@ -53,7 +53,7 @@ DS.GrailsSerializer = DS.JSONSerializer.extend({
       var id = get(record, relationship.key+'.id');
       if (!Ember.isNone(id)) { 
         hash[key] = {};
-        hash[key][this.primaryKey(type)] = id;
+        hash[key + '.' + this.primaryKey(type)] = id;
       }
     }
   },
