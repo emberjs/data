@@ -222,7 +222,7 @@ DS.JSONSerializer = DS.Serializer.extend({
 
     for (var prop in json) {
       if (!json.hasOwnProperty(prop) ||
-          !(json[prop] instanceof Array) ||
+          !Ember.isArray(json[prop]) ||
           prop === root ||
           prop === this.configOption(type, 'meta')) {
         continue;
