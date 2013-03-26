@@ -1,10 +1,12 @@
+/*jshint newcap:false*/
+
 var normalizer = requireModule('json-normalizer'),
     Processor = normalizer.Processor,
     camelizeKeys = normalizer.camelizeKeys;
 
 var capitalize = Ember.String.capitalize;
 
-var DataProcessor = function() {
+function DataProcessor() {
   Processor.apply(this, arguments);
 };
 
@@ -122,6 +124,11 @@ function HasManyLoader(store, record, relationship) {
   @namespace DS
   @extends DS.Adapter
 **/
+function didSave(store, record) {
+  return function(data) {
+    store.didSaveRecord(record, data);
+  };
+}
 
 DS.BasicAdapter = DS.Adapter.extend({
   find: function(store, type, id) {
@@ -165,25 +172,29 @@ DS.BasicAdapter = DS.Adapter.extend({
 
   createRecord: function(store, type, record) {
     var sync = type.sync;
+
     Ember.assert("You are trying to use the BasicAdapter to query " + type + " but " + type + ".sync was not found", sync);
     Ember.assert("The sync code on " + type + " does not implement createRecord(), but you are trying to create a " + type + " record", sync.createRecord);
-    sync.createRecord(record, saveProcessorFactory(store, type));
   },
 
   updateRecord: function(store, type, record) {
     var sync = type.sync;
     Ember.assert("You are trying to use the BasicAdapter to query " + type + " but " + type + ".sync was not found", sync);
     Ember.assert("The sync code on " + type + " does not implement updateRecord(), but you are trying to update a " + type + " record", sync.updateRecord);
-    sync.updateRecord(record, saveProcessorFactory(store, type, true));
+
+    sync.updateRecord(record, didSave(store, record));
   },
 
   deleteRecord: function(store, type, record) {
     var sync = type.sync;
     Ember.assert("You are trying to use the BasicAdapter to query " + type + " but " + type + ".sync was not found", sync);
     Ember.assert("The sync code on " + type + " does not implement deleteRecord(), but you are trying to delete a " + type + " record", sync.deleteRecord);
-    sync.deleteRecord(record, saveProcessorFactory(store, type, true));
+
+    sync.deleteRecord(record, didSave(store, record));
   }
 });
+
+var registeredTransforms = {};
 
 DS.registerTransforms = function(kind, object) {
   registeredTransforms[kind] = object;

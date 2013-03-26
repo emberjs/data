@@ -123,7 +123,7 @@ test("An adapter can use `munge` for arbitrary transformations", function() {
             json.firstName = json.FIRST_NAME;
             json.lastName = json.LAST_NAME;
             json.createdAt = json.didCreateAtTime;
-          })
+          });
 
         load(json);
       }));
@@ -218,13 +218,13 @@ test("A basic adapter receives a call to find<Relationship> for relationships", 
   Person.sync = {
     find: function(id, load) {
       setTimeout(async(function() {
-        load(process({ id: 1, firstName: "Tom", lastName: "Dale" }))
+        load(process({ id: 1, firstName: "Tom", lastName: "Dale" }));
       }));
     },
 
     findPhoneNumbers: function(person, options, load) {
       setTimeout(async(function() {
-        load(process([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]))
+        load(process([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]));
       }));
     }
   };

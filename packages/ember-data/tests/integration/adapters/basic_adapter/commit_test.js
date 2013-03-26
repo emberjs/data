@@ -48,30 +48,31 @@ module("Basic Adapter - Saving", {
 });
 
 test("After creating a record, calling `save` on it will save it using the BasicAdapter", function() {
-  expect(2);
+  expect(4);
 
   Person.sync = {
-    createRecord: function(passedRecord, process) {
-      equal(passedRecord, person, "The person was passed through");
-      process(passedRecord).save(function(json) {
-        deepEqual(json, { firstName: "Igor", lastName: "Terzic", createdAt: null }, "The process method toJSON'ifies the record");
-      });
+    createRecord: function(record, didSave) {
+      equal(record, person, "The person was passed through");
+      deepEqual(record.toJSON(), { firstName: "Igor", lastName: "Terzic", createdAt: null }, "It is possible to call toJSON on a record");
+      didSave();
     }
   };
 
   var person = Person.createRecord({ firstName: "Igor", lastName: "Terzic" });
-  person.save();
+  person.save().then(async(function(p) {
+    strictEqual(p, person);
+    equal(p.get('isSaving'), false);
+  }));
 });
 
 test("After updating a record, calling `save` on it will save it using the BasicAdapter", function() {
-  expect(2);
+  expect(4);
 
   Person.sync = {
-    updateRecord: function(passedRecord, process) {
-      equal(passedRecord, person, "The person was passed through");
-      process(passedRecord).save(function(json) {
-        deepEqual(json, { id: 1, firstName: "Igor", lastName: "Terzicsta", createdAt: null }, "The process method toJSON'ifies the record");
-      });
+    updateRecord: function(record, didSave) {
+      equal(record, person, "The person was passed through");
+      deepEqual(record.toJSON({ includeId: true }), { id: 1, firstName: "Igor", lastName: "Terzicsta", createdAt: null }, "The process method toJSON'ifies the record");
+      didSave();
     }
   };
 
@@ -79,23 +80,28 @@ test("After updating a record, calling `save` on it will save it using the Basic
   var person = Person.find(1);
   person.set('lastName', "Terzicsta");
 
-  person.save();
+  person.save().then(async(function(p) {
+    strictEqual(p, person);
+    equal(p.get('isSaving'), false);
+  }));
 });
 
 test("After deleting a record, calling `save` on it will save it using the BasicAdapter", function() {
-  expect(2);
+  expect(4);
 
   Person.sync = {
-    deleteRecord: function(passedRecord, process) {
-      equal(passedRecord, person, "The person was passed through");
-      process(passedRecord).save(function(json) {
-        deepEqual(json, { id: 1, firstName: "Igor", lastName: "Terzic", createdAt: null }, "The process method toJSON'ifies the record");
-      });
+    deleteRecord: function(record, didSave) {
+      equal(record, person, "The person was passed through");
+      deepEqual(person.toJSON({ includeId: true }), { id: 1, firstName: "Igor", lastName: "Terzic", createdAt: null }, "The process method toJSON'ifies the record");
+      didSave();
     }
   };
 
   store.load(Person, { id: 1, firstName: "Igor", lastName: "Terzic" });
   var person = Person.find(1);
   person.deleteRecord();
-  person.save();
+  person.save().then(async(function(p) {
+    strictEqual(p, person);
+    equal(p.get('isSaving'), false);
+  }));
 });
