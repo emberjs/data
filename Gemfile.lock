@@ -1,6 +1,6 @@
 GIT
   remote: https://github.com/emberjs/ember-dev.git
-  revision: 2f17d36959adb2dc7b172fe9c8b34a4b99725507
+  revision: 0f0675efeccddeafd2bda223b0fc2bc6f624c2b1
   branch: master
   specs:
     ember-dev (0.1)
@@ -41,17 +41,17 @@ GEM
       diff-lcs (~> 1.1)
       mime-types (~> 1.15)
       posix-spawn (~> 0.3.6)
-    handlebars-source (1.0.0.rc.3)
+    handlebars-source (1.0.0.rc3)
     json (1.7.7)
     kicker (2.6.1)
       listen
     listen (0.7.3)
     mime-types (1.21)
-    multi_json (1.7.0)
     nokogiri (1.5.9)
+    multi_json (1.7.2)
     posix-spawn (0.3.6)
     rack (1.5.2)
-    rake (10.0.3)
+    rake (10.0.4)
     rake-pipeline-web-filters (0.7.0)
       rack
       rake-pipeline (~> 0.6)

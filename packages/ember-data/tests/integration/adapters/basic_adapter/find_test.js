@@ -49,10 +49,10 @@ module("Basic Adapter - Finding", {
 
 test("The sync object is consulted to load data", function() {
   Person.sync = {
-    find: function(id, process) {
+    find: function(id, load) {
       equal(id, "1", "The correct ID is passed through");
       setTimeout(async(function() {
-        process({ id: 1, firstName: "Tom", lastName: "Dale" }).load();
+        load({ id: 1, firstName: "Tom", lastName: "Dale" });
       }));
     }
   };
@@ -67,14 +67,15 @@ test("The sync object is consulted to load data", function() {
     equal(get(person, 'id'), "1", "The id is still the same");
   }));
 });
+
+var process = DS.process;
 
 test("A camelizeKeys() convenience will camelize all of the keys", function() {
   Person.sync = {
-    find: function(id, process) {
+    find: function(id, load) {
       setTimeout(async(function() {
-        process({ id: 1, first_name: "Tom", last_name: "Dale" })
-          .camelizeKeys()
-          .load();
+        var json = process({ id: 1, first_name: "Tom", last_name: "Dale" }).camelizeKeys();
+        load(json);
       }));
     }
   };
@@ -90,41 +91,41 @@ test("A camelizeKeys() convenience will camelize all of the keys", function() {
   }));
 });
 
-test("An applyTransforms method will apply registered transforms", function() {
-  Person.sync = {
-    find: function(id, process) {
-      setTimeout(async(function() {
-        process({ id: 1, firstName: "Tom", lastName: "Dale", createdAt: "1986-06-09" })
-          .applyTransforms('test')
-          .load();
-      }));
-    }
-  };
+// test("An applyTransforms method will apply registered transforms", function() {
+//   Person.sync = {
+//     find: function(id, process) {
+//       setTimeout(async(function() {
+//         process({ id: 1, firstName: "Tom", lastName: "Dale", createdAt: "1986-06-09" })
+//           .applyTransforms('test')
+//           .load();
+//       }));
+//     }
+//   };
 
-  var person = Person.find(1);
+//   var person = Person.find(1);
 
-  equal(get(person, 'id'), "1", "The id is the coerced ID passed to find");
+//   equal(get(person, 'id'), "1", "The id is the coerced ID passed to find");
 
-  person.on('didLoad', async(function() {
-    equal(get(person, 'firstName'), "Tom");
-    equal(get(person, 'lastName'), "Dale");
-    equal(get(person, 'createdAt').valueOf(), new Date("1986-06-09").valueOf(), "The date was properly transformed");
-    equal(get(person, 'id'), "1", "The id is still the same");
-  }));
-});
+//   person.on('didLoad', async(function() {
+//     equal(get(person, 'firstName'), "Tom");
+//     equal(get(person, 'lastName'), "Dale");
+//     equal(get(person, 'createdAt').valueOf(), new Date("1986-06-09").valueOf(), "The date was properly transformed");
+//     equal(get(person, 'id'), "1", "The id is still the same");
+//   }));
+// });
 
 test("An adapter can use `munge` for arbitrary transformations", function() {
   Person.sync = {
-    find: function(id, process) {
+    find: function(id, load) {
       setTimeout(async(function() {
-        process({ id: 1, FIRST_NAME: "Tom", LAST_NAME: "Dale", didCreateAtTime: "1986-06-09" })
+        var json = process({ id: 1, FIRST_NAME: "Tom", LAST_NAME: "Dale", didCreateAtTime: "1986-06-09" })
           .munge(function(json) {
             json.firstName = json.FIRST_NAME;
             json.lastName = json.LAST_NAME;
             json.createdAt = json.didCreateAtTime;
           })
-          .applyTransforms('test')
-          .load();
+
+        load(json);
       }));
     }
   };
@@ -143,14 +144,15 @@ test("An adapter can use `munge` for arbitrary transformations", function() {
 
 test("A query will invoke the findQuery hook on the sync object", function() {
   Person.sync = {
-    query: function(query, process) {
+    query: function(query, load) {
       deepEqual(query, { all: true }, "The query was passed through");
 
       setTimeout(async(function() {
-        process([
+        var json = process([
           { id: 1, first_name: "Yehuda", last_name: "Katz" },
           { id: 2, first_name: "Tom", last_name: "Dale" }
-        ]).camelizeKeys().load();
+        ]).camelizeKeys();
+        load(json);
       }));
     }
   };
@@ -175,19 +177,19 @@ test("A query will invoke the findQuery hook on the sync object", function() {
 
 test("A query's processor supports munge across all elements in its Array", function() {
   Person.sync = {
-    query: function(query, process) {
+    query: function(query, load) {
       deepEqual(query, { all: true }, "The query was passed through");
 
       setTimeout(async(function() {
-        process([
+        var json = process([
           { id: 1, "name,first": "Yehuda", "name,last": "Katz" },
           { id: 2, "name,first": "Tom", "name,last": "Dale" }
         ])
         .munge(function(json) {
           json.firstName = json["name,first"];
           json.lastName = json["name,last"];
-        })
-        .load();
+        });
+        load(json);
       }));
     }
   };
@@ -214,15 +216,15 @@ test("A basic adapter receives a call to find<Relationship> for relationships", 
   expect(3);
 
   Person.sync = {
-    find: function(id, process) {
+    find: function(id, load) {
       setTimeout(async(function() {
-        process({ id: 1, firstName: "Tom", lastName: "Dale" }).load();
+        load(process({ id: 1, firstName: "Tom", lastName: "Dale" }))
       }));
     },
 
-    findPhoneNumbers: function(person, options, process) {
+    findPhoneNumbers: function(person, options, load) {
       setTimeout(async(function() {
-        process([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]).load();
+        load(process([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]))
       }));
     }
   };
@@ -240,16 +242,16 @@ test("A basic adapter receives a call to find<Relationship> for relationships", 
   expect(4);
 
   Person.sync = {
-    find: function(id, process) {
+    find: function(id, load) {
       setTimeout(async(function() {
-        process({ id: 1, firstName: "Tom", lastName: "Dale" }).load();
+        load(process({ id: 1, firstName: "Tom", lastName: "Dale" }));
       }));
     },
 
-    findHasMany: function(person, options, process) {
+    findHasMany: function(person, options, load) {
       equal(options.relationship, 'phoneNumbers');
       setTimeout(async(function() {
-        process([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]).load();
+        load(process([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]));
       }));
     }
   };
@@ -267,16 +269,16 @@ test("Metadata passed for a relationship will get passed to find<Relationship>",
   expect(4);
 
   Person.sync = {
-    find: function(id, process) {
+    find: function(id, load) {
       setTimeout(async(function() {
-        process({ id: 1, firstName: "Tom", lastName: "Dale", phoneNumbers: 'http://example.com/people/1/phone_numbers' }).load();
+        load({ id: 1, firstName: "Tom", lastName: "Dale", phoneNumbers: 'http://example.com/people/1/phone_numbers' });
       }));
     },
 
-    findPhoneNumbers: function(person, options, process) {
+    findPhoneNumbers: function(person, options, load) {
       equal(options.data, 'http://example.com/people/1/phone_numbers', "The metadata was passed");
       setTimeout(async(function() {
-        process([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]).load();
+        load([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]);
       }));
     }
   };
@@ -294,17 +296,17 @@ test("Metadata passed for a relationship will get passed to findHasMany", functi
   expect(5);
 
   Person.sync = {
-    find: function(id, process) {
+    find: function(id, load) {
       setTimeout(async(function() {
-        process({ id: 1, firstName: "Tom", lastName: "Dale", phoneNumbers: 'http://example.com/people/1/phone_numbers' }).load();
+        load(process({ id: 1, firstName: "Tom", lastName: "Dale", phoneNumbers: 'http://example.com/people/1/phone_numbers' }));
       }));
     },
 
-    findHasMany: function(person, options, process) {
+    findHasMany: function(person, options, load) {
       equal(options.data, 'http://example.com/people/1/phone_numbers', "The metadata was passed");
       equal(options.relationship, 'phoneNumbers', "The relationship name was passed");
       setTimeout(async(function() {
-        process([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]).load();
+        load(process([ { id: 1, areaCode: 703, number: 1234567 }, { id: 2, areaCode: 904, number: 9543256 } ]));
       }));
     }
   };
