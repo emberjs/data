@@ -595,6 +595,9 @@ test("A deleted record should be restored to a belongsTo relationship if the tra
 
   var oldValue = comment1.get('post');
 
+  // materialize comments
+  post.get('comments');
+
   var transaction = store.transaction();
   transaction.add(post);
 
