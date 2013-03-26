@@ -130,7 +130,35 @@ function didSave(store, record) {
   };
 }
 
+var PassthruSerializer = DS.Serializer.extend({
+  extractId: function(type, data) {
+    return data.id + '';
+  },
+
+  extractAttribute: function(type, data, name) {
+    return data[name];
+  },
+
+  extractHasMany: function(type, data, name) {
+    return data[name];
+  },
+
+  extractBelongsTo: function(type, data, name) {
+    return data[name];
+  },
+
+  deserializeValue: function(value) {
+    return value;
+  },
+
+  serializeValue: function(value) {
+    return value;
+  }
+});
+
 DS.BasicAdapter = DS.Adapter.extend({
+  serializer: PassthruSerializer,
+
   find: function(store, type, id) {
     var sync = type.sync;
 

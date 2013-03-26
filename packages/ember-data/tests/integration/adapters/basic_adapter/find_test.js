@@ -122,7 +122,7 @@ test("An adapter can use `munge` for arbitrary transformations", function() {
           .munge(function(json) {
             json.firstName = json.FIRST_NAME;
             json.lastName = json.LAST_NAME;
-            json.createdAt = json.didCreateAtTime;
+            json.createdAt = new Date(json.didCreateAtTime);
           });
 
         load(json);

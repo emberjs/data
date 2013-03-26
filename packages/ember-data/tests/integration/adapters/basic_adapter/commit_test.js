@@ -65,6 +65,26 @@ test("After creating a record, calling `save` on it will save it using the Basic
   }));
 });
 
+test("Calling `didSave` with a hash will update a newly created record", function() {
+  expect(5);
+
+  Person.sync = {
+    createRecord: function(record, didSave) {
+      equal(record, person, "The person was passed through");
+      deepEqual(record.toJSON(), { firstName: "Igor", lastName: "Terzic", createdAt: null }, "It is possible to call toJSON on a record");
+      didSave({ id: 1, firstName: "Igor", lastName: "Terzic", createdAt: new Date() });
+    }
+  };
+
+  var person = Person.createRecord({ firstName: "Igor", lastName: "Terzic" });
+  person.save().then(async(function(p) {
+    strictEqual(p, person);
+    equal(p.get('isSaving'), false);
+    strictEqual(p.get('id'), "1");
+  }));
+});
+
+
 test("After updating a record, calling `save` on it will save it using the BasicAdapter", function() {
   expect(4);
 
@@ -85,6 +105,33 @@ test("After updating a record, calling `save` on it will save it using the Basic
     equal(p.get('isSaving'), false);
   }));
 });
+
+test("Calling `didSave` on a record will update an updated record", function() {
+  expect(5);
+
+  var d1 = new Date(new Date().valueOf()),
+      d2 = new Date(d1.valueOf() + 10);
+
+  Person.sync = {
+    updateRecord: function(record, didSave) {
+      equal(record, person, "The person was passed through");
+      deepEqual(record.toJSON({ includeId: true }), { id: 1, firstName: "Igor", lastName: "Terzicsta", createdAt: DS.JSONTransforms.date.serialize(d1) }, "The process method toJSON'ifies the record");
+      didSave({ id: 1, firstName: "Igor", lastName: "Terzic", createdAt: d2 });
+    }
+  };
+
+  store.load(Person, { id: 1, firstName: "Igor", lastName: "Terzic", createdAt: d1 });
+  var person = Person.find(1);
+  person.set('lastName', "Terzicsta");
+
+  console.log(d2);
+  person.save().then(async(function(p) {
+    strictEqual(p, person);
+    equal(p.get('isSaving'), false);
+    equal(d2.valueOf(), p.get('createdAt').valueOf());
+  }));
+});
+
 
 test("After deleting a record, calling `save` on it will save it using the BasicAdapter", function() {
   expect(4);
