@@ -209,7 +209,7 @@ DS.Model.reopenClass({
         }
 
         if (!types.contains(type)) {
-          Ember.assert("Trying to sideload " + name + " on " + this.toString() + " but the type doesn't exist.", !!type)
+          Ember.assert("Trying to sideload " + name + " on " + this.toString() + " but the type doesn't exist.", !!type);
           types.push(type);
         }
       }
