@@ -59,6 +59,19 @@ var get = Ember.get, set = Ember.set, merge = Ember.merge;
     }
   }
   ```
+
+  ## Customization
+
+  ### Enable CORS with credentials
+
+  If your API is running on another domain and requires cookies to be included in every request
+  you have to enable this:
+
+  ```js
+  DS.RESTAdapter.reopen({ 
+    corsWithCredentials: true
+  });
+  ```
 */
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,
@@ -324,6 +337,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     if (hash.data && type !== 'GET') {
       hash.data = JSON.stringify(hash.data);
     }
+    if (this.corsWithCredentials) {
+      hash.xhrFields = {
+        withCredentials: true
+      };
+    } 
 
     jQuery.ajax(hash);
   },
@@ -365,4 +383,3 @@ DS.RESTAdapter = DS.Adapter.extend({
     return since ? query : null;
   }
 });
-

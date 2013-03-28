@@ -1,6 +1,42 @@
+var get = Ember.get, set = Ember.set;
 var store, adapter, Post, Comment;
 
-module("REST Adapter") ;
+module("REST Adapter", {
+  setup: function() {
+    adapter = DS.RESTAdapter.create();
+    store = DS.Store.create({
+      adapter: adapter
+    });
+
+    var attr = DS.attr;
+    Post = DS.Model.extend({
+      title: attr('string')
+    });
+    Post.toString = function() { return "Post"; };
+  },
+
+  teardown: function() {
+    Ember.run(function() {
+      store.destroy();
+      adapter.destroy();
+    });
+  }
+});
+
+test("if you specify corsWithCredentials then the withCredentials is passed to jquery", function() {
+  var hash;
+  window.jQuery._ajax = window.jQuery.ajax;
+  window.jQuery.ajax = function(ajaxHash) {
+    hash = ajaxHash;
+  };
+
+  set(adapter, 'corsWithCredentials', true);
+  var post = store.find(Post, 1);
+  deepEqual(hash.xhrFields, {withCredentials: true}, "xhrFields has withCredentials set to true.");
+  store.load(Post, { id: 1 });
+  
+  window.jQuery.ajax = window.jQuery._ajax;
+});
 
 //test("changing A=>null=>A should clean up the record", function() {
   //var store = DS.Store.create({
