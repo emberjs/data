@@ -1592,7 +1592,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         cidToPrematerialized = this.clientIdToPrematerializedData;
 
     if (clientId !== undefined) {
-      cidToData[clientId] = data;
+      this.loadData(data, clientId, type);
       cidToPrematerialized[clientId] = prematerialized;
 
       var record = this.recordCache[clientId];
@@ -1643,6 +1643,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }
   },
 
+  loadData: function(data, clientId, type){
+    var cidToData = this.clientIdToData;
+
+    cidToData[clientId] = data;
+  },
+
   /** @private
 
     Stores data for the specified type and id combination and returns
@@ -1666,7 +1672,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var clientId = ++this.clientIdCounter;
 
-    cidToData[clientId] = data;
+    this.loadData(data, clientId, type);
     clientIdToTypeMap[clientId] = type;
 
     // if we're creating an item, this process will be done
