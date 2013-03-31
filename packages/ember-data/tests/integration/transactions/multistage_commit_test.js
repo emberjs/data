@@ -65,6 +65,7 @@ test("Commits new record with relations in stages", function() {
   });
 
   comment.createRecordTestCallback = function(json) {
+    json.id = 'comment_id';
     equal(json.post, 'post_id', 'comment is saved with the correct post id');
   };
 
