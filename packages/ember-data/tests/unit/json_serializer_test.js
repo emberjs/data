@@ -151,6 +151,27 @@ test("Mapped relationships should be used when serializing a record to JSON.", f
   serializer.serialize(address);
 });
 
+test("BelongsTo relationships augment hash based on the related model when serializing to JSON", function() {
+
+  var hash = {},
+      relatedRecord = Ember.Object.createWithMixins({id: 1}),
+      record = Ember.Object.createWithMixins({relatedRecord: relatedRecord}),
+      key = 'related_record_id',
+      relationship = {key: 'relatedRecord'};
+
+
+  serializer.addBelongsTo(hash, record, key, relationship);
+  equal(hash[key], relatedRecord.get('id'));
+
+  hash = {};
+
+  record.set('relatedRecord', null);
+  serializer.addBelongsTo(hash, record, key, relationship);
+  strictEqual(hash[key], null);
+
+});
+
+
 test("mapped relationships are respected when materializing a record from JSON", function() {
   Person.relationships = { addresses: 'hasMany' };
   window.Address.relationships = { person: 'belongsTo' };
