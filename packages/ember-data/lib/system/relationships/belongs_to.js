@@ -9,25 +9,26 @@ DS.belongsTo = function(type, options) {
   var meta = { type: type, isRelationship: true, options: options, kind: 'belongsTo' };
 
   return Ember.computed(function(key, value) {
+    if (typeof type === 'string') {
+      type = get(this, type, false) || get(Ember.lookup, type);
+    }
+
     if (arguments.length === 2) {
+      Ember.assert("You can only add a record of " + type.toString() + " to this relationship", !value || type.detectInstance(value));
       return value === undefined ? null : value;
     }
 
     var data = get(this, 'data').belongsTo,
         store = get(this, 'store'), id;
 
-    if (typeof type === 'string') {
-      type = get(this, type, false) || get(Ember.lookup, type);
-    }
-
     id = data[key];
 
     if(!id) {
       return null;
-    } else if (typeof id === 'object') {
+    } else if (id.clientId) {
       return store.recordForReference(id);
     } else {
-      return store.find(type, id);
+      return store.findById(id.type, id.id);
     }
   }).property('data').meta(meta);
 };

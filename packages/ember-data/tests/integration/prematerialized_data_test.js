@@ -26,6 +26,7 @@ module("Prematerialized Data", {
   },
 
   teardown: function() {
+    adapter.destroy();
     store.destroy();
   }
 });

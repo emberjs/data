@@ -54,7 +54,7 @@ test("a record reports its unique id via the `id` property", function() {
   equal(get(record, 'id'), 1, "reports id as id by default");
 });
 
-test("a record's id is included in its toString represenation", function() {
+test("a record's id is included in its toString representation", function() {
   store.load(Person, { id: 1 });
 
   var record = store.find(Person, 1);

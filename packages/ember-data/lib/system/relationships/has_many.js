@@ -16,10 +16,14 @@ var hasRelationship = function(type, options) {
       type = get(this, type, false) || get(Ember.lookup, type);
     }
 
+    //ids can be references or opaque token
+    //(e.g. `{url: '/relationship'}`) that will be passed to the adapter
     ids = data[key];
+
     relationship = store.findMany(type, ids, this, meta);
     set(relationship, 'owner', this);
     set(relationship, 'name', key);
+    set(relationship, 'isPolymorphic', options.polymorphic);
 
     return relationship;
   }).property().meta(meta);

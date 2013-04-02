@@ -45,17 +45,6 @@ test("When a record is requested but has not yet been loaded, its `id` property 
   equal(get(record, 'id'), 1, "should report its id while loading");
 });
 
-test("When multiple records are requested, the adapter's `findMany` method should be called.", function() {
-  expect(1);
-
-  adapter.findMany = function(store, type, ids) {
-    deepEqual(ids, ['1','2','3'], "ids are passed");
-  };
-
-  store.findMany(Person, [1,2,3]);
-  store.findMany(Person, [1,2,3]);
-});
-
 test("When multiple records are requested, the default adapter should call the `find` method once per record if findMany is not implemented", function() {
   expect(3);
 
@@ -68,15 +57,4 @@ test("When multiple records are requested, the default adapter should call the `
 
   store.findMany(Person, [1,2,3]);
   store.findMany(Person, [1,2,3]);
-});
-
-test("When multiple records are requested, the store should not call findMany on the adapter if all the requested records are already loaded.", function() {
-  expect(0);
-
-  adapter.find = function(store, type, id) {
-    ok(false, "This should not be called");
-  };
-
-  store.load(Person, { id: 1 });
-  store.findMany(Person, [ 1 ]);
 });
