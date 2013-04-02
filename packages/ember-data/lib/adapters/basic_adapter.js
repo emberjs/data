@@ -198,6 +198,8 @@ DS.BasicAdapter = DS.Adapter.extend({
         sync = record.constructor.sync,
         processor = hasManyProcessorFactory(store, record, relationship);
 
+    Ember.assert("You are trying to use the BasicAdapter to query " + record.constructor + " but " + record.constructor + ".sync was not found", sync);
+
     var options = {
       relationship: relationship.key,
       data: data
