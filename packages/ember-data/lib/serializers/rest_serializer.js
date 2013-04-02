@@ -23,5 +23,13 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     }
 
     return this.singularize(key) + "_ids";
+  },
+
+  keyForPolymorphicId: function(key) {
+    return key;
+  },
+
+  keyForPolymorphicType: function(key) {
+    return key.replace(/_id$/, '_type');
   }
 });

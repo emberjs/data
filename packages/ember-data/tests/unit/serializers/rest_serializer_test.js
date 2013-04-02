@@ -31,6 +31,10 @@ test("keyForHasMany returns the singularized key appended with '_ids'", function
   equal(serializer.keyForHasMany(DS.Model, 'homeTowns'), 'home_town_ids');
 });
 
+test("extractBelongsToPolymorphic returns a tuple containing the type", function() {
+  deepEqual(serializer.extractBelongsToPolymorphic(DS.Model, {message_id: 2, message_type: 'post'}, 'message_id'), {id: 2, type: 'post'});
+});
+
 test("Calling extract on a JSON payload with multiple records will tear them apart and call loader", function() {
   var App = Ember.Namespace.create({
     toString: function() { return "App"; }
@@ -89,3 +93,51 @@ test("Calling extract on a JSON payload with multiple records will tear them apa
   //}
 });
 
+test("Sideloading can be done by specifying only an alias", function() {
+  var App = Ember.Namespace.create({
+    toString: function() { return "App"; }
+  });
+
+  App.Group = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  App.Post = DS.Model.extend({
+    title: DS.attr('string')
+  });
+
+  serializer.configure(App.Group, {
+    alias: 'group'
+  });
+
+  var payload = {
+    post: {
+      id: 1,
+      title: "Fifty Ways to Bereave Your Lover"
+    },
+
+    groups: [{ id: 1, name: "Trolls" }]
+  };
+
+  var loadCallCount = 0,
+      loadMainCallCount = 0;
+
+  var loader = {
+    sideload: function(type, data, prematerialized) {
+      if(type === App.Group) {
+        loadCallCount++;
+      }
+    },
+
+    load: function(type, data, prematerialized) {
+      loadMainCallCount++;
+    },
+
+    prematerialize: Ember.K
+  };
+
+  serializer.extract(loader, payload, App.Post);
+
+  equal(loadMainCallCount, 1, "one main record was loaded from a single payload");
+  equal(loadCallCount, 1, "one secondary record was loaded from a single payload");
+});

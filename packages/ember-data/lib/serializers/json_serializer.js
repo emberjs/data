@@ -13,8 +13,6 @@ DS.JSONSerializer = DS.Serializer.extend({
       this.set('transforms', DS.JSONTransforms);
     }
 
-    this.sideloadMapping = Ember.Map.create();
-
     this.configure({
       meta: 'meta',
       since: 'since'
@@ -26,17 +24,13 @@ DS.JSONSerializer = DS.Serializer.extend({
       return this._super(type);
     }
 
-    var sideloadAs = configuration.sideloadAs;
+    var sideloadAs = configuration.sideloadAs,
+        sideloadMapping;
 
     if (sideloadAs) {
-      this.sideloadMapping.set(sideloadAs, type);
-
-      // Set a flag indicating that mappings may need to be normalized
-      // (i.e. converted from strings -> types) before sideloading.
-      // We can't do this conversion immediately here, because `configure`
-      // may be called before certain types have been defined.
-      this.sideloadMapping.normalized = false;
-
+      sideloadMapping = this.aliases.sideloadMapping || Ember.Map.create();
+      sideloadMapping.set(sideloadAs, type);
+      this.aliases.sideloadMapping = sideloadMapping;
       delete configuration.sideloadAs;
     }
 
@@ -98,22 +92,50 @@ DS.JSONSerializer = DS.Serializer.extend({
     return hash[key];
   },
 
+  extractBelongsToPolymorphic: function(type, hash, key) {
+    var keyForId = this.keyForPolymorphicId(key),
+        keyForType,
+        id = hash[keyForId];
+
+    if (id) {
+      keyForType = this.keyForPolymorphicType(key);
+      return {id: id, type: hash[keyForType]};
+    }
+
+    return null;
+  },
+
   addBelongsTo: function(hash, record, key, relationship) {
     var type = record.constructor,
         name = relationship.key,
         value = null,
+        includeType = (relationship.options && relationship.options.polymorphic),
         embeddedChild;
 
     if (this.embeddedType(type, name)) {
       if (embeddedChild = get(record, name)) {
-        value = this.serialize(embeddedChild, { includeId: true });
+        value = this.serialize(embeddedChild, { includeId: true, includeType: includeType });
       }
 
       hash[key] = value;
     } else {
-      var id = get(record, relationship.key+'.id');
-      if (!Ember.isNone(id)) { hash[key] = id; }
+      var child = get(record, relationship.key),
+          id = get(child, 'id');
+      if (!Ember.isNone(id)) {
+        if (relationship.options && relationship.options.polymorphic) {
+          this.addBelongsToPolymorphic(hash, key, id, child.constructor);
+        } else {
+           hash[key] = id;
+        }
+      }
     }
+  },
+
+  addBelongsToPolymorphic: function(hash, key, id, type) {
+    var keyForId = this.keyForPolymorphicId(key),
+        keyForType = this.keyForPolymorphicType(key);
+    hash[keyForId] = id;
+    hash[keyForType] = this.rootForType(type);
   },
 
   /**
@@ -131,10 +153,12 @@ DS.JSONSerializer = DS.Serializer.extend({
       should be saved
     @param {Object} relationship metadata about the relationship being serialized
   */
+
   addHasMany: function(hash, record, key, relationship) {
     var type = record.constructor,
         name = relationship.key,
         serializedHasMany = [],
+        includeType = (relationship.options && relationship.options.polymorphic),
         manyArray, embeddedType;
 
     // If the has-many is not embedded, there is nothing to do.
@@ -146,12 +170,17 @@ DS.JSONSerializer = DS.Serializer.extend({
 
     // Build up the array of serialized records
     manyArray.forEach(function (record) {
-      serializedHasMany.push(this.serialize(record, { includeId: true }));
+      serializedHasMany.push(this.serialize(record, { includeId: true, includeType: includeType }));
     }, this);
 
     // Set the appropriate property of the serialized JSON to the
     // array of serialized embedded records
     hash[key] = serializedHasMany;
+  },
+
+  addType: function(hash, type) {
+    var keyForType = this.keyForEmbeddedType();
+    hash[keyForType] = this.rootForType(type);
   },
 
   // EXTRACTION
@@ -198,6 +227,19 @@ DS.JSONSerializer = DS.Serializer.extend({
     }
   },
 
+  extractEmbeddedType: function(relationship, data) {
+    var foundType = relationship.type;
+    if(relationship.options && relationship.options.polymorphic) {
+      var key = this.keyFor(relationship),
+          keyForEmbeddedType = this.keyForEmbeddedType(key);
+
+      foundType = this.typeFromAlias(data[keyForEmbeddedType]);
+      delete data[keyForEmbeddedType];
+    }
+
+    return foundType;
+  },
+
   /**
     @private
 
@@ -217,7 +259,6 @@ DS.JSONSerializer = DS.Serializer.extend({
   sideload: function(loader, type, json, root) {
     var sideloadedType;
 
-    this.normalizeSideloadMappings();
     this.configureSideloadMappingForType(type);
 
     for (var prop in json) {
@@ -227,32 +268,12 @@ DS.JSONSerializer = DS.Serializer.extend({
         continue;
       }
 
-      sideloadedType = this.sideloadMapping.get(prop);
+      sideloadedType = this.typeFromAlias(prop);
       Ember.assert("Your server returned a hash with the key " + prop +
                    " but you have no mapping for it",
                    !!sideloadedType);
 
       this.loadValue(loader, sideloadedType, json[prop]);
-    }
-  },
-
-  /**
-    @private
-
-    Iterates over all the `sideloadAs` mappings and converts any that are
-    strings to their equivalent types.
-
-    This is an optimization used to avoid performing lookups for every
-    call to `sideload`.
-  */
-  normalizeSideloadMappings: function() {
-    if (! this.sideloadMapping.normalized) {
-      this.sideloadMapping.forEach(function(key, value) {
-        if (typeof value === 'string') {
-          this.sideloadMapping.set(key, get(Ember.lookup, value));
-        }
-      }, this);
-      this.sideloadMapping.normalized = true;
     }
   },
 
@@ -272,11 +293,9 @@ DS.JSONSerializer = DS.Serializer.extend({
 
     type.eachRelatedType(function(relatedType) {
       if (!configured.contains(relatedType)) {
-        var root = this.sideloadMappingForType(relatedType);
-        if (!root) {
-          root = this.defaultSideloadRootForType(relatedType);
-          this.sideloadMapping.set(root, relatedType);
-        }
+        var root = this.defaultSideloadRootForType(relatedType);
+        this.aliases.set(root, relatedType);
+
         this.configureSideloadMappingForType(relatedType, configured);
       }
     }, this);
@@ -292,32 +311,39 @@ DS.JSONSerializer = DS.Serializer.extend({
     }
   },
 
+  /**
+    A hook you can use in your serializer subclass to customize
+    how a polymorphic association's name is converted into a key for the id.
+
+    @param {String} name the association name to convert into a key
+
+    @returns {String} the key
+  */
+  keyForPolymorphicId: Ember.K,
+
+  /**
+    A hook you can use in your serializer subclass to customize
+    how a polymorphic association's name is converted into a key for the type.
+
+    @param {String} name the association name to convert into a key
+
+    @returns {String} the key
+  */
+  keyForPolymorphicType: Ember.K,
+
+  /**
+    A hook you can use in your serializer subclass to customize
+    the key used to store the type of a record of an embedded polymorphic association.
+
+    By default, this method returns 'type'.
+
+    @returns {String} the key
+  */
+  keyForEmbeddedType: function() {
+    return 'type';
+  },
+
   // HELPERS
-
-  // define a plurals hash in your subclass to define
-  // special-case pluralization
-  pluralize: function(name) {
-    var plurals = this.configurations.get('plurals');
-    return (plurals && plurals[name]) || name + "s";
-  },
-
-  // use the same plurals hash to determine
-  // special-case singularization
-  singularize: function(name) {
-    var plurals = this.configurations.get('plurals');
-    if (plurals) {
-      for (var i in plurals) {
-        if (plurals[i] === name) {
-          return i;
-        }
-      }
-    }
-    if (name.lastIndexOf('s') === name.length - 1) {
-      return name.substring(0, name.length - 1);
-    } else {
-      return name;
-    }
-  },
 
   /**
     @private
@@ -340,22 +366,6 @@ DS.JSONSerializer = DS.Serializer.extend({
     var parts = typeString.split(".");
     var name = parts[parts.length - 1];
     return name.replace(/([A-Z])/g, '_$1').toLowerCase().slice(1);
-  },
-
-  /**
-    @private
-
-    Determines the root name mapped to a particular sideloaded type.
-
-    @param {DS.Model subclass} type
-    @returns {String} name of the root element, if any is registered
-  */
-  sideloadMappingForType: function(type) {
-    this.sideloadMapping.forEach(function(key, value) {
-      if (type === value) {
-        return key;
-      }
-    });
   },
 
   /**
