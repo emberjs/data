@@ -19,6 +19,7 @@
 //SOFTWARE.
 
 require("ember-data/core");
+require("ember-data/ext");
 require("ember-data/system/store");
 require("ember-data/system/record_arrays");
 require("ember-data/system/model");
