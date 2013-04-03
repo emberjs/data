@@ -380,7 +380,7 @@ DS.Serializer = Ember.Object.extend({
     more granular `addAttribute` with the key and transformed value.
 
     Since you can override `keyForAttributeName`, `addAttribute`, and register
-    custom tranforms, you should rarely need to override this hook.
+    custom transforms, you should rarely need to override this hook.
 
     @param {any} data the serialized representation that is being built
     @param {DS.Model} record the record to serialize
