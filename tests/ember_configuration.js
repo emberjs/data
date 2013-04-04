@@ -42,6 +42,34 @@
     setTimeout(async(callback, timeout+100), timeout);
   };
 
+  var oldJQueryAjax;
+  window.mockAjax = function(fn, timeout, serialized) {
+    oldJQueryAjax = jQuery.ajax;
+    fn = fn || function() {};
+    jQuery.ajax = function(hash) {
+      if (!serialized && hash.type !== 'GET' && typeof hash.data === 'string') {
+        hash.data = JSON.parse(hash.data);
+      }
+      if (timeout) {
+        setTimeout(function() { fn(hash); }, timeout);
+      } else {
+        fn(hash);
+      }
+    };
+  };
+
+  window.restoreAjax = function() {
+    jQuery.ajax = oldJQueryAjax;
+  };
+
+  window.mockXHR = function(status, responseText, textStatus) {
+    return {
+      status:       status || 200,
+      textStatus:   textStatus || 'success',
+      responseText: responseText || ''
+    };
+  };
+
   var syncForTest = function(fn) {
     var callSuper;
 
@@ -126,6 +154,10 @@
     });
 
     DS.Transaction.reopen({
+      commit: syncForTest()
+    });
+
+    DS.Adapter.reopen({
       commit: syncForTest()
     });
   });
