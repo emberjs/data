@@ -145,9 +145,9 @@ test("Calling ajax() calls JQuery.ajax with json data", function() {
 
   try {
     // replace jQuery.ajax()
-    jQuery.ajax = function(hash) {
+    mockAjax(function(hash) {
       ajaxHash = hash;
-    };
+    }, false, true);
     adapter = DS.RESTAdapter.create();
     adapter.ajax('/foo', 'GET', {extra: 'special'});
 

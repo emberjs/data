@@ -748,7 +748,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @params {Ember.Map} commitDetails   see `DS.Transaction#commitDetails`.
   */
   commit: function(store, commitDetails) {
-    this.save(store, commitDetails);
+    return this.save(store, commitDetails);
   },
 
   /**
@@ -775,17 +775,21 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
       return filteredSet;
     }
 
+    var promises = [];
+
     this.groupByType(commitDetails.created).forEach(function(type, set) {
-      this.createRecords(store, type, filter(set));
+      promises.push(this.createRecords(store, type, filter(set)));
     }, this);
 
     this.groupByType(commitDetails.updated).forEach(function(type, set) {
-      this.updateRecords(store, type, filter(set));
+      promises.push(this.updateRecords(store, type, filter(set)));
     }, this);
 
     this.groupByType(commitDetails.deleted).forEach(function(type, set) {
-      this.deleteRecords(store, type, filter(set));
+      promises.push(this.deleteRecords(store, type, filter(set)));
     }, this);
+
+    return Ember.RSVP.all(promises);
   },
 
   /**
@@ -829,9 +833,14 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @property {Array[DS.Model]} records
   */
   createRecords: function(store, type, records) {
+    var promises = [];
+
     records.forEach(function(record) {
-      this.createRecord(store, type, record);
+      var thenable = this.createRecord(store, type, record);
+      promises.push(thenable);
     }, this);
+
+    return Ember.RSVP.all(promises);
   },
 
   /**
@@ -860,9 +869,14 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @property {Array[DS.Model]} records
   */
   updateRecords: function(store, type, records) {
+    var promises = [];
+
     records.forEach(function(record) {
-      this.updateRecord(store, type, record);
+      var thenable = this.updateRecord(store, type, record);
+      promises.push(thenable, record);
     }, this);
+
+    return Ember.RSVP.all(promises);
   },
 
   /**
@@ -891,9 +905,14 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @property {Array[DS.Model]} records
   */
   deleteRecords: function(store, type, records) {
+    var promises = [];
+
     records.forEach(function(record) {
-      this.deleteRecord(store, type, record);
+      var thenable = this.deleteRecord(store, type, record);
+      promises.push(thenable, record);
     }, this);
+
+    return Ember.RSVP.all(promises);
   },
 
   /**
