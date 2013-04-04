@@ -436,7 +436,7 @@ DS.Serializer = Ember.Object.extend({
     A hook you can use to change how relationships are added to the serialized
     representation of a record.
 
-    By default, `addAttributes` loops over all of the relationships of the
+    By default, `addRelationships` loops over all of the relationships of the
     passed record, maps the relationship names to the key for the serialized form,
     and then invokes the public `addBelongsTo` and `addHasMany` hooks.
 
