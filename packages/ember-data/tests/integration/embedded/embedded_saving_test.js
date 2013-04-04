@@ -42,7 +42,7 @@ asyncTest("Adding a new embedded record to an unsaved record: Both records use t
     equal(hash.data.post.comments.length, 1);
 
     setTimeout(function() {
-      hash.success.call(hash.context);
+      hash.success.call(adapter);
       start();
     });
   };
