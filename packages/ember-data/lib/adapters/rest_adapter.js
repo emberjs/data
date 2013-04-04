@@ -76,26 +76,6 @@ DS.RESTAdapter = DS.Adapter.extend({
     return !reference.parent;
   },
 
-  createRecord: function(store, type, record) {
-    var root = this.rootForType(type);
-
-    var data = {};
-    data[root] = this.serialize(record, { includeId: true });
-
-    this.ajax(this.buildURL(root), "POST", {
-      data: data,
-      context: this,
-      success: function(json) {
-        Ember.run(this, function(){
-          this.didCreateRecord(store, type, record, json);
-        });
-      },
-      error: function(xhr) {
-        this.didError(store, type, record, xhr);
-      }
-    });
-  },
-
   dirtyRecordsForRecordChange: function(dirtySet, record) {
     this._dirtyTree(dirtySet, record);
   },
@@ -127,6 +107,25 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
   },
 
+  createRecord: function(store, type, record) {
+    var root = this.rootForType(type);
+
+    var data = {};
+    data[root] = this.serialize(record, { includeId: true });
+
+    this.ajax(this.buildURL(root), "POST", {
+      data: data,
+      success: function(json) {
+        Ember.run(this, function(){
+          this.didCreateRecord(store, type, record, json);
+        });
+      },
+      error: function(xhr) {
+        this.didError(store, type, record, xhr);
+      }
+    });
+  },
+
   createRecords: function(store, type, records) {
     if (get(this, 'bulkCommit') === false) {
       return this._super(store, type, records);
@@ -143,7 +142,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
-      context: this,
       success: function(json) {
         Ember.run(this, function(){
           this.didCreateRecords(store, type, records, json);
@@ -161,10 +159,9 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, id), "PUT", {
       data: data,
-      context: this,
       success: function(json) {
         Ember.run(this, function(){
-          this.didSaveRecord(store, type, record, json);
+          this.didUpdateRecord(store, type, record, json);
         });
       },
       error: function(xhr) {
@@ -189,10 +186,9 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, "bulk"), "PUT", {
       data: data,
-      context: this,
       success: function(json) {
         Ember.run(this, function(){
-          this.didSaveRecords(store, type, records, json);
+          this.didUpdateRecords(store, type, records, json);
         });
       }
     });
@@ -203,11 +199,13 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     this.ajax(this.buildURL(root, id), "DELETE", {
-      context: this,
       success: function(json) {
         Ember.run(this, function(){
-          this.didSaveRecord(store, type, record, json);
+          this.didDeleteRecord(store, type, record, json);
         });
+      },
+      error: function(xhr) {
+        this.didError(store, type, record, xhr);
       }
     });
   },
@@ -229,10 +227,9 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
       data: data,
-      context: this,
       success: function(json) {
         Ember.run(this, function(){
-          this.didSaveRecords(store, type, records, json);
+          this.didDeleteRecords(store, type, records, json);
         });
       }
     });
