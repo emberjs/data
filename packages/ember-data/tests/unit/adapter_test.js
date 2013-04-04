@@ -5,7 +5,11 @@ module("DS.Adapter", {
   setup: function() {
     adapter = DS.Adapter.create();
     Person = Ember.Object.extend();
-    storeStub = Ember.Object.create();
+    storeStub = Ember.Object.create({
+      adapterForType: function() {
+        return adapter;
+      }
+    });
   },
 
   teardown: function() {
