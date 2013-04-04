@@ -99,7 +99,7 @@ asyncTest("Embedded belongsTo relationships can be saved when embedded: always i
     });
 
     setTimeout(function() {
-      hash.success.call(hash.context);
+      hash.success.call(adapter);
       done();
     });
   };
@@ -184,7 +184,7 @@ asyncTest("Embedded hasMany relationships can be saved when embedded: always is 
     });
 
     setTimeout(function() {
-      hash.success.call(hash.context);
+      hash.success.call(adapter);
       done();
     });
   };
@@ -284,7 +284,7 @@ asyncTest("Embedded records that contain embedded records can be saved", functio
     });
 
     setTimeout(function() {
-      hash.success.call(hash.context);
+      hash.success.call(adapter);
       done();
     });
   };

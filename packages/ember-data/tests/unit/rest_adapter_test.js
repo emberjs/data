@@ -20,6 +20,8 @@ module("the REST adapter", {
       ajax: function(url, type, hash) {
         var success = hash.success, self = this;
 
+        hash.context = adapter;
+
         ajaxUrl = url;
         ajaxType = type;
         ajaxHash = hash;
