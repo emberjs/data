@@ -173,7 +173,6 @@ DS.OneToOneChange.createChange = function(childReference, parentReference, store
   // Get the type of the child based on the child's client ID
   var childType = childReference.type, key;
 
-  console.log(options.key);
   // If the name of the belongsTo side of the relationship is specified,
   // use that
   // If the type of the parent is specified, look it up on the child's type

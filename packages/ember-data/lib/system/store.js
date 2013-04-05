@@ -651,6 +651,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     };
   },
 
+  isReferenceMaterialized: function(reference) {
+    return !!this.recordCache[reference.clientId];
+  },
+
   recordForReference: function(reference) {
     return this.findByClientId(reference.type, reference.clientId);
   },

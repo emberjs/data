@@ -139,13 +139,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
   clearRelationships: function() {
     this.eachRelationship(function(name, relationship) {
-      // if the relationship is unmaterialized, move on
-      if (this.cacheFor(name) === undefined) { return; }
-
       if (relationship.kind === 'belongsTo') {
         set(this, name, null);
       } else if (relationship.kind === 'hasMany') {
-        get(this, name).clear();
+        this.clearHasMany(relationship);
       }
     }, this);
   },

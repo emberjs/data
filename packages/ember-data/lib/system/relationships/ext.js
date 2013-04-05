@@ -393,7 +393,7 @@ DS.Model.reopen({
     descriptor.
 
     @param {Function} callback the callback to invoke
-    Child@param {any} binding the value to which the callback's `this` should be bound
+    @param {any} binding the value to which the callback's `this` should be bound
   */
   eachRelationship: function(callback, binding) {
     this.constructor.eachRelationship(callback, binding);
