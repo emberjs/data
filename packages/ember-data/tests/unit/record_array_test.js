@@ -181,3 +181,12 @@ test("a record array that backs a collection view functions properly", function(
 
 });
 
+test("rejectProperty should work for a many array", function() {
+  var store = DS.Store.create();
+  store.loadMany(Person, [1,2,3], array);
+
+  var recordArray = store.all(Person);
+  var rejectedArray = recordArray.rejectProperty("name", "Scumbag Dale");
+  equal(rejectedArray.get('length'), 2);
+});
+
