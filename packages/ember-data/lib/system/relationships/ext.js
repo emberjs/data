@@ -86,6 +86,53 @@ DS.Model.reopenClass({
     return relationship && relationship.type;
   },
 
+  inverseFor: function(name) {
+    var inverseType = this.typeForRelationship(name);
+
+    if (!inverseType) { return null; }
+
+    var options = this.metaForProperty(name).options;
+    var inverseName, inverseKind;
+
+    if (options.inverse) {
+      inverseName = options.inverse;
+      inverseKind = Ember.get(inverseType, 'relationshipsByName').get(inverseName).kind;
+    } else {
+      var possibleRelationships = findPossibleInverses(this, inverseType);
+
+      if (possibleRelationships.length === 0) { return null; }
+
+      Ember.assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " + this + " were found on " + inverseType + ".", possibleRelationships.length === 1);
+
+      inverseName = possibleRelationships[0].name;
+      inverseKind = possibleRelationships[0].kind;
+    }
+
+    function findPossibleInverses(type, inverseType, possibleRelationships) {
+      possibleRelationships = possibleRelationships || [];
+
+      var relationshipMap = get(inverseType, 'relationships');
+      if (!relationshipMap) { return; }
+
+      var relationships = relationshipMap.get(type);
+      if (relationships) {
+        possibleRelationships.push.apply(possibleRelationships, relationshipMap.get(type));
+      }
+
+      if (type.superclass) {
+        findPossibleInverses(type.superclass, inverseType, possibleRelationships);
+      }
+
+      return possibleRelationships;
+    }
+
+    return {
+      type: inverseType,
+      name: inverseName,
+      kind: inverseKind
+    };
+  },
+
   /**
     The model's relationships as a map, keyed on the type of the
     relationship. The value of each entry is an array containing a descriptor
@@ -346,76 +393,9 @@ DS.Model.reopen({
     descriptor.
 
     @param {Function} callback the callback to invoke
-    @param {any} binding the value to which the callback's `this` should be bound
+    Child@param {any} binding the value to which the callback's `this` should be bound
   */
   eachRelationship: function(callback, binding) {
     this.constructor.eachRelationship(callback, binding);
   }
 });
-
-/**
-  @private
-
-  Helper method to look up the name of the inverse of a relationship.
-
-  In a has-many relationship, there are always two sides: the `belongsTo` side
-  and the `hasMany` side. When one side changes, the other side should be updated
-  automatically.
-
-  Given a model, the model of the inverse, and the kind of the relationship, this
-  helper returns the name of the relationship on the inverse.
-
-  For example, imagine the following two associated models:
-
-      App.Post = DS.Model.extend({
-        comments: DS.hasMany('App.Comment')
-      });
-
-      App.Comment = DS.Model.extend({
-        post: DS.belongsTo('App.Post')
-      });
-
-  If the `post` property of a `Comment` was modified, Ember Data would invoke
-  this helper like this:
-
-      DS._inverseNameFor(App.Comment, App.Post, 'hasMany');
-      //=> 'comments'
-
-  Ember Data uses the name of the relationship returned to reflect the changed
-  relationship on the other side.
-*/
-DS._inverseRelationshipFor = function(modelType, inverseModelType) {
-  var relationshipMap = get(modelType, 'relationships'),
-      possibleRelationships = relationshipMap.get(inverseModelType),
-      possible, actual, oldValue;
-
-  if (!possibleRelationships) { return; }
-  if (possibleRelationships.length > 1) { return; }
-  if (possibleRelationships.length === 0 && inverseModelType.superclass) {
-    return DS._inverseRelationshipFor(modelType, inverseModelType.superclass);
-  }
-  return possibleRelationships[0];
-};
-
-/**
-  @private
-
-  Given a model and a relationship name, returns the model type of
-  the named relationship.
-
-      App.Post = DS.Model.extend({
-        comments: DS.hasMany('App.Comment')
-      });
-
-      DS._inverseTypeFor(App.Post, 'comments');
-      //=> App.Comment
-  @param {DS.Model class} modelType
-  @param {String} relationshipName
-  @return {DS.Model class}
-*/
-DS._inverseTypeFor = function(modelType, relationshipName) {
-  var relationships = get(modelType, 'relationshipsByName'),
-      relationship = relationships.get(relationshipName);
-
-  if (relationship) { return relationship.type; }
-};

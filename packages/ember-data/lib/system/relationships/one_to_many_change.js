@@ -55,28 +55,25 @@ DS.RelationshipChange._createChange = function(options){
 
 
 DS.RelationshipChange.determineRelationshipType = function(recordType, knownSide){
-  var knownKey = knownSide.key, key, type, otherContainerType,assoc;
-  var knownContainerType = knownSide.kind;
-  var options = recordType.metaForProperty(knownKey).options;
-  var otherType = DS._inverseTypeFor(recordType, knownKey);
+  var knownKey = knownSide.key, key, type, otherKind;
+  var knownKind = knownSide.kind;
 
-  if(options.inverse){
-    key = options.inverse;
-    otherContainerType = get(otherType, 'relationshipsByName').get(key).kind; 
-  } 
-  else if(assoc = DS._inverseRelationshipFor(otherType, recordType)){
-    key = assoc.name;
-    otherContainerType = assoc.kind;
-  } 
-  if(!key){
-    return knownContainerType === "belongsTo" ? "oneToNone" : "manyToNone";
+  var inverse = recordType.inverseFor(knownKey);
+
+  if (inverse){
+    key = inverse.name;
+    otherKind = inverse.kind;
+  }
+
+  if (!inverse){
+    return knownKind === "belongsTo" ? "oneToNone" : "manyToNone";
   }
   else{
-    if(otherContainerType === "belongsTo"){
-      return knownContainerType === "belongsTo" ? "oneToOne" : "manyToOne";
+    if(otherKind === "belongsTo"){
+      return knownKind === "belongsTo" ? "oneToOne" : "manyToOne";
     }
     else{
-      return knownContainerType === "belongsTo" ? "oneToMany" : "manyToMany";
+      return knownKind === "belongsTo" ? "oneToMany" : "manyToMany";
     }
   } 
  
@@ -176,13 +173,13 @@ DS.OneToOneChange.createChange = function(childReference, parentReference, store
   // Get the type of the child based on the child's client ID
   var childType = childReference.type, key;
 
+  console.log(options.key);
   // If the name of the belongsTo side of the relationship is specified,
   // use that
   // If the type of the parent is specified, look it up on the child's type
   // definition.
   if (options.parentType) {
-    key = inverseBelongsToName(options.parentType, childType, options.key);
-    //DS.OneToOneChange.maintainInvariant( options, store, childReference, key );
+    key = options.parentType.inverseFor(options.key).name;
   } else if (options.key) {
     key = options.key;
   } else {
@@ -234,7 +231,7 @@ DS.OneToManyChange.createChange = function(childReference, parentReference, stor
   // If the type of the parent is specified, look it up on the child's type
   // definition.
   if (options.parentType) {
-    key = inverseBelongsToName(options.parentType, childType, options.key);
+    key = options.parentType.inverseFor(options.key).name;
     DS.OneToManyChange.maintainInvariant( options, store, childReference, key );
   } else if (options.key) {
     key = options.key;
@@ -300,12 +297,11 @@ DS.RelationshipChange.prototype = {
       if (!parent) { return; }
 
       var childType = this.firstRecordReference.type;
-      var inverseType = DS._inverseTypeFor(childType, this.firstRecordName);
-      name = inverseHasManyName(inverseType, childType, this.firstRecordName);
-      this.secondRecordName = name;
+      var inverse = childType.inverseFor(this.firstRecordName);
+      this.secondRecordName = inverse.name;
     }
 
-    return name;
+    return this.secondRecordName;
   },
 
   /**
@@ -314,18 +310,7 @@ DS.RelationshipChange.prototype = {
     @returns {String}
   */
   getFirstRecordName: function() {
-    var name = this.firstRecordName, store = this.store, parent, child;
-
-    if (!name) {
-      parent = this.secondRecordReference;
-      child = this.firstRecordReference;
-      if (!(child && parent)) { return; }
-
-      name = DS._inverseRelationshipFor(child.type, parent.type).name;
-
-      this.firstRecordName = name;
-    }
-
+    var name = this.firstRecordName;
     return name;
   },
 
@@ -513,26 +498,3 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
 
   this.coalesce();
 };
-
-function inverseBelongsToName(parentType, childType, hasManyName) {
-  // Get the options passed to the parent's DS.hasMany()
-  var options = parentType.metaForProperty(hasManyName).options;
-  var belongsToName;
-
-  if (belongsToName = options.inverse) {
-    return belongsToName;
-  }
-
-  return DS._inverseRelationshipFor(childType, parentType).name;
-}
-
-function inverseHasManyName(parentType, childType, belongsToName) {
-  var options = childType.metaForProperty(belongsToName).options;
-  var hasManyName;
-
-  if (hasManyName = options.inverse) {
-    return hasManyName;
-  }
-
-  return DS._inverseRelationshipFor(parentType, childType).name;
-}

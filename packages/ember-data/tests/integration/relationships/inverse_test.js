@@ -135,3 +135,52 @@ test("One to none relationships should be identified correctly", function() {
   equal(type, "oneToNone", "Relationship type is oneToNone");
 });
 
+test("A many relationship's inverse can be looked up", function() {
+  App.Post = DS.Model.extend({
+    title: DS.attr('string')
+  });
+
+  App.Comment = DS.Model.extend({
+    body: DS.attr('string'),
+    post: DS.belongsTo(App.Post)
+  });
+
+  App.Post.reopen({
+    comments: DS.hasMany(App.Comment)
+  });
+
+  deepEqual(App.Post.inverseFor('comments'), {
+    kind: 'belongsTo',
+    type: App.Comment,
+    name: 'post'
+  }, "correct inverse descriptor was returned");
+
+  deepEqual(App.Comment.inverseFor('post'), {
+    kind: 'hasMany',
+    type: App.Post,
+    name: 'comments'
+  });
+});
+
+test("A many relationship's inverse can be looked up when it is part of a class hierarchy", function() {
+  App.Post = DS.Model.extend({
+    title: DS.attr('string')
+  });
+
+  App.Comment = DS.Model.extend({
+    body: DS.attr('string'),
+    post: DS.belongsTo(App.Post)
+  });
+
+  App.ChildComment = App.Comment.extend();
+
+  App.Post.reopen({
+    comments: DS.hasMany(App.Comment)
+  });
+
+  deepEqual(App.ChildComment.inverseFor('post'), {
+    kind: 'hasMany',
+    type: App.Post,
+    name: 'comments'
+  }, "correct inverse descriptor was returned");
+});
