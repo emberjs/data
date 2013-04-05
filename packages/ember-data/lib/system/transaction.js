@@ -171,7 +171,7 @@ DS.Transaction = Ember.Object.extend({
   */
   commit: function() {
     var store = get(this, 'store');
-    var adapter = get(store, '_adapter');
+    var adapter = store.adapterForType();
     var defaultTransaction = get(store, 'defaultTransaction');
 
     var iterate = function(records) {

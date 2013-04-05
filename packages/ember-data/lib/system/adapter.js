@@ -633,15 +633,18 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     }
 
     this.groupByType(commitDetails.created).forEach(function(type, set) {
-      this.createRecords(store, type, filter(set));
+      var adapter = store.adapterForType(type);
+      adapter.createRecords(store, type, filter(set));
     }, this);
 
     this.groupByType(commitDetails.updated).forEach(function(type, set) {
-      this.updateRecords(store, type, filter(set));
+      var adapter = store.adapterForType(type);
+      adapter.updateRecords(store, type, filter(set));
     }, this);
 
     this.groupByType(commitDetails.deleted).forEach(function(type, set) {
-      this.deleteRecords(store, type, filter(set));
+      var adapter = store.adapterForType(type);
+      adapter.deleteRecords(store, type, filter(set));
     }, this);
   },
 
