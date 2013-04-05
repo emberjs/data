@@ -198,8 +198,11 @@ DS.Transaction = Ember.Object.extend({
     this.removeCleanRecords();
 
     if (!commitDetails.created.isEmpty() || !commitDetails.updated.isEmpty() || !commitDetails.deleted.isEmpty() || !relationships.isEmpty()) {
-      if (adapter && adapter.commit) { adapter.commit(store, commitDetails); }
-      else { throw fmt("Adapter is either null or does not implement `commit` method", this); }
+
+      Ember.assert("You tried to commit records but you have no adapter", adapter);
+      Ember.assert("You tried to commit records but your adapter does not implement `commit`", adapter.commit);
+
+      adapter.commit(store, commitDetails);
     }
 
     // Once we've committed the transaction, there is no need to
