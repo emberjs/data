@@ -6,5 +6,10 @@ before_script:
   - "sh -e /etc/init.d/xvfb start"
   - "rake clean"
 script: "rake test[all]"
+after_success: 'bundle exec rake publish_build'
 notifications:
   webhooks: http://emberjs-master-builds.herokuapp.com/upload/data
+env:
+  global:
+    - S3_BUCKET_NAME=yourbucketname
+
