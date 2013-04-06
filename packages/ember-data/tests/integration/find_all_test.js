@@ -61,7 +61,7 @@ test("When all records for a type are requested, records that are already loaded
 
   equal(get(allRecords, 'length'), 2, "the record array's length is 2");
   equal(allRecords.objectAt(0).get('name'), "Jeremy Ashkenas", "the first item in the record array is Jeremy Ashkenas");
-  equal(allRecords.objectAt(1).get('name'), "Alex MacCaw", "the first item in the record array is Jeremy Ashkenas");
+  equal(allRecords.objectAt(1).get('name'), "Alex MacCaw", "the second item in the record array is Alex MacCaw");
 });
 
 test("When all records for a type are requested, records that are created on the client should be added to the record array.", function() {
