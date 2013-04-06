@@ -1,15 +1,25 @@
+---
 rvm:
-  - 1.9.3
+- 1.9.3
 bundler_args: --without development
 before_script:
-  - "export DISPLAY=:99.0"
-  - "sh -e /etc/init.d/xvfb start"
-  - "rake clean"
-script: "rake test[all]"
-after_success: 'bundle exec rake publish_build'
+- export DISPLAY=:99.0
+- sh -e /etc/init.d/xvfb start
+- rake clean
+script: rake test[all]
+after_success: bundle exec rake publish_build
 notifications:
   webhooks: http://emberjs-master-builds.herokuapp.com/upload/data
 env:
   global:
-    - S3_BUCKET_NAME=yourbucketname
+  - S3_BUCKET_NAME=build.emberjs.com
+  - secure: ! 'S+DIdzEPvqQenk1cFq5UjbkoEKDY4j3E/g+Wlz798xxyTkrKQZxoazLXng8I
 
+      gsxElZtB2kpyUq81gWgZcuygO53mcBuCa4rPIsh0Di6Ik+HDELSFVZ4EN4NK
+
+      z9yP6D7pMY+RnlSvErf3OXSzrxkDcXDxCU4ljBJl1rNBbtAOu5E='
+  - secure: ! 'YjnT2cF8K0M2fSkab+PY3j8XzumBrjzeGsAN4jtyw4shqnywFaE68qO1IIjY
+
+      UvaE/CbWMxO/6FszR02gJHaF+YyfU5WAS0ahFFLHuC1twMtQPxi+nScjKZEs
+
+      kLwKiKgRNhindV3WvbUcoiIrmrgBMCiBRRd4eyVBlhbZ8RTo1Ig='

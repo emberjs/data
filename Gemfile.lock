@@ -27,6 +27,10 @@ GIT
 GEM
   remote: https://rubygems.org/
   specs:
+    aws-sdk (1.8.5)
+      json (~> 1.4)
+      nokogiri (>= 1.4.4)
+      uuidtools (~> 2.1)
     colored (1.2)
     diff-lcs (1.2.1)
     ember-source (1.0.0.rc1.4)
@@ -44,6 +48,7 @@ GEM
     listen (0.7.3)
     mime-types (1.21)
     multi_json (1.7.0)
+    nokogiri (1.5.9)
     posix-spawn (0.3.6)
     rack (1.5.2)
     rake (10.0.3)
@@ -54,11 +59,13 @@ GEM
     uglifier (1.3.0)
       execjs (>= 0.3.0)
       multi_json (~> 1.0, >= 1.0.2)
+    uuidtools (2.1.3)
 
 PLATFORMS
   ruby
 
 DEPENDENCIES
+  aws-sdk (= 1.8.5)
   ember-dev!
   ember-source (= 1.0.0.rc1.4)
   rake-pipeline!
