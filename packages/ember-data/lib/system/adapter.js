@@ -133,7 +133,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {any} payload
   */
   load: function(store, type, payload) {
-    var loader = loaderFor(store);
+    var loader = DS.loaderFor(store);
     get(this, 'serializer').extractRecordRepresentation(loader, type, payload);
   },
 
