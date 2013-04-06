@@ -13,6 +13,7 @@ module("Attribute Changes and Dirtiness", {
       firstName: DS.attr('string')
     });
   }
+
 });
 
 test("By default, if a record's attribute is changed, it becomes dirty", function() {
@@ -168,4 +169,96 @@ test("When adding a newly created record to a hasMany relationship, the parent s
 
   equal(post.get('isDirty'), false, "The record should no longer be dirty");
   equal(post.get('isSaving'), false, "The record should no longer be saving");
+});
+
+var App;
+
+module("Attribute notDirty", {
+  setup: function() {
+    App = Ember.Namespace.create({name: 'App'});
+
+    App.Person = DS.Model.extend({
+      firstName: DS.attr('string')
+    });
+    App.Post = DS.Model.extend({
+      title: DS.attr('string')
+    });
+    App.Comment = DS.Model.extend({
+      title: DS.attr('string'),
+      post: DS.belongsTo(App.Post)
+    });
+    App.Post.reopen({
+      comments: DS.hasMany(App.Comment)
+    });
+
+    var Adapter = DS.Adapter.extend();
+    Adapter.map(App.Person, {
+      firstName: { notDirty: true }
+    });
+    Adapter.map(App.Comment, {
+      post: { notDirty: true }
+    });
+    Adapter.map(App.Post, {
+      comments: { notDirty: true }
+    });
+
+    store = DS.Store.create({
+      adapter: Adapter.create()
+    });
+  },
+
+  teardown: function() {
+    App.destroy();
+  }
+
+});
+
+test("By default, if a notDirty attribute is changed, the record does not become dirty", function() {
+  store.load(App.Person, { id: 1, firstName: "Yehuda" });
+  var wycats = store.find(App.Person, 1);
+
+  wycats.set('firstName', "Brohuda");
+
+  ok(!wycats.get('isDirty'), "record hasn't become dirty");
+});
+
+test("If a notDirty attribute is changed, the record can be reloaded/updated with new data", function() {
+  store.load(App.Person, { id: 1, firstName: "Yehuda" });
+  var wycats = store.find(App.Person, 1);
+
+  wycats.set('firstName', "Brohuda");
+  equal( wycats.get('firstName'), "Brohuda", "record attribute value get updated");
+
+  store.load(App.Person, { id: 1, firstName: "Tiohuda" });
+  equal( wycats.get('firstName'), "Tiohuda", "record can be reloaded after updating a notDirty attribute");
+});
+
+test("If a notDirty belongsTo property changed, the record does not become dirty", function() {
+  store.load(App.Post, { id: 1, title: "Post 1"});
+  store.load(App.Post, { id: 2, title: "Post 2"});
+  var post1 = store.find(App.Post, 1);
+  var post2 = store.find(App.Post, 2);
+
+  store.load(App.Comment, { id: 1, title: "Comment 1", post: post1 });
+  var comment = store.find(App.Comment, 1);
+
+  ok( !comment.get('isDirty'), "created record is not dirty");
+  comment.set('post', post2);
+
+  ok( !comment.get('isDirty'), "record is not dirty after updating a NotDirty belongsTo property");
+});
+
+test("If a notDirty hasMany changed, the record does not become dirty", function() {
+  store.load(App.Comment, { id: 1, title: "Comment 1"});
+  store.load(App.Comment, { id: 2, title: "Comment 2"});
+  var comment1 = store.find(App.Comment, 1);
+  var comment2 = store.find(App.Comment, 2);
+
+  store.load(App.Post, { id: 1, title: "Post 1", comments: [comment1] });
+  var post = store.find(App.Post, 1);
+
+  ok( !post.get('isDirty'), "created record is not dirty");
+  post.get('comments').pushObject(comment2);
+
+  ok( !post.get('isDirty'), "record is not dirty after updating a NotDirty hasMany property");
 });
