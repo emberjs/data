@@ -12,7 +12,7 @@ notifications:
   webhooks: http://emberjs-master-builds.herokuapp.com/upload/data
 env:
   global:
-  - S3_BUCKET_NAME=build.emberjs.com
+  - S3_BUCKET_NAME=builds.emberjs.com
   - secure: ! 'S+DIdzEPvqQenk1cFq5UjbkoEKDY4j3E/g+Wlz798xxyTkrKQZxoazLXng8I
 
       gsxElZtB2kpyUq81gWgZcuygO53mcBuCa4rPIsh0Di6Ik+HDELSFVZ4EN4NK
