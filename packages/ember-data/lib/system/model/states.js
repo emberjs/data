@@ -590,8 +590,15 @@ var states = {
         },
 
         unloadRecord: function(manager) {
+          var record = get(manager, 'record');
+
+          // clear relationships before moving to deleted state
+          // otherwise it fails
+          record.clearRelationships();
+          record.withTransaction(function(t) {
+            t.recordIsMoving('updated', record);
+          });
           manager.transitionTo('deleted.saved');
-          get(manager, 'record').clearRelationships();
         },
 
         invokeLifecycleCallbacks: function(manager, dirtyType) {
