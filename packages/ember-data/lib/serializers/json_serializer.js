@@ -107,20 +107,20 @@ DS.JSONSerializer = DS.Serializer.extend({
 
   addBelongsTo: function(hash, record, key, relationship) {
     var type = record.constructor,
-        name = relationship.key,
         value = null,
         includeType = (relationship.options && relationship.options.polymorphic),
-        embeddedChild;
+        embeddedType = this.embeddedType(type, relationship.key),
+        child = get(record, relationship.key);
 
-    if (this.embeddedType(type, name)) {
-      if (embeddedChild = get(record, name)) {
-        value = this.serialize(embeddedChild, { includeId: true, includeType: includeType });
+    if (embeddedType === 'always') {
+      if (child) {
+        value = this.serialize(child, { includeId: true, includeType: includeType });
       }
 
       hash[key] = value;
     } else {
-      var child = get(record, relationship.key),
-          id = get(child, 'id');
+      var  id = get(child, 'id');
+
       if (!Ember.isNone(id)) {
         if (relationship.options && relationship.options.polymorphic) {
           this.addBelongsToPolymorphic(hash, key, id, child.constructor);
