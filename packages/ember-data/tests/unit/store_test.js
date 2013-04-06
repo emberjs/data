@@ -764,7 +764,7 @@ module("DS.Store - unload record with relationships");
 test("can commit store after unload record with relationships", function() {
 
   var store = DS.Store.create({
-    adapter: DS.Adapter.create({
+    adapter: TestAdapter.create({
 
       find: function() {
         tryToFind = true;
@@ -787,13 +787,13 @@ test("can commit store after unload record with relationships", function() {
     product: DS.belongsTo(Product)
   });
 
-  store.load(Brand, {id: 1, name: 'EmberJS'});
+  store.load(Brand, { id: 1, name: 'EmberJS' });
   brand = store.find(Brand, 1);
 
-  store.load(Product, {id: 1, description: 'toto', brand: brand});
+  store.load(Product, { id: 1, description: 'toto', brand: 1 });
   product = store.find(Product, 1);
 
-  like = store.createRecord(Like, {id: 1, product: product});
+  like = store.createRecord(Like, { id: 1, product: product });
   store.commit();
 
   store.unloadRecord(product);
