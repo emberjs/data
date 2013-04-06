@@ -280,6 +280,7 @@ var convertsWhenSet = function(type, provided, expected) {
 test("a DS.Model can describe String attributes", function() {
   converts('string', "Scumbag Tom", "Scumbag Tom");
   converts('string', 1, "1");
+  converts('string', "", "");
   converts('string', null, null);
   converts('string', undefined, null);
   convertsFromServer('string', undefined, null);
@@ -290,6 +291,7 @@ test("a DS.Model can describe Number attributes", function() {
   converts('number', "0", 0);
   converts('number', 1, 1);
   converts('number', 0, 0);
+  converts('number', "", null);
   converts('number', null, null);
   converts('number', undefined, null);
   converts('number', true, 1);
