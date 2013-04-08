@@ -38,10 +38,10 @@ Ember.onLoad('Ember.Application', function(Application) {
 
       // If a store subclass is defined, like App.Store,
       // instantiate it and inject it into the router.
-      injection: function(app, stateManager, property) {
-        if (!stateManager) { return; }
+      injection: function(app, router, property) {
+        if (!router) { return; }
         if (property === 'Store') {
-          set(stateManager, 'store', app[property].create());
+          set(router, 'store', app[property].create());
         }
       }
     });
@@ -52,12 +52,12 @@ Ember.onLoad('Ember.Application', function(Application) {
 
       // For each controller, set its `store` property
       // to the DS.Store instance we created above.
-      injection: function(app, stateManager, property) {
-        if (!stateManager) { return; }
+      injection: function(app, router, property) {
+        if (!router) { return; }
         if (/^[A-Z].*Controller$/.test(property)) {
           var controllerName = property.charAt(0).toLowerCase() + property.substr(1);
-          var store = stateManager.get('store');
-          var controller = stateManager.get(controllerName);
+          var store = router.get('store');
+          var controller = router.get(controllerName);
           if(!controller) { return; }
 
           controller.set('store', store);
