@@ -210,6 +210,11 @@ DS.Serializer = Ember.Object.extend({
 
   extract: mustImplement('extract'),
   extractMany: mustImplement('extractMany'),
+  extractId: mustImplement('extractId'),
+  extractAttribute: mustImplement('extractAttribute'),
+  extractHasMany: mustImplement('extractHasMany'),
+  extractBelongsTo: mustImplement('extractBelongsTo'),
+  createSerializedForm: mustImplement('createSerializedForm'),
 
   extractRecordRepresentation: function(loader, type, json, shouldSideload) {
     var prematerialized = {}, reference;
@@ -399,7 +404,7 @@ DS.Serializer = Ember.Object.extend({
     @param {String} key the key to add to the serialized data
     @param {any} value the value to add to the serialized data
   */
-  addAttribute: Ember.K,
+  addAttribute: mustImplement('addAttribute'),
 
   /**
     A hook you can use to customize how the record's id is added to
@@ -416,7 +421,7 @@ DS.Serializer = Ember.Object.extend({
     @param {String} key the resolved primary key
     @param {id} id the serialized id
   */
-  addId: Ember.K,
+  addId: mustImplement('addId'),
 
   /**
     A hook you can use to customize how the record's type is added to
@@ -479,7 +484,7 @@ DS.Serializer = Ember.Object.extend({
     @param {String} key the key for the serialized object
     @param {Object} relationship an object representing the relationship
   */
-  addBelongsTo: Ember.K,
+  addBelongsTo: mustImplement('addBelongsTo'),
 
   /**
     A hook you can use to add a `hasMany` relationship to the
@@ -504,7 +509,7 @@ DS.Serializer = Ember.Object.extend({
     @param {String} key the key for the serialized object
     @param {Object} relationship an object representing the relationship
   */
-  addHasMany: Ember.K,
+  addHasMany: mustImplement('addHasMany'),
 
   /**
     NAMING CONVENTIONS
