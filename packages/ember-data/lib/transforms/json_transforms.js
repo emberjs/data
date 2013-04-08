@@ -1,4 +1,4 @@
-var none = Ember.isNone;
+var none = Ember.isNone, empty = Ember.isEmpty;
 
 /**
   DS.Transforms is a hash of transforms used by DS.Serializer.
@@ -16,11 +16,11 @@ DS.JSONTransforms = {
 
   number: {
     deserialize: function(serialized) {
-      return none(serialized) ? null : Number(serialized);
+      return empty(serialized) ? null : Number(serialized);
     },
 
     serialize: function(deserialized) {
-      return none(deserialized) ? null : Number(deserialized);
+      return empty(deserialized) ? null : Number(deserialized);
     }
   },
 
