@@ -391,6 +391,25 @@ test("all(type) returns a record array of all records of a specific type", funct
   strictEqual(results, store.all(Person), "subsequent calls to all return the same recordArray)");
 });
 
+test("all(type) can return a subclass of RecordArray", function(){
+  var DerivedRecordArray = DS.RecordArray.extend();
+
+  var store = DS.Store.create({ 
+    adapter: DS.Adapter.create(),
+    createRecordArray: function(type){
+      return DerivedRecordArray.create({type: type, content: Ember.A([]), store: this});
+    }
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var array = store.all(Person);
+
+  equal(array.constructor, DerivedRecordArray, "Subclass of RecordArray returned from all");
+});
+
 test("a new record of a particular type is created via store.createRecord(type)", function() {
   expect(6);
   var store = DS.Store.create();
