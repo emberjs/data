@@ -212,6 +212,33 @@ test("updating a person makes a PUT to /people/:id with the data hash", function
   equal(get(person, 'name'), "Brohuda Brokatz", "the hash should be updated");
 });
 
+test("updates can optionally be made via the PATCH request method", function() {
+  set(adapter, 'updateViaPATCH', true);
+
+  store.load(Person, { id: 1, name: "Yehuda Katz" });
+
+  person = store.find(Person, 1);
+
+  expectState('new', false);
+  expectState('loaded');
+  expectState('dirty', false);
+
+  set(person, 'name', "Brohuda Brokatz");
+
+  expectState('dirty');
+  store.commit();
+  expectState('saving');
+
+  expectUrl("/people/1", "the plural of the model name with its ID");
+  expectType("PATCH");
+
+  ajaxHash.success({ person: { id: 1, name: "Brohuda Brokatz" } });
+  expectState('saving', false);
+
+  equal(person, store.find(Person, 1), "the same person is retrieved by the same ID");
+  equal(get(person, 'name'), "Brohuda Brokatz", "the hash should be updated");
+});
+
 test("updates are not required to return data", function() {
   store.load(Person, { id: 1, name: "Yehuda Katz" });
 
@@ -765,6 +792,46 @@ test("updating several people (with bulkCommit) makes a PUT to /people/bulk with
 
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
+  expectData({ people: [{ id: 1, name: "Brohuda Brokatz" }, { id: 2, name: "Brocarl Brolerche" }] });
+
+  ajaxHash.success({ people: [
+    { id: 1, name: "Brohuda Brokatz" },
+    { id: 2, name: "Brocarl Brolerche" }
+  ]});
+
+  expectStates('saving', false);
+
+  equal(yehuda, store.find(Person, 1), "the same person is retrieved by the same ID");
+  equal(carl, store.find(Person, 2), "the same person is retrieved by the same ID");
+});
+
+test("updating several people (with bulkCommit) can optionally use the PATCH request method", function() {
+  set(adapter, 'bulkCommit', true);
+  set(adapter, 'updateViaPATCH', true);
+
+  store.loadMany(Person, [
+    { id: 1, name: "Yehuda Katz" },
+    { id: 2, name: "Carl Lerche" }
+  ]);
+
+  var yehuda = store.find(Person, 1);
+  var carl = store.find(Person, 2);
+
+  people = [ yehuda, carl ];
+
+  expectStates('new', false);
+  expectStates('loaded');
+  expectStates('dirty', false);
+
+  set(yehuda, 'name', "Brohuda Brokatz");
+  set(carl, 'name', "Brocarl Brolerche");
+
+  expectStates('dirty');
+  store.commit();
+  expectStates('saving');
+
+  expectUrl("/people/bulk", "the collection at the plural of the model name");
+  expectType("PATCH");
   expectData({ people: [{ id: 1, name: "Brohuda Brokatz" }, { id: 2, name: "Brocarl Brolerche" }] });
 
   ajaxHash.success({ people: [
