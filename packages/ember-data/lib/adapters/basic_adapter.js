@@ -216,16 +216,22 @@ DS.BasicAdapter = DS.Adapter.extend({
 
   createRecord: function(store, type, record) {
     var sync = type.sync;
+    Ember.assert("You are trying to use the BasicAdapter to query " + type + " but " + type + ".sync was not found", sync);
+    Ember.assert("The sync code on " + type + " does not implement createRecord(), but you are trying to create a " + type + " record", sync.createRecord);
     sync.createRecord(record, saveProcessorFactory(store, type));
   },
 
   updateRecord: function(store, type, record) {
     var sync = type.sync;
+    Ember.assert("You are trying to use the BasicAdapter to query " + type + " but " + type + ".sync was not found", sync);
+    Ember.assert("The sync code on " + type + " does not implement updateRecord(), but you are trying to update a " + type + " record", sync.updateRecord);
     sync.updateRecord(record, saveProcessorFactory(store, type, true));
   },
 
   deleteRecord: function(store, type, record) {
     var sync = type.sync;
+    Ember.assert("You are trying to use the BasicAdapter to query " + type + " but " + type + ".sync was not found", sync);
+    Ember.assert("The sync code on " + type + " does not implement deleteRecord(), but you are trying to delete a " + type + " record", sync.deleteRecord);
     sync.deleteRecord(record, saveProcessorFactory(store, type, true));
   }
 });
