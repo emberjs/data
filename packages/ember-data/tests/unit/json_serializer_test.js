@@ -155,6 +155,24 @@ test("Mapped relationships should be used when serializing a record to JSON.", f
   serializer.serialize(address);
 });
 
+test("the id of a belongsTo relationship is serialized by using #serializeId", function() {
+  Person.relationships = { addresses: { key: 'addresses', kind: 'hasMany', type: window.Address }};
+  window.Address.relationships = { person: { key: 'person', kind: 'belongsTo', type: Person }};
+
+  var person = Person.create({ id: 1 });
+  var address = window.Address.create();
+
+  address.set('person', person);
+
+  serializer.serializeId = function(id) {
+    return 'serialized_' + id;
+  };
+
+  deepEqual(serializer.serialize(address), {
+    'person': 'serialized_1'
+  });
+});
+
 test("mapped relationships are respected when materializing a record from JSON", function() {
   Person.relationships = { addresses: { key: 'addresses', kind: 'hasMany', type: window.Address }};
   window.Address.relationships = { person: { key: 'person', kind: 'belongsTo', type: Person }};
