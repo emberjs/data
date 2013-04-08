@@ -176,11 +176,11 @@ var willSetProperty = function(manager, context) {
   context.oldValue = get(get(manager, 'record'), context.name);
 
   var change = DS.AttributeChange.createChange(context);
-  get(manager, 'record')._changesToSync[context.attributeName] = change;
+  get(manager, 'record')._changesToSync[context.name] = change;
 };
 
 var didSetProperty = function(manager, context) {
-  var change = get(manager, 'record')._changesToSync[context.attributeName];
+  var change = get(manager, 'record')._changesToSync[context.name];
   change.value = get(get(manager, 'record'), context.name);
   change.sync();
 };
