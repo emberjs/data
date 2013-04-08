@@ -93,6 +93,19 @@ test("it should cache attributes", function() {
   strictEqual(get(record, 'updatedAt'), get(record, 'updatedAt'), "second get still returns the same object");
 });
 
+test("it should mark record as clean if change is reverted", function() {
+  store.load(Person, { id: 1, name: "Scumdale" });
+
+  var record = store.find(Person, 1);
+  ok(!record.get('isDirty'), "record should be clean initally");
+  
+  record.set('name', 'Tomhuda');
+  ok(record.get('isDirty'), "record should be dirty after change");
+  
+  record.set('name', 'Scumdale');
+  ok(!record.get('isDirty'), "record should be clean again as the change was reverted");
+});
+
 module("DS.Model updating", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
