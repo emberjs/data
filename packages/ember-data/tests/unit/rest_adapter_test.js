@@ -155,7 +155,7 @@ test("creating a person makes a POST to /people, with the data hash", function()
 
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
-  expectData({ person: { name: "Tom Dale" } });
+  expectData({ person: { name: "Tom Dale", group_id: null } });
 
   ajaxHash.success({ person: { id: 1, name: "Tom Dale" } });
   expectState('saving', false);
@@ -172,7 +172,7 @@ test("singular creations can sideload data", function() {
 
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
-  expectData({ person: { name: "Tom Dale" } });
+  expectData({ person: { name: "Tom Dale", group_id: null } });
 
   ajaxHash.success({
     person: { id: 1, name: "Tom Dale" },
@@ -698,7 +698,7 @@ test("creating several people (with bulkCommit) makes a POST to /people, with a 
 
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
-  expectData({ people: [ { name: "Tom Dale" }, { name: "Yehuda Katz" } ] });
+  expectData({ people: [ { name: "Tom Dale", group_id: null }, { name: "Yehuda Katz", group_id: null } ] });
 
   ajaxHash.success({ people: [ { id: 1, name: "Tom Dale" }, { id: 2, name: "Yehuda Katz" } ] });
   expectStates('saving', false);
@@ -723,7 +723,7 @@ test("bulk commits can sideload data", function() {
 
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
-  expectData({ people: [ { name: "Tom Dale" }, { name: "Yehuda Katz" } ] });
+  expectData({ people: [ { name: "Tom Dale", group_id: null }, { name: "Yehuda Katz", group_id: null } ] });
 
   ajaxHash.success({
     people: [ { id: 1, name: "Tom Dale" }, { id: 2, name: "Yehuda Katz" } ],
@@ -765,7 +765,7 @@ test("updating several people (with bulkCommit) makes a PUT to /people/bulk with
 
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
-  expectData({ people: [{ id: 1, name: "Brohuda Brokatz" }, { id: 2, name: "Brocarl Brolerche" }] });
+  expectData({ people: [{ id: 1, name: "Brohuda Brokatz", group_id: null }, { id: 2, name: "Brocarl Brolerche", group_id: null }] });
 
   ajaxHash.success({ people: [
     { id: 1, name: "Brohuda Brokatz" },
@@ -806,7 +806,7 @@ test("bulk updates can sideload data", function() {
 
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
-  expectData({ people: [{ id: 1, name: "Brohuda Brokatz" }, { id: 2, name: "Brocarl Brolerche" }] });
+  expectData({ people: [{ id: 1, name: "Brohuda Brokatz", group_id: null }, { id: 2, name: "Brocarl Brolerche", group_id: null }] });
 
   ajaxHash.success({
     people: [
@@ -998,7 +998,7 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
 
   expectUrl('/people');
   expectType("POST");
-  expectData({ person: { name: "Sam Woodard", person_type_id: "1" } });
+  expectData({ person: { name: "Sam Woodard", person_type_id: "1", group_id: null } });
   ajaxHash.success({ person: { name: 'Sam Woodard', person_type_id: 1}});
 });
 
