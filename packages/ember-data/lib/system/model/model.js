@@ -112,10 +112,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     this.send('didChangeData');
   },
 
-  setProperty: function(key, value, oldValue) {
-    this.send('setProperty', { key: key, value: value, oldValue: oldValue });
-  },
-
   /**
     Reload the record from the adapter.
 
