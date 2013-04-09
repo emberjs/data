@@ -127,7 +127,7 @@ DS.JSONSerializer = DS.Serializer.extend({
       if (relationship.options && relationship.options.polymorphic && !Ember.isNone(id)) {
         this.addBelongsToPolymorphic(hash, key, id, child.constructor);
       } else {
-        hash[key] = id === undefined ? null : id;
+        hash[key] = id === undefined ? null : this.serializeId(id);
       }
     }
   },
