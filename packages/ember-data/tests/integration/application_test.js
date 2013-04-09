@@ -37,6 +37,23 @@ if (Ember.Application.initializer) {
     var fooController = container.lookup('controller:foo');
     ok(fooController.get('store') instanceof DS.Store, "the store was injected");
   });
+
+  test("After App.reset(), App.MyModel.find(...) still works", function () {
+    app.Person = DS.Model.extend({ name: DS.attr('string') });
+    app.Person.find('1');
+    Ember.run(function () { app.reset(); });
+    app.Person.find('2');
+    ok(true, "did not crash");
+  });
+
+  test("After App.reset(), there is a new, valid defaultStore", function () {
+    var oldStore = DS.get("defaultStore");
+    ok(oldStore instanceof DS.Store, "defaultStore is present before reset");
+    Ember.run(function () { app.reset(); });
+    var newStore = DS.get("defaultStore");
+    ok(newStore instanceof DS.Store, "defaultStore is present after reset");
+    ok(newStore !== oldStore, "defaultStore has changed");
+  });
 }
 
 if (Ember.Application.registerInjection) {
@@ -84,6 +101,25 @@ if (Ember.Application.registerInjection) {
     Ember.run(function() { app.initialize(); });
 
     equal(app.get('router.bazController.store'), undefined, "the function was not injected");
+  });
+
+  test("After App.reset(), App.MyModel.find(...) still works", function () {
+    app.Person = DS.Model.extend({ name: DS.attr('string') });
+    Ember.run(function () { app.initialize(); });
+    app.Person.find('1');
+    Ember.run(function () { app.reset(); });
+    app.Person.find('2');
+    ok(true, "did not crash");
+  });
+
+  test("After App.reset(), there is a new, valid defaultStore", function () {
+    Ember.run(function () { app.initialize(); });
+    var oldStore = DS.get("defaultStore");
+    ok(oldStore instanceof DS.Store, "defaultStore is present before reset");
+    Ember.run(function () { app.reset(); });
+    var newStore = DS.get("defaultStore");
+    ok(newStore instanceof DS.Store, "defaultStore is present after reset");
+    ok(newStore !== oldStore, "defaultStore has changed");
   });
 }
 
