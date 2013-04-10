@@ -23,7 +23,7 @@ DS.belongsTo = function(type, options) {
 
     id = data[key];
 
-    if(!id) {
+    if(none(id)) {
       return null;
     } else if (id.clientId) {
       return store.recordForReference(id);
