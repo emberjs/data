@@ -178,6 +178,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         adapter = this.adapterForType(record.constructor),
         data = cidToData[clientId];
 
+    if (data.materialized) { return; }
+
     cidToData[clientId] = MATERIALIZED;
 
     var prematerialized = this.clientIdToPrematerializedData[clientId];

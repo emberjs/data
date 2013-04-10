@@ -195,3 +195,24 @@ test("when materializing a record, deserializeValue is called to convert the val
 
   store.find(Bowler, 'dude');
 });
+
+test("calling materializeData a second time does not destroy data", function() {
+  var Bowler = DS.Model.extend({
+    favoriteDrink: DS.attr('string'),
+    hasSpecialLadyFriend: DS.attr('boolean')
+  });
+
+  store.load(Bowler, { id: 'dude', favoriteDrink: "white russian", hasSpecialLadyFriend: "FALSE" });
+
+  var record = store.find(Bowler, 'dude');
+
+  equal(record.get('favoriteDrink'), 'white russian', 'precond -- materialized properly');
+
+  record.materializeData();
+
+  equal(record.get('favoriteDrink'), 'white russian', "attributes don't change when materializeData is called on the record");
+
+  store.materializeData(record);
+
+  equal(record.get('favoriteDrink'), 'white russian', "attributes don't change when materializeData is called on the store");
+});
