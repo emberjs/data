@@ -614,3 +614,33 @@ test("findMany is passed the owner record for adapters when none of the object g
 
 });
 
+test("belongsTo supports relationships to models with id 0", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+  Tag.toString = function() { return "Tag"; };
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo(Tag)
+  });
+  Person.toString = function() { return "Person"; };
+
+  Tag.reopen({
+    people: DS.hasMany(Person)
+  });
+
+  var store = DS.Store.create({ adapter: 'DS.Adapter' });
+  store.loadMany(Tag, [0, 2, 12], [{ id: 0, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
+  store.load(Person, 1, { id: 1, name: "Tom Dale", tag: 0 });
+
+  var person = store.find(Person, 1);
+  equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
+
+  equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
+  equal(get(person, 'tag.name'), "friendly", "the tag shuld have name");
+
+  strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
+  strictEqual(get(person, 'tag'), store.find(Tag, 0), "relationship object is the same as object retrieved directly");
+});
+
