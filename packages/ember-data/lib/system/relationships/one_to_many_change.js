@@ -10,6 +10,7 @@ DS.RelationshipChange = function(options) {
   this.secondRecordReference = options.secondRecordReference;
   this.secondRecordKind = options.secondRecordKind;
   this.secondRecordName = options.secondRecordName;
+  this.dirtySet = options.dirtySet;
   this.store = options.store;
   this.committed = {};
   this.changeType = options.changeType;
@@ -323,6 +324,10 @@ DS.RelationshipChange.prototype = {
 
     store.removeRelationshipChangeFor(childReference, belongsToName, this.parentReference, hasManyName, this.changeType);
 
+    this.dirtySet.forEach(function(record) {
+      record.removedFromDirtySet();
+    });
+
     if (transaction = this.transaction) {
       transaction.relationshipBecameClean(this);
     }
@@ -391,6 +396,8 @@ DS.RelationshipChange.prototype = {
     dirtySet.forEach(function(record) {
       record.adapterDidDirty();
     });
+
+    this.dirtySet = dirtySet;
   },
 
   coalesce: function(){

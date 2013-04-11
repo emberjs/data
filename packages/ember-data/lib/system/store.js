@@ -363,6 +363,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // this clientId.
     this.recordCache[clientId] = record;
 
+    record.dirtyCounter = 1;
+
     // Set the properties specified on the record.
     record.setProperties(properties);
 
@@ -1866,11 +1868,23 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // ..............................
   // . RECORD CHANGE NOTIFICATION .
   // ..............................
+  recordAttributeReverted: function(attributeChange) {
+    var dirtySet = attributeChange.dirtySet;
+    if(dirtySet){ 
+      dirtySet.forEach(function(record) {
+        record.removedFromDirtySet();
+      });
+    }
+  },
 
-  recordAttributeDidChange: function(reference, attributeName, newValue, oldValue) {
-    var record = this.recordForReference(reference),
+  recordAttributeDidChange: function(attributeChange) {
+    var reference = attributeChange.reference,
+        record = this.recordForReference(reference),
         dirtySet = new Ember.OrderedSet(),
-        adapter = this.adapterForType(record.constructor);
+        adapter = this.adapterForType(record.constructor),
+        attributeName = attributeChange.name,
+        newValue = attributeChange.value,
+        oldValue = attributeChange.oldValue;
 
     if (adapter.dirtyRecordsForAttributeChange) {
       adapter.dirtyRecordsForAttributeChange(dirtySet, record, attributeName, newValue, oldValue);
@@ -1879,6 +1893,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     dirtySet.forEach(function(record) {
       record.adapterDidDirty();
     });
+
+    attributeChange.dirtySet = dirtySet;
   },
 
   recordBelongsToDidChange: function(dirtySet, child, relationship) {
