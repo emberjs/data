@@ -196,7 +196,7 @@ DS.Transaction = Ember.Object.extend({
           return createdParents.list[i];
         }
       }
-    }
+    };
 
     relationships.forEach(function (relationship) {
      var parent = findCreatedParentByRef(relationship.parentReference);
@@ -233,10 +233,10 @@ DS.Transaction = Ember.Object.extend({
 
 
     var commitStage = function (commitDetails) {
-      if (!commitDetails.created.isEmpty()
-          || !commitDetails.updated.isEmpty()
-          || !commitDetails.deleted.isEmpty()
-          || !relationships.isEmpty()) {
+      if (!commitDetails.created.isEmpty() ||
+          !commitDetails.updated.isEmpty() ||
+          !commitDetails.deleted.isEmpty() ||
+          !relationships.isEmpty()) {
         Ember.assert("You tried to commit records but you have no adapter", adapter);
         Ember.assert("You tried to commit records but your adapter does not implement `commit`", adapter.commit);
 
@@ -245,11 +245,11 @@ DS.Transaction = Ember.Object.extend({
     };
 
     var parentCreated = function (record) {
-        createdParentsCount--;
-        if (createdParentsCount === 0) {
-          commitStage(childrenCommitStage);
-        }
+      createdParentsCount--;
+      if (createdParentsCount === 0) {
+        commitStage(childrenCommitStage);
       }
+    };
 
     var createdParentsCount = 0;
     parentsCommitStage.created.forEach(function (record) {

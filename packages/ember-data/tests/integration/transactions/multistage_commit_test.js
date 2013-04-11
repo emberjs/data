@@ -42,8 +42,8 @@ test("Commits new record with relations in stages", function() {
   adapter.createRecord = function(store, type, record) {
     var json = this.serialize(record, { includeId: true });
     record.createRecordTestCallback(json);
-    var jsonWithRoot = {}
-    jsonWithRoot[this.serializer.rootForType(type)] = json
+    var jsonWithRoot = {};
+    jsonWithRoot[this.serializer.rootForType(type)] = json;
     Ember.run.later(this, function(){
       this.didCreateRecord(store, type, record, jsonWithRoot);
     }, 1);
@@ -72,13 +72,13 @@ test("Commits new record with relations in stages", function() {
 
   var postSaved, commentSaved;
   post.one('didCreate', function () {
-    ok(true, 'post is saved')
+    ok(true, 'post is saved');
     postSaved = true;
     if (postSaved && commentSaved) start();
   });
 
   comment.one('didCreate', function () {
-    ok(true, 'comment is saved')
+    ok(true, 'comment is saved');
     commentSaved = true;
     if (postSaved && commentSaved) start();
   });
