@@ -217,7 +217,7 @@ test("loadValue should be called once per sideloaded type", function() {
     }
   };
 
-  loader = { load: K, loadMany: K, prematerialize: K, sinceForType: K };
+  loader = { load: K, loadMany: K, prematerialize: K, metaForType: K };
 
   serializer.loadValue = function(store, type, value) {
     loadedTypes.push(type);
@@ -226,4 +226,113 @@ test("loadValue should be called once per sideloaded type", function() {
   serializer.extract(loader, payload, App.Team);
 
   equal(loadedTypes.length, 3, "Loaded: " + loadedTypes.join(", "));
+});
+
+module("Adapter serialization with metadata", {
+  setup: function() {
+    store = DS.Store.create();
+    serializer = DS.JSONSerializer.create();
+  },
+
+  teardown: function() {
+    serializer.destroy();
+    store.destroy();
+  }
+});
+
+test("metadata that has been configured is passed to the store", function() {
+  var payload, typeMap, loader = DS.loaderFor(store), K = Ember.K, App = Ember.Namespace.create({
+    toString: function() { return "App"; }
+  });
+
+  payload = {
+      meta: {
+        pages: { total_pages: '2', per_page: '1' },  since: '123'
+      },
+      posts: [
+        { id: 1, name: "My First Post" },
+        { id: 2, name: "The Second Post" }
+      ]
+    };
+
+  App.Post = DS.Model.extend({
+    name: DS.attr('string', {defaultValue: 'A Post'})
+  });
+
+  serializer.configure({
+    meta: 'meta',
+    since: 'since',
+    pagination: 'pages'
+  });
+
+  loader = { load: K, loadMany: K, prematerialize: K, populateArray: K, metaForType: loader.metaForType };
+  typeMap = store.typeMapFor(App.Post);
+
+  serializer.extractMany(loader, payload, App.Post);
+
+  equal(typeMap.metadata.pagination, payload.meta[serializer.configOption(App.Post, 'pagination')], "Loaded meta property: pagination");
+  equal(typeMap.metadata.since, payload.meta[serializer.configOption(App.Post, 'since')], "Loaded meta property: since");
+});
+
+test("metadata that has not been configured is not passed to the store", function() {
+  var payload, typeMap, loader = DS.loaderFor(store), K = Ember.K, App = Ember.Namespace.create({
+    toString: function() { return "App"; }
+  });
+
+  payload = {
+      meta: {
+        pages: { total_pages: '2', per_page: '1' },  since: '123'
+      },
+      posts: [
+        { id: 1, name: "My First Post" },
+        { id: 2, name: "The Second Post" }
+      ]
+    };
+
+  App.Post = DS.Model.extend({
+    name: DS.attr('string', {defaultValue: 'A Post'})
+  });
+
+  loader = { load: K, loadMany: K, prematerialize: K, populateArray: K, metaForType: loader.metaForType };
+  typeMap = store.typeMapFor(App.Post);
+
+  serializer.extractMany(loader, payload, App.Post);
+
+  equal(typeMap.metadata.pagination, null, "Did not load meta property: pagination");
+  equal(typeMap.metadata.since, payload.meta[serializer.configOption(App.Post, 'since')], "Loaded meta property: since");
+});
+
+test("metadata that is not nested under 'meta' is passed to store", function() {
+  var payload, typeMap, loader = DS.loaderFor(store), K = Ember.K, App = Ember.Namespace.create({
+    toString: function() { return "App"; }
+  });
+
+  payload = {
+      total_pages: '2',
+      per_page: '1',
+      since: '123',
+      posts: [
+        { id: 1, name: "My First Post" },
+        { id: 2, name: "The Second Post" }
+      ]
+    };
+
+  App.Post = DS.Model.extend({
+    name: DS.attr('string', {defaultValue: 'A Post'})
+  });
+
+  serializer.configure({
+    since: 'since',
+    pages: 'total_pages',
+    pageLimit: 'per_page'
+  });
+
+  loader = { load: K, loadMany: K, prematerialize: K, populateArray: K, metaForType: loader.metaForType };
+  typeMap = store.typeMapFor(App.Post);
+
+  serializer.extractMany(loader, payload, App.Post);
+
+  equal(typeMap.metadata.pages, payload[serializer.configOption(App.Post, 'pages')], "Loaded meta property: pages");
+  equal(typeMap.metadata.pageLimit, payload[serializer.configOption(App.Post, 'pageLimit')], "Loaded meta property: pageLimit");
+  equal(typeMap.metadata.since, payload[serializer.configOption(App.Post, 'since')], "Loaded meta property: since");
 });
