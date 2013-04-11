@@ -13,6 +13,9 @@ DS.JSONSerializer = DS.Serializer.extend({
       this.set('transforms', DS.JSONTransforms);
     }
 
+    this.sideloadMapping = Ember.Map.create();
+    this.metadataMapping = Ember.Map.create();
+
     this.configure({
       meta: 'meta',
       since: 'since'
@@ -20,7 +23,13 @@ DS.JSONSerializer = DS.Serializer.extend({
   },
 
   configure: function(type, configuration) {
+    var key;
+
     if (type && !configuration) {
+      for(key in type){
+        this.metadataMapping.set(get(type, key), key);
+      }
+
       return this._super(type);
     }
 
@@ -220,12 +229,18 @@ DS.JSONSerializer = DS.Serializer.extend({
   },
 
   extractMeta: function(loader, type, json) {
-    var meta = json[this.configOption(type, 'meta')], since;
-    if (!meta) { return; }
+    var meta = this.configOption(type, 'meta'),
+        data = json, key, property, value;
 
-    if (since = meta[this.configOption(type, 'since')]) {
-      loader.sinceForType(type, since);
+    if(meta && json[meta]){
+      data = json[meta];
     }
+
+    this.metadataMapping.forEach(function(property, key){
+      if(value = data[property]){
+        loader.metaForType(type, key, value);
+      }
+    });
   },
 
   extractEmbeddedType: function(relationship, data) {
@@ -265,7 +280,7 @@ DS.JSONSerializer = DS.Serializer.extend({
     for (var prop in json) {
       if (!json.hasOwnProperty(prop) ||
           prop === root ||
-          prop === this.configOption(type, 'meta')) {
+          !!this.metadataMapping.get(prop)) {
         continue;
       }
 

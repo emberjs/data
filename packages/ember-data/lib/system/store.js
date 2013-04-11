@@ -798,8 +798,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @private
   */
   fetchAll: function(type, array) {
-    var sinceToken = this.typeMapFor(type).sinceToken,
-        adapter = this.adapterForType(type);
+    var adapter = this.adapterForType(type),
+        sinceToken = this.typeMapFor(type).metadata.since;
 
     set(array, 'isUpdating', true);
 
@@ -813,8 +813,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
   /**
   */
-  sinceForType: function(type, sinceToken) {
-    this.typeMapFor(type).sinceToken = sinceToken;
+  metaForType: function(type, property, data) {
+    var target = this.typeMapFor(type).metadata;
+    set(target, property, data);
   },
 
   /**
@@ -1533,7 +1534,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         {
           idToCid: {},
           clientIds: [],
-          recordArrays: []
+          recordArrays: [],
+          metadata: {}
       });
     }
   },
