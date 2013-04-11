@@ -375,6 +375,11 @@ var DirtyState = DS.State.extend({
     willSetProperty: willSetProperty,
 
     didSetProperty: function(manager, context) {
+      manager.send('becomeDirty', context);
+      didSetProperty(manager, context);
+    },
+
+    becomeDirty: function(manager, context){
       var record = get(manager, 'record'),
           errors = get(record, 'errors'),
           key = context.name;
@@ -384,11 +389,7 @@ var DirtyState = DS.State.extend({
       if (!hasDefinedProperties(errors)) {
         manager.send('becameValid');
       }
-
-      didSetProperty(manager, context);
     },
-
-    becomeDirty: Ember.K,
 
     rollback: function(manager) {
       manager.send('becameValid');
