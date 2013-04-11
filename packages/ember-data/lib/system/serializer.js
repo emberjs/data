@@ -760,7 +760,7 @@ DS.Serializer = Ember.Object.extend({
       idOrTuple = this.extractBelongsTo(type, hash, key);
     }
 
-    if(idOrTuple) {
+    if(!isNone(idOrTuple)) {
       tuple = this._convertTuple(relationship.type, idOrTuple);
     }
 
