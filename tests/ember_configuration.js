@@ -108,7 +108,9 @@
       didUpdateAttribute: syncForTest(),
       didUpdateAttributes: syncForTest(),
       didUpdateRelationship: syncForTest(),
-      didUpdateRelationships: syncForTest()
+      didUpdateRelationships: syncForTest(),
+      updateRecordArrays: syncForTest(),
+      updateRecordArraysLater: syncForTest()
     });
 
     DS.Model.reopen({
