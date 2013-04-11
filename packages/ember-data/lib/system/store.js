@@ -1619,7 +1619,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     id = coerceId(id);
 
     var typeMap = this.typeMapFor(type),
-        cidToData = this.clientIdToData,
         clientId = typeMap.idToCid[id],
         cidToPrematerialized = this.clientIdToPrematerializedData;
 
