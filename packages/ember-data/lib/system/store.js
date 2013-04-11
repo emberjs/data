@@ -766,16 +766,17 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     @param {Class} type
     @param {Object} query an opaque query to be used by the adapter
+    @param {string} suffix an optional url suffix to be used by the adapter
     @return {DS.AdapterPopulatedRecordArray}
   */
-  findQuery: function(type, query) {
+  findQuery: function(type, query, suffix) {
     var array = DS.AdapterPopulatedRecordArray.create({ type: type, query: query, content: Ember.A([]), store: this });
     var adapter = this.adapterForType(type);
 
     Ember.assert("You tried to load a query but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", adapter.findQuery);
 
-    adapter.findQuery(this, type, query, array);
+    adapter.findQuery(this, type, query, array, suffix);
 
     return array;
   },
@@ -876,14 +877,16 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     data before loading it into the store.
 
     @param {Class} type
+    @param {Object} query
     @param {Function} filter
+    @param {string} suffix
 
     @return {DS.FilteredRecordArray}
   */
-  filter: function(type, query, filter) {
+  filter: function(type, query, filter, suffix) {
     // allow an optional server query
-    if (arguments.length === 3) {
-      this.findQuery(type, query);
+    if (arguments.length >= 3) {
+      this.findQuery(type, query, suffix);
     } else if (arguments.length === 2) {
       filter = query;
     }
