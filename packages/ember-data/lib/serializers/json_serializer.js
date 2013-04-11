@@ -62,18 +62,6 @@ DS.JSONSerializer = DS.Serializer.extend({
     hash[key] = value;
   },
 
-  /**
-    @private
-
-    Creates an empty hash that will be filled in by the hooks called from the
-    `serialize()` method.
-
-    @return {Object}
-  */
-  createSerializedForm: function() {
-    return {};
-  },
-
   extractAttribute: function(type, hash, attributeName) {
     var key = this._keyForAttributeName(type, attributeName);
     return hash[key];

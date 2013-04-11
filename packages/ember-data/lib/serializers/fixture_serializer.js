@@ -32,18 +32,6 @@ DS.FixtureSerializer = DS.Serializer.extend({
     hash[relationship.key] = ids;
   },
 
-  /**
-    @private
-
-    Creates an empty hash that will be filled in by the hooks called from the
-    `serialize()` method.
-
-    @return {Object}
-  */
-  createSerializedForm: function() {
-    return {};
-  },
-
   extract: function(loader, fixture, type, record) {
     if (record) { loader.updateId(record, fixture); }
     this.extractRecordRepresentation(loader, type, fixture);
