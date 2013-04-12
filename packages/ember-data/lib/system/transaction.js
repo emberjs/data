@@ -94,6 +94,7 @@ DS.Transaction = Ember.Object.extend({
       created:  Ember.OrderedSet.create(),
       updated:  Ember.OrderedSet.create(),
       deleted:  Ember.OrderedSet.create(),
+      erred:    Ember.OrderedSet.create(),
       inflight: Ember.OrderedSet.create()
     });
 
@@ -320,7 +321,7 @@ DS.Transaction = Ember.Object.extend({
 
     Adds a record to the named bucket.
 
-    @param {String} bucketType one of `clean`, `created`, `updated`, or `deleted`
+    @param {String} bucketType one of `clean`, `created`, `updated`, `deleted` or `erred`
   */
   addToBucket: function(bucketType, record) {
     this.bucketForType(bucketType).add(record);
@@ -331,7 +332,7 @@ DS.Transaction = Ember.Object.extend({
 
     Removes a record from the named bucket.
 
-    @param {String} bucketType one of `clean`, `created`, `updated`, or `deleted`
+    @param {String} bucketType one of `clean`, `created`, `updated`, `deleted`, or `erred`
   */
   removeFromBucket: function(bucketType, record) {
     this.bucketForType(bucketType).remove(record);
@@ -363,6 +364,20 @@ DS.Transaction = Ember.Object.extend({
   recordBecameInFlight: function(kind, record) {
     this.removeFromBucket(kind, record);
     this.addToBucket('inflight', record);
+  },
+
+  /**
+    @private
+
+    Called by a record's state manager to indicate that the record has entered
+    erred state. The record will be moved from its current dirty bucket and into
+    the `inflight` bucket.
+
+    @param {String} bucketType one of `created`, `updated`, or `deleted`
+  */
+  recordBecameErred: function(kind, record) {
+    this.removeFromBucket(kind, record);
+    this.addToBucket('erred', record);
   },
 
   recordIsMoving: function(kind, record) {

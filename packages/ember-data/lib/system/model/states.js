@@ -358,11 +358,11 @@ var DirtyState = DS.State.extend({
     // FLAGS
     isValid: false,
 
-    exit: function(manager) {
+    enter: function(manager) {
       var record = get(manager, 'record');
 
       record.withTransaction(function (t) {
-        t.recordBecameClean('inflight', record);
+        t.recordBecameErred('inflight', record);
       });
     },
 

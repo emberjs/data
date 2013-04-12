@@ -211,6 +211,25 @@ test("a record that is in the clean state is moved back to the default transacti
   equal(get(person, 'transaction'), get(store, 'defaultTransaction'), "record should have been moved back to the default transaction");
 });
 
+test("a record that is in the invalid state stays on its transaction after transitioning to the uncommitted state", function() {
+  var store = DS.Store.create();
+
+  store.load(Person, { id: 1, name: "Scumbag Cyril" });
+
+  var invalidPerson = store.find(Person, 1);
+
+  transaction = store.transaction();
+  transaction.add(invalidPerson);
+
+  invalidPerson.set('name', null);
+  invalidPerson.send('willCommit');
+  store.recordWasInvalid(invalidPerson, {name: 'no name!'});
+
+  invalidPerson.set('name', 'hope');
+
+  equal(get(invalidPerson, 'transaction'), transaction, "record should not have been moved back to the default transaction");
+});
+
 test("modified records are reset when their transaction is rolled back", function() {
 
   var store = DS.Store.create({
