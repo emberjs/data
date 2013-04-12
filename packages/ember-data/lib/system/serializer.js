@@ -214,7 +214,6 @@ DS.Serializer = Ember.Object.extend({
   extractAttribute: mustImplement('extractAttribute'),
   extractHasMany: mustImplement('extractHasMany'),
   extractBelongsTo: mustImplement('extractBelongsTo'),
-  createSerializedForm: mustImplement('createSerializedForm'),
 
   extractRecordRepresentation: function(loader, type, json, shouldSideload) {
     var prematerialized = {}, reference;
