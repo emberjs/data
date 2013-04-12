@@ -128,6 +128,19 @@ test("a DS.Model can have a defaultValue", function() {
   equal(get(tag, 'name'), null, "null doesn't shadow defaultValue");
 });
 
+test("a defaultValue for an attribite can be a function", function() {
+  var Tag = DS.Model.extend({
+    createdAt: DS.attr('string', {
+      defaultValue: function() {
+        return "le default value";
+      }
+    })
+  });
+
+  var tag = Tag.createRecord();
+  equal(get(tag, 'createdAt'), "le default value", "the defaultValue function is evaluated");
+});
+
 test("when a DS.Model updates its attributes, its changes affect its filtered Array membership", function() {
   var people = store.filter(Person, function(hash) {
     if (hash.get('name').match(/Katz$/)) { return true; }
