@@ -10,6 +10,7 @@ var retrieveFromCurrentState = Ember.computed(function(key, value) {
 }).property('stateManager.currentState').readOnly();
 
 DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
+  isLoading: retrieveFromCurrentState,
   isLoaded: retrieveFromCurrentState,
   isReloading: retrieveFromCurrentState,
   isDirty: retrieveFromCurrentState,
