@@ -281,3 +281,15 @@ test("A record can be removed from a polymorphic association", function() {
   equal(removedObject, comment, "The message is correctly removed");
   equal(messages.get('length'), 0, "The user does not have any messages");
 });
+
+test("Finding single record after loading its id through hasMany", function() {
+  expect(1);
+  store.load(App.Post, { id: 1, comments: [1, 2, 3] });
+
+  adapter.find = function(store, type, id) {
+    ok(true, "The find method should be called for comment");
+  };
+
+  var post = store.find(App.Post, 1);
+  var comment = store.find(App.Comment, 2);
+});
