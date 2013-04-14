@@ -480,7 +480,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   findById: function(type, id) {
     var clientId = this.typeMapFor(type).idToCid[id];
 
-    if (clientId) {
+    // A record can have a reference without being loaded
+    // (through a hasMany relationship). In that case, we need to
+    // materialize the record.
+    if (clientId && this.clientIdToData[clientId] !== UNLOADED) {
       return this.findByClientId(type, clientId);
     }
 
@@ -1702,11 +1705,17 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         clientIdToIdMap = this.clientIdToId,
         clientIdToTypeMap = this.clientIdToType,
         clientIds = typeMap.clientIds,
-        cidToData = this.clientIdToData;
+        cidToData = this.clientIdToData,
+        clientId;
 
-    Ember.assert('The id ' + id + ' has already been used with another record of type ' + type.toString() + '.', !id || !idToClientIdMap[id]);
-
-    var clientId = ++this.clientIdCounter;
+    // If we load an item referenced in a relationship,
+    // it already has a clientId, but still needs to be materialized.
+    if(clientId=idToClientIdMap[id]) {
+      Ember.assert('The id ' + id + ' has already been used with another record of type ' + type.toString() + '.', !(data === CREATED && !!cidToData[clientId]));
+    } else {
+      clientId = ++this.clientIdCounter;
+      clientIds.push(clientId);
+    }
 
     this.loadData(data, clientId, type);
     clientIdToTypeMap[clientId] = type;
@@ -1717,8 +1726,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       idToClientIdMap[id] = clientId;
       clientIdToIdMap[clientId] = id;
     }
-
-    clientIds.push(clientId);
 
     return clientId;
   },
