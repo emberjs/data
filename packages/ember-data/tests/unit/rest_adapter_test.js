@@ -826,7 +826,7 @@ test("bulk updates can sideload data", function() {
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
-test("deleting several people (with bulkCommit) makes a PUT to /people/bulk", function() {
+test("deleting several people (with bulkCommit) makes a DELETE to /people/bulk", function() {
   set(adapter, 'bulkCommit', true);
 
   store.loadMany(Person, [
