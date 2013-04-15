@@ -65,7 +65,7 @@ var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt,
     var transaction = store.transaction();
     transaction.createRecord(App.Person, { name: "Steve" });
 
-  ### Asynchronous Commits
+  ### Multistage Commits
 
   Typically, all of the records in a transaction will be committed
   together. However, new records that have a dependency on other new
@@ -182,13 +182,47 @@ DS.Transaction = Ember.Object.extend({
       return set;
     };
 
-    var relationships = get(this, 'relationships');
 
-    var commitDetails = {
-      created: iterate(this.bucketForType('created')),
+    var createdParents  = this.bucketForType('created');
+    var createdChildren = Ember.OrderedSet.create();
+
+    var relationships = get(this, 'relationships');
+    var parentRelationships = Ember.OrderedSet.create();
+    var childrenRelationships = Ember.OrderedSet.create();
+
+    var findCreatedParentByRef = function (reference) {
+      for (var i = 0; i < createdParents.list.length; i++) {
+        if (createdParents.list[i].get('clientId') === reference.clientId) {
+          return createdParents.list[i];
+        }
+      }
+    };
+
+    relationships.forEach(function (relationship) {
+     var parent = findCreatedParentByRef(relationship.parentReference);
+     var child  = findCreatedParentByRef(relationship.childReference);
+     if (parent && child) {
+       createdParents.remove(child);
+       createdChildren.add(child);
+       childrenRelationships.add(relationship);
+     } else {
+       parentRelationships.add(relationship);
+     }
+
+    });
+
+    var parentsCommitStage = {
+      created: iterate(createdParents),
       updated: iterate(this.bucketForType('updated')),
       deleted: iterate(this.bucketForType('deleted')),
-      relationships: relationships
+      relationships: parentRelationships
+    };
+
+    var childrenCommitStage = {
+      created: iterate(createdChildren),
+      updated: Ember.OrderedSet.create(),
+      deleted: Ember.OrderedSet.create(),
+      relationships: childrenRelationships
     };
 
     if (this === defaultTransaction) {
@@ -197,13 +231,33 @@ DS.Transaction = Ember.Object.extend({
 
     this.removeCleanRecords();
 
-    if (!commitDetails.created.isEmpty() || !commitDetails.updated.isEmpty() || !commitDetails.deleted.isEmpty() || !relationships.isEmpty()) {
 
-      Ember.assert("You tried to commit records but you have no adapter", adapter);
-      Ember.assert("You tried to commit records but your adapter does not implement `commit`", adapter.commit);
+    var commitStage = function (commitDetails) {
+      if (!commitDetails.created.isEmpty() ||
+          !commitDetails.updated.isEmpty() ||
+          !commitDetails.deleted.isEmpty() ||
+          !relationships.isEmpty()) {
+        Ember.assert("You tried to commit records but you have no adapter", adapter);
+        Ember.assert("You tried to commit records but your adapter does not implement `commit`", adapter.commit);
 
-      adapter.commit(store, commitDetails);
-    }
+        adapter.commit(store, commitDetails);
+      }
+    };
+
+    var parentCreated = function (record) {
+      createdParentsCount--;
+      if (createdParentsCount === 0) {
+        commitStage(childrenCommitStage);
+      }
+    };
+
+    var createdParentsCount = 0;
+    parentsCommitStage.created.forEach(function (record) {
+      createdParentsCount++;
+      record.addObserver('id', parentCreated);
+    });
+
+    commitStage(parentsCommitStage);
 
     // Once we've committed the transaction, there is no need to
     // keep the OneToManyChanges around. Destroy them so they
