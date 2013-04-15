@@ -4,7 +4,9 @@ var Person, adapter, store, allRecords;
 
 module("Finding All Records of a Type", {
   setup: function() {
-    Person = DS.Model.extend({
+    var App = Ember.Namespace.create({ name: "App" });
+
+    Person = App.Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
       firstName: DS.attr('string'),
@@ -45,6 +47,32 @@ test("When all records for a type are requested, the store should call the adapt
   Ember.addObserver(allRecords, 'length', function() {
     equal(get(allRecords, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
     equal(allRecords.objectAt(0).get('name'), "Braaaahm Dale", "the first item in the record array is Braaaahm Dale");
+  });
+});
+
+test("When all records for a type are requested, the record array should be populate with the query result.", function() {
+  expect(3);
+
+  adapter.findAll = function(store, type, since) {
+    stop();
+    var self = this;
+    setTimeout(function() {
+      Ember.run(function() {
+        self.didFindAll(store, type, { persons: [{id: 1, name: 'Tom Dale'}] });
+      });
+    }, 100);
+  };
+
+  var allRecords = store.find(Person);
+  equal(get(allRecords, 'isLoaded'), false, "the record array's `isLoaded` property is false");
+
+  allRecords.one('didLoad', function() {
+    equal(get(allRecords, 'isLoaded'), true, "the record array's `isLoaded` property is true");
+  });
+
+  allRecords.then(function(resolvedValue) {
+    start();
+    equal(resolvedValue, allRecords, "The promise was resolved with the allRecords");
   });
 });
 
