@@ -128,16 +128,20 @@ test("a DS.Model can have a defaultValue", function() {
   equal(get(tag, 'name'), null, "null doesn't shadow defaultValue");
 });
 
-test("a defaultValue for an attribite can be a function", function() {
+test("a defaultValue for an attribute can be a function", function() {
+  expect(2);
+
+  var tag;
   var Tag = DS.Model.extend({
     createdAt: DS.attr('string', {
-      defaultValue: function() {
+      defaultValue: function(record) {
+        deepEqual(record, tag, "the record is passed as an argument");
         return "le default value";
       }
     })
   });
 
-  var tag = Tag.createRecord();
+  tag = Tag.createRecord();
   equal(get(tag, 'createdAt'), "le default value", "the defaultValue function is evaluated");
 });
 

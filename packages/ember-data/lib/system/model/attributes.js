@@ -68,7 +68,7 @@ function getAttr(record, options, key) {
 
   if (value === undefined) {
     if (typeof options.defaultValue === "function") {
-      value = options.defaultValue();
+      value = options.defaultValue(record);
     } else {
       value = options.defaultValue;
     }
