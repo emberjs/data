@@ -194,3 +194,16 @@ test("Deleting a newly created record removes it from any inverse hasMany arrays
   //// modified appropriately (i.e., set to null)
   //equal(comment.get('post'), null, "the comment's post belongsTo relationship was set to null");
 //});
+
+test("When a record with a belongsTo relationship is loaded, it's parent hasMany  relationship should be updated.", function() {
+  store.load(App.Post, {id: 1, title: 'parent', comments: []});
+  var post = store.find(App.Post, 1);
+  equal(post.get('comments.length'), 0, "precond - the post has no child comments yet");
+
+  // A wild comment appears, perhaps via a socket
+  store.load(App.Comment, {id: 2, body: 'child', post: 1});
+
+  var comment = store.find(App.Comment, 2);
+
+  verifySynchronizedOneToMany(post, comment);
+});
