@@ -1,4 +1,4 @@
-var classify = Ember.String.classify, get = Ember.get;
+var get = Ember.get;
 
 /**
   The Mappable mixin is designed for classes that would like to

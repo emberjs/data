@@ -1236,8 +1236,6 @@ DS.Serializer = Ember.Object.extend({
   },
 
   eachEmbeddedBelongsToRecord: function(record, callback, binding) {
-    var type = record.constructor;
-
     this.eachEmbeddedBelongsTo(record.constructor, function(name, relationship, embeddedType) {
       var embeddedRecord = get(record, name);
       if (embeddedRecord) { callback.call(binding, embeddedRecord, embeddedType); }
@@ -1245,8 +1243,6 @@ DS.Serializer = Ember.Object.extend({
   },
 
   eachEmbeddedHasManyRecord: function(record, callback, binding) {
-    var type = record.constructor;
-
     this.eachEmbeddedHasMany(record.constructor, function(name, relationship, embeddedType) {
       var array = get(record, name);
       for (var i=0, l=get(array, 'length'); i<l; i++) {

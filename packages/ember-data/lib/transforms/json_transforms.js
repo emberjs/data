@@ -58,7 +58,6 @@ DS.JSONTransforms = {
   date: {
     deserialize: function(serialized) {
       var type = typeof serialized;
-      var date = null;
 
       if (type === "string") {
         return new Date(Ember.Date.parse(serialized));

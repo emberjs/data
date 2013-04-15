@@ -10,7 +10,7 @@ require("ember-data/system/mixins/mappable");
   @submodule data-store
 */
 
-var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt, once = Ember.run.once;
+var get = Ember.get, set = Ember.set, once = Ember.run.once;
 var forEach = Ember.EnumerableUtils.forEach;
 
 // These values are used in the data cache when clientIds are
@@ -1487,8 +1487,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       record = this.findByClientId(type, clientId);
       shouldBeInArray = filter(record);
     }
-
-    var content = get(array, 'content');
 
     var recordArrays = this.recordArraysForClientId(clientId);
     var reference = this.referenceForClientId(clientId);

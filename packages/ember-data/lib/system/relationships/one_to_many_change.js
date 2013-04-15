@@ -55,7 +55,7 @@ DS.RelationshipChange._createChange = function(options){
 
 
 DS.RelationshipChange.determineRelationshipType = function(recordType, knownSide){
-  var knownKey = knownSide.key, key, type, otherKind;
+  var knownKey = knownSide.key, key, otherKind;
   var knownKind = knownSide.kind;
 
   var inverse = recordType.inverseFor(knownKey);
@@ -81,7 +81,7 @@ DS.RelationshipChange.determineRelationshipType = function(recordType, knownSide
 
 DS.RelationshipChange.createChange = function(firstRecordReference, secondRecordReference, store, options){
   // Get the type of the child based on the child's client ID
-  var firstRecordType = firstRecordReference.type, key, changeType;
+  var firstRecordType = firstRecordReference.type, changeType;
   changeType = DS.RelationshipChange.determineRelationshipType(firstRecordType, options);
   if (changeType === "oneToMany"){
     return DS.OneToManyChange.createChange(firstRecordReference, secondRecordReference, store, options);
@@ -141,14 +141,11 @@ DS.ManyToNoneChange.createChange = function(childReference, parentReference, sto
 
 /** @private */
 DS.ManyToManyChange.createChange = function(childReference, parentReference, store, options) {
-  // Get the type of the child based on the child's client ID
-  var childType = childReference.type, key;
-
   // If the name of the belongsTo side of the relationship is specified,
   // use that
   // If the type of the parent is specified, look it up on the child's type
   // definition.
-  key = options.key;
+  var key = options.key;
 
   var change = DS.RelationshipChange._createChange({
       parentReference: parentReference,
@@ -170,8 +167,7 @@ DS.ManyToManyChange.createChange = function(childReference, parentReference, sto
 
 /** @private */
 DS.OneToOneChange.createChange = function(childReference, parentReference, store, options) {
-  // Get the type of the child based on the child's client ID
-  var childType = childReference.type, key;
+  var key;
 
   // If the name of the belongsTo side of the relationship is specified,
   // use that
@@ -222,8 +218,7 @@ DS.OneToOneChange.maintainInvariant = function(options, store, childReference, k
 
 /** @private */
 DS.OneToManyChange.createChange = function(childReference, parentReference, store, options) {
-  // Get the type of the child based on the child's client ID
-  var childType = childReference.type, key;
+  var key;
 
   // If the name of the belongsTo side of the relationship is specified,
   // use that
@@ -289,7 +284,7 @@ DS.OneToManyChange.ensureSameTransaction = function(changes, store){
 DS.RelationshipChange.prototype = {
 
   getSecondRecordName: function() {
-    var name = this.secondRecordName, store = this.store, parent;
+    var name = this.secondRecordName, parent;
 
     if (!name) {
       parent = this.secondRecordReference;
@@ -319,7 +314,7 @@ DS.RelationshipChange.prototype = {
         belongsToName = this.getFirstRecordName(),
         hasManyName = this.getSecondRecordName(),
         store = this.store,
-        child, oldParent, newParent, lastParent, transaction;
+        transaction;
 
     store.removeRelationshipChangeFor(childReference, belongsToName, this.parentReference, hasManyName, this.changeType);
 
@@ -368,9 +363,7 @@ DS.RelationshipChange.prototype = {
   },
 
   callChangeEvents: function(){
-    var hasManyName = this.getSecondRecordName(),
-        belongsToName = this.getFirstRecordName(),
-        child = this.getFirstRecord(),
+    var child = this.getFirstRecord(),
         parentRecord = this.getSecondRecord();
 
     var dirtySet = new Ember.OrderedSet();
