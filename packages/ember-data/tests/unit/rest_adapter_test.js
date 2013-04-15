@@ -1,6 +1,6 @@
 var get = Ember.get, set = Ember.set;
 
-var adapter, store, serializer, ajaxUrl, ajaxType, ajaxHash, overwriteAjax;
+var adapter, store, serializer, ajaxUrl, ajaxType, ajaxHash;
 var Person, person, people;
 var Role, role, roles;
 var Group, group;
@@ -10,31 +10,26 @@ module("the REST adapter", {
     ajaxUrl = undefined;
     ajaxType = undefined;
     ajaxHash = undefined;
-    overwriteAjax = true;
 
     var Adapter = DS.RESTAdapter.extend();
     Adapter.configure('plurals', {
       person: 'people'
     });
 
-    adapter = Adapter.createWithMixins({
+    adapter = Adapter.create({
       ajax: function(url, type, hash) {
-        if (overwriteAjax) {
-          var success = hash.success, self = this;
+        var success = hash.success, self = this;
 
-          hash.context = adapter;
+        hash.context = adapter;
 
-          ajaxUrl = url;
-          ajaxType = type;
-          ajaxHash = hash;
+        ajaxUrl = url;
+        ajaxType = type;
+        ajaxHash = hash;
 
-          if (success) {
-            hash.success = function(json) {
-              success.call(self, json);
-            };
-          }
-        } else {
-          return this._super(url, type, hash);
+        if (success) {
+          hash.success = function(json) {
+            success.call(self, json);
+          };
         }
       }
     });
@@ -129,21 +124,24 @@ test("Calling ajax() calls JQuery.ajax with json data", function() {
     equal(ajaxHash.url, '/foo', 'Request URL is the given value');
     equal(ajaxHash.type, 'GET', 'Request method is the given value');
     equal(ajaxHash.dataType, 'json', 'Request data type is JSON');
-    equal(ajaxHash.contentType, 'application/json; charset=utf-8', 'Request content type is JSON');
+    equal(ajaxHash.contentType, undefined, 'Request content type is undefined for GET');
     equal(ajaxHash.context, adapter, 'Request context is the adapter');
     equal(ajaxHash.extra, 'special', 'Extra options are passed through');
 
     adapter.ajax('/foo', 'POST', {});
     ok(!ajaxHash.data, 'Data not set when not provided');
+    equal(ajaxHash.contentType, undefined, 'Request content type is undefined when data is empty');
 
     adapter.ajax('/foo', 'GET', {data: 'unsupported'});
     equal(ajaxHash.data, 'unsupported', 'Data untouched for unsupported methods');
 
     adapter.ajax('/foo', 'POST', {data: {id: 1, name: 'Bar'}});
     equal(ajaxHash.data, JSON.stringify({id: 1, name: 'Bar'}), 'Data serialized for POST requests');
+    equal(ajaxHash.contentType, 'application/json; charset=utf-8', 'Request content type is JSON');
 
     adapter.ajax('/foo', 'PUT', {data: {id: 1, name: 'Bar'}});
     equal(ajaxHash.data, JSON.stringify({id: 1, name: 'Bar'}), 'Data serialized for PUT requests');
+    equal(ajaxHash.contentType, 'application/json; charset=utf-8', 'Request content type is JSON');
 
   } finally {
     // restore jQuery.ajax()
@@ -1072,35 +1070,3 @@ test("updating a record with a 500 error marks the record as error", function() 
 
   expectState('error');
 });
-
-test("the content-type should not be set to application/json if no body submitted", function() {
-  var jQueryAjax = jQuery.ajax;
-  jQuery.ajax = function(options) {
-    equal(options.contentType, undefined, "the content-type is undefined");
-  };
-
-  overwriteAjax = false;
-  person = store.find(Person, 1);
-
-  jQuery.ajax = jQueryAjax;
-});
-
-test("the content-type should not be set to application/json if no body submitted", function() {
-
-  store.load(Person, { id: 1, name: "John Doe" });
-  person = store.find(Person, 1);
-  person.set('name', 'Jane Doe');
-
-
-  var jQueryAjax = jQuery.ajax;
-  jQuery.ajax = function(options) {
-    equal(options.contentType, "application/json; charset=utf-8", "the content-type is 'application/json; charset=utf-8'");
-  };
-
-  overwriteAjax = false;
-  store.commit();
-
-  jQuery.ajax = jQueryAjax;
-
-});
-
