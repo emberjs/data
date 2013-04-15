@@ -61,6 +61,7 @@ var get = Ember.get, set = Ember.set, merge = Ember.merge;
   ```
 */
 DS.RESTAdapter = DS.Adapter.extend({
+  namespace: null,
   bulkCommit: false,
   since: 'since',
 
@@ -347,7 +348,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     Ember.assert("Record URL (" + record + ") must not start with slash", !record || record.toString().charAt(0) !== "/");
     Ember.assert("URL suffix (" + suffix + ") must not start with slash", !suffix || suffix.toString().charAt(0) !== "/");
 
-    if (this.namespace !== undefined) {
+    if (!Ember.isNone(this.namespace)) {
       url.push(this.namespace);
     }
 
