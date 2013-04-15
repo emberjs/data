@@ -1,6 +1,11 @@
-var get = Ember.get;
-
 require("ember-data/system/model/model");
+
+/**
+  @module data
+  @submodule data-model
+*/
+
+var get = Ember.get;
 
 DS.Model.reopenClass({
   attributes: Ember.computed(function() {

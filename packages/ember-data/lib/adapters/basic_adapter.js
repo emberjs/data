@@ -1,3 +1,8 @@
+/**
+  @module data
+  @submodule data-adapters
+*/
+
 var camelize = Ember.String.camelize,
     capitalize = Ember.String.capitalize,
     get = Ember.get,
@@ -173,6 +178,13 @@ function saveProcessorFactory(store, type, includeId) {
     return new SaveProcessor(record, store, type, includeId);
   };
 }
+
+/**
+  @class BasicAdapter
+  @constructor
+  @namespace DS
+  @extends DS.Adapter
+**/
 
 DS.BasicAdapter = DS.Adapter.extend({
   find: function(store, type, id) {

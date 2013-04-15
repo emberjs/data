@@ -3,6 +3,11 @@ require('ember-data/system/adapter');
 require('ember-data/serializers/rest_serializer');
 /*global jQuery*/
 
+/**
+  @module data
+  @submodule data-adapters
+*/
+
 var get = Ember.get, set = Ember.set, merge = Ember.merge;
 
 /**
@@ -59,6 +64,11 @@ var get = Ember.get, set = Ember.set, merge = Ember.merge;
     }
   }
   ```
+
+  @class RESTAdapter
+  @constructor
+  @namespace DS
+  @extends DS.Adapter
 */
 DS.RESTAdapter = DS.Adapter.extend({
   bulkCommit: false,

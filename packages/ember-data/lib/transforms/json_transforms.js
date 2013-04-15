@@ -1,7 +1,16 @@
 var none = Ember.isNone, empty = Ember.isEmpty;
 
 /**
+  @module data
+  @submodule data-transforms
+*/
+
+/**
   DS.Transforms is a hash of transforms used by DS.Serializer.
+
+  @class JSONTransforms
+  @static
+  @namespace DS
 */
 DS.JSONTransforms = {
   string: {
