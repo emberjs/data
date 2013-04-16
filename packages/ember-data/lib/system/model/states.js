@@ -1,3 +1,8 @@
+/**
+  @module data
+  @submodule data-model
+*/
+
 var get = Ember.get, set = Ember.set,
     once = Ember.run.once, arrayMap = Ember.ArrayPolyfills.map;
 
@@ -147,9 +152,13 @@ var get = Ember.get, set = Ember.set,
         }
       })
 
-   Note that enter and exit events are called once per transition. If the
-   current state changes, but changes to another child state of the parent,
-   the transition event on the parent will not be triggered.
+  Note that enter and exit events are called once per transition. If the
+  current state changes, but changes to another child state of the parent,
+  the transition event on the parent will not be triggered.
+
+  @class States
+  @namespace DS
+  @extends Ember.State
 */
 
 var stateProperty = Ember.computed(function(key) {

@@ -5,8 +5,14 @@ require("ember-data/system/record_arrays");
 require("ember-data/system/transaction");
 require("ember-data/system/mixins/mappable");
 
+/**
+  @module data
+  @submodule data-store
+*/
+
 var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt, once = Ember.run.once;
 var forEach = Ember.EnumerableUtils.forEach;
+
 // These values are used in the data cache when clientIds are
 // needed but the underlying data has not yet been loaded by
 // the server.
@@ -61,8 +67,14 @@ var map = Ember.EnumerableUtils.map;
          adapter: 'MyApp.CustomAdapter'
        });
 
-    You can learn more about writing a custom adapter by reading the `DS.Adapter`
-    documentation.
+  You can learn more about writing a custom adapter by reading the `DS.Adapter`
+  documentation.
+
+  @class Store
+  @namespace DS
+  @extends Ember.Object
+  @uses DS._Mappable
+  @constructor
 */
 DS.Store = Ember.Object.extend(DS._Mappable, {
 
@@ -296,6 +308,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     If you want to create a record inside of a given transaction,
     use `transaction.createRecord()` instead of `store.createRecord()`.
 
+    @method createRecord
     @param {subclass of DS.Model} type
     @param {Object} properties a hash of properties to set on the
       newly created record.
@@ -451,6 +464,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     You can check whether a query results `RecordArray` has loaded by checking
     its `isLoaded` property.
+
+    @method find
+    @param {DS.Model} type
+    @param {Object|String|Integer|null} id
   */
   find: function(type, id) {
     if (id === undefined) {
@@ -758,8 +775,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
-    @private
-
     This method delegates a query to the adapter. This is the one place where
     adapter-level semantics are exposed to the application.
 
@@ -767,6 +782,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     language for all server-side queries, and then require all adapters to
     implement them.
 
+    @private
+    @method findQuery
     @param {Class} type
     @param {Object} query an opaque query to be used by the adapter
     @return {DS.AdapterPopulatedRecordArray}
@@ -838,6 +855,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Also note that multiple calls to `all` for a given type will always
     return the same RecordArray.
 
+    @method all
     @param {Class} type
     @return {DS.RecordArray}
   */
@@ -878,9 +896,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     In this scenario, you might want to consider filtering the raw
     data before loading it into the store.
 
+    @method filter
     @param {Class} type
     @param {Function} filter
-
     @return {DS.FilteredRecordArray}
   */
   filter: function(type, query, filter) {

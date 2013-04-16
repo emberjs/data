@@ -1,5 +1,10 @@
 require("ember-data/system/record_arrays/record_array");
 
+/**
+  @module data
+  @submodule data-record-array
+*/
+
 var get = Ember.get, set = Ember.set;
 
 /**
@@ -31,6 +36,11 @@ var get = Ember.get, set = Ember.set;
 
   We call the record to which a relationship belongs the
   relationship's _owner_.
+
+  @class ManyArray
+  @namespace DS
+  @extends DS.RecordArray
+  @constructor
 */
 DS.ManyArray = DS.RecordArray.extend({
   init: function() {

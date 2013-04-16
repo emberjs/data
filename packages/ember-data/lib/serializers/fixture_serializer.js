@@ -1,5 +1,17 @@
 require('ember-data/system/serializer');
 
+/**
+  @module data
+  @submodule data-serializers
+*/
+
+/**
+  @class FixtureSerializer
+  @constructor
+  @namespace DS
+  @extends DS.Serializer
+*/
+
 var get = Ember.get, set = Ember.set;
 
 DS.FixtureSerializer = DS.Serializer.extend({

@@ -2,6 +2,11 @@ require("ember-data/core");
 require("ember-data/system/adapter");
 require('ember-data/serializers/fixture_serializer');
 
+/**
+  @module data
+  @submodule data-adapters
+*/
+
 var get = Ember.get, fmt = Ember.String.fmt,
     dump = Ember.get(window, 'JSON.stringify') || function(object) { return object.toString(); };
 
@@ -14,6 +19,10 @@ var get = Ember.get, fmt = Ember.String.fmt,
   system would do. Its possible to do develop your entire application
   with `DS.FixtureAdapter`.
 
+  @class FixtureAdapter
+  @constructor
+  @namespace DS
+  @extends DS.Adapter
 */
 DS.FixtureAdapter = DS.Adapter.extend({
 
