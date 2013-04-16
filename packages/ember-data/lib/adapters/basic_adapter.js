@@ -30,8 +30,8 @@ function camelizeKeys(json) {
   }
 }
 
-function munge(json, callback) {
-  callback(json);
+function munge(json, callback, processor) {
+  callback(json, processor);
 }
 
 function applyTransforms(json, type, transformType) {
@@ -64,7 +64,7 @@ ObjectProcessor.prototype = {
   },
 
   munge: function(callback) {
-    munge(this.json, callback);
+    munge(this.json, callback, loadObjectProcessorFactory(this.store, this.type));
     return this;
   },
 
@@ -85,8 +85,8 @@ LoadObjectProcessor.prototype.load = function() {
 };
 
 function loadObjectProcessorFactory(store, type) {
-  return function(json) {
-    return new LoadObjectProcessor(json, type, store);
+  return function(json, _type) {
+    return new LoadObjectProcessor(json, _type || type, store);
   };
 }
 
@@ -116,8 +116,8 @@ ArrayProcessor.prototype = {
 
   munge: function(callback) {
     this.json.forEach(function(object) {
-      munge(object, callback);
-    });
+      munge(object, callback, loadObjectProcessorFactory(this.store, this.type));
+    }, this);
     return this;
   },
 
@@ -162,6 +162,24 @@ function hasManyProcessorFactory(store, record, relationship) {
   };
 }
 
+function SavedObjectProcessor(json, record, store) {
+  this.record = record;
+  ObjectProcessor.call(this, json, record.constructor, store);
+  if (!json) { this.done(); }
+}
+
+SavedObjectProcessor.prototype = Ember.create(ObjectProcessor.prototype);
+
+SavedObjectProcessor.prototype.done = function() {
+  this.store.didSaveRecord(this.record, this.json);
+};
+
+function savedObjectProcessorFactory(store, record) {
+  return function(json) {
+    return new SavedObjectProcessor(json, record, store);
+  };
+}
+
 function SaveProcessor(record, store, type, includeId) {
   this.record = record;
   ObjectProcessor.call(this, record.toJSON({ includeId: includeId }), type, store);
@@ -170,7 +188,7 @@ function SaveProcessor(record, store, type, includeId) {
 SaveProcessor.prototype = Ember.create(ObjectProcessor.prototype);
 
 SaveProcessor.prototype.save = function(callback) {
-  callback(this.json);
+  callback(this.json, savedObjectProcessorFactory(this.store, this.record));
 };
 
 function saveProcessorFactory(store, type, includeId) {
