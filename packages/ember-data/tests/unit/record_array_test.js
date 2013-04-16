@@ -188,7 +188,8 @@ test("a record array that backs a collection view functions properly", function(
 
   compareArrays();
 
-  container.destroy();
-
+  Ember.run(function(){
+    container.destroy();
+  });
 });
 
