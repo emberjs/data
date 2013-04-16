@@ -735,7 +735,7 @@ DS.Adapter.reopenClass({
     merge(existingValue, newValue);
   }),
 
-  resolveMapConflict: function(oldValue, newValue, mappingsKey) {
+  resolveMapConflict: function(oldValue, newValue) {
     merge(newValue, oldValue);
 
     return newValue;
