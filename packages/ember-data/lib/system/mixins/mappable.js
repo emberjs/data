@@ -1,8 +1,6 @@
 var classify = Ember.String.classify, get = Ember.get;
 
 /**
-@private
-
   The Mappable mixin is designed for classes that would like to
   behave as a map for configuration purposes.
 
@@ -51,8 +49,13 @@ var classify = Ember.String.classify, get = Ember.get;
       })
     });
 
-   The function passed to `generateMapFunctionFor` is invoked every time a
-   new value is added to the map.
+  The function passed to `generateMapFunctionFor` is invoked every time a
+  new value is added to the map.
+
+  @class _Mappable
+  @private
+  @namespace DS
+  @extends Ember.Mixin
 **/
 
 var resolveMapConflict = function(oldValue, newValue, mappingsKey) {

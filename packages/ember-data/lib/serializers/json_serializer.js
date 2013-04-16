@@ -1,6 +1,18 @@
 require('ember-data/system/serializer');
 require('ember-data/transforms/json_transforms');
 
+/**
+  @module data
+  @submodule data-serializers
+*/
+
+/**
+  @class JSONSerializer
+  @constructor
+  @namespace DS
+  @extends DS.Serializer
+*/
+
 var get = Ember.get, set = Ember.set;
 
 var generatedId = 0;

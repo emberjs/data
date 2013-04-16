@@ -9,6 +9,19 @@ var retrieveFromCurrentState = Ember.computed(function(key, value) {
   return get(get(this, 'stateManager.currentState'), key);
 }).property('stateManager.currentState').readOnly();
 
+/**
+  
+  The model class that all Ember Data records descend from.
+
+  @module data
+  @submodule data-model
+  @main data-model
+
+  @class Model
+  @namespace DS
+  @extends Ember.Object
+  @constructor
+*/
 DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   isLoading: retrieveFromCurrentState,
   isLoaded: retrieveFromCurrentState,
@@ -30,12 +43,12 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     Create a JSON representation of the record, using the serialization
     strategy of the store's adapter.
 
-    Available options:
+    @method serialize
+    @param {Object} options Available options:
 
     * `includeId`: `true` if the record's ID should be included in the
       JSON representation.
 
-    @param {Object} options
     @returns {Object} an object whose values are primitive JSON values only
   */
   serialize: function(options) {
@@ -43,17 +56,70 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     return store.serialize(this, options);
   },
 
+  /**
+    Use {{#crossLink "DS.JSONSerializer"}}DS.JSONSerializer{{/crossLink}} to
+    get the JSON representation of a record.
+
+    @method toJSON
+    @param {Object} options Available options:
+
+    * `includeId`: `true` if the record's ID should be included in the
+      JSON representation.
+
+    @returns {Object} A JSON representation of the object.
+  */
   toJSON: function(options) {
     var serializer = DS.JSONSerializer.create();
     return serializer.serialize(this, options);
   },
 
+  /**
+    Fired when the record is loaded from the server.
+
+    @event didLoad
+  */
   didLoad: Ember.K,
+
+  /**
+    Fired when the record is reloaded from the server.
+
+    @event didReload
+  */
   didReload: Ember.K,
+
+  /**
+    Fired when the record is updated.
+
+    @event didUpdate
+  */
   didUpdate: Ember.K,
+
+  /**
+    Fired when the record is created.
+
+    @event didCreate
+  */
   didCreate: Ember.K,
+
+  /**
+    Fired when the record is deleted.
+    
+    @event didDelete
+  */
   didDelete: Ember.K,
+
+  /**
+    Fired when the record becomes invalid.
+    
+    @event becameInvalid
+  */
   becameInvalid: Ember.K,
+
+  /**
+    Fired when the record enters the error state.
+
+    @event becameError
+  */
   becameError: Ember.K,
 
   data: Ember.computed(function() {
@@ -119,6 +185,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     This will only work if the record has already finished loading
     and has not yet been modified (`isLoaded` but not `isDirty`,
     or `isSaving`).
+
+    @method reload
   */
   reload: function() {
     this.send('reloadRecord');
@@ -386,9 +454,40 @@ var storeAlias = function(methodName) {
 
 DS.Model.reopenClass({
   isLoaded: storeAlias('recordIsLoaded'),
+
+  /**
+    See {{#crossLink "DS.Store/find:method"}}`DS.Store.find()`{{/crossLink}}.
+
+    @method find
+    @param {Object|String|Array|null} query A query to find records by.
+
+  */
   find: storeAlias('find'),
+
+  /**
+    See {{#crossLink "DS.Store/all:method"}}`DS.Store.all()`{{/crossLink}}.
+
+    @method all
+    @return {DS.RecordArray}
+  */
   all: storeAlias('all'),
+
+  /**
+    See {{#crossLink "DS.Store/findQuery:method"}}`DS.Store.findQuery()`{{/crossLink}}.
+
+    @method query
+    @param {Object} query an opaque query to be used by the adapter
+    @return {DS.AdapterPopulatedRecordArray}
+  */
   query: storeAlias('findQuery'),
+
+  /**
+    See {{#crossLink "DS.Store/filter:method"}}`DS.Store.filter()`{{/crossLink}}.
+
+    @method filter
+    @param {Function} filter
+    @return {DS.FilteredRecordArray}
+  */
   filter: storeAlias('filter'),
 
   _create: DS.Model.create,
@@ -397,5 +496,13 @@ DS.Model.reopenClass({
     throw new Ember.Error("You should not call `create` on a model. Instead, call `createRecord` with the attributes you would like to set.");
   },
 
+  /**
+    See {{#crossLink "DS.Store/createRecord:method"}}`DS.Store.createRecord()`{{/crossLink}}.
+
+    @method createRecord
+    @param {Object} properties a hash of properties to set on the
+      newly created record.
+    @returns DS.Model
+  */
   createRecord: storeAlias('createRecord')
 });

@@ -2,6 +2,11 @@ var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt,
     removeObject = Ember.EnumerableUtils.removeObject, forEach = Ember.EnumerableUtils.forEach;
 
 /**
+  @module data
+  @submodule data-transaction
+*/
+
+/**
   A transaction allows you to collect multiple records into a unit of work
   that can be committed or rolled back as a group.
 

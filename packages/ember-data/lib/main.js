@@ -18,6 +18,11 @@
 //OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 //SOFTWARE.
 
+/**
+  Ember Data
+  @module data
+*/
+
 require("ember-data/core");
 require("ember-data/ext");
 require("ember-data/system/store");

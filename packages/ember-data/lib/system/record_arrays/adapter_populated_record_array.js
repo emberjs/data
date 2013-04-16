@@ -1,7 +1,18 @@
 require("ember-data/system/record_arrays/record_array");
 
+/**
+  @module data
+  @submodule data-record-array
+*/
+
 var get = Ember.get, set = Ember.set;
 
+/**
+  @class AdapterPopulatedRecordArray
+  @namespace DS
+  @extends DS.RecordArray
+  @constructor
+*/
 DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
   query: null,
 
