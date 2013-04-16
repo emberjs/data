@@ -343,7 +343,7 @@ DS.Model.reopenClass({
     @readOnly
   */
   fields: Ember.computed(function() {
-    var map = Ember.Map.create(), type;
+    var map = Ember.Map.create();
 
     this.eachComputedProperty(function(name, meta) {
       if (meta.isRelationship) {

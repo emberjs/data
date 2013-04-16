@@ -15,8 +15,6 @@ require('ember-data/transforms/json_transforms');
 
 var get = Ember.get, set = Ember.set;
 
-var generatedId = 0;
-
 DS.JSONSerializer = DS.Serializer.extend({
   init: function() {
     this._super();
@@ -230,7 +228,7 @@ DS.JSONSerializer = DS.Serializer.extend({
 
   extractMeta: function(loader, type, json) {
     var meta = this.configOption(type, 'meta'),
-        data = json, key, property, value;
+        data = json, value;
 
     if(meta && json[meta]){
       data = json[meta];

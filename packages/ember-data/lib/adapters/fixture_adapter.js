@@ -175,8 +175,6 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @private
   */
  deleteLoadedFixture: function(type, record) {
-    var id = this.extractId(type, record);
-
     var existingFixture = this.findExistingFixture(type, record);
 
     if(existingFixture) {
@@ -194,8 +192,6 @@ DS.FixtureAdapter = DS.Adapter.extend({
   },
 
   findFixtureById: function(fixtures, id) {
-    var adapter = this;
-
     return Ember.A(fixtures).find(function(r) {
       if(''+get(r, 'id') === ''+id) {
         return true;

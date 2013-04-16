@@ -8,7 +8,7 @@ require('ember-data/serializers/rest_serializer');
   @submodule data-adapters
 */
 
-var get = Ember.get, set = Ember.set, merge = Ember.merge;
+var get = Ember.get, set = Ember.set;
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
