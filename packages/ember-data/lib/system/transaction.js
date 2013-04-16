@@ -1,5 +1,4 @@
-var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt,
-    removeObject = Ember.EnumerableUtils.removeObject, forEach = Ember.EnumerableUtils.forEach;
+var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach;
 
 /**
   @module data
@@ -83,8 +82,6 @@ var get = Ember.get, set = Ember.set, fmt = Ember.String.fmt,
   them. Always make a new transaction and move the desired records to it before
   calling commit.
 */
-
-var arrayDefault = function() { return []; };
 
 DS.Transaction = Ember.Object.extend({
   /**

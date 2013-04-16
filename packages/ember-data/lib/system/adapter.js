@@ -235,8 +235,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   didSaveRecord: function(store, type, record, payload) {
     store.didSaveRecord(record);
 
-    var serializer = get(this, 'serializer'),
-        mappings = serializer.mappingForType(type);
+    var serializer = get(this, 'serializer');
 
     serializer.eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
       if (embeddedType === 'load') { return; }
