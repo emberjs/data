@@ -1,10 +1,11 @@
 var app, container;
 
+/**
+  These tests ensure that Ember Data works with Ember.js' application
+  initialization and dependency injection APIs.
+*/
+
 if (Ember.Application.initializer) {
-  /**
-    These tests ensure that Ember Data works with Ember.js' application
-    initialization and dependency injection APIs.
-  */
 
   module("Ember.Application Extensions", {
     setup: function() {
@@ -19,11 +20,12 @@ if (Ember.Application.initializer) {
         });
       });
 
-      container = app.container;
+      container = app.__container__;
     },
 
     teardown: function() {
       app.destroy();
+      Ember.BOOTED = false;
     }
   });
 

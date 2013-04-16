@@ -116,3 +116,52 @@ test("the default date transform", function() {
   equal(result2, true, "timestamp is transformed into a date");
   equal(person2.get('born').toString(), date2.toString(), "date.toString and transformed date.toString values match");
 });
+
+test("the date transform parses iso8601 dates", function() {
+  var expectDate = function(string, timestamp, message) {
+    equal(Ember.Date.parse(string), timestamp, message);
+  };
+
+  expectDate('2011-11-29T15:52:18.867', 1322581938867, "YYYY-MM-DDTHH:mm:ss.sss");
+  expectDate('2011-11-29T15:52:18.867Z', 1322581938867, "YYYY-MM-DDTHH:mm:ss.sssZ");
+  expectDate('2011-11-29T15:52:18.867-03:30', 1322594538867, "YYYY-MM-DDTHH:mm:ss.sss-HH:mm");
+  expectDate('2011-11-29', 1322524800000, "YYYY-MM-DD");
+  expectDate('2011-11', 1320105600000, "YYYY-MM");
+  expectDate('2011', 1293840000000, "YYYY");
+});
+
+module("Enum Transforms", {
+  setup: function() {
+    adapter = DS.Adapter.create();
+    adapter.registerEnumTransform('materials', ['unobtainium', 'kindaobtainium', 'veryobtainium']);
+  
+    store = DS.Store.create({
+      adapter: adapter
+    });
+  
+    serializer = adapter.get('serializer');
+  
+    Person = DS.Model.extend({
+      material: DS.attr('materials')
+    });
+  },
+  teardown: function() {
+    serializer.destroy();
+    adapter.destroy();
+    store.destroy();
+  }
+});
+
+test("correct transforms are applied", function() {
+  var json, person;
+  store.load(Person, {
+    id: 1,
+    material: 2
+  });
+  
+  person = store.find(Person, 1);
+  equal(person.get('material'), 'veryobtainium', 'value of the attribute on the record should be transformed');
+  
+  json = adapter.serialize(person);
+  equal(json.material, 2, 'value of the attribute in the JSON hash should be transformed');
+});

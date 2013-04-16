@@ -35,6 +35,313 @@ App.Store = DS.Store.create({
 This will remove the exception about changes before revision 2. You will
 receive another warning if there is another change.
 
+## Revision 12
+
+Several changes have been made to serialization conventions for the
+JSON and REST adapters.
+
+### Foreign Key IDs for Arrays
+
+In order to be consistent with singular foreign keys, the REST serializer
+now serializes arrays of foreign keys with the singular form of the key name
+suffixed with `_ids`. Therefore, just as `author_id` represents a single
+author, `author_ids` (and not `authors`) now represents an array of authors
+associated with a parent record.
+
+Custom `key` mappings can be configured to override these defaults as needed.
+
+### Sideload by Type
+
+When loading data, the previous convention was to expect sideloaded data
+to be included alongside a parent record based on the name of its relationship.
+
+For instance, given the following model:
+
+```js
+App.Contact  = DS.Model.extend({
+  name:         DS.attr('string'),
+  phoneNumbers: DS.hasMany('App.PhoneNumber'),
+  homeAddress:  DS.belongsTo('App.Address')
+  workAddress:  DS.belongsTo('App.Address')
+});
+```
+
+... the following payload would be deserialized properly:
+
+```js
+{
+  "contact": {
+    "id": 1,
+    "name": "Dan",
+    "phone_numbers": [1, 2],
+    "home_address_id": 3
+    "work_address_id": 4
+  },
+  "phoneNumbers": [
+    {
+      "id": 1,
+      "number": "555-1212"
+    },
+    {
+      "id": 2,
+      "number": "555-2222"
+    }
+  ],
+  "homeAddress": [
+    {
+      "id": 3,
+      "zip_code": "03086"
+    }
+  ],
+  "workAddress": [
+    {
+      "id": 4,
+      "zip_code": "94107"
+    }
+  ]
+}
+```
+
+Now, `homeAddress` and `workAddress` will be expected to be sideloaded
+together as `addresses` because they are the same type. Furthermore, the
+default root naming conventions (underscore and lowercase) will now also
+be applied to sideloaded root names.
+
+The new, more consistent and concise conventions for sideloading are:
+
+```js
+{
+  "contact": {
+    "id": 1,
+    "name": "Dan",
+    "phone_number_ids": [1, 2],
+    "home_address_id": 3
+    "work_address_id": 4
+  },
+  "phone_numbers": [
+    {
+      "id": 1,
+      "number": "555-1212"
+    },
+    {
+      "id": 2,
+      "number": "555-2222"
+    }
+  ],
+  "addresses": [
+    {
+      "id": 3,
+      "zip_code": "03086"
+    },
+    {
+      "id": 4,
+      "zip_code": "94107"
+    }
+  ]
+}
+```
+
+Custom `sideloadAs` and `key` mappings can still be configured to override
+these defaults as required.
+
+## Revision 11
+
+### Payload Extraction
+
+Previously, the serializer was responsible for materializing a single
+record. The adapter was responsible for decomposing multi-record
+payloads into digestible chunks that the serializer could handle.
+
+For example, the REST adapter supports "sideloading", which allows you
+to include related records in a compact way. For example, the JSON
+payload for a blog post and its comments may look like this:
+
+```js
+{
+  "post": {
+    "id": 1,
+    "title": "Rails is omakase",
+    "comments": [1, 2, 3]
+  },
+
+  "comments": [{
+    "id": 1,
+    "body": "But is it _lightweight_ omakase?"
+  },
+  {
+    "id": 2,
+    "body": "I for one welcome our new omakase overlords"
+  },
+  {
+    "id": 3,
+    "body": "Put me on the fast track to a delicious dinner"
+  }]
+}
+```
+
+Previously, the adapter would tease out each of the individual record
+representations here, then pass them, one at a time, to the serializer.
+
+We realized that conceptually it made more sense for the serializer to
+be responsible for extracting records from the entire payload.
+
+This became particularly important for us as we were working on the new
+embedded feature. Because records may now include other records embedded
+inside their JSON representation (arbitrarily deep), the lines between
+the entire payload and an individual record representation became
+blurred.
+
+If you are sideloading data in your application and you are using 
+JSONSerializer (like the DS.RESTAdapter does by default), you will need 
+to utilize the DS.Adapter configure method for configuration:
+
+```js
+DS.RESTAdapter.configure('App.Post', {
+  sideloadAs: 'posts' 
+});
+```
+
+### New Adapter Acknowledgment API
+
+Previously, if you were writing a custom adapter, you would acknowledge
+that you had saved outstanding changes to your persistence layer by
+invoking the related method on the store. For example, if the store
+asked your adapter to update a given record, you would call
+`store.didSaveRecord(record);` when you had completed the operation.
+
+Because we noticed that there was significant boilerplate around this
+operation, especially given the changes described above, the
+acknowledgment hooks now live on the adapter and not the store. This
+allows us to implement default behavior that interacts with both the
+serializer and the store on your behalf, making authoring adapters
+easier.
+
+For example, instead of this:
+
+```js
+updateRecord: function(store, type, record) {
+  this.ajax('/person/'+record.get('id'), {
+    success: function(json) {
+      store.didSaveRecord(record, json);
+    }
+  });
+}
+```
+
+You would now call the adapter's own `didSaveRecord`:
+
+```js
+updateRecord: function(store, type, record) {
+  this.ajax('/person/'+record.get('id'), {
+    success: function(json) {
+      this.didSaveRecord(store, type, record, json);
+    }
+  });
+}
+```
+
+Making this small change automatically gives you support for
+sideloaded and embedded records.
+
+Previously, if the store asked your adapter to find a record by calling
+its `find` method, you could simply load the record with the given ID
+into the store by calling `store.load()`:
+
+```js
+find: function(store, type, id) {
+  var url = type.url;
+  url = url.fmt(id);
+
+  jQuery.getJSON(url, function(data) {
+    store.load(type, id, data);
+  });
+}
+```
+
+Now, you should instead call the adapter's own `didFindRecord`
+acknowledgment method:
+
+```js
+find: function(store, type, id) {
+  var url = type.url,
+      self = this;
+
+  url = url.fmt(id);
+
+  jQuery.getJSON(url, function(data) {
+    self.didFindRecord(store, type, data, id);
+  });
+}
+```
+
+Like with the above improvements, this small change automatically add
+support for sideloaded and embedded records when your JSON server
+responds to a request for a record.
+
+Similarly, you should call the new adapter hooks `didFindAll`,
+`didFindQuery`, and `didFindMany` when acknowledging the associated
+operation.
+
+### Normalized Relationship Names
+
+Throughout Ember Data, we were referring to relationships as either
+"relationships" or "associations." We have now tightened up our
+terminology (and the related APIs) to always refer to them as
+relationships.
+
+For example, `DS.Model`'s `eachAssociation` became `eachRelationship`.
+
+### Loading Data
+
+Previously, some features of the store, such as `load()`, assumed a
+single adapter.
+
+If you want to load data from your backend without the application
+asking for it (for example, through a WebSockets stream), use this API:
+
+```js
+store.adapterForType(App.Person).load(store, App.Person, payload);
+```
+
+This API will also handle sideloaded and embedded data. We plan to add a
+more convenient version of this API in the future.
+
+#### Changes to Dirtying Records
+
+If you previously implemented the developer hooks in your adapter for 
+```dirtyRecordsForHasManyChange``` or any of the other dirtyRecords hooks,
+you will need to double check how you're utilizing the passed in arguments.
+
+A description of the relationship is now passed in representing both sides
+of the relationship.  
+
+For example, if you had this previously:
+```js
+dirtyRecordsForHasManyChange: function(dirtySet, parent, relationship){
+  if (relationship.hasManyName === "people") {
+    dirtySet.add(parent);
+  }
+}
+```
+
+You would now use this:
+```js
+dirtyRecordsForHasManyChange: function(dirtySet, parent, relationship){
+  if (relationship.secondRecordName === "people") {
+    dirtySet.add(parent);
+  }
+}
+```
+
+#### TL;DR
+
+If you are using the REST adapter, you can now include embedded records
+without making any changes.  Additionally, if you are sideloading records,
+you will need to make the changes described in the Payload Extraction section.
+
+If you were manually loading data into the store, use the new
+`Adapter#load` API instead of `Store#load`.
+
 ## Revision 10
 
 In Revision 8, we started the work of making serializers agnostic to the

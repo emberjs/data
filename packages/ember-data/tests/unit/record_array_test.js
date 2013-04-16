@@ -8,7 +8,9 @@ var array;
 module("DS.Store", {
   setup: function() {
     array = [{ id: '1', name: "Scumbag Dale" }, { id: '2', name: "Scumbag Katz" }, { id: '3', name: "Scumbag Bryn" }];
-    Person = DS.Model.extend({
+    var App = Ember.Namespace.create({ name: "App" });
+
+    App.Person = Person = DS.Model.extend({
       name: DS.attr('string')
     });
   },
@@ -28,6 +30,17 @@ test("a record array is backed by records", function() {
   for (var i=0, l=get(array, 'length'); i<l; i++) {
     deepEqual(recordArray.objectAt(i).getProperties('id', 'name'), array[i], "a record array materializes objects on demand");
   }
+});
+
+test("acts as a live query", function() {
+  var store = DS.Store.create();
+
+  var recordArray = store.all(Person);
+  store.load(Person, { id: 1, name: 'wycats' });
+  equal(get(recordArray, 'lastObject.name'), 'wycats');
+
+  store.load(Person, { id: 2, name: 'brohuda' });
+  equal(get(recordArray, 'lastObject.name'), 'brohuda');
 });
 
 test("a loaded record is removed from a record array when it is deleted", function() {
@@ -122,22 +135,25 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
   expect(2);
 
   var store = DS.Store.create({
-    adapter: {
+    adapter: DS.Adapter.extend({
       findQuery: function(store, type, query, recordArray) {
         stop();
 
+        var self = this;
+
         setTimeout(function() {
-          recordArray.load(array);
-          equal(get(array, 'isLoaded'), true, "The array is now loaded");
-          start();
+          Ember.run(function() {
+            self.didFindQuery(store, type, { persons: array }, recordArray);
+            equal(get(people, 'isLoaded'), true, "The array is now loaded");
+            start();
+          });
         }, 100);
       }
-    }
+    })
   });
 
-  var array = store.find(Person, { page: 1 });
-
-  equal(get(array, 'isLoaded'), false, "The array is not yet loaded");
+  var people = store.find(Person, { page: 1 });
+  equal(get(people, 'isLoaded'), false, "The array is not yet loaded");
 });
 
 test("a record array that backs a collection view functions properly", function() {
@@ -154,11 +170,10 @@ test("a record array that backs a collection view functions properly", function(
 
   function compareArrays() {
     var recordArray = container.content;
-    var recordCache = store.get('recordCache');
     var content = recordArray.get('content');
     for(var i = 0; i < content.length; i++) {
-      var clientId = content.objectAt(i);
-      var record = recordCache[clientId];
+      var clientId = content.objectAt(i).clientId;
+      var record = store.findByClientId(get(recordArray, 'type'), clientId);
       equal(record && record.clientId, clientId, "The entries in the record cache should have matching client ids.");
     }
   }

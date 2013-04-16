@@ -16,7 +16,9 @@ var Person, store, adapter;
 
 module("DS.Store and DS.Adapter integration test", {
   setup: function() {
-    Person = DS.Model.extend({
+    var App = Ember.Namespace.create({ name: "App" });
+
+    App.Person = Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
       firstName: DS.attr('string'),
@@ -31,6 +33,57 @@ module("DS.Store and DS.Adapter integration test", {
     adapter.destroy();
     store.destroy();
   }
+});
+
+
+asyncTest("Records loaded multiple times and retrieved in recordArray are ready to send state events", function() {
+
+  adapter.findQuery = function(store, type, query, recordArray) {
+    var self = this;
+
+    setTimeout(function() {
+      Ember.run(function() {
+        
+        // use different recordArray based on the call
+        var recordArray = (!!people2) ? people2 : people;
+
+        self.didFindQuery(store, type, {
+          persons: [{
+            id: 1,
+            name: "Mickael Ramírez"
+          }, {
+            id: 2,
+            name: "Johny Fontana"
+          }]
+        }, recordArray);
+
+      });
+
+    });
+  };
+
+  var people, people2;
+  people = store.findQuery(Person, {q: 'bla'});
+  people.one('didLoad', function() {
+
+    people2 = store.findQuery(Person, {q: 'bla2'});
+    people2.one('didLoad', function() {
+
+      start();
+      expect(3);
+
+      equal( people2.get('length'), 2, 'return the elements' );
+      ok( people2.get('isLoaded'), 'array is loaded' );
+
+      var person = people.objectAt(0);
+      ok( person.get('isLoaded'), 'record is loaded' );
+      // delete record will not throw exception
+      person.deleteRecord();
+
+
+    });
+  });
+
 });
 
 test("by default, createRecords calls createRecord once per record", function() {
@@ -341,10 +394,10 @@ test("can be created after the DS.Store", function() {
 
 test("the filter method can optionally take a server query as well", function() {
   adapter.findQuery = function(store, type, query, array) {
-    array.load([
+    this.didFindQuery(store, type, { persons: [
       { id: 1, name: "Yehuda Katz" },
       { id: 2, name: "Tom Dale" }
-    ]);
+    ]}, array);
   };
 
   var filter = store.filter(Person, { page: 1 }, function(data) {
@@ -400,7 +453,7 @@ test("can rollback after sucessives updates", function() {
 test("mappings registered on an adapter class are applied to the serializer of adapter instances", function() {
   var MyAdapter = DS.Adapter.extend();
 
-  MyAdapter.map(Person, {
+  MyAdapter.configure(Person, {
     primaryKey: 'id!'
   });
 
@@ -420,4 +473,38 @@ test("mappings registered on an adapter class are applied to the serializer of a
 
   equal(person.get('id'), 1);
   equal(person.get('name'), "Tom Dale");
+});
+
+test("the adapter is notified of each record attribute change when a record is created or modified", function() {
+  expect(12);
+  
+  var count = 0;
+
+  adapter.dirtyRecordsForAttributeChange = function(dirtySet, record, attributeName, newValue, oldValue) {
+    count++;
+
+    if (count === 1) {
+      equal(attributeName, 'firstName', "the attributeName is correct");
+      equal(newValue, 'foo', "the newValue is correct");
+    } else if (count === 2) {
+      equal(attributeName, 'lastName', "the attributeName is correct");
+      equal(newValue, 'bar', "the newValue is correct");
+    } else {
+      ok(false, "should not have invoked more than 2 times");
+    }
+
+    equal(oldValue, null, "the oldValue is correct");
+  };
+
+  // Test creation.
+  store.createRecord(Person, { id: 1, firstName: 'foo', lastName: 'bar' });
+
+  // Test changing properties.
+  count = 0;
+  store.load(Person, { id: 2 });
+
+  var person = store.find(Person, 2);
+
+  person.set('firstName', 'foo');
+  person.set('lastName', 'bar');
 });

@@ -1,6 +1,6 @@
 var get = Ember.get, set = Ember.set;
 
-var adapter, store, ajaxUrl, ajaxType, ajaxHash;
+var adapter, store, serializer, ajaxUrl, ajaxType, ajaxHash;
 var Person, person, people;
 var Role, role, roles;
 var Group, group;
@@ -11,9 +11,16 @@ module("the REST adapter", {
     ajaxType = undefined;
     ajaxHash = undefined;
 
-    adapter = DS.RESTAdapter.create({
+    var Adapter = DS.RESTAdapter.extend();
+    Adapter.configure('plurals', {
+      person: 'people'
+    });
+
+    adapter = Adapter.create({
       ajax: function(url, type, hash) {
         var success = hash.success, self = this;
+
+        hash.context = adapter;
 
         ajaxUrl = url;
         ajaxType = type;
@@ -24,12 +31,10 @@ module("the REST adapter", {
             success.call(self, json);
           };
         }
-      },
-
-      plurals: {
-        person: 'people'
       }
     });
+
+    serializer = get(adapter, 'serializer');
 
     store = DS.Store.create({
       adapter: adapter
@@ -57,8 +62,7 @@ module("the REST adapter", {
     });
 
     Role = DS.Model.extend({
-      name: DS.attr('string'),
-      primaryKey: '_id'
+      name: DS.attr('string')
     });
 
     Role.toString = function() {
@@ -104,6 +108,44 @@ var expectStates = function(state, value) {
   });
 };
 
+test("Calling ajax() calls JQuery.ajax with json data", function() {
+  var adapter, ajaxHash, oldJQueryAjax = jQuery.ajax;
+
+  try {
+    // replace jQuery.ajax()
+    jQuery.ajax = function(hash) {
+      ajaxHash = hash;
+    };
+
+    adapter = DS.RESTAdapter.create();
+
+    adapter.ajax('/foo', 'GET', {extra: 'special'});
+    ok(ajaxHash, 'jQuery.ajax was called');
+    equal(ajaxHash.url, '/foo', 'Request URL is the given value');
+    equal(ajaxHash.type, 'GET', 'Request method is the given value');
+    equal(ajaxHash.dataType, 'json', 'Request data type is JSON');
+    equal(ajaxHash.contentType, 'application/json; charset=utf-8', 'Request content type is JSON');
+    equal(ajaxHash.context, adapter, 'Request context is the adapter');
+    equal(ajaxHash.extra, 'special', 'Extra options are passed through');
+
+    adapter.ajax('/foo', 'POST', {});
+    ok(!ajaxHash.data, 'Data not set when not provided');
+
+    adapter.ajax('/foo', 'GET', {data: 'unsupported'});
+    equal(ajaxHash.data, 'unsupported', 'Data untouched for unsupported methods');
+
+    adapter.ajax('/foo', 'POST', {data: {id: 1, name: 'Bar'}});
+    equal(ajaxHash.data, JSON.stringify({id: 1, name: 'Bar'}), 'Data serialized for POST requests');
+
+    adapter.ajax('/foo', 'PUT', {data: {id: 1, name: 'Bar'}});
+    equal(ajaxHash.data, JSON.stringify({id: 1, name: 'Bar'}), 'Data serialized for PUT requests');
+
+  } finally {
+    // restore jQuery.ajax()
+    jQuery.ajax = oldJQueryAjax;
+  }
+});
+
 test("creating a person makes a POST to /people, with the data hash", function() {
   person = store.createRecord(Person, { name: "Tom Dale" });
 
@@ -113,7 +155,7 @@ test("creating a person makes a POST to /people, with the data hash", function()
 
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
-  expectData({ person: { name: "Tom Dale" } });
+  expectData({ person: { name: "Tom Dale", group_id: null } });
 
   ajaxHash.success({ person: { id: 1, name: "Tom Dale" } });
   expectState('saving', false);
@@ -122,10 +164,6 @@ test("creating a person makes a POST to /people, with the data hash", function()
 });
 
 test("singular creations can sideload data", function() {
-  adapter.mappings = {
-    groups: Group
-  };
-
   person = store.createRecord(Person, { name: "Tom Dale" });
 
   expectState('new');
@@ -134,7 +172,7 @@ test("singular creations can sideload data", function() {
 
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
-  expectData({ person: { name: "Tom Dale" } });
+  expectData({ person: { name: "Tom Dale", group_id: null } });
 
   ajaxHash.success({
     person: { id: 1, name: "Tom Dale" },
@@ -166,6 +204,7 @@ test("updating a person makes a PUT to /people/:id with the data hash", function
 
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("PUT");
+  expectData({ person: { name: "Brohuda Brokatz", group_id: null } });
 
   ajaxHash.success({ person: { id: 1, name: "Brohuda Brokatz" } });
   expectState('saving', false);
@@ -200,9 +239,7 @@ test("updates are not required to return data", function() {
 });
 
 test("singular updates can sideload data", function() {
-  adapter.mappings = {
-    groups: Group
-  };
+  serializer.configure(Group, { sideloadAs: 'groups' });
 
   store.load(Person, { id: 1, name: "Yehuda Katz" });
 
@@ -234,20 +271,6 @@ test("singular updates can sideload data", function() {
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
-/*
-test("updating a record with custom primaryKey", function() {
-  store.load(Role, { _id: 1, name: "Developer" });
-
-  role = store.find(Role, 1);
-
-  set(role, 'name', "Manager");
-  store.commit();
-
-  expectUrl("/roles/1", "the plural of the model name with its ID");
-  ajaxHash.success({ role: { _id: 1, name: "Manager" } });
-});
-*/
-
 test("deleting a person makes a DELETE to /people/:id", function() {
   store.load(Person, { id: 1, name: "Tom Dale" });
 
@@ -272,9 +295,7 @@ test("deleting a person makes a DELETE to /people/:id", function() {
 });
 
 test("singular deletes can sideload data", function() {
-  adapter.mappings = {
-    groups: Group
-  };
+  serializer.configure(Group, { sideloadAs: 'groups' });
 
   store.load(Person, { id: 1, name: "Tom Dale" });
 
@@ -342,7 +363,7 @@ test("finding all can sideload data", function() {
   expectType("GET");
 
   ajaxHash.success({
-    groups: [{ id: 1, name: "Group 1", people: [ 1 ] }],
+    groups: [{ id: 1, name: "Group 1", person_ids: [ 1 ] }],
     people: [{ id: 1, name: "Yehuda Katz" }]
   });
 
@@ -361,7 +382,7 @@ test("finding all people with since makes a GET to /people", function() {
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
 
-  ajaxHash.success({ meta: {since: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
+  ajaxHash.success({ meta: { since: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
 
   people = store.find(Person);
 
@@ -369,7 +390,7 @@ test("finding all people with since makes a GET to /people", function() {
   expectType("GET");
   expectData({since: '123'});
 
-  ajaxHash.success({ meta: {since: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
+  ajaxHash.success({ meta: { since: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
 
   person = people.objectAt(1);
 
@@ -384,14 +405,18 @@ test("finding all people with since makes a GET to /people", function() {
   expectType("GET");
   expectData({since: '1234'});
 
-  ajaxHash.success({ meta: {since: '12345'}, people: [{ id: 3, name: "Dan Gebhardt" }] });
+  ajaxHash.success({ meta: { since: '12345'}, people: [{ id: 3, name: "Dan Gebhardt" }] });
 
   equal(people.get('length'), 3, 'should have 3 records now');
 });
 
 test("meta and since are configurable", function() {
-  store.set('_adapter.meta', 'metaObject');
-  store.set('_adapter.since', 'sinceToken');
+  serializer.configure({
+    meta: 'metaObject',
+    since: 'sinceToken'
+  });
+
+  set(adapter, 'since', 'lastToken');
 
   people = store.find(Person);
 
@@ -404,7 +429,7 @@ test("meta and since are configurable", function() {
 
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
-  expectData({sinceToken: '123'});
+  expectData({lastToken: '123'});
 
   ajaxHash.success({ metaObject: {sinceToken: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
 
@@ -451,7 +476,7 @@ test("additional data can be sideloaded in a GET", function() {
 
   ajaxHash.success({
     group: {
-      id: 1, name: "Group 1", people: [ 1 ]
+      id: 1, name: "Group 1", person_ids: [ 1 ]
     },
     people: [{
       id: 1, name: "Yehuda Katz"
@@ -459,11 +484,11 @@ test("additional data can be sideloaded in a GET", function() {
   });
 
   equal(get(store.find(Person, 1), 'name'), "Yehuda Katz", "the items are sideloaded");
-  equal(get(get(store.find(Group, 1), 'people').objectAt(0), 'name'), "Yehuda Katz", "the items are in the association");
+  equal(get(get(store.find(Group, 1), 'people').objectAt(0), 'name'), "Yehuda Katz", "the items are in the relationship");
 });
 
 test("finding many people by a list of IDs", function() {
-  store.load(Group, { id: 1, people: [ 1, 2, 3 ] });
+  store.load(Group, { id: 1, person_ids: [ 1, 2, 3 ] });
 
   var group = store.find(Group, 1);
 
@@ -471,7 +496,7 @@ test("finding many people by a list of IDs", function() {
 
   var people = get(group, 'people');
 
-  equal(get(people, 'length'), 3, "there are three people in the association already");
+  equal(get(people, 'length'), 3, "there are three people in the relationship already");
 
   people.forEach(function(person) {
     equal(get(person, 'isLoaded'), false, "the person is being loaded");
@@ -507,7 +532,7 @@ test("finding many people by a list of IDs", function() {
 });
 
 test("finding many people by a list of IDs doesn't rely on the returned array order matching the passed list of ids", function() {
-  store.load(Group, { id: 1, people: [ 1, 2, 3 ] });
+  store.load(Group, { id: 1, person_ids: [ 1, 2, 3 ] });
 
   var group = store.find(Group, 1);
 
@@ -553,7 +578,7 @@ test("additional data can be sideloaded in a GET with many IDs", function() {
 
   ajaxHash.success({
     groups: [
-      { id: 1, people: [ 1, 2, 3 ] }
+      { id: 1, person_ids: [ 1, 2, 3 ] }
     ],
     people: [
       { id: 1, name: "Rein Heinrichs" },
@@ -629,7 +654,7 @@ test("finding people by a query can sideload data", function() {
 
   ajaxHash.success({
     groups: [
-      { id: 1, name: "Group 1", people: [ 1, 2, 3 ] }
+      { id: 1, name: "Group 1", person_ids: [ 1, 2, 3 ] }
     ],
     people: [
       { id: 1, name: "Rein Heinrichs" },
@@ -674,7 +699,7 @@ test("creating several people (with bulkCommit) makes a POST to /people, with a 
 
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
-  expectData({ people: [ { name: "Tom Dale" }, { name: "Yehuda Katz" } ] });
+  expectData({ people: [ { name: "Tom Dale", group_id: null }, { name: "Yehuda Katz", group_id: null } ] });
 
   ajaxHash.success({ people: [ { id: 1, name: "Tom Dale" }, { id: 2, name: "Yehuda Katz" } ] });
   expectStates('saving', false);
@@ -689,7 +714,7 @@ test("bulk commits can sideload data", function() {
   var tom = store.createRecord(Person, { name: "Tom Dale" });
   var yehuda = store.createRecord(Person, { name: "Yehuda Katz" });
 
-  adapter.mappings = { groups: Group };
+  serializer.configure(Group, { sideloadAs: 'groups' });
 
   people = [ tom, yehuda ];
 
@@ -699,7 +724,7 @@ test("bulk commits can sideload data", function() {
 
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
-  expectData({ people: [ { name: "Tom Dale" }, { name: "Yehuda Katz" } ] });
+  expectData({ people: [ { name: "Tom Dale", group_id: null }, { name: "Yehuda Katz", group_id: null } ] });
 
   ajaxHash.success({
     people: [ { id: 1, name: "Tom Dale" }, { id: 2, name: "Yehuda Katz" } ],
@@ -741,7 +766,7 @@ test("updating several people (with bulkCommit) makes a PUT to /people/bulk with
 
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
-  expectData({ people: [{ id: 1, name: "Brohuda Brokatz" }, { id: 2, name: "Brocarl Brolerche" }] });
+  expectData({ people: [{ id: 1, name: "Brohuda Brokatz", group_id: null }, { id: 2, name: "Brocarl Brolerche", group_id: null }] });
 
   ajaxHash.success({ people: [
     { id: 1, name: "Brohuda Brokatz" },
@@ -757,9 +782,7 @@ test("updating several people (with bulkCommit) makes a PUT to /people/bulk with
 test("bulk updates can sideload data", function() {
   set(adapter, 'bulkCommit', true);
 
-  adapter.mappings = {
-    groups: Group
-  };
+  serializer.configure(Group, { sideloadAs: 'groups' });
 
   store.loadMany(Person, [
     { id: 1, name: "Yehuda Katz" },
@@ -784,7 +807,7 @@ test("bulk updates can sideload data", function() {
 
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
-  expectData({ people: [{ id: 1, name: "Brohuda Brokatz" }, { id: 2, name: "Brocarl Brolerche" }] });
+  expectData({ people: [{ id: 1, name: "Brohuda Brokatz", group_id: null }, { id: 2, name: "Brocarl Brolerche", group_id: null }] });
 
   ajaxHash.success({
     people: [
@@ -803,7 +826,7 @@ test("bulk updates can sideload data", function() {
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
-test("deleting several people (with bulkCommit) makes a PUT to /people/bulk", function() {
+test("deleting several people (with bulkCommit) makes a DELETE to /people/bulk", function() {
   set(adapter, 'bulkCommit', true);
 
   store.loadMany(Person, [
@@ -842,9 +865,7 @@ test("deleting several people (with bulkCommit) makes a PUT to /people/bulk", fu
 test("bulk deletes can sideload data", function() {
   set(adapter, 'bulkCommit', true);
 
-  adapter.mappings = {
-    groups: Group
-  };
+  serializer.configure(Group, { sideloadAs: 'groups' });
 
   store.loadMany(Person, [
     { id: 1, name: "Yehuda Katz" },
@@ -904,7 +925,7 @@ test("sideloaded data is loaded prior to primary data (to ensure relationship co
   expect(1);
 
   group = store.find(Group, 1);
-  group.on("didLoad", function() {
+  group.then(function(group) {
     equal(group.get('people.firstObject').get('name'), "Tom Dale", "sideloaded data are already loaded");
   });
 
@@ -912,16 +933,16 @@ test("sideloaded data is loaded prior to primary data (to ensure relationship co
     people: [
       { id: 1, name: "Tom Dale" }
     ],
-    group: { id: 1, name: "Tilde team", people: [1] }
+    group: { id: 1, name: "Tilde team", person_ids: [1] }
   });
 });
 
-test("additional data can be sideloaded with associations in correct order", function() {
+test("additional data can be sideloaded with relationships in correct order", function() {
   var Comment = DS.Model.extend({
     person: DS.belongsTo(Person)
   });
 
-  store.adapter.mappings = {'comments': Comment};
+  serializer.configure(Comment, { sideloadAs: 'comments' });
 
   var comments = store.filter(Comment, function(data) {
     equal(store.find(Comment, data.get('id')).get('person.id'), 1);
@@ -931,7 +952,7 @@ test("additional data can be sideloaded with associations in correct order", fun
 
   ajaxHash.success({
     group: {
-      id: 1, name: "Group 1", people: [ 1 ]
+      id: 1, name: "Group 1", person_ids: [ 1 ]
     },
     comments: [{
       id: 1, person_id: 1, text: 'hello'
@@ -961,6 +982,10 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
     people: DS.hasMany(Person)
   });
 
+  PersonType.toString = function() {
+    return "App.PersonType";
+  };
+
   Person.reopen({
     personType: DS.belongsTo(PersonType)
   });
@@ -968,16 +993,13 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
   store.load(PersonType, {id: 1, title: "Developer"});
   var personType = store.find(PersonType, 1);
 
-  // FIXME this mass-assignment of a belongs to is broken.  It must be set separately.
-  // var person = store.createRecord(Person, {name: 'Sam Woodard', personType: personType});
-  var person = store.createRecord(Person, {name: 'Sam Woodard'});
-  person.set('personType', personType);
+  var person = store.createRecord(Person, {name: 'Sam Woodard', personType: personType});
 
   store.commit();
 
   expectUrl('/people');
   expectType("POST");
-  expectData({ person: { name: "Sam Woodard", person_type_id: "1" } });
+  expectData({ person: { name: "Sam Woodard", person_type_id: 1, group_id: null } });
   ajaxHash.success({ person: { name: 'Sam Woodard', person_type_id: 1}});
 });
 
@@ -997,6 +1019,9 @@ test("creating a record with a 422 error marks the records as invalid", function
 });
 
 test("updating a record with a 422 error marks the records as invalid", function(){
+  Person.reopen({
+    updatedAt: DS.attr('date')
+  });
   store.load(Person, { id: 1, name: "John Doe" });
   person = store.find(Person, 1);
   person.set('name', '');
@@ -1004,13 +1029,13 @@ test("updating a record with a 422 error marks the records as invalid", function
 
   var mockXHR = {
     status:       422,
-    responseText: JSON.stringify({ errors: { name: ["can't be blank"]} })
+    responseText: JSON.stringify({ errors: { name: ["can't be blank"], updated_at: ["can't be blank"] } })
   };
 
   ajaxHash.error.call(ajaxHash.context, mockXHR);
 
   expectState('valid', false);
-  deepEqual(person.get('errors'), { name: ["can't be blank"]}, "the person has the errors");
+  deepEqual(person.get('errors'), { name: ["can't be blank"], updatedAt: ["can't be blank"] }, "the person has the errors");
 });
 
 test("creating a record with a 500 error marks the record as error", function() {

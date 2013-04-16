@@ -121,3 +121,51 @@ test("If dirtyRecordsForAttributeChange adds two records to the dirtyRecords set
   ok(tomdale.get('isDirty'), "the record is dirty after attribute change");
   ok(wycats.get('isDirty'), "the record is dirty after attribute change");
 });
+
+test("When adding a newly created record to a hasMany relationship, the parent should become clean after committing", function() {
+  var App = Ember.Namespace.create();
+  App.toString = function() { return "App"; };
+
+  App.Post = DS.Model.extend({
+    title: DS.attr('string')
+  });
+
+  App.Comment = DS.Model.extend({
+    body: DS.attr('string'),
+    post: DS.belongsTo(App.Post)
+  });
+
+  App.Post.reopen({
+    comments: DS.hasMany(App.Comment)
+  });
+
+  expect(3);
+
+  adapter.dirtyRecordsForHasManyChange = Ember.K;
+
+  function didSaveRecord(store, record, hash) {
+    record.eachRelationship(function(name, relationship) {
+      if (relationship.kind === 'belongsTo') {
+        store.didUpdateRelationship(record, name);
+      }
+    });
+
+    store.didSaveRecord(record, hash);
+  }
+
+  adapter.createRecord = function(store, type, record) {
+    didSaveRecord(store, record, this.serialize(record));
+  };
+
+  store.load(App.Post, { id: 1});
+  var post = store.find(App.Post, 1);
+
+  post.get('comments').createRecord();
+
+  equal(post.get('isDirty'), false, "precond - the record should be dirty");
+
+  store.commit();
+
+  equal(post.get('isDirty'), false, "The record should no longer be dirty");
+  equal(post.get('isSaving'), false, "The record should no longer be saving");
+});

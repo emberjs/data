@@ -10,16 +10,18 @@ DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
     throw new Error("The result of a server query (on " + type + ") is immutable.");
   },
 
-  load: function(array) {
+  load: function(references) {
     var store = get(this, 'store'), type = get(this, 'type');
 
-    var clientIds = store.loadMany(type, array).clientIds;
-
     this.beginPropertyChanges();
-    set(this, 'content', Ember.A(clientIds));
+    set(this, 'content', Ember.A(references));
     set(this, 'isLoaded', true);
     this.endPropertyChanges();
 
-    this.trigger('didLoad');
+    var self = this; 
+    // TODO: does triggering didLoad event should be the last action of the runLoop?
+    Ember.run.once(function() {
+      self.trigger('didLoad');
+    });
   }
 });
