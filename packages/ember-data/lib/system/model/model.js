@@ -32,6 +32,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   isError: retrieveFromCurrentState,
   isNew: retrieveFromCurrentState,
   isValid: retrieveFromCurrentState,
+  dirtyType: retrieveFromCurrentState,
 
   clientId: null,
   id: null,

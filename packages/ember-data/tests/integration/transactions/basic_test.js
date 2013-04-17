@@ -158,45 +158,6 @@ test("a record that is clean can be removed from a transaction", function() {
   equal(updateCalled, 1, "after removing from transaction it commits on the store");
 });
 
-test("a record that is in the created state cannot be moved into a new transaction", function() {
-  var store = DS.Store.create();
-
-  var person = store.createRecord(Person);
-  transaction = store.transaction();
-
-  raises(function() {
-    transaction.add(person);
-  }, Error);
-});
-
-test("a record that is in the updated state cannot be moved into a new transaction", function() {
-  var store = DS.Store.create();
-
-  store.load(Person, { id: 1 });
-  var person = store.find(Person, 1);
-
-  person.set('name', "Scumdale");
-  transaction = store.transaction();
-
-  raises(function() {
-    transaction.add(person);
-  }, Error);
-});
-
-test("a record that is in the deleted state cannot be moved into a new transaction", function() {
-  var store = DS.Store.create();
-
-  store.load(Person, { id: 1 });
-  var person = store.find(Person, 1);
-
-  person.deleteRecord();
-  transaction = store.transaction();
-
-  raises(function() {
-    transaction.add(person);
-  }, Error);
-});
-
 test("a record that is in the clean state is moved back to the default transaction after its transaction is committed", function() {
   var store = DS.Store.create();
 
