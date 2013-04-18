@@ -60,6 +60,7 @@ test("After creating a record, calling `save` on it will save it using the Basic
   };
 
   var person = Person.createRecord({ firstName: "Igor", lastName: "Terzic" });
+
   person.save();
 });
 
