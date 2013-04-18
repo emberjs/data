@@ -437,7 +437,7 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
         set(firstRecord, firstRecordName, secondRecord);
       });
     }
-    else if(this.firstdRecordKind === "hasMany"){
+    else if(this.firstRecordKind === "hasMany"){
       firstRecord.suspendRelationshipObservers(function(){
         get(firstRecord, firstRecordName).addObject(secondRecord);
       });
@@ -481,7 +481,7 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
         set(firstRecord, firstRecordName, null);
       });
      }
-     else if(this.firstdRecordKind === "hasMany"){
+     else if(this.firstRecordKind === "hasMany"){
        firstRecord.suspendRelationshipObservers(function(){
         get(firstRecord, firstRecordName).removeObject(secondRecord);
       });

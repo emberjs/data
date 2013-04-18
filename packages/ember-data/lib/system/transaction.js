@@ -229,6 +229,19 @@ DS.Transaction = Ember.Object.extend({
     current transaction should not be used again.
   */
   rollback: function() {
+    var store = get(this, 'store');
+
+    // Destroy all relationship changes and compute
+    // all references affected
+    var references = Ember.OrderedSet.create();
+    var relationships = get(this, 'relationships');
+    relationships.forEach(function(r) {
+      references.add(r.firstRecordReference);
+      references.add(r.secondRecordReference);
+      r.destroy();
+    });
+    relationships.clear();
+
     // Loop through all of the records in each of the dirty states
     // and initiate a rollback on them. As a side effect of telling
     // the record to roll back, it should also move itself out of
@@ -237,6 +250,7 @@ DS.Transaction = Ember.Object.extend({
       var records = this.bucketForType(bucketType);
       forEach(records, function(record) {
         record.send('rollback');
+        references.remove(get(record, '_reference'));
       });
       records.clear();
     }, this);
@@ -244,6 +258,17 @@ DS.Transaction = Ember.Object.extend({
     // Now that all records in the transaction are guaranteed to be
     // clean, migrate them all to the store's default transaction.
     this.removeCleanRecords();
+
+    // Remaining associated references are not part of the transaction, but
+    // can still have hasMany's which have not been reloaded
+    references.forEach(function(r) {
+      if(r && store.isReferenceMaterialized(r)) {
+        var record = store.recordForReference(r);
+        record.suspendRelationshipObservers(function() {
+          record.reloadHasManys();
+        });
+      }
+    }, this);
   },
 
   /**
