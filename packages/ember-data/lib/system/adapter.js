@@ -500,7 +500,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   registerSerializerTransforms: function(klass, serializer, seen) {
     var transforms = klass._registeredTransforms, superclass, prop;
-    var enum_transforms = klass._registeredEnumTransforms;
+    var enumTransforms = klass._registeredEnumTransforms;
 
     for (prop in transforms) {
       if (!transforms.hasOwnProperty(prop) || prop in seen) { continue; }
@@ -509,11 +509,11 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
       serializer.registerTransform(prop, transforms[prop]);
     }
 
-    for (prop in enum_transforms) {
-      if (!enum_transforms.hasOwnProperty(prop) || prop in seen) { continue; }
+    for (prop in enumTransforms) {
+      if (!enumTransforms.hasOwnProperty(prop) || prop in seen) { continue; }
       seen[prop] = true;
 
-      serializer.registerEnumTransform(prop, enum_transforms[prop]);
+      serializer.registerEnumTransform(prop, enumTransforms[prop]);
     }
 
     if (superclass = klass.superclass) {
