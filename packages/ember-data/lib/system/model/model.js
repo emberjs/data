@@ -241,18 +241,19 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   dataDidChange: Ember.observer(function() {
+    this.reloadHasManys();
+    this.send('finishedMaterializing');
+  }, 'data'),
+
+  reloadHasManys: function() {
     var relationships = get(this.constructor, 'relationshipsByName');
-
     this.updateRecordArraysLater();
-
     relationships.forEach(function(name, relationship) {
       if (relationship.kind === 'hasMany') {
         this.hasManyDidChange(relationship.key);
       }
     }, this);
-
-    this.send('finishedMaterializing');
-  }, 'data'),
+  },
 
   hasManyDidChange: function(key) {
     var cachedValue = this.cacheFor(key);
