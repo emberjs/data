@@ -588,6 +588,8 @@ var states = {
           } else {
             record.trigger('didUpdate', record);
           }
+
+          record.trigger('didCommit', record);
         }
       }),
 
@@ -694,6 +696,7 @@ var states = {
         invokeLifecycleCallbacks: function(manager) {
           var record = get(manager, 'record');
           record.trigger('didDelete', record);
+          record.trigger('didCommit', record);
         }
       })
     }),

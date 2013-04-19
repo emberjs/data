@@ -1,6 +1,7 @@
 {
     "predef": [
         "console",
+        "requireModule",
         "Ember",
         "DS",
         "Handlebars",
