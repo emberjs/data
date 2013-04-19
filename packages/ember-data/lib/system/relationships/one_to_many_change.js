@@ -204,7 +204,7 @@ DS.OneToOneChange.maintainInvariant = function(options, store, childReference, k
     var child = store.recordForReference(childReference);
     var oldParent = get(child, key);
     if (oldParent){
-      var correspondingChange = DS.OneToOneChange.createChange(childReference, oldParent.get('_reference'), store, {
+      var correspondingChange = DS.OneToOneChange.createChange(childReference, oldParent.get('reference'), store, {
           parentType: options.parentType,
           hasManyName: options.hasManyName,
           changeType: "remove",
@@ -253,11 +253,12 @@ DS.OneToManyChange.createChange = function(childReference, parentReference, stor
 
 
 DS.OneToManyChange.maintainInvariant = function(options, store, childReference, key){
-  if (options.changeType === "add" && store.recordIsMaterialized(childReference)) {
-    var child = store.recordForReference(childReference);
+  var child = childReference.record;
+
+  if (options.changeType === "add" && child) {
     var oldParent = get(child, key);
     if (oldParent){
-      var correspondingChange = DS.OneToManyChange.createChange(childReference, oldParent.get('_reference'), store, {
+      var correspondingChange = DS.OneToManyChange.createChange(childReference, oldParent.get('reference'), store, {
           parentType: options.parentType,
           hasManyName: options.hasManyName,
           changeType: "remove",
@@ -330,8 +331,8 @@ DS.RelationshipChange.prototype = {
     // return null or undefined if the original reference was null or undefined
     if (!reference) { return reference; }
 
-    if (store.recordIsMaterialized(reference)) {
-      return store.recordForReference(reference);
+    if (reference.record) {
+      return reference.record;
     }
   },
 

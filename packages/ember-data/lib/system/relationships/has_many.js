@@ -48,9 +48,7 @@ function clearUnmaterializedHasMany(record, relationship) {
   forEach.call(references, function(reference) {
     var childRecord;
 
-    if (store.isReferenceMaterialized(reference)) {
-      childRecord = store.recordForReference(reference);
-
+    if (childRecord = reference.record) {
       record.suspendRelationshipObservers(function() {
         set(childRecord, inverseName, null);
       });

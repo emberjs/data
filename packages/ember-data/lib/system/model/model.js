@@ -215,7 +215,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   updateRecordArrays: function() {
     var store = get(this, 'store');
     if (store) {
-      store.dataWasUpdated(this.constructor, get(this, '_reference'), this);
+      store.dataWasUpdated(this.constructor, get(this, 'reference'), this);
     }
   },
 
@@ -413,10 +413,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
     this.updateRecordArraysLater();
   },
-
-  _reference: Ember.computed(function() {
-    return get(this, 'store').referenceForClientId(get(this, 'clientId'));
-  }),
 
   adapterDidInvalidate: function(errors) {
     this.send('becameInvalid', errors);

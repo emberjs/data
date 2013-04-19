@@ -262,8 +262,9 @@ DS.Transaction = Ember.Object.extend({
     // Remaining associated references are not part of the transaction, but
     // can still have hasMany's which have not been reloaded
     references.forEach(function(r) {
-      if(r && store.isReferenceMaterialized(r)) {
-        var record = store.recordForReference(r);
+
+      if (r && r.record) {
+        var record = r.record;
         record.suspendRelationshipObservers(function() {
           record.reloadHasManys();
         });

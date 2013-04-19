@@ -32,7 +32,7 @@ function loaderFor(store) {
     },
 
     prematerialize: function(reference, prematerialized) {
-      store.prematerialize(reference, prematerialized);
+      reference.prematerialized = prematerialized;
     },
 
     metaForType: function(type, property, data) {

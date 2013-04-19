@@ -169,7 +169,7 @@ test("should update record asynchronously when it is committed", function() {
 
   equal(Person.FIXTURES.length, 0, "Fixtures is empty");
 
-  var paul = store.findByClientId(Person, store.load(Person, 1, {firstName: 'Paul', lastName: 'Chavard', height: 70}).clientId);
+  var paul = store.recordForReference(store.load(Person, 1, {firstName: 'Paul', lastName: 'Chavard', height: 70}));
 
   paul.set('height', 80);
 
@@ -202,7 +202,7 @@ test("should delete record asynchronously when it is committed", function() {
 
   equal(Person.FIXTURES.length, 0, "Fixtures empty");
 
-  var paul = store.findByClientId(Person, store.load(Person, 1, {firstName: 'Paul', lastName: 'Chavard', height: 70}).clientId);
+  var paul = store.recordForReference(store.load(Person, 1, {firstName: 'Paul', lastName: 'Chavard', height: 70}));
 
   paul.deleteRecord();
 
