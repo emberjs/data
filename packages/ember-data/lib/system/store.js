@@ -121,8 +121,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     });
     this.relationshipChanges = {};
 
-    this._recordsToSave = Ember.OrderedSet.create();
-
+    set(this, 'currentTransaction', this.transaction());
     set(this, 'defaultTransaction', this.transaction());
   },
 
@@ -911,37 +910,29 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // .................
 
   scheduleSave: function(record) {
-    this._recordsToSave.add(record);
-    Ember.run.once(this, 'flushSavedRecords');
+    get(this, 'currentTransaction').add(record);
+    once(this, 'flushSavedRecords');
   },
 
   flushSavedRecords: function() {
-    var created = Ember.OrderedSet.create();
-    var updated = Ember.OrderedSet.create();
-    var deleted = Ember.OrderedSet.create();
-
-    this._recordsToSave.forEach(function(record) {
-      if (get(record, 'isNew')) {
-        created.add(record);
-      } else if (get(record, 'isDeleted')) {
-        deleted.add(record);
-      } else {
-        updated.add(record);
-      }
-    });
-
-    this._recordsToSave.clear();
-
-    get(this, '_adapter').commit(this, {
-      created: created,
-      updated: updated,
-      deleted: deleted
-    });
+    get(this, 'currentTransaction').commit();
+    set(this, 'currentTransaction', this.transaction());
   },
 
   // ..............
   // . PERSISTING .
   // ..............
+
+  /**
+    This method schedule a save of records in the default transaction.
+
+    Calling this method is essentially a request to persist
+    any changes to records that were not explicitly added to
+    a transaction.
+  */
+  save: function() {
+    once(this, 'commit');
+  },
 
   /**
     This method delegates committing to the store's implicit
