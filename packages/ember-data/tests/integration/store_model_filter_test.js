@@ -89,7 +89,9 @@ test("a Record Array can update its filter", function() {
 
   var dickens = store.createRecord(Person, { id: 4, name: "Scumbag Dickens" });
   dickens.deleteRecord();
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   var dale = store.find(Person, 1);
   var katz = store.find(Person, 2);
@@ -130,7 +132,9 @@ test("a Record Array can update its filter and notify array observers", function
 
   var dickens = store.createRecord(Person, { id: 4, name: "Scumbag Dickens" });
   dickens.deleteRecord();
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   var dale = store.find(Person, 1);
   var katz = store.find(Person, 2);
@@ -262,7 +266,9 @@ test("it is possible to filter loaded records by dirtiness", function() {
 
   equal(filter.get('length'), 0, "the now-dirty record is not in the filter");
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   store.didSaveRecord(person);
 
   equal(filter.get('length'), 1, "the clean record is back in the filter");
@@ -284,7 +290,9 @@ test("it is possible to filter created records by dirtiness", function() {
 
   equal(filter.get('length'), 0, "the dirty record is not in the filter");
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   store.didSaveRecord(person);
 
   equal(filter.get('length'), 1, "the clean record is in the filter");
@@ -314,7 +322,9 @@ var clientCreates = function(names) {
 };
 
 var serverResponds = function(){
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 };
 
 var setup = function(serverCallbacks) {

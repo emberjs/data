@@ -39,7 +39,9 @@ test("If a record is created from a transaction, it is not committed when store.
   transaction = store.transaction();
   transaction.createRecord(Person, {});
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   equal(commitCalls, 0, "commit was not called when committing the store");
 
   transaction.commit();
@@ -63,7 +65,9 @@ test("If a record is added to a transaction then updated, it is not committed wh
 
   record.set('name', 'Brohuda Brokatz');
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   equal(commitCalls, 0, "commit was not called when committing the store");
 
   transaction.commit();
@@ -98,7 +102,9 @@ test("a record is removed from a transaction after the records become clean", fu
   transaction.commit();
   equal(updateCalls, 0, "commit was not called when committing the transaction");
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   equal(updateCalls, 1, "commit was called when committing the store");
 });
 
@@ -121,7 +127,9 @@ test("after a record is added to a transaction then deleted, it is not committed
 
   record.deleteRecord();
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   equal(commitCalls, 0, "commit was not called when committing the store");
 
   transaction.commit();
@@ -153,7 +161,9 @@ test("a record that is clean can be removed from a transaction", function() {
 
   equal(updateCalled, 0, "after removing from transaction it does not commit");
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   equal(updateCalled, 1, "after removing from transaction it commits on the store");
 });

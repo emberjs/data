@@ -57,5 +57,7 @@ test("If an adapter implements the `generateIdForRecord` method, the store shoul
 
   // Despite client-generated IDs, calling commit() on the store should still
   // invoke the adapter's `createRecord` method.
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 });

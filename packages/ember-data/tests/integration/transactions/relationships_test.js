@@ -144,7 +144,9 @@ test("the store should have a new defaultTransaction after commit from store", f
 
   equal(transaction, defaultTransaction, 'record is in the defaultTransaction');
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   var newDefaultTransaction = store.get('defaultTransaction');
   transaction = record.get('transaction');

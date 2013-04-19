@@ -88,7 +88,9 @@ test("records are persisted as is", function() {
   };
 
   var record = store.createRecord(App.Person, attributes);
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   var adam = store.find(App.Person, record.get('id'));
 
@@ -114,12 +116,16 @@ test("records are updated as is", function() {
   };
 
   var record = store.createRecord(App.Person, attributes);
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   var adam = store.find(App.Person, record.get('id'));
 
   adam.set('name', 'Adam Andrew Hawkins');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   equal(adam.get('name'), 'Adam Andrew Hawkins', 'Attribute materialized');
 
@@ -141,11 +147,15 @@ test("records are deleted", function() {
   };
 
   var record = store.createRecord(App.Person, attributes);
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   var adam = store.find(App.Person, record.get('id'));
   adam.deleteRecord();
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   var fixtures = adapter.fixturesForType(App.Person);
   equal(fixtures.length, 0, "fixtures updated");
