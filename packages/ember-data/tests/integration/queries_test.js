@@ -59,3 +59,32 @@ test("When a query is made, the adapter should receive a record array it can pop
     equal(resolvedValue, queryResults, "The promise was resolved with the query results");
   });
 });
+
+
+test("When a query is made, the record array promise can be resolved multiple times.", function() {
+  expect(1);
+
+  adapter.findQuery = function(store, type, query, recordArray) {
+
+    stop();
+
+    var self = this;
+
+    // Simulate latency to ensure correct behavior in asynchronous conditions.
+    // Once 100ms has passed, load the results of the query into the record array.
+    setTimeout(function() {
+      Ember.run(function() {
+        self.didFindQuery(store, type, { persons: [{ id: 1, name: "Peter Wagenet" }, { id: 2, name: "Brohuda Katz" }] }, recordArray);
+      });
+    }, 100);
+  };
+
+  var queryResults = store.find(Person, { page: 1 });
+
+  queryResults.then(function(resolvedValue) {
+    queryResults.then(function(resolvedValue) {
+      start();
+      equal(resolvedValue, queryResults, "The promise was resolved with the query results");
+    });
+  });
+});
