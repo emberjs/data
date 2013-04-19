@@ -500,12 +500,20 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   registerSerializerTransforms: function(klass, serializer, seen) {
     var transforms = klass._registeredTransforms, superclass, prop;
+    var enumTransforms = klass._registeredEnumTransforms;
 
     for (prop in transforms) {
       if (!transforms.hasOwnProperty(prop) || prop in seen) { continue; }
       seen[prop] = true;
 
       serializer.registerTransform(prop, transforms[prop]);
+    }
+
+    for (prop in enumTransforms) {
+      if (!enumTransforms.hasOwnProperty(prop) || prop in seen) { continue; }
+      seen[prop] = true;
+
+      serializer.registerEnumTransform(prop, enumTransforms[prop]);
     }
 
     if (superclass = klass.superclass) {
@@ -712,6 +720,14 @@ DS.Adapter.reopenClass({
     registeredTransforms[attributeType] = transform;
 
     this._registeredTransforms = registeredTransforms;
+  },
+
+  registerEnumTransform: function(attributeType, objects) {
+    var registeredEnumTransforms = this._registeredEnumTransforms || {};
+
+    registeredEnumTransforms[attributeType] = objects;
+
+    this._registeredEnumTransforms = registeredEnumTransforms;
   },
 
   map: DS._Mappable.generateMapFunctionFor('attributes', function(key, newValue, map) {
