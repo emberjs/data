@@ -270,13 +270,14 @@ DS.OneToManyChange.maintainInvariant = function(options, store, childReference, 
   }
 };
 
-DS.OneToManyChange.ensureSameTransaction = function(changes, store){
+DS.OneToManyChange.ensureSameTransaction = function(changes){
   var records = Ember.A();
   forEach(changes, function(change){
     records.addObject(change.getSecondRecord());
     records.addObject(change.getFirstRecord());
   });
-  var transaction = store.ensureSameTransaction(records);
+
+  var transaction = DS.Transaction.ensureSameTransaction(records);
   forEach(changes, function(change){
     change.transaction = transaction;
  });
@@ -357,7 +358,7 @@ DS.RelationshipChange.prototype = {
     var child = this.getFirstRecord(),
       parentRecord = this.getSecondRecord();
 
-    var transaction = this.store.ensureSameTransaction([child, parentRecord]);
+    var transaction = DS.Transaction.ensureSameTransaction([child, parentRecord]);
 
     this.transaction = transaction;
     return transaction;
