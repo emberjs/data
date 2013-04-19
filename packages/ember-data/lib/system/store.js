@@ -10,9 +10,11 @@ require("ember-data/system/mixins/mappable");
   @submodule data-store
 */
 
-var get = Ember.get, set = Ember.set, once = Ember.run.once;
-var forEach = Ember.EnumerableUtils.forEach;
+var get = Ember.get, set = Ember.set;
+var once = Ember.run.once;
 var isNone = Ember.isNone;
+var forEach = Ember.EnumerableUtils.forEach;
+var map = Ember.EnumerableUtils.map;
 
 // These values are used in the data cache when clientIds are
 // needed but the underlying data has not yet been loaded by
@@ -28,10 +30,13 @@ var CREATED = { created: true };
 //   scheme:
 //
 //   * +id+ means an identifier managed by an external source, provided inside
-//     the data provided by that source.
+//     the data provided by that source. These are always coerced to be strings
+//     before being used internally.
 //   * +clientId+ means a transient numerical identifier generated at runtime by
 //     the data store. It is important primarily because newly created objects may
 //     not yet have an externally generated id.
+//   * +reference+ means a record reference object, which holds metadata about a
+//     record, even if it has not yet been fully materialized.
 //   * +type+ means a subclass of DS.Model.
 
 // Used by the store to normalize IDs entering the store.  Despite the fact
@@ -44,25 +49,35 @@ var coerceId = function(id) {
   return id == null ? null : id+'';
 };
 
-var map = Ember.EnumerableUtils.map;
 
 /**
   The store contains all of the data for records loaded from the server.
-  It is also responsible for creating instances of DS.Model that wraps
+  It is also responsible for creating instances of DS.Model that wrap
   the individual data for a record, so that they can be bound to in your
   Handlebars templates.
 
-  Create a new store like this:
+  Define your application's store like this:
 
-       MyApp.store = DS.Store.create();
+       MyApp.Store = DS.Store.extend();
 
-  You can retrieve DS.Model instances from the store in several ways. To retrieve
-  a record for a specific id, use the `find()` method:
+  Most Ember.js applications will only have a single `DS.Store` that is
+  automatically created by their `Ember.Application`.
 
-       var record = MyApp.store.find(MyApp.Contact, 123);
+  You can retrieve models from the store in several ways. To retrieve a record
+  for a specific id, use `DS.Model`'s `find()` method:
 
-   By default, the store will talk to your backend using a standard REST mechanism.
-   You can customize how the store talks to your backend by specifying a custom adapter:
+       var person = App.Person.find(123);
+
+  If your application has multiple `DS.Store` instances (an unusual case), you can
+  specify which store should be used:
+
+      var person = store.find(App.Person, 123);
+
+  In general, you should retrieve models using the methods on `DS.Model`; you should
+  rarely need to interact with the store directly.
+
+  By default, the store will talk to your backend using a standard REST mechanism.
+  You can customize how the store talks to your backend by specifying a custom adapter:
 
        MyApp.store = DS.Store.create({
          adapter: 'MyApp.CustomAdapter'
