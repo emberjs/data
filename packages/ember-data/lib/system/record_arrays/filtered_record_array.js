@@ -23,7 +23,7 @@ DS.FilteredRecordArray = DS.RecordArray.extend({
   },
 
   updateFilter: Ember.observer(function() {
-    var store = get(this, 'store');
-    store.updateRecordArrayFilter(this, get(this, 'type'), get(this, 'filterFunction'));
+    var manager = get(this, 'manager');
+    manager.updateFilter(this, get(this, 'type'), get(this, 'filterFunction'));
   }, 'filterFunction')
 });

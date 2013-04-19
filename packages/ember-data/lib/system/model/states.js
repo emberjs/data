@@ -651,7 +651,7 @@ var states = {
         var record = get(manager, 'record'),
             store = get(record, 'store');
 
-        store.removeFromRecordArrays(record);
+        store.recordArrayManager.remove(record);
       },
 
       // SUBSTATES

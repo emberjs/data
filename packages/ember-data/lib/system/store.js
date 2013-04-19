@@ -116,15 +116,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     // internal bookkeeping; not observable
     this.typeMaps = {};
-    this.recordArraysByClientId = {};
+    this.recordArrayManager = DS.RecordArrayManager.create({
+      store: this
+    });
     this.relationshipChanges = {};
-
-    // Internally, we maintain a map of all unloaded IDs requested by
-    // a ManyArray. As the adapter loads data into the store, the
-    // store notifies any interested ManyArrays. When the ManyArray's
-    // total number of loading records drops to zero, it becomes
-    // `isLoaded` and fires a `didLoad` event.
-    this.loadingRecordArrays = {};
 
     this._recordsToSave = Ember.OrderedSet.create();
 
@@ -501,27 +496,18 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   /**
     @private
 
-    This method returns a record for a given clientId.
+    This method returns a record for a given record refeence.
 
-    If there is no record object yet for the clientId, this method materializes
-    a new record object. This allows adapters to eagerly load large amounts of
-    data into the store, and avoid incurring the cost to create the objects
-    until they are requested.
-
-    Several parts of Ember Data call this method:
-
-    * findById, if a clientId already exists for a given type and
-      id combination
-    * OneToManyChange, which is backed by clientIds, when getChild,
-      getOldParent or getNewParent are called
-    * RecordArray, which is backed by clientIds, when an object at
-      a particular index is looked up
+    If no record for the reference has yet been materialzed, this method will
+    materialize a new `DS.Model` instance. This allows adapters to eagerly load
+    large amounts of data into the store, and avoid incurring the cost of
+    creating models until they are requested.
 
     In short, it's a convenient way to get a record for a known
-    clientId, materializing it if necessary.
+    record reference, materializing it if necessary.
 
-    @param {Class} type
-    @param {Number|String} clientId
+    @param {Object} reference
+    @returns {DS.Model}
   */
   recordForReference: function(reference) {
     var record = reference.record;
@@ -647,7 +633,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     * create a new ManyArray whose content is *all* of the clientIds
     * notify the ManyArray of the number of its elements that are
       already loaded
-    * insert the unloaded clientIds into the `loadingRecordArrays`
+    * insert the unloaded references into the `loadingRecordArrays`
       bookkeeping structure, which will allow the `ManyArray` to know
       when all of its loading elements are loaded from the server.
     * ask the adapter to load the unloaded elements, by invoking
@@ -672,7 +658,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         Ember.assert("You tried to load many records but your adapter does not implement `findHasMany`", adapter.findHasMany);
       }
 
-      return this.createManyArray(type, Ember.A());
+      return this.recordArrayManager.createManyArray(type, Ember.A());
     }
 
     // Coerce server IDs into Record Reference
@@ -685,7 +671,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }, this);
 
     var unloadedReferences = this.unloadedReferences(references),
-        manyArray = this.createManyArray(type, Ember.A(references)),
+        manyArray = this.recordArrayManager.createManyArray(type, Ember.A(references)),
         loadingRecordArrays = this.loadingRecordArrays,
         reference, clientId, i, l;
 
@@ -696,17 +682,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (unloadedReferences.length) {
       for (i=0, l=unloadedReferences.length; i<l; i++) {
         reference = unloadedReferences[i];
-        clientId = reference.clientId;
 
         // keep track of the record arrays that a given loading record
         // is part of. This way, if the same record is in multiple
         // ManyArrays, all of their loading records counters will be
         // decremented when the adapter provides the data.
-        if (loadingRecordArrays[clientId]) {
-          loadingRecordArrays[clientId].push(manyArray);
-        } else {
-          this.loadingRecordArrays[clientId] = [ manyArray ];
-        }
+        this.recordArrayManager.registerWaitingRecordArray(manyArray, reference);
       }
 
       this.fetchMany(unloadedReferences, record);
@@ -813,8 +794,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     if (findAllCache) { return findAllCache; }
 
-    var array = DS.RecordArray.create({ type: type, content: Ember.A([]), store: this, isLoaded: true });
-    this.registerRecordArray(array, type);
+    var array = DS.RecordArray.create({
+      type: type,
+      content: Ember.A([]),
+      store: this,
+      isLoaded: true
+    });
+
+    this.recordArrayManager.registerFilteredRecordArray(array, type);
 
     typeMap.findAllCache = array;
     return array;
@@ -857,9 +844,15 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       filter = query;
     }
 
-    var array = DS.FilteredRecordArray.create({ type: type, content: Ember.A([]), store: this, filterFunction: filter });
+    var array = DS.FilteredRecordArray.create({
+      type: type,
+      content: Ember.A([]),
+      store: this,
+      manager: this.recordArrayManager,
+      filterFunction: filter
+    });
 
-    this.registerRecordArray(array, type, filter);
+    this.recordArrayManager.registerFilteredRecordArray(array, type, filter);
 
     return array;
   },
@@ -909,7 +902,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (get(record, 'isDeleted')) { return; }
 
     if (typeof reference.data === "object") {
-      this.updateRecordArrays(reference);
+      this.recordArrayManager.referenceDidChange(reference);
     }
   },
 
@@ -1285,202 +1278,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return this.adapterForType(type).extractId(type, data);
   },
 
-  // .................
-  // . RECORD ARRAYS .
-  // .................
-
-  /**
-    @private
-
-    Register a RecordArray for a given type to be backed by
-    a filter function. This will cause the array to update
-    automatically when records of that type change attribute
-    values or states.
-
-    @param {DS.RecordArray} array
-    @param {Class} type
-    @param {Function} filter
-  */
-  registerRecordArray: function(array, type, filter) {
-    var recordArrays = this.typeMapFor(type).recordArrays;
-
-    recordArrays.push(array);
-
-    this.updateRecordArrayFilter(array, type, filter);
-  },
-
-  /**
-    @private
-
-    Create a `DS.ManyArray` for a type and list of clientIds
-    and index the `ManyArray` under each clientId. This allows
-    us to efficiently remove records from `ManyArray`s when
-    they are deleted.
-
-    @param {Class} type
-    @param {Array} clientIds
-
-    @return {DS.ManyArray}
-  */
-  createManyArray: function(type, clientIds) {
-    var array = DS.ManyArray.create({ type: type, content: clientIds, store: this });
-
-    clientIds.forEach(function(clientId) {
-      var recordArrays = this.recordArraysForClientId(clientId);
-      recordArrays.add(array);
-    }, this);
-
-    return array;
-  },
-
-  /**
-    @private
-
-    This method is invoked if the `filterFunction` property is
-    changed on a `DS.FilteredRecordArray`.
-
-    It essentially re-runs the filter from scratch. This same
-    method is invoked when the filter is created in th first place.
-  */
-  updateRecordArrayFilter: function(array, type, filter) {
-    var typeMap = this.typeMapFor(type),
-        references = typeMap.references,
-        reference, data, shouldFilter, record;
-
-    for (var i=0, l=references.length; i<l; i++) {
-      reference = references[i];
-      shouldFilter = false;
-
-      data = reference.data;
-
-      if (typeof data === 'object') {
-        if (record = reference.record) {
-          if (!get(record, 'isDeleted')) { shouldFilter = true; }
-        } else {
-          shouldFilter = true;
-        }
-
-        if (shouldFilter) {
-          this.updateRecordArray(array, filter, type, reference);
-        }
-      }
-    }
-  },
-
-  updateRecordArraysLater: function(type, reference) {
-    Ember.run.once(this, function() {
-      this.updateRecordArrays(type, reference);
-    });
-  },
-
-  /**
-    @private
-
-    This method is invoked whenever data is loaded into the store
-    by the adapter or updated by the adapter, or when an attribute
-    changes on a record.
-
-    It updates all filters that a record belongs to.
-
-    To avoid thrashing, it only runs once per run loop per record.
-
-    @param {Class} type
-    @param {Number|String} clientId
-  */
-  updateRecordArrays: function(reference) {
-    var type = reference.type,
-        recordArrays = this.typeMapFor(type).recordArrays,
-        filter;
-
-    recordArrays.forEach(function(array) {
-      filter = get(array, 'filterFunction');
-      this.updateRecordArray(array, filter, type, reference);
-    }, this);
-
-    // loop through all manyArrays containing an unloaded copy of this
-    // clientId and notify them that the record was loaded.
-    var manyArrays = this.loadingRecordArrays[reference.clientId];
-
-    if (manyArrays) {
-      for (var i=0, l=manyArrays.length; i<l; i++) {
-        manyArrays[i].loadedRecord();
-      }
-
-      this.loadingRecordArrays[reference.clientId] = null;
-    }
-  },
-
-  /**
-    @private
-
-    Update an individual filter.
-
-    @param {DS.FilteredRecordArray} array
-    @param {Function} filter
-    @param {Class} type
-    @param {Number|String} clientId
-  */
-  updateRecordArray: function(array, filter, type, reference) {
-    var shouldBeInArray, record;
-
-    if (!filter) {
-      shouldBeInArray = true;
-    } else {
-      record = this.recordForReference(reference);
-      shouldBeInArray = filter(record);
-    }
-
-    var recordArrays = this.recordArraysForClientId(reference.clientId);
-
-    if (shouldBeInArray) {
-      recordArrays.add(array);
-      array.addReference(reference);
-    } else if (!shouldBeInArray) {
-      recordArrays.remove(array);
-      array.removeReference(reference);
-    }
-  },
-
-  /**
-    @private
-
-    When a record is deleted, it is removed from all its
-    record arrays.
-
-    @param {DS.Model} record
-  */
-  removeFromRecordArrays: function(record) {
-    var reference = get(record, 'reference');
-    var recordArrays = this.recordArraysForClientId(reference.clientId);
-
-    recordArrays.forEach(function(array) {
-      array.removeReference(reference);
-    });
-  },
-
-  // ............
-  // . INDEXING .
-  // ............
-
-  /**
-    @private
-
-    Return a list of all `DS.RecordArray`s a clientId is
-    part of.
-
-    @return {Object(clientId: Ember.OrderedSet)}
-  */
-  recordArraysForClientId: function(clientId) {
-    var recordArrays = get(this, 'recordArraysByClientId');
-    var ret = recordArrays[clientId];
-
-    if (!ret) {
-      ret = recordArrays[clientId] = Ember.OrderedSet.create();
-    }
-
-    return ret;
-  },
-
   /** @private
    Returns a map of IDs to client IDs for a given type.
   */
@@ -1496,7 +1293,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     typeMap = {
       idToReference: {},
       references: [],
-      recordArrays: [],
       metadata: {}
     };
 
@@ -1547,7 +1343,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     reference.data = data;
     reference.prematerialized = prematerialized;
 
-    this.updateRecordArraysLater(reference);
+    this.recordArrayManager.referenceDidChange(reference);
 
     return reference;
   },
