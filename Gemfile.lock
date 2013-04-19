@@ -1,9 +1,10 @@
 GIT
   remote: https://github.com/emberjs/ember-dev.git
-  revision: 0f0675efeccddeafd2bda223b0fc2bc6f624c2b1
+  revision: d48ec62bbd0cee224a0e7c59e9c53ed6dfa8ccf5
   branch: master
   specs:
     ember-dev (0.1)
+      aws-sdk
       colored
       ember-source
       execjs
@@ -32,7 +33,7 @@ GEM
       nokogiri (>= 1.4.4)
       uuidtools (~> 2.1)
     colored (1.2)
-    diff-lcs (1.2.1)
+    diff-lcs (1.2.3)
     ember-source (1.0.0.rc2.2)
       handlebars-source (>= 1.0.0.rc3, < 1.0.0.rc4)
     execjs (1.4.0)
@@ -46,17 +47,17 @@ GEM
     kicker (2.6.1)
       listen
     listen (0.7.3)
-    mime-types (1.21)
-    nokogiri (1.5.9)
+    mime-types (1.22)
     multi_json (1.7.2)
+    nokogiri (1.5.9)
     posix-spawn (0.3.6)
     rack (1.5.2)
     rake (10.0.4)
     rake-pipeline-web-filters (0.7.0)
       rack
       rake-pipeline (~> 0.6)
-    thor (0.17.0)
-    uglifier (1.3.0)
+    thor (0.18.1)
+    uglifier (2.0.1)
       execjs (>= 0.3.0)
       multi_json (~> 1.0, >= 1.0.2)
     uuidtools (2.1.3)

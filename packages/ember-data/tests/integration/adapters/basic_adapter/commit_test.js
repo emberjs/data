@@ -59,6 +59,7 @@ test("After creating a record, calling `save` on it will save it using the Basic
   };
 
   var person = Person.createRecord({ firstName: "Igor", lastName: "Terzic" });
+  person.stateManager.enableLogging = true;
   person.save().then(async(function(p) {
     strictEqual(p, person);
     equal(p.get('isSaving'), false);
