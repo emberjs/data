@@ -1,6 +1,7 @@
 var get = Ember.get;
 
 var store, adapter, Person, PhoneNumber;
+
 module("Basic Adapter - Finding", {
   setup: function() {
     adapter = DS.BasicAdapter.create();

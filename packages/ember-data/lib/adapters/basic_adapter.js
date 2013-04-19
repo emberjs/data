@@ -1,50 +1,9 @@
 /*jshint newcap:false*/
 
-var normalizer = requireModule('json-normalizer'),
-    Processor = normalizer.Processor,
-    camelizeKeys = normalizer.camelizeKeys;
+require("ember-data/adapters/basic_adapter/loaders");
+require("ember-data/adapters/basic_adapter/processors");
 
 var capitalize = Ember.String.capitalize;
-
-function DataProcessor() {
-  Processor.apply(this, arguments);
-};
-
-DataProcessor.prototype = Ember.create(Processor.prototype);
-
-Ember.merge(DataProcessor.prototype, {
-  munge: function(callback, binding) {
-    callback.call(binding, this.json);
-    return this;
-  }
-});
-
-function ArrayProcessor(array) {
-  this.array = array;
-}
-
-ArrayProcessor.prototype = {
-  constructor: ArrayProcessor,
-
-  camelizeKeys: function() {
-    var array = this.array;
-    for (var i=0, l=array.length; i<l; i++) {
-      array[i] = camelizeKeys(array[i]);
-    }
-
-    return this;
-  },
-
-  munge: function(callback, binding) {
-    var array = this.array;
-    for (var i=0, l=array.length; i<l; i++) {
-      callback.call(binding, array[i]);
-    }
-
-    return this;
-  }
-};
-
 var transforms = {};
 
 function registerTransform(name, transforms) {
@@ -55,68 +14,25 @@ function clearTransforms() {
   transforms = {};
 }
 
-Ember.merge(DataProcessor.prototype, {
-  applyTransforms: function(transform) {
+var registeredTransforms = {};
 
-  }
-});
+DS.registerTransforms = function(kind, object) {
+  registeredTransforms[kind] = object;
+};
+
+DS.clearTransforms = function() {
+  registeredTransforms = {};
+};
+
+DS.clearTransforms();
 
 DS.process = function(json) {
   if (Ember.typeOf(json) === 'array') {
-    return new ArrayProcessor(json);
+    return new DS.ArrayProcessor(json);
   } else {
-    return new DataProcessor(json);
+    return new DS.DataProcessor(json);
   }
 };
-
-function ObjectLoader(store, type) {
-  return function(object) {
-    var json;
-
-    if (object instanceof DataProcessor) {
-      json = object.json;
-    } else {
-      json = object;
-    }
-
-    store.load(type, json);
-  };
-}
-
-function ArrayLoader(store, type, queryArray) {
-  return function(array) {
-    var json;
-
-    if (array instanceof ArrayProcessor) {
-      json = array.array;
-    } else {
-      json = array;
-    }
-
-    var references = json.map(function(object) {
-      return store.load(type, object);
-    });
-
-    queryArray.load(references);
-  };
-}
-
-function HasManyLoader(store, record, relationship) {
-  return function(array) {
-    var json;
-
-    if (array instanceof ArrayProcessor) {
-      json = array.array;
-    } else {
-      json = array;
-    }
-
-    var ids = json.map(function(obj) { return obj.id; });
-
-    store.loadMany(relationship.type, json);
-    store.loadHasMany(record, relationship.key, ids);
-  };
-}
 
 /**
   @class BasicAdapter
@@ -165,7 +81,7 @@ DS.BasicAdapter = DS.Adapter.extend({
     Ember.assert("You are trying to use the BasicAdapter to find id '" + id + "' of " + type + " but " + type + ".sync was not found", sync);
     Ember.assert("The sync code on " + type + " does not implement find(), but you are trying to find id '" + id + "'.", sync.find);
 
-    sync.find(id, ObjectLoader(store, type));
+    sync.find(id, DS.ObjectLoader(store, type));
   },
 
   findQuery: function(store, type, query, recordArray) {
@@ -174,13 +90,13 @@ DS.BasicAdapter = DS.Adapter.extend({
     Ember.assert("You are trying to use the BasicAdapter to query " + type + " but " + type + ".sync was not found", sync);
     Ember.assert("The sync code on " + type + " does not implement query(), but you are trying to query " + type + ".", sync.query);
 
-    sync.query(query, ArrayLoader(store, type, recordArray));
+    sync.query(query, DS.ArrayLoader(store, type, recordArray));
   },
 
   findHasMany: function(store, record, relationship, data) {
     var name = capitalize(relationship.key),
         sync = record.constructor.sync,
-        load = HasManyLoader(store, record, relationship);
+        load = DS.HasManyLoader(store, record, relationship);
 
     Ember.assert("You are trying to use the BasicAdapter to query " + record.constructor + " but " + record.constructor + ".sync was not found", sync);
 
@@ -203,6 +119,8 @@ DS.BasicAdapter = DS.Adapter.extend({
 
     Ember.assert("You are trying to use the BasicAdapter to query " + type + " but " + type + ".sync was not found", sync);
     Ember.assert("The sync code on " + type + " does not implement createRecord(), but you are trying to create a " + type + " record", sync.createRecord);
+
+    sync.createRecord(record, didSave(store, record));
   },
 
   updateRecord: function(store, type, record) {
@@ -222,14 +140,3 @@ DS.BasicAdapter = DS.Adapter.extend({
   }
 });
 
-var registeredTransforms = {};
-
-DS.registerTransforms = function(kind, object) {
-  registeredTransforms[kind] = object;
-};
-
-DS.clearTransforms = function() {
-  registeredTransforms = {};
-};
-
-DS.clearTransforms();

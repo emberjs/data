@@ -59,7 +59,6 @@ test("After creating a record, calling `save` on it will save it using the Basic
   };
 
   var person = Person.createRecord({ firstName: "Igor", lastName: "Terzic" });
-  person.stateManager.enableLogging = true;
   person.save().then(async(function(p) {
     strictEqual(p, person);
     equal(p.get('isSaving'), false);
@@ -125,7 +124,6 @@ test("Calling `didSave` on a record will update an updated record", function() {
   var person = Person.find(1);
   person.set('lastName', "Terzicsta");
 
-  console.log(d2);
   person.save().then(async(function(p) {
     strictEqual(p, person);
     equal(p.get('isSaving'), false);
