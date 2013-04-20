@@ -1,5 +1,17 @@
 require('ember-data/serializers/json_serializer');
 
+/**
+  @module data
+  @submodule data-serializers
+*/
+
+/**
+  @class RESTSerializer
+  @constructor
+  @namespace DS
+  @extends DS.Serializer
+*/
+
 var get = Ember.get;
 
 DS.RESTSerializer = DS.JSONSerializer.extend({

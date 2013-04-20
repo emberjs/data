@@ -1,5 +1,8 @@
 require("ember-data/system/mixins/load_promise");
 
+/**
+*/
+
 var get = Ember.get, set = Ember.set;
 
 var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
@@ -10,6 +13,16 @@ var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
   time. You should not create record arrays yourself. Instead, an instance of
   DS.RecordArray or its subclasses will be returned by your application's store
   in response to queries.
+
+  @module data
+  @submodule data-record-array
+  @main data-record-array
+
+  @class RecordArray
+  @namespace DS
+  @extends Ember.ArrayProxy
+  @uses Ember.Evented
+  @uses DS.LoadPromise
 */
 
 DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, LoadPromise, {

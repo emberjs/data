@@ -1,7 +1,16 @@
 var none = Ember.isNone, empty = Ember.isEmpty;
 
 /**
+  @module data
+  @submodule data-transforms
+*/
+
+/**
   DS.Transforms is a hash of transforms used by DS.Serializer.
+
+  @class JSONTransforms
+  @static
+  @namespace DS
 */
 DS.JSONTransforms = {
   string: {
@@ -49,7 +58,6 @@ DS.JSONTransforms = {
   date: {
     deserialize: function(serialized) {
       var type = typeof serialized;
-      var date = null;
 
       if (type === "string") {
         return new Date(Ember.Date.parse(serialized));

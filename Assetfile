@@ -1,11 +1,11 @@
-require 'ember-dev'
-instance_eval File.read(::EmberDev.support_path.join('Assetfile'))
-
 distros = {
-  :full    => %w(ember-data)
+  :full    => %w(json-normalizer ember-data)
 }
 
-output "dist"
+#MEGAHAX
+ember_spade_postprocess = "filter EmberAddMicroLoader, :global => true"
+
+instance_eval File.read(::EmberDev.support_path.join('Assetfile'))
 
 distros.each do |name, modules|
   name = "ember-data"
@@ -14,6 +14,7 @@ distros.each do |name, modules|
     module_paths = modules.map{|m| "#{m}.js" }
     match "{#{module_paths.join(',')}}" do
       concat(module_paths){ ["#{name}.js", "#{name}.prod.js"] }
+      filter EmberAddMicroLoader
     end
 
     match "#{name}.js" do

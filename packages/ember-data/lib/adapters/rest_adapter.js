@@ -3,7 +3,12 @@ require('ember-data/system/adapter');
 require('ember-data/serializers/rest_serializer');
 /*global jQuery*/
 
-var get = Ember.get, set = Ember.set, merge = Ember.merge;
+/**
+  @module data
+  @submodule data-adapters
+*/
+
+var get = Ember.get, set = Ember.set;
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -59,6 +64,11 @@ var get = Ember.get, set = Ember.set, merge = Ember.merge;
     }
   }
   ```
+
+  @class RESTAdapter
+  @constructor
+  @namespace DS
+  @extends DS.Adapter
 */
 DS.RESTAdapter = DS.Adapter.extend({
   namespace: null,
@@ -72,7 +82,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   shouldSave: function(record) {
-    var reference = get(record, '_reference');
+    var reference = get(record, 'reference');
 
     return !reference.parent;
   },
@@ -99,7 +109,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       this._dirtyTree(dirtySet, embeddedRecord);
     }, this);
 
-    var reference = record.get('_reference');
+    var reference = record.get('reference');
 
     if (reference.parent) {
       var store = get(record, 'store');
