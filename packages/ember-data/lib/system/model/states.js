@@ -325,8 +325,15 @@ var DirtyState = DS.State.extend({
 
     becameInvalid: function(manager, errors) {
       var record = get(manager, 'record');
+      var prop;
 
-      set(record, 'errors', errors);
+      if (get(record, 'errors')) {
+        for (prop in errors) {
+          set(record, "errors." + prop, errors[prop]);
+        }
+      } else {
+        set(record, 'errors', Ember.Object.create(errors));
+      }
 
       manager.transitionTo('invalid');
       manager.send('invokeLifecycleCallbacks');
@@ -347,7 +354,7 @@ var DirtyState = DS.State.extend({
 
     exit: function(manager) {
        var record = get(manager, 'record');
- 
+
        record.withTransaction(function (t) {
          t.remove(record);
        });
@@ -672,7 +679,7 @@ var states = {
           record.withTransaction(function(t) {
             t.remove(record);
           });
-      
+
           manager.transitionTo('saved');
 
           manager.send('invokeLifecycleCallbacks');
