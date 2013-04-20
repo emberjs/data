@@ -37,13 +37,6 @@ test("can have a property set on it", function() {
   equal(get(record, 'name'), 'bar', "property was set on the record");
 });
 
-test("passing errors when becoming invalid from uncommitted", function() {
-  var record = store.createRecord(Person);
-  set(record, 'name', 'bar');
-  record.send("becameInvalid", {name: ["no good"]});
-  equal(get(record, 'errors.name.firstObject'), "no good");
-});
-
 test("setting a property on a record that has not changed does not cause it to become dirty", function() {
   store.load(Person, { id: 1, name: "Peter", isDrugAddict: true });
   var person = store.find(Person, 1);
