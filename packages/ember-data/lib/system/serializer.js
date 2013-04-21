@@ -801,22 +801,6 @@ DS.Serializer = Ember.Object.extend({
     record.materializeBelongsTo(name, tuple);
   },
 
-  _extractEmbeddedRelationship: function(type, hash, name, relationshipType) {
-    var key = this['_keyFor' + relationshipType](type, name);
-
-    if (this.embeddedType(type, name)) {
-      return this['extractEmbedded' + relationshipType](type, hash, key);
-    }
-  },
-
-  _extractEmbeddedBelongsTo: function(type, hash, name) {
-    return this._extractEmbeddedRelationship(type, hash, name, 'BelongsTo');
-  },
-
-  _extractEmbeddedHasMany: function(type, hash, name) {
-    return this._extractEmbeddedRelationship(type, hash, name, 'HasMany');
-  },
-
   _convertPrematerializedHasMany: function(type, prematerializedHasMany) {
     var tuplesOrReferencesOrOpaque;
     if( typeof prematerializedHasMany === 'string' ) {
