@@ -1,3 +1,5 @@
+require 'ember-dev'
+
 distros = {
   :full    => %w(json-normalizer ember-data)
 }
