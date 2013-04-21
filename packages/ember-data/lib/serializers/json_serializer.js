@@ -193,40 +193,46 @@ DS.JSONSerializer = DS.Serializer.extend({
 
   // EXTRACTION
 
-  extract: function(loader, json, type, record) {
+  extract: function(type, json) {
     var root = this.rootForType(type);
 
-    this.sideload(loader, type, json, root);
-    this.extractMeta(loader, type, json);
+    var result = {};
+
+    result.sideloaded = this.extractSideloads(type, json, root);
+    result.meta = this.extractMeta(type, json);
+    result.type = type;
 
     if (json[root]) {
-      if (record) { loader.updateId(record, json[root]); }
-      this.extractRecordRepresentation(loader, type, json[root]);
+      Ember.merge(result, this.extractRecordRepresentation(type, json[root]));
     }
+
+    return result;
   },
 
-  extractMany: function(loader, json, type, records) {
+  extractMany: function(type, json) {
     var root = this.rootForType(type);
     root = this.pluralize(root);
 
-    this.sideload(loader, type, json, root);
-    this.extractMeta(loader, type, json);
+    var result = {};
+
+    result.sideloaded = this.extractSideloads(type, json, root);
+    result.meta = this.extractMeta(type, json);
+    result.type = type;
 
     if (json[root]) {
-      var objects = json[root], references = [];
-      if (records) { records = records.toArray(); }
+      var objects = Ember.A(json[root]), references = [];
 
-      for (var i = 0; i < objects.length; i++) {
-        if (records) { loader.updateId(records[i], objects[i]); }
-        var reference = this.extractRecordRepresentation(loader, type, objects[i]);
-        references.push(reference);
-      }
-
-      loader.populateArray(references);
+      result.raw = objects.map(function(json) {
+        return this.extractRecordRepresentation(type, json);
+      }, this);
+    } else {
+      result.raw = [];
     }
+
+    return result;
   },
 
-  extractMeta: function(loader, type, json) {
+  extractMeta: function(type, json) {
     var meta = this.configOption(type, 'meta'),
         data = json, value;
 
@@ -234,11 +240,15 @@ DS.JSONSerializer = DS.Serializer.extend({
       data = json[meta];
     }
 
+    var result = {};
+
     this.metadataMapping.forEach(function(property, key){
       if(value = data[property]){
-        loader.metaForType(type, key, value);
+        result[key] = value;
       }
     });
+
+    return result;
   },
 
   extractEmbeddedType: function(relationship, data) {
@@ -265,15 +275,16 @@ DS.JSONSerializer = DS.Serializer.extend({
     related types can be loaded as well. Any custom keys specified by
     `sideloadAs` mappings will also be respected.
 
-    @param {DS.Store subclass} loader
     @param {DS.Model subclass} type
     @param {Object} json
     @param {String} root
   */
-  sideload: function(loader, type, json, root) {
+  extractSideloads: function(type, json, root) {
     var sideloadedType;
 
     this.configureSideloadMappingForType(type);
+
+    var result = [];
 
     for (var prop in json) {
       if (!json.hasOwnProperty(prop) ||
@@ -285,9 +296,19 @@ DS.JSONSerializer = DS.Serializer.extend({
       sideloadedType = this.typeFromAlias(prop);
       Ember.assert("Your server returned a hash with the key " + prop + " but you have no mapping for it", !!sideloadedType);
 
-      this.loadValue(loader, sideloadedType, json[prop]);
+      var value = json[prop];
+      if (value instanceof Array) {
+        for (var i=0; i < value.length; i++) {
+          result.push(this.extractRecordRepresentation(sideloadedType, value[i]));
+        }
+      } else {
+        result.push(this.extractRecordRepresentation(sideloadedType, value));
+      }
     }
+
+    return result;
   },
+
 
   /**
     @private
@@ -311,16 +332,6 @@ DS.JSONSerializer = DS.Serializer.extend({
         this.configureSideloadMappingForType(relatedType, configured);
       }
     }, this);
-  },
-
-  loadValue: function(loader, type, value) {
-    if (value instanceof Array) {
-      for (var i=0; i < value.length; i++) {
-        loader.sideload(type, value[i]);
-      }
-    } else {
-      loader.sideload(type, value);
-    }
   },
 
   /**

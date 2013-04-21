@@ -35,7 +35,7 @@ test("extractBelongsToPolymorphic returns a tuple containing the type", function
   deepEqual(serializer.extractBelongsToPolymorphic(DS.Model, {message_id: 2, message_type: 'post'}, 'message_id'), {id: 2, type: 'post'});
 });
 
-test("Calling extract on a JSON payload with multiple records will tear them apart and call loader", function() {
+test("extracting a JSON payload with multiple records will return data for each", function() {
   var App = Ember.Namespace.create({
     toString: function() { return "App"; }
   });
@@ -63,34 +63,10 @@ test("Calling extract on a JSON payload with multiple records will tear them apa
     groups: [{ id: 1, name: "Trolls" }]
   };
 
-  var loadCallCount = 0,
-      loadMainCallCount = 0;
+  var result = serializer.extract(App.Post, payload);
 
-  var loader = {
-    sideload: function(type, data, prematerialized) {
-      loadCallCount++;
-    },
-
-    load: function(type, data, prematerialized) {
-      loadMainCallCount++;
-    },
-
-    prematerialize: Ember.K
-  };
-
-  serializer.extract(loader, payload, App.Post);
-
-  equal(loadMainCallCount, 1, "one main record was loaded from a single payload");
-  equal(loadCallCount, 1, "one secondary record was loaded from a single payload");
-
-  //this.extractRecord(type, structure, loader)
-
-  //function extractRecord(type, structure, loader) {
-    //loader.load(type, structure, {
-      //id: this.extractId(structure),
-      //hasMany: { comments: [ 1,2,3 ] }
-    //});
-  //}
+  equal(result.sideloaded.length, 1);
+  deepEqual(result.raw, payload['post']);
 });
 
 test("Sideloading can be done by specifying only an alias", function() {
@@ -119,25 +95,8 @@ test("Sideloading can be done by specifying only an alias", function() {
     groups: [{ id: 1, name: "Trolls" }]
   };
 
-  var loadCallCount = 0,
-      loadMainCallCount = 0;
+  var result = serializer.extract(App.Post, payload);
 
-  var loader = {
-    sideload: function(type, data, prematerialized) {
-      if(type === App.Group) {
-        loadCallCount++;
-      }
-    },
-
-    load: function(type, data, prematerialized) {
-      loadMainCallCount++;
-    },
-
-    prematerialize: Ember.K
-  };
-
-  serializer.extract(loader, payload, App.Post);
-
-  equal(loadMainCallCount, 1, "one main record was loaded from a single payload");
-  equal(loadCallCount, 1, "one secondary record was loaded from a single payload");
+  equal(result.sideloaded.length, 1);
+  deepEqual(result.raw, payload['post']);
 });

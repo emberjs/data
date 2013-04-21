@@ -171,8 +171,8 @@ test("the default addRelationships calls addHasMany", function() {
   serializer.serialize(post);
 });
 
-test("loadValue should be called once per sideloaded type", function() {
-  var payload, loader, K = Ember.K, loadedTypes = [], App = Ember.Namespace.create({
+test("deserialize should return sideloaded data", function() {
+  var payload, loadedTypes = [], App = Ember.Namespace.create({
     toString: function() { return "App"; }
   });
 
@@ -217,15 +217,9 @@ test("loadValue should be called once per sideloaded type", function() {
     }
   };
 
-  loader = { load: K, loadMany: K, prematerialize: K, metaForType: K };
+  var result = serializer.extract(App.Team, payload);
 
-  serializer.loadValue = function(store, type, value) {
-    loadedTypes.push(type);
-  };
-
-  serializer.extract(loader, payload, App.Team);
-
-  equal(loadedTypes.length, 3, "Loaded: " + loadedTypes.join(", "));
+  equal(result.sideloaded.length, 3);
 });
 
 module("Adapter serialization with metadata", {
@@ -240,8 +234,8 @@ module("Adapter serialization with metadata", {
   }
 });
 
-test("metadata that has been configured is passed to the store", function() {
-  var payload, typeMap, loader = DS.loaderFor(store), K = Ember.K, App = Ember.Namespace.create({
+test("metadata that has been configured is returned in the result", function() {
+  var payload, typeMap, App = Ember.Namespace.create({
     toString: function() { return "App"; }
   });
 
@@ -265,17 +259,16 @@ test("metadata that has been configured is passed to the store", function() {
     pagination: 'pages'
   });
 
-  loader = { load: K, loadMany: K, prematerialize: K, populateArray: K, metaForType: loader.metaForType };
-  typeMap = store.typeMapFor(App.Post);
+  var result = serializer.extractMany(App.Post, payload);
 
-  serializer.extractMany(loader, payload, App.Post);
-
-  equal(typeMap.metadata.pagination, payload.meta[serializer.configOption(App.Post, 'pagination')], "Loaded meta property: pagination");
-  equal(typeMap.metadata.since, payload.meta[serializer.configOption(App.Post, 'since')], "Loaded meta property: since");
+  deepEqual(result.meta, {
+    pagination: { total_pages: '2', per_page: '1' },
+    since: '123'
+  });
 });
 
 test("metadata that has not been configured is not passed to the store", function() {
-  var payload, typeMap, loader = DS.loaderFor(store), K = Ember.K, App = Ember.Namespace.create({
+  var payload, typeMap, App = Ember.Namespace.create({
     toString: function() { return "App"; }
   });
 
@@ -293,17 +286,13 @@ test("metadata that has not been configured is not passed to the store", functio
     name: DS.attr('string', {defaultValue: 'A Post'})
   });
 
-  loader = { load: K, loadMany: K, prematerialize: K, populateArray: K, metaForType: loader.metaForType };
-  typeMap = store.typeMapFor(App.Post);
+  var result = serializer.extractMany(App.Post, payload);
 
-  serializer.extractMany(loader, payload, App.Post);
-
-  equal(typeMap.metadata.pagination, null, "Did not load meta property: pagination");
-  equal(typeMap.metadata.since, payload.meta[serializer.configOption(App.Post, 'since')], "Loaded meta property: since");
+  deepEqual(result.meta, {since: '123'});
 });
 
 test("metadata that is not nested under 'meta' is passed to store", function() {
-  var payload, typeMap, loader = DS.loaderFor(store), K = Ember.K, App = Ember.Namespace.create({
+  var payload, App = Ember.Namespace.create({
     toString: function() { return "App"; }
   });
 
@@ -327,12 +316,11 @@ test("metadata that is not nested under 'meta' is passed to store", function() {
     pageLimit: 'per_page'
   });
 
-  loader = { load: K, loadMany: K, prematerialize: K, populateArray: K, metaForType: loader.metaForType };
-  typeMap = store.typeMapFor(App.Post);
+  var result = serializer.extractMany(App.Post, payload);
 
-  serializer.extractMany(loader, payload, App.Post);
-
-  equal(typeMap.metadata.pages, payload[serializer.configOption(App.Post, 'pages')], "Loaded meta property: pages");
-  equal(typeMap.metadata.pageLimit, payload[serializer.configOption(App.Post, 'pageLimit')], "Loaded meta property: pageLimit");
-  equal(typeMap.metadata.since, payload[serializer.configOption(App.Post, 'since')], "Loaded meta property: since");
+  deepEqual(result.meta, {
+    pages: '2',
+    pageLimit: '1',
+    since: '123'
+  });
 });

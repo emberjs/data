@@ -225,65 +225,58 @@ DS.Serializer = Ember.Object.extend({
   extractHasMany: mustImplement('extractHasMany'),
   extractBelongsTo: mustImplement('extractBelongsTo'),
 
-  extractRecordRepresentation: function(loader, type, json, shouldSideload) {
-    var prematerialized = {}, reference;
+  extractRecordRepresentation: function(type, json) {
+    var embeddedHasMany = {}, embeddedBelongsTo = {};
+    var result = {raw: json, type: type};
+    result.embeddedHasMany = embeddedHasMany;
+    result.embeddedBelongsTo = embeddedBelongsTo;
 
-    if (shouldSideload) {
-      reference = loader.sideload(type, json);
-    } else {
-      reference = loader.load(type, json);
-    }
-
-    this.eachEmbeddedHasMany(type, function(name, relationship) {
+    this.eachEmbeddedHasMany(type, function(name, relationship, embeddedType) {
       var embeddedData = json[this.keyFor(relationship)];
       if (!isNone(embeddedData)) {
-        this.extractEmbeddedHasMany(loader, relationship, embeddedData, reference, prematerialized);
+        var result = this.extractEmbeddedHasMany(relationship, embeddedData, embeddedType);
+        embeddedHasMany[relationship.key] = result;
       }
     }, this);
 
-    this.eachEmbeddedBelongsTo(type, function(name, relationship) {
+    this.eachEmbeddedBelongsTo(type, function(name, relationship, embeddedType) {
       var embeddedData = json[this.keyFor(relationship)];
       if (!isNone(embeddedData)) {
-        this.extractEmbeddedBelongsTo(loader, relationship, embeddedData, reference, prematerialized);
+        var result = this.extractEmbeddedBelongsTo(relationship, embeddedData, embeddedType);
+        embeddedBelongsTo[relationship.key] = result;
       }
     }, this);
 
-    loader.prematerialize(reference, prematerialized);
-
-    return reference;
+    return result;
   },
 
-  extractEmbeddedHasMany: function(loader, relationship, array, parent, prematerialized) {
-    var references = map.call(array, function(item) {
-      if (!item) { return; }
+  extractEmbeddedHasMany: function(relationship, array, embeddedType) {
+    var results = map.call(array, function(item) {
+      // TODO: when is item null?
+      //if (!item) { return; }
 
-      var foundType = this.extractEmbeddedType(relationship, item),
-          reference = this.extractRecordRepresentation(loader, foundType, item, true);
+      var type = this.extractEmbeddedType(relationship, item);
+      var result = {
+        type: type,
+        embeddedType: embeddedType,
+        raw: item
+      };
 
-      // If the embedded record should also be saved back when serializing the parent,
-      // make sure we set its parent since it will not have an ID.
-      var embeddedType = this.embeddedType(parent.type, relationship.key);
-      if (embeddedType === 'always') {
-        reference.parent = parent;
-      }
-
-      return reference;
+      return result;
     }, this);
 
-    prematerialized[relationship.key] = references;
+    return results;
   },
 
-  extractEmbeddedBelongsTo: function(loader, relationship, data, parent, prematerialized) {
-    var foundType = this.extractEmbeddedType(relationship, data),
-        reference = this.extractRecordRepresentation(loader, foundType, data, true);
-    prematerialized[relationship.key] = reference;
+  extractEmbeddedBelongsTo: function(relationship, data, embeddedType) {
+    var type = this.extractEmbeddedType(relationship, data);
+    var result = {
+      type: type,
+      embeddedType: embeddedType,
+      raw: data
+    };
 
-    // If the embedded record should also be saved back when serializing the parent,
-    // make sure we set its parent since it will not have an ID.
-    var embeddedType = this.embeddedType(parent.type, relationship.key);
-    if (embeddedType === 'always') {
-      reference.parent = parent;
-    }
+    return result;
   },
 
   /**
@@ -1280,6 +1273,6 @@ DS.Serializer = Ember.Object.extend({
     } else {
       return name;
     }
-  },
+  }
 });
 
