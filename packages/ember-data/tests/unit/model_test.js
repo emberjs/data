@@ -178,6 +178,19 @@ module("with a simple Person model", {
   }
 });
 
+test("it should have an errors object when created", function() {
+  var person = Person.createRecord({name: "Bob"});
+  ok(person.get("errors"));
+  ok(Ember.isEmpty(Ember.keys(person.get("errors"))), "The errors were not empty");
+});
+
+test("errors should be cleared when model becomes inFlight", function() {
+  var person = Person.createRecord({name: "Bob"});
+  person.set("errors.name", ["Bob is a terrible name"]);
+  person.becameInFlight();
+  ok(Ember.isEmpty(Ember.keys(person.get("errors"))), "The errors where not empty");
+});
+
 test("when a DS.Model updates its attributes, its changes affect its filtered Array membership", function() {
   var people = store.filter(Person, function(hash) {
     if (hash.get('name').match(/Katz$/)) { return true; }
