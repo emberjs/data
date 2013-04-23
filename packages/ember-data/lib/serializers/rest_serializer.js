@@ -54,8 +54,13 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
       var key = this._keyForAttributeName(type, name);
       if (json['errors'].hasOwnProperty(key)) {
         errors[name] = json['errors'][key];
+        delete json['errors'][key];
       }
     }, this);
+
+    Ember.keys(json['errors']).forEach(function(errorKey)  {
+      errors[errorKey] = json['errors'][errorKey];
+    });
 
     return errors;
   }
