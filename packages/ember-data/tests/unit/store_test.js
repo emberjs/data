@@ -61,6 +61,7 @@ var isFalse = function(flag) {
 
 test("the empty state", function() {
   stateName = "empty";
+  isFalse("isLoading");
   isFalse("isLoaded");
   isFalse("isDirty");
   isFalse("isSaving");
@@ -70,6 +71,7 @@ test("the empty state", function() {
 
 test("the loading state", function() {
   stateName = "loading";
+  isTrue("isLoading");
   isFalse("isLoaded");
   isFalse("isDirty");
   isFalse("isSaving");
@@ -79,6 +81,7 @@ test("the loading state", function() {
 
 test("the loaded state", function() {
   stateName = "loaded";
+  isFalse("isLoading");
   isTrue("isLoaded");
   isFalse("isDirty");
   isFalse("isSaving");
@@ -88,6 +91,7 @@ test("the loaded state", function() {
 
 test("the updated state", function() {
   stateName = "loaded.updated";
+  isFalse("isLoading");
   isTrue("isLoaded");
   isTrue("isDirty");
   isFalse("isSaving");
@@ -97,6 +101,7 @@ test("the updated state", function() {
 
 test("the saving state", function() {
   stateName = "loaded.updated.inFlight";
+  isFalse("isLoading");
   isTrue("isLoaded");
   isTrue("isDirty");
   isTrue("isSaving");
@@ -106,6 +111,7 @@ test("the saving state", function() {
 
 test("the deleted state", function() {
   stateName = "deleted";
+  isFalse("isLoading");
   isTrue("isLoaded");
   isTrue("isDirty");
   isFalse("isSaving");
@@ -115,6 +121,7 @@ test("the deleted state", function() {
 
 test("the deleted.saving state", function() {
   stateName = "deleted.inFlight";
+  isFalse("isLoading");
   isTrue("isLoaded");
   isTrue("isDirty");
   isTrue("isSaving");
@@ -124,6 +131,7 @@ test("the deleted.saving state", function() {
 
 test("the deleted.saved state", function() {
   stateName = "deleted.saved";
+  isFalse("isLoading");
   isTrue("isLoaded");
   isFalse("isDirty");
   isFalse("isSaving");
@@ -134,6 +142,7 @@ test("the deleted.saved state", function() {
 
 test("the error state", function() {
   stateName = "error";
+  isFalse("isLoading");
   isFalse("isLoaded");
   isFalse("isDirty");
   isFalse("isSaving");
@@ -414,6 +423,25 @@ test("a new record of a particular type is created via store.createRecord(type)"
   equal(get(person, 'name'), "Braaahm Dale", "Even if no hash is supplied, `set` still worked");
 });
 
+test("a new record with a specific id can't be created if this id is already used in the store", function() {
+  var store = DS.Store.create();
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+  });
+  Person.reopenClass({
+    toString: function() {
+      return 'Person';
+    }
+  });
+  store.createRecord(Person, {id: 5});
+
+  raises(
+    function() { store.createRecord(Person, {id: 5}); },
+    /The id 5 has already been used with another record of type Person/,
+    "Creating a record with an if an id already in used in the store is disallowed"
+  );
+});
+
 test("an initial data hash can be provided via store.createRecord(type, hash)", function() {
   expect(6);
   var store = DS.Store.create();
@@ -475,6 +503,10 @@ test("records inside a collection view should have their ids updated", function(
 
   container.content.forEach(function(person, index) {
     equal(person.get('id'), index + 1, "The record's id should be correct.");
+  });
+
+  Ember.run(function() {
+    container.destroy();
   });
 });
 
@@ -733,4 +765,54 @@ test("unload a record", function() {
   tryToFind = false;
   store.find(Record, 1);
   equal(tryToFind, true, "not found record with id 1");
+
+});
+
+module("DS.Store - unload record with relationships");
+
+test("can commit store after unload record with relationships", function() {
+
+  var store = DS.Store.create({
+    adapter: TestAdapter.create({
+
+      find: function() {
+        tryToFind = true;
+      },
+      createRecord: function(store, type, record) {
+        this.didCreateRecord(store, type, record);
+      }
+    })
+  });
+  var like, product, brand;
+
+  var Brand = DS.Model.extend({
+    name: DS.attr('string')
+  });
+  var Product = DS.Model.extend({
+    description: DS.attr('string'),
+    brand: DS.belongsTo(Brand)
+  });
+  var Like = DS.Model.extend({
+    product: DS.belongsTo(Product)
+  });
+
+  store.load(Brand, { id: 1, name: 'EmberJS' });
+  brand = store.find(Brand, 1);
+
+  store.load(Product, { id: 1, description: 'toto', brand: 1 });
+  product = store.find(Product, 1);
+
+  like = store.createRecord(Like, { id: 1, product: product });
+  store.commit();
+
+  store.unloadRecord(product);
+  // can commit because `product` is not in transactionBucketTypes
+  store.commit();
+
+  tryToFind = false;
+  product = store.find(Product, 1);
+  ok(tryToFind, "not found record with id 1");
+
+  store.destroy();
+
 });

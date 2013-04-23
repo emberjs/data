@@ -104,6 +104,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // `isLoaded` and fires a `didLoad` event.
     this.loadingRecordArrays = {};
 
+    this._recordsToSave = Ember.OrderedSet.create();
+
     set(this, 'defaultTransaction', this.transaction());
   },
 
@@ -478,7 +480,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   findById: function(type, id) {
     var clientId = this.typeMapFor(type).idToCid[id];
 
-    if (clientId) {
+    // A record can have a reference without being loaded
+    // (through a hasMany relationship). In that case, we need to
+    // materialize the record.
+    if (clientId && this.clientIdToData[clientId] !== UNLOADED) {
       return this.findByClientId(type, clientId);
     }
 
@@ -490,8 +495,11 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     // let the adapter set the data, possibly async
     var adapter = this.adapterForType(type);
-    if (adapter && adapter.find) { adapter.find(this, type, id); }
-    else { throw "Adapter is either null or does not implement `find` method"; }
+
+    Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
+    Ember.assert("You tried to find a record but your adapter does not implement `find`", adapter.find);
+
+    adapter.find(this, type, id);
 
     return record;
   },
@@ -557,13 +565,13 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   /**
     @private
 
-    Given a type and array of `clientId`s, determines which of those
+    Given an array of `reference`s, determines which of those
     `clientId`s has not yet been loaded.
 
     In preparation for loading, this method also marks any unloaded
     `clientId`s as loading.
   */
-  neededReferences: function(type, references) {
+  neededReferences: function(references) {
     var neededReferences = [],
         cidToData = this.clientIdToData,
         reference;
@@ -586,36 +594,49 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     This method is the entry point that relationships use to update
     themselves when their underlying data changes.
 
-    First, it determines which of its `clientId`s are still unloaded,
-    then converts the needed `clientId`s to IDs and invokes `findMany`
-    on the adapter.
+    First, it determines which of its `reference`s are still unloaded,
+    then invokes `findMany` on the adapter.
   */
-  fetchUnloadedReferences: function(type, references, owner) {
-    var neededReferences = this.neededReferences(type, references);
-    this.fetchMany(type, neededReferences, owner);
+  fetchUnloadedReferences: function(references, owner) {
+    var neededReferences = this.neededReferences(references);
+    this.fetchMany(neededReferences, owner);
   },
 
   /**
     @private
 
-    This method takes a type and list of `clientId`s, converts the
-    `clientId`s into IDs, and then invokes the adapter's `findMany`
+    This method takes a list of `reference`s, group the `reference`s by type,
+    converts the `reference`s into IDs, and then invokes the adapter's `findMany`
     method.
+    The `reference`s are grouped by type to invoke `findMany` on adapters
+    for each unique type in `reference`s.
 
     It is used both by a brand new relationship (via the `findMany`
     method) or when the data underlying an existing relationship
     changes (via the `fetchUnloadedReferences` method).
   */
-  fetchMany: function(type, references, owner) {
+  fetchMany: function(references, owner) {
     if (!references.length) { return; }
 
-    var ids = map(references, function(reference) {
-      return reference.id;
+    // Group By Type
+    var referencesByTypeMap = Ember.MapWithDefault.create({
+      defaultValue: function() { return Ember.A(); }
+    });
+    forEach(references, function(reference) {
+      referencesByTypeMap.get(reference.type).push(reference);
     });
 
-    var adapter = this.adapterForType(type);
-    if (adapter && adapter.findMany) { adapter.findMany(this, type, ids, owner); }
-    else { throw "Adapter is either null or does not implement `findMany` method"; }
+    forEach(referencesByTypeMap, function(type) {
+      var references = referencesByTypeMap.get(type),
+          ids = map(references, function(reference) { return reference.id; });
+
+      var adapter = this.adapterForType(type);
+
+      Ember.assert("You tried to load many records but you have no adapter (for " + type + ")", adapter);
+      Ember.assert("You tried to load many records but your adapter does not implement `findMany`", adapter.findMany);
+
+      adapter.findMany(this, type, ids, owner);
+    }, this);
   },
 
   referenceForId: function(type, id) {
@@ -637,6 +658,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       clientId: clientId,
       type: type
     };
+  },
+
+  isReferenceMaterialized: function(reference) {
+    return !!this.recordCache[reference.clientId];
   },
 
   recordForReference: function(reference) {
@@ -663,26 +688,30 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     * ask the adapter to load the unloaded elements, by invoking
       findMany with the still-unloaded IDs.
   */
-  findMany: function(type, ids, record, relationship) {
-    // 1. Convert ids to client ids
-    // 2. Determine which of the client ids need to be loaded
-    // 3. Create a new ManyArray whose content is ALL of the clientIds
-    // 4. Decrement the ManyArray's counter by the number of loaded clientIds
-    // 5. Put the ManyArray into our bookkeeping data structure, keyed on
+  findMany: function(type, idsOrReferencesOrOpaque, record, relationship) {
+    // 1. Determine which of the client ids need to be loaded
+    // 2. Create a new ManyArray whose content is ALL of the clientIds
+    // 3. Decrement the ManyArray's counter by the number of loaded clientIds
+    // 4. Put the ManyArray into our bookkeeping data structure, keyed on
     //    the needed clientIds
-    // 6. Ask the adapter to load the records for the unloaded clientIds (but
+    // 5. Ask the adapter to load the records for the unloaded clientIds (but
     //    convert them back to ids)
 
-    if (!Ember.isArray(ids)) {
+    if (!Ember.isArray(idsOrReferencesOrOpaque)) {
       var adapter = this.adapterForType(type);
-      if (adapter && adapter.findHasMany) { adapter.findHasMany(this, record, relationship, ids); }
-      else { throw fmt("Adapter is either null or does not implement `findHasMany` method", this); }
+
+      if (adapter && adapter.findHasMany) {
+        adapter.findHasMany(this, record, relationship, idsOrReferencesOrOpaque);
+      } else if (idsOrReferencesOrOpaque !== undefined) {
+        Ember.assert("You tried to load many records but you have no adapter (for " + type + ")", adapter);
+        Ember.assert("You tried to load many records but your adapter does not implement `findHasMany`", adapter.findHasMany);
+      }
 
       return this.createManyArray(type, Ember.A());
     }
 
     // Coerce server IDs into Record Reference
-    var references = map(ids, function(reference) {
+    var references = map(idsOrReferencesOrOpaque, function(reference) {
       if (typeof reference !== 'object' && reference !== null) {
         return this.referenceForId(type, reference);
       }
@@ -690,7 +719,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       return reference;
     }, this);
 
-    var neededReferences = this.neededReferences(type, references),
+    var neededReferences = this.neededReferences(references),
         manyArray = this.createManyArray(type, Ember.A(references)),
         loadingRecordArrays = this.loadingRecordArrays,
         reference, clientId, i, l;
@@ -715,7 +744,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         }
       }
 
-      this.fetchMany(type, neededReferences, record);
+      this.fetchMany(neededReferences, record);
     } else {
       // all requested records are available
       manyArray.set('isLoaded', true);
@@ -745,8 +774,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   findQuery: function(type, query) {
     var array = DS.AdapterPopulatedRecordArray.create({ type: type, query: query, content: Ember.A([]), store: this });
     var adapter = this.adapterForType(type);
-    if (adapter && adapter.findQuery) { adapter.findQuery(this, type, query, array); }
-    else { throw "Adapter is either null or does not implement `findQuery` method"; }
+
+    Ember.assert("You tried to load a query but you have no adapter (for " + type + ")", adapter);
+    Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", adapter.findQuery);
+
+    adapter.findQuery(this, type, query, array);
+
     return array;
   },
 
@@ -761,28 +794,31 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {DS.AdapterPopulatedRecordArray}
   */
   findAll: function(type) {
-    var array = this.all(type);
-    this.fetchAll(type, array);
-    return array;
+    return this.fetchAll(type, this.all(type));
   },
 
   /**
     @private
   */
   fetchAll: function(type, array) {
-    var sinceToken = this.typeMapFor(type).sinceToken,
-        adapter = this.adapterForType(type);
+    var adapter = this.adapterForType(type),
+        sinceToken = this.typeMapFor(type).metadata.since;
 
     set(array, 'isUpdating', true);
 
-    if (adapter && adapter.findAll) { adapter.findAll(this, type, sinceToken); }
-    else { throw "Adapter is either null or does not implement `findAll` method"; }
+    Ember.assert("You tried to load all records but you have no adapter (for " + type + ")", adapter);
+    Ember.assert("You tried to load all records but your adapter does not implement `findAll`", adapter.findAll);
+
+    adapter.findAll(this, type, sinceToken);
+
+    return array;
   },
 
   /**
   */
-  sinceForType: function(type, sinceToken) {
-    this.typeMapFor(type).sinceToken = sinceToken;
+  metaForType: function(type, property, data) {
+    var target = this.typeMapFor(type).metadata;
+    set(target, property, data);
   },
 
   /**
@@ -912,6 +948,39 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (typeof data === "object") {
       this.updateRecordArrays(type, clientId);
     }
+  },
+
+  // .................
+  // . BASIC ADAPTER .
+  // .................
+
+  scheduleSave: function(record) {
+    this._recordsToSave.add(record);
+    Ember.run.once(this, 'flushSavedRecords');
+  },
+
+  flushSavedRecords: function() {
+    var created = Ember.OrderedSet.create();
+    var updated = Ember.OrderedSet.create();
+    var deleted = Ember.OrderedSet.create();
+
+    this._recordsToSave.forEach(function(record) {
+      if (get(record, 'isNew')) {
+        created.add(record);
+      } else if (get(record, 'isDeleted')) {
+        deleted.add(record);
+      } else {
+        updated.add(record);
+      }
+    });
+
+    this._recordsToSave.clear();
+
+    get(this, '_adapter').commit(this, {
+      created: created,
+      updated: updated,
+      deleted: deleted
+    });
   },
 
   // ..............
@@ -1402,7 +1471,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }
 
     var content = get(array, 'content');
-    var alreadyInArray = content.indexOf(clientId) !== -1;
 
     var recordArrays = this.recordArraysForClientId(clientId);
     var reference = this.referenceForClientId(clientId);
@@ -1469,7 +1537,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         {
           idToCid: {},
           clientIds: [],
-          recordArrays: []
+          recordArrays: [],
+          metadata: {}
       });
     }
   },
@@ -1547,19 +1616,17 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (prematerialized && prematerialized.id) {
       id = prematerialized.id;
     } else if (id === undefined) {
-      var adapter = this.adapterForType(type);
       id = this.preprocessData(type, data);
     }
 
     id = coerceId(id);
 
     var typeMap = this.typeMapFor(type),
-        cidToData = this.clientIdToData,
         clientId = typeMap.idToCid[id],
         cidToPrematerialized = this.clientIdToPrematerializedData;
 
     if (clientId !== undefined) {
-      cidToData[clientId] = data;
+      this.loadData(data, clientId, type);
       cidToPrematerialized[clientId] = prematerialized;
 
       var record = this.recordCache[clientId];
@@ -1594,7 +1661,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   loadHasMany: function(record, key, ids) {
-    record.materializeHasMany(key, ids);
+    //It looks sad to have to do the conversion in the store
+    var type = record.get(key + '.type'),
+        tuples = map(ids, function(id) {
+          return {id: id, type: type};
+        });
+    record.materializeHasMany(key, tuples);
 
     // Update any existing many arrays that use the previous IDs,
     // if necessary.
@@ -1604,7 +1676,16 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     // TODO (tomdale) this assumes that loadHasMany *always* means
     // that the records for the provided IDs are loaded.
-    if (relationship) { set(relationship, 'isLoaded', true); }
+    if (relationship) {
+      set(relationship, 'isLoaded', true);
+      relationship.trigger('didLoad');
+    }
+  },
+
+  loadData: function(data, clientId, type){
+    var cidToData = this.clientIdToData;
+
+    cidToData[clientId] = data;
   },
 
   /** @private
@@ -1624,11 +1705,19 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         clientIdToIdMap = this.clientIdToId,
         clientIdToTypeMap = this.clientIdToType,
         clientIds = typeMap.clientIds,
-        cidToData = this.clientIdToData;
+        cidToData = this.clientIdToData,
+        clientId;
 
-    var clientId = ++this.clientIdCounter;
+    // If we load an item referenced in a relationship,
+    // it already has a clientId, but still needs to be materialized.
+    if(clientId=idToClientIdMap[id]) {
+      Ember.assert('The id ' + id + ' has already been used with another record of type ' + type.toString() + '.', !(data === CREATED && !!cidToData[clientId]));
+    } else {
+      clientId = ++this.clientIdCounter;
+      clientIds.push(clientId);
+    }
 
-    cidToData[clientId] = data;
+    this.loadData(data, clientId, type);
     clientIdToTypeMap[clientId] = type;
 
     // if we're creating an item, this process will be done
@@ -1637,8 +1726,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       idToClientIdMap[id] = clientId;
       clientIdToIdMap[clientId] = id;
     }
-
-    clientIds.push(clientId);
 
     return clientId;
   },
@@ -1652,7 +1739,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     this.recordCache[clientId] = record = type._create({
       store: this,
-      clientId: clientId,
+      clientId: clientId
     });
 
     set(record, 'id', id);
@@ -1680,12 +1767,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (id) { delete typeMap.idToCid[id]; }
   },
 
-  destroy: function() {
+  willDestroy: function() {
     if (get(DS, 'defaultStore') === this) {
       set(DS, 'defaultStore', null);
     }
-
-    return this._super();
   },
 
   // ........................

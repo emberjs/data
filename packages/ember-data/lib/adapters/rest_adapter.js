@@ -61,6 +61,7 @@ var get = Ember.get, set = Ember.set, merge = Ember.merge;
   ```
 */
 DS.RESTAdapter = DS.Adapter.extend({
+  namespace: null,
   bulkCommit: false,
   since: 'since',
 
@@ -76,6 +77,37 @@ DS.RESTAdapter = DS.Adapter.extend({
     return !reference.parent;
   },
 
+  dirtyRecordsForRecordChange: function(dirtySet, record) {
+    this._dirtyTree(dirtySet, record);
+  },
+
+  dirtyRecordsForHasManyChange: function(dirtySet, record, relationship) {
+    var embeddedType = get(this, 'serializer').embeddedType(record.constructor, relationship.secondRecordName);
+
+    if (embeddedType === 'always') {
+      relationship.childReference.parent = relationship.parentReference;
+      this._dirtyTree(dirtySet, record);
+    }
+  },
+
+  _dirtyTree: function(dirtySet, record) {
+    dirtySet.add(record);
+
+    get(this, 'serializer').eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
+      if (embeddedType !== 'always') { return; }
+      if (dirtySet.has(embeddedRecord)) { return; }
+      this._dirtyTree(dirtySet, embeddedRecord);
+    }, this);
+
+    var reference = record.get('_reference');
+
+    if (reference.parent) {
+      var store = get(record, 'store');
+      var parent = store.recordForReference(reference.parent);
+      this._dirtyTree(dirtySet, parent);
+    }
+  },
+
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
 
@@ -84,7 +116,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
-      context: this,
       success: function(json) {
         Ember.run(this, function(){
           this.didCreateRecord(store, type, record, json);
@@ -95,26 +126,6 @@ DS.RESTAdapter = DS.Adapter.extend({
       }
     });
   },
-
-  dirtyRecordsForRecordChange: function(dirtySet, record) {
-    dirtySet.add(record);
-
-    get(this, 'serializer').eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
-      if (embeddedType !== 'always') { return; }
-      if (dirtySet.has(embeddedRecord)) { return; }
-      this.dirtyRecordsForRecordChange(dirtySet, embeddedRecord);
-    }, this);
-
-    var reference = record.get('_reference');
-
-    if (reference.parent) {
-      var store = get(record, 'store');
-      var parent = store.recordForReference(reference.parent);
-      this.dirtyRecordsForRecordChange(dirtySet, parent);
-    }
-  },
-
-  dirtyRecordsForHasManyChange: Ember.K,
 
   createRecords: function(store, type, records) {
     if (get(this, 'bulkCommit') === false) {
@@ -132,7 +143,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root), "POST", {
       data: data,
-      context: this,
       success: function(json) {
         Ember.run(this, function(){
           this.didCreateRecords(store, type, records, json);
@@ -150,10 +160,9 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, id), "PUT", {
       data: data,
-      context: this,
       success: function(json) {
         Ember.run(this, function(){
-          this.didSaveRecord(store, type, record, json);
+          this.didUpdateRecord(store, type, record, json);
         });
       },
       error: function(xhr) {
@@ -178,10 +187,9 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, "bulk"), "PUT", {
       data: data,
-      context: this,
       success: function(json) {
         Ember.run(this, function(){
-          this.didSaveRecords(store, type, records, json);
+          this.didUpdateRecords(store, type, records, json);
         });
       }
     });
@@ -192,11 +200,13 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type);
 
     this.ajax(this.buildURL(root, id), "DELETE", {
-      context: this,
       success: function(json) {
         Ember.run(this, function(){
-          this.didSaveRecord(store, type, record, json);
+          this.didDeleteRecord(store, type, record, json);
         });
+      },
+      error: function(xhr) {
+        this.didError(store, type, record, xhr);
       }
     });
   },
@@ -218,10 +228,9 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
       data: data,
-      context: this,
       success: function(json) {
         Ember.run(this, function(){
-          this.didSaveRecords(store, type, records, json);
+          this.didDeleteRecords(store, type, records, json);
         });
       }
     });
@@ -296,8 +305,11 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   didError: function(store, type, record, xhr) {
     if (xhr.status === 422) {
-      var data = JSON.parse(xhr.responseText);
-      store.recordWasInvalid(record, data['errors']);
+      var json = JSON.parse(xhr.responseText),
+          serializer = get(this, 'serializer'),
+          errors = serializer.extractValidationErrors(type, json);
+
+      store.recordWasInvalid(record, errors);
     } else {
       this._super.apply(this, arguments);
     }
@@ -336,7 +348,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     Ember.assert("Record URL (" + record + ") must not start with slash", !record || record.toString().charAt(0) !== "/");
     Ember.assert("URL suffix (" + suffix + ") must not start with slash", !suffix || suffix.toString().charAt(0) !== "/");
 
-    if (this.namespace !== undefined) {
+    if (!Ember.isNone(this.namespace)) {
       url.push(this.namespace);
     }
 

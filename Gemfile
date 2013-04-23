@@ -1,14 +1,9 @@
-source "http://rubygems.org"
+source "https://rubygems.org"
 
 gem "rake-pipeline", :git => "https://github.com/livingsocial/rake-pipeline.git"
-gem "rake-pipeline-web-filters", :git => "https://github.com/wycats/rake-pipeline-web-filters.git"
-gem "colored"
-gem "uglifier", "~> 1.0.3"
-gem "rake"
+gem "ember-dev", :git => "https://github.com/emberjs/ember-dev.git", :branch => "master"
 
-group :development do
-  gem "rack"
-  gem "github_downloads"
-  gem "ember-docs", :git => "https://github.com/emberjs/docs-generator.git"
-  gem "kicker"
-end
+gem "ember-source", "1.0.0.rc1.4"
+
+gem "aws-sdk", "1.8.5"
+

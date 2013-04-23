@@ -67,7 +67,11 @@ function getAttr(record, options, key) {
   var value = attributes[key];
 
   if (value === undefined) {
-    value = options.defaultValue;
+    if (typeof options.defaultValue === "function") {
+      value = options.defaultValue();
+    } else {
+      value = options.defaultValue;
+    }
   }
 
   return value;
@@ -83,8 +87,6 @@ DS.attr = function(type, options) {
   };
 
   return Ember.computed(function(key, value, oldValue) {
-    var data;
-
     if (arguments.length > 1) {
       Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
     } else {

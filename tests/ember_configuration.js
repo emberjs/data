@@ -1,3 +1,5 @@
+/*globals EmberDev ENV QUnit */
+
 (function() {
   window.Ember = window.Ember || {};
 
@@ -5,6 +7,14 @@
   Ember.testing = true;
 
   window.ENV = { TESTING: true };
+
+  var extendPrototypes = QUnit.urlParams.extendprototypes;
+  ENV['EXTEND_PROTOTYPES'] = !!extendPrototypes;
+
+  if (EmberDev.jsHint) {
+    // jsHint makes its own Object.create stub, we don't want to use this
+    ENV['STUB_OBJECT_CREATE'] = !Object.create;
+  }
 
   window.async = function(callback, timeout) {
     stop();
@@ -18,7 +28,11 @@
       clearTimeout(timeout);
 
       start();
-      callback.apply(this, arguments);
+
+      var args = arguments;
+      Ember.run(function() {
+        callback.apply(this, args);
+      });
     };
   };
 
@@ -94,11 +108,12 @@
       didUpdateAttribute: syncForTest(),
       didUpdateAttributes: syncForTest(),
       didUpdateRelationship: syncForTest(),
-      didUpdateRelationships: syncForTest(),
+      didUpdateRelationships: syncForTest()
     });
 
     DS.Model.reopen({
       then: syncForTest(),
+      save: syncForTest(),
       deleteRecord: syncForTest(),
       dataDidChange: Ember.observer(syncForTest(), 'data'),
       updateRecordArraysLater: syncForTest()
@@ -109,7 +124,13 @@
     });
 
     DS.Transaction.reopen({
-      commit: syncForTest(),
+      commit: syncForTest()
     });
   });
+
+  EmberDev.distros = {
+    //spade:   'ember-data-spade.js',
+    spade:   'ember-spade.js',
+    build:   'ember-data.js'
+  };
 })();

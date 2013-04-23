@@ -32,6 +32,17 @@ test("a record array is backed by records", function() {
   }
 });
 
+test("acts as a live query", function() {
+  var store = DS.Store.create();
+
+  var recordArray = store.all(Person);
+  store.load(Person, { id: 1, name: 'wycats' });
+  equal(get(recordArray, 'lastObject.name'), 'wycats');
+
+  store.load(Person, { id: 2, name: 'brohuda' });
+  equal(get(recordArray, 'lastObject.name'), 'brohuda');
+});
+
 test("a loaded record is removed from a record array when it is deleted", function() {
   var store = DS.Store.create();
 

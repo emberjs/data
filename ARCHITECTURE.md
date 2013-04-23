@@ -48,7 +48,7 @@ For example, a newly created record begins its life in the
 returns its JSON hash.
 
 When a store materializes a record, it asks the adapter (see below) to
-extract the record's attributes and associations and normalize their
+extract the record's attributes and relationships and normalize their
 names. This means that records will always have normalized data hashes.
 
 * Has a series of lifecycle flags (`isLoaded`, etc.)
@@ -128,13 +128,13 @@ features needed by its concrete implementations, described below.
 
 ### DS.ManyArray
 
-Represents a one-to-many relationship. When the association is retrieved
-from a record, a `ManyArray` is created that contains an array of the
-client IDs that belong to that record.
+Represents a one-to-many relationship. When the relationship is
+retrieved from a record, a `ManyArray` is created that contains an
+array of the client IDs that belong to that record.
 
 * Notifies the transaction if the relationship is modified
 * Tracks aggregate state of member records via `isLoaded` flag
-* Updates added records to point their inverse association to the new
+* Updates added records to point their inverse relationship to the new
   parent.
 
 ### DS.AdapterPopulatedRecordArray
@@ -216,7 +216,7 @@ determine whether the ID can be generated on the client. If so, it will
 apply the generated ID to the record immediately.
 
 One major benefit of generating IDs on the client is that records do not
-need to wait for associated records to be saved in order to retrieve
+need to wait for related records to be saved in order to retrieve
 their foreign keys.
 
 #### Naming Conventions
@@ -228,7 +228,7 @@ In general, this means converting underscored names to camelcased names.
 
 It is also responsible for converting dirty records into a data hash
 expected by the server. For example, the adapter may need to add a
-foreign key to the data hash by adding `_id` to its association.
+foreign key to the data hash by adding `_id` to its relationship.
 
 The abstract adapter class provides normalization functions that call
 into the `namingConvention` hash in the concrete classes. For very

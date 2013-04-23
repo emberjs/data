@@ -86,6 +86,53 @@ DS.Model.reopenClass({
     return relationship && relationship.type;
   },
 
+  inverseFor: function(name) {
+    var inverseType = this.typeForRelationship(name);
+
+    if (!inverseType) { return null; }
+
+    var options = this.metaForProperty(name).options;
+    var inverseName, inverseKind;
+
+    if (options.inverse) {
+      inverseName = options.inverse;
+      inverseKind = Ember.get(inverseType, 'relationshipsByName').get(inverseName).kind;
+    } else {
+      var possibleRelationships = findPossibleInverses(this, inverseType);
+
+      if (possibleRelationships.length === 0) { return null; }
+
+      Ember.assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " + this + " were found on " + inverseType + ".", possibleRelationships.length === 1);
+
+      inverseName = possibleRelationships[0].name;
+      inverseKind = possibleRelationships[0].kind;
+    }
+
+    function findPossibleInverses(type, inverseType, possibleRelationships) {
+      possibleRelationships = possibleRelationships || [];
+
+      var relationshipMap = get(inverseType, 'relationships');
+      if (!relationshipMap) { return; }
+
+      var relationships = relationshipMap.get(type);
+      if (relationships) {
+        possibleRelationships.push.apply(possibleRelationships, relationshipMap.get(type));
+      }
+
+      if (type.superclass) {
+        findPossibleInverses(type.superclass, inverseType, possibleRelationships);
+      }
+
+      return possibleRelationships;
+    }
+
+    return {
+      type: inverseType,
+      name: inverseName,
+      kind: inverseKind
+    };
+  },
+
   /**
     The model's relationships as a map, keyed on the type of the
     relationship. The value of each entry is an array containing a descriptor
@@ -97,7 +144,6 @@ DS.Model.reopenClass({
         App.Blog = DS.Model.extend({
           users: DS.hasMany(App.User),
           owner: DS.belongsTo(App.User),
-
           posts: DS.hasMany(App.Post)
         });
 
@@ -105,7 +151,7 @@ DS.Model.reopenClass({
     relationships, like this:
 
         var relationships = Ember.get(App.Blog, 'relationships');
-        associatons.get(App.User);
+        relationships.get(App.User);
         //=> [ { name: 'users', kind: 'hasMany' },
         //     { name: 'owner', kind: 'belongsTo' } ]
         relationships.get(App.Post);
@@ -171,6 +217,54 @@ DS.Model.reopenClass({
     });
 
     return names;
+  }),
+
+  /**
+    An array of types directly related to a model. Each type will be
+    included once, regardless of the number of relationships it has with
+    the model.
+
+    For example, given a model with this definition:
+
+        App.Blog = DS.Model.extend({
+          users: DS.hasMany(App.User),
+          owner: DS.belongsTo(App.User),
+          posts: DS.hasMany(App.Post)
+        });
+
+    This property would contain the following:
+
+       var relatedTypes = Ember.get(App.Blog, 'relatedTypes');
+       //=> [ App.User, App.Post ]
+
+    @type Ember.Array
+    @readOnly
+  */
+  relatedTypes: Ember.computed(function() {
+    var type,
+        types = Ember.A([]);
+
+    // Loop through each computed property on the class,
+    // and create an array of the unique types involved
+    // in relationships
+    this.eachComputedProperty(function(name, meta) {
+      if (meta.isRelationship) {
+        type = meta.type;
+
+        if (typeof type === 'string') {
+          type = get(this, type, false) || get(Ember.lookup, type);
+        }
+
+        Ember.assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.",  type);
+
+        if (!types.contains(type)) {
+          Ember.assert("Trying to sideload " + name + " on " + this.toString() + " but the type doesn't exist.", !!type);
+          types.push(type);
+        }
+      }
+    });
+
+    return types;
   }),
 
   /**
@@ -274,6 +368,21 @@ DS.Model.reopenClass({
     get(this, 'relationshipsByName').forEach(function(name, relationship) {
       callback.call(binding, name, relationship);
     });
+  },
+
+  /**
+    Given a callback, iterates over each of the types related to a model,
+    invoking the callback with the related type's class. Each type will be
+    returned just once, regardless of how many different relationships it has
+    with a model.
+
+    @param {Function} callback the callback to invoke
+    @param {any} binding the value to which the callback's `this` should be bound
+  */
+  eachRelatedType: function(callback, binding) {
+    get(this, 'relatedTypes').forEach(function(type) {
+      callback.call(binding, type);
+    });
   }
 });
 
@@ -290,67 +399,3 @@ DS.Model.reopen({
     this.constructor.eachRelationship(callback, binding);
   }
 });
-
-/**
-  @private
-
-  Helper method to look up the name of the inverse of a relationship.
-
-  In a has-many relationship, there are always two sides: the `belongsTo` side
-  and the `hasMany` side. When one side changes, the other side should be updated
-  automatically.
-
-  Given a model, the model of the inverse, and the kind of the relationship, this
-  helper returns the name of the relationship on the inverse.
-
-  For example, imagine the following two associated models:
-
-      App.Post = DS.Model.extend({
-        comments: DS.hasMany('App.Comment')
-      });
-
-      App.Comment = DS.Model.extend({
-        post: DS.belongsTo('App.Post')
-      });
-
-  If the `post` property of a `Comment` was modified, Ember Data would invoke
-  this helper like this:
-
-      DS._inverseNameFor(App.Comment, App.Post, 'hasMany');
-      //=> 'comments'
-
-  Ember Data uses the name of the relationship returned to reflect the changed
-  relationship on the other side.
-*/
-DS._inverseRelationshipFor = function(modelType, inverseModelType) {
-  var relationshipMap = get(modelType, 'relationships'),
-      possibleRelationships = relationshipMap.get(inverseModelType),
-      possible, actual, oldValue;
-
-  if (!possibleRelationships) { return; }
-  if (possibleRelationships.length > 1) { return; }
-  return possibleRelationships[0];
-};
-
-/**
-  @private
-
-  Given a model and a relationship name, returns the model type of
-  the named relationship.
-
-      App.Post = DS.Model.extend({
-        comments: DS.hasMany('App.Comment')
-      });
-
-      DS._inverseTypeFor(App.Post, 'comments');
-      //=> App.Comment
-  @param {DS.Model class} modelType
-  @param {String} relationshipName
-  @return {DS.Model class}
-*/
-DS._inverseTypeFor = function(modelType, relationshipName) {
-  var relationships = get(modelType, 'relationshipsByName'),
-      relationship = relationships.get(relationshipName);
-
-  if (relationship) { return relationship.type; }
-};

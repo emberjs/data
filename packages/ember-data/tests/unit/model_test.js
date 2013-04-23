@@ -54,7 +54,7 @@ test("a record reports its unique id via the `id` property", function() {
   equal(get(record, 'id'), 1, "reports id as id by default");
 });
 
-test("a record's id is included in its toString represenation", function() {
+test("a record's id is included in its toString representation", function() {
   store.load(Person, { id: 1 });
 
   var record = store.find(Person, 1);
@@ -126,6 +126,19 @@ test("a DS.Model can have a defaultValue", function() {
   set(tag, 'name', null);
 
   equal(get(tag, 'name'), null, "null doesn't shadow defaultValue");
+});
+
+test("a defaultValue for an attribite can be a function", function() {
+  var Tag = DS.Model.extend({
+    createdAt: DS.attr('string', {
+      defaultValue: function() {
+        return "le default value";
+      }
+    })
+  });
+
+  var tag = Tag.createRecord();
+  equal(get(tag, 'createdAt'), "le default value", "the defaultValue function is evaluated");
 });
 
 test("when a DS.Model updates its attributes, its changes affect its filtered Array membership", function() {
@@ -280,6 +293,7 @@ var convertsWhenSet = function(type, provided, expected) {
 test("a DS.Model can describe String attributes", function() {
   converts('string', "Scumbag Tom", "Scumbag Tom");
   converts('string', 1, "1");
+  converts('string', "", "");
   converts('string', null, null);
   converts('string', undefined, null);
   convertsFromServer('string', undefined, null);
@@ -290,6 +304,7 @@ test("a DS.Model can describe Number attributes", function() {
   converts('number', "0", 0);
   converts('number', 1, 1);
   converts('number', 0, 0);
+  converts('number', "", null);
   converts('number', null, null);
   converts('number', undefined, null);
   converts('number', true, 1);
@@ -328,3 +343,13 @@ test("a DS.Model can describe Date attributes", function() {
   convertsWhenSet('date', date, dateString);
 });
 
+test("don't allow setting", function(){
+  var store = DS.Store.create();
+
+  var Person = DS.Model.extend();
+  var record = store.createRecord(Person);
+
+  raises(function(){
+    record.set('isLoaded', true);
+  }, "raised error when trying to set an unsettable record");
+});

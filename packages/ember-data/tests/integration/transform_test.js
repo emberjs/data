@@ -117,6 +117,18 @@ test("the default date transform", function() {
   equal(person2.get('born').toString(), date2.toString(), "date.toString and transformed date.toString values match");
 });
 
+test("the date transform parses iso8601 dates", function() {
+  var expectDate = function(string, timestamp, message) {
+    equal(Ember.Date.parse(string), timestamp, message);
+  };
+
+  expectDate('2011-11-29T15:52:18.867', 1322581938867, "YYYY-MM-DDTHH:mm:ss.sss");
+  expectDate('2011-11-29T15:52:18.867Z', 1322581938867, "YYYY-MM-DDTHH:mm:ss.sssZ");
+  expectDate('2011-11-29T15:52:18.867-03:30', 1322594538867, "YYYY-MM-DDTHH:mm:ss.sss-HH:mm");
+  expectDate('2011-11-29', 1322524800000, "YYYY-MM-DD");
+  expectDate('2011-11', 1320105600000, "YYYY-MM");
+  expectDate('2011', 1293840000000, "YYYY");
+});
 
 module("Enum Transforms", {
   setup: function() {

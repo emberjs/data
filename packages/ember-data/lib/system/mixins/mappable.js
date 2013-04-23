@@ -9,7 +9,7 @@ var classify = Ember.String.classify, get = Ember.get;
   For example, the DS.Adapter class can behave like a map, with
   more semantic API, via the `map` API:
 
-    DS.Adapter.map('App.Person', { firstName: { keyName: 'FIRST' } });
+    DS.Adapter.map('App.Person', { firstName: { key: 'FIRST' } });
 
   Class configuration via a map-like API has a few common requirements
   that differentiate it from the standard Ember.Map implementation.
@@ -109,7 +109,7 @@ DS._Mappable = Ember.Mixin.create({
 
       instanceMap.set(transformedKey, newValue);
     }
-  },
+  }
 
 
 });

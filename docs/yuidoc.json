@@ -1,0 +1,13 @@
+{
+  "name": "The ember-data API",
+  "description": "The ember-data API: a data persistence library for Ember.js",
+  "version": "1.0 pre",
+  "url": "https://github.com/emberjs/data",
+  "options": {
+    "paths": [
+      "../packages/ember-data/lib"
+    ],
+    "exclude": "vendor",
+    "outdir":   "./build"
+  }
+}
