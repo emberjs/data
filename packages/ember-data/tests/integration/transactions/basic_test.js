@@ -30,11 +30,11 @@ test("Stores can create a new transaction", function() {
 test("If a record is created from a transaction, it is not committed when store.commit() is called but is committed when transaction.commit() is called", function() {
   var commitCalls = 0;
 
-  store.adapter = DS.Adapter.create({
+  set(store, 'adapter', DS.Adapter.create({
     createRecords: function() {
       commitCalls++;
     }
-  });
+  }));
 
   transaction = store.transaction();
   transaction.createRecord(Person, {});
@@ -49,11 +49,11 @@ test("If a record is created from a transaction, it is not committed when store.
 test("If a record is added to a transaction then updated, it is not committed when store.commit() is called but is committed when transaction.commit() is called", function() {
   var commitCalls = 0;
 
-  store.adapter = DS.Adapter.create({
+  set(store, 'adapter', DS.Adapter.create({
     updateRecords: function() {
       commitCalls++;
     }
-  });
+  }));
 
   store.load(Person, { id: 1, name: "Yehuda Katz" });
 
@@ -156,45 +156,6 @@ test("a record that is clean can be removed from a transaction", function() {
   store.commit();
 
   equal(updateCalled, 1, "after removing from transaction it commits on the store");
-});
-
-test("a record that is in the created state cannot be moved into a new transaction", function() {
-  var store = DS.Store.create();
-
-  var person = store.createRecord(Person);
-  transaction = store.transaction();
-
-  raises(function() {
-    transaction.add(person);
-  }, Error);
-});
-
-test("a record that is in the updated state cannot be moved into a new transaction", function() {
-  var store = DS.Store.create();
-
-  store.load(Person, { id: 1 });
-  var person = store.find(Person, 1);
-
-  person.set('name', "Scumdale");
-  transaction = store.transaction();
-
-  raises(function() {
-    transaction.add(person);
-  }, Error);
-});
-
-test("a record that is in the deleted state cannot be moved into a new transaction", function() {
-  var store = DS.Store.create();
-
-  store.load(Person, { id: 1 });
-  var person = store.find(Person, 1);
-
-  person.deleteRecord();
-  transaction = store.transaction();
-
-  raises(function() {
-    transaction.add(person);
-  }, Error);
 });
 
 test("a record that is in the clean state is moved back to the default transaction after its transaction is committed", function() {

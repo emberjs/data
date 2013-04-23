@@ -1,5 +1,10 @@
 require("ember-data/system/record_arrays/record_array");
 
+/**
+  @module data
+  @submodule data-record-array
+*/
+
 var get = Ember.get, set = Ember.set;
 
 /**
@@ -31,6 +36,11 @@ var get = Ember.get, set = Ember.set;
 
   We call the record to which a relationship belongs the
   relationship's _owner_.
+
+  @class ManyArray
+  @namespace DS
+  @extends DS.RecordArray
+  @constructor
 */
 DS.ManyArray = DS.RecordArray.extend({
   init: function() {
@@ -85,7 +95,7 @@ DS.ManyArray = DS.RecordArray.extend({
     // Map the array of record objects into an array of  client ids.
     added = added.map(function(record) {
       Ember.assert("You can only add records of " + (get(this, 'type') && get(this, 'type').toString()) + " to this relationship.", !get(this, 'type') || (get(this, 'type').detectInstance(record)) );
-      return get(record, '_reference');
+      return get(record, 'reference');
     }, this);
 
     this._super(index, removed, added);
@@ -112,7 +122,7 @@ DS.ManyArray = DS.RecordArray.extend({
       for (var i=index; i<index+removed; i++) {
         var reference = get(this, 'content').objectAt(i);
 
-        var change = DS.RelationshipChange.createChange(owner.get('_reference'), reference, get(this, 'store'), {
+        var change = DS.RelationshipChange.createChange(owner.get('reference'), reference, get(this, 'store'), {
           parentType: owner.constructor,
           changeType: "remove",
           kind: "hasMany",
@@ -141,7 +151,7 @@ DS.ManyArray = DS.RecordArray.extend({
       for (var i=index; i<index+added; i++) {
         var reference = get(this, 'content').objectAt(i);
 
-        var change = DS.RelationshipChange.createChange(owner.get('_reference'), reference, store, {
+        var change = DS.RelationshipChange.createChange(owner.get('reference'), reference, store, {
           parentType: owner.constructor,
           changeType: "add",
           kind:"hasMany",

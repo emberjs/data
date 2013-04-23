@@ -199,7 +199,17 @@ function mustImplement(name) {
   relationship types are added. However, it will
   remain backwards-compatible, so the mere existence
   of new features should not break existing adapters.
+
+  @module data
+  @submodule data-serializer
+  @main data-serializer
+
+  @class Serializer
+  @namespace DS
+  @extends Ember.Object
+  @constructor
 */
+
 DS.Serializer = Ember.Object.extend({
   init: function() {
     this.mappings = Ember.Map.create();
@@ -287,6 +297,7 @@ DS.Serializer = Ember.Object.extend({
 
     By default, it returns the type of the relationship.
 
+    @method extractEmbeddedType
     @param {Object} relationship an object representing the relationship
     @param {any} data the serialized representation that is being built
   */
@@ -315,6 +326,7 @@ DS.Serializer = Ember.Object.extend({
     * Add the record's relationships to the serialized form. By default, `serialize` calls
       `addRelationships`.
 
+    @method serialize
     @param {DS.Model} record the record to serialize
     @param {Object} [options] a hash of options
     @returns {any} the serialized form of the record
@@ -346,6 +358,7 @@ DS.Serializer = Ember.Object.extend({
     Given an attribute type and value, convert the value into the
     serialized form using the transform registered for that type.
 
+    @method serializeValue
     @param {any} value the value to convert to the serialized form
     @param {String} attributeType the registered type (e.g. `string`
       or `boolean`)
@@ -386,6 +399,7 @@ DS.Serializer = Ember.Object.extend({
     Since you can override `keyForAttributeName`, `addAttribute`, and register
     custom transforms, you should rarely need to override this hook.
 
+    @method addAttributes
     @param {any} data the serialized representation that is being built
     @param {DS.Model} record the record to serialize
   */
@@ -399,6 +413,7 @@ DS.Serializer = Ember.Object.extend({
     A hook you can use to customize how the key/value pair is added to
     the serialized data.
 
+    @method addAttribute
     @param {any} serialized the serialized form being built
     @param {String} key the key to add to the serialized data
     @param {any} value the value to add to the serialized data
@@ -416,6 +431,7 @@ DS.Serializer = Ember.Object.extend({
       `primaryKey` hook into consideration)
     * the serialized id (after calling the `serializeId` hook)
 
+    @method addId
     @param {any} data the serialized representation that is being built
     @param {String} key the resolved primary key
     @param {id} id the serialized id
@@ -431,6 +447,7 @@ DS.Serializer = Ember.Object.extend({
     * the serialized representation being built
     * the serialized id (after calling the `serializeId` hook)
 
+    @method addType
     @param {any} data the serialized representation that is being built
     @param {DS.Model subclass} type the type of the record
   */
@@ -440,6 +457,7 @@ DS.Serializer = Ember.Object.extend({
     Creates an empty hash that will be filled in by the hooks called from the
     `serialize()` method.
 
+    @method createSerializedForm
     @return {Object}
   */
   createSerializedForm: function() {
@@ -458,6 +476,7 @@ DS.Serializer = Ember.Object.extend({
     `addHasMany`, and register mappings, you should rarely need to override this
     hook.
 
+    @method addRelationships
     @param {any} data the serialized representation that is being built
     @param {DS.Model} record the record to serialize
   */
@@ -488,6 +507,7 @@ DS.Serializer = Ember.Object.extend({
 
     Additional properties may be added in the future.
 
+    @method addBelongsTo
     @param {any} data the serialized representation that is being built
     @param {DS.Model} record the record to serialize
     @param {String} key the key for the serialized object
@@ -513,6 +533,7 @@ DS.Serializer = Ember.Object.extend({
 
     Additional properties may be added in the future.
 
+    @method addHasMany
     @param {any} data the serialized representation that is being built
     @param {DS.Model} record the record to serialize
     @param {String} key the key for the serialized object
@@ -555,6 +576,7 @@ DS.Serializer = Ember.Object.extend({
     });
     ```
 
+    @method keyForAttributeName
     @param {DS.Model subclass} type the type of the record with
       the attribute name `name`
     @param {String} name the attribute name to convert into a key
@@ -600,6 +622,7 @@ DS.Serializer = Ember.Object.extend({
     });
     ```
 
+    @method primaryKey
     @param {DS.Model subclass} type
     @returns {String} the primary key for the type
   */
@@ -630,6 +653,7 @@ DS.Serializer = Ember.Object.extend({
     });
     ```
 
+    @method keyForBelongsTo
     @param {DS.Model subclass} type the type of the record with
       the `belongsTo` relationship.
     @param {String} name the relationship name to convert into a key
@@ -671,6 +695,7 @@ DS.Serializer = Ember.Object.extend({
     });
     ```
 
+    @method keyForHasMany
     @param {DS.Model subclass} type the type of the record with
       the `belongsTo` relationship.
     @param {String} name the relationship name to convert into a key
@@ -776,22 +801,6 @@ DS.Serializer = Ember.Object.extend({
     record.materializeBelongsTo(name, tuple);
   },
 
-  _extractEmbeddedRelationship: function(type, hash, name, relationshipType) {
-    var key = this['_keyFor' + relationshipType](type, name);
-
-    if (this.embeddedType(type, name)) {
-      return this['extractEmbedded' + relationshipType](type, hash, key);
-    }
-  },
-
-  _extractEmbeddedBelongsTo: function(type, hash, name) {
-    return this._extractEmbeddedRelationship(type, hash, name, 'BelongsTo');
-  },
-
-  _extractEmbeddedHasMany: function(type, hash, name) {
-    return this._extractEmbeddedRelationship(type, hash, name, 'HasMany');
-  },
-
   _convertPrematerializedHasMany: function(type, prematerializedHasMany) {
     var tuplesOrReferencesOrOpaque;
     if( typeof prematerializedHasMany === 'string' ) {
@@ -834,6 +843,7 @@ DS.Serializer = Ember.Object.extend({
     method will return the configured value. Otherwise, it will
     call the public `primaryKey` hook.
 
+    @method _primaryKey
     @param {DS.Model subclass} type
     @returns {String} the primary key for the type
   */
@@ -864,6 +874,7 @@ DS.Serializer = Ember.Object.extend({
     4. Invoke the public `addAttribute` hook with the hash, key, and
        transformed value.
 
+    @method _addAttribute
     @param {any} data the serialized representation being built
     @param {DS.Model} record the record to serialize
     @param {String} attributeName the name of the attribute on the record
@@ -886,6 +897,7 @@ DS.Serializer = Ember.Object.extend({
     It then invokes the public `addId` hook with the primary key and
     the serialized id.
 
+    @method _addId
     @param {any} data the serialized representation that is being built
     @param {Ember.Model subclass} type
     @param {any} id the materialized id from the record
@@ -903,6 +915,7 @@ DS.Serializer = Ember.Object.extend({
     an attribute name. It first checks for any mappings before
     calling the public hook `keyForAttributeName`.
 
+    @method _keyForAttributeName
     @param {DS.Model subclass} type the type of the record with
       the attribute name `name`
     @param {String} name the attribute name to convert into a key
@@ -920,6 +933,7 @@ DS.Serializer = Ember.Object.extend({
     a belongsTo relationship. It first checks for any mappings before
     calling the public hook `keyForBelongsTo`.
 
+    @method _keyForBelongsTo
     @param {DS.Model subclass} type the type of the record with
       the `belongsTo` relationship.
     @param {String} name the relationship name to convert into a key
@@ -949,6 +963,7 @@ DS.Serializer = Ember.Object.extend({
     a hasMany relationship. It first checks for any mappings before
     calling the public hook `keyForHasMany`.
 
+    @method _keyForHasMany
     @param {DS.Model subclass} type the type of the record with
       the `hasMany` relationship.
     @param {String} name the relationship name to convert into a key
@@ -964,6 +979,7 @@ DS.Serializer = Ember.Object.extend({
     This method converts the relationship name to a key for serialization,
     and then invokes the public `addBelongsTo` hook.
 
+    @method _addBelongsTo
     @param {any} data the serialized representation that is being built
     @param {DS.Model} record the record to serialize
     @param {String} name the relationship name
@@ -980,6 +996,7 @@ DS.Serializer = Ember.Object.extend({
     This method converts the relationship name to a key for serialization,
     and then invokes the public `addHasMany` hook.
 
+    @method _addHasMany
     @param {any} data the serialized representation that is being built
     @param {DS.Model} record the record to serialize
     @param {String} name the relationship name
@@ -1000,6 +1017,7 @@ DS.Serializer = Ember.Object.extend({
     If a mapping is found, and the mapping has a key defined,
     use that instead of invoking the hook.
 
+    @method _keyFromMappingOrHook
     @param {String} publicMethod the public hook to invoke if
       a mapping is not found (e.g. `keyForAttributeName`)
     @param {DS.Model subclass} type the type of the record with
@@ -1202,8 +1220,6 @@ DS.Serializer = Ember.Object.extend({
   },
 
   eachEmbeddedBelongsToRecord: function(record, callback, binding) {
-    var type = record.constructor;
-
     this.eachEmbeddedBelongsTo(record.constructor, function(name, relationship, embeddedType) {
       var embeddedRecord = get(record, name);
       if (embeddedRecord) { callback.call(binding, embeddedRecord, embeddedType); }
@@ -1211,8 +1227,6 @@ DS.Serializer = Ember.Object.extend({
   },
 
   eachEmbeddedHasManyRecord: function(record, callback, binding) {
-    var type = record.constructor;
-
     this.eachEmbeddedHasMany(record.constructor, function(name, relationship, embeddedType) {
       var array = get(record, name);
       for (var i=0, l=get(array, 'length'); i<l; i++) {

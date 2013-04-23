@@ -1,7 +1,18 @@
 require("ember-data/system/record_arrays/record_array");
 
+/**
+  @module data
+  @submodule data-record-array
+*/
+
 var get = Ember.get;
 
+/**
+  @class FilteredRecordArray
+  @namespace DS
+  @extends DS.RecordArray
+  @constructor
+*/
 DS.FilteredRecordArray = DS.RecordArray.extend({
   filterFunction: null,
   isLoaded: true,
@@ -12,7 +23,7 @@ DS.FilteredRecordArray = DS.RecordArray.extend({
   },
 
   updateFilter: Ember.observer(function() {
-    var store = get(this, 'store');
-    store.updateRecordArrayFilter(this, get(this, 'type'), get(this, 'filterFunction'));
+    var manager = get(this, 'manager');
+    manager.updateFilter(this, get(this, 'type'), get(this, 'filterFunction'));
   }, 'filterFunction')
 });
