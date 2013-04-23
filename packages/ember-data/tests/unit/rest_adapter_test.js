@@ -1072,39 +1072,4 @@ test("updating a record with a 500 error marks the record as error", function() 
   expectState('error');
 });
 
-/*global jQuery*/
-test("the content-type should not be set to application/json if no body submitted", function() {
-  var jQueryAjax = jQuery.ajax;
-  jQuery.ajax = function(options) {
-    equal(options.contentType, undefined, "the content-type is undefined");
-  };
-
-  overwriteAjax = false;
-  person = store.find(Person, 1);
-
-  jQuery.ajax = jQueryAjax;
-});
-
-test("the content-type should not be set to application/json if no body submitted", function() {
-
-  store.load(Person, { id: 1, name: "John Doe" });
-  person = store.find(Person, 1);
-  person.set('name', 'Jane Doe');
-
-
-  var jQueryAjax = jQuery.ajax;
-  jQuery.ajax = function(options) {
-    equal(options.contentType, "application/json; charset=utf-8", "the content-type is 'application/json; charset=utf-8'");
-  };
-
-  overwriteAjax = false;
-  store.commit();
-
-  jQuery.ajax = jQueryAjax;
-
-});
-
-
-
-
 
