@@ -54,7 +54,13 @@ test("After creating a record, calling `save` on it will save it using the Basic
     createRecord: function(record, didSave) {
       equal(record, person, "The person was passed through");
       var json = record.toJSON();
-      deepEqual(json, { firstName: "Igor", lastName: "Terzic", createdAt: null }, "It is possible to call toJSON on a record");
+
+      deepEqual(json, {
+        firstName: "Igor",
+        lastName: "Terzic",
+        createdAt: null
+      }, "It is possible to call toJSON on a record");
+
       json.id = "1";
       didSave(json);
     }
@@ -79,8 +85,19 @@ test("Calling `didSave` with a hash will update a newly created record", functio
   Person.sync = {
     createRecord: function(record, didSave) {
       equal(record, person, "The person was passed through");
-      deepEqual(record.toJSON(), { firstName: "Igor", lastName: "Terzic", createdAt: null }, "It is possible to call toJSON on a record");
-      didSave({ id: 1, firstName: "Igor", lastName: "Terzic", createdAt: new Date() });
+
+      deepEqual(record.toJSON(), {
+        firstName: "Igor",
+        lastName: "Terzic",
+        createdAt: null
+      }, "It is possible to call toJSON on a record");
+
+      didSave({
+        id: 1,
+        firstName: "Igor",
+        lastName: "Terzic",
+        createdAt: new Date()
+      });
     }
   };
 
@@ -136,12 +153,30 @@ test("Calling `didSave` on a record will update an updated record", function() {
   Person.sync = {
     updateRecord: function(record, didSave) {
       equal(record, person, "The person was passed through");
-      deepEqual(record.toJSON({ includeId: true }), { id: 1, firstName: "Igor", lastName: "Terzicsta", createdAt: DS.JSONTransforms.date.serialize(d1) }, "The process method toJSON'ifies the record");
-      didSave({ id: 1, firstName: "Igor", lastName: "Terzic", createdAt: d2 });
+
+      deepEqual(record.toJSON({ includeId: true }), {
+        id: 1,
+        firstName: "Igor",
+        lastName: "Terzicsta",
+        createdAt: DS.JSONTransforms.date.serialize(d1)
+      }, "The process method toJSON'ifies the record");
+
+      didSave({
+        id: 1,
+        firstName: "Igor",
+        lastName: "Terzic",
+        createdAt: d2
+      });
     }
   };
 
-  store.load(Person, { id: 1, firstName: "Igor", lastName: "Terzic", createdAt: d1 });
+  store.load(Person, {
+    id: 1,
+    firstName: "Igor",
+    lastName: "Terzic",
+    createdAt: d1
+  });
+
   var person = Person.find(1);
   person.set('lastName', "Terzicsta");
 
@@ -152,14 +187,18 @@ test("Calling `didSave` on a record will update an updated record", function() {
   }));
 });
 
-
 test("After deleting a record, calling `save` on it will save it using the BasicAdapter", function() {
   expect(7);
 
   Person.sync = {
     deleteRecord: function(record, didSave) {
       equal(record, person, "The person was passed through");
-      deepEqual(person.toJSON({ includeId: true }), { id: 1, firstName: "Igor", lastName: "Terzic", createdAt: null }, "The process method toJSON'ifies the record");
+      deepEqual(person.toJSON({ includeId: true }), {
+        id: 1,
+        firstName: "Igor",
+        lastName: "Terzic",
+        createdAt: null }, "The process method toJSON'ifies the record");
+
       didSave();
     }
   };
