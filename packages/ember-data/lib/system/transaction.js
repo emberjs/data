@@ -173,13 +173,6 @@ DS.Transaction = Ember.Object.extend({
 
       adapter.commit(store, commitDetails);
     }
-
-    // Once we've committed the transaction, there is no need to
-    // keep the OneToManyChanges around. Destroy them so they
-    // can be garbage collected.
-    relationships.forEach(function(relationship) {
-      relationship.destroy();
-    });
   },
 
   _commitDetails: function() {
