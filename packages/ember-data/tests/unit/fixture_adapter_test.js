@@ -265,7 +265,40 @@ test("should coerce integer ids into string", function() {
     clearTimeout(timer);
     start();
     clearTimeout(timer);
-    equal(get(result, 'id'), "1", "should load integer model id");
+    strictEqual(get(result, 'id'), "1", "should load integer model id as string");
+  });
+
+  var timer = setTimeout(function() {
+    start();
+    ok(false, "timeout exceeded waiting for fixture data");
+  }, 1000);
+});
+
+test("should coerce belongsTo ids into string", function() {
+  stop();
+
+  Person.FIXTURES = [{
+    id: 1,
+    firstName: "Adam",
+    lastName: "Hawkins",
+
+    phones: [1]
+  }];
+  Phone.FIXTURES = [{
+    id: 1,
+    person: 1
+  }];
+
+  var result = Phone.find("1");
+  
+  result.then(function() {
+    var person = get(result, 'person');
+    person.on('didLoad', function() {
+      clearTimeout(timer);
+      start();
+      strictEqual(get(result, 'person.id'), "1", "should load integer belongsTo id as string");
+      strictEqual(get(result, 'person.firstName'), "Adam", "resolved relationship with an integer belongsTo id");
+    });
   });
 
   var timer = setTimeout(function() {
