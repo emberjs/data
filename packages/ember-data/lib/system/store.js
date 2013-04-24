@@ -380,7 +380,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     record.setProperties(properties);
 
     // Resolve record promise
-    Ember.run(record, 'resolve');
+    Ember.run(record, 'resolve', record);
 
     return record;
   },
