@@ -5,7 +5,8 @@ module("Basic Adapter - Saving", {
   setup: function() {
     adapter = DS.BasicAdapter.create();
     store = DS.Store.create({
-      adapter: adapter
+      adapter: adapter,
+      isDefaultStore: true
     });
 
     var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
