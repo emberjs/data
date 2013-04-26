@@ -318,7 +318,6 @@ test("should throw if ids are not defined in the FIXTURES", function() {
     Person.find("1");
   }, /the id property must be defined for fixture/);
 
-
   Person.FIXTURES = [{
     id: 0
   }];
