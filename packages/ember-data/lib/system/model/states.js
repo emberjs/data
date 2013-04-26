@@ -414,12 +414,19 @@ createdState.states.uncommitted.reopen({
 
     record.clearRelationships();
     manager.transitionTo('deleted.saved');
+  },
+
+  rollback: function(manager) {
+    this._super(manager);
+    manager.transitionTo('deleted.saved');
   }
 });
 
-createdState.states.uncommitted.reopen({
-  rollback: function(manager) {
-    this._super(manager);
+createdState.states.invalid.reopen({
+  deleteRecord: function(manager) {
+    var record = get(manager, 'record');
+
+    record.clearRelationships();
     manager.transitionTo('deleted.saved');
   }
 });
