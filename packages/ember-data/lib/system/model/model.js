@@ -10,7 +10,7 @@ var retrieveFromCurrentState = Ember.computed(function(key, value) {
 }).property('stateManager.currentState').readOnly();
 
 /**
-  
+
   The model class that all Ember Data records descend from.
 
   @module data
@@ -104,14 +104,14 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
   /**
     Fired when the record is deleted.
-    
+
     @event didDelete
   */
   didDelete: Ember.K,
 
   /**
     Fired when the record becomes invalid.
-    
+
     @event becameInvalid
   */
   becameInvalid: Ember.K,
@@ -393,15 +393,14 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   // FOR USE BY THE BASIC ADAPTER
 
   save: function() {
+    var model = this;
     this.get('store').scheduleSave(this);
 
-    var promise = new Ember.RSVP.Promise();
-
-    this.one('didCommit', this, function() {
-      promise.resolve(this);
+    return new Ember.RSVP.Promise(function(resolve, reject){
+      model.one('didCommit', function() {
+        resolve(this);
+      });
     });
-
-    return promise;
   },
 
   // FOR USE DURING COMMIT PROCESS
