@@ -47,6 +47,24 @@ test("setting a property on a record that has not changed does not cause it to b
   equal(person.get('isDirty'), false, "record does not become dirty after setting property to old value");
 });
 
+test("a new record is not dirty when it is deleted", function() {
+  var person = store.createRecord(Person);
+  equal(person.get('isDirty'), true, "precond - new created record should be dirty");
+  person.deleteRecord();
+  equal(person.get('isDirty'), false, "new record does not become clean after delete");
+});
+
+test("a new invalid record is not dirty when it is deleted", function() {
+  var person = store.createRecord(Person);
+  equal(person.get('isDirty'), true, "precond - new created record should be dirty");
+
+  person.send('willCommit');
+  store.recordWasInvalid(person, {name: 'error'});
+
+  person.deleteRecord();
+  equal(person.get('isDirty'), false, "new record does not become clean after delete");
+});
+
 test("a record reports its unique id via the `id` property", function() {
   store.load(Person, { id: 1 });
 
