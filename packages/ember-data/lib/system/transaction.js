@@ -120,7 +120,7 @@ DS.Transaction = Ember.Object.extend({
 
   isDefault: Ember.computed(function() {
     return this === get(this, 'store.defaultTransaction');
-  }),
+  }).volatile(),
 
   /**
     Adds an existing record to this transaction. Only records without
@@ -155,9 +155,8 @@ DS.Transaction = Ember.Object.extend({
   commit: function() {
     var store = get(this, 'store');
     var adapter = get(store, '_adapter');
-    var defaultTransaction = get(store, 'defaultTransaction');
 
-    if (this === defaultTransaction) {
+    if (get(this, 'isDefault')) {
       set(store, 'defaultTransaction', store.transaction());
     }
 
