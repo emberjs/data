@@ -100,7 +100,7 @@ DS.RecordArrayManager = Ember.Object.extend({
     @param {DS.Model} record
   */
   remove: function(record) {
-    var reference = get(record, 'reference');
+    var reference = get(record, '_reference');
     var recordArrays = reference.recordArrays || [];
 
     recordArrays.forEach(function(array) {
