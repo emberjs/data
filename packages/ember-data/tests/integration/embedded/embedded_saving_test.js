@@ -8,12 +8,15 @@ module("Embedded Saving", {
 
     Comment = App.Comment = DS.Model.extend({
       title: attr('string'),
-      post: DS.belongsTo('Post')
     });
 
     Post = App.Post = DS.Model.extend({
       title: attr('string'),
       comments: DS.hasMany(Comment)
+    });
+
+    Comment.reopen({
+      post: DS.belongsTo(Post)
     });
 
     Adapter = DS.RESTAdapter.extend();
@@ -56,4 +59,3 @@ asyncTest("Adding a new embedded record to an unsaved record: Both records use t
 
   transaction.commit();
 });
-
