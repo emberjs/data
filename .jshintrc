@@ -12,6 +12,7 @@
         "ember_deprecateFunc",
         "require",
         "equal",
+        "notEqual",
         "asyncTest",
         "test",
         "raises",
