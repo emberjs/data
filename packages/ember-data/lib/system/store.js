@@ -985,14 +985,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object} data optional data (see above)
   */
   didSaveRecord: function(record, data) {
-    record.adapterDidCommit();
-
     if (data) {
       this.updateId(record, data);
       this.updateRecordData(record, data);
     } else {
       this.didUpdateAttributes(record);
     }
+
+    record.adapterDidCommit();
   },
 
   /**
