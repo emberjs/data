@@ -24,7 +24,7 @@ function loaderFor(store) {
     populateArray: Ember.K,
 
     sideload: function(type, data) {
-      return store.load(type, data);
+      return store.adapterForType(type).load(store, type, data);
     },
 
     sideloadMany: function(type, array) {
@@ -145,7 +145,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   load: function(store, type, payload) {
     var loader = loaderFor(store);
-    get(this, 'serializer').extractRecordRepresentation(loader, type, payload);
+    return get(this, 'serializer').extractRecordRepresentation(loader, type, payload);
   },
 
   /**
