@@ -27,8 +27,10 @@ DS.belongsTo = function(type, options) {
       return null;
     } else if (id.clientId) {
       return store.recordForReference(id);
-    } else {
+    } else if(id.type) {
       return store.findById(id.type, id.id);
+    } else {
+      return store.findById(type, id.id);
     }
   }).property('data').meta(meta);
 };

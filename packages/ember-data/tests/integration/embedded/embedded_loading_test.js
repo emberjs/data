@@ -17,10 +17,19 @@ var Group = App.Group = DS.Model.extend({
   people: DS.hasMany(Person)
 });
 
+var Post = App.Post = DS.Model.extend({
+  title: DS.attr('string'),
+  comments: DS.hasMany(Comment)
+});
+
 Person.reopen({
   name: DS.attr('string'),
   group: DS.belongsTo(Group),
   comments: DS.hasMany(Comment)
+});
+
+Comment.reopen({
+  post: DS.belongsTo(Post)
 });
 
 module("Embedded Loading", {
@@ -29,6 +38,7 @@ module("Embedded Loading", {
 
     lookup.Person = Person;
     lookup.Comment = Comment;
+    lookup.Post = Post;
 
     Adapter = DS.RESTAdapter.extend();
 
@@ -75,6 +85,7 @@ Ember.ArrayPolyfills.forEach.call([[Comment, "as a type"], ["Comment", "as a str
     strictEqual(comment1.get('user'), user, "relationship references the globally addressable record");
     strictEqual(comment2.get('user'), user, "relationships are identical");
   });
+
 });
 
 Ember.ArrayPolyfills.forEach.call([Person, "Person"], function(mapping) {
@@ -105,6 +116,64 @@ Ember.ArrayPolyfills.forEach.call([Person, "Person"], function(mapping) {
 
     strictEqual(person1.get('comments').objectAt(0), comment1);
     strictEqual(person2.get('comments').objectAt(0), comment1);
+  });
+
+  asyncTest("An embedded belongsTo relationship can be extracted from a sideloaded hasMany relationship when the JSON is returned in response to a find", function() {
+    Adapter.map(mapping, {
+      comments: { embedded: 'load' }
+    });
+
+    Adapter.map(Comment, {
+      user: { embedded: 'load' }
+    });
+
+    adapter = Adapter.create();
+    store.set('adapter', adapter);
+
+    adapter.load(store, Person, {
+      id: 3,
+      name: "Yehuda Katz"
+    });
+
+    adapter.find = function(store, type, id) {
+      var self = this;
+
+      setTimeout(function() {
+        Ember.run(function() {
+          self.didFindRecord(store, type, { 
+            comments: [
+              {
+                id: 3,
+                user: {
+                  id: 3,
+                  name: "Yehuda Katz"
+                }
+              }
+            ],
+            post: {
+              id: 3,
+              title: "Embedded via sideload",
+              comment_ids: [3]
+            } 
+          }, id);
+        });
+
+        done();
+      });
+    };
+
+    store.find(Post, 3);
+
+    function done() {
+      start();
+
+      var post = store.find(Post, 3);
+      var comment = store.find(Comment, 3);
+      var user = store.find(Person, 3);
+
+      strictEqual(post.get('comments').objectAt(0), comment);
+      strictEqual(post.get('comments').objectAt(0).get('user'), user);
+    }
   });
 
   asyncTest("An embedded hasMany relationship can be extracted if the JSON is returned in response to a find", function() {
@@ -293,6 +362,34 @@ test("updating a embedded record with a belongsTo relationship is serialize corr
     strictEqual(comment.get('user'), peter, "updated relationship references the globally addressable record");
 
     var commentJSON = serializer.serialize(comment, { includeId: true });
-    deepEqual(commentJSON, { id: 1, user: { id: 4, name: "Peter Pan", group: null }});
+    deepEqual(commentJSON, { id: 1, post_id: null, user: { id: 4, name: "Peter Pan", group: null }});
 });
 
+test("sideloading a record with an embedded hasMany relationship", function() {
+  Adapter.map(Person, {
+    comments: { embedded: 'always' }
+  });
+
+  adapter = Adapter.create();
+  serializer = adapter.get('serializer');
+  serializer.configure(Person, {
+    sideloadAs: 'people'
+  });
+  store.set('adapter', adapter);
+
+  adapter.didFindRecord(store, Group, {
+    group: {id: 1},
+    people: [{
+      id: 2,
+      name: "Yehuda Katz",
+      group: 1,
+      comments: [{
+        id: 3
+      }]
+    }]
+  }, 1);
+
+  var person = store.find(Person, 2);
+  var comment = store.find(Comment, 3);
+  equal(Ember.get(person, 'comments.firstObject'), comment);
+});
