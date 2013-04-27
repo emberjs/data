@@ -38,11 +38,15 @@ test("When a store is committed, the adapter's `commit` method should be called 
   var tom = store.find(Person, 1);
   set(tom, "name", "Tom Dale");
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   // Make sure that if we commit again, the previous records have been
   // removed.
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 });
 
 test("When a store is committed, the adapter's `commit` method should be called with records that have been created.", function() {
@@ -61,11 +65,17 @@ test("When a store is committed, the adapter's `commit` method should be called 
 
   var tom = store.createRecord(Person, { name: "Tom Dale" });
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
+  
 
   // Make sure that if we commit again, the previous records have been
   // removed.
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
+  
 });
 
 test("After a created record has been assigned an ID, finding a record by that ID returns the original record.", function() {
@@ -76,13 +86,19 @@ test("After a created record has been assigned an ID, finding a record by that I
   };
 
   var tom = store.createRecord(Person, { name: "Tom Dale" });
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
+  
 
   strictEqual(tom, store.find(Person, 1), "the retrieved record is the same as the created record");
 
   // Make sure that if we commit again, the previous records have been
   // removed.
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
+  
 });
 
 test("when a store is committed, the adapter's `commit` method should be called with records that have been deleted.", function() {
@@ -104,7 +120,10 @@ test("when a store is committed, the adapter's `commit` method should be called 
   var tom = store.find(Person, 1);
 
   tom.deleteRecord();
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
+  
 
   equal(get(tom, 'isDeleted'), true, "record is marked as deleted");
 });
@@ -137,10 +156,16 @@ test("An adapter can notify the store that records were updated by calling `didS
   ok(tom.get('isDirty'), "tom is dirty");
   ok(yehuda.get('isDirty'), "yehuda is dirty");
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
+  
 
   // there is nothing to commit, so there won't be any records
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
+  
 });
 
 test("An adapter can notify the store that records were updated and provide new data by calling `didSaveRecords`.", function() {
@@ -170,10 +195,15 @@ test("An adapter can notify the store that records were updated and provide new 
   tom.set('name', "Draaaaaahm Dale");
   yehuda.set('name', "Goy Katz");
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   // there is nothing to commit, so there won't be any records
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
+  
 });
 
 test("An adapter can notify the store that a record was updated by calling `didSaveRecord`.", function() {
@@ -205,10 +235,16 @@ test("An adapter can notify the store that a record was updated by calling `didS
   ok(tom.get('isDirty'), "tom is dirty");
   ok(yehuda.get('isDirty'), "yehuda is dirty");
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
+  
 
   // there is nothing to commit, so there won't be any records
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
+  
 });
 
 test("An adapter can notify the store that a record was updated and provide new data by calling `didSaveRecord`.", function() {
@@ -239,10 +275,15 @@ test("An adapter can notify the store that a record was updated and provide new 
   tom.set('name', "Draaaaaahm Dale");
   yehuda.set('name', "Goy Katz");
 
-  store.commit();
-
+  Ember.run(function(){
+    store.commit();
+  });
+  
   // there is nothing to commit, so there won't be any records
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
+  
 });
 
 test("An adapter can notify the store that records were deleted by calling `didSaveRecords`.", function() {
@@ -270,10 +311,15 @@ test("An adapter can notify the store that records were deleted by calling `didS
   tom.deleteRecord();
   yehuda.deleteRecord();
 
-  store.commit();
-
+  Ember.run(function(){
+    store.commit();
+  });
+  
   // there is nothing to commit, so there won't be any records
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
+  
 });
 
 test("An adapter can notify the store that a record was deleted by calling `didSaveRecord`.", function() {
@@ -302,10 +348,14 @@ test("An adapter can notify the store that a record was deleted by calling `didS
   tom.deleteRecord();
   yehuda.deleteRecord();
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   // there is nothing to commit, so there won't be any records
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 });
 
 test("An error is raised when attempting to set a property while a record is being saved", function() {
@@ -323,7 +373,9 @@ test("An error is raised when attempting to set a property while a record is bei
   store.load(Person, { id: 1 });
   tom = store.find(Person, 1);
   tom.set('name', "Tom Dale");
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   ok(tom.get('isDirty'), "tom is dirty");
   try {
     tom.set('name', "Tommy Bahama");

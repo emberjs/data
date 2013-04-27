@@ -150,7 +150,9 @@ test("creating a person makes a POST to /people, with the data hash", function()
   person = store.createRecord(Person, { name: "Tom Dale" });
 
   expectState('new');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   expectState('saving');
 
   expectUrl("/people", "the collection at the plural of the model name");
@@ -167,7 +169,9 @@ test("singular creations can sideload data", function() {
   person = store.createRecord(Person, { name: "Tom Dale" });
 
   expectState('new');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   expectState('saving');
 
   expectUrl("/people", "the collection at the plural of the model name");
@@ -199,7 +203,9 @@ test("updating a person makes a PUT to /people/:id with the data hash", function
   set(person, 'name', "Brohuda Brokatz");
 
   expectState('dirty');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   expectState('saving');
 
   expectUrl("/people/1", "the plural of the model name with its ID");
@@ -225,7 +231,9 @@ test("updates are not required to return data", function() {
   set(person, 'name', "Brohuda Brokatz");
 
   expectState('dirty');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   expectState('saving');
 
   expectUrl("/people/1", "the plural of the model name with its ID");
@@ -252,7 +260,9 @@ test("singular updates can sideload data", function() {
   set(person, 'name', "Brohuda Brokatz");
 
   expectState('dirty');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   expectState('saving');
 
   expectUrl("/people/1", "the plural of the model name with its ID");
@@ -284,7 +294,9 @@ test("deleting a person makes a DELETE to /people/:id", function() {
 
   expectState('dirty');
   expectState('deleted');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   expectState('saving');
 
   expectUrl("/people/1", "the plural of the model name with its ID");
@@ -309,7 +321,9 @@ test("singular deletes can sideload data", function() {
 
   expectState('dirty');
   expectState('deleted');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   expectState('saving');
 
   expectUrl("/people/1", "the plural of the model name with its ID");
@@ -694,7 +708,9 @@ test("creating several people (with bulkCommit) makes a POST to /people, with a 
   people = [ tom, yehuda ];
 
   expectStates('new');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   expectStates('saving');
 
   expectUrl("/people", "the collection at the plural of the model name");
@@ -719,7 +735,9 @@ test("bulk commits can sideload data", function() {
   people = [ tom, yehuda ];
 
   expectStates('new');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   expectStates('saving');
 
   expectUrl("/people", "the collection at the plural of the model name");
@@ -761,7 +779,9 @@ test("updating several people (with bulkCommit) makes a PUT to /people/bulk with
   set(carl, 'name', "Brocarl Brolerche");
 
   expectStates('dirty');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   expectStates('saving');
 
   expectUrl("/people/bulk", "the collection at the plural of the model name");
@@ -802,7 +822,9 @@ test("bulk updates can sideload data", function() {
   set(carl, 'name', "Brocarl Brolerche");
 
   expectStates('dirty');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   expectStates('saving');
 
   expectUrl("/people/bulk", "the collection at the plural of the model name");
@@ -848,7 +870,9 @@ test("deleting several people (with bulkCommit) makes a DELETE to /people/bulk",
 
   expectStates('dirty');
   expectStates('deleted');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   expectStates('saving');
 
   expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
@@ -886,7 +910,9 @@ test("bulk deletes can sideload data", function() {
 
   expectStates('dirty');
   expectStates('deleted');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   expectStates('saving');
 
   expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
@@ -995,7 +1021,9 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
 
   var person = store.createRecord(Person, {name: 'Sam Woodard', personType: personType});
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   expectUrl('/people');
   expectType("POST");
@@ -1005,7 +1033,9 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
 
 test("creating a record with a 422 error marks the records as invalid", function(){
   person = store.createRecord(Person, { name: "" });
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   var mockXHR = {
     status:       422,
@@ -1025,7 +1055,9 @@ test("updating a record with a 422 error marks the records as invalid", function
   store.load(Person, { id: 1, name: "John Doe" });
   person = store.find(Person, 1);
   person.set('name', '');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   var mockXHR = {
     status:       422,
@@ -1040,7 +1072,9 @@ test("updating a record with a 422 error marks the records as invalid", function
 
 test("creating a record with a 500 error marks the record as error", function() {
   person = store.createRecord(Person, { name: "" });
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   var mockXHR = {
     status:       500,
@@ -1056,7 +1090,9 @@ test("updating a record with a 500 error marks the record as error", function() 
   store.load(Person, { id: 1, name: "John Doe" });
   person = store.find(Person, 1);
   person.set('name', 'Jane Doe');
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   var mockXHR = {
     status:       500,

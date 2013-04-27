@@ -499,7 +499,9 @@ test("records inside a collection view should have their ids updated", function(
   store.createRecord(Person, {name: 'Tom Dale'});
   store.createRecord(Person, {name: 'Yehuda Katz'});
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   container.content.forEach(function(person, index) {
     equal(person.get('id'), index + 1, "The record's id should be correct.");
@@ -569,7 +571,9 @@ test("a record receives a didUpdate callback when it has finished updating", fun
   equal(callCount, 0, "precond - didUpdate callback was not called yet");
 
   person.set('bar', "Bar");
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   equal(callCount, 1, "didUpdate called after update");
 });
@@ -600,7 +604,9 @@ test("a record receives a didCreate callback when it has finished updating", fun
   equal(callCount, 0, "precond - didCreate callback was not called yet");
 
   store.createRecord(Person, { id: 69, name: "Newt Gingrich" });
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   equal(callCount, 1, "didCreate called after commit");
 });
@@ -639,7 +645,9 @@ test("a record receives a didDelete callback when it has finished deleting", fun
   equal(callCount, 0, "precond - didDelete callback was not called yet");
 
   person.deleteRecord();
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   equal(callCount, 1, "didDelete called after delete");
 });
@@ -678,7 +686,9 @@ test("a record receives a becameInvalid callback when it became invalid", functi
   equal(callCount, 0, "precond - becameInvalid callback was not called yet");
 
   person.set('bar', "Bar");
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   equal(callCount, 1, "becameInvalid called after invalidating");
 });
@@ -803,11 +813,15 @@ test("can commit store after unload record with relationships", function() {
   product = store.find(Product, 1);
 
   like = store.createRecord(Like, { id: 1, product: product });
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   store.unloadRecord(product);
   // can commit because `product` is not in transactionBucketTypes
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   tryToFind = false;
   product = store.find(Product, 1);

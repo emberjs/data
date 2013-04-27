@@ -114,10 +114,14 @@ test("by default, createRecords calls createRecord once per record", function() 
   var tom = store.createRecord(Person, { name: "Tom Dale" });
   var yehuda = store.createRecord(Person, { name: "Yehuda Katz" });
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   equal(tom, store.find(Person, 1), "Once an ID is in, find returns the same object");
   equal(yehuda, store.find(Person, 2), "Once an ID is in, find returns the same object");
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 });
 
 test("by default, updateRecords calls updateRecord once per record", function() {
@@ -155,10 +159,14 @@ test("by default, updateRecords calls updateRecord once per record", function() 
   set(tom, "name", "Tom Dale");
   set(yehuda, "name", "Yehuda Katz");
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   // there is nothing to commit, so there won't be any records
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 });
 
 test("calling store.didSaveRecord can provide an optional hash", function() {
@@ -195,10 +203,14 @@ test("calling store.didSaveRecord can provide an optional hash", function() {
   set(tom, "name", "Tom Dale");
   set(yehuda, "name", "Yehuda Katz");
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   // there is nothing to commit, so there won't be any records
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 });
 
 test("by default, deleteRecords calls deleteRecord once per record", function() {
@@ -230,10 +242,14 @@ test("by default, deleteRecords calls deleteRecord once per record", function() 
 
   tom.deleteRecord();
   yehuda.deleteRecord();
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   // there is nothing to commit, so there won't be any records
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 });
 
 test("if an existing model is edited then deleted, deleteRecord is called on the adapter", function() {
@@ -263,13 +279,17 @@ test("if an existing model is edited then deleted, deleteRecord is called on the
   equal(get(tom, 'isDirty'), true, "precond - record should be dirty after editing");
 
   tom.deleteRecord();
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   equal(get(tom, 'isDirty'), false, "record should not be dirty");
   equal(get(tom, 'isDeleted'), true, "record should be considered deleted");
 
   // should be a no-op since all records should be clean
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 });
 
 test("if a created record is marked as invalid by the server, it enters an error state", function() {
@@ -290,7 +310,9 @@ test("if a created record is marked as invalid by the server, it enters an error
 
   Ember.addObserver(yehuda, 'errors.name', observer);
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   equal(get(yehuda, 'isValid'), false, "the record is invalid");
   ok(hasNameError, "should trigger errors.name observer on invalidation");
@@ -310,7 +332,9 @@ test("if a created record is marked as invalid by the server, it enters an error
 
   equal(get(yehuda, 'isNew'), true, "precond - record is still new");
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   equal(get(yehuda, 'isValid'), true, "record remains valid after committing");
   equal(get(yehuda, 'isNew'), false, "record is no longer new");
 
@@ -324,7 +348,9 @@ test("if a created record is marked as erred by the server, it enters an error s
 
   var person = store.createRecord(Person, { id: 1, name: "John Doe" });
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   ok(get(person, 'isError'), "the record is in the error state");
 });
@@ -348,7 +374,9 @@ test("if an updated record is marked as invalid by the server, it enters an erro
   equal(get(yehuda, 'isValid'), true, "precond - the record is still valid as far as we know");
 
   equal(get(yehuda, 'isDirty'), true, "the record is dirty");
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   equal(get(yehuda, 'isDirty'), true, "the record is still dirty");
   equal(get(yehuda, 'isValid'), false, "the record is invalid");
 
@@ -359,7 +387,9 @@ test("if an updated record is marked as invalid by the server, it enters an erro
   equal(get(yehuda, 'isValid'), true, "the record is no longer invalid after changing");
   equal(get(yehuda, 'isDirty'), true, "the record has outstanding changes");
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
   equal(get(yehuda, 'isValid'), true, "record remains valid after committing");
   equal(get(yehuda, 'isDirty'), false, "record is no longer new");
 
@@ -375,7 +405,9 @@ test("if a created record is marked as erred by the server, it enters an error s
   var person = store.find(Person, 1);
   person.set('name', "Jonathan Doe");
 
-  store.commit();
+  Ember.run(function(){
+    store.commit();
+  });
 
   ok(get(person, 'isError'), "the record is in the error state");
 });
