@@ -119,7 +119,7 @@ test("An adapter can use `munge` for arbitrary transformations", function() {
   Person.sync = {
     find: function(id, load) {
       setTimeout(async(function() {
-        var json = process({ id: 1, FIRST_NAME: "Tom", LAST_NAME: "Dale", didCreateAtTime: "1986-06-09" })
+        var json = process({ id: 1, FIRST_NAME: "Tom", LAST_NAME: "Dale", didCreateAtTime: "1986/06/09" })
           .munge(function(json) {
             json.firstName = json.FIRST_NAME;
             json.lastName = json.LAST_NAME;
@@ -138,7 +138,7 @@ test("An adapter can use `munge` for arbitrary transformations", function() {
   person.on('didLoad', async(function() {
     equal(get(person, 'firstName'), "Tom");
     equal(get(person, 'lastName'), "Dale");
-    equal(get(person, 'createdAt').valueOf(), new Date("1986-06-09").valueOf(), "The date was properly transformed");
+    equal(get(person, 'createdAt').valueOf(), new Date("1986/06/09").valueOf(), "The date was properly transformed");
     equal(get(person, 'id'), "1", "The id is still the same");
   }));
 });
