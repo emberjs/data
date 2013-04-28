@@ -169,3 +169,42 @@ test("When adding a newly created record to a hasMany relationship, the parent s
   equal(post.get('isDirty'), false, "The record should no longer be dirty");
   equal(post.get('isSaving'), false, "The record should no longer be saving");
 });
+
+test("When modifying a record and its hasMany association, the parent should become clean after committing", function() {
+  store.adapter = DS.RESTAdapter.create();
+
+  var App = Ember.Namespace.create();
+  App.toString = function() { return "App"; };
+
+  App.Person = DS.Model.extend({
+    name: DS.attr("string")
+  });
+
+  App.Occupation = DS.Model.extend({
+    title: DS.attr("string"),
+    person: DS.belongsTo(Person)
+  });
+
+  App.Person.reopen({
+    occupations: DS.hasMany(App.Occupation)
+  });
+
+  expect(4);
+
+  store.load(App.Occupation, { id: 1, title: "Engineer" });
+  store.load(App.Person, { id: 1, name: "Derrick Camerino", occupations: [ 1 ] });
+
+  var person = store.find(App.Person, 1);
+  var occupation = store.find(App.Occupation, 1);
+
+  occupation.set("title", "Magician");
+  person.set("name", "Derrick J Camerino");
+
+  store.commit();
+
+  equal(person.get('isDirty'), false, "The record should no longer be dirty");
+  equal(person.get('isSaving'), false, "The record should no longer be saving");
+
+  equal(person.get("name"), "Derrick J Camerino", "The record should have updated properly");
+  equal(occupation.get("title"), "Magician", "The association should have updated properly");
+});
