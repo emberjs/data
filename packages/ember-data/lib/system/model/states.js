@@ -347,7 +347,7 @@ var DirtyState = DS.State.extend({
 
     exit: function(manager) {
        var record = get(manager, 'record');
- 
+
        record.withTransaction(function (t) {
          t.remove(record);
        });
@@ -479,6 +479,11 @@ var states = {
 
       materializingData: function(manager) {
         manager.transitionTo('loaded.materializing.firstTime');
+      },
+
+      becameError: function(manager) {
+        manager.transitionTo('error');
+        manager.send('invokeLifecycleCallbacks');
       }
     }),
 
@@ -672,7 +677,7 @@ var states = {
           record.withTransaction(function(t) {
             t.remove(record);
           });
-      
+
           manager.transitionTo('saved');
 
           manager.send('invokeLifecycleCallbacks');

@@ -2,6 +2,10 @@ var store, Adapter, adapter;
 var Post, Comment, User, Pingback, Like;
 var attr = DS.attr;
 
+function promise(fn){
+  return new Ember.RSVP.Promise(fn);
+}
+
 module("Embedded Relationships Without IDs", {
   setup: function() {
     var App = Ember.Namespace.create({ name: "App" });
@@ -98,9 +102,11 @@ asyncTest("Embedded belongsTo relationships can be saved when embedded: always i
       }
     });
 
-    setTimeout(function() {
-      hash.success.call(adapter);
-      done();
+    return promise(function(resolve, reject) {
+      setTimeout(function() {
+        Ember.run(null, resolve, adapter);
+        done();
+      });
     });
   };
 
@@ -183,9 +189,11 @@ asyncTest("Embedded hasMany relationships can be saved when embedded: always is 
       }
     });
 
-    setTimeout(function() {
-      hash.success.call(adapter);
-      done();
+    return promise(function(resolve, reject){
+      setTimeout(function() {
+        Ember.run(null, resolve, adapter);
+        done();
+      });
     });
   };
 
@@ -283,9 +291,11 @@ asyncTest("Embedded records that contain embedded records can be saved", functio
       }
     });
 
-    setTimeout(function() {
-      hash.success.call(adapter);
-      done();
+    return promise(function(resolve, reject){
+      setTimeout(function(){
+        Ember.run(null, resolve, adapter);
+        done();
+      });
     });
   };
 

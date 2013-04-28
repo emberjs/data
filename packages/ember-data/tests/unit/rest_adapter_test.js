@@ -18,19 +18,29 @@ module("the REST adapter", {
 
     adapter = Adapter.create({
       ajax: function(url, type, hash) {
-        var success = hash.success, self = this;
+        var self = this;
+        return new Ember.RSVP.Promise(function(resolve, reject){
+          hash = hash || {};
+          var success = hash.success;
 
-        hash.context = adapter;
+          hash.context = adapter;
 
-        ajaxUrl = url;
-        ajaxType = type;
-        ajaxHash = hash;
+          ajaxUrl = url;
+          ajaxType = type;
+          ajaxHash = hash;
 
-        if (success) {
           hash.success = function(json) {
-            success.call(self, json);
+            Ember.run(function(){
+              resolve(json);
+            });
           };
-        }
+
+          hash.error = function(xhr) {
+            Ember.run(function(){
+              reject(xhr);
+            });
+          };
+        });
       }
     });
 
@@ -456,11 +466,11 @@ test("finding a person by ID makes a GET to /people/:id", function() {
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
-test("finding a person by an ID-alias populates the store", function() {
-  person = store.find(Person, 'me');
+test("finding a person by ID makes a GET to /people/:id", function() {
+  person = store.find(Person, 1);
 
   expectState('loaded', false);
-  expectUrl("/people/me", "the plural of the model name with the ID requested");
+  expectUrl("/people/1", "the plural of the model name with the ID requested");
   expectType("GET");
 
   ajaxHash.success({ person: { id: 1, name: "Yehuda Katz" } });
@@ -468,7 +478,30 @@ test("finding a person by an ID-alias populates the store", function() {
   expectState('loaded');
   expectState('dirty', false);
 
-  equal(person, store.find(Person, 'me'), "the record is now in the store, and can be looked up by the alias without another Ajax request");
+  equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
+});
+
+test("attempting to find a record that result in a non-200 status error marks the record as error", function() {
+  person = store.find(Person, 1);
+
+  expectState('loaded', false);
+  expectUrl("/people/1", "the plural of the model name with the ID requested");
+  expectType("GET");
+
+  ajaxHash.error({status:  500});
+
+  expectState('error');
+  expectState('dirty', false);
+
+  stop();
+
+  person.then(function(){
+    ok(false, 'should not fulfill');
+    start();
+  }, function(error) {
+    equal(person, error, 'should error');
+    start();
+  });
 });
 
 test("additional data can be sideloaded in a GET", function() {
@@ -1015,6 +1048,7 @@ test("creating a record with a 422 error marks the records as invalid", function
   ajaxHash.error.call(ajaxHash.context, mockXHR);
 
   expectState('valid', false);
+
   deepEqual(person.get('errors'), { name: ["can't be blank"]}, "the person has the errors");
 });
 
@@ -1035,6 +1069,7 @@ test("updating a record with a 422 error marks the records as invalid", function
   ajaxHash.error.call(ajaxHash.context, mockXHR);
 
   expectState('valid', false);
+
   deepEqual(person.get('errors'), { name: ["can't be blank"], updatedAt: ["can't be blank"] }, "the person has the errors");
 });
 

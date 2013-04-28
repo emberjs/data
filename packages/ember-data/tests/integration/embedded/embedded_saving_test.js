@@ -41,12 +41,14 @@ asyncTest("Adding a new embedded record to an unsaved record: Both records use t
     equal(type, 'POST');
     equal(hash.data.post.comments.length, 1);
 
-    setTimeout(function() {
-      hash.success.call(adapter);
-      start();
+    return new Ember.RSVP.Promise(function(resolve, reject){
+      Ember.run.later(function(){
+        start();
+        resolve(hash.data);
+      },0);
     });
-  };
 
+  };
   var transaction = store.transaction();
   var post = transaction.createRecord(Post, {
     title: 'This post is unsaved'
