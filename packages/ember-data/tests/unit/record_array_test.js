@@ -99,6 +99,10 @@ test("a newly created record is removed from a record array when it is deleted",
   scumbag.deleteRecord();
 
   equal(get(recordArray, 'length'), 3, "record is removed from the record array");
+
+  recordArray.objectAt(0).set('name', 'toto');
+
+  equal(get(recordArray, 'length'), 3, "record is still removed from the record array");
 });
 
 test("a record array returns undefined when asking for a member outside of its content Array's range", function() {

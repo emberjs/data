@@ -58,6 +58,8 @@ DS.RecordArrayManager = Ember.Object.extend({
         reference.loadingRecordArrays = [];
       }
     }, this);
+
+    this.changedReferences = [];
   },
 
   /**
