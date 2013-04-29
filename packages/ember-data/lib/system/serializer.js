@@ -1124,7 +1124,11 @@ DS.Serializer = Ember.Object.extend({
   },
 
   _pluralizeAliases: function() {
-    if (this._didPluralizeAliases) { return; }
+    if (this._didPluralizeAliases) { 
+      return; 
+    } else {
+      this._didPluralizeAliases = true;
+    }
 
     var aliases = this.aliases,
         sideloadMapping = this.aliases.sideloadMapping,
@@ -1133,8 +1137,9 @@ DS.Serializer = Ember.Object.extend({
 
     aliases.forEach(function(key, type) {
       plural = self.pluralize(key);
-      Ember.assert("The '" + key + "' alias has already been defined", !aliases.get(plural));
-      aliases.set(plural, type);
+      if (!aliases.get(plural)) {
+        aliases.set(plural, type);
+      }
     });
 
     // This map is only for backward compatibility with the `sideloadAs` option.
@@ -1145,12 +1150,14 @@ DS.Serializer = Ember.Object.extend({
       });
       delete this.aliases.sideloadMapping;
     }
-
-    this._didPluralizeAliases = true;
   },
 
   _reifyAliases: function() {
-    if (this._didReifyAliases) { return; }
+    if (this._didReifyAliases) { 
+      return; 
+    } else {
+      this._didReifyAliases = true;
+    }
 
     var aliases = this.aliases,
         reifiedAliases = Ember.Map.create(),
@@ -1168,11 +1175,14 @@ DS.Serializer = Ember.Object.extend({
     });
 
     this.aliases = reifiedAliases;
-    this._didReifyAliases = true;
   },
 
   _reifyMappings: function() {
-    if (this._didReifyMappings) { return; }
+    if (this._didReifyMappings) { 
+      return; 
+    } else {
+      this._didReifyMappings = true;
+    }
 
     var mappings = this.mappings,
         reifiedMappings = Ember.Map.create();
@@ -1189,12 +1199,14 @@ DS.Serializer = Ember.Object.extend({
     });
 
     this.mappings = reifiedMappings;
-
-    this._didReifyMappings = true;
   },
 
   _reifyConfigurations: function() {
-    if (this._didReifyConfigurations) { return; }
+    if (this._didReifyConfigurations) { 
+      return; 
+    } else {
+      this._didReifyConfigurations = true;
+    }
 
     var configurations = this.configurations,
         reifiedConfigurations = Ember.Map.create();
@@ -1211,8 +1223,6 @@ DS.Serializer = Ember.Object.extend({
     });
 
     this.configurations = reifiedConfigurations;
-
-    this._didReifyConfigurations = true;
   },
 
   mappingOption: function(type, name, option) {
