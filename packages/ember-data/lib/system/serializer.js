@@ -1261,25 +1261,59 @@ DS.Serializer = Ember.Object.extend({
   // special-case pluralization
   pluralize: function(name) {
     var plurals = this.configurations.get('plurals');
-    return (plurals && plurals[name]) || name + "s";
+    return pluralize(name, plurals);
   },
 
   // use the same plurals hash to determine
   // special-case singularization
   singularize: function(name) {
-    var plurals = this.configurations.get('plurals');
+    var plurals = this.configurations.get('plurals'), singulars;
+
     if (plurals) {
+      singulars = {};
       for (var i in plurals) {
-        if (plurals[i] === name) {
-          return i;
-        }
+        singulars[plurals[i]] = i;
       }
     }
-    if (name.lastIndexOf('s') === name.length - 1) {
-      return name.substring(0, name.length - 1);
-    } else {
-      return name;
-    }
+    return singularize(name, singulars);
   },
 });
 
+function pluralize(name, plurals) {
+  return matchName(name, plurals) || matchRules(name, true) || (name + 's');
+}
+
+function singularize(name, singulars) {
+  return matchName(name, singulars) || matchRules(name, false) || name;
+}
+
+function matchName(name, map) {
+  var words, wordToMatch;
+  map = map || {};
+  words = name.split('_');
+  while (words.length > 0) {
+    wordToMatch = words.join('_');
+    if (map[wordToMatch]) {
+      return name.replace(new RegExp(wordToMatch + '$'), map[wordToMatch]);
+    }
+    words.splice(0, 1);
+  }
+  return false;
+}
+
+function matchRules(name, toPlural) {
+  var rules, regex, from, to;
+  rules = { "ay": "ays", "oy": "oys", "uy": "uys", "ey": "eys",
+    "y" : "ies", "sh": "shes", "ch": "ches", "s" : "ses",
+    "x" : "xes", "z" : "zzes", ""  : "s" };
+
+  for (var i in rules) {
+    from = toPlural ? i : rules[i];
+    to = toPlural? rules[i] : i;
+    regex = new RegExp(from + '$');
+    if (name.match(regex)) {
+      return name.replace(regex, to);
+    }
+  }
+  return false;
+}
