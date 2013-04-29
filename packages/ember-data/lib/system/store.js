@@ -50,7 +50,6 @@ var coerceId = function(id) {
   return id == null ? null : id+'';
 };
 
-
 /**
   The store contains all of the data for records loaded from the server.
   It is also responsible for creating instances of DS.Model that wrap
@@ -110,6 +109,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     // internal bookkeeping; not observable
     this.typeMaps = {};
+    this.promiseMap = Ember.Map.create();
     this.recordArrayManager = DS.RecordArrayManager.create({
       store: this
     });
@@ -332,9 +332,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // Set the properties specified on the record.
     record.setProperties(properties);
 
-    // Resolve record promise
-    Ember.run(record, 'resolve', record);
-
     return record;
   },
 
@@ -436,6 +433,25 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
+  */
+  fetch: function(type, id) {
+    var entity = this.find(type, id);
+
+    return this.promiseFor(entity);
+  },
+
+  /**
+  */
+  reloadRecord: function(record) {
+    var type = record.constructor,
+        id = get(record, 'id');
+
+    Ember.assert("You cannot update a record without an ID", id);
+
+    return this.fetchRecord(type, id, record);
+  },
+
+  /**
     @private
 
     This method returns a record for a given type and id combination.
@@ -470,66 +486,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     if (reference.data === LOADING) {
       // let the adapter set the data, possibly async
-      var adapter = this.adapterForType(type),
-          store = this;
-
-      Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
-      Ember.assert("You tried to find a record but your adapter does not implement `find`", adapter.find);
-
-      var thenable = adapter.find(this, type, id);
-
-      if (thenable && thenable.then) {
-        thenable.then(null /* for future use */, function(error) {
-          store.recordWasError(record);
-        });
-      }
-    }
-
-    return record;
-  },
-
-  reloadRecord: function(record) {
-    var type = record.constructor,
-        adapter = this.adapterForType(type),
-        store = this,
-        id = get(record, 'id');
-
-    Ember.assert("You cannot update a record without an ID", id);
-    Ember.assert("You tried to update a record but you have no adapter (for " + type + ")", adapter);
-    Ember.assert("You tried to update a record but your adapter does not implement `find`", adapter.find);
-
-    var thenable = adapter.find(this, type, id);
-
-    if (thenable && thenable.then) {
-      thenable.then(null /* for future use */, function(error) {
-        store.recordWasError(record);
-      });
-    }
-  },
-
-  /**
-    @private
-
-    This method returns a record for a given record refeence.
-
-    If no record for the reference has yet been materialized, this method will
-    materialize a new `DS.Model` instance. This allows adapters to eagerly load
-    large amounts of data into the store, and avoid incurring the cost of
-    creating models until they are requested.
-
-    In short, it's a convenient way to get a record for a known
-    record reference, materializing it if necessary.
-
-    @param {Object} reference
-    @returns {DS.Model}
-  */
-  recordForReference: function(reference) {
-    var record = reference.record;
-
-    if (!record) {
-      // create a new instance of the model type in the
-      // 'isLoading' state
-      record = this.materializeRecord(reference);
+      this.fetchRecord(type, id, record);
     }
 
     return record;
@@ -568,69 +525,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     First, it determines which of its `reference`s are still unloaded,
     then invokes `findMany` on the adapter.
   */
-  fetchUnloadedReferences: function(references, owner) {
+  fetchUnloadedReferences: function(references, owner, manyArray) {
     var unloadedReferences = this.unloadedReferences(references);
-    this.fetchMany(unloadedReferences, owner);
-  },
-
-  /**
-    @private
-
-    This method takes a list of `reference`s, groups the `reference`s by type,
-    converts the `reference`s into IDs, and then invokes the adapter's `findMany`
-    method.
-
-    The `reference`s are grouped by type to invoke `findMany` on adapters
-    for each unique type in `reference`s.
-
-    It is used both by a brand new relationship (via the `findMany`
-    method) or when the data underlying an existing relationship
-    changes (via the `fetchUnloadedReferences` method).
-  */
-  fetchMany: function(references, owner) {
-    if (!references.length) { return; }
-
-    // Group By Type
-    var referencesByTypeMap = Ember.MapWithDefault.create({
-      defaultValue: function() { return Ember.A(); }
-    });
-    forEach(references, function(reference) {
-      referencesByTypeMap.get(reference.type).push(reference);
-    });
-
-    forEach(referencesByTypeMap, function(type) {
-      var references = referencesByTypeMap.get(type),
-          ids = map(references, function(reference) { return reference.id; });
-
-      var adapter = this.adapterForType(type);
-
-      Ember.assert("You tried to load many records but you have no adapter (for " + type + ")", adapter);
-      Ember.assert("You tried to load many records but your adapter does not implement `findMany`", adapter.findMany);
-
-      adapter.findMany(this, type, ids, owner);
-    }, this);
-  },
-
-  hasReferenceForId: function(type, id) {
-    id = coerceId(id);
-
-    return !!this.typeMapFor(type).idToReference[id];
-  },
-
-  referenceForId: function(type, id) {
-    id = coerceId(id);
-
-    // Check to see if we have seen this type/id pair before.
-    var reference = this.typeMapFor(type).idToReference[id];
-
-    // If not, create a reference for it but don't populate it
-    // with any data yet.
-    if (!reference) {
-      reference = this.createReference(type, id);
-      reference.data = UNLOADED;
-    }
-
-    return reference;
+    return this.fetchMany(unloadedReferences, owner, manyArray);
   },
 
   /**
@@ -653,7 +550,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     * ask the adapter to load the unloaded elements, by invoking
       findMany with the still-unloaded IDs.
   */
-  findMany: function(type, idsOrReferencesOrOpaque, record, relationship) {
+  findMany: function(type, idsOrReferences, record, relationship) {
     // 1. Determine which of the client ids need to be loaded
     // 2. Create a new ManyArray whose content is ALL of the clientIds
     // 3. Decrement the ManyArray's counter by the number of loaded clientIds
@@ -661,22 +558,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     //    the needed clientIds
     // 5. Ask the adapter to load the records for the unloaded clientIds (but
     //    convert them back to ids)
-
-    if (!Ember.isArray(idsOrReferencesOrOpaque)) {
-      var adapter = this.adapterForType(type);
-
-      if (adapter && adapter.findHasMany) {
-        adapter.findHasMany(this, record, relationship, idsOrReferencesOrOpaque);
-      } else if (!isNone(idsOrReferencesOrOpaque)) {
-        Ember.assert("You tried to load many records but you have no adapter (for " + type + ")", adapter);
-        Ember.assert("You tried to load many records but your adapter does not implement `findHasMany`", adapter.findHasMany);
-      }
-
+    if (!Ember.isArray(idsOrReferences)) {
       return this.recordArrayManager.createManyArray(type, Ember.A());
     }
 
     // Coerce server IDs into Record Reference
-    var references = map(idsOrReferencesOrOpaque, function(reference) {
+    var references = map(idsOrReferences, function(reference) {
       if (typeof reference !== 'object' && reference !== null) {
         return this.referenceForId(type, reference);
       }
@@ -686,7 +573,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var unloadedReferences = this.unloadedReferences(references),
         manyArray = this.recordArrayManager.createManyArray(type, Ember.A(references)),
-        reference, i, l;
+        thenable, reference, i, l;
 
     // Start the decrementing counter on the ManyArray at the number of
     // records we need to load from the adapter
@@ -703,14 +590,11 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         this.recordArrayManager.registerWaitingRecordArray(manyArray, reference);
       }
 
-      this.fetchMany(unloadedReferences, record);
+      this.fetchMany(unloadedReferences, record, manyArray);
     } else {
       // all requested records are available
       manyArray.set('isLoaded', true);
-
-      Ember.run.once(function() {
-        manyArray.trigger('didLoad');
-      });
+      Ember.run.once(manyArray, 'trigger', 'didLoad');
     }
 
     return manyArray;
@@ -731,13 +615,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {DS.AdapterPopulatedRecordArray}
   */
   findQuery: function(type, query) {
-    var array = DS.AdapterPopulatedRecordArray.create({ type: type, query: query, content: Ember.A([]), store: this });
-    var adapter = this.adapterForType(type);
+    var array = DS.AdapterPopulatedRecordArray.create({
+      type: type,
+      query: query,
+      content: Ember.A([]),
+      store: this
+    });
 
-    Ember.assert("You tried to load a query but you have no adapter (for " + type + ")", adapter);
-    Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", adapter.findQuery);
-
-    adapter.findQuery(this, type, query, array);
+    this.fetchQuery(type, query, array);
 
     return array;
   },
@@ -753,24 +638,149 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {DS.AdapterPopulatedRecordArray}
   */
   findAll: function(type) {
-    return this.fetchAll(type, this.all(type));
+    var array = this.all(type);
+
+    this.fetchAll(type, array);
+
+    return array;
+  },
+
+  // .....................
+  // . ADAPTER INTERFACE .
+  // .....................
+
+  /**
+    @private
+  */
+  fetchRecord: function(type, id, record) {
+    var adapter = this.adapterForType(type);
+
+    Ember.assert("You tried to update a record but you have no adapter (for " + type + ")", adapter);
+    Ember.assert("You tried to update a record but your adapter does not implement `find`", adapter.find);
+
+    var thenable = adapter.find(this, type, id);
+
+    thenable = this.resolveWith(thenable, record);
+    return this.registerPromiseFor(thenable, record);
+  },
+
+  /**
+    @private
+
+    This method takes a list of `reference`s, groups the `reference`s by type,
+    converts the `reference`s into IDs, and then invokes the adapter's `findMany`
+    method.
+
+    The `reference`s are grouped by type to invoke `findMany` on adapters
+    for each unique type in `reference`s.
+
+    It is used both by a brand new relationship (via the `findMany`
+    method) or when the data underlying an existing relationship
+    changes (via the `fetchUnloadedReferences` method).
+  */
+  fetchMany: function(references, owner, manyArray) {
+    if (!references.length) { return Ember.RSVP.resolve(); }
+
+    // Group By Type
+    var referencesByTypeMap = Ember.MapWithDefault.create({
+      defaultValue: function() { return Ember.A(); }
+    });
+    forEach(references, function(reference) {
+      referencesByTypeMap.get(reference.type).push(reference);
+    });
+
+    var thenables = [];
+
+    forEach(referencesByTypeMap, function(type) {
+      var references = referencesByTypeMap.get(type),
+          ids = map(references, function(reference) { return reference.id; });
+
+      var adapter = this.adapterForType(type);
+
+      Ember.assert("You tried to load many records but you have no adapter (for " + type + ")", adapter);
+      Ember.assert("You tried to load many records but your adapter does not implement `findMany`", adapter.findMany);
+
+      var thenable = adapter.findMany(this, type, ids, owner);
+      thenables.push(thenable);
+    }, this);
+
+    var thenable = Ember.RSVP.all(thenables);
+
+    thenable = this.resolveWith(thenable, manyArray);
+    return this.registerPromiseFor(thenable, manyArray);
   },
 
   /**
     @private
   */
   fetchAll: function(type, array) {
+    if (get(array, 'isUpdating')) {
+      return this.promiseFor(array);
+    }
+
     var adapter = this.adapterForType(type),
         sinceToken = this.typeMapFor(type).metadata.since;
-
-    set(array, 'isUpdating', true);
 
     Ember.assert("You tried to load all records but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load all records but your adapter does not implement `findAll`", adapter.findAll);
 
-    adapter.findAll(this, type, sinceToken);
+    set(array, 'isUpdating', true);
+    set(array, 'isError', false);
 
-    return array;
+    var thenable = adapter.findAll(this, type, sinceToken);
+
+    thenable = this.resolveWith(thenable, array);
+    return this.registerPromiseFor(thenable, array);
+  },
+
+  /**
+    @private
+  */
+  fetchQuery: function(type, query, array) {
+    var adapter = this.adapterForType(type);
+
+    Ember.assert("You tried to load a query but you have no adapter (for " + type + ")", adapter);
+    Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", adapter.findQuery);
+
+    var thenable = adapter.findQuery(this, type, query, array);
+
+    thenable = this.resolveWith(thenable, array);
+    return this.registerPromiseFor(thenable, array);
+  },
+
+  /**
+    @private
+  */
+  resolveWith: function(thenable, recordOrArray) {
+    return Ember.RSVP.resolve(thenable).then(function() {
+      return recordOrArray;
+    }, function(error) {
+      recordOrArray.adapterDidError(error);
+      return Ember.RSVP.reject(error);
+    });
+  },
+
+  /**
+    @private
+  */
+  registerPromiseFor: function(promise, recordOrArray) {
+    this.promiseMap.set(recordOrArray, promise);
+    return promise;
+  },
+
+  /**
+    @private
+  */
+  promiseFor: function(recordOrArray) {
+    var promise = this.promiseMap.get(recordOrArray);
+    if (!promise) {
+      if (get(recordOrArray, 'isError')) {
+        promise = Ember.RSVP.reject(recordOrArray);
+      } else {
+        promise = Ember.RSVP.resolve(recordOrArray);
+      }
+    }
+    return promise;
   },
 
   /**
@@ -1044,9 +1054,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
      error.
 
      @param {DS.Model} record
+     @param {any} error
   */
-  recordWasError: function(record) {
-    record.adapterDidError();
+  recordWasError: function(record, error) {
+    record.adapterDidError(error);
   },
 
   /**
@@ -1271,6 +1282,56 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   preprocessData: function(type, data) {
     return this.adapterForType(type).extractId(type, data);
+  },
+
+  /**
+    @private
+
+    This method returns a record for a given record refeence.
+
+    If no record for the reference has yet been materialized, this method will
+    materialize a new `DS.Model` instance. This allows adapters to eagerly load
+    large amounts of data into the store, and avoid incurring the cost of
+    creating models until they are requested.
+
+    In short, it's a convenient way to get a record for a known
+    record reference, materializing it if necessary.
+
+    @param {Object} reference
+    @returns {DS.Model}
+  */
+  recordForReference: function(reference) {
+    var record = reference.record;
+
+    if (!record) {
+      // create a new instance of the model type in the
+      // 'isLoading' state
+      record = this.materializeRecord(reference);
+    }
+
+    return record;
+  },
+
+  hasReferenceForId: function(type, id) {
+    id = coerceId(id);
+
+    return !!this.typeMapFor(type).idToReference[id];
+  },
+
+  referenceForId: function(type, id) {
+    id = coerceId(id);
+
+    // Check to see if we have seen this type/id pair before.
+    var reference = this.typeMapFor(type).idToReference[id];
+
+    // If not, create a reference for it but don't populate it
+    // with any data yet.
+    if (!reference) {
+      reference = this.createReference(type, id);
+      reference.data = UNLOADED;
+    }
+
+    return reference;
   },
 
   /** @private

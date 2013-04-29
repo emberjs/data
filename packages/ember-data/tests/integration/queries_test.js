@@ -26,7 +26,7 @@ test("When a query is made, the adapter should receive a record array it can pop
   expect(8);
 
   adapter.findQuery = function(store, type, query, recordArray) {
-    equal(type, Person, "the find method is called with the correct type");
+    equal(type, Person, "the findQuery method is called with the correct type");
 
     stop();
 
@@ -37,6 +37,7 @@ test("When a query is made, the adapter should receive a record array it can pop
     setTimeout(function() {
       Ember.run(function() {
         self.didFindQuery(store, type, { persons: [{ id: 1, name: "Peter Wagenet" }, { id: 2, name: "Brohuda Katz" }] }, recordArray);
+        start();
       });
     }, 100);
   };
@@ -53,9 +54,7 @@ test("When a query is made, the adapter should receive a record array it can pop
     equal(queryResults.objectAt(1).get('name'), "Brohuda Katz", "the second record is 'Brohuda Katz'");
   });
 
-  queryResults.then(function(resolvedValue) {
-    start();
-
+  store.promiseFor(queryResults).then(function(resolvedValue) {
     equal(resolvedValue, queryResults, "The promise was resolved with the query results");
   });
 });

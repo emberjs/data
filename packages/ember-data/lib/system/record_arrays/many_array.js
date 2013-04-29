@@ -88,7 +88,7 @@ DS.ManyArray = DS.RecordArray.extend({
         store = get(this, 'store'),
         owner = get(this, 'owner');
 
-    store.fetchUnloadedReferences(references, owner);
+    store.fetchUnloadedReferences(references, owner, this);
   },
 
   // Overrides Ember.Array's replace method to implement

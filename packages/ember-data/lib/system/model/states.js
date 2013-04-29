@@ -541,13 +541,6 @@ var states = {
         isReloading: true,
 
         // TRANSITIONS
-        enter: function(manager) {
-          var record = get(manager, 'record'),
-              store = get(record, 'store');
-
-          store.reloadRecord(record);
-        },
-
         exit: function(manager) {
           var record = get(manager, 'record');
 
