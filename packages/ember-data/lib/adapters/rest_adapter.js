@@ -319,6 +319,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   ajax: function(url, type, hash) {
     try {
+      hash = hash || {};
       hash.url = url;
       hash.type = type;
       hash.dataType = 'json';
