@@ -478,7 +478,13 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
       Ember.assert("You tried to find a record but your adapter does not implement `find`", adapter.find);
 
-      adapter.find(this, type, id);
+      var thenable = adapter.find(this, type, id);
+ 
+      if (thenable && thenable.then) {
+        thenable.then(null /* for future use */, function(error){
+          record.send('becameError');
+        });
+      }
     }
 
     return record;
@@ -493,7 +499,13 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to update a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to update a record but your adapter does not implement `find`", adapter.find);
 
-    adapter.find(this, type, id);
+    var thenable = adapter.find(this, type, id);
+
+    if (thenable && thenable.then){ 
+      thenable.then(null /* for future use */, function(error){
+        record.send('becameError');
+      });
+    }
   },
 
   /**
