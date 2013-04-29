@@ -22,15 +22,12 @@ DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
   },
 
   load: function(references) {
-    this.beginPropertyChanges();
-    set(this, 'content', Ember.A(references));
-    set(this, 'isLoaded', true);
-    this.endPropertyChanges();
-
-    var self = this;
-    // TODO: does triggering didLoad event should be the last action of the runLoop?
-    Ember.run.once(function() {
-      self.trigger('didLoad');
+    this.setProperties({
+      content: Ember.A(references),
+      isLoaded: true
     });
+
+    // TODO: does triggering didLoad event should be the last action of the runLoop?
+    Ember.run.once(this, 'trigger', 'didLoad');
   }
 });
