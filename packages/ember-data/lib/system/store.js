@@ -473,16 +473,17 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     if (reference.data === LOADING) {
       // let the adapter set the data, possibly async
-      var adapter = this.adapterForType(type);
+      var adapter = this.adapterForType(type),
+          store = this;
 
       Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
       Ember.assert("You tried to find a record but your adapter does not implement `find`", adapter.find);
 
       var thenable = adapter.find(this, type, id);
- 
+
       if (thenable && thenable.then) {
-        thenable.then(null /* for future use */, function(error){
-          record.send('becameError');
+        thenable.then(null /* for future use */, function(error) {
+          store.recordWasError(record);
         });
       }
     }
@@ -493,6 +494,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   reloadRecord: function(record) {
     var type = record.constructor,
         adapter = this.adapterForType(type),
+        store = this,
         id = get(record, 'id');
 
     Ember.assert("You cannot update a record without an ID", id);
@@ -501,9 +503,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var thenable = adapter.find(this, type, id);
 
-    if (thenable && thenable.then){ 
-      thenable.then(null /* for future use */, function(error){
-        record.send('becameError');
+    if (thenable && thenable.then) {
+      thenable.then(null /* for future use */, function(error) {
+        store.recordWasError(record);
       });
     }
   },
