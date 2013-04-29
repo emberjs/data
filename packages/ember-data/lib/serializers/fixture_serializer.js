@@ -86,7 +86,11 @@ DS.FixtureSerializer = DS.Serializer.extend({
   },
 
   extractBelongsTo: function(type, hash, key) {
-    return hash[key]+'';
+    var val = hash[key];
+    if (val !== null && val !== undefined) {
+      val = val + '';
+    }
+    return val;
   },
 
   extractBelongsToPolymorphic: function(type, hash, key) {
