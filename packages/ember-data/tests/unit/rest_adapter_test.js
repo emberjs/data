@@ -1,23 +1,69 @@
 var get = Ember.get, set = Ember.set;
+var Adapter, Person, Group, Role, adapter, serializer, store, ajaxUrl, ajaxType, ajaxHash;
 
-var adapter, store, serializer, ajaxUrl, ajaxType, ajaxHash, overwriteAjax;
-var Person, person, people;
-var Role, role, roles;
-var Group, group;
+// Used for testing the adapter state path on a single entity
+function stateEquals(entity, expectedState) {
+  var actualState = get(entity, 'stateManager.currentPath');
+
+  actualState = actualState && actualState.replace(/^rootState\./,'');
+  equal(actualState, expectedState, 'Expected state should have been: ' + expectedState+ ' but was: ' +  actualState + ' on: ' + entity);
+}
+
+// Used for testing the adapter state path on a collection of entities
+function statesEqual(entities, expectedState) {
+  entities.forEach(function(entity){
+    stateEquals(entity, expectedState);
+  });
+}
+
+// Used for testing all of the flags on a single entity
+function flagEquals(entity, expectedFlagArr) {
+  var possibleFlags = ['isLoading', 'isLoaded', 'isReloading', 'isDirty', 'isSaving', 'isDeleted', 'isError', 'isNew', 'isValid'];
+
+  possibleFlags.forEach(function(flag){
+    var expectedFlagValue, actualFlagValue;
+
+    expectedFlagValue = expectedFlagArr.indexOf(flag) !== -1;
+    actualFlagValue = entity.get(flag);
+
+    equal(actualFlagValue, expectedFlagValue, 'Expected flag ' + flag + ' should have been: ' + expectedFlagValue + ' but was: ' + actualFlagValue + ' on: '  + entity);
+  });
+}
+
+// Used for testing all of the flags on a collection of entities
+function flagsEqual(entities, expectedFlagArr) {
+  entities.forEach(function(entity){
+    flagEquals(entity, expectedFlagArr);
+  });
+}
+
+// Used for testing a request url to a remote URL
+var expectUrl = function(url, desc) {
+  equal(ajaxUrl, url, "the URL is " + desc);
+};
+
+// Used for testing a request type to a remote URL
+var expectType = function(type) {
+  equal(type, ajaxType, "the HTTP method is " + type);
+};
+
+// Used to test that data is being passed to a remote URL
+var expectData = function(hash) {
+  deepEqual(hash, ajaxHash.data, "the hash was passed along");
+};
 
 module("the REST adapter", {
   setup: function() {
     ajaxUrl = undefined;
     ajaxType = undefined;
     ajaxHash = undefined;
-    overwriteAjax = true;
 
-    var Adapter = DS.RESTAdapter.extend();
+    Adapter = DS.RESTAdapter.extend();
     Adapter.configure('plurals', {
       person: 'people'
     });
 
-    adapter = Adapter.createWithMixins({
+    adapter = Adapter.create({
       ajax: function(url, type, hash) {
         var self = this;
         return new Ember.RSVP.Promise(function(resolve, reject){
@@ -79,80 +125,39 @@ module("the REST adapter", {
     Role.toString = function() {
       return "App.Role";
     };
-  },
-
-  teardown: function() {
-    if (person) {
-      person.destroy();
-      person = null;
-    }
-
-    adapter.destroy();
-    store.destroy();
   }
 });
 
-var expectUrl = function(url, desc) {
-  equal(ajaxUrl, url, "the URL is " + desc);
-};
-
-var expectType = function(type) {
-  equal(type, ajaxType, "the HTTP method is " + type);
-};
-
-var expectData = function(hash) {
-  deepEqual(hash, ajaxHash.data, "the hash was passed along");
-};
-
-var expectState = function(state, value, p) {
-  p = p || person;
-
-  if (value === undefined) { value = true; }
-
-  var flag = "is" + state.charAt(0).toUpperCase() + state.substr(1);
-  equal(get(p, flag), value, "the person is " + (value === false ? "not " : "") + state);
-};
-
-var expectStates = function(state, value) {
-  people.forEach(function(person) {
-    expectState(state, value, person);
-  });
-};
-
 test("Calling ajax() calls JQuery.ajax with json data", function() {
-  var adapter, ajaxHash, oldJQueryAjax = jQuery.ajax;
+  var oldJQueryAjax = jQuery.ajax;
 
   try {
     // replace jQuery.ajax()
     jQuery.ajax = function(hash) {
       ajaxHash = hash;
     };
-
     adapter = DS.RESTAdapter.create();
-
     adapter.ajax('/foo', 'GET', {extra: 'special'});
+
     ok(ajaxHash, 'jQuery.ajax was called');
     equal(ajaxHash.url, '/foo', 'Request URL is the given value');
     equal(ajaxHash.type, 'GET', 'Request method is the given value');
     equal(ajaxHash.dataType, 'json', 'Request data type is JSON');
-    equal(ajaxHash.contentType, undefined, 'Request content type is undefined for GET');
+    equal(ajaxHash.contentType, 'application/json; charset=utf-8', 'Request content type is JSON');
     equal(ajaxHash.context, adapter, 'Request context is the adapter');
     equal(ajaxHash.extra, 'special', 'Extra options are passed through');
 
     adapter.ajax('/foo', 'POST', {});
     ok(!ajaxHash.data, 'Data not set when not provided');
-    equal(ajaxHash.contentType, undefined, 'Request content type is undefined when data is empty');
 
     adapter.ajax('/foo', 'GET', {data: 'unsupported'});
     equal(ajaxHash.data, 'unsupported', 'Data untouched for unsupported methods');
 
     adapter.ajax('/foo', 'POST', {data: {id: 1, name: 'Bar'}});
     equal(ajaxHash.data, JSON.stringify({id: 1, name: 'Bar'}), 'Data serialized for POST requests');
-    equal(ajaxHash.contentType, 'application/json; charset=utf-8', 'Request content type is JSON');
 
     adapter.ajax('/foo', 'PUT', {data: {id: 1, name: 'Bar'}});
     equal(ajaxHash.data, JSON.stringify({id: 1, name: 'Bar'}), 'Data serialized for PUT requests');
-    equal(ajaxHash.contentType, 'application/json; charset=utf-8', 'Request content type is JSON');
 
   } finally {
     // restore jQuery.ajax()
@@ -161,388 +166,494 @@ test("Calling ajax() calls JQuery.ajax with json data", function() {
 });
 
 test("creating a person makes a POST to /people, with the data hash", function() {
-  person = store.createRecord(Person, { name: "Tom Dale" });
+  // setup
+  var person = store.createRecord(Person, { name: "Tom Dale" });
 
-  expectState('new');
+  // test
+  stateEquals(person, 'loaded.created.uncommitted');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
+
+  // setup
   store.commit();
-  expectState('saving');
 
+  // test
+  stateEquals(person, 'loaded.created.inFlight');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isNew', 'isValid', 'isSaving']);
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
   expectData({ person: { name: "Tom Dale", group_id: null } });
 
+  // setup
   ajaxHash.success({ person: { id: 1, name: "Tom Dale" } });
-  expectState('saving', false);
 
+  // test
+  stateEquals(person, 'loaded.saved');
+  flagEquals(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
 });
 
 test("singular creations can sideload data", function() {
+  // setup
+  var person, group;
   person = store.createRecord(Person, { name: "Tom Dale" });
 
-  expectState('new');
-  store.commit();
-  expectState('saving');
+  // test
+  stateEquals(person, 'loaded.created.uncommitted');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
 
+  // setup
+  store.commit();
+
+  // test
+  stateEquals(person, 'loaded.created.inFlight');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
   expectData({ person: { name: "Tom Dale", group_id: null } });
 
+  // setup
   ajaxHash.success({
     person: { id: 1, name: "Tom Dale" },
     groups: [{ id: 1, name: "Group 1" }]
   });
-
-  expectState('saving', false);
-
-  equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
-
   group = store.find(Group, 1);
+
+  // test
+  stateEquals(person, 'loaded.saved');
+  flagEquals(person, ['isLoaded', 'isValid']);
+  equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
 test("updating a person makes a PUT to /people/:id with the data hash", function() {
+  // setup
+  var person;
   store.load(Person, { id: 1, name: "Yehuda Katz" });
-
   person = store.find(Person, 1);
 
-  expectState('new', false);
-  expectState('loaded');
-  expectState('dirty', false);
+  // test
+  stateEquals(person, 'loaded.saved');
+  flagEquals(person, ['isLoaded', 'isValid']);
 
-  set(person, 'name', "Brohuda Brokatz");
+  // setup
+  set(person, 'name', 'Brohuda Brokatz');
 
-  expectState('dirty');
+  // test
+  stateEquals(person, 'loaded.updated.uncommitted');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isValid']);
+
+  // setup
   store.commit();
-  expectState('saving');
 
+  // test
+  stateEquals(person, 'loaded.updated.inFlight');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("PUT");
   expectData({ person: { name: "Brohuda Brokatz", group_id: null } });
 
+  // setup
   ajaxHash.success({ person: { id: 1, name: "Brohuda Brokatz" } });
-  expectState('saving', false);
 
+  // test
+  stateEquals(person, 'loaded.saved');
+  flagEquals(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 1), "the same person is retrieved by the same ID");
   equal(get(person, 'name'), "Brohuda Brokatz", "the hash should be updated");
 });
 
-test("updates are not required to return data", function() {
-  store.load(Person, { id: 1, name: "Yehuda Katz" });
 
+test("updates are not required to return data", function() {
+  // setup
+  var person;
+  store.load(Person, { id: 1, name: "Yehuda Katz" });
   person = store.find(Person, 1);
 
-  expectState('new', false);
-  expectState('loaded');
-  expectState('dirty', false);
+  // test
+  stateEquals(person, 'loaded.saved');
+  flagEquals(person, ['isLoaded', 'isValid']);
 
-  set(person, 'name', "Brohuda Brokatz");
+  // setup
+  set(person, 'name', 'Brohuda Brokatz');
 
-  expectState('dirty');
+  // test
+  stateEquals(person, 'loaded.updated.uncommitted');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isValid']);
+
+  // setup
   store.commit();
-  expectState('saving');
 
+  // test
+  stateEquals(person, 'loaded.updated.inFlight');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("PUT");
 
+  // setup
   ajaxHash.success();
-  expectState('saving', false);
 
+  // test
+  stateEquals(person, 'loaded.saved');
+  flagEquals(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 1), "the same person is retrieved by the same ID");
   equal(get(person, 'name'), "Brohuda Brokatz", "the data is preserved");
 });
 
 test("singular updates can sideload data", function() {
+  // setup
+  var person, group;
   serializer.configure(Group, { sideloadAs: 'groups' });
-
   store.load(Person, { id: 1, name: "Yehuda Katz" });
-
   person = store.find(Person, 1);
 
-  expectState('new', false);
-  expectState('loaded');
-  expectState('dirty', false);
+  // test
+  stateEquals(person, 'loaded.saved');
+  flagEquals(person, ['isLoaded', 'isValid']);
 
+  // setup
   set(person, 'name', "Brohuda Brokatz");
 
-  expectState('dirty');
-  store.commit();
-  expectState('saving');
+  // test
+  stateEquals(person, 'loaded.updated.uncommitted');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isValid']);
 
+  // setup
+  store.commit();
+
+  // test
+  stateEquals(person, 'loaded.updated.inFlight');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("PUT");
 
+  // setup
   ajaxHash.success({
     person: { id: 1, name: "Brohuda Brokatz" },
     groups: [{ id: 1, name: "Group 1" }]
   });
-
-  expectState('saving', false);
-
-  equal(person, store.find(Person, 1), "the same person is retrieved by the same ID");
-
   group = store.find(Group, 1);
+
+  // test
+  stateEquals(person, 'loaded.saved');
+  flagEquals(person, ['isLoaded', 'isValid']);
+  equal(person, store.find(Person, 1), "the same person is retrieved by the same ID");
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
 test("deleting a person makes a DELETE to /people/:id", function() {
+  // setup
+  var person;
   store.load(Person, { id: 1, name: "Tom Dale" });
-
   person = store.find(Person, 1);
 
-  expectState('new', false);
-  expectState('loaded');
-  expectState('dirty', false);
+  // test
+  stateEquals(person, 'loaded.saved');
+  flagEquals(person, ['isLoaded', 'isValid']);
 
+  // setup
   person.deleteRecord();
 
-  expectState('dirty');
-  expectState('deleted');
-  store.commit();
-  expectState('saving');
+  // test
+  stateEquals(person, 'deleted.uncommitted');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isDeleted', 'isValid']);
 
+  // setup
+  store.commit();
+
+  // test
+  stateEquals(person, 'deleted.inFlight');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isDeleted', 'isValid']);
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("DELETE");
 
+  // setup
   ajaxHash.success();
-  expectState('deleted');
+
+  // test
+  stateEquals(person, 'deleted.saved');
+  flagEquals(person, ['isLoaded', 'isDeleted', 'isValid']);
 });
 
 test("singular deletes can sideload data", function() {
+  // setup
+  var person, group;
   serializer.configure(Group, { sideloadAs: 'groups' });
-
   store.load(Person, { id: 1, name: "Tom Dale" });
-
   person = store.find(Person, 1);
 
-  expectState('new', false);
-  expectState('loaded');
-  expectState('dirty', false);
+  // test
+  stateEquals(person, 'loaded.saved');
+  flagEquals(person, ['isLoaded', 'isValid']);
 
+  // setup
   person.deleteRecord();
 
-  expectState('dirty');
-  expectState('deleted');
-  store.commit();
-  expectState('saving');
+  // test
+  stateEquals(person, 'deleted.uncommitted');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isDeleted', 'isValid']);
 
+  // setup
+  store.commit();
+
+  // test
+  stateEquals(person, 'deleted.inFlight');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isDeleted', 'isValid']);
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("DELETE");
 
+  // setup
   ajaxHash.success({
     groups: [{ id: 1, name: "Group 1" }]
   });
-
-  expectState('deleted');
-
   group = store.find(Group, 1);
+
+  // test
+  stateEquals('deleted.saved');
+  flagEquals(person, ['isLoaded', 'isDeleted', 'isValid']);
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
-/*
-test("deleting a record with custom primaryKey", function() {
-  store.load(Role, { _id: 1, name: "Developer" });
-
-  role = store.find(Role, 1);
-
-  role.deleteRecord();
-
-  store.commit();
-
-  expectUrl("/roles/1", "the plural of the model name with its ID");
-  ajaxHash.success();
-});
-*/
-
+// Remove this note -- I am leaving this test broken because it's an interesting case.
+// should store.find(Person) return back an object that will be fulfilled later?
 test("finding all people makes a GET to /people", function() {
+  // setup
+  var person, people;
   people = store.find(Person);
+  person = people.objectAt(0); // how could this work w/o data in the store?
 
+  // test
+  stateEquals(people, 'loading.inFlight');
+  stateEquals(person, 'loading.inFlight');
+  flagEquals(people, ['isLoading', 'isValid']);
+  flagEquals(person, ['isLoading', 'isValid']);
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
 
+  // setup
   ajaxHash.success({ people: [{ id: 1, name: "Yehuda Katz" }] });
 
-  person = people.objectAt(0);
-
-  expectState('loaded');
-  expectState('dirty', false);
-
+  // test
+  statesEqual(people, 'loaded.saved');
+  stateEquals(person, 'loaded.saved');
+  flagsEqual(people, ['isLoaded', 'isValid']);
+  flagEquals(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
 test("finding all can sideload data", function() {
-  var groups = store.find(Group);
+  // setup
+  var groups, person, people;
+  groups = store.find(Group);
 
+  // test
+  stateEquals(groups, 'loading.inFlight');
+  flagEquals(groups, ['isLoading', 'isLoaded', 'isValid']);
   expectUrl("/groups", "the plural of the model name");
   expectType("GET");
 
+  // setup
   ajaxHash.success({
     groups: [{ id: 1, name: "Group 1", person_ids: [ 1 ] }],
     people: [{ id: 1, name: "Yehuda Katz" }]
   });
-
   people = get(groups.objectAt(0), 'people');
   person = people.objectAt(0);
 
-  expectState('loaded');
-  expectState('dirty', false);
-
+  // test
+  stateEquals(groups, 'loaded.saved');
+  stateEquals(people, 'loaded.saved');
+  stateEquals(person, 'loaded.saved');
+  flagEquals(groups, ['isLoaded', 'isValid']);
+  flagEquals(people, ['isLoaded', 'isValid']);
+  flagEquals(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
 test("finding all people with since makes a GET to /people", function() {
+  // setup
+  var people, person;
   people = store.find(Person);
 
+  // test
+  stateEquals(people, 'loading.inFlight');
+  flagEquals(people, ['isLoading', 'isLoaded', 'isValid']);
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
 
+  // setup
   ajaxHash.success({ meta: { since: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
-
   people = store.find(Person);
 
+  // test
+  stateEquals(people, 'loaded.saved');
+  flagEquals(people, ['isLoaded', 'isValid']);
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
   expectData({since: '123'});
 
+  // setup
   ajaxHash.success({ meta: { since: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
-
   person = people.objectAt(1);
 
-  expectState('loaded');
-  expectState('dirty', false);
-
+  // test
+  stateEquals(people, 'loaded.saved');
+  stateEquals(person, 'loaded.saved');
+  flagEquals(people, ['isLoaded', 'isValid']);
+  flagEquals(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 2), "the record is now in the store, and can be looked up by ID without another Ajax request");
 
+  // setup
   people.update();
 
+  // test
+  stateEquals(people, 'loaded.saved');
+  stateEquals(person, 'loaded.saved');
+  flagEquals(people, ['isLoaded', 'isReloading', 'isValid']);
+  flagEquals(person, ['isLoaded', 'isValid']);
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
   expectData({since: '1234'});
 
+  // setup
   ajaxHash.success({ meta: { since: '12345'}, people: [{ id: 3, name: "Dan Gebhardt" }] });
 
+  // test
+  stateEquals(people, 'loaded.saved');
+  stateEquals(person, 'loaded.saved');
+  flagEquals(people, ['isLoaded', 'isValid']);
+  flagEquals(person, ['isLoaded', 'isValid']);
   equal(people.get('length'), 3, 'should have 3 records now');
 });
 
 test("meta and since are configurable", function() {
+  // setup
+  var people, person;
   serializer.configure({
     meta: 'metaObject',
     since: 'sinceToken'
   });
-
   set(adapter, 'since', 'lastToken');
-
   people = store.find(Person);
 
+  // test
+  stateEquals(people, 'loading.inFlight');
+  flagEquals(people, ['isLoading', 'isLoaded', 'isValid']);
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
 
+  // setup
   ajaxHash.success({ metaObject: {sinceToken: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
 
+  // test
+  stateEquals(people, 'loaded.saved');
+  flagEquals(people, ['isLoaded', 'isValid']);
+
+  // setup
   people.update();
 
+  // test
+  stateEquals(people, 'loading.inFlight');
+  flagEquals(people, ['isLoading', 'isLoaded', 'isReloading', 'isValid']);
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
   expectData({lastToken: '123'});
 
+  // setup
   ajaxHash.success({ metaObject: {sinceToken: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
-
   person = people.objectAt(1);
 
-  expectState('loaded');
-  expectState('dirty', false);
-
+  // test
+  stateEquals(people, 'loaded.saved');
+  stateEquals(person, 'loaded.saved');
+  flagEquals(people, ['isLoaded', 'isValid']);
+  flagEquals(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 2), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
 test("finding a person by ID makes a GET to /people/:id", function() {
-  person = store.find(Person, 1);
+  // setup
+  var person = store.find(Person, 1);
 
-  expectState('loaded', false);
+  // test
+  stateEquals(person, 'loading');
+  flagEquals(person, ['isLoading', 'isValid']);
   expectUrl("/people/1", "the plural of the model name with the ID requested");
   expectType("GET");
 
+  // setup
   ajaxHash.success({ person: { id: 1, name: "Yehuda Katz" } });
 
-  expectState('loaded');
-  expectState('dirty', false);
-
+  // test
+  stateEquals(person, 'loaded.saved');
+  flagEquals(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
-test("finding a person by ID makes a GET to /people/:id", function() {
-  person = store.find(Person, 1);
+test("finding a person by an ID-alias populates the store", function() {
+  // setup
+  var person = store.find(Person, 'me');
 
-  expectState('loaded', false);
-  expectUrl("/people/1", "the plural of the model name with the ID requested");
+  // test
+  stateEquals(person, 'loading');
+  flagEquals(person, ['isLoading', 'isValid']);
+  expectUrl("/people/me", "the plural of the model name with the ID requested");
   expectType("GET");
 
+  // setup
   ajaxHash.success({ person: { id: 1, name: "Yehuda Katz" } });
 
-  expectState('loaded');
-  expectState('dirty', false);
-
-  equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
-});
-
-test("attempting to find a record that result in a non-200 status error marks the record as error", function() {
-  person = store.find(Person, 1);
-
-  expectState('loaded', false);
-  expectUrl("/people/1", "the plural of the model name with the ID requested");
-  expectType("GET");
-
-  ajaxHash.error({status:  500});
-
-  expectState('error');
-  expectState('dirty', false);
-
-  stop();
-
-  person.then(function(){
-    ok(false, 'should not fulfill');
-    start();
-  }, function(error) {
-    equal(person, error, 'should error');
-    start();
-  });
+  // test
+  stateEquals(person, 'loaded.saved');
+  flagEquals(person, ['isLoaded', 'isValid']);
+  equal(person, store.find(Person, 'me'), "the record is now in the store, and can be looked up by the alias without another Ajax request");
 });
 
 test("additional data can be sideloaded in a GET", function() {
-  group = store.find(Group, 1);
+  // setup
+  var group = store.find(Group, 1);
 
+  // test
+  stateEquals(group, 'loading');
+  flagEquals(group, ['isLoading', 'isValid']);
+
+  // setup
   ajaxHash.success({
-    group: {
-      id: 1, name: "Group 1", person_ids: [ 1 ]
-    },
-    people: [{
-      id: 1, name: "Yehuda Katz"
-    }]
+    group: {id: 1, name: "Group 1", person_ids: [1] },
+    people: [{id: 1, name: "Yehuda Katz"}]
   });
 
+  // test
+  stateEquals(group, 'loaded.saved');
+  flagEquals(group, ['isLoaded', 'isValid']);
   equal(get(store.find(Person, 1), 'name'), "Yehuda Katz", "the items are sideloaded");
   equal(get(get(store.find(Group, 1), 'people').objectAt(0), 'name'), "Yehuda Katz", "the items are in the relationship");
 });
 
 test("finding many people by a list of IDs", function() {
+  // setup
+  var group, people, rein, tom, yehuda;
   store.load(Group, { id: 1, person_ids: [ 1, 2, 3 ] });
+  group = store.find(Group, 1);
 
-  var group = store.find(Group, 1);
-
+  // test
+  stateEquals(group, 'loaded.saved');
+  flagEquals(group, ['isLoaded', 'isValid']);
   equal(ajaxUrl, undefined, "no Ajax calls have been made yet");
 
-  var people = get(group, 'people');
+  // setup
+  people = get(group, 'people');
 
+  // test
+  stateEquals(group, 'loaded.saved');
+  stateEquals(people, 'loaded.saved');
+  flagEquals(group, ['isLoaded', 'isValid']);
+  flagEquals(people, ['isValid']);
   equal(get(people, 'length'), 3, "there are three people in the relationship already");
-
-  people.forEach(function(person) {
-    equal(get(person, 'isLoaded'), false, "the person is being loaded");
-  });
-
   expectUrl("/people");
   expectType("GET");
   expectData({ ids: [ 1, 2, 3 ] });
 
+  // setup
   ajaxHash.success({
     people: [
       { id: 1, name: "Rein Heinrichs" },
@@ -550,31 +661,39 @@ test("finding many people by a list of IDs", function() {
       { id: 3, name: "Yehuda Katz" }
     ]
   });
+  rein = people.objectAt(0);
+  tom = people.objectAt(1);
+  yehuda = people.objectAt(2);
 
-  var rein = people.objectAt(0);
+  // test
+  stateEquals(group, 'loaded.saved');
+  stateEquals(people, 'loaded.saved');
+  statesEqual([rein, tom, yehuda], 'loaded.saved');
+  flagEquals(group, ['isLoaded', 'isValid']);
+  flagEquals(people, ['isLoaded', 'isValid']);
+  flagsEqual([rein, tom, yehuda], ['isLoaded', 'isValid']);
   equal(get(rein, 'name'), "Rein Heinrichs");
-  equal(get(rein, 'id'), 1);
-
-  var tom = people.objectAt(1);
   equal(get(tom, 'name'), "Tom Dale");
-  equal(get(tom, 'id'), 2);
-
-  var yehuda = people.objectAt(2);
   equal(get(yehuda, 'name'), "Yehuda Katz");
+  equal(get(rein, 'id'), 1);
+  equal(get(tom, 'id'), 2);
   equal(get(yehuda, 'id'), 3);
-
-  people.forEach(function(person) {
-    equal(get(person, 'isLoaded'), true, "the person is being loaded");
-  });
 });
 
 test("finding many people by a list of IDs doesn't rely on the returned array order matching the passed list of ids", function() {
+  // setup
+  var group, people, rein, tom, yehuda;
   store.load(Group, { id: 1, person_ids: [ 1, 2, 3 ] });
+  group = store.find(Group, 1);
+  people = get(group, 'people');
 
-  var group = store.find(Group, 1);
+  // test
+  stateEquals(group, 'loaded.saved');
+  stateEquals(people, 'loaded.saved');
+  flagEquals(group, ['isLoaded', 'isValid']);
+  flagEquals(people, ['isValid']);
 
-  var people = get(group, 'people');
-
+  // setup
   ajaxHash.success({
     people: [
       { id: 2, name: "Tom Dale" },
@@ -582,37 +701,47 @@ test("finding many people by a list of IDs doesn't rely on the returned array or
       { id: 3, name: "Yehuda Katz" }
     ]
   });
+  rein = people.objectAt(0);
+  tom = people.objectAt(1);
+  yehuda = people.objectAt(2);
 
-  var rein = people.objectAt(0);
+  // test
+  stateEquals(group, 'loaded.saved');
+  stateEquals(people, 'loaded.saved');
+  statesEqual([rein, tom, yehuda], 'loaded.saved');
+  flagEquals(group, ['isLoaded', 'isValid']);
+  flagEquals(people, ['isLoaded', 'isValid']);
+  flagsEqual([rein, tom, yehuda], ['isLoaded', 'isValid']);
   equal(get(rein, 'name'), "Rein Heinrichs");
-  equal(get(rein, 'id'), 1);
-
-  var tom = people.objectAt(1);
   equal(get(tom, 'name'), "Tom Dale");
-  equal(get(tom, 'id'), 2);
-
-  var yehuda = people.objectAt(2);
   equal(get(yehuda, 'name'), "Yehuda Katz");
+  equal(get(rein, 'id'), 1);
+  equal(get(tom, 'id'), 2);
   equal(get(yehuda, 'id'), 3);
-
 });
 
 test("additional data can be sideloaded in a GET with many IDs", function() {
-  //store.load(Group, { id: 1, people: [ 1, 2, 3 ] });
+  // setup
+  var groups, people, rein, tom, yehuda;
 
+  // test
   equal(ajaxUrl, undefined, "no Ajax calls have been made yet");
 
-  // findMany is used here even though it is not normally public to test the
-  // functionality.
-  var groups = store.findMany(Group, [ 1 ]);
-  var group = groups.objectAt(0);
+  // setup
+  // findMany is used here even though it is not normally public to test the functionality.
+  groups = store.findMany(Group, [ 1 ]);
+  rein = groups.objectAt(0);
 
-  equal(get(group, 'isLoaded'), false, "the group is being loaded");
-
+  // test
+  stateEquals(groups, 'loading');
+  stateEquals(rein, 'loading');
+  flagEquals(groups, ['isLoading', 'isValid']);
+  flagEquals(rein, ['isLoading', 'isValid']);
   expectUrl("/groups");
   expectType("GET");
   expectData({ ids: [ 1 ] });
 
+  // setup
   ajaxHash.success({
     groups: [
       { id: 1, person_ids: [ 1, 2, 3 ] }
@@ -623,36 +752,39 @@ test("additional data can be sideloaded in a GET with many IDs", function() {
       { id: 3, name: "Yehuda Katz" }
     ]
   });
+  people = get(groups, 'people');
+  rein = people.objectAt(0);
+  tom = people.objectAt(1);
+  yehuda = people.objectAt(2);
 
-  var people = get(group, 'people');
+  // test
+  stateEquals(people, 'loaded.saved');
+  statesEqual([rein, tom, yehuda], 'loaded.saved');
+  flagEquals(people, ['isLoaded', 'isValid']);
+  flagsEqual([rein, tom, yehuda], ['isLoaded', 'isValid']);
   equal(get(people, 'length'), 3, "the people have length");
-
-  var rein = people.objectAt(0);
   equal(get(rein, 'name'), "Rein Heinrichs");
-  equal(get(rein, 'id'), 1);
-
-  var tom = people.objectAt(1);
   equal(get(tom, 'name'), "Tom Dale");
-  equal(get(tom, 'id'), 2);
-
-  var yehuda = people.objectAt(2);
   equal(get(yehuda, 'name'), "Yehuda Katz");
+  equal(get(rein, 'id'), 1);
+  equal(get(tom, 'id'), 2);
   equal(get(yehuda, 'id'), 3);
-
-  people.forEach(function(person) {
-    equal(get(person, 'isLoaded'), true, "the person is being loaded");
-  });
 });
 
 test("finding people by a query", function() {
-  var people = store.find(Person, { page: 1 });
+  // setup
+  var people, rein, tom, yehuda;
+  people = store.find(Person, { page: 1 });
 
+  // test
   equal(get(people, 'length'), 0, "there are no people yet, as the query has not returned");
-
+  stateEquals(people, 'loading.inFlight');
+  flagEquals(people, ['isLoading', 'isValid']);
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("GET");
   expectData({ page: 1 });
 
+  // setup
   ajaxHash.success({
     people: [
       { id: 1, name: "Rein Heinrichs" },
@@ -660,35 +792,38 @@ test("finding people by a query", function() {
       { id: 3, name: "Yehuda Katz" }
     ]
   });
+  rein = people.objectAt(0);
+  tom = people.objectAt(1);
+  yehuda = people.objectAt(2);
 
+  // test
+  stateEquals(people, 'loaded.saved');
+  statesEqual([rein, tom, yehuda], 'loaded.saved');
+  flagEquals(people, ['isLoaded', 'isValid']);
+  flagsEqual([rein, tom, yehuda], ['isLoaded', 'isValid']);
   equal(get(people, 'length'), 3, "the people are now loaded");
-
-  var rein = people.objectAt(0);
   equal(get(rein, 'name'), "Rein Heinrichs");
-  equal(get(rein, 'id'), 1);
-
-  var tom = people.objectAt(1);
   equal(get(tom, 'name'), "Tom Dale");
-  equal(get(tom, 'id'), 2);
-
-  var yehuda = people.objectAt(2);
   equal(get(yehuda, 'name'), "Yehuda Katz");
+  equal(get(rein, 'id'), 1);
+  equal(get(tom, 'id'), 2);
   equal(get(yehuda, 'id'), 3);
-
-  people.forEach(function(person) {
-    equal(get(person, 'isLoaded'), true, "the person is being loaded");
-  });
 });
 
 test("finding people by a query can sideload data", function() {
-  var groups = store.find(Group, { page: 1 });
+  // setup
+  var groups, group, people, rein, tom, yehuda;
+  groups = store.find(Group, { page: 1 });
 
+  // test
   equal(get(groups, 'length'), 0, "there are no groups yet, as the query has not returned");
-
+  stateEquals(groups, 'loading.inFlight');
+  flagEquals(groups, ['isLoading', 'isValid']);
   expectUrl("/groups", "the collection at the plural of the model name");
   expectType("GET");
   expectData({ page: 1 });
 
+  // setup
   ajaxHash.success({
     groups: [
       { id: 1, name: "Group 1", person_ids: [ 1, 2, 3 ] }
@@ -699,153 +834,195 @@ test("finding people by a query can sideload data", function() {
       { id: 3, name: "Yehuda Katz" }
     ]
   });
+  group = groups.objectAt(0);
+  people = get(group, 'people');
 
-  var group = groups.objectAt(0);
-  var people = get(group, 'people');
-
+  // test
   equal(get(people, 'length'), 3, "the people are now loaded");
+  stateEquals(groups, 'loaded.saved');
+  stateEquals(group, 'loaded.saved');
+  stateEquals(people, 'loaded.saved');
+  flagEquals(groups, ['isLoading', 'isLoaded', 'isValid']);
+  flagEquals(group, ['isLoaded', 'isValid']);
+  flagEquals(people, ['isLoaded', 'isValid']);
 
-  var rein = people.objectAt(0);
+  // setup
+  rein = people.objectAt(0);
+  tom = people.objectAt(1);
+  yehuda = people.objectAt(2);
+
+  // test
   equal(get(rein, 'name'), "Rein Heinrichs");
-  equal(get(rein, 'id'), 1);
-
-  var tom = people.objectAt(1);
   equal(get(tom, 'name'), "Tom Dale");
-  equal(get(tom, 'id'), 2);
-
-  var yehuda = people.objectAt(2);
   equal(get(yehuda, 'name'), "Yehuda Katz");
+  equal(get(rein, 'id'), 1);
+  equal(get(tom, 'id'), 2);
   equal(get(yehuda, 'id'), 3);
-
-  people.forEach(function(person) {
-    equal(get(person, 'isLoaded'), true, "the person is being loaded");
-  });
+  stateEquals(groups, 'loaded.saved');
+  stateEquals(group, 'loaded.saved');
+  stateEquals(people, 'loaded.saved');
+  statesEqual([rein, tom, yehuda], 'loaded.saved');
+  flagEquals(groups, ['isLoaded', 'isValid']);
+  flagEquals(group, ['isLoaded', 'isValid']);
+  flagEquals(people, ['isLoaded', 'isValid']);
+  flagsEqual([rein, tom, yehuda], ['isLoaded', 'isValid']);
 });
 
 test("creating several people (with bulkCommit) makes a POST to /people, with a data hash Array", function() {
+  // setup
+  var tom, yehuda, people;
   set(adapter, 'bulkCommit', true);
-
-  var tom = store.createRecord(Person, { name: "Tom Dale" });
-  var yehuda = store.createRecord(Person, { name: "Yehuda Katz" });
-
+  tom = store.createRecord(Person, { name: "Tom Dale" });
+  yehuda = store.createRecord(Person, { name: "Yehuda Katz" });
   people = [ tom, yehuda ];
 
-  expectStates('new');
-  store.commit();
-  expectStates('saving');
+  // test
+  statesEqual(people, 'loaded.created.uncommitted');
+  flagsEqual(people, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
 
+  // setup
+  store.commit();
+
+  // test
+  statesEqual(people, 'loaded.created.inFlight');
+  flagsEqual(people, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
   expectData({ people: [ { name: "Tom Dale", group_id: null }, { name: "Yehuda Katz", group_id: null } ] });
 
+  // setup
   ajaxHash.success({ people: [ { id: 1, name: "Tom Dale" }, { id: 2, name: "Yehuda Katz" } ] });
-  expectStates('saving', false);
 
+  // test
+  statesEqual(people, 'loaded.saved');
+  flagsEqual(people, ['isLoaded', 'isValid']);
   equal(tom, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
   equal(yehuda, store.find(Person, 2), "it is now possible to retrieve the person by the ID supplied");
 });
 
 test("bulk commits can sideload data", function() {
+  // setup
+  var tom, yehuda, people, group;
   set(adapter, 'bulkCommit', true);
-
-  var tom = store.createRecord(Person, { name: "Tom Dale" });
-  var yehuda = store.createRecord(Person, { name: "Yehuda Katz" });
-
+  tom = store.createRecord(Person, { name: "Tom Dale" });
+  yehuda = store.createRecord(Person, { name: "Yehuda Katz" });
   serializer.configure(Group, { sideloadAs: 'groups' });
-
   people = [ tom, yehuda ];
 
-  expectStates('new');
-  store.commit();
-  expectStates('saving');
+  // test
+  statesEqual(people, 'loaded.created.uncommitted');
+  flagsEqual(people, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
 
+  // setup
+  store.commit();
+
+  // test
+  statesEqual(people, 'loaded.created.inFlight');
+  flagsEqual(people, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
   expectData({ people: [ { name: "Tom Dale", group_id: null }, { name: "Yehuda Katz", group_id: null } ] });
 
+  // setup
   ajaxHash.success({
     people: [ { id: 1, name: "Tom Dale" }, { id: 2, name: "Yehuda Katz" } ],
     groups: [ { id: 1, name: "Group 1" } ]
   });
+  group = store.find(Group, 1);
 
-  expectStates('saving', false);
-
+  // test
+  stateEquals(group, 'loaded.saved');
+  statesEqual(people, 'loaded.saved');
+  flagEquals(group, ['isLoaded', 'isValid']);
+  flagsEqual(people, ['isLoaded', 'isValid']);
   equal(tom, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
   equal(yehuda, store.find(Person, 2), "it is now possible to retrieve the person by the ID supplied");
-
-  group = store.find(Group, 1);
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
 test("updating several people (with bulkCommit) makes a PUT to /people/bulk with the data hash Array", function() {
+  // setup
+  var yehuda, carl, people;
   set(adapter, 'bulkCommit', true);
-
   store.loadMany(Person, [
     { id: 1, name: "Yehuda Katz" },
     { id: 2, name: "Carl Lerche" }
   ]);
-
-  var yehuda = store.find(Person, 1);
-  var carl = store.find(Person, 2);
-
+  yehuda = store.find(Person, 1);
+  carl = store.find(Person, 2);
   people = [ yehuda, carl ];
 
-  expectStates('new', false);
-  expectStates('loaded');
-  expectStates('dirty', false);
+  // test
+  statesEqual(people, 'loaded.saved');
+  flagsEqual(people, ['isLoaded', 'isValid']);
 
+  // setup
   set(yehuda, 'name', "Brohuda Brokatz");
   set(carl, 'name', "Brocarl Brolerche");
 
-  expectStates('dirty');
-  store.commit();
-  expectStates('saving');
+  // test
+  statesEqual(people, 'loaded.updated.uncommitted');
+  flagsEqual(people, ['isLoaded', 'isDirty', 'isValid']);
 
+  // setup
+  store.commit();
+
+  // test
+  statesEqual(people, 'loaded.updated.inFlight');
+  flagsEqual(people, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
   expectData({ people: [{ id: 1, name: "Brohuda Brokatz", group_id: null }, { id: 2, name: "Brocarl Brolerche", group_id: null }] });
 
+  // setup
   ajaxHash.success({ people: [
     { id: 1, name: "Brohuda Brokatz" },
     { id: 2, name: "Brocarl Brolerche" }
   ]});
 
-  expectStates('saving', false);
-
+  // test
+  statesEqual(people, 'loaded.saved');
+  flagsEqual(people, ['isLoaded', 'isValid']);
   equal(yehuda, store.find(Person, 1), "the same person is retrieved by the same ID");
   equal(carl, store.find(Person, 2), "the same person is retrieved by the same ID");
 });
 
 test("bulk updates can sideload data", function() {
+  // setup
+  var people, yehuda, carl, group;
   set(adapter, 'bulkCommit', true);
-
   serializer.configure(Group, { sideloadAs: 'groups' });
-
   store.loadMany(Person, [
     { id: 1, name: "Yehuda Katz" },
     { id: 2, name: "Carl Lerche" }
   ]);
-
-  var yehuda = store.find(Person, 1);
-  var carl = store.find(Person, 2);
-
+  yehuda = store.find(Person, 1);
+  carl = store.find(Person, 2);
   people = [ yehuda, carl ];
 
-  expectStates('new', false);
-  expectStates('loaded');
-  expectStates('dirty', false);
+  // test
+  statesEqual(people, 'loaded.saved');
+  flagsEqual(people, ['isLoaded', 'isValid']);
 
+  // setup
   set(yehuda, 'name', "Brohuda Brokatz");
   set(carl, 'name', "Brocarl Brolerche");
 
-  expectStates('dirty');
-  store.commit();
-  expectStates('saving');
+  // test
+  statesEqual(people, 'loaded.updated.uncommitted');
+  flagsEqual(people, ['isLoaded', 'isDirty', 'isValid']);
 
+  // setup
+  store.commit();
+
+  // test
+  statesEqual(people, 'loaded.updated.inFlight');
+  flagsEqual(people, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
   expectData({ people: [{ id: 1, name: "Brohuda Brokatz", group_id: null }, { id: 2, name: "Brocarl Brolerche", group_id: null }] });
 
+  // setup
   ajaxHash.success({
     people: [
       { id: 1, name: "Brohuda Brokatz" },
@@ -853,127 +1030,151 @@ test("bulk updates can sideload data", function() {
     ],
     groups: [{ id: 1, name: "Group 1" }]
   });
+  group = store.find(Group, 1);
 
-  expectStates('saving', false);
-
+  // test
+  statesEqual(people, 'loaded.saved');
+  stateEquals(group, 'loaded.saved');
+  flagsEqual(people, ['isLoaded', 'isValid']);
+  flagEquals(group, ['isLoaded', 'isValid']);
   equal(yehuda, store.find(Person, 1), "the same person is retrieved by the same ID");
   equal(carl, store.find(Person, 2), "the same person is retrieved by the same ID");
-
-  group = store.find(Group, 1);
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
 test("deleting several people (with bulkCommit) makes a DELETE to /people/bulk", function() {
+  // setup
+  var yehuda, carl, people;
   set(adapter, 'bulkCommit', true);
-
   store.loadMany(Person, [
     { id: 1, name: "Yehuda Katz" },
     { id: 2, name: "Carl Lerche" }
   ]);
-
-  var yehuda = store.find(Person, 1);
-  var carl = store.find(Person, 2);
-
+  yehuda = store.find(Person, 1);
+  carl = store.find(Person, 2);
   people = [ yehuda, carl ];
 
-  expectStates('new', false);
-  expectStates('loaded');
-  expectStates('dirty', false);
+  // test
+  statesEqual(people, 'loaded.saved');
+  flagsEqual(people, ['isLoaded', 'isValid']);
 
+  // setup
   yehuda.deleteRecord();
   carl.deleteRecord();
 
-  expectStates('dirty');
-  expectStates('deleted');
-  store.commit();
-  expectStates('saving');
+  // test
+  statesEqual(people, 'deleted.uncommitted');
+  flagsEqual(people, ['isLoaded', 'isDirty', 'isDeleted', 'isValid']);
 
+  // setup
+  store.commit();
+
+  // test
+  statesEqual(people, 'deleted.inFlight');
+  flagsEqual(people, ['isLoaded', 'isDirty', 'isSaving', 'isDeleted', 'isValid']);
   expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
   expectType("DELETE");
   expectData({ people: [1, 2] });
 
+  // setup
   ajaxHash.success();
 
-  expectStates('saving', false);
-  expectStates('deleted');
-  expectStates('dirty', false);
+  // test
+  statesEqual(people, 'deleted.saved');
+  flagsEqual(people, ['isLoaded', 'isDeleted', 'isValid']);
 });
 
 test("bulk deletes can sideload data", function() {
+  // setup
+  var yehuda, carl, people, group;
   set(adapter, 'bulkCommit', true);
-
   serializer.configure(Group, { sideloadAs: 'groups' });
-
   store.loadMany(Person, [
     { id: 1, name: "Yehuda Katz" },
     { id: 2, name: "Carl Lerche" }
   ]);
-
-  var yehuda = store.find(Person, 1);
-  var carl = store.find(Person, 2);
-
+  yehuda = store.find(Person, 1);
+  carl = store.find(Person, 2);
   people = [ yehuda, carl ];
 
-  expectStates('new', false);
-  expectStates('loaded');
-  expectStates('dirty', false);
+  // test
+  statesEqual(people, 'loaded.saved');
+  flagsEqual(people, ['isLoaded', 'isValid']);
 
+  // setup
   yehuda.deleteRecord();
   carl.deleteRecord();
 
-  expectStates('dirty');
-  expectStates('deleted');
-  store.commit();
-  expectStates('saving');
+  // test
+  statesEqual(people, 'deleted.uncommitted');
+  flagsEqual(people, ['isLoaded', 'isDirty', 'isDeleted', 'isValid']);
 
+  // setup
+  store.commit();
+
+  // test
+  statesEqual(people, 'deleted.inFlight');
+  flagsEqual(people, ['isLoaded', 'isDirty', 'isSaving', 'isDeleted', 'isValid']);
   expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
   expectType("DELETE");
   expectData({ people: [1, 2] });
 
+  // setup
   ajaxHash.success({
     groups: [{ id: 1, name: "Group 1" }]
   });
-
-  expectStates('saving', false);
-  expectStates('deleted');
-  expectStates('dirty', false);
-
   group = store.find(Group, 1);
+
+  // test
+  statesEqual(people, 'deleted.saved');
+  stateEquals(group, 'loaded.saved');
+  flagsEqual(people, ['isLoaded', 'isDeleted', 'isValid']);
+  flagEquals(group, ['isLoaded', 'isValid']);
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
 test("if you specify a namespace then it is prepended onto all URLs", function() {
+  // setup
+  var person;
   set(adapter, 'namespace', 'ember');
   person = store.find(Person, 1);
-  expectUrl("/ember/people/1", "the namespace, followed by the plural of the model name and the id");
 
-  store.load(Person, { id: 1 });
+  // test
+  expectUrl("/ember/people/1", "the namespace, followed by the plural of the model name and the id");
 });
 
 test("if you specify a url then that custom url is used", function() {
+  // setup
+  var person;
   set(adapter, 'url', 'http://api.ember.dev');
   person = store.find(Person, 1);
-  expectUrl("http://api.ember.dev/people/1", "the custom url, followed by the plural of the model name and the id");
 
-  store.load(Person, { id: 1 });
+  // test
+  expectUrl("http://api.ember.dev/people/1", "the custom url, followed by the plural of the model name and the id");
 });
 
 test("sideloaded data is loaded prior to primary data (to ensure relationship coherence)", function() {
+  // setup
   expect(1);
-
+  var group;
   group = store.find(Group, 1);
+  stop();
   group.then(function(group) {
+    start();
+
+    // test
+    // note async
     equal(group.get('people.firstObject').get('name'), "Tom Dale", "sideloaded data are already loaded");
   });
 
-  ajaxHash.success({
-    people: [
-      { id: 1, name: "Tom Dale" }
-    ],
+  // setup
+ ajaxHash.success({
+    people: [{ id: 1, name: "Tom Dale" }],
     group: { id: 1, name: "Tilde team", person_ids: [1] }
   });
 });
 
+// !!!: This test is written weird -- no aysnc, but ops happen after the assertion
 test("additional data can be sideloaded with relationships in correct order", function() {
   var Comment = DS.Model.extend({
     person: DS.belongsTo(Person)
@@ -1001,110 +1202,178 @@ test("additional data can be sideloaded with relationships in correct order", fu
 });
 
 test("data loaded from the server is converted from underscores to camelcase", function() {
+  // setup
+  var person;
   Person.reopen({
     lastName: DS.attr('string')
   });
-
   store.load(Person, { id: 1, name: "Tom", last_name: "Dale" });
+  person = store.find(Person, 1);
 
-  var person = store.find(Person, 1);
-
+  // test
   equal(person.get('name'), "Tom", "precond - data was materialized");
   equal(person.get('lastName'), "Dale", "the attribute name was camelized");
 });
 
 test("When a record with a belongsTo is saved the foreign key should be sent.", function () {
-  var PersonType = DS.Model.extend({
+  // setup
+  var PersonType, personType, person;
+  PersonType = DS.Model.extend({
     title: DS.attr("string"),
     people: DS.hasMany(Person)
   });
-
-  PersonType.toString = function() {
-    return "App.PersonType";
-  };
-
   Person.reopen({
     personType: DS.belongsTo(PersonType)
   });
-
   store.load(PersonType, {id: 1, title: "Developer"});
-  var personType = store.find(PersonType, 1);
+  personType = store.find(PersonType, 1);
+  person = store.createRecord(Person, {name: 'Sam Woodard', personType: personType});
 
-  var person = store.createRecord(Person, {name: 'Sam Woodard', personType: personType});
+  // test
+  stateEquals(personType, 'loaded.saved');
+  stateEquals(person, 'loaded.created.uncommitted');
+  flagEquals(personType, ['isLoaded', 'isValid']);
+  flagEquals(person, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
 
+  // setup
   store.commit();
 
+  // test
+  stateEquals(personType, 'loaded.saved');
+  stateEquals(person, 'loaded.created.inFlight');
+  flagEquals(personType, ['isLoaded', 'isValid']);
+  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
   expectUrl('/people');
   expectType("POST");
   expectData({ person: { name: "Sam Woodard", person_type_id: 1, group_id: null } });
+
+  // setup
   ajaxHash.success({ person: { name: 'Sam Woodard', person_type_id: 1}});
+
+  // test
+  stateEquals(personType, 'loaded.saved');
+  stateEquals(person, 'loaded.saved');
+  flagEquals(personType, ['isLoaded', 'isValid']);
+  flagEquals(person, ['isLoaded', 'isValid']);
 });
 
 test("creating a record with a 422 error marks the records as invalid", function(){
+  // setup
+  var person, mockXHR;
   person = store.createRecord(Person, { name: "" });
   store.commit();
-
-  var mockXHR = {
+  mockXHR = {
     status:       422,
     responseText: JSON.stringify({ errors: { name: ["can't be blank"]} })
   };
-
   ajaxHash.error.call(ajaxHash.context, mockXHR);
 
-  expectState('valid', false);
-
+  // test
+  stateEquals(person, 'loaded.created.invalid');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isNew']);
   deepEqual(person.get('errors'), { name: ["can't be blank"]}, "the person has the errors");
 });
 
 test("updating a record with a 422 error marks the records as invalid", function(){
+  // setup
+  var person, mockXHR;
   Person.reopen({
     updatedAt: DS.attr('date')
   });
   store.load(Person, { id: 1, name: "John Doe" });
   person = store.find(Person, 1);
+
+  // test
+  stateEquals(person, 'loaded.saved');
+  flagEquals(person, ['isLoaded', 'isValid']);
+
+  // setup
   person.set('name', '');
+
+  // test
+  stateEquals(person, 'loaded.updated.uncommitted');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isValid']);
+
+  // setup
   store.commit();
 
-  var mockXHR = {
+  // test
+  stateEquals(person, 'loaded.updated.inFlight');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
+
+  // setup
+  mockXHR = {
     status:       422,
     responseText: JSON.stringify({ errors: { name: ["can't be blank"], updated_at: ["can't be blank"] } })
   };
-
   ajaxHash.error.call(ajaxHash.context, mockXHR);
 
-  expectState('valid', false);
-
+  // test
+  stateEquals(person, 'loaded.updated.invalid');
+  flagEquals(person, ['isLoaded', 'isDirty']);
   deepEqual(person.get('errors'), { name: ["can't be blank"], updatedAt: ["can't be blank"] }, "the person has the errors");
 });
 
 test("creating a record with a 500 error marks the record as error", function() {
+  // setup
+  var person, mockXHR;
   person = store.createRecord(Person, { name: "" });
+
+  // test
+  stateEquals(person, 'loaded.created.uncommitted');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
+
+  // setup
   store.commit();
 
-  var mockXHR = {
+  // test
+  stateEquals(person, 'loaded.created.inFlight');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
+
+  // setup
+  mockXHR = {
     status:       500,
     responseText: 'Internal Server Error'
   };
-
   ajaxHash.error.call(ajaxHash.context, mockXHR);
 
-  expectState('error');
+  // test
+  stateEquals(person, 'error');
+  flagEquals(person, ['isDirty', 'isError', 'isValid']);
 });
 
 test("updating a record with a 500 error marks the record as error", function() {
+  // setup
+  var person, mockXHR;
   store.load(Person, { id: 1, name: "John Doe" });
   person = store.find(Person, 1);
+
+  // test
+  stateEquals(person, 'loaded.saved');
+  flagEquals(person, ['isLoaded', 'isValid']);
+
+  // setup
   person.set('name', 'Jane Doe');
+
+  // test
+  stateEquals(person, 'loaded.updated.uncommitted');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isValid']);
+
+  // setup
   store.commit();
 
-  var mockXHR = {
+  // test
+  stateEquals(person, 'loaded.updated.inFlight');
+  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
+
+  // setup
+  mockXHR = {
     status:       500,
     responseText: 'Internal Server Error'
   };
-
   ajaxHash.error.call(ajaxHash.context, mockXHR);
 
-  expectState('error');
+  // test
+  stateEquals(person, 'error');
+  flagEquals(person, ['isLoaded', 'isValid']);
 });
-
-
