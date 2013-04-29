@@ -469,19 +469,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     if (reference.data === LOADING) {
       // let the adapter set the data, possibly async
-      var adapter = this.adapterForType(type),
-          store = this;
+      var adapter = this.adapterForType(type);
 
       Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
       Ember.assert("You tried to find a record but your adapter does not implement `find`", adapter.find);
 
       var thenable = adapter.find(this, type, id);
 
-      if (thenable && thenable.then) {
-        thenable.then(null /* for future use */, function(error) {
-          store.recordWasError(record);
-        });
-      }
+      this.handleNotFound(thenable, record);
     }
 
     return record;
@@ -490,7 +485,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   reloadRecord: function(record) {
     var type = record.constructor,
         adapter = this.adapterForType(type),
-        store = this,
         id = get(record, 'id');
 
     Ember.assert("You cannot update a record without an ID", id);
@@ -499,11 +493,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var thenable = adapter.find(this, type, id);
 
-    if (thenable && thenable.then) {
-      thenable.then(null /* for future use */, function(error) {
-        store.recordWasError(record);
-      });
-    }
+    this.handleNotFound(thenable, record);
   },
 
   /**
@@ -732,11 +722,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   findQuery: function(type, query) {
     var array = DS.AdapterPopulatedRecordArray.create({ type: type, query: query, content: Ember.A([]), store: this });
     var adapter = this.adapterForType(type);
+    var store = this;
 
     Ember.assert("You tried to load a query but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", adapter.findQuery);
 
-    adapter.findQuery(this, type, query, array);
+    var thenable = adapter.findQuery(this, type, query, array);
+
+    this.handleNotFound(thenable, array);
 
     return array;
   },
@@ -767,7 +760,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to load all records but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load all records but your adapter does not implement `findAll`", adapter.findAll);
 
-    adapter.findAll(this, type, sinceToken);
+    var thenable = adapter.findAll(this, type, sinceToken);
+
+    this.handleNotFound(thenable, array);
 
     return array;
   },
@@ -1043,9 +1038,32 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
      error.
 
      @param {DS.Model} record
+     @param {any} error
   */
-  recordWasError: function(record) {
-    record.adapterDidError();
+  recordWasError: function(record, error) {
+    record.adapterDidError(error);
+  },
+
+  /**
+     This method allows the adapter to specify that a record or
+     a record array could not be found because the server returned
+     an unhandled error.
+
+     @param {DS.Model|DS.RecordArray} recordOrArray
+     @param {any} error
+  */
+  notFound: function(recordOrArray, error) {
+    recordOrArray.adapterDidError(error);
+  },
+
+  handleNotFound: function(thenable, recordOrArray) {
+    var store = this;
+
+    if (thenable && thenable.then) {
+      thenable.then(null /* for future use */, function(error) {
+        store.notFound(recordOrArray, error);
+      });
+    }
   },
 
   /**
