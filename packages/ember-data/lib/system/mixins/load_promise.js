@@ -6,13 +6,13 @@ var Evented = Ember.Evented,              // ember-runtime/mixins/evented
 var LoadPromise = Ember.Mixin.create(Evented, Deferred, {
   init: function() {
     this._super.apply(this, arguments);
-    this.one('didLoad', function() {
-      var deferred, promise;
 
-      deferred = get(this, '_deferred');
-      promise = deferred.promise;
+    this.one('didLoad', this, function() {
+      run(this, 'resolve', this);
+    });
 
-      run(this, 'resolve', promise);
+    this.one('becameError', this, function() {
+      run(this, 'reject', this);
     });
 
     if (get(this, 'isLoaded')) {
