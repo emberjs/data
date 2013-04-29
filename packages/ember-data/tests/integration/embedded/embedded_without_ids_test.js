@@ -132,6 +132,10 @@ asyncTest("Embedded belongsTo relationships can be saved when embedded: always i
 });
 
 test("Embedded records can be accessed via a hasMany relationship without having IDs", function() {
+  Comment.reopen({
+    myPost: DS.belongsTo(Post)
+  });
+
   adapter.load(store, Post, {
     id: 1,
     title: "A New MVC Framework in Under 100 Lines of Code",
@@ -154,6 +158,7 @@ test("Embedded records can be accessed via a hasMany relationship without having
 
   equal(comment1.get('title'), "Why not use a more lightweight solution?");
   equal(comment2.get('title'), "This does not seem to reflect the Unix philosophy haha");
+  strictEqual(comment2.get('myPost'), post);
 });
 
 asyncTest("Embedded hasMany relationships can be saved when embedded: always is true", function() {
