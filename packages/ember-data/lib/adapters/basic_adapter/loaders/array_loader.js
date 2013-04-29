@@ -8,10 +8,14 @@ DS.ArrayLoader = function(store, type, queryArray) {
       json = array;
     }
 
-    var references = json.map(function(object) {
-      return store.load(type, object);
-    });
+    if (queryArray) {
+      var references = json.map(function(object) {
+        return store.load(type, object);
+      });
 
-    queryArray.load(references);
+      queryArray.load(references);
+    } else {
+      store.loadMany(type, json);
+    }
   };
 };

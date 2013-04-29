@@ -164,7 +164,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {DS.Model} record
   */
   materializeData: function(record) {
-    var reference = get(record, 'reference'),
+    var reference = get(record, '_reference'),
         data = reference.data,
         adapter = this.adapterForType(record.constructor);
 
@@ -323,7 +323,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     // Now that we have a reference, attach it to the record we
     // just created.
-    set(record, 'reference', reference);
+    set(record, '_reference', reference);
     reference.record = record;
 
     // Move the record out of its initial `empty` state into
@@ -997,14 +997,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object} data optional data (see above)
   */
   didSaveRecord: function(record, data) {
-    record.adapterDidCommit();
-
     if (data) {
       this.updateId(record, data);
       this.updateRecordData(record, data);
     } else {
       this.didUpdateAttributes(record);
     }
+
+    record.adapterDidCommit();
   },
 
   /**
@@ -1174,7 +1174,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {DS.Model} relationshipName
   */
   didUpdateRelationship: function(record, relationshipName) {
-    var clientId = get(record, 'reference').clientId;
+    var clientId = get(record, '_reference').clientId;
 
     var relationship = this.relationshipChangeFor(clientId, relationshipName);
     //TODO(Igor)
@@ -1190,7 +1190,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     `didUpdateRelationship` API.
   */
   didUpdateRelationships: function(record) {
-    var changes = this.relationshipChangesFor(get(record, 'reference'));
+    var changes = this.relationshipChangesFor(get(record, '_reference'));
 
     for (var name in changes) {
       if (!changes.hasOwnProperty(name)) { continue; }
@@ -1241,7 +1241,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object} data
   */
   updateRecordData: function(record, data) {
-    get(record, 'reference').data = data;
+    get(record, '_reference').data = data;
     record.didChangeData();
   },
 
@@ -1258,7 +1258,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   updateId: function(record, data) {
     var type = record.constructor,
         typeMap = this.typeMapFor(type),
-        reference = get(record, 'reference'),
+        reference = get(record, '_reference'),
         oldId = get(record, 'id'),
         id = this.preprocessData(type, data);
 
@@ -1431,7 +1431,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     var record = reference.type._create({
       id: reference.id,
       store: this,
-      reference: reference
+      _reference: reference
     });
 
     reference.record = record;
@@ -1448,7 +1448,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   dematerializeRecord: function(record) {
-    var reference = get(record, 'reference'),
+    var reference = get(record, '_reference'),
         type = reference.type,
         id = reference.id,
         typeMap = this.typeMapFor(type);

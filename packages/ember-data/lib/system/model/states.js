@@ -311,6 +311,12 @@ var DirtyState = DS.State.extend({
     },
 
     // EVENTS
+
+    materializingData: function(manager) {
+      set(manager, 'lastDirtyType', get(this, 'dirtyType'));
+      manager.transitionTo('materializing');
+    },
+
     didCommit: function(manager) {
       var dirtyType = get(this, 'dirtyType'),
           record = get(manager, 'record');
@@ -322,6 +328,8 @@ var DirtyState = DS.State.extend({
       manager.transitionTo('saved');
       manager.send('invokeLifecycleCallbacks', dirtyType);
     },
+
+    didChangeData: didChangeData,
 
     becameInvalid: function(manager, errors) {
       var record = get(manager, 'record');
@@ -584,6 +592,16 @@ var states = {
           // otherwise it fails
           record.clearRelationships();
           manager.transitionTo('deleted.saved');
+        },
+
+        didCommit: function(manager) {
+          var record = get(manager, 'record');
+
+          record.withTransaction(function(t) {
+            t.remove(record);
+          });
+
+          manager.send('invokeLifecycleCallbacks', get(manager, 'lastDirtyType'));
         },
 
         invokeLifecycleCallbacks: function(manager, dirtyType) {

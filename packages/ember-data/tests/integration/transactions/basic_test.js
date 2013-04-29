@@ -172,6 +172,24 @@ test("a record that is in the clean state is moved back to the default transacti
   equal(get(person, 'transaction'), get(store, 'defaultTransaction'), "record should have been moved back to the default transaction");
 });
 
+test("isDefault should return false when no longer the default transaction", function() {
+  var store = DS.Store.create();
+
+  store.load(Person, { id: 1 });
+
+  var person = store.find(Person, 1);
+
+  var transaction = get(person, 'transaction');
+  equal(transaction, get(store, 'defaultTransaction'));
+  ok(get(transaction, 'isDefault'));
+
+  transaction.commit();
+
+  notEqual(transaction, get(store, 'defaultTransaction'));
+  ok(!get(transaction, 'isDefault'));
+});
+
+
 test("modified records are reset when their transaction is rolled back", function() {
 
   var store = DS.Store.create({

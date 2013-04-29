@@ -82,7 +82,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   shouldSave: function(record) {
-    var reference = get(record, 'reference');
+    var reference = get(record, '_reference');
 
     return !reference.parent;
   },
@@ -109,7 +109,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       this._dirtyTree(dirtySet, embeddedRecord);
     }, this);
 
-    var reference = record.get('reference');
+    var reference = record.get('_reference');
 
     if (reference.parent) {
       var store = get(record, 'store');
@@ -322,10 +322,10 @@ DS.RESTAdapter = DS.Adapter.extend({
       hash.url = url;
       hash.type = type;
       hash.dataType = 'json';
-      hash.contentType = 'application/json; charset=utf-8';
       hash.context = this;
 
       if (hash.data && type !== 'GET') {
+        hash.contentType = 'application/json; charset=utf-8';
         hash.data = JSON.stringify(hash.data);
       }
 

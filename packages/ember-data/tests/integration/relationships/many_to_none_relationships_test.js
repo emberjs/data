@@ -14,7 +14,7 @@ module("Many-to-None Relationships", {
     App = Ember.Namespace.create({
       toString: function() { return "App"; }
     });
-    
+
     App.Comment = DS.Model.extend({
       body: DS.attr('string'),
     });

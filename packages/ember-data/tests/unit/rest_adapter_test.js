@@ -1,6 +1,6 @@
 var get = Ember.get, set = Ember.set;
 
-var adapter, store, serializer, ajaxUrl, ajaxType, ajaxHash;
+var adapter, store, serializer, ajaxUrl, ajaxType, ajaxHash, overwriteAjax;
 var Person, person, people;
 var Role, role, roles;
 var Group, group;
@@ -10,13 +10,14 @@ module("the REST adapter", {
     ajaxUrl = undefined;
     ajaxType = undefined;
     ajaxHash = undefined;
+    overwriteAjax = true;
 
     var Adapter = DS.RESTAdapter.extend();
     Adapter.configure('plurals', {
       person: 'people'
     });
 
-    adapter = Adapter.create({
+    adapter = Adapter.createWithMixins({
       ajax: function(url, type, hash) {
         var self = this;
         return new Ember.RSVP.Promise(function(resolve, reject){
@@ -134,21 +135,24 @@ test("Calling ajax() calls JQuery.ajax with json data", function() {
     equal(ajaxHash.url, '/foo', 'Request URL is the given value');
     equal(ajaxHash.type, 'GET', 'Request method is the given value');
     equal(ajaxHash.dataType, 'json', 'Request data type is JSON');
-    equal(ajaxHash.contentType, 'application/json; charset=utf-8', 'Request content type is JSON');
+    equal(ajaxHash.contentType, undefined, 'Request content type is undefined for GET');
     equal(ajaxHash.context, adapter, 'Request context is the adapter');
     equal(ajaxHash.extra, 'special', 'Extra options are passed through');
 
     adapter.ajax('/foo', 'POST', {});
     ok(!ajaxHash.data, 'Data not set when not provided');
+    equal(ajaxHash.contentType, undefined, 'Request content type is undefined when data is empty');
 
     adapter.ajax('/foo', 'GET', {data: 'unsupported'});
     equal(ajaxHash.data, 'unsupported', 'Data untouched for unsupported methods');
 
     adapter.ajax('/foo', 'POST', {data: {id: 1, name: 'Bar'}});
     equal(ajaxHash.data, JSON.stringify({id: 1, name: 'Bar'}), 'Data serialized for POST requests');
+    equal(ajaxHash.contentType, 'application/json; charset=utf-8', 'Request content type is JSON');
 
     adapter.ajax('/foo', 'PUT', {data: {id: 1, name: 'Bar'}});
     equal(ajaxHash.data, JSON.stringify({id: 1, name: 'Bar'}), 'Data serialized for PUT requests');
+    equal(ajaxHash.contentType, 'application/json; charset=utf-8', 'Request content type is JSON');
 
   } finally {
     // restore jQuery.ajax()
@@ -1102,3 +1106,5 @@ test("updating a record with a 500 error marks the record as error", function() 
 
   expectState('error');
 });
+
+

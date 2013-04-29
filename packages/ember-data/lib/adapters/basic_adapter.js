@@ -105,6 +105,15 @@ DS.BasicAdapter = DS.Adapter.extend({
     sync.find(id, DS.ObjectLoader(store, type));
   },
 
+  findAll: function(store, type) {
+    var sync = type.sync;
+
+    Ember.assert("You are trying to use the BasicAdapter to find all " + type + " records but " + type + ".sync was not found", sync);
+    Ember.assert("The sync code on " + type + " does not implement findAll(), but you are trying to find all " + type + " records.", sync.findAll);
+
+    sync.findAll(DS.ArrayLoader(store, type));
+  },
+
   findQuery: function(store, type, query, recordArray) {
     var sync = type.sync;
 
