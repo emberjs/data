@@ -281,10 +281,11 @@ test("DS.Store loads individual records without explicit IDs with a custom prima
 
 test("DS.Store passes only needed guids to findMany", function() {
   expect(13);
-
+  var resolvePromise;
   var adapter = TestAdapter.create({
     findMany: function(store, type, ids) {
       deepEqual(ids, ['4','5','6'], "only needed ids are passed");
+      return new Ember.RSVP.Promise(function(resolve) { resolvePromise = resolve; });
     }
   });
 
@@ -300,7 +301,7 @@ test("DS.Store passes only needed guids to findMany", function() {
   equal(get(objects, 'length'), 6, "the RecordArray returned from findMany has all the objects");
   equal(get(objects, 'isLoaded'), false, "the RecordArrays' isLoaded flag is false");
 
-  objects.then(function(resolvedObjects) {
+  currentStore.promiseFor(objects).then(function(resolvedObjects) {
     strictEqual(resolvedObjects, objects, "The promise is resolved with the RecordArray");
     equal(get(objects, 'isLoaded'), true, "The objects are loaded");
   });
@@ -319,6 +320,7 @@ test("DS.Store passes only needed guids to findMany", function() {
   }
 
   currentStore.loadMany(currentType, [4,5,6], [{ id: 4 }, { id: 5 }, { id: 6 }]);
+  Ember.run(resolvePromise);
 
   equal(objects.everyProperty('isLoaded'), true, "every objects' isLoaded is true");
   equal(get(objects, 'isLoaded'), true, "after all objects are loaded, the RecordArrays' isLoaded flag is true");
@@ -342,7 +344,7 @@ test("a findManys' isLoaded is true when all objects are loaded", function() {
 
   var objects = currentStore.findMany(currentType, [1,2,3]);
 
-  objects.then(function(resolvedObjects) {
+  currentStore.promiseFor(objects).then(function(resolvedObjects) {
     strictEqual(resolvedObjects, objects, "The resolved RecordArray is correct");
     equal(get(objects, 'isLoaded'), true, "The RecordArray is loaded by the time the promise is resolved");
   });
@@ -409,7 +411,7 @@ test("a new record of a particular type is created via store.createRecord(type)"
 
   var person = store.createRecord(Person);
 
-  person.then(function(resolvedPerson) {
+  store.promiseFor(person).then(function(resolvedPerson) {
     strictEqual(resolvedPerson, person, "The promise is resolved with the record");
     equal(get(person, 'isLoaded'), true, "The record is loaded");
   });
@@ -451,7 +453,7 @@ test("an initial data hash can be provided via store.createRecord(type, hash)", 
 
   var person = store.createRecord(Person, { name: "Brohuda Katz" });
 
-  person.then(function(resolvedPerson) {
+  store.promiseFor(person).then(function(resolvedPerson) {
     strictEqual(resolvedPerson, person, "The promise is resolved with the record");
     equal(get(person, 'isLoaded'), true, "The record is loaded");
   });
@@ -530,7 +532,7 @@ asyncTest("a record receives a didLoad callback when it has finished loading", f
   });
   var person = store.find(Person, 1);
 
-  person.then(function(resolvedPerson) {
+  store.promiseFor(person).then(function(resolvedPerson) {
     equal(resolvedPerson, person, "The resolved value is correct");
     start();
   });

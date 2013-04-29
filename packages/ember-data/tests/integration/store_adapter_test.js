@@ -67,10 +67,10 @@ asyncTest("Records loaded multiple times and retrieved in recordArray are ready 
   };
 
   var people, people2;
-  people = store.findQuery(Person, {q: 'bla'});
+  people = store.find(Person, {q: 'bla'});
   people.one('didLoad', function() {
 
-    people2 = store.findQuery(Person, {q: 'bla2'});
+    people2 = store.find(Person, {q: 'bla2'});
     people2.one('didLoad', function() {
 
       start();
