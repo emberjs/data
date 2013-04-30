@@ -149,6 +149,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     var stateManager = DS.StateManager.create({ record: this });
     set(this, 'stateManager', stateManager);
 
+    var errors = DS.Errors.create();
+    set(this, 'errors', errors);
+
     this._setup();
 
     stateManager.goToState('empty');
