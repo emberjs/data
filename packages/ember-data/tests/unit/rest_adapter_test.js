@@ -153,7 +153,6 @@ test("Calling ajax() calls JQuery.ajax with json data", function() {
     equal(ajaxHash.url, '/foo', 'Request URL is the given value');
     equal(ajaxHash.type, 'GET', 'Request method is the given value');
     equal(ajaxHash.dataType, 'json', 'Request data type is JSON');
-    equal(ajaxHash.contentType, 'application/json; charset=utf-8', 'Request content type is JSON');
     equal(ajaxHash.context, adapter, 'Request context is the adapter');
     equal(ajaxHash.extra, 'special', 'Extra options are passed through');
 
@@ -165,6 +164,7 @@ test("Calling ajax() calls JQuery.ajax with json data", function() {
 
     adapter.ajax('/foo', 'POST', {data: {id: 1, name: 'Bar'}});
     equal(ajaxHash.data, JSON.stringify({id: 1, name: 'Bar'}), 'Data serialized for POST requests');
+    equal(ajaxHash.contentType, 'application/json; charset=utf-8', 'Request content type is JSON');
 
     adapter.ajax('/foo', 'PUT', {data: {id: 1, name: 'Bar'}});
     equal(ajaxHash.data, JSON.stringify({id: 1, name: 'Bar'}), 'Data serialized for PUT requests');
@@ -742,15 +742,16 @@ test("additional data can be sideloaded in a GET with many IDs", function() {
       { id: 3, name: "Yehuda Katz" }
     ]
   });
-  people = groups.get('people');
+
+  people = groups.objectAt(0).get('people');
   rein = people.objectAt(0);
   tom = people.objectAt(1);
   yehuda = people.objectAt(2);
 
   // test
-  stateEquals(people, 'loaded.saved');
+  statesEqual(people, 'loaded.saved');
   statesEqual([rein, tom, yehuda], 'loaded.saved');
-  flagEquals(people, ['isLoaded', 'isValid']);
+  flagsEqual(people, ['isLoaded', 'isValid']);
   flagsEqual([rein, tom, yehuda], ['isLoaded', 'isValid']);
   equal(get(people, 'length'), 3, "the people have length");
   equal(get(rein, 'name'), "Rein Heinrichs");
@@ -1159,6 +1160,8 @@ test("sideloaded data is loaded prior to primary data (to ensure relationship co
 
 // !!!: This test is written weird -- no aysnc, but ops happen after the assertion
 test("additional data can be sideloaded with relationships in correct order", function() {
+  var group;
+
   var Comment = DS.Model.extend({
     person: DS.belongsTo(Person)
   });
