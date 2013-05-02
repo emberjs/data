@@ -180,6 +180,40 @@ asyncTest("A serializer can materialize a hasMany as an opaque token that can be
   }
 });
 
+//This tests that all members of a hasMany have their inverse
+//belongsTo relationship set when loaded via loadHasMany
+test("A serializer can materialize a hasMany via loadHasMany and inverse belongsTo relationships will be setup properly.", function() {
+  expect(4);
+
+  store.load(App.Post, { id: 1, title: "Linkbait!" });
+
+  adapter.find = function(){
+    ok(true, "The adapter's find method should be called");
+  };
+  
+  // Materialize the post
+  var post = App.Post.find(1);
+  equal(get(post, 'title'), "Linkbait!");
+
+  // Load in some fake comments
+  // We must test at least three comments, because Ember.Array
+  // materializes the first and last during the array:didChange
+  // event, which affects the result!
+  store.loadMany(App.Comment, [
+    { id: 1, body: "First" },
+    { id: 2, body: "Second" },
+    { id: 3, body: "Third"}
+  ]);
+
+  // Populate the hasMany
+  store.loadHasMany(post, 'comments', [1,2,3]);
+
+  equal(App.Comment.find(1).get('post'), post);
+  equal(App.Comment.find(2).get('post'), post);
+  equal(App.Comment.find(3).get('post'), post);
+
+});
+
 test("When a polymorphic hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function() {
   expect(1);
 
