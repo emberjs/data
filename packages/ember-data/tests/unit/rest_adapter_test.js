@@ -23,7 +23,7 @@ function statesEqual(entities, expectedState) {
 
 // Used for testing all of the flags on a single entity
 // onlyCheckFlagArr is to only check a subset of possible flags
-function flagEquals(entity, expectedFlagArr, onlyCheckFlagArr) {
+function enabledFlags(entity, expectedFlagArr, onlyCheckFlagArr) {
   var possibleFlags;
   if(onlyCheckFlagArr){
     possibleFlags = onlyCheckFlagArr;
@@ -42,9 +42,9 @@ function flagEquals(entity, expectedFlagArr, onlyCheckFlagArr) {
 }
 
 // Used for testing all of the flags on a collection of entities
-function flagsEqual(entities, expectedFlagArr, onlyCheckFlagArr) {
+function enabledFlagsForArray(entities, expectedFlagArr, onlyCheckFlagArr) {
   forEach(entities, function(entity){
-    flagEquals(entity, expectedFlagArr, onlyCheckFlagArr);
+    enabledFlags(entity, expectedFlagArr, onlyCheckFlagArr);
   });
 }
 
@@ -182,14 +182,14 @@ test("creating a person makes a POST to /people, with the data hash", function()
 
   // test
   stateEquals(person, 'loaded.created.uncommitted');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   stateEquals(person, 'loaded.created.inFlight');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isNew', 'isValid', 'isSaving']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isNew', 'isValid', 'isSaving']);
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
   expectData({ person: { name: "Tom Dale", group_id: null } });
@@ -199,7 +199,7 @@ test("creating a person makes a POST to /people, with the data hash", function()
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
 });
 
@@ -210,14 +210,14 @@ test("singular creations can sideload data", function() {
 
   // test
   stateEquals(person, 'loaded.created.uncommitted');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   stateEquals(person, 'loaded.created.inFlight');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
   expectData({ person: { name: "Tom Dale", group_id: null } });
@@ -231,7 +231,7 @@ test("singular creations can sideload data", function() {
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
@@ -244,21 +244,21 @@ test("updating a person makes a PUT to /people/:id with the data hash", function
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
 
   // setup
   set(person, 'name', 'Brohuda Brokatz');
 
   // test
   stateEquals(person, 'loaded.updated.uncommitted');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   stateEquals(person, 'loaded.updated.inFlight');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("PUT");
   expectData({ person: { name: "Brohuda Brokatz", group_id: null } });
@@ -268,7 +268,7 @@ test("updating a person makes a PUT to /people/:id with the data hash", function
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 1), "the same person is retrieved by the same ID");
   equal(get(person, 'name'), "Brohuda Brokatz", "the hash should be updated");
 });
@@ -282,21 +282,21 @@ test("updates are not required to return data", function() {
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
 
   // setup
   set(person, 'name', 'Brohuda Brokatz');
 
   // test
   stateEquals(person, 'loaded.updated.uncommitted');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   stateEquals(person, 'loaded.updated.inFlight');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("PUT");
 
@@ -305,7 +305,7 @@ test("updates are not required to return data", function() {
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 1), "the same person is retrieved by the same ID");
   equal(get(person, 'name'), "Brohuda Brokatz", "the data is preserved");
 });
@@ -319,21 +319,21 @@ test("singular updates can sideload data", function() {
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
 
   // setup
   set(person, 'name', "Brohuda Brokatz");
 
   // test
   stateEquals(person, 'loaded.updated.uncommitted');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   stateEquals(person, 'loaded.updated.inFlight');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("PUT");
 
@@ -346,7 +346,7 @@ test("singular updates can sideload data", function() {
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 1), "the same person is retrieved by the same ID");
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
@@ -359,21 +359,21 @@ test("deleting a person makes a DELETE to /people/:id", function() {
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
 
   // setup
   person.deleteRecord();
 
   // test
   stateEquals(person, 'deleted.uncommitted');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isDeleted', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isDeleted', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   stateEquals(person, 'deleted.inFlight');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isDeleted', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isSaving', 'isDeleted', 'isValid']);
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("DELETE");
 
@@ -382,7 +382,7 @@ test("deleting a person makes a DELETE to /people/:id", function() {
 
   // test
   stateEquals(person, 'deleted.saved');
-  flagEquals(person, ['isLoaded', 'isDeleted', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDeleted', 'isValid']);
 });
 
 test("singular deletes can sideload data", function() {
@@ -394,21 +394,21 @@ test("singular deletes can sideload data", function() {
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
 
   // setup
   person.deleteRecord();
 
   // test
   stateEquals(person, 'deleted.uncommitted');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isDeleted', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isDeleted', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   stateEquals(person, 'deleted.inFlight');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isDeleted', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isSaving', 'isDeleted', 'isValid']);
   expectUrl("/people/1", "the plural of the model name with its ID");
   expectType("DELETE");
 
@@ -420,7 +420,7 @@ test("singular deletes can sideload data", function() {
 
   // test
   stateEquals('deleted.saved');
-  flagEquals(person, ['isLoaded', 'isDeleted', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDeleted', 'isValid']);
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
@@ -432,7 +432,7 @@ test("finding all people makes a GET to /people", function() {
   people = store.find(Person);
 
   // test
-  flagEquals(people, ['isLoaded', 'isValid'], recordArrayFlags);
+  enabledFlags(people, ['isLoaded', 'isValid'], recordArrayFlags);
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
 
@@ -443,8 +443,8 @@ test("finding all people makes a GET to /people", function() {
   // test
   statesEqual(people, 'loaded.saved');
   stateEquals(person, 'loaded.saved');
-  flagsEqual(people, ['isLoaded', 'isValid']);
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
@@ -454,7 +454,7 @@ test("finding all can sideload data", function() {
   groups = store.find(Group);
 
   // test
-  flagEquals(groups, ['isLoaded'], recordArrayFlags);
+  enabledFlags(groups, ['isLoaded'], recordArrayFlags);
   expectUrl("/groups", "the plural of the model name");
   expectType("GET");
 
@@ -468,9 +468,9 @@ test("finding all can sideload data", function() {
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(groups, ['isLoaded'], recordArrayFlags);
-  flagEquals(people, ['isLoaded'], manyArrayFlags);
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(groups, ['isLoaded'], recordArrayFlags);
+  enabledFlags(people, ['isLoaded'], manyArrayFlags);
+  enabledFlags(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
@@ -480,7 +480,7 @@ test("finding all people with since makes a GET to /people", function() {
   people = store.find(Person);
 
   // test
-  flagEquals(people, ['isLoaded'], recordArrayFlags);
+  enabledFlags(people, ['isLoaded'], recordArrayFlags);
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
 
@@ -489,7 +489,7 @@ test("finding all people with since makes a GET to /people", function() {
   people = store.find(Person);
 
   // test
-  flagEquals(people, ['isLoaded'], recordArrayFlags);
+  enabledFlags(people, ['isLoaded'], recordArrayFlags);
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
   expectData({since: '123'});
@@ -500,8 +500,8 @@ test("finding all people with since makes a GET to /people", function() {
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(people, ['isLoaded'], recordArrayFlags);
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(people, ['isLoaded'], recordArrayFlags);
+  enabledFlags(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 2), "the record is now in the store, and can be looked up by ID without another Ajax request");
 
   // setup
@@ -509,8 +509,8 @@ test("finding all people with since makes a GET to /people", function() {
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(people, ['isLoaded'], recordArrayFlags);
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(people, ['isLoaded'], recordArrayFlags);
+  enabledFlags(person, ['isLoaded', 'isValid']);
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
   expectData({since: '1234'});
@@ -520,8 +520,8 @@ test("finding all people with since makes a GET to /people", function() {
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(people, ['isLoaded'], recordArrayFlags);
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(people, ['isLoaded'], recordArrayFlags);
+  enabledFlags(person, ['isLoaded', 'isValid']);
   equal(people.get('length'), 3, 'should have 3 records now');
 });
 
@@ -536,7 +536,7 @@ test("meta and since are configurable", function() {
   people = store.find(Person);
 
   // test
-  flagEquals(people, ['isLoaded'], recordArrayFlags);
+  enabledFlags(people, ['isLoaded'], recordArrayFlags);
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
 
@@ -544,13 +544,13 @@ test("meta and since are configurable", function() {
   ajaxHash.success({ metaObject: {sinceToken: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
 
   // test
-  flagEquals(people, ['isLoaded'], recordArrayFlags);
+  enabledFlags(people, ['isLoaded'], recordArrayFlags);
 
   // setup
   people.update();
 
   // test
-  flagEquals(people, ['isLoaded'], recordArrayFlags);
+  enabledFlags(people, ['isLoaded'], recordArrayFlags);
   expectUrl("/people", "the plural of the model name");
   expectType("GET");
   expectData({lastToken: '123'});
@@ -561,8 +561,8 @@ test("meta and since are configurable", function() {
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(people, ['isLoaded'], recordArrayFlags);
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(people, ['isLoaded'], recordArrayFlags);
+  enabledFlags(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 2), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
@@ -572,7 +572,7 @@ test("finding a person by ID makes a GET to /people/:id", function() {
 
   // test
   stateEquals(person, 'loading');
-  flagEquals(person, ['isLoading', 'isValid']);
+  enabledFlags(person, ['isLoading', 'isValid']);
   expectUrl("/people/1", "the plural of the model name with the ID requested");
   expectType("GET");
 
@@ -581,7 +581,7 @@ test("finding a person by ID makes a GET to /people/:id", function() {
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 1), "the record is now in the store, and can be looked up by ID without another Ajax request");
 });
 
@@ -591,7 +591,7 @@ test("finding a person by an ID-alias populates the store", function() {
 
   // test
   stateEquals(person, 'loading');
-  flagEquals(person, ['isLoading', 'isValid']);
+  enabledFlags(person, ['isLoading', 'isValid']);
   expectUrl("/people/me", "the plural of the model name with the ID requested");
   expectType("GET");
 
@@ -600,7 +600,7 @@ test("finding a person by an ID-alias populates the store", function() {
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 'me'), "the record is now in the store, and can be looked up by the alias without another Ajax request");
 });
 
@@ -610,7 +610,7 @@ test("additional data can be sideloaded in a GET", function() {
 
   // test
   stateEquals(group, 'loading');
-  flagEquals(group, ['isLoading', 'isValid']);
+  enabledFlags(group, ['isLoading', 'isValid']);
 
   // setup
   ajaxHash.success({
@@ -620,7 +620,7 @@ test("additional data can be sideloaded in a GET", function() {
 
   // test
   stateEquals(group, 'loaded.saved');
-  flagEquals(group, ['isLoaded', 'isValid']);
+  enabledFlags(group, ['isLoaded', 'isValid']);
   equal(get(store.find(Person, 1), 'name'), "Yehuda Katz", "the items are sideloaded");
   equal(get(get(store.find(Group, 1), 'people').objectAt(0), 'name'), "Yehuda Katz", "the items are in the relationship");
 });
@@ -633,7 +633,7 @@ test("finding many people by a list of IDs", function() {
 
   // test
   stateEquals(group, 'loaded.saved');
-  flagEquals(group, ['isLoaded', 'isValid']);
+  enabledFlags(group, ['isLoaded', 'isValid']);
   equal(ajaxUrl, undefined, "no Ajax calls have been made yet");
 
   // setup
@@ -641,8 +641,8 @@ test("finding many people by a list of IDs", function() {
 
   // test
   stateEquals(group, 'loaded.saved');
-  flagEquals(group, ['isLoaded', 'isValid']);
-  flagEquals(people, [], manyArrayFlags);
+  enabledFlags(group, ['isLoaded', 'isValid']);
+  enabledFlags(people, [], manyArrayFlags);
   equal(get(people, 'length'), 3, "there are three people in the relationship already");
   expectUrl("/people");
   expectType("GET");
@@ -663,9 +663,9 @@ test("finding many people by a list of IDs", function() {
   // test
   stateEquals(group, 'loaded.saved');
   statesEqual([rein, tom, yehuda], 'loaded.saved');
-  flagEquals(group, ['isLoaded', 'isValid']);
-  flagEquals(people, ['isLoaded'], manyArrayFlags);
-  flagsEqual([rein, tom, yehuda], ['isLoaded', 'isValid']);
+  enabledFlags(group, ['isLoaded', 'isValid']);
+  enabledFlags(people, ['isLoaded'], manyArrayFlags);
+  enabledFlagsForArray([rein, tom, yehuda], ['isLoaded', 'isValid']);
   equal(get(rein, 'name'), "Rein Heinrichs");
   equal(get(tom, 'name'), "Tom Dale");
   equal(get(yehuda, 'name'), "Yehuda Katz");
@@ -683,8 +683,8 @@ test("finding many people by a list of IDs doesn't rely on the returned array or
 
   // test
   stateEquals(group, 'loaded.saved');
-  flagEquals(group, ['isLoaded', 'isValid']);
-  flagEquals(people, [], manyArrayFlags);
+  enabledFlags(group, ['isLoaded', 'isValid']);
+  enabledFlags(people, [], manyArrayFlags);
 
   // setup
   ajaxHash.success({
@@ -701,9 +701,9 @@ test("finding many people by a list of IDs doesn't rely on the returned array or
   // test
   stateEquals(group, 'loaded.saved');
   statesEqual([rein, tom, yehuda], 'loaded.saved');
-  flagEquals(group, ['isLoaded', 'isValid']);
-  flagEquals(people, ['isLoaded'], manyArrayFlags);
-  flagsEqual([rein, tom, yehuda], ['isLoaded', 'isValid']);
+  enabledFlags(group, ['isLoaded', 'isValid']);
+  enabledFlags(people, ['isLoaded'], manyArrayFlags);
+  enabledFlagsForArray([rein, tom, yehuda], ['isLoaded', 'isValid']);
   equal(get(rein, 'name'), "Rein Heinrichs");
   equal(get(tom, 'name'), "Tom Dale");
   equal(get(yehuda, 'name'), "Yehuda Katz");
@@ -726,8 +726,8 @@ test("additional data can be sideloaded in a GET with many IDs", function() {
 
   // test
   stateEquals(rein, 'loading');
-  flagEquals(groups, [], manyArrayFlags);
-  flagEquals(rein, ['isLoading', 'isValid']);
+  enabledFlags(groups, [], manyArrayFlags);
+  enabledFlags(rein, ['isLoading', 'isValid']);
   expectUrl("/groups");
   expectType("GET");
   expectData({ ids: [ 1 ] });
@@ -752,8 +752,8 @@ test("additional data can be sideloaded in a GET with many IDs", function() {
   // test
   statesEqual(people, 'loaded.saved');
   statesEqual([rein, tom, yehuda], 'loaded.saved');
-  flagsEqual(people, ['isLoaded', 'isValid']);
-  flagsEqual([rein, tom, yehuda], ['isLoaded', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isValid']);
+  enabledFlagsForArray([rein, tom, yehuda], ['isLoaded', 'isValid']);
   equal(get(people, 'length'), 3, "the people have length");
   equal(get(rein, 'name'), "Rein Heinrichs");
   equal(get(tom, 'name'), "Tom Dale");
@@ -770,7 +770,7 @@ test("finding people by a query", function() {
 
   // test
   equal(get(people, 'length'), 0, "there are no people yet, as the query has not returned");
-  flagEquals(people, ['isLoading'], recordArrayFlags);
+  enabledFlags(people, ['isLoading'], recordArrayFlags);
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("GET");
   expectData({ page: 1 });
@@ -789,8 +789,8 @@ test("finding people by a query", function() {
 
   // test
   statesEqual([rein, tom, yehuda], 'loaded.saved');
-  flagEquals(people, ['isLoaded'], recordArrayFlags);
-  flagsEqual([rein, tom, yehuda], ['isLoaded'], recordArrayFlags);
+  enabledFlags(people, ['isLoaded'], recordArrayFlags);
+  enabledFlagsForArray([rein, tom, yehuda], ['isLoaded'], recordArrayFlags);
   equal(get(people, 'length'), 3, "the people are now loaded");
   equal(get(rein, 'name'), "Rein Heinrichs");
   equal(get(tom, 'name'), "Tom Dale");
@@ -807,7 +807,7 @@ test("finding people by a query can sideload data", function() {
 
   // test
   equal(get(groups, 'length'), 0, "there are no groups yet, as the query has not returned");
-  flagEquals(groups, [], recordArrayFlags);
+  enabledFlags(groups, [], recordArrayFlags);
   expectUrl("/groups", "the collection at the plural of the model name");
   expectType("GET");
   expectData({ page: 1 });
@@ -829,9 +829,9 @@ test("finding people by a query can sideload data", function() {
   // test
   equal(get(people, 'length'), 3, "the people are now loaded");
   stateEquals(group, 'loaded.saved');
-  flagEquals(groups, ['isLoaded'], recordArrayFlags);
-  flagEquals(group, ['isLoaded', 'isValid']);
-  flagEquals(people, ['isLoaded'], manyArrayFlags);
+  enabledFlags(groups, ['isLoaded'], recordArrayFlags);
+  enabledFlags(group, ['isLoaded', 'isValid']);
+  enabledFlags(people, ['isLoaded'], manyArrayFlags);
 
   // setup
   rein = people.objectAt(0);
@@ -847,10 +847,10 @@ test("finding people by a query can sideload data", function() {
   equal(get(yehuda, 'id'), 3);
   stateEquals(group, 'loaded.saved');
   statesEqual([rein, tom, yehuda], 'loaded.saved');
-  flagEquals(groups, ['isLoaded'], recordArrayFlags);
-  flagEquals(group, ['isLoaded', 'isValid']);
-  flagEquals(people, ['isLoaded'], manyArrayFlags);
-  flagsEqual([rein, tom, yehuda], ['isLoaded', 'isValid']);
+  enabledFlags(groups, ['isLoaded'], recordArrayFlags);
+  enabledFlags(group, ['isLoaded', 'isValid']);
+  enabledFlags(people, ['isLoaded'], manyArrayFlags);
+  enabledFlagsForArray([rein, tom, yehuda], ['isLoaded', 'isValid']);
 });
 
 test("creating several people (with bulkCommit) makes a POST to /people, with a data hash Array", function() {
@@ -863,14 +863,14 @@ test("creating several people (with bulkCommit) makes a POST to /people, with a 
 
   // test
   statesEqual(people, 'loaded.created.uncommitted');
-  flagsEqual(people, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   statesEqual(people, 'loaded.created.inFlight');
-  flagsEqual(people, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
   expectData({ people: [ { name: "Tom Dale", group_id: null }, { name: "Yehuda Katz", group_id: null } ] });
@@ -880,7 +880,7 @@ test("creating several people (with bulkCommit) makes a POST to /people, with a 
 
   // test
   statesEqual(people, 'loaded.saved');
-  flagsEqual(people, ['isLoaded', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isValid']);
   equal(tom, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
   equal(yehuda, store.find(Person, 2), "it is now possible to retrieve the person by the ID supplied");
 });
@@ -896,14 +896,14 @@ test("bulk commits can sideload data", function() {
 
   // test
   statesEqual(people, 'loaded.created.uncommitted');
-  flagsEqual(people, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   statesEqual(people, 'loaded.created.inFlight');
-  flagsEqual(people, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
   expectUrl("/people", "the collection at the plural of the model name");
   expectType("POST");
   expectData({ people: [ { name: "Tom Dale", group_id: null }, { name: "Yehuda Katz", group_id: null } ] });
@@ -918,8 +918,8 @@ test("bulk commits can sideload data", function() {
   // test
   stateEquals(group, 'loaded.saved');
   statesEqual(people, 'loaded.saved');
-  flagEquals(group, ['isLoaded', 'isValid']);
-  flagsEqual(people, ['isLoaded', 'isValid']);
+  enabledFlags(group, ['isLoaded', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isValid']);
   equal(tom, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
   equal(yehuda, store.find(Person, 2), "it is now possible to retrieve the person by the ID supplied");
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
@@ -939,7 +939,7 @@ test("updating several people (with bulkCommit) makes a PUT to /people/bulk with
 
   // test
   statesEqual(people, 'loaded.saved');
-  flagsEqual(people, ['isLoaded', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isValid']);
 
   // setup
   set(yehuda, 'name', "Brohuda Brokatz");
@@ -947,14 +947,14 @@ test("updating several people (with bulkCommit) makes a PUT to /people/bulk with
 
   // test
   statesEqual(people, 'loaded.updated.uncommitted');
-  flagsEqual(people, ['isLoaded', 'isDirty', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isDirty', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   statesEqual(people, 'loaded.updated.inFlight');
-  flagsEqual(people, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
   expectData({ people: [{ id: 1, name: "Brohuda Brokatz", group_id: null }, { id: 2, name: "Brocarl Brolerche", group_id: null }] });
@@ -967,7 +967,7 @@ test("updating several people (with bulkCommit) makes a PUT to /people/bulk with
 
   // test
   statesEqual(people, 'loaded.saved');
-  flagsEqual(people, ['isLoaded', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isValid']);
   equal(yehuda, store.find(Person, 1), "the same person is retrieved by the same ID");
   equal(carl, store.find(Person, 2), "the same person is retrieved by the same ID");
 });
@@ -987,7 +987,7 @@ test("bulk updates can sideload data", function() {
 
   // test
   statesEqual(people, 'loaded.saved');
-  flagsEqual(people, ['isLoaded', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isValid']);
 
   // setup
   set(yehuda, 'name', "Brohuda Brokatz");
@@ -995,14 +995,14 @@ test("bulk updates can sideload data", function() {
 
   // test
   statesEqual(people, 'loaded.updated.uncommitted');
-  flagsEqual(people, ['isLoaded', 'isDirty', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isDirty', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   statesEqual(people, 'loaded.updated.inFlight');
-  flagsEqual(people, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
   expectUrl("/people/bulk", "the collection at the plural of the model name");
   expectType("PUT");
   expectData({ people: [{ id: 1, name: "Brohuda Brokatz", group_id: null }, { id: 2, name: "Brocarl Brolerche", group_id: null }] });
@@ -1020,8 +1020,8 @@ test("bulk updates can sideload data", function() {
   // test
   statesEqual(people, 'loaded.saved');
   stateEquals(group, 'loaded.saved');
-  flagsEqual(people, ['isLoaded', 'isValid']);
-  flagEquals(group, ['isLoaded', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isValid']);
+  enabledFlags(group, ['isLoaded', 'isValid']);
   equal(yehuda, store.find(Person, 1), "the same person is retrieved by the same ID");
   equal(carl, store.find(Person, 2), "the same person is retrieved by the same ID");
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
@@ -1041,7 +1041,7 @@ test("deleting several people (with bulkCommit) makes a DELETE to /people/bulk",
 
   // test
   statesEqual(people, 'loaded.saved');
-  flagsEqual(people, ['isLoaded', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isValid']);
 
   // setup
   yehuda.deleteRecord();
@@ -1049,14 +1049,14 @@ test("deleting several people (with bulkCommit) makes a DELETE to /people/bulk",
 
   // test
   statesEqual(people, 'deleted.uncommitted');
-  flagsEqual(people, ['isLoaded', 'isDirty', 'isDeleted', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isDirty', 'isDeleted', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   statesEqual(people, 'deleted.inFlight');
-  flagsEqual(people, ['isLoaded', 'isDirty', 'isSaving', 'isDeleted', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isDirty', 'isSaving', 'isDeleted', 'isValid']);
   expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
   expectType("DELETE");
   expectData({ people: [1, 2] });
@@ -1066,7 +1066,7 @@ test("deleting several people (with bulkCommit) makes a DELETE to /people/bulk",
 
   // test
   statesEqual(people, 'deleted.saved');
-  flagsEqual(people, ['isLoaded', 'isDeleted', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isDeleted', 'isValid']);
 });
 
 test("bulk deletes can sideload data", function() {
@@ -1084,7 +1084,7 @@ test("bulk deletes can sideload data", function() {
 
   // test
   statesEqual(people, 'loaded.saved');
-  flagsEqual(people, ['isLoaded', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isValid']);
 
   // setup
   yehuda.deleteRecord();
@@ -1092,14 +1092,14 @@ test("bulk deletes can sideload data", function() {
 
   // test
   statesEqual(people, 'deleted.uncommitted');
-  flagsEqual(people, ['isLoaded', 'isDirty', 'isDeleted', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isDirty', 'isDeleted', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   statesEqual(people, 'deleted.inFlight');
-  flagsEqual(people, ['isLoaded', 'isDirty', 'isSaving', 'isDeleted', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isDirty', 'isSaving', 'isDeleted', 'isValid']);
   expectUrl("/people/bulk", "the collection at the plural of the model name with 'delete'");
   expectType("DELETE");
   expectData({ people: [1, 2] });
@@ -1113,8 +1113,8 @@ test("bulk deletes can sideload data", function() {
   // test
   statesEqual(people, 'deleted.saved');
   stateEquals(group, 'loaded.saved');
-  flagsEqual(people, ['isLoaded', 'isDeleted', 'isValid']);
-  flagEquals(group, ['isLoaded', 'isValid']);
+  enabledFlagsForArray(people, ['isLoaded', 'isDeleted', 'isValid']);
+  enabledFlags(group, ['isLoaded', 'isValid']);
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
 
@@ -1219,8 +1219,8 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
   // test
   stateEquals(personType, 'loaded.saved');
   stateEquals(person, 'loaded.created.uncommitted');
-  flagEquals(personType, ['isLoaded', 'isValid']);
-  flagEquals(person, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
+  enabledFlags(personType, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
 
   // setup
   store.commit();
@@ -1228,8 +1228,8 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
   // test
   stateEquals(personType, 'loaded.saved');
   stateEquals(person, 'loaded.created.inFlight');
-  flagEquals(personType, ['isLoaded', 'isValid']);
-  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
+  enabledFlags(personType, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
   expectUrl('/people');
   expectType("POST");
   expectData({ person: { name: "Sam Woodard", person_type_id: 1, group_id: null } });
@@ -1240,8 +1240,8 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
   // test
   stateEquals(personType, 'loaded.saved');
   stateEquals(person, 'loaded.saved');
-  flagEquals(personType, ['isLoaded', 'isValid']);
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(personType, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
 });
 
 test("creating a record with a 422 error marks the records as invalid", function(){
@@ -1257,7 +1257,7 @@ test("creating a record with a 422 error marks the records as invalid", function
 
   // test
   stateEquals(person, 'loaded.created.invalid');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isNew']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isNew']);
   deepEqual(person.get('errors'), { name: ["can't be blank"]}, "the person has the errors");
 });
 
@@ -1272,21 +1272,21 @@ test("updating a record with a 422 error marks the records as invalid", function
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
 
   // setup
   person.set('name', '');
 
   // test
   stateEquals(person, 'loaded.updated.uncommitted');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   stateEquals(person, 'loaded.updated.inFlight');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
 
   // setup
   mockXHR = {
@@ -1297,7 +1297,7 @@ test("updating a record with a 422 error marks the records as invalid", function
 
   // test
   stateEquals(person, 'loaded.updated.invalid');
-  flagEquals(person, ['isLoaded', 'isDirty']);
+  enabledFlags(person, ['isLoaded', 'isDirty']);
   deepEqual(person.get('errors'), { name: ["can't be blank"], updatedAt: ["can't be blank"] }, "the person has the errors");
 });
 
@@ -1308,14 +1308,14 @@ test("creating a record with a 500 error marks the record as error", function() 
 
   // test
   stateEquals(person, 'loaded.created.uncommitted');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   stateEquals(person, 'loaded.created.inFlight');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
 
   // setup
   mockXHR = {
@@ -1326,7 +1326,7 @@ test("creating a record with a 500 error marks the record as error", function() 
 
   // test
   stateEquals(person, 'error');
-  flagEquals(person, ['isError', 'isValid']);
+  enabledFlags(person, ['isError', 'isValid']);
 });
 
 test("updating a record with a 500 error marks the record as error", function() {
@@ -1337,21 +1337,21 @@ test("updating a record with a 500 error marks the record as error", function() 
 
   // test
   stateEquals(person, 'loaded.saved');
-  flagEquals(person, ['isLoaded', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isValid']);
 
   // setup
   person.set('name', 'Jane Doe');
 
   // test
   stateEquals(person, 'loaded.updated.uncommitted');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isValid']);
 
   // setup
   store.commit();
 
   // test
   stateEquals(person, 'loaded.updated.inFlight');
-  flagEquals(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
 
   // setup
   mockXHR = {
@@ -1362,5 +1362,5 @@ test("updating a record with a 500 error marks the record as error", function() 
 
   // test
   stateEquals(person, 'error');
-  flagEquals(person, ['isError', 'isValid']);
+  enabledFlags(person, ['isError', 'isValid']);
 });
