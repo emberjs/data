@@ -287,8 +287,15 @@ var DirtyState = DS.State.extend({
       manager.transitionTo('loaded.materializing');
     },
 
-    becameInvalid: function(manager) {
-      manager.transitionTo('invalid');
+    becameInvalid: function(manager, errors) {
+      var record = get(manager, 'record');
+
+      var isValid = record.addValidationErrors(errors);
+
+      if (!isValid) {
+        manager.transitionTo('invalid');
+        manager.send('invokeLifecycleCallbacks');
+      }
     },
 
     rollback: function(manager) {
@@ -334,10 +341,12 @@ var DirtyState = DS.State.extend({
     becameInvalid: function(manager, errors) {
       var record = get(manager, 'record');
 
-      set(record, 'errors', errors);
+      var isValid = record.addValidationErrors(errors);
 
-      manager.transitionTo('invalid');
-      manager.send('invokeLifecycleCallbacks');
+      if (!isValid) {
+        manager.transitionTo('invalid');
+        manager.send('invokeLifecycleCallbacks');
+      }
     },
 
     becameError: function(manager) {
@@ -370,13 +379,10 @@ var DirtyState = DS.State.extend({
     willSetProperty: willSetProperty,
 
     didSetProperty: function(manager, context) {
-      var record = get(manager, 'record'),
-          errors = get(record, 'errors'),
-          key = context.name;
+      var record = get(manager, 'record');
+      var isValid = record.removeValidationError(context.name);
 
-      set(errors, key, null);
-
-      if (!hasDefinedProperties(errors)) {
+      if (isValid) {
         manager.send('becameValid');
       }
 
@@ -386,6 +392,10 @@ var DirtyState = DS.State.extend({
     becomeDirty: Ember.K,
 
     rollback: function(manager) {
+      var record = get(manager, 'record');
+
+      get(record, 'errors').clear();
+
       manager.send('becameValid');
       manager.send('rollback');
     },

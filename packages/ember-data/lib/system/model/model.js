@@ -38,7 +38,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   id: null,
   transaction: null,
   stateManager: null,
-  errors: null,
 
   /**
     Create a JSON representation of the record, using the serialization
@@ -148,6 +147,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
     var stateManager = DS.StateManager.create({ record: this });
     set(this, 'stateManager', stateManager);
+
+    var errors = DS.Errors.create({ record: this });
+    set(this, 'errors', errors);
 
     this._setup();
 
@@ -387,6 +389,38 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   becameInFlight: function() {
+  },
+
+  addValidationErrors: function(errors) {
+    var error, attribute;
+
+    for (attribute in errors) {
+      this.createValidationErrors(attribute, errors[attribute]);
+    }
+
+    return !get(this, 'errors').has(DS.ValidationError);
+  },
+
+  removeValidationError: function(attribute) {
+    var errors = get(this, 'errors');
+
+    errors.removeFromAttribute(attribute);
+
+    return !errors.has(DS.ValidationError);
+  },
+
+  createValidationErrors: function(attribute, messages) {
+    var errors = get(this, 'errors'),
+        error;
+
+    Ember.makeArray(messages).map(function(message) {
+      error = DS.AdapterValidationError.create({
+        record: this,
+        message: message,
+        attributeName: attribute
+      });
+      errors.add(error);
+    }, this);
   },
 
   // FOR USE BY THE BASIC ADAPTER
