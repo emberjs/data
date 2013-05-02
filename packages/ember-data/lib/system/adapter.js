@@ -457,8 +457,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {subclass of DS.Model} type
     @param {DS.Model} record
   */
-  didError: function(store, type, record) {
-    store.recordWasError(record);
+  didError: function(store, type, record, error) {
+    store.recordWasError(record, error);
   },
 
   dirtyRecordsForAttributeChange: function(dirtySet, record, attributeName, newValue, oldValue) {
