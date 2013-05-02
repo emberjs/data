@@ -21,15 +21,19 @@ DS.Model.reopenClass({
     });
 
     return map;
-  })
+  }),
+
+  eachAttribute: function(callback, binding) {
+    get(this, 'attributes').forEach(function(name, meta) {
+      callback.call(binding, name, meta);
+    });
+  }
 });
 
 
 DS.Model.reopen({
   eachAttribute: function(callback, binding) {
-    get(this.constructor, 'attributes').forEach(function(name, meta) {
-      callback.call(binding, name, meta);
-    }, binding);
+    this.constructor.eachAttribute(callback, binding);
   },
 
   attributeWillChange: Ember.beforeObserver(function(record, key) {

@@ -293,6 +293,7 @@ var DirtyState = DS.State.extend({
 
     becameInvalid: function(manager) {
       manager.transitionTo('invalid');
+      manager.send('invokeLifecycleCallbacks');
     },
 
     rollback: function(manager) {
@@ -335,16 +336,15 @@ var DirtyState = DS.State.extend({
 
     didChangeData: didChangeData,
 
-    becameInvalid: function(manager, errors) {
-      var record = get(manager, 'record');
-
-      set(record, 'errors', errors);
-
+    becameInvalid: function(manager) {
       manager.transitionTo('invalid');
       manager.send('invokeLifecycleCallbacks');
     },
 
-    becameError: function(manager) {
+    becameError: function(manager, error) {
+      var record = get(manager, 'record');
+      set(record, 'error', error);
+
       manager.transitionTo('error');
       manager.send('invokeLifecycleCallbacks');
     }
@@ -374,15 +374,9 @@ var DirtyState = DS.State.extend({
     willSetProperty: willSetProperty,
 
     didSetProperty: function(manager, context) {
-      var record = get(manager, 'record'),
-          errors = get(record, 'errors'),
-          key = context.name;
+      var record = get(manager, 'record');
 
-      set(errors, key, null);
-
-      if (!hasDefinedProperties(errors)) {
-        manager.send('becameValid');
-      }
+      get(record, 'errors').remove(context.name);
 
       didSetProperty(manager, context);
     },
@@ -390,9 +384,14 @@ var DirtyState = DS.State.extend({
     becomeDirty: Ember.K,
 
     rollback: function(manager) {
-      manager.send('becameValid');
+      var record = get(manager, 'record');
+
+      get(record, 'errors').clear();
+
       manager.send('rollback');
     },
+
+    becameInvalid: Ember.K,
 
     becameValid: function(manager) {
       manager.transitionTo('uncommitted');
@@ -493,7 +492,10 @@ var states = {
         manager.transitionTo('loaded.materializing.firstTime');
       },
 
-      becameError: function(manager) {
+      becameError: function(manager, error) {
+        var record = get(manager, 'record');
+        set(record, 'error', error);
+
         manager.transitionTo('error');
         manager.send('invokeLifecycleCallbacks');
       }

@@ -50,11 +50,25 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   extractValidationErrors: function(type, json) {
     var errors = {};
 
-    get(type, 'attributes').forEach(function(name) {
-      var key = this._keyForAttributeName(type, name);
+    function addError(name, key) {
       if (json['errors'].hasOwnProperty(key)) {
         errors[name] = json['errors'][key];
       }
+    }
+
+    type.eachAttribute(function(name) {
+      var key = this._keyForAttributeName(type, name);
+      addError(name, key);
+    }, this);
+
+    type.eachRelationship(function(name, meta) {
+      var key;
+      if (meta.kind === 'belongsTo') {
+        key = this._keyForBelongsTo(type, name);
+      } else if (meta.kind === 'hasMany') {
+        key = this._keyForHasMany(type, name);
+      }
+      addError(name, key);
     }, this);
 
     return errors;
