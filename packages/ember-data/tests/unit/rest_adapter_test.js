@@ -1,5 +1,6 @@
 var get = Ember.get, set = Ember.set;
 var Adapter, Person, Group, Role, adapter, serializer, store, ajaxUrl, ajaxType, ajaxHash, recordArrayFlags, manyArrayFlags;
+var forEach = Ember.EnumerableUtils.forEach;
 
 // Note: You will need to ensure that you do not attempt to assert against flags that do not exist in this array (or else they will show positive).
 recordArrayFlags = ['isLoaded'];
@@ -15,7 +16,7 @@ function stateEquals(entity, expectedState) {
 
 // Used for testing the adapter state path on a collection of entities
 function statesEqual(entities, expectedState) {
-  entities.forEach(function(entity){
+  forEach(entities, function(entity){
     stateEquals(entity, expectedState);
   });
 }
@@ -30,7 +31,7 @@ function flagEquals(entity, expectedFlagArr, onlyCheckFlagArr) {
     possibleFlags = ['isLoading', 'isLoaded', 'isReloading', 'isDirty', 'isSaving', 'isDeleted', 'isError', 'isNew', 'isValid'];
   }
 
-  possibleFlags.forEach(function(flag){
+  forEach(possibleFlags, function(flag){
     var expectedFlagValue, actualFlagValue;
 
     expectedFlagValue = expectedFlagArr.indexOf(flag) !== -1;
@@ -42,7 +43,7 @@ function flagEquals(entity, expectedFlagArr, onlyCheckFlagArr) {
 
 // Used for testing all of the flags on a collection of entities
 function flagsEqual(entities, expectedFlagArr, onlyCheckFlagArr) {
-  entities.forEach(function(entity){
+  forEach(entities, function(entity){
     flagEquals(entity, expectedFlagArr, onlyCheckFlagArr);
   });
 }
