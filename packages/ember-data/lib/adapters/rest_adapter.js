@@ -332,7 +332,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
       return Ember.RSVP.resolve(jQuery.ajax(hash));
     } catch (error) {
-      return Ember.RSVP.resolve(error);
+      return Ember.RSVP.reject(error);
     }
   },
 

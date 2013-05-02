@@ -33,7 +33,7 @@ GEM
       uuidtools (~> 2.1)
     colored (1.2)
     diff-lcs (1.2.4)
-    ember-source (1.0.0.rc3.2)
+    ember-source (1.0.0.rc3.3)
       handlebars-source (>= 1.0.0.rc3, < 1.0.0.rc4)
     execjs (1.4.0)
       multi_json (~> 1.0)
@@ -42,7 +42,7 @@ GEM
       diff-lcs (~> 1.1)
       mime-types (~> 1.15)
       posix-spawn (~> 0.3.6)
-    handlebars-source (1.0.0.rc.3)
+    handlebars-source (1.0.0.rc3)
     json (1.7.7)
     kicker (2.6.1)
       listen
@@ -76,5 +76,5 @@ PLATFORMS
 DEPENDENCIES
   aws-sdk (= 1.8.5)
   ember-dev!
-  ember-source (= 1.0.0.rc3.2)
+  ember-source (= 1.0.0.rc3.3)
   rake-pipeline!
