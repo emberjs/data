@@ -245,7 +245,7 @@ DS.OneToManyChange.createChange = function(childReference, parentReference, stor
       firstRecordName:  key
   });
 
-  store.addRelationshipChangeFor(childReference, key, parentReference, options.key, change);
+  store.addRelationshipChangeFor(childReference, key, parentReference, change.getSecondRecordName(), change);
 
 
   return change;
@@ -264,7 +264,7 @@ DS.OneToManyChange.maintainInvariant = function(options, store, childReference, 
           changeType: "remove",
           key: options.key
         });
-      store.addRelationshipChangeFor(childReference, key, options.parentReference, options.key, correspondingChange);
+      store.addRelationshipChangeFor(childReference, key, options.parentReference, correspondingChange.getSecondRecordName(), correspondingChange);
       correspondingChange.sync();
     }
   }
