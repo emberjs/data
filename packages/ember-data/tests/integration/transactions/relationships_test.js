@@ -175,6 +175,29 @@ test("If a child was added to one parent, and then another, the changes coalesce
   ]);
 });
 
+test("If a transaction have some relationships, they are stil here after commit", function() {
+  store.load(Post, { id: 1, title: "Ohai", body: "FIRST POST ZOMG" });
+  store.load(Comment, { id: 1, body: "Kthx" });
+
+  store.adapter.updateRecord = Ember.K;
+
+  var post = store.find(Post, 1);
+  var comment = store.find(Comment, 1);
+
+  transaction = store.transaction();
+
+  transaction.add(post);
+  transaction.add(comment);
+
+  post.get('comments').pushObject(comment);
+
+  transaction.commit();
+
+  expectRelationships(
+    [null,{parent: post, child: comment}]
+  );
+});
+
 test("the store should have a new defaultTransaction after commit from store", function() {
   store.load(Post, { id: 1, title: "Ohai" });
 
