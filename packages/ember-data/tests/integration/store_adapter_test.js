@@ -298,10 +298,6 @@ test("if a created record is marked as invalid by the server, it enters an error
   set(yehuda, 'updatedAt', true);
   equal(get(yehuda, 'isValid'), false, "the record is still invalid");
 
-  // This tests that we handle undefined values without blowing up
-  var errors = get(yehuda, 'errors');
-  set(errors, 'other_bound_property', undefined);
-  set(yehuda, 'errors', errors);
   set(yehuda, 'name', "Brohuda Brokatz");
 
   equal(get(yehuda, 'isValid'), true, "the record is no longer invalid after changing");
