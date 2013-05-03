@@ -365,6 +365,32 @@ test("updating a embedded record with a belongsTo relationship is serialize corr
     deepEqual(commentJSON, { id: 1, post_id: null, user: { id: 4, name: "Peter Pan", group: null }});
 });
 
+test("updating a embedded record don't dirty the other embedded one", function() {
+  Adapter.map(Group, {
+    people: { embedded: 'always' }
+  });
+
+  adapter = Adapter.create();
+  serializer = adapter.get('serializer');
+  store.set('adapter', adapter);
+
+  adapter.load(store, Group, {
+    id: 1,
+    people: [
+      {id: 2, group_id: 1, name: 'Yehuda Katz'},
+      {id: 3, group_id: 1, name: 'Tom Dale'}
+    ]
+  });
+  
+  var group = store.find(Group, 1);
+  
+  var user1 = group.get('people').objectAt(0);
+  var user2 = group.get('people').objectAt(1);
+  user1.set('name', 'Peter Pan');
+  equal(user1.get('stateManager.currentPath'), 'rootState.loaded.updated.uncommitted');
+  equal(user2.get('stateManager.currentPath'), 'rootState.loaded.saved');
+});
+
 test("sideloading a record with an embedded hasMany relationship", function() {
   Adapter.map(Person, {
     comments: { embedded: 'always' }
