@@ -31,28 +31,66 @@ module("Transactions and Relationships", {
   }
 });
 
-function expectRelationships(description) {
-  var relationships = transaction.get('relationships').toArray(),
-      relationship = relationships[0],
-      count = description.count === undefined ? description.length : description.count;
+function expectRelationships(descriptions) {
+  var relationships = transaction.get('relationships').toArray();
 
-  if(description.count === undefined && (!description[0] || !description[1])){
-    count = 1;
-  }
-  QUnit.push(relationships.length === count, relationships.length, count, "There should be " + count + " dirty relationships");
+  equal(relationships.length, descriptions.length, "incorrect number of relationships");
 
-  if (count) {
-    if(description[0]){
-      QUnit.push(relationships[0].getSecondRecord() === description[0].parent, relationships[0].getSecondRecord(), description[0].parent, "oldParent is incorrect");
-      QUnit.push(relationships[0].getFirstRecord() === description[0].child, relationships[0].child, description[0].child, "child in relationship 0 is incorrect");
+  for(var i = 0; i < descriptions.length; i++) {
+    var description = descriptions[i];
+    var relationship;
+    // no guarantees on ordering so we loop over all
+    for(var j = 0; i < relationships.length; j++) {
+      var r = relationships[j];
+      if(description.firstRecord === r.getFirstRecord() &&
+        description.secondRecord === r.getSecondRecord() &&
+        description.firstRecordName === r.getFirstRecordName() &&
+        description.secondRecordName === r.getSecondRecordName()) {
+        relationship = r;
+        break;
+      }
     }
-    if(description[1]){
-      var relPosition = count === 2 ? 1 : 0;
-      QUnit.push(relationships[relPosition].getFirstRecord() === description[1].child, relationships[relPosition].child, description[1].child, "child in relationship 1 is incorrect");
-      QUnit.push(relationships[relPosition].getSecondRecord() === description[1].parent, relationships[relPosition].parent, description[1].parent, "newParent is incorrect");
-    }
+    ok(relationship, "relationship should be present");
+    equal(
+      store.relationshipChangeFor(
+        description.firstRecord.get('_reference'),
+        description.firstRecordName,
+        description.secondRecord.get('_reference'),
+        description.secondRecordName
+      ), relationship, "store should be tracking relationship"
+    );
   }
+
 }
+
+test("adding a new child to the many side of a manyToOne should create a change", function() {
+  store.load(Post, { id: 1, title: "Ohai", body: "FIRST POST ZOMG" });
+
+  transaction = store.get('defaultTransaction');
+
+  var post = store.find(Post, 1);
+  var comment = post.get('comments').createRecord({body: 'rels'});
+
+  expectRelationships(
+    [{firstRecord: comment, firstRecordName: 'post', secondRecord: post, secondRecordName: 'comments'}]
+  );
+});
+
+test("adding a child to the one side of a manyToOne should create a change", function() {
+  store.load(Post, { id: 1, title: "Ohai", body: "FIRST POST ZOMG" });
+
+  transaction = store.get('defaultTransaction');
+
+  var post = store.find(Post, 1);
+  var comment = store.createRecord(Comment, {
+    body: 'rels',
+    post: post
+  });
+
+  expectRelationships(
+    [{firstRecord: comment, firstRecordName: 'post', secondRecord: post, secondRecordName: 'comments'}]
+  );
+});
 
 test("If both the parent and child are clean and in the same transaction, a dirty relationship is added to the transaction null->A", function() {
   store.load(Post, { id: 1, title: "Ohai", body: "FIRST POST ZOMG" });
@@ -69,7 +107,7 @@ test("If both the parent and child are clean and in the same transaction, a dirt
   post.get('comments').pushObject(comment);
 
   expectRelationships(
-    [null,{parent: post, child: comment}]
+    [{firstRecord: comment, firstRecordName: 'post', secondRecord: post, secondRecordName: 'comments'}]
   );
 });
 
@@ -88,8 +126,7 @@ test("If a child is removed from a parent, a dirty relationship is added to the 
   post.get('comments').removeObject(comment);
 
   expectRelationships(
-    [{parent: post,
-      child: comment}]
+    [{firstRecord: comment, firstRecordName: 'post', secondRecord: post, secondRecordName: 'comments'}]
   );
 });
 
@@ -108,7 +145,7 @@ test("If a child is removed from a parent it was recently added to, the dirty re
   post.get('comments').removeObject(comment);
   post.get('comments').pushObject(comment);
 
-  expectRelationships({ count: 0 });
+  expectRelationships([]);
 });
 
 test("If a child was added to one parent, and then another, the changes coalesce. A->B, B->C", function() {
@@ -132,7 +169,10 @@ test("If a child was added to one parent, and then another, the changes coalesce
   post2.get('comments').removeObject(comment);
   post3.get('comments').pushObject(comment);
 
-  expectRelationships([{parent:post, child:comment},{parent:post3, child:comment}]);
+  expectRelationships([
+    {firstRecord: comment, firstRecordName: 'post', secondRecord: post, secondRecordName: 'comments'},
+    {firstRecord: comment, firstRecordName: 'post', secondRecord: post3, secondRecordName: 'comments'}
+  ]);
 });
 
 test("the store should have a new defaultTransaction after commit from store", function() {
