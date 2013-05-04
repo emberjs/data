@@ -1,3 +1,4 @@
+![Ember Data Warning](ember-data-in-progress.png)
 ## Ember Data [![Build Status](https://secure.travis-ci.org/emberjs/data.png?branch=master)](http://travis-ci.org/emberjs/data)
 
 Ember Data is a library for loading data from a persistence layer (such as
