@@ -1280,6 +1280,6 @@ DS.Serializer = Ember.Object.extend({
     } else {
       return name;
     }
-  },
+  }
 });
 
