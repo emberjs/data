@@ -180,12 +180,13 @@ DS.Transaction = Ember.Object.extend({
 
     var commitDetails = this._commitDetails();
 
+    var result;
     if (!commitDetails.created.isEmpty() || !commitDetails.updated.isEmpty() || !commitDetails.deleted.isEmpty() || !commitDetails.relationships.isEmpty()) {
 
       Ember.assert("You tried to commit records but you have no adapter", adapter);
       Ember.assert("You tried to commit records but your adapter does not implement `commit`", adapter.commit);
 
-      adapter.commit(store, commitDetails);
+      result = adapter.commit(store, commitDetails);
     }
 
     // Once we've committed the transaction, there is no need to
@@ -194,6 +195,8 @@ DS.Transaction = Ember.Object.extend({
     relationships.forEach(function(relationship) {
       relationship.destroy();
     });
+
+    return result;
   },
 
   _commitDetails: function() {
