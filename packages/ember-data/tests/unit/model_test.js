@@ -353,3 +353,29 @@ test("don't allow setting", function(){
     record.set('isLoaded', true);
   }, "raised error when trying to set an unsettable record");
 });
+
+test("ensure model exits loading state, materializes data and fulfills promise only after data is available", function () {
+  expect(7);
+
+  var store = DS.Store.create({
+    adapter: DS.Adapter.create({
+      find: Ember.K
+    })
+  });
+
+  var person = store.find(Person, 1);
+
+  equal(get(person, 'stateManager.currentState.path'), 'rootState.loading', 'model is in loading state');
+  equal(get(person, 'isLoaded'), false, 'model is not loaded');
+  equal(get(person, '_deferred.promise.isFulfilled'), undefined, 'model is not fulfilled');
+
+  get(person, 'name'); //trigger data setup
+
+  equal(get(person, 'stateManager.currentState.path'), 'rootState.loading', 'model is still in loading state');
+
+  store.load(Person, { id: 1, name: "John", isDrugAddict: false });
+
+  equal(get(person, 'stateManager.currentState.path'), 'rootState.loaded.saved', 'model is in loaded state');
+  equal(get(person, 'isLoaded'), true, 'model is loaded');
+  equal(get(person, '_deferred.promise.isFulfilled'), true, 'model is fulfilled');
+});
