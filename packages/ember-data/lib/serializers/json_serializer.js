@@ -331,7 +331,9 @@ DS.JSONSerializer = DS.Serializer.extend({
 
     @returns {String} the key
   */
-  keyForPolymorphicId: Ember.K,
+  keyForPolymorphicId: function(key){
+    return key;
+  },
 
   /**
     A hook you can use in your serializer subclass to customize
@@ -341,7 +343,9 @@ DS.JSONSerializer = DS.Serializer.extend({
 
     @returns {String} the key
   */
-  keyForPolymorphicType: Ember.K,
+  keyForPolymorphicType: function(key){
+    return this.keyForPolymorphicId(key) + '_type';
+  },
 
   /**
     A hook you can use in your serializer subclass to customize
