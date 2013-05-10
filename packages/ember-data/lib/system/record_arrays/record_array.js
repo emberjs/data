@@ -25,7 +25,7 @@ var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
   @uses DS.LoadPromise
 */
 
-DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, LoadPromise, {
+DS.RecordArray = Ember.ArrayProxy.extend(LoadPromise, {
   /**
     The model type contained by this record array.
 
