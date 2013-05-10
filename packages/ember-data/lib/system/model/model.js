@@ -189,7 +189,18 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     @method reload
   */
   reload: function() {
+    var model = this;
     this.send('reloadRecord');
+
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      model.one('didReload', function() {
+        resolve(this);
+      });
+
+      model.one('becameError', function() {
+        reject(this);
+      });
+    });
   },
 
   deleteRecord: function() {
