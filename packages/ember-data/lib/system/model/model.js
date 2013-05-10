@@ -179,19 +179,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     this.send('didChangeData');
   },
 
-  /**
-    Reload the record from the adapter.
-
-    This will only work if the record has already finished loading
-    and has not yet been modified (`isLoaded` but not `isDirty`,
-    or `isSaving`).
-
-    @method reload
-  */
-  reload: function() {
-    this.send('reloadRecord');
-  },
-
   deleteRecord: function() {
     this.send('deleteRecord');
   },
@@ -389,17 +376,54 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   becameInFlight: function() {
   },
 
-  // FOR USE BY THE BASIC ADAPTER
+  /**
+    @private
 
-  save: function() {
+  */
+  resolveWithEvent: function(successEvent) {
     var model = this;
+
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      function success() {
+        this.off('becameError', error);
+        this.off('becameInvalid', error);
+        resolve(this);
+      }
+      function error() {
+        this.off(successEvent, success);
+        reject(this);
+      }
+
+      model.one(successEvent, success);
+      model.one('becameError', error);
+      model.one('becameInvalid', error);
+    });
+  },
+
+  /**
+    Save the record.
+
+    @method save
+  */
+  save: function() {
     this.get('store').scheduleSave(this);
 
-    return new Ember.RSVP.Promise(function(resolve, reject){
-      model.one('didCommit', function() {
-        resolve(this);
-      });
-    });
+    return this.resolveWithEvent('didCommit');
+  },
+
+  /**
+    Reload the record from the adapter.
+
+    This will only work if the record has already finished loading
+    and has not yet been modified (`isLoaded` but not `isDirty`,
+    or `isSaving`).
+
+    @method reload
+  */
+  reload: function() {
+    this.send('reloadRecord');
+
+    return this.resolveWithEvent('didReload');
   },
 
   // FOR USE DURING COMMIT PROCESS
