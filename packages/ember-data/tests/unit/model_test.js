@@ -61,6 +61,16 @@ test("a record's id is included in its toString representation", function() {
   equal(record.toString(), '<(subclass of DS.Model):'+Ember.guidFor(record)+':1>', "reports id in toString");
 });
 
+test("calling `find` with an `undefined` or `null` parameter should raise", function() {
+  raises(function() {
+    store.find(Person, undefined);
+  });
+
+  raises(function() {
+    store.find(Person, null);
+  });
+});
+
 test("trying to set an `id` attribute should raise", function() {
   Person = DS.Model.extend({
     id: DS.attr('number'),
