@@ -32,4 +32,5 @@ require("ember-data/system/relationships");
 require("ember-data/system/application_ext");
 require("ember-data/system/serializer");
 require("ember-data/system/adapter");
+require("ember-data/system/attribute_change");
 require("ember-data/adapters");

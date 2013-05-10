@@ -24,29 +24,6 @@ DS.Model.reopenClass({
   })
 });
 
-var AttributeChange = DS.AttributeChange = function(options) {
-  this.reference = options.reference;
-  this.store = options.store;
-  this.name = options.name;
-  this.oldValue = options.oldValue;
-};
-
-AttributeChange.createChange = function(options) {
-  return new AttributeChange(options);
-};
-
-AttributeChange.prototype = {
-  sync: function() {
-    this.store.recordAttributeDidChange(this.reference, this.name, this.value, this.oldValue);
-
-    // TODO: Use this object in the commit process
-    this.destroy();
-  },
-
-  destroy: function() {
-    delete this.store.recordForReference(this.reference)._changesToSync[this.name];
-  }
-};
 
 DS.Model.reopen({
   eachAttribute: function(callback, binding) {
