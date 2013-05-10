@@ -189,7 +189,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @property {DS.Adapter|String}
   */
   adapter: Ember.computed(function(){
-    Ember.debug("A custom DS.Adapter was not provided as the 'Adapter' property of your application's Store. The default (DS.RESTAdapter) will be used.");
+    if (!Ember.testing) {
+      Ember.debug("A custom DS.Adapter was not provided as the 'Adapter' property of your application's Store. The default (DS.RESTAdapter) will be used.");
+    }
+
     return 'DS.RESTAdapter';
   }).property(),
 
