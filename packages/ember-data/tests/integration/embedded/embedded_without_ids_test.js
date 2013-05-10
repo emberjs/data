@@ -104,7 +104,7 @@ asyncTest("Embedded belongsTo relationships can be saved when embedded: always i
 
     return promise(function(resolve, reject) {
       setTimeout(function() {
-        Ember.run(null, resolve, adapter);
+        Ember.run(null, resolve);
         done();
       });
     });
@@ -191,7 +191,7 @@ asyncTest("Embedded hasMany relationships can be saved when embedded: always is 
 
     return promise(function(resolve, reject){
       setTimeout(function() {
-        Ember.run(null, resolve, adapter);
+        Ember.run(null, resolve);
         done();
       });
     });
@@ -293,7 +293,7 @@ asyncTest("Embedded records that contain embedded records can be saved", functio
 
     return promise(function(resolve, reject){
       setTimeout(function(){
-        Ember.run(null, resolve, adapter);
+        Ember.run(null, resolve);
         done();
       });
     });

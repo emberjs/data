@@ -44,22 +44,20 @@ DS.FixtureSerializer = DS.Serializer.extend({
     hash[relationship.key] = ids;
   },
 
-  extract: function(loader, fixture, type, record) {
-    if (record) { loader.updateId(record, fixture); }
-    this.extractRecordRepresentation(loader, type, fixture);
+  extract: function(type, fixture) {
+    return this.extractRecordRepresentation(type, fixture);
   },
 
-  extractMany: function(loader, fixtures, type, records) {
-    var objects = fixtures, references = [];
-    if (records) { records = records.toArray(); }
+  extractMany: function(type, fixtures) {
+    var objects = Ember.A(fixtures), references = [];
 
-    for (var i = 0; i < objects.length; i++) {
-      if (records) { loader.updateId(records[i], objects[i]); }
-      var reference = this.extractRecordRepresentation(loader, type, objects[i]);
-      references.push(reference);
-    }
+    var result = {};
 
-    loader.populateArray(references);
+    result.raw = objects.map(function(json) {
+      return this.extractRecordRepresentation(type, json);
+    }, this);
+
+    return result;
   },
 
   extractId: function(type, hash) {

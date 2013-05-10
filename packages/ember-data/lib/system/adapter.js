@@ -7,42 +7,6 @@ require('ember-data/serializers/json_serializer');
 
 var get = Ember.get, set = Ember.set, merge = Ember.merge;
 
-function loaderFor(store) {
-  return {
-    load: function(type, data, prematerialized) {
-      return store.load(type, data, prematerialized);
-    },
-
-    loadMany: function(type, array) {
-      return store.loadMany(type, array);
-    },
-
-    updateId: function(record, data) {
-      return store.updateId(record, data);
-    },
-
-    populateArray: Ember.K,
-
-    sideload: function(type, data) {
-      return store.adapterForType(type).load(store, type, data);
-    },
-
-    sideloadMany: function(type, array) {
-      return store.loadMany(type, array);
-    },
-
-    prematerialize: function(reference, prematerialized) {
-      reference.prematerialized = prematerialized;
-    },
-
-    metaForType: function(type, property, data) {
-      store.metaForType(type, property, data);
-    }
-  };
-}
-
-DS.loaderFor = loaderFor;
-
 /**
   An adapter is an object that receives requests from a store and
   translates them into the appropriate action to take against your
@@ -103,14 +67,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     this._attributesMap = this.createInstanceMapFor('attributes');
     this._configurationsMap = this.createInstanceMapFor('configurations');
 
-    this._outstandingOperations = new Ember.MapWithDefault({
-      defaultValue: function() { return 0; }
-    });
-
-    this._dependencies = new Ember.MapWithDefault({
-      defaultValue: function() { return new Ember.OrderedSet(); }
-    });
-
     this.registerSerializerTransforms(this.constructor, serializer, {});
     this.registerSerializerMappings(serializer);
   },
@@ -144,8 +100,187 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {any} payload
   */
   load: function(store, type, payload) {
-    var loader = loaderFor(store);
-    return get(this, 'serializer').extractRecordRepresentation(loader, type, payload);
+    var extracted = get(this, 'serializer').extractRecordRepresentation(type, payload);
+    return this.loadData(store, extracted);
+  },
+
+  loadMeta: function(store, extracted) {
+    var meta = extracted.meta;
+    for(var prop in meta) {
+      if(!meta.hasOwnProperty(prop)) continue;
+      store.metaForType(extracted.type, prop, meta[prop]);
+    }
+  },
+
+  /**
+    Loads all sideloaded records that are part of an
+    extracted payload
+  */
+  sideload: function(store, extracted) {
+    var sideloaded = extracted.sideloaded;
+    if(sideloaded) {
+      for(var i=0; i < sideloaded.length; i++) {
+        this.loadData(store, sideloaded[i]);
+      }
+    }
+  },
+
+  /**
+    Loads data into the store.
+  */
+  loadData: function(store, extracted) {
+    var prematerialized = {};
+    if(extracted.id) {
+      prematerialized.id = extracted.id;
+    }
+    var reference = store.load(extracted.type, extracted.raw || {}, prematerialized);
+    this.loadEmbedded(store, reference, extracted);
+    return reference;
+  },
+
+  /**
+    Updates the data in the store associated with
+    a record that has already been materialized.
+  */
+  updateData: function(store, record, extracted) {
+    var prematerialized = {};
+    if(extracted.id) {
+      prematerialized.id = extracted.id;
+    }
+    var reference = store.load(extracted.type, extracted.raw || {}, prematerialized);
+    this.updateEmbedded(store, record, extracted);
+    return reference;
+  },
+
+  /**
+    Updates all embedded records for the given record and
+    extracted payload.
+
+    This method differs from the `load` counterpart in that
+    it will invoke the appropriate lifecycle callbacks on
+    records that are already materialized. If the records
+    are not materialized, this method defers to the normal
+    load methods.
+  */
+  updateEmbedded: function(store, record, extracted) {
+    var name, value, cached;
+    var reference = record.get('_reference');
+    var prematerialized = reference.prematerialized;
+    var hasMany = extracted.embeddedHasMany, belongsTo = extracted.embeddedBelongsTo;
+    for(name in hasMany) {
+      if(!hasMany.hasOwnProperty(name)) continue;
+      value = hasMany[name];
+
+      cached = record.cacheFor(name);
+      if(cached) {
+        prematerialized[name] = this.updateEmbeddedHasMany(store, record, value, name);
+      } else {
+        prematerialized[name] = this.loadEmbeddedHasMany(store, reference, value, name);
+      }
+    }
+
+    for(name in belongsTo) {
+      if(!belongsTo.hasOwnProperty(name)) continue;
+      value = belongsTo[name];
+
+      cached = record.cacheFor(name);
+      if(cached) {
+        prematerialized[name] = this.updateEmbeddedBelongsTo(store, record, value, name);
+      } else {
+        prematerialized[name] = this.loadEmbeddedBelongsTo(store, reference, value, name);
+      }
+    }
+  },
+
+  updateEmbeddedHasMany: function(store, parentRecord, resultArray, name) {
+    // TODO: handle deletion
+    // TODO: handle re-ordering
+
+    var records = parentRecord.get(name).toArray();
+
+    return resultArray.map(function(result, i) {
+      var record = records[i];
+      var root = get(this, 'serializer').rootForType(result.type);
+      var raw = {};
+      raw[root] = result.raw;
+      if(get(record, 'isNew')) {
+        this.didCreateRecord(store, record.constructor, record, raw);
+      } else {
+        this.didSaveRecord(store, record.constructor, record, raw);
+      }
+      return record.get('_reference');
+    }, this);
+  },
+
+  updateEmbeddedBelongsTo: function(store, parentRecord, result, name) {
+    // TODO: handle deletion
+
+    var record = parentRecord.get(name);
+    var root = get(this, 'serializer').rootForType(result.type);
+    var raw = {};
+    raw[root] = result.raw;
+    if(get(record, 'isNew')) {
+      this.didCreateRecord(store, record.constructor, record, raw);
+    } else {
+      this.didSaveRecord(store, record.constructor, record, raw);
+    }
+    return record.get('_reference');
+  },
+
+  loadEmbeddedHasMany: function(store, parentReference, resultsArray, name) {
+    return resultsArray.map(function(result) {
+      var childReference = this.load(store, result.type, result.raw);
+      if (result.embeddedType === 'always') {
+        childReference.parent = parentReference;
+      }
+      return childReference;
+    }, this);
+  },
+
+  loadEmbeddedBelongsTo: function(store, parentReference, result, name) {
+    var childReference = this.load(store, result.type, result.raw);
+    if (result.embeddedType === 'always') {
+      childReference.parent = parentReference;
+    }
+    return childReference;
+  },
+
+  /**
+    Loads all embedded records for the given reference and
+    extracted payload.
+  */
+  loadEmbedded: function(store, reference, extracted) {
+    var name, value;
+    var prematerialized = reference.prematerialized;
+    var hasMany = extracted.embeddedHasMany, belongsTo = extracted.embeddedBelongsTo;
+    for(name in hasMany) {
+      if(!hasMany.hasOwnProperty(name)) continue;
+      value = hasMany[name];
+
+      prematerialized[name] = this.loadEmbeddedHasMany(store, reference, value, name);
+    }
+
+    for(name in belongsTo) {
+      if(!belongsTo.hasOwnProperty(name)) continue;
+      value = belongsTo[name];
+
+      prematerialized[name] = this.loadEmbeddedBelongsTo(store, reference, value, name);
+    }
+  },
+
+  /**
+    Recursively invokes lifecycle callbacks on all embedded records.
+
+    This method should only be called when an operation has
+    completed and no payload is returned. Otherwise, the `updateEmbedded`
+    method should be called.
+  */
+  notifyEmbedded: function(store, record) {
+    var serializer = get(this, 'serializer');
+    serializer.eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
+      if (embeddedType === 'load') { return; }
+      this.didSaveRecord(store, embeddedRecord.constructor, embeddedRecord);
+    }, this);
   },
 
   /**
@@ -174,14 +309,13 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     store.didSaveRecord(record);
 
     if (payload) {
-      var loader = DS.loaderFor(store);
-
-      loader.load = function(type, data, prematerialized) {
-        store.updateId(record, data);
-        return store.load(type, data, prematerialized);
-      };
-
-      get(this, 'serializer').extract(loader, payload, type);
+      var extracted = get(this, 'serializer').extract(type, payload);
+      store.updateId(record, extracted.raw);
+      this.loadMeta(store, extracted);
+      this.sideload(store, extracted);
+      this.updateData(store, record, extracted);
+    } else {
+      this.notifyEmbedded(store, record);
     }
   },
 
@@ -205,11 +339,20 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   didCreateRecords: function(store, type, records, payload) {
     records.forEach(function(record) {
       store.didSaveRecord(record);
+      if(!payload) {
+        this.notifyEmbedded(store, record);
+      }
     }, this);
 
     if (payload) {
-      var loader = DS.loaderFor(store);
-      get(this, 'serializer').extractMany(loader, payload, type, records);
+      var extracted = get(this, 'serializer').extractMany(type, payload);
+      this.loadMeta(store, extracted);
+      this.sideload(store, extracted);
+      records = records.toArray();
+      for(var i=0; i < extracted.raw.length; i++) {
+        store.updateId(records[i], extracted.raw[i].raw);
+        this.updateData(store, records[i], extracted.raw[i]);
+      }
     }
   },
 
@@ -235,17 +378,13 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   didSaveRecord: function(store, type, record, payload) {
     store.didSaveRecord(record);
 
-    var serializer = get(this, 'serializer');
-
-    serializer.eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
-      if (embeddedType === 'load') { return; }
-
-      this.didSaveRecord(store, embeddedRecord.constructor, embeddedRecord);
-    }, this);
-
     if (payload) {
-      var loader = DS.loaderFor(store);
-      serializer.extract(loader, payload, type);
+      var extracted = get(this, 'serializer').extract(type, payload);
+      this.loadMeta(store, extracted);
+      this.sideload(store, extracted);
+      this.updateData(store, record, extracted);
+    } else {
+      this.notifyEmbedded(store, record);
     }
   },
 
@@ -309,11 +448,19 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   didSaveRecords: function(store, type, records, payload) {
     records.forEach(function(record) {
       store.didSaveRecord(record);
+      if(!payload) {
+        this.notifyEmbedded(store, record);
+      }
     }, this);
 
     if (payload) {
-      var loader = DS.loaderFor(store);
-      get(this, 'serializer').extractMany(loader, payload, type);
+      var extracted = get(this, 'serializer').extractMany(type, payload);
+      this.loadMeta(store, extracted);
+      this.sideload(store, extracted);
+      records = records.toArray();
+      for(var i=0; i < extracted.raw.length; i++) {
+        this.updateData(store, records[i], extracted.raw[i]);
+      }
     }
   },
 
@@ -374,16 +521,11 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {String} id
   */
   didFindRecord: function(store, type, payload, id) {
-    var loader = DS.loaderFor(store);
-
-    loader.load = function(type, data, prematerialized) {
-      prematerialized = prematerialized || {};
-      prematerialized.id = id;
-
-      return store.load(type, data, prematerialized);
-    };
-
-    get(this, 'serializer').extract(loader, payload, type);
+    var extracted = get(this, 'serializer').extract(type, payload);
+    extracted.id = id;
+    this.loadMeta(store, extracted);
+    this.sideload(store, extracted);
+    this.loadData(store, extracted);
   },
 
   /**
@@ -398,12 +540,13 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {any} payload
   */
   didFindAll: function(store, type, payload) {
-    var loader = DS.loaderFor(store),
-        serializer = get(this, 'serializer');
-
     store.didUpdateAll(type);
-
-    serializer.extractMany(loader, payload, type);
+    var extracted = get(this, 'serializer').extractMany(type, payload);
+    this.loadMeta(store, extracted);
+    this.sideload(store, extracted);
+    for(var i=0; i < extracted.raw.length; i++) {
+      this.loadData(store, extracted.raw[i]);
+    }
   },
 
   /**
@@ -419,13 +562,14 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {DS.AdapterPopulatedRecordArray} recordArray
   */
   didFindQuery: function(store, type, payload, recordArray) {
-    var loader = DS.loaderFor(store);
-
-    loader.populateArray = function(data) {
-      recordArray.load(data);
-    };
-
-    get(this, 'serializer').extractMany(loader, payload, type);
+    var extracted = get(this, 'serializer').extractMany(type, payload);
+    this.loadMeta(store, extracted);
+    this.sideload(store, extracted);
+    var references = [];
+    for(var i=0; i < extracted.raw.length; i++) {
+      references.push(this.loadData(store, extracted.raw[i]));
+    }
+    recordArray.load(references);
   },
 
   /**
@@ -440,9 +584,12 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {any} payload
   */
   didFindMany: function(store, type, payload) {
-    var loader = DS.loaderFor(store);
-
-    get(this, 'serializer').extractMany(loader, payload, type);
+    var extracted = get(this, 'serializer').extractMany(type, payload);
+    this.loadMeta(store, extracted);
+    this.sideload(store, extracted);
+    for(var i=0; i < extracted.raw.length; i++) {
+      this.loadData(store, extracted.raw[i]);
+    }
   },
 
   /**
