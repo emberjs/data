@@ -246,7 +246,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   find: function(store, type, id) {
     var root = this.rootForType(type), adapter = this;
 
-    return this.ajax(this.buildURL(root, id), "GET").then(function(json){
+    return this.ajax(this.buildURL(root, id), "GET", {}).then(function(json){
       return Ember.run(adapter,'didFindRecord', store, type, json, id);
     });
   },
