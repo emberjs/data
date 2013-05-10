@@ -337,5 +337,26 @@ test("should throw if ids are not defined in the FIXTURES", function() {
 
   raises(function(){
     Person.find("1");
-  }, /the id property must be defined for fixture/);
+  }, /the id property must be defined as a number or string for fixture/);
+
+  Person.FIXTURES = [{
+    id: 0
+  }];
+  var result;
+  stop();
+  try {
+    result = Person.find("0");
+    // should accept 0 as an id, all is fine
+    result.then(function() {
+      clearTimeout(timer);
+      start();
+    });
+    var timer = setTimeout(function() {
+      start();
+      ok(false, "timeout exceeded waiting for fixture data");
+    }, 1000);
+  } catch (err) {
+    ok(false, "model with id of zero raises undefined id error");
+    start();
+  }
 });
