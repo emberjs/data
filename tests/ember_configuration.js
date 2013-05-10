@@ -95,6 +95,7 @@
     });
 
     DS.Store.reopen({
+      save: syncForTest(),
       createRecord: syncForTest(),
       deleteRecord: syncForTest(),
       load: syncForTest(),
