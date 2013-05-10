@@ -23,7 +23,6 @@
   @module data
 */
 
-require("json-normalizer");
 require("ember-data/core");
 require("ember-data/ext");
 require("ember-data/system/store");

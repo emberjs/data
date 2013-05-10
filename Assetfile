@@ -1,7 +1,7 @@
 require 'ember-dev'
 
 distros = {
-  :full    => %w(json-normalizer ember-data)
+  :full    => %w(ember-data)
 }
 
 #MEGAHAX
