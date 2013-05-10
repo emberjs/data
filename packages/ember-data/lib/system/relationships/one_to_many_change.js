@@ -327,6 +327,8 @@ DS.RelationshipChange.prototype = {
     if (reference.record) {
       return reference.record;
     }
+    
+    return store.materializeRecord(reference);
   },
 
   getSecondRecord: function(){

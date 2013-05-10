@@ -178,3 +178,37 @@ test("Deleting a newly created record removes it from any inverse hasMany arrays
   equal(comment.get('post'), null, "the comment should no longer belong to a post");
   deepEqual(post.get('comments').toArray(), [], "the post should no longer have any comments");
 });
+
+test("A serializer can materialize a hasMany via loadHasMany and inverse belongsTo relationships will be setup properly.", function() {
+  var post, comments;
+  
+  store.load(App.Post, { id: 1, title: "Linkbait!" });
+  
+  // Materialize the post
+  post = App.Post.find(1);
+  equal(post.get('title'), "Linkbait!");
+
+  // Load in some fake comments
+  // We must test at least three comments, because Ember.Array
+  // materializes the first and last during the array:didChange
+  // event, which affects the result!
+  store.loadMany(App.Comment, [
+    { id: 1, body: "First" },
+    { id: 2, body: "Second" },
+    { id: 3, body: "Third"}
+  ]);
+
+  // Populate the hasMany
+  store.loadHasMany(post, 'comments', [1,2,3]);
+
+  comments = [
+    App.Comment.find(1),
+    App.Comment.find(2),
+    App.Comment.find(3)
+  ];
+  verifySynchronizedOneToMany(post, comments[0], comments);
+  verifySynchronizedOneToMany(post, comments[1], comments);
+  verifySynchronizedOneToMany(post, comments[2], comments);
+
+});
+
