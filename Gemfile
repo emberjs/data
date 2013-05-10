@@ -5,4 +5,3 @@ gem "ember-dev", :git => "https://github.com/emberjs/ember-dev.git", :branch => 
 
 gem "ember-source", "1.0.0.rc3.3"
 
-gem "aws-sdk", "1.8.5"
