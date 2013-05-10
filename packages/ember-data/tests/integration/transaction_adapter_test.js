@@ -29,6 +29,38 @@ module("DS.Transaction and DS.Adapter Integration", {
   }
 });
 
+
+test("commiting a transaction with dirty records will pass the records to adapter", function() {
+  expect(2);
+  store.load(Comment, { id: 1 });
+  var comment = store.find(Comment, 1);
+  transaction.add(comment);
+
+  comment.set('body', 'Hello');
+  equal(comment.get('isDirty'), true, 'comment is not dirty');
+
+  adapter.commit = function() {
+    ok(true, 'adapter was called');
+  };
+
+  transaction.commit();
+});
+
+test("commiting a transaction with clean records will do nothing", function() {
+  expect(1);
+  store.load(Comment, { id: 1 });
+  var comment = store.find(Comment, 1);
+  transaction.add(comment);
+
+  equal(comment.get('isDirty'), false, 'comment is not dirty');
+
+  adapter.commit = function() {
+    ok(false, 'adapter was called');
+  };
+
+  transaction.commit();
+});
+
 //test("adding a clean record to a relationship causes it to be passed as an updated record", function() {
   //var post, comment;
 
