@@ -74,7 +74,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  aws-sdk (= 1.8.5)
   ember-dev!
   ember-source (= 1.0.0.rc3.3)
   rake-pipeline!
