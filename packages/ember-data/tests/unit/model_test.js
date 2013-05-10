@@ -74,6 +74,13 @@ test("trying to set an `id` attribute should raise", function() {
   }, /You may not set `id`/);
 });
 
+test("it should use `_reference` and not `reference` to store its reference", function() {
+  store.load(Person, { id: 1 });
+
+  var record = store.find(Person, 1);
+  equal(record.get('reference'), undefined, "doesn't shadow reference key");
+});
+
 test("it should cache attributes", function() {
   var store = DS.Store.create();
 
