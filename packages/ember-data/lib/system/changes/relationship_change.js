@@ -10,9 +10,10 @@ DS.RelationshipChange = function(options) {
   this.secondRecordReference = options.secondRecordReference;
   this.secondRecordKind = options.secondRecordKind;
   this.secondRecordName = options.secondRecordName;
-  this.store = options.store;
-  this.committed = {};
   this.changeType = options.changeType;
+  this.store = options.store;
+
+  this.committed = {};
 };
 
 DS.RelationshipChangeAdd = function(options){

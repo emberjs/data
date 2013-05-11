@@ -267,6 +267,16 @@ DS.Serializer = Ember.Object.extend({
         reference.parent = parent;
       }
 
+      // If the embedded children have an inverse belongs-to, set the
+      // inverse to the current record in their prematerialized data.
+      var parentType = relationship.parentType,
+          inverse = parentType.inverseFor(relationship.key);
+
+      if (inverse) {
+        var inverseName = inverse.name;
+        reference.prematerialized[inverseName] = parent;
+      }
+
       return reference;
     }, this);
 
