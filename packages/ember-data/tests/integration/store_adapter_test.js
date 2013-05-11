@@ -12,7 +12,7 @@
 */
 
 var get = Ember.get, set = Ember.set;
-var Person, store, adapter;
+var Person, Dog, store, adapter;
 
 module("DS.Store and DS.Adapter integration test", {
   setup: function() {
@@ -25,6 +25,10 @@ module("DS.Store and DS.Adapter integration test", {
       lastName: DS.attr('string')
     });
 
+    App.Dog = Dog = DS.Model.extend({
+      name: DS.attr('string')
+    });
+    
     adapter = DS.Adapter.create();
     store = DS.Store.create({ adapter: adapter });
   },
@@ -408,6 +412,38 @@ test("the filter method can optionally take a server query as well", function() 
 
   equal(get(filter, 'length'), 1, "The filter has an item in it");
   deepEqual(filter.toArray(), [ tom ], "The filter has a single entry in it");
+});
+
+test("the filter method with server query works with embedded records", function() {
+  var MyAdapter = DS.Adapter.extend();
+
+  Person.reopen({
+    dogs: DS.hasMany(Dog)
+  });
+
+  MyAdapter.map(Person, {
+    dogs: { embedded: 'always' }
+  });
+
+  var adapter = MyAdapter.create();
+  store.set('adapter', adapter);
+
+  adapter.findQuery = function(store, type, query, array) {
+    this.didFindQuery(store, type, { persons: [
+      {id: 1, name: "Yehuda Katz", dogs: []},
+      {id: 2, name: "Tom Dale", dogs: [{ name: "Tank" }, {name: "Fluffy"}] }
+    ]}, array);
+  };
+
+  var filter = store.filter(Person, { name: "Tom Dale" }, function(data) {
+    return data.get('name') === "Tom Dale";
+  });
+
+  equal(get(filter, 'length'), 1, "The filter has an item in it");
+
+  var tom = filter.objectAt(0);
+  equal(tom.get('dogs.length'), 2, "loads embedded records");
+  equal(tom.get('dogs').objectAt(0).get('name'), 'Tank', "loads embedded record attributes");
 });
 
 test("can rollback after sucessives updates", function() {
