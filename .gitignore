@@ -1,5 +1,6 @@
 bin/
 .bundle
+bundle
 tmp/
 tests/source/
 dist/
