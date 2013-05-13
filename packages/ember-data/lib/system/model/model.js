@@ -380,7 +380,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     @private
 
   */
-  resolveWithEvent: function(successEvent) {
+  resolveOn: function(successEvent) {
     var model = this;
 
     return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -408,7 +408,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   save: function() {
     this.get('store').scheduleSave(this);
 
-    return this.resolveWithEvent('didCommit');
+    return this.resolveOn('didCommit');
   },
 
   /**
@@ -423,7 +423,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   reload: function() {
     this.send('reloadRecord');
 
-    return this.resolveWithEvent('didReload');
+    return this.resolveOn('didReload');
   },
 
   // FOR USE DURING COMMIT PROCESS
