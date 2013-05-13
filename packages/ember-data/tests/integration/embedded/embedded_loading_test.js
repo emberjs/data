@@ -118,6 +118,32 @@ Ember.ArrayPolyfills.forEach.call([Person, "Person"], function(mapping) {
     strictEqual(person2.get('comments').objectAt(0), comment1);
   });
 
+  test("A null or undefined hasMany relationship should not blow up", function() {
+    Adapter.map(mapping, {
+      comments: { embedded: 'load' }
+    });
+
+    adapter = Adapter.create();
+    store.set('adapter', adapter);
+
+    adapter.load(store, Person, {
+      id: 1,
+      name: "Erik Brynroflsson",
+      comments: null
+    });
+
+    adapter.load(store, Person, {
+      id: 2,
+      name: "Patrick Gibson"
+    });
+
+    var person1 = store.find(Person, 1);
+    var person2 = store.find(Person, 2);
+
+    strictEqual(person1.get('comments.length'), 0);
+    strictEqual(person2.get('comments.length'), 0);
+  });
+
   asyncTest("An embedded belongsTo relationship can be extracted from a sideloaded hasMany relationship when the JSON is returned in response to a find", function() {
     Adapter.map(mapping, {
       comments: { embedded: 'load' }
@@ -140,7 +166,7 @@ Ember.ArrayPolyfills.forEach.call([Person, "Person"], function(mapping) {
 
       setTimeout(function() {
         Ember.run(function() {
-          self.didFindRecord(store, type, { 
+          self.didFindRecord(store, type, {
             comments: [
               {
                 id: 3,
@@ -154,7 +180,7 @@ Ember.ArrayPolyfills.forEach.call([Person, "Person"], function(mapping) {
               id: 3,
               title: "Embedded via sideload",
               comment_ids: [3]
-            } 
+            }
           }, id);
         });
 
