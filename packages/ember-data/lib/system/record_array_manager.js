@@ -41,7 +41,7 @@ DS.RecordArrayManager = Ember.Object.extend({
           recordArrays = this.filteredRecordArrays.get(type),
           filter;
 
-      recordArrays.forEach(function(array) {
+      forEach(recordArrays, function(array) {
         filter = get(array, 'filterFunction');
         this.updateRecordArray(array, filter, type, reference);
       }, this);

@@ -1,4 +1,4 @@
-var get = Ember.get, set = Ember.set, forEach = Ember.ArrayPolyfills.forEach;
+var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach;
 
 require("ember-data/system/model/model");
 
@@ -44,8 +44,7 @@ function clearUnmaterializedHasMany(record, relationship) {
 
   var inverseName = record.constructor.inverseFor(relationship.key).name;
 
-
-  forEach.call(references, function(reference) {
+  forEach(references, function(reference) {
     var childRecord;
 
     if (childRecord = reference.record) {
