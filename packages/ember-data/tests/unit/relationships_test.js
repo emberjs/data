@@ -644,3 +644,39 @@ test("belongsTo supports relationships to models with id 0", function() {
   strictEqual(get(person, 'tag'), store.find(Tag, 0), "relationship object is the same as object retrieved directly");
 });
 
+
+test("belongsTo loading after the parent should populate the parents ManyArray", function(){
+  var Post, Comment, post, comment, comments, store;
+
+  store = DS.Store.create({ adapter: 'DS.Adapter' });
+
+  Post = DS.Model.extend();
+  Comment = DS.Model.extend();
+
+  Post.reopen({
+    comments: DS.hasMany(Comment)
+  });
+
+  Comment.reopen({
+    post: DS.belongsTo(Post)
+  });
+
+  store.load(Post, {id: 1, comments: []});
+  store.load(Comment, {id: 1, post_id: 1});
+
+  post = Post.find(1);
+
+  comments = post.get('comments');
+  equal(get(comments, 'length'), 1, 'post initially should have comments');
+  comment = Comment.find(1);
+
+  strictEqual(comment.get('post'), post, 'comment has a back reference to its post');
+
+  store.load(Comment, {id: 2, post_id: 1});
+  comment = Comment.find(2);
+
+  strictEqual(comment.get('post'), post, 'comment has a back reference to its post');
+
+  comments = post.get('comments');
+  equal(get(comments, 'length'), 2, 'expected later loaded comment to exist in this relationship');
+});
