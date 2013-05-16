@@ -1,4 +1,4 @@
-var none = Ember.isNone, empty = Ember.isEmpty;
+var isNone = Ember.isNone, isEmpty = Ember.isEmpty;
 
 /**
   @module data
@@ -15,21 +15,21 @@ var none = Ember.isNone, empty = Ember.isEmpty;
 DS.JSONTransforms = {
   string: {
     deserialize: function(serialized) {
-      return none(serialized) ? null : String(serialized);
+      return isNone(serialized) ? null : String(serialized);
     },
 
     serialize: function(deserialized) {
-      return none(deserialized) ? null : String(deserialized);
+      return isNone(deserialized) ? null : String(deserialized);
     }
   },
 
   number: {
     deserialize: function(serialized) {
-      return empty(serialized) ? null : Number(serialized);
+      return isEmpty(serialized) ? null : Number(serialized);
     },
 
     serialize: function(deserialized) {
-      return empty(deserialized) ? null : Number(deserialized);
+      return isEmpty(deserialized) ? null : Number(deserialized);
     }
   },
 
