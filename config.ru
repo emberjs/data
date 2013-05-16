@@ -1,4 +1,5 @@
 require 'bundler/setup'
+require 'ember/source'
 require 'ember-dev'
 
 # This is not ideal
