@@ -209,10 +209,9 @@ test('creating a person fires the didCreate event after matterializing the model
   stop();
 
   person.one('didCreate', function() {
-    // clearTimeout(timer);
     start();
 
-    equal(get(person, 'id'), 1, 'ID was materialized');
+    equal(get(person, 'id'), "1", 'ID was materialized before didCreate fired');
   });
 
   // setup
@@ -220,14 +219,6 @@ test('creating a person fires the didCreate event after matterializing the model
 
   // setup
   ajaxHash.success({ person: { id: 1, name: "Tom Dale" } });
-
-  // equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
-  // equal(person.get('id'), '1', 'ID was materialized');
-
-  // var timer = setTimeout(function() {
-  //   start();
-  //   // ok(false, "timeout exceeded waiting for create event");
-  // }, 1000);
 });
 
 test("singular creations can sideload data", function() {
