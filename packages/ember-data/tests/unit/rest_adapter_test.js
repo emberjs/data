@@ -203,7 +203,7 @@ test("creating a person makes a POST to /people, with the data hash", function()
   equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
 });
 
-test('creating a person fires the didCreate event after matterializing the model', function() {
+test('creating a person fires the didCreate event after materialising the model', function() {
   // setup
   var person = store.createRecord(Person, { name: "Tom Dale" });
   stop();
