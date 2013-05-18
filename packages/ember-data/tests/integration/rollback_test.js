@@ -32,9 +32,6 @@ module("Transaction Rollback", {
 var testSetAndRollback = function(record, property, newValue, callback) {
   var oldValue = record.get(property);
 
-  var transaction = store.transaction();
-  transaction.add(record);
-
   ok(!record.get('isDirty'), "precond - record should not yet be dirty");
 
   record.set(property, newValue);
@@ -42,7 +39,7 @@ var testSetAndRollback = function(record, property, newValue, callback) {
   ok(record.get('isDirty'), "precond - record should be dirty after change");
   equal(record.get(property), newValue, "precond - property reflects changed value");
 
-  transaction.rollback();
+  record.rollback();
 
   ok(!record.get('isDirty'), "record is not dirty after rollback");
 

@@ -292,7 +292,7 @@ var DirtyState = DS.State.extend({
     },
 
     rollback: function(manager) {
-      get(manager, 'record').rollback();
+      get(manager, 'record').rollbackData();
     }
   }),
 
@@ -658,7 +658,7 @@ var states = {
         },
 
         rollback: function(manager) {
-          get(manager, 'record').rollback();
+          get(manager, 'record').rollbackData();
         },
 
         becomeDirty: Ember.K,

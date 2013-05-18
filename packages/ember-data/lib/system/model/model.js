@@ -330,7 +330,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     }
   },
 
-  rollback: function() {
+  /**
+    @private
+  */
+  rollbackData: function() {
     this._setup();
     this.send('becameClean');
 
@@ -409,6 +412,20 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     this.get('store').scheduleSave(this);
 
     return this.resolveOn('didCommit');
+  },
+
+  /**
+    Calling this method will put the record in a new transaction and rollback
+    this transaction
+
+    @method rollback
+  */
+  rollback: function() {
+    var store = get(this, 'store'),
+        transaction = store.transaction();
+
+    transaction.add(this);
+    transaction.rollback();
   },
 
   /**
