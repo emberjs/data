@@ -33,7 +33,7 @@ Yes.
 No. The API should not be considered stable until 1.0. Breaking changes,
 indexed by date, are listed in [`BREAKING_CHANGES.md`](https://github.com/emberjs/data/blob/master/BREAKING_CHANGES.md).
 
-A [guide is provided on the Ember.js site](http://emberjs.com/guides/models/) that is accurate as of revision 11.
+A [guide is provided on the Ember.js site](http://emberjs.com/guides/models/) that is accurate as of revision 12.
 
 #### Getting ember-data
 
