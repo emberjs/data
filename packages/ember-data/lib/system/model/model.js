@@ -482,7 +482,6 @@ var storeAlias = function(methodName) {
 };
 
 DS.Model.reopenClass({
-  isLoaded: storeAlias('recordIsLoaded'),
 
   /** @private
     Alias DS.Model's `create` method to `_create`. This allows us to create DS.Model
