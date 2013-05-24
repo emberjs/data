@@ -97,6 +97,8 @@ DS.Model.reopenClass({
     if (options.inverse) {
       inverseName = options.inverse;
       inverseKind = Ember.get(inverseType, 'relationshipsByName').get(inverseName).kind;
+    } else if (options.inverse === null) {
+      return null;
     } else {
       var possibleRelationships = findPossibleInverses(this, inverseType);
 

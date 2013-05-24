@@ -57,7 +57,7 @@ var get = Ember.get, set = Ember.set,
         record.doSomething();
       }
 
-  For more information about state managers in general, see the Ember.js
+
   documentation on `Ember.StateManager`.
 
   ### Events, Flags, and Transitions
@@ -278,6 +278,13 @@ var DirtyState = DS.State.extend({
       manager.transitionTo('inFlight');
     },
 
+    didCommit: function(manager){
+      var dirtyType = get(this, 'dirtyType'),
+          record = get(manager, 'record');
+
+      record.inFlightCounter--;
+    },
+
     becameClean: function(manager) {
       var record = get(manager, 'record');
 
@@ -311,6 +318,8 @@ var DirtyState = DS.State.extend({
     },
 
     // EVENTS
+    willSetProperty: willSetProperty,
+    didSetProperty: didSetProperty,
 
     materializingData: function(manager) {
       set(manager, 'lastDirtyType', get(this, 'dirtyType'));
@@ -324,23 +333,42 @@ var DirtyState = DS.State.extend({
       record.withTransaction(function(t) {
         t.remove(record);
       });
+      record.inFlightCounter--;
 
-      manager.transitionTo('saved');
-      manager.send('invokeLifecycleCallbacks', dirtyType);
+      if(record.inFlightCounter <= 0) {
+        record.inFlightCounter = 0;
+        manager.transitionTo('saved');
+        manager.send('invokeLifecycleCallbacks', dirtyType);
+      }
     },
 
     didChangeData: didChangeData,
+
+    becomeDirty: function(manager) {
+      var dirtyType = get(this, 'dirtyType'),
+          record = get(manager, 'record');
+      record.withTransaction(function(t) {
+        t.remove(record);
+      });
+
+      manager.transitionTo('uncommitted');
+    },
 
     becameInvalid: function(manager, errors) {
       var record = get(manager, 'record');
 
       set(record, 'errors', errors);
 
+      record.inFlightCounter--;
+
       manager.transitionTo('invalid');
       manager.send('invokeLifecycleCallbacks');
     },
 
     becameError: function(manager) {
+      var record = get(manager, 'record');
+      record.inFlightCounter--;
+
       manager.transitionTo('error');
       manager.send('invokeLifecycleCallbacks');
     }
@@ -381,6 +409,11 @@ var DirtyState = DS.State.extend({
       }
 
       didSetProperty(manager, context);
+    },
+
+    didCommit: function(manager) {
+      var record = get(manager, 'record');
+      record.inFlightCounter--;
     },
 
     becomeDirty: Ember.K,
@@ -731,6 +764,10 @@ var states = {
       isError: true,
 
       // EVENTS
+      didCommit: function(manager) {
+        var record = get(manager, 'record');
+        record.inFlightCounter--;
+      },
 
       invokeLifecycleCallbacks: function(manager) {
         var record = get(manager, 'record');

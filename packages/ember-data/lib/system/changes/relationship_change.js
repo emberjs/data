@@ -76,8 +76,8 @@ DS.RelationshipChange.determineRelationshipType = function(recordType, knownSide
     else{
       return knownKind === "belongsTo" ? "oneToMany" : "manyToMany";
     }
-  } 
- 
+  }
+
 };
 
 DS.RelationshipChange.createChange = function(firstRecordReference, secondRecordReference, store, options){
@@ -314,6 +314,8 @@ DS.RelationshipChange.prototype = {
         belongsToName = this.getFirstRecordName(),
         hasManyName = this.getSecondRecordName(),
         store = this.store;
+
+      this.destroyed = true;
 
     store.removeRelationshipChangeFor(childReference, belongsToName, this.parentReference, hasManyName, this.changeType);
   },

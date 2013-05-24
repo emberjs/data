@@ -40,6 +40,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   transaction: null,
   stateManager: null,
   errors: null,
+  inFlightCounter: 0,
 
   /**
     Create a JSON representation of the record, using the serialization
@@ -375,6 +376,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   becameInFlight: function() {
+    this.inFlightCounter++;
   },
 
   /**
