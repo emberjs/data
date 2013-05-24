@@ -81,6 +81,11 @@ var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach;
   For this reason, you should not re-use transactions once you have committed
   them. Always make a new transaction and move the desired records to it before
   calling commit.
+
+  @class Transaction
+  @namespace DS
+  @extends Ember.Object
+  @constructor
 */
 
 DS.Transaction = Ember.Object.extend({
@@ -294,7 +299,7 @@ DS.Transaction = Ember.Object.extend({
       if(!record.get('isDirty')) {
         this.remove(record);
       }
-    }, this); 
+    }, this);
   },
 
   /**
