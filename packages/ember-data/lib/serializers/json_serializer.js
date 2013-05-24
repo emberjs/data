@@ -187,7 +187,7 @@ DS.JSONSerializer = DS.Serializer.extend({
               relationshipsByName = get(klass, 'relationshipsByName'),
               belongsToRecord, deletedHash;
 
-          for (name in get(deletedRecord, 'data.belongsTo')) {
+          for var name in get(deletedRecord, 'data.belongsTo') {
             belongsToRecord = get(deletedRecord, 'data.belongsTo')[name];
 
             if ('' + get(belongsToRecord, 'id') !== '' + get(record, 'id'))
