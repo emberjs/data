@@ -357,7 +357,7 @@ DS.Serializer = Ember.Object.extend({
     }
 
     this.addAttributes(serialized, record);
-    this.addRelationships(serialized, record);
+    this.addRelationships(serialized, record, options);
 
     return serialized;
   },
@@ -489,13 +489,14 @@ DS.Serializer = Ember.Object.extend({
     @method addRelationships
     @param {any} data the serialized representation that is being built
     @param {DS.Model} record the record to serialize
+    @param {Object} [options] a hash of options
   */
-  addRelationships: function(data, record) {
+  addRelationships: function(data, record, options) {
     record.eachRelationship(function(name, relationship) {
       if (relationship.kind === 'belongsTo') {
-        this._addBelongsTo(data, record, name, relationship);
+        this._addBelongsTo(data, record, name, relationship, options);
       } else if (relationship.kind === 'hasMany') {
-        this._addHasMany(data, record, name, relationship);
+        this._addHasMany(data, record, name, relationship, options);
       }
     }, this);
   },
@@ -994,10 +995,11 @@ DS.Serializer = Ember.Object.extend({
     @param {DS.Model} record the record to serialize
     @param {String} name the relationship name
     @param {Object} relationship an object representing the relationship
+    @param {Object} [options] a hash of options
   */
-  _addBelongsTo: function(data, record, name, relationship) {
+  _addBelongsTo: function(data, record, name, relationship, options) {
     var key = this._keyForBelongsTo(record.constructor, name);
-    this.addBelongsTo(data, record, key, relationship);
+    this.addBelongsTo(data, record, key, relationship, options);
   },
 
   /**
@@ -1011,10 +1013,11 @@ DS.Serializer = Ember.Object.extend({
     @param {DS.Model} record the record to serialize
     @param {String} name the relationship name
     @param {Object} relationship an object representing the relationship
+    @param {Object} [options] a hash of options
   */
-  _addHasMany: function(data, record, name, relationship) {
+  _addHasMany: function(data, record, name, relationship, options) {
     var key = this._keyForHasMany(record.constructor, name);
-    this.addHasMany(data, record, key, relationship);
+    this.addHasMany(data, record, key, relationship, options);
   },
 
   /**

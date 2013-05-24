@@ -118,6 +118,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
   },
 
+  save: function(_, commitDetails) {
+    this.commitDetails = commitDetails;
+    return this._super.apply(this, arguments);
+  },
+
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
     var adapter = this;
@@ -166,7 +171,9 @@ DS.RESTAdapter = DS.Adapter.extend({
     adapter = this;
 
     data = {};
-    data[root] = this.serialize(record);
+    data[root] = this.serialize(record, {
+      deleted: get(this.commitDetails, 'deleted')
+    });
 
     return this.ajax(this.buildURL(root, id), "PUT",{
       data: data
@@ -194,7 +201,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     data[plural] = [];
 
     records.forEach(function(record) {
-      data[plural].push(this.serialize(record, { includeId: true }));
+      data[plural].push(this.serialize(record, {
+        includeId: true,
+        deleted: get(this.commitDetails, 'deleted')
+      }));
     }, this);
 
     return this.ajax(this.buildURL(root, "bulk"), "PUT", {
