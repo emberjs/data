@@ -65,12 +65,12 @@ var get = Ember.get, set = Ember.set;
   }
   ```
 
-  @class RESTAdapter
+  @class AuthRESTAdapter
   @constructor
   @namespace DS
   @extends DS.Adapter
 */
-DS.RESTAdapter = DS.Adapter.extend({
+DS.AuthRESTAdapter = DS.Adapter.extend({
   namespace: null,
   bulkCommit: false,
   since: 'since',
@@ -319,7 +319,22 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   ajax: function(url, type, hash) {
     try {
-      hash = this.getAjaxHash(url, type, hash);
+      hash = hash || {};
+      hash.url = url;
+      hash.type = type;
+      hash.dataType = 'json';
+      hash.context = this;
+      if (this.username) {
+        hash.username = this.username;
+      }
+      if (this.password) {
+        hash.password = this.password;
+      }
+
+      if (hash.data && type !== 'GET') {
+        hash.contentType = 'application/json; charset=utf-8';
+        hash.data = JSON.stringify(hash.data);
+      }
 
       return Ember.RSVP.resolve(jQuery.ajax(hash));
     } catch (error) {
@@ -327,23 +342,9 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
   },
 
-  getAjaxHash: function(url, type, hash) {
-    hash = jQuery.extend(this.ajaxHeaders, hash);
-    hash.url = url;
-    hash.type = type;
-    hash.dataType = 'json';
-    hash.context = this;
-
-    if (hash.data && type !== 'GET') {
-      hash.contentType = 'application/json; charset=utf-8';
-      hash.data = JSON.stringify(hash.data);
-    }
-
-    return hash;
-  },
-
   url: "",
-  ajaxHeaders: {},
+  password: false,
+  username: false,
 
   rootForType: function(type) {
     var serializer = get(this, 'serializer');
