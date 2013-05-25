@@ -319,16 +319,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   ajax: function(url, type, hash) {
     try {
-      hash = hash || {};
-      hash.url = url;
-      hash.type = type;
-      hash.dataType = 'json';
-      hash.context = this;
-
-      if (hash.data && type !== 'GET') {
-        hash.contentType = 'application/json; charset=utf-8';
-        hash.data = JSON.stringify(hash.data);
-      }
+      hash = this.getAjaxHash(url, type, hash);
 
       return Ember.RSVP.resolve(jQuery.ajax(hash));
     } catch (error) {
@@ -336,7 +327,23 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
   },
 
+  getAjaxHash: function(url, type, hash) {
+    hash = jQuery.extend(this.ajaxHeaders, hash);
+    hash.url = url;
+    hash.type = type;
+    hash.dataType = 'json';
+    hash.context = this;
+
+    if (hash.data && type !== 'GET') {
+      hash.contentType = 'application/json; charset=utf-8';
+      hash.data = JSON.stringify(hash.data);
+    }
+
+    return hash;
+  },
+
   url: "",
+  ajaxHeaders: {},
 
   rootForType: function(type) {
     var serializer = get(this, 'serializer');
