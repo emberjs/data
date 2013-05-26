@@ -181,18 +181,19 @@ DS.JSONSerializer = DS.Serializer.extend({
     manyArray.forEach(function (record) {
       serializedHasMany.push(this.serialize(record, { includeId: true, includeType: includeType, deleted: get(options, 'deleted') }));
 
-      if (var deleted = get(options, 'deleted')) {
+      var deleted;
+      if (deleted = get(options, 'deleted')) {
         deleted.forEach(function (deletedRecord) {
           var klass = get(deletedRecord, 'constructor'),
               relationshipsByName = get(klass, 'relationshipsByName'),
               belongsToRecord, deletedHash;
 
-          for var name in get(deletedRecord, 'data.belongsTo') {
+          for (var name in get(deletedRecord, 'data.belongsTo')) {
             belongsToRecord = get(deletedRecord, 'data.belongsTo')[name];
 
             if ('' + get(belongsToRecord, 'id') !== '' + get(record, 'id'))
               continue;
-            if (!(relationship = relationshipByName.get(name)))
+            if (!(relationship = relationshipsByName.get(name)))
               continue;
             if (get(relationship, 'kind') !== 'belongsTo')
               continue;
@@ -202,7 +203,7 @@ DS.JSONSerializer = DS.Serializer.extend({
             serializedHasMany.push(deletedHash);
           }
 
-        })
+        });
       }
     }, this);
 
