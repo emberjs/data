@@ -153,7 +153,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
       if (embeddedType !== 'always')
         return;
       this._clearEmbeddedOrphans(embeddedRecord);
-      embeddedRecord.removeOrphan();
+      embeddedRecord.send('removeOrphan');
     }, this);
   },
 
