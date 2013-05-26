@@ -164,6 +164,7 @@ DS.JSONSerializer = DS.Serializer.extend({
   */
 
   addHasMany: function(hash, record, key, relationship, options) {
+    options = options || {};
     var type = record.constructor,
         name = relationship.key,
         serializedHasMany = [],
