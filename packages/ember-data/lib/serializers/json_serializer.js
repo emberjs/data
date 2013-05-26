@@ -194,9 +194,11 @@ DS.JSONSerializer = DS.Serializer.extend({
 
             if ('' + get(belongsToRecord, 'id') !== '' + get(record, 'id'))
               continue;
-            if (!(relationship = relationshipsByName.get(name)))
+            if (!(deletedRelationship = relationshipsByName.get(name)))
               continue;
-            if (get(relationship, 'kind') !== 'belongsTo')
+            if (get(deletedRelationship, 'type') !== get(record, 'constructor'))
+              continue;
+            if (get(deletedRelationship, 'kind') !== 'belongsTo')
               continue;
 
             deletedHash = { _destroy: true };
