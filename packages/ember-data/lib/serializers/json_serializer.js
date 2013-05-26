@@ -187,7 +187,7 @@ DS.JSONSerializer = DS.Serializer.extend({
         deleted.forEach(function (deletedRecord) {
           var klass = get(deletedRecord, 'constructor'),
               relationshipsByName = get(klass, 'relationshipsByName'),
-              belongsToRecord, deletedHash;
+              belongsToRecord, deletedRelationship, deletedHash;
 
           for (var name in get(deletedRecord, 'data.belongsTo')) {
             belongsToRecord = get(deletedRecord, 'data.belongsTo')[name];
