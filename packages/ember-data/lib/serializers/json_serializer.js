@@ -160,9 +160,11 @@ DS.JSONSerializer = DS.Serializer.extend({
     @param {String} key the JSON key into which the serialized relationship
       should be saved
     @param {Object} relationship metadata about the relationship being serialized
+    @param {Object} [options] a hash of options
   */
 
-  addHasMany: function(hash, record, key, relationship) {
+  addHasMany: function(hash, record, key, relationship, options) {
+    options = options || {};
     var type = record.constructor,
         name = relationship.key,
         serializedHasMany = [],
@@ -178,7 +180,34 @@ DS.JSONSerializer = DS.Serializer.extend({
 
     // Build up the array of serialized records
     manyArray.forEach(function (record) {
-      serializedHasMany.push(this.serialize(record, { includeId: true, includeType: includeType }));
+      serializedHasMany.push(this.serialize(record, { includeId: true, includeType: includeType, deleted: get(options, 'deleted') }));
+
+      var deleted;
+      if (deleted = get(options, 'deleted')) {
+        deleted.forEach(function (deletedRecord) {
+          var klass = get(deletedRecord, 'constructor'),
+              relationshipsByName = get(klass, 'relationshipsByName'),
+              belongsToRecord, deletedRelationship, deletedHash;
+
+          for (var name in get(deletedRecord, 'data.belongsTo')) {
+            belongsToRecord = get(deletedRecord, 'data.belongsTo')[name];
+
+            if ('' + get(belongsToRecord, 'id') !== '' + get(record, 'id'))
+              continue;
+            if (!(deletedRelationship = relationshipsByName.get(name)))
+              continue;
+            if (get(deletedRelationship, 'type') !== get(record, 'constructor'))
+              continue;
+            if (get(deletedRelationship, 'kind') !== 'belongsTo')
+              continue;
+
+            deletedHash = { _destroy: true };
+            deletedHash[this.primaryKey()] = get(deletedRecord, 'id');
+            serializedHasMany.push(deletedHash);
+          }
+
+        });
+      }
     }, this);
 
     // Set the appropriate property of the serialized JSON to the
