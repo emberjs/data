@@ -32,7 +32,8 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   keyForHasMany: function(type, name) {
     var key = this.keyForAttributeName(type, name);
 
-    if (this.embeddedType(type, name)) {
+    var embeddedType = this.embeddedType(type, name);
+    if (embeddedType && embeddedType !== 'refs') {
       return key;
     }
 
