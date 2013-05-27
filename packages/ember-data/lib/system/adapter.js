@@ -238,7 +238,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     var serializer = get(this, 'serializer');
 
     serializer.eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
-      if (embeddedType === 'load') { return; }
+      if (['load', 'refs'].indexOf(embeddedType) > -1) { return; }
 
       this.didSaveRecord(store, embeddedRecord.constructor, embeddedRecord);
     }, this);
