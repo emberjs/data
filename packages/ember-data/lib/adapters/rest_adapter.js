@@ -339,11 +339,11 @@ DS.RESTAdapter = DS.Adapter.extend({
       }
 
       hash.success = function(json) {
-        Ember.run(resolve, json);
+        Ember.run(null, resolve, json);
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
-        Ember.run(reject, errorThrown);
+        Ember.run(null, reject, errorThrown);
       };
 
       jQuery.ajax(hash);
