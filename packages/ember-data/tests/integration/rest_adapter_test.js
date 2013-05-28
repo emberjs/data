@@ -7,22 +7,22 @@ module("REST Adapter", {
 
     store = DS.Store.create({
       adapter: DS.RESTAdapter
-    })
+    });
 
     Post = DS.Model.extend({
       name: DS.attr("string")
-    })
+    });
 
     Post.toString = function() { 
       return "Post";
-    }
+    };
   },
 
   teardown: function() {
     store.destroy();
     jQuery.ajax = originalJQueryAjax;
   }
-})
+});
 
 test("creating a record with a 422 error marks the records as invalid", function(){
   expect(1);
@@ -34,7 +34,7 @@ test("creating a record with a 422 error marks the records as invalid", function
 
   jQuery.ajax = function(hash) {
     hash.error.call(hash.context, mockXHR, "Unprocessable Entity", "422");
-  }
+  };
 
   var post = store.createRecord(Post, { name: "" });
 
