@@ -23,12 +23,6 @@ GIT
       rake (~> 10.0.0)
       thor
 
-PATH
-  remote: .
-  specs:
-    ember-data-source (0.13)
-      ember-source
-
 GEM
   remote: https://rubygems.org/
   specs:
@@ -79,7 +73,6 @@ PLATFORMS
   ruby
 
 DEPENDENCIES
-  ember-data-source!
   ember-dev!
   ember-source (= 1.0.0.rc4)
   rake-pipeline!
