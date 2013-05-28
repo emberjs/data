@@ -1,9 +1,9 @@
 var store, adapter, Post, Comment;
-var originalJQueryAjax;
+var originalAjax;
 
 module("REST Adapter", {
   setup: function() {
-    originalJQueryAjax = jQuery.ajax;
+    originalAjax = Ember.$.ajax;
 
     store = DS.Store.create({
       adapter: DS.RESTAdapter
@@ -20,7 +20,7 @@ module("REST Adapter", {
 
   teardown: function() {
     store.destroy();
-    jQuery.ajax = originalJQueryAjax;
+    Ember.$.ajax = originalAjax;
   }
 });
 

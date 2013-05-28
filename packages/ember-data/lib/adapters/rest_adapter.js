@@ -346,7 +346,7 @@ DS.RESTAdapter = DS.Adapter.extend({
         Ember.run(null, reject, jqXHR);
       };
 
-      jQuery.ajax(hash);
+      Ember.$.ajax(hash);
     });
   },
 
