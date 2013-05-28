@@ -11,7 +11,7 @@ require('ember-data/serializers/rest_serializer');
 var get = Ember.get, set = Ember.set;
 
 function rejectionHandler(reason) {
-  Ember.Logger.error(reason);
+  Ember.Logger.error(reason, reason.message);
   throw reason;
 }
 

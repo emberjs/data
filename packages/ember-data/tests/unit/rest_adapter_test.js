@@ -1394,7 +1394,7 @@ test("promise errors are sent to the ember error logger", function() {
   store = DS.Store.create({
     adapter: Adapter.extend({
       didFindRecord: function() {
-        throw new TestError();
+        throw new TestError('TestError');
       },
 
       ajax: function(url, type, hash) {
@@ -1407,10 +1407,11 @@ test("promise errors are sent to the ember error logger", function() {
     })
   });
 
-  expect(1);
+  expect(2);
 
-  Ember.Logger.error = function(error) {
-    ok(error instanceof TestError, "Promise chains should dump exceptions to the logger");
+  Ember.Logger.error = function(error, message) {
+    ok(error instanceof TestError, "Promise chains should dump exception classes to the logger");
+    equal(message, 'TestError', "Promise chains should dump exception messages to the logger");
   };
 
   store.find(Person, 1);
