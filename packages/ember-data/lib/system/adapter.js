@@ -60,7 +60,6 @@ DS.loaderFor = loaderFor;
   To tell your store which adapter to use, set its `adapter` property:
 
       App.store = DS.Store.create({
-        revision: 3,
         adapter: App.MyAdapter.create()
       });
 
