@@ -10,7 +10,11 @@ require('ember-data/serializers/rest_serializer');
 var get = Ember.get, set = Ember.set;
 
 function rejectionHandler(reason) {
-  Ember.Logger.error(reason, reason.message);
+  if (reason.stack && reason.message) {
+    Ember.Logger.error(reason, reason.message, reason.stack);
+  } else {
+    Ember.Logger.error(reason);
+  }
   throw reason;
 }
 
