@@ -33,7 +33,7 @@ test("creating a record with a 422 error marks the records as invalid", function
   };
 
   jQuery.ajax = function(hash) {
-    hash.error.call(hash.context, mockXHR, "Unprocessable Entity", "422");
+    hash.error.call(hash.context, mockXHR, "Unprocessable Entity");
   };
 
   var post = store.createRecord(Post, { name: "" });
