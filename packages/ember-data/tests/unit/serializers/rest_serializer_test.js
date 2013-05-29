@@ -141,3 +141,14 @@ test("Sideloading can be done by specifying only an alias", function() {
   equal(loadMainCallCount, 1, "one main record was loaded from a single payload");
   equal(loadCallCount, 1, "one secondary record was loaded from a single payload");
 });
+
+test("extractValidationErrors extracts errors on base", function() {
+  var Post = DS.Model.extend({
+    title: DS.attr('string')
+  });
+
+  var json = { errors: { base: ["This post is too boring"] } };
+  var errors = serializer.extractValidationErrors(Post, json);
+
+  deepEqual(errors, { base: ["This post is too boring"] });
+});
