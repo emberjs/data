@@ -106,6 +106,7 @@ function assertEmbeddedLoadNotDirtied() {
 }
 
 function assertTreeIs(state) {
+  assertRecordIs(post, state);
   post.get('comments').forEach(function(comment) {
     assertRecordIs(comment, state);
     if (comment.get('user')) {
