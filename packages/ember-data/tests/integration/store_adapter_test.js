@@ -39,6 +39,20 @@ module("DS.Store and DS.Adapter integration test", {
   }
 });
 
+test("Not providing a payload to adapter when saving causes the backing hash to update", function() {
+  store.load(Person, {
+    id: 1,
+    updatedAt: 'today',
+    name: 'Nhan'
+  });
+  var person = Person.find(1);
+  set(person, 'updatedAt', 'tommorrow');
+  person.send('willCommit');   
+  adapter.didSaveRecord(store, Person, person);
+  equal(get(person, '_data').attributes['updatedAt'], 'tommorrow',
+        '_data hash in store has updated attribute');
+
+});
 
 asyncTest("Records loaded multiple times and retrieved in recordArray are ready to send state events", function() {
 

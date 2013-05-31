@@ -218,7 +218,15 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     get(this.constructor, 'attributes').forEach(function(name, meta) {
       attributes[name] = get(this, name);
     }, this);
+/*
+    get(this.constructor, 'belongsTo').forEach(function(name, meta) {
+      attributes[name] = get(this, name);
+    }, this);
 
+    get(this.constructor, 'hasMany').forEach(function(name, meta) {
+      attributes[name] = get(this, name);
+    }, this);
+*/
     this.send('didCommit');
     this.updateRecordArraysLater();
   },
