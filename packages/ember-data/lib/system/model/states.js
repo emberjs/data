@@ -571,10 +571,15 @@ var states = {
         reloadRecord: function(manager) {
           manager.transitionTo('loaded.reloading');
         },
+        rollback: function(manager) {
+          get(manager, 'record').rollback();
+        },
 
         materializingData: function(manager) {
           manager.transitionTo('loaded.materializing');
         },
+        finishedMaterializing: Ember.K,
+        becameClean: Ember.K,
 
         becomeDirty: function(manager) {
           manager.transitionTo('updated');
