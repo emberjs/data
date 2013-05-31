@@ -14,7 +14,10 @@ DS.belongsTo = function(type, options) {
     }
 
     if (arguments.length === 2) {
-      Ember.assert("You can only add a record of " + type.toString() + " to this relationship", !value || type.detectInstance(value));
+      // TODO (Peter): this check is breaks Addepar.Typeable because
+      // type.detectInstance(value) doesn't recognize object from a class that
+      // extends from the type specified
+      // Ember.assert("You can only add a record of " + type.toString() + " to this relationship", !value || type.detectInstance(value));
       return value === undefined ? null : value;
     }
 
