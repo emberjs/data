@@ -12,7 +12,7 @@
 */
 
 var get = Ember.get, set = Ember.set;
-var Person, Dog, store, adapter;
+var Person, Address, GithubAccount, Team, Dog, store, adapter;
 
 module("DS.Store and DS.Adapter integration test", {
   setup: function() {
@@ -22,13 +22,30 @@ module("DS.Store and DS.Adapter integration test", {
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
       firstName: DS.attr('string'),
-      lastName: DS.attr('string')
+      lastName: DS.attr('string'),
+    });
+
+    App.Team = Team = DS.Model.extend({
+      name: DS.attr('string'),
+      members: DS.hasMany(Person)
+    });
+
+    App.GithubAccount = GithubAccount = DS.Model.extend({
+      owner: DS.belongsTo(Person),
+      nick: DS.attr('string')
     });
 
     App.Dog = Dog = DS.Model.extend({
+      owners: DS.hasMany(Person),
       name: DS.attr('string')
     });
-    
+
+    App.Person.reopen({
+      githubAccount: DS.belongsTo(GithubAccount),
+      dogs: DS.hasMany(Dog),
+      team: DS.belongsTo(Team)
+    });
+
     adapter = DS.Adapter.create();
     store = DS.Store.create({ adapter: adapter });
   },
@@ -39,19 +56,35 @@ module("DS.Store and DS.Adapter integration test", {
   }
 });
 
-test("Not providing a payload to adapter when saving causes the backing hash to update", function() {
-  store.load(Person, {
-    id: 1,
-    updatedAt: 'today',
-    name: 'Nhan'
-  });
-  var person = Person.find(1);
-  set(person, 'updatedAt', 'tommorrow');
-  person.send('willCommit');   
-  adapter.didSaveRecord(store, Person, person);
-  equal(get(person, '_data').attributes['updatedAt'], 'tommorrow',
-        '_data hash in store has updated attribute');
+test("Adapter save updates one to many in backing hash to current state if returned payload is empty", function() {
+  // Mock adapter did update record to succeed with no payload
+  adapter.updateRecord = function(store, type, record) {
+    adapter.didUpdateRecord(store, type, record, null);
+  };
 
+  store.load(Person, { id: 2, name: 'Igor', team: 1});
+  store.load(Person, { id: 3, name: 'Nhan' });
+
+  store.load(Team, {
+    id: 1,
+    name: 'Nhan and Igor Team',
+    members: [2]
+  });
+
+
+  var igor = Person.find(2);
+  var nhan = Person.find(3);
+  var team = Team.find(1);
+
+  equal(igor.get('team'), team);
+
+  team.get('members').pushObject(nhan);
+  store.commit();
+  team.get('transaction').rollback();
+  nhan.get('transaction').rollback();
+
+  equal(nhan.get('team'), team, 'rollback retains oneToMany relationship');
+  ok(team.get('members').contains(nhan), 'rollback retains manyToOne relationship');
 });
 
 asyncTest("Records loaded multiple times and retrieved in recordArray are ready to send state events", function() {
@@ -61,7 +94,7 @@ asyncTest("Records loaded multiple times and retrieved in recordArray are ready 
 
     setTimeout(function() {
       Ember.run(function() {
-        
+
         // use different recordArray based on the call
         var recordArray = (!!people2) ? people2 : people;
 
@@ -527,7 +560,7 @@ test("mappings registered on an adapter class are applied to the serializer of a
 
 test("the adapter is notified of each record attribute change when a record is created or modified", function() {
   expect(12);
-  
+
   var count = 0;
 
   adapter.dirtyRecordsForAttributeChange = function(dirtySet, record, attributeName, newValue, oldValue) {

@@ -218,6 +218,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     get(this.constructor, 'attributes').forEach(function(name, meta) {
       attributes[name] = get(this, name);
     }, this);
+
+    var relationships = get(this, 'transaction.relationships');
+    relationships.forEach(function(r) {
+      r.syncHashes();
+    });
 /*
     get(this.constructor, 'belongsTo').forEach(function(name, meta) {
       attributes[name] = get(this, name);
