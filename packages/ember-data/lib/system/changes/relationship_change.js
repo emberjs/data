@@ -1,5 +1,6 @@
 var get = Ember.get, set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;
+var removeObject = Ember.EnumerableUtils.removeObject;
 
 DS.RelationshipChange = function(options) {
   this.parentReference = options.parentReference;
@@ -406,11 +407,8 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
       firstRecord = this.getFirstRecord(),
       secondRecord = this.getSecondRecord();
 
-  //Ember.assert("You specified a hasMany (" + hasManyName + ") on " + (!belongsToName && (newParent || oldParent || this.lastParent).constructor) + " but did not specify an inverse belongsTo on " + child.constructor, belongsToName);
-  //Ember.assert("You specified a belongsTo (" + belongsToName + ") on " + child.constructor + " but did not specify an inverse hasMany on " + (!hasManyName && (newParent || oldParent || this.lastParentRecord).constructor), hasManyName);
 
   this.ensureSameTransaction();
-
   this.callChangeEvents();
 
   if (secondRecord && firstRecord) {
@@ -443,6 +441,40 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
   this.coalesce();
 };
 
+DS.RelationshipChangeAdd.prototype.syncHashes = function() {
+  var secondRecordName = this.getSecondRecordName(),
+      firstRecordName = this.getFirstRecordName(),
+      firstRecord = this.getFirstRecord(),
+      secondRecord = this.getSecondRecord();
+
+  if (firstRecord && secondRecord) {
+    var firstHash = get(firstRecord, '_data'),
+        secondHash = get(secondRecord, '_data'),
+        firstReference = get(firstRecord, '_reference'),
+        secondReference = get(secondRecord, '_reference');
+
+    if (this.secondRecordKind === "belongsTo") {
+      set(secondHash, "belongsTo." + secondRecordName, firstReference);
+    } else if(this.secondRecordKind === "hasMany") {
+      if (! get(secondHash, "hasMany." + secondRecordName)){
+        get(secondHash, "hasMany")[secondRecordName] = [firstReference];
+      } else {
+        get(secondHash, "hasMany." + secondRecordName).push(firstReference);
+      }
+    }
+    if (this.firstRecordKind === "belongsTo") {
+      set(firstHash, "belongsTo." + firstRecordName, secondReference);
+    }
+    else if(this.firstRecordKind === "hasMany") {
+      if (! get(secondHash, "hasMany." + secondRecordName)){
+        get(firstHash, "hasMany")[firstRecordName] = [secondReference];
+      } else {
+        get(firstHash, "hasMany." + firstRecordName).push(secondReference);
+      }
+    }
+  }
+};
+
 DS.RelationshipChangeRemove.prototype.changeType = "remove";
 DS.RelationshipChangeRemove.prototype.sync = function() {
   var secondRecordName = this.getSecondRecordName(),
@@ -450,34 +482,30 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
       firstRecord = this.getFirstRecord(),
       secondRecord = this.getSecondRecord();
 
-  //Ember.assert("You specified a hasMany (" + hasManyName + ") on " + (!belongsToName && (newParent || oldParent || this.lastParent).constructor) + " but did not specify an inverse belongsTo on " + child.constructor, belongsToName);
-  //Ember.assert("You specified a belongsTo (" + belongsToName + ") on " + child.constructor + " but did not specify an inverse hasMany on " + (!hasManyName && (newParent || oldParent || this.lastParentRecord).constructor), hasManyName);
-
   this.ensureSameTransaction(firstRecord, secondRecord, secondRecordName, firstRecordName);
-
   this.callChangeEvents();
 
   if (secondRecord && firstRecord) {
-    if(this.secondRecordKind === "belongsTo"){
-      secondRecord.suspendRelationshipObservers(function(){
+    if(this.secondRecordKind === "belongsTo") {
+      secondRecord.suspendRelationshipObservers(function() {
         set(secondRecord, secondRecordName, null);
       });
      }
-     else if(this.secondRecordKind === "hasMany"){
-       secondRecord.suspendRelationshipObservers(function(){
+     else if(this.secondRecordKind === "hasMany") {
+       secondRecord.suspendRelationshipObservers(function() {
         get(secondRecord, secondRecordName).removeObject(firstRecord);
       });
     }
   }
 
   if (firstRecord && get(firstRecord, firstRecordName)) {
-    if(this.firstRecordKind === "belongsTo"){
-      firstRecord.suspendRelationshipObservers(function(){
+    if(this.firstRecordKind === "belongsTo") {
+      firstRecord.suspendRelationshipObservers(function() {
         set(firstRecord, firstRecordName, null);
       });
      }
-     else if(this.firstRecordKind === "hasMany"){
-       firstRecord.suspendRelationshipObservers(function(){
+     else if(this.firstRecordKind === "hasMany") {
+       firstRecord.suspendRelationshipObservers(function() {
         get(firstRecord, firstRecordName).removeObject(secondRecord);
       });
     }
@@ -485,3 +513,30 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
 
   this.coalesce();
 };
+
+DS.RelationshipChangeRemove.prototype.syncHashes = function() {
+  var secondRecordName = this.getSecondRecordName(),
+      firstRecordName = this.getFirstRecordName(),
+      firstRecord = this.getFirstRecord(),
+      secondRecord = this.getSecondRecord();
+
+  if (firstRecord && secondRecord) {
+    var firstHash = get(firstRecord, '_data'),
+        secondHash = get(secondRecord, '_data'),
+        firstReference = get(firstRecord, '_reference'),
+        secondReference = get(secondRecord, '_reference');
+
+    if (this.secondRecordKind === "belongsTo") {
+      set(secondHash, "belongsTo." + secondRecordName, null);
+    } else if(this.secondRecordKind === "hasMany") {
+      removeObject(get(secondHash, "hasMany." + secondRecordName), firstReference);
+    }
+    if (this.firstRecordKind === "belongsTo") {
+      set(firstHash, "belongsTo." + firstRecordName, null);
+    }
+    else if(this.firstRecordKind === "hasMany") {
+      removeObject(get(firstHash, "hasMany." + firstRecordName), secondReference);
+    }
+  }
+};
+

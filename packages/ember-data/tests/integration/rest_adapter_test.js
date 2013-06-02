@@ -1,6 +1,55 @@
 var store, adapter, Post, Comment;
+var originalAjax;
 
-module("REST Adapter") ;
+module("REST Adapter", {
+  setup: function() {
+    originalAjax = Ember.$.ajax;
+
+    store = DS.Store.create({
+      adapter: DS.RESTAdapter
+    });
+
+    Post = DS.Model.extend({
+      name: DS.attr("string")
+    });
+
+    Post.toString = function() { 
+      return "Post";
+    };
+  },
+
+  teardown: function() {
+    store.destroy();
+    Ember.$.ajax = originalAjax;
+  }
+});
+
+test("creating a record with a 422 error marks the records as invalid", function(){
+  expect(1);
+
+  var mockXHR = {
+    status:       422,
+    responseText: JSON.stringify({ errors: { name: ["can't be blank"]} })
+  };
+
+  jQuery.ajax = function(hash) {
+    hash.error.call(hash.context, mockXHR, "Unprocessable Entity");
+  };
+
+  var post = store.createRecord(Post, { name: "" });
+
+  post.on("becameInvalid", function() {
+    ok(true, "becameInvalid is called");
+  });
+
+  post.on("becameError", function() {
+    ok(false, "becameError is not called");
+  });
+
+  store.commit();
+});
+
+
 
 //test("changing A=>null=>A should clean up the record", function() {
   //var store = DS.Store.create({

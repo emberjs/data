@@ -220,6 +220,19 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
       attributes[name] = get(this, name);
     }, this);
 
+    var relationships = get(this, 'transaction.relationships');
+    relationships.forEach(function(r) {
+      r.syncHashes();
+    });
+/*
+    get(this.constructor, 'belongsTo').forEach(function(name, meta) {
+      attributes[name] = get(this, name);
+    }, this);
+
+    get(this.constructor, 'hasMany').forEach(function(name, meta) {
+      attributes[name] = get(this, name);
+    }, this);
+*/
     this.send('didCommit');
     this.updateRecordArraysLater();
   },

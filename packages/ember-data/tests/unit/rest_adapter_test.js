@@ -1364,3 +1364,55 @@ test("updating a record with a 500 error marks the record as error", function() 
   stateEquals(person, 'error');
   enabledFlags(person, ['isError', 'isValid']);
 });
+
+var TestError = function(message) {
+  this.message = message;
+};
+
+var originalLogger = Ember.Logger.error;
+
+module('The REST adapter - error handling', {
+  setup: function() {
+    Adapter = DS.RESTAdapter.extend();
+
+    Person = DS.Model.extend({
+      name: DS.attr('string')
+    });
+
+    Person.toString = function() {
+      return "App.Person";
+    };
+  },
+
+  teardown: function() {
+    Ember.Logger.error = originalLogger;
+  }
+});
+
+test("promise errors are sent to the ember error logger", function() {
+  // setup
+  store = DS.Store.create({
+    adapter: Adapter.extend({
+      didFindRecord: function() {
+        throw new TestError('TestError');
+      },
+
+      ajax: function(url, type, hash) {
+        return new Ember.RSVP.Promise(function(resolve, reject){
+          Ember.run(function(){
+            resolve({ person: [{ id: 1, name: "Adam Hawkins" }] });
+          });
+        });
+      }
+    })
+  });
+
+  expect(2);
+
+  Ember.Logger.error = function(error, message) {
+    ok(error instanceof TestError, "Promise chains should dump exception classes to the logger");
+    equal(message, 'TestError', "Promise chains should dump exception messages to the logger");
+  };
+
+  store.find(Person, 1);
+});

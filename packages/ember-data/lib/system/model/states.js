@@ -604,8 +604,20 @@ var states = {
         reloadRecord: function(manager) {
           manager.transitionTo('loaded.reloading');
         },
+        rollback: function(manager) {
+          get(manager, 'record').rollback();
+        },
 
         materializingData: function(manager) {
+          manager.transitionTo('loaded.materializing');
+        },
+
+        becameClean: function(manager) {
+          var record = get(manager, 'record');
+
+          record.withTransaction(function(t) {
+            t.remove(record);
+          });
           manager.transitionTo('loaded.materializing');
         },
 
