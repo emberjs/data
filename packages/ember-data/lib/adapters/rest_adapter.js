@@ -99,7 +99,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   dirtyRecordsForHasManyChange: function(dirtySet, record, relationship) {
     var embeddedType = get(this, 'serializer').embeddedType(record.constructor, relationship.secondRecordName);
 
-    if (embeddedType === 'always') {
+    if (embeddedType === 'always' || embeddedType === 'ids') {
       relationship.childReference.parent = relationship.parentReference;
       this._dirtyTree(dirtySet, record);
     }
