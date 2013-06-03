@@ -849,10 +849,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {DS.FilteredRecordArray}
   */
   filter: function(type, query, filter) {
-    // allow an optional server query
-    if (arguments.length === 3) {
-      this.findQuery(type, query);
-    } else if (arguments.length === 2) {
+
+    if (arguments.length === 2) {
       filter = query;
     }
 
@@ -863,6 +861,18 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       manager: this.recordArrayManager,
       filterFunction: filter
     });
+
+    function resolveFilter() {
+      set(array, 'isLoaded', true);
+      Ember.run.once(array, 'trigger', 'didLoad');
+    }
+
+    // allow an optional server query
+    if (arguments.length === 3) {
+      this.findQuery(type, query).then(resolveFilter);
+    } else {
+      resolveFilter();
+    }
 
     this.recordArrayManager.registerFilteredRecordArray(array, type, filter);
 
