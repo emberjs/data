@@ -12,7 +12,7 @@
 */
 
 var get = Ember.get, set = Ember.set;
-var Person, Address, GithubAccount, Team, Dog, store, adapter;
+var Person, Address, GithubAccount, Team, Dog, Idea, store, adapter;
 
 module("DS.Store and DS.Adapter integration test", {
   setup: function() {
@@ -40,10 +40,15 @@ module("DS.Store and DS.Adapter integration test", {
       name: DS.attr('string')
     });
 
+    App.Idea = Idea = DS.Model.extend({
+      name: DS.attr('string')
+    });
+
     App.Person.reopen({
       githubAccount: DS.belongsTo(GithubAccount),
       dogs: DS.hasMany(Dog),
-      team: DS.belongsTo(Team)
+      team: DS.belongsTo(Team),
+      ideas: DS.hasMany(Idea)
     });
 
     adapter = DS.Adapter.create();
@@ -85,6 +90,34 @@ test("Adapter save updates one to many in backing hash to current state if retur
 
   equal(nhan.get('team'), team, 'rollback retains oneToMany relationship');
   ok(team.get('members').contains(nhan), 'rollback retains manyToOne relationship');
+});
+
+test("Adapter save updates manyToNone in backing hash to current state if returned payload is empty", function() {
+  // Mock adapter did update record to succeed with no payload
+  adapter.updateRecord = function(store, type, record) {
+    adapter.didUpdateRecord(store, type, record, null);
+  };
+
+  store.load(Person, { id: 2, name: 'Igor', team: 1, ideas:[]});
+  store.load(Person, { id: 3, name: 'Nhan' });
+
+  store.load(Idea, {
+    id:4,
+    name: 'My awesome idea',
+  });
+
+
+  var igor = Person.find(2);
+  var nhan = Person.find(3);
+  var idea = Idea.find(4);
+
+
+  igor.get('ideas').pushObject(idea);
+  store.commit();
+  igor.get('transaction').rollback();
+  idea.get('transaction').rollback();
+
+  ok(igor.get('ideas').contains(idea), 'rollback retains manyToOne relationship');
 });
 
 asyncTest("Records loaded multiple times and retrieved in recordArray are ready to send state events", function() {
