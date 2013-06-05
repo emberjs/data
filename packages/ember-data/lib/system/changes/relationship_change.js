@@ -320,8 +320,6 @@ DS.RelationshipChange.prototype = {
 
   /** @private */
   getByReference: function(reference) {
-    var store = this.store;
-
     // return null or undefined if the original reference was null or undefined
     if (!reference) { return reference; }
 
