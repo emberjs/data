@@ -1,5 +1,5 @@
 # -*- encoding: utf-8 -*-
-require 'json'
+require './lib/ember/data/version'
 
 Gem::Specification.new do |gem|
   gem.name          = "ember-data-source"
@@ -9,10 +9,9 @@ Gem::Specification.new do |gem|
   gem.summary       = %q{ember-data source code wrapper.}
   gem.description   = %q{ember-data source code wrapper for use with Ruby libs.}
   gem.homepage      = "https://github.com/emberjs/data"
-  gem.version       = File.read('VERSION').strip
+  gem.version       = Ember::Data::VERSION
 
   gem.add_dependency "ember-source"
 
-  gem.files = Dir['dist/ember-data*.js']
-  gem.files << 'lib/ember/data/source.rb'
+  gem.files = %w(VERSION) + Dir['dist/ember-data*.js', 'lib/ember/data/*.rb']
 end
