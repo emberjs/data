@@ -1,7 +1,6 @@
 require("ember-data/core");
 require('ember-data/system/adapter');
 require('ember-data/serializers/rest_serializer');
-/*global jQuery*/
 
 /**
   @module data
