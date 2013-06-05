@@ -13,6 +13,7 @@ DS.RelationshipChange = function(options) {
   this.secondRecordName = options.secondRecordName;
   this.changeType = options.changeType;
   this.store = options.store;
+  this.shouldSync = options.shouldSync;
 
   this.committed = {};
 };
@@ -112,10 +113,12 @@ DS.OneToNoneChange.createChange = function(childReference, parentReference, stor
       parentReference: parentReference,
       childReference: childReference,
       firstRecordReference: childReference,
+      secondRecordReference: parentReference,
       store: store,
       changeType: options.changeType,
       firstRecordName: key,
-      firstRecordKind: "belongsTo"
+      firstRecordKind: "belongsTo",
+      shouldSync: false
   });
 
   store.addRelationshipChangeFor(childReference, key, parentReference, null, change);
@@ -129,11 +132,13 @@ DS.ManyToNoneChange.createChange = function(childReference, parentReference, sto
   var change = DS.RelationshipChange._createChange({
       parentReference: childReference,
       childReference: parentReference,
+      firstRecordReference: parentReference,
       secondRecordReference: childReference,
       store: store,
       changeType: options.changeType,
       secondRecordName: options.key,
-      secondRecordKind: "hasMany"
+      secondRecordKind: "hasMany",
+      shouldSync: false
   });
 
   store.addRelationshipChangeFor(childReference, key, parentReference, null, change);
@@ -158,7 +163,8 @@ DS.ManyToManyChange.createChange = function(childReference, parentReference, sto
       secondRecordKind: "hasMany",
       store: store,
       changeType: options.changeType,
-      firstRecordName:  key
+      firstRecordName: key,
+      shouldSync: true
   });
 
   store.addRelationshipChangeFor(childReference, key, parentReference, null, change);
@@ -192,7 +198,8 @@ DS.OneToOneChange.createChange = function(childReference, parentReference, store
       secondRecordKind: "belongsTo",
       store: store,
       changeType: options.changeType,
-      firstRecordName:  key
+      firstRecordName:  key,
+      shouldSync: true
   });
 
   store.addRelationshipChangeFor(childReference, key, parentReference, null, change);
@@ -244,7 +251,8 @@ DS.OneToManyChange.createChange = function(childReference, parentReference, stor
       secondRecordKind: "hasMany",
       store: store,
       changeType: options.changeType,
-      firstRecordName:  key
+      firstRecordName:  key,
+      shouldSync: true
   });
 
   store.addRelationshipChangeFor(childReference, key, parentReference, change.getSecondRecordName(), change);
@@ -293,6 +301,7 @@ DS.RelationshipChange.prototype = {
 
       var childType = this.firstRecordReference.type;
       var inverse = childType.inverseFor(this.firstRecordName);
+      if (!inverse) {return; }
       this.secondRecordName = inverse.name;
     }
 
@@ -402,16 +411,23 @@ DS.RelationshipChangeRemove.prototype = Ember.create(DS.RelationshipChange.creat
 
 DS.RelationshipChangeAdd.prototype.changeType = "add";
 DS.RelationshipChangeAdd.prototype.sync = function() {
+  this.ensureSameTransaction();
+  this.callChangeEvents();
+
+  if (this.shouldSync){
+    this.syncModels();
+  }
+
+  this.coalesce();
+};
+
+DS.RelationshipChangeAdd.prototype.syncModels = function() {
   var secondRecordName = this.getSecondRecordName(),
       firstRecordName = this.getFirstRecordName(),
       firstRecord = this.getFirstRecord(),
       secondRecord = this.getSecondRecord();
 
-
-  this.ensureSameTransaction();
-  this.callChangeEvents();
-
-  if (secondRecord && firstRecord) {
+  if (this.shouldSync && secondRecord && firstRecord) {
     if(this.secondRecordKind === "belongsTo"){
       secondRecord.suspendRelationshipObservers(function(){
         set(secondRecord, secondRecordName, firstRecord);
@@ -425,7 +441,7 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
     }
   }
 
-  if (firstRecord && secondRecord && get(firstRecord, firstRecordName) !== secondRecord) {
+  if (this.shouldSync && firstRecord && secondRecord && get(firstRecord, firstRecordName) !== secondRecord) {
     if(this.firstRecordKind === "belongsTo"){
       firstRecord.suspendRelationshipObservers(function(){
         set(firstRecord, firstRecordName, secondRecord);
@@ -437,8 +453,6 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
       });
     }
   }
-
-  this.coalesce();
 };
 
 DS.RelationshipChangeAdd.prototype.syncHashes = function() {
@@ -477,15 +491,23 @@ DS.RelationshipChangeAdd.prototype.syncHashes = function() {
 
 DS.RelationshipChangeRemove.prototype.changeType = "remove";
 DS.RelationshipChangeRemove.prototype.sync = function() {
+  this.ensureSameTransaction();
+  this.callChangeEvents();
+
+  if (this.shouldSync) {
+    this.syncModels();
+  }
+
+  this.coalesce();
+};
+
+DS.RelationshipChangeRemove.prototype.syncModels = function() {
   var secondRecordName = this.getSecondRecordName(),
       firstRecordName = this.getFirstRecordName(),
       firstRecord = this.getFirstRecord(),
       secondRecord = this.getSecondRecord();
 
-  this.ensureSameTransaction(firstRecord, secondRecord, secondRecordName, firstRecordName);
-  this.callChangeEvents();
-
-  if (secondRecord && firstRecord) {
+  if (this.shouldSync && secondRecord && firstRecord) {
     if(this.secondRecordKind === "belongsTo") {
       secondRecord.suspendRelationshipObservers(function() {
         set(secondRecord, secondRecordName, null);
@@ -498,7 +520,7 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
     }
   }
 
-  if (firstRecord && get(firstRecord, firstRecordName)) {
+  if (this.shouldSync && firstRecord && get(firstRecord, firstRecordName)) {
     if(this.firstRecordKind === "belongsTo") {
       firstRecord.suspendRelationshipObservers(function() {
         set(firstRecord, firstRecordName, null);
@@ -511,7 +533,6 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
     }
   }
 
-  this.coalesce();
 };
 
 DS.RelationshipChangeRemove.prototype.syncHashes = function() {
