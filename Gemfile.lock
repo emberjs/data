@@ -27,7 +27,7 @@ PATH
   remote: .
   specs:
     ember-data-source (0.13)
-      ember-source
+      ember-source (~> 1.0.0.rc3.1)
 
 GEM
   remote: https://rubygems.org/

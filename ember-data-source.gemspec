@@ -11,7 +11,7 @@ Gem::Specification.new do |gem|
   gem.homepage      = "https://github.com/emberjs/data"
   gem.version       = Ember::Data::VERSION
 
-  gem.add_dependency "ember-source"
+  gem.add_dependency "ember-source", '~> 1.0.0.rc3.1'
 
   gem.files = %w(VERSION) + Dir['dist/ember-data*.js', 'lib/ember/data/*.rb']
 end
