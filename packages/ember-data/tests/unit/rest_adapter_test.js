@@ -1365,10 +1365,6 @@ test("updating a record with a 500 error marks the record as error", function() 
   enabledFlags(person, ['isError', 'isValid']);
 });
 
-var TestError = function(message) {
-  this.message = message;
-};
-
 var originalLogger = Ember.Logger.error;
 
 module('The REST adapter - error handling', {
@@ -1389,12 +1385,12 @@ module('The REST adapter - error handling', {
   }
 });
 
-test("promise errors are sent to the ember error logger", function() {
+test("promise errors with stack and message are sent to the ember error logger", function() {
   // setup
   store = DS.Store.create({
     adapter: Adapter.extend({
       didFindRecord: function() {
-        throw new TestError('TestError');
+        throw new Error('TestError');
       },
 
       ajax: function(url, type, hash) {
@@ -1407,11 +1403,36 @@ test("promise errors are sent to the ember error logger", function() {
     })
   });
 
-  expect(2);
+  expect(1);
 
-  Ember.Logger.error = function(error, message) {
-    ok(error instanceof TestError, "Promise chains should dump exception classes to the logger");
-    equal(message, 'TestError', "Promise chains should dump exception messages to the logger");
+  Ember.Logger.error = function(reason, stack, message) {
+    ok(stack.match(/TestError/), "Promise chains should dump exception stack to the logger");
+  };
+
+  store.find(Person, 1);
+});
+
+test("promise errors without stack or message are sent the ember error logger", function() {
+  // setup
+  var rejectedObject = {wtf: "it's failing"};
+
+  store = DS.Store.create({
+    adapter: Adapter.extend({
+      
+      ajax: function(url, type, hash) {
+        return new Ember.RSVP.Promise(function(resolve, reject){
+          Ember.run(function(){
+            reject(rejectedObject);
+          });
+        });
+      }
+    })
+  });
+
+  expect(1);
+
+  Ember.Logger.error = function(reason) {
+    equal(rejectedObject, reason, "Promise chains should dump the reason to the logger");
   };
 
   store.find(Person, 1);
