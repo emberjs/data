@@ -370,11 +370,11 @@ DS.RelationshipChange.prototype = {
     // a record is loading. A similar fix is required for other parts
     // of ember-data, and should be done as new infrastructure, not
     // a one-off hack. [tomhuda]
-    if (parentRecord && get(parentRecord, 'isLoaded')) {
+    if (this.secondRecordName && parentRecord && get(parentRecord, 'isLoaded')) {
       this.store.recordHasManyDidChange(dirtySet, parentRecord, this);
     }
 
-    if (child) {
+    if (this.firstRecordName && child) {
       this.store.recordBelongsToDidChange(dirtySet, child, this);
     }
 
