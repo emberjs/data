@@ -29,6 +29,12 @@ PATH
     ember-data-source (0.13)
       ember-source
 
+PATH
+  remote: ../ember.js
+  specs:
+    ember-source (1.0.0.rc5)
+      handlebars-source (= 1.0.0.rc4)
+
 GEM
   remote: https://rubygems.org/
   specs:
@@ -38,8 +44,6 @@ GEM
       uuidtools (~> 2.1)
     colored (1.2)
     diff-lcs (1.2.4)
-    ember-source (1.0.0.rc5)
-      handlebars-source (= 1.0.0.rc4)
     execjs (1.4.0)
       multi_json (~> 1.0)
     ffi (1.9.0)
@@ -81,5 +85,5 @@ PLATFORMS
 DEPENDENCIES
   ember-data-source!
   ember-dev!
-  ember-source (= 1.0.0.rc5)
+  ember-source!
   rake-pipeline!

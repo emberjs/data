@@ -102,6 +102,7 @@ asyncTest("Embedded belongsTo relationships can be saved when embedded: always i
       }
     });
 
+    debugger;
     return promise(function(resolve, reject) {
       setTimeout(function() {
         Ember.run(null, resolve, adapter);

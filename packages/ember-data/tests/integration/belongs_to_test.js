@@ -81,16 +81,15 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
 
 test("Only a record of the same type can be used with a monomorphic belongsTo relationship", function() {
   expect(1);
+
   store.load(App.Post, { id: 1 });
   store.load(App.Comment, { id: 2 });
   var post = store.find(App.Post, 1),
       comment = store.find(App.Comment, 2);
 
-  raises(
-    function() { post.set('user', comment); },
-    /You can only add a record of App.User to this relationship/,
-    "Adding a record of a different type on a monomorphic belongsTo is disallowed"
-  );
+  expectAssertion(function(){
+    post.set('user', comment);
+  }, /You can only add a record of App.User to this relationship/);
 });
 
 test("Only a record of the same base type can be used with a polymorphic belongsTo relationship", function() {
@@ -109,11 +108,9 @@ test("Only a record of the same base type can be used with a polymorphic belongs
   comment.set('message', post);
   comment.set('message', null);
 
-  raises(
-    function() { comment.set('message', user); },
-    /You can only add a record of App.Message to this relationship/,
-    "Adding a record of a different base type on a polymorphic belongsTo is disallowed"
-  );
+  expectAssertion(function() {
+    comment.set('message', user);
+  }, /You can only add a record of App.Message to this relationship/);
 });
 
 test("The store can load a polymorphic belongsTo association", function() {

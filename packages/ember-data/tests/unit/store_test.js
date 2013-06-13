@@ -428,18 +428,18 @@ test("a new record with a specific id can't be created if this id is already use
   var Person = DS.Model.extend({
     name: DS.attr('string'),
   });
+
   Person.reopenClass({
     toString: function() {
       return 'Person';
     }
   });
+
   store.createRecord(Person, {id: 5});
 
-  raises(
-    function() { store.createRecord(Person, {id: 5}); },
-    /The id 5 has already been used with another record of type Person/,
-    "Creating a record with an if an id already in used in the store is disallowed"
-  );
+  expectAssertion(function() {
+    store.createRecord(Person, {id: 5});
+  }, /The id 5 has already been used with another record of type Person/);
 });
 
 test("an initial data hash can be provided via store.createRecord(type, hash)", function() {

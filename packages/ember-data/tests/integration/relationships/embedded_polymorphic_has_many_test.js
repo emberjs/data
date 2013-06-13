@@ -75,11 +75,9 @@ test("A record can't be created from an embedded polymorphic hasMany relationshi
   var user = store.find(App.User, 1),
       messages = user.get('messages');
 
-  raises(
-    function() { messages.createRecord(); },
-    /You can not create records of App.Message on this polymorphic relationship/,
-    "Creating records directly on a polymorphic hasMany is disallowed"
-  );
+  expectAssertion(function() {
+    messages.createRecord();
+  }, /You can not create records of App.Message on this polymorphic relationship/);
 });
 
 test("Only records of the same base type can be added to an embedded polymorphic hasMany relationship", function() {
@@ -100,11 +98,9 @@ test("Only records of the same base type can be added to an embedded polymorphic
 
   equal(messages.get('length'), 2, "The messages are correctly added");
 
-  raises(
-    function() { messages.pushObject(anotherUser); },
-    /You can only add records of App.Message to this relationship/,
-    "Adding records of a different base type on a polymorphic hasMany is disallowed"
-  );
+  expectAssertion(function() {
+    messages.pushObject(anotherUser);
+  }, /You can only add records of App.Message to this relationship/);
 });
 
 test("A record can be removed from an embedded polymorphic association", function() {

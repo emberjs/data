@@ -1369,7 +1369,7 @@ var TestError = function(message) {
   this.message = message;
 };
 
-var originalLogger = Ember.Logger.error;
+var originalRejectionHandler = DS.rejectionHandler;
 
 module('The REST adapter - error handling', {
   setup: function() {
@@ -1385,11 +1385,13 @@ module('The REST adapter - error handling', {
   },
 
   teardown: function() {
-    Ember.Logger.error = originalLogger;
+    DS.rejectionHandler = originalRejectionHandler;
   }
 });
 
-test("promise errors are sent to the ember error logger", function() {
+test("promise errors are sent to the ember assertion logger", function() {
+  expect(1);
+
   // setup
   store = DS.Store.create({
     adapter: Adapter.extend({
@@ -1407,11 +1409,9 @@ test("promise errors are sent to the ember error logger", function() {
     })
   });
 
-  expect(2);
 
-  Ember.Logger.error = function(error, message) {
-    ok(error instanceof TestError, "Promise chains should dump exception classes to the logger");
-    equal(message, 'TestError', "Promise chains should dump exception messages to the logger");
+  DS.rejectionHandler = function(reason) {
+    ok(reason instanceof TestError, "Promise chains should dump exception classes to the logger");
   };
 
   store.find(Person, 1);

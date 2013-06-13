@@ -67,10 +67,9 @@ test("trying to set an `id` attribute should raise", function() {
     name: "Scumdale"
   });
 
-  raises(function() {
+  expectAssertion(function() {
     store.load(Person, { id: 1, name: "Scumdale" });
     var person = store.find(Person, 1);
-    person.get('name');
   }, /You may not set `id`/);
 });
 
