@@ -294,7 +294,7 @@ DS.Transaction = Ember.Object.extend({
       if(!record.get('isDirty')) {
         this.remove(record);
       }
-    }, this); 
+    }, this);
   },
 
   /**

@@ -621,6 +621,10 @@ var states = {
           }
 
           record.trigger('didCommit', record);
+        },
+
+        removeOrphan: function(manager) {
+          manager.transitionTo('deleted.saved');
         }
       }),
 
