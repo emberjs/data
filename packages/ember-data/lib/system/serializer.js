@@ -1097,6 +1097,16 @@ DS.Serializer = Ember.Object.extend({
       delete configuration.alias;
     }
 
+    if (configuration.aliases && Ember.isArray(configuration.aliases)) {
+      var aliases = configuration.aliases;
+
+      for (var i = 0, len = aliases.length; i < len; i++) {
+        this.aliases.set(aliases[i], type);
+      }
+
+      delete configuration.aliases;
+    }
+
     config = Ember.create(this.globalConfigurations);
     Ember.merge(config, configuration);
 
@@ -1301,4 +1311,3 @@ DS.Serializer = Ember.Object.extend({
     }
   }
 });
-
