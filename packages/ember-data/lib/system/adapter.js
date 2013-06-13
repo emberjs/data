@@ -83,7 +83,7 @@ DS.loaderFor = loaderFor;
 
   For an example implementation, see {{#crossLink "DS.RestAdapter"}} the
   included REST adapter.{{/crossLink}}.
-  
+
   @class Adapter
   @namespace DS
   @extends Ember.Object
@@ -147,6 +147,15 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     return get(this, 'serializer').extractRecordRepresentation(loader, type, payload);
   },
 
+  _clearEmbeddedOrphans: function(record) {
+    get(this, 'serializer').eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
+      if (embeddedType !== 'always')
+        return;
+      this._clearEmbeddedOrphans(embeddedRecord);
+      embeddedRecord.send('removeOrphan');
+    }, this);
+  },
+
   /**
     Acknowledges that the adapter has finished creating a record.
 
@@ -171,6 +180,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   didCreateRecord: function(store, type, record, payload) {
     store.didSaveRecord(record);
+    this._clearEmbeddedOrphans(record);
 
     if (payload) {
       var loader = DS.loaderFor(store);
@@ -204,6 +214,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   didCreateRecords: function(store, type, records, payload) {
     records.forEach(function(record) {
       store.didSaveRecord(record);
+      this._clearEmbeddedOrphans(record);
     }, this);
 
     if (payload) {

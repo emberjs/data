@@ -343,6 +343,14 @@ var DirtyState = DS.State.extend({
     becameError: function(manager) {
       manager.transitionTo('error');
       manager.send('invokeLifecycleCallbacks');
+    },
+
+    removeOrphan: function(manager) {
+      var record = get(manager, 'record');
+
+      manager.transitionTo('uncommitted');
+
+      record.rollback();
     }
   }),
 
@@ -613,6 +621,10 @@ var states = {
           }
 
           record.trigger('didCommit', record);
+        },
+
+        removeOrphan: function(manager) {
+          manager.transitionTo('deleted.saved');
         }
       }),
 
