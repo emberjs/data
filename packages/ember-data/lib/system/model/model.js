@@ -220,6 +220,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
       attributes[name] = get(this, name);
     }, this);
 
+    var relationships = get(this, 'transaction.relationships');
+    relationships.forEach(function(r) {
+      r.syncHashes();
+    });
+
     this.send('didCommit');
     this.updateRecordArraysLater();
   },
@@ -230,7 +235,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   dataDidChange: Ember.observer(function() {
-    this.reloadHasManys();
+    
+    this.suspendRelationshipObservers(function() {
+      this.reloadHasManys();
+    });
     this.send('finishedMaterializing');
   }, 'data'),
 

@@ -251,24 +251,12 @@ DS.Transaction = Ember.Object.extend({
 
     var records = get(this, 'records');
     records.forEach(function(record) {
-      if (!record.get('isDirty')) return;
       record.send('rollback');
     });
 
     // Now that all records in the transaction are guaranteed to be
     // clean, migrate them all to the store's default transaction.
     this.removeCleanRecords();
-
-    // Remaining associated references are not part of the transaction, but
-    // can still have hasMany's which have not been reloaded
-    references.forEach(function(r) {
-      if (r && r.record) {
-        var record = r.record;
-        record.suspendRelationshipObservers(function() {
-          record.reloadHasManys();
-        });
-      }
-    }, this);
   },
 
   /**

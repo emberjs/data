@@ -10,14 +10,4 @@
   @static
 */
 
-window.DS = Ember.Namespace.create({
-  /**
-    Current API revision. See 
-    [BREAKING_CHANGES.md](https://github.com/emberjs/data/blob/master/BREAKING_CHANGES.md) 
-    for more information.
-
-    @property CURRENT_API_REVISION
-    @type Integer
-  */
-  CURRENT_API_REVISION: 12
-});
+window.DS = Ember.Namespace.create();

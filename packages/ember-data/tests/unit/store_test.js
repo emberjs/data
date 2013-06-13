@@ -780,6 +780,9 @@ test("can commit store after unload record with relationships", function() {
       },
       createRecord: function(store, type, record) {
         this.didCreateRecord(store, type, record);
+      },
+      updateRecord: function(store, type, record) {
+        this.didUpdateRecord(store, type, record);
       }
     })
   });
