@@ -745,9 +745,9 @@ test("unload a dirty record", function() {
   record.set('title', 'toto2');
 
   equal(get(record, 'isDirty'), true, "record is dirty");
-  raises(function() {
+  expectAssertion(function() {
     record.unloadRecord();
-  }, "You can only unload a loaded non dirty record.", "can not unload dirty record");
+  }, "You can only unload a loaded, non-dirty record.", "can not unload dirty record");
 });
 
 test("unload a record", function() {

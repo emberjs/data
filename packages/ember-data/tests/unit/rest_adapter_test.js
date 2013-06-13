@@ -1209,6 +1209,9 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
     title: DS.attr("string"),
     people: DS.hasMany(Person)
   });
+  PersonType.toString = function() {
+      return "App.PersonType";
+  };
   Person.reopen({
     personType: DS.belongsTo(PersonType)
   });

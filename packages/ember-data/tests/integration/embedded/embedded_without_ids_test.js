@@ -102,10 +102,12 @@ asyncTest("Embedded belongsTo relationships can be saved when embedded: always i
       }
     });
 
-    debugger;
     return promise(function(resolve, reject) {
       setTimeout(function() {
-        Ember.run(null, resolve, adapter);
+        Ember.run(function() {
+          hash.data.comment.id = 1;
+          resolve(hash.data);
+        });
         done();
       });
     });
@@ -122,7 +124,6 @@ asyncTest("Embedded belongsTo relationships can be saved when embedded: always i
   user.set('name', "mongodb_expert");
   equal(user.get('isDirty'), true, "user becomes dirty after changing a property");
   equal(comment.get('isDirty'), true, "comment becomes dirty when its embedded user becomes dirty");
-
   transaction.commit();
 
   function done() {
@@ -197,7 +198,10 @@ asyncTest("Embedded hasMany relationships can be saved when embedded: always is 
 
     return promise(function(resolve, reject){
       setTimeout(function() {
-        Ember.run(null, resolve, adapter);
+        Ember.run(function() {
+          hash.data.post.id = 1;
+          resolve(hash.data);
+        });
         done();
       });
     });
@@ -299,7 +303,10 @@ asyncTest("Embedded records that contain embedded records can be saved", functio
 
     return promise(function(resolve, reject){
       setTimeout(function(){
-        Ember.run(null, resolve, adapter);
+        Ember.run(function() {
+          hash.data.post.id = 1;
+          resolve(hash.data);
+        });
         done();
       });
     });
