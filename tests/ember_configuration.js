@@ -135,4 +135,5 @@
     spade:   'ember-spade.js',
     build:   'ember-data.js'
   };
+
 })();
