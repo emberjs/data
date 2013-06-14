@@ -218,11 +218,9 @@ test("A record can't be created from a polymorphic hasMany relationship", functi
   var user = store.find(App.User, 1),
       messages = user.get('messages');
 
-  raises(
-    function() { messages.createRecord(); },
-    /You can not create records of App.Message on this polymorphic relationship/,
-    "Creating records directly on a polymorphic hasMany is disallowed"
-  );
+  expectAssertion(function() {
+    messages.createRecord();
+  }, /You can not create records of App.Message on this polymorphic relationship/);
 });
 
 test("Only records of the same type can be added to a monomorphic hasMany relationship", function() {
@@ -232,11 +230,9 @@ test("Only records of the same type can be added to a monomorphic hasMany relati
   var post = store.find(App.Post, 1),
       message = store.find(App.Post, 2);
 
-  raises(
-    function() { post.get('comments').pushObject(message); },
-    /You can only add records of App.Comment to this relationship/,
-    "Adding records of a different type on a monomorphic hasMany is disallowed"
-  );
+  expectAssertion(function() {
+    post.get('comments').pushObject(message);
+  }, /You can only add records of App.Comment to this relationship/);
 });
 
 test("Only records of the same base type can be added to a polymorphic hasMany relationship", function() {
@@ -257,11 +253,9 @@ test("Only records of the same base type can be added to a polymorphic hasMany r
 
   equal(messages.get('length'), 2, "The messages are correctly added");
 
-  raises(
-    function() { messages.pushObject(anotherUser); },
-    /You can only add records of App.Message to this relationship/,
-    "Adding records of a different base type on a polymorphic hasMany is disallowed"
-  );
+  expectAssertion(function() {
+    messages.pushObject(anotherUser);
+  }, /You can only add records of App.Message to this relationship/);
 });
 
 test("A record can be removed from a polymorphic association", function() {
