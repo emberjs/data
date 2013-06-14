@@ -761,6 +761,8 @@ var states = {
           store.dematerializeRecord(record);
         },
 
+        rollback: Ember.K,
+
         invokeLifecycleCallbacks: function(manager) {
           var record = get(manager, 'record');
           record.trigger('didDelete', record);
