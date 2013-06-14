@@ -1,251 +1,251 @@
-require('ember-data/serializers/json_serializer');
-
-/**
-  @module data
-  @submodule data-adapter
-*/
-
-var get = Ember.get, set = Ember.set, merge = Ember.merge;
-
-function loaderFor(store) {
-  return {
-    load: function(type, data, prematerialized) {
-      return store.load(type, data, prematerialized);
-    },
-
-    loadMany: function(type, array) {
-      return store.loadMany(type, array);
-    },
-
-    updateId: function(record, data) {
-      return store.updateId(record, data);
-    },
-
-    populateArray: Ember.K,
-
-    sideload: function(type, data) {
-      return store.adapterForType(type).load(store, type, data);
-    },
-
-    sideloadMany: function(type, array) {
-      return store.loadMany(type, array);
-    },
-
-    prematerialize: function(reference, prematerialized) {
-      reference.prematerialized = prematerialized;
-    },
-
-    metaForType: function(type, property, data) {
-      store.metaForType(type, property, data);
-    }
-  };
-}
-
-DS.loaderFor = loaderFor;
-
-/**
-  An adapter is an object that receives requests from a store and
-  translates them into the appropriate action to take against your
-  persistence layer. The persistence layer is usually an HTTP API, but may
-  be anything, such as the browser's local storage.
-
-  ### Creating an Adapter
-
-  First, create a new subclass of `DS.Adapter`:
-
-      App.MyAdapter = DS.Adapter.extend({
-        // ...your code here
-      });
-
-  To tell your store which adapter to use, set its `adapter` property:
-
-      App.store = DS.Store.create({
-        adapter: App.MyAdapter.create()
-      });
-
-  `DS.Adapter` is an abstract base class that you should override in your
-  application to customize it for your backend. The minimum set of methods
-  that you should implement is:
-
-    * `find()`
-    * `createRecord()`
-    * `updateRecord()`
-    * `deleteRecord()`
-
-  To improve the network performance of your application, you can optimize
-  your adapter by overriding these lower-level methods:
-
-    * `findMany()`
-    * `createRecords()`
-    * `updateRecords()`
-    * `deleteRecords()`
-    * `commit()`
-
-  For an example implementation, see {{#crossLink "DS.RestAdapter"}} the
-  included REST adapter.{{/crossLink}}.
-  
-  @class Adapter
-  @namespace DS
-  @extends Ember.Object
-*/
-
-DS.Adapter = Ember.Object.extend(DS._Mappable, {
-
-  init: function() {
-    var serializer = get(this, 'serializer');
-
-    if (Ember.Object.detect(serializer)) {
-      serializer = serializer.create();
-      set(this, 'serializer', serializer);
-    }
-
-    this._attributesMap = this.createInstanceMapFor('attributes');
-    this._configurationsMap = this.createInstanceMapFor('configurations');
-
-    this._outstandingOperations = new Ember.MapWithDefault({
-      defaultValue: function() { return 0; }
-    });
-
-    this._dependencies = new Ember.MapWithDefault({
-      defaultValue: function() { return new Ember.OrderedSet(); }
-    });
-
-    this.registerSerializerTransforms(this.constructor, serializer, {});
-    this.registerSerializerMappings(serializer);
-  },
+  require('ember-data/serializers/json_serializer');
 
   /**
-    Loads a payload for a record into the store.
+    @module data
+    @submodule data-adapter
+  */
 
-    This method asks the serializer to break the payload into
-    constituent parts, and then loads them into the store. For example,
-    if you have a payload that contains embedded records, they will be
-    extracted by the serializer and loaded into the store.
+  var get = Ember.get, set = Ember.set, merge = Ember.merge;
 
-    For example:
+  function loaderFor(store) {
+    return {
+      load: function(type, data, prematerialized) {
+        return store.load(type, data, prematerialized);
+      },
 
-        adapter.load(store, App.Person, {
-          id: 123,
-          firstName: "Yehuda",
-          lastName: "Katz",
-          occupations: [{
-            id: 345,
-            title: "Tricycle Mechanic"
-          }]
+      loadMany: function(type, array) {
+        return store.loadMany(type, array);
+      },
+
+      updateId: function(record, data) {
+        return store.updateId(record, data);
+      },
+
+      populateArray: Ember.K,
+
+      sideload: function(type, data) {
+        return store.adapterForType(type).load(store, type, data);
+      },
+
+      sideloadMany: function(type, array) {
+        return store.loadMany(type, array);
+      },
+
+      prematerialize: function(reference, prematerialized) {
+        reference.prematerialized = prematerialized;
+      },
+
+      metaForType: function(type, property, data) {
+        store.metaForType(type, property, data);
+      }
+    };
+  }
+
+  DS.loaderFor = loaderFor;
+
+  /**
+    An adapter is an object that receives requests from a store and
+    translates them into the appropriate action to take against your
+    persistence layer. The persistence layer is usually an HTTP API, but may
+    be anything, such as the browser's local storage.
+
+    ### Creating an Adapter
+
+    First, create a new subclass of `DS.Adapter`:
+
+        App.MyAdapter = DS.Adapter.extend({
+          // ...your code here
         });
 
-    This will load the payload for the `App.Person` with ID `123` and
-    the embedded `App.Occupation` with ID `345`.
+    To tell your store which adapter to use, set its `adapter` property:
 
-    @method load
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {any} payload
+        App.store = DS.Store.create({
+          adapter: App.MyAdapter.create()
+        });
+
+    `DS.Adapter` is an abstract base class that you should override in your
+    application to customize it for your backend. The minimum set of methods
+    that you should implement is:
+
+      * `find()`
+      * `createRecord()`
+      * `updateRecord()`
+      * `deleteRecord()`
+
+    To improve the network performance of your application, you can optimize
+    your adapter by overriding these lower-level methods:
+
+      * `findMany()`
+      * `createRecords()`
+      * `updateRecords()`
+      * `deleteRecords()`
+      * `commit()`
+
+    For an example implementation, see {{#crossLink "DS.RestAdapter"}} the
+    included REST adapter.{{/crossLink}}.
+    
+    @class Adapter
+    @namespace DS
+    @extends Ember.Object
   */
-  load: function(store, type, payload) {
-    var loader = loaderFor(store);
-    return get(this, 'serializer').extractRecordRepresentation(loader, type, payload);
-  },
 
-  /**
-    Acknowledges that the adapter has finished creating a record.
+  DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
-    Your adapter should call this method from `createRecord` when
-    it has saved a new record to its persistent storage and received
-    an acknowledgement.
+    init: function() {
+      var serializer = get(this, 'serializer');
 
-    If the persistent storage returns a new payload in response to the
-    creation, and you want to update the existing record with the
-    new information, pass the payload as the fourth parameter.
+      if (Ember.Object.detect(serializer)) {
+        serializer = serializer.create();
+        set(this, 'serializer', serializer);
+      }
 
-    For example, the `RESTAdapter` saves newly created records by
-    making an Ajax request. When the server returns, the adapter
-    calls didCreateRecord. If the server returns a response body,
-    it is passed as the payload.
+      this._attributesMap = this.createInstanceMapFor('attributes');
+      this._configurationsMap = this.createInstanceMapFor('configurations');
 
-    @method didCreateRecord
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {DS.Model} record
-    @param {any} payload
-  */
-  didCreateRecord: function(store, type, record, payload) {
-    store.didSaveRecord(record);
+      this._outstandingOperations = new Ember.MapWithDefault({
+        defaultValue: function() { return 0; }
+      });
 
-    if (payload) {
-      var loader = DS.loaderFor(store);
+      this._dependencies = new Ember.MapWithDefault({
+        defaultValue: function() { return new Ember.OrderedSet(); }
+      });
 
-      loader.load = function(type, data, prematerialized) {
-        store.updateId(record, data);
-        return store.load(type, data, prematerialized);
-      };
+      this.registerSerializerTransforms(this.constructor, serializer, {});
+      this.registerSerializerMappings(serializer);
+    },
 
-      get(this, 'serializer').extract(loader, payload, type);
-    }
-  },
+    /**
+      Loads a payload for a record into the store.
 
-  /**
-    Acknowledges that the adapter has finished creating several records.
+      This method asks the serializer to break the payload into
+      constituent parts, and then loads them into the store. For example,
+      if you have a payload that contains embedded records, they will be
+      extracted by the serializer and loaded into the store.
 
-    Your adapter should call this method from `createRecords` when it
-    has saved multiple created records to its persistent storage
-    received an acknowledgement.
+      For example:
 
-    If the persistent storage returns a new payload in response to the
-    creation, and you want to update the existing record with the
-    new information, pass the payload as the fourth parameter.
+          adapter.load(store, App.Person, {
+            id: 123,
+            firstName: "Yehuda",
+            lastName: "Katz",
+            occupations: [{
+              id: 345,
+              title: "Tricycle Mechanic"
+            }]
+          });
 
-    @method didCreateRecords
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {DS.Model} record
-    @param {any} payload
-  */
-  didCreateRecords: function(store, type, records, payload) {
-    records.forEach(function(record) {
+      This will load the payload for the `App.Person` with ID `123` and
+      the embedded `App.Occupation` with ID `345`.
+
+      @method load
+      @param {DS.Store} store
+      @param {subclass of DS.Model} type
+      @param {any} payload
+    */
+    load: function(store, type, payload) {
+      var loader = loaderFor(store);
+      return get(this, 'serializer').extractRecordRepresentation(loader, type, payload);
+    },
+
+    /**
+      Acknowledges that the adapter has finished creating a record.
+
+      Your adapter should call this method from `createRecord` when
+      it has saved a new record to its persistent storage and received
+      an acknowledgement.
+
+      If the persistent storage returns a new payload in response to the
+      creation, and you want to update the existing record with the
+      new information, pass the payload as the fourth parameter.
+
+      For example, the `RESTAdapter` saves newly created records by
+      making an Ajax request. When the server returns, the adapter
+      calls didCreateRecord. If the server returns a response body,
+      it is passed as the payload.
+
+      @method didCreateRecord
+      @param {DS.Store} store
+      @param {subclass of DS.Model} type
+      @param {DS.Model} record
+      @param {any} payload
+    */
+    didCreateRecord: function(store, type, record, payload) {
       store.didSaveRecord(record);
-    }, this);
 
-    if (payload) {
-      var loader = DS.loaderFor(store);
-      get(this, 'serializer').extractMany(loader, payload, type, records);
-    }
-  },
+      if (payload) {
+        var loader = DS.loaderFor(store);
 
-  /**
-    @private
+        loader.load = function(type, data, prematerialized) {
+          store.updateId(record, data);
+          return store.load(type, data, prematerialized);
+        };
 
-    Acknowledges that the adapter has finished updating or deleting a record.
+        get(this, 'serializer').extract(loader, payload, type);
+      }
+    },
 
-    Your adapter should call this method from `updateRecord` or `deleteRecord`
-    when it has updated or deleted a record to its persistent storage and
-    received an acknowledgement.
+    /**
+      Acknowledges that the adapter has finished creating several records.
 
-    If the persistent storage returns a new payload in response to the
-    update or delete, and you want to update the existing record with the
-    new information, pass the payload as the fourth parameter.
+      Your adapter should call this method from `createRecords` when it
+      has saved multiple created records to its persistent storage
+      received an acknowledgement.
 
-    @method didSaveRecord
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {DS.Model} record
-    @param {any} payload
-  */
-  didSaveRecord: function(store, type, record, payload) {
-    store.didSaveRecord(record);
+      If the persistent storage returns a new payload in response to the
+      creation, and you want to update the existing record with the
+      new information, pass the payload as the fourth parameter.
 
-    var serializer = get(this, 'serializer');
+      @method didCreateRecords
+      @param {DS.Store} store
+      @param {subclass of DS.Model} type
+      @param {DS.Model} record
+      @param {any} payload
+    */
+    didCreateRecords: function(store, type, records, payload) {
+      records.forEach(function(record) {
+        store.didSaveRecord(record);
+      }, this);
 
-    serializer.eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
-      if (embeddedType === 'load') { return; }
+      if (payload) {
+        var loader = DS.loaderFor(store);
+        get(this, 'serializer').extractMany(loader, payload, type, records);
+      }
+    },
 
-      this.didSaveRecord(store, embeddedRecord.constructor, embeddedRecord);
-    }, this);
+    /**
+      @private
 
-    if (payload) {
-      var loader = DS.loaderFor(store);
-      serializer.extract(loader, payload, type);
-    }
+      Acknowledges that the adapter has finished updating or deleting a record.
+
+      Your adapter should call this method from `updateRecord` or `deleteRecord`
+      when it has updated or deleted a record to its persistent storage and
+      received an acknowledgement.
+
+      If the persistent storage returns a new payload in response to the
+      update or delete, and you want to update the existing record with the
+      new information, pass the payload as the fourth parameter.
+
+      @method didSaveRecord
+      @param {DS.Store} store
+      @param {subclass of DS.Model} type
+      @param {DS.Model} record
+      @param {any} payload
+    */
+    didSaveRecord: function(store, type, record, payload) {
+      store.didSaveRecord(record);
+
+      var serializer = get(this, 'serializer');
+
+      serializer.eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
+        if (embeddedType === 'load') { return; }
+
+        this.didSaveRecord(store, embeddedRecord.constructor, embeddedRecord);
+      }, this);
+
+      if (payload) {
+        var loader = DS.loaderFor(store);
+        serializer.extract(loader, payload, type);
+      }
   },
 
   /**

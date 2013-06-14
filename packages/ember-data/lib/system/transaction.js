@@ -81,6 +81,11 @@ var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach;
   For this reason, you should not re-use transactions once you have committed
   them. Always make a new transaction and move the desired records to it before
   calling commit.
+
+  @class Transaction
+  @namespace DS
+  @extends Ember.Object
+  @constructor
 */
 
 DS.Transaction = Ember.Object.extend({
@@ -244,24 +249,12 @@ DS.Transaction = Ember.Object.extend({
 
     var records = get(this, 'records');
     records.forEach(function(record) {
-      if (!record.get('isDirty')) return;
       record.send('rollback');
     });
 
     // Now that all records in the transaction are guaranteed to be
     // clean, migrate them all to the store's default transaction.
     this.removeCleanRecords();
-
-    // Remaining associated references are not part of the transaction, but
-    // can still have hasMany's which have not been reloaded
-    references.forEach(function(r) {
-      if (r && r.record) {
-        var record = r.record;
-        record.suspendRelationshipObservers(function() {
-          record.reloadHasManys();
-        });
-      }
-    }, this);
   },
 
   /**
@@ -292,7 +285,7 @@ DS.Transaction = Ember.Object.extend({
       if(!record.get('isDirty')) {
         this.remove(record);
       }
-    }, this); 
+    }, this);
   },
 
   /**
