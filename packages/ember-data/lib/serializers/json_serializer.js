@@ -397,6 +397,6 @@ DS.JSONSerializer = DS.Serializer.extend({
     @return {String} name of the root element
   */
   defaultSideloadRootForType: function(type) {
-    return this.pluralize(this.rootForType(type));
+    return this.rootForType(type);
   }
 });
