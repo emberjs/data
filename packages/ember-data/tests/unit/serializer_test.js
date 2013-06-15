@@ -63,3 +63,12 @@ test("extractEmbeddedData is called to retrieve the data associated with an embe
 
   serializer.extractRecordRepresentation( loader, Person, {group: {id: 1}}, false);
 });
+
+test('serializeId returns null for null or undefined values', function() {
+  equal(serializer.serializeId(null), null);
+  equal(serializer.serializeId(undefined), null);
+});
+
+test('serializeId returns a string for number values', function() {
+  equal(serializer.serializeId(1), "1");
+});
