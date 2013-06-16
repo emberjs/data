@@ -404,7 +404,6 @@ DS.Serializer = Ember.Object.extend({
     @returns {any} the serialized representation of the id
   */
   serializeId: function(id) {
-    var serialized = null;
     if(Ember.isEmpty(id)) { return null; }
     if(isNaN(+id)) { return id; }
     return +id;
