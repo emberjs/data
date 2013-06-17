@@ -321,6 +321,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
         return store.referenceForId(type, id);
       });
 
+      references.forEach(function (reference) {
+        var recordArrays = store.recordArrayManager.recordArraysForReference(reference);
+        recordArrays.add(cachedValue);
+      });
+
       set(cachedValue, 'content', Ember.A(references));
     }
   },

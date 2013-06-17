@@ -188,7 +188,7 @@ DS.RecordArrayManager = Ember.Object.extend({
     @method registerFilteredRecordArray
     @param {DS.RecordArray} array
     @param {Class} type
-    @param {Function} filter
+    @param {Function} [filter]
   */
   registerFilteredRecordArray: function(array, type, filter) {
     var recordArrays = this.filteredRecordArrays.get(type);

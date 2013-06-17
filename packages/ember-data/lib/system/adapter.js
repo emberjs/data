@@ -384,6 +384,10 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     };
 
     get(this, 'serializer').extract(loader, payload, type);
+
+    Ember.run.once(function () {
+      store.all(type).trigger('didLoad');
+    });
   },
 
   /**
@@ -423,6 +427,45 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
     loader.populateArray = function(data) {
       recordArray.load(data);
+    };
+
+    get(this, 'serializer').extractMany(loader, payload, type);
+  },
+
+    /**
+    Loads the response to a request for records by hasMany.
+
+    Your adapter should call this method from its `findHasMany`
+    method with the response from the backend.
+
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {any} payload
+    @param {subclass of DS.Model} record
+      the record that the relationship belongs to
+    @param {String} key
+      the property name of the relationship on the record
+  */
+  didFindHasMany: function(store, type, payload, record, key) {
+
+     var loader = DS.loaderFor(store);
+
+    loader.load = function (type, data, prematerialized) {
+      var id = data.uuid,
+          clientId = store.typeMapFor(type).idToCid[id],
+          reference = store.recordReferences[clientId],
+          record = store.recordCache[clientId];
+
+      if (!reference || (record && !get(record, 'isDirty'))) {
+        reference = store.load(type, data, prematerialized);
+      }
+      return reference;
+    };
+
+    loader.populateArray = function(references) {
+      store.loadHasMany(record, key, references.map(function(reference) {
+        return reference.id;
+      }));
     };
 
     get(this, 'serializer').extractMany(loader, payload, type);
@@ -775,16 +818,16 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
       return filteredSet;
     }
 
+    this.groupByType(commitDetails.deleted).forEach(function (type, set) {
+      this.deleteRecords(store, type, filter(set));
+    }, this);
+
     this.groupByType(commitDetails.created).forEach(function(type, set) {
       this.createRecords(store, type, filter(set));
     }, this);
 
     this.groupByType(commitDetails.updated).forEach(function(type, set) {
       this.updateRecords(store, type, filter(set));
-    }, this);
-
-    this.groupByType(commitDetails.deleted).forEach(function(type, set) {
-      this.deleteRecords(store, type, filter(set));
     }, this);
   },
 

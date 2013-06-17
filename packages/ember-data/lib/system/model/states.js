@@ -416,6 +416,10 @@ createdState.uncommitted.deleteRecord = function(record) {
 };
 
 createdState.uncommitted.rollback = function(record) {
+  //HACK Rollback puts record into a loaded.saved state which then transitions to loaded.materializing... this is not correct for a new record.
+  if (get(record, 'isNew')) {
+    record.clearRelationships();
+  }
   DirtyState.uncommitted.rollback.apply(this, arguments);
   record.transitionTo('deleted.saved');
 };
