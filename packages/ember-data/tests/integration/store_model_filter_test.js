@@ -1,14 +1,15 @@
 var get = Ember.get, set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;
+var indexOf = Ember.EnumerableUtils.indexOf;
 
 var Person, store, array, recordArray;
 
 var shouldContain = function(array, item) {
-  ok(array.indexOf(item) !== -1, "array should contain "+item.get('name'));
+  ok(indexOf(array, item) !== -1, "array should contain "+item.get('name'));
 };
 
 var shouldNotContain = function(array, item) {
-  ok(array.indexOf(item) === -1, "array should not contain "+item.get('name'));
+  ok(indexOf(array, item) === -1, "array should not contain "+item.get('name'));
 };
 
 module("DS.Model updating", {
