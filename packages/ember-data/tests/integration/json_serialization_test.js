@@ -274,6 +274,37 @@ test("metadata that has been configured is passed to the store", function() {
   equal(typeMap.metadata.since, payload.meta[serializer.configOption(App.Post, 'since')], "Loaded meta property: since");
 });
 
+test("metadata value can be 0", function() {
+  var payload, typeMap, loader = DS.loaderFor(store), K = Ember.K, App = Ember.Namespace.create({
+    toString: function() { return "App"; }
+  });
+
+  payload = {
+      meta: {
+        total: 0,
+        since: '123'
+      },
+      posts: []
+    };
+
+  App.Post = DS.Model.extend({
+    name: DS.attr('string', {defaultValue: 'A Post'})
+  });
+
+  serializer.configure({
+    meta: 'meta',
+    since: 'since',
+    pagination: 'total'
+  });
+
+  loader = { load: K, loadMany: K, prematerialize: K, populateArray: K, metaForType: loader.metaForType };
+  typeMap = store.typeMapFor(App.Post);
+
+  serializer.extractMany(loader, payload, App.Post);
+
+  equal(typeMap.metadata.pagination, payload.meta[serializer.configOption(App.Post, 'pagination')], "Loaded meta property: pagination");
+});
+
 test("metadata that has not been configured is not passed to the store", function() {
   var payload, typeMap, loader = DS.loaderFor(store), K = Ember.K, App = Ember.Namespace.create({
     toString: function() { return "App"; }
