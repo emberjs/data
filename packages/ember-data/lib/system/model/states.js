@@ -547,7 +547,17 @@ var states = {
         didChangeData: didChangeData,
 
         finishedMaterializing: function(manager) {
-          manager.transitionTo('loaded.saved');
+          var isDirty = get(manager, 'dirtyWhileMaterializing');
+          if (isDirty) {
+            manager.transitionTo('loaded.updated');
+            set(manager, 'dirtyWhileMaterializing', false);
+          } else {
+            manager.transitionTo('loaded.saved');
+          }
+        },
+
+        becomeDirty: function(manager) {
+          set(manager, 'dirtyWhileMaterializing', true);
         },
 
         // SUBSTATES
