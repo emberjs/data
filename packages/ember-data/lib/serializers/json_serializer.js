@@ -241,7 +241,8 @@ DS.JSONSerializer = DS.Serializer.extend({
     }
 
     this.metadataMapping.forEach(function(property, key){
-      if(value = data[property]){
+      value = data[property];
+      if(!Ember.isNone(value)){
         loader.metaForType(type, key, value);
       }
     });
