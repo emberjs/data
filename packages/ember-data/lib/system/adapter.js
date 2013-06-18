@@ -6,6 +6,7 @@ require('ember-data/serializers/json_serializer');
 */
 
 var get = Ember.get, set = Ember.set, merge = Ember.merge;
+var forEach = Ember.EnumerableUtils.forEach;
 
 function loaderFor(store) {
   return {
@@ -646,7 +647,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
       defaultValue: function() { return Ember.OrderedSet.create(); }
     });
 
-    enumerable.forEach(function(item) {
+    forEach(enumerable, function(item) {
       map.get(item.constructor).add(item);
     });
 

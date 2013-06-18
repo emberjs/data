@@ -1,4 +1,5 @@
 var get = Ember.get, set = Ember.set;
+var forEach = Ember.EnumerableUtils.forEach;
 
 var Person, store, array, recordArray;
 
@@ -296,7 +297,7 @@ var clientEdits = function(ids) {
   // wrap in an Ember.run to guarantee coalescence of the
   // iterated `set` calls.
   Ember.run( function() {
-    ids.forEach( function(id) {
+    forEach(ids, function(id) {
       var person = store.find(Person, id);
       person.set('name', 'Client-side ' + id );
     });
@@ -307,7 +308,7 @@ var clientCreates = function(names) {
   // wrap in an Ember.run to guarantee coalescence of the
   // iterated `set` calls.
   Ember.run( function() {
-    names.forEach( function( name ) {
+    forEach(names, function( name ) {
       store.createRecord(Person, { name: 'Client-side ' + name });
     });
   });
