@@ -131,7 +131,10 @@ asyncTest("A serializer can materialize a hasMany as an opaque token that can be
     equal(id, 1);
 
     setTimeout(function() {
-      store.load(App.Post, { id: 1, comments: "/posts/1/comments" });
+      Ember.run(function(){
+        store.load(App.Post, { id: 1, comments: "/posts/1/comments" });
+      });
+
       next();
     }, 1);
   };
@@ -148,13 +151,15 @@ asyncTest("A serializer can materialize a hasMany as an opaque token that can be
 
     setTimeout(function() {
       // Load in some fake comments
-      store.loadMany(App.Comment, [
-        { id: 1, body: "First" },
-        { id: 2, body: "Second" }
-      ]);
+      Ember.run(function(){
+        store.loadMany(App.Comment, [
+          { id: 1, body: "First" },
+          { id: 2, body: "Second" }
+        ]);
 
-      // Now load those comments into the ManyArray that was provided.
-      store.loadHasMany(record, relationship.key, [ 1, 2 ]);
+        // Now load those comments into the ManyArray that was provided.
+        store.loadHasMany(record, relationship.key, [ 1, 2 ]);
+      });
 
       setTimeout(function() {
         done();
