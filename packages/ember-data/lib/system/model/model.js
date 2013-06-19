@@ -296,7 +296,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
   materializeHasMany: function(name, tuplesOrReferencesOrOpaque) {
     var tuplesOrReferencesOrOpaqueType = typeof tuplesOrReferencesOrOpaque;
-    if (tuplesOrReferencesOrOpaque && tuplesOrReferencesOrOpaqueType !== 'string' && tuplesOrReferencesOrOpaque.length > 1) { Ember.assert('materializeHasMany expects tuples, references or opaque token, not ' + tuplesOrReferencesOrOpaque[0], tuplesOrReferencesOrOpaque[0].hasOwnProperty('id') && tuplesOrReferencesOrOpaque[0].type); }
+
+    if (tuplesOrReferencesOrOpaque && tuplesOrReferencesOrOpaqueType !== 'string' && tuplesOrReferencesOrOpaque.length > 1) {
+      Ember.assert('materializeHasMany expects tuples, references or opaque token, not ' + tuplesOrReferencesOrOpaque[0], tuplesOrReferencesOrOpaque[0].hasOwnProperty('id') && tuplesOrReferencesOrOpaque[0].type);
+    }
+
     if( tuplesOrReferencesOrOpaqueType === "string" ) {
       this._data.hasMany[name] = tuplesOrReferencesOrOpaque;
     } else {
