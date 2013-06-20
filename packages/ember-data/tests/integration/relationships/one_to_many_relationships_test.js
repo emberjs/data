@@ -48,6 +48,22 @@ test("Referencing a null belongsTo relationship returns null", function(){
   equal(comment.get('post'), null, "null belongsTo relationship returns null");
 });
 
+test("Referencing an undefined hasMany relationship returns empty array", function() {
+  store.load(App.Post, {id: 1, title: "parent with undefined children"});
+  var post = store.find(App.Post, 1);
+  ok(post.get('comments'), "able to get the post's comments");
+  equal(post.get('comments.length'), 0, "undefined hasMany relationship returns empty array");
+  deepEqual(post.get('comments').toArray(), [], "comments is empty array");
+});
+
+test("Referencing a null hasMany relationship returns empty array", function(){
+  store.load(App.Post, { id: 1, comments: null, title: "parent with children set to null" });
+  var post = store.find(App.Post, 1);
+  ok(post.get('comments'), "able to get the post's comments");
+  equal(post.get('comments.length'), 0, "null masMany relationship returns empty array");
+  deepEqual(post.get('comments').toArray(), [], "comments is an empty array");
+});
+
 test("When setting a record's belongsTo relationship to another record, that record should be added to the inverse hasMany array", function() {
   store.load(App.Post, { id: 1, title: "parent" });
   store.load(App.Comment, { id: 2, body: "child" });
