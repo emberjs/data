@@ -469,9 +469,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     @method save
   */
   save: function() {
-    this.get('store').scheduleSave(this);
-
-    return this.resolveOn('didCommit');
+    return this.get('store').scheduleSave(this);
   },
 
   /**

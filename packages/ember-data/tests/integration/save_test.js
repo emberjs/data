@@ -22,6 +22,7 @@ test("Will resolve save on success", function() {
 
   store.get('_adapter').createRecord = function(store, type, record) {
     store.didSaveRecord(record, {id: 123});
+    return Ember.RSVP.resolve();
   };
 
   post.save().then(async(function() {
@@ -35,6 +36,7 @@ test("Will reject save on error", function() {
 
   store.get('_adapter').createRecord = function(store, type, record) {
     store.recordWasError(record);
+    return Ember.RSVP.reject();
   };
 
   post.save().then(function() {}, async(function() {
@@ -48,6 +50,7 @@ test("Will reject save on invalid", function() {
 
   store.get('_adapter').createRecord = function(store, type, record) {
     store.recordWasInvalid(record, {title: 'invalid'});
+    return Ember.RSVP.reject();
   };
 
   post.save().then(function() {}, async(function() {
