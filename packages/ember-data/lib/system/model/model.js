@@ -382,38 +382,12 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   /**
-    @private
-
-  */
-  resolveOn: function(successEvent) {
-    var model = this;
-
-    return new Ember.RSVP.Promise(function(resolve, reject) {
-      function success() {
-        this.off('becameError', error);
-        this.off('becameInvalid', error);
-        resolve(this);
-      }
-      function error() {
-        this.off(successEvent, success);
-        reject(this);
-      }
-
-      model.one(successEvent, success);
-      model.one('becameError', error);
-      model.one('becameInvalid', error);
-    });
-  },
-
-  /**
     Save the record.
 
     @method save
   */
   save: function() {
-    this.get('store').scheduleSave(this);
-
-    return this.resolveOn('didCommit');
+    return this.send('save');
   },
 
   /**
@@ -426,9 +400,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     @method reload
   */
   reload: function() {
-    this.send('reloadRecord');
-
-    return this.resolveOn('didReload');
+    return this.send('reloadRecord');
   },
 
   // FOR USE DURING COMMIT PROCESS

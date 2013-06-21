@@ -194,6 +194,24 @@ var didSetProperty = function(manager, context) {
   change.sync();
 };
 
+var resolveOn = function(record, successEvent) {
+  return new Ember.RSVP.Promise(function(resolve, reject) {
+    function success() {
+      this.off('becameError', error);
+      this.off('becameInvalid', error);
+      resolve(this);
+    }
+    function error() {
+      this.off(successEvent, success);
+      reject(this);
+    }
+
+    record.one(successEvent, success);
+    record.one('becameError', error);
+    record.one('becameInvalid', error);
+  });
+};
+
 DS.State = Ember.State.extend({
   isLoading: stateProperty,
   isLoaded: stateProperty,
@@ -268,6 +286,13 @@ var DirtyState = DS.State.extend({
   // have not yet begun to be saved, and are not invalid.
   uncommitted: DS.State.extend({
 
+    promise: null,
+
+    // TRANSITIONS
+    exit: function(manager) {
+      set(this, 'promise', null);
+    },
+
     // EVENTS
     willSetProperty: willSetProperty,
     didSetProperty: didSetProperty,
@@ -293,6 +318,21 @@ var DirtyState = DS.State.extend({
 
     rollback: function(manager) {
       get(manager, 'record').rollback();
+    },
+
+    save: function(manager) {
+      var record = get(manager, 'record'),
+          store = get(record, 'store'),
+          promise = get(this, 'promise');
+
+      if (!promise) {
+        promise = resolveOn(record, 'didCommit');
+        set(this, 'promise', promise);
+      }
+
+      store.scheduleSave(record);
+
+      return promise;
     }
   }),
 
@@ -569,7 +609,12 @@ var states = {
         loadedData: didChangeData,
 
         reloadRecord: function(manager) {
+          var record = get(manager, 'record'),
+              promise = resolveOn(record, 'didReload');
+
           manager.transitionTo('loaded.reloading');
+
+          return promise;
         },
 
         materializingData: function(manager) {
