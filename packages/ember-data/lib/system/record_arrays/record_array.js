@@ -70,7 +70,7 @@ DS.RecordArray = Ember.ArrayProxy.extend(LoadPromise, {
     var store = get(this, 'store'),
         type = get(this, 'type');
 
-    store.fetchAll(type, this);
+    return store.fetchAll(type, this);
   },
 
   addReference: function(reference) {

@@ -428,7 +428,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   reload: function() {
     this.send('reloadRecord');
 
-    return this.resolveOn('didReload');
+    return this.get('store').reloadRecord(this);
   },
 
   // FOR USE DURING COMMIT PROCESS
