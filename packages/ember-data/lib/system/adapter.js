@@ -460,6 +460,58 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     store.recordWasError(record);
   },
 
+  /**
+    Notifies the store that a record was not found.
+
+    Your adapter should call this method to indicate that the
+    record was not found.
+
+    @method recordNotFound
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+  */
+  recordNotFound: function(store, type, record) {
+    store.recordWasError(record);
+  },
+
+  /**
+    Notifies the store that a query was not found.
+
+    Your adapter should call this method to indicate that a
+    query was not found.
+
+    @method queryNotFound
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.AdapterPopulatedRecordArray} array
+  */
+  queryNotFound: function(store, type, array) {
+    store.recordArrayWasError(array);
+  },
+
+  fetchRecord: function(store, type, id, record) {
+    var thenable = this.find(store, type, id),
+        adapter = this;
+
+    if (thenable && thenable.then) {
+      thenable.then(null /* for future use */, function(error) {
+        adapter.recordNotFound(store, type, record);
+      });
+    }
+  },
+
+  fetchQuery: function(store, type, query, array) {
+    var thenable = this.findQuery(store, type, query, array),
+        adapter = this;
+
+    if (thenable && thenable.then) {
+      thenable.then(null /* for future use */, function(error) {
+        adapter.queryNotFound(store, type, array);
+      });
+    }
+  },
+
   dirtyRecordsForAttributeChange: function(dirtySet, record, attributeName, newValue, oldValue) {
     if (newValue !== oldValue) {
       // If this record is embedded, add its parent

@@ -475,13 +475,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
       Ember.assert("You tried to find a record but your adapter does not implement `find`", adapter.find);
 
-      var thenable = adapter.find(this, type, id);
-
-      if (thenable && thenable.then) {
-        thenable.then(null /* for future use */, function(error) {
-          store.recordWasError(record);
-        });
-      }
+      adapter.fetchRecord(this, type, id, record);
     }
 
     return record;
@@ -497,13 +491,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to update a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to update a record but your adapter does not implement `find`", adapter.find);
 
-    var thenable = adapter.find(this, type, id);
-
-    if (thenable && thenable.then) {
-      thenable.then(null /* for future use */, function(error) {
-        store.recordWasError(record);
-      });
-    }
+    adapter.fetchRecord(this, type, id, record);
   },
 
   /**
@@ -736,7 +724,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to load a query but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", adapter.findQuery);
 
-    adapter.findQuery(this, type, query, array);
+    adapter.fetchQuery(this, type, query, array);
 
     return array;
   },
@@ -1044,8 +1032,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
      @param {DS.Model} record
   */
-  recordWasError: function(record) {
+  recordWasError: function(record, error) {
     record.adapterDidError();
+  },
+
+  recordArrayWasError: function(recordArray, error) {
+    recordArray.adapterDidError();
   },
 
   /**
