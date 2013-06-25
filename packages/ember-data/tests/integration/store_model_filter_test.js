@@ -1,13 +1,15 @@
 var get = Ember.get, set = Ember.set;
+var forEach = Ember.EnumerableUtils.forEach;
+var indexOf = Ember.EnumerableUtils.indexOf;
 
 var Person, store, array, recordArray;
 
 var shouldContain = function(array, item) {
-  ok(array.indexOf(item) !== -1, "array should contain "+item.get('name'));
+  ok(indexOf(array, item) !== -1, "array should contain "+item.get('name'));
 };
 
 var shouldNotContain = function(array, item) {
-  ok(array.indexOf(item) === -1, "array should not contain "+item.get('name'));
+  ok(indexOf(array, item) === -1, "array should not contain "+item.get('name'));
 };
 
 module("DS.Model updating", {
@@ -296,7 +298,7 @@ var clientEdits = function(ids) {
   // wrap in an Ember.run to guarantee coalescence of the
   // iterated `set` calls.
   Ember.run( function() {
-    ids.forEach( function(id) {
+    forEach(ids, function(id) {
       var person = store.find(Person, id);
       person.set('name', 'Client-side ' + id );
     });
@@ -307,7 +309,7 @@ var clientCreates = function(names) {
   // wrap in an Ember.run to guarantee coalescence of the
   // iterated `set` calls.
   Ember.run( function() {
-    names.forEach( function( name ) {
+    forEach(names, function( name ) {
       store.createRecord(Person, { name: 'Client-side ' + name });
     });
   });

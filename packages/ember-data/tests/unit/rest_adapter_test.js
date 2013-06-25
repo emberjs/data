@@ -1,4 +1,5 @@
 var get = Ember.get, set = Ember.set;
+var indexOf = Ember.EnumerableUtils.indexOf;
 var Adapter, Person, Group, Role, adapter, serializer, store, ajaxUrl, ajaxType, ajaxHash, recordArrayFlags, manyArrayFlags;
 var forEach = Ember.EnumerableUtils.forEach;
 
@@ -34,7 +35,7 @@ function enabledFlags(entity, expectedFlagArr, onlyCheckFlagArr) {
   forEach(possibleFlags, function(flag){
     var expectedFlagValue, actualFlagValue;
 
-    expectedFlagValue = expectedFlagArr.indexOf(flag) !== -1;
+    expectedFlagValue = indexOf(expectedFlagArr, flag) !== -1;
     actualFlagValue = entity.get(flag);
 
     equal(actualFlagValue, expectedFlagValue, 'Expected flag ' + flag + ' should have been: ' + expectedFlagValue + ' but was: ' + actualFlagValue + ' on: '  + entity);
