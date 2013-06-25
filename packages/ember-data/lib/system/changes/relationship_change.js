@@ -458,9 +458,9 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
       secondRecord.suspendRelationshipObservers(function(){
         set(secondRecord, secondRecordName, null);
       });
-     }
-     else if(this.secondRecordKind === "hasMany"){
-       secondRecord.suspendRelationshipObservers(function(){
+    }
+    else if(this.secondRecordKind === "hasMany"){
+      secondRecord.suspendRelationshipObservers(function(){
         get(secondRecord, secondRecordName).removeObject(firstRecord);
       });
     }
