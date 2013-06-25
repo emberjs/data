@@ -10,4 +10,6 @@
   @static
 */
 
-window.DS = Ember.Namespace.create();
+window.DS = Ember.Namespace.create({
+  VERSION: '0.13'
+});
