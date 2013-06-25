@@ -1,4 +1,6 @@
 var get = Ember.get, set = Ember.set;
+var indexOf = Ember.EnumerableUtils.indexOf;
+
 var Person;
 
 module("DS.RecordArray");
@@ -128,11 +130,11 @@ test("a record array should be able to be enumerated in any order", function() {
 });
 
 var shouldContain = function(array, item) {
-  ok(array.indexOf(item) !== -1, "array should contain "+item.get('name'));
+  ok(indexOf(array, item) !== -1, "array should contain "+item.get('name'));
 };
 
 var shouldNotContain = function(array, item) {
-  ok(array.indexOf(item) === -1, "array should not contain "+item.get('name'));
+  ok(indexOf(array, item) === -1, "array should not contain "+item.get('name'));
 };
 
 test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {

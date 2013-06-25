@@ -14,6 +14,7 @@ var get = Ember.get, set = Ember.set;
 var once = Ember.run.once;
 var isNone = Ember.isNone;
 var forEach = Ember.EnumerableUtils.forEach;
+var indexOf = Ember.EnumerableUtils.indexOf;
 var map = Ember.EnumerableUtils.map;
 
 // These values are used in the data cache when clientIds are
@@ -1011,7 +1012,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   didSaveRecords: function(list, dataList) {
     var i = 0;
-    list.forEach(function(record) {
+    forEach(list, function(record) {
       this.didSaveRecord(record, dataList && dataList[i++]);
     }, this);
   },
@@ -1444,7 +1445,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     if (id) { delete typeMap.idToReference[id]; }
 
-    var loc = typeMap.references.indexOf(reference);
+    var loc = indexOf(typeMap.references, reference);
     typeMap.references.splice(loc, 1);
   },
 
