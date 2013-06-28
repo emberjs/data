@@ -312,17 +312,18 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   didError: function(store, type, record, xhr) {
+    function triggerInvalidIfErrors(record, errors) {
+      if (!Ember.isEmpty(errors)) {
+        store.recordWasInvalid(record, errors);
+      }
+    }
+
     if (xhr.status === 422) {
       var json = JSON.parse(xhr.responseText),
           serializer = get(this, 'serializer'),
           errors = serializer.extractValidationErrors(type, json);
 
-      function triggerInvalidIfErrors(record, errors) {
-        if (!Ember.isEmpty(errors)) {
-          store.recordWasInvalid(record, errors);
-        }
-      }
-      triggerInvalidIfErrors(record, errors);
+          triggerInvalidIfErrors(record, errors);
       record.eachRelationship(function(name, meta) {
         var embeddedRecord = record.get(name);
         if (!Ember.isEmpty(embeddedRecord)) {
