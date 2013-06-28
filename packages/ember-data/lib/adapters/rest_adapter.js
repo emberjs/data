@@ -317,16 +317,17 @@ DS.RESTAdapter = DS.Adapter.extend({
           serializer = get(this, 'serializer'),
           errors = serializer.extractValidationErrors(type, json);
 
-      if (!Ember.isEmpty(errors)) {
-        store.recordWasInvalid(record, errors);
+      function triggerInvalidIfErrors(record, errors) {
+        if (!Ember.isEmpty(errors)) {
+          store.recordWasInvalid(record, errors);
+        }
       }
+      triggerInvalidIfErrors(record, errors);
       record.eachRelationship(function(name, meta) {
-        var relatedRecord = record.get(name);
-        if (!Ember.isEmpty(relatedRecord)) {
+        var embeddedRecord = record.get(name);
+        if (!Ember.isEmpty(embeddedRecord)) {
           var errors = serializer.extractValidationErrors(meta.type, json, meta.key + '.');
-          if (!Ember.isEmpty(errors)) {
-            store.recordWasInvalid(relatedRecord, errors);
-          }
+          triggerInvalidIfErrors(embeddedRecord, errors);
         }
       });
     } else {
