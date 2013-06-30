@@ -41,23 +41,23 @@ DS.Model.reopen({
 
   attributeDidChange: Ember.observer(function(record, key) {
     record.send('didSetProperty', { name: key });
-  })
-});
+  }),
 
-function getAttr(record, options, key) {
-  var attributes = get(record, 'data').attributes;
-  var value = attributes[key];
+  getAttr: function(key, options) {
+    var attributes = get(this, 'data').attributes;
+    var value = attributes[key];
 
-  if (value === undefined) {
-    if (typeof options.defaultValue === "function") {
-      value = options.defaultValue();
-    } else {
-      value = options.defaultValue;
+    if (value === undefined) {
+      if (typeof options.defaultValue === "function") {
+        value = options.defaultValue();
+      } else {
+        value = options.defaultValue;
+      }
     }
-  }
 
-  return value;
-}
+    return value;
+  }
+});
 
 DS.attr = function(type, options) {
   options = options || {};
@@ -72,7 +72,7 @@ DS.attr = function(type, options) {
     if (arguments.length > 1) {
       Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
     } else {
-      value = getAttr(this, options, key);
+      value = this.getAttr(key, options);
     }
 
     return value;

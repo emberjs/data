@@ -385,3 +385,35 @@ test("ensure model exits loading state, materializes data and fulfills promise o
   equal(get(person, 'isLoaded'), true, 'model is loaded');
   equal(get(person, '_deferred.promise.isFulfilled'), true, 'model is fulfilled');
 });
+
+test("getting attr should be overrideable in subclasses of DS.Model", function() {
+  var key, options;
+
+  var store  = DS.Store.create();
+  var Person = DS.Model.extend({
+    name:    DS.attr('string', { foo: 'bar' }),
+
+    getAttr: function(argKey, argOptions) {
+      key     = argKey;
+      options = argOptions;
+
+      return 'Scumbag ' + this._super(argKey, argOptions);
+    }
+  });
+
+  store.load(Person, { id: 1, name: 'Katz' });
+
+  var record = store.find(Person, 1);
+
+  var name = record.get('name');
+
+  equal(name, 'Scumbag Katz', 'value returned from getAttr is returned from the property');
+  equal(key, 'name', 'key is passed as a first option to getAttr');
+  deepEqual(options, { foo: 'bar' }, 'options are passed as a second argument to getAttr');
+
+  var otherObject = Ember.Object.create({ person: record });
+
+  var otherName = otherObject.get('person.name');
+
+  equal(otherName, 'Scumbag Katz', 'overrideable getAttr is called also when getting path');
+});
