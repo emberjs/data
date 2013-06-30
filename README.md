@@ -58,7 +58,7 @@ You also have the option to build ember-data.js yourself.  Clone the repository,
 
 ### Setup
 
-1. Install Ruby 1.9.2+. There are many resources on the web can help; one of the best is [rvm](https://rvm.io/).
+1. Install Ruby 1.9.3+. There are many resources on the web can help; one of the best is [rvm](https://rvm.io/).
 
 2. Install Bundler: `gem install bundler`
 
