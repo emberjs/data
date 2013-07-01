@@ -502,6 +502,25 @@ test("calling createRecord and passing in an undefined value for a relationship 
   strictEqual(person.get('tag'), null, "undefined values should return null relationships");
 });
 
+test("calling createRecord and passing in a record creates the relationship record", function () {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo(Tag),
+  });
+
+  var store = DS.Store.create();
+
+  store.createRecord(Person, { id: 1, tag: store.createRecord(Tag, { name: 'Ember.js' }) });
+
+  var person = store.find(Person, 1);
+
+  strictEqual(person.get('tag.name'), 'Ember.js', "the relationship record was created");
+});
+
 test("findMany is passed the owner record for adapters when some of the object graph is already loaded", function() {
   var Occupation = DS.Model.extend({
     description: DS.attr('string')

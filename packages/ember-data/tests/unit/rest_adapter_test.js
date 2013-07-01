@@ -1,6 +1,6 @@
 var get = Ember.get, set = Ember.set;
 var indexOf = Ember.EnumerableUtils.indexOf;
-var Adapter, Person, Group, Role, adapter, serializer, store, ajaxUrl, ajaxType, ajaxHash, ajaxHeaders, recordArrayFlags, manyArrayFlags;
+var Adapter, Person, Group, Role, adapter, serializer, store, ajaxUrl, ajaxType, ajaxHash, ajaxHeaders, ajaxRequestsTracker, recordArrayFlags, manyArrayFlags;
 var forEach = Ember.EnumerableUtils.forEach;
 
 // Note: You will need to ensure that you do not attempt to assert against flags that do not exist in this array (or else they will show positive).
@@ -56,12 +56,12 @@ var expectUrl = function(url, desc) {
 
 // Used for testing a request type to a remote URL
 var expectType = function(type) {
-  equal(type, ajaxType, "the HTTP method is " + type);
+  equal(ajaxType, type, "the HTTP method is " + type);
 };
 
 // Used to test that data is being passed to a remote URL
 var expectData = function(hash) {
-  deepEqual(hash, ajaxHash.data, "the hash was passed along");
+  deepEqual(ajaxHash.data, hash, "the hash was passed along");
 };
 
 // Used to test that a header has been added to the XHR request
@@ -75,6 +75,8 @@ module("the REST adapter", {
     ajaxType = undefined;
     ajaxHash = undefined;
     ajaxHeaders = undefined;
+
+    ajaxRequestsTracker = [];
 
     Adapter = DS.RESTAdapter.extend();
     Adapter.configure('plurals', {
@@ -94,6 +96,12 @@ module("the REST adapter", {
           ajaxType = type;
           ajaxHash = hash;
           ajaxHeaders = self.headers;
+
+          ajaxRequestsTracker.push({
+            url: url,
+            type: type,
+            hash: hash
+          });
 
           hash.success = function(json, xhr) {
             Ember.run(function(){
@@ -242,6 +250,35 @@ test("singular creations can sideload data", function() {
   enabledFlags(person, ['isLoaded', 'isValid']);
   equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
+});
+
+test("creating a person with always-embedded group makes one POST to /people, with the data hash, none to /groups", function() {
+  serializer.map(Person, { group: { embedded: 'always' } });
+  // setup
+  var person = store.createRecord(Person, { name: "Tom Dale", group: store.createRecord(Group, { name: "Ember.js Group" }) });
+
+  // test
+  stateEquals(person, 'loaded.created.uncommitted');
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
+
+  // setup
+  store.commit();
+
+  // test
+  stateEquals(person, 'loaded.created.inFlight');
+  enabledFlags(person, ['isLoaded', 'isDirty', 'isNew', 'isValid', 'isSaving']);
+  expectUrl("/people", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ person: { name: "Tom Dale", group: { name: "Ember.js Group" } } });
+  equal(1, ajaxRequestsTracker.length, 'only one request was made');
+  // setup
+  ajaxHash.success({ person: { id: 1, name: "Tom Dale", group: { id: 1, name: "Ember.js Group" } } });
+
+  // test
+  stateEquals(person, 'loaded.saved');
+  enabledFlags(person, ['isLoaded', 'isValid']);
+  equal(person, store.find(Person, 1), "it is now possible to retrieve the person by the ID supplied");
+  equal(person.get('group'), store.find(Group, 1), "it is now possible to retrieve the group by the ID supplied");
 });
 
 test("updating a person makes a PUT to /people/:id with the data hash", function() {
