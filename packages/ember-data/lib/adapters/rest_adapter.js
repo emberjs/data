@@ -79,6 +79,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   namespace: null,
   bulkCommit: false,
   since: 'since',
+  headers: {},
 
   serializer: DS.RESTSerializer,
 
@@ -332,6 +333,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       hash.type = type;
       hash.dataType = 'json';
       hash.context = adapter;
+      hash.headers = adapter.headers;
 
       if (hash.data && type !== 'GET') {
         hash.contentType = 'application/json; charset=utf-8';
