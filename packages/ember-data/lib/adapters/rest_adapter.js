@@ -323,7 +323,7 @@ DS.RESTAdapter = DS.Adapter.extend({
           serializer = get(this, 'serializer'),
           errors = serializer.extractValidationErrors(type, json);
 
-          triggerInvalidIfErrors(record, errors);
+      triggerInvalidIfErrors(record, errors);
       record.eachRelationship(function(name, meta) {
         var embeddedRecord = record.get(name);
         if (!Ember.isEmpty(embeddedRecord)) {
