@@ -64,11 +64,17 @@ var expectData = function(hash) {
   deepEqual(hash, ajaxHash.data, "the hash was passed along");
 };
 
+// Used to test that a header has been added to the XHR request
+var expectHeader = function(name, value) {
+  equal(ajaxHeaders[name], value);
+};
+
 module("the REST adapter", {
   setup: function() {
     ajaxUrl = undefined;
     ajaxType = undefined;
     ajaxHash = undefined;
+    ajaxHeaders = undefined;
 
     Adapter = DS.RESTAdapter.extend();
     Adapter.configure('plurals', {
@@ -87,8 +93,9 @@ module("the REST adapter", {
           ajaxUrl = url;
           ajaxType = type;
           ajaxHash = hash;
+          ajaxHeaders = self.headers;
 
-          hash.success = function(json) {
+          hash.success = function(json, xhr) {
             Ember.run(function(){
               resolve(json);
             });
@@ -1137,6 +1144,16 @@ test("if you specify a url then that custom url is used", function() {
 
   // test
   expectUrl("http://api.ember.dev/people/1", "the custom url, followed by the plural of the model name and the id");
+});
+
+test("if you specify a header then that custom header is used", function() {
+  // setup
+  var person;
+  set(adapter, 'headers', { 'Authorization' : 'token' });
+  person = store.find(Person, 1);
+
+  // test
+  expectHeader("Authorization", "token");
 });
 
 test("sideloaded data is loaded prior to primary data (to ensure relationship coherence)", function() {
