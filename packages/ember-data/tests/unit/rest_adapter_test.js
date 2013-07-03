@@ -1,6 +1,6 @@
 var get = Ember.get, set = Ember.set;
 var indexOf = Ember.EnumerableUtils.indexOf;
-var Adapter, Person, Group, Role, adapter, serializer, store, ajaxUrl, ajaxType, ajaxHash, recordArrayFlags, manyArrayFlags;
+var Adapter, Person, Group, Role, adapter, serializer, store, ajaxUrl, ajaxType, ajaxHash, ajaxHeaders, recordArrayFlags, manyArrayFlags;
 var forEach = Ember.EnumerableUtils.forEach;
 
 // Note: You will need to ensure that you do not attempt to assert against flags that do not exist in this array (or else they will show positive).
