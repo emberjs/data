@@ -1369,6 +1369,85 @@ test("updating a record with a 500 error marks the record as error", function() 
   enabledFlags(person, ['isError', 'isValid']);
 });
 
+var Post, Comment, post, comment, createCount, updateCount;
+
+module('The REST adapter - bulk commit with embedded records', {
+  setup: function(){
+    createCount = 0;
+    updateCount = 0;
+
+    Adapter = DS.RESTAdapter.extend();
+
+    Comment = DS.Model.extend({
+      text: DS.attr('string'),
+    });
+
+    Post = DS.Model.extend({
+      title: DS.attr('string'),
+      comments: DS.hasMany(Comment),
+    });
+
+    Adapter.map(Post, {
+      comments: { embedded: 'always' }
+    });
+
+    adapter = Adapter.create({
+      createRecords: function(store, type, records) {
+        createCount++;
+      },
+
+      updateRecords: function(store, type, records) {
+        updateCount++;
+      }
+    });
+
+    set(adapter, 'bulkCommit', true);
+
+    store = DS.Store.create({
+      adapter: adapter
+    });
+  }
+});
+
+test("saving a new record with an embedded type does not cause an additional POST for the embedded type.", function(){
+  expect(2);
+
+  equal(createCount, 0, "precon - createCount is 0");
+  post = store.createRecord(Post, {
+    title: 'A new Post',
+  });
+
+  comment = post.get('comments').createRecord({title: 'A new comment'});
+
+  store.commit();
+
+  equal(createCount, 1, "Only 1 commit is made for a parent with an embedded type");
+});
+
+test("updating a record with an embedded type does not cause an additional PUT for the embedded type.", function(){
+  expect(2);
+
+  equal(updateCount, 0, "precon - updateCount is 0");
+
+  adapter.load(store, Post, {
+    id: 1,
+    title: 'An existing post',
+    comments: [
+      {
+        title: 'An existing comment'
+      }
+    ]
+  });
+
+  var post = store.find(Post, 1);
+
+  set(post, 'title', 'Dirty the post');
+
+  store.commit();
+
+  equal(updateCount, 1, "Only 1 PUT is made when updating a record with an embedded type for a bulk commit.");
+});
+
 var TestError = function(message) {
   this.message = message;
 };
