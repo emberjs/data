@@ -676,15 +676,27 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     var promises = [];
 
     this.groupByType(commitDetails.created).forEach(function(type, set) {
-      promises.push(this.createRecords(store, type, filter(set)));
+      var records = filter(set);
+
+      if (!records.isEmpty()) {
+        promises.push(this.createRecords(store, type, records));
+      }
     }, this);
 
     this.groupByType(commitDetails.updated).forEach(function(type, set) {
-      promises.push(this.updateRecords(store, type, filter(set)));
+      var records = filter(set);
+
+      if (!records.isEmpty()) {
+        promises.push(this.updateRecords(store, type, records));
+      }
     }, this);
 
     this.groupByType(commitDetails.deleted).forEach(function(type, set) {
-      promises.push(this.deleteRecords(store, type, filter(set)));
+      var records = filter(set);
+
+      if (!records.isEmpty()) {
+        promises.push(this.deleteRecords(store, type, records));
+      }
     }, this);
 
     return Ember.RSVP.all(promises);
