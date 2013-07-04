@@ -149,6 +149,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
     var stateManager = DS.StateManager.create({ record: this });
     set(this, 'stateManager', stateManager);
+    set(this, 'errors', DS.Errors.create({}));
 
     this._setup();
 
@@ -379,6 +380,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   becameInFlight: function() {
+    this.get("errors").clear();
   },
 
   /**

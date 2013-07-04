@@ -337,8 +337,11 @@ var DirtyState = DS.State.extend({
 
     becameInvalid: function(manager, errors) {
       var record = get(manager, 'record');
+      var prop;
 
-      set(record, 'errors', errors);
+      for(prop in errors) {
+        get(record, 'errors').add(prop, errors[prop]);
+      }
 
       manager.transitionTo('invalid');
       manager.send('invokeLifecycleCallbacks');
