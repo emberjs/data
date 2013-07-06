@@ -420,7 +420,7 @@ test("singular deletes can sideload data", function() {
   group = store.find(Group, 1);
 
   // test
-  stateEquals('deleted.saved');
+  stateEquals(person, 'deleted.saved');
   enabledFlags(person, ['isLoaded', 'isDeleted', 'isValid']);
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
