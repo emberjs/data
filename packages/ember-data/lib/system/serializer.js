@@ -1191,7 +1191,7 @@ DS.Serializer = Ember.Object.extend({
         reifiedConfigurations = Ember.Map.create();
 
     configurations.forEach(function(key, mapping) {
-      if (typeof key === 'string' && key !== 'plurals') {
+      if (typeof key === 'string' && key !== 'plurals' && key !== 'urls') {
         var type = Ember.get(Ember.lookup, key);
         Ember.assert("Could not find model at path " + key, type);
 
