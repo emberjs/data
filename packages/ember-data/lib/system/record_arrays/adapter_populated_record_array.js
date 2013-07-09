@@ -15,6 +15,7 @@ var get = Ember.get, set = Ember.set;
 */
 DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
   query: null,
+  isError: false,
 
   replace: function() {
     var type = get(this, 'type').toString();
@@ -29,5 +30,10 @@ DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
 
     // TODO: does triggering didLoad event should be the last action of the runLoop?
     Ember.run.once(this, 'trigger', 'didLoad');
+  },
+
+  adapterDidError: function() {
+    set(this, 'isError', true);
+    this.trigger('becameError');
   }
 });

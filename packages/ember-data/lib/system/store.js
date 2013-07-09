@@ -50,6 +50,20 @@ var coerceId = function(id) {
   return id == null ? null : id+'';
 };
 
+var resolveWith = function(thenable, target, store) {
+  return new Ember.RSVP.Promise(function(resolve, reject) {
+    if (thenable && thenable.then) {
+      thenable.then(function() {
+        resolve(target);
+      }, function(error) {
+        store.notFound(target, error);
+        reject(target);
+      });
+    } else {
+      resolve(target);
+    }
+  });
+};
 
 /**
   The store contains all of the data for records loaded from the server.
@@ -423,16 +437,32 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object|String|Integer|null} id
   */
   find: function(type, id) {
+    return this.fetch(type, id);
+  },
+
+  findPromise: function(type, id) {
+    return this.fetch(type, id, true);
+  },
+
+  /**
+    @private
+  */
+  fetch: function(type, id, returnPromise) {
+    if (typeof id === 'boolean') {
+      returnPromise = id;
+      id = undefined;
+    }
+
     if (id === undefined) {
-      return this.findAll(type);
+      return this.findAll(type, returnPromise);
     }
 
     // We are passed a query instead of an id.
     if (Ember.typeOf(id) === 'object') {
-      return this.findQuery(type, id);
+      return this.findQuery(type, id, returnPromise);
     }
 
-    return this.findById(type, coerceId(id));
+    return this.findById(type, coerceId(id), returnPromise);
   },
 
   /**
@@ -447,14 +477,20 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     If the store has seen the combination, this method delegates to
     `getByReference`.
   */
-  findById: function(type, id) {
-    var reference;
+  findById: function(type, id, returnPromise) {
+    var reference, record, promise;
 
     if (this.hasReferenceForId(type, id)) {
       reference = this.referenceForId(type, id);
 
       if (reference.data !== UNLOADED) {
-        return this.recordForReference(reference);
+        record = this.recordForReference(reference);
+
+        if (returnPromise) {
+          return Ember.RSVP.resolve(record);
+        } else {
+          return record;
+        }
       }
     }
 
@@ -466,32 +502,30 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     // create a new instance of the model type in the
     // 'isLoading' state
-    var record = this.materializeRecord(reference);
+    record = this.materializeRecord(reference);
 
     if (reference.data === LOADING) {
       // let the adapter set the data, possibly async
-      var adapter = this.adapterForType(type),
-          store = this;
+      var adapter = this.adapterForType(type);
 
       Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
       Ember.assert("You tried to find a record but your adapter does not implement `find`", adapter.find);
 
       var thenable = adapter.find(this, type, id);
 
-      if (thenable && thenable.then) {
-        thenable.then(null /* for future use */, function(error) {
-          store.recordWasError(record);
-        });
-      }
+      promise = resolveWith(thenable, record, this);
     }
 
-    return record;
+    if (returnPromise) {
+      return promise || Ember.RSVP.resolve(record);
+    } else {
+      return record;
+    }
   },
 
   reloadRecord: function(record) {
     var type = record.constructor,
         adapter = this.adapterForType(type),
-        store = this,
         id = get(record, 'id');
 
     Ember.assert("You cannot update a record without an ID", id);
@@ -500,11 +534,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var thenable = adapter.find(this, type, id);
 
-    if (thenable && thenable.then) {
-      thenable.then(null /* for future use */, function(error) {
-        store.recordWasError(record);
-      });
-    }
+    return resolveWith(thenable, record, this);
   },
 
   /**
@@ -730,16 +760,23 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object} query an opaque query to be used by the adapter
     @return {DS.AdapterPopulatedRecordArray}
   */
-  findQuery: function(type, query) {
+  findQuery: function(type, query, returnPromise) {
     var array = DS.AdapterPopulatedRecordArray.create({ type: type, query: query, content: Ember.A([]), store: this });
     var adapter = this.adapterForType(type);
+    var store = this;
 
     Ember.assert("You tried to load a query but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", adapter.findQuery);
 
-    adapter.findQuery(this, type, query, array);
+    var thenable = adapter.findQuery(this, type, query, array);
 
-    return array;
+    var promise = resolveWith(thenable, array, this);
+
+    if (returnPromise) {
+      return promise;
+    } else {
+      return array;
+    }
   },
 
   /**
@@ -752,8 +789,16 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Class} type
     @return {DS.AdapterPopulatedRecordArray}
   */
-  findAll: function(type) {
-    return this.fetchAll(type, this.all(type));
+  findAll: function(type, returnPromise) {
+    var array = this.all(type);
+
+    var promise = this.fetchAll(type, array);
+
+    if (returnPromise) {
+      return promise;
+    } else {
+      return array;
+    }
   },
 
   /**
@@ -768,9 +813,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to load all records but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load all records but your adapter does not implement `findAll`", adapter.findAll);
 
-    adapter.findAll(this, type, sinceToken);
+    var thenable = adapter.findAll(this, type, sinceToken);
 
-    return array;
+    return resolveWith(thenable, array, this);
   },
 
   /**
@@ -1044,9 +1089,22 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
      error.
 
      @param {DS.Model} record
+     @param {any} error
   */
-  recordWasError: function(record) {
-    record.adapterDidError();
+  recordWasError: function(record, error) {
+    record.adapterDidError(error);
+  },
+
+  /**
+     This method allows the adapter to specify that a record or
+     a record array could not be found because the server returned
+     an unhandled error.
+
+     @param {DS.Model|DS.RecordArray} recordOrArray
+     @param {any} error
+  */
+  notFound: function(recordOrArray, error) {
+    recordOrArray.adapterDidError(error);
   },
 
   /**

@@ -132,7 +132,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     return this.ajax(this.buildURL(root), "POST", {
       data: data
-    }).then(function(json){
+    }).then(function(json) {
       adapter.didCreateRecord(store, type, record, json);
     }, function(xhr) {
       adapter.didError(store, type, record, xhr);
@@ -175,7 +175,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     return this.ajax(this.buildURL(root, id), "PUT",{
       data: data
-    }).then(function(json){
+    }).then(function(json) {
       adapter.didUpdateRecord(store, type, record, json);
     }, function(xhr) {
       adapter.didError(store, type, record, xhr);
@@ -218,7 +218,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     return this.ajax(this.buildURL(root, id), "DELETE").then(function(json){
       adapter.didDeleteRecord(store, type, record, json);
-    }, function(xhr){
+    }, function(xhr) {
       adapter.didError(store, type, record, xhr);
       throw xhr;
     }).then(null, DS.rejectionHandler);
@@ -245,7 +245,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     return this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
       data: data
-    }).then(function(json){
+    }).then(function(json) {
       adapter.didDeleteRecords(store, type, records, json);
     }).then(null, DS.rejectionHandler);
   },
@@ -254,7 +254,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type), adapter = this;
 
     return this.ajax(this.buildURL(root, id), "GET").
-      then(function(json){
+      then(function(json) {
         adapter.didFindRecord(store, type, json, id);
     }).then(null, DS.rejectionHandler);
   },
@@ -278,7 +278,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     return this.ajax(this.buildURL(root), "GET", {
       data: query
-    }).then(function(json){
+    }).then(function(json) {
       adapter.didFindQuery(store, type, json, recordArray);
     }).then(null, DS.rejectionHandler);
   },
