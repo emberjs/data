@@ -1254,6 +1254,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     typeMap.idToReference[id] = reference;
     reference.id = id;
+    record.materializeId(id);
   },
 
   /**

@@ -171,8 +171,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {any} payload
   */
   didCreateRecord: function(store, type, record, payload) {
-    store.didSaveRecord(record);
-
     if (payload) {
       var loader = DS.loaderFor(store);
 
@@ -183,6 +181,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
       get(this, 'serializer').extract(loader, payload, type);
     }
+
+    store.didSaveRecord(record);
   },
 
   /**
@@ -203,14 +203,14 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {any} payload
   */
   didCreateRecords: function(store, type, records, payload) {
-    records.forEach(function(record) {
-      store.didSaveRecord(record);
-    }, this);
-
     if (payload) {
       var loader = DS.loaderFor(store);
       get(this, 'serializer').extractMany(loader, payload, type, records);
     }
+
+    records.forEach(function(record) {
+      store.didSaveRecord(record);
+    }, this);
   },
 
   /**
@@ -233,8 +233,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {any} payload
   */
   didSaveRecord: function(store, type, record, payload) {
-    store.didSaveRecord(record);
-
     var serializer = get(this, 'serializer');
 
     serializer.eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
@@ -247,6 +245,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
       var loader = DS.loaderFor(store);
       serializer.extract(loader, payload, type);
     }
+
+    store.didSaveRecord(record);
   },
 
   /**
@@ -307,14 +307,14 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {any} payload
   */
   didSaveRecords: function(store, type, records, payload) {
-    records.forEach(function(record) {
-      store.didSaveRecord(record);
-    }, this);
-
     if (payload) {
       var loader = DS.loaderFor(store);
       get(this, 'serializer').extractMany(loader, payload, type);
     }
+
+    records.forEach(function(record) {
+      store.didSaveRecord(record);
+    }, this);
   },
 
   /**
