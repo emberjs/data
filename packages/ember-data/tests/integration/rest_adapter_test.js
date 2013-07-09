@@ -1,10 +1,7 @@
 var store, adapter, Post, Comment;
-var originalAjax;
 
 module("REST Adapter", {
   setup: function() {
-    originalAjax = Ember.$.ajax;
-
     store = DS.Store.create({
       adapter: DS.RESTAdapter
     });
@@ -20,21 +17,18 @@ module("REST Adapter", {
 
   teardown: function() {
     store.destroy();
-    Ember.$.ajax = originalAjax;
+    restoreAjax();
   }
 });
 
 test("creating a record with a 422 error marks the records as invalid", function(){
   expect(1);
 
-  var mockXHR = {
-    status:       422,
-    responseText: JSON.stringify({ errors: { name: ["can't be blank"]} })
-  };
+  var xhr = mockXHR(422, JSON.stringify({ errors: { name: ["can't be blank"]} }), 'error');
 
-  jQuery.ajax = function(hash) {
-    hash.error.call(hash.context, mockXHR, "Unprocessable Entity");
-  };
+  mockAjax(function(hash) {
+    hash.error.call(adapter, xhr, 'error');
+  });
 
   var post = store.createRecord(Post, { name: "" });
 

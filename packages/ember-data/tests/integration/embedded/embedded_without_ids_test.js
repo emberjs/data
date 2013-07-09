@@ -2,10 +2,6 @@ var store, Adapter, adapter;
 var Post, Comment, User, Pingback, Like;
 var attr = DS.attr;
 
-function promise(fn){
-  return new Ember.RSVP.Promise(fn);
-}
-
 module("Embedded Relationships Without IDs", {
   setup: function() {
     var App = Ember.Namespace.create({ name: "App" });
@@ -92,26 +88,26 @@ asyncTest("Embedded belongsTo relationships can be saved when embedded: always i
     }
   });
 
-  adapter.ajax = function(url, type, hash) {
-    deepEqual(hash.data, {
-      comment: {
-        title: "Why not use a more lightweight solution?",
-        user: {
-          name: "mongodb_expert"
+  adapter.reopen({
+    ajax: function(url, type, hash) {
+      deepEqual(hash.data, {
+        comment: {
+          title: "Why not use a more lightweight solution?",
+          user: {
+            name: "mongodb_expert"
+          }
         }
-      }
-    });
-
-    return promise(function(resolve, reject) {
-      setTimeout(function() {
-        Ember.run(function() {
-          hash.data.comment.id = 1;
-          resolve(hash.data);
-        });
-        done();
       });
-    });
-  };
+
+      return this._super(url, type, hash);
+    }
+  });
+
+  mockAjax(function(hash) {
+    hash.data.comment.id = 1;
+    hash.success.call(adapter, hash.data, 'success', mockXHR());
+    done();
+  }, 1);
 
   var transaction = store.transaction();
 
@@ -130,6 +126,7 @@ asyncTest("Embedded belongsTo relationships can be saved when embedded: always i
     equal(user.get('isDirty'), false, "user becomes clean after commit");
     equal(comment.get('isDirty'), false, "comment becomes clean after commit");
     start();
+    restoreAjax();
   }
 });
 
@@ -178,34 +175,34 @@ asyncTest("Embedded hasMany relationships can be saved when embedded: always is 
     likes: [{ id: 1 }, { id: 2 }]
   });
 
-  adapter.ajax = function(url, type, hash) {
-    deepEqual(hash.data, {
-      post: {
-        title: "A New MVC Framework in Under 100 Lines of Code",
+  adapter.reopen({
+    ajax: function(url, type, hash) {
+      deepEqual(hash.data, {
+        post: {
+          title: "A New MVC Framework in Under 100 Lines of Code",
 
-        comments: [{
-          title: "Wouldn't a more lightweight solution be better? This feels very monolithic.",
-          user: null
-        },
-        {
-          title: "This does not seem to reflect the Unix philosophy haha",
-          user: null
-        }],
+          comments: [{
+            title: "Wouldn't a more lightweight solution be better? This feels very monolithic.",
+            user: null
+          },
+          {
+            title: "This does not seem to reflect the Unix philosophy haha",
+            user: null
+          }],
 
-        pingbacks: []
-      }
-    });
-
-    return promise(function(resolve, reject){
-      setTimeout(function() {
-        Ember.run(function() {
-          hash.data.post.id = 1;
-          resolve(hash.data);
-        });
-        done();
+          pingbacks: []
+        }
       });
-    });
-  };
+
+      return this._super(url, type, hash);
+    }
+  });
+
+  mockAjax(function(hash) {
+    hash.data.post.id = 1;
+    hash.success.call(adapter, hash.data, 'success', mockXHR());
+    done();
+  }, 1);
 
   var transaction = store.transaction();
 
@@ -229,6 +226,7 @@ asyncTest("Embedded hasMany relationships can be saved when embedded: always is 
     equal(comment1.get('isDirty'), false, "comment becomes clean after commit");
     equal(comment2.get('isDirty'), false, "comment becomes clean after commit");
     start();
+    restoreAjax();
   }
 });
 
@@ -279,38 +277,38 @@ asyncTest("Embedded records that contain embedded records can be saved", functio
     }]
   });
 
-  adapter.ajax = function(url, type, hash) {
-    deepEqual(hash.data, {
-      post: {
-        title: "A New MVC Framework in Under 100 Lines of Code",
+  adapter.reopen({
+    ajax: function(url, type, hash) {
+      deepEqual(hash.data, {
+        post: {
+          title: "A New MVC Framework in Under 100 Lines of Code",
 
-        comments: [{
-          title: "Wouldn't a more lightweight solution be better? This feels very monolithic.",
-          user: {
-            name: "mongodb_user"
-          }
-        },
-        {
-          title: "This does not seem to reflect the Unix philosophy haha",
-          user: {
-            name: "microuser"
-          }
-        }],
+          comments: [{
+            title: "Wouldn't a more lightweight solution be better? This feels very monolithic.",
+            user: {
+              name: "mongodb_user"
+            }
+          },
+          {
+            title: "This does not seem to reflect the Unix philosophy haha",
+            user: {
+              name: "microuser"
+            }
+          }],
 
-        pingbacks: []
-      }
-    });
-
-    return promise(function(resolve, reject){
-      setTimeout(function(){
-        Ember.run(function() {
-          hash.data.post.id = 1;
-          resolve(hash.data);
-        });
-        done();
+          pingbacks: []
+        }
       });
-    });
-  };
+
+      return this._super(url, type, hash);
+    }
+  });
+
+  mockAjax(function(hash) {
+    hash.data.post.id = 1;
+    hash.success.call(adapter, hash.data, 'success', mockXHR());
+    done();
+  }, 1);
 
   var transaction = store.transaction();
 
@@ -342,5 +340,6 @@ asyncTest("Embedded records that contain embedded records can be saved", functio
     equal(user1.get('isDirty'), false, "user becomes clean after commit");
     equal(user2.get('isDirty'), false, "user becomes clean after commit");
     start();
+    restoreAjax();
   }
 });

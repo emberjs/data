@@ -26,6 +26,9 @@
         "minispade",
         "async",
         "invokeAsync",
+        "mockAjax",
+        "restoreAjax",
+        "mockXHR",
         "jQuery",
         "expectAssertion"
     ],
