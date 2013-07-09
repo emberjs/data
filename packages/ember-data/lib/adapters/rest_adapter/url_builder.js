@@ -1,32 +1,32 @@
 var get = Ember.get, set = Ember.set;
 
 DS.URLBuilder = Ember.Object.extend({
-  buildCreateURL: function(root, suffix) {
-    return this.buildURL(root, suffix);
+  buildCreateURL: function(root, suffix, recordOrData) {
+    return this.buildURL(root, suffix, recordOrData);
   },
 
-  buildUpdateURL: function(root, suffix, record) {
-    return this.buildURL(root, suffix, record);
+  buildUpdateURL: function(root, suffix, recordOrData) {
+    return this.buildURL(root, suffix, recordOrData);
   },
 
-  buildDeleteURL: function(root, suffix, record) {
-    return this.buildURL(root, suffix, record);
+  buildDeleteURL: function(root, suffix, recordOrData) {
+    return this.buildURL(root, suffix, recordOrData);
   },
 
-  buildFindURL: function(root, suffix) {
-    return this.buildURL(root, suffix);
+  buildFindURL: function(root, suffix, recordOrData) {
+    return this.buildURL(root, suffix, recordOrData);
   },
 
-  buildFindAllURL: function(root, suffix) {
-    return this.buildURL(root, suffix);
+  buildFindAllURL: function(root, suffix, recordOrData) {
+    return this.buildURL(root, suffix, recordOrData);
   },
 
-  buildFindQueryURL: function(root, suffix) {
-    return this.buildURL(root, suffix);
+  buildFindQueryURL: function(root, suffix, recordOrData) {
+    return this.buildURL(root, suffix, recordOrData);
   },
 
-  buildFindManyURL: function(root, suffix) {
-    return this.buildURL(root, suffix);
+  buildFindManyURL: function(root, suffix, recordOrData) {
+    return this.buildURL(root, suffix, recordOrData);
   },
 
   /**
@@ -34,11 +34,12 @@ DS.URLBuilder = Ember.Object.extend({
     @private
     @param root
     @param suffix
-    @param record
+    @param recordOrData
   */
-  buildURL: function(root, suffix, record) {
+  buildURL: function(root, suffix, recordOrData) {
     var adapter = get(this, 'adapter'),
-        url = [adapter.url];
+        url = [adapter.url],
+        urlMap = adapter._configurationsMap.get('urls');
 
     Ember.assert("Namespace URL (" + adapter.namespace + ") must not start with slash", !adapter.namespace || adapter.namespace.toString().charAt(0) !== "/");
     Ember.assert("Root URL (" + root + ") must not start with slash", !root || root.toString().charAt(0) !== "/");
@@ -48,8 +49,20 @@ DS.URLBuilder = Ember.Object.extend({
       url.push(adapter.namespace);
     }
 
-    url.push(adapter.pluralize(root));
-    if (suffix !== undefined) {
+    if (!Ember.isNone(urlMap) && !Ember.isNone(urlMap[root]) && !Ember.isNone(recordOrData)) {
+      var recordUrlMap = urlMap[root],
+          modelUrl;
+
+      modelUrl = recordUrlMap.replace(/:(\w+)/g, function(match, id) {
+        return get(recordOrData, id);
+      });
+
+      url.push(modelUrl);
+    } else {
+      url.push(adapter.pluralize(root));
+    }
+
+    if (!Ember.isNone(suffix)) {
       url.push(suffix);
     }
 

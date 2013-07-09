@@ -176,7 +176,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     data[root] = this.serialize(record, { includeId: true });
 
-    return this.ajax(get(this, 'urlBuilder').buildCreateURL(root), "POST", {
+    return this.ajax(get(this, 'urlBuilder').buildCreateURL(root, null, record), "POST", {
       data: data
     }).then(function(json){
       adapter.didCreateRecord(store, type, record, json);
@@ -208,7 +208,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       data[plural].push(this.serialize(record, { includeId: true }));
     }, this);
 
-    return this.ajax(get(this, 'urlBuilder').buildCreateURL(root), "POST", {
+    return this.ajax(get(this, 'urlBuilder').buildCreateURL(root, records[0]), "POST", {
       data: data
     }).then(function(json) {
       adapter.didCreateRecords(store, type, records, json);
@@ -266,7 +266,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       data[plural].push(this.serialize(record, { includeId: true }));
     }, this);
 
-    return this.ajax(get(this, 'urlBuilder').buildUpdateURL(root, "bulk"), "PUT", {
+    return this.ajax(get(this, 'urlBuilder').buildUpdateURL(root, "bulk", records[0]), "PUT", {
       data: data
     }).then(function(json) {
       adapter.didUpdateRecords(store, type, records, json);
@@ -319,7 +319,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       data[plural].push(serializer.serializeId( get(record, 'id') ));
     });
 
-    return this.ajax(get(this, 'urlBuilder').buildDeleteURL(root, 'bulk'), "DELETE", {
+    return this.ajax(get(this, 'urlBuilder').buildDeleteURL(root, 'bulk', records[0]), "DELETE", {
       data: data
     }).then(function(json){
       adapter.didDeleteRecords(store, type, records, json);
@@ -371,7 +371,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type),
     adapter = this;
 
-    return this.ajax(get(this, 'urlBuilder').buildFindQueryURL(root), "GET", {
+    return this.ajax(get(this, 'urlBuilder').buildFindQueryURL(root, null, query), "GET", {
       data: query
     }).then(function(json){
       adapter.didFindQuery(store, type, json, recordArray);
