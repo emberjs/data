@@ -64,6 +64,14 @@ var expectData = function(hash) {
   deepEqual(hash, ajaxHash.data, "the hash was passed along");
 };
 
+var ajaxSuccess = function(json) {
+  ajaxHash.success(json, 'success', mockXHR());
+};
+var ajaxError = function(status, text) {
+  var xhr = mockXHR(status || 500, text || 'Internal Server Error', 'error');
+  ajaxHash.error.call(adapter, xhr, 'error');
+};
+
 module("the REST adapter", {
   setup: function() {
     ajaxUrl = undefined;
@@ -71,37 +79,18 @@ module("the REST adapter", {
     ajaxHash = undefined;
 
     Adapter = DS.RESTAdapter.extend();
+
+    mockAjax(function(hash) {
+      ajaxUrl = hash.url;
+      ajaxType = hash.type;
+      ajaxHash = hash;
+    });
+
     Adapter.configure('plurals', {
       person: 'people'
     });
 
-    adapter = Adapter.create({
-      ajax: function(url, type, hash) {
-        var self = this;
-        return new Ember.RSVP.Promise(function(resolve, reject){
-          hash = hash || {};
-          var success = hash.success;
-
-          hash.context = adapter;
-
-          ajaxUrl = url;
-          ajaxType = type;
-          ajaxHash = hash;
-
-          hash.success = function(json) {
-            Ember.run(function(){
-              resolve(json);
-            });
-          };
-
-          hash.error = function(xhr) {
-            Ember.run(function(){
-              reject(xhr);
-            });
-          };
-        });
-      }
-    });
+    adapter = Adapter.create();
 
     serializer = get(adapter, 'serializer');
 
@@ -137,17 +126,18 @@ module("the REST adapter", {
     Role.toString = function() {
       return "App.Role";
     };
+  },
+  teardown: function() {
+    restoreAjax();
   }
 });
 
 test("Calling ajax() calls JQuery.ajax with json data", function() {
-  var oldJQueryAjax = jQuery.ajax;
-
   try {
     // replace jQuery.ajax()
-    jQuery.ajax = function(hash) {
+    mockAjax(function(hash) {
       ajaxHash = hash;
-    };
+    }, false, true);
     adapter = DS.RESTAdapter.create();
     adapter.ajax('/foo', 'GET', {extra: 'special'});
 
@@ -155,7 +145,6 @@ test("Calling ajax() calls JQuery.ajax with json data", function() {
     equal(ajaxHash.url, '/foo', 'Request URL is the given value');
     equal(ajaxHash.type, 'GET', 'Request method is the given value');
     equal(ajaxHash.dataType, 'json', 'Request data type is JSON');
-    equal(ajaxHash.context, adapter, 'Request context is the adapter');
     equal(ajaxHash.extra, 'special', 'Extra options are passed through');
 
     adapter.ajax('/foo', 'POST', {});
@@ -173,7 +162,7 @@ test("Calling ajax() calls JQuery.ajax with json data", function() {
 
   } finally {
     // restore jQuery.ajax()
-    jQuery.ajax = oldJQueryAjax;
+    restoreAjax();
   }
 });
 
@@ -196,7 +185,7 @@ test("creating a person makes a POST to /people, with the data hash", function()
   expectData({ person: { name: "Tom Dale", group_id: null } });
 
   // setup
-  ajaxHash.success({ person: { id: 1, name: "Tom Dale" } });
+  ajaxSuccess({ person: { id: 1, name: "Tom Dale" } });
 
   // test
   stateEquals(person, 'loaded.saved');
@@ -224,7 +213,7 @@ test("singular creations can sideload data", function() {
   expectData({ person: { name: "Tom Dale", group_id: null } });
 
   // setup
-  ajaxHash.success({
+  ajaxSuccess({
     person: { id: 1, name: "Tom Dale" },
     groups: [{ id: 1, name: "Group 1" }]
   });
@@ -265,7 +254,7 @@ test("updating a person makes a PUT to /people/:id with the data hash", function
   expectData({ person: { name: "Brohuda Brokatz", group_id: null } });
 
   // setup
-  ajaxHash.success({ person: { id: 1, name: "Brohuda Brokatz" } });
+  ajaxSuccess({ person: { id: 1, name: "Brohuda Brokatz" } });
 
   // test
   stateEquals(person, 'loaded.saved');
@@ -302,7 +291,7 @@ test("updates are not required to return data", function() {
   expectType("PUT");
 
   // setup
-  ajaxHash.success();
+  ajaxSuccess();
 
   // test
   stateEquals(person, 'loaded.saved');
@@ -339,7 +328,7 @@ test("singular updates can sideload data", function() {
   expectType("PUT");
 
   // setup
-  ajaxHash.success({
+  ajaxSuccess({
     person: { id: 1, name: "Brohuda Brokatz" },
     groups: [{ id: 1, name: "Group 1" }]
   });
@@ -379,7 +368,7 @@ test("deleting a person makes a DELETE to /people/:id", function() {
   expectType("DELETE");
 
   // setup
-  ajaxHash.success();
+  ajaxSuccess();
 
   // test
   stateEquals(person, 'deleted.saved');
@@ -414,7 +403,7 @@ test("singular deletes can sideload data", function() {
   expectType("DELETE");
 
   // setup
-  ajaxHash.success({
+  ajaxSuccess({
     groups: [{ id: 1, name: "Group 1" }]
   });
   group = store.find(Group, 1);
@@ -438,7 +427,7 @@ test("finding all people makes a GET to /people", function() {
   expectType("GET");
 
   // setup
-  ajaxHash.success({ people: [{ id: 1, name: "Yehuda Katz" }] });
+  ajaxSuccess({ people: [{ id: 1, name: "Yehuda Katz" }] });
   person = people.objectAt(0);
 
   // test
@@ -460,7 +449,7 @@ test("finding all can sideload data", function() {
   expectType("GET");
 
   // setup
-  ajaxHash.success({
+  ajaxSuccess({
     groups: [{ id: 1, name: "Group 1", person_ids: [ 1 ] }],
     people: [{ id: 1, name: "Yehuda Katz" }]
   });
@@ -486,7 +475,7 @@ test("finding all people with since makes a GET to /people", function() {
   expectType("GET");
 
   // setup
-  ajaxHash.success({ meta: { since: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
+  ajaxSuccess({ meta: { since: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
   people = store.find(Person);
 
   // test
@@ -496,7 +485,7 @@ test("finding all people with since makes a GET to /people", function() {
   expectData({since: '123'});
 
   // setup
-  ajaxHash.success({ meta: { since: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
+  ajaxSuccess({ meta: { since: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
   person = people.objectAt(1);
 
   // test
@@ -517,7 +506,7 @@ test("finding all people with since makes a GET to /people", function() {
   expectData({since: '1234'});
 
   // setup
-  ajaxHash.success({ meta: { since: '12345'}, people: [{ id: 3, name: "Dan Gebhardt" }] });
+  ajaxSuccess({ meta: { since: '12345'}, people: [{ id: 3, name: "Dan Gebhardt" }] });
 
   // test
   stateEquals(person, 'loaded.saved');
@@ -542,7 +531,7 @@ test("meta and since are configurable", function() {
   expectType("GET");
 
   // setup
-  ajaxHash.success({ metaObject: {sinceToken: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
+  ajaxSuccess({ metaObject: {sinceToken: '123'}, people: [{ id: 1, name: "Yehuda Katz" }] });
 
   // test
   enabledFlags(people, ['isLoaded'], recordArrayFlags);
@@ -557,7 +546,7 @@ test("meta and since are configurable", function() {
   expectData({lastToken: '123'});
 
   // setup
-  ajaxHash.success({ metaObject: {sinceToken: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
+  ajaxSuccess({ metaObject: {sinceToken: '1234'}, people: [{ id: 2, name: "Paul Chavard" }] });
   person = people.objectAt(1);
 
   // test
@@ -578,7 +567,7 @@ test("finding a person by ID makes a GET to /people/:id", function() {
   expectType("GET");
 
   // setup
-  ajaxHash.success({ person: { id: 1, name: "Yehuda Katz" } });
+  ajaxSuccess({ person: { id: 1, name: "Yehuda Katz" } });
 
   // test
   stateEquals(person, 'loaded.saved');
@@ -597,7 +586,7 @@ test("finding a person by an ID-alias populates the store", function() {
   expectType("GET");
 
   // setup
-  ajaxHash.success({ person: { id: 1, name: "Yehuda Katz" } });
+  ajaxSuccess({ person: { id: 1, name: "Yehuda Katz" } });
 
   // test
   stateEquals(person, 'loaded.saved');
@@ -614,7 +603,7 @@ test("additional data can be sideloaded in a GET", function() {
   enabledFlags(group, ['isLoading', 'isValid']);
 
   // setup
-  ajaxHash.success({
+  ajaxSuccess({
     group: {id: 1, name: "Group 1", person_ids: [1] },
     people: [{id: 1, name: "Yehuda Katz"}]
   });
@@ -650,7 +639,7 @@ test("finding many people by a list of IDs", function() {
   expectData({ ids: [ 1, 2, 3 ] });
 
   // setup
-  ajaxHash.success({
+  ajaxSuccess({
     people: [
       { id: 1, name: "Rein Heinrichs" },
       { id: 2, name: "Tom Dale" },
@@ -688,7 +677,7 @@ test("finding many people by a list of IDs doesn't rely on the returned array or
   enabledFlags(people, [], manyArrayFlags);
 
   // setup
-  ajaxHash.success({
+  ajaxSuccess({
     people: [
       { id: 2, name: "Tom Dale" },
       { id: 1, name: "Rein Heinrichs" },
@@ -734,7 +723,7 @@ test("additional data can be sideloaded in a GET with many IDs", function() {
   expectData({ ids: [ 1 ] });
 
   // setup
-  ajaxHash.success({
+  ajaxSuccess({
     groups: [
       { id: 1, person_ids: [ 1, 2, 3 ] }
     ],
@@ -777,7 +766,7 @@ test("finding people by a query", function() {
   expectData({ page: 1 });
 
   // setup
-  ajaxHash.success({
+  ajaxSuccess({
     people: [
       { id: 1, name: "Rein Heinrichs" },
       { id: 2, name: "Tom Dale" },
@@ -814,7 +803,7 @@ test("finding people by a query can sideload data", function() {
   expectData({ page: 1 });
 
   // setup
-  ajaxHash.success({
+  ajaxSuccess({
     groups: [
       { id: 1, name: "Group 1", person_ids: [ 1, 2, 3 ] }
     ],
@@ -877,7 +866,7 @@ test("creating several people (with bulkCommit) makes a POST to /people, with a 
   expectData({ people: [ { name: "Tom Dale", group_id: null }, { name: "Yehuda Katz", group_id: null } ] });
 
   // setup
-  ajaxHash.success({ people: [ { id: 1, name: "Tom Dale" }, { id: 2, name: "Yehuda Katz" } ] });
+  ajaxSuccess({ people: [ { id: 1, name: "Tom Dale" }, { id: 2, name: "Yehuda Katz" } ] });
 
   // test
   statesEqual(people, 'loaded.saved');
@@ -910,7 +899,7 @@ test("bulk commits can sideload data", function() {
   expectData({ people: [ { name: "Tom Dale", group_id: null }, { name: "Yehuda Katz", group_id: null } ] });
 
   // setup
-  ajaxHash.success({
+  ajaxSuccess({
     people: [ { id: 1, name: "Tom Dale" }, { id: 2, name: "Yehuda Katz" } ],
     groups: [ { id: 1, name: "Group 1" } ]
   });
@@ -961,7 +950,7 @@ test("updating several people (with bulkCommit) makes a PUT to /people/bulk with
   expectData({ people: [{ id: 1, name: "Brohuda Brokatz", group_id: null }, { id: 2, name: "Brocarl Brolerche", group_id: null }] });
 
   // setup
-  ajaxHash.success({ people: [
+  ajaxSuccess({ people: [
     { id: 1, name: "Brohuda Brokatz" },
     { id: 2, name: "Brocarl Brolerche" }
   ]});
@@ -1009,7 +998,7 @@ test("bulk updates can sideload data", function() {
   expectData({ people: [{ id: 1, name: "Brohuda Brokatz", group_id: null }, { id: 2, name: "Brocarl Brolerche", group_id: null }] });
 
   // setup
-  ajaxHash.success({
+  ajaxSuccess({
     people: [
       { id: 1, name: "Brohuda Brokatz" },
       { id: 2, name: "Brocarl Brolerche" }
@@ -1063,7 +1052,7 @@ test("deleting several people (with bulkCommit) makes a DELETE to /people/bulk",
   expectData({ people: [1, 2] });
 
   // setup
-  ajaxHash.success();
+  ajaxSuccess();
 
   // test
   statesEqual(people, 'deleted.saved');
@@ -1106,7 +1095,7 @@ test("bulk deletes can sideload data", function() {
   expectData({ people: [1, 2] });
 
   // setup
-  ajaxHash.success({
+  ajaxSuccess({
     groups: [{ id: 1, name: "Group 1" }]
   });
   group = store.find(Group, 1);
@@ -1154,7 +1143,7 @@ test("sideloaded data is loaded prior to primary data (to ensure relationship co
   });
 
   // setup
- ajaxHash.success({
+ ajaxSuccess({
     people: [{ id: 1, name: "Tom Dale" }],
     group: { id: 1, name: "Tilde team", person_ids: [1] }
   });
@@ -1176,7 +1165,7 @@ test("additional data can be sideloaded with relationships in correct order", fu
 
   group = store.find(Group, 1);
 
-  ajaxHash.success({
+  ajaxSuccess({
     group: {
       id: 1, name: "Group 1", person_ids: [ 1 ]
     },
@@ -1239,7 +1228,7 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
   expectData({ person: { name: "Sam Woodard", person_type_id: 1, group_id: null } });
 
   // setup
-  ajaxHash.success({ person: { name: 'Sam Woodard', person_type_id: 1}});
+  ajaxSuccess({ person: { name: 'Sam Woodard', person_type_id: 1}});
 
   // test
   stateEquals(personType, 'loaded.saved');
@@ -1250,14 +1239,11 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
 
 test("creating a record with a 422 error marks the records as invalid", function(){
   // setup
-  var person, mockXHR;
-  person = store.createRecord(Person, { name: "" });
+  var person = store.createRecord(Person, { name: "" });
+
   store.commit();
-  mockXHR = {
-    status:       422,
-    responseText: JSON.stringify({ errors: { name: ["can't be blank"]} })
-  };
-  ajaxHash.error.call(ajaxHash.context, mockXHR);
+
+  ajaxError(422, JSON.stringify({ errors: { name: ["can't be blank"] } }));
 
   // test
   stateEquals(person, 'loaded.created.invalid');
@@ -1267,12 +1253,11 @@ test("creating a record with a 422 error marks the records as invalid", function
 
 test("updating a record with a 422 error marks the records as invalid", function(){
   // setup
-  var person, mockXHR;
   Person.reopen({
     updatedAt: DS.attr('date')
   });
   store.load(Person, { id: 1, name: "John Doe" });
-  person = store.find(Person, 1);
+  var person = store.find(Person, 1);
 
   // test
   stateEquals(person, 'loaded.saved');
@@ -1285,6 +1270,10 @@ test("updating a record with a 422 error marks the records as invalid", function
   stateEquals(person, 'loaded.updated.uncommitted');
   enabledFlags(person, ['isLoaded', 'isDirty', 'isValid']);
 
+  mockAjax(function(hash) {
+    ajaxHash = hash;
+  });
+
   // setup
   store.commit();
 
@@ -1293,11 +1282,7 @@ test("updating a record with a 422 error marks the records as invalid", function
   enabledFlags(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
 
   // setup
-  mockXHR = {
-    status:       422,
-    responseText: JSON.stringify({ errors: { name: ["can't be blank"], updated_at: ["can't be blank"] } })
-  };
-  ajaxHash.error.call(ajaxHash.context, mockXHR);
+  ajaxError(422, JSON.stringify({ errors: { name: ["can't be blank"], updated_at: ["can't be blank"] } }));
 
   // test
   stateEquals(person, 'loaded.updated.invalid');
@@ -1306,13 +1291,18 @@ test("updating a record with a 422 error marks the records as invalid", function
 });
 
 test("creating a record with a 500 error marks the record as error", function() {
+  expect(33);
+
   // setup
-  var person, mockXHR;
-  person = store.createRecord(Person, { name: "" });
+  var person = store.createRecord(Person, { name: "" });
 
   // test
   stateEquals(person, 'loaded.created.uncommitted');
   enabledFlags(person, ['isLoaded', 'isDirty', 'isNew', 'isValid']);
+
+  mockAjax(function(hash) {
+    ajaxHash = hash;
+  });
 
   // setup
   store.commit();
@@ -1321,12 +1311,15 @@ test("creating a record with a 500 error marks the record as error", function() 
   stateEquals(person, 'loaded.created.inFlight');
   enabledFlags(person, ['isLoaded', 'isDirty', 'isSaving', 'isNew', 'isValid']);
 
-  // setup
-  mockXHR = {
-    status:       500,
-    responseText: 'Internal Server Error'
+  person.adapterDidError = function(error) {
+    ok(error instanceof DS.Error, 'should be an instance of DS.Error');
+    ok(error instanceof DS.AdapterError, 'should be an instance of DS.AdapterError');
+    equal(error.message, 'Internal Server Error', 'should have error message');
+    this.send('becameError');
   };
-  ajaxHash.error.call(ajaxHash.context, mockXHR);
+
+  // setup
+  ajaxError();
 
   // test
   stateEquals(person, 'error');
@@ -1334,10 +1327,10 @@ test("creating a record with a 500 error marks the record as error", function() 
 });
 
 test("updating a record with a 500 error marks the record as error", function() {
+  expect(43);
   // setup
-  var person, mockXHR;
   store.load(Person, { id: 1, name: "John Doe" });
-  person = store.find(Person, 1);
+  var person = store.find(Person, 1);
 
   // test
   stateEquals(person, 'loaded.saved');
@@ -1357,12 +1350,15 @@ test("updating a record with a 500 error marks the record as error", function() 
   stateEquals(person, 'loaded.updated.inFlight');
   enabledFlags(person, ['isLoaded', 'isDirty', 'isSaving', 'isValid']);
 
-  // setup
-  mockXHR = {
-    status:       500,
-    responseText: 'Internal Server Error'
+  person.adapterDidError = function(error) {
+    ok(error instanceof DS.Error, 'should be an instance of DS.Error');
+    ok(error instanceof DS.AdapterError, 'should be an instance of DS.AdapterError');
+    equal(error.message, 'Internal Server Error', 'should have error message');
+    this.send('becameError');
   };
-  ajaxHash.error.call(ajaxHash.context, mockXHR);
+
+  // setup
+  ajaxError();
 
   // test
   stateEquals(person, 'error');
@@ -1396,19 +1392,15 @@ module('The REST adapter - error handling', {
 test("promise errors are sent to the ember assertion logger", function() {
   expect(1);
 
+  mockAjax(function(hash) {
+    hash.success.call(this, { person: [{ id: 1, name: "Adam Hawkins" }] }, 'success', mockXHR());
+  });
+
   // setup
   store = DS.Store.create({
     adapter: Adapter.extend({
       didFindRecord: function() {
         throw new TestError('TestError');
-      },
-
-      ajax: function(url, type, hash) {
-        return new Ember.RSVP.Promise(function(resolve, reject){
-          Ember.run(function(){
-            resolve({ person: [{ id: 1, name: "Adam Hawkins" }] });
-          });
-        });
       }
     })
   });
@@ -1419,4 +1411,6 @@ test("promise errors are sent to the ember assertion logger", function() {
   };
 
   store.find(Person, 1);
+
+  restoreAjax();
 });

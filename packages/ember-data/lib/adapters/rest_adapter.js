@@ -1,6 +1,7 @@
 require("ember-data/core");
 require('ember-data/system/adapter');
 require('ember-data/serializers/rest_serializer');
+require('ember-data/system/error');
 
 /**
   @module data
@@ -13,6 +14,16 @@ DS.rejectionHandler = function(reason) {
   Ember.Logger.assert([reason, reason.message, reason.stack]);
 
   throw reason;
+};
+
+DS.HttpResponse = function(xhr, textStatus, content) {
+  this.status = xhr.status;
+  this.textStatus = textStatus;
+  this.content = content || xhr.responseText;
+  this.header = function(header) {
+    return xhr.getResponseHeader(header);
+  };
+  this.isSuccess = (xhr.status >= 200 && xhr.status < 400);
 };
 
 /**
@@ -82,10 +93,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   serializer: DS.RESTSerializer,
 
-  init: function() {
-    this._super.apply(this, arguments);
-  },
-
   shouldSave: function(record) {
     var reference = get(record, '_reference');
 
@@ -130,14 +137,13 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     data[root] = this.serialize(record, { includeId: true });
 
-    return this.ajax(this.buildURL(root), "POST", {
-      data: data
-    }).then(function(json){
-      adapter.didCreateRecord(store, type, record, json);
-    }, function(xhr) {
-      adapter.didError(store, type, record, xhr);
-      throw xhr;
-    }).then(null, DS.rejectionHandler);
+    return this.request(type, this.buildURL(root), {
+      method: "POST",
+      data: data,
+      success: function(payload) {
+        this.didCreateRecord(store, type, record, payload);
+      }
+    });
   },
 
   createRecords: function(store, type, records) {
@@ -156,11 +162,20 @@ DS.RESTAdapter = DS.Adapter.extend({
       data[plural].push(this.serialize(record, { includeId: true }));
     }, this);
 
-    return this.ajax(this.buildURL(root), "POST", {
-      data: data
-    }).then(function(json) {
-      adapter.didCreateRecords(store, type, records, json);
-    }).then(null, DS.rejectionHandler);
+    return this.request(type, this.buildURL(root), {
+      method: "POST",
+      data: data,
+      success: function(payload) {
+        this.didCreateRecords(store, type, records, payload);
+      },
+      error: function(response) {
+        var error = this.extractError(response, type),
+            thenable = Ember.RSVP.reject(error);
+        records.forEach(function(record) {
+          store.resolveWith(thenable, record);
+        });
+      }
+    });
   },
 
   updateRecord: function(store, type, record) {
@@ -173,14 +188,13 @@ DS.RESTAdapter = DS.Adapter.extend({
     data = {};
     data[root] = this.serialize(record);
 
-    return this.ajax(this.buildURL(root, id, record), "PUT",{
-      data: data
-    }).then(function(json){
-      adapter.didUpdateRecord(store, type, record, json);
-    }, function(xhr) {
-      adapter.didError(store, type, record, xhr);
-      throw xhr;
-    }).then(null, DS.rejectionHandler);
+    return this.request(type, this.buildURL(root, id, record), {
+      method: "PUT",
+      data: data,
+      success: function(payload) {
+        this.didUpdateRecord(store, type, record, payload);
+      }
+    });
   },
 
   updateRecords: function(store, type, records) {
@@ -202,11 +216,20 @@ DS.RESTAdapter = DS.Adapter.extend({
       data[plural].push(this.serialize(record, { includeId: true }));
     }, this);
 
-    return this.ajax(this.buildURL(root, "bulk"), "PUT", {
-      data: data
-    }).then(function(json) {
-      adapter.didUpdateRecords(store, type, records, json);
-    }).then(null, DS.rejectionHandler);
+    return this.request(type, this.buildURL(root, "bulk"), {
+      method: "PUT",
+      data: data,
+      success: function(payload) {
+        this.didUpdateRecords(store, type, records, payload);
+      },
+      error: function(response) {
+        var error = this.extractError(response, type),
+            thenable = Ember.RSVP.reject(error);
+        records.forEach(function(record) {
+          store.resolveWith(thenable, record);
+        });
+      }
+    });
   },
 
   deleteRecord: function(store, type, record) {
@@ -216,12 +239,12 @@ DS.RESTAdapter = DS.Adapter.extend({
     root = this.rootForType(type);
     adapter = this;
 
-    return this.ajax(this.buildURL(root, id, record), "DELETE").then(function(json){
-      adapter.didDeleteRecord(store, type, record, json);
-    }, function(xhr){
-      adapter.didError(store, type, record, xhr);
-      throw xhr;
-    }).then(null, DS.rejectionHandler);
+    return this.request(type, this.buildURL(root, id, record), {
+      method: "DELETE",
+      success: function(payload) {
+        this.didDeleteRecord(store, type, record, payload);
+      }
+    });
   },
 
   deleteRecords: function(store, type, records) {
@@ -243,57 +266,69 @@ DS.RESTAdapter = DS.Adapter.extend({
       data[plural].push(serializer.serializeId( get(record, 'id') ));
     });
 
-    return this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
-      data: data
-    }).then(function(json){
-      adapter.didDeleteRecords(store, type, records, json);
-    }).then(null, DS.rejectionHandler);
+    return this.request(type, this.buildURL(root, 'bulk'), {
+      method: "DELETE",
+      data: data,
+      success: function(payload) {
+        this.didDeleteRecords(store, type, records, payload);
+      },
+      error: function(response) {
+        var error = this.extractError(response, type),
+            thenable = Ember.RSVP.reject(error);
+        records.forEach(function(record) {
+          store.resolveWith(thenable, record);
+        });
+      }
+    });
   },
 
   find: function(store, type, id) {
-    var root = this.rootForType(type), adapter = this;
+    var root = this.rootForType(type);
 
-    return this.ajax(this.buildURL(root, id), "GET").
-      then(function(json){
-        adapter.didFindRecord(store, type, json, id);
-    }).then(null, DS.rejectionHandler);
+    return this.request(type, this.buildURL(root, id), {
+      method: "GET",
+      success: function(payload) {
+        this.didFindRecord(store, type, payload, id);
+      }
+    });
   },
 
   findAll: function(store, type, since) {
-    var root, adapter;
+    var root = this.rootForType(type);
 
-    root = this.rootForType(type);
-    adapter = this;
-
-    return this.ajax(this.buildURL(root), "GET",{
-      data: this.sinceQuery(since)
-    }).then(function(json) {
-      adapter.didFindAll(store, type, json);
-    }).then(null, DS.rejectionHandler);
+    return this.request(type, this.buildURL(root), {
+      method: "GET",
+      data: this.sinceQuery(since),
+      success: function(payload) {
+        this.didFindAll(store, type, payload);
+      }
+    });
   },
 
   findQuery: function(store, type, query, recordArray) {
-    var root = this.rootForType(type),
-    adapter = this;
+    var root = this.rootForType(type);
 
-    return this.ajax(this.buildURL(root), "GET", {
-      data: query
-    }).then(function(json){
-      adapter.didFindQuery(store, type, json, recordArray);
-    }).then(null, DS.rejectionHandler);
+    return this.request(type, this.buildURL(root), {
+      method: "GET",
+      data: query,
+      success: function(payload) {
+        this.didFindQuery(store, type, payload, recordArray);
+      }
+    });
   },
 
   findMany: function(store, type, ids, owner) {
-    var root = this.rootForType(type),
-    adapter = this;
+    var root = this.rootForType(type);
 
     ids = this.serializeIds(ids);
 
-    return this.ajax(this.buildURL(root), "GET", {
-      data: {ids: ids}
-    }).then(function(json) {
-      adapter.didFindMany(store, type, json);
-    }).then(null, DS.rejectionHandler);
+    return this.request(type, this.buildURL(root), {
+      method: "GET",
+      data: {ids: ids},
+      success: function(payload) {
+        this.didFindMany(store, type, payload);
+      }
+    });
   },
 
   /**
@@ -311,42 +346,105 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
-  didError: function(store, type, record, xhr) {
-    if (xhr.status === 422) {
-      var json = JSON.parse(xhr.responseText),
-          serializer = get(this, 'serializer'),
-          errors = serializer.extractValidationErrors(type, json);
-
-      store.recordWasInvalid(record, errors);
+  didError: function(response, type) {
+    if (response.status === 422) {
+      return this.didValidationError(response, type);
     } else {
-      this._super.apply(this, arguments);
+      return this.didAdapterError(response, type);
     }
   },
 
-  ajax: function(url, type, hash) {
-    var adapter = this;
+  didAdapterError: function(response, type) {
+    switch (response.textStatus) {
+    case 'timeout':
+      return new DS.TimeoutError(response.textStatus);
+    case 'abort':
+      return new DS.AbortError(response.textStatus);
+    case 'parsererror':
+      return new DS.ParserError(response.textStatus);
+    default:
+      switch (response.status) {
+      case 401:
+        return new DS.UnauthorizedError(response.content);
+      case 403:
+        return new DS.ForbiddenError(response.content);
+      case 404:
+        return new DS.NotFoundError(response.content);
+      default:
+        return new DS.AdapterError(response.content);
+      }
+    }
+  },
 
+  didValidationError: function(response, type) {
+    var json = JSON.parse(response.content),
+        serializer = get(this, 'serializer'),
+        errors = serializer.extractValidationErrors(type, json),
+        error = new DS.AdapterValidationError(errors);
+
+    return error;
+  },
+
+  responseHandler: function(response, success, error) {
+    if (response.isSuccess) {
+      success.call(this, response.content);
+    } else {
+      throw error.call(this, response);
+    }
+  },
+
+  request: function(type, url, options) {
+    var adapter = this,
+        success = options.success,
+        error = options.error,
+        method = options.method;
+
+    error = error || function(response) {
+      return this.didError(response, type);
+    };
+
+    delete options.success;
+    delete options.error;
+    delete options.method;
+
+    return this.ajax(url, method, options)
+      .then(function(response) {
+        adapter.responseHandler(response, success, error);
+      }, function(response) {
+        throw error.call(adapter, response);
+      })
+      .then(null, DS.rejectionHandler);
+  },
+
+  ajax: function(url, method, options) {
     return new Ember.RSVP.Promise(function(resolve, reject) {
-      hash = hash || {};
-      hash.url = url;
-      hash.type = type;
-      hash.dataType = 'json';
-      hash.context = adapter;
+      options = options || {};
+      options.url = url;
+      options.type = method;
+      options.dataType = 'json';
 
-      if (hash.data && type !== 'GET') {
-        hash.contentType = 'application/json; charset=utf-8';
-        hash.data = JSON.stringify(hash.data);
+      if (options.data && method !== 'GET') {
+        options.contentType = 'application/json; charset=utf-8';
+        options.data = JSON.stringify(options.data);
       }
 
-      hash.success = function(json) {
-        Ember.run(null, resolve, json);
+      options.success = function(json, textStatus, jqXHR) {
+        var response = new DS.HttpResponse(jqXHR, textStatus, json);
+
+        Ember.run(null, resolve, response);
       };
 
-      hash.error = function(jqXHR, textStatus, errorThrown) {
-        Ember.run(null, reject, jqXHR);
+      options.error = function(jqXHR, textStatus, errorThrown) {
+        var response = new DS.HttpResponse(jqXHR, textStatus);
+
+        if (textStatus !== 'error' || response.status >= 500) {
+          Ember.run(null, reject, response);
+        } else {
+          Ember.run(null, resolve, response);
+        }
       };
 
-      Ember.$.ajax(hash);
+      Ember.$.ajax(options);
     });
   },
 
