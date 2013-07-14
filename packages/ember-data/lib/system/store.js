@@ -478,11 +478,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
       var thenable = adapter.find(this, type, id);
 
-      if (thenable && thenable.then) {
-        thenable.then(null /* for future use */, function(error) {
-          store.recordWasError(record);
-        });
-      }
+      this.resolveWith(thenable, record);
     }
 
     return record;
@@ -500,11 +496,21 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var thenable = adapter.find(this, type, id);
 
-    if (thenable && thenable.then) {
-      thenable.then(null /* for future use */, function(error) {
-        store.recordWasError(record);
-      });
-    }
+    this.resolveWith(thenable, record);
+  },
+
+  resolveWith: function(thenable, recordOrArray) {
+    var store = this;
+    return Ember.RSVP.resolve(thenable).then(function() {
+      return recordOrArray;
+    }, function(error) {
+      if (error instanceof DS.ValidationError) {
+        store.recordWasInvalid(recordOrArray, error.errors);
+      } else {
+        store.recordWasError(recordOrArray, error);
+      }
+      return Ember.RSVP.reject(error);
+    });
   },
 
   /**
@@ -1045,8 +1051,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
      @param {DS.Model} record
   */
-  recordWasError: function(record) {
-    record.adapterDidError();
+  recordWasError: function(record, error) {
+    record.adapterDidError(error);
   },
 
   /**
