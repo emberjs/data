@@ -11,7 +11,6 @@ if (Ember.Application.initializer) {
     setup: function() {
       Ember.run(function() {
         app = Ember.Application.create({
-          router: false,
           Store: DS.Store,
           FooController: Ember.Controller.extend(),
           ApplicationView: Ember.View.extend(),
