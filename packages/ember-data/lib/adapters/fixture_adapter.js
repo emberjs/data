@@ -8,8 +8,7 @@ require('ember-data/serializers/fixture_serializer');
 */
 
 var get = Ember.get, fmt = Ember.String.fmt,
-    indexOf = Ember.EnumerableUtils.indexOf,
-    dump = Ember.get(window, 'JSON.stringify') || function(object) { return object.toString(); };
+    indexOf = Ember.EnumerableUtils.indexOf;
 
 /**
   `DS.FixtureAdapter` is an adapter that loads records from memory.
@@ -42,7 +41,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
       return fixtures.map(function(fixture){
         var fixtureIdType = typeof fixture.id;
         if(fixtureIdType !== "number" && fixtureIdType !== "string"){
-          throw new Error(fmt('the id property must be defined as a number or string for fixture %@', [dump(fixture)]));
+          throw new Error(fmt('the id property must be defined as a number or string for fixture %@', [fixture]));
         }
         fixture.id = fixture.id + '';
         return fixture;
