@@ -1045,8 +1045,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
      @param {DS.Model} record
   */
-  recordWasError: function(record) {
-    record.adapterDidError();
+  recordWasError: function(record, error) {
+    record.adapterDidError(error);
   },
 
   /**
