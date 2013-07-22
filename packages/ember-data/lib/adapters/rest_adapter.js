@@ -173,7 +173,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     data = {};
     data[root] = this.serialize(record);
 
-    return this.ajax(this.buildURL(root, id), "PUT",{
+    return this.ajax(this.buildURL(root, id, record), "PUT",{
       data: data
     }).then(function(json){
       adapter.didUpdateRecord(store, type, record, json);
@@ -216,7 +216,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     root = this.rootForType(type);
     adapter = this;
 
-    return this.ajax(this.buildURL(root, id), "DELETE").then(function(json){
+    return this.ajax(this.buildURL(root, id, record), "DELETE").then(function(json){
       adapter.didDeleteRecord(store, type, record, json);
     }, function(xhr){
       adapter.didError(store, type, record, xhr);
@@ -362,18 +362,18 @@ DS.RESTAdapter = DS.Adapter.extend({
     return serializer.pluralize(string);
   },
 
-  buildURL: function(record, suffix) {
+  buildURL: function(root, suffix, record) {
     var url = [this.url];
 
     Ember.assert("Namespace URL (" + this.namespace + ") must not start with slash", !this.namespace || this.namespace.toString().charAt(0) !== "/");
-    Ember.assert("Record URL (" + record + ") must not start with slash", !record || record.toString().charAt(0) !== "/");
+    Ember.assert("Root URL (" + root + ") must not start with slash", !root || root.toString().charAt(0) !== "/");
     Ember.assert("URL suffix (" + suffix + ") must not start with slash", !suffix || suffix.toString().charAt(0) !== "/");
 
     if (!Ember.isNone(this.namespace)) {
       url.push(this.namespace);
     }
 
-    url.push(this.pluralize(record));
+    url.push(this.pluralize(root));
     if (suffix !== undefined) {
       url.push(suffix);
     }
