@@ -132,7 +132,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     return this.ajax(this.buildURL(root), "POST", {
       data: data
-    }).then(function(json){
+    }).then(function(json) {
       adapter.didCreateRecord(store, type, record, json);
     }, function(xhr) {
       adapter.didError(store, type, record, xhr);
@@ -175,7 +175,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     return this.ajax(this.buildURL(root, id, record), "PUT",{
       data: data
-    }).then(function(json){
+    }).then(function(json) {
       adapter.didUpdateRecord(store, type, record, json);
     }, function(xhr) {
       adapter.didError(store, type, record, xhr);
@@ -245,7 +245,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     return this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
       data: data
-    }).then(function(json){
+    }).then(function(json) {
       adapter.didDeleteRecords(store, type, records, json);
     }).then(null, DS.rejectionHandler);
   },
@@ -254,7 +254,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type), adapter = this;
 
     return this.ajax(this.buildURL(root, id), "GET").
-      then(function(json){
+      then(function(json) {
         adapter.didFindRecord(store, type, json, id);
     }).then(null, DS.rejectionHandler);
   },
@@ -265,7 +265,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     root = this.rootForType(type);
     adapter = this;
 
-    return this.ajax(this.buildURL(root), "GET",{
+    return this.ajax(this.buildURL(root), "GET", {
       data: this.sinceQuery(since)
     }).then(function(json) {
       adapter.didFindAll(store, type, json);
@@ -319,8 +319,19 @@ DS.RESTAdapter = DS.Adapter.extend({
 
       store.recordWasInvalid(record, errors);
     } else {
-      this._super.apply(this, arguments);
+      var error = this.errorFromStatus(xhr.statusText, xhr);
+      this._super(store, type, record, error);
     }
+  },
+
+  errorFromStatus: function(statusText, xhr) {
+    var error = xhr;
+
+    if (statusText === 'timeout') {
+      error = DS.AdapterTimeoutError.create({thrown: xhr});
+    }
+
+    return error;
   },
 
   ajax: function(url, type, hash) {

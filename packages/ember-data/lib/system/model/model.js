@@ -39,7 +39,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   id: null,
   transaction: null,
   stateManager: null,
-  errors: null,
+  error: null,
 
   /**
     Create a JSON representation of the record, using the serialization
@@ -179,6 +179,13 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   didChangeData: function() {
     this.send('didChangeData');
   },
+
+  errors: Ember.computed('error', function() {
+    var error = get(this, 'error');
+    if (DS.ValidationError.detectInstance(error)) {
+      return error;
+    }
+  }),
 
   deleteRecord: function() {
     this.send('deleteRecord');
@@ -451,11 +458,45 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   adapterDidInvalidate: function(errors) {
-    this.send('becameInvalid', errors);
+    var error = DS.AdapterValidationError.create();
+
+    this.registerValidationError(error);
+
+    this.eachAttribute(function(name) {
+      if (errors[name]) {
+        error.add(name, errors[name]);
+      }
+    });
   },
 
-  adapterDidError: function() {
-    this.send('becameError');
+  adapterDidError: function(error) {
+    if (!DS.Error.detectInstance(error)) {
+      error = DS.AdapterError.create({thrown: error});
+    }
+
+    this.send('becameError', error);
+  },
+
+  validate: function() {
+    var error = DS.ValidationError.create();
+
+    this.registerValidationError(error);
+
+    this.validateEach(error);
+  },
+
+  validateEach: Ember.K,
+
+  /**
+    @private
+  */
+  registerValidationError: function(error) {
+    error.one('becameInvalid', this, function() {
+      this.send('becameInvalid', error);
+    });
+    error.one('becameValid', this, function() {
+      this.send('becameValid');
+    });
   },
 
   /**

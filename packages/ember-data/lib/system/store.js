@@ -480,7 +480,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
       if (thenable && thenable.then) {
         thenable.then(null /* for future use */, function(error) {
-          store.recordWasError(record);
+          error = DS.NotFoundError.create({thrown: error});
+          store.recordWasError(record, error);
         });
       }
     }
@@ -502,7 +503,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     if (thenable && thenable.then) {
       thenable.then(null /* for future use */, function(error) {
-        store.recordWasError(record);
+        error = DS.NotFoundError.create({thrown: error});
+        store.recordWasError(record, error);
       });
     }
   },
@@ -1045,8 +1047,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
      @param {DS.Model} record
   */
-  recordWasError: function(record) {
-    record.adapterDidError();
+  recordWasError: function(record, error) {
+    record.adapterDidError(error);
   },
 
   /**
