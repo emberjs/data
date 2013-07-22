@@ -1,6 +1,6 @@
 var get = Ember.get, set = Ember.set;
 var indexOf = Ember.EnumerableUtils.indexOf;
-var Adapter, Person, Group, Role, adapter, serializer, store, ajaxUrl, ajaxType, ajaxHash, recordArrayFlags, manyArrayFlags;
+var Adapter, Person, Group, Organisation, Role, adapter, serializer, store, ajaxUrl, ajaxType, ajaxHash, recordArrayFlags, manyArrayFlags;
 var forEach = Ember.EnumerableUtils.forEach;
 
 // Note: You will need to ensure that you do not attempt to assert against flags that do not exist in this array (or else they will show positive).
@@ -129,6 +129,16 @@ module("the REST adapter", {
     Person.reopen({
       group: DS.belongsTo(Group)
     });
+
+    Organisation = DS.Model.extend({
+      name: DS.attr('string'),
+      groups: DS.hasMany(Group),
+    });
+
+
+    Organisation.toString = function() {
+      return "App.Organisation";
+    };
 
     Role = DS.Model.extend({
       name: DS.attr('string')
@@ -1246,6 +1256,43 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
   stateEquals(person, 'loaded.saved');
   enabledFlags(personType, ['isLoaded', 'isValid']);
   enabledFlags(person, ['isLoaded', 'isValid']);
+});
+
+test("Saving multiple records new related records correctly resolves ids for child records", function () {
+  // setup
+  var organisation, group, person, organisationId = 1, groupId = 2, personId = 3;
+
+  Group.reopen({
+    organisation: DS.belongsTo(Organisation)
+  });
+
+  organisation = store.createRecord(Organisation, { name: "Tilde" });
+  group = store.createRecord(Group, { name: "Ember Developers", organisation: organisation });
+  person = store.createRecord(Person, { name: 'Tom Dale', group: group });
+
+  store.commit();
+
+  expectUrl("/organisations", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ organisation: { name: "Tilde" } });
+
+  ajaxHash.success({ organisation: { id: organisationId, name: "Tilde" } });
+
+  expectUrl("/groups", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ group: { name: "Ember Developers", organisation_id: organisationId } });
+
+  ajaxHash.success({ group: { id: groupId, name: "Ember Developers", organisation_id: organisationId } });
+
+  expectUrl("/people", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ person: { name: "Tom Dale", group_id: groupId} });
+  ajaxHash.success({ person: { id: personId, name: "Tom Dale", group_id: groupId } });
+
+  equal(organisation.get('id'), organisationId);
+  equal(person.get('id'), personId);
+  equal(group.get('id'), groupId);
+
 });
 
 test("creating a record with a 422 error marks the records as invalid", function(){

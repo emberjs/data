@@ -141,10 +141,44 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   createRecords: function(store, type, records) {
-    var adapter = this;
+    var adapter = this,
+        serializer = this.serializer,
+        initialRecordsToCreate = [];
 
     if (get(this, 'bulkCommit') === false) {
-      return this._super(store, type, records);
+
+      records.forEach(function(record) {
+
+        var deferSave = false;
+
+        record.eachRelationship(function(name, relationship) {
+          var key = serializer._keyForBelongsTo(record.constructor, name),
+              child,
+              createDependentRecords;
+
+          if (relationship.kind === 'belongsTo') {
+            if (!serializer.embeddedType(type, name)) {
+              child = get(record, relationship.key);
+
+              createDependentRecords = function() {
+                adapter.createRecords(store, type, [record]);
+                child.removeObserver('id', createDependentRecords);
+              };
+
+              if(child && !get(child, 'id')) {
+                child.addObserver('id', adapter,  createDependentRecords);
+                deferSave = true;
+              }
+            }
+          }
+        }, this);
+
+        if(!deferSave) {
+          initialRecordsToCreate.push(record);
+        }
+
+      });
+      return this._super(store, type, initialRecordsToCreate);
     }
 
     var root = this.rootForType(type),
