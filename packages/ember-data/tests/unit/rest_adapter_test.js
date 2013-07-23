@@ -1,7 +1,8 @@
 var get = Ember.get, set = Ember.set;
 var indexOf = Ember.EnumerableUtils.indexOf;
-var Adapter, Person, Group, Role, adapter, serializer, store, ajaxUrl, ajaxType, ajaxHash, recordArrayFlags, manyArrayFlags;
+var Adapter, Person, Group, Organisation, Role, adapter, serializer, store, ajaxUrl, ajaxType, ajaxHash, recordArrayFlags, manyArrayFlags;
 var forEach = Ember.EnumerableUtils.forEach;
+var expectedXhrCalls = [];
 
 // Note: You will need to ensure that you do not attempt to assert against flags that do not exist in this array (or else they will show positive).
 recordArrayFlags = ['isLoaded'];
@@ -56,12 +57,29 @@ var expectUrl = function(url, desc) {
 
 // Used for testing a request type to a remote URL
 var expectType = function(type) {
-  equal(type, ajaxType, "the HTTP method is " + type);
+  equal(ajaxType, type, "the HTTP method is " + type);
 };
 
 // Used to test that data is being passed to a remote URL
 var expectData = function(hash) {
-  deepEqual(hash, ajaxHash.data, "the hash was passed along");
+  deepEqual(ajaxHash.data, hash, "the hash was passed along");
+};
+
+var whenXhrReceived = function(type, url) {
+  return {
+    with: function(json) {
+      return {
+        respondWithSuccess: function(response) {
+          expectedXhrCalls.push({
+            type: type,
+            url: url,
+            json: json,
+            response: response
+          });
+        }
+      };
+    }
+  };
 };
 
 module("the REST adapter", {
@@ -82,23 +100,36 @@ module("the REST adapter", {
           hash = hash || {};
           var success = hash.success;
 
-          hash.context = adapter;
+          var queuedXhrExpectation = expectedXhrCalls.filter(function(xhrExpectation) {
+            return xhrExpectation.type === type &&
+              xhrExpectation.url === url &&
+              JSON.stringify(xhrExpectation.json) === JSON.stringify(hash.data);
+          })[0];
 
-          ajaxUrl = url;
-          ajaxType = type;
-          ajaxHash = hash;
-
-          hash.success = function(json) {
-            Ember.run(function(){
-              resolve(json);
+          if(queuedXhrExpectation) {
+            Ember.run(function() {
+              resolve(queuedXhrExpectation.response);
             });
-          };
+            expectedXhrCalls = expectedXhrCalls.splice(expectedXhrCalls.indexOf(queuedXhrExpectation), 1);
+          } else {
 
-          hash.error = function(xhr) {
-            Ember.run(function(){
-              reject(xhr);
-            });
-          };
+            hash.context = adapter;
+            ajaxUrl = url;
+            ajaxType = type;
+            ajaxHash = hash;
+
+            hash.success = function(json) {
+              Ember.run(function(){
+                resolve(json);
+              });
+            };
+
+            hash.error = function(xhr) {
+              Ember.run(function(){
+                reject(xhr);
+              });
+            };
+          }
         });
       }
     });
@@ -129,6 +160,16 @@ module("the REST adapter", {
     Person.reopen({
       group: DS.belongsTo(Group)
     });
+
+    Organisation = DS.Model.extend({
+      name: DS.attr('string'),
+      groups: DS.hasMany(Group),
+    });
+
+
+    Organisation.toString = function() {
+      return "App.Organisation";
+    };
 
     Role = DS.Model.extend({
       name: DS.attr('string')
@@ -1246,6 +1287,128 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
   stateEquals(person, 'loaded.saved');
   enabledFlags(personType, ['isLoaded', 'isValid']);
   enabledFlags(person, ['isLoaded', 'isValid']);
+});
+
+test("Creating multiple dependent records correctly resolves ids of dependents and orders POSTs accordingly", function () {
+  // setup
+  var organisation, group, person, organisationId = 1, groupId = 2, personId = 3;
+
+  Group.reopen({
+    organisation: DS.belongsTo(Organisation)
+  });
+
+  organisation = store.createRecord(Organisation, { name: "Tilde" });
+  group = store.createRecord(Group, { name: "Ember Developers", organisation: organisation });
+  person = store.createRecord(Person, { name: 'Tom Dale', group: group });
+
+  store.commit();
+
+  expectUrl("/organisations", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ organisation: { name: "Tilde" } });
+
+  ajaxHash.success({ organisation: { id: organisationId, name: "Tilde" } });
+
+  expectUrl("/groups", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ group: { name: "Ember Developers", organisation_id: organisationId } });
+
+  ajaxHash.success({ group: { id: groupId, name: "Ember Developers", organisation_id: organisationId } });
+
+  expectUrl("/people", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ person: { name: "Tom Dale", group_id: groupId} });
+  ajaxHash.success({ person: { id: personId, name: "Tom Dale", group_id: groupId } });
+
+  equal(organisation.get('id'), organisationId);
+  equal(person.get('id'), personId);
+  equal(group.get('id'), groupId);
+
+});
+
+test("Bulk creating multiple dependent records bulk creates where possible and correctly resolves ids of dependents and orders POSTs accordingly", function () {
+  // setup
+  var organisation, group, person, organisationId = 1, groupId = 2, personId = 3;
+
+  set(adapter, 'bulkCommit', true);
+
+  Group.reopen({
+    organisation: DS.belongsTo(Organisation)
+  });
+
+  organisation = store.createRecord(Organisation, { name: "Tilde" });
+  group = store.createRecord(Group, { name: "Ember Developers", organisation: organisation });
+  person = store.createRecord(Person, { name: 'Tom Dale', group: group });
+
+  store.commit();
+
+  expectUrl("/organisations", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ organisations: [{ name: "Tilde" }]});
+  ajaxHash.success({ organisations: [{ id: organisationId, name: "Tilde" }]});
+
+  expectUrl("/groups", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ groups: [{ name: "Ember Developers", organisation_id: organisationId }]});
+  ajaxHash.success({ groups: [{ id: groupId, name: "Ember Developers", organisation_id: organisationId }]});
+
+  expectUrl("/people", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ people: [{ name: "Tom Dale", group_id: groupId}]});
+  ajaxHash.success({ people: [{ id: personId, name: "Tom Dale", group_id: groupId }]});
+
+  equal(organisation.get('id'), organisationId);
+  equal(person.get('id'), personId);
+  equal(group.get('id'), groupId);
+});
+
+
+test("Bulk creating multiple dependent records bulk creates where possible and correctly resolves ids of dependents and orders POSTs accordingly", function () {
+  // setup
+  var organisation, existingOrganisation, group, groupForExistingOrg, person,
+  existingOrgId = 1, groupForExistingOrgId = 2, organisationId = 10, groupId = 20, personId = 30;
+
+  set(adapter, 'bulkCommit', true);
+  Group.reopen({
+    organisation: DS.belongsTo(Organisation)
+  });
+
+  store.load(Organisation, {id: existingOrgId, name: "Existing Org"});
+  existingOrganisation = store.find(Organisation, existingOrgId);
+  groupForExistingOrg = store.createRecord(Group, { name: "Foo Group", organisation: existingOrganisation });
+
+  organisation = store.createRecord(Organisation, { name: "Tilde" });
+  group = store.createRecord(Group, { name: "Ember Developers", organisation: organisation });
+  person = store.createRecord(Person, { name: 'Tom Dale', group: group });
+
+  whenXhrReceived('POST', "/groups")
+    .with({ groups: [{ name: "Foo Group", organisation_id: existingOrgId }]})
+    .respondWithSuccess({ groups: [{ id: groupForExistingOrgId, name: "Foo Group", organisation_id: existingOrgId }] });
+
+  store.commit();
+
+  expectUrl("/organisations", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ organisations: [{ name: "Tilde" }] });
+  ajaxHash.success({ organisations: [{ id: organisationId, name: "Tilde" }] });
+
+  expectUrl("/groups", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ groups: [{ name: "Ember Developers", organisation_id: organisationId }] });
+  ajaxHash.success({ groups: [{ id: groupId, name: "Ember Developers", organisation_id: organisationId }] });
+
+  expectUrl("/people", "the collection at the plural of the model name");
+  expectType("POST");
+  expectData({ people: [{ name: "Tom Dale", group_id: groupId}] });
+  ajaxHash.success({ people: [{ id: personId, name: "Tom Dale", group_id: groupId }] });
+
+  // console.log(store.find(Organisation, organisationId).get('name'));
+
+  equal(groupForExistingOrg.get('id'), groupForExistingOrgId);
+  equal(organisation.get('id'), organisationId);
+  equal(person.get('id'), personId);
+  equal(group.get('id'), groupId);
+
 });
 
 test("creating a record with a 422 error marks the records as invalid", function(){
