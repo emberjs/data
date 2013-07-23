@@ -141,60 +141,82 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   createRecords: function(store, type, records) {
-    var adapter = this,
-        serializer = this.serializer,
-        initialRecordsToCreate = [];
-
+    var recordsToCreate;
     if (get(this, 'bulkCommit') === false) {
-
-      records.forEach(function(record) {
-
-        var deferSave = false;
-
-        record.eachRelationship(function(name, relationship) {
-          var key = serializer._keyForBelongsTo(record.constructor, name),
-              child,
-              createDependentRecords;
-
-          if (relationship.kind === 'belongsTo') {
-            if (!serializer.embeddedType(type, name)) {
-              child = get(record, relationship.key);
-
-              createDependentRecords = function() {
-                adapter.createRecords(store, type, [record]);
-                child.removeObserver('id', createDependentRecords);
-              };
-
-              if(child && !get(child, 'id')) {
-                child.addObserver('id', adapter,  createDependentRecords);
-                deferSave = true;
-              }
-            }
-          }
-        }, this);
-
-        if(!deferSave) {
-          initialRecordsToCreate.push(record);
-        }
-
-      });
-      return this._super(store, type, initialRecordsToCreate);
+      recordsToCreate = this._extractRecordsToCreateAndBindDependents(store, type, records);
+      return this._super(store, type, recordsToCreate);
+    } else {
+      return this._createBulkRecords(store, type, records);
     }
 
-    var root = this.rootForType(type),
-        plural = this.pluralize(root);
+  },
 
-    var data = {};
+  /**
+  * Use bulk api where possible. If any records depend on other records being saved first
+  * they will be extracted from the bulk save process and saved once their dependents have
+  * been populated with an id.
+  */
+  _createBulkRecords: function(store, type, records) {
+    var adapter = this,
+        root = this.rootForType(type),
+        plural = this.pluralize(root),
+        data = {},
+        recordsToCreate;
+
     data[plural] = [];
-    records.forEach(function(record) {
+
+    recordsToCreate = this._extractRecordsToCreateAndBindDependents(store, type, records);
+
+    recordsToCreate.forEach(function(record) {
       data[plural].push(this.serialize(record, { includeId: true }));
     }, this);
 
-    return this.ajax(this.buildURL(root), "POST", {
-      data: data
-    }).then(function(json) {
-      adapter.didCreateRecords(store, type, records, json);
-    }).then(null, DS.rejectionHandler);
+    if(data[plural].length) {
+      return this.ajax(this.buildURL(root), "POST", {
+        data: data
+      }).then(function(json) {
+        adapter.didCreateRecords(store, type, records, json);
+      }).then(null, DS.rejectionHandler);
+    }
+  },
+
+  _extractRecordsToCreateAndBindDependents: function(store, type, records) {
+    var adapter = this,
+        serializer = this.serializer,
+        initialRecordsToCreate = Ember.OrderedSet.create();
+
+    records.forEach(function(record) {
+      var deferSave = false;
+
+      record.eachRelationship(function(name, relationship) {
+        var key = serializer._keyForBelongsTo(record.constructor, name),
+            child,
+            createDependentRecords;
+
+        if (relationship.kind === 'belongsTo') {
+          if (!serializer.embeddedType(type, name)) {
+            child = get(record, relationship.key);
+
+            createDependentRecords = function() {
+              var recordsToCreate = Ember.OrderedSet.create();
+              recordsToCreate.add(record);
+              adapter.createRecords(store, type, recordsToCreate);
+              child.removeObserver('id', createDependentRecords);
+            };
+
+            if(child && !get(child, 'id')) {
+              child.addObserver('id', adapter,  createDependentRecords);
+              deferSave = true;
+            }
+          }
+        }
+      }, this);
+
+      if(!deferSave) {
+        initialRecordsToCreate.add(record);
+      }
+    });
+    return initialRecordsToCreate;
   },
 
   updateRecord: function(store, type, record) {
