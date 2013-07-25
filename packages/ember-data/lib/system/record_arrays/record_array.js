@@ -1,11 +1,9 @@
-require("ember-data/system/mixins/load_promise");
-
 /**
+  @module data
+  @submodule data-record-array
 */
 
 var get = Ember.get, set = Ember.set;
-
-var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
 
 /**
   A record array is an array that contains records of a certain type. The record
@@ -14,18 +12,15 @@ var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
   DS.RecordArray or its subclasses will be returned by your application's store
   in response to queries.
 
-  @module data
-  @submodule data-record-array
   @main data-record-array
 
   @class RecordArray
   @namespace DS
   @extends Ember.ArrayProxy
   @uses Ember.Evented
-  @uses DS.LoadPromise
 */
 
-DS.RecordArray = Ember.ArrayProxy.extend(LoadPromise, {
+DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
   /**
     The model type contained by this record array.
 
@@ -39,11 +34,20 @@ DS.RecordArray = Ember.ArrayProxy.extend(LoadPromise, {
   // necessary, by the store.
   content: null,
 
+  isError: false,
   isLoaded: false,
   isUpdating: false,
 
   // The store that created this record array.
   store: null,
+
+  init: function() {
+    this._super();
+
+    if (get(this, 'isLoaded')) {
+      this.trigger('didLoad');
+    }
+  },
 
   objectAtContent: function(index) {
     var content = get(this, 'content'),
@@ -55,29 +59,24 @@ DS.RecordArray = Ember.ArrayProxy.extend(LoadPromise, {
     }
   },
 
-  materializedObjectAt: function(index) {
-    var reference = get(this, 'content').objectAt(index);
-    if (!reference) { return; }
-
-    if (get(this, 'store').recordIsMaterialized(reference)) {
-      return this.objectAt(index);
-    }
-  },
-
-  update: function() {
-    if (get(this, 'isUpdating')) { return; }
-
-    var store = get(this, 'store'),
-        type = get(this, 'type');
-
-    store.fetchAll(type, this);
-  },
-
   addReference: function(reference) {
     get(this, 'content').addObject(reference);
   },
 
   removeReference: function(reference) {
     get(this, 'content').removeObject(reference);
+  },
+
+  update: function() {
+    var store = get(this, 'store'),
+        type = get(this, 'type');
+
+    return store.fetchAll(type, this);
+  },
+
+  adapterDidError: function() {
+    set(this, 'isError', true);
+    set(this, 'isUpdating', false);
+    this.trigger('becameError');
   }
 });

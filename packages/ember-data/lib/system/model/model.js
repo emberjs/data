@@ -1,7 +1,4 @@
 require("ember-data/system/model/states");
-require("ember-data/system/mixins/load_promise");
-
-var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
 
 var get = Ember.get, set = Ember.set, map = Ember.EnumerableUtils.map;
 
@@ -20,10 +17,11 @@ var retrieveFromCurrentState = Ember.computed(function(key, value) {
   @class Model
   @namespace DS
   @extends Ember.Object
+  @uses Ember.Evented
   @constructor
 */
 
-DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
+DS.Model = Ember.Object.extend(Ember.Evented, {
   isLoading: retrieveFromCurrentState,
   isLoaded: retrieveFromCurrentState,
   isReloading: retrieveFromCurrentState,
@@ -428,7 +426,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   reload: function() {
     this.send('reloadRecord');
 
-    return this.resolveOn('didReload');
+    return this.get('store').reloadRecord(this);
   },
 
   // FOR USE DURING COMMIT PROCESS
@@ -512,6 +510,15 @@ DS.Model.reopenClass({
 
   */
   find: storeAlias('find'),
+
+  /**
+    See {{#crossLink "DS.Store/fetch:method"}}`DS.Store.fetch()`{{/crossLink}}.
+
+    @method fetch
+    @param {Object|String|Array|null} query A query to fetch records by.
+
+  */
+  fetch: storeAlias('fetch'),
 
   /**
     See {{#crossLink "DS.Store/all:method"}}`DS.Store.all()`{{/crossLink}}.
