@@ -932,12 +932,20 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     a transaction.
   */
   save: function() {
-    once(this, 'commitDefaultTransaction');
+    return this.commitDefaultTransaction();
   },
   commit: Ember.aliasMethod('save'),
 
+  /**
+    This method delegates committing to the store's implicit
+    transaction.
+
+    Calling this method is essentially a request to persist
+    any changes to records that were not explicitly added to
+    a transaction.
+  */
   commitDefaultTransaction: function() {
-    get(this, 'defaultTransaction').commit();
+    return get(this, 'defaultTransaction').commit();
   },
 
   scheduleSave: function(record) {

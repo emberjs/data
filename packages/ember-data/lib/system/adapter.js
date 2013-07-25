@@ -84,7 +84,7 @@ DS.loaderFor = loaderFor;
 
   For an example implementation, see {{#crossLink "DS.RestAdapter"}} the
   included REST adapter.{{/crossLink}}.
-  
+
   @class Adapter
   @namespace DS
   @extends Ember.Object
@@ -484,6 +484,19 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   /**
     @private
 
+    Determines whether dirty records for a particular association
+    should be preserved in the face of re-materialization.
+
+    @param {Object} association the association meta information
+    @return {Boolean}
+  */
+  shouldPreserveDirtyRecords: function(association) {
+    return false;
+  },
+
+  /**
+    @private
+
     This method recursively climbs the superclass hierarchy and
     registers any class-registered transforms on the adapter's
     serializer.
@@ -654,8 +667,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     return map;
   },
 
-  commit: function(store, commitDetails) {
-    this.save(store, commitDetails);
+  commit: function(store, commitDetails, relationshipChanges) {
+    return this.save(store, commitDetails, relationshipChanges);
   },
 
   save: function(store, commitDetails) {
