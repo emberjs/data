@@ -445,22 +445,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     get(this, 'serializer').extractMany(loader, payload, type);
   },
 
-  /**
-    Notifies the store that a request to the backend returned
-    an error.
-
-    Your adapter should call this method to indicate that the
-    backend returned an error for a request.
-
-    @method didError
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {DS.Model} record
-  */
-  didError: function(store, type, record) {
-    store.recordWasError(record);
-  },
-
   dirtyRecordsForAttributeChange: function(dirtySet, record, attributeName, newValue, oldValue) {
     if (newValue !== oldValue) {
       // If this record is embedded, add its parent
@@ -690,19 +674,22 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
   createRecords: function(store, type, records) {
     records.forEach(function(record) {
-      this.createRecord(store, type, record);
+      var thenable = this.createRecord(store, type, record);
+      store.resolveWith(thenable, record);
     }, this);
   },
 
   updateRecords: function(store, type, records) {
     records.forEach(function(record) {
-      this.updateRecord(store, type, record);
+      var thenable = this.updateRecord(store, type, record);
+      store.resolveWith(thenable, record);
     }, this);
   },
 
   deleteRecords: function(store, type, records) {
     records.forEach(function(record) {
-      this.deleteRecord(store, type, record);
+      var thenable = this.deleteRecord(store, type, record);
+      store.resolveWith(thenable, record);
     }, this);
   },
 
