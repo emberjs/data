@@ -1145,7 +1145,7 @@ test("sideloaded data is loaded prior to primary data (to ensure relationship co
   var group;
   group = store.find(Group, 1);
   stop();
-  group.then(function(group) {
+  store.promiseFor(group).then(function(group) {
     start();
 
     // test

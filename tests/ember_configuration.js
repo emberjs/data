@@ -102,6 +102,8 @@
       loadMany: syncForTest(),
       filter: syncForTest(),
       find: syncForTest(),
+      fetch: syncForTest(),
+      promiseFor: syncForTest(),
       findMany: syncForTest(),
       didSaveRecord: syncForTest(),
       didSaveRecords: syncForTest(),
@@ -112,18 +114,14 @@
     });
 
     DS.Model.reopen({
-      then: syncForTest(),
       save: syncForTest(),
+      reload: syncForTest(),
       deleteRecord: syncForTest(),
       dataDidChange: Ember.observer(syncForTest(), 'data'),
       updateRecordArraysLater: syncForTest()
     });
 
     Ember.RSVP.Promise.prototype.then = syncForTest(Ember.RSVP.Promise.prototype.then);
-
-    DS.RecordArray.reopen({
-      then: syncForTest()
-    });
 
     DS.Transaction.reopen({
       commit: syncForTest()

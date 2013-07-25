@@ -76,7 +76,7 @@ test("should load data for a type asynchronously when it is requested", function
 
   equal(get(ebryn, 'isLoaded'), false, "record from fixtures is returned in the loading state");
 
-  ebryn.then(function() {
+  store.promiseFor(ebryn).then(function() {
     clearTimeout(timer);
     start();
 
@@ -87,7 +87,7 @@ test("should load data for a type asynchronously when it is requested", function
     stop();
 
     var wycats = store.find(Person, 'wycats');
-    wycats.then(function() {
+    store.promiseFor(wycats).then(function() {
       clearTimeout(timer);
       start();
 
@@ -234,7 +234,7 @@ test("should follow isUpdating semantics", function() {
     height: 65
   }];
 
-  var result = store.findAll(Person);
+  var result = store.find(Person);
 
   result.addObserver('isUpdating', function() {
     clearTimeout(timer);
@@ -259,9 +259,9 @@ test("should coerce integer ids into string", function() {
     height: 65
   }];
 
-  var result = Person.find("1");
+  var result = store.find(Person, "1");
 
-  result.then(function() {
+  store.promiseFor(result).then(function() {
     clearTimeout(timer);
     start();
     clearTimeout(timer);
@@ -289,9 +289,9 @@ test("should coerce belongsTo ids into string", function() {
     person: 1
   }];
 
-  var result = Phone.find("1");
+  var result = store.find(Phone, "1");
 
-  result.then(function() {
+  store.promiseFor(result).then(function() {
     var person = get(result, 'person');
     person.on('didLoad', function() {
       clearTimeout(timer);
@@ -316,7 +316,7 @@ test("only coerce belongsTo ids to string if id is defined and not null", functi
     id: 1
   }];
 
-  Phone.find(1).then(function(phone) {
+  store.fetch(Phone, 1).then(function(phone) {
     clearTimeout(timer);
     start();
     equal(phone.get('person'), null);
@@ -336,18 +336,16 @@ test("should throw if ids are not defined in the FIXTURES", function() {
   }];
 
   raises(function(){
-    Person.find("1");
+    store.find(Person, "1");
   }, /the id property must be defined as a number or string for fixture/);
 
   Person.FIXTURES = [{
     id: 0
   }];
-  var result;
   stop();
   try {
-    result = Person.find("0");
     // should accept 0 as an id, all is fine
-    result.then(function() {
+    store.fetch(Person, "0").then(function() {
       clearTimeout(timer);
       start();
     });
