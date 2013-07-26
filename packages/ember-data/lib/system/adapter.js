@@ -871,6 +871,20 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 });
 
 DS.Adapter.reopenClass({
+
+  /**
+    Registers a custom attribute transform for the adapter class
+
+    The `transform` property is an object with a `serialize` and
+    `deserialize` property. These are each functions that respectively
+    serialize the data to send to the backend or deserialize it for
+    use on the client.
+
+    @method registerTransform
+    @static
+    @property {DS.String} attributeType
+    @property {Object}    transform
+  */
   registerTransform: function(attributeType, transform) {
     var registeredTransforms = this._registeredTransforms || {};
 
@@ -879,6 +893,14 @@ DS.Adapter.reopenClass({
     this._registeredTransforms = registeredTransforms;
   },
 
+  /**
+    Registers a custom enumerable transform for the adapter class
+
+    @method registerEnumTransform
+    @static
+    @property {DS.String} attributeType
+    @property objects
+  */
   registerEnumTransform: function(attributeType, objects) {
     var registeredEnumTransforms = this._registeredEnumTransforms || {};
 
@@ -887,12 +909,28 @@ DS.Adapter.reopenClass({
     this._registeredEnumTransforms = registeredEnumTransforms;
   },
 
+  /**
+    Set adapter attributes for a DS.Model class.
+
+    @method map
+    @static
+    @property {DS.Model} type   the DS.Model class
+    @property {Object}   attributes
+  */
   map: DS._Mappable.generateMapFunctionFor('attributes', function(key, newValue, map) {
     var existingValue = map.get(key);
 
     merge(existingValue, newValue);
   }),
 
+  /**
+    Set configuration options for a DS.Model class.
+
+    @method configure
+    @static
+    @property {DS.Model} type   the DS.Model class
+    @property {Object}   configuration
+  */
   configure: DS._Mappable.generateMapFunctionFor('configurations', function(key, newValue, map) {
     var existingValue = map.get(key);
 
@@ -907,6 +945,16 @@ DS.Adapter.reopenClass({
     merge(existingValue, newValue);
   }),
 
+  /**
+    Resolved conflicts in configuration settings.
+
+    Calls `Ember.merge` by default.
+
+    @method resolveMapConflict
+    @static
+    @property oldValue
+    @property newValue
+  */
   resolveMapConflict: function(oldValue, newValue) {
     merge(newValue, oldValue);
 
