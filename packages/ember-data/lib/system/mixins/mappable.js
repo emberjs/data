@@ -55,7 +55,6 @@ var get = Ember.get;
   @class _Mappable
   @private
   @namespace DS
-  @extends Ember.Mixin
 **/
 
 var resolveMapConflict = function(oldValue, newValue) {
