@@ -371,17 +371,17 @@ test("ensure model exits loading state, materializes data and fulfills promise o
 
   var person = store.find(Person, 1);
 
-  equal(get(person, 'stateManager.currentState.path'), 'rootState.loading', 'model is in loading state');
+  equal(get(person, 'currentState.stateName'), 'root.loading', 'model is in loading state');
   equal(get(person, 'isLoaded'), false, 'model is not loaded');
   equal(get(person, '_deferred.promise.isFulfilled'), undefined, 'model is not fulfilled');
 
   get(person, 'name'); //trigger data setup
 
-  equal(get(person, 'stateManager.currentState.path'), 'rootState.loading', 'model is still in loading state');
+  equal(get(person, 'currentState.stateName'), 'root.loading', 'model is still in loading state');
 
   store.load(Person, { id: 1, name: "John", isDrugAddict: false });
 
-  equal(get(person, 'stateManager.currentState.path'), 'rootState.loaded.saved', 'model is in loaded state');
+  equal(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
   equal(get(person, 'isLoaded'), true, 'model is loaded');
   equal(get(person, '_deferred.promise.isFulfilled'), true, 'model is fulfilled');
 });

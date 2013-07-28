@@ -5,9 +5,11 @@ var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
 
 var get = Ember.get, set = Ember.set, map = Ember.EnumerableUtils.map;
 
+var arrayMap = Ember.ArrayPolyfills.map;
+
 var retrieveFromCurrentState = Ember.computed(function(key, value) {
-  return get(get(this, 'stateManager.currentState'), key);
-}).property('stateManager.currentState').readOnly();
+  return get(get(this, 'currentState'), key);
+}).property('currentState').readOnly();
 
 /**
 
@@ -38,7 +40,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   clientId: null,
   id: null,
   transaction: null,
-  stateManager: null,
+  currentState: null,
   errors: null,
 
   /**
@@ -145,14 +147,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   _data: null,
 
   init: function() {
+    set(this, 'currentState', DS.RootState.empty);
     this._super();
-
-    var stateManager = DS.StateManager.create({ record: this });
-    set(this, 'stateManager', stateManager);
-
     this._setup();
-
-    stateManager.goToState('empty');
   },
 
   _setup: function() {
@@ -160,7 +157,60 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   send: function(name, context) {
-    return get(this, 'stateManager').send(name, context);
+    var currentState = get(this, 'currentState');
+
+    if (!currentState[name]) {
+      this._unhandledEvent(currentState, name, context);
+    }
+
+    return currentState[name](this, context);
+  },
+
+  transitionTo: function(name) {
+    // POSSIBLE TODO: Remove this code and replace with
+    // always having direct references to state objects
+
+    var pivotName = name.split(".", 1),
+        currentState = get(this, 'currentState'),
+        state = currentState;
+
+    do {
+      if (state.exit) { state.exit(this); }
+      state = state.parentState;
+    } while (!state.hasOwnProperty(pivotName));
+
+    var path = name.split(".");
+
+    var setups = [], enters = [], i, l;
+
+    for (i=0, l=path.length; i<l; i++) {
+      state = state[path[i]];
+
+      if (state.enter) { enters.push(state); }
+      if (state.setup) { setups.push(state); }
+    }
+
+    for (i=0, l=enters.length; i<l; i++) {
+      enters[i].enter(this);
+    }
+
+    set(this, 'currentState', state);
+
+    for (i=0, l=setups.length; i<l; i++) {
+      setups[i].setup(this);
+    }
+  },
+
+  _unhandledEvent: function(state, name, context) {
+    var errorMessage = "Attempted to handle event `" + name + "` ";
+    errorMessage    += "on " + String(this) + " while in state ";
+    errorMessage    += state.stateName + ". ";
+
+    if (context !== undefined) {
+      errorMessage  += "Called with " + Ember.inspect(context) + ".";
+    }
+
+    throw new Ember.Error(errorMessage);
   },
 
   withTransaction: function(fn) {

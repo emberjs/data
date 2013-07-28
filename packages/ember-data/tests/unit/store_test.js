@@ -45,18 +45,16 @@ var stateManager, stateName;
 
 module("DS.StateManager", {
   setup: function() {
-    stateManager = DS.StateManager.create();
+    stateManager = DS.RootState;
   }
 });
 
 var isTrue = function(flag) {
-  var state = stateName.split('.').join('.states.');
-  equal(get(stateManager, 'states.rootState.states.'+ state + "." + flag), true, stateName + "." + flag + " should be true");
+  equal(get(stateManager, stateName + "." + flag), true, stateName + "." + flag + " should be true");
 };
 
 var isFalse = function(flag) {
-  var state = stateName.split('.').join('.states.');
-  equal(get(stateManager, 'states.rootState.states.'+ state + "." + flag), false, stateName + "." + flag + " should be false");
+  equal(get(stateManager, stateName + "." + flag), false, stateName + "." + flag + " should be false");
 };
 
 test("the empty state", function() {
