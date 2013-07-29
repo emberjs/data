@@ -1305,6 +1305,24 @@ test("updating a record with a 422 error marks the records as invalid", function
   deepEqual(person.get('errors'), { name: ["can't be blank"], updatedAt: ["can't be blank"] }, "the person has the errors");
 });
 
+test("creating a record with a 422 error marks embedded records as invalid", function(){
+  // setup
+  var person, group, mockXHR;
+  group = store.createRecord(Group, {});
+  person = store.createRecord(Person, { group: group });
+  store.commit();
+  mockXHR = {
+    status:       422,
+    responseText: JSON.stringify({ errors: { "group.name": ["can't be blank"]} })
+  };
+  ajaxHash.error.call(ajaxHash.context, mockXHR);
+
+  // test
+  stateEquals(group, 'loaded.created.invalid');
+  enabledFlags(group, ['isLoaded', 'isDirty', 'isNew']);
+  deepEqual(group.get('errors'), { name: ["can't be blank"]}, "the embedded group has the errors");
+});
+
 test("creating a record with a 500 error marks the record as error", function() {
   // setup
   var person, mockXHR;

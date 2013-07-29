@@ -47,11 +47,12 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     return key.replace(/_id$/, '_type');
   },
 
-  extractValidationErrors: function(type, json) {
+  extractValidationErrors: function(type, json, prefix) {
+    prefix = prefix || '';
     var errors = {};
 
     get(type, 'attributes').forEach(function(name) {
-      var key = this._keyForAttributeName(type, name);
+      var key = prefix + this._keyForAttributeName(type, name);
       if (json['errors'].hasOwnProperty(key)) {
         errors[name] = json['errors'][key];
       }
