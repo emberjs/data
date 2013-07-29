@@ -387,6 +387,10 @@ DS.RESTAdapter = DS.Adapter.extend({
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
+        if (jqXHR) {
+          jqXHR.then = null;
+        }
+
         Ember.run(null, reject, jqXHR);
       };
 
