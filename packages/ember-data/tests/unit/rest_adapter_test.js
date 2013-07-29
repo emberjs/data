@@ -9,9 +9,9 @@ manyArrayFlags = ['isLoaded'];
 
 // Used for testing the adapter state path on a single entity
 function stateEquals(entity, expectedState) {
-  var actualState = get(entity, 'stateManager.currentPath');
+  var actualState = get(entity, 'currentState.stateName');
 
-  actualState = actualState && actualState.replace(/^rootState\./,'');
+  actualState = actualState && actualState.replace(/^root\./,'');
   equal(actualState, expectedState, 'Expected state should have been: ' + expectedState+ ' but was: ' +  actualState + ' on: ' + entity);
 }
 
