@@ -6,7 +6,7 @@ var isNone = Ember.isNone, isEmpty = Ember.isEmpty;
 */
 
 /**
-  DS.Transforms is a hash of transforms used by DS.Serializer.
+  DS.JSONTransforms is a hash of transforms used by DS.Serializer.
 
   @class JSONTransforms
   @static
