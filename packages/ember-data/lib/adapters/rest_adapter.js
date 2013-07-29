@@ -10,10 +10,10 @@ require('ember-data/serializers/rest_serializer');
 
 var get = Ember.get, set = Ember.set;
 
-function rejectionHandler(reason) {
+var rejectionHandler = DS.rejectionHandler = function (reason) {
   Ember.Logger.error(reason, reason.message);
   throw reason;
-}
+};
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
