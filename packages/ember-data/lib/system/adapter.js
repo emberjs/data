@@ -461,7 +461,14 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     store.recordWasError(record);
   },
 
-  /** @private */
+  /**
+    @method dirtyRecordsForAttributeChange
+    @param {Ember.OrderedSet} dirtySet
+    @param {DS.Model} record
+    @param {String} attributeName
+    @param {any} newValue
+    @param {any} oldValue
+  */
   dirtyRecordsForAttributeChange: function(dirtySet, record, attributeName, newValue, oldValue) {
     if (newValue !== oldValue) {
       // If this record is embedded, add its parent
@@ -470,18 +477,32 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     }
   },
 
-  /** @private */
+  /**
+    @method dirtyRecordsForRecordChange
+    @param {Ember.OrderedSet} dirtySet
+    @param {DS.Model} record
+  */
   dirtyRecordsForRecordChange: function(dirtySet, record) {
     dirtySet.add(record);
   },
 
-  /** @private */
+  /**
+    @method dirtyRecordsForBelongsToChange
+    @param {Ember.OrderedSet} dirtySet
+    @param {DS.Model} child
+    @param {DS.RelationshipChange} relationship
+  */
   dirtyRecordsForBelongsToChange: function(dirtySet, child) {
     this.dirtyRecordsForRecordChange(dirtySet, child);
   },
 
-  /** @private */
-  dirtyRecordsForHasManyChange: function(dirtySet, parent) {
+  /**
+    @method dirtyRecordsForHasManyChange
+    @param {Ember.OrderedSet} dirtySet
+    @param {DS.Model} parent
+    @param {DS.RelationshipChange} relationship
+  */
+  dirtyRecordsForHasManyChange: function(dirtySet, parent, relationship) {
     this.dirtyRecordsForRecordChange(dirtySet, parent);
   },
 
@@ -763,6 +784,9 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     new records.
 
     Serializes the record and send it to the server.
+
+    This implementation should call the adapter's `didCreateRecord`
+    method on success or `didError` method on failure.
 
     @method createRecord
     @property {DS.Store} store

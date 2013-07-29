@@ -86,16 +86,37 @@ DS.RESTAdapter = DS.Adapter.extend({
     this._super.apply(this, arguments);
   },
 
+  /**
+    Called on each record before saving. If false is returned, the record
+    will not be saved.
+
+    By default, this method returns `true` except when the record is embedded.
+
+    @method   shouldSave
+    @property {DS.Model} record
+    @return   {Boolean}  `true` to save, `false` to not. Defaults to true.
+  */
   shouldSave: function(record) {
     var reference = get(record, '_reference');
 
     return !reference.parent;
   },
 
+  /**
+    @method dirtyRecordsForRecordChange
+    @param {Ember.OrderedSet} dirtySet
+    @param {DS.Model} record
+  */
   dirtyRecordsForRecordChange: function(dirtySet, record) {
     this._dirtyTree(dirtySet, record);
   },
 
+  /**
+    @method dirtyRecordsForHasManyChange
+    @param {Ember.OrderedSet} dirtySet
+    @param {DS.Model} record
+    @param {DS.RelationshipChange} relationship
+  */
   dirtyRecordsForHasManyChange: function(dirtySet, record, relationship) {
     var embeddedType = get(this, 'serializer').embeddedType(record.constructor, relationship.secondRecordName);
 
@@ -105,6 +126,12 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
   },
 
+  /**
+    @method _dirtyTree
+    @private
+    @param {Ember.OrderedSet} dirtySet
+    @param {DS.Model} record
+  */
   _dirtyTree: function(dirtySet, record) {
     dirtySet.add(record);
 
@@ -123,6 +150,23 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
   },
 
+  /**
+    Serializes the record and sends it to the server.
+
+    By default, the record is serialized with the adapter's `serialize`
+    method and assigned to a root obtained by the `rootForType` method.
+
+    The url is created with `buildURL` and then called as a 'POST' request
+    with the adapter's `ajax` method.
+
+    If successful, the adapter's `didCreateRecord` method is called,
+    otherwise `didError`
+
+    @method createRecord
+    @property {DS.Store} store
+    @property {DS.Model} type   the DS.Model class of the record
+    @property {DS.Model} record
+  */
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
     var adapter = this;
