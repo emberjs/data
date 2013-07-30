@@ -718,7 +718,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     The `commitDetails` is a map with each record type and a list of
     committed, updated and deleted records.
 
-    By default, this just calls the adapter's private `save` method.
+    By default, this just calls the adapter's `save` method.
     If you need more advanced handling of commits, e.g., only sending
     certain records to the server, you can overwrite this method.
 
