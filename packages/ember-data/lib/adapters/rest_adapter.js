@@ -82,10 +82,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   serializer: DS.RESTSerializer,
 
-  init: function() {
-    this._super.apply(this, arguments);
-  },
-
   /**
     Called on each record before saving. If false is returned, the record
     will not be saved.
@@ -184,6 +180,12 @@ DS.RESTAdapter = DS.Adapter.extend({
     }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method createRecords
+    @param  store
+    @param  type
+    @param  records
+  */
   createRecords: function(store, type, records) {
     var adapter = this;
 
@@ -207,6 +209,12 @@ DS.RESTAdapter = DS.Adapter.extend({
     }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method updateRecord
+    @param  store
+    @param  type
+    @param  record
+  */
   updateRecord: function(store, type, record) {
     var id, root, adapter, data;
 
@@ -227,6 +235,12 @@ DS.RESTAdapter = DS.Adapter.extend({
     }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method updateRecords
+    @param  store
+    @param  type
+    @param  records
+  */
   updateRecords: function(store, type, records) {
     var root, plural, adapter, data;
 
@@ -253,6 +267,12 @@ DS.RESTAdapter = DS.Adapter.extend({
     }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method deleteRecord
+    @param  store
+    @param  type
+    @param  record
+  */
   deleteRecord: function(store, type, record) {
     var id, root, adapter;
 
@@ -268,6 +288,12 @@ DS.RESTAdapter = DS.Adapter.extend({
     }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method deleteRecords
+    @param  store
+    @param  type
+    @param  records
+  */
   deleteRecords: function(store, type, records) {
     var root, plural, serializer, adapter, data;
 
@@ -294,6 +320,12 @@ DS.RESTAdapter = DS.Adapter.extend({
     }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method find
+    @param  store
+    @param  type
+    @param  id
+  */
   find: function(store, type, id) {
     var root = this.rootForType(type), adapter = this;
 
@@ -303,6 +335,12 @@ DS.RESTAdapter = DS.Adapter.extend({
     }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method findAll
+    @param  store
+    @param  type
+    @param  since
+  */
   findAll: function(store, type, since) {
     var root, adapter;
 
@@ -316,6 +354,13 @@ DS.RESTAdapter = DS.Adapter.extend({
     }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method findQuery
+    @param  store
+    @param  type
+    @param  query
+    @param  recordArray
+  */
   findQuery: function(store, type, query, recordArray) {
     var root = this.rootForType(type),
     adapter = this;
@@ -327,6 +372,13 @@ DS.RESTAdapter = DS.Adapter.extend({
     }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method findMany
+    @param  store
+    @param  type
+    @param  ids
+    @param  owner
+  */
   findMany: function(store, type, ids, owner) {
     var root = this.rootForType(type),
     adapter = this;
@@ -341,10 +393,11 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   /**
-    @private
-
     This method serializes a list of IDs using `serializeId`
 
+    @method serializeIds
+    @private
+    @param  ids
     @return {Array} an array of serialized IDs
   */
   serializeIds: function(ids) {
@@ -355,6 +408,14 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
+  /**
+    @method didError
+    @private
+    @param  store
+    @param  type
+    @param  record
+    @param  xhr
+  */
   didError: function(store, type, record, xhr) {
     if (xhr.status === 422) {
       var json = JSON.parse(xhr.responseText),
@@ -367,6 +428,13 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
   },
 
+  /**
+    @method ajax
+    @private
+    @param  url
+    @param  type
+    @param  hash
+  */
   ajax: function(url, type, hash) {
     var adapter = this;
 
@@ -398,18 +466,39 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
+  /**
+    @property url
+    @default ''
+  */
   url: "",
 
+  /**
+    @method rootForType
+    @private
+    @param type
+  */
   rootForType: function(type) {
     var serializer = get(this, 'serializer');
     return serializer.rootForType(type);
   },
 
+  /**
+    @method pluralize
+    @private
+    @param string
+  */
   pluralize: function(string) {
     var serializer = get(this, 'serializer');
     return serializer.pluralize(string);
   },
 
+  /**
+    @method buildURL
+    @private
+    @param root
+    @param suffix
+    @param record
+  */
   buildURL: function(root, suffix, record) {
     var url = [this.url];
 
@@ -429,6 +518,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     return url.join("/");
   },
 
+  /**
+    @method sinceQuery
+    @private
+    @param since
+  */
   sinceQuery: function(since) {
     var query = {};
     query[get(this, 'since')] = since;
