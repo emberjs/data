@@ -870,7 +870,7 @@ DS.Serializer = Ember.Object.extend({
     @returns {String} the primary key for the type
   */
   _primaryKey: function(type) {
-    var config = this.configurationForType(type),
+    var config = this.mappingForType(type),
         primaryKey = config && config.primaryKey;
 
     if (primaryKey) {
