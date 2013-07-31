@@ -10,7 +10,7 @@ require('ember-data/serializers/rest_serializer');
 
 var get = Ember.get, set = Ember.set;
 
-var rejectionHandler = DS.rejectionHandler = function (reason) {
+DS.rejectionHandler = function (reason) {
   Ember.Logger.error(reason, reason.message);
   throw reason;
 };
@@ -137,7 +137,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     }, function(xhr) {
       adapter.didError(store, type, record, xhr);
       throw xhr;
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
   createRecords: function(store, type, records) {
@@ -160,7 +160,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: data
     }).then(function(json) {
       adapter.didCreateRecords(store, type, records, json);
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
   updateRecord: function(store, type, record) {
@@ -180,7 +180,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     }, function(xhr) {
       adapter.didError(store, type, record, xhr);
       throw xhr;
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
   updateRecords: function(store, type, records) {
@@ -206,7 +206,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: data
     }).then(function(json) {
       adapter.didUpdateRecords(store, type, records, json);
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
   deleteRecord: function(store, type, record) {
@@ -221,7 +221,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     }, function(xhr){
       adapter.didError(store, type, record, xhr);
       throw xhr;
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
   deleteRecords: function(store, type, records) {
@@ -247,7 +247,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: data
     }).then(function(json){
       adapter.didDeleteRecords(store, type, records, json);
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
   find: function(store, type, id) {
@@ -256,7 +256,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     return this.ajax(this.buildURL(root, id), "GET").
       then(function(json){
         adapter.didFindRecord(store, type, json, id);
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
   findAll: function(store, type, since) {
@@ -269,7 +269,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: this.sinceQuery(since)
     }).then(function(json) {
       adapter.didFindAll(store, type, json);
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
   findQuery: function(store, type, query, recordArray) {
@@ -280,7 +280,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: query
     }).then(function(json){
       adapter.didFindQuery(store, type, json, recordArray);
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
   findMany: function(store, type, ids, owner) {
@@ -293,7 +293,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: {ids: ids}
     }).then(function(json) {
       adapter.didFindMany(store, type, json);
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
   /**
