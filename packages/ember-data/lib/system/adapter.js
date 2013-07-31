@@ -614,17 +614,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   findQuery: null,
 
   /**
-    Optional
-
-    @method findMany
-    @param  store
-    @param  type
-    @param  ids
-    @param  owner
-  */
-  findMany: null,
-
-  /**
     The class of the serializer to be used by this adapter.
 
     @property serializer
