@@ -1,12 +1,13 @@
 /**
-  @module data
-  @submodule data-model
+  @module ember-data
 */
 
 var get = Ember.get, set = Ember.set,
     once = Ember.run.once, arrayMap = Ember.ArrayPolyfills.map;
 
-/**
+/*
+  WARNING: Much of these docs are inaccurate as of bf8497.
+
   This file encapsulates the various states that a record can transition
   through during its lifecycle.
 
@@ -155,10 +156,6 @@ var get = Ember.get, set = Ember.set,
   Note that enter and exit events are called once per transition. If the
   current state changes, but changes to another child state of the parent,
   the transition event on the parent will not be triggered.
-
-  @class States
-  @namespace DS
-  @extends Ember.State
 */
 
 var hasDefinedProperties = function(object) {

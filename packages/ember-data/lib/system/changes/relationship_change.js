@@ -1,6 +1,16 @@
+/**
+  @module ember-data
+*/
+
 var get = Ember.get, set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;
 
+/**
+  @class RelationshipChange
+  @namespace DS
+  @private
+  @construtor
+*/
 DS.RelationshipChange = function(options) {
   this.parentReference = options.parentReference;
   this.childReference = options.childReference;
@@ -16,25 +26,34 @@ DS.RelationshipChange = function(options) {
   this.committed = {};
 };
 
+/**
+  @class RelationshipChangeAdd
+  @namespace DS
+  @private
+  @construtor
+*/
 DS.RelationshipChangeAdd = function(options){
   DS.RelationshipChange.call(this, options);
 };
 
+/**
+  @class RelationshipChangeRemove
+  @namespace DS
+  @private
+  @construtor
+*/
 DS.RelationshipChangeRemove = function(options){
   DS.RelationshipChange.call(this, options);
 };
 
-/** @private */
 DS.RelationshipChange.create = function(options) {
   return new DS.RelationshipChange(options);
 };
 
-/** @private */
 DS.RelationshipChangeAdd.create = function(options) {
   return new DS.RelationshipChangeAdd(options);
 };
 
-/** @private */
 DS.RelationshipChangeRemove.create = function(options) {
   return new DS.RelationshipChangeRemove(options);
 };
@@ -76,8 +95,8 @@ DS.RelationshipChange.determineRelationshipType = function(recordType, knownSide
     else{
       return knownKind === "belongsTo" ? "oneToMany" : "manyToMany";
     }
-  } 
- 
+  }
+
 };
 
 DS.RelationshipChange.createChange = function(firstRecordReference, secondRecordReference, store, options){
@@ -104,7 +123,6 @@ DS.RelationshipChange.createChange = function(firstRecordReference, secondRecord
   }
 };
 
-/** @private */
 DS.OneToNoneChange.createChange = function(childReference, parentReference, store, options) {
   var key = options.key;
   var change = DS.RelationshipChange._createChange({
@@ -122,7 +140,6 @@ DS.OneToNoneChange.createChange = function(childReference, parentReference, stor
   return change;
 };
 
-/** @private */
 DS.ManyToNoneChange.createChange = function(childReference, parentReference, store, options) {
   var key = options.key;
   var change = DS.RelationshipChange._createChange({
@@ -140,7 +157,6 @@ DS.ManyToNoneChange.createChange = function(childReference, parentReference, sto
 };
 
 
-/** @private */
 DS.ManyToManyChange.createChange = function(childReference, parentReference, store, options) {
   // If the name of the belongsTo side of the relationship is specified,
   // use that
@@ -166,7 +182,6 @@ DS.ManyToManyChange.createChange = function(childReference, parentReference, sto
   return change;
 };
 
-/** @private */
 DS.OneToOneChange.createChange = function(childReference, parentReference, store, options) {
   var key;
 
@@ -217,7 +232,6 @@ DS.OneToOneChange.maintainInvariant = function(options, store, childReference, k
   }
 };
 
-/** @private */
 DS.OneToManyChange.createChange = function(childReference, parentReference, store, options) {
   var key;
 
@@ -281,6 +295,10 @@ DS.OneToManyChange.ensureSameTransaction = function(changes){
   return DS.Transaction.ensureSameTransaction(records);
 };
 
+/**
+  @class RelationshipChange
+  @namespace DS
+*/
 DS.RelationshipChange.prototype = {
 
   getSecondRecordName: function() {
@@ -301,6 +319,7 @@ DS.RelationshipChange.prototype = {
   /**
     Get the name of the relationship on the belongsTo side.
 
+    @method getFirstRecordName
     @return {String}
   */
   getFirstRecordName: function() {
@@ -308,7 +327,10 @@ DS.RelationshipChange.prototype = {
     return name;
   },
 
-  /** @private */
+  /**
+    @method destroy
+    @private
+  */
   destroy: function() {
     var childReference = this.childReference,
         belongsToName = this.getFirstRecordName(),
@@ -318,7 +340,11 @@ DS.RelationshipChange.prototype = {
     store.removeRelationshipChangeFor(childReference, belongsToName, this.parentReference, hasManyName, this.changeType);
   },
 
-  /** @private */
+  /**
+    @method getByReference
+    @private
+    @param reference
+  */
   getByReference: function(reference) {
     // return null or undefined if the original reference was null or undefined
     if (!reference) { return reference; }
@@ -332,18 +358,22 @@ DS.RelationshipChange.prototype = {
     return this.getByReference(this.secondRecordReference);
   },
 
-  /** @private */
+  /**
+    @method getFirstRecord
+    @private
+  */
   getFirstRecord: function() {
     return this.getByReference(this.firstRecordReference);
   },
 
   /**
-    @private
-
     Make sure that all three parts of the relationship change are part of
     the same transaction. If any of the three records is clean and in the
     default transaction, and the rest are in a different transaction, move
     them all into that transaction.
+
+    @method ensureSameTransaction
+    @private
   */
   ensureSameTransaction: function() {
     var child = this.getFirstRecord(),

@@ -1,3 +1,7 @@
+/**
+  @module ember-data
+*/
+
 var get = Ember.get, set = Ember.set, map = Ember.ArrayPolyfills.map, isNone = Ember.isNone;
 
 function mustImplement(name) {
@@ -200,14 +204,9 @@ function mustImplement(name) {
   remain backwards-compatible, so the mere existence
   of new features should not break existing adapters.
 
-  @module data
-  @submodule data-serializer
-  @main data-serializer
-
   @class Serializer
   @namespace DS
   @extends Ember.Object
-  @constructor
 */
 
 DS.Serializer = Ember.Object.extend({
@@ -319,6 +318,7 @@ DS.Serializer = Ember.Object.extend({
     A hook you need to implement in order to extract
     the data associated with an embedded record.
 
+    @method extractEmbeddedData
     @param {any} data the serialized representation of the record
     @param {String} key the key that represents the embedded record
    */
@@ -372,12 +372,11 @@ DS.Serializer = Ember.Object.extend({
   },
 
   /**
-    @private
-
     Given an attribute type and value, convert the value into the
     serialized form using the transform registered for that type.
 
     @method serializeValue
+    @private
     @param {any} value the value to convert to the serialized form
     @param {String} attributeType the registered type (e.g. `string`
       or `boolean`)
@@ -400,6 +399,7 @@ DS.Serializer = Ember.Object.extend({
 
     Null or undefined ids will resolve to a null value.
 
+    @method serializeId
     @param {String} id the id from the record
     @returns {any} the serialized representation of the id
   */
@@ -563,7 +563,7 @@ DS.Serializer = Ember.Object.extend({
   */
   addHasMany: mustImplement('addHasMany'),
 
-  /**
+  /*
     NAMING CONVENTIONS
 
     The most commonly overridden APIs of the serializer are
@@ -856,8 +856,6 @@ DS.Serializer = Ember.Object.extend({
   },
 
   /**
-    @private
-
     This method is called to get the primary key for a given
     type.
 
@@ -866,6 +864,7 @@ DS.Serializer = Ember.Object.extend({
     call the public `primaryKey` hook.
 
     @method _primaryKey
+    @private
     @param {DS.Model subclass} type
     @returns {String} the primary key for the type
   */
@@ -881,8 +880,6 @@ DS.Serializer = Ember.Object.extend({
   },
 
   /**
-    @private
-
     This method looks up the key for the attribute name and transforms the
     attribute's value using registered transforms.
 
@@ -897,6 +894,7 @@ DS.Serializer = Ember.Object.extend({
        transformed value.
 
     @method _addAttribute
+    @private
     @param {any} data the serialized representation being built
     @param {DS.Model} record the record to serialize
     @param {String} attributeName the name of the attribute on the record
@@ -911,8 +909,6 @@ DS.Serializer = Ember.Object.extend({
   },
 
   /**
-    @private
-
     This method looks up the primary key for the `type` and invokes
     `serializeId` on the `id`.
 
@@ -920,6 +916,7 @@ DS.Serializer = Ember.Object.extend({
     the serialized id.
 
     @method _addId
+    @private
     @param {any} data the serialized representation that is being built
     @param {Ember.Model subclass} type
     @param {any} id the materialized id from the record
@@ -931,13 +928,12 @@ DS.Serializer = Ember.Object.extend({
   },
 
   /**
-    @private
-
     This method is called to get a key used in the data from
     an attribute name. It first checks for any mappings before
     calling the public hook `keyForAttributeName`.
 
     @method _keyForAttributeName
+    @private
     @param {DS.Model subclass} type the type of the record with
       the attribute name `name`
     @param {String} name the attribute name to convert into a key
@@ -949,13 +945,12 @@ DS.Serializer = Ember.Object.extend({
   },
 
   /**
-    @private
-
     This method is called to get a key used in the data from
     a belongsTo relationship. It first checks for any mappings before
     calling the public hook `keyForBelongsTo`.
 
     @method _keyForBelongsTo
+    @private
     @param {DS.Model subclass} type the type of the record with
       the `belongsTo` relationship.
     @param {String} name the relationship name to convert into a key
@@ -979,13 +974,12 @@ DS.Serializer = Ember.Object.extend({
   },
 
   /**
-    @private
-
     This method is called to get a key used in the data from
     a hasMany relationship. It first checks for any mappings before
     calling the public hook `keyForHasMany`.
 
     @method _keyForHasMany
+    @private
     @param {DS.Model subclass} type the type of the record with
       the `hasMany` relationship.
     @param {String} name the relationship name to convert into a key
@@ -995,13 +989,13 @@ DS.Serializer = Ember.Object.extend({
   _keyForHasMany: function(type, name) {
     return this._keyFromMappingOrHook('keyForHasMany', type, name);
   },
-  /**
-    @private
 
+  /**
     This method converts the relationship name to a key for serialization,
     and then invokes the public `addBelongsTo` hook.
 
     @method _addBelongsTo
+    @private
     @param {any} data the serialized representation that is being built
     @param {DS.Model} record the record to serialize
     @param {String} name the relationship name
@@ -1013,12 +1007,11 @@ DS.Serializer = Ember.Object.extend({
   },
 
   /**
-    @private
-
     This method converts the relationship name to a key for serialization,
     and then invokes the public `addHasMany` hook.
 
     @method _addHasMany
+    @private
     @param {any} data the serialized representation that is being built
     @param {DS.Model} record the record to serialize
     @param {String} name the relationship name
@@ -1030,8 +1023,6 @@ DS.Serializer = Ember.Object.extend({
   },
 
   /**
-    @private
-
     An internal method that handles checking whether a mapping
     exists for a particular attribute or relationship name before
     calling the public hooks.
@@ -1040,6 +1031,7 @@ DS.Serializer = Ember.Object.extend({
     use that instead of invoking the hook.
 
     @method _keyFromMappingOrHook
+    @private
     @param {String} publicMethod the public hook to invoke if
       a mapping is not found (e.g. `keyForAttributeName`)
     @param {DS.Model subclass} type the type of the record with
@@ -1057,9 +1049,7 @@ DS.Serializer = Ember.Object.extend({
     }
   },
 
-  /**
-    TRANSFORMS
-  */
+  /* TRANSFORMS */
 
   registerTransform: function(type, transform) {
     this.transforms[type] = transform;
@@ -1078,9 +1068,7 @@ DS.Serializer = Ember.Object.extend({
     this.registerTransform(type, transform);
   },
 
-  /**
-    MAPPING CONVENIENCE
-  */
+  /* MAPPING CONVENIENCE */
 
   map: function(type, mappings) {
     this.mappings.set(type, mappings);

@@ -1,12 +1,15 @@
 require("ember-data/system/model/model");
 
 /**
-  @module data
-  @submodule data-model
+  @module ember-data
 */
 
 var get = Ember.get;
 
+/**
+  @class Model
+  @namespace DS
+*/
 DS.Model.reopenClass({
   attributes: Ember.computed(function() {
     var map = Ember.Map.create();

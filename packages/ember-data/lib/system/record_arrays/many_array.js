@@ -1,8 +1,7 @@
 require("ember-data/system/record_arrays/record_array");
 
 /**
-  @module data
-  @submodule data-record-array
+  @module ember-data
 */
 
 var get = Ember.get, set = Ember.set;
@@ -41,7 +40,6 @@ var map = Ember.EnumerableUtils.map;
   @class ManyArray
   @namespace DS
   @extends DS.RecordArray
-  @constructor
 */
 DS.ManyArray = DS.RecordArray.extend({
   init: function() {
@@ -50,20 +48,18 @@ DS.ManyArray = DS.RecordArray.extend({
   },
 
   /**
-    @private
-
     The record to which this relationship belongs.
 
     @property {DS.Model}
+    @private
   */
   owner: null,
 
   /**
-    @private
-
     `true` if the relationship is polymorphic, `false` otherwise.
 
     @property {Boolean}
+    @private
   */
   isPolymorphic: false,
 

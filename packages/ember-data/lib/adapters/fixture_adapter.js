@@ -3,8 +3,7 @@ require("ember-data/system/adapter");
 require('ember-data/serializers/fixture_serializer');
 
 /**
-  @module data
-  @submodule data-adapters
+  @module ember-data
 */
 
 var get = Ember.get, fmt = Ember.String.fmt,

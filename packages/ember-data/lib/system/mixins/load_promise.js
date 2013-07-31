@@ -1,3 +1,7 @@
+/**
+  @module ember-data
+*/
+
 var Evented = Ember.Evented,              // ember-runtime/mixins/evented
     Deferred = Ember.DeferredMixin,       // ember-runtime/mixins/evented
     run = Ember.run,                      // ember-metal/run-loop

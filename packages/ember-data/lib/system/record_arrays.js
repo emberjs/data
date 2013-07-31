@@ -1,6 +1,5 @@
 /**
-  @module data
-  @submodule data-record-array
+  @module ember-data
 */
 
 require('ember-data/system/record_arrays/record_array');

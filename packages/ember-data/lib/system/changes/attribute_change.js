@@ -1,9 +1,17 @@
 /**
+  @module ember-data
+*/
+
+/**
   An AttributeChange object is created whenever a record's
   attribute changes value. It is used to track changes to a
   record between transaction commits.
-*/
 
+  @class AttributeChange
+  @namespace DS
+  @private
+  @constructor
+*/
 var AttributeChange = DS.AttributeChange = function(options) {
   this.reference = options.reference;
   this.store = options.store;
@@ -24,9 +32,11 @@ AttributeChange.prototype = {
   },
 
   /**
-   If the AttributeChange is destroyed (either by being rolled back
-   or being committed), remove it from the list of pending changes
-   on the record.
+    If the AttributeChange is destroyed (either by being rolled back
+    or being committed), remove it from the list of pending changes
+    on the record.
+
+    @method destroy
   */
   destroy: function() {
     var record = this.reference.record;

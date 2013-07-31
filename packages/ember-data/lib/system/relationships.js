@@ -1,6 +1,5 @@
 /**
-  @module data
-  @submodule data-relationships
+  @module ember-data
 */
 
 require("ember-data/system/relationships/belongs_to");

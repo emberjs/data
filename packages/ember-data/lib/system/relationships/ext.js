@@ -1,30 +1,44 @@
 var get = Ember.get, set = Ember.set;
 
 /**
-  @private
+  @module ember-data
+*/
 
+/*
   This file defines several extensions to the base `DS.Model` class that
   add support for one-to-many relationships.
 */
 
+/**
+  @class Model
+  @namespace DS
+*/
 DS.Model.reopen({
-  // This Ember.js hook allows an object to be notified when a property
-  // is defined.
-  //
-  // In this case, we use it to be notified when an Ember Data user defines a
-  // belongs-to relationship. In that case, we need to set up observers for
-  // each one, allowing us to track relationship changes and automatically
-  // reflect changes in the inverse has-many array.
-  //
-  // This hook passes the class being set up, as well as the key and value
-  // being defined. So, for example, when the user does this:
-  //
-  //   DS.Model.extend({
-  //     parent: DS.belongsTo(App.User)
-  //   });
-  //
-  // This hook would be called with "parent" as the key and the computed
-  // property returned by `DS.belongsTo` as the value.
+
+  /**
+    This Ember.js hook allows an object to be notified when a property
+    is defined.
+
+    In this case, we use it to be notified when an Ember Data user defines a
+    belongs-to relationship. In that case, we need to set up observers for
+    each one, allowing us to track relationship changes and automatically
+    reflect changes in the inverse has-many array.
+
+    This hook passes the class being set up, as well as the key and value
+    being defined. So, for example, when the user does this:
+
+      DS.Model.extend({
+        parent: DS.belongsTo(App.User)
+      });
+
+    This hook would be called with "parent" as the key and the computed
+    property returned by `DS.belongsTo` as the value.
+
+    @method didDefineProperty
+    @param proto
+    @param key
+    @param value
+  */
   didDefineProperty: function(proto, key, value) {
     // Check if the value being set is a computed property.
     if (value instanceof Ember.Descriptor) {
@@ -49,7 +63,7 @@ DS.Model.reopen({
   }
 });
 
-/**
+/*
   These DS.Model extensions add class methods that provide relationship
   introspection abilities about relationships.
 
@@ -78,6 +92,8 @@ DS.Model.reopenClass({
 
     Calling `App.Post.typeForRelationship('comments')` will return `App.Comment`.
 
+    @method typeForRelationship
+    @static
     @param {String} name the name of the relationship
     @return {subclass of DS.Model} the type of the relationship, or undefined
   */
@@ -157,6 +173,8 @@ DS.Model.reopenClass({
         relationships.get(App.Post);
         //=> [ { name: 'posts', kind: 'hasMany' } ]
 
+    @property relationships
+    @static
     @type Ember.Map
     @readOnly
   */
@@ -204,6 +222,8 @@ DS.Model.reopenClass({
        relationshipNames.belongsTo;
        //=> ['owner']
 
+    @property relationshipNames
+    @static
     @type Object
     @readOnly
   */
@@ -237,6 +257,8 @@ DS.Model.reopenClass({
        var relatedTypes = Ember.get(App.Blog, 'relatedTypes');
        //=> [ App.User, App.Post ]
 
+    @property relatedTypes
+    @static
     @type Ember.Array
     @readOnly
   */
@@ -289,6 +311,8 @@ DS.Model.reopenClass({
        relationshipsByName.get('owner');
        //=> { key: 'owner', kind: 'belongsTo', type: App.User }
 
+    @property relationshipsByName
+    @static
     @type Ember.Map
     @readOnly
   */
@@ -339,6 +363,8 @@ DS.Model.reopenClass({
         // posts, hasMany
         // title, attribute
 
+    @property fields
+    @static
     @type Ember.Map
     @readOnly
   */
@@ -361,6 +387,8 @@ DS.Model.reopenClass({
     invoking the callback with the name of each relationship and its relationship
     descriptor.
 
+    @method eachRelationship
+    @static
     @param {Function} callback the callback to invoke
     @param {any} binding the value to which the callback's `this` should be bound
   */
@@ -376,6 +404,8 @@ DS.Model.reopenClass({
     returned just once, regardless of how many different relationships it has
     with a model.
 
+    @method eachRelatedType
+    @static
     @param {Function} callback the callback to invoke
     @param {any} binding the value to which the callback's `this` should be bound
   */
@@ -392,6 +422,7 @@ DS.Model.reopen({
     invoking the callback with the name of each relationship and its relationship
     descriptor.
 
+    @method eachRelationship
     @param {Function} callback the callback to invoke
     @param {any} binding the value to which the callback's `this` should be bound
   */

@@ -1,6 +1,5 @@
 /**
-  @module data
-  @submodule data-model
+  @module ember-data
 */
 
 require("ember-data/system/model/model");

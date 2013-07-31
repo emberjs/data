@@ -1,6 +1,10 @@
-var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach;
-
 require("ember-data/system/model/model");
+
+/**
+  @module ember-data
+*/
+
+var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach;
 
 var hasRelationship = function(type, options) {
   options = options || {};

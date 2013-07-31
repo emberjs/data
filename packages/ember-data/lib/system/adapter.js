@@ -1,8 +1,7 @@
 require('ember-data/serializers/json_serializer');
 
 /**
-  @module data
-  @submodule data-adapter
+  @module ember-data
 */
 
 var get = Ember.get, set = Ember.set, merge = Ember.merge;
@@ -88,6 +87,7 @@ DS.loaderFor = loaderFor;
   @class Adapter
   @namespace DS
   @extends Ember.Object
+  @uses DS._Mappable
 */
 
 DS.Adapter = Ember.Object.extend(DS._Mappable, {

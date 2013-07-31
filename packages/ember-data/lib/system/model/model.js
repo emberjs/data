@@ -1,6 +1,10 @@
 require("ember-data/system/model/states");
 require("ember-data/system/mixins/load_promise");
 
+/**
+  @module ember-data
+*/
+
 var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
 
 var get = Ember.get, set = Ember.set, map = Ember.EnumerableUtils.map;
@@ -15,16 +19,12 @@ var retrieveFromCurrentState = Ember.computed(function(key, value) {
 
   The model class that all Ember Data records descend from.
 
-  @module data
-  @submodule data-model
-  @main data-model
-
   @class Model
   @namespace DS
   @extends Ember.Object
-  @constructor
+  @uses Ember.Evented
+  @uses DS.LoadPromise
 */
-
 DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   isLoading: retrieveFromCurrentState,
   isLoaded: retrieveFromCurrentState,
@@ -261,6 +261,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     If the adapter did not return a hash in response to a commit,
     merge the changed attributes and relationships into the existing
     saved data.
+
+    @method adapterDidCommit
   */
   adapterDidCommit: function() {
     var attributes = get(this, 'data').attributes;
@@ -399,8 +401,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   /**
-    @private
-
     The goal of this method is to temporarily disable specific observers
     that take action in response to application changes.
 
@@ -411,6 +411,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     The specific implementation will likely change as Ember proper provides
     better infrastructure for suspending groups of observers, and if Array
     observation becomes more unified with regular observers.
+
+    @method suspendRelationshipObservers
+    @private
+    @param callback
+    @param binding
   */
   suspendRelationshipObservers: function(callback, binding) {
     var observers = get(this.constructor, 'relationshipNames').belongsTo;
@@ -432,8 +437,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   /**
+    @method resolveOn
     @private
-
+    @param successEvent
   */
   resolveOn: function(successEvent) {
     var model = this;
@@ -509,10 +515,12 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   /**
-    @private
-
     Override the default event firing from Ember.Evented to
     also call methods with the given name.
+
+    @method trigger
+    @private
+    @param name
   */
   trigger: function(name) {
     Ember.tryInvoke(this, name, [].slice.call(arguments, 1));
@@ -537,34 +545,40 @@ var storeAlias = function(methodName) {
 
 DS.Model.reopenClass({
 
-  /** @private
+  /**
     Alias DS.Model's `create` method to `_create`. This allows us to create DS.Model
     instances from within the store, but if end users accidentally call `create()`
     (instead of `createRecord()`), we can raise an error.
+
+    @method _create
+    @private
+    @static
   */
   _create: DS.Model.create,
 
-  /** @private
-
+  /**
     Override the class' `create()` method to raise an error. This prevents end users
     from inadvertently calling `create()` instead of `createRecord()`. The store is
     still able to create instances by calling the `_create()` method.
+
+    @method create
+    @private
+    @static
   */
   create: function() {
     throw new Ember.Error("You should not call `create` on a model. Instead, call `createRecord` with the attributes you would like to set.");
   },
 
   /**
-    See {{#crossLink "DS.Store/find:method"}}`DS.Store.find()`{{/crossLink}}.
+    See `DS.Store.find()`.
 
     @method find
     @param {Object|String|Array|null} query A query to find records by.
-
   */
   find: storeAlias('find'),
 
   /**
-    See {{#crossLink "DS.Store/all:method"}}`DS.Store.all()`{{/crossLink}}.
+    See `DS.Store.all()`.
 
     @method all
     @return {DS.RecordArray}
@@ -572,7 +586,7 @@ DS.Model.reopenClass({
   all: storeAlias('all'),
 
   /**
-    See {{#crossLink "DS.Store/findQuery:method"}}`DS.Store.findQuery()`{{/crossLink}}.
+    See `DS.Store.findQuery()`.
 
     @method query
     @param {Object} query an opaque query to be used by the adapter
@@ -581,7 +595,7 @@ DS.Model.reopenClass({
   query: storeAlias('findQuery'),
 
   /**
-    See {{#crossLink "DS.Store/filter:method"}}`DS.Store.filter()`{{/crossLink}}.
+    See `DS.Store.filter()`.
 
     @method filter
     @param {Function} filter
@@ -590,12 +604,12 @@ DS.Model.reopenClass({
   filter: storeAlias('filter'),
 
   /**
-    See {{#crossLink "DS.Store/createRecord:method"}}`DS.Store.createRecord()`{{/crossLink}}.
+    See `DS.Store.createRecord()`.
 
     @method createRecord
     @param {Object} properties a hash of properties to set on the
       newly created record.
-    @returns DS.Model
+    @return DS.Model
   */
   createRecord: storeAlias('createRecord')
 });

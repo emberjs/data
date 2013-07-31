@@ -1,6 +1,5 @@
 /**
-  @module data
-  @submodule data-changes
+  @module ember-data
 */
 
 require("ember-data/system/changes/attribute_change");
