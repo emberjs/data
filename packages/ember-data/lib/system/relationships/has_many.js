@@ -12,7 +12,7 @@ var hasRelationship = function(type, options) {
   var meta = { type: type, isRelationship: true, options: options, kind: 'hasMany' };
 
   return Ember.computed(function(key, value) {
-    var data = get(this, 'data').hasMany,
+    var data = get(this, 'data'),
         store = get(this, 'store'),
         ids, relationship;
 
@@ -39,7 +39,7 @@ DS.hasMany = function(type, options) {
 };
 
 function clearUnmaterializedHasMany(record, relationship) {
-  var data = get(record, 'data').hasMany;
+  var data = get(record, 'data');
 
   var references = data[relationship.key];
 

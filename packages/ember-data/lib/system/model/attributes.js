@@ -48,7 +48,7 @@ DS.Model.reopen({
 });
 
 function getAttr(record, options, key) {
-  var attributes = get(record, 'data').attributes;
+  var attributes = get(record, 'data');
   var value = attributes[key];
 
   if (value === undefined) {

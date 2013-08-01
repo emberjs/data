@@ -7,7 +7,7 @@ require("ember-data/system/mixins/load_promise");
 
 var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
 
-var get = Ember.get, set = Ember.set, map = Ember.EnumerableUtils.map;
+var get = Ember.get, set = Ember.set, map = Ember.EnumerableUtils.map, merge = Ember.merge;
 
 var arrayMap = Ember.ArrayPolyfills.map;
 
@@ -265,7 +265,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     @method adapterDidCommit
   */
   adapterDidCommit: function() {
-    var attributes = get(this, 'data').attributes;
+    var attributes = get(this, 'data');
 
     get(this.constructor, 'attributes').forEach(function(name, meta) {
       attributes[name] = get(this, name);
@@ -301,7 +301,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     if (cachedValue) {
       var type = get(this.constructor, 'relationshipsByName').get(key).type;
       var store = get(this, 'store');
-      var ids = this._data.hasMany[key] || [];
+      var ids = this._data[key] || [];
 
       var references = map(ids, function(id) {
         if (typeof id === 'object') {
@@ -325,12 +325,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   setupData: function() {
-    this._data = {
-      attributes: {},
-      belongsTo: {},
-      hasMany: {},
-      id: null
-    };
+    this._data = { id: null };
   },
 
   materializeId: function(id) {
@@ -339,11 +334,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
   materializeAttributes: function(attributes) {
     Ember.assert("Must pass a hash of attributes to materializeAttributes", !!attributes);
-    this._data.attributes = attributes;
+    merge(this._data, attributes);
   },
 
   materializeAttribute: function(name, value) {
-    this._data.attributes[name] = value;
+    this._data[name] = value;
   },
 
   materializeHasMany: function(name, tuplesOrReferencesOrOpaque) {
@@ -354,7 +349,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     }
 
     if( tuplesOrReferencesOrOpaqueType === "string" ) {
-      this._data.hasMany[name] = tuplesOrReferencesOrOpaque;
+      this._data[name] = tuplesOrReferencesOrOpaque;
     } else {
       var references = tuplesOrReferencesOrOpaque;
 
@@ -362,14 +357,14 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
         references = this._convertTuplesToReferences(tuplesOrReferencesOrOpaque);
       }
 
-      this._data.hasMany[name] = references;
+      this._data[name] = references;
     }
   },
 
   materializeBelongsTo: function(name, tupleOrReference) {
     if (tupleOrReference) { Ember.assert('materializeBelongsTo expects a tuple or a reference, not a ' + tupleOrReference, !tupleOrReference || (tupleOrReference.hasOwnProperty('id') && tupleOrReference.hasOwnProperty('type'))); }
 
-    this._data.belongsTo[name] = tupleOrReference;
+    this._data[name] = tupleOrReference;
   },
 
   _convertTuplesToReferences: function(tuplesOrReferences) {
@@ -496,11 +491,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     // collapse the current value into the internal attributes because
     // the adapter has acknowledged it.
     if (value !== undefined) {
-      get(this, 'data.attributes')[attributeName] = value;
+      get(this, 'data')[attributeName] = value;
       this.notifyPropertyChange(attributeName);
     } else {
       value = get(this, attributeName);
-      get(this, 'data.attributes')[attributeName] = value;
+      get(this, 'data')[attributeName] = value;
     }
 
     this.updateRecordArraysLater();

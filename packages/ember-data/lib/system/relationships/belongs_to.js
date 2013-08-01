@@ -22,7 +22,7 @@ DS.belongsTo = function(type, options) {
       return value === undefined ? null : value;
     }
 
-    var data = get(this, 'data').belongsTo,
+    var data = get(this, 'data'),
         store = get(this, 'store'), belongsTo;
 
     belongsTo = data[key];
