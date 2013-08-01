@@ -37,7 +37,7 @@ test("Calling serializerFor with a type that has not been registered and in an a
   Ember.run(function() {
     app = Ember.Application.create();
     app.Store = DS.Store.extend();
-    app.initialize();
+    app.advanceReadiness();
   });
 
   var store = app.__container__.lookup('store:main');
