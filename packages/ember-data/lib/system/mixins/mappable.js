@@ -1,4 +1,20 @@
+/**
+  @module ember-data
+*/
+
 var get = Ember.get;
+
+var resolveMapConflict = function(oldValue, newValue) {
+  return oldValue;
+};
+
+var transformMapKey = function(key, value) {
+  return key;
+};
+
+var transformMapValue = function(key, value) {
+  return value;
+};
 
 /**
   The Mappable mixin is designed for classes that would like to
@@ -55,21 +71,7 @@ var get = Ember.get;
   @class _Mappable
   @private
   @namespace DS
-  @extends Ember.Mixin
 **/
-
-var resolveMapConflict = function(oldValue, newValue) {
-  return oldValue;
-};
-
-var transformMapKey = function(key, value) {
-  return key;
-};
-
-var transformMapValue = function(key, value) {
-  return value;
-};
-
 DS._Mappable = Ember.Mixin.create({
   createInstanceMapFor: function(mapName) {
     var instanceMeta = getMappableMeta(this);

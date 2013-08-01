@@ -1,12 +1,13 @@
 /**
-  @module data
-  @submodule data-model
+  @module ember-data
 */
 
 var get = Ember.get, set = Ember.set,
     once = Ember.run.once, arrayMap = Ember.ArrayPolyfills.map;
 
-/**
+/*
+  WARNING: Much of these docs are inaccurate as of bf8497.
+
   This file encapsulates the various states that a record can transition
   through during its lifecycle.
 
@@ -155,62 +156,37 @@ var get = Ember.get, set = Ember.set,
   Note that enter and exit events are called once per transition. If the
   current state changes, but changes to another child state of the parent,
   the transition event on the parent will not be triggered.
-
-  @class States
-  @namespace DS
-  @extends Ember.State
 */
 
-var stateProperty = Ember.computed(function(key) {
-  var parent = get(this, 'parentState');
-  if (parent) {
-    return get(parent, key);
-  }
-}).property();
-
 var hasDefinedProperties = function(object) {
-  for (var name in object) {
+  // Ignore internal property defined by simulated `Ember.create`.
+  var names = Ember.keys(object);
+  var i, l, name;
+  for (i = 0, l = names.length; i < l; i++ ) {
+    name = names[i];
     if (object.hasOwnProperty(name) && object[name]) { return true; }
   }
 
   return false;
 };
 
-var didChangeData = function(manager) {
-  var record = get(manager, 'record');
+var didChangeData = function(record) {
   record.materializeData();
 };
 
-var willSetProperty = function(manager, context) {
-  context.oldValue = get(get(manager, 'record'), context.name);
+var willSetProperty = function(record, context) {
+  context.oldValue = get(record, context.name);
 
   var change = DS.AttributeChange.createChange(context);
-  get(manager, 'record')._changesToSync[context.name] = change;
+  record._changesToSync[context.name] = change;
 };
 
-var didSetProperty = function(manager, context) {
-  var change = get(manager, 'record')._changesToSync[context.name];
-  change.value = get(get(manager, 'record'), context.name);
+var didSetProperty = function(record, context) {
+  var change = record._changesToSync[context.name];
+  change.value = get(record, context.name);
   change.sync();
 };
 
-DS.State = Ember.State.extend({
-  isLoading: stateProperty,
-  isLoaded: stateProperty,
-  isReloading: stateProperty,
-  isDirty: stateProperty,
-  isSaving: stateProperty,
-  isDeleted: stateProperty,
-  isError: stateProperty,
-  isNew: stateProperty,
-  isValid: stateProperty,
-
-  // For states that are substates of a
-  // DirtyState (updated or created), it is
-  // useful to be able to determine which
-  // type of dirty state it is.
-  dirtyType: stateProperty
-});
 
 // Implementation notes:
 //
@@ -255,7 +231,7 @@ DS.State = Ember.State.extend({
 //   but the adapter has not yet acknowledged success.
 // `invalid`: the record has invalid information and cannot be
 //   send to the adapter yet.
-var DirtyState = DS.State.extend({
+var DirtyState = {
   initialState: 'uncommitted',
 
   // FLAGS
@@ -266,7 +242,7 @@ var DirtyState = DS.State.extend({
   // When a record first becomes dirty, it is `uncommitted`.
   // This means that there are local pending changes, but they
   // have not yet begun to be saved, and are not invalid.
-  uncommitted: DS.State.extend({
+  uncommitted: {
 
     // EVENTS
     willSetProperty: willSetProperty,
@@ -274,486 +250,475 @@ var DirtyState = DS.State.extend({
 
     becomeDirty: Ember.K,
 
-    willCommit: function(manager) {
-      manager.transitionTo('inFlight');
+    willCommit: function(record) {
+      record.transitionTo('inFlight');
     },
 
-    becameClean: function(manager) {
-      var record = get(manager, 'record');
-
+    becameClean: function(record) {
       record.withTransaction(function(t) {
         t.remove(record);
       });
-      manager.transitionTo('loaded.materializing');
+
+      record.transitionTo('loaded.materializing');
     },
 
-    becameInvalid: function(manager) {
-      manager.transitionTo('invalid');
+    becameInvalid: function(record) {
+      record.transitionTo('invalid');
     },
 
-    rollback: function(manager) {
-      get(manager, 'record').rollback();
+    rollback: function(record) {
+      record.rollback();
     }
-  }),
+  },
 
   // Once a record has been handed off to the adapter to be
   // saved, it is in the 'in flight' state. Changes to the
   // record cannot be made during this window.
-  inFlight: DS.State.extend({
+  inFlight: {
     // FLAGS
     isSaving: true,
 
     // TRANSITIONS
-    enter: function(manager) {
-      var record = get(manager, 'record');
-
+    enter: function(record) {
       record.becameInFlight();
     },
 
     // EVENTS
 
-    materializingData: function(manager) {
-      set(manager, 'lastDirtyType', get(this, 'dirtyType'));
-      manager.transitionTo('materializing');
+    materializingData: function(record) {
+      set(record, 'lastDirtyType', get(this, 'dirtyType'));
+      record.transitionTo('materializing');
     },
 
-    didCommit: function(manager) {
-      var dirtyType = get(this, 'dirtyType'),
-          record = get(manager, 'record');
+    didCommit: function(record) {
+      var dirtyType = get(this, 'dirtyType');
 
       record.withTransaction(function(t) {
         t.remove(record);
       });
 
-      manager.transitionTo('saved');
-      manager.send('invokeLifecycleCallbacks', dirtyType);
+      record.transitionTo('saved');
+      record.send('invokeLifecycleCallbacks', dirtyType);
     },
 
     didChangeData: didChangeData,
 
-    becameInvalid: function(manager, errors) {
-      var record = get(manager, 'record');
-
+    becameInvalid: function(record, errors) {
       set(record, 'errors', errors);
 
-      manager.transitionTo('invalid');
-      manager.send('invokeLifecycleCallbacks');
+      record.transitionTo('invalid');
+      record.send('invokeLifecycleCallbacks');
     },
 
-    becameError: function(manager) {
-      manager.transitionTo('error');
-      manager.send('invokeLifecycleCallbacks');
+    becameError: function(record) {
+      record.transitionTo('error');
+      record.send('invokeLifecycleCallbacks');
     }
-  }),
+  },
 
   // A record is in the `invalid` state when its client-side
   // invalidations have failed, or if the adapter has indicated
   // the the record failed server-side invalidations.
-  invalid: DS.State.extend({
+  invalid: {
     // FLAGS
     isValid: false,
 
-    exit: function(manager) {
-       var record = get(manager, 'record');
-
+    exit: function(record) {
        record.withTransaction(function (t) {
          t.remove(record);
        });
      },
 
     // EVENTS
-    deleteRecord: function(manager) {
-      manager.transitionTo('deleted');
-      get(manager, 'record').clearRelationships();
+    deleteRecord: function(record) {
+      record.transitionTo('deleted.uncommitted');
+      record.clearRelationships();
     },
 
     willSetProperty: willSetProperty,
 
-    didSetProperty: function(manager, context) {
-      var record = get(manager, 'record'),
-          errors = get(record, 'errors'),
+    didSetProperty: function(record, context) {
+      var errors = get(record, 'errors'),
           key = context.name;
 
       set(errors, key, null);
 
       if (!hasDefinedProperties(errors)) {
-        manager.send('becameValid');
+        record.send('becameValid');
       }
 
-      didSetProperty(manager, context);
+      didSetProperty(record, context);
     },
 
     becomeDirty: Ember.K,
 
-    rollback: function(manager) {
-      manager.send('becameValid');
-      manager.send('rollback');
+    rollback: function(record) {
+      record.send('becameValid');
+      record.send('rollback');
     },
 
-    becameValid: function(manager) {
-      manager.transitionTo('uncommitted');
+    becameValid: function(record) {
+      record.transitionTo('uncommitted');
     },
 
-    invokeLifecycleCallbacks: function(manager) {
-      var record = get(manager, 'record');
+    invokeLifecycleCallbacks: function(record) {
       record.trigger('becameInvalid', record);
     }
-  })
-});
+  }
+};
 
 // The created and updated states are created outside the state
 // chart so we can reopen their substates and add mixins as
 // necessary.
 
-var createdState = DirtyState.create({
+function deepClone(object) {
+  var clone = {}, value;
+
+  for (var prop in object) {
+    value = object[prop];
+    if (value && typeof value === 'object') {
+      clone[prop] = deepClone(value);
+    } else {
+      clone[prop] = value;
+    }
+  }
+
+  return clone;
+}
+
+function mixin(original, hash) {
+  for (var prop in hash) {
+    original[prop] = hash[prop];
+  }
+
+  return original;
+}
+
+function dirtyState(options) {
+  var newState = deepClone(DirtyState);
+  return mixin(newState, options);
+}
+
+var createdState = dirtyState({
   dirtyType: 'created',
 
   // FLAGS
   isNew: true
 });
 
-var updatedState = DirtyState.create({
+var updatedState = dirtyState({
   dirtyType: 'updated'
 });
 
-createdState.states.uncommitted.reopen({
-  deleteRecord: function(manager) {
-    var record = get(manager, 'record');
+createdState.uncommitted.deleteRecord = function(record) {
+  record.clearRelationships();
+  record.transitionTo('deleted.saved');
+};
 
-    record.clearRelationships();
-    manager.transitionTo('deleted.saved');
-  }
-});
+createdState.uncommitted.rollback = function(record) {
+  DirtyState.uncommitted.rollback.apply(this, arguments);
+  record.transitionTo('deleted.saved');
+};
 
-createdState.states.uncommitted.reopen({
-  rollback: function(manager) {
-    this._super(manager);
-    manager.transitionTo('deleted.saved');
-  }
-});
+updatedState.uncommitted.deleteRecord = function(record) {
+  record.transitionTo('deleted.uncommitted');
+  record.clearRelationships();
+};
 
-updatedState.states.uncommitted.reopen({
-  deleteRecord: function(manager) {
-    var record = get(manager, 'record');
+var RootState = {
+  // FLAGS
+  isLoading: false,
+  isLoaded: false,
+  isReloading: false,
+  isDirty: false,
+  isSaving: false,
+  isDeleted: false,
+  isError: false,
+  isNew: false,
+  isValid: true,
 
-    manager.transitionTo('deleted');
-    record.clearRelationships();
-  }
-});
+  // SUBSTATES
 
-var states = {
-  rootState: Ember.State.create({
+  // A record begins its lifecycle in the `empty` state.
+  // If its data will come from the adapter, it will
+  // transition into the `loading` state. Otherwise, if
+  // the record is being created on the client, it will
+  // transition into the `created` state.
+  empty: {
+    // EVENTS
+    loadingData: function(record) {
+      record.transitionTo('loading');
+    },
+
+    loadedData: function(record) {
+      record.transitionTo('loaded.created.uncommitted');
+    }
+  },
+
+  // A record enters this state when the store askes
+  // the adapter for its data. It remains in this state
+  // until the adapter provides the requested data.
+  //
+  // Usually, this process is asynchronous, using an
+  // XHR to retrieve the data.
+  loading: {
     // FLAGS
-    isLoading: false,
-    isLoaded: false,
-    isReloading: false,
-    isDirty: false,
-    isSaving: false,
-    isDeleted: false,
-    isError: false,
-    isNew: false,
-    isValid: true,
+    isLoading: true,
+
+    // EVENTS
+    loadedData: didChangeData,
+
+    materializingData: function(record) {
+      record.transitionTo('loaded.materializing.firstTime');
+    },
+
+    becameError: function(record) {
+      record.transitionTo('error');
+      record.send('invokeLifecycleCallbacks');
+    }
+  },
+
+  // A record enters this state when its data is populated.
+  // Most of a record's lifecycle is spent inside substates
+  // of the `loaded` state.
+  loaded: {
+    initialState: 'saved',
+
+    // FLAGS
+    isLoaded: true,
 
     // SUBSTATES
 
-    // A record begins its lifecycle in the `empty` state.
-    // If its data will come from the adapter, it will
-    // transition into the `loading` state. Otherwise, if
-    // the record is being created on the client, it will
-    // transition into the `created` state.
-    empty: DS.State.create({
+    materializing: {
       // EVENTS
-      loadingData: function(manager) {
-        manager.transitionTo('loading');
+      willSetProperty: Ember.K,
+      didSetProperty: Ember.K,
+
+      didChangeData: didChangeData,
+
+      finishedMaterializing: function(record) {
+        record.transitionTo('loaded.saved');
       },
 
-      loadedData: function(manager) {
-        manager.transitionTo('loaded.created');
-      }
-    }),
+      // SUBSTATES
+      firstTime: {
+        // FLAGS
+        isLoaded: false,
 
-    // A record enters this state when the store askes
-    // the adapter for its data. It remains in this state
-    // until the adapter provides the requested data.
-    //
-    // Usually, this process is asynchronous, using an
-    // XHR to retrieve the data.
-    loading: DS.State.create({
+        exit: function(record) {
+          once(function() {
+            record.trigger('didLoad');
+          });
+        }
+      }
+    },
+
+    reloading: {
       // FLAGS
-      isLoading: true,
+      isReloading: true,
+
+      // TRANSITIONS
+      enter: function(record) {
+        var store = get(record, 'store');
+        store.reloadRecord(record);
+      },
+
+      exit: function(record) {
+        once(record, 'trigger', 'didReload');
+      },
 
       // EVENTS
       loadedData: didChangeData,
 
-      materializingData: function(manager) {
-        manager.transitionTo('loaded.materializing.firstTime');
-      },
-
-      becameError: function(manager) {
-        manager.transitionTo('error');
-        manager.send('invokeLifecycleCallbacks');
+      materializingData: function(record) {
+        record.transitionTo('loaded.materializing');
       }
-    }),
+    },
 
-    // A record enters this state when its data is populated.
-    // Most of a record's lifecycle is spent inside substates
-    // of the `loaded` state.
-    loaded: DS.State.create({
-      initialState: 'saved',
+    // If there are no local changes to a record, it remains
+    // in the `saved` state.
+    saved: {
+      // EVENTS
+      willSetProperty: willSetProperty,
+      didSetProperty: didSetProperty,
 
-      // FLAGS
-      isLoaded: true,
+      didChangeData: didChangeData,
+      loadedData: didChangeData,
 
-      // SUBSTATES
-
-      materializing: DS.State.create({
-        // EVENTS
-        willSetProperty: Ember.K,
-        didSetProperty: Ember.K,
-
-        didChangeData: didChangeData,
-
-        finishedMaterializing: function(manager) {
-          manager.transitionTo('loaded.saved');
-        },
-
-        // SUBSTATES
-        firstTime: DS.State.create({
-          // FLAGS
-          isLoaded: false,
-
-          exit: function(manager) {
-            var record = get(manager, 'record');
-
-            once(function() {
-              record.trigger('didLoad');
-            });
-          }
-        })
-      }),
-
-      reloading: DS.State.create({
-        // FLAGS
-        isReloading: true,
-
-        // TRANSITIONS
-        enter: function(manager) {
-          var record = get(manager, 'record'),
-              store = get(record, 'store');
-
-          store.reloadRecord(record);
-        },
-
-        exit: function(manager) {
-          var record = get(manager, 'record');
-
-          once(record, 'trigger', 'didReload');
-        },
-
-        // EVENTS
-        loadedData: didChangeData,
-
-        materializingData: function(manager) {
-          manager.transitionTo('loaded.materializing');
-        }
-      }),
-
-      // If there are no local changes to a record, it remains
-      // in the `saved` state.
-      saved: DS.State.create({
-        // EVENTS
-        willSetProperty: willSetProperty,
-        didSetProperty: didSetProperty,
-
-        didChangeData: didChangeData,
-        loadedData: didChangeData,
-
-        reloadRecord: function(manager) {
-          manager.transitionTo('loaded.reloading');
-        },
-
-        materializingData: function(manager) {
-          manager.transitionTo('loaded.materializing');
-        },
-
-        becomeDirty: function(manager) {
-          manager.transitionTo('updated');
-        },
-
-        deleteRecord: function(manager) {
-          manager.transitionTo('deleted');
-          get(manager, 'record').clearRelationships();
-        },
-
-        unloadRecord: function(manager) {
-          var record = get(manager, 'record');
-
-          // clear relationships before moving to deleted state
-          // otherwise it fails
-          record.clearRelationships();
-          manager.transitionTo('deleted.saved');
-        },
-
-        didCommit: function(manager) {
-          var record = get(manager, 'record');
-
-          record.withTransaction(function(t) {
-            t.remove(record);
-          });
-
-          manager.send('invokeLifecycleCallbacks', get(manager, 'lastDirtyType'));
-        },
-
-        invokeLifecycleCallbacks: function(manager, dirtyType) {
-          var record = get(manager, 'record');
-          if (dirtyType === 'created') {
-            record.trigger('didCreate', record);
-          } else {
-            record.trigger('didUpdate', record);
-          }
-
-          record.trigger('didCommit', record);
-        }
-      }),
-
-      // A record is in this state after it has been locally
-      // created but before the adapter has indicated that
-      // it has been saved.
-      created: createdState,
-
-      // A record is in this state if it has already been
-      // saved to the server, but there are new local changes
-      // that have not yet been saved.
-      updated: updatedState
-    }),
-
-    // A record is in this state if it was deleted from the store.
-    deleted: DS.State.create({
-      initialState: 'uncommitted',
-      dirtyType: 'deleted',
-
-      // FLAGS
-      isDeleted: true,
-      isLoaded: true,
-      isDirty: true,
-
-      // TRANSITIONS
-      setup: function(manager) {
-        var record = get(manager, 'record'),
-            store = get(record, 'store');
-
-        store.recordArrayManager.remove(record);
+      reloadRecord: function(record) {
+        record.transitionTo('loaded.reloading');
       },
 
-      // SUBSTATES
+      materializingData: function(record) {
+        record.transitionTo('loaded.materializing');
+      },
 
-      // When a record is deleted, it enters the `start`
-      // state. It will exit this state when the record's
-      // transaction starts to commit.
-      uncommitted: DS.State.create({
+      becomeDirty: function(record) {
+        record.transitionTo('updated.uncommitted');
+      },
 
-        // EVENTS
-        willCommit: function(manager) {
-          manager.transitionTo('inFlight');
-        },
+      deleteRecord: function(record) {
+        record.transitionTo('deleted.uncommitted');
+        record.clearRelationships();
+      },
 
-        rollback: function(manager) {
-          get(manager, 'record').rollback();
-        },
+      unloadRecord: function(record) {
+        // clear relationships before moving to deleted state
+        // otherwise it fails
+        record.clearRelationships();
+        record.transitionTo('deleted.saved');
+      },
 
-        becomeDirty: Ember.K,
+      didCommit: function(record) {
+        record.withTransaction(function(t) {
+          t.remove(record);
+        });
 
-        becameClean: function(manager) {
-          var record = get(manager, 'record');
+        record.send('invokeLifecycleCallbacks', get(record, 'lastDirtyType'));
+      },
 
-          record.withTransaction(function(t) {
-            t.remove(record);
-          });
-          manager.transitionTo('loaded.materializing');
+      invokeLifecycleCallbacks: function(record, dirtyType) {
+        if (dirtyType === 'created') {
+          record.trigger('didCreate', record);
+        } else {
+          record.trigger('didUpdate', record);
         }
-      }),
 
-      // After a record's transaction is committing, but
-      // before the adapter indicates that the deletion
-      // has saved to the server, a record is in the
-      // `inFlight` substate of `deleted`.
-      inFlight: DS.State.create({
-        // FLAGS
-        isSaving: true,
+        record.trigger('didCommit', record);
+      }
+    },
 
-        // TRANSITIONS
-        enter: function(manager) {
-          var record = get(manager, 'record');
+    // A record is in this state after it has been locally
+    // created but before the adapter has indicated that
+    // it has been saved.
+    created: createdState,
 
-          record.becameInFlight();
-        },
+    // A record is in this state if it has already been
+    // saved to the server, but there are new local changes
+    // that have not yet been saved.
+    updated: updatedState
+  },
 
-        // EVENTS
-        didCommit: function(manager) {
-          var record = get(manager, 'record');
+  // A record is in this state if it was deleted from the store.
+  deleted: {
+    initialState: 'uncommitted',
+    dirtyType: 'deleted',
 
-          record.withTransaction(function(t) {
-            t.remove(record);
-          });
+    // FLAGS
+    isDeleted: true,
+    isLoaded: true,
+    isDirty: true,
 
-          manager.transitionTo('saved');
+    // TRANSITIONS
+    setup: function(record) {
+      var store = get(record, 'store');
 
-          manager.send('invokeLifecycleCallbacks');
-        }
-      }),
+      store.recordArrayManager.remove(record);
+    },
 
-      // Once the adapter indicates that the deletion has
-      // been saved, the record enters the `saved` substate
-      // of `deleted`.
-      saved: DS.State.create({
-        // FLAGS
-        isDirty: false,
+    // SUBSTATES
 
-        setup: function(manager) {
-          var record = get(manager, 'record'),
-              store = get(record, 'store');
-
-          store.dematerializeRecord(record);
-        },
-
-        invokeLifecycleCallbacks: function(manager) {
-          var record = get(manager, 'record');
-          record.trigger('didDelete', record);
-          record.trigger('didCommit', record);
-        }
-      })
-    }),
-
-    // If the adapter indicates that there was an unknown
-    // error saving a record, the record enters the `error`
-    // state.
-    error: DS.State.create({
-      isError: true,
+    // When a record is deleted, it enters the `start`
+    // state. It will exit this state when the record's
+    // transaction starts to commit.
+    uncommitted: {
 
       // EVENTS
+      willCommit: function(record) {
+        record.transitionTo('inFlight');
+      },
 
-      invokeLifecycleCallbacks: function(manager) {
-        var record = get(manager, 'record');
-        record.trigger('becameError', record);
+      rollback: function(record) {
+        record.rollback();
+      },
+
+      becomeDirty: Ember.K,
+
+      becameClean: function(record) {
+        record.withTransaction(function(t) {
+          t.remove(record);
+        });
+        record.transitionTo('loaded.materializing');
       }
-    })
-  })
+    },
+
+    // After a record's transaction is committing, but
+    // before the adapter indicates that the deletion
+    // has saved to the server, a record is in the
+    // `inFlight` substate of `deleted`.
+    inFlight: {
+      // FLAGS
+      isSaving: true,
+
+      // TRANSITIONS
+      enter: function(record) {
+        record.becameInFlight();
+      },
+
+      // EVENTS
+      didCommit: function(record) {
+        record.withTransaction(function(t) {
+          t.remove(record);
+        });
+
+        record.transitionTo('saved');
+
+        record.send('invokeLifecycleCallbacks');
+      }
+    },
+
+    // Once the adapter indicates that the deletion has
+    // been saved, the record enters the `saved` substate
+    // of `deleted`.
+    saved: {
+      // FLAGS
+      isDirty: false,
+
+      setup: function(record) {
+        var store = get(record, 'store');
+        store.dematerializeRecord(record);
+      },
+
+      invokeLifecycleCallbacks: function(record) {
+        record.trigger('didDelete', record);
+        record.trigger('didCommit', record);
+      }
+    }
+  },
+
+  // If the adapter indicates that there was an unknown
+  // error saving a record, the record enters the `error`
+  // state.
+  error: {
+    isError: true,
+
+    // EVENTS
+
+    invokeLifecycleCallbacks: function(record) {
+      record.trigger('becameError', record);
+    }
+  }
 };
 
-DS.StateManager = Ember.StateManager.extend({
-  record: null,
-  initialState: 'rootState',
-  states: states,
-  unhandledEvent: function(manager, originalEvent) {
-    var record = manager.get('record'),
-        contexts = [].slice.call(arguments, 2),
-        errorMessage;
-    errorMessage  = "Attempted to handle event `" + originalEvent + "` ";
-    errorMessage += "on " + record.toString() + " while in state ";
-    errorMessage += get(manager, 'currentState.path') + ". Called with ";
-    errorMessage += arrayMap.call(contexts, function(context){
-                      return Ember.inspect(context);
-                    }).join(', ');
-    throw new Ember.Error(errorMessage);
+var hasOwnProp = {}.hasOwnProperty;
+
+function wireState(object, parent, name) {
+  /*jshint proto:true*/
+  // TODO: Use Object.create and copy instead
+  object = mixin(parent ? Ember.create(parent) : {}, object);
+  object.parentState = parent;
+  object.stateName = name;
+
+  for (var prop in object) {
+    if (!object.hasOwnProperty(prop) || prop === 'parentState' || prop === 'stateName') { continue; }
+    if (typeof object[prop] === 'object') {
+      object[prop] = wireState(object[prop], object, name + "." + prop);
+    }
   }
-});
+
+  return object;
+}
+
+RootState = wireState(RootState, null, "root");
+
+DS.RootState = RootState;

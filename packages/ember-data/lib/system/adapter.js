@@ -1,11 +1,11 @@
 require('ember-data/serializers/json_serializer');
 
 /**
-  @module data
-  @submodule data-adapter
+  @module ember-data
 */
 
 var get = Ember.get, set = Ember.set, merge = Ember.merge;
+var forEach = Ember.EnumerableUtils.forEach;
 
 function loaderFor(store) {
   return {
@@ -81,12 +81,13 @@ DS.loaderFor = loaderFor;
     * `deleteRecords()`
     * `commit()`
 
-  For an example implementation, see {{#crossLink "DS.RestAdapter"}} the
-  included REST adapter.{{/crossLink}}.
-  
+  For an example implementation, see `DS.RestAdapter`, the
+  included REST adapter.
+
   @class Adapter
   @namespace DS
   @extends Ember.Object
+  @uses DS._Mappable
 */
 
 DS.Adapter = Ember.Object.extend(DS._Mappable, {
@@ -460,6 +461,14 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     store.recordWasError(record);
   },
 
+  /**
+    @method dirtyRecordsForAttributeChange
+    @param {Ember.OrderedSet} dirtySet
+    @param {DS.Model} record
+    @param {String} attributeName
+    @param {any} newValue
+    @param {any} oldValue
+  */
   dirtyRecordsForAttributeChange: function(dirtySet, record, attributeName, newValue, oldValue) {
     if (newValue !== oldValue) {
       // If this record is embedded, add its parent
@@ -468,15 +477,32 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     }
   },
 
+  /**
+    @method dirtyRecordsForRecordChange
+    @param {Ember.OrderedSet} dirtySet
+    @param {DS.Model} record
+  */
   dirtyRecordsForRecordChange: function(dirtySet, record) {
     dirtySet.add(record);
   },
 
+  /**
+    @method dirtyRecordsForBelongsToChange
+    @param {Ember.OrderedSet} dirtySet
+    @param {DS.Model} child
+    @param {DS.RelationshipChange} relationship
+  */
   dirtyRecordsForBelongsToChange: function(dirtySet, child) {
     this.dirtyRecordsForRecordChange(dirtySet, child);
   },
 
-  dirtyRecordsForHasManyChange: function(dirtySet, parent) {
+  /**
+    @method dirtyRecordsForHasManyChange
+    @param {Ember.OrderedSet} dirtySet
+    @param {DS.Model} parent
+    @param {DS.RelationshipChange} relationship
+  */
+  dirtyRecordsForHasManyChange: function(dirtySet, parent, relationship) {
     this.dirtyRecordsForRecordChange(dirtySet, parent);
   },
 
@@ -564,8 +590,36 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
     @method find
   */
-  find: null,
+  find: Ember.required(Function),
 
+  /**
+    Optional
+
+    @method findAll
+    @param  store
+    @param  type
+    @param  since
+  */
+  findAll: null,
+
+  /**
+    Optional
+
+    @method findQuery
+    @param  store
+    @param  type
+    @param  query
+    @param  recordArray
+  */
+  findQuery: null,
+
+  /**
+    The class of the serializer to be used by this adapter.
+
+    @property serializer
+    @type     DS.Serializer
+    @default  DS.JSONSerializer
+  */
   serializer: DS.JSONSerializer,
 
   registerTransform: function(attributeType, transform) {
@@ -629,34 +683,83 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   generateIdForRecord: null,
 
+  /**
+    Proxies to the serializer's `materialize` method.
+
+    @method materialize
+    @param {DS.Model} record
+    @param {Object}   data
+    @param {Object}   prematerialized
+  */
   materialize: function(record, data, prematerialized) {
     get(this, 'serializer').materialize(record, data, prematerialized);
   },
 
+  /**
+    Proxies to the serializer's `serialize` method.
+
+    @method serialize
+    @param {DS.Model} record
+    @param {Object}   options
+  */
   serialize: function(record, options) {
     return get(this, 'serializer').serialize(record, options);
   },
 
+  /**
+    Proxies to the serializer's `extractId` method.
+
+    @method extractId
+    @param {DS.Model} type  the model class
+    @param {Object}   data
+  */
   extractId: function(type, data) {
     return get(this, 'serializer').extractId(type, data);
   },
 
+  /**
+    @method groupByType
+    @private
+    @param  enumerable
+  */
   groupByType: function(enumerable) {
     var map = Ember.MapWithDefault.create({
       defaultValue: function() { return Ember.OrderedSet.create(); }
     });
 
-    enumerable.forEach(function(item) {
+    forEach(enumerable, function(item) {
       map.get(item.constructor).add(item);
     });
 
     return map;
   },
 
+  /**
+    The commit method is called when a transaction is being committed.
+    The `commitDetails` is a map with each record type and a list of
+    committed, updated and deleted records.
+
+    By default, this just calls the adapter's `save` method.
+    If you need more advanced handling of commits, e.g., only sending
+    certain records to the server, you can overwrite this method.
+
+    @method commit
+    @params {DS.Store}  store
+    @params {Ember.Map} commitDetails   see `DS.Transaction#commitDetails`.
+  */
   commit: function(store, commitDetails) {
     this.save(store, commitDetails);
   },
 
+  /**
+    Iterates over each set of records provided in the commit details and
+    filters with `DS.Adapter#shouldSave` and then calls `createRecords`,
+    `updateRecords`, and `deleteRecords` for each set as approriate.
+
+    @method save
+    @params {DS.Store}  store
+    @params {Ember.Map} commitDetails   see `DS.Transaction#commitDetails`.
+  */
   save: function(store, commitDetails) {
     var adapter = this;
 
@@ -685,26 +788,126 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     }, this);
   },
 
-  shouldSave: Ember.K,
+  /**
+    Called on each record before saving. If false is returned, the record
+    will not be saved.
 
+    @method   shouldSave
+    @property {DS.Model} record
+    @return   {Boolean}  `true` to save, `false` to not. Defaults to true.
+  */
+  shouldSave: function(record) {
+    return true;
+  },
+
+  /**
+    Implement this method in a subclass to handle the creation of
+    new records.
+
+    Serializes the record and send it to the server.
+
+    This implementation should call the adapter's `didCreateRecord`
+    method on success or `didError` method on failure.
+
+    @method createRecord
+    @property {DS.Store} store
+    @property {DS.Model} type   the DS.Model class of the record
+    @property {DS.Model} record
+  */
+  createRecord: Ember.required(Function),
+
+  /**
+    Creates multiple records at once.
+
+    By default, it loops over the supplied array and calls `createRecord`
+    on each. May be overwritten to improve performance and reduce the number
+    of server requests.
+
+    @method createRecords
+    @property {DS.Store} store
+    @property {DS.Model} type   the DS.Model class of the records
+    @property {Array[DS.Model]} records
+  */
   createRecords: function(store, type, records) {
     records.forEach(function(record) {
       this.createRecord(store, type, record);
     }, this);
   },
 
+  /**
+    Implement this method in a subclass to handle the updating of
+    a record.
+
+    Serializes the record update and send it to the server.
+
+    @method updateRecord
+    @property {DS.Store} store
+    @property {DS.Model} type   the DS.Model class of the record
+    @property {DS.Model} record
+  */
+  updateRecord: Ember.required(Function),
+
+  /**
+    Updates multiple records at once.
+
+    By default, it loops over the supplied array and calls `updateRecord`
+    on each. May be overwritten to improve performance and reduce the number
+    of server requests.
+
+    @method updateRecords
+    @property {DS.Store} store
+    @property {DS.Model} type   the DS.Model class of the records
+    @property {Array[DS.Model]} records
+  */
   updateRecords: function(store, type, records) {
     records.forEach(function(record) {
       this.updateRecord(store, type, record);
     }, this);
   },
 
+  /**
+    Implement this method in a subclass to handle the deletion of
+    a record.
+
+    Sends a delete request for the record to the server.
+
+    @method deleteRecord
+    @property {DS.Store} store
+    @property {DS.Model} type   the DS.Model class of the record
+    @property {DS.Model} record
+  */
+  deleteRecord: Ember.required(Function),
+
+  /**
+    Delete multiple records at once.
+
+    By default, it loops over the supplied array and calls `deleteRecord`
+    on each. May be overwritten to improve performance and reduce the number
+    of server requests.
+
+    @method deleteRecords
+    @property {DS.Store} store
+    @property {DS.Model} type   the DS.Model class of the records
+    @property {Array[DS.Model]} records
+  */
   deleteRecords: function(store, type, records) {
     records.forEach(function(record) {
       this.deleteRecord(store, type, record);
     }, this);
   },
 
+  /**
+    Find multiple records at once.
+
+    By default, it loops over the provided ids and calls `find` on each.
+    May be overwritten to improve performance and reduce the number of
+    server requests.
+
+    @method findMany
+    @property {DS.Store} store
+    @property {DS.Model} type   the DS.Model class of the records
+    @property {Array}    ids
+  */
   findMany: function(store, type, ids) {
     ids.forEach(function(id) {
       this.find(store, type, id);
@@ -713,6 +916,20 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 });
 
 DS.Adapter.reopenClass({
+
+  /**
+    Registers a custom attribute transform for the adapter class
+
+    The `transform` property is an object with a `serialize` and
+    `deserialize` property. These are each functions that respectively
+    serialize the data to send to the backend or deserialize it for
+    use on the client.
+
+    @method registerTransform
+    @static
+    @property {DS.String} attributeType
+    @property {Object}    transform
+  */
   registerTransform: function(attributeType, transform) {
     var registeredTransforms = this._registeredTransforms || {};
 
@@ -721,6 +938,14 @@ DS.Adapter.reopenClass({
     this._registeredTransforms = registeredTransforms;
   },
 
+  /**
+    Registers a custom enumerable transform for the adapter class
+
+    @method registerEnumTransform
+    @static
+    @property {DS.String} attributeType
+    @property objects
+  */
   registerEnumTransform: function(attributeType, objects) {
     var registeredEnumTransforms = this._registeredEnumTransforms || {};
 
@@ -729,12 +954,28 @@ DS.Adapter.reopenClass({
     this._registeredEnumTransforms = registeredEnumTransforms;
   },
 
+  /**
+    Set adapter attributes for a DS.Model class.
+
+    @method map
+    @static
+    @property {DS.Model} type   the DS.Model class
+    @property {Object}   attributes
+  */
   map: DS._Mappable.generateMapFunctionFor('attributes', function(key, newValue, map) {
     var existingValue = map.get(key);
 
     merge(existingValue, newValue);
   }),
 
+  /**
+    Set configuration options for a DS.Model class.
+
+    @method configure
+    @static
+    @property {DS.Model} type   the DS.Model class
+    @property {Object}   configuration
+  */
   configure: DS._Mappable.generateMapFunctionFor('configurations', function(key, newValue, map) {
     var existingValue = map.get(key);
 
@@ -749,6 +990,16 @@ DS.Adapter.reopenClass({
     merge(existingValue, newValue);
   }),
 
+  /**
+    Resolved conflicts in configuration settings.
+
+    Calls `Ember.merge` by default.
+
+    @method resolveMapConflict
+    @static
+    @property oldValue
+    @property newValue
+  */
   resolveMapConflict: function(oldValue, newValue) {
     merge(newValue, oldValue);
 

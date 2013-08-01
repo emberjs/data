@@ -1,3 +1,5 @@
+require 'ember/data/version'
+
 module Ember
   module Data
     module Source

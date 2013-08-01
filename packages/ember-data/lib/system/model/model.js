@@ -1,28 +1,30 @@
 require("ember-data/system/model/states");
 require("ember-data/system/mixins/load_promise");
 
+/**
+  @module ember-data
+*/
+
 var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
 
 var get = Ember.get, set = Ember.set, map = Ember.EnumerableUtils.map;
 
+var arrayMap = Ember.ArrayPolyfills.map;
+
 var retrieveFromCurrentState = Ember.computed(function(key, value) {
-  return get(get(this, 'stateManager.currentState'), key);
-}).property('stateManager.currentState').readOnly();
+  return get(get(this, 'currentState'), key);
+}).property('currentState').readOnly();
 
 /**
 
   The model class that all Ember Data records descend from.
 
-  @module data
-  @submodule data-model
-  @main data-model
-
   @class Model
   @namespace DS
   @extends Ember.Object
-  @constructor
+  @uses Ember.Evented
+  @uses DS.LoadPromise
 */
-
 DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   isLoading: retrieveFromCurrentState,
   isLoaded: retrieveFromCurrentState,
@@ -38,7 +40,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   clientId: null,
   id: null,
   transaction: null,
-  stateManager: null,
+  currentState: null,
   errors: null,
 
   /**
@@ -145,14 +147,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   _data: null,
 
   init: function() {
+    set(this, 'currentState', DS.RootState.empty);
     this._super();
-
-    var stateManager = DS.StateManager.create({ record: this });
-    set(this, 'stateManager', stateManager);
-
     this._setup();
-
-    stateManager.goToState('empty');
   },
 
   _setup: function() {
@@ -160,7 +157,60 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   send: function(name, context) {
-    return get(this, 'stateManager').send(name, context);
+    var currentState = get(this, 'currentState');
+
+    if (!currentState[name]) {
+      this._unhandledEvent(currentState, name, context);
+    }
+
+    return currentState[name](this, context);
+  },
+
+  transitionTo: function(name) {
+    // POSSIBLE TODO: Remove this code and replace with
+    // always having direct references to state objects
+
+    var pivotName = name.split(".", 1),
+        currentState = get(this, 'currentState'),
+        state = currentState;
+
+    do {
+      if (state.exit) { state.exit(this); }
+      state = state.parentState;
+    } while (!state.hasOwnProperty(pivotName));
+
+    var path = name.split(".");
+
+    var setups = [], enters = [], i, l;
+
+    for (i=0, l=path.length; i<l; i++) {
+      state = state[path[i]];
+
+      if (state.enter) { enters.push(state); }
+      if (state.setup) { setups.push(state); }
+    }
+
+    for (i=0, l=enters.length; i<l; i++) {
+      enters[i].enter(this);
+    }
+
+    set(this, 'currentState', state);
+
+    for (i=0, l=setups.length; i<l; i++) {
+      setups[i].setup(this);
+    }
+  },
+
+  _unhandledEvent: function(state, name, context) {
+    var errorMessage = "Attempted to handle event `" + name + "` ";
+    errorMessage    += "on " + String(this) + " while in state ";
+    errorMessage    += state.stateName + ". ";
+
+    if (context !== undefined) {
+      errorMessage  += "Called with " + Ember.inspect(context) + ".";
+    }
+
+    throw new Ember.Error(errorMessage);
   },
 
   withTransaction: function(fn) {
@@ -211,6 +261,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     If the adapter did not return a hash in response to a commit,
     merge the changed attributes and relationships into the existing
     saved data.
+
+    @method adapterDidCommit
   */
   adapterDidCommit: function() {
     var attributes = get(this, 'data').attributes;
@@ -296,7 +348,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
   materializeHasMany: function(name, tuplesOrReferencesOrOpaque) {
     var tuplesOrReferencesOrOpaqueType = typeof tuplesOrReferencesOrOpaque;
-    if (tuplesOrReferencesOrOpaque && tuplesOrReferencesOrOpaqueType !== 'string' && tuplesOrReferencesOrOpaque.length > 1) { Ember.assert('materializeHasMany expects tuples, references or opaque token, not ' + tuplesOrReferencesOrOpaque[0], tuplesOrReferencesOrOpaque[0].hasOwnProperty('id') && tuplesOrReferencesOrOpaque[0].type); }
+
+    if (tuplesOrReferencesOrOpaque && tuplesOrReferencesOrOpaqueType !== 'string' && tuplesOrReferencesOrOpaque.length > 1) {
+      Ember.assert('materializeHasMany expects tuples, references or opaque token, not ' + tuplesOrReferencesOrOpaque[0], tuplesOrReferencesOrOpaque[0].hasOwnProperty('id') && tuplesOrReferencesOrOpaque[0].type);
+    }
+
     if( tuplesOrReferencesOrOpaqueType === "string" ) {
       this._data.hasMany[name] = tuplesOrReferencesOrOpaque;
     } else {
@@ -345,8 +401,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   /**
-    @private
-
     The goal of this method is to temporarily disable specific observers
     that take action in response to application changes.
 
@@ -357,6 +411,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     The specific implementation will likely change as Ember proper provides
     better infrastructure for suspending groups of observers, and if Array
     observation becomes more unified with regular observers.
+
+    @method suspendRelationshipObservers
+    @private
+    @param callback
+    @param binding
   */
   suspendRelationshipObservers: function(callback, binding) {
     var observers = get(this.constructor, 'relationshipNames').belongsTo;
@@ -378,8 +437,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   /**
+    @method resolveOn
     @private
-
+    @param successEvent
   */
   resolveOn: function(successEvent) {
     var model = this;
@@ -455,10 +515,12 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   /**
-    @private
-
     Override the default event firing from Ember.Evented to
     also call methods with the given name.
+
+    @method trigger
+    @private
+    @param name
   */
   trigger: function(name) {
     Ember.tryInvoke(this, name, [].slice.call(arguments, 1));
@@ -483,34 +545,40 @@ var storeAlias = function(methodName) {
 
 DS.Model.reopenClass({
 
-  /** @private
+  /**
     Alias DS.Model's `create` method to `_create`. This allows us to create DS.Model
     instances from within the store, but if end users accidentally call `create()`
     (instead of `createRecord()`), we can raise an error.
+
+    @method _create
+    @private
+    @static
   */
   _create: DS.Model.create,
 
-  /** @private
-
+  /**
     Override the class' `create()` method to raise an error. This prevents end users
     from inadvertently calling `create()` instead of `createRecord()`. The store is
     still able to create instances by calling the `_create()` method.
+
+    @method create
+    @private
+    @static
   */
   create: function() {
     throw new Ember.Error("You should not call `create` on a model. Instead, call `createRecord` with the attributes you would like to set.");
   },
 
   /**
-    See {{#crossLink "DS.Store/find:method"}}`DS.Store.find()`{{/crossLink}}.
+    See `DS.Store.find()`.
 
     @method find
     @param {Object|String|Array|null} query A query to find records by.
-
   */
   find: storeAlias('find'),
 
   /**
-    See {{#crossLink "DS.Store/all:method"}}`DS.Store.all()`{{/crossLink}}.
+    See `DS.Store.all()`.
 
     @method all
     @return {DS.RecordArray}
@@ -518,7 +586,7 @@ DS.Model.reopenClass({
   all: storeAlias('all'),
 
   /**
-    See {{#crossLink "DS.Store/findQuery:method"}}`DS.Store.findQuery()`{{/crossLink}}.
+    See `DS.Store.findQuery()`.
 
     @method query
     @param {Object} query an opaque query to be used by the adapter
@@ -527,7 +595,7 @@ DS.Model.reopenClass({
   query: storeAlias('findQuery'),
 
   /**
-    See {{#crossLink "DS.Store/filter:method"}}`DS.Store.filter()`{{/crossLink}}.
+    See `DS.Store.filter()`.
 
     @method filter
     @param {Function} filter
@@ -536,12 +604,12 @@ DS.Model.reopenClass({
   filter: storeAlias('filter'),
 
   /**
-    See {{#crossLink "DS.Store/createRecord:method"}}`DS.Store.createRecord()`{{/crossLink}}.
+    See `DS.Store.createRecord()`.
 
     @method createRecord
     @param {Object} properties a hash of properties to set on the
       newly created record.
-    @returns DS.Model
+    @return DS.Model
   */
   createRecord: storeAlias('createRecord')
 });

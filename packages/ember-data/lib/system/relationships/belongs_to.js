@@ -1,6 +1,10 @@
 var get = Ember.get, set = Ember.set,
     isNone = Ember.isNone;
 
+/**
+  @module ember-data
+*/
+
 DS.belongsTo = function(type, options) {
   Ember.assert("The first argument DS.belongsTo must be a model type or string, like DS.belongsTo(App.Person)", !!type && (typeof type === 'string' || DS.Model.detect(type)));
 
@@ -49,14 +53,22 @@ DS.belongsTo = function(type, options) {
   }).property('data').meta(meta);
 };
 
-/**
+/*
   These observers observe all `belongsTo` relationships on the record. See
   `relationships/ext` to see how these observers get their dependencies.
 
+  @class Model
+  @namespace DS
 */
-
 DS.Model.reopen({
-  /** @private */
+
+  /**
+    @method belongsToWillChange
+    @private
+    @static
+    @param record
+    @param key
+  */
   belongsToWillChange: Ember.beforeObserver(function(record, key) {
     if (get(record, 'isLoaded')) {
       var oldParent = get(record, key);
@@ -71,7 +83,13 @@ DS.Model.reopen({
     }
   }),
 
-  /** @private */
+  /**
+    @method belongsToDidChange
+    @private
+    @static
+    @param record
+    @param key
+  */
   belongsToDidChange: Ember.immediateObserver(function(record, key) {
     if (get(record, 'isLoaded')) {
       var newParent = get(record, key);

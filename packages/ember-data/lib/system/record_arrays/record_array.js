@@ -1,6 +1,7 @@
 require("ember-data/system/mixins/load_promise");
 
 /**
+  @module ember-data
 */
 
 var get = Ember.get, set = Ember.set;
@@ -14,10 +15,6 @@ var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
   DS.RecordArray or its subclasses will be returned by your application's store
   in response to queries.
 
-  @module data
-  @submodule data-record-array
-  @main data-record-array
-
   @class RecordArray
   @namespace DS
   @extends Ember.ArrayProxy
@@ -29,6 +26,7 @@ DS.RecordArray = Ember.ArrayProxy.extend(LoadPromise, {
   /**
     The model type contained by this record array.
 
+    @property type
     @type DS.Model
   */
   type: null,

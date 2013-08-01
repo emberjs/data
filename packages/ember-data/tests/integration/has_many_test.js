@@ -131,7 +131,10 @@ asyncTest("A serializer can materialize a hasMany as an opaque token that can be
     equal(id, 1);
 
     setTimeout(function() {
-      store.load(App.Post, { id: 1, comments: "/posts/1/comments" });
+      Ember.run(function(){
+        store.load(App.Post, { id: 1, comments: "/posts/1/comments" });
+      });
+
       next();
     }, 1);
   };
@@ -148,13 +151,15 @@ asyncTest("A serializer can materialize a hasMany as an opaque token that can be
 
     setTimeout(function() {
       // Load in some fake comments
-      store.loadMany(App.Comment, [
-        { id: 1, body: "First" },
-        { id: 2, body: "Second" }
-      ]);
+      Ember.run(function(){
+        store.loadMany(App.Comment, [
+          { id: 1, body: "First" },
+          { id: 2, body: "Second" }
+        ]);
 
-      // Now load those comments into the ManyArray that was provided.
-      store.loadHasMany(record, relationship.key, [ 1, 2 ]);
+        // Now load those comments into the ManyArray that was provided.
+        store.loadHasMany(record, relationship.key, [ 1, 2 ]);
+      });
 
       setTimeout(function() {
         done();
@@ -218,11 +223,9 @@ test("A record can't be created from a polymorphic hasMany relationship", functi
   var user = store.find(App.User, 1),
       messages = user.get('messages');
 
-  raises(
-    function() { messages.createRecord(); },
-    /You can not create records of App.Message on this polymorphic relationship/,
-    "Creating records directly on a polymorphic hasMany is disallowed"
-  );
+  expectAssertion(function() {
+    messages.createRecord();
+  }, /You can not create records of App.Message on this polymorphic relationship/);
 });
 
 test("Only records of the same type can be added to a monomorphic hasMany relationship", function() {
@@ -232,11 +235,9 @@ test("Only records of the same type can be added to a monomorphic hasMany relati
   var post = store.find(App.Post, 1),
       message = store.find(App.Post, 2);
 
-  raises(
-    function() { post.get('comments').pushObject(message); },
-    /You can only add records of App.Comment to this relationship/,
-    "Adding records of a different type on a monomorphic hasMany is disallowed"
-  );
+  expectAssertion(function() {
+    post.get('comments').pushObject(message);
+  }, /You can only add records of App.Comment to this relationship/);
 });
 
 test("Only records of the same base type can be added to a polymorphic hasMany relationship", function() {
@@ -257,11 +258,9 @@ test("Only records of the same base type can be added to a polymorphic hasMany r
 
   equal(messages.get('length'), 2, "The messages are correctly added");
 
-  raises(
-    function() { messages.pushObject(anotherUser); },
-    /You can only add records of App.Message to this relationship/,
-    "Adding records of a different base type on a polymorphic hasMany is disallowed"
-  );
+  expectAssertion(function() {
+    messages.pushObject(anotherUser);
+  }, /You can only add records of App.Message to this relationship/);
 });
 
 test("A record can be removed from a polymorphic association", function() {

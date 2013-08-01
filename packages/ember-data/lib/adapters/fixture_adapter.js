@@ -3,12 +3,11 @@ require("ember-data/system/adapter");
 require('ember-data/serializers/fixture_serializer');
 
 /**
-  @module data
-  @submodule data-adapters
+  @module ember-data
 */
 
 var get = Ember.get, fmt = Ember.String.fmt,
-    dump = Ember.get(window, 'JSON.stringify') || function(object) { return object.toString(); };
+    indexOf = Ember.EnumerableUtils.indexOf;
 
 /**
   `DS.FixtureAdapter` is an adapter that loads records from memory.
@@ -20,7 +19,6 @@ var get = Ember.get, fmt = Ember.String.fmt,
   with `DS.FixtureAdapter`.
 
   @class FixtureAdapter
-  @constructor
   @namespace DS
   @extends DS.Adapter
 */
@@ -32,8 +30,11 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
   serializer: DS.FixtureSerializer,
 
-  /*
+  /**
     Implement this method in order to provide data associated with a type
+
+    @method fixturesForType
+    @param  type
   */
   fixturesForType: function(type) {
     if (type.FIXTURES) {
@@ -41,7 +42,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
       return fixtures.map(function(fixture){
         var fixtureIdType = typeof fixture.id;
         if(fixtureIdType !== "number" && fixtureIdType !== "string"){
-          throw new Error(fmt('the id property must be defined as a number or string for fixture %@', [dump(fixture)]));
+          throw new Error(fmt('the id property must be defined as a number or string for fixture %@', [fixture]));
         }
         fixture.id = fixture.id + '';
         return fixture;
@@ -50,13 +51,23 @@ DS.FixtureAdapter = DS.Adapter.extend({
     return null;
   },
 
-  /*
+  /**
     Implement this method in order to query fixtures data
+
+    @method queryFixtures
+    @param  fixture
+    @param  query
+    @param  type
   */
   queryFixtures: function(fixtures, query, type) {
     Ember.assert('Not implemented: You must override the DS.FixtureAdapter::queryFixtures method to support querying the fixture store.');
   },
 
+  /**
+    @method updateFixtures
+    @param  type
+    @param  fixture
+  */
   updateFixtures: function(type, fixture) {
     if(!type.FIXTURES) {
       type.FIXTURES = [];
@@ -69,20 +80,32 @@ DS.FixtureAdapter = DS.Adapter.extend({
     fixtures.push(fixture);
   },
 
-  /*
+  /**
     Implement this method in order to provide provide json for CRUD methods
+
+    @method mockJSON
+    @param  type
+    @param  record
   */
   mockJSON: function(type, record) {
     return this.serialize(record, { includeId: true });
   },
 
-  /*
-    Adapter methods
+  /**
+    @method generateIdForRecord
+    @param  store
+    @param  record
   */
   generateIdForRecord: function(store, record) {
     return Ember.guidFor(record);
   },
 
+  /**
+    @method find
+    @param  store
+    @param  type
+    @param  id
+  */
   find: function(store, type, id) {
     var fixtures = this.fixturesForType(type),
         fixture;
@@ -100,6 +123,12 @@ DS.FixtureAdapter = DS.Adapter.extend({
     }
   },
 
+  /**
+    @method findMany
+    @param  store
+    @param  type
+    @param  ids
+  */
   findMany: function(store, type, ids) {
     var fixtures = this.fixturesForType(type);
 
@@ -107,7 +136,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
     if (fixtures) {
       fixtures = fixtures.filter(function(item) {
-        return ids.indexOf(item.id) !== -1;
+        return indexOf(ids, item.id) !== -1;
       });
     }
 
@@ -118,6 +147,11 @@ DS.FixtureAdapter = DS.Adapter.extend({
     }
   },
 
+  /**
+    @method findAll
+    @param  store
+    @param  type
+  */
   findAll: function(store, type) {
     var fixtures = this.fixturesForType(type);
 
@@ -128,6 +162,13 @@ DS.FixtureAdapter = DS.Adapter.extend({
     }, this);
   },
 
+  /**
+    @method findQuery
+    @param  store
+    @param  type
+    @param  query
+    @param  array
+  */
   findQuery: function(store, type, query, array) {
     var fixtures = this.fixturesForType(type);
 
@@ -142,6 +183,12 @@ DS.FixtureAdapter = DS.Adapter.extend({
     }
   },
 
+  /**
+    @method createRecord
+    @param  store
+    @param  type
+    @param  record
+  */
   createRecord: function(store, type, record) {
     var fixture = this.mockJSON(type, record);
 
@@ -152,6 +199,12 @@ DS.FixtureAdapter = DS.Adapter.extend({
     }, this);
   },
 
+  /**
+    @method updateRecord
+    @param  store
+    @param  type
+    @param  record
+  */
   updateRecord: function(store, type, record) {
     var fixture = this.mockJSON(type, record);
 
@@ -162,6 +215,12 @@ DS.FixtureAdapter = DS.Adapter.extend({
     }, this);
   },
 
+  /**
+    @method deleteRecord
+    @param  store
+    @param  type
+    @param  record
+  */
   deleteRecord: function(store, type, record) {
     var fixture = this.mockJSON(type, record);
 
@@ -173,18 +232,27 @@ DS.FixtureAdapter = DS.Adapter.extend({
   },
 
   /*
+    @method deleteLoadedFixture
     @private
+    @param type
+    @param record
   */
- deleteLoadedFixture: function(type, record) {
+  deleteLoadedFixture: function(type, record) {
     var existingFixture = this.findExistingFixture(type, record);
 
     if(existingFixture) {
-      var index = type.FIXTURES.indexOf(existingFixture);
+      var index = indexOf(type.FIXTURES, existingFixture);
       type.FIXTURES.splice(index, 1);
       return true;
     }
   },
 
+  /*
+    @method findExistingFixture
+    @private
+    @param type
+    @param record
+  */
   findExistingFixture: function(type, record) {
     var fixtures = this.fixturesForType(type);
     var id = this.extractId(type, record);
@@ -192,6 +260,12 @@ DS.FixtureAdapter = DS.Adapter.extend({
     return this.findFixtureById(fixtures, id);
   },
 
+  /*
+    @method findFixtureById
+    @private
+    @param type
+    @param record
+  */
   findFixtureById: function(fixtures, id) {
     return Ember.A(fixtures).find(function(r) {
       if(''+get(r, 'id') === ''+id) {
@@ -202,6 +276,12 @@ DS.FixtureAdapter = DS.Adapter.extend({
     });
   },
 
+  /*
+    @method simulateRemoteCall
+    @private
+    @param callback
+    @param context
+  */
   simulateRemoteCall: function(callback, context) {
     if (get(this, 'simulateRemoteResponse')) {
       // Schedule with setTimeout

@@ -1,19 +1,18 @@
 require("ember-data/core");
 require('ember-data/system/adapter');
 require('ember-data/serializers/rest_serializer');
-/*global jQuery*/
 
 /**
-  @module data
-  @submodule data-adapters
+  @module ember-data
 */
 
 var get = Ember.get, set = Ember.set;
 
-function rejectionHandler(reason) {
-  Ember.Logger.error(reason, reason.message);
+DS.rejectionHandler = function(reason) {
+  Ember.Logger.assert([reason, reason.message, reason.stack]);
+
   throw reason;
-}
+};
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -82,20 +81,37 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   serializer: DS.RESTSerializer,
 
-  init: function() {
-    this._super.apply(this, arguments);
-  },
+  /**
+    Called on each record before saving. If false is returned, the record
+    will not be saved.
 
+    By default, this method returns `true` except when the record is embedded.
+
+    @method   shouldSave
+    @property {DS.Model} record
+    @return   {Boolean}  `true` to save, `false` to not. Defaults to true.
+  */
   shouldSave: function(record) {
     var reference = get(record, '_reference');
 
     return !reference.parent;
   },
 
+  /**
+    @method dirtyRecordsForRecordChange
+    @param {Ember.OrderedSet} dirtySet
+    @param {DS.Model} record
+  */
   dirtyRecordsForRecordChange: function(dirtySet, record) {
     this._dirtyTree(dirtySet, record);
   },
 
+  /**
+    @method dirtyRecordsForHasManyChange
+    @param {Ember.OrderedSet} dirtySet
+    @param {DS.Model} record
+    @param {DS.RelationshipChange} relationship
+  */
   dirtyRecordsForHasManyChange: function(dirtySet, record, relationship) {
     var embeddedType = get(this, 'serializer').embeddedType(record.constructor, relationship.secondRecordName);
 
@@ -105,6 +121,12 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
   },
 
+  /**
+    @method _dirtyTree
+    @private
+    @param {Ember.OrderedSet} dirtySet
+    @param {DS.Model} record
+  */
   _dirtyTree: function(dirtySet, record) {
     dirtySet.add(record);
 
@@ -123,6 +145,23 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
   },
 
+  /**
+    Serializes the record and sends it to the server.
+
+    By default, the record is serialized with the adapter's `serialize`
+    method and assigned to a root obtained by the `rootForType` method.
+
+    The url is created with `buildURL` and then called as a 'POST' request
+    with the adapter's `ajax` method.
+
+    If successful, the adapter's `didCreateRecord` method is called,
+    otherwise `didError`
+
+    @method createRecord
+    @property {DS.Store} store
+    @property {DS.Model} type   the DS.Model class of the record
+    @property {DS.Model} record
+  */
   createRecord: function(store, type, record) {
     var root = this.rootForType(type);
     var adapter = this;
@@ -137,9 +176,15 @@ DS.RESTAdapter = DS.Adapter.extend({
     }, function(xhr) {
       adapter.didError(store, type, record, xhr);
       throw xhr;
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method createRecords
+    @param  store
+    @param  type
+    @param  records
+  */
   createRecords: function(store, type, records) {
     var adapter = this;
 
@@ -160,9 +205,15 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: data
     }).then(function(json) {
       adapter.didCreateRecords(store, type, records, json);
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method updateRecord
+    @param  store
+    @param  type
+    @param  record
+  */
   updateRecord: function(store, type, record) {
     var id, root, adapter, data;
 
@@ -173,16 +224,22 @@ DS.RESTAdapter = DS.Adapter.extend({
     data = {};
     data[root] = this.serialize(record);
 
-    return this.ajax(this.buildURL(root, id), "PUT",{
+    return this.ajax(this.buildURL(root, id, record), "PUT",{
       data: data
     }).then(function(json){
       adapter.didUpdateRecord(store, type, record, json);
     }, function(xhr) {
       adapter.didError(store, type, record, xhr);
       throw xhr;
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method updateRecords
+    @param  store
+    @param  type
+    @param  records
+  */
   updateRecords: function(store, type, records) {
     var root, plural, adapter, data;
 
@@ -206,9 +263,15 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: data
     }).then(function(json) {
       adapter.didUpdateRecords(store, type, records, json);
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method deleteRecord
+    @param  store
+    @param  type
+    @param  record
+  */
   deleteRecord: function(store, type, record) {
     var id, root, adapter;
 
@@ -216,14 +279,20 @@ DS.RESTAdapter = DS.Adapter.extend({
     root = this.rootForType(type);
     adapter = this;
 
-    return this.ajax(this.buildURL(root, id), "DELETE").then(function(json){
+    return this.ajax(this.buildURL(root, id, record), "DELETE").then(function(json){
       adapter.didDeleteRecord(store, type, record, json);
     }, function(xhr){
       adapter.didError(store, type, record, xhr);
       throw xhr;
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method deleteRecords
+    @param  store
+    @param  type
+    @param  records
+  */
   deleteRecords: function(store, type, records) {
     var root, plural, serializer, adapter, data;
 
@@ -247,18 +316,30 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: data
     }).then(function(json){
       adapter.didDeleteRecords(store, type, records, json);
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method find
+    @param  store
+    @param  type
+    @param  id
+  */
   find: function(store, type, id) {
     var root = this.rootForType(type), adapter = this;
 
     return this.ajax(this.buildURL(root, id), "GET").
       then(function(json){
         adapter.didFindRecord(store, type, json, id);
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method findAll
+    @param  store
+    @param  type
+    @param  since
+  */
   findAll: function(store, type, since) {
     var root, adapter;
 
@@ -269,9 +350,16 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: this.sinceQuery(since)
     }).then(function(json) {
       adapter.didFindAll(store, type, json);
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method findQuery
+    @param  store
+    @param  type
+    @param  query
+    @param  recordArray
+  */
   findQuery: function(store, type, query, recordArray) {
     var root = this.rootForType(type),
     adapter = this;
@@ -280,9 +368,16 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: query
     }).then(function(json){
       adapter.didFindQuery(store, type, json, recordArray);
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
+  /**
+    @method findMany
+    @param  store
+    @param  type
+    @param  ids
+    @param  owner
+  */
   findMany: function(store, type, ids, owner) {
     var root = this.rootForType(type),
     adapter = this;
@@ -293,14 +388,15 @@ DS.RESTAdapter = DS.Adapter.extend({
       data: {ids: ids}
     }).then(function(json) {
       adapter.didFindMany(store, type, json);
-    }).then(null, rejectionHandler);
+    }).then(null, DS.rejectionHandler);
   },
 
   /**
-    @private
-
     This method serializes a list of IDs using `serializeId`
 
+    @method serializeIds
+    @private
+    @param  ids
     @return {Array} an array of serialized IDs
   */
   serializeIds: function(ids) {
@@ -311,6 +407,14 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
+  /**
+    @method didError
+    @private
+    @param  store
+    @param  type
+    @param  record
+    @param  xhr
+  */
   didError: function(store, type, record, xhr) {
     if (xhr.status === 422) {
       var json = JSON.parse(xhr.responseText),
@@ -323,6 +427,13 @@ DS.RESTAdapter = DS.Adapter.extend({
     }
   },
 
+  /**
+    @method ajax
+    @private
+    @param  url
+    @param  type
+    @param  hash
+  */
   ajax: function(url, type, hash) {
     var adapter = this;
 
@@ -343,6 +454,10 @@ DS.RESTAdapter = DS.Adapter.extend({
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
+        if (jqXHR) {
+          jqXHR.then = null;
+        }
+
         Ember.run(null, reject, jqXHR);
       };
 
@@ -350,30 +465,51 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
+  /**
+    @property url
+    @default ''
+  */
   url: "",
 
+  /**
+    @method rootForType
+    @private
+    @param type
+  */
   rootForType: function(type) {
     var serializer = get(this, 'serializer');
     return serializer.rootForType(type);
   },
 
+  /**
+    @method pluralize
+    @private
+    @param string
+  */
   pluralize: function(string) {
     var serializer = get(this, 'serializer');
     return serializer.pluralize(string);
   },
 
-  buildURL: function(record, suffix) {
+  /**
+    @method buildURL
+    @private
+    @param root
+    @param suffix
+    @param record
+  */
+  buildURL: function(root, suffix, record) {
     var url = [this.url];
 
     Ember.assert("Namespace URL (" + this.namespace + ") must not start with slash", !this.namespace || this.namespace.toString().charAt(0) !== "/");
-    Ember.assert("Record URL (" + record + ") must not start with slash", !record || record.toString().charAt(0) !== "/");
+    Ember.assert("Root URL (" + root + ") must not start with slash", !root || root.toString().charAt(0) !== "/");
     Ember.assert("URL suffix (" + suffix + ") must not start with slash", !suffix || suffix.toString().charAt(0) !== "/");
 
     if (!Ember.isNone(this.namespace)) {
       url.push(this.namespace);
     }
 
-    url.push(this.pluralize(record));
+    url.push(this.pluralize(root));
     if (suffix !== undefined) {
       url.push(suffix);
     }
@@ -381,6 +517,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     return url.join("/");
   },
 
+  /**
+    @method sinceQuery
+    @private
+    @param since
+  */
   sinceQuery: function(since) {
     var query = {};
     query[get(this, 'since')] = since;

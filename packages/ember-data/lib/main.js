@@ -20,7 +20,9 @@
 
 /**
   Ember Data
-  @module data
+
+  @module ember-data
+  @main ember-data
 */
 
 require("ember-data/core");

@@ -1,8 +1,7 @@
 var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach;
 
 /**
-  @module data
-  @submodule data-transaction
+  @module ember-data
 */
 
 /**
@@ -81,14 +80,18 @@ var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach;
   For this reason, you should not re-use transactions once you have committed
   them. Always make a new transaction and move the desired records to it before
   calling commit.
-*/
 
+  @class Transaction
+  @namespace DS
+  @extends Ember.Object
+*/
 DS.Transaction = Ember.Object.extend({
   /**
-    @private
-
     Creates the bucket data structure used to segregate records by
     type.
+
+    @method init
+    @private
   */
   init: function() {
     set(this, 'records', Ember.OrderedSet.create());
@@ -101,6 +104,7 @@ DS.Transaction = Ember.Object.extend({
     This is useful as only clean records can be added to a transaction and
     new records created using other methods immediately become dirty.
 
+    @method createRecord
     @param {DS.Model} type the model type to create
     @param {Object} hash the data hash to assign the new record
   */
@@ -125,6 +129,7 @@ DS.Transaction = Ember.Object.extend({
     modificiations (i.e., records whose `isDirty` property is `false`)
     can be added to a transaction.
 
+    @method add
     @param {DS.Model} record the record to add to the transaction
   */
   add: function(record) {
@@ -147,7 +152,7 @@ DS.Transaction = Ember.Object.extend({
         records = get(this, 'records'),
         store = get(this, 'store');
 
-    records.forEach(function(record) {
+    forEach(records, function(record) {
       var reference = get(record, '_reference');
       var changes = store.relationshipChangesFor(reference);
       for(var i = 0; i < changes.length; i++) {
@@ -172,7 +177,7 @@ DS.Transaction = Ember.Object.extend({
     var records = get(this, 'records'),
         store = get(this, 'store');
 
-    records.forEach(function(record) {
+    forEach(records, function(record) {
       if(!get(record, 'isDirty')) return;
       record.send('willCommit');
       var adapter = store.adapterForType(record.constructor);
@@ -190,6 +195,8 @@ DS.Transaction = Ember.Object.extend({
 
     When a record is saved, it will be removed from this transaction and
     moved back to the store's default transaction.
+
+    @method commit
   */
   commit: function() {
     var store = get(this, 'store');
@@ -203,7 +210,7 @@ DS.Transaction = Ember.Object.extend({
     var commitDetails = get(this, 'commitDetails'),
         relationships = get(this, 'relationships');
 
-    commitDetails.forEach(function(adapter, commitDetails) {
+    forEach(commitDetails, function(adapter, commitDetails) {
       Ember.assert("You tried to commit records but you have no adapter", adapter);
       Ember.assert("You tried to commit records but your adapter does not implement `commit`", adapter.commit);
 
@@ -230,10 +237,10 @@ DS.Transaction = Ember.Object.extend({
     After the transaction is rolled back, any records that belong
     to it will return to the store's default transaction, and the
     current transaction should not be used again.
+
+    @method rollback
   */
   rollback: function() {
-    var store = get(this, 'store');
-
     // Destroy all relationship changes and compute
     // all references affected
     var references = Ember.OrderedSet.create();
@@ -245,7 +252,7 @@ DS.Transaction = Ember.Object.extend({
     });
 
     var records = get(this, 'records');
-    records.forEach(function(record) {
+    forEach(records, function(record) {
       if (!record.get('isDirty')) return;
       record.send('rollback');
     });
@@ -267,8 +274,6 @@ DS.Transaction = Ember.Object.extend({
   },
 
   /**
-    @private
-
     Removes a record from this transaction and back to the store's
     default transaction.
 
@@ -276,6 +281,8 @@ DS.Transaction = Ember.Object.extend({
     in the future once we have stricter error checking (for example, in the
     case of the record being dirty).
 
+    @method remove
+    @private
     @param {DS.Model} record
   */
   remove: function(record) {
@@ -284,22 +291,21 @@ DS.Transaction = Ember.Object.extend({
   },
 
   /**
-    @private
-
     Removes all of the records in the transaction's clean bucket.
+
+    @method removeCleanRecords
+    @private
   */
   removeCleanRecords: function() {
     var records = get(this, 'records');
-    records.forEach(function(record) {
+    forEach(records, function(record) {
       if(!record.get('isDirty')) {
         this.remove(record);
       }
-    }, this); 
+    }, this);
   },
 
   /**
-    @private
-
     This method moves a record into a different transaction without the normal
     checks that ensure that the user is not doing something weird, like moving
     a dirty record into a new transaction.
@@ -309,6 +315,8 @@ DS.Transaction = Ember.Object.extend({
 
     This method must not be called unless the record is clean.
 
+    @method adoptRecord
+    @private
     @param {DS.Model} record
   */
   adoptRecord: function(record) {
@@ -323,11 +331,13 @@ DS.Transaction = Ember.Object.extend({
   },
 
   /**
-   @private
-
    Removes the record without performing the normal checks
    to ensure that the record is re-added to the store's
    default transaction.
+
+   @method removeRecord
+   @private
+   @param record
   */
   removeRecord: function(record) {
     get(this, 'records').remove(record);

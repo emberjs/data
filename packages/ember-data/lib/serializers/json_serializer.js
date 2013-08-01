@@ -2,19 +2,16 @@ require('ember-data/system/serializer');
 require('ember-data/transforms/json_transforms');
 
 /**
-  @module data
-  @submodule data-serializers
-*/
-
-/**
-  @class JSONSerializer
-  @constructor
-  @namespace DS
-  @extends DS.Serializer
+  @module ember-data
 */
 
 var get = Ember.get, set = Ember.set;
 
+/**
+  @class JSONSerializer
+  @namespace DS
+  @extends DS.Serializer
+*/
 DS.JSONSerializer = DS.Serializer.extend({
   init: function() {
     this._super();
@@ -32,6 +29,11 @@ DS.JSONSerializer = DS.Serializer.extend({
     });
   },
 
+  /**
+    @method configure
+    @param  type
+    @param  configuration
+  */
   configure: function(type, configuration) {
     var key;
 
@@ -56,6 +58,12 @@ DS.JSONSerializer = DS.Serializer.extend({
     this._super.apply(this, arguments);
   },
 
+  /**
+    @method addId
+    @param data
+    @param key
+    @param id
+  */
   addId: function(data, key, id) {
     data[key] = id;
   },
@@ -64,6 +72,7 @@ DS.JSONSerializer = DS.Serializer.extend({
     A hook you can use to customize how the key/value pair is added to
     the serialized data.
 
+    @method addAttribute
     @param {any} hash the JSON hash being built
     @param {String} key the key to add to the serialized data
     @param {any} value the value to add to the serialized data
@@ -72,11 +81,22 @@ DS.JSONSerializer = DS.Serializer.extend({
     hash[key] = value;
   },
 
+  /**
+    @method extractAttribute
+    @param type
+    @param hash
+    @param attributeName
+  */
   extractAttribute: function(type, hash, attributeName) {
     var key = this._keyForAttributeName(type, attributeName);
     return hash[key];
   },
 
+  /**
+    @method extractId
+    @param type
+    @param hash
+  */
   extractId: function(type, hash) {
     var primaryKey = this._primaryKey(type);
 
@@ -91,18 +111,41 @@ DS.JSONSerializer = DS.Serializer.extend({
     }
   },
 
+  /**
+    @method extractEmbeddedData
+    @param hash
+    @param key
+  */
   extractEmbeddedData: function(hash, key) {
     return hash[key];
   },
 
+  /**
+    @method extractHasMany
+    @param type
+    @param hash
+    @param key
+  */
   extractHasMany: function(type, hash, key) {
     return hash[key];
   },
 
+  /**
+    @method extractBelongsTo
+    @param type
+    @param hash
+    @param key
+  */
   extractBelongsTo: function(type, hash, key) {
     return hash[key];
   },
 
+  /**
+    @method extractBelongsToPolymorphic
+    @param type
+    @param hash
+    @param key
+  */
   extractBelongsToPolymorphic: function(type, hash, key) {
     var keyForId = this.keyForPolymorphicId(key),
         keyForType,
@@ -116,6 +159,13 @@ DS.JSONSerializer = DS.Serializer.extend({
     return null;
   },
 
+  /**
+    @method addBelongsTo
+    @param hash
+    @param record
+    @param key
+    @param relationship
+  */
   addBelongsTo: function(hash, record, key, relationship) {
     var type = record.constructor,
         name = relationship.key,
@@ -138,11 +188,18 @@ DS.JSONSerializer = DS.Serializer.extend({
       if (relationship.options && relationship.options.polymorphic && !Ember.isNone(id)) {
         this.addBelongsToPolymorphic(hash, key, id, child.constructor);
       } else {
-        hash[key] = id === undefined ? null : this.serializeId(id);
+        hash[key] = this.serializeId(id);
       }
     }
   },
 
+  /**
+    @method addBelongsToPolymorphic
+    @param hash
+    @param key
+    @param id
+    @param type
+  */
   addBelongsToPolymorphic: function(hash, key, id, type) {
     var keyForId = this.keyForPolymorphicId(key),
         keyForType = this.keyForPolymorphicType(key);
@@ -159,6 +216,7 @@ DS.JSONSerializer = DS.Serializer.extend({
     has-many should be saved as foreign key changes on the child's belongs-to
     relationship.
 
+    @method addHasMany
     @param {Object} hash the JSON being built
     @param {DS.Model} record the record being serialized
     @param {String} key the JSON key into which the serialized relationship
@@ -194,6 +252,11 @@ DS.JSONSerializer = DS.Serializer.extend({
     hash[key] = serializedHasMany;
   },
 
+  /**
+    @method addType
+    @param hash
+    @param type
+  */
   addType: function(hash, type) {
     var keyForType = this.keyForEmbeddedType();
     hash[keyForType] = this.rootForType(type);
@@ -201,6 +264,13 @@ DS.JSONSerializer = DS.Serializer.extend({
 
   // EXTRACTION
 
+  /**
+    @method extract
+    @param loader
+    @param json
+    @param type
+    @param record
+  */
   extract: function(loader, json, type, record) {
     var root = this.rootForType(type);
 
@@ -210,9 +280,18 @@ DS.JSONSerializer = DS.Serializer.extend({
     if (json[root]) {
       if (record) { loader.updateId(record, json[root]); }
       this.extractRecordRepresentation(loader, type, json[root]);
+    } else {
+      Ember.Logger.warn("Extract requested, but no data given for " + type + ". This may cause weird problems.");
     }
   },
 
+  /**
+    @method extractMany
+    @param loader
+    @param json
+    @param type
+    @param records
+  */
   extractMany: function(loader, json, type, records) {
     var root = this.rootForType(type);
     root = this.pluralize(root);
@@ -234,6 +313,12 @@ DS.JSONSerializer = DS.Serializer.extend({
     }
   },
 
+  /**
+    @method extractMeta
+    @param loader
+    @param type
+    @param json
+  */
   extractMeta: function(loader, type, json) {
     var meta = this.configOption(type, 'meta'),
         data = json, value;
@@ -243,12 +328,18 @@ DS.JSONSerializer = DS.Serializer.extend({
     }
 
     this.metadataMapping.forEach(function(property, key){
-      if(value = data[property]){
+      value = data[property];
+      if(!Ember.isNone(value)){
         loader.metaForType(type, key, value);
       }
     });
   },
 
+  /**
+    @method extractEmbeddedType
+    @param relationship
+    @param data
+  */
   extractEmbeddedType: function(relationship, data) {
     var foundType = relationship.type;
     if(relationship.options && relationship.options.polymorphic) {
@@ -263,8 +354,6 @@ DS.JSONSerializer = DS.Serializer.extend({
   },
 
   /**
-    @private
-
     Iterates over the `json` payload and attempts to load any data
     included alongside `root`.
 
@@ -273,6 +362,8 @@ DS.JSONSerializer = DS.Serializer.extend({
     related types can be loaded as well. Any custom keys specified by
     `sideloadAs` mappings will also be respected.
 
+    @method sideload
+    @private
     @param {DS.Store subclass} loader
     @param {DS.Model subclass} type
     @param {Object} json
@@ -298,12 +389,12 @@ DS.JSONSerializer = DS.Serializer.extend({
   },
 
   /**
-    @private
-
     Configures possible sideload mappings for the types related to a
     particular model. This recursive method ensures that sideloading
     works for related models as well.
 
+    @method configureSideloadMappingForType
+    @private
     @param {DS.Model subclass} type
     @param {Ember.A} configured an array of types that have already been configured
   */
@@ -321,6 +412,12 @@ DS.JSONSerializer = DS.Serializer.extend({
     }, this);
   },
 
+  /**
+    @method loadValue
+    @param loader
+    @param type
+    @param value
+  */
   loadValue: function(loader, type, value) {
     if (value instanceof Array) {
       for (var i=0; i < value.length; i++) {
@@ -335,8 +432,8 @@ DS.JSONSerializer = DS.Serializer.extend({
     A hook you can use in your serializer subclass to customize
     how a polymorphic association's name is converted into a key for the id.
 
+    @method keyForPolymorphicId
     @param {String} name the association name to convert into a key
-
     @return {String} the key
   */
   keyForPolymorphicId: function(key){
@@ -347,8 +444,8 @@ DS.JSONSerializer = DS.Serializer.extend({
     A hook you can use in your serializer subclass to customize
     how a polymorphic association's name is converted into a key for the type.
 
+    @method keyForPolymorphicType
     @param {String} name the association name to convert into a key
-
     @return {String} the key
   */
   keyForPolymorphicType: function(key){
@@ -361,6 +458,7 @@ DS.JSONSerializer = DS.Serializer.extend({
 
     By default, this method return 'type'.
 
+    @method keyForEmbeddedType
     @return {String} the key
   */
   keyForEmbeddedType: function() {
@@ -370,14 +468,14 @@ DS.JSONSerializer = DS.Serializer.extend({
   // HELPERS
 
   /**
-    @private
-
     Determines the singular root name for a particular type.
 
     This is an underscored, lowercase version of the model name.
     For example, the type `App.UserGroup` will have the root
     `user_group`.
 
+    @method rootForType
+    @private
     @param {DS.Model subclass} type
     @return {String} name of the root element
   */
@@ -393,10 +491,10 @@ DS.JSONSerializer = DS.Serializer.extend({
   },
 
   /**
-    @private
-
     The default root name for a particular sideloaded type.
 
+    @method defaultSideloadRootForType
+    @private
     @param {DS.Model subclass} type
     @return {String} name of the root element
   */

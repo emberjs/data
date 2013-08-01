@@ -1,12 +1,11 @@
+/**
+  @module ember-data
+*/
+
 var isNone = Ember.isNone, isEmpty = Ember.isEmpty;
 
 /**
-  @module data
-  @submodule data-transforms
-*/
-
-/**
-  DS.Transforms is a hash of transforms used by DS.Serializer.
+  DS.JSONTransforms is a hash of transforms used by DS.Serializer.
 
   @class JSONTransforms
   @static

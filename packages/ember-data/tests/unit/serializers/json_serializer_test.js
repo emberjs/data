@@ -272,11 +272,11 @@ test("registered transformations should be called when serializing and materiali
   value = serializer.serializeValue('unknown', 'unobtainium');
   equal(value, 'serialize', "the serialize transform was called");
 
-  raises(function() {
+  expectAssertion(function() {
     serializer.deserializeValue('unknown', 'obtainium');
   });
 
-  raises(function() {
+  expectAssertion(function() {
     serializer.serializeValue('unknown', 'obtainium');
   });
 });

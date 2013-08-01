@@ -1,4 +1,5 @@
 var get = Ember.get, set = Ember.set;
+var indexOf = Ember.EnumerableUtils.indexOf;
 var Adapter, Person, Group, Role, adapter, serializer, store, ajaxUrl, ajaxType, ajaxHash, recordArrayFlags, manyArrayFlags;
 var forEach = Ember.EnumerableUtils.forEach;
 
@@ -8,9 +9,9 @@ manyArrayFlags = ['isLoaded'];
 
 // Used for testing the adapter state path on a single entity
 function stateEquals(entity, expectedState) {
-  var actualState = get(entity, 'stateManager.currentPath');
+  var actualState = get(entity, 'currentState.stateName');
 
-  actualState = actualState && actualState.replace(/^rootState\./,'');
+  actualState = actualState && actualState.replace(/^root\./,'');
   equal(actualState, expectedState, 'Expected state should have been: ' + expectedState+ ' but was: ' +  actualState + ' on: ' + entity);
 }
 
@@ -34,7 +35,7 @@ function enabledFlags(entity, expectedFlagArr, onlyCheckFlagArr) {
   forEach(possibleFlags, function(flag){
     var expectedFlagValue, actualFlagValue;
 
-    expectedFlagValue = expectedFlagArr.indexOf(flag) !== -1;
+    expectedFlagValue = indexOf(expectedFlagArr, flag) !== -1;
     actualFlagValue = entity.get(flag);
 
     equal(actualFlagValue, expectedFlagValue, 'Expected flag ' + flag + ' should have been: ' + expectedFlagValue + ' but was: ' + actualFlagValue + ' on: '  + entity);
@@ -419,7 +420,7 @@ test("singular deletes can sideload data", function() {
   group = store.find(Group, 1);
 
   // test
-  stateEquals('deleted.saved');
+  stateEquals(person, 'deleted.saved');
   enabledFlags(person, ['isLoaded', 'isDeleted', 'isValid']);
   equal(get(group, 'name'), "Group 1", "the data sideloaded successfully");
 });
@@ -1209,6 +1210,9 @@ test("When a record with a belongsTo is saved the foreign key should be sent.", 
     title: DS.attr("string"),
     people: DS.hasMany(Person)
   });
+  PersonType.toString = function() {
+      return "App.PersonType";
+  };
   Person.reopen({
     personType: DS.belongsTo(PersonType)
   });
@@ -1369,7 +1373,7 @@ var TestError = function(message) {
   this.message = message;
 };
 
-var originalLogger = Ember.Logger.error;
+var originalRejectionHandler = DS.rejectionHandler;
 
 module('The REST adapter - error handling', {
   setup: function() {
@@ -1385,11 +1389,13 @@ module('The REST adapter - error handling', {
   },
 
   teardown: function() {
-    Ember.Logger.error = originalLogger;
+    DS.rejectionHandler = originalRejectionHandler;
   }
 });
 
-test("promise errors are sent to the ember error logger", function() {
+test("promise errors are sent to the ember assertion logger", function() {
+  expect(1);
+
   // setup
   store = DS.Store.create({
     adapter: Adapter.extend({
@@ -1407,11 +1413,9 @@ test("promise errors are sent to the ember error logger", function() {
     })
   });
 
-  expect(2);
 
-  Ember.Logger.error = function(error, message) {
-    ok(error instanceof TestError, "Promise chains should dump exception classes to the logger");
-    equal(message, 'TestError', "Promise chains should dump exception messages to the logger");
+  DS.rejectionHandler = function(reason) {
+    ok(reason instanceof TestError, "Promise chains should dump exception classes to the logger");
   };
 
   store.find(Person, 1);

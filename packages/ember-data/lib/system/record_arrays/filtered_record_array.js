@@ -1,8 +1,7 @@
 require("ember-data/system/record_arrays/record_array");
 
 /**
-  @module data
-  @submodule data-record-array
+  @module ember-data
 */
 
 var get = Ember.get;
@@ -11,7 +10,6 @@ var get = Ember.get;
   @class FilteredRecordArray
   @namespace DS
   @extends DS.RecordArray
-  @constructor
 */
 DS.FilteredRecordArray = DS.RecordArray.extend({
   filterFunction: null,

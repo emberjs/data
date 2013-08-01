@@ -1,10 +1,5 @@
 /**
-  Adapters included with Ember-Data.
-
-  @module data
-  @submodule data-adapters
-
-  @main data-adapters
+  @module ember-data
 */
 
 require("ember-data/adapters/fixture_adapter");

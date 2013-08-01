@@ -1,7 +1,17 @@
+/**
+  @module ember-data
+*/
+
 var get = Ember.get, set = Ember.set;
 var once = Ember.run.once;
 var forEach = Ember.EnumerableUtils.forEach;
 
+/**
+  @class RecordArrayManager
+  @namespace DS
+  @private
+  @extends Ember.Object
+*/
 DS.RecordArrayManager = Ember.Object.extend({
   init: function() {
     this.filteredRecordArrays = Ember.MapWithDefault.create({
@@ -22,8 +32,6 @@ DS.RecordArrayManager = Ember.Object.extend({
   },
 
   /**
-    @private
-
     This method is invoked whenever data is loaded into the store
     by the adapter or updated by the adapter, or when an attribute
     changes on a record.
@@ -32,6 +40,7 @@ DS.RecordArrayManager = Ember.Object.extend({
 
     To avoid thrashing, it only runs once per run loop per record.
 
+    @method updateRecordArrays
     @param {Class} type
     @param {Number|String} clientId
   */
@@ -63,10 +72,9 @@ DS.RecordArrayManager = Ember.Object.extend({
   },
 
   /**
-    @private
-
     Update an individual filter.
 
+    @method updateRecordArray
     @param {DS.FilteredRecordArray} array
     @param {Function} filter
     @param {Class} type
@@ -94,30 +102,32 @@ DS.RecordArrayManager = Ember.Object.extend({
   },
 
   /**
-    @private
-
     When a record is deleted, it is removed from all its
     record arrays.
 
+    @method remove
     @param {DS.Model} record
   */
   remove: function(record) {
     var reference = get(record, '_reference');
     var recordArrays = reference.recordArrays || [];
 
-    recordArrays.forEach(function(array) {
+    forEach(recordArrays, function(array) {
       array.removeReference(reference);
     });
   },
 
   /**
-    @private
-
     This method is invoked if the `filterFunction` property is
     changed on a `DS.FilteredRecordArray`.
 
     It essentially re-runs the filter from scratch. This same
     method is invoked when the filter is created in th first place.
+
+    @method updateFilter
+    @param array
+    @param type
+    @param filter
   */
   updateFilter: function(array, type, filter) {
     var typeMap = this.store.typeMapFor(type),
@@ -145,15 +155,13 @@ DS.RecordArrayManager = Ember.Object.extend({
   },
 
   /**
-    @private
-
     Create a `DS.ManyArray` for a type and list of record references, and index
     the `ManyArray` under each reference. This allows us to efficiently remove
     records from `ManyArray`s when they are deleted.
 
+    @method createManyArray
     @param {Class} type
     @param {Array} references
-
     @return {DS.ManyArray}
   */
   createManyArray: function(type, references) {
@@ -163,7 +171,7 @@ DS.RecordArrayManager = Ember.Object.extend({
       store: this.store
     });
 
-    references.forEach(function(reference) {
+    forEach(references, function(reference) {
       var arrays = this.recordArraysForReference(reference);
       arrays.add(manyArray);
     }, this);
@@ -172,13 +180,12 @@ DS.RecordArrayManager = Ember.Object.extend({
   },
 
   /**
-    @private
-
     Register a RecordArray for a given type to be backed by
     a filter function. This will cause the array to update
     automatically when records of that type change attribute
     values or states.
 
+    @method registerFilteredRecordArray
     @param {DS.RecordArray} array
     @param {Class} type
     @param {Function} filter

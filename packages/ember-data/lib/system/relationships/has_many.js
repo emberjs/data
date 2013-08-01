@@ -1,6 +1,10 @@
-var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach;
-
 require("ember-data/system/model/model");
+
+/**
+  @module ember-data
+*/
+
+var get = Ember.get, set = Ember.set, forEach = Ember.EnumerableUtils.forEach;
 
 var hasRelationship = function(type, options) {
   options = options || {};
@@ -35,8 +39,7 @@ DS.hasMany = function(type, options) {
 };
 
 function clearUnmaterializedHasMany(record, relationship) {
-  var store = get(record, 'store'),
-      data = get(record, 'data').hasMany;
+  var data = get(record, 'data').hasMany;
 
   var references = data[relationship.key];
 

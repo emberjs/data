@@ -1,11 +1,11 @@
 require("ember-data/system/record_arrays/record_array");
 
 /**
-  @module data
-  @submodule data-record-array
+  @module ember-data
 */
 
 var get = Ember.get, set = Ember.set;
+var map = Ember.EnumerableUtils.map;
 
 /**
   A ManyArray is a RecordArray that represents the contents of a has-many
@@ -40,7 +40,6 @@ var get = Ember.get, set = Ember.set;
   @class ManyArray
   @namespace DS
   @extends DS.RecordArray
-  @constructor
 */
 DS.ManyArray = DS.RecordArray.extend({
   init: function() {
@@ -49,20 +48,18 @@ DS.ManyArray = DS.RecordArray.extend({
   },
 
   /**
-    @private
-
     The record to which this relationship belongs.
 
     @property {DS.Model}
+    @private
   */
   owner: null,
 
   /**
-    @private
-
     `true` if the relationship is polymorphic, `false` otherwise.
 
     @property {Boolean}
+    @private
   */
   isPolymorphic: false,
 
@@ -93,7 +90,7 @@ DS.ManyArray = DS.RecordArray.extend({
   // Overrides Ember.Array's replace method to implement
   replaceContent: function(index, removed, added) {
     // Map the array of record objects into an array of  client ids.
-    added = added.map(function(record) {
+    added = map(added, function(record) {
       Ember.assert("You can only add records of " + (get(this, 'type') && get(this, 'type').toString()) + " to this relationship.", !get(this, 'type') || (get(this, 'type').detectInstance(record)) );
       return get(record, '_reference');
     }, this);

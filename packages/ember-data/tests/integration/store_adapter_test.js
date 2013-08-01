@@ -370,7 +370,7 @@ test("if an updated record is marked as invalid by the server, it enters an erro
   // Test key mapping
 });
 
-test("if a created record is marked as erred by the server, it enters an error state", function() {
+test("if a updated record is marked as erred by the server, it enters an error state", function() {
   adapter.updateRecord = function(store, type, record) {
     store.recordWasError(record);
   };
