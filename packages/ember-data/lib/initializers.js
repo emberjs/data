@@ -40,6 +40,7 @@ Ember.onLoad('Ember.Application', function(Application) {
 
     initialize: function(container, application) {
       application.register('store:main', application.Store);
+      application.register('serializer:_default', DS.JSONSerializer);
 
       // Eagerly generate the store so defaultStore is populated.
       // TODO: Do this in a finisher hook

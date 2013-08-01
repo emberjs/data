@@ -1638,6 +1638,29 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     // adapterDidDirty is called by the RelationshipChange that created
     // the dirtySet.
+  },
+
+  /**
+    Returns an instance of the serializer for a given type. For
+    example, `serializerFor('person')` will return an instance of
+    `App.PersonSerializer`.
+
+    If no `App.PersonSerializer` is found, this method will look
+    for an `App.ApplicationSerializer` (the default serializer for
+    your entire application).
+
+    If no `App.ApplicationSerializer` is found, it will fall back
+    to an instance of `DS.JSONSerializer`.
+
+    @method serializerFor
+    @param {String} type the record to serialize
+  */
+  serializerFor: function(type) {
+    var container = this.container;
+
+    return container.lookup('serializer:'+type) ||
+           container.lookup('serializer:application') ||
+           container.lookup('serializer:_default');
   }
 });
 
