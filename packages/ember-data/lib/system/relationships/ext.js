@@ -264,7 +264,7 @@ DS.Model.reopenClass({
   */
   relatedTypes: Ember.computed(function() {
     var type,
-        types = Ember.A([]);
+        types = Ember.A();
 
     // Loop through each computed property on the class,
     // and create an array of the unique types involved

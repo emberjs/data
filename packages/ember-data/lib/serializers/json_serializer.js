@@ -395,7 +395,7 @@ DS.JSONSerializer = DS.Serializer.extend({
     @param {Ember.A} configured an array of types that have already been configured
   */
   configureSideloadMappingForType: function(type, configured) {
-    if (!configured) {configured = Ember.A([]);}
+    if (!configured) {configured = Ember.A();}
     configured.pushObject(type);
 
     type.eachRelatedType(function(relatedType) {

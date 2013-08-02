@@ -751,7 +751,13 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {DS.AdapterPopulatedRecordArray}
   */
   findQuery: function(type, query) {
-    var array = DS.AdapterPopulatedRecordArray.create({ type: type, query: query, content: Ember.A([]), store: this });
+    var array = DS.AdapterPopulatedRecordArray.create({
+      type: type,
+      query: query,
+      content: Ember.A(),
+      store: this
+    });
+
     var adapter = this.adapterForType(type);
 
     Ember.assert("You tried to load a query but you have no adapter (for " + type + ")", adapter);
@@ -838,7 +844,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var array = DS.RecordArray.create({
       type: type,
-      content: Ember.A([]),
+      content: Ember.A(),
       store: this,
       isLoaded: true
     });
@@ -888,7 +894,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var array = DS.FilteredRecordArray.create({
       type: type,
-      content: Ember.A([]),
+      content: Ember.A(),
       store: this,
       manager: this.recordArrayManager,
       filterFunction: filter
