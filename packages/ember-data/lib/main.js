@@ -37,3 +37,4 @@ require("ember-data/system/record_array_manager");
 require("ember-data/system/adapter");
 require("ember-data/system/serializer");
 require("ember-data/adapters");
+require("ember-data/system/debug");
