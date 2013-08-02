@@ -13,8 +13,15 @@ DS.belongsTo = function(type, options) {
   var meta = { type: type, isRelationship: true, options: options, kind: 'belongsTo' };
 
   return Ember.computed(function(key, value) {
+    var data = get(this, 'data'),
+        store = get(this, 'store'), belongsTo;
+
     if (typeof type === 'string') {
-      type = get(this, type, false) || get(Ember.lookup, type);
+      if (type.indexOf(".") === -1) {
+        type = store.modelFor(type);
+      } else {
+        type = get(Ember.lookup, type);
+      }
     }
 
     if (arguments.length === 2) {
@@ -22,10 +29,9 @@ DS.belongsTo = function(type, options) {
       return value === undefined ? null : value;
     }
 
-    var data = get(this, 'data'),
-        store = get(this, 'store'), belongsTo;
-
     belongsTo = data[key];
+
+    if (belongsTo instanceof DS.Model) { return belongsTo; }
 
     // TODO (tomdale) The value of the belongsTo in the data hash can be
     // one of:

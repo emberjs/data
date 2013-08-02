@@ -1,3 +1,5 @@
+require("ember-data/serializers/new_json_serializer");
+
 /**
   @module ember-data
 */
@@ -40,7 +42,7 @@ Ember.onLoad('Ember.Application', function(Application) {
 
     initialize: function(container, application) {
       application.register('store:main', application.Store);
-      application.register('serializer:_default', DS.JSONSerializer);
+      application.register('serializer:_default', DS.NewJSONSerializer);
 
       // Eagerly generate the store so defaultStore is populated.
       // TODO: Do this in a finisher hook

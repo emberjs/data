@@ -42,5 +42,5 @@ test("Calling serializerFor with a type that has not been registered and in an a
 
   var store = app.__container__.lookup('store:main');
 
-  ok(store.serializerFor('person') instanceof DS.JSONSerializer, "serializer returned from serializerFor is an instance of DS.JSONSerializer");
+  ok(store.serializerFor('person') instanceof DS.NewJSONSerializer, "serializer returned from serializerFor is an instance of DS.JSONSerializer");
 });

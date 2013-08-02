@@ -26,6 +26,7 @@ var retrieveFromCurrentState = Ember.computed(function(key, value) {
   @uses DS.LoadPromise
 */
 DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
+  isEmpty: retrieveFromCurrentState,
   isLoading: retrieveFromCurrentState,
   isLoaded: retrieveFromCurrentState,
   isReloading: retrieveFromCurrentState,
@@ -226,6 +227,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     this.send('loadedData');
   },
 
+  pushedData: function() {
+    this.send('pushedData');
+  },
+
   didChangeData: function() {
     this.send('didChangeData');
   },
@@ -324,8 +329,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     Ember.run.once(this, this.updateRecordArrays);
   },
 
-  setupData: function() {
-    this._data = { id: null };
+  setupData: function(data) {
+    this._data = data || { id: null };
+
+    if (data) { this.pushedData(); }
   },
 
   materializeId: function(id) {

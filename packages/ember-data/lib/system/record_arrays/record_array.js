@@ -48,6 +48,10 @@ DS.RecordArray = Ember.ArrayProxy.extend(LoadPromise, {
         reference = content.objectAt(index),
         store = get(this, 'store');
 
+    if (reference instanceof DS.Model) {
+      return reference;
+    }
+
     if (reference) {
       return store.recordForReference(reference);
     }

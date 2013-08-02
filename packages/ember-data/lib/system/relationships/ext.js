@@ -325,7 +325,12 @@ DS.Model.reopenClass({
         type = meta.type;
 
         if (typeof type === 'string') {
-          type = get(this, type, false) || get(Ember.lookup, type);
+          if (type.match(/^[^A-Z]/)) {
+            type = this.store.modelFor(type);
+          } else {
+            type = get(this, type, false) || get(Ember.lookup, type);
+          }
+
           meta.type = type;
         }
 

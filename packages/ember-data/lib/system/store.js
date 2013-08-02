@@ -49,7 +49,6 @@ var coerceId = function(id) {
   return id == null ? null : id+'';
 };
 
-
 /**
   The store contains all of the data for records loaded from the server.
   It is also responsible for creating instances of DS.Model that wrap
@@ -427,6 +426,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object|String|Integer|null} id
   */
   find: function(type, id) {
+    type = this.modelFor(type);
+
     if (id === undefined) {
       return this.findAll(type);
     }
@@ -473,7 +474,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     // create a new instance of the model type in the
     // 'isLoading' state
-    var record = this.materializeRecord(reference);
+    var record = this.legacyMaterializeRecord(reference);
 
     if (reference.data === LOADING) {
       // let the adapter set the data, possibly async
@@ -536,7 +537,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (!record) {
       // create a new instance of the model type in the
       // 'isLoading' state
-      record = this.materializeRecord(reference);
+      record = this.legacyMaterializeRecord(reference);
     }
 
     return record;
@@ -558,6 +559,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     for (var i=0, l=references.length; i<l; i++) {
       var reference = references[i];
+
+      if (reference instanceof DS.Model) {
+        if (get(reference, 'isEmpty')) {
+          unloadedReferences.push(reference);
+        }
+
+        continue;
+      }
 
       if (reference.data === UNLOADED) {
         unloadedReferences.push(reference);
@@ -697,7 +706,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     // Coerce server IDs into Record Reference
     var references = map(idsOrReferencesOrOpaque, function(reference) {
-      if (typeof reference !== 'object' && reference !== null) {
+      if (typeof reference !== 'object' && reference !== null && !(reference instanceof DS.Model)) {
         return this.referenceForId(type, reference);
       }
 
@@ -1383,7 +1392,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     var reference = this.referenceForId(type, id);
 
     if (reference.record) {
-     once(reference.record, 'loadedData');
+      once(reference.record, 'loadedData');
     }
 
     reference.data = data;
@@ -1392,6 +1401,57 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     this.recordArrayManager.referenceDidChange(reference);
 
     return reference;
+  },
+
+  newLoad: function(type, data) {
+    var id = coerceId(data.id),
+        reference = this.referenceForId(type, id);
+
+    //reference.data = data;
+
+    if (reference.record) { reference.record.setupData(data); }
+
+    this.recordArrayManager.referenceDidChange(reference);
+
+    return reference;
+  },
+
+  modelFor: function(key) {
+    if (typeof key !== 'string') {
+      return key;
+    }
+
+    var factory = this.container.lookupFactory('model:'+key);
+    factory.store = this;
+
+    return factory;
+  },
+
+  push: function(type, data) {
+    var serializer = this.serializerFor(type);
+    type = this.modelFor(type);
+
+    data = serializer.deserialize(type, data);
+
+    this.newLoad(type, data);
+
+    var reference = this.referenceForId(type, data.id),
+        record = reference.record;
+
+    if (record) {
+      return record;
+    } else {
+      return this.materializeRecord(reference, data);
+    }
+  },
+
+  recordFor: function(type, id) {
+    type = this.modelFor(type);
+
+    var reference = this.referenceForId(type, id);
+    if (reference.record) { return reference.record; }
+
+    return this.materializeRecord(reference);
   },
 
   loadMany: function(type, ids, dataList) {
@@ -1467,7 +1527,25 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // . RECORD MATERIALIZATION .
   // ..........................
 
-  materializeRecord: function(reference) {
+  materializeRecord: function(reference, data) {
+    var record = reference.type._create({
+      id: reference.id,
+      store: this,
+      _reference: reference
+    });
+
+    reference.record = record;
+
+    get(this, 'defaultTransaction').adoptRecord(record);
+
+    if (data) {
+      record.setupData(data);
+    }
+
+    return record;
+  },
+
+  legacyMaterializeRecord: function(reference) {
     var record = reference.type._create({
       id: reference.id,
       store: this,

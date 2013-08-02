@@ -99,6 +99,7 @@
       createRecord: syncForTest(),
       deleteRecord: syncForTest(),
       load: syncForTest(),
+      newLoad: syncForTest(),
       loadMany: syncForTest(),
       filter: syncForTest(),
       find: syncForTest(),

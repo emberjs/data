@@ -17,7 +17,11 @@ var hasRelationship = function(type, options) {
         ids, relationship;
 
     if (typeof type === 'string') {
-      type = get(this, type, false) || get(Ember.lookup, type);
+      if (type.indexOf(".") === -1) {
+        type = store.modelFor(type);
+      } else {
+        type = get(Ember.lookup, type);
+      }
     }
 
     //ids can be references or opaque token

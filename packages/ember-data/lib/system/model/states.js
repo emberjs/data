@@ -427,6 +427,7 @@ updatedState.uncommitted.deleteRecord = function(record) {
 
 var RootState = {
   // FLAGS
+  isEmpty: false,
   isLoading: false,
   isLoaded: false,
   isReloading: false,
@@ -445,6 +446,8 @@ var RootState = {
   // the record is being created on the client, it will
   // transition into the `created` state.
   empty: {
+    isEmpty: true,
+
     // EVENTS
     loadingData: function(record) {
       record.transitionTo('loading');
@@ -452,6 +455,10 @@ var RootState = {
 
     loadedData: function(record) {
       record.transitionTo('loaded.created.uncommitted');
+    },
+
+    pushedData: function(record) {
+      record.transitionTo('loaded.saved');
     }
   },
 
