@@ -1407,7 +1407,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     var id = coerceId(data.id),
         reference = this.referenceForId(type, id);
 
-    //reference.data = data;
+    reference.data = MATERIALIZED;
 
     if (reference.record) { reference.record.setupData(data); }
 
