@@ -29,7 +29,7 @@ test("When a single record is requested, the adapter's find method should be cal
     equal(type, Person, "the find method is called with the correct type");
     equal(count, 0, "the find method is only called once");
 
-    store.load(type, id, { id: 1, name: "Braaaahm Dale" });
+    store.push(type, id, { id: 1, name: "Braaaahm Dale" });
 
     count++;
   };
@@ -55,6 +55,8 @@ test("When multiple records are requested, the default adapter should call the `
     equal(id, count);
   };
 
-  store.findMany(Person, [1,2,3]);
-  store.findMany(Person, [1,2,3]);
+  var people = [store.getById(Person, 1), store.getById(Person, 2), store.getById(Person, 3)];
+
+  store.findMany(Person, people);
+  store.findMany(Person, people);
 });
