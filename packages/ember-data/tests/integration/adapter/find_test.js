@@ -1,7 +1,7 @@
 var get = Ember.get, set = Ember.set;
 var Person, store, adapter;
 
-module("Finding Records", {
+module("integration/adapter/find - Finding Records", {
   setup: function() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),

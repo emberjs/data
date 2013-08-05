@@ -475,6 +475,8 @@ var RootState = {
     // EVENTS
     loadedData: didChangeData,
 
+    pushedData: Ember.K,
+
     materializingData: function(record) {
       record.transitionTo('loaded.materializing.firstTime');
     },

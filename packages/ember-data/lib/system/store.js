@@ -516,46 +516,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
-    This method returns a record for a given record refeence.
-
-    If no record for the reference has yet been materialized, this method will
-    materialize a new `DS.Model` instance. This allows adapters to eagerly load
-    large amounts of data into the store, and avoid incurring the cost of
-    creating models until they are requested.
-
-    In short, it's a convenient way to get a record for a known
-    record reference, materializing it if necessary.
-
-    @method recordForReference
-    @private
-    @param {Object} reference
-    @returns {DS.Model}
-  */
-  recordForReference: function(reference) {
-  },
-
-  /**
-    Given an array of `reference`s, determines which of those
-    `clientId`s has not yet been loaded.
-
-    In preparation for loading, this method also marks any unloaded
-    `clientId`s as loading.
-
-    @method unloadedReferences
-    @private
-    @param references
-  */
-  unloadedRecords: function(records) {
-    var unloaded = records.filterProperty('isEmpty');
-
-    unloaded.forEach(function(record) {
-      record.loadingData();
-    });
-
-    return unloaded;
-  },
-
-  /**
     This method is the entry point that relationships use to update
     themselves when their underlying data changes.
 
@@ -678,7 +638,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     records = Ember.A(recordsOrURL);
 
     var unloadedRecords = records.filterProperty('isEmpty', true),
-        manyArray = this.recordArrayManager.createManyArray(type, Ember.A()),
+        manyArray = this.recordArrayManager.createManyArray(type, records),
         references = records.mapProperty('_reference');
 
     unloadedRecords.forEach(function(record) {
@@ -903,7 +863,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Number|String} clientId
     @param {DS.Model} record
   */
-  dataWasUpdated: function(type, reference, record) {
+  dataWasUpdated: function(type, record) {
     // Because data updates are invoked at the end of the run loop,
     // it is possible that a record might be deleted after its data
     // has been modified and this method was scheduled to be called.
@@ -915,8 +875,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     if (get(record, 'isDeleted')) { return; }
 
-    if (typeof reference.data === "object") {
-      this.recordArrayManager.referenceDidChange(reference);
+    if (get(record, 'isLoaded')) {
+      this.recordArrayManager.recordDidChange(record);
     }
   },
 
@@ -1330,15 +1290,13 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   load: function(type, data) {
     var id = coerceId(data.id),
-        reference = this.referenceForId(type, id);
+        reference = this.referenceForId(type, id),
+        record = reference.record;
 
-    reference.data = MATERIALIZED;
+    record.setupData(data);
+    this.recordArrayManager.recordDidChange(record);
 
-    if (reference.record) { reference.record.setupData(data); }
-
-    this.recordArrayManager.referenceDidChange(reference);
-
-    return reference;
+    return record;
   },
 
   modelFor: function(key) {

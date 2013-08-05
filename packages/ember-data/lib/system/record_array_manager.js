@@ -18,11 +18,11 @@ DS.RecordArrayManager = Ember.Object.extend({
       defaultValue: function() { return []; }
     });
 
-    this.changedReferences = [];
+    this.changedRecords = [];
   },
 
-  referenceDidChange: function(reference) {
-    this.changedReferences.push(reference);
+  recordDidChange: function(record) {
+    this.changedRecords.push(record);
     once(this, this.updateRecordArrays);
   },
 
@@ -45,15 +45,17 @@ DS.RecordArrayManager = Ember.Object.extend({
     @param {Number|String} clientId
   */
   updateRecordArrays: function() {
-    forEach(this.changedReferences, function(reference) {
-      var type = reference.type,
+    forEach(this.changedRecords, function(record) {
+      var type = record.constructor,
           recordArrays = this.filteredRecordArrays.get(type),
           filter;
 
       forEach(recordArrays, function(array) {
         filter = get(array, 'filterFunction');
-        this.updateRecordArray(array, filter, type, reference);
+        this.updateRecordArray(array, filter, type, record);
       }, this);
+
+      var reference = record._reference;
 
       // loop through all manyArrays containing an unloaded copy of this
       // clientId and notify them that the record was loaded.
@@ -68,7 +70,7 @@ DS.RecordArrayManager = Ember.Object.extend({
       }
     }, this);
 
-    this.changedReferences = [];
+    this.changedRecords = [];
   },
 
   /**
@@ -80,24 +82,23 @@ DS.RecordArrayManager = Ember.Object.extend({
     @param {Class} type
     @param {Number|String} clientId
   */
-  updateRecordArray: function(array, filter, type, reference) {
-    var shouldBeInArray, record;
+  updateRecordArray: function(array, filter, type, record) {
+    var shouldBeInArray;
 
     if (!filter) {
       shouldBeInArray = true;
     } else {
-      record = this.store.recordForReference(reference);
       shouldBeInArray = filter(record);
     }
 
-    var recordArrays = this.recordArraysForReference(reference);
+    var recordArrays = this.recordArraysForReference(record._reference);
 
     if (shouldBeInArray) {
       recordArrays.add(array);
-      array.addReference(reference);
+      array.addRecord(record);
     } else if (!shouldBeInArray) {
       recordArrays.remove(array);
-      array.removeReference(reference);
+      array.removeRecord(record);
     }
   },
 
@@ -109,11 +110,11 @@ DS.RecordArrayManager = Ember.Object.extend({
     @param {DS.Model} record
   */
   remove: function(record) {
-    var reference = get(record, '_reference');
-    var recordArrays = reference.recordArrays || [];
+    var reference = record._reference,
+        recordArrays = reference.recordArrays || [];
 
     forEach(recordArrays, function(array) {
-      array.removeReference(reference);
+      array.removeRecord(record);
     });
   },
 
@@ -136,20 +137,10 @@ DS.RecordArrayManager = Ember.Object.extend({
 
     for (var i=0, l=references.length; i<l; i++) {
       reference = references[i];
-      shouldFilter = false;
+      record = reference.record;
 
-      data = reference.data;
-
-      if (typeof data === 'object') {
-        if (record = reference.record) {
-          if (!get(record, 'isDeleted')) { shouldFilter = true; }
-        } else {
-          shouldFilter = true;
-        }
-
-        if (shouldFilter) {
-          this.updateRecordArray(array, filter, type, reference);
-        }
+      if (!get(record, 'isDeleted') && !get(record, 'isEmpty')) {
+        this.updateRecordArray(array, filter, type, record);
       }
     }
   },

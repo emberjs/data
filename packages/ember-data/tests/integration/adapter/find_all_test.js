@@ -2,7 +2,7 @@ var get = Ember.get, set = Ember.set;
 
 var Person, adapter, store, allRecords;
 
-module("Finding All Records of a Type", {
+module("integration/adapter/find_all - Finding All Records of a Type", {
   setup: function() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
@@ -31,7 +31,7 @@ test("When all records for a type are requested, the store should call the adapt
 
     // Simulate latency to ensure correct behavior in asynchronous conditions.
     invokeAsync(function() {
-      store.loadMany(type, [{ id: 1, name: "Braaaahm Dale" }]);
+      store.push(type, { id: 1, name: "Braaaahm Dale" });
 
       // Only one record array per type should ever be created (identity map)
       strictEqual(allRecords, store.all(Person), "the same record array is returned every time all records of a type are requested");
@@ -52,7 +52,7 @@ test("When all records for a type are requested, records that are already loaded
   expect(3);
 
   // Load a record from the server
-  store.load(Person, { id: 1, name: "Jeremy Ashkenas" });
+  store.push(Person, { id: 1, name: "Jeremy Ashkenas" });
 
   // Create a new, unsaved record in the store
   store.createRecord(Person, { name: "Alex MacCaw" });

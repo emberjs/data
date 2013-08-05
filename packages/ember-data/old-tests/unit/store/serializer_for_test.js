@@ -1,6 +1,6 @@
 var container, store, app;
 
-module("unit/store/serializer_for - DS.Store#serializerFor", {
+module("DS.Store - serializerFor - unit/store/serializer_for_test", {
   setup: function() {
     container = new Ember.Container();
 

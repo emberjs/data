@@ -75,11 +75,11 @@ DS.RecordArray = Ember.ArrayProxy.extend(LoadPromise, {
     store.fetchAll(type, this);
   },
 
-  addReference: function(reference) {
-    get(this, 'content').addObject(reference);
+  addRecord: function(record) {
+    get(this, 'content').addObject(record);
   },
 
-  removeReference: function(reference) {
-    get(this, 'content').removeObject(reference);
+  removeRecord: function(record) {
+    get(this, 'content').removeObject(record);
   }
 });
