@@ -108,6 +108,9 @@ DS.Model.reopenClass({
     if (!inverseType) { return null; }
 
     var options = this.metaForProperty(name).options;
+
+    if (options.inverse === null) { return null; }
+    
     var inverseName, inverseKind;
 
     if (options.inverse) {
