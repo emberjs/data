@@ -35,7 +35,6 @@ DS.belongsTo = function(type, options) {
 
     if (get(belongsTo, 'isEmpty')) {
       store.fetchRecord(belongsTo);
-      store.findById(belongsTo.constructor, get(belongsTo, 'id'));
     }
 
     return belongsTo;
