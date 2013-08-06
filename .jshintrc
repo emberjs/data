@@ -11,6 +11,7 @@
         "ember_deprecate",
         "ember_deprecateFunc",
         "require",
+        "setupStore",
         "equal",
         "notEqual",
         "asyncTest",

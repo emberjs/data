@@ -208,7 +208,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object} options an options hash
   */
   serialize: function(record, options) {
-    return this.adapterForType(record.constructor).serialize(record, options);
+    return this.serializerFor(record.constructor).serialize(record, options);
   },
 
   /**
@@ -457,19 +457,25 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   findById: function(type, id) {
     var record = this.getById(type, id);
-    if (!get(record, 'isEmpty')) { return record; }
+    if (get(record, 'isEmpty')) {
+      this.fetchRecord(record);
+    }
+
+    return record;
+  },
+
+  fetchRecord: function(record) {
+    var type = record.constructor,
+        id = get(record, 'id');
 
     record.loadingData();
 
-    var adapter = this.adapterForType(type),
-        store = this;
+    var adapter = this.adapterForType(type);
 
     Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to find a record but your adapter (for " + type + ") does not implement 'find'", adapter.find);
 
     this.handlePromise(record, adapter.find(this, type, id), null, 'recordWasError');
-
-    return record;
   },
 
   getById: function(type, id) {
@@ -1306,6 +1312,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var factory = this.container.lookupFactory('model:'+key);
     factory.store = this;
+    factory.typeKey = key;
 
     return factory;
   },

@@ -14,48 +14,31 @@ DS.belongsTo = function(type, options) {
 
   return Ember.computed(function(key, value) {
     var data = get(this, 'data'),
-        store = get(this, 'store'), belongsTo;
+        store = get(this, 'store'), belongsTo, typeClass;
 
     if (typeof type === 'string') {
       if (type.indexOf(".") === -1) {
-        type = store.modelFor(type);
+        typeClass = store.modelFor(type);
       } else {
-        type = get(Ember.lookup, type);
+        typeClass = get(Ember.lookup, type);
       }
     }
 
     if (arguments.length === 2) {
-      Ember.assert("You can only add a record of " + type.toString() + " to this relationship", !value || type.detectInstance(value));
+      Ember.assert("You can only add a '" + type + "' record to this relationship", !value || typeClass.detectInstance(value));
       return value === undefined ? null : value;
     }
 
     belongsTo = data[key];
 
-    if (belongsTo instanceof DS.Model) { return belongsTo; }
+    if (isNone(belongsTo)) { return null; }
 
-    // TODO (tomdale) The value of the belongsTo in the data hash can be
-    // one of:
-    // 1. null/undefined
-    // 2. a record reference
-    // 3. a tuple returned by the serializer's polymorphism code
-    //
-    // We should really normalize #3 to be the same as #2 to reduce the
-    // complexity here.
-
-    if (isNone(belongsTo)) {
-      return null;
+    if (get(belongsTo, 'isEmpty')) {
+      store.fetchRecord(belongsTo);
+      store.findById(belongsTo.constructor, get(belongsTo, 'id'));
     }
 
-    // The data has been normalized to a record reference, so
-    // just ask the store for the record for that reference,
-    // materializing it if necessary.
-    if (belongsTo.clientId) {
-      return store.recordForReference(belongsTo);
-    }
-
-    // The data has been normalized into a type/id pair by the
-    // serializer's polymorphism code.
-    return store.findById(belongsTo.type, belongsTo.id);
+    return belongsTo;
   }).property('data').meta(meta);
 };
 

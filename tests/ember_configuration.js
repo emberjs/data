@@ -42,6 +42,32 @@
     setTimeout(async(callback, timeout+100), timeout);
   };
 
+  window.setupStore = function(options) {
+    var env = {};
+
+    var container = env.container = new Ember.Container();
+    var adapter = env.adapter = DS.Adapter.create();
+
+    var store = env.store = DS.Store.create({
+      container: container,
+      adapter: adapter
+    });
+
+    var serializer = DS.NewJSONSerializer.extend({
+      store: store
+    });
+
+    for (var prop in options) {
+      container.register('model:' + prop, options[prop]);
+    }
+
+    container.register('serializer:_default', serializer);
+
+    env.serializer = container.lookup('serializer:_default');
+
+    return env;
+  };
+
   var syncForTest = function(fn) {
     var callSuper;
 
