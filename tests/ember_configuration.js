@@ -22,7 +22,7 @@
     timeout = setTimeout(function() {
       start();
       ok(false, "Timeout was reached");
-    }, timeout || 100);
+    }, timeout || 200);
 
     return function() {
       clearTimeout(timeout);

@@ -306,22 +306,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     if (cachedValue) {
       var type = get(this.constructor, 'relationshipsByName').get(key).type;
       var store = get(this, 'store');
-      var ids = this._data[key] || [];
+      var records = this._data[key] || [];
 
-      var references = map(ids, function(id) {
-        if (typeof id === 'object') {
-          if( id.clientId ) {
-            // if it was already a reference, return the reference
-            return id;
-          } else {
-            // <id, type> tuple for a polymorphic association.
-            return store.referenceForId(id.type, id.id);
-          }
-        }
-        return store.referenceForId(type, id);
-      });
-
-      set(cachedValue, 'content', Ember.A(references));
+      set(cachedValue, 'content', Ember.A(records));
+      set(cachedValue, 'isLoaded', true);
+      cachedValue.trigger('didLoad');
     }
   },
 
@@ -348,45 +337,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     this._data[name] = value;
   },
 
-  materializeHasMany: function(name, tuplesOrReferencesOrOpaque) {
-    var tuplesOrReferencesOrOpaqueType = typeof tuplesOrReferencesOrOpaque;
-
-    if (tuplesOrReferencesOrOpaque && tuplesOrReferencesOrOpaqueType !== 'string' && tuplesOrReferencesOrOpaque.length > 1) {
-      Ember.assert('materializeHasMany expects tuples, references or opaque token, not ' + tuplesOrReferencesOrOpaque[0], tuplesOrReferencesOrOpaque[0].hasOwnProperty('id') && tuplesOrReferencesOrOpaque[0].type);
-    }
-
-    if( tuplesOrReferencesOrOpaqueType === "string" ) {
-      this._data[name] = tuplesOrReferencesOrOpaque;
-    } else {
-      var references = tuplesOrReferencesOrOpaque;
-
-      if (tuplesOrReferencesOrOpaque && Ember.isArray(tuplesOrReferencesOrOpaque)) {
-        references = this._convertTuplesToReferences(tuplesOrReferencesOrOpaque);
-      }
-
-      this._data[name] = references;
-    }
-  },
-
-  materializeBelongsTo: function(name, tupleOrReference) {
-    if (tupleOrReference) { Ember.assert('materializeBelongsTo expects a tuple or a reference, not a ' + tupleOrReference, !tupleOrReference || (tupleOrReference.hasOwnProperty('id') && tupleOrReference.hasOwnProperty('type'))); }
-
-    this._data[name] = tupleOrReference;
-  },
-
-  _convertTuplesToReferences: function(tuplesOrReferences) {
-    return map(tuplesOrReferences, function(tupleOrReference) {
-      return this._convertTupleToReference(tupleOrReference);
-    }, this);
-  },
-
-  _convertTupleToReference: function(tupleOrReference) {
-    var store = get(this, 'store');
-    if(tupleOrReference.clientId) {
-      return tupleOrReference;
-    } else {
-      return store.referenceForId(tupleOrReference.type, tupleOrReference.id);
-    }
+  updateHasMany: function(name, records) {
+    this._data[name] = records;
+    this.hasManyDidChange(name);
   },
 
   rollback: function() {

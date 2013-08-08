@@ -21,9 +21,18 @@ DS.NewJSONSerializer = Ember.Object.extend({
   },
 
   deserializeRecordId: function(data, key, relationship, id) {
+    if (isNone(id) || id instanceof DS.Model) {
+      return;
+    }
+
+    var type;
+
     if (typeof id === 'number' || typeof id === 'string') {
-      var type = this.typeFor(relationship, key, data);
+      type = this.typeFor(relationship, key, data);
       data[key] = get(this, 'store').recordFor(type, id);
+    } else if (typeof id === 'object') {
+      // polymorphic
+      data[key] = get(this, 'store').recordFor(id.type, id.id);
     }
   },
 

@@ -479,6 +479,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   getById: function(type, id) {
+    type = this.modelFor(type);
+
     var reference, record;
 
     if (this.hasReferenceForId(type, id)) {
@@ -533,9 +535,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param references
     @param owner
   */
-  fetchUnloadedReferences: function(references, owner) {
-    var unloadedReferences = this.unloadedReferences(references);
-    this.fetchMany(unloadedReferences, owner);
+  fetchUnloadedRecords: function(records, owner) {
+    var unloadedRecords = records.filterProperty('isEmpty', true);
+    this.fetchMany(unloadedRecords, owner);
   },
 
   /**
@@ -637,8 +639,16 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (!Ember.isArray(recordsOrURL)) {
       url = recordsOrURL;
 
-      // TODO: Handle URLs
-      return;
+      records = this.recordArrayManager.createManyArray(type, Ember.A([]));
+
+      var adapter = this.adapterForType(type);
+
+      Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + type + ")", adapter);
+      Ember.assert("You tried to load many records but your adapter does not implement `findHasMany`", adapter.findHasMany);
+
+      adapter.findHasMany(this, record, relationship, url);
+
+      return records;
     }
 
     records = Ember.A(recordsOrURL);
@@ -1344,16 +1354,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return this.materializeRecord(reference);
   },
 
-  loadMany: function(type, ids, dataList) {
-    if (dataList === undefined) {
-      dataList = ids;
-      ids = map(dataList, function(data) {
-        return this.preprocessData(type, data);
-      }, this);
-    }
-
-    return map(ids, function(id, i) {
-      return this.load(type, id, dataList[i]);
+  pushMany: function(type, datas) {
+    return map(datas, function(data) {
+      return this.push(type, data);
     }, this);
   },
 

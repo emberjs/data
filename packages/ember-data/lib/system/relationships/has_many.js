@@ -26,9 +26,9 @@ var hasRelationship = function(type, options) {
 
     //ids can be references or opaque token
     //(e.g. `{url: '/relationship'}`) that will be passed to the adapter
-    ids = data[key];
+    var recordsOrURL = data[key];
 
-    relationship = store.findMany(type, ids, this, meta);
+    relationship = store.findMany(type, recordsOrURL, this, meta);
     set(relationship, 'owner', this);
     set(relationship, 'name', key);
     set(relationship, 'isPolymorphic', options.polymorphic);

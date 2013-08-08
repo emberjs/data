@@ -101,7 +101,7 @@ DS.RelationshipChange.determineRelationshipType = function(recordType, knownSide
 
 DS.RelationshipChange.createChange = function(firstRecordReference, secondRecordReference, store, options){
   // Get the type of the child based on the child's client ID
-  var firstRecordType = firstRecordReference.type, changeType;
+  var firstRecordType = firstRecordReference.constructor, changeType;
   changeType = DS.RelationshipChange.determineRelationshipType(firstRecordType, options);
   if (changeType === "oneToMany"){
     return DS.OneToManyChange.createChange(firstRecordReference, secondRecordReference, store, options);
@@ -308,7 +308,7 @@ DS.RelationshipChange.prototype = {
       parent = this.secondRecordReference;
       if (!parent) { return; }
 
-      var childType = this.firstRecordReference.type;
+      var childType = this.firstRecordReference.constructor;
       var inverse = childType.inverseFor(this.firstRecordName);
       this.secondRecordName = inverse.name;
     }

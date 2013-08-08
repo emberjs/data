@@ -59,12 +59,11 @@ DS.Model.reopen({
   */
   belongsToWillChange: Ember.beforeObserver(function(record, key) {
     if (get(record, 'isLoaded')) {
-      var oldParent = get(record, key);
-
-      var childReference = get(record, '_reference'),
+      var oldParent = get(record, key),
           store = get(record, 'store');
+
       if (oldParent){
-        var change = DS.RelationshipChange.createChange(childReference, get(oldParent, '_reference'), store, { key: key, kind:"belongsTo", changeType: "remove" });
+        var change = DS.RelationshipChange.createChange(record, oldParent, store, { key: key, kind: "belongsTo", changeType: "remove" });
         change.sync();
         this._changesToSync[key] = change;
       }
@@ -82,10 +81,11 @@ DS.Model.reopen({
     if (get(record, 'isLoaded')) {
       var newParent = get(record, key);
       if(newParent){
-        var childReference = get(record, '_reference'),
-            store = get(record, 'store');
-        var change = DS.RelationshipChange.createChange(childReference, get(newParent, '_reference'), store, { key: key, kind:"belongsTo", changeType: "add" });
+        var store = get(record, 'store'),
+            change = DS.RelationshipChange.createChange(record, newParent, store, { key: key, kind: "belongsTo", changeType: "add" });
+
         change.sync();
+
         if(this._changesToSync[key]){
           DS.OneToManyChange.ensureSameTransaction([change, this._changesToSync[key]], store);
         }
