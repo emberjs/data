@@ -1,32 +1,25 @@
 var get = Ember.get, set = Ember.set;
 var serializer, adapter, store;
-var Post, Comment;
+var Post, Comment, env;
 
-module("Client-side ID Generation", {
+module("integration/client_id_generation - Client-side ID Generation", {
   setup: function() {
-    serializer = DS.Serializer.create();
-    adapter = DS.Adapter.create({
-      serializer: serializer
+    Comment = DS.Model.extend({
+      post: DS.belongsTo('post')
     });
-    store = DS.Store.create({
-      adapter: adapter
-    });
-
-    Comment = DS.Model.extend();
 
     Post = DS.Model.extend({
-      comments: DS.hasMany(Comment)
+      comments: DS.hasMany('comment')
     });
 
-    Comment.reopen({
-      post: DS.belongsTo(Post)
+    env = setupStore({
+      post: Post,
+      comment: Comment
     });
   },
 
   teardown: function() {
-    serializer.destroy();
-    adapter.destroy();
-    store.destroy();
+    env.container.destroy();
   }
 });
 
@@ -35,13 +28,13 @@ test("If an adapter implements the `generateIdForRecord` method, the store shoul
 
   var idCount = 1;
 
-  adapter.generateIdForRecord = function(passedStore, record) {
-    equal(store, passedStore, "store is the first parameter");
+  env.adapter.generateIdForRecord = function(passedStore, record) {
+    equal(env.store, passedStore, "store is the first parameter");
 
     return "id-" + idCount++;
   };
 
-  adapter.createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, record) {
     if (type === Comment) {
       equal(get(record, 'id'), 'id-1', "Comment passed to `createRecord` has 'id-1' assigned");
     } else {
@@ -49,13 +42,13 @@ test("If an adapter implements the `generateIdForRecord` method, the store shoul
     }
   };
 
-  var comment = store.createRecord(Comment);
-  var post = store.createRecord(Post);
+  var comment = env.store.createRecord('comment');
+  var post = env.store.createRecord('post');
 
   equal(get(comment, 'id'), 'id-1', "comment is assigned id 'id-1'");
   equal(get(post, 'id'), 'id-2', "post is assigned id 'id-2'");
 
   // Despite client-generated IDs, calling commit() on the store should still
   // invoke the adapter's `createRecord` method.
-  store.commit();
+  env.store.commit();
 });
