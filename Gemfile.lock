@@ -59,6 +59,8 @@ GEM
     multi_json (1.7.7)
     nokogiri (1.5.10)
     posix-spawn (0.3.6)
+    puma (2.4.1)
+      rack (>= 1.1, < 2.0)
     rack (1.5.2)
     rake (10.0.4)
     rake-pipeline-web-filters (0.7.0)
@@ -82,4 +84,5 @@ DEPENDENCIES
   ember-data-source!
   ember-dev!
   ember-source (= 1.0.0.rc6.4)
+  puma
   rake-pipeline!
