@@ -163,4 +163,8 @@
     build:   'ember-data.js'
   };
 
+  // Generate the jQuery expando on window ahead of time
+  // to make the QUnit global check run clean
+  jQuery(window).data('testing', true);
+
 })();
