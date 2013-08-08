@@ -1,30 +1,28 @@
-var get = Ember.get, set = Ember.set;
-var Person, store, adapter;
+var get = Ember.get, set = Ember.set, attr = DS.attr;
+var Person, env;
 
-module("Persisting Records", {
+module("integration/adapter/record_persistence - Persisting Records", {
   setup: function() {
     Person = DS.Model.extend({
-      updatedAt: DS.attr('string'),
-      name: DS.attr('string'),
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string')
+      updatedAt: attr('string'),
+      name: attr('string'),
+      firstName: attr('string'),
+      lastName: attr('string')
     });
-    Person[Ember.GUID_KEY+'_name'] = 'Person'; // To test error messages
+    Person.toString = function() { return "Person"; };
 
-    adapter = DS.Adapter.create();
-    store = DS.Store.create({ adapter: adapter });
+    env = setupStore({ person: Person });
   },
 
   teardown: function() {
-    adapter.destroy();
-    store.destroy();
+    env.container.destroy();
   }
 });
 
 test("When a store is committed, the adapter's `commit` method should be called with records that have been changed.", function() {
   expect(2);
 
-  adapter.commit = function(store, records) {
+  env.adapter.commit = function(store, records) {
     this.groupByType(records.updated).forEach(function(type, set) {
       equal(type, Person, "the type is correct");
       equal(get(set.toArray(), 'length'), 1, "the array is the right length");
@@ -33,22 +31,22 @@ test("When a store is committed, the adapter's `commit` method should be called 
     });
   };
 
-  store.load(Person, { id: 1, name: "Braaaahm Dale" });
+  env.store.push('person', { id: 1, name: "Braaaahm Dale" });
 
-  var tom = store.find(Person, 1);
+  var tom = env.store.find('person', 1);
   set(tom, "name", "Tom Dale");
 
-  store.commit();
+  env.store.commit();
 
   // Make sure that if we commit again, the previous records have been
   // removed.
-  store.commit();
+  env.store.commit();
 });
 
 test("When a store is committed, the adapter's `commit` method should be called with records that have been created.", function() {
   expect(3);
 
-  adapter.commit = function(store, records) {
+  env.adapter.commit = function(store, records) {
     equal(get(records.updated.toArray(), 'length'), 0, "no records are marked as being updated");
 
     this.groupByType(records.created).forEach(function(type, set) {
@@ -59,36 +57,36 @@ test("When a store is committed, the adapter's `commit` method should be called 
     });
   };
 
-  var tom = store.createRecord(Person, { name: "Tom Dale" });
+  var tom = env.store.createRecord('person', { name: "Tom Dale" });
 
-  store.commit();
+  env.store.commit();
 
   // Make sure that if we commit again, the previous records have been
   // removed.
-  store.commit();
+  env.store.commit();
 });
 
 test("After a created record has been assigned an ID, finding a record by that ID returns the original record.", function() {
   expect(1);
 
-  adapter.commit = function(store, records) {
+  env.adapter.commit = function(store, records) {
     store.didSaveRecords(records.created, [{ id: 1, name: "Tom Dale" }]);
   };
 
-  var tom = store.createRecord(Person, { name: "Tom Dale" });
-  store.commit();
+  var tom = env.store.createRecord('person', { name: "Tom Dale" });
+  env.store.commit();
 
-  strictEqual(tom, store.find(Person, 1), "the retrieved record is the same as the created record");
+  strictEqual(tom, env.store.find('person', 1), "the retrieved record is the same as the created record");
 
   // Make sure that if we commit again, the previous records have been
   // removed.
-  store.commit();
+  env.store.commit();
 });
 
 test("when a store is committed, the adapter's `commit` method should be called with records that have been deleted.", function() {
   expect(5);
 
-  adapter.commit = function(store, records) {
+  env.adapter.commit = function(store, records) {
     equal(records.updated.isEmpty(), true, "no records are marked as updated");
     equal(records.created.isEmpty(), true, "no records are marked as created");
 
@@ -100,11 +98,11 @@ test("when a store is committed, the adapter's `commit` method should be called 
     });
   };
 
-  store.load(Person, { id: 1, name: "Tom Dale" });
-  var tom = store.find(Person, 1);
+  env.store.push('person', { id: 1, name: "Tom Dale" });
+  var tom = env.store.find('person', 1);
 
   tom.deleteRecord();
-  store.commit();
+  env.store.commit();
 
   equal(get(tom, 'isDeleted'), true, "record is marked as deleted");
 });
@@ -114,7 +112,7 @@ test("An adapter can notify the store that records were updated by calling `didS
 
   var tom, yehuda;
 
-  adapter.commit = function(store, commitDetails, relationships) {
+  env.adapter.commit = function(store, commitDetails, relationships) {
     var updatedRecords = commitDetails.updated;
 
     equal(get(updatedRecords.toArray(), 'length'), 2, "two updated records are passed to `commit`");
@@ -125,11 +123,11 @@ test("An adapter can notify the store that records were updated by calling `didS
     ok(!yehuda.get('isDirty'), "yehuda is no longer dirty");
   };
 
-  store.load(Person, { id: 1 });
-  store.load(Person, { id: 2 });
+  env.store.push('person', { id: 1 });
+  env.store.push('person', { id: 2 });
 
-  tom = store.find(Person, 1);
-  yehuda = store.find(Person, 2);
+  tom = env.store.find('person', 1);
+  yehuda = env.store.find('person', 2);
 
   tom.set('name', "Michael Phelps");
   yehuda.set('name', "Usain Bolt");
@@ -137,10 +135,10 @@ test("An adapter can notify the store that records were updated by calling `didS
   ok(tom.get('isDirty'), "tom is dirty");
   ok(yehuda.get('isDirty'), "yehuda is dirty");
 
-  store.commit();
+  env.store.commit();
 
   // there is nothing to commit, so there won't be any records
-  store.commit();
+  env.store.commit();
 });
 
 test("An adapter can notify the store that records were updated and provide new data by calling `didSaveRecords`.", function() {
@@ -148,7 +146,7 @@ test("An adapter can notify the store that records were updated and provide new 
 
   var tom, yehuda, transaction;
 
-  adapter.commit = function(store, commitDetails, relationships) {
+  env.adapter.commit = function(store, commitDetails, relationships) {
     var updatedRecords = commitDetails.updated;
 
     equal(get(updatedRecords.toArray(), 'length'), 2, "precond - two updated records are passed to `commit`");
@@ -161,19 +159,19 @@ test("An adapter can notify the store that records were updated and provide new 
     equal(yehuda.get('updatedAt'), "now!", "updatedAt attribute should reflect value of hash passed to didSaveRecords");
   };
 
-  store.load(Person, { id: 1, name: "Braaaahm Dale" });
-  store.load(Person, { id: 2, name: "Gentile Katz" });
+  env.store.push('person', { id: 1, name: "Braaaahm Dale" });
+  env.store.push('person', { id: 2, name: "Gentile Katz" });
 
-  tom = store.find(Person, 1);
-  yehuda = store.find(Person, 2);
+  tom = env.store.find('person', 1);
+  yehuda = env.store.find('person', 2);
 
   tom.set('name', "Draaaaaahm Dale");
   yehuda.set('name', "Goy Katz");
 
-  store.commit();
+  env.store.commit();
 
   // there is nothing to commit, so there won't be any records
-  store.commit();
+  env.store.commit();
 });
 
 test("An adapter can notify the store that a record was updated by calling `didSaveRecord`.", function() {
@@ -181,7 +179,7 @@ test("An adapter can notify the store that a record was updated by calling `didS
 
   var tom, yehuda;
 
-  adapter.commit = function(store, commitDetails, relationships) {
+  env.adapter.commit = function(store, commitDetails, relationships) {
     var updatedRecords = commitDetails.updated;
 
     equal(get(updatedRecords.toArray(), 'length'), 2, "precond - two updated records are passed to `commit`");
@@ -193,11 +191,11 @@ test("An adapter can notify the store that a record was updated by calling `didS
     ok(!yehuda.get('isDirty'), "yehuda is not dirty");
   };
 
-  store.load(Person, { id: 1 });
-  store.load(Person, { id: 2 });
+  env.store.push('person', { id: 1 });
+  env.store.push('person', { id: 2 });
 
-  tom = store.find(Person, 1);
-  yehuda = store.find(Person, 2);
+  tom = env.store.find('person', 1);
+  yehuda = env.store.find('person', 2);
 
   tom.set('name', "Tom Dale");
   yehuda.set('name', "Yehuda Katz");
@@ -205,10 +203,10 @@ test("An adapter can notify the store that a record was updated by calling `didS
   ok(tom.get('isDirty'), "tom is dirty");
   ok(yehuda.get('isDirty'), "yehuda is dirty");
 
-  store.commit();
+  env.store.commit();
 
   // there is nothing to commit, so there won't be any records
-  store.commit();
+  env.store.commit();
 });
 
 test("An adapter can notify the store that a record was updated and provide new data by calling `didSaveRecord`.", function() {
@@ -216,7 +214,7 @@ test("An adapter can notify the store that a record was updated and provide new 
 
   var tom, yehuda, transaction;
 
-  adapter.commit = function(store, commitDetails, relationships) {
+  env.adapter.commit = function(store, commitDetails, relationships) {
     var updatedRecords = commitDetails.updated;
 
     equal(get(updatedRecords.toArray(), 'length'), 2, "precond - two updated records are passed to `commit`");
@@ -230,19 +228,19 @@ test("An adapter can notify the store that a record was updated and provide new 
     equal(yehuda.get('updatedAt'), "now!", "updatedAt attribute should reflect value of hash passed to didSaveRecords");
   };
 
-  store.load(Person, { id: 1, name: "Braaaahm Dale" });
-  store.load(Person, { id: 2, name: "Gentile Katz" });
+  env.store.push('person', { id: 1, name: "Braaaahm Dale" });
+  env.store.push('person', { id: 2, name: "Gentile Katz" });
 
-  tom = store.find(Person, 1);
-  yehuda = store.find(Person, 2);
+  tom = env.store.find('person', 1);
+  yehuda = env.store.find('person', 2);
 
   tom.set('name', "Draaaaaahm Dale");
   yehuda.set('name', "Goy Katz");
 
-  store.commit();
+  env.store.commit();
 
   // there is nothing to commit, so there won't be any records
-  store.commit();
+  env.store.commit();
 });
 
 test("An adapter can notify the store that records were deleted by calling `didSaveRecords`.", function() {
@@ -250,7 +248,7 @@ test("An adapter can notify the store that records were deleted by calling `didS
 
   var tom, yehuda, transaction;
 
-  adapter.commit = function(store, commitDetails, relationships) {
+  env.adapter.commit = function(store, commitDetails, relationships) {
     var deletedRecords = commitDetails.deleted;
 
     equal(get(deletedRecords.toArray(), 'length'), 2, "precond - two updated records are passed to `commit`");
@@ -261,19 +259,19 @@ test("An adapter can notify the store that records were deleted by calling `didS
     ok(!get(yehuda, 'isDirty'), "Yehuda is no longer dirty");
   };
 
-  store.load(Person, { id: 1, name: "Braaaahm Dale" });
-  store.load(Person, { id: 2, name: "Gentile Katz" });
+  env.store.push('person', { id: 1, name: "Braaaahm Dale" });
+  env.store.push('person', { id: 2, name: "Gentile Katz" });
 
-  tom = store.find(Person, 1);
-  yehuda = store.find(Person, 2);
+  tom = env.store.find('person', 1);
+  yehuda = env.store.find('person', 2);
 
   tom.deleteRecord();
   yehuda.deleteRecord();
 
-  store.commit();
+  env.store.commit();
 
   // there is nothing to commit, so there won't be any records
-  store.commit();
+  env.store.commit();
 });
 
 test("An adapter can notify the store that a record was deleted by calling `didSaveRecord`.", function() {
@@ -281,7 +279,7 @@ test("An adapter can notify the store that a record was deleted by calling `didS
 
   var tom, yehuda, transaction;
 
-  adapter.commit = function(store, commitDetails, relationships) {
+  env.adapter.commit = function(store, commitDetails, relationships) {
     var deletedRecords = commitDetails.deleted;
 
     equal(get(deletedRecords.toArray(), 'length'), 2, "precond - two updated records are passed to `commit`");
@@ -293,19 +291,19 @@ test("An adapter can notify the store that a record was deleted by calling `didS
     ok(!get(yehuda, 'isDirty'), "Yehuda is no longer dirty");
   };
 
-  store.load(Person, { id: 1, name: "Braaaahm Dale" });
-  store.load(Person, { id: 2, name: "Gentile Katz" });
+  env.store.push('person', { id: 1, name: "Braaaahm Dale" });
+  env.store.push('person', { id: 2, name: "Gentile Katz" });
 
-  tom = store.find(Person, 1);
-  yehuda = store.find(Person, 2);
+  tom = env.store.find('person', 1);
+  yehuda = env.store.find('person', 2);
 
   tom.deleteRecord();
   yehuda.deleteRecord();
 
-  store.commit();
+  env.store.commit();
 
   // there is nothing to commit, so there won't be any records
-  store.commit();
+  env.store.commit();
 });
 
 test("An error is raised when attempting to set a property while a record is being saved", function() {
@@ -313,24 +311,24 @@ test("An error is raised when attempting to set a property while a record is bei
 
   var tom;
 
-  adapter.commit = function(store, commitDetails, relationships) {
+  env.adapter.commit = function(store, commitDetails, relationships) {
   };
 
   var finishSaving = function() {
-    store.didSaveRecord(tom);
+    env.store.didSaveRecord(tom);
   };
 
-  store.load(Person, { id: 1 });
-  tom = store.find(Person, 1);
+  env.store.push(Person, { id: 1 });
+  tom = env.store.find(Person, 1);
   tom.set('name', "Tom Dale");
-  store.commit();
+  env.store.commit();
   ok(tom.get('isDirty'), "tom is dirty");
   try {
     tom.set('name', "Tommy Bahama");
   } catch(e) {
     var expectedMessage = "Attempted to handle event `willSetProperty` on <Person:" + Ember.guidFor(tom) + ":1> ";
     expectedMessage +=    "while in state root.loaded.updated.inFlight. Called with ";
-    expectedMessage +=    "{reference: [object Object], store: <DS.Store:" + Ember.guidFor(store) + ">, name: name}.";
+    expectedMessage +=    "{reference: [object Object], store: <DS.Store:" + Ember.guidFor(env.store) + ">, name: name}.";
     equal(e.message, expectedMessage);
   }
   finishSaving();

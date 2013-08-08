@@ -1220,7 +1220,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     var type = record.constructor,
         typeMap = this.typeMapFor(type),
         reference = get(record, '_reference'),
-        id = data.id;
+        id = coerceId(data.id);
 
     Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + get(record, 'id') + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", get(record, 'id') === null || id === get(record, 'id'));
 
