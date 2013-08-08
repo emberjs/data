@@ -141,3 +141,43 @@ test("Sideloading can be done by specifying only an alias", function() {
   equal(loadMainCallCount, 1, "one main record was loaded from a single payload");
   equal(loadCallCount, 1, "one secondary record was loaded from a single payload");
 });
+
+
+var Adapter, Settings, Person, adapter;
+
+module("DS.RESTSerializer -  pluralization", {
+  setup: function() {
+    Settings = DS.Model.extend({
+      isAdmin: DS.attr('boolean')
+    });
+
+    Person = DS.Model.extend({
+      settings: DS.belongsTo(Settings)
+    });
+
+    Person.toString = function() {
+      return "App.Person";
+    };
+
+    Settings.toString = function() {
+      return "App.Settings";
+    };
+
+    Adapter = DS.RESTAdapter.extend();
+    Adapter.configure('plurals', {
+      settings: 'settings'
+    });
+
+    adapter = Adapter.create();
+
+    serializer = get(adapter, 'serializer');
+
+    serializer.configureSideloadMappingForType(Person, Ember.A());
+  },
+});
+
+test("Plural alias can be the same as the singular alias, when there is a similar relatedType alias", function(){
+  var alias = serializer.typeFromAlias('settings');
+
+  equal(Settings, alias, 'Plural alias can be the same as the singular alias');
+});
