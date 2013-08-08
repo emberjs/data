@@ -170,10 +170,6 @@ var hasDefinedProperties = function(object) {
   return false;
 };
 
-var didChangeData = function(record) {
-  record.materializeData();
-};
-
 var willSetProperty = function(record, context) {
   context.oldValue = get(record, context.name);
 
@@ -259,7 +255,7 @@ var DirtyState = {
         t.remove(record);
       });
 
-      record.transitionTo('loaded.materializing');
+      record.transitionTo('loaded.saved');
     },
 
     becameInvalid: function(record) {
@@ -285,11 +281,6 @@ var DirtyState = {
 
     // EVENTS
 
-    materializingData: function(record) {
-      set(record, 'lastDirtyType', get(this, 'dirtyType'));
-      record.transitionTo('materializing');
-    },
-
     didCommit: function(record) {
       var dirtyType = get(this, 'dirtyType');
 
@@ -300,8 +291,6 @@ var DirtyState = {
       record.transitionTo('saved');
       record.send('invokeLifecycleCallbacks', dirtyType);
     },
-
-    didChangeData: didChangeData,
 
     becameInvalid: function(record, errors) {
       set(record, 'errors', errors);
@@ -362,7 +351,7 @@ var DirtyState = {
     },
 
     invokeLifecycleCallbacks: function(record) {
-      record.trigger('becameInvalid', record);
+      record.triggerLater('becameInvalid', record);
     }
   }
 };
@@ -473,12 +462,8 @@ var RootState = {
     isLoading: true,
 
     // EVENTS
-    loadedData: didChangeData,
-
-    pushedData: Ember.K,
-
-    materializingData: function(record) {
-      record.transitionTo('loaded.materializing.firstTime');
+    pushedData: function(record) {
+      record.transitionTo('loaded.saved');
     },
 
     becameError: function(record) {
@@ -498,30 +483,6 @@ var RootState = {
 
     // SUBSTATES
 
-    materializing: {
-      // EVENTS
-      willSetProperty: Ember.K,
-      didSetProperty: Ember.K,
-
-      didChangeData: didChangeData,
-
-      finishedMaterializing: function(record) {
-        record.transitionTo('loaded.saved');
-      },
-
-      // SUBSTATES
-      firstTime: {
-        // FLAGS
-        isLoaded: false,
-
-        exit: function(record) {
-          once(function() {
-            record.trigger('didLoad');
-          });
-        }
-      }
-    },
-
     reloading: {
       // FLAGS
       isReloading: true,
@@ -533,14 +494,12 @@ var RootState = {
       },
 
       exit: function(record) {
-        once(record, 'trigger', 'didReload');
+        record.triggerLater('didReload');
       },
 
       // EVENTS
-      loadedData: didChangeData,
-
-      materializingData: function(record) {
-        record.transitionTo('loaded.materializing');
+      pushedData: function(record) {
+        record.transitionTo('loaded.saved');
       }
     },
 
@@ -551,15 +510,10 @@ var RootState = {
       willSetProperty: willSetProperty,
       didSetProperty: didSetProperty,
 
-      didChangeData: didChangeData,
-      loadedData: didChangeData,
+      pushedData: Ember.K,
 
       reloadRecord: function(record) {
         record.transitionTo('loaded.reloading');
-      },
-
-      materializingData: function(record) {
-        record.transitionTo('loaded.materializing');
       },
 
       becomeDirty: function(record) {
@@ -588,12 +542,12 @@ var RootState = {
 
       invokeLifecycleCallbacks: function(record, dirtyType) {
         if (dirtyType === 'created') {
-          record.trigger('didCreate', record);
+          record.triggerLater('didCreate', record);
         } else {
-          record.trigger('didUpdate', record);
+          record.triggerLater('didUpdate', record);
         }
 
-        record.trigger('didCommit', record);
+        record.triggerLater('didCommit', record);
       }
     },
 
@@ -647,7 +601,7 @@ var RootState = {
         record.withTransaction(function(t) {
           t.remove(record);
         });
-        record.transitionTo('loaded.materializing');
+        record.transitionTo('loaded.saved');
       }
     },
 
@@ -689,8 +643,8 @@ var RootState = {
       },
 
       invokeLifecycleCallbacks: function(record) {
-        record.trigger('didDelete', record);
-        record.trigger('didCommit', record);
+        record.triggerLater('didDelete', record);
+        record.triggerLater('didCommit', record);
       }
     }
   },
@@ -704,7 +658,7 @@ var RootState = {
     // EVENTS
 
     invokeLifecycleCallbacks: function(record) {
-      record.trigger('becameError', record);
+      record.triggerLater('becameError', record);
     }
   }
 };

@@ -7,7 +7,8 @@ require("ember-data/system/mixins/load_promise");
 
 var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
 
-var get = Ember.get, set = Ember.set, map = Ember.EnumerableUtils.map, merge = Ember.merge;
+var get = Ember.get, set = Ember.set, map = Ember.EnumerableUtils.map,
+    merge = Ember.merge, once = Ember.run.once;
 
 var arrayMap = Ember.ArrayPolyfills.map;
 
@@ -155,6 +156,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
   _setup: function() {
     this._changesToSync = {};
+    this._deferredTriggers = [];
   },
 
   send: function(name, context) {
@@ -231,10 +233,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     this.send('pushedData');
   },
 
-  didChangeData: function() {
-    this.send('didChangeData');
-  },
-
   deleteRecord: function() {
     this.send('deleteRecord');
   },
@@ -270,12 +268,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     @method adapterDidCommit
   */
   adapterDidCommit: function() {
-    var attributes = get(this, 'data');
-
-    get(this.constructor, 'attributes').forEach(function(name, meta) {
-      attributes[name] = get(this, name);
-    }, this);
-
     this.send('didCommit');
     this.updateRecordArraysLater();
   },
@@ -287,7 +279,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
   dataDidChange: Ember.observer(function() {
     this.reloadHasManys();
-    this.send('finishedMaterializing');
   }, 'data'),
 
   reloadHasManys: function() {
@@ -322,6 +313,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     this._data = data || { id: null };
 
     if (data) { this.pushedData(); }
+
+    this.suspendRelationshipObservers(function() {
+      this.notifyPropertyChange('data');
+    });
   },
 
   materializeId: function(id) {
@@ -480,6 +475,17 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   trigger: function(name) {
     Ember.tryInvoke(this, name, [].slice.call(arguments, 1));
     this._super.apply(this, arguments);
+  },
+
+  triggerLater: function() {
+    this._deferredTriggers.push(arguments);
+    once(this, '_triggerDeferredTriggers');
+  },
+
+  _triggerDeferredTriggers: function() {
+    for (var i=0, l=this._deferredTriggers.length; i<l; i++) {
+      this.trigger.apply(this, this._deferredTriggers[i]);
+    }
   }
 });
 

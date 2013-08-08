@@ -83,6 +83,13 @@ DS.NewJSONSerializer = Ember.Object.extend({
     }
   },
 
+  // EXTRACT
+
+  extractPayload: function(type, payload) {
+    var store = get(this, 'store');
+    store.push(type, payload[type.typeKey]);
+  },
+
   // HELPERS
 
   typeFor: function(relationship, key, data) {

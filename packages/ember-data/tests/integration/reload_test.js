@@ -1,24 +1,23 @@
 var get = Ember.get, set = Ember.set;
-var Person, store, adapter;
+var attr = DS.attr;
+var Person, env;
 
-module("Reloading Records", {
+module("integration/reload - Reloading Records", {
   setup: function() {
     Person = DS.Model.extend({
-      updatedAt: DS.attr('string'),
-      name: DS.attr('string'),
-      firstName: DS.attr('string'),
-      lastName: DS.attr('string')
+      updatedAt: attr('string'),
+      name: attr('string'),
+      firstName: attr('string'),
+      lastName: attr('string')
     });
 
     Person.toString = function() { return "Person"; };
 
-    adapter = DS.Adapter.create();
-    store = DS.Store.create({ adapter: adapter });
+    env = setupStore({ person: Person });
   },
 
   teardown: function() {
-    adapter.destroy();
-    store.destroy();
+    env.container.destroy();
   }
 });
 
@@ -27,16 +26,16 @@ asyncTest("When a single record is requested, the adapter's find method should b
 
   var count = 0;
 
-  adapter.find = function(store, type, id) {
+  env.adapter.find = function(store, type, id) {
     if (count === 0) {
       setTimeout(function() {
-        adapter.didFindRecord(store, type, { person: { name: "Tom Dale" } }, id);
+        env.adapter.didFindRecord(store, type, { person: { id: id, name: "Tom Dale" } });
         firstFound();
       });
       count++;
     } else if (count === 1) {
       setTimeout(function() {
-        adapter.didFindRecord(store, type, { person: { name: "Braaaahm Dale" } }, id);
+        env.adapter.didFindRecord(store, type, { person: { id: id, name: "Braaaahm Dale" } });
         secondFound();
       });
       count++;
@@ -45,7 +44,7 @@ asyncTest("When a single record is requested, the adapter's find method should b
     }
   };
 
-  var person = store.find(Person, 1);
+  var person = env.store.find('person', 1);
 
   var waitingFor = 2;
 
@@ -71,10 +70,10 @@ asyncTest("When a single record is requested, the adapter's find method should b
 asyncTest("If a record is modified, it cannot be reloaded", function() {
   var count = 0;
 
-  adapter.find = function(store, type, id) {
+  env.adapter.find = function(store, type, id) {
     if (count === 0) {
       setTimeout(function() {
-        adapter.didFindRecord(store, type, { person: { name: "Tom Dale" } }, id);
+        env.adapter.didFindRecord(store, type, { person: { id: id, name: "Tom Dale" } });
         found();
       });
       count++;
@@ -83,7 +82,7 @@ asyncTest("If a record is modified, it cannot be reloaded", function() {
     }
   };
 
-  var person = store.find(Person, 1);
+  var person = env.store.find('person', 1);
 
   function found() {
     start();
@@ -97,9 +96,9 @@ asyncTest("If a record is modified, it cannot be reloaded", function() {
 
 
 asyncTest("When a record is loaded a second time, isLoaded stays true", function() {
-  store.load(Person, { id: 1, name: "Tom Dale" });
+  env.store.push('person', { id: 1, name: "Tom Dale" });
 
-  var person = store.find(Person, 1);
+  var person = env.store.find('person', 1);
 
   equal(get(person, 'isLoaded'), true, "The person is loaded");
 
@@ -110,11 +109,10 @@ asyncTest("When a record is loaded a second time, isLoaded stays true", function
   person.addObserver('isLoaded', isLoadedDidChange);
 
   // Reload the record
-  store.load(Person, { id: 1, name: "Tom Dale" });
+  env.store.push('person', { id: 1, name: "Tom Dale" });
   equal(get(person, 'isLoaded'), true, "The person is still loaded after load");
 
   person.removeObserver('isLoaded', isLoadedDidChange);
 
   start();
-
 });

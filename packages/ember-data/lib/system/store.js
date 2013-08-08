@@ -965,14 +965,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object} data optional data (see above)
   */
   didSaveRecord: function(record, data) {
+    record.adapterDidCommit();
+
     if (data) {
       this.updateId(record, data);
-      this.updateRecordData(record, data);
+      record.setupData(data);
     } else {
       this.didUpdateAttributes(record);
     }
-
-    record.adapterDidCommit();
   },
 
   /**
@@ -1207,21 +1207,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
-    This method re-indexes the data by its clientId in the store
-    and then notifies the record that it should rematerialize
-    itself.
-
-    @method updateRecordData
-    @private
-    @param {DS.Model} record
-    @param {Object} data
-  */
-  updateRecordData: function(record, data) {
-    get(record, '_reference').data = data;
-    record.didChangeData();
-  },
-
-  /**
     If an adapter invokes `didSaveRecord` with data, this method
     extracts the id from the supplied data (using the adapter's
     `extractId()` method) and indexes the clientId with that id.
@@ -1235,13 +1220,13 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     var type = record.constructor,
         typeMap = this.typeMapFor(type),
         reference = get(record, '_reference'),
-        oldId = get(record, 'id'),
-        id = this.preprocessData(type, data);
+        id = data.id;
 
-    Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId);
+    Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + get(record, 'id') + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", get(record, 'id') === null || id === get(record, 'id'));
 
-    typeMap.idToReference[id] = reference;
     reference.id = id;
+    typeMap.idToReference[id] = reference;
+    record.materializeId(id);
   },
 
   /**
@@ -1306,7 +1291,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param data
     @param prematerialized
   */
-  load: function(type, data) {
+  _load: function(type, data) {
     var id = coerceId(data.id),
         reference = this.referenceForId(type, id),
         record = reference.record;
@@ -1335,16 +1320,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     data = serializer.deserialize(type, data);
 
-    this.load(type, data);
-
-    var reference = this.referenceForId(type, data.id),
-        record = reference.record;
-
-    if (record) {
-      return record;
-    } else {
-      return this.materializeRecord(reference, data);
-    }
+    return this._load(type, data);
   },
 
   recordFor: function(type, id) {
@@ -1424,7 +1400,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // . RECORD MATERIALIZATION .
   // ..........................
 
-  materializeRecord: function(reference, data) {
+  materializeRecord: function(reference) {
     var record = reference.type._create({
       id: reference.id,
       store: this,
@@ -1434,10 +1410,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     reference.record = record;
 
     get(this, 'defaultTransaction').adoptRecord(record);
-
-    if (data) {
-      record.setupData(data);
-    }
 
     return record;
   },
@@ -1618,6 +1590,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   serializerFor: function(type) {
     var container = this.container;
+
+    if (typeof type !== 'string') {
+      type = type.typeKey;
+    }
 
     // TODO: Make tests pass without this
 

@@ -17,7 +17,7 @@ module("integration/lifecycle_hooks - Lifecycle Hooks", {
   }
 });
 
-test("When the adapter acknowledges that a record has been created, a `didCreate` event is triggered.", function() {
+asyncTest("When the adapter acknowledges that a record has been created, a `didCreate` event is triggered.", function() {
   expect(3);
 
   env.adapter.createRecord = function(store, type, record) {
@@ -30,6 +30,7 @@ test("When the adapter acknowledges that a record has been created, a `didCreate
     equal(this, person, "this is bound to the record");
     equal(this.get('id'), "99", "the ID has been assigned");
     equal(this.get('name'), "Yehuda Katz", "the attribute has been assigned");
+    start();
   });
 
   env.store.commit();

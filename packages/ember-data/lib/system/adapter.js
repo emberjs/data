@@ -110,9 +110,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     this._dependencies = new Ember.MapWithDefault({
       defaultValue: function() { return new Ember.OrderedSet(); }
     });
-
-    this.registerSerializerTransforms(this.constructor, serializer, {});
-    this.registerSerializerMappings(serializer);
   },
 
   /**
@@ -374,16 +371,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {String} id
   */
   didFindRecord: function(store, type, payload, id) {
-    var loader = DS.loaderFor(store);
-
-    loader.load = function(type, data, prematerialized) {
-      prematerialized = prematerialized || {};
-      prematerialized.id = id;
-
-      return store.load(type, data, prematerialized);
-    };
-
-    get(this, 'serializer').extract(loader, payload, type);
+    store.serializerFor(type).extractPayload(type, payload);
   },
 
   /**
@@ -612,15 +600,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param  recordArray
   */
   findQuery: null,
-
-  /**
-    The class of the serializer to be used by this adapter.
-
-    @property serializer
-    @type     DS.Serializer
-    @default  DS.JSONSerializer
-  */
-  serializer: DS.JSONSerializer,
 
   registerTransform: function(attributeType, transform) {
     get(this, 'serializer').registerTransform(attributeType, transform);

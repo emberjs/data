@@ -37,9 +37,11 @@ GEM
       nokogiri (< 1.6.0)
       uuidtools (~> 2.1)
     colored (1.2)
+    daemons (1.1.9)
     diff-lcs (1.2.4)
     ember-source (1.0.0.rc6.4)
       handlebars-source (= 1.0.12)
+    eventmachine (1.0.3)
     execjs (1.4.0)
       multi_json (~> 1.0)
     ffi (1.9.0)
@@ -71,6 +73,10 @@ GEM
       ffi (>= 0.5.0)
     rb-kqueue (0.2.0)
       ffi (>= 0.5.0)
+    thin (1.5.1)
+      daemons (>= 1.0.9)
+      eventmachine (>= 0.12.6)
+      rack (>= 1.0.0)
     thor (0.18.1)
     uglifier (2.1.2)
       execjs (>= 0.3.0)
@@ -86,3 +92,4 @@ DEPENDENCIES
   ember-source (= 1.0.0.rc6.4)
   puma
   rake-pipeline!
+  thin
