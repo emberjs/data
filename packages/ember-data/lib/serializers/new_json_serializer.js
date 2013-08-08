@@ -98,5 +98,9 @@ DS.NewJSONSerializer = Ember.Object.extend({
     } else {
       return relationship.type;
     }
+  },
+
+  eachEmbeddedRecord: function() {
+    // this is used by transaction.add
   }
 });

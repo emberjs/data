@@ -1,26 +1,26 @@
-var store, Comment, Post;
+var Comment, Post, env;
 
 module("Save Record", {
   setup: function() {
-    store = DS.Store.create({ adapter: 'DS.Adapter' });
-
-    Post = DS.Model.extend({
+    var Post = DS.Model.extend({
       title: DS.attr('string')
     });
 
     Post.toString = function() { return "Post"; };
+
+    env = setupStore({ post: Post });
   },
 
   teardown: function() {
-    store.destroy();
+    env.container.destroy();
   }
 });
 
 test("Will resolve save on success", function() {
   expect(1);
-  var post = store.createRecord(Post, {title: 'toto'});
+  var post = env.store.createRecord('post', {title: 'toto'});
 
-  store.get('_adapter').createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, record) {
     store.didSaveRecord(record, {id: 123});
   };
 
@@ -31,9 +31,9 @@ test("Will resolve save on success", function() {
 
 test("Will reject save on error", function() {
   expect(1);
-  var post = store.createRecord(Post, {title: 'toto'});
+  var post = env.store.createRecord('post', {title: 'toto'});
 
-  store.get('_adapter').createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, record) {
     store.recordWasError(record);
   };
 
@@ -44,9 +44,9 @@ test("Will reject save on error", function() {
 
 test("Will reject save on invalid", function() {
   expect(1);
-  var post = store.createRecord(Post, {title: 'toto'});
+  var post = env.store.createRecord('post', {title: 'toto'});
 
-  store.get('_adapter').createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, record) {
     store.recordWasInvalid(record, {title: 'invalid'});
   };
 

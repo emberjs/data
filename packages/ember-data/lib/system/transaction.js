@@ -137,7 +137,8 @@ DS.Transaction = Ember.Object.extend({
 
     var store = get(this, 'store');
     var adapter = get(store, '_adapter');
-    var serializer = get(adapter, 'serializer');
+    var serializer = store.serializerFor(record.constructor);
+
     serializer.eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
       if (embeddedType === 'load') { return; }
 

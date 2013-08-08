@@ -136,16 +136,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     return this._data;
   }).property(),
 
-  materializeData: function() {
-    this.send('materializingData');
-
-    get(this, 'store').materializeData(this);
-
-    this.suspendRelationshipObservers(function() {
-      this.notifyPropertyChange('data');
-    });
-  },
-
   _data: null,
 
   init: function() {
