@@ -495,67 +495,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
-    @private
-
-    This method recursively climbs the superclass hierarchy and
-    registers any class-registered transforms on the adapter's
-    serializer.
-
-    Once it registers a transform for a given type, it ignores
-    subsequent transforms for the same attribute type.
-
-    @method registerSerializerTransforms
-    @param {Class} klass the DS.Adapter subclass to extract the
-      transforms from
-    @param {DS.Serializer} serializer the serializer to register
-      the transforms onto
-    @param {Object} seen a hash of attributes already seen
-  */
-  registerSerializerTransforms: function(klass, serializer, seen) {
-    var transforms = klass._registeredTransforms, superclass, prop;
-    var enumTransforms = klass._registeredEnumTransforms;
-
-    for (prop in transforms) {
-      if (!transforms.hasOwnProperty(prop) || prop in seen) { continue; }
-      seen[prop] = true;
-
-      serializer.registerTransform(prop, transforms[prop]);
-    }
-
-    for (prop in enumTransforms) {
-      if (!enumTransforms.hasOwnProperty(prop) || prop in seen) { continue; }
-      seen[prop] = true;
-
-      serializer.registerEnumTransform(prop, enumTransforms[prop]);
-    }
-
-    if (superclass = klass.superclass) {
-      this.registerSerializerTransforms(superclass, serializer, seen);
-    }
-  },
-
-  /**
-    @private
-
-    This method recursively climbs the superclass hierarchy and
-    registers any class-registered mappings on the adapter's
-    serializer.
-
-    @method registerSerializerMappings
-    @param {Class} klass the DS.Adapter subclass to extract the
-      transforms from
-    @param {DS.Serializer} serializer the serializer to register the
-      mappings onto
-  */
-  registerSerializerMappings: function(serializer) {
-    var mappings = this._attributesMap,
-        configurations = this._configurationsMap;
-
-    mappings.forEach(serializer.map, serializer);
-    configurations.forEach(serializer.configure, serializer);
-  },
-
-  /**
     The `find()` method is invoked when the store is asked for a record that
     has not previously been loaded. In response to `find()` being called, you
     should query your persistence layer for a record with the given ID. Once
