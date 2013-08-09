@@ -24,15 +24,35 @@ DS.Model.reopenClass({
     });
 
     return map;
-  })
+  }),
+
+  transformedAttributes: Ember.computed(function() {
+    var map = Ember.Map.create();
+
+    this.eachAttribute(function(key, meta) {
+      map.set(key, meta.type);
+    });
+
+    return map;
+  }),
+
+  eachAttribute: function(callback, binding) {
+    get(this, 'attributes').forEach(function(name, meta) {
+      callback.call(binding, name, meta);
+    }, binding);
+  },
+
+  eachTransformedAttribute: function(callback, binding) {
+    get(this, 'transformedAttributes').forEach(function(name, type) {
+      callback.call(binding, name, type);
+    });
+  }
 });
 
 
 DS.Model.reopen({
   eachAttribute: function(callback, binding) {
-    get(this.constructor, 'attributes').forEach(function(name, meta) {
-      callback.call(binding, name, meta);
-    }, binding);
+    this.constructor.eachAttribute(callback, binding);
   },
 
   attributeWillChange: Ember.beforeObserver(function(record, key) {

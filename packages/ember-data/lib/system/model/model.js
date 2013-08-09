@@ -129,10 +129,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   becameError: Ember.K,
 
   data: Ember.computed(function() {
-    if (!this._data) {
-      this.setupData();
-    }
-
+    this._data = this._data || {};
     return this._data;
   }).property(),
 

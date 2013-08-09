@@ -12,7 +12,7 @@ var TestAdapter = DS.Adapter.extend({
   serializer: testSerializer
 });
 
-module("DS.Model", {
+module("unit/model - DS.Model", {
   setup: function() {
     store = DS.Store.create({
       adapter: TestAdapter.create()
@@ -38,7 +38,7 @@ test("can have a property set on it", function() {
 });
 
 test("setting a property on a record that has not changed does not cause it to become dirty", function() {
-  store.load(Person, { id: 1, name: "Peter", isDrugAddict: true });
+  store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
   var person = store.find(Person, 1);
 
   equal(person.get('isDirty'), false, "precond - person record should not be dirty");
@@ -48,14 +48,14 @@ test("setting a property on a record that has not changed does not cause it to b
 });
 
 test("a record reports its unique id via the `id` property", function() {
-  store.load(Person, { id: 1 });
+  store.push(Person, { id: 1 });
 
   var record = store.find(Person, 1);
   equal(get(record, 'id'), 1, "reports id as id by default");
 });
 
 test("a record's id is included in its toString representation", function() {
-  store.load(Person, { id: 1 });
+  store.push(Person, { id: 1 });
 
   var record = store.find(Person, 1);
   equal(record.toString(), '<(subclass of DS.Model):'+Ember.guidFor(record)+':1>', "reports id in toString");
@@ -68,13 +68,13 @@ test("trying to set an `id` attribute should raise", function() {
   });
 
   expectAssertion(function() {
-    store.load(Person, { id: 1, name: "Scumdale" });
+    store.push(Person, { id: 1, name: "Scumdale" });
     var person = store.find(Person, 1);
   }, /You may not set `id`/);
 });
 
 test("it should use `_reference` and not `reference` to store its reference", function() {
-  store.load(Person, { id: 1 });
+  store.push(Person, { id: 1 });
 
   var record = store.find(Person, 1);
   equal(record.get('reference'), undefined, "doesn't shadow reference key");
@@ -90,7 +90,7 @@ test("it should cache attributes", function() {
   var dateString = "Sat, 31 Dec 2011 00:08:16 GMT";
   var date = new Date(dateString);
 
-  store.load(Post, { id: 1 });
+  store.push(Post, { id: 1 });
 
   var record = store.find(Post, 1);
 
@@ -99,12 +99,12 @@ test("it should cache attributes", function() {
   strictEqual(get(record, 'updatedAt'), get(record, 'updatedAt'), "second get still returns the same object");
 });
 
-module("DS.Model updating", {
+module("unit/model - DS.Model updating", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
     Person = DS.Model.extend({ name: DS.attr('string') });
     store = DS.Store.create();
-    store.loadMany(Person, array);
+    store.pushMany(Person, array);
   },
   teardown: function() {
     Person = null;
@@ -168,14 +168,14 @@ test("when a DS.Model updates its attributes, its changes affect its filtered Ar
   equal(get(people, 'length'), 0, "there are now no items");
 });
 
-module("with a simple Person model", {
+module("unit/model - with a simple Person model", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
     Person = DS.Model.extend({
       name: DS.attr('string')
     });
     store = DS.Store.create();
-    store.loadMany(Person, array);
+    store.pushMany(Person, array);
   },
   teardown: function() {
     Person = null;
@@ -257,8 +257,8 @@ var converts = function(type, provided, expected) {
     name: DS.attr(type)
   });
 
-  testStore.load(Model, { id: 1, name: provided });
-  testStore.load(Model, { id: 2 });
+  testStore.push(Model, { id: 1, name: provided });
+  testStore.push(Model, { id: 2 });
 
   var record = testStore.find(Model, 1);
   deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
@@ -276,7 +276,7 @@ var convertsFromServer = function(type, provided, expected) {
     name: DS.attr(type)
   });
 
-  testStore.load(Model, { id: 1, name: provided });
+  testStore.push(Model, { id: 1, name: provided });
   var record = testStore.find(Model, 1);
 
   deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
@@ -289,7 +289,7 @@ var convertsWhenSet = function(type, provided, expected) {
     name: DS.attr(type)
   });
 
-  testStore.load(Model, { id: 2 });
+  testStore.push(Model, { id: 2 });
   var record = testStore.find(Model, 2);
 
   set(record, 'name', provided);
@@ -340,7 +340,7 @@ test("a DS.Model can describe Date attributes", function() {
     updatedAt: DS.attr('date')
   });
 
-  store.load(Person, { id: 1 });
+  store.push(Person, { id: 1 });
   var record = store.find(Person, 1);
 
   record.set('updatedAt', date);
@@ -379,7 +379,7 @@ test("ensure model exits loading state, materializes data and fulfills promise o
 
   equal(get(person, 'currentState.stateName'), 'root.loading', 'model is still in loading state');
 
-  store.load(Person, { id: 1, name: "John", isDrugAddict: false });
+  store.push(Person, { id: 1, name: "John", isDrugAddict: false });
 
   equal(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
   equal(get(person, 'isLoaded'), true, 'model is loaded');

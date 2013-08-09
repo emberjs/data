@@ -467,6 +467,7 @@ var RootState = {
     // EVENTS
     pushedData: function(record) {
       record.transitionTo('loaded.saved');
+      record.triggerLater('didLoad');
     },
 
     becameError: function(record) {

@@ -1,8 +1,16 @@
+require("ember-data/transforms/json_transforms");
+
 var get = Ember.get, set = Ember.set, isNone = Ember.isNone;
+
+var transforms = DS.JSONTransforms;
 
 DS.NewJSONSerializer = Ember.Object.extend({
   deserialize: function(type, data) {
     var store = get(this, 'store');
+
+    type.eachTransformedAttribute(function(key, type) {
+      data[key] = transforms[type].deserialize(data[key]);
+    });
 
     type.eachRelationship(function(key, relationship) {
       var type = relationship.type,
@@ -49,12 +57,18 @@ DS.NewJSONSerializer = Ember.Object.extend({
 
     var json = {};
 
-    if (options.includeId) {
+    if (options && options.includeId) {
       json.id = get(record, 'id');
     }
 
     record.eachAttribute(function(key, attribute) {
-      json[key] = get(record, key);
+      var value = get(record, key), type = attribute.type;
+
+      if (type) {
+        value = transforms[type].serialize(value);
+      }
+
+      json[key] = value;
     });
 
     record.eachRelationship(function(key, relationship) {

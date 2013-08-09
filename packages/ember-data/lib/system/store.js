@@ -860,7 +860,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   recordIsLoaded: function(type, id) {
     if (!this.hasReferenceForId(type, id)) { return false; }
-    return typeof this.referenceForId(type, id).data === 'object';
+    return !get(this.referenceForId(type, id).record, 'isEmpty');
   },
 
   // ............
