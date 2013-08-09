@@ -93,16 +93,6 @@ DS.loaderFor = loaderFor;
 DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
   init: function() {
-    var serializer = get(this, 'serializer');
-
-    if (Ember.Object.detect(serializer)) {
-      serializer = serializer.create();
-      set(this, 'serializer', serializer);
-    }
-
-    this._attributesMap = this.createInstanceMapFor('attributes');
-    this._configurationsMap = this.createInstanceMapFor('configurations');
-
     this._outstandingOperations = new Ember.MapWithDefault({
       defaultValue: function() { return 0; }
     });
@@ -110,39 +100,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     this._dependencies = new Ember.MapWithDefault({
       defaultValue: function() { return new Ember.OrderedSet(); }
     });
-  },
-
-  /**
-    Loads a payload for a record into the store.
-
-    This method asks the serializer to break the payload into
-    constituent parts, and then loads them into the store. For example,
-    if you have a payload that contains embedded records, they will be
-    extracted by the serializer and loaded into the store.
-
-    For example:
-
-        adapter.load(store, App.Person, {
-          id: 123,
-          firstName: "Yehuda",
-          lastName: "Katz",
-          occupations: [{
-            id: 345,
-            title: "Tricycle Mechanic"
-          }]
-        });
-
-    This will load the payload for the `App.Person` with ID `123` and
-    the embedded `App.Occupation` with ID `345`.
-
-    @method load
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {any} payload
-  */
-  load: function(store, type, payload) {
-    var loader = loaderFor(store);
-    return get(this, 'serializer').extractRecordRepresentation(loader, type, payload);
   },
 
   /**
@@ -168,11 +125,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {any} payload
   */
   didCreateRecord: function(store, type, record, payload) {
-    store.didSaveRecord(record);
-
-    if (payload) {
-      store.serializerFor(type).extractPayload(type, payload);
-    }
   },
 
   /**
@@ -193,14 +145,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {any} payload
   */
   didCreateRecords: function(store, type, records, payload) {
-    records.forEach(function(record) {
-      store.didSaveRecord(record);
-    }, this);
-
-    if (payload) {
-      var loader = DS.loaderFor(store);
-      get(this, 'serializer').extractMany(loader, payload, type, records);
-    }
   },
 
   /**
@@ -223,20 +167,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {any} payload
   */
   didSaveRecord: function(store, type, record, payload) {
-    store.didSaveRecord(record);
-
-    var serializer = get(this, 'serializer');
-
-    serializer.eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
-      if (embeddedType === 'load') { return; }
-
-      this.didSaveRecord(store, embeddedRecord.constructor, embeddedRecord);
-    }, this);
-
-    if (payload) {
-      var loader = DS.loaderFor(store);
-      serializer.extract(loader, payload, type);
-    }
   },
 
   /**
@@ -297,14 +227,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {any} payload
   */
   didSaveRecords: function(store, type, records, payload) {
-    records.forEach(function(record) {
-      store.didSaveRecord(record);
-    }, this);
-
-    if (payload) {
-      var loader = DS.loaderFor(store);
-      get(this, 'serializer').extractMany(loader, payload, type);
-    }
   },
 
   /**
@@ -364,7 +286,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {String} id
   */
   didFindRecord: function(store, type, payload, id) {
-    store.serializerFor(type).extractPayload(type, payload);
   },
 
   /**
@@ -379,12 +300,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {any} payload
   */
   didFindAll: function(store, type, payload) {
-    var loader = DS.loaderFor(store),
-        serializer = get(this, 'serializer');
-
-    store.didUpdateAll(type);
-
-    serializer.extractMany(loader, payload, type);
   },
 
   /**
@@ -400,13 +315,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {DS.AdapterPopulatedRecordArray} recordArray
   */
   didFindQuery: function(store, type, payload, recordArray) {
-    var loader = DS.loaderFor(store);
-
-    loader.populateArray = function(data) {
-      recordArray.load(data);
-    };
-
-    get(this, 'serializer').extractMany(loader, payload, type);
+    // TODO
   },
 
   /**
@@ -823,97 +732,5 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     ids.forEach(function(id) {
       this.find(store, type, id);
     }, this);
-  }
-});
-
-DS.Adapter.reopenClass({
-
-  /**
-    Registers a custom attribute transform for the adapter class
-
-    The `transform` property is an object with a `serialize` and
-    `deserialize` property. These are each functions that respectively
-    serialize the data to send to the backend or deserialize it for
-    use on the client.
-
-    @method registerTransform
-    @static
-    @property {DS.String} attributeType
-    @property {Object}    transform
-  */
-  registerTransform: function(attributeType, transform) {
-    var registeredTransforms = this._registeredTransforms || {};
-
-    registeredTransforms[attributeType] = transform;
-
-    this._registeredTransforms = registeredTransforms;
-  },
-
-  /**
-    Registers a custom enumerable transform for the adapter class
-
-    @method registerEnumTransform
-    @static
-    @property {DS.String} attributeType
-    @property objects
-  */
-  registerEnumTransform: function(attributeType, objects) {
-    var registeredEnumTransforms = this._registeredEnumTransforms || {};
-
-    registeredEnumTransforms[attributeType] = objects;
-
-    this._registeredEnumTransforms = registeredEnumTransforms;
-  },
-
-  /**
-    Set adapter attributes for a DS.Model class.
-
-    @method map
-    @static
-    @property {DS.Model} type   the DS.Model class
-    @property {Object}   attributes
-  */
-  map: DS._Mappable.generateMapFunctionFor('attributes', function(key, newValue, map) {
-    var existingValue = map.get(key);
-
-    merge(existingValue, newValue);
-  }),
-
-  /**
-    Set configuration options for a DS.Model class.
-
-    @method configure
-    @static
-    @property {DS.Model} type   the DS.Model class
-    @property {Object}   configuration
-  */
-  configure: DS._Mappable.generateMapFunctionFor('configurations', function(key, newValue, map) {
-    var existingValue = map.get(key);
-
-    // If a mapping configuration is provided, peel it off and apply it
-    // using the DS.Adapter.map API.
-    var mappings = newValue && newValue.mappings;
-    if (mappings) {
-      this.map(key, mappings);
-      delete newValue.mappings;
-    }
-
-    merge(existingValue, newValue);
-  }),
-
-  /**
-    Resolved conflicts in configuration settings.
-
-    Calls `Ember.merge` by default.
-
-    @method resolveMapConflict
-    @static
-    @property oldValue
-    @property newValue
-  */
-  resolveMapConflict: function(oldValue, newValue) {
-    merge(newValue, oldValue);
-
-    return newValue;
   }
 });

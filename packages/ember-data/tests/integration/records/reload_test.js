@@ -29,13 +29,13 @@ asyncTest("When a single record is requested, the adapter's find method should b
   env.adapter.find = function(store, type, id) {
     if (count === 0) {
       setTimeout(function() {
-        env.adapter.didFindRecord(store, type, { person: { id: id, name: "Tom Dale" } });
+        env.store.push(type, { id: id, name: "Tom Dale" });
         firstFound();
       });
       count++;
     } else if (count === 1) {
       setTimeout(function() {
-        env.adapter.didFindRecord(store, type, { person: { id: id, name: "Braaaahm Dale" } });
+        env.store.push(type, { id: id, name: "Braaaahm Dale" });
         secondFound();
       });
       count++;
@@ -73,7 +73,7 @@ asyncTest("If a record is modified, it cannot be reloaded", function() {
   env.adapter.find = function(store, type, id) {
     if (count === 0) {
       setTimeout(function() {
-        env.adapter.didFindRecord(store, type, { person: { id: id, name: "Tom Dale" } });
+        env.store.push(type, { id: id, name: "Tom Dale" });
         found();
       });
       count++;

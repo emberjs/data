@@ -87,8 +87,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @param  type
     @param  record
   */
-  mockJSON: function(type, record) {
-    return this.serialize(record, { includeId: true });
+  mockJSON: function(store, type, record) {
+    return store.serializerFor(type).serialize(record, { includeId: true });
   },
 
   /**
@@ -191,7 +191,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @param  record
   */
   createRecord: function(store, type, record) {
-    var fixture = this.mockJSON(type, record);
+    var fixture = this.mockJSON(store, type, record);
 
     this.updateFixtures(type, fixture);
 
@@ -207,7 +207,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @param  record
   */
   updateRecord: function(store, type, record) {
-    var fixture = this.mockJSON(type, record);
+    var fixture = this.mockJSON(store, type, record);
 
     this.updateFixtures(type, fixture);
 
@@ -223,7 +223,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @param  record
   */
   deleteRecord: function(store, type, record) {
-    var fixture = this.mockJSON(type, record);
+    var fixture = this.mockJSON(store, type, record);
 
     this.deleteLoadedFixture(type, fixture);
 
@@ -256,7 +256,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
   */
   findExistingFixture: function(type, record) {
     var fixtures = this.fixturesForType(type);
-    var id = this.extractId(type, record);
+    var id = get(record, 'id');
 
     return this.findFixtureById(fixtures, id);
   },
