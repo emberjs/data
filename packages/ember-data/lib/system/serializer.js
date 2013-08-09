@@ -918,7 +918,7 @@ DS.Serializer = Ember.Object.extend({
     @method _addId
     @private
     @param {any} data the serialized representation that is being built
-    @param {Ember.Model subclass} type
+    @param {DS.Model subclass} type
     @param {any} id the materialized id from the record
   */
   _addId: function(hash, type, id) {

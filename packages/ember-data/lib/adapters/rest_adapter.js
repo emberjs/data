@@ -362,7 +362,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   */
   findQuery: function(store, type, query, recordArray) {
     var root = this.rootForType(type),
-    adapter = this;
+        adapter = this;
 
     return this.ajax(this.buildURL(root), "GET", {
       data: query
