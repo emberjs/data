@@ -171,14 +171,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     store.didSaveRecord(record);
 
     if (payload) {
-      var loader = DS.loaderFor(store);
-
-      loader.load = function(type, data, prematerialized) {
-        store.updateId(record, data);
-        return store.load(type, data, prematerialized);
-      };
-
-      get(this, 'serializer').extract(loader, payload, type);
+      store.serializerFor(type).extractPayload(type, payload);
     }
   },
 

@@ -428,8 +428,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object|String|Integer|null} id
   */
   find: function(type, id) {
-    type = this.modelFor(type);
-
     if (id === undefined) {
       return this.findAll(type);
     }
@@ -458,6 +456,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param id
   */
   findById: function(type, id) {
+    type = this.modelFor(type);
+
     var record = this.getById(type, id);
     if (get(record, 'isEmpty')) {
       this.fetchRecord(record);
@@ -638,7 +638,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var records, url;
 
-    if (!Ember.isArray(recordsOrURL)) {
+    if (recordsOrURL !== undefined && !Ember.isArray(recordsOrURL)) {
       url = recordsOrURL;
 
       records = this.recordArrayManager.createManyArray(type, Ember.A([]));
@@ -694,6 +694,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {DS.AdapterPopulatedRecordArray}
   */
   findQuery: function(type, query) {
+    type = this.modelFor(type);
+
     var array = DS.AdapterPopulatedRecordArray.create({
       type: type,
       query: query,
@@ -722,6 +724,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {DS.AdapterPopulatedRecordArray}
   */
   findAll: function(type) {
+    type = this.modelFor(type);
+
     return this.fetchAll(type, this.all(type));
   },
 

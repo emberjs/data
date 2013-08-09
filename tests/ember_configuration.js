@@ -46,7 +46,9 @@
     var env = {};
 
     var container = env.container = new Ember.Container();
-    var adapter = env.adapter = DS.Adapter.create();
+
+    var adapter = env.adapter = (options.adapter || DS.Adapter).create();
+    delete options.adapter;
 
     var store = env.store = DS.Store.create({
       container: container,

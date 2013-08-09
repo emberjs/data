@@ -1,29 +1,22 @@
 var get = Ember.get, set = Ember.set;
-var store, Person, Phone, App;
+var env, Person, Phone, App;
 
-module("DS.FixtureAdapter", {
+module("integration/adapter/fixture - DS.FixtureAdapter", {
   setup: function() {
-    store = DS.Store.create({
-      adapter: 'DS.FixtureAdapter'
-    });
-
     Person = DS.Model.extend({
       firstName: DS.attr('string'),
       lastName: DS.attr('string'),
 
       height: DS.attr('number'),
 
-      phones: DS.hasMany('App.Phone')
+      phones: DS.hasMany('phone')
     });
 
     Phone = DS.Model.extend({
-      person: DS.belongsTo('App.Person')
+      person: DS.belongsTo('person')
     });
 
-    App = Ember.Namespace.create();
-    App.Person = Person;
-    App.Phone = Phone;
-    Ember.lookup.App = App;
+    env = setupStore({ person: Person, phone: Phone, adapter: DS.FixtureAdapter });
 
     // Enable setTimeout.
     Ember.testing = false;
@@ -34,13 +27,7 @@ module("DS.FixtureAdapter", {
   teardown: function() {
     Ember.testing = true;
 
-    Ember.run(function() {
-      store.destroy();
-      App.destroy();
-    });
-    store = null;
-    Person = null;
-    Phone = null;
+    env.container.destroy();
   }
 });
 
@@ -72,7 +59,7 @@ test("should load data for a type asynchronously when it is requested", function
 
   stop();
 
-  var ebryn = store.find(Person, 'ebryn');
+  var ebryn = env.store.find('person', 'ebryn');
 
   equal(get(ebryn, 'isLoaded'), false, "record from fixtures is returned in the loading state");
 
@@ -86,7 +73,7 @@ test("should load data for a type asynchronously when it is requested", function
 
     stop();
 
-    var wycats = store.find(Person, 'wycats');
+    var wycats = env.store.find('person', 'wycats');
     wycats.then(function() {
       clearTimeout(timer);
       start();
@@ -113,16 +100,12 @@ test("should load data asynchronously at the end of the runloop when simulateRem
     firstName: "Yehuda"
   }];
 
-  store = DS.Store.create({
-    adapter: DS.FixtureAdapter.create({
-      simulateRemoteResponse: false
-    })
-  });
+  env.adapter.simulateRemoteResponse = false;
 
   var wycats;
 
   Ember.run(function() {
-    wycats = store.find(Person, 'wycats');
+    wycats = env.store.find('person', 'wycats');
     ok(!get(wycats, 'isLoaded'), 'isLoaded is false initially');
     ok(!get(wycats, 'firstName'), 'record properties are undefined initially');
   });
@@ -136,7 +119,7 @@ test("should create record asynchronously when it is committed", function() {
 
   equal(Person.FIXTURES.length, 0, "Fixtures is empty");
 
-  var paul = store.createRecord(Person, {firstName: 'Paul', lastName: 'Chavard', height: 70});
+  var paul = env.store.createRecord('person', {firstName: 'Paul', lastName: 'Chavard', height: 70});
 
   paul.on('didCreate', function() {
     clearTimeout(timer);
@@ -156,7 +139,7 @@ test("should create record asynchronously when it is committed", function() {
     equal(fixture.height, 70);
   });
 
-  store.commit();
+  env.store.commit();
 
   var timer = setTimeout(function() {
     start();
@@ -169,7 +152,7 @@ test("should update record asynchronously when it is committed", function() {
 
   equal(Person.FIXTURES.length, 0, "Fixtures is empty");
 
-  var paul = store.recordForReference(store.load(Person, 1, {firstName: 'Paul', lastName: 'Chavard', height: 70}));
+  var paul = env.store.push('person', { id: 1, firstName: 'Paul', lastName: 'Chavard', height: 70});
 
   paul.set('height', 80);
 
@@ -189,7 +172,7 @@ test("should update record asynchronously when it is committed", function() {
     equal(fixture.height, 80);
   });
 
-  store.commit();
+  env.store.commit();
 
   var timer = setTimeout(function() {
     start();
@@ -202,7 +185,7 @@ test("should delete record asynchronously when it is committed", function() {
 
   equal(Person.FIXTURES.length, 0, "Fixtures empty");
 
-  var paul = store.recordForReference(store.load(Person, 1, {firstName: 'Paul', lastName: 'Chavard', height: 70}));
+  var paul = env.store.push('person', {firstName: 'Paul', lastName: 'Chavard', height: 70});
 
   paul.deleteRecord();
 
@@ -216,7 +199,7 @@ test("should delete record asynchronously when it is committed", function() {
     equal(Person.FIXTURES.length, 0, "Record removed from FIXTURES");
   });
 
-  store.commit();
+  env.store.commit();
 
   var timer = setTimeout(function() {
     start();
@@ -234,7 +217,7 @@ test("should follow isUpdating semantics", function() {
     height: 65
   }];
 
-  var result = store.findAll(Person);
+  var result = env.store.findAll('person');
 
   result.addObserver('isUpdating', function() {
     clearTimeout(timer);
@@ -259,7 +242,7 @@ test("should coerce integer ids into string", function() {
     height: 65
   }];
 
-  var result = Person.find("1");
+  var result = env.store.find('person', 1);
 
   result.then(function() {
     clearTimeout(timer);
@@ -289,7 +272,7 @@ test("should coerce belongsTo ids into string", function() {
     person: 1
   }];
 
-  var result = Phone.find("1");
+  var result = env.store.find('phone', 1);
 
   result.then(function() {
     var person = get(result, 'person');
@@ -316,7 +299,7 @@ test("only coerce belongsTo ids to string if id is defined and not null", functi
     id: 1
   }];
 
-  Phone.find(1).then(function(phone) {
+  env.store.find('phone', 1).then(function(phone) {
     clearTimeout(timer);
     start();
     equal(phone.get('person'), null);
@@ -336,7 +319,7 @@ test("should throw if ids are not defined in the FIXTURES", function() {
   }];
 
   raises(function(){
-    Person.find("1");
+    env.store.find('person', 1);
   }, /the id property must be defined as a number or string for fixture/);
 
   Person.FIXTURES = [{
@@ -345,7 +328,7 @@ test("should throw if ids are not defined in the FIXTURES", function() {
   var result;
   stop();
   try {
-    result = Person.find("0");
+    result = env.store.find('person', 0);
     // should accept 0 as an id, all is fine
     result.then(function() {
       clearTimeout(timer);
