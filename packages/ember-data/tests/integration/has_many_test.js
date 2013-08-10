@@ -182,6 +182,7 @@ asyncTest("A serializer can materialize a hasMany as an opaque token that can be
     start();
     equal(comments.get('isLoaded'), true);
     equal(comments.get('length'), 2);
+    equal(comments.objectAtContent(0).get('currentState.stateName'), 'root.loaded.saved');
   }
 });
 
