@@ -385,3 +385,19 @@ test("ensure model exits loading state, materializes data and fulfills promise o
   equal(get(person, 'isLoaded'), true, 'model is loaded');
   equal(get(person, '_deferred.promise.isFulfilled'), true, 'model is fulfilled');
 });
+
+
+test("errors on inflight deleted records transition record to error state", function() {
+
+  var person, store;
+
+  store = DS.Store.create();
+  store.load(Person, { id: 1, name: "John" });
+  person = Person.find(1);
+
+  person.transitionTo('deleted.inFlight');
+  person.adapterDidError();
+
+  ok(person.get('isError'), "model is in error state");
+});
+
