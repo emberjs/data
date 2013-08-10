@@ -8,6 +8,13 @@
   @class DS
   @static
 */
-window.DS = Ember.Namespace.create({
-  VERSION: '0.13'
-});
+
+if ('undefined' === typeof DS) {
+  DS = Ember.Namespace.create({
+    VERSION: '0.13'
+  });
+
+  if ('undefined' !== typeof window) {
+    window.DS = DS;
+  }
+}
