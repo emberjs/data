@@ -466,6 +466,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return record;
   },
 
+  findByIds: function(type, ids) {
+    var records = map(ids, function(id) {
+      return this.getById(type, id);
+    }, this);
+
+    return this.findMany(type, records);
+  },
+
   fetchRecord: function(record) {
     var type = record.constructor,
         id = get(record, 'id');
@@ -482,6 +490,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
   getById: function(type, id) {
     type = this.modelFor(type);
+    id = coerceId(id);
 
     var reference, record;
 
@@ -1608,13 +1617,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return container.lookup('serializer:'+type) ||
            container.lookup('serializer:application') ||
            container.lookup('serializer:_default');
-  }
-});
-
-DS.Store.reopenClass({
-  registerAdapter: DS._Mappable.generateMapFunctionFor('adapters', function(type, adapter, map) {
-    map.set(type, adapter);
-  }),
+  },
 
   transformMapKey: function(key) {
     if (typeof key === 'string') {

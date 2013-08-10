@@ -523,7 +523,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {Object}   options
   */
   serialize: function(record, options) {
-    return get(this, 'serializer').serialize(record, options);
+    return get(record, 'store').serializerFor(record.constructor).serialize(record, options);
   },
 
   /**

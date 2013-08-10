@@ -350,7 +350,7 @@ test("a DS.Model can describe Date attributes", function() {
 });
 
 test("don't allow setting", function(){
-  var store = DS.Store.create({ adapter: DS.Adapter });
+  var store = DS.Store.create();
 
   var Person = DS.Model.extend();
   var record = store.createRecord(Person);

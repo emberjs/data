@@ -22,6 +22,8 @@ DS.belongsTo = function(type, options) {
       } else {
         typeClass = get(Ember.lookup, type);
       }
+    } else {
+      typeClass = type;
     }
 
     if (arguments.length === 2) {
