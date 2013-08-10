@@ -69,6 +69,44 @@ DS.rejectionHandler = function(reason) {
   }
   ```
 
+  ## Customization
+
+  ### Endpoint path customization
+
+  Endpoint paths can be prefixed with a `namespace` by setting the namespace
+  property on the adapter:
+
+  ```js
+  DS.RESTAdapter.reopen({
+    namespace: 'api/1'
+  });
+  ```
+  Requests for `App.Person` would now target `/api/1/people/1`.
+
+  ### Host customization
+
+  An adapter can target other hosts by setting the `url` property.
+
+  ```js
+  DS.RESTAdapter.reopen({
+    url: 'https://api.example.com'
+  });
+  ```
+
+  ### Headers customization
+
+  Some APIs require HTTP headers, eg to provide an API key. An array of
+  headers can be added to the adapter which are passed with every request:
+
+  ```js
+  DS.RESTAdapter.reopen({
+    headers: {
+      "API_KEY": "secret key",
+      "ANOTHER_HEADER": "asdsada"
+    }
+  });
+  ```
+
   @class RESTAdapter
   @constructor
   @namespace DS
@@ -447,6 +485,15 @@ DS.RESTAdapter = DS.Adapter.extend({
       if (hash.data && type !== 'GET') {
         hash.contentType = 'application/json; charset=utf-8';
         hash.data = JSON.stringify(hash.data);
+      }
+
+      if (adapter.headers !== undefined) {
+        var headers = adapter.headers;
+        hash.beforeSend = function (xhr) {
+          Ember.keys(headers).forEach(function(key) {
+            xhr.setRequestHeader(key, headers[key]);
+          });
+        };
       }
 
       hash.success = function(json) {
