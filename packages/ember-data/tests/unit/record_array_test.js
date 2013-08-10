@@ -1,33 +1,23 @@
 var get = Ember.get, set = Ember.set;
 var indexOf = Ember.EnumerableUtils.indexOf;
 
-var Person;
+var Person, array;
 
-module("DS.RecordArray");
-
-var array;
-
-module("DS.Store", {
+module("unit/record_array - DS.RecordArray", {
   setup: function() {
     array = [{ id: '1', name: "Scumbag Dale" }, { id: '2', name: "Scumbag Katz" }, { id: '3', name: "Scumbag Bryn" }];
-    var App = Ember.Namespace.create({ name: "App" });
 
-    App.Person = Person = DS.Model.extend({
+    Person = DS.Model.extend({
       name: DS.attr('string')
     });
-  },
-
-  teardown: function() {
-    Person = null;
-    set(DS, 'defaultStore', null);
   }
 });
 
 test("a record array is backed by records", function() {
-  var store = DS.Store.create();
-  store.loadMany(Person, [1,2,3], array);
+  var store = DS.Store.create({ adapter: DS.Adapter });
+  store.pushMany(Person, array);
 
-  var recordArray = store.findMany(Person, [1,2,3]);
+  var recordArray = store.findByIds(Person, [1,2,3]);
 
   for (var i=0, l=get(array, 'length'); i<l; i++) {
     deepEqual(recordArray.objectAt(i).getProperties('id', 'name'), array[i], "a record array materializes objects on demand");
@@ -38,15 +28,15 @@ test("acts as a live query", function() {
   var store = DS.Store.create();
 
   var recordArray = store.all(Person);
-  store.load(Person, { id: 1, name: 'wycats' });
+  store.push(Person, { id: 1, name: 'wycats' });
   equal(get(recordArray, 'lastObject.name'), 'wycats');
 
-  store.load(Person, { id: 2, name: 'brohuda' });
+  store.push(Person, { id: 2, name: 'brohuda' });
   equal(get(recordArray, 'lastObject.name'), 'brohuda');
 });
 
 test("a loaded record is removed from a record array when it is deleted", function() {
-  var store = DS.Store.create();
+  var store = DS.Store.create({ adapter: DS.Adapter });
 
   var Tag = DS.Model.extend({
     people: DS.hasMany(Person)
@@ -56,8 +46,8 @@ test("a loaded record is removed from a record array when it is deleted", functi
     tag: DS.belongsTo(Tag)
   });
 
-  store.loadMany(Person, [1,2,3], array);
-  store.load(Tag, { id: 1 });
+  store.pushMany(Person, array);
+  store.push(Tag, { id: 1 });
 
   var scumbag = store.find(Person, 1);
   var tag = store.find(Tag, 1);
@@ -77,7 +67,7 @@ test("a loaded record is removed from a record array when it is deleted", functi
 
 // GitHub Issue #168
 test("a newly created record is removed from a record array when it is deleted", function() {
-  var store = DS.Store.create(),
+  var store = DS.Store.create({ adapter: DS.Adapter }),
       recordArray;
 
   recordArray = store.all(Person);
@@ -108,9 +98,9 @@ test("a newly created record is removed from a record array when it is deleted",
 });
 
 test("a record array returns undefined when asking for a member outside of its content Array's range", function() {
-  var store = DS.Store.create();
+  var store = DS.Store.create({ adapter: DS.Adapter });
 
-  store.loadMany(Person, array);
+  store.pushMany(Person, array);
 
   var recordArray = store.all(Person);
 
@@ -119,8 +109,8 @@ test("a record array returns undefined when asking for a member outside of its c
 
 // This tests for a bug in the recordCache, where the records were being cached in the incorrect order.
 test("a record array should be able to be enumerated in any order", function() {
-  var store = DS.Store.create();
-  store.loadMany(Person, [1,2,3], array);
+  var store = DS.Store.create({ adapter: DS.Adapter });
+  store.pushMany(Person, array);
 
   var recordArray = store.all(Person);
 
@@ -149,7 +139,7 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
 
         setTimeout(function() {
           Ember.run(function() {
-            self.didFindQuery(store, type, { persons: array }, recordArray);
+            recordArray.load(store.pushMany(type, array));
             equal(get(people, 'isLoaded'), true, "The array is now loaded");
             start();
           });

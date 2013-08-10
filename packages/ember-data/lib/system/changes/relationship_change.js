@@ -340,22 +340,8 @@ DS.RelationshipChange.prototype = {
     store.removeRelationshipChangeFor(childReference, belongsToName, this.parentReference, hasManyName, this.changeType);
   },
 
-  /**
-    @method getByReference
-    @private
-    @param reference
-  */
-  getByReference: function(reference) {
-    // return null or undefined if the original reference was null or undefined
-    if (!reference) { return reference; }
-
-    if (reference.record) {
-      return reference.record;
-    }
-  },
-
   getSecondRecord: function(){
-    return this.getByReference(this.secondRecordReference);
+    return this.secondRecordReference;
   },
 
   /**
@@ -363,7 +349,7 @@ DS.RelationshipChange.prototype = {
     @private
   */
   getFirstRecord: function() {
-    return this.getByReference(this.firstRecordReference);
+    return this.firstRecordReference;
   },
 
   /**
