@@ -30,6 +30,23 @@ test("When a record is added to a has-many relationship, the inverse belongsTo i
   equal(comment.get('post'), post, "post was set on the comment");
 });
 
+test("Inverse relationships can be explicitly nullable", function () {
+  User = DS.Model.extend();
+
+  Post = DS.Model.extend({
+    lastParticipant: DS.belongsTo(User, { inverse: null }),
+    participants: DS.hasMany(User, { inverse: 'posts' })
+  });
+
+  User.reopen({
+    posts: DS.hasMany(Post, { inverse: 'participants' })
+  });
+
+  equal(User.inverseFor('posts').name, 'participants', 'User.posts inverse is Post.participants');
+  equal(Post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
+  equal(Post.inverseFor('participants').name, 'posts', 'Post.participants inverse is User.posts');
+});
+
 test("When a record is added to a has-many relationship, the inverse belongsTo can be set explicitly", function() {
   Post = DS.Model.extend();
 
