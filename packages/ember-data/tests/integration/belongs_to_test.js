@@ -63,6 +63,7 @@ module("Belongs-To Relationships", {
     serializer.destroy();
     adapter.destroy();
     store.destroy();
+    App.destroy();
     Ember.lookup = originalLookup;
   }
 });
