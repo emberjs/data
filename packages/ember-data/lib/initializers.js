@@ -1,5 +1,5 @@
 require("ember-data/serializers/new_json_serializer");
-
+require("ember-data/system/debug/debug_adapter");
 /**
   @module ember-data
 */
@@ -50,12 +50,26 @@ Ember.onLoad('Ember.Application', function(Application) {
     }
   });
 
+  // Keep ED compatible with previous versions of ember
+  // TODO: Remove the if statement for Ember 1.0
+  if (DS.DebugAdapter) {
+    Application.initializer({
+      name: "dataAdapter",
+
+      initialize: function(container, application) {
+        application.register('dataAdapter:main', DS.DebugAdapter);
+      }
+    });
+  }
+
   Application.initializer({
     name: "injectStore",
 
     initialize: function(container, application) {
       application.inject('controller', 'store', 'store:main');
       application.inject('route', 'store', 'store:main');
+      application.inject('dataAdapter', 'store', 'store:main');
     }
   });
+
 });

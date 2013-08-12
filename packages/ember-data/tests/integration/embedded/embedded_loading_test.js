@@ -140,7 +140,7 @@ Ember.ArrayPolyfills.forEach.call([Person, "Person"], function(mapping) {
 
       setTimeout(function() {
         Ember.run(function() {
-          self.didFindRecord(store, type, { 
+          self.didFindRecord(store, type, {
             comments: [
               {
                 id: 3,
@@ -154,7 +154,7 @@ Ember.ArrayPolyfills.forEach.call([Person, "Person"], function(mapping) {
               id: 3,
               title: "Embedded via sideload",
               comment_ids: [3]
-            } 
+            }
           }, id);
         });
 
