@@ -393,3 +393,34 @@ test("sideloading a record with an embedded hasMany relationship", function() {
   var comment = store.find(Comment, 3);
   equal(Ember.get(person, 'comments.firstObject'), comment);
 });
+
+test("sideloading a record with an embedded-by-id hasMany relationship",
+     function() {
+  Adapter.map(Person, {
+    comments: { embedded: 'ids' }
+  });
+
+  adapter = Adapter.create();
+  serializer = adapter.get('serializer');
+  serializer.configure(Person, {
+    sideloadAs: 'people'
+  });
+  store.set('adapter', adapter);
+
+  adapter.didFindRecord(store, Group, {
+    group: {id: 1},
+    people: [{
+      id: 2,
+      name: "Yehuda Katz",
+      group: 1,
+      comments: [3]
+    }],
+    comments: [{
+      id: 3
+    }]
+  }, 1);
+
+  var person = store.find(Person, 2);
+  var comment = store.find(Comment, 3);
+  equal(Ember.get(person, 'comments.firstObject'), comment);
+});

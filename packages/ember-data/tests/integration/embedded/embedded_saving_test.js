@@ -1,5 +1,5 @@
 var store, Adapter, adapter;
-var Post, Comment, User, App;
+var Post, Comment, User, App, Category;
 var attr = DS.attr;
 
 var get = Ember.get, set = Ember.set;
@@ -14,8 +14,13 @@ module("Embedded Saving", {
       title: attr('string')
     });
 
+    Category = App.Category = DS.Model.extend({
+      lotsOfInfo: attr('string')
+    });
+
     Post = App.Post = DS.Model.extend({
       title: attr('string'),
+      categories: DS.hasMany(Category),
       comments: DS.hasMany(Comment)
     });
 
@@ -26,6 +31,7 @@ module("Embedded Saving", {
     Adapter = DS.RESTAdapter.extend();
 
     Adapter.map(Post, {
+      categories: { embedded: 'ids' },
       comments: { embedded: 'always' }
     });
 
@@ -94,5 +100,27 @@ asyncTest("Adding a new embedded record to an unsaved record: Both records use t
 
   post.get('comments').createRecord({ title: 'This embedded record is also unsaved' });
 
+  transaction.commit();
+});
+
+asyncTest("Adding a record to an unsaved record embedded by ID.", function() {
+  adapter.ajax = function(url, type, hash) {
+    equal(url, '/posts');
+    equal(type, 'POST');
+    deepEqual(hash.data.post.categories, ["1"]);
+
+    return new Ember.RSVP.Promise(function(resolve, reject){
+      Ember.run.later(function(){
+        start();
+        resolve(hash.data);
+      },0);
+    });
+  };
+  adapter.load(store, Category, { id: 1, lotsOfInfo: 'hi there' });
+  var transaction = store.transaction();
+  var post = transaction.createRecord(Post, {
+    title: 'This post is unsaved',
+  });
+  post.get('categories').addObject(store.find(Category, 1));
   transaction.commit();
 });

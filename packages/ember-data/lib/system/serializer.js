@@ -253,6 +253,11 @@ DS.Serializer = Ember.Object.extend({
   },
 
   extractEmbeddedHasMany: function(loader, relationship, array, parent, prematerialized) {
+
+    var embeddedType = this.embeddedType(parent.type, relationship.key);
+    // Don't prematerialize ID lists.
+    if(embeddedType === 'ids') { return; }
+    
     var references = map.call(array, function(item) {
       if (!item) { return; }
 
@@ -261,7 +266,6 @@ DS.Serializer = Ember.Object.extend({
 
       // If the embedded record should also be saved back when serializing the parent,
       // make sure we set its parent since it will not have an ID.
-      var embeddedType = this.embeddedType(parent.type, relationship.key);
       if (embeddedType === 'always') {
         reference.parent = parent;
       }

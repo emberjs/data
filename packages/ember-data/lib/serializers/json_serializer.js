@@ -233,14 +233,18 @@ DS.JSONSerializer = DS.Serializer.extend({
 
     // If the has-many is not embedded, there is nothing to do.
     embeddedType = this.embeddedType(type, name);
-    if (embeddedType !== 'always') { return; }
+    if (embeddedType !== 'always' && embeddedType !== 'ids') { return; }
 
     // Get the DS.ManyArray for the relationship off the record
     manyArray = get(record, name);
 
     // Build up the array of serialized records
     manyArray.forEach(function (record) {
-      serializedHasMany.push(this.serialize(record, { includeId: true, includeType: includeType }));
+      if(embeddedType === 'always') {
+        serializedHasMany.push(this.serialize(record, { includeId: true, includeType: includeType }));
+      } else if(embeddedType === 'ids') {
+        serializedHasMany.push(record.get('id'));
+      }
     }, this);
 
     // Set the appropriate property of the serialized JSON to the

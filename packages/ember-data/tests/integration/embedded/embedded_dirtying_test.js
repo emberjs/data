@@ -1,5 +1,5 @@
 var attr = DS.attr;
-var Post, Comment, User, Vote, Blog;
+var Post, Comment, User, Vote, Blog, Category;
 var Adapter, App;
 var adapter, store, post;
 var forEach = Ember.EnumerableUtils.forEach;
@@ -8,9 +8,9 @@ var forEach = Ember.EnumerableUtils.forEach;
 // The models here are related like this:
 //
 //             Post
-//  belongsTo /  |
-// (non-embedded)|
-//        Blog   | hasMany
+//  belongsTo /  | ------------
+// (non-embedded)|              \ hasMany (id-only)
+//        Blog   | hasMany     Category
 //           Comments
 // belongsTo /    \
 //          /      \ hasMany
@@ -38,10 +38,15 @@ module("Dirtying of Embedded Records", {
       title: attr('string')
     });
 
+    Category = App.Category = DS.Model.extend({
+      lotsOfInfo: attr('string')
+    });
+
     Post = App.Post = DS.Model.extend({
       title: attr('string'),
       comments: DS.hasMany(Comment),
-      blog: DS.belongsTo(Blog)
+      blog: DS.belongsTo(Blog),
+      categories: DS.hasMany(Category)
     });
 
     Comment.reopen({
@@ -56,6 +61,7 @@ module("Dirtying of Embedded Records", {
     });
 
     Adapter.map(Post, {
+      categories: { embedded: 'ids' },
       comments: { embedded: 'always' },
       blog: { embedded: 'load' }
     });
@@ -66,6 +72,10 @@ module("Dirtying of Embedded Records", {
       adapter: adapter
     });
 
+    adapter.load(store, Category, {id: 1, lotsOfInfo: 'one'});
+    adapter.load(store, Category, {id: 2, lotsOfInfo: 'two'});
+    adapter.load(store, Category, {id: 3, lotsOfInfo: 'three'});
+
     adapter.load(store, Post, {
       id: 1,
       title: "A New MVC Framework in Under 100 Lines of Code",
@@ -74,6 +84,8 @@ module("Dirtying of Embedded Records", {
         id: 2,
         title: "Hacker News"
       },
+
+      categories: [1, 3],
 
       comments: [{
         title: "Why not use a more lightweight solution?",
@@ -164,4 +176,18 @@ test("Modifyng a record embedded via embedded loading should not dirty the tree"
 
   assertTreeIs('clean');
   ok(blog.get('isDirty'), true, "embedded load record is dirty");
+});
+
+test("Adding a record by id should not dirty the record added.", function() {
+  var category = store.find(Category, 2);
+  post.get('categories').addObject(category);
+  equal(post.get('isDirty'), true, "Parent should be dirty.");
+  equal(category.get('isDirty'), false, "Child should not be dirty.");
+});
+
+test("Modifying a record embedded by id should not dirty the parent.", function() {
+  var category = store.find(Category, 2);
+  category.set('lotsOfInfo', 'why hello there.');
+  equal(category.get('isDirty'), true, "Child should be dirty.");
+  assertTreeIs('clean');
 });
