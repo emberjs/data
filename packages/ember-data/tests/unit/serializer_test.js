@@ -72,3 +72,7 @@ test('serializeId returns null for null or undefined values', function() {
 test('serializeId returns a string for number values', function() {
   equal(serializer.serializeId(1), "1");
 });
+
+test('serializeId returns a string for ids given as scientific notation', function() {
+  strictEqual(serializer.serializeId("1e2"), "1e2");
+});
