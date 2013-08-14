@@ -41,6 +41,8 @@ Ember.onLoad('Ember.Application', function(Application) {
     name: "store",
 
     initialize: function(container, application) {
+      Ember.assert("You included Ember Data but didn't define "+application.toString()+".Store", application.Store);
+
       application.register('store:main', application.Store);
       application.register('serializer:_default', DS.NewJSONSerializer);
 
