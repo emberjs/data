@@ -116,6 +116,11 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     set(this, 'currentTransaction', this.transaction());
     set(this, 'defaultTransaction', this.transaction());
+    set(this, 'deferredCommits', Ember.MapWithDefault.create({
+      defaultValue: function() {
+        return new Ember.RSVP.defer();
+      }
+    }));
   },
 
   /**
@@ -979,21 +984,45 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @method save
   */
   save: function() {
+    var transaction = get(this, 'defaultTransaction'),
+        deferred = get(this, 'deferredCommits').get(transaction);
+
     once(this, 'commitDefaultTransaction');
+
+    return deferred.promise;
   },
   commit: Ember.aliasMethod('save'),
 
-  commitDefaultTransaction: function() {
-    get(this, 'defaultTransaction').commit();
-  },
-
   scheduleSave: function(record) {
-    get(this, 'currentTransaction').add(record);
-    once(this, 'flushSavedRecords');
+    var transaction = get(this, 'currentTransaction'),
+        deferred = get(this, 'deferredCommits').get(transaction);
+
+    transaction.add(record);
+    once(this, 'commitCurrentTransaction');
+
+    return deferred.promise;
   },
 
-  flushSavedRecords: function() {
-    get(this, 'currentTransaction').commit();
+  commitTransaction: function(name) {
+    var transaction = get(this, name),
+        deferredCommits = get(this, 'deferredCommits'),
+        deferred = deferredCommits.get(transaction);
+
+    deferredCommits.remove(transaction);
+
+    transaction.commit().then(function() {
+      deferred.resolve(transaction);
+    }, function() {
+      deferred.reject(transaction);
+    });
+  },
+
+  commitDefaultTransaction: function() {
+    this.commitTransaction('defaultTransaction');
+  },
+
+  commitCurrentTransaction: function() {
+    this.commitTransaction('currentTransaction');
     set(this, 'currentTransaction', this.transaction());
   },
 
