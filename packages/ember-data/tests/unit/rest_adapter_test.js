@@ -1437,3 +1437,85 @@ test("promise errors are sent to the ember assertion logger", function() {
 
   store.find(Person, 1);
 });
+
+module('The REST adapter - customizable resource URLs', {
+  setup: function() {
+    Adapter = DS.RESTAdapter.extend();
+    Adapter.configure('plurals', {
+      person: 'people'
+    });
+    Adapter.configure('urls', {
+      person: 'groups/:group_id/people'
+    });
+
+    adapter = Adapter.create({
+      ajax: function(url, type, hash) {
+        var self = this;
+        return new Ember.RSVP.Promise(function(resolve, reject){
+          hash = hash || {};
+          var success = hash.success;
+
+          hash.context = adapter;
+
+          ajaxUrl = url;
+          ajaxType = type;
+          ajaxHash = hash;
+
+          hash.success = function(json) {
+            Ember.run(function(){
+              resolve(json);
+            });
+          };
+
+          hash.error = function(xhr) {
+            Ember.run(function(){
+              reject(xhr);
+            });
+          };
+        });
+      }
+    });
+
+    store = DS.Store.create({
+      adapter: adapter
+    });
+
+    Person = DS.Model.extend({
+      name: DS.attr('string')
+
+    });
+
+    Person.toString = function() {
+      return "App.Person";
+    };
+  }
+});
+
+test("creating a person makes a POST to /group/1/people", function() {
+  var group, person;
+
+  // setup
+  person = store.createRecord(Person, { name: "Tom Dale", group_id: 1 });
+
+  // setup
+  store.commit();
+
+  // test
+  expectUrl("/groups/1/people", "the collection at the plural of the model name");
+});
+
+test("finding people by a group", function() {
+  // setup
+  var people = store.find(Person, { group_id: 1 });
+
+  // test
+  expectUrl("/groups/1/people", "the collection at the plural of the model name");
+});
+
+test("finding people by ID", function() {
+  // setup
+  var people = store.find(Person, 1);
+
+  // test
+  expectUrl("/people/1", "the collection at the plural of the model name");
+});

@@ -1,6 +1,7 @@
 require("ember-data/core");
 require('ember-data/system/adapter');
 require('ember-data/serializers/rest_serializer');
+require('ember-data/adapters/rest_adapter/url_builder');
 
 /**
   @module ember-data
@@ -116,8 +117,14 @@ DS.RESTAdapter = DS.Adapter.extend({
   namespace: null,
   bulkCommit: false,
   since: 'since',
+  urlBuilder: null,
 
   serializer: DS.RESTSerializer,
+
+  init: function() {
+    this._super.apply(this, arguments);
+    set(this, 'urlBuilder', DS.URLBuilder.create({adapter: this}));
+  },
 
   /**
     Called on each record before saving. If false is returned, the record
@@ -207,7 +214,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     data[root] = this.serialize(record, { includeId: true });
 
-    return this.ajax(this.buildURL(root), "POST", {
+    return this.ajax(get(this, 'urlBuilder').buildCreateURL(root, null, record), "POST", {
       data: data
     }).then(function(json){
       adapter.didCreateRecord(store, type, record, json);
@@ -239,7 +246,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       data[plural].push(this.serialize(record, { includeId: true }));
     }, this);
 
-    return this.ajax(this.buildURL(root), "POST", {
+    return this.ajax(get(this, 'urlBuilder').buildCreateURL(root, records[0]), "POST", {
       data: data
     }).then(function(json) {
       adapter.didCreateRecords(store, type, records, json);
@@ -262,7 +269,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     data = {};
     data[root] = this.serialize(record);
 
-    return this.ajax(this.buildURL(root, id, record), "PUT",{
+    return this.ajax(get(this, 'urlBuilder').buildUpdateURL(root, id, record), "PUT",{
       data: data
     }).then(function(json){
       adapter.didUpdateRecord(store, type, record, json);
@@ -297,7 +304,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       data[plural].push(this.serialize(record, { includeId: true }));
     }, this);
 
-    return this.ajax(this.buildURL(root, "bulk"), "PUT", {
+    return this.ajax(get(this, 'urlBuilder').buildUpdateURL(root, "bulk", records[0]), "PUT", {
       data: data
     }).then(function(json) {
       adapter.didUpdateRecords(store, type, records, json);
@@ -317,7 +324,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     root = this.rootForType(type);
     adapter = this;
 
-    return this.ajax(this.buildURL(root, id, record), "DELETE").then(function(json){
+    return this.ajax(get(this, 'urlBuilder').buildDeleteURL(root, id, record), "DELETE").then(function(json){
       adapter.didDeleteRecord(store, type, record, json);
     }, function(xhr){
       adapter.didError(store, type, record, xhr);
@@ -350,7 +357,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       data[plural].push(serializer.serializeId( get(record, 'id') ));
     });
 
-    return this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
+    return this.ajax(get(this, 'urlBuilder').buildDeleteURL(root, 'bulk', records[0]), "DELETE", {
       data: data
     }).then(function(json){
       adapter.didDeleteRecords(store, type, records, json);
@@ -366,7 +373,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   find: function(store, type, id) {
     var root = this.rootForType(type), adapter = this;
 
-    return this.ajax(this.buildURL(root, id), "GET").
+    return this.ajax(get(this, 'urlBuilder').buildFindURL(root, id), "GET").
       then(function(json){
         adapter.didFindRecord(store, type, json, id);
     }).then(null, DS.rejectionHandler);
@@ -384,7 +391,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     root = this.rootForType(type);
     adapter = this;
 
-    return this.ajax(this.buildURL(root), "GET",{
+    return this.ajax(get(this, 'urlBuilder').buildFindAllURL(root), "GET",{
       data: this.sinceQuery(since)
     }).then(function(json) {
       adapter.didFindAll(store, type, json);
@@ -402,7 +409,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var root = this.rootForType(type),
         adapter = this;
 
-    return this.ajax(this.buildURL(root), "GET", {
+    return this.ajax(get(this, 'urlBuilder').buildFindQueryURL(root, null, query), "GET", {
       data: query
     }).then(function(json){
       adapter.didFindQuery(store, type, json, recordArray);
@@ -422,7 +429,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     ids = this.serializeIds(ids);
 
-    return this.ajax(this.buildURL(root), "GET", {
+    return this.ajax(get(this, 'urlBuilder').buildFindManyURL(root), "GET", {
       data: {ids: ids}
     }).then(function(json) {
       adapter.didFindMany(store, type, json);
@@ -536,32 +543,6 @@ DS.RESTAdapter = DS.Adapter.extend({
   pluralize: function(string) {
     var serializer = get(this, 'serializer');
     return serializer.pluralize(string);
-  },
-
-  /**
-    @method buildURL
-    @private
-    @param root
-    @param suffix
-    @param record
-  */
-  buildURL: function(root, suffix, record) {
-    var url = [this.url];
-
-    Ember.assert("Namespace URL (" + this.namespace + ") must not start with slash", !this.namespace || this.namespace.toString().charAt(0) !== "/");
-    Ember.assert("Root URL (" + root + ") must not start with slash", !root || root.toString().charAt(0) !== "/");
-    Ember.assert("URL suffix (" + suffix + ") must not start with slash", !suffix || suffix.toString().charAt(0) !== "/");
-
-    if (!Ember.isNone(this.namespace)) {
-      url.push(this.namespace);
-    }
-
-    url.push(this.pluralize(root));
-    if (suffix !== undefined) {
-      url.push(suffix);
-    }
-
-    return url.join("/");
   },
 
   /**
