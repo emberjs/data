@@ -226,9 +226,10 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
     this.deleteLoadedFixture(type, fixture);
 
-    this.simulateRemoteCall(function() {
-      store.didSaveRecord(record);
-    }, this);
+    return this.simulateRemoteCall(function() {
+      // no payload in a deletion
+      return null;
+    });
   },
 
   /*

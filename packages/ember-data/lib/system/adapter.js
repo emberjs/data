@@ -8,7 +8,7 @@ var get = Ember.get, set = Ember.set, merge = Ember.merge;
 var forEach = Ember.EnumerableUtils.forEach;
 
 function rethrow(promise) {
-  promise.then(null, function(reason) {
+  return promise.then(null, function(reason) {
     Ember.run.once(function() { throw reason; });
   });
 }
@@ -445,6 +445,16 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   findAll: null,
 
+  _findAll: function(store, type, since) {
+    var promise = this.findAll(store, type, since);
+
+    return rethrow(promise.then(function(value) {
+      store.pushMany(type, value);
+      store.didUpdateAll(type);
+      return store.all(type);
+    }));
+  },
+
   /**
     Optional
 
@@ -705,8 +715,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     var promise = this[operation](store, type, record);
 
     rethrow(promise.then(function(value) {
-      record.adapterDidCommit();
-      if (value) { store.push(type, value); }
+      store.didSaveRecord(record, value);
     }));
   },
 

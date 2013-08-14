@@ -244,6 +244,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @returns DS.Model
   */
   createRecord: function(type, properties) {
+    type = this.modelFor(type);
+
     properties = properties || {};
 
     var record = type._create({
@@ -386,8 +388,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object|String|Integer|null} id
   */
   find: function(type, id) {
-    type = this.modelFor(type);
-
     if (id === undefined) {
       return this.findAll(type);
     }
@@ -416,6 +416,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param id
   */
   findById: function(type, id) {
+    type = this.modelFor(type);
+
     var record = this.getById(type, id);
     if (get(record, 'isEmpty')) {
       this.fetchRecord(record);
@@ -653,6 +655,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {DS.AdapterPopulatedRecordArray}
   */
   findQuery: function(type, query) {
+    type = this.modelFor(type);
+
     var array = DS.AdapterPopulatedRecordArray.create({
       type: type,
       query: query,
@@ -681,6 +685,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {DS.AdapterPopulatedRecordArray}
   */
   findAll: function(type) {
+    type = this.modelFor(type);
+
     return this.fetchAll(type, this.all(type));
   },
 
@@ -699,9 +705,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to load all records but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load all records but your adapter does not implement `findAll`", adapter.findAll);
 
-    adapter.findAll(this, type, sinceToken);
-
-    return array;
+    return adapter._findAll(this, type, sinceToken);
   },
 
   /**
@@ -862,6 +866,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // ..............
 
   scheduleSave: function(record) {
+    record.adapterWillCommit();
     this._pendingSave.push(record);
     once(this, 'flushPendingSave');
   },
@@ -921,14 +926,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object} data optional data (see above)
   */
   didSaveRecord: function(record, data) {
+    record.adapterDidCommit();
+
     if (data) {
       this.updateId(record, data);
-      this.updateRecordData(record, data);
+      record.setupData(data);
     } else {
       this.didUpdateAttributes(record);
     }
-
-    record.adapterDidCommit();
   },
 
   /**
@@ -1188,15 +1193,13 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object} data
   */
   updateId: function(record, data) {
-    var type = record.constructor,
-        typeMap = this.typeMapFor(type),
+    var oldId = get(record, 'id'),
         reference = get(record, '_reference'),
-        oldId = get(record, 'id'),
-        id = this.preprocessData(type, data);
+        id = data.id;
 
     Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId);
 
-    typeMap.idToReference[id] = reference;
+    this.typeMapFor(record.constructor).idToReference[id] = reference;
     reference.id = id;
   },
 
@@ -1293,14 +1296,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     this.load(type, data);
 
-    var reference = this.referenceForId(type, data.id),
-        record = reference.record;
+    var reference = this.referenceForId(type, data.id);
 
-    if (record) {
-      return record;
-    } else {
-      return this.materializeRecord(reference, data);
-    }
+    return reference.record;
   },
 
   recordFor: function(type, id) {

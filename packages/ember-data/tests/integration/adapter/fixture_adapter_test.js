@@ -192,7 +192,7 @@ test("should delete record asynchronously when it is committed", function() {
 
   equal(Person.FIXTURES.length, 0, "Fixtures empty");
 
-  var paul = env.store.push('person', {firstName: 'Paul', lastName: 'Chavard', height: 70});
+  var paul = env.store.push('person', { id: 'paul', firstName: 'Paul', lastName: 'Chavard', height: 70 });
 
   paul.deleteRecord();
 
@@ -226,10 +226,10 @@ test("should follow isUpdating semantics", function() {
 
   var result = env.store.findAll('person');
 
-  result.then(function() {
+  result.then(function(all) {
     clearTimeout(timer);
     start();
-    equal(get(result, 'isUpdating'), false, "isUpdating is set when it shouldn't be");
+    equal(get(all, 'isUpdating'), false, "isUpdating is set when it shouldn't be");
   });
 });
 
