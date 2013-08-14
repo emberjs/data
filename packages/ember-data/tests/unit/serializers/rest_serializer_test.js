@@ -141,3 +141,53 @@ test("Sideloading can be done by specifying only an alias", function() {
   equal(loadMainCallCount, 1, "one main record was loaded from a single payload");
   equal(loadCallCount, 1, "one secondary record was loaded from a single payload");
 });
+
+test("Sideloading can be done by specifying multiple aliases", function() {
+  var App = Ember.Namespace.create({
+    toString: function() { return "App"; }
+  });
+
+  App.Group = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  App.Post = DS.Model.extend({
+    title: DS.attr('string')
+  });
+
+  serializer.configure(App.Group, {
+    aliases: ['group', 'collectives']
+  });
+
+  var payload = {
+    post: {
+      id: 1,
+      title: "Fifty Ways to Bereave Your Lover"
+    },
+
+    groups: [{ id: 1, name: "Trolls" }],
+    collectives: [{ id: 2, name: "Elves" }]
+  };
+
+  var loadCallCount = 0,
+      loadMainCallCount = 0;
+
+  var loader = {
+    sideload: function(type, data, prematerialized) {
+      if(type === App.Group) {
+        loadCallCount++;
+      }
+    },
+
+    load: function(type, data, prematerialized) {
+      loadMainCallCount++;
+    },
+
+    prematerialize: Ember.K
+  };
+
+  serializer.extract(loader, payload, App.Post);
+
+  equal(loadMainCallCount, 1, "one main record was loaded from a single payload");
+  equal(loadCallCount, 2, "two secondary records were loaded from a single payload");
+});
