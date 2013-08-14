@@ -46,6 +46,7 @@ DS.RelationshipChangeRemove = function(options){
   DS.RelationshipChange.call(this, options);
 };
 
+/** @private */
 DS.RelationshipChange.create = function(options) {
   return new DS.RelationshipChange(options);
 };
@@ -447,13 +448,15 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
 
      }
      else if(this.secondRecordKind === "hasMany"){
-      secondRecord.suspendRelationshipObservers(function(){
-        get(secondRecord, secondRecordName).addObject(firstRecord);
-      });
-    }
+       if (!secondRecord.get('store').adapterForType(secondRecord).findHasMany || (get(secondRecord, 'isNew') || get(secondRecord, 'data')[this.secondRecordKind][secondRecordName] !== undefined)) {
+         secondRecord.suspendRelationshipObservers(function () {
+           get(secondRecord, secondRecordName).addObject(firstRecord);
+         });
+       }
+     }
   }
 
-  if (firstRecord && secondRecord && get(firstRecord, firstRecordName) !== secondRecord) {
+  if (firstRecord && secondRecord && (!firstRecord.get('store').adapterForType(firstRecord).findHasMany || (get(firstRecord, 'isNew') || get(firstRecord, 'data')[this.firstRecordKind][firstRecordName])) && get(firstRecord, firstRecordName) !== secondRecord) {
     if(this.firstRecordKind === "belongsTo"){
       firstRecord.suspendRelationshipObservers(function(){
         set(firstRecord, firstRecordName, secondRecord);
@@ -488,15 +491,17 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
       secondRecord.suspendRelationshipObservers(function(){
         set(secondRecord, secondRecordName, null);
       });
-    }
-    else if(this.secondRecordKind === "hasMany"){
-      secondRecord.suspendRelationshipObservers(function(){
-        get(secondRecord, secondRecordName).removeObject(firstRecord);
-      });
-    }
+     }
+     else if(this.secondRecordKind === "hasMany"){
+       if (!secondRecord.get('store').adapterForType(secondRecord).findHasMany || (get(secondRecord, 'isNew') || get(secondRecord, 'data')[this.secondRecordKind][secondRecordName] !== undefined)) {
+         secondRecord.suspendRelationshipObservers(function () {
+           get(secondRecord, secondRecordName).removeObject(firstRecord);
+         });
+       }
+     }
   }
 
-  if (firstRecord && get(firstRecord, firstRecordName)) {
+  if (firstRecord && (!firstRecord.get('store').adapterForType(firstRecord).findHasMany || (get(firstRecord, 'isNew') || get(firstRecord, 'data')[this.firstRecordKind][firstRecordName] !== undefined)) && get(firstRecord, firstRecordName)) {
     if(this.firstRecordKind === "belongsTo"){
       firstRecord.suspendRelationshipObservers(function(){
         set(firstRecord, firstRecordName, null);

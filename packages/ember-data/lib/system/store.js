@@ -694,11 +694,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (!Ember.isArray(idsOrReferencesOrOpaque)) {
       var adapter = this.adapterForType(type);
 
-      if (adapter && adapter.findHasMany) {
+      if (adapter && adapter.findHasMany && !get(record, 'isNew')) {
         adapter.findHasMany(this, record, relationship, idsOrReferencesOrOpaque);
+        return this.recordArrayManager.createManyArray(type, Ember.A());
       } else if (!isNone(idsOrReferencesOrOpaque)) {
         Ember.assert("You tried to load many records but you have no adapter (for " + type + ")", adapter);
         Ember.assert("You tried to load many records but your adapter does not implement `findHasMany`", adapter.findHasMany);
+      } else {
+        idsOrReferencesOrOpaque = [];
       }
 
       return this.recordArrayManager.createManyArray(type, Ember.A());
@@ -788,7 +791,20 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {DS.AdapterPopulatedRecordArray}
   */
   findAll: function(type) {
-    return this.fetchAll(type, this.all(type));
+    var array,
+        typeMap = this.typeMapFor(type),
+        findAllCache = typeMap.findAllCache;
+
+    if (findAllCache) {
+      array = this.all(type);
+    } else {
+      array = DS.RecordArray.create({ type: type, content: Ember.A([]), store: this, isLoaded: false });
+      this.recordArrayManager.registerFilteredRecordArray(array, type);
+      typeMap.findAllCache = array;
+    }
+
+    this.fetchAll(type, array);
+    return array;
   },
 
   /**
@@ -1477,7 +1493,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     // Update any existing many arrays that use the previous IDs,
     // if necessary.
-    record.hasManyDidChange(key);
+    record.suspendRelationshipObservers(function() {
+      record.hasManyDidChange(key);
+    });
 
     var relationship = record.cacheFor(key);
 

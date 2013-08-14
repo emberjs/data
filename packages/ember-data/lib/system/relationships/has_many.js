@@ -27,6 +27,7 @@ var hasRelationship = function(type, options) {
     //ids can be references or opaque token
     //(e.g. `{url: '/relationship'}`) that will be passed to the adapter
     ids = data[key];
+    meta.key = key;
 
     relationship = store.findMany(type, ids, this, meta);
     set(relationship, 'owner', this);
