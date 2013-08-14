@@ -1,3 +1,4 @@
+require 'ember-dev'
 distros = {
   :full    => %w(ember-data)
 }
@@ -5,7 +6,7 @@ distros = {
 #MEGAHAX
 ember_spade_postprocess = "filter EmberAddMicroLoader, :global => true"
 
-instance_eval File.read(::EmberDev.support_path.join('Assetfile'))
+instance_eval File.read(EmberDev.support_path.join('Assetfile'))
 
 distros.each do |name, modules|
   name = "ember-data"
