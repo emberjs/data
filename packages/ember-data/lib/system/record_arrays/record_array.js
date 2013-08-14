@@ -43,6 +43,14 @@ DS.RecordArray = Ember.ArrayProxy.extend(LoadPromise, {
   // The store that created this record array.
   store: null,
 
+  init: function() {
+    this._super();
+
+    this.on('didUpdate', this, function() {
+      set(this, 'isUpdating', false);
+    });
+  },
+
   objectAtContent: function(index) {
     var content = get(this, 'content'),
         reference = content.objectAt(index),

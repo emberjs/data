@@ -828,7 +828,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   didUpdateAll: function(type) {
     var findAllCache = this.typeMapFor(type).findAllCache;
-    set(findAllCache, 'isUpdating', false);
+
+    Ember.run.once(findAllCache, 'trigger', 'didUpdate');
   },
 
   /**
