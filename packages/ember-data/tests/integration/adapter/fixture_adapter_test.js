@@ -1,7 +1,7 @@
 var get = Ember.get, set = Ember.set;
 var env, Person, Phone, App;
 
-module("integration/adapter/fixture - DS.FixtureAdapter", {
+module("integration/adapter/fixture_adapter - DS.FixtureAdapter", {
   setup: function() {
     Person = DS.Model.extend({
       firstName: DS.attr('string'),
@@ -17,6 +17,7 @@ module("integration/adapter/fixture - DS.FixtureAdapter", {
     });
 
     env = setupStore({ person: Person, phone: Phone, adapter: DS.FixtureAdapter });
+    env.adapter.simulateRemoteResponse = true;
 
     // Enable setTimeout.
     Ember.testing = false;
@@ -32,6 +33,11 @@ module("integration/adapter/fixture - DS.FixtureAdapter", {
 });
 
 test("should load data for a type asynchronously when it is requested", function() {
+  var timer = setTimeout(function() {
+    start();
+    ok(false, "timeout exceeded waiting for fixture data");
+  }, 1000);
+
   Person.FIXTURES = [{
     id: 'wycats',
     firstName: "Yehuda",
@@ -87,11 +93,6 @@ test("should load data for a type asynchronously when it is requested", function
       ok(false, "timeout exceeded waiting for fixture data");
     }, 1000);
   });
-
-  var timer = setTimeout(function() {
-    start();
-    ok(false, "timeout exceeded waiting for fixture data");
-  }, 1000);
 });
 
 test("should load data asynchronously at the end of the runloop when simulateRemoteResponse is false", function() {
@@ -115,7 +116,13 @@ test("should load data asynchronously at the end of the runloop when simulateRem
 });
 
 test("should create record asynchronously when it is committed", function() {
+  expect(9);
   stop();
+
+  var timer = setTimeout(function() {
+    start();
+    ok(false, "timeout exceeded waiting for fixture data");
+  }, 1000);
 
   equal(Person.FIXTURES.length, 0, "Fixtures is empty");
 
@@ -139,16 +146,16 @@ test("should create record asynchronously when it is committed", function() {
     equal(fixture.height, 70);
   });
 
-  env.store.commit();
+  paul.save();
+});
+
+test("should update record asynchronously when it is committed", function() {
+  stop();
 
   var timer = setTimeout(function() {
     start();
     ok(false, "timeout exceeded waiting for fixture data");
   }, 1000);
-});
-
-test("should update record asynchronously when it is committed", function() {
-  stop();
 
   equal(Person.FIXTURES.length, 0, "Fixtures is empty");
 
@@ -172,16 +179,16 @@ test("should update record asynchronously when it is committed", function() {
     equal(fixture.height, 80);
   });
 
-  env.store.commit();
+  paul.save();
+});
+
+test("should delete record asynchronously when it is committed", function() {
+  stop();
 
   var timer = setTimeout(function() {
     start();
     ok(false, "timeout exceeded waiting for fixture data");
   }, 1000);
-});
-
-test("should delete record asynchronously when it is committed", function() {
-  stop();
 
   equal(Person.FIXTURES.length, 0, "Fixtures empty");
 
@@ -199,15 +206,15 @@ test("should delete record asynchronously when it is committed", function() {
     equal(Person.FIXTURES.length, 0, "Record removed from FIXTURES");
   });
 
-  env.store.commit();
+  paul.save();
+});
 
+test("should follow isUpdating semantics", function() {
   var timer = setTimeout(function() {
     start();
     ok(false, "timeout exceeded waiting for fixture data");
   }, 1000);
-});
 
-test("should follow isUpdating semantics", function() {
   stop();
 
   Person.FIXTURES = [{
@@ -219,20 +226,19 @@ test("should follow isUpdating semantics", function() {
 
   var result = env.store.findAll('person');
 
-  result.addObserver('isUpdating', function() {
+  result.then(function() {
     clearTimeout(timer);
     start();
-    clearTimeout(timer);
     equal(get(result, 'isUpdating'), false, "isUpdating is set when it shouldn't be");
   });
+});
 
+test("should coerce integer ids into string", function() {
   var timer = setTimeout(function() {
     start();
     ok(false, "timeout exceeded waiting for fixture data");
   }, 1000);
-});
 
-test("should coerce integer ids into string", function() {
   stop();
 
   Person.FIXTURES = [{
@@ -250,14 +256,14 @@ test("should coerce integer ids into string", function() {
     clearTimeout(timer);
     strictEqual(get(result, 'id'), "1", "should load integer model id as string");
   });
+});
 
+test("should coerce belongsTo ids into string", function() {
   var timer = setTimeout(function() {
     start();
     ok(false, "timeout exceeded waiting for fixture data");
   }, 1000);
-});
 
-test("should coerce belongsTo ids into string", function() {
   stop();
 
   Person.FIXTURES = [{
@@ -267,6 +273,7 @@ test("should coerce belongsTo ids into string", function() {
 
     phones: [1]
   }];
+
   Phone.FIXTURES = [{
     id: 1,
     person: 1
@@ -284,10 +291,6 @@ test("should coerce belongsTo ids into string", function() {
     });
   });
 
-  var timer = setTimeout(function() {
-    start();
-    ok(false, "timeout exceeded waiting for fixture data");
-  }, 1000);
 });
 
 test("only coerce belongsTo ids to string if id is defined and not null", function() {

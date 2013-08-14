@@ -195,7 +195,7 @@ var didSetProperty = function(record, context) {
 // * isDirty: The record has local changes that have not yet been
 //   saved by the adapter. This includes records that have been
 //   created (but not yet saved) or deleted.
-// * isSaving: The record's transaction has been committed, but
+// * isSaving: The record has been committed, but
 //   the adapter has not yet acknowledged that the changes have
 //   been persisted to the backend.
 // * isDeleted: The record was marked for deletion. When `isDeleted`
@@ -254,10 +254,6 @@ var DirtyState = {
     },
 
     becameClean: function(record) {
-      record.withTransaction(function(t) {
-        t.remove(record);
-      });
-
       record.transitionTo('loaded.saved');
     },
 
@@ -287,10 +283,6 @@ var DirtyState = {
     didCommit: function(record) {
       var dirtyType = get(this, 'dirtyType');
 
-      record.withTransaction(function(t) {
-        t.remove(record);
-      });
-
       record.transitionTo('saved');
       record.send('invokeLifecycleCallbacks', dirtyType);
     },
@@ -314,12 +306,6 @@ var DirtyState = {
   invalid: {
     // FLAGS
     isValid: false,
-
-    exit: function(record) {
-       record.withTransaction(function (t) {
-         t.remove(record);
-       });
-     },
 
     // EVENTS
     deleteRecord: function(record) {
@@ -550,10 +536,6 @@ var RootState = {
       },
 
       didCommit: function(record) {
-        record.withTransaction(function(t) {
-          t.remove(record);
-        });
-
         record.send('invokeLifecycleCallbacks', get(record, 'lastDirtyType'));
       },
 
@@ -599,8 +581,8 @@ var RootState = {
     // SUBSTATES
 
     // When a record is deleted, it enters the `start`
-    // state. It will exit this state when the record's
-    // transaction starts to commit.
+    // state. It will exit this state when the record
+    // starts to commit.
     uncommitted: {
 
       // EVENTS
@@ -616,14 +598,11 @@ var RootState = {
       becomeDirty: Ember.K,
 
       becameClean: function(record) {
-        record.withTransaction(function(t) {
-          t.remove(record);
-        });
         record.transitionTo('loaded.saved');
       }
     },
 
-    // After a record's transaction is committing, but
+    // After a record starts committing, but
     // before the adapter indicates that the deletion
     // has saved to the server, a record is in the
     // `inFlight` substate of `deleted`.
@@ -638,10 +617,6 @@ var RootState = {
 
       // EVENTS
       didCommit: function(record) {
-        record.withTransaction(function(t) {
-          t.remove(record);
-        });
-
         record.transitionTo('saved');
 
         record.send('invokeLifecycleCallbacks');

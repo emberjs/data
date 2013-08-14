@@ -2,7 +2,6 @@
 /*jshint eqnull:true*/
 
 require("ember-data/system/record_arrays");
-require("ember-data/system/transaction");
 require("ember-data/system/mixins/mappable");
 
 /**
@@ -15,6 +14,7 @@ var isNone = Ember.isNone;
 var forEach = Ember.EnumerableUtils.forEach;
 var indexOf = Ember.EnumerableUtils.indexOf;
 var map = Ember.EnumerableUtils.map;
+var OrderedSet = Ember.OrderedSet;
 
 // These values are used in the data cache when clientIds are
 // needed but the underlying data has not yet been loaded by
@@ -113,30 +113,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       store: this
     });
     this.relationshipChanges = {};
-
-    set(this, 'currentTransaction', this.transaction());
-    set(this, 'defaultTransaction', this.transaction());
-  },
-
-  /**
-    Returns a new transaction scoped to this store. This delegates
-    responsibility for invoking the adapter's commit mechanism to
-    a transaction.
-
-    Transaction are responsible for tracking changes to records
-    added to them, and supporting `commit` and `rollback`
-    functionality. Committing a transaction invokes the store's
-    adapter, while rolling back a transaction reverses all
-    changes made to records added to the transaction.
-
-    A store has an implicit (default) transaction, which tracks changes
-    made to records not explicitly added to a transaction.
-
-    @method transaction
-    @returns DS.Transaction
-  */
-  transaction: function() {
-    return DS.Transaction.create({ store: this });
+    this._pendingSave = [];
   },
 
   /**
@@ -260,37 +237,18 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Create a new record in the current store. The properties passed
     to this method are set on the newly created record.
 
-    Note: The third `transaction` property is for internal use only.
-    If you want to create a record inside of a given transaction,
-    use `transaction.createRecord()` instead of `store.createRecord()`.
-
     @method createRecord
     @param {subclass of DS.Model} type
     @param {Object} properties a hash of properties to set on the
       newly created record.
     @returns DS.Model
   */
-  createRecord: function(type, properties, transaction) {
-    type = this.modelFor(type);
-
+  createRecord: function(type, properties) {
     properties = properties || {};
 
-    // Create a new instance of the model `type` and put it
-    // into the specified `transaction`. If no transaction is
-    // specified, the default transaction will be used.
     var record = type._create({
       store: this
     });
-
-    transaction = transaction || get(this, 'defaultTransaction');
-
-    // adoptRecord is an internal API that allows records to move
-    // into a transaction without assertions designed for app
-    // code. It is used here to ensure that regardless of new
-    // restrictions on the use of the public `transaction.add()`
-    // API, we will always be able to insert new records into
-    // their transaction.
-    transaction.adoptRecord(record);
 
     // `id` is a special property that may not be a `DS.attr`
     var id = properties.id;
@@ -428,6 +386,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object|String|Integer|null} id
   */
   find: function(type, id) {
+    type = this.modelFor(type);
+
     if (id === undefined) {
       return this.findAll(type);
     }
@@ -456,22 +416,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param id
   */
   findById: function(type, id) {
-    type = this.modelFor(type);
-
     var record = this.getById(type, id);
     if (get(record, 'isEmpty')) {
       this.fetchRecord(record);
     }
 
     return record;
-  },
-
-  findByIds: function(type, ids) {
-    var records = map(ids, function(id) {
-      return this.getById(type, id);
-    }, this);
-
-    return this.findMany(type, records);
   },
 
   fetchRecord: function(record) {
@@ -485,12 +435,11 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to find a record but your adapter (for " + type + ") does not implement 'find'", adapter.find);
 
-    this.handlePromise(record, adapter.find(this, type, id), null, 'recordWasError');
+    this.handlePromise(record, adapter._find(this, type, id), null, 'recordWasError');
   },
 
   getById: function(type, id) {
     type = this.modelFor(type);
-    id = coerceId(id);
 
     var reference, record;
 
@@ -575,6 +524,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     var recordsByTypeMap = Ember.MapWithDefault.create({
       defaultValue: function() { return Ember.A(); }
     });
+
     forEach(records, function(record) {
       recordsByTypeMap.get(record.constructor).push(record);
     });
@@ -647,7 +597,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var records, url;
 
-    if (recordsOrURL !== undefined && !Ember.isArray(recordsOrURL)) {
+    if (!Ember.isArray(recordsOrURL)) {
       url = recordsOrURL;
 
       records = this.recordArrayManager.createManyArray(type, Ember.A([]));
@@ -703,8 +653,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {DS.AdapterPopulatedRecordArray}
   */
   findQuery: function(type, query) {
-    type = this.modelFor(type);
-
     var array = DS.AdapterPopulatedRecordArray.create({
       type: type,
       query: query,
@@ -733,8 +681,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {DS.AdapterPopulatedRecordArray}
   */
   findAll: function(type) {
-    type = this.modelFor(type);
-
     return this.fetchAll(type, this.all(type));
   },
 
@@ -873,7 +819,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   recordIsLoaded: function(type, id) {
     if (!this.hasReferenceForId(type, id)) { return false; }
-    return !get(this.referenceForId(type, id).record, 'isEmpty');
+    return typeof this.referenceForId(type, id).data === 'object';
   },
 
   // ............
@@ -915,33 +861,30 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // . PERSISTING .
   // ..............
 
-  /**
-    This method delegates saving to the store's implicit
-    transaction.
-
-    Calling this method is essentially a request to persist
-    any changes to records that were not explicitly added to
-    a transaction.
-
-    @method save
-  */
-  save: function() {
-    once(this, 'commitDefaultTransaction');
-  },
-  commit: Ember.aliasMethod('save'),
-
-  commitDefaultTransaction: function() {
-    get(this, 'defaultTransaction').commit();
-  },
-
   scheduleSave: function(record) {
-    get(this, 'currentTransaction').add(record);
-    once(this, 'flushSavedRecords');
+    this._pendingSave.push(record);
+    once(this, 'flushPendingSave');
   },
 
-  flushSavedRecords: function() {
-    get(this, 'currentTransaction').commit();
-    set(this, 'currentTransaction', this.transaction());
+  flushPendingSave: function() {
+    var created = new OrderedSet(),
+        updated = new OrderedSet(),
+        deleted = new OrderedSet();
+
+    forEach(this._pendingSave, function(record) {
+      if (get(record, 'isNew')) {
+        created.add(record);
+      } else if (get(record, 'isDeleted')) {
+        deleted.add(record);
+      } else {
+        updated.add(record);
+      }
+    });
+
+    var details = { created: created, updated: updated, deleted: deleted };
+    get(this, '_adapter').commit(this, details);
+
+    this._pendingSave = [];
   },
 
   /**
@@ -978,14 +921,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object} data optional data (see above)
   */
   didSaveRecord: function(record, data) {
-    record.adapterDidCommit();
-
     if (data) {
       this.updateId(record, data);
-      record.setupData(data);
+      this.updateRecordData(record, data);
     } else {
       this.didUpdateAttributes(record);
     }
+
+    record.adapterDidCommit();
   },
 
   /**
@@ -1220,6 +1163,21 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
+    This method re-indexes the data by its clientId in the store
+    and then notifies the record that it should rematerialize
+    itself.
+
+    @method updateRecordData
+    @private
+    @param {DS.Model} record
+    @param {Object} data
+  */
+  updateRecordData: function(record, data) {
+    get(record, '_reference').data = data;
+    record.didChangeData();
+  },
+
+  /**
     If an adapter invokes `didSaveRecord` with data, this method
     extracts the id from the supplied data (using the adapter's
     `extractId()` method) and indexes the clientId with that id.
@@ -1233,13 +1191,13 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     var type = record.constructor,
         typeMap = this.typeMapFor(type),
         reference = get(record, '_reference'),
-        id = coerceId(data.id);
+        oldId = get(record, 'id'),
+        id = this.preprocessData(type, data);
 
-    Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + get(record, 'id') + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", get(record, 'id') === null || id === get(record, 'id'));
+    Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId);
 
-    reference.id = id;
     typeMap.idToReference[id] = reference;
-    record.materializeId(id);
+    reference.id = id;
   },
 
   /**
@@ -1304,7 +1262,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param data
     @param prematerialized
   */
-  _load: function(type, data) {
+  load: function(type, data) {
     var id = coerceId(data.id),
         reference = this.referenceForId(type, id),
         record = reference.record;
@@ -1333,7 +1291,16 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     data = serializer.deserialize(type, data);
 
-    return this._load(type, data);
+    this.load(type, data);
+
+    var reference = this.referenceForId(type, data.id),
+        record = reference.record;
+
+    if (record) {
+      return record;
+    } else {
+      return this.materializeRecord(reference, data);
+    }
   },
 
   recordFor: function(type, id) {
@@ -1413,7 +1380,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // . RECORD MATERIALIZATION .
   // ..........................
 
-  materializeRecord: function(reference) {
+  materializeRecord: function(reference, data) {
     var record = reference.type._create({
       id: reference.id,
       store: this,
@@ -1422,7 +1389,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     reference.record = record;
 
-    get(this, 'defaultTransaction').adoptRecord(record);
+    if (data) {
+      record.setupData(data);
+    }
 
     return record;
   },
@@ -1604,10 +1573,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   serializerFor: function(type) {
     var container = this.container;
 
-    if (typeof type !== 'string') {
-      type = type.typeKey;
-    }
-
     // TODO: Make tests pass without this
 
     if (!container) {
@@ -1617,7 +1582,13 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return container.lookup('serializer:'+type) ||
            container.lookup('serializer:application') ||
            container.lookup('serializer:_default');
-  },
+  }
+});
+
+DS.Store.reopenClass({
+  registerAdapter: DS._Mappable.generateMapFunctionFor('adapters', function(type, adapter, map) {
+    map.set(type, adapter);
+  }),
 
   transformMapKey: function(key) {
     if (typeof key === 'string') {

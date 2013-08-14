@@ -247,6 +247,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     }
   },
 
+  adapterWillCommit: function() {
+    this.send('willCommit');
+  },
+
   /**
     If the adapter did not return a hash in response to a commit,
     merge the changed attributes and relationships into the existing

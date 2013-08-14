@@ -7,6 +7,12 @@ require('ember-data/serializers/json_serializer');
 var get = Ember.get, set = Ember.set, merge = Ember.merge;
 var forEach = Ember.EnumerableUtils.forEach;
 
+function rethrow(promise) {
+  promise.then(null, function(reason) {
+    Ember.run.once(function() { throw reason; });
+  });
+}
+
 function loaderFor(store) {
   return {
     load: function(type, data, prematerialized) {
@@ -421,6 +427,14 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   find: Ember.required(Function),
 
+  _find: function(store, type, id) {
+    var promise = this.find(store, type, id);
+
+    return rethrow(promise.then(function(payload) {
+      return store.push(type, payload);
+    }));
+  },
+
   /**
     Optional
 
@@ -596,15 +610,15 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     }
 
     this.groupByType(commitDetails.created).forEach(function(type, set) {
-      this.createRecords(store, type, filter(set));
+      this._createRecords(store, type, filter(set));
     }, this);
 
     this.groupByType(commitDetails.updated).forEach(function(type, set) {
-      this.updateRecords(store, type, filter(set));
+      this._updateRecords(store, type, filter(set));
     }, this);
 
     this.groupByType(commitDetails.deleted).forEach(function(type, set) {
-      this.deleteRecords(store, type, filter(set));
+      this._deleteRecords(store, type, filter(set));
     }, this);
   },
 
@@ -636,6 +650,18 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   createRecord: Ember.required(Function),
 
+  _createRecords: function(store, type, records) {
+    this.createRecords(store, type, records);
+  },
+
+  _updateRecords: function(store, type, records) {
+    this.updateRecords(store, type, records);
+  },
+
+  _deleteRecords: function(store, type, records) {
+    this.deleteRecords(store, type, records);
+  },
+
   /**
     Creates multiple records at once.
 
@@ -650,8 +676,38 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   createRecords: function(store, type, records) {
     records.forEach(function(record) {
-      this.createRecord(store, type, record);
+      this._createRecord(store, type, record);
     }, this);
+  },
+
+  /**
+    @private
+
+    This method calls createRecord, collects the returned promise, and
+    pushes the resolves value into the store once it has resolved.
+
+    It calls `adapterDidCommit()` on the record first to acknowledge
+    the save.
+  */
+  _createRecord: function(store, type, record) {
+    return this._commitRecord('createRecord', store, type, record);
+  },
+
+  _updateRecord: function(store, type, record) {
+    return this._commitRecord('updateRecord', store, type, record);
+  },
+
+  _deleteRecord: function(store, type, record) {
+    return this._commitRecord('deleteRecord', store, type, record);
+  },
+
+  _commitRecord: function(operation, store, type, record) {
+    var promise = this[operation](store, type, record);
+
+    rethrow(promise.then(function(value) {
+      record.adapterDidCommit();
+      if (value) { store.push(type, value); }
+    }));
   },
 
   /**
@@ -681,7 +737,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   updateRecords: function(store, type, records) {
     records.forEach(function(record) {
-      this.updateRecord(store, type, record);
+      this._updateRecord(store, type, record);
     }, this);
   },
 
@@ -712,7 +768,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   deleteRecords: function(store, type, records) {
     records.forEach(function(record) {
-      this.deleteRecord(store, type, record);
+      this._deleteRecord(store, type, record);
     }, this);
   },
 

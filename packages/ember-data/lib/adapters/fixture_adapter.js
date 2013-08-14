@@ -117,8 +117,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
     }
 
     if (fixture) {
-      this.simulateRemoteCall(function() {
-        store.push(type, fixture);
+      return this.simulateRemoteCall(function() {
+        return fixture;
       }, this);
     }
   },
@@ -141,8 +141,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
     }
 
     if (fixtures) {
-      this.simulateRemoteCall(function() {
-        store.pushMany(type, fixtures);
+      return this.simulateRemoteCall(function() {
+        return fixtures;
       }, this);
     }
   },
@@ -157,9 +157,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
     Ember.assert("Unable to find fixtures for model type "+type.toString(), !!fixtures);
 
-    this.simulateRemoteCall(function() {
-      store.didUpdateAll(type);
-      store.pushMany(type, fixtures);
+    return this.simulateRemoteCall(function() {
+      return fixtures;
     }, this);
   },
 
@@ -178,8 +177,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
     fixtures = this.queryFixtures(fixtures, query, type);
 
     if (fixtures) {
-      this.simulateRemoteCall(function() {
-        this.didFindQuery(store, type, fixtures, array);
+      return this.simulateRemoteCall(function() {
+        return fixtures;
       }, this);
     }
   },
@@ -195,8 +194,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
     this.updateFixtures(type, fixture);
 
-    this.simulateRemoteCall(function() {
-      store.didSaveRecord(record, fixture);
+    return this.simulateRemoteCall(function() {
+      return fixture;
     }, this);
   },
 
@@ -211,8 +210,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
     this.updateFixtures(type, fixture);
 
-    this.simulateRemoteCall(function() {
-      store.didSaveRecord(record, fixture);
+    return this.simulateRemoteCall(function() {
+      return fixture;
     }, this);
   },
 
@@ -284,12 +283,20 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @param context
   */
   simulateRemoteCall: function(callback, context) {
-    if (get(this, 'simulateRemoteResponse')) {
-      // Schedule with setTimeout
-      Ember.run.later(context, callback, get(this, 'latency'));
-    } else {
-      // Asynchronous, but at the of the runloop with zero latency
-      Ember.run.once(context, callback);
-    }
+    var adapter = this;
+
+    return new Ember.RSVP.Promise(function(resolve) {
+      if (get(adapter, 'simulateRemoteResponse')) {
+        // Schedule with setTimeout
+        Ember.run.later(function() {
+          resolve(callback.call(context));
+        }, get(adapter, 'latency'));
+      } else {
+        // Asynchronous, but at the of the runloop with zero latency
+        Ember.run.once(function() {
+          resolve(callback.call(context));
+        });
+      }
+    });
   }
 });
