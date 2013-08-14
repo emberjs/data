@@ -74,9 +74,12 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     @param json
   */
   extractValidationErrors: function(type, json) {
-    var errors = {};
+    var errors = {},
+        attributeNames = get(type, 'attributes.keys.list'),
+        relationshipNames = get(type, 'relationshipNames').belongsTo,
+        allowedKeys = attributeNames.concat(relationshipNames);
 
-    get(type, 'attributes').forEach(function(name) {
+    allowedKeys.forEach(function(name) {
       var key = this._keyForAttributeName(type, name);
       if (json['errors'].hasOwnProperty(key)) {
         errors[name] = json['errors'][key];
