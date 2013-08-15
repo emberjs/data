@@ -179,7 +179,9 @@ DS.RESTAdapter = DS.Adapter.extend({
     if (reference.parent) {
       var store = get(record, 'store');
       var parent = store.recordForReference(reference.parent);
-      this._dirtyTree(dirtySet, parent);
+      if (!dirtySet.has(parent)) {
+        this._dirtyTree(dirtySet, parent);
+      }
     }
   },
 
