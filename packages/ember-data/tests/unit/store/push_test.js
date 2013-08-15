@@ -3,7 +3,6 @@ var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
 
 module("unit/store/push - DS.Store#push", {
   setup: function() {
-    Ember.assert = function(desc, test) { if (!test) { throw new Error(desc); } };
     container = new Ember.Container();
     adapter = DS.Adapter.create();
 

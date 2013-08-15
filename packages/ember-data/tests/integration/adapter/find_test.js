@@ -29,9 +29,8 @@ test("When a single record is requested, the adapter's find method should be cal
     equal(type, Person, "the find method is called with the correct type");
     equal(count, 0, "the find method is only called once");
 
-    store.push(type, id, { id: 1, name: "Braaaahm Dale" });
-
     count++;
+    return { id: 1, name: "Braaaahm Dale" };
   };
 
   store.find(Person, 1);

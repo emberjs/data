@@ -26,7 +26,7 @@ var retrieveFromCurrentState = Ember.computed(function(key, value) {
   @uses Ember.Evented
   @uses DS.LoadPromise
 */
-DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
+DS.Model = Ember.Object.extend(Ember.Evented, {
   isEmpty: retrieveFromCurrentState,
   isLoading: retrieveFromCurrentState,
   isLoaded: retrieveFromCurrentState,

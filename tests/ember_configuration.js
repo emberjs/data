@@ -30,8 +30,8 @@
       start();
 
       var args = arguments;
-      Ember.run(function() {
-        callback.apply(this, args);
+      return Ember.run(function() {
+        return callback.apply(this, args);
       });
     };
   };
@@ -118,6 +118,9 @@
 
 
   minispade.register('ember-data/~test-setup', function() {
+    // Override behavior of swallowing asserts in test mode :(
+    Ember.assert = function(desc, test) { if (!test) { throw new Error(desc); } };
+
     Ember.View.reopen({
       _insertElementLater: syncForTest()
     });
@@ -140,7 +143,6 @@
     });
 
     DS.Model.reopen({
-      then: syncForTest(),
       save: syncForTest(),
       deleteRecord: syncForTest(),
       dataDidChange: Ember.observer(syncForTest(), 'data'),

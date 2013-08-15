@@ -6,11 +6,22 @@ require('ember-data/serializers/json_serializer');
 
 var get = Ember.get, set = Ember.set, merge = Ember.merge;
 var forEach = Ember.EnumerableUtils.forEach;
+var resolve = Ember.RSVP.resolve;
 
 function rethrow(promise) {
   return promise.then(null, function(reason) {
     Ember.run.once(function() { throw reason; });
   });
+}
+
+function isThenable(object) {
+  return object && typeof object.then === 'function';
+}
+
+function handlePromise(object, callback) {
+  return rethrow(resolve(object).then(function(payload) {
+    return callback(payload);
+  }));
 }
 
 function loaderFor(store) {
@@ -295,69 +306,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
-    Loads the response to a request for all records by type.
-
-    You adapter should call this method from its `findAll`
-    method with the response from the backend.
-
-    @method didFindAll
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {any} payload
-  */
-  didFindAll: function(store, type, payload) {
-  },
-
-  /**
-    Loads the response to a request for records by query.
-
-    Your adapter should call this method from its `findQuery`
-    method with the response from the backend.
-
-    @method didFindQuery
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {any} payload
-    @param {DS.AdapterPopulatedRecordArray} recordArray
-  */
-  didFindQuery: function(store, type, payload, recordArray) {
-    // TODO
-  },
-
-  /**
-    Loads the response to a request for many records by ID.
-
-    You adapter should call this method from its `findMany`
-    method with the response from the backend.
-
-    @method didFindMany
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {any} payload
-  */
-  didFindMany: function(store, type, payload) {
-    var loader = DS.loaderFor(store);
-
-    get(this, 'serializer').extractMany(loader, payload, type);
-  },
-
-  /**
-    Notifies the store that a request to the backend returned
-    an error.
-
-    Your adapter should call this method to indicate that the
-    backend returned an error for a request.
-
-    @method didError
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {DS.Model} record
-  */
-  didError: function(store, type, record) {
-    store.recordWasError(record);
-  },
-
-  /**
     @method dirtyRecordsForAttributeChange
     @param {Ember.OrderedSet} dirtySet
     @param {DS.Model} record
@@ -430,9 +378,9 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   _find: function(store, type, id) {
     var promise = this.find(store, type, id);
 
-    return rethrow(promise.then(function(payload) {
+    return handlePromise(promise, function(payload) {
       return store.push(type, payload);
-    }));
+    });
   },
 
   /**
@@ -448,11 +396,11 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   _findAll: function(store, type, since) {
     var promise = this.findAll(store, type, since);
 
-    return rethrow(promise.then(function(value) {
-      store.pushMany(type, value);
+    return handlePromise(promise, function(payload) {
+      store.pushMany(type, payload);
       store.didUpdateAll(type);
       return store.all(type);
-    }));
+    });
   },
 
   /**
@@ -554,7 +502,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     Proxies to the serializer's `extractId` method.
 
     @method extractId
-    @param {DS.Model} type  the model class
+    @param {subclass of DS.Model} type  the model class
     @param {Object}   data
   */
   extractId: function(type, data) {
@@ -620,15 +568,15 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     }
 
     this.groupByType(commitDetails.created).forEach(function(type, set) {
-      this._createRecords(store, type, filter(set));
+      this.createRecords(store, type, filter(set));
     }, this);
 
     this.groupByType(commitDetails.updated).forEach(function(type, set) {
-      this._updateRecords(store, type, filter(set));
+      this.updateRecords(store, type, filter(set));
     }, this);
 
     this.groupByType(commitDetails.deleted).forEach(function(type, set) {
-      this._deleteRecords(store, type, filter(set));
+      this.deleteRecords(store, type, filter(set));
     }, this);
   },
 
@@ -645,6 +593,43 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
+    @private
+
+    This method calls a method (`createRecord`, `updateRecord` or `deleteRecord`)
+    with the store, type, and record. That method will return a promise. When the
+    promise is resolved, `_commitRecord` will call `store.didSaveRecord`.
+
+    @method   _commitRecord
+    @property {"createRecord"|"updateRecord"|"deleteRecord"} operation
+    @property {DS.Store} store
+    @property {subclass of DS.Model} type
+    @property {DS.Model} record
+    @return   {RSVP.Promise}
+  **/
+  _commitRecord: function(operation, store, type, record) {
+    var promise = this[operation](store, type, record);
+
+    return rethrow(promise.then(function(value) {
+      store.didSaveRecord(record, value);
+    }));
+  },
+
+  /**
+    @private
+
+    This method calls `createRecord` and delegates the handling of the
+    returned promise to _commitRecord.
+
+    @property {DS.Store} store
+    @property {subclass of DS.Model} type
+    @property {DS.Model} record
+    @return   {RSVP.Promise}
+  */
+  _createRecord: function(store, type, record) {
+    return this._commitRecord('createRecord', store, type, record);
+  },
+
+  /**
     Implement this method in a subclass to handle the creation of
     new records.
 
@@ -655,22 +640,10 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
     @method createRecord
     @property {DS.Store} store
-    @property {DS.Model} type   the DS.Model class of the record
+    @property {subclass of DS.Model} type   the DS.Model class of the record
     @property {DS.Model} record
   */
   createRecord: Ember.required(Function),
-
-  _createRecords: function(store, type, records) {
-    this.createRecords(store, type, records);
-  },
-
-  _updateRecords: function(store, type, records) {
-    this.updateRecords(store, type, records);
-  },
-
-  _deleteRecords: function(store, type, records) {
-    this.deleteRecords(store, type, records);
-  },
 
   /**
     Creates multiple records at once.
@@ -681,7 +654,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
     @method createRecords
     @property {DS.Store} store
-    @property {DS.Model} type   the DS.Model class of the records
+    @property {subclass of DS.Model} type   the DS.Model class of the records
     @property {Array[DS.Model]} records
   */
   createRecords: function(store, type, records) {
@@ -690,33 +663,21 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     }, this);
   },
 
+
+
   /**
     @private
 
-    This method calls createRecord, collects the returned promise, and
-    pushes the resolves value into the store once it has resolved.
+    This method calls `updateRecord` and delegates the handling of the
+    returned promise to _commitRecord.
 
-    It calls `adapterDidCommit()` on the record first to acknowledge
-    the save.
+    @property {DS.Store} store
+    @property {subclass of DS.Model} type
+    @property {DS.Model} record
+    @return   {RSVP.Promise}
   */
-  _createRecord: function(store, type, record) {
-    return this._commitRecord('createRecord', store, type, record);
-  },
-
   _updateRecord: function(store, type, record) {
     return this._commitRecord('updateRecord', store, type, record);
-  },
-
-  _deleteRecord: function(store, type, record) {
-    return this._commitRecord('deleteRecord', store, type, record);
-  },
-
-  _commitRecord: function(operation, store, type, record) {
-    var promise = this[operation](store, type, record);
-
-    rethrow(promise.then(function(value) {
-      store.didSaveRecord(record, value);
-    }));
   },
 
   /**
@@ -727,7 +688,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
     @method updateRecord
     @property {DS.Store} store
-    @property {DS.Model} type   the DS.Model class of the record
+    @property {subclass of DS.Model} type   the DS.Model class of the record
     @property {DS.Model} record
   */
   updateRecord: Ember.required(Function),
@@ -741,13 +702,28 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
     @method updateRecords
     @property {DS.Store} store
-    @property {DS.Model} type   the DS.Model class of the records
+    @property {subclass of DS.Model} type   the DS.Model class of the records
     @property {Array[DS.Model]} records
   */
   updateRecords: function(store, type, records) {
     records.forEach(function(record) {
       this._updateRecord(store, type, record);
     }, this);
+  },
+
+  /**
+    @private
+
+    This method calls `deleteRecord` and delegates the handling of the
+    returned promise to _commitRecord.
+
+    @property {DS.Store} store
+    @property {subclass of DS.Model} type
+    @property {DS.Model} record
+    @return   {RSVP.Promise}
+  */
+  _deleteRecord: function(store, type, record) {
+    return this._commitRecord('deleteRecord', store, type, record);
   },
 
   /**
@@ -758,7 +734,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
     @method deleteRecord
     @property {DS.Store} store
-    @property {DS.Model} type   the DS.Model class of the record
+    @property {subclass of DS.Model} type   the DS.Model class of the record
     @property {DS.Model} record
   */
   deleteRecord: Ember.required(Function),
@@ -772,7 +748,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
     @method deleteRecords
     @property {DS.Store} store
-    @property {DS.Model} type   the DS.Model class of the records
+    @property {subclass of DS.Model} type   the DS.Model class of the records
     @property {Array[DS.Model]} records
   */
   deleteRecords: function(store, type, records) {
@@ -790,7 +766,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
     @method findMany
     @property {DS.Store} store
-    @property {DS.Model} type   the DS.Model class of the records
+    @property {subclass of DS.Model} type   the DS.Model class of the records
     @property {Array}    ids
   */
   findMany: function(store, type, ids) {
