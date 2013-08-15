@@ -51,11 +51,22 @@ function getAttr(record, options, key) {
   var attributes = get(record, 'data');
   var value = attributes[key];
 
-  if (value === undefined) {
-    if (typeof options.defaultValue === "function") {
-      value = options.defaultValue();
+  if (value === undefined || options.defaultValue) {
+    value = getDefault(options);
+  }
+
+  return value;
+}
+
+function getDefault(options) {
+  var value,
+      defaultValue = options.defaultValue;
+
+  if (defaultValue) {
+    if (typeof defaultValue === "function") {
+      value = defaultValue();
     } else {
-      value = options.defaultValue;
+      value = defaultValue;
     }
   }
 
