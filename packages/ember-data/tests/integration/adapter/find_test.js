@@ -37,13 +37,6 @@ test("When a single record is requested, the adapter's find method should be cal
   store.find(Person, 1);
 });
 
-test("When a record is requested but has not yet been loaded, its `id` property should be the ID used to request the record.", function() {
-  adapter.find = Ember.K;
-
-  var record = store.find(Person, 1);
-  equal(get(record, 'id'), 1, "should report its id while loading");
-});
-
 test("When multiple records are requested, the default adapter should call the `find` method once per record if findMany is not implemented", function() {
   expect(3);
 

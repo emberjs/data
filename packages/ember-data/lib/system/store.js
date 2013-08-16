@@ -15,6 +15,7 @@ var forEach = Ember.EnumerableUtils.forEach;
 var indexOf = Ember.EnumerableUtils.indexOf;
 var map = Ember.EnumerableUtils.map;
 var OrderedSet = Ember.OrderedSet;
+var resolve = Ember.RSVP.resolve;
 
 // These values are used in the data cache when clientIds are
 // needed but the underlying data has not yet been loaded by
@@ -417,10 +418,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var record = this.getById(type, id);
     if (get(record, 'isEmpty')) {
-      this.fetchRecord(record);
+      return this.fetchRecord(record);
+    } else {
+      return resolve(record);
     }
-
-    return record;
   },
 
   fetchRecord: function(record) {
@@ -434,7 +435,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to find a record but your adapter (for " + type + ") does not implement 'find'", adapter.find);
 
-    this.handlePromise(record, adapter._find(this, type, id), null, 'recordWasError');
+    return this.handlePromise(record, adapter._find(this, type, id), null, 'recordWasError');
   },
 
   getById: function(type, id) {
@@ -461,6 +462,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         if (failure) { store[failure](record, reason); }
       });
     }
+
+    return promise;
   },
 
   reloadRecord: function(record) {
