@@ -37,8 +37,10 @@ test("If an adapter implements the `generateIdForRecord` method, the store shoul
   env.adapter.createRecord = function(store, type, record) {
     if (type === Comment) {
       equal(get(record, 'id'), 'id-1', "Comment passed to `createRecord` has 'id-1' assigned");
+      return Ember.RSVP.resolve();
     } else {
       equal(get(record, 'id'), 'id-2', "Post passed to `createRecord` has 'id-2' assigned");
+      return Ember.RSVP.resolve();
     }
   };
 
@@ -50,5 +52,6 @@ test("If an adapter implements the `generateIdForRecord` method, the store shoul
 
   // Despite client-generated IDs, calling commit() on the store should still
   // invoke the adapter's `createRecord` method.
-  env.store.commit();
+  comment.save();
+  post.save();
 });

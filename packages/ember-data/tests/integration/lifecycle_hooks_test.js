@@ -1,5 +1,6 @@
 var Person, env;
 var attr = DS.attr;
+var resolve = Ember.RSVP.resolve;
 
 module("integration/lifecycle_hooks - Lifecycle Hooks", {
   setup: function() {
@@ -21,7 +22,7 @@ asyncTest("When the adapter acknowledges that a record has been created, a `didC
   expect(3);
 
   env.adapter.createRecord = function(store, type, record) {
-    store.didSaveRecord(record, { id: 99, name: "Yehuda Katz" });
+    return resolve({ id: 99, name: "Yehuda Katz" });
   };
 
   var person = env.store.createRecord(Person, { name: "Yehuda Katz" });
@@ -33,14 +34,14 @@ asyncTest("When the adapter acknowledges that a record has been created, a `didC
     start();
   });
 
-  env.store.commit();
+  person.save();
 });
 
 test("When the adapter acknowledges that a record has been created without a new data payload, a `didCreate` event is triggered.", function() {
   expect(3);
 
   env.adapter.createRecord = function(store, type, record) {
-    store.didSaveRecord(record);
+    return Ember.RSVP.resolve();
   };
 
   var person = env.store.createRecord(Person, { id: 99, name: "Yehuda Katz" });
@@ -51,5 +52,5 @@ test("When the adapter acknowledges that a record has been created without a new
     equal(this.get('name'), "Yehuda Katz", "the attribute has been assigned");
   });
 
-  env.store.commit();
+  person.save();
 });

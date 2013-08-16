@@ -39,26 +39,28 @@ test("can have a property set on it", function() {
 
 test("setting a property on a record that has not changed does not cause it to become dirty", function() {
   store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
-  var person = store.find(Person, 1);
-
-  equal(person.get('isDirty'), false, "precond - person record should not be dirty");
-  person.set('name', "Peter");
-  person.set('isDrugAddict', true);
-  equal(person.get('isDirty'), false, "record does not become dirty after setting property to old value");
+  store.find(Person, 1).then(async(function(person) {
+    equal(person.get('isDirty'), false, "precond - person record should not be dirty");
+    person.set('name', "Peter");
+    person.set('isDrugAddict', true);
+    equal(person.get('isDirty'), false, "record does not become dirty after setting property to old value");
+  }));
 });
 
 test("a record reports its unique id via the `id` property", function() {
   store.push(Person, { id: 1 });
 
-  var record = store.find(Person, 1);
-  equal(get(record, 'id'), 1, "reports id as id by default");
+  store.find(Person, 1).then(async(function(record) {
+    equal(get(record, 'id'), 1, "reports id as id by default");
+  }));
 });
 
 test("a record's id is included in its toString representation", function() {
   store.push(Person, { id: 1 });
 
-  var record = store.find(Person, 1);
-  equal(record.toString(), '<(subclass of DS.Model):'+Ember.guidFor(record)+':1>', "reports id in toString");
+  store.find(Person, 1).then(async(function(record) {
+    equal(record.toString(), '<(subclass of DS.Model):'+Ember.guidFor(record)+':1>', "reports id in toString");
+  }));
 });
 
 test("trying to set an `id` attribute should raise", function() {
@@ -76,8 +78,9 @@ test("trying to set an `id` attribute should raise", function() {
 test("it should use `_reference` and not `reference` to store its reference", function() {
   store.push(Person, { id: 1 });
 
-  var record = store.find(Person, 1);
-  equal(record.get('reference'), undefined, "doesn't shadow reference key");
+  store.find(Person, 1).then(async(function(record) {
+    equal(record.get('reference'), undefined, "doesn't shadow reference key");
+  }));
 });
 
 test("it should cache attributes", function() {
@@ -92,11 +95,11 @@ test("it should cache attributes", function() {
 
   store.push(Post, { id: 1 });
 
-  var record = store.find(Post, 1);
-
-  record.set('updatedAt', date);
-  deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
-  strictEqual(get(record, 'updatedAt'), get(record, 'updatedAt'), "second get still returns the same object");
+  store.find(Post, 1).then(async(function(record) {
+    record.set('updatedAt', date);
+    deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
+    strictEqual(get(record, 'updatedAt'), get(record, 'updatedAt'), "second get still returns the same object");
+  }));
 });
 
 module("unit/model - DS.Model updating", {
@@ -114,10 +117,10 @@ module("unit/model - DS.Model updating", {
 });
 
 test("a DS.Model can update its attributes", function() {
-  var person = store.find(Person, 2);
-
-  set(person, 'name', "Brohuda Katz");
-  equal(get(person, 'name'), "Brohuda Katz", "setting took hold");
+  store.find(Person, 2).then(async(function(person) {
+    set(person, 'name', "Brohuda Katz");
+    equal(get(person, 'name'), "Brohuda Katz", "setting took hold");
+  }));
 });
 
 test("a DS.Model can have a defaultValue", function() {
@@ -260,8 +263,9 @@ var converts = function(type, provided, expected) {
   testStore.push(Model, { id: 1, name: provided });
   testStore.push(Model, { id: 2 });
 
-  var record = testStore.find(Model, 1);
-  deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
+  testStore.find(Model, 1).then(async(function(record) {
+    deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
+  }));
 
   // See: Github issue #421
   // record = testStore.find(Model, 2);
@@ -277,9 +281,9 @@ var convertsFromServer = function(type, provided, expected) {
   });
 
   testStore.push(Model, { id: 1, name: provided });
-  var record = testStore.find(Model, 1);
-
-  deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
+  testStore.find(Model, 1).then(async(function(record) {
+    deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
+  }));
 };
 
 var convertsWhenSet = function(type, provided, expected) {
@@ -290,10 +294,10 @@ var convertsWhenSet = function(type, provided, expected) {
   });
 
   testStore.push(Model, { id: 2 });
-  var record = testStore.find(Model, 2);
-
-  set(record, 'name', provided);
-  deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
+  var record = testStore.find(Model, 2).then(async(function(record) {
+    set(record, 'name', provided);
+    deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
+  }));
 };
 
 test("a DS.Model can describe String attributes", function() {
@@ -341,10 +345,11 @@ test("a DS.Model can describe Date attributes", function() {
   });
 
   store.push(Person, { id: 1 });
-  var record = store.find(Person, 1);
+  store.find(Person, 1).then(async(function(record) {
+    record.set('updatedAt', date);
+    deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
+  }));
 
-  record.set('updatedAt', date);
-  deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
   convertsFromServer('date', dateString, date);
   convertsWhenSet('date', date, dateString);
 });
@@ -361,27 +366,16 @@ test("don't allow setting", function(){
 });
 
 test("ensure model exits loading state, materializes data and fulfills promise only after data is available", function () {
-  expect(7);
-
   var store = DS.Store.create({
     adapter: DS.Adapter.create({
-      find: Ember.K
+      find: function(store, type, id) {
+        return Ember.RSVP.resolve({ id: 1, name: "John", isDrugAddict: false });
+      }
     })
   });
 
-  var person = store.find(Person, 1);
-
-  equal(get(person, 'currentState.stateName'), 'root.loading', 'model is in loading state');
-  equal(get(person, 'isLoaded'), false, 'model is not loaded');
-  equal(get(person, '_deferred.promise.isFulfilled'), undefined, 'model is not fulfilled');
-
-  get(person, 'name'); //trigger data setup
-
-  equal(get(person, 'currentState.stateName'), 'root.loading', 'model is still in loading state');
-
-  store.push(Person, { id: 1, name: "John", isDrugAddict: false });
-
-  equal(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
-  equal(get(person, 'isLoaded'), true, 'model is loaded');
-  equal(get(person, '_deferred.promise.isFulfilled'), true, 'model is fulfilled');
+  store.find(Person, 1).then(async(function(person) {
+    equal(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
+    equal(get(person, 'isLoaded'), true, 'model is loaded');
+  }));
 });
