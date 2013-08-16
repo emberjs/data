@@ -1,10 +1,19 @@
 var get = Ember.get, set = Ember.set, attr = DS.attr;
-var Person, env;
+var Person, env, store;
+
+var all = Ember.RSVP.all, hash = Ember.RSVP.hash, resolve = Ember.RSVP.resolve;
 
 function assertClean(promise) {
   return promise.then(async(function(record) {
     equal(record.get('isDirty'), false, "The record is now clean");
     return record;
+  }));
+}
+
+function asyncEqual(a, b, message) {
+  all([ resolve(a), resolve(b) ]).then(async(function(array) {
+    /*globals QUnit*/
+    QUnit.push(array[0] === array[1], array[0], array[1]);
   }));
 }
 
@@ -19,6 +28,7 @@ module("integration/adapter/record_persistence - Persisting Records", {
     Person.toString = function() { return "Person"; };
 
     env = setupStore({ person: Person });
+    store = env.store;
   },
 
   teardown: function() {
@@ -38,10 +48,13 @@ test("When a store is committed, the adapter's `commit` method should be called 
 
   env.store.push('person', { id: 1, name: "Braaaahm Dale" });
 
-  var tom = env.store.find('person', 1);
-  set(tom, "name", "Tom Dale");
+  var tom;
 
-  tom.save();
+  env.store.find('person', 1).then(async(function(person) {
+    tom = person;
+    set(tom, "name", "Tom Dale");
+    tom.save();
+  }));
 });
 
 test("When a store is committed, the adapter's `commit` method should be called with records that have been created.", function() {
@@ -68,12 +81,10 @@ test("After a created record has been assigned an ID, finding a record by that I
   var tom = env.store.createRecord('person', { name: "Tom Dale" });
   tom.save();
 
-  strictEqual(tom, env.store.find('person', 1), "the retrieved record is the same as the created record");
+  asyncEqual(tom, env.store.find('person', 1), "the retrieved record is the same as the created record");
 });
 
 test("when a store is committed, the adapter's `commit` method should be called with records that have been deleted.", function() {
-  expect(3);
-
   env.adapter.deleteRecord = function(store, type, record) {
     equal(type, Person, "the type is correct");
     equal(record, tom, "the record is correct");
@@ -81,13 +92,16 @@ test("when a store is committed, the adapter's `commit` method should be called 
     return Ember.RSVP.resolve();
   };
 
+  var tom;
+
   env.store.push('person', { id: 1, name: "Tom Dale" });
-  var tom = env.store.find('person', 1);
-
-  tom.deleteRecord();
-  tom.save();
-
-  equal(get(tom, 'isDeleted'), true, "record is marked as deleted");
+  env.store.find('person', 1).then(async(function(person) {
+    tom = person;
+    tom.deleteRecord();
+    return tom.save();
+  })).then(async(function(tom) {
+    equal(get(tom, 'isDeleted'), true, "record is marked as deleted");
+  }));
 });
 
 test("An adapter can notify the store that records were updated by calling `didSaveRecords`.", function() {
@@ -102,28 +116,29 @@ test("An adapter can notify the store that records were updated by calling `didS
   env.store.push('person', { id: 1 });
   env.store.push('person', { id: 2 });
 
-  tom = env.store.find('person', 1);
-  yehuda = env.store.find('person', 2);
+  all([ env.store.find('person', 1), env.store.find('person', 2)  ])
+    .then(async(function(array) {
+      tom = array[0];
+      yehuda = array[1];
 
-  tom.set('name', "Michael Phelps");
-  yehuda.set('name', "Usain Bolt");
+      tom.set('name', "Michael Phelps");
+      yehuda.set('name', "Usain Bolt");
 
-  ok(tom.get('isDirty'), "tom is dirty");
-  ok(yehuda.get('isDirty'), "yehuda is dirty");
+      ok(tom.get('isDirty'), "tom is dirty");
+      ok(yehuda.get('isDirty'), "yehuda is dirty");
 
-  assertClean(tom.save()).then(async(function(record) {
-    equal(record, tom, "The record is correct");
-  }));
+      assertClean(tom.save()).then(async(function(record) {
+        equal(record, tom, "The record is correct");
+      }));
 
-  assertClean(yehuda.save()).then(async(function(record) {
-    equal(record, yehuda, "The record is correct");
-  }));
+      assertClean(yehuda.save()).then(async(function(record) {
+        equal(record, yehuda, "The record is correct");
+      }));
+    }));
 });
 
 test("An adapter can notify the store that records were updated and provide new data by calling `didSaveRecords`.", function() {
-  expect(4);
-
-  var tom, yehuda, transaction;
+  var tom, yehuda;
 
   env.adapter.updateRecord = function(store, type, record) {
     if (record.get('id') === "1") {
@@ -131,59 +146,46 @@ test("An adapter can notify the store that records were updated and provide new 
     } else if (record.get('id') === "2") {
       return Ember.RSVP.resolve({ id: 2, name: "Yehuda Katz", updatedAt: "now!" });
     }
-
   };
 
   env.store.push('person', { id: 1, name: "Braaaahm Dale" });
   env.store.push('person', { id: 2, name: "Gentile Katz" });
 
-  tom = env.store.find('person', 1);
-  yehuda = env.store.find('person', 2);
+  hash({ tom: env.store.find('person', 1), yehuda: env.store.find('person', 2) }).then(async(function(people) {
+    people.tom.set('name', "Draaaaaahm Dale");
+    people.yehuda.set('name', "Goy Katz");
 
-  tom.set('name', "Draaaaaahm Dale");
-  yehuda.set('name', "Goy Katz");
-
-  tom.save().then(async(function(record) {
-    equal(tom.get('name'), "Tom Dale", "name attribute should reflect value of hash passed to didSaveRecords");
-    equal(tom.get('updatedAt'), "now", "updatedAt attribute should reflect value of hash passed to didSaveRecords");
-  }));
-
-  yehuda.save().then(async(function(record) {
-    equal(yehuda.get('name'), "Yehuda Katz", "name attribute should reflect value of hash passed to didSaveRecords");
-    equal(yehuda.get('updatedAt'), "now!", "updatedAt attribute should reflect value of hash passed to didSaveRecords");
+    return hash({ tom: people.tom.save(), yehuda: people.yehuda.save() });
+  })).then(async(function(people) {
+    equal(people.tom.get('name'), "Tom Dale", "name attribute should reflect value of hash passed to didSaveRecords");
+    equal(people.tom.get('updatedAt'), "now", "updatedAt attribute should reflect value of hash passed to didSaveRecords");
+    equal(people.yehuda.get('name'), "Yehuda Katz", "name attribute should reflect value of hash passed to didSaveRecords");
+    equal(people.yehuda.get('updatedAt'), "now!", "updatedAt attribute should reflect value of hash passed to didSaveRecords");
   }));
 });
 
 test("An adapter can notify the store that a record was updated by calling `didSaveRecord`.", function() {
-  expect(4);
-
-  var tom, yehuda;
-
   env.adapter.updateRecord = function(store, type, record) {
     return Ember.RSVP.resolve();
   };
 
-  env.store.push('person', { id: 1 });
-  env.store.push('person', { id: 2 });
+  store.push('person', { id: 1 });
+  store.push('person', { id: 2 });
 
-  tom = env.store.find('person', 1);
-  yehuda = env.store.find('person', 2);
+  hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(async(function(people) {
+    people.tom.set('name', "Tom Dale");
+    people.yehuda.set('name', "Yehuda Katz");
 
-  tom.set('name', "Tom Dale");
-  yehuda.set('name', "Yehuda Katz");
+    ok(people.tom.get('isDirty'), "tom is dirty");
+    ok(people.yehuda.get('isDirty'), "yehuda is dirty");
 
-  ok(tom.get('isDirty'), "tom is dirty");
-  ok(yehuda.get('isDirty'), "yehuda is dirty");
+    assertClean(people.tom.save());
+    assertClean(people.yehuda.save());
+  }));
 
-  assertClean(tom.save());
-  assertClean(yehuda.save());
 });
 
 test("An adapter can notify the store that a record was updated and provide new data by calling `didSaveRecord`.", function() {
-  expect(4);
-
-  var tom, yehuda, transaction;
-
   env.adapter.updateRecord = function(store, type, record) {
     switch (record.get('id')) {
       case "1":
@@ -196,28 +198,22 @@ test("An adapter can notify the store that a record was updated and provide new 
   env.store.push('person', { id: 1, name: "Braaaahm Dale" });
   env.store.push('person', { id: 2, name: "Gentile Katz" });
 
-  tom = env.store.find('person', 1);
-  yehuda = env.store.find('person', 2);
 
-  tom.set('name', "Draaaaaahm Dale");
-  yehuda.set('name', "Goy Katz");
+  hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(async(function(people) {
+    people.tom.set('name', "Draaaaaahm Dale");
+    people.yehuda.set('name', "Goy Katz");
 
-  tom.save().then(async(function(record) {
-    equal(record.get('name'), "Tom Dale", "name attribute should reflect value of hash passed to didSaveRecords");
-    equal(record.get('updatedAt'), "now", "updatedAt attribute should reflect value of hash passed to didSaveRecords");
+    return hash({ tom: people.tom.save(), yehuda: people.yehuda.save() });
+  })).then(async(function(people) {
+    equal(people.tom.get('name'), "Tom Dale", "name attribute should reflect value of hash passed to didSaveRecords");
+    equal(people.tom.get('updatedAt'), "now", "updatedAt attribute should reflect value of hash passed to didSaveRecords");
+    equal(people.yehuda.get('name'), "Yehuda Katz", "name attribute should reflect value of hash passed to didSaveRecords");
+    equal(people.yehuda.get('updatedAt'), "now!", "updatedAt attribute should reflect value of hash passed to didSaveRecords");
   }));
 
-  yehuda.save().then(async(function(record) {
-    equal(record.get('name'), "Yehuda Katz", "name attribute should reflect value of hash passed to didSaveRecords");
-    equal(record.get('updatedAt'), "now!", "updatedAt attribute should reflect value of hash passed to didSaveRecords");
-  }));
 });
 
 test("An adapter can notify the store that records were deleted by calling `didSaveRecords`.", function() {
-  expect(2);
-
-  var tom, yehuda, transaction;
-
   env.adapter.deleteRecord = function(store, type, record) {
     return Ember.RSVP.resolve();
   };
@@ -225,32 +221,11 @@ test("An adapter can notify the store that records were deleted by calling `didS
   env.store.push('person', { id: 1, name: "Braaaahm Dale" });
   env.store.push('person', { id: 2, name: "Gentile Katz" });
 
-  tom = env.store.find('person', 1);
-  yehuda = env.store.find('person', 2);
+  hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(async(function(people) {
+    people.tom.deleteRecord();
+    people.yehuda.deleteRecord();
 
-  tom.deleteRecord();
-  yehuda.deleteRecord();
-
-  assertClean(tom.save());
-  assertClean(yehuda.save());
-});
-
-test("An adapter can notify the store that a record was deleted by calling `didSaveRecord`.", function() {
-  var tom, yehuda, transaction;
-
-  env.adapter.deleteRecord = function(store, type, record) {
-    return Ember.RSVP.resolve();
-  };
-
-  env.store.push('person', { id: 1, name: "Braaaahm Dale" });
-  env.store.push('person', { id: 2, name: "Gentile Katz" });
-
-  tom = env.store.find('person', 1);
-  yehuda = env.store.find('person', 2);
-
-  tom.deleteRecord();
-  yehuda.deleteRecord();
-
-  assertClean(tom.save());
-  assertClean(yehuda.save());
+    assertClean(people.tom.save());
+    assertClean(people.yehuda.save());
+  }));
 });

@@ -116,10 +116,8 @@
     });
   };
 
-
   minispade.register('ember-data/~test-setup', function() {
-    // Override behavior of swallowing asserts in test mode :(
-    Ember.assert = function(desc, test) { if (!test) { throw new Error(desc); } };
+    Ember.RSVP.resolve = syncForTest(Ember.RSVP.resolve);
 
     Ember.View.reopen({
       _insertElementLater: syncForTest()
@@ -153,10 +151,6 @@
 
     DS.RecordArray.reopen({
       then: syncForTest()
-    });
-
-    DS.Transaction.reopen({
-      commit: syncForTest()
     });
   });
 
