@@ -24,31 +24,32 @@ module("unit/store/unload - Store unloading records", {
 test("unload a dirty record", function() {
   store.push(Record, {id: 1, title: 'toto'});
 
-  var record = store.find(Record, 1);
-  record.set('title', 'toto2');
+  store.find(Record, 1).then(async(function(record) {
+    record.set('title', 'toto2');
 
-  equal(get(record, 'isDirty'), true, "record is dirty");
-  expectAssertion(function() {
-    record.unloadRecord();
-  }, "You can only unload a loaded, non-dirty record.", "can not unload dirty record");
+    equal(get(record, 'isDirty'), true, "record is dirty");
+    expectAssertion(function() {
+      record.unloadRecord();
+    }, "You can only unload a loaded, non-dirty record.", "can not unload dirty record");
+  }));
 });
 
 test("unload a record", function() {
   store.push(Record, {id: 1, title: 'toto'});
 
-  var record = store.find(Record, 1);
-  equal(get(record, 'id'), 1, "found record with id 1");
-  equal(get(record, 'isDirty'), false, "record is not dirty");
+  store.find(Record, 1).then(async(function(record) {
+    equal(get(record, 'id'), 1, "found record with id 1");
+    equal(get(record, 'isDirty'), false, "record is not dirty");
 
-  store.unloadRecord(record);
+    store.unloadRecord(record);
 
-  equal(get(record, 'isDirty'), false, "record is not dirty");
-  equal(get(record, 'isDeleted'), true, "record is deleted");
+    equal(get(record, 'isDirty'), false, "record is not dirty");
+    equal(get(record, 'isDeleted'), true, "record is deleted");
 
-  tryToFind = false;
-  store.find(Record, 1);
-  equal(tryToFind, true, "not found record with id 1");
-
+    tryToFind = false;
+    store.find(Record, 1);
+    equal(tryToFind, true, "not found record with id 1");
+  }));
 });
 
 module("DS.Store - unload record with relationships");
