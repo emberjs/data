@@ -424,6 +424,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }
   },
 
+  findByIds: function(type, ids) {
+    var store = this;
+
+    return Ember.RSVP.all(map(ids, function(id) {
+      return store.findById(type, id);
+    }));
+  },
+
   fetchRecord: function(record) {
     var type = record.constructor,
         id = get(record, 'id');

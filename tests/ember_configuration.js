@@ -139,6 +139,7 @@
       filter: syncForTest(),
       find: syncForTest(),
       findMany: syncForTest(),
+      findByIds: syncForTest(),
       didSaveRecord: syncForTest(),
       didSaveRecords: syncForTest(),
       didUpdateAttribute: syncForTest(),

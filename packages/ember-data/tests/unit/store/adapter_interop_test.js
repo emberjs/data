@@ -1,4 +1,5 @@
 var get = Ember.get, set = Ember.set;
+var resolve = Ember.RSVP.resolve;
 var TestAdapter;
 
 module("unit/store/adapter_interop - DS.Store working with a DS.Adapter", {
@@ -30,10 +31,10 @@ test("Calling Store#find invokes its adapter#find", function() {
   currentStore.find(currentType, 1);
 });
 
-test("DS.Store has a load method to load in a new record", function() {
+test("Returning a promise from `find` asynchronously loads data", function() {
   var adapter = TestAdapter.create({
     find: function(store, type, id) {
-      store.push(type, { id: 1, name: "Scumbag Dale" });
+      return resolve({ id: 1, name: "Scumbag Dale" });
     }
   });
 
@@ -42,16 +43,16 @@ test("DS.Store has a load method to load in a new record", function() {
     name: DS.attr('string')
   });
 
-  var object = currentStore.find(currentType, 1);
-
-  equal(adapter.serialize(object).name, "Scumbag Dale", "the data hash was inserted");
+  currentStore.find(currentType, 1).then(async(function(object) {
+    strictEqual(get(object, 'name'), "Scumbag Dale", "the data was pushed");
+  }));
 });
 
 test("IDs provided as numbers are coerced to strings", function() {
   var adapter = TestAdapter.create({
     find: function(store, type, id) {
       equal(typeof id, 'string', "id has been normalized to a string");
-      store.push(type, { id: 1, name: "Scumbag Sylvain" });
+      return resolve({ id: 1, name: "Scumbag Sylvain" });
     }
   });
 
@@ -60,56 +61,18 @@ test("IDs provided as numbers are coerced to strings", function() {
     name: DS.attr('string')
   });
 
-  var object = currentStore.find(currentType, 1);
-  equal(typeof object.get('id'), 'string', "id was coerced to a string");
-
-  currentStore.push(currentType, { id: 2, name: "Scumbag Sam Saffron" });
-  object = currentStore.find(currentType, 2);
-  ok(object, "object was found");
-  equal(typeof object.get('id'), 'string', "id is a string despite being supplied and searched for as a number");
+  currentStore.find(currentType, 1).then(async(function(object) {
+    equal(typeof object.get('id'), 'string', "id was coerced to a string");
+    currentStore.push(currentType, { id: 2, name: "Scumbag Sam Saffron" });
+    return currentStore.find(currentType, 2);
+  })).then(async(function(object) {
+    ok(object, "object was found");
+    equal(typeof object.get('id'), 'string', "id is a string despite being supplied and searched for as a number");
+  }));
 });
 
 
 var array = [{ id: "1", name: "Scumbag Dale" }, { id: "2", name: "Scumbag Katz" }, { id: "3", name: "Scumbag Bryn" }];
-
-test("DS.Store has a load method to load in an Array of records", function() {
-  var adapter = TestAdapter.create({
-    findMany: function(store, type, ids) {
-      store.pushMany(type, array);
-    }
-  });
-
-  var currentStore = DS.Store.create({ adapter: adapter });
-  var currentType = DS.Model.extend({
-    name: DS.attr('string')
-  });
-
-  var records = [
-    currentStore.getById(currentType, 1),
-    currentStore.getById(currentType, 2),
-    currentStore.getById(currentType, 3)
-  ];
-
-  var objects = currentStore.findMany(currentType, records);
-
-  for (var i=0, l=get(objects, 'length'); i<l; i++) {
-    var object = objects.objectAt(i), hash = array[i];
-
-    deepEqual(adapter.serialize(object, { includeId: true }), hash);
-  }
-});
-
-test("DS.Store loads individual records without explicit IDs", function() {
-  var store = DS.Store.create({ adapter: DS.Adapter });
-  var Person = DS.Model.extend({
-    name: DS.attr('string')
-  });
-
-  store.push(Person, { id: 1, name: "Tom Dale" });
-
-  var tom = store.find(Person, 1);
-  equal(get(tom, 'name'), "Tom Dale", "the person was successfully loaded for the given ID");
-});
 
 test("can load data for the same record if it is not dirty", function() {
   var store = DS.Store.create({ adapter: DS.Adapter });
@@ -118,13 +81,15 @@ test("can load data for the same record if it is not dirty", function() {
   });
 
   store.push(Person, { id: 1, name: "Tom Dale" });
-  var tom = store.find(Person, 1);
 
-  equal(get(tom, 'isDirty'), false, "precond - record is not dirty");
-  equal(get(tom, 'name'), "Tom Dale", "returns the correct name");
+  var tom = store.find(Person, 1).then(async(function(tom) {
+    equal(get(tom, 'isDirty'), false, "precond - record is not dirty");
+    equal(get(tom, 'name'), "Tom Dale", "returns the correct name");
 
-  store.push(Person, { id: 1, name: "Captain Underpants" });
-  equal(get(tom, 'name'), "Captain Underpants", "updated record with new date");
+    store.push(Person, { id: 1, name: "Captain Underpants" });
+    equal(get(tom, 'name'), "Captain Underpants", "updated record with new date");
+  }));
+
 });
 
 /*
@@ -139,85 +104,15 @@ test("DS.Store loads individual records without explicit IDs with a custom prima
 });
 */
 
-test("DS.Store passes only needed guids to findMany", function() {
-  expect(13);
-
-  var adapter = TestAdapter.create({
-    findMany: function(store, type, ids) {
-      deepEqual(ids, ['4','5','6'], "only needed ids are passed");
-    }
-  });
-
-  var currentStore = DS.Store.create({ adapter: adapter });
-  var currentType = DS.Model.extend({
-    name: DS.attr('string')
-  });
-
-  currentStore.pushMany(currentType, array);
-
-  var objects = currentStore.findByIds(currentType, [1,2,3,4,5,6]);
-
-  equal(get(objects, 'length'), 6, "the RecordArray returned from findMany has all the objects");
-  equal(get(objects, 'isLoaded'), false, "the RecordArrays' isLoaded flag is false");
-
-  objects.then(function(resolvedObjects) {
-    strictEqual(resolvedObjects, objects, "The promise is resolved with the RecordArray");
-    equal(get(objects, 'isLoaded'), true, "The objects are loaded");
-  });
-
-  var i, object, hash;
-  for (i=0; i<3; i++) {
-    object = objects.objectAt(i);
-    hash = array[i];
-
-    deepEqual(adapter.serialize(object, { includeId: true }), hash);
-  }
-
-  for (i=3; i<6; i++) {
-    object = objects.objectAt(i);
-    ok(currentType.detectInstance(object), "objects are instances of the RecordArray's type");
-  }
-
-  currentStore.pushMany(currentType, [{ id: 4 }, { id: 5 }, { id: 6 }]);
-
-  equal(objects.everyProperty('isLoaded'), true, "every objects' isLoaded is true");
-  equal(get(objects, 'isLoaded'), true, "after all objects are loaded, the RecordArrays' isLoaded flag is true");
-});
-
-test("a findManys' isLoaded is true when all objects are loaded", function() {
-  expect(4);
-
-  var adapter = TestAdapter.create({
-    findMany: function(store, type, ids) {
-      ok(false, "findMany should not have been called");
-    }
-  });
-
-  var currentStore = DS.Store.create({ adapter: adapter });
-  var currentType = DS.Model.extend({
-    name: DS.attr('string')
-  });
-
-  currentStore.pushMany(currentType, array);
-
-  var objects = currentStore.findByIds(currentType, [1,2,3]);
-
-  objects.then(function(resolvedObjects) {
-    strictEqual(resolvedObjects, objects, "The resolved RecordArray is correct");
-    equal(get(objects, 'isLoaded'), true, "The RecordArray is loaded by the time the promise is resolved");
-  });
-
-  equal(get(objects, 'length'), 3, "the RecordArray returned from findMany has all the objects");
-  equal(get(objects, 'isLoaded'), true, "the RecordArrays' isLoaded flag is true");
-});
-
-test("loadMany extracts ids from an Array of hashes if no ids are specified", function() {
+test("pushMany extracts ids from an Array of hashes if no ids are specified", function() {
   var store = DS.Store.create({ adapter: DS.Adapter });
 
   var Person = DS.Model.extend({ name: DS.attr('string') });
 
   store.pushMany(Person, array);
-  equal(get(store.find(Person, 1), 'name'), "Scumbag Dale", "correctly extracted id for loaded data");
+  store.find(Person, 1).then(async(function(person) {
+    equal(get(person, 'name'), "Scumbag Dale", "correctly extracted id for loaded data");
+  }));
 });
 
 test("loadMany takes an optional Object and passes it on to the Adapter", function() {
@@ -261,18 +156,12 @@ test("all(type) returns a record array of all records of a specific type", funct
 });
 
 test("a new record of a particular type is created via store.createRecord(type)", function() {
-  expect(6);
   var store = DS.Store.create({ adapter: DS.Adapter });
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });
 
   var person = store.createRecord(Person);
-
-  person.then(function(resolvedPerson) {
-    strictEqual(resolvedPerson, person, "The promise is resolved with the record");
-    equal(get(person, 'isLoaded'), true, "The record is loaded");
-  });
 
   equal(get(person, 'isLoaded'), true, "A newly created record is loaded");
   equal(get(person, 'isNew'), true, "A newly created record is new");
@@ -303,18 +192,12 @@ test("a new record with a specific id can't be created if this id is already use
 });
 
 test("an initial data hash can be provided via store.createRecord(type, hash)", function() {
-  expect(6);
   var store = DS.Store.create({ adapter: DS.Adapter });
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });
 
   var person = store.createRecord(Person, { name: "Brohuda Katz" });
-
-  person.then(function(resolvedPerson) {
-    strictEqual(resolvedPerson, person, "The promise is resolved with the record");
-    equal(get(person, 'isLoaded'), true, "The record is loaded");
-  });
 
   equal(get(person, 'isLoaded'), true, "A newly created record is loaded");
   equal(get(person, 'isNew'), true, "A newly created record is new");
@@ -331,9 +214,9 @@ test("if an id is supplied in the initial data hash, it can be looked up using `
 
   var person = store.createRecord(Person, { id: 1, name: "Brohuda Katz" });
 
-  var again = store.find(Person, 1);
-
-  strictEqual(person, again, "the store returns the loaded object");
+  store.find(Person, 1).then(async(function(again) {
+    strictEqual(person, again, "the store returns the loaded object");
+  }));
 });
 
 test("records inside a collection view should have their ids updated", function() {
@@ -342,7 +225,7 @@ test("records inside a collection view should have their ids updated", function(
   var idCounter = 1;
   var adapter = TestAdapter.create({
     createRecord: function(store, type, record) {
-      store.didSaveRecord(record, {name: record.get('name'), id: idCounter++});
+      return Ember.RSVP.resolve({name: record.get('name'), id: idCounter++});
     }
   });
 
@@ -356,18 +239,16 @@ test("records inside a collection view should have their ids updated", function(
 
   container.appendTo('#qunit-fixture');
 
-  store.createRecord(Person, {name: 'Tom Dale'});
-  store.createRecord(Person, {name: 'Yehuda Katz'});
+  var tom = store.createRecord(Person, {name: 'Tom Dale'});
+  var yehuda = store.createRecord(Person, {name: 'Yehuda Katz'});
 
-  store.commit();
+  Ember.RSVP.all([ tom.save(), yehuda.save() ]).then(async(function() {
+    container.content.forEach(function(person, index) {
+      equal(person.get('id'), index + 1, "The record's id should be correct.");
+    });
 
-  container.content.forEach(function(person, index) {
-    equal(person.get('id'), index + 1, "The record's id should be correct.");
-  });
-
-  Ember.run(function() {
     container.destroy();
-  });
+  }));
 });
 
 var stubAdapter, store;
