@@ -2,8 +2,9 @@ var get = Ember.get, set = Ember.set;
 
 module("unit/model/lifecycle_callbacks - Lifecycle Callbacks");
 
-asyncTest("a record receives a didLoad callback when it has finished loading", function() {
+test("a record receives a didLoad callback when it has finished loading", function() {
   var Person = DS.Model.extend({
+    name: DS.attr(),
     didLoad: function() {
       ok("The didLoad callback was called");
     }
@@ -11,7 +12,7 @@ asyncTest("a record receives a didLoad callback when it has finished loading", f
 
   var adapter = DS.Adapter.create({
     find: function(store, type, id) {
-      store.push(Person, { id: 1, name: "Foo" });
+      return Ember.RSVP.resolve({ id: 1, name: "Foo" });
     }
   });
 
@@ -19,12 +20,10 @@ asyncTest("a record receives a didLoad callback when it has finished loading", f
     adapter: adapter
   });
 
-  var person = store.find(Person, 1);
-
-  person.then(function(resolvedPerson) {
-    equal(resolvedPerson, person, "The resolved value is correct");
-    start();
-  });
+  store.find(Person, 1).then(async(function(person) {
+    equal(person.get('id'), "1", "The person's ID is available");
+    equal(person.get('name'), "Foo", "The person's properties are available");
+  }));
 });
 
 test("a record receives a didUpdate callback when it has finished updating", function() {
@@ -42,13 +41,13 @@ test("a record receives a didUpdate callback when it has finished updating", fun
 
   var adapter = DS.Adapter.create({
     find: function(store, type, id) {
-      store.push(Person, { id: 1, name: "Foo" });
+      return Ember.RSVP.resolve({ id: 1, name: "Foo" });
     },
 
     updateRecord: function(store, type, record) {
       equal(callCount, 0, "didUpdate callback was not called until didSaveRecord is called");
 
-      store.didSaveRecord(record);
+      return Ember.RSVP.resolve();
     }
   });
 
@@ -56,13 +55,15 @@ test("a record receives a didUpdate callback when it has finished updating", fun
     adapter: adapter
   });
 
-  var person = store.find(Person, 1);
+  var asyncPerson = store.find(Person, 1);
   equal(callCount, 0, "precond - didUpdate callback was not called yet");
 
-  person.set('bar', "Bar");
-  store.commit();
-
-  equal(callCount, 1, "didUpdate called after update");
+  asyncPerson.then(async(function(person) {
+    person.set('bar', "Bar");
+    return person.save();
+  })).then(async(function() {
+    equal(callCount, 1, "didUpdate called after update");
+  }));
 });
 
 test("a record receives a didCreate callback when it has finished updating", function() {
@@ -80,7 +81,7 @@ test("a record receives a didCreate callback when it has finished updating", fun
     createRecord: function(store, type, record) {
       equal(callCount, 0, "didCreate callback was not called until didSaveRecord is called");
 
-      store.didSaveRecord(record);
+      return Ember.RSVP.resolve();
     }
   });
 
@@ -90,10 +91,11 @@ test("a record receives a didCreate callback when it has finished updating", fun
 
   equal(callCount, 0, "precond - didCreate callback was not called yet");
 
-  store.createRecord(Person, { id: 69, name: "Newt Gingrich" });
-  store.commit();
+  var person = store.createRecord(Person, { id: 69, name: "Newt Gingrich" });
 
-  equal(callCount, 1, "didCreate called after commit");
+  person.save().then(async(function() {
+    equal(callCount, 1, "didCreate called after commit");
+  }));
 });
 
 test("a record receives a didDelete callback when it has finished deleting", function() {
@@ -112,13 +114,13 @@ test("a record receives a didDelete callback when it has finished deleting", fun
 
   var adapter = DS.Adapter.create({
     find: function(store, type, id) {
-      store.push(Person, { id: 1, name: "Foo" });
+      return Ember.RSVP.resolve({ id: 1, name: "Foo" });
     },
 
     deleteRecord: function(store, type, record) {
       equal(callCount, 0, "didDelete callback was not called until didSaveRecord is called");
 
-      store.didSaveRecord(record);
+      return Ember.RSVP.resolve();
     }
   });
 
@@ -126,13 +128,15 @@ test("a record receives a didDelete callback when it has finished deleting", fun
     adapter: adapter
   });
 
-  var person = store.find(Person, 1);
+  var asyncPerson = store.find(Person, 1);
   equal(callCount, 0, "precond - didDelete callback was not called yet");
 
-  person.deleteRecord();
-  store.commit();
-
-  equal(callCount, 1, "didDelete called after delete");
+  asyncPerson.then(async(function(person) {
+    person.deleteRecord();
+    return person.save();
+  })).then(async(function() {
+    equal(callCount, 1, "didDelete called after delete");
+  }));
 });
 
 test("a record receives a becameInvalid callback when it became invalid", function() {
@@ -151,13 +155,13 @@ test("a record receives a becameInvalid callback when it became invalid", functi
 
   var adapter = DS.Adapter.create({
     find: function(store, type, id) {
-      store.push(Person, { id: 1, name: "Foo" });
+      return Ember.RSVP.resolve({ id: 1, name: "Foo" });
     },
 
     updateRecord: function(store, type, record) {
       equal(callCount, 0, "becameInvalid callback was not called untill recordWasInvalid is called");
 
-      store.recordWasInvalid(record, {bar: 'error'});
+      return Ember.RSVP.reject(new DS.InvalidError({ bar: 'error' }));
     }
   });
 
@@ -165,13 +169,15 @@ test("a record receives a becameInvalid callback when it became invalid", functi
     adapter: adapter
   });
 
-  var person = store.find(Person, 1);
+  var asyncPerson = store.find(Person, 1);
   equal(callCount, 0, "precond - becameInvalid callback was not called yet");
 
-  person.set('bar', "Bar");
-  store.commit();
-
-  equal(callCount, 1, "becameInvalid called after invalidating");
+  asyncPerson.then(async(function(person) {
+    person.set('bar', "Bar");
+    return person.save();
+  })).then(null, async(function() {
+    equal(callCount, 1, "becameInvalid called after invalidating");
+  }));
 });
 
 test("an ID of 0 is allowed", function() {

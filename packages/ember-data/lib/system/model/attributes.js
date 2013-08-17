@@ -30,7 +30,9 @@ DS.Model.reopenClass({
     var map = Ember.Map.create();
 
     this.eachAttribute(function(key, meta) {
-      map.set(key, meta.type);
+      if (meta.type) {
+        map.set(key, meta.type);
+      }
     });
 
     return map;

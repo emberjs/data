@@ -10,12 +10,6 @@ function assertClean(promise) {
   }));
 }
 
-function asyncEqual(a, b, message) {
-  all([ resolve(a), resolve(b) ]).then(async(function(array) {
-    /*globals QUnit*/
-    QUnit.push(array[0] === array[1], array[0], array[1]);
-  }));
-}
 
 module("integration/adapter/record_persistence - Persisting Records", {
   setup: function() {

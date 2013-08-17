@@ -8,20 +8,26 @@ var get = Ember.get, set = Ember.set, merge = Ember.merge;
 var forEach = Ember.EnumerableUtils.forEach;
 var resolve = Ember.RSVP.resolve;
 
-function rethrow(promise) {
-  return promise.then(null, function(reason) {
-    Ember.run.once(function() { throw reason; });
-  });
-}
+var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
+
+DS.InvalidError = function(errors) {
+  var tmp = Error.prototype.constructor.call(this, "The backend rejected the commit because it was invalid: " + Ember.inspect(errors));
+  this.errors = errors;
+
+  for (var i=0, l=errorProps.length; i<l; i++) {
+    this[errorProps[i]] = tmp[errorProps[i]];
+  }
+};
+DS.InvalidError.prototype = Ember.create(Error.prototype);
 
 function isThenable(object) {
   return object && typeof object.then === 'function';
 }
 
 function handlePromise(object, callback) {
-  return rethrow(resolve(object).then(function(payload) {
+  return resolve(object).then(function(payload) {
     return callback(payload);
-  }));
+  });
 }
 
 function loaderFor(store) {
@@ -609,9 +615,17 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   _commitRecord: function(operation, store, type, record) {
     var promise = this[operation](store, type, record);
 
-    return rethrow(promise.then(function(value) {
+    Ember.assert("Your adapter's '" + operation + "' method must return a promise, but it returned " + promise, isThenable(promise));
+
+    return promise.then(function(value) {
       store.didSaveRecord(record, value);
-    }));
+    }, function(reason) {
+      if (reason instanceof DS.InvalidError) {
+        store.recordWasInvalid(record, reason.errors);
+      } else {
+        store.recordWasError(record, reason);
+      }
+    });
   },
 
   /**

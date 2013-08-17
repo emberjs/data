@@ -1,6 +1,6 @@
 var Comment, Post, env;
 
-module("Save Record", {
+module("integration/records/save - Save Record", {
   setup: function() {
     var Post = DS.Model.extend({
       title: DS.attr('string')
@@ -21,7 +21,7 @@ test("Will resolve save on success", function() {
   var post = env.store.createRecord('post', {title: 'toto'});
 
   env.adapter.createRecord = function(store, type, record) {
-    store.didSaveRecord(record, {id: 123});
+    return Ember.RSVP.resolve({ id: 123 });
   };
 
   post.save().then(async(function() {
@@ -30,11 +30,10 @@ test("Will resolve save on success", function() {
 });
 
 test("Will reject save on error", function() {
-  expect(1);
   var post = env.store.createRecord('post', {title: 'toto'});
 
   env.adapter.createRecord = function(store, type, record) {
-    store.recordWasError(record);
+    return Ember.RSVP.reject();
   };
 
   post.save().then(function() {}, async(function() {
@@ -47,7 +46,7 @@ test("Will reject save on invalid", function() {
   var post = env.store.createRecord('post', {title: 'toto'});
 
   env.adapter.createRecord = function(store, type, record) {
-    store.recordWasInvalid(record, {title: 'invalid'});
+    return Ember.RSVP.reject({ title: 'invalid' });
   };
 
   post.save().then(function() {}, async(function() {

@@ -36,6 +36,13 @@
     };
   };
 
+  window.asyncEqual = function(a, b, message) {
+    Ember.RSVP.all([ Ember.RSVP.resolve(a), Ember.RSVP.resolve(b) ]).then(async(function(array) {
+      /*globals QUnit*/
+      QUnit.push(array[0] === array[1], array[0], array[1], message);
+    }));
+  };
+
   window.invokeAsync = function(callback, timeout) {
     timeout = timeout || 1;
 

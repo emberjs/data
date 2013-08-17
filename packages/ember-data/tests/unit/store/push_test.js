@@ -46,12 +46,14 @@ test("Calling push with a normalized hash returns a record", function() {
     lastName: "Katz"
   });
 
-  strictEqual(store.find('person', 'wat'), person, "record returned via load() is the same as the record returned from find()");
-  deepEqual(person.getProperties('id', 'firstName', 'lastName'), {
-    id: 'wat',
-    firstName: "Yehuda",
-    lastName: "Katz"
-  });
+  store.find('person', 'wat').then(async(function(foundPerson) {
+    equal(foundPerson, person, "record returned via load() is the same as the record returned from find()");
+    deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
+      id: 'wat',
+      firstName: "Yehuda",
+      lastName: "Katz"
+    });
+  }));
 });
 
 test("Calling push with a normalized hash containing related records returns a record", function() {
