@@ -282,16 +282,6 @@ DS.OneToManyChange.maintainInvariant = function(options, store, childRecord, key
   }
 };
 
-DS.OneToManyChange.ensureSameTransaction = function(changes){
-  var records = Ember.A();
-  forEach(changes, function(change){
-    records.addObject(change.getSecondRecord());
-    records.addObject(change.getFirstRecord());
-  });
-
-  return DS.Transaction.ensureSameTransaction(records);
-};
-
 /**
   @class RelationshipChange
   @namespace DS
@@ -349,25 +339,6 @@ DS.RelationshipChange.prototype = {
     return this.firstRecord;
   },
 
-  /**
-    Make sure that all three parts of the relationship change are part of
-    the same transaction. If any of the three records is clean and in the
-    default transaction, and the rest are in a different transaction, move
-    them all into that transaction.
-
-    @method ensureSameTransaction
-    @private
-  */
-  ensureSameTransaction: function() {
-    var child = this.getFirstRecord(),
-      parentRecord = this.getSecondRecord();
-
-    var transaction = DS.Transaction.ensureSameTransaction([child, parentRecord]);
-
-    this.transaction = transaction;
-    return transaction;
-  },
-
   callChangeEvents: function(){
     var child = this.getFirstRecord(),
         parentRecord = this.getSecondRecord();
@@ -418,8 +389,6 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
   //Ember.assert("You specified a hasMany (" + hasManyName + ") on " + (!belongsToName && (newParent || oldParent || this.lastParent).constructor) + " but did not specify an inverse belongsTo on " + child.constructor, belongsToName);
   //Ember.assert("You specified a belongsTo (" + belongsToName + ") on " + child.constructor + " but did not specify an inverse hasMany on " + (!hasManyName && (newParent || oldParent || this.lastParentRecord).constructor), hasManyName);
 
-  this.ensureSameTransaction();
-
   this.callChangeEvents();
 
   if (secondRecord && firstRecord) {
@@ -461,8 +430,6 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
 
   //Ember.assert("You specified a hasMany (" + hasManyName + ") on " + (!belongsToName && (newParent || oldParent || this.lastParent).constructor) + " but did not specify an inverse belongsTo on " + child.constructor, belongsToName);
   //Ember.assert("You specified a belongsTo (" + belongsToName + ") on " + child.constructor + " but did not specify an inverse hasMany on " + (!hasManyName && (newParent || oldParent || this.lastParentRecord).constructor), hasManyName);
-
-  this.ensureSameTransaction(firstRecord, secondRecord, secondRecordName, firstRecordName);
 
   this.callChangeEvents();
 

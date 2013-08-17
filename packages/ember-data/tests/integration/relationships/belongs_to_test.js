@@ -1,7 +1,8 @@
-var env, User, Message, Post, Comment;
+var env, store, User, Message, Post, Comment;
 var get = Ember.get, set = Ember.set;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
+var resolve = Ember.RSVP.resolve, hash = Ember.RSVP.hash;
 
 function stringify(string) {
   return function() { return string; };
@@ -46,6 +47,8 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
         favouriteMessage: { embedded: 'always' }
       }
     }));
+
+    store = env.store;
   },
 
   teardown: function() {
@@ -55,69 +58,80 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
 
 test("The store can materialize a non loaded monomorphic belongsTo association", function() {
   expect(1);
-  env.store.push('post', { id: 1, user: 2});
-  var post = env.store.find('post', 1);
+
+  env.store.modelFor('post').reopen({
+    user: DS.belongsTo('user', { async: true })
+  });
 
   env.adapter.find = function(store, type, id) {
     ok(true, "The adapter's find method should be called");
   };
 
-  post.get('user');
+  env.store.push('post', { id: 1, user: 2});
+
+  env.store.find('post', 1).then(async(function(post) {
+    post.get('user');
+  }));
 });
 
 test("Only a record of the same type can be used with a monomorphic belongsTo relationship", function() {
   expect(1);
 
-  env.store.push('post', { id: 1 });
-  env.store.push('comment', { id: 2 });
-  var post = env.store.find('post', 1),
-      comment = env.store.find('comment', 2);
+  store.push('post', { id: 1 });
+  store.push('comment', { id: 2 });
 
-  expectAssertion(function() {
-    post.set('user', comment);
-  }, /You can only add a 'user' record to this relationship/);
+  hash({ post: store.find('post', 1), comment: store.find('comment', 2) }).then(async(function(records) {
+    expectAssertion(function() {
+      records.post.set('user', records.comment);
+    }, /You can only add a 'user' record to this relationship/);
+  }));
 });
 
 test("Only a record of the same base type can be used with a polymorphic belongsTo relationship", function() {
   expect(1);
-  env.store.push('comment', { id: 1 });
-  env.store.push('comment', { id: 2 });
-  env.store.push('post', { id: 1 });
-  env.store.push('user', { id: 3 });
+  store.push('comment', { id: 1 });
+  store.push('comment', { id: 2 });
+  store.push('post', { id: 1 });
+  store.push('user', { id: 3 });
 
-  var user = env.store.find('user', 3),
-      post = env.store.find('post', 1),
-      comment = env.store.find('comment', 1),
-      anotherComment = env.store.find('comment', 2);
+  var asyncRecords = hash({
+    user: store.find('user', 3),
+    post: store.find('post', 1),
+    comment: store.find('comment', 1),
+    anotherComment: store.find('comment', 2)
+  });
 
-  comment.set('message', anotherComment);
-  comment.set('message', post);
-  comment.set('message', null);
+  asyncRecords.then(async(function(records) {
+    var comment = records.comment;
 
-  expectAssertion(function() {
-    comment.set('message', user);
-  }, /You can only add a 'message' record to this relationship/);
+    comment.set('message', records.anotherComment);
+    comment.set('message', records.post);
+    comment.set('message', null);
+
+    expectAssertion(function() {
+      comment.set('message', records.user);
+    }, /You can only add a 'message' record to this relationship/);
+  }));
 });
 
 test("The store can load a polymorphic belongsTo association", function() {
   env.store.push('post', { id: 1 });
   env.store.push('comment', { id: 2, message: 1, message_type: 'post' });
 
-  var message = env.store.find('post', 1),
-      comment = env.store.find('comment', 2);
-
-  equal(comment.get('message'), message);
+  hash({ message: store.find('post', 1), comment: store.find('comment', 2) }).then(async(function(records) {
+    equal(records.comment.get('message'), records.message);
+  }));
 });
 
 test("The store can serialize a polymorphic belongsTo association", function() {
   env.store.push('post', { id: 1 });
   env.store.push('comment', { id: 2, message: 1, message_type: 'post' });
 
-  var comment = env.store.find('comment', 2);
-
-  var serialized = env.store.serialize(comment, { includeId: true });
-  equal(serialized['message'], 1);
-  equal(serialized['message_type'], 'post');
+  store.find('comment', 2).then(async(function(comment) {
+    var serialized = store.serialize(comment, { includeId: true });
+    equal(serialized['message'], 1);
+    equal(serialized['message_type'], 'post');
+  }));
 });
 
 test("TODO (embedded): The store can load an embedded polymorphic belongsTo association", function() {

@@ -5,12 +5,30 @@ var get = Ember.get, set = Ember.set,
   @module ember-data
 */
 
+function asyncBelongsTo(type, options, meta) {
+  return Ember.computed(function(key, value) {
+    var data = get(this, 'data'),
+        store = get(this, 'store');
+
+    if (arguments.length === 2) {
+      Ember.assert("You can only add a '" + type + "' record to this relationship", !value || store.modelFor(type).detectInstance(value));
+      return value === undefined ? null : value;
+    }
+
+    return store.find(type, data[key]);
+  }).property('data').meta(meta);
+}
+
 DS.belongsTo = function(type, options) {
   Ember.assert("The first argument DS.belongsTo must be a model type or string, like DS.belongsTo(App.Person)", !!type && (typeof type === 'string' || DS.Model.detect(type)));
 
   options = options || {};
 
   var meta = { type: type, isRelationship: true, options: options, kind: 'belongsTo' };
+
+  if (options.async) {
+    return asyncBelongsTo(type, options, meta);
+  }
 
   return Ember.computed(function(key, value) {
     var data = get(this, 'data'),
@@ -87,12 +105,9 @@ DS.Model.reopen({
             change = DS.RelationshipChange.createChange(record, newParent, store, { key: key, kind: "belongsTo", changeType: "add" });
 
         change.sync();
-
-        if(this._changesToSync[key]){
-          DS.OneToManyChange.ensureSameTransaction([change, this._changesToSync[key]], store);
-        }
       }
     }
+
     delete this._changesToSync[key];
   })
 });

@@ -167,7 +167,7 @@ DS.ManyArray = DS.RecordArray.extend({
       this._changesToSync.forEach(function(change) {
         change.sync();
       });
-      DS.OneToManyChange.ensureSameTransaction(this._changesToSync, store);
+
       this._changesToSync.clear();
     }
   },
