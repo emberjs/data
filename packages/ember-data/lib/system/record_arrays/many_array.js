@@ -84,7 +84,8 @@ DS.ManyArray = DS.RecordArray.extend({
         store = get(this, 'store'),
         owner = get(this, 'owner');
 
-    store.fetchUnloadedRecords(records, owner);
+    var unloadedRecords = records.filterProperty('isEmpty', true);
+    store.fetchMany(unloadedRecords, owner);
   },
 
   // Overrides Ember.Array's replace method to implement
@@ -173,7 +174,7 @@ DS.ManyArray = DS.RecordArray.extend({
   },
 
   // Create a child record within the owner
-  createRecord: function(hash, transaction) {
+  createRecord: function(hash) {
     var owner = get(this, 'owner'),
         store = get(owner, 'store'),
         type = get(this, 'type'),
@@ -181,9 +182,7 @@ DS.ManyArray = DS.RecordArray.extend({
 
     Ember.assert("You cannot add '" + type.typeKey + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
 
-    transaction = transaction || get(owner, 'transaction');
-
-    record = store.createRecord.call(store, type, hash, transaction);
+    record = store.createRecord.call(store, type, hash);
     this.pushObject(record);
 
     return record;

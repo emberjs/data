@@ -144,6 +144,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   _setup: function() {
     this._changesToSync = {};
     this._deferredTriggers = [];
+    this._relationships = {};
   },
 
   send: function(name, context) {
@@ -283,16 +284,16 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   hasManyDidChange: function(key) {
-    var cachedValue = this.cacheFor(key);
+    var hasMany = this._relationships[key];
 
-    if (cachedValue) {
+    if (hasMany) {
       var type = get(this.constructor, 'relationshipsByName').get(key).type;
       var store = get(this, 'store');
       var records = this._data[key] || [];
 
-      set(cachedValue, 'content', Ember.A(records));
-      set(cachedValue, 'isLoaded', true);
-      cachedValue.trigger('didLoad');
+      set(hasMany, 'content', Ember.A(records));
+      set(hasMany, 'isLoaded', true);
+      hasMany.trigger('didLoad');
     }
   },
 

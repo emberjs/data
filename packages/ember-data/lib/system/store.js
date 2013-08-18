@@ -496,23 +496,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
-    This method is the entry point that relationships use to update
-    themselves when their underlying data changes.
-
-    First, it determines which of its `reference`s are still unloaded,
-    then invokes `findMany` on the adapter.
-
-    @method fetchUnloadedReferences
-    @private
-    @param references
-    @param owner
-  */
-  fetchUnloadedRecords: function(records, owner) {
-    var unloadedRecords = records.filterProperty('isEmpty', true);
-    this.fetchMany(unloadedRecords, owner);
-  },
-
-  /**
     This method takes a list of `reference`s, groups the `reference`s by type,
     converts the `reference`s into IDs, and then invokes the adapter's `findMany`
     method.
@@ -522,7 +505,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     It is used both by a brand new relationship (via the `findMany`
     method) or when the data underlying an existing relationship
-    changes (via the `fetchUnloadedReferences` method).
+    changes.
 
     @method fetchMany
     @private
@@ -548,7 +531,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       Ember.assert("You tried to load many records but you have no adapter (for " + type + ")", adapter);
       Ember.assert("You tried to load many records but your adapter does not implement `findMany`", adapter.findMany);
 
-      adapter.findMany(this, type, ids, owner);
+      adapter._findMany(this, type, ids, owner);
     }, this);
   },
 
@@ -574,61 +557,17 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
-    `findMany` is the entry point that relationships use to generate a
-    new `ManyArray` for the list of IDs specified by the server for
-    the relationship.
-
-    Its responsibilities are:
-
-    * convert the IDs into clientIds
-    * determine which of the clientIds still need to be loaded
-    * create a new ManyArray whose content is *all* of the clientIds
-    * notify the ManyArray of the number of its elements that are
-      already loaded
-    * insert the unloaded references into the `loadingRecordArrays`
-      bookkeeping structure, which will allow the `ManyArray` to know
-      when all of its loading elements are loaded from the server.
-    * ask the adapter to load the unloaded elements, by invoking
-      findMany with the still-unloaded IDs.
-
     @method findMany
     @private
-    @param type
-    @param idsOrReferencesOrOpaque
-    @param record
-    @param relationship
+    @param record {DS.Model}
+    @param relationship {Object}
+    @return {DS.ManyArray}
   */
-  findMany: function(type, recordsOrURL, record, relationship) {
-    // 1. Determine which of the client ids need to be loaded
-    // 2. Create a new ManyArray whose content is ALL of the clientIds
-    // 3. Decrement the ManyArray's counter by the number of loaded clientIds
-    // 4. Put the ManyArray into our bookkeeping data structure, keyed on
-    //    the needed clientIds
-    // 5. Ask the adapter to load the records for the unloaded clientIds (but
-    //    convert them back to ids)
-
-    var records, url;
-
-    if (!Ember.isArray(recordsOrURL)) {
-      url = recordsOrURL;
-
-      records = this.recordArrayManager.createManyArray(type, Ember.A([]));
-
-      var adapter = this.adapterForType(type);
-
-      Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + type + ")", adapter);
-      Ember.assert("You tried to load many records but your adapter does not implement `findHasMany`", adapter.findHasMany);
-
-      adapter.findHasMany(this, record, relationship, url);
-
-      return records;
-    }
-
-    records = Ember.A(recordsOrURL);
+  findMany: function(type, records) {
+    records = Ember.A(records);
 
     var unloadedRecords = records.filterProperty('isEmpty', true),
-        manyArray = this.recordArrayManager.createManyArray(type, records),
-        references = records.mapProperty('_reference');
+        manyArray = this.recordArrayManager.createManyArray(type, records);
 
     unloadedRecords.forEach(function(record) {
       record.loadingData();
@@ -638,7 +577,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     if (unloadedRecords.length) {
       unloadedRecords.forEach(function(record) {
-        this.recordArrayManager.registerWaitingRecordArray(manyArray, record._reference);
+        this.recordArrayManager.registerWaitingRecordArray(record, manyArray);
       }, this);
 
       this.fetchMany(unloadedRecords);
@@ -648,6 +587,17 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }
 
     return manyArray;
+  },
+
+  findHasMany: function(record, link, relationship) {
+    var adapter = this.adapterForType(record.constructor);
+
+    Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + record.constructor + ")", adapter);
+    Ember.assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", adapter.findHasMany);
+
+    var records = this.recordArrayManager.createManyArray(relationship.type, Ember.A([]));
+    adapter._findHasMany(this, record, link, relationship);
+    return records;
   },
 
   /**

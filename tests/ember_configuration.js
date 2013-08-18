@@ -124,6 +124,10 @@
   };
 
   minispade.register('ember-data/~test-setup', function() {
+    Ember.RSVP.configure('onerror', function(reason) {
+      console.log(reason.stack);
+    });
+
     Ember.RSVP.resolve = syncForTest(Ember.RSVP.resolve);
 
     Ember.View.reopen({

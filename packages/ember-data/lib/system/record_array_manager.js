@@ -193,7 +193,9 @@ DS.RecordArrayManager = Ember.Object.extend({
   // store notifies any interested ManyArrays. When the ManyArray's
   // total number of loading records drops to zero, it becomes
   // `isLoaded` and fires a `didLoad` event.
-  registerWaitingRecordArray: function(array, reference) {
+  registerWaitingRecordArray: function(record, array) {
+    var reference = get(record, '_reference');
+
     var loadingRecordArrays = reference.loadingRecordArrays || [];
     loadingRecordArrays.push(array);
     reference.loadingRecordArrays = loadingRecordArrays;

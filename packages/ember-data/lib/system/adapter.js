@@ -784,8 +784,25 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @property {Array}    ids
   */
   findMany: function(store, type, ids) {
-    ids.forEach(function(id) {
-      this.find(store, type, id);
+    var promises = ids.map(function(id) {
+      return this.find(store, type, id);
     }, this);
+
+    return Ember.RSVP.all(promises);
+  },
+
+  _findMany: function(store, type, ids) {
+    return handlePromise(this.findMany(store, type, ids), function(payload) {
+      store.pushMany(type, payload);
+    });
+  },
+
+  _findHasMany: function(store, record, link, relationship) {
+    var promise = this.findHasMany(store, record, link, relationship);
+
+    return handlePromise(promise, function(payload) {
+      var records = store.pushMany(record.constructor, payload);
+      record.updateHasMany(relationship.key, records);
+    });
   }
 });
