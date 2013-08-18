@@ -386,12 +386,16 @@ test("if a updated record is marked as erred by the server, it enters an error s
 
 test("can be created after the DS.Store", function() {
   expect(1);
-  store.set('adapter', 'App.adapter');
-  adapter.find = function(store, type) {
-    equal(type, Person, "the type is correct");
-  };
-  // Expose the adapter to global namespace
-  window.App = {adapter: adapter};
+  store.set('adapter', 'main');
+  var Adapter = DS.Adapter.extend({
+    find: function(store, type) {
+      equal(type, Person, "the type is correct");
+    }
+  });
+
+  var container = new Ember.Container();
+  container.register('adapter:main', Adapter);
+  store.container = container;
 
   store.find(Person, 1);
 });
@@ -448,12 +452,10 @@ test("the filter method with server query works with embedded records", function
 
 test("can rollback after sucessives updates", function() {
   store.load(Person, 1, {name: "Paul Chavard"});
-  store.set('adapter', 'App.adapter');
+  store.set('adapter', adapter);
   adapter.updateRecord = function(store, type, record) {
     store.didSaveRecord(record);
   };
-  // Expose the adapter to global namespace
-  window.App = {adapter: adapter};
 
   var person = store.find(Person, 1);
 

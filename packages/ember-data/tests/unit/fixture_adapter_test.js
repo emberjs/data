@@ -1,11 +1,15 @@
 var get = Ember.get, set = Ember.set;
-var store, Person, Phone, App;
+var store, container, Person, Phone, App;
 
 module("DS.FixtureAdapter", {
   setup: function() {
     store = DS.Store.create({
-      adapter: 'DS.FixtureAdapter'
+      adapter: 'fixture'
     });
+
+    container = new Ember.Container();
+    container.register('adapter:fixture', DS.FixtureAdapter);
+    store.container = container;
 
     Person = DS.Model.extend({
       firstName: DS.attr('string'),
@@ -37,6 +41,7 @@ module("DS.FixtureAdapter", {
     Ember.run(function() {
       store.destroy();
       App.destroy();
+      container.destroy();
     });
     store = null;
     Person = null;

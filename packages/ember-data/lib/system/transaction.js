@@ -136,7 +136,7 @@ DS.Transaction = Ember.Object.extend({
     Ember.assert("You must pass a record into transaction.add()", record instanceof DS.Model);
 
     var store = get(this, 'store');
-    var adapter = get(store, '_adapter');
+    var adapter = store.adapterForType(record.constructor);
     var serializer = get(adapter, 'serializer');
     serializer.eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
       if (embeddedType === 'load') { return; }
