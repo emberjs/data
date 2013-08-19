@@ -9,7 +9,7 @@ module("integration/adapter/fixture_adapter - DS.FixtureAdapter", {
 
       height: DS.attr('number'),
 
-      phones: DS.hasMany('phone')
+      phones: DS.hasMany('phone', { async: true })
     });
 
     Phone = DS.Model.extend({
@@ -61,12 +61,15 @@ test("should load data for a type asynchronously when it is requested", function
   env.store.find('person', 'ebryn').then(async(function(ebryn) {
     equal(get(ebryn, 'isLoaded'), true, "data loads asynchronously");
     equal(get(ebryn, 'height'), 70, "data from fixtures is loaded correctly");
-    equal(get(ebryn, 'phones.length'), 2, "relationships from fixtures is loaded correctly");
 
     env.store.find('person', 'wycats').then(async(function(wycats) {
       equal(get(wycats, 'isLoaded'), true, "subsequent requests for records are returned asynchronously");
       equal(get(wycats, 'height'), 65, "subsequent requested records contain correct information");
     }, 1000));
+
+    return get(ebryn, 'phones');
+  }, 1000)).then(async(function(phones) {
+    equal(get(phones, 'length'), 2, "relationships from fixtures is loaded correctly");
   }, 1000));
 });
 

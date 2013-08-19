@@ -9,29 +9,35 @@ var forEach = Ember.EnumerableUtils.forEach;
 
 function asyncHasMany(type, options, meta) {
   return Ember.computed(function(key, value) {
-    var data = get(this, 'data'),
-        store = get(this, 'store');
+    var relationship = buildRelationship(this, key, options, function(store, data) {
+      var link = data.links && data.links[key];
 
-    var link = data.links && data.links[key],
-        records = data[key],
-        relationship;
-
-    // a URL was specified in deserialization
-    if (link) {
-      relationship = this._relationships[key] = store.findHasMany(this, link, meta);
-    } else {
-      relationship = this._relationships[key] = store.findMany(meta.type, records);
-    }
-
-    setProperties(relationship, {
-      owner: this, name: key, isPolymorphic: options.polymorphic
+      if (link) {
+        return store.findHasMany(this, link, meta);
+      } else {
+        return store.findMany(meta.type, data[key]);
+      }
     });
 
     return this.resolveOn.call(relationship, 'didLoad');
   }).property('data').meta(meta);
 }
 
-var hasRelationship = function(type, options) {
+function buildRelationship(record, key, options, callback) {
+  var data = get(record, 'data'),
+      store = get(record, 'store');
+
+  var relationship = callback.call(record, store, data);
+  record._relationships[key] = relationship;
+
+  setProperties(relationship, {
+    owner: record, name: key, isPolymorphic: options.polymorphic
+  });
+
+  return relationship;
+}
+
+function hasRelationship(type, options) {
   options = options || {};
 
   var meta = { type: type, isRelationship: true, options: options, kind: 'hasMany' };
@@ -41,30 +47,13 @@ var hasRelationship = function(type, options) {
   }
 
   return Ember.computed(function(key, value) {
-    var data = get(this, 'data'),
-        store = get(this, 'store'),
-        ids, relationship;
-
-    if (typeof type === 'string') {
-      if (type.indexOf(".") === -1) {
-        type = store.modelFor(type);
-      } else {
-        type = get(Ember.lookup, type);
-      }
-    }
-
-    //ids can be references or opaque token
-    //(e.g. `{url: '/relationship'}`) that will be passed to the adapter
-    var records = data[key];
-
-    relationship = store.findMany(meta.type, records);
-    set(relationship, 'owner', this);
-    set(relationship, 'name', key);
-    set(relationship, 'isPolymorphic', options.polymorphic);
-
-    return relationship;
-  }).property().meta(meta);
-};
+    return buildRelationship(this, key, options, function(store, data) {
+      var records = data[key];
+      Ember.assert("You looked up the '" + key + "' relationship on '" + this + "' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.attr({ async: true })`)", Ember.A(records).everyProperty('isEmpty', false));
+      return store.findMany(meta.type, data[key]);
+    });
+  }).property('data').meta(meta);
+}
 
 DS.hasMany = function(type, options) {
   Ember.assert("The type passed to DS.hasMany must be defined", !!type);
