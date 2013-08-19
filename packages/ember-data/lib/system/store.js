@@ -165,7 +165,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       Ember.debug("A custom DS.Adapter was not provided as the 'Adapter' property of your application's Store. The default (DS.RESTAdapter) will be used.");
     }
 
-    return 'DS.RESTAdapter';
+    return DS.RESTAdapter;
   }).property(),
 
 
@@ -200,14 +200,15 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     This property is cacheable, so the same instance of a specified
     adapter class should be used for the lifetime of the store.
 
-    @property _adapter
+    @property defaultAdapter
     @private
     @returns DS.Adapter
   */
-  _adapter: Ember.computed(function() {
+  defaultAdapter: Ember.computed(function() {
     var adapter = get(this, 'adapter');
-    if (typeof adapter === 'string') {
-      adapter = get(this, adapter, false) || get(Ember.lookup, adapter);
+
+    if (typeof adapter === 'string' && this.container) {
+      adapter = this.container.lookup('adapter:'+adapter);
     }
 
     if (DS.Adapter.detect(adapter)) {
@@ -832,24 +833,44 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   flushPendingSave: function() {
-    var created = new OrderedSet(),
-        updated = new OrderedSet(),
-        deleted = new OrderedSet();
+    var commitDetails = this.commitDetails();
 
-    forEach(this._pendingSave, function(record) {
-      if (get(record, 'isNew')) {
-        created.add(record);
-      } else if (get(record, 'isDeleted')) {
-        deleted.add(record);
-      } else {
-        updated.add(record);
+    forEach(commitDetails, function(adapter, commitDetails) {
+      Ember.assert("You tried to commit records but you have no adapter", adapter);
+      Ember.assert("You tried to commit records but your adapter does not implement `commit`", adapter.commit);
+
+      adapter.commit(this, commitDetails);
+    }, this);
+
+    this._pendingSave = [];
+  },
+
+  commitDetails: function() {
+    var commitDetails = Ember.MapWithDefault.create({
+      defaultValue: function() {
+        return {
+          created: new OrderedSet(),
+          updated: new OrderedSet(),
+          deleted: new OrderedSet()
+        };
       }
     });
 
-    var details = { created: created, updated: updated, deleted: deleted };
-    get(this, '_adapter').commit(this, details);
+    forEach(this._pendingSave, function(record) {
+      var adapter = this.adapterForType(record.constructor),
+          commitDetailsForType = commitDetails.get(adapter);
 
-    this._pendingSave = [];
+      if (get(record, 'isNew')) {
+        commitDetailsForType.created.add(record);
+      } else if (get(record, 'isDeleted')) {
+        commitDetailsForType.deleted.add(record);
+      } else {
+        commitDetailsForType.updated.add(record);
+      }
+
+    }, this);
+
+    return commitDetails;
   },
 
   /**
@@ -1471,7 +1492,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     var adapter = this._adaptersMap.get(type);
     if (adapter) { return adapter; }
 
-    return this.get('_adapter');
+    return get(this, 'defaultAdapter');
   },
 
   // ..............................
