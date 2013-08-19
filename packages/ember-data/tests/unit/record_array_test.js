@@ -17,11 +17,11 @@ test("a record array is backed by records", function() {
   var store = DS.Store.create({ adapter: DS.Adapter });
   store.pushMany(Person, array);
 
-  var recordArray = store.findByIds(Person, [1,2,3]);
-
-  for (var i=0, l=get(array, 'length'); i<l; i++) {
-    deepEqual(recordArray.objectAt(i).getProperties('id', 'name'), array[i], "a record array materializes objects on demand");
-  }
+  store.findByIds(Person, [1,2,3]).then(async(function(records) {
+    for (var i=0, l=get(array, 'length'); i<l; i++) {
+      deepEqual(records[i].getProperties('id', 'name'), array[i], "a record array materializes objects on demand");
+    }
+  }));
 });
 
 test("acts as a live query", function() {
