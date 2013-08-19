@@ -49,20 +49,26 @@ test("a loaded record is removed from a record array when it is deleted", functi
   store.pushMany(Person, array);
   store.push(Tag, { id: 1 });
 
-  var scumbag = store.find(Person, 1);
-  var tag = store.find(Tag, 1);
+  var asyncRecords = Ember.RSVP.hash({
+    scumbag: store.find(Person, 1),
+    tag: store.find(Tag, 1)
+  });
 
-  tag.get('people').addObject(scumbag);
-  equal(get(scumbag, 'tag'), tag, "precond - the scumbag's tag has been set");
+  asyncRecords.then(async(function(records) {
+    var scumbag = records.scumbag, tag = records.tag;
 
-  var recordArray = tag.get('people');
+    tag.get('people').addObject(scumbag);
+    equal(get(scumbag, 'tag'), tag, "precond - the scumbag's tag has been set");
 
-  equal(get(recordArray, 'length'), 1, "precond - record array has one item");
-  equal(get(recordArray.objectAt(0), 'name'), "Scumbag Dale", "item at index 0 is record with id 1");
+    var recordArray = tag.get('people');
 
-  scumbag.deleteRecord();
+    equal(get(recordArray, 'length'), 1, "precond - record array has one item");
+    equal(get(recordArray.objectAt(0), 'name'), "Scumbag Dale", "item at index 0 is record with id 1");
 
-  equal(get(recordArray, 'length'), 0, "record is removed from the record array");
+    scumbag.deleteRecord();
+
+    equal(get(recordArray, 'length'), 0, "record is removed from the record array");
+  }));
 });
 
 // GitHub Issue #168

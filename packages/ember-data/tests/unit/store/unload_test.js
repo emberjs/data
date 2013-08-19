@@ -58,10 +58,10 @@ test("can commit store after unload record with relationships", function() {
   var store = DS.Store.create({
     adapter: DS.Adapter.create({
       find: function() {
-        tryToFind = true;
+        return Ember.RSVP.resolve({ id: 1, description: 'cuisinart', brand: 1 });
       },
       createRecord: function(store, type, record) {
-        this.didCreateRecord(store, type, record);
+        return Ember.RSVP.resolve();
       }
     })
   });
@@ -82,21 +82,23 @@ test("can commit store after unload record with relationships", function() {
   });
 
   store.push(Brand, { id: 1, name: 'EmberJS' });
-  brand = store.find(Brand, 1);
-
   store.push(Product, { id: 1, description: 'toto', brand: 1 });
-  product = store.find(Product, 1);
 
-  like = store.createRecord(Like, { id: 1, product: product });
-  store.commit();
+  var asyncRecords = Ember.RSVP.hash({
+    brand: store.find(Brand, 1),
+    product: store.find(Product, 1)
+  });
 
-  store.unloadRecord(product);
-  // can commit because `product` is not in transactionBucketTypes
-  store.commit();
+  asyncRecords.then(async(function(records) {
+    like = store.createRecord(Like, { id: 1, product: product });
+    records.like = like.save();
+    return Ember.RSVP.hash(records);
+  })).then(async(function(records) {
+    store.unloadRecord(records.product);
 
-  tryToFind = false;
-  product = store.find(Product, 1);
-  ok(tryToFind, "not found record with id 1");
-
-  store.destroy();
+    return store.find(Product, 1);
+  })).then(async(function(product) {
+    equal(product.get('description'), 'cuisinart', "The record was unloaded and the adapter's `find` was called");
+    store.destroy();
+  }));
 });
