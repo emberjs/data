@@ -39,8 +39,8 @@ A [guide is provided on the Ember.js site](http://emberjs.com/guides/models/) th
 
 The latest passing build from the "master" branch is available on [builds.emberjs.com](http://builds.emberjs.com):
 
-[Development](http://builds.emberjs.com.s3.amazonaws.com/ember-data-latest.js)
-[Minified](http://builds.emberjs.com.s3.amazonaws.com/ember-data-latest.min.js)
+* [Development](http://builds.emberjs.com.s3.amazonaws.com/ember-data-latest.js)
+* [Minified](http://builds.emberjs.com.s3.amazonaws.com/ember-data-latest.min.js)
 
 
 You also have the option to build ember-data.js yourself.  Clone the repository, run `bundle` then `rake dist`. You'll find ember-data.js in the `dist` directory.
