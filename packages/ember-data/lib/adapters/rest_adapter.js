@@ -145,6 +145,22 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   /**
+    @method dirtyRecordsForBelongsToChange
+    @param {Ember.OrderedSet} dirtySet
+    @param {DS.Model} record
+    @param {DS.RelationshipChange} relationship
+  */
+  dirtyRecordsForBelongsToChange: function(dirtySet, record, relationship) {
+    var serializer = get(this, 'serializer');
+    var embeddedType = get(this, 'serializer').embeddedType(relationship.childReference.record.constructor, relationship.firstRecordName);
+
+    if (embeddedType === 'always') {
+      relationship.parentReference.parent = relationship.childReference;
+    }
+    this._dirtyTree(dirtySet, record);
+  },
+
+  /**
     @method dirtyRecordsForHasManyChange
     @param {Ember.OrderedSet} dirtySet
     @param {DS.Model} record
