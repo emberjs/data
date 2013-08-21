@@ -83,6 +83,11 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
       }
     }, this);
 
+    // Extract also errors on base:
+    if (json['errors']['base']) {
+      errors['base'] = json['errors']['base'];
+    }
+
     return errors;
   }
 });

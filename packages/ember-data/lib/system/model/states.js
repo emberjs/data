@@ -342,6 +342,7 @@ var DirtyState = {
           key = context.name;
 
       set(errors, key, null);
+      set(errors, "base", null);
 
       if (!hasDefinedProperties(errors)) {
         record.send('becameValid');

@@ -99,6 +99,20 @@ test("it should cache attributes", function() {
   strictEqual(get(record, 'updatedAt'), get(record, 'updatedAt'), "second get still returns the same object");
 });
 
+test("errors on base are cleared when any property changes", function() {
+  var person = store.createRecord(Person, { name: "adam", isDrugAdict: true });
+
+  person.send("willCommit");
+  store.recordWasInvalid(person, { base: ["This person is a scumbag"] });
+
+  // precondition
+  deepEqual(person.get("errors").base, ["This person is a scumbag"]);
+
+  person.set("isDrugAddict", false);
+
+  ok(person.get("errors").base === null, "errors.base is null");
+});
+
 module("DS.Model updating", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
