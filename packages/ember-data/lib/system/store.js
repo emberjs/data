@@ -1749,8 +1749,11 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 });
 
 DS.Store.reopenClass({
-  registerAdapter: DS._Mappable.generateMapFunctionFor('adapters', function(type, adapter, map) {
-    map.set(type, adapter);
+  registerAdapter: DS._Mappable.generateMapFunctionFor('adapters', function(types, adapter, map) {
+    if (!Ember.isArray(types)) types = [types];
+    types.forEach(function(type) {
+      map.set(type, adapter);
+    });
   }),
 
   transformMapKey: function(key) {
