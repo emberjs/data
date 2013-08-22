@@ -1,11 +1,8 @@
 require("ember-data/system/model/states");
-require("ember-data/system/mixins/load_promise");
 
 /**
   @module ember-data
 */
-
-var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
 
 var get = Ember.get, set = Ember.set, map = Ember.EnumerableUtils.map,
     merge = Ember.merge, once = Ember.run.once;
@@ -24,7 +21,6 @@ var retrieveFromCurrentState = Ember.computed(function(key, value) {
   @namespace DS
   @extends Ember.Object
   @uses Ember.Evented
-  @uses DS.LoadPromise
 */
 DS.Model = Ember.Object.extend(Ember.Evented, {
   isEmpty: retrieveFromCurrentState,

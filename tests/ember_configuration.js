@@ -161,10 +161,6 @@
     });
 
     Ember.RSVP.Promise.prototype.then = syncForTest(Ember.RSVP.Promise.prototype.then);
-
-    DS.RecordArray.reopen({
-      then: syncForTest()
-    });
   });
 
   EmberDev.distros = {

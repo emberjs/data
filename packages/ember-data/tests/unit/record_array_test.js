@@ -135,26 +135,14 @@ var shouldNotContain = function(array, item) {
 };
 
 test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
-  expect(2);
+  var env = setupStore({ person: Person }),
+      store = env.store;
 
-  var store = DS.Store.create({
-    adapter: DS.Adapter.extend({
-      findQuery: function(store, type, query, recordArray) {
-        stop();
+  env.adapter.findQuery = function(store, type, query, recordArray) {
+    return Ember.RSVP.resolve(array);
+  };
 
-        var self = this;
-
-        setTimeout(function() {
-          Ember.run(function() {
-            recordArray.load(store.pushMany(type, array));
-            equal(get(people, 'isLoaded'), true, "The array is now loaded");
-            start();
-          });
-        }, 100);
-      }
-    })
-  });
-
-  var people = store.find(Person, { page: 1 });
-  equal(get(people, 'isLoaded'), false, "The array is not yet loaded");
+  store.find('person', { page: 1 }).then(async(function(people) {
+    equal(get(people, 'isLoaded'), true, "The array is now loaded");
+  }));
 });

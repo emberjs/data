@@ -1,12 +1,8 @@
-require("ember-data/system/mixins/load_promise");
-
 /**
   @module ember-data
 */
 
 var get = Ember.get, set = Ember.set;
-
-var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
 
 /**
   A record array is an array that contains records of a certain type. The record
@@ -19,10 +15,9 @@ var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
   @namespace DS
   @extends Ember.ArrayProxy
   @uses Ember.Evented
-  @uses DS.LoadPromise
 */
 
-DS.RecordArray = Ember.ArrayProxy.extend(LoadPromise, {
+DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
   /**
     The model type contained by this record array.
 
@@ -44,26 +39,9 @@ DS.RecordArray = Ember.ArrayProxy.extend(LoadPromise, {
   store: null,
 
   objectAtContent: function(index) {
-    var content = get(this, 'content'),
-        reference = content.objectAt(index),
-        store = get(this, 'store');
+    var content = get(this, 'content');
 
-    if (reference instanceof DS.Model) {
-      return reference;
-    }
-
-    if (reference) {
-      return store.recordForReference(reference);
-    }
-  },
-
-  materializedObjectAt: function(index) {
-    var reference = get(this, 'content').objectAt(index);
-    if (!reference) { return; }
-
-    if (get(this, 'store').recordIsMaterialized(reference)) {
-      return this.objectAt(index);
-    }
+    return content.objectAt(index);
   },
 
   update: function() {

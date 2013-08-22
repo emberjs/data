@@ -420,6 +420,15 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   findQuery: null,
 
+  _findQuery: function(store, type, query, recordArray) {
+    var promise = this.findQuery(store, type, query, recordArray);
+
+    return handlePromise(promise, function(payload) {
+      recordArray.load(payload);
+      return recordArray;
+    });
+  },
+
   registerTransform: function(attributeType, transform) {
     get(this, 'serializer').registerTransform(attributeType, transform);
   },
