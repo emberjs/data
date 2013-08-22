@@ -791,8 +791,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     return Ember.RSVP.all(promises);
   },
 
-  _findMany: function(store, type, ids) {
-    return handlePromise(this.findMany(store, type, ids), function(payload) {
+  _findMany: function(store, type, ids, owner) {
+    return handlePromise(this.findMany(store, type, ids, owner), function(payload) {
       store.pushMany(type, payload);
     });
   },

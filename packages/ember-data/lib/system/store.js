@@ -563,7 +563,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param relationship {Object}
     @return {DS.ManyArray}
   */
-  findMany: function(type, records) {
+  findMany: function(owner, records, type) {
     records = Ember.A(records);
 
     var unloadedRecords = records.filterProperty('isEmpty', true),
@@ -580,7 +580,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         this.recordArrayManager.registerWaitingRecordArray(record, manyArray);
       }, this);
 
-      this.fetchMany(unloadedRecords);
+      this.fetchMany(unloadedRecords, owner);
     } else {
       manyArray.set('isLoaded', true);
       Ember.run.once(manyArray, 'trigger', 'didLoad');
@@ -1243,6 +1243,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }
 
     var factory = this.container.lookupFactory('model:'+key);
+
+    Ember.assert("No model was found for '" + key + "'", factory);
+
     factory.store = this;
     factory.typeKey = key;
 
@@ -1267,8 +1270,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var reference = this.referenceForId(type, id);
     if (reference.record) { return reference.record; }
-
-    return this.materializeRecord(reference);
   },
 
   pushMany: function(type, datas) {

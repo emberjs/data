@@ -15,7 +15,7 @@ function asyncBelongsTo(type, options, meta) {
       return value === undefined ? null : value;
     }
 
-    return store.find(type, data[key]);
+    return store.fetchRecord(data[key]);
   }).property('data').meta(meta);
 }
 

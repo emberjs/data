@@ -36,22 +36,23 @@ test("acts as a live query", function() {
 });
 
 test("a loaded record is removed from a record array when it is deleted", function() {
-  var store = DS.Store.create({ adapter: DS.Adapter });
-
   var Tag = DS.Model.extend({
-    people: DS.hasMany(Person)
+    people: DS.hasMany('person')
   });
 
   Person.reopen({
-    tag: DS.belongsTo(Tag)
+    tag: DS.belongsTo('tag')
   });
 
-  store.pushMany(Person, array);
-  store.push(Tag, { id: 1 });
+  var env = setupStore({ tag: Tag, person: Person }),
+      store = env.store;
+
+  store.pushMany('person', array);
+  store.push('tag', { id: 1 });
 
   var asyncRecords = Ember.RSVP.hash({
-    scumbag: store.find(Person, 1),
-    tag: store.find(Tag, 1)
+    scumbag: store.find('person', 1),
+    tag: store.find('tag', 1)
   });
 
   asyncRecords.then(async(function(records) {

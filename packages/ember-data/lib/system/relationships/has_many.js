@@ -15,7 +15,7 @@ function asyncHasMany(type, options, meta) {
       if (link) {
         return store.findHasMany(this, link, meta);
       } else {
-        return store.findMany(meta.type, data[key]);
+        return store.findMany(this, data[key], meta.type);
       }
     });
 
@@ -24,17 +24,18 @@ function asyncHasMany(type, options, meta) {
 }
 
 function buildRelationship(record, key, options, callback) {
+  var rels = record._relationships;
+
+  if (rels[key]) { return rels[key]; }
+
   var data = get(record, 'data'),
       store = get(record, 'store');
 
-  var relationship = callback.call(record, store, data);
-  record._relationships[key] = relationship;
+  var relationship = rels[key] = callback.call(record, store, data);
 
-  setProperties(relationship, {
+  return setProperties(relationship, {
     owner: record, name: key, isPolymorphic: options.polymorphic
   });
-
-  return relationship;
 }
 
 function hasRelationship(type, options) {
@@ -50,7 +51,7 @@ function hasRelationship(type, options) {
     return buildRelationship(this, key, options, function(store, data) {
       var records = data[key];
       Ember.assert("You looked up the '" + key + "' relationship on '" + this + "' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.attr({ async: true })`)", Ember.A(records).everyProperty('isEmpty', false));
-      return store.findMany(meta.type, data[key]);
+      return store.findMany(this, data[key], meta.type);
     });
   }).property('data').meta(meta);
 }

@@ -51,6 +51,7 @@
 
   window.setupStore = function(options) {
     var env = {};
+    options = options || {};
 
     var container = env.container = new Ember.Container();
 
