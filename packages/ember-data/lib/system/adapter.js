@@ -24,12 +24,6 @@ function isThenable(object) {
   return object && typeof object.then === 'function';
 }
 
-function handlePromise(object, callback) {
-  return resolve(object).then(function(payload) {
-    return callback(payload);
-  });
-}
-
 function loaderFor(store) {
   return {
     load: function(type, data, prematerialized) {
@@ -384,7 +378,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   _find: function(store, type, id) {
     var promise = this.find(store, type, id);
 
-    return handlePromise(promise, function(payload) {
+    return resolve(promise).then(function(payload) {
       return store.push(type, payload);
     });
   },
@@ -402,7 +396,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   _findAll: function(store, type, since) {
     var promise = this.findAll(store, type, since);
 
-    return handlePromise(promise, function(payload) {
+    return resolve(promise).then(function(payload) {
       store.pushMany(type, payload);
       store.didUpdateAll(type);
       return store.all(type);
@@ -423,7 +417,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   _findQuery: function(store, type, query, recordArray) {
     var promise = this.findQuery(store, type, query, recordArray);
 
-    return handlePromise(promise, function(payload) {
+    return resolve(promise).then(function(payload) {
       recordArray.load(payload);
       return recordArray;
     });
@@ -801,7 +795,9 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   },
 
   _findMany: function(store, type, ids, owner) {
-    return handlePromise(this.findMany(store, type, ids, owner), function(payload) {
+    var promise = this.findMany(store, type, ids, owner);
+
+    return resolve(promise).then(function(payload) {
       store.pushMany(type, payload);
     });
   },
@@ -809,7 +805,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   _findHasMany: function(store, record, link, relationship) {
     var promise = this.findHasMany(store, record, link, relationship);
 
-    return handlePromise(promise, function(payload) {
+    return resolve(promise).then(function(payload) {
       var records = store.pushMany(record.constructor, payload);
       record.updateHasMany(relationship.key, records);
     });
