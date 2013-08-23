@@ -379,6 +379,11 @@ DS.RelationshipChange.prototype = {
 DS.RelationshipChangeAdd.prototype = Ember.create(DS.RelationshipChange.create({}));
 DS.RelationshipChangeRemove.prototype = Ember.create(DS.RelationshipChange.create({}));
 
+// the object is a value, and not a promise
+function isValue(object) {
+  return typeof object === 'object' && (!object.then || typeof object.then !== 'function');
+}
+
 DS.RelationshipChangeAdd.prototype.changeType = "add";
 DS.RelationshipChangeAdd.prototype.sync = function() {
   var secondRecordName = this.getSecondRecordName(),
@@ -391,7 +396,7 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
 
   this.callChangeEvents();
 
-  if (secondRecord && firstRecord) {
+  if (secondRecord instanceof DS.Model && firstRecord instanceof DS.Model) {
     if(this.secondRecordKind === "belongsTo"){
       secondRecord.suspendRelationshipObservers(function(){
         set(secondRecord, secondRecordName, firstRecord);
@@ -400,12 +405,13 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
      }
      else if(this.secondRecordKind === "hasMany"){
       secondRecord.suspendRelationshipObservers(function(){
-        get(secondRecord, secondRecordName).addObject(firstRecord);
+        var relationship = get(secondRecord, secondRecordName);
+        if (isValue(relationship)) { relationship.addObject(firstRecord); }
       });
     }
   }
 
-  if (firstRecord && secondRecord && get(firstRecord, firstRecordName) !== secondRecord) {
+  if (firstRecord instanceof DS.Model && secondRecord instanceof DS.Model && get(firstRecord, firstRecordName) !== secondRecord) {
     if(this.firstRecordKind === "belongsTo"){
       firstRecord.suspendRelationshipObservers(function(){
         set(firstRecord, firstRecordName, secondRecord);
@@ -413,7 +419,8 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
     }
     else if(this.firstRecordKind === "hasMany"){
       firstRecord.suspendRelationshipObservers(function(){
-        get(firstRecord, firstRecordName).addObject(secondRecord);
+        var relationship = get(firstRecord, firstRecordName);
+        if (isValue(relationship)) { relationship.addObject(secondRecord); }
       });
     }
   }
@@ -433,7 +440,7 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
 
   this.callChangeEvents();
 
-  if (secondRecord && firstRecord) {
+  if (secondRecord instanceof DS.Model && firstRecord instanceof DS.Model) {
     if(this.secondRecordKind === "belongsTo"){
       secondRecord.suspendRelationshipObservers(function(){
         set(secondRecord, secondRecordName, null);
@@ -441,12 +448,13 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
     }
     else if(this.secondRecordKind === "hasMany"){
       secondRecord.suspendRelationshipObservers(function(){
-        get(secondRecord, secondRecordName).removeObject(firstRecord);
+        var relationship = get(secondRecord, secondRecordName);
+        if (isValue(relationship)) { relationship.removeObject(firstRecord); }
       });
     }
   }
 
-  if (firstRecord && get(firstRecord, firstRecordName)) {
+  if (firstRecord instanceof DS.Model && get(firstRecord, firstRecordName)) {
     if(this.firstRecordKind === "belongsTo"){
       firstRecord.suspendRelationshipObservers(function(){
         set(firstRecord, firstRecordName, null);
@@ -454,7 +462,8 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
      }
      else if(this.firstRecordKind === "hasMany"){
        firstRecord.suspendRelationshipObservers(function(){
-        get(firstRecord, firstRecordName).removeObject(secondRecord);
+         var relationship = get(firstRecord, firstRecordName);
+         if (isValue(relationship)) { relationship.removeObject(secondRecord); }
       });
     }
   }

@@ -749,12 +749,16 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {DS.FilteredRecordArray}
   */
   filter: function(type, query, filter) {
+    var promise;
+
     // allow an optional server query
     if (arguments.length === 3) {
-      this.findQuery(type, query);
+      promise = this.findQuery(type, query);
     } else if (arguments.length === 2) {
       filter = query;
     }
+
+    type = this.modelFor(type);
 
     var array = DS.FilteredRecordArray.create({
       type: type,
@@ -766,7 +770,11 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     this.recordArrayManager.registerFilteredRecordArray(array, type, filter);
 
-    return array;
+    if (promise) {
+      return promise.then(function() { return array; });
+    } else {
+      return array;
+    }
   },
 
   /**

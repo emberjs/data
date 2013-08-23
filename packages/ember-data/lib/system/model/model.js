@@ -392,8 +392,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
         this.off('becameInvalid', error);
         resolve(this);
       }
+
       function error() {
         this.off(successEvent, success);
+        this.off('becameError', error);
+        this.off('becameInvalid', error);
         reject(this);
       }
 
@@ -478,6 +481,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     for (var i=0, l=this._deferredTriggers.length; i<l; i++) {
       this.trigger.apply(this, this._deferredTriggers[i]);
     }
+
+    this._deferredTriggers = [];
   }
 });
 

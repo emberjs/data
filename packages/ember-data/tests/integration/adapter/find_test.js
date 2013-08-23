@@ -45,6 +45,7 @@ test("When multiple records are requested, the default adapter should call the `
     count++;
 
     equal(id, count);
+    return Ember.RSVP.resolve({ id: id });
   };
 
   var people = [store.getById(Person, 1), store.getById(Person, 2), store.getById(Person, 3)];

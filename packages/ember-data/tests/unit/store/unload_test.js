@@ -5,8 +5,9 @@ module("unit/store/unload - Store unloading records", {
   setup: function() {
     store = DS.Store.create({
       adapter: DS.Adapter.create({
-        find: function() {
+        find: function(store, type, id) {
           tryToFind = true;
+          return Ember.RSVP.resolve({ id: id, wasFetched: true });
         }
       })
     });

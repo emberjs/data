@@ -126,6 +126,7 @@ test("loadMany takes an optional Object and passes it on to the Adapter", functi
     findQuery: function(store, type, query) {
       equal(type, Person, "The type was Person");
       equal(query, passedQuery, "The query was passed in");
+      return Ember.RSVP.resolve([]);
     }
   });
 

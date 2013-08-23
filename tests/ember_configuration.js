@@ -126,7 +126,12 @@
 
   minispade.register('ember-data/~test-setup', function() {
     Ember.RSVP.configure('onerror', function(reason) {
-      console.log(reason.stack);
+      // only print error messages if they're exceptions;
+      // otherwise, let a future turn of the event loop
+      // handle the error.
+      if (reason.stack) {
+        console.log(reason.stack);
+      }
     });
 
     Ember.RSVP.resolve = syncForTest(Ember.RSVP.resolve);

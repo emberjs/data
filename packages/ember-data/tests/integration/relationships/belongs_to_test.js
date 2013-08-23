@@ -65,6 +65,7 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
 
   env.adapter.find = function(store, type, id) {
     ok(true, "The adapter's find method should be called");
+    return Ember.RSVP.resolve({ id: 1 });
   };
 
   env.store.push('post', { id: 1, user: 2});

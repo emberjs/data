@@ -161,8 +161,10 @@ test("hasMany lazily loads async relationships", function() {
     strictEqual(records.tags.objectAt(0), records.tags.objectAt(0), "the returned object is always the same");
     asyncEqual(records.tags.objectAt(0), store.find(Tag, 12), "relationship objects are the same as objects retrieved directly");
 
+    return get(wycats, 'tags');
+  })).then(async(function(tags) {
     var newTag = store.createRecord(Tag);
-    get(wycats, 'tags').pushObject(newTag);
+    tags.pushObject(newTag);
   }));
 });
 
