@@ -1,0 +1,23 @@
+{
+  "name": "ember-inflector",
+  "summary": "Ember Inflections",
+  "descrption": "",
+  "homepage": "http://github.com/emberjs/ember.js",
+  "author": ["Stefan Penner"],
+  "version": "1.0.0-rc.7",
+
+  "directories":{
+    "lib": "lib"
+  },
+
+  "dependencies": {
+    "ember-runtime": ">= 0"
+  },
+
+  "bpm:build": {
+    "bpm_lib.js": {
+      "files": ["lib"],
+      "modes": "*"
+    }
+  }
+}

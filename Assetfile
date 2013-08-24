@@ -1,5 +1,5 @@
 distros = {
-  :full    => %w(ember-data)
+  :full    => %w(ember-data, ember-inflector)
 }
 
 #MEGAHAX
