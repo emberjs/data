@@ -12,7 +12,8 @@
 
   "dependencies": {
     "spade": "~> 1.0",
-    "ember-runtime": ">= 0"
+    "ember-runtime": ">= 0",
+    "ember-inflector": "1.0.0-rc.7"
   },
   "dependencies:development": {
     "spade-qunit": "~> 1.0.0"
