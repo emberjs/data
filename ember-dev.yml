@@ -14,3 +14,4 @@ testing_suites:
     - "package=all&dist=build&nojshint=true"
 testing_packages:
   - ember-data
+  - ember-inflector
