@@ -24,6 +24,14 @@ function isThenable(object) {
   return object && typeof object.then === 'function';
 }
 
+// Simple dispatcher to support overriding the aliased
+// method in subclasses.
+function aliasMethod(methodName) {
+  return function() {
+    return this[methodName].apply(this, arguments);
+  };
+}
+
 /**
   An adapter is an object that receives requests from a store and
   translates them into the appropriate action to take against your
@@ -83,7 +91,28 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     });
   },
 
-  extract: function(store, type, payload, id) {
+  extract: function(store, type, payload, id, requestType) {
+    var specificExtract = "extract" + requestType.charAt(0).toUpperCase() + requestType.substr(1);
+    return this[specificExtract](store, type, payload, id, requestType);
+  },
+
+  extractFindAll: aliasMethod('extractArray'),
+  extractFindQuery: aliasMethod('extractArray'),
+  extractFindMany: aliasMethod('extractArray'),
+  extractFindHasMany: aliasMethod('extractArray'),
+
+  extractCreateRecord: aliasMethod('extractSave'),
+  extractUpdateRecord: aliasMethod('extractSave'),
+  extractDeleteRecord: aliasMethod('extractSave'),
+
+  extractFind: aliasMethod('extractSingle'),
+  extractSave: aliasMethod('extractSingle'),
+
+  extractSingle: function(store, type, payload) {
+    return payload;
+  },
+
+  extractArray: function(store, type, payload) {
     return payload;
   },
 

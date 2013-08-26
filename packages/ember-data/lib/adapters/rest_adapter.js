@@ -170,13 +170,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     return serializer.normalize(primaryType, payload);
   },
 
-  extract: function(store, primaryType, payload, recordId, requestType) {
-    var specificExtract = "extract" + requestType.charAt(0).toUpperCase() + requestType.substr(1);
-
-    if (this[specificExtract]) {
-      return this[specificExtract](store, primaryType, payload, recordId);
-    }
-
+  extractSingle: function(store, primaryType, payload, recordId, requestType) {
     var primaryTypeName = primaryType.typeKey,
         primaryRecord;
 
@@ -201,11 +195,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     return primaryRecord;
   },
-
-  extractFindAll: Ember.aliasMethod('extractArray'),
-  extractFindQuery: Ember.aliasMethod('extractArray'),
-  extractFindMany: Ember.aliasMethod('extractArray'),
-  extractFindHasMany: Ember.aliasMethod('extractArray'),
 
   extractArray: function(store, primaryType, payload) {
     var primaryTypeName = primaryType.typeKey,
