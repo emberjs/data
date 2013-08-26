@@ -175,6 +175,12 @@ DS.RESTAdapter = DS.Adapter.extend({
         primaryRecord;
 
     for (var prop in payload) {
+      // legacy support for singular names
+      if (prop === primaryTypeName) {
+        primaryRecord = this.normalize(primaryType, payload[prop]);
+        continue;
+      }
+
       var typeName = this.singularize(prop),
           type = store.modelFor(typeName);
 

@@ -51,6 +51,18 @@ test("find - basic payload", function() {
   }));
 });
 
+test("find - basic payload (with legacy singular name)", function() {
+  ajaxResponse({ post: { id: 1, name: "Rails is omakase" } });
+
+  store.find('post', 1).then(async(function(post) {
+    equal(passedUrl, "/posts/1");
+    equal(passedVerb, "GET");
+    equal(passedHash, undefined);
+
+    equal(post.get('id'), "1");
+    equal(post.get('name'), "Rails is omakase");
+  }));
+});
 test("find - payload with sideloaded records of the same type", function() {
   var count = 0;
 
@@ -153,6 +165,21 @@ test("create - a payload with a new ID and data applies the updates", function()
   }));
 });
 
+test("create - a payload with a new ID and data applies the updates (with legacy singular name)", function() {
+  ajaxResponse({ post: { id: "1", name: "Dat Parley Letter" } });
+  var post = store.createRecord('post', { name: "The Parley Letter" });
+
+  post.save().then(async(function(post) {
+    equal(passedUrl, "/posts");
+    equal(passedVerb, "POST");
+    deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
+
+    equal(post.get('id'), "1", "the post has the updated ID");
+    equal(post.get('isDirty'), false, "the post isn't dirty anymore");
+    equal(post.get('name'), "Dat Parley Letter", "the post was updated");
+  }));
+});
+
 test("create - a serializer's primary key and attributes are consulted when building the payload", function() {
   env.container.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_id_',
@@ -186,24 +213,6 @@ test("create - a serializer's attributes are consulted when building the payload
 
   post.save().then(async(function(post) {
     deepEqual(passedHash.data, { post: { '_name_': "The Parley Letter" } });
-  }));
-});
-
-test("update - a payload with sideloaded updates pushes the updates", function() {
-  ajaxResponse({ posts: [{ id: 1, name: "Dat Parley Letter" }], comments: [{ id: 1, name: "FIRST" }] });
-  var post = store.createRecord('post', { name: "The Parley Letter" });
-
-  post.save().then(async(function(post) {
-    equal(passedUrl, "/posts");
-    equal(passedVerb, "POST");
-    deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
-
-    equal(post.get('id'), "1", "the post has the updated ID");
-    equal(post.get('isDirty'), false, "the post isn't dirty anymore");
-    equal(post.get('name'), "Dat Parley Letter", "the post was updated");
-
-    var comment = store.getById('comment', 1);
-    equal(comment.get('name'), "FIRST", "The comment was sideloaded");
   }));
 });
 
@@ -242,6 +251,43 @@ test("update - a payload with updates applies the updates", function() {
     equal(post.get('name'), "Dat Parley Letter", "the post was updated");
   }));
 });
+
+test("update - a payload with updates applies the updates (with legacy singular name)", function() {
+  store.push('post', { id: 1, name: "Rails is omakase" });
+
+  store.find('post', 1).then(async(function(post) {
+    ajaxResponse({ post: { id: 1, name: "Dat Parley Letter" } });
+
+    post.set('name', "The Parley Letter");
+    return post.save();
+  })).then(async(function(post) {
+    equal(passedUrl, "/posts/1");
+    equal(passedVerb, "PUT");
+    deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
+
+    equal(post.get('isDirty'), false, "the post isn't dirty anymore");
+    equal(post.get('name'), "Dat Parley Letter", "the post was updated");
+  }));
+});
+
+test("update - a payload with sideloaded updates pushes the updates", function() {
+  ajaxResponse({ posts: [{ id: 1, name: "Dat Parley Letter" }], comments: [{ id: 1, name: "FIRST" }] });
+  var post = store.createRecord('post', { name: "The Parley Letter" });
+
+  post.save().then(async(function(post) {
+    equal(passedUrl, "/posts");
+    equal(passedVerb, "POST");
+    deepEqual(passedHash.data, { post: { name: "The Parley Letter" } });
+
+    equal(post.get('id'), "1", "the post has the updated ID");
+    equal(post.get('isDirty'), false, "the post isn't dirty anymore");
+    equal(post.get('name'), "Dat Parley Letter", "the post was updated");
+
+    var comment = store.getById('comment', 1);
+    equal(comment.get('name'), "FIRST", "The comment was sideloaded");
+  }));
+});
+
 
 test("update - a payload with sideloaded updates pushes the updates", function() {
   store.push('post', { id: 1, name: "Rails is omakase" });
