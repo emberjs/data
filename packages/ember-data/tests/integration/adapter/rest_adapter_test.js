@@ -323,6 +323,53 @@ test("delete - a payload with sideloaded updates pushes the updates", function()
   }));
 });
 
+test("findAll - returning an array populates the array", function() {
+  ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }, { id: 2, name: "The Parley Letter" }] });
+
+  store.findAll('post').then(async(function(posts) {
+    var post1 = store.getById('post', 1),
+        post2 = store.getById('post', 2);
+
+    deepEqual(post1.getProperties('id', 'name'), { id: "1", name: "Rails is omakase" }, "Post 1 is loaded");
+    deepEqual(post2.getProperties('id', 'name'), { id: "2", name: "The Parley Letter" }, "Post 2 is loaded");
+
+    equal(posts.get('length'), 2, "The posts are in the array");
+    equal(posts.get('isLoaded'), true, "The RecordArray is loaded");
+    deepEqual(posts.toArray(), [ post1, post2 ], "The correct records are in the array");
+  }));
+});
+
+test("findAll - returning sideloaded data loads the data", function() {
+  ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }, { id: 2, name: "The Parley Letter" }], comments: [{ id: 1, name: "FIRST" }] });
+
+  store.findAll('post').then(async(function(posts) {
+    var comment = store.getById('comment', 1);
+
+    deepEqual(comment.getProperties('id', 'name'), { id: "1", name: "FIRST" });
+  }));
+});
+
+test("findAll - data is normalized through custom serializers", function() {
+  env.container.register('serializer:post', DS.RESTSerializer.extend({
+    primaryKey: '_ID_',
+    attrs: { name: '_NAME_' }
+  }));
+
+  ajaxResponse({ posts: [{ _ID_: 1, _NAME_: "Rails is omakase" }, { _ID_: 2, _NAME_: "The Parley Letter" }] });
+
+  store.findAll('post').then(async(function(posts) {
+    var post1 = store.getById('post', 1),
+        post2 = store.getById('post', 2);
+
+    deepEqual(post1.getProperties('id', 'name'), { id: "1", name: "Rails is omakase" }, "Post 1 is loaded");
+    deepEqual(post2.getProperties('id', 'name'), { id: "2", name: "The Parley Letter" }, "Post 2 is loaded");
+
+    equal(posts.get('length'), 2, "The posts are in the array");
+    equal(posts.get('isLoaded'), true, "The RecordArray is loaded");
+    deepEqual(posts.toArray(), [ post1, post2 ], "The correct records are in the array");
+  }));
+});
+
 //test("creating a record with a 422 error marks the records as invalid", function(){
   //expect(1);
 

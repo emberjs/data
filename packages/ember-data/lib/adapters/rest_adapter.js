@@ -19,13 +19,13 @@ function coerceId(id) {
 }
 
 DS.RESTSerializer = DS.NewJSONSerializer.extend({
-  normalize: function(type, hash) {
-    this.normalizeId(type, hash);
-    this.normalizeAttributes(type, hash);
+  normalize: function(type, hash, requestType) {
+    this.normalizeId(hash, requestType);
+    this.normalizeAttributes(hash, requestType);
     return hash;
   },
 
-  normalizeId: function(type, hash) {
+  normalizeId: function(hash, requestType) {
     var primaryKey = get(this, 'primaryKey');
 
     if (primaryKey === 'id') { return; }
@@ -34,7 +34,7 @@ DS.RESTSerializer = DS.NewJSONSerializer.extend({
     delete hash[primaryKey];
   },
 
-  normalizeAttributes: function(type, hash) {
+  normalizeAttributes: function(hash, requestType) {
     var attrs = get(this, 'attrs');
 
     if (!attrs) { return; }
@@ -113,6 +113,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     return this.ajax(this.buildURL(type, id), 'GET');
   },
 
+  findAll: function(store, type, id) {
+    return this.ajax(this.buildURL(type), 'GET');
+  },
+
   createRecord: function(store, type, record) {
     var data = {};
     data[type.typeKey] = this.serializerFor(type).serialize(record, { includeId: true });
@@ -147,7 +151,20 @@ DS.RESTAdapter = DS.Adapter.extend({
            this.container.lookup('serializer:_rest');
   },
 
-  extract: function(store, primaryType, recordId, payload) {
+  normalize: function(primaryType, payload) {
+    var serializer = this.container.lookup('serializer:' + primaryType.typeKey) ||
+        this.container.lookup('serializer:_rest');
+
+    return serializer.normalize(primaryType, payload);
+  },
+
+  extract: function(store, primaryType, recordId, payload, requestType) {
+    var specificExtract = "extract" + requestType.charAt(0).toUpperCase() + requestType.substr(1);
+
+    if (this[specificExtract]) {
+      return this[specificExtract](store, primaryType, recordId, payload);
+    }
+
     var primaryTypeName = primaryType.typeKey,
         primaryRecord;
 
@@ -173,14 +190,28 @@ DS.RESTAdapter = DS.Adapter.extend({
     return primaryRecord;
   },
 
-  normalize: function(type, payload) {
-    var serializer = this.container.lookup('serializer:' + type.typeKey);
+  extractFindAll: function(store, primaryType, recordId, payload) {
+    var primaryTypeName = primaryType.typeKey,
+        primaryArray;
 
-    if (!serializer) {
-      return payload;
-    } else {
-      return serializer.normalize(type, payload);
+    for (var prop in payload) {
+      var typeName = this.singularize(prop),
+          type = store.modelFor(typeName),
+          isPrimary = typeName === primaryTypeName;
+
+      /*jshint loopfunc:true*/
+      var normalizedArray = payload[prop].map(function(hash) {
+        return this.normalize(type, hash);
+      }, this);
+
+      if (isPrimary) {
+        primaryArray = normalizedArray;
+      } else {
+        store.pushMany(typeName, normalizedArray);
+      }
     }
+
+    return primaryArray;
   },
 
   pluralize: function(type) {

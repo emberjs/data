@@ -348,7 +348,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
         adapter = this;
 
     return resolve(promise).then(function(payload) {
-      payload = adapter.extract(store, type, id, payload);
+      payload = adapter.extract(store, type, id, payload, 'find');
       return store.push(type, payload);
     });
   },
@@ -364,9 +364,12 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   findAll: null,
 
   _findAll: function(store, type, since) {
-    var promise = this.findAll(store, type, since);
+    var promise = this.findAll(store, type, since),
+        adapter = this;
 
     return resolve(promise).then(function(payload) {
+      payload = adapter.extract(store, type, null, payload, 'findAll');
+
       store.pushMany(type, payload);
       store.didUpdateAll(type);
       return store.all(type);
@@ -592,7 +595,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     Ember.assert("Your adapter's '" + operation + "' method must return a promise, but it returned " + promise, isThenable(promise));
 
     return promise.then(function(payload) {
-      payload = adapter.extract(store, type, get(record, 'id'), payload);
+      payload = adapter.extract(store, type, get(record, 'id'), payload, operation);
       store.didSaveRecord(record, payload);
     }, function(reason) {
       if (reason instanceof DS.InvalidError) {
