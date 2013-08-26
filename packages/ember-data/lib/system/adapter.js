@@ -348,7 +348,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
         adapter = this;
 
     return resolve(promise).then(function(payload) {
-      payload = adapter.extract(store, type, id, payload, 'find');
+      payload = adapter.extract(store, type, payload, id, 'find');
       return store.push(type, payload);
     });
   },
@@ -368,7 +368,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
         adapter = this;
 
     return resolve(promise).then(function(payload) {
-      payload = adapter.extract(store, type, null, payload, 'findAll');
+      payload = adapter.extract(store, type, payload, null, 'findAll');
 
       store.pushMany(type, payload);
       store.didUpdateAll(type);
@@ -388,9 +388,12 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   findQuery: null,
 
   _findQuery: function(store, type, query, recordArray) {
-    var promise = this.findQuery(store, type, query, recordArray);
+    var promise = this.findQuery(store, type, query, recordArray),
+        adapter = this;
 
     return resolve(promise).then(function(payload) {
+      payload = adapter.extract(store, type, payload, null, 'findAll');
+
       recordArray.load(payload);
       return recordArray;
     });
@@ -595,7 +598,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     Ember.assert("Your adapter's '" + operation + "' method must return a promise, but it returned " + promise, isThenable(promise));
 
     return promise.then(function(payload) {
-      payload = adapter.extract(store, type, get(record, 'id'), payload, operation);
+      payload = adapter.extract(store, type, payload, get(record, 'id'), operation);
       store.didSaveRecord(record, payload);
     }, function(reason) {
       if (reason instanceof DS.InvalidError) {
@@ -768,9 +771,12 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   },
 
   _findMany: function(store, type, ids, owner) {
-    var promise = this.findMany(store, type, ids, owner);
+    var promise = this.findMany(store, type, ids, owner),
+        adapter = this;
 
     return resolve(promise).then(function(payload) {
+      payload = adapter.extract(store, type, payload, null, 'findMany');
+
       store.pushMany(type, payload);
     });
   },

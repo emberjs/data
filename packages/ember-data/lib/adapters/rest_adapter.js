@@ -117,6 +117,14 @@ DS.RESTAdapter = DS.Adapter.extend({
     return this.ajax(this.buildURL(type), 'GET');
   },
 
+  findQuery: function(store, type, query) {
+    return this.ajax(this.buildURL(type), 'GET', query);
+  },
+
+  findMany: function(store, type, ids) {
+    return this.ajax(this.buildURL(type), 'GET', { ids: ids });
+  },
+
   createRecord: function(store, type, record) {
     var data = {};
     data[type.typeKey] = this.serializerFor(type).serialize(record, { includeId: true });
@@ -158,11 +166,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     return serializer.normalize(primaryType, payload);
   },
 
-  extract: function(store, primaryType, recordId, payload, requestType) {
+  extract: function(store, primaryType, payload, recordId, requestType) {
     var specificExtract = "extract" + requestType.charAt(0).toUpperCase() + requestType.substr(1);
 
     if (this[specificExtract]) {
-      return this[specificExtract](store, primaryType, recordId, payload);
+      return this[specificExtract](store, primaryType, payload, recordId);
     }
 
     var primaryTypeName = primaryType.typeKey,
@@ -190,7 +198,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     return primaryRecord;
   },
 
-  extractFindAll: function(store, primaryType, recordId, payload) {
+  extractFindAll: Ember.aliasMethod('extractArray'),
+  extractFindQuery: Ember.aliasMethod('extractArray'),
+  extractFindMany: Ember.aliasMethod('extractArray'),
+
+  extractArray: function(store, primaryType, payload) {
     var primaryTypeName = primaryType.typeKey,
         primaryArray;
 
