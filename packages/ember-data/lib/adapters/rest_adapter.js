@@ -14,6 +14,40 @@ DS.rejectionHandler = function(reason) {
   throw reason;
 };
 
+function coerceId(id) {
+  return id == null ? null : id+'';
+}
+
+DS.RESTSerializer = DS.NewJSONSerializer.extend({
+  normalize: function(type, hash) {
+    this.normalizeId(type, hash);
+    this.normalizeAttributes(type, hash);
+    return hash;
+  },
+
+  normalizeId: function(type, hash) {
+    var primaryKey = get(this, 'primaryKey');
+
+    if (!primaryKey) { return; }
+
+    hash.id = hash[primaryKey];
+    delete hash[primaryKey];
+  },
+
+  normalizeAttributes: function(type, hash) {
+    var attrs = get(this, 'attrs');
+
+    if (!attrs) { return; }
+
+    for (var key in attrs) {
+      var payloadKey = attrs[key];
+
+      hash[key] = hash[payloadKey];
+      delete hash[payloadKey];
+    }
+  }
+});
+
 /**
   The REST adapter allows your store to communicate with an HTTP server by
   transmitting JSON via XHR. Most Ember.js apps that consume a JSON API
@@ -75,356 +109,87 @@ DS.rejectionHandler = function(reason) {
   @extends DS.Adapter
 */
 DS.RESTAdapter = DS.Adapter.extend({
-  namespace: null,
-  bulkCommit: false,
-  since: 'since',
-
-  serializer: DS.RESTSerializer,
-
-  /**
-    Called on each record before saving. If false is returned, the record
-    will not be saved.
-
-    By default, this method returns `true` except when the record is embedded.
-
-    @method   shouldSave
-    @property {DS.Model} record
-    @return   {Boolean}  `true` to save, `false` to not. Defaults to true.
-  */
-  shouldSave: function(record) {
-    var reference = get(record, '_reference');
-
-    return !reference.parent;
-  },
-
-  /**
-    @method dirtyRecordsForRecordChange
-    @param {Ember.OrderedSet} dirtySet
-    @param {DS.Model} record
-  */
-  dirtyRecordsForRecordChange: function(dirtySet, record) {
-    this._dirtyTree(dirtySet, record);
-  },
-
-  /**
-    @method dirtyRecordsForHasManyChange
-    @param {Ember.OrderedSet} dirtySet
-    @param {DS.Model} record
-    @param {DS.RelationshipChange} relationship
-  */
-  dirtyRecordsForHasManyChange: function(dirtySet, record, relationship) {
-    var embeddedType = get(this, 'serializer').embeddedType(record.constructor, relationship.secondRecordName);
-
-    if (embeddedType === 'always') {
-      relationship.childReference.parent = relationship.parentReference;
-      this._dirtyTree(dirtySet, record);
-    }
-  },
-
-  /**
-    @method _dirtyTree
-    @private
-    @param {Ember.OrderedSet} dirtySet
-    @param {DS.Model} record
-  */
-  _dirtyTree: function(dirtySet, record) {
-    dirtySet.add(record);
-
-    get(this, 'serializer').eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
-      if (embeddedType !== 'always') { return; }
-      if (dirtySet.has(embeddedRecord)) { return; }
-      this._dirtyTree(dirtySet, embeddedRecord);
-    }, this);
-
-    var reference = record.get('_reference');
-
-    if (reference.parent) {
-      var store = get(record, 'store');
-      var parent = store.recordForReference(reference.parent);
-      this._dirtyTree(dirtySet, parent);
-    }
-  },
-
-  /**
-    Serializes the record and sends it to the server.
-
-    By default, the record is serialized with the adapter's `serialize`
-    method and assigned to a root obtained by the `rootForType` method.
-
-    The url is created with `buildURL` and then called as a 'POST' request
-    with the adapter's `ajax` method.
-
-    If successful, the adapter's `didCreateRecord` method is called,
-    otherwise `didError`
-
-    @method createRecord
-    @property {DS.Store} store
-    @property {DS.Model} type   the DS.Model class of the record
-    @property {DS.Model} record
-  */
-  createRecord: function(store, type, record) {
-    var root = this.rootForType(type);
-    var adapter = this;
-    var data = {};
-
-    data[root] = this.serialize(record, { includeId: true });
-
-    return this.ajax(this.buildURL(root), "POST", {
-      data: data
-    }).then(function(json){
-      adapter.didCreateRecord(store, type, record, json);
-    }, function(xhr) {
-      adapter.didError(store, type, record, xhr);
-      throw xhr;
-    }).then(null, DS.rejectionHandler);
-  },
-
-  /**
-    @method createRecords
-    @param  store
-    @param  type
-    @param  records
-  */
-  createRecords: function(store, type, records) {
-    var adapter = this;
-
-    if (get(this, 'bulkCommit') === false) {
-      return this._super(store, type, records);
-    }
-
-    var root = this.rootForType(type),
-        plural = this.pluralize(root);
-
-    var data = {};
-    data[plural] = [];
-    records.forEach(function(record) {
-      data[plural].push(this.serialize(record, { includeId: true }));
-    }, this);
-
-    return this.ajax(this.buildURL(root), "POST", {
-      data: data
-    }).then(function(json) {
-      adapter.didCreateRecords(store, type, records, json);
-    }).then(null, DS.rejectionHandler);
-  },
-
-  /**
-    @method updateRecord
-    @param  store
-    @param  type
-    @param  record
-  */
-  updateRecord: function(store, type, record) {
-    var id, root, adapter, data;
-
-    id = get(record, 'id');
-    root = this.rootForType(type);
-    adapter = this;
-
-    data = {};
-    data[root] = this.serialize(record);
-
-    return this.ajax(this.buildURL(root, id, record), "PUT",{
-      data: data
-    }).then(function(json){
-      adapter.didUpdateRecord(store, type, record, json);
-    }, function(xhr) {
-      adapter.didError(store, type, record, xhr);
-      throw xhr;
-    }).then(null, DS.rejectionHandler);
-  },
-
-  /**
-    @method updateRecords
-    @param  store
-    @param  type
-    @param  records
-  */
-  updateRecords: function(store, type, records) {
-    var root, plural, adapter, data;
-
-    if (get(this, 'bulkCommit') === false) {
-      return this._super(store, type, records);
-    }
-
-    root = this.rootForType(type);
-    plural = this.pluralize(root);
-    adapter = this;
-
-    data = {};
-
-    data[plural] = [];
-
-    records.forEach(function(record) {
-      data[plural].push(this.serialize(record, { includeId: true }));
-    }, this);
-
-    return this.ajax(this.buildURL(root, "bulk"), "PUT", {
-      data: data
-    }).then(function(json) {
-      adapter.didUpdateRecords(store, type, records, json);
-    }).then(null, DS.rejectionHandler);
-  },
-
-  /**
-    @method deleteRecord
-    @param  store
-    @param  type
-    @param  record
-  */
-  deleteRecord: function(store, type, record) {
-    var id, root, adapter;
-
-    id = get(record, 'id');
-    root = this.rootForType(type);
-    adapter = this;
-
-    return this.ajax(this.buildURL(root, id, record), "DELETE").then(function(json){
-      adapter.didDeleteRecord(store, type, record, json);
-    }, function(xhr){
-      adapter.didError(store, type, record, xhr);
-      throw xhr;
-    }).then(null, DS.rejectionHandler);
-  },
-
-  /**
-    @method deleteRecords
-    @param  store
-    @param  type
-    @param  records
-  */
-  deleteRecords: function(store, type, records) {
-    var root, plural, serializer, adapter, data;
-
-    if (get(this, 'bulkCommit') === false) {
-      return this._super(store, type, records);
-    }
-
-    root = this.rootForType(type);
-    plural = this.pluralize(root);
-    serializer = get(this, 'serializer');
-    adapter = this;
-
-    data = {};
-
-    data[plural] = [];
-    records.forEach(function(record) {
-      data[plural].push(serializer.serializeId( get(record, 'id') ));
-    });
-
-    return this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
-      data: data
-    }).then(function(json){
-      adapter.didDeleteRecords(store, type, records, json);
-    }).then(null, DS.rejectionHandler);
-  },
-
-  /**
-    @method find
-    @param  store
-    @param  type
-    @param  id
-  */
   find: function(store, type, id) {
-    var root = this.rootForType(type), adapter = this;
-
-    return this.ajax(this.buildURL(root, id), "GET").
-      then(function(json){
-        adapter.didFindRecord(store, type, json, id);
-    }).then(null, DS.rejectionHandler);
+    return this.ajax(this.buildURL(type, id), 'GET');
   },
 
-  /**
-    @method findAll
-    @param  store
-    @param  type
-    @param  since
-  */
-  findAll: function(store, type, since) {
-    var root, adapter;
+  createRecord: function(store, type, record) {
+    var data = {};
+    data[type.typeKey] = this.serializerFor(type).serialize(record, { includeId: true });
 
-    root = this.rootForType(type);
-    adapter = this;
-
-    return this.ajax(this.buildURL(root), "GET",{
-      data: this.sinceQuery(since)
-    }).then(function(json) {
-      adapter.didFindAll(store, type, json);
-    }).then(null, DS.rejectionHandler);
+    return this.ajax(this.buildURL(type), "POST", { data: data });
   },
 
-  /**
-    @method findQuery
-    @param  store
-    @param  type
-    @param  query
-    @param  recordArray
-  */
-  findQuery: function(store, type, query, recordArray) {
-    var root = this.rootForType(type),
-    adapter = this;
+  updateRecord: function(store, type, record) {
+    var data = {};
+    data[type.typeKey] = this.serializerFor(type).serialize(record);
 
-    return this.ajax(this.buildURL(root), "GET", {
-      data: query
-    }).then(function(json){
-      adapter.didFindQuery(store, type, json, recordArray);
-    }).then(null, DS.rejectionHandler);
+    var id = get(record, 'id');
+
+    return this.ajax(this.buildURL(type, id), "PUT", { data: data });
   },
 
-  /**
-    @method findMany
-    @param  store
-    @param  type
-    @param  ids
-    @param  owner
-  */
-  findMany: function(store, type, ids, owner) {
-    var root = this.rootForType(type),
-    adapter = this;
+  deleteRecord: function(store, type, record) {
+    var id = get(record, 'id');
 
-    ids = this.serializeIds(ids);
-
-    return this.ajax(this.buildURL(root), "GET", {
-      data: {ids: ids}
-    }).then(function(json) {
-      adapter.didFindMany(store, type, json);
-    }).then(null, DS.rejectionHandler);
+    return this.ajax(this.buildURL(type, id), "DELETE");
   },
 
-  /**
-    This method serializes a list of IDs using `serializeId`
+  buildURL: function(type, id) {
+    var url = "/" + this.pluralize(type.typeKey);
+    if (id) { url += "/" + id; }
 
-    @method serializeIds
-    @private
-    @param  ids
-    @return {Array} an array of serialized IDs
-  */
-  serializeIds: function(ids) {
-    var serializer = get(this, 'serializer');
-
-    return Ember.EnumerableUtils.map(ids, function(id) {
-      return serializer.serializeId(id);
-    });
+    return url;
   },
 
-  /**
-    @method didError
-    @private
-    @param  store
-    @param  type
-    @param  record
-    @param  xhr
-  */
-  didError: function(store, type, record, xhr) {
-    if (xhr.status === 422) {
-      var json = JSON.parse(xhr.responseText),
-          serializer = get(this, 'serializer'),
-          errors = serializer.extractValidationErrors(type, json);
+  serializerFor: function(type) {
+    return this.container.lookup('serializer:' + type.typeKey) ||
+           this.container.lookup('serializer:_rest');
+  },
 
-      store.recordWasInvalid(record, errors);
-    } else {
-      this._super.apply(this, arguments);
+  extract: function(store, primaryType, record, payload) {
+    var primaryTypeName = primaryType.typeKey,
+        recordId = get(record, 'id'),
+        primaryRecord;
+
+    for (var prop in payload) {
+      var typeName = this.singularize(prop),
+          type = store.modelFor(typeName);
+
+      /*jshint loopfunc:true*/
+      payload[prop].forEach(function(hash) {
+        hash = this.normalize(type, hash);
+
+        var isFirstCreatedRecord = typeName === primaryTypeName && !recordId && !primaryRecord,
+            isUpdatedRecord = typeName === primaryTypeName && coerceId(hash.id) === recordId;
+
+        if (isFirstCreatedRecord || isUpdatedRecord) {
+          primaryRecord = hash;
+        } else {
+          store.push(typeName, hash);
+        }
+      }, this);
     }
+
+    return primaryRecord;
+  },
+
+  normalize: function(type, payload) {
+    var serializer = this.container.lookup('serializer:' + type.typeKey);
+
+    if (!serializer) {
+      return payload;
+    } else {
+      return serializer.normalize(type, payload);
+    }
+  },
+
+  pluralize: function(type) {
+    return type + 's';
+  },
+
+  singularize: function(key) {
+    return key.substr(0, key.length - 1);
   },
 
   /**
@@ -465,66 +230,4 @@ DS.RESTAdapter = DS.Adapter.extend({
     });
   },
 
-  /**
-    @property url
-    @default ''
-  */
-  url: "",
-
-  /**
-    @method rootForType
-    @private
-    @param type
-  */
-  rootForType: function(type) {
-    var serializer = get(this, 'serializer');
-    return serializer.rootForType(type);
-  },
-
-  /**
-    @method pluralize
-    @private
-    @param string
-  */
-  pluralize: function(string) {
-    var serializer = get(this, 'serializer');
-    return serializer.pluralize(string);
-  },
-
-  /**
-    @method buildURL
-    @private
-    @param root
-    @param suffix
-    @param record
-  */
-  buildURL: function(root, suffix, record) {
-    var url = [this.url];
-
-    Ember.assert("Namespace URL (" + this.namespace + ") must not start with slash", !this.namespace || this.namespace.toString().charAt(0) !== "/");
-    Ember.assert("Root URL (" + root + ") must not start with slash", !root || root.toString().charAt(0) !== "/");
-    Ember.assert("URL suffix (" + suffix + ") must not start with slash", !suffix || suffix.toString().charAt(0) !== "/");
-
-    if (!Ember.isNone(this.namespace)) {
-      url.push(this.namespace);
-    }
-
-    url.push(this.pluralize(root));
-    if (suffix !== undefined) {
-      url.push(suffix);
-    }
-
-    return url.join("/");
-  },
-
-  /**
-    @method sinceQuery
-    @private
-    @param since
-  */
-  sinceQuery: function(since) {
-    var query = {};
-    query[get(this, 'since')] = since;
-    return since ? query : null;
-  }
 });

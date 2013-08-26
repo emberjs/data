@@ -55,7 +55,9 @@
 
     var container = env.container = new Ember.Container();
 
-    var adapter = env.adapter = (options.adapter || DS.Adapter).create();
+    var adapter = env.adapter = (options.adapter || DS.Adapter).create({
+      container: container
+    });
     delete options.adapter;
 
     var store = env.store = DS.Store.create({
@@ -72,8 +74,10 @@
     }
 
     container.register('serializer:_default', serializer);
+    container.register('serializer:_rest', DS.RESTSerializer);
 
     env.serializer = container.lookup('serializer:_default');
+    env.restSerializer = container.lookup('serializer:_rest');
 
     return env;
   };

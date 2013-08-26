@@ -24,42 +24,6 @@ function isThenable(object) {
   return object && typeof object.then === 'function';
 }
 
-function loaderFor(store) {
-  return {
-    load: function(type, data, prematerialized) {
-      return store.load(type, data, prematerialized);
-    },
-
-    loadMany: function(type, array) {
-      return store.loadMany(type, array);
-    },
-
-    updateId: function(record, data) {
-      return store.updateId(record, data);
-    },
-
-    populateArray: Ember.K,
-
-    sideload: function(type, data) {
-      return store.adapterForType(type).load(store, type, data);
-    },
-
-    sideloadMany: function(type, array) {
-      return store.loadMany(type, array);
-    },
-
-    prematerialize: function(reference, prematerialized) {
-      reference.prematerialized = prematerialized;
-    },
-
-    metaForType: function(type, property, data) {
-      store.metaForType(type, property, data);
-    }
-  };
-}
-
-DS.loaderFor = loaderFor;
-
 /**
   An adapter is an object that receives requests from a store and
   translates them into the appropriate action to take against your
@@ -117,6 +81,10 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     this._dependencies = new Ember.MapWithDefault({
       defaultValue: function() { return new Ember.OrderedSet(); }
     });
+  },
+
+  extract: function(store, type, id, payload) {
+    return payload;
   },
 
   /**
@@ -376,9 +344,11 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   find: Ember.required(Function),
 
   _find: function(store, type, id) {
-    var promise = this.find(store, type, id);
+    var promise = this.find(store, type, id),
+        adapter = this;
 
     return resolve(promise).then(function(payload) {
+      payload = adapter.extract(store, type, id, payload);
       return store.push(type, payload);
     });
   },
@@ -616,12 +586,14 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @return   {RSVP.Promise}
   **/
   _commitRecord: function(operation, store, type, record) {
-    var promise = this[operation](store, type, record);
+    var promise = this[operation](store, type, record),
+        adapter = this;
 
     Ember.assert("Your adapter's '" + operation + "' method must return a promise, but it returned " + promise, isThenable(promise));
 
-    return promise.then(function(value) {
-      store.didSaveRecord(record, value);
+    return promise.then(function(payload) {
+      payload = adapter.extract(store, type, record, payload);
+      store.didSaveRecord(record, payload);
     }, function(reason) {
       if (reason instanceof DS.InvalidError) {
         store.recordWasInvalid(record, reason.errors);
@@ -679,8 +651,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
       this._createRecord(store, type, record);
     }, this);
   },
-
-
 
   /**
     @private

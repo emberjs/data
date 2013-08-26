@@ -58,7 +58,11 @@ DS.NewJSONSerializer = Ember.Object.extend({
     var json = {};
 
     if (options && options.includeId) {
-      json.id = get(record, 'id');
+      var id = get(record, 'id');
+
+      if (id) {
+        json.id = get(record, 'id');
+      }
     }
 
     record.eachAttribute(function(key, attribute) {

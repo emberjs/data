@@ -211,7 +211,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }
 
     if (DS.Adapter.detect(adapter)) {
-      adapter = adapter.create();
+      adapter = adapter.create({ container: this.container });
     }
 
     return adapter;
