@@ -41,7 +41,7 @@ Ember.onLoad('Ember.Application', function(Application) {
     name: "store",
 
     initialize: function(container, application) {
-      application.register('store:main', application.Store);
+      application.register('store:main', application.Store || DS.Store);
       application.register('serializer:_default', DS.NewJSONSerializer);
       application.register('serializer:_rest', DS.RESTSerializer);
 
