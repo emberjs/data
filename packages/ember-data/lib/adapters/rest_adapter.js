@@ -125,6 +125,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     return this.ajax(this.buildURL(type), 'GET', { ids: ids });
   },
 
+  findHasMany: function(store, record, link) {
+    return this.ajax(link, 'GET');
+  },
+
   createRecord: function(store, type, record) {
     var data = {};
     data[type.typeKey] = this.serializerFor(type).serialize(record, { includeId: true });
@@ -201,6 +205,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   extractFindAll: Ember.aliasMethod('extractArray'),
   extractFindQuery: Ember.aliasMethod('extractArray'),
   extractFindMany: Ember.aliasMethod('extractArray'),
+  extractFindHasMany: Ember.aliasMethod('extractArray'),
 
   extractArray: function(store, primaryType, payload) {
     var primaryTypeName = primaryType.typeKey,

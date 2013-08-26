@@ -15,6 +15,12 @@ DS.NewJSONSerializer = Ember.Object.extend({
     });
 
     type.eachRelationship(function(key, relationship) {
+      // A link (usually a URL) was already provided in
+      // normalized form
+      if (data.links && data.links[key]) {
+        return;
+      }
+
       var type = relationship.type,
           value = data[key];
 

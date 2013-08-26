@@ -782,10 +782,13 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   },
 
   _findHasMany: function(store, record, link, relationship) {
-    var promise = this.findHasMany(store, record, link, relationship);
+    var promise = this.findHasMany(store, record, link, relationship),
+        adapter = this;
 
     return resolve(promise).then(function(payload) {
-      var records = store.pushMany(record.constructor, payload);
+      payload = adapter.extract(store, relationship.type, payload, null, 'findHasMany');
+
+      var records = store.pushMany(relationship.type, payload);
       record.updateHasMany(relationship.key, records);
     });
   }

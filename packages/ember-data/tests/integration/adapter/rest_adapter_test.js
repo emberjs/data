@@ -438,38 +438,140 @@ test("findMany - returning an array populates the array", function() {
         comment2 = store.getById('comment', 2),
         comment3 = store.getById('comment', 3);
 
+    deepEqual(comment1.getProperties('id', 'name'), { id: "1", name: "FIRST" });
+    deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });
+    deepEqual(comment3.getProperties('id', 'name'), { id: "3", name: "What is omakase?" });
+
     deepEqual(comments.toArray(), [ comment1, comment2, comment3 ], "The correct records are in the array");
   }));
 });
 
-test("findQuery - returning sideloaded data loads the data", function() {
-  ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }, { id: 2, name: "The Parley Letter" }], comments: [{ id: 1, name: "FIRST" }] });
+test("findMany - returning sideloaded data loads the data", function() {
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
-  store.findQuery('post', { page: 1 }).then(async(function(posts) {
-    var comment = store.getById('comment', 1);
+  store.push('post', { id: 1, name: "Rails is omakase", comments: [ 1, 2, 3 ] });
 
-    deepEqual(comment.getProperties('id', 'name'), { id: "1", name: "FIRST" });
+  store.find('post', 1).then(async(function(post) {
+    ajaxResponse({ comments: [{ id: 1, name: "FIRST" }, { id: 2, name: "Rails is unagi" }, { id: 3, name: "What is omakase?" }, { id: 4, name: "Unrelated comment" }], posts: [{ id: 2, name: "The Parley Letter" }] });
+    return post.get('comments');
+  })).then(async(function(comments) {
+    var comment1 = store.getById('comment', 1),
+        comment2 = store.getById('comment', 2),
+        comment3 = store.getById('comment', 3),
+        comment4 = store.getById('comment', 4),
+        post2    = store.getById('post', 2);
+
+    deepEqual(comments.toArray(), [ comment1, comment2, comment3 ], "The correct records are in the array");
+
+    deepEqual(comment4.getProperties('id', 'name'), { id: "4", name: "Unrelated comment" });
+    deepEqual(post2.getProperties('id', 'name'), { id: "2", name: "The Parley Letter" });
   }));
 });
 
-test("findQuery - data is normalized through custom serializers", function() {
+test("findMany - a custom serializer is used if present", function() {
   env.container.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_ID_',
     attrs: { name: '_NAME_' }
   }));
 
-  ajaxResponse({ posts: [{ _ID_: 1, _NAME_: "Rails is omakase" }, { _ID_: 2, _NAME_: "The Parley Letter" }] });
+  env.container.register('serializer:comment', DS.RESTSerializer.extend({
+    primaryKey: '_ID_',
+    attrs: { name: '_NAME_' }
+  }));
 
-  store.findQuery('post', { page: 1 }).then(async(function(posts) {
-    var post1 = store.getById('post', 1),
-        post2 = store.getById('post', 2);
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
-    deepEqual(post1.getProperties('id', 'name'), { id: "1", name: "Rails is omakase" }, "Post 1 is loaded");
-    deepEqual(post2.getProperties('id', 'name'), { id: "2", name: "The Parley Letter" }, "Post 2 is loaded");
+  store.push('post', { id: 1, name: "Rails is omakase", comments: [ 1, 2, 3 ] });
 
-    equal(posts.get('length'), 2, "The posts are in the array");
-    equal(posts.get('isLoaded'), true, "The RecordArray is loaded");
-    deepEqual(posts.toArray(), [ post1, post2 ], "The correct records are in the array");
+  store.find('post', 1).then(async(function(post) {
+    ajaxResponse({ comments: [{ _ID_: 1, _NAME_: "FIRST" }, { _ID_: 2, _NAME_: "Rails is unagi" }, { _ID_: 3, _NAME_: "What is omakase?" }] });
+    return post.get('comments');
+  })).then(async(function(comments) {
+    var comment1 = store.getById('comment', 1),
+        comment2 = store.getById('comment', 2),
+        comment3 = store.getById('comment', 3);
+
+    deepEqual(comment1.getProperties('id', 'name'), { id: "1", name: "FIRST" });
+    deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });
+    deepEqual(comment3.getProperties('id', 'name'), { id: "3", name: "What is omakase?" });
+
+    deepEqual(comments.toArray(), [ comment1, comment2, comment3 ], "The correct records are in the array");
+  }));
+});
+
+test("findHasMany - returning an array populates the array", function() {
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+
+  store.push('post', { id: 1, name: "Rails is omakase", links: { comments: '/posts/1/comments' } });
+
+  store.find('post', 1).then(async(function(post) {
+    ajaxResponse({ comments: [{ id: 1, name: "FIRST" }, { id: 2, name: "Rails is unagi" }, { id: 3, name: "What is omakase?" }] });
+    return post.get('comments');
+  })).then(async(function(comments) {
+    equal(passedUrl, '/posts/1/comments');
+    equal(passedVerb, 'GET');
+    equal(passedHash, undefined);
+
+    var comment1 = store.getById('comment', 1),
+        comment2 = store.getById('comment', 2),
+        comment3 = store.getById('comment', 3);
+
+    deepEqual(comment1.getProperties('id', 'name'), { id: "1", name: "FIRST" });
+    deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });
+    deepEqual(comment3.getProperties('id', 'name'), { id: "3", name: "What is omakase?" });
+
+    deepEqual(comments.toArray(), [ comment1, comment2, comment3 ], "The correct records are in the array");
+  }));
+});
+
+test("findMany - returning sideloaded data loads the data", function() {
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+
+  store.push('post', { id: 1, name: "Rails is omakase", links: { comments: '/posts/1/comments' } });
+
+  store.find('post', 1).then(async(function(post) {
+    ajaxResponse({ comments: [{ id: 1, name: "FIRST" }, { id: 2, name: "Rails is unagi" }, { id: 3, name: "What is omakase?" }], posts: [{ id: 2, name: "The Parley Letter" }] });
+    return post.get('comments');
+  })).then(async(function(comments) {
+    var comment1 = store.getById('comment', 1),
+        comment2 = store.getById('comment', 2),
+        comment3 = store.getById('comment', 3),
+        post2    = store.getById('post', 2);
+
+    deepEqual(comments.toArray(), [ comment1, comment2, comment3 ], "The correct records are in the array");
+
+    deepEqual(post2.getProperties('id', 'name'), { id: "2", name: "The Parley Letter" });
+  }));
+});
+
+test("findMany - a custom serializer is used if present", function() {
+  env.container.register('serializer:post', DS.RESTSerializer.extend({
+    primaryKey: '_ID_',
+    attrs: { name: '_NAME_' }
+  }));
+
+  env.container.register('serializer:comment', DS.RESTSerializer.extend({
+    primaryKey: '_ID_',
+    attrs: { name: '_NAME_' }
+  }));
+
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+
+  store.push('post', { id: 1, name: "Rails is omakase", links: { comments: '/posts/1/comments' } });
+
+  store.find('post', 1).then(async(function(post) {
+    ajaxResponse({ comments: [{ _ID_: 1, _NAME_: "FIRST" }, { _ID_: 2, _NAME_: "Rails is unagi" }, { _ID_: 3, _NAME_: "What is omakase?" }] });
+    return post.get('comments');
+  })).then(async(function(comments) {
+    var comment1 = store.getById('comment', 1),
+        comment2 = store.getById('comment', 2),
+        comment3 = store.getById('comment', 3);
+
+    deepEqual(comment1.getProperties('id', 'name'), { id: "1", name: "FIRST" });
+    deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });
+    deepEqual(comment3.getProperties('id', 'name'), { id: "3", name: "What is omakase?" });
+
+    deepEqual(comments.toArray(), [ comment1, comment2, comment3 ], "The correct records are in the array");
   }));
 });
 
