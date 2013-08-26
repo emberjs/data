@@ -83,7 +83,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     });
   },
 
-  extract: function(store, type, id, payload) {
+  extract: function(store, type, payload, id) {
     return payload;
   },
 

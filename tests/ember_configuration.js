@@ -60,24 +60,24 @@
     });
     delete options.adapter;
 
-    var store = env.store = DS.Store.create({
-      container: container,
-      adapter: adapter
-    });
-
-    var serializer = DS.NewJSONSerializer.extend({
-      store: store
-    });
-
     for (var prop in options) {
       container.register('model:' + prop, options[prop]);
     }
 
-    container.register('serializer:_default', serializer);
+    container.register('store:main', DS.Store.extend({
+      adapter: adapter
+    }));
+
+    container.register('serializer:_default', DS.NewJSONSerializer);
     container.register('serializer:_rest', DS.RESTSerializer);
+
+
+    container.injection('serializer', 'store', 'store:main');
 
     env.serializer = container.lookup('serializer:_default');
     env.restSerializer = container.lookup('serializer:_rest');
+    env.store = container.lookup('store:main');
+    env.adapter = env.store.get('_adapter');
 
     return env;
   };
