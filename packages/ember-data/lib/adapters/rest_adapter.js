@@ -28,7 +28,7 @@ DS.RESTSerializer = DS.NewJSONSerializer.extend({
   normalizeId: function(type, hash) {
     var primaryKey = get(this, 'primaryKey');
 
-    if (!primaryKey) { return; }
+    if (primaryKey === 'id') { return; }
 
     hash.id = hash[primaryKey];
     delete hash[primaryKey];
@@ -147,9 +147,8 @@ DS.RESTAdapter = DS.Adapter.extend({
            this.container.lookup('serializer:_rest');
   },
 
-  extract: function(store, primaryType, record, payload) {
+  extract: function(store, primaryType, recordId, payload) {
     var primaryTypeName = primaryType.typeKey,
-        recordId = get(record, 'id'),
         primaryRecord;
 
     for (var prop in payload) {

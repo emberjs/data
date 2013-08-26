@@ -592,7 +592,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     Ember.assert("Your adapter's '" + operation + "' method must return a promise, but it returned " + promise, isThenable(promise));
 
     return promise.then(function(payload) {
-      payload = adapter.extract(store, type, record, payload);
+      payload = adapter.extract(store, type, get(record, 'id'), payload);
       store.didSaveRecord(record, payload);
     }, function(reason) {
       if (reason instanceof DS.InvalidError) {

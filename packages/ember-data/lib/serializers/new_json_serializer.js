@@ -5,6 +5,8 @@ var get = Ember.get, set = Ember.set, isNone = Ember.isNone;
 var transforms = DS.JSONTransforms;
 
 DS.NewJSONSerializer = Ember.Object.extend({
+  primaryKey: 'id',
+
   deserialize: function(type, data) {
     var store = get(this, 'store');
 
@@ -61,9 +63,11 @@ DS.NewJSONSerializer = Ember.Object.extend({
       var id = get(record, 'id');
 
       if (id) {
-        json.id = get(record, 'id');
+        json[get(this, 'primaryKey')] = get(record, 'id');
       }
     }
+
+    var attrs = get(this, 'attrs');
 
     record.eachAttribute(function(key, attribute) {
       var value = get(record, key), type = attribute.type;
@@ -72,8 +76,12 @@ DS.NewJSONSerializer = Ember.Object.extend({
         value = transforms[type].serialize(value);
       }
 
+      // if provided, use the mapping provided by `attrs` in
+      // the serializer
+      key = attrs && attrs[key] || key;
+
       json[key] = value;
-    });
+    }, this);
 
     record.eachRelationship(function(key, relationship) {
       if (relationship.kind === 'belongsTo') {

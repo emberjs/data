@@ -153,6 +153,42 @@ test("create - a payload with a new ID and data applies the updates", function()
   }));
 });
 
+test("create - a serializer's primary key and attributes are consulted when building the payload", function() {
+  env.container.register('serializer:post', DS.RESTSerializer.extend({
+    primaryKey: '_id_',
+
+    attrs: {
+      name: '_name_'
+    }
+  }));
+
+  ajaxResponse();
+
+  var post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
+
+  post.save().then(async(function(post) {
+    deepEqual(passedHash.data, { post: { _id_: 'some-uuid', '_name_': "The Parley Letter" } });
+  }));
+});
+
+test("create - a serializer's attributes are consulted when building the payload if no id is pre-defined", function() {
+  env.container.register('serializer:post', DS.RESTSerializer.extend({
+    primarykey: '_id_',
+
+    attrs: {
+      name: '_name_'
+    }
+  }));
+
+  ajaxResponse();
+
+  var post = store.createRecord('post', { name: "The Parley Letter" });
+
+  post.save().then(async(function(post) {
+    deepEqual(passedHash.data, { post: { '_name_': "The Parley Letter" } });
+  }));
+});
+
 test("update - a payload with sideloaded updates pushes the updates", function() {
   ajaxResponse({ posts: [{ id: 1, name: "Dat Parley Letter" }], comments: [{ id: 1, name: "FIRST" }] });
   var post = store.createRecord('post', { name: "The Parley Letter" });
@@ -225,6 +261,26 @@ test("update - a payload with sideloaded updates pushes the updates", function()
 
     var comment = store.getById('comment', 1);
     equal(comment.get('name'), "FIRST", "The comment was sideloaded");
+  }));
+});
+
+test("update - a serializer's primary key and attributes are consulted when building the payload", function() {
+  env.container.register('serializer:post', DS.RESTSerializer.extend({
+    primaryKey: '_id_',
+
+    attrs: {
+      name: '_name_'
+    }
+  }));
+
+  store.push('post', { id: 1, name: "Rails is omakase" });
+  ajaxResponse();
+
+  store.find('post', 1).then(async(function(post) {
+    post.set('name', "The Parley Letter");
+    return post.save();
+  })).then(async(function(post) {
+    deepEqual(passedHash.data, { post: { '_name_': "The Parley Letter" } });
   }));
 });
 
