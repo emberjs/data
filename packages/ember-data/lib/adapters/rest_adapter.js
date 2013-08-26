@@ -185,6 +185,12 @@ DS.RESTAdapter = DS.Adapter.extend({
         var isFirstCreatedRecord = typeName === primaryTypeName && !recordId && !primaryRecord,
             isUpdatedRecord = typeName === primaryTypeName && coerceId(hash.id) === recordId;
 
+        // find the primary record.
+        //
+        // It's either:
+        // * the record with the same ID as the original request
+        // * in the case of a newly created record that didn't have an ID, the first
+        //   record in the Array
         if (isFirstCreatedRecord || isUpdatedRecord) {
           primaryRecord = hash;
         } else {
