@@ -516,7 +516,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
-    This method returns a record for a given record refeence.
+    This method returns a record for a given record reference.
 
     If no record for the reference has yet been materialized, this method will
     materialize a new `DS.Model` instance. This allows adapters to eagerly load
