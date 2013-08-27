@@ -23,7 +23,6 @@ test("the empty state", function() {
   isFalse("isDirty");
   isFalse("isSaving");
   isFalse("isDeleted");
-  isFalse("isError");
 });
 
 test("the loading state", function() {
@@ -33,7 +32,6 @@ test("the loading state", function() {
   isFalse("isDirty");
   isFalse("isSaving");
   isFalse("isDeleted");
-  isFalse("isError");
 });
 
 test("the loaded state", function() {
@@ -43,7 +41,6 @@ test("the loaded state", function() {
   isFalse("isDirty");
   isFalse("isSaving");
   isFalse("isDeleted");
-  isFalse("isError");
 });
 
 test("the updated state", function() {
@@ -53,7 +50,6 @@ test("the updated state", function() {
   isTrue("isDirty");
   isFalse("isSaving");
   isFalse("isDeleted");
-  isFalse("isError");
 });
 
 test("the saving state", function() {
@@ -63,7 +59,6 @@ test("the saving state", function() {
   isTrue("isDirty");
   isTrue("isSaving");
   isFalse("isDeleted");
-  isFalse("isError");
 });
 
 test("the deleted state", function() {
@@ -73,7 +68,6 @@ test("the deleted state", function() {
   isTrue("isDirty");
   isFalse("isSaving");
   isTrue("isDeleted");
-  isFalse("isError");
 });
 
 test("the deleted.saving state", function() {
@@ -83,7 +77,6 @@ test("the deleted.saving state", function() {
   isTrue("isDirty");
   isTrue("isSaving");
   isTrue("isDeleted");
-  isFalse("isError");
 });
 
 test("the deleted.saved state", function() {
@@ -93,16 +86,4 @@ test("the deleted.saved state", function() {
   isFalse("isDirty");
   isFalse("isSaving");
   isTrue("isDeleted");
-  isFalse("isError");
-});
-
-
-test("the error state", function() {
-  stateName = "error";
-  isFalse("isLoading");
-  isFalse("isLoaded");
-  isFalse("isDirty");
-  isFalse("isSaving");
-  isFalse("isDeleted");
-  isTrue("isError");
 });

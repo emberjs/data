@@ -30,10 +30,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   isDirty: retrieveFromCurrentState,
   isSaving: retrieveFromCurrentState,
   isDeleted: retrieveFromCurrentState,
-  isError: retrieveFromCurrentState,
   isNew: retrieveFromCurrentState,
   isValid: retrieveFromCurrentState,
   dirtyType: retrieveFromCurrentState,
+
+  isError: false,
 
   clientId: null,
   id: null,
@@ -258,6 +259,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   adapterDidCommit: function() {
     this.send('didCommit');
     this.updateRecordArraysLater();
+    set(this, 'isError', false);
   },
 
   adapterDidDirty: function() {
@@ -457,6 +459,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
   adapterDidError: function() {
     this.send('becameError');
+    set(this, 'isError', true);
   },
 
   /**

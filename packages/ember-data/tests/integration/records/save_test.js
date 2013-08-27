@@ -41,6 +41,26 @@ test("Will reject save on error", function() {
   }));
 });
 
+test("Retry is allowed in a failure handler", function() {
+  var post = env.store.createRecord('post', {title: 'toto'});
+
+  var count = 0;
+
+  env.adapter.createRecord = function(store, type, record) {
+    if (count++ === 0) {
+      return Ember.RSVP.reject();
+    } else {
+      return Ember.RSVP.resolve({ id: 123 });
+    }
+  };
+
+  post.save().then(function() {}, async(function() {
+    return post.save();
+  })).then(async(function(post) {
+    equal(post.get('id'), '123', "The post ID made it through");
+  }));
+});
+
 test("Will reject save on invalid", function() {
   expect(1);
   var post = env.store.createRecord('post', {title: 'toto'});

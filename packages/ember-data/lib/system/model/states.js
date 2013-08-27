@@ -295,8 +295,8 @@ var DirtyState = {
     },
 
     becameError: function(record) {
-      record.transitionTo('error');
-      record.send('invokeLifecycleCallbacks');
+      record.transitionTo('uncommitted');
+      record.triggerLater('becameError', record);
     }
   },
 
@@ -412,7 +412,6 @@ var RootState = {
   isDirty: false,
   isSaving: false,
   isDeleted: false,
-  isError: false,
   isNew: false,
   isValid: true,
 
@@ -454,11 +453,11 @@ var RootState = {
     pushedData: function(record) {
       record.transitionTo('loaded.saved');
       record.triggerLater('didLoad');
+      set(record, 'isError', false);
     },
 
     becameError: function(record) {
-      record.transitionTo('error');
-      record.send('invokeLifecycleCallbacks');
+      record.triggerLater('becameError', record);
     }
   },
 
@@ -639,19 +638,6 @@ var RootState = {
         record.triggerLater('didDelete', record);
         record.triggerLater('didCommit', record);
       }
-    }
-  },
-
-  // If the adapter indicates that there was an unknown
-  // error saving a record, the record enters the `error`
-  // state.
-  error: {
-    isError: true,
-
-    // EVENTS
-
-    invokeLifecycleCallbacks: function(record) {
-      record.triggerLater('becameError', record);
     }
   }
 };
