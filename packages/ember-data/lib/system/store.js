@@ -215,8 +215,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // Coerce ID to a string
     properties.id = coerceId(properties.id);
 
-    var reference = this.createReference(type, properties.id),
-        record = reference.record;
+    var record = this.buildRecord(type, properties.id);
 
     // Move the record out of its initial `empty` state into
     // the `loaded` state.
@@ -342,13 +341,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   /**
     This method returns a record for a given type and id combination.
 
-    If the store has never seen this combination of type and id before, it
-    creates a new `clientId` with the LOADING sentinel and asks the adapter to
-    load the data.
-
-    If the store has seen the combination, this method delegates to
-    `getByReference`.
-
     @method findById
     @private
     @param type
@@ -404,15 +396,11 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   getById: function(type, id) {
     type = this.modelFor(type);
 
-    var reference, record;
-
-    if (this.hasReferenceForId(type, id)) {
-      reference = this.referenceForId(type, id);
+    if (this.hasRecordForId(type, id)) {
+      return this.recordForId(type, id);
     } else {
-      reference = this.createReference(type, id);
+      return this.buildRecord(type, id);
     }
-
-    return reference.record;
   },
 
   reloadRecord: function(record) {
@@ -429,12 +417,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
-    This method takes a list of `reference`s, groups the `reference`s by type,
-    converts the `reference`s into IDs, and then invokes the adapter's `findMany`
+    This method takes a list of records, groups the records by type,
+    converts the records into IDs, and then invokes the adapter's `findMany`
     method.
 
-    The `reference`s are grouped by type to invoke `findMany` on adapters
-    for each unique type in `reference`s.
+    The records are grouped by type to invoke `findMany` on adapters
+    for each unique type in records.
 
     It is used both by a brand new relationship (via the `findMany`
     method) or when the data underlying an existing relationship
@@ -442,7 +430,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     @method fetchMany
     @private
-    @param references
+    @param records
     @param owner
   */
   fetchMany: function(records, owner) {
@@ -468,25 +456,24 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }, this);
   },
 
-  hasReferenceForId: function(type, id) {
+  hasRecordForId: function(type, id) {
     id = coerceId(id);
 
-    return !!this.typeMapFor(type).idToReference[id];
+    return !!this.typeMapFor(type).idToRecord[id];
   },
 
-  referenceForId: function(type, id) {
+  recordForId: function(type, id) {
+    type = this.modelFor(type);
+
     id = coerceId(id);
 
-    // Check to see if we have seen this type/id pair before.
-    var reference = this.typeMapFor(type).idToReference[id];
+    var record = this.typeMapFor(type).idToRecord[id];
 
-    // If not, create a reference for it but don't populate it
-    // with any data yet.
-    if (!reference) {
-      reference = this.createReference(type, id);
+    if (!record) {
+      record = this.buildRecord(type, id);
     }
 
-    return reference;
+    return record;
   },
 
   /**
@@ -721,8 +708,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {boolean}
   */
   recordIsLoaded: function(type, id) {
-    if (!this.hasReferenceForId(type, id)) { return false; }
-    return !get(this.referenceForId(type, id).record, 'isEmpty');
+    if (!this.hasRecordForId(type, id)) { return false; }
+    return !get(this.recordForId(type, id), 'isEmpty');
   },
 
   // ............
@@ -951,89 +938,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
-    This allows an adapter to acknowledge that it has saved all
-    necessary aspects of a relationship change.
-
-    This is separated from acknowledging the record itself
-    (via `didSaveRecord`) because a relationship change can
-    involve as many as three separate records. Records should
-    only move out of the in-flight state once the server has
-    acknowledged all of their relationships, and this differs
-    based upon the adapter's semantics.
-
-    There are three basic scenarios by which an adapter can
-    save a relationship.
-
-    ### Foreign Key
-
-    An adapter can save all relationship changes by updating
-    a foreign key on the child record. If it does this, it
-    should acknowledge the changes when the child record is
-    saved.
-
-        record.eachRelationship(function(name, meta) {
-          if (meta.kind === 'belongsTo') {
-            store.didUpdateRelationship(record, name);
-          }
-        });
-
-        store.didSaveRecord(record, data);
-
-    ### Embedded in Parent
-
-    An adapter can save one-to-many relationships by embedding
-    IDs (or records) in the parent object. In this case, the
-    relationship is not considered acknowledged until both the
-    old parent and new parent have acknowledged the change.
-
-    In this case, the adapter should keep track of the old
-    parent and new parent, and acknowledge the relationship
-    change once both have acknowledged. If one of the two
-    sides does not exist (e.g. the new parent does not exist
-    because of nulling out the belongs-to relationship),
-    the adapter should acknowledge the relationship once
-    the other side has acknowledged.
-
-    ### Separate Entity
-
-    An adapter can save relationships as separate entities
-    on the server. In this case, they should acknowledge
-    the relationship as saved once the server has
-    acknowledged the entity.
-
-    @method didUpdateRelationship
-    @param {DS.Model} record
-    @param {DS.Model} relationshipName
-  */
-  didUpdateRelationship: function(record, relationshipName) {
-    var clientId = get(record, '_reference').clientId;
-
-    var relationship = this.relationshipChangeFor(clientId, relationshipName);
-    //TODO(Igor)
-    if (relationship) { relationship.adapterDidUpdate(); }
-  },
-
-  /**
-    This allows an adapter to acknowledge all relationship changes
-    for a given record.
-
-    Like `didUpdateAttributes`, this is intended as a middle ground
-    between `didSaveRecord` and fine-grained control via the
-    `didUpdateRelationship` API.
-
-    @method didUpdateRelationships
-    @param record
-  */
-  didUpdateRelationships: function(record) {
-    var changes = this.relationshipChangesFor(get(record, '_reference'));
-
-    for (var name in changes) {
-      if (!changes.hasOwnProperty(name)) { continue; }
-      changes[name].adapterDidUpdate();
-    }
-  },
-
-  /**
     When acknowledging the creation of a locally created record,
     adapters must supply an id (if they did not implement
     `generateIdForRecord` to generate an id locally).
@@ -1067,21 +971,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
-    This method re-indexes the data by its clientId in the store
-    and then notifies the record that it should rematerialize
-    itself.
-
-    @method updateRecordData
-    @private
-    @param {DS.Model} record
-    @param {Object} data
-  */
-  updateRecordData: function(record, data) {
-    get(record, '_reference').data = data;
-    record.didChangeData();
-  },
-
-  /**
     If an adapter invokes `didSaveRecord` with data, this method
     extracts the id from the supplied data (using the adapter's
     `extractId()` method) and indexes the clientId with that id.
@@ -1093,13 +982,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   updateId: function(record, data) {
     var oldId = get(record, 'id'),
-        reference = get(record, '_reference'),
         id = coerceId(data.id);
 
     Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId);
 
-    this.typeMapFor(record.constructor).idToReference[id] = reference;
-    reference.id = id;
+    this.typeMapFor(record.constructor).idToRecord[id] = record;
+
     set(record, 'id', id);
   },
 
@@ -1138,8 +1026,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (typeMap) { return typeMap; }
 
     typeMap = {
-      idToReference: {},
-      references: [],
+      idToRecord: {},
       records: [],
       metadata: {}
     };
@@ -1168,8 +1055,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   load: function(type, data) {
     var id = coerceId(data.id),
-        reference = this.referenceForId(type, id),
-        record = reference.record;
+        record = this.recordForId(type, id);
 
     record.setupData(data);
     this.recordArrayManager.recordDidChange(record);
@@ -1200,16 +1086,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     this.load(type, data);
 
-    var reference = this.referenceForId(type, data.id);
-
-    return reference.record;
-  },
-
-  recordFor: function(type, id) {
-    type = this.modelFor(type);
-
-    var reference = this.referenceForId(type, id);
-    if (reference.record) { return reference.record; }
+    return this.recordForId(type, data.id);
   },
 
   pushMany: function(type, datas) {
@@ -1240,42 +1117,30 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }
   },
 
-  /**
-    Creates a new reference for a given type & ID pair. Metadata about the
-    record can be stored in the reference without having to create a full-blown
-    DS.Model instance.
-
-    @method createReference
-    @private
-    @param {DS.Model} type
-    @param {String|Number} id
-    @returns {Reference}
-  */
-  createReference: function(type, id) {
+  buildRecord: function(type, id, data) {
     var typeMap = this.typeMapFor(type),
-        idToReference = typeMap.idToReference;
+        idToRecord = typeMap.idToRecord;
 
-    Ember.assert('The id ' + id + ' has already been used with another record of type ' + type.toString() + '.', !id || !idToReference[id]);
+    Ember.assert('The id ' + id + ' has already been used with another record of type ' + type.toString() + '.', !id || !idToRecord[id]);
 
-    var reference = {
+    var record = type._create({
       id: id,
-      clientId: this.clientIdCounter++,
-      type: type
-    };
+      store: this,
+    });
+
+    if (data) {
+      record.setupData(data);
+    }
 
     // if we're creating an item, this process will be done
     // later, once the object has been persisted.
     if (id) {
-      idToReference[id] = reference;
+      idToRecord[id] = record;
     }
-
-    typeMap.references.push(reference);
-
-    var record = this.materializeRecord(reference);
 
     typeMap.records.push(record);
 
-    return reference;
+    return record;
   },
 
   // ..........................
@@ -1299,17 +1164,17 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   dematerializeRecord: function(record) {
-    var reference = get(record, '_reference'),
-        type = reference.type,
-        id = reference.id,
-        typeMap = this.typeMapFor(type);
+    var type = record.constructor,
+        typeMap = this.typeMapFor(type),
+        id = get(record, 'id');
 
     record.updateRecordArrays();
 
-    if (id) { delete typeMap.idToReference[id]; }
+    if (id) {
+      delete typeMap.idToRecord[id];
+    }
 
-    var loc = indexOf(typeMap.references, reference);
-    typeMap.references.splice(loc, 1);
+    var loc = indexOf(typeMap.records, record);
     typeMap.records.splice(loc, 1);
   },
 
@@ -1323,9 +1188,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // . RELATIONSHIP CHANGES .
   // ........................
 
-  addRelationshipChangeFor: function(clientReference, childKey, parentReference, parentKey, change) {
-    var clientId = clientReference.clientId,
-        parentClientId = parentReference ? parentReference.clientId : parentReference;
+  addRelationshipChangeFor: function(childRecord, childKey, parentRecord, parentKey, change) {
+    var clientId = childRecord.clientId,
+        parentClientId = parentRecord ? parentRecord : parentRecord;
     var key = childKey + parentKey;
     var changes = this.relationshipChanges;
     if (!(clientId in changes)) {
@@ -1340,9 +1205,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     changes[clientId][parentClientId][key][change.changeType] = change;
   },
 
-  removeRelationshipChangeFor: function(clientReference, childKey, parentReference, parentKey, type) {
-    var clientId = clientReference.clientId,
-        parentClientId = parentReference ? parentReference.clientId : parentReference;
+  removeRelationshipChangeFor: function(clientRecord, childKey, parentRecord, parentKey, type) {
+    var clientId = clientRecord.clientId,
+        parentClientId = parentRecord ? parentRecord.clientId : parentRecord;
     var changes = this.relationshipChanges;
     var key = childKey + parentKey;
     if (!(clientId in changes) || !(parentClientId in changes[clientId]) || !(key in changes[clientId][parentClientId])){
@@ -1351,30 +1216,13 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     delete changes[clientId][parentClientId][key][type];
   },
 
-  relationshipChangeFor: function(clientReference, childKey, parentReference, parentKey, type) {
-    var clientId = clientReference.clientId,
-        parentClientId = parentReference ? parentReference.clientId : parentReference;
-    var changes = this.relationshipChanges;
-    var key = childKey + parentKey;
-    if (!(clientId in changes) || !(parentClientId in changes[clientId])){
-      return;
-    }
-    if(type){
-      return changes[clientId][parentClientId][key][type];
-    }
-    else{
-      //TODO(Igor) what if both present
-      return changes[clientId][parentClientId][key]["add"] || changes[clientId][parentClientId][key]["remove"];
-    }
-  },
-
-  relationshipChangePairsFor: function(reference){
+  relationshipChangePairsFor: function(record){
     var toReturn = [];
 
-    if( !reference ) { return toReturn; }
+    if( !record ) { return toReturn; }
 
     //TODO(Igor) What about the other side
-    var changesObject = this.relationshipChanges[reference.clientId];
+    var changesObject = this.relationshipChanges[record.clientId];
     for (var objKey in changesObject){
       if(changesObject.hasOwnProperty(objKey)){
         for (var changeKey in changesObject[objKey]){
@@ -1387,24 +1235,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return toReturn;
   },
 
-  relationshipChangesFor: function(reference) {
-    var toReturn = [];
-
-    if( !reference ) { return toReturn; }
-
-    var relationshipPairs = this.relationshipChangePairsFor(reference);
-    forEach(relationshipPairs, function(pair){
-      var addedChange = pair["add"];
-      var removedChange = pair["remove"];
-      if(addedChange){
-        toReturn.push(addedChange);
-      }
-      if(removedChange){
-        toReturn.push(removedChange);
-      }
-    });
-    return toReturn;
-  },
   // ......................
   // . PER-TYPE ADAPTERS
   // ......................

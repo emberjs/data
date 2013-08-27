@@ -45,10 +45,10 @@ DS.NewJSONSerializer = Ember.Object.extend({
 
     if (typeof id === 'number' || typeof id === 'string') {
       type = this.typeFor(relationship, key, data);
-      data[key] = get(this, 'store').recordFor(type, id);
+      data[key] = get(this, 'store').recordForId(type, id);
     } else if (typeof id === 'object') {
       // polymorphic
-      data[key] = get(this, 'store').recordFor(id.type, id.id);
+      data[key] = get(this, 'store').recordForId(id.type, id.id);
     }
   },
 
@@ -68,7 +68,7 @@ DS.NewJSONSerializer = Ember.Object.extend({
     if (options && options.includeId) {
       var id = get(record, 'id');
 
-      if (!isNone(id)) {
+      if (id) {
         json[get(this, 'primaryKey')] = get(record, 'id');
       }
     }
