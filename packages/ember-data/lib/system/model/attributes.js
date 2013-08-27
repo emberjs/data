@@ -58,10 +58,9 @@ DS.Model.reopen({
   },
 
   attributeWillChange: Ember.beforeObserver(function(record, key) {
-    var reference = get(record, '_reference'),
-        store = get(record, 'store');
+    var store = get(record, 'store');
 
-    record.send('willSetProperty', { reference: reference, store: store, name: key });
+    record.send('willSetProperty', { store: store, name: key });
   }),
 
   attributeDidChange: Ember.observer(function(record, key) {

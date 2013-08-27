@@ -118,7 +118,7 @@ test("should create record asynchronously when it is committed", function() {
 
     var fixture = Person.FIXTURES[0];
 
-    equal(fixture.id, Ember.guidFor(paul));
+    ok(typeof fixture.id === 'string', "The fixture has an ID generated for it");
     equal(fixture.firstName, 'Paul');
     equal(fixture.lastName, 'Chavard');
     equal(fixture.height, 70);

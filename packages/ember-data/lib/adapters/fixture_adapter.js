@@ -8,6 +8,8 @@ require("ember-data/system/adapter");
 var get = Ember.get, fmt = Ember.String.fmt,
     indexOf = Ember.EnumerableUtils.indexOf;
 
+var counter = 0;
+
 /**
   `DS.FixtureAdapter` is an adapter that loads records from memory.
   Its primarily used for development and testing. You can also use
@@ -93,8 +95,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @param  store
     @param  record
   */
-  generateIdForRecord: function(store, record) {
-    return Ember.guidFor(record);
+  generateIdForRecord: function(store) {
+    return counter++;
   },
 
   /**

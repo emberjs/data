@@ -132,12 +132,10 @@ DS.RecordArrayManager = Ember.Object.extend({
   */
   updateFilter: function(array, type, filter) {
     var typeMap = this.store.typeMapFor(type),
-        references = typeMap.references,
-        reference, data, shouldFilter, record;
+        records = typeMap.records, record;
 
-    for (var i=0, l=references.length; i<l; i++) {
-      reference = references[i];
-      record = reference.record;
+    for (var i=0, l=records.length; i<l; i++) {
+      record = records[i];
 
       if (!get(record, 'isDeleted') && !get(record, 'isEmpty')) {
         this.updateRecordArray(array, filter, type, record);

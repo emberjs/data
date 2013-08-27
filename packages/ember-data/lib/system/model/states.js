@@ -172,6 +172,7 @@ var hasDefinedProperties = function(object) {
 
 var willSetProperty = function(record, context) {
   context.oldValue = get(record, context.name);
+  context.record = record;
 
   var change = DS.AttributeChange.createChange(context);
   record._changesToSync[context.name] = change;

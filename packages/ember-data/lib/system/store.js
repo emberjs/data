@@ -203,28 +203,20 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     properties = properties || {};
 
-    var record = type._create({
-      store: this
-    });
-
     // If the passed properties do not include a primary key,
     // give the adapter an opportunity to generate one. Typically,
     // client-side ID generators will use something like uuid.js
     // to avoid conflicts.
 
     if (isNone(properties.id)) {
-      properties.id = this._generateId(record);
+      properties.id = this._generateId(type);
     }
 
     // Coerce ID to a string
-    var id = coerceId(properties.id);
+    properties.id = coerceId(properties.id);
 
-    var reference = this.createReference(type, id);
-
-    // Now that we have a reference, attach it to the record we
-    // just created.
-    set(record, '_reference', reference);
-    reference.record = record;
+    var reference = this.createReference(type, properties.id),
+        record = reference.record;
 
     // Move the record out of its initial `empty` state into
     // the `loaded` state.
@@ -238,11 +230,11 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return record;
   },
 
-  _generateId: function(record) {
-    var adapter = this.adapterForType(record.constructor);
+  _generateId: function(type) {
+    var adapter = this.adapterForType(type);
 
     if (adapter && adapter.generateIdForRecord) {
-      return adapter.generateIdForRecord(this, record);
+      return adapter.generateIdForRecord(this);
     }
 
     return null;
@@ -1148,6 +1140,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     typeMap = {
       idToReference: {},
       references: [],
+      records: [],
       metadata: {}
     };
 
@@ -1278,7 +1271,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     typeMap.references.push(reference);
 
-    this.materializeRecord(reference);
+    var record = this.materializeRecord(reference);
+
+    typeMap.records.push(record);
 
     return reference;
   },
@@ -1315,6 +1310,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var loc = indexOf(typeMap.references, reference);
     typeMap.references.splice(loc, 1);
+    typeMap.records.splice(loc, 1);
   },
 
   willDestroy: function() {
@@ -1427,9 +1423,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // . RECORD CHANGE NOTIFICATION .
   // ..............................
 
-  recordAttributeDidChange: function(reference, attributeName, newValue, oldValue) {
-    var record = reference.record,
-        dirtySet = new Ember.OrderedSet(),
+  recordAttributeDidChange: function(record, attributeName, newValue, oldValue) {
+    var dirtySet = new Ember.OrderedSet(),
         adapter = this.adapterForType(record.constructor);
 
     if (adapter.dirtyRecordsForAttributeChange) {
