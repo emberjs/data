@@ -1,5 +1,3 @@
-require('ember-data/serializers/json_serializer');
-
 /**
   @module ember-data
 */

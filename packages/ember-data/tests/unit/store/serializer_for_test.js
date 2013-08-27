@@ -18,7 +18,7 @@ module("unit/store/serializer_for - DS.Store#serializerFor", {
 });
 
 test("Calling serializerFor looks up 'serializer:<type>' from the container", function() {
-  var PersonSerializer = DS.Serializer.extend();
+  var PersonSerializer = DS.NewJSONSerializer.extend();
 
   container.register('serializer:person', PersonSerializer);
 
@@ -26,7 +26,7 @@ test("Calling serializerFor looks up 'serializer:<type>' from the container", fu
 });
 
 test("Calling serializerFor with a type that has not been registered looks up the default ApplicationSerializer", function() {
-  var ApplicationSerializer = DS.Serializer.extend();
+  var ApplicationSerializer = DS.NewJSONSerializer.extend();
 
   container.register('serializer:application', ApplicationSerializer);
 

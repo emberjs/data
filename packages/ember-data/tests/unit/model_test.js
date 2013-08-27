@@ -2,21 +2,9 @@ var get = Ember.get, set = Ember.set;
 
 var Person, store, array;
 
-var testSerializer = DS.JSONSerializer.create({
-  primaryKey: function() {
-    return 'id';
-  }
-});
-
-var TestAdapter = DS.Adapter.extend({
-  serializer: testSerializer
-});
-
 module("unit/model - DS.Model", {
   setup: function() {
-    store = DS.Store.create({
-      adapter: TestAdapter.create()
-    });
+    store = DS.Store.create({ adapter: DS.Adapter });
 
     Person = DS.Model.extend({
       name: DS.attr('string'),

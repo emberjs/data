@@ -1,6 +1,5 @@
 require("ember-data/core");
 require("ember-data/system/adapter");
-require('ember-data/serializers/fixture_serializer');
 
 /**
   @module ember-data
@@ -27,8 +26,6 @@ DS.FixtureAdapter = DS.Adapter.extend({
   simulateRemoteResponse: true,
 
   latency: 50,
-
-  serializer: DS.FixtureSerializer,
 
   /**
     Implement this method in order to provide data associated with a type
