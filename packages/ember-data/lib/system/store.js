@@ -96,10 +96,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @method init
   */
   init: function() {
-    if (!get(DS, 'defaultStore') || get(this, 'isDefaultStore')) {
-      set(DS, 'defaultStore', this);
-    }
-
     // internal bookkeeping; not observable
     this.typeMaps = {};
     this.recordArrayManager = DS.RecordArrayManager.create({
@@ -123,7 +119,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       Ember.debug("A custom DS.Adapter was not provided as the 'Adapter' property of your application's Store. The default (DS.RESTAdapter) will be used.");
     }
 
-    return 'DS.RESTAdapter';
+    return '_rest';
   }).property(),
 
 
@@ -165,7 +161,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   _adapter: Ember.computed(function() {
     var adapter = get(this, 'adapter');
     if (typeof adapter === 'string') {
-      adapter = get(this, adapter, false) || get(Ember.lookup, adapter);
+      adapter = get(this, adapter, false) || this.container.lookup('adapter:application') || this.container.lookup('adapter:_rest');
     }
 
     if (DS.Adapter.detect(adapter)) {
@@ -211,32 +207,18 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       store: this
     });
 
-    // `id` is a special property that may not be a `DS.attr`
-    var id = properties.id;
-
     // If the passed properties do not include a primary key,
     // give the adapter an opportunity to generate one. Typically,
     // client-side ID generators will use something like uuid.js
     // to avoid conflicts.
 
-    if (isNone(id)) {
-      var adapter = this.adapterForType(type);
-
-      if (adapter && adapter.generateIdForRecord) {
-        id = coerceId(adapter.generateIdForRecord(this, record));
-        properties.id = id;
-      }
+    if (isNone(properties.id)) {
+      properties.id = this._generateId(record);
     }
 
     // Coerce ID to a string
-    id = coerceId(id);
+    var id = coerceId(properties.id);
 
-    // Create a new `clientId` and associate it with the
-    // specified (or generated) `id`. Since we don't have
-    // any data for the server yet (by definition), store
-    // the sentinel value CREATED as the data for this
-    // clientId. If we see this value later, we will skip
-    // materialization.
     var reference = this.createReference(type, id);
 
     // Now that we have a reference, attach it to the record we
@@ -254,6 +236,16 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     record.setProperties(properties);
 
     return record;
+  },
+
+  _generateId: function(record) {
+    var adapter = this.adapterForType(record.constructor);
+
+    if (adapter && adapter.generateIdForRecord) {
+      return adapter.generateIdForRecord(this, record);
+    }
+
+    return null;
   },
 
   // .................

@@ -489,21 +489,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   }
 });
 
-// Helper function to generate store aliases.
-// This returns a function that invokes the named alias
-// on the default store, but injects the class as the
-// first parameter.
-var storeAlias = function(methodName) {
-  return function() {
-    var store = get(DS, 'defaultStore'),
-        args = [].slice.call(arguments);
-
-    args.unshift(this);
-    Ember.assert("Your application does not have a 'Store' property defined. Attempts to call '" + methodName + "' on model classes will fail. Please provide one as with 'YourAppName.Store = DS.Store.extend()'", !!store);
-    return store[methodName].apply(store, args);
-  };
-};
-
 DS.Model.reopenClass({
 
   /**
@@ -527,50 +512,6 @@ DS.Model.reopenClass({
     @static
   */
   create: function() {
-    throw new Ember.Error("You should not call `create` on a model. Instead, call `createRecord` with the attributes you would like to set.");
-  },
-
-  /**
-    See `DS.Store.find()`.
-
-    @method find
-    @param {Object|String|Array|null} query A query to find records by.
-  */
-  find: storeAlias('find'),
-
-  /**
-    See `DS.Store.all()`.
-
-    @method all
-    @return {DS.RecordArray}
-  */
-  all: storeAlias('all'),
-
-  /**
-    See `DS.Store.findQuery()`.
-
-    @method query
-    @param {Object} query an opaque query to be used by the adapter
-    @return {DS.AdapterPopulatedRecordArray}
-  */
-  query: storeAlias('findQuery'),
-
-  /**
-    See `DS.Store.filter()`.
-
-    @method filter
-    @param {Function} filter
-    @return {DS.FilteredRecordArray}
-  */
-  filter: storeAlias('filter'),
-
-  /**
-    See `DS.Store.createRecord()`.
-
-    @method createRecord
-    @param {Object} properties a hash of properties to set on the
-      newly created record.
-    @return DS.Model
-  */
-  createRecord: storeAlias('createRecord')
+    throw new Ember.Error("You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.");
+  }
 });

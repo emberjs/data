@@ -128,7 +128,7 @@ test("a DS.Model can have a defaultValue", function() {
     name: DS.attr('string', { defaultValue: "unknown" })
   });
 
-  var tag = Tag.createRecord();
+  var tag = store.createRecord(Tag);
 
   equal(get(tag, 'name'), "unknown", "the default value is found");
 
@@ -146,7 +146,7 @@ test("a defaultValue for an attribite can be a function", function() {
     })
   });
 
-  var tag = Tag.createRecord();
+  var tag = store.createRecord(Tag);
   equal(get(tag, 'createdAt'), "le default value", "the defaultValue function is evaluated");
 });
 
@@ -355,7 +355,7 @@ test("a DS.Model can describe Date attributes", function() {
 });
 
 test("don't allow setting", function(){
-  var store = DS.Store.create();
+  var store = DS.Store.create({ adapter: DS.Adapter });
 
   var Person = DS.Model.extend();
   var record = store.createRecord(Person);
