@@ -60,37 +60,3 @@ DS.hasMany = function(type, options) {
   Ember.assert("The type passed to DS.hasMany must be defined", !!type);
   return hasRelationship(type, options);
 };
-
-function clearUnmaterializedHasMany(record, relationship) {
-  var data = get(record, 'data');
-
-  var references = data[relationship.key];
-
-  if (!references) { return; }
-
-  var inverse = record.constructor.inverseFor(relationship.key);
-
-  if (inverse) {
-    forEach(references, function(reference) {
-      var childRecord;
-
-      if (childRecord = reference.record) {
-        record.suspendRelationshipObservers(function() {
-          set(childRecord, inverse.name, null);
-        });
-      }
-    });
-  }
-}
-
-DS.Model.reopen({
-  clearHasMany: function(relationship) {
-    var hasMany = this.cacheFor(relationship.name);
-
-    if (hasMany) {
-      hasMany.clear();
-    } else {
-      clearUnmaterializedHasMany(this, relationship);
-    }
-  }
-});

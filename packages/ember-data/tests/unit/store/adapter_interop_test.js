@@ -17,6 +17,8 @@ test("Calling Store#find invokes its adapter#find", function() {
       equal(store, currentStore, "Adapter#find was called with the right store");
       equal(type,  currentType,  "Adapter#find was called with the type passed into Store#find");
       equal(id,    1,            "Adapter#find was called with the id passed into Store#find");
+
+      return Ember.RSVP.resolve({ id: 1 });
     }
   });
 

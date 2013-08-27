@@ -233,7 +233,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       if (relationship.kind === 'belongsTo') {
         set(this, name, null);
       } else if (relationship.kind === 'hasMany') {
-        this.clearHasMany(relationship);
+        var hasMany = this._relationships[relationship.name];
+        if (hasMany) { hasMany.clear(); }
       }
     }, this);
   },

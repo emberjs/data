@@ -377,7 +377,9 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
         adapter = this;
 
     return resolve(promise).then(function(payload) {
+      Ember.assert("You made a request for a " + type.typeKey + " with id " + id + ", but the adapter's response did not have any data", payload);
       payload = adapter.extract(store, type, payload, id, 'find');
+
       return store.push(type, payload);
     });
   },
