@@ -37,6 +37,18 @@ test("When a single record is requested, the adapter's find method should be cal
   store.find(Person, 1);
 });
 
+test("When a single record is requested, and the promise is rejected, .find() is rejected.", function() {
+  var count = 0;
+
+  adapter.find = function(store, type, id) {
+    return Ember.RSVP.reject();
+  };
+
+  store.find(Person, 1).then(null, async(function(reason) {
+    ok(true, "The rejection handler was called");
+  }));
+});
+
 test("When multiple records are requested, the default adapter should call the `find` method once per record if findMany is not implemented", function() {
   expect(3);
 

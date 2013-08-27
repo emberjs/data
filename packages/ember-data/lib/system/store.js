@@ -17,14 +17,6 @@ var map = Ember.EnumerableUtils.map;
 var OrderedSet = Ember.OrderedSet;
 var resolve = Ember.RSVP.resolve;
 
-// These values are used in the data cache when clientIds are
-// needed but the underlying data has not yet been loaded by
-// the server.
-var UNLOADED = 'unloaded';
-var LOADING = 'loading';
-var MATERIALIZED = { materialized: true };
-var CREATED = { created: true };
-
 // Implementors Note:
 //
 //   The variables in this file are consistently named according to the following
@@ -115,40 +107,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     });
     this.relationshipChanges = {};
     this._pendingSave = [];
-  },
-
-  /**
-    Instructs the store to materialize the data for a given record.
-
-    To materialize a record, the store first retrieves the opaque data that was
-    passed to either `load()` or `loadMany()`. Then, the data and the record
-    are passed to the adapter's `materialize()` method, which allows the adapter
-    to translate arbitrary data structures from the adapter into the normalized
-    form the record expects.
-
-    The adapter's `materialize()` method will invoke `materializeAttribute()`,
-    `materializeHasMany()` and `materializeBelongsTo()` on the record to
-    populate it with normalized values.
-
-    @method materializeData
-    @private
-    @param {DS.Model} record
-  */
-  materializeData: function(record) {
-    var reference = get(record, '_reference'),
-        data = reference.data,
-        adapter = this.adapterForType(record.constructor);
-
-    reference.data = MATERIALIZED;
-
-    record.setupData();
-
-    if (data !== CREATED) {
-      // Instructs the adapter to extract information from the
-      // opaque data and materialize the record's attributes and
-      // relationships.
-      adapter.materialize(record, data, reference.prematerialized);
-    }
   },
 
   /**
@@ -280,7 +238,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // clientId. If we see this value later, we will skip
     // materialization.
     var reference = this.createReference(type, id);
-    reference.data = CREATED;
 
     // Now that we have a reference, attach it to the record we
     // just created.
@@ -443,9 +400,23 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to find a record but your adapter (for " + type + ") does not implement 'find'", adapter.find);
 
-    return this.handlePromise(record, adapter._find(this, type, id), null, 'recordWasError');
+    return adapter._find(this, type, id);
   },
 
+  /**
+    Get a record by a given type and ID without triggering a fetch.
+
+    This method will synchronously return the record if it's available.
+    Otherwise, it will return undefined.
+
+    ```js
+    var post = store.getById('post', 1);
+    ```
+
+    @method getById
+    @param type
+    @param id
+  */
   getById: function(type, id) {
     type = this.modelFor(type);
 
@@ -460,39 +431,17 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return reference.record;
   },
 
-  handlePromise: function(record, promise, success, failure) {
-    var store = this;
-
-    if (promise && typeof promise.then === 'function') {
-      promise.then(function(val) {
-        // for future use
-      }, function(reason) {
-        if (failure) { store[failure](record, reason); }
-      });
-    }
-
-    return promise;
-  },
-
   reloadRecord: function(record) {
     var type = record.constructor,
         adapter = this.adapterForType(type),
         store = this,
         id = get(record, 'id');
 
-    Ember.assert("You cannot update a record without an ID", id);
-    Ember.assert("You tried to update a record but you have no adapter (for " + type + ")", adapter);
-    Ember.assert("You tried to update a record but your adapter does not implement `find`", adapter.find);
+    Ember.assert("You cannot reload a record without an ID", id);
+    Ember.assert("You tried to reload a record but you have no adapter (for " + type + ")", adapter);
+    Ember.assert("You tried to reload a record but your adapter does not implement `find`", adapter.find);
 
-    var thenable = adapter._find(this, type, id);
-
-    if (thenable && thenable.then) {
-      thenable.then(null /* for future use */, function(error) {
-        store.recordWasError(record);
-      });
-    }
-
-    return thenable;
+    return adapter._find(this, type, id);
   },
 
   /**
@@ -522,7 +471,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     forEach(records, function(record) {
       recordsByTypeMap.get(record.constructor).push(record);
-    });
+   });
 
     forEach(recordsByTypeMap, function(type, records) {
       var ids = records.mapProperty('id'),

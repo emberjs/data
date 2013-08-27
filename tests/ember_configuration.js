@@ -133,7 +133,7 @@
       // only print error messages if they're exceptions;
       // otherwise, let a future turn of the event loop
       // handle the error.
-      if (reason.stack) {
+      if (reason && reason.stack) {
         console.log(reason.stack);
       }
     });

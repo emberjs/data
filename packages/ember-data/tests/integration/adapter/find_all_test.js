@@ -47,6 +47,33 @@ test("When all records for a type are requested, the store should call the adapt
   }));
 });
 
+test("When all records for a type are requested, a rejection should reject the promise", function() {
+  expect(5);
+
+  var count = 0;
+  adapter.findAll = function(store, type, since) {
+    // this will get called twice
+    ok(true, "the adapter's findAll method should be invoked");
+
+    if (count++ === 0) {
+      return Ember.RSVP.reject();
+    } else {
+      return Ember.RSVP.resolve([{ id: 1, name: "Braaaahm Dale" }]);
+    }
+  };
+
+  var allRecords;
+
+  store.find(Person).then(null, async(function() {
+    ok(true, "The rejection should get here");
+    return store.find(Person);
+  })).then(async(function(all) {
+    allRecords = all;
+    equal(get(all, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
+    equal(all.objectAt(0).get('name'), "Braaaahm Dale", "the first item in the record array is Braaaahm Dale");
+  }));
+});
+
 test("When all records for a type are requested, records that are already loaded should be returned immediately.", function() {
   expect(3);
 
