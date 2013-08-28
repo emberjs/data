@@ -36,6 +36,14 @@ if (Ember.Application.initializer) {
     var fooController = container.lookup('controller:foo');
     ok(fooController.get('store') instanceof DS.Store, "the store was injected");
   });
+
+
+  test("Model accessed directly from the namespace should be the same as modelFor", function() {
+    app.Person = DS.Model.extend();
+    var store = app.__container__.lookup('store:main');
+    store.load(app.Person, { id: 1 });
+    equal(store.find(app.Person, 1), store.modelFor('person').find(1));
+  });
 }
 
 if (Ember.Application.registerInjection) {

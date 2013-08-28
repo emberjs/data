@@ -1422,6 +1422,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }
 
     var factory = this.container.lookupFactory('model:'+key);
+    // So that App.Person === modelFor('person')
+    // Should likely be removed in the future
+    if (factory._debugContainerKey) {
+      factory = factory.superclass;
+    }
+
     factory.store = this;
 
     return factory;
