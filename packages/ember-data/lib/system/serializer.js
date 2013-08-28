@@ -1124,8 +1124,10 @@ DS.Serializer = Ember.Object.extend({
 
     aliases.forEach(function(key, type) {
       plural = self.pluralize(key);
-      Ember.assert("The '" + key + "' alias has already been defined", !aliases.get(plural));
-      aliases.set(plural, type);
+      
+      if (!aliases.get(plural)) {
+        aliases.set(plural, type);
+      }
     });
 
     // This map is only for backward compatibility with the `sideloadAs` option.
