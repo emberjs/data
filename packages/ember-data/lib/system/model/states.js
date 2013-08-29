@@ -236,9 +236,6 @@ var DirtyState = {
     // EVENTS
     didSetProperty: didSetProperty,
 
-    willSetupData: Ember.K,
-    didSetupData: Ember.K,
-
     becomeDirty: Ember.K,
 
     willCommit: function(record) {
@@ -275,6 +272,7 @@ var DirtyState = {
     // EVENTS
     didSetProperty: didSetProperty,
     becomeDirty: Ember.K,
+    pushedData: Ember.K,
 
     didCommit: function(record) {
       var dirtyType = get(this, 'dirtyType');
@@ -490,15 +488,6 @@ var RootState = {
       }
     },
 
-    dataSetup: {
-      willSetProperty: Ember.K,
-      didSetProperty: Ember.K,
-
-      didSetupData: function(record) {
-        record.transitionTo('loaded.saved');
-      }
-    },
-
     // If there are no local changes to a record, it remains
     // in the `saved` state.
     saved: {
@@ -520,10 +509,6 @@ var RootState = {
 
       // EVENTS
       didSetProperty: didSetProperty,
-
-      willSetupData: function(record) {
-        record.transitionTo('loaded.dataSetup');
-      },
 
       pushedData: Ember.K,
 

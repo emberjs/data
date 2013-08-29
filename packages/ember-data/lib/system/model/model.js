@@ -321,13 +321,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
     if (data) { this.pushedData(); }
 
-    this.send('willSetupData');
-
     this.suspendRelationshipObservers(function() {
       this.notifyPropertyChange('data');
     });
-
-    this.send('didSetupData');
   },
 
   materializeId: function(id) {
