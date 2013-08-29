@@ -321,10 +321,12 @@ test("if an updated record is marked as invalid by the server, it enters an erro
     }
   };
 
-  store.push('person', { id: 1, name: "Brohuda Brokatz" });
+  var yehuda = store.push('person', { id: 1, name: "Brohuda Brokatz" });
 
   Ember.run(function() {
-    store.find('person', 1).then(async(function(yehuda) {
+    store.find('person', 1).then(async(function(person) {
+      equal(person, yehuda, "The same object is passed through");
+
       equal(get(yehuda, 'isValid'), true, "precond - the record is valid");
       set(yehuda, 'name', "Yehuda Katz");
       equal(get(yehuda, 'isValid'), true, "precond - the record is still valid as far as we know");
@@ -332,7 +334,7 @@ test("if an updated record is marked as invalid by the server, it enters an erro
       equal(get(yehuda, 'isDirty'), true, "the record is dirty");
 
       return yehuda.save();
-    })).then(null, async(function(yehuda) {
+    })).then(null, async(function(reason) {
       equal(get(yehuda, 'isDirty'), true, "the record is still dirty");
       equal(get(yehuda, 'isValid'), false, "the record is invalid");
 
@@ -356,12 +358,13 @@ test("if a updated record is marked as erred by the server, it enters an error s
     return Ember.RSVP.reject();
   };
 
-  store.push(Person, { id: 1, name: "John Doe" });
+  var person = store.push(Person, { id: 1, name: "John Doe" });
 
-  store.find('person', 1).then(async(function(person) {
+  store.find('person', 1).then(async(function(record) {
+    equal(record, person, "The person was resolved");
     person.set('name', "Jonathan Doe");
     return person.save();
-  })).then(null, async(function(person) {
+  })).then(null, async(function(reason) {
     ok(get(person, 'isError'), "the record is in the error state");
   }));
 });

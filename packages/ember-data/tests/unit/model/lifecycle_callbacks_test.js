@@ -172,12 +172,16 @@ test("a record receives a becameInvalid callback when it became invalid", functi
   var asyncPerson = store.find(Person, 1);
   equal(callCount, 0, "precond - becameInvalid callback was not called yet");
 
-  asyncPerson.then(async(function(person) {
-    person.set('bar', "Bar");
-    return person.save();
-  })).then(null, async(function() {
-    equal(callCount, 1, "becameInvalid called after invalidating");
-  }));
+  // Make sure that the error handler has a chance to attach before
+  // save fails.
+  Ember.run(function() {
+    asyncPerson.then(async(function(person) {
+      person.set('bar', "Bar");
+      return person.save();
+    })).then(null, async(function() {
+      equal(callCount, 1, "becameInvalid called after invalidating");
+    }));
+  });
 });
 
 test("an ID of 0 is allowed", function() {

@@ -751,9 +751,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   // . PERSISTING .
   // ..............
 
-  scheduleSave: function(record) {
+  scheduleSave: function(record, resolver) {
     record.adapterWillCommit();
-    this._pendingSave.push(record);
+    this._pendingSave.push([record, resolver]);
     once(this, 'flushPendingSave');
   },
 
@@ -762,18 +762,20 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         updated = new OrderedSet(),
         deleted = new OrderedSet();
 
-    forEach(this._pendingSave, function(record) {
-      if (get(record, 'isNew')) {
-        created.add(record);
-      } else if (get(record, 'isDeleted')) {
-        deleted.add(record);
-      } else {
-        updated.add(record);
-      }
-    });
+    forEach(this._pendingSave, function(tuple) {
+      var record = tuple[0],
+          resolver = tuple[1],
+          type = record.constructor,
+          adapter = this.adapterForType(type);
 
-    var details = { created: created, updated: updated, deleted: deleted };
-    get(this, '_adapter').commit(this, details);
+      if (get(record, 'isNew')) {
+        adapter._createRecord(this, type, record, resolver);
+      } else if (get(record, 'isDeleted')) {
+        adapter._deleteRecord(this, type, record, resolver);
+      } else {
+        adapter._updateRecord(this, type, record, resolver);
+      }
+    }, this);
 
     this._pendingSave = [];
   },

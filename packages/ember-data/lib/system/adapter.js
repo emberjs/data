@@ -626,22 +626,31 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @property {DS.Model} record
     @return   {RSVP.Promise}
   **/
-  _commitRecord: function(operation, store, type, record) {
+  _commitRecord: function(operation, store, type, record, resolver) {
     var promise = this[operation](store, type, record),
         adapter = this;
 
     Ember.assert("Your adapter's '" + operation + "' method must return a promise, but it returned " + promise, isThenable(promise));
 
-    return promise.then(function(payload) {
+    promise = promise.then(function(payload) {
       payload = adapter.extract(store, type, payload, get(record, 'id'), operation);
       store.didSaveRecord(record, payload);
+      return record;
     }, function(reason) {
       if (reason instanceof DS.InvalidError) {
         store.recordWasInvalid(record, reason.errors);
       } else {
         store.recordWasError(record, reason);
       }
+
+      throw reason;
     });
+
+    if (resolver) {
+      promise = promise.then(resolver.resolve, resolver.reject);
+    }
+
+    return promise;
   },
 
   /**
@@ -655,8 +664,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @property {DS.Model} record
     @return   {RSVP.Promise}
   */
-  _createRecord: function(store, type, record) {
-    return this._commitRecord('createRecord', store, type, record);
+  _createRecord: function(store, type, record, resolver) {
+    return this._commitRecord('createRecord', store, type, record, resolver);
   },
 
   /**
@@ -704,8 +713,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @property {DS.Model} record
     @return   {RSVP.Promise}
   */
-  _updateRecord: function(store, type, record) {
-    return this._commitRecord('updateRecord', store, type, record);
+  _updateRecord: function(store, type, record, resolver) {
+    return this._commitRecord('updateRecord', store, type, record, resolver);
   },
 
   /**
@@ -750,8 +759,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @property {DS.Model} record
     @return   {RSVP.Promise}
   */
-  _deleteRecord: function(store, type, record) {
-    return this._commitRecord('deleteRecord', store, type, record);
+  _deleteRecord: function(store, type, record, resolver) {
+    return this._commitRecord('deleteRecord', store, type, record, resolver);
   },
 
   /**

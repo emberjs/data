@@ -427,11 +427,13 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @method save
   */
   save: function() {
-    this.get('store').scheduleSave(this);
+    var resolver = Ember.RSVP.defer(), record = this;
+
+    this.get('store').scheduleSave(this, resolver);
     this._inFlightAttributes = this._attributes;
     this._attributes = {};
 
-    return this.resolveOn('didCommit');
+    return resolver.promise;
   },
 
   /**
