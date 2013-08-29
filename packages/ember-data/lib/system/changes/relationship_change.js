@@ -339,30 +339,6 @@ DS.RelationshipChange.prototype = {
     return this.firstRecord;
   },
 
-  callChangeEvents: function(){
-    var child = this.getFirstRecord(),
-        parentRecord = this.getSecondRecord();
-
-    var dirtySet = new Ember.OrderedSet();
-
-    // TODO: This implementation causes a race condition in key-value
-    // stores. The fix involves buffering changes that happen while
-    // a record is loading. A similar fix is required for other parts
-    // of ember-data, and should be done as new infrastructure, not
-    // a one-off hack. [tomhuda]
-    if (parentRecord && get(parentRecord, 'isLoaded')) {
-      this.store.recordHasManyDidChange(dirtySet, parentRecord, this);
-    }
-
-    if (child) {
-      this.store.recordBelongsToDidChange(dirtySet, child, this);
-    }
-
-    dirtySet.forEach(function(record) {
-      record.adapterDidDirty();
-    });
-  },
-
   coalesce: function(){
     var relationshipPairs = this.store.relationshipChangePairsFor(this.firstRecord);
     forEach(relationshipPairs, function(pair){
@@ -393,8 +369,6 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
 
   //Ember.assert("You specified a hasMany (" + hasManyName + ") on " + (!belongsToName && (newParent || oldParent || this.lastParent).constructor) + " but did not specify an inverse belongsTo on " + child.constructor, belongsToName);
   //Ember.assert("You specified a belongsTo (" + belongsToName + ") on " + child.constructor + " but did not specify an inverse hasMany on " + (!hasManyName && (newParent || oldParent || this.lastParentRecord).constructor), hasManyName);
-
-  this.callChangeEvents();
 
   if (secondRecord instanceof DS.Model && firstRecord instanceof DS.Model) {
     if(this.secondRecordKind === "belongsTo"){
@@ -437,8 +411,6 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
 
   //Ember.assert("You specified a hasMany (" + hasManyName + ") on " + (!belongsToName && (newParent || oldParent || this.lastParent).constructor) + " but did not specify an inverse belongsTo on " + child.constructor, belongsToName);
   //Ember.assert("You specified a belongsTo (" + belongsToName + ") on " + child.constructor + " but did not specify an inverse hasMany on " + (!hasManyName && (newParent || oldParent || this.lastParentRecord).constructor), hasManyName);
-
-  this.callChangeEvents();
 
   if (secondRecord instanceof DS.Model && firstRecord instanceof DS.Model) {
     if(this.secondRecordKind === "belongsTo"){
