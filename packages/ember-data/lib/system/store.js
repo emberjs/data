@@ -431,7 +431,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param records
     @param owner
   */
-  fetchMany: function(records, owner) {
+  fetchMany: function(records, owner, resolver) {
     if (!records.length) { return; }
 
     // Group By Type
@@ -441,7 +441,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     forEach(records, function(record) {
       recordsByTypeMap.get(record.constructor).push(record);
-   });
+    });
 
     forEach(recordsByTypeMap, function(type, records) {
       var ids = records.mapProperty('id'),
@@ -450,7 +450,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       Ember.assert("You tried to load many records but you have no adapter (for " + type + ")", adapter);
       Ember.assert("You tried to load many records but your adapter does not implement `findMany`", adapter.findMany);
 
-      adapter._findMany(this, type, ids, owner);
+      adapter._findMany(this, type, ids, owner, resolver);
     }, this);
   },
 
@@ -481,7 +481,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param relationship {Object}
     @return {DS.ManyArray}
   */
-  findMany: function(owner, records, type) {
+  findMany: function(owner, records, type, resolver) {
     type = this.modelFor(type);
 
     records = Ember.A(records);
@@ -500,7 +500,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         this.recordArrayManager.registerWaitingRecordArray(record, manyArray);
       }, this);
 
-      this.fetchMany(unloadedRecords, owner);
+      this.fetchMany(unloadedRecords, owner, resolver);
     } else {
       manyArray.set('isLoaded', true);
       Ember.run.once(manyArray, 'trigger', 'didLoad');
@@ -509,14 +509,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return manyArray;
   },
 
-  findHasMany: function(record, link, relationship) {
+  findHasMany: function(record, link, relationship, resolver) {
     var adapter = this.adapterForType(record.constructor);
 
     Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + record.constructor + ")", adapter);
     Ember.assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", adapter.findHasMany);
 
     var records = this.recordArrayManager.createManyArray(relationship.type, Ember.A([]));
-    adapter._findHasMany(this, record, link, relationship);
+    adapter._findHasMany(this, record, link, relationship, resolver);
     return records;
   },
 

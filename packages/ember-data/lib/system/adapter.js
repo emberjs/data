@@ -814,26 +814,38 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     return Ember.RSVP.all(promises);
   },
 
-  _findMany: function(store, type, ids, owner) {
+  _findMany: function(store, type, ids, owner, resolver) {
     var promise = this.findMany(store, type, ids, owner),
         adapter = this;
 
-    return resolve(promise).then(function(payload) {
+    promise = resolve(promise).then(function(payload) {
       payload = adapter.extract(store, type, payload, null, 'findMany');
 
       store.pushMany(type, payload);
     });
+
+    if (resolver) {
+      promise = promise.then(resolver.resolve, resolver.reject);
+    }
+
+    return promise;
   },
 
-  _findHasMany: function(store, record, link, relationship) {
+  _findHasMany: function(store, record, link, relationship, resolver) {
     var promise = this.findHasMany(store, record, link, relationship),
         adapter = this;
 
-    return resolve(promise).then(function(payload) {
+    promise = resolve(promise).then(function(payload) {
       payload = adapter.extract(store, relationship.type, payload, null, 'findHasMany');
 
       var records = store.pushMany(relationship.type, payload);
       record.updateHasMany(relationship.key, records);
     });
+
+    if (resolver) {
+      promise.then(resolver.resolve, resolver.reject);
+    }
+
+    return promise;
   }
 });

@@ -268,11 +268,6 @@ var DirtyState = {
     // FLAGS
     isSaving: true,
 
-    // TRANSITIONS
-    enter: function(record) {
-      record.becameInFlight();
-    },
-
     // EVENTS
     didSetProperty: didSetProperty,
     becomeDirty: Ember.K,
@@ -584,11 +579,6 @@ var RootState = {
     inFlight: {
       // FLAGS
       isSaving: true,
-
-      // TRANSITIONS
-      enter: function(record) {
-        record.becameInFlight();
-      },
 
       // EVENTS
       didCommit: function(record) {

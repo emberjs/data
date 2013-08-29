@@ -390,37 +390,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     }
   },
 
-  becameInFlight: function() {
-  },
-
-  /**
-    @method resolveOn
-    @private
-    @param successEvent
-  */
-  resolveOn: function(successEvent) {
-    var model = this;
-
-    return new Ember.RSVP.Promise(function(resolve, reject) {
-      function success() {
-        this.off('becameError', error);
-        this.off('becameInvalid', error);
-        resolve(this);
-      }
-
-      function error() {
-        this.off(successEvent, success);
-        this.off('becameError', error);
-        this.off('becameInvalid', error);
-        reject(this);
-      }
-
-      model.one(successEvent, success);
-      model.one('becameError', error);
-      model.one('becameInvalid', error);
-    });
-  },
-
   /**
     Save the record.
 
