@@ -365,7 +365,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
   fetchRecord: function(record) {
     var type = record.constructor,
-        id = get(record, 'id');
+        id = get(record, 'id'),
+        resolver = Ember.RSVP.defer();
 
     record.loadingData();
 
@@ -374,7 +375,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to find a record but your adapter (for " + type + ") does not implement 'find'", adapter.find);
 
-    return adapter._find(this, type, id);
+    adapter._find(this, type, id, resolver);
+
+    return resolver.promise;
   },
 
   /**
@@ -544,12 +547,15 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       store: this
     });
 
-    var adapter = this.adapterForType(type);
+    var adapter = this.adapterForType(type),
+        resolver = Ember.RSVP.defer();
 
     Ember.assert("You tried to load a query but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", adapter.findQuery);
 
-    return adapter._findQuery(this, type, query, array);
+    adapter._findQuery(this, type, query, array, resolver);
+
+    return resolver.promise;
   },
 
   /**
@@ -576,14 +582,17 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   fetchAll: function(type, array) {
     var adapter = this.adapterForType(type),
-        sinceToken = this.typeMapFor(type).metadata.since;
+        sinceToken = this.typeMapFor(type).metadata.since,
+        resolver = Ember.RSVP.defer();
 
     set(array, 'isUpdating', true);
 
     Ember.assert("You tried to load all records but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load all records but your adapter does not implement `findAll`", adapter.findAll);
 
-    return adapter._findAll(this, type, sinceToken);
+    adapter._findAll(this, type, sinceToken, resolver);
+
+    return resolver.promise;
   },
 
   /**

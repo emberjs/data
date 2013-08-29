@@ -48,20 +48,3 @@ test("When a single record is requested, and the promise is rejected, .find() is
     ok(true, "The rejection handler was called");
   }));
 });
-
-test("When multiple records are requested, the default adapter should call the `find` method once per record if findMany is not implemented", function() {
-  expect(3);
-
-  var count = 0;
-  adapter.find = function(store, type, id) {
-    count++;
-
-    equal(id, count);
-    return Ember.RSVP.resolve({ id: id });
-  };
-
-  var people = [store.getById(Person, 1), store.getById(Person, 2), store.getById(Person, 3)];
-
-  store.findMany(Person, people);
-  store.findMany(Person, people);
-});

@@ -374,18 +374,12 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     var promise = this.find(store, type, id),
         adapter = this;
 
-    promise = resolve(promise).then(function(payload) {
+    return resolve(promise).then(function(payload) {
       Ember.assert("You made a request for a " + type.typeKey + " with id " + id + ", but the adapter's response did not have any data", payload);
       payload = adapter.extract(store, type, payload, id, 'find');
 
       return store.push(type, payload);
-    });
-
-    if (resolver) {
-      promise = promise.then(resolver.resolve, resolver.reject);
-    }
-
-    return promise;
+    }).then(resolver.resolve, resolver.reject);
   },
 
   /**
@@ -398,7 +392,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   findAll: null,
 
-  _findAll: function(store, type, since) {
+  _findAll: function(store, type, since, resolver) {
     var promise = this.findAll(store, type, since),
         adapter = this;
 
@@ -408,7 +402,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
       store.pushMany(type, payload);
       store.didUpdateAll(type);
       return store.all(type);
-    });
+    }).then(resolver.resolve, resolver.reject);
   },
 
   /**
@@ -422,7 +416,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   findQuery: null,
 
-  _findQuery: function(store, type, query, recordArray) {
+  _findQuery: function(store, type, query, recordArray, resolver) {
     var promise = this.findQuery(store, type, query, recordArray),
         adapter = this;
 
@@ -431,7 +425,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
       recordArray.load(payload);
       return recordArray;
-    });
+    }).then(resolver.resolve, resolver.reject);
   },
 
   registerTransform: function(attributeType, transform) {
@@ -632,7 +626,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
     Ember.assert("Your adapter's '" + operation + "' method must return a promise, but it returned " + promise, isThenable(promise));
 
-    promise = promise.then(function(payload) {
+    return promise.then(function(payload) {
       payload = adapter.extract(store, type, payload, get(record, 'id'), operation);
       store.didSaveRecord(record, payload);
       return record;
@@ -644,13 +638,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
       }
 
       throw reason;
-    });
-
-    if (resolver) {
-      promise = promise.then(resolver.resolve, resolver.reject);
-    }
-
-    return promise;
+    }).then(resolver.resolve, resolver.reject);
   },
 
   /**
@@ -818,34 +806,22 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     var promise = this.findMany(store, type, ids, owner),
         adapter = this;
 
-    promise = resolve(promise).then(function(payload) {
+    return resolve(promise).then(function(payload) {
       payload = adapter.extract(store, type, payload, null, 'findMany');
 
       store.pushMany(type, payload);
-    });
-
-    if (resolver) {
-      promise = promise.then(resolver.resolve, resolver.reject);
-    }
-
-    return promise;
+    }).then(resolver.resolve, resolver.reject);
   },
 
   _findHasMany: function(store, record, link, relationship, resolver) {
     var promise = this.findHasMany(store, record, link, relationship),
         adapter = this;
 
-    promise = resolve(promise).then(function(payload) {
+    return resolve(promise).then(function(payload) {
       payload = adapter.extract(store, relationship.type, payload, null, 'findHasMany');
 
       var records = store.pushMany(relationship.type, payload);
       record.updateHasMany(relationship.key, records);
-    });
-
-    if (resolver) {
-      promise.then(resolver.resolve, resolver.reject);
-    }
-
-    return promise;
+    }).then(resolver.resolve, resolver.reject);
   }
 });
