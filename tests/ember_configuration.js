@@ -134,7 +134,8 @@
       // otherwise, let a future turn of the event loop
       // handle the error.
       if (reason && reason.stack) {
-        console.log(reason.stack);
+        throw reason;
+        //console.log(reason.stack);
       }
     });
 

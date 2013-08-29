@@ -523,15 +523,6 @@ var RootState = {
         record.send('invokeLifecycleCallbacks', get(record, 'lastDirtyType'));
       },
 
-      invokeLifecycleCallbacks: function(record, dirtyType) {
-        if (dirtyType === 'created') {
-          record.triggerLater('didCreate', record);
-        } else {
-          record.triggerLater('didUpdate', record);
-        }
-
-        record.triggerLater('didCommit', record);
-      }
     },
 
     // A record is in this state after it has been locally
@@ -624,6 +615,16 @@ var RootState = {
         record.triggerLater('didCommit', record);
       }
     }
+  },
+
+  invokeLifecycleCallbacks: function(record, dirtyType) {
+    if (dirtyType === 'created') {
+      record.triggerLater('didCreate', record);
+    } else {
+      record.triggerLater('didUpdate', record);
+    }
+
+    record.triggerLater('didCommit', record);
   }
 };
 

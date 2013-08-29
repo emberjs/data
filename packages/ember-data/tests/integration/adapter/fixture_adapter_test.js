@@ -94,22 +94,11 @@ test("should load data asynchronously at the end of the runloop when simulateRem
 });
 
 test("should create record asynchronously when it is committed", function() {
-  expect(9);
-  stop();
-
-  var timer = setTimeout(function() {
-    start();
-    ok(false, "timeout exceeded waiting for fixture data");
-  }, 1000);
-
   equal(Person.FIXTURES.length, 0, "Fixtures is empty");
 
   var paul = env.store.createRecord('person', {firstName: 'Paul', lastName: 'Chavard', height: 70});
 
-  paul.on('didCreate', function() {
-    clearTimeout(timer);
-    start();
-
+  paul.on('didCreate', async(function() {
     equal(get(paul, 'isNew'), false, "data loads asynchronously");
     equal(get(paul, 'isDirty'), false, "data loads asynchronously");
     equal(get(paul, 'height'), 70, "data from fixtures is saved correctly");
@@ -122,7 +111,7 @@ test("should create record asynchronously when it is committed", function() {
     equal(fixture.firstName, 'Paul');
     equal(fixture.lastName, 'Chavard');
     equal(fixture.height, 70);
-  });
+  }));
 
   paul.save();
 });
