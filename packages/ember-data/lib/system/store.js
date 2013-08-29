@@ -221,8 +221,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // the `loaded` state.
     record.loadedData();
 
-    record.setupData();
-
     // Set the properties specified on the record.
     record.setProperties(properties);
 
@@ -484,6 +482,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {DS.ManyArray}
   */
   findMany: function(owner, records, type) {
+    type = this.modelFor(type);
+
     records = Ember.A(records);
 
     var unloadedRecords = records.filterProperty('isEmpty', true),
@@ -812,14 +812,11 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Object} data optional data (see above)
   */
   didSaveRecord: function(record, data) {
-    record.adapterDidCommit();
-
     if (data) {
       this.updateId(record, data);
-      record.setupData(data);
-    } else {
-      this.didUpdateAttributes(record);
     }
+
+    record.adapterDidCommit(data);
   },
 
   /**

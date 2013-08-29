@@ -128,23 +128,13 @@ test("should create record asynchronously when it is committed", function() {
 });
 
 test("should update record asynchronously when it is committed", function() {
-  stop();
-
-  var timer = setTimeout(function() {
-    start();
-    ok(false, "timeout exceeded waiting for fixture data");
-  }, 1000);
-
   equal(Person.FIXTURES.length, 0, "Fixtures is empty");
 
   var paul = env.store.push('person', { id: 1, firstName: 'Paul', lastName: 'Chavard', height: 70});
 
   paul.set('height', 80);
 
-  paul.on('didUpdate', function() {
-    clearTimeout(timer);
-    start();
-
+  paul.on('didUpdate', async(function() {
     equal(get(paul, 'isDirty'), false, "data loads asynchronously");
     equal(get(paul, 'height'), 80, "data from fixtures is saved correctly");
 
@@ -155,7 +145,7 @@ test("should update record asynchronously when it is committed", function() {
     equal(fixture.firstName, 'Paul');
     equal(fixture.lastName, 'Chavard');
     equal(fixture.height, 80);
-  });
+  }, 1000));
 
   paul.save();
 });

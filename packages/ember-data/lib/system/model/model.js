@@ -141,6 +141,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   _setup: function() {
     this._changesToSync = {};
     this._deferredTriggers = [];
+    this._data = {};
+    this._attributes = {};
+    this._inFlightAttributes = {};
     this._relationships = {};
   },
 
@@ -257,10 +260,23 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
     @method adapterDidCommit
   */
-  adapterDidCommit: function() {
+  adapterDidCommit: function(data) {
+    set(this, 'isError', false);
+
+    if (data) {
+      this._data = data;
+    } else {
+      Ember.mixin(this._data, this._inFlightAttributes);
+    }
+
+    this._inFlightAttributes = {};
+
     this.send('didCommit');
     this.updateRecordArraysLater();
-    set(this, 'isError', false);
+
+    this.suspendRelationshipObservers(function() {
+      this.notifyPropertyChange('data');
+    });
   },
 
   adapterDidDirty: function() {
@@ -301,7 +317,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   setupData: function(data) {
-    this._data = data || { id: null };
+    this._data = data;
 
     if (data) { this.pushedData(); }
 
@@ -416,6 +432,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   */
   save: function() {
     this.get('store').scheduleSave(this);
+    this._inFlightAttributes = this._attributes;
+    this._attributes = {};
 
     return this.resolveOn('didCommit');
   },
@@ -444,11 +462,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     // collapse the current value into the internal attributes because
     // the adapter has acknowledged it.
     if (value !== undefined) {
-      get(this, 'data')[attributeName] = value;
+      this._data[attributeName] = value;
       this.notifyPropertyChange(attributeName);
     } else {
-      value = get(this, attributeName);
-      get(this, 'data')[attributeName] = value;
+      this._data[attributeName] = this._inFlightAttributes[attributeName];
     }
 
     this.updateRecordArraysLater();

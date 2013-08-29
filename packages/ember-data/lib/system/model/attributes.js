@@ -55,17 +55,7 @@ DS.Model.reopenClass({
 DS.Model.reopen({
   eachAttribute: function(callback, binding) {
     this.constructor.eachAttribute(callback, binding);
-  },
-
-  attributeWillChange: Ember.beforeObserver(function(record, key) {
-    var store = get(record, 'store');
-
-    record.send('willSetProperty', { store: store, name: key });
-  }),
-
-  attributeDidChange: Ember.observer(function(record, key) {
-    record.send('didSetProperty', { name: key });
-  })
+  }
 });
 
 function getAttr(record, options, key) {
@@ -95,6 +85,10 @@ DS.attr = function(type, options) {
   return Ember.computed(function(key, value, oldValue) {
     if (arguments.length > 1) {
       Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
+      this.send('didSetProperty', { name: key, oldValue: this._attributes[key] || this._data[key], value: value });
+      this._attributes[key] = value;
+    } else if (this._attributes[key]) {
+      return this._attributes[key];
     } else {
       value = getAttr(this, options, key);
     }

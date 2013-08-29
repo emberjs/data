@@ -170,20 +170,12 @@ var hasDefinedProperties = function(object) {
   return false;
 };
 
-var willSetProperty = function(record, context) {
-  context.oldValue = get(record, context.name);
-  context.record = record;
-
-  var change = DS.AttributeChange.createChange(context);
-  record._changesToSync[context.name] = change;
-};
-
 var didSetProperty = function(record, context) {
-  var change = record._changesToSync[context.name];
-  change.value = get(record, context.name);
-  change.sync();
+  if (context.value !== context.oldValue) {
+    record.send('becomeDirty');
+    record.updateRecordArraysLater();
+  }
 };
-
 
 // Implementation notes:
 //
@@ -242,7 +234,6 @@ var DirtyState = {
   uncommitted: {
 
     // EVENTS
-    willSetProperty: willSetProperty,
     didSetProperty: didSetProperty,
 
     willSetupData: Ember.K,
@@ -257,6 +248,8 @@ var DirtyState = {
     becameClean: function(record) {
       record.transitionTo('loaded.saved');
     },
+
+    pushedData: Ember.K,
 
     becameInvalid: function(record) {
       record.transitionTo('invalid');
@@ -280,6 +273,8 @@ var DirtyState = {
     },
 
     // EVENTS
+    didSetProperty: didSetProperty,
+    becomeDirty: Ember.K,
 
     didCommit: function(record) {
       var dirtyType = get(this, 'dirtyType');
@@ -313,8 +308,6 @@ var DirtyState = {
       record.transitionTo('deleted.uncommitted');
       record.clearRelationships();
     },
-
-    willSetProperty: willSetProperty,
 
     didSetProperty: function(record, context) {
       var errors = get(record, 'errors'),
@@ -433,6 +426,10 @@ var RootState = {
 
     loadedData: function(record) {
       record.transitionTo('loaded.created.uncommitted');
+
+      record.suspendRelationshipObservers(function() {
+        record.notifyPropertyChange('data');
+      });
     },
 
     pushedData: function(record) {
@@ -505,8 +502,23 @@ var RootState = {
     // If there are no local changes to a record, it remains
     // in the `saved` state.
     saved: {
+      setup: function(record) {
+        var attrs = record._attributes,
+            isDirty = false;
+
+        for (var prop in attrs) {
+          if (attrs.hasOwnProperty(prop)) {
+            isDirty = true;
+            break;
+          }
+        }
+
+        if (isDirty) {
+          record.adapterDidDirty();
+        }
+      },
+
       // EVENTS
-      willSetProperty: willSetProperty,
       didSetProperty: didSetProperty,
 
       willSetupData: function(record) {
