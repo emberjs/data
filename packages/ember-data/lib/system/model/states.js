@@ -236,17 +236,21 @@ var DirtyState = {
     // EVENTS
     didSetProperty: didSetProperty,
 
+    pushedData: Ember.K,
+
     becomeDirty: Ember.K,
 
     willCommit: function(record) {
       record.transitionTo('inFlight');
     },
 
+    reloadRecord: function(record, resolver) {
+      get(record, 'store').reloadRecord(record, resolver);
+    },
+
     becameClean: function(record) {
       record.transitionTo('loaded.saved');
     },
-
-    pushedData: Ember.K,
 
     becameInvalid: function(record) {
       record.transitionTo('invalid');
@@ -400,7 +404,6 @@ var RootState = {
   isEmpty: false,
   isLoading: false,
   isLoaded: false,
-  isReloading: false,
   isDirty: false,
   isSaving: false,
   isDeleted: false,
@@ -468,26 +471,6 @@ var RootState = {
 
     // SUBSTATES
 
-    reloading: {
-      // FLAGS
-      isReloading: true,
-
-      // TRANSITIONS
-      enter: function(record) {
-        var store = get(record, 'store');
-        store.reloadRecord(record);
-      },
-
-      exit: function(record) {
-        record.triggerLater('didReload');
-      },
-
-      // EVENTS
-      pushedData: function(record) {
-        record.transitionTo('loaded.saved');
-      }
-    },
-
     // If there are no local changes to a record, it remains
     // in the `saved` state.
     saved: {
@@ -512,12 +495,16 @@ var RootState = {
 
       pushedData: Ember.K,
 
-      reloadRecord: function(record) {
-        record.transitionTo('loaded.reloading');
-      },
-
       becomeDirty: function(record) {
         record.transitionTo('updated.uncommitted');
+      },
+
+      willCommit: function(record) {
+        record.transitionTo('updated.inFlight');
+      },
+
+      reloadRecord: function(record, resolver) {
+        get(record, 'store').reloadRecord(record, resolver);
       },
 
       deleteRecord: function(record) {

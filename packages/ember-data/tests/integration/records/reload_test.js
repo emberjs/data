@@ -48,27 +48,27 @@ test("When a single record is requested, the adapter's find method should be cal
   }));
 });
 
-test("If a record is modified, it cannot be reloaded", function() {
-  var count = 0;
+test("When a record is reloaded and fails, it can try again", function() {
+  var tom = env.store.push('person', { id: 1, name: "Tom Dale" });
 
+  var count = 0;
   env.adapter.find = function(store, type, id) {
-    if (count === 0) {
-      count++;
-      return Ember.RSVP.resolve({ id: id, name: "Tom Dale" });
+    if (count++ === 0) {
+      return Ember.RSVP.reject();
     } else {
-      ok(false, "Should not get here");
+      return Ember.RSVP.resolve({ id: 1, name: "Thomas Dale" });
     }
   };
 
-  env.store.find('person', 1).then(async(function(person) {
-    set(person, 'name', "Braaaaahm Dale");
-
-    raises(function() {
-      person.reload();
-    }, /uncommitted/);
+  tom.reload().then(null, async(function() {
+    equal(tom.get('isError'), true, "Tom is now errored");
+    return tom.reload();
+  })).then(async(function(person) {
+    equal(person, tom, "The resolved value is the record");
+    equal(tom.get('isError'), false, "Tom is no longer errored");
+    equal(tom.get('name'), "Thomas Dale", "the updates apply");
   }));
 });
-
 
 test("When a record is loaded a second time, isLoaded stays true", function() {
   env.store.push('person', { id: 1, name: "Tom Dale" });

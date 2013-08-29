@@ -370,16 +370,22 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   */
   find: Ember.required(Function),
 
-  _find: function(store, type, id) {
+  _find: function(store, type, id, resolver) {
     var promise = this.find(store, type, id),
         adapter = this;
 
-    return resolve(promise).then(function(payload) {
+    promise = resolve(promise).then(function(payload) {
       Ember.assert("You made a request for a " + type.typeKey + " with id " + id + ", but the adapter's response did not have any data", payload);
       payload = adapter.extract(store, type, payload, id, 'find');
 
       return store.push(type, payload);
     });
+
+    if (resolver) {
+      promise = promise.then(resolver.resolve, resolver.reject);
+    }
+
+    return promise;
   },
 
   /**

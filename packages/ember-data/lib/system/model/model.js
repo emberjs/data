@@ -26,7 +26,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   isEmpty: retrieveFromCurrentState,
   isLoading: retrieveFromCurrentState,
   isLoaded: retrieveFromCurrentState,
-  isReloading: retrieveFromCurrentState,
   isDirty: retrieveFromCurrentState,
   isSaving: retrieveFromCurrentState,
   isDeleted: retrieveFromCurrentState,
@@ -35,6 +34,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   dirtyType: retrieveFromCurrentState,
 
   isError: false,
+  isReloading: false,
 
   clientId: null,
   id: null,
@@ -444,9 +444,22 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @method reload
   */
   reload: function() {
-    this.send('reloadRecord');
+    set(this, 'isReloading', true);
 
-    return this.resolveOn('didReload');
+    var resolver = Ember.RSVP.defer(), record = this;
+
+    resolver.promise = resolver.promise.then(function() {
+      record.set('isReloading', false);
+      record.set('isError', false);
+      return record;
+    }, function(reason) {
+      record.set('isError', true);
+      throw reason;
+    });
+
+    this.send('reloadRecord', resolver);
+
+    return resolver.promise;
   },
 
   // FOR USE DURING COMMIT PROCESS

@@ -1,6 +1,6 @@
 var Person;
 
-module("unit/model/merge - Making changes while a record is in flight", {
+module("unit/model/merge - Merging", {
   setup: function() {
     Person = DS.Model.extend({
       name: DS.attr(),
@@ -88,4 +88,40 @@ test("When a record is dirty, pushes are overridden by local changes", function(
   equal(person.get('isDirty'), true, "the local changes are reapplied");
   equal(person.get('name'), "Tomasz Dale", "the local changes are reapplied");
   equal(person.get('city'), "Portland", "if there are no local changes, the new data applied");
+});
+
+test("A record with no changes can still be saved", function() {
+  var adapter = DS.Adapter.create({
+    updateRecord: function(store, type, record) {
+      return Ember.RSVP.resolve({ id: 1, name: "Thomas Dale" });
+    }
+  });
+
+  var store = DS.Store.create({ adapter: adapter });
+
+  var person = store.push(Person, { id: 1, name: "Tom Dale" });
+
+  person.save().then(async(function() {
+    equal(person.get('name'), "Thomas Dale", "the updates occurred");
+  }));
+});
+
+test("A dirty record can be reloaded", function() {
+  var adapter = DS.Adapter.create({
+    find: function(store, type, id) {
+      return Ember.RSVP.resolve({ id: 1, name: "Thomas Dale", city: "Portland" });
+    }
+  });
+
+  var store = DS.Store.create({ adapter: adapter });
+
+  var person = store.push(Person, { id: 1, name: "Tom Dale" });
+
+  person.set('name', "Tomasz Dale");
+
+  person.reload().then(async(function() {
+    equal(person.get('isDirty'), true, "the person is dirty");
+    equal(person.get('name'), "Tomasz Dale", "the local changes remain");
+    equal(person.get('city'), "Portland", "the new changes apply");
+  }));
 });
