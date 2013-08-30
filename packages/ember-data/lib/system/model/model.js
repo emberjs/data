@@ -274,6 +274,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.send('didCommit');
     this.updateRecordArraysLater();
 
+    if (!data) { return; }
+
     this.suspendRelationshipObservers(function() {
       this.notifyPropertyChange('data');
     });
