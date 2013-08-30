@@ -17,7 +17,7 @@ function coerceId(id) {
   return id == null ? null : id+'';
 }
 
-DS.RESTSerializer = DS.NewJSONSerializer.extend({
+DS.RESTSerializer = DS.JSONSerializer.extend({
   normalize: function(type, hash, requestType) {
     this.normalizeId(hash, requestType);
     this.normalizeAttributes(hash, requestType);

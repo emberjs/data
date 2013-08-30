@@ -42,7 +42,7 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
       message: Message
     });
 
-    env.container.register('serializer:user', DS.NewJSONSerializer.extend({
+    env.container.register('serializer:user', DS.JSONSerializer.extend({
       attrs: {
         favouriteMessage: { embedded: 'always' }
       }

@@ -22,7 +22,7 @@ module("unit/store/push - DS.Store#push", {
       adapter: adapter
     });
 
-    var DefaultSerializer = DS.NewJSONSerializer.extend({
+    var DefaultSerializer = DS.JSONSerializer.extend({
       store: store
     });
 

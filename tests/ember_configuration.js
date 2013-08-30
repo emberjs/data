@@ -68,7 +68,7 @@
       adapter: adapter
     }));
 
-    container.register('serializer:_default', DS.NewJSONSerializer);
+    container.register('serializer:_default', DS.JSONSerializer);
     container.register('serializer:_rest', DS.RESTSerializer);
 
 

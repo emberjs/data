@@ -1,4 +1,4 @@
-require("ember-data/serializers/new_json_serializer");
+require("ember-data/serializers/json_serializer");
 
 /**
   @module ember-data
@@ -42,7 +42,7 @@ Ember.onLoad('Ember.Application', function(Application) {
 
     initialize: function(container, application) {
       application.register('store:main', application.Store || DS.Store);
-      application.register('serializer:_default', DS.NewJSONSerializer);
+      application.register('serializer:_default', DS.JSONSerializer);
       application.register('serializer:_rest', DS.RESTSerializer);
       application.register('adapter:_rest', DS.RESTAdapter);
 
