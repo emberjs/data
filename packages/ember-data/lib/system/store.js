@@ -161,7 +161,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   _adapter: Ember.computed(function() {
     var adapter = get(this, 'adapter');
     if (typeof adapter === 'string') {
-      adapter = get(this, adapter, false) || this.container.lookup('adapter:application') || this.container.lookup('adapter:_rest');
+      adapter = this.container.lookup('adapter:' + adapter) || this.container.lookup('adapter:application') || this.container.lookup('adapter:_rest');
     }
 
     if (DS.Adapter.detect(adapter)) {
@@ -1377,5 +1377,3 @@ function _commit(adapter, store, operation, record, resolver) {
     throw reason;
   }).then(resolver.resolve, resolver.reject);
 }
-
-
