@@ -72,7 +72,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @returns {Object} A JSON representation of the object.
   */
   toJSON: function(options) {
-    var serializer = DS.JSONSerializer.create();
+    var serializer = DS.NewJSONSerializer.create();
     return serializer.serialize(this, options);
   },
 

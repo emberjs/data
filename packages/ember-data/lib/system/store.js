@@ -1202,10 +1202,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @returns DS.Adapter
   */
   adapterForType: function(type) {
-    var adapter;
+    var container = this.container, adapter;
 
-    if (this.container) {
-      adapter = this.container.lookup('adapter:' + type.typeKey);
+    if (container) {
+      adapter = container.lookup('adapter:' + type.typeKey) || container.lookup('adapter:application');
     }
 
     return adapter || get(this, '_adapter');

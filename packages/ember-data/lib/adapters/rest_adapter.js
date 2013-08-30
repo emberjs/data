@@ -231,12 +231,12 @@ DS.RESTAdapter = DS.Adapter.extend({
     return primaryArray;
   },
 
-  pluralize: function(type) {
-    return type + 's';
+  pluralize: function(key) {
+    return Ember.String.pluralize(key);
   },
 
   singularize: function(key) {
-    return key.substr(0, key.length - 1);
+    return Ember.String.singularize(key);
   },
 
   /**
