@@ -273,6 +273,9 @@ var DirtyState = {
     becomeDirty: Ember.K,
     pushedData: Ember.K,
 
+    // TODO: More robust semantics around save-while-in-flight
+    willCommit: Ember.K,
+
     didCommit: function(record) {
       var dirtyType = get(this, 'dirtyType');
 
@@ -582,6 +585,9 @@ var RootState = {
       isSaving: true,
 
       // EVENTS
+
+      // TODO: More robust semantics around save-while-in-flight
+      willCommit: Ember.K,
       didCommit: function(record) {
         record.transitionTo('saved');
 
