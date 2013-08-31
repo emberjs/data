@@ -172,6 +172,16 @@ DS.RESTAdapter = DS.Adapter.extend({
     the unloaded records in a has-many relationship that were originally
     specified as IDs.
 
+    For example, if the original payload looks like:
+
+    ```js
+    {
+      "id": 1,
+      "title": "Rails is omakase",
+      "comments": [ 1, 2, 3 ]
+    }
+    ```
+
     The IDs will be passed as a URL-encoded Array of IDs, in this form:
 
     ```
