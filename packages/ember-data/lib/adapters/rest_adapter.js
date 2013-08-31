@@ -130,14 +130,14 @@ DS.RESTAdapter = DS.Adapter.extend({
 
   createRecord: function(store, type, record) {
     var data = {};
-    data[type.typeKey] = this.serializerFor(type).serialize(record, { includeId: true });
+    data[type.typeKey] = this.serializerFor(type.typeKey).serialize(record, { includeId: true });
 
     return this.ajax(this.buildURL(type), "POST", { data: data });
   },
 
   updateRecord: function(store, type, record) {
     var data = {};
-    data[type.typeKey] = this.serializerFor(type).serialize(record);
+    data[type.typeKey] = this.serializerFor(type.typeKey).serialize(record);
 
     var id = get(record, 'id');
 
@@ -158,13 +158,14 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   serializerFor: function(type) {
-    return this.container.lookup('serializer:' + type.typeKey) ||
+    // This logic has to be kept in sync with DS.Store#serializerFor
+    return this.container.lookup('serializer:' + type) ||
+           this.container.lookup('serializer:application') ||
            this.container.lookup('serializer:_rest');
   },
 
   normalize: function(primaryType, payload) {
-    var serializer = this.container.lookup('serializer:' + primaryType.typeKey) ||
-        this.container.lookup('serializer:_rest');
+    var serializer = this.serializerFor(primaryType.typeKey);
 
     return serializer.normalize(primaryType, payload);
   },
