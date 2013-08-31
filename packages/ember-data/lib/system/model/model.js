@@ -404,7 +404,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this._inFlightAttributes = this._attributes;
     this._attributes = {};
 
-    return resolver.promise;
+    return DS.PromiseObject.create({ promise: resolver.promise });
   },
 
   /**
@@ -432,7 +432,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
     this.send('reloadRecord', resolver);
 
-    return resolver.promise;
+    return DS.PromiseObject.create({ promise: resolver.promise });
   },
 
   // FOR USE DURING COMMIT PROCESS

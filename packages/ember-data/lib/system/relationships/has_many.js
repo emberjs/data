@@ -21,9 +21,11 @@ function asyncHasMany(type, options, meta) {
       }
     });
 
-    return resolver.promise.then(function() {
+    var promise = resolver.promise.then(function() {
       return relationship;
     });
+
+    return DS.PromiseArray.create({ promise: promise });
   }).property('data').meta(meta);
 }
 

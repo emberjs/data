@@ -328,9 +328,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var record = this.getById(type, id);
     if (get(record, 'isEmpty')) {
-      return this.fetchRecord(record);
+      return promiseObject(this.fetchRecord(record));
     } else {
-      return resolve(record);
+      return promiseObject(resolve(record));
     }
   },
 
@@ -346,8 +346,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   findByIds: function(type, ids) {
     var store = this;
 
-    return Ember.RSVP.all(map(ids, function(id) {
+    return promiseArray(Ember.RSVP.all(map(ids, function(id) {
       return store.findById(type, id);
+    })).then(function(array) {
+      return Ember.A(array);
     }));
   },
 
@@ -604,7 +606,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     _findQuery(adapter, this, type, query, array, resolver);
 
-    return resolver.promise;
+    return promiseArray(resolver.promise);
   },
 
   /**
@@ -642,7 +644,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     _findAll(adapter, this, type, sinceToken, resolver);
 
-    return resolver.promise;
+    return promiseArray(resolver.promise);
   },
 
   /**
@@ -1247,6 +1249,17 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 });
 
 // Delegation to the adapter and promise management
+
+DS.PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
+DS.PromiseObject = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
+
+function promiseObject(promise) {
+  return DS.PromiseObject.create({ promise: promise });
+}
+
+function promiseArray(promise) {
+  return DS.PromiseArray.create({ promise: promise });
+}
 
 function isThenable(object) {
   return object && typeof object.then === 'function';
