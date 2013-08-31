@@ -195,7 +195,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     It makes an Ajax request to a URL computed by `buildURL`, and returns a
     promise for the resulting payload.
 
-    @method findQuery
+    @method findMany
     @see RESTAdapter/buildURL
     @see RESTAdapter/ajax
     @param {DS.Store} store
