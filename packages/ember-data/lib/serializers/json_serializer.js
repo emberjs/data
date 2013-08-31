@@ -101,8 +101,7 @@ DS.JSONSerializer = Ember.Object.extend({
       if (relationship.kind === 'belongsTo') {
         this.serializeBelongsTo(record, json, relationship);
       } else if (relationship.kind === 'hasMany') {
-        // TODO: Support KVS and relational styles
-        //throw new Error("Unimplemented");
+        this.serializeHasMany(record, json, relationship);
       }
     }, this);
 
@@ -122,6 +121,8 @@ DS.JSONSerializer = Ember.Object.extend({
       json[key + "_type"] = belongsTo.constructor.typeKey;
     }
   },
+
+  serializeHasMany: Ember.K,
 
   // EXTRACT
 
