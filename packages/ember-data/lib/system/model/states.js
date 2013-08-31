@@ -566,6 +566,7 @@ var RootState = {
       },
 
       becomeDirty: Ember.K,
+      deleteRecord: Ember.K,
 
       becameClean: function(record) {
         record.transitionTo('loaded.saved');
