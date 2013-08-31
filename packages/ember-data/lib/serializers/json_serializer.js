@@ -4,6 +4,14 @@ var get = Ember.get, set = Ember.set, isNone = Ember.isNone;
 
 var transforms = DS.JSONTransforms;
 
+// Simple dispatcher to support overriding the aliased
+// method in subclasses.
+function aliasMethod(methodName) {
+  return function() {
+    return this[methodName].apply(this, arguments);
+  };
+}
+
 DS.JSONSerializer = Ember.Object.extend({
   primaryKey: 'id',
 
@@ -117,11 +125,30 @@ DS.JSONSerializer = Ember.Object.extend({
 
   // EXTRACT
 
-  extractPayload: function(type, payload) {
-    var store = get(this, 'store');
-    store.push(type, payload[type.typeKey]);
+  extract: function(store, type, payload, id, requestType) {
+    var specificExtract = "extract" + requestType.charAt(0).toUpperCase() + requestType.substr(1);
+    return this[specificExtract](store, type, payload, id, requestType);
   },
 
+  extractFindAll: aliasMethod('extractArray'),
+  extractFindQuery: aliasMethod('extractArray'),
+  extractFindMany: aliasMethod('extractArray'),
+  extractFindHasMany: aliasMethod('extractArray'),
+
+  extractCreateRecord: aliasMethod('extractSave'),
+  extractUpdateRecord: aliasMethod('extractSave'),
+  extractDeleteRecord: aliasMethod('extractSave'),
+
+  extractFind: aliasMethod('extractSingle'),
+  extractSave: aliasMethod('extractSingle'),
+
+  extractSingle: function(store, type, payload) {
+    return payload;
+  },
+
+  extractArray: function(store, type, payload) {
+    return payload;
+  },
   // HELPERS
 
   typeFor: function(relationship, key, data) {

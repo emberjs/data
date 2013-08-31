@@ -1265,32 +1265,56 @@ function isThenable(object) {
   return object && typeof object.then === 'function';
 }
 
+function serializerFor(adapter, type) {
+  var serializer = adapter.serializer,
+      defaultSerializer = adapter.defaultSerializer,
+      container = adapter.container;
+
+
+  if (serializer === undefined) {
+    serializer = container.lookup('serializer:'+type.typeKey) ||
+                 container.lookup('serializer:application') ||
+                 container.lookup('serializer:' + defaultSerializer || 'serializer:_default');
+  }
+
+  if (serializer === null || serializer === undefined) {
+    serializer = {
+      extract: function(store, type, payload) { return payload; }
+    };
+  }
+
+  return serializer;
+}
+
 function _find(adapter, store, type, id, resolver) {
-  var promise = adapter.find(store, type, id);
+  var promise = adapter.find(store, type, id),
+      serializer = serializerFor(adapter, type);
 
   return resolve(promise).then(function(payload) {
     Ember.assert("You made a request for a " + type.typeKey + " with id " + id + ", but the adapter's response did not have any data", payload);
-    payload = adapter.extract(store, type, payload, id, 'find');
+    payload = serializer.extract(store, type, payload, id, 'find');
 
     return store.push(type, payload);
   }).then(resolver.resolve, resolver.reject);
 }
 
 function _findMany(adapter, store, type, ids, owner, resolver) {
-  var promise = adapter.findMany(store, type, ids, owner);
+  var promise = adapter.findMany(store, type, ids, owner),
+      serializer = serializerFor(adapter, type);
 
   return resolve(promise).then(function(payload) {
-    payload = adapter.extract(store, type, payload, null, 'findMany');
+    payload = serializer.extract(store, type, payload, null, 'findMany');
 
     store.pushMany(type, payload);
   }).then(resolver.resolve, resolver.reject);
 }
 
 function _findHasMany(adapter, store, record, link, relationship, resolver) {
-  var promise = adapter.findHasMany(store, record, link, relationship);
+  var promise = adapter.findHasMany(store, record, link, relationship),
+      serializer = serializerFor(adapter, relationship.type);
 
   return resolve(promise).then(function(payload) {
-    payload = adapter.extract(store, relationship.type, payload, null, 'findHasMany');
+    payload = serializer.extract(store, relationship.type, payload, null, 'findHasMany');
 
     var records = store.pushMany(relationship.type, payload);
     record.updateHasMany(relationship.key, records);
@@ -1298,10 +1322,11 @@ function _findHasMany(adapter, store, record, link, relationship, resolver) {
 }
 
 function _findAll(adapter, store, type, sinceToken, resolver) {
-  var promise = adapter.findAll(store, type, sinceToken);
+  var promise = adapter.findAll(store, type, sinceToken),
+      serializer = serializerFor(adapter, type);
 
   return resolve(promise).then(function(payload) {
-    payload = adapter.extract(store, type, payload, null, 'findAll');
+    payload = serializer.extract(store, type, payload, null, 'findAll');
 
     store.pushMany(type, payload);
     store.didUpdateAll(type);
@@ -1310,10 +1335,11 @@ function _findAll(adapter, store, type, sinceToken, resolver) {
 }
 
 function _findQuery(adapter, store, type, query, recordArray, resolver) {
-  var promise = adapter.findQuery(store, type, query, recordArray);
+  var promise = adapter.findQuery(store, type, query, recordArray),
+      serializer = serializerFor(adapter, type);
 
   return resolve(promise).then(function(payload) {
-    payload = adapter.extract(store, type, payload, null, 'findAll');
+    payload = serializer.extract(store, type, payload, null, 'findAll');
 
     recordArray.load(payload);
     return recordArray;
@@ -1322,12 +1348,13 @@ function _findQuery(adapter, store, type, query, recordArray, resolver) {
 
 function _commit(adapter, store, operation, record, resolver) {
   var type = record.constructor,
-      promise = adapter[operation](store, type, record);
+      promise = adapter[operation](store, type, record),
+      serializer = serializerFor(adapter, type);
 
   Ember.assert("Your adapter's '" + operation + "' method must return a promise, but it returned " + promise, isThenable(promise));
 
   return promise.then(function(payload) {
-    payload = adapter.extract(store, type, payload, get(record, 'id'), operation);
+    payload = serializer.extract(store, type, payload, get(record, 'id'), operation);
     store.didSaveRecord(record, payload);
     return record;
   }, function(reason) {

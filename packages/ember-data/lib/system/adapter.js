@@ -78,30 +78,6 @@ function aliasMethod(methodName) {
 */
 
 DS.Adapter = Ember.Object.extend(DS._Mappable, {
-  extract: function(store, type, payload, id, requestType) {
-    var specificExtract = "extract" + requestType.charAt(0).toUpperCase() + requestType.substr(1);
-    return this[specificExtract](store, type, payload, id, requestType);
-  },
-
-  extractFindAll: aliasMethod('extractArray'),
-  extractFindQuery: aliasMethod('extractArray'),
-  extractFindMany: aliasMethod('extractArray'),
-  extractFindHasMany: aliasMethod('extractArray'),
-
-  extractCreateRecord: aliasMethod('extractSave'),
-  extractUpdateRecord: aliasMethod('extractSave'),
-  extractDeleteRecord: aliasMethod('extractSave'),
-
-  extractFind: aliasMethod('extractSingle'),
-  extractSave: aliasMethod('extractSingle'),
-
-  extractSingle: function(store, type, payload) {
-    return payload;
-  },
-
-  extractArray: function(store, type, payload) {
-    return payload;
-  },
 
   /**
     The `find()` method is invoked when the store is asked for a record that

@@ -18,13 +18,86 @@ function coerceId(id) {
 }
 
 DS.RESTSerializer = DS.JSONSerializer.extend({
-  normalize: function(type, hash, requestType) {
-    this.normalizeId(hash, requestType);
-    this.normalizeAttributes(hash, requestType);
+  /**
+    Normalizes a part of the JSON payload returned by
+    the server. You should override this method, munge the hash
+    and call super if you have generic normalization to do.
+
+    It takes the type of the record that is being normalized
+    (as a DS.Model class), the property where the hash was
+    originally found, and the hash to normalize.
+
+    For example, if you have a payload that looks like this:
+
+    ```js
+    {
+      "post": {
+        "id": 1,
+        "title": "Rails is omakase",
+        "comments": [ 1, 2 ]
+      },
+      "comments": [{
+        "id": 1,
+        "body": "FIRST"
+      }, {
+        "id": 2,
+        "body": "Rails is unagi"
+      }]
+    }
+    ```
+
+    The `normalize` method will be called three times:
+
+    * With `App.Post`, `"posts"` and `{ id: 1, title: "Rails is omakase", ... }`
+    * With `App.Comment`, `"comments"` and `{ id: 1, body: "FIRST" }`
+    * With `App.Comment`, `"comments"` and `{ id: 2, body: "Rails is unagi" }`
+
+    You can use this method, for example, to normalize underscored keys to camelized
+    or other general-purpose normalizations.
+
+    If you want to do normalizations specific to some part of the payload, you
+    can specify those under `normalizeHash`.
+
+    For example, if the `IDs` under `"comments"` are provided as `_id` instead of
+    `id`, you can specify how to normalize just the comments:
+
+    ```js
+    App.PostAdapter = DS.RESTAdapter.extend({
+      normalizeHash: {
+        comments: function(hash) {
+          hash.id = hash._id;
+          delete hash._id;
+          return hash;
+        }
+      }
+    });
+    ```
+
+    The key under `normalizeHash` is just the original key that was in the original
+    payload.
+
+    @method normalize
+    @param {subclass of DS.Model} type
+    @param {String} prop
+    @param {Object} hash
+    @returns Object
+  */
+  normalize: function(type, prop, hash) {
+    this.normalizeId(hash);
+    this.normalizeAttributes(hash);
+
+    if (this.normalizeHash && this.normalizeHash[prop]) {
+      return this.normalizeHash[prop](hash);
+    }
+
     return hash;
   },
 
-  normalizeId: function(hash, requestType) {
+  /**
+    @method normalizeId
+    @private
+  */
+  normalizeId: function(hash) {
     var primaryKey = get(this, 'primaryKey');
 
     if (primaryKey === 'id') { return; }
@@ -33,7 +106,11 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     delete hash[primaryKey];
   },
 
-  normalizeAttributes: function(hash, requestType) {
+  /**
+    @method normalizeAttributes
+    @private
+  */
+  normalizeAttributes: function(hash) {
     var attrs = get(this, 'attrs');
 
     if (!attrs) { return; }
@@ -44,299 +121,6 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
       hash[key] = hash[payloadKey];
       delete hash[payloadKey];
     }
-  }
-});
-
-/**
-  The REST adapter allows your store to communicate with an HTTP server by
-  transmitting JSON via XHR. Most Ember.js apps that consume a JSON API
-  should use the REST adapter.
-
-  This adapter is designed around the idea that the JSON exchanged with
-  the server should be conventional.
-
-  ## JSON Structure
-
-  The REST adapter expects the JSON returned from your server to follow
-  these conventions.
-
-  ### Object Root
-
-  The JSON payload should be an object that contains the record inside a
-  root property. For example, in response to a `GET` request for
-  `/posts/1`, the JSON should look like this:
-
-  ```js
-  {
-    "post": {
-      title: "I'm Running to Reform the W3C's Tag",
-      author: "Yehuda Katz"
-    }
-  }
-  ```
-
-  ### Conventional Names
-
-  Attribute names in your JSON payload should be the underscored versions of
-  the attributes in your Ember.js models.
-
-  For example, if you have a `Person` model:
-
-  ```js
-  App.Person = DS.Model.extend({
-    firstName: DS.attr('string'),
-    lastName: DS.attr('string'),
-    occupation: DS.attr('string')
-  });
-  ```
-
-  The JSON returned should look like this:
-
-  ```js
-  {
-    "person": {
-      "first_name": "Barack",
-      "last_name": "Obama",
-      "occupation": "President"
-    }
-  }
-  ```
-
-  @class RESTAdapter
-  @constructor
-  @namespace DS
-  @extends DS.Adapter
-*/
-DS.RESTAdapter = DS.Adapter.extend({
-  /**
-    Called by the store in order to fetch the JSON for a given
-    type and ID.
-
-    It makes an Ajax request to a URL computed by `buildURL`, and returns a
-    promise for the resulting payload.
-
-    @method find
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {String} id
-    @returns Promise
-  */
-  find: function(store, type, id) {
-    return this.ajax(this.buildURL(type, id), 'GET');
-  },
-
-  /**
-    Called by the store in order to fetch a JSON array for all
-    of the records for a given type.
-
-    It makes an Ajax request to a URL computed by `buildURL`, and returns a
-    promise for the resulting payload.
-
-    @method findAll
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @returns Promise
-  */
-  findAll: function(store, type) {
-    return this.ajax(this.buildURL(type), 'GET');
-  },
-
-  /**
-    Called by the store in order to fetch a JSON array for
-    the records that match a particular query.
-
-    The query is a simple JavaScript object that will be passed directly
-    to the server as parameters.
-
-    It makes an Ajax request to a URL computed by `buildURL`, and returns a
-    promise for the resulting payload.
-
-    @method findQuery
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {Object} query
-    @returns Promise
-  */
-  findQuery: function(store, type, query) {
-    return this.ajax(this.buildURL(type), 'GET', query);
-  },
-
-  /**
-    Called by the store in order to fetch a JSON array for
-    the unloaded records in a has-many relationship that were originally
-    specified as IDs.
-
-    For example, if the original payload looks like:
-
-    ```js
-    {
-      "id": 1,
-      "title": "Rails is omakase",
-      "comments": [ 1, 2, 3 ]
-    }
-    ```
-
-    The IDs will be passed as a URL-encoded Array of IDs, in this form:
-
-    ```
-    ids[]=1&ids[]=2&ids[]=3
-    ```
-
-    Many servers, such as Rails and PHP, will automatically convert this
-    into an Array for you on the server-side. If you want to encode the
-    IDs, differently, just override this (one-line) method.
-
-    It makes an Ajax request to a URL computed by `buildURL`, and returns a
-    promise for the resulting payload.
-
-    @method findMany
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {Array<String>} ids
-    @returns Promise
-  */
-  findMany: function(store, type, ids) {
-    return this.ajax(this.buildURL(type), 'GET', { ids: ids });
-  },
-
-  /**
-    Called by the store in order to fetch a JSON array for
-    the unloaded records in a has-many relationship that were originally
-    specified as a URL (inside of `links`).
-
-    For example, if your original payload looks like this:
-
-    ```js
-    {
-      "post": {
-        "id": 1,
-        "title": "Rails is omakase",
-        "links": { "comments": "/posts/1/comments" }
-      }
-    }
-    ```
-
-    This method will be called with the parent record and `/posts/1/comments`.
-
-    It will make an Ajax request to the originally specified URL.
-
-    @method findHasMany
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
-    @param {DS.Store} store
-    @param {DS.Model} record
-    @param {String} url
-    @returns Promise
-  */
-  findHasMany: function(store, record, url) {
-    return this.ajax(url, 'GET');
-  },
-
-  /**
-    Called by the store when a newly created record is
-    `save`d.
-
-    It serializes the record, and `POST`s it to a URL generated by `buildURL`.
-
-    See `serialize` for information on how to customize the serialized form
-    of a record.
-
-    @method createRecord
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
-    @see RESTAdapter/serialize
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {DS.Model} record
-    @returns Promise
-  */
-  createRecord: function(store, type, record) {
-    var data = {};
-    data[type.typeKey] = this.serializerFor(type.typeKey).serialize(record, { includeId: true });
-
-    return this.ajax(this.buildURL(type), "POST", { data: data });
-  },
-
-  /**
-    Called by the store when an existing record is `save`d.
-
-    It serializes the record, and `POST`s it to a URL generated by `buildURL`.
-
-    See `serialize` for information on how to customize the serialized form
-    of a record.
-
-    @method updateRecord
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
-    @see RESTAdapter/serialize
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {DS.Model} record
-    @returns Promise
-  */
-  updateRecord: function(store, type, record) {
-    var data = {};
-    data[type.typeKey] = this.serializerFor(type.typeKey).serialize(record);
-
-    var id = get(record, 'id');
-
-    return this.ajax(this.buildURL(type, id), "PUT", { data: data });
-  },
-
-  /**
-    Called by the store when an deleted record is `save`d.
-
-    It serializes the record, and `POST`s it to a URL generated by `buildURL`.
-
-    @method deleteRecord
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
-    @see RESTAdapter/serialize
-    @param {DS.Store} store
-    @param {subclass of DS.Model} type
-    @param {DS.Model} record
-    @returns Promise
-  */
-  deleteRecord: function(store, type, record) {
-    var id = get(record, 'id');
-
-    return this.ajax(this.buildURL(type, id), "DELETE");
-  },
-
-  /**
-    Builds a URL for a given type and optional ID.
-
-    By default, it pluralizes the type's name (for example,
-    'post' becomes 'posts' and 'person' becomes 'people').
-
-    If an ID is specified, it adds the ID to the plural form
-    of the type, separated by a `/`.
-
-    @method buildURL
-    @param {subclass of DS.Model} type
-    @param {String} id
-    @returns String
-  */
-  buildURL: function(type, id) {
-    var url = "/" + this.pluralize(type.typeKey);
-    if (id) { url += "/" + id; }
-
-    return url;
-  },
-
-  serializerFor: function(type) {
-    // This logic has to be kept in sync with DS.Store#serializerFor
-    return this.container.lookup('serializer:' + type) ||
-           this.container.lookup('serializer:application') ||
-           this.container.lookup('serializer:_rest');
   },
 
   /**
@@ -573,80 +357,6 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   /**
-    Normalizes a part of the JSON payload returned by
-    the server. You should override this method, munge the hash
-    and call super if you have generic normalization to do.
-
-    It takes the type of the record that is being normalized
-    (as a DS.Model class), the property where the hash was
-    originally found, and the hash to normalize.
-
-    For example, if you have a payload that looks like this:
-
-    ```js
-    {
-      "post": {
-        "id": 1,
-        "title": "Rails is omakase",
-        "comments": [ 1, 2 ]
-      },
-      "comments": [{
-        "id": 1,
-        "body": "FIRST"
-      }, {
-        "id": 2,
-        "body": "Rails is unagi"
-      }]
-    }
-    ```
-
-    The `normalize` method will be called three times:
-
-    * With `App.Post`, `"posts"` and `{ id: 1, title: "Rails is omakase", ... }`
-    * With `App.Comment`, `"comments"` and `{ id: 1, body: "FIRST" }`
-    * With `App.Comment`, `"comments"` and `{ id: 2, body: "Rails is unagi" }`
-
-    You can use this method, for example, to normalize underscored keys to camelized
-    or other general-purpose normalizations.
-
-    If you want to do normalizations specific to some part of the payload, you
-    can specify those under `normalizeHash`.
-
-    For example, if the `IDs` under `"comments"` are provided as `_id` instead of
-    `id`, you can specify how to normalize just the comments:
-
-    ```js
-    App.PostAdapter = DS.RESTAdapter.extend({
-      normalizeHash: {
-        comments: function(hash) {
-          hash.id = hash._id;
-          delete hash._id;
-          return hash;
-        }
-      }
-    });
-    ```
-
-    The key under `normalizeHash` is just the original key that was in the original
-    payload.
-
-    @method normalize
-    @param {subclass of DS.Model} type
-    @param {String} prop
-    @param {Object} hash
-    @returns Object
-  */
-  normalize: function(type, prop, hash) {
-    var serializer = this.serializerFor(type.typeKey);
-
-    if (this.normalizeHash && this.normalizeHash[prop]) {
-      return this.normalizeHash[prop](hash);
-    }
-
-    return serializer.normalize(type, hash);
-  },
-
-  /**
     @private
     @method pluralize
     @param {String} key
@@ -663,6 +373,302 @@ DS.RESTAdapter = DS.Adapter.extend({
   singularize: function(key) {
     return Ember.String.singularize(key);
   },
+});
+
+/**
+  The REST adapter allows your store to communicate with an HTTP server by
+  transmitting JSON via XHR. Most Ember.js apps that consume a JSON API
+  should use the REST adapter.
+
+  This adapter is designed around the idea that the JSON exchanged with
+  the server should be conventional.
+
+  ## JSON Structure
+
+  The REST adapter expects the JSON returned from your server to follow
+  these conventions.
+
+  ### Object Root
+
+  The JSON payload should be an object that contains the record inside a
+  root property. For example, in response to a `GET` request for
+  `/posts/1`, the JSON should look like this:
+
+  ```js
+  {
+    "post": {
+      title: "I'm Running to Reform the W3C's Tag",
+      author: "Yehuda Katz"
+    }
+  }
+  ```
+
+  ### Conventional Names
+
+  Attribute names in your JSON payload should be the underscored versions of
+  the attributes in your Ember.js models.
+
+  For example, if you have a `Person` model:
+
+  ```js
+  App.Person = DS.Model.extend({
+    firstName: DS.attr('string'),
+    lastName: DS.attr('string'),
+    occupation: DS.attr('string')
+  });
+  ```
+
+  The JSON returned should look like this:
+
+  ```js
+  {
+    "person": {
+      "first_name": "Barack",
+      "last_name": "Obama",
+      "occupation": "President"
+    }
+  }
+  ```
+
+  @class RESTAdapter
+  @constructor
+  @namespace DS
+  @extends DS.Adapter
+*/
+DS.RESTAdapter = DS.Adapter.extend({
+  defaultSerializer: '_rest',
+
+  /**
+    Called by the store in order to fetch the JSON for a given
+    type and ID.
+
+    It makes an Ajax request to a URL computed by `buildURL`, and returns a
+    promise for the resulting payload.
+
+    @method find
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {String} id
+    @returns Promise
+  */
+  find: function(store, type, id) {
+    return this.ajax(this.buildURL(type, id), 'GET');
+  },
+
+  /**
+    Called by the store in order to fetch a JSON array for all
+    of the records for a given type.
+
+    It makes an Ajax request to a URL computed by `buildURL`, and returns a
+    promise for the resulting payload.
+
+    @method findAll
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @returns Promise
+  */
+  findAll: function(store, type) {
+    return this.ajax(this.buildURL(type), 'GET');
+  },
+
+  /**
+    Called by the store in order to fetch a JSON array for
+    the records that match a particular query.
+
+    The query is a simple JavaScript object that will be passed directly
+    to the server as parameters.
+
+    It makes an Ajax request to a URL computed by `buildURL`, and returns a
+    promise for the resulting payload.
+
+    @method findQuery
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} query
+    @returns Promise
+  */
+  findQuery: function(store, type, query) {
+    return this.ajax(this.buildURL(type), 'GET', query);
+  },
+
+  /**
+    Called by the store in order to fetch a JSON array for
+    the unloaded records in a has-many relationship that were originally
+    specified as IDs.
+
+    For example, if the original payload looks like:
+
+    ```js
+    {
+      "id": 1,
+      "title": "Rails is omakase",
+      "comments": [ 1, 2, 3 ]
+    }
+    ```
+
+    The IDs will be passed as a URL-encoded Array of IDs, in this form:
+
+    ```
+    ids[]=1&ids[]=2&ids[]=3
+    ```
+
+    Many servers, such as Rails and PHP, will automatically convert this
+    into an Array for you on the server-side. If you want to encode the
+    IDs, differently, just override this (one-line) method.
+
+    It makes an Ajax request to a URL computed by `buildURL`, and returns a
+    promise for the resulting payload.
+
+    @method findMany
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Array<String>} ids
+    @returns Promise
+  */
+  findMany: function(store, type, ids) {
+    return this.ajax(this.buildURL(type), 'GET', { ids: ids });
+  },
+
+  /**
+    Called by the store in order to fetch a JSON array for
+    the unloaded records in a has-many relationship that were originally
+    specified as a URL (inside of `links`).
+
+    For example, if your original payload looks like this:
+
+    ```js
+    {
+      "post": {
+        "id": 1,
+        "title": "Rails is omakase",
+        "links": { "comments": "/posts/1/comments" }
+      }
+    }
+    ```
+
+    This method will be called with the parent record and `/posts/1/comments`.
+
+    It will make an Ajax request to the originally specified URL.
+
+    @method findHasMany
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @param {DS.Store} store
+    @param {DS.Model} record
+    @param {String} url
+    @returns Promise
+  */
+  findHasMany: function(store, record, url) {
+    return this.ajax(url, 'GET');
+  },
+
+  /**
+    Called by the store when a newly created record is
+    `save`d.
+
+    It serializes the record, and `POST`s it to a URL generated by `buildURL`.
+
+    See `serialize` for information on how to customize the serialized form
+    of a record.
+
+    @method createRecord
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @see RESTAdapter/serialize
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @returns Promise
+  */
+  createRecord: function(store, type, record) {
+    var data = {};
+    data[type.typeKey] = this.serializerFor(type.typeKey).serialize(record, { includeId: true });
+
+    return this.ajax(this.buildURL(type), "POST", { data: data });
+  },
+
+  /**
+    Called by the store when an existing record is `save`d.
+
+    It serializes the record, and `POST`s it to a URL generated by `buildURL`.
+
+    See `serialize` for information on how to customize the serialized form
+    of a record.
+
+    @method updateRecord
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @see RESTAdapter/serialize
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @returns Promise
+  */
+  updateRecord: function(store, type, record) {
+    var data = {};
+    data[type.typeKey] = this.serializerFor(type.typeKey).serialize(record);
+
+    var id = get(record, 'id');
+
+    return this.ajax(this.buildURL(type, id), "PUT", { data: data });
+  },
+
+  /**
+    Called by the store when an deleted record is `save`d.
+
+    It serializes the record, and `POST`s it to a URL generated by `buildURL`.
+
+    @method deleteRecord
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @see RESTAdapter/serialize
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @returns Promise
+  */
+  deleteRecord: function(store, type, record) {
+    var id = get(record, 'id');
+
+    return this.ajax(this.buildURL(type, id), "DELETE");
+  },
+
+  /**
+    Builds a URL for a given type and optional ID.
+
+    By default, it pluralizes the type's name (for example,
+    'post' becomes 'posts' and 'person' becomes 'people').
+
+    If an ID is specified, it adds the ID to the plural form
+    of the type, separated by a `/`.
+
+    @method buildURL
+    @param {subclass of DS.Model} type
+    @param {String} id
+    @returns String
+  */
+  buildURL: function(type, id) {
+    var url = "/" + Ember.String.pluralize(type.typeKey);
+    if (id) { url += "/" + id; }
+
+    return url;
+  },
+
+  serializerFor: function(type) {
+    // This logic has to be kept in sync with DS.Store#serializerFor
+    return this.container.lookup('serializer:' + type) ||
+           this.container.lookup('serializer:application') ||
+           this.container.lookup('serializer:_rest');
+  },
+
 
   /**
     Takes a URL, an HTTP method and a hash of data, and makes an

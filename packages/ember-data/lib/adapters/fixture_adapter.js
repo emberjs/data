@@ -24,6 +24,8 @@ var counter = 0;
   @extends DS.Adapter
 */
 DS.FixtureAdapter = DS.Adapter.extend({
+  // by default, fixtures are already in normalized form
+  serializer: null,
 
   simulateRemoteResponse: true,
 
