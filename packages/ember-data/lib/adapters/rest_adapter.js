@@ -62,7 +62,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     `id`, you can specify how to normalize just the comments:
 
     ```js
-    App.PostAdapter = DS.RESTAdapter.extend({
+    App.PostSerializer = DS.RESTSerializer.extend({
       normalizeHash: {
         comments: function(hash) {
           hash.id = hash._id;
@@ -153,13 +153,13 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     }
     ```
 
-    You could implement an adapter that looks like this to get your payload
+    You could implement a serializer that looks like this to get your payload
     into shape:
 
     ```js
-    App.PostAdapter = DS.Adapter.extend({
+    App.PostSerializer = DS.RESTSerializer.extend({
       // First, restructure the top-level so it's organized by type
-      extract: function(store, type, payload, id, requestType) {
+      extractSingle: function(store, type, payload, id, requestType) {
         var comments = payload._embedded.comment;
         delete payload._embedded;
 
@@ -273,14 +273,14 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     }
     ```
 
-    You could implement an adapter that looks like this to get your payload
+    You could implement a serializer that looks like this to get your payload
     into shape:
 
     ```js
-    App.PostAdapter = DS.Adapter.extend({
+    App.PostSerializer = DS.RESTSerializer.extend({
       // First, restructure the top-level so it's organized by type
       // and the comments are listed under a post's `comments` key.
-      extract: function(store, type, payload, id, requestType) {
+      extractArray: function(store, type, payload, id, requestType) {
         var posts = payload._embedded.post;
         var comments = [];
         var postCache = {};
@@ -315,7 +315,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     })
     ```
 
-    When you call super from your own implementation of `extractMany`, the
+    When you call super from your own implementation of `extractArray`, the
     built-in implementation will find the primary array in your normalized
     payload and push the remaining records into the store.
 
@@ -675,7 +675,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     HTTP request.
 
     When the server responds with a payload, Ember Data will call into `extractSingle`
-    or `extractMany` (depending on whether the original query was for one record or
+    or `extractArray` (depending on whether the original query was for one record or
     many records).
 
     By default, it has the following behavior:
