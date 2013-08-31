@@ -573,3 +573,44 @@ So to sum up, you should:
 * make sure to call super if you override `extractSingle`,
   `extractArray` or `normalize` so the rest of the chain will get
   called.
+
+### Embedded Records
+
+Explicit support for embedded records is gone for now.
+
+You can handle embedded records yourself by implementing `extractSingle`
+and reorganizing the payload.
+
+Consider this payload:
+
+```js
+{
+  "post": {
+    "id": "1",
+    "title": "Rails is omakase",
+    "comments": [{
+      "id": "1",
+      "body": "I like omakase"
+    }, {
+      "id": "2",
+      "body": "I prefer not to rely on elitist chefs"
+    }]
+  }
+}
+```
+
+You could handle embedded records like this:
+
+```js
+App.PostSerializer = DS.Model.extend({
+  extractSingle: function(store, type, payload, id, requestType) {
+    var comments = payload.post.comments,
+        commentIds = comments.mapProperty('id');
+
+    payload.comments = comments;
+    payload.post.comments = commentIds;
+
+    return this._super.apply(this, arguments);
+  }
+});
+```
