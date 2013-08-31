@@ -1270,8 +1270,7 @@ function serializerFor(adapter, type) {
       defaultSerializer = adapter.defaultSerializer,
       container = adapter.container;
 
-
-  if (serializer === undefined) {
+  if (container && serializer === undefined) {
     serializer = container.lookup('serializer:'+type.typeKey) ||
                  container.lookup('serializer:application') ||
                  container.lookup('serializer:' + defaultSerializer || 'serializer:_default');
