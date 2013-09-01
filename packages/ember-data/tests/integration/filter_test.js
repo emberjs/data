@@ -355,7 +355,7 @@ var clientCreates = function(names) {
 };
 
 var serverResponds = function(){
-  edited.forEach(function(person) { person.save(); });
+  forEach(edited, function(person) { person.save(); });
 };
 
 var setup = function(serverCallbacks) {

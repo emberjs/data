@@ -3,7 +3,7 @@
 */
 
 var get = Ember.get, set = Ember.set, merge = Ember.merge;
-var forEach = Ember.EnumerableUtils.forEach;
+var map = Ember.ArrayPolyfills.map;
 var resolve = Ember.RSVP.resolve;
 
 var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
@@ -216,7 +216,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @property {Array}    ids
   */
   findMany: function(store, type, ids) {
-    var promises = ids.map(function(id) {
+    var promises = map.call(ids, function(id) {
       return this.find(store, type, id);
     }, this);
 

@@ -522,14 +522,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     var unloadedRecords = records.filterProperty('isEmpty', true),
         manyArray = this.recordArrayManager.createManyArray(type, records);
 
-    unloadedRecords.forEach(function(record) {
+    forEach(unloadedRecords, function(record) {
       record.loadingData();
     });
 
     manyArray.loadingRecordsCount = unloadedRecords.length;
 
     if (unloadedRecords.length) {
-      unloadedRecords.forEach(function(record) {
+      forEach(unloadedRecords, function(record) {
         this.recordArrayManager.registerWaitingRecordArray(record, manyArray);
       }, this);
 
