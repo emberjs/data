@@ -677,7 +677,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns Promise
   */
   findQuery: function(store, type, query) {
-    return this.ajax(this.buildURL(type), 'GET', query);
+    return this.ajax(this.buildURL(type), 'GET', { data: query });
   },
 
   /**
@@ -717,7 +717,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns Promise
   */
   findMany: function(store, type, ids) {
-    return this.ajax(this.buildURL(type), 'GET', { ids: ids });
+    return this.ajax(this.buildURL(type), 'GET', { data: { ids: ids } });
   },
 
   /**
