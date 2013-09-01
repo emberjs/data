@@ -591,11 +591,11 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
   ### Host customization
 
-  An adapter can target other hosts by setting the `url` property.
+  An adapter can target other hosts by setting the `host` property.
 
   ```js
   DS.RESTAdapter.reopen({
-    url: 'https://api.example.com'
+    host: 'https://api.example.com'
   });
   ```
 
