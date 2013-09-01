@@ -6,6 +6,7 @@ require('ember-data/system/adapter');
 */
 
 var get = Ember.get, set = Ember.set;
+var forEach = Ember.ArrayPolyfills.forEach;
 
 DS.rejectionHandler = function(reason) {
   Ember.Logger.assert([reason, reason.message, reason.stack]);
@@ -214,7 +215,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
           type = store.modelFor(typeName);
 
       /*jshint loopfunc:true*/
-      payload[prop].forEach(function(hash) {
+      forEach.call(payload[prop], function(hash) {
         hash = this.normalize(type, prop, hash);
 
         var isFirstCreatedRecord = typeName === primaryTypeName && !recordId && !primaryRecord,
@@ -893,7 +894,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       if (adapter.headers !== undefined) {
         var headers = adapter.headers;
         hash.beforeSend = function (xhr) {
-          Ember.keys(headers).forEach(function(key) {
+          forEach.call(Ember.keys(headers), function(key) {
             xhr.setRequestHeader(key, headers[key]);
           });
         };
