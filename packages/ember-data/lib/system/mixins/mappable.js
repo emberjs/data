@@ -3,6 +3,7 @@
 */
 
 var get = Ember.get;
+var forEach = Ember.ArrayPolyfills.forEach;
 
 var resolveMapConflict = function(oldValue, newValue) {
   return oldValue;
@@ -98,7 +99,7 @@ DS._Mappable = Ember.Mixin.create({
 
     var classMap = classMeta[mapName];
     if (classMap) {
-      classMap.forEach(eachMap, this);
+      forEach.call(classMap, eachMap, this);
     }
 
     function eachMap(key, value) {
@@ -115,7 +116,6 @@ DS._Mappable = Ember.Mixin.create({
       instanceMap.set(transformedKey, newValue);
     }
   }
-
 
 });
 
