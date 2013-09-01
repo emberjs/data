@@ -1,6 +1,5 @@
 require("ember-data/core");
 require('ember-data/system/adapter');
-require('ember-data/serializers/rest_serializer');
 
 /**
   @module ember-data
@@ -13,6 +12,512 @@ DS.rejectionHandler = function(reason) {
 
   throw reason;
 };
+
+function coerceId(id) {
+  return id == null ? null : id+'';
+}
+
+DS.RESTSerializer = DS.JSONSerializer.extend({
+  /**
+    Normalizes a part of the JSON payload returned by
+    the server. You should override this method, munge the hash
+    and call super if you have generic normalization to do.
+
+    It takes the type of the record that is being normalized
+    (as a DS.Model class), the property where the hash was
+    originally found, and the hash to normalize.
+
+    For example, if you have a payload that looks like this:
+
+    ```js
+    {
+      "post": {
+        "id": 1,
+        "title": "Rails is omakase",
+        "comments": [ 1, 2 ]
+      },
+      "comments": [{
+        "id": 1,
+        "body": "FIRST"
+      }, {
+        "id": 2,
+        "body": "Rails is unagi"
+      }]
+    }
+    ```
+
+    The `normalize` method will be called three times:
+
+    * With `App.Post`, `"posts"` and `{ id: 1, title: "Rails is omakase", ... }`
+    * With `App.Comment`, `"comments"` and `{ id: 1, body: "FIRST" }`
+    * With `App.Comment`, `"comments"` and `{ id: 2, body: "Rails is unagi" }`
+
+    You can use this method, for example, to normalize underscored keys to camelized
+    or other general-purpose normalizations.
+
+    If you want to do normalizations specific to some part of the payload, you
+    can specify those under `normalizeHash`.
+
+    For example, if the `IDs` under `"comments"` are provided as `_id` instead of
+    `id`, you can specify how to normalize just the comments:
+
+    ```js
+    App.PostSerializer = DS.RESTSerializer.extend({
+      normalizeHash: {
+        comments: function(hash) {
+          hash.id = hash._id;
+          delete hash._id;
+          return hash;
+        }
+      }
+    });
+    ```
+
+    The key under `normalizeHash` is just the original key that was in the original
+    payload.
+
+    @method normalize
+    @param {subclass of DS.Model} type
+    @param {String} prop
+    @param {Object} hash
+    @returns Object
+  */
+  normalize: function(type, prop, hash) {
+    this.normalizeId(hash);
+    this.normalizeAttributes(hash);
+
+    if (this.normalizeHash && this.normalizeHash[prop]) {
+      return this.normalizeHash[prop](hash);
+    }
+
+    return hash;
+  },
+
+  /**
+    @method normalizeId
+    @private
+  */
+  normalizeId: function(hash) {
+    var primaryKey = get(this, 'primaryKey');
+
+    if (primaryKey === 'id') { return; }
+
+    hash.id = hash[primaryKey];
+    delete hash[primaryKey];
+  },
+
+  /**
+    @method normalizeAttributes
+    @private
+  */
+  normalizeAttributes: function(hash) {
+    var attrs = get(this, 'attrs');
+
+    if (!attrs) { return; }
+
+    for (var key in attrs) {
+      var payloadKey = attrs[key];
+
+      hash[key] = hash[payloadKey];
+      delete hash[payloadKey];
+    }
+  },
+
+  /**
+    Called when the server has returned a payload representing
+    a single record, such as in response to a `find` or `save`.
+
+    It is your opportunity to clean up the server's response into the normalized
+    form expected by Ember Data.
+
+    If you want, you can just restructure the top-level of your payload, and
+    do more fine-grained normalization in the `normalize` method.
+
+    For example, if you have a payload like this in response to a request for
+    post 1:
+
+    ```js
+    {
+      "id": 1,
+      "title": "Rails is omakase",
+
+      "_embedded": {
+        "comment": [{
+          "_id": 1,
+          "comment_title": "FIRST"
+        }, {
+          "_id": 2,
+          "comment_title": "Rails is unagi"
+        }]
+      }
+    }
+    ```
+
+    You could implement a serializer that looks like this to get your payload
+    into shape:
+
+    ```js
+    App.PostSerializer = DS.RESTSerializer.extend({
+      // First, restructure the top-level so it's organized by type
+      extractSingle: function(store, type, payload, id, requestType) {
+        var comments = payload._embedded.comment;
+        delete payload._embedded;
+
+        payload = { comments: comments, post: payload };
+        return this._super(store, type, payload, id, requestType);
+      },
+
+      normalizeHash: {
+        // Next, normalize individual comments, which (after `extract`)
+        // are now located under `comments`
+        comments: function(hash) {
+          hash.id = hash._id;
+          hash.title = hash.comment_title;
+          delete hash._id;
+          delete hash.comment_title;
+          return hash;
+        }
+      }
+    })
+    ```
+
+    When you call super from your own implementation of `extractSingle`, the
+    built-in implementation will find the primary record in your normalized
+    payload and push the remaining records into the store.
+
+    The primary record is the single hash found under `post` or the first
+    element of the `posts` array.
+
+    The primary record has special meaning when the record is being created
+    for the first time or updated (`createRecord` or `updateRecord`). In
+    particular, it will update the properties of the record that was saved.
+
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+    @param {String} id
+    @param {'find'|'createRecord'|'updateRecord'|'deleteRecord'} requestType
+    @returns Object the primary response to the original request
+  */
+  extractSingle: function(store, primaryType, payload, recordId, requestType) {
+    var primaryTypeName = primaryType.typeKey,
+        primaryRecord;
+
+    for (var prop in payload) {
+      // legacy support for singular names
+      if (prop === primaryTypeName) {
+        primaryRecord = this.normalize(primaryType, prop, payload[prop]);
+        continue;
+      }
+
+      var typeName = this.singularize(prop),
+          type = store.modelFor(typeName);
+
+      /*jshint loopfunc:true*/
+      payload[prop].forEach(function(hash) {
+        hash = this.normalize(type, prop, hash);
+
+        var isFirstCreatedRecord = typeName === primaryTypeName && !recordId && !primaryRecord,
+            isUpdatedRecord = typeName === primaryTypeName && coerceId(hash.id) === recordId;
+
+        // find the primary record.
+        //
+        // It's either:
+        // * the record with the same ID as the original request
+        // * in the case of a newly created record that didn't have an ID, the first
+        //   record in the Array
+        if (isFirstCreatedRecord || isUpdatedRecord) {
+          primaryRecord = hash;
+        } else {
+          store.push(typeName, hash);
+        }
+      }, this);
+    }
+
+    return primaryRecord;
+  },
+
+  /**
+    Called when the server has returned a payload representing
+    multiple records, such as in response to a `findAll` or `findQuery`.
+
+    It is your opportunity to clean up the server's response into the normalized
+    form expected by Ember Data.
+
+    If you want, you can just restructure the top-level of your payload, and
+    do more fine-grained normalization in the `normalize` method.
+
+    For example, if you have a payload like this in response to a request for
+    all posts:
+
+    ```js
+    {
+      "_embedded": {
+        "post": [{
+          "id": 1,
+          "title": "Rails is omakase"
+        }, {
+          "id": 2,
+          "title": "The Parley Letter"
+        }],
+        "comment": [{
+          "_id": 1,
+          "comment_title": "Rails is unagi"
+          "post_id": 1
+        }, {
+          "_id": 2,
+          "comment_title": "Don't tread on me",
+          "post_id": 2
+        }]
+      }
+    }
+    ```
+
+    You could implement a serializer that looks like this to get your payload
+    into shape:
+
+    ```js
+    App.PostSerializer = DS.RESTSerializer.extend({
+      // First, restructure the top-level so it's organized by type
+      // and the comments are listed under a post's `comments` key.
+      extractArray: function(store, type, payload, id, requestType) {
+        var posts = payload._embedded.post;
+        var comments = [];
+        var postCache = {};
+
+        posts.forEach(function(post) {
+          post.comments = [];
+          postCache[post.id] = post;
+        });
+
+        payload._embedded.comment.forEach(function(comment) {
+          comments.push(comment);
+          postCache[comment.post_id].comments.push(comment);
+          delete comment.post_id;
+        }
+
+        payload = { comments: comments, posts: payload };
+
+        return this._super(store, type, payload, id, requestType);
+      },
+
+      normalizeHash: {
+        // Next, normalize individual comments, which (after `extract`)
+        // are now located under `comments`
+        comments: function(hash) {
+          hash.id = hash._id;
+          hash.title = hash.comment_title;
+          delete hash._id;
+          delete hash.comment_title;
+          return hash;
+        }
+      }
+    })
+    ```
+
+    When you call super from your own implementation of `extractArray`, the
+    built-in implementation will find the primary array in your normalized
+    payload and push the remaining records into the store.
+
+    The primary array is the array found under `posts`.
+
+    The primary record has special meaning when responding to `findQuery`
+    or `findHasMany`. In particular, the primary array will become the
+    list of records in the record array that kicked off the request.
+
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+    @param {'findAll'|'findMany'|'findHasMany'|'findQuery'} requestType
+    @returns {Array<Object>} The primary array that was returned in response
+      to the original query.
+  */
+  extractArray: function(store, primaryType, payload) {
+    var primaryTypeName = primaryType.typeKey,
+        primaryArray;
+
+    for (var prop in payload) {
+      var typeName = this.singularize(prop),
+          type = store.modelFor(typeName),
+          isPrimary = typeName === primaryTypeName;
+
+      /*jshint loopfunc:true*/
+      var normalizedArray = payload[prop].map(function(hash) {
+        return this.normalize(type, prop, hash);
+      }, this);
+
+      if (isPrimary) {
+        primaryArray = normalizedArray;
+      } else {
+        store.pushMany(typeName, normalizedArray);
+      }
+    }
+
+    return primaryArray;
+  },
+
+  /**
+    @private
+    @method pluralize
+    @param {String} key
+  */
+  pluralize: function(key) {
+    return Ember.String.pluralize(key);
+  },
+
+  /**
+    @private
+    @method singularize
+    @param {String} key
+  */
+  singularize: function(key) {
+    return Ember.String.singularize(key);
+  },
+
+  // SERIALIZE
+
+  /**
+    Called when a record is saved in order to convert the
+    record into JSON.
+
+    By default, it creates a JSON object with a key for
+    each attribute and belongsTo relationship.
+
+    For example, consider this model:
+
+    ```js
+    App.Comment = DS.Model.extend({
+      title: DS.attr(),
+      body: DS.attr(),
+
+      author: DS.belongsTo('user')
+    });
+    ```
+
+    The default serialization would create a JSON object like:
+
+    ```js
+    {
+      "title": "Rails is unagi",
+      "body": "Rails? Omakase? O_O",
+      "author": 12
+    }
+    ```
+
+    By default, attributes are passed through as-is, unless
+    you specified an attribute type (`DS.attr('date')`). If
+    you specify a transform, the JavaScript value will be
+    serialized when inserted into the JSON hash.
+
+    By default, belongs-to relationships are converted into
+    IDs when inserted into the JSON hash.
+
+    ## IDs
+
+    `serialize` takes an options hash with a single option:
+    `includeId`. If this option is `true`, `serialize` will,
+    by default include the ID in the JSON object it builds.
+
+    The adapter passes in `includeId: true` when serializing
+    a record for `createRecord`, but not for `updateRecord`.
+
+    ## Customization
+
+    Your server may expect a different JSON format than the
+    built-in serialization format.
+
+    In that case, you can implement `serialize` yourself and
+    return a JSON hash of your choosing.
+
+    ```js
+    App.PostSerializer = DS.RESTSerializer.extend({
+      serialize: function(post, options) {
+        var json = {
+          POST_TTL: post.get('title'),
+          POST_BDY: post.get('body'),
+          POST_CMS: post.get('comments').mapProperty('id')
+        }
+
+        if (options.includeId) {
+          json.POST_ID_ = post.get('id');
+        }
+
+        return json;
+      }
+    });
+    ```
+
+    ## Customizing an App-Wide Serializer
+
+    If you want to define a serializer for your entire
+    application, you'll probably want to use `eachAttribute`
+    and `eachRelationship` on the record.
+
+    ```js
+    App.ApplicationSerializer = DS.RESTSerializer.extend({
+      serialize: function(record, options) {
+        var json = {};
+
+        record.eachAttribute(function(name) {
+          json[serverAttributeName(name)] = record.get(name);
+        })
+
+        record.eachRelationship(function(name, relationship) {
+          if (relationship.kind === 'hasMany') {
+            json[serverHasManyName(name)] = record.get(name).mapBy('id');
+          }
+        });
+
+        if (options.includeId) {
+          json.ID_ = record.get('id');
+        }
+
+        return json;
+      }
+    });
+
+    function serverAttributeName(attribute) {
+      return attribute.underscore().toUpperCase();
+    }
+
+    function serverHasManyName(name) {
+      return serverAttributeName(name.singularize()) + "_IDS";
+    }
+    ```
+
+    This serializer will generate JSON that looks like this:
+
+    ```js
+    {
+      "TITLE": "Rails is omakase",
+      "BODY": "Yep. Omakase.",
+      "COMMENT_IDS": [ 1, 2, 3 ]
+    }
+    ```
+
+    ## Tweaking the Default JSON
+
+    If you just want to do some small tweaks on the default JSON,
+    you can call super first and make the tweaks on the returned
+    JSON.
+
+    ```js
+    App.PostSerializer = DS.RESTSerializer.extend({
+      serialize: function(record, options) {
+        var json = this._super(record, options);
+
+        json.subject = json.title;
+        delete json.title;
+
+        return json;
+      }
+    });
+    ```
+  */
+  serialize: function(record, options) {
+    return this._super.apply(this, arguments);
+  }
+});
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by
@@ -113,359 +618,257 @@ DS.rejectionHandler = function(reason) {
   @extends DS.Adapter
 */
 DS.RESTAdapter = DS.Adapter.extend({
-  namespace: null,
-  bulkCommit: false,
-  since: 'since',
-
-  serializer: DS.RESTSerializer,
+  defaultSerializer: '_rest',
 
   /**
-    Called on each record before saving. If false is returned, the record
-    will not be saved.
+    Called by the store in order to fetch the JSON for a given
+    type and ID.
 
-    By default, this method returns `true` except when the record is embedded.
+    It makes an Ajax request to a URL computed by `buildURL`, and returns a
+    promise for the resulting payload.
 
-    @method   shouldSave
-    @property {DS.Model} record
-    @return   {Boolean}  `true` to save, `false` to not. Defaults to true.
-  */
-  shouldSave: function(record) {
-    var reference = get(record, '_reference');
-
-    return !reference.parent;
-  },
-
-  /**
-    @method dirtyRecordsForRecordChange
-    @param {Ember.OrderedSet} dirtySet
-    @param {DS.Model} record
-  */
-  dirtyRecordsForRecordChange: function(dirtySet, record) {
-    this._dirtyTree(dirtySet, record);
-  },
-
-  /**
-    @method dirtyRecordsForHasManyChange
-    @param {Ember.OrderedSet} dirtySet
-    @param {DS.Model} record
-    @param {DS.RelationshipChange} relationship
-  */
-  dirtyRecordsForHasManyChange: function(dirtySet, record, relationship) {
-    var embeddedType = get(this, 'serializer').embeddedType(record.constructor, relationship.secondRecordName);
-
-    if (embeddedType === 'always') {
-      relationship.childReference.parent = relationship.parentReference;
-      this._dirtyTree(dirtySet, record);
-    }
-  },
-
-  /**
-    @method _dirtyTree
-    @private
-    @param {Ember.OrderedSet} dirtySet
-    @param {DS.Model} record
-  */
-  _dirtyTree: function(dirtySet, record) {
-    dirtySet.add(record);
-
-    get(this, 'serializer').eachEmbeddedRecord(record, function(embeddedRecord, embeddedType) {
-      if (embeddedType !== 'always') { return; }
-      if (dirtySet.has(embeddedRecord)) { return; }
-      this._dirtyTree(dirtySet, embeddedRecord);
-    }, this);
-
-    var reference = record.get('_reference');
-
-    if (reference.parent) {
-      var store = get(record, 'store');
-      var parent = store.recordForReference(reference.parent);
-      this._dirtyTree(dirtySet, parent);
-    }
-  },
-
-  /**
-    Serializes the record and sends it to the server.
-
-    By default, the record is serialized with the adapter's `serialize`
-    method and assigned to a root obtained by the `rootForType` method.
-
-    The url is created with `buildURL` and then called as a 'POST' request
-    with the adapter's `ajax` method.
-
-    If successful, the adapter's `didCreateRecord` method is called,
-    otherwise `didError`
-
-    @method createRecord
-    @property {DS.Store} store
-    @property {DS.Model} type   the DS.Model class of the record
-    @property {DS.Model} record
-  */
-  createRecord: function(store, type, record) {
-    var root = this.rootForType(type);
-    var adapter = this;
-    var data = {};
-
-    data[root] = this.serialize(record, { includeId: true });
-
-    return this.ajax(this.buildURL(root), "POST", {
-      data: data
-    }).then(function(json){
-      adapter.didCreateRecord(store, type, record, json);
-    }, function(xhr) {
-      adapter.didError(store, type, record, xhr);
-      throw xhr;
-    }).then(null, DS.rejectionHandler);
-  },
-
-  /**
-    @method createRecords
-    @param  store
-    @param  type
-    @param  records
-  */
-  createRecords: function(store, type, records) {
-    var adapter = this;
-
-    if (get(this, 'bulkCommit') === false) {
-      return this._super(store, type, records);
-    }
-
-    var root = this.rootForType(type),
-        plural = this.pluralize(root);
-
-    var data = {};
-    data[plural] = [];
-    records.forEach(function(record) {
-      data[plural].push(this.serialize(record, { includeId: true }));
-    }, this);
-
-    return this.ajax(this.buildURL(root), "POST", {
-      data: data
-    }).then(function(json) {
-      adapter.didCreateRecords(store, type, records, json);
-    }).then(null, DS.rejectionHandler);
-  },
-
-  /**
-    @method updateRecord
-    @param  store
-    @param  type
-    @param  record
-  */
-  updateRecord: function(store, type, record) {
-    var id, root, adapter, data;
-
-    id = get(record, 'id');
-    root = this.rootForType(type);
-    adapter = this;
-
-    data = {};
-    data[root] = this.serialize(record);
-
-    return this.ajax(this.buildURL(root, id, record), "PUT",{
-      data: data
-    }).then(function(json){
-      adapter.didUpdateRecord(store, type, record, json);
-    }, function(xhr) {
-      adapter.didError(store, type, record, xhr);
-      throw xhr;
-    }).then(null, DS.rejectionHandler);
-  },
-
-  /**
-    @method updateRecords
-    @param  store
-    @param  type
-    @param  records
-  */
-  updateRecords: function(store, type, records) {
-    var root, plural, adapter, data;
-
-    if (get(this, 'bulkCommit') === false) {
-      return this._super(store, type, records);
-    }
-
-    root = this.rootForType(type);
-    plural = this.pluralize(root);
-    adapter = this;
-
-    data = {};
-
-    data[plural] = [];
-
-    records.forEach(function(record) {
-      data[plural].push(this.serialize(record, { includeId: true }));
-    }, this);
-
-    return this.ajax(this.buildURL(root, "bulk"), "PUT", {
-      data: data
-    }).then(function(json) {
-      adapter.didUpdateRecords(store, type, records, json);
-    }).then(null, DS.rejectionHandler);
-  },
-
-  /**
-    @method deleteRecord
-    @param  store
-    @param  type
-    @param  record
-  */
-  deleteRecord: function(store, type, record) {
-    var id, root, adapter;
-
-    id = get(record, 'id');
-    root = this.rootForType(type);
-    adapter = this;
-
-    return this.ajax(this.buildURL(root, id, record), "DELETE").then(function(json){
-      adapter.didDeleteRecord(store, type, record, json);
-    }, function(xhr){
-      adapter.didError(store, type, record, xhr);
-      throw xhr;
-    }).then(null, DS.rejectionHandler);
-  },
-
-  /**
-    @method deleteRecords
-    @param  store
-    @param  type
-    @param  records
-  */
-  deleteRecords: function(store, type, records) {
-    var root, plural, serializer, adapter, data;
-
-    if (get(this, 'bulkCommit') === false) {
-      return this._super(store, type, records);
-    }
-
-    root = this.rootForType(type);
-    plural = this.pluralize(root);
-    serializer = get(this, 'serializer');
-    adapter = this;
-
-    data = {};
-
-    data[plural] = [];
-    records.forEach(function(record) {
-      data[plural].push(serializer.serializeId( get(record, 'id') ));
-    });
-
-    return this.ajax(this.buildURL(root, 'bulk'), "DELETE", {
-      data: data
-    }).then(function(json){
-      adapter.didDeleteRecords(store, type, records, json);
-    }).then(null, DS.rejectionHandler);
-  },
-
-  /**
     @method find
-    @param  store
-    @param  type
-    @param  id
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {String} id
+    @returns Promise
   */
   find: function(store, type, id) {
-    var root = this.rootForType(type), adapter = this;
-
-    return this.ajax(this.buildURL(root, id), "GET").
-      then(function(json){
-        adapter.didFindRecord(store, type, json, id);
-    }).then(null, DS.rejectionHandler);
+    return this.ajax(this.buildURL(type, id), 'GET');
   },
 
   /**
+    Called by the store in order to fetch a JSON array for all
+    of the records for a given type.
+
+    It makes an Ajax request to a URL computed by `buildURL`, and returns a
+    promise for the resulting payload.
+
     @method findAll
-    @param  store
-    @param  type
-    @param  since
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @returns Promise
   */
-  findAll: function(store, type, since) {
-    var root, adapter;
-
-    root = this.rootForType(type);
-    adapter = this;
-
-    return this.ajax(this.buildURL(root), "GET",{
-      data: this.sinceQuery(since)
-    }).then(function(json) {
-      adapter.didFindAll(store, type, json);
-    }).then(null, DS.rejectionHandler);
+  findAll: function(store, type) {
+    return this.ajax(this.buildURL(type), 'GET');
   },
 
   /**
+    Called by the store in order to fetch a JSON array for
+    the records that match a particular query.
+
+    The query is a simple JavaScript object that will be passed directly
+    to the server as parameters.
+
+    It makes an Ajax request to a URL computed by `buildURL`, and returns a
+    promise for the resulting payload.
+
     @method findQuery
-    @param  store
-    @param  type
-    @param  query
-    @param  recordArray
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} query
+    @returns Promise
   */
-  findQuery: function(store, type, query, recordArray) {
-    var root = this.rootForType(type),
-        adapter = this;
-
-    return this.ajax(this.buildURL(root), "GET", {
-      data: query
-    }).then(function(json){
-      adapter.didFindQuery(store, type, json, recordArray);
-    }).then(null, DS.rejectionHandler);
+  findQuery: function(store, type, query) {
+    return this.ajax(this.buildURL(type), 'GET', query);
   },
 
   /**
-    @method findMany
-    @param  store
-    @param  type
-    @param  ids
-    @param  owner
-  */
-  findMany: function(store, type, ids, owner) {
-    var root = this.rootForType(type),
-    adapter = this;
+    Called by the store in order to fetch a JSON array for
+    the unloaded records in a has-many relationship that were originally
+    specified as IDs.
 
-    ids = this.serializeIds(ids);
+    For example, if the original payload looks like:
 
-    return this.ajax(this.buildURL(root), "GET", {
-      data: {ids: ids}
-    }).then(function(json) {
-      adapter.didFindMany(store, type, json);
-    }).then(null, DS.rejectionHandler);
-  },
-
-  /**
-    This method serializes a list of IDs using `serializeId`
-
-    @method serializeIds
-    @private
-    @param  ids
-    @return {Array} an array of serialized IDs
-  */
-  serializeIds: function(ids) {
-    var serializer = get(this, 'serializer');
-
-    return Ember.EnumerableUtils.map(ids, function(id) {
-      return serializer.serializeId(id);
-    });
-  },
-
-  /**
-    @method didError
-    @private
-    @param  store
-    @param  type
-    @param  record
-    @param  xhr
-  */
-  didError: function(store, type, record, xhr) {
-    if (xhr.status === 422) {
-      var json = JSON.parse(xhr.responseText),
-          serializer = get(this, 'serializer'),
-          errors = serializer.extractValidationErrors(type, json);
-
-      store.recordWasInvalid(record, errors);
-    } else {
-      this._super.apply(this, arguments);
+    ```js
+    {
+      "id": 1,
+      "title": "Rails is omakase",
+      "comments": [ 1, 2, 3 ]
     }
+    ```
+
+    The IDs will be passed as a URL-encoded Array of IDs, in this form:
+
+    ```
+    ids[]=1&ids[]=2&ids[]=3
+    ```
+
+    Many servers, such as Rails and PHP, will automatically convert this
+    into an Array for you on the server-side. If you want to encode the
+    IDs, differently, just override this (one-line) method.
+
+    It makes an Ajax request to a URL computed by `buildURL`, and returns a
+    promise for the resulting payload.
+
+    @method findMany
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Array<String>} ids
+    @returns Promise
+  */
+  findMany: function(store, type, ids) {
+    return this.ajax(this.buildURL(type), 'GET', { ids: ids });
   },
 
   /**
+    Called by the store in order to fetch a JSON array for
+    the unloaded records in a has-many relationship that were originally
+    specified as a URL (inside of `links`).
+
+    For example, if your original payload looks like this:
+
+    ```js
+    {
+      "post": {
+        "id": 1,
+        "title": "Rails is omakase",
+        "links": { "comments": "/posts/1/comments" }
+      }
+    }
+    ```
+
+    This method will be called with the parent record and `/posts/1/comments`.
+
+    It will make an Ajax request to the originally specified URL.
+
+    @method findHasMany
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @param {DS.Store} store
+    @param {DS.Model} record
+    @param {String} url
+    @returns Promise
+  */
+  findHasMany: function(store, record, url) {
+    return this.ajax(url, 'GET');
+  },
+
+  /**
+    Called by the store when a newly created record is
+    `save`d.
+
+    It serializes the record, and `POST`s it to a URL generated by `buildURL`.
+
+    See `serialize` for information on how to customize the serialized form
+    of a record.
+
+    @method createRecord
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @see RESTAdapter/serialize
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @returns Promise
+  */
+  createRecord: function(store, type, record) {
+    var data = {};
+    data[type.typeKey] = this.serializerFor(type.typeKey).serialize(record, { includeId: true });
+
+    return this.ajax(this.buildURL(type), "POST", { data: data });
+  },
+
+  /**
+    Called by the store when an existing record is `save`d.
+
+    It serializes the record, and `POST`s it to a URL generated by `buildURL`.
+
+    See `serialize` for information on how to customize the serialized form
+    of a record.
+
+    @method updateRecord
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @see RESTAdapter/serialize
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @returns Promise
+  */
+  updateRecord: function(store, type, record) {
+    var data = {};
+    data[type.typeKey] = this.serializerFor(type.typeKey).serialize(record);
+
+    var id = get(record, 'id');
+
+    return this.ajax(this.buildURL(type, id), "PUT", { data: data });
+  },
+
+  /**
+    Called by the store when an deleted record is `save`d.
+
+    It serializes the record, and `POST`s it to a URL generated by `buildURL`.
+
+    @method deleteRecord
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @see RESTAdapter/serialize
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @returns Promise
+  */
+  deleteRecord: function(store, type, record) {
+    var id = get(record, 'id');
+
+    return this.ajax(this.buildURL(type, id), "DELETE");
+  },
+
+  /**
+    Builds a URL for a given type and optional ID.
+
+    By default, it pluralizes the type's name (for example,
+    'post' becomes 'posts' and 'person' becomes 'people').
+
+    If an ID is specified, it adds the ID to the plural form
+    of the type, separated by a `/`.
+
+    @method buildURL
+    @param {subclass of DS.Model} type
+    @param {String} id
+    @returns String
+  */
+  buildURL: function(type, id) {
+    var url = "/" + Ember.String.pluralize(type.typeKey);
+    if (id) { url += "/" + id; }
+
+    return url;
+  },
+
+  serializerFor: function(type) {
+    // This logic has to be kept in sync with DS.Store#serializerFor
+    return this.container.lookup('serializer:' + type) ||
+           this.container.lookup('serializer:application') ||
+           this.container.lookup('serializer:_rest');
+  },
+
+
+  /**
+    Takes a URL, an HTTP method and a hash of data, and makes an
+    HTTP request.
+
+    When the server responds with a payload, Ember Data will call into `extractSingle`
+    or `extractArray` (depending on whether the original query was for one record or
+    many records).
+
+    By default, it has the following behavior:
+
+    * It sets the response `dataType` to `"json"`
+    * If the HTTP method is not `"GET"`, it sets the `Content-Type` to be
+      `application/json; charset=utf-8`
+    * If the HTTP method is not `"GET"`, it stringifies the data passed in. The
+      data is the serialized record in the case of a save.
+    * Registers success and failure handlers.
+
     @method ajax
     @private
     @param  url
@@ -510,68 +913,6 @@ DS.RESTAdapter = DS.Adapter.extend({
 
       Ember.$.ajax(hash);
     });
-  },
-
-  /**
-    @property url
-    @default ''
-  */
-  url: "",
-
-  /**
-    @method rootForType
-    @private
-    @param type
-  */
-  rootForType: function(type) {
-    var serializer = get(this, 'serializer');
-    return serializer.rootForType(type);
-  },
-
-  /**
-    @method pluralize
-    @private
-    @param string
-  */
-  pluralize: function(string) {
-    var serializer = get(this, 'serializer');
-    return serializer.pluralize(string);
-  },
-
-  /**
-    @method buildURL
-    @private
-    @param root
-    @param suffix
-    @param record
-  */
-  buildURL: function(root, suffix, record) {
-    var url = [this.url];
-
-    Ember.assert("Namespace URL (" + this.namespace + ") must not start with slash", !this.namespace || this.namespace.toString().charAt(0) !== "/");
-    Ember.assert("Root URL (" + root + ") must not start with slash", !root || root.toString().charAt(0) !== "/");
-    Ember.assert("URL suffix (" + suffix + ") must not start with slash", !suffix || suffix.toString().charAt(0) !== "/");
-
-    if (!Ember.isNone(this.namespace)) {
-      url.push(this.namespace);
-    }
-
-    url.push(this.pluralize(root));
-    if (suffix !== undefined) {
-      url.push(suffix);
-    }
-
-    return url.join("/");
-  },
-
-  /**
-    @method sinceQuery
-    @private
-    @param since
-  */
-  sinceQuery: function(since) {
-    var query = {};
-    query[get(this, 'since')] = since;
-    return since ? query : null;
   }
+
 });

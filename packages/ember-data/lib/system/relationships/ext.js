@@ -53,11 +53,6 @@ DS.Model.reopen({
         Ember.addBeforeObserver(proto, key, null, 'belongsToWillChange');
       }
 
-      if (meta.isAttribute) {
-        Ember.addObserver(proto, key, null, 'attributeDidChange');
-        Ember.addBeforeObserver(proto, key, null, 'attributeWillChange');
-      }
-
       meta.parentType = proto.constructor;
     }
   }
@@ -328,13 +323,7 @@ DS.Model.reopenClass({
         type = meta.type;
 
         if (typeof type === 'string') {
-          if (type.match(/^[^A-Z]/)) {
-            type = this.store.modelFor(type);
-          } else {
-            type = get(this, type, false) || get(Ember.lookup, type);
-          }
-
-          meta.type = type;
+          meta.type = this.store.modelFor(type);
         }
 
         map.set(name, meta);

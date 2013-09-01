@@ -1,7 +1,7 @@
 var get = Ember.get, set = Ember.set;
 var Person, store, adapter;
 
-module("Finding Records", {
+module("integration/adapter/find - Finding Records", {
   setup: function() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
@@ -29,32 +29,22 @@ test("When a single record is requested, the adapter's find method should be cal
     equal(type, Person, "the find method is called with the correct type");
     equal(count, 0, "the find method is only called once");
 
-    store.load(type, id, { id: 1, name: "Braaaahm Dale" });
-
     count++;
+    return { id: 1, name: "Braaaahm Dale" };
   };
 
   store.find(Person, 1);
   store.find(Person, 1);
 });
 
-test("When a record is requested but has not yet been loaded, its `id` property should be the ID used to request the record.", function() {
-  adapter.find = Ember.K;
-
-  var record = store.find(Person, 1);
-  equal(get(record, 'id'), 1, "should report its id while loading");
-});
-
-test("When multiple records are requested, the default adapter should call the `find` method once per record if findMany is not implemented", function() {
-  expect(3);
-
+test("When a single record is requested, and the promise is rejected, .find() is rejected.", function() {
   var count = 0;
-  adapter.find = function(store, type, id) {
-    count++;
 
-    equal(id, count);
+  adapter.find = function(store, type, id) {
+    return Ember.RSVP.reject();
   };
 
-  store.findMany(Person, [1,2,3]);
-  store.findMany(Person, [1,2,3]);
+  store.find(Person, 1).then(null, async(function(reason) {
+    ok(true, "The rejection handler was called");
+  }));
 });

@@ -1,10 +1,6 @@
 /**
   @module ember-data
 */
-// Keep ED compatible with previous versions of ember
-// TODO: Remove this check for Ember 1.0
-if (!Ember.DataAdapter) { return; }
-
 var get = Ember.get, capitalize = Ember.String.capitalize, underscore = Ember.String.underscore, DS = window.DS ;
 
 /**
@@ -106,4 +102,3 @@ DS.DebugAdapter = Ember.DataAdapter.extend({
   }
 
 });
-

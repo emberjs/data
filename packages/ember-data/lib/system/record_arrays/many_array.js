@@ -80,19 +80,20 @@ DS.ManyArray = DS.RecordArray.extend({
   },
 
   fetch: function() {
-    var references = get(this, 'content'),
+    var records = get(this, 'content'),
         store = get(this, 'store'),
         owner = get(this, 'owner');
 
-    store.fetchUnloadedReferences(references, owner);
+    var unloadedRecords = records.filterProperty('isEmpty', true);
+    store.fetchMany(unloadedRecords, owner);
   },
 
   // Overrides Ember.Array's replace method to implement
   replaceContent: function(index, removed, added) {
     // Map the array of record objects into an array of  client ids.
     added = map(added, function(record) {
-      Ember.assert("You can only add records of " + (get(this, 'type') && get(this, 'type').toString()) + " to this relationship.", !get(this, 'type') || (get(this, 'type').detectInstance(record)) );
-      return get(record, '_reference');
+      Ember.assert("You cannot add '" + record.constructor.typeKey + "' records to this relationship (only '" + this.type.typeKey + "' allowed)", !this.type || record instanceof this.type);
+      return record;
     }, this);
 
     this._super(index, removed, added);
@@ -117,9 +118,9 @@ DS.ManyArray = DS.RecordArray.extend({
       // the `arrayContentDidChange` will set `newParent` on
       // the change.
       for (var i=index; i<index+removed; i++) {
-        var reference = get(this, 'content').objectAt(i);
+        var record = get(this, 'content').objectAt(i);
 
-        var change = DS.RelationshipChange.createChange(owner.get('_reference'), reference, get(this, 'store'), {
+        var change = DS.RelationshipChange.createChange(owner, record, get(this, 'store'), {
           parentType: owner.constructor,
           changeType: "remove",
           kind: "hasMany",
@@ -146,9 +147,9 @@ DS.ManyArray = DS.RecordArray.extend({
       // from the child object, and adds the current owner as
       // the new parent.
       for (var i=index; i<index+added; i++) {
-        var reference = get(this, 'content').objectAt(i);
+        var record = get(this, 'content').objectAt(i);
 
-        var change = DS.RelationshipChange.createChange(owner.get('_reference'), reference, store, {
+        var change = DS.RelationshipChange.createChange(owner, record, store, {
           parentType: owner.constructor,
           changeType: "add",
           kind:"hasMany",
@@ -167,23 +168,21 @@ DS.ManyArray = DS.RecordArray.extend({
       this._changesToSync.forEach(function(change) {
         change.sync();
       });
-      DS.OneToManyChange.ensureSameTransaction(this._changesToSync, store);
+
       this._changesToSync.clear();
     }
   },
 
   // Create a child record within the owner
-  createRecord: function(hash, transaction) {
+  createRecord: function(hash) {
     var owner = get(this, 'owner'),
         store = get(owner, 'store'),
         type = get(this, 'type'),
         record;
 
-    Ember.assert("You can not create records of " + (get(this, 'type') && get(this, 'type').toString()) + " on this polymorphic relationship.", !get(this, 'isPolymorphic'));
+    Ember.assert("You cannot add '" + type.typeKey + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
 
-    transaction = transaction || get(owner, 'transaction');
-
-    record = store.createRecord.call(store, type, hash, transaction);
+    record = store.createRecord.call(store, type, hash);
     this.pushObject(record);
 
     return record;

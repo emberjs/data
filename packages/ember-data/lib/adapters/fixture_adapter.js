@@ -1,6 +1,5 @@
 require("ember-data/core");
 require("ember-data/system/adapter");
-require('ember-data/serializers/fixture_serializer');
 
 /**
   @module ember-data
@@ -8,6 +7,8 @@ require('ember-data/serializers/fixture_serializer');
 
 var get = Ember.get, fmt = Ember.String.fmt,
     indexOf = Ember.EnumerableUtils.indexOf;
+
+var counter = 0;
 
 /**
   `DS.FixtureAdapter` is an adapter that loads records from memory.
@@ -23,12 +24,12 @@ var get = Ember.get, fmt = Ember.String.fmt,
   @extends DS.Adapter
 */
 DS.FixtureAdapter = DS.Adapter.extend({
+  // by default, fixtures are already in normalized form
+  serializer: null,
 
   simulateRemoteResponse: true,
 
   latency: 50,
-
-  serializer: DS.FixtureSerializer,
 
   /**
     Implement this method in order to provide data associated with a type
@@ -87,8 +88,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @param  type
     @param  record
   */
-  mockJSON: function(type, record) {
-    return this.serialize(record, { includeId: true });
+  mockJSON: function(store, type, record) {
+    return store.serializerFor(type).serialize(record, { includeId: true });
   },
 
   /**
@@ -96,8 +97,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @param  store
     @param  record
   */
-  generateIdForRecord: function(store, record) {
-    return Ember.guidFor(record);
+  generateIdForRecord: function(store) {
+    return counter++;
   },
 
   /**
@@ -117,8 +118,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
     }
 
     if (fixture) {
-      this.simulateRemoteCall(function() {
-        this.didFindRecord(store, type, fixture, id);
+      return this.simulateRemoteCall(function() {
+        return fixture;
       }, this);
     }
   },
@@ -141,8 +142,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
     }
 
     if (fixtures) {
-      this.simulateRemoteCall(function() {
-        this.didFindMany(store, type, fixtures);
+      return this.simulateRemoteCall(function() {
+        return fixtures;
       }, this);
     }
   },
@@ -157,8 +158,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
     Ember.assert("Unable to find fixtures for model type "+type.toString(), !!fixtures);
 
-    this.simulateRemoteCall(function() {
-      this.didFindAll(store, type, fixtures);
+    return this.simulateRemoteCall(function() {
+      return fixtures;
     }, this);
   },
 
@@ -177,8 +178,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
     fixtures = this.queryFixtures(fixtures, query, type);
 
     if (fixtures) {
-      this.simulateRemoteCall(function() {
-        this.didFindQuery(store, type, fixtures, array);
+      return this.simulateRemoteCall(function() {
+        return fixtures;
       }, this);
     }
   },
@@ -190,12 +191,12 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @param  record
   */
   createRecord: function(store, type, record) {
-    var fixture = this.mockJSON(type, record);
+    var fixture = this.mockJSON(store, type, record);
 
     this.updateFixtures(type, fixture);
 
-    this.simulateRemoteCall(function() {
-      this.didCreateRecord(store, type, record, fixture);
+    return this.simulateRemoteCall(function() {
+      return fixture;
     }, this);
   },
 
@@ -206,12 +207,12 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @param  record
   */
   updateRecord: function(store, type, record) {
-    var fixture = this.mockJSON(type, record);
+    var fixture = this.mockJSON(store, type, record);
 
     this.updateFixtures(type, fixture);
 
-    this.simulateRemoteCall(function() {
-      this.didUpdateRecord(store, type, record, fixture);
+    return this.simulateRemoteCall(function() {
+      return fixture;
     }, this);
   },
 
@@ -222,13 +223,14 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @param  record
   */
   deleteRecord: function(store, type, record) {
-    var fixture = this.mockJSON(type, record);
+    var fixture = this.mockJSON(store, type, record);
 
     this.deleteLoadedFixture(type, fixture);
 
-    this.simulateRemoteCall(function() {
-      this.didDeleteRecord(store, type, record);
-    }, this);
+    return this.simulateRemoteCall(function() {
+      // no payload in a deletion
+      return null;
+    });
   },
 
   /*
@@ -255,7 +257,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
   */
   findExistingFixture: function(type, record) {
     var fixtures = this.fixturesForType(type);
-    var id = this.extractId(type, record);
+    var id = get(record, 'id');
 
     return this.findFixtureById(fixtures, id);
   },
@@ -283,12 +285,20 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @param context
   */
   simulateRemoteCall: function(callback, context) {
-    if (get(this, 'simulateRemoteResponse')) {
-      // Schedule with setTimeout
-      Ember.run.later(context, callback, get(this, 'latency'));
-    } else {
-      // Asynchronous, but at the of the runloop with zero latency
-      Ember.run.once(context, callback);
-    }
+    var adapter = this;
+
+    return new Ember.RSVP.Promise(function(resolve) {
+      if (get(adapter, 'simulateRemoteResponse')) {
+        // Schedule with setTimeout
+        Ember.run.later(function() {
+          resolve(callback.call(context));
+        }, get(adapter, 'latency'));
+      } else {
+        // Asynchronous, but at the of the runloop with zero latency
+        Ember.run.once(function() {
+          resolve(callback.call(context));
+        });
+      }
+    });
   }
 });

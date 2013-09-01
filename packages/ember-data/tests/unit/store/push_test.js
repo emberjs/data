@@ -1,9 +1,8 @@
 var store, container, adapter, Person, PhoneNumber;
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
 
-module("DS.Store - push - unit/store/push_test", {
+module("unit/store/push - DS.Store#push", {
   setup: function() {
-    Ember.assert = function(desc, test) { if (!test) { throw new Error(desc); } };
     container = new Ember.Container();
     adapter = DS.Adapter.create();
 
@@ -23,7 +22,7 @@ module("DS.Store - push - unit/store/push_test", {
       adapter: adapter
     });
 
-    var DefaultSerializer = DS.NewJSONSerializer.extend({
+    var DefaultSerializer = DS.JSONSerializer.extend({
       store: store
     });
 
@@ -47,12 +46,14 @@ test("Calling push with a normalized hash returns a record", function() {
     lastName: "Katz"
   });
 
-  strictEqual(store.find('person', 'wat'), person, "record returned via load() is the same as the record returned from find()");
-  deepEqual(person.getProperties('id', 'firstName', 'lastName'), {
-    id: 'wat',
-    firstName: "Yehuda",
-    lastName: "Katz"
-  });
+  store.find('person', 'wat').then(async(function(foundPerson) {
+    equal(foundPerson, person, "record returned via load() is the same as the record returned from find()");
+    deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
+      id: 'wat',
+      firstName: "Yehuda",
+      lastName: "Katz"
+    });
+  }));
 });
 
 test("Calling push with a normalized hash containing related records returns a record", function() {
@@ -79,6 +80,10 @@ test("Calling push with a normalized hash containing related records returns a r
 });
 
 test("Calling push with a normalized hash containing IDs of related records returns a record", function() {
+  Person.reopen({
+    phoneNumbers: hasMany('phone-number', { async: true })
+  });
+
   var person = store.push('person', {
     id: 'wat',
     firstName: 'John',
@@ -88,7 +93,7 @@ test("Calling push with a normalized hash containing IDs of related records retu
 
   adapter.find = function(store, type, id) {
     if (id === "1") {
-      store.push('phone-number', {
+      return Ember.RSVP.resolve({
         id: 1,
         number: '5551212',
         person: 'wat'
@@ -96,7 +101,7 @@ test("Calling push with a normalized hash containing IDs of related records retu
     }
 
     if (id === "2") {
-      store.push('phone-number', {
+      return Ember.RSVP.resolve({
         id: 2,
         number: '5552121',
         person: 'wat'
@@ -104,17 +109,17 @@ test("Calling push with a normalized hash containing IDs of related records retu
     }
   };
 
-  var phoneNumbers = person.get('phoneNumbers');
-
-  deepEqual(phoneNumbers.map(function(item) {
-    return item.getProperties('id', 'number', 'person');
-  }), [{
-    id: "1",
-    number: '5551212',
-    person: person
-  }, {
-    id: "2",
-    number: '5552121',
-    person: person
-  }]);
+  person.get('phoneNumbers').then(async(function(phoneNumbers) {
+    deepEqual(phoneNumbers.map(function(item) {
+      return item.getProperties('id', 'number', 'person');
+    }), [{
+      id: "1",
+      number: '5551212',
+      person: person
+    }, {
+      id: "2",
+      number: '5552121',
+      person: person
+    }]);
+  }));
 });

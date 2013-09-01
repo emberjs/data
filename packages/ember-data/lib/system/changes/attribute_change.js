@@ -13,9 +13,10 @@
   @constructor
 */
 var AttributeChange = DS.AttributeChange = function(options) {
-  this.reference = options.reference;
+  this.record = options.record;
   this.store = options.store;
   this.name = options.name;
+  this.value = options.value;
   this.oldValue = options.oldValue;
 };
 
@@ -25,7 +26,10 @@ AttributeChange.createChange = function(options) {
 
 AttributeChange.prototype = {
   sync: function() {
-    this.store.recordAttributeDidChange(this.reference, this.name, this.value, this.oldValue);
+    if (this.value !== this.oldValue) {
+      this.record.send('becomeDirty');
+      this.record.updateRecordArraysLater();
+    }
 
     // TODO: Use this object in the commit process
     this.destroy();
@@ -39,8 +43,6 @@ AttributeChange.prototype = {
     @method destroy
   */
   destroy: function() {
-    var record = this.reference.record;
-
-    delete record._changesToSync[this.name];
+    delete this.record._changesToSync[this.name];
   }
 };

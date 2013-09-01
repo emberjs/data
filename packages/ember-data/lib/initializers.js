@@ -1,5 +1,6 @@
-require("ember-data/serializers/new_json_serializer");
+require("ember-data/serializers/json_serializer");
 require("ember-data/system/debug/debug_adapter");
+
 /**
   @module ember-data
 */
@@ -41,10 +42,10 @@ Ember.onLoad('Ember.Application', function(Application) {
     name: "store",
 
     initialize: function(container, application) {
-      Ember.assert("You included Ember Data but didn't define "+application.toString()+".Store", application.Store);
-
-      application.register('store:main', application.Store);
-      application.register('serializer:_default', DS.NewJSONSerializer);
+      application.register('store:main', application.Store || DS.Store);
+      application.register('serializer:_default', DS.JSONSerializer);
+      application.register('serializer:_rest', DS.RESTSerializer);
+      application.register('adapter:_rest', DS.RESTAdapter);
 
       // Eagerly generate the store so defaultStore is populated.
       // TODO: Do this in a finisher hook
@@ -65,11 +66,20 @@ Ember.onLoad('Ember.Application', function(Application) {
   }
 
   Application.initializer({
+    name: "dataAdapter",
+
+    initialize: function(container, application) {
+      application.register('dataAdapter:main', DS.DebugAdapter);
+    }
+  });
+
+  Application.initializer({
     name: "injectStore",
 
     initialize: function(container, application) {
       application.inject('controller', 'store', 'store:main');
       application.inject('route', 'store', 'store:main');
+      application.inject('serializer', 'store', 'store:main');
       application.inject('dataAdapter', 'store', 'store:main');
     }
   });

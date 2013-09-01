@@ -1,6 +1,6 @@
 var container, store, app;
 
-module("DS.Store - serializerFor - unit/store/serializer_for_test", {
+module("unit/store/serializer_for - DS.Store#serializerFor", {
   setup: function() {
     container = new Ember.Container();
 
@@ -18,7 +18,7 @@ module("DS.Store - serializerFor - unit/store/serializer_for_test", {
 });
 
 test("Calling serializerFor looks up 'serializer:<type>' from the container", function() {
-  var PersonSerializer = DS.Serializer.extend();
+  var PersonSerializer = DS.JSONSerializer.extend();
 
   container.register('serializer:person', PersonSerializer);
 
@@ -26,7 +26,7 @@ test("Calling serializerFor looks up 'serializer:<type>' from the container", fu
 });
 
 test("Calling serializerFor with a type that has not been registered looks up the default ApplicationSerializer", function() {
-  var ApplicationSerializer = DS.Serializer.extend();
+  var ApplicationSerializer = DS.JSONSerializer.extend();
 
   container.register('serializer:application', ApplicationSerializer);
 
@@ -42,5 +42,5 @@ test("Calling serializerFor with a type that has not been registered and in an a
 
   var store = app.__container__.lookup('store:main');
 
-  ok(store.serializerFor('person') instanceof DS.NewJSONSerializer, "serializer returned from serializerFor is an instance of DS.JSONSerializer");
+  ok(store.serializerFor('person') instanceof DS.JSONSerializer, "serializer returned from serializerFor is an instance of DS.JSONSerializer");
 });

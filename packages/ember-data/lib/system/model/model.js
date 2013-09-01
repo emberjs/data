@@ -1,13 +1,11 @@
 require("ember-data/system/model/states");
-require("ember-data/system/mixins/load_promise");
 
 /**
   @module ember-data
 */
 
-var LoadPromise = DS.LoadPromise; // system/mixins/load_promise
-
-var get = Ember.get, set = Ember.set, map = Ember.EnumerableUtils.map, merge = Ember.merge;
+var get = Ember.get, set = Ember.set, map = Ember.EnumerableUtils.map,
+    merge = Ember.merge, once = Ember.run.once;
 
 var arrayMap = Ember.ArrayPolyfills.map;
 
@@ -23,20 +21,20 @@ var retrieveFromCurrentState = Ember.computed(function(key, value) {
   @namespace DS
   @extends Ember.Object
   @uses Ember.Evented
-  @uses DS.LoadPromise
 */
-DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
+DS.Model = Ember.Object.extend(Ember.Evented, {
   isEmpty: retrieveFromCurrentState,
   isLoading: retrieveFromCurrentState,
   isLoaded: retrieveFromCurrentState,
-  isReloading: retrieveFromCurrentState,
   isDirty: retrieveFromCurrentState,
   isSaving: retrieveFromCurrentState,
   isDeleted: retrieveFromCurrentState,
-  isError: retrieveFromCurrentState,
   isNew: retrieveFromCurrentState,
   isValid: retrieveFromCurrentState,
   dirtyType: retrieveFromCurrentState,
+
+  isError: false,
+  isReloading: false,
 
   clientId: null,
   id: null,
@@ -128,22 +126,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   becameError: Ember.K,
 
   data: Ember.computed(function() {
-    if (!this._data) {
-      this.setupData();
-    }
-
+    this._data = this._data || {};
     return this._data;
   }).property(),
-
-  materializeData: function() {
-    this.send('materializingData');
-
-    get(this, 'store').materializeData(this);
-
-    this.suspendRelationshipObservers(function() {
-      this.notifyPropertyChange('data');
-    });
-  },
 
   _data: null,
 
@@ -155,6 +140,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
   _setup: function() {
     this._changesToSync = {};
+    this._deferredTriggers = [];
+    this._data = {};
+    this._attributes = {};
+    this._inFlightAttributes = {};
+    this._relationships = {};
   },
 
   send: function(name, context) {
@@ -231,10 +221,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     this.send('pushedData');
   },
 
-  didChangeData: function() {
-    this.send('didChangeData');
-  },
-
   deleteRecord: function() {
     this.send('deleteRecord');
   },
@@ -250,7 +236,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
       if (relationship.kind === 'belongsTo') {
         set(this, name, null);
       } else if (relationship.kind === 'hasMany') {
-        this.clearHasMany(relationship);
+        var hasMany = this._relationships[relationship.name];
+        if (hasMany) { hasMany.clear(); }
       }
     }, this);
   },
@@ -258,8 +245,12 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   updateRecordArrays: function() {
     var store = get(this, 'store');
     if (store) {
-      store.dataWasUpdated(this.constructor, get(this, '_reference'), this);
+      store.dataWasUpdated(this.constructor, this);
     }
+  },
+
+  adapterWillCommit: function() {
+    this.send('willCommit');
   },
 
   /**
@@ -269,15 +260,25 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
     @method adapterDidCommit
   */
-  adapterDidCommit: function() {
-    var attributes = get(this, 'data');
+  adapterDidCommit: function(data) {
+    set(this, 'isError', false);
 
-    get(this.constructor, 'attributes').forEach(function(name, meta) {
-      attributes[name] = get(this, name);
-    }, this);
+    if (data) {
+      this._data = data;
+    } else {
+      Ember.mixin(this._data, this._inFlightAttributes);
+    }
+
+    this._inFlightAttributes = {};
 
     this.send('didCommit');
     this.updateRecordArraysLater();
+
+    if (!data) { return; }
+
+    this.suspendRelationshipObservers(function() {
+      this.notifyPropertyChange('data');
+    });
   },
 
   adapterDidDirty: function() {
@@ -287,7 +288,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
   dataDidChange: Ember.observer(function() {
     this.reloadHasManys();
-    this.send('finishedMaterializing');
   }, 'data'),
 
   reloadHasManys: function() {
@@ -301,27 +301,16 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   hasManyDidChange: function(key) {
-    var cachedValue = this.cacheFor(key);
+    var hasMany = this._relationships[key];
 
-    if (cachedValue) {
+    if (hasMany) {
       var type = get(this.constructor, 'relationshipsByName').get(key).type;
       var store = get(this, 'store');
-      var ids = this._data[key] || [];
+      var records = this._data[key] || [];
 
-      var references = map(ids, function(id) {
-        if (typeof id === 'object') {
-          if( id.clientId ) {
-            // if it was already a reference, return the reference
-            return id;
-          } else {
-            // <id, type> tuple for a polymorphic association.
-            return store.referenceForId(id.type, id.id);
-          }
-        }
-        return store.referenceForId(type, id);
-      });
-
-      set(cachedValue, 'content', Ember.A(references));
+      set(hasMany, 'content', Ember.A(records));
+      set(hasMany, 'isLoaded', true);
+      hasMany.trigger('didLoad');
     }
   },
 
@@ -330,9 +319,13 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   },
 
   setupData: function(data) {
-    this._data = data || { id: null };
+    this._data = data;
 
     if (data) { this.pushedData(); }
+
+    this.suspendRelationshipObservers(function() {
+      this.notifyPropertyChange('data');
+    });
   },
 
   materializeId: function(id) {
@@ -348,45 +341,9 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     this._data[name] = value;
   },
 
-  materializeHasMany: function(name, tuplesOrReferencesOrOpaque) {
-    var tuplesOrReferencesOrOpaqueType = typeof tuplesOrReferencesOrOpaque;
-
-    if (tuplesOrReferencesOrOpaque && tuplesOrReferencesOrOpaqueType !== 'string' && tuplesOrReferencesOrOpaque.length > 1) {
-      Ember.assert('materializeHasMany expects tuples, references or opaque token, not ' + tuplesOrReferencesOrOpaque[0], tuplesOrReferencesOrOpaque[0].hasOwnProperty('id') && tuplesOrReferencesOrOpaque[0].type);
-    }
-
-    if( tuplesOrReferencesOrOpaqueType === "string" ) {
-      this._data[name] = tuplesOrReferencesOrOpaque;
-    } else {
-      var references = tuplesOrReferencesOrOpaque;
-
-      if (tuplesOrReferencesOrOpaque && Ember.isArray(tuplesOrReferencesOrOpaque)) {
-        references = this._convertTuplesToReferences(tuplesOrReferencesOrOpaque);
-      }
-
-      this._data[name] = references;
-    }
-  },
-
-  materializeBelongsTo: function(name, tupleOrReference) {
-    if (tupleOrReference) { Ember.assert('materializeBelongsTo expects a tuple or a reference, not a ' + tupleOrReference, !tupleOrReference || (tupleOrReference.hasOwnProperty('id') && tupleOrReference.hasOwnProperty('type'))); }
-
-    this._data[name] = tupleOrReference;
-  },
-
-  _convertTuplesToReferences: function(tuplesOrReferences) {
-    return map(tuplesOrReferences, function(tupleOrReference) {
-      return this._convertTupleToReference(tupleOrReference);
-    }, this);
-  },
-
-  _convertTupleToReference: function(tupleOrReference) {
-    var store = get(this, 'store');
-    if(tupleOrReference.clientId) {
-      return tupleOrReference;
-    } else {
-      return store.referenceForId(tupleOrReference.type, tupleOrReference.id);
-    }
+  updateHasMany: function(name, records) {
+    this._data[name] = records;
+    this.hasManyDidChange(name);
   },
 
   rollback: function() {
@@ -435,43 +392,19 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     }
   },
 
-  becameInFlight: function() {
-  },
-
-  /**
-    @method resolveOn
-    @private
-    @param successEvent
-  */
-  resolveOn: function(successEvent) {
-    var model = this;
-
-    return new Ember.RSVP.Promise(function(resolve, reject) {
-      function success() {
-        this.off('becameError', error);
-        this.off('becameInvalid', error);
-        resolve(this);
-      }
-      function error() {
-        this.off(successEvent, success);
-        reject(this);
-      }
-
-      model.one(successEvent, success);
-      model.one('becameError', error);
-      model.one('becameInvalid', error);
-    });
-  },
-
   /**
     Save the record.
 
     @method save
   */
   save: function() {
-    this.get('store').scheduleSave(this);
+    var resolver = Ember.RSVP.defer(), record = this;
 
-    return this.resolveOn('didCommit');
+    this.get('store').scheduleSave(this, resolver);
+    this._inFlightAttributes = this._attributes;
+    this._attributes = {};
+
+    return DS.PromiseObject.create({ promise: resolver.promise });
   },
 
   /**
@@ -484,9 +417,22 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     @method reload
   */
   reload: function() {
-    this.send('reloadRecord');
+    set(this, 'isReloading', true);
 
-    return this.resolveOn('didReload');
+    var resolver = Ember.RSVP.defer(), record = this;
+
+    resolver.promise = resolver.promise.then(function() {
+      record.set('isReloading', false);
+      record.set('isError', false);
+      return record;
+    }, function(reason) {
+      record.set('isError', true);
+      throw reason;
+    });
+
+    this.send('reloadRecord', resolver);
+
+    return DS.PromiseObject.create({ promise: resolver.promise });
   },
 
   // FOR USE DURING COMMIT PROCESS
@@ -498,11 +444,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
     // collapse the current value into the internal attributes because
     // the adapter has acknowledged it.
     if (value !== undefined) {
-      get(this, 'data')[attributeName] = value;
+      this._data[attributeName] = value;
       this.notifyPropertyChange(attributeName);
     } else {
-      value = get(this, attributeName);
-      get(this, 'data')[attributeName] = value;
+      this._data[attributeName] = this._inFlightAttributes[attributeName];
     }
 
     this.updateRecordArraysLater();
@@ -514,6 +459,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
 
   adapterDidError: function() {
     this.send('becameError');
+    set(this, 'isError', true);
   },
 
   /**
@@ -527,23 +473,21 @@ DS.Model = Ember.Object.extend(Ember.Evented, LoadPromise, {
   trigger: function(name) {
     Ember.tryInvoke(this, name, [].slice.call(arguments, 1));
     this._super.apply(this, arguments);
+  },
+
+  triggerLater: function() {
+    this._deferredTriggers.push(arguments);
+    once(this, '_triggerDeferredTriggers');
+  },
+
+  _triggerDeferredTriggers: function() {
+    for (var i=0, l=this._deferredTriggers.length; i<l; i++) {
+      this.trigger.apply(this, this._deferredTriggers[i]);
+    }
+
+    this._deferredTriggers = [];
   }
 });
-
-// Helper function to generate store aliases.
-// This returns a function that invokes the named alias
-// on the default store, but injects the class as the
-// first parameter.
-var storeAlias = function(methodName) {
-  return function() {
-    var store = get(DS, 'defaultStore'),
-        args = [].slice.call(arguments);
-
-    args.unshift(this);
-    Ember.assert("Your application does not have a 'Store' property defined. Attempts to call '" + methodName + "' on model classes will fail. Please provide one as with 'YourAppName.Store = DS.Store.extend()'", !!store);
-    return store[methodName].apply(store, args);
-  };
-};
 
 DS.Model.reopenClass({
 
@@ -568,50 +512,6 @@ DS.Model.reopenClass({
     @static
   */
   create: function() {
-    throw new Ember.Error("You should not call `create` on a model. Instead, call `createRecord` with the attributes you would like to set.");
-  },
-
-  /**
-    See `DS.Store.find()`.
-
-    @method find
-    @param {Object|String|Array|null} query A query to find records by.
-  */
-  find: storeAlias('find'),
-
-  /**
-    See `DS.Store.all()`.
-
-    @method all
-    @return {DS.RecordArray}
-  */
-  all: storeAlias('all'),
-
-  /**
-    See `DS.Store.findQuery()`.
-
-    @method query
-    @param {Object} query an opaque query to be used by the adapter
-    @return {DS.AdapterPopulatedRecordArray}
-  */
-  query: storeAlias('findQuery'),
-
-  /**
-    See `DS.Store.filter()`.
-
-    @method filter
-    @param {Function} filter
-    @return {DS.FilteredRecordArray}
-  */
-  filter: storeAlias('filter'),
-
-  /**
-    See `DS.Store.createRecord()`.
-
-    @method createRecord
-    @param {Object} properties a hash of properties to set on the
-      newly created record.
-    @return DS.Model
-  */
-  createRecord: storeAlias('createRecord')
+    throw new Ember.Error("You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.");
+  }
 });

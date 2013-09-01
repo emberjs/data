@@ -22,7 +22,7 @@
     timeout = setTimeout(function() {
       start();
       ok(false, "Timeout was reached");
-    }, timeout || 100);
+    }, timeout || 200);
 
     return function() {
       clearTimeout(timeout);
@@ -30,16 +30,56 @@
       start();
 
       var args = arguments;
-      Ember.run(function() {
-        callback.apply(this, args);
+      return Ember.run(function() {
+        return callback.apply(this, args);
       });
     };
+  };
+
+  window.asyncEqual = function(a, b, message) {
+    Ember.RSVP.all([ Ember.RSVP.resolve(a), Ember.RSVP.resolve(b) ]).then(async(function(array) {
+      /*globals QUnit*/
+      QUnit.push(array[0] === array[1], array[0], array[1], message);
+    }));
   };
 
   window.invokeAsync = function(callback, timeout) {
     timeout = timeout || 1;
 
     setTimeout(async(callback, timeout+100), timeout);
+  };
+
+  window.setupStore = function(options) {
+    var env = {};
+    options = options || {};
+
+    var container = env.container = new Ember.Container();
+
+    var adapter = env.adapter = (options.adapter || DS.Adapter).create({
+      container: container
+    });
+    delete options.adapter;
+
+    for (var prop in options) {
+      container.register('model:' + prop, options[prop]);
+    }
+
+    container.register('store:main', DS.Store.extend({
+      adapter: adapter
+    }));
+
+    container.register('serializer:_default', DS.JSONSerializer);
+    container.register('serializer:_rest', DS.RESTSerializer);
+
+
+    container.injection('serializer', 'store', 'store:main');
+
+    env.serializer = container.lookup('serializer:_default');
+    env.restSerializer = container.lookup('serializer:_rest');
+    env.store = container.lookup('store:main');
+    env.adapter = env.store.get('_adapter');
+
+    return env;
   };
 
   var syncForTest = function(fn) {
@@ -88,8 +128,19 @@
     });
   };
 
-
   minispade.register('ember-data/~test-setup', function() {
+    Ember.RSVP.configure('onerror', function(reason) {
+      // only print error messages if they're exceptions;
+      // otherwise, let a future turn of the event loop
+      // handle the error.
+      if (reason && reason.stack) {
+        console.log(reason.stack);
+        throw reason;
+      }
+    });
+
+    Ember.RSVP.resolve = syncForTest(Ember.RSVP.resolve);
+
     Ember.View.reopen({
       _insertElementLater: syncForTest()
     });
@@ -98,12 +149,12 @@
       save: syncForTest(),
       createRecord: syncForTest(),
       deleteRecord: syncForTest(),
-      load: syncForTest(),
-      newLoad: syncForTest(),
-      loadMany: syncForTest(),
+      push: syncForTest(),
+      pushMany: syncForTest(),
       filter: syncForTest(),
       find: syncForTest(),
       findMany: syncForTest(),
+      findByIds: syncForTest(),
       didSaveRecord: syncForTest(),
       didSaveRecords: syncForTest(),
       didUpdateAttribute: syncForTest(),
@@ -113,22 +164,14 @@
     });
 
     DS.Model.reopen({
-      then: syncForTest(),
       save: syncForTest(),
+      reload: syncForTest(),
       deleteRecord: syncForTest(),
       dataDidChange: Ember.observer(syncForTest(), 'data'),
       updateRecordArraysLater: syncForTest()
     });
 
     Ember.RSVP.Promise.prototype.then = syncForTest(Ember.RSVP.Promise.prototype.then);
-
-    DS.RecordArray.reopen({
-      then: syncForTest()
-    });
-
-    DS.Transaction.reopen({
-      commit: syncForTest()
-    });
   });
 
   EmberDev.distros = {
@@ -136,5 +179,9 @@
     spade:   'ember-spade.js',
     build:   'ember-data.js'
   };
+
+  // Generate the jQuery expando on window ahead of time
+  // to make the QUnit global check run clean
+  jQuery(window).data('testing', true);
 
 })();

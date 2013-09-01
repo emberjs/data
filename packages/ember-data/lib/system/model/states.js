@@ -170,23 +170,12 @@ var hasDefinedProperties = function(object) {
   return false;
 };
 
-var didChangeData = function(record) {
-  record.materializeData();
-};
-
-var willSetProperty = function(record, context) {
-  context.oldValue = get(record, context.name);
-
-  var change = DS.AttributeChange.createChange(context);
-  record._changesToSync[context.name] = change;
-};
-
 var didSetProperty = function(record, context) {
-  var change = record._changesToSync[context.name];
-  change.value = get(record, context.name);
-  change.sync();
+  if (context.value !== context.oldValue) {
+    record.send('becomeDirty');
+    record.updateRecordArraysLater();
+  }
 };
-
 
 // Implementation notes:
 //
@@ -199,7 +188,7 @@ var didSetProperty = function(record, context) {
 // * isDirty: The record has local changes that have not yet been
 //   saved by the adapter. This includes records that have been
 //   created (but not yet saved) or deleted.
-// * isSaving: The record's transaction has been committed, but
+// * isSaving: The record has been committed, but
 //   the adapter has not yet acknowledged that the changes have
 //   been persisted to the backend.
 // * isDeleted: The record was marked for deletion. When `isDeleted`
@@ -245,8 +234,9 @@ var DirtyState = {
   uncommitted: {
 
     // EVENTS
-    willSetProperty: willSetProperty,
     didSetProperty: didSetProperty,
+
+    pushedData: Ember.K,
 
     becomeDirty: Ember.K,
 
@@ -254,12 +244,12 @@ var DirtyState = {
       record.transitionTo('inFlight');
     },
 
-    becameClean: function(record) {
-      record.withTransaction(function(t) {
-        t.remove(record);
-      });
+    reloadRecord: function(record, resolver) {
+      get(record, 'store').reloadRecord(record, resolver);
+    },
 
-      record.transitionTo('loaded.materializing');
+    becameClean: function(record) {
+      record.transitionTo('loaded.saved');
     },
 
     becameInvalid: function(record) {
@@ -278,30 +268,20 @@ var DirtyState = {
     // FLAGS
     isSaving: true,
 
-    // TRANSITIONS
-    enter: function(record) {
-      record.becameInFlight();
-    },
-
     // EVENTS
+    didSetProperty: didSetProperty,
+    becomeDirty: Ember.K,
+    pushedData: Ember.K,
 
-    materializingData: function(record) {
-      set(record, 'lastDirtyType', get(this, 'dirtyType'));
-      record.transitionTo('materializing');
-    },
+    // TODO: More robust semantics around save-while-in-flight
+    willCommit: Ember.K,
 
     didCommit: function(record) {
       var dirtyType = get(this, 'dirtyType');
 
-      record.withTransaction(function(t) {
-        t.remove(record);
-      });
-
       record.transitionTo('saved');
       record.send('invokeLifecycleCallbacks', dirtyType);
     },
-
-    didChangeData: didChangeData,
 
     becameInvalid: function(record, errors) {
       set(record, 'errors', errors);
@@ -311,8 +291,8 @@ var DirtyState = {
     },
 
     becameError: function(record) {
-      record.transitionTo('error');
-      record.send('invokeLifecycleCallbacks');
+      record.transitionTo('uncommitted');
+      record.triggerLater('becameError', record);
     }
   },
 
@@ -323,19 +303,11 @@ var DirtyState = {
     // FLAGS
     isValid: false,
 
-    exit: function(record) {
-       record.withTransaction(function (t) {
-         t.remove(record);
-       });
-     },
-
     // EVENTS
     deleteRecord: function(record) {
       record.transitionTo('deleted.uncommitted');
       record.clearRelationships();
     },
-
-    willSetProperty: willSetProperty,
 
     didSetProperty: function(record, context) {
       var errors = get(record, 'errors'),
@@ -362,7 +334,7 @@ var DirtyState = {
     },
 
     invokeLifecycleCallbacks: function(record) {
-      record.trigger('becameInvalid', record);
+      record.triggerLater('becameInvalid', record);
     }
   }
 };
@@ -430,11 +402,9 @@ var RootState = {
   isEmpty: false,
   isLoading: false,
   isLoaded: false,
-  isReloading: false,
   isDirty: false,
   isSaving: false,
   isDeleted: false,
-  isError: false,
   isNew: false,
   isValid: true,
 
@@ -455,6 +425,10 @@ var RootState = {
 
     loadedData: function(record) {
       record.transitionTo('loaded.created.uncommitted');
+
+      record.suspendRelationshipObservers(function() {
+        record.notifyPropertyChange('data');
+      });
     },
 
     pushedData: function(record) {
@@ -473,15 +447,14 @@ var RootState = {
     isLoading: true,
 
     // EVENTS
-    loadedData: didChangeData,
-
-    materializingData: function(record) {
-      record.transitionTo('loaded.materializing.firstTime');
+    pushedData: function(record) {
+      record.transitionTo('loaded.saved');
+      record.triggerLater('didLoad');
+      set(record, 'isError', false);
     },
 
     becameError: function(record) {
-      record.transitionTo('error');
-      record.send('invokeLifecycleCallbacks');
+      record.triggerLater('becameError', record);
     }
   },
 
@@ -496,72 +469,40 @@ var RootState = {
 
     // SUBSTATES
 
-    materializing: {
-      // EVENTS
-      willSetProperty: Ember.K,
-      didSetProperty: Ember.K,
-
-      didChangeData: didChangeData,
-
-      finishedMaterializing: function(record) {
-        record.transitionTo('loaded.saved');
-      },
-
-      // SUBSTATES
-      firstTime: {
-        // FLAGS
-        isLoaded: false,
-
-        exit: function(record) {
-          once(function() {
-            record.trigger('didLoad');
-          });
-        }
-      }
-    },
-
-    reloading: {
-      // FLAGS
-      isReloading: true,
-
-      // TRANSITIONS
-      enter: function(record) {
-        var store = get(record, 'store');
-        store.reloadRecord(record);
-      },
-
-      exit: function(record) {
-        once(record, 'trigger', 'didReload');
-      },
-
-      // EVENTS
-      loadedData: didChangeData,
-
-      materializingData: function(record) {
-        record.transitionTo('loaded.materializing');
-      }
-    },
-
     // If there are no local changes to a record, it remains
     // in the `saved` state.
     saved: {
+      setup: function(record) {
+        var attrs = record._attributes,
+            isDirty = false;
+
+        for (var prop in attrs) {
+          if (attrs.hasOwnProperty(prop)) {
+            isDirty = true;
+            break;
+          }
+        }
+
+        if (isDirty) {
+          record.adapterDidDirty();
+        }
+      },
+
       // EVENTS
-      willSetProperty: willSetProperty,
       didSetProperty: didSetProperty,
 
-      didChangeData: didChangeData,
-      loadedData: didChangeData,
-
-      reloadRecord: function(record) {
-        record.transitionTo('loaded.reloading');
-      },
-
-      materializingData: function(record) {
-        record.transitionTo('loaded.materializing');
-      },
+      pushedData: Ember.K,
 
       becomeDirty: function(record) {
         record.transitionTo('updated.uncommitted');
+      },
+
+      willCommit: function(record) {
+        record.transitionTo('updated.inFlight');
+      },
+
+      reloadRecord: function(record, resolver) {
+        get(record, 'store').reloadRecord(record, resolver);
       },
 
       deleteRecord: function(record) {
@@ -577,22 +518,9 @@ var RootState = {
       },
 
       didCommit: function(record) {
-        record.withTransaction(function(t) {
-          t.remove(record);
-        });
-
         record.send('invokeLifecycleCallbacks', get(record, 'lastDirtyType'));
       },
 
-      invokeLifecycleCallbacks: function(record, dirtyType) {
-        if (dirtyType === 'created') {
-          record.trigger('didCreate', record);
-        } else {
-          record.trigger('didUpdate', record);
-        }
-
-        record.trigger('didCommit', record);
-      }
     },
 
     // A record is in this state after it has been locally
@@ -626,11 +554,12 @@ var RootState = {
     // SUBSTATES
 
     // When a record is deleted, it enters the `start`
-    // state. It will exit this state when the record's
-    // transaction starts to commit.
+    // state. It will exit this state when the record
+    // starts to commit.
     uncommitted: {
 
       // EVENTS
+
       willCommit: function(record) {
         record.transitionTo('inFlight');
       },
@@ -640,16 +569,14 @@ var RootState = {
       },
 
       becomeDirty: Ember.K,
+      deleteRecord: Ember.K,
 
       becameClean: function(record) {
-        record.withTransaction(function(t) {
-          t.remove(record);
-        });
-        record.transitionTo('loaded.materializing');
+        record.transitionTo('loaded.saved');
       }
     },
 
-    // After a record's transaction is committing, but
+    // After a record starts committing, but
     // before the adapter indicates that the deletion
     // has saved to the server, a record is in the
     // `inFlight` substate of `deleted`.
@@ -657,17 +584,11 @@ var RootState = {
       // FLAGS
       isSaving: true,
 
-      // TRANSITIONS
-      enter: function(record) {
-        record.becameInFlight();
-      },
-
       // EVENTS
-      didCommit: function(record) {
-        record.withTransaction(function(t) {
-          t.remove(record);
-        });
 
+      // TODO: More robust semantics around save-while-in-flight
+      willCommit: Ember.K,
+      didCommit: function(record) {
         record.transitionTo('saved');
 
         record.send('invokeLifecycleCallbacks');
@@ -687,23 +608,20 @@ var RootState = {
       },
 
       invokeLifecycleCallbacks: function(record) {
-        record.trigger('didDelete', record);
-        record.trigger('didCommit', record);
+        record.triggerLater('didDelete', record);
+        record.triggerLater('didCommit', record);
       }
     }
   },
 
-  // If the adapter indicates that there was an unknown
-  // error saving a record, the record enters the `error`
-  // state.
-  error: {
-    isError: true,
-
-    // EVENTS
-
-    invokeLifecycleCallbacks: function(record) {
-      record.trigger('becameError', record);
+  invokeLifecycleCallbacks: function(record, dirtyType) {
+    if (dirtyType === 'created') {
+      record.triggerLater('didCreate', record);
+    } else {
+      record.triggerLater('didUpdate', record);
     }
+
+    record.triggerLater('didCommit', record);
   }
 };
 

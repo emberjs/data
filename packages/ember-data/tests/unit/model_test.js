@@ -2,21 +2,9 @@ var get = Ember.get, set = Ember.set;
 
 var Person, store, array;
 
-var testSerializer = DS.JSONSerializer.create({
-  primaryKey: function() {
-    return 'id';
-  }
-});
-
-var TestAdapter = DS.Adapter.extend({
-  serializer: testSerializer
-});
-
-module("DS.Model", {
+module("unit/model - DS.Model", {
   setup: function() {
-    store = DS.Store.create({
-      adapter: TestAdapter.create()
-    });
+    store = DS.Store.create({ adapter: DS.Adapter });
 
     Person = DS.Model.extend({
       name: DS.attr('string'),
@@ -38,27 +26,29 @@ test("can have a property set on it", function() {
 });
 
 test("setting a property on a record that has not changed does not cause it to become dirty", function() {
-  store.load(Person, { id: 1, name: "Peter", isDrugAddict: true });
-  var person = store.find(Person, 1);
-
-  equal(person.get('isDirty'), false, "precond - person record should not be dirty");
-  person.set('name', "Peter");
-  person.set('isDrugAddict', true);
-  equal(person.get('isDirty'), false, "record does not become dirty after setting property to old value");
+  store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
+  store.find(Person, 1).then(async(function(person) {
+    equal(person.get('isDirty'), false, "precond - person record should not be dirty");
+    person.set('name', "Peter");
+    person.set('isDrugAddict', true);
+    equal(person.get('isDirty'), false, "record does not become dirty after setting property to old value");
+  }));
 });
 
 test("a record reports its unique id via the `id` property", function() {
-  store.load(Person, { id: 1 });
+  store.push(Person, { id: 1 });
 
-  var record = store.find(Person, 1);
-  equal(get(record, 'id'), 1, "reports id as id by default");
+  store.find(Person, 1).then(async(function(record) {
+    equal(get(record, 'id'), 1, "reports id as id by default");
+  }));
 });
 
 test("a record's id is included in its toString representation", function() {
-  store.load(Person, { id: 1 });
+  store.push(Person, { id: 1 });
 
-  var record = store.find(Person, 1);
-  equal(record.toString(), '<(subclass of DS.Model):'+Ember.guidFor(record)+':1>', "reports id in toString");
+  store.find(Person, 1).then(async(function(record) {
+    equal(record.toString(), '<(subclass of DS.Model):'+Ember.guidFor(record)+':1>', "reports id in toString");
+  }));
 });
 
 test("trying to set an `id` attribute should raise", function() {
@@ -68,20 +58,21 @@ test("trying to set an `id` attribute should raise", function() {
   });
 
   expectAssertion(function() {
-    store.load(Person, { id: 1, name: "Scumdale" });
+    store.push(Person, { id: 1, name: "Scumdale" });
     var person = store.find(Person, 1);
   }, /You may not set `id`/);
 });
 
 test("it should use `_reference` and not `reference` to store its reference", function() {
-  store.load(Person, { id: 1 });
+  store.push(Person, { id: 1 });
 
-  var record = store.find(Person, 1);
-  equal(record.get('reference'), undefined, "doesn't shadow reference key");
+  store.find(Person, 1).then(async(function(record) {
+    equal(record.get('reference'), undefined, "doesn't shadow reference key");
+  }));
 });
 
 test("it should cache attributes", function() {
-  var store = DS.Store.create();
+  var store = DS.Store.create({ adapter: DS.Adapter });
 
   var Post = DS.Model.extend({
     updatedAt: DS.attr('string')
@@ -90,21 +81,21 @@ test("it should cache attributes", function() {
   var dateString = "Sat, 31 Dec 2011 00:08:16 GMT";
   var date = new Date(dateString);
 
-  store.load(Post, { id: 1 });
+  store.push(Post, { id: 1 });
 
-  var record = store.find(Post, 1);
-
-  record.set('updatedAt', date);
-  deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
-  strictEqual(get(record, 'updatedAt'), get(record, 'updatedAt'), "second get still returns the same object");
+  store.find(Post, 1).then(async(function(record) {
+    record.set('updatedAt', date);
+    deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
+    strictEqual(get(record, 'updatedAt'), get(record, 'updatedAt'), "second get still returns the same object");
+  }));
 });
 
-module("DS.Model updating", {
+module("unit/model - DS.Model updating", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
     Person = DS.Model.extend({ name: DS.attr('string') });
-    store = DS.Store.create();
-    store.loadMany(Person, array);
+    store = DS.Store.create({ adapter: DS.Adapter });
+    store.pushMany(Person, array);
   },
   teardown: function() {
     Person = null;
@@ -114,10 +105,10 @@ module("DS.Model updating", {
 });
 
 test("a DS.Model can update its attributes", function() {
-  var person = store.find(Person, 2);
-
-  set(person, 'name', "Brohuda Katz");
-  equal(get(person, 'name'), "Brohuda Katz", "setting took hold");
+  store.find(Person, 2).then(async(function(person) {
+    set(person, 'name', "Brohuda Katz");
+    equal(get(person, 'name'), "Brohuda Katz", "setting took hold");
+  }));
 });
 
 test("a DS.Model can have a defaultValue", function() {
@@ -125,7 +116,7 @@ test("a DS.Model can have a defaultValue", function() {
     name: DS.attr('string', { defaultValue: "unknown" })
   });
 
-  var tag = Tag.createRecord();
+  var tag = store.createRecord(Tag);
 
   equal(get(tag, 'name'), "unknown", "the default value is found");
 
@@ -143,7 +134,7 @@ test("a defaultValue for an attribite can be a function", function() {
     })
   });
 
-  var tag = Tag.createRecord();
+  var tag = store.createRecord(Tag);
   equal(get(tag, 'createdAt'), "le default value", "the defaultValue function is evaluated");
 });
 
@@ -168,14 +159,14 @@ test("when a DS.Model updates its attributes, its changes affect its filtered Ar
   equal(get(people, 'length'), 0, "there are now no items");
 });
 
-module("with a simple Person model", {
+module("unit/model - with a simple Person model", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
     Person = DS.Model.extend({
       name: DS.attr('string')
     });
-    store = DS.Store.create();
-    store.loadMany(Person, array);
+    store = DS.Store.create({ adapter: DS.Adapter });
+    store.pushMany(Person, array);
   },
   teardown: function() {
     Person = null;
@@ -251,17 +242,18 @@ test("when a method is invoked from an event with the same name the arguments ar
 });
 
 var converts = function(type, provided, expected) {
-  var testStore = DS.Store.create();
+  var testStore = DS.Store.create({ adapter: DS.Adapter });
 
   var Model = DS.Model.extend({
     name: DS.attr(type)
   });
 
-  testStore.load(Model, { id: 1, name: provided });
-  testStore.load(Model, { id: 2 });
+  testStore.push(Model, { id: 1, name: provided });
+  testStore.push(Model, { id: 2 });
 
-  var record = testStore.find(Model, 1);
-  deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
+  testStore.find(Model, 1).then(async(function(record) {
+    deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
+  }));
 
   // See: Github issue #421
   // record = testStore.find(Model, 2);
@@ -270,30 +262,30 @@ var converts = function(type, provided, expected) {
 };
 
 var convertsFromServer = function(type, provided, expected) {
-  var testStore = DS.Store.create();
+  var testStore = DS.Store.create({ adapter: DS.Adapter });
 
   var Model = DS.Model.extend({
     name: DS.attr(type)
   });
 
-  testStore.load(Model, { id: 1, name: provided });
-  var record = testStore.find(Model, 1);
-
-  deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
+  testStore.push(Model, { id: 1, name: provided });
+  testStore.find(Model, 1).then(async(function(record) {
+    deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
+  }));
 };
 
 var convertsWhenSet = function(type, provided, expected) {
-  var testStore = DS.Store.create();
+  var testStore = DS.Store.create({ adapter: DS.Adapter });
 
   var Model = DS.Model.extend({
     name: DS.attr(type)
   });
 
-  testStore.load(Model, { id: 2 });
-  var record = testStore.find(Model, 2);
-
-  set(record, 'name', provided);
-  deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
+  testStore.push(Model, { id: 2 });
+  var record = testStore.find(Model, 2).then(async(function(record) {
+    set(record, 'name', provided);
+    deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
+  }));
 };
 
 test("a DS.Model can describe String attributes", function() {
@@ -334,23 +326,24 @@ test("a DS.Model can describe Date attributes", function() {
   var dateString = "Sat, 31 Dec 2011 00:08:16 GMT";
   var date = new Date(dateString);
 
-  var store = DS.Store.create();
+  var store = DS.Store.create({ adapter: DS.Adapter });
 
   var Person = DS.Model.extend({
     updatedAt: DS.attr('date')
   });
 
-  store.load(Person, { id: 1 });
-  var record = store.find(Person, 1);
+  store.push(Person, { id: 1 });
+  store.find(Person, 1).then(async(function(record) {
+    record.set('updatedAt', date);
+    deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
+  }));
 
-  record.set('updatedAt', date);
-  deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
   convertsFromServer('date', dateString, date);
   convertsWhenSet('date', date, dateString);
 });
 
 test("don't allow setting", function(){
-  var store = DS.Store.create();
+  var store = DS.Store.create({ adapter: DS.Adapter });
 
   var Person = DS.Model.extend();
   var record = store.createRecord(Person);
@@ -361,27 +354,16 @@ test("don't allow setting", function(){
 });
 
 test("ensure model exits loading state, materializes data and fulfills promise only after data is available", function () {
-  expect(7);
-
   var store = DS.Store.create({
     adapter: DS.Adapter.create({
-      find: Ember.K
+      find: function(store, type, id) {
+        return Ember.RSVP.resolve({ id: 1, name: "John", isDrugAddict: false });
+      }
     })
   });
 
-  var person = store.find(Person, 1);
-
-  equal(get(person, 'currentState.stateName'), 'root.loading', 'model is in loading state');
-  equal(get(person, 'isLoaded'), false, 'model is not loaded');
-  equal(get(person, '_deferred.promise.isFulfilled'), undefined, 'model is not fulfilled');
-
-  get(person, 'name'); //trigger data setup
-
-  equal(get(person, 'currentState.stateName'), 'root.loading', 'model is still in loading state');
-
-  store.load(Person, { id: 1, name: "John", isDrugAddict: false });
-
-  equal(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
-  equal(get(person, 'isLoaded'), true, 'model is loaded');
-  equal(get(person, '_deferred.promise.isFulfilled'), true, 'model is fulfilled');
+  store.find(Person, 1).then(async(function(person) {
+    equal(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
+    equal(get(person, 'isLoaded'), true, 'model is loaded');
+  }));
 });

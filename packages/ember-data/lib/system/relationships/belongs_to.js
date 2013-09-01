@@ -5,6 +5,20 @@ var get = Ember.get, set = Ember.set,
   @module ember-data
 */
 
+function asyncBelongsTo(type, options, meta) {
+  return Ember.computed(function(key, value) {
+    var data = get(this, 'data'),
+        store = get(this, 'store');
+
+    if (arguments.length === 2) {
+      Ember.assert("You can only add a '" + type + "' record to this relationship", !value || store.modelFor(type).detectInstance(value));
+      return value === undefined ? null : value;
+    }
+
+    return store.fetchRecord(data[key]);
+  }).property('data').meta(meta);
+}
+
 DS.belongsTo = function(type, options) {
   Ember.assert("The first argument DS.belongsTo must be a model type or string, like DS.belongsTo(App.Person)", !!type && (typeof type === 'string' || DS.Model.detect(type)));
 
@@ -12,50 +26,38 @@ DS.belongsTo = function(type, options) {
 
   var meta = { type: type, isRelationship: true, options: options, kind: 'belongsTo' };
 
+  if (options.async) {
+    return asyncBelongsTo(type, options, meta);
+  }
+
   return Ember.computed(function(key, value) {
     var data = get(this, 'data'),
-        store = get(this, 'store'), belongsTo;
+        store = get(this, 'store'), belongsTo, typeClass;
 
     if (typeof type === 'string') {
       if (type.indexOf(".") === -1) {
-        type = store.modelFor(type);
+        typeClass = store.modelFor(type);
       } else {
-        type = get(Ember.lookup, type);
+        typeClass = get(Ember.lookup, type);
       }
+    } else {
+      typeClass = type;
     }
 
     if (arguments.length === 2) {
-      Ember.assert("You can only add a record of " + type.toString() + " to this relationship", !value || type.detectInstance(value));
+      Ember.assert("You can only add a '" + type + "' record to this relationship", !value || typeClass.detectInstance(value));
       return value === undefined ? null : value;
     }
 
     belongsTo = data[key];
 
-    if (belongsTo instanceof DS.Model) { return belongsTo; }
+    if (isNone(belongsTo)) { return null; }
 
-    // TODO (tomdale) The value of the belongsTo in the data hash can be
-    // one of:
-    // 1. null/undefined
-    // 2. a record reference
-    // 3. a tuple returned by the serializer's polymorphism code
-    //
-    // We should really normalize #3 to be the same as #2 to reduce the
-    // complexity here.
-
-    if (isNone(belongsTo)) {
-      return null;
+    if (get(belongsTo, 'isEmpty')) {
+      store.fetchRecord(belongsTo);
     }
 
-    // The data has been normalized to a record reference, so
-    // just ask the store for the record for that reference,
-    // materializing it if necessary.
-    if (belongsTo.clientId) {
-      return store.recordForReference(belongsTo);
-    }
-
-    // The data has been normalized into a type/id pair by the
-    // serializer's polymorphism code.
-    return store.findById(belongsTo.type, belongsTo.id);
+    return belongsTo;
   }).property('data').meta(meta);
 };
 
@@ -77,12 +79,11 @@ DS.Model.reopen({
   */
   belongsToWillChange: Ember.beforeObserver(function(record, key) {
     if (get(record, 'isLoaded')) {
-      var oldParent = get(record, key);
-
-      var childReference = get(record, '_reference'),
+      var oldParent = get(record, key),
           store = get(record, 'store');
+
       if (oldParent){
-        var change = DS.RelationshipChange.createChange(childReference, get(oldParent, '_reference'), store, { key: key, kind:"belongsTo", changeType: "remove" });
+        var change = DS.RelationshipChange.createChange(record, oldParent, store, { key: key, kind: "belongsTo", changeType: "remove" });
         change.sync();
         this._changesToSync[key] = change;
       }
@@ -100,15 +101,13 @@ DS.Model.reopen({
     if (get(record, 'isLoaded')) {
       var newParent = get(record, key);
       if(newParent){
-        var childReference = get(record, '_reference'),
-            store = get(record, 'store');
-        var change = DS.RelationshipChange.createChange(childReference, get(newParent, '_reference'), store, { key: key, kind:"belongsTo", changeType: "add" });
+        var store = get(record, 'store'),
+            change = DS.RelationshipChange.createChange(record, newParent, store, { key: key, kind: "belongsTo", changeType: "add" });
+
         change.sync();
-        if(this._changesToSync[key]){
-          DS.OneToManyChange.ensureSameTransaction([change, this._changesToSync[key]], store);
-        }
       }
     }
+
     delete this._changesToSync[key];
   })
 });

@@ -1,52 +1,50 @@
-var store, adapter, Person, person;
+var Person, env;
+var attr = DS.attr;
+var resolve = Ember.RSVP.resolve;
 
-module("Lifecycle Hooks", {
+module("integration/lifecycle_hooks - Lifecycle Hooks", {
   setup: function() {
-    adapter = DS.Adapter.create();
-    store = DS.Store.create({
-      adapter: adapter
-    });
-
-    var attr = DS.attr;
     Person = DS.Model.extend({
       name: attr('string')
+    });
+
+    env = setupStore({
+      person: Person
     });
   },
 
   teardown: function() {
-    Ember.run(function() {
-      person.destroy();
-      store.destroy();
-    });
+    env.container.destroy();
   }
 });
 
-test("When the adapter acknowledges that a record has been created, a `didCreate` event is triggered.", function() {
+asyncTest("When the adapter acknowledges that a record has been created, a `didCreate` event is triggered.", function() {
   expect(3);
 
-  adapter.createRecord = function(store, type, record) {
-    store.didSaveRecord(record, { id: 99, name: "Yehuda Katz" });
+  env.adapter.createRecord = function(store, type, record) {
+    return resolve({ id: 99, name: "Yehuda Katz" });
   };
 
-  person = store.createRecord(Person, { name: "Yehuda Katz" });
+  var person = env.store.createRecord(Person, { name: "Yehuda Katz" });
 
   person.on('didCreate', function() {
     equal(this, person, "this is bound to the record");
     equal(this.get('id'), "99", "the ID has been assigned");
     equal(this.get('name'), "Yehuda Katz", "the attribute has been assigned");
+    start();
   });
 
-  store.commit();
+  person.save();
 });
 
 test("When the adapter acknowledges that a record has been created without a new data payload, a `didCreate` event is triggered.", function() {
   expect(3);
 
-  adapter.createRecord = function(store, type, record) {
-    store.didSaveRecord(record);
+  env.adapter.createRecord = function(store, type, record) {
+    return Ember.RSVP.resolve();
   };
 
-  person = store.createRecord(Person, { id: 99, name: "Yehuda Katz" });
+  var person = env.store.createRecord(Person, { id: 99, name: "Yehuda Katz" });
 
   person.on('didCreate', function() {
     equal(this, person, "this is bound to the record");
@@ -54,5 +52,5 @@ test("When the adapter acknowledges that a record has been created without a new
     equal(this.get('name'), "Yehuda Katz", "the attribute has been assigned");
   });
 
-  store.commit();
+  person.save();
 });

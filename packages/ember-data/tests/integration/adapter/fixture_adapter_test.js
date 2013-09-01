@@ -1,29 +1,23 @@
 var get = Ember.get, set = Ember.set;
-var store, Person, Phone, App;
+var env, Person, Phone, App;
 
-module("DS.FixtureAdapter", {
+module("integration/adapter/fixture_adapter - DS.FixtureAdapter", {
   setup: function() {
-    store = DS.Store.create({
-      adapter: 'DS.FixtureAdapter'
-    });
-
     Person = DS.Model.extend({
       firstName: DS.attr('string'),
       lastName: DS.attr('string'),
 
       height: DS.attr('number'),
 
-      phones: DS.hasMany('App.Phone')
+      phones: DS.hasMany('phone', { async: true })
     });
 
     Phone = DS.Model.extend({
-      person: DS.belongsTo('App.Person')
+      person: DS.belongsTo('person')
     });
 
-    App = Ember.Namespace.create();
-    App.Person = Person;
-    App.Phone = Phone;
-    Ember.lookup.App = App;
+    env = setupStore({ person: Person, phone: Phone, adapter: DS.FixtureAdapter });
+    env.adapter.simulateRemoteResponse = true;
 
     // Enable setTimeout.
     Ember.testing = false;
@@ -34,13 +28,7 @@ module("DS.FixtureAdapter", {
   teardown: function() {
     Ember.testing = true;
 
-    Ember.run(function() {
-      store.destroy();
-      App.destroy();
-    });
-    store = null;
-    Person = null;
-    Phone = null;
+    env.container.destroy();
   }
 });
 
@@ -70,41 +58,19 @@ test("should load data for a type asynchronously when it is requested", function
     person: 'ebryn'
   }];
 
-  stop();
-
-  var ebryn = store.find(Person, 'ebryn');
-
-  equal(get(ebryn, 'isLoaded'), false, "record from fixtures is returned in the loading state");
-
-  ebryn.then(function() {
-    clearTimeout(timer);
-    start();
-
-    ok(get(ebryn, 'isLoaded'), "data loads asynchronously");
+  env.store.find('person', 'ebryn').then(async(function(ebryn) {
+    equal(get(ebryn, 'isLoaded'), true, "data loads asynchronously");
     equal(get(ebryn, 'height'), 70, "data from fixtures is loaded correctly");
-    equal(get(ebryn, 'phones.length'), 2, "relationships from fixtures is loaded correctly");
 
-    stop();
+    return Ember.RSVP.hash({ ebryn: ebryn, wycats: env.store.find('person', 'wycats') });
+  }, 1000)).then(async(function(records) {
+    equal(get(records.wycats, 'isLoaded'), true, "subsequent requests for records are returned asynchronously");
+    equal(get(records.wycats, 'height'), 65, "subsequent requested records contain correct information");
 
-    var wycats = store.find(Person, 'wycats');
-    wycats.then(function() {
-      clearTimeout(timer);
-      start();
-
-      equal(get(wycats, 'isLoaded'), true, "subsequent requests for records are returned asynchronously");
-      equal(get(wycats, 'height'), 65, "subsequent requested records contain correct information");
-    });
-
-    timer = setTimeout(function() {
-      start();
-      ok(false, "timeout exceeded waiting for fixture data");
-    }, 1000);
-  });
-
-  var timer = setTimeout(function() {
-    start();
-    ok(false, "timeout exceeded waiting for fixture data");
-  }, 1000);
+    return get(records.ebryn, 'phones');
+  }, 1000)).then(async(function(phones) {
+    equal(get(phones, 'length'), 2, "relationships from fixtures is loaded correctly");
+  }, 1000));
 });
 
 test("should load data asynchronously at the end of the runloop when simulateRemoteResponse is false", function() {
@@ -113,18 +79,14 @@ test("should load data asynchronously at the end of the runloop when simulateRem
     firstName: "Yehuda"
   }];
 
-  store = DS.Store.create({
-    adapter: DS.FixtureAdapter.create({
-      simulateRemoteResponse: false
-    })
-  });
+  env.adapter.simulateRemoteResponse = false;
 
   var wycats;
 
   Ember.run(function() {
-    wycats = store.find(Person, 'wycats');
-    ok(!get(wycats, 'isLoaded'), 'isLoaded is false initially');
-    ok(!get(wycats, 'firstName'), 'record properties are undefined initially');
+    env.store.find('person', 'wycats').then(function(person) {
+      wycats = person;
+    });
   });
 
   ok(get(wycats, 'isLoaded'), 'isLoaded is true after runloop finishes');
@@ -132,16 +94,11 @@ test("should load data asynchronously at the end of the runloop when simulateRem
 });
 
 test("should create record asynchronously when it is committed", function() {
-  stop();
-
   equal(Person.FIXTURES.length, 0, "Fixtures is empty");
 
-  var paul = store.createRecord(Person, {firstName: 'Paul', lastName: 'Chavard', height: 70});
+  var paul = env.store.createRecord('person', {firstName: 'Paul', lastName: 'Chavard', height: 70});
 
-  paul.on('didCreate', function() {
-    clearTimeout(timer);
-    start();
-
+  paul.on('didCreate', async(function() {
     equal(get(paul, 'isNew'), false, "data loads asynchronously");
     equal(get(paul, 'isDirty'), false, "data loads asynchronously");
     equal(get(paul, 'height'), 70, "data from fixtures is saved correctly");
@@ -150,33 +107,23 @@ test("should create record asynchronously when it is committed", function() {
 
     var fixture = Person.FIXTURES[0];
 
-    equal(fixture.id, Ember.guidFor(paul));
+    ok(typeof fixture.id === 'string', "The fixture has an ID generated for it");
     equal(fixture.firstName, 'Paul');
     equal(fixture.lastName, 'Chavard');
     equal(fixture.height, 70);
-  });
+  }));
 
-  store.commit();
-
-  var timer = setTimeout(function() {
-    start();
-    ok(false, "timeout exceeded waiting for fixture data");
-  }, 1000);
+  paul.save();
 });
 
 test("should update record asynchronously when it is committed", function() {
-  stop();
-
   equal(Person.FIXTURES.length, 0, "Fixtures is empty");
 
-  var paul = store.recordForReference(store.load(Person, 1, {firstName: 'Paul', lastName: 'Chavard', height: 70}));
+  var paul = env.store.push('person', { id: 1, firstName: 'Paul', lastName: 'Chavard', height: 70});
 
   paul.set('height', 80);
 
-  paul.on('didUpdate', function() {
-    clearTimeout(timer);
-    start();
-
+  paul.on('didUpdate', async(function() {
     equal(get(paul, 'isDirty'), false, "data loads asynchronously");
     equal(get(paul, 'height'), 80, "data from fixtures is saved correctly");
 
@@ -187,22 +134,22 @@ test("should update record asynchronously when it is committed", function() {
     equal(fixture.firstName, 'Paul');
     equal(fixture.lastName, 'Chavard');
     equal(fixture.height, 80);
-  });
+  }, 1000));
 
-  store.commit();
-
-  var timer = setTimeout(function() {
-    start();
-    ok(false, "timeout exceeded waiting for fixture data");
-  }, 1000);
+  paul.save();
 });
 
 test("should delete record asynchronously when it is committed", function() {
   stop();
 
+  var timer = setTimeout(function() {
+    start();
+    ok(false, "timeout exceeded waiting for fixture data");
+  }, 1000);
+
   equal(Person.FIXTURES.length, 0, "Fixtures empty");
 
-  var paul = store.recordForReference(store.load(Person, 1, {firstName: 'Paul', lastName: 'Chavard', height: 70}));
+  var paul = env.store.push('person', { id: 'paul', firstName: 'Paul', lastName: 'Chavard', height: 70 });
 
   paul.deleteRecord();
 
@@ -216,15 +163,15 @@ test("should delete record asynchronously when it is committed", function() {
     equal(Person.FIXTURES.length, 0, "Record removed from FIXTURES");
   });
 
-  store.commit();
+  paul.save();
+});
 
+test("should follow isUpdating semantics", function() {
   var timer = setTimeout(function() {
     start();
     ok(false, "timeout exceeded waiting for fixture data");
   }, 1000);
-});
 
-test("should follow isUpdating semantics", function() {
   stop();
 
   Person.FIXTURES = [{
@@ -234,24 +181,16 @@ test("should follow isUpdating semantics", function() {
     height: 65
   }];
 
-  var result = store.findAll(Person);
+  var result = env.store.findAll('person');
 
-  result.addObserver('isUpdating', function() {
+  result.then(function(all) {
     clearTimeout(timer);
     start();
-    clearTimeout(timer);
-    equal(get(result, 'isUpdating'), false, "isUpdating is set when it shouldn't be");
+    equal(get(all, 'isUpdating'), false, "isUpdating is set when it shouldn't be");
   });
-
-  var timer = setTimeout(function() {
-    start();
-    ok(false, "timeout exceeded waiting for fixture data");
-  }, 1000);
 });
 
 test("should coerce integer ids into string", function() {
-  stop();
-
   Person.FIXTURES = [{
     id: 1,
     firstName: "Adam",
@@ -259,24 +198,12 @@ test("should coerce integer ids into string", function() {
     height: 65
   }];
 
-  var result = Person.find("1");
-
-  result.then(function() {
-    clearTimeout(timer);
-    start();
-    clearTimeout(timer);
+  env.store.find('person', 1).then(async(function(result) {
     strictEqual(get(result, 'id'), "1", "should load integer model id as string");
-  });
-
-  var timer = setTimeout(function() {
-    start();
-    ok(false, "timeout exceeded waiting for fixture data");
-  }, 1000);
+  }));
 });
 
 test("should coerce belongsTo ids into string", function() {
-  stop();
-
   Person.FIXTURES = [{
     id: 1,
     firstName: "Adam",
@@ -284,48 +211,31 @@ test("should coerce belongsTo ids into string", function() {
 
     phones: [1]
   }];
+
   Phone.FIXTURES = [{
     id: 1,
     person: 1
   }];
 
-  var result = Phone.find("1");
-
-  result.then(function() {
+  env.store.find('phone', 1).then(async(function(result) {
     var person = get(result, 'person');
-    person.on('didLoad', function() {
-      clearTimeout(timer);
-      start();
+    person.one('didLoad', async(function() {
       strictEqual(get(result, 'person.id'), "1", "should load integer belongsTo id as string");
       strictEqual(get(result, 'person.firstName'), "Adam", "resolved relationship with an integer belongsTo id");
-    });
-  });
-
-  var timer = setTimeout(function() {
-    start();
-    ok(false, "timeout exceeded waiting for fixture data");
-  }, 1000);
+    }));
+  }));
 });
 
 test("only coerce belongsTo ids to string if id is defined and not null", function() {
-  stop();
-
   Person.FIXTURES = [];
 
   Phone.FIXTURES = [{
     id: 1
   }];
 
-  Phone.find(1).then(function(phone) {
-    clearTimeout(timer);
-    start();
+  env.store.find('phone', 1).then(async(function(phone) {
     equal(phone.get('person'), null);
-  });
-
-  var timer = setTimeout(function() {
-    start();
-    ok(false, "timeout exceeded waiting for fixture data");
-  }, 1000);
+  }));
 });
 
 test("should throw if ids are not defined in the FIXTURES", function() {
@@ -336,27 +246,16 @@ test("should throw if ids are not defined in the FIXTURES", function() {
   }];
 
   raises(function(){
-    Person.find("1");
+    env.store.find('person', 1);
   }, /the id property must be defined as a number or string for fixture/);
 
   Person.FIXTURES = [{
     id: 0
   }];
-  var result;
-  stop();
-  try {
-    result = Person.find("0");
-    // should accept 0 as an id, all is fine
-    result.then(function() {
-      clearTimeout(timer);
-      start();
-    });
-    var timer = setTimeout(function() {
-      start();
-      ok(false, "timeout exceeded waiting for fixture data");
-    }, 1000);
-  } catch (err) {
-    ok(false, "model with id of zero raises undefined id error");
-    start();
-  }
+
+  env.store.find('person', 0).then(async(function() {
+    ok(true, "0 is an acceptable ID, so no exception was thrown");
+  }), function() {
+    ok(false, "should not get here");
+  });
 });
