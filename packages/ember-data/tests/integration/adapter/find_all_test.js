@@ -11,14 +11,13 @@ module("integration/adapter/find_all - Finding All Records of a Type", {
       lastName: DS.attr('string')
     });
 
-    adapter = DS.Adapter.create();
+    adapter = DS.Adapter.extend();
     store = DS.Store.create({ adapter: adapter });
     allRecords = null;
   },
 
   teardown: function() {
     if (allRecords) { allRecords.destroy(); }
-    adapter.destroy();
     store.destroy();
   }
 });
@@ -26,12 +25,14 @@ module("integration/adapter/find_all - Finding All Records of a Type", {
 test("When all records for a type are requested, the store should call the adapter's `findAll` method.", function() {
   expect(5);
 
-  adapter.findAll = function(store, type, since) {
-    // this will get called twice
-    ok(true, "the adapter's findAll method should be invoked");
+  adapter.reopen({
+    findAll: function(store, type, since) {
+      // this will get called twice
+      ok(true, "the adapter's findAll method should be invoked");
 
-    return Ember.RSVP.resolve([{ id: 1, name: "Braaaahm Dale" }]);
-  };
+      return Ember.RSVP.resolve([{ id: 1, name: "Braaaahm Dale" }]);
+    }
+  });
 
   var allRecords;
 
@@ -51,16 +52,18 @@ test("When all records for a type are requested, a rejection should reject the p
   expect(5);
 
   var count = 0;
-  adapter.findAll = function(store, type, since) {
-    // this will get called twice
-    ok(true, "the adapter's findAll method should be invoked");
+  adapter.reopen({
+    findAll: function(store, type, since) {
+      // this will get called twice
+      ok(true, "the adapter's findAll method should be invoked");
 
-    if (count++ === 0) {
-      return Ember.RSVP.reject();
-    } else {
-      return Ember.RSVP.resolve([{ id: 1, name: "Braaaahm Dale" }]);
+      if (count++ === 0) {
+        return Ember.RSVP.reject();
+      } else {
+        return Ember.RSVP.resolve([{ id: 1, name: "Braaaahm Dale" }]);
+      }
     }
-  };
+  });
 
   var allRecords;
 

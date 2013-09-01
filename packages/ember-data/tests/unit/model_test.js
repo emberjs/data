@@ -355,7 +355,7 @@ test("don't allow setting", function(){
 
 test("ensure model exits loading state, materializes data and fulfills promise only after data is available", function () {
   var store = DS.Store.create({
-    adapter: DS.Adapter.create({
+    adapter: DS.Adapter.extend({
       find: function(store, type, id) {
         return Ember.RSVP.resolve({ id: 1, name: "John", isDrugAddict: false });
       }
