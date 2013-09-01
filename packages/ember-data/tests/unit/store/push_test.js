@@ -1,11 +1,8 @@
-var store, container, adapter, Person, PhoneNumber;
+var env, store, Person, PhoneNumber;
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
 
 module("unit/store/push - DS.Store#push", {
   setup: function() {
-    container = new Ember.Container();
-    adapter = DS.Adapter.extend();
-
     Person = DS.Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
@@ -17,24 +14,22 @@ module("unit/store/push - DS.Store#push", {
       person: belongsTo('person')
     });
 
-    store = DS.Store.create({
-      container: container,
-      adapter: adapter
-    });
+    env = setupStore();
+
+    store = env.store;
 
     var DefaultSerializer = DS.JSONSerializer.extend({
       store: store
     });
 
-    container.register('model:person', Person);
-    container.register('model:phone-number', PhoneNumber);
-    container.register('serializer:_default', DefaultSerializer);
+    env.container.register('model:person', Person);
+    env.container.register('model:phone-number', PhoneNumber);
+    env.container.register('serializer:_default', DefaultSerializer);
   },
 
   teardown: function() {
     Ember.run(function() {
       store.destroy();
-      container.destroy();
     });
   }
 });
@@ -84,31 +79,29 @@ test("Calling push with a normalized hash containing IDs of related records retu
     phoneNumbers: hasMany('phone-number', { async: true })
   });
 
+  env.adapter.find = function(store, type, id) {
+    if (id === "1") {
+      return Ember.RSVP.resolve({
+        id: 1,
+        number: '5551212',
+        person: 'wat'
+      });
+    }
+
+    if (id === "2") {
+      return Ember.RSVP.resolve({
+        id: 2,
+        number: '5552121',
+        person: 'wat'
+      });
+    }
+  };
+
   var person = store.push('person', {
     id: 'wat',
     firstName: 'John',
     lastName: 'Smith',
     phoneNumbers: ["1", "2"]
-  });
-
-  adapter.reopen({
-    find: function(store, type, id) {
-      if (id === "1") {
-        return Ember.RSVP.resolve({
-          id: 1,
-          number: '5551212',
-          person: 'wat'
-        });
-      }
-
-      if (id === "2") {
-        return Ember.RSVP.resolve({
-          id: 2,
-          number: '5552121',
-          person: 'wat'
-        });
-      }
-    }
   });
 
   person.get('phoneNumbers').then(async(function(phoneNumbers) {

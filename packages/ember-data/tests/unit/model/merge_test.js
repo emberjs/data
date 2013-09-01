@@ -20,7 +20,7 @@ test("When a record is in flight, changes can be made", function() {
     }
   });
 
-  var store = DS.Store.create({ adapter: adapter });
+  var store = createStore({ adapter: adapter });
 
   var person = store.createRecord(Person, { name: "Tom Dale" });
 
@@ -46,7 +46,7 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
     }
   });
 
-  var store = DS.Store.create({ adapter: adapter });
+  var store = createStore({ adapter: adapter });
 
   var person = store.push(Person, { id: 1, name: "Tom" });
   person.set('name', "Thomas Dale");
@@ -73,7 +73,7 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
 });
 
 test("When a record is dirty, pushes are overridden by local changes", function() {
-  var store = DS.Store.create({ adapter: DS.Adapter });
+  var store = createStore({ adapter: DS.Adapter });
 
   var person = store.push(Person, { id: 1, name: "Tom Dale", city: "San Francisco" });
 
@@ -97,7 +97,7 @@ test("A record with no changes can still be saved", function() {
     }
   });
 
-  var store = DS.Store.create({ adapter: adapter });
+  var store = createStore({ adapter: adapter });
 
   var person = store.push(Person, { id: 1, name: "Tom Dale" });
 
@@ -113,7 +113,7 @@ test("A dirty record can be reloaded", function() {
     }
   });
 
-  var store = DS.Store.create({ adapter: adapter });
+  var store = createStore({ adapter: adapter });
 
   var person = store.push(Person, { id: 1, name: "Tom Dale" });
 

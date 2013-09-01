@@ -9,9 +9,6 @@ module("integration/adapter/find - Finding Records", {
       firstName: DS.attr('string'),
       lastName: DS.attr('string')
     });
-
-    adapter = DS.Adapter.extend();
-    store = DS.Store.create({ adapter: adapter });
   },
 
   teardown: function() {
@@ -24,14 +21,15 @@ test("When a single record is requested, the adapter's find method should be cal
 
   var count = 0;
 
-  adapter.reopen({
-    find: function(store, type, id) {
-      equal(type, Person, "the find method is called with the correct type");
-      equal(count, 0, "the find method is only called once");
+  store = createStore({ adapter: DS.Adapter.extend({
+      find: function(store, type, id) {
+        equal(type, Person, "the find method is called with the correct type");
+        equal(count, 0, "the find method is only called once");
 
-      count++;
-      return { id: 1, name: "Braaaahm Dale" };
-    }
+        count++;
+        return { id: 1, name: "Braaaahm Dale" };
+      }
+    })
   });
 
   store.find(Person, 1);
@@ -41,10 +39,11 @@ test("When a single record is requested, the adapter's find method should be cal
 test("When a single record is requested, and the promise is rejected, .find() is rejected.", function() {
   var count = 0;
 
-  adapter.reopen({
-    find: function(store, type, id) {
-      return Ember.RSVP.reject();
-    }
+  store = createStore({ adapter: DS.Adapter.extend({
+      find: function(store, type, id) {
+        return Ember.RSVP.reject();
+      }
+    })
   });
 
   store.find(Person, 1).then(null, async(function(reason) {

@@ -16,7 +16,7 @@ test("a record receives a didLoad callback when it has finished loading", functi
     }
   });
 
-  var store = DS.Store.create({
+  var store = createStore({
     adapter: adapter
   });
 
@@ -51,7 +51,7 @@ test("a record receives a didUpdate callback when it has finished updating", fun
     }
   });
 
-  var store = DS.Store.create({
+  var store = createStore({
     adapter: adapter
   });
 
@@ -85,7 +85,7 @@ test("a record receives a didCreate callback when it has finished updating", fun
     }
   });
 
-  var store = DS.Store.create({
+  var store = createStore({
     adapter: adapter
   });
 
@@ -124,7 +124,7 @@ test("a record receives a didDelete callback when it has finished deleting", fun
     }
   });
 
-  var store = DS.Store.create({
+  var store = createStore({
     adapter: adapter
   });
 
@@ -165,7 +165,7 @@ test("a record receives a becameInvalid callback when it became invalid", functi
     }
   });
 
-  var store = DS.Store.create({
+  var store = createStore({
     adapter: adapter
   });
 
@@ -185,7 +185,7 @@ test("a record receives a becameInvalid callback when it became invalid", functi
 });
 
 test("an ID of 0 is allowed", function() {
-  var store = DS.Store.create();
+  var store = createStore();
 
   var Person = DS.Model.extend({
     name: DS.attr('string')

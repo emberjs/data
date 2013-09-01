@@ -80,6 +80,10 @@
     return env;
   };
 
+  window.createStore = function(options) {
+    return setupStore(options).store;
+  };
+
   var syncForTest = function(fn) {
     var callSuper;
 

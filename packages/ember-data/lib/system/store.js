@@ -1239,12 +1239,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   serializerFor: function(type) {
     var container = this.container;
 
-    // TODO: Make tests pass without this
-
-    if (!container) {
-      return DS.JSONSerializer.create({ store: this });
-    }
-
     return container.lookup('serializer:'+type) ||
            container.lookup('serializer:application') ||
            container.lookup('serializer:_default');
