@@ -600,6 +600,11 @@ var RootState = {
         record.transitionTo('saved');
 
         record.send('invokeLifecycleCallbacks');
+      },
+
+      becameError: function(record) {
+        record.transitionTo('uncommitted');
+        record.triggerLater('becameError', record);
       }
     },
 

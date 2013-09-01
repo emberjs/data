@@ -252,6 +252,35 @@ test("if an existing model is edited then deleted, deleteRecord is called on the
   }));
 });
 
+test("if a deleted record errors, it enters the error state", function() {
+  var count = 0;
+
+  adapter.deleteRecord = function(store, type, record) {
+    if (count++ === 0) {
+      return Ember.RSVP.reject();
+    } else {
+      return Ember.RSVP.resolve();
+    }
+  };
+
+  store.push('person', { id: 'deleted-record', name: "Tom Dale" });
+
+  var tom;
+
+  store.find('person', 'deleted-record').then(async(function(person) {
+    tom = person;
+    person.deleteRecord();
+    return person.save();
+  })).then(null, async(function() {
+    equal(tom.get('isError'), true, "Tom is now errored");
+
+    // this time it succeeds
+    return tom.save();
+  })).then(async(function() {
+    equal(tom.get('isError'), false, "Tom is not errored anymore");
+  }));
+});
+
 test("if a created record is marked as invalid by the server, it enters an error state", function() {
   adapter.createRecord = function(store, type, record) {
     equal(type, Person, "the type is correct");
