@@ -621,6 +621,19 @@ test("findMany - a custom serializer is used if present", function() {
   }));
 });
 
+test('buildURL - with host and namespace', function() {
+  adapter.setProperties({
+    host: 'http://example.com',
+    namespace: 'api/v1'
+  });
+
+  ajaxResponse({ posts: [{ id: 1 }] });
+
+  store.find('post', 1).then(async(function(post) {
+    equal(passedUrl, "http://example.com/api/v1/posts/1");
+  }));
+});
+
 //test("creating a record with a 422 error marks the records as invalid", function(){
   //expect(1);
 
