@@ -14,13 +14,13 @@ module("unit/store/adapter_interop - DS.Store working with a DS.Adapter", {
 test("Adapter can be set as a factory", function() {
   store = createStore({adapter: TestAdapter});
 
-  ok(TestAdapter.detectInstance(store.get('defaultAdapter')));
+  ok(store.get('defaultAdapter') instanceof TestAdapter);
 });
 
 test('Adapter can be set as a name', function() {
   store = createStore({adapter: '_rest'});
 
-  ok(DS.RESTAdapter.detectInstance(store.get('defaultAdapter')));
+  ok(store.get('defaultAdapter') instanceof DS.RESTAdapter);
 });
 
 test('Adapter can not be set as an instance', function() {
