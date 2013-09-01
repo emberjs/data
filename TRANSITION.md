@@ -389,7 +389,7 @@ There are significant improvements and simplifications to configuring
 the REST Adapter and Serializer.
 
 The short version is that once an Ajax request has completed, the
-resuling payload is sent through the following hooks:
+resulting payload is sent through the following hooks:
 
 1. The payload is sent to `extractSingle` if the original request was
    for a single record (like `find`/`save`) or `extractArray` if the
@@ -573,6 +573,8 @@ So to sum up, you should:
 * make sure to call super if you override `extractSingle`,
   `extractArray` or `normalize` so the rest of the chain will get
   called.
+* beta.1 expects `comments` key now instead of `comments_ids`.
+  This is likely to be configurable in beta.2.
 
 ### Embedded Records
 
