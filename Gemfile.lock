@@ -1,12 +1,4 @@
 GIT
-  remote: http://github.com/emberjs/ember.js
-  revision: d8824c02edea32921038476cdd874dbdc531ca46
-  branch: master
-  specs:
-    ember-source (1.0.0.rc8)
-      handlebars-source (= 1.0.12)
-
-GIT
   remote: https://github.com/emberjs/ember-dev.git
   revision: 600c5e6e0fd60903ad9cdc79839d338c7f994ec7
   branch: master
@@ -47,6 +39,8 @@ GEM
     colored (1.2)
     daemons (1.1.9)
     diff-lcs (1.2.4)
+    ember-source (1.0.0)
+      handlebars-source (= 1.0.12)
     eventmachine (1.0.3)
     execjs (2.0.1)
     ffi (1.9.0)
@@ -94,7 +88,7 @@ PLATFORMS
 DEPENDENCIES
   ember-data-source!
   ember-dev!
-  ember-source!
+  ember-source (~> 1.0)
   puma
   rake-pipeline!
   thin
