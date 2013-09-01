@@ -674,6 +674,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @return {DS.RecordArray}
   */
   all: function(type) {
+    type = this.modelFor(type);
+
     var typeMap = this.typeMapFor(type),
         findAllCache = typeMap.findAllCache;
 
