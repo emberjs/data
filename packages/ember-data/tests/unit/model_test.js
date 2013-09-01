@@ -367,3 +367,20 @@ test("ensure model exits loading state, materializes data and fulfills promise o
     equal(get(person, 'isLoaded'), true, 'model is loaded');
   }));
 });
+
+
+test("errors on inflight deleted models transition model to error state", function() {
+
+  var person, store;
+
+  store = DS.Store.create();
+  store.load(Person, { id: 1, name: "John" });
+  person = Person.find(1);
+  person.transitionTo('deleted.inFlight');
+  Ember.run(function() {
+    person.adapterDidError();
+  });
+
+  ok(person.get('isError'), "model is in error state");
+});
+
