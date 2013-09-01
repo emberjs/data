@@ -26,7 +26,7 @@ GIT
 PATH
   remote: .
   specs:
-    ember-data-source (0.13)
+    ember-data-source (0.14)
       ember-source
 
 GEM

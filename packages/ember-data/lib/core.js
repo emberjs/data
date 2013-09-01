@@ -10,8 +10,9 @@
 */
 
 if ('undefined' === typeof DS) {
+  /*global DS:true*/
   DS = Ember.Namespace.create({
-    VERSION: '0.13'
+    VERSION: '0.14'
   });
 
   if ('undefined' !== typeof window) {
