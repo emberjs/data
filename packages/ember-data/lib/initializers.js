@@ -1,4 +1,5 @@
 require("ember-data/serializers/json_serializer");
+require("ember-data/system/debug/debug_adapter");
 
 /**
   @module ember-data
@@ -53,12 +54,21 @@ Ember.onLoad('Ember.Application', function(Application) {
   });
 
   Application.initializer({
+    name: "dataAdapter",
+
+    initialize: function(container, application) {
+      application.register('dataAdapter:main', DS.DebugAdapter);
+    }
+  });
+
+  Application.initializer({
     name: "injectStore",
 
     initialize: function(container, application) {
       application.inject('controller', 'store', 'store:main');
       application.inject('route', 'store', 'store:main');
       application.inject('serializer', 'store', 'store:main');
+      application.inject('dataAdapter', 'store', 'store:main');
     }
   });
 });
