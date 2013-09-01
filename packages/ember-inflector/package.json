@@ -4,14 +4,14 @@
   "descrption": "",
   "homepage": "http://github.com/emberjs/ember.js",
   "author": ["Stefan Penner"],
-  "version": "1.0.0-beta",
+  "version": "1.0.0-beta.1",
 
   "directories":{
     "lib": "lib"
   },
 
   "dependencies": {
-    "ember-runtime": "1.0.0-beta"
+    "ember-runtime": "1.0.0"
   },
 
   "bpm:build": {

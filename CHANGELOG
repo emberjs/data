@@ -1,4 +1,4 @@
-*Ember 1.0.0-beta (September 01, 2013)*
+*Ember 1.0.0-beta.1 (September 01, 2013)*
 
 * Added DS.DebugAdapter which extends Ember.DataAdapter
 * Explain how to deal with embedded records
