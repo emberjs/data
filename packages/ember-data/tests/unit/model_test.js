@@ -4,7 +4,7 @@ var Person, store, array;
 
 module("unit/model - DS.Model", {
   setup: function() {
-    store = DS.Store.create({ adapter: DS.Adapter });
+    store = createStore();
 
     Person = DS.Model.extend({
       name: DS.attr('string'),
@@ -72,7 +72,7 @@ test("it should use `_reference` and not `reference` to store its reference", fu
 });
 
 test("it should cache attributes", function() {
-  var store = DS.Store.create({ adapter: DS.Adapter });
+  var store = createStore();
 
   var Post = DS.Model.extend({
     updatedAt: DS.attr('string')
@@ -94,7 +94,7 @@ module("unit/model - DS.Model updating", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
     Person = DS.Model.extend({ name: DS.attr('string') });
-    store = DS.Store.create({ adapter: DS.Adapter });
+    store = createStore();
     store.pushMany(Person, array);
   },
   teardown: function() {
@@ -165,7 +165,7 @@ module("unit/model - with a simple Person model", {
     Person = DS.Model.extend({
       name: DS.attr('string')
     });
-    store = DS.Store.create({ adapter: DS.Adapter });
+    store = createStore();
     store.pushMany(Person, array);
   },
   teardown: function() {
@@ -242,7 +242,7 @@ test("when a method is invoked from an event with the same name the arguments ar
 });
 
 var converts = function(type, provided, expected) {
-  var testStore = DS.Store.create({ adapter: DS.Adapter });
+  var testStore = createStore();
 
   var Model = DS.Model.extend({
     name: DS.attr(type)
@@ -262,7 +262,7 @@ var converts = function(type, provided, expected) {
 };
 
 var convertsFromServer = function(type, provided, expected) {
-  var testStore = DS.Store.create({ adapter: DS.Adapter });
+  var testStore = createStore();
 
   var Model = DS.Model.extend({
     name: DS.attr(type)
@@ -275,7 +275,7 @@ var convertsFromServer = function(type, provided, expected) {
 };
 
 var convertsWhenSet = function(type, provided, expected) {
-  var testStore = DS.Store.create({ adapter: DS.Adapter });
+  var testStore = createStore();
 
   var Model = DS.Model.extend({
     name: DS.attr(type)
@@ -326,7 +326,7 @@ test("a DS.Model can describe Date attributes", function() {
   var dateString = "Sat, 31 Dec 2011 00:08:16 GMT";
   var date = new Date(dateString);
 
-  var store = DS.Store.create({ adapter: DS.Adapter });
+  var store = createStore();
 
   var Person = DS.Model.extend({
     updatedAt: DS.attr('date')
@@ -343,7 +343,7 @@ test("a DS.Model can describe Date attributes", function() {
 });
 
 test("don't allow setting", function(){
-  var store = DS.Store.create({ adapter: DS.Adapter });
+  var store = createStore();
 
   var Person = DS.Model.extend();
   var record = store.createRecord(Person);
@@ -354,7 +354,7 @@ test("don't allow setting", function(){
 });
 
 test("ensure model exits loading state, materializes data and fulfills promise only after data is available", function () {
-  var store = DS.Store.create({
+  var store = createStore({
     adapter: DS.Adapter.extend({
       find: function(store, type, id) {
         return Ember.RSVP.resolve({ id: 1, name: "John", isDrugAddict: false });

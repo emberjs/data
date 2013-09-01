@@ -14,7 +14,7 @@ module("unit/record_array - DS.RecordArray", {
 });
 
 test("a record array is backed by records", function() {
-  var store = DS.Store.create({ adapter: DS.Adapter });
+  var store = createStore();
   store.pushMany(Person, array);
 
   store.findByIds(Person, [1,2,3]).then(async(function(records) {
@@ -25,7 +25,7 @@ test("a record array is backed by records", function() {
 });
 
 test("acts as a live query", function() {
-  var store = DS.Store.create();
+  var store = createStore();
 
   var recordArray = store.all(Person);
   store.push(Person, { id: 1, name: 'wycats' });
@@ -74,7 +74,7 @@ test("a loaded record is removed from a record array when it is deleted", functi
 
 // GitHub Issue #168
 test("a newly created record is removed from a record array when it is deleted", function() {
-  var store = DS.Store.create({ adapter: DS.Adapter }),
+  var store = createStore(),
       recordArray;
 
   recordArray = store.all(Person);
@@ -105,7 +105,7 @@ test("a newly created record is removed from a record array when it is deleted",
 });
 
 test("a record array returns undefined when asking for a member outside of its content Array's range", function() {
-  var store = DS.Store.create({ adapter: DS.Adapter });
+  var store = createStore();
 
   store.pushMany(Person, array);
 
@@ -116,7 +116,7 @@ test("a record array returns undefined when asking for a member outside of its c
 
 // This tests for a bug in the recordCache, where the records were being cached in the incorrect order.
 test("a record array should be able to be enumerated in any order", function() {
-  var store = DS.Store.create({ adapter: DS.Adapter });
+  var store = createStore();
   store.pushMany(Person, array);
 
   var recordArray = store.all(Person);

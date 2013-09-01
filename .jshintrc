@@ -12,6 +12,7 @@
         "ember_deprecateFunc",
         "require",
         "setupStore",
+        "createStore",
         "equal",
         "asyncEqual",
         "notEqual",

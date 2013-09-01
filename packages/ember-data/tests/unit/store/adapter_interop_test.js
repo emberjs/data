@@ -1,6 +1,6 @@
 var get = Ember.get, set = Ember.set;
 var resolve = Ember.RSVP.resolve;
-var TestAdapter, env, store;
+var TestAdapter, store;
 
 module("unit/store/adapter_interop - DS.Store working with a DS.Adapter", {
   setup: function() {
@@ -12,21 +12,20 @@ module("unit/store/adapter_interop - DS.Store working with a DS.Adapter", {
 });
 
 test("Adapter can be set as a factory", function() {
-  store = DS.Store.create({
-    adapter: TestAdapter.extend()
-  });
+  store = createStore({adapter: TestAdapter});
 
   ok(TestAdapter.detectInstance(store.get('defaultAdapter')));
 });
 
 test('Adapter can be set as a name', function() {
-  env = setupStore({adapter: '_rest'});
-  ok(DS.RESTAdapter.detectInstance(env.adapter));
+  store = createStore({adapter: '_rest'});
+
+  ok(DS.RESTAdapter.detectInstance(store.get('defaultAdapter')));
 });
 
 test('Adapter can not be set as an instance', function() {
   store = DS.Store.create({
-    adapter: TestAdapter.create()
+    adapter: DS.Adapter.create()
   });
   var assert = Ember.assert;
   Ember.assert = function() { ok(true, "raises an error when passing in an instance"); };
@@ -48,7 +47,7 @@ test("Calling Store#find invokes its adapter#find", function() {
     }
   });
 
-  var currentStore = DS.Store.create({ adapter: adapter });
+  var currentStore = createStore({ adapter: adapter });
   var currentType = DS.Model.extend();
 
   currentStore.find(currentType, 1);
@@ -61,7 +60,7 @@ test("Returning a promise from `find` asynchronously loads data", function() {
     }
   });
 
-  var currentStore = DS.Store.create({ adapter: adapter });
+  var currentStore = createStore({ adapter: adapter });
   var currentType = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -79,7 +78,7 @@ test("IDs provided as numbers are coerced to strings", function() {
     }
   });
 
-  var currentStore = DS.Store.create({ adapter: adapter });
+  var currentStore = createStore({ adapter: adapter });
   var currentType = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -98,7 +97,7 @@ test("IDs provided as numbers are coerced to strings", function() {
 var array = [{ id: "1", name: "Scumbag Dale" }, { id: "2", name: "Scumbag Katz" }, { id: "3", name: "Scumbag Bryn" }];
 
 test("can load data for the same record if it is not dirty", function() {
-  var store = DS.Store.create({ adapter: DS.Adapter });
+  var store = createStore();
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -128,7 +127,7 @@ test("DS.Store loads individual records without explicit IDs with a custom prima
 */
 
 test("pushMany extracts ids from an Array of hashes if no ids are specified", function() {
-  var store = DS.Store.create({ adapter: DS.Adapter });
+  var store = createStore();
 
   var Person = DS.Model.extend({ name: DS.attr('string') });
 
@@ -153,7 +152,7 @@ test("loadMany takes an optional Object and passes it on to the Adapter", functi
     }
   });
 
-  var store = DS.Store.create({
+  var store = createStore({
     adapter: adapter
   });
 
@@ -161,7 +160,7 @@ test("loadMany takes an optional Object and passes it on to the Adapter", functi
 });
 
 test("all(type) returns a record array of all records of a specific type", function() {
-  var store = DS.Store.create({ adapter: DS.Adapter });
+  var store = createStore();
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -180,7 +179,7 @@ test("all(type) returns a record array of all records of a specific type", funct
 });
 
 test("a new record of a particular type is created via store.createRecord(type)", function() {
-  var store = DS.Store.create({ adapter: DS.Adapter });
+  var store = createStore();
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -197,7 +196,7 @@ test("a new record of a particular type is created via store.createRecord(type)"
 });
 
 test("a new record with a specific id can't be created if this id is already used in the store", function() {
-  var store = DS.Store.create({ adapter: DS.Adapter });
+  var store = createStore();
   var Person = DS.Model.extend({
     name: DS.attr('string'),
   });
@@ -216,7 +215,7 @@ test("a new record with a specific id can't be created if this id is already use
 });
 
 test("an initial data hash can be provided via store.createRecord(type, hash)", function() {
-  var store = DS.Store.create({ adapter: DS.Adapter });
+  var store = createStore();
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -231,7 +230,7 @@ test("an initial data hash can be provided via store.createRecord(type, hash)", 
 });
 
 test("if an id is supplied in the initial data hash, it can be looked up using `store.find`", function() {
-  var store = DS.Store.create({ adapter: DS.Adapter });
+  var store = createStore();
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -253,7 +252,7 @@ test("records inside a collection view should have their ids updated", function(
     }
   });
 
-  var store = DS.Store.create({
+  var store = createStore({
     adapter: adapter
   });
 
