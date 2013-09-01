@@ -389,7 +389,7 @@ There are significant improvements and simplifications to configuring
 the REST Adapter and Serializer.
 
 The short version is that once an Ajax request has completed, the
-resuling payload is sent through the following hooks:
+resulting payload is sent through the following hooks:
 
 1. The payload is sent to `extractSingle` if the original request was
    for a single record (like `find`/`save`) or `extractArray` if the
