@@ -1,17 +1,43 @@
 var get = Ember.get, set = Ember.set;
 var resolve = Ember.RSVP.resolve;
-var TestAdapter;
+var TestAdapter, env, store;
 
 module("unit/store/adapter_interop - DS.Store working with a DS.Adapter", {
   setup: function() {
     TestAdapter = DS.Adapter.extend();
+  },
+  teardown: function() {
+    if (store) { store.destroy(); }
   }
+});
+
+test("Adapter can be set as a factory", function() {
+  store = DS.Store.create({
+    adapter: TestAdapter.extend()
+  });
+
+  ok(TestAdapter.detectInstance(store.get('defaultAdapter')));
+});
+
+test('Adapter can be set as a name', function() {
+  env = setupStore({adapter: '_rest'});
+  ok(DS.RESTAdapter.detectInstance(env.adapter));
+});
+
+test('Adapter can not be set as an instance', function() {
+  store = DS.Store.create({
+    adapter: TestAdapter.create()
+  });
+  var assert = Ember.assert;
+  Ember.assert = function() { ok(true, "raises an error when passing in an instance"); };
+  store.get('defaultAdapter');
+  Ember.assert = assert;
 });
 
 test("Calling Store#find invokes its adapter#find", function() {
   expect(4);
 
-  var adapter = TestAdapter.create({
+  var adapter = TestAdapter.extend({
     find: function(store, type, id) {
       ok(true, "Adapter#find was called");
       equal(store, currentStore, "Adapter#find was called with the right store");
@@ -29,7 +55,7 @@ test("Calling Store#find invokes its adapter#find", function() {
 });
 
 test("Returning a promise from `find` asynchronously loads data", function() {
-  var adapter = TestAdapter.create({
+  var adapter = TestAdapter.extend({
     find: function(store, type, id) {
       return resolve({ id: 1, name: "Scumbag Dale" });
     }
@@ -46,7 +72,7 @@ test("Returning a promise from `find` asynchronously loads data", function() {
 });
 
 test("IDs provided as numbers are coerced to strings", function() {
-  var adapter = TestAdapter.create({
+  var adapter = TestAdapter.extend({
     find: function(store, type, id) {
       equal(typeof id, 'string', "id has been normalized to a string");
       return resolve({ id: 1, name: "Scumbag Sylvain" });
@@ -119,7 +145,7 @@ test("loadMany takes an optional Object and passes it on to the Adapter", functi
     name: DS.attr('string')
   });
 
-  var adapter = TestAdapter.create({
+  var adapter = TestAdapter.extend({
     findQuery: function(store, type, query) {
       equal(type, Person, "The type was Person");
       equal(query, passedQuery, "The query was passed in");
@@ -221,7 +247,7 @@ test("records inside a collection view should have their ids updated", function(
   var Person = DS.Model.extend();
 
   var idCounter = 1;
-  var adapter = TestAdapter.create({
+  var adapter = TestAdapter.extend({
     createRecord: function(store, type, record) {
       return Ember.RSVP.resolve({name: record.get('name'), id: idCounter++});
     }
@@ -247,27 +273,4 @@ test("records inside a collection view should have their ids updated", function(
 
     container.destroy();
   }));
-});
-
-var stubAdapter, store;
-
-module("DS.Store - Adapter Callbacks", {
-  setup: function() {
-    stubAdapter = Ember.Object.create({
-      extractId: function(type, hash) {
-        return hash.id;
-      },
-
-      materialize: function(record, hash) {
-        record.materializedData = hash;
-      }
-    });
-
-    store = DS.Store.create({ adapter: stubAdapter });
-  },
-
-  teardown: function() {
-    stubAdapter.destroy();
-    store.destroy();
-  }
 });

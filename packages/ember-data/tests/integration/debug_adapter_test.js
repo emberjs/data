@@ -8,7 +8,7 @@ module("DS.DebugAdapter", {
       });
 
       App.Store = DS.Store.extend({
-        adapter: DS.Adapter.create()
+        adapter: DS.Adapter.extend()
       });
 
       App.Post = DS.Model.extend({

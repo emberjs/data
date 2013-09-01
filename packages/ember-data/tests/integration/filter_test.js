@@ -83,7 +83,7 @@ test("a filtered record array includes created elements", function() {
 });
 
 test("a Record Array can update its filter", function() {
-  set(store, 'adapter', DS.Adapter.create({
+  set(store, 'adapter', DS.Adapter.extend({
     deleteRecord: function(store, type, record) {
       return Ember.RSVP.resolve();
     }
@@ -129,7 +129,7 @@ test("a Record Array can update its filter", function() {
 });
 
 test("a Record Array can update its filter and notify array observers", function() {
-  set(store, 'adapter', DS.Adapter.create({
+  set(store, 'adapter', DS.Adapter.extend({
     deleteRecord: function(store, type, record) {
       return Ember.RSVP.resolve();
     }
@@ -243,7 +243,7 @@ test("a filter created after a record is already loaded works", function() {
 });
 
 test("it is possible to filter by state flags", function() {
-  set(store, 'adapter', DS.Adapter.create({
+  set(store, 'adapter', DS.Adapter.extend({
     find: function(store, type, id) {
       return Ember.RSVP.resolve({ id: id, name: "Tom Dale" });
     }
@@ -271,7 +271,7 @@ test("it is possible to filter by state flags", function() {
 });
 
 test("it is possible to filter loaded records by dirtiness", function() {
-  set(store, 'adapter', DS.Adapter.create({
+  set(store, 'adapter', DS.Adapter.extend({
     updateRecord: function() {
       return Ember.RSVP.resolve();
     }
@@ -301,7 +301,7 @@ test("it is possible to filter loaded records by dirtiness", function() {
 });
 
 test("it is possible to filter created records by dirtiness", function() {
-  set(store, 'adapter', DS.Adapter.create({
+  set(store, 'adapter', DS.Adapter.extend({
     createRecord: function() {
       return Ember.RSVP.resolve();
     }
@@ -359,7 +359,7 @@ var serverResponds = function(){
 };
 
 var setup = function(serverCallbacks) {
-  set(store, 'adapter', DS.Adapter.create(serverCallbacks));
+  set(store, 'adapter', DS.Adapter.extend(serverCallbacks));
 
   store.pushMany('person', array);
 

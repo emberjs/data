@@ -14,7 +14,7 @@ module("unit/model/merge - Merging", {
 });
 
 test("When a record is in flight, changes can be made", function() {
-  var adapter = DS.Adapter.create({
+  var adapter = DS.Adapter.extend({
     createRecord: function(store, type, record) {
       return Ember.RSVP.resolve({ id: 1, name: "Tom Dale" });
     }
@@ -40,7 +40,7 @@ test("When a record is in flight, changes can be made", function() {
 });
 
 test("When a record is in flight, pushes are applied underneath the in flight changes", function() {
-  var adapter = DS.Adapter.create({
+  var adapter = DS.Adapter.extend({
     updateRecord: function(store, type, record) {
       return Ember.RSVP.resolve({ id: 1, name: "Senor Thomas Dale, Esq.", city: "Portland" });
     }
@@ -91,7 +91,7 @@ test("When a record is dirty, pushes are overridden by local changes", function(
 });
 
 test("A record with no changes can still be saved", function() {
-  var adapter = DS.Adapter.create({
+  var adapter = DS.Adapter.extend({
     updateRecord: function(store, type, record) {
       return Ember.RSVP.resolve({ id: 1, name: "Thomas Dale" });
     }
@@ -107,7 +107,7 @@ test("A record with no changes can still be saved", function() {
 });
 
 test("A dirty record can be reloaded", function() {
-  var adapter = DS.Adapter.create({
+  var adapter = DS.Adapter.extend({
     find: function(store, type, id) {
       return Ember.RSVP.resolve({ id: 1, name: "Thomas Dale", city: "Portland" });
     }

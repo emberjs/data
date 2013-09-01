@@ -4,7 +4,7 @@ var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
 module("unit/store/push - DS.Store#push", {
   setup: function() {
     container = new Ember.Container();
-    adapter = DS.Adapter.create();
+    adapter = DS.Adapter.extend();
 
     Person = DS.Model.extend({
       firstName: attr('string'),
@@ -91,23 +91,25 @@ test("Calling push with a normalized hash containing IDs of related records retu
     phoneNumbers: ["1", "2"]
   });
 
-  adapter.find = function(store, type, id) {
-    if (id === "1") {
-      return Ember.RSVP.resolve({
-        id: 1,
-        number: '5551212',
-        person: 'wat'
-      });
-    }
+  adapter.reopen({
+    find: function(store, type, id) {
+      if (id === "1") {
+        return Ember.RSVP.resolve({
+          id: 1,
+          number: '5551212',
+          person: 'wat'
+        });
+      }
 
-    if (id === "2") {
-      return Ember.RSVP.resolve({
-        id: 2,
-        number: '5552121',
-        person: 'wat'
-      });
+      if (id === "2") {
+        return Ember.RSVP.resolve({
+          id: 2,
+          number: '5552121',
+          person: 'wat'
+        });
+      }
     }
-  };
+  });
 
   person.get('phoneNumbers').then(async(function(phoneNumbers) {
     deepEqual(phoneNumbers.map(function(item) {

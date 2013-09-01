@@ -145,12 +145,15 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     This property is cacheable, so the same instance of a specified
     adapter class should be used for the lifetime of the store.
 
-    @property _adapter
+    @property defaultAdapter
     @private
     @returns DS.Adapter
   */
-  _adapter: Ember.computed(function() {
+  defaultAdapter: Ember.computed(function() {
     var adapter = get(this, 'adapter');
+
+    Ember.assert('You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a name or a factory', !DS.Adapter.detectInstance(adapter));
+
     if (typeof adapter === 'string') {
       adapter = this.container.lookup('adapter:' + adapter) || this.container.lookup('adapter:application') || this.container.lookup('adapter:_rest');
     }
@@ -1210,7 +1213,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       adapter = container.lookup('adapter:' + type.typeKey) || container.lookup('adapter:application');
     }
 
-    return adapter || get(this, '_adapter');
+    return adapter || get(this, 'defaultAdapter');
   },
 
   // ..............................

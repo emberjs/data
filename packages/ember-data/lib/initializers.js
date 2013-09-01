@@ -20,7 +20,7 @@ var set = Ember.set;
   For example, imagine an Ember.js application with the following classes:
 
   App.Store = DS.Store.extend({
-    adapter: 'App.MyCustomAdapter'
+    adapter: 'custom'
   });
 
   App.PostsController = Ember.ArrayController.extend({
@@ -52,18 +52,6 @@ Ember.onLoad('Ember.Application', function(Application) {
       container.lookup('store:main');
     }
   });
-
-  // Keep ED compatible with previous versions of ember
-  // TODO: Remove the if statement for Ember 1.0
-  if (DS.DebugAdapter) {
-    Application.initializer({
-      name: "dataAdapter",
-
-      initialize: function(container, application) {
-        application.register('dataAdapter:main', DS.DebugAdapter);
-      }
-    });
-  }
 
   Application.initializer({
     name: "dataAdapter",
