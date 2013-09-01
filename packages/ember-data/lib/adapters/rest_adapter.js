@@ -839,8 +839,18 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns String
   */
   buildURL: function(type, id) {
-    var url = "/" + Ember.String.pluralize(type.typeKey);
-    if (id) { url += "/" + id; }
+    var host = get(this, 'host'),
+        namespace = get(this, 'namespace'),
+        url = [];
+
+    if (host) { url.push(host); }
+    if (namespace) { url.push(namespace); }
+
+    url.push(Ember.String.pluralize(type.typeKey));
+    if (id) { url.push(id); }
+
+    url = url.join('/');
+    if (!host) { url = '/' + url; }
 
     return url;
   },
