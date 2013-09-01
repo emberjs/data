@@ -347,8 +347,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   rollback: function() {
-    this._setup();
-    this.send('becameClean');
+    this._attributes = {};
+    this.send('rolledBack');
 
     this.suspendRelationshipObservers(function() {
       this.notifyPropertyChange('data');

@@ -248,7 +248,7 @@ var DirtyState = {
       get(record, 'store').reloadRecord(record, resolver);
     },
 
-    becameClean: function(record) {
+    rolledBack: function(record) {
       record.transitionTo('loaded.saved');
     },
 
@@ -407,6 +407,14 @@ var RootState = {
   isDeleted: false,
   isNew: false,
   isValid: true,
+
+  // DEFAULT EVENTS
+
+  // Trying to roll back if you're not in the dirty state
+  // doesn't change your state. For example, if you're in the
+  // in-flight state, rolling back the record doesn't move
+  // you out of the in-flight state.
+  rolledBack: Ember.K,
 
   // SUBSTATES
 
@@ -571,7 +579,7 @@ var RootState = {
       becomeDirty: Ember.K,
       deleteRecord: Ember.K,
 
-      becameClean: function(record) {
+      rolledBack: function(record) {
         record.transitionTo('loaded.saved');
       }
     },

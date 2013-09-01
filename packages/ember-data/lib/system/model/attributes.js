@@ -58,19 +58,28 @@ DS.Model.reopen({
   }
 });
 
-function getAttr(record, options, key) {
-  var attributes = get(record, 'data');
-  var value = attributes[key];
-
-  if (value === undefined) {
-    if (typeof options.defaultValue === "function") {
-      value = options.defaultValue();
-    } else {
-      value = options.defaultValue;
-    }
+function getDefaultValue(record, options, key) {
+  if (typeof options.defaultValue === "function") {
+    return options.defaultValue();
+  } else {
+    return options.defaultValue;
   }
+}
 
-  return value;
+function hasValue(record, key) {
+  return record._attributes.hasOwnProperty(key) ||
+         record._inFlightAttributes.hasOwnProperty(key) ||
+         record._data.hasOwnProperty(key);
+}
+
+function getValue(record, key) {
+  if (record._attributes.hasOwnProperty(key)) {
+    return record._attributes[key];
+  } else if (record._inFlightAttributes.hasOwnProperty(key)) {
+    return record._inFlightAttributes[key];
+  } else {
+    return record._data[key];
+  }
 }
 
 DS.attr = function(type, options) {
@@ -83,17 +92,19 @@ DS.attr = function(type, options) {
   };
 
   return Ember.computed(function(key, value, oldValue) {
+    var currentValue;
+
     if (arguments.length > 1) {
       Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
       this.send('didSetProperty', { name: key, oldValue: this._attributes[key] || this._inFlightAttributes[key] || this._data[key], value: value });
       this._attributes[key] = value;
-    } else if (this._attributes[key]) {
-      return this._attributes[key];
+      return value;
+    } else if (hasValue(this, key)) {
+      return getValue(this, key);
     } else {
-      value = getAttr(this, options, key);
+      return getDefaultValue(this, options, key);
     }
 
-    return value;
   // `data` is never set directly. However, it may be
   // invalidated from the state manager's setData
   // event.
