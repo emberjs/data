@@ -426,7 +426,7 @@ test("findQuery - returning an array populates the array", function() {
   store.findQuery('post', { page: 1 }).then(async(function(posts) {
     equal(passedUrl, '/posts');
     equal(passedVerb, 'GET');
-    deepEqual(passedHash, { page: 1 });
+    deepEqual(passedHash.data, { page: 1 });
 
     var post1 = store.getById('post', 1),
         post2 = store.getById('post', 2);
