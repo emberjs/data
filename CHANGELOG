@@ -1,3 +1,106 @@
+*Ember 1.0.0-beta (September 01, 2013)*
+
+* Added DS.DebugAdapter which extends Ember.DataAdapter
+* Explain how to deal with embedded records
+* Start on a transition guide
+* Make willCommit while in flight a noop
+* Update examples
+* Move normalization and extraction to serializer
+* deleteRecord when already deleted is a noop
+* Explain "originally passed as an Array of IDs"
+* Shortens unnecessary verbiage
+* Add Promise Proxies
+* Add back serializers
+* More consistency for serializerFor
+* Rename NewJSONSerializer to JSONSerializer
+* Don't invalidate `data` if there's no new data
+* Use the inflector instead of dumb pluralization
+* store.create({adapter:'name'}) uses the container
+* Remove resolveOn
+* Thread more promises through the adapter
+* Fix invokeLifecycleCallbacks on still dirty record
+* Initialize adapter in the store
+* Support merging scenarios
+* Start implementing merge semantics
+* Remove references to references
+* Remove unnecessary usage of references
+* Remove leftover serializer code
+* Add support for singular names in REST payloads
+* Move extraction layers to adapter
+* Added support for URL lookups
+* Inject the default DS.Store if none is provided
+* Add findAll, findMany and findQuery to RESTAdapter
+* Add findAll plus request-type-specific extracts
+* Make serializer respect primaryKey/attrs
+* REST Adapter payload stuff
+* Ember.Inflector: Ember.String#pluralize Ember.String#singularize
+* remove handlePromise indirection.
+* Queries are now using promises properly
+* Share code between sync and async hasMany
+* Unload test passing
+* Adapter Interop test passing (plus findByIds)
+* Get reloading passing
+* Got record persistence test passing
+* Records are no longer thenables
+* Require application.Store to be defined - Fixes #1084
+* Added DS.DebugAdapter which extends Ember.DataAdapter
+* Relationship changes operate on records
+* Don't assign DS to window unless window exists - Fixes #681
+* Client ID generation passing
+* Eagerly generate the jQuery expando on window
+* Allowing inverse relationships to be nullable.
+* fetchRecord replaced findById here
+* Eliminate lazy materialization from belongsTo
+* Start consolidating API around records
+* Make the data materialized again
+* Add debugInfo to DS.Model
+* Add store.push and store.recordFor
+* remove redundant `[]` from `Ember.A()` calls
+* bump ember-source
+* Flatten model's `data` structure into single hash
+* Fix deprecation warning
+* Add serializerFor API to DS.Store
+* Removed duplicate method declaration
+* `save` method is not private
+* Prevent resolution of jQuery's self fulfilling jqXHR thenable Since it resolves on another turn, it will cause needless and unwrappable auto-runs
+* Rewrite the state machine to improve performance
+* Add individual record to the buildURL signature.
+* Update jQuery version for `rake test[all]`
+* Remove unnecessary inspector for `object`
+* Remove option to specify router
+* Declared ajaxHeaders.
+* Specify additional headers for RESTAdapter.
+* Update supported ruby version
+* Use `Ember.EnumerableUtils.map`
+* Use `Ember.EnumerableUtils.indexOf`
+* Use `Ember.EnumerableUtils.forEach`
+* Modify code indent
+* bump ember-source to 1.0.0-rc.6
+* Include the version number in the javascript.
+* this expression makes my brain hurt, lets atleast expand this to two lines. (We need some sort of macro system to improve these assertions.
+* improve variable naming consistency
+* remove nested run loop.
+* Allow metadata value to be zero
+* Remove redundant serialized variable. :/
+* Better serializeId implementation that takes empty strings into consideration and fixed a logic error in isNaN(id) check
+* id serialization correctly returns null for null or undefined id values rather than 0
+* Remove bundled jQuery
+* first pass at uncatchable assertions
+* English, do you speak it?
+* Remove unused variables
+* Remove unused helper
+* Remove unnecessary comment
+* Remove unused tasks
+* Support `Ember::Data::VERSION`
+* Assert post is dirty
+* Replace references to jQuery with Ember.$
+* RESTAdapter: reject with xhr only
+* Fix: record must be invalid on 422
+* Add failing integration test to expose bug #1005
+* remove revision reference.
+* Check against `null` and `undefined`
+
+
 *Ember Data 0.13 (May 28, 2013)
 
 * Initial Release
