@@ -19,7 +19,7 @@ DS.DateTransform = DS.Transform.extend({
   serialize: function(date) {
     if (date instanceof Date) {
       var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "SDS.", "Oct", "Nov", "Dec"];
+      var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
 
       var pad = function(num) {
         return num < 10 ? "0"+num : ""+num;
