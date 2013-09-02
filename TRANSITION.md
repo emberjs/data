@@ -616,3 +616,69 @@ App.PostSerializer = DS.Serializer.extend({
   }
 });
 ```
+
+
+# Relationships
+
+## Defining relationships in models
+
+Defining relationships now uses the 'shorthand' name of your mode, not
+the fully qualified path to the class.
+
+Ember Data 0.13:
+
+```js
+App.Post = DS.Model.extend({
+  comments : DS.hasMany("App.Comment")
+});
+
+App.Comment = DS.Model.extend({
+  post : DS.belongsTo("App.Post")
+});
+```
+
+Ember Data 1.0.beta.1:
+
+```js
+App.Post = DS.Model.extend({
+  comments : DS.hasMany("comment")
+});
+
+App.Comment = DS.Model.extend({
+  post : DS.belongsTo("post")
+});
+```
+
+## Default JSON format for relationships
+
+The default JSON format now expects the ids of related objects to be
+included in the model data without '_ids' appended to the name of the
+attribute.  
+
+Ember Data 0.13:
+
+```js
+  {
+    post : {
+      comment_ids :  [1,2]
+    },
+    comments : [
+      {id : 1, text : "comment 1"},
+      {id : 2, text : "comment 2"},
+    ]
+  }
+```
+
+Ember Data 1.0.beta.1:
+
+```js
+  {
+    post : {
+      comments :  [1,2]
+    },
+    comments : [
+      {id : 1, text : "comment 1"},
+      {id : 2, text : "comment 2"},
+    ]
+  }
+```
