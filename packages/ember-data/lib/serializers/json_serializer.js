@@ -1,8 +1,4 @@
-require("ember-data/transforms/json_transforms");
-
 var get = Ember.get, set = Ember.set, isNone = Ember.isNone;
-
-var transforms = DS.JSONTransforms;
 
 // Simple dispatcher to support overriding the aliased
 // method in subclasses.
@@ -19,8 +15,9 @@ DS.JSONSerializer = Ember.Object.extend({
     var store = get(this, 'store');
 
     type.eachTransformedAttribute(function(key, type) {
-      data[key] = transforms[type].deserialize(data[key]);
-    });
+      var transform = this.transformFor(type);
+      data[key] = transform.deserialize(data[key]);
+    }, this);
 
     type.eachRelationship(function(key, relationship) {
       // A link (usually a URL) was already provided in
@@ -87,7 +84,8 @@ DS.JSONSerializer = Ember.Object.extend({
       var value = get(record, key), type = attribute.type;
 
       if (type) {
-        value = transforms[type].serialize(value);
+        var transform = this.transformFor(type);
+        value = transform.serialize(value);
       }
 
       // if provided, use the mapping provided by `attrs` in
@@ -158,6 +156,10 @@ DS.JSONSerializer = Ember.Object.extend({
     } else {
       return relationship.type;
     }
+  },
+
+  transformFor: function(attributeType) {
+    return this.container.lookup('transform:' + attributeType);
   },
 
   eachEmbeddedRecord: function() {
