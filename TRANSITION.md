@@ -409,13 +409,13 @@ Imagine you start with a payload like this for request for Post 1.
 {
   "id": "1",
   "title": "Rails is omakase",
-  "_links": {
-    "user": [{
+  "_links": [{
+    "user": {
       "href": "/people/dhh"
-    }]
-  },
+    }
+  }],
   "_embedded": {
-    "comment": [{
+    "comments": [{
       "ID_": "1",
       "CMT_BODY": "Rails is unagi"
     }, {
@@ -460,7 +460,7 @@ App.PostSerializer = DS.JSONSerializer.extend({
 
     post.id = payload.id;
     post.title = payload.title;
-    post._links = { user: payload._links.user.href };
+    post._links = { user: payload._links.mapProperty('user').findProperty('href').href };
 
     // Leave the original un-normalized comments alone, but put them
     // in the right place in the payload. We'll normalize the comments
@@ -488,7 +488,7 @@ App.PostSerializer = DS.JSONSerializer.extend({
 
     post.id = payload.id;
     post.title = payload.title;
-    post._links = { user: payload._links.user.href };
+    post._links = { user: payload._links.mapProperty('user').findProperty('href').href };
 
     // Leave the original un-normalized comments alone, but put them
     // in the right place in the payload. We'll normalize the comments
@@ -541,7 +541,7 @@ We don't need to implement `extractSingle`, because the top-level is
 already organized perfectly.
 
 ```js
-App.PostSerializer, = DS.Serializer.extend({
+App.PostSerializer = DS.Serializer.extend({
   // This method will be called 3 times: once for the post, and once
   // for each of the comments
   normalize: function(type, property, hash) {
@@ -573,8 +573,8 @@ So to sum up, you should:
 * make sure to call super if you override `extractSingle`,
   `extractArray` or `normalize` so the rest of the chain will get
   called.
-* beta.1 expects `comments` key now instead of `comments_ids`.
-  This is likely to be configurable in beta.2.
+-* beta.1 expects `comments` key now instead of `comments_ids`.
+-  This is likely to be configurable in beta.2.
 
 ### Embedded Records
 
