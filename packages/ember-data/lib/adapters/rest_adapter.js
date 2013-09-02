@@ -18,6 +18,42 @@ function coerceId(id) {
   return id == null ? null : id+'';
 }
 
+/**
+  Normally, applications will use the `RESTSerializer` by implementing
+  the `normalize` method and individual normalizations under
+  `normalizeHash`.
+
+  This allows you to do whatever kind of munging you need, and is
+  especially useful if your server is inconsistent and you need to
+  do munging differently for many different kinds of responses.
+
+  See the `normalize` documentation for more information.
+
+  ## Across the Board Normalization
+
+  There are also a number of hooks that you might find useful to defined
+  across-the-board rules for your payload. These rules will be useful
+  if your server is consistent, or if you're building an adapter for
+  an infrastructure service, like Parse, and want to encode service
+  conventions.
+
+  For example, if all of your keys are underscored and all-caps, but
+  otherwise consistent with the names you use in your models, you
+  can implement across-the-board rules for how to convert an attribute
+  name in your model to a key in your JSON.
+
+  ```js
+  App.Serializer = DS.RESTSerializer.extend({
+    keyForAttribute: function(attr) {
+      return Ember.String.underscore(attr).toUpperCase();
+    }
+  });
+  ```
+
+  You can also implement `keyForRelationship`, which takes the name
+  of the relationship as the first parameter, and the kind of
+  relationship (`hasMany` or `belongsTo`) as the second parameter.
+*/
 DS.RESTSerializer = DS.JSONSerializer.extend({
   /**
     Normalizes a part of the JSON payload returned by
@@ -85,7 +121,9 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   */
   normalize: function(type, prop, hash) {
     this.normalizeId(hash);
-    this.normalizeAttributes(hash);
+    this.normalizeUsingDeclaredMapping(type, hash);
+    this.normalizeAttributes(type, hash);
+    this.normalizeRelationships(type, hash);
 
     if (this.normalizeHash && this.normalizeHash[prop]) {
       return this.normalizeHash[prop](hash);
@@ -108,19 +146,55 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   },
 
   /**
+    @method normalizeUsingDeclaredMapping
+    @private
+  */
+  normalizeUsingDeclaredMapping: function(type, hash) {
+    var attrs = get(this, 'attrs'), payloadKey, key;
+
+    if (attrs) {
+      for (key in attrs) {
+        payloadKey = attrs[key];
+
+        hash[key] = hash[payloadKey];
+        delete hash[payloadKey];
+      }
+    }
+  },
+
+  /**
     @method normalizeAttributes
     @private
   */
-  normalizeAttributes: function(hash) {
-    var attrs = get(this, 'attrs');
+  normalizeAttributes: function(type, hash) {
+    var payloadKey, key;
 
-    if (!attrs) { return; }
+    if (this.keyForAttribute) {
+      type.eachAttribute(function(key) {
+        payloadKey = this.keyForAttribute(key);
+        if (key === payloadKey) { return; }
 
-    for (var key in attrs) {
-      var payloadKey = attrs[key];
+        hash[key] = hash[payloadKey];
+        delete hash[payloadKey];
+      }, this);
+    }
+  },
 
-      hash[key] = hash[payloadKey];
-      delete hash[payloadKey];
+  /**
+    @method normalizeRelationships
+    @private
+  */
+  normalizeRelationships: function(type, hash) {
+    var payloadKey, key;
+
+    if (this.keyForRelationship) {
+      type.eachRelationship(function(key, relationship) {
+        payloadKey = this.keyForRelationship(key, relationship.kind);
+        if (key === payloadKey) { return; }
+
+        hash[key] = hash[payloadKey];
+        delete hash[payloadKey];
+      }, this);
     }
   },
 

@@ -634,6 +634,79 @@ test('buildURL - with host and namespace', function() {
   }));
 });
 
+test('normalizeKey - to set up _ids and _id', function() {
+  env.container.register('serializer:application', DS.RESTSerializer.extend({
+    keyForAttribute: function(attr) {
+      //if (kind === 'hasMany') {
+        //key = key.replace(/_ids$/, '');
+        //key = Ember.String.pluralize(key);
+      //} else if (kind === 'belongsTo') {
+        //key = key.replace(/_id$/, '');
+      //}
+
+      return Ember.String.underscore(attr);
+    },
+
+    keyForBelongsTo: function(belongsTo) {
+    },
+
+    keyForRelationship: function(rel, kind) {
+      if (kind === 'belongsTo') {
+        var underscored = Ember.String.underscore(rel);
+        return underscored + '_id';
+      } else {
+        var singular = Ember.String.singularize(rel);
+        return Ember.String.underscore(singular) + '_ids';
+      }
+    }
+  }));
+
+  env.container.register('model:post', DS.Model.extend({
+    name: DS.attr(),
+    authorName: DS.attr(),
+    author: DS.belongsTo('user'),
+    comments: DS.hasMany('comment')
+  }));
+
+  env.container.register('model:user', DS.Model.extend({
+    createdAt: DS.attr(),
+    name: DS.attr()
+  }));
+
+  env.container.register('model:comment', DS.Model.extend({
+    body: DS.attr()
+  }));
+
+  ajaxResponse({
+    posts: [{
+      id: "1",
+      name: "Rails is omakase",
+      author_name: "@d2h",
+      author_id: "1",
+      comment_ids: [ "1", "2" ]
+    }],
+
+    users: [{
+      id: "1",
+      name: "D2H"
+    }],
+
+    comments: [{
+      id: "1",
+      body: "Rails is unagi"
+    }, {
+      id: "2",
+      body: "What is omakase?"
+    }]
+  });
+
+  store.find('post', 1).then(async(function(post) {
+    equal(post.get('authorName'), "@d2h");
+    equal(post.get('author.name'), "D2H");
+    deepEqual(post.get('comments').mapBy('body'), ["Rails is unagi", "What is omakase?"]);
+  }));
+});
+
 //test("creating a record with a 422 error marks the records as invalid", function(){
   //expect(1);
 
