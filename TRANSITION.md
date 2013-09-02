@@ -616,3 +616,44 @@ App.PostSerializer = DS.Serializer.extend({
   }
 });
 ```
+
+
+# Relationships
+
+## Defining relationships in models
+
+Defining relationships now uses the 'shorthand' name of your mode, not
+the fully qualified path to the class.
+
+Instead of "App.Comment", use "comment".
+
+Instead of "App.BlogPost", use "blog-post".
+
+Ember Data 0.13:
+
+```js
+App.BlogPost = DS.Model.extend({
+  comments : DS.hasMany("App.Comment")
+});
+
+App.Comment = DS.Model.extend({
+  post : DS.belongsTo("App.BlogPost")
+});
+```
+
+Ember Data 1.0.beta.1:
+
+```js
+App.BlogPost = DS.Model.extend({
+  comments : DS.hasMany("comment")
+});
+
+App.Comment = DS.Model.extend({
+  post : DS.belongsTo("blog_post")
+});
+```
+
+Note : Instead of "blog_post" above you could potentially
+use "blog-post" or "blogPost", however this would cause EmberData
+to look for your endpoint at "/blog-posts" or "/blogPosts".
+
