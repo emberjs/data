@@ -616,3 +616,39 @@ App.PostSerializer = DS.Serializer.extend({
   }
 });
 ```
+
+
+# Relationships
+
+## Defining Relationships in Models
+
+Defining relationships now uses the 'shorthand' name of your model, not
+the fully qualified path to the class.
+
+Instead of "App.Comment", use "comment".
+
+Instead of "App.BlogPost", use "blogPost".
+
+Ember Data 0.13:
+
+```js
+App.BlogPost = DS.Model.extend({
+  comments : DS.hasMany("App.Comment")
+});
+
+App.Comment = DS.Model.extend({
+  post : DS.belongsTo("App.BlogPost")
+});
+```
+
+Ember Data 1.0.beta.1:
+
+```js
+App.BlogPost = DS.Model.extend({
+  comments : DS.hasMany("comment")
+});
+
+App.Comment = DS.Model.extend({
+  post : DS.belongsTo("blogPost")
+});
+``` 
