@@ -82,7 +82,11 @@ DS.JSONSerializer = Ember.Object.extend({
     json[key] = get(belongsTo, 'id');
 
     if (relationship.options.polymorphic) {
-      json[key + "_type"] = belongsTo.constructor.typeKey;
+      var type = belongsTo.constructor,               // App.Post
+          fullModelName = type.toString(),            // "App.Post"
+          modelName = fullModelName.split(".").pop(); // "Post"
+
+      json[key + "_type"] = modelName;
     }
   },
 

@@ -128,10 +128,12 @@ test("The store can serialize a polymorphic belongsTo association", function() {
   env.store.push('post', { id: 1 });
   env.store.push('comment', { id: 2, message: 1, message_type: 'post' });
 
+  Post.toString = stringify('App.Post'); // Make sure we don't take the namespace into account
+
   store.find('comment', 2).then(async(function(comment) {
     var serialized = store.serialize(comment, { includeId: true });
     equal(serialized['message'], 1);
-    equal(serialized['message_type'], 'post');
+    equal(serialized['message_type'], 'Post');
   }));
 });
 
