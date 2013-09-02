@@ -1082,6 +1082,20 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   /**
+    If you have some metadata to set for a type
+    you can call `metaForType`.
+
+    @method metaForType
+    @param {String} type
+    @param {Object} metadata
+  */
+  metaForType: function(type, metadata) {
+    type = this.modelFor(type);
+
+    Ember.merge(this.typeMapFor(type).metadata, metadata);
+  },
+
+  /**
     Build a brand new record for a given type, ID, and
     initial data.
 

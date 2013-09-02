@@ -125,6 +125,8 @@ DS.JSONSerializer = Ember.Object.extend({
   // EXTRACT
 
   extract: function(store, type, payload, id, requestType) {
+    this.extractMeta(store, type, payload);
+
     var specificExtract = "extract" + requestType.charAt(0).toUpperCase() + requestType.substr(1);
     return this[specificExtract](store, type, payload, id, requestType);
   },
@@ -148,6 +150,14 @@ DS.JSONSerializer = Ember.Object.extend({
   extractArray: function(store, type, payload) {
     return payload;
   },
+
+  extractMeta: function(store, type, payload) {
+    if (payload && payload.meta) {
+      store.metaForType(type, payload.meta);
+      delete payload.meta;
+    }
+  },
+
   // HELPERS
 
   typeFor: function(relationship, key, data) {

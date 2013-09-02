@@ -652,10 +652,17 @@ DS.RESTAdapter = DS.Adapter.extend({
     @see RESTAdapter/ajax
     @param {DS.Store} store
     @param {subclass of DS.Model} type
+    @param {String} sinceToken
     @returns Promise
   */
-  findAll: function(store, type) {
-    return this.ajax(this.buildURL(type), 'GET');
+  findAll: function(store, type, sinceToken) {
+    var query;
+
+    if (sinceToken) {
+      query = { since: sinceToken };
+    }
+
+    return this.ajax(this.buildURL(type), 'GET', { data: query });
   },
 
   /**
