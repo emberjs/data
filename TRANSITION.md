@@ -573,6 +573,8 @@ So to sum up, you should:
 * make sure to call super if you override `extractSingle`,
   `extractArray` or `normalize` so the rest of the chain will get
   called.
+-* beta.1 expects `comments` key now instead of `comments_ids`.
+-  This is likely to be configurable in beta.2.
 
 ### Embedded Records
 
