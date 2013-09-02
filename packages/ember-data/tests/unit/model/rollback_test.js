@@ -55,3 +55,29 @@ test("changes to attributes made after a record is in-flight only rolls back the
     }));
   });
 });
+
+test("new record can be rollbacked", function() {
+  var person = store.createRecord('person', { id: 1 });
+
+  equal(person.get('isNew'), true, "must be new");
+  equal(person.get('isDirty'), true, "must be dirty");
+
+  person.rollback();
+
+  equal(person.get('isNew'), false, "must not be new");
+  equal(person.get('isDirty'), false, "must not be dirty");
+  equal(person.get('isDeleted'), true, "must be deleted");
+});
+
+test("deleted record can be rollbacked", function() {
+  var person = store.push('person', { id: 1 });
+
+  person.deleteRecord();
+
+  equal(person.get('isDeleted'), true, "must be deleted");
+
+  person.rollback();
+
+  equal(person.get('isDeleted'), false, "must not be deleted");
+  equal(person.get('isDirty'), false, "must not be dirty");
+});
