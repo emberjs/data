@@ -378,6 +378,10 @@ var createdState = dirtyState({
   isNew: true
 });
 
+createdState.uncommitted.rolledBack = function(record) {
+  record.transitionTo('deleted.saved');
+};
+
 var updatedState = dirtyState({
   dirtyType: 'updated'
 });
