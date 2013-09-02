@@ -1,7 +1,7 @@
 GIT
-  remote: https://github.com/emberjs/ember-dev.git
-  revision: 534ffdfc4b3468edb3951e9e2012cead25b36997
-  branch: master
+  remote: https://github.com/Cyril-sf/ember-dev.git
+  revision: ffde2d92b1871ebeacd43113a45110522357817c
+  branch: ember-data
   specs:
     ember-dev (0.1)
       aws-sdk
