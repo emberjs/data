@@ -1,5 +1,6 @@
 require("ember-data/serializers/json_serializer");
 require("ember-data/system/debug/debug_adapter");
+require("ember-data/transforms/index");
 
 /**
   @module ember-data
@@ -50,6 +51,17 @@ Ember.onLoad('Ember.Application', function(Application) {
       // Eagerly generate the store so defaultStore is populated.
       // TODO: Do this in a finisher hook
       container.lookup('store:main');
+    }
+  });
+
+  Application.initializer({
+    name: "transforms",
+
+    initialize: function(container, application) {
+      application.register('transform:boolean', DS.BooleanTransform);
+      application.register('transform:date', DS.DateTransform);
+      application.register('transform:number', DS.NumberTransform);
+      application.register('transform:string', DS.StringTransform);
     }
   });
 
