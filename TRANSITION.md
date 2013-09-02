@@ -602,7 +602,7 @@ Consider this payload:
 You could handle embedded records like this:
 
 ```js
-App.PostSerializer = DS.Model.extend({
+App.PostSerializer = DS.Serializer.extend({
   extractSingle: function(store, type, payload, id, requestType) {
     var comments = payload.post.comments,
         commentIds = comments.mapProperty('id');
