@@ -280,6 +280,22 @@ The adapter API has undergone a significant change.
 Existing adapters will likely need to be rebuilt. The good news is that
 the new adapter API is somewhat simpler.
 
+To register your own adapter in place of the default RESTAdapter
+
+Ember Data 0.13:
+
+```js
+App.Store = DS.Store.extend({
+  adapter: DS.MyRESTAdapter.create()
+});
+```
+
+Ember Data 1.0.beta.1:
+
+```js
+App.ApplicationAdapter = DS.MyRESTAdapter.extend();
+```
+
 ## Promises
 
 Adapter hooks no longer call directly into the store to notify the store
