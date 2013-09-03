@@ -13,9 +13,9 @@ DS.JSONSerializer = Ember.Object.extend({
 
   deserialize: function(type, data) {
     var store = get(this, 'store');
-
+	var self = this;
     type.eachTransformedAttribute(function(key, type) {
-      var transform = this.transformFor(type);
+      var transform = self.transformFor(type);
       data[key] = transform.deserialize(data[key]);
     }, this);
 
