@@ -242,16 +242,16 @@ test("when a method is invoked from an event with the same name the arguments ar
 });
 
 var converts = function(type, provided, expected) {
-  var testStore = createStore();
-
   var Model = DS.Model.extend({
     name: DS.attr(type)
   });
 
+  var testStore = createStore({model: Model});
+
   testStore.push(Model, { id: 1, name: provided });
   testStore.push(Model, { id: 2 });
 
-  testStore.find(Model, 1).then(async(function(record) {
+  testStore.find('model', 1).then(async(function(record) {
     deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
   }));
 
@@ -262,27 +262,27 @@ var converts = function(type, provided, expected) {
 };
 
 var convertsFromServer = function(type, provided, expected) {
-  var testStore = createStore();
-
   var Model = DS.Model.extend({
     name: DS.attr(type)
   });
 
+  var testStore = createStore({model: Model});
+
   testStore.push(Model, { id: 1, name: provided });
-  testStore.find(Model, 1).then(async(function(record) {
+  testStore.find('model', 1).then(async(function(record) {
     deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
   }));
 };
 
 var convertsWhenSet = function(type, provided, expected) {
-  var testStore = createStore();
-
   var Model = DS.Model.extend({
     name: DS.attr(type)
   });
 
+  var testStore = createStore({model: Model});
+
   testStore.push(Model, { id: 2 });
-  var record = testStore.find(Model, 2).then(async(function(record) {
+  var record = testStore.find('model', 2).then(async(function(record) {
     set(record, 'name', provided);
     deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
   }));

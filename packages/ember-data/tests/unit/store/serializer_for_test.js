@@ -2,18 +2,13 @@ var container, store, app;
 
 module("unit/store/serializer_for - DS.Store#serializerFor", {
   setup: function() {
-    container = new Ember.Container();
-
-    store = DS.Store.create({
-      container: container
-    });
+    store = createStore({person: DS.Model.extend()});
+    container = store.container;
   },
 
   teardown: function() {
     container.destroy();
     store.destroy();
-
-    if (app) { app.destroy(); }
   }
 });
 
@@ -34,13 +29,5 @@ test("Calling serializerFor with a type that has not been registered looks up th
 });
 
 test("Calling serializerFor with a type that has not been registered and in an application that does not have an ApplicationSerializer looks up the default Ember Data serializer", function() {
-  Ember.run(function() {
-    app = Ember.Application.create();
-    app.Store = DS.Store.extend();
-    app.advanceReadiness();
-  });
-
-  var store = app.__container__.lookup('store:main');
-
   ok(store.serializerFor('person') instanceof DS.JSONSerializer, "serializer returned from serializerFor is an instance of DS.JSONSerializer");
 });
