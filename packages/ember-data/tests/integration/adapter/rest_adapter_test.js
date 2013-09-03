@@ -375,7 +375,7 @@ test("findAll - returning an array populates the array", function() {
   store.findAll('post').then(async(function(posts) {
     equal(passedUrl, "/posts");
     equal(passedVerb, "GET");
-    equal(passedHash, undefined);
+    equal(passedHash.data, undefined);
 
     var post1 = store.getById('post', 1),
         post2 = store.getById('post', 2);
@@ -417,6 +417,19 @@ test("findAll - data is normalized through custom serializers", function() {
     equal(posts.get('length'), 2, "The posts are in the array");
     equal(posts.get('isLoaded'), true, "The RecordArray is loaded");
     deepEqual(posts.toArray(), [ post1, post2 ], "The correct records are in the array");
+  }));
+});
+
+test("findAll - since token is passed to the adapter", function() {
+  ajaxResponse({ meta: { since: 'later'}, posts: [{ id: 1, name: "Rails is omakase" }, { id: 2, name: "The Parley Letter" }] });
+
+  store.metaForType('post', { since: 'now' });
+
+  store.findAll('post').then(async(function(posts) {
+    equal(passedUrl, '/posts');
+    equal(passedVerb, 'GET');
+    equal(store.typeMapFor(Post).metadata.since, 'later');
+    deepEqual(passedHash.data, { since: 'now' });
   }));
 });
 
