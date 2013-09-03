@@ -82,6 +82,24 @@ function getValue(record, key) {
   }
 }
 
+/**
+  `DS.attr` defines an attribute on a DS.Model.
+  By default, attributes are passed through as-is, however you can specify an
+  optional type to have the value automatically transformed.
+  Ember Data ships with four basic transform types:
+    'string', 'number', 'boolean' and 'date'.
+  You can define your own transforms by subclassing DS.Transform.
+
+  DS.attr takes an optional hash as a second parameter, currently
+  supported options are:
+    'defaultValue': Pass a string or a function to be called to set the attribute
+                    to a default value if none is supplied.
+
+  @method attr
+  @param {String} type the attribute type
+  @param {Object} options a hash of options
+*/
+
 DS.attr = function(type, options) {
   options = options || {};
 
