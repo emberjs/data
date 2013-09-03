@@ -609,7 +609,6 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
     var normalized = {}, normalizedProp;
 
     for (var prop in hash) {
-      console.log(prop)
       if (prop.substr(-3) === '_id') {
         // belongsTo relationships
         normalizedProp = prop.slice(0, -3);
