@@ -604,7 +604,7 @@ Consider this payload:
 You could handle embedded records like this:
 
 ```js
-App.PostSerializer = DS.JSONSerializer.extend({
+App.PostSerializer = DS.RESTSerializer.extend({
   extractSingle: function(store, type, payload, id, requestType) {
     var comments = payload.post.comments,
         commentIds = comments.mapProperty('id');
