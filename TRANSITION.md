@@ -356,7 +356,7 @@ App.Post = DS.Model.extend({
   // ...
 });
 
-App.PostSerializer = DS.JSONSerializer.extend({
+App.PostSerializer = DS.RESTSerializer.extend({
   // ...
 });
 
@@ -376,7 +376,7 @@ App.Post = DS.Model.extend({
   // ...
 });
 
-App.PostSerializer = DS.JSONSerializer.extend({
+App.PostSerializer = DS.RESTSerializer.extend({
   // ...
 });
 
@@ -454,7 +454,7 @@ The simplest way to approach this would be to override the
 totally work.
 
 ```js
-App.PostSerializer = DS.JSONSerializer.extend({
+App.PostSerializer = DS.RESTSerializer.extend({
   extractSingle: function(store, type, payload, id, requestType) {
     var post = {}, commentIds = [];
 
@@ -482,7 +482,7 @@ sensible chunks. This is especially useful if you have a lot of custom
 normalization to do on different pieces of the JSON.
 
 ```js
-App.PostSerializer = DS.JSONSerializer.extend({
+App.PostSerializer = DS.RESTSerializer.extend({
   extractSingle: function(store, type, payload, id, requestType) {
     var post = {}, commentIds = [];
 
@@ -604,7 +604,7 @@ Consider this payload:
 You could handle embedded records like this:
 
 ```js
-App.PostSerializer = DS.Serializer.extend({
+App.PostSerializer = DS.RESTSerializer.extend({
   extractSingle: function(store, type, payload, id, requestType) {
     var comments = payload.post.comments,
         commentIds = comments.mapProperty('id');
