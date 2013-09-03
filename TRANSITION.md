@@ -624,10 +624,10 @@ Ember Data 0.13:
 ```js
 DS.RESTAdapter.registerTransform('raw', {
   deserialize: function(serialized) {
-      return serialized;
+    return serialized;
   },
   serialize: function(deserialized) {
-      return deserialized;
+    return deserialized;
   }
 });
 ```
@@ -635,13 +635,13 @@ DS.RESTAdapter.registerTransform('raw', {
 Ember Data 1.0.beta.1:
 
 ```js
-DS.JSONTransforms.raw = {
+App.RawTransform = DS.Transform.extend({
   deserialize: function(serialized) {
-      return serialized;
+    return serialized;
   },
   serialize: function(deserialized) {
-      return deserialized;
+    return deserialized;
   }
-};
+});
 ```
 
