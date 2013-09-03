@@ -43,7 +43,7 @@ function coerceId(id) {
   name in your model to a key in your JSON.
 
   ```js
-  App.Serializer = DS.RESTSerializer.extend({
+  App.ApplicationSerializer = DS.RESTSerializer.extend({
     keyForAttribute: function(attr) {
       return Ember.String.underscore(attr).toUpperCase();
     }
