@@ -616,3 +616,32 @@ App.PostSerializer = DS.Serializer.extend({
   }
 });
 ```
+
+# JSON Transforms
+
+Ember Data 0.13:
+
+```js
+DS.RESTAdapter.registerTransform('raw', {
+  deserialize: function(serialized) {
+      return serialized;
+  },
+  serialize: function(deserialized) {
+      return deserialized;
+  }
+});
+```
+
+Ember Data 1.0.beta.1:
+
+```js
+DS.JSONTransforms.raw = {
+  deserialize: function(serialized) {
+      return serialized;
+  },
+  serialize: function(deserialized) {
+      return deserialized;
+  }
+};
+```
+
