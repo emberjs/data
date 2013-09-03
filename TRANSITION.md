@@ -606,22 +606,22 @@ For now, you can implement the logic yourself:
 ```js
 App.ApplicationSerializer = DS.RESTSerializer.extend({
   normalize: function(type, property, hash) {
-    var normalized = {}, normalizedProp;
+    var normalized = {}, normalizedKey;
 
     for (var prop in hash) {
       if (prop.substr(-3) === '_id') {
         // belongsTo relationships
-        normalizedProp = prop.slice(0, -3);
+        normalizedKey = prop.slice(0, -3);
       } else if (prop.substr(-4) === '_ids') {
         // hasMany relationship
-        normalizedProp = Ember.String.pluralize(prop.slice(0, -3));
+        normalizedKey = Ember.String.pluralize(prop.slice(0, -3));
       } else {
-        // regualarAttribute
+        // regular attribute
         normalizedKey = prop;
       }
 
       normalizedKey = Ember.String.camelize(normalizedKey);
-      normalized[normalizedProp] = hash[prop];
+      normalized[normalizedKey] = hash[prop];
     }
 
     return normalized;
