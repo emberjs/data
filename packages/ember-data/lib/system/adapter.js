@@ -68,7 +68,7 @@ function aliasMethod(methodName) {
     * `deleteRecords()`
     * `commit()`
 
-  For an example implementation, see `DS.RestAdapter`, the
+  For an example implementation, see `DS.RESTAdapter`, the
   included REST adapter.
 
   @class Adapter
