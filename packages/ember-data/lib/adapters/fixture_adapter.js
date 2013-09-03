@@ -111,7 +111,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
     var fixtures = this.fixturesForType(type),
         fixture;
 
-    Ember.warn("Unable to find fixtures for model type " + type.toString(), fixtures);
+    Ember.assert("Unable to find fixtures for model type "+type.toString(), fixtures);
 
     if (fixtures) {
       fixture = Ember.A(fixtures).findProperty('id', id);
@@ -133,7 +133,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
   findMany: function(store, type, ids) {
     var fixtures = this.fixturesForType(type);
 
-    Ember.assert("Unable to find fixtures for model type "+type.toString(), !!fixtures);
+    Ember.assert("Unable to find fixtures for model type "+type.toString(), fixtures);
 
     if (fixtures) {
       fixtures = fixtures.filter(function(item) {
@@ -156,7 +156,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
   findAll: function(store, type) {
     var fixtures = this.fixturesForType(type);
 
-    Ember.assert("Unable to find fixtures for model type "+type.toString(), !!fixtures);
+    Ember.assert("Unable to find fixtures for model type "+type.toString(), fixtures);
 
     return this.simulateRemoteCall(function() {
       return fixtures;
@@ -173,7 +173,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
   findQuery: function(store, type, query, array) {
     var fixtures = this.fixturesForType(type);
 
-    Ember.assert("Unable to find fixtures for model type "+type.toString(), !!fixtures);
+    Ember.assert("Unable to find fixtures for model type "+type.toString(), fixtures);
 
     fixtures = this.queryFixtures(fixtures, query, type);
 
