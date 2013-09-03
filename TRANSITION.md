@@ -592,6 +592,43 @@ So to sum up, you should:
 * beta.1 expects `comments` key now instead of `comments_ids`.
   This is likely to be configurable in beta.2.
 
+### Underscored Keys, `_id` and `_ids`
+
+In 0.13, the REST Adapter automatically camelized incoming keys for
+you. It also expected `belongsTo` relationships to be listed under
+`name_id` and `hasMany` relationships to be listed under `name_ids`.
+
+In the future, this logic will live in an `ActiveModelSerializer` that
+is designed to work with Rails, and which will ship with `ember-rails`.
+
+For now, you can implement the logic yourself:
+
+```js
+App.ApplicationSerializer = DS.RESTSerializer.extend({
+  normalize: function(type, property, hash) {
+    var normalized = {}, normalizedProp;
+
+    for (var prop in hash) {
+      if (prop.substr(-3) === '_id') {
+        // belongsTo relationships
+        normalizedProp = prop.slice(0, -3);
+      } else if (prop.substr(-4) === '_ids') {
+        // hasMany relationship
+        normalizedProp = Ember.String.pluralize(prop.slice(0, -3));
+      } else {
+        // regualarAttribute
+        normalizedKey = prop;
+      }
+
+      normalizedKey = Ember.String.camelize(normalizedKey);
+      normalized[normalizedProp] = hash[prop];
+    }
+
+    return normalized;
+  }
+});
+```
+
 ### Embedded Records
 
 Explicit support for embedded records is gone for now.
