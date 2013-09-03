@@ -179,9 +179,5 @@ DS.JSONSerializer = Ember.Object.extend({
 
   transformFor: function(attributeType) {
     return this.container.lookup('transform:' + attributeType);
-  },
-
-  eachEmbeddedRecord: function() {
-    // this is used by transaction.add
   }
 });
