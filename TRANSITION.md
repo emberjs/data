@@ -623,7 +623,6 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
       normalized[normalizedProp] = hash[prop];
     }
 
-    console.log(normalized)
     return normalized;
   }
 });
