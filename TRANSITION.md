@@ -293,7 +293,7 @@ App.Store = DS.Store.extend({
 Ember Data 1.0.beta.1:
 
 ```js
-App.ApplicationAdapter = DS.MyRESTAdapter.extend();
+App.ApplicationAdapter = DS.MyRESTAdapter;
 ```
 
 ## Promises
