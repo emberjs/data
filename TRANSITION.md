@@ -589,8 +589,8 @@ So to sum up, you should:
 * make sure to call super if you override `extractSingle`,
   `extractArray` or `normalize` so the rest of the chain will get
   called.
--* beta.1 expects `comments` key now instead of `comments_ids`.
--  This is likely to be configurable in beta.2.
+* beta.1 expects `comments` key now instead of `comments_ids`.
+  This is likely to be configurable in beta.2.
 
 ### Embedded Records
 
@@ -661,3 +661,22 @@ App.RawTransform = DS.Transform.extend({
 });
 ```
 
+# Host and Namespace Configuration
+
+Ember Data 0.13:
+
+```js
+DS.RESTAdapter.reopen({
+  url: 'http://www.google.com',
+  namespace: 'api/v1'
+});
+```
+
+Ember Data 1.0.beta.1:
+
+```js
+App.ApplicationAdapter = DS.RESTAdapter.extend({
+  host: 'http://www.google.com',
+  namespace: 'api/v1'
+});
+```
