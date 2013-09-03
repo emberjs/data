@@ -538,6 +538,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
       this.fetchMany(unloadedRecords, owner, resolver);
     } else {
+      if (resolver) { resolver.resolve(); }
       manyArray.set('isLoaded', true);
       Ember.run.once(manyArray, 'trigger', 'didLoad');
     }

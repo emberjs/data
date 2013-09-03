@@ -89,3 +89,44 @@ test("When a record is loaded a second time, isLoaded stays true", function() {
     equal(get(this, 'isLoaded'), true, "The person is still loaded after change");
   }
 });
+
+test("When a record is reloaded, its async hasMany relationships still work", function() {
+  env.container.register('model:person', DS.Model.extend({
+    name: DS.attr(),
+    tags: DS.hasMany('tag', { async: true })
+  }));
+
+  env.container.register('model:tag', DS.Model.extend({
+    name: DS.attr()
+  }));
+
+  var tags = { 1: "hipster", 2: "hair" };
+
+  env.adapter.find = function(store, type, id) {
+    switch (type.typeKey) {
+      case 'person':
+        return Ember.RSVP.resolve({ id: 1, name: "Tom", tags: [1, 2] });
+      case 'tag':
+        return Ember.RSVP.resolve({ id: id, name: tags[id] });
+    }
+  };
+
+  var tom;
+
+  env.store.find('person', 1).then(async(function(person) {
+    tom = person;
+    equal(person.get('name'), "Tom", "precond");
+
+    return person.get('tags');
+  })).then(async(function(tags) {
+    deepEqual(tags.mapBy('name'), [ 'hipster', 'hair' ]);
+
+    return tom.reload();
+  })).then(async(function(person) {
+    equal(person.get('name'), "Tom", "precond");
+
+    return person.get('tags');
+  })).then(async(function(tags) {
+    deepEqual(tags.mapBy('name'), [ 'hipster', 'hair' ], "The tags are still there");
+  }));
+});

@@ -321,6 +321,12 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   setupData: function(data) {
     this._data = data;
 
+    var relationships = this._relationships;
+
+    this.eachRelationship(function(name, rel) {
+      if (rel.options.async) { relationships[name] = null; }
+    });
+
     if (data) { this.pushedData(); }
 
     this.suspendRelationshipObservers(function() {
