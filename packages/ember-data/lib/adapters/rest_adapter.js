@@ -206,7 +206,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     @param {Array<String>} ids
     @returns Promise
   */
-  findMany: function(store, type, ids) {
+  findMany: function(store, type, ids, owner) {
     return this.ajax(this.buildURL(type), 'GET', { data: { ids: ids } });
   },
 
