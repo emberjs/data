@@ -4,7 +4,7 @@
   "description": "Ember Data is a library for loading records from a persistence layer (such as a JSON API), updating those records, then saving the changes. It provides many of the facilities you'd find in server-side ORMs like ActiveRecord, but is designed specifically for the unique environment of JavaScript in the browser.",
   "homepage": "https://github.com/emberjs/data",
   "author": "Tom Dale, Yehuda Katz, and contributors",
-  "version": "1.0.0-beta.1",
+  "version": "1.0.0-beta.2",
 
   "directories": {
     "lib": "lib"
