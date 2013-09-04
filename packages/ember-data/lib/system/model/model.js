@@ -318,8 +318,12 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     Ember.run.once(this, this.updateRecordArrays);
   },
 
-  setupData: function(data) {
-    this._data = data;
+  setupData: function(data, partial) {
+    if (partial) {
+      Ember.merge(this._data, data);
+    } else {
+      this._data = data;
+    }
 
     var relationships = this._relationships;
 

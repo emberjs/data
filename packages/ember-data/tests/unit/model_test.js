@@ -246,10 +246,13 @@ var converts = function(type, provided, expected) {
     name: DS.attr(type)
   });
 
-  var testStore = createStore({model: Model});
+  var container = new Ember.Container();
 
-  testStore.push(Model, { id: 1, name: provided });
-  testStore.push(Model, { id: 2 });
+  var testStore = createStore({model: Model}),
+      serializer = DS.JSONSerializer.create({ store: testStore, container: container });
+
+  testStore.push(Model, serializer.normalize(Model, 'model', { id: 1, name: provided }));
+  testStore.push(Model, serializer.normalize(Model, 'model', { id: 2 }));
 
   testStore.find('model', 1).then(async(function(record) {
     deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
@@ -266,9 +269,12 @@ var convertsFromServer = function(type, provided, expected) {
     name: DS.attr(type)
   });
 
-  var testStore = createStore({model: Model});
+  var container = new Ember.Container();
 
-  testStore.push(Model, { id: 1, name: provided });
+  var testStore = createStore({model: Model}),
+      serializer = DS.JSONSerializer.create({ store: testStore, container: container });
+
+  testStore.push(Model, serializer.normalize(Model, 'model', { id: "1", name: provided }));
   testStore.find('model', 1).then(async(function(record) {
     deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
   }));

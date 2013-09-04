@@ -122,7 +122,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
       return this.normalizeHash[prop](hash);
     }
 
-    return hash;
+    return this._super(type, prop, hash);
   },
 
   /**

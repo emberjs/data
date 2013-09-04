@@ -958,14 +958,15 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @method _load
     @private
     @param {DS.Model} type
-    @param data
-    @param prematerialized
+    @param {Object} data
+    @param {Boolean} partial the data should be merged into
+      the existing fata, not replace it.
   */
-  _load: function(type, data) {
+  _load: function(type, data, partial) {
     var id = coerceId(data.id),
         record = this.recordForId(type, id);
 
-    record.setupData(data);
+    record.setupData(data, partial);
     this.recordArrayManager.recordDidChange(record);
 
     return record;
@@ -1055,15 +1056,24 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @returns DS.Model the record that was created or
       updated.
   */
-  push: function(type, data) {
+  push: function(type, data, _partial) {
+    // _partial is an internal param used by `update`.
+    // If passed, it means that the data should be
+    // merged into the existing data, not replace it.
+
     var serializer = this.serializerFor(type);
     type = this.modelFor(type);
 
-    data = serializer.deserialize(type, data);
+    // normalize relationship IDs into records
+    data = normalizeRelationships(this, type, data);
 
-    this._load(type, data);
+    this._load(type, data, _partial);
 
     return this.recordForId(type, data.id);
+  },
+
+  update: function(type, data) {
+    return this.push(type, data, true);
   },
 
   /**
@@ -1260,6 +1270,59 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return serializerFor(this.container, type.typeKey, adapter && adapter.defaultSerializer);
   }
 });
+
+function normalizeRelationships(store, type, data) {
+  type.eachRelationship(function(key, relationship) {
+    // A link (usually a URL) was already provided in
+    // normalized form
+    if (data.links && data.links[key]) {
+      return;
+    }
+
+    var type = relationship.type,
+        value = data[key];
+
+    if (value == null) { return; }
+
+    if (relationship.kind === 'belongsTo') {
+      deserializeRecordId(store, data, key, relationship, value);
+    } else if (relationship.kind === 'hasMany') {
+      deserializeRecordIds(store, data, key, relationship, value);
+    }
+  });
+
+  return data;
+}
+
+function deserializeRecordId(store, data, key, relationship, id) {
+  if (isNone(id) || id instanceof DS.Model) {
+    return;
+  }
+
+  var type;
+
+  if (typeof id === 'number' || typeof id === 'string') {
+    type = typeFor(relationship, key, data);
+    data[key] = store.recordForId(type, id);
+  } else if (typeof id === 'object') {
+    // polymorphic
+    data[key] = store.recordForId(id.type, id.id);
+  }
+}
+
+function typeFor(relationship, key, data) {
+  if (relationship.options.polymorphic) {
+    return data[key + "_type"];
+  } else {
+    return relationship.type;
+  }
+}
+
+function deserializeRecordIds(store, data, key, relationship, ids) {
+  for (var i=0, l=ids.length; i<l; i++) {
+    deserializeRecordId(store, ids, i, relationship, ids[i]);
+  }
+}
 
 // Delegation to the adapter and promise management
 

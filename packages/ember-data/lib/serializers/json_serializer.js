@@ -11,56 +11,20 @@ function aliasMethod(methodName) {
 DS.JSONSerializer = Ember.Object.extend({
   primaryKey: 'id',
 
-  deserialize: function(type, data) {
-    var store = get(this, 'store');
-
+  applyTransforms: function(type, data) {
     type.eachTransformedAttribute(function(key, type) {
       var transform = this.transformFor(type);
       data[key] = transform.deserialize(data[key]);
     }, this);
 
-    type.eachRelationship(function(key, relationship) {
-      // A link (usually a URL) was already provided in
-      // normalized form
-      if (data.links && data.links[key]) {
-        return;
-      }
-
-      var type = relationship.type,
-          value = data[key];
-
-      if (value == null) { return; }
-
-      if (relationship.kind === 'belongsTo') {
-        this.deserializeRecordId(data, key, relationship, value);
-      } else if (relationship.kind === 'hasMany') {
-        this.deserializeRecordIds(data, key, relationship, value);
-      }
-    }, this);
-
     return data;
   },
 
-  deserializeRecordId: function(data, key, relationship, id) {
-    if (isNone(id) || id instanceof DS.Model) {
-      return;
-    }
+  normalize: function(type, prop, hash) {
+    if (!hash) { return hash; }
 
-    var type;
-
-    if (typeof id === 'number' || typeof id === 'string') {
-      type = this.typeFor(relationship, key, data);
-      data[key] = get(this, 'store').recordForId(type, id);
-    } else if (typeof id === 'object') {
-      // polymorphic
-      data[key] = get(this, 'store').recordForId(id.type, id.id);
-    }
-  },
-
-  deserializeRecordIds: function(data, key, relationship, ids) {
-    for (var i=0, l=ids.length; i<l; i++) {
-      this.deserializeRecordId(ids, i, relationship, ids[i]);
-    }
+    this.applyTransforms(type, hash);
+    return hash;
   },
 
   // SERIALIZE
@@ -156,11 +120,11 @@ DS.JSONSerializer = Ember.Object.extend({
   extractSave: aliasMethod('extractSingle'),
 
   extractSingle: function(store, type, payload) {
-    return payload;
+    return this.normalize(type, null, payload);
   },
 
   extractArray: function(store, type, payload) {
-    return payload;
+    return this.normalize(type, null, payload);
   },
 
   extractMeta: function(store, type, payload) {
