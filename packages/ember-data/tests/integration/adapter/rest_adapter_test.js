@@ -1,4 +1,4 @@
-var env, store, adapter, Post, Person, Comment;
+var env, store, adapter, Post, Person, Comment, SuperUser;
 var originalAjax, passedUrl, passedVerb, passedHash;
 
 module("integration/adapter/rest_adapter - REST Adapter", {
@@ -15,9 +15,12 @@ module("integration/adapter/rest_adapter - REST Adapter", {
       name: DS.attr("string")
     });
 
+    SuperUser = DS.Model.extend();
+
     env = setupStore({
       post: Post,
       comment: Comment,
+      superUser: SuperUser,
       adapter: DS.RESTAdapter
     });
 
@@ -644,6 +647,21 @@ test('buildURL - with host and namespace', function() {
 
   store.find('post', 1).then(async(function(post) {
     equal(passedUrl, "http://example.com/api/v1/posts/1");
+  }));
+});
+
+test('buildURL - with camelized names', function() {
+  adapter.setProperties({
+    rootForType: function(type) {
+      var decamelized = Ember.String.decamelize(type);
+      return Ember.String.pluralize(decamelized);
+    }
+  });
+
+  ajaxResponse({ superUsers: [{ id: 1 }] });
+
+  store.find('superUser', 1).then(async(function(post) {
+    equal(passedUrl, "/super_users/1");
   }));
 });
 
