@@ -12,8 +12,6 @@ DS.JSONSerializer = Ember.Object.extend({
   primaryKey: 'id',
 
   deserialize: function(type, data) {
-    var store = get(this, 'store');
-
     type.eachTransformedAttribute(function(key, type) {
       var transform = this.transformFor(type);
       data[key] = transform.deserialize(data[key]);
@@ -66,8 +64,6 @@ DS.JSONSerializer = Ember.Object.extend({
   // SERIALIZE
 
   serialize: function(record, options) {
-    var store = get(this, 'store');
-
     var json = {};
 
     if (options && options.includeId) {
