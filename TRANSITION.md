@@ -616,3 +616,25 @@ App.PostSerializer = DS.Serializer.extend({
   }
 });
 ```
+
+# Always Use Camel Case vs Underscore
+
+In Ember Data 0.13 the adapter would automaticaly convert camel cased
+attribute names to be the underscored version when making api calls.
+This is no longer the case.  
+
+Consider the following model:
+
+```js
+App.BlogPost = DS.Model.extend({
+  authorName : DS.attr('string')
+});
+```
+
+When receiving or sending a BlogPost model ED 0.13 would send/receive an 
+attribute called 'author_name'.
+
+ED 1.0.b.1 will send/receive an attribute called 'authorName'.
+
+If you need to retain underscored attributes in api calls you should use
+a custom serializer as described earlier in this document.
