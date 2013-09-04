@@ -619,11 +619,12 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
         // regualarAttribute
         normalizedProp = prop;
       }
-
+      
+      normalizedProp = Ember.String.camelize(normalizedProp);
       normalized[normalizedProp] = hash[prop];
     }
 
-    return normalized;
+    return this._super(type, property, normalized);
   }
 });
 ```
