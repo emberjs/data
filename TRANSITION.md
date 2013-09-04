@@ -487,8 +487,10 @@ App.PostSerializer = DS.RESTSerializer.extend({
     });
 
     post.comments = commentIds;
+    
+    var post_payload = { post: post, comments: comments };
 
-    return { post: post, comments: comments };
+    return this._super(store, type, post_payload, id, requestType);
   }
 });
 ```
@@ -511,8 +513,10 @@ App.PostSerializer = DS.RESTSerializer.extend({
     // below in `normalizeHash`
     var comments = payload._embedded.comments;
     post.comments = comments.mapProperty('ID_');
+    
+    var post_payload = { post: post, comments: comments };
 
-    return { post: post, comments: comments };
+    return this._super(store, type, post_payload, id, requestType);
   },
 
   normalizeHash: {
