@@ -127,7 +127,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns Promise
   */
   find: function(store, type, id) {
-    return this.ajax(this.buildURL(type, id), 'GET');
+    return this.ajax(this.buildURL(type.typeKey, id), 'GET');
   },
 
   /**
@@ -152,7 +152,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       query = { since: sinceToken };
     }
 
-    return this.ajax(this.buildURL(type), 'GET', { data: query });
+    return this.ajax(this.buildURL(type.typeKey), 'GET', { data: query });
   },
 
   /**
@@ -174,7 +174,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns Promise
   */
   findQuery: function(store, type, query) {
-    return this.ajax(this.buildURL(type), 'GET', { data: query });
+    return this.ajax(this.buildURL(type.typeKey), 'GET', { data: query });
   },
 
   /**
@@ -214,7 +214,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns Promise
   */
   findMany: function(store, type, ids, owner) {
-    return this.ajax(this.buildURL(type), 'GET', { data: { ids: ids } });
+    return this.ajax(this.buildURL(type.typeKey), 'GET', { data: { ids: ids } });
   },
 
   /**
@@ -272,7 +272,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var data = {};
     data[type.typeKey] = store.serializerFor(type.typeKey).serialize(record, { includeId: true });
 
-    return this.ajax(this.buildURL(type), "POST", { data: data });
+    return this.ajax(this.buildURL(type.typeKey), "POST", { data: data });
   },
 
   /**
@@ -298,7 +298,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     var id = get(record, 'id');
 
-    return this.ajax(this.buildURL(type, id), "PUT", { data: data });
+    return this.ajax(this.buildURL(type.typeKey, id), "PUT", { data: data });
   },
 
   /**
@@ -318,7 +318,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   deleteRecord: function(store, type, record) {
     var id = get(record, 'id');
 
-    return this.ajax(this.buildURL(type, id), "DELETE");
+    return this.ajax(this.buildURL(type.typeKey, id), "DELETE");
   },
 
   /**
@@ -331,7 +331,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     of the type, separated by a `/`.
 
     @method buildURL
-    @param {subclass of DS.Model} type
+    @param {String} type
     @param {String} id
     @returns String
   */
@@ -343,7 +343,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     if (host) { url.push(host); }
     if (namespace) { url.push(namespace); }
 
-    url.push(Ember.String.pluralize(type.typeKey));
+    url.push(Ember.String.pluralize(type));
     if (id) { url.push(id); }
 
     url = url.join('/');
