@@ -717,3 +717,11 @@ App.ApplicationAdapter = DS.RESTAdapter.extend({
   namespace: 'api/v1'
 });
 ```
+
+Also notice that you should define the class name in the adapter when defineing a Store, so ember is able to inject it to routers or components and views.
+
+```js
+App.Store = DS.Store.extend({
+  adapter:  'ApplicationAdapter'
+});
+```
