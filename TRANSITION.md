@@ -752,3 +752,26 @@ App.Comment = DS.Model.extend({
   post: DS.belongsTo("blogPost")
 });
 ```
+
+## Defining a custom serializer
+
+If you have a custom adapter you will likely need to wire up a custom
+serializer.
+
+Ember Data 0.13:
+
+```js
+DS.DjangoRESTSerializer = DS.RESTSerializer.extend();
+DS.DjangoRESTAdapter = DS.RESTAdapter.extend({
+  serializer: DS.DjangoRESTSerializer
+});
+```
+
+Ember Data 1.0.beta.1:
+
+```js
+DS.DjangoRESTSerializer = DS.RESTSerializer.extend();
+DS.DjangoRESTAdapter = DS.RESTAdapter.extend({
+  defaultSerializer: "DS/djangoREST"
+});
+```
