@@ -1,3 +1,23 @@
+*Ember 1.0.0-beta.1 (September 04, 2013)*
+
+* Add support for `host` and `namespace` in the RESTAdapter
+* Always use shorthand (`post`, not `App.Post`) in models
+* Always use shorthand (`custom` not `App.CustomAdapter`) when looking up adapters
+* Support `store.all('post')`
+* Add back support for `record.rollback()`
+* Transforms should be registered via `App.DateTransform` (for `date`)
+* Add back support for `since` token for find all fetches
+* Add `keyForAttribute` and `keyForRelationship` hooks in the serializer
+* Support for serializing many-to-none and many-to-many relationships in RESTSerializer
+* Several fixes for DS.hasMany async
+* RESTAdapter `buildURL` takes a string, not type
+* RESTAdapter now has `rootForType` to convert a type into the root
+* `store.update` to update some, but not all attributes
+* Thanks to Paul Chavard, Toran Billups, Bradley Priest, Kasper Tidemann, Yann Mainier,
+  Dali Zheng, Jeremy Green, Robert Jackson, Joe Bartels, Alexandre de Oliveria,
+  Floren Jaby, Gordon Hempton, Ivan Vanderbyl, Johannel Würbach, Márcio Júnior,
+  Nick Ragaz, Ricardo Mendes, Ryunosuke SATO, Sylvain Mina, and ssured
+
 *Ember 1.0.0-beta.1 (September 01, 2013)*
 
 * Added DS.DebugAdapter which extends Ember.DataAdapter
