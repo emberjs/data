@@ -20,7 +20,7 @@ DS.JSONSerializer = Ember.Object.extend({
     return data;
   },
 
-  normalize: function(type, prop, hash) {
+  normalize: function(type, hash) {
     if (!hash) { return hash; }
 
     this.applyTransforms(type, hash);
@@ -120,11 +120,11 @@ DS.JSONSerializer = Ember.Object.extend({
   extractSave: aliasMethod('extractSingle'),
 
   extractSingle: function(store, type, payload) {
-    return this.normalize(type, null, payload);
+    return this.normalize(type, payload);
   },
 
   extractArray: function(store, type, payload) {
-    return this.normalize(type, null, payload);
+    return this.normalize(type, payload);
   },
 
   extractMeta: function(store, type, payload) {

@@ -112,7 +112,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     @param {Object} hash
     @returns Object
   */
-  normalize: function(type, prop, hash) {
+  normalize: function(type, hash, prop) {
     this.normalizeId(hash);
     this.normalizeUsingDeclaredMapping(type, hash);
     this.normalizeAttributes(type, hash);
@@ -122,7 +122,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
       return this.normalizeHash[prop](hash);
     }
 
-    return this._super(type, prop, hash);
+    return this._super(type, hash, prop);
   },
 
   /**
@@ -274,7 +274,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     for (var prop in payload) {
       // legacy support for singular names
       if (prop === primaryTypeName) {
-        primaryRecord = this.normalize(primaryType, prop, payload[prop]);
+        primaryRecord = this.normalize(primaryType, payload[prop], prop);
         continue;
       }
 
@@ -283,7 +283,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
       /*jshint loopfunc:true*/
       forEach.call(payload[prop], function(hash) {
-        hash = this.normalize(type, prop, hash);
+        hash = this.normalize(type, hash, prop);
 
         var isFirstCreatedRecord = typeName === primaryTypeName && !recordId && !primaryRecord,
             isUpdatedRecord = typeName === primaryTypeName && coerceId(hash.id) === recordId;
@@ -411,7 +411,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
       /*jshint loopfunc:true*/
       var normalizedArray = payload[prop].map(function(hash) {
-        return this.normalize(type, prop, hash);
+        return this.normalize(type, hash, prop);
       }, this);
 
       if (isPrimary) {
