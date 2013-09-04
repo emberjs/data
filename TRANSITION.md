@@ -614,13 +614,12 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
         normalizedProp = prop.slice(0, -3);
       } else if (prop.substr(-4) === '_ids') {
         // hasMany relationship
-        normalizedProp = Ember.String.pluralize(prop.slice(0, -3));
+        normalizedProp = Ember.String.pluralize(prop.slice(0, -4));
       } else {
         // regualarAttribute
-        normalizedKey = prop;
+        normalizedProp = prop;
       }
 
-      normalizedKey = Ember.String.camelize(normalizedKey);
       normalized[normalizedProp] = hash[prop];
     }
 
