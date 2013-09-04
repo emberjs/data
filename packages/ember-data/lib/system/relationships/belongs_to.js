@@ -8,14 +8,21 @@ var get = Ember.get, set = Ember.set,
 function asyncBelongsTo(type, options, meta) {
   return Ember.computed(function(key, value) {
     var data = get(this, 'data'),
-        store = get(this, 'store');
+        store = get(this, 'store'),
+        belongsTo;
 
     if (arguments.length === 2) {
       Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof store.modelFor(type));
       return value === undefined ? null : value;
     }
 
-    return !isNone(data[key]) ? store.fetchRecord(data[key]) : null;
+    belongsTo = data[key];
+
+    if(!isNone(belongsTo) && get(belongsTo, 'isEmpty')) {
+      return store.fetchRecord(belongsTo);
+    } else {
+      return null;
+    }
   }).property('data').meta(meta);
 }
 
