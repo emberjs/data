@@ -30,8 +30,6 @@ DS.JSONSerializer = Ember.Object.extend({
   // SERIALIZE
 
   serialize: function(record, options) {
-    var store = get(this, 'store');
-
     var json = {};
 
     if (options && options.includeId) {
