@@ -309,7 +309,7 @@ Ember Data 0.13:
 App.MyAdapter = DS.Adapter.extend({
   find: function(store, type, id) {
     $.getJSON("/" + this.pluralize(type) + "/" + id, function(payload) {
-      store.load(payload);
+      store.push(payload);
     }
   }
 });
