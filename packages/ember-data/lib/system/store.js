@@ -1126,6 +1126,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     var record = type._create({
       id: id,
       store: this,
+      jsonSerializer: this.container.lookup('serializer:_default')
     });
 
     if (data) {

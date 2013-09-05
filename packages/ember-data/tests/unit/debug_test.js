@@ -6,8 +6,8 @@ var TestAdapter = DS.Adapter.extend();
 
 module("Debug", {
   setup: function() {
-    store = DS.Store.create({
-      adapter: TestAdapter.extend(),
+    store = createStore({
+      adapter: TestAdapter.extend()
     });
   },
 

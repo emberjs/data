@@ -348,6 +348,15 @@ test("a DS.Model can describe Date attributes", function() {
   convertsWhenSet('date', date, dateString);
 });
 
+test("a DS.Model can be jsonified", function() {
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+  var store = createStore({person: Person});
+  var record = store.createRecord('person', {name: "TomHuda"});
+  deepEqual(record.toJSON(), {name: "TomHuda"});
+});
+
 test("don't allow setting", function(){
   var store = createStore();
 
