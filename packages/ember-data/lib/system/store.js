@@ -867,6 +867,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   didSaveRecord: function(record, data) {
     if (data) {
+      // normalize relationship IDs into records
+      data = normalizeRelationships(this, record.constructor, data);
+
       this.updateId(record, data);
     }
 
