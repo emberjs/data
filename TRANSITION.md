@@ -609,7 +609,7 @@ For now, you can implement the logic yourself:
 
 ```js
 App.ApplicationSerializer = DS.RESTSerializer.extend({
-  normalize: function(type, property, hash) {
+  normalize: function(type, hash, property) {
     var normalized = {}, normalizedProp;
 
     for (var prop in hash) {
