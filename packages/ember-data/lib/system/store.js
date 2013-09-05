@@ -1441,6 +1441,7 @@ function _commit(adapter, store, operation, record, resolver) {
 
   return promise.then(function(payload) {
     payload = serializer.extract(store, type, payload, get(record, 'id'), operation);
+    store.push(record.constructor, payload);
     store.didSaveRecord(record, payload);
     return record;
   }, function(reason) {
