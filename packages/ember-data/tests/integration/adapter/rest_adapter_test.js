@@ -183,6 +183,27 @@ test("create - a payload with a new ID and data applies the updates (with legacy
   }));
 });
 
+test("create - findMany doesn't overwrite owner", function() {
+  ajaxResponse({ comment: { id: "1", name: "Dat Parley Letter", post: 1 } });
+
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  store.push('post', { id: 1, name: "Rails is omakase", comments: [] });
+  var post = store.getById('post', 1);
+
+  var comment = store.createRecord('comment', { name: "The Parley Letter" });
+  post.get('comments').pushObject(comment);
+
+  equal(comment.get('post'), post, "the post has been set correctly");
+
+  comment.save().then(async(function(comment) {
+    equal(comment.get('isDirty'), false, "the post isn't dirty anymore");
+    equal(comment.get('name'), "Dat Parley Letter", "the post was updated");
+    equal(comment.get('post'), post, "the post is still set");
+  }));
+});
+
 test("create - a serializer's primary key and attributes are consulted when building the payload", function() {
   env.container.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_id_',
