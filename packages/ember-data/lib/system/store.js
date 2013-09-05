@@ -1429,13 +1429,17 @@ function _findQuery(adapter, store, type, query, recordArray, resolver) {
 function _commit(adapter, store, operation, record, resolver) {
   var type = record.constructor,
       promise = adapter[operation](store, type, record),
-      serializer = serializerForAdapter(adapter, type);
+      serializer = serializerForAdapter(adapter, type),
+      data;
 
   Ember.assert("Your adapter's '" + operation + "' method must return a promise, but it returned " + promise, isThenable(promise));
 
   return promise.then(function(payload) {
     payload = serializer.extract(store, type, payload, get(record, 'id'), operation);
-    store.didSaveRecord(record, payload);
+    if (payload) {
+      data = normalizeRelationships(store, type, payload);
+    }
+    store.didSaveRecord(record, data);
     return record;
   }, function(reason) {
     if (reason instanceof DS.InvalidError) {
