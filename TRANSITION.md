@@ -628,7 +628,7 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
       normalized[normalizedProp] = hash[prop];
     }
 
-    return this._super(type, property, normalized);
+    return this._super(type, normalized, property);
   }
 });
 ```
