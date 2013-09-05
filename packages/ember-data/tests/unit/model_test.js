@@ -373,3 +373,13 @@ test("ensure model exits loading state, materializes data and fulfills promise o
     equal(get(person, 'isLoaded'), true, 'model is loaded');
   }));
 });
+
+test("A DS.Model can be JSONified", function() {
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var store = createStore({ person: Person });
+  var record = store.createRecord('person', { name: "TomHuda" });
+  deepEqual(record.toJSON(), { name: "TomHuda" });
+});
