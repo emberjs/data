@@ -757,7 +757,7 @@ App.Comment = DS.Model.extend({
 });
 ```
 
-## Defining a custom serializer
+## Defining a Custom Serializer
 
 If you have a custom adapter you will likely need to wire up a custom
 serializer.
@@ -779,3 +779,7 @@ DS.DjangoRESTAdapter = DS.RESTAdapter.extend({
   defaultSerializer: "DS/djangoREST"
 });
 ```
+
+Your users will still be able to define custom serializers that extend
+your default serializer. If they do, they should make sure to subclass
+your custom serializer and not a built-in Ember Data serializer.
