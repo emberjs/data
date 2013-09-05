@@ -10,7 +10,7 @@ Ember Data provides a central Data Store, which can be configured with a range o
 provided Adapters, but two core Adapters are provided: the RESTAdapter and BasicAdapter. 
 
 The RESTAdapter is configured for use by default. You can read more about it in 
-the [Guides](http://emberjs.com/guides/models/the-rest-adapter/). It provides a fully
+the [Guides](http://emberjs.com/guides/models/connecting-to-an-http-server/). It provides a fully
 RESTful mechanism for communicating with your persistence layer, and is the preferred
 and recommened choice for use with Ember Data.
 
@@ -30,16 +30,15 @@ Yes.
 #### Is It "Production Ready™"?
 
 No. The API should not be considered stable until 1.0. Breaking changes,
-indexed by date, are listed in [`BREAKING_CHANGES.md`](https://github.com/emberjs/data/blob/master/BREAKING_CHANGES.md).
+and how to update accordingly, are listed in [`TRANSITION.md`](https://github.com/emberjs/data/blob/master/TRANSITION.md).
 
-A [guide is provided on the Ember.js site](http://emberjs.com/guides/models/) that is accurate as of revision 12.
+A [guide is provided on the Ember.js site](http://emberjs.com/guides/models/) that is accurate as of Ember Data 1.0 beta.
 
 #### Getting ember-data
 
-The latest passing build from the "master" branch is available on [builds.emberjs.com](http://builds.emberjs.com):
+The latest passing build from the "master" branch is available on [http://emberjs.com/builds/#/canary/latest](http://emberjs.com/builds/#/canary/latest).
 
-* [Development](http://builds.emberjs.com.s3.amazonaws.com/ember-data-latest.js)
-* [Minified](http://builds.emberjs.com.s3.amazonaws.com/ember-data-latest.min.js)
+Similarly the latest passing build from the "beta" branch can be found on [http://emberjs.com/builds/#/beta/latest](http://emberjs.com/builds/#/beta/latest)
 
 
 You also have the option to build ember-data.js yourself.  Clone the repository, run `bundle` then `rake dist`. You'll find ember-data.js in the `dist` directory.
