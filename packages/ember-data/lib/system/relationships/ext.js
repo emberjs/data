@@ -28,7 +28,7 @@ DS.Model.reopen({
     being defined. So, for example, when the user does this:
 
       DS.Model.extend({
-        parent: DS.belongsTo(App.User)
+        parent: DS.belongsTo('user')
       });
 
     This hook would be called with "parent" as the key and the computed
@@ -82,7 +82,7 @@ DS.Model.reopenClass({
     For example, if you define a model like this:
 
         App.Post = DS.Model.extend({
-          comments: DS.hasMany(App.Comment)
+          comments: DS.hasMany('comment')
         });
 
     Calling `App.Post.typeForRelationship('comments')` will return `App.Comment`.
@@ -156,9 +156,9 @@ DS.Model.reopenClass({
     For example, given the following model definition:
 
         App.Blog = DS.Model.extend({
-          users: DS.hasMany(App.User),
-          owner: DS.belongsTo(App.User),
-          posts: DS.hasMany(App.Post)
+          users: DS.hasMany('user'),
+          owner: DS.belongsTo('user'),
+          posts: DS.hasMany('post')
         });
 
     This computed property would return a map describing these
@@ -206,10 +206,10 @@ DS.Model.reopenClass({
     definition:
 
         App.Blog = DS.Model.extend({
-          users: DS.hasMany(App.User),
-          owner: DS.belongsTo(App.User),
+          users: DS.hasMany('user'),
+          owner: DS.belongsTo('user'),
 
-          posts: DS.hasMany(App.Post)
+          posts: DS.hasMany('post')
         });
 
     This property would contain the following:
@@ -245,9 +245,10 @@ DS.Model.reopenClass({
     For example, given a model with this definition:
 
         App.Blog = DS.Model.extend({
-          users: DS.hasMany(App.User),
-          owner: DS.belongsTo(App.User),
-          posts: DS.hasMany(App.Post)
+          users: DS.hasMany('user'),
+          owner: DS.belongsTo('user'),
+  
+          posts: DS.hasMany('post')
         });
 
     This property would contain the following:
@@ -295,10 +296,10 @@ DS.Model.reopenClass({
     definition:
 
         App.Blog = DS.Model.extend({
-          users: DS.hasMany(App.User),
-          owner: DS.belongsTo(App.User),
+          users: DS.hasMany('user'),
+          owner: DS.belongsTo('user'),
 
-          posts: DS.hasMany(App.Post)
+          posts: DS.hasMany('post')
         });
 
     This property would contain the following:
@@ -341,10 +342,10 @@ DS.Model.reopenClass({
     For example:
 
         App.Blog = DS.Model.extend({
-          users: DS.hasMany(App.User),
-          owner: DS.belongsTo(App.User),
+          users: DS.hasMany('user'),
+          owner: DS.belongsTo('user'),
 
-          posts: DS.hasMany(App.Post),
+          posts: DS.hasMany('post'),
 
           title: DS.attr('string')
         });
