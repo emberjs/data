@@ -561,10 +561,10 @@ We don't need to implement `extractSingle`, because the top-level is
 already organized perfectly.
 
 ```js
-App.PostSerializer = DS.Serializer.extend({
+App.PostSerializer = DS.RESTSerializer.extend({
   // This method will be called 3 times: once for the post, and once
   // for each of the comments
-  normalize: function(type, property, hash) {
+  normalize: function(type, hash, property) {
     // property will be "post" for the post and "comments" for the
     // comments (the name in the payload)
 
@@ -578,7 +578,7 @@ App.PostSerializer = DS.Serializer.extend({
     }
 
     // delegate to any type-specific normalizations
-    return this._super(type, property, json);
+    return this._super(type, json, property);
   }
 });
 ```
@@ -609,7 +609,7 @@ For now, you can implement the logic yourself:
 
 ```js
 App.ApplicationSerializer = DS.RESTSerializer.extend({
-  normalize: function(type, property, hash) {
+  normalize: function(type, hash, property) {
     var normalized = {}, normalizedProp;
 
     for (var prop in hash) {
@@ -628,7 +628,7 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
       normalized[normalizedProp] = hash[prop];
     }
 
-    return this._super(type, property, normalized);
+    return this._super(type, normalized, property);
   }
 });
 ```
