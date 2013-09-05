@@ -1,4 +1,4 @@
-*Ember 1.0.0-beta.1 (September 04, 2013)*
+*Ember 1.0.0-beta.2 (September 04, 2013)*
 
 * Add support for `host` and `namespace` in the RESTAdapter
 * Always use shorthand (`post`, not `App.Post`) in models
