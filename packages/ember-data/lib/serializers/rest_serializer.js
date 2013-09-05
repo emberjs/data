@@ -126,6 +126,31 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   },
 
   /**
+    You can use this method to normalize all payloads, regardless of whether they
+    represent single records or an array.
+
+    For example, you might want to remove some extraneous data from the payload:
+
+    ```js
+    App.ApplicationSerializer = DS.RESTSerializer.extend({
+      normalizePayload: function(type, payload) {
+        delete payload.version;
+        delete payload.status;
+        return payload;
+      }
+    });
+    ```
+
+    @method normalizePayload
+    @param {subclass of DS.Model} type
+    @param {Object} hash
+    @returns Object the normalized payload
+  */
+  normalizePayload: function(type, payload) {
+    return payload;
+  },
+
+  /**
     @method normalizeId
     @private
   */
@@ -268,6 +293,8 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     @returns Object the primary response to the original request
   */
   extractSingle: function(store, primaryType, payload, recordId, requestType) {
+    payload = this.normalizePayload(primaryType, payload);
+
     var primaryTypeName = primaryType.typeKey,
         primaryRecord;
 
@@ -401,6 +428,8 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
       to the original query.
   */
   extractArray: function(store, primaryType, payload) {
+    payload = this.normalizePayload(primaryType, payload);
+
     var primaryTypeName = primaryType.typeKey,
         primaryArray;
 
