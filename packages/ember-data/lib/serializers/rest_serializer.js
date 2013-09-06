@@ -299,21 +299,23 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
         primaryRecord;
 
     for (var prop in payload) {
-      // legacy support for singular names
-      if (prop === primaryTypeName) {
+      var typeName  = this.modelTypeFromRoot(prop),
+          isPrimary = typeName === primaryTypeName;
+
+      // legacy support for singular resources
+      if (isPrimary && Ember.typeOf(payload[prop]) !== "array" ) {
         primaryRecord = this.normalize(primaryType, payload[prop], prop);
         continue;
       }
 
-      var typeName = this.singularize(prop),
-          type = store.modelFor(typeName);
+      var type = store.modelFor(typeName);
 
       /*jshint loopfunc:true*/
       forEach.call(payload[prop], function(hash) {
         hash = this.normalize(type, hash, prop);
 
-        var isFirstCreatedRecord = typeName === primaryTypeName && !recordId && !primaryRecord,
-            isUpdatedRecord = typeName === primaryTypeName && coerceId(hash.id) === recordId;
+        var isFirstCreatedRecord = isPrimary && !recordId && !primaryRecord,
+            isUpdatedRecord = isPrimary && coerceId(hash.id) === recordId;
 
         // find the primary record.
         //
@@ -434,7 +436,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
         primaryArray;
 
     for (var prop in payload) {
-      var typeName = this.singularize(prop),
+      var typeName = this.modelTypeFromRoot(prop),
           type = store.modelFor(typeName),
           isPrimary = typeName === primaryTypeName;
 
@@ -454,21 +456,27 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   },
 
   /**
-    @private
-    @method pluralize
-    @param {String} key
-  */
-  pluralize: function(key) {
-    return Ember.String.pluralize(key);
-  },
+    You can use this method to normalize the JSON root keys returned
+    into the model type expected by your store.
 
-  /**
-    @private
-    @method singularize
-    @param {String} key
+    For example, your server may return underscored root keys rather than
+    the expected camelcased versions.
+
+    ```js
+    App.ApplicationSerializer = DS.RESTSerializer.extend({
+      modelTypeFromRoot: function(root) {
+        var camelized = Ember.String.camelize(root);
+        return Ember.String.singularize(camelized);
+      }
+    });
+    ```
+
+    @method modelTypeFromRoot
+    @param {String} root
+    @returns String the model's typeKey
   */
-  singularize: function(key) {
-    return Ember.String.singularize(key);
+  modelTypeFromRoot: function(root) {
+    return Ember.String.singularize(root);
   },
 
   // SERIALIZE
