@@ -3,16 +3,20 @@ require("ember-data/system/model/model");
 DS.Model.reopen({
 
   /**
-   Provides info about the model for debugging purposes
-   by grouping the properties into more semantic groups.
+    Provides info about the model for debugging purposes
+    by grouping the properties into more semantic groups.
 
-   Meant to be used by debugging tools such as the Chrome Ember Extension.
+    Meant to be used by debugging tools such as the Chrome Ember Extension.
 
-   - Groups all attributes in "Attributes" group.
-   - Groups all belongsTo relationships in "Belongs To" group.
-   - Groups all hasMany relationships in "Has Many" group.
-   - Groups all flags in "Flags" group.
-   - Flags relationship CPs as expensive properties.
+    - Groups all attributes in "Attributes" group.
+    - Groups all belongsTo relationships in "Belongs To" group.
+    - Groups all hasMany relationships in "Has Many" group.
+    - Groups all flags in "Flags" group.
+    - Flags relationship CPs as expensive properties.
+
+    @method _debugInfo
+    @for DS.Model
+    @private
   */
   _debugInfo: function() {
     var attributes = ['id'],

@@ -5,6 +5,11 @@ var get = Ember.get, capitalize = Ember.String.capitalize, underscore = Ember.St
 
 /**
   Extend `Ember.DataAdapter` with ED specific code.
+
+  @class DebugAdapter
+  @namespace DS
+  @extends Ember.DataAdapter
+  @private
 */
 DS.DebugAdapter = Ember.DataAdapter.extend({
   getFilters: function() {

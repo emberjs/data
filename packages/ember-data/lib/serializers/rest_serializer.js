@@ -46,6 +46,10 @@ function coerceId(id) {
   You can also implement `keyForRelationship`, which takes the name
   of the relationship as the first parameter, and the kind of
   relationship (`hasMany` or `belongsTo`) as the second parameter.
+
+  @class RESTSerializer
+  @namespace DS
+  @extends DS.JSONSerializer
 */
 DS.RESTSerializer = DS.JSONSerializer.extend({
   /**
@@ -285,6 +289,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     for the first time or updated (`createRecord` or `updateRecord`). In
     particular, it will update the properties of the record that was saved.
 
+    @method extractSingle
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
@@ -420,6 +425,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     or `findHasMany`. In particular, the primary array will become the
     list of records in the record array that kicked off the request.
 
+    @method extractArray
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
@@ -610,6 +616,10 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
       }
     });
     ```
+
+    @method serialize
+    @param record
+    @param options
   */
   serialize: function(record, options) {
     return this._super.apply(this, arguments);

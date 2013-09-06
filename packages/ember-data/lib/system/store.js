@@ -476,6 +476,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   /**
     Returns true if a record for a given type and ID is already loaded.
 
+    @method hasRecordForId
     @param {String} type
     @param {String|Integer} id
     @returns Boolean
@@ -490,6 +491,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Returns id record for a given type and ID. If one isn't already loaded,
     it builds a new record and leaves it in the `empty` state.
 
+    @method recordForId
     @param {String} type
     @param {String|Integer} id
     @returns DS.Model
@@ -557,6 +559,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     The usual use-case is for the server to register a URL as a link, and
     then use that URL in the future to make a request for the relationship.
 
+    @method findHasMany
     @private
     @param {DS.Model} owner
     @param {any} link
@@ -980,6 +983,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     methods that take a type key (like `find`, `createRecord`,
     etc.)
 
+    @method modelFor
     @param {String} key
     @returns {subclass of DS.Model}
   */
