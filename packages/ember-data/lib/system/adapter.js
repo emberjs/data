@@ -171,9 +171,9 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     method on success or `didError` method on failure.
 
     @method createRecord
-    @property {DS.Store} store
-    @property {subclass of DS.Model} type   the DS.Model class of the record
-    @property {DS.Model} record
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} record
   */
   createRecord: Ember.required(Function),
 
@@ -184,9 +184,9 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     Serializes the record update and send it to the server.
 
     @method updateRecord
-    @property {DS.Store} store
-    @property {subclass of DS.Model} type   the DS.Model class of the record
-    @property {DS.Model} record
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} record
   */
   updateRecord: Ember.required(Function),
 
@@ -197,9 +197,9 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     Sends a delete request for the record to the server.
 
     @method deleteRecord
-    @property {DS.Store} store
-    @property {subclass of DS.Model} type   the DS.Model class of the record
-    @property {DS.Model} record
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} record
   */
   deleteRecord: Ember.required(Function),
 
@@ -211,9 +211,9 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     server requests.
 
     @method findMany
-    @property {DS.Store} store
-    @property {subclass of DS.Model} type   the DS.Model class of the records
-    @property {Array}    ids
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type   the DS.Model class of the records
+    @param {Array}    ids
   */
   findMany: function(store, type, ids) {
     var promises = map.call(ids, function(id) {
