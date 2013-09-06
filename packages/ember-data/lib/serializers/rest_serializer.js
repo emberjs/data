@@ -613,5 +613,9 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   */
   serialize: function(record, options) {
     return this._super.apply(this, arguments);
+  },
+
+  serializeIntoHash: function(hash, type, record, options) {
+    hash[type.typeKey] = this.serialize(record, options);
   }
 });
