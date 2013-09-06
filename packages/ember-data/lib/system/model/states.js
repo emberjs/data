@@ -467,6 +467,10 @@ var RootState = {
 
     becameError: function(record) {
       record.triggerLater('becameError', record);
+    },
+
+    notFound: function(record) {
+      record.transitionTo('empty');
     }
   },
 

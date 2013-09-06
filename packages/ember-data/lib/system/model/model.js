@@ -218,6 +218,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.send('loadedData');
   },
 
+  notFound: function() {
+    this.send('notFound');
+  },
+
   pushedData: function() {
     this.send('pushedData');
   },

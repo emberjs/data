@@ -1381,6 +1381,10 @@ function _find(adapter, store, type, id, resolver) {
     payload = serializer.extract(store, type, payload, id, 'find');
 
     return store.push(type, payload);
+  }, function(error) {
+    var record = store.getById(type, id);
+    record.notFound();
+    throw error;
   }).then(resolver.resolve, resolver.reject);
 }
 
