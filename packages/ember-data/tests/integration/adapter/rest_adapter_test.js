@@ -652,7 +652,7 @@ test('buildURL - with host and namespace', function() {
 
 test('buildURL - with camelized names', function() {
   adapter.setProperties({
-    rootForType: function(type) {
+    pathForType: function(type) {
       var decamelized = Ember.String.decamelize(type);
       return Ember.String.pluralize(decamelized);
     }
