@@ -324,7 +324,10 @@ DS.RESTAdapter = DS.Adapter.extend({
   /**
     Builds a URL for a given type and optional ID.
 
-    If an ID is specified, it adds the ID to the root generated
+    By default, it pluralizes the type's name (for example,
+    'post' becomes 'posts' and 'person' becomes 'people').
+
+    If an ID is specified, it adds the ID to the path generated
     for the type, separated by a `/`.
 
     @method buildURL
@@ -340,7 +343,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     if (host) { url.push(host); }
     if (namespace) { url.push(namespace); }
 
-    url.push(this.rootForType(type));
+    url.push(this.pathForType(type));
     if (id) { url.push(id); }
 
     url = url.join('/');
@@ -350,30 +353,30 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   /**
-    Determines the pathname root for a given type.
+    Determines the pathname for a given type.
 
     By default, it pluralizes the type's name (for example,
     'post' becomes 'posts' and 'person' becomes 'people').
 
-    ### Pathname root customization
+    ### Pathname customization
 
     For example if you have an object LineItem with an
     endpoint of "/line_items/".
 
     ```js
     DS.RESTAdapter.reopen({
-      rootForType: function(type) {
+      pathForType: function(type) {
         var decamelized = Ember.String.decamelize(type);
         return Ember.String.pluralize(decamelized);
       };
     });
     ```
 
-    @method rootForType
+    @method pathForType
     @param {String} type
     @returns String
   **/
-  rootForType: function(type) {
+  pathForType: function(type) {
     return Ember.String.pluralize(type);
   },
 
