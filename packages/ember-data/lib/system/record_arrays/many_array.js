@@ -21,11 +21,11 @@ var map = Ember.EnumerableUtils.map;
   defined:
 
       App.Post = DS.Model.extend({
-        comments: DS.hasMany('App.Comment')
+        comments: DS.hasMany('comment')
       });
 
       App.Comment = DS.Model.extend({
-        post: DS.belongsTo('App.Post')
+        post: DS.belongsTo('post')
       });
 
   If you created a new instance of `App.Post` and added
