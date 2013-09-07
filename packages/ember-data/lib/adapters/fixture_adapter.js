@@ -98,7 +98,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @param  record
   */
   generateIdForRecord: function(store) {
-    return counter++;
+    return "fixture-" + counter++;
   },
 
   /**
