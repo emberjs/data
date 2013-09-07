@@ -1399,6 +1399,8 @@ function _findMany(adapter, store, type, ids, owner, resolver) {
   return resolve(promise).then(function(payload) {
     payload = serializer.extract(store, type, payload, null, 'findMany');
 
+    Ember.assert("The response from a findMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
+
     store.pushMany(type, payload);
   }).then(resolver.resolve, resolver.reject);
 }
@@ -1409,6 +1411,8 @@ function _findHasMany(adapter, store, record, link, relationship, resolver) {
 
   return resolve(promise).then(function(payload) {
     payload = serializer.extract(store, relationship.type, payload, null, 'findHasMany');
+
+    Ember.assert("The response from a findHasMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
     var records = store.pushMany(relationship.type, payload);
     record.updateHasMany(relationship.key, records);
@@ -1422,6 +1426,8 @@ function _findAll(adapter, store, type, sinceToken, resolver) {
   return resolve(promise).then(function(payload) {
     payload = serializer.extract(store, type, payload, null, 'findAll');
 
+    Ember.assert("The response from a findAll must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
+
     store.pushMany(type, payload);
     store.didUpdateAll(type);
     return store.all(type);
@@ -1434,6 +1440,8 @@ function _findQuery(adapter, store, type, query, recordArray, resolver) {
 
   return resolve(promise).then(function(payload) {
     payload = serializer.extract(store, type, payload, null, 'findAll');
+
+    Ember.assert("The response from a findQuery must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
     recordArray.load(payload);
     return recordArray;
