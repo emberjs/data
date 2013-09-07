@@ -1060,7 +1060,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     // If passed, it means that the data should be
     // merged into the existing data, not replace it.
 
-    Ember.assert("You must include an `id` in a hash passed to `push`", data.id);
+    Ember.assert("You must include an `id` in a hash passed to `push`", data.id != null);
 
     var serializer = this.serializerFor(type);
     type = this.modelFor(type);
@@ -1074,7 +1074,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   },
 
   update: function(type, data) {
-    Ember.assert("You must include an `id` in a hash passed to `update`", data.id);
+    Ember.assert("You must include an `id` in a hash passed to `update`", data.id != null);
 
     return this.push(type, data, true);
   },
