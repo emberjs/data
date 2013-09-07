@@ -714,14 +714,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     filter function will be invoked again to determine whether it should
     still be in the array.
 
-    Note that the existence of a filter on a type will trigger immediate
-    materialization of all loaded data for a given type, so you might
-    not want to use filters for a type if you are loading many records
-    into the store, many of which are not active at any given time.
-
-    In this scenario, you might want to consider filtering the raw
-    data before loading it into the store.
-
     @method filter
     @param {Class} type
     @param {Function} filter
