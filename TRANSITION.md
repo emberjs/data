@@ -633,6 +633,54 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
 });
 ```
 
+### Underscored API Endpoints
+
+In 0.13 the REST Adapter automatically generated API endpoints for multi
+word models with an underscore (`'/blog_posts'`), begining with Beta 1
+the REST Adapter will generate enpoints with a dash (`'/blog-posts'`).
+To go back to underscored endpoints you can `reopen` the `RESTAdapter`
+and override the `pathForType` method.
+
+```js
+DS.RESTAdapter.reopen({
+  pathForType: function(type) {
+    var underscored = Ember.String.underscore(type)
+    return Ember.String.pluralize(underscored);
+  }
+});
+
+```
+
+### Underscored Root Objects in JSON Responses
+
+In 0.13 the REST Adapter expected the root objects of a JSON response to
+be underscored for multi word models.
+
+```js
+blog_posts : [{id : 1, title : "A Post"},{ id : 2, title : "Another Post"}]
+```
+
+Beginning in Beta 1 the REST Adapter expects the root objects of a JSON
+response to be camelized
+
+```js
+blogPosts : [{id : 1, title : "A Post"},{ id : 2, title : "Another Post"}]
+```
+
+To go back to underscored root objects you can `reopen` the
+`RESTSerializer` and override the `modelTypeFromRoot` method.
+
+```js
+DS.RESTSerializer.reopen({
+  modelTypeFromRoot: function(root) {
+    var camelized = Ember.String.camelize(root);
+    return Ember.String.singularize(camelized);
+  }
+});
+```
+
+
+
 ### Embedded Records
 
 Explicit support for embedded records is gone for now.
