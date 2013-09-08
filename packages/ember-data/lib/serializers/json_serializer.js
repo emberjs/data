@@ -66,7 +66,7 @@ DS.JSONSerializer = Ember.Object.extend({
 
     // if provided, use the mapping provided by `attrs` in
     // the serializer
-    key = attrs && attrs[key] || key;
+    key = attrs && attrs[key] || (this.keyForAttribute ? this.keyForAttribute(key) : key);
 
     json[key] = value;
   },
@@ -78,6 +78,7 @@ DS.JSONSerializer = Ember.Object.extend({
 
     if (isNone(belongsTo)) { return; }
 
+    key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo") : key;
     json[key] = get(belongsTo, 'id');
 
     if (relationship.options.polymorphic) {
