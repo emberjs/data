@@ -695,6 +695,34 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
 });
 ```
 
+### Underscored JSON for Saving
+
+In 0.13 the REST Adapter would send underscored JSON for create/update
+requests.  Beginning in Beta 1 the REST Adapter sends camelized JSON.
+
+If your server expects underscored JSON you can define the
+`serializeAttribute` method in your `ApplicationSerializer`.
+
+```js
+App.ApplicationSerializer = DS.RESTSerializer.extend({
+  serializeAttribute: function(record, json, key, attribute) {
+    var attrs = Ember.get(this, 'attrs');
+    var value = Ember.get(record, key), type = attribute.type;
+
+    if (type) {
+      var transform = this.transformFor(type);
+      value = transform.serialize(value);
+    }
+
+    // if provided, use the mapping provided by `attrs` in
+    // the serializer
+    key = attrs && attrs[key] || Ember.String.decamelize(key);
+
+    json[key] = value;
+  }
+}
+```
+
 ### Embedded Records
 
 Explicit support for embedded records is gone for now.
