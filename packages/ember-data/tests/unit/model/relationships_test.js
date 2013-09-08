@@ -659,7 +659,7 @@ test("changing a belongsTo relationship marks the record as dirty", function() {
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tags: DS.belongsTo('tag')
+    tag: DS.belongsTo('tag')
   });
 
   var env = setupStore({
