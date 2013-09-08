@@ -651,3 +651,36 @@ test("belongsTo supports relationships to models with id 0", function() {
     asyncEqual(get(person, 'tag'), store.find(Tag, 0), "relationship object is the same as object retrieved directly");
   }));
 });
+
+test("changing a belongsTo relationship marks the record as dirty", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.belongsTo('tag')
+  });
+
+  var env = setupStore({
+    tag: Tag,
+    person: Person
+  });
+
+  var store = env.store;
+
+  store.pushMany('tag', [{ id: 1, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 3, name: "oohlala" }]);
+  store.push('person', { id: 1, name: "Tom Dale", tag: 1 });
+
+  Ember.RSVP.hash({
+    person: store.find('person', 1),
+    tag: store.find('tag', 3)
+  }).then(async(function(models) {
+    var person = models.person;
+    var newTag = models.tag;
+    person.set('tag', newTag);
+    equal(person.get('tag'), newTag, "new tag should be assigned to person");
+    ok(person.get('isDirty'), "person should be dirty");
+  }));
+});
+
