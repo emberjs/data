@@ -12,6 +12,12 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     User = DS.Model.extend({
       name: attr('string'),
       messages: hasMany('message', { polymorphic: true }),
+      contacts: hasMany(),
+    });
+
+    Contact = DS.Model.extend({
+      email: attr('string'),
+      user: belongsTo('user')
     });
 
     Message = DS.Model.extend({
@@ -34,6 +40,7 @@ module("integration/relationships/has_many - Has-Many Relationships", {
 
     env = setupStore({
       user: User,
+      contact: Contact,
       post: Post,
       comment: Comment,
       message: Message
@@ -139,6 +146,18 @@ test("When a polymorphic hasMany relationship is accessed, the store can call mu
     equal(messages.get('length'), 2, "The messages are correctly loaded");
   }));
 });
+
+test("Type can be inferred from the key of a hasMany relationship", function() {
+  expect(1);
+  env.store.push('user', { id: 1, contacts: [ 1 ] });
+  env.store.push('contact', { id: 1 })
+  env.store.find('user', 1).then(async(function(user) {
+    return user.get('contacts');
+  })).then(async(function(contacts) {
+    equal(contacts.get('length'), 1, "The contacts relationship is correctly set up");
+  }));
+});
+
 
 test("A record can't be created from a polymorphic hasMany relationship", function() {
   env.store.push('user', { id: 1, messages: [] });

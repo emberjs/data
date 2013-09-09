@@ -63,6 +63,5 @@ function hasRelationship(type, options) {
 }
 
 DS.hasMany = function(type, options) {
-  Ember.assert("The type passed to DS.hasMany must be defined", !!type);
   return hasRelationship(type, options);
 };
