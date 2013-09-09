@@ -283,7 +283,7 @@ test("create - a record on the many side of a hasMany relationship should update
   }));
   
   post.reload().then(async(function(post) {
-    equal(post.get('comments.length'), 2, "Post comment count has been updated")
+    equal(post.get('comments.length'), 2, "Post comment count has been updated");
   }));
 });
 
