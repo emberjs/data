@@ -43,7 +43,7 @@ module("integration/serializer/rest - RESTSerializer", {
 
 test("extractArray with customModelFromType", function() {
   env.container.register('serializer:homePlanet', DS.RESTSerializer.extend({
-    modelTypeFromRoot: function(root) {
+    typeForRoot: function(root) {
       var camelized = Ember.String.camelize(root);
       return Ember.String.singularize(camelized);
     }
