@@ -695,6 +695,29 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
 });
 ```
 
+### Underscored Root Objects in JSON Requests
+
+In 0.13 the REST Adapter would send underscored versions of multi word
+model names as the root element.  Beginning in Beta 1 the REST Adapter
+sends camelized root object.
+
+If your server expects underscored root objects you can define a couple
+of methods in your `ApplicationSerializer`.
+
+```js
+App.ApplicationSerializer = DS.RESTSerializer.extend({
+  serializeIntoHash: function(data, type, record, options) {
+    var root = this.rootForModelType(type.typeKey);
+    data[root] = this.serialize(record, options);
+  },
+
+  rootForModelType: function(type) {
+    return Ember.String.decamelize(type);
+  }
+});
+```
+
+
 ### Embedded Records
 
 Explicit support for embedded records is gone for now.
