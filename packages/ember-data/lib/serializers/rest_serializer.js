@@ -4,7 +4,7 @@ require('ember-data/serializers/json_serializer');
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get, set = Ember.set, isEmpty = Ember.isEmpty;
 var forEach = Ember.ArrayPolyfills.forEach;
 
 function coerceId(id) {
@@ -681,5 +681,213 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
   serializeIntoHash: function(hash, type, record, options) {
     hash[type.typeKey] = this.serialize(record, options);
+  }
+});
+
+DS.EmbeddedRESTSerializer = DS.RESTSerializer.extend({
+  embeddedIdPrefix: '<embedded>',
+
+  /**
+    `isEmbeddedId` tests if an id indicates an embedded record
+
+    @method isEmbeddedId
+    @private
+    @param {String} id
+    @return {Boolean}
+  */
+  isEmbeddedId: function(id) {
+    var prefix = this.get('embeddedIdPrefix');
+
+    return Ember.typeOf(id) === 'string' && id.substr(0, prefix.length) === prefix;
+  },
+
+  /**
+    This method applies the embedded id naming convention to create a new id
+
+    @method createEmbeddedId
+    @private
+    @param {DS.Model} record
+    @param {String} key
+    @param {String} index optional
+    @returns {String}
+  */
+  createEmbeddedId: function(record, key, index) {
+    Ember.assert('You cannot store embedded records on a record with the `id` left empty', !isEmpty(get(record, 'id')));
+    var id = get(record, 'id') + '.' + key;
+
+    if (!isEmpty(index)) {
+      id += '[' + index + ']';
+    }
+
+    if (!this.isEmbeddedId(id)) {
+      id = this.get('embeddedIdPrefix') + id;
+    }
+
+    return id;
+  },
+
+  /**
+    This method extracts the hasMany index of an embedded record, or returns null if no index exists
+
+    @method extractEmbeddedIndex
+    @private
+    @param {DS.Model} record An embedded record
+    @returns {String|null}
+  */
+  extractEmbeddedIndex: function(record) {
+    var index = null,
+        id = get(record, 'id');
+
+    if (this.isEmbeddedId(id)) {
+      index = (id.match(/\[(.*?)\]$/) || [null]).pop();
+    }
+
+    return index;
+  },
+
+  /**
+    This method creates a new unique index for embedded hasMany records
+
+    @method createUniqueEmbeddedIndex
+    @private
+    @param [DS.Model] records List of all records in the embedded hasMany relation
+    @param {object} hash Current serialized hash
+    @returns {String}
+  */
+  createUniqueEmbeddedIndex: function(records, hash) {
+    var knownIndexes = [-1],
+        key, n,
+        self = this;
+
+    for (key in hash) {
+      n = parseInt(key, 10);
+      if (!isNaN(n)) knownIndexes.push(n);
+    }
+
+    forEach.call(records || [], function(record) {
+      n = parseInt(self.extractEmbeddedIndex(record), 10);
+      if (!isNaN(n)) knownIndexes.push(n);
+    });
+
+    return coerceId(1 + Math.max.apply(null, knownIndexes));
+  },
+
+  /**
+    This method manipulates embedded records inside a hash so they follow ember-data REST adapter structure.
+
+    @method extractEmbedded
+    @param {DS.Store} store
+    @param {subclass of DS.Model} primaryType
+    @param {Object} record Current record being extracted
+    @param {Object} root Reference to the supplied payload from the server
+  */
+  extractEmbedded: function(store, primaryType, record, root) {
+    var self = this;
+
+    function processEmbedded(relationship, embeddedRecord, id) {
+      var embeddedType = relationship.type, 
+          embeddedTypeKey = self.pluralize(embeddedType.typeKey);
+
+      Ember.assert('Embedded records should not have their id set', Ember.isEmpty(embeddedRecord.id));
+      embeddedRecord.id = self.createEmbeddedId(record, relationship.key, id);
+
+      // recurse the extraction
+      self.extractEmbedded(store, embeddedType, embeddedRecord, root);
+
+      root[embeddedTypeKey] = root[embeddedTypeKey] || [];
+      root[embeddedTypeKey].push(embeddedRecord);
+      return embeddedRecord.id;
+    }
+
+    primaryType.eachRelationship(function(key, relationship) {
+      var id, records, recordIds;
+
+      if (relationship.options && relationship.options.embedded && record[key]) {
+        if (relationship.kind === 'belongsTo') {
+          record[key] = processEmbedded(relationship, record[key], null);
+        }
+
+        if (relationship.kind === 'hasMany') {
+          Ember.assert('Embedded hasMany should be sent as an object', 'object' === Ember.typeOf(record[key]));
+
+          recordIds = [];
+          for (id in record[key]) {
+            recordIds.push(processEmbedded(relationship, record[key][id], id));
+          }
+          record[key] = recordIds;
+        }
+      }
+    });
+  },
+
+  extractArray: function(store, primaryType, payload) {
+    var key = this.pluralize(primaryType.typeKey),
+        self = this;
+
+    if (payload && payload[key]) {
+      forEach.call(payload[key], function(hash){
+        self.extractEmbedded(store, primaryType, hash, payload);
+      });
+    }
+
+    return this._super.apply(this, arguments);
+  },
+
+  extractSingle: function(store, primaryType, payload, recordId, requestType) {
+    var key = this.pluralize(primaryType.typeKey),
+        self = this;
+
+    if (payload && payload[key]) {
+      forEach.call(payload[key], function(hash){
+        self.extractEmbedded(store, primaryType, hash, payload);
+      });
+    }
+
+    return this._super.apply(this, arguments);
+  },
+
+  serializeBelongsTo: function(record, json, relationship) {
+    var key = relationship.key,
+        store = record.store,
+        embeddedRecord, serializer;
+
+    if (relationship.options && relationship.options.embedded) {
+      if (embeddedRecord = get(record, key)) {
+        serializer = store.serializerFor(embeddedRecord.constructor);
+        json[key] = serializer.serialize(embeddedRecord);
+      }
+    } else {
+      this._super.apply(this, arguments);
+    }
+  },
+
+  serializeHasMany: function(record, json, relationship) {
+    var key = relationship.key,
+        store = record.store,
+        embeddedRecords, embeddedId,
+        self = this;
+
+    if (relationship.options && relationship.options.embedded) {
+      embeddedRecords = get(record, key);
+      embeddedRecords.forEach(function(embeddedRecord){
+
+        var serializer = store.serializerFor(embeddedRecord.constructor),
+            uniqIndex = self.extractEmbeddedIndex(embeddedRecord);
+
+        if (isEmpty(uniqIndex)) {
+          Ember.assert('You cannot set an id on an embedded record', isEmpty(get(embeddedRecord, 'id')));
+          uniqIndex = self.createUniqueEmbeddedIndex(embeddedRecords, json[key]);
+
+          // FIXME, small hack to make the embedded record known to the store
+          embeddedId = self.createEmbeddedId(record, key, uniqIndex);
+          store.typeMapFor(embeddedRecord.constructor).idToRecord[embeddedId] = embeddedId;
+        }
+
+        json[key] = json[key] || {};
+        json[key][uniqIndex] = serializer.serialize(embeddedRecord);
+      });
+    } else {
+      this._super.apply(this, arguments);
+    }
   }
 });
