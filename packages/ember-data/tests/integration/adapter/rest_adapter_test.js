@@ -240,6 +240,53 @@ test("create - a serializer's attributes are consulted when building the payload
   }));
 });
 
+test("create - a record on the many side of a hasMany relationship should update relationships when data is sideloaded", function() {
+  expect(3);
+  
+  ajaxResponse({ 
+    posts: [{
+      id: "1", 
+      name: "Rails is omakase", 
+      comments: [1,2]
+    }],
+    comments: [{ 
+      id: "1", 
+      name: "Dat Parley Letter", 
+      post: 1 
+    },{
+      id: "2", 
+      name: "Another Comment", 
+      post: 1
+    }]
+    // My API is returning a comment:{} as well as a comments:[{...},...]
+    //, comment: {
+    //   id: "2",
+    //   name: "Another Comment",
+    //   post: 1
+    // }
+  });
+  
+  Post.reopen({ comments: DS.hasMany('comment') });
+  Comment.reopen({ post: DS.belongsTo('post') });
+  
+  store.push('post', { id: 1, name: "Rails is omakase", comments: [1] });
+  store.push('comment', { id: 1, name: "Dat Parlay Letter", post: 1 });
+  
+  var post = store.getById('post', 1);
+  var commentCount = post.get('comments.length');
+  equal(commentCount, 1, "the post starts life with a comment");
+  
+  var comment = store.createRecord('comment', { name: "Another Comment", post: post });
+  
+  comment.save().then(async(function(comment) {
+    equal(comment.get('post'), post, "the comment is related to the post");
+  }));
+  
+  post.reload().then(async(function(post) {
+    equal(post.get('comments.length'), 2, "Post comment count has been updated")
+  }));
+});
+
 test("update - an empty payload is a basic success", function() {
   store.push('post', { id: 1, name: "Rails is omakase" });
 
