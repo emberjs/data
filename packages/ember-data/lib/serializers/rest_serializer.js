@@ -304,7 +304,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
         primaryRecord;
 
     for (var prop in payload) {
-      var typeName  = this.modelTypeFromRoot(prop),
+      var typeName  = this.typeForRoot(prop),
           isPrimary = typeName === primaryTypeName;
 
       // legacy support for singular resources
@@ -442,7 +442,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
         primaryArray;
 
     for (var prop in payload) {
-      var typeName = this.modelTypeFromRoot(prop),
+      var typeName = this.typeForRoot(prop),
           type = store.modelFor(typeName),
           isPrimary = typeName === primaryTypeName;
 
@@ -495,7 +495,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     payload = this.normalizePayload(null, payload);
 
     for (var prop in payload) {
-      var typeName = this.modelTypeFromRoot(prop),
+      var typeName = this.typeForRoot(prop),
           type = store.modelFor(typeName);
 
       /*jshint loopfunc:true*/
@@ -516,18 +516,18 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
     ```js
     App.ApplicationSerializer = DS.RESTSerializer.extend({
-      modelTypeFromRoot: function(root) {
+      typeForRoot: function(root) {
         var camelized = Ember.String.camelize(root);
         return Ember.String.singularize(camelized);
       }
     });
     ```
 
-    @method modelTypeFromRoot
+    @method typeForRoot
     @param {String} root
     @returns String the model's typeKey
   */
-  modelTypeFromRoot: function(root) {
+  typeForRoot: function(root) {
     return Ember.String.singularize(root);
   },
 
