@@ -706,11 +706,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {Class} type
   */
   unloadAll: function(type) {
-    var records = this.all(type).get('content').copy();
+    type = this.modelFor(type);
 
-    records.forEach(function(record) {
+    var typeMap = this.typeMapFor(type),
+        records = typeMap.records, record;
+
+    while(record = records.pop()) {
       record.unloadRecord();
-    });
+    }
   },
 
   /**
