@@ -1,4 +1,4 @@
-var env, User, Message, Post, Comment;
+var env, User, Contact, Email, Phone, Message, Post, Comment;
 var get = Ember.get, set = Ember.set;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
@@ -16,8 +16,15 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     });
 
     Contact = DS.Model.extend({
-      email: attr('string'),
       user: belongsTo('user')
+    });
+
+    Email = Contact.extend({
+      email: attr('string')
+    });
+
+    Phone = Contact.extend({
+      number: attr('string')
     });
 
     Message = DS.Model.extend({
@@ -41,6 +48,8 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     env = setupStore({
       user: User,
       contact: Contact,
+      email: Email,
+      phone: Phone,
       post: Post,
       comment: Comment,
       message: Message
@@ -150,7 +159,7 @@ test("When a polymorphic hasMany relationship is accessed, the store can call mu
 test("Type can be inferred from the key of a hasMany relationship", function() {
   expect(1);
   env.store.push('user', { id: 1, contacts: [ 1 ] });
-  env.store.push('contact', { id: 1 })
+  env.store.push('contact', { id: 1 });
   env.store.find('user', 1).then(async(function(user) {
     return user.get('contacts');
   })).then(async(function(contacts) {
@@ -158,6 +167,36 @@ test("Type can be inferred from the key of a hasMany relationship", function() {
   }));
 });
 
+test("Type can be inferred from the key of an async hasMany relationship", function() {
+  User.reopen({
+    contacts: DS.hasMany({ async: true })
+  });
+
+  expect(1);
+  env.store.push('user', { id: 1, contacts: [ 1 ] });
+  env.store.push('contact', { id: 1 });
+  env.store.find('user', 1).then(async(function(user) {
+    return user.get('contacts');
+  })).then(async(function(contacts) {
+    equal(contacts.get('length'), 1, "The contacts relationship is correctly set up");
+  }));
+});
+
+test("Polymorphic relationships work with a hasMany whose type is inferred", function() {
+  User.reopen({
+    contacts: DS.hasMany({ polymorphic: true })
+  });
+
+  expect(1);
+  env.store.push('user', { id: 1, contacts: [ { id: 1, type: 'email' }, { id: 2, type: 'phone' } ] });
+  env.store.push('email', { id: 1 });
+  env.store.push('phone', { id: 2 });
+  env.store.find('user', 1).then(async(function(user) {
+    return user.get('contacts');
+  })).then(async(function(contacts) {
+    equal(contacts.get('length'), 2, "The contacts relationship is correctly set up");
+  }));
+});
 
 test("A record can't be created from a polymorphic hasMany relationship", function() {
   env.store.push('user', { id: 1, messages: [] });
