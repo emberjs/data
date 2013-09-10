@@ -698,6 +698,21 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return array;
   },
 
+
+  /**
+    This method unloads all of the known records for a given type.
+
+    @method unloadAll
+    @param {Class} type
+  */
+  unloadAll: function(type) {
+    var records = this.all(type).get('content').copy();
+
+    records.forEach(function(record) {
+      record.unloadRecord();
+    });
+  },
+
   /**
     Takes a type and filter function, and returns a live RecordArray that
     remains up to date as new records are loaded into the store or created
