@@ -35,6 +35,22 @@ function Inflector(ruleSet) {
 }
 
 Inflector.prototype = {
+  plural: function(regex, string) {
+    this.rules.plurals.push([regex, string]);
+  },
+
+  singular: function(regex, string) {
+    this.rules.singular.push([regex, string]);
+  },
+
+  uncountable: function(string) {
+    loadUncountable(this.rules, [string]);
+  },
+
+  irregular: function (singular, plural) {
+    loadIrregular(this.rules, [[singular, plural]]);
+  },
+
   pluralize: function(word) {
     return this.inflect(word, this.rules.plurals);
   },
