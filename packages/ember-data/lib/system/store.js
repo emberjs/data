@@ -1363,6 +1363,10 @@ function serializerForAdapter(adapter, type) {
     serializer = serializerFor(container, type.typeKey, defaultSerializer);
   }
 
+  if (serializer.container === undefined) {
+    serialize.container = container;
+  }
+
   if (serializer === null || serializer === undefined) {
     serializer = {
       extract: function(store, type, payload) { return payload; }
