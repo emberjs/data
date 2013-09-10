@@ -82,10 +82,11 @@ DS.ManyArray = DS.RecordArray.extend({
   fetch: function() {
     var records = get(this, 'content'),
         store = get(this, 'store'),
-        owner = get(this, 'owner');
+        owner = get(this, 'owner'),
+        resolver = Ember.RSVP.defer();
 
     var unloadedRecords = records.filterProperty('isEmpty', true);
-    store.fetchMany(unloadedRecords, owner);
+    store.fetchMany(unloadedRecords, owner, resolver);
   },
 
   // Overrides Ember.Array's replace method to implement
