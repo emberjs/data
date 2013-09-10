@@ -40,7 +40,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
 
   ### Conventional Names
 
-  Attribute names in your JSON payload should be the underscored versions of
+  Attribute names in your JSON payload should be the camelcased versions of
   the attributes in your Ember.js models.
 
   For example, if you have a `Person` model:
@@ -58,8 +58,8 @@ var forEach = Ember.ArrayPolyfills.forEach;
   ```js
   {
     "person": {
-      "first_name": "Barack",
-      "last_name": "Obama",
+      "firstName": "Barack",
+      "lastName": "Obama",
       "occupation": "President"
     }
   }
