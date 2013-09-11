@@ -1,6 +1,6 @@
 var env, store, adapter, SuperUser;
 var originalAjax, passedUrl, passedVerb, passedHash;
-module("integration/adapter/active_model_adapter - AMS Adapter", {
+module("integration/active_model_adapter - AMS Adapter", {
   setup: function() {
     SuperUser = DS.Model.extend();
 
