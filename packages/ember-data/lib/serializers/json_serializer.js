@@ -85,7 +85,7 @@ DS.JSONSerializer = Ember.Object.extend({
     }
 
     if (relationship.options.polymorphic) {
-      json[key + "_type"] = belongsTo.constructor.typeKey;
+      this.serializePolymorphicType(record, json, relationship);
     }
   },
 
@@ -99,6 +99,11 @@ DS.JSONSerializer = Ember.Object.extend({
       // TODO support for polymorphic manyToNone and manyToMany relationships
     }
   },
+
+  /**
+    You can use this method to customize how polymorphic objects are serialized.
+  */
+  serializePolymorphicType: Ember.K,
 
   // EXTRACT
 
