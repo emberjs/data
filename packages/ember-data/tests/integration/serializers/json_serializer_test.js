@@ -80,3 +80,24 @@ test("serializeBelongsTo respects keyForRelationship", function() {
     POST: "1"
   });
 });
+
+test("serializePolymorphicType", function() {
+  env.container.register('serializer:comment', DS.JSONSerializer.extend({
+    serializePolymorphicType: function(record, json, relationship) {
+      var key = relationship.key,
+          belongsTo = get(record, key);
+      json[relationship.key + "TYPE"] = belongsTo.constructor.typeKey;
+    },
+  }));
+
+  post = env.store.createRecord(Post, { title: "Rails is omakase", id: "1"});
+  comment = env.store.createRecord(Comment, { body: "Omakase is delicious", post: post});
+  var json = {};
+
+  env.container.lookup("serializer:comment").serializeBelongsTo(comment, json, {key: "post", options: { polymorphic: true}});
+
+  deepEqual(json, {
+    post: "1",
+    postTYPE: "post"
+  });
+});

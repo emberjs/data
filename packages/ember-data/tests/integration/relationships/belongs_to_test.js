@@ -125,6 +125,10 @@ test("The store can load a polymorphic belongsTo association", function() {
 });
 
 test("The store can serialize a polymorphic belongsTo association", function() {
+  env.serializer.serializePolymorphicType = function(record, json, relationship) {
+    ok(true, "The serializer's serializePolymorphicType method should be called");
+    json["message_type"] = "post";
+  };
   env.store.push('post', { id: 1 });
   env.store.push('comment', { id: 2, message: 1, message_type: 'post' });
 

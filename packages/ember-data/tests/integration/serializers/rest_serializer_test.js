@@ -42,19 +42,17 @@ module("integration/serializer/rest - RESTSerializer", {
 });
 
 test("extractArray with customModelFromType", function() {
-  env.container.register('serializer:homePlanet', DS.RESTSerializer.extend({
-    typeForRoot: function(root) {
-      var camelized = Ember.String.camelize(root);
-      return Ember.String.singularize(camelized);
-    }
-  }));
+  env.restSerializer.typeForRoot = function(root) {
+    var camelized = Ember.String.camelize(root);
+    return Ember.String.singularize(camelized);
+  };
 
   var json_hash = {
     home_planets: [{id: "1", name: "Umber", superVillains: [1]}],
     super_villains: [{id: "1", firstName: "Tom", lastName: "Dale", homePlanet: "1"}]
   };
 
-  var array = env.container.lookup("serializer:homePlanet").extractArray(env.store, HomePlanet, json_hash);
+  var array = env.restSerializer.extractArray(env.store, HomePlanet, json_hash);
 
   deepEqual(array, [{
     "id": "1",
@@ -65,4 +63,17 @@ test("extractArray with customModelFromType", function() {
   env.store.find("superVillain", 1).then(async(function(minion){
     equal(minion.get('firstName'), "Tom");
   }));
+});
+
+test("serialize polymorphicType", function() {
+  var tom = env.store.createRecord(YellowMinion,   {name: "Alex", id: "124"});
+  var ray = env.store.createRecord(DoomsdayDevice, {evilMinion: tom, name: "DeathRay"});
+
+  var json = env.restSerializer.serialize(ray);
+
+  deepEqual(json, {
+    name:  "DeathRay",
+    evilMinion_type: "yellowMinion",
+    evilMinion: "124"
+  });
 });
