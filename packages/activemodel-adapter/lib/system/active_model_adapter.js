@@ -1,6 +1,6 @@
 require('ember-data/adapters/rest_adapter');
 
-require('ember-data/serializers/active_model_serializer');
+require('activemodel-adapter/system/active_model_serializer');
 
 /**
   @module ember-data

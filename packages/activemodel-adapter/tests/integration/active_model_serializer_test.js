@@ -1,7 +1,7 @@
 var get = Ember.get, set = Ember.set;
 var HomePlanet, league, SuperVillain, superVillain, EvilMinion, YellowMinion, DoomsdayDevice, env;
 
-module("integration/serializer/active_model - ActiveModelSerializer", {
+module("integration/active_model - ActiveModelSerializer", {
   setup: function() {
     SuperVillain = DS.Model.extend({
       firstName:     DS.attr('string'),
