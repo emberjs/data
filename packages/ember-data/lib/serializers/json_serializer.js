@@ -76,10 +76,13 @@ DS.JSONSerializer = Ember.Object.extend({
 
     var belongsTo = get(record, key);
 
-    if (isNone(belongsTo)) { return; }
-
     key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo") : key;
-    json[key] = get(belongsTo, 'id');
+
+    if (isNone(belongsTo)) {
+      json[key] = belongsTo;
+    } else {
+      json[key] = get(belongsTo, 'id');
+    }
 
     if (relationship.options.polymorphic) {
       json[key + "_type"] = belongsTo.constructor.typeKey;
