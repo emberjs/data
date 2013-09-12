@@ -504,6 +504,14 @@ test("findAll - since token is passed to the adapter", function() {
   }));
 });
 
+test("metadata is accessible", function() {
+  ajaxResponse({ meta: { offset: 5 }, posts: [{id: 1, name: "Rails is very expensive sushi"}] });
+
+  store.findAll('post').then(async(function(posts) {
+    equal(store.metadataFor('post').offset, 5, "Metadata can be accessed with metadataFor.");
+  }));
+});
+
 test("findQuery - returning an array populates the array", function() {
   ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }, { id: 2, name: "The Parley Letter" }] });
 
