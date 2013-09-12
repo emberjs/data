@@ -781,6 +781,18 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return !get(this.recordForId(type, id), 'isEmpty');
   },
 
+  /**
+    This method returns the metadata for a specific type.
+
+    @method metadataFor
+    @param {string} type
+    @return {object}
+  */
+  metadataFor: function(type) {
+    type = this.modelFor(type);
+    return this.typeMapFor(type).metadata;
+  },
+
   // ............
   // . UPDATING .
   // ............
