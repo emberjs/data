@@ -36,6 +36,33 @@ test("When a single record is requested, the adapter's find method should be cal
   store.find(Person, 1);
 });
 
+test("When a single record is requested multiple times, all .find() calls are resolved after the promise is resolved", function() {
+  var deferred = Ember.RSVP.defer();
+
+  store = createStore({ adapter: DS.Adapter.extend({
+      find:  function(store, type, id) {
+        return deferred.promise;
+      },
+    })
+  });
+
+  store.find(Person, 1).then(async(function(person) {
+    equal(person.get('id'), "1");
+    equal(person.get('name'), "Braaaahm Dale");
+    equal(deferred.promise.isFulfilled, true);
+  }));
+
+  store.find(Person, 1).then(async(function(post) {
+    equal(post.get('id'), "1");
+    equal(post.get('name'), "Braaaahm Dale");
+    equal(deferred.promise.isFulfilled, true);
+  }));
+
+  Ember.run(function() {
+    deferred.resolve({ id: 1, name: "Braaaahm Dale" });
+  });
+});
+
 test("When a single record is requested, and the promise is rejected, .find() is rejected.", function() {
   var count = 0;
 
