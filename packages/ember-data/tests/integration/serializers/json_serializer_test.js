@@ -62,6 +62,17 @@ test("serializeBelongsTo", function() {
   deepEqual(json, {
     post: "1"
   });
+
+  json = {};
+
+  set(comment, 'post', null);
+
+  env.serializer.serializeBelongsTo(comment, json, {key: "post", options: {}});
+
+  deepEqual(json, {
+    post: null
+  }, "Can set a belongsTo to a null value");
+
 });
 
 test("serializeBelongsTo respects keyForRelationship", function() {
