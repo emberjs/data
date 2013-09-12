@@ -1,3 +1,5 @@
+require("ember-inflector/system");
+
 var get = Ember.get, set = Ember.set;
 
 /**
@@ -323,6 +325,9 @@ DS.Model.reopenClass({
         meta.key = name;
         type = meta.type;
 
+        if (!type) {
+          type = Ember.String.singularize(name);
+        }
         if (typeof type === 'string') {
           meta.type = this.store.modelFor(type);
         }
