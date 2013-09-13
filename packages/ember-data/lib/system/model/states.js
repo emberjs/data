@@ -431,7 +431,8 @@ var RootState = {
     isEmpty: true,
 
     // EVENTS
-    loadingData: function(record) {
+    loadingData: function(record, promise) {
+      record._loadingPromise = promise;
       record.transitionTo('loading');
     },
 
@@ -457,6 +458,10 @@ var RootState = {
   loading: {
     // FLAGS
     isLoading: true,
+
+    exit: function(record) {
+      record._loadingPromise = null;
+    },
 
     // EVENTS
     pushedData: function(record) {

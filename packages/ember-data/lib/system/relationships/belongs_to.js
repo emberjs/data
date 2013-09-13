@@ -18,7 +18,7 @@ function asyncBelongsTo(type, options, meta) {
 
     belongsTo = data[key];
 
-    if(!isNone(belongsTo) && get(belongsTo, 'isEmpty')) {
+    if(!isNone(belongsTo)) {
       return store.fetchRecord(belongsTo);
     } else {
       return null;
@@ -60,9 +60,7 @@ DS.belongsTo = function(type, options) {
 
     if (isNone(belongsTo)) { return null; }
 
-    if (get(belongsTo, 'isEmpty')) {
-      store.fetchRecord(belongsTo);
-    }
+    store.fetchRecord(belongsTo);
 
     return belongsTo;
   }).property('data').meta(meta);
