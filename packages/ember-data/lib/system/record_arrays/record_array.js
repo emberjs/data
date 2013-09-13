@@ -59,5 +59,13 @@ DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
 
   removeRecord: function(record) {
     get(this, 'content').removeObject(record);
+  },
+
+  save: function() {
+    var promise = Ember.RSVP.all(this.invoke("save")).then(function(array) {
+      return Ember.A(array);
+    });
+
+    return DS.PromiseArray.create({ promise: promise });
   }
 });
