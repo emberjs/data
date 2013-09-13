@@ -138,3 +138,25 @@ test("serialize polymorphic", function() {
     evil_minion_id: "124"
   });
 });
+
+test("extractPolymorphic", function() {
+  env.container.register('adapter:yellowMinion', DS.ActiveModelAdapter);
+  EvilMinion.toString   = function() { return "EvilMinion"; };
+  YellowMinion.toString = function() { return "YellowMinion"; };
+
+  var json_hash = {
+    doomsday_device: {id: 1, name: "DeathRay", evil_minion: { type: "yellow_minion", id: 12}},
+    evil_minions:    [{id: 12, name: "Alex", doomsday_device_ids: [1] }]
+  };
+
+  var json = env.amsSerializer.extractSingle(env.store, DoomsdayDevice, json_hash);
+
+  deepEqual(json, {
+    "id": 1,
+    "name": "DeathRay",
+    "evilMinion": {
+      type: "yellowMinion",
+      id: 12
+    }
+  });
+});
