@@ -1,0 +1,1 @@
+require('activemodel-adapter/system/active_model_adapter');
