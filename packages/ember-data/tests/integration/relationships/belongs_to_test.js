@@ -139,6 +139,32 @@ test("The store can serialize a polymorphic belongsTo association", function() {
   }));
 });
 
+test("Multiple belongsTo are respected", function() {
+  var Moderator, Article;
+  User.reopen({
+    articles: DS.hasMany('article')
+  });
+  Moderator = DS.Model.extend({
+    articles: DS.hasMany('article')
+  });
+
+  Article = DS.Model.extend({
+    user: DS.belongsTo('user'),
+    moderator: DS.belongsTo('moderator')
+  });
+  env.container.register('model:moderator', Moderator);
+  env.container.register('model:article', Article);
+
+  store.push('user',    { id: 1, articles: [] });
+  store.push('article', { id: 3 });
+
+  Ember.RSVP.hash({user: store.find('user', 1), article: store.find('article', 3)}).then(async(function(hash){
+    hash.article.set('user', hash.user)
+    ok(hash.user.get('articles.length'), "added to the user");
+  }));
+});
+
+
 test("TODO (embedded): The store can load an embedded polymorphic belongsTo association", function() {
   expect(0);
   //serializer.keyForEmbeddedType = function() {
