@@ -605,6 +605,11 @@ you. It also expected `belongsTo` relationships to be listed under
 In the future, this logic will live in an `ActiveModelSerializer` that
 is designed to work with Rails, and which will ship with `ember-rails`.
 
+Note: DS.ActiveModelSerializer is not to be confused with the ActiveModelSerializer gem 
+that is part of Rails API project. A conventional Rails API project with produce underscored output
+and the `DS.ActiveModelSerializer` will perform the expected normalization behavior such as camelizing
+property keys in your JSON.
+
 For now, you can implement the logic yourself:
 
 ```js
