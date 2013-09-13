@@ -210,8 +210,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     if (transaction) { fn(transaction); }
   },
 
-  loadingData: function() {
-    this.send('loadingData');
+  loadingData: function(promise) {
+    this.send('loadingData', promise);
   },
 
   loadedData: function() {

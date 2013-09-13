@@ -330,11 +330,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     type = this.modelFor(type);
 
     var record = this.getById(type, id);
-    if (get(record, 'isEmpty')) {
-      return promiseObject(this.fetchRecord(record));
-    } else {
-      return promiseObject(resolve(record));
-    }
+
+    var promise = this.fetchRecord(record) || resolve(record);
+    return promiseObject(promise);
   },
 
   /**
@@ -367,11 +365,15 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @returns Promise
   */
   fetchRecord: function(record) {
+    if (isNone(record)) { return null; }
+    if (record._loadingPromise) { return record._loadingPromise; }
+    if (!get(record, 'isEmpty')) { return null; }
+
     var type = record.constructor,
         id = get(record, 'id'),
         resolver = Ember.RSVP.defer();
 
-    record.loadingData();
+    record.loadingData(resolver.promise);
 
     var adapter = this.adapterFor(type);
 
