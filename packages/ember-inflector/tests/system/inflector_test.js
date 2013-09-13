@@ -73,6 +73,18 @@ test('singularization',function(){
   equal(inflector.singularize('apple'), 'apple');
 });
 
+test('singularization of irregulars', function(){
+  expect(1);
+  
+  var inflector = new Ember.Inflector({
+    irregularPairs: [
+      ['person', 'people']
+    ]
+  });
+  
+  equal(inflector.singularize('person'), 'person');
+});
+
 test('plural',function(){
   expect(1);
 
