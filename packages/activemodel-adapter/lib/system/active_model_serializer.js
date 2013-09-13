@@ -86,6 +86,51 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   typeForRoot: function(root) {
     var camelized = Ember.String.camelize(root);
     return Ember.String.singularize(camelized);
+  },
+
+  /**
+    Normalize the polymorphic type from the JSON.
+
+    Normalize:
+    ```js
+      {
+        id: "1"
+        minion: { type: "evil_minion", id: "12"}
+      }
+    ```
+
+    To:
+    ```js
+      {
+        id: "1"
+        minion: { type: "evilMinion", id: "12"}
+      }
+    ```
+
+    @method normalizeRelationships
+    @private
+  */
+  normalizeRelationships: function(type, hash) {
+    var payloadKey, payload, key;
+
+    if (this.keyForRelationship) {
+      type.eachRelationship(function(key, relationship) {
+        if (relationship.options.polymorphic) {
+          payloadKey = this.keyForAttribute(key);
+          payload = hash[payloadKey];
+          payload.type = this.typeForRoot(payload.type);
+        } else {
+          payloadKey = this.keyForRelationship(key, relationship.kind);
+          payload = hash[payloadKey];
+        }
+
+        hash[key] = payload;
+
+        if (key !== payloadKey) {
+          delete hash[payloadKey];
+        }
+      }, this);
+    }
   }
 });
 
