@@ -1016,6 +1016,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       return key;
     }
 
+    key = Ember.String.camelize(Ember.String.singularize(key));
+
     var factory = this.container.lookupFactory('model:'+key);
 
     Ember.assert("No model was found for '" + key + "'", factory);
