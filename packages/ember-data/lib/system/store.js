@@ -1016,16 +1016,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       return key;
     }
 
-    var typeKey = Ember.String.camelize(Ember.String.singularize(key));
+    Ember.assert("Model keys should be camelized. You provided '" + key + "' instead of '" + Ember.String.camelize(Ember.String.singularize(key)) + "'.", key === Ember.String.camelize(Ember.String.singularize(key)));
 
-    Ember.warn("Model keys should be camelized. You provided '" + key + "' instead of '" + typeKey + "'.", key === typeKey);
+    var factory = this.container.lookupFactory('model:'+key);
 
-    var factory = this.container.lookupFactory('model:'+typeKey);
-
-    Ember.assert("No model was found for '" + typeKey + "'", factory);
+    Ember.assert("No model was found for '" + key + "'", factory);
 
     factory.store = this;
-    factory.typeKey = typeKey;
+    factory.typeKey = key;
 
     return factory;
   },
