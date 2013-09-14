@@ -329,7 +329,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   findById: function(type, id) {
     type = this.modelFor(type);
 
-    var record = this.getById(type, id);
+    var record = this.recordForId(type, id);
 
     var promise = this.fetchRecord(record) || resolve(record);
     return promiseObject(promise);
@@ -389,7 +389,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Get a record by a given type and ID without triggering a fetch.
 
     This method will synchronously return the record if it's available.
-    Otherwise, it will return undefined.
+    Otherwise, it will return null.
 
     ```js
     var post = store.getById('post', 1);
@@ -405,7 +405,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     if (this.hasRecordForId(type, id)) {
       return this.recordForId(type, id);
     } else {
-      return this.buildRecord(type, id);
+      return null;
     }
   },
 
