@@ -111,14 +111,17 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     @private
   */
   normalizeRelationships: function(type, hash) {
-    var payloadKey, payload, key;
+    var payloadKey, payload, key, payloadsKey, payloads;
+    var serializer = this;
 
     if (this.keyForRelationship) {
       type.eachRelationship(function(key, relationship) {
         if (relationship.options.polymorphic) {
           payloadKey = this.keyForAttribute(key);
           payload = hash[payloadKey];
-          payload.type = this.typeForRoot(payload.type);
+          if (payload && payload.type) {
+            payload.type = this.typeForRoot(payload.type);
+          }
         } else {
           payloadKey = this.keyForRelationship(key, relationship.kind);
           payload = hash[payloadKey];
