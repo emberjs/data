@@ -133,7 +133,7 @@ Inflector.prototype = {
     @param {String} word
   */
   pluralize: function(word) {
-    return this.inflect(word, this.rules.plurals);
+    return this.inflect(word, this.rules.plurals, this.rules.irregular);
   },
 
   /**
@@ -141,15 +141,18 @@ Inflector.prototype = {
     @param {String} word
   */
   singularize: function(word) {
-    return this.inflect(word, this.rules.singular);
+    return this.inflect(word, this.rules.singular,  this.rules.irregularInverse);
   },
 
   /**
+    @protected
+
     @method inflect
     @param {String} word
     @param {Object} typeRules
+    @param {Object} irregular
   */
-  inflect: function(word, typeRules) {
+  inflect: function(word, typeRules, irregular) {
     var inflection, substitution, result, lowercase, isBlank,
     isUncountable, isIrregular, isIrregularInverse, rule;
 
@@ -167,16 +170,10 @@ Inflector.prototype = {
       return word;
     }
 
-    isIrregular = this.rules.irregular[lowercase];
+    isIrregular = irregular && irregular[lowercase];
 
     if (isIrregular) {
       return isIrregular;
-    }
-
-    isIrregularInverse = this.rules.irregularInverse[lowercase];
-
-    if (isIrregularInverse) {
-      return isIrregularInverse;
     }
 
     for (var i = typeRules.length, min = 0; i > min; i--) {
