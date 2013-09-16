@@ -363,6 +363,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
   rollback: function() {
     this._attributes = {};
+    this._inFlightAttributes = {};
+
+    set(this, 'isError', false);
+
     this.send('rolledBack');
 
     this.suspendRelationshipObservers(function() {
