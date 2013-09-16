@@ -18,11 +18,10 @@ function asyncBelongsTo(type, options, meta) {
 
     belongsTo = data[key];
 
-    if(!isNone(belongsTo)) {
-      return store.fetchRecord(belongsTo);
-    } else {
+    if(isNone(belongsTo)) {
       return null;
     }
+    return DS.PromiseObject.create({ promise: store.fetchRecord(belongsTo) });
   }).property('data').meta(meta);
 }
 
