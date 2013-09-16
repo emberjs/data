@@ -1,4 +1,4 @@
-var env, store, Person, PhoneNumber;
+var env, store, Person, PhoneNumber, Post;
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
 
 module("unit/store/push - DS.Store#push", {
@@ -14,6 +14,10 @@ module("unit/store/push - DS.Store#push", {
       person: belongsTo('person')
     });
 
+    Post = DS.Model.extend({
+      postTitle: attr('string')
+    });
+
     env = setupStore();
 
     store = env.store;
@@ -24,7 +28,9 @@ module("unit/store/push - DS.Store#push", {
 
     env.container.register('model:person', Person);
     env.container.register('model:phone-number', PhoneNumber);
+    env.container.register('model:post', Post);
     env.container.register('serializer:_default', DefaultSerializer);
+    env.container.register('serializer:post', DS.ActiveModelSerializer);
   },
 
   teardown: function() {
@@ -139,4 +145,22 @@ test("Calling push with a normalized hash containing IDs of related records retu
       person: person
     }]);
   }));
+});
+
+test("Calling pushPayload allows pushing raw JSON", function () {
+  store.pushPayload('post', {posts: [{
+    id: '1',
+    post_title: "Ember rocks"
+  }]});
+
+  var post = store.getById('post', 1);
+
+  equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
+
+  store.pushPayload('post', {posts: [{
+    id: '1',
+    post_title: "Ember rocks (updated)"
+  }]});
+
+  equal(post.get('postTitle'), "Ember rocks (updated)", "You can update data in the store");
 });
