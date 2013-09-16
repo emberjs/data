@@ -14,7 +14,6 @@ var isNone = Ember.isNone;
 var forEach = Ember.EnumerableUtils.forEach;
 var indexOf = Ember.EnumerableUtils.indexOf;
 var map = Ember.EnumerableUtils.map;
-var OrderedSet = Ember.OrderedSet;
 var resolve = Ember.RSVP.resolve;
 
 // Implementors Note:
