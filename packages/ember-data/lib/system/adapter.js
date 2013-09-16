@@ -2,9 +2,8 @@
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set, merge = Ember.merge;
+var get = Ember.get, set = Ember.set;
 var map = Ember.ArrayPolyfills.map;
-var resolve = Ember.RSVP.resolve;
 
 var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
 
@@ -17,18 +16,6 @@ DS.InvalidError = function(errors) {
   }
 };
 DS.InvalidError.prototype = Ember.create(Error.prototype);
-
-function isThenable(object) {
-  return object && typeof object.then === 'function';
-}
-
-// Simple dispatcher to support overriding the aliased
-// method in subclasses.
-function aliasMethod(methodName) {
-  return function() {
-    return this[methodName].apply(this, arguments);
-  };
-}
 
 /**
   An adapter is an object that receives requests from a store and
