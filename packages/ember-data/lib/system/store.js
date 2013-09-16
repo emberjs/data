@@ -1016,6 +1016,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       return key;
     }
 
+    Ember.assert("Model keys should be camelized. You provided '" + key + "' instead of '" + Ember.String.camelize(Ember.String.singularize(key)) + "'.", key === Ember.String.camelize(Ember.String.singularize(key)));
+
     var factory = this.container.lookupFactory('model:'+key);
 
     Ember.assert("No model was found for '" + key + "'", factory);

@@ -6,7 +6,7 @@ module("unit/store/push - DS.Store#push", {
     Person = DS.Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
-      phoneNumbers: hasMany('phone-number')
+      phoneNumbers: hasMany('phoneNumber')
     });
 
     PhoneNumber = DS.Model.extend({
@@ -23,7 +23,7 @@ module("unit/store/push - DS.Store#push", {
     });
 
     env.container.register('model:person', Person);
-    env.container.register('model:phone-number', PhoneNumber);
+    env.container.register('model:phoneNumber', PhoneNumber);
     env.container.register('serializer:_default', DefaultSerializer);
   },
 
@@ -74,13 +74,13 @@ test("Calling update with partial records updates just those attributes", functi
 });
 
 test("Calling push with a normalized hash containing related records returns a record", function() {
-  var number1 = store.push('phone-number', {
+  var number1 = store.push('phoneNumber', {
     id: 1,
     number: '5551212',
     person: 'wat'
   });
 
-  var number2 = store.push('phone-number', {
+  var number2 = store.push('phoneNumber', {
     id: 2,
     number: '5552121',
     person: 'wat'
@@ -98,7 +98,7 @@ test("Calling push with a normalized hash containing related records returns a r
 
 test("Calling push with a normalized hash containing IDs of related records returns a record", function() {
   Person.reopen({
-    phoneNumbers: hasMany('phone-number', { async: true })
+    phoneNumbers: hasMany('phoneNumber', { async: true })
   });
 
   env.adapter.find = function(store, type, id) {
