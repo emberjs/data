@@ -1,5 +1,5 @@
 var get = Ember.get, set = Ember.set;
-var HomePlanet, league, SuperVillain, superVillain, EvilMinion, YellowMinion, DoomsdayDevice, env;
+var HomePlanet, league, SuperVillain, superVillain, EvilMinion, YellowMinion, DoomsdayDevice, PopularVillain, env;
 
 module("integration/active_model - ActiveModelSerializer", {
   setup: function() {
@@ -22,18 +22,24 @@ module("integration/active_model - ActiveModelSerializer", {
       name:         DS.attr('string'),
       evilMinion:   DS.belongsTo('evilMinion', {polymorphic: true})
     });
+    PopularVillain = DS.Model.extend({
+      name:         DS.attr('string'),
+      evilMinions:  DS.hasMany('evilMinion', {polymorphic: true})
+    });
     env = setupStore({
       superVillain:   SuperVillain,
       homePlanet:     HomePlanet,
       evilMinion:     EvilMinion,
       yellowMinion:   YellowMinion,
-      doomsdayDevice: DoomsdayDevice
+      doomsdayDevice: DoomsdayDevice,
+      popularVillain: PopularVillain
     });
     env.store.modelFor('superVillain');
     env.store.modelFor('homePlanet');
     env.store.modelFor('evilMinion');
     env.store.modelFor('yellowMinion');
     env.store.modelFor('doomsdayDevice');
+    env.store.modelFor('popularVillain');
     env.container.register('serializer:ams', DS.ActiveModelSerializer);
     env.container.register('adapter:ams', DS.ActiveModelAdapter);
     env.amsSerializer = env.container.lookup("serializer:ams");
@@ -158,5 +164,40 @@ test("extractPolymorphic", function() {
       type: "yellowMinion",
       id: 12
     }
+  });
+});
+
+test("extractPolymorphic when the related data is not specified", function() {
+  env.container.register('adapter:yellowMinion', DS.ActiveModelAdapter);
+  EvilMinion.toString   = function() { return "EvilMinion"; };
+  YellowMinion.toString = function() { return "YellowMinion"; };
+
+  var json_hash = {
+    doomsday_device: {id: 1, name: "DeathRay"},
+    evil_minions:    [{id: 12, name: "Alex", doomsday_device_ids: [1] }]
+  };
+
+  var json = env.amsSerializer.extractSingle(env.store, DoomsdayDevice, json_hash);
+
+  deepEqual(json, {
+    "id": 1,
+    "name": "DeathRay",
+    "evilMinion": undefined
+  });
+});
+
+test("extractPolymorphic does not break hasMany relationships", function() {
+  env.container.register('adapter:yellowMinion', DS.ActiveModelAdapter);
+
+  var json_hash = {
+    popular_villain: {id: 1, name: "Dr. Evil", evil_minions: []}
+  };
+
+  var json = env.amsSerializer.extractSingle(env.store, PopularVillain, json_hash);
+
+  deepEqual(json, {
+    "id": 1,
+    "name": "Dr. Evil",
+    "evilMinions": []
   });
 });

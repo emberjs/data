@@ -118,7 +118,9 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
         if (relationship.options.polymorphic) {
           payloadKey = this.keyForAttribute(key);
           payload = hash[payloadKey];
-          payload.type = this.typeForRoot(payload.type);
+          if (payload && payload.type) {
+            payload.type = this.typeForRoot(payload.type);
+          }
         } else {
           payloadKey = this.keyForRelationship(key, relationship.kind);
           payload = hash[payloadKey];
