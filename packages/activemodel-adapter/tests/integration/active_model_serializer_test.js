@@ -168,16 +168,12 @@ test("extractPolymorphic", function() {
 });
 
 test("extractPolymorphic when the related data is not specified", function() {
-  env.container.register('adapter:yellowMinion', DS.ActiveModelAdapter);
-  EvilMinion.toString   = function() { return "EvilMinion"; };
-  YellowMinion.toString = function() { return "YellowMinion"; };
-
-  var json_hash = {
+  var json = {
     doomsday_device: {id: 1, name: "DeathRay"},
     evil_minions:    [{id: 12, name: "Alex", doomsday_device_ids: [1] }]
   };
 
-  var json = env.amsSerializer.extractSingle(env.store, DoomsdayDevice, json_hash);
+  json = env.amsSerializer.extractSingle(env.store, DoomsdayDevice, json);
 
   deepEqual(json, {
     "id": 1,
@@ -187,13 +183,11 @@ test("extractPolymorphic when the related data is not specified", function() {
 });
 
 test("extractPolymorphic does not break hasMany relationships", function() {
-  env.container.register('adapter:yellowMinion', DS.ActiveModelAdapter);
-
-  var json_hash = {
+  var json = {
     popular_villain: {id: 1, name: "Dr. Evil", evil_minions: []}
   };
 
-  var json = env.amsSerializer.extractSingle(env.store, PopularVillain, json_hash);
+  json = env.amsSerializer.extractSingle(env.store, PopularVillain, json);
 
   deepEqual(json, {
     "id": 1,
