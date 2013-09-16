@@ -1,4 +1,4 @@
-var none = Ember.isNone, empty = Ember.isEmpty;
+var none = Ember.isNone;
 
 DS.StringTransform = DS.Transform.extend({
 
