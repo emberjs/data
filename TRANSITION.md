@@ -643,12 +643,12 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
 In 0.13 the REST Adapter automatically generated API endpoints for multi
 word models with an underscore (`'/blog_posts'`), begining with Beta 1
 the REST Adapter will generate endpoints camelized. To go back to
-underscored endpoints you can define the `pathForType` method in your
+underscored endpoints you can define the `rootForType` method in your
 `ApplicationAdapter`.
 
 ```js
 App.ApplicationAdapter = DS.RESTAdapter.extend({
-  pathForType: function(type) {
+  rootForType: function(type) {
     var underscored = Ember.String.underscore(type)
     return Ember.String.pluralize(underscored);
   }
