@@ -1,6 +1,6 @@
 require('ember-inflector/system/string');
 
-if (Ember.EXTEND_PROTOTYPES) {
+if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.String) {
   /**
     See {{#crossLink "Ember.String/pluralize"}}{{/crossLink}}
 
