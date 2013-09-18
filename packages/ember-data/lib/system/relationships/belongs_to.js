@@ -19,7 +19,8 @@ function asyncBelongsTo(type, options, meta) {
     belongsTo = data[key];
 
     if(!isNone(belongsTo)) {
-      return store.fetchRecord(belongsTo);
+      var promise = store.fetchRecord(belongsTo) || Ember.RSVP.resolve(belongsTo);
+      return DS.PromiseObject.create({promise: promise});
     } else {
       return null;
     }
