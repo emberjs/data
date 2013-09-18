@@ -717,6 +717,6 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     var key = relationship.key,
         belongsTo = get(record, key);
     key = this.keyForAttribute ? this.keyForAttribute(key) : key;
-    json[key + "_type"] = belongsTo.constructor.typeKey;
+    json[key + "Type"] = belongsTo.constructor.typeKey;
   }
 });
