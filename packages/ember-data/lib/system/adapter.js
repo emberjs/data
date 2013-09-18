@@ -33,7 +33,7 @@ DS.InvalidError.prototype = Ember.create(Error.prototype);
 
   To tell your store which adapter to use, set its `adapter` property:
 
-      App.store = DS.Store.create({
+      App.Store = DS.Store.extend({
         adapter: App.MyAdapter.create()
       });
 
