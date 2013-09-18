@@ -989,7 +989,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {DS.Model} type
     @param {Object} data
     @param {Boolean} partial the data should be merged into
-      the existing fata, not replace it.
+      the existing data, not replace it.
   */
   _load: function(type, data, partial) {
     var id = coerceId(data.id),
