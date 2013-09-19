@@ -1,4 +1,4 @@
-var env, User, Contact, Email, Phone, Message, Post, Comment;
+var env, User, Contact, Email, Phone, Message, Post, Comment, Website, Page, Category;
 var get = Ember.get, set = Ember.set;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
@@ -45,14 +45,32 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     });
     Comment.toString = stringify('Comment');
 
+    Website = DS.Model.extend({
+      url: DS.attr('string'),
+      categories: DS.hasMany('category'),
+      pages: DS.hasMany('page')
+    });
+
+    Category = DS.Model.extend({
+      name: DS.attr('string')
+    });
+
+    Page = DS.Model.extend({
+      title: DS.attr('string'),
+      website: DS.belongsTo('website')
+    });
+
     env = setupStore({
-      user: User,
-      contact: Contact,
-      email: Email,
-      phone: Phone,
-      post: Post,
-      comment: Comment,
-      message: Message
+      user:     User,
+      contact:  Contact,
+      email:    Email,
+      phone:    Phone,
+      post:     Post,
+      comment:  Comment,
+      message:  Message,
+      website:  Website,
+      category: Category,
+      page:     Page
     });
   },
 
@@ -273,4 +291,32 @@ test("A record can be removed from a polymorphic association", function() {
     equal(removedObject, records.comment, "The message is correctly removed");
     equal(records.messages.get('length'), 0, "The user does not have any messages");
   }));
+});
+
+
+test("pushing records into the store updates hasMany relationships", function() {
+  expect(4);
+  env.store.push('website', { id: 1, url: "http://example.com", categories: [3] });
+  env.store.push('page', { id: 2, title: "Interesting page", website: 1 });
+  env.store.push('category', { id: 3, name: "awesome"});
+
+  var asyncRecords = Ember.RSVP.hash({
+    website:  env.store.find('website', 1),
+    page:     env.store.find('page', 2),
+    category: env.store.find('category', 3)
+  });
+
+  var website;
+
+  asyncRecords.then(async(function(records) {
+    website = records.website;
+
+    equal(website.get('pages.firstObject'), records.page);
+    equal(website.get('categories.firstObject'), records.category);
+    equal(records.page.get('website'), website);
+  }));
+
+  env.store.push('page', { id: 4, title: "Another page", website: 1 });
+
+  equal(website.get('pages.length'), 2);
 });
