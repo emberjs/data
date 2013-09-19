@@ -73,7 +73,7 @@ test("serialize polymorphicType", function() {
 
   deepEqual(json, {
     name:  "DeathRay",
-    evilMinion_type: "yellowMinion",
+    evilMinionType: "yellowMinion",
     evilMinion: "124"
   });
 });
