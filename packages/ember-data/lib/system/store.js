@@ -1104,6 +1104,44 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return this.recordForId(type, data.id);
   },
 
+  /**
+    Push some raw data into the store.
+
+    The data will be automatically deserialized using the
+    serializer for the `type` param.
+
+    This method can be used both to push in brand new
+    records, as well as to update existing records.
+
+    You can push in more than one type of object at once.
+    All objects should be in the format expected by the
+    serializer.
+
+    ```js
+    App.ApplicationSerializer = DS.ActiveModelSerializer;
+
+    var pushData = {
+      posts: [
+        {id: 1, post_title: "Great post", comment_ids: [2]}
+      ],
+      comments: [
+        {id: 2, comment_body: "Insightful comment"}
+      ]
+    }
+
+    store.pushPayload('post', pushData);
+    ```
+
+    @method push
+    @param {String} type
+    @param {Object} payload
+  */
+
+  pushPayload: function (type, payload) {
+    var serializer = this.serializerFor(type);
+    serializer.pushPayload(this, payload);
+  },
+
   update: function(type, data) {
     Ember.assert("You must include an `id` in a hash passed to `update`", data.id != null);
 
