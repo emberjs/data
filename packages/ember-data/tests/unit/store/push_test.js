@@ -51,6 +51,20 @@ test("Calling push with a normalized hash returns a record", function() {
   }));
 });
 
+test("Calling push triggers `didLoad` even if the record hasn't been requested from the adapter", function() {
+  Person.reopen({
+    didLoad: async(function() {
+      ok(true, "The didLoad callback was called");
+    })
+  });
+
+  store.push('person', {
+    id: 'wat',
+    firstName: "Yehuda",
+    lastName: "Katz"
+  });
+});
+
 test("Calling update with partial records updates just those attributes", function() {
   var person = store.push('person', {
     id: 'wat',
