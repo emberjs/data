@@ -917,6 +917,52 @@ App.Comment = DS.Model.extend({
 });
 ```
 
+### Polymorphic relationships
+
+Polymorphic types are now serialized with a json key of the model name + "Type"
+
+For example given the polymorphic relationship:
+
+```
+App.Comment = DS.Model.extend({
+  message: DS.belongsTo('message' {
+    polymorphic: true
+  })
+});
+```
+
+Ember Data 0.13
+
+```
+{
+  "message": 12,
+  "message_type": "post"
+}
+```
+
+Ember Data 1.0.beta.3:
+
+```
+{
+  "message": 12,
+  "messageType": "post"
+}
+```
+
+You can override this behaviour by defining the `serializePolymorphicType` method
+on your serializer.
+
+```
+App.CommentSerializer = DS.RESTSerializer.extend({
+  serializePolymorphicType: function(record, json, relationship) {
+    var key = relationship.key,
+        belongsTo = get(record, key);
+    key = this.keyForAttribute ? this.keyForAttribute(key) : key;
+    json[key + "_type"] = belongsTo.constructor.typeKey;
+  }
+});
+```
+
 ## Defining a Custom Serializer
 
 If you have a custom adapter you will likely need to wire up a custom
