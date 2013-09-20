@@ -143,14 +143,6 @@ DS.JSONSerializer = Ember.Object.extend({
 
   // HELPERS
 
-  typeFor: function(relationship, key, data) {
-    if (relationship.options.polymorphic) {
-      return data[key + "_type"];
-    } else {
-      return relationship.type;
-    }
-  },
-
   transformFor: function(attributeType) {
     return this.container.lookup('transform:' + attributeType);
   }

@@ -117,7 +117,7 @@ test("Only a record of the same base type can be used with a polymorphic belongs
 
 test("The store can load a polymorphic belongsTo association", function() {
   env.store.push('post', { id: 1 });
-  env.store.push('comment', { id: 2, message: 1, message_type: 'post' });
+  env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
 
   hash({ message: store.find('post', 1), comment: store.find('comment', 2) }).then(async(function(records) {
     equal(records.comment.get('message'), records.message);
@@ -130,7 +130,7 @@ test("The store can serialize a polymorphic belongsTo association", function() {
     json["message_type"] = "post";
   };
   env.store.push('post', { id: 1 });
-  env.store.push('comment', { id: 2, message: 1, message_type: 'post' });
+  env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
 
   store.find('comment', 2).then(async(function(comment) {
     var serialized = store.serialize(comment, { includeId: true });

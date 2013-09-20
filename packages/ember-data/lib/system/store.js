@@ -1387,7 +1387,7 @@ function deserializeRecordId(store, data, key, relationship, id) {
 
 function typeFor(relationship, key, data) {
   if (relationship.options.polymorphic) {
-    return data[key + "_type"];
+    return data[key + "Type"];
   } else {
     return relationship.type;
   }
