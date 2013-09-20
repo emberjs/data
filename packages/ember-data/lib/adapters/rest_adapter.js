@@ -103,6 +103,22 @@ var forEach = Ember.ArrayPolyfills.forEach;
   });
   ```
 
+  ### Validation error processing
+
+  To process validation errors that the server might return, a custom processor
+  method can be provided. If that method returns an errors object, that object
+  will be assigned to the record's `errors` property.
+
+  ```js
+  DS.RESTAdapter.reopen({
+    errorProcessor: function(jqXHR, textStatus, errorThrown) {
+      if (jqXHR.status === 422) {
+        return JSON.parse(jqXHR.responseText).errors;
+      }
+    }
+  });
+  ```
+
   @class RESTAdapter
   @constructor
   @namespace DS
@@ -439,8 +455,15 @@ DS.RESTAdapter = DS.Adapter.extend({
         if (jqXHR) {
           jqXHR.then = null;
         }
+        var invalidError;
+        if (adapter.errorProcessor !== undefined) {
+          var errors = adapter.errorProcessor.apply(adapter, [jqXHR, textStatus, errorThrown]);
+          if (errors) {
+            invalidError = new DS.InvalidError(errors);
+          }
+        }
 
-        Ember.run(null, reject, jqXHR);
+        Ember.run(null, reject, invalidError || jqXHR);
       };
 
       Ember.$.ajax(hash);
