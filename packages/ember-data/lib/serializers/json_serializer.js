@@ -151,7 +151,9 @@ DS.JSONSerializer = Ember.Object.extend({
     }
   },
 
-  transformFor: function(attributeType) {
-    return this.container.lookup('transform:' + attributeType);
+  transformFor: function(attributeType, skipAssertion) {
+    var transform = this.container.lookup('transform:' + attributeType);
+    Ember.assert("Unable to find tranform for '" + attributeType + "'", skipAssertion || !!transform);
+    return transform;
   }
 });
