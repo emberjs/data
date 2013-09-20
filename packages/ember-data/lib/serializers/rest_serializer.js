@@ -705,7 +705,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
   /**
     You can use this method to customize how polymorphic objects are serialized.
-    By default the JSON Serializer creates the key by appending `_type` to
+    By default the JSON Serializer creates the key by appending `Type` to
     the attribute and value from the model's camelcased model name.
 
     @method serializePolymorphicType
