@@ -1101,7 +1101,20 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     this._load(type, data, _partial);
 
-    return this.recordForId(type, data.id);
+    var record = this.recordForId(type, data.id), _this = this;
+
+    type.eachRelationship(function(key, relationship) {
+      if (relationship.kind === 'belongsTo') {
+        var change = DS.RelationshipChange.createChange(record, record.get(key), _this, {
+          key: key,
+          kind: 'belongsTo',
+          changeType: 'add'
+        });
+        change.sync();
+      }
+    });
+
+    return record;
   },
 
   /**
