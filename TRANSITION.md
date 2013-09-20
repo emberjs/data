@@ -180,6 +180,52 @@ App.NewPostRoute = Ember.Route.extend({
 });
 ```
 
+You also no longer need transactions to save relationships independently 
+of the model it belongs to, e.g. comments of a post.
+
+Ember Data 0.13:
+
+```js
+App.PostController = Ember.ObjectController.extend({
+  saveComment: function(){
+    var transaction = this.get('store').transaction();
+    var  comment = {
+      userId: this.get('userId'),
+      post: this.get('model'),
+      comment: this.get('comment'),
+      created_at: Date.create().format(Date.ISO8601_DATETIME)
+    };
+    if (transaction) {
+      this.set('transaction', transaction);
+      transaction.createRecord(App.Comment, comment);
+    } else {
+      console.log('store.transaction() returned null');
+    }
+
+    this.get('transaction').commit();
+    this.set('comment', '');
+  }
+});
+```
+
+Ember Data 1.0.beta.1:
+
+```js
+App.PostController = Ember.ObjectController.extend({
+  saveComment: function(){
+    var  comment = {
+      userId: this.get('userId'),
+      post: this.get('model'),
+      comment: this.get('comment'),
+      createdAt: Date.create().format(Date.ISO8601_DATETIME)
+    };
+    var comment = this.store.createRecord('comment', comment);
+    comment.save();
+    this.set('comment', '');
+  }
+});
+```
+
 If you want to batch up a bunch of records to save and save them all at
 once, you can just put them in an Array and call `.invoke('save')` when
 you're ready.
