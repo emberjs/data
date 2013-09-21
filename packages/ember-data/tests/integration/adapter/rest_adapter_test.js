@@ -512,6 +512,14 @@ test("metadata is accessible", function() {
   }));
 });
 
+test("findQuery - payload 'meta' is accessible on the record array", function() {
+  ajaxResponse({ meta: { offset: 5 }, posts: [{id: 1, name: "Rails is very expensive sushi"}] });
+
+  store.findQuery('post', { page: 2 }).then(async(function(posts) {
+    equal(posts.get('meta.offset'), 5, "Reponse metadata can be accessed with recordArray.meta");
+  }));
+});
+
 test("findQuery - returning an array populates the array", function() {
   ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }, { id: 2, name: "The Parley Letter" }] });
 
