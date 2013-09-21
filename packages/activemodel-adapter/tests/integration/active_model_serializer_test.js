@@ -41,6 +41,11 @@ module("integration/active_model - ActiveModelSerializer", {
     env.store.modelFor('doomsdayDevice');
     env.store.modelFor('popularVillain');
     env.container.register('serializer:ams', DS.ActiveModelSerializer);
+    env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend({
+      attrs: {
+        superVillains: {embedded: 'always'}
+      }
+    }));
     env.container.register('adapter:ams', DS.ActiveModelAdapter);
     env.amsSerializer = env.container.lookup("serializer:ams");
     env.amsAdapter    = env.container.lookup("adapter:ams");
@@ -142,6 +147,26 @@ test("serialize polymorphic", function() {
     name:  "DeathRay",
     evil_minion_type: "YellowMinion",
     evil_minion_id: "124"
+  });
+});
+
+test("serialize with embedded", function() {
+  league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
+  var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
+
+  var serializer = env.container.lookup("serializer:homePlanet");
+
+  var json = serializer.serialize(league);
+
+  deepEqual(json, {
+    name: "Villain League",
+    super_villains: [{
+      id: get(tom, "id"),
+      firstName: "Tom",
+      lastName: "Dale",
+      homePlanet: get(league, "id"),
+      evilMinions: []
+    }]
   });
 });
 

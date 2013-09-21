@@ -41,9 +41,26 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   },
 
   /**
-    Does not serialize hasMany relationships
+    Serialize has-may relationship when it is configured as embedded objects.
+
+    @method serializeHasMany
   */
-  serializeHasMany: Ember.K,
+  serializeHasMany: function(record, json, relationship) {
+    var key   = relationship.key,
+        attrs = get(this, 'attrs'),
+        embed = attrs && attrs[key] && attrs[key].embedded === 'always';
+
+    if (embed) {
+      json[this.keyForAttribute(key)] = get(record, key).map(function(relation) {
+        var data = relation.serialize(),
+            primaryKey = get(this, 'primaryKey');
+
+        data[primaryKey] = get(relation, primaryKey);
+
+        return data;
+      }, this);
+    }
+  },
 
   /**
     Underscores the JSON root keys when serializing.
