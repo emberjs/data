@@ -37,7 +37,6 @@ module("integration/adapter/store_adapter - DS.Store and DS.Adapter integration 
   }
 });
 
-
 test("Records loaded multiple times and retrieved in recordArray are ready to send state events", function() {
   adapter.findQuery = function(store, type, query, recordArray) {
     return Ember.RSVP.resolve([{
@@ -429,5 +428,38 @@ test("the filter method can optionally take a server query as well", function() 
   })).then(async(function(tom) {
     equal(get(loadedFilter, 'length'), 1, "The filter has an item in it");
     deepEqual(loadedFilter.toArray(), [ tom ], "The filter has a single entry in it");
+  }));
+});
+
+test("relationships returned via `commit` do not trigger additional findManys", function() {
+  Person.reopen({
+    dogs: DS.hasMany()
+  });
+
+  store.push('dog', { id: 1, name: "Scruffy" });
+
+  adapter.find = function(store, type, id) {
+    return Ember.RSVP.resolve({ id: 1, name: "Tom Dale", dogs: [1] });
+  };
+
+  adapter.updateRecord = function(store, type, record) {
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      store.push('person', { id: 1, name: "Tom Dale", dogs: [1, 2] });
+      store.push('dog', { id: 2, name: "Scruffles" });
+      resolve({ id: 1, name: "Scruffy" });
+    });
+  };
+
+  adapter.findMany = function(store, type, ids) {
+    ok(false, "Should not get here");
+  };
+
+  store.find('person', 1).then(async(function(person) {
+    return Ember.RSVP.hash({ tom: person, dog: store.find('dog', 1) });
+  })).then(async(function(records) {
+    records.tom.get('dogs');
+    return records.dog.save();
+  })).then(async(function(tom) {
+    ok(true, "Tom was saved");
   }));
 });
