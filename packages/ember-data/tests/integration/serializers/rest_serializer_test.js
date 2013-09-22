@@ -1,5 +1,5 @@
 var get = Ember.get, set = Ember.set;
-var HomePlanet, league, SuperVillain, superVillain, EvilMinion, YellowMinion, DoomsdayDevice, env;
+var HomePlanet, league, SuperVillain, superVillain, EvilMinion, YellowMinion, DoomsdayDevice, Comment, env;
 
 module("integration/serializer/rest - RESTSerializer", {
   setup: function() {
@@ -22,18 +22,25 @@ module("integration/serializer/rest - RESTSerializer", {
       name:         DS.attr('string'),
       evilMinion:   DS.belongsTo('evilMinion', {polymorphic: true})
     });
+    Comment = DS.Model.extend({
+      body: DS.attr('string'),
+      root: DS.attr('boolean'),
+      children: DS.hasMany('comment')
+    });
     env = setupStore({
       superVillain:   SuperVillain,
       homePlanet:     HomePlanet,
       evilMinion:     EvilMinion,
       yellowMinion:   YellowMinion,
-      doomsdayDevice: DoomsdayDevice
+      doomsdayDevice: DoomsdayDevice,
+      comment:        Comment
     });
     env.store.modelFor('superVillain');
     env.store.modelFor('homePlanet');
     env.store.modelFor('evilMinion');
     env.store.modelFor('yellowMinion');
     env.store.modelFor('doomsdayDevice');
+    env.store.modelFor('comment');
   },
 
   teardown: function() {
@@ -76,4 +83,28 @@ test("serialize polymorphicType", function() {
     evilMinionType: "yellowMinion",
     evilMinion: "124"
   });
+});
+
+test("extractArray can load secondary records of the same type without affecting the query count", function() {
+  var json_hash = {
+    comments: [{id: "1", body: "Parent Comment", root: true, children: [2, 3]}],
+    _comments: [
+      { id: "2", body: "Child Comment 1", root: false },
+      { id: "3", body: "Child Comment 2", root: false }
+    ]
+  };
+
+  var array = env.restSerializer.extractArray(env.store, Comment, json_hash);
+
+  deepEqual(array, [{
+    "id": "1",
+    "body": "Parent Comment",
+    "root": true,
+    "children": [2, 3]
+  }]);
+
+  equal(array.length, 1, "The query count is unaffected");
+
+  equal(env.store.recordForId("comment", "2").get("body"), "Child Comment 1", "Secondary records are in the store");
+  equal(env.store.recordForId("comment", "3").get("body"), "Child Comment 2", "Secondary records are in the store");
 });
