@@ -299,6 +299,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var relationships = get(this.constructor, 'relationshipsByName');
     this.updateRecordArraysLater();
     relationships.forEach(function(name, relationship) {
+      if (this._data.links && this._data.links[name]) { return; }
       if (relationship.kind === 'hasMany') {
         this.hasManyDidChange(relationship.key);
       }
@@ -333,6 +334,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var relationships = this._relationships;
 
     this.eachRelationship(function(name, rel) {
+      if (data.links && data.links[name]) { return; }
       if (rel.options.async) { relationships[name] = null; }
     });
 

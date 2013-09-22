@@ -463,3 +463,33 @@ test("relationships returned via `commit` do not trigger additional findManys", 
     ok(true, "Tom was saved");
   }));
 });
+
+test("relationships don't get reset if the links is the same", function() {
+  Person.reopen({
+    dogs: DS.hasMany({ async: true })
+  });
+
+  var count = 0;
+
+  adapter.findHasMany = function() {
+    ok(count++ === 0, "findHasMany is only called once");
+
+    return Ember.RSVP.resolve([{ id: 1, name: "Scruffy" }]);
+  };
+
+  store.push('person', { id: 1, name: "Tom Dale", links: { dogs: "/dogs" } });
+
+  var tom, dogs;
+
+  store.find('person', 1).then(async(function(person) {
+    tom = person;
+    dogs = tom.get('dogs');
+    return dogs;
+  })).then(async(function(dogs) {
+    equal(dogs.get('length'), 1, "The dogs are loaded");
+    store.push('person', { id: 1, name: "Tom Dale", links: { dogs: "/dogs" } });
+    return tom.get('dogs');
+  })).then(async(function(dogs) {
+    equal(dogs.get('length'), 1, "The same dogs are loaded");
+  }));
+});
