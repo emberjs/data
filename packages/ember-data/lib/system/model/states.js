@@ -446,6 +446,7 @@ var RootState = {
 
     pushedData: function(record) {
       record.transitionTo('loaded.saved');
+      record.triggerLater('didLoad');
     }
   },
 

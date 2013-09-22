@@ -303,3 +303,45 @@ test("A record can be removed from a polymorphic association", function() {
     equal(records.messages.get('length'), 0, "The user does not have any messages");
   }));
 });
+
+test("When a record is created on the client, its hasMany arrays should be in a loaded state", function() {
+  expect(3);
+
+  var post;
+
+  Ember.run(function() {
+    post = env.store.createRecord('post');
+  });
+
+  ok(get(post, 'isLoaded'), "The post should have isLoaded flag");
+
+  var comments = get(post, 'comments');
+
+  equal(get(comments, 'length'), 0, "The comments should be an empty array");
+
+  ok(get(comments, 'isLoaded'), "The comments should have isLoaded flag");
+
+});
+
+test("When a record is created on the client, its async hasMany arrays should be in a loaded state", function() {
+  expect(4);
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  var post;
+
+  Ember.run(function() {
+    post = env.store.createRecord('post');
+  });
+
+  ok(get(post, 'isLoaded'), "The post should have isLoaded flag");
+
+  get(post, 'comments').then(function(comments) {
+    ok(true, "Comments array successfully resolves");
+    equal(get(comments, 'length'), 0, "The comments should be an empty array");
+    ok(get(comments, 'isLoaded'), "The comments should have isLoaded flag");
+  });
+
+});

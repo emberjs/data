@@ -427,6 +427,11 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     or `findHasMany`. In particular, the primary array will become the
     list of records in the record array that kicked off the request.
 
+    If your primary array contains secondary (embedded) records of the same type,
+    you cannot place these into the primary array `posts`. Instead, place the
+    secondary items into an underscore prefixed property `_posts`, which will
+    push these items into the store and will not affect the resulting query.
+
     @method extractArray
     @param {DS.Store} store
     @param {subclass of DS.Model} type
@@ -442,9 +447,17 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
         primaryArray;
 
     for (var prop in payload) {
-      var typeName = this.typeForRoot(prop),
+      var typeKey = prop,
+          forcedSecondary = false;
+
+      if (prop.charAt(0) === '_') {
+        forcedSecondary = true;
+        typeKey = prop.substr(1);
+      }
+
+      var typeName = this.typeForRoot(typeKey),
           type = store.modelFor(typeName),
-          isPrimary = typeName === primaryTypeName;
+          isPrimary = (!forcedSecondary && (typeName === primaryTypeName));
 
       /*jshint loopfunc:true*/
       var normalizedArray = payload[prop].map(function(hash) {
@@ -705,7 +718,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
   /**
     You can use this method to customize how polymorphic objects are serialized.
-    By default the JSON Serializer creates the key by appending `_type` to
+    By default the JSON Serializer creates the key by appending `Type` to
     the attribute and value from the model's camelcased model name.
 
     @method serializePolymorphicType
@@ -717,6 +730,6 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     var key = relationship.key,
         belongsTo = get(record, key);
     key = this.keyForAttribute ? this.keyForAttribute(key) : key;
-    json[key + "_type"] = belongsTo.constructor.typeKey;
+    json[key + "Type"] = belongsTo.constructor.typeKey;
   }
 });

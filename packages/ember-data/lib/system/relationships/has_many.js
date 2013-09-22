@@ -9,6 +9,8 @@ var forEach = Ember.EnumerableUtils.forEach;
 
 function asyncHasMany(type, options, meta) {
   return Ember.computed(function(key, value) {
+    if (this._relationships[key]) { return this._relationships[key]; }
+
     var resolver = Ember.RSVP.defer();
 
     var relationship = buildRelationship(this, key, options, function(store, data) {
