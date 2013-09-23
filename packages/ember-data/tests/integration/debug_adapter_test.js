@@ -23,7 +23,7 @@ module("DS.DebugAdapter", {
 
     debugAdapter.reopen({
       getModelTypes: function() {
-        return [App.Post];
+        return Ember.A([App.Post]);
       }
     });
   },
