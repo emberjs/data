@@ -424,7 +424,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   reloadRecord: function(record, resolver) {
     var type = record.constructor,
         adapter = this.adapterFor(type),
-        store = this,
         id = get(record, 'id');
 
     Ember.assert("You cannot reload a record without an ID", id);
@@ -1102,7 +1101,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     Ember.assert("You must include an `id` in a hash passed to `push`", data.id != null);
 
-    var serializer = this.serializerFor(type);
     type = this.modelFor(type);
 
     // normalize relationship IDs into records
@@ -1363,14 +1361,14 @@ function normalizeRelationships(store, type, data) {
       return;
     }
 
-    var type = relationship.type,
+    var kind = relationship.kind,
         value = data[key];
 
     if (value == null) { return; }
 
-    if (relationship.kind === 'belongsTo') {
+    if (kind === 'belongsTo') {
       deserializeRecordId(store, data, key, relationship, value);
-    } else if (relationship.kind === 'hasMany') {
+    } else if (kind === 'hasMany') {
       deserializeRecordIds(store, data, key, relationship, value);
     }
   });

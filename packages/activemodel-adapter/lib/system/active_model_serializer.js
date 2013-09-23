@@ -4,7 +4,7 @@ require('ember-data/serializers/rest_serializer');
   @module ember-data
 */
 
-var get = Ember.get, isNone = Ember.isNone;
+var get = Ember.get;
 
 DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   // SERIALIZE
@@ -128,7 +128,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     @private
   */
   normalizeRelationships: function(type, hash) {
-    var payloadKey, payload, key;
+    var payloadKey, payload;
 
     if (this.keyForRelationship) {
       type.eachRelationship(function(key, relationship) {
