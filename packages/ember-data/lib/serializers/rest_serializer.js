@@ -6,6 +6,7 @@ require('ember-data/serializers/json_serializer');
 
 var get = Ember.get, set = Ember.set;
 var forEach = Ember.ArrayPolyfills.forEach;
+var map = Ember.ArrayPolyfills.map;
 
 function coerceId(id) {
   return id == null ? null : id+'';
@@ -460,7 +461,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
           isPrimary = (!forcedSecondary && (typeName === primaryTypeName));
 
       /*jshint loopfunc:true*/
-      var normalizedArray = payload[prop].map(function(hash) {
+      var normalizedArray = map.call(payload[prop], function(hash) {
         return this.normalize(type, hash, prop);
       }, this);
 
@@ -512,7 +513,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
           type = store.modelFor(typeName);
 
       /*jshint loopfunc:true*/
-      var normalizedArray = payload[prop].map(function(hash) {
+      var normalizedArray = map.call(payload[prop], function(hash) {
         return this.normalize(type, hash, prop);
       }, this);
 
