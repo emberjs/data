@@ -325,9 +325,12 @@ DS.Model.reopenClass({
         meta.key = name;
         type = meta.type;
 
-        if (!type) {
+        if (!type && meta.kind === 'hasMany') {
           type = Ember.String.singularize(name);
+        } else if (!type) {
+          type = name;
         }
+
         if (typeof type === 'string') {
           meta.type = this.store.modelFor(type);
         }

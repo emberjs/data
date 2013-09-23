@@ -139,6 +139,39 @@ test("The store can serialize a polymorphic belongsTo association", function() {
   }));
 });
 
+test("A serializer can materialize a belongsTo as a link that gets sent back to findBelongsTo", function() {
+  var Group = DS.Model.extend({
+    people: DS.hasMany()
+  });
+
+  var Person = DS.Model.extend({
+    group: DS.belongsTo({ async: true })
+  });
+
+  env.container.register('model:group', Group);
+  env.container.register('model:person', Person);
+
+  store.push('person', { id: 1, links: { group: '/people/1/group' } });
+
+  env.adapter.find = function() {
+    throw new Error("Adapter's find method should not be called");
+  };
+
+  env.adapter.findBelongsTo = async(function(store, record, link, relationship) {
+    equal(relationship.type, Group);
+    equal(relationship.key, 'group');
+    equal(link, "/people/1/group");
+
+    return Ember.RSVP.resolve({ id: 1, people: [1] });
+  });
+
+  env.store.find('person', 1).then(async(function(person) {
+    return person.get('group');
+  })).then(async(function(group) {
+    ok(true, "The group is loaded");
+  }));
+});
+
 test("TODO (embedded): The store can load an embedded polymorphic belongsTo association", function() {
   expect(0);
   //serializer.keyForEmbeddedType = function() {

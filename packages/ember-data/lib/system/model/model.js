@@ -363,6 +363,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.hasManyDidChange(name);
   },
 
+  updateBelongsTo: function(name, record) {
+    this._data[name] = record;
+  },
+
   rollback: function() {
     this._attributes = {};
 
