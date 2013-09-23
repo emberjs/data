@@ -41,11 +41,6 @@ module("integration/active_model - ActiveModelSerializer", {
     env.store.modelFor('doomsdayDevice');
     env.store.modelFor('popularVillain');
     env.container.register('serializer:ams', DS.ActiveModelSerializer);
-    env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend({
-      attrs: {
-        superVillains: {embedded: 'always'}
-      }
-    }));
     env.container.register('adapter:ams', DS.ActiveModelAdapter);
     env.amsSerializer = env.container.lookup("serializer:ams");
     env.amsAdapter    = env.container.lookup("adapter:ams");
@@ -150,10 +145,15 @@ test("serialize polymorphic", function() {
   });
 });
 
-test("serialize with embedded", function() {
+test("serialize with embedded objects", function() {
   league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
   var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
 
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend({
+    attrs: {
+      superVillains: {embedded: 'always'}
+    }
+  }));
   var serializer = env.container.lookup("serializer:homePlanet");
 
   var json = serializer.serialize(league);
