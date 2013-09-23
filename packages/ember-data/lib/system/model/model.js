@@ -4,10 +4,8 @@ require("ember-data/system/model/states");
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set, map = Ember.EnumerableUtils.map,
+var get = Ember.get, set = Ember.set,
     merge = Ember.merge, once = Ember.run.once;
-
-var arrayMap = Ember.ArrayPolyfills.map;
 
 var retrieveFromCurrentState = Ember.computed(function(key, value) {
   return get(get(this, 'currentState'), key);
@@ -310,8 +308,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var hasMany = this._relationships[key];
 
     if (hasMany) {
-      var type = get(this.constructor, 'relationshipsByName').get(key).type;
-      var store = get(this, 'store');
       var records = this._data[key] || [];
 
       set(hasMany, 'content', Ember.A(records));
@@ -425,7 +421,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @method save
   */
   save: function() {
-    var resolver = Ember.RSVP.defer(), record = this;
+    var resolver = Ember.RSVP.defer();
 
     this.get('store').scheduleSave(this, resolver);
     this._inFlightAttributes = this._attributes;

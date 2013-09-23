@@ -2,8 +2,7 @@
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set,
-    once = Ember.run.once, arrayMap = Ember.ArrayPolyfills.map;
+var get = Ember.get, set = Ember.set;
 
 /*
   WARNING: Much of these docs are inaccurate as of bf8497.
@@ -651,8 +650,6 @@ var RootState = {
     record.triggerLater('didCommit', record);
   }
 };
-
-var hasOwnProp = {}.hasOwnProperty;
 
 function wireState(object, parent, name) {
   /*jshint proto:true*/

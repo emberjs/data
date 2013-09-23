@@ -5,7 +5,6 @@ require("ember-data/system/model/model");
 */
 
 var get = Ember.get, set = Ember.set, setProperties = Ember.setProperties;
-var forEach = Ember.EnumerableUtils.forEach;
 
 function asyncHasMany(type, options, meta) {
   return Ember.computed(function(key, value) {
