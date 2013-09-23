@@ -156,7 +156,7 @@
       // otherwise, let a future turn of the event loop
       // handle the error.
       if (reason && isError(reason)) {
-        console.log(reason.stack);
+        Ember.Logger.log(reason.stack);
         throw reason;
       }
     });
