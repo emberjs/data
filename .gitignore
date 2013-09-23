@@ -15,3 +15,7 @@ tests/ember-data-tests.js
 
 docs/build/
 docs/node_modules/
+
+.rvmrc
+*.swp
+*~

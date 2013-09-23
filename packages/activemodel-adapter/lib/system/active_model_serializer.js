@@ -46,19 +46,20 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     @method serializeHasMany
   */
   serializeHasMany: function(record, json, relationship) {
-    var key   = relationship.key,
-        attrs = get(this, 'attrs'),
-        embed = attrs && attrs[key] && attrs[key].embedded === 'always';
+    var key     = relationship.key,
+        attrs   = get(this, 'attrs'),
+        embed   = attrs && attrs[key] && attrs[key].embedded === 'always',
+        ids     = attrs && attrs[key] && attrs[key].ids,
+        strategy, manyKey;
+
+    manyKey = ids ? this.keyForRelationship(key, 'hasMany') : this.keyForAttribute(key);
 
     if (embed) {
-      json[this.keyForAttribute(key)] = get(record, key).map(function(relation) {
-        var data = relation.serialize(),
-            primaryKey = get(this, 'primaryKey');
+      strategy = this.hasManySerializerStrategy(ids);
 
-        data[primaryKey] = get(relation, primaryKey);
-
-        return data;
-      }, this);
+      json[manyKey] = get(record, key).map(function(relation) {
+        return this[strategy].call(this, relation);
+      }, this).compact();
     }
   },
 
@@ -150,6 +151,45 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
         }
       }, this);
     }
-  }
+  },
+
+  /**
+    Returns the method's name to serialize each hasMany record.
+
+    @method hasManySerializerStrategy
+    @private
+  */
+  hasManySerializerStrategy: function(ids) {
+    var strategy = ids ? 'serializeHasManyIds' : 'serializeHasManyIntegral';
+    return strategy;
+  },
+
+  /**
+    Returns the value of relation's record primaryKey.
+
+    @method serializeHasManyIds
+    @private
+  */
+  serializeHasManyIds: function(relation) {
+    var primaryKey = get(this, 'primaryKey');
+
+    return get(relation, primaryKey);
+  },
+
+  /**
+    Returns the relation record serialized. Append record primaryKey to object.
+
+    @method serializeHasManyIntegral
+    @private
+  */
+  serializeHasManyIntegral: function(relation) {
+    var data = relation.serialize(),
+        primaryKey = get(this, 'primaryKey');
+
+    data[primaryKey] = get(relation, primaryKey);
+
+    return data;
+  },
+
 });
 
