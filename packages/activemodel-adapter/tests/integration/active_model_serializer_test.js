@@ -111,6 +111,38 @@ test("extractSingle", function() {
   }));
 });
 
+test("extractSingle with embedded objects", function() {
+  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend({
+    attrs: {
+      superVillains: {embedded: 'always'}
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:homePlanet");
+  var json_hash = {
+    home_planet: {
+      id: "1",
+      name: "Umber",
+      super_villains: [{
+        id: "1",
+        first_name: "Tom",
+        last_name: "Dale"
+      }]
+    }
+  };
+  var json = serializer.extractSingle(env.store, HomePlanet, json_hash);
+
+  deepEqual(json, {
+    id: "1",
+    name: "Umber",
+    superVillains: ["1"]
+  });
+  env.store.find("superVillain", 1).then(async(function(minion) {
+    equal(minion.get('firstName'), "Tom");
+  }));
+});
+
 test("extractArray", function() {
   env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
 
@@ -125,6 +157,42 @@ test("extractArray", function() {
     "id": "1",
     "name": "Umber",
     "superVillains": [1]
+  }]);
+
+  env.store.find("superVillain", 1).then(async(function(minion){
+    equal(minion.get('firstName'), "Tom");
+  }));
+});
+
+// TODO
+test("extractArray with embedded objects", function() {
+  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend({
+    attrs: {
+      superVillains: {embedded: 'always'}
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:homePlanet");
+
+  var json_hash = {
+    home_planets: [{
+      id: "1",
+      name: "Umber",
+      super_villains: [{
+        id: "1",
+        first_name: "Tom",
+        last_name: "Dale"
+      }]
+    }]
+  };
+
+  var array = serializer.extractArray(env.store, HomePlanet, json_hash);
+
+  deepEqual(array, [{
+    id: "1",
+    name: "Umber",
+    superVillains: ["1"]
   }]);
 
   env.store.find("superVillain", 1).then(async(function(minion){
