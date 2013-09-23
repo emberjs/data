@@ -36,7 +36,7 @@ DS.Model.reopen({
       {
         name: 'Attributes',
         properties: attributes,
-        expand: true,
+        expand: true
       },
       {
         name: 'Belongs To',
