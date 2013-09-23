@@ -26,7 +26,7 @@ DS.DebugAdapter = Ember.DataAdapter.extend({
 
   columnsForType: function(type) {
     var columns = [{ name: 'id', desc: 'Id' }], count = 0, self = this;
-    Ember.A(get(type, 'attributes')).forEach(function(name, meta) {
+    get(type, 'attributes').forEach(function(name, meta) {
         if (count++ > self.attributeLimit) { return false; }
         var desc = capitalize(underscore(name).replace('_', ' '));
         columns.push({ name: name, desc: desc });
