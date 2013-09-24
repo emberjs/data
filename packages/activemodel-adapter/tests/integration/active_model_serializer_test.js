@@ -1,5 +1,5 @@
 var get = Ember.get, set = Ember.set;
-var HomePlanet, league, SuperVillain, superVillain, EvilMinion, YellowMinion, DoomsdayDevice, PopularVillain, Comment, env;
+var HomePlanet, league, SuperVillain, superVillain, EvilMinion, YellowMinion, DoomsdayDevice, PopularVillain, Comment, Course, Unit, env;
 
 module("integration/active_model - ActiveModelSerializer", {
   setup: function() {
@@ -31,6 +31,14 @@ module("integration/active_model - ActiveModelSerializer", {
       root: DS.attr('boolean'),
       children: DS.hasMany('comment')
     });
+    Course = DS.Model.extend({
+      name: DS.attr('string'),
+      prerequisiteUnits: DS.hasMany('unit'),
+      units: DS.hasMany('unit')
+    });
+    Unit = DS.Model.extend({
+      name: DS.attr('string')
+    });
     env = setupStore({
       superVillain:   SuperVillain,
       homePlanet:     HomePlanet,
@@ -38,7 +46,9 @@ module("integration/active_model - ActiveModelSerializer", {
       yellowMinion:   YellowMinion,
       doomsdayDevice: DoomsdayDevice,
       popularVillain: PopularVillain,
-      comment:        Comment
+      comment:        Comment,
+      course:         Course,
+      unit:           Unit
     });
     env.store.modelFor('superVillain');
     env.store.modelFor('homePlanet');
@@ -47,6 +57,8 @@ module("integration/active_model - ActiveModelSerializer", {
     env.store.modelFor('doomsdayDevice');
     env.store.modelFor('popularVillain');
     env.store.modelFor('comment');
+    env.store.modelFor('course');
+    env.store.modelFor('unit');
     env.container.register('serializer:ams', DS.ActiveModelSerializer);
     env.container.register('adapter:ams', DS.ActiveModelAdapter);
     env.amsSerializer = env.container.lookup("serializer:ams");
@@ -188,6 +200,51 @@ test("extractSingle with embedded objects of same type", function() {
   equal(env.store.recordForId("comment", "3").get("body"), "Foo", "Secondary records found in the store");
 });
 
+test("extractSingle with embedded objects of same type, but from separate attributes", function() {
+  env.container.register('adapter:course', DS.ActiveModelAdapter);
+  env.container.register('serializer:course', DS.ActiveModelSerializer.extend({
+    attrs: {
+      prerequisiteUnits: {embedded: 'always'},
+      units: {embedded: 'always'}
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:course");
+  var json_hash = {
+    course: {
+      id: "1",
+      name: "Course 1",
+      prerequisite_units: [{
+        id: "1",
+        name: "Unit 1"
+      },{
+        id: "3",
+        name: "Unit 3"
+      }],
+      units: [{
+        id: "2",
+        name: "Unit 2"
+      },{
+        id: "4",
+        name: "Unit 4"
+      }]
+    }
+  };
+  var json = serializer.extractSingle(env.store, Course, json_hash);
+
+  deepEqual(json, {
+    id: "1",
+    name: "Course 1",
+    prerequisiteUnits: ["1", "3"],
+    units: ["2", "4"]
+  }, "Primary array was correct");
+
+  equal(env.store.recordForId("unit", "1").get("name"), "Unit 1", "Secondary records found in the store");
+  equal(env.store.recordForId("unit", "2").get("name"), "Unit 2", "Secondary records found in the store");
+  equal(env.store.recordForId("unit", "3").get("name"), "Unit 3", "Secondary records found in the store");
+  equal(env.store.recordForId("unit", "4").get("name"), "Unit 4", "Secondary records found in the store");
+});
+
 test("extractArray", function() {
   env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
 
@@ -283,6 +340,75 @@ test("extractArray with embedded objects of same type as primary type", function
 
   equal(env.store.recordForId("comment", "2").get("body"), "World", "Secondary record found in the store");
   equal(env.store.recordForId("comment", "3").get("body"), "Foo", "Secondary record found in the store");
+});
+
+test("extractArray with embedded objects of same type, but from separate attributes", function() {
+  env.container.register('adapter:course', DS.ActiveModelAdapter);
+  env.container.register('serializer:course', DS.ActiveModelSerializer.extend({
+    attrs: {
+      prerequisiteUnits: {embedded: 'always'},
+      units: {embedded: 'always'}
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:course");
+  var json_hash = {
+    courses: [{
+      id: "1",
+      name: "Course 1",
+      prerequisite_units: [{
+        id: "1",
+        name: "Unit 1"
+      },{
+        id: "3",
+        name: "Unit 3"
+      }],
+      units: [{
+        id: "2",
+        name: "Unit 2"
+      },{
+        id: "4",
+        name: "Unit 4"
+      }]
+    },{
+      id: "2",
+      name: "Course 2",
+      prerequisite_units: [{
+        id: "1",
+        name: "Unit 1"
+      },{
+        id: "3",
+        name: "Unit 3"
+      }],
+      units: [{
+        id: "5",
+        name: "Unit 5"
+      },{
+        id: "6",
+        name: "Unit 6"
+      }]
+    }]
+  };
+  var json = serializer.extractArray(env.store, Course, json_hash);
+
+  deepEqual(json, [{
+    id: "1",
+    name: "Course 1",
+    prerequisiteUnits: ["1", "3"],
+    units: ["2", "4"]
+  },{
+    id: "2",
+    name: "Course 2",
+    prerequisiteUnits: ["1", "3"],
+    units: ["5", "6"]
+  }], "Primary array was correct");
+
+  equal(env.store.recordForId("unit", "1").get("name"), "Unit 1", "Secondary records found in the store");
+  equal(env.store.recordForId("unit", "2").get("name"), "Unit 2", "Secondary records found in the store");
+  equal(env.store.recordForId("unit", "3").get("name"), "Unit 3", "Secondary records found in the store");
+  equal(env.store.recordForId("unit", "4").get("name"), "Unit 4", "Secondary records found in the store");
+  equal(env.store.recordForId("unit", "5").get("name"), "Unit 5", "Secondary records found in the store");
+  equal(env.store.recordForId("unit", "6").get("name"), "Unit 6", "Secondary records found in the store");
 });
 
 test("serialize polymorphic", function() {
