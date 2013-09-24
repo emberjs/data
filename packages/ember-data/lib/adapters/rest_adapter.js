@@ -418,6 +418,24 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   /**
+    Takes an ajax response, and returns a relavant error.
+
+    By default, it has the following behavior:
+
+    * It simply returns the ajax response.
+
+    @method ajaxError
+    @param  jqXHR
+  */
+  ajaxError: function(jqXHR) {
+    if (jqXHR) {
+      jqXHR.then = null;
+    }
+
+    return jqXHR;
+  },
+
+  /**
     Takes a URL, an HTTP method and a hash of data, and makes an
     HTTP request.
 
@@ -469,11 +487,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
-        if (jqXHR) {
-          jqXHR.then = null;
-        }
-
-        Ember.run(null, reject, jqXHR);
+        Ember.run(null, reject, adapter.ajaxError(jqXHR));
       };
 
       Ember.$.ajax(hash);
