@@ -192,7 +192,9 @@ function updatePayloadWithEmbedded(store, serializer, type, partial, payload) {
     }
 
     if (config && (config.embedded === 'always' || config.embedded === 'load')) {
-      embeddedTypeKey = Ember.String.pluralize(relationship.type.typeKey);
+      // underscore forces the embedded records to be side loaded.
+      // it is needed when main type === relationship.type
+      embeddedTypeKey = '_' + Ember.String.pluralize(relationship.type.typeKey);
       expandedKey = this.keyForRelationship(key, relationship.kind);
       attribute  = this.keyForAttribute(key);
       ids = [];

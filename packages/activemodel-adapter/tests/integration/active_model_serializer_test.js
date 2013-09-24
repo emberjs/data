@@ -1,5 +1,5 @@
 var get = Ember.get, set = Ember.set;
-var HomePlanet, league, SuperVillain, superVillain, EvilMinion, YellowMinion, DoomsdayDevice, PopularVillain, env;
+var HomePlanet, league, SuperVillain, superVillain, EvilMinion, YellowMinion, DoomsdayDevice, PopularVillain, Comment, env;
 
 module("integration/active_model - ActiveModelSerializer", {
   setup: function() {
@@ -26,13 +26,19 @@ module("integration/active_model - ActiveModelSerializer", {
       name:         DS.attr('string'),
       evilMinions:  DS.hasMany('evilMinion', {polymorphic: true})
     });
+    Comment = DS.Model.extend({
+      body: DS.attr('string'),
+      root: DS.attr('boolean'),
+      children: DS.hasMany('comment')
+    });
     env = setupStore({
       superVillain:   SuperVillain,
       homePlanet:     HomePlanet,
       evilMinion:     EvilMinion,
       yellowMinion:   YellowMinion,
       doomsdayDevice: DoomsdayDevice,
-      popularVillain: PopularVillain
+      popularVillain: PopularVillain,
+      comment:        Comment
     });
     env.store.modelFor('superVillain');
     env.store.modelFor('homePlanet');
@@ -40,6 +46,7 @@ module("integration/active_model - ActiveModelSerializer", {
     env.store.modelFor('yellowMinion');
     env.store.modelFor('doomsdayDevice');
     env.store.modelFor('popularVillain');
+    env.store.modelFor('comment');
     env.container.register('serializer:ams', DS.ActiveModelSerializer);
     env.container.register('adapter:ams', DS.ActiveModelAdapter);
     env.amsSerializer = env.container.lookup("serializer:ams");
@@ -143,6 +150,44 @@ test("extractSingle with embedded objects", function() {
   }));
 });
 
+test("extractSingle with embedded objects of same type", function() {
+  env.container.register('adapter:comment', DS.ActiveModelAdapter);
+  env.container.register('serializer:comment', DS.ActiveModelSerializer.extend({
+    attrs: {
+      children: {embedded: 'always'}
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:comment");
+  var json_hash = {
+    comment: {
+      id: "1",
+      body: "Hello",
+      root: true,
+      children: [{
+        id: "2",
+        body: "World",
+        root: false
+      },
+      {
+        id: "3",
+        body: "Foo",
+        root: false
+      }]
+    }
+  };
+  var json = serializer.extractSingle(env.store, Comment, json_hash);
+
+  deepEqual(json, {
+    id: "1",
+    body: "Hello",
+    root: true,
+    children: ["2", "3"]
+  }, "Primary record was correct");
+  equal(env.store.recordForId("comment", "2").get("body"), "World", "Secondary records found in the store");
+  equal(env.store.recordForId("comment", "3").get("body"), "Foo", "Secondary records found in the store");
+});
+
 test("extractArray", function() {
   env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
 
@@ -197,6 +242,47 @@ test("extractArray with embedded objects", function() {
   env.store.find("superVillain", 1).then(async(function(minion){
     equal(minion.get('firstName'), "Tom");
   }));
+});
+
+test("extractArray with embedded objects of same type as primary type", function() {
+  env.container.register('adapter:comment', DS.ActiveModelAdapter);
+  env.container.register('serializer:comment', DS.ActiveModelSerializer.extend({
+    attrs: {
+      children: {embedded: 'always'}
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:comment");
+
+  var json_hash = {
+    comments: [{
+      id: "1",
+      body: "Hello",
+      root: true,
+      children: [{
+        id: "2",
+        body: "World",
+        root: false
+      },
+      {
+        id: "3",
+        body: "Foo",
+        root: false
+      }]
+    }]
+  };
+
+  var array = serializer.extractArray(env.store, Comment, json_hash);
+
+  deepEqual(array, [{
+    id: "1",
+    body: "Hello",
+    root: true,
+    children: ["2", "3"]
+  }], "Primary array is correct");
+
+  equal(env.store.recordForId("comment", "2").get("body"), "World", "Secondary record found in the store");
+  equal(env.store.recordForId("comment", "3").get("body"), "Foo", "Secondary record found in the store");
 });
 
 test("serialize polymorphic", function() {
