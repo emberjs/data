@@ -29,3 +29,23 @@ function ajaxResponse(value) {
 test('buildURL - decamelizes names', function() {
   equal(adapter.buildURL('superUser', 1), "/super_users/1");
 });
+
+test('ajaxError - returns invalid error if 422 response', function() {
+  var error = new DS.InvalidError({ name: "can't be blank" });
+
+  var jqXHR = {
+    status: 422,
+    responseText: JSON.stringify({ errors: { name: "can't be blank" } })
+  };
+
+  equal(adapter.ajaxError(jqXHR), "Error: The backend rejected the commit because it was invalid: {name: can't be blank}");
+});
+
+test('ajaxError - returns ajax response if not 422 response', function() {
+  var jqXHR = {
+    status: 500,
+    responseText: "Something went wrong"
+  };
+
+  equal(adapter.ajaxError(jqXHR), jqXHR);
+});
