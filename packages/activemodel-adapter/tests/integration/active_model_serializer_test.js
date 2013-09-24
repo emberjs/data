@@ -46,6 +46,11 @@ module("integration/active_model - ActiveModelSerializer", {
         superVillains: {embedded: 'always'}
       }
     }));
+    env.container.register('serializer:homePlanetIds', DS.ActiveModelSerializer.extend({
+      attrs: {
+        superVillains: {embedded: 'always', ids: true}
+      }
+    }));
     env.container.register('adapter:ams', DS.ActiveModelAdapter);
     env.amsSerializer = env.container.lookup("serializer:ams");
     env.amsAdapter    = env.container.lookup("adapter:ams");
@@ -167,6 +172,21 @@ test("serialize with embedded", function() {
       homePlanet: get(league, "id"),
       evilMinions: []
     }]
+  });
+});
+
+test("serialize with embedded ids", function() {
+  league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
+  var tom = env.store.createRecord(SuperVillain, { id: "1", firstName: "Tom", lastName: "Dale", homePlanet: league }),
+      chisco = env.store.createRecord(SuperVillain, { firstName: "Fco", lastName: "Delgado", homePlanet: league });
+
+  var serializer = env.container.lookup("serializer:homePlanetIds");
+
+  var json = serializer.serialize(league);
+
+  deepEqual(json, {
+    name: "Villain League",
+    super_villain_ids: [get(tom, "id")]
   });
 });
 
