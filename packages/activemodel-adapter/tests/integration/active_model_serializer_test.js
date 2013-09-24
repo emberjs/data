@@ -11,7 +11,7 @@ module("integration/active_model - ActiveModelSerializer", {
     });
     HomePlanet = DS.Model.extend({
       name:          DS.attr('string'),
-      superVillains: DS.hasMany('superVillain')
+      villains:      DS.hasMany('superVillain')
     });
     EvilMinion = DS.Model.extend({
       superVillain: DS.belongsTo('superVillain'),
@@ -94,7 +94,7 @@ test("extractSingle", function() {
   env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
 
   var json_hash = {
-    home_planet:   {id: "1", name: "Umber", super_villain_ids: [1]},
+    home_planet:   {id: "1", name: "Umber", villain_ids: [1]},
     super_villains:  [{id: "1", first_name: "Tom", last_name: "Dale", home_planet_id: "1"}]
   };
 
@@ -103,7 +103,7 @@ test("extractSingle", function() {
   deepEqual(json, {
     "id": "1",
     "name": "Umber",
-    "superVillains": [1]
+    "villains": [1]
   });
 
   env.store.find("superVillain", 1).then(async(function(minion){
@@ -115,7 +115,7 @@ test("extractSingle with embedded objects", function() {
   env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
   env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend({
     attrs: {
-      superVillains: {embedded: 'always'}
+      villains: {embedded: 'always'}
     }
   }));
 
@@ -124,7 +124,7 @@ test("extractSingle with embedded objects", function() {
     home_planet: {
       id: "1",
       name: "Umber",
-      super_villains: [{
+      villains: [{
         id: "1",
         first_name: "Tom",
         last_name: "Dale"
@@ -136,7 +136,7 @@ test("extractSingle with embedded objects", function() {
   deepEqual(json, {
     id: "1",
     name: "Umber",
-    superVillains: ["1"]
+    villains: ["1"]
   });
   env.store.find("superVillain", 1).then(async(function(minion) {
     equal(minion.get('firstName'), "Tom");
@@ -147,7 +147,7 @@ test("extractArray", function() {
   env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
 
   var json_hash = {
-    home_planets: [{id: "1", name: "Umber", super_villain_ids: [1]}],
+    home_planets: [{id: "1", name: "Umber", villain_ids: [1]}],
     super_villains: [{id: "1", first_name: "Tom", last_name: "Dale", home_planet_id: "1"}]
   };
 
@@ -156,7 +156,7 @@ test("extractArray", function() {
   deepEqual(array, [{
     "id": "1",
     "name": "Umber",
-    "superVillains": [1]
+    "villains": [1]
   }]);
 
   env.store.find("superVillain", 1).then(async(function(minion){
@@ -164,12 +164,11 @@ test("extractArray", function() {
   }));
 });
 
-// TODO
 test("extractArray with embedded objects", function() {
   env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
   env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend({
     attrs: {
-      superVillains: {embedded: 'always'}
+      villains: {embedded: 'always'}
     }
   }));
 
@@ -179,7 +178,7 @@ test("extractArray with embedded objects", function() {
     home_planets: [{
       id: "1",
       name: "Umber",
-      super_villains: [{
+      villains: [{
         id: "1",
         first_name: "Tom",
         last_name: "Dale"
@@ -192,7 +191,7 @@ test("extractArray with embedded objects", function() {
   deepEqual(array, [{
     id: "1",
     name: "Umber",
-    superVillains: ["1"]
+    villains: ["1"]
   }]);
 
   env.store.find("superVillain", 1).then(async(function(minion){
@@ -219,7 +218,7 @@ test("serialize with embedded objects", function() {
 
   env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend({
     attrs: {
-      superVillains: {embedded: 'always'}
+      villains: {embedded: 'always'}
     }
   }));
   var serializer = env.container.lookup("serializer:homePlanet");
@@ -228,7 +227,7 @@ test("serialize with embedded objects", function() {
 
   deepEqual(json, {
     name: "Villain League",
-    super_villains: [{
+    villains: [{
       id: get(tom, "id"),
       firstName: "Tom",
       lastName: "Dale",

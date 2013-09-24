@@ -182,8 +182,8 @@ function updatePayloadWithEmbedded(store, serializer, type, partial, payload) {
   }
 
   type.eachRelationship(function(key, relationship) {
-    var payloadKey, attribute, ids,
-        attr = attrs[key],
+    var expandedKey, embeddedTypeKey, attribute, ids,
+        config = attrs[key],
         serializer = store.serializerFor(relationship.type.typeKey),
         primaryKey = get(serializer, "primaryKey");
 
@@ -191,8 +191,9 @@ function updatePayloadWithEmbedded(store, serializer, type, partial, payload) {
       return;
     }
 
-    if (attr && (attr.embedded === 'always' || attr.embedded === 'load')) {
-      payloadKey = this.keyForRelationship(key, relationship.kind);
+    if (config && (config.embedded === 'always' || config.embedded === 'load')) {
+      embeddedTypeKey = Ember.String.pluralize(relationship.type.typeKey);
+      expandedKey = this.keyForRelationship(key, relationship.kind);
       attribute  = this.keyForAttribute(key);
       ids = [];
 
@@ -200,14 +201,14 @@ function updatePayloadWithEmbedded(store, serializer, type, partial, payload) {
         return;
       }
 
-      payload[attribute] = payload[attribute] || [];
+      payload[embeddedTypeKey] = payload[embeddedTypeKey] || [];
 
       forEach(partial[attribute], function(data) {
         ids.push(data[primaryKey]);
-        payload[attribute].push(data);
+        payload[embeddedTypeKey].push(data);
       });
 
-      partial[payloadKey] = ids;
+      partial[expandedKey] = ids;
       delete partial[attribute];
     }
   }, serializer);
