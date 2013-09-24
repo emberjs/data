@@ -41,11 +41,6 @@ module("integration/active_model - ActiveModelSerializer", {
     env.store.modelFor('doomsdayDevice');
     env.store.modelFor('popularVillain');
     env.container.register('serializer:ams', DS.ActiveModelSerializer);
-    env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend({
-      attrs: {
-        superVillains: {embedded: 'always'}
-      }
-    }));
     env.container.register('adapter:ams', DS.ActiveModelAdapter);
     env.amsSerializer = env.container.lookup("serializer:ams");
     env.amsAdapter    = env.container.lookup("adapter:ams");
@@ -116,6 +111,38 @@ test("extractSingle", function() {
   }));
 });
 
+test("extractSingle with embedded objects", function() {
+  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend({
+    attrs: {
+      superVillains: {embedded: 'always'}
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:homePlanet");
+  var json_hash = {
+    home_planet: {
+      id: "1",
+      name: "Umber",
+      super_villains: [{
+        id: "1",
+        first_name: "Tom",
+        last_name: "Dale"
+      }]
+    }
+  };
+  var json = serializer.extractSingle(env.store, HomePlanet, json_hash);
+
+  deepEqual(json, {
+    id: "1",
+    name: "Umber",
+    superVillains: ["1"]
+  });
+  env.store.find("superVillain", 1).then(async(function(minion) {
+    equal(minion.get('firstName'), "Tom");
+  }));
+});
+
 test("extractArray", function() {
   env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
 
@@ -137,6 +164,42 @@ test("extractArray", function() {
   }));
 });
 
+// TODO
+test("extractArray with embedded objects", function() {
+  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend({
+    attrs: {
+      superVillains: {embedded: 'always'}
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:homePlanet");
+
+  var json_hash = {
+    home_planets: [{
+      id: "1",
+      name: "Umber",
+      super_villains: [{
+        id: "1",
+        first_name: "Tom",
+        last_name: "Dale"
+      }]
+    }]
+  };
+
+  var array = serializer.extractArray(env.store, HomePlanet, json_hash);
+
+  deepEqual(array, [{
+    id: "1",
+    name: "Umber",
+    superVillains: ["1"]
+  }]);
+
+  env.store.find("superVillain", 1).then(async(function(minion){
+    equal(minion.get('firstName'), "Tom");
+  }));
+});
+
 test("serialize polymorphic", function() {
   var tom = env.store.createRecord(YellowMinion,   {name: "Alex", id: "124"});
   var ray = env.store.createRecord(DoomsdayDevice, {evilMinion: tom, name: "DeathRay"});
@@ -150,10 +213,15 @@ test("serialize polymorphic", function() {
   });
 });
 
-test("serialize with embedded", function() {
+test("serialize with embedded objects", function() {
   league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
   var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
 
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend({
+    attrs: {
+      superVillains: {embedded: 'always'}
+    }
+  }));
   var serializer = env.container.lookup("serializer:homePlanet");
 
   var json = serializer.serialize(league);

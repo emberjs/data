@@ -5,6 +5,7 @@ require('ember-data/serializers/rest_serializer');
 */
 
 var get = Ember.get;
+var forEach = Ember.EnumerableUtils.forEach;
 
 DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   // SERIALIZE
@@ -150,6 +151,64 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
         }
       }, this);
     }
+  },
+
+  extractSingle: function(store, primaryType, payload, recordId, requestType) {
+    var root = this.keyForAttribute(primaryType.typeKey),
+        partial = payload[root];
+
+    updatePayloadWithEmbedded(store, this, primaryType, partial, payload);
+
+    return this._super(store, primaryType, payload, recordId, requestType);
+  },
+
+  extractArray: function(store, type, payload) {
+    var root = this.keyForAttribute(type.typeKey),
+        partials = payload[Ember.String.pluralize(root)];
+
+    forEach(partials, function(partial) {
+      updatePayloadWithEmbedded(store, this, type, partial, payload);
+    }, this);
+
+    return this._super(store, type, payload);
   }
 });
 
+function updatePayloadWithEmbedded(store, serializer, type, partial, payload) {
+  var attrs = get(serializer, 'attrs');
+
+  if (!attrs) {
+    return;
+  }
+
+  type.eachRelationship(function(key, relationship) {
+    var payloadKey, attribute, ids,
+        attr = attrs[key],
+        serializer = store.serializerFor(relationship.type.typeKey),
+        primaryKey = get(serializer, "primaryKey");
+
+    if (relationship.kind !== "hasMany") {
+      return;
+    }
+
+    if (attr && (attr.embedded === 'always' || attr.embedded === 'load')) {
+      payloadKey = this.keyForRelationship(key, relationship.kind);
+      attribute  = this.keyForAttribute(key);
+      ids = [];
+
+      if (!partial[attribute]) {
+        return;
+      }
+
+      payload[attribute] = payload[attribute] || [];
+
+      forEach(partial[attribute], function(data) {
+        ids.push(data[primaryKey]);
+        payload[attribute].push(data);
+      });
+
+      partial[payloadKey] = ids;
+      delete partial[attribute];
+    }
+  }, serializer);
+}
