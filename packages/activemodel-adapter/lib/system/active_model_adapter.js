@@ -69,5 +69,25 @@ DS.ActiveModelAdapter = DS.RESTAdapter.extend({
   pathForType: function(type) {
     var decamelized = Ember.String.decamelize(type);
     return Ember.String.pluralize(decamelized);
+  },
+
+  /**
+    The ActiveModelAdapter overrides the `ajaxError` method
+    to return a DS.InvalidError for all 422 Unprocessable Entity
+    responses.
+
+    @method ajaxError
+    @param jqXHR
+    @returns error
+  */
+  ajaxError: function(jqXHR) {
+    var error = this._super(jqXHR);
+
+    if (jqXHR && jqXHR.status === 422) {
+      var json = JSON.parse(jqXHR.responseText);
+      return new DS.InvalidError(json["errors"]);
+    } else {
+      return error;
+    }
   }
 });
