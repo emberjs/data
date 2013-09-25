@@ -1,10 +1,11 @@
 require('ember-data/adapters/rest_adapter');
-
 require('activemodel-adapter/system/active_model_serializer');
 
 /**
   @module ember-data
 */
+
+var forEach = Ember.EnumerableUtils.forEach;
 
 /**
   The ActiveModelAdapter is a subclass of the RESTAdapter designed to integrate
@@ -84,10 +85,10 @@ DS.ActiveModelAdapter = DS.RESTAdapter.extend({
     var error = this._super(jqXHR);
 
     if (jqXHR && jqXHR.status === 422) {
-      var jsonErrors = JSON.parse(jqXHR.responseText)["errors"],
+      var jsonErrors = Ember.$.parseJSON(jqXHR.responseText)["errors"],
           errors = {};
 
-      Ember.keys(jsonErrors).forEach(function(key) {
+      forEach(Ember.keys(jsonErrors), function(key) {
         errors[Ember.String.camelize(key)] = jsonErrors[key];
       });
 
