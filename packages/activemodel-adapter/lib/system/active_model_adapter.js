@@ -84,8 +84,14 @@ DS.ActiveModelAdapter = DS.RESTAdapter.extend({
     var error = this._super(jqXHR);
 
     if (jqXHR && jqXHR.status === 422) {
-      var json = JSON.parse(jqXHR.responseText);
-      return new DS.InvalidError(json["errors"]);
+      var json = JSON.parse(jqXHR.responseText),
+          errors = {};
+
+      Ember.$.each(json["errors"], function(key, value) {
+        errors[Ember.String.camelize(key)] = value;
+      });
+
+      return new DS.InvalidError(errors);
     } else {
       return error;
     }
