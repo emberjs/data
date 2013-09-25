@@ -252,6 +252,27 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     }
   },
 
+  /**
+    Gets the diff for the current model.
+
+    @method diff
+
+    @returns {Object} an object, whose keys are changed properties,
+      and value is an [oldProp, newProp] array.
+  */
+  diff: Ember.computed(function() {
+    var oldData = get(this, '_data'),
+        newData = get(this, '_attributes'),
+        diffData = {},
+        prop;
+
+    for (prop in newData) {
+      diffData[prop] = [oldData[prop], newData[prop]];
+    }
+
+    return diffData;
+  }).property().volatile(),
+
   adapterWillCommit: function() {
     this.send('willCommit');
   },
