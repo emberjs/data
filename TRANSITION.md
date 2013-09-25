@@ -925,7 +925,7 @@ For example given the polymorphic relationship:
 
 ```
 App.Comment = DS.Model.extend({
-  message: DS.belongsTo('message' {
+  message: DS.belongsTo('message', {
     polymorphic: true
   })
 });
