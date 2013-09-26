@@ -1540,7 +1540,7 @@ function _commit(adapter, store, operation, record, resolver) {
   Ember.assert("Your adapter's '" + operation + "' method must return a promise, but it returned " + promise, isThenable(promise));
 
   return promise.then(function(payload) {
-    payload = serializer.extract(store, type, payload, get(record, 'id'), operation);
+    if (payload) { payload = serializer.extract(store, type, payload, get(record, 'id'), operation); }
     store.didSaveRecord(record, payload);
     return record;
   }, function(reason) {
