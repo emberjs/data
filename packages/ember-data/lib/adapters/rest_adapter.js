@@ -247,7 +247,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns Promise
   */
   findHasMany: function(store, record, url) {
-    return this.ajax(this.urlPrefix(url), 'GET');
+    var id   = get(record, 'id'),
+        type = record.constructor.typeKey;
+
+    return this.ajax(this.urlPrefix(url, this.buildURL(type, id)), 'GET');
   },
 
   /**
@@ -280,7 +283,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns Promise
   */
   findBelongsTo: function(store, record, url) {
-    return this.ajax(this.urlPrefix(url), 'GET');
+    var id   = get(record, 'id'),
+        type = record.constructor.typeKey;
+
+    return this.ajax(this.urlPrefix(url, this.buildURL(type, id)), 'GET');
   },
 
   /**
@@ -388,13 +394,26 @@ DS.RESTAdapter = DS.Adapter.extend({
     return url;
   },
 
-  urlPrefix: function(path) {
+  urlPrefix: function(path, parentURL) {
     var host = get(this, 'host'),
         namespace = get(this, 'namespace'),
         url = [];
 
-    if (host) { url.push(host); }
-    if (namespace) { url.push(namespace); }
+    if (path) {
+      // Absolute path
+      if (path.charAt(0) === '/') {
+        if (host) {
+          path = path.slice(1);
+          url.push(host);
+        }
+      // Relative path
+      } else if (!/^http(s)?:\/\//.test(path)) {
+        url.push(parentURL);
+      }
+    } else {
+      if (host) { url.push(host); }
+      if (namespace) { url.push(namespace); }
+    }
 
     if (path) {
       url.push(path);
