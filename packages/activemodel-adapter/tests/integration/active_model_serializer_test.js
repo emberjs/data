@@ -162,20 +162,6 @@ test("extractSingle with embedded objects", function() {
   }));
 });
 
-test("extractSingle handles undefined payloads. i.e. 204 responses", function() {
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend({
-    attrs: {
-      villains: {embedded: 'always'}
-    }
-  }));
-
-  var serializer = env.container.lookup("serializer:homePlanet");
-  var json = serializer.extractSingle(env.store, HomePlanet, undefined);
-
-  equal(json, undefined);
-});
-
 test("extractSingle with embedded objects of same type", function() {
   env.container.register('adapter:comment', DS.ActiveModelAdapter);
   env.container.register('serializer:comment', DS.ActiveModelSerializer.extend({
