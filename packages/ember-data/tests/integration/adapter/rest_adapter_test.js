@@ -734,6 +734,60 @@ test('buildURL - with host and namespace', function() {
   }));
 });
 
+test('buildURL - with relative paths in links', function() {
+  adapter.setProperties({
+    host: 'http://example.com',
+    namespace: 'api/v1'
+  });
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  ajaxResponse({ posts: [{ id: 1, links: { comments: 'comments' } }] });
+
+  store.find('post', 1).then(async(function(post) {
+    ajaxResponse({ comments: [{ id: 1 }] });
+    return post.get('comments');
+  })).then(async(function (comments) {
+    equal(passedUrl, "http://example.com/api/v1/posts/1/comments");
+  }));
+});
+
+test('buildURL - with absolute paths in links', function() {
+  adapter.setProperties({
+    host: 'http://example.com',
+    namespace: 'api/v1'
+  });
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
+
+  store.find('post', 1).then(async(function(post) {
+    ajaxResponse({ comments: [{ id: 1 }] });
+    return post.get('comments');
+  })).then(async(function (comments) {
+    equal(passedUrl, "http://example.com/api/v1/posts/1/comments");
+  }));
+});
+
+test('buildURL - with full URLs in links', function() {
+  adapter.setProperties({
+    host: 'http://example.com',
+    namespace: 'api/v1'
+  });
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  ajaxResponse({ posts: [{ id: 1, links: { comments: 'http://example.com/api/v1/posts/1/comments' } }] });
+
+  store.find('post', 1).then(async(function(post) {
+    ajaxResponse({ comments: [{ id: 1 }] });
+    return post.get('comments');
+  })).then(async(function (comments) {
+    equal(passedUrl, "http://example.com/api/v1/posts/1/comments");
+  }));
+});
+
 test('buildURL - with camelized names', function() {
   adapter.setProperties({
     pathForType: function(type) {
