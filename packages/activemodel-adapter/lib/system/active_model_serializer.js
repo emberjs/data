@@ -154,10 +154,11 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   },
 
   extractSingle: function(store, primaryType, payload, recordId, requestType) {
-    var root = this.keyForAttribute(primaryType.typeKey),
-        partial = payload[root];
-
-    updatePayloadWithEmbedded(store, this, primaryType, partial, payload);
+    if (payload) {
+      var root = this.keyForAttribute(primaryType.typeKey),
+          partial = payload[root];
+          updatePayloadWithEmbedded(store, this, primaryType, partial, payload);
+    }
 
     return this._super(store, primaryType, payload, recordId, requestType);
   },
