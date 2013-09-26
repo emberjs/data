@@ -131,32 +131,12 @@
   };
 
   minispade.register('ember-data/~test-setup', function() {
-    var ERRORS = [
-      Error,
-      EvalError,
-      RangeError,
-      ReferenceError,
-      SyntaxError,
-      TypeError,
-      URIError
-    ]
-
-    function isError(error) {
-      for(var i=0, l = ERRORS.length; i < l; i++) {
-        if (error instanceof ERRORS[i]) {
-          return true;
-        }
-      }
-
-      return false;
-    }
-
     Ember.RSVP.configure('onerror', function(reason) {
       // only print error messages if they're exceptions;
       // otherwise, let a future turn of the event loop
       // handle the error.
-      if (reason && isError(reason)) {
-        Ember.Logger.log(reason.stack);
+      if (reason && reason instanceof Error) {
+        console.log(reason.stack);
         throw reason;
       }
     });
