@@ -902,7 +902,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   didSaveRecord: function(record, data) {
     if (data) {
       // normalize relationship IDs into records
-      data = normalizeRelationships(this, record.constructor, data);
+      data = normalizeRelationships(this, record.constructor, data, record);
 
       this.updateId(record, data);
     }
@@ -1353,11 +1353,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   }
 });
 
-function normalizeRelationships(store, type, data) {
+function normalizeRelationships(store, type, data, record) {
   type.eachRelationship(function(key, relationship) {
     // A link (usually a URL) was already provided in
     // normalized form
     if (data.links && data.links[key]) {
+      if (record && relationship.options.async) { record._relationships[key] = null; }
       return;
     }
 
