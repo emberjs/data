@@ -190,7 +190,7 @@ DS.Model.reopenClass({
       // it to the map.
       if (meta.isRelationship) {
         if (typeof meta.type === 'string') {
-          meta.type = Ember.get(Ember.lookup, meta.type);
+          meta.type = this.store.modelFor(meta.type);
         }
 
         var relationshipsForType = map.get(meta.type);
@@ -275,7 +275,7 @@ DS.Model.reopenClass({
         type = meta.type;
 
         if (typeof type === 'string') {
-          type = get(this, type, false) || get(Ember.lookup, type);
+          type = get(this, type, false) || this.store.modelFor(type);
         }
 
         Ember.assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.",  type);

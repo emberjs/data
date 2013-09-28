@@ -52,11 +52,7 @@ DS.belongsTo = function(type, options) {
         store = get(this, 'store'), belongsTo, typeClass;
 
     if (typeof type === 'string') {
-      if (type.indexOf(".") === -1) {
-        typeClass = store.modelFor(type);
-      } else {
-        typeClass = get(Ember.lookup, type);
-      }
+      typeClass = store.modelFor(type);
     } else {
       typeClass = type;
     }

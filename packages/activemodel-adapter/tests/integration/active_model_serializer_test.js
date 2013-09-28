@@ -443,8 +443,7 @@ test("serialize with embedded objects", function() {
       id: get(tom, "id"),
       firstName: "Tom",
       lastName: "Dale",
-      homePlanet: get(league, "id"),
-      evilMinions: []
+      homePlanet: get(league, "id")
     }]
   });
 });
