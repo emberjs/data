@@ -1,4 +1,4 @@
-var env, User, Contact, Email, Phone, Message, Post, Comment;
+var env, User, Contact, Email, Phone, Message, Post, Comment, Cart, Item;
 var get = Ember.get, set = Ember.set;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
@@ -12,7 +12,7 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     User = DS.Model.extend({
       name: attr('string'),
       messages: hasMany('message', { polymorphic: true }),
-      contacts: hasMany(),
+      contacts: hasMany()
     });
 
     Contact = DS.Model.extend({
@@ -45,6 +45,16 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     });
     Comment.toString = stringify('Comment');
 
+    Cart = Message.extend({
+      items: DS.hasMany('item')
+    });
+    Cart.toString = stringify('Cart');
+
+    Item = DS.Model.extend({
+      name: DS.attr('string')
+    });
+    Item.toString = stringify('Item');
+
     env = setupStore({
       user: User,
       contact: Contact,
@@ -52,7 +62,9 @@ module("integration/relationships/has_many - Has-Many Relationships", {
       phone: Phone,
       post: Post,
       comment: Comment,
-      message: Message
+      message: Message,
+      cart: Cart,
+      item: Item
     });
   },
 
@@ -60,6 +72,31 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     env.container.destroy();
   }
 });
+
+test("When a hasMany relationship is loading duplicate items without a belongsTo", function(){
+  Cart.reopen({
+    items: DS.hasMany('item', { async: true })
+  });
+
+  expect(2);
+
+  env.store.push('cart', { id: 1, items: [ 1, 2, 2 ]});
+
+  env.adapter.findMany = function(store, type, ids) {
+    equal(type, Item, "find type was Item");
+    equal(ids.length, 2, "Only looking for unique Ids");
+
+    return Ember.RSVP.resolve([
+      { id: 1, name: "Milk" },
+      { id: 2, name: "Cookie" }
+    ]);
+  };
+
+  env.store.find('cart', 1).then(async(function(cart) {
+    cart.get('items');
+  }));
+});
+
 
 test("When a hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function() {
   expect(0);
