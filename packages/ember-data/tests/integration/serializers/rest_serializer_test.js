@@ -108,3 +108,43 @@ test("extractArray can load secondary records of the same type without affecting
   equal(env.store.recordForId("comment", "2").get("body"), "Child Comment 1", "Secondary records are in the store");
   equal(env.store.recordForId("comment", "3").get("body"), "Child Comment 2", "Secondary records are in the store");
 });
+
+test("extractSingle loads secondary records with correct serializer", function() {
+  var superVillainNormalizeCount = 0;
+
+  env.container.register('serializer:superVillain', DS.RESTSerializer.extend({
+    normalize: function() {
+      superVillainNormalizeCount++;
+      return this._super.apply(this, arguments);
+    }
+  }));
+
+  var json_hash = {
+    evilMinion: {id: "1", name: "Tom Dale", superVillain: 1},
+    superVillains: [{id: "1", firstName: "Yehuda", lastName: "Katz", homePlanet: "1"}]
+  };
+
+  var array = env.restSerializer.extractSingle(env.store, EvilMinion, json_hash);
+
+  equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
+});
+
+test("extractArray loads secondary records with correct serializer", function() {
+  var superVillainNormalizeCount = 0;
+
+  env.container.register('serializer:superVillain', DS.RESTSerializer.extend({
+    normalize: function() {
+      superVillainNormalizeCount++;
+      return this._super.apply(this, arguments);
+    }
+  }));
+
+  var json_hash = {
+    evilMinions: [{id: "1", name: "Tom Dale", superVillain: 1}],
+    superVillains: [{id: "1", firstName: "Yehuda", lastName: "Katz", homePlanet: "1"}]
+  };
+
+  var array = env.restSerializer.extractArray(env.store, EvilMinion, json_hash);
+
+  equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
+});
