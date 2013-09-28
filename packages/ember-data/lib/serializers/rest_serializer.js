@@ -318,7 +318,11 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
       /*jshint loopfunc:true*/
       forEach.call(payload[prop], function(hash) {
-        hash = this.normalize(type, hash, prop);
+        var typeName = this.typeForRoot(prop),
+            type = store.modelFor(typeName),
+            typeSerializer = store.serializerFor(type);
+
+        hash = typeSerializer.normalize(type, hash, prop);
 
         var isFirstCreatedRecord = isPrimary && !recordId && !primaryRecord,
             isUpdatedRecord = isPrimary && coerceId(hash.id) === recordId;
@@ -458,11 +462,12 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
       var typeName = this.typeForRoot(typeKey),
           type = store.modelFor(typeName),
+          typeSerializer = store.serializerFor(type),
           isPrimary = (!forcedSecondary && (typeName === primaryTypeName));
 
       /*jshint loopfunc:true*/
       var normalizedArray = map.call(payload[prop], function(hash) {
-        return this.normalize(type, hash, prop);
+        return typeSerializer.normalize(type, hash, prop);
       }, this);
 
       if (isPrimary) {
