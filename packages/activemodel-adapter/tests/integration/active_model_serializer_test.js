@@ -59,6 +59,7 @@ module("integration/active_model - ActiveModelSerializer", {
     env.store.modelFor('comment');
     env.store.modelFor('course');
     env.store.modelFor('unit');
+    env.container.register('serializer:application', DS.ActiveModelSerializer);
     env.container.register('serializer:ams', DS.ActiveModelSerializer);
     env.container.register('adapter:ams', DS.ActiveModelAdapter);
     env.amsSerializer = env.container.lookup("serializer:ams");
@@ -117,6 +118,7 @@ test("extractSingle", function() {
     super_villains:  [{id: "1", first_name: "Tom", last_name: "Dale", home_planet_id: "1"}]
   };
 
+
   var json = env.amsSerializer.extractSingle(env.store, HomePlanet, json_hash);
 
   deepEqual(json, {
@@ -150,6 +152,7 @@ test("extractSingle with embedded objects", function() {
       }]
     }
   };
+
   var json = serializer.extractSingle(env.store, HomePlanet, json_hash);
 
   deepEqual(json, {
@@ -441,9 +444,9 @@ test("serialize with embedded objects", function() {
     name: "Villain League",
     villains: [{
       id: get(tom, "id"),
-      firstName: "Tom",
-      lastName: "Dale",
-      homePlanet: get(league, "id")
+      first_name: "Tom",
+      last_name: "Dale",
+      home_planet_id: get(league, "id")
     }]
   });
 });
