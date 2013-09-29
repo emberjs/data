@@ -32,7 +32,7 @@
 * Properly handle absolute and relative links in the `RESTAdapter`
 * Records become clean again if their properties are set back to the original values
 
-*Ember 1.0.0-beta.2 (September 04, 2013)*
+*Ember Data 1.0.0-beta.2 (September 04, 2013)*
 
 * Add support for `host` and `namespace` in the RESTAdapter
 * Always use shorthand (`post`, not `App.Post`) in models
@@ -52,7 +52,7 @@
   Floren Jaby, Gordon Hempton, Ivan Vanderbyl, Johannes Würbach, Márcio Júnior,
   Nick Ragaz, Ricardo Mendes, Ryunosuke SATO, Sylvain Mina, and ssured
 
-*Ember 1.0.0-beta.1 (September 01, 2013)*
+*Ember Data 1.0.0-beta.1 (September 01, 2013)*
 
 * Added DS.DebugAdapter which extends Ember.DataAdapter
 * Explain how to deal with embedded records
