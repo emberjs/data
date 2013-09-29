@@ -183,6 +183,27 @@ test("create - a payload with a new ID and data applies the updates (with legacy
   }));
 });
 
+test("create - findMany doesn't overwrite owner", function() {
+  ajaxResponse({ comment: { id: "1", name: "Dat Parley Letter", post: 1 } });
+
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  store.push('post', { id: 1, name: "Rails is omakase", comments: [] });
+  var post = store.getById('post', 1);
+
+  var comment = store.createRecord('comment', { name: "The Parley Letter" });
+  post.get('comments').pushObject(comment);
+
+  equal(comment.get('post'), post, "the post has been set correctly");
+
+  comment.save().then(async(function(comment) {
+    equal(comment.get('isDirty'), false, "the post isn't dirty anymore");
+    equal(comment.get('name'), "Dat Parley Letter", "the post was updated");
+    equal(comment.get('post'), post, "the post is still set");
+  }));
+});
+
 test("create - a serializer's primary key and attributes are consulted when building the payload", function() {
   env.container.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_id_',
@@ -216,6 +237,53 @@ test("create - a serializer's attributes are consulted when building the payload
 
   post.save().then(async(function(post) {
     deepEqual(passedHash.data, { post: { '_name_': "The Parley Letter" } });
+  }));
+});
+
+test("create - a record on the many side of a hasMany relationship should update relationships when data is sideloaded", function() {
+  expect(3);
+
+  ajaxResponse({
+    posts: [{
+      id: "1",
+      name: "Rails is omakase",
+      comments: [1,2]
+    }],
+    comments: [{
+      id: "1",
+      name: "Dat Parley Letter",
+      post: 1
+    },{
+      id: "2",
+      name: "Another Comment",
+      post: 1
+    }]
+    // My API is returning a comment:{} as well as a comments:[{...},...]
+    //, comment: {
+    //   id: "2",
+    //   name: "Another Comment",
+    //   post: 1
+    // }
+  });
+
+  Post.reopen({ comments: DS.hasMany('comment') });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  store.push('post', { id: 1, name: "Rails is omakase", comments: [1] });
+  store.push('comment', { id: 1, name: "Dat Parlay Letter", post: 1 });
+
+  var post = store.getById('post', 1);
+  var commentCount = post.get('comments.length');
+  equal(commentCount, 1, "the post starts life with a comment");
+
+  var comment = store.createRecord('comment', { name: "Another Comment", post: post });
+
+  comment.save().then(async(function(comment) {
+    equal(comment.get('post'), post, "the comment is related to the post");
+  }));
+
+  post.reload().then(async(function(post) {
+    equal(post.get('comments.length'), 2, "Post comment count has been updated");
   }));
 });
 
@@ -436,6 +504,22 @@ test("findAll - since token is passed to the adapter", function() {
   }));
 });
 
+test("metadata is accessible", function() {
+  ajaxResponse({ meta: { offset: 5 }, posts: [{id: 1, name: "Rails is very expensive sushi"}] });
+
+  store.findAll('post').then(async(function(posts) {
+    equal(store.metadataFor('post').offset, 5, "Metadata can be accessed with metadataFor.");
+  }));
+});
+
+test("findQuery - payload 'meta' is accessible on the record array", function() {
+  ajaxResponse({ meta: { offset: 5 }, posts: [{id: 1, name: "Rails is very expensive sushi"}] });
+
+  store.findQuery('post', { page: 2 }).then(async(function(posts) {
+    equal(posts.get('meta.offset'), 5, "Reponse metadata can be accessed with recordArray.meta");
+  }));
+});
+
 test("findQuery - returning an array populates the array", function() {
   ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }, { id: 2, name: "The Parley Letter" }] });
 
@@ -650,9 +734,63 @@ test('buildURL - with host and namespace', function() {
   }));
 });
 
+test('buildURL - with relative paths in links', function() {
+  adapter.setProperties({
+    host: 'http://example.com',
+    namespace: 'api/v1'
+  });
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  ajaxResponse({ posts: [{ id: 1, links: { comments: 'comments' } }] });
+
+  store.find('post', 1).then(async(function(post) {
+    ajaxResponse({ comments: [{ id: 1 }] });
+    return post.get('comments');
+  })).then(async(function (comments) {
+    equal(passedUrl, "http://example.com/api/v1/posts/1/comments");
+  }));
+});
+
+test('buildURL - with absolute paths in links', function() {
+  adapter.setProperties({
+    host: 'http://example.com',
+    namespace: 'api/v1'
+  });
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
+
+  store.find('post', 1).then(async(function(post) {
+    ajaxResponse({ comments: [{ id: 1 }] });
+    return post.get('comments');
+  })).then(async(function (comments) {
+    equal(passedUrl, "http://example.com/api/v1/posts/1/comments");
+  }));
+});
+
+test('buildURL - with full URLs in links', function() {
+  adapter.setProperties({
+    host: 'http://example.com',
+    namespace: 'api/v1'
+  });
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  ajaxResponse({ posts: [{ id: 1, links: { comments: 'http://example.com/api/v1/posts/1/comments' } }] });
+
+  store.find('post', 1).then(async(function(post) {
+    ajaxResponse({ comments: [{ id: 1 }] });
+    return post.get('comments');
+  })).then(async(function (comments) {
+    equal(passedUrl, "http://example.com/api/v1/posts/1/comments");
+  }));
+});
+
 test('buildURL - with camelized names', function() {
   adapter.setProperties({
-    rootForType: function(type) {
+    pathForType: function(type) {
       var decamelized = Ember.String.decamelize(type);
       return Ember.String.pluralize(decamelized);
     }

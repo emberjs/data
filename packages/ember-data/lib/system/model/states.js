@@ -2,8 +2,7 @@
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set,
-    once = Ember.run.once, arrayMap = Ember.ArrayPolyfills.map;
+var get = Ember.get, set = Ember.set;
 
 /*
   WARNING: Much of these docs are inaccurate as of bf8497.
@@ -171,10 +170,14 @@ var hasDefinedProperties = function(object) {
 };
 
 var didSetProperty = function(record, context) {
-  if (context.value !== context.oldValue) {
+  if (context.value === context.originalValue) {
+    delete record._attributes[context.name];
+    record.send('propertyWasReset', context.name);
+  } else if (context.value !== context.oldValue) {
     record.send('becomeDirty');
-    record.updateRecordArraysLater();
   }
+
+  record.updateRecordArraysLater();
 };
 
 // Implementation notes:
@@ -232,9 +235,19 @@ var DirtyState = {
   // This means that there are local pending changes, but they
   // have not yet begun to be saved, and are not invalid.
   uncommitted: {
-
     // EVENTS
     didSetProperty: didSetProperty,
+
+    propertyWasReset: function(record, name) {
+      var stillDirty = false;
+
+      for (var prop in record._attributes) {
+        stillDirty = true;
+        break;
+      }
+
+      if (!stillDirty) { record.send('rolledBack'); }
+    },
 
     pushedData: Ember.K,
 
@@ -420,6 +433,8 @@ var RootState = {
   // you out of the in-flight state.
   rolledBack: Ember.K,
 
+  propertyWasReset: Ember.K,
+
   // SUBSTATES
 
   // A record begins its lifecycle in the `empty` state.
@@ -431,7 +446,8 @@ var RootState = {
     isEmpty: true,
 
     // EVENTS
-    loadingData: function(record) {
+    loadingData: function(record, promise) {
+      record._loadingPromise = promise;
       record.transitionTo('loading');
     },
 
@@ -445,6 +461,7 @@ var RootState = {
 
     pushedData: function(record) {
       record.transitionTo('loaded.saved');
+      record.triggerLater('didLoad');
     }
   },
 
@@ -458,6 +475,10 @@ var RootState = {
     // FLAGS
     isLoading: true,
 
+    exit: function(record) {
+      record._loadingPromise = null;
+    },
+
     // EVENTS
     pushedData: function(record) {
       record.transitionTo('loaded.saved');
@@ -467,6 +488,10 @@ var RootState = {
 
     becameError: function(record) {
       record.triggerLater('becameError', record);
+    },
+
+    notFound: function(record) {
+      record.transitionTo('empty');
     }
   },
 
@@ -641,8 +666,6 @@ var RootState = {
     record.triggerLater('didCommit', record);
   }
 };
-
-var hasOwnProp = {}.hasOwnProperty;
 
 function wireState(object, parent, name) {
   /*jshint proto:true*/

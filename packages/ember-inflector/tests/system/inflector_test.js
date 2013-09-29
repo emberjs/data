@@ -1,3 +1,50 @@
+var inflector;
+module('ember-inflector.dsl', {
+  setup: function() {
+    inflector = new Ember.Inflector(/* no rulest == no rules */);
+  },
+  teardown: function() {
+    inflector = undefined;
+  }
+});
+
+test('ability to add additonal pluralization rules', function(){
+  equal(inflector.pluralize('cow'), 'cow', 'no pluralization rule');
+
+  inflector.plural(/$/, 's');
+
+  equal(inflector.pluralize('cow'), 'cows', 'pluralization rule was applied');
+});
+
+test('ability to add additonal singularization rules', function(){
+  equal(inflector.singularize('cows'), 'cows', 'no singularization rule was applied');
+
+  inflector.singular(/s$/, '');
+
+  equal(inflector.singularize('cows'), 'cow', 'singularization rule was applied');
+});
+
+test('ability to add additonal uncountable rules', function(){
+  inflector.plural(/$/, 's');
+  equal(inflector.pluralize('cow'), 'cows', 'pluralization rule was applied');
+
+  inflector.uncountable('cow');
+  equal(inflector.pluralize('cow'), 'cow', 'pluralization rule NOT was applied');
+});
+
+test('ability to add additonal irregular rules', function(){
+  inflector.singular(/s$/, '');
+  inflector.plural(/$/, 's');
+
+  equal(inflector.singularize('cows'), 'cow', 'regular singularization rule was applied');
+  equal(inflector.pluralize('cow'), 'cows', 'regular pluralization rule was applied');
+
+  inflector.irregular('cow', 'kine');
+
+  equal(inflector.singularize('kine'), 'cow', 'irregular singularization rule was applied');
+  equal(inflector.pluralize('cow'), 'kine', 'irregular pluralization rule was applied');
+});
+
 module('ember-inflector.unit');
 
 test('plurals', function() {
@@ -24,6 +71,18 @@ test('singularization',function(){
   });
 
   equal(inflector.singularize('apple'), 'apple');
+});
+
+test('singularization of irregulars', function(){
+  expect(1);
+
+  var inflector = new Ember.Inflector({
+    irregularPairs: [
+      ['person', 'people']
+    ]
+  });
+
+  equal(inflector.singularize('person'), 'person');
 });
 
 test('plural',function(){
@@ -135,8 +194,8 @@ test('inflect.irregular', function(){
 
   var rules = [];
 
-  equal(inflector.inflect('word', rules), 'wordy');
-  equal(inflector.inflect('wordy', rules), 'word');
+  equal(inflector.inflect('word', rules, inflector.rules.irregular), 'wordy');
+  equal(inflector.inflect('wordy', rules, inflector.rules.irregularInverse), 'word');
 });
 
 test('inflect.basicRules', function(){

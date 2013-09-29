@@ -56,6 +56,25 @@ test("changes to attributes made after a record is in-flight only rolls back the
   });
 });
 
+test("a record's changes can be made if it fails to save", function() {
+  env.adapter.updateRecord = function(store, type, record) {
+    return Ember.RSVP.reject();
+  };
+
+  var person = store.push('person', { id: 1, firstName: "Tom", lastName: "Dale" });
+
+  person.set('firstName', "Thomas");
+
+  person.save().then(null, async(function() {
+    equal(person.get('isError'), true);
+
+    person.rollback();
+
+    equal(person.get('firstName'), "Tom");
+    equal(person.get('isError'), false);
+  }));
+});
+
 test("new record can be rollbacked", function() {
   var person = store.createRecord('person', { id: 1 });
 

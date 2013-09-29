@@ -180,6 +180,52 @@ App.NewPostRoute = Ember.Route.extend({
 });
 ```
 
+You also no longer need transactions to save relationships independently 
+of the model it belongs to, e.g. comments of a post.
+
+Ember Data 0.13:
+
+```js
+App.PostController = Ember.ObjectController.extend({
+  saveComment: function(){
+    var transaction = this.get('store').transaction();
+    var  comment = {
+      userId: this.get('userId'),
+      post: this.get('model'),
+      comment: this.get('comment'),
+      created_at: Date.create().format(Date.ISO8601_DATETIME)
+    };
+    if (transaction) {
+      this.set('transaction', transaction);
+      transaction.createRecord(App.Comment, comment);
+    } else {
+      console.log('store.transaction() returned null');
+    }
+
+    this.get('transaction').commit();
+    this.set('comment', '');
+  }
+});
+```
+
+Ember Data 1.0.beta.1:
+
+```js
+App.PostController = Ember.ObjectController.extend({
+  saveComment: function(){
+    var  comment = {
+      userId: this.get('userId'),
+      post: this.get('model'),
+      comment: this.get('comment'),
+      createdAt: Date.create().format(Date.ISO8601_DATETIME)
+    };
+    var comment = this.store.createRecord('comment', comment);
+    comment.save();
+    this.set('comment', '');
+  }
+});
+```
+
 If you want to batch up a bunch of records to save and save them all at
 once, you can just put them in an Array and call `.invoke('save')` when
 you're ready.
@@ -309,7 +355,7 @@ Ember Data 0.13:
 App.MyAdapter = DS.Adapter.extend({
   find: function(store, type, id) {
     $.getJSON("/" + this.pluralize(type) + "/" + id, function(payload) {
-      store.load(payload);
+      store.push(payload);
     }
   }
 });
@@ -561,10 +607,10 @@ We don't need to implement `extractSingle`, because the top-level is
 already organized perfectly.
 
 ```js
-App.PostSerializer = DS.Serializer.extend({
+App.PostSerializer = DS.RESTSerializer.extend({
   // This method will be called 3 times: once for the post, and once
   // for each of the comments
-  normalize: function(type, property, hash) {
+  normalize: function(type, hash, property) {
     // property will be "post" for the post and "comments" for the
     // comments (the name in the payload)
 
@@ -578,7 +624,7 @@ App.PostSerializer = DS.Serializer.extend({
     }
 
     // delegate to any type-specific normalizations
-    return this._super(type, property, json);
+    return this._super(type, json, property);
   }
 });
 ```
@@ -605,11 +651,16 @@ you. It also expected `belongsTo` relationships to be listed under
 In the future, this logic will live in an `ActiveModelSerializer` that
 is designed to work with Rails, and which will ship with `ember-rails`.
 
+Note: DS.ActiveModelSerializer is not to be confused with the ActiveModelSerializer gem 
+that is part of Rails API project. A conventional Rails API project with produce underscored output
+and the `DS.ActiveModelSerializer` will perform the expected normalization behavior such as camelizing
+property keys in your JSON.
+
 For now, you can implement the logic yourself:
 
 ```js
 App.ApplicationSerializer = DS.RESTSerializer.extend({
-  normalize: function(type, property, hash) {
+  normalize: function(type, hash, property) {
     var normalized = {}, normalizedProp;
 
     for (var prop in hash) {
@@ -628,9 +679,118 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
       normalized[normalizedProp] = hash[prop];
     }
 
-    return this._super(type, property, normalized);
+    return this._super(type, normalized, property);
   }
 });
+```
+
+### Underscored API Endpoints
+
+In 0.13 the REST Adapter automatically generated API endpoints for multi
+word models with an underscore (`'/blog_posts'`), begining with Beta 1
+the REST Adapter will generate endpoints camelized. To go back to
+underscored endpoints you can define the `pathForType` method in your
+`ApplicationAdapter`.
+
+```js
+App.ApplicationAdapter = DS.RESTAdapter.extend({
+  pathForType: function(type) {
+    var underscored = Ember.String.underscore(type)
+    return Ember.String.pluralize(underscored);
+  }
+});
+
+```
+
+### Underscored Root Objects in JSON Responses
+
+In 0.13 the REST Adapter expected the root objects of a JSON response to
+be underscored for multi word models.
+
+```js
+{
+  "blog_posts": [{
+    "id": 1,
+    "title": "A Post"
+  }, {
+    "id": 2,
+    "title": "Another Post"
+  }]
+}
+```
+
+Beginning in Beta 1 the REST Adapter expects the root objects of a JSON
+response to be camelized.
+
+```js
+{
+  "blogPosts": [{
+    "id": 1,
+    "title": "A Post"
+  }, {
+    "id": 2,
+    "title": "Another Post"
+  }]
+}
+```
+
+If your server uses underscored root objects you can define the
+`typeForRoot` method in your `ApplicationSerializer`.
+
+```js
+App.ApplicationSerializer = DS.RESTSerializer.extend({
+  typeForRoot: function(root) {
+    var camelized = Ember.String.camelize(root);
+    return Ember.String.singularize(camelized);
+  }
+});
+```
+
+### Underscored Root Objects in JSON Requests
+
+In 0.13 the REST Adapter would send underscored versions of multi word
+model names as the root element.  Beginning in Beta 1 the REST Adapter
+sends camelized root object.
+
+If your server expects underscored root objects you can define the `serializeIntoHash`
+method in your `ApplicationSerializer`.
+
+```js
+App.ApplicationSerializer = DS.RESTSerializer.extend({
+  serializeIntoHash: function(data, type, record, options) {
+    var root = Ember.String.decamelize(type.typeKey);
+    data[root] = this.serialize(record, options);
+  }
+});
+```
+
+
+### Underscored JSON for Saving
+
+In 0.13 the REST Adapter would send underscored JSON for create/update
+requests.  Beginning in Beta 1 the REST Adapter sends camelized JSON.
+
+If your server expects underscored JSON you can define the
+`serializeAttribute` method in your `ApplicationSerializer`.
+
+```js
+App.ApplicationSerializer = DS.RESTSerializer.extend({
+  serializeAttribute: function(record, json, key, attribute) {
+    var attrs = Ember.get(this, 'attrs');
+    var value = Ember.get(record, key), type = attribute.type;
+
+    if (type) {
+      var transform = this.transformFor(type);
+      value = transform.serialize(value);
+    }
+
+    // if provided, use the mapping provided by `attrs` in
+    // the serializer
+    key = attrs && attrs[key] || Ember.String.decamelize(key);
+
+    json[key] = value;
+  }
+}
 ```
 
 ### Embedded Records
@@ -756,3 +916,76 @@ App.Comment = DS.Model.extend({
   post: DS.belongsTo("blogPost")
 });
 ```
+
+### Polymorphic relationships
+
+Polymorphic types are now serialized with a json key of the model name + "Type"
+
+For example given the polymorphic relationship:
+
+```
+App.Comment = DS.Model.extend({
+  message: DS.belongsTo('message', {
+    polymorphic: true
+  })
+});
+```
+
+Ember Data 0.13
+
+```
+{
+  "message": 12,
+  "message_type": "post"
+}
+```
+
+Ember Data 1.0.beta.3:
+
+```
+{
+  "message": 12,
+  "messageType": "post"
+}
+```
+
+You can override this behaviour by defining the `serializePolymorphicType` method
+on your serializer.
+
+```
+App.CommentSerializer = DS.RESTSerializer.extend({
+  serializePolymorphicType: function(record, json, relationship) {
+    var key = relationship.key,
+        belongsTo = get(record, key);
+    key = this.keyForAttribute ? this.keyForAttribute(key) : key;
+    json[key + "_type"] = belongsTo.constructor.typeKey;
+  }
+});
+```
+
+## Defining a Custom Serializer
+
+If you have a custom adapter you will likely need to wire up a custom
+serializer.
+
+Ember Data 0.13:
+
+```js
+DS.DjangoRESTSerializer = DS.RESTSerializer.extend();
+DS.DjangoRESTAdapter = DS.RESTAdapter.extend({
+  serializer: DS.DjangoRESTSerializer
+});
+```
+
+Ember Data 1.0.beta.1:
+
+```js
+DS.DjangoRESTSerializer = DS.RESTSerializer.extend();
+DS.DjangoRESTAdapter = DS.RESTAdapter.extend({
+  defaultSerializer: "DS/djangoREST"
+});
+```
+
+Your users will still be able to define custom serializers that extend
+your default serializer. If they do, they should make sure to subclass
+your custom serializer and not a built-in Ember Data serializer.

@@ -40,7 +40,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
 
   ### Conventional Names
 
-  Attribute names in your JSON payload should be the underscored versions of
+  Attribute names in your JSON payload should be the camelcased versions of
   the attributes in your Ember.js models.
 
   For example, if you have a `Person` model:
@@ -58,8 +58,8 @@ var forEach = Ember.ArrayPolyfills.forEach;
   ```js
   {
     "person": {
-      "first_name": "Barack",
-      "last_name": "Obama",
+      "firstName": "Barack",
+      "lastName": "Obama",
       "occupation": "President"
     }
   }
@@ -247,7 +247,46 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns Promise
   */
   findHasMany: function(store, record, url) {
-    return this.ajax(url, 'GET');
+    var id   = get(record, 'id'),
+        type = record.constructor.typeKey;
+
+    return this.ajax(this.urlPrefix(url, this.buildURL(type, id)), 'GET');
+  },
+
+  /**
+    Called by the store in order to fetch a JSON array for
+    the unloaded records in a belongs-to relationship that were originally
+    specified as a URL (inside of `links`).
+
+    For example, if your original payload looks like this:
+
+    ```js
+    {
+      "person": {
+        "id": 1,
+        "name": "Tom Dale",
+        "links": { "group": "/people/1/group" }
+      }
+    }
+    ```
+
+    This method will be called with the parent record and `/people/1/group`.
+
+    It will make an Ajax request to the originally specified URL.
+
+    @method findBelongsTo
+    @see RESTAdapter/buildURL
+    @see RESTAdapter/ajax
+    @param {DS.Store} store
+    @param {DS.Model} record
+    @param {String} url
+    @returns Promise
+  */
+  findBelongsTo: function(store, record, url) {
+    var id   = get(record, 'id'),
+        type = record.constructor.typeKey;
+
+    return this.ajax(this.urlPrefix(url, this.buildURL(type, id)), 'GET');
   },
 
   /**
@@ -270,7 +309,9 @@ DS.RESTAdapter = DS.Adapter.extend({
   */
   createRecord: function(store, type, record) {
     var data = {};
-    data[type.typeKey] = store.serializerFor(type.typeKey).serialize(record, { includeId: true });
+    var serializer = store.serializerFor(type.typeKey);
+
+    serializer.serializeIntoHash(data, type, record, { includeId: true });
 
     return this.ajax(this.buildURL(type.typeKey), "POST", { data: data });
   },
@@ -294,7 +335,9 @@ DS.RESTAdapter = DS.Adapter.extend({
   */
   updateRecord: function(store, type, record) {
     var data = {};
-    data[type.typeKey] = store.serializerFor(type.typeKey).serialize(record);
+    var serializer = store.serializerFor(type.typeKey);
+
+    serializer.serializeIntoHash(data, type, record);
 
     var id = get(record, 'id');
 
@@ -324,7 +367,10 @@ DS.RESTAdapter = DS.Adapter.extend({
   /**
     Builds a URL for a given type and optional ID.
 
-    If an ID is specified, it adds the ID to the root generated
+    By default, it pluralizes the type's name (for example,
+    'post' becomes 'posts' and 'person' becomes 'people').
+
+    If an ID is specified, it adds the ID to the path generated
     for the type, separated by a `/`.
 
     @method buildURL
@@ -333,48 +379,93 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns String
   */
   buildURL: function(type, id) {
-    var host = get(this, 'host'),
-        namespace = get(this, 'namespace'),
-        url = [];
+    var url = [],
+        host = get(this, 'host'),
+        prefix = this.urlPrefix();
 
-    if (host) { url.push(host); }
-    if (namespace) { url.push(namespace); }
-
-    url.push(this.rootForType(type));
+    if (type) { url.push(this.pathForType(type)); }
     if (id) { url.push(id); }
 
+    if (prefix) { url.unshift(prefix); }
+
     url = url.join('/');
-    if (!host) { url = '/' + url; }
+    if (!host && url) { url = '/' + url; }
 
     return url;
   },
 
+  urlPrefix: function(path, parentURL) {
+    var host = get(this, 'host'),
+        namespace = get(this, 'namespace'),
+        url = [];
+
+    if (path) {
+      // Absolute path
+      if (path.charAt(0) === '/') {
+        if (host) {
+          path = path.slice(1);
+          url.push(host);
+        }
+      // Relative path
+      } else if (!/^http(s)?:\/\//.test(path)) {
+        url.push(parentURL);
+      }
+    } else {
+      if (host) { url.push(host); }
+      if (namespace) { url.push(namespace); }
+    }
+
+    if (path) {
+      url.push(path);
+    }
+
+    return url.join('/');
+  },
+
   /**
-    Determines the pathname root for a given type.
+    Determines the pathname for a given type.
 
     By default, it pluralizes the type's name (for example,
     'post' becomes 'posts' and 'person' becomes 'people').
 
-    ### Pathname root customization
+    ### Pathname customization
 
     For example if you have an object LineItem with an
     endpoint of "/line_items/".
 
     ```js
     DS.RESTAdapter.reopen({
-      rootForType: function(type) {
+      pathForType: function(type) {
         var decamelized = Ember.String.decamelize(type);
         return Ember.String.pluralize(decamelized);
       };
     });
     ```
 
-    @method rootForType
+    @method pathForType
     @param {String} type
     @returns String
   **/
-  rootForType: function(type) {
+  pathForType: function(type) {
     return Ember.String.pluralize(type);
+  },
+
+  /**
+    Takes an ajax response, and returns a relavant error.
+
+    By default, it has the following behavior:
+
+    * It simply returns the ajax response.
+
+    @method ajaxError
+    @param  jqXHR
+  */
+  ajaxError: function(jqXHR) {
+    if (jqXHR) {
+      jqXHR.then = null;
+    }
+
+    return jqXHR;
   },
 
   /**
@@ -429,11 +520,7 @@ DS.RESTAdapter = DS.Adapter.extend({
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
-        if (jqXHR) {
-          jqXHR.then = null;
-        }
-
-        Ember.run(null, reject, jqXHR);
+        Ember.run(null, reject, adapter.ajaxError(jqXHR));
       };
 
       Ember.$.ajax(hash);

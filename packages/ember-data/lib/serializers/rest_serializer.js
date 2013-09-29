@@ -6,6 +6,7 @@ require('ember-data/serializers/json_serializer');
 
 var get = Ember.get, set = Ember.set;
 var forEach = Ember.ArrayPolyfills.forEach;
+var map = Ember.ArrayPolyfills.map;
 
 function coerceId(id) {
   return id == null ? null : id+'';
@@ -46,6 +47,10 @@ function coerceId(id) {
   You can also implement `keyForRelationship`, which takes the name
   of the relationship as the first parameter, and the kind of
   relationship (`hasMany` or `belongsTo`) as the second parameter.
+
+  @class RESTSerializer
+  @namespace DS
+  @extends DS.JSONSerializer
 */
 DS.RESTSerializer = DS.JSONSerializer.extend({
   /**
@@ -123,6 +128,31 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     }
 
     return this._super(type, hash, prop);
+  },
+
+  /**
+    You can use this method to normalize all payloads, regardless of whether they
+    represent single records or an array.
+
+    For example, you might want to remove some extraneous data from the payload:
+
+    ```js
+    App.ApplicationSerializer = DS.RESTSerializer.extend({
+      normalizePayload: function(type, payload) {
+        delete payload.version;
+        delete payload.status;
+        return payload;
+      }
+    });
+    ```
+
+    @method normalizePayload
+    @param {subclass of DS.Model} type
+    @param {Object} hash
+    @returns Object the normalized payload
+  */
+  normalizePayload: function(type, payload) {
+    return payload;
   },
 
   /**
@@ -260,6 +290,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     for the first time or updated (`createRecord` or `updateRecord`). In
     particular, it will update the properties of the record that was saved.
 
+    @method extractSingle
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
@@ -268,25 +299,33 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     @returns Object the primary response to the original request
   */
   extractSingle: function(store, primaryType, payload, recordId, requestType) {
+    payload = this.normalizePayload(primaryType, payload);
+
     var primaryTypeName = primaryType.typeKey,
         primaryRecord;
 
     for (var prop in payload) {
-      // legacy support for singular names
-      if (prop === primaryTypeName) {
+      var typeName  = this.typeForRoot(prop),
+          isPrimary = typeName === primaryTypeName;
+
+      // legacy support for singular resources
+      if (isPrimary && Ember.typeOf(payload[prop]) !== "array" ) {
         primaryRecord = this.normalize(primaryType, payload[prop], prop);
         continue;
       }
 
-      var typeName = this.singularize(prop),
-          type = store.modelFor(typeName);
+      var type = store.modelFor(typeName);
 
       /*jshint loopfunc:true*/
       forEach.call(payload[prop], function(hash) {
-        hash = this.normalize(type, hash, prop);
+        var typeName = this.typeForRoot(prop),
+            type = store.modelFor(typeName),
+            typeSerializer = store.serializerFor(type);
 
-        var isFirstCreatedRecord = typeName === primaryTypeName && !recordId && !primaryRecord,
-            isUpdatedRecord = typeName === primaryTypeName && coerceId(hash.id) === recordId;
+        hash = typeSerializer.normalize(type, hash, prop);
+
+        var isFirstCreatedRecord = isPrimary && !recordId && !primaryRecord,
+            isUpdatedRecord = isPrimary && coerceId(hash.id) === recordId;
 
         // find the primary record.
         //
@@ -393,6 +432,12 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     or `findHasMany`. In particular, the primary array will become the
     list of records in the record array that kicked off the request.
 
+    If your primary array contains secondary (embedded) records of the same type,
+    you cannot place these into the primary array `posts`. Instead, place the
+    secondary items into an underscore prefixed property `_posts`, which will
+    push these items into the store and will not affect the resulting query.
+
+    @method extractArray
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
@@ -401,17 +446,28 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
       to the original query.
   */
   extractArray: function(store, primaryType, payload) {
+    payload = this.normalizePayload(primaryType, payload);
+
     var primaryTypeName = primaryType.typeKey,
         primaryArray;
 
     for (var prop in payload) {
-      var typeName = this.singularize(prop),
+      var typeKey = prop,
+          forcedSecondary = false;
+
+      if (prop.charAt(0) === '_') {
+        forcedSecondary = true;
+        typeKey = prop.substr(1);
+      }
+
+      var typeName = this.typeForRoot(typeKey),
           type = store.modelFor(typeName),
-          isPrimary = typeName === primaryTypeName;
+          typeSerializer = store.serializerFor(type),
+          isPrimary = (!forcedSecondary && (typeName === primaryTypeName));
 
       /*jshint loopfunc:true*/
-      var normalizedArray = payload[prop].map(function(hash) {
-        return this.normalize(type, hash, prop);
+      var normalizedArray = map.call(payload[prop], function(hash) {
+        return typeSerializer.normalize(type, hash, prop);
       }, this);
 
       if (isPrimary) {
@@ -425,21 +481,73 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   },
 
   /**
-    @private
-    @method pluralize
-    @param {String} key
+    This method allows you to push a payload containing top-level
+    collections of records organized per type.
+
+    ```js
+    {
+      "posts": [{
+        "id": "1",
+        "title": "Rails is omakase",
+        "author", "1",
+        "comments": [ "1" ]
+      }],
+      "comments": [{
+        "id": "1",
+        "body": "FIRST
+      }],
+      "users": [{
+        "id": "1",
+        "name": "@d2h"
+      }]
+    }
+    ```
+
+    It will first normalize the payload, so you can use this to push
+    in data streaming in from your server structured the same way
+    that fetches and saves are structured.
+
+    @param {DS.Store} store
+    @param {Object} payload
   */
-  pluralize: function(key) {
-    return Ember.String.pluralize(key);
+  pushPayload: function(store, payload) {
+    payload = this.normalizePayload(null, payload);
+
+    for (var prop in payload) {
+      var typeName = this.typeForRoot(prop),
+          type = store.modelFor(typeName);
+
+      /*jshint loopfunc:true*/
+      var normalizedArray = map.call(payload[prop], function(hash) {
+        return this.normalize(type, hash, prop);
+      }, this);
+
+      store.pushMany(typeName, normalizedArray);
+    }
   },
 
   /**
-    @private
-    @method singularize
-    @param {String} key
+    You can use this method to normalize the JSON root keys returned
+    into the model type expected by your store.
+
+    For example, your server may return underscored root keys rather than
+    the expected camelcased versions.
+
+    ```js
+    App.ApplicationSerializer = DS.RESTSerializer.extend({
+      typeForRoot: function(root) {
+        var camelized = Ember.String.camelize(root);
+        return Ember.String.singularize(camelized);
+      }
+    });
+    ```
+
+    @method typeForRoot
+    @param {String} root
+    @returns String the model's typeKey
   */
-  singularize: function(key) {
-    return Ember.String.singularize(key);
+  typeForRoot: function(root) {
+    return Ember.String.singularize(root);
   },
 
   // SERIALIZE
@@ -581,8 +689,53 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
       }
     });
     ```
+
+    @method serialize
+    @param record
+    @param options
   */
   serialize: function(record, options) {
     return this._super.apply(this, arguments);
+  },
+
+  /**
+    You can use this method to customize the root keys serialized into the JSON.
+    By default the REST Serializer sends camelized root keys.
+    For example, your server may expect underscored root objects.
+
+    ```js
+    App.ApplicationSerializer = DS.RESTSerializer.extend({
+      serializeIntoHash: function(data, type, record, options) {
+        var root = Ember.String.decamelize(type.typeKey);
+        data[root] = this.serialize(record, options);
+      }
+    });
+    ```
+
+    @method serializeIntoHash
+    @param {Object} hash
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @param {Object} options
+  */
+  serializeIntoHash: function(hash, type, record, options) {
+    hash[type.typeKey] = this.serialize(record, options);
+  },
+
+  /**
+    You can use this method to customize how polymorphic objects are serialized.
+    By default the JSON Serializer creates the key by appending `Type` to
+    the attribute and value from the model's camelcased model name.
+
+    @method serializePolymorphicType
+    @param {DS.Model} record
+    @param {Object} json
+    @param relationship
+  */
+  serializePolymorphicType: function(record, json, relationship) {
+    var key = relationship.key,
+        belongsTo = get(record, key);
+    key = this.keyForAttribute ? this.keyForAttribute(key) : key;
+    json[key + "Type"] = belongsTo.constructor.typeKey;
   }
 });

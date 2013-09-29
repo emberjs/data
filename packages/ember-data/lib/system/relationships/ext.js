@@ -1,3 +1,5 @@
+require("ember-inflector/system");
+
 var get = Ember.get, set = Ember.set;
 
 /**
@@ -28,7 +30,7 @@ DS.Model.reopen({
     being defined. So, for example, when the user does this:
 
       DS.Model.extend({
-        parent: DS.belongsTo(App.User)
+        parent: DS.belongsTo('user')
       });
 
     This hook would be called with "parent" as the key and the computed
@@ -82,7 +84,7 @@ DS.Model.reopenClass({
     For example, if you define a model like this:
 
         App.Post = DS.Model.extend({
-          comments: DS.hasMany(App.Comment)
+          comments: DS.hasMany('comment')
         });
 
     Calling `App.Post.typeForRelationship('comments')` will return `App.Comment`.
@@ -156,9 +158,9 @@ DS.Model.reopenClass({
     For example, given the following model definition:
 
         App.Blog = DS.Model.extend({
-          users: DS.hasMany(App.User),
-          owner: DS.belongsTo(App.User),
-          posts: DS.hasMany(App.Post)
+          users: DS.hasMany('user'),
+          owner: DS.belongsTo('user'),
+          posts: DS.hasMany('post')
         });
 
     This computed property would return a map describing these
@@ -188,7 +190,7 @@ DS.Model.reopenClass({
       // it to the map.
       if (meta.isRelationship) {
         if (typeof meta.type === 'string') {
-          meta.type = Ember.get(Ember.lookup, meta.type);
+          meta.type = this.store.modelFor(meta.type);
         }
 
         var relationshipsForType = map.get(meta.type);
@@ -206,10 +208,10 @@ DS.Model.reopenClass({
     definition:
 
         App.Blog = DS.Model.extend({
-          users: DS.hasMany(App.User),
-          owner: DS.belongsTo(App.User),
+          users: DS.hasMany('user'),
+          owner: DS.belongsTo('user'),
 
-          posts: DS.hasMany(App.Post)
+          posts: DS.hasMany('post')
         });
 
     This property would contain the following:
@@ -245,9 +247,10 @@ DS.Model.reopenClass({
     For example, given a model with this definition:
 
         App.Blog = DS.Model.extend({
-          users: DS.hasMany(App.User),
-          owner: DS.belongsTo(App.User),
-          posts: DS.hasMany(App.Post)
+          users: DS.hasMany('user'),
+          owner: DS.belongsTo('user'),
+  
+          posts: DS.hasMany('post')
         });
 
     This property would contain the following:
@@ -272,7 +275,7 @@ DS.Model.reopenClass({
         type = meta.type;
 
         if (typeof type === 'string') {
-          type = get(this, type, false) || get(Ember.lookup, type);
+          type = get(this, type, false) || this.store.modelFor(type);
         }
 
         Ember.assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.",  type);
@@ -295,10 +298,10 @@ DS.Model.reopenClass({
     definition:
 
         App.Blog = DS.Model.extend({
-          users: DS.hasMany(App.User),
-          owner: DS.belongsTo(App.User),
+          users: DS.hasMany('user'),
+          owner: DS.belongsTo('user'),
 
-          posts: DS.hasMany(App.Post)
+          posts: DS.hasMany('post')
         });
 
     This property would contain the following:
@@ -322,6 +325,12 @@ DS.Model.reopenClass({
         meta.key = name;
         type = meta.type;
 
+        if (!type && meta.kind === 'hasMany') {
+          type = Ember.String.singularize(name);
+        } else if (!type) {
+          type = name;
+        }
+
         if (typeof type === 'string') {
           meta.type = this.store.modelFor(type);
         }
@@ -341,10 +350,10 @@ DS.Model.reopenClass({
     For example:
 
         App.Blog = DS.Model.extend({
-          users: DS.hasMany(App.User),
-          owner: DS.belongsTo(App.User),
+          users: DS.hasMany('user'),
+          owner: DS.belongsTo('user'),
 
-          posts: DS.hasMany(App.Post),
+          posts: DS.hasMany('post'),
 
           title: DS.attr('string')
         });

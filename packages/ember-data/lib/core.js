@@ -17,4 +17,8 @@ if ('undefined' === typeof DS) {
   if ('undefined' !== typeof window) {
     window.DS = DS;
   }
+
+  if (Ember.libraries) {
+    Ember.libraries.registerCoreLibrary('Ember Data', DS.VERSION);
+  }
 }

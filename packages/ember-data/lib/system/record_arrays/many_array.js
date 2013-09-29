@@ -21,11 +21,11 @@ var map = Ember.EnumerableUtils.map;
   defined:
 
       App.Post = DS.Model.extend({
-        comments: DS.hasMany('App.Comment')
+        comments: DS.hasMany('comment')
       });
 
       App.Comment = DS.Model.extend({
-        post: DS.belongsTo('App.Post')
+        post: DS.belongsTo('post')
       });
 
   If you created a new instance of `App.Post` and added
@@ -82,10 +82,11 @@ DS.ManyArray = DS.RecordArray.extend({
   fetch: function() {
     var records = get(this, 'content'),
         store = get(this, 'store'),
-        owner = get(this, 'owner');
+        owner = get(this, 'owner'),
+        resolver = Ember.RSVP.defer();
 
     var unloadedRecords = records.filterProperty('isEmpty', true);
-    store.fetchMany(unloadedRecords, owner);
+    store.fetchMany(unloadedRecords, owner, resolver);
   },
 
   // Overrides Ember.Array's replace method to implement
@@ -100,7 +101,7 @@ DS.ManyArray = DS.RecordArray.extend({
   },
 
   arrangedContentDidChange: function() {
-    this.fetch();
+    Ember.run.once(this, 'fetch');
   },
 
   arrayContentWillChange: function(index, removed, added) {

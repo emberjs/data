@@ -22,11 +22,13 @@ DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
   load: function(data) {
     var store = get(this, 'store'),
         type = get(this, 'type'),
-        records = store.pushMany(type, data);
+        records = store.pushMany(type, data),
+        meta = store.metadataFor(type);
 
     this.setProperties({
       content: Ember.A(records),
-      isLoaded: true
+      isLoaded: true,
+      meta: meta
     });
 
     // TODO: does triggering didLoad event should be the last action of the runLoop?

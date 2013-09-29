@@ -1,4 +1,38 @@
-*Ember 1.0.0-beta.1 (September 04, 2013)*
+*Ember Data 1.0.0-beta.3 (September 28, 2013)*
+
+* Add `normalizePayload` to `RESTAdapter` for payload normalization that is the same
+  across all requests.
+* Add `record.toJSON()`
+* Normalize relationships on payloads returned from saves.
+* Rename `rootForType` to `pathForType` in `RESTAdapter`
+* Add `serializeIntoHash` in `RESTAdapter` to enable alternate root keys
+* Print Ember Data version in the debug output when Ember boots
+* Add `typeFromRoot`
+* Allow retries of records that were not found
+* Add `pushPayload` for pushing out of band records that still go through the
+  appropriate normalization logic.
+* Add an API for registering custom pluralization rules (see
+  4df69d14ef2677977f520986070a2fdc45664008)
+* Add `unloadAll` on store
+* Infer the type of hasMany and belongsTo relationships by inflecting the key
+* Polymorphic relationship improvements
+* ActiveModel Adapter for working with Rails-like servers, not included by default
+  in the Ember Data build but available separately.
+* `store.metadataFor(type)` to get metadata provided by `findAll`.
+* `RecordArray#save`
+* `store.getById` returns null if a record isn't found
+* Fix a number of rollback-related cases
+* Fix async belongsTo
+* A number of `links`-related fixes
+* Ensure that `didLoad` fires when a record is created for the first time
+* Support primary and sideloaded data of the same type to be returned from array
+  lookups (via `posts` and `_posts`).
+* IE8 fixes
+* Add `record.changedAttributes()`
+* Properly handle absolute and relative links in the `RESTAdapter`
+* Records become clean again if their properties are set back to the original values
+
+*Ember 1.0.0-beta.2 (September 04, 2013)*
 
 * Add support for `host` and `namespace` in the RESTAdapter
 * Always use shorthand (`post`, not `App.Post`) in models
@@ -15,7 +49,7 @@
 * `store.update` to update some, but not all attributes
 * Thanks to Paul Chavard, Toran Billups, Bradley Priest, Kasper Tidemann, Yann Mainier,
   Dali Zheng, Jeremy Green, Robert Jackson, Joe Bartels, Alexandre de Oliveria,
-  Floren Jaby, Gordon Hempton, Ivan Vanderbyl, Johannel Würbach, Márcio Júnior,
+  Floren Jaby, Gordon Hempton, Ivan Vanderbyl, Johannes Würbach, Márcio Júnior,
   Nick Ragaz, Ricardo Mendes, Ryunosuke SATO, Sylvain Mina, and ssured
 
 *Ember 1.0.0-beta.1 (September 01, 2013)*

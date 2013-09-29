@@ -5,10 +5,11 @@ require("ember-data/system/model/model");
 */
 
 var get = Ember.get, set = Ember.set, setProperties = Ember.setProperties;
-var forEach = Ember.EnumerableUtils.forEach;
 
 function asyncHasMany(type, options, meta) {
   return Ember.computed(function(key, value) {
+    if (this._relationships[key]) { return this._relationships[key]; }
+
     var resolver = Ember.RSVP.defer();
 
     var relationship = buildRelationship(this, key, options, function(store, data) {
@@ -56,13 +57,16 @@ function hasRelationship(type, options) {
   return Ember.computed(function(key, value) {
     return buildRelationship(this, key, options, function(store, data) {
       var records = data[key];
-      Ember.assert("You looked up the '" + key + "' relationship on '" + this + "' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.attr({ async: true })`)", Ember.A(records).everyProperty('isEmpty', false));
+      Ember.assert("You looked up the '" + key + "' relationship on '" + this + "' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", Ember.A(records).everyProperty('isEmpty', false));
       return store.findMany(this, data[key], meta.type);
     });
   }).property('data').meta(meta);
 }
 
 DS.hasMany = function(type, options) {
-  Ember.assert("The type passed to DS.hasMany must be defined", !!type);
+  if (typeof type === 'object') {
+    options = type;
+    type = undefined;
+  }
   return hasRelationship(type, options);
 };

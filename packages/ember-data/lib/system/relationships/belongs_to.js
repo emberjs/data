@@ -8,18 +8,23 @@ var get = Ember.get, set = Ember.set,
 function asyncBelongsTo(type, options, meta) {
   return Ember.computed(function(key, value) {
     var data = get(this, 'data'),
-        store = get(this, 'store'),
-        belongsTo;
+        store = get(this, 'store');
 
     if (arguments.length === 2) {
       Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof store.modelFor(type));
       return value === undefined ? null : value;
     }
 
-    belongsTo = data[key];
+    var link = data.links && data.links[key],
+        belongsTo = data[key];
 
-    if(!isNone(belongsTo) && get(belongsTo, 'isEmpty')) {
-      return store.fetchRecord(belongsTo);
+    if(!isNone(belongsTo)) {
+      var promise = store.fetchRecord(belongsTo) || Ember.RSVP.resolve(belongsTo);
+      return DS.PromiseObject.create({promise: promise});
+    } else if (link) {
+      var resolver = Ember.RSVP.defer();
+      store.findBelongsTo(this, link, meta, resolver);
+      return DS.PromiseObject.create({ promise: resolver.promise });
     } else {
       return null;
     }
@@ -27,7 +32,12 @@ function asyncBelongsTo(type, options, meta) {
 }
 
 DS.belongsTo = function(type, options) {
-  Ember.assert("The first argument DS.belongsTo must be a model type or string, like DS.belongsTo(App.Person)", !!type && (typeof type === 'string' || DS.Model.detect(type)));
+  if (typeof type === 'object') {
+    options = type;
+    type = undefined;
+  } else {
+    Ember.assert("The first argument DS.belongsTo must be a model type or string, like DS.belongsTo(App.Person)", !!type && (typeof type === 'string' || DS.Model.detect(type)));
+  }
 
   options = options || {};
 
@@ -42,11 +52,7 @@ DS.belongsTo = function(type, options) {
         store = get(this, 'store'), belongsTo, typeClass;
 
     if (typeof type === 'string') {
-      if (type.indexOf(".") === -1) {
-        typeClass = store.modelFor(type);
-      } else {
-        typeClass = get(Ember.lookup, type);
-      }
+      typeClass = store.modelFor(type);
     } else {
       typeClass = type;
     }
@@ -60,9 +66,7 @@ DS.belongsTo = function(type, options) {
 
     if (isNone(belongsTo)) { return null; }
 
-    if (get(belongsTo, 'isEmpty')) {
-      store.fetchRecord(belongsTo);
-    }
+    store.fetchRecord(belongsTo);
 
     return belongsTo;
   }).property('data').meta(meta);
@@ -86,11 +90,12 @@ DS.Model.reopen({
   */
   belongsToWillChange: Ember.beforeObserver(function(record, key) {
     if (get(record, 'isLoaded')) {
-      var oldParent = get(record, key),
-          store = get(record, 'store');
+      var oldParent = get(record, key);
 
-      if (oldParent){
-        var change = DS.RelationshipChange.createChange(record, oldParent, store, { key: key, kind: "belongsTo", changeType: "remove" });
+      if (oldParent) {
+        var store = get(record, 'store'),
+            change = DS.RelationshipChange.createChange(record, oldParent, store, { key: key, kind: "belongsTo", changeType: "remove" });
+
         change.sync();
         this._changesToSync[key] = change;
       }
@@ -107,7 +112,8 @@ DS.Model.reopen({
   belongsToDidChange: Ember.immediateObserver(function(record, key) {
     if (get(record, 'isLoaded')) {
       var newParent = get(record, key);
-      if(newParent){
+
+      if (newParent) {
         var store = get(record, 'store'),
             change = DS.RelationshipChange.createChange(record, newParent, store, { key: key, kind: "belongsTo", changeType: "add" });
 

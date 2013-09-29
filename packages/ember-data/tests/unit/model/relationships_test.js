@@ -516,6 +516,31 @@ test("async belongsTo relationships work when the data hash has not been loaded"
   }));
 });
 
+test("async belongsTo relationships work when the data hash has already been loaded", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo('tag', { async: true })
+  });
+
+  var env = setupStore({ tag: Tag, person: Person }),
+      store = env.store;
+
+    store.push('tag', { id: 2, name: "friendly"});
+    store.push('person', { id: 1, name: "Tom Dale", tag: 2});
+
+    store.find('person', 1).then(async(function(person) {
+        equal(get(person, 'name'), "Tom Dale", "The person is now populated");
+        return get(person, 'tag');
+    })).then(async(function(tag) {
+        equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
+        equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
+  }));
+});
+
 test("calling createRecord and passing in an undefined value for a relationship should be treated as if null", function () {
   var Tag = DS.Model.extend({
     name: DS.attr('string'),

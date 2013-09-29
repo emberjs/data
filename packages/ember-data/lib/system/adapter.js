@@ -2,9 +2,8 @@
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set, merge = Ember.merge;
+var get = Ember.get, set = Ember.set;
 var map = Ember.ArrayPolyfills.map;
-var resolve = Ember.RSVP.resolve;
 
 var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
 
@@ -17,18 +16,6 @@ DS.InvalidError = function(errors) {
   }
 };
 DS.InvalidError.prototype = Ember.create(Error.prototype);
-
-function isThenable(object) {
-  return object && typeof object.then === 'function';
-}
-
-// Simple dispatcher to support overriding the aliased
-// method in subclasses.
-function aliasMethod(methodName) {
-  return function() {
-    return this[methodName].apply(this, arguments);
-  };
-}
 
 /**
   An adapter is an object that receives requests from a store and
@@ -83,8 +70,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     The `find()` method is invoked when the store is asked for a record that
     has not previously been loaded. In response to `find()` being called, you
     should query your persistence layer for a record with the given ID. Once
-    found, you can asynchronously call the store's `load()` method to load
-    the record.
+    found, you can asynchronously call the store's `push()` method to push
+    the record into the store.
 
     Here is an example `find` implementation:
 
@@ -95,8 +82,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
           jQuery.getJSON(url, function(data) {
               // data is a hash of key/value pairs. If your server returns a
               // root, simply do something like:
-              // store.load(type, id, data.person)
-              store.load(type, id, data);
+              // store.push(type, id, data.person)
+              store.push(type, id, data);
           });
         }
 
@@ -171,9 +158,9 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     method on success or `didError` method on failure.
 
     @method createRecord
-    @property {DS.Store} store
-    @property {subclass of DS.Model} type   the DS.Model class of the record
-    @property {DS.Model} record
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} record
   */
   createRecord: Ember.required(Function),
 
@@ -184,9 +171,9 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     Serializes the record update and send it to the server.
 
     @method updateRecord
-    @property {DS.Store} store
-    @property {subclass of DS.Model} type   the DS.Model class of the record
-    @property {DS.Model} record
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} record
   */
   updateRecord: Ember.required(Function),
 
@@ -197,9 +184,9 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     Sends a delete request for the record to the server.
 
     @method deleteRecord
-    @property {DS.Store} store
-    @property {subclass of DS.Model} type   the DS.Model class of the record
-    @property {DS.Model} record
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} record
   */
   deleteRecord: Ember.required(Function),
 
@@ -211,9 +198,9 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     server requests.
 
     @method findMany
-    @property {DS.Store} store
-    @property {subclass of DS.Model} type   the DS.Model class of the records
-    @property {Array}    ids
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type   the DS.Model class of the records
+    @param {Array}    ids
   */
   findMany: function(store, type, ids) {
     var promises = map.call(ids, function(id) {

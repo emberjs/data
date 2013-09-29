@@ -4,10 +4,8 @@ require("ember-data/system/model/states");
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set, map = Ember.EnumerableUtils.map,
+var get = Ember.get, set = Ember.set,
     merge = Ember.merge, once = Ember.run.once;
-
-var arrayMap = Ember.ArrayPolyfills.map;
 
 var retrieveFromCurrentState = Ember.computed(function(key, value) {
   return get(get(this, 'currentState'), key);
@@ -72,7 +70,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @returns {Object} A JSON representation of the object.
   */
   toJSON: function(options) {
-    var serializer = DS.JSONSerializer.create();
+    // container is for lazy transform lookups
+    var serializer = DS.JSONSerializer.create({ container: this.container });
     return serializer.serialize(this, options);
   },
 
@@ -209,12 +208,16 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     if (transaction) { fn(transaction); }
   },
 
-  loadingData: function() {
-    this.send('loadingData');
+  loadingData: function(promise) {
+    this.send('loadingData', promise);
   },
 
   loadedData: function() {
     this.send('loadedData');
+  },
+
+  notFound: function() {
+    this.send('notFound');
   },
 
   pushedData: function() {
@@ -247,6 +250,27 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     if (store) {
       store.dataWasUpdated(this.constructor, this);
     }
+  },
+
+  /**
+    Gets the diff for the current model.
+
+    @method changedAttributes
+
+    @returns {Object} an object, whose keys are changed properties,
+      and value is an [oldProp, newProp] array.
+  */
+  changedAttributes: function() {
+    var oldData = get(this, '_data'),
+        newData = get(this, '_attributes'),
+        diffData = {},
+        prop;
+
+    for (prop in newData) {
+      diffData[prop] = [oldData[prop], newData[prop]];
+    }
+
+    return diffData;
   },
 
   adapterWillCommit: function() {
@@ -294,6 +318,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var relationships = get(this.constructor, 'relationshipsByName');
     this.updateRecordArraysLater();
     relationships.forEach(function(name, relationship) {
+      if (this._data.links && this._data.links[name]) { return; }
       if (relationship.kind === 'hasMany') {
         this.hasManyDidChange(relationship.key);
       }
@@ -304,8 +329,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var hasMany = this._relationships[key];
 
     if (hasMany) {
-      var type = get(this.constructor, 'relationshipsByName').get(key).type;
-      var store = get(this, 'store');
       var records = this._data[key] || [];
 
       set(hasMany, 'content', Ember.A(records));
@@ -328,6 +351,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var relationships = this._relationships;
 
     this.eachRelationship(function(name, rel) {
+      if (data.links && data.links[name]) { return; }
       if (rel.options.async) { relationships[name] = null; }
     });
 
@@ -356,8 +380,18 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.hasManyDidChange(name);
   },
 
+  updateBelongsTo: function(name, record) {
+    this._data[name] = record;
+  },
+
   rollback: function() {
     this._attributes = {};
+
+    if (get(this, 'isError')) {
+      this._inFlightAttributes = {};
+      set(this, 'isError', false);
+    }
+
     this.send('rolledBack');
 
     this.suspendRelationshipObservers(function() {
@@ -408,7 +442,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @method save
   */
   save: function() {
-    var resolver = Ember.RSVP.defer(), record = this;
+    var resolver = Ember.RSVP.defer();
 
     this.get('store').scheduleSave(this, resolver);
     this._inFlightAttributes = this._attributes;

@@ -1,4 +1,4 @@
-var env, User, Message, Post, Comment;
+var env, User, Contact, Email, Phone, Message, Post, Comment;
 var get = Ember.get, set = Ember.set;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
@@ -12,6 +12,19 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     User = DS.Model.extend({
       name: attr('string'),
       messages: hasMany('message', { polymorphic: true }),
+      contacts: hasMany(),
+    });
+
+    Contact = DS.Model.extend({
+      user: belongsTo('user')
+    });
+
+    Email = Contact.extend({
+      email: attr('string')
+    });
+
+    Phone = Contact.extend({
+      number: attr('string')
     });
 
     Message = DS.Model.extend({
@@ -34,6 +47,9 @@ module("integration/relationships/has_many - Has-Many Relationships", {
 
     env = setupStore({
       user: User,
+      contact: Contact,
+      email: Email,
+      phone: Phone,
       post: Post,
       comment: Comment,
       message: Message
@@ -101,6 +117,35 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
   }));
 });
 
+test("An updated `links` value should invalidate a relationship cache", function() {
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.createRecord = function(store, type, record) {
+    var data = record.serialize();
+    return Ember.RSVP.resolve({ id: 1, links: { comments: "/posts/1/comments" } });
+  };
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    equal(relationship.type, Comment, "findHasMany relationship type was Comment");
+    equal(relationship.key, 'comments', "findHasMany relationship key was comments");
+    equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
+
+    return Ember.RSVP.resolve([
+      { id: 1, body: "First" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+
+  env.store.createRecord('post', {}).save().then(async(function(post) {
+    return post.get('comments');
+  })).then(async(function(comments) {
+    equal(comments.get('isLoaded'), true, "comments are loaded");
+    equal(comments.get('length'), 2, "comments have 2 length");
+  }));
+});
+
 test("When a polymorphic hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function() {
   expect(1);
 
@@ -137,6 +182,48 @@ test("When a polymorphic hasMany relationship is accessed, the store can call mu
     return user.get('messages');
   })).then(async(function(messages) {
     equal(messages.get('length'), 2, "The messages are correctly loaded");
+  }));
+});
+
+test("Type can be inferred from the key of a hasMany relationship", function() {
+  expect(1);
+  env.store.push('user', { id: 1, contacts: [ 1 ] });
+  env.store.push('contact', { id: 1 });
+  env.store.find('user', 1).then(async(function(user) {
+    return user.get('contacts');
+  })).then(async(function(contacts) {
+    equal(contacts.get('length'), 1, "The contacts relationship is correctly set up");
+  }));
+});
+
+test("Type can be inferred from the key of an async hasMany relationship", function() {
+  User.reopen({
+    contacts: DS.hasMany({ async: true })
+  });
+
+  expect(1);
+  env.store.push('user', { id: 1, contacts: [ 1 ] });
+  env.store.push('contact', { id: 1 });
+  env.store.find('user', 1).then(async(function(user) {
+    return user.get('contacts');
+  })).then(async(function(contacts) {
+    equal(contacts.get('length'), 1, "The contacts relationship is correctly set up");
+  }));
+});
+
+test("Polymorphic relationships work with a hasMany whose type is inferred", function() {
+  User.reopen({
+    contacts: DS.hasMany({ polymorphic: true })
+  });
+
+  expect(1);
+  env.store.push('user', { id: 1, contacts: [ { id: 1, type: 'email' }, { id: 2, type: 'phone' } ] });
+  env.store.push('email', { id: 1 });
+  env.store.push('phone', { id: 2 });
+  env.store.find('user', 1).then(async(function(user) {
+    return user.get('contacts');
+  })).then(async(function(contacts) {
+    equal(contacts.get('length'), 2, "The contacts relationship is correctly set up");
   }));
 });
 
@@ -215,4 +302,46 @@ test("A record can be removed from a polymorphic association", function() {
     equal(removedObject, records.comment, "The message is correctly removed");
     equal(records.messages.get('length'), 0, "The user does not have any messages");
   }));
+});
+
+test("When a record is created on the client, its hasMany arrays should be in a loaded state", function() {
+  expect(3);
+
+  var post;
+
+  Ember.run(function() {
+    post = env.store.createRecord('post');
+  });
+
+  ok(get(post, 'isLoaded'), "The post should have isLoaded flag");
+
+  var comments = get(post, 'comments');
+
+  equal(get(comments, 'length'), 0, "The comments should be an empty array");
+
+  ok(get(comments, 'isLoaded'), "The comments should have isLoaded flag");
+
+});
+
+test("When a record is created on the client, its async hasMany arrays should be in a loaded state", function() {
+  expect(4);
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  var post;
+
+  Ember.run(function() {
+    post = env.store.createRecord('post');
+  });
+
+  ok(get(post, 'isLoaded'), "The post should have isLoaded flag");
+
+  get(post, 'comments').then(function(comments) {
+    ok(true, "Comments array successfully resolves");
+    equal(get(comments, 'length'), 0, "The comments should be an empty array");
+    ok(get(comments, 'isLoaded'), "The comments should have isLoaded flag");
+  });
+
 });

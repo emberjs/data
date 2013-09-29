@@ -117,7 +117,7 @@ test("Only a record of the same base type can be used with a polymorphic belongs
 
 test("The store can load a polymorphic belongsTo association", function() {
   env.store.push('post', { id: 1 });
-  env.store.push('comment', { id: 2, message: 1, message_type: 'post' });
+  env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
 
   hash({ message: store.find('post', 1), comment: store.find('comment', 2) }).then(async(function(records) {
     equal(records.comment.get('message'), records.message);
@@ -125,13 +125,50 @@ test("The store can load a polymorphic belongsTo association", function() {
 });
 
 test("The store can serialize a polymorphic belongsTo association", function() {
+  env.serializer.serializePolymorphicType = function(record, json, relationship) {
+    ok(true, "The serializer's serializePolymorphicType method should be called");
+    json["message_type"] = "post";
+  };
   env.store.push('post', { id: 1 });
-  env.store.push('comment', { id: 2, message: 1, message_type: 'post' });
+  env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
 
   store.find('comment', 2).then(async(function(comment) {
     var serialized = store.serialize(comment, { includeId: true });
     equal(serialized['message'], 1);
     equal(serialized['message_type'], 'post');
+  }));
+});
+
+test("A serializer can materialize a belongsTo as a link that gets sent back to findBelongsTo", function() {
+  var Group = DS.Model.extend({
+    people: DS.hasMany()
+  });
+
+  var Person = DS.Model.extend({
+    group: DS.belongsTo({ async: true })
+  });
+
+  env.container.register('model:group', Group);
+  env.container.register('model:person', Person);
+
+  store.push('person', { id: 1, links: { group: '/people/1/group' } });
+
+  env.adapter.find = function() {
+    throw new Error("Adapter's find method should not be called");
+  };
+
+  env.adapter.findBelongsTo = async(function(store, record, link, relationship) {
+    equal(relationship.type, Group);
+    equal(relationship.key, 'group');
+    equal(link, "/people/1/group");
+
+    return Ember.RSVP.resolve({ id: 1, people: [1] });
+  });
+
+  env.store.find('person', 1).then(async(function(person) {
+    return person.get('group');
+  })).then(async(function(group) {
+    ok(true, "The group is loaded");
   }));
 });
 

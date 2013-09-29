@@ -30,8 +30,6 @@ DS.JSONSerializer = Ember.Object.extend({
   // SERIALIZE
 
   serialize: function(record, options) {
-    var store = get(this, 'store');
-
     var json = {};
 
     if (options && options.includeId) {
@@ -68,7 +66,7 @@ DS.JSONSerializer = Ember.Object.extend({
 
     // if provided, use the mapping provided by `attrs` in
     // the serializer
-    key = attrs && attrs[key] || key;
+    key = attrs && attrs[key] || (this.keyForAttribute ? this.keyForAttribute(key) : key);
 
     json[key] = value;
   },
@@ -78,12 +76,16 @@ DS.JSONSerializer = Ember.Object.extend({
 
     var belongsTo = get(record, key);
 
-    if (isNone(belongsTo)) { return; }
+    key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo") : key;
 
-    json[key] = get(belongsTo, 'id');
+    if (isNone(belongsTo)) {
+      json[key] = belongsTo;
+    } else {
+      json[key] = get(belongsTo, 'id');
+    }
 
     if (relationship.options.polymorphic) {
-      json[key + "_type"] = belongsTo.constructor.typeKey;
+      this.serializePolymorphicType(record, json, relationship);
     }
   },
 
@@ -97,6 +99,11 @@ DS.JSONSerializer = Ember.Object.extend({
       // TODO support for polymorphic manyToNone and manyToMany relationships
     }
   },
+
+  /**
+    You can use this method to customize how polymorphic objects are serialized.
+  */
+  serializePolymorphicType: Ember.K,
 
   // EXTRACT
 
@@ -117,6 +124,7 @@ DS.JSONSerializer = Ember.Object.extend({
   extractDeleteRecord: aliasMethod('extractSave'),
 
   extractFind: aliasMethod('extractSingle'),
+  extractFindBelongsTo: aliasMethod('extractSingle'),
   extractSave: aliasMethod('extractSingle'),
 
   extractSingle: function(store, type, payload) {
@@ -135,14 +143,6 @@ DS.JSONSerializer = Ember.Object.extend({
   },
 
   // HELPERS
-
-  typeFor: function(relationship, key, data) {
-    if (relationship.options.polymorphic) {
-      return data[key + "_type"];
-    } else {
-      return relationship.type;
-    }
-  },
 
   transformFor: function(attributeType) {
     return this.container.lookup('transform:' + attributeType);

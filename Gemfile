@@ -5,6 +5,5 @@ gem 'ember-dev', :git => 'https://github.com/emberjs/ember-dev.git', :branch => 
 
 gem 'ember-source', '~> 1.0'
 gem 'puma'
-gem 'thin'
 
 gemspec

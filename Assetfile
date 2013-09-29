@@ -1,6 +1,6 @@
 require 'ember-dev'
 distros = {
-  :full    => %w(ember-data ember-inflector)
+  :full    => %w(ember-data ember-inflector activemodel-adapter)
 }
 
 #MEGAHAX
@@ -20,10 +20,13 @@ distros.each do |name, modules|
 
     match "#{name}.js" do
       filter VersionInfo
+      filter EmberLicenseFilter
     end
 
     # Strip dev code
     match "#{name}.prod.js" do
+      filter VersionInfo
+      filter EmberLicenseFilter
       filter(EmberStripDebugMessagesFilter) { ["#{name}.prod.js", "min/#{name}.js"] }
     end
 

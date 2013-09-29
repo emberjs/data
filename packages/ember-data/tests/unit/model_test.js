@@ -35,6 +35,17 @@ test("setting a property on a record that has not changed does not cause it to b
   }));
 });
 
+test("resetting a property on a record cause it to become clean again", function() {
+  store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
+  store.find(Person, 1).then(async(function(person) {
+    equal(person.get('isDirty'), false, "precond - person record should not be dirty");
+    person.set('isDrugAddict', false);
+    equal(person.get('isDirty'), true, "record becomes dirty after setting property to a new value");
+    person.set('isDrugAddict', true);
+    equal(person.get('isDirty'), false, "record becomes clean after resetting property to the old value");
+  }));
+});
+
 test("a record reports its unique id via the `id` property", function() {
   store.push(Person, { id: 1 });
 
@@ -372,4 +383,14 @@ test("ensure model exits loading state, materializes data and fulfills promise o
     equal(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
     equal(get(person, 'isLoaded'), true, 'model is loaded');
   }));
+});
+
+test("A DS.Model can be JSONified", function() {
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var store = createStore({ person: Person });
+  var record = store.createRecord('person', { name: "TomHuda" });
+  deepEqual(record.toJSON(), { name: "TomHuda" });
 });
