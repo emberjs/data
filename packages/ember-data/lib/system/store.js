@@ -1501,6 +1501,7 @@ function _findBelongsTo(adapter, store, record, link, relationship, resolver) {
 
     var record = store.push(relationship.type, payload);
     record.updateBelongsTo(relationship.key, record);
+    return record;
   }).then(resolver.resolve, resolver.reject);
 }
 
