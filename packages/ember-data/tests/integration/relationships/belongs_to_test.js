@@ -168,7 +168,8 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
   env.store.find('person', 1).then(async(function(person) {
     return person.get('group');
   })).then(async(function(group) {
-    ok(true, "The group is loaded");
+    ok(group instanceof Group, "A group object is loaded");
+    ok(group.get('id') === '1', 'It is the group we are expecting');
   }));
 });
 
