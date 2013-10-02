@@ -451,7 +451,7 @@ test("serialize with embedded objects", function() {
   });
 });
 
-test("extractPolymorphic", function() {
+test("extractPolymorphic hasMany", function() {
   env.container.register('adapter:yellowMinion', DS.ActiveModelAdapter);
   PopularVillain.toString   = function() { return "PopularVillain"; };
   YellowMinion.toString = function() { return "YellowMinion"; };
@@ -473,7 +473,7 @@ test("extractPolymorphic", function() {
   });
 });
 
-test("extractPolymorphic hasMany", function() {
+test("extractPolymorphic", function() {
   env.container.register('adapter:yellowMinion', DS.ActiveModelAdapter);
   EvilMinion.toString   = function() { return "EvilMinion"; };
   YellowMinion.toString = function() { return "YellowMinion"; };
@@ -507,6 +507,20 @@ test("extractPolymorphic when the related data is not specified", function() {
     "id": 1,
     "name": "DeathRay",
     "evilMinion": undefined
+  });
+});
+
+test("extractPolymorphic hasMany when the related data is not specified", function() {
+  var json = {
+    popular_villain: {id: 1, name: "Dr Horrible"},
+  };
+
+  json = env.amsSerializer.extractSingle(env.store, PopularVillain, json);
+
+  deepEqual(json, {
+    "id": 1,
+    "name": "Dr Horrible",
+    "evilMinions": undefined
   });
 });
 

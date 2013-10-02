@@ -138,7 +138,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
           payload = hash[payloadKey];
           if (payload && payload.type) {
             payload.type = this.typeForRoot(payload.type);
-          } else if (relationship.kind === "hasMany") {
+          } else if (payload && relationship.kind === "hasMany") {
             var self = this;
             forEach(payload, function(single) {
               single.type = self.typeForRoot(single.type);
