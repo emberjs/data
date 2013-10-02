@@ -453,6 +453,28 @@ test("serialize with embedded objects", function() {
 
 test("extractPolymorphic", function() {
   env.container.register('adapter:yellowMinion', DS.ActiveModelAdapter);
+  PopularVillain.toString   = function() { return "PopularVillain"; };
+  YellowMinion.toString = function() { return "YellowMinion"; };
+
+  var json_hash = {
+    popular_villain: {id: 1, name: "Dr Horrible", evil_minions: [{ type: "yellow_minion", id: 12}] },
+    evil_minions:    [{id: 12, name: "Alex", doomsday_device_ids: [1] }]
+  };
+
+  var json = env.amsSerializer.extractSingle(env.store, PopularVillain, json_hash);
+
+  deepEqual(json, {
+    "id": 1,
+    "name": "Dr Horrible",
+    "evilMinions": [{
+      type: "yellowMinion",
+      id: 12
+    }]
+  });
+});
+
+test("extractPolymorphic hasMany", function() {
+  env.container.register('adapter:yellowMinion', DS.ActiveModelAdapter);
   EvilMinion.toString   = function() { return "EvilMinion"; };
   YellowMinion.toString = function() { return "YellowMinion"; };
 
