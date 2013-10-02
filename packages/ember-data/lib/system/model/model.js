@@ -224,8 +224,27 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this.send('pushedData');
   },
 
+  /**
+    Marks the record as deleted but does not save it. You must call
+    `save` afterwards if you want to persist it. You might use this
+    method if you want to allow the user to still `rollback()` a
+    delete after it was made.
+
+    @method deleteRecord
+  */
   deleteRecord: function() {
     this.send('deleteRecord');
+  },
+
+  /**
+    Same as `deleteRecord`, but saves the record immediately.
+
+    @method destroyRecord
+    @returns Promise
+  */
+  destroyRecord: function() {
+    this.deleteRecord();
+    return this.save();
   },
 
   unloadRecord: function() {

@@ -182,7 +182,7 @@ test("calling store.didSaveRecord can provide an optional hash", function() {
   }));
 });
 
-test("by default, deleteRecords calls deleteRecord once per record", function() {
+test("by default, deleteRecord calls deleteRecord once per record", function() {
   expect(4);
 
   var count = 0;
@@ -214,6 +214,38 @@ test("by default, deleteRecords calls deleteRecord once per record", function() 
 
     tom.save();
     yehuda.save();
+  }));
+});
+
+test("by default, destroyRecord calls deleteRecord once per record without requiring .save", function() {
+  expect(4);
+
+  var count = 0;
+
+  adapter.deleteRecord = function(store, type, record) {
+    equal(type, Person, "the type is correct");
+
+    if (count === 0) {
+      equal(get(record, 'name'), "Tom Dale");
+    } else if (count === 1) {
+      equal(get(record, 'name'), "Yehuda Katz");
+    } else {
+      ok(false, "should not get here");
+    }
+
+    count++;
+
+    return Ember.RSVP.resolve();
+  };
+
+  store.push('person', { id: 1, name: "Tom Dale" });
+  store.push('person', { id: 2, name: "Yehuda Katz" });
+
+  Ember.RSVP.hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(async(function(records) {
+    var tom = records.tom, yehuda = records.yehuda;
+
+    tom.destroyRecord();
+    yehuda.destroyRecord();
   }));
 });
 
