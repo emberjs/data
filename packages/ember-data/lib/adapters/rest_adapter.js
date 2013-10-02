@@ -502,7 +502,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var adapter = this;
 
     return new Ember.RSVP.Promise(function(resolve, reject) {
-      var hash = adapter.ajaxOptions(url, type, hash);
+      hash = adapter.ajaxOptions(url, type, hash);
 
       hash.success = function(json) {
         Ember.run(null, resolve, json);
