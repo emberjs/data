@@ -211,6 +211,8 @@ function updatePayloadWithEmbedded(store, serializer, type, partial, payload) {
       payload[embeddedTypeKey] = payload[embeddedTypeKey] || [];
 
       forEach(partial[attribute], function(data) {
+        var embeddedType = store.modelFor(relationship.type.typeKey);
+        updatePayloadWithEmbedded(store, serializer, embeddedType, data, payload);
         ids.push(data[primaryKey]);
         payload[embeddedTypeKey].push(data);
       });
