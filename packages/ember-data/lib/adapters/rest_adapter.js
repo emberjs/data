@@ -502,25 +502,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     var adapter = this;
 
     return new Ember.RSVP.Promise(function(resolve, reject) {
-      hash = hash || {};
-      hash.url = url;
-      hash.type = type;
-      hash.dataType = 'json';
-      hash.context = adapter;
-
-      if (hash.data && type !== 'GET') {
-        hash.contentType = 'application/json; charset=utf-8';
-        hash.data = JSON.stringify(hash.data);
-      }
-
-      if (adapter.headers !== undefined) {
-        var headers = adapter.headers;
-        hash.beforeSend = function (xhr) {
-          forEach.call(Ember.keys(headers), function(key) {
-            xhr.setRequestHeader(key, headers[key]);
-          });
-        };
-      }
+      var hash = adapter.ajaxOptions(url, type, hash);
 
       hash.success = function(json) {
         Ember.run(null, resolve, json);
@@ -532,6 +514,31 @@ DS.RESTAdapter = DS.Adapter.extend({
 
       Ember.$.ajax(hash);
     });
+  },
+
+  ajaxOptions: function(url, type, hash) {
+    hash = hash || {};
+    hash.url = url;
+    hash.type = type;
+    hash.dataType = 'json';
+    hash.context = this;
+
+    if (hash.data && type !== 'GET') {
+      hash.contentType = 'application/json; charset=utf-8';
+      hash.data = JSON.stringify(hash.data);
+    }
+
+    if (this.headers !== undefined) {
+      var headers = this.headers;
+      hash.beforeSend = function (xhr) {
+        forEach.call(Ember.keys(headers), function(key) {
+          xhr.setRequestHeader(key, headers[key]);
+        });
+      };
+    }
+
+
+    return hash;
   }
 
 });
