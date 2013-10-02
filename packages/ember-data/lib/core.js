@@ -11,7 +11,7 @@
 
 if ('undefined' === typeof DS) {
   DS = Ember.Namespace.create({
-    VERSION: '1.0.0-beta.2'
+    VERSION: '1.0.0-beta.3'
   });
 
   if ('undefined' !== typeof window) {
