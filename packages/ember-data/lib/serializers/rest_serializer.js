@@ -507,6 +507,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     in data streaming in from your server structured the same way
     that fetches and saves are structured.
 
+    @method pushPayload
     @param {DS.Store} store
     @param {Object} payload
   */
