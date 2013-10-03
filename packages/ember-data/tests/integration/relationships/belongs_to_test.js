@@ -202,8 +202,8 @@ test('A record with an async belongsTo relationship always returns a promise for
         seat.set('person', person);
         ok(person.get('seat').then, 'seat should be a PromiseObject');
     }));
-  }))
-})
+  }));
+});
 
 test("TODO (embedded): The store can load an embedded polymorphic belongsTo association", function() {
   expect(0);

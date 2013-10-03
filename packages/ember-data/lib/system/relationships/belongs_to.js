@@ -12,7 +12,7 @@ function asyncBelongsTo(type, options, meta) {
 
     if (arguments.length === 2) {
       Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof store.modelFor(type));
-      return value === undefined ? null : value;
+      return value === undefined ? null : DS.PromiseObject.create({ promise: Ember.RSVP.resolve(value) });
     }
 
     var link = data.links && data.links[key],
