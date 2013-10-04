@@ -61,6 +61,7 @@ Ember.onLoad('Ember.Application', function(Application) {
       application.register('transform:boolean', DS.BooleanTransform);
       application.register('transform:date', DS.DateTransform);
       application.register('transform:number', DS.NumberTransform);
+      application.register('transform:int', DS.NumberTransform);
       application.register('transform:string', DS.StringTransform);
     }
   });

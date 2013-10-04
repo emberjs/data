@@ -177,6 +177,7 @@
       'boolean': DS.BooleanTransform.create(),
       'date': DS.DateTransform.create(),
       'number': DS.NumberTransform.create(),
+      'int': DS.NumberTransform.create(),
       'string': DS.StringTransform.create()
     };
 
