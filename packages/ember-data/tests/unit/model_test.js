@@ -326,6 +326,12 @@ test("a DS.Model can describe Number attributes", function() {
   converts('number', false, 0);
 });
 
+test("a DS.Model can describe Number attributes via 'int' alias", function() {
+  converts('int', "1", 1);
+  converts('int', "0", 0);
+  converts('int', 1, 1);
+});
+
 test("a DS.Model can describe Boolean attributes", function() {
   converts('boolean', "1", true);
   converts('boolean', "", false);
