@@ -926,15 +926,16 @@ Ember Data 1.0.beta.3:
 }
 ```
 
-You can override this behaviour by defining the `serializePolymorphicType` method
+You can override this behaviour by defining the `serializePolymorphicBelongsTo` method
 on your serializer.
 
 ```
 App.CommentSerializer = DS.RESTSerializer.extend({
-  serializePolymorphicType: function(record, json, relationship) {
+  serializePolymorphicBelongsTo: function(record, json, relationship) {
     var key = relationship.key,
         belongsTo = get(record, key);
     key = this.keyForAttribute ? this.keyForAttribute(key) : key;
+    json[key] = get(belongsTo, "id");
     json[key + "_type"] = belongsTo.constructor.typeKey;
   }
 });

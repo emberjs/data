@@ -515,8 +515,10 @@ test("serialize polymorphic", function() {
 
   deepEqual(json, {
     name:  "DeathRay",
-    evil_minion_type: "YellowMinion",
-    evil_minion_id: "124"
+    evil_minion: {
+      id: "124",
+      type: "yellow_minion"
+    }
   });
 });
 
@@ -619,14 +621,14 @@ test("extractPolymorphic hasMany when the related data is not specified", functi
 
 test("extractPolymorphic does not break hasMany relationships", function() {
   var json = {
-    popular_villain: {id: 1, name: "Dr. Evil", evil_minions: []}
+    home_planet: {id: 1, name: "Krypton", villain_ids: []}
   };
 
-  json = env.amsSerializer.extractSingle(env.store, PopularVillain, json);
+  json = env.amsSerializer.extractSingle(env.store, HomePlanet, json);
 
   deepEqual(json, {
     "id": 1,
-    "name": "Dr. Evil",
-    "evilMinions": []
+    "name": "Krypton",
+    "villains": []
   });
 });

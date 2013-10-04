@@ -76,17 +76,25 @@ DS.JSONSerializer = Ember.Object.extend({
 
     var belongsTo = get(record, key);
 
-    key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo") : key;
+    key = this.keyForRelationship ? this.keyForRelationship(key, relationship) : key;
 
     if (isNone(belongsTo)) {
       json[key] = belongsTo;
     } else {
-      json[key] = get(belongsTo, 'id');
+      if( relationship.options.polymorphic ) {
+        this.serializePolymorphicBelongsTo(record, json, relationship);
+      } else {
+        json[key] = get(belongsTo, 'id');
+      }
     }
+  },
 
-    if (relationship.options.polymorphic) {
-      this.serializePolymorphicType(record, json, relationship);
-    }
+  serializePolymorphicBelongsTo: function(record, json, relationship) {
+    var key = relationship.key,
+        belongsTo = get(record, key);
+    key = this.keyForRelationship ? this.keyForRelationship(key, relationship) : key;
+    json[key] = get(belongsTo, 'id');
+    json[key + "Type"] = belongsTo.constructor.typeKey;
   },
 
   serializeHasMany: function(record, json, relationship) {
@@ -99,11 +107,6 @@ DS.JSONSerializer = Ember.Object.extend({
       // TODO support for polymorphic manyToNone and manyToMany relationships
     }
   },
-
-  /**
-    You can use this method to customize how polymorphic objects are serialized.
-  */
-  serializePolymorphicType: Ember.K,
 
   // EXTRACT
 
