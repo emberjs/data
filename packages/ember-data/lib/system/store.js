@@ -477,7 +477,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Returns true if a record for a given type and ID is already loaded.
 
     @method hasRecordForId
-    @param {String} type
+    @param {DS.Model} type
     @param {String|Integer} id
     @returns Boolean
   */
