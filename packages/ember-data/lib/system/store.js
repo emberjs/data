@@ -1015,7 +1015,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     etc.)
 
     @method modelFor
-    @param {String} key
+    @param {String or subclass of DS.Model} key
     @returns {subclass of DS.Model}
   */
   modelFor: function(key) {
