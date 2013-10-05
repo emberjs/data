@@ -1372,6 +1372,7 @@ function normalizeRelationships(store, type, data, record) {
       deserializeRecordId(store, data, key, relationship, value);
     } else if (kind === 'hasMany') {
       deserializeRecordIds(store, data, key, relationship, value);
+      addUnsavedRecords(record, key, value);
     }
   });
 
@@ -1405,6 +1406,14 @@ function typeFor(relationship, key, data) {
 function deserializeRecordIds(store, data, key, relationship, ids) {
   for (var i=0, l=ids.length; i<l; i++) {
     deserializeRecordId(store, ids, i, relationship, ids[i]);
+  }
+}
+
+// If there are any unsaved records that are in a hasMany they won't be
+// in the payload, so add them back in manually.
+function addUnsavedRecords(record, key, data) {
+  if(record) {
+    data.pushObjects(record.get(key).filterBy('isNew'));
   }
 }
 
