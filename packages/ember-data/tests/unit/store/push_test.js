@@ -57,6 +57,25 @@ test("Calling push with a normalized hash returns a record", function() {
   }));
 });
 
+test("Supplying a model class for `push` is the same as supplying a string", function () {
+  var Programmer = Person.extend();
+  env.container.register('model:programmer', Programmer);
+
+  var programmer = store.push(Programmer, {
+    id: 'wat',
+    firstName: "Yehuda",
+    lastName: "Katz"
+  });
+
+  store.find('programmer', 'wat').then(async(function(foundProgrammer) {
+    deepEqual(foundProgrammer.getProperties('id', 'firstName', 'lastName'), {
+      id: 'wat',
+      firstName: "Yehuda",
+      lastName: "Katz"
+    });
+  }));
+});
+
 test("Calling push triggers `didLoad` even if the record hasn't been requested from the adapter", function() {
   Person.reopen({
     didLoad: async(function() {
