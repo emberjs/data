@@ -165,6 +165,53 @@ test("extractSingle with embedded objects", function() {
   }));
 });
 
+test("extractSingle with embedded objects inside embedded objects", function() {
+  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend({
+    attrs: {
+      villains: {embedded: 'always'}
+    }
+  }));
+  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend({
+    attrs: {
+      evilMinions: {embedded: 'always'}
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:homePlanet");
+  var json_hash = {
+    home_planet: {
+      id: "1",
+      name: "Umber",
+      villains: [{
+        id: "1",
+        first_name: "Tom",
+        last_name: "Dale",
+        evil_minions: [{
+          id: "1",
+          name: "Alex"
+        }]
+      }]
+    }
+  };
+
+  var json = serializer.extractSingle(env.store, HomePlanet, json_hash);
+
+  deepEqual(json, {
+    id: "1",
+    name: "Umber",
+    villains: ["1"]
+  });
+  env.store.find("superVillain", 1).then(async(function(villain) {
+    equal(villain.get('firstName'), "Tom");
+    equal(villain.get('evilMinions.length'), 1, "Should load the embedded child");
+    equal(villain.get('evilMinions.firstObject.name'), "Alex", "Should load the embedded child");
+  }));
+  env.store.find("evilMinion", 1).then(async(function(minion) {
+    equal(minion.get('name'), "Alex");
+  }));
+});
+
 test("extractSingle with embedded objects of same type", function() {
   env.container.register('adapter:comment', DS.ActiveModelAdapter);
   env.container.register('serializer:comment', DS.ActiveModelSerializer.extend({
@@ -201,6 +248,52 @@ test("extractSingle with embedded objects of same type", function() {
   }, "Primary record was correct");
   equal(env.store.recordForId("comment", "2").get("body"), "World", "Secondary records found in the store");
   equal(env.store.recordForId("comment", "3").get("body"), "Foo", "Secondary records found in the store");
+});
+
+test("extractSingle with embedded objects inside embedded objects of same type", function() {
+  env.container.register('adapter:comment', DS.ActiveModelAdapter);
+  env.container.register('serializer:comment', DS.ActiveModelSerializer.extend({
+    attrs: {
+      children: {embedded: 'always'}
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:comment");
+  var json_hash = {
+    comment: {
+      id: "1",
+      body: "Hello",
+      root: true,
+      children: [{
+        id: "2",
+        body: "World",
+        root: false,
+        children: [{
+          id: "4",
+          body: "Another",
+          root: false
+        }]
+      },
+      {
+        id: "3",
+        body: "Foo",
+        root: false
+      }]
+    }
+  };
+  var json = serializer.extractSingle(env.store, Comment, json_hash);
+
+  deepEqual(json, {
+    id: "1",
+    body: "Hello",
+    root: true,
+    children: ["2", "3"]
+  }, "Primary record was correct");
+  equal(env.store.recordForId("comment", "2").get("body"), "World", "Secondary records found in the store");
+  equal(env.store.recordForId("comment", "3").get("body"), "Foo", "Secondary records found in the store");
+  equal(env.store.recordForId("comment", "4").get("body"), "Another", "Secondary records found in the store");
+  equal(env.store.recordForId("comment", "2").get("children.length"), 1, "Should have one embedded record");
+  equal(env.store.recordForId("comment", "2").get("children.firstObject.body"), "Another", "Should have one embedded record");
 });
 
 test("extractSingle with embedded objects of same type, but from separate attributes", function() {
