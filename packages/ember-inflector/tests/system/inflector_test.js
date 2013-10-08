@@ -43,6 +43,21 @@ test('ability to add additonal irregular rules', function(){
 
   equal(inflector.singularize('kine'), 'cow', 'irregular singularization rule was applied');
   equal(inflector.pluralize('cow'), 'kine', 'irregular pluralization rule was applied');
+  equal(inflector.singularize('cow'), 'cow', 'regular singularization is preserved');
+});
+
+test('ability to add additonal irregular rules', function(){
+  inflector.singular(/s$/, '');
+  inflector.plural(/$/, 's');
+
+  equal(inflector.singularize('campuses'), 'campuse', 'regular singularization rule was applied');
+  equal(inflector.pluralize('campus'), 'campuss', 'regular pluralization rule was applied');
+
+  inflector.irregular('campus', 'campuses');
+  
+  equal(inflector.singularize('campuses'), 'campus', 'irregular singularization rule was applied');
+  equal(inflector.pluralize('campus'), 'campuses', 'irregular pluralization rule was applied');
+  equal(inflector.singularize('campus'), 'campus', 'regular singularization is preserved');  
 });
 
 module('ember-inflector.unit');
