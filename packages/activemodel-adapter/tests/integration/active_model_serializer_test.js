@@ -605,7 +605,7 @@ test("extractPolymorphic when the related data is not specified", function() {
 
 test("extractPolymorphic hasMany when the related data is not specified", function() {
   var json = {
-    popular_villain: {id: 1, name: "Dr Horrible"},
+    popular_villain: {id: 1, name: "Dr Horrible"}
   };
 
   json = env.amsSerializer.extractSingle(env.store, PopularVillain, json);

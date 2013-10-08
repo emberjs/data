@@ -12,7 +12,7 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     User = DS.Model.extend({
       name: attr('string'),
       messages: hasMany('message', { polymorphic: true }),
-      contacts: hasMany(),
+      contacts: hasMany()
     });
 
     Contact = DS.Model.extend({
@@ -288,7 +288,7 @@ test("A record can be removed from a polymorphic association", function() {
 
   var asyncRecords = Ember.RSVP.hash({
     user: env.store.find('user', 1),
-    comment: env.store.find('comment', 3),
+    comment: env.store.find('comment', 3)
   });
 
   asyncRecords.then(async(function(records) {

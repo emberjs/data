@@ -549,7 +549,7 @@ test("calling createRecord and passing in an undefined value for a relationship 
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tag: DS.belongsTo('tag'),
+    tag: DS.belongsTo('tag')
   });
 
   var env = setupStore({ tag: Tag, person: Person }),
