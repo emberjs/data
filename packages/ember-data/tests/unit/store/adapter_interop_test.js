@@ -198,7 +198,7 @@ test("a new record of a particular type is created via store.createRecord(type)"
 test("a new record with a specific id can't be created if this id is already used in the store", function() {
   var store = createStore();
   var Person = DS.Model.extend({
-    name: DS.attr('string'),
+    name: DS.attr('string')
   });
 
   Person.reopenClass({

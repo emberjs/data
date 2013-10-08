@@ -146,7 +146,7 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
   User = DS.Model.extend({
     meMessages: DS.hasMany('message', { polymorphic: true }),
     youMessages: DS.hasMany('message', { polymorphic: true }),
-    everyoneWeKnowMessages: DS.hasMany('message', { polymorphic: true }),
+    everyoneWeKnowMessages: DS.hasMany('message', { polymorphic: true })
   });
 
   Message = DS.Model.extend({
@@ -191,7 +191,7 @@ test("When a record's polymorphic belongsTo relationship is set, it can specify 
     message: DS.belongsTo('message', {
       polymorphic: true,
       inverse: 'youMessages'
-    }),
+    })
   });
 
   var env = setupStore({ comment: Comment, message: Message, post: Post }),

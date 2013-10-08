@@ -42,7 +42,7 @@ test("When a single record is requested multiple times, all .find() calls are re
   store = createStore({ adapter: DS.Adapter.extend({
       find:  function(store, type, id) {
         return deferred.promise;
-      },
+      }
     })
   });
 
