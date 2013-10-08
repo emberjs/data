@@ -7,21 +7,16 @@ provides many of the facilities you'd find in server-side ORMs like ActiveRecord
 designed specifically for the unique environment of JavaScript in the browser.
 
 Ember Data provides a central Data Store, which can be configured with a range of 
-provided Adapters, but two core Adapters are provided: the RESTAdapter and BasicAdapter. 
+provided Adapters, but two core Adapters are provided: the RESTAdapter and FixtureAdapter. 
 
 The RESTAdapter is configured for use by default. You can read more about it in 
 the [Guides](http://emberjs.com/guides/models/connecting-to-an-http-server/). It provides a fully
 RESTful mechanism for communicating with your persistence layer, and is the preferred
-and recommened choice for use with Ember Data.
-
-The BasicAdapter is intended to provide a way for developers who want full control 
-over how the persistence layer is communicated with via their own implemented Ajax
-hooks
+and recommended choice for use with Ember Data.
 
 This is definitely alpha-quality. The basics of RESTAdapter work, but there are for
 sure edge cases that are not yet handled. Please report any bugs or feature
-requests, and pull requests are always welcome. The BasicAdapter is under heavy 
-development at present. 
+requests, and pull requests are always welcome.
 
 #### Is It Good?
 
