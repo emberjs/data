@@ -5,7 +5,7 @@ var Person, env;
 module("integration/unload - Unloading Records", {
   setup: function() {
     Person = DS.Model.extend({
-      name: attr('string'),
+      name: attr('string')
     });
 
     Person.toString = function() { return "Person"; };
