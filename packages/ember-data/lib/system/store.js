@@ -660,7 +660,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     _findAll(adapter, this, type, sinceToken, resolver);
 
-    return promiseArray(resolver.promise);
+    return promiseArrayWithContent(resolver.promise, array);
   },
 
   /**
@@ -1428,6 +1428,10 @@ function promiseObject(promise) {
 
 function promiseArray(promise) {
   return DS.PromiseArray.create({ promise: promise });
+}
+
+function promiseArrayWithContent(promise, content) {
+  return DS.PromiseArray.create({ promise: promise, content: content });
 }
 
 function isThenable(object) {
