@@ -8,7 +8,7 @@
   @class DS
   @static
 */
-
+var DS;
 if ('undefined' === typeof DS) {
   DS = Ember.Namespace.create({
     VERSION: '1.0.0-beta.2'
