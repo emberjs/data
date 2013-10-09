@@ -1,5 +1,5 @@
 var get = Ember.get, set = Ember.set;
-var HomePlanet, league, SuperVillain, superVillain, EvilMinion, YellowMinion, DoomsdayDevice, PopularVillain, Comment, Course, Unit, env;
+var HomePlanet, league, SuperVillain, superVillain, EvilMinion, EvilMinionPicture, YellowMinion, DoomsdayDevice, PopularVillain, Comment, Course, Unit, env;
 
 module("integration/active_model - ActiveModelSerializer", {
   setup: function() {
@@ -16,6 +16,11 @@ module("integration/active_model - ActiveModelSerializer", {
     EvilMinion = DS.Model.extend({
       superVillain: DS.belongsTo('superVillain'),
       name:         DS.attr('string')
+    });
+    EvilMinionPicture = DS.Model.extend({
+      originalUrl: DS.attr('string'),
+      size160Url: DS.attr('string'),
+      size220Url: DS.attr('string')
     });
     YellowMinion = EvilMinion.extend();
     DoomsdayDevice = DS.Model.extend({
@@ -98,15 +103,36 @@ test("serializeIntoHash", function() {
 });
 
 test("normalize", function() {
-  var superVillain_hash = {first_name: "Tom", last_name: "Dale", home_planet_id: "123", evil_minion_ids: [1,2]};
+  var superVillain_hash = {
+    first_name: "Tom",
+    last_name: "Dale",
+    home_planet_id: "123",
+    evil_minion_ids: [1,2]
+  };
 
   var json = env.amsSerializer.normalize(SuperVillain, superVillain_hash, "superVillain");
 
   deepEqual(json, {
     firstName:      "Tom",
     lastName:       "Dale",
-    homePlanet: "123",
-    evilMinions:   [1,2]
+    homePlanet:     "123",
+    evilMinions:    [1,2]
+  });
+});
+
+test("normalize with numbers", function() {
+  var evilMinionPicture_hash = {
+    original_url: "url",
+    size_160_url: "url",
+    size_220_url: "url"
+  };
+
+  var json = env.amsSerializer.normalize(EvilMinionPicture, evilMinionPicture_hash, "evilMinionPicture");
+
+  deepEqual(json, {
+    originalUrl: "url",
+    size160Url: "url",
+    size220Url: "url"
   });
 });
 
