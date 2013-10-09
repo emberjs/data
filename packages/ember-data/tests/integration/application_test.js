@@ -64,3 +64,6 @@ test("If a store is instantiated, it should be made available to each controller
   ok(fooController.get('store') instanceof DS.Store, "the store was injected");
 });
 
+test("the DS namespace should be accessible", function() {
+  ok(Ember.Namespace.byName('DS') instanceof Ember.Namespace, "the DS namespace is accessible");
+});
