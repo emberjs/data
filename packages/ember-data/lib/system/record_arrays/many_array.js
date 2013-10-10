@@ -67,6 +67,15 @@ DS.ManyArray = DS.RecordArray.extend({
 
   isLoaded: false,
 
+  /**
+    Used for async `hasMany` arrays
+    to keep track of when they will resolve.
+
+    @property {Ember.RSVP.Promise}
+    @private
+  */
+  promise: null,
+
   loadingRecordsCount: function(count) {
     this.loadingRecordsCount = count;
   },

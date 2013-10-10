@@ -520,8 +520,30 @@ test("relationships don't get reset if the links is the same", function() {
   })).then(async(function(dogs) {
     equal(dogs.get('length'), 1, "The dogs are loaded");
     store.push('person', { id: 1, name: "Tom Dale", links: { dogs: "/dogs" } });
+    ok(tom.get('dogs') instanceof DS.PromiseArray, 'dogs is a promise');
     return tom.get('dogs');
   })).then(async(function(dogs) {
     equal(dogs.get('length'), 1, "The same dogs are loaded");
+  }));
+});
+
+
+test("async hasMany always returns a promise", function() {
+  Person.reopen({
+    dogs: DS.hasMany({ async: true })
+  });
+
+  adapter.createRecord = function(store, type, record) {
+    var hash = { name: "Tom Dale" };
+    hash.dogs = Ember.A();
+    hash.id = 1;
+    return Ember.RSVP.resolve(hash);
+  };
+
+  var tom = store.createRecord('person', { name: "Tom Dale" });
+  ok(tom.get('dogs') instanceof DS.PromiseArray, "dogs is a promise before save");
+
+  tom.save().then(async(function() {
+    ok(tom.get('dogs') instanceof DS.PromiseArray, "dogs is a promise after save");
   }));
 });

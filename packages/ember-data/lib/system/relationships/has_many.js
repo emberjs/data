@@ -8,21 +8,27 @@ var get = Ember.get, set = Ember.set, setProperties = Ember.setProperties;
 
 function asyncHasMany(type, options, meta) {
   return Ember.computed(function(key, value) {
-    if (this._relationships[key]) { return this._relationships[key]; }
+    var relationship = this._relationships[key];
 
-    var resolver = Ember.RSVP.defer();
+    if (!relationship) {
+      var resolver = Ember.RSVP.defer();
+      relationship = buildRelationship(this, key, options, function(store, data) {
+        var link = data.links && data.links[key];
+        var rel;
+        if (link) {
+          rel = store.findHasMany(this, link, meta, resolver);
+        } else {
+          rel = store.findMany(this, data[key], meta.type, resolver);
+        }
+        // cache the promise so we can use it
+        // when we come back and don't need to rebuild
+        // the relationship.
+        set(rel, 'promise', resolver.promise);
+        return rel;
+      });
+    }
 
-    var relationship = buildRelationship(this, key, options, function(store, data) {
-      var link = data.links && data.links[key];
-
-      if (link) {
-        return store.findHasMany(this, link, meta, resolver);
-      } else {
-        return store.findMany(this, data[key], meta.type, resolver);
-      }
-    });
-
-    var promise = resolver.promise.then(function() {
+    var promise = relationship.get('promise').then(function() {
       return relationship;
     });
 
