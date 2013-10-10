@@ -83,13 +83,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   didLoad: Ember.K,
 
   /**
-    Fired when the record is reloaded from the server.
-
-    @event didReload
-  */
-  didReload: Ember.K,
-
-  /**
     Fired when the record is updated.
 
     @event didUpdate
