@@ -648,41 +648,18 @@ In 0.13, the REST Adapter automatically camelized incoming keys for
 you. It also expected `belongsTo` relationships to be listed under
 `name_id` and `hasMany` relationships to be listed under `name_ids`.
 
-In the future, this logic will live in an `ActiveModelSerializer` that
-is designed to work with Rails, and which will ship with `ember-rails`.
+If your application returns json with underscored attributes and `_id` or `_ids` 
+for relation, you can extend `ActiveModelSerializer` and all will work out of the box.
+
+```js
+App.ApplicationSerializer = DS.ActiveModelSerializer.extend({});
+```
 
 Note: DS.ActiveModelSerializer is not to be confused with the ActiveModelSerializer gem 
 that is part of Rails API project. A conventional Rails API project with produce underscored output
 and the `DS.ActiveModelSerializer` will perform the expected normalization behavior such as camelizing
 property keys in your JSON.
 
-For now, you can implement the logic yourself:
-
-```js
-App.ApplicationSerializer = DS.RESTSerializer.extend({
-  normalize: function(type, hash, property) {
-    var normalized = {}, normalizedProp;
-
-    for (var prop in hash) {
-      if (prop.substr(-3) === '_id') {
-        // belongsTo relationships
-        normalizedProp = prop.slice(0, -3);
-      } else if (prop.substr(-4) === '_ids') {
-        // hasMany relationship
-        normalizedProp = Ember.String.pluralize(prop.slice(0, -4));
-      } else {
-        // regualarAttribute
-        normalizedProp = prop;
-      }
-      
-      normalizedProp = Ember.String.camelize(normalizedProp);
-      normalized[normalizedProp] = hash[prop];
-    }
-
-    return this._super(type, normalized, property);
-  }
-});
-```
 
 ### Underscored API Endpoints
 
