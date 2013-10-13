@@ -499,10 +499,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     @param  hash
   */
   ajax: function(url, type, hash) {
-    var adapter = this;
+    var adapter = this, _hash = hash;
 
     return new Ember.RSVP.Promise(function(resolve, reject) {
-      hash = adapter.ajaxOptions(url, type, hash);
+      hash = adapter.ajaxOptions(url, type, _hash);
 
       hash.success = function(json) {
         Ember.run(null, resolve, json);
