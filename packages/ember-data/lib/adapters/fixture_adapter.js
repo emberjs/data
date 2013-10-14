@@ -45,7 +45,10 @@ DS.FixtureAdapter = DS.Adapter.extend({
         if(fixtureIdType !== "number" && fixtureIdType !== "string"){
           throw new Error(fmt('the id property must be defined as a number or string for fixture %@', [fixture]));
         }
-        fixture.id = fixture.id + '';
+        if (fixtureIdType === "number") {
+          counter = Math.max(counter, fixture.id + 1);
+          fixture.id = fixture.id + '';
+        }
         return fixture;
       });
     }
