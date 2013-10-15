@@ -191,8 +191,7 @@
   });
 
   EmberDev.distros = {
-    //spade:   'ember-data-spade.js',
-    spade:   'ember-spade.js',
+    spade:   'ember-data-spade.js',
     build:   'ember-data.js'
   };
 
