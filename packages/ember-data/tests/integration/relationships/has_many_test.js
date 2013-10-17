@@ -630,6 +630,41 @@ test("When a record is saved, its unsaved hasMany records should be kept", funct
   equal(get(post, 'comments.length'), 1, "The unsaved comment should be in the post's comments array");
 });
 
+test("dual non-async HM <-> BT", function(){
+  Post.reopen({
+    comments: DS.hasMany('comment', { inverse: 'post' })
+  });
+
+  Comment.reopen({
+    post: DS.belongsTo('post')
+  });
+
+  env.adapter.createRecord = function(store, type, record) {
+    var data = record.serialize();
+    data.id = 2;
+    return Ember.RSVP.resolve(data);
+  };
+
+  var post = env.store.push('post', { id: 1, comments: [ 1 ] });
+  var firstComment = env.store.push('comment', { id: 1, post: 1 });
+
+  Ember.run(function(){
+    return env.store.createRecord('comment', {
+      post: post
+    }).save();
+  }).then(function(comment){
+    var commentPost = comment.get('post');
+    var postComments = comment.get('post.comments');
+    var postCommentsLength = comment.get('post.comments.length');
+
+    deepEqual(post, commentPost, 'expect the new comments post, to be the correct post');
+    ok(postComments, "comments should exist");
+    equal(postCommentsLength, 2, "comment's post should have a reference back to comment");
+    ok(postComments && postComments.indexOf(firstComment) !== -1, 'expect to contain first comment');
+    ok(postComments && postComments.indexOf(comment) !== -1, 'expected to contain the new comment');
+  });
+});
+
 test("When an unloaded record is added to the hasMany, it gets fetched once the hasMany is accessed even if the hasMany has been already fetched", function() {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
