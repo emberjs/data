@@ -4,7 +4,7 @@ require('ember-data/serializers/rest_serializer');
   @module ember-data
 */
 
-var get = Ember.get;
+var get = Ember.get, isNone = Ember.isNone;
 var forEach = Ember.EnumerableUtils.forEach;
 
 DS.ActiveModelSerializer = DS.RESTSerializer.extend({
@@ -27,15 +27,23 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
 
     @method keyForRelationship
     @param {String} key
-    @param {String} kind
+    @param {Object} relationship
     @returns String
   */
-  keyForRelationship: function(key, kind) {
+  keyForRelationship: function(key, relationship) {
     key = Ember.String.decamelize(key);
-    if (kind === "belongsTo") {
-      return key + "_id";
-    } else if (kind === "hasMany") {
-      return Ember.String.singularize(key) + "_ids";
+    if (relationship.kind === "belongsTo") {
+      if( relationship.options.polymorphic ) {
+        return key;
+      } else {
+        return key + "_id";
+      }
+    } else if (relationship.kind === "hasMany") {
+      if( relationship.options.polymorphic ) {
+        return key;
+      } else {
+        return Ember.String.singularize(key) + "_ids";
+      }
     } else {
       return key;
     }
@@ -78,18 +86,22 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   },
 
   /**
-    Serializes a polymorphic type as a fully capitalized model name.
+    You can use this method to customize how polymorphic belongsTo objects are serialized.
 
-    @method serializePolymorphicType
+    @method serializePolymorphicBelongsTo
     @param {DS.Model} record
     @param {Object} json
     @param relationship
   */
-  serializePolymorphicType: function(record, json, relationship) {
-    var key = relationship.key,
-        belongsTo = get(record, key);
-    key = this.keyForAttribute(key);
-    json[key + "_type"] = Ember.String.capitalize(belongsTo.constructor.typeKey);
+  serializePolymorphicBelongsTo: function(record, json, relationship) {
+    var key = relationship.key;
+    var belongsTo = get(record, key);
+    key = this.keyForRelationship ? this.keyForRelationship(key, relationship) : relationship.key;
+
+    json[key] = {
+      id: get(belongsTo, 'id'),
+      type: Ember.String.underscore( belongsTo.constructor.typeKey )
+    };
   },
 
   // EXTRACT
@@ -131,31 +143,27 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   normalizeRelationships: function(type, hash) {
     var payloadKey, payload;
 
-    if (this.keyForRelationship) {
-      type.eachRelationship(function(key, relationship) {
-        if (relationship.options.polymorphic) {
-          payloadKey = this.keyForAttribute(key);
-          payload = hash[payloadKey];
-          if (payload && payload.type) {
-            payload.type = this.typeForRoot(payload.type);
-          } else if (payload && relationship.kind === "hasMany") {
-            var self = this;
-            forEach(payload, function(single) {
-              single.type = self.typeForRoot(single.type);
-            });
-          }
-        } else {
-          payloadKey = this.keyForRelationship(key, relationship.kind);
-          payload = hash[payloadKey];
-        }
+    type.eachRelationship(function(key, relationship) {
+      payloadKey = this.keyForRelationship(key, relationship);
+      payload = hash[payloadKey];
 
-        hash[key] = payload;
-
-        if (key !== payloadKey) {
-          delete hash[payloadKey];
+      if (payload && relationship.options.polymorphic) {
+        if(payload.type) {
+          payload.type = this.typeForRoot(payload.type);
+        } else if (relationship.kind === "hasMany") {
+          payload = Ember.A( payload );
+          forEach(payload, function(single) {
+            single.type = this.typeForRoot(single.type);
+          }, this);
         }
-      }, this);
-    }
+      }
+
+      hash[key] = payload;
+
+      if (key !== payloadKey) {
+        delete hash[payloadKey];
+      }
+    }, this);
   },
 
   extractSingle: function(store, primaryType, payload, recordId, requestType) {
@@ -200,7 +208,7 @@ function updatePayloadWithEmbedded(store, serializer, type, partial, payload) {
       // underscore forces the embedded records to be side loaded.
       // it is needed when main type === relationship.type
       embeddedTypeKey = '_' + Ember.String.pluralize(relationship.type.typeKey);
-      expandedKey = this.keyForRelationship(key, relationship.kind);
+      expandedKey = this.keyForRelationship(key, relationship);
       attribute  = this.keyForAttribute(key);
       ids = [];
 

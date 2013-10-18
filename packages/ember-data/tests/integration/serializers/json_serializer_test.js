@@ -92,11 +92,12 @@ test("serializeBelongsTo respects keyForRelationship", function() {
   });
 });
 
-test("serializePolymorphicType", function() {
+test("serializePolymorphicBelongsTo", function() {
   env.container.register('serializer:comment', DS.JSONSerializer.extend({
-    serializePolymorphicType: function(record, json, relationship) {
+    serializePolymorphicBelongsTo: function(record, json, relationship) {
       var key = relationship.key,
           belongsTo = get(record, key);
+      json[relationship.key] = get(belongsTo, "id");
       json[relationship.key + "TYPE"] = belongsTo.constructor.typeKey;
     }
   }));

@@ -45,8 +45,8 @@ function coerceId(id) {
   ```
 
   You can also implement `keyForRelationship`, which takes the name
-  of the relationship as the first parameter, and the kind of
-  relationship (`hasMany` or `belongsTo`) as the second parameter.
+  of the relationship as the first parameter, and the relationship
+  as the second parameter.
 
   @class RESTSerializer
   @namespace DS
@@ -721,22 +721,5 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   */
   serializeIntoHash: function(hash, type, record, options) {
     hash[type.typeKey] = this.serialize(record, options);
-  },
-
-  /**
-    You can use this method to customize how polymorphic objects are serialized.
-    By default the JSON Serializer creates the key by appending `Type` to
-    the attribute and value from the model's camelcased model name.
-
-    @method serializePolymorphicType
-    @param {DS.Model} record
-    @param {Object} json
-    @param relationship
-  */
-  serializePolymorphicType: function(record, json, relationship) {
-    var key = relationship.key,
-        belongsTo = get(record, key);
-    key = this.keyForAttribute ? this.keyForAttribute(key) : key;
-    json[key + "Type"] = belongsTo.constructor.typeKey;
   }
 });
