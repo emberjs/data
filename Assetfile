@@ -21,12 +21,14 @@ distros.each do |name, modules|
     match "#{name}.js" do
       filter VersionInfo
       filter EmberLicenseFilter
+      filter AddProjectVersionNumber
     end
 
     # Strip dev code
     match "#{name}.prod.js" do
       filter VersionInfo
       filter EmberLicenseFilter
+      filter AddProjectVersionNumber
       filter(EmberStripDebugMessagesFilter) { ["#{name}.prod.js", "min/#{name}.js"] }
     end
 
