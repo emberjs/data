@@ -717,8 +717,7 @@ If your server uses underscored root objects you can define the
 ```js
 App.ApplicationSerializer = DS.RESTSerializer.extend({
   typeForRoot: function(root) {
-    var camelized = Ember.String.camelize(root);
-    return Ember.String.singularize(camelized);
+    return Ember.String.singularize(root);
   }
 });
 ```
