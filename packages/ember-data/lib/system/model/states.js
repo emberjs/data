@@ -175,6 +175,7 @@ var didSetProperty = function(record, context) {
     record.send('propertyWasReset', context.name);
   } else if (context.value !== context.oldValue) {
     record.send('becomeDirty');
+    record._attributes[context.name] = context.value;
   }
 
   record.updateRecordArraysLater();
