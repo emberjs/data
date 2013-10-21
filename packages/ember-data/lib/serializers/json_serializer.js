@@ -102,6 +102,11 @@ DS.JSONSerializer = Ember.Object.extend({
 
   /**
     You can use this method to customize how polymorphic objects are serialized.
+
+    @method serializePolymorphicType
+    @param {DS.Model} record
+    @param {Object} json
+    @param relationship
   */
   serializePolymorphicType: Ember.K,
 
