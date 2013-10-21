@@ -1371,7 +1371,13 @@ function normalizeRelationships(store, type, data, record) {
     var kind = relationship.kind,
         value = data[key];
 
-    if (value == null) { return; }
+    if (value == null) {
+      if (kind === 'hasMany') {
+        value = data[key] = Ember.A();
+        addUnsavedRecords(record, key, value);
+      }
+      return;
+    }
 
     if (kind === 'belongsTo') {
       deserializeRecordId(store, data, key, relationship, value);
