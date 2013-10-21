@@ -345,3 +345,22 @@ test("When a record is created on the client, its async hasMany arrays should be
   });
 
 });
+
+test("When a record is saved, its unsaved hasMany records should be kept", function () {
+  expect(1);
+
+  var post, comment;
+
+  env.adapter.createRecord = function(store, type, record) {
+    return Ember.RSVP.resolve({ id: 1 });
+  };
+
+  Ember.run(function () {
+    post = env.store.createRecord('post');
+    comment = env.store.createRecord('comment');
+    post.get('comments').pushObject(comment);
+    post.save();
+  });
+
+  equal(get(post, 'comments.length'), 1, "The unsaved comment should be in the post's comments array");
+});
