@@ -41,7 +41,7 @@ GEM
       timers (~> 1.1.0)
     colored (1.2)
     diff-lcs (1.2.4)
-    ember-source (1.0.0)
+    ember-source (1.1.0)
       handlebars-source (= 1.0.12)
     execjs (2.0.2)
     ffi (1.9.0)
