@@ -18,18 +18,12 @@ module("unit/store/push - DS.Store#push", {
       postTitle: attr('string')
     });
 
-    env = setupStore();
+    env = setupStore({"post": Post,
+                      "person": Person,
+                      "phone-number": PhoneNumber});
 
     store = env.store;
 
-    var DefaultSerializer = DS.JSONSerializer.extend({
-      store: store
-    });
-
-    env.container.register('model:person', Person);
-    env.container.register('model:phone-number', PhoneNumber);
-    env.container.register('model:post', Post);
-    env.container.register('serializer:_default', DefaultSerializer);
     env.container.register('serializer:post', DS.ActiveModelSerializer);
   },
 
