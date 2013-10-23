@@ -563,9 +563,10 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
     @method pushPayload
     @param {DS.Store} store
+    @param {subclass of DS.Model} primaryType
     @param {Object} payload
   */
-  pushPayload: function(store, payload) {
+  pushPayload: function(store, primaryType, payload) {
     payload = this.normalizePayload(null, payload);
 
     for (var prop in payload) {
