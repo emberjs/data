@@ -173,6 +173,12 @@
       updateRecordArraysLater: syncForTest()
     });
 
+    DS.Errors.reopen({
+      add: syncForTest(),
+      remove: syncForTest(),
+      clear: syncForTest()
+    });
+
     var transforms = {
       'boolean': DS.BooleanTransform.create(),
       'date': DS.DateTransform.create(),
