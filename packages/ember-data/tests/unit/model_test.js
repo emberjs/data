@@ -302,8 +302,9 @@ test("a DS.Model can describe Date attributes", function() {
   converts('date', null, null);
   converts('date', undefined, undefined);
 
-  var dateString = "Sat, 31 Dec 2011 00:08:16 GMT";
-  var date = new Date(dateString);
+  var date = new Date("Sat, 31 Dec 2011 00:08:16 GMT");
+  date.setMilliseconds(54);
+  var expectedSerializedDate = Number(date);
 
   var store = createStore();
 
@@ -317,8 +318,8 @@ test("a DS.Model can describe Date attributes", function() {
     deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
   }));
 
-  convertsFromServer('date', dateString, date);
-  convertsWhenSet('date', date, dateString);
+  convertsFromServer('date', expectedSerializedDate, date);
+  convertsWhenSet('date', date, expectedSerializedDate);
 });
 
 test("don't allow setting", function(){
