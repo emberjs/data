@@ -31,10 +31,19 @@ DS.InvalidError.prototype = Ember.create(Error.prototype);
         // ...your code here
       });
 
-  To tell your store which adapter to use, set its `adapter` property:
+  You can set the `ApplicationAdapter` property to use it as the default for every model:
 
-      App.store = DS.Store.create({
-        adapter: App.MyAdapter.create()
+      App.ApplicationAdapter = App.MyAdapter
+
+  If you need more fine-grained customisation you can create Per Type adapters which are
+  automatically picked up by Ember Data
+
+      App.Post = DS.Model.extend({
+        // ...
+      });
+
+      App.PostAdapter = App.ApplicationAdapter.extend({
+        // ...
       });
 
   `DS.Adapter` is an abstract base class that you should override in your
