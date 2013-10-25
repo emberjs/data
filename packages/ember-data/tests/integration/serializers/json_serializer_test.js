@@ -112,3 +112,22 @@ test("serializePolymorphicType", function() {
     postTYPE: "post"
   });
 });
+
+
+test("extractArray normalizes each record in the array", function() {
+  var postNormalizeCount = 0;
+  var posts = [
+    { title: "Rails is omakase"},
+    { title: "Another Post"}
+  ];
+
+  env.container.register('serializer:post', DS.JSONSerializer.extend({
+    normalize: function () {
+      postNormalizeCount++;
+      return this._super.apply(this, arguments);
+    }
+  }));
+
+  env.container.lookup("serializer:post").extractArray(env.store, Post, posts);
+  equal(postNormalizeCount, 2, "two posts are normalized");
+});
