@@ -718,7 +718,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     type = this.modelFor(type);
 
     var typeMap = this.typeMapFor(type),
-        records = typeMap.records, record;
+        records = typeMap.records.slice(0), record;
 
     while(record = records.pop()) {
       record.unloadRecord();
@@ -740,7 +740,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     If any of a record's properties change, or if it changes state, the
     filter function will be invoked again to determine whether it should
     still be in the array.
-    
+
     Optionally you can pass a query which will be triggered at first. The
     results returned by the server could then appear in the filter if they
     match the filter function.

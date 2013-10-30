@@ -30,6 +30,7 @@ test("can unload all records for a given type", function () {
   var adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
   var bob = env.store.push('person', {id: 2, name: "Bob Bobson"});
 
+  equal(env.store.all('person').get('length'), 2);
   env.store.unloadAll('person');
 
   equal(env.store.all('person').get('length'), 0);
