@@ -737,6 +737,9 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     var key = relationship.key,
         belongsTo = get(record, key);
     key = this.keyForAttribute ? this.keyForAttribute(key) : key;
+    if (relationship.options.async && DS.PromiseObject.detectInstance(belongsTo)) {
+      belongsTo = belongsTo.get('content');
+    }
     json[key + "Type"] = belongsTo.constructor.typeKey;
   }
 });
