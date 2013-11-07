@@ -80,7 +80,8 @@ test("serialize", function() {
   deepEqual(json, {
     first_name:       "Tom",
     last_name:        "Dale",
-    home_planet_id: get(league, "id")
+    home_planet_id: get(league, "id"),
+    evil_minion_ids: []
   });
 });
 
@@ -92,7 +93,8 @@ test("serializeIntoHash", function() {
 
   deepEqual(json, {
     home_planet: {
-      name:   "Umber"
+      name: "Umber",
+      villain_ids: []
     }
   });
 });
@@ -539,8 +541,24 @@ test("serialize with embedded objects", function() {
       id: get(tom, "id"),
       first_name: "Tom",
       last_name: "Dale",
-      home_planet_id: get(league, "id")
+      home_planet_id: get(league, "id"),
+      evil_minion_ids: []
     }]
+  });
+});
+
+test("serialize with non-embedded objects", function() {
+  league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
+  var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
+
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend());
+  var serializer = env.container.lookup("serializer:homePlanet");
+
+  var json = serializer.serialize(league);
+
+  deepEqual(json, {
+    name: "Villain League",
+    villain_ids: [get(tom, "id")]
   });
 });
 
