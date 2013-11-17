@@ -2,6 +2,7 @@
 /*jshint eqnull:true*/
 
 require("ember-data/system/record_arrays");
+require("ember-data/system/request");
 require("ember-data/system/mixins/mappable");
 
 /**
@@ -370,18 +371,18 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var type = record.constructor,
         id = get(record, 'id'),
-        resolver = Ember.RSVP.defer();
+        request = DS.Request.create();
 
-    record.loadingData(resolver.promise);
+    record.loadingData(request.promise);
 
     var adapter = this.adapterFor(type);
 
     Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to find a record but your adapter (for " + type + ") does not implement 'find'", adapter.find);
 
-    _find(adapter, this, type, id, resolver);
+    _find(adapter, this, type, id, request);
 
-    return resolver.promise;
+    return request.promise;
   },
 
   /**
@@ -602,9 +603,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @private
     @param {String} type
     @param {any} query an opaque query to be used by the adapter
+    @param {integer} page optional page number for pagination (0-indexed)
     @return Promise
   */
-  findQuery: function(type, query) {
+  findQuery: function(type, query, page) {
     type = this.modelFor(type);
 
     var array = DS.AdapterPopulatedRecordArray.create({
@@ -615,14 +617,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     });
 
     var adapter = this.adapterFor(type),
-        resolver = Ember.RSVP.defer();
+        request = adapter.requestFor(this, type, page);
 
     Ember.assert("You tried to load a query but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", adapter.findQuery);
 
-    _findQuery(adapter, this, type, query, array, resolver);
+    _findQuery(adapter, this, type, query, array, request);
 
-    return promiseArray(resolver.promise);
+    return promiseArray(request.promise);
   },
 
   /**
@@ -631,36 +633,36 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     the array with records of that type.
 
     @method findAll
-    @private
     @param {Class} type
+    @param {integer} page optional page number for pagination (0-indexed)
     @return {DS.AdapterPopulatedRecordArray}
   */
-  findAll: function(type) {
+  findAll: function(type, page) {
     type = this.modelFor(type);
 
-    return this.fetchAll(type, this.all(type));
+    return this.fetchAll(type, this.all(type), page);
   },
 
   /**
     @method fetchAll
     @private
-    @param type
+    @param {Class} type
     @param array
+    @param {integer} page optional page number for pagination (0-indexed)
     @returns Promise
   */
-  fetchAll: function(type, array) {
+  fetchAll: function(type, array, page) {
     var adapter = this.adapterFor(type),
-        sinceToken = this.typeMapFor(type).metadata.since,
-        resolver = Ember.RSVP.defer();
+        request = adapter.requestFor(this, type, page);
 
     set(array, 'isUpdating', true);
 
     Ember.assert("You tried to load all records but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load all records but your adapter does not implement `findAll`", adapter.findAll);
 
-    _findAll(adapter, this, type, sinceToken, resolver);
+    _findAll(adapter, this, type, request);
 
-    return promiseArray(resolver.promise);
+    return promiseArray(request.promise);
   },
 
   /**
@@ -1309,6 +1311,16 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return toReturn;
   },
 
+  handlePagination: function(array, request) {
+    if( request.page && request.pageSize ) {
+      var start = request.page * request.pageSize;
+      return array.slice(start, start + request.pageSize);
+    }
+    else {
+      return array;
+    }
+  },
+
   // ......................
   // . PER-TYPE ADAPTERS
   // ......................
@@ -1520,8 +1532,8 @@ function _findBelongsTo(adapter, store, record, link, relationship, resolver) {
   }).then(resolver.resolve, resolver.reject);
 }
 
-function _findAll(adapter, store, type, sinceToken, resolver) {
-  var promise = adapter.findAll(store, type, sinceToken),
+function _findAll(adapter, store, type, request) {
+  var promise = adapter.findAll(store, type, request),
       serializer = serializerForAdapter(adapter, type);
 
   return resolve(promise).then(function(payload) {
@@ -1531,12 +1543,20 @@ function _findAll(adapter, store, type, sinceToken, resolver) {
 
     store.pushMany(type, payload);
     store.didUpdateAll(type);
-    return store.all(type);
-  }).then(resolver.resolve, resolver.reject);
+
+    var recordArray = DS.AdapterPopulatedRecordArray.create({
+      type: type,
+      content: store.handlePagination(store.all(type), request),
+      meta: store.metadataFor(type),
+      store: this
+    });
+
+    return recordArray;
+  }).then(request.resolve, request.reject);
 }
 
-function _findQuery(adapter, store, type, query, recordArray, resolver) {
-  var promise = adapter.findQuery(store, type, query, recordArray),
+function _findQuery(adapter, store, type, query, recordArray, request) {
+  var promise = adapter.findQuery(store, type, query, recordArray, request),
       serializer = serializerForAdapter(adapter, type);
 
   return resolve(promise).then(function(payload) {
@@ -1544,9 +1564,10 @@ function _findQuery(adapter, store, type, query, recordArray, resolver) {
 
     Ember.assert("The response from a findQuery must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
+    recordArray.set('meta', store.metadataFor(type));
     recordArray.load(payload);
     return recordArray;
-  }).then(resolver.resolve, resolver.reject);
+  }).then(request.resolve, request.reject);
 }
 
 function _commit(adapter, store, operation, record, resolver) {

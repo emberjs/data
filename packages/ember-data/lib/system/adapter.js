@@ -95,9 +95,9 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     Optional
 
     @method findAll
-    @param  store
-    @param  type
-    @param  since
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Request} request
   */
   findAll: null,
 
@@ -105,10 +105,11 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     Optional
 
     @method findQuery
-    @param  store
-    @param  type
-    @param  query
-    @param  recordArray
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} query
+    @param {DS.RecordArray} recordArray
+    @param {DS.Request} request
   */
   findQuery: null,
 
@@ -208,5 +209,29 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     }, this);
 
     return Ember.RSVP.all(promises);
+  },
+
+  /**
+   The maximum number of results to be fetched by `findAll` or `findQuery`, optional.
+   @property 
+   */
+  pageSize: null,
+
+  /**
+    Create a Request that may specify a page number and size for pagination.
+
+    @method requestFor
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type the DS.Model class of the records
+    @param {integer} page optional page number for pagination (0-indexed)
+   */
+  requestFor: function(store, type, page) {
+    return DS.Request.create({
+      store: store,
+      type: type,
+      pageSize: this.pageSize,
+      page: page
+    });
   }
+
 });
