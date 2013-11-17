@@ -1001,3 +1001,18 @@ test('normalizeKey - to set up _ids and _id', function() {
   //deepEqual(jane.get('kidneys').toArray(), [kidney3], "jane should have the third kidney again");
   //equal(kidney2.get('person'), john, "second kidney should be in john again");
 //});
+test("defaultValue still functions", function() {
+  Post.reopen({body: DS.attr('string', { defaultValue: 'default' })});
+
+  ajaxResponse({ posts: [{ id: 1, body: null }, { id: 2, body: undefined }] });
+  store.find('post', 1).then(async(function(post) {
+    equal(post.get('body'), 'default', 'uses defaultValue when null');
+  }));
+
+  store.find('post', 2).then(async(function(post) {
+    equal(post.get('body'), 'default', 'uses defaultValue when undefined');
+  }));
+
+  var post = store.createRecord('post');
+  equal(post.get('body'), 'default', 'defaultValue works for createRecord');
+});
