@@ -223,14 +223,16 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @method requestFor
     @param {DS.Store} store
     @param {subclass of DS.Model} type the DS.Model class of the records
+    @param {} query option query params
     @param {integer} page optional page number for pagination (0-indexed)
    */
-  requestFor: function(store, type, page) {
+  requestFor: function(store, type, query, page) {
     return DS.Request.create({
       store: store,
       type: type,
-      pageSize: this.pageSize,
-      page: page
+      query: query,
+      page: page,
+      pageSize: this.pageSize
     });
   }
 

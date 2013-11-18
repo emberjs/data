@@ -609,15 +609,20 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   findQuery: function(type, query, page) {
     type = this.modelFor(type);
 
+    var adapter = this.adapterFor(type),
+        request = adapter.requestFor(this, type, query, page);
+
+    request.fetchPage = function(store, type, query, page) {
+      return store.findQuery(type, query, page);
+    };
+
     var array = DS.AdapterPopulatedRecordArray.create({
       type: type,
       query: query,
       content: Ember.A(),
-      store: this
+      store: this,
+      request: request
     });
-
-    var adapter = this.adapterFor(type),
-        request = adapter.requestFor(this, type, page);
 
     Ember.assert("You tried to load a query but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", adapter.findQuery);
@@ -653,7 +658,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   fetchAll: function(type, array, page) {
     var adapter = this.adapterFor(type),
-        request = adapter.requestFor(this, type, page);
+        request = adapter.requestFor(this, type, null, page);
 
     set(array, 'isUpdating', true);
 
@@ -1548,7 +1553,8 @@ function _findAll(adapter, store, type, request) {
       type: type,
       content: store.handlePagination(store.all(type), request),
       meta: store.metadataFor(type),
-      store: this
+      store: this,
+      request: request
     });
 
     return recordArray;
@@ -1564,7 +1570,6 @@ function _findQuery(adapter, store, type, query, recordArray, request) {
 
     Ember.assert("The response from a findQuery must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
-    recordArray.set('meta', store.metadataFor(type));
     recordArray.load(payload);
     return recordArray;
   }).then(request.resolve, request.reject);

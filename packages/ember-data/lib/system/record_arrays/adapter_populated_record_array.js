@@ -33,5 +33,11 @@ DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
 
     // TODO: does triggering didLoad event should be the last action of the runLoop?
     Ember.run.once(this, 'trigger', 'didLoad');
+  },
+
+  loadMore: function() {
+    var request = get(this, 'request');
+    request.loadMore(this);
   }
+
 });
