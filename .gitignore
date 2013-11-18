@@ -15,3 +15,5 @@ tests/ember-data-tests.js
 
 docs/build/
 docs/node_modules/
+
+node_modules/
