@@ -1320,16 +1320,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     return toReturn;
   },
 
-  handlePagination: function(array, request) {
-    if( request.page && request.pageSize ) {
-      var start = request.page * request.pageSize;
-      return array.slice(start, start + request.pageSize);
-    }
-    else {
-      return array;
-    }
-  },
-
   // ......................
   // . PER-TYPE ADAPTERS
   // ......................
@@ -1555,7 +1545,7 @@ function _findAll(adapter, store, type, request) {
 
     var recordArray = DS.AdapterPopulatedRecordArray.create({
       type: type,
-      content: store.handlePagination(store.all(type), request),
+      content: payload,
       meta: store.metadataFor(type),
       store: this,
       request: request

@@ -38,6 +38,14 @@ DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
   loadMore: function() {
     var request = get(this, 'request');
     request.loadMore(this);
+  },
+
+  loadPage: function( page ) {
+    var request = get(this, 'request'),
+        that = this;
+    request.loadPage(page).then(function (array) {
+      that.setObjects(get(array, 'content'));
+    });
   }
 
 });
