@@ -137,7 +137,9 @@ DS.JSONSerializer = Ember.Object.extend({
   },
 
   extractArray: function(store, type, payload) {
-    return this.normalize(type, payload);
+    return Ember.EnumerableUtils.map(payload, function (hash) {
+      return this.normalize(type, hash);
+    }, this);
   },
 
   extractMeta: function(store, type, payload) {
