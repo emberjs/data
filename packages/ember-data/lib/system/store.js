@@ -873,6 +873,10 @@ DS.Store = Ember.Object.extend({
     var pending = this._pendingSave.slice();
     this._pendingSave = [];
 
+    if (this.get('isDestroyed')) {
+      return;
+    }
+
     forEach(pending, function(tuple) {
       var record = tuple[0], resolver = tuple[1],
           adapter = this.adapterFor(record.constructor),
