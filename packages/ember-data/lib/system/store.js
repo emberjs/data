@@ -603,7 +603,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @private
     @param {String} type
     @param {any} query an opaque query to be used by the adapter
-    @param {integer} page optional page number for pagination (0-indexed)
+    @param {integer} page optional page number for pagination (1 is the first page)
     @return Promise
   */
   findQuery: function(type, query, page) {
@@ -639,7 +639,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     @method findAll
     @param {Class} type
-    @param {integer} page optional page number for pagination (0-indexed)
+    @param {integer} page optional page number for pagination (1 is the first page)
     @return {DS.AdapterPopulatedRecordArray}
   */
   findAll: function(type, page) {
@@ -653,12 +653,16 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @private
     @param {Class} type
     @param array
-    @param {integer} page optional page number for pagination (0-indexed)
+    @param {integer} page optional page number for pagination (1 is the first page)
     @returns Promise
   */
   fetchAll: function(type, array, page) {
     var adapter = this.adapterFor(type),
         request = adapter.requestFor(this, type, null, page);
+
+    request.fetchPage = function(store, type, query, page) {
+      return store.findAll(type, page);
+    };
 
     set(array, 'isUpdating', true);
 

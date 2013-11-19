@@ -23,7 +23,7 @@ DS.Request = Ember.Object.extend({
   promiseHead: null,
 
   init: function() {
-    this.endPage = this.page || 0;
+    this.endPage = this.page || 1;
     this.deferred = Ember.RSVP.defer();
     this.promiseHead = this.deferred.promise;
     this.sinceToken = this.store.typeMapFor(this.type).metadata.since;

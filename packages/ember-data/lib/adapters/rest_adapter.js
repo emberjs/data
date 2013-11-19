@@ -183,10 +183,10 @@ DS.RESTAdapter = DS.Adapter.extend({
       query.since = request.sinceToken;
     }
     if (request.page) {
-      query.page = request.page;
+      query[this.pageParameter || 'page'] = request.page;
     }
     if (request.pageSize) {
-      query.pageSize = request.pageSize;
+      query[this.pageSizeParameter || 'pageSize'] = request.pageSize;
     }
     return query;
   },
