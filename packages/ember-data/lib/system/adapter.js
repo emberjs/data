@@ -139,6 +139,23 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   generateIdForRecord: null,
 
   /**
+   Request parameter to use for the page number.
+   */
+  pageParameter: 'page',
+
+  /**
+   The maximum number of results to be fetched by `findAll` or `findQuery`, optional.
+   @property 
+   */
+  pageSize: null,
+
+  /**
+   Request parameter to use for specifying the page size.
+   @property 
+   */
+  pageSizeParameter: 'pageSize',
+
+  /**
     Proxies to the serializer's `serialize` method.
 
     @method serialize
@@ -210,12 +227,6 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
     return Ember.RSVP.all(promises);
   },
-
-  /**
-   The maximum number of results to be fetched by `findAll` or `findQuery`, optional.
-   @property 
-   */
-  pageSize: null,
 
   /**
     Create a Request that may specify a page number and size for pagination.
