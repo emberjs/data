@@ -373,7 +373,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         id = get(record, 'id'),
         request = DS.Request.create();
 
-    record.loadingData(request.promise);
+    record.loadingData(request.deferred.promise);
 
     var adapter = this.adapterFor(type);
 
@@ -382,7 +382,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     _find(adapter, this, type, id, request);
 
-    return request.promise;
+    return request.deferred.promise;
   },
 
   /**
@@ -629,7 +629,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     _findQuery(adapter, this, type, query, array, request);
 
-    return promiseArray(request.promise);
+    return promiseArray(request.deferred.promise);
   },
 
   /**
@@ -667,7 +667,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     _findAll(adapter, this, type, request);
 
-    return promiseArray(request.promise);
+    return promiseArray(request.deferred.promise);
   },
 
   /**
@@ -1558,7 +1558,7 @@ function _findAll(adapter, store, type, request) {
     });
 
     return recordArray;
-  }).then(request.resolve, request.reject);
+  }).then(request.deferred.resolve, request.deferred.reject);
 }
 
 function _findQuery(adapter, store, type, query, recordArray, request) {
@@ -1572,7 +1572,7 @@ function _findQuery(adapter, store, type, query, recordArray, request) {
 
     recordArray.load(payload);
     return recordArray;
-  }).then(request.resolve, request.reject);
+  }).then(request.deferred.resolve, request.deferred.reject);
 }
 
 function _commit(adapter, store, operation, record, resolver) {
