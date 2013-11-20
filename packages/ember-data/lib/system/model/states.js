@@ -556,7 +556,11 @@ var RootState = {
 
       didCommit: function(record) {
         record.send('invokeLifecycleCallbacks', get(record, 'lastDirtyType'));
-      }
+      },
+
+      // loaded.saved.notFound would be triggered by a failed
+      // `reload()` on an unchanged record
+      notFound: Ember.K
 
     },
 
