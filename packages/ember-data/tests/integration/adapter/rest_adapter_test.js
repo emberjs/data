@@ -876,6 +876,18 @@ test('normalizeKey - to set up _ids and _id', function() {
   }));
 });
 
+test("findAll - page and page size are included in the request", function() {
+  ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }, { id: 2, name: "The Parley Letter" }] });
+  var page = 1, pageSize = 10;
+  adapter.set('pageSize', pageSize);
+  store.findAll('post', page).then(async(function(posts) {
+    var test = {};
+    test[adapter.pageParameter] = page;
+    test[adapter.pageSizeParameter] = pageSize;
+    deepEqual(passedHash.data, test);
+  }));
+});
+
 //test("creating a record with a 422 error marks the records as invalid", function(){
   //expect(1);
 
