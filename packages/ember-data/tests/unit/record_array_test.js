@@ -184,3 +184,20 @@ test("an AdapterPopulatedRecordArray can load a specific page", function() {
     }));
   }));
 });
+
+test("an AdapterPopulatedRecordArray contains the requested page and pageSize", function() {
+  var env = setupStore({ person: Person, adapter: DS.FixtureAdapter }),
+      store = env.store, pageSize = 1, page = 2;
+
+  Person.FIXTURES = [
+    {id: 1, name: 'Dimebag Dale'},
+    {id: 2, name: 'Yehuda Brynjolffsosysdfon'},
+    {id: 3, name: 'Brynjolffsosysdfon Katz'}
+  ];
+
+  store.adapterFor(Person).set('pageSize', pageSize);
+  store.findAll('person', page).then(async(function(people) {
+    equal(get(people, 'page'), page);
+    equal(get(people, 'pageSize'), pageSize);
+  }));
+});

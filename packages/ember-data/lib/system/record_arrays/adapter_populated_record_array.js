@@ -21,6 +21,9 @@ DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
   */
   request: null,
 
+  pageBinding: 'request.page',
+  pageSizeBinding: 'request.pageSize',
+
   replace: function() {
     var type = get(this, 'type').toString();
     throw new Error("The result of a server query (on " + type + ") is immutable.");
