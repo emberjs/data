@@ -371,18 +371,18 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     var type = record.constructor,
         id = get(record, 'id'),
-        request = DS.Request.create();
+        resolver = Ember.RSVP.defer();
 
-    record.loadingData(request.deferred.promise);
+    record.loadingData(resolver.promise);
 
     var adapter = this.adapterFor(type);
 
     Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to find a record but your adapter (for " + type + ") does not implement 'find'", adapter.find);
 
-    _find(adapter, this, type, id, request);
+    _find(adapter, this, type, id, resolver);
 
-    return request.deferred.promise;
+    return resolver.promise;
   },
 
   /**
