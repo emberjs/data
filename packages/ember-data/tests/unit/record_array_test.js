@@ -146,3 +146,41 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
     equal(get(people, 'isLoaded'), true, "The array is now loaded");
   }));
 });
+
+test("an AdapterPopulatedRecordArray can load more records", function() {
+  var env = setupStore({ person: Person, adapter: DS.FixtureAdapter }),
+      store = env.store;
+
+  Person.FIXTURES = [
+    {id: 1, name: 'Dimebag Dale'},
+    {id: 2, name: 'Yehuda Brynjolffsosysdfon'}
+  ];
+
+  store.adapterFor(Person).set('pageSize', 1);
+  store.findAll('person').then(async(function(people) {
+    equal(get(people, 'length'), 1, "First page of results loaded");
+    people.loadMore().then(async(function() {
+      equal(get(people, 'length'), 2, "Second page of results loaded");
+    }));
+  }));
+});
+
+test("an AdapterPopulatedRecordArray can load a specific page", function() {
+  var env = setupStore({ person: Person, adapter: DS.FixtureAdapter }),
+      store = env.store;
+
+  Person.FIXTURES = [
+    {id: 1, name: 'Dimebag Dale'},
+    {id: 2, name: 'Yehuda Brynjolffsosysdfon'},
+    {id: 3, name: 'Brynjolffsosysdfon Katz'}
+  ];
+
+  store.adapterFor(Person).set('pageSize', 1);
+  store.findAll('person').then(async(function(people) {
+    equal(get(people, 'length'), 1, "First page of results loaded");
+    people.loadPage(3).then(async(function() {
+      equal(get(people, 'length'), 1, "Only one page is loaded at a time");
+      equal(people.objectAt(0).get('id'), 3, "Third page of results loaded");
+    }));
+  }));
+});

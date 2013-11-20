@@ -243,7 +243,7 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
       type: type,
       query: query,
       page: page,
-      pageSize: this.pageSize
+      pageSize: get(this, 'pageSize')
     });
   }
 

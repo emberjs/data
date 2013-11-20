@@ -166,8 +166,9 @@ DS.FixtureAdapter = DS.Adapter.extend({
   },
 
   handlePagination: function(array, request) {
-    if( request.page && request.pageSize ) {
-      var start = (request.page - 1) * request.pageSize;
+    if( request.pageSize ) {
+      var page = request.page || 1,
+          start = (page - 1) * request.pageSize;
       return array.slice(start, start + request.pageSize);
     }
     else {

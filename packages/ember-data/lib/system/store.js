@@ -1543,7 +1543,7 @@ function _findAll(adapter, store, type, request) {
     store.pushMany(type, payload);
     store.didUpdateAll(type);
 
-    if( request.page ) {
+    if( request.pageSize ) {
       var recordArray = DS.AdapterPopulatedRecordArray.create({
         type: type,
         meta: store.metadataFor(type),

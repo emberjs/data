@@ -31,20 +31,24 @@ DS.Request = Ember.Object.extend({
 
   loadMore: function( array ) {
     var nextPage = +this.endPage + 1,
-        that = this;
+        request = this,
+        resolver = Ember.RSVP.defer(),
+        reject = resolver.reject;
     // ensure that pages are loaded in order
     this.promiseHead.then(function() {
-      that.promiseHead = that.loadPage(nextPage, array).then(function(more) {
+      request.promiseHead = request.loadPage(nextPage, array).then(function(more) {
         array.pushObjects(get(more, 'content'));
-      });
-    });
+        resolver.resolve(array);
+      }, reject);
+    }, reject);
+    return resolver.promise;
   },
 
   loadPage: function( page ) {
     var store = get(this, 'store'),
         type = get(this, 'type'),
         query = get(this, 'query');
-    Ember.assert('You tried to call loadMore but no fetchPage method has been provided', this.fetchPage);
+    Ember.assert('You tried to call Request.loadPage but no fetchPage method has been provided', this.fetchPage);
     this.endPage = page;
     return this.fetchPage(store, type, query, page);
   }
