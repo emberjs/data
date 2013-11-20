@@ -148,8 +148,11 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns Promise
   */
   findAll: function(store, type, request) {
-    var query = this.paginateRequest(null, request);
-    return this.ajax(this.buildURL(type.typeKey), 'GET', { data: query });
+    var query = this.paginateRequest(null, request), hash = {};
+    if (query) {
+      hash.data = query;
+    }
+    return this.ajax(this.buildURL(type.typeKey), 'GET', hash);
   },
 
   /**
@@ -173,12 +176,14 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns Promise
   */
   findQuery: function(store, type, query, recordArray, request) {
-    query = this.paginateRequest(query || {}, request);
+    query = this.paginateRequest(query, request);
     return this.ajax(this.buildURL(type.typeKey), 'GET', { data: query });
   },
 
   paginateRequest: function(query, request) {
-    query = query ? Ember.$.extend({}, query) : {};
+    if (request.sinceToken || request.page || request.pageSize) {
+      query = query || {};
+    }
     if (request.sinceToken) {
       query.since = request.sinceToken;
     }

@@ -1543,15 +1543,19 @@ function _findAll(adapter, store, type, request) {
     store.pushMany(type, payload);
     store.didUpdateAll(type);
 
-    var recordArray = DS.AdapterPopulatedRecordArray.create({
-      type: type,
-      content: payload,
-      meta: store.metadataFor(type),
-      store: this,
-      request: request
-    });
-
-    return recordArray;
+    if( request.page ) {
+      var recordArray = DS.AdapterPopulatedRecordArray.create({
+        type: type,
+        meta: store.metadataFor(type),
+        store: store,
+        request: request
+      });
+      recordArray.load(payload);
+      return recordArray;
+    }
+    else {
+      return store.all(type);
+    }
   }).then(request.deferred.resolve, request.deferred.reject);
 }
 
