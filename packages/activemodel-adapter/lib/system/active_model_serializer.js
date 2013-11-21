@@ -11,7 +11,21 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   // SERIALIZE
 
   /**
-    Converts camelcased attributes to underscored when serializing.
+    Converts camelCased attributes to underscored "snake_case" attributes when serializing.
+    
+    For example
+
+    ```js
+      {
+        myAttributeKey: "some value"
+      }
+    ```
+    becomes  
+    ```js
+      {
+        my_attribute_key: "some value"
+      }
+    ```
 
     @method keyForAttribute
     @param {String} attribute
@@ -24,6 +38,12 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   /**
     Underscores relationship names and appends "_id" or "_ids" when serializing
     relationship keys.
+    
+    If the `kind` argument is a belongsTo the return value is: key + _id
+
+    If the `kind` argument is a hasMany the key is singularized and the return value is: key + _ids
+
+    In all other cases the return value is the key.
 
     @method keyForRelationship
     @param {String} key
@@ -42,9 +62,16 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   },
 
   /**
-    Serialize has-may relationship when it is configured as embedded objects.
+    Serialize the hasMany relationship when it is configured as embedded objects.
+    
+    The return value is a hash that maps the record's primaryKey to each of the related
+    model records.
 
     @method serializeHasMany
+    @param {DS.Model} record
+    @param {Object} json
+    @param {Object} relationship
+    @returns Object
   */
   serializeHasMany: function(record, json, relationship) {
     var key   = relationship.key,
@@ -65,9 +92,11 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
 
   /**
     Underscores the JSON root keys when serializing.
+    
+    Takes hash object as data.
 
     @method serializeIntoHash
-    @param {Object} hash
+    @param {Object} data
     @param {subclass of DS.Model} type
     @param {DS.Model} record
     @param {Object} options
@@ -79,6 +108,8 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
 
   /**
     Serializes a polymorphic type as a fully capitalized model name.
+
+    The type is represented in the serialized JSON as key + "_type".
 
     @method serializePolymorphicType
     @param {DS.Model} record
@@ -126,6 +157,8 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     ```
 
     @method normalizeRelationships
+    @param type
+    @param hash
     @private
   */
   normalizeRelationships: function(type, hash) {
@@ -158,6 +191,17 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     }
   },
 
+  /**
+    Extract a single model record from a collection of records
+
+    @method extractSingle
+    @param store
+    @param primaryType
+    @param payload
+    @param recordId
+    @param requestType
+    @private
+  */
   extractSingle: function(store, primaryType, payload, recordId, requestType) {
     var root = this.keyForAttribute(primaryType.typeKey),
         partial = payload[root];
@@ -167,6 +211,15 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     return this._super(store, primaryType, payload, recordId, requestType);
   },
 
+  /**
+    Extract an array of model records from a collection of records
+
+    @method extractArray 
+    @param store
+    @param type
+    @param payload
+    @private
+  */
   extractArray: function(store, type, payload) {
     var root = this.keyForAttribute(type.typeKey),
         partials = payload[Ember.String.pluralize(root)];
@@ -179,6 +232,18 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   }
 });
 
+  /**
+    Recursively performs an update of the serialized payload with embedded 
+    partial side loaded records.
+
+    @method updatePayloadWithEmbedded 
+    @param store
+    @param serializer
+    @param type
+    @param partial
+    @param payload
+  */
+  
 function updatePayloadWithEmbedded(store, serializer, type, partial, payload) {
   var attrs = get(serializer, 'attrs');
 
