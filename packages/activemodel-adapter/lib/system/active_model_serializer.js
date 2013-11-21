@@ -48,6 +48,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   */
   serializeHasMany: function(record, json, relationship) {
     var key   = relationship.key,
+        keyForRelationship,
         attrs = get(this, 'attrs'),
         embed = attrs && attrs[key] && attrs[key].embedded === 'always';
 
@@ -60,6 +61,13 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
 
         return data;
       }, this);
+    } else {
+      this._super.apply(this, arguments);
+      keyForRelationship = this.keyForRelationship(key, relationship.kind);
+      if (keyForRelationship !== key) {
+        json[keyForRelationship] = json[key];
+        delete json[key];
+      }
     }
   },
 
