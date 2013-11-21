@@ -1145,7 +1145,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     store.pushPayload('post', pushData);
     ```
 
-    @method push
+    @method pushPayload
     @param {String} type
     @param {Object} payload
   */
