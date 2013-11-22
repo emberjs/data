@@ -27,6 +27,18 @@ DS.JSONSerializer = Ember.Object.extend({
     return hash;
   },
 
+  /**
+    You can use this method to apply any necessary transformations
+    so that any metadata provided in a response is mapped to the standard 
+    properties: `page`, `pageSize`, `total`, `isFinished`
+    @method normalizeMetadata
+    @param {DS.Model} type
+    @param {Object} hash
+   */
+  normalizeMetadata: function(type, hash) {
+    return hash;
+  },
+
   // SERIALIZE
 
   serialize: function(record, options) {
@@ -144,7 +156,7 @@ DS.JSONSerializer = Ember.Object.extend({
 
   extractMeta: function(store, type, payload) {
     if (payload && payload.meta) {
-      store.metaForType(type, payload.meta);
+      store.metaForType(type, this.normalizeMetadata(type, payload.meta));
       delete payload.meta;
     }
   },

@@ -993,7 +993,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     typeMap = {
       idToRecord: {},
       records: [],
-      metadata: {}
+      metadata: Ember.Object.create()
     };
 
     typeMaps[guid] = typeMap;
@@ -1199,7 +1199,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   metaForType: function(type, metadata) {
     type = this.modelFor(type);
 
-    Ember.merge(this.typeMapFor(type).metadata, metadata);
+    this.typeMapFor(type).metadata.setProperties(metadata);
   },
 
   /**
