@@ -34,27 +34,27 @@ DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
 
   pageBinding: 'request.page',
 
-  pageSize: function() {
+  pageSize: Ember.computed(function() {
     var pageSize = get(this, 'meta.pageSize');
-    if( !pageSize ) {
+    if (!pageSize) {
       pageSize = this.request.pageSize;
     }
     return pageSize;
-  }.property('meta.pageSize'),
+  }).property('meta.pageSize'),
 
   totalBinding: 'meta.total',
 
-  totalPages: function() {
+  totalPages: Ember.computed(function() {
     var pageSize = get(this, 'pageSize'),
         total = get(this, 'total');
-    if( pageSize > 0 && total !== undefined ) {
+    if (pageSize > 0 && total !== undefined) {
       return Math.ceil(total / pageSize);
     }
-  }.property('pageSize', 'total'),
+  }).property('pageSize', 'total'),
 
-  isFinished: function() {
+  isFinished: Ember.computed(function() {
     return get(this, 'meta.isFinished') || (get(this, 'endPage') >= get(this, 'totalPages'));
-  }.property('meta.isFinished', 'endPage', 'totalPages'),
+  }).property('meta.isFinished', 'endPage', 'totalPages'),
 
   replace: function() {
     var type = get(this, 'type').toString();

@@ -1304,7 +1304,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   relationshipChangePairsFor: function(record){
     var toReturn = [];
 
-    if( !record ) { return toReturn; }
+    if (!record) { return toReturn; }
 
     //TODO(Igor) What about the other side
     var changesObject = this._relationshipChanges[record.clientId];
@@ -1543,7 +1543,7 @@ function _findAll(adapter, store, type, request) {
     store.pushMany(type, payload);
     store.didUpdateAll(type);
 
-    if( request.pageSize ) {
+    if (request.pageSize || store.metadataFor(type).pageSize) {
       var recordArray = DS.AdapterPopulatedRecordArray.create({
         type: type,
         meta: store.metadataFor(type),

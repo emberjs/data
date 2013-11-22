@@ -1,7 +1,17 @@
 var get = Ember.get, set = Ember.set;
 var indexOf = Ember.EnumerableUtils.indexOf;
 
-var Person, array;
+var Person, array, adapter;
+
+function ajaxResponse(adapter, value) {
+  adapter.ajax = function(url, verb, hash) {
+    passedUrl = url;
+    passedVerb = verb;
+    passedHash = hash;
+
+    return Ember.RSVP.resolve(value);
+  };
+}
 
 module("unit/record_array - DS.RecordArray", {
   setup: function() {
@@ -185,9 +195,11 @@ test("an AdapterPopulatedRecordArray can load a specific page", function() {
   }));
 });
 
+
 test("an AdapterPopulatedRecordArray contains the requested page and pageSize", function() {
   var env = setupStore({ person: Person, adapter: DS.FixtureAdapter }),
       store = env.store, pageSize = 1, page = 2;
+
 
   Person.FIXTURES = [
     {id: 1, name: 'Dimebag Dale'},
@@ -201,3 +213,45 @@ test("an AdapterPopulatedRecordArray contains the requested page and pageSize", 
     equal(get(people, 'pageSize'), pageSize);
   }));
 });
+
+test("use pageSize from the server if it's specified in the metadata", function() {
+  var env = setupStore({ person: Person, adapter: DS.RESTAdapter }),
+      store = env.store, pageSize = 10;
+
+  ajaxResponse(env.adapter, { meta: { pageSize: pageSize }, people: [{ id: 1, name: "Dimebag Dale" }] });
+  store.adapterFor(Person).set('pageSize', 1);
+  store.findAll('person').then(async(function(people) {
+    equal(get(people, 'pageSize'), pageSize);
+  }));
+});
+
+test("totalPages is computed from the total returned by the server", function() {
+  var env = setupStore({ person: Person, adapter: DS.RESTAdapter }),
+      store = env.store, total = 12, pageSize = 10;
+
+  ajaxResponse(env.adapter, { meta: { pageSize: pageSize, total: total }, people: [{ id: 1, name: "Dimebag Dale" }] });
+  store.findAll('person').then(async(function(people) {
+    equal(get(people, 'totalPages'), Math.ceil(total / pageSize));
+  }));
+});
+
+test("isFinished is true when endPage >= totalPages", function() {
+  var env = setupStore({ person: Person, adapter: DS.RESTAdapter }),
+      store = env.store, total = 12, pageSize = 10, page = 2;
+
+  ajaxResponse(env.adapter, { meta: { pageSize: pageSize, total: total }, people: [{ id: 1, name: "Dimebag Dale" }] });
+  store.findAll('person', page).then(async(function(people) {
+    equal(get(people, 'isFinished'), true);
+  }));
+});
+
+test("isFinished is true when endPage >= totalPages", function() {
+  var env = setupStore({ person: Person, adapter: DS.RESTAdapter }),
+      store = env.store;
+
+  ajaxResponse(env.adapter, { meta: { isFinished: true, pageSize: 10 }, people: [{ id: 1, name: "Dimebag Dale" }] });
+  store.findAll('person').then(async(function(people) {
+    equal(get(people, 'isFinished'), true);
+  }));
+});
+
