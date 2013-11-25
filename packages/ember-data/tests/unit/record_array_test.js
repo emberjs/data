@@ -1,7 +1,7 @@
 var get = Ember.get, set = Ember.set;
 var indexOf = Ember.EnumerableUtils.indexOf;
 
-var Person, array, adapter;
+var Person, array, adapter, passedUrl, passedVerb, passedHash;
 
 function ajaxResponse(adapter, value) {
   adapter.ajax = function(url, verb, hash) {
