@@ -191,3 +191,23 @@ test("Calling pushPayload allows pushing raw JSON", function () {
 
   equal(post.get('postTitle'), "Ember rocks (updated)", "You can update data in the store");
 });
+
+test("Calling pushPayload without a type uses application serializer", function () {
+  expect(2);
+
+  env.container.register('serializer:application', DS.RESTSerializer.extend({
+    pushPayload: function(store, payload) {
+      ok(true, "pushPayload is called on Application serializer");
+      return this._super(store, payload);
+    }
+  }));
+
+  store.pushPayload({posts: [{
+    id: '1',
+    postTitle: "Ember rocks"
+  }]});
+
+  var post = store.getById('post', 1);
+
+  equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
+});
