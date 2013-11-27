@@ -14,8 +14,8 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     Converts camelcased attributes to underscored when serializing.
 
     @method keyForAttribute
-    @param {String} attribute
-    @returns String
+    @param {String} attr
+    @returns {String}
   */
   keyForAttribute: function(attr) {
     return Ember.String.decamelize(attr);
@@ -28,7 +28,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     @method keyForRelationship
     @param {String} key
     @param {String} kind
-    @returns String
+    @returns {String}
   */
   keyForRelationship: function(key, kind) {
     key = Ember.String.decamelize(key);
@@ -50,7 +50,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     Underscores the JSON root keys when serializing.
 
     @method serializeIntoHash
-    @param {Object} hash
+    @param {Object} data
     @param {subclass of DS.Model} type
     @param {DS.Model} record
     @param {Object} options
@@ -82,7 +82,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
 
     @method typeForRoot
     @param {String} root
-    @returns String the model's typeKey
+    @returns {String} the model's typeKey
   */
   typeForRoot: function(root) {
     var camelized = Ember.String.camelize(root);
