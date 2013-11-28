@@ -48,6 +48,14 @@ DS.ManyArray = DS.RecordArray.extend({
   },
 
   /**
+    The property name of the relationship
+
+    @property {String}
+    @private
+  */
+  name: null,
+
+  /**
     The record to which this relationship belongs.
 
     @property {DS.Model}
