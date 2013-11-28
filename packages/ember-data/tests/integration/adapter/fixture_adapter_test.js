@@ -259,3 +259,36 @@ test("should throw if ids are not defined in the FIXTURES", function() {
     ok(false, "should not get here");
   });
 });
+
+test("should filter the fixtures", function() {
+  Person.FIXTURES = [{
+    id: 1,
+    firstName: "Adam",
+    lastName: "Hawkins",
+    height: 65
+  },{
+    id: 2,
+    firstName: 'Yehuda',
+    lastName: 'Katz',
+    height: 50
+  }];
+
+  env.store.find('person', { firstName: 'Adam', lastName: 'Hawkins' }).then(async(function(found) {
+    equal(get(found, 'length'), 1);
+    equal(get(found, 'firstObject.firstName'), 'Adam');
+  }), function() {
+    ok(false, "should not get here");
+  });
+
+  env.store.find('person', { firstName: 'Yehuda', lastName: 'KATZ' }).then(async(function(found) {
+    equal(get(found, 'length'), 0);
+  }), function() {
+    ok(false, "should not get here");
+  });
+
+  env.store.find('person', {}).then(async(function(found) {
+    equal(get(found, 'length'), 2);
+  }), function() {
+    ok(false, "should not get here");
+  });
+});
