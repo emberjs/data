@@ -123,7 +123,24 @@ var ManyArray = RecordArray.extend({
         resolver = Ember.RSVP.defer("DS: ManyArray#fetch " + get(this, 'type'));
 
     var unloadedRecords = records.filterProperty('isEmpty', true);
-    store.fetchMany(unloadedRecords, owner, resolver);
+    store.fetchMany(this, unloadedRecords, owner, resolver);
+  },
+
+  update: function() {
+    var records = get(this, 'content'),
+        store = get(this, 'store'),
+        owner = get(this, 'owner'),
+        type = get(this, 'type'),
+        name = get(this, 'name'),
+        resolver = Ember.RSVP.defer();
+
+      var meta = owner.constructor.metaForProperty(name);
+      var link = owner._data.links && owner._data.links[meta.key];
+      if (link) {
+        store.fetchHasMany(this, owner, link, meta, resolver);
+      } else {
+        store.fetchMany(this, records, owner, resolver);
+      }
   },
 
   // Overrides Ember.Array's replace method to implement

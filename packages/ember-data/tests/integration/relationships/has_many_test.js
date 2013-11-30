@@ -146,6 +146,106 @@ test("An updated `links` value should invalidate a relationship cache", function
   }));
 });
 
+test("Updating the relationship with links should call findHasMany", function() {
+  expect(7);
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.findAll = function() {
+    throw new Error("Adapter's findAll should not be called");
+  };
+
+  env.adapter.createRecord = function(store, type, record) {
+    var data = record.serialize();
+    return Ember.RSVP.resolve({ id: 1, links: { comments: "/posts/1/comments" } });
+  };
+
+  var commentsPayload = [
+    { id: 1, body: "First" },
+    { id: 2, body: "Second" }
+  ];
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    return Ember.RSVP.resolve(commentsPayload);
+  };
+
+  env.store.createRecord('post', {}).save().then(async(function(post) {
+    return post.get('comments');
+  })).then(async(function(comments) {
+    equal(comments.get('isUpdating'), false, "Comments aren't updating");
+    equal(comments.get('isLoaded'), true, "comments are loaded");
+    equal(comments.get('length'), 2, "comments have 2 length");
+
+    commentsPayload.push({ id: 3, body: 'Third' });
+
+    comments.update();
+    equal(comments.get('isUpdating'), true, 'Comments are updating');
+
+    comments.one('didUpdate', function() {
+      equal(comments.get('isUpdating'), false, "Comments aren't updating");
+      equal(comments.get('isLoaded'), true, "comments are updated");
+      equal(comments.get('length'), 3, "comments have 3 length");
+    });
+  }));
+});
+
+test("Updating the relationship should call findMany", function() {
+  expect(9);
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.findAll = function() {
+    throw new Error("Adapter's findAll should not be called");
+  };
+
+  env.adapter.findHasAll = function() {
+    throw new Error("Adapter's findHasAll should not be called");
+  };
+
+  env.adapter.createRecord = function(store, type, record) {
+    var data = record.serialize();
+    return Ember.RSVP.resolve({ id: 1, comments: Ember.A([1, 2]) });
+  };
+
+  var commentsPayload = [
+    { id: 1, body: "First" },
+    { id: 2, body: "Sceond" }
+  ];
+
+  env.adapter.findMany = function(store, type, ids, owner) {
+    return Ember.RSVP.resolve(commentsPayload);
+  };
+
+  env.store.createRecord('post', {}).save().then(async(function(post) {
+    return post.get('comments');
+  })).then(async(function(comments) {
+    equal(comments.get('isUpdating'), false, "Comments aren't updating");
+    equal(comments.get('lastObject.body'), "Sceond", "Data loaded");
+    equal(comments.get('isLoaded'), true, "comments are loaded");
+    equal(comments.get('length'), 2, "comments have 2 length");
+
+    commentsPayload = [
+      { id: 1, body: "First" },
+      { id: 2, body: "Second" }
+    ];
+
+    comments.update();
+    equal(comments.get('isUpdating'), true, 'Comments are updating');
+
+    comments.one('didUpdate', function() {
+      equal(comments.get('isUpdating'), false, "Comments aren't updating");
+      equal(comments.get('lastObject.body'), "Second", "Data updated");
+      equal(comments.get('isLoaded'), true, "comments are loaded");
+      equal(comments.get('length'), 2, "comments have 3 length");
+    });
+
+  }));
+});
+
 test("When a polymorphic hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function() {
   expect(1);
 
