@@ -379,7 +379,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to find a record but your adapter (for " + type + ") does not implement 'find'", adapter.find);
 
-    _find(adapter, this, type, id, resolver);
+    resolver.resolve(_find(adapter, this, type, id));
 
     return resolver.promise;
   },
@@ -421,7 +421,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {DS.Model} record
     @param {Resolver} resolver
   */
-  reloadRecord: function(record, resolver) {
+  reloadRecord: function(record) {
     var type = record.constructor,
         adapter = this.adapterFor(type),
         id = get(record, 'id');
@@ -430,7 +430,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to reload a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to reload a record but your adapter does not implement `find`", adapter.find);
 
-    return _find(adapter, this, type, id, resolver);
+    return _find(adapter, this, type, id);
   },
 
   /**
@@ -469,7 +469,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       Ember.assert("You tried to load many records but you have no adapter (for " + type + ")", adapter);
       Ember.assert("You tried to load many records but your adapter does not implement `findMany`", adapter.findMany);
 
-      _findMany(adapter, this, type, ids, owner, resolver);
+      resolver.resolve(_findMany(adapter, this, type, ids, owner));
     }, this);
   },
 
@@ -574,7 +574,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", adapter.findHasMany);
 
     var records = this.recordArrayManager.createManyArray(relationship.type, Ember.A([]));
-    _findHasMany(adapter, this, owner, link, relationship, resolver);
+    resolver.resolve(_findHasMany(adapter, this, owner, link, relationship));
     return records;
   },
 
@@ -584,7 +584,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to load a belongsTo relationship but you have no adapter (for " + owner.constructor + ")", adapter);
     Ember.assert("You tried to load a belongsTo relationship from a specified `link` in the original payload but your adapter does not implement `findBelongsTo`", adapter.findBelongsTo);
 
-    _findBelongsTo(adapter, this, owner, link, relationship, resolver);
+    resolver.resolve(_findBelongsTo(adapter, this, owner, link, relationship));
   },
 
   /**
@@ -620,7 +620,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to load a query but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", adapter.findQuery);
 
-    _findQuery(adapter, this, type, query, array, resolver);
+    resolver.resolve(_findQuery(adapter, this, type, query, array));
 
     return promiseArray(resolver.promise);
   },
@@ -658,7 +658,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to load all records but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load all records but your adapter does not implement `findAll`", adapter.findAll);
 
-    _findAll(adapter, this, type, sinceToken, resolver);
+    resolver.resolve(_findAll(adapter, this, type, sinceToken));
 
     return promiseArray(resolver.promise);
   },
@@ -740,7 +740,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     If any of a record's properties change, or if it changes state, the
     filter function will be invoked again to determine whether it should
     still be in the array.
-    
+
     Optionally you can pass a query which will be triggered at first. The
     results returned by the server could then appear in the filter if they
     match the filter function.
@@ -887,7 +887,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
         operation = 'updateRecord';
       }
 
-      _commit(adapter, this, operation, record, resolver);
+      resolver.resolve(_commit(adapter, this, operation, record));
     }, this);
   },
 
@@ -1464,7 +1464,7 @@ function serializerForAdapter(adapter, type) {
   return serializer;
 }
 
-function _find(adapter, store, type, id, resolver) {
+function _find(adapter, store, type, id) {
   var promise = adapter.find(store, type, id),
       serializer = serializerForAdapter(adapter, type);
 
@@ -1477,10 +1477,10 @@ function _find(adapter, store, type, id, resolver) {
     var record = store.getById(type, id);
     record.notFound();
     throw error;
-  }).then(resolver.resolve, resolver.reject);
+  });
 }
 
-function _findMany(adapter, store, type, ids, owner, resolver) {
+function _findMany(adapter, store, type, ids, owner) {
   var promise = adapter.findMany(store, type, ids, owner),
       serializer = serializerForAdapter(adapter, type);
 
@@ -1490,10 +1490,10 @@ function _findMany(adapter, store, type, ids, owner, resolver) {
     Ember.assert("The response from a findMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
     store.pushMany(type, payload);
-  }).then(resolver.resolve, resolver.reject);
+  });
 }
 
-function _findHasMany(adapter, store, record, link, relationship, resolver) {
+function _findHasMany(adapter, store, record, link, relationship) {
   var promise = adapter.findHasMany(store, record, link, relationship),
       serializer = serializerForAdapter(adapter, relationship.type);
 
@@ -1504,10 +1504,10 @@ function _findHasMany(adapter, store, record, link, relationship, resolver) {
 
     var records = store.pushMany(relationship.type, payload);
     record.updateHasMany(relationship.key, records);
-  }).then(resolver.resolve, resolver.reject);
+  });
 }
 
-function _findBelongsTo(adapter, store, record, link, relationship, resolver) {
+function _findBelongsTo(adapter, store, record, link, relationship) {
   var promise = adapter.findBelongsTo(store, record, link, relationship),
       serializer = serializerForAdapter(adapter, relationship.type);
 
@@ -1517,10 +1517,10 @@ function _findBelongsTo(adapter, store, record, link, relationship, resolver) {
     var record = store.push(relationship.type, payload);
     record.updateBelongsTo(relationship.key, record);
     return record;
-  }).then(resolver.resolve, resolver.reject);
+  });
 }
 
-function _findAll(adapter, store, type, sinceToken, resolver) {
+function _findAll(adapter, store, type, sinceToken) {
   var promise = adapter.findAll(store, type, sinceToken),
       serializer = serializerForAdapter(adapter, type);
 
@@ -1532,10 +1532,10 @@ function _findAll(adapter, store, type, sinceToken, resolver) {
     store.pushMany(type, payload);
     store.didUpdateAll(type);
     return store.all(type);
-  }).then(resolver.resolve, resolver.reject);
+  });
 }
 
-function _findQuery(adapter, store, type, query, recordArray, resolver) {
+function _findQuery(adapter, store, type, query, recordArray) {
   var promise = adapter.findQuery(store, type, query, recordArray),
       serializer = serializerForAdapter(adapter, type);
 
@@ -1546,10 +1546,10 @@ function _findQuery(adapter, store, type, query, recordArray, resolver) {
 
     recordArray.load(payload);
     return recordArray;
-  }).then(resolver.resolve, resolver.reject);
+  });
 }
 
-function _commit(adapter, store, operation, record, resolver) {
+function _commit(adapter, store, operation, record) {
   var type = record.constructor,
       promise = adapter[operation](store, type, record),
       serializer = serializerForAdapter(adapter, type);
@@ -1568,5 +1568,5 @@ function _commit(adapter, store, operation, record, resolver) {
     }
 
     throw reason;
-  }).then(resolver.resolve, resolver.reject);
+  });
 }
