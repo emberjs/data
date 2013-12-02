@@ -113,8 +113,8 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
     @method normalize
     @param {subclass of DS.Model} type
-    @param {String} prop
     @param {Object} hash
+    @param {String} prop
     @returns Object
   */
   normalize: function(type, hash, prop) {
