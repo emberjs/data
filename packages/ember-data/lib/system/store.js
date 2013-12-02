@@ -148,7 +148,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @private
     @returns DS.Adapter
   */
-  defaultAdapter: Ember.computed(function() {
+  defaultAdapter: Ember.computed('adapter', function() {
     var adapter = get(this, 'adapter');
 
     Ember.assert('You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a name or a factory', !(adapter instanceof DS.Adapter));
@@ -162,7 +162,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     }
 
     return adapter;
-  }).property('adapter'),
+  }),
 
   // .....................
   // . CREATE NEW RECORD .

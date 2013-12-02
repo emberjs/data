@@ -7,9 +7,9 @@ require("ember-data/system/model/states");
 var get = Ember.get, set = Ember.set,
     merge = Ember.merge, once = Ember.run.once;
 
-var retrieveFromCurrentState = Ember.computed(function(key, value) {
+var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
   return get(get(this, 'currentState'), key);
-}).property('currentState').readOnly();
+}).readOnly();
 
 /**
 
