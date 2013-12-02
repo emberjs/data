@@ -348,9 +348,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     return promiseArray(Ember.RSVP.all(map(ids, function(id) {
       return store.findById(type, id);
-    })).then(function(array) {
-      return Ember.A(array);
-    }));
+    })).then(Ember.A));
   },
 
   /**
