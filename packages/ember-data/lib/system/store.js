@@ -399,8 +399,6 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param id
   */
   getById: function(type, id) {
-    type = this.modelFor(type);
-
     if (this.hasRecordForId(type, id)) {
       return this.recordForId(type, id);
     } else {
@@ -483,7 +481,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
   hasRecordForId: function(type, id) {
     id = coerceId(id);
-
+    type = this.modelFor(type);
     return !!this.typeMapFor(type).idToRecord[id];
   },
 
@@ -786,7 +784,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     will result in a request or that it will be a cache hit.
 
     @method recordIsLoaded
-    @param {Class} type
+    @param type
     @param {string} id
     @return {boolean}
   */
