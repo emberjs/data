@@ -32,13 +32,12 @@ DS.RecordArrayManager = Ember.Object.extend({
   },
 
   /**
-    This method is invoked whenever data is loaded into the store
-    by the adapter or updated by the adapter, or when an attribute
-    changes on a record.
+    This method is invoked whenever data is loaded into the store by the
+    adapter or updated by the adapter, or when a record has changed.
 
-    It updates all filters that a record belongs to.
+    It updates all record arrays that a record belongs to.
 
-    To avoid thrashing, it only runs once per run loop per record.
+    To avoid thrashing, it only runs at most once per run loop.
 
     @method updateRecordArrays
     @param {Class} type
@@ -46,29 +45,47 @@ DS.RecordArrayManager = Ember.Object.extend({
   */
   updateRecordArrays: function() {
     forEach(this.changedRecords, function(record) {
-      var type = record.constructor,
-          recordArrays = this.filteredRecordArrays.get(type),
-          filter;
-
-      forEach(recordArrays, function(array) {
-        filter = get(array, 'filterFunction');
-        this.updateRecordArray(array, filter, type, record);
-      }, this);
-
-      // loop through all manyArrays containing an unloaded copy of this
-      // clientId and notify them that the record was loaded.
-      var manyArrays = record._loadingRecordArrays;
-
-      if (manyArrays) {
-        for (var i=0, l=manyArrays.length; i<l; i++) {
-          manyArrays[i].loadedRecord();
-        }
-
-        record._loadingRecordArrays = [];
+      if (get(record, 'isDeleted')) {
+        this._recordWasDeleted(record);
+      } else {
+        this._recordWasChanged(record);
       }
     }, this);
 
     this.changedRecords = [];
+  },
+
+  _recordWasDeleted: function (record) {
+    var recordArrays = record._recordArrays;
+
+    if (!recordArrays) { return; }
+
+    forEach(recordArrays, function(array) {
+      array.removeRecord(record);
+    });
+  },
+
+  _recordWasChanged: function (record) {
+    var type = record.constructor,
+        recordArrays = this.filteredRecordArrays.get(type),
+        filter;
+
+    forEach(recordArrays, function(array) {
+      filter = get(array, 'filterFunction');
+      this.updateRecordArray(array, filter, type, record);
+    }, this);
+
+    // loop through all manyArrays containing an unloaded copy of this
+    // clientId and notify them that the record was loaded.
+    var manyArrays = record._loadingRecordArrays;
+
+    if (manyArrays) {
+      for (var i=0, l=manyArrays.length; i<l; i++) {
+        manyArrays[i].loadedRecord();
+      }
+
+      record._loadingRecordArrays = [];
+    }
   },
 
   /**
@@ -98,23 +115,6 @@ DS.RecordArrayManager = Ember.Object.extend({
       recordArrays.remove(array);
       array.removeRecord(record);
     }
-  },
-
-  /**
-    When a record is deleted, it is removed from all its
-    record arrays.
-
-    @method remove
-    @param {DS.Model} record
-  */
-  remove: function(record) {
-    var recordArrays = record._recordArrays;
-
-    if (!recordArrays) { return; }
-
-    forEach(recordArrays, function(array) {
-      array.removeRecord(record);
-    });
   },
 
   /**

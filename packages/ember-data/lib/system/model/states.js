@@ -587,9 +587,7 @@ var RootState = {
 
     // TRANSITIONS
     setup: function(record) {
-      var store = get(record, 'store');
-
-      store.recordArrayManager.remove(record);
+      record.updateRecordArrays();
     },
 
     // SUBSTATES

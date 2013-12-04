@@ -81,7 +81,7 @@ test("new record can be rollbacked", function() {
   equal(person.get('isNew'), true, "must be new");
   equal(person.get('isDirty'), true, "must be dirty");
 
-  person.rollback();
+  Ember.run(person, 'rollback');
 
   equal(person.get('isNew'), false, "must not be new");
   equal(person.get('isDirty'), false, "must not be dirty");

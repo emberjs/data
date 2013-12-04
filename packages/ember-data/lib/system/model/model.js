@@ -267,10 +267,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   updateRecordArrays: function() {
-    var store = get(this, 'store');
-    if (store) {
-      store.dataWasUpdated(this.constructor, this);
-    }
+    get(this, 'store').dataWasUpdated(this.constructor, this);
   },
 
   /**

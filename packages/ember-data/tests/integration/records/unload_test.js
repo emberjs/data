@@ -14,14 +14,18 @@ module("integration/unload - Unloading Records", {
   },
 
   teardown: function() {
-    env.container.destroy();
+    Ember.run(function(){
+      env.container.destroy();
+    });
   }
 });
 
 test("can unload a single record", function () {
   var adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
 
-  adam.unloadRecord();
+  Ember.run(function(){
+    adam.unloadRecord();
+  });
 
   equal(env.store.all('person').get('length'), 0);
 });
@@ -30,7 +34,9 @@ test("can unload all records for a given type", function () {
   var adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
   var bob = env.store.push('person', {id: 2, name: "Bob Bobson"});
 
-  env.store.unloadAll('person');
+  Ember.run(function(){
+    env.store.unloadAll('person');
+  });
 
   equal(env.store.all('person').get('length'), 0);
 });
