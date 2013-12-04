@@ -811,8 +811,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     If the adapter updates attributes or acknowledges creation
     or deletion, the record will notify the store to update its
     membership in any filters.
-
     To avoid thrashing, this method is invoked only once per
+
     run loop per record.
 
     @method dataWasUpdated
@@ -822,20 +822,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {DS.Model} record
   */
   dataWasUpdated: function(type, record) {
-    // Because data updates are invoked at the end of the run loop,
-    // it is possible that a record might be deleted after its data
-    // has been modified and this method was scheduled to be called.
-    //
-    // If that's the case, the record would have already been removed
-    // from all record arrays; calling updateRecordArrays would just
-    // add it back. If the record is deleted, just bail. It shouldn't
-    // give us any more trouble after this.
-
-    if (get(record, 'isDeleted')) { return; }
-
-    if (get(record, 'isLoaded')) {
-      this.recordArrayManager.recordDidChange(record);
-    }
+    this.recordArrayManager.recordDidChange(record);
   },
 
   // ..............

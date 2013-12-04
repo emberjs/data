@@ -17,7 +17,7 @@ module("unit/store/unload - Store unloading records", {
   },
 
   teardown: function() {
-    store.destroy();
+    Ember.run(store, 'destroy');
   }
 });
 
