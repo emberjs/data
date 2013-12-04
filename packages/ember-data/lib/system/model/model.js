@@ -5,7 +5,7 @@ require("ember-data/system/model/states");
 */
 
 var get = Ember.get, set = Ember.set,
-    merge = Ember.merge, once = Ember.run.once;
+    merge = Ember.merge;
 
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
   return get(get(this, 'currentState'), key);
@@ -538,8 +538,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   triggerLater: function() {
-    this._deferredTriggers.push(arguments);
-    once(this, '_triggerDeferredTriggers');
+    if (this._deferredTriggers.push(arguments) !== 1) { return; }
+    Ember.run.schedule('actions', this, '_triggerDeferredTriggers');
   },
 
   _triggerDeferredTriggers: function() {
@@ -547,7 +547,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       this.trigger.apply(this, this._deferredTriggers[i]);
     }
 
-    this._deferredTriggers = [];
+    this._deferredTriggers.length = 0;
   }
 });
 
