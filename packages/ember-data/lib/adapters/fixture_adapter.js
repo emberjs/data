@@ -295,7 +295,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
         }, get(adapter, 'latency'));
       } else {
         // Asynchronous, but at the of the runloop with zero latency
-        Ember.run.once(function() {
+        Ember.run.schedule('actions', null, function() {
           resolve(callback.call(context));
         });
       }
