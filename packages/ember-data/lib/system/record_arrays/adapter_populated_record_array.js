@@ -1,17 +1,18 @@
 require("ember-data/system/record_arrays/record_array");
+require("ember-data/system/record_arrays/paginated_array_mixin");
 
 /**
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get, set = Ember.set, computed = Ember.computed;
 
 /**
   @class AdapterPopulatedRecordArray
   @namespace DS
   @extends DS.RecordArray
 */
-DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
+DS.AdapterPopulatedRecordArray = DS.RecordArray.extend(DS.PaginatedArrayMixin, {
   query: null,
 
   replace: function() {
@@ -34,4 +35,5 @@ DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
     // TODO: does triggering didLoad event should be the last action of the runLoop?
     Ember.run.once(this, 'trigger', 'didLoad');
   }
+
 });

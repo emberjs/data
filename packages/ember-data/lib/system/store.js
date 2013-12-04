@@ -2,6 +2,7 @@
 /*jshint eqnull:true*/
 
 require("ember-data/system/record_arrays");
+require("ember-data/system/request");
 require("ember-data/system/mixins/mappable");
 
 /**
@@ -598,27 +599,32 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @private
     @param {String} type
     @param {any} query an opaque query to be used by the adapter
+    @param {integer} page optional page number for pagination (1 is the first page)
     @return Promise
   */
-  findQuery: function(type, query) {
+  findQuery: function(type, query, page) {
     type = this.modelFor(type);
+
+    var adapter = this.adapterFor(type);
+    var fetchPage = function(store, type, query, page) {
+      return store.findQuery(type, query, page);
+    };
+    var request = adapter.requestFor(this, type, query, page, fetchPage);
 
     var array = DS.AdapterPopulatedRecordArray.create({
       type: type,
       query: query,
       content: Ember.A(),
-      store: this
+      store: this,
+      request: request
     });
-
-    var adapter = this.adapterFor(type),
-        resolver = Ember.RSVP.defer();
 
     Ember.assert("You tried to load a query but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", adapter.findQuery);
 
-    _findQuery(adapter, this, type, query, array, resolver);
+    _findQuery(adapter, this, type, query, array, request);
 
-    return promiseArray(resolver.promise);
+    return promiseArray(request.deferred.promise);
   },
 
   /**
@@ -627,36 +633,39 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     the array with records of that type.
 
     @method findAll
-    @private
     @param {Class} type
+    @param {integer} page optional page number for pagination (1 is the first page)
     @return {DS.AdapterPopulatedRecordArray}
   */
-  findAll: function(type) {
+  findAll: function(type, page) {
     type = this.modelFor(type);
 
-    return this.fetchAll(type, this.all(type));
+    return this.fetchAll(type, this.all(type), page);
   },
 
   /**
     @method fetchAll
     @private
-    @param type
+    @param {Class} type
     @param array
+    @param {integer} page optional page number for pagination (1 is the first page)
     @returns Promise
   */
-  fetchAll: function(type, array) {
-    var adapter = this.adapterFor(type),
-        sinceToken = this.typeMapFor(type).metadata.since,
-        resolver = Ember.RSVP.defer();
+  fetchAll: function(type, array, page) {
+    var adapter = this.adapterFor(type);
+    var fetchPage = function(store, type, query, page) {
+      return store.findAll(type, page);
+    };
+    var request = adapter.requestFor(this, type, null, page, fetchPage);
 
     set(array, 'isUpdating', true);
 
     Ember.assert("You tried to load all records but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load all records but your adapter does not implement `findAll`", adapter.findAll);
 
-    _findAll(adapter, this, type, sinceToken, resolver);
+    _findAll(adapter, this, type, request);
 
-    return promiseArray(resolver.promise);
+    return promiseArray(request.deferred.promise);
   },
 
   /**
@@ -965,7 +974,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     typeMap = {
       idToRecord: {},
       records: [],
-      metadata: {}
+      metadata: Ember.Object.create()
     };
 
     typeMaps[guid] = typeMap;
@@ -1171,7 +1180,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   metaForType: function(type, metadata) {
     type = this.modelFor(type);
 
-    Ember.merge(this.typeMapFor(type).metadata, metadata);
+    this.typeMapFor(type).metadata.setProperties(metadata);
   },
 
   /**
@@ -1276,7 +1285,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   relationshipChangePairsFor: function(record){
     var toReturn = [];
 
-    if( !record ) { return toReturn; }
+    if (!record) { return toReturn; }
 
     //TODO(Igor) What about the other side
     var changesObject = this._relationshipChanges[record.clientId];
@@ -1503,8 +1512,8 @@ function _findBelongsTo(adapter, store, record, link, relationship, resolver) {
   }).then(resolver.resolve, resolver.reject);
 }
 
-function _findAll(adapter, store, type, sinceToken, resolver) {
-  var promise = adapter.findAll(store, type, sinceToken),
+function _findAll(adapter, store, type, request) {
+  var promise = adapter.findAll(store, type, request),
       serializer = serializerForAdapter(adapter, type);
 
   return resolve(promise).then(function(payload) {
@@ -1514,12 +1523,25 @@ function _findAll(adapter, store, type, sinceToken, resolver) {
 
     store.pushMany(type, payload);
     store.didUpdateAll(type);
-    return store.all(type);
-  }).then(resolver.resolve, resolver.reject);
+
+    if (request.pageSize || store.metadataFor(type).pageSize) {
+      var recordArray = DS.AdapterPopulatedRecordArray.create({
+        type: type,
+        meta: store.metadataFor(type),
+        store: store,
+        request: request
+      });
+      recordArray.load(payload);
+      return recordArray;
+    }
+    else {
+      return store.all(type);
+    }
+  }).then(request.deferred.resolve, request.deferred.reject);
 }
 
-function _findQuery(adapter, store, type, query, recordArray, resolver) {
-  var promise = adapter.findQuery(store, type, query, recordArray),
+function _findQuery(adapter, store, type, query, recordArray, request) {
+  var promise = adapter.findQuery(store, type, query, recordArray, request),
       serializer = serializerForAdapter(adapter, type);
 
   return resolve(promise).then(function(payload) {
@@ -1529,7 +1551,7 @@ function _findQuery(adapter, store, type, query, recordArray, resolver) {
 
     recordArray.load(payload);
     return recordArray;
-  }).then(resolver.resolve, resolver.reject);
+  }).then(request.deferred.resolve, request.deferred.reject);
 }
 
 function _commit(adapter, store, operation, record, resolver) {

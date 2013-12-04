@@ -1,7 +1,17 @@
 var get = Ember.get, set = Ember.set;
 var indexOf = Ember.EnumerableUtils.indexOf;
 
-var Person, array;
+var Person, array, adapter, passedUrl, passedVerb, passedHash;
+
+function ajaxResponse(adapter, value) {
+  adapter.ajax = function(url, verb, hash) {
+    passedUrl = url;
+    passedVerb = verb;
+    passedHash = hash;
+
+    return Ember.RSVP.resolve(value);
+  };
+}
 
 module("unit/record_array - DS.RecordArray", {
   setup: function() {
@@ -146,3 +156,102 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
     equal(get(people, 'isLoaded'), true, "The array is now loaded");
   }));
 });
+
+test("an AdapterPopulatedRecordArray can load more records", function() {
+  var env = setupStore({ person: Person, adapter: DS.FixtureAdapter }),
+      store = env.store;
+
+  Person.FIXTURES = [
+    {id: 1, name: 'Dimebag Dale'},
+    {id: 2, name: 'Yehuda Brynjolffsosysdfon'}
+  ];
+
+  store.adapterFor(Person).set('pageSize', 1);
+  store.findAll('person').then(async(function(people) {
+    equal(get(people, 'length'), 1, "First page of results loaded");
+    people.loadMore().then(async(function() {
+      equal(get(people, 'length'), 2, "Second page of results loaded");
+    }));
+  }));
+});
+
+test("an AdapterPopulatedRecordArray can load a specific page", function() {
+  var env = setupStore({ person: Person, adapter: DS.FixtureAdapter }),
+      store = env.store;
+
+  Person.FIXTURES = [
+    {id: 1, name: 'Dimebag Dale'},
+    {id: 2, name: 'Yehuda Brynjolffsosysdfon'},
+    {id: 3, name: 'Brynjolffsosysdfon Katz'}
+  ];
+
+  store.adapterFor(Person).set('pageSize', 1);
+  store.findAll('person').then(async(function(people) {
+    equal(get(people, 'length'), 1, "First page of results loaded");
+    people.loadPage(3).then(async(function() {
+      equal(get(people, 'length'), 1, "Only one page is loaded at a time");
+      equal(people.objectAt(0).get('id'), 3, "Third page of results loaded");
+    }));
+  }));
+});
+
+
+test("an AdapterPopulatedRecordArray contains the requested page and pageSize", function() {
+  var env = setupStore({ person: Person, adapter: DS.FixtureAdapter }),
+      store = env.store, pageSize = 1, page = 2;
+
+
+  Person.FIXTURES = [
+    {id: 1, name: 'Dimebag Dale'},
+    {id: 2, name: 'Yehuda Brynjolffsosysdfon'},
+    {id: 3, name: 'Brynjolffsosysdfon Katz'}
+  ];
+
+  store.adapterFor(Person).set('pageSize', pageSize);
+  store.findAll('person', page).then(async(function(people) {
+    equal(get(people, 'page'), page);
+    equal(get(people, 'pageSize'), pageSize);
+  }));
+});
+
+test("use pageSize from the server if it's specified in the metadata", function() {
+  var env = setupStore({ person: Person, adapter: DS.RESTAdapter }),
+      store = env.store, pageSize = 10;
+
+  ajaxResponse(env.adapter, { meta: { pageSize: pageSize }, people: [{ id: 1, name: "Dimebag Dale" }] });
+  store.adapterFor(Person).set('pageSize', 1);
+  store.findAll('person').then(async(function(people) {
+    equal(get(people, 'pageSize'), pageSize);
+  }));
+});
+
+test("totalPages is computed from the total returned by the server", function() {
+  var env = setupStore({ person: Person, adapter: DS.RESTAdapter }),
+      store = env.store, total = 12, pageSize = 10;
+
+  ajaxResponse(env.adapter, { meta: { pageSize: pageSize, total: total }, people: [{ id: 1, name: "Dimebag Dale" }] });
+  store.findAll('person').then(async(function(people) {
+    equal(get(people, 'totalPages'), Math.ceil(total / pageSize));
+  }));
+});
+
+test("isFinished is true when endPage >= totalPages", function() {
+  var env = setupStore({ person: Person, adapter: DS.RESTAdapter }),
+      store = env.store, total = 12, pageSize = 10, page = 2;
+
+  ajaxResponse(env.adapter, { meta: { pageSize: pageSize, total: total }, people: [{ id: 1, name: "Dimebag Dale" }] });
+  store.findAll('person', page).then(async(function(people) {
+    equal(get(people, 'isFinished'), true);
+  }));
+});
+
+test("isFinished is true when endPage >= totalPages", function() {
+  var env = setupStore({ person: Person, adapter: DS.RESTAdapter }),
+      store = env.store;
+
+  ajaxResponse(env.adapter, { meta: { isFinished: true, pageSize: 10 }, people: [{ id: 1, name: "Dimebag Dale" }] });
+  store.findAll('person').then(async(function(people) {
+    equal(get(people, 'isFinished'), true);
+  }));
+});
+

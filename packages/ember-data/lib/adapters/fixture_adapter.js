@@ -150,32 +150,47 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
   /**
     @method findAll
-    @param  store
-    @param  type
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Request} request
   */
-  findAll: function(store, type) {
+  findAll: function(store, type, request) {
     var fixtures = this.fixturesForType(type);
 
     Ember.assert("Unable to find fixtures for model type "+type.toString(), fixtures);
 
+    fixtures = this.handlePagination(fixtures, request);
     return this.simulateRemoteCall(function() {
       return fixtures;
     }, this);
   },
 
+  handlePagination: function(array, request) {
+    if( request.pageSize ) {
+      var page = request.page || 1,
+          start = (page - 1) * request.pageSize;
+      return array.slice(start, start + request.pageSize);
+    }
+    else {
+      return array;
+    }
+  },
+
   /**
     @method findQuery
-    @param  store
-    @param  type
-    @param  query
-    @param  array
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} query
+    @param {DS.RecordArray} array
+    @param {DS.Request} request
   */
-  findQuery: function(store, type, query, array) {
+  findQuery: function(store, type, query, array, request) {
     var fixtures = this.fixturesForType(type);
 
     Ember.assert("Unable to find fixtures for model type "+type.toString(), fixtures);
 
     fixtures = this.queryFixtures(fixtures, query, type);
+    fixtures = this.handlePagination(fixtures, request);
 
     if (fixtures) {
       return this.simulateRemoteCall(function() {

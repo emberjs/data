@@ -2,7 +2,7 @@
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
 var map = Ember.ArrayPolyfills.map;
 
 var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
@@ -95,9 +95,9 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     Optional
 
     @method findAll
-    @param  store
-    @param  type
-    @param  since
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Request} request
   */
   findAll: null,
 
@@ -105,10 +105,11 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     Optional
 
     @method findQuery
-    @param  store
-    @param  type
-    @param  query
-    @param  recordArray
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} query
+    @param {DS.RecordArray} recordArray
+    @param {DS.Request} request
   */
   findQuery: null,
 
@@ -136,6 +137,23 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     @param {DS.Model} record
   */
   generateIdForRecord: null,
+
+  /**
+   Request parameter to use for the page number.
+   */
+  pageParameter: 'page',
+
+  /**
+   The maximum number of results to be fetched by `findAll` or `findQuery`, optional.
+   @property 
+   */
+  pageSize: null,
+
+  /**
+   Request parameter to use for specifying the page size.
+   @property 
+   */
+  pageSizeParameter: 'pageSize',
 
   /**
     Proxies to the serializer's `serialize` method.
@@ -208,5 +226,34 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     }, this);
 
     return Ember.RSVP.all(promises);
+  },
+
+  /**
+    Create a Request that may specify a page number and size for pagination.
+
+        var fetchPage = function(store, type, query, page) {
+          return store.findAll(type, page);
+        };
+        var request = adapter.requestFor(store, type, null, 0, fetchPage);
+
+    @method requestFor
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type the DS.Model class of the records
+    @param {hash} query option query params
+    @param {integer} page optional page number for pagination (1 is the first page)
+    @param {Function} a callback function that can be used to fetch another page.
+      This function is called with arguments: `store`, `type`, `query` and the `page`
+      number to be fetched.
+   */
+  requestFor: function(store, type, query, page, fetchPage) {
+    return DS.Request.create({
+      store: store,
+      type: type,
+      query: query,
+      page: page,
+      pageSize: get(this, 'pageSize'),
+      fetchPage: fetchPage
+    });
   }
+
 });

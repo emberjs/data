@@ -144,17 +144,15 @@ DS.RESTAdapter = DS.Adapter.extend({
     @see RESTAdapter/ajax
     @param {DS.Store} store
     @param {subclass of DS.Model} type
-    @param {String} sinceToken
+    @param {DS.Request} request
     @returns Promise
   */
-  findAll: function(store, type, sinceToken) {
-    var query;
-
-    if (sinceToken) {
-      query = { since: sinceToken };
+  findAll: function(store, type, request) {
+    var query = this.paginateRequest(null, request), hash = {};
+    if (query) {
+      hash.data = query;
     }
-
-    return this.ajax(this.buildURL(type.typeKey), 'GET', { data: query });
+    return this.ajax(this.buildURL(type.typeKey), 'GET', hash);
   },
 
   /**
@@ -173,10 +171,29 @@ DS.RESTAdapter = DS.Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} query
+    @param {DS.RecordArray} recordArray
+    @param {DS.Request} request
     @returns Promise
   */
-  findQuery: function(store, type, query) {
+  findQuery: function(store, type, query, recordArray, request) {
+    query = this.paginateRequest(query, request);
     return this.ajax(this.buildURL(type.typeKey), 'GET', { data: query });
+  },
+
+  paginateRequest: function(query, request) {
+    if (request.sinceToken || request.page || request.pageSize) {
+      query = query || {};
+    }
+    if (request.sinceToken) {
+      query.since = request.sinceToken;
+    }
+    if (request.page) {
+      query[this.pageParameter] = request.page;
+    }
+    if (request.pageSize) {
+      query[this.pageSizeParameter] = request.pageSize;
+    }
+    return query;
   },
 
   /**
