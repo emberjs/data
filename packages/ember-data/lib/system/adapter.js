@@ -2,7 +2,7 @@
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
 var map = Ember.ArrayPolyfills.map;
 
 var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
@@ -231,19 +231,28 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   /**
     Create a Request that may specify a page number and size for pagination.
 
+        var fetchPage = function(store, type, query, page) {
+          return store.findAll(type, page);
+        };
+        var request = adapter.requestFor(store, type, null, 0, fetchPage);
+
     @method requestFor
     @param {DS.Store} store
     @param {subclass of DS.Model} type the DS.Model class of the records
-    @param {} query option query params
+    @param {hash} query option query params
     @param {integer} page optional page number for pagination (1 is the first page)
+    @param {Function} a callback function that can be used to fetch another page.
+      This function is called with arguments: `store`, `type`, `query` and the `page`
+      number to be fetched.
    */
-  requestFor: function(store, type, query, page) {
+  requestFor: function(store, type, query, page, fetchPage) {
     return DS.Request.create({
       store: store,
       type: type,
       query: query,
       page: page,
-      pageSize: get(this, 'pageSize')
+      pageSize: get(this, 'pageSize'),
+      fetchPage: fetchPage
     });
   }
 

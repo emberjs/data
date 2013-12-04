@@ -609,12 +609,11 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   findQuery: function(type, query, page) {
     type = this.modelFor(type);
 
-    var adapter = this.adapterFor(type),
-        request = adapter.requestFor(this, type, query, page);
-
-    request.fetchPage = function(store, type, query, page) {
+    var adapter = this.adapterFor(type);
+    var fetchPage = function(store, type, query, page) {
       return store.findQuery(type, query, page);
     };
+    var request = adapter.requestFor(this, type, query, page, fetchPage);
 
     var array = DS.AdapterPopulatedRecordArray.create({
       type: type,
@@ -657,12 +656,11 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @returns Promise
   */
   fetchAll: function(type, array, page) {
-    var adapter = this.adapterFor(type),
-        request = adapter.requestFor(this, type, null, page);
-
-    request.fetchPage = function(store, type, query, page) {
+    var adapter = this.adapterFor(type);
+    var fetchPage = function(store, type, query, page) {
       return store.findAll(type, page);
     };
+    var request = adapter.requestFor(this, type, null, page, fetchPage);
 
     set(array, 'isUpdating', true);
 
