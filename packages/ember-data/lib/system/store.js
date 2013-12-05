@@ -1011,7 +1011,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     if (typeof key === 'string') {
       factory = this.container.lookupFactory('model:' + key);
-      Ember.assert("No model was found for '" + key + "'", factory);
+      if (!factory) { throw new Ember.Error("No model was found for '" + key + "'"); }
       factory.typeKey = key;
     } else {
       // A factory already supplied.

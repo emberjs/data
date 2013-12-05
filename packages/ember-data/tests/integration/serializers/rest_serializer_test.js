@@ -72,6 +72,23 @@ test("extractArray with custom typeForRoot", function() {
   }));
 });
 
+test("extractArray failure with custom typeForRoot", function() {
+  env.restSerializer.typeForRoot = function(root) {
+    //should be camelized too, but, whoops, the developer forgot!
+    return Ember.String.singularize(root);
+  };
+
+  var json_hash = {
+    home_planets: [{id: "1", name: "Umber", superVillains: [1]}],
+    super_villains: [{id: "1", firstName: "Tom", lastName: "Dale", homePlanet: "1"}]
+  };
+
+  raises(function(){
+    env.restSerializer.extractArray(env.store, HomePlanet, json_hash);
+  }, "No model was found for 'home_planets'",
+  "raised error message expected to contain \"No model was found for 'home_planets'\"");
+});
+
 test("serialize polymorphicType", function() {
   var tom = env.store.createRecord(YellowMinion,   {name: "Alex", id: "124"});
   var ray = env.store.createRecord(DoomsdayDevice, {evilMinion: tom, name: "DeathRay"});
