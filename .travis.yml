@@ -4,6 +4,7 @@ rvm:
 install:
 - "npm install"
 - "bundle install --deployment"
+- sudo apt-get update && sudo apt-get install git
 script: rake test[all]
 after_success: bundle exec rake publish_build
 notifications:
