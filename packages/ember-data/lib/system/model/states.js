@@ -257,8 +257,8 @@ var DirtyState = {
       record.transitionTo('inFlight');
     },
 
-    reloadRecord: function(record, resolver) {
-      get(record, 'store').reloadRecord(record, resolver);
+    reloadRecord: function(record, resolve) {
+      resolve(get(record, 'store').reloadRecord(record));
     },
 
     rolledBack: function(record) {
@@ -538,8 +538,8 @@ var RootState = {
         record.transitionTo('updated.inFlight');
       },
 
-      reloadRecord: function(record, resolver) {
-        get(record, 'store').reloadRecord(record, resolver);
+      reloadRecord: function(record, resolve) {
+        resolve(get(record, 'store').reloadRecord(record));
       },
 
       deleteRecord: function(record) {

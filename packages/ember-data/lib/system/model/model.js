@@ -481,9 +481,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   reload: function() {
     set(this, 'isReloading', true);
 
-    var resolver = Ember.RSVP.defer(), record = this;
+    var  record = this;
 
-    resolver.promise = resolver.promise.then(function() {
+    var promise = Ember.RSVP.Promise(function(resolve){
+       record.send('reloadRecord', resolve);
+    }).then(function() {
       record.set('isReloading', false);
       record.set('isError', false);
       return record;
@@ -492,9 +494,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       throw reason;
     });
 
-    this.send('reloadRecord', resolver);
-
-    return DS.PromiseObject.create({ promise: resolver.promise });
+    return DS.PromiseObject.create({ promise: promise });
   },
 
   // FOR USE DURING COMMIT PROCESS
