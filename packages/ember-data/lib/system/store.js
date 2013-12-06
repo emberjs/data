@@ -719,6 +719,8 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     while(record = records.pop()) {
       record.unloadRecord();
     }
+
+    typeMap.findAllCache = null;
   },
 
   /**
