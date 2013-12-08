@@ -11,6 +11,38 @@ var get = Ember.get;
   @namespace DS
 */
 DS.Model.reopenClass({
+  /**
+    A map whose keys are the attributes of the model (properties
+    described by DS.attr) and whose values are the meta object for the
+    property.
+
+    Example
+
+    ```JavaScript
+
+    App.Person = DS.Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
+      birthday: attr('date')
+    });
+
+    var attributes = Ember.get(App.Person, 'attributes')
+
+    attributes.forEach(function(name, meta) {
+      console.log(name, meta);
+    });
+
+    // prints:
+    // firstName {type: "string", isAttribute: true, options: Object, parentType: function, name: "firstName"}
+    // lastName {type: "string", isAttribute: true, options: Object, parentType: function, name: "lastName"}
+    // birthday {type: "date", isAttribute: true, options: Object, parentType: function, name: "birthday"}
+    ```
+
+    @property attributes
+    @static
+    @type {Ember.Map}
+    @readOnly
+  */
   attributes: Ember.computed(function() {
     var map = Ember.Map.create();
 
@@ -26,6 +58,37 @@ DS.Model.reopenClass({
     return map;
   }),
 
+  /**
+    A map whose keys are the attributes of the model (properties
+    described by DS.attr) and whose values are type of transformation
+    applied to each attribute. This map does not include any
+    attributes that do not have an transformation type.
+
+    Example
+
+    ```JavaScript
+    App.Person = DS.Model.extend({
+      firstName: attr(),
+      lastName: attr('string'),
+      birthday: attr('date')
+    });
+
+    var attributes = Ember.get(App.Person, 'attributes')
+
+    attributes.forEach(function(field, type) {
+      console.log(field, type);
+    });
+
+    // prints:
+    // lastName string
+    // birthday date
+    ```
+
+    @property transformedAttributes
+    @static
+    @type {Ember.Map}
+    @readOnly
+  */
   transformedAttributes: Ember.computed(function() {
     var map = Ember.Map.create();
 
@@ -38,12 +101,95 @@ DS.Model.reopenClass({
     return map;
   }),
 
+  /**
+    Iterates through the attributes of the model, calling the passed function on each
+    attribute.
+
+    The callback method you provide should have the following signature (all
+    parameters are optional):
+
+    ```JavaScript
+    function(name, meta);
+    ```
+
+    - `name` the name of the current property in the iteration
+    - `meta` the meta object for the attribute property in the iteration
+
+    Note that in addition to a callback, you can also pass an optional target
+    object that will be set as `this` on the context.
+
+    Example
+
+    ```JavaScript
+    App.Person = DS.Model.extend({
+      firstName: attr('string'),
+      lastName: attr('string'),
+      birthday: attr('date')
+    });
+
+    App.Person.eachAttribute(function(name, meta) {
+      console.log(name, meta);
+    });
+
+    // prints:
+    // firstName {type: "string", isAttribute: true, options: Object, parentType: function, name: "firstName"}
+    // lastName {type: "string", isAttribute: true, options: Object, parentType: function, name: "lastName"}
+    // birthday {type: "date", isAttribute: true, options: Object, parentType: function, name: "birthday"}
+   ```
+
+    @method eachAttribute
+    @param {Function} callback The callback to execute
+    @param {Object} [target] The target object to use
+    @static
+  */
   eachAttribute: function(callback, binding) {
     get(this, 'attributes').forEach(function(name, meta) {
       callback.call(binding, name, meta);
     }, binding);
   },
 
+  /**
+    Iterates through the transformedAttributes of the model, calling
+    the passed function on each attribute. Note the callback will not be
+    called for any attributes that do not have an transformation type.
+
+    The callback method you provide should have the following signature (all
+    parameters are optional):
+
+    ```JavaScript
+    function(name, type);
+    ```
+
+    - `name` the name of the current property in the iteration
+    - `type` a tring contrining the name of the type of transformed
+      applied to the attribute
+
+    Note that in addition to a callback, you can also pass an optional target
+    object that will be set as `this` on the context.
+
+    Example
+
+    ```JavaScript
+    App.Person = DS.Model.extend({
+      firstName: attr(),
+      lastName: attr('string'),
+      birthday: attr('date')
+    });
+
+    App.Person.eachTransformedAttribute(function(name, type) {
+      console.log(name, type);
+    });
+
+    // prints:
+    // lastName string
+    // birthday date
+   ```
+
+    @method eachTransformedAttribute
+    @param {Function} callback The callback to execute
+    @param {Object} [target] The target object to use
+    @static
+  */
   eachTransformedAttribute: function(callback, binding) {
     get(this, 'transformedAttributes').forEach(function(name, type) {
       callback.call(binding, name, type);
@@ -83,21 +229,37 @@ function getValue(record, key) {
 }
 
 /**
-  `DS.attr` defines an attribute on a DS.Model.
+  `DS.attr` defines an attribute on a [DS.Model](DS.Model.html).
   By default, attributes are passed through as-is, however you can specify an
   optional type to have the value automatically transformed.
-  Ember Data ships with four basic transform types:
-    'string', 'number', 'boolean' and 'date'.
-  You can define your own transforms by subclassing DS.Transform.
+  Ember Data ships with four basic transform types: `string`, `number`,
+  `boolean` and `date`. You can define your own transforms by subclassing
+  [DS.Transform](DS.Transform.html).
 
-  DS.attr takes an optional hash as a second parameter, currently
+  `DS.attr` takes an optional hash as a second parameter, currently
   supported options are:
-    'defaultValue': Pass a string or a function to be called to set the attribute
+
+  - `defaultValue`: Pass a string or a function to be called to set the attribute
                     to a default value if none is supplied.
 
+  Example
+
+  ```JavaScript
+  var attr = DS.attr;
+
+  App.User = DS.Model.extend({
+    username: attr('string'),
+    email: attr('string'),
+    verified: attr('boolean', {defaultValue: false})
+  });
+  ```
+
+  @namespace
   @method attr
+  @for DS
   @param {String} type the attribute type
   @param {Object} options a hash of options
+  @return {Attribute}
 */
 
 DS.attr = function(type, options) {
