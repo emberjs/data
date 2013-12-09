@@ -483,7 +483,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
     var  record = this;
 
-    var promise = Ember.RSVP.Promise(function(resolve){
+    var promise = new Ember.RSVP.Promise(function(resolve){
        record.send('reloadRecord', resolve);
     }).then(function() {
       record.set('isReloading', false);
