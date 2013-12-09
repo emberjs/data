@@ -49,13 +49,30 @@ test("When a single record is requested multiple times, all .find() calls are re
   store.find(Person, 1).then(async(function(person) {
     equal(person.get('id'), "1");
     equal(person.get('name'), "Braaaahm Dale");
-    equal(deferred.promise.isFulfilled, true);
+
+    stop();
+    deferred.promise.then(function(value){
+      start();
+      ok(true, 'expected deferred.promise to fulfill');
+    },function(reason){
+      start();
+      ok(false, 'expected deferred.promise to fulfill, but rejected');
+    });
   }));
 
   store.find(Person, 1).then(async(function(post) {
     equal(post.get('id'), "1");
     equal(post.get('name'), "Braaaahm Dale");
-    equal(deferred.promise.isFulfilled, true);
+
+    stop();
+    deferred.promise.then(function(value){
+      start();
+      ok(true, 'expected deferred.promise to fulfill');
+    }, function(reason){
+      start();
+      ok(false, 'expected deferred.promise to fulfill, but rejected');
+    });
+
   }));
 
   Ember.run(function() {
