@@ -429,3 +429,24 @@ test("serialize with embedded objects", function() {
     }]
   });
 });
+
+test("serialize with embedded ids", function() {
+  league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
+  var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
+
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      villains: {embedded: 'ids'}
+    }
+  }));
+  var serializer = env.container.lookup("serializer:homePlanet");
+
+  var json = serializer.serialize(league);
+
+  deepEqual(json, {
+    name: "Villain League",
+    villain_ids: [
+      get(tom, "id")
+    ]
+  });
+});

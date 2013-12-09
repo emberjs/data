@@ -12,10 +12,20 @@ var forEach = Ember.EnumerableUtils.forEach;
     attrs: {
       comments: {embedded: 'always'}
     }
-  })
+  });
   ```
 
-  Currently only `{embedded: 'always'}` records are supported.
+  Also you can embed only ids.
+
+  ```js
+  App.PostSerializer = DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      categories: {embedded: 'ids'}
+    }
+  });
+  ```
+
+  Currently only `{embedded: 'always'}` records and `{embedded: 'ids'}` are supported.
 
   @class EmbeddedRecordsMixin
   @namespace DS
@@ -30,17 +40,21 @@ DS.EmbeddedRecordsMixin = Ember.Mixin.create({
   serializeHasMany: function(record, json, relationship) {
     var key   = relationship.key,
         attrs = get(this, 'attrs'),
-        embed = attrs && attrs[key] && attrs[key].embedded === 'always';
+        embed = attrs && attrs[key] && attrs[key].embedded,
+        primaryKey = get(this, 'primaryKey');
 
-    if (embed) {
+    if (embed === 'always') {
       json[this.keyForAttribute(key)] = get(record, key).map(function(relation) {
-        var data = relation.serialize(),
-            primaryKey = get(this, 'primaryKey');
+        var data = relation.serialize();
 
         data[primaryKey] = get(relation, primaryKey);
 
         return data;
       }, this);
+    } else if (embed === 'ids') {
+      json[this.keyForRelationship(key, relationship.kind)] = get(record, key).map(function(relation) {
+        return get(relation, primaryKey);
+      });
     }
   },
 
