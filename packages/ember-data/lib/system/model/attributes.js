@@ -73,9 +73,9 @@ DS.Model.reopenClass({
       birthday: attr('date')
     });
 
-    var attributes = Ember.get(App.Person, 'attributes')
+    var transformedAttributes = Ember.get(App.Person, 'transformedAttributes')
 
-    attributes.forEach(function(field, type) {
+    transformedAttributes.forEach(function(field, type) {
       console.log(field, type);
     });
 
