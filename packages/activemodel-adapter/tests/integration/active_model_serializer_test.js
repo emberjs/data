@@ -11,7 +11,7 @@ module("integration/active_model - ActiveModelSerializer", {
     });
     HomePlanet = DS.Model.extend({
       name:          DS.attr('string'),
-      villains:      DS.hasMany('superVillain')
+      superVillains: DS.hasMany('superVillain', {async: true})
     });
     EvilMinion = DS.Model.extend({
       superVillain: DS.belongsTo('superVillain'),
@@ -91,21 +91,38 @@ test("normalize", function() {
   });
 });
 
+test("normalize links", function() {
+  var home_planet = {
+    id: "1",
+    name: "Umber",
+    links: { super_villains: "/api/super_villians/1" }
+  };
+
+
+  var json = env.amsSerializer.normalize(HomePlanet, home_planet, "homePlanet");
+
+  equal(json.links.superVillains,  "/api/super_villians/1", "normalize links");
+});
+
 test("extractSingle", function() {
   env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
 
   var json_hash = {
-    home_planet:   {id: "1", name: "Umber", villain_ids: [1]},
-    super_villains:  [{id: "1", first_name: "Tom", last_name: "Dale", home_planet_id: "1"}]
+    home_planet:   {id: "1", name: "Umber", super_villain_ids: [1]},
+    super_villains:  [{
+      id: "1",
+      first_name: "Tom",
+      last_name: "Dale",
+      home_planet_id: "1"
+    }]
   };
-
 
   var json = env.amsSerializer.extractSingle(env.store, HomePlanet, json_hash);
 
   deepEqual(json, {
     "id": "1",
     "name": "Umber",
-    "villains": [1]
+    "superVillains": [1]
   });
 
   env.store.find("superVillain", 1).then(async(function(minion){
@@ -117,7 +134,7 @@ test("extractArray", function() {
   env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
 
   var json_hash = {
-    home_planets: [{id: "1", name: "Umber", villain_ids: [1]}],
+    home_planets: [{id: "1", name: "Umber", super_villain_ids: [1]}],
     super_villains: [{id: "1", first_name: "Tom", last_name: "Dale", home_planet_id: "1"}]
   };
 
@@ -126,7 +143,7 @@ test("extractArray", function() {
   deepEqual(array, [{
     "id": "1",
     "name": "Umber",
-    "villains": [1]
+    "superVillains": [1]
   }]);
 
   env.store.find("superVillain", 1).then(async(function(minion){
