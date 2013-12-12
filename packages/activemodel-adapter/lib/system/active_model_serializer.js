@@ -90,6 +90,68 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   },
 
   /**
+    Add extra step to `DS.RESTSerializer.normalize` so links are
+    normalized.
+
+    If your payload looks like this
+
+    ```js
+    {
+      "post": {
+        "id": 1,
+        "title": "Rails is omakase",
+        "links": { "flagged_comments": "api/comments/flagged" }
+      }
+    }
+    ```
+    The normalized version would look like this
+
+    ```js
+    {
+      "post": {
+        "id": 1,
+        "title": "Rails is omakase",
+        "links": { "flaggedComments": "api/comments/flagged" }
+      }
+    }
+    ```
+
+    @method normalize
+    @param {subclass of DS.Model} type
+    @param {Object} hash
+    @param {String} prop
+    @returns Object
+  */
+
+  normalize: function(type, hash, prop) {
+    this.normalizeLinks(hash);
+
+    return this._super(type, hash, prop);
+  },
+
+  /**
+    Convert `snake_cased` links  to `camelCase`
+
+    @method normalizeLinks
+    @param {Object} hash
+  */
+
+  normalizeLinks: function(data){
+    if (data.links) {
+      var links = data.links;
+
+      for (var link in links) {
+        var camelizedLink = Ember.String.camelize(link);
+
+        if (camelizedLink !== link) {
+          links[camelizedLink] = links[link];
+          delete links[link];
+        }
+      }
+    }
+  },
+
+  /**
     Normalize the polymorphic type from the JSON.
 
     Normalize:
