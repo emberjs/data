@@ -267,6 +267,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   updateRecordArrays: function() {
+    this._updatingRecordArraysLater = false;
     get(this, 'store').dataWasUpdated(this.constructor, this);
   },
 
@@ -356,7 +357,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   updateRecordArraysLater: function() {
-    Ember.run.once(this, this.updateRecordArrays);
+    // quick hack (something like this could be pushed into run.once
+    if (this._updatingRecordArraysLater) { return; }
+    this._updatingRecordArraysLater = true;
+
+    Ember.run.schedule('actions', this, this.updateRecordArrays);
   },
 
   setupData: function(data, partial) {
