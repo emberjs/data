@@ -299,6 +299,6 @@ DS.FixtureAdapter = DS.Adapter.extend({
           resolve(callback.call(context));
         });
       }
-    });
+    }, "DS: FixtureAdapter#simulateRemoteCall");
   }
 });

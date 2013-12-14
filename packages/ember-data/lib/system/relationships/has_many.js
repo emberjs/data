@@ -8,10 +8,11 @@ var get = Ember.get, set = Ember.set, setProperties = Ember.setProperties;
 
 function asyncHasMany(type, options, meta) {
   return Ember.computed(function(key, value) {
-    var relationship = this._relationships[key];
+    var relationship = this._relationships[key],
+        promiseLabel = "DS: Async hasMany " + this + " : " + key;
 
     if (!relationship) {
-      var resolver = Ember.RSVP.defer();
+      var resolver = Ember.RSVP.defer(promiseLabel);
       relationship = buildRelationship(this, key, options, function(store, data) {
         var link = data.links && data.links[key];
         var rel;
@@ -30,7 +31,7 @@ function asyncHasMany(type, options, meta) {
 
     var promise = relationship.get('promise').then(function() {
       return relationship;
-    });
+    }, null, "DS: Async hasMany records received");
 
     return DS.PromiseArray.create({ promise: promise });
   }).property('data').meta(meta);
