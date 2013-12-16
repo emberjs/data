@@ -425,9 +425,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @method reloadRecord
     @private
     @param {DS.Model} record
+    @param {Object|Query|null} query
     @param {Resolver} resolver
   */
-  reloadRecord: function(record) {
+  reloadRecord: function(record, query) {
     var type = record.constructor,
         adapter = this.adapterFor(type),
         id = get(record, 'id');
@@ -436,7 +437,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to reload a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to reload a record but your adapter does not implement `find`", adapter.find);
 
-    return _find(adapter, this, type, id);
+    return _find(adapter, this, type, id, query);
   },
 
   /**

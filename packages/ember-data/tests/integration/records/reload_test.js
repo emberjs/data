@@ -130,3 +130,18 @@ test("When a record is reloaded, its async hasMany relationships still work", fu
     deepEqual(tags.mapBy('name'), [ 'hipster', 'hair' ], "The tags are still there");
   }));
 });
+
+test("A record can be reloaded with query params and pass them to find ", function() {
+  var tom = env.store.push('person', { id: 1, name: "Tom Dale" });
+
+  var passedQuery;
+
+  env.adapter.find = function(store, type, id, query) {
+    passedQuery = query;
+    return Ember.RSVP.resolve({ id: 1, name: "Tom Dale" });
+  };
+
+  tom.reload({include: 'friends'}).then(async(function(person) {
+    deepEqual(passedQuery, {include: 'friends'});
+  }));
+});
