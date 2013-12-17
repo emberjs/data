@@ -187,3 +187,42 @@ test('normalizeHash normalizes specific parts of the payload', function(){
     "superVillains": [1]
   }]);
 });
+
+test('normalizeHash works with transforms', function(){
+  env.container.register('serializer:application', DS.RESTSerializer.extend({
+    normalizeHash: {
+      evilMinions: function(hash) {
+        hash.condition = hash._condition;
+        delete hash._condition;
+        return hash;
+      }
+    }
+  }));
+
+  env.container.register('transform:condition', DS.Transform.extend({
+    deserialize: function(serialized) {
+      if (serialized === 1) {
+        return "healing";
+      } else {
+        return "unknown";
+      }
+    },
+    serialize: function(deserialized) {
+      if (deserialized === "healing") {
+        return 1;
+      } else {
+        return 2;
+      }
+    }
+  }));
+
+  EvilMinion.reopen({ condition: DS.attr('condition') });
+
+  var jsonHash = {
+    evilMinions: [{id: "1", name: "Tom Dale", superVillain: 1, _condition: 1}]
+  };
+
+  var array = env.restSerializer.extractArray(env.store, EvilMinion, jsonHash);
+
+  equal(array[0].condition, "healing");
+});
