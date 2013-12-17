@@ -115,7 +115,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     @param {subclass of DS.Model} type
     @param {Object} hash
     @param {String} prop
-    @returns Object
+    @returns {Object}
   */
   normalize: function(type, hash, prop) {
     this.normalizeId(hash);
@@ -149,7 +149,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     @method normalizePayload
     @param {subclass of DS.Model} type
     @param {Object} hash
-    @returns Object the normalized payload
+    @returns {Object} the normalized payload
   */
   normalizePayload: function(type, payload) {
     return payload;
@@ -296,7 +296,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     @param {Object} payload
     @param {String} id
     @param {'find'|'createRecord'|'updateRecord'|'deleteRecord'} requestType
-    @returns Object the primary response to the original request
+    @returns {Object} the primary response to the original request
   */
   extractSingle: function(store, primaryType, payload, recordId, requestType) {
     payload = this.normalizePayload(primaryType, payload);
@@ -442,7 +442,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     @param {subclass of DS.Model} type
     @param {Object} payload
     @param {'findAll'|'findMany'|'findHasMany'|'findQuery'} requestType
-    @returns {Array<Object>} The primary array that was returned in response
+    @returns {Array} The primary array that was returned in response
       to the original query.
   */
   extractArray: function(store, primaryType, payload) {
@@ -494,7 +494,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
       }],
       "comments": [{
         "id": "1",
-        "body": "FIRST
+        "body": "FIRST"
       }],
       "users": [{
         "id": "1",
@@ -545,7 +545,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
     @method typeForRoot
     @param {String} root
-    @returns String the model's typeKey
+    @returns {String} the model's typeKey
   */
   typeForRoot: function(root) {
     return Ember.String.singularize(root);
@@ -731,7 +731,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     @method serializePolymorphicType
     @param {DS.Model} record
     @param {Object} json
-    @param relationship
+    @param {Object} relationship
   */
   serializePolymorphicType: function(record, json, relationship) {
     var key = relationship.key,
