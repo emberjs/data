@@ -45,6 +45,24 @@ test('ability to add additonal irregular rules', function(){
   equal(inflector.pluralize('cow'), 'kine', 'irregular pluralization rule was applied');
 });
 
+test('ability to add identical singular and pluralizations',function(){
+
+  inflector.singular(/s$/, '');
+  inflector.plural(/$/, 's');
+
+  equal(inflector.singularize('settings'),'setting','regular singularization rule was applied');
+  equal(inflector.pluralize('setting'),'settings','regular pluralization rule was applied');
+
+  inflector.irregular('settings','settings');
+  inflector.irregular('userPreferences','userPreferences');
+
+  equal(inflector.singularize('settings'),'settings','irregular singularization rule was applied on lowercase word');
+  equal(inflector.pluralize('settings'),'settings','irregular pluralization rule was applied on lowercase word');
+
+  equal(inflector.singularize('userPreferences'),'userPreferences','irregular singularization rule was applied on camelcase word');
+  equal(inflector.pluralize('userPreferences'),'userPreferences','irregular pluralization rule was applied on camelcase word');
+});
+
 module('ember-inflector.unit');
 
 test('plurals', function() {

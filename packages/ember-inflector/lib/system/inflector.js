@@ -2,7 +2,7 @@ var BLANK_REGEX = /^\s*$/;
 
 function loadUncountable(rules, uncountable) {
   for (var i = 0, length = uncountable.length; i < length; i++) {
-    rules.uncountable[uncountable[i]] = true;
+    rules.uncountable[uncountable[i].toLowerCase()] = true;
   }
 }
 
@@ -12,8 +12,8 @@ function loadIrregular(rules, irregularPairs) {
   for (var i = 0, length = irregularPairs.length; i < length; i++) {
     pair = irregularPairs[i];
 
-    rules.irregular[pair[0]] = pair[1];
-    rules.irregularInverse[pair[1]] = pair[0];
+    rules.irregular[pair[0].toLowerCase()] = pair[1];
+    rules.irregularInverse[pair[1].toLowerCase()] = pair[0];
   }
 }
 
@@ -78,7 +78,7 @@ function loadIrregular(rules, irregularPairs) {
 function Inflector(ruleSet) {
   ruleSet = ruleSet || {};
   ruleSet.uncountable = ruleSet.uncountable || {};
-  ruleSet.irregularPairs= ruleSet.irregularPairs|| {};
+  ruleSet.irregularPairs = ruleSet.irregularPairs || {};
 
   var rules = this.rules = {
     plurals:  ruleSet.plurals || [],
@@ -99,7 +99,7 @@ Inflector.prototype = {
     @param {String} string
   */
   plural: function(regex, string) {
-    this.rules.plurals.push([regex, string]);
+    this.rules.plurals.push([regex, string.toLowerCase()]);
   },
 
   /**
@@ -108,7 +108,7 @@ Inflector.prototype = {
     @param {String} string
   */
   singular: function(regex, string) {
-    this.rules.singular.push([regex, string]);
+    this.rules.singular.push([regex, string.toLowerCase()]);
   },
 
   /**
@@ -116,7 +116,7 @@ Inflector.prototype = {
     @param {String} regex
   */
   uncountable: function(string) {
-    loadUncountable(this.rules, [string]);
+    loadUncountable(this.rules, [string.toLowerCase()]);
   },
 
   /**
