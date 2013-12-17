@@ -15,6 +15,7 @@ var forEach = Ember.EnumerableUtils.forEach;
 var indexOf = Ember.EnumerableUtils.indexOf;
 var map = Ember.EnumerableUtils.map;
 var resolve = Ember.RSVP.resolve;
+var copy = Ember.copy;
 
 // Implementors Note:
 //
@@ -189,7 +190,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   createRecord: function(type, properties) {
     type = this.modelFor(type);
 
-    properties = properties || {};
+    properties = copy(properties) || {};
 
     // If the passed properties do not include a primary key,
     // give the adapter an opportunity to generate one. Typically,
