@@ -56,6 +56,7 @@ Ember.onLoad('Ember.Application', function(Application) {
 
   Application.initializer({
     name: "transforms",
+    before: "store",
 
     initialize: function(container, application) {
       application.register('transform:boolean', DS.BooleanTransform);
@@ -67,6 +68,7 @@ Ember.onLoad('Ember.Application', function(Application) {
 
   Application.initializer({
     name: "dataAdapter",
+    before: "store",
 
     initialize: function(container, application) {
       application.register('dataAdapter:main', DS.DebugAdapter);
@@ -75,6 +77,7 @@ Ember.onLoad('Ember.Application', function(Application) {
 
   Application.initializer({
     name: "injectStore",
+    before: "store",
 
     initialize: function(container, application) {
       application.inject('controller', 'store', 'store:main');
