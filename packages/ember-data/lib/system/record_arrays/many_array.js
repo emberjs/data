@@ -100,7 +100,7 @@ DS.ManyArray = DS.RecordArray.extend({
     var records = get(this, 'content'),
         store = get(this, 'store'),
         owner = get(this, 'owner'),
-        resolver = Ember.RSVP.defer();
+        resolver = Ember.RSVP.defer("DS: ManyArray#fetch " + get(this, 'type'));
 
     var unloadedRecords = records.filterProperty('isEmpty', true);
     store.fetchMany(unloadedRecords, owner, resolver);

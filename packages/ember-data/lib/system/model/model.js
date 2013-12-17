@@ -856,7 +856,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     successfully or rejected if the adapter returns with an error.
   */
   save: function() {
-    var resolver = Ember.RSVP.defer();
+    var promiseLabel = "DS: Model#save " + this;
+    var resolver = Ember.RSVP.defer(promiseLabel);
 
     this.get('store').scheduleSave(this, resolver);
     this._inFlightAttributes = this._attributes;
@@ -894,16 +895,17 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
     var  record = this;
 
+    var promiseLabel = "DS: Model#reload of " + this;
     var promise = new Ember.RSVP.Promise(function(resolve){
        record.send('reloadRecord', resolve);
-    }).then(function() {
+    }, promiseLabel).then(function() {
       record.set('isReloading', false);
       record.set('isError', false);
       return record;
     }, function(reason) {
       record.set('isError', true);
       throw reason;
-    });
+    }, "DS: Model#reload complete, update flags");
 
     return DS.PromiseObject.create({ promise: promise });
   },
