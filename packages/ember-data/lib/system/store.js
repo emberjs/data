@@ -272,6 +272,12 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
         store.find('person', 1);
 
+    Additionally you can pass `query` when using `id`.
+
+        store.find('person', 1, {include: 'comments'});
+
+    Will append '?include=comments` to your request.
+
     The `find` method will always return a **promise** that will be resolved
     with the record. If the record was already in the store, the promise will
     be resolved immediately. Otherwise, the store will ask the adapter's `find`
@@ -302,10 +308,11 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     responds.
 
     @method find
-    @param {DS.Model} type
+    @param {String|subclass of DS.Model} type
     @param {Object|String|Integer|null} id
+    @params {Object|String|null} query params
   */
-  find: function(type, id) {
+  find: function(type, id, query) {
     if (id === undefined) {
       return this.findAll(type);
     }
@@ -315,23 +322,26 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
       return this.findQuery(type, id);
     }
 
-    return this.findById(type, coerceId(id));
+    return this.findById(type, coerceId(id), query);
   },
 
   /**
     This method returns a record for a given type and id combination.
+    You can optionally pass a query object which will be append to the
+    request.
 
     @method findById
     @private
-    @param type
-    @param id
+    @param {String|subclass of DS.Model} type
+    @param {String} id
+    @param {Object|Query|null} query
   */
-  findById: function(type, id) {
+  findById: function(type, id, query) {
     type = this.modelFor(type);
 
     var record = this.recordForId(type, id);
 
-    var promise = this.fetchRecord(record) || resolve(record);
+    var promise = this.fetchRecord(record, query) || resolve(record);
     return promiseObject(promise);
   },
 
@@ -362,7 +372,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @param {DS.Model} record
     @returns Promise
   */
-  fetchRecord: function(record) {
+  fetchRecord: function(record, query) {
     if (isNone(record)) { return null; }
     if (record._loadingPromise) { return record._loadingPromise; }
     if (!get(record, 'isEmpty')) { return null; }
@@ -378,7 +388,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to find a record but your adapter (for " + type + ") does not implement 'find'", adapter.find);
 
-    resolver.resolve(_find(adapter, this, type, id));
+    resolver.resolve(_find(adapter, this, type, id, query));
 
     return resolver.promise;
   },
@@ -416,9 +426,10 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     @method reloadRecord
     @private
     @param {DS.Model} record
+    @param {Object|Query|null} query
     @param {Resolver} resolver
   */
-  reloadRecord: function(record) {
+  reloadRecord: function(record, query) {
     var type = record.constructor,
         adapter = this.adapterFor(type),
         id = get(record, 'id');
@@ -427,7 +438,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     Ember.assert("You tried to reload a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to reload a record but your adapter does not implement `find`", adapter.find);
 
-    return _find(adapter, this, type, id);
+    return _find(adapter, this, type, id, query);
   },
 
   /**
@@ -1006,7 +1017,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     etc.)
 
     @method modelFor
-    @param {String or subclass of DS.Model} key
+    @param {String|subclass of DS.Model} key
     @returns {subclass of DS.Model}
   */
   modelFor: function(key) {
@@ -1450,8 +1461,8 @@ function serializerForAdapter(adapter, type) {
   return serializer;
 }
 
-function _find(adapter, store, type, id) {
-  var promise = adapter.find(store, type, id),
+function _find(adapter, store, type, id, query) {
+  var promise = adapter.find(store, type, id, query),
       serializer = serializerForAdapter(adapter, type);
 
   return resolve(promise).then(function(payload) {

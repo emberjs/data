@@ -66,6 +66,17 @@ test("find - basic payload (with legacy singular name)", function() {
     equal(post.get('name'), "Rails is omakase");
   }));
 });
+
+test("find - with id and query params", function() {
+  ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase", comments: [1] }] });
+
+  store.find('post', 1, {include: 'comments'}).then(async(function(post) {
+    equal(passedUrl, "/posts/1");
+    equal(passedVerb, "GET");
+    deepEqual(passedHash.data, { include: 'comments' });
+  }));
+});
+
 test("find - payload with sideloaded records of the same type", function() {
   var count = 0;
 
