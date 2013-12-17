@@ -149,27 +149,6 @@ test("a defaultValue for an attribite can be a function", function() {
   equal(get(tag, 'createdAt'), "le default value", "the defaultValue function is evaluated");
 });
 
-test("when a DS.Model updates its attributes, its changes affect its filtered Array membership", function() {
-  var people = store.filter(Person, function(hash) {
-    if (hash.get('name').match(/Katz$/)) { return true; }
-  });
-
-  equal(get(people, 'length'), 1, "precond - one item is in the RecordArray");
-
-  var person = people.objectAt(0);
-
-  equal(get(person, 'name'), "Scumbag Katz", "precond - the item is correct");
-
-  set(person, 'name', "Yehuda Katz");
-
-  equal(get(people, 'length'), 1, "there is still one item");
-  equal(get(person, 'name'), "Yehuda Katz", "it has the updated item");
-
-  set(person, 'name', "Yehuda Katz-Foo");
-
-  equal(get(people, 'length'), 0, "there are now no items");
-});
-
 module("unit/model - with a simple Person model", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
@@ -186,27 +165,6 @@ module("unit/model - with a simple Person model", {
     store = null;
     array = null;
   }
-});
-
-test("when a DS.Model updates its attributes, its changes affect its filtered Array membership", function() {
-  var people = store.filter(Person, function(hash) {
-    if (hash.get('name').match(/Katz$/)) { return true; }
-  });
-
-  equal(get(people, 'length'), 1, "precond - one item is in the RecordArray");
-
-  var person = people.objectAt(0);
-
-  equal(get(person, 'name'), "Scumbag Katz", "precond - the item is correct");
-
-  set(person, 'name', "Yehuda Katz");
-
-  equal(get(people, 'length'), 1, "there is still one item");
-  equal(get(person, 'name'), "Yehuda Katz", "it has the updated item");
-
-  set(person, 'name', "Yehuda Katz-Foo");
-
-  equal(get(people, 'length'), 0, "there are now no items");
 });
 
 test("can ask if record with a given id is loaded", function() {
