@@ -165,3 +165,25 @@ test("extractArray loads secondary records with correct serializer", function() 
 
   equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
 });
+
+test('normalizeHash normalizes specific parts of the payload', function(){
+  env.container.register('serializer:application', DS.RESTSerializer.extend({
+    normalizeHash: {
+      homePlanets: function(hash) {
+        hash.id = hash._id;
+        delete hash._id;
+        return hash;
+      }
+    }
+  }));
+
+  var jsonHash = { homePlanets: [{_id: "1", name: "Umber", superVillains: [1]}] };
+
+  var array = env.restSerializer.extractArray(env.store, HomePlanet, jsonHash);
+
+  deepEqual(array, [{
+    "id": "1",
+    "name": "Umber",
+    "superVillains": [1]
+  }]);
+});
