@@ -1138,7 +1138,14 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
   */
 
   pushPayload: function (type, payload) {
-    var serializer = this.serializerFor(type);
+    var serializer;
+    if (!payload) {
+      payload = type;
+      serializer = defaultSerializer(this.container);
+      Ember.assert("You cannot use `store#pushPayload` without a type unless your default serializer defines `pushPayload`", serializer.pushPayload);
+    } else {
+      serializer = this.serializerFor(type);
+    }
     serializer.pushPayload(this, payload);
   },
 
@@ -1431,6 +1438,11 @@ function serializerFor(container, type, defaultSerializer) {
                  container.lookup('serializer:application') ||
                  container.lookup('serializer:' + defaultSerializer) ||
                  container.lookup('serializer:_default');
+}
+
+function defaultSerializer(container) {
+  return container.lookup('serializer:application') ||
+         container.lookup('serializer:_default');
 }
 
 function serializerForAdapter(adapter, type) {
