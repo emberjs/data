@@ -792,7 +792,12 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       this._inFlightAttributes = {};
       set(this, 'isError', false);
     }
-
+    
+    if (!get(this, 'isValid')) {
+      this._inFlightAttributes = {};
+      this.send('becameValid');
+    } 
+  
     this.send('rolledBack');
 
     this.suspendRelationshipObservers(function() {
