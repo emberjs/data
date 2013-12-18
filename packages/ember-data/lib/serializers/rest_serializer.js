@@ -124,7 +124,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     this.normalizeRelationships(type, hash);
 
     if (this.normalizeHash && this.normalizeHash[prop]) {
-      return this.normalizeHash[prop](hash);
+      this.normalizeHash[prop](hash);
     }
 
     return this._super(type, hash, prop);
