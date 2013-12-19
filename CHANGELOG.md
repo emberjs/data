@@ -1,6 +1,6 @@
 # Ember Data Changelog
 
-### Ember Data 1.0.0-beta.4 _(TBD)_
+### Ember Data 1.0.0-beta.4 _(December 19, 2013)_
 
 * Use the adapter host for host-relative URLs in `findHasMany`.
 * Fix `asyncBelongsTo` resolution.
