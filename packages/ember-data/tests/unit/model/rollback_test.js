@@ -1,4 +1,4 @@
-var env, store, Person;
+var env, store, Person, Dog;
 
 module("unit/model/rollback - model.rollback()", {
   setup: function() {
@@ -99,4 +99,38 @@ test("deleted record can be rollbacked", function() {
 
   equal(person.get('isDeleted'), false, "must not be deleted");
   equal(person.get('isDirty'), false, "must not be dirty");
+});
+
+test("invalid record can be rollbacked", function() {
+  Dog = DS.Model.extend({
+    name: DS.attr()
+  });
+
+  var adapter = DS.RESTAdapter.extend({
+    ajax: function(url, type, hash) {
+      var adapter = this;
+
+      return new Ember.RSVP.Promise(function(resolve, reject) {
+        Ember.run.next(function(){
+          reject(adapter.ajaxError({}));
+        });
+      });
+    },
+
+    ajaxError: function(jqXHR) {
+      return new DS.InvalidError(jqXHR);
+    }
+  });
+
+  env = setupStore({ dog: Dog, adapter: adapter});
+  var dog = env.store.push('dog', { id: 1, name: "Pluto" });
+
+  dog.set('name', "is a dwarf planet");
+
+  dog.save().then(null, async(function() {
+    dog.rollback();
+
+    equal(dog.get('name'), "Pluto");
+    ok(dog.get('isValid'));
+  }));
 });
