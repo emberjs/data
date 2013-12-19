@@ -29,9 +29,11 @@ DS.Model.reopen({
     This hook passes the class being set up, as well as the key and value
     being defined. So, for example, when the user does this:
 
-      DS.Model.extend({
-        parent: DS.belongsTo('user')
-      });
+    ```javascript
+    DS.Model.extend({
+      parent: DS.belongsTo('user')
+    });
+    ```
 
     This hook would be called with "parent" as the key and the computed
     property returned by `DS.belongsTo` as the value.
@@ -83,9 +85,11 @@ DS.Model.reopenClass({
 
     For example, if you define a model like this:
 
-        App.Post = DS.Model.extend({
-          comments: DS.hasMany('comment')
-        });
+   ```javascript
+    App.Post = DS.Model.extend({
+      comments: DS.hasMany('comment')
+    });
+   ```
 
     Calling `App.Post.typeForRelationship('comments')` will return `App.Comment`.
 
@@ -157,21 +161,25 @@ DS.Model.reopenClass({
 
     For example, given the following model definition:
 
-        App.Blog = DS.Model.extend({
-          users: DS.hasMany('user'),
-          owner: DS.belongsTo('user'),
-          posts: DS.hasMany('post')
-        });
+    ```javascript
+    App.Blog = DS.Model.extend({
+      users: DS.hasMany('user'),
+      owner: DS.belongsTo('user'),
+      posts: DS.hasMany('post')
+    });
+    ```
 
     This computed property would return a map describing these
     relationships, like this:
 
-        var relationships = Ember.get(App.Blog, 'relationships');
-        relationships.get(App.User);
-        //=> [ { name: 'users', kind: 'hasMany' },
-        //     { name: 'owner', kind: 'belongsTo' } ]
-        relationships.get(App.Post);
-        //=> [ { name: 'posts', kind: 'hasMany' } ]
+    ```javascript
+    var relationships = Ember.get(App.Blog, 'relationships');
+    relationships.get(App.User);
+    //=> [ { name: 'users', kind: 'hasMany' },
+    //     { name: 'owner', kind: 'belongsTo' } ]
+    relationships.get(App.Post);
+    //=> [ { name: 'posts', kind: 'hasMany' } ]
+    ```
 
     @property relationships
     @static
@@ -207,20 +215,24 @@ DS.Model.reopenClass({
     by the relationship kind. For example, given a model with this
     definition:
 
-        App.Blog = DS.Model.extend({
-          users: DS.hasMany('user'),
-          owner: DS.belongsTo('user'),
+    ```javascript
+    App.Blog = DS.Model.extend({
+      users: DS.hasMany('user'),
+      owner: DS.belongsTo('user'),
 
-          posts: DS.hasMany('post')
-        });
+      posts: DS.hasMany('post')
+    });
+    ```
 
     This property would contain the following:
 
-       var relationshipNames = Ember.get(App.Blog, 'relationshipNames');
-       relationshipNames.hasMany;
-       //=> ['users', 'posts']
-       relationshipNames.belongsTo;
-       //=> ['owner']
+    ```javascript
+    var relationshipNames = Ember.get(App.Blog, 'relationshipNames');
+    relationshipNames.hasMany;
+    //=> ['users', 'posts']
+    relationshipNames.belongsTo;
+    //=> ['owner']
+    ```
 
     @property relationshipNames
     @static
@@ -246,17 +258,21 @@ DS.Model.reopenClass({
 
     For example, given a model with this definition:
 
-        App.Blog = DS.Model.extend({
-          users: DS.hasMany('user'),
-          owner: DS.belongsTo('user'),
-  
-          posts: DS.hasMany('post')
-        });
+    ```javascript
+    App.Blog = DS.Model.extend({
+      users: DS.hasMany('user'),
+      owner: DS.belongsTo('user'),
+
+      posts: DS.hasMany('post')
+    });
+    ```
 
     This property would contain the following:
 
-       var relatedTypes = Ember.get(App.Blog, 'relatedTypes');
-       //=> [ App.User, App.Post ]
+    ```javascript
+    var relatedTypes = Ember.get(App.Blog, 'relatedTypes');
+    //=> [ App.User, App.Post ]
+    ```
 
     @property relatedTypes
     @static
@@ -297,20 +313,24 @@ DS.Model.reopenClass({
     For example, given a model with this
     definition:
 
-        App.Blog = DS.Model.extend({
-          users: DS.hasMany('user'),
-          owner: DS.belongsTo('user'),
+    ```javascript
+    App.Blog = DS.Model.extend({
+      users: DS.hasMany('user'),
+      owner: DS.belongsTo('user'),
 
-          posts: DS.hasMany('post')
-        });
+      posts: DS.hasMany('post')
+    });
+    ```
 
     This property would contain the following:
 
-       var relationshipsByName = Ember.get(App.Blog, 'relationshipsByName');
-       relationshipsByName.get('users');
-       //=> { key: 'users', kind: 'hasMany', type: App.User }
-       relationshipsByName.get('owner');
-       //=> { key: 'owner', kind: 'belongsTo', type: App.User }
+    ```javascript
+    var relationshipsByName = Ember.get(App.Blog, 'relationshipsByName');
+    relationshipsByName.get('users');
+    //=> { key: 'users', kind: 'hasMany', type: App.User }
+    relationshipsByName.get('owner');
+    //=> { key: 'owner', kind: 'belongsTo', type: App.User }
+    ```
 
     @property relationshipsByName
     @static
@@ -349,25 +369,28 @@ DS.Model.reopenClass({
 
     For example:
 
-        App.Blog = DS.Model.extend({
-          users: DS.hasMany('user'),
-          owner: DS.belongsTo('user'),
+    ```javascript
 
-          posts: DS.hasMany('post'),
+    App.Blog = DS.Model.extend({
+      users: DS.hasMany('user'),
+      owner: DS.belongsTo('user'),
 
-          title: DS.attr('string')
-        });
+      posts: DS.hasMany('post'),
 
-        var fields = Ember.get(App.Blog, 'fields');
-        fields.forEach(function(field, kind) {
-          console.log(field, kind);
-        });
+      title: DS.attr('string')
+    });
 
-        // prints:
-        // users, hasMany
-        // owner, belongsTo
-        // posts, hasMany
-        // title, attribute
+    var fields = Ember.get(App.Blog, 'fields');
+    fields.forEach(function(field, kind) {
+      console.log(field, kind);
+    });
+
+    // prints:
+    // users, hasMany
+    // owner, belongsTo
+    // posts, hasMany
+    // title, attribute
+    ```
 
     @property fields
     @static

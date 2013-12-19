@@ -18,7 +18,7 @@ DS.Model.reopenClass({
 
     Example
 
-    ```JavaScript
+    ```javascript
 
     App.Person = DS.Model.extend({
       firstName: attr('string'),
@@ -66,7 +66,7 @@ DS.Model.reopenClass({
 
     Example
 
-    ```JavaScript
+    ```javascript
     App.Person = DS.Model.extend({
       firstName: attr(),
       lastName: attr('string'),
@@ -108,7 +108,7 @@ DS.Model.reopenClass({
     The callback method you provide should have the following signature (all
     parameters are optional):
 
-    ```JavaScript
+    ```javascript
     function(name, meta);
     ```
 
@@ -120,7 +120,7 @@ DS.Model.reopenClass({
 
     Example
 
-    ```JavaScript
+    ```javascript
     App.Person = DS.Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
@@ -156,7 +156,7 @@ DS.Model.reopenClass({
     The callback method you provide should have the following signature (all
     parameters are optional):
 
-    ```JavaScript
+    ```javascript
     function(name, type);
     ```
 
@@ -169,7 +169,7 @@ DS.Model.reopenClass({
 
     Example
 
-    ```JavaScript
+    ```javascript
     App.Person = DS.Model.extend({
       firstName: attr(),
       lastName: attr('string'),
@@ -244,7 +244,7 @@ function getValue(record, key) {
 
   Example
 
-  ```JavaScript
+  ```javascript
   var attr = DS.attr;
 
   App.User = DS.Model.extend({

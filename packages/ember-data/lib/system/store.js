@@ -50,7 +50,9 @@ var coerceId = function(id) {
 
   Define your application's store like this:
 
-       MyApp.Store = DS.Store.extend();
+  ```javascript
+  MyApp.Store = DS.Store.extend();
+  ```
 
   Most Ember.js applications will only have a single `DS.Store` that is
   automatically created by their `Ember.Application`.
@@ -58,12 +60,16 @@ var coerceId = function(id) {
   You can retrieve models from the store in several ways. To retrieve a record
   for a specific id, use `DS.Model`'s `find()` method:
 
-       var person = App.Person.find(123);
+  ```javascript
+  var person = App.Person.find(123);
+  ```
 
   If your application has multiple `DS.Store` instances (an unusual case), you can
   specify which store should be used:
 
-      var person = store.find(App.Person, 123);
+  ```javascript
+  var person = store.find(App.Person, 123);
+  ```
 
   In general, you should retrieve models using the methods on `DS.Model`; you should
   rarely need to interact with the store directly.
@@ -71,9 +77,11 @@ var coerceId = function(id) {
   By default, the store will talk to your backend using a standard REST mechanism.
   You can customize how the store talks to your backend by specifying a custom adapter:
 
-       MyApp.store = DS.Store.create({
-         adapter: 'MyApp.CustomAdapter'
-       });
+  ```javascript
+   MyApp.store = DS.Store.create({
+     adapter: 'MyApp.CustomAdapter'
+   });
+   ```
 
   You can learn more about writing a custom adapter by reading the `DS.Adapter`
   documentation.
@@ -270,7 +278,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     To find a record by ID, pass the `id` as the second parameter:
 
-        store.find('person', 1);
+    ```javascript
+    store.find('person', 1);
+    ```
 
     The `find` method will always return a **promise** that will be resolved
     with the record. If the record was already in the store, the promise will
@@ -284,7 +294,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
 
     To find all records for a type, call `find` with no additional parameters:
 
-        store.find('person');
+    ```javascript
+    store.find('person');
+    ```
 
     This will ask the adapter's `findAll` method to find the records for the
     given type, and return a promise that will be resolved once the server
@@ -295,7 +307,9 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     To find a record by a query, call `find` with a hash as the second
     parameter:
 
-        store.find(App.Person, { page: 1 });
+    ```javascript
+    store.find(App.Person, { page: 1 });
+    ```
 
     This will ask the adapter's `findQuery` method to find the records for
     the query, and return a promise that will be resolved once the server
@@ -339,6 +353,7 @@ DS.Store = Ember.Object.extend(DS._Mappable, {
     This method makes a series of requests to the adapter's `find` method
     and returns a promise that resolves once they are all loaded.
 
+    @private
     @method findByIds
     @param {String} type
     @param {Array} ids
