@@ -2,7 +2,6 @@
 /*jshint eqnull:true*/
 
 require("ember-data/system/record_arrays");
-require("ember-data/system/mixins/mappable");
 
 /**
   @module ember-data
@@ -81,9 +80,8 @@ var coerceId = function(id) {
   @class Store
   @namespace DS
   @extends Ember.Object
-  @uses DS._Mappable
 */
-DS.Store = Ember.Object.extend(DS._Mappable, {
+DS.Store = Ember.Object.extend({
 
   /**
     @method init
