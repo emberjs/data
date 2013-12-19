@@ -12,6 +12,11 @@
 * Fixes adding unsaved records to hasMany relationships after they are normalized from saved payload.
 * Correctly define window/global `DS` namespace in IE7/8.
 * Test against all Ember channels.
+* Allow `recordIsLoaded` to be called with a string for the type.
+* Removing deleted records from RecordArrays is now async.
+* Normalize `links` in `DS.RESTSerializer.normalize`.
+* Label promises.
+* Many documentation fixes.
 
 ### Ember Data 1.0.0-beta.3 _(September 28, 2013)_
 
