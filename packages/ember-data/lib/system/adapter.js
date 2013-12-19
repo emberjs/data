@@ -65,10 +65,9 @@ DS.InvalidError.prototype = Ember.create(Error.prototype);
   @class Adapter
   @namespace DS
   @extends Ember.Object
-  @uses DS._Mappable
 */
 
-DS.Adapter = Ember.Object.extend(DS._Mappable, {
+DS.Adapter = Ember.Object.extend({
 
   /**
     The `find()` method is invoked when the store is asked for a record that
