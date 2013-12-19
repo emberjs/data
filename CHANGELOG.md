@@ -1,5 +1,18 @@
 # Ember Data Changelog
 
+### Ember Data 1.0.0-beta.4 _(TBD)_
+
+* Use the adapter host for host-relative URLs in `findHasMany`.
+* Fix `asyncBelongsTo` resolution.
+* Add `destroyRecord` to delete and save a record at once.
+* Make it easier to override just the Ajax options.
+* Normalize hasMany polymorphic types for `DS.ActiveModelSerializer`.
+* Add basic embedded record support to `DS.ActiveModelSerializer`.
+* `DS.Store#modelFor` now assigns a store even when a factory supplied.
+* Fixes adding unsaved records to hasMany relationships after they are normalized from saved payload.
+* Correctly define window/global `DS` namespace in IE7/8.
+* Test against all Ember channels.
+
 ### Ember Data 1.0.0-beta.3 _(September 28, 2013)_
 
 * Add `normalizePayload` to `RESTAdapter` for payload normalization that is the same
