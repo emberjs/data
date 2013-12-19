@@ -149,6 +149,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
   },
 
   /**
+    @private
     @method findAll
     @param  store
     @param  type
@@ -164,6 +165,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
   },
 
   /**
+    @private
     @method findQuery
     @param  store
     @param  type
