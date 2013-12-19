@@ -50,7 +50,8 @@ DS.DateTransform = DS.Transform.extend({
           utcDay = date.getUTCDay(),
           utcHours = date.getUTCHours(),
           utcMinutes = date.getUTCMinutes(),
-          utcSeconds = date.getUTCSeconds();
+          utcSeconds = date.getUTCSeconds(),
+          utcMilliseconds = date.getUTCMilliseconds();
 
 
       var dayOfWeek = days[utcDay];
@@ -58,10 +59,11 @@ DS.DateTransform = DS.Transform.extend({
       var month = months[utcMonth];
 
       return dayOfWeek + ", " + dayOfMonth + " " + month + " " + utcYear + " " +
-             pad(utcHours) + ":" + pad(utcMinutes) + ":" + pad(utcSeconds) + " GMT";
+             pad(utcHours) + ":" + pad(utcMinutes) + ":" + pad(utcSeconds) +
+             pad(utcMilliseconds) + " GMT";
     } else {
       return null;
     }
-  } 
+  }
 
 });
