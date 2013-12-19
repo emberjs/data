@@ -474,6 +474,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
         primaryArray = normalizedArray;
       } else {
         store.pushMany(typeName, normalizedArray);
+        primaryArray = normalizedArray;
       }
     }
 
