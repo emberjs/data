@@ -48,6 +48,14 @@ DS.ManyArray = DS.RecordArray.extend({
   },
 
   /**
+    The property name of the relationship
+
+    @property {String}
+    @private
+  */
+  name: null,
+
+  /**
     The record to which this relationship belongs.
 
     @property {DS.Model}
@@ -67,6 +75,15 @@ DS.ManyArray = DS.RecordArray.extend({
 
   isLoaded: false,
 
+  /**
+    Used for async `hasMany` arrays
+    to keep track of when they will resolve.
+
+    @property {Ember.RSVP.Promise}
+    @private
+  */
+  promise: null,
+
   loadingRecordsCount: function(count) {
     this.loadingRecordsCount = count;
   },
@@ -83,7 +100,7 @@ DS.ManyArray = DS.RecordArray.extend({
     var records = get(this, 'content'),
         store = get(this, 'store'),
         owner = get(this, 'owner'),
-        resolver = Ember.RSVP.defer();
+        resolver = Ember.RSVP.defer("DS: ManyArray#fetch " + get(this, 'type'));
 
     var unloadedRecords = records.filterProperty('isEmpty', true);
     store.fetchMany(unloadedRecords, owner, resolver);

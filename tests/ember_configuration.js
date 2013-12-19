@@ -183,7 +183,7 @@
     // Prevent all tests involving serialization to require a container
     DS.JSONSerializer.reopen({
       transformFor: function(attributeType) {
-        return this._super(attributeType) || transforms[attributeType];
+        return this._super(attributeType, true) || transforms[attributeType];
       }
     });
 
@@ -191,8 +191,7 @@
   });
 
   EmberDev.distros = {
-    //spade:   'ember-data-spade.js',
-    spade:   'ember-spade.js',
+    spade:   'ember-data-spade.js',
     build:   'ember-data.js'
   };
 

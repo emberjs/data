@@ -27,24 +27,19 @@ DS.InvalidError.prototype = Ember.create(Error.prototype);
 
   First, create a new subclass of `DS.Adapter`:
 
-      App.MyAdapter = DS.Adapter.extend({
-        // ...your code here
-      });
+  ```javascript
+  App.MyAdapter = DS.Adapter.extend({
+    // ...your code here
+  });
+  ```
 
-  You can set the `ApplicationAdapter` property to use it as the default for every model:
+  To tell your store which adapter to use, set its `adapter` property:
 
-      App.ApplicationAdapter = App.MyAdapter
-
-  If you need more fine-grained customisation you can create Per Type adapters which are
-  automatically picked up by Ember Data
-
-      App.Post = DS.Model.extend({
-        // ...
-      });
-
-      App.PostAdapter = App.ApplicationAdapter.extend({
-        // ...
-      });
+  ```javascript
+  App.store = DS.Store.create({
+    adapter: App.MyAdapter.create()
+  });
+  ```
 
   `DS.Adapter` is an abstract base class that you should override in your
   application to customize it for your backend. The minimum set of methods
@@ -70,10 +65,9 @@ DS.InvalidError.prototype = Ember.create(Error.prototype);
   @class Adapter
   @namespace DS
   @extends Ember.Object
-  @uses DS._Mappable
 */
 
-DS.Adapter = Ember.Object.extend(DS._Mappable, {
+DS.Adapter = Ember.Object.extend({
 
   /**
     The `find()` method is invoked when the store is asked for a record that
@@ -84,25 +78,27 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
 
     Here is an example `find` implementation:
 
-        find: function(store, type, id) {
-          var url = type.url;
-          url = url.fmt(id);
+    ```javascript
+    find: function(store, type, id) {
+      var url = type.url;
+      url = url.fmt(id);
 
-          jQuery.getJSON(url, function(data) {
-              // data is a hash of key/value pairs. If your server returns a
-              // root, simply do something like:
-              // store.push(type, id, data.person)
-              store.push(type, id, data);
-          });
-        }
+      jQuery.getJSON(url, function(data) {
+          // data is a hash of key/value pairs. If your server returns a
+          // root, simply do something like:
+          // store.push(type, id, data.person)
+          store.push(type, id, data);
+      });
+    }
+    ```
 
     @method find
   */
   find: Ember.required(Function),
 
   /**
-    Optional
 
+    @private
     @method findAll
     @param  store
     @param  type
@@ -111,8 +107,8 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
   findAll: null,
 
   /**
-    Optional
 
+    @private
     @method findQuery
     @param  store
     @param  type
@@ -135,10 +131,12 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     The `generateIdForRecord()` method will be invoked with the requesting store as
     the first parameter and the newly created record as the second parameter:
 
-        generateIdForRecord: function(store, record) {
-          var uuid = App.generateUUIDWithStatisticallyLowOddsOfCollision();
-          return uuid;
-        }
+    ```javascript
+    generateIdForRecord: function(store, record) {
+      var uuid = App.generateUUIDWithStatisticallyLowOddsOfCollision();
+      return uuid;
+    }
+    ```
 
     @method generateIdForRecord
     @param {DS.Store} store

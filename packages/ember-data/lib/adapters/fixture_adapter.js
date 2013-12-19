@@ -82,7 +82,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
   },
 
   /**
-    Implement this method in order to provide provide json for CRUD methods
+    Implement this method in order to provide json for CRUD methods
 
     @method mockJSON
     @param  type
@@ -149,6 +149,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
   },
 
   /**
+    @private
     @method findAll
     @param  store
     @param  type
@@ -164,6 +165,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
   },
 
   /**
+    @private
     @method findQuery
     @param  store
     @param  type
@@ -295,10 +297,10 @@ DS.FixtureAdapter = DS.Adapter.extend({
         }, get(adapter, 'latency'));
       } else {
         // Asynchronous, but at the of the runloop with zero latency
-        Ember.run.once(function() {
+        Ember.run.schedule('actions', null, function() {
           resolve(callback.call(context));
         });
       }
-    });
+    }, "DS: FixtureAdapter#simulateRemoteCall");
   }
 });

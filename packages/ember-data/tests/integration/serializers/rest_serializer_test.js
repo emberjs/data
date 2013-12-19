@@ -72,6 +72,23 @@ test("extractArray with custom typeForRoot", function() {
   }));
 });
 
+test("extractArray failure with custom typeForRoot", function() {
+  env.restSerializer.typeForRoot = function(root) {
+    //should be camelized too, but, whoops, the developer forgot!
+    return Ember.String.singularize(root);
+  };
+
+  var json_hash = {
+    home_planets: [{id: "1", name: "Umber", superVillains: [1]}],
+    super_villains: [{id: "1", firstName: "Tom", lastName: "Dale", homePlanet: "1"}]
+  };
+
+  raises(function(){
+    env.restSerializer.extractArray(env.store, HomePlanet, json_hash);
+  }, "No model was found for 'home_planets'",
+  "raised error message expected to contain \"No model was found for 'home_planets'\"");
+});
+
 test("serialize polymorphicType", function() {
   var tom = env.store.createRecord(YellowMinion,   {name: "Alex", id: "124"});
   var ray = env.store.createRecord(DoomsdayDevice, {evilMinion: tom, name: "DeathRay"});
@@ -147,4 +164,65 @@ test("extractArray loads secondary records with correct serializer", function() 
   var array = env.restSerializer.extractArray(env.store, EvilMinion, json_hash);
 
   equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
+});
+
+test('normalizeHash normalizes specific parts of the payload', function(){
+  env.container.register('serializer:application', DS.RESTSerializer.extend({
+    normalizeHash: {
+      homePlanets: function(hash) {
+        hash.id = hash._id;
+        delete hash._id;
+        return hash;
+      }
+    }
+  }));
+
+  var jsonHash = { homePlanets: [{_id: "1", name: "Umber", superVillains: [1]}] };
+
+  var array = env.restSerializer.extractArray(env.store, HomePlanet, jsonHash);
+
+  deepEqual(array, [{
+    "id": "1",
+    "name": "Umber",
+    "superVillains": [1]
+  }]);
+});
+
+test('normalizeHash works with transforms', function(){
+  env.container.register('serializer:application', DS.RESTSerializer.extend({
+    normalizeHash: {
+      evilMinions: function(hash) {
+        hash.condition = hash._condition;
+        delete hash._condition;
+        return hash;
+      }
+    }
+  }));
+
+  env.container.register('transform:condition', DS.Transform.extend({
+    deserialize: function(serialized) {
+      if (serialized === 1) {
+        return "healing";
+      } else {
+        return "unknown";
+      }
+    },
+    serialize: function(deserialized) {
+      if (deserialized === "healing") {
+        return 1;
+      } else {
+        return 2;
+      }
+    }
+  }));
+
+  EvilMinion.reopen({ condition: DS.attr('condition') });
+
+  var jsonHash = {
+    evilMinions: [{id: "1", name: "Tom Dale", superVillain: 1, _condition: 1}]
+  };
+
+  var array = env.restSerializer.extractArray(env.store, EvilMinion, jsonHash);
+
+  equal(array[0].condition, "healing");
 });

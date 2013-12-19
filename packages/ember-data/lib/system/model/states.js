@@ -3,95 +3,111 @@
 */
 
 var get = Ember.get, set = Ember.set;
-
 /*
-  WARNING: Much of these docs are inaccurate as of bf8497.
-
   This file encapsulates the various states that a record can transition
   through during its lifecycle.
+*/
+/**
+  ### State
 
-  ### State Manager
+  Each record has a `currentState` property that explicitly tracks what
+  state a record is in at any given time. For instance, if a record is
+  newly created and has not yet been sent to the adapter to be saved,
+  it would be in the `root.loaded.created.uncommitted` state.  If a
+  record has had local modifications made to it that are in the
+  process of being saved, the record would be in the
+  `root.loaded.updated.inFlight` state. (These state paths will be
+  explained in more detail below.)
 
-  A record's state manager explicitly tracks what state a record is in
-  at any given time. For instance, if a record is newly created and has
-  not yet been sent to the adapter to be saved, it would be in the
-  `created.uncommitted` state.  If a record has had local modifications
-  made to it that are in the process of being saved, the record would be
-  in the `updated.inFlight` state. (These state paths will be explained
-  in more detail below.)
+  Events are sent by the record or its store to the record's
+  `currentState` property. How the state reacts to these events is
+  dependent on which state it is in. In some states, certain events
+  will be invalid and will cause an exception to be raised.
 
-  Events are sent by the record or its store to the record's state manager.
-  How the state manager reacts to these events is dependent on which state
-  it is in. In some states, certain events will be invalid and will cause
-  an exception to be raised.
+  States are hierarchical and every state is a substate of the
+  `RootState`. For example, a record can be in the
+  `root.deleted.uncommitted` state, then transition into the
+  `root.deleted.inFlight` state. If a child state does not implement
+  an event handler, the state manager will attempt to invoke the event
+  on all parent states until the root state is reached. The state
+  hierarchy of a record is described in terms of a path string. You
+  can determine a record's current state by getting the state's
+  `stateName` property:
 
-  States are hierarchical. For example, a record can be in the
-  `deleted.start` state, then transition into the `deleted.inFlight` state.
-  If a child state does not implement an event handler, the state manager
-  will attempt to invoke the event on all parent states until the root state is
-  reached. The state hierarchy of a record is described in terms of a path
-  string. You can determine a record's current state by getting its manager's
-  current state path:
+  ```javascript
+  record.get('currentState.stateName');
+  //=> "root.created.uncommitted"
+   ```
 
-      record.get('stateManager.currentPath');
-      //=> "created.uncommitted"
+  The hierarchy of valid states that ship with ember data looks like
+  this:
 
-  The `DS.Model` states are themselves stateless. What we mean is that,
-  though each instance of a record also has a unique instance of a
-  `DS.StateManager`, the hierarchical states that each of *those* points
-  to is a shared data structure. For performance reasons, instead of each
-  record getting its own copy of the hierarchy of states, each state
-  manager points to this global, immutable shared instance. How does a
-  state know which record it should be acting on?  We pass a reference to
-  the current state manager as the first parameter to every method invoked
-  on a state.
+  ```text
+  * root
+    * deleted
+      * saved
+      * uncommitted
+      * inFlight
+    * empty
+    * loaded
+      * created
+        * uncommitted
+        * inFlight
+      * saved
+      * updated
+        * uncommitted
+        * inFlight
+    * loading
+  ```
 
-  The state manager passed as the first parameter is where you should stash
+  The `DS.Model` states are themselves stateless. What we mean is
+  that, the hierarchical states that each of *those* points to is a
+  shared data structure. For performance reasons, instead of each
+  record getting its own copy of the hierarchy of states, each record
+  points to this global, immutable shared instance. How does a state
+  know which record it should be acting on? We pass the record
+  instance into the state's event handlers as the first argument.
+
+  The record passed as the first parameter is where you should stash
   state about the record if needed; you should never store data on the state
-  object itself. If you need access to the record being acted on, you can
-  retrieve the state manager's `record` property. For example, if you had
-  an event handler `myEvent`:
+  object itself.
 
-      myEvent: function(manager) {
-        var record = manager.get('record');
-        record.doSomething();
-      }
+  ### Events and Flags
 
-  For more information about state managers in general, see the Ember.js
-  documentation on `Ember.StateManager`.
-
-  ### Events, Flags, and Transitions
-
-  A state may implement zero or more events, flags, or transitions.
+  A state may implement zero or more events and flags.
 
   #### Events
 
   Events are named functions that are invoked when sent to a record. The
-  state manager will first look for a method with the given name on the
-  current state. If no method is found, it will search the current state's
-  parent, and then its grandparent, and so on until reaching the top of
-  the hierarchy. If the root is reached without an event handler being found,
-  an exception will be raised. This can be very helpful when debugging new
-  features.
+  record will first look for a method with the given name on the
+  current state. If no method is found, it will search the current
+  state's parent, and then its grandparent, and so on until reaching
+  the top of the hierarchy. If the root is reached without an event
+  handler being found, an exception will be raised. This can be very
+  helpful when debugging new features.
 
   Here's an example implementation of a state with a `myEvent` event handler:
 
-      aState: DS.State.create({
-        myEvent: function(manager, param) {
-          console.log("Received myEvent with "+param);
-        }
-      })
+  ```javascript
+  aState: DS.State.create({
+    myEvent: function(manager, param) {
+      console.log("Received myEvent with", param);
+    }
+  })
+  ```
 
   To trigger this event:
 
-      record.send('myEvent', 'foo');
-      //=> "Received myEvent with foo"
+  ```javascript
+  record.send('myEvent', 'foo');
+  //=> "Received myEvent with foo"
+  ```
 
   Note that an optional parameter can be sent to a record's `send()` method,
   which will be passed as the second parameter to the event handler.
 
   Events should transition to a different state if appropriate. This can be
-  done by calling the state manager's `transitionTo()` method with a path to the
+  done by calling the record's `transitionTo()` method with a path to the
   desired state. The state manager will attempt to resolve the state path
   relative to the current state. If no state is found at that path, it will
   attempt to resolve it relative to the current state's parent, and then its
@@ -99,12 +115,12 @@ var get = Ember.get, set = Ember.set;
   like this:
 
       * created
-        * start <-- currentState
+        * uncommitted <-- currentState
         * inFlight
       * updated
         * inFlight
 
-  If we are currently in the `start` state, calling
+  If we are currently in the `uncommitted` state, calling
   `transitionTo('inFlight')` would transition to the `created.inFlight` state,
   while calling `transitionTo('updated.inFlight')` would transition to
   the `updated.inFlight` state.
@@ -119,16 +135,20 @@ var get = Ember.get, set = Ember.set;
   state in a more user-friendly way than examining its state path. For example,
   instead of doing this:
 
-      var statePath = record.get('stateManager.currentPath');
-      if (statePath === 'created.inFlight') {
-        doSomething();
-      }
+  ```javascript
+  var statePath = record.get('stateManager.currentPath');
+  if (statePath === 'created.inFlight') {
+    doSomething();
+  }
+  ```
 
   You can say:
 
-      if (record.get('isNew') && record.get('isSaving')) {
-        doSomething();
-      }
+  ```javascript
+  if (record.get('isNew') && record.get('isSaving')) {
+    doSomething();
+  }
+  ```
 
   If your state does not set a value for a given flag, the value will
   be inherited from its parent (or the first place in the state hierarchy
@@ -138,23 +158,18 @@ var get = Ember.get, set = Ember.set;
   in addition to the area below, you will also need to declare it in the
   `DS.Model` class.
 
-  #### Transitions
 
-  Transitions are like event handlers but are called automatically upon
-  entering or exiting a state. To implement a transition, just call a method
-  either `enter` or `exit`:
+   * [isEmpty](DS.Model.html#property_isEmpty)
+   * [isLoading](DS.Model.html#property_isLoading)
+   * [isLoaded](DS.Model.html#property_isLoaded)
+   * [isDirty](DS.Model.html#property_isDirty)
+   * [isSaving](DS.Model.html#property_isSaving)
+   * [isDeleted](DS.Model.html#property_isDeleted)
+   * [isNew](DS.Model.html#property_isNew)
+   * [isValid](DS.Model.html#property_isValid)
 
-      myState: DS.State.create({
-        // Gets called automatically when entering
-        // this state.
-        enter: function(manager) {
-          console.log("Entered myState");
-        }
-      })
-
-  Note that enter and exit events are called once per transition. If the
-  current state changes, but changes to another child state of the parent,
-  the transition event on the parent will not be triggered.
+  @namespace DS
+  @class RootState
 */
 
 var hasDefinedProperties = function(object) {
@@ -257,8 +272,8 @@ var DirtyState = {
       record.transitionTo('inFlight');
     },
 
-    reloadRecord: function(record, resolver) {
-      get(record, 'store').reloadRecord(record, resolver);
+    reloadRecord: function(record, resolve) {
+      resolve(get(record, 'store').reloadRecord(record));
     },
 
     rolledBack: function(record) {
@@ -538,8 +553,8 @@ var RootState = {
         record.transitionTo('updated.inFlight');
       },
 
-      reloadRecord: function(record, resolver) {
-        get(record, 'store').reloadRecord(record, resolver);
+      reloadRecord: function(record, resolve) {
+        resolve(get(record, 'store').reloadRecord(record));
       },
 
       deleteRecord: function(record) {
@@ -557,6 +572,10 @@ var RootState = {
       didCommit: function(record) {
         record.send('invokeLifecycleCallbacks', get(record, 'lastDirtyType'));
       },
+
+      // loaded.saved.notFound would be triggered by a failed
+      // `reload()` on an unchanged record
+      notFound: Ember.K
 
     },
 
@@ -583,9 +602,7 @@ var RootState = {
 
     // TRANSITIONS
     setup: function(record) {
-      var store = get(record, 'store');
-
-      store.recordArrayManager.remove(record);
+      record.updateRecordArrays();
     },
 
     // SUBSTATES

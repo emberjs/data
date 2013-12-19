@@ -18,18 +18,12 @@ module("unit/store/push - DS.Store#push", {
       postTitle: attr('string')
     });
 
-    env = setupStore();
+    env = setupStore({"post": Post,
+                      "person": Person,
+                      "phone-number": PhoneNumber});
 
     store = env.store;
 
-    var DefaultSerializer = DS.JSONSerializer.extend({
-      store: store
-    });
-
-    env.container.register('model:person', Person);
-    env.container.register('model:phone-number', PhoneNumber);
-    env.container.register('model:post', Post);
-    env.container.register('serializer:_default', DefaultSerializer);
     env.container.register('serializer:post', DS.ActiveModelSerializer);
   },
 
@@ -50,6 +44,25 @@ test("Calling push with a normalized hash returns a record", function() {
   store.find('person', 'wat').then(async(function(foundPerson) {
     equal(foundPerson, person, "record returned via load() is the same as the record returned from find()");
     deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
+      id: 'wat',
+      firstName: "Yehuda",
+      lastName: "Katz"
+    });
+  }));
+});
+
+test("Supplying a model class for `push` is the same as supplying a string", function () {
+  var Programmer = Person.extend();
+  env.container.register('model:programmer', Programmer);
+
+  var programmer = store.push(Programmer, {
+    id: 'wat',
+    firstName: "Yehuda",
+    lastName: "Katz"
+  });
+
+  store.find('programmer', 'wat').then(async(function(foundProgrammer) {
+    deepEqual(foundProgrammer.getProperties('id', 'firstName', 'lastName'), {
       id: 'wat',
       firstName: "Yehuda",
       lastName: "Katz"
@@ -177,4 +190,24 @@ test("Calling pushPayload allows pushing raw JSON", function () {
   }]});
 
   equal(post.get('postTitle'), "Ember rocks (updated)", "You can update data in the store");
+});
+
+test("Calling pushPayload without a type uses application serializer", function () {
+  expect(2);
+
+  env.container.register('serializer:application', DS.RESTSerializer.extend({
+    pushPayload: function(store, payload) {
+      ok(true, "pushPayload is called on Application serializer");
+      return this._super(store, payload);
+    }
+  }));
+
+  store.pushPayload({posts: [{
+    id: '1',
+    postTitle: "Ember rocks"
+  }]});
+
+  var post = store.getById('post', 1);
+
+  equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
 });

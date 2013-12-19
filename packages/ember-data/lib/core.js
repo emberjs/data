@@ -8,10 +8,10 @@
   @class DS
   @static
 */
-
+var DS;
 if ('undefined' === typeof DS) {
   DS = Ember.Namespace.create({
-    VERSION: '1.0.0-beta.3'
+    VERSION: 'VERSION_STRING_PLACEHOLDER'
   });
 
   if ('undefined' !== typeof window) {

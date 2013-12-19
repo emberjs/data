@@ -98,7 +98,7 @@ test("serializePolymorphicType", function() {
       var key = relationship.key,
           belongsTo = get(record, key);
       json[relationship.key + "TYPE"] = belongsTo.constructor.typeKey;
-    },
+    }
   }));
 
   post = env.store.createRecord(Post, { title: "Rails is omakase", id: "1"});

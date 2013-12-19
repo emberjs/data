@@ -42,26 +42,9 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   },
 
   /**
-    Serialize has-may relationship when it is configured as embedded objects.
-
-    @method serializeHasMany
+    Does not serialize hasMany relationships by default.
   */
-  serializeHasMany: function(record, json, relationship) {
-    var key   = relationship.key,
-        attrs = get(this, 'attrs'),
-        embed = attrs && attrs[key] && attrs[key].embedded === 'always';
-
-    if (embed) {
-      json[this.keyForAttribute(key)] = get(record, key).map(function(relation) {
-        var data = relation.serialize(),
-            primaryKey = get(this, 'primaryKey');
-
-        data[primaryKey] = get(relation, primaryKey);
-
-        return data;
-      }, this);
-    }
-  },
+  serializeHasMany: Ember.K,
 
   /**
     Underscores the JSON root keys when serializing.
@@ -107,6 +90,68 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   },
 
   /**
+    Add extra step to `DS.RESTSerializer.normalize` so links are
+    normalized.
+
+    If your payload looks like this
+
+    ```js
+    {
+      "post": {
+        "id": 1,
+        "title": "Rails is omakase",
+        "links": { "flagged_comments": "api/comments/flagged" }
+      }
+    }
+    ```
+    The normalized version would look like this
+
+    ```js
+    {
+      "post": {
+        "id": 1,
+        "title": "Rails is omakase",
+        "links": { "flaggedComments": "api/comments/flagged" }
+      }
+    }
+    ```
+
+    @method normalize
+    @param {subclass of DS.Model} type
+    @param {Object} hash
+    @param {String} prop
+    @returns Object
+  */
+
+  normalize: function(type, hash, prop) {
+    this.normalizeLinks(hash);
+
+    return this._super(type, hash, prop);
+  },
+
+  /**
+    Convert `snake_cased` links  to `camelCase`
+
+    @method normalizeLinks
+    @param {Object} hash
+  */
+
+  normalizeLinks: function(data){
+    if (data.links) {
+      var links = data.links;
+
+      for (var link in links) {
+        var camelizedLink = Ember.String.camelize(link);
+
+        if (camelizedLink !== link) {
+          links[camelizedLink] = links[link];
+          delete links[link];
+        }
+      }
+    }
+  },
+
+  /**
     Normalize the polymorphic type from the JSON.
 
     Normalize:
@@ -138,6 +183,11 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
           payload = hash[payloadKey];
           if (payload && payload.type) {
             payload.type = this.typeForRoot(payload.type);
+          } else if (payload && relationship.kind === "hasMany") {
+            var self = this;
+            forEach(payload, function(single) {
+              single.type = self.typeForRoot(single.type);
+            });
           }
         } else {
           payloadKey = this.keyForRelationship(key, relationship.kind);
@@ -151,67 +201,5 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
         }
       }, this);
     }
-  },
-
-  extractSingle: function(store, primaryType, payload, recordId, requestType) {
-    var root = this.keyForAttribute(primaryType.typeKey),
-        partial = payload[root];
-
-    updatePayloadWithEmbedded(store, this, primaryType, partial, payload);
-
-    return this._super(store, primaryType, payload, recordId, requestType);
-  },
-
-  extractArray: function(store, type, payload) {
-    var root = this.keyForAttribute(type.typeKey),
-        partials = payload[Ember.String.pluralize(root)];
-
-    forEach(partials, function(partial) {
-      updatePayloadWithEmbedded(store, this, type, partial, payload);
-    }, this);
-
-    return this._super(store, type, payload);
   }
 });
-
-function updatePayloadWithEmbedded(store, serializer, type, partial, payload) {
-  var attrs = get(serializer, 'attrs');
-
-  if (!attrs) {
-    return;
-  }
-
-  type.eachRelationship(function(key, relationship) {
-    var expandedKey, embeddedTypeKey, attribute, ids,
-        config = attrs[key],
-        serializer = store.serializerFor(relationship.type.typeKey),
-        primaryKey = get(serializer, "primaryKey");
-
-    if (relationship.kind !== "hasMany") {
-      return;
-    }
-
-    if (config && (config.embedded === 'always' || config.embedded === 'load')) {
-      // underscore forces the embedded records to be side loaded.
-      // it is needed when main type === relationship.type
-      embeddedTypeKey = '_' + Ember.String.pluralize(relationship.type.typeKey);
-      expandedKey = this.keyForRelationship(key, relationship.kind);
-      attribute  = this.keyForAttribute(key);
-      ids = [];
-
-      if (!partial[attribute]) {
-        return;
-      }
-
-      payload[embeddedTypeKey] = payload[embeddedTypeKey] || [];
-
-      forEach(partial[attribute], function(data) {
-        ids.push(data[primaryKey]);
-        payload[embeddedTypeKey].push(data);
-      });
-
-      partial[expandedKey] = ids;
-      delete partial[attribute];
-    }
-  }, serializer);
-}

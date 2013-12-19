@@ -168,7 +168,40 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
   env.store.find('person', 1).then(async(function(person) {
     return person.get('group');
   })).then(async(function(group) {
-    ok(true, "The group is loaded");
+    ok(group instanceof Group, "A group object is loaded");
+    ok(group.get('id') === '1', 'It is the group we are expecting');
+  }));
+});
+
+test('A record with an async belongsTo relationship always returns a promise for that relationship', function () {
+  var Seat = DS.Model.extend({
+    person: DS.belongsTo('person')
+  });
+
+  var Person = DS.Model.extend({
+    seat: DS.belongsTo('seat', { async: true })
+  });
+
+  env.container.register('model:seat', Seat);
+  env.container.register('model:person', Person);
+
+  store.push('person', { id: 1, links: { seat: '/people/1/seat' } });
+
+  env.adapter.find = function() {
+    throw new Error("Adapter's find method should not be called");
+  };
+
+  env.adapter.findBelongsTo = async(function(store, record, link, relationship) {
+    return Ember.RSVP.resolve({ id: 1});
+  });
+
+  env.store.find('person', 1).then(async(function(person) {
+    person.get('seat').then(async(function(seat) {
+        // this assertion fails too
+        // ok(seat.get('person') === person, 'parent relationship should be populated');
+        seat.set('person', person);
+        ok(person.get('seat').then, 'seat should be a PromiseObject');
+    }));
   }));
 });
 

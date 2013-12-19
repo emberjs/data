@@ -6,7 +6,9 @@
   "url": "https://github.com/emberjs/data",
   "options": {
     "paths": [
-      "../packages/ember-data/lib"
+      "../packages/ember-data/lib",
+      "../packages/activemodel-adapter/lib",
+      "../packages/ember-inflector/lib"
     ],
     "exclude": "vendor",
     "outdir":   "./build"
