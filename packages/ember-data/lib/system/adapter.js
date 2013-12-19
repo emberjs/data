@@ -78,25 +78,27 @@ DS.Adapter = Ember.Object.extend({
 
     Here is an example `find` implementation:
 
-        find: function(store, type, id) {
-          var url = type.url;
-          url = url.fmt(id);
+    ```javascript
+    find: function(store, type, id) {
+      var url = type.url;
+      url = url.fmt(id);
 
-          jQuery.getJSON(url, function(data) {
-              // data is a hash of key/value pairs. If your server returns a
-              // root, simply do something like:
-              // store.push(type, id, data.person)
-              store.push(type, id, data);
-          });
-        }
+      jQuery.getJSON(url, function(data) {
+          // data is a hash of key/value pairs. If your server returns a
+          // root, simply do something like:
+          // store.push(type, id, data.person)
+          store.push(type, id, data);
+      });
+    }
+    ```
 
     @method find
   */
   find: Ember.required(Function),
 
   /**
-    Optional
 
+    @private
     @method findAll
     @param  store
     @param  type
@@ -105,8 +107,8 @@ DS.Adapter = Ember.Object.extend({
   findAll: null,
 
   /**
-    Optional
 
+    @private
     @method findQuery
     @param  store
     @param  type

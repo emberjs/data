@@ -139,6 +139,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     The `findAll` method makes an Ajax (HTTP GET) request to a URL computed by `buildURL`, and returns a
     promise for the resulting payload.
 
+    @private
     @method findAll
     @see RESTAdapter/buildURL
     @see RESTAdapter/ajax
@@ -167,6 +168,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     The `query` argument is a simple JavaScript object that will be passed directly
     to the server as parameters.
 
+    @private
     @method findQuery
     @see RESTAdapter/buildURL
     @see RESTAdapter/ajax
