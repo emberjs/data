@@ -62,7 +62,7 @@ DS.Transform = Ember.Object.extend({
     }
     ```
 
-    @method deserialized
+    @method deserialize
     @param serialized The serialized value
     @return The deserialized value
   */
