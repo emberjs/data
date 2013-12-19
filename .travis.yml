@@ -2,15 +2,14 @@
 rvm:
 - 1.9.3
 install:
-- "npm install"
-- "bundle install --deployment"
+- "bin/cached-npm install"
+- "bin/cached-bundle install --deployment"
 - sudo apt-get update && sudo apt-get install git
 script: rake test[all]
 after_success: bundle exec rake publish_build
-notifications:
-  webhooks: http://emberjs-master-builds.herokuapp.com/upload/data
 env:
   global:
+  - S3_BUILD_CACHE_BUCKET=emberjs-build-cache
   - S3_BUCKET_NAME=builds.emberjs.com
   - secure: ! 'S+DIdzEPvqQenk1cFq5UjbkoEKDY4j3E/g+Wlz798xxyTkrKQZxoazLXng8I
 
