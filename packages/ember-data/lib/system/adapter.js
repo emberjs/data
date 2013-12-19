@@ -27,15 +27,19 @@ DS.InvalidError.prototype = Ember.create(Error.prototype);
 
   First, create a new subclass of `DS.Adapter`:
 
-      App.MyAdapter = DS.Adapter.extend({
-        // ...your code here
-      });
+  ```javascript
+  App.MyAdapter = DS.Adapter.extend({
+    // ...your code here
+  });
+  ```
 
   To tell your store which adapter to use, set its `adapter` property:
 
-      App.store = DS.Store.create({
-        adapter: App.MyAdapter.create()
-      });
+  ```javascript
+  App.store = DS.Store.create({
+    adapter: App.MyAdapter.create()
+  });
+  ```
 
   `DS.Adapter` is an abstract base class that you should override in your
   application to customize it for your backend. The minimum set of methods
@@ -126,10 +130,12 @@ DS.Adapter = Ember.Object.extend(DS._Mappable, {
     The `generateIdForRecord()` method will be invoked with the requesting store as
     the first parameter and the newly created record as the second parameter:
 
-        generateIdForRecord: function(store, record) {
-          var uuid = App.generateUUIDWithStatisticallyLowOddsOfCollision();
-          return uuid;
-        }
+    ```javascript
+    generateIdForRecord: function(store, record) {
+      var uuid = App.generateUUIDWithStatisticallyLowOddsOfCollision();
+      return uuid;
+    }
+    ```
 
     @method generateIdForRecord
     @param {DS.Store} store

@@ -73,7 +73,7 @@ DS.belongsTo = function(type, options) {
   }).property('data').meta(meta);
 };
 
-/*
+/**
   These observers observe all `belongsTo` relationships on the record. See
   `relationships/ext` to see how these observers get their dependencies.
 
