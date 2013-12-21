@@ -159,6 +159,38 @@ test("loadMany takes an optional Object and passes it on to the Adapter", functi
   store.find(Person, passedQuery);
 });
 
+test("Find with query calls the correct extract", function() {
+  var passedQuery = { page: 1 };
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var adapter = TestAdapter.extend({
+    findQuery: function(store, type, query) {
+      return Ember.RSVP.resolve([]);
+    }
+  });
+
+  var callCount = 0;
+
+  var ApplicationSerializer = DS.JSONSerializer.extend({
+    extractFindQuery: function(store, type, payload) {
+      callCount++;
+      return [];
+    }
+  });
+
+  var store = createStore({
+    adapter: adapter
+  });
+
+  store.container.register('serializer:application', ApplicationSerializer);
+
+  store.find(Person, passedQuery);
+  equal(callCount, 1, 'extractFindQuery was called');
+});
+
 test("all(type) returns a record array of all records of a specific type", function() {
   var store = createStore();
   var Person = DS.Model.extend({
