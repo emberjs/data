@@ -8,10 +8,10 @@ var get = Ember.get, set = Ember.set;
 var map = Ember.EnumerableUtils.map;
 
 /**
-  A ManyArray is a RecordArray that represents the contents of a has-many
+  A `ManyArray` is a `RecordArray` that represents the contents of a has-many
   relationship.
 
-  The ManyArray is instantiated lazily the first time the relationship is
+  The `ManyArray` is instantiated lazily the first time the relationship is
   requested.
 
   ### Inverses
@@ -20,13 +20,15 @@ var map = Ember.EnumerableUtils.map;
   an inverse. For example, imagine the following models are
   defined:
 
-      App.Post = DS.Model.extend({
-        comments: DS.hasMany('comment')
-      });
+  ```javascript
+  App.Post = DS.Model.extend({
+    comments: DS.hasMany('comment')
+  });
 
-      App.Comment = DS.Model.extend({
-        post: DS.belongsTo('post')
-      });
+  App.Comment = DS.Model.extend({
+    post: DS.belongsTo('post')
+  });
+  ```
 
   If you created a new instance of `App.Post` and added
   a `App.Comment` record to its `comments` has-many
@@ -50,7 +52,7 @@ DS.ManyArray = DS.RecordArray.extend({
   /**
     The property name of the relationship
 
-    @property {String}
+    @property {String} name
     @private
   */
   name: null,
@@ -58,7 +60,7 @@ DS.ManyArray = DS.RecordArray.extend({
   /**
     The record to which this relationship belongs.
 
-    @property {DS.Model}
+    @property {DS.Model} owner
     @private
   */
   owner: null,
@@ -66,7 +68,7 @@ DS.ManyArray = DS.RecordArray.extend({
   /**
     `true` if the relationship is polymorphic, `false` otherwise.
 
-    @property {Boolean}
+    @property {Boolean} isPolymorphic
     @private
   */
   isPolymorphic: false,
@@ -79,15 +81,24 @@ DS.ManyArray = DS.RecordArray.extend({
     Used for async `hasMany` arrays
     to keep track of when they will resolve.
 
-    @property {Ember.RSVP.Promise}
+    @property {Ember.RSVP.Promise} promise
     @private
   */
   promise: null,
 
+  /**
+    @method loadingRecordsCount
+    @param {Number} count
+    @private
+  */
   loadingRecordsCount: function(count) {
     this.loadingRecordsCount = count;
   },
 
+  /**
+    @method loadedRecord
+    @private
+  */
   loadedRecord: function() {
     this.loadingRecordsCount--;
     if (this.loadingRecordsCount === 0) {
@@ -96,6 +107,10 @@ DS.ManyArray = DS.RecordArray.extend({
     }
   },
 
+  /**
+    @method fetch
+    @private
+  */
   fetch: function() {
     var records = get(this, 'content'),
         store = get(this, 'store'),
@@ -191,7 +206,14 @@ DS.ManyArray = DS.RecordArray.extend({
     }
   },
 
-  // Create a child record within the owner
+  /**
+    Create a child record within the owner
+
+    @method createRecord
+    @private
+    @param {Object} hash
+    @return {DS.Model} record
+  */
   createRecord: function(hash) {
     var owner = get(this, 'owner'),
         store = get(owner, 'store'),
