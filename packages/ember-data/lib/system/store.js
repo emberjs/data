@@ -1552,7 +1552,7 @@ function _findQuery(adapter, store, type, query, recordArray) {
       serializer = serializerForAdapter(adapter, type);
 
   return resolve(promise, "DS: Handle Adapter#findQuery of " + type).then(function(payload) {
-    payload = serializer.extract(store, type, payload, null, 'findAll');
+    payload = serializer.extract(store, type, payload, null, 'findQuery');
 
     Ember.assert("The response from a findQuery must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
