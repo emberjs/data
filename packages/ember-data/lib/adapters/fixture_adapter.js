@@ -267,8 +267,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
   /*
     @method findFixtureById
     @private
-    @param type
-    @param record
+    @param fixtures
+    @param id
   */
   findFixtureById: function(fixtures, id) {
     return Ember.A(fixtures).find(function(r) {
