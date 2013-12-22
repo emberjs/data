@@ -762,7 +762,7 @@ DS.Store = Ember.Object.extend({
     @param {Class} type
     @param {Object} query optional query
     @param {Function} filter
-    @return {DS.FilteredRecordArray}
+    @return {DS.PromiseArray}
   */
   filter: function(type, query, filter) {
     var promise;
@@ -785,12 +785,11 @@ DS.Store = Ember.Object.extend({
     });
 
     this.recordArrayManager.registerFilteredRecordArray(array, type, filter);
+    promise = promise || resolve(array);
 
-    if (promise) {
-      return promise.then(function() { return array; }, null, "DS: Store#filter of " + type);
-    } else {
+    return promiseArray(promise.then(function() {
       return array;
-    }
+    }, null, "DS: Store#filter of " + type));
   },
 
   /**
