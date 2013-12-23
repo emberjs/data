@@ -1,4 +1,4 @@
-var env, store, adapter, Post, Person, Comment, SuperUser;
+var env, store, adapter, Post, Person, Comment, SuperUser, PullRequest;
 var originalAjax, passedUrl, passedVerb, passedHash;
 
 module("integration/adapter/rest_adapter - REST Adapter", {
@@ -16,12 +16,14 @@ module("integration/adapter/rest_adapter - REST Adapter", {
     });
 
     SuperUser = DS.Model.extend();
+    PullRequest = DS.Model.extend();
 
     env = setupStore({
-      post: Post,
-      comment: Comment,
-      superUser: SuperUser,
-      adapter: DS.RESTAdapter
+      "post": Post,
+      "comment": Comment,
+      "super-user": SuperUser,
+      "pullRequest": PullRequest,
+      "adapter": DS.RESTAdapter
     });
 
     store = env.store;
@@ -979,17 +981,18 @@ test('buildURL - with full URLs in links', function() {
 });
 
 test('buildURL - with camelized names', function() {
-  adapter.setProperties({
-    pathForType: function(type) {
-      var decamelized = Ember.String.decamelize(type);
-      return Ember.String.pluralize(decamelized);
-    }
-  });
+  ajaxResponse({ "pullRequest": [{ id: 1 }] });
 
-  ajaxResponse({ superUsers: [{ id: 1 }] });
+  store.find('pullRequest', 1).then(async(function(post) {
+    equal(passedUrl, "/pullRequests/1");
+  }));
+});
 
-  store.find('superUser', 1).then(async(function(post) {
-    equal(passedUrl, "/super_users/1");
+test('buildURL - with dasherized names', function() {
+  ajaxResponse({ "super-user": [{ id: 1 }] });
+
+  store.find('super-user', 1).then(async(function(post) {
+    equal(passedUrl, "/superUsers/1");
   }));
 });
 
