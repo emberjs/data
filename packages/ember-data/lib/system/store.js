@@ -460,7 +460,7 @@ DS.Store = Ember.Object.extend({
     @param records
     @param owner
   */
-  fetchMany: function(records, owner, resolver) {
+  fetchMany: function(records, owner) {
     if (!records.length) { return; }
 
     // Group By Type
@@ -472,6 +472,8 @@ DS.Store = Ember.Object.extend({
       recordsByTypeMap.get(record.constructor).push(record);
     });
 
+    var promises = [];
+
     forEach(recordsByTypeMap, function(type, records) {
       var ids = records.mapProperty('id'),
           adapter = this.adapterFor(type);
@@ -479,8 +481,10 @@ DS.Store = Ember.Object.extend({
       Ember.assert("You tried to load many records but you have no adapter (for " + type + ")", adapter);
       Ember.assert("You tried to load many records but your adapter does not implement `findMany`", adapter.findMany);
 
-      resolver.resolve(_findMany(adapter, this, type, ids, owner));
+      promises.push(_findMany(adapter, this, type, ids, owner));
     }, this);
+
+    return Ember.RSVP.all(promises);
   },
 
   /**
@@ -521,44 +525,6 @@ DS.Store = Ember.Object.extend({
   },
 
   /**
-    @method findMany
-    @private
-    @param {DS.Model} owner
-    @param {Array<DS.Model>} records
-    @param {String} type
-    @param {Resolver} resolver
-    @return DS.ManyArray
-  */
-  findMany: function(owner, records, type, resolver) {
-    type = this.modelFor(type);
-
-    records = Ember.A(records);
-
-    var unloadedRecords = records.filterProperty('isEmpty', true),
-        manyArray = this.recordArrayManager.createManyArray(type, records);
-
-    forEach(unloadedRecords, function(record) {
-      record.loadingData();
-    });
-
-    manyArray.loadingRecordsCount = unloadedRecords.length;
-
-    if (unloadedRecords.length) {
-      forEach(unloadedRecords, function(record) {
-        this.recordArrayManager.registerWaitingRecordArray(record, manyArray);
-      }, this);
-
-      this.fetchMany(unloadedRecords, owner, resolver);
-    } else {
-      if (resolver) { resolver.resolve(); }
-      manyArray.set('isLoaded', true);
-      Ember.run.once(manyArray, 'trigger', 'didLoad');
-    }
-
-    return manyArray;
-  },
-
-  /**
     If a relationship was originally populated by the adapter as a link
     (as opposed to a list of IDs), this method is called when the
     relationship is fetched.
@@ -584,8 +550,7 @@ DS.Store = Ember.Object.extend({
     Ember.assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", adapter.findHasMany);
 
     var records = this.recordArrayManager.createManyArray(relationship.type, Ember.A([]));
-    resolver.resolve(_findHasMany(adapter, this, owner, link, relationship));
-    return records;
+    return _findHasMany(adapter, this, owner, link, relationship);
   },
 
   findBelongsTo: function(owner, link, relationship, resolver) {
@@ -1005,8 +970,7 @@ DS.Store = Ember.Object.extend({
       the existing data, not replace it.
   */
   _load: function(type, data, partial) {
-    var id = coerceId(data.id),
-        record = this.recordForId(type, id);
+    var record = this.recordForId(type, data.id);
 
     record.setupData(data, partial);
     this.recordArrayManager.recordDidChange(record);
@@ -1109,12 +1073,23 @@ DS.Store = Ember.Object.extend({
 
     type = this.modelFor(type);
 
-    // normalize relationship IDs into records
+    // If the payload contains relationships that are specified as
+    // IDs, normalizeRelationships will convert them into DS.Model instances
+    // (possibly unloaded) before we push the payload into the
+    // store.
     data = normalizeRelationships(this, type, data);
 
+    // Actually load the record into the store.
     this._load(type, data, _partial);
 
-    return this.recordForId(type, data.id);
+    var record = this.recordForId(type, data.id);
+
+    // Now that the pushed record as well as any related records
+    // are in the store, create the data structures used to track
+    // relationships.
+    setupRelationships(this, record, data);
+
+    return record;
   },
 
   /**
@@ -1368,13 +1343,6 @@ DS.Store = Ember.Object.extend({
 
 function normalizeRelationships(store, type, data, record) {
   type.eachRelationship(function(key, relationship) {
-    // A link (usually a URL) was already provided in
-    // normalized form
-    if (data.links && data.links[key]) {
-      if (record && relationship.options.async) { record._relationships[key] = null; }
-      return;
-    }
-
     var kind = relationship.kind,
         value = data[key];
 
@@ -1389,6 +1357,14 @@ function normalizeRelationships(store, type, data, record) {
   });
 
   return data;
+}
+
+function relationshipFor(kind, record, key) {
+  if (record._relationships[key]) {
+    return record._relationships[key];
+  }
+
+  return record._relationships[key] = new OneToMany();
 }
 
 function deserializeRecordId(store, data, key, relationship, id) {
@@ -1581,4 +1557,89 @@ function _commit(adapter, store, operation, record) {
 
     throw reason;
   }, "DS: Extract and notify about " + operation + " completion of " + record);
+}
+
+function setupRelationships(store, record, data) {
+  // TODO: Figure out whether this has enough semantically in common
+  // with property descriptors to justify naming it descriptor
+  var type = record.constructor;
+
+  type.eachRelationship(function(key, descriptor) {
+    var kind = descriptor.kind,
+        value = data[key];
+
+    if (kind === 'belongsTo') {
+      // TODO
+    } else if (kind === 'hasMany') {
+      var relationship = relationshipFor(kind, record, key);
+      var delta = relationship.computeChanges(data[key]);
+
+      var inverse = record.inverseFor(key);
+
+      delta.added.forEach(function(member) {
+        record.notifyHasManyAdded(key, member);
+        if (inverse) member.notifyBelongsToAdded(inverse, record, relationship);
+      });
+
+      delta.removed.forEach(function(member) {
+        record.notifyHasManyRemoved(key, member);
+        if (inverse) member.notifyBelongsToRemoved(inverse, record);
+      });
+    }
+  });
+}
+
+function OneToMany() {
+  var members = this.members = new Ember.OrderedSet();
+}
+
+OneToMany.prototype = {
+  constructor: OneToMany,
+
+  computeChanges: function(records) {
+    // returns { added: [], removed: [] }
+    var added = new Ember.OrderedSet(),
+        removed = new Ember.OrderedSet(),
+        members = this.members;
+
+    records = setForArray(records);
+
+    records.forEach(function(record) {
+      if (members.has(record)) return;
+      members.add(record);
+      added.add(record);
+    });
+
+    members.forEach(function(member) {
+      if (records.has(member)) return;
+      members.remove(member);
+      removed.add(member);
+    });
+
+    return { added: added, removed: removed };
+  },
+
+  unloadedMembers: function() {
+    var unloaded = [];
+
+    this.members.forEach(function(member) {
+      if (!member.get('isLoaded')) {
+        unloaded.push(member);
+      }
+    });
+
+    return unloaded;
+  }
+};
+
+function setForArray(array) {
+  var set = new Ember.OrderedSet();
+
+  if (array) {
+    for (var i=0, l=array.length; i<l; i++) {
+      set.add(array[i]);
+    }
+  }
+
+  return set;
 }

@@ -169,7 +169,6 @@
       save: syncForTest(),
       reload: syncForTest(),
       deleteRecord: syncForTest(),
-      dataDidChange: Ember.observer(syncForTest(), 'data'),
       updateRecordArraysLater: syncForTest()
     });
 

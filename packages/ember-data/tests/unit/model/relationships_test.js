@@ -120,7 +120,7 @@ test("hasMany lazily loads async relationships", function() {
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tags: DS.hasMany('tag', { async: true }),
+    tags: DS.hasMany('tag'),
     pets: DS.hasMany('pet')
   });
 
@@ -150,11 +150,13 @@ test("hasMany lazily loads async relationships", function() {
 
     equal(get(wycats, 'name'), "Yehuda Katz", "precond - retrieves person record from store");
 
+    var tags = wycats.fetch('tags');
     return Ember.RSVP.hash({
       wycats: wycats,
-      tags: wycats.get('tags')
+      tags: tags
     });
   })).then(async(function(records) {
+    debugger;
     equal(get(records.tags, 'length'), 1, "the list of tags should have the correct length");
     equal(get(records.tags.objectAt(0), 'name'), "oohlala", "the first tag should be a Tag");
 

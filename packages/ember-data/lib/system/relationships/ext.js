@@ -52,11 +52,6 @@ DS.Model.reopen({
       // the computed property.
       var meta = value.meta();
 
-      if (meta.isRelationship && meta.kind === 'belongsTo') {
-        Ember.addObserver(proto, key, null, 'belongsToDidChange');
-        Ember.addBeforeObserver(proto, key, null, 'belongsToWillChange');
-      }
-
       meta.parentType = proto.constructor;
     }
   }
@@ -111,7 +106,7 @@ DS.Model.reopenClass({
     var options = this.metaForProperty(name).options;
 
     if (options.inverse === null) { return null; }
-    
+
     var inverseName, inverseKind;
 
     if (options.inverse) {
@@ -457,5 +452,13 @@ DS.Model.reopen({
   */
   eachRelationship: function(callback, binding) {
     this.constructor.eachRelationship(callback, binding);
+  },
+
+  relationshipFor: function(name) {
+    return get(this.constructor, 'relationshipsByName').get(name);
+  },
+
+  inverseFor: function(key) {
+    return this.constructor.inverseFor(key);
   }
 });
