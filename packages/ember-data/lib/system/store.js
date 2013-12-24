@@ -1026,10 +1026,13 @@ DS.Store = Ember.Object.extend({
   modelFor: function(key) {
     var factory;
 
+
     if (typeof key === 'string') {
-      factory = this.container.lookupFactory('model:' + key);
+      var normalizedKey = this.container.normalize('model:' + key);
+
+      factory = this.container.lookupFactory(normalizedKey);
       if (!factory) { throw new Ember.Error("No model was found for '" + key + "'"); }
-      factory.typeKey = key;
+      factory.typeKey = normalizedKey.split(':', 2)[1];
     } else {
       // A factory already supplied.
       factory = key;
