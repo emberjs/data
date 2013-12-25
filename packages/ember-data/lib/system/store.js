@@ -957,6 +957,12 @@ DS.Store = Ember.Object.extend({
 
     Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId);
 
+    existingRecord = this.typeMapFor(record.constructor).idToRecord[id];
+    if (existingRecord) {
+      record.transitionTo('deleted.saved');
+      return;
+    }
+
     this.typeMapFor(record.constructor).idToRecord[id] = record;
 
     set(record, 'id', id);
