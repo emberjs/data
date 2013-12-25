@@ -53,7 +53,11 @@ DS.FixtureAdapter = DS.Adapter.extend({
   },
 
   /**
-    Implement this method in order to query fixtures data
+    This method is responsible for filtering the array of fixtures and
+    returning only what's relevant given the query parameter.
+
+    If you have any specific behavior in your server, you can extend this method
+    to replicate it in the fixtures.
 
     @method queryFixtures
     @param  fixture
@@ -61,7 +65,20 @@ DS.FixtureAdapter = DS.Adapter.extend({
     @param  type
   */
   queryFixtures: function(fixtures, query, type) {
-    Ember.assert('Not implemented: You must override the DS.FixtureAdapter::queryFixtures method to support querying the fixture store.');
+    return fixtures.filter(function(fixture) {
+      for(var queryKey in query) {
+        var value = query[queryKey];
+
+        if (!query.hasOwnProperty(queryKey)) {
+          continue;
+        }
+
+        if (fixture[queryKey] !== value) {
+          return false;
+        }
+      }
+      return true;
+    });
   },
 
   /**
