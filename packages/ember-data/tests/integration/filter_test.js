@@ -98,33 +98,34 @@ test("a Record Array can update its filter", function() {
   var asyncKatz = store.find('person', 2);
   var asyncBryn = store.find('person', 3);
 
-  var recordArray = store.filter(Person, function(hash) {
+  store.filter(Person, function(hash) {
     if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
-  });
+  }).then(async(function(recordArray) {
 
-  Ember.RSVP.hash({ dale: asyncDale, katz: asyncKatz, bryn: asyncBryn }).then(async(function(records) {
-    shouldContain(recordArray, records.dale);
-    shouldContain(recordArray, records.katz);
-    shouldNotContain(recordArray, records.bryn);
-    shouldNotContain(recordArray, dickens);
+    Ember.RSVP.hash({ dale: asyncDale, katz: asyncKatz, bryn: asyncBryn }).then(async(function(records) {
+      shouldContain(recordArray, records.dale);
+      shouldContain(recordArray, records.katz);
+      shouldNotContain(recordArray, records.bryn);
+      shouldNotContain(recordArray, dickens);
 
-    recordArray.set('filterFunction', function(hash) {
-      if (hash.get('name').match(/Katz/)) { return true; }
-    });
+      recordArray.set('filterFunction', function(hash) {
+        if (hash.get('name').match(/Katz/)) { return true; }
+      });
 
-    equal(get(recordArray, 'length'), 1, "The Record Array should have one object on it");
+      equal(get(recordArray, 'length'), 1, "The Record Array should have one object on it");
 
-    Ember.run(function() {
-      store.push('person', { id: 5, name: "Other Katz" });
-    });
+      Ember.run(function() {
+        store.push('person', { id: 5, name: "Other Katz" });
+      });
 
-    equal(get(recordArray, 'length'), 2, "The Record Array now has the new object matching the filter");
+      equal(get(recordArray, 'length'), 2, "The Record Array now has the new object matching the filter");
 
-    Ember.run(function() {
-      store.push('person', { id: 6, name: "Scumbag Demon" });
-    });
+      Ember.run(function() {
+        store.push('person', { id: 6, name: "Scumbag Demon" });
+      });
 
-    equal(get(recordArray, 'length'), 2, "The Record Array doesn't have objects matching the old filter");
+      equal(get(recordArray, 'length'), 2, "The Record Array doesn't have objects matching the old filter");
+    }));
   }));
 });
 
@@ -144,56 +145,57 @@ test("a Record Array can update its filter and notify array observers", function
   var asyncKatz = store.find('person', 2);
   var asyncBryn = store.find('person', 3);
 
-  var recordArray = store.filter(Person, function(hash) {
+  store.filter(Person, function(hash) {
     if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
-  });
+  }).then(async(function(recordArray) {
 
-  var didChangeIdx, didChangeRemoved = 0, didChangeAdded = 0;
+    var didChangeIdx, didChangeRemoved = 0, didChangeAdded = 0;
 
-  var arrayObserver = {
-    arrayWillChange: Ember.K,
+    var arrayObserver = {
+      arrayWillChange: Ember.K,
 
-    arrayDidChange: function(array, idx, removed, added) {
-      didChangeIdx = idx;
-      didChangeRemoved += removed;
-      didChangeAdded += added;
-    }
-  };
+      arrayDidChange: function(array, idx, removed, added) {
+        didChangeIdx = idx;
+        didChangeRemoved += removed;
+        didChangeAdded += added;
+      }
+    };
 
-  recordArray.addArrayObserver(arrayObserver);
+    recordArray.addArrayObserver(arrayObserver);
 
-  recordArray.set('filterFunction', function(hash) {
-    if (hash.get('name').match(/Katz/)) { return true; }
-  });
-
-  Ember.RSVP.all([ asyncDale, asyncKatz, asyncBryn ]).then(async(function() {
-    equal(didChangeRemoved, 1, "removed one item from array");
-    didChangeRemoved = 0;
-
-    Ember.run(function() {
-      store.push('person', { id: 5, name: "Other Katz" });
+    recordArray.set('filterFunction', function(hash) {
+      if (hash.get('name').match(/Katz/)) { return true; }
     });
 
-    equal(didChangeAdded, 1, "one item was added");
-    didChangeAdded = 0;
+    Ember.RSVP.all([ asyncDale, asyncKatz, asyncBryn ]).then(async(function() {
+      equal(didChangeRemoved, 1, "removed one item from array");
+      didChangeRemoved = 0;
 
-    equal(recordArray.objectAt(didChangeIdx).get('name'), "Other Katz");
-
-    Ember.run(function() {
-      store.push('person', { id: 6, name: "Scumbag Demon" });
-    });
-
-    equal(didChangeAdded, 0, "did not get called when an object that doesn't match is added");
-
-    Ember.run(function() {
-      recordArray.set('filterFunction', function(hash) {
-        if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
+      Ember.run(function() {
+        store.push('person', { id: 5, name: "Other Katz" });
       });
-    });
 
-    equal(didChangeAdded, 2, "one item is added when going back");
-    equal(recordArray.objectAt(didChangeIdx).get('name'), "Scumbag Demon");
-    equal(recordArray.objectAt(didChangeIdx-1).get('name'), "Scumbag Dale");
+      equal(didChangeAdded, 1, "one item was added");
+      didChangeAdded = 0;
+
+      equal(recordArray.objectAt(didChangeIdx).get('name'), "Other Katz");
+
+      Ember.run(function() {
+        store.push('person', { id: 6, name: "Scumbag Demon" });
+      });
+
+      equal(didChangeAdded, 0, "did not get called when an object that doesn't match is added");
+
+      Ember.run(function() {
+        recordArray.set('filterFunction', function(hash) {
+          if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
+        });
+      });
+
+      equal(didChangeAdded, 2, "one item is added when going back");
+      equal(recordArray.objectAt(didChangeIdx).get('name'), "Scumbag Demon");
+      equal(recordArray.objectAt(didChangeIdx-1).get('name'), "Scumbag Dale");
+    }));
   }));
 });
 
