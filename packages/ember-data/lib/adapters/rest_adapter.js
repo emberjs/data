@@ -413,6 +413,9 @@ DS.RESTAdapter = DS.Adapter.extend({
           path = path.slice(1);
         }
         if (host) { url.push(host); }
+        // We want to prepend the adapter's namespace, even when retrieving
+        // associations via links, but only if the server didn't already do it
+        // for us.
         if (namespace && (path.substring(0, namespace.length) !== namespace)) {
           url.push(namespace);
         }
