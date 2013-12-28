@@ -119,9 +119,10 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   */
   normalize: function(type, hash, prop) {
     this.normalizeId(hash);
-    this.normalizeUsingDeclaredMapping(type, hash);
     this.normalizeAttributes(type, hash);
     this.normalizeRelationships(type, hash);
+
+    this.normalizeUsingDeclaredMapping(type, hash);
 
     if (this.normalizeHash && this.normalizeHash[prop]) {
       this.normalizeHash[prop](hash);
@@ -178,9 +179,13 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     if (attrs) {
       for (key in attrs) {
         payloadKey = attrs[key];
-
-        hash[key] = hash[payloadKey];
-        delete hash[payloadKey];
+        if (payloadKey && payloadKey.key) {
+          payloadKey = payloadKey.key;
+        }
+        if (typeof payloadKey === 'string') {
+          hash[key] = hash[payloadKey];
+          delete hash[payloadKey];
+        }
       }
     }
   },
