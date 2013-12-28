@@ -226,3 +226,22 @@ test('normalizeHash works with transforms', function(){
 
   equal(array[0].condition, "healing");
 });
+
+test('normalize should allow for different levels of normalization', function(){
+  env.container.register('serializer:application', DS.RESTSerializer.extend({
+    attrs: {
+      superVillain: 'is_super_villain'
+    },
+    keyForAttribute: function(attr) {
+      return Ember.String.decamelize(attr);
+    }
+  }));
+
+  var jsonHash = {
+    evilMinions: [{id: "1", name: "Tom Dale", is_super_villain: 1}]
+  };
+
+  var array = env.restSerializer.extractArray(env.store, EvilMinion, jsonHash);
+
+  equal(array[0].superVillain, 1);
+});
