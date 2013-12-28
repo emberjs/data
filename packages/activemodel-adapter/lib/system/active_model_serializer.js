@@ -43,6 +43,8 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
 
   /**
     Does not serialize hasMany relationships by default.
+
+    @see EmbeddedRecordsMixin for supporting embedded records
   */
   serializeHasMany: Ember.K,
 
