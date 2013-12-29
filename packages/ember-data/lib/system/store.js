@@ -729,7 +729,7 @@ DS.Store = Ember.Object.extend({
     type = this.modelFor(type);
 
     var typeMap = this.typeMapFor(type),
-        records = typeMap.records, record;
+        records = typeMap.records.splice(0), record;
 
     while(record = records.pop()) {
       record.unloadRecord();
