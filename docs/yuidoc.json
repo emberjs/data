@@ -7,7 +7,6 @@
   "options": {
     "paths": [
       "../packages/ember-data/lib",
-      "../packages/activemodel-adapter/lib",
       "../packages/ember-inflector/lib"
     ],
     "exclude": "vendor",

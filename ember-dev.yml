@@ -19,4 +19,3 @@ testing_suites:
 testing_packages:
   - ember-data
   - ember-inflector
-  - activemodel-adapter
