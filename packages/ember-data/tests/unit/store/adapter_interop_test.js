@@ -70,6 +70,38 @@ test("Returning a promise from `find` asynchronously loads data", function() {
   }));
 });
 
+test("Calling Store#find returns existing records in the store immediately", function() {
+  var deferLoad = Ember.RSVP.defer();
+  var adapter = TestAdapter.extend({
+    findAll: function(store, type, id) {
+      return deferLoad.promise;
+    }
+  });
+
+  var currentStore = createStore({ adapter: adapter});
+  var currentType = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  currentStore.push(currentType, { id: 1, name: "Existing record 1" });
+  currentStore.push(currentType, { id: 2, name: "Existing record 2" });
+
+  var data = currentStore.find(currentType);
+
+  equal(data.get('length'), 2);
+  data.then(async(function() {
+    equal(data.get('length'), 3);
+  }));
+
+  Ember.run(function() {
+    deferLoad.resolve([
+          { id: 1, name: "Existing record 1"},
+          { id: 2, name: "Existing record 2"},
+          { id: 3, name: "New record" }
+        ]);
+  });
+});
+
 test("IDs provided as numbers are coerced to strings", function() {
   var adapter = TestAdapter.extend({
     find: function(store, type, id) {
