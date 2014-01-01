@@ -194,6 +194,7 @@ DS.Adapter = Ember.Object.extend({
     @param {subclass of DS.Model} type
     @param {Object} query
     @param {DS.AdapterPopulatedRecordArray} recordArray
+    @return {Promise} promise
   */
   findQuery: null,
 
