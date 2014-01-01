@@ -1,6 +1,6 @@
 require 'ember-dev'
 distros = {
-  :full    => %w(ember-data ember-inflector activemodel-adapter)
+  :full    => %w(ember-data ember-inflector)
 }
 
 #MEGAHAX

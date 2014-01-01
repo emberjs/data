@@ -24,7 +24,7 @@ module("unit/store/push - DS.Store#push", {
 
     store = env.store;
 
-    env.container.register('serializer:post', DS.ActiveModelSerializer);
+    env.container.register('serializer:post', DS.RESTSerializer);
   },
 
   teardown: function() {
@@ -177,7 +177,7 @@ test("Calling push with a normalized hash containing IDs of related records retu
 test("Calling pushPayload allows pushing raw JSON", function () {
   store.pushPayload('post', {posts: [{
     id: '1',
-    post_title: "Ember rocks"
+    postTitle: "Ember rocks"
   }]});
 
   var post = store.getById('post', 1);
@@ -186,7 +186,7 @@ test("Calling pushPayload allows pushing raw JSON", function () {
 
   store.pushPayload('post', {posts: [{
     id: '1',
-    post_title: "Ember rocks (updated)"
+    postTitle: "Ember rocks (updated)"
   }]});
 
   equal(post.get('postTitle'), "Ember rocks (updated)", "You can update data in the store");
