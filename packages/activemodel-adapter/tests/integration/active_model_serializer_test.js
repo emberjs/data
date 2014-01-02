@@ -54,27 +54,30 @@ module("integration/active_model - ActiveModelSerializer", {
 
 test("serialize", function() {
   league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
-  var tom           = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
+  var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
 
-  var json = env.amsSerializer.serialize(tom);
-
-  deepEqual(json, {
-    first_name: "Tom",
-    last_name: "Dale",
-    home_planet_id: get(league, "id")
+  Ember.run(function() {
+    env.amsSerializer.serialize(tom).then(function(json) {
+      deepEqual(json, {
+        first_name:       "Tom",
+        last_name:        "Dale",
+        home_planet_id: get(league, "id")
+      });
+    });
   });
 });
 
 test("serializeIntoHash", function() {
   league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
-  var json = {};
 
-  env.amsSerializer.serializeIntoHash(json, HomePlanet, league);
-
-  deepEqual(json, {
-    home_planet: {
-      name: "Umber"
-    }
+  Ember.run(function() {
+    env.amsSerializer.serializeIntoHash({}, HomePlanet, league).then(function(serialized) {
+      deepEqual(serialized, {
+        home_planet: {
+          name:   "Umber"
+        }
+      });
+    });
   });
 });
 
@@ -83,12 +86,14 @@ test("serializeIntoHash with decamelized types", function() {
   league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
   var json = {};
 
-  env.amsSerializer.serializeIntoHash(json, HomePlanet, league);
-
-  deepEqual(json, {
-    home_planet: {
-      name: "Umber"
-    }
+  Ember.run(function() {
+    env.amsSerializer.serializeIntoHash(json, HomePlanet, league).then(function(json) {
+      deepEqual(json, {
+        home_planet: {
+          name: "Umber"
+        }
+      });
+    });
   });
 });
 
@@ -170,12 +175,14 @@ test("serialize polymorphic", function() {
   var tom = env.store.createRecord(YellowMinion,   {name: "Alex", id: "124"});
   var ray = env.store.createRecord(DoomsdayDevice, {evilMinion: tom, name: "DeathRay"});
 
-  var json = env.amsSerializer.serialize(ray);
-
-  deepEqual(json, {
-    name: "DeathRay",
-    evil_minion_type: "YellowMinion",
-    evil_minion_id: "124"
+  Ember.run(function() {
+    env.amsSerializer.serialize(ray).then(function(json) {
+      deepEqual(json, {
+        name:  "DeathRay",
+        evil_minion_type: "YellowMinion",
+        evil_minion_id: "124"
+      });
+    });
   });
 });
 

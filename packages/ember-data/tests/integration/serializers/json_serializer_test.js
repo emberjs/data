@@ -174,9 +174,11 @@ test('Serializer should respect the attrs hash when serializing records', functi
 
   post = env.store.createRecord("post", { title: "Rails is omakase"});
 
-  var payload = env.container.lookup("serializer:post").serialize(post);
-
-  equal(payload.title_payload_key, "Rails is omakase");
+  Ember.run(function() {
+    env.container.lookup("serializer:post").serialize(post).then(function(payload) {
+      equal(payload.title_payload_key, "Rails is omakase");
+    });
+  });
 });
 
 test("Serializer should respect the primaryKey attribute when extracting records", function() {
@@ -199,7 +201,9 @@ test("Serializer should respect the primaryKey attribute when serializing record
 
   post = env.store.createRecord("post", { id: "1", title: "Rails is omakase"});
 
-  var payload = env.container.lookup("serializer:post").serialize(post, {includeId: true});
-
-  equal(payload._ID_, "1");
+  Ember.run(function() {
+    env.container.lookup("serializer:post").serialize(post, {includeId: true}).then(function(payload) {
+      equal(payload._ID_, "1");
+    });
+  });
 });

@@ -736,7 +736,10 @@ method in your `ApplicationSerializer`.
 App.ApplicationSerializer = DS.RESTSerializer.extend({
   serializeIntoHash: function(data, type, record, options) {
     var root = Ember.String.decamelize(type.typeKey);
-    data[root] = this.serialize(record, options);
+    return this.serialize(record, options).then(function(serialized) {
+      data[root] = serialized;
+      return data;
+    });
   }
 });
 ```

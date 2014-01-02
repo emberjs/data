@@ -154,8 +154,13 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       if (!embeddedRecord) {
         json[key] = null;
       } else {
-        json[key] = embeddedRecord.serialize({includeId: true});
-        this.removeEmbeddedForeignKey(record, embeddedRecord, relationship, json[key]);
+        var self = this;
+
+        return embeddedRecord.serialize({includeId: true}).then(function(serialized) {
+          json[key] = serialized;
+          self.removeEmbeddedForeignKey(record, embeddedRecord, relationship, json[key]);
+          return json;
+        });
       }
     }
   },
@@ -256,11 +261,18 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       json[key] = get(record, attr).mapBy('id');
     } else if (includeRecords) {
       key = this.keyForAttribute(attr);
-      json[key] = get(record, attr).map(function(embeddedRecord) {
-        var serializedEmbeddedRecord = embeddedRecord.serialize({includeId: true});
-        this.removeEmbeddedForeignKey(record, embeddedRecord, relationship, serializedEmbeddedRecord);
-        return serializedEmbeddedRecord;
+
+      var promises = get(record, attr).map(function(embeddedRecord) {
+        var self = this;
+        return embeddedRecord.serialize({includeId: true}).then(function(serializedEmbeddedRecord) {
+          self.removeEmbeddedForeignKey(record, embeddedRecord, relationship, serializedEmbeddedRecord);
+          return serializedEmbeddedRecord;
+        });
       }, this);
+
+      return Ember.RSVP.Promise.all(promises).then(function(records) {
+        json[key] = records;
+      });
     }
   },
 

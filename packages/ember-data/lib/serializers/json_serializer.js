@@ -313,10 +313,13 @@ var JSONSerializer = Ember.Object.extend({
     @return {Object} json
   */
   serialize: function(record, options) {
-    var json = {};
+    var json = {},
+        promises = [],
+        finalizer = function () { return json; },
+        id;
 
     if (options && options.includeId) {
-      var id = get(record, 'id');
+      id = get(record, 'id');
 
       if (id) {
         json[get(this, 'primaryKey')] = id;
@@ -329,13 +332,13 @@ var JSONSerializer = Ember.Object.extend({
 
     record.eachRelationship(function(key, relationship) {
       if (relationship.kind === 'belongsTo') {
-        this.serializeBelongsTo(record, json, relationship);
+        promises.push(this.serializeBelongsTo(record, json, relationship));
       } else if (relationship.kind === 'hasMany') {
-        this.serializeHasMany(record, json, relationship);
+        promises.push(this.serializeHasMany(record, json, relationship));
       }
     }, this);
 
-    return json;
+    return Ember.RSVP.all(promises).then(finalizer);
   },
 
   /**

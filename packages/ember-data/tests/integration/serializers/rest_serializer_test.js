@@ -93,12 +93,14 @@ test("serialize polymorphicType", function() {
   var tom = env.store.createRecord(YellowMinion,   {name: "Alex", id: "124"});
   var ray = env.store.createRecord(DoomsdayDevice, {evilMinion: tom, name: "DeathRay"});
 
-  var json = env.restSerializer.serialize(ray);
-
-  deepEqual(json, {
-    name:  "DeathRay",
-    evilMinionType: "yellowMinion",
-    evilMinion: "124"
+  Ember.run(function() {
+    env.restSerializer.serialize(ray).then(function(json) {
+      deepEqual(json, {
+        name:  "DeathRay",
+        evilMinionType: "yellowMinion",
+        evilMinion: "124"
+      });
+    });
   });
 });
 
@@ -107,9 +109,9 @@ test("serialize polymorphicType with decamelized typeKey", function() {
   var tom = env.store.createRecord(YellowMinion,   {name: "Alex", id: "124"});
   var ray = env.store.createRecord(DoomsdayDevice, {evilMinion: tom, name: "DeathRay"});
 
-  var json = env.restSerializer.serialize(ray);
-
-  deepEqual(json["evilMinionType"], "yellowMinion");
+  env.restSerializer.serialize(ray).then(function(json) {
+    deepEqual(json["evilMinionType"], "yellowMinion");
+  });
 });
 
 test("normalizePayload is called during extractSingle", function() {
@@ -278,12 +280,14 @@ test("serializeIntoHash", function() {
   league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
   var json = {};
 
-  env.restSerializer.serializeIntoHash(json, HomePlanet, league);
-
-  deepEqual(json, {
-    homePlanet: {
-      name: "Umber"
-    }
+  Ember.run(function() {
+    env.restSerializer.serializeIntoHash(json, HomePlanet, league).then(function(json) {
+      deepEqual(json, {
+        homePlanet: {
+          name: "Umber"
+        }
+      });
+    });
   });
 });
 
@@ -292,11 +296,13 @@ test("serializeIntoHash with decamelized typeKey", function() {
   league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
   var json = {};
 
-  env.restSerializer.serializeIntoHash(json, HomePlanet, league);
-
-  deepEqual(json, {
-    homePlanet: {
-      name: "Umber"
-    }
+  Ember.run(function() {
+    env.restSerializer.serializeIntoHash(json, HomePlanet, league).then(function(json) {
+      deepEqual(json, {
+        homePlanet: {
+          name: "Umber"
+        }
+      });
+    });
   });
 });

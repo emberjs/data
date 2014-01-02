@@ -330,7 +330,14 @@ var convertsWhenSet = function(type, provided, expected) {
   testStore.push(Model, { id: 2 });
   var record = testStore.find('model', 2).then(async(function(record) {
     set(record, 'name', provided);
-    deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
+
+    record.serialize().then(function(serialized) {
+      deepEqual(
+        serialized.name,
+        expected,
+        type + " saves " + provided + " as " + expected
+      );
+    });
   }));
 };
 
@@ -421,5 +428,10 @@ test("A DS.Model can be JSONified", function() {
 
   var store = createStore({ person: Person });
   var record = store.createRecord('person', { name: "TomHuda" });
-  deepEqual(record.toJSON(), { name: "TomHuda" });
+
+  Ember.run(function() {
+    record.toJSON().then(function(json) {
+      deepEqual(json, { name: "TomHuda" });
+    });
+  });
 });

@@ -752,7 +752,10 @@ var RESTSerializer = JSONSerializer.extend({
     App.ApplicationSerializer = DS.RESTSerializer.extend({
       serializeIntoHash: function(data, type, record, options) {
         var root = Ember.String.decamelize(type.typeKey);
-        data[root] = this.serialize(record, options);
+        this.serialize(record, options).then(function(serialized) {
+          data[root] = serialized;
+          return data;
+        });
       }
     });
     ```
@@ -764,7 +767,11 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash: function(hash, type, record, options) {
-    hash[type.typeKey] = this.serialize(record, options);
+    return this.serialize(record, options)
+                 .then(function(serialized) {
+                   hash[type.typeKey] = serialized;
+                   return hash;
+                 });
   },
 
   /**
