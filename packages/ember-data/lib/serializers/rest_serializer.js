@@ -785,10 +785,9 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} relationship
   */
   serializePolymorphicType: function(record, json, relationship) {
-    var key = relationship.key,
-        belongsTo = get(record, key);
+    var key = relationship.key;
     key = this.keyForAttribute ? this.keyForAttribute(key) : key;
-    json[key + "Type"] = belongsTo.constructor.typeKey;
+    json[key + "Type"] = camelize(record.constructor.typeKey);
   }
 });
 

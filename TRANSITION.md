@@ -936,10 +936,9 @@ on your serializer.
 ```
 App.CommentSerializer = DS.RESTSerializer.extend({
   serializePolymorphicType: function(record, json, relationship) {
-    var key = relationship.key,
-        belongsTo = get(record, key);
+    var key = relationship.key;
     key = this.keyForAttribute ? this.keyForAttribute(key) : key;
-    json[key + "_type"] = belongsTo.constructor.typeKey;
+    json[key + "_type"] = record.constructor.typeKey;
   }
 });
 ```

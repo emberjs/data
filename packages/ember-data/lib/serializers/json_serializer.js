@@ -406,9 +406,10 @@ var JSONSerializer = Ember.Object.extend({
    @param {Object} relationship
   */
   serializeBelongsTo: function(record, json, relationship) {
-    var key = relationship.key;
-
-    var belongsTo = get(record, key);
+    var key = relationship.key,
+        belongsTo = get(record, key),
+        self = this,
+        finalizer = function () { return json; };
 
     key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo") : key;
 
@@ -419,7 +420,11 @@ var JSONSerializer = Ember.Object.extend({
     }
 
     if (relationship.options.polymorphic) {
-      this.serializePolymorphicType(record, json, relationship);
+      return Ember.RSVP.resolve(belongsTo).then(function(record) {
+               if (record) {
+                 self.serializePolymorphicType(record, json, relationship);
+               }
+             }).then(finalizer);
     }
   },
 

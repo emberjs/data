@@ -1,5 +1,5 @@
 var get = Ember.get, set = Ember.set;
-var HomePlanet, league, SuperVillain, superVillain, EvilMinion, YellowMinion, DoomsdayDevice, MediocreVillain, env;
+var HomePlanet, league, SuperVillain, superVillain, EvilMinion, YellowMinion, DoomsdayDevice, MediocreVillain, LazyVillain, env;
 
 module("integration/active_model - ActiveModelSerializer", {
   setup: function() {
@@ -17,6 +17,10 @@ module("integration/active_model - ActiveModelSerializer", {
       superVillain: DS.belongsTo('superVillain'),
       name:         DS.attr('string')
     });
+    LazyVillain = DS.Model.extend({
+      superVillain: DS.belongsTo('superVillain', { polymorphic: true, async: true }),
+      name:         DS.attr('string')
+    });
     YellowMinion = EvilMinion.extend();
     DoomsdayDevice = DS.Model.extend({
       name:         DS.attr('string'),
@@ -32,7 +36,8 @@ module("integration/active_model - ActiveModelSerializer", {
       evilMinion:     EvilMinion,
       yellowMinion:   YellowMinion,
       doomsdayDevice: DoomsdayDevice,
-      mediocreVillain: MediocreVillain
+      mediocreVillain: MediocreVillain,
+      lazyVillain: LazyVillain
     });
     env.store.modelFor('superVillain');
     env.store.modelFor('homePlanet');
@@ -40,6 +45,7 @@ module("integration/active_model - ActiveModelSerializer", {
     env.store.modelFor('yellowMinion');
     env.store.modelFor('doomsdayDevice');
     env.store.modelFor('mediocreVillain');
+    env.store.modelFor('lazyVillain');
     env.container.register('serializer:application', DS.ActiveModelSerializer);
     env.container.register('serializer:-active-model', DS.ActiveModelSerializer);
     env.container.register('adapter:-active-model', DS.ActiveModelAdapter);
@@ -191,9 +197,23 @@ test("serialize polymorphic when type key is not camelized", function() {
   var tom = env.store.createRecord(YellowMinion,   {name: "Alex", id: "124"});
   var ray = env.store.createRecord(DoomsdayDevice, {evilMinion: tom, name: "DeathRay"});
 
-  var json = env.amsSerializer.serialize(ray);
+  env.amsSerializer.serialize(ray).then(function(json) {
+    deepEqual(json["evil_minion_type"], "YellowMinion");
+  });
+});
 
-  deepEqual(json["evil_minion_type"], "YellowMinion");
+test("serialize polymorphic async", function() {
+  var masterVillain = env.store.createRecord(SuperVillain, { name: 'Cheesus', id: '789' }),
+      lazyVillain = env.store.createRecord(LazyVillain, { name: 'The Dark Sloth', id: '456', superVillain: masterVillain }),
+      expectedJSON = { name: 'The Dark Sloth', super_villain_type: 'SuperVillain', super_villain_id: '789' };
+
+  env.amsSerializer.serialize(lazyVillain).then(function(json) {
+    deepEqual(
+      json,
+      expectedJSON,
+      'Expected: ' + JSON.stringify(expectedJSON) + ', Got: ' + JSON.stringify(json)
+    );
+  });
 });
 
 test("extractPolymorphic hasMany", function() {

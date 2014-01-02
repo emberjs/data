@@ -163,13 +163,9 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param relationship
   */
   serializePolymorphicType: function(record, json, relationship) {
-    var key = relationship.key,
-        belongsTo = get(record, key);
-
-    if (belongsTo) {
-      key = this.keyForAttribute(key);
-      json[key + "_type"] = capitalize(belongsTo.constructor.typeKey);
-    }
+    var key = relationship.key;
+    key = this.keyForAttribute(key);
+    json[key + "_type"] = capitalize(camelize(record.constructor.typeKey));
   },
 
   // EXTRACT
