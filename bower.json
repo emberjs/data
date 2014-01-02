@@ -1,0 +1,7 @@
+{
+  "name": "ember-data",
+  "private": true,
+  "dependencies": {
+    "ember": "~1.2.0"
+  }
+}

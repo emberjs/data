@@ -23,7 +23,7 @@ function aliasMethod(methodName) {
   @class JSONSerializer
   @namespace DS
 */
-DS.JSONSerializer = Ember.Object.extend({
+var JSONSerializer = Ember.Object.extend({
   /**
     The primaryKey is used when serializing and deserializing
     data. Ember Data always uses the `id` propery to store the id of
@@ -724,3 +724,5 @@ DS.JSONSerializer = Ember.Object.extend({
     return transform;
   }
 });
+
+export default JSONSerializer;

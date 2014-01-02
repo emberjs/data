@@ -1,9 +1,8 @@
-require('ember-data/serializers/json_serializer');
-
 /**
   @module ember-data
 */
 
+import JSONSerializer from "./json_serializer";
 var get = Ember.get, set = Ember.set;
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
@@ -52,7 +51,7 @@ function coerceId(id) {
   @namespace DS
   @extends DS.JSONSerializer
 */
-DS.RESTSerializer = DS.JSONSerializer.extend({
+var RESTSerializer = JSONSerializer.extend({
   /**
     If you want to do normalizations specific to some part of the payload, you
     can specify those under `normalizeHash`.
@@ -794,3 +793,5 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     json[key + "Type"] = belongsTo.constructor.typeKey;
   }
 });
+
+export default RESTSerializer;

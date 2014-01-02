@@ -1,6 +1,5 @@
-require("ember-data/serializers/json_serializer");
-require("ember-data/system/debug/debug_adapter");
-require("ember-data/transforms/index");
+import JSONSerializer from "./serializers/json_serializer";
+import DebugAdapter from "./system/debug/debug_adapter";
 
 /**
   @module ember-data

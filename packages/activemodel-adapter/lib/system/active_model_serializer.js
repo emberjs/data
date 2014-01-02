@@ -1,5 +1,5 @@
-require('ember-data/serializers/rest_serializer');
-
+import {singularize} from "../../../ember-inflector/lib/system";
+import RESTSerializer from "../../../ember-data/lib/serializers/rest_serializer";
 /**
   @module ember-data
 */
@@ -7,7 +7,7 @@ require('ember-data/serializers/rest_serializer');
 var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
 
-DS.ActiveModelSerializer = DS.RESTSerializer.extend({
+var ActiveModelSerializer = RESTSerializer.extend({
   // SERIALIZE
 
   /**
@@ -35,7 +35,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     if (kind === "belongsTo") {
       return key + "_id";
     } else if (kind === "hasMany") {
-      return Ember.String.singularize(key) + "_ids";
+      return singularize(key) + "_ids";
     } else {
       return key;
     }
@@ -86,7 +86,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   */
   typeForRoot: function(root) {
     var camelized = Ember.String.camelize(root);
-    return Ember.String.singularize(camelized);
+    return singularize(camelized);
   },
 
   /**
@@ -203,3 +203,5 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     }
   }
 });
+
+export default ActiveModelSerializer;

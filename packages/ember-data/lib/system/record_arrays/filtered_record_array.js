@@ -1,4 +1,4 @@
-require("ember-data/system/record_arrays/record_array");
+import RecordArray from "./record_array";
 
 /**
   @module ember-data
@@ -16,7 +16,7 @@ var get = Ember.get;
   @namespace DS
   @extends DS.RecordArray
 */
-DS.FilteredRecordArray = DS.RecordArray.extend({
+var FilteredRecordArray = RecordArray.extend({
   /**
     The filterFunction is a function used to test records from the store to
     determine if they should be part of the record array.
@@ -60,3 +60,5 @@ DS.FilteredRecordArray = DS.RecordArray.extend({
     manager.updateFilter(this, get(this, 'type'), get(this, 'filterFunction'));
   }, 'filterFunction')
 });
+
+export default FilteredRecordArray;

@@ -1,12 +1,8 @@
-require("ember-data/core");
-require('ember-data/system/adapter');
-
-require('ember-data/serializers/rest_serializer');
-
 /**
   @module ember-data
 */
 
+import Adapter from "../system/adapter";
 var get = Ember.get, set = Ember.set;
 var forEach = Ember.ArrayPolyfills.forEach;
 
@@ -108,7 +104,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
   @namespace DS
   @extends DS.Adapter
 */
-DS.RESTAdapter = DS.Adapter.extend({
+var RESTAdapter = Adapter.extend({
   defaultSerializer: '_rest',
 
   /**
@@ -549,3 +545,5 @@ DS.RESTAdapter = DS.Adapter.extend({
   }
 
 });
+
+export default RESTAdapter;

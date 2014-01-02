@@ -1,6 +1,12 @@
 {
+  "name": "ember-data",
+  "namespace": "DS",
   "devDependencies": {
     "defeatureify": "~0.1.4",
-    "yuidocjs": "~0.3.46"
+    "yuidocjs": "~0.3.46",
+    "grunt-es6-module-transpiler": "~0.6.0",
+    "grunt": "~0.4.2",
+    "grunt-contrib-clean": "~0.5.0",
+    "grunt-contrib-concat": "~0.3.0"
   }
 }

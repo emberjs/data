@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import {ManyArray} from "./record_arrays";
 var get = Ember.get, set = Ember.set;
 var once = Ember.run.once;
 var forEach = Ember.EnumerableUtils.forEach;
@@ -12,7 +13,7 @@ var forEach = Ember.EnumerableUtils.forEach;
   @private
   @extends Ember.Object
 */
-DS.RecordArrayManager = Ember.Object.extend({
+var RecordArrayManager = Ember.Object.extend({
   init: function() {
     this.filteredRecordArrays = Ember.MapWithDefault.create({
       defaultValue: function() { return []; }
@@ -153,7 +154,7 @@ DS.RecordArrayManager = Ember.Object.extend({
     @return {DS.ManyArray}
   */
   createManyArray: function(type, records) {
-    var manyArray = DS.ManyArray.create({
+    var manyArray = ManyArray.create({
       type: type,
       content: records,
       store: this.store
@@ -196,3 +197,5 @@ DS.RecordArrayManager = Ember.Object.extend({
     record._loadingRecordArrays = loadingRecordArrays;
   }
 });
+
+export default RecordArrayManager;

@@ -1,8 +1,6 @@
 /*globals Ember*/
 /*jshint eqnull:true*/
 
-require("ember-data/system/record_arrays");
-
 /**
   @module ember-data
 */
@@ -15,6 +13,7 @@ var indexOf = Ember.EnumerableUtils.indexOf;
 var map = Ember.EnumerableUtils.map;
 var resolve = Ember.RSVP.resolve;
 var copy = Ember.copy;
+var Store, PromiseObject, PromiseArray;
 
 // Implementors Note:
 //
@@ -87,7 +86,7 @@ var coerceId = function(id) {
   @namespace DS
   @extends Ember.Object
 */
-DS.Store = Ember.Object.extend({
+Store = Ember.Object.extend({
 
   /**
     @method init
@@ -1525,7 +1524,7 @@ function addUnsavedRecords(record, key, data) {
   @extends Ember.ArrayProxy
   @uses Ember.PromiseProxyMixin
 */
-DS.PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
+PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
 /**
   A `PromiseObject` is an object that acts like both an `Ember.Object`
   and a promise. When the promise is resolved the the resulting value
@@ -1555,14 +1554,14 @@ DS.PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
   @extends Ember.ObjectProxy
   @uses Ember.PromiseProxyMixin
 */
-DS.PromiseObject = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
+PromiseObject = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
 
 function promiseObject(promise) {
-  return DS.PromiseObject.create({ promise: promise });
+  return PromiseObject.create({ promise: promise });
 }
 
 function promiseArray(promise) {
-  return DS.PromiseArray.create({ promise: promise });
+  return PromiseArray.create({ promise: promise });
 }
 
 function isThenable(object) {
@@ -1705,3 +1704,5 @@ function _commit(adapter, store, operation, record) {
     throw reason;
   }, "DS: Extract and notify about " + operation + " completion of " + record);
 }
+
+export {Store, PromiseArray, PromiseObject};

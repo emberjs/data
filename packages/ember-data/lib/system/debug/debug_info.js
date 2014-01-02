@@ -1,6 +1,6 @@
-require("ember-data/system/model/model");
+import {Model} from "../model";
 
-DS.Model.reopen({
+Model.reopen({
 
   /**
     Provides info about the model for debugging purposes
@@ -66,3 +66,5 @@ DS.Model.reopen({
   }
 
 });
+
+export default Model;

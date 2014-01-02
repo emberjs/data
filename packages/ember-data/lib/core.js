@@ -28,3 +28,5 @@ if ('undefined' === typeof DS) {
     Ember.libraries.registerCoreLibrary('Ember Data', DS.VERSION);
   }
 }
+
+export default DS;
