@@ -32,8 +32,8 @@ var forEach = Ember.ArrayPolyfills.forEach;
   ```js
   {
     "post": {
-      title: "I'm Running to Reform the W3C's Tag",
-      author: "Yehuda Katz"
+      "title": "I'm Running to Reform the W3C's Tag",
+      "author": "Yehuda Katz"
     }
   }
   ```
@@ -111,6 +111,55 @@ var forEach = Ember.ArrayPolyfills.forEach;
 DS.RESTAdapter = DS.Adapter.extend({
   defaultSerializer: '_rest',
 
+
+  /**
+    Endpoint paths can be prefixed with a `namespace` by setting the namespace
+    property on the adapter:
+
+    ```javascript
+    DS.RESTAdapter.reopen({
+      namespace: 'api/1'
+    });
+    ```
+
+    Requests for `App.Post` would now target `/api/1/post/`.
+
+    @property namespace
+    @type {String}
+  */
+
+  /**
+    An adapter can target other hosts by setting the `host` property.
+
+    ```javascript
+    DS.RESTAdapter.reopen({
+      host: 'https://api.example.com'
+    });
+    ```
+
+    Requests for `App.Post` would now target `https://api.example.com/post/`.
+
+    @property host
+    @type {String}
+  */
+
+  /**
+    Some APIs require HTTP headers, e.g. to provide an API key. An array of
+    headers can be added to the adapter which are passed with every request:
+
+    ```javascript
+    DS.RESTAdapter.reopen({
+      headers: {
+        "API_KEY": "secret key",
+        "ANOTHER_HEADER": "Some header value"
+      }
+    });
+    ```
+
+    @property headers
+    @type {Object}
+  */
+
   /**
     Called by the store in order to fetch the JSON for a given
     type and ID.
@@ -121,12 +170,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     This method performs an HTTP `GET` request with the id provided as part of the querystring.
 
     @method find
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {String} id
-    @returns Promise
+    @returns {Promise} promise
   */
   find: function(store, type, id) {
     return this.ajax(this.buildURL(type.typeKey, id), 'GET');
@@ -141,12 +188,10 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     @private
     @method findAll
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {String} sinceToken
-    @returns Promise
+    @returns {Promise} promise
   */
   findAll: function(store, type, sinceToken) {
     var query;
@@ -170,12 +215,10 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     @private
     @method findQuery
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} query
-    @returns Promise
+    @returns {Promise} promise
   */
   findQuery: function(store, type, query) {
     return this.ajax(this.buildURL(type.typeKey), 'GET', { data: query });
@@ -210,12 +253,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     promise for the resulting payload.
 
     @method findMany
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
     @param {DS.Store} store
     @param {subclass of DS.Model} type
-    @param {Array<String>} ids
-    @returns Promise
+    @param {Array} ids
+    @returns {Promise} promise
   */
   findMany: function(store, type, ids) {
     return this.ajax(this.buildURL(type.typeKey), 'GET', { data: { ids: ids } });
@@ -245,12 +286,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     request will use the host specified on the adapter (if any).
 
     @method findHasMany
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
     @param {DS.Store} store
     @param {DS.Model} record
     @param {String} url
-    @returns Promise
+    @returns {Promise} promise
   */
   findHasMany: function(store, record, url) {
     var host = get(this, 'host'),
@@ -286,12 +325,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     The `findBelongsTo` method will make an Ajax (HTTP GET) request to the originally specified URL.
 
     @method findBelongsTo
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
     @param {DS.Store} store
     @param {DS.Model} record
     @param {String} url
-    @returns Promise
+    @returns {Promise} promise
   */
   findBelongsTo: function(store, record, url) {
     var id   = get(record, 'id'),
@@ -311,13 +348,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     of a record.
 
     @method createRecord
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
-    @see RESTAdapter/serialize
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {DS.Model} record
-    @returns Promise
+    @returns {Promise} promise
   */
   createRecord: function(store, type, record) {
     var data = {};
@@ -339,13 +373,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     of a record.
 
     @method updateRecord
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
-    @see RESTAdapter/serialize
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {DS.Model} record
-    @returns Promise
+    @returns {Promise} promise
   */
   updateRecord: function(store, type, record) {
     var data = {};
@@ -364,13 +395,10 @@ DS.RESTAdapter = DS.Adapter.extend({
     The `deleteRecord` method  makes an Ajax (HTTP DELETE) request to a URL computed by `buildURL`.
 
     @method deleteRecord
-    @see RESTAdapter/buildURL
-    @see RESTAdapter/ajax
-    @see RESTAdapter/serialize
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {DS.Model} record
-    @returns Promise
+    @returns {Promise} promise
   */
   deleteRecord: function(store, type, record) {
     var id = get(record, 'id');
@@ -381,8 +409,9 @@ DS.RESTAdapter = DS.Adapter.extend({
   /**
     Builds a URL for a given type and optional ID.
 
-    By default, it pluralizes the type's name (for example,
-    'post' becomes 'posts' and 'person' becomes 'people').
+    By default, it pluralizes the type's name (for example, 'post'
+    becomes 'posts' and 'person' becomes 'people'). To override the
+    pluralization see [pathForType](#method_pathForType).
 
     If an ID is specified, it adds the ID to the path generated
     for the type, separated by a `/`.
@@ -390,7 +419,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     @method buildURL
     @param {String} type
     @param {String} id
-    @returns String
+    @returns {String} url
   */
   buildURL: function(type, id) {
     var url = [],
@@ -408,6 +437,13 @@ DS.RESTAdapter = DS.Adapter.extend({
     return url;
   },
 
+  /**
+    @method urlPrefix
+    @private
+    @param {String} path
+    @param {String} parentUrl
+    @return {String} urlPrefix
+  */
   urlPrefix: function(path, parentURL) {
     var host = get(this, 'host'),
         namespace = get(this, 'namespace'),
@@ -458,7 +494,7 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     @method pathForType
     @param {String} type
-    @returns String
+    @returns {String} path
   **/
   pathForType: function(type) {
     return Ember.String.pluralize(type);
@@ -467,12 +503,36 @@ DS.RESTAdapter = DS.Adapter.extend({
   /**
     Takes an ajax response, and returns a relavant error.
 
-    By default, the `ajaxError` method has the following behavior:
+    Returning a `DS.InvalidError` from this method will cause the
+    record to transition into the `invalid` state and make the
+    `errors` object available on the record.
 
-    * It simply returns the ajax response (jqXHR).
+    ```javascript
+    App.ApplicationAdapter = DS.RESTAdapter.extend({
+      ajaxError: function(jqXHR) {
+        var error = this._super(jqXHR);
+
+        if (jqXHR && jqXHR.status === 422) {
+          var jsonErrors = Ember.$.parseJSON(jqXHR.responseText)["errors"];
+
+          return new DS.InvalidError(errors);
+        } else {
+          return error;
+        }
+      }
+    });
+    ```
+
+    Note: As a correctness optimization, the default implementation of
+    the `ajaxError` method strips out the `then` method from jquery's
+    ajax response (jqXHR). This is important because the jqXHR's
+    `then` method fulfills the promise with itself resulting in a
+    circular "thenable" chain which may cause problems for some
+    promise libraries.
 
     @method ajaxError
-    @param  jqXHR
+    @param  {Object} jqXHR
+    @return {Object} jqXHR
   */
   ajaxError: function(jqXHR) {
     if (jqXHR) {
@@ -501,9 +561,10 @@ DS.RESTAdapter = DS.Adapter.extend({
 
     @method ajax
     @private
-    @param  url
-    @param  type
-    @param  hash
+    @param {String} url
+    @param {String} type The request type GET, POST, PUT, DELETE ect.
+    @param {Object} hash
+    @return {Promise} promise
   */
   ajax: function(url, type, hash) {
     var adapter = this;
@@ -523,6 +584,14 @@ DS.RESTAdapter = DS.Adapter.extend({
     }, "DS: RestAdapter#ajax " + type + " to " + url);
   },
 
+  /**
+    @method ajaxOptions
+    @private
+    @param {String} url
+    @param {String} type The request type GET, POST, PUT, DELETE ect.
+    @param {Object} hash
+    @return {Object} hash
+  */
   ajaxOptions: function(url, type, hash) {
     hash = hash || {};
     hash.url = url;
