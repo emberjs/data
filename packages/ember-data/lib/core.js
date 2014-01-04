@@ -10,6 +10,12 @@
 */
 var DS;
 if ('undefined' === typeof DS) {
+  /**
+    @property VERSION
+    @type String
+    @default 'VERSION_STRING_PLACEHOLDER'
+    @static
+  */
   DS = Ember.Namespace.create({
     VERSION: 'VERSION_STRING_PLACEHOLDER'
   });
