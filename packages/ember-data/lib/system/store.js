@@ -1212,7 +1212,6 @@ DS.Store = Ember.Object.extend({
 
     @method pushPayload
     @param {String} type
-    @param {String or subclass of DS.Model} type
     @param {Object} payload
     @return {DS.Model} the record that was created or updated.
   */
