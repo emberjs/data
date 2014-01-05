@@ -6,8 +6,9 @@
 
   Ember.config = {};
   Ember.testing = true;
+  Ember.LOG_VERSION = false;
 
-  window.ENV = { TESTING: true };
+  window.ENV = { TESTING: true, LOG_VERSION: false };
 
   var extendPrototypes = QUnit.urlParams.extendprototypes;
   ENV['EXTEND_PROTOTYPES'] = !!extendPrototypes;

@@ -34,9 +34,8 @@
     ],
 
     "node" : false,
-    "es3" : true,
     "browser" : true,
-
+    "es3": true,
     "boss" : true,
     "curly": false,
     "debug": false,
@@ -58,5 +57,6 @@
     "sub": true,
     "strict": false,
     "white": false,
-    "eqnull": true
+    "eqnull": true,
+    "esnext": true
 }
