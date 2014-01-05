@@ -311,9 +311,7 @@ var DirtyState = {
       record.send('invokeLifecycleCallbacks', dirtyType);
     },
 
-    becameInvalid: function(record, errors) {
-      set(record, 'errors', errors);
-
+    becameInvalid: function(record) {
       record.transitionTo('invalid');
       record.send('invokeLifecycleCallbacks');
     },
@@ -338,23 +336,15 @@ var DirtyState = {
     },
 
     didSetProperty: function(record, context) {
-      var errors = get(record, 'errors'),
-          key = context.name;
-
-      set(errors, key, null);
-
-      if (!hasDefinedProperties(errors)) {
-        record.send('becameValid');
-      }
+      get(record, 'errors').remove(context.name);
 
       didSetProperty(record, context);
     },
 
     becomeDirty: Ember.K,
 
-    rollback: function(record) {
-      record.send('becameValid');
-      record.send('rollback');
+    rolledBack: function(record) {
+      get(record, 'errors').clear();
     },
 
     becameValid: function(record) {
