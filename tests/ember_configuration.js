@@ -13,11 +13,6 @@
   var extendPrototypes = QUnit.urlParams.extendprototypes;
   ENV['EXTEND_PROTOTYPES'] = !!extendPrototypes;
 
-  if (typeof EmberDev !== 'undefined' && EmberDev.jsHint) {
-    // jsHint makes its own Object.create stub, we don't want to use this
-    ENV['STUB_OBJECT_CREATE'] = !Object.create;
-  }
-
   window.async = function(callback, timeout) {
     stop();
 
@@ -131,14 +126,6 @@
       destroy: syncForTest()
     });
   };
-
-
-  if (typeof EmberDev !== 'undefined') {
-    EmberDev.distros = {
-      spade:   'ember-data-spade.js',
-      build:   'ember-data.js'
-    };
-  }
 
   // Generate the jQuery expando on window ahead of time
   // to make the QUnit global check run clean
