@@ -573,7 +573,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
           type = store.modelFor(typeName);
 
       /*jshint loopfunc:true*/
-      var normalizedArray = map.call(payload[prop], function(hash) {
+      var normalizedArray = map.call(Ember.makeArray(payload[prop]), function(hash) {
         return this.normalize(type, hash, prop);
       }, this);
 
