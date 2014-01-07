@@ -100,6 +100,25 @@ DS.InvalidError.prototype = Ember.create(Error.prototype);
 DS.Adapter = Ember.Object.extend({
 
   /**
+    If you would like your adapter to use a custom serializer you can
+    set the `defaultSerializer` property to be the name of the custom
+    serializer.
+
+    Note the `defaultSerializer` serializer has a lower priority then
+    a model specific serializer (i.e. `PostSerializer`) or the
+    `application` serializer.
+
+    ```javascript
+    var DjangoAdapter = DS.Adapter.extend({
+      defaultSerializer: 'django'
+    });
+    ```
+
+    @property defaultSerializer
+    @type {String}
+  */
+
+  /**
     The `find()` method is invoked when the store is asked for a record that
     has not previously been loaded. In response to `find()` being called, you
     should query your persistence layer for a record with the given ID. Once
@@ -237,19 +256,7 @@ DS.Adapter = Ember.Object.extend({
         var data = this.serialize(record, { includeId: true });
         var url = type;
 
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-          jQuery.ajax({
-            type: 'POST',
-            url: url,
-            dataType: 'json',
-            data: data
-          }).then(function(data) {
-            Ember.run(null, resolve, data);
-          }, function(jqXHR) {
-            jqXHR.then = null; // tame jQuery's ill mannered promises
-            Ember.run(null, reject, jqXHR);
-          });
-        });
+        // ...
       }
     });
     ```
