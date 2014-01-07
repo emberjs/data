@@ -699,7 +699,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var hasMany = this._relationships[key];
 
     if (hasMany) {
-      var records = this._data[key] || [];
+      var records = this._data[key] ? this._data[key].slice() : [];
 
       set(hasMany, 'content', Ember.A(records));
       set(hasMany, 'isLoaded', true);
@@ -804,6 +804,16 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     if (!get(this, 'isValid')) {
       this._inFlightAttributes = {};
     }
+
+    this.eachRelationship(function (name, relationship) {
+      var previous = this._data[name];
+      if (relationship.kind === 'belongsTo') {
+        set(this, name, previous);
+      } else if (relationship.kind === 'hasMany') {
+        var rel = this._relationships[name];
+        if (rel) { set(rel, 'content', previous.slice()); }
+      }
+    }, this);
 
     this.send('rolledBack');
 

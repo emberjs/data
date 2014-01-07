@@ -186,7 +186,11 @@ var hasDefinedProperties = function(object) {
 
 var didSetProperty = function(record, context) {
   if (context.value === context.originalValue) {
-    delete record._attributes[context.name];
+    if (context.meta.isAttribute) {
+      delete record._attributes[context.name];
+    } else {
+      delete record._relationships[context.name];
+    }
     record.send('propertyWasReset', context.name);
   } else if (context.value !== context.oldValue) {
     record.send('becomeDirty');
@@ -256,7 +260,15 @@ var DirtyState = {
     propertyWasReset: function(record, name) {
       var stillDirty = false;
 
-      for (var prop in record._attributes) {
+      for (var attribute in record._attributes) {
+        stillDirty = true;
+        break;
+      }
+
+      for (var relationship in record._relationships) {
+        if (relationship instanceof DS.RecordArray) {
+          continue;
+        }
         stillDirty = true;
         break;
       }
@@ -603,6 +615,8 @@ var RootState = {
     uncommitted: {
 
       // EVENTS
+
+      didSetProperty: Ember.K,
 
       willCommit: function(record) {
         record.transitionTo('inFlight');

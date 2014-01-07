@@ -541,7 +541,7 @@ test("async belongsTo relationships work when the data hash has already been loa
   }));
 });
 
-test("calling createRecord and passing in an undefined value for a relationship should be treated as if null", function () {
+test("calling createRecord and passing in an undefined value for a belongsTo should be treated as if null", function () {
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
     person: DS.belongsTo('person')
