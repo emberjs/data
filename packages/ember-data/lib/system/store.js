@@ -401,19 +401,16 @@ DS.Store = Ember.Object.extend({
     if (!get(record, 'isEmpty')) { return null; }
 
     var type = record.constructor,
-        id = get(record, 'id'),
-        resolver = Ember.RSVP.defer("DS: Store#fetchRecord " + record );
-
-    record.loadingData(resolver.promise);
+        id = get(record, 'id');
 
     var adapter = this.adapterFor(type);
 
     Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to find a record but your adapter (for " + type + ") does not implement 'find'", adapter.find);
 
-    resolver.resolve(_find(adapter, this, type, id));
-
-    return resolver.promise;
+    var promise = _find(adapter, this, type, id);
+    record.loadingData(promise);
+    return promise;
   },
 
   /**
@@ -440,8 +437,7 @@ DS.Store = Ember.Object.extend({
   },
 
   /**
-    This method is called by the record's `reload` method. The record's `reload`
-    passes in a resolver for the promise it returns.
+    This method is called by the record's `reload` method.
 
     This method calls the adapter's `find` method, which returns a promise. When
     **that** promise resolves, `reloadRecord` will resolve the promise returned
@@ -692,17 +688,14 @@ DS.Store = Ember.Object.extend({
   */
   fetchAll: function(type, array) {
     var adapter = this.adapterFor(type),
-        sinceToken = this.typeMapFor(type).metadata.since,
-        resolver = Ember.RSVP.defer("DS: Store#findAll " + type);
+        sinceToken = this.typeMapFor(type).metadata.since;
 
     set(array, 'isUpdating', true);
 
     Ember.assert("You tried to load all records but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load all records but your adapter does not implement `findAll`", adapter.findAll);
 
-    resolver.resolve(_findAll(adapter, this, type, sinceToken));
-
-    return promiseArray(resolver.promise);
+    return promiseArray(_findAll(adapter, this, type, sinceToken));
   },
 
   /**
