@@ -437,6 +437,26 @@ DS.Model.reopenClass({
     get(this, 'relatedTypes').forEach(function(type) {
       callback.call(binding, type);
     });
+  },
+
+  determineRelationshipType: function(knownSide) {
+    var knownKey = knownSide.key,
+        knownKind = knownSide.kind,
+        inverse = this.inverseFor(knownKey),
+        key, otherKind;
+
+    if (!inverse) {
+      return knownKind === 'belongsTo' ? 'oneToNone' : 'manyToNone';
+    }
+
+    key = inverse.name;
+    otherKind = inverse.kind;
+
+    if (otherKind === 'belongsTo') {
+      return knownKind === 'belongsTo' ? 'oneToOne' : 'manyToOne';
+    } else {
+      return knownKind === 'belongsTo' ? 'oneToMany' : 'manyToMany';
+    }
   }
 });
 
