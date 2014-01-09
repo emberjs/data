@@ -67,11 +67,11 @@ Ember.onLoad('Ember.Application', function(Application) {
   });
 
   Application.initializer({
-    name: "dataAdapter",
+    name: "data-adapter",
     before: "store",
 
     initialize: function(container, application) {
-      application.register('dataAdapter:main', DS.DebugAdapter);
+      application.register('data-adapter:main', DS.DebugAdapter);
     }
   });
 
@@ -83,7 +83,7 @@ Ember.onLoad('Ember.Application', function(Application) {
       application.inject('controller', 'store', 'store:main');
       application.inject('route', 'store', 'store:main');
       application.inject('serializer', 'store', 'store:main');
-      application.inject('dataAdapter', 'store', 'store:main');
+      application.inject('data-adapter', 'store', 'store:main');
     }
   });
 

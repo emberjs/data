@@ -19,7 +19,7 @@ module("DS.DebugAdapter", {
     });
 
     store = App.__container__.lookup('store:main');
-    debugAdapter = App.__container__.lookup('dataAdapter:main');
+    debugAdapter = App.__container__.lookup('data-adapter:main');
 
     debugAdapter.reopen({
       getModelTypes: function() {
