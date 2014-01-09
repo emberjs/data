@@ -515,7 +515,7 @@ DS.RESTAdapter = DS.Adapter.extend({
         if (jqXHR && jqXHR.status === 422) {
           var jsonErrors = Ember.$.parseJSON(jqXHR.responseText)["errors"];
 
-          return new DS.InvalidError(errors);
+          return new DS.InvalidError(jsonErrors);
         } else {
           return error;
         }

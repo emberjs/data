@@ -25,7 +25,7 @@ var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'n
 
       if (jqXHR && jqXHR.status === 422) {
         var jsonErrors = Ember.$.parseJSON(jqXHR.responseText)["errors"];
-        return new DS.InvalidError(errors);
+        return new DS.InvalidError(jsonErrors);
       } else {
         return error;
       }
