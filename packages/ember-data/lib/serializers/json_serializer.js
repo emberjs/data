@@ -259,7 +259,7 @@ DS.JSONSerializer = Ember.Object.extend({
       var id = get(record, 'id');
 
       if (id) {
-        json[get(this, 'primaryKey')] = get(record, 'id');
+        json[get(this, 'primaryKey')] = id;
       }
     }
 
