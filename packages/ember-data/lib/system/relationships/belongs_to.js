@@ -60,8 +60,12 @@ DS.belongsTo = function(type, options) {
     options: options || {}
   };
 
-  return Ember.computed(function() {
+  return Ember.computed(function(key, value) {
+    if (this._relationships[meta.key]) {
+      return this._relationships[meta.key].belongsTo;
+    }
 
+    return null;
   }).meta(meta);
 };
 
