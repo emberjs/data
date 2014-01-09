@@ -772,10 +772,11 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
 
 ### Embedded Records
 
-Explicit support for embedded records is gone for now.
+Explicit support for embedded records has been moved into a mixin within
+the activemodel-adapter package.
 
 You can handle embedded records yourself by implementing `extractSingle`
-and reorganizing the payload.
+and reorganizing the payload, or using the DS.EmbeddedRecordsMixin
 
 Consider this payload:
 

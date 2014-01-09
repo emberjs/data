@@ -15,7 +15,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
   // SERIALIZE
 
   /**
-    Converts camelcased attributes to underscored when serializing.
+    Converts camelCased attributes to underscored when serializing.
 
     @method keyForAttribute
     @param {String} attribute
@@ -75,8 +75,11 @@ var ActiveModelSerializer = RESTSerializer.extend({
   serializePolymorphicType: function(record, json, relationship) {
     var key = relationship.key,
         belongsTo = get(record, key);
-    key = this.keyForAttribute(key);
-    json[key + "_type"] = capitalize(camelize(belongsTo.constructor.typeKey));
+
+    if (belongsTo) {
+      key = this.keyForAttribute(key);
+      json[key + "_type"] = capitalize(camelize(belongsTo.constructor.typeKey));
+    }
   },
 
   // EXTRACT
@@ -94,10 +97,9 @@ var ActiveModelSerializer = RESTSerializer.extend({
   },
 
   /**
-    Add extra step to `DS.RESTSerializer.normalize` so links are
-    normalized.
+    Add extra step to `DS.RESTSerializer.normalize` so links are normalized.
 
-    If your payload looks like this
+    If your payload looks like:
 
     ```js
     {
@@ -108,6 +110,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
       }
     }
     ```
+
     The normalized version would look like this
 
     ```js
