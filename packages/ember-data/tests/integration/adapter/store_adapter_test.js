@@ -527,7 +527,6 @@ test("relationships don't get reset if the links is the same", function() {
   }));
 });
 
-
 test("async hasMany always returns a promise", function() {
   Person.reopen({
     dogs: DS.hasMany({ async: true })
@@ -545,5 +544,61 @@ test("async hasMany always returns a promise", function() {
 
   tom.save().then(async(function() {
     ok(tom.get('dogs') instanceof DS.PromiseArray, "dogs is a promise after save");
+  }));
+});
+
+test("it should overwrite missing attributes", function() {
+  expect(4);
+
+  store.push(Person, {
+    id: 1,
+    firstName: "ryan",
+    lastName: "to"
+  });
+
+  store.find(Person, 1).then(async(function(p) {
+    equal(p.get('firstName'), 'ryan');
+    equal(p.get('lastName'), 'to');
+
+    store.push(Person, {
+      id: 1,
+      firstName: "updated name"
+    });
+
+    return store.find(Person, 1);
+  })).then(async(function(p) {
+    equal(p.get('firstName'), 'updated name');
+    equal(p.get('lastName'), undefined);
+  }));
+});
+
+test("it should merge data when the models setData is set to merge", function() {
+  expect(4);
+
+  Person.reopen({
+    setData: function(data) {
+      Ember.merge(this._data, data);
+    }
+  });
+
+  store.push(Person, {
+    id: 1,
+    firstName: "ryan",
+    lastName: "to"
+  });
+
+  store.find(Person, 1).then(async(function(p) {
+    equal(p.get('firstName'), 'ryan');
+    equal(p.get('lastName'), 'to');
+
+    store.push(Person, {
+      id: 1,
+      firstName: "updated name"
+    });
+
+    return store.find(Person, 1);
+  })).then(async(function(p) {
+    equal(p.get('firstName'), 'updated name');
+    equal(p.get('lastName'), 'to');
   }));
 });

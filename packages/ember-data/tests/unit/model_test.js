@@ -101,6 +101,8 @@ test("it should cache attributes", function() {
   }));
 });
 
+
+
 module("unit/model - DS.Model updating", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
