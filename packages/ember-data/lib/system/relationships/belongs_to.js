@@ -1,34 +1,73 @@
-var get = Ember.get, set = Ember.set,
-    isNone = Ember.isNone;
+var get = Ember.get, set = Ember.set, setProperties = Ember.setProperties, isNone = Ember.isNone;
 
 /**
   @module ember-data
 */
 
 function asyncBelongsTo(type, options, meta) {
-  return Ember.computed(function(key, value) {
+  return Ember.computed(function (key, value) {
     var data = get(this, 'data'),
         store = get(this, 'store'),
         promiseLabel = "DS: Async belongsTo " + this + " : " + key;
 
-    if (arguments.length === 2) {
+    if (arguments.length > 1) {
       Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof store.modelFor(type));
-      return value === undefined ? null : DS.PromiseObject.create({ promise: Ember.RSVP.resolve(value, promiseLabel) });
+
+      var oldValue = this._relationships[key] ||/* this._inFlightRelationships[key] ||*/ this._data[key];
+
+      this.send('didSetProperty', {
+        meta: meta,
+        name: key,
+        oldValue: oldValue && typeof oldValue.then === 'function' ? get(oldValue, 'content') : oldValue,
+        originalValue: data[key],
+        value: value
+      });
+
+      return this._relationships[key] = (value === undefined || value === null ? null : DS.PromiseObject.create({ promise: Ember.RSVP.resolve(value, promiseLabel) }));
     }
 
     var link = data.links && data.links[key],
-        belongsTo = data[key];
+        record = data[key],
+        promise;
 
-    if(!isNone(belongsTo)) {
-      var promise = store.fetchRecord(belongsTo) || Ember.RSVP.resolve(belongsTo, promiseLabel);
-      return DS.PromiseObject.create({ promise: promise});
+    if (!isNone(record)) {
+      promise = DS.PromiseObject.create({ promise: store.fetchRecord(record) || Ember.RSVP.resolve(record, promiseLabel)});
     } else if (link) {
-      var resolver = Ember.RSVP.defer("DS: Async belongsTo (link) " + this + " : " + key);
-      store.findBelongsTo(this, link, meta, resolver);
-      return DS.PromiseObject.create({ promise: resolver.promise });
+      var deferred = Ember.RSVP.defer("DS: Async belongsTo (link) " + this + " : " + key);
+      store.findBelongsTo(this, link, meta, deferred);
+      promise = DS.PromiseObject.create({ promise: deferred.promise });
     } else {
-      return null;
+      promise = null;
     }
+    return this._relationships[key] = promise;
+  }).property('data').meta(meta);
+}
+
+function belongsTo(type, options, meta) {
+  return Ember.computed(function (key, value) {
+    var data = get(this, 'data'),
+        store = get(this, 'store');
+
+    if (arguments.length > 1) {
+      value = (value === undefined ? null : value);
+
+      Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof store.modelFor(type));
+
+      var oldValue = this._relationships[key] || /* this._inFlightRelationships[key] ||*/ this._data[key];
+      this.send('didSetProperty', {
+        meta: meta,
+        name: key,
+        oldValue: oldValue,
+        originalValue: data[key],
+        value: value
+      });
+      return this._relationships[key] = value;
+    }
+
+    var record = data[key];
+    if (isNone(record)) { return null; }
+    store.fetchRecord(record);
+    return this._relationships[key] = record;
   }).property('data').meta(meta);
 }
 
@@ -94,30 +133,7 @@ DS.belongsTo = function(type, options) {
   if (options.async) {
     return asyncBelongsTo(type, options, meta);
   }
-
-  return Ember.computed(function(key, value) {
-    var data = get(this, 'data'),
-        store = get(this, 'store'), belongsTo, typeClass;
-
-    if (typeof type === 'string') {
-      typeClass = store.modelFor(type);
-    } else {
-      typeClass = type;
-    }
-
-    if (arguments.length === 2) {
-      Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof typeClass);
-      return value === undefined ? null : value;
-    }
-
-    belongsTo = data[key];
-
-    if (isNone(belongsTo)) { return null; }
-
-    store.fetchRecord(belongsTo);
-
-    return belongsTo;
-  }).property('data').meta(meta);
+  return belongsTo(type, options, meta);
 };
 
 /**
@@ -138,14 +154,15 @@ DS.Model.reopen({
   */
   belongsToWillChange: Ember.beforeObserver(function(record, key) {
     if (get(record, 'isLoaded')) {
-      var oldParent = get(record, key);
+      var oldParent = get(record, key),
+          changesToSync = this._changesToSync;
 
-      if (oldParent) {
-        var store = get(record, 'store'),
-            change = DS.RelationshipChange.createChange(record, oldParent, store, { key: key, kind: "belongsTo", changeType: "remove" });
-
-        change.sync();
-        this._changesToSync[key] = change;
+      if (isThenable(oldParent)) {
+        oldParent.then(function (resolved) {
+          change('remove', record, key, resolved, changesToSync);
+        });
+      } else {
+        change('remove', record, key, oldParent, changesToSync);
       }
     }
   }),
@@ -161,14 +178,29 @@ DS.Model.reopen({
     if (get(record, 'isLoaded')) {
       var newParent = get(record, key);
 
-      if (newParent) {
-        var store = get(record, 'store'),
-            change = DS.RelationshipChange.createChange(record, newParent, store, { key: key, kind: "belongsTo", changeType: "add" });
-
-        change.sync();
+      if (isThenable(newParent)) {
+        newParent.then(function(resolved) {
+          change('add', record, key, resolved);
+        });
+      } else {
+        change('add', record, key, newParent);
       }
     }
 
     delete this._changesToSync[key];
   })
 });
+
+function change(changeType, record, key, parent, changesToSync) {
+  if (parent) {
+    DS.RelationshipChange.createChange(record, parent, get(record, 'store'), {
+      key: key, kind: "belongsTo", changeType: changeType
+    }).sync();
+
+    if (changesToSync) { changesToSync[key] = change; }
+  }
+}
+
+function isThenable(object) {
+  return object && typeof object.then === 'function';
+}
