@@ -644,12 +644,8 @@ DS.Store = Ember.Object.extend({
   findQuery: function(type, query) {
     type = this.modelFor(type);
 
-    var array = DS.AdapterPopulatedRecordArray.create({
-      type: type,
-      query: query,
-      content: Ember.A(),
-      store: this
-    });
+    var array = this.recordArrayManager
+      .createAdapterPopulatedRecordArray(type, query);
 
     var adapter = this.adapterFor(type),
         promiseLabel = "DS: Store#findQuery " + type,
@@ -735,14 +731,7 @@ DS.Store = Ember.Object.extend({
 
     if (findAllCache) { return findAllCache; }
 
-    var array = DS.RecordArray.create({
-      type: type,
-      content: Ember.A(),
-      store: this,
-      isLoaded: true
-    });
-
-    this.recordArrayManager.registerFilteredRecordArray(array, type);
+    var array = this.recordArrayManager.createRecordArray(type);
 
     typeMap.findAllCache = array;
     return array;
@@ -823,15 +812,8 @@ DS.Store = Ember.Object.extend({
 
     type = this.modelFor(type);
 
-    var array = DS.FilteredRecordArray.create({
-      type: type,
-      content: Ember.A(),
-      store: this,
-      manager: this.recordArrayManager,
-      filterFunction: filter
-    });
-
-    this.recordArrayManager.registerFilteredRecordArray(array, type, filter);
+    var array = this.recordArrayManager
+      .createFilteredRecordArray(type, filter);
     promise = promise || resolve(array);
 
     return promiseArray(promise.then(function() {
