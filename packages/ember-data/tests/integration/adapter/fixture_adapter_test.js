@@ -73,6 +73,28 @@ test("should load data for a type asynchronously when it is requested", function
   }, 1000));
 });
 
+test("should query a fixture by field", function() {
+  expect(4);
+
+  stop();
+  Person.FIXTURES = [{
+    id: 'tony', firstName: "Tony", lastName: "Montana"
+  }, {
+    id: 'rambo', firstName: "John", lastName: "Rambo"
+  }];
+
+  env.store.find('person', {firstName: 'John'}).then(function(found) {
+    equal(found.get('length'), 1, "only one record is returned");
+
+    var firstObject = found.get('firstObject');
+
+    equal(get(firstObject, 'id'),        'rambo', "id is loaded correctly");
+    equal(get(firstObject, 'firstName'), 'John',  "lastName is loaded correctly");
+    equal(get(firstObject, 'lastName'),  'Rambo', "lastName is loaded correctly");
+    start();
+  });
+});
+
 test("should load data asynchronously at the end of the runloop when simulateRemoteResponse is false", function() {
   Person.FIXTURES = [{
     id: 'wycats',
