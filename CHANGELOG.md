@@ -1,5 +1,16 @@
 # Ember Data Changelog
 
+### Ember Data 1.0.0-beta.5 _(January 11, 2014)_
+
+* Normalize key in modelFor when a factory is not given.
+* `store.filter` should always return a FilteredRecordArray.
+* attrs with options should allow for key option.
+* Fix windows builds.
+* Add DS.Errors object
+* Handle case of single object pushPayload.
+* Create RecordArrays from recordArrayManager.
+* Documentation
+
 ### Ember Data 1.0.0-beta.4 _(December 19, 2013)_
 
 * Use the adapter host for host-relative URLs in `findHasMany`.

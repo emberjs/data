@@ -27,7 +27,7 @@ GIT
 PATH
   remote: .
   specs:
-    ember-data-source (1.0.0.beta.5.canary)
+    ember-data-source (1.0.0.beta.6.canary)
       ember-source
 
 GEM
