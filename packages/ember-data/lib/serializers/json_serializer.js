@@ -42,6 +42,7 @@ DS.JSONSerializer = Ember.Object.extend({
 
     @property primaryKey
     @type {String}
+    @default 'id'
   */
   primaryKey: 'id',
 
@@ -84,11 +85,13 @@ DS.JSONSerializer = Ember.Object.extend({
     ```javascript
     App.ApplicationSerializer = DS.JSONSerializer.extend({
       normalize: function(type, hash) {
-        var normalizedHash = {};
         var fields = Ember.get(type, 'fields');
         fields.forEach(function(field) {
-          var normalizedProp = Ember.String.camelize(field);
-          normalizedHash[normalizedProp] = hash[field];
+          var payloadField = Ember.String.underscore(field);
+          if (field === payloadField) { return; }
+
+          hash[field] = hash[payloadField];
+          delete hash[payloadField];
         });
         return this._super.apply(this, arguments);
       }
@@ -258,7 +261,7 @@ DS.JSONSerializer = Ember.Object.extend({
       var id = get(record, 'id');
 
       if (id) {
-        json[get(this, 'primaryKey')] = get(record, 'id');
+        json[get(this, 'primaryKey')] = id;
       }
     }
 
@@ -666,6 +669,26 @@ DS.JSONSerializer = Ember.Object.extend({
       delete payload.meta;
     }
   },
+
+  /**
+   `keyForAttribute` can be used to define rules for how to convert an
+   attribute name in your model to a key in your JSON.
+
+   Example
+
+   ```javascript
+   App.ApplicationSerializer = DS.RESTSerializer.extend({
+     keyForAttribute: function(attr) {
+       return Ember.String.underscore(attr).toUpperCase();
+     }
+   });
+   ```
+
+   @method keyForAttribute
+   @param {String} key
+   @return {String} normalized key
+  */
+
 
   /**
    `keyForRelationship` can be used to define a custom key when

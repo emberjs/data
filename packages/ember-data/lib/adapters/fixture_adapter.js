@@ -19,6 +19,10 @@ var counter = 0;
   system would do. Its possible to do develop your entire application
   with `DS.FixtureAdapter`.
 
+  For information on how to use the `FixtureAdapter` in your
+  application please see the [FixtureAdapter
+  guide](/guides/models/the-fixture-adapter/).
+
   @class FixtureAdapter
   @namespace DS
   @extends DS.Adapter
@@ -27,15 +31,36 @@ DS.FixtureAdapter = DS.Adapter.extend({
   // by default, fixtures are already in normalized form
   serializer: null,
 
+  /**
+    If `simulateRemoteResponse` is `true` the `FixtureAdapter` will
+    wait a number of milliseconds before resolving promises with the
+    fixture values. The wait time can be configured via the `latency`
+    property.
+
+    @property simulateRemoteResponse
+    @type {Boolean}
+    @default true
+  */
   simulateRemoteResponse: true,
 
+  /**
+    By default the `FixtureAdapter` will simulate a wait of the
+    `latency` milliseconds before resolving promises with the fixture
+    values. This behavior can be turned off via the
+    `simulateRemoteResponse` property.
+
+    @property latency
+    @type {Number}
+    @default 50
+  */
   latency: 50,
 
   /**
     Implement this method in order to provide data associated with a type
 
     @method fixturesForType
-    @param  type
+    @param {Subclass of DS.Model} type
+    @return {Array}
   */
   fixturesForType: function(type) {
     if (type.FIXTURES) {
@@ -56,9 +81,10 @@ DS.FixtureAdapter = DS.Adapter.extend({
     Implement this method in order to query fixtures data
 
     @method queryFixtures
-    @param  fixture
-    @param  query
-    @param  type
+    @param {Array} fixture
+    @param {Object} query
+    @param {Subclass of DS.Model} type
+    @return {Promise|Array}
   */
   queryFixtures: function(fixtures, query, type) {
     Ember.assert('Not implemented: You must override the DS.FixtureAdapter::queryFixtures method to support querying the fixture store.');
@@ -66,8 +92,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
   /**
     @method updateFixtures
-    @param  type
-    @param  fixture
+    @param {Subclass of DS.Model} type
+    @param {Array} fixture
   */
   updateFixtures: function(type, fixture) {
     if(!type.FIXTURES) {
@@ -85,8 +111,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
     Implement this method in order to provide json for CRUD methods
 
     @method mockJSON
-    @param  type
-    @param  record
+    @param {Subclass of DS.Model} type
+    @param {DS.Model} record
   */
   mockJSON: function(store, type, record) {
     return store.serializerFor(type).serialize(record, { includeId: true });
@@ -94,8 +120,9 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
   /**
     @method generateIdForRecord
-    @param  store
-    @param  record
+    @param {DS.Store} store
+    @param {DS.Model} record
+    @return {String} id
   */
   generateIdForRecord: function(store) {
     return "fixture-" + counter++;
@@ -103,9 +130,10 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
   /**
     @method find
-    @param  store
-    @param  type
-    @param  id
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {String} id
+    @return {Promise} promise
   */
   find: function(store, type, id) {
     var fixtures = this.fixturesForType(type),
@@ -126,9 +154,10 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
   /**
     @method findMany
-    @param  store
-    @param  type
-    @param  ids
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Array} ids
+    @return {Promise} promise
   */
   findMany: function(store, type, ids) {
     var fixtures = this.fixturesForType(type);
@@ -151,8 +180,10 @@ DS.FixtureAdapter = DS.Adapter.extend({
   /**
     @private
     @method findAll
-    @param  store
-    @param  type
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {String} sinceToken
+    @return {Promise} promise
   */
   findAll: function(store, type) {
     var fixtures = this.fixturesForType(type);
@@ -167,10 +198,11 @@ DS.FixtureAdapter = DS.Adapter.extend({
   /**
     @private
     @method findQuery
-    @param  store
-    @param  type
-    @param  query
-    @param  array
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} query
+    @param {DS.AdapterPopulatedRecordArray} recordArray
+    @return {Promise} promise
   */
   findQuery: function(store, type, query, array) {
     var fixtures = this.fixturesForType(type);
@@ -188,9 +220,10 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
   /**
     @method createRecord
-    @param  store
-    @param  type
-    @param  record
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @return {Promise} promise
   */
   createRecord: function(store, type, record) {
     var fixture = this.mockJSON(store, type, record);
@@ -204,9 +237,10 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
   /**
     @method updateRecord
-    @param  store
-    @param  type
-    @param  record
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @return {Promise} promise
   */
   updateRecord: function(store, type, record) {
     var fixture = this.mockJSON(store, type, record);
@@ -220,9 +254,10 @@ DS.FixtureAdapter = DS.Adapter.extend({
 
   /**
     @method deleteRecord
-    @param  store
-    @param  type
-    @param  record
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @return {Promise} promise
   */
   deleteRecord: function(store, type, record) {
     var fixture = this.mockJSON(store, type, record);
@@ -267,8 +302,8 @@ DS.FixtureAdapter = DS.Adapter.extend({
   /*
     @method findFixtureById
     @private
-    @param type
-    @param record
+    @param fixtures
+    @param id
   */
   findFixtureById: function(fixtures, id) {
     return Ember.A(fixtures).find(function(r) {

@@ -7,11 +7,42 @@ require("ember-data/system/record_arrays/record_array");
 var get = Ember.get;
 
 /**
+  Represents a list of records whose membership is determined by the
+  store. As records are created, loaded, or modified, the store
+  evaluates them to determine if they should be part of the record
+  array.
+
   @class FilteredRecordArray
   @namespace DS
   @extends DS.RecordArray
 */
 DS.FilteredRecordArray = DS.RecordArray.extend({
+  /**
+    The filterFunction is a function used to test records from the store to
+    determine if they should be part of the record array.
+
+    Example
+
+    ```javascript
+    var allPeople = store.all('person');
+    allPeople.mapBy('name'); // ["Tom Dale", "Yehuda Katz", "Trek Glowacki"]
+
+    var people = store.filter('person', function(person) {
+      if (person.get('name').match(/Katz$/)) { return true; }
+    });
+    people.mapBy('name'); // ["Yehuda Katz"]
+
+    var notKatzFilter = function(person) {
+      return !person.get('name').match(/Katz$/);
+    };
+    people.set('filterFunction', notKatzFilter);
+    people.mapBy('name'); // ["Tom Dale", "Trek Glowacki"]
+    ```
+
+    @method filterFunction
+    @param {DS.Model} record
+    @return {Boolean} `true` if the record should be in the array
+  */
   filterFunction: null,
   isLoaded: true,
 
@@ -20,6 +51,10 @@ DS.FilteredRecordArray = DS.RecordArray.extend({
     throw new Error("The result of a client-side filter (on " + type + ") is immutable.");
   },
 
+  /**
+    @method updateFilter
+    @private
+  */
   updateFilter: Ember.observer(function() {
     var manager = get(this, 'manager');
     manager.updateFilter(this, get(this, 'type'), get(this, 'filterFunction'));

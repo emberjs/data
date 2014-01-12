@@ -7,6 +7,11 @@ require("ember-data/system/record_arrays/record_array");
 var get = Ember.get, set = Ember.set;
 
 /**
+  Represents an ordered list of records whose order and membership is
+  determined by the adapter. For example, a query sent to the adapter
+  may trigger a search on the server, whose results would be loaded
+  into an instance of the `AdapterPopulatedRecordArray`.
+
   @class AdapterPopulatedRecordArray
   @namespace DS
   @extends DS.RecordArray
@@ -19,6 +24,11 @@ DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
     throw new Error("The result of a server query (on " + type + ") is immutable.");
   },
 
+  /**
+    @method load
+    @private
+    @param {Array} data
+  */
   load: function(data) {
     var store = get(this, 'store'),
         type = get(this, 'type'),

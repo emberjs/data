@@ -54,6 +54,55 @@ function coerceId(id) {
 */
 DS.RESTSerializer = DS.JSONSerializer.extend({
   /**
+    If you want to do normalizations specific to some part of the payload, you
+    can specify those under `normalizeHash`.
+
+    For example, given the following json where the the `IDs` under
+    `"comments"` are provided as `_id` instead of `id`.
+
+    ```javascript
+    {
+      "post": {
+        "id": 1,
+        "title": "Rails is omakase",
+        "comments": [ 1, 2 ]
+      },
+      "comments": [{
+        "_id": 1,
+        "body": "FIRST"
+      }, {
+        "_id": 2,
+        "body": "Rails is unagi"
+      }]
+    }
+    ```
+
+    You use `normalizeHash` to normalize just the comments:
+
+    ```javascript
+    App.PostSerializer = DS.RESTSerializer.extend({
+      normalizeHash: {
+        comments: function(hash) {
+          hash.id = hash._id;
+          delete hash._id;
+          return hash;
+        }
+      }
+    });
+    ```
+
+    The key under `normalizeHash` is usually just the original key
+    that was in the original payload. However, key names will be
+    impacted by any modifications done in the `normalizePayload`
+    method. The `DS.RESTSerializer`'s default implemention makes no
+    changes to the payload keys.
+
+    @property normalizeHash
+    @type {Object}
+    @default undefined
+  */
+
+  /**
     Normalizes a part of the JSON payload returned by
     the server. You should override this method, munge the hash
     and call super if you have generic normalization to do.
@@ -119,9 +168,10 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   */
   normalize: function(type, hash, prop) {
     this.normalizeId(hash);
-    this.normalizeUsingDeclaredMapping(type, hash);
     this.normalizeAttributes(type, hash);
     this.normalizeRelationships(type, hash);
+
+    this.normalizeUsingDeclaredMapping(type, hash);
 
     if (this.normalizeHash && this.normalizeHash[prop]) {
       this.normalizeHash[prop](hash);
@@ -178,9 +228,13 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     if (attrs) {
       for (key in attrs) {
         payloadKey = attrs[key];
-
-        hash[key] = hash[payloadKey];
-        delete hash[payloadKey];
+        if (payloadKey && payloadKey.key) {
+          payloadKey = payloadKey.key;
+        }
+        if (typeof payloadKey === 'string') {
+          hash[key] = hash[payloadKey];
+          delete hash[payloadKey];
+        }
       }
     }
   },
@@ -519,7 +573,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
           type = store.modelFor(typeName);
 
       /*jshint loopfunc:true*/
-      var normalizedArray = map.call(payload[prop], function(hash) {
+      var normalizedArray = map.call(Ember.makeArray(payload[prop]), function(hash) {
         return this.normalize(type, hash, prop);
       }, this);
 

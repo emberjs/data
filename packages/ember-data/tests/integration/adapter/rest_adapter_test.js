@@ -130,11 +130,16 @@ test("find - payload with an serializer-specified primary key", function() {
 test("find - payload with a serializer-specified attribute mapping", function() {
   env.container.register('serializer:post', DS.RESTSerializer.extend({
     attrs: {
-      'name': '_NAME_'
+      'name': '_NAME_',
+      'createdAt': { key: '_CREATED_AT_', someOtherOption: 'option' }
     }
   }));
 
-  ajaxResponse({ posts: [{ id: 1, _NAME_: "Rails is omakase" }] });
+  Post.reopen({
+    createdAt: DS.attr("number")
+  });
+
+  ajaxResponse({ posts: [{ id: 1, _NAME_: "Rails is omakase", _CREATED_AT_: 2013 }] });
 
   store.find('post', 1).then(async(function(post) {
     equal(passedUrl, "/posts/1");
@@ -143,6 +148,7 @@ test("find - payload with a serializer-specified attribute mapping", function() 
 
     equal(post.get('id'), "1");
     equal(post.get('name'), "Rails is omakase");
+    equal(post.get('createdAt'), 2013);
   }));
 });
 

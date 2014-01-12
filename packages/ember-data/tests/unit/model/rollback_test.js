@@ -112,7 +112,7 @@ test("invalid record can be rollbacked", function() {
 
       return new Ember.RSVP.Promise(function(resolve, reject) {
         Ember.run.next(function(){
-          reject(adapter.ajaxError({}));
+          reject(adapter.ajaxError({name: 'is invalid'}));
         });
       });
     },
