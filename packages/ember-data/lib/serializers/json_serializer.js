@@ -85,11 +85,13 @@ DS.JSONSerializer = Ember.Object.extend({
     ```javascript
     App.ApplicationSerializer = DS.JSONSerializer.extend({
       normalize: function(type, hash) {
-        var normalizedHash = {};
         var fields = Ember.get(type, 'fields');
         fields.forEach(function(field) {
-          var normalizedProp = Ember.String.camelize(field);
-          normalizedHash[normalizedProp] = hash[field];
+          var payloadField = Ember.String.underscore(field);
+          if (field === payloadField) { return; }
+
+          hash[field] = hash[payloadField];
+          delete hash[payloadField];
         });
         return this._super.apply(this, arguments);
       }
