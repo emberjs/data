@@ -10,7 +10,7 @@ task :docs => "ember:docs"
 task :clean => "ember:clean"
 task :dist => "ember:dist"
 task :test, [:suite] => "ember:test"
-task :default => :dist
+task :default => :test
 
 task :publish_build => [:dist, :docs, 'ember:generate_static_test_site'] do
   root_dir = Pathname.new(__FILE__).dirname
