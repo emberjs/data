@@ -3,8 +3,8 @@ Ember.onLoad('Ember.Application', function(Application) {
     name: "activeModelAdapter",
 
     initialize: function(container, application) {
-      application.register('serializer:_ams', DS.ActiveModelSerializer);
-      application.register('adapter:_ams', DS.ActiveModelAdapter);
+      application.register('serializer:active-model', DS.ActiveModelSerializer);
+      application.register('adapter:active-model', DS.ActiveModelAdapter);
     }
   });
 });
