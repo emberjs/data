@@ -784,7 +784,8 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash: function(hash, type, record, options) {
-    hash[type.typeKey] = this.serialize(record, options);
+    var root = Ember.String.camelize(type.typeKey);
+    hash[root] = this.serialize(record, options);
   },
 
   /**
