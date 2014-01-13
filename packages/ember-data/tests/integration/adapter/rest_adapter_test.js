@@ -301,6 +301,33 @@ test("create - a record on the many side of a hasMany relationship should update
   }));
 });
 
+test("create - relationships are not duplicated", function() {
+  var post, comment;
+
+  Post.reopen({ comments: DS.hasMany('comment') });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  post = store.createRecord('post', { name: "Tomtomhuda" });
+  comment = store.createRecord('comment', { id: 2, name: "Comment title" });
+
+  ajaxResponse({ post: [{ id: 1, name: "Rails is omakase", comments: [] }] });
+
+  post.save().then(async(function(post) {
+    equal(post.get('comments.length'), 0, "post has 0 comments");
+    post.get('comments').pushObject(comment);
+    equal(post.get('comments.length'), 1, "post has 1 comment");
+
+    ajaxResponse({
+      post: [{ id: 1, name: "Rails is omakase", comments: [2] }],
+      comments: [{ id: 2, name: "Comment title" }]
+    });
+
+    return post.save();
+  })).then(async(function(post) {
+     equal(post.get('comments.length'), 1, "post has 1 comment");
+  }));
+});
+
 test("update - an empty payload is a basic success", function() {
   store.push('post', { id: 1, name: "Rails is omakase" });
 
