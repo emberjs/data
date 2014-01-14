@@ -219,15 +219,6 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   },
 
   /**
-    @method normalizeType
-    @returns {String} The type normalized.
-    @private
-  */
-  normalizeType: function(type){
-    return this.container.normalize('model:' + type).split(':', 2)[1];
-  },
-
-  /**
     @method normalizeUsingDeclaredMapping
     @private
   */
@@ -369,7 +360,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
     for (var prop in payload) {
       var typeName  = this.typeForRoot(prop),
-          isPrimary = this.normalizeType(typeName) === primaryTypeName;
+          isPrimary = typeName === primaryTypeName;
 
       // legacy support for singular resources
       if (isPrimary && Ember.typeOf(payload[prop]) !== "array" ) {
@@ -524,10 +515,9 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
       }
 
       var typeName = this.typeForRoot(typeKey),
-          normalizedTypeName = this.normalizeType(typeName),
           type = store.modelFor(typeName),
           typeSerializer = store.serializerFor(type),
-          isPrimary = (!forcedSecondary && (normalizedTypeName === primaryTypeName));
+          isPrimary = (!forcedSecondary && (typeName === primaryTypeName));
 
       /*jshint loopfunc:true*/
       var normalizedArray = map.call(payload[prop], function(hash) {
@@ -784,8 +774,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash: function(hash, type, record, options) {
-    var root = Ember.String.camelize(type.typeKey);
-    hash[root] = this.serialize(record, options);
+    hash[type.typeKey] = this.serialize(record, options);
   },
 
   /**

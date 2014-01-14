@@ -497,8 +497,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     @returns {String} path
   **/
   pathForType: function(type) {
-    var camelized = Ember.String.camelize(type);
-    return Ember.String.pluralize(camelized);
+    return Ember.String.pluralize(type);
   },
 
   /**

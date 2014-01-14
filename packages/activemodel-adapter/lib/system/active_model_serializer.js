@@ -4,13 +4,8 @@ require('ember-data/serializers/rest_serializer');
   @module ember-data
 */
 
-var get = Ember.get,
-    forEach = Ember.EnumerableUtils.forEach,
-    camelize =   Ember.String.camelize,
-    capitalize = Ember.String.capitalize,
-    decamelize = Ember.String.decamelize,
-    singularize = Ember.String.singularize,
-    underscore = Ember.String.underscore;
+var get = Ember.get;
+var forEach = Ember.EnumerableUtils.forEach;
 
 DS.ActiveModelSerializer = DS.RESTSerializer.extend({
   // SERIALIZE
@@ -23,7 +18,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     @returns String
   */
   keyForAttribute: function(attr) {
-    return decamelize(attr);
+    return Ember.String.decamelize(attr);
   },
 
   /**
@@ -36,11 +31,11 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     @returns String
   */
   keyForRelationship: function(key, kind) {
-    key = decamelize(key);
+    key = Ember.String.decamelize(key);
     if (kind === "belongsTo") {
       return key + "_id";
     } else if (kind === "hasMany") {
-      return singularize(key) + "_ids";
+      return Ember.String.singularize(key) + "_ids";
     } else {
       return key;
     }
@@ -61,7 +56,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash: function(data, type, record, options) {
-    var root = underscore(decamelize(type.typeKey));
+    var root = Ember.String.decamelize(type.typeKey);
     data[root] = this.serialize(record, options);
   },
 
@@ -77,7 +72,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     var key = relationship.key,
         belongsTo = get(record, key);
     key = this.keyForAttribute(key);
-    json[key + "_type"] = capitalize(belongsTo.constructor.typeKey);
+    json[key + "_type"] = Ember.String.capitalize(belongsTo.constructor.typeKey);
   },
 
   // EXTRACT
@@ -90,8 +85,8 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     @returns String the model's typeKey
   */
   typeForRoot: function(root) {
-    var camelized = camelize(root);
-    return singularize(camelized);
+    var camelized = Ember.String.camelize(root);
+    return Ember.String.singularize(camelized);
   },
 
   /**
@@ -146,7 +141,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
       var links = data.links;
 
       for (var link in links) {
-        var camelizedLink = camelize(link);
+        var camelizedLink = Ember.String.camelize(link);
 
         if (camelizedLink !== link) {
           links[camelizedLink] = links[link];
