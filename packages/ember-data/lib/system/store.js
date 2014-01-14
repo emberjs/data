@@ -253,7 +253,7 @@ DS.Store = Ember.Object.extend({
       title: "Rails is omakase"
     });
 
-    store.deletedRecord(post);
+    store.deleteRecord(post);
     ```
 
     @method deleteRecord
