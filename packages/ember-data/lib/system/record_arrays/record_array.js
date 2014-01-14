@@ -113,7 +113,7 @@ DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
     var store = get(this, 'store'),
         type = get(this, 'type');
 
-    store.fetchAll(type, this);
+    return store.fetchAll(type, this);
   },
 
   /**
