@@ -414,6 +414,8 @@ createdState.uncommitted.rollback = function(record) {
   record.transitionTo('deleted.saved');
 };
 
+createdState.uncommitted.propertyWasReset = Ember.K;
+
 updatedState.uncommitted.deleteRecord = function(record) {
   record.transitionTo('deleted.uncommitted');
   record.clearRelationships();

@@ -149,6 +149,23 @@ test("a defaultValue for an attribite can be a function", function() {
   equal(get(tag, 'createdAt'), "le default value", "the defaultValue function is evaluated");
 });
 
+test("setting a property to undefined on a newly created record should not impact the current state", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var tag = store.createRecord(Tag);
+
+  set(tag, 'name', 'testing');
+  set(tag, 'name', undefined);
+
+  equal(get(tag, 'currentState.stateName'), "root.loaded.created.uncommitted");
+
+  tag = store.createRecord(Tag, {name: undefined});
+
+  equal(get(tag, 'currentState.stateName'), "root.loaded.created.uncommitted");
+});
+
 module("unit/model - with a simple Person model", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
