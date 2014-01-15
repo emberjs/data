@@ -150,7 +150,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var record = store.createRecord(App.Model);
     record.get('isNew'); // true
 
-    store.find('model', 1).then(function(model) {
+    record.save().then(function(model) {
       model.get('isNew'); // false
     });
     ```
