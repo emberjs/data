@@ -1,3 +1,4 @@
+require("ember-data/system/container_proxy");
 require("ember-data/serializers/json_serializer");
 require("ember-data/system/debug/debug_adapter");
 require("ember-data/transforms/index");
@@ -44,6 +45,17 @@ Ember.onLoad('Ember.Application', function(Application) {
 
     initialize: function(container, application) {
       application.register('store:main', application.Store || DS.Store);
+
+      // allow older names to be looked up
+
+      var proxy = new DS.ContainerProxy(container);
+      proxy.registerDeprecations([
+        {deprecated: 'serializer:_default',  valid: 'serializer:default'},
+        {deprecated: 'serializer:_rest',     valid: 'serializer:rest'},
+        {deprecated: 'adapter:_rest',        valid: 'adapter:rest'}
+      ]);
+
+      // new go forward paths
       application.register('serializer:default', DS.JSONSerializer);
       application.register('serializer:rest', DS.RESTSerializer);
       application.register('adapter:rest', DS.RESTAdapter);
