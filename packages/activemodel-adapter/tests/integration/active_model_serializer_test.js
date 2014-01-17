@@ -59,8 +59,8 @@ test("serialize", function() {
   var json = env.amsSerializer.serialize(tom);
 
   deepEqual(json, {
-    first_name:       "Tom",
-    last_name:        "Dale",
+    first_name: "Tom",
+    last_name: "Dale",
     home_planet_id: get(league, "id")
   });
 });
@@ -73,10 +73,25 @@ test("serializeIntoHash", function() {
 
   deepEqual(json, {
     home_planet: {
-      name:   "Umber"
+      name: "Umber"
     }
   });
 });
+
+test("serializeIntoHash with decamelized types", function() {
+  HomePlanet.typeKey = 'home-planet';
+  league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
+  var json = {};
+
+  env.amsSerializer.serializeIntoHash(json, HomePlanet, league);
+
+  deepEqual(json, {
+    home_planet: {
+      name: "Umber"
+    }
+  });
+});
+
 
 test("normalize", function() {
   var superVillain_hash = {first_name: "Tom", last_name: "Dale", home_planet_id: "123", evil_minion_ids: [1,2]};
@@ -84,10 +99,10 @@ test("normalize", function() {
   var json = env.amsSerializer.normalize(SuperVillain, superVillain_hash, "superVillain");
 
   deepEqual(json, {
-    firstName:      "Tom",
-    lastName:       "Dale",
+    firstName: "Tom",
+    lastName: "Dale",
     homePlanet: "123",
-    evilMinions:   [1,2]
+    evilMinions: [1,2]
   });
 });
 
@@ -158,10 +173,20 @@ test("serialize polymorphic", function() {
   var json = env.amsSerializer.serialize(ray);
 
   deepEqual(json, {
-    name:  "DeathRay",
+    name: "DeathRay",
     evil_minion_type: "YellowMinion",
     evil_minion_id: "124"
   });
+});
+
+test("serialize polymorphic when type key is not camelized", function() {
+  YellowMinion.typeKey = 'yellow-minion';
+  var tom = env.store.createRecord(YellowMinion,   {name: "Alex", id: "124"});
+  var ray = env.store.createRecord(DoomsdayDevice, {evilMinion: tom, name: "DeathRay"});
+
+  var json = env.amsSerializer.serialize(ray);
+
+  deepEqual(json["evil_minion_type"], "YellowMinion");
 });
 
 test("extractPolymorphic hasMany", function() {
