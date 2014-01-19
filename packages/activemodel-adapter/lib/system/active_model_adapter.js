@@ -9,6 +9,8 @@ import EmbeddedRecordsMixin from "./embedded_records_mixin";
 */
 
 var forEach = Ember.EnumerableUtils.forEach;
+var decamelize = Ember.String.decamelize,
+    underscore = Ember.String.underscore;
 
 /**
   The ActiveModelAdapter is a subclass of the RESTAdapter designed to integrate
@@ -75,8 +77,9 @@ var ActiveModelAdapter = RESTAdapter.extend({
     @returns String
   */
   pathForType: function(type) {
-    var decamelized = Ember.String.decamelize(type);
-    return pluralize(decamelized);
+    var decamelized = decamelize(type);
+    var underscored = underscore(decamelized);
+    return pluralize(underscored);
   },
 
   /**
@@ -99,12 +102,16 @@ var ActiveModelAdapter = RESTAdapter.extend({
     var error = this._super(jqXHR);
 
     if (jqXHR && jqXHR.status === 422) {
-      var jsonErrors = Ember.$.parseJSON(jqXHR.responseText)["errors"],
+      var response = Ember.$.parseJSON(jqXHR.responseText),
           errors = {};
 
-      forEach(Ember.keys(jsonErrors), function(key) {
-        errors[Ember.String.camelize(key)] = jsonErrors[key];
-      });
+      if (response.errors !== undefined) {
+        var jsonErrors = response.errors;
+
+        forEach(Ember.keys(jsonErrors), function(key) {
+          errors[Ember.String.camelize(key)] = jsonErrors[key];
+        });
+      }
 
       return new InvalidError(errors);
     } else {

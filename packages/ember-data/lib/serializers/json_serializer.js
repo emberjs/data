@@ -10,11 +10,11 @@ function aliasMethod(methodName) {
 
 /**
   In Ember Data a Serializer is used to serialize and deserialize
-  records when they are transfered in and out of an external source.
+  records when they are transferred in and out of an external source.
   This process involves normalizing property names, transforming
-  attribute values and serializeing relationships.
+  attribute values and serializing relationships.
 
-  For maximum performance Ember Data recomends you use the
+  For maximum performance Ember Data recommends you use the
   [RESTSerializer](DS.RESTSerializer.html) or one of its subclasses.
 
   `JSONSerializer` is useful for simpler or legacy backends that may
@@ -26,9 +26,9 @@ function aliasMethod(methodName) {
 var JSONSerializer = Ember.Object.extend({
   /**
     The primaryKey is used when serializing and deserializing
-    data. Ember Data always uses the `id` propery to store the id of
+    data. Ember Data always uses the `id` property to store the id of
     the record. The external source may not always follow this
-    convention. In these cases it is usesful to override the
+    convention. In these cases it is useful to override the
     primaryKey property to match the primaryKey of your external
     store.
 
@@ -85,11 +85,13 @@ var JSONSerializer = Ember.Object.extend({
     ```javascript
     App.ApplicationSerializer = DS.JSONSerializer.extend({
       normalize: function(type, hash) {
-        var normalizedHash = {};
         var fields = Ember.get(type, 'fields');
         fields.forEach(function(field) {
-          var normalizedProp = Ember.String.camelize(field);
-          normalizedHash[normalizedProp] = hash[field];
+          var payloadField = Ember.String.underscore(field);
+          if (field === payloadField) { return; }
+
+          hash[field] = hash[payloadField];
+          delete hash[payloadField];
         });
         return this._super.apply(this, arguments);
       }
@@ -259,7 +261,7 @@ var JSONSerializer = Ember.Object.extend({
       var id = get(record, 'id');
 
       if (id) {
-        json[get(this, 'primaryKey')] = get(record, 'id');
+        json[get(this, 'primaryKey')] = id;
       }
     }
 
@@ -430,7 +432,7 @@ var JSONSerializer = Ember.Object.extend({
     such as the `RESTSerializer` may push records into the store as
     part of the extract call.
 
-    This method deletegates to a more specific extract method based on
+    This method delegates to a more specific extract method based on
     the `requestType`.
 
     Example
@@ -690,7 +692,7 @@ var JSONSerializer = Ember.Object.extend({
 
   /**
    `keyForRelationship` can be used to define a custom key when
-   serializeing relationship properties. By default `JSONSerializer`
+   serializing relationship properties. By default `JSONSerializer`
    does not provide an implementation of this method.
 
    Example

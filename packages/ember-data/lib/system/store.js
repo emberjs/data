@@ -252,7 +252,7 @@ Store = Ember.Object.extend({
       title: "Rails is omakase"
     });
 
-    store.deletedRecord(post);
+    store.deleteRecord(post);
     ```
 
     @method deleteRecord
@@ -400,19 +400,16 @@ Store = Ember.Object.extend({
     if (!get(record, 'isEmpty')) { return null; }
 
     var type = record.constructor,
-        id = get(record, 'id'),
-        resolver = Ember.RSVP.defer("DS: Store#fetchRecord " + record );
-
-    record.loadingData(resolver.promise);
+        id = get(record, 'id');
 
     var adapter = this.adapterFor(type);
 
     Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to find a record but your adapter (for " + type + ") does not implement 'find'", adapter.find);
 
-    resolver.resolve(_find(adapter, this, type, id));
-
-    return resolver.promise;
+    var promise = _find(adapter, this, type, id);
+    record.loadingData(promise);
+    return promise;
   },
 
   /**
@@ -439,8 +436,7 @@ Store = Ember.Object.extend({
   },
 
   /**
-    This method is called by the record's `reload` method. The record's `reload`
-    passes in a resolver for the promise it returns.
+    This method is called by the record's `reload` method.
 
     This method calls the adapter's `find` method, which returns a promise. When
     **that** promise resolves, `reloadRecord` will resolve the promise returned
@@ -647,12 +643,8 @@ Store = Ember.Object.extend({
   findQuery: function(type, query) {
     type = this.modelFor(type);
 
-    var array = DS.AdapterPopulatedRecordArray.create({
-      type: type,
-      query: query,
-      content: Ember.A(),
-      store: this
-    });
+    var array = this.recordArrayManager
+      .createAdapterPopulatedRecordArray(type, query);
 
     var adapter = this.adapterFor(type),
         promiseLabel = "DS: Store#findQuery " + type,
@@ -691,17 +683,14 @@ Store = Ember.Object.extend({
   */
   fetchAll: function(type, array) {
     var adapter = this.adapterFor(type),
-        sinceToken = this.typeMapFor(type).metadata.since,
-        resolver = Ember.RSVP.defer("DS: Store#findAll " + type);
+        sinceToken = this.typeMapFor(type).metadata.since;
 
     set(array, 'isUpdating', true);
 
     Ember.assert("You tried to load all records but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load all records but your adapter does not implement `findAll`", adapter.findAll);
 
-    resolver.resolve(_findAll(adapter, this, type, sinceToken));
-
-    return promiseArray(resolver.promise);
+    return promiseArray(_findAll(adapter, this, type, sinceToken));
   },
 
   /**
@@ -741,14 +730,7 @@ Store = Ember.Object.extend({
 
     if (findAllCache) { return findAllCache; }
 
-    var array = DS.RecordArray.create({
-      type: type,
-      content: Ember.A(),
-      store: this,
-      isLoaded: true
-    });
-
-    this.recordArrayManager.registerFilteredRecordArray(array, type);
+    var array = this.recordArrayManager.createRecordArray(type);
 
     typeMap.findAllCache = array;
     return array;
@@ -769,7 +751,7 @@ Store = Ember.Object.extend({
     type = this.modelFor(type);
 
     var typeMap = this.typeMapFor(type),
-        records = typeMap.records, record;
+        records = typeMap.records.splice(0), record;
 
     while(record = records.pop()) {
       record.unloadRecord();
@@ -829,15 +811,8 @@ Store = Ember.Object.extend({
 
     type = this.modelFor(type);
 
-    var array = DS.FilteredRecordArray.create({
-      type: type,
-      content: Ember.A(),
-      store: this,
-      manager: this.recordArrayManager,
-      filterFunction: filter
-    });
-
-    this.recordArrayManager.registerFilteredRecordArray(array, type, filter);
+    var array = this.recordArrayManager
+      .createFilteredRecordArray(type, filter);
     promise = promise || resolve(array);
 
     return promiseArray(promise.then(function() {

@@ -8,7 +8,7 @@
  by calling a method on the store.
 
  These tests ensure that the proper methods get called, and, if applicable,
- the given record orrecord arrayay changes state appropriately.
+ the given record or record array changes state appropriately.
 */
 
 var get = Ember.get, set = Ember.set;

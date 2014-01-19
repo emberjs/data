@@ -311,9 +311,7 @@ var DirtyState = {
       record.send('invokeLifecycleCallbacks', dirtyType);
     },
 
-    becameInvalid: function(record, errors) {
-      set(record, 'errors', errors);
-
+    becameInvalid: function(record) {
       record.transitionTo('invalid');
       record.send('invokeLifecycleCallbacks');
     },
@@ -338,23 +336,15 @@ var DirtyState = {
     },
 
     didSetProperty: function(record, context) {
-      var errors = get(record, 'errors'),
-          key = context.name;
-
-      set(errors, key, null);
-
-      if (!hasDefinedProperties(errors)) {
-        record.send('becameValid');
-      }
+      get(record, 'errors').remove(context.name);
 
       didSetProperty(record, context);
     },
 
     becomeDirty: Ember.K,
 
-    rollback: function(record) {
-      record.send('becameValid');
-      record.send('rollback');
+    rolledBack: function(record) {
+      get(record, 'errors').clear();
     },
 
     becameValid: function(record) {
@@ -424,6 +414,8 @@ createdState.uncommitted.rollback = function(record) {
   record.transitionTo('deleted.saved');
 };
 
+createdState.uncommitted.propertyWasReset = Ember.K;
+
 updatedState.uncommitted.deleteRecord = function(record) {
   record.transitionTo('deleted.uncommitted');
   record.clearRelationships();
@@ -480,7 +472,7 @@ var RootState = {
     }
   },
 
-  // A record enters this state when the store askes
+  // A record enters this state when the store asks
   // the adapter for its data. It remains in this state
   // until the adapter provides the requested data.
   //

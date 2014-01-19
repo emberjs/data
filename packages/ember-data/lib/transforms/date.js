@@ -63,7 +63,7 @@ var DateTransform = Transform.extend({
     } else {
       return null;
     }
-  } 
+  }
 
 });
 

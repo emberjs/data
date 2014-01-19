@@ -1,4 +1,5 @@
 import RootState from "./states";
+import Errors from "./errors";
 /**
   @module ember-data
 */
@@ -36,7 +37,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   isEmpty: retrieveFromCurrentState,
   /**
     If this property is `true` the record is in the `loading` state. A
-    record enters this state when the store askes the adapter for its
+    record enters this state when the store asks the adapter for its
     data. It remains in this state until the adapter provides the
     requested data.
 
@@ -148,7 +149,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var record = store.createRecord(App.Model);
     record.get('isNew'); // true
 
-    store.find('model', 1).then(function(model) {
+    record.save().then(function(model) {
       model.get('isNew'); // false
     });
     ```
@@ -270,14 +271,14 @@ var Model = Ember.Object.extend(Ember.Evented, {
   /**
     When the record is in the `invalid` state this object will contain
     any errors returned by the adapter. When present the errors hash
-    typically contains keys coresponding to the invalid property names
+    typically contains keys corresponding to the invalid property names
     and values which are an array of error messages.
 
     ```javascript
-    record.get('errors'); // null
+    record.get('errors.length'); // 0
     record.set('foo', 'invalid value');
     record.save().then(null, function() {
-      record.get('errors'); // {foo: ['foo should be a number.']}
+      record.get('errors').get('foo'); // ['foo should be a number.']
     });
     ```
 
@@ -380,7 +381,14 @@ var Model = Ember.Object.extend(Ember.Evented, {
   _data: null,
 
   init: function() {
-    set(this, 'currentState', RootState.empty);
+    set(this, 'currentState', DS.RootState.empty);
+    var errors = Errors.create();
+    errors.registerHandlers(this, function() {
+      this.send('becameInvalid');
+    }, function() {
+      this.send('becameValid');
+    });
+    set(this, 'errors', errors);
     this._super();
     this._setup();
   },
@@ -791,12 +799,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
       this._inFlightAttributes = {};
       set(this, 'isError', false);
     }
-    
+
     if (!get(this, 'isValid')) {
       this._inFlightAttributes = {};
-      this.send('becameValid');
-    } 
-  
+    }
+
     this.send('rolledBack');
 
     this.suspendRelationshipObservers(function() {
@@ -937,7 +944,15 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @private
   */
   adapterDidInvalidate: function(errors) {
-    this.send('becameInvalid', errors);
+    var recordErrors = get(this, 'errors');
+    function addError(name) {
+      if (errors[name]) {
+        recordErrors.add(name, errors[name]);
+      }
+    }
+
+    this.eachAttribute(addError);
+    this.eachRelationship(addError);
   },
 
   /**

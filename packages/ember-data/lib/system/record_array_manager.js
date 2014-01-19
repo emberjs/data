@@ -169,6 +169,65 @@ var RecordArrayManager = Ember.Object.extend({
   },
 
   /**
+    Create a `DS.RecordArray` for a type and register it for updates.
+
+    @method createRecordArray
+    @param {Class} type
+    @return {DS.RecordArray}
+  */
+  createRecordArray: function(type) {
+    var array = DS.RecordArray.create({
+      type: type,
+      content: Ember.A(),
+      store: this.store,
+      isLoaded: true
+    });
+
+    this.registerFilteredRecordArray(array, type);
+
+    return array;
+  },
+
+  /**
+    Create a `DS.FilteredRecordArray` for a type and register it for updates.
+
+    @method createFilteredRecordArray
+    @param {Class} type
+    @param {Function} filter
+    @return {DS.FilteredRecordArray}
+  */
+  createFilteredRecordArray: function(type, filter) {
+    var array = DS.FilteredRecordArray.create({
+      type: type,
+      content: Ember.A(),
+      store: this.store,
+      manager: this,
+      filterFunction: filter
+    });
+
+    this.registerFilteredRecordArray(array, type, filter);
+
+    return array;
+  },
+
+  /**
+    Create a `DS.AdapterPopulatedRecordArray` for a type with given query.
+
+    @method createAdapterPopulatedRecordArray
+    @param {Class} type
+    @param {Object} query
+    @return {DS.AdapterPopulatedRecordArray}
+  */
+  createAdapterPopulatedRecordArray: function(type, query) {
+    return DS.AdapterPopulatedRecordArray.create({
+      type: type,
+      query: query,
+      content: Ember.A(),
+      store: this.store
+    });
+  },
+
+  /**
     Register a RecordArray for a given type to be backed by
     a filter function. This will cause the array to update
     automatically when records of that type change attribute

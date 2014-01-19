@@ -11,7 +11,7 @@ var forEach = Ember.EnumerableUtils.forEach;
   @class RelationshipChange
   @namespace DS
   @private
-  @construtor
+  @constructor
 */
 var RelationshipChange = function(options) {
   this.parentRecord = options.parentRecord;
@@ -32,7 +32,7 @@ var RelationshipChange = function(options) {
   @class RelationshipChangeAdd
   @namespace DS
   @private
-  @construtor
+  @constructor
 */
 var RelationshipChangeAdd = function(options){
   RelationshipChange.call(this, options);
@@ -42,7 +42,7 @@ var RelationshipChangeAdd = function(options){
   @class RelationshipChangeRemove
   @namespace DS
   @private
-  @construtor
+  @constructor
 */
 var RelationshipChangeRemove = function(options){
   RelationshipChange.call(this, options);

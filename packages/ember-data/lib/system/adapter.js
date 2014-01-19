@@ -25,7 +25,7 @@ var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'n
 
       if (jqXHR && jqXHR.status === 422) {
         var jsonErrors = Ember.$.parseJSON(jqXHR.responseText)["errors"];
-        return new DS.InvalidError(errors);
+        return new DS.InvalidError(jsonErrors);
       } else {
         return error;
       }
@@ -68,7 +68,7 @@ InvalidError.prototype = Ember.create(Error.prototype);
 
   ```javascript
   App.store = DS.Store.create({
-    adapter: App.MyAdapter.create()
+    adapter: 'MyAdapter'
   });
   ```
 
@@ -98,6 +98,25 @@ InvalidError.prototype = Ember.create(Error.prototype);
 */
 
 var Adapter = Ember.Object.extend({
+
+  /**
+    If you would like your adapter to use a custom serializer you can
+    set the `defaultSerializer` property to be the name of the custom
+    serializer.
+
+    Note the `defaultSerializer` serializer has a lower priority then
+    a model specific serializer (i.e. `PostSerializer`) or the
+    `application` serializer.
+
+    ```javascript
+    var DjangoAdapter = DS.Adapter.extend({
+      defaultSerializer: 'django'
+    });
+    ```
+
+    @property defaultSerializer
+    @type {String}
+  */
 
   /**
     The `find()` method is invoked when the store is asked for a record that
@@ -237,19 +256,7 @@ var Adapter = Ember.Object.extend({
         var data = this.serialize(record, { includeId: true });
         var url = type;
 
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-          jQuery.ajax({
-            type: 'POST',
-            url: url,
-            dataType: 'json',
-            data: data
-          }).then(function(data) {
-            Ember.run(null, resolve, data);
-          }, function(jqXHR) {
-            jqXHR.then = null; // tame jQuery's ill mannered promises
-            Ember.run(null, reject, jqXHR);
-          });
-        });
+        // ...
       }
     });
     ```
