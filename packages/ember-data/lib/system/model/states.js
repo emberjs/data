@@ -661,7 +661,11 @@ var RootState = {
       invokeLifecycleCallbacks: function(record) {
         record.triggerLater('didDelete', record);
         record.triggerLater('didCommit', record);
-      }
+      },
+
+      willCommit: Ember.K,
+
+      didCommit: Ember.K
     }
   },
 

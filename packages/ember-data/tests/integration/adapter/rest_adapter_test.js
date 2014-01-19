@@ -460,6 +460,20 @@ test("delete - a payload with sideloaded updates pushes the updates", function()
   }));
 });
 
+test("delete - deleting a newly created record should not throw an error", function() {
+  var post = store.createRecord('post');
+
+  post.deleteRecord();
+  post.save().then(async(function(post) {
+    equal(passedUrl, null, "There is no ajax call to delete a record that has never been saved.");
+    equal(passedVerb, null, "There is no ajax call to delete a record that has never been saved.");
+    equal(passedHash, null, "There is no ajax call to delete a record that has never been saved.");
+
+    equal(post.get('isDeleted'), true, "the post is now deleted");
+    equal(post.get('isError'), false, "the post is not an error");
+  }));
+});
+
 test("findAll - returning an array populates the array", function() {
   ajaxResponse({
     posts: [
