@@ -167,7 +167,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     The `find` method makes an Ajax request to a URL computed by `buildURL`, and returns a
     promise for the resulting payload.
 
-    This method performs an HTTP `GET` request with the id provided as part of the querystring.
+    This method performs an HTTP `GET` request with the id provided as part of the query string.
 
     @method find
     @param {DS.Store} store
@@ -502,7 +502,7 @@ DS.RESTAdapter = DS.Adapter.extend({
   },
 
   /**
-    Takes an ajax response, and returns a relavant error.
+    Takes an ajax response, and returns a relevant error.
 
     Returning a `DS.InvalidError` from this method will cause the
     record to transition into the `invalid` state and make the
@@ -563,7 +563,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     @method ajax
     @private
     @param {String} url
-    @param {String} type The request type GET, POST, PUT, DELETE ect.
+    @param {String} type The request type GET, POST, PUT, DELETE etc.
     @param {Object} hash
     @return {Promise} promise
   */
@@ -589,7 +589,7 @@ DS.RESTAdapter = DS.Adapter.extend({
     @method ajaxOptions
     @private
     @param {String} url
-    @param {String} type The request type GET, POST, PUT, DELETE ect.
+    @param {String} type The request type GET, POST, PUT, DELETE etc.
     @param {Object} hash
     @return {Object} hash
   */

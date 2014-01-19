@@ -38,7 +38,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   isEmpty: retrieveFromCurrentState,
   /**
     If this property is `true` the record is in the `loading` state. A
-    record enters this state when the store askes the adapter for its
+    record enters this state when the store asks the adapter for its
     data. It remains in this state until the adapter provides the
     requested data.
 
@@ -272,7 +272,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   /**
     When the record is in the `invalid` state this object will contain
     any errors returned by the adapter. When present the errors hash
-    typically contains keys coresponding to the invalid property names
+    typically contains keys corresponding to the invalid property names
     and values which are an array of error messages.
 
     ```javascript

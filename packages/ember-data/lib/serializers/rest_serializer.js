@@ -94,7 +94,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     The key under `normalizeHash` is usually just the original key
     that was in the original payload. However, key names will be
     impacted by any modifications done in the `normalizePayload`
-    method. The `DS.RESTSerializer`'s default implemention makes no
+    method. The `DS.RESTSerializer`'s default implementation makes no
     changes to the payload keys.
 
     @property normalizeHash

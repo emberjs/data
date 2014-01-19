@@ -472,7 +472,7 @@ var RootState = {
     }
   },
 
-  // A record enters this state when the store askes
+  // A record enters this state when the store asks
   // the adapter for its data. It remains in this state
   // until the adapter provides the requested data.
   //

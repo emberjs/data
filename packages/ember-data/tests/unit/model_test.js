@@ -136,7 +136,7 @@ test("a DS.Model can have a defaultValue", function() {
   equal(get(tag, 'name'), null, "null doesn't shadow defaultValue");
 });
 
-test("a defaultValue for an attribite can be a function", function() {
+test("a defaultValue for an attribute can be a function", function() {
   var Tag = DS.Model.extend({
     createdAt: DS.attr('string', {
       defaultValue: function() {

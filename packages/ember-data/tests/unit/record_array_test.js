@@ -150,11 +150,11 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
 test("a record array should return a promise when updating", function() {
   var env = setupStore({ person: Person }),
       store = env.store, recordArray, promise;
-  
+
   env.adapter.findAll = function(store, type, query, recordArray) {
     return Ember.RSVP.resolve(array);
   };
-  
+
   recordArray = store.all(Person);
   promise = recordArray.update();
   ok((promise.then && typeof promise.then === "function"), "#update returns a promise");
