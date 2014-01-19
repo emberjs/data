@@ -62,6 +62,6 @@ DS.DateTransform = DS.Transform.extend({
     } else {
       return null;
     }
-  } 
+  }
 
 });
