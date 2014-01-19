@@ -13,6 +13,7 @@
     "matchdep": "~0.3.0",
     "grunt-contrib-jshint": "~0.8.0",
     "grunt-contrib-qunit": "~0.3.0",
-    "grunt-contrib-connect": "~0.6.0"
+    "grunt-contrib-connect": "~0.6.0",
+    "grunt-contrib-watch": "~0.5.3"
   }
 }

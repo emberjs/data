@@ -13,5 +13,15 @@ module.exports = function(grunt){
 
   grunt.initConfig(config);
 
-  grunt.registerTask('default', [ 'clean', 'transpile:amd', 'concat:globals', 'browser:dist', 'jshint', 'concat:tests', 'connect', 'qunit' ]);
+  grunt.registerTask('buildPackages', [
+    'clean',
+    'transpile:amd',
+    'concat:globals',
+    'browser:dist',
+    'jshint'
+  ]);
+
+  grunt.registerTask('buildTests', ['concat:tests']);
+  grunt.registerTask('dev', [ 'connect', 'watch' ]);
+  grunt.registerTask('default', ['buildPackages', 'buildTests', 'connect', 'qunit']);
 };

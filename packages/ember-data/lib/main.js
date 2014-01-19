@@ -9,7 +9,7 @@ import DS from "./core";
 import "./ext/date";
 
 import {Store, PromiseArray, PromiseObject} from "./system/store";
-import {Model, RootState, attr} from "./system/model";
+import {Model, Errors, RootState, attr} from "./system/model";
 import {
   AttributeChange,
   RelationshipChange,
@@ -57,6 +57,7 @@ DS.PromiseObject = PromiseObject;
 DS.Model     = Model;
 DS.RootState = RootState;
 DS.attr      = attr;
+DS.Errors    = Errors;
 
 DS.AttributeChange       = AttributeChange;
 DS.RelationshipChange    = RelationshipChange;
