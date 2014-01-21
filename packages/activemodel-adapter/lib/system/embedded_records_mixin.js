@@ -363,6 +363,14 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     }, this);
 
     return this._super(store, primaryType, payload);
+  },
+
+  keyForEmbedded: function(relationship, data) {
+    if(relationship.options.polymorphic) {
+      return Ember.String.camelize(data.type);
+    } else {
+      return relationship.type.typeKey;
+    }
   }
 });
 
@@ -434,7 +442,6 @@ function updatePayloadWithEmbeddedHasMany(serializer, store, primaryType, relati
   var attr = relationship.type.typeKey;
   // underscore forces the embedded records to be side loaded.
   // it is needed when main type === relationship.type
-  var embeddedTypeKey = '_' + serializer.typeForRoot(relationship.type.typeKey);
   var expandedKey = serializer.keyForRelationship(primaryType, relationship.kind);
   var attribute  = serializer.keyForAttribute(primaryType);
   var ids = [];
@@ -443,17 +450,38 @@ function updatePayloadWithEmbeddedHasMany(serializer, store, primaryType, relati
     return;
   }
 
-  payload[embeddedTypeKey] = payload[embeddedTypeKey] || [];
+  if(relationship.options.polymorphic) {
+    expandedKey = Ember.String.underscore(primaryType);
+  } else {
+    expandedKey = serializer.keyForRelationship(primaryType, relationship.kind);
+  }
 
   forEach(partial[attribute], function(data) {
-    var embeddedType = store.modelFor(attr);
+    var id,
+        typeKey = serializer.keyForEmbedded(relationship, data),
+        embeddedType = store.modelFor(attr),
+        embeddedTypeKey = '_' + serializer.typeForRoot(typeKey);
+
     updatePayloadWithEmbedded(embeddedSerializer, store, embeddedType, payload, data);
-    ids.push(data[primaryKey]);
+
+    if(relationship.options.polymorphic) {
+      id = {
+        type: Ember.String.underscore(typeKey),
+        id: data[primaryKey]
+      };
+    } else {
+      id = data[primaryKey];
+    }
+
+    ids.push(id);
+    payload[embeddedTypeKey] = payload[embeddedTypeKey] || [];
     payload[embeddedTypeKey].push(data);
   });
 
   partial[expandedKey] = ids;
-  delete partial[attribute];
+  if(expandedKey !== attribute) {
+    delete partial[attribute];
+  }
 }
 
 // handles embedding for `belongsTo` relationship
