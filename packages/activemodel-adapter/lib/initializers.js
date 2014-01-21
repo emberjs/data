@@ -7,12 +7,12 @@ Ember.onLoad('Ember.Application', function(Application) {
     initialize: function(container, application) {
       var proxy = new DS.ContainerProxy(container);
       proxy.registerDeprecations([
-        {deprecated: 'serializer:_ams',  valid: 'serializer:active-model'},
-        {deprecated: 'adapter:_ams',     valid: 'adapter:active-model'}
+        {deprecated: 'serializer:_ams',  valid: 'serializer:-active-model'},
+        {deprecated: 'adapter:_ams',     valid: 'adapter:-active-model'}
       ]);
 
-      application.register('serializer:active-model', DS.ActiveModelSerializer);
-      application.register('adapter:active-model', DS.ActiveModelAdapter);
+      application.register('serializer:-active-model', DS.ActiveModelSerializer);
+      application.register('adapter:-active-model', DS.ActiveModelAdapter);
     }
   });
 });
