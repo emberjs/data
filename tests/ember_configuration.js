@@ -66,14 +66,14 @@
       adapter: adapter
     }));
 
-    container.register('serializer:default', DS.JSONSerializer);
-    container.register('serializer:rest', DS.RESTSerializer);
-    container.register('adapter:rest', DS.RESTAdapter);
+    container.register('serializer:-default', DS.JSONSerializer);
+    container.register('serializer:-rest', DS.RESTSerializer);
+    container.register('adapter:-rest', DS.RESTAdapter);
 
     container.injection('serializer', 'store', 'store:main');
 
-    env.serializer = container.lookup('serializer:default');
-    env.restSerializer = container.lookup('serializer:rest');
+    env.serializer = container.lookup('serializer:-default');
+    env.restSerializer = container.lookup('serializer:-rest');
     env.store = container.lookup('store:main');
     env.adapter = env.store.get('defaultAdapter');
 

@@ -58,7 +58,7 @@ var forEach = Ember.EnumerableUtils.forEach;
 **/
 
 DS.ActiveModelAdapter = DS.RESTAdapter.extend({
-  defaultSerializer: 'active-model',
+  defaultSerializer: '-active-model',
   /**
     The ActiveModelAdapter overrides the `pathForType` method to build
     underscored URLs by decamelizing and pluralizing the object type name.

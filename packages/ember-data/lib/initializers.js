@@ -50,15 +50,15 @@ Ember.onLoad('Ember.Application', function(Application) {
 
       var proxy = new DS.ContainerProxy(container);
       proxy.registerDeprecations([
-        {deprecated: 'serializer:_default',  valid: 'serializer:default'},
-        {deprecated: 'serializer:_rest',     valid: 'serializer:rest'},
-        {deprecated: 'adapter:_rest',        valid: 'adapter:rest'}
+        {deprecated: 'serializer:_default',  valid: 'serializer:-default'},
+        {deprecated: 'serializer:_rest',     valid: 'serializer:-rest'},
+        {deprecated: 'adapter:_rest',        valid: 'adapter:-rest'}
       ]);
 
       // new go forward paths
-      application.register('serializer:default', DS.JSONSerializer);
-      application.register('serializer:rest', DS.RESTSerializer);
-      application.register('adapter:rest', DS.RESTAdapter);
+      application.register('serializer:-default', DS.JSONSerializer);
+      application.register('serializer:-rest', DS.RESTSerializer);
+      application.register('adapter:-rest', DS.RESTAdapter);
 
       // Eagerly generate the store so defaultStore is populated.
       // TODO: Do this in a finisher hook
