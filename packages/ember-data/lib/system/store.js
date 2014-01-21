@@ -118,7 +118,7 @@ DS.Store = Ember.Object.extend({
     @default DS.RESTAdapter
     @type {DS.Adapter|String}
   */
-  adapter: '_rest',
+  adapter: '-rest',
 
   /**
     Returns a JSON representation of the record using a custom
@@ -159,7 +159,7 @@ DS.Store = Ember.Object.extend({
     Ember.assert('You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a name or a factory', !(adapter instanceof DS.Adapter));
 
     if (typeof adapter === 'string') {
-      adapter = this.container.lookup('adapter:' + adapter) || this.container.lookup('adapter:application') || this.container.lookup('adapter:_rest');
+      adapter = this.container.lookup('adapter:' + adapter) || this.container.lookup('adapter:application') || this.container.lookup('adapter:-rest');
     }
 
     if (DS.Adapter.detect(adapter)) {
@@ -1548,12 +1548,12 @@ function serializerFor(container, type, defaultSerializer) {
   return container.lookup('serializer:'+type) ||
                  container.lookup('serializer:application') ||
                  container.lookup('serializer:' + defaultSerializer) ||
-                 container.lookup('serializer:_default');
+                 container.lookup('serializer:-default');
 }
 
 function defaultSerializer(container) {
   return container.lookup('serializer:application') ||
-         container.lookup('serializer:_default');
+         container.lookup('serializer:-default');
 }
 
 function serializerForAdapter(adapter, type) {

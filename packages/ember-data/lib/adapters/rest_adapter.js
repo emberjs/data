@@ -109,7 +109,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
   @extends DS.Adapter
 */
 DS.RESTAdapter = DS.Adapter.extend({
-  defaultSerializer: '_rest',
+  defaultSerializer: '-rest',
 
 
   /**
