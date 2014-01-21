@@ -240,7 +240,9 @@ DS.OneToManyChange.createChange = function(childRecord, parentRecord, store, opt
   // definition.
   if (options.parentType) {
     key = options.parentType.inverseFor(options.key).name;
-    DS.OneToManyChange.maintainInvariant( options, store, childRecord, key );
+    if (parentRecord !== get(childRecord, key)) {
+      DS.OneToManyChange.maintainInvariant( options, store, childRecord, key );
+    }
   } else if (options.key) {
     key = options.key;
   } else {
@@ -355,11 +357,6 @@ DS.RelationshipChange.prototype = {
 DS.RelationshipChangeAdd.prototype = Ember.create(DS.RelationshipChange.create({}));
 DS.RelationshipChangeRemove.prototype = Ember.create(DS.RelationshipChange.create({}));
 
-// the object is a value, and not a promise
-function isValue(object) {
-  return typeof object === 'object' && (!object.then || typeof object.then !== 'function');
-}
-
 DS.RelationshipChangeAdd.prototype.changeType = "add";
 DS.RelationshipChangeAdd.prototype.sync = function() {
   var secondRecordName = this.getSecondRecordName(),
@@ -376,26 +373,62 @@ DS.RelationshipChangeAdd.prototype.sync = function() {
         set(secondRecord, secondRecordName, firstRecord);
       });
 
-     }
-     else if(this.secondRecordKind === "hasMany"){
-      secondRecord.suspendRelationshipObservers(function(){
-        var relationship = get(secondRecord, secondRecordName);
-        if (isValue(relationship)) { relationship.addObject(firstRecord); }
-      });
+    }
+    else if(this.secondRecordKind === "hasMany"){
+      var secondRecordIsNew = get(secondRecord, 'isNew'),
+          secondRelationshipIsNotAsync = !secondRecord.constructor.metaForProperty(secondRecordName).options.async,
+          secondRelationshipIsLoaded = secondRecord._relationships[secondRecordName] !== undefined;
+
+      if ((secondRelationshipIsNotAsync || secondRecordIsNew || secondRelationshipIsLoaded) && get(secondRecord, secondRecordName)) {
+        if (isThenable(get(secondRecord, secondRecordName))) {
+          get(secondRecord, secondRecordName).then(function(resolved) {
+            secondRecord.suspendRelationshipObservers(function(){
+              resolved.addObject(firstRecord);
+            });
+          });
+        } else {
+          secondRecord.suspendRelationshipObservers(function(){
+            get(secondRecord, secondRecordName).addObject(firstRecord);
+          });
+        }
+      }
     }
   }
 
-  if (firstRecord instanceof DS.Model && secondRecord instanceof DS.Model && get(firstRecord, firstRecordName) !== secondRecord) {
-    if(this.firstRecordKind === "belongsTo"){
-      firstRecord.suspendRelationshipObservers(function(){
-        set(firstRecord, firstRecordName, secondRecord);
-      });
-    }
-    else if(this.firstRecordKind === "hasMany"){
-      firstRecord.suspendRelationshipObservers(function(){
-        var relationship = get(firstRecord, firstRecordName);
-        if (isValue(relationship)) { relationship.addObject(secondRecord); }
-      });
+  if (firstRecord instanceof DS.Model && secondRecord instanceof DS.Model) {
+    var firstRecordIsNew = get(firstRecord, 'isNew'),
+        firstRelationshipIsNotAsync = !firstRecord.constructor.metaForProperty(firstRecordName).options.async,
+        firstRelationshipIsLoaded = firstRecord._relationships[firstRecordName] !== undefined;
+
+    if ((firstRelationshipIsNotAsync || firstRecordIsNew || firstRelationshipIsLoaded) && get(firstRecord, firstRecordName) !== secondRecord) {
+      if(this.firstRecordKind === "belongsTo"){
+        firstRecord.suspendRelationshipObservers(function(){
+          set(firstRecord, firstRecordName, secondRecord);
+        });
+      }
+      else if(this.firstRecordKind === "hasMany"){
+        var hasManyRelationship = get(firstRecord, firstRecordName),
+            isManyToMany = this.secondRecordKind === "hasMany",
+            isLoading, dirtyForManyToManyChange;
+
+        if (isThenable(hasManyRelationship)) {
+          isLoading = get(hasManyRelationship, 'isPending');
+          dirtyForManyToManyChange = isManyToMany && !isLoading;
+
+          hasManyRelationship.then(function(resolved) {
+            firstRecord.suspendRelationshipObservers(function(){
+              resolved.addObject(secondRecord);
+            });
+            if (dirtyForManyToManyChange) { firstRecord.send('becomeDirty'); }
+          });
+        } else {
+          isLoading = get(hasManyRelationship, 'isUpdating');
+          dirtyForManyToManyChange = isManyToMany && !isLoading;
+          firstRecord.suspendRelationshipObservers(function(){
+            hasManyRelationship.addObject(secondRecord);
+          });
+        }
+      }
     }
   }
 
@@ -413,32 +446,48 @@ DS.RelationshipChangeRemove.prototype.sync = function() {
   //Ember.assert("You specified a belongsTo (" + belongsToName + ") on " + child.constructor + " but did not specify an inverse hasMany on " + (!hasManyName && (newParent || oldParent || this.lastParentRecord).constructor), hasManyName);
 
   if (secondRecord instanceof DS.Model && firstRecord instanceof DS.Model) {
-    if(this.secondRecordKind === "belongsTo"){
-      secondRecord.suspendRelationshipObservers(function(){
+    if (this.secondRecordKind === "belongsTo"){
+      secondRecord.suspendRelationshipObservers(function() {
         set(secondRecord, secondRecordName, null);
       });
     }
-    else if(this.secondRecordKind === "hasMany"){
-      secondRecord.suspendRelationshipObservers(function(){
-        var relationship = get(secondRecord, secondRecordName);
-        if (isValue(relationship)) { relationship.removeObject(firstRecord); }
-      });
+    else if (this.secondRecordKind === "hasMany"){
+      var secondRecordIsNew = get(secondRecord, 'isNew'),
+          secondRelationshipIsNotAsync = !secondRecord.constructor.metaForProperty(secondRecordName).options.async,
+          secondRelationshipIsResolved = secondRecord._relationships[secondRecordName] !== undefined;
+
+      if ((secondRelationshipIsNotAsync || secondRecordIsNew || secondRelationshipIsResolved)) {
+        secondRecord.suspendRelationshipObservers(function() {
+          get(secondRecord, secondRecordName).removeObject(firstRecord);
+        });
+      }
     }
   }
 
-  if (firstRecord instanceof DS.Model && get(firstRecord, firstRecordName)) {
-    if(this.firstRecordKind === "belongsTo"){
-      firstRecord.suspendRelationshipObservers(function(){
-        set(firstRecord, firstRecordName, null);
-      });
-     }
-     else if(this.firstRecordKind === "hasMany"){
-       firstRecord.suspendRelationshipObservers(function(){
-         var relationship = get(firstRecord, firstRecordName);
-         if (isValue(relationship)) { relationship.removeObject(secondRecord); }
-      });
+  if (firstRecord instanceof DS.Model) {
+    var firstRecordIsNew = get(firstRecord, 'isNew'),
+        firstRelationshipIsNotAsync = !firstRecord.constructor.metaForProperty(firstRecordName).options.async,
+        firstRelationshipIsResolved = firstRecord._relationships[firstRecordName] !== undefined;
+
+    if ((firstRelationshipIsNotAsync || firstRecordIsNew || firstRelationshipIsResolved) && get(firstRecord, firstRecordName)) {
+      if (this.firstRecordKind === "belongsTo") {
+        firstRecord.suspendRelationshipObservers(function() {
+          set(firstRecord, firstRecordName, null);
+        });
+      } else if (this.firstRecordKind === "hasMany"){
+        firstRecord.suspendRelationshipObservers(function() {
+          get(firstRecord, firstRecordName).removeObject(secondRecord);
+        });
+        if (this.secondRecordKind === "hasMany") {
+          firstRecord.send('becomeDirty');
+        }
+      }
     }
   }
 
   this.coalesce();
 };
+
+function isThenable(object) {
+  return object && typeof object.then === 'function';
+}

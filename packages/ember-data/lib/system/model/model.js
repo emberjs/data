@@ -699,7 +699,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var hasMany = this._relationships[key];
 
     if (hasMany) {
-      var records = this._data[key] || [];
+      var records = this._data[key] ? this._data[key].slice() : [];
 
       set(hasMany, 'content', Ember.A(records));
       set(hasMany, 'isLoaded', true);
@@ -733,7 +733,6 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
     this.eachRelationship(function(name, rel) {
       if (data.links && data.links[name]) { return; }
-      if (rel.options.async) { relationships[name] = null; }
     });
 
     if (data) { this.pushedData(); }
@@ -805,11 +804,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       this._inFlightAttributes = {};
     }
 
-    this.send('rolledBack');
+    this._relationships = {};
 
-    this.suspendRelationshipObservers(function() {
-      this.notifyPropertyChange('data');
-    });
+    this.notifyPropertyChange('data');
+
+    this.send('rolledBack');
   },
 
   toStringExtension: function() {

@@ -273,18 +273,19 @@ DS.attr = function(type, options) {
 
   return Ember.computed(function(key, value) {
     if (arguments.length > 1) {
-      Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
-      var oldValue = this._attributes[key] || this._inFlightAttributes[key] || this._data[key];
+      value = (value === undefined ? null : value);
 
+      Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
+
+      var oldValue = this._attributes[key] || this._inFlightAttributes[key] || this._data[key];
       this.send('didSetProperty', {
+        meta: meta,
         name: key,
         oldValue: oldValue,
         originalValue: this._data[key],
         value: value
       });
-
-      this._attributes[key] = value;
-      return value;
+      return this._attributes[key] = value;
     } else if (hasValue(this, key)) {
       return getValue(this, key);
     } else {

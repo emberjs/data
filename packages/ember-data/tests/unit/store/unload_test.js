@@ -65,8 +65,6 @@ test("can commit store after unload record with relationships", function() {
     })
   });
 
-  var like, product, brand;
-
   var Brand = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -89,7 +87,7 @@ test("can commit store after unload record with relationships", function() {
   });
 
   asyncRecords.then(async(function(records) {
-    like = store.createRecord(Like, { id: 1, product: product });
+    var like = store.createRecord(Like, { id: 1, product: records.product });
     records.like = like.save();
     return Ember.RSVP.hash(records);
   })).then(async(function(records) {
