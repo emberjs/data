@@ -789,7 +789,7 @@ DS.Store = Ember.Object.extend({
     }).then(function(unreadPosts) {
       unreadPosts.get('length'); // 5
       var unreadPost = unreadPosts.objectAt(0);
-      unreadPosts.set('unread', false);
+      unreadPost.set('unread', false);
       unreadPosts.get('length'); // 4
     });
     ```
