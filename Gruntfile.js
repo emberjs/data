@@ -23,5 +23,5 @@ module.exports = function(grunt){
 
   grunt.registerTask('buildTests', ['concat:tests']);
   grunt.registerTask('dev', [ 'connect', 'watch' ]);
-  grunt.registerTask('default', ['buildPackages', 'buildTests', 'connect', 'qunit']);
+  grunt.registerTask('default', ['buildPackages', 'buildTests', 'connect', 'qunit', 'uglify']);
 };

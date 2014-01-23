@@ -1,3 +1,5 @@
+var grunt = require('grunt');
+
 module.exports = {
   amd: {
     src: [ 'tmp/**/*.amd.js' ],
