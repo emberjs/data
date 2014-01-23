@@ -5,6 +5,8 @@ install:
 - "bin/cached-npm install"
 - "bin/cached-bundle install --deployment"
 - sudo apt-get update && sudo apt-get install git
+- "bin/cached-npm install -g grunt-cli bower"
+- "bower install"
 script: grunt
 after_success: bundle exec rake publish_build
 env:
