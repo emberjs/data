@@ -50,6 +50,8 @@ import {
 import {hasMany, belongsTo} from "./system/relationships";
 import "./initializers";
 
+import ContainerProxy from "./system/container_proxy";
+
 DS.Store         = Store;
 DS.PromiseArray  = PromiseArray;
 DS.PromiseObject = PromiseObject;
@@ -97,5 +99,7 @@ DS.EmbeddedRecordsMixin  = EmbeddedRecordsMixin;
 
 DS.belongsTo = belongsTo;
 DS.hasMany   = hasMany;
+
+DS.ContainerProxy = ContainerProxy;
 
 export default DS;
