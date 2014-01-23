@@ -1,7 +1,7 @@
 import {JSONSerializer, RESTSerializer} from "./serializers";
 import {RESTAdapter} from "./adapters";
 import DebugAdapter from "./system/debug/debug_adapter";
-import ContainerFactory from "./system/container_proxy";
+import ContainerProxy from "./system/container_proxy";
 import {
   BooleanTransform,
   DateTransform,

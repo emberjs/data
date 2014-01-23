@@ -94,4 +94,3 @@ test("a deprecation is made when looking up adapter:_rest", function(){
     container.lookup('serializer:_default');
   },"You tried to look up 'serializer:_default', but this has been deprecated in favor of 'serializer:-default'.");
 });
->>>>>>> 58451d1ca50d9ef88c4e397afccc6a0a79622645

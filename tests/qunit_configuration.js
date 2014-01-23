@@ -151,67 +151,216 @@
     return str + "\n" + len + ' error' + ((len === 1) ? '' : 's');
   };
 
-  // Add `expectAssertion` which replaces
-  // `raises` to detect uncatchable assertions
-  function expectAssertion(fn, expectedMessage) {
-    var originalAssert = Ember.assert,
-      actualMessage, actualTest,
-      arity, sawAssertion;
+  // A light class for stubbing
+  //
+  function MethodCallExpectation(target, property){
+    this.target = target;
+    this.property = property;
+  };
 
-    var AssertionFailedError = new Error('AssertionFailed');
-
-    try {
-      Ember.assert = function(message, test) {
-        arity = arguments.length;
-        actualMessage = message;
-        actualTest = test;
-
-        if (!test) {
-          throw AssertionFailedError;
-        }
+  MethodCallExpectation.prototype = {
+    handleCall: function(){
+      this.sawCall = true;
+      return this.originalMethod.apply(this.target, arguments);
+    },
+    stubMethod: function(fn){
+      var context = this;
+      this.originalMethod = this.target[this.property];
+      this.target[this.property] = function(){
+        return context.handleCall.apply(context, arguments);
       };
-
+    },
+    restoreMethod: function(){
+      this.target[this.property] = this.originalMethod;
+    },
+    runWithStub: function(fn){
       try {
+        this.stubMethod();
         fn();
-      } catch(error) {
-        if (error === AssertionFailedError) {
-          sawAssertion = true;
-        } else {
-          throw error;
-        }
+      } finally {
+        this.restoreMethod();
       }
-
-      if (!sawAssertion) {
-        ok(false, "Expected Ember.assert: '" + expectedMessage + "', but no assertions were run");
-      } else if (arity === 2) {
-
-        if (expectedMessage) {
-          if (expectedMessage instanceof RegExp) {
-            ok(expectedMessage.test(actualMessage), "Expected Ember.assert: '" + expectedMessage + "', but got '" + actualMessage + "'");
-          }else{
-            equal(actualMessage, expectedMessage, "Expected Ember.assert: '" + expectedMessage + "', but got '" + actualMessage + "'");
-          }
-        } else {
-          ok(!actualTest);
-        }
-      } else if (arity === 1) {
-        ok(!actualTest);
-      } else {
-        ok(false, 'Ember.assert was called without the assertion');
-      }
-
-    } finally {
-      Ember.assert = originalAssert;
+    },
+    assert: function(fn) {
+      this.runWithStub();
+      ok(this.sawCall, "Expected "+this.property+" to be called.");
     }
-  }
+  };
 
-  window.expectAssertion = expectAssertion;
+  function AssertExpectation(message){
+    MethodCallExpectation.call(this, Ember, 'assert');
+    this.expectedMessage = message;
+  };
+  AssertExpectation.Error = function(){};
+  AssertExpectation.prototype = Object.create(MethodCallExpectation.prototype);
+  AssertExpectation.prototype.handleCall = function(message, test){
+    this.sawCall = true;
+    if (test) return; // Only get message for failures
+    this.actualMessage = message;
+    // Halt execution
+    throw new AssertExpectation.Error();
+  };
+  AssertExpectation.prototype.assert = function(fn){
+    try {
+      this.runWithStub(fn);
+    } catch (e) {
+      if (!(e instanceof AssertExpectation.Error))
+        throw e;
+    }
 
-  Ember.assert = function(msg, test) {
-        // only assert on failure
-    //     // to not change number of assertions
-             if (!test) {
-                   ok(false, 'Assertion failed: ' + msg);
-                       }
-                         }
+    // Run assertions in an order that is useful when debugging a test failure.
+    //
+    if (!this.sawCall) {
+      ok(false, "Expected Ember.assert to be called (Not called with any value).");
+    } else if (!this.actualMessage) {
+      ok(false, 'Expected a failing Ember.assert (Ember.assert called, but without a failing test).');
+    } else {
+      if (this.expectedMessage) {
+        if (this.expectedMessage instanceof RegExp) {
+          ok(this.expectedMessage.test(this.actualMessage), "Expected failing Ember.assert: '" + this.expectedMessage + "', but got '" + this.actualMessage + "'.");
+        } else {
+          equal(this.actualMessage, this.expectedMessage, "Expected failing Ember.assert: '" + this.expectedMessage + "', but got '" + this.actualMessage + "'.");
+        }
+      } else {
+        // Positive assertion that assert was called
+        ok(true, 'Expected a failing Ember.assert.');
+      }
+    }
+  };
+
+  // Looks for an exception raised within the fn.
+  //
+  // expectAssertion(function(){
+  //   Ember.assert("Homie don't roll like that");
+  // } /* , optionalMessageStringOrRegex */);
+  //
+  window.expectAssertion = function expectAssertion(fn, message){
+    (new AssertExpectation(message)).assert(fn);
+  };
+
+  EmberDev.deprecations = {
+    NONE: 99, // 99 problems and a deprecation ain't one
+    expecteds: null,
+    actuals: null,
+    stubEmber: function(){
+      if (!EmberDev.deprecations.originalEmberDeprecate && Ember.deprecate !== EmberDev.deprecations.originalEmberDeprecate) {
+        EmberDev.deprecations.originalEmberDeprecate = Ember.deprecate;
+      }
+      Ember.deprecate = function(msg, test) {
+        EmberDev.deprecations.actuals = EmberDev.deprecations.actuals || [];
+        EmberDev.deprecations.actuals.push([msg, test]);
+      };
+    },
+    restoreEmber: function(){
+      Ember.deprecate = EmberDev.deprecations.originalEmberDeprecate;
+    }
+  };
+
+  // Expects no deprecation to happen from the time of calling until
+  // the end of the test.
+  //
+  // expectNoDeprecation(/* optionalStringOrRegex */);
+  // Ember.deprecate("Old And Busted");
+  //
+  window.expectNoDeprecation = function(message) {
+    if (typeof EmberDev.deprecations.expecteds === 'array') {
+      throw("No deprecation was expected after expectDeprecation was called!");
+    }
+    EmberDev.deprecations.stubEmber();
+    EmberDev.deprecations.expecteds = EmberDev.deprecations.NONE;
+  };
+
+  // Expect a deprecation to happen within a function, or if no function
+  // is pass, from the time of calling until the end of the test. Can be called
+  // multiple times to assert deprecations with different specific messages
+  // were fired.
+  //
+  // expectDeprecation(function(){
+  //   Ember.deprecate("Old And Busted");
+  // }, /* optionalStringOrRegex */);
+  //
+  // expectDeprecation(/* optionalStringOrRegex */);
+  // Ember.deprecate("Old And Busted");
+  //
+  window.expectDeprecation = function(fn, message) {
+    if (EmberDev.deprecations.expecteds === EmberDev.deprecations.NONE) {
+      throw("A deprecation was expected after expectNoDeprecation was called!");
+    }
+    EmberDev.deprecations.stubEmber();
+    EmberDev.deprecations.expecteds = EmberDev.deprecations.expecteds || [];
+    if (fn && typeof fn !== 'function') {
+      // fn is a message
+      EmberDev.deprecations.expecteds.push(fn);
+    } else {
+      EmberDev.deprecations.expecteds.push(message || /.*/);
+      if (fn) {
+        fn();
+        window.assertDeprecation();
+      }
+    }
+  };
+
+  // Forces an assert the deprecations occurred, and resets the globals
+  // storing asserts for the next run.
+  //
+  // expectNoDeprecation(/Old/);
+  // setTimeout(function(){
+  //   Ember.deprecate("Old And Busted");
+  //   assertDeprecation();
+  // });
+  //
+  // assertDeprecation is called after each test run to catch any expectations
+  // without explicit asserts.
+  //
+  window.assertDeprecation = function() {
+    var expecteds = EmberDev.deprecations.expecteds,
+        actuals   = EmberDev.deprecations.actuals || [];
+    if (!expecteds) {
+      EmberDev.deprecations.actuals = null;
+      return;
+    }
+
+    EmberDev.deprecations.restoreEmber();
+    EmberDev.deprecations.actuals = null;
+    EmberDev.deprecations.expecteds = null;
+
+    if (expecteds === EmberDev.deprecations.NONE) {
+      var actualMessages = [];
+      for (var actual in actuals) {
+        actualMessages.push(actual[0]);
+      }
+      ok(actuals.length === 0, "Expected no deprecation call, got: "+actualMessages.join(', '));
+    } else {
+      for (var o=0;o < expecteds.length; o++) {
+        var expected = expecteds[o], match;
+        for (var i=0;i < actuals.length; i++) {
+          var actual = actuals[i];
+          if (!actual[1]) {
+            if (expected instanceof RegExp) {
+              if (expected.test(actual[0])) {
+                match = actual;
+                break;
+              }
+            } else {
+              if (expected === actual[0]) {
+                match = actual;
+                break;
+              }
+            }
+          }
+        }
+
+        if (!actual)
+          ok(false, "Recieved no deprecate calls at all, expecting: "+expected);
+        else if (match && !match[1])
+          ok(true, "Recieved failing deprecation with message: "+match[0]);
+        else if (match && match[1])
+          ok(false, "Expected failing deprecation, got succeeding with message: "+match[0]);
+        else if (actual[1])
+          ok(false, "Did not receive failing deprecation matching '"+expected+"', last was success with '"+actual[0]+"'");
+        else if (!actual[1])
+          ok(false, "Did not receive failing deprecation matching '"+expected+"', last was failure with '"+actual[0]+"'");
+      }
+    }
+  };
 })();
