@@ -778,7 +778,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   /**
-    If the model `isDirty` this function will which discard any unsaved
+    If the model `isDirty` this function will discard any unsaved
     changes
 
     Example
