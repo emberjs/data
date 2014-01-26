@@ -1,4 +1,4 @@
-require("ember-data/system/model/model");
+import Model from "./model";
 
 /**
   @module ember-data
@@ -10,7 +10,7 @@ var get = Ember.get;
   @class Model
   @namespace DS
 */
-DS.Model.reopenClass({
+Model.reopenClass({
   /**
     A map whose keys are the attributes of the model (properties
     described by DS.attr) and whose values are the meta object for the
@@ -198,7 +198,7 @@ DS.Model.reopenClass({
 });
 
 
-DS.Model.reopen({
+Model.reopen({
   eachAttribute: function(callback, binding) {
     this.constructor.eachAttribute(callback, binding);
   }
@@ -262,7 +262,7 @@ function getValue(record, key) {
   @return {Attribute}
 */
 
-DS.attr = function(type, options) {
+var attr = function(type, options) {
   options = options || {};
 
   var meta = {
@@ -297,3 +297,4 @@ DS.attr = function(type, options) {
   }).property('data').meta(meta);
 };
 
+export default attr;

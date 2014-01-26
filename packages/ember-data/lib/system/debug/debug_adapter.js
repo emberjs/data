@@ -1,7 +1,8 @@
 /**
   @module ember-data
 */
-var get = Ember.get, capitalize = Ember.String.capitalize, underscore = Ember.String.underscore, DS = window.DS ;
+import {Model} from "../model";
+var get = Ember.get, capitalize = Ember.String.capitalize, underscore = Ember.String.underscore;
 
 /**
   Extend `Ember.DataAdapter` with ED specific code.
@@ -11,7 +12,7 @@ var get = Ember.get, capitalize = Ember.String.capitalize, underscore = Ember.St
   @extends Ember.DataAdapter
   @private
 */
-DS.DebugAdapter = Ember.DataAdapter.extend({
+var DebugAdapter = Ember.DataAdapter.extend({
   getFilters: function() {
     return [
       { name: 'isNew', desc: 'New' },
@@ -21,7 +22,7 @@ DS.DebugAdapter = Ember.DataAdapter.extend({
   },
 
   detect: function(klass) {
-    return klass !== DS.Model && DS.Model.detect(klass);
+    return klass !== Model && Model.detect(klass);
   },
 
   columnsForType: function(type) {
@@ -107,3 +108,5 @@ DS.DebugAdapter = Ember.DataAdapter.extend({
   }
 
 });
+
+export default DebugAdapter;

@@ -51,32 +51,20 @@ You also have the option to build ember-data.js yourself.  Clone the repository,
 
 ### Setup
 
-1. Install Ruby 1.9.3+. There are many resources on the web can help; one of the best is [rvm](https://rvm.io/).
+1. Install Node.js from http://nodejs.org or your favorite package manager.
 
-2. Install Bundler: `gem install bundler`
+2. Install grunt and bower. `npm install -g grunt bower`
 
-3. Run `bundle` inside the project root to install the gem dependencies.
+3. Run `npm install && bower install` inside the project root to install the JS dependencies.
 
 ### In Your Browser
 
-1. To start the development server, run `rackup`.
-
-2. Then visit: `http://localhost:9292/?package=PACKAGE_NAME`.  Replace `PACKAGE_NAME` with the name of the package you want to run.  For example:
-
-  * [Ember.js Data](http://localhost:9292/?package=ember-data)
-
-To run multiple packages, you can separate them with commas. You can run all the tests using the `all` package:
-
-<http://localhost:9292/?package=all>
-
-You can also pass `jquery=VERSION` in the test URL to test different versions of jQuery. Default is 1.9.0.
+1. To start the development server, run `grunt dev`.
 
 ### From the CLI
 
 1. Install phantomjs from http://phantomjs.org
 
-2. Run `rake test` to run a basic test suite or run `rake test[all]` to
-   run a more comprehensive suite.
+2. Run `grunt test`
 
-3. (Mac OS X Only) Run `rake autotest` to automatically re-run tests
-   when any files are changed.
+3. Run `grunt dev` to automatically re-run tests when any files are changed.

@@ -1,5 +1,3 @@
-require("ember-data/system/model/model");
-
 /**
   @module ember-data
 */
@@ -148,10 +146,12 @@ function hasRelationship(type, options) {
   @param {Object} options a hash of options
   @return {Ember.computed} relationship
 */
-DS.hasMany = function(type, options) {
+var hasMany = function(type, options) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;
   }
   return hasRelationship(type, options);
 };
+
+export default hasMany;

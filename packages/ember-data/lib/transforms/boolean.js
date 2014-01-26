@@ -20,7 +20,8 @@
   @extends DS.Transform
   @namespace DS
  */
-DS.BooleanTransform = DS.Transform.extend({
+import Transform from "./base";
+var BooleanTransform = Transform.extend({
   deserialize: function(serialized) {
     var type = typeof serialized;
 
@@ -39,3 +40,4 @@ DS.BooleanTransform = DS.Transform.extend({
     return Boolean(deserialized);
   }
 });
+export default BooleanTransform;

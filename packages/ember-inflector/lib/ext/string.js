@@ -1,4 +1,4 @@
-require('ember-inflector/system/string');
+import {pluralize, singularize} from "../system/string";
 
 if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.String) {
   /**
@@ -8,7 +8,7 @@ if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.String) {
     @for String
   */
   String.prototype.pluralize = function() {
-    return Ember.String.pluralize(this);
+    return pluralize(this);
   };
 
   /**
@@ -18,6 +18,6 @@ if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.String) {
     @for String
   */
   String.prototype.singularize = function() {
-    return Ember.String.singularize(this);
+    return singularize(this);
   };
 }

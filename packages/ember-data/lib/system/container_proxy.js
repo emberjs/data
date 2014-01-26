@@ -45,4 +45,4 @@ ContainerProxy.prototype.registerDeprecations = function(proxyPairs) {
   }
 };
 
-DS.ContainerProxy = ContainerProxy;
+export default ContainerProxy;

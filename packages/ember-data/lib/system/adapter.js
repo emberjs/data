@@ -36,7 +36,7 @@ var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'n
   @class InvalidError
   @namespace DS
 */
-DS.InvalidError = function(errors) {
+var InvalidError = function(errors) {
   var tmp = Error.prototype.constructor.call(this, "The backend rejected the commit because it was invalid: " + Ember.inspect(errors));
   this.errors = errors;
 
@@ -44,7 +44,7 @@ DS.InvalidError = function(errors) {
     this[errorProps[i]] = tmp[errorProps[i]];
   }
 };
-DS.InvalidError.prototype = Ember.create(Error.prototype);
+InvalidError.prototype = Ember.create(Error.prototype);
 
 /**
   An adapter is an object that receives requests from a store and
@@ -97,7 +97,7 @@ DS.InvalidError.prototype = Ember.create(Error.prototype);
   @extends Ember.Object
 */
 
-DS.Adapter = Ember.Object.extend({
+var Adapter = Ember.Object.extend({
 
   /**
     If you would like your adapter to use a custom serializer you can
@@ -428,3 +428,6 @@ DS.Adapter = Ember.Object.extend({
     return Ember.RSVP.all(promises);
   }
 });
+
+export {InvalidError, Adapter};
+export default Adapter;

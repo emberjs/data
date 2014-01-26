@@ -1,6 +1,8 @@
-require('ember-data/adapters/rest_adapter');
-require('activemodel-adapter/system/active_model_serializer');
-require('activemodel-adapter/system/embedded_records_mixin');
+import {RESTAdapter} from "../../../ember-data/lib/adapters";
+import {InvalidError} from "../../../ember-data/lib/system/adapter";
+import {pluralize} from "../../../ember-inflector/lib/main";
+import ActiveModelSerializer from "./active_model_serializer";
+import EmbeddedRecordsMixin from "./embedded_records_mixin";
 
 /**
   @module ember-data
@@ -8,8 +10,7 @@ require('activemodel-adapter/system/embedded_records_mixin');
 
 var forEach = Ember.EnumerableUtils.forEach;
 var decamelize = Ember.String.decamelize,
-    underscore = Ember.String.underscore,
-    pluralize  = Ember.String.pluralize;
+    underscore = Ember.String.underscore;
 
 /**
   The ActiveModelAdapter is a subclass of the RESTAdapter designed to integrate
@@ -60,7 +61,7 @@ var decamelize = Ember.String.decamelize,
   @extends DS.Adapter
 **/
 
-DS.ActiveModelAdapter = DS.RESTAdapter.extend({
+var ActiveModelAdapter = RESTAdapter.extend({
   defaultSerializer: '-active-model',
   /**
     The ActiveModelAdapter overrides the `pathForType` method to build
@@ -112,9 +113,11 @@ DS.ActiveModelAdapter = DS.RESTAdapter.extend({
         });
       }
 
-      return new DS.InvalidError(errors);
+      return new InvalidError(errors);
     } else {
       return error;
     }
   }
 });
+
+export default ActiveModelAdapter;

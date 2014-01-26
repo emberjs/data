@@ -1,4 +1,5 @@
-require("ember-data/system/record_arrays/record_array");
+import RecordArray from "./record_array";
+import {RelationshipChange} from "../changes";
 
 /**
   @module ember-data
@@ -43,7 +44,7 @@ var map = Ember.EnumerableUtils.map;
   @namespace DS
   @extends DS.RecordArray
 */
-DS.ManyArray = DS.RecordArray.extend({
+var ManyArray = RecordArray.extend({
   init: function() {
     this._super.apply(this, arguments);
     this._changesToSync = Ember.OrderedSet.create();
@@ -153,7 +154,7 @@ DS.ManyArray = DS.RecordArray.extend({
       for (var i=index; i<index+removed; i++) {
         var record = get(this, 'content').objectAt(i);
 
-        var change = DS.RelationshipChange.createChange(owner, record, get(this, 'store'), {
+        var change = RelationshipChange.createChange(owner, record, get(this, 'store'), {
           parentType: owner.constructor,
           changeType: "remove",
           kind: "hasMany",
@@ -182,7 +183,7 @@ DS.ManyArray = DS.RecordArray.extend({
       for (var i=index; i<index+added; i++) {
         var record = get(this, 'content').objectAt(i);
 
-        var change = DS.RelationshipChange.createChange(owner, record, store, {
+        var change = RelationshipChange.createChange(owner, record, store, {
           parentType: owner.constructor,
           changeType: "add",
           kind:"hasMany",
@@ -229,3 +230,5 @@ DS.ManyArray = DS.RecordArray.extend({
   }
 
 });
+
+export default ManyArray;

@@ -1,7 +1,13 @@
-require("ember-data/system/container_proxy");
-require("ember-data/serializers/json_serializer");
-require("ember-data/system/debug/debug_adapter");
-require("ember-data/transforms/index");
+import {JSONSerializer, RESTSerializer} from "./serializers";
+import {RESTAdapter} from "./adapters";
+import DebugAdapter from "./system/debug/debug_adapter";
+import ContainerProxy from "./system/container_proxy";
+import {
+  BooleanTransform,
+  DateTransform,
+  StringTransform,
+  NumberTransform
+} from "./transforms";
 
 /**
   @module ember-data
@@ -48,7 +54,7 @@ Ember.onLoad('Ember.Application', function(Application) {
 
       // allow older names to be looked up
 
-      var proxy = new DS.ContainerProxy(container);
+      var proxy = new ContainerProxy(container);
       proxy.registerDeprecations([
         {deprecated: 'serializer:_default',  valid: 'serializer:-default'},
         {deprecated: 'serializer:_rest',     valid: 'serializer:-rest'},
@@ -56,9 +62,9 @@ Ember.onLoad('Ember.Application', function(Application) {
       ]);
 
       // new go forward paths
-      application.register('serializer:-default', DS.JSONSerializer);
-      application.register('serializer:-rest', DS.RESTSerializer);
-      application.register('adapter:-rest', DS.RESTAdapter);
+      application.register('serializer:-default', JSONSerializer);
+      application.register('serializer:-rest', RESTSerializer);
+      application.register('adapter:-rest', RESTAdapter);
 
       // Eagerly generate the store so defaultStore is populated.
       // TODO: Do this in a finisher hook
@@ -83,7 +89,7 @@ Ember.onLoad('Ember.Application', function(Application) {
     before: "store",
 
     initialize: function(container, application) {
-      application.register('data-adapter:main', DS.DebugAdapter);
+      application.register('data-adapter:main', DebugAdapter);
     }
   });
 

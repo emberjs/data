@@ -695,4 +695,4 @@ function wireState(object, parent, name) {
 
 RootState = wireState(RootState, null, "root");
 
-DS.RootState = RootState;
+export default RootState;

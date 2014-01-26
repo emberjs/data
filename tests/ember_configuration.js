@@ -1,20 +1,16 @@
-/*globals EmberDev ENV QUnit */
+/*globals ENV QUnit */
 
-(function() {
+(function (){
   window.Ember = window.Ember || {};
 
   Ember.config = {};
   Ember.testing = true;
+  Ember.LOG_VERSION = false;
 
-  window.ENV = { TESTING: true };
+  window.ENV = { TESTING: true, LOG_VERSION: false };
 
   var extendPrototypes = QUnit.urlParams.extendprototypes;
   ENV['EXTEND_PROTOTYPES'] = !!extendPrototypes;
-
-  if (EmberDev.jsHint) {
-    // jsHint makes its own Object.create stub, we don't want to use this
-    ENV['STUB_OBJECT_CREATE'] = !Object.create;
-  }
 
   window.async = function(callback, timeout) {
     stop();
@@ -84,7 +80,7 @@
     return setupStore(options).store;
   };
 
-  var syncForTest = function(fn) {
+  var syncForTest = window.syncForTest = function(fn) {
     var callSuper;
 
     if (typeof fn !== "function") { callSuper = true; }
@@ -130,7 +126,7 @@
     });
   };
 
-  minispade.register('ember-data/~test-setup', function() {
+  QUnit.begin(function(){
     Ember.RSVP.configure('onerror', function(reason) {
       // only print error messages if they're exceptions;
       // otherwise, let a future turn of the event loop
@@ -195,11 +191,6 @@
 
     Ember.RSVP.Promise.prototype.then = syncForTest(Ember.RSVP.Promise.prototype.then);
   });
-
-  EmberDev.distros = {
-    spade:   'ember-data-spade.js',
-    build:   'ember-data.js'
-  };
 
   // Generate the jQuery expando on window ahead of time
   // to make the QUnit global check run clean

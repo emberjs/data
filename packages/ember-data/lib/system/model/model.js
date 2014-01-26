@@ -1,6 +1,5 @@
-require("ember-data/system/model/states");
-require("ember-data/system/model/errors");
-
+import RootState from "./states";
+import Errors from "./errors";
 /**
   @module ember-data
 */
@@ -21,7 +20,7 @@ var retrieveFromCurrentState = Ember.computed('currentState', function(key, valu
   @extends Ember.Object
   @uses Ember.Evented
 */
-DS.Model = Ember.Object.extend(Ember.Evented, {
+var Model = Ember.Object.extend(Ember.Evented, {
   /**
     If this property is `true` the record is in the `empty`
     state. Empty is the first state all records enter after they have
@@ -383,7 +382,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
 
   init: function() {
     set(this, 'currentState', DS.RootState.empty);
-    var errors = DS.Errors.create();
+    var errors = Errors.create();
     errors.registerHandlers(this, function() {
       this.send('becameInvalid');
     }, function() {
@@ -997,7 +996,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   }
 });
 
-DS.Model.reopenClass({
+Model.reopenClass({
 
   /**
     Alias DS.Model's `create` method to `_create`. This allows us to create DS.Model
@@ -1008,7 +1007,7 @@ DS.Model.reopenClass({
     @private
     @static
   */
-  _create: DS.Model.create,
+  _create: Model.create,
 
   /**
     Override the class' `create()` method to raise an error. This
@@ -1025,3 +1024,5 @@ DS.Model.reopenClass({
     throw new Ember.Error("You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.");
   }
 });
+
+export default Model;

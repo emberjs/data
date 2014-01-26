@@ -1,6 +1,8 @@
 var get = Ember.get, set = Ember.set,
     isNone = Ember.isNone;
 
+import {Model} from "../model";
+
 /**
   @module ember-data
 */
@@ -79,7 +81,7 @@ function asyncBelongsTo(type, options, meta) {
   @param {Object} options a hash of options
   @return {Ember.computed} relationship
 */
-DS.belongsTo = function(type, options) {
+var belongsTo = function(type, options) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;
@@ -127,7 +129,7 @@ DS.belongsTo = function(type, options) {
   @class Model
   @namespace DS
 */
-DS.Model.reopen({
+Model.reopen({
 
   /**
     @method belongsToWillChange
@@ -172,3 +174,5 @@ DS.Model.reopen({
     delete this._changesToSync[key];
   })
 });
+
+export default belongsTo;

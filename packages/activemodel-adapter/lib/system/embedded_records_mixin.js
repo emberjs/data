@@ -1,6 +1,8 @@
 var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
 
+import {pluralize} from "../../../ember-inflector/lib/main";
+
 /**
   The EmbeddedRecordsMixin allows you to add embedded record support to your
   serializers.
@@ -20,7 +22,7 @@ var forEach = Ember.EnumerableUtils.forEach;
   @class EmbeddedRecordsMixin
   @namespace DS
 */
-DS.EmbeddedRecordsMixin = Ember.Mixin.create({
+var EmbeddedRecordsMixin = Ember.Mixin.create({
 
   /**
     Serialize has-may relationship when it is configured as embedded objects.
@@ -67,7 +69,7 @@ DS.EmbeddedRecordsMixin = Ember.Mixin.create({
   */
   extractArray: function(store, type, payload) {
     var root = this.keyForAttribute(type.typeKey),
-        partials = payload[Ember.String.pluralize(root)];
+        partials = payload[pluralize(root)];
 
     forEach(partials, function(partial) {
       updatePayloadWithEmbedded(store, this, type, partial, payload);
@@ -120,3 +122,5 @@ function updatePayloadWithEmbedded(store, serializer, type, partial, payload) {
     }
   }, serializer);
 }
+
+export default EmbeddedRecordsMixin;

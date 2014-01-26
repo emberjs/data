@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import {PromiseArray} from "../store";
 var get = Ember.get, set = Ember.set;
 
 /**
@@ -17,7 +18,7 @@ var get = Ember.get, set = Ember.set;
   @uses Ember.Evented
 */
 
-DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
+var RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
   /**
     The model type contained by this record array.
 
@@ -160,6 +161,8 @@ DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
       return Ember.A(array);
     }, null, "DS: RecordArray#save apply Ember.NativeArray");
 
-    return DS.PromiseArray.create({ promise: promise });
+    return PromiseArray.create({ promise: promise });
   }
 });
+
+export default RecordArray;
