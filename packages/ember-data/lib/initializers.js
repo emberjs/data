@@ -77,10 +77,10 @@ Ember.onLoad('Ember.Application', function(Application) {
     before: "store",
 
     initialize: function(container, application) {
-      application.register('transform:boolean', DS.BooleanTransform);
-      application.register('transform:date', DS.DateTransform);
-      application.register('transform:number', DS.NumberTransform);
-      application.register('transform:string', DS.StringTransform);
+      application.register('transform:boolean', BooleanTransform);
+      application.register('transform:date', DateTransform);
+      application.register('transform:number', NumberTransform);
+      application.register('transform:string', StringTransform);
     }
   });
 
