@@ -1,4 +1,5 @@
-var get = Ember.get, set = Ember.set, isNone = Ember.isNone;
+var get = Ember.get, set = Ember.set, isNone = Ember.isNone,
+    map = Ember.ArrayPolyfills.map;
 
 // Simple dispatcher to support overriding the aliased
 // method in subclasses.
@@ -636,8 +637,11 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Array} array An array of deserialized objects
   */
-  extractArray: function(store, type, payload) {
-    return this.normalize(type, payload);
+  extractArray: function(store, type, arrayPayload) {
+    var serializer = this;
+    return map.call(arrayPayload, function(singlePayload) {
+      return serializer.extractSingle(store, type, singlePayload);
+    });
   },
 
   /**
