@@ -1,4 +1,4 @@
-import {Store} from "./system/store";
+import Store from "./system/store";
 import {JSONSerializer, RESTSerializer} from "./serializers";
 import {RESTAdapter} from "./adapters";
 import DebugAdapter from "./system/debug/debug_adapter";
