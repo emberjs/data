@@ -102,6 +102,16 @@ test("serialize polymorphicType", function() {
   });
 });
 
+test("serialize polymorphicType with decamelized typeKey", function() {
+  YellowMinion.typeKey = 'yellow-minion';
+  var tom = env.store.createRecord(YellowMinion,   {name: "Alex", id: "124"});
+  var ray = env.store.createRecord(DoomsdayDevice, {evilMinion: tom, name: "DeathRay"});
+
+  var json = env.restSerializer.serialize(ray);
+
+  deepEqual(json["evilMinionType"], "yellowMinion");
+});
+
 test("extractArray can load secondary records of the same type without affecting the query count", function() {
   var json_hash = {
     comments: [{id: "1", body: "Parent Comment", root: true, children: [2, 3]}],
@@ -244,4 +254,31 @@ test('normalize should allow for different levels of normalization', function(){
   var array = env.restSerializer.extractArray(env.store, EvilMinion, jsonHash);
 
   equal(array[0].superVillain, 1);
+});
+
+test("serializeIntoHash", function() {
+  league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
+  var json = {};
+
+  env.restSerializer.serializeIntoHash(json, HomePlanet, league);
+
+  deepEqual(json, {
+    homePlanet: {
+      name: "Umber"
+    }
+  });
+});
+
+test("serializeIntoHash with decamelized typeKey", function() {
+  HomePlanet.typeKey = 'home-planet';
+  league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
+  var json = {};
+
+  env.restSerializer.serializeIntoHash(json, HomePlanet, league);
+
+  deepEqual(json, {
+    homePlanet: {
+      name: "Umber"
+    }
+  });
 });

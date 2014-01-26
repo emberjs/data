@@ -52,3 +52,17 @@ test("removes findAllCache after unloading all records", function () {
 
   equal(env.store.all('person').get('length'), 0);
 });
+
+test("unloading all records also updates record array from all()", function() {
+  var adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
+  var bob = env.store.push('person', {id: 2, name: "Bob Bobson"});
+  var all = env.store.all('person');
+
+  equal(all.get('length'), 2);
+
+  Ember.run(function(){
+    env.store.unloadAll('person');
+  });
+
+  equal(all.get('length'), 0);
+});

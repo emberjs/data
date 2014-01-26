@@ -18,7 +18,7 @@ test("Adapter can be set as a factory", function() {
 });
 
 test('Adapter can be set as a name', function() {
-  store = createStore({adapter: '_rest'});
+  store = createStore({adapter: '-rest'});
 
   ok(store.get('defaultAdapter') instanceof DS.RESTAdapter);
 });

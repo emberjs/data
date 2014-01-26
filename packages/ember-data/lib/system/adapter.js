@@ -68,7 +68,7 @@ DS.InvalidError.prototype = Ember.create(Error.prototype);
 
   ```javascript
   App.store = DS.Store.create({
-    adapter: App.MyAdapter.create()
+    adapter: 'MyAdapter'
   });
   ```
 

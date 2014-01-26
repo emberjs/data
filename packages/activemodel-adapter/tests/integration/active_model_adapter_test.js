@@ -16,16 +16,6 @@ module("integration/active_model_adapter - AMS Adapter", {
   }
 });
 
-function ajaxResponse(value) {
-  adapter.ajax = function(url, verb, hash) {
-    passedUrl = url;
-    passedVerb = verb;
-    passedHash = hash;
-
-    return Ember.RSVP.resolve(value);
-  };
-}
-
 test('buildURL - decamelizes names', function() {
   equal(adapter.buildURL('superUser', 1), "/super_users/1");
 });

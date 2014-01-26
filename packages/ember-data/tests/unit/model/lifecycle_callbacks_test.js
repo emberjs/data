@@ -159,7 +159,7 @@ test("a record receives a becameInvalid callback when it became invalid", functi
     },
 
     updateRecord: function(store, type, record) {
-      equal(callCount, 0, "becameInvalid callback was not called untill recordWasInvalid is called");
+      equal(callCount, 0, "becameInvalid callback was not called until recordWasInvalid is called");
 
       return Ember.RSVP.reject(new DS.InvalidError({ bar: 'error' }));
     }

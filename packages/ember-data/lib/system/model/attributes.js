@@ -161,7 +161,7 @@ DS.Model.reopenClass({
     ```
 
     - `name` the name of the current property in the iteration
-    - `type` a tring contrining the name of the type of transformed
+    - `type` a string containing the name of the type of transformed
       applied to the attribute
 
     Note that in addition to a callback, you can also pass an optional target

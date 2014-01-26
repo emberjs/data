@@ -136,7 +136,7 @@ test("a DS.Model can have a defaultValue", function() {
   equal(get(tag, 'name'), null, "null doesn't shadow defaultValue");
 });
 
-test("a defaultValue for an attribite can be a function", function() {
+test("a defaultValue for an attribute can be a function", function() {
   var Tag = DS.Model.extend({
     createdAt: DS.attr('string', {
       defaultValue: function() {
@@ -147,6 +147,23 @@ test("a defaultValue for an attribite can be a function", function() {
 
   var tag = store.createRecord(Tag);
   equal(get(tag, 'createdAt'), "le default value", "the defaultValue function is evaluated");
+});
+
+test("setting a property to undefined on a newly created record should not impact the current state", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var tag = store.createRecord(Tag);
+
+  set(tag, 'name', 'testing');
+  set(tag, 'name', undefined);
+
+  equal(get(tag, 'currentState.stateName'), "root.loaded.created.uncommitted");
+
+  tag = store.createRecord(Tag, {name: undefined});
+
+  equal(get(tag, 'currentState.stateName'), "root.loaded.created.uncommitted");
 });
 
 module("unit/model - with a simple Person model", {
