@@ -13,11 +13,11 @@ if ('undefined' === typeof DS) {
   /**
     @property VERSION
     @type String
-    @default 'VERSION_STRING_PLACEHOLDER'
+    @default '<%= pkg.version %>'
     @static
   */
   DS = Ember.Namespace.create({
-    VERSION: 'VERSION_STRING_PLACEHOLDER'
+    VERSION: '<%= pkg.version %>'
   });
 
   if ('undefined' !== typeof window) {
