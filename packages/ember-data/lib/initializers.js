@@ -1,3 +1,4 @@
+import {Store} from "./system/store";
 import {JSONSerializer, RESTSerializer} from "./serializers";
 import {RESTAdapter} from "./adapters";
 import DebugAdapter from "./system/debug/debug_adapter";
@@ -50,7 +51,7 @@ Ember.onLoad('Ember.Application', function(Application) {
     name: "store",
 
     initialize: function(container, application) {
-      application.register('store:main', application.Store || DS.Store);
+      application.register('store:main', application.Store || Store);
 
       // allow older names to be looked up
 
@@ -77,10 +78,10 @@ Ember.onLoad('Ember.Application', function(Application) {
     before: "store",
 
     initialize: function(container, application) {
-      application.register('transform:boolean', DS.BooleanTransform);
-      application.register('transform:date', DS.DateTransform);
-      application.register('transform:number', DS.NumberTransform);
-      application.register('transform:string', DS.StringTransform);
+      application.register('transform:boolean', BooleanTransform);
+      application.register('transform:date', DateTransform);
+      application.register('transform:number', NumberTransform);
+      application.register('transform:string', StringTransform);
     }
   });
 
