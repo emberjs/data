@@ -36,7 +36,7 @@ The latest passing build from the "master" branch is available on [http://emberj
 Similarly the latest passing build from the "beta" branch can be found on [http://emberjs.com/builds/#/beta](http://emberjs.com/builds/#/beta)
 
 
-You also have the option to build ember-data.js yourself.  Clone the repository, run `bundle` then `rake dist`. You'll find ember-data.js in the `dist` directory.
+You also have the option to build ember-data.js yourself.  Clone the repository, run `grunt buildPackages` after [setup](#setup). You'll find ember-data.js in the `dist` directory.
 
 #### Roadmap
 
