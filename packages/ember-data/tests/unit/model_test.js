@@ -149,6 +149,23 @@ test("a defaultValue for an attribute can be a function", function() {
   equal(get(tag, 'createdAt'), "le default value", "the defaultValue function is evaluated");
 });
 
+test("a defaultValue function gets the record, options, and key", function() {
+  expect(2);
+
+  var Tag = DS.Model.extend({
+    createdAt: DS.attr('string', {
+      defaultValue: function(record, options, key) {
+        deepEqual(record, tag, "the record is passed in properly");
+        equal(key, 'createdAt', "the attribute being defaulted is passed in properly");
+        return "le default value";
+      }
+    })
+  });
+
+  var tag = store.createRecord(Tag);
+  get(tag, 'createdAt');
+});
+
 test("setting a property to undefined on a newly created record should not impact the current state", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string')
