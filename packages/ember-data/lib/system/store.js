@@ -1187,7 +1187,6 @@ Store = Ember.Object.extend({
     @method pushPayload
     @param {String} type
     @param {Object} payload
-    @return {DS.Model} the record that was created or updated.
   */
   pushPayload: function (type, payload) {
     var serializer;
