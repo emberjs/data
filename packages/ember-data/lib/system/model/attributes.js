@@ -206,7 +206,7 @@ Model.reopen({
 
 function getDefaultValue(record, options, key) {
   if (typeof options.defaultValue === "function") {
-    return options.defaultValue();
+    return options.defaultValue.apply(null, arguments);
   } else {
     return options.defaultValue;
   }
