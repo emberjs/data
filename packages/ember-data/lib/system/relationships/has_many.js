@@ -5,7 +5,7 @@
 var get = Ember.get, set = Ember.set, setProperties = Ember.setProperties;
 
 function asyncHasMany(type, options, meta) {
-  return Ember.computed(function(key, value) {
+  return Ember.computed('data', function(key, value) {
     var relationship = this._relationships[key],
         promiseLabel = "DS: Async hasMany " + this + " : " + key;
 
@@ -31,8 +31,10 @@ function asyncHasMany(type, options, meta) {
       return relationship;
     }, null, "DS: Async hasMany records received");
 
-    return DS.PromiseArray.create({ promise: promise });
-  }).property('data').meta(meta);
+    return DS.PromiseArray.create({
+      promise: promise
+    });
+  }).meta(meta);
 }
 
 function buildRelationship(record, key, options, callback) {
@@ -46,14 +48,21 @@ function buildRelationship(record, key, options, callback) {
   var relationship = rels[key] = callback.call(record, store, data);
 
   return setProperties(relationship, {
-    owner: record, name: key, isPolymorphic: options.polymorphic
+    owner: record,
+    name: key,
+    isPolymorphic: options.polymorphic
   });
 }
 
 function hasRelationship(type, options) {
   options = options || {};
 
-  var meta = { type: type, isRelationship: true, options: options, kind: 'hasMany' };
+  var meta = {
+    type: type,
+    isRelationship: true,
+    options: options,
+    kind: 'hasMany'
+  };
 
   if (options.async) {
     return asyncHasMany(type, options, meta);
