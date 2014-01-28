@@ -285,7 +285,17 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @property errors
     @type {Object}
   */
-  errors: null,
+  errors: Ember.computed(function() {
+    var errors = Errors.create();
+
+    errors.registerHandlers(this, function() {
+      this.send('becameInvalid');
+    }, function() {
+      this.send('becameValid');
+    });
+
+    return errors;
+  }),
 
   /**
     Create a JSON representation of the record, using the serialization
@@ -382,13 +392,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
   init: function() {
     set(this, 'currentState', DS.RootState.empty);
-    var errors = Errors.create();
-    errors.registerHandlers(this, function() {
-      this.send('becameInvalid');
-    }, function() {
-      this.send('becameValid');
-    });
-    set(this, 'errors', errors);
     this._super();
     this._setup();
   },
