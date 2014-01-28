@@ -570,7 +570,7 @@ Store = Ember.Object.extend({
     } else {
       if (resolver) { resolver.resolve(); }
       manyArray.set('isLoaded', true);
-      Ember.run.once(manyArray, 'trigger', 'didLoad');
+      once(manyArray, 'trigger', 'didLoad');
     }
 
     return manyArray;
