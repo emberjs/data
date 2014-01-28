@@ -338,7 +338,10 @@ Store = Ember.Object.extend({
     @return {Promise} promise
   */
   find: function(type, id) {
-    if (id === undefined) {
+    Ember.assert("You need to pass a type to the store's find method", arguments.length >= 1);
+    Ember.assert("You may not pass `" + id + "` as id to the store's find method", arguments.length === 1 || !Ember.isNone(id));
+
+    if (arguments.length === 1) {
       return this.findAll(type);
     }
 
