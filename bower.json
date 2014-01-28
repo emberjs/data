@@ -2,6 +2,7 @@
   "name": "ember-data",
   "private": true,
   "dependencies": {
-    "ember": "~1.2.0"
+    "ember": "~1.2.0",
+    "qunit": "~1.13.0"
   }
 }
