@@ -33,10 +33,10 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
     env.store.modelFor('evilMinion');
     env.store.modelFor('comment');
     env.container.register('serializer:application', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin));
-    env.container.register('serializer:ams',         DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin));
-    env.container.register('adapter:ams',    DS.ActiveModelAdapter);
-    env.amsSerializer = env.container.lookup("serializer:ams");
-    env.amsAdapter    = env.container.lookup("adapter:ams");
+    env.container.register('serializer:-active-model',         DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin));
+    env.container.register('adapter:-active-model',    DS.ActiveModelAdapter);
+    env.amsSerializer = env.container.lookup("serializer:-active-model");
+    env.amsAdapter    = env.container.lookup("adapter:-active-model");
   },
 
   teardown: function() {
