@@ -1682,3 +1682,4 @@ function _commit(adapter, store, operation, record) {
 }
 
 export {Store, PromiseArray, PromiseObject};
+export default Store;
