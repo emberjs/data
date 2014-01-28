@@ -297,7 +297,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     });
 
     return errors;
-  }),
+  }).readOnly(),
 
   /**
     Create a JSON representation of the record, using the serialization
@@ -388,7 +388,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   data: Ember.computed(function() {
     this._data = this._data || {};
     return this._data;
-  }),
+  }).readOnly(),
 
   _data: null,
 
