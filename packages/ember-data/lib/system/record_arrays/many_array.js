@@ -8,6 +8,10 @@ import {RelationshipChange} from "../changes";
 var get = Ember.get, set = Ember.set;
 var map = Ember.EnumerableUtils.map;
 
+function sync(change) {
+  change.sync();
+}
+
 /**
   A `ManyArray` is a `RecordArray` that represents the contents of a has-many
   relationship.
@@ -199,9 +203,7 @@ var ManyArray = RecordArray.extend({
       // in arrayContentWillChange, so that the array
       // membership test in the sync() logic operates
       // on the final results.
-      this._changesToSync.forEach(function(change) {
-        change.sync();
-      });
+      this._changesToSync.forEach(sync);
 
       this._changesToSync.clear();
     }
@@ -228,7 +230,6 @@ var ManyArray = RecordArray.extend({
 
     return record;
   }
-
 });
 
 export default ManyArray;

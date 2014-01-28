@@ -8,7 +8,7 @@ import {Model} from "../model";
 */
 
 function asyncBelongsTo(type, options, meta) {
-  return Ember.computed(function(key, value) {
+  return Ember.computed('data', function(key, value) {
     var data = get(this, 'data'),
         store = get(this, 'store'),
         promiseLabel = "DS: Async belongsTo " + this + " : " + key;
@@ -31,7 +31,7 @@ function asyncBelongsTo(type, options, meta) {
     } else {
       return null;
     }
-  }).property('data').meta(meta);
+  }).meta(meta);
 }
 
 /**
@@ -81,7 +81,7 @@ function asyncBelongsTo(type, options, meta) {
   @param {Object} options a hash of options
   @return {Ember.computed} relationship
 */
-var belongsTo = function(type, options) {
+function belongsTo(type, options) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;
@@ -91,13 +91,18 @@ var belongsTo = function(type, options) {
 
   options = options || {};
 
-  var meta = { type: type, isRelationship: true, options: options, kind: 'belongsTo' };
+  var meta = {
+    type: type,
+    isRelationship: true,
+    options: options,
+    kind: 'belongsTo'
+  };
 
   if (options.async) {
     return asyncBelongsTo(type, options, meta);
   }
 
-  return Ember.computed(function(key, value) {
+  return Ember.computed('data', function(key, value) {
     var data = get(this, 'data'),
         store = get(this, 'store'), belongsTo, typeClass;
 
@@ -119,8 +124,8 @@ var belongsTo = function(type, options) {
     store.fetchRecord(belongsTo);
 
     return belongsTo;
-  }).property('data').meta(meta);
-};
+  }).meta(meta);
+}
 
 /**
   These observers observe all `belongsTo` relationships on the record. See

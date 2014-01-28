@@ -64,7 +64,6 @@ Model.reopen({
       }
     };
   }
-
 });
 
 export default Model;

@@ -36,9 +36,9 @@ var Store, PromiseObject, PromiseArray;
 // and lose type information.  For example, Ember's router may put a record's
 // ID into the URL, and if we later try to deserialize that URL and find the
 // corresponding record, we will not know if it is a string or a number.
-var coerceId = function(id) {
+function coerceId(id) {
   return id == null ? null : id+'';
-};
+}
 
 /**
   The store contains all of the data for records loaded from the server.

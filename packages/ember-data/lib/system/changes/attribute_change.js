@@ -12,13 +12,13 @@
   @private
   @constructor
 */
-var AttributeChange = function(options) {
+function AttributeChange(options) {
   this.record = options.record;
   this.store = options.store;
   this.name = options.name;
   this.value = options.value;
   this.oldValue = options.oldValue;
-};
+}
 
 AttributeChange.createChange = function(options) {
   return new AttributeChange(options);

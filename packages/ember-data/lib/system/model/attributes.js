@@ -262,7 +262,7 @@ function getValue(record, key) {
   @return {Attribute}
 */
 
-var attr = function(type, options) {
+function attr(type, options) {
   options = options || {};
 
   var meta = {
@@ -271,7 +271,7 @@ var attr = function(type, options) {
     options: options
   };
 
-  return Ember.computed(function(key, value) {
+  return Ember.computed('data', function(key, value) {
     if (arguments.length > 1) {
       Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
       var oldValue = getValue(this, key);
@@ -296,7 +296,7 @@ var attr = function(type, options) {
   // `data` is never set directly. However, it may be
   // invalidated from the state manager's setData
   // event.
-  }).property('data').meta(meta);
-};
+  }).meta(meta);
+}
 
 export default attr;

@@ -5,7 +5,8 @@ import Errors from "./errors";
 */
 
 var get = Ember.get, set = Ember.set,
-    merge = Ember.merge;
+    merge = Ember.merge,
+    Promise = Ember.RSVP.Promise;
 
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
   return get(get(this, 'currentState'), key);
@@ -261,13 +262,14 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @type {String}
   */
   id: null,
-  transaction: null,
+
   /**
     @property currentState
     @private
     @type {Object}
   */
   currentState: null,
+
   /**
     When the record is in the `invalid` state this object will contain
     any errors returned by the adapter. When present the errors hash
@@ -386,7 +388,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   data: Ember.computed(function() {
     this._data = this._data || {};
     return this._data;
-  }).property(),
+  }),
 
   _data: null,
 
@@ -915,7 +917,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var  record = this;
 
     var promiseLabel = "DS: Model#reload of " + this;
-    var promise = new Ember.RSVP.Promise(function(resolve){
+    var promise = new Promise(function(resolve){
        record.send('reloadRecord', resolve);
     }, promiseLabel).then(function() {
       record.set('isReloading', false);

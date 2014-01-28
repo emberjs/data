@@ -172,7 +172,7 @@ var get = Ember.get, set = Ember.set;
   @class RootState
 */
 
-var hasDefinedProperties = function(object) {
+function hasDefinedProperties(object) {
   // Ignore internal property defined by simulated `Ember.create`.
   var names = Ember.keys(object);
   var i, l, name;
@@ -182,9 +182,9 @@ var hasDefinedProperties = function(object) {
   }
 
   return false;
-};
+}
 
-var didSetProperty = function(record, context) {
+function didSetProperty(record, context) {
   if (context.value === context.originalValue) {
     delete record._attributes[context.name];
     record.send('propertyWasReset', context.name);
@@ -193,7 +193,7 @@ var didSetProperty = function(record, context) {
   }
 
   record.updateRecordArraysLater();
-};
+}
 
 // Implementation notes:
 //

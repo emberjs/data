@@ -40,7 +40,7 @@ var AdapterPopulatedRecordArray = RecordArray.extend({
       meta: meta
     });
 
-    // TODO: does triggering didLoad event should be the last action of the runLoop?
+    // TODO: should triggering didLoad event be the last action of the runLoop?
     Ember.run.once(this, 'trigger', 'didLoad');
   }
 });
