@@ -4,6 +4,7 @@
   "namespace": "DS",
   "scripts": {
     "postinstall": "bower install",
+    "test": "grunt test"
   },
   "devDependencies": {
     "defeatureify": "~0.1.4",
