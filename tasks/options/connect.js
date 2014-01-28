@@ -1,7 +1,8 @@
+var port = process.env.PORT || '9997';
 module.exports = {
   main: {
     options: {
-      port: '9997',
+      port: port,
       base: '.'
     }
   }
