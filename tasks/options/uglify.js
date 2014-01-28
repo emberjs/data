@@ -6,7 +6,7 @@ module.exports = {
   },
   dist: {
     files: [{
-     src: 'dist/ember-data.js',
+     src: 'dist/ember-data.prod.js',
      dest: 'dist/ember-data.min.js',
     }]
   }
