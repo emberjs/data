@@ -5,6 +5,9 @@
   @main ember-data
 */
 
+// support RSVP 2.x via resolve,  but prefer RSVP 3.x's Promise.cast
+Ember.RSVP.Promise.cast = Ember.RSVP.Promise.cast || Ember.RSVP.resolve;
+
 import DS from "./core";
 import "./ext/date";
 

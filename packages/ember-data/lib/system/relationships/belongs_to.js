@@ -1,6 +1,8 @@
 var get = Ember.get, set = Ember.set,
     isNone = Ember.isNone;
 
+var Promise = Ember.RSVP.Promise;
+
 import {Model} from "../model";
 
 /**
@@ -15,19 +17,25 @@ function asyncBelongsTo(type, options, meta) {
 
     if (arguments.length === 2) {
       Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof store.modelFor(type));
-      return value === undefined ? null : DS.PromiseObject.create({ promise: Ember.RSVP.resolve(value, promiseLabel) });
+      return value === undefined ? null : DS.PromiseObject.create({
+        promise: Promise.cast(value, promiseLabel)
+      });
     }
 
     var link = data.links && data.links[key],
         belongsTo = data[key];
 
     if(!isNone(belongsTo)) {
-      var promise = store.fetchRecord(belongsTo) || Ember.RSVP.resolve(belongsTo, promiseLabel);
-      return DS.PromiseObject.create({ promise: promise});
+      var promise = store.fetchRecord(belongsTo) || Promise.cast(belongsTo, promiseLabel);
+      return DS.PromiseObject.create({
+        promise: promise
+      });
     } else if (link) {
       var resolver = Ember.RSVP.defer("DS: Async belongsTo (link) " + this + " : " + key);
       store.findBelongsTo(this, link, meta, resolver);
-      return DS.PromiseObject.create({ promise: resolver.promise });
+      return DS.PromiseObject.create({
+        promise: resolver.promise
+      });
     } else {
       return null;
     }
