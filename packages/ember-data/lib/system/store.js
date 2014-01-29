@@ -753,13 +753,15 @@ Store = Ember.Object.extend({
     @param {String or subclass of DS.Model} type
   */
   unloadAll: function(type) {
-    type = this.modelFor(type);
+    var modelType = this.modelFor(type);
+    var typeMap = this.typeMapFor(modelType);
+    var records = typeMap.records.slice();
+    var record;
 
-    var typeMap = this.typeMapFor(type),
-        records = typeMap.records.splice(0), record;
-
-    while(record = records.pop()) {
+    for (var i = 0; i < records.length; i++) {
+      record = records[i];
       record.unloadRecord();
+      record.destroy(); // maybe within unloadRecord
     }
 
     typeMap.findAllCache = null;
@@ -1023,7 +1025,8 @@ Store = Ember.Object.extend({
     typeMap = {
       idToRecord: {},
       records: [],
-      metadata: {}
+      metadata: {},
+      type: type
     };
 
     typeMaps[guid] = typeMap;
@@ -1408,6 +1411,21 @@ Store = Ember.Object.extend({
     var adapter = this.adapterFor(type);
 
     return serializerFor(this.container, type.typeKey, adapter && adapter.defaultSerializer);
+  },
+
+  willDestroy: function() {
+    var map = this.typeMaps;
+    var keys = Ember.keys(map);
+    var store = this;
+    var types = keys.map(byType);
+
+    this.recordArrayManager.destroy();
+
+    types.forEach(this.unloadAll, this);
+
+    function byType(entry) {
+      return map[entry].type;
+    }
   }
 });
 

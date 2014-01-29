@@ -206,7 +206,7 @@ var FixtureAdapter = Adapter.extend({
   findQuery: function(store, type, query, array) {
     var fixtures = this.fixturesForType(type);
 
-    Ember.assert("Unable to find fixtures for model type "+type.toString(), fixtures);
+    Ember.assert("Unable to find fixtures for model type " + type.toString(), fixtures);
 
     fixtures = this.queryFixtures(fixtures, query, type);
 
