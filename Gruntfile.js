@@ -21,10 +21,18 @@ module.exports = function(grunt){
     'jshint'
   ]);
 
-  grunt.registerTask('buildTests', ['concat:tests']);
-  grunt.registerTask('dev', [ 'buildPackages', 'buildTests', 'connect', 'watch' ]);
+  grunt.registerTask('prepareTests', ['buildPackages', 'concat:tests', 'connect']);
+
+  grunt.registerTask('test',         ['prepareTests', 'qunit:local']);
+  grunt.registerTask('test:local',   'test');
+  grunt.registerTask('test:release', ['prepareTests', 'qunit:release']);
+  grunt.registerTask('test:beta',    ['prepareTests', 'qunit:beta']);
+  grunt.registerTask('test:canary',  ['prepareTests', 'qunit:canary']);
+  grunt.registerTask('test:all',     ['prepareTests', 'qunit:local', 'qunit:release', 'qunit:beta', 'qunit:canary']);
+
+  grunt.registerTask('dev', [ 'prepareTests', 'watch' ]);
   grunt.registerTask('server', 'dev');
-  grunt.registerTask('test', ['buildPackages', 'buildTests', 'connect', 'qunit']);
+
   grunt.registerTask('dist', ['buildPackages', 'emberDefeatureify:stripDebug', 'uglify']);
   grunt.registerTask('default', ['test']);
 };
