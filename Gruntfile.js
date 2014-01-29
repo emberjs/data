@@ -21,16 +21,17 @@ module.exports = function(grunt){
     'jshint'
   ]);
 
-  grunt.registerTask('prepareTests', ['buildPackages', 'concat:tests', 'connect']);
+  grunt.registerTask('prepareTests', ['buildPackages', 'concat:tests']);
 
-  grunt.registerTask('test',         ['prepareTests', 'qunit:local']);
+  grunt.registerTask('test:server',  ['prepareTests', 'connect']);
+  grunt.registerTask('test',         ['test:server', 'qunit:local']);
   grunt.registerTask('test:local',   'test');
-  grunt.registerTask('test:release', ['prepareTests', 'qunit:release']);
-  grunt.registerTask('test:beta',    ['prepareTests', 'qunit:beta']);
-  grunt.registerTask('test:canary',  ['prepareTests', 'qunit:canary']);
-  grunt.registerTask('test:all',     ['prepareTests', 'qunit:local', 'qunit:release', 'qunit:beta', 'qunit:canary']);
+  grunt.registerTask('test:release', ['test:server', 'qunit:release']);
+  grunt.registerTask('test:beta',    ['test:server', 'qunit:beta']);
+  grunt.registerTask('test:canary',  ['test:server', 'qunit:canary']);
+  grunt.registerTask('test:all',     ['test:server', 'qunit:local', 'qunit:release', 'qunit:beta', 'qunit:canary']);
 
-  grunt.registerTask('dev', [ 'prepareTests', 'watch' ]);
+  grunt.registerTask('dev', [ 'test:server', 'watch' ]);
   grunt.registerTask('server', 'dev');
 
   grunt.registerTask('dist', ['buildPackages', 'emberDefeatureify:stripDebug', 'uglify']);

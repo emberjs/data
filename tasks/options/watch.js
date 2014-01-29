@@ -2,11 +2,11 @@ module.exports = {
 
   packages: {
     files: [ 'packages/**/*.js', '!packages/**/test/**/*.js'],
-    tasks: [ 'buildPackages', 'buildTests', 'qunit' ]
+    tasks: [ 'buildPackages', 'prepareTests', 'qunit:local' ]
   },
 
   tests: {
     files: [ 'packages/**/test/**/*.js' ],
-    tasks: [ 'buildTests', 'qunit' ]
+    tasks: [ 'prepareTests', 'qunit:local' ]
   }
 };
