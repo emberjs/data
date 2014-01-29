@@ -13,7 +13,7 @@ if ('undefined' === typeof DS) {
   /**
     @property VERSION
     @type String
-    @default '<%= pkg.version %>'
+    @default '<%= versionStamp %>'
     @static
   */
   DS = Ember.Namespace.create({
