@@ -37,4 +37,6 @@ module.exports = function(grunt){
 
   grunt.registerTask('dist', ['buildPackages', 'emberDefeatureify:stripDebug', 'uglify:dist']);
   grunt.registerTask('default', ['test']);
+
+  grunt.registerTask('docs', ['setVersionStamp', 'yuidoc']);
 };
