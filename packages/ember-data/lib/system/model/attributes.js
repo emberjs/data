@@ -229,12 +229,12 @@ function getValue(record, key) {
 }
 
 /**
-  `DS.attr` defines an attribute on a [DS.Model](DS.Model.html).
+  `DS.attr` defines an attribute on a [DS.Model](/api/data/classes/DS.Model.html).
   By default, attributes are passed through as-is, however you can specify an
   optional type to have the value automatically transformed.
   Ember Data ships with four basic transform types: `string`, `number`,
   `boolean` and `date`. You can define your own transforms by subclassing
-  [DS.Transform](DS.Transform.html).
+  [DS.Transform](/api/data/classes/DS.Transform.html).
 
   `DS.attr` takes an optional hash as a second parameter, currently
   supported options are:
