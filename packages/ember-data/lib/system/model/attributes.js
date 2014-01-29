@@ -277,6 +277,10 @@ function attr(type, options) {
       var oldValue = getValue(this, key);
 
       if (value !== oldValue) {
+        // Add the new value to the changed attributes hash; it will get deleted by
+        // the 'didSetProperty' handler if it is no different from the original value
+        this._attributes[key] = value;
+
         this.send('didSetProperty', {
           name: key,
           oldValue: oldValue,
@@ -285,7 +289,6 @@ function attr(type, options) {
         });
       }
 
-      this._attributes[key] = value;
       return value;
     } else if (hasValue(this, key)) {
       return getValue(this, key);
