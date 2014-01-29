@@ -183,6 +183,22 @@ test("setting a property to undefined on a newly created record should not impac
   equal(get(tag, 'currentState.stateName'), "root.loaded.created.uncommitted");
 });
 
+// NOTE: this is a 'backdoor' test that ensures internal consistency, and should be
+// thrown out if/when the current `_attributes` hash logic is removed.
+test("setting a property back to its original value removes the property from the `_attributes` hash", function() {
+  store.find(Person, 1).then(async(function(person) {
+    equal(person._attributes.name, undefined, "the `_attributes` hash is clean");
+
+    set(person, 'name', "Niceguy Dale");
+
+    equal(person._attributes.name, "Niceguy Dale", "the `_attributes` hash contains the changed value");
+
+    set(person, 'name', "Scumbag Dale");
+
+    equal(person._attributes.name, undefined, "the `_attributes` hash is reset");
+  }));
+});
+
 module("unit/model - with a simple Person model", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
