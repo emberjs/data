@@ -79,7 +79,7 @@ function hasRelationship(type, options) {
 
 /**
   `DS.hasMany` is used to define One-To-Many and Many-To-Many
-  relationships on a [DS.Model](DS.Model.html).
+  relationships on a [DS.Model](/api/data/classes/DS.Model.html).
 
   `DS.hasMany` takes an optional hash as a second parameter, currently
   supported options are:

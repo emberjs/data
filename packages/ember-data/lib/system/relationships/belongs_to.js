@@ -44,7 +44,7 @@ function asyncBelongsTo(type, options, meta) {
 
 /**
   `DS.belongsTo` is used to define One-To-One and One-To-Many
-  relationships on a [DS.Model](DS.Model.html).
+  relationships on a [DS.Model](/api/data/classes/DS.Model.html).
 
 
   `DS.belongsTo` takes an optional hash as a second parameter, currently
