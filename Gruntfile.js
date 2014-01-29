@@ -35,6 +35,6 @@ module.exports = function(grunt){
   grunt.registerTask('dev', [ 'test:server', 'watch' ]);
   grunt.registerTask('server', 'dev');
 
-  grunt.registerTask('dist', ['buildPackages', 'emberDefeatureify:stripDebug', 'uglify']);
+  grunt.registerTask('dist', ['buildPackages', 'emberDefeatureify:stripDebug', 'uglify:dist']);
   grunt.registerTask('default', ['test']);
 };
