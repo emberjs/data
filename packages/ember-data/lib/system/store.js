@@ -1253,6 +1253,7 @@ Store = Ember.Object.extend({
         idToRecord = typeMap.idToRecord;
 
     Ember.assert('The id ' + id + ' has already been used with another record of type ' + type.toString() + '.', !id || !idToRecord[id]);
+    Ember.assert("`" + Ember.inspect(type)+ "` does not appear to be an ember-data model", (typeof type._create === 'function') );
 
     // lookupFactory should really return an object that creates
     // instances with the injections applied
