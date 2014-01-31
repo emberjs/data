@@ -268,7 +268,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @private
     @type {Object}
   */
-  currentState: null,
+  currentState: RootState.empty,
 
   /**
     When the record is in the `invalid` state this object will contain
@@ -393,7 +393,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
   _data: null,
 
   init: function() {
-    set(this, 'currentState', DS.RootState.empty);
     this._super();
     this._setup();
   },
