@@ -305,3 +305,45 @@ test("records inside a collection view should have their ids updated", function(
     container.destroy();
   }));
 });
+
+
+test("store.fetchMany should not resolve until all the records are resolve", function() {
+  var Person = DS.Model.extend();
+  var Phone = DS.Model.extend();
+
+  var adapter = TestAdapter.extend({
+    findMany: function(store, type, ids) {
+      var wait = (type === Person)? 5 : 15;
+
+      var records = ids.map(function(id) {
+        return {id: id};
+      });
+
+      return new Ember.RSVP.Promise(function(resolve, reject) {
+        Ember.run.later(function() {
+          resolve(records);
+        }, wait);
+      });
+    }
+  });
+
+  var store = createStore({
+    adapter: adapter
+  });
+
+
+  var owner = store.createRecord(Person),
+  resolver = Ember.RSVP.defer();
+
+  var records = Ember.A([
+    store.recordForId(Person, 10),
+    store.recordForId(Phone, 20),
+    store.recordForId(Phone, 21)
+  ]);
+
+  store.fetchMany(records, owner, resolver);
+  resolver.promise.then(async(function() {
+    var unloadedRecords = records.filterBy('isEmpty');
+    equal(get(unloadedRecords, 'length'), 0, 'All unloaded records should be loaded');
+  }));
+});
