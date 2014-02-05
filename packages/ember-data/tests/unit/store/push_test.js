@@ -41,14 +41,14 @@ test("Calling push with a normalized hash returns a record", function() {
     lastName: "Katz"
   });
 
-  store.find('person', 'wat').then(async(function(foundPerson) {
+  store.find('person', 'wat').then(function(foundPerson) {
     equal(foundPerson, person, "record returned via load() is the same as the record returned from find()");
     deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
       id: 'wat',
       firstName: "Yehuda",
       lastName: "Katz"
     });
-  }));
+  });
 });
 
 test("Supplying a model class for `push` is the same as supplying a string", function () {
@@ -61,13 +61,13 @@ test("Supplying a model class for `push` is the same as supplying a string", fun
     lastName: "Katz"
   });
 
-  store.find('programmer', 'wat').then(async(function(foundProgrammer) {
+  store.find('programmer', 'wat').then(function(foundProgrammer) {
     deepEqual(foundProgrammer.getProperties('id', 'firstName', 'lastName'), {
       id: 'wat',
       firstName: "Yehuda",
       lastName: "Katz"
     });
-  }));
+  });
 });
 
 test("Calling push triggers `didLoad` even if the record hasn't been requested from the adapter", function() {
@@ -96,14 +96,14 @@ test("Calling update with partial records updates just those attributes", functi
     lastName: "Katz!"
   });
 
-  store.find('person', 'wat').then(async(function(foundPerson) {
+  store.find('person', 'wat').then(function(foundPerson) {
     equal(foundPerson, person, "record returned via load() is the same as the record returned from find()");
     deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
       id: 'wat',
       firstName: "Yehuda",
       lastName: "Katz!"
     });
-  }));
+  });
 });
 
 test("Calling push with a normalized hash containing related records returns a record", function() {
@@ -159,7 +159,7 @@ test("Calling push with a normalized hash containing IDs of related records retu
     phoneNumbers: ["1", "2"]
   });
 
-  person.get('phoneNumbers').then(async(function(phoneNumbers) {
+  person.get('phoneNumbers').then(function(phoneNumbers) {
     deepEqual(phoneNumbers.map(function(item) {
       return item.getProperties('id', 'number', 'person');
     }), [{
@@ -171,7 +171,7 @@ test("Calling push with a normalized hash containing IDs of related records retu
       number: '5552121',
       person: person
     }]);
-  }));
+  });
 });
 
 test("Calling pushPayload allows pushing raw JSON", function () {

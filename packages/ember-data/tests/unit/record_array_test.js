@@ -17,11 +17,11 @@ test("a record array is backed by records", function() {
   var store = createStore();
   store.pushMany(Person, array);
 
-  store.findByIds(Person, [1,2,3]).then(async(function(records) {
+  store.findByIds(Person, [1,2,3]).then(function(records) {
     for (var i=0, l=get(array, 'length'); i<l; i++) {
       deepEqual(records[i].getProperties('id', 'name'), array[i], "a record array materializes objects on demand");
     }
-  }));
+  });
 });
 
 test("acts as a live query", function() {
@@ -55,7 +55,7 @@ test("a loaded record is removed from a record array when it is deleted", functi
     tag: store.find('tag', 1)
   });
 
-  asyncRecords.then(async(function(records) {
+  asyncRecords.then(function(records) {
     var scumbag = records.scumbag, tag = records.tag;
 
     tag.get('people').addObject(scumbag);
@@ -69,7 +69,7 @@ test("a loaded record is removed from a record array when it is deleted", functi
     scumbag.deleteRecord();
 
     equal(get(recordArray, 'length'), 0, "record is removed from the record array");
-  }));
+  });
 });
 
 // GitHub Issue #168
@@ -142,9 +142,9 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
     return Ember.RSVP.resolve(array);
   };
 
-  store.find('person', { page: 1 }).then(async(function(people) {
+  store.find('person', { page: 1 }).then(function(people) {
     equal(get(people, 'isLoaded'), true, "The array is now loaded");
-  }));
+  });
 });
 
 test("a record array should return a promise when updating", function() {
