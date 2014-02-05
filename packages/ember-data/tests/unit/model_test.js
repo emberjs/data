@@ -27,39 +27,39 @@ test("can have a property set on it", function() {
 
 test("setting a property on a record that has not changed does not cause it to become dirty", function() {
   store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
-  store.find(Person, 1).then(function(person) {
+  store.find(Person, 1).then(async(function(person) {
     equal(person.get('isDirty'), false, "precond - person record should not be dirty");
     person.set('name', "Peter");
     person.set('isDrugAddict', true);
     equal(person.get('isDirty'), false, "record does not become dirty after setting property to old value");
-  });
+  }));
 });
 
 test("resetting a property on a record cause it to become clean again", function() {
   store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
-  store.find(Person, 1).then(function(person) {
+  store.find(Person, 1).then(async(function(person) {
     equal(person.get('isDirty'), false, "precond - person record should not be dirty");
     person.set('isDrugAddict', false);
     equal(person.get('isDirty'), true, "record becomes dirty after setting property to a new value");
     person.set('isDrugAddict', true);
     equal(person.get('isDirty'), false, "record becomes clean after resetting property to the old value");
-  });
+  }));
 });
 
 test("a record reports its unique id via the `id` property", function() {
   store.push(Person, { id: 1 });
 
-  store.find(Person, 1).then(function(record) {
+  store.find(Person, 1).then(async(function(record) {
     equal(get(record, 'id'), 1, "reports id as id by default");
-  });
+  }));
 });
 
 test("a record's id is included in its toString representation", function() {
   store.push(Person, { id: 1 });
 
-  store.find(Person, 1).then(function(record) {
+  store.find(Person, 1).then(async(function(record) {
     equal(record.toString(), '<(subclass of DS.Model):'+Ember.guidFor(record)+':1>', "reports id in toString");
-  });
+  }));
 });
 
 test("trying to set an `id` attribute should raise", function() {
@@ -77,9 +77,9 @@ test("trying to set an `id` attribute should raise", function() {
 test("it should use `_reference` and not `reference` to store its reference", function() {
   store.push(Person, { id: 1 });
 
-  store.find(Person, 1).then(function(record) {
+  store.find(Person, 1).then(async(function(record) {
     equal(record.get('reference'), undefined, "doesn't shadow reference key");
-  });
+  }));
 });
 
 test("it should cache attributes", function() {
@@ -94,11 +94,11 @@ test("it should cache attributes", function() {
 
   store.push(Post, { id: 1 });
 
-  store.find(Post, 1).then(function(record) {
+  store.find(Post, 1).then(async(function(record) {
     record.set('updatedAt', date);
     deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
     strictEqual(get(record, 'updatedAt'), get(record, 'updatedAt'), "second get still returns the same object");
-  });
+  }));
 });
 
 module("unit/model - DS.Model updating", {
@@ -116,10 +116,10 @@ module("unit/model - DS.Model updating", {
 });
 
 test("a DS.Model can update its attributes", function() {
-  store.find(Person, 2).then(function(person) {
+  store.find(Person, 2).then(async(function(person) {
     set(person, 'name', "Brohuda Katz");
     equal(get(person, 'name'), "Brohuda Katz", "setting took hold");
-  });
+  }));
 });
 
 test("a DS.Model can have a defaultValue", function() {
@@ -186,7 +186,7 @@ test("setting a property to undefined on a newly created record should not impac
 // NOTE: this is a 'backdoor' test that ensures internal consistency, and should be
 // thrown out if/when the current `_attributes` hash logic is removed.
 test("setting a property back to its original value removes the property from the `_attributes` hash", function() {
-  store.find(Person, 1).then(function(person) {
+  store.find(Person, 1).then(async(function(person) {
     equal(person._attributes.name, undefined, "the `_attributes` hash is clean");
 
     set(person, 'name', "Niceguy Dale");
@@ -196,7 +196,7 @@ test("setting a property back to its original value removes the property from th
     set(person, 'name', "Scumbag Dale");
 
     equal(person._attributes.name, undefined, "the `_attributes` hash is reset");
-  });
+  }));
 });
 
 module("unit/model - with a simple Person model", {
@@ -277,9 +277,9 @@ var converts = function(type, provided, expected) {
   testStore.push(Model, serializer.normalize(Model, { id: 1, name: provided }));
   testStore.push(Model, serializer.normalize(Model, { id: 2 }));
 
-  testStore.find('model', 1).then(function(record) {
+  testStore.find('model', 1).then(async(function(record) {
     deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
-  });
+  }));
 
   // See: Github issue #421
   // record = testStore.find(Model, 2);
@@ -298,9 +298,9 @@ var convertsFromServer = function(type, provided, expected) {
       serializer = DS.JSONSerializer.create({ store: testStore, container: container });
 
   testStore.push(Model, serializer.normalize(Model, { id: "1", name: provided }));
-  testStore.find('model', 1).then(function(record) {
+  testStore.find('model', 1).then(async(function(record) {
     deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
-  });
+  }));
 };
 
 var convertsWhenSet = function(type, provided, expected) {
@@ -311,10 +311,10 @@ var convertsWhenSet = function(type, provided, expected) {
   var testStore = createStore({model: Model});
 
   testStore.push(Model, { id: 2 });
-  var record = testStore.find('model', 2).then(function(record) {
+  var record = testStore.find('model', 2).then(async(function(record) {
     set(record, 'name', provided);
     deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
-  });
+  }));
 };
 
 test("a DS.Model can describe String attributes", function() {
@@ -362,10 +362,10 @@ test("a DS.Model can describe Date attributes", function() {
   });
 
   store.push(Person, { id: 1 });
-  store.find(Person, 1).then(function(record) {
+  store.find(Person, 1).then(async(function(record) {
     record.set('updatedAt', date);
     deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
-  });
+  }));
 
   convertsFromServer('date', dateString, date);
   convertsWhenSet('date', date, dateString);
@@ -391,10 +391,10 @@ test("ensure model exits loading state, materializes data and fulfills promise o
     })
   });
 
-  store.find(Person, 1).then(function(person) {
+  store.find(Person, 1).then(async(function(person) {
     equal(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
     equal(get(person, 'isLoaded'), true, 'model is loaded');
-  });
+  }));
 });
 
 test("A DS.Model can be JSONified", function() {

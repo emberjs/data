@@ -101,9 +101,9 @@ test("A record with no changes can still be saved", function() {
 
   var person = store.push(Person, { id: 1, name: "Tom Dale" });
 
-  person.save().then(function() {
+  person.save().then(async(function() {
     equal(person.get('name'), "Thomas Dale", "the updates occurred");
-  });
+  }));
 });
 
 test("A dirty record can be reloaded", function() {
@@ -119,9 +119,9 @@ test("A dirty record can be reloaded", function() {
 
   person.set('name', "Tomasz Dale");
 
-  person.reload().then(function() {
+  person.reload().then(async(function() {
     equal(person.get('isDirty'), true, "the person is dirty");
     equal(person.get('name'), "Tomasz Dale", "the local changes remain");
     equal(person.get('city'), "Portland", "the new changes apply");
-  });
+  }));
 });

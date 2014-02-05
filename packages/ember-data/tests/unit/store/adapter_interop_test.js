@@ -65,9 +65,9 @@ test("Returning a promise from `find` asynchronously loads data", function() {
     name: DS.attr('string')
   });
 
-  currentStore.find(currentType, 1).then(function(object) {
+  currentStore.find(currentType, 1).then(async(function(object) {
     strictEqual(get(object, 'name'), "Scumbag Dale", "the data was pushed");
-  });
+  }));
 });
 
 test("IDs provided as numbers are coerced to strings", function() {
@@ -83,14 +83,14 @@ test("IDs provided as numbers are coerced to strings", function() {
     name: DS.attr('string')
   });
 
-  currentStore.find(currentType, 1).then(function(object) {
+  currentStore.find(currentType, 1).then(async(function(object) {
     equal(typeof object.get('id'), 'string', "id was coerced to a string");
     currentStore.push(currentType, { id: 2, name: "Scumbag Sam Saffron" });
     return currentStore.find(currentType, 2);
-  }).then(function(object) {
+  })).then(async(function(object) {
     ok(object, "object was found");
     equal(typeof object.get('id'), 'string', "id is a string despite being supplied and searched for as a number");
-  });
+  }));
 });
 
 
@@ -104,13 +104,13 @@ test("can load data for the same record if it is not dirty", function() {
 
   store.push(Person, { id: 1, name: "Tom Dale" });
 
-  var tom = store.find(Person, 1).then(function(tom) {
+  var tom = store.find(Person, 1).then(async(function(tom) {
     equal(get(tom, 'isDirty'), false, "precond - record is not dirty");
     equal(get(tom, 'name'), "Tom Dale", "returns the correct name");
 
     store.push(Person, { id: 1, name: "Captain Underpants" });
     equal(get(tom, 'name'), "Captain Underpants", "updated record with new date");
-  });
+  }));
 
 });
 
@@ -132,9 +132,9 @@ test("pushMany extracts ids from an Array of hashes if no ids are specified", fu
   var Person = DS.Model.extend({ name: DS.attr('string') });
 
   store.pushMany(Person, array);
-  store.find(Person, 1).then(function(person) {
+  store.find(Person, 1).then(async(function(person) {
     equal(get(person, 'name'), "Scumbag Dale", "correctly extracted id for loaded data");
-  });
+  }));
 });
 
 test("loadMany takes an optional Object and passes it on to the Adapter", function() {
@@ -269,9 +269,9 @@ test("if an id is supplied in the initial data hash, it can be looked up using `
 
   var person = store.createRecord(Person, { id: 1, name: "Brohuda Katz" });
 
-  store.find(Person, 1).then(function(again) {
+  store.find(Person, 1).then(async(function(again) {
     strictEqual(person, again, "the store returns the loaded object");
-  });
+  }));
 });
 
 test("records inside a collection view should have their ids updated", function() {
@@ -297,13 +297,13 @@ test("records inside a collection view should have their ids updated", function(
   var tom = store.createRecord(Person, {name: 'Tom Dale'});
   var yehuda = store.createRecord(Person, {name: 'Yehuda Katz'});
 
-  Ember.RSVP.all([ tom.save(), yehuda.save() ]).then(function() {
+  Ember.RSVP.all([ tom.save(), yehuda.save() ]).then(async(function() {
     container.content.forEach(function(person, index) {
       equal(person.get('id'), index + 1, "The record's id should be correct.");
     });
 
     container.destroy();
-  });
+  }));
 });
 
 
@@ -330,6 +330,7 @@ test("store.fetchMany should not resolve until all the records are resolve", fun
   var store = createStore({
     adapter: adapter
   });
+
 
   var owner = store.createRecord(Person),
   resolver = Ember.RSVP.defer();

@@ -20,10 +20,10 @@ test("a record receives a didLoad callback when it has finished loading", functi
     adapter: adapter
   });
 
-  store.find(Person, 1).then(function(person) {
+  store.find(Person, 1).then(async(function(person) {
     equal(person.get('id'), "1", "The person's ID is available");
     equal(person.get('name'), "Foo", "The person's properties are available");
-  });
+  }));
 });
 
 test("a record receives a didUpdate callback when it has finished updating", function() {
@@ -58,12 +58,12 @@ test("a record receives a didUpdate callback when it has finished updating", fun
   var asyncPerson = store.find(Person, 1);
   equal(callCount, 0, "precond - didUpdate callback was not called yet");
 
-  asyncPerson.then(function(person) {
+  asyncPerson.then(async(function(person) {
     person.set('bar', "Bar");
     return person.save();
-  }).then(function() {
+  })).then(async(function() {
     equal(callCount, 1, "didUpdate called after update");
-  });
+  }));
 });
 
 test("a record receives a didCreate callback when it has finished updating", function() {
@@ -93,9 +93,9 @@ test("a record receives a didCreate callback when it has finished updating", fun
 
   var person = store.createRecord(Person, { id: 69, name: "Newt Gingrich" });
 
-  person.save().then(function() {
+  person.save().then(async(function() {
     equal(callCount, 1, "didCreate called after commit");
-  });
+  }));
 });
 
 test("a record receives a didDelete callback when it has finished deleting", function() {
@@ -131,12 +131,12 @@ test("a record receives a didDelete callback when it has finished deleting", fun
   var asyncPerson = store.find(Person, 1);
   equal(callCount, 0, "precond - didDelete callback was not called yet");
 
-  asyncPerson.then(function(person) {
+  asyncPerson.then(async(function(person) {
     person.deleteRecord();
     return person.save();
-  }).then(function() {
+  })).then(async(function() {
     equal(callCount, 1, "didDelete called after delete");
-  });
+  }));
 });
 
 test("a record receives a becameInvalid callback when it became invalid", function() {
@@ -175,12 +175,12 @@ test("a record receives a becameInvalid callback when it became invalid", functi
   // Make sure that the error handler has a chance to attach before
   // save fails.
   Ember.run(function() {
-    asyncPerson.then(function(person) {
+    asyncPerson.then(async(function(person) {
       person.set('bar', "Bar");
       return person.save();
-    }).then(null, function() {
+    })).then(null, async(function() {
       equal(callCount, 1, "becameInvalid called after invalidating");
-    });
+    }));
   });
 });
 

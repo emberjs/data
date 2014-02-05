@@ -24,20 +24,20 @@ module("unit/store/unload - Store unloading records", {
 test("unload a dirty record", function() {
   store.push(Record, {id: 1, title: 'toto'});
 
-  store.find(Record, 1).then(function(record) {
+  store.find(Record, 1).then(async(function(record) {
     record.set('title', 'toto2');
 
     equal(get(record, 'isDirty'), true, "record is dirty");
     expectAssertion(function() {
       record.unloadRecord();
     }, "You can only unload a loaded, non-dirty record.", "can not unload dirty record");
-  });
+  }));
 });
 
 test("unload a record", function() {
   store.push(Record, {id: 1, title: 'toto'});
 
-  store.find(Record, 1).then(function(record) {
+  store.find(Record, 1).then(async(function(record) {
     equal(get(record, 'id'), 1, "found record with id 1");
     equal(get(record, 'isDirty'), false, "record is not dirty");
 
@@ -49,7 +49,7 @@ test("unload a record", function() {
     tryToFind = false;
     store.find(Record, 1);
     equal(tryToFind, true, "not found record with id 1");
-  });
+  }));
 });
 
 module("DS.Store - unload record with relationships");
@@ -88,16 +88,16 @@ test("can commit store after unload record with relationships", function() {
     product: store.find(Product, 1)
   });
 
-  asyncRecords.then(function(records) {
+  asyncRecords.then(async(function(records) {
     like = store.createRecord(Like, { id: 1, product: product });
     records.like = like.save();
     return Ember.RSVP.hash(records);
-  }).then(function(records) {
+  })).then(async(function(records) {
     store.unloadRecord(records.product);
 
     return store.find(Product, 1);
-  }).then(function(product) {
+  })).then(async(function(product) {
     equal(product.get('description'), 'cuisinart', "The record was unloaded and the adapter's `find` was called");
     store.destroy();
-  });
+  }));
 });
