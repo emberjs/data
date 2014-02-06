@@ -384,8 +384,16 @@ var JSONSerializer = Ember.Object.extend({
     var relationshipType = DS.RelationshipChange.determineRelationshipType(record.constructor, relationship);
 
     if (relationshipType === 'manyToNone' || relationshipType === 'manyToMany') {
-      json[key] = get(record, key).mapBy('id');
-      // TODO support for polymorphic manyToNone and manyToMany relationships
+      if (relationship.options.polymorphic) {
+        json[key] = get(record, key).map( function(record) {
+          return {
+            id: record.get('id'),
+            type: record.constructor.typeKey
+          };
+        });
+      } else {
+        json[key] = get(record, key).mapBy('id');
+      }
     }
   },
 
