@@ -17,7 +17,7 @@ if ('undefined' === typeof DS) {
     @static
   */
   DS = Ember.Namespace.create({
-    VERSION: '<%= pkg.version %>'
+    VERSION: '<%= versionStamp %>'
   });
 
   if ('undefined' !== typeof window) {
