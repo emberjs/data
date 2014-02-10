@@ -1,6 +1,7 @@
 module.exports = {
   options: {
-    jshintrc: ".jshintrc"
+    jshintrc: ".jshintrc",
+    force: true
   },
   src: [ 'dist/ember-data.js' ]
 };
