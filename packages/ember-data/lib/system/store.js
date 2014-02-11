@@ -332,6 +332,14 @@ Store = Ember.Object.extend({
     the query, and return a promise that will be resolved once the server
     responds.
 
+    Alternatively, to find a record by a query call `find` with an array as
+    the second parameter:
+
+    ```javascript
+    var filters = [ { name: 'filter', value: 'age<30' }, { name: 'filter', value: 'age>20'} ];
+    store.find(App.Person, filters });
+    ```
+
     @method find
     @param {String or subclass of DS.Model} type
     @param {Object|String|Integer|null} id
@@ -346,7 +354,7 @@ Store = Ember.Object.extend({
     }
 
     // We are passed a query instead of an id.
-    if (Ember.typeOf(id) === 'object') {
+    if (Ember.typeOf(id) === 'object' || Ember.typeOf(id) === 'array') {
       return this.findQuery(type, id);
     }
 
