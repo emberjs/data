@@ -331,9 +331,7 @@ test("store.fetchMany should not resolve until all the records are resolve", fun
     adapter: adapter
   });
 
-
-  var owner = store.createRecord(Person),
-  resolver = Ember.RSVP.defer();
+  var owner = store.createRecord(Person);
 
   var records = Ember.A([
     store.recordForId(Person, 10),
@@ -341,8 +339,7 @@ test("store.fetchMany should not resolve until all the records are resolve", fun
     store.recordForId(Phone, 21)
   ]);
 
-  store.fetchMany(records, owner, resolver);
-  resolver.promise.then(async(function() {
+  store.fetchMany(records, owner).then(async(function() {
     var unloadedRecords = records.filterBy('isEmpty');
     equal(get(unloadedRecords, 'length'), 0, 'All unloaded records should be loaded');
   }));
