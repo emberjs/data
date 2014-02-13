@@ -636,7 +636,7 @@ var JSONSerializer = Ember.Object.extend({
     App.PostSerializer = DS.JSONSerializer.extend({
       extractArray: function(store, type, payload) {
         return payload.map(function(json) {
-          return this.extractSingle(json);
+          return this.extractSingle(store, type, json);
         }, this);
       }
     });
