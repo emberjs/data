@@ -480,9 +480,9 @@ Store = Ember.Object.extend({
     @private
     @param {Array} records
     @param {DS.Model} owner
-    @param {Resolver} resolver
+    @return {Promise} promise
   */
-  fetchMany: function(records, owner, resolver) {
+  fetchMany: function(records, owner) {
     if (!records.length) { return; }
 
     // Group By Type
@@ -506,7 +506,7 @@ Store = Ember.Object.extend({
       promises.push(_findMany(adapter, this, type, ids, owner));
     }, this);
 
-    resolver.resolve(Ember.RSVP.all(promises));
+    return Ember.RSVP.all(promises);
   },
 
   /**
@@ -575,7 +575,7 @@ Store = Ember.Object.extend({
         this.recordArrayManager.registerWaitingRecordArray(record, manyArray);
       }, this);
 
-      this.fetchMany(unloadedRecords, owner, resolver);
+      resolver.resolve(this.fetchMany(unloadedRecords, owner));
     } else {
       if (resolver) { resolver.resolve(); }
       manyArray.set('isLoaded', true);
@@ -601,8 +601,7 @@ Store = Ember.Object.extend({
     @param {DS.Model} owner
     @param {any} link
     @param {String or subclass of DS.Model} type
-    @param {Resolver} resolver
-    @return {DS.ManyArray}
+    @return {Promise} promise
   */
   findHasMany: function(owner, link, relationship, resolver) {
     var adapter = this.adapterFor(owner.constructor);
@@ -621,15 +620,15 @@ Store = Ember.Object.extend({
     @param {DS.Model} owner
     @param {any} link
     @param {Relationship} relationship
-    @param {Resolver} resolver
+    @return {Promise} promise
   */
-  findBelongsTo: function(owner, link, relationship, resolver) {
+  findBelongsTo: function(owner, link, relationship) {
     var adapter = this.adapterFor(owner.constructor);
 
     Ember.assert("You tried to load a belongsTo relationship but you have no adapter (for " + owner.constructor + ")", adapter);
     Ember.assert("You tried to load a belongsTo relationship from a specified `link` in the original payload but your adapter does not implement `findBelongsTo`", adapter.findBelongsTo);
 
-    resolver.resolve(_findBelongsTo(adapter, this, owner, link, relationship));
+    return _findBelongsTo(adapter, this, owner, link, relationship);
   },
 
   /**
