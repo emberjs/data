@@ -599,8 +599,8 @@ var RESTAdapter = Adapter.extend({
       hash.data = JSON.stringify(hash.data);
     }
 
-    if (this.headers !== undefined) {
-      var headers = this.headers;
+    var headers = get(this, 'headers');
+    if (headers !== undefined) {
       hash.beforeSend = function (xhr) {
         forEach.call(Ember.keys(headers), function(key) {
           xhr.setRequestHeader(key, headers[key]);
