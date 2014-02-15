@@ -22,6 +22,9 @@ var retrieveFromCurrentState = Ember.computed('currentState', function(key, valu
   @uses Ember.Evented
 */
 var Model = Ember.Object.extend(Ember.Evented, {
+  _recordArrays: undefined,
+  _relationships: undefined,
+  _loadingRecordArrays: undefined,
   /**
     If this property is `true` the record is in the `empty`
     state. Empty is the first state all records enter after they have
@@ -576,7 +579,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @private
   */
   unloadRecord: function() {
-    Ember.assert("You can only unload a loaded, non-dirty record.", !get(this, 'isDirty'));
+    if (this.isDestroyed) { return; }
 
     this.send('unloadRecord');
   },
@@ -590,8 +593,10 @@ var Model = Ember.Object.extend(Ember.Evented, {
       if (relationship.kind === 'belongsTo') {
         set(this, name, null);
       } else if (relationship.kind === 'hasMany') {
-        var hasMany = this._relationships[relationship.name];
-        if (hasMany) { hasMany.clear(); }
+        var hasMany = this._relationships[name];
+        if (hasMany) { // relationships are created lazily
+          hasMany.destroy();
+        }
       }
     }, this);
   },
@@ -997,6 +1002,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
     }
 
     this._deferredTriggers.length = 0;
+  },
+
+  willDestroy: function() {
+    this._super();
+    this.clearRelationships();
   }
 });
 

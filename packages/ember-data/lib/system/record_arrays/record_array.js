@@ -162,6 +162,23 @@ var RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
     }, null, "DS: RecordArray#save apply Ember.NativeArray");
 
     return PromiseArray.create({ promise: promise });
+  },
+
+  _dissociateFromOwnRecords: function() {
+    var array = this;
+
+    this.forEach(function(record){
+      var recordArrays = record._recordArrays;
+
+      if (recordArrays) {
+        recordArrays.remove(array);
+      }
+    });
+  },
+
+  willDestroy: function(){
+    this._dissociateFromOwnRecords();
+    this._super();
   }
 });
 

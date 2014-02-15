@@ -301,6 +301,10 @@ var DirtyState = {
     becomeDirty: Ember.K,
     pushedData: Ember.K,
 
+    unloadRecord: function(record) {
+      Ember.assert("You can only unload a record which is not inFlight. `" + Ember.inspect(record) + " `", false);
+    },
+
     // TODO: More robust semantics around save-while-in-flight
     willCommit: Ember.K,
 
@@ -391,7 +395,6 @@ function dirtyState(options) {
 
 var createdState = dirtyState({
   dirtyType: 'created',
-
   // FLAGS
   isNew: true
 });
@@ -416,6 +419,12 @@ createdState.uncommitted.rollback = function(record) {
 
 createdState.uncommitted.propertyWasReset = Ember.K;
 
+function assertAgainstUnloadRecord(record) {
+  Ember.assert("You can only unload a record which is not inFlight. `" + Ember.inspect(record) + "`", false);
+}
+
+updatedState.inFlight.unloadRecord = assertAgainstUnloadRecord;
+
 updatedState.uncommitted.deleteRecord = function(record) {
   record.transitionTo('deleted.uncommitted');
   record.clearRelationships();
@@ -439,6 +448,13 @@ var RootState = {
   // in-flight state, rolling back the record doesn't move
   // you out of the in-flight state.
   rolledBack: Ember.K,
+  unloadRecord: function(record) {
+    // clear relationships before moving to deleted state
+    // otherwise it fails
+    record.clearRelationships();
+    record.transitionTo('deleted.saved');
+  },
+
 
   propertyWasReset: Ember.K,
 
@@ -631,6 +647,8 @@ var RootState = {
       isSaving: true,
 
       // EVENTS
+
+      unloadRecord: assertAgainstUnloadRecord,
 
       // TODO: More robust semantics around save-while-in-flight
       willCommit: Ember.K,
