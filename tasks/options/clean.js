@@ -1,3 +1,3 @@
 module.exports = {
-  main: [ 'tmp/**/*' ]
+  main: [ 'tmp/!connect.lock' ]
 };
