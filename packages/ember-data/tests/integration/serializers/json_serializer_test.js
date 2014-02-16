@@ -23,6 +23,18 @@ module("integration/serializer/json - JSONSerializer", {
   }
 });
 
+test('extractArray - normalize main type records', function() {
+  Post.reopen({
+    count: DS.attr('number')
+  });
+
+  var posts = [{id: "1", count: "3"}];
+
+  var array = env.serializer.extractArray(env.store, Post, posts);
+
+  strictEqual(array[0].count, 3);
+});
+
 test("serializeAttribute", function() {
   post = env.store.createRecord("post", { title: "Rails is omakase"});
   var json = {};

@@ -649,7 +649,9 @@ var JSONSerializer = Ember.Object.extend({
     @return {Array} array An array of deserialized objects
   */
   extractArray: function(store, type, payload) {
-    return this.normalize(type, payload);
+    return payload.map(function(json) {
+      return this.extractSingle(store, type, json);
+    }, this);
   },
 
   /**
