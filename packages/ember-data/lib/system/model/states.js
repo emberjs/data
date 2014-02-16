@@ -357,6 +357,10 @@ var DirtyState = {
 
     invokeLifecycleCallbacks: function(record) {
       record.triggerLater('becameInvalid', record);
+    },
+
+    exit: function(record) {
+      record._inFlightAttributes = {};
     }
   }
 };
