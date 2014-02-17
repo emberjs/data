@@ -32,6 +32,17 @@ var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'n
     }
   });
   ```
+  
+  The `DS.InvalidError` must be constructed with a single object whose
+  keys are the invalid model properties, and whose values are the
+  corresponding error messages. For example:
+  
+  ```javascript
+  return new DS.InvalidError({
+    length: 'Must be less than 15',
+    name: 'Must not be blank
+  });
+  ```
 
   @class InvalidError
   @namespace DS
