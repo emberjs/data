@@ -1,5 +1,86 @@
 # Ember Data Changelog
 
+### Ember DAta 1.0.0-beta.7 _(February 19, 2014)_
+
+* Release 1.0.0-beta.7
+* Document required structure for DS.InvalidError
+* Update ember version to 1.4.0
+* lock server while compiling assets
+* [DOC] Fix extractArray
+* Don't pass the resolver where it's not needed
+* force jshint on failure
+* explicitly set a handlebars dependency to a version known to work.
+* Remove Dead Code from RESTAdapter's Test
+* Ensure the SHA is included in the VERSION.
+* Destroying the store now:
+* Revert "remove unneeded and misleading "async" test helpers"
+* Break Down JSONSerializer#serializeBelongsTo Test
+* remove unneeded and misleading "async" test helpers
+* Wait on all the findMany promises to resolve before resolving the store#fetchMany promise.
+* A records initial currentState can be on the prototype. Not need in doing the extra set on each init
+* create promise labels outside of already visually complex code-paths
+* reduce reusing argument variables, as it reduces clarity and makes debugging harder.
+* hasMany relationship property are essentially readOnly, lets mark them as such.
+* Improved assertion if an non-ember-data model has snuck in this far.
+* Update instructions for running tests.
+* Maintain consistency of internal changed attributes hash.
+* Remove 0.13 era architecture file.
+* Remove Ruby remnants.
+* Add `grunt docs` task.
+* Use local versions of grunt and bower for Travis.
+* Do not generate a gzip report from uglify:dist.
+* Add current revision back to build output.
+* keep a local version of grunt-cli (dev only)
+* Fix `grunt server` automated testing upon file change.
+* Ensure builds are generated before publishing.
+* Add build publishing to builds.emberjs.com.
+* Fix the links to DS.Model and DS.Transform in the DS Namespace method docs
+* Enable multi-channel testing.
+* Allow testing against multiple versions of Ember & jQuery.
+* Remove restriction for jQuery version in bower.json
+* Object.create does not exist in old IE.
+* Fix bug where an undefined id would trigger a `findAll`
+* Avoid instance of aliasMethod due to problems with Chrome debugger
+* Use latest stable Ember.js
+* Cleanup. - Ember.computed takes the DK as a first argument, no need to all property on it again - misc formatting as I go.
+* Upgrade QUnit to v1.13.0
+* Use defeatureify to strip debug statements from output.
+* Prefer Promise.cast over resolve.
+* Use the new naming for active_model_adapter integration tests.
+* Ensure that bower is installed.
+* mark more model properties as readOnly
+* allow connect port to be configurable
+* misc cleanup
+* once is already saved off at the top of the file
+* add `grunt server`, and ensure the server(dev) version builds tests, so you can run tests
+* postinstall bower install
+* lazy create errors object on models
+* Remove incorrect return documentation on store#pushPayload
+* Pass arguments to `options.defaultValue` if a function.
+* Revert "DateTransform serializes as a number instead of string. The deserializer was already considering this case. Adds millisecond precision to DateTransform"
+* Should install grunt-cli globally.
+* Now ember-data is built by `grunt buildPackages`
+* Fix ember-data version
+* Add missing task `grunt test`
+* Export `Store` as default from ./system/store
+* Use `expectDeprecation` helper in lookup tests
+* Import `Store` instead of referencing it via `DS.Store`
+* Register already imported transforms instead of `DS.XXX`
+* Add `bower_components` to .gitignore
+* Remove ruby-land tasks from Travis.
+* Remove remnants of Ruby-land.
+* Post release version bump.
+* add grunt and bower install to .travis.yml
+* update README with grunt workflow
+* readd ContainerProxy to DS namespace
+* fix build, import more test helper definitions from ember-dev
+* fix banner generation a bit
+* Do not trigger didSetProperty if value is unchanged.
+* add watch option, fix some test oddities
+* move some requires around
+* move grunt tasks into folders
+* ES6!
+
 ### Ember Data 1.0.0-beta.6 _(January 25, 2014)_
 
 * DateTransform serializes as a number instead of string. The deserializer was already considering this case. Adds millisecond precision to DateTransform
