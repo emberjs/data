@@ -337,7 +337,7 @@ Store = Ember.Object.extend({
 
     ```javascript
     var filters = [ { name: 'filter', value: 'age<30' }, { name: 'filter', value: 'age>20'} ];
-    store.find(App.Person, filters });
+    store.find('person', filters });
     ```
 
     @method find
