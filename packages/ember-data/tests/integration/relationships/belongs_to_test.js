@@ -15,24 +15,28 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
       messages: hasMany('message', {polymorphic: true}),
       favouriteMessage: belongsTo('message', {polymorphic: true})
     });
+
     User.toString = stringify('User');
 
     Message = DS.Model.extend({
       user: belongsTo('user'),
       created_at: attr('date')
     });
+
     Message.toString = stringify('Message');
 
     Post = Message.extend({
       title: attr('string'),
       comments: hasMany('comment')
     });
+
     Post.toString = stringify('Post');
 
     Comment = Message.extend({
       body: DS.attr('string'),
       message: DS.belongsTo('message', { polymorphic: true })
     });
+
     Comment.toString = stringify('Comment');
 
     env = setupStore({
@@ -60,15 +64,23 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
   expect(1);
 
   env.store.modelFor('post').reopen({
-    user: DS.belongsTo('user', { async: true })
+    user: DS.belongsTo('user', {
+      async: true,
+      inverse: 'messages'
+    })
   });
 
   env.adapter.find = function(store, type, id) {
     ok(true, "The adapter's find method should be called");
-    return Ember.RSVP.resolve({ id: 1 });
+    return Ember.RSVP.resolve({
+      id: 1
+    });
   };
 
-  env.store.push('post', { id: 1, user: 2});
+  env.store.push('post', {
+    id: 1,
+    user: 2
+  });
 
   env.store.find('post', 1).then(async(function(post) {
     post.get('user');
@@ -81,7 +93,10 @@ test("Only a record of the same type can be used with a monomorphic belongsTo re
   store.push('post', { id: 1 });
   store.push('comment', { id: 2 });
 
-  hash({ post: store.find('post', 1), comment: store.find('comment', 2) }).then(async(function(records) {
+  hash({
+    post: store.find('post', 1),
+    comment: store.find('comment', 2)
+  }).then(async(function(records) {
     expectAssertion(function() {
       records.post.set('user', records.comment);
     }, /You can only add a 'user' record to this relationship/);
@@ -119,7 +134,10 @@ test("The store can load a polymorphic belongsTo association", function() {
   env.store.push('post', { id: 1 });
   env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
 
-  hash({ message: store.find('post', 1), comment: store.find('comment', 2) }).then(async(function(records) {
+  hash({
+    message: store.find('post', 1),
+    comment: store.find('comment', 2)
+  }).then(async(function(records) {
     equal(records.comment.get('message'), records.message);
   }));
 });

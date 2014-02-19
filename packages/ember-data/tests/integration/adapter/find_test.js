@@ -16,6 +16,26 @@ module("integration/adapter/find - Finding Records", {
   }
 });
 
+test("It raises an assertion when no type is passed", function() {
+  store = createStore();
+
+  expectAssertion(function() {
+    store.find();
+  }, "You need to pass a type to the store's find method");
+});
+
+test("It raises an assertion when `undefined` is passed as id (#1705)", function() {
+  store = createStore();
+
+  expectAssertion(function() {
+    store.find(Person, undefined);
+  }, "You may not pass `undefined` as id to the store's find method");
+
+  expectAssertion(function() {
+    store.find(Person, null);
+  }, "You may not pass `null` as id to the store's find method");
+});
+
 test("When a single record is requested, the adapter's find method should be called unless it's loaded.", function() {
   expect(2);
 

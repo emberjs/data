@@ -13,7 +13,7 @@ var get = Ember.get, isEmpty = Ember.isEmpty;
   @uses Ember.Enumerable
   @uses Ember.Evented
  */
-DS.Errors = Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
+var Errors = Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
   /**
     Register with target handler
 
@@ -196,3 +196,5 @@ DS.Errors = Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     return !isEmpty(this.errorsFor(attribute));
   }
 });
+
+export default Errors;

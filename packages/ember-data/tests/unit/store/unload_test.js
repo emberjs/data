@@ -22,15 +22,23 @@ module("unit/store/unload - Store unloading records", {
 });
 
 test("unload a dirty record", function() {
-  store.push(Record, {id: 1, title: 'toto'});
+  store.push(Record, {
+    id: 1,
+    title: 'toto'
+  });
 
   store.find(Record, 1).then(async(function(record) {
     record.set('title', 'toto2');
 
+    record.send('willCommit');
     equal(get(record, 'isDirty'), true, "record is dirty");
+
     expectAssertion(function() {
       record.unloadRecord();
-    }, "You can only unload a loaded, non-dirty record.", "can not unload dirty record");
+    }, "You can only unload a record which is not inFlight. `" + Ember.inspect(record) + "`", "can not unload dirty record");
+
+    // force back into safe to unload mode.
+    record.transitionTo('deleted.saved');
   }));
 });
 

@@ -1,8 +1,6 @@
 /*globals Ember*/
 /*jshint eqnull:true*/
 
-require("ember-data/system/record_arrays");
-
 /**
   @module ember-data
 */
@@ -13,8 +11,9 @@ var isNone = Ember.isNone;
 var forEach = Ember.EnumerableUtils.forEach;
 var indexOf = Ember.EnumerableUtils.indexOf;
 var map = Ember.EnumerableUtils.map;
-var resolve = Ember.RSVP.resolve;
+var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
+var Store, PromiseObject, PromiseArray;
 
 // Implementors Note:
 //
@@ -37,9 +36,9 @@ var copy = Ember.copy;
 // and lose type information.  For example, Ember's router may put a record's
 // ID into the URL, and if we later try to deserialize that URL and find the
 // corresponding record, we will not know if it is a string or a number.
-var coerceId = function(id) {
+function coerceId(id) {
   return id == null ? null : id+'';
-};
+}
 
 /**
   The store contains all of the data for records loaded from the server.
@@ -87,7 +86,7 @@ var coerceId = function(id) {
   @namespace DS
   @extends Ember.Object
 */
-DS.Store = Ember.Object.extend({
+Store = Ember.Object.extend({
 
   /**
     @method init
@@ -163,7 +162,9 @@ DS.Store = Ember.Object.extend({
     }
 
     if (DS.Adapter.detect(adapter)) {
-      adapter = adapter.create({ container: this.container });
+      adapter = adapter.create({
+        container: this.container
+      });
     }
 
     return adapter;
@@ -337,7 +338,10 @@ DS.Store = Ember.Object.extend({
     @return {Promise} promise
   */
   find: function(type, id) {
-    if (id === undefined) {
+    Ember.assert("You need to pass a type to the store's find method", arguments.length >= 1);
+    Ember.assert("You may not pass `" + id + "` as id to the store's find method", arguments.length === 1 || !Ember.isNone(id));
+
+    if (arguments.length === 1) {
       return this.findAll(type);
     }
 
@@ -362,9 +366,9 @@ DS.Store = Ember.Object.extend({
     type = this.modelFor(type);
 
     var record = this.recordForId(type, id);
+    var fetchedRecord = this.fetchRecord(record);
 
-    var promise = this.fetchRecord(record) || resolve(record, "DS: Store#findById " + type + " with id: " + id);
-    return promiseObject(promise);
+    return promiseObject(fetchedRecord || record, "DS: Store#findById " + type + " with id: " + id);
   },
 
   /**
@@ -476,9 +480,9 @@ DS.Store = Ember.Object.extend({
     @private
     @param {Array} records
     @param {DS.Model} owner
-    @param {Resolver} resolver
+    @return {Promise} promise
   */
-  fetchMany: function(records, owner, resolver) {
+  fetchMany: function(records, owner) {
     if (!records.length) { return; }
 
     // Group By Type
@@ -490,6 +494,8 @@ DS.Store = Ember.Object.extend({
       recordsByTypeMap.get(record.constructor).push(record);
     });
 
+    var promises = [];
+
     forEach(recordsByTypeMap, function(type, records) {
       var ids = records.mapProperty('id'),
           adapter = this.adapterFor(type);
@@ -497,8 +503,10 @@ DS.Store = Ember.Object.extend({
       Ember.assert("You tried to load many records but you have no adapter (for " + type + ")", adapter);
       Ember.assert("You tried to load many records but your adapter does not implement `findMany`", adapter.findMany);
 
-      resolver.resolve(_findMany(adapter, this, type, ids, owner));
+      promises.push(_findMany(adapter, this, type, ids, owner));
     }, this);
+
+    return Ember.RSVP.all(promises);
   },
 
   /**
@@ -567,11 +575,11 @@ DS.Store = Ember.Object.extend({
         this.recordArrayManager.registerWaitingRecordArray(record, manyArray);
       }, this);
 
-      this.fetchMany(unloadedRecords, owner, resolver);
+      resolver.resolve(this.fetchMany(unloadedRecords, owner));
     } else {
       if (resolver) { resolver.resolve(); }
       manyArray.set('isLoaded', true);
-      Ember.run.once(manyArray, 'trigger', 'didLoad');
+      once(manyArray, 'trigger', 'didLoad');
     }
 
     return manyArray;
@@ -593,8 +601,7 @@ DS.Store = Ember.Object.extend({
     @param {DS.Model} owner
     @param {any} link
     @param {String or subclass of DS.Model} type
-    @param {Resolver} resolver
-    @return {DS.ManyArray}
+    @return {Promise} promise
   */
   findHasMany: function(owner, link, relationship, resolver) {
     var adapter = this.adapterFor(owner.constructor);
@@ -613,15 +620,15 @@ DS.Store = Ember.Object.extend({
     @param {DS.Model} owner
     @param {any} link
     @param {Relationship} relationship
-    @param {Resolver} resolver
+    @return {Promise} promise
   */
-  findBelongsTo: function(owner, link, relationship, resolver) {
+  findBelongsTo: function(owner, link, relationship) {
     var adapter = this.adapterFor(owner.constructor);
 
     Ember.assert("You tried to load a belongsTo relationship but you have no adapter (for " + owner.constructor + ")", adapter);
     Ember.assert("You tried to load a belongsTo relationship from a specified `link` in the original payload but your adapter does not implement `findBelongsTo`", adapter.findBelongsTo);
 
-    resolver.resolve(_findBelongsTo(adapter, this, owner, link, relationship));
+    return _findBelongsTo(adapter, this, owner, link, relationship);
   },
 
   /**
@@ -647,16 +654,12 @@ DS.Store = Ember.Object.extend({
     var array = this.recordArrayManager
       .createAdapterPopulatedRecordArray(type, query);
 
-    var adapter = this.adapterFor(type),
-        promiseLabel = "DS: Store#findQuery " + type,
-        resolver = Ember.RSVP.defer(promiseLabel);
+    var adapter = this.adapterFor(type);
 
     Ember.assert("You tried to load a query but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", adapter.findQuery);
 
-    resolver.resolve(_findQuery(adapter, this, type, query, array));
-
-    return promiseArray(resolver.promise);
+    return promiseArray(_findQuery(adapter, this, type, query, array));
   },
 
   /**
@@ -749,13 +752,15 @@ DS.Store = Ember.Object.extend({
     @param {String or subclass of DS.Model} type
   */
   unloadAll: function(type) {
-    type = this.modelFor(type);
+    var modelType = this.modelFor(type);
+    var typeMap = this.typeMapFor(modelType);
+    var records = typeMap.records.slice();
+    var record;
 
-    var typeMap = this.typeMapFor(type),
-        records = typeMap.records.splice(0), record;
-
-    while(record = records.pop()) {
+    for (var i = 0; i < records.length; i++) {
+      record = records[i];
       record.unloadRecord();
+      record.destroy(); // maybe within unloadRecord
     }
 
     typeMap.findAllCache = null;
@@ -814,7 +819,7 @@ DS.Store = Ember.Object.extend({
 
     var array = this.recordArrayManager
       .createFilteredRecordArray(type, filter);
-    promise = promise || resolve(array);
+    promise = promise || Promise.cast(array);
 
     return promiseArray(promise.then(function() {
       return array;
@@ -1019,7 +1024,8 @@ DS.Store = Ember.Object.extend({
     typeMap = {
       idToRecord: {},
       records: [],
-      metadata: {}
+      metadata: {},
+      type: type
     };
 
     typeMaps[guid] = typeMap;
@@ -1188,7 +1194,6 @@ DS.Store = Ember.Object.extend({
     @method pushPayload
     @param {String} type
     @param {Object} payload
-    @return {DS.Model} the record that was created or updated.
   */
   pushPayload: function (type, payload) {
     var serializer;
@@ -1254,6 +1259,7 @@ DS.Store = Ember.Object.extend({
         idToRecord = typeMap.idToRecord;
 
     Ember.assert('The id ' + id + ' has already been used with another record of type ' + type.toString() + '.', !id || !idToRecord[id]);
+    Ember.assert("`" + Ember.inspect(type)+ "` does not appear to be an ember-data model", (typeof type._create === 'function') );
 
     // lookupFactory should really return an object that creates
     // instances with the injections applied
@@ -1404,6 +1410,21 @@ DS.Store = Ember.Object.extend({
     var adapter = this.adapterFor(type);
 
     return serializerFor(this.container, type.typeKey, adapter && adapter.defaultSerializer);
+  },
+
+  willDestroy: function() {
+    var map = this.typeMaps;
+    var keys = Ember.keys(map);
+    var store = this;
+    var types = keys.map(byType);
+
+    this.recordArrayManager.destroy();
+
+    types.forEach(this.unloadAll, this);
+
+    function byType(entry) {
+      return map[entry].type;
+    }
   }
 });
 
@@ -1500,7 +1521,7 @@ function addUnsavedRecords(record, key, data) {
   @extends Ember.ArrayProxy
   @uses Ember.PromiseProxyMixin
 */
-DS.PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
+PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
 /**
   A `PromiseObject` is an object that acts like both an `Ember.Object`
   and a promise. When the promise is resolved the the resulting value
@@ -1530,14 +1551,18 @@ DS.PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
   @extends Ember.ObjectProxy
   @uses Ember.PromiseProxyMixin
 */
-DS.PromiseObject = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
+PromiseObject = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
 
-function promiseObject(promise) {
-  return DS.PromiseObject.create({ promise: promise });
+function promiseObject(promise, label) {
+  return PromiseObject.create({
+    promise: Promise.cast(promise, label)
+  });
 }
 
-function promiseArray(promise) {
-  return DS.PromiseArray.create({ promise: promise });
+function promiseArray(promise, label) {
+  return PromiseArray.create({
+    promise: Promise.cast(promise, label)
+  });
 }
 
 function isThenable(object) {
@@ -1576,11 +1601,12 @@ function serializerForAdapter(adapter, type) {
 
 function _find(adapter, store, type, id) {
   var promise = adapter.find(store, type, id),
-      serializer = serializerForAdapter(adapter, type);
+      serializer = serializerForAdapter(adapter, type),
+      label = "DS: Handle Adapter#find of " + type + " with id: " + id;
 
-  return resolve(promise, "DS: Handle Adapter#find of " + type + " with id: " + id).then(function(payload) {
-    Ember.assert("You made a request for a " + type.typeKey + " with id " + id + ", but the adapter's response did not have any data", payload);
-    payload = serializer.extract(store, type, payload, id, 'find');
+  return Promise.cast(promise, label).then(function(adapterPayload) {
+    Ember.assert("You made a request for a " + type.typeKey + " with id " + id + ", but the adapter's response did not have any data", adapterPayload);
+    var payload = serializer.extract(store, type, adapterPayload, id, 'find');
 
     return store.push(type, payload);
   }, function(error) {
@@ -1592,10 +1618,11 @@ function _find(adapter, store, type, id) {
 
 function _findMany(adapter, store, type, ids, owner) {
   var promise = adapter.findMany(store, type, ids, owner),
-      serializer = serializerForAdapter(adapter, type);
+      serializer = serializerForAdapter(adapter, type),
+      label = "DS: Handle Adapter#findMany of " + type;
 
-  return resolve(promise, "DS: Handle Adapter#findMany of " + type).then(function(payload) {
-    payload = serializer.extract(store, type, payload, null, 'findMany');
+  return Promise.cast(promise, label).then(function(adapterPayload) {
+    var payload = serializer.extract(store, type, adapterPayload, null, 'findMany');
 
     Ember.assert("The response from a findMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
@@ -1605,10 +1632,11 @@ function _findMany(adapter, store, type, ids, owner) {
 
 function _findHasMany(adapter, store, record, link, relationship) {
   var promise = adapter.findHasMany(store, record, link, relationship),
-      serializer = serializerForAdapter(adapter, relationship.type);
+      serializer = serializerForAdapter(adapter, relationship.type),
+      label = "DS: Handle Adapter#findHasMany of " + record + " : " + relationship.type;
 
-  return resolve(promise, "DS: Handle Adapter#findHasMany of " + record + " : " + relationship.type).then(function(payload) {
-    payload = serializer.extract(store, relationship.type, payload, null, 'findHasMany');
+  return Promise.cast(promise, label).then(function(adapterPayload) {
+    var payload = serializer.extract(store, relationship.type, adapterPayload, null, 'findHasMany');
 
     Ember.assert("The response from a findHasMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
@@ -1619,12 +1647,13 @@ function _findHasMany(adapter, store, record, link, relationship) {
 
 function _findBelongsTo(adapter, store, record, link, relationship) {
   var promise = adapter.findBelongsTo(store, record, link, relationship),
-      serializer = serializerForAdapter(adapter, relationship.type);
+      serializer = serializerForAdapter(adapter, relationship.type),
+      label = "DS: Handle Adapter#findBelongsTo of " + record + " : " + relationship.type;
 
-  return resolve(promise, "DS: Handle Adapter#findBelongsTo of " + record + " : " + relationship.type).then(function(payload) {
-    payload = serializer.extract(store, relationship.type, payload, null, 'findBelongsTo');
-
+  return Promise.cast(promise, label).then(function(adapterPayload) {
+    var payload = serializer.extract(store, relationship.type, adapterPayload, null, 'findBelongsTo');
     var record = store.push(relationship.type, payload);
+
     record.updateBelongsTo(relationship.key, record);
     return record;
   }, null, "DS: Extract payload of " + record + " : " + relationship.type);
@@ -1632,10 +1661,11 @@ function _findBelongsTo(adapter, store, record, link, relationship) {
 
 function _findAll(adapter, store, type, sinceToken) {
   var promise = adapter.findAll(store, type, sinceToken),
-      serializer = serializerForAdapter(adapter, type);
+      serializer = serializerForAdapter(adapter, type),
+      label = "DS: Handle Adapter#findAll of " + type;
 
-  return resolve(promise, "DS: Handle Adapter#findAll of " + type).then(function(payload) {
-    payload = serializer.extract(store, type, payload, null, 'findAll');
+  return Promise.cast(promise, label).then(function(adapterPayload) {
+    var payload = serializer.extract(store, type, adapterPayload, null, 'findAll');
 
     Ember.assert("The response from a findAll must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
@@ -1647,10 +1677,11 @@ function _findAll(adapter, store, type, sinceToken) {
 
 function _findQuery(adapter, store, type, query, recordArray) {
   var promise = adapter.findQuery(store, type, query, recordArray),
-      serializer = serializerForAdapter(adapter, type);
+      serializer = serializerForAdapter(adapter, type),
+      label = "DS: Handle Adapter#findQuery of " + type;
 
-  return resolve(promise, "DS: Handle Adapter#findQuery of " + type).then(function(payload) {
-    payload = serializer.extract(store, type, payload, null, 'findQuery');
+  return Promise.cast(promise, label).then(function(adapterPayload) {
+    var payload = serializer.extract(store, type, adapterPayload, null, 'findQuery');
 
     Ember.assert("The response from a findQuery must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
@@ -1662,12 +1693,20 @@ function _findQuery(adapter, store, type, query, recordArray) {
 function _commit(adapter, store, operation, record) {
   var type = record.constructor,
       promise = adapter[operation](store, type, record),
-      serializer = serializerForAdapter(adapter, type);
+      serializer = serializerForAdapter(adapter, type),
+      label = "DS: Extract and notify about " + operation + " completion of " + record;
 
   Ember.assert("Your adapter's '" + operation + "' method must return a promise, but it returned " + promise, isThenable(promise));
 
-  return promise.then(function(payload) {
-    if (payload) { payload = serializer.extract(store, type, payload, get(record, 'id'), operation); }
+  return promise.then(function(adapterPayload) {
+    var payload;
+
+    if (adapterPayload) {
+      payload = serializer.extract(store, type, adapterPayload, get(record, 'id'), operation);
+    } else {
+      payload = adapterPayload;
+    }
+
     store.didSaveRecord(record, payload);
     return record;
   }, function(reason) {
@@ -1678,5 +1717,8 @@ function _commit(adapter, store, operation, record) {
     }
 
     throw reason;
-  }, "DS: Extract and notify about " + operation + " completion of " + record);
+  }, label);
 }
+
+export {Store, PromiseArray, PromiseObject};
+export default Store;

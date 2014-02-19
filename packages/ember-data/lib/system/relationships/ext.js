@@ -1,4 +1,5 @@
-require("ember-inflector/system");
+import {singularize} from "../../../../ember-inflector/lib/system";
+import {Model} from "../model";
 
 var get = Ember.get, set = Ember.set;
 
@@ -15,7 +16,7 @@ var get = Ember.get, set = Ember.set;
   @class Model
   @namespace DS
 */
-DS.Model.reopen({
+Model.reopen({
 
   /**
     This Ember.js hook allows an object to be notified when a property
@@ -79,7 +80,7 @@ DS.Model.reopen({
   extensively.
 */
 
-DS.Model.reopenClass({
+Model.reopenClass({
   /**
     For a given relationship name, returns the model type of the relationship.
 
@@ -346,7 +347,7 @@ DS.Model.reopenClass({
         type = meta.type;
 
         if (!type && meta.kind === 'hasMany') {
-          type = Ember.String.singularize(name);
+          type = singularize(name);
         } else if (!type) {
           type = name;
         }
@@ -445,7 +446,7 @@ DS.Model.reopenClass({
   }
 });
 
-DS.Model.reopen({
+Model.reopen({
   /**
     Given a callback, iterates over each of the relationships in the model,
     invoking the callback with the name of each relationship and its relationship

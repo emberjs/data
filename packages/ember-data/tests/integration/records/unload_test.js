@@ -1,16 +1,28 @@
 var get = Ember.get, set = Ember.set;
 var attr = DS.attr;
-var Person, env;
+var belongsTo = DS.belongsTo;
+var hasMany = DS.hasMany;
+var env;
+
+var Person = DS.Model.extend({
+  name: attr('string'),
+  cars: hasMany('car')
+});
+
+var Car = DS.Model.extend({
+  make: attr('string'),
+  model: attr('string'),
+  person: belongsTo('person')
+});
+
+Person.toString = function() { return "Person"; };
 
 module("integration/unload - Unloading Records", {
   setup: function() {
-    Person = DS.Model.extend({
-      name: attr('string')
-    });
-
-    Person.toString = function() { return "Person"; };
-
-    env = setupStore({ person: Person });
+   env = setupStore({
+     person: Person,
+     car: Car
+   });
   },
 
   teardown: function() {
@@ -65,4 +77,30 @@ test("unloading all records also updates record array from all()", function() {
   });
 
   equal(all.get('length'), 0);
+});
+
+
+test("unloading a record also clears it's relationship", function() {
+  var adam = env.store.push('person', {
+    id: 1,
+    name: "Adam Sunderland",
+    cars: [1]
+  });
+
+  var bob = env.store.push('car', {
+    id: 1,
+    make: "Lotus",
+    model: "Exige",
+    person: 1
+  });
+
+  env.store.find('person', 1).then(function(person){
+    equal(person.get('cars.length'), 1, 'aaaa');
+
+    Ember.run(function(){
+      person.unloadRecord();
+    });
+
+    equal(person.get('cars.length'), undefined);
+  });
 });

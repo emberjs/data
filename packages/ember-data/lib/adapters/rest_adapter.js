@@ -1,12 +1,8 @@
-require("ember-data/core");
-require('ember-data/system/adapter');
-
-require('ember-data/serializers/rest_serializer');
-
 /**
   @module ember-data
 */
 
+import Adapter from "../system/adapter";
 var get = Ember.get, set = Ember.set;
 var forEach = Ember.ArrayPolyfills.forEach;
 
@@ -108,10 +104,8 @@ var forEach = Ember.ArrayPolyfills.forEach;
   @namespace DS
   @extends DS.Adapter
 */
-DS.RESTAdapter = DS.Adapter.extend({
+var RESTAdapter = Adapter.extend({
   defaultSerializer: '-rest',
-
-
   /**
     Endpoint paths can be prefixed with a `namespace` by setting the namespace
     property on the adapter:
@@ -619,3 +613,5 @@ DS.RESTAdapter = DS.Adapter.extend({
   }
 
 });
+
+export default RESTAdapter;

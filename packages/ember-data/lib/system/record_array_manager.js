@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import {ManyArray} from "./record_arrays";
 var get = Ember.get, set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;
 
@@ -11,13 +12,14 @@ var forEach = Ember.EnumerableUtils.forEach;
   @private
   @extends Ember.Object
 */
-DS.RecordArrayManager = Ember.Object.extend({
+var RecordArrayManager = Ember.Object.extend({
   init: function() {
     this.filteredRecordArrays = Ember.MapWithDefault.create({
       defaultValue: function() { return []; }
     });
 
     this.changedRecords = [];
+    this._adapterPopulatedRecordArrays = [];
   },
 
   recordDidChange: function(record) {
@@ -153,7 +155,7 @@ DS.RecordArrayManager = Ember.Object.extend({
     @return {DS.ManyArray}
   */
   createManyArray: function(type, records) {
-    var manyArray = DS.ManyArray.create({
+    var manyArray = ManyArray.create({
       type: type,
       content: records,
       store: this.store
@@ -218,12 +220,16 @@ DS.RecordArrayManager = Ember.Object.extend({
     @return {DS.AdapterPopulatedRecordArray}
   */
   createAdapterPopulatedRecordArray: function(type, query) {
-    return DS.AdapterPopulatedRecordArray.create({
+    var array = DS.AdapterPopulatedRecordArray.create({
       type: type,
       query: query,
       content: Ember.A(),
       store: this.store
     });
+
+    this._adapterPopulatedRecordArrays.push(array);
+
+    return array;
   },
 
   /**
@@ -253,5 +259,40 @@ DS.RecordArrayManager = Ember.Object.extend({
     var loadingRecordArrays = record._loadingRecordArrays || [];
     loadingRecordArrays.push(array);
     record._loadingRecordArrays = loadingRecordArrays;
+  },
+
+  willDestroy: function(){
+    this._super();
+
+    flatten(values(this.filteredRecordArrays.values)).forEach(destroy);
+    this._adapterPopulatedRecordArrays.forEach(destroy);
   }
 });
+
+function values(obj) {
+  var result = [];
+  var keys = Ember.keys(obj);
+
+  for (var i = 0; i < keys.length; i++) {
+    result.push(obj[keys[i]]);
+  }
+
+  return result;
+}
+
+function destroy(entry) {
+  entry.destroy();
+}
+
+function flatten(list) {
+  var length = list.length;
+  var result = Ember.A();
+
+  for (var i = 0; i < length; i++) {
+    result = result.concat(list[i]);
+  }
+
+  return result;
+}
+
+export default RecordArrayManager;

@@ -1,40 +1,50 @@
 var get = Ember.get, set = Ember.set,
     isNone = Ember.isNone;
 
+var Promise = Ember.RSVP.Promise;
+
+import {Model} from "../model";
+
 /**
   @module ember-data
 */
 
 function asyncBelongsTo(type, options, meta) {
-  return Ember.computed(function(key, value) {
+  return Ember.computed('data', function(key, value) {
     var data = get(this, 'data'),
         store = get(this, 'store'),
-        promiseLabel = "DS: Async belongsTo " + this + " : " + key;
+        promiseLabel = "DS: Async belongsTo " + this + " : " + key,
+        promise;
 
     if (arguments.length === 2) {
       Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof store.modelFor(type));
-      return value === undefined ? null : DS.PromiseObject.create({ promise: Ember.RSVP.resolve(value, promiseLabel) });
+      return value === undefined ? null : DS.PromiseObject.create({
+        promise: Promise.cast(value, promiseLabel)
+      });
     }
 
     var link = data.links && data.links[key],
         belongsTo = data[key];
 
     if(!isNone(belongsTo)) {
-      var promise = store.fetchRecord(belongsTo) || Ember.RSVP.resolve(belongsTo, promiseLabel);
-      return DS.PromiseObject.create({ promise: promise});
+      promise = store.fetchRecord(belongsTo) || Promise.cast(belongsTo, promiseLabel);
+      return DS.PromiseObject.create({
+        promise: promise
+      });
     } else if (link) {
-      var resolver = Ember.RSVP.defer("DS: Async belongsTo (link) " + this + " : " + key);
-      store.findBelongsTo(this, link, meta, resolver);
-      return DS.PromiseObject.create({ promise: resolver.promise });
+      promise = store.findBelongsTo(this, link, meta);
+      return DS.PromiseObject.create({
+        promise: promise
+      });
     } else {
       return null;
     }
-  }).property('data').meta(meta);
+  }).meta(meta);
 }
 
 /**
   `DS.belongsTo` is used to define One-To-One and One-To-Many
-  relationships on a [DS.Model](DS.Model.html).
+  relationships on a [DS.Model](/api/data/classes/DS.Model.html).
 
 
   `DS.belongsTo` takes an optional hash as a second parameter, currently
@@ -79,7 +89,7 @@ function asyncBelongsTo(type, options, meta) {
   @param {Object} options a hash of options
   @return {Ember.computed} relationship
 */
-DS.belongsTo = function(type, options) {
+function belongsTo(type, options) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;
@@ -89,13 +99,18 @@ DS.belongsTo = function(type, options) {
 
   options = options || {};
 
-  var meta = { type: type, isRelationship: true, options: options, kind: 'belongsTo' };
+  var meta = {
+    type: type,
+    isRelationship: true,
+    options: options,
+    kind: 'belongsTo'
+  };
 
   if (options.async) {
     return asyncBelongsTo(type, options, meta);
   }
 
-  return Ember.computed(function(key, value) {
+  return Ember.computed('data', function(key, value) {
     var data = get(this, 'data'),
         store = get(this, 'store'), belongsTo, typeClass;
 
@@ -117,8 +132,8 @@ DS.belongsTo = function(type, options) {
     store.fetchRecord(belongsTo);
 
     return belongsTo;
-  }).property('data').meta(meta);
-};
+  }).meta(meta);
+}
 
 /**
   These observers observe all `belongsTo` relationships on the record. See
@@ -127,7 +142,7 @@ DS.belongsTo = function(type, options) {
   @class Model
   @namespace DS
 */
-DS.Model.reopen({
+Model.reopen({
 
   /**
     @method belongsToWillChange
@@ -172,3 +187,5 @@ DS.Model.reopen({
     delete this._changesToSync[key];
   })
 });
+
+export default belongsTo;

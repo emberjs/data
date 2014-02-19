@@ -1,6 +1,3 @@
-require("ember-data/core");
-require("ember-data/system/adapter");
-
 /**
   @module ember-data
 */
@@ -9,6 +6,8 @@ var get = Ember.get, fmt = Ember.String.fmt,
     indexOf = Ember.EnumerableUtils.indexOf;
 
 var counter = 0;
+
+import Adapter from "../system/adapter";
 
 /**
   `DS.FixtureAdapter` is an adapter that loads records from memory.
@@ -27,7 +26,7 @@ var counter = 0;
   @namespace DS
   @extends DS.Adapter
 */
-DS.FixtureAdapter = DS.Adapter.extend({
+var FixtureAdapter = Adapter.extend({
   // by default, fixtures are already in normalized form
   serializer: null,
 
@@ -207,7 +206,7 @@ DS.FixtureAdapter = DS.Adapter.extend({
   findQuery: function(store, type, query, array) {
     var fixtures = this.fixturesForType(type);
 
-    Ember.assert("Unable to find fixtures for model type "+type.toString(), fixtures);
+    Ember.assert("Unable to find fixtures for model type " + type.toString(), fixtures);
 
     fixtures = this.queryFixtures(fixtures, query, type);
 
@@ -339,3 +338,5 @@ DS.FixtureAdapter = DS.Adapter.extend({
     }, "DS: FixtureAdapter#simulateRemoteCall");
   }
 });
+
+export default FixtureAdapter;

@@ -1,5 +1,4 @@
-require("ember-data/system/record_arrays/record_array");
-
+import RecordArray from "./record_array";
 /**
   @module ember-data
 */
@@ -16,7 +15,7 @@ var get = Ember.get, set = Ember.set;
   @namespace DS
   @extends DS.RecordArray
 */
-DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
+var AdapterPopulatedRecordArray = RecordArray.extend({
   query: null,
 
   replace: function() {
@@ -41,7 +40,9 @@ DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
       meta: meta
     });
 
-    // TODO: does triggering didLoad event should be the last action of the runLoop?
+    // TODO: should triggering didLoad event be the last action of the runLoop?
     Ember.run.once(this, 'trigger', 'didLoad');
   }
 });
+
+export default AdapterPopulatedRecordArray;

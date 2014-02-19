@@ -1,4 +1,5 @@
-require("ember-data/system/record_arrays/record_array");
+import RecordArray from "./record_array";
+import {RelationshipChange} from "../changes";
 
 /**
   @module ember-data
@@ -6,6 +7,10 @@ require("ember-data/system/record_arrays/record_array");
 
 var get = Ember.get, set = Ember.set;
 var map = Ember.EnumerableUtils.map;
+
+function sync(change) {
+  change.sync();
+}
 
 /**
   A `ManyArray` is a `RecordArray` that represents the contents of a has-many
@@ -43,7 +48,7 @@ var map = Ember.EnumerableUtils.map;
   @namespace DS
   @extends DS.RecordArray
 */
-DS.ManyArray = DS.RecordArray.extend({
+var ManyArray = RecordArray.extend({
   init: function() {
     this._super.apply(this, arguments);
     this._changesToSync = Ember.OrderedSet.create();
@@ -153,7 +158,7 @@ DS.ManyArray = DS.RecordArray.extend({
       for (var i=index; i<index+removed; i++) {
         var record = get(this, 'content').objectAt(i);
 
-        var change = DS.RelationshipChange.createChange(owner, record, get(this, 'store'), {
+        var change = RelationshipChange.createChange(owner, record, get(this, 'store'), {
           parentType: owner.constructor,
           changeType: "remove",
           kind: "hasMany",
@@ -182,7 +187,7 @@ DS.ManyArray = DS.RecordArray.extend({
       for (var i=index; i<index+added; i++) {
         var record = get(this, 'content').objectAt(i);
 
-        var change = DS.RelationshipChange.createChange(owner, record, store, {
+        var change = RelationshipChange.createChange(owner, record, store, {
           parentType: owner.constructor,
           changeType: "add",
           kind:"hasMany",
@@ -198,9 +203,7 @@ DS.ManyArray = DS.RecordArray.extend({
       // in arrayContentWillChange, so that the array
       // membership test in the sync() logic operates
       // on the final results.
-      this._changesToSync.forEach(function(change) {
-        change.sync();
-      });
+      this._changesToSync.forEach(sync);
 
       this._changesToSync.clear();
     }
@@ -227,5 +230,6 @@ DS.ManyArray = DS.RecordArray.extend({
 
     return record;
   }
-
 });
+
+export default ManyArray;

@@ -12,13 +12,13 @@
   @private
   @constructor
 */
-var AttributeChange = DS.AttributeChange = function(options) {
+function AttributeChange(options) {
   this.record = options.record;
   this.store = options.store;
   this.name = options.name;
   this.value = options.value;
   this.oldValue = options.oldValue;
-};
+}
 
 AttributeChange.createChange = function(options) {
   return new AttributeChange(options);
@@ -46,3 +46,5 @@ AttributeChange.prototype = {
     delete this.record._changesToSync[this.name];
   }
 };
+
+export default AttributeChange;

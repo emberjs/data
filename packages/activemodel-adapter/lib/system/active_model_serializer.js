@@ -1,5 +1,5 @@
-require('ember-data/serializers/rest_serializer');
-
+import {singularize} from "../../../ember-inflector/lib/main";
+import RESTSerializer from "../../../ember-data/lib/serializers/rest_serializer";
 /**
   @module ember-data
 */
@@ -9,10 +9,9 @@ var get = Ember.get,
     camelize =   Ember.String.camelize,
     capitalize = Ember.String.capitalize,
     decamelize = Ember.String.decamelize,
-    singularize = Ember.String.singularize,
     underscore = Ember.String.underscore;
 
-DS.ActiveModelSerializer = DS.RESTSerializer.extend({
+var ActiveModelSerializer = RESTSerializer.extend({
   // SERIALIZE
 
   /**
@@ -208,3 +207,5 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     }
   }
 });
+
+export default ActiveModelSerializer;

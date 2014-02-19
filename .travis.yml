@@ -1,12 +1,11 @@
 ---
-rvm:
-- 1.9.3
+node_js:
+  - "0.10"
 install:
 - "bin/cached-npm install"
-- "bin/cached-bundle install --deployment"
-- sudo apt-get update && sudo apt-get install git
-script: bundle exec rake test[all]
-after_success: bundle exec rake publish_build
+- "bower install"
+script: grunt test:all
+after_success: grunt dist publish
 env:
   global:
   - S3_BUILD_CACHE_BUCKET=emberjs-build-cache

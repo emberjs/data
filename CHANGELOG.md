@@ -1,5 +1,35 @@
 # Ember Data Changelog
 
+### Ember Data 1.0.0-beta.6 _(January 25, 2014)_
+
+* DateTransform serializes as a number instead of string. The deserializer was already considering this case. Adds millisecond precision to DateTransform
+* Remove unused helper.
+* Updates DS.Model.rollback documentation
+* Fix a typo in DS.filter doc
+* Prefix built-in serializers and adapters with a dash.
+* Spelling corrections in docs.
+* Fix spelling in JSONSerializer class docs.
+* Don't assume typeKey is always camelized.
+* Deprecate former underscored names.
+* Fix documentation for DS.Model.isNew
+* [BUGFIX] Possible undefined errors in response via ActiveModelAdapter
+* [BUGFIX] missing return statement in RecordArray#update
+* Fixes a small typo in DS.Store deleteRecord docs
+* Setting a property to undefined on a new record should not transition the record to root.deleted.saved
+* Revert "Merge pull request #1652 from abuiles/camelize-in-pathForType"
+* Don't assume that factory.typeKey is always camelized.
+* Normalize typeNames when comparing against typeKey.
+* Force underscore after decamelizing typeKey.
+* Set default Rakefile task to :test
+* Remove underscores and rename
+* The store's adapter property requires a string
+* Rename dataAdapter to data-adapter
+* Calls rake test[all] using bundle exec since CI was failing
+* DateTransform serializes as a number instead of string. The deserializer was already considering this case. Adds millisecond precision to DateTransform
+* fixed behaviour of store.all() in combination with store.unloadAll() which caused elements to stay in the RecordArray, even if they should have been removed. ref #1611
+* another quick fix, which should reduce run-loop pressure.
+* Don't bother with Ember.run.once, as we can detect an impending flush by inspecting the size of the local queue of _deferredTriggers
+
 ### Ember Data 1.0.0-beta.5 _(January 11, 2014)_
 
 * Normalize key in modelFor when a factory is not given.

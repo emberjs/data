@@ -1,13 +1,5 @@
 var get = Ember.get, set = Ember.set, isNone = Ember.isNone;
 
-// Simple dispatcher to support overriding the aliased
-// method in subclasses.
-function aliasMethod(methodName) {
-  return function() {
-    return this[methodName].apply(this, arguments);
-  };
-}
-
 /**
   In Ember Data a Serializer is used to serialize and deserialize
   records when they are transferred in and out of an external source.
@@ -23,7 +15,7 @@ function aliasMethod(methodName) {
   @class JSONSerializer
   @namespace DS
 */
-DS.JSONSerializer = Ember.Object.extend({
+var JSONSerializer = Ember.Object.extend({
   /**
     The primaryKey is used when serializing and deserializing
     data. Ember Data always uses the `id` property to store the id of
@@ -475,7 +467,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Array} array An array of deserialized objects
   */
-  extractFindAll: aliasMethod('extractArray'),
+  extractFindAll: function(store, type, payload){
+    return this.extractArray(store, type, payload);
+  },
   /**
     `extractFindQuery` is a hook into the extract method used when a
     call is made to `DS.Store#findQuery`. By default this method is an
@@ -487,7 +481,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Array} array An array of deserialized objects
   */
-  extractFindQuery: aliasMethod('extractArray'),
+  extractFindQuery: function(store, type, payload){
+    return this.extractArray(store, type, payload);
+  },
   /**
     `extractFindMany` is a hook into the extract method used when a
     call is made to `DS.Store#findMany`. By default this method is
@@ -499,7 +495,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Array} array An array of deserialized objects
   */
-  extractFindMany: aliasMethod('extractArray'),
+  extractFindMany: function(store, type, payload){
+    return this.extractArray(store, type, payload);
+  },
   /**
     `extractFindHasMany` is a hook into the extract method used when a
     call is made to `DS.Store#findHasMany`. By default this method is
@@ -511,7 +509,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Array} array An array of deserialized objects
   */
-  extractFindHasMany: aliasMethod('extractArray'),
+  extractFindHasMany: function(store, type, payload){
+    return this.extractArray(store, type, payload);
+  },
 
   /**
     `extractCreateRecord` is a hook into the extract method used when a
@@ -524,7 +524,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Object} json The deserialized payload
   */
-  extractCreateRecord: aliasMethod('extractSave'),
+  extractCreateRecord: function(store, type, payload) {
+    return this.extractSave(store, type, payload);
+  },
   /**
     `extractUpdateRecord` is a hook into the extract method used when
     a call is made to `DS.Store#update`. By default this method is alias
@@ -536,7 +538,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Object} json The deserialized payload
   */
-  extractUpdateRecord: aliasMethod('extractSave'),
+  extractUpdateRecord: function(store, type, payload) {
+    return this.extractSave(store, type, payload);
+  },
   /**
     `extractDeleteRecord` is a hook into the extract method used when
     a call is made to `DS.Store#deleteRecord`. By default this method is
@@ -548,7 +552,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Object} json The deserialized payload
   */
-  extractDeleteRecord: aliasMethod('extractSave'),
+  extractDeleteRecord: function(store, type, payload) {
+    return this.extractSave(store, type, payload);
+  },
 
   /**
     `extractFind` is a hook into the extract method used when
@@ -561,7 +567,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Object} json The deserialized payload
   */
-  extractFind: aliasMethod('extractSingle'),
+  extractFind: function(store, type, payload) {
+    return this.extractSingle(store, type, payload);
+  },
   /**
     `extractFindBelongsTo` is a hook into the extract method used when
     a call is made to `DS.Store#findBelongsTo`. By default this method is
@@ -573,7 +581,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Object} json The deserialized payload
   */
-  extractFindBelongsTo: aliasMethod('extractSingle'),
+  extractFindBelongsTo: function(store, type, payload) {
+    return this.extractSingle(store, type, payload);
+  },
   /**
     `extractSave` is a hook into the extract method used when a call
     is made to `DS.Model#save`. By default this method is alias
@@ -585,7 +595,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Object} json The deserialized payload
   */
-  extractSave: aliasMethod('extractSingle'),
+  extractSave: function(store, type, payload) {
+    return this.extractSingle(store, type, payload);
+  },
 
   /**
     `extractSingle` is used to deserialize a single record returned
@@ -624,7 +636,7 @@ DS.JSONSerializer = Ember.Object.extend({
     App.PostSerializer = DS.JSONSerializer.extend({
       extractArray: function(store, type, payload) {
         return payload.map(function(json) {
-          return this.extractSingle(json);
+          return this.extractSingle(store, type, json);
         }, this);
       }
     });
@@ -726,3 +738,5 @@ DS.JSONSerializer = Ember.Object.extend({
     return transform;
   }
 });
+
+export default JSONSerializer;

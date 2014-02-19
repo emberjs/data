@@ -1,12 +1,12 @@
-require("ember-data/system/model/states");
-require("ember-data/system/model/errors");
-
+import RootState from "./states";
+import Errors from "./errors";
 /**
   @module ember-data
 */
 
 var get = Ember.get, set = Ember.set,
-    merge = Ember.merge;
+    merge = Ember.merge,
+    Promise = Ember.RSVP.Promise;
 
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
   return get(get(this, 'currentState'), key);
@@ -21,7 +21,10 @@ var retrieveFromCurrentState = Ember.computed('currentState', function(key, valu
   @extends Ember.Object
   @uses Ember.Evented
 */
-DS.Model = Ember.Object.extend(Ember.Evented, {
+var Model = Ember.Object.extend(Ember.Evented, {
+  _recordArrays: undefined,
+  _relationships: undefined,
+  _loadingRecordArrays: undefined,
   /**
     If this property is `true` the record is in the `empty`
     state. Empty is the first state all records enter after they have
@@ -262,13 +265,14 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @type {String}
   */
   id: null,
-  transaction: null,
+
   /**
     @property currentState
     @private
     @type {Object}
   */
-  currentState: null,
+  currentState: RootState.empty,
+
   /**
     When the record is in the `invalid` state this object will contain
     any errors returned by the adapter. When present the errors hash
@@ -286,7 +290,17 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @property errors
     @type {Object}
   */
-  errors: null,
+  errors: Ember.computed(function() {
+    var errors = Errors.create();
+
+    errors.registerHandlers(this, function() {
+      this.send('becameInvalid');
+    }, function() {
+      this.send('becameValid');
+    });
+
+    return errors;
+  }).readOnly(),
 
   /**
     Create a JSON representation of the record, using the serialization
@@ -377,19 +391,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   data: Ember.computed(function() {
     this._data = this._data || {};
     return this._data;
-  }).property(),
+  }).readOnly(),
 
   _data: null,
 
   init: function() {
-    set(this, 'currentState', DS.RootState.empty);
-    var errors = DS.Errors.create();
-    errors.registerHandlers(this, function() {
-      this.send('becameInvalid');
-    }, function() {
-      this.send('becameValid');
-    });
-    set(this, 'errors', errors);
     this._super();
     this._setup();
   },
@@ -573,7 +579,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @private
   */
   unloadRecord: function() {
-    Ember.assert("You can only unload a loaded, non-dirty record.", !get(this, 'isDirty'));
+    if (this.isDestroyed) { return; }
 
     this.send('unloadRecord');
   },
@@ -587,8 +593,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       if (relationship.kind === 'belongsTo') {
         set(this, name, null);
       } else if (relationship.kind === 'hasMany') {
-        var hasMany = this._relationships[relationship.name];
-        if (hasMany) { hasMany.clear(); }
+        var hasMany = this._relationships[name];
+        if (hasMany) { // relationships are created lazily
+          hasMany.destroy();
+        }
       }
     }, this);
   },
@@ -913,7 +921,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var  record = this;
 
     var promiseLabel = "DS: Model#reload of " + this;
-    var promise = new Ember.RSVP.Promise(function(resolve){
+    var promise = new Promise(function(resolve){
        record.send('reloadRecord', resolve);
     }, promiseLabel).then(function() {
       record.set('isReloading', false);
@@ -994,10 +1002,15 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     }
 
     this._deferredTriggers.length = 0;
+  },
+
+  willDestroy: function() {
+    this._super();
+    this.clearRelationships();
   }
 });
 
-DS.Model.reopenClass({
+Model.reopenClass({
 
   /**
     Alias DS.Model's `create` method to `_create`. This allows us to create DS.Model
@@ -1008,7 +1021,7 @@ DS.Model.reopenClass({
     @private
     @static
   */
-  _create: DS.Model.create,
+  _create: Model.create,
 
   /**
     Override the class' `create()` method to raise an error. This
@@ -1025,3 +1038,5 @@ DS.Model.reopenClass({
     throw new Ember.Error("You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.");
   }
 });
+
+export default Model;
