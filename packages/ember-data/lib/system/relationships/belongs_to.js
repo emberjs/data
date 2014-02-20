@@ -61,6 +61,12 @@ DS.belongsTo = function(type, options) {
   };
 
   return Ember.computed(function(key, value) {
+    if (arguments.length>1) {
+      //TODO(Igor) bring back the assert
+      //Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof typeClass);
+      return value === undefined ? null : value;
+    }
+
     if (this._relationships[meta.key]) {
       return this._relationships[meta.key].belongsTo;
     }

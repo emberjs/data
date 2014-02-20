@@ -1607,12 +1607,24 @@ function setupRelationships(store, record, data, inverseRecord) {
   });
 }
 
-function OneToMany(belongsTo, manyType, store) {
+function OneToMany(hasManyRecord, manyType, store, belongsToName, manyName) {
   this.members = new Ember.OrderedSet();
-  this.belongsTo = belongsTo;
+  this.hasManyRecord = hasManyRecord;
   this.manyType = manyType;
   this.manyArray = store.recordArrayManager.createManyArray(manyType, Ember.A());
+  this.manyArray.relationship = this;
   this.store = store;
+
+  if(!belongsToName && manyName){
+    belongsToName = hasManyRecord.inverseFor(manyName).name;
+  }
+  if(belongsToName && !manyName){
+    manyName = hasManyRecord.inverseFor(belongsToName).name;
+  }
+  
+  this.manyName = manyName;
+  this.belongsToName = belongsToName;
+  this.hasManyRecord = hasManyRecord;
 }
 
 DS.OneToMany = OneToMany;
@@ -1655,8 +1667,21 @@ OneToMany.prototype = {
     return unloaded;
   },
 
-  manyArray: Ember.computed(function(){
-  })
+  //TODO(Igor) Consider making the many array just a proxy over the members set
+  addRecords: function(records) {
+    var that = this;
+    records.forEach(function(record){
+      that.members.add(record);
+      //TODO(Igor) this is slow
+      if (!that.manyArray.contains(record)){
+        that.ManyArray.push(record); 
+      }
+      if (get(record, that.belongsToName) !== that.hasManyRecord){
+        //TODO(Igor) needs to be different to not infinite loop
+        set(record, that.belongsToName, that.hasManyRecord);
+      }
+    });
+  }
 
 };
 

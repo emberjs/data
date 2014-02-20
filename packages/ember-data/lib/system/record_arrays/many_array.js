@@ -64,6 +64,15 @@ DS.ManyArray = DS.RecordArray.extend({
   */
   owner: null,
 
+
+  /**
+    The relationship which manages this array.
+
+    @property {DS.Model} owner
+    @private
+  */
+  relationship: null,
+
   /**
     `true` if the relationship is polymorphic, `false` otherwise.
 
@@ -98,6 +107,8 @@ DS.ManyArray = DS.RecordArray.extend({
   },
 
   arrayContentDidChange: function(index, removed, added) {
+    var records = get(this, 'content').slice(index, index+added);
+    this.get('relationship').addRecords(records);
     this._super.apply(this, arguments);
   },
 

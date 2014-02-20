@@ -101,7 +101,7 @@ DS.hasMany = function(type, options) {
     //TODO(Igor) encapsulate better
     var relationship = this._relationships[key];
     if (!relationship){
-      relationship = new DS.OneToMany(null, type, this.store);
+      relationship = new DS.OneToMany(this, type, this.store, null, key);
       this._relationships[key] = relationship;
     }
     return relationship.manyArray;
