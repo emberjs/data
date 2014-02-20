@@ -1573,24 +1573,26 @@ function setupRelationships(store, record, data, inverseRecord) {
 
   type.eachRelationship(function(key, descriptor) {
     var kind = descriptor.kind,
-        value = data[key] || inverseRecord;
+        value = data[key] || inverseRecord,
+        relationship,
+        inverse;
 
     if (kind === 'belongsTo') {
-      var inverse = record.inverseFor(key);
+      inverse = record.inverseFor(key);
 
       if (inverse) {
-        var relationship = relationshipFor('hasMany', value, inverse.name);
+        relationship = relationshipFor('hasMany', value, inverse.name);
         record.notifyBelongsToAdded(key, value, relationship);
         value.notifyHasManyAdded(inverse.name, record);
       } else {
-        var relationship = new OneToNone(value);
+        relationship = new OneToNone(value);
         record.notifyBelongsToAdded(key, value, relationship);
       }
     } else if (kind === 'hasMany') {
-      var relationship = relationshipFor(kind, record, key);
+      relationship = relationshipFor(kind, record, key);
       var delta = relationship.computeChanges(data[key]);
 
-      var inverse = record.inverseFor(key);
+      inverse = record.inverseFor(key);
 
       delta.added.forEach(function(member) {
         record.notifyHasManyAdded(key, member);
