@@ -1,6 +1,6 @@
 # Ember Data Changelog
 
-### Ember DAta 1.0.0-beta.7 _(February 19, 2014)_
+### Ember Data 1.0.0-beta.7 _(February 19, 2014)_
 
 * Release 1.0.0-beta.7
 * Document required structure for DS.InvalidError
