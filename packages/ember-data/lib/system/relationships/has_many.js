@@ -97,8 +97,14 @@ DS.hasMany = function(type, options) {
     options: options || {}
   };
 
-  return Ember.computed(function() {
-    return this.store.recordArrayManager.createManyArray(type, Ember.A());
+  return Ember.computed(function(key) {
+    //TODO(Igor) encapsulate better
+    var relationship = this._relationships[key];
+    if (!relationship){
+      relationship = new DS.OneToMany(null, type, this.store);
+      this._relationships[key] = relationship;
+    }
+    return relationship.manyArray;
   }).meta(meta);
 };
 

@@ -1363,12 +1363,12 @@ function normalizeRelationships(store, type, data, record) {
   return data;
 }
 
-function relationshipFor(kind, record, key) {
+function relationshipFor(kind, record, key, store) {
   if (record._relationships[key]) {
     return record._relationships[key];
   }
 
-  return record._relationships[key] = new OneToMany(record);
+  return record._relationships[key] = new OneToMany(record, null, store);
 }
 
 function deserializeRecordId(store, data, key, relationship, id) {
@@ -1581,7 +1581,7 @@ function setupRelationships(store, record, data, inverseRecord) {
       inverse = record.inverseFor(key);
 
       if (inverse) {
-        relationship = relationshipFor('hasMany', value, inverse.name);
+        relationship = relationshipFor('hasMany', value, inverse.name, store);
         record.notifyBelongsToAdded(key, value, relationship);
         value.notifyHasManyAdded(inverse.name, record);
       } else {
@@ -1589,7 +1589,7 @@ function setupRelationships(store, record, data, inverseRecord) {
         record.notifyBelongsToAdded(key, value, relationship);
       }
     } else if (kind === 'hasMany') {
-      relationship = relationshipFor(kind, record, key);
+      relationship = relationshipFor(kind, record, key, store);
       var delta = relationship.computeChanges(data[key]);
 
       inverse = record.inverseFor(key);
@@ -1607,10 +1607,15 @@ function setupRelationships(store, record, data, inverseRecord) {
   });
 }
 
-function OneToMany(belongsTo) {
+function OneToMany(belongsTo, manyType, store) {
   this.members = new Ember.OrderedSet();
   this.belongsTo = belongsTo;
+  this.manyType = manyType;
+  this.manyArray = store.recordArrayManager.createManyArray(manyType, Ember.A());
+  this.store = store;
 }
+
+DS.OneToMany = OneToMany;
 
 OneToMany.prototype = {
   constructor: OneToMany,
@@ -1648,7 +1653,11 @@ OneToMany.prototype = {
     });
 
     return unloaded;
-  }
+  },
+
+  manyArray: Ember.computed(function(){
+  })
+
 };
 
 function OneToNone(belongsTo) {
