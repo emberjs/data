@@ -106,7 +106,6 @@
 * The store's adapter property requires a string
 * Rename dataAdapter to data-adapter
 * Calls rake test[all] using bundle exec since CI was failing
-* DateTransform serializes as a number instead of string. The deserializer was already considering this case. Adds millisecond precision to DateTransform
 * fixed behaviour of store.all() in combination with store.unloadAll() which caused elements to stay in the RecordArray, even if they should have been removed. ref #1611
 * another quick fix, which should reduce run-loop pressure.
 * Don't bother with Ember.run.once, as we can detect an impending flush by inspecting the size of the local queue of _deferredTriggers
