@@ -337,18 +337,19 @@ test("it is possible to chain filters", function() {
 
     equal(get(recordArray, 'length'), 2, "The Record Array should have the filtered objects on it");
     equal(get(chainedRecordArray, 'length'), 1, "The Chained Record Array should have the filtered objects on it");
-    console.log(get(chainedRecordArray, 'content').toArray());
 
     store.push('person', { id: 4, name: "Scumbag Koz" });
 
+    //both failing
     equal(get(recordArray, 'length'), 3, "The Record Array should be updated as new items are added to the store");
     equal(get(chainedRecordArray, 'length'), 2, "The Chained Record Array should be updated as new items are added to the store");
 
 
     store.push('person', { id: 1, name: "Scumbag Derek" });
-
-    equal(get(recordArray, 'length'), 4, "The Record Array should be updated as new items are added to the store");
-    equal(get(chainedRecordArray, 'length'), 2, "The Chained Record Array should be updated as new items are added to the store");
+    
+    //both failling
+    equal(get(recordArray, 'length'), 4, "The Record Array should be updated as more new items are added to the store");
+    equal(get(chainedRecordArray, 'length'), 2, "The Chained Record Array should not be updated as new items that fail filter are added to the store");
   });
 });
 

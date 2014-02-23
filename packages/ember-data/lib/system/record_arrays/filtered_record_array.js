@@ -44,20 +44,14 @@ var FilteredRecordArray = RecordArray.extend({
     @return {Boolean} `true` if the record should be in the array
   */
   filterFunction: Ember.computed(function(key, value){
-    console.log("in the filter");
-    console.log("key");
-    console.log(key);
-    console.log("value");
-    console.log(value);
     // getter
     if (!value) {
       if(get(this, 'parentFilterFunction')){
-        console.log("has a parent filter funciton");
+        var _this = this;
         return function(item){
-          return get(this, 'parentFilterFunction')(item) && get(this, 'localFilterFunction')(item);
+          return get(_this, 'parentFilterFunction')(item) && get(_this, 'localFilterFunction')(item);
         };
       } else {
-        console.log("doesn't have a parent filter funciton");
         return get(this, 'localFilterFunction');
       }
     // setter
@@ -78,8 +72,9 @@ var FilteredRecordArray = RecordArray.extend({
   chain: function(filter){
 
     var array = get(this, 'manager').createFilteredRecordArray(get(this, 'type'), get(this, 'filterFunction'));
+
     array.set('parentFilterFunction', get(this, 'filterFunction'));
-    array.set('filterFuction', filter);
+    array.set('localFilterFunction', filter);
 
     return array;
   },
@@ -90,9 +85,8 @@ var FilteredRecordArray = RecordArray.extend({
   */
   updateFilter: Ember.observer(function() {
     var manager = get(this, 'manager');
-    console.log("getting the filter function");
     manager.updateFilter(this, get(this, 'type'), get(this, 'filterFunction'));
-  }, 'localFilterFunction')
+  }, 'filterFunction')
 });
 
 export default FilteredRecordArray;
