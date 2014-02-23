@@ -43,12 +43,45 @@ var FilteredRecordArray = RecordArray.extend({
     @param {DS.Model} record
     @return {Boolean} `true` if the record should be in the array
   */
-  filterFunction: null,
+  filterFunction: Ember.computed(function(key, value){
+    console.log("in the filter");
+    console.log("key");
+    console.log(key);
+    console.log("value");
+    console.log(value);
+    // getter
+    if (!value) {
+      if(get(this, 'parentFilterFunction')){
+        console.log("has a parent filter funciton");
+        return function(item){
+          return get(this, 'parentFilterFunction')(item) && get(this, 'localFilterFunction')(item);
+        };
+      } else {
+        console.log("doesn't have a parent filter funciton");
+        return get(this, 'localFilterFunction');
+      }
+    // setter
+    } else {
+      Ember.set(this, 'localFilterFunction', value);
+      return value;
+    }
+  }).property('localFilterFunction'),
+  localFilterFunction: null,
+  parentFilterFunction: null,
   isLoaded: true,
 
   replace: function() {
     var type = get(this, 'type').toString();
     throw new Error("The result of a client-side filter (on " + type + ") is immutable.");
+  },
+
+  chain: function(filter){
+
+    var array = get(this, 'manager').createFilteredRecordArray(get(this, 'type'), get(this, 'filterFunction'));
+    array.set('parentFilterFunction', get(this, 'filterFunction'));
+    array.set('filterFuction', filter);
+
+    return array;
   },
 
   /**
@@ -57,8 +90,9 @@ var FilteredRecordArray = RecordArray.extend({
   */
   updateFilter: Ember.observer(function() {
     var manager = get(this, 'manager');
+    console.log("getting the filter function");
     manager.updateFilter(this, get(this, 'type'), get(this, 'filterFunction'));
-  }, 'filterFunction')
+  }, 'localFilterFunction')
 });
 
 export default FilteredRecordArray;
