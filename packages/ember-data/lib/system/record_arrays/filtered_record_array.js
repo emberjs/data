@@ -49,7 +49,15 @@ var FilteredRecordArray = RecordArray.extend({
       if(get(this, 'parentFilterFunction')){
         var _this = this;
         return function(item){
-          return get(_this, 'parentFilterFunction')(item) && get(_this, 'localFilterFunction')(item);
+          console.log("in the combined function");
+          console.log("first function");
+          console.log(get(_this, 'parentFilterFunction').call(_this, item));
+
+          console.log("second function");
+          console.log(get(_this, 'localFilterFunction').call(_this, item));
+
+          console.log(item._data);
+          return get(_this, 'parentFilterFunction').call(_this, item) && get(_this, 'localFilterFunction').call(_this, item);
         };
       } else {
         return get(this, 'localFilterFunction');
@@ -71,7 +79,7 @@ var FilteredRecordArray = RecordArray.extend({
 
   chain: function(filter){
 
-    var array = get(this, 'manager').createFilteredRecordArray(get(this, 'type'), get(this, 'filterFunction'));
+    var array = get(this, 'manager').createFilteredRecordArray(get(this, 'type'), function(){return true;});
 
     array.set('parentFilterFunction', get(this, 'filterFunction'));
     array.set('localFilterFunction', filter);
