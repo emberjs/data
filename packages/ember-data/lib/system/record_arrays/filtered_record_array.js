@@ -45,19 +45,19 @@ var FilteredRecordArray = RecordArray.extend({
   */
   filterFunction: Ember.computed(function(key, value){
     // getter
-    if (!value) {
-      if(get(this, 'parentFilterFunction')){
+    if (arguments.length !== 1) {
+      if(get(this, 'parentRecordArray.filterFunction')){
         var _this = this;
         return function(item){
           console.log("in the combined function");
           console.log("first function");
-          console.log(get(_this, 'parentFilterFunction').call(_this, item));
+          console.log(get(_this, 'parentRecordArray.filterFunction').call(_this, item));
 
           console.log("second function");
           console.log(get(_this, 'localFilterFunction').call(_this, item));
 
           console.log(item._data);
-          return get(_this, 'parentFilterFunction').call(_this, item) && get(_this, 'localFilterFunction').call(_this, item);
+          return get(_this, 'parentRecordArray.filterFunction').call(_this, item) && get(_this, 'localFilterFunction').call(_this, item);
         };
       } else {
         return get(this, 'localFilterFunction');
@@ -67,9 +67,10 @@ var FilteredRecordArray = RecordArray.extend({
       Ember.set(this, 'localFilterFunction', value);
       return value;
     }
-  }).property('localFilterFunction'),
+  }).property('localFilterFunction', 'parentRecordArray.filterFunction'),
+
   localFilterFunction: null,
-  parentFilterFunction: null,
+  parentRecordArray: null,
   isLoaded: true,
 
   replace: function() {
@@ -79,10 +80,9 @@ var FilteredRecordArray = RecordArray.extend({
 
   chain: function(filter){
 
-    var array = get(this, 'manager').createFilteredRecordArray(get(this, 'type'), function(){return true;});
+    var array = get(this, 'manager').createFilteredRecordArray(get(this, 'type'), filter);
 
-    array.set('parentFilterFunction', get(this, 'filterFunction'));
-    array.set('localFilterFunction', filter);
+    array.set('parentRecordArray', this);
 
     return array;
   },
