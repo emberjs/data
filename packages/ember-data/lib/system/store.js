@@ -1685,7 +1685,10 @@ OneToMany.prototype = {
   },
 
   removeRecords: function(records){
-    records.forEach(this.removeRecord);
+    var that = this;
+    records.forEach(function(record){
+      that.removeRecord(record);
+    });
   }
 
 };

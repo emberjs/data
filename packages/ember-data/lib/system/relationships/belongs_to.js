@@ -66,7 +66,7 @@ DS.belongsTo = function(type, options) {
       //Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof typeClass);
       var inverseKey = this.inverseFor(key).name;
       if(this._relationships[key]){
-        this._relationships.removeRecord(this);
+        this._relationships[key].removeRecord(this);
       }
 
       if (value){

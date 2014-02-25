@@ -95,7 +95,7 @@ DS.ManyArray = DS.RecordArray.extend({
     var records;
     if (amt > 0){
       records = get(this, 'content').slice(idx, idx+amt);
-      this.get('relationship').removeRecords(objects);
+      this.get('relationship').removeRecords(records);
     }
     if (objects){
       this.get('relationship').addRecords(objects);
