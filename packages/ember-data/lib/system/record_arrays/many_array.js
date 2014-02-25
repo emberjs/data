@@ -90,6 +90,18 @@ DS.ManyArray = DS.RecordArray.extend({
     this.loadingRecordsCount = count;
   },
 
+
+  replaceContent: function(idx, amt, objects){
+    var records;
+    if (amt > 0){
+      records = get(this, 'content').slice(idx, idx+amt);
+      this.get('relationship').removeRecords(objects);
+    }
+    if (objects){
+      this.get('relationship').addRecords(objects);
+    }
+  },
+
   /**
     @method loadedRecord
     @private
@@ -102,15 +114,17 @@ DS.ManyArray = DS.RecordArray.extend({
     }
   },
 
-  arrayContentWillChange: function(index, removed, added) {
+  /*
+  arrangedContentWillChange: function(index, removed, added) {
     return this._super.apply(this, arguments);
   },
 
-  arrayContentDidChange: function(index, removed, added) {
+  arrangedContentDidChange: function(index, removed, added) {
     var records = get(this, 'content').slice(index, index+added);
     this.get('relationship').addRecords(records);
     //this._super.apply(this, arguments);
   },
+  */
 
   /**
     Create a child record within the owner

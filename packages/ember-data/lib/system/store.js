@@ -1343,6 +1343,7 @@ DS.Store = Ember.Object.extend({
 
     return serializerFor(this.container, type.typeKey, adapter && adapter.defaultSerializer);
   }
+
 });
 
 function normalizeRelationships(store, type, data, record) {
@@ -1631,7 +1632,7 @@ DS.OneToMany = OneToMany;
 
 OneToMany.prototype = {
   constructor: OneToMany,
-
+  
   computeChanges: function(records) {
     // returns { added: [], removed: [] }
     var added = new Ember.OrderedSet(),
@@ -1675,6 +1676,16 @@ OneToMany.prototype = {
       that.hasManyRecord.notifyHasManyAdded(that.manyName, record);
       record.notifyBelongsToAdded(that.belongsToName, that.hasManyRecord, that);
     });
+  },
+
+  removeRecord: function(record){
+    this.members.remove(record);
+    this.hasManyRecord.notifyHasManyRemoved(this.manyName, record);
+    record.notifyBelongsToRemoved(this.belongsToName, this.hasManyRecord, this);
+  },
+
+  removeRecords: function(records){
+    records.forEach(this.removeRecord);
   }
 
 };
