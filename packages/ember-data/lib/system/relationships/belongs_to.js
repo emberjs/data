@@ -67,8 +67,8 @@ DS.belongsTo = function(type, options) {
       return value === undefined ? null : value;
     }
 
-    if (this._relationships[meta.key]) {
-      return this._relationships[meta.key].belongsTo;
+    if (this._relationships[key]) {
+      return this._relationships[key].hasManyRecord;
     }
 
     return null;

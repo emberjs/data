@@ -109,7 +109,7 @@ DS.ManyArray = DS.RecordArray.extend({
   arrayContentDidChange: function(index, removed, added) {
     var records = get(this, 'content').slice(index, index+added);
     this.get('relationship').addRecords(records);
-    this._super.apply(this, arguments);
+    //this._super.apply(this, arguments);
   },
 
   /**

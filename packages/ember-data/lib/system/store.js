@@ -1672,14 +1672,8 @@ OneToMany.prototype = {
     var that = this;
     records.forEach(function(record){
       that.members.add(record);
-      //TODO(Igor) this is slow
-      if (!that.manyArray.contains(record)){
-        that.ManyArray.push(record); 
-      }
-      if (get(record, that.belongsToName) !== that.hasManyRecord){
-        //TODO(Igor) needs to be different to not infinite loop
-        set(record, that.belongsToName, that.hasManyRecord);
-      }
+      that.hasManyRecord.notifyHasManyAdded(that.manyName, record);
+      record.notifyBelongsToAdded(that.belongsToName, that.hasManyRecord, that);
     });
   }
 
