@@ -73,7 +73,7 @@ DS.belongsTo = function(type, options) {
         this._relationships[key] = value._relationships[inverseKey];
         this._relationships[key].addRecord(this);
       }
-      return;
+      return value;
     }
 
     if (this._relationships[key]) {
