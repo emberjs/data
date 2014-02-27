@@ -1612,11 +1612,6 @@ DS.Relationship = function(hasManyRecord, manyType, store, belongsToName, manyNa
 
   this.members = new Ember.OrderedSet();
   this.hasManyRecord = hasManyRecord;
-  this.manyType = manyType;
-  if (manyType) {
-    this.manyArray = store.recordArrayManager.createManyArray(manyType, Ember.A());
-    this.manyArray.relationship = this;
-  }
 
   this.store = store;
   this.manyName = manyName;
@@ -1678,8 +1673,13 @@ DS.Relationship.prototype = {
   }
 };
 
-function OneToMany() {
+function OneToMany(hasManyRecord, manyType, store, belongsToName, manyName) {
   DS.Relationship.apply(this, arguments);
+  this.manyType = manyType;
+  if (manyType) {
+    this.manyArray = store.recordArrayManager.createManyArray(manyType, Ember.A());
+    this.manyArray.relationship = this;
+  }
 }
 
 DS.OneToMany = OneToMany;
@@ -1691,21 +1691,53 @@ DS.OneToMany.prototype.addRecord = function(record) {
   //TODO(Igor) Consider making the many array just a proxy over the members set
   this.members.add(record);
   this.hasManyRecord.notifyHasManyAdded(this.manyName, record);
-  record.notifyBelongsToAdded(this.belongsToName, this.hasManyRecord, this);
+  record.notifyBelongsToAdded(this.belongsToName, this);
 };
 
 DS.OneToMany.prototype.removeRecord = function(record) {
   this.members.remove(record);
   this.hasManyRecord.notifyHasManyRemoved(this.manyName, record);
-  record.notifyBelongsToRemoved(this.belongsToName, this.hasManyRecord, this);
+  record.notifyBelongsToRemoved(this.belongsToName, this);
 };
 
+DS.OneToMany.prototype.getOtherSideFor = function(record) {
+  return this.hasManyRecord;
+};
 
-DS.OneToOne = function() {
+DS.OneToOne = function(record, manyType, store, inverseKey, originalKey) {
   DS.Relationship.apply(this, arguments);
+  this.members.add(record);
+  this.originalRecord = record;
+  this.originalKey = originalKey;
+  this.inverseKey = inverseKey;
+  this.inverseRecord = null;
 };
 
 DS.OneToOne.prototype = Object.create(DS.Relationship.prototype);
+
+DS.OneToOne.prototype.addRecord = function(record) {
+  this.inverseRecord = record;
+  this.inverseRecord.notifyBelongsToAdded(this.inverseKey, this);
+  this.originalRecord.notifyBelongsToAdded(this.originalKey, this);
+};
+
+DS.OneToOne.prototype.removeRecord = function(record) {
+  this.originalRecord.notifyBelongsToRemoved(this.originalKey);
+  if (this.inverseRecord){
+    this.inverseRecord.notifyBelongsToRemoved(this.inverseKey);
+  }
+  this.inverseRecord = null;
+  this.originalRecord = null;
+};
+
+DS.OneToOne.prototype.getOtherSideFor = function(record) {
+  if (record === this.originalRecord){
+    return this.inverseRecord;
+  }
+  else {
+    return this.originalRecord;
+  }
+};
 
 DS.OneToNone = function() {
   DS.Relationship.apply(this, arguments);

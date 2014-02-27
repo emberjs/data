@@ -71,13 +71,13 @@ DS.belongsTo = function(type, options) {
 
       if (value){
         this._relationships[key] = value._relationships[inverseKey];
-        this._relationships[key].addRecords([this]);
+        this._relationships[key].addRecord(this);
       }
-      return null;
+      return;
     }
 
     if (this._relationships[key]) {
-      return this._relationships[key].hasManyRecord;
+      return this._relationships[key].getOtherSideFor(this);
     }
 
     return null;
@@ -85,12 +85,12 @@ DS.belongsTo = function(type, options) {
 };
 
 DS.Model.reopen({
-  notifyBelongsToAdded: function(key, record, relationship) {
+  notifyBelongsToAdded: function(key, relationship) {
     this._relationships[key] = relationship;
     this.notifyPropertyChange(key);
   },
 
-  notifyBelongsToRemoved: function(key, record) {
+  notifyBelongsToRemoved: function(key) {
     this._relationships[key] = null;
     this.notifyPropertyChange(key);
   }
