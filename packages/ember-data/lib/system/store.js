@@ -1676,10 +1676,8 @@ DS.Relationship.prototype = {
 function OneToMany(hasManyRecord, manyType, store, belongsToName, manyName) {
   DS.Relationship.apply(this, arguments);
   this.manyType = manyType;
-  if (manyType) {
-    this.manyArray = store.recordArrayManager.createManyArray(manyType, Ember.A());
-    this.manyArray.relationship = this;
-  }
+  this.manyArray = store.recordArrayManager.createManyArray(manyType, Ember.A());
+  this.manyArray.relationship = this;
 }
 
 DS.OneToMany = OneToMany;
@@ -1744,12 +1742,28 @@ DS.OneToNone = function() {
 };
 
 DS.OneToNone.prototype = Object.create(DS.Relationship.prototype);
+DS.OneToNone.constructor = DS.OneToNone;
 
-DS.ManyToNone = function() {
+DS.ManyToNone = function(hasManyRecord, manyType, store, belongsToName, manyName) {
   DS.Relationship.apply(this, arguments);
+  this.manyType = manyType;
+  this.manyArray = store.recordArrayManager.createManyArray(manyType, Ember.A());
+  this.manyArray.relationship = this;
 };
 
 DS.ManyToNone.prototype = Object.create(DS.Relationship.prototype);
+DS.ManyToNone.constructor = DS.ManyToNone;
+
+DS.ManyToNone.prototype.addRecord = function(record) {
+  //TODO(Igor) Consider making the many array just a proxy over the members set
+  this.members.add(record);
+  this.hasManyRecord.notifyHasManyAdded(this.manyName, record);
+};
+
+DS.ManyToNone.prototype.removeRecord = function(record) {
+  this.members.remove(record);
+  this.hasManyRecord.notifyHasManyRemoved(this.manyName, record);
+}
 
 function setForArray(array) {
   var set = new Ember.OrderedSet();
@@ -1770,7 +1784,11 @@ DS.createRelationshipFor = function(record, knownSide, store){
   var inverse = recordType.inverseFor(knownKey);
  
   if (!inverse){
-    return knownSide.kind === 'belongsTo' ? DS.OneToNone() : DS.ManyToNone();
+    if (knownSide.kind === 'belongsTo'){
+      return new DS.OneToNone(record, recordType, store, null, knownSide.key);
+    } else {
+      return new DS.ManyToNone(record, recordType, store, null, knownSide.key);
+    }
   }
    
   if (knownSide.kind === 'hasMany'){
