@@ -1586,7 +1586,7 @@ function setupRelationships(store, record, data, inverseRecord) {
         record.notifyBelongsToAdded(key, value, relationship);
         value.notifyHasManyAdded(inverse.name, record);
       } else {
-        relationship = new OneToNone(value);
+        relationship = new DS.OneToNone(value);
         record.notifyBelongsToAdded(key, value, relationship);
       }
     } else if (kind === 'hasMany') {
@@ -1608,30 +1608,25 @@ function setupRelationships(store, record, data, inverseRecord) {
   });
 }
 
-function OneToMany(hasManyRecord, manyType, store, belongsToName, manyName) {
+DS.Relationship = function(hasManyRecord, manyType, store, belongsToName, manyName) {
+
   this.members = new Ember.OrderedSet();
   this.hasManyRecord = hasManyRecord;
   this.manyType = manyType;
-  this.manyArray = store.recordArrayManager.createManyArray(manyType, Ember.A());
-  this.manyArray.relationship = this;
-  this.store = store;
+  if (manyType) {
+    this.manyArray = store.recordArrayManager.createManyArray(manyType, Ember.A());
+    this.manyArray.relationship = this;
+  }
 
-  if(!belongsToName && manyName){
-    belongsToName = hasManyRecord.inverseFor(manyName).name;
-  }
-  if(belongsToName && !manyName){
-    manyName = hasManyRecord.inverseFor(belongsToName).name;
-  }
-  
+  this.store = store;
   this.manyName = manyName;
   this.belongsToName = belongsToName;
   this.hasManyRecord = hasManyRecord;
-}
 
-DS.OneToMany = OneToMany;
+};
 
-OneToMany.prototype = {
-  constructor: OneToMany,
+DS.Relationship.prototype = {
+  constructor: DS.Relationship,
   
   computeChanges: function(records) {
     // returns { added: [], removed: [] }
@@ -1668,34 +1663,61 @@ OneToMany.prototype = {
     return unloaded;
   },
 
-  //TODO(Igor) Consider making the many array just a proxy over the members set
-  addRecords: function(records) {
-    var that = this;
-    records.forEach(function(record){
-      that.members.add(record);
-      that.hasManyRecord.notifyHasManyAdded(that.manyName, record);
-      record.notifyBelongsToAdded(that.belongsToName, that.hasManyRecord, that);
-    });
-  },
-
-  removeRecord: function(record){
-    this.members.remove(record);
-    this.hasManyRecord.notifyHasManyRemoved(this.manyName, record);
-    record.notifyBelongsToRemoved(this.belongsToName, this.hasManyRecord, this);
-  },
-
   removeRecords: function(records){
     var that = this;
     records.forEach(function(record){
       that.removeRecord(record);
     });
-  }
+  },
 
+  addRecords: function(records){
+    var that = this;
+    records.forEach(function(record){
+      that.addRecord(record);
+    });
+  }
 };
 
-function OneToNone(belongsTo) {
-  this.belongsTo = belongsTo;
+function OneToMany() {
+  DS.Relationship.apply(this, arguments);
 }
+
+DS.OneToMany = OneToMany;
+DS.OneToMany.prototype = Object.create(DS.Relationship.prototype);
+
+DS.OneToMany.prototype.constructor = OneToMany;
+
+DS.OneToMany.prototype.addRecord = function(record) {
+  //TODO(Igor) Consider making the many array just a proxy over the members set
+  this.members.add(record);
+  this.hasManyRecord.notifyHasManyAdded(this.manyName, record);
+  record.notifyBelongsToAdded(this.belongsToName, this.hasManyRecord, this);
+};
+
+DS.OneToMany.prototype.removeRecord = function(record) {
+  this.members.remove(record);
+  this.hasManyRecord.notifyHasManyRemoved(this.manyName, record);
+  record.notifyBelongsToRemoved(this.belongsToName, this.hasManyRecord, this);
+};
+
+
+DS.OneToOne = function() {
+  DS.Relationship.apply(this, arguments);
+};
+
+DS.OneToOne.prototype = Object.create(DS.Relationship.prototype);
+
+DS.OneToNone = function() {
+  DS.Relationship.apply(this, arguments);
+};
+
+DS.OneToNone.prototype = Object.create(DS.Relationship.prototype);
+
+DS.ManyToNone = function() {
+  DS.Relationship.apply(this, arguments);
+};
+
+DS.ManyToNone.prototype = Object.create(DS.Relationship.prototype);
 
 function setForArray(array) {
   var set = new Ember.OrderedSet();
@@ -1708,3 +1730,34 @@ function setForArray(array) {
 
   return set;
 }
+
+DS.createRelationshipFor = function(record, knownSide, store){
+  var inverseKey, inverseKind;
+  var recordType = record.constructor;
+  var knownKey = knownSide.key;
+  var inverse = recordType.inverseFor(knownKey);
+ 
+  if (!inverse){
+    return knownSide.kind === 'belongsTo' ? DS.OneToNone() : DS.ManyToNone();
+  }
+   
+  if (knownSide.kind === 'hasMany'){
+    if (inverse.kind === 'belongsTo'){
+      return new DS.OneToMany(record, recordType, store, inverse.name, knownSide.key); 
+    } else {
+      //return ManyToMany(record, recordType, store, inverse.key, knowSide.key);
+      return new DS.OneToMany(record, recordType, store, inverse.name, knownSide.key); 
+    }
+  } 
+  else {
+    if (inverse.kind === 'belongsTo'){
+      return new DS.OneToOne(record, recordType, store, inverse.name, knownSide.key); 
+    } 
+    else {
+      //TODO(Igor) think abot, maybe will be set on many side, maybe not
+      return null;
+    }
+  } 
+};
+
+

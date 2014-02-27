@@ -416,11 +416,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this._relationships = {};
     var that = this;
     this.constructor.eachRelationship(function(key, descriptor) {
-      //TEMP
-      //TODO(Igor) make nicer
-      if (descriptor.kind === 'hasMany'){
-        that._relationships[key] = new DS.OneToMany(that, that.constructor, that.store, null, key);
-      }
+        that._relationships[key] = DS.createRelationshipFor(that, descriptor, that.store);
     });
   },
 
