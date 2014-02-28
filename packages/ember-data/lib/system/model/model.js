@@ -87,7 +87,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     store.find('model', 1).then(function(model) {
       model.get('isDirty'); // false
       model.set('foo', 'some value');
-      model.set('isDirty'); // true
+      model.get('isDirty'); // true
     });
     ```
 
