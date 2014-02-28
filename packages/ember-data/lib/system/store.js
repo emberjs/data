@@ -66,7 +66,7 @@ function coerceId(id) {
   specify which store should be used:
 
   ```javascript
-  var person = store.find(App.Person, 123);
+  var person = store.find('person', 123);
   ```
 
   By default, the store will talk to your backend using a standard
@@ -325,7 +325,7 @@ Store = Ember.Object.extend({
     parameter:
 
     ```javascript
-    store.find(App.Person, { page: 1 });
+    store.find('person', { page: 1 });
     ```
 
     This will ask the adapter's `findQuery` method to find the records for
@@ -719,7 +719,7 @@ Store = Ember.Object.extend({
     Example
 
     ```javascript
-    var local_posts = store.all(App.Post);
+    var local_posts = store.all('post');
     ```
 
     @method all
@@ -745,7 +745,7 @@ Store = Ember.Object.extend({
     This method unloads all of the known records for a given type.
 
     ```javascript
-    store.unloadAll(App.Post);
+    store.unloadAll('post');
     ```
 
     @method unloadAll
@@ -789,7 +789,7 @@ Store = Ember.Object.extend({
     Example
 
     ```javascript
-    store.filter(App.Post, {unread: true}, function(post) {
+    store.filter('post', {unread: true}, function(post) {
       return post.get('unread');
     }).then(function(unreadPosts) {
       unreadPosts.get('length'); // 5
@@ -834,9 +834,9 @@ Store = Ember.Object.extend({
      Example
 
     ```javascript
-    store.recordIsLoaded(App.Post, 1); // false
-    store.find(App.Post, 1).then(function() {
-      store.recordIsLoaded(App.Post, 1); // true
+    store.recordIsLoaded('post', 1); // false
+    store.find('post', 1).then(function() {
+      store.recordIsLoaded('post', 1); // true
     });
     ```
 
