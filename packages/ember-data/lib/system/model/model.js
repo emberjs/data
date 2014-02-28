@@ -59,7 +59,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('isLoaded'); // true
 
     store.find('model', 1).then(function(model) {
@@ -81,7 +81,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('isDirty'); // true
 
     store.find('model', 1).then(function(model) {
@@ -105,7 +105,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('isSaving'); // false
     var promise = record.save();
     record.get('isSaving'); // true
@@ -130,7 +130,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('isDeleted'); // false
     record.deleteRecord();
     record.get('isDeleted'); // true
@@ -150,7 +150,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('isNew'); // true
 
     record.save().then(function(model) {
@@ -186,7 +186,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('dirtyType'); // 'created'
     ```
 
@@ -253,7 +253,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     attribute.
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('id'); // null
 
     store.find('model', 1).then(function(model) {
