@@ -330,8 +330,10 @@ test("When a record is created on the client, its async hasMany arrays should be
     comments: DS.hasMany('comment', { async: true })
   });
 
-  var post = Ember.run(function() {
-    return env.store.createRecord('post');
+  var post;
+
+  Ember.run(function() {
+    post = env.store.createRecord('post');
   });
 
   ok(get(post, 'isLoaded'), "The post should have isLoaded flag");
@@ -342,31 +344,4 @@ test("When a record is created on the client, its async hasMany arrays should be
     ok(get(comments, 'isLoaded'), "The comments should have isLoaded flag");
   });
 
-});
-
-test("a records SYNC HM relationship property is readOnly", function(){
-  expect(1);
-  var post = Ember.run(function() {
-    return env.store.createRecord('post');
-  });
-
-  raises(function(){
-    post.set('comments');
-  }, 'Cannot Set: comments on: ' + Ember.inspect(post));
-});
-
-
-test("a records ASYNC HM relationship property is readOnly", function(){
-  expect(1);
-  Post.reopen({
-    comments: DS.hasMany('comment', { async: true })
-  });
-
-  var post = Ember.run(function() {
-    return env.store.createRecord('post');
-  });
-
-  raises(function(){
-    post.set('comments');
-  }, 'Cannot Set: comments on: ' + Ember.inspect(post));
 });

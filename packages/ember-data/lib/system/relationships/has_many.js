@@ -5,7 +5,7 @@
 var get = Ember.get, set = Ember.set, setProperties = Ember.setProperties;
 
 function asyncHasMany(type, options, meta) {
-  return Ember.computed('data', function(key) {
+  return Ember.computed('data', function(key, value) {
     var relationship = this._relationships[key],
         promiseLabel = "DS: Async hasMany " + this + " : " + key;
 
@@ -34,7 +34,7 @@ function asyncHasMany(type, options, meta) {
     return DS.PromiseArray.create({
       promise: promise
     });
-  }).meta(meta).readOnly();
+  }).meta(meta);
 }
 
 function buildRelationship(record, key, options, callback) {
@@ -68,13 +68,13 @@ function hasRelationship(type, options) {
     return asyncHasMany(type, options, meta);
   }
 
-  return Ember.computed('data', function(key) {
+  return Ember.computed('data', function(key, value) {
     return buildRelationship(this, key, options, function(store, data) {
       var records = data[key];
       Ember.assert("You looked up the '" + key + "' relationship on '" + this + "' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", Ember.A(records).everyProperty('isEmpty', false));
       return store.findMany(this, data[key], meta.type);
     });
-  }).meta(meta).readOnly();
+  }).meta(meta);
 }
 
 /**
