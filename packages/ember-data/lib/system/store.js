@@ -1763,7 +1763,7 @@ DS.ManyToNone.prototype.addRecord = function(record) {
 DS.ManyToNone.prototype.removeRecord = function(record) {
   this.members.remove(record);
   this.hasManyRecord.notifyHasManyRemoved(this.manyName, record);
-}
+};
 
 function setForArray(array) {
   var set = new Ember.OrderedSet();
