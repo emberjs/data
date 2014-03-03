@@ -67,8 +67,8 @@ InvalidError.prototype = Ember.create(Error.prototype);
 
   ### Creating an Adapter
 
-  Create a new subclass of `DS.Adapter` then assign
-  it to the `ApplicationAdapter` property.
+  Create a new subclass of `DS.Adapter`, then assign
+  it to the `ApplicationAdapter` property of the application.
 
   ```javascript
   var MyAdapter = DS.Adapter.extend({
@@ -78,12 +78,12 @@ InvalidError.prototype = Ember.create(Error.prototype);
   App.ApplicationAdapter = MyAdapter;
   ```
 
-  Model specific adapters can be created by assigning the adapter
-  class to the `ModelName` + `Adapter` property.
+  Model-specific adapters can be created by assigning your adapter
+  class to the `ModelName` + `Adapter` property of the application.
 
   ```javascript
   var MyPostAdapter = DS.Adapter.extend({
-    // ...post specific adapter code goes here
+    // ...Post-specific adapter code goes here
   });
 
   App.PostAdapter = MyPostAdapter;
