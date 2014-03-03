@@ -32,11 +32,11 @@ var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'n
     }
   });
   ```
-  
+
   The `DS.InvalidError` must be constructed with a single object whose
   keys are the invalid model properties, and whose values are the
   corresponding error messages. For example:
-  
+
   ```javascript
   return new DS.InvalidError({
     length: 'Must be less than 15',
@@ -67,20 +67,26 @@ InvalidError.prototype = Ember.create(Error.prototype);
 
   ### Creating an Adapter
 
-  First, create a new subclass of `DS.Adapter`:
+  Create a new subclass of `DS.Adapter`, then assign
+  it to the `ApplicationAdapter` property of the application.
 
   ```javascript
-  App.MyAdapter = DS.Adapter.extend({
+  var MyAdapter = DS.Adapter.extend({
     // ...your code here
   });
+
+  App.ApplicationAdapter = MyAdapter;
   ```
 
-  To tell your store which adapter to use, set its `adapter` property:
+  Model-specific adapters can be created by assigning your adapter
+  class to the `ModelName` + `Adapter` property of the application.
 
   ```javascript
-  App.store = DS.Store.create({
-    adapter: 'MyAdapter'
+  var MyPostAdapter = DS.Adapter.extend({
+    // ...Post-specific adapter code goes here
   });
+
+  App.PostAdapter = MyPostAdapter;
   ```
 
   `DS.Adapter` is an abstract base class that you should override in your
