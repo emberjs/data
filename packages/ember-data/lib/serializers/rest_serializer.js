@@ -197,7 +197,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     @method normalizePayload
     @param {subclass of DS.Model} type
-    @param {Object} hash
+    @param {Object} payload
     @returns {Object} the normalized payload
   */
   normalizePayload: function(type, payload) {
