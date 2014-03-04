@@ -93,9 +93,11 @@ var JSONSerializer = Ember.Object.extend({
     @method normalize
     @param {subclass of DS.Model} type
     @param {Object} hash
+    @param {String or Number} id
+    @param {String} requestType
     @return {Object}
   */
-  normalize: function(type, hash) {
+  normalize: function(type, hash, id, requestType) {
     if (!hash) { return hash; }
 
     this.applyTransforms(type, hash);
@@ -465,10 +467,12 @@ var JSONSerializer = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindAll: function(store, type, payload){
-    return this.extractArray(store, type, payload);
+  extractFindAll: function(store, type, payload, id, requestType){
+    return this.extractArray(store, type, payload, id, requestType);
   },
   /**
     `extractFindQuery` is a hook into the extract method used when a
@@ -479,10 +483,12 @@ var JSONSerializer = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindQuery: function(store, type, payload){
-    return this.extractArray(store, type, payload);
+  extractFindQuery: function(store, type, payload, id, requestType){
+    return this.extractArray(store, type, payload, id, requestType);
   },
   /**
     `extractFindMany` is a hook into the extract method used when a
@@ -493,10 +499,12 @@ var JSONSerializer = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindMany: function(store, type, payload){
-    return this.extractArray(store, type, payload);
+  extractFindMany: function(store, type, payload, id, requestType){
+    return this.extractArray(store, type, payload, id, requestType);
   },
   /**
     `extractFindHasMany` is a hook into the extract method used when a
@@ -507,10 +515,12 @@ var JSONSerializer = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindHasMany: function(store, type, payload){
-    return this.extractArray(store, type, payload);
+  extractFindHasMany: function(store, type, payload, id, requestType){
+    return this.extractArray(store, type, payload, id, requestType);
   },
 
   /**
@@ -522,10 +532,12 @@ var JSONSerializer = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractCreateRecord: function(store, type, payload) {
-    return this.extractSave(store, type, payload);
+  extractCreateRecord: function(store, type, payload, id, requestType) {
+    return this.extractSave(store, type, payload, id, requestType);
   },
   /**
     `extractUpdateRecord` is a hook into the extract method used when
@@ -536,10 +548,12 @@ var JSONSerializer = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractUpdateRecord: function(store, type, payload) {
-    return this.extractSave(store, type, payload);
+  extractUpdateRecord: function(store, type, payload, id, requestType) {
+    return this.extractSave(store, type, payload, id, requestType);
   },
   /**
     `extractDeleteRecord` is a hook into the extract method used when
@@ -550,10 +564,12 @@ var JSONSerializer = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractDeleteRecord: function(store, type, payload) {
-    return this.extractSave(store, type, payload);
+  extractDeleteRecord: function(store, type, payload, id, requestType) {
+    return this.extractSave(store, type, payload, id, requestType);
   },
 
   /**
@@ -565,10 +581,12 @@ var JSONSerializer = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractFind: function(store, type, payload) {
-    return this.extractSingle(store, type, payload);
+  extractFind: function(store, type, payload, id, requestType) {
+    return this.extractSingle(store, type, payload, id, requestType);
   },
   /**
     `extractFindBelongsTo` is a hook into the extract method used when
@@ -579,10 +597,12 @@ var JSONSerializer = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractFindBelongsTo: function(store, type, payload) {
-    return this.extractSingle(store, type, payload);
+  extractFindBelongsTo: function(store, type, payload, id, requestType) {
+    return this.extractSingle(store, type, payload, id, requestType);
   },
   /**
     `extractSave` is a hook into the extract method used when a call
@@ -593,10 +613,12 @@ var JSONSerializer = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractSave: function(store, type, payload) {
-    return this.extractSingle(store, type, payload);
+  extractSave: function(store, type, payload, id, requestType) {
+    return this.extractSingle(store, type, payload, id, requestType);
   },
 
   /**
@@ -620,10 +642,12 @@ var JSONSerializer = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractSingle: function(store, type, payload) {
-    return this.normalize(type, payload);
+  extractSingle: function(store, type, payload, id, requestType) {
+    return this.normalize(type, payload, id, requestType);
   },
 
   /**
@@ -646,10 +670,12 @@ var JSONSerializer = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractArray: function(store, type, payload) {
-    return this.normalize(type, payload);
+  extractArray: function(store, type, payload, id, requestType) {
+    return this.normalize(type, payload, id, requestType);
   },
 
   /**
