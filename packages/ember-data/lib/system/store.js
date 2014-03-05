@@ -82,6 +82,39 @@ function coerceId(id) {
   You can learn more about writing a custom adapter by reading the `DS.Adapter`
   documentation.
 
+  ### Store createRecord() vs. push() vs. pushPayload() vs. update()
+
+  The store provides multiple ways to create new records object. They have
+  some subtle differences in their use which are detailed below:
+
+  [createRecord](#method_createRecord) is used for creating new
+  records on the client side. This will return a new record in the
+  `created.uncommitted` state. In order to persist this record to the
+  backend you will need to call `record.save()`.
+
+  [push](#method_push) is used to notify Ember Data's store of new or
+  updated records that exist in the backend. This will return a record
+  in the `loaded.saved` state. The primary use-case for `store#push` is
+  to notify Ember Data about record updates that happen
+  outside of the normal adapter methods (for example
+  [SSE](http://dev.w3.org/html5/eventsource/) or [Web
+  Sockets](http://www.w3.org/TR/2009/WD-websockets-20091222/)).
+
+  [pushPayload](#method_pushPayload) is a convenience wrapper for
+  `store#push` that will deserialize payloads if the model's
+  Serializer implements a `pushPayload` method.
+
+  [update](#method_update) works like `push` accept it can handle
+  partial attributes without overwriting the existing record
+  properties.
+
+  Note: When creating a new record using any of the above methods
+  Ember Data will update `DS.RecordArray`s such as those returned by
+  `store#all()`, `store#findAll()` or `store#filter()`. This means any
+  data bindings or computed properties that depend on the RecordArray
+  will automatically be synced to include the new or updated record
+  values.
+
   @class Store
   @namespace DS
   @extends Ember.Object
