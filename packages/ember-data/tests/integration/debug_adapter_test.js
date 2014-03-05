@@ -23,7 +23,7 @@ module("DS.DebugAdapter", {
 
     debugAdapter.reopen({
       getModelTypes: function() {
-        return Ember.A([App.Post]);
+        return Ember.A([{ klass: App.Post, name: 'post' }]);
       }
     });
   },
@@ -37,7 +37,7 @@ test("Watching Model Types", function() {
 
   var added = function(types) {
     equal(types.length, 1);
-    equal(types[0].name, 'App.Post');
+    equal(types[0].name, 'post');
     equal(types[0].count, 0);
     strictEqual(types[0].object, App.Post);
   };
