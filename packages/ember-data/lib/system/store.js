@@ -1207,6 +1207,38 @@ Store = Ember.Object.extend({
     serializer.pushPayload(this, payload);
   },
 
+  /**
+    Update existing records in the store. Unlike [push](#method_push),
+    update will merge the new data properties with the existing
+    properties. This makes it safe to use with a subset of record
+    attributes. This method expects normalized data.
+
+    `update` is useful if you app broadcasts partial updates to
+    records.
+
+    ```js
+    App.Person = DS.Model.extend({
+      firstName: DS.attr('string'),
+      lastName: DS.attr('string')
+    });
+
+    store.get('person', 1).then(function(tom) {
+      tom.get('firstName'); // Tom
+      tom.get('lastName'); // Dale
+
+      var updateEvent = {id: 1, firstName: "TomHuda"};
+      store.update('person', updateEvent);
+
+      tom.get('firstName'); // TomHuda
+      tom.get('lastName'); // Dale
+    });
+    ```
+
+    @method update
+    @param {String} type
+    @param {Object} data
+    @return {DS.Model} the record that was updated.
+  */
   update: function(type, data) {
     Ember.assert("You must include an `id` in a hash passed to `update`", data.id != null);
 
