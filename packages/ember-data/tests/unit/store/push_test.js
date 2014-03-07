@@ -298,3 +298,26 @@ test("Calling pushPayload without a type should use a model's serializer when no
 
   equal(person.get('firstName'), "Yehuda", "you can push raw JSON into the store");
 });
+
+test("Calling pushPayload with _partial allows partial updates with raw JSON", function () {
+  env.container.register('serializer:person', DS.RESTSerializer);
+
+  store.pushPayload('person', {people: [{
+    id: '1',
+    firstName: "Robert",
+    lastName: "Jackson"
+  }]});
+
+  var person = store.getById('person', 1);
+
+  equal(person.get('firstName'), "Robert", "you can push raw JSON into the store");
+  equal(person.get('lastName'), "Jackson", "you can push raw JSON into the store");
+
+  store.updatePayload('person', {people: [{
+    id: '1',
+    firstName: "Jacquie"
+  }]});
+
+  equal(person.get('firstName'), "Jacquie", "you can push raw JSON into the store");
+  equal(person.get('lastName'), "Jackson", "existing fields are untouched");
+});

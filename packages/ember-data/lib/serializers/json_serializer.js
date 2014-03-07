@@ -82,8 +82,10 @@ var JSONSerializer = Ember.Object.extend({
    @param {Object} data The data to transform
    @return {Object} data The transformed data object
   */
-  applyTransforms: function(type, data) {
+  applyTransforms: function(type, data, _partial) {
     type.eachTransformedAttribute(function(key, type) {
+      if (_partial && !data[key]) { return; }
+
       var transform = this.transformFor(type);
       data[key] = transform.deserialize(data[key]);
     }, this);

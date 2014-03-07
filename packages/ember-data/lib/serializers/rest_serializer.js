@@ -168,10 +168,11 @@ var RESTSerializer = JSONSerializer.extend({
     @param {String} prop
     @return {Object}
   */
-  normalize: function(type, hash, prop) {
+  normalize: function(type, hash, prop, _partial) {
     this.normalizeId(hash);
     this.normalizeAttributes(type, hash);
     this.normalizeRelationships(type, hash);
+
 
     this.normalizeUsingDeclaredMapping(type, hash);
 
@@ -179,7 +180,7 @@ var RESTSerializer = JSONSerializer.extend({
       this.normalizeHash[prop](hash);
     }
 
-    this.applyTransforms(type, hash);
+    this.applyTransforms(type, hash, _partial);
     return hash;
   },
 
@@ -529,7 +530,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {DS.Store} store
     @param {Object} payload
   */
-  pushPayload: function(store, payload) {
+  pushPayload: function(store, payload, _partial) {
     payload = this.normalizePayload(payload);
 
     for (var prop in payload) {
@@ -539,10 +540,10 @@ var RESTSerializer = JSONSerializer.extend({
 
       /*jshint loopfunc:true*/
       var normalizedArray = map.call(Ember.makeArray(payload[prop]), function(hash) {
-        return typeSerializer.normalize(type, hash, prop);
+        return typeSerializer.normalize(type, hash, prop, _partial);
       }, this);
 
-      store.pushMany(typeName, normalizedArray);
+      store.pushMany(typeName, normalizedArray, _partial);
     }
   },
 
