@@ -1428,6 +1428,56 @@ Store = Ember.Object.extend({
   },
 
   /**
+    Update existing records in the store from a payload. Unlike
+    [pushPayload](#method_pushPayload), updatePayload will merge the new
+    data properties with the existing properties. This makes it safe
+    to use with a subset of record attributes.
+
+    `updatePayload` is useful if you app broadcasts partial updates to
+    records.
+
+    ```js
+    App.ApplicationSerializer = DS.ActiveModelSerializer;
+
+    store.pushPayload({
+      people: [
+        {id: 1, first_name: "Tom", last_name: "Dale"}
+      ]
+    });
+
+    var tom = store.find('person', 1);
+    tom.get('firstName'); // Tom
+    tom.get('lastName'); // Dale
+
+    store.updatePayload({
+      people: [
+        {id: 1, first_name: "TomHuda"}
+      ]
+    });
+
+    tom.get('firstName'); // TomHuda
+    tom.get('lastName'); // Dale
+    ```
+
+    See [pushPayload](#method_pushPayload) for more details.
+
+    @method updatePayload
+    @param {String} type Optionally, a model used to determine which serializer will be used
+    @param {Object} payload
+  */
+  updatePayload: function (type, payload) {
+    var serializer;
+    if (!payload) {
+      payload = type;
+      serializer = defaultSerializer(this.container);
+      Ember.assert("You cannot use `store#updatePayload` without a type unless your default serializer defines `pushPayload`", serializer.pushPayload);
+    } else {
+      serializer = this.serializerFor(type);
+    }
+    serializer.pushPayload(this, payload, true);
+  },
+
+  /**
     If you have an Array of normalized data to push,
     you can call `pushMany` with the Array, and it will
     call `push` repeatedly for you.
@@ -1437,9 +1487,9 @@ Store = Ember.Object.extend({
     @param {Array} datas
     @return {Array}
   */
-  pushMany: function(type, datas) {
+  pushMany: function(type, datas, _partial) {
     return map(datas, function(data) {
-      return this.push(type, data);
+      return this.push(type, data, _partial);
     }, this);
   },
 
