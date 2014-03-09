@@ -1530,7 +1530,7 @@ function deserializeRecordId(store, data, key, relationship, id) {
     data[key] = store.recordForId(type, id);
   } else if (typeof id === 'object') {
     // polymorphic
-    data[key] = store.recordForId(id.type, id.id);
+    data[key] = store.recordForId(relationship.type, id.id);
   }
 }
 
