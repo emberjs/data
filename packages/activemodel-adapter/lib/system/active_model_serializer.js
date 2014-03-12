@@ -1,13 +1,17 @@
-require('ember-data/serializers/rest_serializer');
-
+import {singularize} from "../../../ember-inflector/lib/main";
+import RESTSerializer from "../../../ember-data/lib/serializers/rest_serializer";
 /**
   @module ember-data
 */
 
-var get = Ember.get;
-var forEach = Ember.EnumerableUtils.forEach;
+var get = Ember.get,
+    forEach = Ember.EnumerableUtils.forEach,
+    camelize =   Ember.String.camelize,
+    capitalize = Ember.String.capitalize,
+    decamelize = Ember.String.decamelize,
+    underscore = Ember.String.underscore;
 
-DS.ActiveModelSerializer = DS.RESTSerializer.extend({
+var ActiveModelSerializer = RESTSerializer.extend({
   // SERIALIZE
 
   /**
@@ -18,7 +22,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     @returns String
   */
   keyForAttribute: function(attr) {
-    return Ember.String.decamelize(attr);
+    return decamelize(attr);
   },
 
   /**
@@ -31,11 +35,11 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     @returns String
   */
   keyForRelationship: function(key, kind) {
-    key = Ember.String.decamelize(key);
+    key = decamelize(key);
     if (kind === "belongsTo") {
       return key + "_id";
     } else if (kind === "hasMany") {
-      return Ember.String.singularize(key) + "_ids";
+      return singularize(key) + "_ids";
     } else {
       return key;
     }
@@ -56,7 +60,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash: function(data, type, record, options) {
-    var root = Ember.String.decamelize(type.typeKey);
+    var root = underscore(decamelize(type.typeKey));
     data[root] = this.serialize(record, options);
   },
 
@@ -72,7 +76,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     var key = relationship.key,
         belongsTo = get(record, key);
     key = this.keyForAttribute(key);
-    json[key + "_type"] = Ember.String.capitalize(belongsTo.constructor.typeKey);
+    json[key + "_type"] = capitalize(camelize(belongsTo.constructor.typeKey));
   },
 
   // EXTRACT
@@ -85,8 +89,8 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     @returns String the model's typeKey
   */
   typeForRoot: function(root) {
-    var camelized = Ember.String.camelize(root);
-    return Ember.String.singularize(camelized);
+    var camelized = camelize(root);
+    return singularize(camelized);
   },
 
   /**
@@ -141,7 +145,7 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
       var links = data.links;
 
       for (var link in links) {
-        var camelizedLink = Ember.String.camelize(link);
+        var camelizedLink = camelize(link);
 
         if (camelizedLink !== link) {
           links[camelizedLink] = links[link];
@@ -203,3 +207,5 @@ DS.ActiveModelSerializer = DS.RESTSerializer.extend({
     }
   }
 });
+
+export default ActiveModelSerializer;

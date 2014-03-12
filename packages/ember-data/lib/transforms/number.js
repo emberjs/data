@@ -1,4 +1,7 @@
+import Transform from "./base";
+
 var empty = Ember.isEmpty;
+
 /**
   The `DS.NumberTransform` class is used to serialize and deserialize
   numeric attributes on Ember Data record objects. This transform is
@@ -20,7 +23,7 @@ var empty = Ember.isEmpty;
   @extends DS.Transform
   @namespace DS
  */
-DS.NumberTransform = DS.Transform.extend({
+var NumberTransform = Transform.extend({
 
   deserialize: function(serialized) {
     return empty(serialized) ? null : Number(serialized);
@@ -30,3 +33,5 @@ DS.NumberTransform = DS.Transform.extend({
     return empty(deserialized) ? null : Number(deserialized);
   }
 });
+
+export default NumberTransform;

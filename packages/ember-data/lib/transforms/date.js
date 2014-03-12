@@ -17,7 +17,8 @@
   @extends DS.Transform
   @namespace DS
  */
-DS.DateTransform = DS.Transform.extend({
+import Transform from "./base";
+var DateTransform = Transform.extend({
 
   deserialize: function(serialized) {
     var type = typeof serialized;
@@ -65,3 +66,5 @@ DS.DateTransform = DS.Transform.extend({
   } 
 
 });
+
+export default DateTransform;

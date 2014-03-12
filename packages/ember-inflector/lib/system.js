@@ -1,6 +1,12 @@
-require('ember-inflector/system/string');
-require('ember-inflector/system/inflector');
-require('ember-inflector/system/inflections');
-require('ember-inflector/ext/string');
+import Inflector from "./system/inflector";
+import {pluralize, singularize} from "./system/string";
+import defaultRules from "./system/inflections";
 
-Ember.Inflector.inflector = new Ember.Inflector(Ember.Inflector.defaultRules);
+Inflector.inflector = new Inflector(defaultRules);
+
+export {
+  Inflector,
+  singularize,
+  pluralize,
+  defaultRules
+};

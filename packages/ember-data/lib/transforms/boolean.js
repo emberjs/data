@@ -1,3 +1,4 @@
+import Transform from "./base";
 
 /**
   The `DS.BooleanTransform` class is used to serialize and deserialize
@@ -20,7 +21,7 @@
   @extends DS.Transform
   @namespace DS
  */
-DS.BooleanTransform = DS.Transform.extend({
+var BooleanTransform = Transform.extend({
   deserialize: function(serialized) {
     var type = typeof serialized;
 
@@ -39,3 +40,4 @@ DS.BooleanTransform = DS.Transform.extend({
     return Boolean(deserialized);
   }
 });
+export default BooleanTransform;

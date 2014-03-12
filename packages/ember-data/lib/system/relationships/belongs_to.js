@@ -1,13 +1,51 @@
 var get = Ember.get, set = Ember.set,
     isNone = Ember.isNone;
 
+var Promise = Ember.RSVP.Promise;
+
+import {Model} from "../model";
+import {PromiseObject} from "../store";
+
 /**
   @module ember-data
 */
 
+function asyncBelongsTo(type, options, meta) {
+  return Ember.computed('data', function(key, value) {
+    var data = get(this, 'data'),
+        store = get(this, 'store'),
+        promiseLabel = "DS: Async belongsTo " + this + " : " + key,
+        promise;
+
+    if (arguments.length === 2) {
+      Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof store.modelFor(type));
+      return value === undefined ? null : PromiseObject.create({
+        promise: Promise.cast(value, promiseLabel)
+      });
+    }
+
+    var link = data.links && data.links[key],
+        belongsTo = data[key];
+
+    if(!isNone(belongsTo)) {
+      promise = store.fetchRecord(belongsTo) || Promise.cast(belongsTo, promiseLabel);
+      return PromiseObject.create({
+        promise: promise
+      });
+    } else if (link) {
+      promise = store.findBelongsTo(this, link, meta);
+      return PromiseObject.create({
+        promise: promise
+      });
+    } else {
+      return null;
+    }
+  }).meta(meta);
+}
+
 /**
   `DS.belongsTo` is used to define One-To-One and One-To-Many
-  relationships on a [DS.Model](DS.Model.html).
+  relationships on a [DS.Model](/api/data/classes/DS.Model.html).
 
 
   `DS.belongsTo` takes an optional hash as a second parameter, currently
@@ -52,7 +90,7 @@ var get = Ember.get, set = Ember.set,
   @param {Object} options a hash of options
   @return {Ember.computed} relationship
 */
-DS.belongsTo = function(type, options) {
+function belongsTo(type, options) {
   var meta = {
     isRelationship: true,
     type: type,
@@ -68,7 +106,6 @@ DS.belongsTo = function(type, options) {
       if(this._relationships[key]){
         this._relationships[key].removeRecord(this);
       }
-
       if (value){
         this._relationships[key] = value._relationships[inverseKey];
         this._relationships[key].addRecord(this);
@@ -82,9 +119,9 @@ DS.belongsTo = function(type, options) {
 
     return null;
   }).meta(meta);
-};
+}
 
-DS.Model.reopen({
+Model.reopen({
   notifyBelongsToAdded: function(key, relationship) {
     this._relationships[key] = relationship;
     this.notifyPropertyChange(key);
@@ -95,3 +132,5 @@ DS.Model.reopen({
     this.notifyPropertyChange(key);
   }
 });
+
+export default belongsTo;

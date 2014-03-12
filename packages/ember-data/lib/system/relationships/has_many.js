@@ -1,14 +1,87 @@
-require("ember-data/system/model/model");
-
 /**
   @module ember-data
 */
-
+import {PromiseArray, OneToMany} from "../store";
+import {Model} from "../model";
 var get = Ember.get, set = Ember.set, setProperties = Ember.setProperties;
+
+function asyncHasMany(type, options, meta) {
+  /*jshint validthis: true */
+  return Ember.computed('data', function(key) {
+    var relationship = this._relationships[key],
+        promiseLabel = "DS: Async hasMany " + this + " : " + key;
+
+    if (!relationship) {
+      var resolver = Ember.RSVP.defer(promiseLabel);
+      relationship = buildRelationship(this, key, options, function(store, data) {
+        var link = data.links && data.links[key];
+        var rel;
+        if (link) {
+          rel = store.findHasMany(this, link, meta, resolver);
+        } else {
+          rel = store.findMany(this, data[key], meta.type, resolver);
+        }
+        // cache the promise so we can use it
+        // when we come back and don't need to rebuild
+        // the relationship.
+        set(rel, 'promise', resolver.promise);
+        return rel;
+      });
+    }
+
+    var promise = relationship.get('promise').then(function() {
+      return relationship;
+    }, null, "DS: Async hasMany records received");
+
+    return PromiseArray.create({
+      promise: promise
+    });
+  }).meta(meta).readOnly();
+}
+
+function buildRelationship(record, key, options, callback) {
+  var rels = record._relationships;
+
+  if (rels[key]) { return rels[key]; }
+
+  var data = get(record, 'data'),
+      store = get(record, 'store');
+
+  var relationship = rels[key] = callback.call(record, store, data);
+
+  return setProperties(relationship, {
+    owner: record,
+    name: key,
+    isPolymorphic: options.polymorphic
+  });
+}
+
+function hasRelationship(type, options) {
+  options = options || {};
+
+  var meta = {
+    type: type,
+    isRelationship: true,
+    options: options,
+    kind: 'hasMany'
+  };
+
+  if (options.async) {
+    return asyncHasMany(type, options, meta);
+  }
+
+  return Ember.computed('data', function(key) {
+    return buildRelationship(this, key, options, function(store, data) {
+      var records = data[key];
+      Ember.assert("You looked up the '" + key + "' relationship on '" + this + "' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", Ember.A(records).everyProperty('isEmpty', false));
+      return store.findMany(this, data[key], meta.type);
+    });
+  }).meta(meta).readOnly();
+}
 
 /**
   `DS.hasMany` is used to define One-To-Many and Many-To-Many
-  relationships on a [DS.Model](DS.Model.html).
+  relationships on a [DS.Model](/api/data/classes/DS.Model.html).
 
   `DS.hasMany` takes an optional hash as a second parameter, currently
   supported options are:
@@ -84,7 +157,7 @@ var get = Ember.get, set = Ember.set, setProperties = Ember.setProperties;
   @param {Object} options a hash of options
   @return {Ember.computed} relationship
 */
-DS.hasMany = function(type, options) {
+function hasMany(type, options) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;
@@ -101,14 +174,14 @@ DS.hasMany = function(type, options) {
     //TODO(Igor) encapsulate better
     var relationship = this._relationships[key];
     if (!relationship){
-      relationship = new DS.OneToMany(this, type, this.store, null, key);
+      relationship = new OneToMany(this, type, this.store, null, key);
       this._relationships[key] = relationship;
     }
     return relationship.manyArray;
   }).meta(meta);
-};
+}
 
-DS.Model.reopen({
+Model.reopen({
   notifyHasManyAdded: function(key, record) {
     var manyArray = get(this, key);
     //TODO(Igor) double check with yehuda whether this is the correct method
@@ -120,3 +193,5 @@ DS.Model.reopen({
     manyArray.removeRecord(record);
   }
 });
+
+export default hasMany;

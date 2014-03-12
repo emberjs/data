@@ -1,4 +1,4 @@
-Ember.Inflector.defaultRules = {
+var defaultRules = {
   plurals: [
     [/$/, 's'],
     [/s$/i, 's'],
@@ -76,3 +76,5 @@ Ember.Inflector.defaultRules = {
     'police'
   ]
 };
+
+export default defaultRules;

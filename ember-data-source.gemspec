@@ -10,6 +10,7 @@ Gem::Specification.new do |gem|
   gem.description   = %q{ember-data source code wrapper for use with Ruby libs.}
   gem.homepage      = "https://github.com/emberjs/data"
   gem.version       = Ember::Data::VERSION
+  gem.license       = "MIT"
 
   gem.add_dependency "ember-source"
 

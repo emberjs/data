@@ -67,3 +67,36 @@ test("If a store is instantiated, it should be made available to each controller
 test("the DS namespace should be accessible", function() {
   ok(Ember.Namespace.byName('DS') instanceof Ember.Namespace, "the DS namespace is accessible");
 });
+
+test("the deprecated serializer:_default is resolved as serializer:default", function(){
+  var deprecated, valid = container.lookup('serializer:-default');
+  expectDeprecation(function() {
+    deprecated = container.lookup('serializer:_default');
+  });
+
+  ok(deprecated === valid, "they should resolve to the same thing");
+});
+
+test("the deprecated serializer:_rest is resolved as serializer:rest", function(){
+  var deprecated, valid = container.lookup('serializer:-rest');
+  expectDeprecation(function() {
+    deprecated = container.lookup('serializer:_rest');
+  });
+
+  ok(deprecated === valid, "they should resolve to the same thing");
+});
+
+test("the deprecated adapter:_rest is resolved as adapter:rest", function(){
+  var deprecated, valid = container.lookup('adapter:-rest');
+  expectDeprecation(function() {
+    deprecated = container.lookup('adapter:_rest');
+  });
+
+  ok(deprecated === valid, "they should resolve to the same thing");
+});
+
+test("a deprecation is made when looking up adapter:_rest", function(){
+  expectDeprecation(function(){
+    container.lookup('serializer:_default');
+  },"You tried to look up 'serializer:_default', but this has been deprecated in favor of 'serializer:-default'.");
+});

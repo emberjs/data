@@ -1,4 +1,5 @@
-require("ember-data/system/record_arrays/record_array");
+import RecordArray from "./record_array";
+import {RelationshipChange} from "../changes";
 
 /**
   @module ember-data
@@ -6,6 +7,10 @@ require("ember-data/system/record_arrays/record_array");
 
 var get = Ember.get, set = Ember.set;
 var map = Ember.EnumerableUtils.map;
+
+function sync(change) {
+  change.sync();
+}
 
 /**
   A `ManyArray` is a `RecordArray` that represents the contents of a has-many
@@ -43,7 +48,7 @@ var map = Ember.EnumerableUtils.map;
   @namespace DS
   @extends DS.RecordArray
 */
-DS.ManyArray = DS.RecordArray.extend({
+var ManyArray = RecordArray.extend({
   init: function() {
     this._super.apply(this, arguments);
   },
@@ -123,8 +128,91 @@ DS.ManyArray = DS.RecordArray.extend({
     var records = get(this, 'content').slice(index, index+added);
     this.get('relationship').addRecords(records);
     //this._super.apply(this, arguments);
-  },
+  /**
+    @method fetch
+    @private
   */
+  fetch: function() {
+    var records = get(this, 'content'),
+        store = get(this, 'store'),
+        owner = get(this, 'owner'),
+        resolver = Ember.RSVP.defer("DS: ManyArray#fetch " + get(this, 'type'));
+
+    var unloadedRecords = records.filterProperty('isEmpty', true);
+    store.fetchMany(unloadedRecords, owner, resolver);
+  },
+
+  arrangedContentDidChange: function() {
+    Ember.run.once(this, 'fetch');
+  },
+
+  arrayContentWillChange: function(index, removed, added) {
+    var owner = get(this, 'owner'),
+        name = get(this, 'name');
+
+    if (!owner._suspendedRelationships) {
+      // This code is the first half of code that continues inside
+      // of arrayContentDidChange. It gets or creates a change from
+      // the child object, adds the current owner as the old
+      // parent if this is the first time the object was removed
+      // from a ManyArray, and sets `newParent` to null.
+      //
+      // Later, if the object is added to another ManyArray,
+      // the `arrayContentDidChange` will set `newParent` on
+      // the change.
+      for (var i=index; i<index+removed; i++) {
+        var record = get(this, 'content').objectAt(i);
+
+        var change = RelationshipChange.createChange(owner, record, get(this, 'store'), {
+          parentType: owner.constructor,
+          changeType: "remove",
+          kind: "hasMany",
+          key: name
+        });
+
+        this._changesToSync.add(change);
+      }
+    }
+
+    return this._super.apply(this, arguments);
+  },
+
+  arrayContentDidChange: function(index, removed, added) {
+    this._super.apply(this, arguments);
+
+    var owner = get(this, 'owner'),
+        name = get(this, 'name'),
+        store = get(this, 'store');
+
+    if (!owner._suspendedRelationships) {
+      // This code is the second half of code that started in
+      // `arrayContentWillChange`. It gets or creates a change
+      // from the child object, and adds the current owner as
+      // the new parent.
+      for (var i=index; i<index+added; i++) {
+        var record = get(this, 'content').objectAt(i);
+
+        var change = RelationshipChange.createChange(owner, record, store, {
+          parentType: owner.constructor,
+          changeType: "add",
+          kind:"hasMany",
+          key: name
+        });
+        change.hasManyName = name;
+
+        this._changesToSync.add(change);
+      }
+
+      // We wait until the array has finished being
+      // mutated before syncing the OneToManyChanges created
+      // in arrayContentWillChange, so that the array
+      // membership test in the sync() logic operates
+      // on the final results.
+      this._changesToSync.forEach(sync);
+
+      this._changesToSync.clear();
+    }
+  },
 
   /**
     Create a child record within the owner
@@ -147,5 +235,6 @@ DS.ManyArray = DS.RecordArray.extend({
 
     return record;
   }
-
 });
+
+export default ManyArray;

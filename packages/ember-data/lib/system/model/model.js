@@ -1,13 +1,17 @@
-require("ember-data/system/model/states");
-
 var isNone = Ember.isNone;
+
+import RootState from "./states";
+import Errors from "./errors";
+import JSONSerializer from "../../serializers/json_serializer";
+import {PromiseObject, createRelationshipFor} from "../store";
 
 /**
   @module ember-data
 */
 
 var get = Ember.get, set = Ember.set,
-    merge = Ember.merge, once = Ember.run.once;
+    merge = Ember.merge,
+    Promise = Ember.RSVP.Promise;
 
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
   return get(get(this, 'currentState'), key);
@@ -22,7 +26,10 @@ var retrieveFromCurrentState = Ember.computed('currentState', function(key, valu
   @extends Ember.Object
   @uses Ember.Evented
 */
-DS.Model = Ember.Object.extend(Ember.Evented, {
+var Model = Ember.Object.extend(Ember.Evented, {
+  _recordArrays: undefined,
+  _relationships: undefined,
+  _loadingRecordArrays: undefined,
   /**
     If this property is `true` the record is in the `empty`
     state. Empty is the first state all records enter after they have
@@ -39,7 +46,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   isEmpty: retrieveFromCurrentState,
   /**
     If this property is `true` the record is in the `loading` state. A
-    record enters this state when the store askes the adapter for its
+    record enters this state when the store asks the adapter for its
     data. It remains in this state until the adapter provides the
     requested data.
 
@@ -57,7 +64,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('isLoaded'); // true
 
     store.find('model', 1).then(function(model) {
@@ -79,13 +86,13 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('isDirty'); // true
 
     store.find('model', 1).then(function(model) {
       model.get('isDirty'); // false
       model.set('foo', 'some value');
-      model.set('isDirty'); // true
+      model.get('isDirty'); // true
     });
     ```
 
@@ -103,7 +110,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('isSaving'); // false
     var promise = record.save();
     record.get('isSaving'); // true
@@ -128,7 +135,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('isDeleted'); // false
     record.deleteRecord();
     record.get('isDeleted'); // true
@@ -148,10 +155,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('isNew'); // true
 
-    store.find('model', 1).then(function(model) {
+    record.save().then(function(model) {
       model.get('isNew'); // false
     });
     ```
@@ -184,7 +191,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('dirtyType'); // 'created'
     ```
 
@@ -251,7 +258,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     attribute.
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('id'); // null
 
     store.find('model', 1).then(function(model) {
@@ -263,31 +270,42 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @type {String}
   */
   id: null,
-  transaction: null,
+
   /**
     @property currentState
     @private
     @type {Object}
   */
-  currentState: null,
+  currentState: RootState.empty,
+
   /**
     When the record is in the `invalid` state this object will contain
     any errors returned by the adapter. When present the errors hash
-    typically contains keys coresponding to the invalid property names
+    typically contains keys corresponding to the invalid property names
     and values which are an array of error messages.
 
     ```javascript
-    record.get('errors'); // null
+    record.get('errors.length'); // 0
     record.set('foo', 'invalid value');
     record.save().then(null, function() {
-      record.get('errors'); // {foo: ['foo should be a number.']}
+      record.get('errors').get('foo'); // ['foo should be a number.']
     });
     ```
 
     @property errors
     @type {Object}
   */
-  errors: null,
+  errors: Ember.computed(function() {
+    var errors = Errors.create();
+
+    errors.registerHandlers(this, function() {
+      this.send('becameInvalid');
+    }, function() {
+      this.send('becameValid');
+    });
+
+    return errors;
+  }).readOnly(),
 
   /**
     Tells a record to fetch a relationship. This method returns a promise for
@@ -343,7 +361,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   */
   toJSON: function(options) {
     // container is for lazy transform lookups
-    var serializer = DS.JSONSerializer.create({ container: this.container });
+    var serializer = JSONSerializer.create({ container: this.container });
     return serializer.serialize(this, options);
   },
 
@@ -397,12 +415,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   data: Ember.computed(function() {
     this._data = this._data || {};
     return this._data;
-  }).property(),
+  }).readOnly(),
 
   _data: null,
 
   init: function() {
-    set(this, 'currentState', DS.RootState.empty);
     this._super();
     this._setup();
   },
@@ -590,7 +607,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @private
   */
   unloadRecord: function() {
-    Ember.assert("You can only unload a loaded, non-dirty record.", !get(this, 'isDirty'));
+    if (this.isDestroyed) { return; }
 
     this.send('unloadRecord');
   },
@@ -604,8 +621,10 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       if (relationship.kind === 'belongsTo') {
         set(this, name, null);
       } else if (relationship.kind === 'hasMany') {
-        var hasMany = this._relationships[relationship.name];
-        if (hasMany) { hasMany.clear(); }
+        var hasMany = this._relationships[name];
+        if (hasMany) { // relationships are created lazily
+          hasMany.destroy();
+        }
       }
     }, this);
   },
@@ -615,6 +634,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @private
   */
   updateRecordArrays: function() {
+    this._updatingRecordArraysLater = false;
     get(this, 'store').dataWasUpdated(this.constructor, this);
   },
 
@@ -702,7 +722,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @private
   */
   updateRecordArraysLater: function() {
-    Ember.run.once(this, this.updateRecordArrays);
+    // quick hack (something like this could be pushed into run.once
+    if (this._updatingRecordArraysLater) { return; }
+    this._updatingRecordArraysLater = true;
+
+    Ember.run.schedule('actions', this, this.updateRecordArrays);
   },
 
   /**
@@ -756,7 +780,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   /**
-    If the model `isDirty` this function will which discard any unsaved
+    If the model `isDirty` this function will discard any unsaved
     changes
 
     Example
@@ -778,12 +802,11 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       this._inFlightAttributes = {};
       set(this, 'isError', false);
     }
-    
+
     if (!get(this, 'isValid')) {
       this._inFlightAttributes = {};
-      this.send('becameValid');
-    } 
-  
+    }
+
     this.send('rolledBack');
 
     this.suspendRelationshipObservers(function() {
@@ -854,7 +877,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this._inFlightAttributes = this._attributes;
     this._attributes = {};
 
-    return DS.PromiseObject.create({ promise: resolver.promise });
+    return PromiseObject.create({ promise: resolver.promise });
   },
 
   /**
@@ -887,7 +910,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     var  record = this;
 
     var promiseLabel = "DS: Model#reload of " + this;
-    var promise = new Ember.RSVP.Promise(function(resolve){
+    var promise = new Promise(function(resolve){
        record.send('reloadRecord', resolve);
     }, promiseLabel).then(function() {
       record.set('isReloading', false);
@@ -924,7 +947,15 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     @private
   */
   adapterDidInvalidate: function(errors) {
-    this.send('becameInvalid', errors);
+    var recordErrors = get(this, 'errors');
+    function addError(name) {
+      if (errors[name]) {
+        recordErrors.add(name, errors[name]);
+      }
+    }
+
+    this.eachAttribute(addError);
+    this.eachRelationship(addError);
   },
 
   /**
@@ -950,8 +981,8 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
   },
 
   triggerLater: function() {
-    this._deferredTriggers.push(arguments);
-    once(this, '_triggerDeferredTriggers');
+    if (this._deferredTriggers.push(arguments) !== 1) { return; }
+    Ember.run.schedule('actions', this, '_triggerDeferredTriggers');
   },
 
   _triggerDeferredTriggers: function() {
@@ -959,11 +990,16 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
       this.trigger.apply(this, this._deferredTriggers[i]);
     }
 
-    this._deferredTriggers = [];
+    this._deferredTriggers.length = 0;
+  },
+
+  willDestroy: function() {
+    this._super();
+    this.clearRelationships();
   }
 });
 
-DS.Model.reopenClass({
+Model.reopenClass({
 
   /**
     Alias DS.Model's `create` method to `_create`. This allows us to create DS.Model
@@ -974,7 +1010,7 @@ DS.Model.reopenClass({
     @private
     @static
   */
-  _create: DS.Model.create,
+  _create: Model.create,
 
   /**
     Override the class' `create()` method to raise an error. This
@@ -993,6 +1029,7 @@ DS.Model.reopenClass({
 });
 
 function fetchBelongsTo(model, key, relationship) {
+  /*jshint validthis: true */
   var data = get(model, 'data'),
       store = get(model, 'store'),
       promiseLabel = "DS: Fetching belongs-to " + model + " : " + key;
@@ -1013,6 +1050,7 @@ function fetchBelongsTo(model, key, relationship) {
 }
 
 function fetchHasMany(record, key, relationship) {
+  /*jshint validthis: true */
   var data = get(record, 'data'),
       store = get(record, 'store'),
       promiseLabel = "DS: Fetching has-many " + record + " : " + key;
@@ -1038,3 +1076,5 @@ function fetchHasMany(record, key, relationship) {
     return get(record, key);
   });
 }
+
+export default Model;

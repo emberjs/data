@@ -1,12 +1,16 @@
-require('ember-data/adapters/rest_adapter');
-require('activemodel-adapter/system/active_model_serializer');
-require('activemodel-adapter/system/embedded_records_mixin');
+import {RESTAdapter} from "../../../ember-data/lib/adapters";
+import {InvalidError} from "../../../ember-data/lib/system/adapter";
+import {pluralize} from "../../../ember-inflector/lib/main";
+import ActiveModelSerializer from "./active_model_serializer";
+import EmbeddedRecordsMixin from "./embedded_records_mixin";
 
 /**
   @module ember-data
 */
 
 var forEach = Ember.EnumerableUtils.forEach;
+var decamelize = Ember.String.decamelize,
+    underscore = Ember.String.underscore;
 
 /**
   The ActiveModelAdapter is a subclass of the RESTAdapter designed to integrate
@@ -57,8 +61,8 @@ var forEach = Ember.EnumerableUtils.forEach;
   @extends DS.Adapter
 **/
 
-DS.ActiveModelAdapter = DS.RESTAdapter.extend({
-  defaultSerializer: '_ams',
+var ActiveModelAdapter = RESTAdapter.extend({
+  defaultSerializer: '-active-model',
   /**
     The ActiveModelAdapter overrides the `pathForType` method to build
     underscored URLs by decamelizing and pluralizing the object type name.
@@ -73,8 +77,9 @@ DS.ActiveModelAdapter = DS.RESTAdapter.extend({
     @returns String
   */
   pathForType: function(type) {
-    var decamelized = Ember.String.decamelize(type);
-    return Ember.String.pluralize(decamelized);
+    var decamelized = decamelize(type);
+    var underscored = underscore(decamelized);
+    return pluralize(underscored);
   },
 
   /**
@@ -97,16 +102,22 @@ DS.ActiveModelAdapter = DS.RESTAdapter.extend({
     var error = this._super(jqXHR);
 
     if (jqXHR && jqXHR.status === 422) {
-      var jsonErrors = Ember.$.parseJSON(jqXHR.responseText)["errors"],
+      var response = Ember.$.parseJSON(jqXHR.responseText),
           errors = {};
 
-      forEach(Ember.keys(jsonErrors), function(key) {
-        errors[Ember.String.camelize(key)] = jsonErrors[key];
-      });
+      if (response.errors !== undefined) {
+        var jsonErrors = response.errors;
 
-      return new DS.InvalidError(errors);
+        forEach(Ember.keys(jsonErrors), function(key) {
+          errors[Ember.String.camelize(key)] = jsonErrors[key];
+        });
+      }
+
+      return new InvalidError(errors);
     } else {
       return error;
     }
   }
 });
+
+export default ActiveModelAdapter;

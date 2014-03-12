@@ -10,15 +10,19 @@
 */
 var DS;
 if ('undefined' === typeof DS) {
+  /**
+    @property VERSION
+    @type String
+    @default '<%= versionStamp %>'
+    @static
+  */
   DS = Ember.Namespace.create({
-    VERSION: 'VERSION_STRING_PLACEHOLDER'
+    VERSION: '<%= versionStamp %>'
   });
-
-  if ('undefined' !== typeof window) {
-    window.DS = DS;
-  }
 
   if (Ember.libraries) {
     Ember.libraries.registerCoreLibrary('Ember Data', DS.VERSION);
   }
 }
+
+export default DS;

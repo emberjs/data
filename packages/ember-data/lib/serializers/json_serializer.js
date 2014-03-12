@@ -1,20 +1,12 @@
 var get = Ember.get, set = Ember.set, isNone = Ember.isNone;
 
-// Simple dispatcher to support overriding the aliased
-// method in subclasses.
-function aliasMethod(methodName) {
-  return function() {
-    return this[methodName].apply(this, arguments);
-  };
-}
-
 /**
   In Ember Data a Serializer is used to serialize and deserialize
-  records when they are transfered in and out of an external source.
+  records when they are transferred in and out of an external source.
   This process involves normalizing property names, transforming
-  attribute values and serializeing relationships.
+  attribute values and serializing relationships.
 
-  For maximum performance Ember Data recomends you use the
+  For maximum performance Ember Data recommends you use the
   [RESTSerializer](DS.RESTSerializer.html) or one of its subclasses.
 
   `JSONSerializer` is useful for simpler or legacy backends that may
@@ -23,12 +15,12 @@ function aliasMethod(methodName) {
   @class JSONSerializer
   @namespace DS
 */
-DS.JSONSerializer = Ember.Object.extend({
+var JSONSerializer = Ember.Object.extend({
   /**
     The primaryKey is used when serializing and deserializing
-    data. Ember Data always uses the `id` propery to store the id of
+    data. Ember Data always uses the `id` property to store the id of
     the record. The external source may not always follow this
-    convention. In these cases it is usesful to override the
+    convention. In these cases it is useful to override the
     primaryKey property to match the primaryKey of your external
     store.
 
@@ -42,6 +34,7 @@ DS.JSONSerializer = Ember.Object.extend({
 
     @property primaryKey
     @type {String}
+    @default 'id'
   */
   primaryKey: 'id',
 
@@ -84,11 +77,13 @@ DS.JSONSerializer = Ember.Object.extend({
     ```javascript
     App.ApplicationSerializer = DS.JSONSerializer.extend({
       normalize: function(type, hash) {
-        var normalizedHash = {};
         var fields = Ember.get(type, 'fields');
         fields.forEach(function(field) {
-          var normalizedProp = Ember.String.camelize(field);
-          normalizedHash[normalizedProp] = hash[field];
+          var payloadField = Ember.String.underscore(field);
+          if (field === payloadField) { return; }
+
+          hash[field] = hash[payloadField];
+          delete hash[payloadField];
         });
         return this._super.apply(this, arguments);
       }
@@ -258,7 +253,7 @@ DS.JSONSerializer = Ember.Object.extend({
       var id = get(record, 'id');
 
       if (id) {
-        json[get(this, 'primaryKey')] = get(record, 'id');
+        json[get(this, 'primaryKey')] = id;
       }
     }
 
@@ -429,7 +424,7 @@ DS.JSONSerializer = Ember.Object.extend({
     such as the `RESTSerializer` may push records into the store as
     part of the extract call.
 
-    This method deletegates to a more specific extract method based on
+    This method delegates to a more specific extract method based on
     the `requestType`.
 
     Example
@@ -472,7 +467,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Array} array An array of deserialized objects
   */
-  extractFindAll: aliasMethod('extractArray'),
+  extractFindAll: function(store, type, payload){
+    return this.extractArray(store, type, payload);
+  },
   /**
     `extractFindQuery` is a hook into the extract method used when a
     call is made to `DS.Store#findQuery`. By default this method is an
@@ -484,7 +481,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Array} array An array of deserialized objects
   */
-  extractFindQuery: aliasMethod('extractArray'),
+  extractFindQuery: function(store, type, payload){
+    return this.extractArray(store, type, payload);
+  },
   /**
     `extractFindMany` is a hook into the extract method used when a
     call is made to `DS.Store#findMany`. By default this method is
@@ -496,7 +495,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Array} array An array of deserialized objects
   */
-  extractFindMany: aliasMethod('extractArray'),
+  extractFindMany: function(store, type, payload){
+    return this.extractArray(store, type, payload);
+  },
   /**
     `extractFindHasMany` is a hook into the extract method used when a
     call is made to `DS.Store#findHasMany`. By default this method is
@@ -508,7 +509,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Array} array An array of deserialized objects
   */
-  extractFindHasMany: aliasMethod('extractArray'),
+  extractFindHasMany: function(store, type, payload){
+    return this.extractArray(store, type, payload);
+  },
 
   /**
     `extractCreateRecord` is a hook into the extract method used when a
@@ -521,7 +524,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Object} json The deserialized payload
   */
-  extractCreateRecord: aliasMethod('extractSave'),
+  extractCreateRecord: function(store, type, payload) {
+    return this.extractSave(store, type, payload);
+  },
   /**
     `extractUpdateRecord` is a hook into the extract method used when
     a call is made to `DS.Store#update`. By default this method is alias
@@ -533,7 +538,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Object} json The deserialized payload
   */
-  extractUpdateRecord: aliasMethod('extractSave'),
+  extractUpdateRecord: function(store, type, payload) {
+    return this.extractSave(store, type, payload);
+  },
   /**
     `extractDeleteRecord` is a hook into the extract method used when
     a call is made to `DS.Store#deleteRecord`. By default this method is
@@ -545,7 +552,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Object} json The deserialized payload
   */
-  extractDeleteRecord: aliasMethod('extractSave'),
+  extractDeleteRecord: function(store, type, payload) {
+    return this.extractSave(store, type, payload);
+  },
 
   /**
     `extractFind` is a hook into the extract method used when
@@ -558,7 +567,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Object} json The deserialized payload
   */
-  extractFind: aliasMethod('extractSingle'),
+  extractFind: function(store, type, payload) {
+    return this.extractSingle(store, type, payload);
+  },
   /**
     `extractFindBelongsTo` is a hook into the extract method used when
     a call is made to `DS.Store#findBelongsTo`. By default this method is
@@ -570,7 +581,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Object} json The deserialized payload
   */
-  extractFindBelongsTo: aliasMethod('extractSingle'),
+  extractFindBelongsTo: function(store, type, payload) {
+    return this.extractSingle(store, type, payload);
+  },
   /**
     `extractSave` is a hook into the extract method used when a call
     is made to `DS.Model#save`. By default this method is alias
@@ -582,7 +595,9 @@ DS.JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Object} json The deserialized payload
   */
-  extractSave: aliasMethod('extractSingle'),
+  extractSave: function(store, type, payload) {
+    return this.extractSingle(store, type, payload);
+  },
 
   /**
     `extractSingle` is used to deserialize a single record returned
@@ -621,7 +636,7 @@ DS.JSONSerializer = Ember.Object.extend({
     App.PostSerializer = DS.JSONSerializer.extend({
       extractArray: function(store, type, payload) {
         return payload.map(function(json) {
-          return this.extractSingle(json);
+          return this.extractSingle(store, type, json);
         }, this);
       }
     });
@@ -668,8 +683,28 @@ DS.JSONSerializer = Ember.Object.extend({
   },
 
   /**
+   `keyForAttribute` can be used to define rules for how to convert an
+   attribute name in your model to a key in your JSON.
+
+   Example
+
+   ```javascript
+   App.ApplicationSerializer = DS.RESTSerializer.extend({
+     keyForAttribute: function(attr) {
+       return Ember.String.underscore(attr).toUpperCase();
+     }
+   });
+   ```
+
+   @method keyForAttribute
+   @param {String} key
+   @return {String} normalized key
+  */
+
+
+  /**
    `keyForRelationship` can be used to define a custom key when
-   serializeing relationship properties. By default `JSONSerializer`
+   serializing relationship properties. By default `JSONSerializer`
    does not provide an implementation of this method.
 
    Example
@@ -703,3 +738,5 @@ DS.JSONSerializer = Ember.Object.extend({
     return transform;
   }
 });
+
+export default JSONSerializer;

@@ -1,5 +1,4 @@
-require("ember-data/system/record_arrays/record_array");
-
+import RecordArray from "./record_array";
 /**
   @module ember-data
 */
@@ -7,11 +6,16 @@ require("ember-data/system/record_arrays/record_array");
 var get = Ember.get, set = Ember.set;
 
 /**
+  Represents an ordered list of records whose order and membership is
+  determined by the adapter. For example, a query sent to the adapter
+  may trigger a search on the server, whose results would be loaded
+  into an instance of the `AdapterPopulatedRecordArray`.
+
   @class AdapterPopulatedRecordArray
   @namespace DS
   @extends DS.RecordArray
 */
-DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
+var AdapterPopulatedRecordArray = RecordArray.extend({
   query: null,
 
   replace: function() {
@@ -19,6 +23,11 @@ DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
     throw new Error("The result of a server query (on " + type + ") is immutable.");
   },
 
+  /**
+    @method load
+    @private
+    @param {Array} data
+  */
   load: function(data) {
     var store = get(this, 'store'),
         type = get(this, 'type'),
@@ -31,7 +40,9 @@ DS.AdapterPopulatedRecordArray = DS.RecordArray.extend({
       meta: meta
     });
 
-    // TODO: does triggering didLoad event should be the last action of the runLoop?
+    // TODO: should triggering didLoad event be the last action of the runLoop?
     Ember.run.once(this, 'trigger', 'didLoad');
   }
 });
+
+export default AdapterPopulatedRecordArray;

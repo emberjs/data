@@ -2,6 +2,9 @@
   @module ember-data
 */
 
-require("ember-data/system/relationships/belongs_to");
-require("ember-data/system/relationships/has_many");
-require("ember-data/system/relationships/ext");
+import belongsTo from "./relationships/belongs_to";
+import hasMany from "./relationships/has_many";
+
+import "../system/relationships/ext";
+
+export {belongsTo, hasMany};

@@ -2,6 +2,9 @@
   @module ember-data
 */
 
-require("ember-data/system/model/model");
-require("ember-data/system/model/states");
-require("ember-data/system/model/attributes");
+import Model from "./model/model";
+import attr from "./model/attributes";
+import RootState from "./model/states";
+import Errors from "./model/errors";
+
+export {Model, RootState, attr, Errors};

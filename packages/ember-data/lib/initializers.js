@@ -1,6 +1,14 @@
-require("ember-data/serializers/json_serializer");
-require("ember-data/system/debug/debug_adapter");
-require("ember-data/transforms/index");
+import Store from "./system/store";
+import {JSONSerializer, RESTSerializer} from "./serializers";
+import {RESTAdapter} from "./adapters";
+import DebugAdapter from "./system/debug/debug_adapter";
+import ContainerProxy from "./system/container_proxy";
+import {
+  BooleanTransform,
+  DateTransform,
+  StringTransform,
+  NumberTransform
+} from "./transforms";
 
 /**
   @module ember-data
@@ -43,10 +51,21 @@ Ember.onLoad('Ember.Application', function(Application) {
     name: "store",
 
     initialize: function(container, application) {
-      application.register('store:main', application.Store || DS.Store);
-      application.register('serializer:_default', DS.JSONSerializer);
-      application.register('serializer:_rest', DS.RESTSerializer);
-      application.register('adapter:_rest', DS.RESTAdapter);
+      application.register('store:main', application.Store || Store);
+
+      // allow older names to be looked up
+
+      var proxy = new ContainerProxy(container);
+      proxy.registerDeprecations([
+        {deprecated: 'serializer:_default',  valid: 'serializer:-default'},
+        {deprecated: 'serializer:_rest',     valid: 'serializer:-rest'},
+        {deprecated: 'adapter:_rest',        valid: 'adapter:-rest'}
+      ]);
+
+      // new go forward paths
+      application.register('serializer:-default', JSONSerializer);
+      application.register('serializer:-rest', RESTSerializer);
+      application.register('adapter:-rest', RESTAdapter);
 
       // Eagerly generate the store so defaultStore is populated.
       // TODO: Do this in a finisher hook
@@ -59,19 +78,19 @@ Ember.onLoad('Ember.Application', function(Application) {
     before: "store",
 
     initialize: function(container, application) {
-      application.register('transform:boolean', DS.BooleanTransform);
-      application.register('transform:date', DS.DateTransform);
-      application.register('transform:number', DS.NumberTransform);
-      application.register('transform:string', DS.StringTransform);
+      application.register('transform:boolean', BooleanTransform);
+      application.register('transform:date', DateTransform);
+      application.register('transform:number', NumberTransform);
+      application.register('transform:string', StringTransform);
     }
   });
 
   Application.initializer({
-    name: "dataAdapter",
+    name: "data-adapter",
     before: "store",
 
     initialize: function(container, application) {
-      application.register('dataAdapter:main', DS.DebugAdapter);
+      application.register('data-adapter:main', DebugAdapter);
     }
   });
 
@@ -83,7 +102,7 @@ Ember.onLoad('Ember.Application', function(Application) {
       application.inject('controller', 'store', 'store:main');
       application.inject('route', 'store', 'store:main');
       application.inject('serializer', 'store', 'store:main');
-      application.inject('dataAdapter', 'store', 'store:main');
+      application.inject('data-adapter', 'store', 'store:main');
     }
   });
 

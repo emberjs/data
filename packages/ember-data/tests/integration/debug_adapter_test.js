@@ -19,11 +19,16 @@ module("DS.DebugAdapter", {
     });
 
     store = App.__container__.lookup('store:main');
-    debugAdapter = App.__container__.lookup('dataAdapter:main');
+    debugAdapter = App.__container__.lookup('data-adapter:main');
 
     debugAdapter.reopen({
       getModelTypes: function() {
-        return Ember.A([App.Post]);
+        // Support Ember < 1.5.
+        // TODO: Remove this workaround (if statement) when Ember 1.5 is released.
+        if (!this.get('containerDebugAdapter')) {
+          return Ember.A([App.Post]);
+        }
+        return Ember.A([{ klass: App.Post, name: 'App.Post' }]);
       }
     });
   },

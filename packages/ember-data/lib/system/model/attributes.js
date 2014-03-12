@@ -1,4 +1,4 @@
-require("ember-data/system/model/model");
+import Model from "./model";
 
 /**
   @module ember-data
@@ -10,7 +10,7 @@ var get = Ember.get;
   @class Model
   @namespace DS
 */
-DS.Model.reopenClass({
+Model.reopenClass({
   /**
     A map whose keys are the attributes of the model (properties
     described by DS.attr) and whose values are the meta object for the
@@ -161,7 +161,7 @@ DS.Model.reopenClass({
     ```
 
     - `name` the name of the current property in the iteration
-    - `type` a tring contrining the name of the type of transformed
+    - `type` a string containing the name of the type of transformed
       applied to the attribute
 
     Note that in addition to a callback, you can also pass an optional target
@@ -198,7 +198,7 @@ DS.Model.reopenClass({
 });
 
 
-DS.Model.reopen({
+Model.reopen({
   eachAttribute: function(callback, binding) {
     this.constructor.eachAttribute(callback, binding);
   }
@@ -206,7 +206,7 @@ DS.Model.reopen({
 
 function getDefaultValue(record, options, key) {
   if (typeof options.defaultValue === "function") {
-    return options.defaultValue();
+    return options.defaultValue.apply(null, arguments);
   } else {
     return options.defaultValue;
   }
@@ -229,12 +229,12 @@ function getValue(record, key) {
 }
 
 /**
-  `DS.attr` defines an attribute on a [DS.Model](DS.Model.html).
+  `DS.attr` defines an attribute on a [DS.Model](/api/data/classes/DS.Model.html).
   By default, attributes are passed through as-is, however you can specify an
   optional type to have the value automatically transformed.
   Ember Data ships with four basic transform types: `string`, `number`,
   `boolean` and `date`. You can define your own transforms by subclassing
-  [DS.Transform](DS.Transform.html).
+  [DS.Transform](/api/data/classes/DS.Transform.html).
 
   `DS.attr` takes an optional hash as a second parameter, currently
   supported options are:
@@ -262,7 +262,7 @@ function getValue(record, key) {
   @return {Attribute}
 */
 
-DS.attr = function(type, options) {
+function attr(type, options) {
   options = options || {};
 
   var meta = {
@@ -271,19 +271,24 @@ DS.attr = function(type, options) {
     options: options
   };
 
-  return Ember.computed(function(key, value) {
+  return Ember.computed('data', function(key, value) {
     if (arguments.length > 1) {
       Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
-      var oldValue = this._attributes[key] || this._inFlightAttributes[key] || this._data[key];
+      var oldValue = getValue(this, key);
 
-      this.send('didSetProperty', {
-        name: key,
-        oldValue: oldValue,
-        originalValue: this._data[key],
-        value: value
-      });
+      if (value !== oldValue) {
+        // Add the new value to the changed attributes hash; it will get deleted by
+        // the 'didSetProperty' handler if it is no different from the original value
+        this._attributes[key] = value;
 
-      this._attributes[key] = value;
+        this.send('didSetProperty', {
+          name: key,
+          oldValue: oldValue,
+          originalValue: this._data[key],
+          value: value
+        });
+      }
+
       return value;
     } else if (hasValue(this, key)) {
       return getValue(this, key);
@@ -294,6 +299,7 @@ DS.attr = function(type, options) {
   // `data` is never set directly. However, it may be
   // invalidated from the state manager's setData
   // event.
-  }).property('data').meta(meta);
-};
+  }).meta(meta);
+}
 
+export default attr;

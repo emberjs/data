@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import {PromiseArray} from "../store";
 var get = Ember.get, set = Ember.set;
 
 /**
@@ -17,7 +18,7 @@ var get = Ember.get, set = Ember.set;
   @uses Ember.Evented
 */
 
-DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
+var RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
   /**
     The model type contained by this record array.
 
@@ -44,7 +45,7 @@ DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var people = store.all(App.Person);
+    var people = store.all('person');
     people.get('isLoaded'); // true
     ```
 
@@ -58,7 +59,7 @@ DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var people = store.all(App.Person);
+    var people = store.all('person');
     people.get('isUpdating'); // false
     people.update();
     people.get('isUpdating'); // true
@@ -99,7 +100,7 @@ DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var people = store.all(App.Person);
+    var people = store.all('person');
     people.get('isUpdating'); // false
     people.update();
     people.get('isUpdating'); // true
@@ -113,7 +114,7 @@ DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
     var store = get(this, 'store'),
         type = get(this, 'type');
 
-    store.fetchAll(type, this);
+    return store.fetchAll(type, this);
   },
 
   /**
@@ -144,7 +145,7 @@ DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var messages = store.all(App.Message);
+    var messages = store.all('message');
     messages.forEach(function(message) {
       message.set('hasBeenSeen', true);
     });
@@ -160,6 +161,25 @@ DS.RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
       return Ember.A(array);
     }, null, "DS: RecordArray#save apply Ember.NativeArray");
 
-    return DS.PromiseArray.create({ promise: promise });
+    return PromiseArray.create({ promise: promise });
+  },
+
+  _dissociateFromOwnRecords: function() {
+    var array = this;
+
+    this.forEach(function(record){
+      var recordArrays = record._recordArrays;
+
+      if (recordArrays) {
+        recordArrays.remove(array);
+      }
+    });
+  },
+
+  willDestroy: function(){
+    this._dissociateFromOwnRecords();
+    this._super();
   }
 });
+
+export default RecordArray;

@@ -1,20 +1,16 @@
-/*globals EmberDev ENV QUnit */
+/*globals ENV QUnit */
 
-(function() {
+(function (){
   window.Ember = window.Ember || {};
 
   Ember.config = {};
   Ember.testing = true;
+  Ember.LOG_VERSION = false;
 
-  window.ENV = { TESTING: true };
+  window.ENV = { TESTING: true, LOG_VERSION: false };
 
   var extendPrototypes = QUnit.urlParams.extendprototypes;
   ENV['EXTEND_PROTOTYPES'] = !!extendPrototypes;
-
-  if (EmberDev.jsHint) {
-    // jsHint makes its own Object.create stub, we don't want to use this
-    ENV['STUB_OBJECT_CREATE'] = !Object.create;
-  }
 
   window.async = function(callback, timeout) {
     stop();
@@ -66,14 +62,14 @@
       adapter: adapter
     }));
 
-    container.register('serializer:_default', DS.JSONSerializer);
-    container.register('serializer:_rest', DS.RESTSerializer);
-    container.register('adapter:_rest', DS.RESTAdapter);
+    container.register('serializer:-default', DS.JSONSerializer);
+    container.register('serializer:-rest', DS.RESTSerializer);
+    container.register('adapter:-rest', DS.RESTAdapter);
 
     container.injection('serializer', 'store', 'store:main');
 
-    env.serializer = container.lookup('serializer:_default');
-    env.restSerializer = container.lookup('serializer:_rest');
+    env.serializer = container.lookup('serializer:-default');
+    env.restSerializer = container.lookup('serializer:-rest');
     env.store = container.lookup('store:main');
     env.adapter = env.store.get('defaultAdapter');
 
@@ -84,7 +80,7 @@
     return setupStore(options).store;
   };
 
-  var syncForTest = function(fn) {
+  var syncForTest = window.syncForTest = function(fn) {
     var callSuper;
 
     if (typeof fn !== "function") { callSuper = true; }
@@ -130,7 +126,7 @@
     });
   };
 
-  minispade.register('ember-data/~test-setup', function() {
+  QUnit.begin(function(){
     Ember.RSVP.configure('onerror', function(reason) {
       // only print error messages if they're exceptions;
       // otherwise, let a future turn of the event loop
@@ -172,6 +168,12 @@
       updateRecordArraysLater: syncForTest()
     });
 
+    DS.Errors.reopen({
+      add: syncForTest(),
+      remove: syncForTest(),
+      clear: syncForTest()
+    });
+
     var transforms = {
       'boolean': DS.BooleanTransform.create(),
       'date': DS.DateTransform.create(),
@@ -188,11 +190,6 @@
 
     Ember.RSVP.Promise.prototype.then = syncForTest(Ember.RSVP.Promise.prototype.then);
   });
-
-  EmberDev.distros = {
-    spade:   'ember-data-spade.js',
-    build:   'ember-data.js'
-  };
 
   // Generate the jQuery expando on window ahead of time
   // to make the QUnit global check run clean

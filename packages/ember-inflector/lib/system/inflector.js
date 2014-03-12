@@ -196,4 +196,4 @@ Inflector.prototype = {
   }
 };
 
-Ember.Inflector = Inflector;
+export default Inflector;

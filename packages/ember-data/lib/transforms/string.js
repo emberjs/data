@@ -1,3 +1,4 @@
+import Transform from "./base";
 var none = Ember.isNone;
 
 /**
@@ -21,7 +22,7 @@ var none = Ember.isNone;
   @extends DS.Transform
   @namespace DS
  */
-DS.StringTransform = DS.Transform.extend({
+var StringTransform = Transform.extend({
 
   deserialize: function(serialized) {
     return none(serialized) ? null : String(serialized);
@@ -32,3 +33,5 @@ DS.StringTransform = DS.Transform.extend({
   }
 
 });
+
+export default StringTransform;

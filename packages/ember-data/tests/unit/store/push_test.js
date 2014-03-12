@@ -192,6 +192,24 @@ test("Calling pushPayload allows pushing raw JSON", function () {
   equal(post.get('postTitle'), "Ember rocks (updated)", "You can update data in the store");
 });
 
+test("Calling pushPayload allows pushing singular payload properties", function () {
+  store.pushPayload('post', {post: {
+    id: '1',
+    post_title: "Ember rocks"
+  }});
+
+  var post = store.getById('post', 1);
+
+  equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
+
+  store.pushPayload('post', {post: {
+    id: '1',
+    post_title: "Ember rocks (updated)"
+  }});
+
+  equal(post.get('postTitle'), "Ember rocks (updated)", "You can update data in the store");
+});
+
 test("Calling pushPayload without a type uses application serializer", function () {
   expect(2);
 

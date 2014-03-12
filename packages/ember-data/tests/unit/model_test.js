@@ -136,7 +136,7 @@ test("a DS.Model can have a defaultValue", function() {
   equal(get(tag, 'name'), null, "null doesn't shadow defaultValue");
 });
 
-test("a defaultValue for an attribite can be a function", function() {
+test("a defaultValue for an attribute can be a function", function() {
   var Tag = DS.Model.extend({
     createdAt: DS.attr('string', {
       defaultValue: function() {
@@ -147,6 +147,56 @@ test("a defaultValue for an attribite can be a function", function() {
 
   var tag = store.createRecord(Tag);
   equal(get(tag, 'createdAt'), "le default value", "the defaultValue function is evaluated");
+});
+
+test("a defaultValue function gets the record, options, and key", function() {
+  expect(2);
+
+  var Tag = DS.Model.extend({
+    createdAt: DS.attr('string', {
+      defaultValue: function(record, options, key) {
+        deepEqual(record, tag, "the record is passed in properly");
+        equal(key, 'createdAt', "the attribute being defaulted is passed in properly");
+        return "le default value";
+      }
+    })
+  });
+
+  var tag = store.createRecord(Tag);
+  get(tag, 'createdAt');
+});
+
+test("setting a property to undefined on a newly created record should not impact the current state", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var tag = store.createRecord(Tag);
+
+  set(tag, 'name', 'testing');
+  set(tag, 'name', undefined);
+
+  equal(get(tag, 'currentState.stateName'), "root.loaded.created.uncommitted");
+
+  tag = store.createRecord(Tag, {name: undefined});
+
+  equal(get(tag, 'currentState.stateName'), "root.loaded.created.uncommitted");
+});
+
+// NOTE: this is a 'backdoor' test that ensures internal consistency, and should be
+// thrown out if/when the current `_attributes` hash logic is removed.
+test("setting a property back to its original value removes the property from the `_attributes` hash", function() {
+  store.find(Person, 1).then(async(function(person) {
+    equal(person._attributes.name, undefined, "the `_attributes` hash is clean");
+
+    set(person, 'name', "Niceguy Dale");
+
+    equal(person._attributes.name, "Niceguy Dale", "the `_attributes` hash contains the changed value");
+
+    set(person, 'name', "Scumbag Dale");
+
+    equal(person._attributes.name, undefined, "the `_attributes` hash is reset");
+  }));
 });
 
 module("unit/model - with a simple Person model", {

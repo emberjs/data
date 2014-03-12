@@ -688,7 +688,7 @@ test("belongsTo supports relationships to models with id 0", function() {
     equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
     equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
-    equal(get(person, 'tag.name'), "friendly", "the tag shuld have name");
+    equal(get(person, 'tag.name'), "friendly", "the tag should have name");
 
     strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
     asyncEqual(get(person, 'tag'), store.find(Tag, 0), "relationship object is the same as object retrieved directly");

@@ -1,9 +1,8 @@
-require('ember-data/serializers/json_serializer');
-
 /**
   @module ember-data
 */
 
+import JSONSerializer from "./json_serializer";
 var get = Ember.get, set = Ember.set;
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
@@ -52,7 +51,56 @@ function coerceId(id) {
   @namespace DS
   @extends DS.JSONSerializer
 */
-DS.RESTSerializer = DS.JSONSerializer.extend({
+var RESTSerializer = JSONSerializer.extend({
+  /**
+    If you want to do normalizations specific to some part of the payload, you
+    can specify those under `normalizeHash`.
+
+    For example, given the following json where the the `IDs` under
+    `"comments"` are provided as `_id` instead of `id`.
+
+    ```javascript
+    {
+      "post": {
+        "id": 1,
+        "title": "Rails is omakase",
+        "comments": [ 1, 2 ]
+      },
+      "comments": [{
+        "_id": 1,
+        "body": "FIRST"
+      }, {
+        "_id": 2,
+        "body": "Rails is unagi"
+      }]
+    }
+    ```
+
+    You use `normalizeHash` to normalize just the comments:
+
+    ```javascript
+    App.PostSerializer = DS.RESTSerializer.extend({
+      normalizeHash: {
+        comments: function(hash) {
+          hash.id = hash._id;
+          delete hash._id;
+          return hash;
+        }
+      }
+    });
+    ```
+
+    The key under `normalizeHash` is usually just the original key
+    that was in the original payload. However, key names will be
+    impacted by any modifications done in the `normalizePayload`
+    method. The `DS.RESTSerializer`'s default implementation makes no
+    changes to the payload keys.
+
+    @property normalizeHash
+    @type {Object}
+    @default undefined
+  */
+
   /**
     Normalizes a part of the JSON payload returned by
     the server. You should override this method, munge the hash
@@ -119,9 +167,10 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
   */
   normalize: function(type, hash, prop) {
     this.normalizeId(hash);
-    this.normalizeUsingDeclaredMapping(type, hash);
     this.normalizeAttributes(type, hash);
     this.normalizeRelationships(type, hash);
+
+    this.normalizeUsingDeclaredMapping(type, hash);
 
     if (this.normalizeHash && this.normalizeHash[prop]) {
       this.normalizeHash[prop](hash);
@@ -148,7 +197,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
     @method normalizePayload
     @param {subclass of DS.Model} type
-    @param {Object} hash
+    @param {Object} payload
     @returns {Object} the normalized payload
   */
   normalizePayload: function(type, payload) {
@@ -178,9 +227,13 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     if (attrs) {
       for (key in attrs) {
         payloadKey = attrs[key];
-
-        hash[key] = hash[payloadKey];
-        delete hash[payloadKey];
+        if (payloadKey && payloadKey.key) {
+          payloadKey = payloadKey.key;
+        }
+        if (typeof payloadKey === 'string') {
+          hash[key] = hash[payloadKey];
+          delete hash[payloadKey];
+        }
       }
     }
   },
@@ -306,15 +359,14 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
 
     for (var prop in payload) {
       var typeName  = this.typeForRoot(prop),
-          isPrimary = typeName === primaryTypeName;
+          type = store.modelFor(typeName),
+          isPrimary = type.typeKey === primaryTypeName;
 
       // legacy support for singular resources
       if (isPrimary && Ember.typeOf(payload[prop]) !== "array" ) {
         primaryRecord = this.normalize(primaryType, payload[prop], prop);
         continue;
       }
-
-      var type = store.modelFor(typeName);
 
       /*jshint loopfunc:true*/
       forEach.call(payload[prop], function(hash) {
@@ -463,7 +515,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
       var typeName = this.typeForRoot(typeKey),
           type = store.modelFor(typeName),
           typeSerializer = store.serializerFor(type),
-          isPrimary = (!forcedSecondary && (typeName === primaryTypeName));
+          isPrimary = (!forcedSecondary && (type.typeKey === primaryTypeName));
 
       /*jshint loopfunc:true*/
       var normalizedArray = map.call(payload[prop], function(hash) {
@@ -519,7 +571,7 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
           type = store.modelFor(typeName);
 
       /*jshint loopfunc:true*/
-      var normalizedArray = map.call(payload[prop], function(hash) {
+      var normalizedArray = map.call(Ember.makeArray(payload[prop]), function(hash) {
         return this.normalize(type, hash, prop);
       }, this);
 
@@ -720,7 +772,8 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash: function(hash, type, record, options) {
-    hash[type.typeKey] = this.serialize(record, options);
+    var root = Ember.String.camelize(type.typeKey);
+    hash[root] = this.serialize(record, options);
   },
 
   /**
@@ -737,6 +790,8 @@ DS.RESTSerializer = DS.JSONSerializer.extend({
     var key = relationship.key,
         belongsTo = get(record, key);
     key = this.keyForAttribute ? this.keyForAttribute(key) : key;
-    json[key + "Type"] = belongsTo.constructor.typeKey;
+    json[key + "Type"] = Ember.String.camelize(belongsTo.constructor.typeKey);
   }
 });
+
+export default RESTSerializer;

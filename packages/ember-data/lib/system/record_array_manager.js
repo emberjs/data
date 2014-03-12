@@ -2,8 +2,8 @@
   @module ember-data
 */
 
+import {ManyArray} from "./record_arrays";
 var get = Ember.get, set = Ember.set;
-var once = Ember.run.once;
 var forEach = Ember.EnumerableUtils.forEach;
 
 /**
@@ -12,18 +12,20 @@ var forEach = Ember.EnumerableUtils.forEach;
   @private
   @extends Ember.Object
 */
-DS.RecordArrayManager = Ember.Object.extend({
+var RecordArrayManager = Ember.Object.extend({
   init: function() {
     this.filteredRecordArrays = Ember.MapWithDefault.create({
       defaultValue: function() { return []; }
     });
 
     this.changedRecords = [];
+    this._adapterPopulatedRecordArrays = [];
   },
 
   recordDidChange: function(record) {
-    this.changedRecords.push(record);
-    once(this, this.updateRecordArrays);
+    if (this.changedRecords.push(record) !== 1) { return; }
+
+    Ember.run.schedule('actions', this, this.updateRecordArrays);
   },
 
   recordArraysForRecord: function(record) {
@@ -52,7 +54,7 @@ DS.RecordArrayManager = Ember.Object.extend({
       }
     }, this);
 
-    this.changedRecords = [];
+    this.changedRecords.length = 0;
   },
 
   _recordWasDeleted: function (record) {
@@ -153,7 +155,7 @@ DS.RecordArrayManager = Ember.Object.extend({
     @return {DS.ManyArray}
   */
   createManyArray: function(type, records) {
-    var manyArray = DS.ManyArray.create({
+    var manyArray = ManyArray.create({
       type: type,
       content: records,
       store: this.store
@@ -165,6 +167,69 @@ DS.RecordArrayManager = Ember.Object.extend({
     }, this);
 
     return manyArray;
+  },
+
+  /**
+    Create a `DS.RecordArray` for a type and register it for updates.
+
+    @method createRecordArray
+    @param {Class} type
+    @return {DS.RecordArray}
+  */
+  createRecordArray: function(type) {
+    var array = DS.RecordArray.create({
+      type: type,
+      content: Ember.A(),
+      store: this.store,
+      isLoaded: true
+    });
+
+    this.registerFilteredRecordArray(array, type);
+
+    return array;
+  },
+
+  /**
+    Create a `DS.FilteredRecordArray` for a type and register it for updates.
+
+    @method createFilteredRecordArray
+    @param {Class} type
+    @param {Function} filter
+    @return {DS.FilteredRecordArray}
+  */
+  createFilteredRecordArray: function(type, filter) {
+    var array = DS.FilteredRecordArray.create({
+      type: type,
+      content: Ember.A(),
+      store: this.store,
+      manager: this,
+      filterFunction: filter
+    });
+
+    this.registerFilteredRecordArray(array, type, filter);
+
+    return array;
+  },
+
+  /**
+    Create a `DS.AdapterPopulatedRecordArray` for a type with given query.
+
+    @method createAdapterPopulatedRecordArray
+    @param {Class} type
+    @param {Object} query
+    @return {DS.AdapterPopulatedRecordArray}
+  */
+  createAdapterPopulatedRecordArray: function(type, query) {
+    var array = DS.AdapterPopulatedRecordArray.create({
+      type: type,
+      query: query,
+      content: Ember.A(),
+      store: this.store
+    });
+
+    this._adapterPopulatedRecordArrays.push(array);
+
+    return array;
   },
 
   /**
@@ -194,5 +259,40 @@ DS.RecordArrayManager = Ember.Object.extend({
     var loadingRecordArrays = record._loadingRecordArrays || [];
     loadingRecordArrays.push(array);
     record._loadingRecordArrays = loadingRecordArrays;
+  },
+
+  willDestroy: function(){
+    this._super();
+
+    flatten(values(this.filteredRecordArrays.values)).forEach(destroy);
+    this._adapterPopulatedRecordArrays.forEach(destroy);
   }
 });
+
+function values(obj) {
+  var result = [];
+  var keys = Ember.keys(obj);
+
+  for (var i = 0; i < keys.length; i++) {
+    result.push(obj[keys[i]]);
+  }
+
+  return result;
+}
+
+function destroy(entry) {
+  entry.destroy();
+}
+
+function flatten(list) {
+  var length = list.length;
+  var result = Ember.A();
+
+  for (var i = 0; i < length; i++) {
+    result = result.concat(list[i]);
+  }
+
+  return result;
+}
+
+export default RecordArrayManager;
