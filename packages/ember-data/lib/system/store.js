@@ -104,7 +104,7 @@ function coerceId(id) {
   `store#push` that will deserialize payloads if the model's
   Serializer implements a `pushPayload` method.
 
-  [update](#method_update) works like `push` accept it can handle
+  [update](#method_update) works like `push`, except it can handle
   partial attributes without overwriting the existing record
   properties.
 
