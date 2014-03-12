@@ -105,4 +105,6 @@ DS.hasMany   = hasMany;
 
 DS.ContainerProxy = ContainerProxy;
 
+Ember.lookup.DS = DS;
+
 export default DS;
