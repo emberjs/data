@@ -752,7 +752,7 @@ Store = Ember.Object.extend({
     Example
 
     ```javascript
-    var local_posts = store.all('post');
+    var localPosts = store.all('post');
     ```
 
     @method all
