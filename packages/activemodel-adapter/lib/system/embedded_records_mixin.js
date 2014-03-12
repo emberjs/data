@@ -25,7 +25,7 @@ import {pluralize} from "../../../ember-inflector/lib/main";
 var EmbeddedRecordsMixin = Ember.Mixin.create({
 
   /**
-    Serialize has-may relationship when it is configured as embedded objects.
+    Serialize has-many relationship when it is configured as embedded objects.
 
     @method serializeHasMany
   */
