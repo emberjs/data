@@ -9,7 +9,7 @@ module("integration/application - Injecting a Custom Store", {
   setup: function() {
     Ember.run(function() {
       app = Ember.Application.create({
-        Store: DS.Store.extend({ isCustom: true }),
+        ApplicationStore: DS.Store.extend({ isCustom: true }),
         FooController: Ember.Controller.extend(),
         ApplicationView: Ember.View.extend(),
         BazController: {},
@@ -33,6 +33,26 @@ test("If a Store property exists on an Ember.Application, it should be instantia
 test("If a store is instantiated, it should be made available to each controller.", function() {
   var fooController = container.lookup('controller:foo');
   ok(fooController.get('store.isCustom'), "the custom store was injected");
+});
+
+test("registering App.Store is deprecated but functional", function(){
+  Ember.run(app, 'destroy');
+
+  expectDeprecation(function(){
+    Ember.run(function() {
+        app = Ember.Application.create({
+          Store: DS.Store.extend({ isCustomButDeprecated: true }),
+          FooController: Ember.Controller.extend(),
+        });
+    });
+  }, 'Specifying a custom Store for Ember Data on your global namespace as `App.Store` ' +
+     'has been deprecated. Please use `App.ApplicationStore` instead.');
+
+  container = app.__container__;
+  ok(container.lookup('store:main').get('isCustomButDeprecated'), "the custom store was instantiated");
+
+  var fooController = container.lookup('controller:foo');
+  ok(fooController.get('store.isCustomButDeprecated'), "the custom store was injected");
 });
 
 module("integration/application - Injecting the Default Store", {
