@@ -1,3 +1,4 @@
+import {RelationshipChange} from "../system/changes";
 var get = Ember.get, set = Ember.set, isNone = Ember.isNone;
 
 /**
@@ -381,7 +382,7 @@ var JSONSerializer = Ember.Object.extend({
   serializeHasMany: function(record, json, relationship) {
     var key = relationship.key;
 
-    var relationshipType = DS.RelationshipChange.determineRelationshipType(record.constructor, relationship);
+    var relationshipType = RelationshipChange.determineRelationshipType(record.constructor, relationship);
 
     if (relationshipType === 'manyToNone' || relationshipType === 'manyToMany') {
       json[key] = get(record, key).mapBy('id');

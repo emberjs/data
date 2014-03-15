@@ -1,5 +1,6 @@
 import RootState from "./states";
 import Errors from "./errors";
+import {PromiseObject} from "../store";
 /**
   @module ember-data
 */
@@ -337,7 +338,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   toJSON: function(options) {
     // container is for lazy transform lookups
-    var serializer = DS.JSONSerializer.create({ container: this.container });
+    var serializer = Ember.lookup.DS.JSONSerializer.create({ container: this.container });
     return serializer.serialize(this, options);
   },
 
@@ -888,7 +889,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this._inFlightAttributes = this._attributes;
     this._attributes = {};
 
-    return DS.PromiseObject.create({ promise: resolver.promise });
+    return PromiseObject.create({ promise: resolver.promise });
   },
 
   /**
@@ -932,7 +933,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
       throw reason;
     }, "DS: Model#reload complete, update flags");
 
-    return DS.PromiseObject.create({ promise: promise });
+    return PromiseObject.create({ promise: promise });
   },
 
   // FOR USE DURING COMMIT PROCESS

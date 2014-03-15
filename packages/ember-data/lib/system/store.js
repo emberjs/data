@@ -5,6 +5,7 @@
   @module ember-data
 */
 
+import Adapter from "./adapter";
 var get = Ember.get, set = Ember.set;
 var once = Ember.run.once;
 var isNone = Ember.isNone;
@@ -128,7 +129,7 @@ Store = Ember.Object.extend({
   init: function() {
     // internal bookkeeping; not observable
     this.typeMaps = {};
-    this.recordArrayManager = DS.RecordArrayManager.create({
+    this.recordArrayManager = Ember.lookup.DS.RecordArrayManager.create({
       store: this
     });
     this._relationshipChanges = {};
@@ -188,7 +189,7 @@ Store = Ember.Object.extend({
   defaultAdapter: Ember.computed('adapter', function() {
     var adapter = get(this, 'adapter');
 
-    Ember.assert('You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a name or a factory', !(adapter instanceof DS.Adapter));
+    Ember.assert('You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a name or a factory', !(adapter instanceof Adapter));
 
     if (typeof adapter === 'string') {
       adapter = this.container.lookup('adapter:' + adapter) || this.container.lookup('adapter:application') || this.container.lookup('adapter:-rest');
@@ -1519,7 +1520,7 @@ function normalizeRelationships(store, type, data, record) {
 }
 
 function deserializeRecordId(store, data, key, relationship, id) {
-  if (isNone(id) || id instanceof DS.Model) {
+  if (isNone(id) || id instanceof Ember.lookup.DS.Model) {
     return;
   }
 
