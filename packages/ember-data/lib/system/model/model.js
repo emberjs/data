@@ -9,6 +9,7 @@ var get = Ember.get, set = Ember.set,
     merge = Ember.merge,
     Promise = Ember.RSVP.Promise;
 
+var JSONSerializer;
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
   return get(get(this, 'currentState'), key);
 }).readOnly();
@@ -337,8 +338,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @returns {Object} A JSON representation of the object.
   */
   toJSON: function(options) {
+    if (!JSONSerializer) { JSONSerializer = requireModule("ember-data/lib/serializers/json_serializer")["default"]; }
     // container is for lazy transform lookups
-    var serializer = Ember.lookup.DS.JSONSerializer.create({ container: this.container });
+    var serializer = JSONSerializer.create({ container: this.container });
     return serializer.serialize(this, options);
   },
 

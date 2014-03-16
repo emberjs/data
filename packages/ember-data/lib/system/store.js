@@ -14,7 +14,7 @@ var indexOf = Ember.EnumerableUtils.indexOf;
 var map = Ember.EnumerableUtils.map;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
-var Store, PromiseObject, PromiseArray;
+var Store, PromiseObject, PromiseArray, RecordArrayManager, Model;
 
 // Implementors Note:
 //
@@ -128,8 +128,9 @@ Store = Ember.Object.extend({
   */
   init: function() {
     // internal bookkeeping; not observable
+    if (!RecordArrayManager) { RecordArrayManager = requireModule("ember-data/lib/system/record_array_manager")["default"]; }
     this.typeMaps = {};
-    this.recordArrayManager = Ember.lookup.DS.RecordArrayManager.create({
+    this.recordArrayManager = RecordArrayManager.create({
       store: this
     });
     this._relationshipChanges = {};
@@ -1520,7 +1521,8 @@ function normalizeRelationships(store, type, data, record) {
 }
 
 function deserializeRecordId(store, data, key, relationship, id) {
-  if (isNone(id) || id instanceof Ember.lookup.DS.Model) {
+  if (!Model) { Model = requireModule("ember-data/lib/system/model")["Model"]; }
+  if (isNone(id) || id instanceof Model) {
     return;
   }
 
