@@ -1,5 +1,6 @@
 import RootState from "./states";
 import Errors from "./errors";
+import {PromiseObject} from "../store";
 /**
   @module ember-data
 */
@@ -8,6 +9,7 @@ var get = Ember.get, set = Ember.set,
     merge = Ember.merge,
     Promise = Ember.RSVP.Promise;
 
+var JSONSerializer;
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
   return get(get(this, 'currentState'), key);
 }).readOnly();
@@ -336,8 +338,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @returns {Object} A JSON representation of the object.
   */
   toJSON: function(options) {
+    if (!JSONSerializer) { JSONSerializer = requireModule("ember-data/lib/serializers/json_serializer")["default"]; }
     // container is for lazy transform lookups
-    var serializer = DS.JSONSerializer.create({ container: this.container });
+    var serializer = JSONSerializer.create({ container: this.container });
     return serializer.serialize(this, options);
   },
 
@@ -888,7 +891,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this._inFlightAttributes = this._attributes;
     this._attributes = {};
 
-    return DS.PromiseObject.create({ promise: resolver.promise });
+    return PromiseObject.create({ promise: resolver.promise });
   },
 
   /**
@@ -932,7 +935,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
       throw reason;
     }, "DS: Model#reload complete, update flags");
 
-    return DS.PromiseObject.create({ promise: promise });
+    return PromiseObject.create({ promise: promise });
   },
 
   // FOR USE DURING COMMIT PROCESS

@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import {PromiseArray} from "../store";
 var get = Ember.get, set = Ember.set, setProperties = Ember.setProperties;
 
 function asyncHasMany(type, options, meta) {
@@ -31,7 +32,7 @@ function asyncHasMany(type, options, meta) {
       return relationship;
     }, null, "DS: Async hasMany records received");
 
-    return DS.PromiseArray.create({
+    return PromiseArray.create({
       promise: promise
     });
   }).meta(meta).readOnly();
