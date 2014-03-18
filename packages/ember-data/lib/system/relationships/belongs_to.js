@@ -102,8 +102,9 @@ DS.belongsTo = function(type, options) {
     if (this._relationships[key]) {
       record = this._relationships[key].getOtherSideFor(this);
     }
-      //this should probably go to the store
-    var promise = this.store.fetchRecord(record) || Promise.cast(record, promiseLabel);
+    //this should probably go to the store
+    //TODO(Igor) after master merge, switch back resolve to cast
+    var promise = this.store.fetchRecord(record) || Ember.RSVP.resolve(record, promiseLabel);
 
     return DS.PromiseObject.create({
       promise: promise
