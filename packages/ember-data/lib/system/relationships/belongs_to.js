@@ -1,6 +1,9 @@
 var get = Ember.get, set = Ember.set,
     isNone = Ember.isNone;
 
+var Promise = Ember.RSVP.Promise;
+
+
 /**
   @module ember-data
 */
@@ -61,6 +64,8 @@ DS.belongsTo = function(type, options) {
   };
 
   return Ember.computed(function(key, value) {
+    var promiseLabel = "DS: Async belongsTo " + this + " : " + key;
+
     if (arguments.length>1) {
       //TODO(Igor) bring back the assert
       //Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof typeClass);
@@ -87,14 +92,23 @@ DS.belongsTo = function(type, options) {
         this._relationships[key].addRecord(this, value);
       }
 
-      return value;
+      return DS.PromiseObject.create({
+        promise: Promise.cast(value, promiseLabel)
+      });
     }
+
+    var record = null;
 
     if (this._relationships[key]) {
-      return this._relationships[key].getOtherSideFor(this);
+      record = this._relationships[key].getOtherSideFor(this);
     }
+      //this should probably go to the store
+    var promise = this.store.fetchRecord(record) || Promise.cast(record, promiseLabel);
 
-    return null;
+    return DS.PromiseObject.create({
+      promise: promise
+    });
+
   }).meta(meta);
 };
 

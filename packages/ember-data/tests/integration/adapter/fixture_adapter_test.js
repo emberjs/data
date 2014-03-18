@@ -218,8 +218,7 @@ test("should coerce belongsTo ids into string", function() {
   }];
 
   env.store.find('phone', 1).then(async(function(result) {
-    var person = get(result, 'person');
-    person.one('didLoad', async(function() {
+    get(result, 'person').then(async(function(person){
       strictEqual(get(result, 'person.id'), "1", "should load integer belongsTo id as string");
       strictEqual(get(result, 'person.firstName'), "Adam", "resolved relationship with an integer belongsTo id");
     }));
