@@ -78,7 +78,9 @@ DS.belongsTo = function(type, options) {
             this._relationships[key] = value._relationships[inverse.name];
           }
           else{
+            //In this case the other record isn't on the relationship so we need to add it
             value._relationships[inverse.name] = this._relationships[key];
+            this._relationships[key].addRecord(value, this);
           }
         }
 

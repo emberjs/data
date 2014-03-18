@@ -1526,24 +1526,40 @@ function setupRelationships(store, record, data, inverseRecord) {
     var kind = descriptor.kind,
         value = data[key] || inverseRecord,
         relationship,
-        inverse;
+        inverse, currentValue;
 
     if (kind === 'belongsTo') {
       inverse = record.inverseFor(key);
+      if (record._relationships[key]){
+        currentValue = record._relationships[key].getOtherSideFor(record);
+      }
+
+      //TODO(IGOR_ASK) Null vs undefined??
+      if (currentValue === value){
+        return;
+      }
+
+      if (record._relationships[key]){
+        record._relationships[key].removeAllRecords();
+      }
+
       //We are adding data
+      //TODO(Igor) probably should move to somewhere else to unify with
+      //belongsTo setter
       if(value){
+        record._relationships[key] = DS.createRelationshipFor(record, descriptor, this);
+  
         if (inverse) {
-          relationship = relationshipFor('hasMany', value, inverse.name, store);
-          record.notifyBelongsToAdded(key, relationship);
-          value.notifyHasManyAdded(inverse.name, record);
-        } else {
-          relationship = new DS.OneToNone(value);
-          record.notifyBelongsToAdded(key, relationship);
+          if(value._relationships[inverse.name]){
+            record._relationships[key] = value._relationships[inverse.name];
+          }
+          else{
+            value._relationships[inverse.name] = record._relationships[key];
+            record._relationships[key].addRecord(value, record);
+          }
         }
-      } else {
-        if (record._relationships[key]){
-          record._relationships[key].removeAllRecords();
-        }
+
+        record._relationships[key].addRecord(record, value);
       }
     } else if (kind === 'hasMany') {
       relationship = relationshipFor(kind, record, key, store);
@@ -1681,28 +1697,33 @@ DS.OneToOne.prototype = Object.create(DS.Relationship.prototype);
 //is already populated with two records so we can figure out which one
 //to remove
 DS.OneToOne.prototype.addRecord = function(newRecord, existingRecord) {
+  if (this.members.has(newRecord)){ return;}
 
   //We are full so we will have to remove a record to keep the invariant
   if(this.originalRecord && this.inverseRecord){
     //we are keeping the original and removing the inverse 
     if (existingRecord === this.originalRecord){
+      this.members.remove(this.inverseRecord);
       this.inverseRecord.notifyBelongsToRemoved(this.inverseKey);
       this.inverseRecord = newRecord;
     } else{
+      this.members.remove(this.originalRecord);
       this.originalRecord.notifyBelongsToRemoved(this.originalKey);
       this.originalRecord = newRecord;
     }
   } else if (this.originalRecord){
     this.inverseRecord = newRecord;
+  //I dont think the following case can happen due to remove nuking everything
   } else {
     this.originalRecord = newRecord;
   }
-
+  this.members.add(newRecord);
   this.inverseRecord.notifyBelongsToAdded(this.inverseKey, this);
   this.originalRecord.notifyBelongsToAdded(this.originalKey, this);
 };
 
 DS.OneToOne.prototype.removeRecord = function(record) {
+  this.members.remove(record);
   this.originalRecord.notifyBelongsToRemoved(this.originalKey);
   if (this.inverseRecord){
     this.inverseRecord.notifyBelongsToRemoved(this.inverseKey);

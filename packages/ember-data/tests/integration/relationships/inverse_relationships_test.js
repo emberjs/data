@@ -143,6 +143,7 @@ test("When setting a belongsTo, the OneToOne invariant is respected", function()
 
   equal(comment.get('post'), post);
   equal(post.get('bestComment'), comment);
+  equal(post2.get('bestComment'), null);
 
   comment.set('post', post2);
 
@@ -150,6 +151,36 @@ test("When setting a belongsTo, the OneToOne invariant is respected", function()
   equal(post.get('bestComment'), null);
   equal(post2.get('bestComment'), comment);
 
+});
+
+test("When setting a belongsTo, the OneToOne invariant is respected even when other records have been previously used", function() {
+  Post = DS.Model.extend({
+    bestComment: DS.belongsTo('comment')
+  });
+
+  Comment = DS.Model.extend({
+    post: DS.belongsTo('post')
+  });
+
+  var env = setupStore({ post: Post, comment: Comment }),
+      store = env.store;
+
+  var comment = store.createRecord('comment');
+  var post = store.createRecord('post');
+  var post2 = store.createRecord('post');
+
+  comment.set('post', post);
+  post2.set('bestComment', null);
+
+  equal(comment.get('post'), post);
+  equal(post.get('bestComment'), comment);
+  equal(post2.get('bestComment'), null);
+
+  comment.set('post', post2);
+
+  equal(comment.get('post'), post2);
+  equal(post.get('bestComment'), null);
+  equal(post2.get('bestComment'), comment);
 });
 
 test("When setting a belongsTo, the OneToOne invariant is transitive", function() {
@@ -172,6 +203,7 @@ test("When setting a belongsTo, the OneToOne invariant is transitive", function(
 
   equal(comment.get('post'), post);
   equal(post.get('bestComment'), comment);
+  equal(post2.get('bestComment'), null);
 
   post2.set('bestComment', comment);
 
@@ -179,6 +211,36 @@ test("When setting a belongsTo, the OneToOne invariant is transitive", function(
   equal(post.get('bestComment'), null);
   equal(post2.get('bestComment'), comment);
 
+});
+
+test("When setting a belongsTo, the OneToOne invariant is commutative", function() {
+  Post = DS.Model.extend({
+    bestComment: DS.belongsTo('comment')
+  });
+
+  Comment = DS.Model.extend({
+    post: DS.belongsTo('post')
+  });
+
+  var env = setupStore({ post: Post, comment: Comment }),
+      store = env.store;
+
+  var comment = store.createRecord('comment');
+  var post = store.createRecord('post');
+  var comment2 = store.createRecord('comment');
+
+  comment.set('post', post);
+
+  equal(comment.get('post'), post);
+  equal(post.get('bestComment'), comment);
+  equal(comment2.get('post'), null);
+  
+
+  post.set('bestComment', comment2);
+
+  equal(comment.get('post'), null);
+  equal(post.get('bestComment'), comment2);
+  equal(comment2.get('post'), post);
 });
 
 test("OneToNone relationship works", function() {
