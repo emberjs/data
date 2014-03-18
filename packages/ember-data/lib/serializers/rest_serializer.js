@@ -568,11 +568,12 @@ var RESTSerializer = JSONSerializer.extend({
 
     for (var prop in payload) {
       var typeName = this.typeForRoot(prop),
-          type = store.modelFor(typeName);
+          type = store.modelFor(typeName),
+          typeSerializer = store.serializerFor(type);
 
       /*jshint loopfunc:true*/
       var normalizedArray = map.call(Ember.makeArray(payload[prop]), function(hash) {
-        return this.normalize(type, hash, prop);
+        return typeSerializer.normalize(type, hash, prop);
       }, this);
 
       store.pushMany(typeName, normalizedArray);
