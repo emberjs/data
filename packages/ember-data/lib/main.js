@@ -11,7 +11,17 @@ Ember.RSVP.Promise.cast = Ember.RSVP.Promise.cast || Ember.RSVP.resolve;
 import DS from "./core";
 import "./ext/date";
 
-import {Store, PromiseArray, PromiseObject} from "./system/store";
+import {
+  Store,
+  PromiseArray,
+  PromiseObject,
+  createRelationshipFor,
+  ManyToNone,
+  OneToOne,
+  OneToMany,
+  Relationship,
+  OneToNone
+} from "./system/store";
 import {Model, Errors, RootState, attr} from "./system/model";
 import {
   AttributeChange,
@@ -58,6 +68,13 @@ import ContainerProxy from "./system/container_proxy";
 DS.Store         = Store;
 DS.PromiseArray  = PromiseArray;
 DS.PromiseObject = PromiseObject;
+
+DS.createRelationshipFor = createRelationshipFor;
+DS.ManyToNone            = ManyToNone;
+DS.OneToOne              = OneToOne;
+DS.OneToMany             = OneToMany;
+DS.Relationship          = Relationship;
+DS.OneToNone             = OneToNone;
 
 DS.Model     = Model;
 DS.RootState = RootState;

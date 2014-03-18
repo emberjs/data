@@ -14,6 +14,11 @@ var map = Ember.EnumerableUtils.map;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
 var Store, PromiseObject, PromiseArray;
+var OneToNone;
+
+import RecordArrayManager from "./record_array_manager";
+import {Adapter, InvalidError} from "./adapter";
+import {Model} from "./model";
 
 // Implementors Note:
 //
@@ -128,7 +133,7 @@ Store = Ember.Object.extend({
   init: function() {
     // internal bookkeeping; not observable
     this.typeMaps = {};
-    this.recordArrayManager = DS.RecordArrayManager.create({
+    this.recordArrayManager = RecordArrayManager.create({
       store: this
     });
     this._relationshipChanges = {};
@@ -188,13 +193,13 @@ Store = Ember.Object.extend({
   defaultAdapter: Ember.computed('adapter', function() {
     var adapter = get(this, 'adapter');
 
-    Ember.assert('You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a name or a factory', !(adapter instanceof DS.Adapter));
+    Ember.assert('You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a name or a factory', !(adapter instanceof Adapter));
 
     if (typeof adapter === 'string') {
       adapter = this.container.lookup('adapter:' + adapter) || this.container.lookup('adapter:application') || this.container.lookup('adapter:-rest');
     }
 
-    if (DS.Adapter.detect(adapter)) {
+    if (Adapter.detect(adapter)) {
       adapter = adapter.create({
         container: this.container
       });
@@ -619,6 +624,7 @@ Store = Ember.Object.extend({
   },
 
   /**
+>>>>>>> master
     If a relationship was originally populated by the adapter as a link
     (as opposed to a list of IDs), this method is called when the
     relationship is fetched.
@@ -643,8 +649,7 @@ Store = Ember.Object.extend({
     Ember.assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", adapter.findHasMany);
 
     var records = this.recordArrayManager.createManyArray(relationship.type, Ember.A([]));
-    resolver.resolve(_findHasMany(adapter, this, owner, link, relationship));
-    return records;
+    return _findHasMany(adapter, this, owner, link, relationship);
   },
 
   /**
@@ -1081,8 +1086,7 @@ Store = Ember.Object.extend({
       the existing data, not replace it.
   */
   _load: function(type, data, partial) {
-    var id = coerceId(data.id),
-        record = this.recordForId(type, id);
+    var record = this.recordForId(type, data.id);
 
     record.setupData(data, partial);
     this.recordArrayManager.recordDidChange(record);
@@ -1179,21 +1183,36 @@ Store = Ember.Object.extend({
     @returns {DS.Model} the record that was created or
       updated.
   */
-  push: function(type, data, _partial) {
+  push: function(type, data, _partial, _inverse) {
     // _partial is an internal param used by `update`.
     // If passed, it means that the data should be
     // merged into the existing data, not replace it.
+    //
+    // _inverse is an internal param that indicates what
+    // the inverse record is. It is passed through when
+    // a record is pushed in response to a findMany.
 
     Ember.assert("You must include an `id` in a hash passed to `push`", data.id != null);
 
     type = this.modelFor(type);
 
-    // normalize relationship IDs into records
+    // If the payload contains relationships that are specified as
+    // IDs, normalizeRelationships will convert them into DS.Model instances
+    // (possibly unloaded) before we push the payload into the
+    // store.
     data = normalizeRelationships(this, type, data);
 
+    // Actually load the record into the store.
     this._load(type, data, _partial);
 
-    return this.recordForId(type, data.id);
+    var record = this.recordForId(type, data.id);
+
+    // Now that the pushed record as well as any related records
+    // are in the store, create the data structures used to track
+    // relationships.
+    setupRelationships(this, record, data, _inverse);
+
+    return record;
   },
 
   /**
@@ -1288,9 +1307,9 @@ Store = Ember.Object.extend({
     @param {Array} datas
     @return {Array}
   */
-  pushMany: function(type, datas) {
+  pushMany: function(type, datas, _inverse) {
     return map(datas, function(data) {
-      return this.push(type, data);
+      return this.push(type, data, false, _inverse);
     }, this);
   },
 
@@ -1491,17 +1510,11 @@ Store = Ember.Object.extend({
       return map[entry].type;
     }
   }
+
 });
 
 function normalizeRelationships(store, type, data, record) {
   type.eachRelationship(function(key, relationship) {
-    // A link (usually a URL) was already provided in
-    // normalized form
-    if (data.links && data.links[key]) {
-      if (record && relationship.options.async) { record._relationships[key] = null; }
-      return;
-    }
-
     var kind = relationship.kind,
         value = data[key];
 
@@ -1518,8 +1531,16 @@ function normalizeRelationships(store, type, data, record) {
   return data;
 }
 
+function relationshipFor(kind, record, key, store) {
+  if (record._relationships[key]) {
+    return record._relationships[key];
+  }
+
+  return record._relationships[key] = new OneToMany(record, null, store);
+}
+
 function deserializeRecordId(store, data, key, relationship, id) {
-  if (isNone(id) || id instanceof DS.Model) {
+  if (isNone(id) || id instanceof Model) {
     return;
   }
 
@@ -1691,7 +1712,7 @@ function _findMany(adapter, store, type, ids, owner) {
 
     Ember.assert("The response from a findMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
-    store.pushMany(type, payload);
+    store.pushMany(type, payload, owner);
   }, null, "DS: Extract payload of " + type);
 }
 
@@ -1705,7 +1726,7 @@ function _findHasMany(adapter, store, record, link, relationship) {
 
     Ember.assert("The response from a findHasMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
-    var records = store.pushMany(relationship.type, payload);
+    var records = store.pushMany(relationship.type, payload, false, record);
     record.updateHasMany(relationship.key, records);
   }, null, "DS: Extract payload of " + record + " : hasMany " + relationship.type);
 }
@@ -1775,7 +1796,7 @@ function _commit(adapter, store, operation, record) {
     store.didSaveRecord(record, payload);
     return record;
   }, function(reason) {
-    if (reason instanceof DS.InvalidError) {
+    if (reason instanceof InvalidError) {
       store.recordWasInvalid(record, reason.errors);
     } else {
       store.recordWasError(record, reason);
@@ -1785,5 +1806,240 @@ function _commit(adapter, store, operation, record) {
   }, label);
 }
 
-export {Store, PromiseArray, PromiseObject};
+function setupRelationships(store, record, data, inverseRecord) {
+  // inverseRecord is an inverse that is passed through when a record was
+  // originally fetched (via findMany, for example) through its inverse,
+  // and therefore should be considered the inverse of that record even if
+  // it's not provided in the data.
+
+  var type = record.constructor;
+
+  type.eachRelationship(function(key, descriptor) {
+    var kind = descriptor.kind,
+        value = data[key] || inverseRecord,
+        relationship,
+        inverse;
+
+    if (kind === 'belongsTo') {
+      inverse = record.inverseFor(key);
+
+      if (inverse) {
+        relationship = relationshipFor('hasMany', value, inverse.name, store);
+        record.notifyBelongsToAdded(key, value, relationship);
+        value.notifyHasManyAdded(inverse.name, record);
+      } else {
+        relationship = new OneToNone(value);
+        record.notifyBelongsToAdded(key, value, relationship);
+      }
+    } else if (kind === 'hasMany') {
+      relationship = relationshipFor(kind, record, key, store);
+      var delta = relationship.computeChanges(data[key]);
+
+      inverse = record.inverseFor(key);
+
+      delta.added.forEach(function(member) {
+        record.notifyHasManyAdded(key, member);
+        if (inverse) member.notifyBelongsToAdded(inverse.name, record, relationship);
+      });
+
+      delta.removed.forEach(function(member) {
+        record.notifyHasManyRemoved(key, member);
+        if (inverse) member.notifyBelongsToRemoved(inverse, record);
+      });
+    }
+  });
+}
+
+var Relationship = function(hasManyRecord, manyType, store, belongsToName, manyName) {
+
+  this.members = new Ember.OrderedSet();
+  this.hasManyRecord = hasManyRecord;
+
+  this.store = store;
+  this.manyName = manyName;
+  this.belongsToName = belongsToName;
+  this.hasManyRecord = hasManyRecord;
+
+};
+
+Relationship.prototype = {
+  constructor: Relationship,
+  
+  computeChanges: function(records) {
+    // returns { added: [], removed: [] }
+    var added = new Ember.OrderedSet(),
+        removed = new Ember.OrderedSet(),
+        members = this.members;
+
+    records = setForArray(records);
+
+    records.forEach(function(record) {
+      if (members.has(record)) return;
+      members.add(record);
+      added.add(record);
+    });
+
+    members.forEach(function(member) {
+      if (records.has(member)) return;
+      members.remove(member);
+      removed.add(member);
+    });
+
+    return { added: added, removed: removed };
+  },
+
+  unloadedMembers: function() {
+    var unloaded = [];
+
+    this.members.forEach(function(member) {
+      if (!member.get('isLoaded')) {
+        unloaded.push(member);
+      }
+    });
+
+    return unloaded;
+  },
+
+  removeRecords: function(records){
+    var that = this;
+    records.forEach(function(record){
+      that.removeRecord(record);
+    });
+  },
+
+  addRecords: function(records){
+    var that = this;
+    records.forEach(function(record){
+      that.addRecord(record);
+    });
+  }
+};
+
+function OneToMany(hasManyRecord, manyType, store, belongsToName, manyName) {
+  Relationship.apply(this, arguments);
+  this.manyType = manyType;
+  if (manyType) {
+    this.manyArray = store.recordArrayManager.createManyArray(manyType, Ember.A());
+    this.manyArray.relationship = this;
+  }
+}
+
+OneToMany.prototype = Object.create(Relationship.prototype);
+
+OneToMany.prototype.addRecord = function(record) {
+  //TODO(Igor) Consider making the many array just a proxy over the members set
+  this.members.add(record);
+  this.hasManyRecord.notifyHasManyAdded(this.manyName, record);
+  record.notifyBelongsToAdded(this.belongsToName, this);
+};
+
+OneToMany.prototype.removeRecord = function(record) {
+  this.members.remove(record);
+  this.hasManyRecord.notifyHasManyRemoved(this.manyName, record);
+  record.notifyBelongsToRemoved(this.belongsToName, this);
+};
+
+OneToMany.prototype.getOtherSideFor = function(record) {
+  return this.hasManyRecord;
+};
+
+var OneToOne = function(record, manyType, store, inverseKey, originalKey) {
+  Relationship.apply(this, arguments);
+  this.members.add(record);
+  this.originalRecord = record;
+  this.originalKey = originalKey;
+  this.inverseKey = inverseKey;
+  this.inverseRecord = null;
+};
+
+OneToOne.prototype = Object.create(Relationship.prototype);
+
+OneToOne.prototype.addRecord = function(record) {
+  this.inverseRecord = record;
+  this.inverseRecord.notifyBelongsToAdded(this.inverseKey, this);
+  this.originalRecord.notifyBelongsToAdded(this.originalKey, this);
+};
+
+OneToOne.prototype.removeRecord = function(record) {
+  this.originalRecord.notifyBelongsToRemoved(this.originalKey);
+  if (this.inverseRecord){
+    this.inverseRecord.notifyBelongsToRemoved(this.inverseKey);
+  }
+  this.inverseRecord = null;
+  this.originalRecord = null;
+};
+
+OneToOne.prototype.getOtherSideFor = function(record) {
+  if (record === this.originalRecord){
+    return this.inverseRecord;
+  }
+  else {
+    return this.originalRecord;
+  }
+};
+
+OneToNone = function() {
+  Relationship.apply(this, arguments);
+};
+
+OneToNone.prototype = Object.create(Relationship.prototype);
+
+var ManyToNone = function() {
+  Relationship.apply(this, arguments);
+};
+
+ManyToNone.prototype = Object.create(Relationship.prototype);
+
+function setForArray(array) {
+  var set = new Ember.OrderedSet();
+
+  if (array) {
+    for (var i=0, l=array.length; i<l; i++) {
+      set.add(array[i]);
+    }
+  }
+
+  return set;
+}
+
+function createRelationshipFor(record, knownSide, store){
+  var inverseKey, inverseKind;
+  var recordType = record.constructor;
+  var knownKey = knownSide.key;
+  var inverse = recordType.inverseFor(knownKey);
+ 
+  if (!inverse){
+    return knownSide.kind === 'belongsTo' ? (new OneToNone()) : (new ManyToNone());
+  }
+   
+  if (knownSide.kind === 'hasMany'){
+    if (inverse.kind === 'belongsTo'){
+      return new OneToMany(record, recordType, store, inverse.name, knownSide.key); 
+    } else {
+      //return ManyToMany(record, recordType, store, inverse.key, knowSide.key);
+      return new OneToMany(record, recordType, store, inverse.name, knownSide.key); 
+    }
+  } 
+  else {
+    if (inverse.kind === 'belongsTo'){
+      return new OneToOne(record, recordType, store, inverse.name, knownSide.key); 
+    } 
+    else {
+      //TODO(Igor) think abot, maybe will be set on many side, maybe not
+      return null;
+    }
+  } 
+}
+
+export {
+  Store,
+  PromiseArray,
+  PromiseObject,
+  createRelationshipFor,
+  ManyToNone,
+  OneToOne,
+  OneToMany,
+  Relationship,
+  OneToNone
+};
 export default Store;

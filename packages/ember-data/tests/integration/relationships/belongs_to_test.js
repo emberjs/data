@@ -64,26 +64,30 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
   expect(1);
 
   env.store.modelFor('post').reopen({
-    user: DS.belongsTo('user', {
-      async: true,
-      inverse: 'messages'
-    })
+    user: DS.belongsTo('user')
   });
 
   env.adapter.find = function(store, type, id) {
-    ok(true, "The adapter's find method should be called");
-    return Ember.RSVP.resolve({
-      id: 1
-    });
+    if (type === User) {
+      return Ember.RSVP.resolve({ id: 2, name: "Mr. Tomdale" });
+    } else {
+      ok(true, "The adapter's find method should be called");
+      return Ember.RSVP.resolve({ id: 1 });
+    }
   };
 
-  env.store.push('post', {
-    id: 1,
-    user: 2
-  });
+  // The store will create a new OneToNull relationship and index it
+  // under post 1.
+  // It will call store.addToRelationship(post, 'user', userRec)
+  // Calling addToRelationship will populate the OneToNull relationship
+  env.store.push('post', { id: 1, user: 2});
 
-  env.store.find('post', 1).then(async(function(post) {
-    post.get('user');
+  var post;
+  env.store.find('post', 1).then(async(function(record) {
+    post = record;
+    return post.fetch('user');
+  })).then(async(function(user) {
+    equal(user.get('name'), "Mr. Tomdale");
   }));
 });
 

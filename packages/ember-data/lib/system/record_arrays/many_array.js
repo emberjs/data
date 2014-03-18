@@ -51,7 +51,6 @@ function sync(change) {
 var ManyArray = RecordArray.extend({
   init: function() {
     this._super.apply(this, arguments);
-    this._changesToSync = Ember.OrderedSet.create();
   },
 
   /**
@@ -70,6 +69,15 @@ var ManyArray = RecordArray.extend({
   */
   owner: null,
 
+
+  /**
+    The relationship which manages this array.
+
+    @property {DS.Model} owner
+    @private
+  */
+  relationship: null,
+
   /**
     `true` if the relationship is polymorphic, `false` otherwise.
 
@@ -78,19 +86,6 @@ var ManyArray = RecordArray.extend({
   */
   isPolymorphic: false,
 
-  // LOADING STATE
-
-  isLoaded: false,
-
-  /**
-    Used for async `hasMany` arrays
-    to keep track of when they will resolve.
-
-    @property {Ember.RSVP.Promise} promise
-    @private
-  */
-  promise: null,
-
   /**
     @method loadingRecordsCount
     @param {Number} count
@@ -98,6 +93,18 @@ var ManyArray = RecordArray.extend({
   */
   loadingRecordsCount: function(count) {
     this.loadingRecordsCount = count;
+  },
+
+
+  replaceContent: function(idx, amt, objects){
+    var records;
+    if (amt > 0){
+      records = get(this, 'content').slice(idx, idx+amt);
+      this.get('relationship').removeRecords(records);
+    }
+    if (objects){
+      this.get('relationship').addRecords(objects);
+    }
   },
 
   /**
@@ -112,6 +119,15 @@ var ManyArray = RecordArray.extend({
     }
   },
 
+  /*
+  arrangedContentWillChange: function(index, removed, added) {
+    return this._super.apply(this, arguments);
+  },
+
+  arrangedContentDidChange: function(index, removed, added) {
+    var records = get(this, 'content').slice(index, index+added);
+    this.get('relationship').addRecords(records);
+    //this._super.apply(this, arguments);
   /**
     @method fetch
     @private
@@ -124,17 +140,6 @@ var ManyArray = RecordArray.extend({
 
     var unloadedRecords = records.filterProperty('isEmpty', true);
     store.fetchMany(unloadedRecords, owner, resolver);
-  },
-
-  // Overrides Ember.Array's replace method to implement
-  replaceContent: function(index, removed, added) {
-    // Map the array of record objects into an array of  client ids.
-    added = map(added, function(record) {
-      Ember.assert("You cannot add '" + record.constructor.typeKey + "' records to this relationship (only '" + this.type.typeKey + "' allowed)", !this.type || record instanceof this.type);
-      return record;
-    }, this);
-
-    this._super(index, removed, added);
   },
 
   arrangedContentDidChange: function() {

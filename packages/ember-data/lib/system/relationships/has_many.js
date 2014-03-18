@@ -1,10 +1,12 @@
 /**
   @module ember-data
 */
-
+import {PromiseArray, OneToMany} from "../store";
+import {Model} from "../model";
 var get = Ember.get, set = Ember.set, setProperties = Ember.setProperties;
 
 function asyncHasMany(type, options, meta) {
+  /*jshint validthis: true */
   return Ember.computed('data', function(key) {
     var relationship = this._relationships[key],
         promiseLabel = "DS: Async hasMany " + this + " : " + key;
@@ -31,7 +33,7 @@ function asyncHasMany(type, options, meta) {
       return relationship;
     }, null, "DS: Async hasMany records received");
 
-    return DS.PromiseArray.create({
+    return PromiseArray.create({
       promise: promise
     });
   }).meta(meta).readOnly();
@@ -160,7 +162,36 @@ function hasMany(type, options) {
     options = type;
     type = undefined;
   }
-  return hasRelationship(type, options);
+
+  var meta = {
+    isRelationship: true,
+    type: type,
+    kind: 'hasMany',
+    options: options || {}
+  };
+
+  return Ember.computed(function(key) {
+    //TODO(Igor) encapsulate better
+    var relationship = this._relationships[key];
+    if (!relationship){
+      relationship = new OneToMany(this, type, this.store, null, key);
+      this._relationships[key] = relationship;
+    }
+    return relationship.manyArray;
+  }).meta(meta);
 }
+
+Model.reopen({
+  notifyHasManyAdded: function(key, record) {
+    var manyArray = get(this, key);
+    //TODO(Igor) double check with yehuda whether this is the correct method
+    manyArray.addRecord(record);
+  },
+
+  notifyHasManyRemoved: function(key, record) {
+    var manyArray = get(this, key);
+    manyArray.removeRecord(record);
+  }
+});
 
 export default hasMany;

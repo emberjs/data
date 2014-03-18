@@ -120,7 +120,7 @@ test("hasMany lazily loads async relationships", function() {
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tags: DS.hasMany('tag', { async: true }),
+    tags: DS.hasMany('tag'),
     pets: DS.hasMany('pet')
   });
 
@@ -150,11 +150,13 @@ test("hasMany lazily loads async relationships", function() {
 
     equal(get(wycats, 'name'), "Yehuda Katz", "precond - retrieves person record from store");
 
+    var tags = wycats.fetch('tags');
     return Ember.RSVP.hash({
       wycats: wycats,
-      tags: wycats.get('tags')
+      tags: tags
     });
   })).then(async(function(records) {
+    equal(records.wycats.get('tags'), records.tags);
     equal(get(records.tags, 'length'), 1, "the list of tags should have the correct length");
     equal(get(records.tags.objectAt(0), 'name'), "oohlala", "the first tag should be a Tag");
 
@@ -506,11 +508,15 @@ test("async belongsTo relationships work when the data hash has not been loaded"
     }
   };
 
-  store.find('person', 1).then(async(function(person) {
+  var person;
+
+  store.find('person', 1).then(async(function(record) {
+    person = record;
     equal(get(person, 'name'), "Tom Dale", "The person is now populated");
 
-    return get(person, 'tag');
+    return person.fetch('tag');
   })).then(async(function(tag) {
+    equal(tag, person.get('tag'));
     equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
     equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
   }));
@@ -532,12 +538,16 @@ test("async belongsTo relationships work when the data hash has already been loa
     store.push('tag', { id: 2, name: "friendly"});
     store.push('person', { id: 1, name: "Tom Dale", tag: 2});
 
-    store.find('person', 1).then(async(function(person) {
-        equal(get(person, 'name'), "Tom Dale", "The person is now populated");
-        return get(person, 'tag');
+    var person;
+
+    store.find('person', 1).then(async(function(record) {
+      person = record;
+      equal(get(person, 'name'), "Tom Dale", "The person is now populated");
+      return person.fetch('tag');
     })).then(async(function(tag) {
-        equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
-        equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
+      equal(tag, person.get('tag'));
+      equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
+      equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
   }));
 });
 
@@ -572,7 +582,7 @@ test("findMany is passed the owner record for adapters when some of the object g
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    occupations: DS.hasMany('occupation', { async: true })
+    occupations: DS.hasMany('occupation')
   });
 
   Person.toString = function() { return "Person"; };
@@ -590,12 +600,16 @@ test("findMany is passed the owner record for adapters when some of the object g
 
   store.push('person', { id: 1, name: "Tom Dale", occupations: [5, 2] });
 
-  store.find('person', 1).then(async(function(person) {
+  var person;
+
+  store.find('person', 1).then(async(function(record) {
+    person = record;
     equal(get(person, 'isLoaded'), true, "isLoaded should be true");
     equal(get(person, 'name'), "Tom Dale", "the person is still Tom Dale");
 
-    return get(person, 'occupations');
+    return person.fetch('occupations');
   })).then(async(function(occupations) {
+    equal(occupations, person.get('occupations'));
     equal(get(occupations, 'length'), 2, "the list of occupations should have the correct length");
 
     equal(get(occupations.objectAt(0), 'description'), "fifth", "the occupation is the fifth");
@@ -636,11 +650,15 @@ test("findMany is passed the owner record for adapters when none of the object g
     return Ember.RSVP.resolve({ id: 1, name: "Tom Dale", occupations: [5, 2] });
   };
 
-  store.find('person', 1).then(async(function(person) {
+  var person;
+
+  store.find('person', 1).then(async(function(record) {
+    person = record;
     equal(get(person, 'name'), "Tom Dale", "The person is now populated");
 
-    return get(person, 'occupations');
+    return person.fetch('occupations');
   })).then(async(function(occupations) {
+    equal(occupations, person.get('occupations'));
     equal(get(occupations, 'length'), 2, "the occupation objects still exist");
     equal(get(occupations.objectAt(0), 'description'), "fifth", "the occupation is the fifth");
     equal(get(occupations.objectAt(0), 'isLoaded'), true, "the occupation is now loaded");

@@ -94,10 +94,34 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
 
   comment.set('post', post);
 
+  equal(comment.get('post'), post, 'The post that was set can be retrieved');
+
   equal(post.get('meComments.length'), 0, "meComments has no posts");
   equal(post.get('youComments.length'), 1, "youComments had the post added");
   equal(post.get('everyoneWeKnowComments.length'), 0, "everyoneWeKnowComments has no posts");
 });
+
+test("When settings a belongsTo, the inverse belongsTo is also set", function() {
+  Post = DS.Model.extend({
+    bestComment: DS.belongsTo('comment')
+  });
+
+  Comment = DS.Model.extend({
+    post: DS.belongsTo('post')
+  });
+
+  var env = setupStore({ post: Post, comment: Comment }),
+      store = env.store;
+
+  var comment = store.createRecord('comment');
+  var post = store.createRecord('post');
+
+  comment.set('post', post);
+
+  equal(comment.get('post'), post);
+  equal(post.get('bestComment'), comment);
+});
+
 
 test("When a record is added to or removed from a polymorphic has-many relationship, the inverse belongsTo can be set explicitly", function() {
   User = DS.Model.extend({
