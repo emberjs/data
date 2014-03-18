@@ -1580,14 +1580,20 @@ function setupRelationships(store, record, data, inverseRecord) {
 
     if (kind === 'belongsTo') {
       inverse = record.inverseFor(key);
-
-      if (inverse) {
-        relationship = relationshipFor('hasMany', value, inverse.name, store);
-        record.notifyBelongsToAdded(key, relationship);
-        value.notifyHasManyAdded(inverse.name, record);
+      //We are adding data
+      if(value){
+        if (inverse) {
+          relationship = relationshipFor('hasMany', value, inverse.name, store);
+          record.notifyBelongsToAdded(key, relationship);
+          value.notifyHasManyAdded(inverse.name, record);
+        } else {
+          relationship = new DS.OneToNone(value);
+          record.notifyBelongsToAdded(key, relationship);
+        }
       } else {
-        relationship = new DS.OneToNone(value);
-        record.notifyBelongsToAdded(key, relationship);
+        if (record._relationships[key]){
+          record._relationships[key].removeAllRecords();
+        }
       }
     } else if (kind === 'hasMany') {
       relationship = relationshipFor(kind, record, key, store);
@@ -1674,8 +1680,14 @@ DS.Relationship.prototype = {
 
   getOtherSideFor: function(record){
     return null;
-  }
+  },
   
+  removeAllRecords: function(){
+    //TODO(Igor) this is temp, make sure it works for hasmany
+    if (this.inverseRecord){
+      this.removeRecord(this.inverseRecord);
+    }
+  }
 };
 
 function OneToMany(hasManyRecord, manyType, store, belongsToName, manyName) {
