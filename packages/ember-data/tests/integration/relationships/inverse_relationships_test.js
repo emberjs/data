@@ -152,6 +152,35 @@ test("When setting a belongsTo, the OneToOne invariant is respected", function()
 
 });
 
+test("When setting a belongsTo, the OneToOne invariant is transitive", function() {
+  Post = DS.Model.extend({
+    bestComment: DS.belongsTo('comment')
+  });
+
+  Comment = DS.Model.extend({
+    post: DS.belongsTo('post')
+  });
+
+  var env = setupStore({ post: Post, comment: Comment }),
+      store = env.store;
+
+  var comment = store.createRecord('comment');
+  var post = store.createRecord('post');
+  var post2 = store.createRecord('post');
+
+  comment.set('post', post);
+
+  equal(comment.get('post'), post);
+  equal(post.get('bestComment'), comment);
+
+  post2.set('bestComment', comment);
+
+  equal(comment.get('post'), post2);
+  equal(post.get('bestComment'), null);
+  equal(post2.get('bestComment'), comment);
+
+});
+
 test("OneToNone relationship works", function() {
   Post = DS.Model.extend({
     name: DS.attr('string')

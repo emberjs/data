@@ -82,7 +82,7 @@ DS.belongsTo = function(type, options) {
           }
         }
 
-        this._relationships[key].addRecord(this);
+        this._relationships[key].addRecord(this, value);
       }
 
       return value;

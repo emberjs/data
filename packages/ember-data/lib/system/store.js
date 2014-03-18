@@ -1673,8 +1673,31 @@ DS.OneToOne = function(record, manyType, store, inverseKey, originalKey) {
 
 DS.OneToOne.prototype = Object.create(DS.Relationship.prototype);
 
-DS.OneToOne.prototype.addRecord = function(record) {
-  this.inverseRecord = record;
+
+//TODO(Igor), rewrite with a members set, size == 2 instead of 
+//hardcoded, might be better, but careful with keys
+
+//We need to pass in the existingRecord in case the relationship
+//is already populated with two records so we can figure out which one
+//to remove
+DS.OneToOne.prototype.addRecord = function(newRecord, existingRecord) {
+
+  //We are full so we will have to remove a record to keep the invariant
+  if(this.originalRecord && this.inverseRecord){
+    //we are keeping the original and removing the inverse 
+    if (existingRecord === this.originalRecord){
+      this.inverseRecord.notifyBelongsToRemoved(this.inverseKey);
+      this.inverseRecord = newRecord;
+    } else{
+      this.originalRecord.notifyBelongsToRemoved(this.originalKey);
+      this.originalRecord = newRecord;
+    }
+  } else if (this.originalRecord){
+    this.inverseRecord = newRecord;
+  } else {
+    this.originalRecord = newRecord;
+  }
+
   this.inverseRecord.notifyBelongsToAdded(this.inverseKey, this);
   this.originalRecord.notifyBelongsToAdded(this.originalKey, this);
 };
@@ -1684,8 +1707,11 @@ DS.OneToOne.prototype.removeRecord = function(record) {
   if (this.inverseRecord){
     this.inverseRecord.notifyBelongsToRemoved(this.inverseKey);
   }
-  this.inverseRecord = null;
-  this.originalRecord = null;
+  if (this.inverseRecord === record){
+    this.inverseRecord = null;
+  } else if (this.originalRecord === record){
+    this.originalRecord = null;
+  }
 };
 
 DS.OneToOne.prototype.getOtherSideFor = function(record) {
