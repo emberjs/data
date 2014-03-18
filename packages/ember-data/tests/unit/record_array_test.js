@@ -59,7 +59,7 @@ test("a loaded record is removed from a record array when it is deleted", functi
     var scumbag = records.scumbag, tag = records.tag;
 
     tag.get('people').addObject(scumbag);
-    equal(get(scumbag, 'tag'), tag, "precond - the scumbag's tag has been set");
+    DS.asyncEquals(get(scumbag, 'tag'), tag, "precond - the scumbag's tag has been set");
 
     var recordArray = tag.get('people');
 

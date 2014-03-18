@@ -210,7 +210,7 @@ test("create - findMany doesn't overwrite owner", function() {
   comment.save().then(async(function(comment) {
     equal(comment.get('isDirty'), false, "the post isn't dirty anymore");
     equal(comment.get('name'), "Dat Parley Letter", "the post was updated");
-    DS.asyncEquals(comment, 'post', post, "the post is still set");
+    DS.asyncEquals(comment.get('post'), post, "the post is still set");
   }));
 });
 
@@ -289,7 +289,7 @@ test("create - a record on the many side of a hasMany relationship should update
   var comment = store.createRecord('comment', { name: "Another Comment", post: post });
 
   comment.save().then(async(function(comment) {
-    DS.asyncEquals(comment, 'post', post, "the comment is related to the post");
+    DS.asyncEquals(comment.get('post'), post, "the comment is related to the post");
   }));
 
   post.reload().then(async(function(post) {

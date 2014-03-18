@@ -132,7 +132,7 @@ test("The store can load a polymorphic belongsTo association", function() {
   env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
 
   hash({ message: store.find('post', 1), comment: store.find('comment', 2) }).then(async(function(records) {
-    equal(records.comment.get('message'), records.message);
+    DS.asyncEquals(records.comment.get('message'), records.message);
   }));
 });
 

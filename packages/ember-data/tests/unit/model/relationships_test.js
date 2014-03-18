@@ -475,7 +475,7 @@ test("belongsTo lazily loads relationships as needed", function() {
   store.find('person', 1).then(async(function(person) {
     equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
-    equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
+    DS.asyncEquals(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
     equal(get(person, 'tag.name'), "friendly", "the tag shuld have name");
 
     strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
@@ -516,7 +516,7 @@ test("async belongsTo relationships work when the data hash has not been loaded"
 
     return person.fetch('tag');
   })).then(async(function(tag) {
-    equal(tag, person.get('tag'));
+    DS.asyncEequals(person.get('tag'), tag);
     equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
     equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
   }));
@@ -545,7 +545,7 @@ test("async belongsTo relationships work when the data hash has already been loa
       equal(get(person, 'name'), "Tom Dale", "The person is now populated");
       return person.fetch('tag');
     })).then(async(function(tag) {
-      equal(tag, person.get('tag'));
+      DS.asyncEquals(person.get('tag'), tag);
       equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
       equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
   }));
@@ -568,7 +568,7 @@ test("calling createRecord and passing in an undefined value for a relationship 
   store.createRecord('person', {id: 1, tag: undefined});
 
   store.find(Person, 1).then(async(function(person) {
-    strictEqual(person.get('tag'), null, "undefined values should return null relationships");
+    DS.asyncEquals(person.get('tag'), null, "undefined values should return null relationships");
   }));
 });
 
