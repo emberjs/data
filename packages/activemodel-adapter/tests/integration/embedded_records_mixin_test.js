@@ -6,7 +6,7 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
     SuperVillain = DS.Model.extend({
       firstName:     DS.attr('string'),
       lastName:      DS.attr('string'),
-      homePlanet:    DS.belongsTo("homePlanet"),
+      homePlanet:    DS.belongsTo("homePlanet", {inverse:null}),
       evilMinions:   DS.hasMany("evilMinion")
     });
     HomePlanet = DS.Model.extend({
@@ -14,7 +14,7 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
       villains:      DS.hasMany('superVillain')
     });
     EvilMinion = DS.Model.extend({
-      superVillain: DS.belongsTo('superVillain'),
+      superVillain: DS.belongsTo('superVillain', {inverse:null}),
       name:         DS.attr('string')
     });
     Comment = DS.Model.extend({
@@ -210,7 +210,7 @@ test("extractSingle with embedded objects inside embedded objects of same type",
 
 test("extractSingle with embedded objects of same type, but from separate attributes", function() {
   HomePlanet.reopen({
-    reformedVillains: DS.hasMany('superVillain')
+    reformedVillains: DS.hasMany('superVillain', {inverse:null})
   });
 
   env.container.register('adapter:home_planet', DS.ActiveModelAdapter);
