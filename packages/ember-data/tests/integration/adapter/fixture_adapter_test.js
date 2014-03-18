@@ -13,7 +13,7 @@ module("integration/adapter/fixture_adapter - DS.FixtureAdapter", {
     });
 
     Phone = DS.Model.extend({
-      person: DS.belongsTo('person')
+      person: DS.belongsTo('person', {async: true})
     });
 
     env = setupStore({ person: Person, phone: Phone, adapter: DS.FixtureAdapter });

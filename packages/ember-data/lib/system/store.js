@@ -1583,11 +1583,11 @@ function setupRelationships(store, record, data, inverseRecord) {
 
       if (inverse) {
         relationship = relationshipFor('hasMany', value, inverse.name, store);
-        record.notifyBelongsToAdded(key, value, relationship);
+        record.notifyBelongsToAdded(key, relationship);
         value.notifyHasManyAdded(inverse.name, record);
       } else {
         relationship = new DS.OneToNone(value);
-        record.notifyBelongsToAdded(key, value, relationship);
+        record.notifyBelongsToAdded(key, relationship);
       }
     } else if (kind === 'hasMany') {
       relationship = relationshipFor(kind, record, key, store);
@@ -1597,12 +1597,12 @@ function setupRelationships(store, record, data, inverseRecord) {
 
       delta.added.forEach(function(member) {
         record.notifyHasManyAdded(key, member);
-        if (inverse) member.notifyBelongsToAdded(inverse.name, record, relationship);
+        if (inverse) member.notifyBelongsToAdded(inverse.name, relationship);
       });
 
       delta.removed.forEach(function(member) {
         record.notifyHasManyRemoved(key, member);
-        if (inverse) member.notifyBelongsToRemoved(inverse, record);
+        if (inverse) member.notifyBelongsToRemoved(inverse);
       });
     }
   });
@@ -1611,13 +1611,13 @@ function setupRelationships(store, record, data, inverseRecord) {
 DS.Relationship = function(hasManyRecord, manyType, store, belongsToName, manyName) {
 
   this.members = new Ember.OrderedSet();
-  this.hasManyRecord = hasManyRecord;
 
   this.store = store;
   this.manyName = manyName;
   this.belongsToName = belongsToName;
   this.hasManyRecord = hasManyRecord;
-
+  this.originalRecord = hasManyRecord;
+  this.originalKey = manyName;
 };
 
 DS.Relationship.prototype = {
@@ -1670,7 +1670,12 @@ DS.Relationship.prototype = {
     records.forEach(function(record){
       that.addRecord(record);
     });
+  },
+
+  getOtherSideFor: function(record){
+    return null;
   }
+  
 };
 
 function OneToMany(hasManyRecord, manyType, store, belongsToName, manyName) {
@@ -1743,6 +1748,16 @@ DS.OneToNone = function() {
 
 DS.OneToNone.prototype = Object.create(DS.Relationship.prototype);
 DS.OneToNone.constructor = DS.OneToNone;
+DS.OneToNone.prototype.removeRecord = function(record){
+  this.inverseRecord = null;
+  this.originalRecord.notifyBelongsToRemoved(this.originalKey);
+};
+
+DS.OneToNone.prototype.addRecord = function(record){
+  this.inverseRecord = record;
+  this.originalRecord.notifyBelongsToAdded(this.originalKey, this);
+};
+
 
 DS.ManyToNone = function(hasManyRecord, manyType, store, belongsToName, manyName) {
   DS.Relationship.apply(this, arguments);
