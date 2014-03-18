@@ -1794,6 +1794,13 @@ function setForArray(array) {
   return set;
 }
 
+//REMOVE REMOVE ONCE I FIGURE OUT WHERE TO PUT IN THE TESTS
+DS.asyncEquals = function(record,relationship, equality, comment){
+  record.get(relationship).then(async(function(record){
+    equal(record, equality, comment);
+  }));
+};
+
 DS.createRelationshipFor = function(record, knownSide, store){
   var inverseKey, inverseKind;
   var recordType = record.constructor;

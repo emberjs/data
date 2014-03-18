@@ -92,8 +92,9 @@ DS.belongsTo = function(type, options) {
         this._relationships[key].addRecord(this, value);
       }
 
+      //TODO(Igor) after master merge, switch back resolve to cast
       return DS.PromiseObject.create({
-        promise: Promise.cast(value, promiseLabel)
+        promise: Ember.RSVP.resolve(value, promiseLabel)
       });
     }
 

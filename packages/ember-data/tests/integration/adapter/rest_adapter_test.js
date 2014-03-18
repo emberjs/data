@@ -203,12 +203,14 @@ test("create - findMany doesn't overwrite owner", function() {
   var comment = store.createRecord('comment', { name: "The Parley Letter" });
   post.get('comments').pushObject(comment);
 
-  equal(comment.get('post'), post, "the post has been set correctly");
+  comment.get('post').then(async(function(newPost){
+    equal(newPost, post, "the post has been set correctly");
+  }));
 
   comment.save().then(async(function(comment) {
     equal(comment.get('isDirty'), false, "the post isn't dirty anymore");
     equal(comment.get('name'), "Dat Parley Letter", "the post was updated");
-    equal(comment.get('post'), post, "the post is still set");
+    DS.asyncEquals(comment, 'post', post, "the post is still set");
   }));
 });
 

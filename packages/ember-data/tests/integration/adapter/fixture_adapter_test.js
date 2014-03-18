@@ -233,9 +233,7 @@ test("only coerce belongsTo ids to string if id is defined and not null", functi
   }];
 
   env.store.find('phone', 1).then(async(function(phone) {
-    phone.get('person').then(async(function(person){
-      equal(person, null);
-    }));
+    DS.asyncEquals(phone, 'person', null);
   }));
 });
 
