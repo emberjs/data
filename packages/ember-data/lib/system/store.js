@@ -1244,56 +1244,6 @@ DS.Store = Ember.Object.extend({
     typeMap.records.splice(loc, 1);
   },
 
-  // ........................
-  // . RELATIONSHIP CHANGES .
-  // ........................
-
-  addRelationshipChangeFor: function(childRecord, childKey, parentRecord, parentKey, change) {
-    var clientId = childRecord.clientId,
-        parentClientId = parentRecord ? parentRecord : parentRecord;
-    var key = childKey + parentKey;
-    var changes = this._relationshipChanges;
-    if (!(clientId in changes)) {
-      changes[clientId] = {};
-    }
-    if (!(parentClientId in changes[clientId])) {
-      changes[clientId][parentClientId] = {};
-    }
-    if (!(key in changes[clientId][parentClientId])) {
-      changes[clientId][parentClientId][key] = {};
-    }
-    changes[clientId][parentClientId][key][change.changeType] = change;
-  },
-
-  removeRelationshipChangeFor: function(clientRecord, childKey, parentRecord, parentKey, type) {
-    var clientId = clientRecord.clientId,
-        parentClientId = parentRecord ? parentRecord.clientId : parentRecord;
-    var changes = this._relationshipChanges;
-    var key = childKey + parentKey;
-    if (!(clientId in changes) || !(parentClientId in changes[clientId]) || !(key in changes[clientId][parentClientId])){
-      return;
-    }
-    delete changes[clientId][parentClientId][key][type];
-  },
-
-  relationshipChangePairsFor: function(record){
-    var toReturn = [];
-
-    if( !record ) { return toReturn; }
-
-    //TODO(Igor) What about the other side
-    var changesObject = this._relationshipChanges[record.clientId];
-    for (var objKey in changesObject){
-      if(changesObject.hasOwnProperty(objKey)){
-        for (var changeKey in changesObject[objKey]){
-          if(changesObject[objKey].hasOwnProperty(changeKey)){
-            toReturn.push(changesObject[objKey][changeKey]);
-          }
-        }
-      }
-    }
-    return toReturn;
-  },
 
   // ......................
   // . PER-TYPE ADAPTERS
