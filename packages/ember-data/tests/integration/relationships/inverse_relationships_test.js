@@ -17,10 +17,10 @@ test("When a record is added to a has-many relationship, the inverse belongsTo i
   var comment = store.createRecord('comment');
   var post = store.createRecord('post');
 
-  equal(comment.get('post'), null, "no post has been set on the comment");
+  DS.asyncEquals(comment.get('post'), null, "no post has been set on the comment");
 
   post.get('comments').pushObject(comment);
-  equal(comment.get('post'), post, "post was set on the comment");
+  DS.asyncEquals(comment.get('post'), post, "post was set on the comment");
 });
 
 test("Inverse relationships can be explicitly nullable", function () {
@@ -58,17 +58,17 @@ test("When a record is added to a has-many relationship, the inverse belongsTo c
   var comment = store.createRecord('comment');
   var post = store.createRecord('post');
 
-  equal(comment.get('onePost'), null, "onePost has not been set on the comment");
-  equal(comment.get('twoPost'), null, "twoPost has not been set on the comment");
-  equal(comment.get('redPost'), null, "redPost has not been set on the comment");
-  equal(comment.get('bluePost'), null, "bluePost has not been set on the comment");
+  DS.asyncEquals(comment.get('onePost'), null, "onePost has not been set on the comment");
+  DS.asyncEquals(comment.get('twoPost'), null, "twoPost has not been set on the comment");
+  DS.asyncEquals(comment.get('redPost'), null, "redPost has not been set on the comment");
+  DS.asyncEquals(comment.get('bluePost'), null, "bluePost has not been set on the comment");
 
   post.get('comments').pushObject(comment);
 
-  equal(comment.get('onePost'), null, "onePost has not been set on the comment");
-  equal(comment.get('twoPost'), null, "twoPost has not been set on the comment");
-  equal(comment.get('redPost'), post, "redPost has been set on the comment");
-  equal(comment.get('bluePost'), null, "bluePost has not been set on the comment");
+  DS.asyncEquals(comment.get('onePost'), null, "onePost has not been set on the comment");
+  DS.asyncEquals(comment.get('twoPost'), null, "twoPost has not been set on the comment");
+  DS.asyncEquals(comment.get('redPost'), post, "redPost has been set on the comment");
+  DS.asyncEquals(comment.get('bluePost'), null, "bluePost has not been set on the comment");
 });
 
 test("When a record's belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", function() {
@@ -94,7 +94,7 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
 
   comment.set('post', post);
 
-  equal(comment.get('post'), post, 'The post that was set can be retrieved');
+  DS.asyncEquals(comment.get('post'), post, 'The post that was set can be retrieved');
 
   equal(post.get('meComments.length'), 0, "meComments has no posts");
   equal(post.get('youComments.length'), 1, "youComments had the post added");
@@ -118,8 +118,8 @@ test("When setting a belongsTo, the inverse belongsTo is also set", function() {
 
   comment.set('post', post);
 
-  equal(comment.get('post'), post);
-  equal(post.get('bestComment'), comment);
+  DS.asyncEquals(comment.get('post'), post);
+  DS.asyncEquals(post.get('bestComment'), comment);
 });
 
 
@@ -141,15 +141,15 @@ test("When setting a belongsTo, the OneToOne invariant is respected", function()
 
   comment.set('post', post);
 
-  equal(comment.get('post'), post);
-  equal(post.get('bestComment'), comment);
-  equal(post2.get('bestComment'), null);
+  DS.asyncEquals(comment.get('post'), post);
+  DS.asyncEquals(post.get('bestComment'), comment);
+  DS.asyncEquals(post2.get('bestComment'), null);
 
   comment.set('post', post2);
 
-  equal(comment.get('post'), post2);
-  equal(post.get('bestComment'), null);
-  equal(post2.get('bestComment'), comment);
+  DS.asyncEquals(comment.get('post'), post2);
+  DS.asyncEquals(post.get('bestComment'), null);
+  DS.asyncEquals(post2.get('bestComment'), comment);
 
 });
 
@@ -172,15 +172,15 @@ test("When setting a belongsTo, the OneToOne invariant is respected even when ot
   comment.set('post', post);
   post2.set('bestComment', null);
 
-  equal(comment.get('post'), post);
-  equal(post.get('bestComment'), comment);
-  equal(post2.get('bestComment'), null);
+  DS.asyncEquals(comment.get('post'), post);
+  DS.asyncEquals(post.get('bestComment'), comment);
+  DS.asyncEquals(post2.get('bestComment'), null);
 
   comment.set('post', post2);
 
-  equal(comment.get('post'), post2);
-  equal(post.get('bestComment'), null);
-  equal(post2.get('bestComment'), comment);
+  DS.asyncEquals(comment.get('post'), post2);
+  DS.asyncEquals(post.get('bestComment'), null);
+  DS.asyncEquals(post2.get('bestComment'), comment);
 });
 
 test("When setting a belongsTo, the OneToOne invariant is transitive", function() {
@@ -201,15 +201,15 @@ test("When setting a belongsTo, the OneToOne invariant is transitive", function(
 
   comment.set('post', post);
 
-  equal(comment.get('post'), post);
-  equal(post.get('bestComment'), comment);
-  equal(post2.get('bestComment'), null);
+  DS.asyncEquals(comment.get('post'), post);
+  DS.asyncEquals(post.get('bestComment'), comment);
+  DS.asyncEquals(post2.get('bestComment'), null);
 
   post2.set('bestComment', comment);
 
-  equal(comment.get('post'), post2);
-  equal(post.get('bestComment'), null);
-  equal(post2.get('bestComment'), comment);
+  DS.asyncEquals(comment.get('post'), post2);
+  DS.asyncEquals(post.get('bestComment'), null);
+  DS.asyncEquals(post2.get('bestComment'), comment);
 
 });
 
@@ -231,16 +231,16 @@ test("When setting a belongsTo, the OneToOne invariant is commutative", function
 
   comment.set('post', post);
 
-  equal(comment.get('post'), post);
-  equal(post.get('bestComment'), comment);
-  equal(comment2.get('post'), null);
+  DS.asyncEquals(comment.get('post'), post);
+  DS.asyncEquals(post.get('bestComment'), comment);
+  DS.asyncEquals(comment2.get('post'), null);
   
 
   post.set('bestComment', comment2);
 
-  equal(comment.get('post'), null);
-  equal(post.get('bestComment'), comment2);
-  equal(comment2.get('post'), post);
+  DS.asyncEquals(comment.get('post'), null);
+  DS.asyncEquals(post.get('bestComment'), comment2);
+  DS.asyncEquals(comment2.get('post'), post);
 });
 
 test("OneToNone relationship works", function() {
@@ -260,7 +260,7 @@ test("OneToNone relationship works", function() {
 
   comment.set('post', post);
 
-  equal(comment.get('post'), post);
+  DS.asyncEquals(comment.get('post'), post);
 });
 
 test("When a record is added to or removed from a polymorphic has-many relationship, the inverse belongsTo can be set explicitly", function() {
@@ -286,24 +286,24 @@ test("When a record is added to or removed from a polymorphic has-many relations
   var post = store.createRecord('post');
   var user = store.createRecord('user');
 
-  equal(post.get('oneUser'), null, "oneUser has not been set on the user");
-  equal(post.get('twoUser'), null, "twoUser has not been set on the user");
-  equal(post.get('redUser'), null, "redUser has not been set on the user");
-  equal(post.get('blueUser'), null, "blueUser has not been set on the user");
+  DS.asyncEquals(post.get('oneUser'), null, "oneUser has not been set on the user");
+  DS.asyncEquals(post.get('twoUser'), null, "twoUser has not been set on the user");
+  DS.asyncEquals(post.get('redUser'), null, "redUser has not been set on the user");
+  DS.asyncEquals(post.get('blueUser'), null, "blueUser has not been set on the user");
 
   user.get('messages').pushObject(post);
 
-  equal(post.get('oneUser'), null, "oneUser has not been set on the user");
-  equal(post.get('twoUser'), null, "twoUser has not been set on the user");
-  equal(post.get('redUser'), user, "redUser has been set on the user");
-  equal(post.get('blueUser'), null, "blueUser has not been set on the user");
+  DS.asyncEquals(post.get('oneUser'), null, "oneUser has not been set on the user");
+  DS.asyncEquals(post.get('twoUser'), null, "twoUser has not been set on the user");
+  DS.asyncEquals(post.get('redUser'), user, "redUser has been set on the user");
+  DS.asyncEquals(post.get('blueUser'), null, "blueUser has not been set on the user");
 
   user.get('messages').popObject();
 
-  equal(post.get('oneUser'), null, "oneUser has not been set on the user");
-  equal(post.get('twoUser'), null, "twoUser has not been set on the user");
-  equal(post.get('redUser'), null, "redUser has bot been set on the user");
-  equal(post.get('blueUser'), null, "blueUser has not been set on the user");
+  DS.asyncEquals(post.get('oneUser'), null, "oneUser has not been set on the user");
+  DS.asyncEquals(post.get('twoUser'), null, "twoUser has not been set on the user");
+  DS.asyncEquals(post.get('redUser'), null, "redUser has bot been set on the user");
+  DS.asyncEquals(post.get('blueUser'), null, "blueUser has not been set on the user");
 });
 
 test("When a record's belongsTo relationship is set, it can specify the inverse polymorphic hasMany to which the new child should be added or removed", function() {

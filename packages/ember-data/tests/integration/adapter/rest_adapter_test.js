@@ -289,7 +289,7 @@ test("create - a record on the many side of a hasMany relationship should update
   var comment = store.createRecord('comment', { name: "Another Comment", post: post });
 
   comment.save().then(async(function(comment) {
-    equal(comment.get('post'), post, "the comment is related to the post");
+    DS.asyncEquals(comment, 'post', post, "the comment is related to the post");
   }));
 
   post.reload().then(async(function(post) {

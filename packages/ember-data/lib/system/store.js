@@ -1795,8 +1795,8 @@ function setForArray(array) {
 }
 
 //REMOVE REMOVE ONCE I FIGURE OUT WHERE TO PUT IN THE TESTS
-DS.asyncEquals = function(record,relationship, equality, comment){
-  record.get(relationship).then(async(function(record){
+DS.asyncEquals = function(promise, equality, comment){
+  promise.then(async(function(record){
     equal(record, equality, comment);
   }));
 };
