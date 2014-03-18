@@ -1551,15 +1551,8 @@ function setupRelationships(store, record, data, inverseRecord) {
 
       inverse = record.inverseFor(key);
 
-      delta.added.forEach(function(member) {
-        record.notifyHasManyAdded(key, member);
-        if (inverse) member.notifyBelongsToAdded(inverse.name, relationship);
-      });
-
-      delta.removed.forEach(function(member) {
-        record.notifyHasManyRemoved(key, member);
-        if (inverse) member.notifyBelongsToRemoved(inverse);
-      });
+      relationship.addRecords(delta.added);
+      relationship.removeRecords(delta.removed);
     }
   });
 }
