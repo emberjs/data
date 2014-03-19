@@ -87,8 +87,10 @@ var forEach = Ember.ArrayPolyfills.forEach;
 
   ### Headers customization
 
-  Some APIs require HTTP headers, e.g. to provide an API key. An array of
-  headers can be added to the adapter which are passed with every request:
+  Some APIs require HTTP headers, e.g. to provide an API key. Arbitrary
+  headers can be set as key/value pairs on the `RESTAdapter`'s `headers`
+  object and Ember Data will send them along with each ajax request.
+
 
   ```js
   DS.RESTAdapter.reopen({
@@ -96,6 +98,20 @@ var forEach = Ember.ArrayPolyfills.forEach;
       "API_KEY": "secret key",
       "ANOTHER_HEADER": "Some header value"
     }
+  });
+  ```
+
+  `headers` can also be used as a computed property to support dynamic
+  headers.
+
+  ```js
+  App.ApplicationAdapter = DS.RESTAdapter.extend({
+    headers: function() {
+      return {
+        "API_KEY": this.get("session.authToken"),
+        "ANOTHER_HEADER": "Some header value"
+      };
+    }.property("session.authToken")
   });
   ```
 
@@ -138,8 +154,9 @@ var RESTAdapter = Adapter.extend({
   */
 
   /**
-    Some APIs require HTTP headers, e.g. to provide an API key. An array of
-    headers can be added to the adapter which are passed with every request:
+    Some APIs require HTTP headers, e.g. to provide an API key. Arbitrary
+    headers can be set as key/value pairs on the `RESTAdapter`'s `headers`
+    object and Ember Data will send them along with each ajax request.
 
     ```javascript
     DS.RESTAdapter.reopen({
