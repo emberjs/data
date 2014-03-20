@@ -41,6 +41,26 @@ function ajaxResponse(value) {
   };
 }
 
+test("Can set custom headers dynamically by reopening adapter", function() {
+  DS.RESTAdapter.reopen({
+    headers: {token: 'new_token' }
+  });
+  ok(DS.RESTAdapter.prototype.ajaxOptions().context.headers, "header set reopen");
+
+  DS.RESTAdapter.reopenClass({
+    headers: {token: 'new_token_2' }
+  });
+  ok(DS.RESTAdapter.prototype.ajaxOptions().context.headers, "header set reopenClass");
+});
+
+test("Can set custom headers dynamically by setting property on adapter's prototype", function() {
+  DS.RESTAdapter.prototype.setProperties({
+    headers: {token: 'new_token_3' }
+  });
+  ok(DS.RESTAdapter.prototype.ajaxOptions().context.headers, "header set prototype.setProperties");
+  equal('new_token_3', DS.RESTAdapter.prototype.ajaxOptions().context.headers.token);
+});
+
 test("find - basic payload", function() {
   ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }] });
 
