@@ -133,9 +133,25 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     ```javascript
     var record = store.createRecord('model');
-    record.get('isDeleted'); // false
+    record.get('isDeleted');    // false
     record.deleteRecord();
-    record.get('isDeleted'); // true
+
+    // Locally deleted
+    record.get('isDeleted');    // true
+    record.get('isDirty');      // true
+    record.get('isSaving');     // false
+
+    // Persisting the deletion
+    var promise = record.save();
+    record.get('isDeleted');    // true
+    record.get('isSaving');     // true
+
+    // Deletion Persisted
+    promise.then(function() {
+      record.get('isDeleted');  // true
+      record.get('isSaving');   // false
+      record.get('isDirty');    // false
+    });
     ```
 
     @property isDeleted
