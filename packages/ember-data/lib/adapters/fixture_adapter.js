@@ -141,7 +141,7 @@ var FixtureAdapter = Adapter.extend({
     Ember.assert("Unable to find fixtures for model type "+type.toString(), fixtures);
 
     if (fixtures) {
-      fixture = Ember.A(fixtures).findProperty('id', id);
+      fixture = this.findFixtureById(fixtures, id);
     }
 
     if (fixture) {
