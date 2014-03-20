@@ -303,13 +303,7 @@ var FixtureAdapter = Adapter.extend({
     @param id
   */
   findFixtureById: function(fixtures, id) {
-    return Ember.A(fixtures).find(function(r) {
-      if(''+get(r, 'id') === ''+id) {
-        return true;
-      } else {
-        return false;
-      }
-    });
+    return this.filterFixturesByIds(fixtures, [''+id])[0];
   },
 
   /*
