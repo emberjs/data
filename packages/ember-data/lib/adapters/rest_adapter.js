@@ -93,7 +93,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
 
 
   ```js
-  DS.RESTAdapter.reopen({
+  App.ApplicationAdapter = DS.RESTAdapter.extend({
     headers: {
       "API_KEY": "secret key",
       "ANOTHER_HEADER": "Some header value"
@@ -102,7 +102,8 @@ var forEach = Ember.ArrayPolyfills.forEach;
   ```
 
   `headers` can also be used as a computed property to support dynamic
-  headers.
+  headers. In the example below, the `session` object has been
+  injected into an adapter by Ember's container.
 
   ```js
   App.ApplicationAdapter = DS.RESTAdapter.extend({
@@ -112,6 +113,24 @@ var forEach = Ember.ArrayPolyfills.forEach;
         "ANOTHER_HEADER": "Some header value"
       };
     }.property("session.authToken")
+  });
+  ```
+
+  In some cases, your dynamic headers may require data from some
+  object outside of Ember's observer system (for example
+  `document.cookie`). You can use the
+  [volatile](/api/classes/Ember.ComputedProperty.html#method_volatile)
+  function to set the property into a non-chached mode causing the headers to
+  be recomputed with every request.
+
+  ```js
+  App.ApplicationAdapter = DS.RESTAdapter.extend({
+    headers: function() {
+      return {
+        "API_KEY": Ember.get(document.cookie.match(/apiKey\=([^;]*)/), "1"),
+        "ANOTHER_HEADER": "Some header value"
+      };
+    }.property().volatile();
   });
   ```
 
@@ -154,12 +173,14 @@ var RESTAdapter = Adapter.extend({
   */
 
   /**
-    Some APIs require HTTP headers, e.g. to provide an API key. Arbitrary
-    headers can be set as key/value pairs on the `RESTAdapter`'s `headers`
-    object and Ember Data will send them along with each ajax request.
+    Some APIs require HTTP headers, e.g. to provide an API
+    key. Arbitrary headers can be set as key/value pairs on the
+    `RESTAdapter`'s `headers` object and Ember Data will send them
+    along with each ajax request. For dynamic headers see [headers
+    customization](/api/data/classes/DS.RESTAdapter.html#toc_headers-customization).
 
     ```javascript
-    DS.RESTAdapter.reopen({
+    App.ApplicationAdapter = DS.RESTAdapter.extend({
       headers: {
         "API_KEY": "secret key",
         "ANOTHER_HEADER": "Some header value"
