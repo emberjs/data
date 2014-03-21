@@ -134,3 +134,45 @@ test("invalid record can be rollbacked", function() {
     ok(dog.get('isValid'));
   }));
 });
+
+test("rollback should not nullify hasMany and belongsTo relationships", function() {
+
+  Dog = DS.Model.extend({
+    name: DS.attr(),
+    owner: DS.belongsTo(Person)
+  });
+
+  Person.reopen({
+    dogs: DS.hasMany(Dog)
+  });
+
+  env = setupStore({ person: Person, dog: Dog });
+  store = env.store;
+
+  env.adapter.updateRecord = function(store, type, record) {
+    return Ember.RSVP.resolve();
+  };
+
+  var tom = store.push('person', { id: 1, firstName: "Tom", lastName: "Dale" });
+  var pluto = store.push('dog', { id: 1, name: "Pluto" });
+
+  Ember.run(function() {
+    pluto.set('owner', tom);
+    pluto.save().then(async(function(dog) {
+      tom.get('dogs').pushObject(dog);
+      tom.save().then(async(function(person) {
+
+        equal(dog.get('owner'), tom);
+        equal(person.get('dogs.length'), 1);
+
+        person.rollback();
+        dog.rollback();
+
+        notEqual(dog.get('owner'), null, "belongsTo relation should not become null after rollback");
+        equal(person.get('dogs.length'), 1, "hasMany relation should not become an empty array after rollback");
+
+      }));
+    }));
+  });
+
+});
