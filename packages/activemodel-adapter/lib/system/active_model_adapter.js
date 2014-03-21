@@ -58,7 +58,7 @@ var decamelize = Ember.String.decamelize,
   @class ActiveModelAdapter
   @constructor
   @namespace DS
-  @extends DS.Adapter
+  @extends DS.RESTAdapter
 **/
 
 var ActiveModelAdapter = RESTAdapter.extend({
