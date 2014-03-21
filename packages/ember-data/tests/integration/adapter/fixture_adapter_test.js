@@ -93,6 +93,26 @@ test("should load data asynchronously at the end of the runloop when simulateRem
   equal(get(wycats, 'firstName'), 'Yehuda', 'record properties are defined after runloop finishes');
 });
 
+test("should allow to easily simulate server retrieval schemes", function() {
+  Person.FIXTURES = [{
+    id: 'wycats',
+    firstName: "Yehuda"
+  }];
+
+  PersonAdapter = DS.FixtureAdapter.extend({
+    filterFixturesByIds: function(fixtures, ids) {
+      return fixtures.filter(function(item) {
+        return Ember.EnumerableUtils.indexOf(ids, item.firstName) !== -1;
+      });
+    }
+  });
+  env.store.set('adapter', PersonAdapter);
+
+  env.store.find('person', 'Yehuda').then(async(function(person) {
+    equal(get(person, 'id'), 'wycats', 'record can be found using a custom filter');
+  }));
+});
+
 test("should create record asynchronously when it is committed", function() {
   equal(Person.FIXTURES.length, 0, "Fixtures is empty");
 
