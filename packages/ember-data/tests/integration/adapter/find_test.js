@@ -56,6 +56,45 @@ test("When a single record is requested, the adapter's find method should be cal
   store.find(Person, 1);
 });
 
+test("When a single record is requested and the resulting record's id differs from the requested record's id, the requested record should be deleted.", function() {
+  expect(1);
+
+  var count = 0;
+
+  store = createStore({ adapter: DS.Adapter.extend({
+      find: function(store, type, id) {
+        return { id: 2 };
+      }
+    })
+  });
+
+  store.find(Person, 1).then(function() {
+    var ids = store.all(Person).map(function(p) { return p.get('id') });
+    ok(!ids.contains('1'), "Person record of id '1' should not exist");
+  });;
+});
+
+test("When a single record is requested and the resulting record's id differs from the requested record's id, the requested record should not be deleted if it previously existed.", function() {
+  expect(1);
+
+  var count = 0;
+
+  store = createStore({ adapter: DS.Adapter.extend({
+      find: function(store, type, id) {
+        return { id: 2 };
+      }
+    })
+  });
+
+  var existingRecord = store.createRecord(Person, {id: 1});
+  existingRecord.transitionTo('loaded.saved');
+
+  store.find(Person, 1).then(function() {
+    var ids = store.all(Person).map(function(p) { return p.get('id') });
+    ok(ids.contains('1'), "Person record of id '1' should still exist");
+  });;
+});
+
 test("When a single record is requested multiple times, all .find() calls are resolved after the promise is resolved", function() {
   var deferred = Ember.RSVP.defer();
 
