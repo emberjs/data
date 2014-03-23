@@ -24,7 +24,7 @@ module.exports = function(grunt){
 
   grunt.registerTask('prepareTests', ['buildPackages', 'concat:tests']);
 
-  grunt.registerTask('test:server',  ['prepareTests', 'connect', 'open']);
+  grunt.registerTask('test:server',  ['prepareTests', 'connect']);
   grunt.registerTask('test',         ['test:server', 'qunit:local']);
   grunt.registerTask('test:local',   'test');
   grunt.registerTask('test:release', ['test:server', 'qunit:release']);
@@ -32,7 +32,7 @@ module.exports = function(grunt){
   grunt.registerTask('test:canary',  ['test:server', 'qunit:canary']);
   grunt.registerTask('test:all',     ['test:server', 'qunit:local', 'qunit:release', 'qunit:beta', 'qunit:canary']);
 
-  grunt.registerTask('dev', [ 'test:server', 'watch' ]);
+  grunt.registerTask('dev', [ 'test:server', 'open', 'watch' ]);
   grunt.registerTask('server', 'dev');
 
   grunt.registerTask('dist', ['buildPackages', 'emberDefeatureify:stripDebug', 'uglify:dist']);
