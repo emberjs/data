@@ -20,6 +20,7 @@ var set = Ember.set;
   This code registers an injection for Ember.Application.
 
   If an Ember.js developer defines a subclass of DS.Store on their application,
+  as `App.ApplicationStore` (or via a module system that resolves to `store:application`)
   this code will automatically instantiate it and make it available on the
   router.
 
@@ -28,7 +29,7 @@ var set = Ember.set;
 
   For example, imagine an Ember.js application with the following classes:
 
-  App.Store = DS.Store.extend({
+  App.ApplicationStore = DS.Store.extend({
     adapter: 'custom'
   });
 
@@ -36,7 +37,7 @@ var set = Ember.set;
     // ...
   });
 
-  When the application is initialized, `App.Store` will automatically be
+  When the application is initialized, `App.ApplicationStore` will automatically be
   instantiated, and the instance of `App.PostsController` will have its `store`
   property set to that instance.
 
@@ -51,7 +52,10 @@ Ember.onLoad('Ember.Application', function(Application) {
     name: "store",
 
     initialize: function(container, application) {
-      application.register('store:main', application.Store || Store);
+      Ember.deprecate('Specifying a custom Store for Ember Data on your global namespace as `App.Store` ' +
+                      'has been deprecated. Please use `App.ApplicationStore` instead.', !application.Store);
+
+      application.register('store:main', container.lookupFactory('store:application') || application.Store || Store);
 
       // allow older names to be looked up
 

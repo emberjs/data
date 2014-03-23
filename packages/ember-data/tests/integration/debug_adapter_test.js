@@ -7,7 +7,7 @@ module("DS.DebugAdapter", {
         toString: function() { return 'App'; }
       });
 
-      App.Store = DS.Store.extend({
+      App.ApplicationStore = DS.Store.extend({
         adapter: DS.Adapter.extend()
       });
 
