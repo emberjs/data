@@ -24,7 +24,7 @@ module.exports = function(grunt){
 
   grunt.registerTask('prepareTests', ['buildPackages', 'concat:tests']);
 
-  grunt.registerTask('test:server',  ['prepareTests', 'connect']);
+  grunt.registerTask('test:server',  ['prepareTests', 'connect', 'open']);
   grunt.registerTask('test',         ['test:server', 'qunit:local']);
   grunt.registerTask('test:local',   'test');
   grunt.registerTask('test:release', ['test:server', 'qunit:release']);
