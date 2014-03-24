@@ -56,6 +56,28 @@ test("When a single record is requested, the adapter's find method should be cal
   store.find(Person, 1);
 });
 
+test("When a single record is requested, the adapter's find method should be called when forced even if it's loaded.", function() {
+  expect(2);
+
+  var count = 0, expectedCount = 0;
+
+  store = createStore({ adapter: DS.Adapter.extend({
+      find: function(store, type, id) {
+        equal(count, expectedCount, "the find method is only called once");
+
+        count++;
+        return { id: 1, name: "Braaaahm Dale" };
+      }
+    })
+  });
+
+  var record = store.find(Person, 1).then(async(function(person) {
+    expectedCount = 1;
+    person.transitionTo('empty');
+    store.find(Person, 1, true);
+  }));
+});
+
 test("When a single record is requested multiple times, all .find() calls are resolved after the promise is resolved", function() {
   var deferred = Ember.RSVP.defer();
 
