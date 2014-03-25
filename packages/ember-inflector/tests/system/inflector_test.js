@@ -233,3 +233,32 @@ test('inflect.advancedRules', function(){
 
   equal(inflector.inflect('ox', rules), 'oxen');
 });
+
+test('Inflector.defaultRules', function(){
+  expect(1);
+
+  var rules = Ember.Inflector.defaultRules;
+  ok(rules, 'has defaultRules');
+});
+
+test('Ember.Inflector.inflector exists', function(){
+  expect(1);
+
+  ok(Ember.Inflector.inflector, 'Ember.Inflector.inflector exists');
+});
+
+test('new Ember.Inflector with defaultRules matches docs', function(){
+  expect(4);
+
+  var inflector = new Ember.Inflector(Ember.Inflector.defaultRules);
+
+  // defaultRules includes these special rules
+  equal(inflector.pluralize('cow'), 'kine');
+  equal(inflector.singularize('kine'), 'cow');
+
+  // defaultRules adds 's' to singular
+  equal(inflector.pluralize('item'), 'items');
+
+  // defaultRules removes 's' from plural
+  equal(inflector.singularize('items'), 'item');
+});
