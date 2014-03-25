@@ -8,7 +8,7 @@ module('ember-inflector.dsl', {
   }
 });
 
-test('ability to add additonal pluralization rules', function(){
+test('ability to add additional pluralization rules', function(){
   equal(inflector.pluralize('cow'), 'cow', 'no pluralization rule');
 
   inflector.plural(/$/, 's');
@@ -16,7 +16,7 @@ test('ability to add additonal pluralization rules', function(){
   equal(inflector.pluralize('cow'), 'cows', 'pluralization rule was applied');
 });
 
-test('ability to add additonal singularization rules', function(){
+test('ability to add additional singularization rules', function(){
   equal(inflector.singularize('cows'), 'cows', 'no singularization rule was applied');
 
   inflector.singular(/s$/, '');
@@ -24,7 +24,7 @@ test('ability to add additonal singularization rules', function(){
   equal(inflector.singularize('cows'), 'cow', 'singularization rule was applied');
 });
 
-test('ability to add additonal uncountable rules', function(){
+test('ability to add additional uncountable rules', function(){
   inflector.plural(/$/, 's');
   equal(inflector.pluralize('cow'), 'cows', 'pluralization rule was applied');
 
@@ -32,7 +32,7 @@ test('ability to add additonal uncountable rules', function(){
   equal(inflector.pluralize('cow'), 'cow', 'pluralization rule NOT was applied');
 });
 
-test('ability to add additonal irregular rules', function(){
+test('ability to add additional irregular rules', function(){
   inflector.singular(/s$/, '');
   inflector.plural(/$/, 's');
 
