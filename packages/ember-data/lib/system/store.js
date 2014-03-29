@@ -1562,7 +1562,7 @@ function addUnsavedRecords(record, key, data) {
 // Delegation to the adapter and promise management
 /**
   A `PromiseArray` is an object that acts like both an `Ember.Array`
-  and a promise. When the promise is resolved the the resulting value
+  and a promise. When the promise is resolved the resulting value
   will be set to the `PromiseArray`'s `content` property. This makes
   it easy to create data bindings with the `PromiseArray` that will be
   updated when the promise resolves.
