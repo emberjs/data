@@ -355,7 +355,6 @@ test("a records SYNC HM relationship property is readOnly", function(){
   }, 'Cannot Set: comments on: ' + Ember.inspect(post));
 });
 
-
 test("a records ASYNC HM relationship property is readOnly", function(){
   expect(1);
   Post.reopen({
@@ -369,4 +368,76 @@ test("a records ASYNC HM relationship property is readOnly", function(){
   raises(function(){
     post.set('comments');
   }, 'Cannot Set: comments on: ' + Ember.inspect(post));
+});
+
+test("Abstract polymorphic base classes can be used for models", function() {
+  expect(14);
+  Child = Em.Mixin.create({
+    parent: DS.belongsTo('parent', {polymorphic: true, inverse: 'children'}),
+    type: DS.attr('string')
+  });
+
+  Parent = Em.Mixin.create({
+    children: DS.hasMany('child', {polymorphic: true, inverse: 'parent'}),
+    type: DS.attr('string')
+  });
+
+  Root = DS.Model.extend(Parent, {
+    name: DS.attr('string')
+  });
+
+  Folder = DS.Model.extend(Parent, Child, {
+    name: DS.attr('string')
+  });
+
+  File = DS.Model.extend(Child, {
+    name: DS.attr('string')
+  });
+
+  var env = setupStore({ child: Child, parent: Parent, root: Root, folder: Folder, file: File}),
+      store = env.store;
+
+  store.push('root', { id: 1, name: 'root record',
+    children: [{id: 1, type: 'folder'}, {id: 1, type: 'file'}], type: 'root' });
+  store.push('folder', { id: 1, name: 'folder 1',
+    children: [{id: 2, type: 'file'}, {id: 2, type: 'folder'}], type: 'folder', parent: {id: 1, type: 'root'}});
+  store.push('file', { id: 1, name: 'file 1', type: 'file', parent: {id: 1, type: 'root'}});
+
+  store.push('folder', { id: 2, name: 'folder 2', children: [], type: 'folder', parent: {id: 1, type: 'folder'} });
+  store.push('file', { id: 2, name: 'file 2', type: 'file', parent: {id: 1, type: 'folder'} });
+
+  Ember.RSVP.hash({
+    root: store.find('root', 1)
+  }).then(async(function(records) {
+    var children = records.root.get('children'),
+        folderChild = children.findBy('type', 'folder'),
+        fileChild = children.findBy('type', 'file');
+
+    equal(children.get('length'), 2, "The root's children should be present");
+
+    equal(folderChild.get('name'), 'folder 1', "Root should have a folder child");
+    equal(folderChild.get('type'), 'folder', "Root should have a folder child");
+    equal(folderChild.get('parent').get('type'), 'root', "The child's parent should be of type root");
+    equal(folderChild.get('parent').get('name'), 'root record', "The child's parent should have the name 'root record'");
+
+    equal(fileChild.get('name'), 'file 1', "Root should have a file child");
+    equal(fileChild.get('type'), 'file', "Root should have a file child.");
+    equal(fileChild.get('parent').get('type'), 'root', "The child's parent should be of type root");
+    equal(fileChild.get('parent').get('name'), 'root record', "The child's parent should have the name 'root record'");
+  }));
+
+  Ember.RSVP.hash({
+    folderTwo: store.find('folder', 2),
+    fileTwo: store.find('file', 2)
+  }).then(async(function(records) {
+    var folderTwo = records.folderTwo,
+        fileTwo = records.fileTwo,
+        children = folderTwo.get('children');
+    equal(children.get('length'), 0, "The folder's children should be empty");
+    equal(folderTwo.get('parent').get('type'), 'folder', "The folder should have a parent of type 'folder'");
+    equal(folderTwo.get('parent').get('name'), 'folder 1', "The folder's parent should have the name 'folder 1'");
+
+    equal(fileTwo.get('parent').get('type'), 'folder', "The folder should have a parent of type 'folder'");
+    equal(fileTwo.get('parent').get('name'), 'folder 1', "The folder's parent should have the name 'folder 1'");
+  }));
 });

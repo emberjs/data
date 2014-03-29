@@ -117,11 +117,12 @@ Model.reopenClass({
 
     if (options.inverse) {
       inverseName = options.inverse;
-      inverseKind = Ember.get(inverseType, 'relationshipsByName').get(inverseName).kind;
+      inverseKind = Ember.get(inverseType, 'relationshipsByName');
+      if (inverseKind === undefined) { return null; }
+      inverseKind = inverseKind.get(inverseName).kind;
     } else {
       var possibleRelationships = findPossibleInverses(this, inverseType);
-
-      if (possibleRelationships.length === 0) { return null; }
+      if (!possibleRelationships || possibleRelationships.length === 0) { return null; }
 
       Ember.assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " + this + " were found on " + inverseType + ". Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses", possibleRelationships.length === 1);
 

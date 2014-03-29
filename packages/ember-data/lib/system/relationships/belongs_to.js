@@ -92,6 +92,11 @@ function asyncBelongsTo(type, options, meta) {
   @return {Ember.computed} relationship
 */
 function belongsTo(type, options) {
+  var isPolymorphic;
+  if (options && options.hasOwnProperty('polymorphic')) {
+    isPolymorphic = options.polymorphic;
+  }
+
   if (typeof type === 'object') {
     options = type;
     type = undefined;
@@ -116,7 +121,9 @@ function belongsTo(type, options) {
     var data = get(this, 'data'),
         store = get(this, 'store'), belongsTo, typeClass;
 
-    if (typeof type === 'string') {
+    if (isPolymorphic && value && value.get('type')) {
+      typeClass = store.modelFor(value.get('type'));
+    } else if (typeof type === 'string') {
       typeClass = store.modelFor(type);
     } else {
       typeClass = type;
