@@ -981,6 +981,18 @@ Store = Ember.Object.extend({
     @param {Object} data optional data (see above)
   */
   didSaveRecord: function(record, data) {
+    if (get(record, 'id') === null && data && data.id) {
+      // If a record is received by pushPayload before the ajax request
+      // is complete, then replace this record with the one received
+      // previously
+      var existingRecord = this.getById(record.constructor, data.id);
+      if (existingRecord) {
+        record.send('didCommit');
+        record.unloadRecord();
+        record = existingRecord;
+      }
+    }
+
     if (data) {
       // normalize relationship IDs into records
       data = normalizeRelationships(this, record.constructor, data, record);
@@ -989,6 +1001,8 @@ Store = Ember.Object.extend({
     }
 
     record.adapterDidCommit(data);
+
+    return record;
   },
 
   /**
@@ -1775,7 +1789,7 @@ function _commit(adapter, store, operation, record) {
       payload = adapterPayload;
     }
 
-    store.didSaveRecord(record, payload);
+    record = store.didSaveRecord(record, payload);
     return record;
   }, function(reason) {
     if (reason instanceof DS.InvalidError) {
