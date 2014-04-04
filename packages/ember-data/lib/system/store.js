@@ -1662,6 +1662,7 @@ DS.OneToMany.prototype = Object.create(DS.Relationship.prototype);
 DS.OneToMany.prototype.constructor = OneToMany;
 
 DS.OneToMany.prototype.addRecord = function(record) {
+  if(this.members.has(record)){return;}
   //TODO(Igor) Consider making the many array just a proxy over the members set
   this.members.add(record);
   this.hasManyRecord.notifyHasManyAdded(this.manyName, record);
@@ -1677,6 +1678,24 @@ DS.OneToMany.prototype.removeRecord = function(record) {
 DS.OneToMany.prototype.getOtherSideFor = function(record) {
   return this.hasManyRecord;
 };
+
+
+
+DS.OneToMany.prototype.arrayProxyFor = function(record) {
+  var promiseLabel = "DS: Async hasMany " + this + " : " + this.originalKey,
+    resolver = Ember.RSVP.defer(promiseLabel),
+    promise, ids;
+
+  //TODO(Igor) add link support
+  if (!this.manyArrayProxy){
+    //TODO(Igor) rethink
+    promise = this.store.fetchMany(this.members.toArray(), this.hasManyRecord);
+    this.manyArrayProxy = DS.PromiseArray.create({ promise: promise });
+  }
+
+  return this.manyArrayProxy;
+};
+  
 
 DS.OneToOne = function(record, manyType, store, inverseKey, originalKey) {
   DS.Relationship.apply(this, arguments);
@@ -1777,10 +1796,28 @@ DS.ManyToNone.prototype.addRecord = function(record) {
   this.hasManyRecord.notifyHasManyAdded(this.manyName, record);
 };
 
+DS.ManyToNone.prototype.arrayProxyFor = function(record){
+  var promiseLabel = "DS: Async hasMany " + this + " : " + this.originalKey,
+    resolver = Ember.RSVP.defer(promiseLabel),
+    promise, ids;
+
+  //TODO(Igor) add link support
+  if (!this.manyArrayProxy){
+    //TODO(Igor) rethink
+    promise = this.store.fetchMany(this.members.toArray(), this.hasManyRecord );
+    this.manyArrayProxy = DS.PromiseArray.create({ promise: promise });
+  }
+
+  return this.manyArrayProxy;
+};
+
+
 DS.ManyToNone.prototype.removeRecord = function(record) {
   this.members.remove(record);
   this.hasManyRecord.notifyHasManyRemoved(this.manyName, record);
 };
+
+DS.ManyToNone.prototype.getManyArray = DS.OneToMany.getManyArray;
 
 function setForArray(array) {
   var set = new Ember.OrderedSet();

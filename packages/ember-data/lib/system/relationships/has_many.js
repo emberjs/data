@@ -100,11 +100,13 @@ DS.hasMany = function(type, options) {
   return Ember.computed(function(key) {
     //TODO(Igor) encapsulate better
     var relationship = this._relationships[key];
+
     if (!relationship){
-      relationship = new DS.OneToMany(this, type, this.store, null, key);
+      relationship = new DS.OneToMany(this, type, this.get('store'), null, key);
       this._relationships[key] = relationship;
     }
-    return relationship.manyArray;
+
+    return relationship.arrayProxyFor(this);
   }).meta(meta);
 };
 

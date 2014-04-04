@@ -99,6 +99,8 @@
 
       try {
         if (callSuper) {
+          Ember.assert("The function you are trying to call was removed, but the corresponding syncForTest was not", !!this._super);
+          
           ret = this._super.apply(this, arguments);
         } else {
           ret = fn.apply(this, arguments);

@@ -416,7 +416,7 @@ DS.Model = Ember.Object.extend(Ember.Evented, {
     this._relationships = {};
     var that = this;
     this.constructor.eachRelationship(function(key, descriptor) {
-        that._relationships[key] = DS.createRelationshipFor(that, descriptor, that.store);
+        that._relationships[key] = DS.createRelationshipFor(that, descriptor, that.get('store'));
     });
   },
 
