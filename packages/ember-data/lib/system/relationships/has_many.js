@@ -112,9 +112,11 @@ DS.hasMany = function(type, options) {
 
 DS.Model.reopen({
   notifyHasManyAdded: function(key, record) {
-    var manyArray = get(this, key);
+    var manyArrayPromise = get(this, key);
     //TODO(Igor) double check with yehuda whether this is the correct method
-    manyArray.addRecord(record);
+    manyArrayPromise.then(function (manyArray) {
+      manyArray.addRecord(record);
+    });
   },
 
   notifyHasManyRemoved: function(key, record) {

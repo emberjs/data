@@ -1689,7 +1689,8 @@ DS.OneToMany.prototype.arrayProxyFor = function(record) {
   //TODO(Igor) add link support
   if (!this.manyArrayProxy){
     //TODO(Igor) rethink
-    promise = this.store.fetchMany(this.members.toArray(), this.hasManyRecord);
+    this.store.fetchMany(this.members.toArray(), this.hasManyRecord );
+    promise = resolve(this.manyArray);
     this.manyArrayProxy = DS.PromiseArray.create({ promise: promise });
   }
 
@@ -1804,7 +1805,8 @@ DS.ManyToNone.prototype.arrayProxyFor = function(record){
   //TODO(Igor) add link support
   if (!this.manyArrayProxy){
     //TODO(Igor) rethink
-    promise = this.store.fetchMany(this.members.toArray(), this.hasManyRecord );
+    this.store.fetchMany(this.members.toArray(), this.hasManyRecord );
+    promise = resolve(this.manyArray);
     this.manyArrayProxy = DS.PromiseArray.create({ promise: promise });
   }
 
