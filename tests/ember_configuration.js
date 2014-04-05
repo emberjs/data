@@ -62,6 +62,11 @@
       adapter: adapter
     }));
 
+    container.register('transform:boolean', DS.BooleanTransform);
+    container.register('transform:date', DS.DateTransform);
+    container.register('transform:number', DS.NumberTransform);
+    container.register('transform:string', DS.StringTransform);
+
     container.register('serializer:-default', DS.JSONSerializer);
     container.register('serializer:-rest', DS.RESTSerializer);
     container.register('adapter:-rest', DS.RESTAdapter);
