@@ -1362,7 +1362,19 @@ function addUnsavedRecords(record, key, data) {
 
 // Delegation to the adapter and promise management
 
-DS.PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
+DS.PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin, {
+  // TODO(Igor): encapsulate this in the relationship?
+  load: function () {
+    var self = this;
+    var store = this.relationship.store;
+    var members = this.relationship.members.toArray();
+    var hasMany = this.relationship.hasManyRecord;
+
+    return store.fetchMany(members, hasMany).then(function () {
+      return self;
+    });
+  }
+});
 DS.PromiseObject = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
 
 function promiseObject(promise) {
@@ -1688,10 +1700,11 @@ DS.OneToMany.prototype.arrayProxyFor = function(record) {
 
   //TODO(Igor) add link support
   if (!this.manyArrayProxy){
-    //TODO(Igor) rethink
-    this.store.fetchMany(this.members.toArray(), this.hasManyRecord );
     promise = resolve(this.manyArray);
-    this.manyArrayProxy = DS.PromiseArray.create({ promise: promise });
+    this.manyArrayProxy = DS.PromiseArray.create({
+      relationship: this,
+      promise: promise
+    });
   }
 
   return this.manyArrayProxy;
@@ -1804,10 +1817,11 @@ DS.ManyToNone.prototype.arrayProxyFor = function(record){
 
   //TODO(Igor) add link support
   if (!this.manyArrayProxy){
-    //TODO(Igor) rethink
-    this.store.fetchMany(this.members.toArray(), this.hasManyRecord );
     promise = resolve(this.manyArray);
-    this.manyArrayProxy = DS.PromiseArray.create({ promise: promise });
+    this.manyArrayProxy = DS.PromiseArray.create({
+      relationship: this,
+      promise: promise
+    });
   }
 
   return this.manyArrayProxy;
