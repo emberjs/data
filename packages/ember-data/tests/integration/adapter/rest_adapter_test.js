@@ -739,7 +739,7 @@ test("findMany - returning sideloaded data loads the data", function() {
       posts: [{ id: 2, name: "The Parley Letter" }]
     });
 
-    return post.get('comments');
+    return post.get('comments').load();
   })).then(async(function(comments) {
     var comment1 = store.getById('comment', 1),
         comment2 = store.getById('comment', 2),
@@ -781,7 +781,7 @@ test("findMany - a custom serializer is used if present", function() {
         { _ID_: 3, _NAME_: "What is omakase?" }]
     });
 
-    return post.get('comments');
+    return post.get('comments').load();
   })).then(async(function(comments) {
     var comment1 = store.getById('comment', 1),
         comment2 = store.getById('comment', 2),
