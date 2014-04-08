@@ -216,15 +216,14 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
   /**
     If `true` the adapter reported that it was unable to save local
-    changes to the backend. This may also result in the record having
-    its `isValid` property become false if the adapter reported that
-    server-side validations failed.
+    changes to the backend for any reason other than a server-side
+    validation error.
 
     Example
 
     ```javascript
     record.get('isError'); // false
-    record.set('foo', 'invalid value');
+    record.set('foo', 'valid value');
     record.save().then(null, function() {
       record.get('isError'); // true
     });
