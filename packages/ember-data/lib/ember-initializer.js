@@ -2,11 +2,7 @@ import setupContainer from './setup-container';
 
 /**
   @module ember-data
-*/
 
-var set = Ember.set;
-
-/*
   This code initializes Ember-Data onto an Ember application.
 */
 
