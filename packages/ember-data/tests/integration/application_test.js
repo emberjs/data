@@ -1,3 +1,11 @@
+var run = Ember.run,
+    Application = Ember.Application,
+    Controller = Ember.Controller,
+    View = Ember.View,
+    Store = DS.Store,
+    Namespace = Ember.Namespace,
+    Object = Ember.Object;
+
 var app, container;
 
 /**
@@ -7,13 +15,13 @@ var app, container;
 
 module("integration/application - Injecting a Custom Store", {
   setup: function() {
-    Ember.run(function() {
-      app = Ember.Application.create({
-        ApplicationStore: DS.Store.extend({ isCustom: true }),
-        FooController: Ember.Controller.extend(),
-        ApplicationView: Ember.View.extend(),
+    run(function() {
+      app = Application.create({
+        ApplicationStore: Store.extend({ isCustom: true }),
+        FooController: Controller.extend(),
+        ApplicationView: View.extend(),
         BazController: {},
-        ApplicationController: Ember.View.extend()
+        ApplicationController: View.extend()
       });
     });
 
@@ -21,7 +29,7 @@ module("integration/application - Injecting a Custom Store", {
   },
 
   teardown: function() {
-    app.destroy();
+    run(app, app.destroy);
     Ember.BOOTED = false;
   }
 });
@@ -36,14 +44,14 @@ test("If a store is instantiated, it should be made available to each controller
 });
 
 test("registering App.Store is deprecated but functional", function(){
-  Ember.run(app, 'destroy');
+  run(app, 'destroy');
 
   expectDeprecation(function(){
-    Ember.run(function() {
-        app = Ember.Application.create({
-          Store: DS.Store.extend({ isCustomButDeprecated: true }),
-          FooController: Ember.Controller.extend(),
-        });
+    run(function() {
+      app = Application.create({
+        Store: DS.Store.extend({ isCustomButDeprecated: true }),
+        FooController: Controller.extend(),
+      });
     });
   }, 'Specifying a custom Store for Ember Data on your global namespace as `App.Store` ' +
      'has been deprecated. Please use `App.ApplicationStore` instead.');
@@ -57,12 +65,12 @@ test("registering App.Store is deprecated but functional", function(){
 
 module("integration/application - Injecting the Default Store", {
   setup: function() {
-    Ember.run(function() {
-      app = Ember.Application.create({
-        FooController: Ember.Controller.extend(),
-        ApplicationView: Ember.View.extend(),
+    run(function() {
+      app = Application.create({
+        FooController: Controller.extend(),
+        ApplicationView: View.extend(),
         BazController: {},
-        ApplicationController: Ember.View.extend()
+        ApplicationController: View.extend()
       });
     });
 
@@ -85,38 +93,5 @@ test("If a store is instantiated, it should be made available to each controller
 });
 
 test("the DS namespace should be accessible", function() {
-  ok(Ember.Namespace.byName('DS') instanceof Ember.Namespace, "the DS namespace is accessible");
-});
-
-test("the deprecated serializer:_default is resolved as serializer:default", function(){
-  var deprecated, valid = container.lookup('serializer:-default');
-  expectDeprecation(function() {
-    deprecated = container.lookup('serializer:_default');
-  });
-
-  ok(deprecated === valid, "they should resolve to the same thing");
-});
-
-test("the deprecated serializer:_rest is resolved as serializer:rest", function(){
-  var deprecated, valid = container.lookup('serializer:-rest');
-  expectDeprecation(function() {
-    deprecated = container.lookup('serializer:_rest');
-  });
-
-  ok(deprecated === valid, "they should resolve to the same thing");
-});
-
-test("the deprecated adapter:_rest is resolved as adapter:rest", function(){
-  var deprecated, valid = container.lookup('adapter:-rest');
-  expectDeprecation(function() {
-    deprecated = container.lookup('adapter:_rest');
-  });
-
-  ok(deprecated === valid, "they should resolve to the same thing");
-});
-
-test("a deprecation is made when looking up adapter:_rest", function(){
-  expectDeprecation(function(){
-    container.lookup('serializer:_default');
-  },"You tried to look up 'serializer:_default', but this has been deprecated in favor of 'serializer:-default'.");
+  ok(Namespace.byName('DS') instanceof Namespace, "the DS namespace is accessible");
 });

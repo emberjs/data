@@ -51,7 +51,8 @@ import {
 } from "./transforms";
 
 import {hasMany, belongsTo} from "./system/relationships";
-import "./initializers";
+import "./ember-initializer";
+import setupContainer from "./setup-container";
 
 import ContainerProxy from "./system/container_proxy";
 
@@ -104,6 +105,8 @@ DS.belongsTo = belongsTo;
 DS.hasMany   = hasMany;
 
 DS.ContainerProxy = ContainerProxy;
+
+DS._setupContainer = setupContainer;
 
 Ember.lookup.DS = DS;
 
