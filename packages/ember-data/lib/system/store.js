@@ -834,6 +834,40 @@ Store = Ember.Object.extend({
     });
     ```
 
+    If you pass a query but no function, then a default filter function
+    will be applied, which will naively check if the records match the
+    values in the query. So the following two examples are equivalent:
+
+    ```javascript
+      store.filter('post', {author: 'alex', unread: true}, function(post) {
+        return post.get('author') === 'alex' && post.get('unread') === true;
+      });
+
+      // can be expressed less verbosely as:
+      store.filter('post', {author: 'alex', unread: true});
+    ```
+
+    The default filter fuction will ignore values that are not defined
+    on the model with DS.attr. So the following example will ignore the
+    `page` parameter when filtering the records if `page` is not an
+    attribute of the Post model:
+
+    ```javascript
+      store.filter('post', {author: 'alex', page: 1});
+    ```
+
+    The keys of the query will be normalized using the `keyForAttribute`
+    method of the appropriate type's serializer. So if you are using
+    `DS.ActiveModelSerializer`, you can use a query such as:
+
+    ```javascript
+      store.filter('post', {authorName: 'alex'});
+    ```
+
+    This will result in the server receiving a query parameter of
+    `author_name`, and the default filter function will correctly
+    filter the models in the store by the `authorName` attribute.
+
     @method filter
     @param {String or subclass of DS.Model} type
     @param {Object} query optional query
@@ -841,12 +875,33 @@ Store = Ember.Object.extend({
     @return {DS.PromiseArray}
   */
   filter: function(type, query, filter) {
-    var promise;
+    var promise, length = arguments.length;
 
     // allow an optional server query
-    if (arguments.length === 3) {
-      promise = this.findQuery(type, query);
-    } else if (arguments.length === 2) {
+    if (length === 3 || (length === 2 && typeof(query) === 'object')) {
+      var keys = Ember.keys(query),
+        serializer = this.serializerFor(type),
+        normalizedQuery = {};
+
+      if (serializer.keyForAttribute) {
+        forEach(keys, function(key) {
+          normalizedQuery[serializer.keyForAttribute(key)] = query[key];
+        });
+      } else {
+        normalizedQuery = query;
+      }
+      promise = this.findQuery(type, normalizedQuery);
+
+      // Use a default filter function if none provided
+      filter = filter || function(record) {
+        var attributeNames = get(record, 'constructor.attributes.keys.list');
+
+        return Ember.A(keys).every(function(key) {
+          var isNotAttribute = indexOf(attributeNames, key) === -1;
+          return isNotAttribute || get(record, key) === query[key];
+        });
+      };
+    } else if (length === 2) {
       filter = query;
     }
 

@@ -20,7 +20,8 @@ module("integration/adapter/store_adapter - DS.Store and DS.Adapter integration 
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
       firstName: DS.attr('string'),
-      lastName: DS.attr('string')
+      lastName: DS.attr('string'),
+      fullName: DS.attr('string')
     });
 
     Dog = DS.Model.extend({
@@ -447,6 +448,75 @@ test("the filter method can optionally take a server query as well", function() 
   var asyncFilter = store.filter('person', { page: 1 }, function(data) {
     return data.get('name') === "Tom Dale";
   });
+
+  var loadedFilter;
+
+  asyncFilter.then(async(function(filter) {
+    loadedFilter = filter;
+    return store.find('person', 2);
+  })).then(async(function(tom) {
+    equal(get(loadedFilter, 'length'), 1, "The filter has an item in it");
+    deepEqual(loadedFilter.toArray(), [ tom ], "The filter has a single entry in it");
+  }));
+});
+
+test("the filter method uses a default filter function when given a server query if none is provided", function() {
+  adapter.findQuery = function(store, type, query, array) {
+    return Ember.RSVP.resolve([
+      { id: 1, name: "Yehuda Katz" },
+      { id: 2, name: "Tom Dale" }
+    ]);
+  };
+
+  var asyncFilter = store.filter('person', { name: "Tom Dale" });
+
+  var loadedFilter;
+
+  asyncFilter.then(async(function(filter) {
+    loadedFilter = filter;
+    return store.find('person', 2);
+  })).then(async(function(tom) {
+    equal(get(loadedFilter, 'length'), 1, "The filter has an item in it");
+    deepEqual(loadedFilter.toArray(), [ tom ], "The filter has a single entry in it");
+  }));
+});
+
+
+test("The default filter function ignores properties that are not model attributes", function() {
+  adapter.findQuery = function(store, type, query, array) {
+    return Ember.RSVP.resolve([
+      { id: 1, name: "Yehuda Katz" },
+      { id: 2, name: "Tom Dale" }
+    ]);
+  };
+
+  var asyncFilter = store.filter('person', { name: "Tom Dale", page: 1 });
+
+  var loadedFilter;
+
+  asyncFilter.then(async(function(filter) {
+    loadedFilter = filter;
+    return store.find('person', 2);
+  })).then(async(function(tom) {
+    equal(get(loadedFilter, 'length'), 1, "The filter has an item in it");
+    deepEqual(loadedFilter.toArray(), [ tom ], "The filter has a single entry in it");
+  }));
+});
+
+test("The filter method uses keyForAttribute to correctly serialize the server query", function() {
+  env.store.serializerFor(Person).keyForAttribute = function(attr) {
+    return Ember.String.decamelize(attr);
+  }
+  adapter.findQuery = function(store, type, query, array) {
+    equal(query.full_name, "Tom Dale", "The server query is normalized");
+    equal(query.fullName, undefined, "The server query is normalized");
+    return Ember.RSVP.resolve([
+      { id: 1, fullName: "Yehuda Katz" },
+      { id: 2, fullName: "Tom Dale" }
+    ]);
+  };
+
+  var asyncFilter = store.filter('person', { fullName: "Tom Dale" });
 
   var loadedFilter;
 
