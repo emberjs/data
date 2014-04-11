@@ -332,7 +332,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     @method serialize
     @param {Object} options
-    @returns {Object} an object whose values are primitive JSON values only
+    @return {Object} an object whose values are primitive JSON values only
   */
   serialize: function(options) {
     var store = get(this, 'store');
@@ -351,7 +351,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     @method toJSON
     @param {Object} options
-    @returns {Object} A JSON representation of the object.
+    @return {Object} A JSON representation of the object.
   */
   toJSON: function(options) {
     if (!JSONSerializer) { JSONSerializer = requireModule("ember-data/lib/serializers/json_serializer")["default"]; }

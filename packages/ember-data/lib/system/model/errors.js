@@ -59,13 +59,17 @@ var Errors = Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
 
     @method errorsFor
     @param {String} attribute
-    @returns {Array}
+    @return {Array}
   */
   errorsFor: function(attribute) {
     return get(this, 'errorsByAttributeName').get(attribute);
   },
 
   /**
+    An array containing all of the error messages for this record.
+    
+    @property messages
+    @type {Array}
   */
   messages: Ember.computed.mapBy('content', 'message'),
 
@@ -190,7 +194,7 @@ var Errors = Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
 
     @method has
     @param {String} attribute
-    @returns {Boolean} true if there some errors on given attribute
+    @return {Boolean} true if there some errors on given attribute
   */
   has: function(attribute) {
     return !isEmpty(this.errorsFor(attribute));

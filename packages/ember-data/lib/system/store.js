@@ -185,7 +185,7 @@ Store = Ember.Object.extend({
 
     @property defaultAdapter
     @private
-    @returns DS.Adapter
+    @return DS.Adapter
   */
   defaultAdapter: Ember.computed('adapter', function() {
     var adapter = get(this, 'adapter');
@@ -225,7 +225,7 @@ Store = Ember.Object.extend({
     @param {String} type
     @param {Object} properties a hash of properties to set on the
       newly created record.
-    @returns {DS.Model} record
+    @return {DS.Model} record
   */
   createRecord: function(type, properties) {
     type = this.modelFor(type);
@@ -263,7 +263,7 @@ Store = Ember.Object.extend({
     @method _generateId
     @private
     @param {String} type
-    @returns {String} if the adapter can generate one, an ID
+    @return {String} if the adapter can generate one, an ID
   */
   _generateId: function(type) {
     var adapter = this.adapterFor(type);
@@ -414,7 +414,7 @@ Store = Ember.Object.extend({
     @method findByIds
     @param {String} type
     @param {Array} ids
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   findByIds: function(type, ids) {
     var store = this;
@@ -432,7 +432,7 @@ Store = Ember.Object.extend({
     @method fetchRecord
     @private
     @param {DS.Model} record
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   fetchRecord: function(record) {
     if (isNone(record)) { return null; }
@@ -550,7 +550,7 @@ Store = Ember.Object.extend({
     @method hasRecordForId
     @param {String or subclass of DS.Model} type
     @param {String|Integer} id
-    @returns {Boolean}
+    @return {Boolean}
   */
   hasRecordForId: function(type, id) {
     id = coerceId(id);
@@ -566,7 +566,7 @@ Store = Ember.Object.extend({
     @private
     @param {String or subclass of DS.Model} type
     @param {String|Integer} id
-    @returns {DS.Model} record
+    @return {DS.Model} record
   */
   recordForId: function(type, id) {
     type = this.modelFor(type);
@@ -718,7 +718,7 @@ Store = Ember.Object.extend({
     @private
     @param {DS.Model} type
     @param {DS.RecordArray} array
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   fetchAll: function(type, array) {
     var adapter = this.adapterFor(type),
@@ -1099,7 +1099,7 @@ Store = Ember.Object.extend({
 
     @method modelFor
     @param {String or subclass of DS.Model} key
-    @returns {subclass of DS.Model}
+    @return {subclass of DS.Model}
   */
   modelFor: function(key) {
     var factory;
@@ -1178,7 +1178,7 @@ Store = Ember.Object.extend({
     @method push
     @param {String or subclass of DS.Model} type
     @param {Object} data
-    @returns {DS.Model} the record that was created or
+    @return {DS.Model} the record that was created or
       updated.
   */
   push: function(type, data, _partial) {
@@ -1319,7 +1319,7 @@ Store = Ember.Object.extend({
     @param {subclass of DS.Model} type
     @param {String} id
     @param {Object} data
-    @returns {DS.Model} record
+    @return {DS.Model} record
   */
   buildRecord: function(type, id, data) {
     var typeMap = this.typeMapFor(type),
@@ -1439,7 +1439,7 @@ Store = Ember.Object.extend({
     @method adapterFor
     @private
     @param {subclass of DS.Model} type
-    @returns DS.Adapter
+    @return DS.Adapter
   */
   adapterFor: function(type) {
     var container = this.container, adapter;

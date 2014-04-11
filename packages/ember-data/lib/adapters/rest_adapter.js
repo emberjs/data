@@ -184,7 +184,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {String} id
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   find: function(store, type, id) {
     return this.ajax(this.buildURL(type.typeKey, id), 'GET');
@@ -202,7 +202,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {String} sinceToken
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   findAll: function(store, type, sinceToken) {
     var query;
@@ -229,7 +229,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} query
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   findQuery: function(store, type, query) {
     return this.ajax(this.buildURL(type.typeKey), 'GET', { data: query });
@@ -267,7 +267,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Array} ids
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   findMany: function(store, type, ids) {
     return this.ajax(this.buildURL(type.typeKey), 'GET', { data: { ids: ids } });
@@ -300,7 +300,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {DS.Model} record
     @param {String} url
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   findHasMany: function(store, record, url) {
     var host = get(this, 'host'),
@@ -339,7 +339,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {DS.Model} record
     @param {String} url
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   findBelongsTo: function(store, record, url) {
     var id   = get(record, 'id'),
@@ -362,7 +362,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {DS.Model} record
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   createRecord: function(store, type, record) {
     var data = {};
@@ -387,7 +387,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {DS.Model} record
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   updateRecord: function(store, type, record) {
     var data = {};
@@ -409,7 +409,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {DS.Model} record
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   deleteRecord: function(store, type, record) {
     var id = get(record, 'id');
@@ -430,7 +430,7 @@ var RESTAdapter = Adapter.extend({
     @method buildURL
     @param {String} type
     @param {String} id
-    @returns {String} url
+    @return {String} url
   */
   buildURL: function(type, id) {
     var url = [],
@@ -505,7 +505,7 @@ var RESTAdapter = Adapter.extend({
 
     @method pathForType
     @param {String} type
-    @returns {String} path
+    @return {String} path
   **/
   pathForType: function(type) {
     var camelized = Ember.String.camelize(type);

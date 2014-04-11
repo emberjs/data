@@ -74,7 +74,7 @@ var ActiveModelAdapter = RESTAdapter.extend({
 
     @method pathForType
     @param {String} type
-    @returns String
+    @return String
   */
   pathForType: function(type) {
     var decamelized = decamelize(type);
@@ -96,7 +96,7 @@ var ActiveModelAdapter = RESTAdapter.extend({
 
     @method ajaxError
     @param jqXHR
-    @returns error
+    @return error
   */
   ajaxError: function(jqXHR) {
     var error = this._super(jqXHR);
