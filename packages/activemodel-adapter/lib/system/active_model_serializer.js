@@ -19,7 +19,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
 
     @method keyForAttribute
     @param {String} attribute
-    @returns String
+    @return String
   */
   keyForAttribute: function(attr) {
     return decamelize(attr);
@@ -32,7 +32,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @method keyForRelationship
     @param {String} key
     @param {String} kind
-    @returns String
+    @return String
   */
   keyForRelationship: function(key, kind) {
     key = decamelize(key);
@@ -45,7 +45,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     }
   },
 
-  /**
+  /*
     Does not serialize hasMany relationships by default.
   */
   serializeHasMany: Ember.K,
@@ -86,7 +86,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
 
     @method typeForRoot
     @param {String} root
-    @returns String the model's typeKey
+    @return String the model's typeKey
   */
   typeForRoot: function(root) {
     var camelized = camelize(root);
@@ -124,7 +124,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param {subclass of DS.Model} type
     @param {Object} hash
     @param {String} prop
-    @returns Object
+    @return Object
   */
 
   normalize: function(type, hash, prop) {
