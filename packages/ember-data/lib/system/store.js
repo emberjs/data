@@ -1186,7 +1186,7 @@ Store = Ember.Object.extend({
     // If passed, it means that the data should be
     // merged into the existing data, not replace it.
 
-    Ember.assert("You must include an `id` in a hash passed to `push`", data.id != null);
+    Ember.assert("You must include an `id` for " + type + " in a hash passed to `push`", data.id != null);
 
     type = this.modelFor(type);
 
@@ -1275,7 +1275,7 @@ Store = Ember.Object.extend({
     @return {DS.Model} the record that was updated.
   */
   update: function(type, data) {
-    Ember.assert("You must include an `id` in a hash passed to `update`", data.id != null);
+    Ember.assert("You must include an `id` for " + type + " in a hash passed to `update`", data.id != null);
 
     return this.push(type, data, true);
   },
