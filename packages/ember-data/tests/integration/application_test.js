@@ -21,7 +21,7 @@ module("integration/application - Injecting a Custom Store", {
         FooController: Controller.extend(),
         ApplicationView: View.extend(),
         BazController: {},
-        ApplicationController: View.extend()
+        ApplicationController: Controller.extend()
       });
     });
 
@@ -70,7 +70,7 @@ module("integration/application - Injecting the Default Store", {
         FooController: Controller.extend(),
         ApplicationView: View.extend(),
         BazController: {},
-        ApplicationController: View.extend()
+        ApplicationController: Controller.extend()
       });
     });
 
