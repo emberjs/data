@@ -3,6 +3,7 @@ node_js:
   - "0.10"
 install:
 - "bin/cached-npm install"
+- "npm install -g grunt-cli" #TODO - # Bash, ~/.bashrc eval "$(grunt --completion=bash)"
 - "bower install"
 script: grunt test:all
 after_success: grunt dist publish
