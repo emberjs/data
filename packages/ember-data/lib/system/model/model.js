@@ -306,7 +306,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     ```
 
     @property errors
-    @type {Object}
+    @type {DS.Errors}
   */
   errors: Ember.computed(function() {
     var errors = Errors.create();
