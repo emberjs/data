@@ -32,7 +32,7 @@ module.exports = function(grunt){
   grunt.registerTask('test:canary',  ['test:server', 'qunit:canary']);
   grunt.registerTask('test:all',     ['test:server', 'qunit:local', 'qunit:release', 'qunit:beta', 'qunit:canary']);
 
-  grunt.registerTask('dev', [ 'test:server', 'watch' ]);
+  grunt.registerTask('dev', [ 'test:server', 'open', 'watch' ]);
   grunt.registerTask('server', 'dev');
 
   grunt.registerTask('dist', ['buildPackages', 'emberDefeatureify:stripDebug', 'uglify:dist']);
