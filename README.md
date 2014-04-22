@@ -31,6 +31,10 @@ A [guide is provided on the Ember.js site](http://emberjs.com/guides/models/) th
 
 #### Getting ember-data
 
+```no-highlight
+bower install ember-data --save
+```
+
 The latest passing build from the "master" branch is available on [http://emberjs.com/builds/#/canary](http://emberjs.com/builds/#/canary).
 
 Similarly the latest passing build from the "beta" branch can be found on [http://emberjs.com/builds/#/beta](http://emberjs.com/builds/#/beta)
