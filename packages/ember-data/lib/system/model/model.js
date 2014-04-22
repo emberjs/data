@@ -182,9 +182,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   isNew: retrieveFromCurrentState,
   /**
-    If this property is `true` the record is in the `valid` state. A
-    record will be in the `valid` state when no client-side
-    validations have failed and the adapter did not report any
+    If this property is `true` the record is in the `valid` state.
+
+    A record will be in the `valid` state when the adapter did not report any
     server-side validation failures.
 
     @property isValid
