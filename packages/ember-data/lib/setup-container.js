@@ -6,11 +6,7 @@ import setupActiveModelContainer from '../../../activemodel-adapter/lib/setup-co
 
 /**
   @module ember-data
-*/
 
-var set = Ember.set;
-
-/*
   This code registers an injection for Ember.Application.
 
   If an Ember.js developer defines a subclass of DS.Store on their application,

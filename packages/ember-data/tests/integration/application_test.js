@@ -6,7 +6,7 @@ var run = Ember.run,
     Namespace = Ember.Namespace,
     Object = Ember.Object;
 
-var app, container;
+var app, App, container;
 
 /**
   These tests ensure that Ember Data works with Ember.js' application
@@ -94,4 +94,82 @@ test("If a store is instantiated, it should be made available to each controller
 
 test("the DS namespace should be accessible", function() {
   ok(Namespace.byName('DS') instanceof Namespace, "the DS namespace is accessible");
+});
+
+module("integration/application - Attaching initializer", {
+  setup: function() {
+    App = Application.extend();
+  },
+
+  teardown: function() {
+    if (app) {
+      run(app, app.destroy);
+    }
+    Ember.BOOTED = false;
+  }
+});
+
+test("ember-data initializer is run", function(){
+  var ran = false;
+  App.initializer({
+    name:       "after-ember-data",
+    after:      "ember-data",
+    initialize: function(){ ran = true; }
+  });
+
+  app = App.create();
+
+  ok(ran, 'ember-data initializer was found');
+});
+
+test("store initializer is run (DEPRECATED)", function(){
+  var ran = false;
+  App.initializer({
+    name:       "after-store",
+    after:      'store',
+    initialize: function(){ ran = true; }
+  });
+
+  app = App.create();
+
+  ok(ran, 'store initializer was found');
+});
+
+test("injectStore initializer is run (DEPRECATED)", function(){
+  var ran = false;
+  App.initializer({
+    name:       "after-store",
+    after:      'injectStore',
+    initialize: function(){ ran = true; }
+  });
+
+  app = App.create();
+
+  ok(ran, 'injectStore initializer was found');
+});
+
+test("transforms initializer is run (DEPRECATED)", function(){
+  var ran = false;
+  App.initializer({
+    name:       "after-store",
+    after:      'transforms',
+    initialize: function(){ ran = true; }
+  });
+
+  app = App.create();
+
+  ok(ran, 'transforms initializer was found');
+});
+
+test("activeModelAdapter initializer is run (DEPRECATED)", function(){
+  var ran = false;
+  App.initializer({
+    name:       "after-store",
+    after:      'activeModelAdapter',
+    initialize: function(){ ran = true; }
+  });
+
+  app = App.create();
+
+  ok(ran, 'activeModelAdapter initializer was found');
 });
