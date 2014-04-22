@@ -1,5 +1,10 @@
 # Ember Data Changelog
 
+### Master
+
+* Introduce `DS._setupContainer()` for use in testing
+* Deprecate the 5 Ember initializers, use just one named "ember-data"
+
 ### Ember Data 1.0.0-beta.7 _(February 19, 2014)_
 
 * Release 1.0.0-beta.7
