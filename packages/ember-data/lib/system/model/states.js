@@ -347,6 +347,11 @@ var DirtyState = {
 
     becomeDirty: Ember.K,
 
+    willCommit: function(record) {
+      get(record, 'errors').clear();
+      record.transitionTo('inFlight');
+    },
+
     rolledBack: function(record) {
       get(record, 'errors').clear();
     },
