@@ -257,6 +257,49 @@ test("extractSingle with embedded objects of same type, but from separate attrib
   equal(env.store.recordForId("superVillain", "4").get("firstName"), "Erik", "Secondary records found in the store");
 });
 
+test("extractSingle with mutiply-nested belongsTo", function() {
+  env.container.register('adapter:evilMinion', DS.ActiveModelAdapter);
+  env.container.register('serializer:evilMinion', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      superVillain: {embedded: 'always'}
+    }
+  }));
+  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      homePlanet: {embedded: 'always'}
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:evilMinion");
+  var json_hash = {
+    evil_minion: {
+      id: "1",
+      name: "Alex",
+      super_villain: {
+        id: "1",
+        first_name: "Tom",
+        last_name: "Dale",
+        evil_minion_ids: ["1"],
+        home_planet: {
+          id: "1",
+          name: "Umber",
+          super_villain_ids: ["1"]
+        }
+      }
+    }
+  };
+  var json = serializer.extractSingle(env.store, EvilMinion, json_hash);
+
+  deepEqual(json, {
+    id: "1",
+    name: "Alex",
+    superVillain: "1"
+  }, "Primary array was correct");
+
+  equal(env.store.recordForId("superVillain", "1").get("firstName"), "Tom", "Secondary records found in the steore");
+  equal(env.store.recordForId("homePlanet", "1").get("name"), "Umber", "Secondary records found in the store");
+});
+
 test("extractArray with embedded objects", function() {
   env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
   env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {

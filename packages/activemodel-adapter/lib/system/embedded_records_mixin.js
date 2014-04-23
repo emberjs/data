@@ -92,7 +92,7 @@ function updatePayloadWithEmbedded(store, serializer, type, partial, payload) {
         serializer = store.serializerFor(relationship.type.typeKey),
         primaryKey = get(serializer, "primaryKey");
 
-    if (relationship.kind !== "hasMany") {
+    if (relationship.kind !== "hasMany" && relationship.kind !== "belongsTo") {
       return;
     }
 
@@ -109,15 +109,24 @@ function updatePayloadWithEmbedded(store, serializer, type, partial, payload) {
       }
 
       payload[embeddedTypeKey] = payload[embeddedTypeKey] || [];
+      var embeddedType = store.modelFor(relationship.type.typeKey);
 
-      forEach(partial[attribute], function(data) {
-        var embeddedType = store.modelFor(relationship.type.typeKey);
+      if (relationship.kind === "hasMany") {
+        forEach(partial[attribute], function(data) {
+          updatePayloadWithEmbedded(store, serializer, embeddedType, data, payload);
+          ids.push(data[primaryKey]);
+          payload[embeddedTypeKey].push(data);
+        });
+
+        partial[expandedKey] = ids;
+      } else {
+        var data = partial[attribute];
         updatePayloadWithEmbedded(store, serializer, embeddedType, data, payload);
-        ids.push(data[primaryKey]);
+        var id = data[primaryKey];
         payload[embeddedTypeKey].push(data);
-      });
+        partial[expandedKey] = id;
+      }
 
-      partial[expandedKey] = ids;
       delete partial[attribute];
     }
   }, serializer);
