@@ -500,8 +500,7 @@ var RESTSerializer = JSONSerializer.extend({
   extractArray: function(store, primaryType, payload) {
     payload = this.normalizePayload(primaryType, payload);
 
-    var primaryTypeName = primaryType.typeKey,
-        primaryArray;
+    var primaryArray;
 
     for (var prop in payload) {
       var typeKey = prop,
@@ -515,7 +514,7 @@ var RESTSerializer = JSONSerializer.extend({
       var typeName = this.typeForRoot(typeKey),
           type = store.modelFor(typeName),
           typeSerializer = store.serializerFor(type),
-          isPrimary = (!forcedSecondary && (type.typeKey === primaryTypeName));
+          isPrimary = (!forcedSecondary && (type.typeKey === primaryType.typeKey));
 
       /*jshint loopfunc:true*/
       var normalizedArray = map.call(payload[prop], function(hash) {
