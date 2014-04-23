@@ -352,6 +352,50 @@ test("if a created record is marked as invalid by the server, it enters an error
   });
 });
 
+test("if a created record is marked as invalid by the server, you can attempt the save again", function() {
+  var saveCount = 0;
+  adapter.createRecord = function(store, type, record) {
+    equal(type, Person, "the type is correct");
+    saveCount++;
+
+    if (get(record, 'name').indexOf('Bro') === -1) {
+      return Ember.RSVP.reject(new DS.InvalidError({ name: ['common... name requires a "bro"'] }));
+    } else {
+      return Ember.RSVP.resolve();
+    }
+  };
+
+  var yehuda = store.createRecord('person', { id: 1, name: "Yehuda Katz" });
+
+  // Wrap this in an Ember.run so that all chained async behavior is set up
+  // before flushing any scheduled behavior.
+  Ember.run(function() {
+    yehuda.save().then(null, async(function(reason) {
+      equal(saveCount, 1, "The record has been saved once");
+      ok(reason.message.match("The backend rejected the commit because it was invalid"), "It should fail due to being invalid");
+      equal(get(yehuda, 'isValid'), false, "the record is invalid");
+      equal(get(yehuda, 'isDirty'), true, "the record has outstanding changes");
+      ok(get(yehuda, 'errors.name'), "The errors.name property exists");
+      equal(get(yehuda, 'isNew'), true, "precond - record is still new");
+      return yehuda.save();
+    })).then(null, async(function(reason) {
+      equal(saveCount, 2, "The record has been saved twice");
+      ok(reason.message.match("The backend rejected the commit because it was invalid"), "It should fail due to being invalid");
+      equal(get(yehuda, 'isValid'), false, "the record is still invalid");
+      equal(get(yehuda, 'isDirty'), true, "the record has outstanding changes");
+      ok(get(yehuda, 'errors.name'), "The errors.name property exists");
+      equal(get(yehuda, 'isNew'), true, "precond - record is still new");
+      set(yehuda, 'name', 'Brohuda Brokatz');
+      return yehuda.save()
+    })).then(async(function(person) {
+      equal(saveCount, 3, "The record has been saved thrice");
+      equal(get(yehuda, 'isValid'), true, "record is valid");
+      equal(get(yehuda, 'isDirty'), false, "record is not dirty");
+      equal(get(yehuda, 'errors.isEmpty'), true, "record has no errors");
+    }));
+  });
+});
+
 test("if a created record is marked as erred by the server, it enters an error state", function() {
   adapter.createRecord = function(store, type, record) {
     return Ember.RSVP.reject();
@@ -408,6 +452,55 @@ test("if an updated record is marked as invalid by the server, it enters an erro
     }));
   });
 });
+
+
+test("if an updated record is marked as invalid by the server, you can attempt the save again", function() {
+  var saveCount = 0;
+  adapter.updateRecord = function(store, type, record) {
+    equal(type, Person, "the type is correct");
+    saveCount++;
+    if (get(record, 'name').indexOf('Bro') === -1) {
+      return Ember.RSVP.reject(new DS.InvalidError({ name: ['common... name requires a "bro"'] }));
+    } else {
+      return Ember.RSVP.resolve();
+    }
+  };
+
+  var yehuda = store.push('person', { id: 1, name: "Brohuda Brokatz" });
+
+  Ember.run(function() {
+    store.find('person', 1).then(async(function(person) {
+      equal(person, yehuda, "The same object is passed through");
+
+      equal(get(yehuda, 'isValid'), true, "precond - the record is valid");
+      set(yehuda, 'name', "Yehuda Katz");
+      equal(get(yehuda, 'isValid'), true, "precond - the record is still valid as far as we know");
+
+      equal(get(yehuda, 'isDirty'), true, "the record is dirty");
+
+      return yehuda.save();
+    })).then(null, async(function(reason) {
+      equal(saveCount, 1, "The record has been saved once");
+      ok(reason.message.match("The backend rejected the commit because it was invalid"), "It should fail due to being invalid");
+      equal(get(yehuda, 'isDirty'), true, "the record is still dirty");
+      equal(get(yehuda, 'isValid'), false, "the record is invalid");
+      return yehuda.save();
+    })).then(null, async(function(reason) {
+      equal(saveCount, 2, "The record has been saved twice");
+      ok(reason.message.match("The backend rejected the commit because it was invalid"), "It should fail due to being invalid");
+      equal(get(yehuda, 'isValid'), false, "record is still invalid");
+      equal(get(yehuda, 'isDirty'), true, "record is still dirty");
+      set(yehuda, 'name', 'Brohuda Brokatz');
+      return yehuda.save()
+    })).then(async(function(person) {
+      equal(saveCount, 3, "The record has been saved thrice");
+      equal(get(yehuda, 'isValid'), true, "record is valid");
+      equal(get(yehuda, 'isDirty'), false, "record is not dirty");
+      equal(get(yehuda, 'errors.isEmpty'), true, "record has no errors");
+    }));
+  });
+});
+
 
 test("if a updated record is marked as erred by the server, it enters an error state", function() {
   adapter.updateRecord = function(store, type, record) {

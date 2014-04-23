@@ -681,6 +681,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
   adapterDidCommit: function(data) {
     set(this, 'isError', false);
 
+    var recordErrors = get(this, 'errors');
+    recordErrors.clear(true);
+
     if (data) {
       this._data = data;
     } else {
@@ -978,6 +981,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   adapterDidInvalidate: function(errors) {
     var recordErrors = get(this, 'errors');
+    recordErrors.clear(true);
     function addError(name) {
       if (errors[name]) {
         recordErrors.add(name, errors[name]);

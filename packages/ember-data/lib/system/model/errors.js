@@ -179,14 +179,18 @@ var Errors = Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     to the record.
 
     @method clear
+    @param {Boolean} keepState don't automatically transition to valid state after
+    clearing errors
   */
-  clear: function() {
+  clear: function(keepState) {
     if (get(this, 'isEmpty')) { return; }
 
     get(this, 'content').clear();
     this.enumerableContentDidChange();
 
-    this.trigger('becameValid');
+    if(!keepState) {
+      this.trigger('becameValid');
+    }
   },
 
   /**
