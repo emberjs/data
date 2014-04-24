@@ -5,7 +5,7 @@
   @module ember-data
 */
 
-import Adapter from "./adapter";
+import {InvalidError, Adapter} from "./adapter";
 var get = Ember.get, set = Ember.set;
 var once = Ember.run.once;
 var isNone = Ember.isNone;
@@ -1778,7 +1778,7 @@ function _commit(adapter, store, operation, record) {
     store.didSaveRecord(record, payload);
     return record;
   }, function(reason) {
-    if (reason instanceof DS.InvalidError) {
+    if (reason instanceof InvalidError) {
       store.recordWasInvalid(record, reason.errors);
     } else {
       store.recordWasError(record, reason);
