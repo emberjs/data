@@ -112,3 +112,26 @@ test("serializePolymorphicType", function() {
     postTYPE: "post"
   });
 });
+
+
+test("serializeHasMany", function() {
+  Post.reopen({
+    comments: DS.hasMany('comment')
+  });
+
+  post = env.store.createRecord(Post, { title: "Rails is omakase", id: "1"});
+  comment = env.store.createRecord(Comment, { body: "Omakase is delicious", post: post});
+  post.get('comments').addObject(comment);
+
+  deepEqual(post.get('comments.content'),
+    [comment]
+  );
+
+  var json = {};
+
+  env.serializer.serializeHasMany(post, json, {key: "comments", options: {}});
+
+  deepEqual(json, {
+    comments: [comment.get('id')]
+  });
+});

@@ -264,7 +264,8 @@ test("serializeIntoHash", function() {
 
   deepEqual(json, {
     homePlanet: {
-      name: "Umber"
+      name: "Umber",
+      superVillains: []
     }
   });
 });
@@ -278,7 +279,8 @@ test("serializeIntoHash with decamelized typeKey", function() {
 
   deepEqual(json, {
     homePlanet: {
-      name: "Umber"
+      name: "Umber",
+      superVillains: []
     }
   });
 });
