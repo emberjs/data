@@ -59,11 +59,13 @@ You also have the option to build ember-data.js yourself.  Clone the repository,
 
 2. Install grunt and bower. `npm install -g grunt-cli bower`
 
-3. Run `npm install && bower install` inside the project root to install the JS dependencies.
+3. Run `npm install` inside the project root to install the JS dependencies.
 
 ### In Your Browser
 
 1. To start the development server, run `grunt dev`.
+
+2. Visit http://localhost:9997/tests
 
 ### From the CLI
 
