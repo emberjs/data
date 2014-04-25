@@ -52,13 +52,13 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
 
     @method extractSingle
   */
-  extractSingle: function(store, primaryType, payload, recordId, requestType) {
+  extractSingle: function(store, primaryType, payload, recordId) {
     var root = this.keyForAttribute(primaryType.typeKey),
         partial = payload[root];
 
     updatePayloadWithEmbedded(store, this, primaryType, partial, payload);
 
-    return this._super(store, primaryType, payload, recordId, requestType);
+    return this._super(store, primaryType, payload, recordId);
   },
 
   /**

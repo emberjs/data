@@ -310,12 +310,12 @@ var RESTSerializer = JSONSerializer.extend({
     ```js
     App.PostSerializer = DS.RESTSerializer.extend({
       // First, restructure the top-level so it's organized by type
-      extractSingle: function(store, type, payload, id, requestType) {
+      extractSingle: function(store, type, payload, id) {
         var comments = payload._embedded.comment;
         delete payload._embedded;
 
         payload = { comments: comments, post: payload };
-        return this._super(store, type, payload, id, requestType);
+        return this._super(store, type, payload, id);
       },
 
       normalizeHash: {
@@ -345,13 +345,12 @@ var RESTSerializer = JSONSerializer.extend({
 
     @method extractSingle
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} primaryType
     @param {Object} payload
-    @param {String} id
-    @param {'find'|'createRecord'|'updateRecord'|'deleteRecord'} requestType
+    @param {String} recordId
     @return {Object} the primary response to the original request
   */
-  extractSingle: function(store, primaryType, payload, recordId, requestType) {
+  extractSingle: function(store, primaryType, payload, recordId) {
     payload = this.normalizePayload(primaryType, payload);
 
     var primaryTypeName = primaryType.typeKey,
@@ -439,7 +438,7 @@ var RESTSerializer = JSONSerializer.extend({
     App.PostSerializer = DS.RESTSerializer.extend({
       // First, restructure the top-level so it's organized by type
       // and the comments are listed under a post's `comments` key.
-      extractArray: function(store, type, payload, id, requestType) {
+      extractArray: function(store, type, payload) {
         var posts = payload._embedded.post;
         var comments = [];
         var postCache = {};
@@ -457,7 +456,7 @@ var RESTSerializer = JSONSerializer.extend({
 
         payload = { comments: comments, posts: payload };
 
-        return this._super(store, type, payload, id, requestType);
+        return this._super(store, type, payload);
       },
 
       normalizeHash: {
@@ -491,9 +490,8 @@ var RESTSerializer = JSONSerializer.extend({
 
     @method extractArray
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} primaryType
     @param {Object} payload
-    @param {'findAll'|'findMany'|'findHasMany'|'findQuery'} requestType
     @return {Array} The primary array that was returned in response
       to the original query.
   */
