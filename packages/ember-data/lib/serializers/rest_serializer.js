@@ -7,6 +7,9 @@ var get = Ember.get, set = Ember.set;
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 
+import {singularize} from "ember-inflector/lib/system/string";
+var camelize = Ember.String.camelize;
+
 function coerceId(id) {
   return id == null ? null : id+'';
 }
@@ -579,27 +582,50 @@ var RESTSerializer = JSONSerializer.extend({
   },
 
   /**
-    You can use this method to normalize the JSON root keys returned
-    into the model type expected by your store.
+    This method is used to convert each JSON root key in the payload
+    into a typeKey that it can use to look up the appropriate model for
+    that part of the payload. By default the typeKey for a model is its
+    name in camelCase, so if your JSON root key is 'fast-car' you would
+    use typeForRoot to convert it to 'fastCar' so that Ember Data finds
+    the `FastCar` model.
 
-    For example, your server may return underscored root keys rather than
-    the expected camelcased versions.
+    If you diverge from this norm you should also consider changes to
+    store._normalizeTypeKey as well.
+
+    For example, your server may return prefixed root keys like so:
+
+    ```js
+    {
+      "response-fast-car": {
+        "id": "1",
+        "name": "corvette"
+      }
+    }
+    ```
+
+    In order for Ember Data to know that the model corresponding to
+    the 'response-fast-car' hash is `FastCar` (typeKey: 'fastCar'),
+    you can override typeForRoot to convert 'response-fast-car' to
+    'fastCar' like so:
 
     ```js
     App.ApplicationSerializer = DS.RESTSerializer.extend({
       typeForRoot: function(root) {
-        var camelized = Ember.String.camelize(root);
-        return Ember.String.singularize(camelized);
+        // 'response-fast-car' should become 'fast-car'
+        var subRoot = root.substring(9);
+
+        // _super normalizes 'fast-car' to 'fastCar'
+        return this._super(subRoot);
       }
     });
     ```
 
     @method typeForRoot
-    @param {String} root
+    @param {String} key
     @return {String} the model's typeKey
   */
-  typeForRoot: function(root) {
-    return Ember.String.singularize(root);
+  typeForRoot: function(key) {
+    return camelize(singularize(key));
   },
 
   // SERIALIZE
@@ -752,7 +778,9 @@ var RESTSerializer = JSONSerializer.extend({
 
   /**
     You can use this method to customize the root keys serialized into the JSON.
-    By default the REST Serializer sends camelized root keys.
+    By default the REST Serializer sends the typeKey of a model, whih is a camelized
+    version of the name.
+
     For example, your server may expect underscored root objects.
 
     ```js
@@ -771,8 +799,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash: function(hash, type, record, options) {
-    var root = Ember.String.camelize(type.typeKey);
-    hash[root] = this.serialize(record, options);
+    hash[type.typeKey] = this.serialize(record, options);
   },
 
   /**
@@ -789,7 +816,7 @@ var RESTSerializer = JSONSerializer.extend({
     var key = relationship.key,
         belongsTo = get(record, key);
     key = this.keyForAttribute ? this.keyForAttribute(key) : key;
-    json[key + "Type"] = Ember.String.camelize(belongsTo.constructor.typeKey);
+    json[key + "Type"] = belongsTo.constructor.typeKey;
   }
 });
 

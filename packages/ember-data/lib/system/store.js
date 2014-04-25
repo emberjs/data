@@ -6,6 +6,7 @@
 */
 
 import {InvalidError, Adapter} from "./adapter";
+import {singularize} from "ember-inflector/lib/system/string";
 var get = Ember.get, set = Ember.set;
 var once = Ember.run.once;
 var isNone = Ember.isNone;
@@ -15,6 +16,8 @@ var map = Ember.EnumerableUtils.map;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
 var Store, PromiseObject, PromiseArray, RecordArrayManager, Model;
+
+var camelize = Ember.String.camelize;
 
 // Implementors Note:
 //
@@ -1118,10 +1121,13 @@ Store = Ember.Object.extend({
 
       factory = this.container.lookupFactory(normalizedKey);
       if (!factory) { throw new Ember.Error("No model was found for '" + key + "'"); }
-      factory.typeKey = normalizedKey.split(':', 2)[1];
+      factory.typeKey = this._normalizeTypeKey(normalizedKey.split(':', 2)[1]);
     } else {
-      // A factory already supplied.
+      // A factory already supplied. Ensure it has a normalized key.
       factory = key;
+      if (factory.typeKey) {
+        factory.typeKey = this._normalizeTypeKey(factory.typeKey);
+      }
     }
 
     factory.store = this;
@@ -1512,6 +1518,19 @@ Store = Ember.Object.extend({
     function byType(entry) {
       return map[entry].type;
     }
+  },
+
+  /**
+    All typeKeys are camelCase internally. Changing this function may
+    require changes to other normalization hooks (such as typeForRoot).
+
+    @method _normalizeTypeKey
+    @private
+    @param {String} type
+    @return {String} if the adapter can generate one, an ID
+  */
+  _normalizeTypeKey: function(key) {
+    return camelize(singularize(key));
   }
 });
 
