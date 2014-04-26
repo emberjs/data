@@ -298,3 +298,30 @@ test("Calling pushPayload without a type should use a model's serializer when no
 
   equal(person.get('firstName'), "Yehuda", "you can push raw JSON into the store");
 });
+
+test('pushPayload updates hasMany relationship on the parent', function() {
+  env.container.register('serializer:person', DS.RESTSerializer);
+  env.container.register('serializer:phone-number', DS.RESTSerializer);
+
+  var person = store.push('person', {
+    id: 'foobar',
+    firstName: 'Test',
+    lastName: 'Person',
+    phoneNumbers: []
+  });
+
+  store.pushPayload('phone-number', {
+    'phone-number': {
+      id: 'test',
+      person: 'foobar',
+      number: '123456789'
+    }
+  });
+
+  var numbers = person.get('phoneNumbers');
+  equal(numbers.length, 1, 'pushPayload pushes a record to the hasMany of the parent');
+
+  var returnedNumber = numbers.objectAt(0);
+  equal(returnedNumber.get('number'), '123456789', 'pushPayload pushes the correct record to the hasMany of the parent');
+});
+
