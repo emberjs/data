@@ -76,7 +76,13 @@ var ActiveModelSerializer = RESTSerializer.extend({
     var key = relationship.key,
         belongsTo = get(record, key);
     key = this.keyForAttribute(key);
-    json[key + "_type"] = capitalize(camelize(belongsTo.constructor.typeKey));
+
+    if (Ember.isNone(belongsTo)) {
+      json[key + "_type"] = null;
+    } else {
+      json[key + "_type"] = capitalize(camelize(belongsTo.constructor.typeKey));
+    }
+    
   },
 
   // EXTRACT

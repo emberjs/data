@@ -112,6 +112,14 @@ test("serialize polymorphicType with decamelized typeKey", function() {
   deepEqual(json["evilMinionType"], "yellowMinion");
 });
 
+test("serialize polymorphic when associated object is null", function() {
+  var ray = env.store.createRecord(DoomsdayDevice, {name: "DeathRay"});
+
+  var json = env.restSerializer.serialize(ray);
+
+  deepEqual(json["evilMinionType"], null);
+});
+
 test("extractArray can load secondary records of the same type without affecting the query count", function() {
   var json_hash = {
     comments: [{id: "1", body: "Parent Comment", root: true, children: [2, 3]}],

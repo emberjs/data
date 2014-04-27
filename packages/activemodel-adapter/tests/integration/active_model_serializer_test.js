@@ -189,6 +189,14 @@ test("serialize polymorphic when type key is not camelized", function() {
   deepEqual(json["evil_minion_type"], "YellowMinion");
 });
 
+test("serialize polymorphic when associated object is null", function() {
+  var ray = env.store.createRecord(DoomsdayDevice, {name: "DeathRay"});
+
+  var json = env.amsSerializer.serialize(ray);
+
+  deepEqual(json["evil_minion_type"], null);
+});
+
 test("extractPolymorphic hasMany", function() {
   env.container.register('adapter:yellowMinion', DS.ActiveModelAdapter);
   MediocreVillain.toString   = function() { return "MediocreVillain"; };
