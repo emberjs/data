@@ -4,7 +4,8 @@
   "namespace": "DS",
   "scripts": {
     "postinstall": "bower install",
-    "test": "grunt test"
+    "test": "grunt test:all",
+    "publish": "grunt dist publish"
   },
   "devDependencies": {
     "defeatureify": "~0.1.4",
@@ -25,9 +26,7 @@
     "grunt-ember-defeatureify": "~0.1.0",
     "aws-sdk": "~2.0.0-rc8",
     "grunt-contrib-yuidoc": "~0.5.0",
-    "lockfile": "~0.4.2"
-  },
-  "peerDependencies": {
+    "lockfile": "~0.4.2",
     "grunt-cli": "~0.1.13"
   }
 }

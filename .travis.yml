@@ -1,11 +1,11 @@
 ---
+language: node_js
 node_js:
   - "0.10"
 install:
 - "bin/cached-npm install"
 - "bower install"
-script: grunt test:all
-after_success: grunt dist publish
+after_success: npm publish
 env:
   global:
   - S3_BUILD_CACHE_BUCKET=emberjs-build-cache
