@@ -3,6 +3,7 @@
   "version": "1.0.0-beta.7+canary",
   "namespace": "DS",
   "repository": "git://github.com/emberjs/data.git",
+  "license": "MIT",
   "scripts": {
     "postinstall": "bower install",
     "test": "grunt test:all",
