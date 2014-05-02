@@ -1186,7 +1186,8 @@ Store = Ember.Object.extend({
     // If passed, it means that the data should be
     // merged into the existing data, not replace it.
 
-    Ember.assert("You must include an `id` in a hash passed to `push`", data.id != null);
+    var primaryKey = get(this.serializerFor(type), "primaryKey");
+    Ember.assert("You must include an `id` in a hash passed to `push`", data[primaryKey] != null);
 
     type = this.modelFor(type);
 
