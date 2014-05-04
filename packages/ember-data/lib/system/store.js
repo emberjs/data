@@ -517,7 +517,7 @@ Store = Ember.Object.extend({
     @param {DS.Model} owner
     @return {Promise} promise
   */
-  fetchMany: function(records, owner) {
+  fetchMany: function(manyArray, records, owner) {
     if (!records.length) { return; }
 
     // Group By Type
@@ -538,7 +538,8 @@ Store = Ember.Object.extend({
       Ember.assert("You tried to load many records but you have no adapter (for " + type + ")", adapter);
       Ember.assert("You tried to load many records but your adapter does not implement `findMany`", adapter.findMany);
 
-      promises.push(_findMany(adapter, this, type, ids, owner));
+      set(manyArray, 'isUpdating', true);
+      promises.push(_findMany(manyArray, adapter, this, type, ids, owner));
     }, this);
 
     return Ember.RSVP.all(promises);
@@ -610,7 +611,7 @@ Store = Ember.Object.extend({
         this.recordArrayManager.registerWaitingRecordArray(record, manyArray);
       }, this);
 
-      resolver.resolve(this.fetchMany(unloadedRecords, owner));
+      resolver.resolve(this.fetchMany(manyArray, unloadedRecords, owner, resolver));
     } else {
       if (resolver) { resolver.resolve(); }
       manyArray.set('isLoaded', true);
@@ -639,13 +640,20 @@ Store = Ember.Object.extend({
     @return {Promise} promise
   */
   findHasMany: function(owner, link, relationship, resolver) {
+    var manyArray = this.recordArrayManager.createManyArray(relationship.type, Ember.A([]));
+    this.fetchHasMany(manyArray, owner, link, relationship, resolver);
+    return manyArray;
+  },
+
+  fetchHasMany: function(manyArray, owner, link, relationship, resolver) {
     var adapter = this.adapterFor(owner.constructor);
 
     Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + owner.constructor + ")", adapter);
     Ember.assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", adapter.findHasMany);
 
     var records = this.recordArrayManager.createManyArray(relationship.type, Ember.A([]));
-    resolver.resolve(_findHasMany(adapter, this, owner, link, relationship));
+    set(manyArray, 'isUpdating', true);
+    resolver.resolve(_findHasMany(manyArray, adapter, this, owner, link, relationship));
     return records;
   },
 
@@ -1684,7 +1692,7 @@ function _find(adapter, store, type, id) {
   }, "DS: Extract payload of '" + type + "'");
 }
 
-function _findMany(adapter, store, type, ids, owner) {
+function _findMany(manyArray, adapter, store, type, ids, owner) {
   var promise = adapter.findMany(store, type, ids, owner),
       serializer = serializerForAdapter(adapter, type),
       label = "DS: Handle Adapter#findMany of " + type;
@@ -1695,10 +1703,12 @@ function _findMany(adapter, store, type, ids, owner) {
     Ember.assert("The response from a findMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
     store.pushMany(type, payload);
+    set(manyArray, 'isUpdating', false);
+    manyArray.trigger('didUpdate');
   }, null, "DS: Extract payload of " + type);
 }
 
-function _findHasMany(adapter, store, record, link, relationship) {
+function _findHasMany(manyArray, adapter, store, record, link, relationship) {
   var promise = adapter.findHasMany(store, record, link, relationship),
       serializer = serializerForAdapter(adapter, relationship.type),
       label = "DS: Handle Adapter#findHasMany of " + record + " : " + relationship.type;
@@ -1710,6 +1720,8 @@ function _findHasMany(adapter, store, record, link, relationship) {
 
     var records = store.pushMany(relationship.type, payload);
     record.updateHasMany(relationship.key, records);
+    set(manyArray, 'isUpdating', false);
+    manyArray.trigger('didUpdate');
   }, null, "DS: Extract payload of " + record + " : hasMany " + relationship.type);
 }
 
