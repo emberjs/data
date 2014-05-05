@@ -8,12 +8,13 @@
   Example
 
   ```javascript
-  App.RawTransform = DS.Transform.extend({
+  // Converts centigrade in the JSON to fahrenheit in the app
+  App.TemperatureTransform = DS.Transform.extend({
     deserialize: function(serialized) {
-      return serialized;
+      return (serialized *  1.8) + 32;
     },
     serialize: function(deserialized) {
-      return deserialized;
+      return (deserialized - 32) / 1.8;
     }
   });
   ```
