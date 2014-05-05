@@ -547,7 +547,7 @@ var RESTAdapter = Adapter.extend({
     @return {Object} jqXHR
   */
   ajaxError: function(jqXHR) {
-    if (jqXHR) {
+    if (jqXHR && typeof jqXHR === 'object') {
       jqXHR.then = null;
     }
 
