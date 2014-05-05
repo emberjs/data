@@ -277,7 +277,7 @@ var JSONSerializer = Ember.Object.extend({
    `serializeAttribute` can be used to customize how `DS.attr`
    properties are serialized
 
-   For example if you wanted to ensure all you attributes were always
+   For example if you wanted to ensure all your attributes were always
    serialized as properties on an `attributes` object you could
    write:
 
