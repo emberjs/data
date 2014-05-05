@@ -495,11 +495,11 @@ var RESTAdapter = Adapter.extend({
     endpoint of "/line_items/".
 
     ```js
-    DS.RESTAdapter.reopen({
+    App.ApplicationAdapter = DS.RESTAdapter.extend({
       pathForType: function(type) {
         var decamelized = Ember.String.decamelize(type);
         return Ember.String.pluralize(decamelized);
-      };
+      }
     });
     ```
 
