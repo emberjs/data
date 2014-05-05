@@ -543,3 +543,19 @@ test("async hasMany always returns a promise", function() {
     ok(tom.get('dogs') instanceof DS.PromiseArray, "dogs is a promise after save");
   }));
 });
+
+test("find - payload with an serializer-specified primary key", function() {
+  env.container.register('serializer:person', DS.JSONSerializer.extend({
+    primaryKey: '_ID_'
+  }));
+
+  adapter.find = function(store, type) {
+    equal(type, Person, "the type is correct");
+    return Ember.RSVP.resolve({ "_ID_": 1, name: "Tom Dale" });
+  };
+
+  store.find('person', 1).then(async(function(person) {
+    equal(person.get('id'), "1");
+    equal(person.get('name'), "Tom Dale");
+  }));
+});

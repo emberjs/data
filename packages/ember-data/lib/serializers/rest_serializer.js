@@ -166,7 +166,6 @@ var RESTSerializer = JSONSerializer.extend({
     @return {Object}
   */
   normalize: function(type, hash, prop) {
-    this.normalizeId(hash);
     this.normalizeAttributes(type, hash);
     this.normalizeRelationships(type, hash);
 
@@ -202,19 +201,6 @@ var RESTSerializer = JSONSerializer.extend({
   */
   normalizePayload: function(type, payload) {
     return payload;
-  },
-
-  /**
-    @method normalizeId
-    @private
-  */
-  normalizeId: function(hash) {
-    var primaryKey = get(this, 'primaryKey');
-
-    if (primaryKey === 'id') { return; }
-
-    hash.id = hash[primaryKey];
-    delete hash[primaryKey];
   },
 
   /**
