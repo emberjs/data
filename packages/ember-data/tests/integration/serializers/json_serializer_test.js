@@ -4,7 +4,8 @@ var Post, post, Comment, comment, env;
 module("integration/serializer/json - JSONSerializer", {
   setup: function() {
     Post = DS.Model.extend({
-      title: DS.attr('string')
+      title: DS.attr('string'),
+      comments: DS.hasMany('comment')
     });
     Comment = DS.Model.extend({
       body: DS.attr('string'),
@@ -110,5 +111,23 @@ test("serializePolymorphicType", function() {
   deepEqual(json, {
     post: "1",
     postTYPE: "post"
+  });
+});
+
+test("serializeHasMany", function() {
+  env.container.register('serializer:post', DS.JSONSerializer.extend({
+    keyForRelationship: function(key, type) {
+      return key.toUpperCase();
+    }
+  }));
+  post = env.store.createRecord(Post, { title: "Rails is omakase", comments: [ "2", "3" ], id: "1"});
+  comment = env.store.createRecord(Comment, { body: "Omakase is delicious", post: post, id : "2" });
+  comment = env.store.createRecord(Comment, { body: "Agreed", post: post, id : "3" });
+  var json = {};
+
+  env.container.lookup("serializer:post").serializeHasMany(post, json, {key: "comments", options: {}});
+
+  deepEqual(json, {
+    comments: [ "2", "3" ]
   });
 });
