@@ -4,6 +4,7 @@
 
 * Introduce `DS._setupContainer()` for use in testing
 * Deprecate the 5 Ember initializers, use just one named "ember-data"
+* Add a default filter function to DS.Store#filter
 
 ### Ember Data 1.0.0-beta.7 _(February 19, 2014)_
 
