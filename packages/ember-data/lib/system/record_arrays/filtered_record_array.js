@@ -55,9 +55,13 @@ var FilteredRecordArray = RecordArray.extend({
     @method updateFilter
     @private
   */
-  updateFilter: Ember.observer(function() {
+  _updateFilter: function() {
     var manager = get(this, 'manager');
     manager.updateFilter(this, get(this, 'type'), get(this, 'filterFunction'));
+  },
+
+  updateFilter: Ember.observer(function() {
+    Ember.run.once(this, this._updateFilter);
   }, 'filterFunction')
 });
 

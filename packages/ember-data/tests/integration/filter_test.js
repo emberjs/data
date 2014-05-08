@@ -108,8 +108,10 @@ test("a Record Array can update its filter", function() {
       shouldNotContain(recordArray, records.bryn);
       shouldNotContain(recordArray, dickens);
 
-      recordArray.set('filterFunction', function(hash) {
-        if (hash.get('name').match(/Katz/)) { return true; }
+      Ember.run(function() {
+        recordArray.set('filterFunction', function(hash) {
+          if (hash.get('name').match(/Katz/)) { return true; }
+        });
       });
 
       equal(get(recordArray, 'length'), 1, "The Record Array should have one object on it");
@@ -163,8 +165,10 @@ test("a Record Array can update its filter and notify array observers", function
 
     recordArray.addArrayObserver(arrayObserver);
 
-    recordArray.set('filterFunction', function(hash) {
-      if (hash.get('name').match(/Katz/)) { return true; }
+    Ember.run(function() {
+      recordArray.set('filterFunction', function(hash) {
+        if (hash.get('name').match(/Katz/)) { return true; }
+      });
     });
 
     Ember.RSVP.all([ asyncDale, asyncKatz, asyncBryn ]).then(async(function() {
@@ -437,4 +441,3 @@ test("a Record Array can update its filter after server-side creates multiple re
   serverResponds();
   equal(get(recordArray, 'length'), 5, "The record array updates when the server creates multiple records");
 });
-
