@@ -195,10 +195,12 @@ var RecordArrayManager = Ember.Object.extend({
     @method createFilteredRecordArray
     @param {Class} type
     @param {Function} filter
+    @param {Object} query (optional
     @return {DS.FilteredRecordArray}
   */
-  createFilteredRecordArray: function(type, filter) {
+  createFilteredRecordArray: function(type, filter, query) {
     var array = FilteredRecordArray.create({
+      query: query,
       type: type,
       content: Ember.A(),
       store: this.store,
