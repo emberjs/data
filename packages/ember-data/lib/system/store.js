@@ -842,9 +842,12 @@ Store = Ember.Object.extend({
   */
   filter: function(type, query, filter) {
     var promise;
+    var length = arguments.length;
+    var array;
+    var hasQuery = length === 3;
 
     // allow an optional server query
-    if (arguments.length === 3) {
+    if (hasQuery) {
       promise = this.findQuery(type, query);
     } else if (arguments.length === 2) {
       filter = query;
@@ -852,9 +855,14 @@ Store = Ember.Object.extend({
 
     type = this.modelFor(type);
 
-    var array = this.recordArrayManager
-      .createFilteredRecordArray(type, filter);
+    if (hasQuery) {
+      array = this.recordArrayManager.createFilteredRecordArray(type, filter, query);
+    } else {
+      array = this.recordArrayManager.createFilteredRecordArray(type, filter);
+    }
+
     promise = promise || Promise.cast(array);
+
 
     return promiseArray(promise.then(function() {
       return array;
