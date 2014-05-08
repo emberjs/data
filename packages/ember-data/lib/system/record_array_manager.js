@@ -224,7 +224,8 @@ var RecordArrayManager = Ember.Object.extend({
       type: type,
       query: query,
       content: Ember.A(),
-      store: this.store
+      store: this.store,
+      manager: this
     });
 
     this._adapterPopulatedRecordArrays.push(array);
