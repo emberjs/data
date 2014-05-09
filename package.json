@@ -7,7 +7,7 @@
   "scripts": {
     "postinstall": "bower install",
     "test": "grunt test:all",
-    "publish": "grunt dist publish"
+    "publish-build": "grunt dist publish"
   },
   "devDependencies": {
     "defeatureify": "~0.1.4",
