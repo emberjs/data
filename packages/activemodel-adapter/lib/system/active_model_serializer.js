@@ -140,7 +140,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     Convert `snake_cased` links  to `camelCase`
 
     @method normalizeLinks
-    @param {Object} hash
+    @param {Object} data
   */
 
   normalizeLinks: function(data){
