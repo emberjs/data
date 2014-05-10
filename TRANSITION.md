@@ -517,7 +517,7 @@ totally work.
 
 ```js
 App.PostSerializer = DS.RESTSerializer.extend({
-  extractSingle: function(store, type, payload, id, requestType) {
+  extractSingle: function(store, type, payload, id) {
     var post = {}, commentIds = [];
 
     post.id = payload.id;
@@ -536,7 +536,7 @@ App.PostSerializer = DS.RESTSerializer.extend({
     
     var post_payload = { post: post, comments: comments };
 
-    return this._super(store, type, post_payload, id, requestType);
+    return this._super(store, type, post_payload, id);
   }
 });
 ```
@@ -547,7 +547,7 @@ normalization to do on different pieces of the JSON.
 
 ```js
 App.PostSerializer = DS.RESTSerializer.extend({
-  extractSingle: function(store, type, payload, id, requestType) {
+  extractSingle: function(store, type, payload, id) {
     var post = {}, commentIds = [];
 
     post.id = payload.id;
@@ -562,7 +562,7 @@ App.PostSerializer = DS.RESTSerializer.extend({
     
     var post_payload = { post: post, comments: comments };
 
-    return this._super(store, type, post_payload, id, requestType);
+    return this._super(store, type, post_payload, id);
   },
 
   normalizeHash: {
@@ -800,7 +800,7 @@ You could handle embedded records like this:
 
 ```js
 App.PostSerializer = DS.RESTSerializer.extend({
-  extractSingle: function(store, type, payload, id, requestType) {
+  extractSingle: function(store, type, payload, id) {
     var comments = payload.post.comments,
         commentIds = comments.mapProperty('id');
 

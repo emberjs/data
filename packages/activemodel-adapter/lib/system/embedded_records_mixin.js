@@ -209,7 +209,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     }
   },
 
-  /*
+  /**
     When serializing an embedded record, modify the property (in the json payload)
     that refers to the parent record (foreign key for relationship).
 
@@ -288,7 +288,6 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     @param {subclass of DS.Model} primaryType
     @param {Object} payload
     @param {String} recordId
-    @param {'find'|'createRecord'|'updateRecord'|'deleteRecord'} requestType
     @return Object the primary response to the original request
   */
   extractSingle: function(store, primaryType, payload, recordId) {
