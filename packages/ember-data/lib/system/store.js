@@ -102,7 +102,7 @@ function coerceId(id) {
   Sockets](http://www.w3.org/TR/2009/WD-websockets-20091222/)).
 
   [pushPayload](#method_pushPayload) is a convenience wrapper for
-  `store#push` that will deserialize payloads if the model's
+  `store#push` that will deserialize payloads if the
   Serializer implements a `pushPayload` method.
 
   [update](#method_update) works like `push`, except it can handle
@@ -1209,13 +1209,9 @@ Store = Ember.Object.extend({
   /**
     Push some raw data into the store.
 
-    The data will be automatically deserialized using the
-    serializer for the `type` param.
-
     This method can be used both to push in brand new
-    records, as well as to update existing records.
-
-    You can push in more than one type of object at once.
+    records, as well as to update existing records. You
+    can push in more than one type of object at once.
     All objects should be in the format expected by the
     serializer.
 
@@ -1231,11 +1227,27 @@ Store = Ember.Object.extend({
       ]
     }
 
-    store.pushPayload('post', pushData);
+    store.pushPayload(pushData);
+    ```
+
+    By default, the data will be deserialized using a default
+    serializer (the application serializer if it exists).
+
+    Alternativly, `pushPayload` will accept a model type which
+    will determine which serializer will process the payload.
+    However, the serializer itself (processing this data via
+    `normalizePayload`) will not know which model it is
+    deserializing.
+
+    ```js
+    App.ApplicationSerializer = DS.ActiveModelSerializer;
+    App.PostSerializer = DS.JSONSerializer;
+    store.pushPayload('comment', pushData); // Will use the ApplicationSerializer
+    store.pushPayload('post', pushData); // Will use the PostSerializer
     ```
 
     @method pushPayload
-    @param {String} type
+    @param {String} type Optionally, a model used to determine which serializer will be used
     @param {Object} payload
   */
   pushPayload: function (type, payload) {
