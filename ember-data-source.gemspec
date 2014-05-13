@@ -14,5 +14,5 @@ Gem::Specification.new do |gem|
 
   gem.add_dependency "ember-source"
 
-  gem.files = %w(VERSION) + Dir['dist/ember-data*.js', 'lib/ember/data/*.rb']
+  gem.files = Dir['dist/ember-data*.js', 'lib/ember/data/*.rb']
 end
