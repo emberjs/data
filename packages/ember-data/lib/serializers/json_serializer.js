@@ -1,5 +1,6 @@
 import {RelationshipChange} from "../system/changes";
-var get = Ember.get, set = Ember.set, isNone = Ember.isNone;
+var get = Ember.get, set = Ember.set, isNone = Ember.isNone,
+    merge = Ember.merge;
 
 /**
   In Ember Data a Serializer is used to serialize and deserialize
@@ -271,6 +272,30 @@ var JSONSerializer = Ember.Object.extend({
     }, this);
 
     return json;
+  },
+
+  /**
+    You can use this method to customize the root keys serialized into the JSON.
+    By default the REST Serializer sends camelized root keys.
+    For example, your server may expect underscored root objects.
+
+    ```js
+    App.ApplicationSerializer = DS.RESTSerializer.extend({
+      serializeIntoHash: function(data, type, record, options) {
+        var root = Ember.String.decamelize(type.typeKey);
+        data[root] = this.serialize(record, options);
+      }
+    });
+    ```
+
+    @method serializeIntoHash
+    @param {Object} hash
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @param {Object} options
+  */
+  serializeIntoHash: function(hash, type, record, options) {
+    merge(hash, this.serialize(record, options));
   },
 
   /**
