@@ -187,7 +187,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     ```js
     App.ApplicationSerializer = DS.RESTSerializer.extend({
-      normalizePayload: function(type, payload) {
+      normalizePayload: function(payload) {
         delete payload.version;
         delete payload.status;
         return payload;
@@ -196,11 +196,10 @@ var RESTSerializer = JSONSerializer.extend({
     ```
 
     @method normalizePayload
-    @param {subclass of DS.Model} type
     @param {Object} payload
     @return {Object} the normalized payload
   */
-  normalizePayload: function(type, payload) {
+  normalizePayload: function(payload) {
     return payload;
   },
 
@@ -351,8 +350,7 @@ var RESTSerializer = JSONSerializer.extend({
     @return {Object} the primary response to the original request
   */
   extractSingle: function(store, primaryType, payload, recordId) {
-    payload = this.normalizePayload(primaryType, payload);
-
+    payload = this.normalizePayload(payload);
     var primaryTypeName = primaryType.typeKey,
         primaryRecord;
 
@@ -496,7 +494,7 @@ var RESTSerializer = JSONSerializer.extend({
       to the original query.
   */
   extractArray: function(store, primaryType, payload) {
-    payload = this.normalizePayload(primaryType, payload);
+    payload = this.normalizePayload(payload);
 
     var primaryTypeName = primaryType.typeKey,
         primaryArray;
@@ -562,7 +560,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} payload
   */
   pushPayload: function(store, payload) {
-    payload = this.normalizePayload(null, payload);
+    payload = this.normalizePayload(payload);
 
     for (var prop in payload) {
       var typeName = this.typeForRoot(prop),
