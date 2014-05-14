@@ -624,7 +624,7 @@ test("async hasMany always returns a promise", function() {
 
   adapter.createRecord = function(store, type, record) {
     var hash = { name: "Tom Dale" };
-    hash.dogs = Ember.A();
+    hash.dogs = [];
     hash.id = 1;
     return Ember.RSVP.resolve(hash);
   };

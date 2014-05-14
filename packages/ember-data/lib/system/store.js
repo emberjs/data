@@ -1577,7 +1577,7 @@ function deserializeRecordIds(store, data, key, relationship, ids) {
 // in the payload, so add them back in manually.
 function addUnsavedRecords(record, key, data) {
   if(record) {
-    data.pushObjects(record.get(key).filterBy('isNew'));
+    Ember.A(data).pushObjects(record.get(key).filterBy('isNew'));
   }
 }
 
