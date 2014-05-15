@@ -317,6 +317,10 @@ test("store.fetchMany should always return a promise", function() {
   var results = store.fetchMany(records, owner);
   ok(results, "A call to store.fetchMany() should return a result");
   ok(results.then, "A call to store.fetchMany() should return a promise");
+
+  results.then(function(returnedRecords) {
+    equal(returnedRecords, records, "The empty record sets should match");
+  });
 });
 
 test("store.fetchMany should not resolve until all the records are resolve", function() {
