@@ -518,7 +518,11 @@ Store = Ember.Object.extend({
     @return {Promise} promise
   */
   fetchMany: function(records, owner) {
-    if (!records.length) { return; }
+    if (!records.length) {
+      return new Ember.RSVP.Promise(function(resolve){
+        resolve(records);
+      });
+    }
 
     // Group By Type
     var recordsByTypeMap = Ember.MapWithDefault.create({
