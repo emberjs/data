@@ -6,6 +6,7 @@ var Promise = Ember.RSVP.Promise;
 import {Model} from "../model";
 import {PromiseObject} from "../store";
 import {RelationshipChange} from "../changes";
+import {relationshipFromMeta, typeForRelationshipMeta} from "../relationship-meta";
 
 /**
   @module ember-data
@@ -18,8 +19,10 @@ function asyncBelongsTo(type, options, meta) {
         promiseLabel = "DS: Async belongsTo " + this + " : " + key,
         promise;
 
+    meta.key = key;
+
     if (arguments.length === 2) {
-      Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof store.modelFor(type));
+      Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof typeForRelationshipMeta(store, meta));
       return value === undefined ? null : PromiseObject.create({
         promise: Promise.cast(value, promiseLabel)
       });
@@ -34,7 +37,7 @@ function asyncBelongsTo(type, options, meta) {
         promise: promise
       });
     } else if (link) {
-      promise = store.findBelongsTo(this, link, meta);
+      promise = store.findBelongsTo(this, link, relationshipFromMeta(store, meta));
       return PromiseObject.create({
         promise: promise
       });
@@ -105,7 +108,8 @@ function belongsTo(type, options) {
     type: type,
     isRelationship: true,
     options: options,
-    kind: 'belongsTo'
+    kind: 'belongsTo',
+    key: null
   };
 
   if (options.async) {
