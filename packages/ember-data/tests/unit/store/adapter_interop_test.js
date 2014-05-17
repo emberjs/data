@@ -306,6 +306,22 @@ test("records inside a collection view should have their ids updated", function(
   }));
 });
 
+test("store.fetchMany should always return a promise", function() {
+  var Person = DS.Model.extend();
+  var store = createStore({
+    adapter: TestAdapter.extend()
+  });
+  var owner = store.createRecord(Person);
+  var records = Ember.A([]);
+
+  var results = store.fetchMany(records, owner);
+  ok(results, "A call to store.fetchMany() should return a result");
+  ok(results.then, "A call to store.fetchMany() should return a promise");
+
+  results.then(async(function(returnedRecords) {
+    equal(returnedRecords, records, "The empty record sets should match");
+  }));
+});
 
 test("store.fetchMany should not resolve until all the records are resolve", function() {
   var Person = DS.Model.extend();
