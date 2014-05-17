@@ -1,5 +1,6 @@
 import {RelationshipChange} from "../system/changes";
-var get = Ember.get, set = Ember.set, isNone = Ember.isNone;
+var get = Ember.get, set = Ember.set, isNone = Ember.isNone,
+    map = Ember.ArrayPolyfills.map;
 
 /**
   In Ember Data a Serializer is used to serialize and deserialize
@@ -649,8 +650,11 @@ var JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Array} array An array of deserialized objects
   */
-  extractArray: function(store, type, payload) {
-    return this.normalize(type, payload);
+  extractArray: function(store, type, arrayPayload) {
+    var serializer = this;
+    return map.call(arrayPayload, function(singlePayload) {
+      return serializer.normalize(type, singlePayload);
+    });
   },
 
   /**
