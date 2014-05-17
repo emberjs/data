@@ -4,7 +4,8 @@ var Post, post, Comment, comment, env;
 module("integration/serializer/json - JSONSerializer", {
   setup: function() {
     Post = DS.Model.extend({
-      title: DS.attr('string')
+      title: DS.attr('string'),
+      comments: DS.hasMany('comment', {inverse:null})
     });
     Comment = DS.Model.extend({
       body: DS.attr('string'),
@@ -89,6 +90,23 @@ test("serializeBelongsTo respects keyForRelationship", function() {
 
   deepEqual(json, {
     POST: "1"
+  });
+});
+
+test("serializeHasMany respects keyForRelationship", function() {
+  env.container.register('serializer:post', DS.JSONSerializer.extend({
+    keyForRelationship: function(key, type) {
+      return key.toUpperCase();
+    }
+  }));
+  post = env.store.createRecord(Post, { title: "Rails is omakase", id: "1"});
+  comment = env.store.createRecord(Comment, { body: "Omakase is delicious", post: post, id: "1"});
+  var json = {};
+
+  env.container.lookup("serializer:post").serializeHasMany(post, json, {key: "comments", options: {}});
+
+  deepEqual(json, {
+    COMMENTS: ["1"]
   });
 });
 
