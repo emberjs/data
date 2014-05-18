@@ -1261,7 +1261,7 @@ Store = Ember.Object.extend({
     } else {
       serializer = this.serializerFor(type);
     }
-    serializer.pushPayload(this, payload);
+    serializer.pushPayload(this, type, payload);
   },
 
   /**

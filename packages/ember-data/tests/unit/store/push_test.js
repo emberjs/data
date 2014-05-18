@@ -249,9 +249,9 @@ test("Calling pushPayload without a type uses application serializer's pushPaylo
   expect(1);
 
   env.container.register('serializer:application', DS.RESTSerializer.extend({
-    pushPayload: function(store, payload) {
+    pushPayload: function(store, primaryType, payload) {
       ok(true, "pushPayload is called on Application serializer");
-      return this._super(store, payload);
+      return this._super(store, primaryType, payload);
     }
   }));
 
