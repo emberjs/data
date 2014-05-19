@@ -4,11 +4,14 @@
 
 import {PromiseArray} from "../store";
 var get = Ember.get, set = Ember.set, setProperties = Ember.setProperties;
+import {relationshipFromMeta, typeForRelationshipMeta} from "../relationship-meta";
 
 function asyncHasMany(type, options, meta) {
   return Ember.computed('data', function(key) {
     var relationship = this._relationships[key],
         promiseLabel = "DS: Async hasMany " + this + " : " + key;
+
+    meta.key = key;
 
     if (!relationship) {
       var resolver = Ember.RSVP.defer(promiseLabel);
@@ -16,9 +19,9 @@ function asyncHasMany(type, options, meta) {
         var link = data.links && data.links[key];
         var rel;
         if (link) {
-          rel = store.findHasMany(this, link, meta, resolver);
+          rel = store.findHasMany(this, link, relationshipFromMeta(store, meta), resolver);
         } else {
-          rel = store.findMany(this, data[key], meta.type, resolver);
+          rel = store.findMany(this, data[key], typeForRelationshipMeta(store, meta), resolver);
         }
         // cache the promise so we can use it
         // when we come back and don't need to rebuild
@@ -62,7 +65,8 @@ function hasRelationship(type, options) {
     type: type,
     isRelationship: true,
     options: options,
-    kind: 'hasMany'
+    kind: 'hasMany',
+    key: null
   };
 
   if (options.async) {
@@ -73,7 +77,7 @@ function hasRelationship(type, options) {
     return buildRelationship(this, key, options, function(store, data) {
       var records = data[key];
       Ember.assert("You looked up the '" + key + "' relationship on '" + this + "' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", Ember.A(records).everyProperty('isEmpty', false));
-      return store.findMany(this, data[key], meta.type);
+      return store.findMany(this, data[key], typeForRelationshipMeta(store, meta));
     });
   }).meta(meta).readOnly();
 }

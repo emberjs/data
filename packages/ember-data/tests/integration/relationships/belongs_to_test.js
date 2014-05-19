@@ -251,3 +251,39 @@ test("TODO (embedded): The store can serialize an embedded polymorphic belongsTo
   //equal(serialized.favourite_message.id, 1);
   //equal(serialized.favourite_message.embeddedType, 'comment');
 });
+
+test("relationshipsByName does not cache a factory", function() {
+
+  // The model is loaded up via a container. It has relationshipsByName
+  // called on it.
+  var modelViaFirstFactory = store.modelFor('user');
+  get(modelViaFirstFactory, 'relationshipsByName');
+
+  // An app is reset, or the container otherwise destroyed.
+  env.container.destroy();
+
+  // A new model for a relationship is created. Note that this may happen
+  // due to an extend call internal to MODEL_FACTORY_INJECTIONS.
+  NewMessage = Message.extend();
+  NewMessage.toString = stringify('Message');
+
+  // A new store is created.
+  env = setupStore({
+    user: User,
+    message: NewMessage
+  });
+  store = env.store;
+
+  // relationshipsByName is called again.
+  var modelViaSecondFactory = store.modelFor('user'),
+      relationshipsByName   = get(modelViaSecondFactory, 'relationshipsByName'),
+      messageType           = relationshipsByName.get('messages').type;
+
+  // A model is looked up in the store based on a string, via user input
+  var messageModelFromStore        = store.modelFor('message');
+  // And the model is lookup up internally via the relationship type
+  var messageModelFromRelationType = store.modelFor(messageType);
+
+  equal( messageModelFromRelationType, messageModelFromStore,
+         "model factory based on relationship type matches the model based on store.modelFor" );
+});
