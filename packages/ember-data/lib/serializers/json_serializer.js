@@ -408,7 +408,7 @@ var JSONSerializer = Ember.Object.extend({
         if (Ember.isNone(belongsTo)) {
           json[key + "_type"] = null;
         } else {
-          json[key + "_type"] = capitalize(camelize(belongsTo.constructor.typeKey));
+          json[key + "_type"] = belongsTo.constructor.typeKey;
         }
       }
     });
