@@ -472,11 +472,8 @@ function updatePayloadWithEmbeddedBelongsTo(serializer, store, primaryType, rela
   }
   payload[embeddedTypeKey] = payload[embeddedTypeKey] || [];
   var embeddedType = store.modelFor(relationship.type.typeKey);
-  for (var key in partial) {
-    if (partial.hasOwnProperty(key) && camelize(key) === attr) {
-      updatePayloadWithEmbedded(_serializer, store, embeddedType, payload, partial[key]);
-    }
-  }
+  // Recursive call for nested record
+  updatePayloadWithEmbedded(_serializer, store, embeddedType, payload, partial[attribute]);
   partial[expandedKey] = partial[attribute].id;
   // Need to move an embedded `belongsTo` object into a pluralized collection
   payload[embeddedTypeKey].push(partial[attribute]);
