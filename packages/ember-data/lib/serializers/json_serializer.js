@@ -129,6 +129,7 @@ var JSONSerializer = Ember.Object.extend({
   normalize: function(type, hash) {
     if (!hash) { return hash; }
 
+    this.normalizeId(hash);
     this.normalizeUsingDeclaredMapping(type, hash);
     this.applyTransforms(type, hash);
     return hash;
@@ -153,6 +154,18 @@ var JSONSerializer = Ember.Object.extend({
         }
       }
     }
+  },
+  /**
+    @method normalizeId
+    @private
+  */
+  normalizeId: function(hash) {
+    var primaryKey = get(this, 'primaryKey');
+
+    if (primaryKey === 'id') { return; }
+
+    hash.id = hash[primaryKey];
+    delete hash[primaryKey];
   },
 
   // SERIALIZE

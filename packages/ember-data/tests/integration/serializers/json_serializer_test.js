@@ -178,3 +178,28 @@ test('Serializer should respect the attrs hash when serializing records', functi
 
   equal(payload.title_payload_key, "Rails is omakase");
 });
+
+test("Serializer should respect the primaryKey attribute when extracting records", function() {
+  env.container.register('serializer:post', DS.JSONSerializer.extend({
+    primaryKey: '_ID_'
+  }));
+
+  var jsonHash = { "_ID_": 1, title: "Rails is omakase"};
+
+  post = env.container.lookup("serializer:post").extractSingle(env.store, Post, jsonHash);
+
+  equal(post.id, "1");
+  equal(post.title, "Rails is omakase");
+});
+
+test("Serializer should respect the primaryKey attribute when serializing records", function() {
+  env.container.register('serializer:post', DS.JSONSerializer.extend({
+    primaryKey: '_ID_'
+  }));
+
+  post = env.store.createRecord("post", { id: "1", title: "Rails is omakase"});
+
+  var payload = env.container.lookup("serializer:post").serialize(post, {includeId: true});
+
+  equal(payload._ID_, "1");
+});
