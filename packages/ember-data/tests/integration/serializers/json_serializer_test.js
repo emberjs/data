@@ -131,7 +131,6 @@ test("serializePolymorphicType", function() {
   });
 });
 
-
 test("extractArray normalizes each record in the array", function() {
   var postNormalizeCount = 0;
   var posts = [
@@ -148,4 +147,34 @@ test("extractArray normalizes each record in the array", function() {
 
   env.container.lookup("serializer:post").extractArray(env.store, Post, posts);
   equal(postNormalizeCount, 2, "two posts are normalized");
+});
+
+test('Serializer should respect the attrs hash when extracting records', function(){
+  env.container.register("serializer:post", DS.JSONSerializer.extend({
+    attrs: {
+      title: "title_payload_key"
+    }
+  }));
+
+  var jsonHash = {
+    title_payload_key: "Rails is omakase"
+  };
+
+  var post = env.container.lookup("serializer:post").extractSingle(env.store, Post, jsonHash);
+
+  equal(post.title, "Rails is omakase");
+});
+
+test('Serializer should respect the attrs hash when serializing records', function(){
+  env.container.register("serializer:post", DS.JSONSerializer.extend({
+    attrs: {
+      title: "title_payload_key"
+    }
+  }));
+
+  post = env.store.createRecord("post", { title: "Rails is omakase"});
+
+  var payload = env.container.lookup("serializer:post").serialize(post);
+
+  equal(payload.title_payload_key, "Rails is omakase");
 });
