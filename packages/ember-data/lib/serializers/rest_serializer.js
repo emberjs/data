@@ -179,7 +179,8 @@ var RESTSerializer = JSONSerializer.extend({
       this.normalizeHash[prop](hash);
     }
 
-    return this._super(type, hash, prop);
+    this.applyTransforms(type, hash);
+    return hash;
   },
 
   /**
@@ -217,27 +218,6 @@ var RESTSerializer = JSONSerializer.extend({
 
     hash.id = hash[primaryKey];
     delete hash[primaryKey];
-  },
-
-  /**
-    @method normalizeUsingDeclaredMapping
-    @private
-  */
-  normalizeUsingDeclaredMapping: function(type, hash) {
-    var attrs = get(this, 'attrs'), payloadKey, key;
-
-    if (attrs) {
-      for (key in attrs) {
-        payloadKey = attrs[key];
-        if (payloadKey && payloadKey.key) {
-          payloadKey = payloadKey.key;
-        }
-        if (typeof payloadKey === 'string') {
-          hash[key] = hash[payloadKey];
-          delete hash[payloadKey];
-        }
-      }
-    }
   },
 
   /**

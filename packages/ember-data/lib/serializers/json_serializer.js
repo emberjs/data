@@ -41,6 +41,35 @@ var JSONSerializer = Ember.Object.extend({
   primaryKey: 'id',
 
   /**
+    The `attrs` object can be used to declare a simple mapping between
+    property names on `DS.Model` records and payload keys in the
+    serialized JSON object representing the record. An object with the
+    propery `key` can also be used to designate the attribute's key on
+    the response payload.
+
+    Example
+
+    ```javascript
+    App.Person = DS.Model.extend({
+      firstName: DS.attr('string'),
+      lastName: DS.attr('string'),
+      occupation: DS.attr('string'),
+      admin: DS.attr('boolean')
+    });
+
+    App.PersonSerializer = DS.JSONSerializer.extend({
+      attrs: {
+        admin: 'is_admin',
+        occupation: {key: 'career'}
+      }
+    });
+    ```
+
+    @property attrs
+    @type {Object}
+  */
+
+  /**
    Given a subclass of `DS.Model` and a JSON object this method will
    iterate through each attribute of the `DS.Model` and invoke the
    `DS.Transform#deserialize` method on the matching property of the
@@ -100,8 +129,30 @@ var JSONSerializer = Ember.Object.extend({
   normalize: function(type, hash) {
     if (!hash) { return hash; }
 
+    this.normalizeUsingDeclaredMapping(type, hash);
     this.applyTransforms(type, hash);
     return hash;
+  },
+
+  /**
+    @method normalizeUsingDeclaredMapping
+    @private
+  */
+  normalizeUsingDeclaredMapping: function(type, hash) {
+    var attrs = get(this, 'attrs'), payloadKey, key;
+
+    if (attrs) {
+      for (key in attrs) {
+        payloadKey = attrs[key];
+        if (payloadKey && payloadKey.key) {
+          payloadKey = payloadKey.key;
+        }
+        if (typeof payloadKey === 'string') {
+          hash[key] = hash[payloadKey];
+          delete hash[payloadKey];
+        }
+      }
+    }
   },
 
   // SERIALIZE
