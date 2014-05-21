@@ -324,13 +324,8 @@ var RESTAdapter = Adapter.extend({
     @return {Promise} promise
   */
   findHasMany: function(store, record, url) {
-    var host = get(this, 'host'),
-        id   = get(record, 'id'),
+    var id   = get(record, 'id'),
         type = record.constructor.typeKey;
-
-    if (host && url.charAt(0) === '/' && url.charAt(1) !== '/') {
-      url = host + url;
-    }
 
     return this.ajax(this.urlPrefix(url, this.buildURL(type, id)), 'GET');
   },
@@ -484,9 +479,15 @@ var RESTAdapter = Adapter.extend({
     if (path) {
       // Absolute path
       if (path.charAt(0) === '/') {
-        if (host) {
+        if (host || namespace) {
           path = path.slice(1);
-          url.push(host);
+        }
+        if (host) { url.push(host); }
+        // We want to prepend the adapter's namespace, even when retrieving
+        // associations via links, but only if the server didn't already do it
+        // for us.
+        if (namespace && (path.substring(0, namespace.length) !== namespace)) {
+          url.push(namespace);
         }
       // Relative path
       } else if (!/^http(s)?:\/\//.test(path)) {

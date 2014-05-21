@@ -832,6 +832,49 @@ test("findHasMany - returning an array populates the array", function() {
   }));
 });
 
+test("findHasMany - honors host/namespace when configured", function() {
+  adapter.setProperties({
+    host: 'http://example.com',
+    namespace: 'api/v1'
+  });
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+
+  store.push(
+    'post',
+    {
+      id: 1,
+      name: "Rails is omakase",
+      links: { comments: '/posts/1/comments' }
+    }
+  );
+
+  store.find('post', 1).then(async(function(post) {
+    ajaxResponse({
+      comments: [
+        { id: 1, name: "FIRST" },
+        { id: 2, name: "Rails is unagi" },
+        { id: 3, name: "What is omakase?" }
+      ]
+    });
+
+    return post.get('comments');
+  })).then(async(function(comments) {
+    equal(passedUrl, 'http://example.com/api/v1/posts/1/comments');
+    equal(passedVerb, 'GET');
+    equal(passedHash, undefined);
+
+    var comment1 = store.getById('comment', 1),
+        comment2 = store.getById('comment', 2),
+        comment3 = store.getById('comment', 3);
+
+    deepEqual(comment1.getProperties('id', 'name'), { id: "1", name: "FIRST" });
+    deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });
+    deepEqual(comment3.getProperties('id', 'name'), { id: "3", name: "What is omakase?" });
+
+    deepEqual(comments.toArray(), [ comment1, comment2, comment3 ], "The correct records are in the array");
+  }));
+});
+
 test("findMany - returning sideloaded data loads the data", function() {
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
