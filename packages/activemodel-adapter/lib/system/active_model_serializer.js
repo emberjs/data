@@ -10,7 +10,56 @@ var get = Ember.get,
     capitalize = Ember.String.capitalize,
     decamelize = Ember.String.decamelize,
     underscore = Ember.String.underscore;
+/**
+  The ActiveModelSerializer is a subclass of the RESTSerializer designed to integrate
+  with a JSON API that uses an underscored naming convention instead of camelCasing.
+  It has been designed to work out of the box with the
+  [active_model_serializers](http://github.com/rails-api/active_model_serializers)
+  Ruby gem. This Serializer expects specific settings using ActiveModel::Serializers,
+  `embed :ids, include: true` which sideloads the records.
 
+  This serializer extends the DS.RESTSerializer by making consistent
+  use of the camelization, decamelization and pluralization methods to
+  normalize the serialized JSON into a format that is compatible with
+  a conventional Rails backend and Ember Data.
+
+  ## JSON Structure
+
+  The ActiveModelSerializer expects the JSON returned from your server
+  to follow the REST adapter conventions substituting underscored keys
+  for camelcased ones.
+
+  ### Conventional Names
+
+  Attribute names in your JSON payload should be the underscored versions of
+  the attributes in your Ember.js models.
+
+  For example, if you have a `Person` model:
+
+  ```js
+  App.FamousPerson = DS.Model.extend({
+    firstName: DS.attr('string'),
+    lastName: DS.attr('string'),
+    occupation: DS.attr('string')
+  });
+  ```
+
+  The JSON returned should look like this:
+
+  ```js
+  {
+    "famous_person": {
+      "first_name": "Barack",
+      "last_name": "Obama",
+      "occupation": "President"
+    }
+  }
+  ```
+
+  @class ActiveModelSerializer
+  @namespace DS
+  @extends DS.RESTSerializer
+*/
 var ActiveModelSerializer = RESTSerializer.extend({
   // SERIALIZE
 
