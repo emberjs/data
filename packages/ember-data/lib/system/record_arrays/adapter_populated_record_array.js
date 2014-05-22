@@ -37,7 +37,7 @@ var AdapterPopulatedRecordArray = RecordArray.extend({
     this.setProperties({
       content: Ember.A(records),
       isLoaded: true,
-      meta: meta
+      meta: Ember.copy(meta)
     });
 
     records.forEach(function(record) {
