@@ -5,12 +5,14 @@ var camelize = Ember.String.camelize;
 import {pluralize} from "../../../ember-inflector/lib/main";
 
 /**
-  DS.EmbeddedRecordsMixin supports serializing embedded records.
+  ## Using Embedded Records
 
-  To set up embedded records, include the mixin into a serializer then define
-  embedded (model) relationships.
+  `DS.EmbeddedRecordsMixin` supports serializing embedded records.
 
-  Below is an example of a per type serializer (post type).
+  To set up embedded records, include the mixin when extending a serializer
+  then define and configure embedded (model) relationships.
+
+  Below is an example of a per-type serializer ('post' type).
 
   ```js
   App.PostSerializer = DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
@@ -22,11 +24,54 @@ import {pluralize} from "../../../ember-inflector/lib/main";
   ```
 
   The `attrs` option for a resource `{embedded: 'always'}` is shorthand for:
-  `{serialize: 'records', deserialize: 'records'}`. Embedded records are extracted
-  from a nested document, so the default option for `deserialize` is `records`.
 
-  When serializing, a resource's `attrs` option may be set to use `ids` or `records`
-  for the `serialize` setting.
+  ```js
+  {serialize: 'records', deserialize: 'records'}
+  ```
+
+  ### Configuring Attrs
+
+  A resource's `attrs` option may be set to use `ids` or `records` for the 
+  `serialize` setting.
+
+  Embedded records are extracted from a nested document, so the default option
+  for `deserialize` is `records`.
+
+  The `attrs` property can be set on the ApplicationSerializer or a per-type
+  serializer.
+
+  In the case where embedded JSON is expected while extracting a payoad (reading)
+  the setting is `deserialize: 'records'`, there is no need to use `ids` when
+  extracting as that is the default behavior without this mixin. Likewise, to
+  embed JSON in the payload while serializing `serialize: 'records'` is the
+  setting to use. There is an option of not embedding JSON in the serialized
+  payload by using `serialize: 'ids'`.
+
+
+  ### Model Relationships
+
+  Embedded records must have a model defined to be extracted and serialized.
+
+  To successfully extract and serialize embedded records the model relationships
+  must be setup correcty See the 
+  [defining relationships](/guides/models/defining-models/#toc_defining-relationships)
+  section of the **Defining Models** guide page.
+
+  Records without an `id` property are not considered embedded records, model
+  instances must have an `id` property to be used with Ember Data.
+
+  ### Example JSON payloads, Models and Serializers
+
+  **When customizing a serializer it is imporant to grok what the cusomizations
+  are, please read the docs for the methods this mixin provides, in case you need
+  to modify to fit your specific needs.**
+
+  For example review the docs for each method of this mixin:
+
+  * [extractArray](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_extractArray)
+  * [extractSingle](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_extractSingle)
+  * [serializeBelongsTo](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_serializeBelongsTo)
+  * [serializeHasMany](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_serializeHasMany)
 
   @class EmbeddedRecordsMixin
   @namespace DS
@@ -107,7 +152,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       }
     }
   },
-  
+
   /**
     Serialize `hasMany` relationship when it is configured as embedded objects.
 
