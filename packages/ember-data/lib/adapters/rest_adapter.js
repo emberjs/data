@@ -2,8 +2,9 @@
   @module ember-data
 */
 
-import Adapter from "ember-data/system/adapter";
+import {Adapter, InvalidError} from "ember-data/system/adapter";
 var get = Ember.get;
+var set = Ember.set;
 var forEach = Ember.ArrayPolyfills.forEach;
 
 /**
@@ -730,6 +731,31 @@ export default Adapter.extend({
   },
 
   /**
+    Takes an ajax response, and returns the json payload.
+
+    By default this hook just returns the jsonPayload passed to it.
+    You might want to override it in two cases:
+
+    1. Your API might return useful results in the request headers.
+    If you need to access these, you can override this hook to copy them
+    from jqXHR to the payload object so they can be processed in you serializer.
+
+
+    2. Your API might return errors as successful responses with status code
+    200 and an Errors text or object. You can return a DS.InvalidError from
+    this hook and it will automatically reject the promise and put your record
+    into  the invald state.
+
+    @method ajaxError
+    @param  {Object} jqXHR
+    @return {Object} jqXHR
+  */
+
+  ajaxSuccess: function(jsonPayload, jqXHR) {
+    return jsonPayload;
+  },
+
+  /**
     Takes a URL, an HTTP method and a hash of data, and makes an
     HTTP request.
 
@@ -759,8 +785,13 @@ export default Adapter.extend({
     return new Ember.RSVP.Promise(function(resolve, reject) {
       var hash = adapter.ajaxOptions(url, type, options);
 
-      hash.success = function(json) {
-        Ember.run(null, resolve, json);
+      hash.success = function(json, textStatus, jqXHR) {
+        json = this.ajaxSuccess(json, jqXHR);
+        if (InvalidError.detectInstance(json)){
+          Ember.run(null, reject, json);
+        } else {
+          Ember.run(null, resolve, json);
+        }
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
