@@ -968,7 +968,9 @@ Store = Ember.Object.extend({
           adapter = this.adapterFor(record.constructor),
           operation;
 
-      if (get(record, 'isNew')) {
+      if (get(record, 'currentState.stateName') === 'root.deleted.saved') {
+        return resolver.resolve(record);
+      } else if (get(record, 'isNew')) {
         operation = 'createRecord';
       } else if (get(record, 'isDeleted')) {
         operation = 'deleteRecord';
