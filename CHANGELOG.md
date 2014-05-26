@@ -2,6 +2,7 @@
 
 ### Master
 
+* Each RecordArray gets a copy of the models's metada object instead of sharing the same meta object. Enables several paginated arrays to coexist without clobbering each other
 * Drop the `type` argument from `normalizePayload` calls. This argument was not consistently passed. Overridding the `extract` functions on the serializer is a suggested alternative if you require the model type.
 * Introduce `DS._setupContainer()` for use in testing
 * Deprecate the 5 Ember initializers, use just one named "ember-data"
