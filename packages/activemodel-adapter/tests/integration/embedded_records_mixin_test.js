@@ -844,6 +844,42 @@ test("extractSingle with multiply-nested belongsTo", function() {
   equal(env.store.recordForId("homePlanet", "1").get("name"), "Umber", "Nested Secondary record, Umber, found in the store");
 });
 
+test("Mixin can be used with RESTSerializer which does not define keyForAttribute", function() {
+  homePlanet = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
+  secretLab = env.store.createRecord(SecretLab, { minionCapacity: 5000, vicinity: "California, USA", id: "101" });
+  superVillain = env.store.createRecord(SuperVillain, {
+    id: "1", firstName: "Super", lastName: "Villian", homePlanet: homePlanet, secretLab: secretLab
+  });
+  secretWeapon = env.store.createRecord(SecretWeapon, { id: "1", name: "Secret Weapon", superVillain: superVillain });
+  superVillain.get('secretWeapons').pushObject(secretWeapon);
+  evilMinion = env.store.createRecord(EvilMinion, { id: "1", name: "Evil Minion", superVillian: superVillain });
+  superVillain.get('evilMinions').pushObject(evilMinion);
+
+  env.container.register('serializer:evilMinion', DS.RESTSerializer);
+  env.container.register('serializer:secretWeapon', DS.RESTSerializer);
+  env.container.register('serializer:superVillain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      evilMinions: {serialize: 'records', deserialize: 'records'}
+    }
+  }));
+  var serializer = env.container.lookup("serializer:superVillain");
+
+  var json = serializer.serialize(superVillain);
+  deepEqual(json, {
+    firstName: get(superVillain, "firstName"),
+    lastName: get(superVillain, "lastName"),
+    homePlanet: "123",
+    evilMinions: [{
+      id: get(evilMinion, "id"),
+      name: get(evilMinion, "name"),
+      superVillain: "1"
+    }],
+    secretLab: "101"
+    // "manyToOne" relation does not serialize ids
+    // sersecretWeapons: ["1"]
+  });
+});
+
 test("serializing relationships with an embedded and without calls super when not attr not present", function() {
   homePlanet = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
   secretLab = env.store.createRecord(SecretLab, { minionCapacity: 5000, vicinity: "California, USA", id: "101" });
@@ -858,18 +894,6 @@ test("serializing relationships with an embedded and without calls super when no
   var calledSerializeBelongsTo = false, calledSerializeHasMany = false;
 
   var Serializer = DS.RESTSerializer.extend({
-    keyForAttribute: function(attr) {
-      return camelize(attr);
-    },
-    keyForRelationship: function(key, kind) {
-      key = camelize(key);
-      if (kind === "belongsTo") {
-        key += "Id";
-      } else if (kind === "hasMany") {
-        key = singularize(key) + "Ids";
-      }
-      return key;
-    },
     serializeBelongsTo: function(record, json, relationship) {
       calledSerializeBelongsTo = true;
       return DS.RESTSerializer.prototype.serializeBelongsTo.call(this, record, json, relationship);
@@ -880,7 +904,6 @@ test("serializing relationships with an embedded and without calls super when no
       var payloadKey = this.keyForRelationship ? this.keyForRelationship(key, "hasMany") : key;
       var relationshipType = DS.RelationshipChange.determineRelationshipType(record.constructor, relationship);
       // "manyToOne" not supported in DS.RESTSerializer.prototype.serializeHasMany
-      // See: https://github.com/emberjs/data/pull/1751#issuecomment-43424605
       var relationshipTypes = Ember.String.w('manyToNone manyToMany manyToOne');
       if (indexOf(relationshipTypes, relationshipType) > -1) {
         json[payloadKey] = get(record, key).mapBy('id');
@@ -902,14 +925,15 @@ test("serializing relationships with an embedded and without calls super when no
   deepEqual(json, {
     firstName: get(superVillain, "firstName"),
     lastName: get(superVillain, "lastName"),
-    homePlanetId: "123",
+    homePlanet: "123",
     evilMinions: [{
       id: get(evilMinion, "id"),
       name: get(evilMinion, "name"),
-      superVillainId: "1"
+      superVillain: "1"
     }],
-    secretLabId: "101",
-    secretWeaponIds: ["1"]
+    secretLab: "101",
+    // customized serializeHasMany method to generate ids for "manyToOne" relation
+    secretWeapons: ["1"]
   });
   ok(calledSerializeBelongsTo);
   ok(calledSerializeHasMany);
