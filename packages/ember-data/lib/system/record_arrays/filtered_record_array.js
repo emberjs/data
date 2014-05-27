@@ -43,12 +43,48 @@ var FilteredRecordArray = RecordArray.extend({
     @param {DS.Model} record
     @return {Boolean} `true` if the record should be in the array
   */
-  filterFunction: null,
+  filterFunction: Ember.computed(function(key, value){
+    // getter
+    if (arguments.length !== 1) {
+      if(get(this, 'parentRecordArray.filterFunction')){
+        var _this = this;
+        return function(item){
+          console.log("in the combined function");
+          console.log("first function");
+          console.log(get(_this, 'parentRecordArray.filterFunction').call(_this, item));
+
+          console.log("second function");
+          console.log(get(_this, 'localFilterFunction').call(_this, item));
+
+          console.log(item._data);
+          return get(_this, 'parentRecordArray.filterFunction').call(_this, item) && get(_this, 'localFilterFunction').call(_this, item);
+        };
+      } else {
+        return get(this, 'localFilterFunction');
+      }
+    // setter
+    } else {
+      Ember.set(this, 'localFilterFunction', value);
+      return value;
+    }
+  }).property('localFilterFunction', 'parentRecordArray.filterFunction'),
+
+  localFilterFunction: null,
+  parentRecordArray: null,
   isLoaded: true,
 
   replace: function() {
     var type = get(this, 'type').toString();
     throw new Error("The result of a client-side filter (on " + type + ") is immutable.");
+  },
+
+  chain: function(filter){
+
+    var array = get(this, 'manager').createFilteredRecordArray(get(this, 'type'), filter);
+
+    array.set('parentRecordArray', this);
+
+    return array;
   },
 
   /**

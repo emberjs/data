@@ -352,6 +352,39 @@ test("it is possible to filter created records by dirtiness", function() {
   }));
 });
 
+test("it is possible to chain filters", function() {
+  store.pushMany('person', array);
+
+  var recordArray = store.filter('person', function(hash) {
+    if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
+  }).then(function(recordArray){
+    var chainedRecordArray = recordArray.chain(function(hash){
+      if (hash.get('name').match(/Scumbag K/)) { return true; }
+    });
+
+    equal(get(recordArray, 'length'), 2, "The Record Array should have the filtered objects on it");
+    equal(get(chainedRecordArray, 'length'), 1, "The Chained Record Array should have the filtered objects on it");
+
+    console.log("pushing Koz");
+    store.push('person', { id: 4, name: "Scumbag Koz" });
+    console.log("pushed Koz");
+
+    
+
+    //both failing
+    equal(get(recordArray, 'length'), 3, "The Record Array should be updated as new items are added to the store");
+    equal(get(chainedRecordArray, 'length'), 2, "The Chained Record Array should be updated as new items are added to the store");
+
+    console.log("pushing Derek");
+    store.push('person', { id: 6, name: "Scumbag Derek" });
+    console.log("pushing Derek");
+
+    //both failling
+    equal(get(recordArray, 'length'), 4, "The Record Array should be updated as more new items are added to the store");
+    equal(get(chainedRecordArray, 'length'), 2, "The Chained Record Array should not be updated as new items that fail filter are added to the store");
+  });
+});
+
 
 // SERVER SIDE TESTS
 var edited;
