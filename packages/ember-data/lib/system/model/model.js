@@ -977,15 +977,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   adapterDidInvalidate: function(errors) {
     var recordErrors = get(this, 'errors');
-    function addError(name) {
-      if (errors[name]) {
-        recordErrors.add(name, errors[name]);
-      }
-    }
-
-    this.eachAttribute(addError);
-    this.eachRelationship(addError);
-  },
+    Object.keys(errors).forEach(function(errorName) {
+      recordErrors.add(errorName, errors[errorName]);
+    });
 
   /**
     @method adapterDidError
