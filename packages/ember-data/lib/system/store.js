@@ -573,7 +573,7 @@ Store = Ember.Object.extend({
     @param {String|Integer} id
     @return {DS.Model} record
   */
-  recordForId: function(type, id) {
+  recordForId: function(type, id, data) {
     type = this.modelFor(type);
 
     id = coerceId(id);
@@ -581,7 +581,7 @@ Store = Ember.Object.extend({
     var record = this.typeMapFor(type).idToRecord[id];
 
     if (!record) {
-      record = this.buildRecord(type, id);
+      record = this.buildRecord(type, id, data);
     }
 
     return record;
@@ -1576,7 +1576,7 @@ function deserializeRecordId(store, data, key, relationship, id) {
     data[key] = store.recordForId(type, id);
   } else if (typeof id === 'object') {
     // polymorphic
-    data[key] = store.recordForId(id.type, id.id);
+    data[key] = store.recordForId(id.type || typeFor(relationship, key, data), id.id, data[key]);
   }
 }
 
