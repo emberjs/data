@@ -141,7 +141,7 @@ var FixtureAdapter = Adapter.extend({
     Ember.assert("Unable to find fixtures for model type "+type.toString(), fixtures);
 
     if (fixtures) {
-      fixture = Ember.A(fixtures).findProperty('id', id);
+      fixture = this.findFixtureById(fixtures, id);
     }
 
     if (fixture) {
@@ -164,9 +164,7 @@ var FixtureAdapter = Adapter.extend({
     Ember.assert("Unable to find fixtures for model type "+type.toString(), fixtures);
 
     if (fixtures) {
-      fixtures = fixtures.filter(function(item) {
-        return indexOf(ids, item.id) !== -1;
-      });
+      fixtures = this.filterFixturesByIds(fixtures, ids);
     }
 
     if (fixtures) {
@@ -305,12 +303,18 @@ var FixtureAdapter = Adapter.extend({
     @param id
   */
   findFixtureById: function(fixtures, id) {
-    return Ember.A(fixtures).find(function(r) {
-      if(''+get(r, 'id') === ''+id) {
-        return true;
-      } else {
-        return false;
-      }
+    return this.filterFixturesByIds(fixtures, [''+id])[0];
+  },
+
+  /*
+    @method findFixturesByIds
+    @private
+    @param fixtures
+    @param ids
+  */
+  filterFixturesByIds: function(fixtures, ids) {
+    return fixtures.filter(function(item) {
+      return indexOf(ids, item.id) !== -1;
     });
   },
 
