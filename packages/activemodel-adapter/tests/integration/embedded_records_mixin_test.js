@@ -1,6 +1,8 @@
 var get = Ember.get, set = Ember.set;
+var camelize = Ember.String.camelize;
+var singularize = Ember.String.singularize;
 var HomePlanet, SuperVillain, EvilMinion, SecretLab, SecretWeapon, Comment,
-  league, superVillain, evilMinion, secretWeapon, env;
+  league, superVillain, evilMinion, secretWeapon, homePlanet, secretLab, env;
 
 module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
   setup: function() {
@@ -461,7 +463,7 @@ test("serialize with embedded objects (hasMany relationship) supports serialize:
   var json = serializer.serialize(league);
 
   deepEqual(json, {
-    name: "Villain League",
+    name: "Villain League"
   });
 });
 
@@ -605,7 +607,7 @@ test("serialize with embedded object (belongsTo relationship) works with differe
     }
   }));
   env.container.register('serializer:secretLab', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
-    primaryKey: 'crazy_id',
+    primaryKey: 'crazy_id'
   }));
 
   var serializer = env.container.lookup("serializer:superVillain");
@@ -689,7 +691,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
     first_name: get(tom, "firstName"),
     last_name: get(tom, "lastName"),
     home_planet_id: get(tom, "homePlanet").get("id"),
-    secret_lab_id: get(tom, "secretLab").get("id"),
+    secret_lab_id: get(tom, "secretLab").get("id")
   });
 });
 
@@ -718,7 +720,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
     first_name: get(tom, "firstName"),
     last_name: get(tom, "lastName"),
     home_planet_id: get(tom, "homePlanet").get("id"),
-    secret_lab_id: get(tom, "secretLab").get("id"),
+    secret_lab_id: get(tom, "secretLab").get("id")
   });
 });
 
@@ -745,7 +747,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
   deepEqual(json, {
     first_name: get(tom, "firstName"),
     last_name: get(tom, "lastName"),
-    home_planet_id: get(tom, "homePlanet").get("id"),
+    home_planet_id: get(tom, "homePlanet").get("id")
   });
 });
 
@@ -839,4 +841,75 @@ test("extractSingle with multiply-nested belongsTo", function() {
 
   equal(env.store.recordForId("superVillain", "1").get("firstName"), "Tom", "Secondary record, Tom, found in the steore");
   equal(env.store.recordForId("homePlanet", "1").get("name"), "Umber", "Nested Secondary record, Umber, found in the store");
+});
+
+test("serializing relationships with an embedded and without calls super when not attr not present", function() {
+  homePlanet = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
+  secretLab = env.store.createRecord(SecretLab, { minionCapacity: 5000, vicinity: "California, USA", id: "101" });
+  superVillain = env.store.createRecord(SuperVillain, {
+    id: "1", firstName: "Super", lastName: "Villian", homePlanet: homePlanet, secretLab: secretLab
+  });
+  secretWeapon = env.store.createRecord(SecretWeapon, { id: "1", name: "Secret Weapon", superVillain: superVillain });
+  superVillain.get('secretWeapons').pushObject(secretWeapon);
+  evilMinion = env.store.createRecord(EvilMinion, { id: "1", name: "Evil Minion", superVillian: superVillain });
+  superVillain.get('evilMinions').pushObject(evilMinion);
+
+  var calledSerializeBelongsTo = false, calledSerializeHasMany = false;
+
+  var Serializer = DS.RESTSerializer.extend({
+    keyForAttribute: function(attr) {
+      return camelize(attr);
+    },
+    keyForRelationship: function(key, kind) {
+      key = camelize(key);
+      if (kind === "belongsTo") {
+        key += "Id";
+      } else if (kind === "hasMany") {
+        key = singularize(key) + "Ids";
+      }
+      return key;
+    },
+    serializeBelongsTo: function(record, json, relationship) {
+      calledSerializeBelongsTo = true;
+      return DS.RESTSerializer.prototype.serializeBelongsTo.call(this, record, json, relationship);
+    },
+    serializeHasMany: function(record, json, relationship) {
+      calledSerializeHasMany = true;
+      var key = relationship.key;
+      var payloadKey = this.keyForRelationship ? this.keyForRelationship(key, "hasMany") : key;
+      var relationshipType = DS.RelationshipChange.determineRelationshipType(record.constructor, relationship);
+      // "manyToOne" not supported in DS.RESTSerializer.prototype.serializeHasMany
+      // See: https://github.com/emberjs/data/pull/1751#issuecomment-43424605
+      var relationshipTypes = Ember.String.w('manyToNone manyToMany manyToOne');
+      if (relationshipTypes.indexOf(relationshipType) > -1) {
+        json[payloadKey] = get(record, key).mapBy('id');
+      }
+    }
+  });
+  env.container.register('serializer:evilMinion', Serializer);
+  env.container.register('serializer:secretWeapon', Serializer);
+  env.container.register('serializer:superVillain', Serializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      evilMinions: {serialize: 'records', deserialize: 'records'}
+      // some relationships are not listed here, so super should be called on those
+      // e.g. secretWeapons: {serialize: 'ids'}
+    }
+  }));
+  var serializer = env.container.lookup("serializer:superVillain");
+
+  var json = serializer.serialize(superVillain);
+  deepEqual(json, {
+    firstName: get(superVillain, "firstName"),
+    lastName: get(superVillain, "lastName"),
+    homePlanetId: "123",
+    evilMinions: [{
+      id: get(evilMinion, "id"),
+      name: get(evilMinion, "name"),
+      superVillainId: "1"
+    }],
+    secretLabId: "101",
+    secretWeaponIds: ["1"]
+  });
+  ok(calledSerializeBelongsTo);
+  ok(calledSerializeHasMany);
 });

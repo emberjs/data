@@ -85,10 +85,12 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
   serializeBelongsTo: function(record, json, relationship) {
     var attr = relationship.key;
     var attrs = this.get('attrs');
-
-    var includeIds = hasSerializeIdsOption(attrs, attr) || noSerializeOptionSpecified(attrs, attr);
+    if (noSerializeOptionSpecified(attrs, attr)) {
+      this._super(record, json, relationship);
+      return;
+    }
+    var includeIds = hasSerializeIdsOption(attrs, attr);
     var includeRecords = hasSerializeRecordsOption(attrs, attr);
-
     var embeddedRecord = record.get(attr);
     if (includeIds) {
       key = this.keyForRelationship(attr, relationship.kind);
@@ -107,7 +109,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       }
     }
   },
-  
+
   /**
     Serialize `hasMany` relationship when it is configured as embedded objects.
 
@@ -192,10 +194,13 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
   serializeHasMany: function(record, json, relationship) {
     var attr = relationship.key;
     var attrs = this.get('attrs');
+    if (noSerializeOptionSpecified(attrs, attr)) {
+      this._super(record, json, relationship);
+      return;
+    }
     var includeIds = hasSerializeIdsOption(attrs, attr);
     var includeRecords = hasSerializeRecordsOption(attrs, attr);
     var key;
-
     if (includeIds) {
       key = this.keyForRelationship(attr, relationship.kind);
       json[key] = get(record, attr).mapBy('id');
