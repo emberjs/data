@@ -1551,9 +1551,8 @@ function normalizeRelationships(store, type, data, record) {
         value = data[key];
 
     if (value == null) {
-      if (kind === 'hasMany') {
-        value = data[key] = Ember.A();
-        addUnsavedRecords(record, key, value);
+      if (kind === 'hasMany' && record) {
+        value = data[key] = record.get(key).toArray();
       }
       return;
     }
