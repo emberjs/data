@@ -31,29 +31,34 @@ import {pluralize} from "../../../ember-inflector/lib/main";
 
   ### Configuring Attrs
 
-  A resource's `attrs` option may be set to use `ids` or `records` for the 
-  `serialize` setting.
-
-  Embedded records are extracted from a nested document, so the default option
-  for `deserialize` is `records`.
+  A resource's `attrs` option may be set to use `ids`, `records` or `no` for the
+  `serialize`  and `deserialize` settings.
 
   The `attrs` property can be set on the ApplicationSerializer or a per-type
   serializer.
 
   In the case where embedded JSON is expected while extracting a payoad (reading)
   the setting is `deserialize: 'records'`, there is no need to use `ids` when
-  extracting as that is the default behavior without this mixin. Likewise, to
-  embed JSON in the payload while serializing `serialize: 'records'` is the
-  setting to use. There is an option of not embedding JSON in the serialized
-  payload by using `serialize: 'ids'`.
+  extracting as that is the default behavior without this mixin if you are using
+  the vanilla ActiveModelAdapter. Likewise, to embed JSON in the payload while
+  serializing `serialize: 'records'` is the setting to use. There is an option of
+  not embedding JSON in the serialized payload by using `serialize: 'ids'`. If you
+  do not want the relationship sent at all, you can use `serialize: 'no'`.
 
+
+  ### ActiveModelSerializer defaults
+  If you do not overwrite `attrs` for a specific relationship, the `ActiveModelSerializer`
+  will behave in the following way:
+
+  BelongsTo: `{serialize:'id', deserialize:'id'}`
+  HasMany:   `{serialize:no,  deserialize:'ids'}`
 
   ### Model Relationships
 
   Embedded records must have a model defined to be extracted and serialized.
 
   To successfully extract and serialize embedded records the model relationships
-  must be setup correcty See the 
+  must be setup correcty See the
   [defining relationships](/guides/models/defining-models/#toc_defining-relationships)
   section of the **Defining Models** guide page.
 
