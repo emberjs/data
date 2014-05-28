@@ -9,7 +9,6 @@
 * Introduce `DS._setupContainer()` for use in testing
 * Deprecate the 5 Ember initializers, use just one named "ember-data"
 * DS.EmbeddedRecordsMixin methods for serializing relationships call super if needed
-* Copy metadata when it is assigned to recordArrays
 * moved normalizeId to JSONSerializer
 * JSONSerializer should use the attrs hash when extracting records Also breaks the _super chain in normalize to preserve ordering in the RESTSerializer
 * Remove unnessary loop in extracting single using DS.EmbeddedRecordsMixin
@@ -28,6 +27,7 @@
 * Setting a filter function on a filteredRecordArray should only cause 1 re-filter per run-loop
 * [Bugfix] when a record which exists in an adapterPopulatedRecordArray is destroyed, it is also now removed from the array
 * [BUGFIX] Add missing support for belongsTo in DS.EmbeddedRecordsMixin
+* Add support for serializing hasMany as ids
 * incase jQuery.ajax returns a null or undefined jqXHR
 * Fixes a typo in the documentation of the serializeAttribute method of json_serializer.js
 * [DOC] `bower install` is part of `npm install`, removing it from README
@@ -41,8 +41,6 @@
 * Bring back deprecated initializers
 * Refactor Ember initializer to use DS._setupContainer
 * Fix incorrect documentation for isError.
-* add semicolons to example code
-* Fix error assertion's message
 * Explicitly define a bower install directory
 * Import 'defaultRules', fixes missing Inflector.defaultRules
 * Add an example of sending cookie information in the header and updated confusing reopen example.
