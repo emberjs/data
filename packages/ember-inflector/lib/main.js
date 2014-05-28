@@ -1,6 +1,6 @@
-import {Inflector, inflections, pluralize, singularize} from "./system";
+import {Inflector, defaultRules, pluralize, singularize} from "./system";
 
-Inflector.defaultRules = inflections;
+Inflector.defaultRules = defaultRules;
 Ember.Inflector        = Inflector;
 
 Ember.String.pluralize   = pluralize;

@@ -24,7 +24,10 @@ this bug already.
 
 3. Provide JSFiddle or JSBin demo that specifically shows the problem. This
 demo should be fully operational with the exception of the bug you want to
-demonstrate. The more pared down, the better.
+demonstrate. The more pared down, the better. A preconfigured JSFiddle with
+mocked requests is available [here][1].
+
+[1]: http://jsfiddle.net/mehulkar/Q5NPs/
 
 4. If possible, submit a Pull Request with a failing test. Better yet, take
 a stab at fixing the bug yourself if you can!

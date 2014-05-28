@@ -1,51 +1,164 @@
-## Ember Data [![Build Status](https://secure.travis-ci.org/emberjs/data.png?branch=master)](http://travis-ci.org/emberjs/data)
+## Ember Data [![Build Status](https://secure.travis-ci.org/emberjs/data.svg?branch=master)](http://travis-ci.org/emberjs/data)
 
-Ember Data is a library for loading data from a persistence layer (such as
-a JSON API), mapping this data to a set of models within your client application,
-updating those models, then saving the changes back to a persistence layer. It 
-provides many of the facilities you'd find in server-side ORMs like ActiveRecord, but is
-designed specifically for the unique environment of JavaScript in the browser.
+Ember Data is a library for robustly managing model data in your
+Ember.js applications.
 
-Ember Data provides a central Data Store, which can be configured with a range of 
-provided Adapters, but two core Adapters are provided: the RESTAdapter and FixtureAdapter. 
+Ember Data is designed to be agnostic to the underlying persistence
+mechanism, so it works just as well with JSON APIs over HTTP as it does
+with streaming WebSockets or local IndexedDB storage.
 
-The RESTAdapter is configured for use by default. You can read more about it in 
-the [Guides](http://emberjs.com/guides/models/connecting-to-an-http-server/). It provides a fully
-RESTful mechanism for communicating with your persistence layer, and is the preferred
-and recommended choice for use with Ember Data.
+It provides many of the facilities you'd find in server-side ORMs like
+ActiveRecord, but is designed specifically for the unique environment of
+JavaScript in the browser.
 
-This is definitely alpha-quality. The basics of RESTAdapter work, but there are for
-sure edge cases that are not yet handled. Please report any bugs or feature
-requests, and pull requests are always welcome.
+In particular, Ember Data uses Promises/A+-compatible promises from the
+ground up to manage loading and saving records, so integrating with
+other JavaScript APIs is easy.
 
-#### Is It Good?
+## Using Ember Data
 
-Yes.
+### Getting Ember Data
 
-#### Is It "Production Ready™"?
+```no-highlight
+bower install ember-data --save
+```
 
-No. The API should not be considered stable until 1.0. Breaking changes,
-and how to update accordingly, are listed in [`TRANSITION.md`](https://github.com/emberjs/data/blob/master/TRANSITION.md).
+The latest passing build from the "master" branch is available on
+[http://emberjs.com/builds/#/canary](http://emberjs.com/builds/#/canary).
 
-A [guide is provided on the Ember.js site](http://emberjs.com/guides/models/) that is accurate as of Ember Data 1.0 beta.
+Similarly the latest passing build from the "beta" branch can be found
+on [http://emberjs.com/builds/#/beta](http://emberjs.com/builds/#/beta)
 
-#### Getting ember-data
+You also have the option to build ember-data.js yourself.  Clone the
+repository, run `grunt buildPackages` after [setup](#setup). You'll find
+ember-data.js in the `dist` directory.
 
-The latest passing build from the "master" branch is available on [http://emberjs.com/builds/#/canary](http://emberjs.com/builds/#/canary).
+### Instantiating the Store
 
-Similarly the latest passing build from the "beta" branch can be found on [http://emberjs.com/builds/#/beta](http://emberjs.com/builds/#/beta)
+In Ember Data, the _store_ is responsible for managing the lifecycle of
+your models. Every time you need a model or a collection of models,
+you'll ask the store for it.
 
+To create a store, you don't need to do anything. Just by loading the
+Ember Data library, all of the routes and controllers in your
+application will get a new `store` property. This property is an
+instance of `DS.Store` that will be shared across all of the routes and
+controllers in your app.
 
-You also have the option to build ember-data.js yourself.  Clone the repository, run `grunt buildPackages` after [setup](#setup). You'll find ember-data.js in the `dist` directory.
+### Defining Your Models
 
-#### Roadmap
+First thing's first: tell Ember Data about the models in your
+application. For example, imagine we're writing a blog reader app.
+Here's what your model definition would look like if you're using
+globals (that is, not something like Ember App Kit or ember-cli):
 
-* Handle error states
-* Better built-in attributes
-* Editing "forked" records
-* Out-of-the-box support for Rails apps that follow the
-  [`active_model_serializers`](https://github.com/rails-api/active_model_serializers) gem's conventions.
-* Handle partially-loaded records
+```js
+var attr = DS.attr,
+    hasMany = DS.hasMany,
+    belongsTo = DS.belongsTo;
+
+App.BlogPost = DS.Model.extend({
+  title: attr(),
+  createdAt: attr('date'),
+
+  comments: hasMany('comment')
+});
+
+App.Comment = DS.Model.extend({
+  body: attr(),
+  username: attr(),
+
+  post: belongsTo('blogPost')
+});
+```
+
+If you're using ES6 modules (via Ember App Kit or ember-cli), your
+models would look like this:
+
+```js
+// app/models/blog-post.js
+var attr = DS.attr,
+    hasMany = DS.hasMany;
+
+export default DS.Model.extend({
+  title: attr(),
+  createdAt: attr('date'),
+
+  comments: hasMany('comment')
+});
+
+// app/models/comment.js
+var attr = DS.attr,
+    belongsTo = DS.belongsTo;
+
+export default DS.Model.extend({
+  body: attr(),
+  username: attr(),
+
+  post: belongsTo('blogPost')
+});
+```
+
+### A Brief Note on Adapters
+
+Without immediately diving in to the depths of the architecture, one
+thing you _should_ know is that Ember Data uses an object called an
+_adapter_ to know how to talk to your server.
+
+An adapter is just an object that knows how to translate requests from
+Ember Data into requests on your server. For example, if I ask the Ember
+Data store for a record of type `person` with an ID of `123`, the
+adapter translates that into an XHR request to (for example)
+`api.example.com/v3/person/123.json`.
+
+By default, Ember Data will use the `RESTAdapter`, which adheres to a
+set of RESTful JSON conventions.
+
+Ember Data also ships with the `FixtureAdapter`, useful for testing and
+prototyping before you have a server, and the `ActiveModelAdapter`,
+which is designed to work out-of-the-box with the
+[`ActiveModel::Serializers`](https://github.com/rails-api/active_model_serializers)
+gem for Rails.
+
+To learn more about adapters, including what conventions the
+`RESTAdapter` follows and how to build your own, see the Ember.js
+Guides: [Connecting to an HTTP
+Server](http://emberjs.com/guides/models/connecting-to-an-http-server/).
+
+### Fetching a Collection of Models
+
+From your route or controller:
+
+```js
+this.store.find('blogPost');
+```
+
+This returns a promise that resolves to the collection of records.
+
+### Fetching a Single Model
+
+```js
+this.store.find('blogPost', 123);
+```
+
+This returns a promise that resolves to the requested record. If the
+record can't be found or there was an error during the request, the
+promise will be rejected.
+
+### Even More Documentation
+
+For much more detail on how to use Ember Data, see the [Ember.js Guides
+on models](http://emberjs.com/guides/models/).
+
+## API Stability
+
+Ember Data is still under active development and is currently beta
+quality. That being said, the API has largely stabilized and many
+companies are using it in production.
+
+For details on anticipated changes before the 1.0 release, see the blog
+post [The Road to Ember Data
+1.0](http://emberjs.com/blog/2014/03/18/the-road-to-ember-data-1-0.html).
 
 ## How to Run Unit Tests
 
@@ -55,11 +168,13 @@ You also have the option to build ember-data.js yourself.  Clone the repository,
 
 2. Install grunt and bower. `npm install -g grunt-cli bower`
 
-3. Run `npm install && bower install` inside the project root to install the JS dependencies.
+3. Run `npm install` inside the project root to install the JS dependencies.
 
 ### In Your Browser
 
 1. To start the development server, run `grunt dev`.
+
+2. Visit http://localhost:9997/tests
 
 ### From the CLI
 

@@ -111,6 +111,12 @@ test("invalid record can be rollbacked", function() {
       var adapter = this;
 
       return new Ember.RSVP.Promise(function(resolve, reject) {
+        /* If InvalidError is passed back in the reject it will throw the
+           exception which will bubble up the call stack (crashing the test)
+           instead of hitting the failure route of the promise.
+           So wrapping the reject in an Ember.run.next makes it so save
+           completes without failure and the failure hits the failure route
+           of the promise instead of crashing the save. */
         Ember.run.next(function(){
           reject(adapter.ajaxError({name: 'is invalid'}));
         });
@@ -131,6 +137,53 @@ test("invalid record can be rollbacked", function() {
     dog.rollback();
 
     equal(dog.get('name'), "Pluto");
+    ok(dog.get('isValid'));
+  }));
+});
+
+test("invalid record is rolled back to correct state after set", function() {
+  Dog = DS.Model.extend({
+    name: DS.attr(),
+    breed: DS.attr()
+  });
+
+  var adapter = DS.RESTAdapter.extend({
+    ajax: function(url, type, hash) {
+      var adapter = this;
+
+      return new Ember.RSVP.Promise(function(resolve, reject) {
+        /* If InvalidError is passed back in the reject it will throw the
+           exception which will bubble up the call stack (crashing the test)
+           instead of hitting the failure route of the promise.
+           So wrapping the reject in an Ember.run.next makes it so save
+           completes without failure and the failure hits the failure route
+           of the promise instead of crashing the save. */
+        Ember.run.next(function(){
+          reject(adapter.ajaxError({name: 'is invalid'}));
+        });
+      });
+    },
+
+    ajaxError: function(jqXHR) {
+      return new DS.InvalidError(jqXHR);
+    }
+  });
+
+  env = setupStore({ dog: Dog, adapter: adapter});
+  var dog = env.store.push('dog', { id: 1, name: "Pluto", breed: "Disney" });
+
+  dog.set('name', "is a dwarf planet");
+  dog.set('breed', 'planet');
+
+  dog.save().then(null, async(function() {
+    equal(dog.get('name'), "is a dwarf planet");
+    equal(dog.get('breed'), "planet");
+    dog.set('name', 'Seymour Asses');
+    equal(dog.get('name'), "Seymour Asses");
+    equal(dog.get('breed'), "planet");
+    dog.rollback();
+    equal(dog.get('name'), "Pluto");
+    equal(dog.get('breed'), "Disney");
     ok(dog.get('isValid'));
   }));
 });

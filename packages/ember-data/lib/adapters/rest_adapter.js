@@ -87,15 +87,50 @@ var forEach = Ember.ArrayPolyfills.forEach;
 
   ### Headers customization
 
-  Some APIs require HTTP headers, e.g. to provide an API key. An array of
-  headers can be added to the adapter which are passed with every request:
+  Some APIs require HTTP headers, e.g. to provide an API key. Arbitrary
+  headers can be set as key/value pairs on the `RESTAdapter`'s `headers`
+  object and Ember Data will send them along with each ajax request.
+
 
   ```js
-  DS.RESTAdapter.reopen({
+  App.ApplicationAdapter = DS.RESTAdapter.extend({
     headers: {
       "API_KEY": "secret key",
       "ANOTHER_HEADER": "Some header value"
     }
+  });
+  ```
+
+  `headers` can also be used as a computed property to support dynamic
+  headers. In the example below, the `session` object has been
+  injected into an adapter by Ember's container.
+
+  ```js
+  App.ApplicationAdapter = DS.RESTAdapter.extend({
+    headers: function() {
+      return {
+        "API_KEY": this.get("session.authToken"),
+        "ANOTHER_HEADER": "Some header value"
+      };
+    }.property("session.authToken")
+  });
+  ```
+
+  In some cases, your dynamic headers may require data from some
+  object outside of Ember's observer system (for example
+  `document.cookie`). You can use the
+  [volatile](/api/classes/Ember.ComputedProperty.html#method_volatile)
+  function to set the property into a non-chached mode causing the headers to
+  be recomputed with every request.
+
+  ```js
+  App.ApplicationAdapter = DS.RESTAdapter.extend({
+    headers: function() {
+      return {
+        "API_KEY": Ember.get(document.cookie.match(/apiKey\=([^;]*)/), "1"),
+        "ANOTHER_HEADER": "Some header value"
+      };
+    }.property().volatile();
   });
   ```
 
@@ -138,11 +173,14 @@ var RESTAdapter = Adapter.extend({
   */
 
   /**
-    Some APIs require HTTP headers, e.g. to provide an API key. An array of
-    headers can be added to the adapter which are passed with every request:
+    Some APIs require HTTP headers, e.g. to provide an API
+    key. Arbitrary headers can be set as key/value pairs on the
+    `RESTAdapter`'s `headers` object and Ember Data will send them
+    along with each ajax request. For dynamic headers see [headers
+    customization](/api/data/classes/DS.RESTAdapter.html#toc_headers-customization).
 
     ```javascript
-    DS.RESTAdapter.reopen({
+    App.ApplicationAdapter = DS.RESTAdapter.extend({
       headers: {
         "API_KEY": "secret key",
         "ANOTHER_HEADER": "Some header value"
@@ -167,7 +205,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {String} id
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   find: function(store, type, id) {
     return this.ajax(this.buildURL(type.typeKey, id), 'GET');
@@ -185,7 +223,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {String} sinceToken
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   findAll: function(store, type, sinceToken) {
     var query;
@@ -212,7 +250,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Object} query
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   findQuery: function(store, type, query) {
     return this.ajax(this.buildURL(type.typeKey), 'GET', { data: query });
@@ -250,7 +288,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Array} ids
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   findMany: function(store, type, ids) {
     return this.ajax(this.buildURL(type.typeKey), 'GET', { data: { ids: ids } });
@@ -283,7 +321,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {DS.Model} record
     @param {String} url
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   findHasMany: function(store, record, url) {
     var host = get(this, 'host'),
@@ -322,7 +360,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {DS.Model} record
     @param {String} url
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   findBelongsTo: function(store, record, url) {
     var id   = get(record, 'id'),
@@ -345,7 +383,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {DS.Model} record
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   createRecord: function(store, type, record) {
     var data = {};
@@ -370,7 +408,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {DS.Model} record
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   updateRecord: function(store, type, record) {
     var data = {};
@@ -392,7 +430,7 @@ var RESTAdapter = Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {DS.Model} record
-    @returns {Promise} promise
+    @return {Promise} promise
   */
   deleteRecord: function(store, type, record) {
     var id = get(record, 'id');
@@ -413,7 +451,7 @@ var RESTAdapter = Adapter.extend({
     @method buildURL
     @param {String} type
     @param {String} id
-    @returns {String} url
+    @return {String} url
   */
   buildURL: function(type, id) {
     var url = [],
@@ -478,17 +516,17 @@ var RESTAdapter = Adapter.extend({
     endpoint of "/line_items/".
 
     ```js
-    DS.RESTAdapter.reopen({
+    App.ApplicationAdapter = DS.RESTAdapter.extend({
       pathForType: function(type) {
         var decamelized = Ember.String.decamelize(type);
         return Ember.String.pluralize(decamelized);
-      };
+      }
     });
     ```
 
     @method pathForType
     @param {String} type
-    @returns {String} path
+    @return {String} path
   **/
   pathForType: function(type) {
     var camelized = Ember.String.camelize(type);
@@ -530,7 +568,7 @@ var RESTAdapter = Adapter.extend({
     @return {Object} jqXHR
   */
   ajaxError: function(jqXHR) {
-    if (jqXHR) {
+    if (jqXHR && typeof jqXHR === 'object') {
       jqXHR.then = null;
     }
 
@@ -599,8 +637,8 @@ var RESTAdapter = Adapter.extend({
       hash.data = JSON.stringify(hash.data);
     }
 
-    if (this.headers !== undefined) {
-      var headers = this.headers;
+    var headers = get(this, 'headers');
+    if (headers !== undefined) {
       hash.beforeSend = function (xhr) {
         forEach.call(Ember.keys(headers), function(key) {
           xhr.setRequestHeader(key, headers[key]);

@@ -6,12 +6,12 @@
 # When `package.json` changes, the cache gets rebuilt.
 #
 # Requirements:
-# - Gemfile.lock
+# - package.json
 # - TRAVIS_REPO_SLUG
 # - TRAVIS_NODE_VERSION
 # - S3_BUILD_CACHE_BUCKET
 # - script/s3-put
-# - bundle
+# - npm
 # - curl
 #
 # Author: Mislav Marohnić

@@ -8,7 +8,7 @@ module('ember-inflector.dsl', {
   }
 });
 
-test('ability to add additonal pluralization rules', function(){
+test('ability to add additional pluralization rules', function(){
   equal(inflector.pluralize('cow'), 'cow', 'no pluralization rule');
 
   inflector.plural(/$/, 's');
@@ -16,7 +16,7 @@ test('ability to add additonal pluralization rules', function(){
   equal(inflector.pluralize('cow'), 'cows', 'pluralization rule was applied');
 });
 
-test('ability to add additonal singularization rules', function(){
+test('ability to add additional singularization rules', function(){
   equal(inflector.singularize('cows'), 'cows', 'no singularization rule was applied');
 
   inflector.singular(/s$/, '');
@@ -24,7 +24,7 @@ test('ability to add additonal singularization rules', function(){
   equal(inflector.singularize('cows'), 'cow', 'singularization rule was applied');
 });
 
-test('ability to add additonal uncountable rules', function(){
+test('ability to add additional uncountable rules', function(){
   inflector.plural(/$/, 's');
   equal(inflector.pluralize('cow'), 'cows', 'pluralization rule was applied');
 
@@ -32,7 +32,7 @@ test('ability to add additonal uncountable rules', function(){
   equal(inflector.pluralize('cow'), 'cow', 'pluralization rule NOT was applied');
 });
 
-test('ability to add additonal irregular rules', function(){
+test('ability to add additional irregular rules', function(){
   inflector.singular(/s$/, '');
   inflector.plural(/$/, 's');
 
@@ -232,4 +232,33 @@ test('inflect.advancedRules', function(){
   var rules = [[/^(ox)$/i, '$1en']];
 
   equal(inflector.inflect('ox', rules), 'oxen');
+});
+
+test('Inflector.defaultRules', function(){
+  expect(1);
+
+  var rules = Ember.Inflector.defaultRules;
+  ok(rules, 'has defaultRules');
+});
+
+test('Ember.Inflector.inflector exists', function(){
+  expect(1);
+
+  ok(Ember.Inflector.inflector, 'Ember.Inflector.inflector exists');
+});
+
+test('new Ember.Inflector with defaultRules matches docs', function(){
+  expect(4);
+
+  var inflector = new Ember.Inflector(Ember.Inflector.defaultRules);
+
+  // defaultRules includes these special rules
+  equal(inflector.pluralize('cow'), 'kine');
+  equal(inflector.singularize('kine'), 'cow');
+
+  // defaultRules adds 's' to singular
+  equal(inflector.pluralize('item'), 'items');
+
+  // defaultRules removes 's' from plural
+  equal(inflector.singularize('items'), 'item');
 });

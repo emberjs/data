@@ -4,7 +4,8 @@ var Post, post, Comment, comment, env;
 module("integration/serializer/json - JSONSerializer", {
   setup: function() {
     Post = DS.Model.extend({
-      title: DS.attr('string')
+      title: DS.attr('string'),
+      comments: DS.hasMany('comment', {inverse:null})
     });
     Comment = DS.Model.extend({
       body: DS.attr('string'),
@@ -92,6 +93,23 @@ test("serializeBelongsTo respects keyForRelationship", function() {
   });
 });
 
+test("serializeHasMany respects keyForRelationship", function() {
+  env.container.register('serializer:post', DS.JSONSerializer.extend({
+    keyForRelationship: function(key, type) {
+      return key.toUpperCase();
+    }
+  }));
+  post = env.store.createRecord(Post, { title: "Rails is omakase", id: "1"});
+  comment = env.store.createRecord(Comment, { body: "Omakase is delicious", post: post, id: "1"});
+  var json = {};
+
+  env.container.lookup("serializer:post").serializeHasMany(post, json, {key: "comments", options: {}});
+
+  deepEqual(json, {
+    COMMENTS: ["1"]
+  });
+});
+
 test("serializePolymorphicType", function() {
   env.container.register('serializer:comment', DS.JSONSerializer.extend({
     serializePolymorphicType: function(record, json, relationship) {
@@ -111,4 +129,77 @@ test("serializePolymorphicType", function() {
     post: "1",
     postTYPE: "post"
   });
+});
+
+test("extractArray normalizes each record in the array", function() {
+  var postNormalizeCount = 0;
+  var posts = [
+    { title: "Rails is omakase"},
+    { title: "Another Post"}
+  ];
+
+  env.container.register('serializer:post', DS.JSONSerializer.extend({
+    normalize: function () {
+      postNormalizeCount++;
+      return this._super.apply(this, arguments);
+    }
+  }));
+
+  env.container.lookup("serializer:post").extractArray(env.store, Post, posts);
+  equal(postNormalizeCount, 2, "two posts are normalized");
+});
+
+test('Serializer should respect the attrs hash when extracting records', function(){
+  env.container.register("serializer:post", DS.JSONSerializer.extend({
+    attrs: {
+      title: "title_payload_key"
+    }
+  }));
+
+  var jsonHash = {
+    title_payload_key: "Rails is omakase"
+  };
+
+  var post = env.container.lookup("serializer:post").extractSingle(env.store, Post, jsonHash);
+
+  equal(post.title, "Rails is omakase");
+});
+
+test('Serializer should respect the attrs hash when serializing records', function(){
+  env.container.register("serializer:post", DS.JSONSerializer.extend({
+    attrs: {
+      title: "title_payload_key"
+    }
+  }));
+
+  post = env.store.createRecord("post", { title: "Rails is omakase"});
+
+  var payload = env.container.lookup("serializer:post").serialize(post);
+
+  equal(payload.title_payload_key, "Rails is omakase");
+});
+
+test("Serializer should respect the primaryKey attribute when extracting records", function() {
+  env.container.register('serializer:post', DS.JSONSerializer.extend({
+    primaryKey: '_ID_'
+  }));
+
+  var jsonHash = { "_ID_": 1, title: "Rails is omakase"};
+
+  post = env.container.lookup("serializer:post").extractSingle(env.store, Post, jsonHash);
+
+  equal(post.id, "1");
+  equal(post.title, "Rails is omakase");
+});
+
+test("Serializer should respect the primaryKey attribute when serializing records", function() {
+  env.container.register('serializer:post', DS.JSONSerializer.extend({
+    primaryKey: '_ID_'
+  }));
+
+  post = env.store.createRecord("post", { id: "1", title: "Rails is omakase"});
+
+  var payload = env.container.lookup("serializer:post").serialize(post, {includeId: true});
+
+  equal(payload._ID_, "1");
 });

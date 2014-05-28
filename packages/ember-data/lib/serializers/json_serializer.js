@@ -1,4 +1,6 @@
-var get = Ember.get, set = Ember.set, isNone = Ember.isNone;
+import {RelationshipChange} from "../system/changes";
+var get = Ember.get, set = Ember.set, isNone = Ember.isNone,
+    map = Ember.ArrayPolyfills.map;
 
 /**
   In Ember Data a Serializer is used to serialize and deserialize
@@ -37,6 +39,35 @@ var JSONSerializer = Ember.Object.extend({
     @default 'id'
   */
   primaryKey: 'id',
+
+  /**
+    The `attrs` object can be used to declare a simple mapping between
+    property names on `DS.Model` records and payload keys in the
+    serialized JSON object representing the record. An object with the
+    propery `key` can also be used to designate the attribute's key on
+    the response payload.
+
+    Example
+
+    ```javascript
+    App.Person = DS.Model.extend({
+      firstName: DS.attr('string'),
+      lastName: DS.attr('string'),
+      occupation: DS.attr('string'),
+      admin: DS.attr('boolean')
+    });
+
+    App.PersonSerializer = DS.JSONSerializer.extend({
+      attrs: {
+        admin: 'is_admin',
+        occupation: {key: 'career'}
+      }
+    });
+    ```
+
+    @property attrs
+    @type {Object}
+  */
 
   /**
    Given a subclass of `DS.Model` and a JSON object this method will
@@ -98,8 +129,43 @@ var JSONSerializer = Ember.Object.extend({
   normalize: function(type, hash) {
     if (!hash) { return hash; }
 
+    this.normalizeId(hash);
+    this.normalizeUsingDeclaredMapping(type, hash);
     this.applyTransforms(type, hash);
     return hash;
+  },
+
+  /**
+    @method normalizeUsingDeclaredMapping
+    @private
+  */
+  normalizeUsingDeclaredMapping: function(type, hash) {
+    var attrs = get(this, 'attrs'), payloadKey, key;
+
+    if (attrs) {
+      for (key in attrs) {
+        payloadKey = attrs[key];
+        if (payloadKey && payloadKey.key) {
+          payloadKey = payloadKey.key;
+        }
+        if (typeof payloadKey === 'string') {
+          hash[key] = hash[payloadKey];
+          delete hash[payloadKey];
+        }
+      }
+    }
+  },
+  /**
+    @method normalizeId
+    @private
+  */
+  normalizeId: function(hash) {
+    var primaryKey = get(this, 'primaryKey');
+
+    if (primaryKey === 'id') { return; }
+
+    hash.id = hash[primaryKey];
+    delete hash[primaryKey];
   },
 
   // SERIALIZE
@@ -276,7 +342,7 @@ var JSONSerializer = Ember.Object.extend({
    `serializeAttribute` can be used to customize how `DS.attr`
    properties are serialized
 
-   For example if you wanted to ensure all you attributes were always
+   For example if you wanted to ensure all your attributes were always
    serialized as properties on an `attributes` object you could
    write:
 
@@ -380,11 +446,11 @@ var JSONSerializer = Ember.Object.extend({
   */
   serializeHasMany: function(record, json, relationship) {
     var key = relationship.key;
-
-    var relationshipType = DS.RelationshipChange.determineRelationshipType(record.constructor, relationship);
+    var payloadKey = this.keyForRelationship ? this.keyForRelationship(key, "hasMany") : key;
+    var relationshipType = RelationshipChange.determineRelationshipType(record.constructor, relationship);
 
     if (relationshipType === 'manyToNone' || relationshipType === 'manyToMany') {
-      json[key] = get(record, key).mapBy('id');
+      json[payloadKey] = get(record, key).mapBy('id');
       // TODO support for polymorphic manyToNone and manyToMany relationships
     }
   },
@@ -648,8 +714,11 @@ var JSONSerializer = Ember.Object.extend({
     @param {Object} payload
     @return {Array} array An array of deserialized objects
   */
-  extractArray: function(store, type, payload) {
-    return this.normalize(type, payload);
+  extractArray: function(store, type, arrayPayload) {
+    var serializer = this;
+    return map.call(arrayPayload, function(singlePayload) {
+      return serializer.normalize(type, singlePayload);
+    });
   },
 
   /**

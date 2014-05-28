@@ -45,7 +45,7 @@ var RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var people = store.all(App.Person);
+    var people = store.all('person');
     people.get('isLoaded'); // true
     ```
 
@@ -59,7 +59,7 @@ var RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var people = store.all(App.Person);
+    var people = store.all('person');
     people.get('isUpdating'); // false
     people.update();
     people.get('isUpdating'); // true
@@ -100,7 +100,7 @@ var RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var people = store.all(App.Person);
+    var people = store.all('person');
     people.get('isUpdating'); // false
     people.update();
     people.get('isUpdating'); // true
@@ -145,7 +145,7 @@ var RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var messages = store.all(App.Message);
+    var messages = store.all('message');
     messages.forEach(function(message) {
       message.set('hasBeenSeen', true);
     });

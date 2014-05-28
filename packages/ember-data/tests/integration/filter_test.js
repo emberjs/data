@@ -47,6 +47,7 @@ test("when a DS.Model updates its attributes, its changes affect its filtered Ar
 
   set(person, 'name', "Yehuda Katz-Foo");
 
+  equal(get(people, 'query'), null, 'expected no query object set');
   equal(get(people, 'length'), 0, "there are now no items");
 });
 
@@ -108,8 +109,10 @@ test("a Record Array can update its filter", function() {
       shouldNotContain(recordArray, records.bryn);
       shouldNotContain(recordArray, dickens);
 
-      recordArray.set('filterFunction', function(hash) {
-        if (hash.get('name').match(/Katz/)) { return true; }
+      Ember.run(function() {
+        recordArray.set('filterFunction', function(hash) {
+          if (hash.get('name').match(/Katz/)) { return true; }
+        });
       });
 
       equal(get(recordArray, 'length'), 1, "The Record Array should have one object on it");
@@ -163,8 +166,10 @@ test("a Record Array can update its filter and notify array observers", function
 
     recordArray.addArrayObserver(arrayObserver);
 
-    recordArray.set('filterFunction', function(hash) {
-      if (hash.get('name').match(/Katz/)) { return true; }
+    Ember.run(function() {
+      recordArray.set('filterFunction', function(hash) {
+        if (hash.get('name').match(/Katz/)) { return true; }
+      });
     });
 
     Ember.RSVP.all([ asyncDale, asyncKatz, asyncBryn ]).then(async(function() {
@@ -243,6 +248,28 @@ test("a filter created after a record is already loaded works", function() {
   equal(filter.get('length'), 1, "the filter now has a record in it");
   asyncEqual(filter.objectAt(0), store.find('person', 1));
 });
+
+test("filter with query persists query on the resulting filteredRecordArray", function() {
+  set(store, 'adapter', DS.Adapter.extend({
+    findQuery: function(store, type, id) {
+      return Ember.RSVP.resolve([{
+        id: id,
+        name: "Tom Dale"
+      }]);
+    }
+  }));
+
+  var filter = store.filter(Person, { foo: 1 }, function(person) {
+    return true;
+  });
+
+  Ember.run(function() {
+    filter.then(function(array) {
+      deepEqual(get(array, 'query'), { foo: 1 }, 'has expected query');
+    });
+  });
+});
+
 
 test("it is possible to filter by state flags", function() {
   set(store, 'adapter', DS.Adapter.extend({
@@ -437,4 +464,3 @@ test("a Record Array can update its filter after server-side creates multiple re
   serverResponds();
   equal(get(recordArray, 'length'), 5, "The record array updates when the server creates multiple records");
 });
-

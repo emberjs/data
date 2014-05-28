@@ -37,8 +37,12 @@ var AdapterPopulatedRecordArray = RecordArray.extend({
     this.setProperties({
       content: Ember.A(records),
       isLoaded: true,
-      meta: meta
+      meta: Ember.copy(meta)
     });
+
+    records.forEach(function(record) {
+      this.manager.recordArraysForRecord(record).add(this);
+    }, this);
 
     // TODO: should triggering didLoad event be the last action of the runLoop?
     Ember.run.once(this, 'trigger', 'didLoad');

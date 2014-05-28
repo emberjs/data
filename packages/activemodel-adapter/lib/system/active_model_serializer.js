@@ -10,16 +10,65 @@ var get = Ember.get,
     capitalize = Ember.String.capitalize,
     decamelize = Ember.String.decamelize,
     underscore = Ember.String.underscore;
+/**
+  The ActiveModelSerializer is a subclass of the RESTSerializer designed to integrate
+  with a JSON API that uses an underscored naming convention instead of camelCasing.
+  It has been designed to work out of the box with the
+  [active_model_serializers](http://github.com/rails-api/active_model_serializers)
+  Ruby gem. This Serializer expects specific settings using ActiveModel::Serializers,
+  `embed :ids, include: true` which sideloads the records.
 
+  This serializer extends the DS.RESTSerializer by making consistent
+  use of the camelization, decamelization and pluralization methods to
+  normalize the serialized JSON into a format that is compatible with
+  a conventional Rails backend and Ember Data.
+
+  ## JSON Structure
+
+  The ActiveModelSerializer expects the JSON returned from your server
+  to follow the REST adapter conventions substituting underscored keys
+  for camelcased ones.
+
+  ### Conventional Names
+
+  Attribute names in your JSON payload should be the underscored versions of
+  the attributes in your Ember.js models.
+
+  For example, if you have a `Person` model:
+
+  ```js
+  App.FamousPerson = DS.Model.extend({
+    firstName: DS.attr('string'),
+    lastName: DS.attr('string'),
+    occupation: DS.attr('string')
+  });
+  ```
+
+  The JSON returned should look like this:
+
+  ```js
+  {
+    "famous_person": {
+      "first_name": "Barack",
+      "last_name": "Obama",
+      "occupation": "President"
+    }
+  }
+  ```
+
+  @class ActiveModelSerializer
+  @namespace DS
+  @extends DS.RESTSerializer
+*/
 var ActiveModelSerializer = RESTSerializer.extend({
   // SERIALIZE
 
   /**
-    Converts camelcased attributes to underscored when serializing.
+    Converts camelCased attributes to underscored when serializing.
 
     @method keyForAttribute
     @param {String} attribute
-    @returns String
+    @return String
   */
   keyForAttribute: function(attr) {
     return decamelize(attr);
@@ -32,7 +81,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @method keyForRelationship
     @param {String} key
     @param {String} kind
-    @returns String
+    @return String
   */
   keyForRelationship: function(key, kind) {
     key = decamelize(key);
@@ -45,7 +94,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     }
   },
 
-  /**
+  /*
     Does not serialize hasMany relationships by default.
   */
   serializeHasMany: Ember.K,
@@ -75,29 +124,19 @@ var ActiveModelSerializer = RESTSerializer.extend({
   serializePolymorphicType: function(record, json, relationship) {
     var key = relationship.key,
         belongsTo = get(record, key);
-    key = this.keyForAttribute(key);
-    json[key + "_type"] = capitalize(camelize(belongsTo.constructor.typeKey));
+
+    if (belongsTo) {
+      key = this.keyForAttribute(key);
+      json[key + "_type"] = capitalize(belongsTo.constructor.typeKey);
+    }
   },
 
   // EXTRACT
 
   /**
-    Extracts the model typeKey from underscored root objects.
+    Add extra step to `DS.RESTSerializer.normalize` so links are normalized.
 
-    @method typeForRoot
-    @param {String} root
-    @returns String the model's typeKey
-  */
-  typeForRoot: function(root) {
-    var camelized = camelize(root);
-    return singularize(camelized);
-  },
-
-  /**
-    Add extra step to `DS.RESTSerializer.normalize` so links are
-    normalized.
-
-    If your payload looks like this
+    If your payload looks like:
 
     ```js
     {
@@ -108,6 +147,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
       }
     }
     ```
+
     The normalized version would look like this
 
     ```js
@@ -124,7 +164,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param {subclass of DS.Model} type
     @param {Object} hash
     @param {String} prop
-    @returns Object
+    @return Object
   */
 
   normalize: function(type, hash, prop) {
@@ -137,7 +177,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     Convert `snake_cased` links  to `camelCase`
 
     @method normalizeLinks
-    @param {Object} hash
+    @param {Object} data
   */
 
   normalizeLinks: function(data){

@@ -14,10 +14,11 @@ var decamelize = Ember.String.decamelize,
 
 /**
   The ActiveModelAdapter is a subclass of the RESTAdapter designed to integrate
-  with a JSON API that uses an underscored naming convention instead of camelcasing.
+  with a JSON API that uses an underscored naming convention instead of camelCasing.
   It has been designed to work out of the box with the
   [active_model_serializers](http://github.com/rails-api/active_model_serializers)
-  Ruby gem.
+  Ruby gem. This Adapter expects specific settings using ActiveModel::Serializers,
+  `embed :ids, include: true` which sideloads the records.
 
   This adapter extends the DS.RESTAdapter by making consistent use of the camelization,
   decamelization and pluralization methods to normalize the serialized JSON into a
@@ -58,7 +59,7 @@ var decamelize = Ember.String.decamelize,
   @class ActiveModelAdapter
   @constructor
   @namespace DS
-  @extends DS.Adapter
+  @extends DS.RESTAdapter
 **/
 
 var ActiveModelAdapter = RESTAdapter.extend({
@@ -74,7 +75,7 @@ var ActiveModelAdapter = RESTAdapter.extend({
 
     @method pathForType
     @param {String} type
-    @returns String
+    @return String
   */
   pathForType: function(type) {
     var decamelized = decamelize(type);
@@ -96,7 +97,7 @@ var ActiveModelAdapter = RESTAdapter.extend({
 
     @method ajaxError
     @param jqXHR
-    @returns error
+    @return error
   */
   ajaxError: function(jqXHR) {
     var error = this._super(jqXHR);

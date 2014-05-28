@@ -210,8 +210,43 @@ test("Calling pushPayload allows pushing singular payload properties", function 
   equal(post.get('postTitle'), "Ember rocks (updated)", "You can update data in the store");
 });
 
-test("Calling pushPayload without a type uses application serializer", function () {
-  expect(2);
+test("Calling pushPayload should use the type's serializer for normalizing", function () {
+  expect(4);
+  env.container.register('serializer:post', DS.RESTSerializer.extend({
+    normalize: function(store, payload) {
+      ok(true, "normalized is called on Post serializer");
+      return this._super(store, payload);
+    }
+  }));
+  env.container.register('serializer:person', DS.RESTSerializer.extend({
+    normalize: function(store, payload) {
+      ok(true, "normalized is called on Person serializer");
+      return this._super(store, payload);
+    }
+  }));
+
+  store.pushPayload('post', {
+    posts: [{
+      id: 1,
+      postTitle: "Ember rocks"
+    }],
+    people: [{
+      id: 2,
+      firstName: "Yehuda"
+    }]
+  });
+
+  var post = store.getById('post', 1);
+
+  equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
+
+  var person = store.getById('person', 2);
+
+  equal(person.get('firstName'), "Yehuda", "you can push raw JSON into the store");
+});
+
+test("Calling pushPayload without a type uses application serializer's pushPayload method", function () {
+  expect(1);
 
   env.container.register('serializer:application', DS.RESTSerializer.extend({
     pushPayload: function(store, payload) {
@@ -224,8 +259,42 @@ test("Calling pushPayload without a type uses application serializer", function 
     id: '1',
     postTitle: "Ember rocks"
   }]});
+});
+
+test("Calling pushPayload without a type should use a model's serializer when normalizing", function () {
+  expect(4);
+
+  env.container.register('serializer:post', DS.RESTSerializer.extend({
+    normalize: function(store, payload) {
+      ok(true, "normalized is called on Post serializer");
+      return this._super(store, payload);
+    }
+  }));
+
+  env.container.register('serializer:application', DS.RESTSerializer.extend({
+    normalize: function(store, payload) {
+      ok(true, "normalized is called on Application serializer");
+      return this._super(store, payload);
+    }
+  }));
+
+
+  store.pushPayload({
+    posts: [{
+      id: '1',
+      postTitle: "Ember rocks"
+    }],
+    people: [{
+      id: '2',
+      firstName: 'Yehuda'
+    }]
+  });
 
   var post = store.getById('post', 1);
 
   equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
+
+  var person = store.getById('person', 2);
+
+  equal(person.get('firstName'), "Yehuda", "you can push raw JSON into the store");
 });

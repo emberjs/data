@@ -236,6 +236,8 @@ function getValue(record, key) {
   `boolean` and `date`. You can define your own transforms by subclassing
   [DS.Transform](/api/data/classes/DS.Transform.html).
 
+  Note that you cannot use `attr` to define an attribute of `id`.
+
   `DS.attr` takes an optional hash as a second parameter, currently
   supported options are:
 

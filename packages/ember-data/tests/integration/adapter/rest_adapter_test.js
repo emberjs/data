@@ -460,6 +460,20 @@ test("delete - a payload with sideloaded updates pushes the updates", function()
   }));
 });
 
+test("delete - deleting a newly created record should not throw an error", function() {
+  var post = store.createRecord('post');
+
+  post.deleteRecord();
+  post.save().then(async(function(post) {
+    equal(passedUrl, null, "There is no ajax call to delete a record that has never been saved.");
+    equal(passedVerb, null, "There is no ajax call to delete a record that has never been saved.");
+    equal(passedHash, null, "There is no ajax call to delete a record that has never been saved.");
+
+    equal(post.get('isDeleted'), true, "the post is now deleted");
+    equal(post.get('isError'), false, "the post is not an error");
+  }));
+});
+
 test("findAll - returning an array populates the array", function() {
   ajaxResponse({
     posts: [
@@ -599,6 +613,30 @@ test("findQuery - payload 'meta' is accessible on the record array", function() 
     );
   }));
 });
+
+test("findQuery - each record array can have it's own meta object", function() {
+  ajaxResponse({
+    meta: { offset: 5 },
+    posts: [{id: 1, name: "Rails is very expensive sushi"}]
+  });
+
+  store.findQuery('post', { page: 2 }).then(async(function(posts) {
+    equal(
+      posts.get('meta.offset'),
+      5,
+      "Reponse metadata can be accessed with recordArray.meta"
+    );
+    ajaxResponse({
+      meta: { offset: 1 },
+      posts: [{id: 1, name: "Rails is very expensive sushi"}]
+    });
+    store.findQuery('post', { page: 1}).then(async(function(newPosts){
+      equal(newPosts.get('meta.offset'), 1, 'new array has correct metadata');
+      equal(posts.get('meta.offset'), 5, 'metadata on the old array hasnt been clobbered');
+    }));
+  }));
+});
+
 
 test("findQuery - returning an array populates the array", function() {
   ajaxResponse({

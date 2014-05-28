@@ -220,8 +220,8 @@ function didSetProperty(record, context) {
 //   adapter reported that server-side validations failed.
 // * isNew: The record was created on the client and the adapter
 //   did not yet report that it was successfully saved.
-// * isValid: No client-side validations have failed and the
-//   adapter did not report any server-side validation failures.
+// * isValid: The adapter did not report any server-side validation
+//   failures.
 
 // The dirty state is a abstract state whose functionality is
 // shared between the `created` and `updated` states.
@@ -326,8 +326,7 @@ var DirtyState = {
     }
   },
 
-  // A record is in the `invalid` state when its client-side
-  // invalidations have failed, or if the adapter has indicated
+  // A record is in the `invalid` if the adapter has indicated
   // the the record failed server-side invalidations.
   invalid: {
     // FLAGS
@@ -347,6 +346,11 @@ var DirtyState = {
 
     becomeDirty: Ember.K,
 
+    willCommit: function(record) {
+      get(record, 'errors').clear();
+      record.transitionTo('inFlight');
+    },
+
     rolledBack: function(record) {
       get(record, 'errors').clear();
     },
@@ -357,6 +361,10 @@ var DirtyState = {
 
     invokeLifecycleCallbacks: function(record) {
       record.triggerLater('becameInvalid', record);
+    },
+
+    exit: function(record) {
+      record._inFlightAttributes = {};
     }
   }
 };
@@ -679,7 +687,11 @@ var RootState = {
       invokeLifecycleCallbacks: function(record) {
         record.triggerLater('didDelete', record);
         record.triggerLater('didCommit', record);
-      }
+      },
+
+      willCommit: Ember.K,
+
+      didCommit: Ember.K
     }
   },
 

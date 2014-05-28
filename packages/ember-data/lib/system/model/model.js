@@ -1,5 +1,6 @@
 import RootState from "./states";
 import Errors from "./errors";
+import {PromiseObject} from "../store";
 /**
   @module ember-data
 */
@@ -8,6 +9,7 @@ var get = Ember.get, set = Ember.set,
     merge = Ember.merge,
     Promise = Ember.RSVP.Promise;
 
+var JSONSerializer;
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
   return get(get(this, 'currentState'), key);
 }).readOnly();
@@ -59,7 +61,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('isLoaded'); // true
 
     store.find('model', 1).then(function(model) {
@@ -81,13 +83,13 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('isDirty'); // true
 
     store.find('model', 1).then(function(model) {
       model.get('isDirty'); // false
       model.set('foo', 'some value');
-      model.set('isDirty'); // true
+      model.get('isDirty'); // true
     });
     ```
 
@@ -105,7 +107,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('isSaving'); // false
     var promise = record.save();
     record.get('isSaving'); // true
@@ -130,10 +132,26 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
-    record.get('isDeleted'); // false
+    var record = store.createRecord('model');
+    record.get('isDeleted');    // false
     record.deleteRecord();
-    record.get('isDeleted'); // true
+
+    // Locally deleted
+    record.get('isDeleted');    // true
+    record.get('isDirty');      // true
+    record.get('isSaving');     // false
+
+    // Persisting the deletion
+    var promise = record.save();
+    record.get('isDeleted');    // true
+    record.get('isSaving');     // true
+
+    // Deletion Persisted
+    promise.then(function() {
+      record.get('isDeleted');  // true
+      record.get('isSaving');   // false
+      record.get('isDirty');    // false
+    });
     ```
 
     @property isDeleted
@@ -150,7 +168,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('isNew'); // true
 
     record.save().then(function(model) {
@@ -164,9 +182,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   isNew: retrieveFromCurrentState,
   /**
-    If this property is `true` the record is in the `valid` state. A
-    record will be in the `valid` state when no client-side
-    validations have failed and the adapter did not report any
+    If this property is `true` the record is in the `valid` state.
+
+    A record will be in the `valid` state when the adapter did not report any
     server-side validation failures.
 
     @property isValid
@@ -186,7 +204,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('dirtyType'); // 'created'
     ```
 
@@ -198,15 +216,14 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
   /**
     If `true` the adapter reported that it was unable to save local
-    changes to the backend. This may also result in the record having
-    its `isValid` property become false if the adapter reported that
-    server-side validations failed.
+    changes to the backend for any reason other than a server-side
+    validation error.
 
     Example
 
     ```javascript
     record.get('isError'); // false
-    record.set('foo', 'invalid value');
+    record.set('foo', 'valid value');
     record.save().then(null, function() {
       record.get('isError'); // true
     });
@@ -253,7 +270,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     attribute.
 
     ```javascript
-    var record = store.createRecord(App.Model);
+    var record = store.createRecord('model');
     record.get('id'); // null
 
     store.find('model', 1).then(function(model) {
@@ -288,7 +305,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     ```
 
     @property errors
-    @type {Object}
+    @type {DS.Errors}
   */
   errors: Ember.computed(function() {
     var errors = Errors.create();
@@ -314,7 +331,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     @method serialize
     @param {Object} options
-    @returns {Object} an object whose values are primitive JSON values only
+    @return {Object} an object whose values are primitive JSON values only
   */
   serialize: function(options) {
     var store = get(this, 'store');
@@ -333,11 +350,12 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     @method toJSON
     @param {Object} options
-    @returns {Object} A JSON representation of the object.
+    @return {Object} A JSON representation of the object.
   */
   toJSON: function(options) {
+    if (!JSONSerializer) { JSONSerializer = requireModule("ember-data/lib/serializers/json_serializer")["default"]; }
     // container is for lazy transform lookups
-    var serializer = DS.JSONSerializer.create({ container: this.container });
+    var serializer = JSONSerializer.create({ container: this.container });
     return serializer.serialize(this, options);
   },
 
@@ -888,7 +906,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this._inFlightAttributes = this._attributes;
     this._attributes = {};
 
-    return DS.PromiseObject.create({ promise: resolver.promise });
+    return PromiseObject.create({ promise: resolver.promise });
   },
 
   /**
@@ -932,7 +950,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
       throw reason;
     }, "DS: Model#reload complete, update flags");
 
-    return DS.PromiseObject.create({ promise: promise });
+    return PromiseObject.create({ promise: promise });
   },
 
   // FOR USE DURING COMMIT PROCESS

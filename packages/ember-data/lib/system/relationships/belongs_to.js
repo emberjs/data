@@ -4,6 +4,9 @@ var get = Ember.get, set = Ember.set,
 var Promise = Ember.RSVP.Promise;
 
 import {Model} from "../model";
+import {PromiseObject} from "../store";
+import {RelationshipChange} from "../changes";
+import {relationshipFromMeta, typeForRelationshipMeta} from "../relationship-meta";
 
 /**
   @module ember-data
@@ -16,9 +19,11 @@ function asyncBelongsTo(type, options, meta) {
         promiseLabel = "DS: Async belongsTo " + this + " : " + key,
         promise;
 
+    meta.key = key;
+
     if (arguments.length === 2) {
-      Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof store.modelFor(type));
-      return value === undefined ? null : DS.PromiseObject.create({
+      Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof typeForRelationshipMeta(store, meta));
+      return value === undefined ? null : PromiseObject.create({
         promise: Promise.cast(value, promiseLabel)
       });
     }
@@ -28,12 +33,12 @@ function asyncBelongsTo(type, options, meta) {
 
     if(!isNone(belongsTo)) {
       promise = store.fetchRecord(belongsTo) || Promise.cast(belongsTo, promiseLabel);
-      return DS.PromiseObject.create({
+      return PromiseObject.create({
         promise: promise
       });
     } else if (link) {
-      promise = store.findBelongsTo(this, link, meta);
-      return DS.PromiseObject.create({
+      promise = store.findBelongsTo(this, link, relationshipFromMeta(store, meta));
+      return PromiseObject.create({
         promise: promise
       });
     } else {
@@ -94,7 +99,7 @@ function belongsTo(type, options) {
     options = type;
     type = undefined;
   } else {
-    Ember.assert("The first argument DS.belongsTo must be a model type or string, like DS.belongsTo(App.Person)", !!type && (typeof type === 'string' || DS.Model.detect(type)));
+    Ember.assert("The first argument to DS.belongsTo must be a string representing a model type key, e.g. use DS.belongsTo('person') to define a relation to the App.Person model", !!type && (typeof type === 'string' || Model.detect(type)));
   }
 
   options = options || {};
@@ -103,7 +108,8 @@ function belongsTo(type, options) {
     type: type,
     isRelationship: true,
     options: options,
-    kind: 'belongsTo'
+    kind: 'belongsTo',
+    key: null
   };
 
   if (options.async) {
@@ -157,7 +163,7 @@ Model.reopen({
 
       if (oldParent) {
         var store = get(record, 'store'),
-            change = DS.RelationshipChange.createChange(record, oldParent, store, { key: key, kind: "belongsTo", changeType: "remove" });
+            change = RelationshipChange.createChange(record, oldParent, store, { key: key, kind: "belongsTo", changeType: "remove" });
 
         change.sync();
         this._changesToSync[key] = change;
@@ -178,7 +184,7 @@ Model.reopen({
 
       if (newParent) {
         var store = get(record, 'store'),
-            change = DS.RelationshipChange.createChange(record, newParent, store, { key: key, kind: "belongsTo", changeType: "add" });
+            change = RelationshipChange.createChange(record, newParent, store, { key: key, kind: "belongsTo", changeType: "add" });
 
         change.sync();
       }

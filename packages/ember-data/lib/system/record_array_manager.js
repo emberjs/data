@@ -2,7 +2,7 @@
   @module ember-data
 */
 
-import {ManyArray} from "./record_arrays";
+import {RecordArray, FilteredRecordArray, AdapterPopulatedRecordArray, ManyArray} from "./record_arrays";
 var get = Ember.get, set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;
 
@@ -177,7 +177,7 @@ var RecordArrayManager = Ember.Object.extend({
     @return {DS.RecordArray}
   */
   createRecordArray: function(type) {
-    var array = DS.RecordArray.create({
+    var array = RecordArray.create({
       type: type,
       content: Ember.A(),
       store: this.store,
@@ -195,10 +195,12 @@ var RecordArrayManager = Ember.Object.extend({
     @method createFilteredRecordArray
     @param {Class} type
     @param {Function} filter
+    @param {Object} query (optional
     @return {DS.FilteredRecordArray}
   */
-  createFilteredRecordArray: function(type, filter) {
-    var array = DS.FilteredRecordArray.create({
+  createFilteredRecordArray: function(type, filter, query) {
+    var array = FilteredRecordArray.create({
+      query: query,
       type: type,
       content: Ember.A(),
       store: this.store,
@@ -220,11 +222,12 @@ var RecordArrayManager = Ember.Object.extend({
     @return {DS.AdapterPopulatedRecordArray}
   */
   createAdapterPopulatedRecordArray: function(type, query) {
-    var array = DS.AdapterPopulatedRecordArray.create({
+    var array = AdapterPopulatedRecordArray.create({
       type: type,
       query: query,
       content: Ember.A(),
-      store: this.store
+      store: this.store,
+      manager: this
     });
 
     this._adapterPopulatedRecordArrays.push(array);

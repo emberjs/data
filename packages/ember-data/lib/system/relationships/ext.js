@@ -1,4 +1,5 @@
 import {singularize} from "../../../../ember-inflector/lib/system";
+import {typeForRelationshipMeta, relationshipFromMeta} from "../relationship-meta";
 import {Model} from "../model";
 
 var get = Ember.get, set = Ember.set;
@@ -198,18 +199,15 @@ Model.reopenClass({
       // If the computed property is a relationship, add
       // it to the map.
       if (meta.isRelationship) {
-        if (typeof meta.type === 'string') {
-          meta.type = this.store.modelFor(meta.type);
-        }
-
-        var relationshipsForType = map.get(meta.type);
+        meta.key = name;
+        var relationshipsForType = map.get(typeForRelationshipMeta(this.store, meta));
 
         relationshipsForType.push({ name: name, kind: meta.kind });
       }
     });
 
     return map;
-  }),
+  }).cacheable(false),
 
   /**
     A hash containing lists of the model's relationships, grouped
@@ -289,11 +287,8 @@ Model.reopenClass({
     // in relationships
     this.eachComputedProperty(function(name, meta) {
       if (meta.isRelationship) {
-        type = meta.type;
-
-        if (typeof type === 'string') {
-          type = get(this, type, false) || this.store.modelFor(type);
-        }
+        meta.key = name;
+        type = typeForRelationshipMeta(this.store, meta);
 
         Ember.assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.",  type);
 
@@ -305,7 +300,7 @@ Model.reopenClass({
     });
 
     return types;
-  }),
+  }).cacheable(false),
 
   /**
     A map whose keys are the relationships of a model and whose values are
@@ -339,29 +334,19 @@ Model.reopenClass({
     @readOnly
   */
   relationshipsByName: Ember.computed(function() {
-    var map = Ember.Map.create(), type;
+    var map = Ember.Map.create();
 
     this.eachComputedProperty(function(name, meta) {
       if (meta.isRelationship) {
         meta.key = name;
-        type = meta.type;
-
-        if (!type && meta.kind === 'hasMany') {
-          type = singularize(name);
-        } else if (!type) {
-          type = name;
-        }
-
-        if (typeof type === 'string') {
-          meta.type = this.store.modelFor(type);
-        }
-
-        map.set(name, meta);
+        var relationship = relationshipFromMeta(this.store, meta);
+        relationship.type = typeForRelationshipMeta(this.store, meta);
+        map.set(name, relationship);
       }
     });
 
     return map;
-  }),
+  }).cacheable(false),
 
   /**
     A map whose keys are the fields of the model and whose values are strings

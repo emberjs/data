@@ -35,8 +35,8 @@ function loadIrregular(rules, irregularPairs) {
   ```js
   var inflector = new Ember.Inflector(Ember.Inflector.defaultRules);
 
-  inflector.pluralize('cow') //=> 'kine'
-  inflector.singularize('kine') //=> 'cow'
+  inflector.pluralize('cow'); //=> 'kine'
+  inflector.singularize('kine'); //=> 'cow'
   ```
 
   Creating an inflector and adding rules later.
@@ -44,13 +44,13 @@ function loadIrregular(rules, irregularPairs) {
   ```javascript
   var inflector = Ember.Inflector.inflector;
 
-  inflector.pluralize('advice') // => 'advices'
+  inflector.pluralize('advice'); // => 'advices'
   inflector.uncountable('advice');
-  inflector.pluralize('advice') // => 'advice'
+  inflector.pluralize('advice'); // => 'advice'
 
-  inflector.pluralize('formula') // => 'formulas'
+  inflector.pluralize('formula'); // => 'formulas'
   inflector.irregular('formula', 'formulae');
-  inflector.pluralize('formula') // => 'formulae'
+  inflector.pluralize('formula'); // => 'formulae'
 
   // you would not need to add these as they are the default rules
   inflector.plural(/$/, 's');
