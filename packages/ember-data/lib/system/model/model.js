@@ -681,7 +681,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     set(this, 'isError', false);
 
     if (data) {
-      this._data = data;
+      this._data = Ember.mixin(this._data, this._inFlightAttributes, data);
     } else {
       Ember.mixin(this._data, this._inFlightAttributes);
     }

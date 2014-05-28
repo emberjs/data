@@ -1550,7 +1550,23 @@ function normalizeRelationships(store, type, data, record) {
     var kind = relationship.kind,
         value = data[key];
 
-    if (value == null) { return; }
+    //If server returned no key we want to keep whatever relationship data we have right now
+    if (value === undefined && record){
+      //This is going to become much cleaner after SSOT
+      //If there is a cached value we want to keep it in case user modified after it came from
+      //the server.
+      if (Ember.meta(record).cache[key]){
+        //However we don't want to trigger a fetch so we check the cache directly
+        data[key] = Ember.meta(record).cache[key];
+      } else if (record._data[key]){
+        //Otherwise we just keep whatever came from the server
+        data[key] = record._data[key];
+      }
+      return;
+    }
+    if (value == null) {
+      return;
+    }
 
     if (kind === 'belongsTo') {
       deserializeRecordId(store, data, key, relationship, value);
