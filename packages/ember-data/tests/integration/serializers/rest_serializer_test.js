@@ -48,6 +48,29 @@ module("integration/serializer/rest - RESTSerializer", {
   }
 });
 
+test("typeForRoot basic behaviour", function() {
+  typeKey = env.restSerializer.typeForRoot("random_key_i_dont_know");
+  equal(typeKey, "randomKeyIDontKnow");
+});
+
+test("typeForRoot should work for normal uncountable keys", function() {
+  Ember.Inflector.inflector.uncountable("cars");
+  typeKey = env.restSerializer.typeForRoot("cars");
+  equal(typeKey, "cars");
+});
+
+test("typeForRoot should play nice with underscore prefixed uncountable keys", function() {
+  Ember.Inflector.inflector.uncountable("cars");
+  typeKey = env.restSerializer.typeForRoot("_cars");
+  equal(typeKey, "cars");
+})
+
+test("typeForRoot should work for underscored uncountable keys", function() {
+  Ember.Inflector.inflector.uncountable("toycars");
+  typeKey = env.restSerializer.typeForRoot("toy_cars");
+  equal(typeKey, "toyCars");
+});
+
 test("extractArray with custom typeForRoot", function() {
   env.restSerializer.typeForRoot = function(root) {
     var camelized = Ember.String.camelize(root);
