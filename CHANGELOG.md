@@ -60,6 +60,9 @@
 * Use the ApplicationAdapter property instead of creating a custom Store just to create a custom adapter.
 * Use string model lookup instead of class lookup
 * Improve store docs to use container lookup not concrete class
+* Do not call adapter.deleteRecord for a record that is already saved and deleted
+* Remove DS.AttributeChange
+* Fix rollback on invalid record after set
 
 ### Ember Data 1.0.0-beta.7 _(February 19, 2014)_
 
