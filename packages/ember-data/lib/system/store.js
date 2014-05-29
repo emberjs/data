@@ -1510,18 +1510,20 @@ Store = Ember.Object.extend({
   },
 
   willDestroy: function() {
-    var map = this.typeMaps;
-    var keys = Ember.keys(map);
+    var typeMaps = this.typeMaps;
+    var keys = Ember.keys(typeMaps);
     var store = this;
-    var types = keys.map(byType);
+
+    var types = map(keys, byType);
 
     this.recordArrayManager.destroy();
 
-    types.forEach(this.unloadAll, this);
+    forEach(types, this.unloadAll, this);
 
     function byType(entry) {
-      return map[entry].type;
+      return typeMaps[entry]['type'];
     }
+
   },
 
   /**
