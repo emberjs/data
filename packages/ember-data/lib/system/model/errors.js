@@ -1,4 +1,5 @@
 var get = Ember.get, isEmpty = Ember.isEmpty;
+var map = Ember.EnumerableUtils.map;
 
 /**
 @module ember-data
@@ -231,7 +232,7 @@ var Errors = Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
   _findOrCreateMessages: function(attribute, messages) {
     var errors = this.errorsFor(attribute);
 
-    return Ember.makeArray(messages).map(function(message) {
+    return map(Ember.makeArray(messages), function(message) {
       return errors.findBy('message', message) || {
         attribute: attribute,
         message: message

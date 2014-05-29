@@ -83,7 +83,7 @@ test("extractArray failure with custom typeForRoot", function() {
     super_villains: [{id: "1", firstName: "Tom", lastName: "Dale", homePlanet: "1"}]
   };
 
-  raises(function(){
+  throws(function(){
     env.restSerializer.extractArray(env.store, HomePlanet, jsonHash);
   }, "No model was found for 'home_planets'",
   "raised error message expected to contain \"No model was found for 'home_planets'\"");
