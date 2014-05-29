@@ -267,8 +267,8 @@ var RecordArrayManager = Ember.Object.extend({
   willDestroy: function(){
     this._super();
 
-    flatten(values(this.filteredRecordArrays.values)).forEach(destroy);
-    this._adapterPopulatedRecordArrays.forEach(destroy);
+    forEach(flatten(values(this.filteredRecordArrays.values)), destroy);
+    forEach(this._adapterPopulatedRecordArrays, destroy);
   }
 });
 

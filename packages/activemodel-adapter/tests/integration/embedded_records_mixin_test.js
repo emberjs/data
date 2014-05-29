@@ -3,6 +3,7 @@ var camelize = Ember.String.camelize;
 var singularize = Ember.String.singularize;
 var HomePlanet, SuperVillain, EvilMinion, SecretLab, SecretWeapon, Comment,
   league, superVillain, evilMinion, secretWeapon, homePlanet, secretLab, env;
+var indexOf = Ember.EnumerableUtils.indexOf;
 
 module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
   setup: function() {
@@ -881,7 +882,7 @@ test("serializing relationships with an embedded and without calls super when no
       // "manyToOne" not supported in DS.RESTSerializer.prototype.serializeHasMany
       // See: https://github.com/emberjs/data/pull/1751#issuecomment-43424605
       var relationshipTypes = Ember.String.w('manyToNone manyToMany manyToOne');
-      if (relationshipTypes.indexOf(relationshipType) > -1) {
+      if (indexOf(relationshipTypes, relationshipType) > -1) {
         json[payloadKey] = get(record, key).mapBy('id');
       }
     }
