@@ -152,6 +152,7 @@
       filter: syncForTest(),
       find: syncForTest(),
       findMany: syncForTest(),
+      findHasMany: syncForTest(),
       findByIds: syncForTest(),
       didSaveRecord: syncForTest(),
       didSaveRecords: syncForTest(),
@@ -169,6 +170,10 @@
       deleteRecord: syncForTest(),
       dataDidChange: Ember.observer(syncForTest(), 'data'),
       updateRecordArraysLater: syncForTest()
+    });
+
+    DS.ManyArray.reopen({
+      reload: syncForTest()
     });
 
     DS.Errors.reopen({
