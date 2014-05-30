@@ -109,6 +109,37 @@ export default RecordArray.extend({
       this.get('relationship').addRecords(objects, idx);
     }
   },
+  /**
+    @method reload
+    @public
+  */
+  reload: function() {
+    //todo guard against reloading while already reloading
+    //monitor reloading state
+    //handle failure
+    var record = get(this, 'owner');
+    var data = get(record, 'data');
+    var key = get(this, 'name');
+    var link = data.links && data.links[key];
+    var store = get(this, 'store');
+    var promiseLabel = "DS: Async hasMany reloading " + record + " : " + key;
+    var resolver = Ember.RSVP.defer(promiseLabel);
+    var promise;
+    var manyArray = this;
+    if (link) {
+      store.findHasMany(record, link, relationshipFromMeta(store, record.constructor.metaForProperty(key)), resolver);
+      promise = resolver.promise.then(function(){
+        return manyArray;
+      });
+    } else {
+      var records = get(this, 'content');
+      promise = Ember.RSVP.all( records.map( function(record) { return record.reload(); }) ).then(function(){ return manyArray;});
+    }
+
+    return PromiseArray.create({
+      promise: promise
+    });
+  },
 
   /**
     Create a child record within the owner
