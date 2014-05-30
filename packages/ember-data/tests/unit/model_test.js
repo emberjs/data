@@ -74,6 +74,15 @@ test("trying to set an `id` attribute should raise", function() {
   }, /You may not set `id`/);
 });
 
+test("a collision of a record's id with object function's name", function() {
+  Object.prototype.watch = function(){}; 
+  store.push(Person, { id: 'watch' });
+  store.find(Person, 'watch').then(async(function(record) {
+    equal(get(record, 'id'), 'watch', "record is successfully created and could be found by its id");
+  }));
+  delete Object.prototype.watch;
+});
+
 test("it should use `_reference` and not `reference` to store its reference", function() {
   store.push(Person, { id: 1 });
 
