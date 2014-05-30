@@ -76,15 +76,18 @@ test("trying to set an `id` attribute should raise", function() {
 
 test("a collision of a record's id with object function's name", function() {
   var hasWatchMethod = Object.prototype.watch;
-  if (!hasWatchMethod) {
-    Object.prototype.watch = function(){}; 
-  }
-  store.push(Person, { id: 'watch' });
-  store.find(Person, 'watch').then(async(function(record) {
-    equal(get(record, 'id'), 'watch', "record is successfully created and could be found by its id");
-  }));
-  if (!hasWatchMethod) {
-    delete Object.prototype.watch;
+  try {
+    if (!hasWatchMethod) {
+      Object.prototype.watch = function(){};
+    }
+    store.push(Person, { id: 'watch' });
+    store.find(Person, 'watch').then(async(function(record) {
+      equal(get(record, 'id'), 'watch', "record is successfully created and could be found by its id");
+    }));
+  } finally {
+    if (!hasWatchMethod) {
+      delete Object.prototype.watch;
+    }
   }
 });
 
