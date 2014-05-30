@@ -577,10 +577,10 @@ Store = Ember.Object.extend({
     type = this.modelFor(type);
 
     id = coerceId(id);
+    var idToRecord = this.typeMapFor(type).idToRecord;
+    var record = idToRecord[id];
 
-    var record = this.typeMapFor(type).idToRecord[id];
-
-    if (!record) {
+    if (!record || !idToRecord.hasOwnProperty(id)) {
       record = this.buildRecord(type, id);
     }
 
@@ -1355,7 +1355,7 @@ Store = Ember.Object.extend({
     var typeMap = this.typeMapFor(type),
         idToRecord = typeMap.idToRecord;
 
-    Ember.assert('The id ' + id + ' has already been used with another record of type ' + type.toString() + '.', !id || !idToRecord[id]);
+    Ember.assert('The id ' + id + ' has already been used with another record of type ' + type.toString() + '.', !id || !idToRecord.hasOwnProperty(id));
     Ember.assert("`" + Ember.inspect(type)+ "` does not appear to be an ember-data model", (typeof type._create === 'function') );
 
     // lookupFactory should really return an object that creates
