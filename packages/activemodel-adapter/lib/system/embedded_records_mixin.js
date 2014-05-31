@@ -1,6 +1,8 @@
 var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
 var camelize = Ember.String.camelize;
+var map = Ember.ArrayPolyfills.map;
+var singularize = Ember.String.singularize;
 
 import {pluralize} from "../../../ember-inflector/lib/main";
 
@@ -415,6 +417,30 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     }, this);
 
     return this._super(store, primaryType, payload);
+  },
+
+  /**
+    Allow side-loaded payloads to extract embedded records
+
+    @method pushPayload
+    @param {DS.Store} store
+    @param {Object} payload
+  */
+  pushPayload: function(store, payload) {
+    payload = this.normalizePayload(payload);
+
+    var normalizer = function(hash) {
+      return typeSerializer.normalize(type, hash, prop);
+    };
+    for (var prop in payload) {
+      var typeName = this.typeForRoot(prop);
+      var type = store.modelFor(typeName);
+      var typeSerializer = store.serializerFor(type);
+      var normalizedArray = map.call(Ember.makeArray(payload[prop]), normalizer, this);
+      store.pushMany(typeName, normalizedArray);
+      // push relationships that are embedded into the store when configured in attrs
+      type.eachRelationship(embeddedPusher(store, payload), typeSerializer);
+    }
   }
 });
 
@@ -542,6 +568,31 @@ function updatePayloadWithEmbeddedBelongsTo(serializer, store, primaryType, rela
   // Need a reference to the parent so relationship works between both `belongsTo` records
   partial[attribute][relationship.parentType.typeKey + '_id'] = partial.id;
   delete partial[attribute];
+}
+
+// Curry function returns function with reference to store, payload for pushing into store
+function embeddedPusher(store, payload) {
+  var _store = store, _payload = payload;
+
+  return function (name, relationship) {
+    if (hasDeserializeRecordsOption(this.get('attrs'), name)) {
+      var key = (this.keyForAttribute) ? this.keyForAttribute(name) : name;
+      var parentKey = this.keyForAttribute(relationship.parentType.typeKey, relationship.kind);
+      var partialPayload = _payload[parentKey] || _payload[pluralize(parentKey)];
+      partialPayload.forEach(function (item) {
+        var embeddedPayload = item[key];
+        if (embeddedPayload) {
+          var __payload = {};
+          if (Object.prototype.toString.call(embeddedPayload) === '[object Array]') {
+            __payload[key] = embeddedPayload;
+          } else {
+            __payload[pluralize(key)] = [ embeddedPayload ];
+          }
+          _store.pushPayload(singularize(name), __payload);
+        }
+      });
+    }
+  };
 }
 
 export default EmbeddedRecordsMixin;
