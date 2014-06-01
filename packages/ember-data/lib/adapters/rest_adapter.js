@@ -632,9 +632,14 @@ var RESTAdapter = Adapter.extend({
     hash.dataType = 'json';
     hash.context = this;
 
-    if (hash.data && type !== 'GET') {
-      hash.contentType = 'application/json; charset=utf-8';
-      hash.data = JSON.stringify(hash.data);
+    if (type !== 'GET') {
+      if (hash.data instanceof FormData) {
+        hash.contentType = false;
+        hash.processData = false;
+      } else if (hash.data) {
+        hash.contentType = 'application/json; charset=utf-8';
+        hash.data = JSON.stringify(hash.data);
+      }
     }
 
     var headers = get(this, 'headers');
@@ -646,10 +651,8 @@ var RESTAdapter = Adapter.extend({
       };
     }
 
-
     return hash;
   }
-
 });
 
 export default RESTAdapter;
