@@ -844,6 +844,40 @@ test("extractSingle with multiply-nested belongsTo", function() {
   equal(env.store.recordForId("homePlanet", "1").get("name"), "Umber", "Nested Secondary record, Umber, found in the store");
 });
 
+test("extractSingle with custom belongsTo primary key", function() {
+  env.container.register('adapter:evilMinion', DS.ActiveModelAdapter);
+  env.container.register('serializer:evilMinion', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      superVillain: {embedded: 'always'}
+    }
+  }));
+  env.container.register('adapter:superVillain', DS.ActiveModelAdapter.extend({
+    primaryKey: 'custom'
+  }));
+
+  var serializer = env.container.lookup("serializer:evilMinion");
+  var json_hash = {
+    evil_minion: {
+      id: "1",
+      name: "Alex",
+      super_villain: {
+        custom: "1",
+        first_name: "Tom",
+        last_name: "Dale"
+      }
+    }
+  };
+  var json = serializer.extractSingle(env.store, EvilMinion, json_hash);
+
+  deepEqual(json, {
+    id: "1",
+    name: "Alex",
+    superVillain: "1"
+  }, "Primary array was correct");
+
+  equal(env.store.recordForId("superVillain", "1").get("firstName"), "Tom", "Secondary record, Tom, found in the steore");
+});
+
 test("serializing relationships with an embedded and without calls super when not attr not present", function() {
   homePlanet = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
   secretLab = env.store.createRecord(SecretLab, { minionCapacity: 5000, vicinity: "California, USA", id: "101" });
