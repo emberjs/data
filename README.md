@@ -1,4 +1,4 @@
-## Ember Data [![Build Status](https://secure.travis-ci.org/emberjs/data.svg?branch=master)](http://travis-ci.org/emberjs/data)
+## Ember Data [![Build Status](https://travis-ci.org/gutschik/data.svg?branch=master)](https://travis-ci.org/gutschik/data)
 
 Ember Data is a library for robustly managing model data in your
 Ember.js applications.

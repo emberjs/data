@@ -346,6 +346,8 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     @return Object the primary response to the original request
   */
   extractSingle: function(store, primaryType, payload, recordId) {
+    payload = this.normalizePayload(payload);
+    
     var root = this.keyForAttribute(primaryType.typeKey),
         partial = payload[root];
 
@@ -405,6 +407,8 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       to the original query.
   */
   extractArray: function(store, primaryType, payload) {
+    payload = this.normalizePayload(payload);
+    
     var root = this.keyForAttribute(primaryType.typeKey),
         partials = payload[pluralize(root)];
 
