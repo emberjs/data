@@ -633,7 +633,7 @@ var RESTAdapter = Adapter.extend({
     hash.context = this;
 
     if (type !== 'GET') {
-      if (hash.data instanceof FormData) {
+      if (FormData && hash.data instanceof FormData) {
         hash.contentType = false;
         hash.processData = false;
       } else if (hash.data) {
