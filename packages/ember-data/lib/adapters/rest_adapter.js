@@ -632,14 +632,9 @@ var RESTAdapter = Adapter.extend({
     hash.dataType = 'json';
     hash.context = this;
 
-    if (type !== 'GET') {
-      if (FormData && hash.data instanceof FormData) {
-        hash.contentType = false;
-        hash.processData = false;
-      } else if (hash.data) {
-        hash.contentType = 'application/json; charset=utf-8';
-        hash.data = JSON.stringify(hash.data);
-      }
+    if (hash.data && hash.processData !== false && type !== 'GET') {
+      hash.contentType = 'application/json; charset=utf-8';
+      hash.data = JSON.stringify(hash.data);
     }
 
     var headers = get(this, 'headers');

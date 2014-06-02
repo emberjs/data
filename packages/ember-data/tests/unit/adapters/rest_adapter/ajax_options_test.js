@@ -17,11 +17,10 @@ test('ajaxOptions - allows JSON', function() {
   equal(hash.contentType, 'application/json; charset=utf-8');
 });
 
-test('ajaxOptions - allows FormData', function() {
-  var data = new FormData(),
-      hash = adapter.ajaxOptions(null, null, { data: data });
+test('ajaxOptions - honours processData', function() {
+  var data = 'foo=bar',
+      hash = adapter.ajaxOptions(null, null, { data: data, processData: false });
 
-  strictEqual(hash.data, data);
-  equal(hash.contentType, false);
-  equal(hash.processData, false);
+  equal(hash.data, data);
+  equal(hash.contentType, undefined);
 });
