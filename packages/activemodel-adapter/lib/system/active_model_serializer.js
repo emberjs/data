@@ -49,10 +49,47 @@ var get = Ember.get,
   ```js
   {
     "famous_person": {
+      "id": 1,
       "first_name": "Barack",
       "last_name": "Obama",
       "occupation": "President"
     }
+  }
+  ```
+
+  Let's imagine that `Occupation` is just another model:
+
+  ```js
+  App.Person = DS.Model.extend({
+    firstName: DS.attr('string'),
+    lastName: DS.attr('string'),
+    occupation: DS.belongsTo('occupation')
+  });
+
+  App.Occupation = DS.Model.extend({
+    name: DS.attr('string'),
+    salary: DS.attr('number'),
+    people: DS.hasMany('person')
+  });
+  ```
+
+  The JSON needed to avoid extra server calls, should look like this:
+
+  ```js
+  {
+    "people": [{
+      "id": 1,
+      "first_name": "Barack",
+      "last_name": "Obama",
+      "occupation_id": 1
+    }],
+
+    "occupations": [{
+      "id": 1,
+      "name": "President",
+      "salary": 100000,
+      "person_ids": [1]
+    }]
   }
   ```
 
