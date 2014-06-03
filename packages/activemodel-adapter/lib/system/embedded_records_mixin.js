@@ -51,7 +51,7 @@ import {pluralize} from "../../../ember-inflector/lib/main";
   will behave in the following way:
 
   BelongsTo: `{serialize:'id', deserialize:'id'}`
-  HasMany:   `{serialize:no,  deserialize:'ids'}`
+  HasMany:   `{serialize:'no',  deserialize:'ids'}`
 
   ### Model Relationships
 
