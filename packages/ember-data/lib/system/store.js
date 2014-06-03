@@ -1243,7 +1243,7 @@ Store = Ember.Object.extend({
     By default, the data will be deserialized using a default
     serializer (the application serializer if it exists).
 
-    Alternativly, `pushPayload` will accept a model type which
+    Alternatively, `pushPayload` will accept a model type which
     will determine which serializer will process the payload.
     However, the serializer itself (processing this data via
     `normalizePayload`) will not know which model it is
