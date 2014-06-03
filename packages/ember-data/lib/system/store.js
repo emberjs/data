@@ -1600,8 +1600,16 @@ function deserializeRecordIds(store, data, key, relationship, ids) {
 // in the payload, so add them back in manually.
 function addUnsavedRecords(record, key, data) {
   if(record) {
-    Ember.A(data).pushObjects(record.get(key).filterBy('isNew'));
+    var unsavedRecords = uniqById(Ember.A(data), record.get(key).filterBy('isNew'));
+    Ember.A(data).pushObjects(unsavedRecords);
   }
+}
+
+function uniqById(data, records) {
+  var currentIds = data.mapBy("id");
+  return records.reject(function(record) {
+    return Ember.A(currentIds).contains(record.id);
+  });
 }
 
 // Delegation to the adapter and promise management
