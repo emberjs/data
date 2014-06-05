@@ -16,7 +16,7 @@ var get = Ember.get, set = Ember.set;
   it would be in the `root.loaded.created.uncommitted` state.  If a
   record has had local modifications made to it that are in the
   process of being saved, the record would be in the
-  `root.loaded.updated.inFlight` state. (These state paths will be
+  `root.loaded.updated.inFlight` state. (This state paths will be
   explained in more detail below.)
 
   Events are sent by the record or its store to the record's
@@ -60,7 +60,7 @@ var get = Ember.get, set = Ember.set;
     * loading
   ```
 
-  The `DS.Model` states are themselves stateless. What we mean is
+  The `DS.Model` states are themselves stateless. What that means is
   that, the hierarchical states that each of *those* points to is a
   shared data structure. For performance reasons, instead of each
   record getting its own copy of the hierarchy of states, each record

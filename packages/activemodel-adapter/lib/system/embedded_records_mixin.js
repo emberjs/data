@@ -37,7 +37,7 @@ import {pluralize} from "../../../ember-inflector/lib/main";
   The `attrs` property can be set on the ApplicationSerializer or a per-type
   serializer.
 
-  In the case where embedded JSON is expected while extracting a payoad (reading)
+  In the case where embedded JSON is expected while extracting a payload (reading)
   the setting is `deserialize: 'records'`, there is no need to use `ids` when
   extracting as that is the default behavior without this mixin if you are using
   the vanilla ActiveModelAdapter. Likewise, to embed JSON in the payload while

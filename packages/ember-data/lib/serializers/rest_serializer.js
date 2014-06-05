@@ -27,7 +27,7 @@ function coerceId(id) {
 
   ## Across the Board Normalization
 
-  There are also a number of hooks that you might find useful to defined
+  There are also a number of hooks that you might find useful to define
   across-the-board rules for your payload. These rules will be useful
   if your server is consistent, or if you're building an adapter for
   an infrastructure service, like Parse, and want to encode service
