@@ -12,7 +12,7 @@ import Adapter from "../system/adapter";
 /**
   `DS.FixtureAdapter` is an adapter that loads records from memory.
   It's primarily used for development and testing. You can also use
-  `DS.FixtureAdapter` while working on the API but are not ready to
+  `DS.FixtureAdapter` while working on the API but is not ready to
   integrate yet. It is a fully functioning adapter. All CRUD methods
   are implemented. You can also implement query logic that a remote
   system would do. It's possible to develop your entire application

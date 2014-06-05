@@ -120,7 +120,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
   object outside of Ember's observer system (for example
   `document.cookie`). You can use the
   [volatile](/api/classes/Ember.ComputedProperty.html#method_volatile)
-  function to set the property into a non-chached mode causing the headers to
+  function to set the property into a non-cached mode causing the headers to
   be recomputed with every request.
 
   ```js
