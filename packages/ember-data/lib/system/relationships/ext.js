@@ -114,17 +114,24 @@ Model.reopenClass({
 
     if (options.inverse === null) { return null; }
 
-    var inverseName, inverseKind;
+    var inverseName, inverseKind, inverse;
 
     if (options.inverse) {
       inverseName = options.inverse;
-      inverseKind = Ember.get(inverseType, 'relationshipsByName').get(inverseName).kind;
+      inverse = Ember.get(inverseType, 'relationshipsByName').get(inverseName);
+
+      Ember.assert("We found no inverse relationships by the name of '" + inverseName + "' on the '" + inverseType.typeKey + 
+        "' model. This is most likely due to a missing attribute on your model definition.", !Ember.isNone(inverse));
+
+      inverseKind = inverse.kind;
     } else {
       var possibleRelationships = findPossibleInverses(this, inverseType);
 
       if (possibleRelationships.length === 0) { return null; }
 
-      Ember.assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " + this + " were found on " + inverseType + ". Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses", possibleRelationships.length === 1);
+      Ember.assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " + 
+        this + " were found on " + inverseType + ". Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
+        possibleRelationships.length === 1);
 
       inverseName = possibleRelationships[0].name;
       inverseKind = possibleRelationships[0].kind;
