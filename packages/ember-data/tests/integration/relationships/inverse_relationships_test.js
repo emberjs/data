@@ -23,29 +23,6 @@ test("When a record is added to a has-many relationship, the inverse belongsTo i
   equal(comment.get('post'), post, "post was set on the comment");
 });
 
-test("Inverse relationships that don't exist throw a nice error", function () {
-  User = DS.Model.extend();
-  Comment = DS.Model.extend();
-
-  Post = DS.Model.extend({
-    comments: DS.hasMany(Comment, { inverse: 'testPost' }),
-    user: DS.belongsTo(User, { inverse: 'testPost' })
-  });
-
-  var env = setupStore({ post: Post, comment: Comment, user: User });
-  var post = env.store.createRecord('post');
-  var user = env.store.createRecord('user');
-  var comment = env.store.createRecord('comment');
-
-  expectAssertion(function() {
-    post.set('user', user);
-  }, /We found no inverse relationships by the name of 'testPost' on the 'user' model/);
-
-  expectAssertion(function() {
-    post.get('comments').addRecord(comment);
-  }, /We found no inverse relationships by the name of 'testPost' on the 'comment' model/);
-});
-
 test("Inverse relationships can be explicitly nullable", function () {
   User = DS.Model.extend();
 
