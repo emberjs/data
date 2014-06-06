@@ -369,6 +369,28 @@ test("create - a record on the many side of a hasMany relationship should update
   }));
 });
 
+test("create - sideloaded belongsTo relationships are both marked as loaded", function () {
+  expect(4);
+  var post, comment;
+
+  Post.reopen({ comment: DS.belongsTo('comment') });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  post = store.createRecord('post', { name: "man" });
+
+  ajaxResponse({
+    posts: [{ id: 1, comment: 1, name: "marked" }],
+    comments: [{ id: 1, post: 1, name: "Comcast is a bargain" }]
+  });
+
+  post.save().then(async(function(record) {
+    equal(store.getById('post', 1).get('comment.isLoaded'), true, "post's comment isLoaded (via store)");
+    equal(store.getById('comment', 1).get('post.isLoaded'), true, "comment's post isLoaded (via store)");
+    equal(record.get('comment.isLoaded'), true, "post's comment isLoaded (via record)");
+    equal(record.get('comment.post.isLoaded'), true, "post's comment's post isLoaded (via record)");
+  }));
+});
+
 test("create - relationships are not duplicated", function() {
   var post, comment;
 
