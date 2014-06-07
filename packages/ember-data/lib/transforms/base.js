@@ -25,7 +25,7 @@
   var attr = DS.attr;
   App.Requirement = DS.Model.extend({
     name: attr('string'),
-    optionsArray: attr('raw')
+    temperature: attr('temperature')
   });
   ```
 
