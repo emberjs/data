@@ -279,6 +279,7 @@ test("hasMany relationships work when the data hash has not been loaded", functi
   var env = setupStore({ tag: Tag, person: Person }),
       store = env.store;
 
+  env.adapter.coalesceFindRequests = true;
   env.adapter.findMany = function(store, type, ids) {
     equal(type, Tag, "type should be Tag");
     deepEqual(ids, ['5', '2'], "ids should be 5 and 2");
@@ -562,7 +563,7 @@ test("calling createRecord and passing in an undefined value for a relationship 
   }));
 });
 
-test("findMany is passed the owner record for adapters when some of the object graph is already loaded", function() {
+test("When finding a hasMany relationship the inverse belongsTo relationship is available immediately", function() {
   var Occupation = DS.Model.extend({
     description: DS.attr('string'),
     person: DS.belongsTo('person')
@@ -580,13 +581,12 @@ test("findMany is passed the owner record for adapters when some of the object g
   var env = setupStore({ occupation: Occupation, person: Person }),
       store = env.store;
 
-  env.adapter.findMany = function(store, type, ids, owner) {
-    equal(type, Occupation, "type should be Occupation");
-    deepEqual(ids, ['5', '2'], "ids should be 5 and 2");
-    equal(get(owner, 'id'), 1, "the owner record id should be 1");
-
+  env.adapter.findMany = function(store, type, ids, records) {
+    equal(records[0].get('person.id'), '1');
     return Ember.RSVP.resolve([{ id: 5, description: "fifth" }, { id: 2, description: "second" }]);
   };
+
+  env.adapter.coalesceFindRequests = true;
 
   store.push('person', { id: 1, name: "Tom Dale", occupations: [5, 2] });
 
@@ -603,7 +603,8 @@ test("findMany is passed the owner record for adapters when some of the object g
   }));
 });
 
-test("findMany is passed the owner record for adapters when none of the object graph is loaded", function() {
+test("When finding a belongsTo relationship the inverse belongsTo relationship is available immediately", function() {
+  expect(1);
   var Occupation = DS.Model.extend({
     description: DS.attr('string'),
     person: DS.belongsTo('person')
@@ -613,7 +614,7 @@ test("findMany is passed the owner record for adapters when none of the object g
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    occupations: DS.hasMany('occupation', { async: true })
+    occupation: DS.belongsTo('occupation', { async: true })
   });
 
   Person.toString = function() { return "Person"; };
@@ -621,30 +622,14 @@ test("findMany is passed the owner record for adapters when none of the object g
   var env = setupStore({ occupation: Occupation, person: Person }),
       store = env.store;
 
-  env.adapter.findMany = function(store, type, ids, owner) {
-    equal(type, Occupation, "type should be Occupation");
-    deepEqual(ids, ['5', '2'], "ids should be 5 and 2");
-    equal(get(owner, 'id'), 1, "the owner record id should be 1");
-
-    return Ember.RSVP.resolve([{ id: 5, description: "fifth" }, { id: 2, description: "second" }]);
+  env.adapter.find = function(store, type, id, record) {
+    equal(record.get('person.id'), '1');
+    return Ember.RSVP.resolve({ id: 5, description: "fifth" });
   };
 
-  env.adapter.find = function(store, type, id) {
-    equal(type, Person, "type should be Person");
-    equal(id, 1, "id should be 1");
+  store.push('person', { id: 1, name: "Tom Dale", occupation: 5 });
 
-    return Ember.RSVP.resolve({ id: 1, name: "Tom Dale", occupations: [5, 2] });
-  };
-
-  store.find('person', 1).then(async(function(person) {
-    equal(get(person, 'name'), "Tom Dale", "The person is now populated");
-
-    return get(person, 'occupations');
-  })).then(async(function(occupations) {
-    equal(get(occupations, 'length'), 2, "the occupation objects still exist");
-    equal(get(occupations.objectAt(0), 'description'), "fifth", "the occupation is the fifth");
-    equal(get(occupations.objectAt(0), 'isLoaded'), true, "the occupation is now loaded");
-  }));
+  store.getById('person', 1).get('occupation');
 });
 
 test("belongsTo supports relationships to models with id 0", function() {
