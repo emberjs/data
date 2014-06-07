@@ -205,10 +205,11 @@ export default Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {String} id
+    @param {DS.Model} record
     @return {Promise} promise
   */
-  find: function(store, type, id) {
-    return this.ajax(this.buildURL(type.typeKey, id), 'GET');
+  find: function(store, type, id, record) {
+    return this.ajax(this.buildURL(type.typeKey, id, record), 'GET');
   },
 
   /**
@@ -288,10 +289,11 @@ export default Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Array} ids
+    @param {Array} records
     @return {Promise} promise
   */
-  findMany: function(store, type, ids) {
-    return this.ajax(this.buildURL(type.typeKey), 'GET', { data: { ids: ids } });
+  findMany: function(store, type, ids, records) {
+    return this.ajax(this.buildURL(type.typeKey, ids, records), 'GET', { data: { ids: ids } });
   },
 
   /**
@@ -391,7 +393,7 @@ export default Adapter.extend({
 
     serializer.serializeIntoHash(data, type, record, { includeId: true });
 
-    return this.ajax(this.buildURL(type.typeKey), "POST", { data: data });
+    return this.ajax(this.buildURL(type.typeKey, null, record), "POST", { data: data });
   },
 
   /**
@@ -418,7 +420,7 @@ export default Adapter.extend({
 
     var id = get(record, 'id');
 
-    return this.ajax(this.buildURL(type.typeKey, id), "PUT", { data: data });
+    return this.ajax(this.buildURL(type.typeKey, id, record), "PUT", { data: data });
   },
 
   /**
@@ -435,7 +437,7 @@ export default Adapter.extend({
   deleteRecord: function(store, type, record) {
     var id = get(record, 'id');
 
-    return this.ajax(this.buildURL(type.typeKey, id), "DELETE");
+    return this.ajax(this.buildURL(type.typeKey, id, record), "DELETE");
   },
 
   /**
@@ -453,7 +455,7 @@ export default Adapter.extend({
     @param {String} id
     @return {String} url
   */
-  buildURL: function(type, id) {
+  buildURL: function(type, id, record) {
     var url = [],
         host = get(this, 'host'),
         prefix = this.urlPrefix();
@@ -502,6 +504,32 @@ export default Adapter.extend({
     }
 
     return url.join('/');
+  },
+
+  _urlWithoutTheId: function(store, record) {
+    var type = store.modelFor(record);
+    var url = this.buildURL(type.typeKey, record.get('id'), record);
+
+    var expandedUrl =  url.split('/');
+    if (expandedUrl[expandedUrl.length -1 ] === record.get('id')){
+      expandedUrl[expandedUrl.length - 1] = "";
+    }
+    return expandedUrl.join('/');
+  },
+
+  groupRecordsForFindMany: function (store, records) {
+    var groups = Ember.MapWithDefault.create({defaultValue: function(){return [];}});
+    var _this = this;
+    forEach.call(records, function(record){
+      var baseUrl = _this._urlWithoutTheId(store, record);
+      groups.get(baseUrl).push(record);
+    });
+    var groupsArray = [];
+    groups.forEach(function(key, group){
+      groupsArray.push(group);
+    });
+
+    return groupsArray;
   },
 
   /**

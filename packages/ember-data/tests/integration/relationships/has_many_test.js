@@ -163,16 +163,16 @@ test("When a polymorphic hasMany relationship is accessed, the adapter's findMan
   }));
 });
 
-test("When a polymorphic hasMany relationship is accessed, the store can call multiple adapters' findMany method if the records are not loaded", function() {
+test("When a polymorphic hasMany relationship is accessed, the store can call multiple adapters' findMany or find methods if the records are not loaded", function() {
   User.reopen({
     messages: hasMany('message', { polymorphic: true, async: true })
   });
 
-  env.adapter.findMany = function(store, type) {
+  env.adapter.find = function(store, type) {
     if (type === Post) {
-      return Ember.RSVP.resolve([{ id: 1 }]);
+      return Ember.RSVP.resolve({ id: 1 });
     } else if (type === Comment) {
-      return Ember.RSVP.resolve([{ id: 3 }]);
+      return Ember.RSVP.resolve({ id: 3 });
     }
   };
 

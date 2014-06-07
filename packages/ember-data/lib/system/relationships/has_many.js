@@ -12,6 +12,7 @@ import {
 var get = Ember.get;
 var set = Ember.set;
 var setProperties = Ember.setProperties;
+var map = Ember.EnumerableUtils.map;
 
 function asyncHasMany(type, options, meta) {
   return Ember.computed('data', function(key) {
@@ -28,7 +29,19 @@ function asyncHasMany(type, options, meta) {
         if (link) {
           rel = store.findHasMany(this, link, relationshipFromMeta(store, meta), resolver);
         } else {
-          rel = store.findMany(this, data[key], typeForRelationshipMeta(store, meta), resolver);
+          //This is a temporary workaround for setting owner on the relationship
+          //until single source of truth lands. It only works for OneToMany atm
+          var records = data[key];
+          var inverse = this.constructor.inverseFor(key);
+          var owner = this;
+          if (inverse && records) {
+            if (inverse.kind === 'belongsTo'){
+              map(records, function(record){
+                set(record, inverse.name, owner);
+              });
+            }
+          }
+          rel = store.findMany(owner, data[key], typeForRelationshipMeta(store, meta), resolver);
         }
         // cache the promise so we can use it
         // when we come back and don't need to rebuild
