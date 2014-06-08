@@ -181,6 +181,18 @@ test("extractSingle with embedded objects of same type", function() {
   equal(env.store.recordForId("comment", "3").get("body"), "Foo", "Secondary records found in the store");
 });
 
+test( 'extractSingle throws an error if payload does not include root key', function() {
+  env.container.register('adapter:comment', DS.ActiveModelAdapter);
+  env.container.register('serializer:comment', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {}));
+  var serializer = env.container.lookup("serializer:comment");
+
+  var json_hash = {};
+
+  throws(function() {
+    serializer.extractSingle(env.store, Comment, json_hash);
+  }, /EmbeddedRecordsMixin expected your payload to include a root element for your primary record named/);
+});
+
 test("extractSingle with embedded objects inside embedded objects of same type", function() {
   env.container.register('adapter:comment', DS.ActiveModelAdapter);
   env.container.register('serializer:comment', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
@@ -309,6 +321,23 @@ test("extractArray with embedded objects", function() {
   env.store.find("superVillain", 1).then(async(function(minion){
     equal(minion.get('firstName'), "Tom");
   }));
+});
+
+test( 'extractArray throws an error if payload does not include root key', function() {
+  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      villains: {embedded: 'always'}
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:homePlanet");
+
+  var json_hash = {};
+
+  throws(function() {
+    env.amsSerializer.extractArray(env.store, HomePlanet, json_hash);
+  }, /EmbeddedRecordsMixin expected your payload/, 'expected error to be thrown for missing root key');
 });
 
 test("extractArray with embedded objects of same type as primary type", function() {
