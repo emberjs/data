@@ -17,6 +17,18 @@ test('ajaxOptions - allows JSON', function() {
   equal(hash.contentType, 'application/json; charset=utf-8');
 });
 
+test('ajaxOptions - sets default for processData', function() {
+  var hash = adapter.ajaxOptions(null, null, { data: null });
+
+  equal(hash.processData, true);
+});
+
+test('ajaxOptions - respects false for processData', function() {
+  var hash = adapter.ajaxOptions(null, null, { data: null, processData: false });
+
+  equal(hash.processData, false);
+});
+
 test('ajaxOptions - honours processData', function() {
   var data = 'foo=bar',
       hash = adapter.ajaxOptions(null, null, { data: data, processData: false });
