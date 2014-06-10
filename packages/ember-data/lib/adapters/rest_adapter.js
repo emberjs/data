@@ -614,7 +614,7 @@ var RESTAdapter = Adapter.extend({
       };
 
       Ember.$.ajax(hash);
-    }, "DS: RestAdapter#ajax " + type + " to " + url);
+    }, "DS: RESTAdapter#ajax " + type + " to " + url);
   },
 
   /**
