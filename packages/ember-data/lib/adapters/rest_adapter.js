@@ -386,12 +386,15 @@ var RESTAdapter = Adapter.extend({
     @return {Promise} promise
   */
   createRecord: function(store, type, record) {
-    var data = {};
-    var serializer = store.serializerFor(type.typeKey);
+    var data = {},
+        serializer = store.serializerFor(type.typeKey),
+        url = this.buildURL(type.typeKey),
+        self = this;
 
-    serializer.serializeIntoHash(data, type, record, { includeId: true });
-
-    return this.ajax(this.buildURL(type.typeKey), "POST", { data: data });
+    return serializer.serializeIntoHash(data, type, record, { includeId: true })
+                     .then(function(serialized) {
+                       return self.ajax(url, "POST", { data: serialized });
+                     });
   },
 
   /**
@@ -411,14 +414,16 @@ var RESTAdapter = Adapter.extend({
     @return {Promise} promise
   */
   updateRecord: function(store, type, record) {
-    var data = {};
-    var serializer = store.serializerFor(type.typeKey);
+    var data = {},
+        serializer = store.serializerFor(type.typeKey),
+        id = get(record, 'id'),
+        url = this.buildURL(type.typeKey, id),
+        self = this;
 
-    serializer.serializeIntoHash(data, type, record);
-
-    var id = get(record, 'id');
-
-    return this.ajax(this.buildURL(type.typeKey, id), "PUT", { data: data });
+    return serializer.serializeIntoHash(data, type, record)
+                     .then(function(serialized) {
+                       return self.ajax(url, "PUT", { data: serialized });
+                     });
   },
 
   /**

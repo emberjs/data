@@ -225,13 +225,15 @@ var FixtureAdapter = Adapter.extend({
     @return {Promise} promise
   */
   createRecord: function(store, type, record) {
-    var fixture = this.mockJSON(store, type, record);
+    var self = this;
 
-    this.updateFixtures(type, fixture);
-
-    return this.simulateRemoteCall(function() {
-      return fixture;
-    }, this);
+    return this.mockJSON(store, type, record)
+                 .then(function(fixture) {
+                   self.updateFixtures(type, fixture);
+                   return self.simulateRemoteCall(function() {
+                     return fixture;
+                   }, self);
+                 });
   },
 
   /**
@@ -242,13 +244,15 @@ var FixtureAdapter = Adapter.extend({
     @return {Promise} promise
   */
   updateRecord: function(store, type, record) {
-    var fixture = this.mockJSON(store, type, record);
+    var self = this;
 
-    this.updateFixtures(type, fixture);
-
-    return this.simulateRemoteCall(function() {
-      return fixture;
-    }, this);
+    return this.mockJSON(store, type, record)
+                 .then(function(fixture) {
+                   self.updateFixtures(type, fixture);
+                   return self.simulateRemoteCall(function() {
+                     return fixture;
+                   }, self);
+                 });
   },
 
   /**
@@ -259,14 +263,16 @@ var FixtureAdapter = Adapter.extend({
     @return {Promise} promise
   */
   deleteRecord: function(store, type, record) {
-    var fixture = this.mockJSON(store, type, record);
+    var self = this;
 
-    this.deleteLoadedFixture(type, fixture);
-
-    return this.simulateRemoteCall(function() {
-      // no payload in a deletion
-      return null;
-    });
+    return this.mockJSON(store, type, record)
+                 .then(function(fixture) {
+                   self.deleteLoadedFixture(type, fixture);
+                   return self.simulateRemoteCall(function() {
+                     // no payload in a deletion
+                     return null;
+                   });
+                 });
   },
 
   /*

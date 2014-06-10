@@ -126,13 +126,13 @@ test("extractSingle with embedded objects inside embedded objects", function() {
     }
   };
 
-  var json = serializer.extractSingle(env.store, HomePlanet, json_hash);
-
+  var json = serializer.extractSingle(env.store, HomePlanet, json_hash)
   deepEqual(json, {
     id: "1",
     name: "Umber",
     villains: ["1"]
   });
+
   env.store.find("superVillain", 1).then(async(function(villain) {
     equal(villain.get('firstName'), "Tom");
     equal(villain.get('evilMinions.length'), 1, "Should load the embedded child");
@@ -436,17 +436,19 @@ test("serialize with embedded objects (hasMany relationship)", function() {
   }));
   var serializer = env.container.lookup("serializer:homePlanet");
 
-  var json = serializer.serialize(league);
-
-  deepEqual(json, {
-    name: "Villain League",
-    villains: [{
-      id: get(tom, "id"),
-      first_name: "Tom",
-      last_name: "Dale",
-      home_planet_id: get(league, "id"),
-      secret_lab_id: null
-    }]
+  Ember.run(function() {
+    serializer.serialize(league).then(function(json) {
+      deepEqual(json, {
+        name: "Villain League",
+        villains: [{
+          id: get(tom, "id"),
+          first_name: "Tom",
+          last_name: "Dale",
+          home_planet_id: get(league, "id"),
+          secret_lab_id: null
+        }]
+      });
+    });
   });
 });
 
@@ -461,10 +463,12 @@ test("serialize with embedded objects (hasMany relationship) supports serialize:
   }));
   var serializer = env.container.lookup("serializer:homePlanet");
 
-  var json = serializer.serialize(league);
-
-  deepEqual(json, {
-    name: "Villain League"
+  Ember.run(function() {
+    serializer.serialize(league).then(function(json) {
+      deepEqual(json, {
+        name: "Villain League"
+      });
+    });
   });
 });
 
@@ -479,15 +483,18 @@ test("serialize with (new) embedded objects (hasMany relationship)", function() 
   }));
   var serializer = env.container.lookup("serializer:homePlanet");
 
-  var json = serializer.serialize(league);
-  deepEqual(json, {
-    name: "Villain League",
-    villains: [{
-      first_name: "Tom",
-      last_name: "Dale",
-      home_planet_id: get(league, "id"),
-      secret_lab_id: null
-    }]
+  Ember.run(function() {
+    serializer.serialize(league).then(function(json) {
+      deepEqual(json, {
+        name: "Villain League",
+        villains: [{
+          first_name: "Tom",
+          last_name: "Dale",
+          home_planet_id: get(league, "id"),
+          secret_lab_id: null
+        }]
+      });
+    });
   });
 });
 
@@ -506,18 +513,21 @@ test("serialize with embedded objects (hasMany relationships, including related 
   }));
   var serializer = env.container.lookup("serializer:superVillain");
 
-  var json = serializer.serialize(superVillain);
-  deepEqual(json, {
-    first_name: get(superVillain, "firstName"),
-    last_name: get(superVillain, "lastName"),
-    home_planet_id: null,
-    evil_minions: [{
-      id: get(evilMinion, "id"),
-      name: get(evilMinion, "name"),
-      super_villain_id: "1"
-    }],
-    secret_lab_id: null,
-    secret_weapon_ids: [ "1" ]
+  Ember.run(function() {
+    serializer.serialize(superVillain).then(function(json) {
+      deepEqual(json, {
+        first_name: get(superVillain, "firstName"),
+        last_name: get(superVillain, "lastName"),
+        home_planet_id: null,
+        evil_minions: [{
+          id: get(evilMinion, "id"),
+          name: get(evilMinion, "name"),
+          super_villain_id: "1"
+        }],
+        secret_lab_id: null,
+        secret_weapon_ids: [ "1" ]
+      });
+    });
   });
 });
 
@@ -586,16 +596,19 @@ test("serialize with embedded object (belongsTo relationship)", function() {
     }
   );
 
-  var json = serializer.serialize(tom);
-  deepEqual(json, {
-    first_name: get(tom, "firstName"),
-    last_name: get(tom, "lastName"),
-    home_planet_id: get(tom, "homePlanet").get("id"),
-    secret_lab: {
-      id: get(tom, "secretLab").get("id"),
-      minion_capacity: get(tom, "secretLab").get("minionCapacity"),
-      vicinity: get(tom, "secretLab").get("vicinity")
-    }
+  Ember.run(function() {
+    serializer.serialize(tom).then(function(json) {
+      deepEqual(json, {
+        first_name: get(tom, "firstName"),
+        last_name: get(tom, "lastName"),
+        home_planet_id: get(tom, "homePlanet").get("id"),
+        secret_lab: {
+          id: get(tom, "secretLab").get("id"),
+          minion_capacity: get(tom, "secretLab").get("minionCapacity"),
+          vicinity: get(tom, "secretLab").get("vicinity")
+        }
+      });
+    });
   });
 });
 
@@ -623,16 +636,19 @@ test("serialize with embedded object (belongsTo relationship) works with differe
     }
   );
 
-  var json = serializer.serialize(tom);
-  deepEqual(json, {
-    first_name: get(tom, "firstName"),
-    last_name: get(tom, "lastName"),
-    home_planet_id: get(tom, "homePlanet").get("id"),
-    secret_lab: {
-      crazy_id: get(tom, "secretLab").get("id"),
-      minion_capacity: get(tom, "secretLab").get("minionCapacity"),
-      vicinity: get(tom, "secretLab").get("vicinity")
-    }
+  Ember.run(function() {
+    serializer.serialize(tom).then(function(json) {
+      deepEqual(json, {
+        first_name: get(tom, "firstName"),
+        last_name: get(tom, "lastName"),
+        home_planet_id: get(tom, "homePlanet").get("id"),
+        secret_lab: {
+          crazy_id: get(tom, "secretLab").get("id"),
+          minion_capacity: get(tom, "secretLab").get("minionCapacity"),
+          vicinity: get(tom, "secretLab").get("vicinity")
+        }
+      });
+    });
   });
 });
 
@@ -656,15 +672,18 @@ test("serialize with embedded object (belongsTo relationship, new no id)", funct
     }
   );
 
-  var json = serializer.serialize(tom);
-  deepEqual(json, {
-    first_name: get(tom, "firstName"),
-    last_name: get(tom, "lastName"),
-    home_planet_id: get(tom, "homePlanet").get("id"),
-    secret_lab: {
-      minion_capacity: get(tom, "secretLab").get("minionCapacity"),
-      vicinity: get(tom, "secretLab").get("vicinity")
-    }
+  Ember.run(function() {
+    serializer.serialize(tom).then(function(json) {
+      deepEqual(json, {
+        first_name: get(tom, "firstName"),
+        last_name: get(tom, "lastName"),
+        home_planet_id: get(tom, "homePlanet").get("id"),
+        secret_lab: {
+          minion_capacity: get(tom, "secretLab").get("minionCapacity"),
+          vicinity: get(tom, "secretLab").get("vicinity")
+        }
+      });
+    });
   });
 });
 
@@ -687,12 +706,15 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
     }
   );
 
-  var json = serializer.serialize(tom);
-  deepEqual(json, {
-    first_name: get(tom, "firstName"),
-    last_name: get(tom, "lastName"),
-    home_planet_id: get(tom, "homePlanet").get("id"),
-    secret_lab_id: get(tom, "secretLab").get("id")
+  Ember.run(function() {
+    serializer.serialize(tom).then(function(json) {
+      deepEqual(json, {
+        first_name: get(tom, "firstName"),
+        last_name: get(tom, "lastName"),
+        home_planet_id: get(tom, "homePlanet").get("id"),
+        secret_lab_id: get(tom, "secretLab").get("id")
+      });
+    });
   });
 });
 
@@ -716,12 +738,15 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
     }
   );
 
-  var json = serializer.serialize(tom);
-  deepEqual(json, {
-    first_name: get(tom, "firstName"),
-    last_name: get(tom, "lastName"),
-    home_planet_id: get(tom, "homePlanet").get("id"),
-    secret_lab_id: get(tom, "secretLab").get("id")
+  Ember.run(function() {
+    serializer.serialize(tom).then(function(json) {
+      deepEqual(json, {
+        first_name: get(tom, "firstName"),
+        last_name: get(tom, "lastName"),
+        home_planet_id: get(tom, "homePlanet").get("id"),
+        secret_lab_id: get(tom, "secretLab").get("id")
+      });
+    });
   });
 });
 
@@ -744,11 +769,14 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
     }
   );
 
-  var json = serializer.serialize(tom);
-  deepEqual(json, {
-    first_name: get(tom, "firstName"),
-    last_name: get(tom, "lastName"),
-    home_planet_id: get(tom, "homePlanet").get("id")
+  Ember.run(function() {
+    serializer.serialize(tom).then(function(json) {
+      deepEqual(json, {
+        first_name: get(tom, "firstName"),
+        last_name: get(tom, "lastName"),
+        home_planet_id: get(tom, "homePlanet").get("id")
+      });
+    });
   });
 });
 
@@ -767,12 +795,15 @@ test("serialize with embedded object (belongsTo relationship) serializes the id 
     }
   );
 
-  var json = serializer.serialize(tom);
-  deepEqual(json, {
-    first_name: get(tom, "firstName"),
-    last_name: get(tom, "lastName"),
-    home_planet_id: get(tom, "homePlanet").get("id"),
-    secret_lab_id: get(tom, "secretLab").get("id")
+  Ember.run(function() {
+    serializer.serialize(tom).then(function(json) {
+      deepEqual(json, {
+        first_name: get(tom, "firstName"),
+        last_name: get(tom, "lastName"),
+        home_planet_id: get(tom, "homePlanet").get("id"),
+        secret_lab_id: get(tom, "secretLab").get("id")
+      });
+    });
   });
 });
 
@@ -792,12 +823,15 @@ test("when related record is not present, serialize embedded record (with a belo
     }
   );
 
-  var json = serializer.serialize(tom);
-  deepEqual(json, {
-    first_name: get(tom, "firstName"),
-    last_name: get(tom, "lastName"),
-    home_planet_id: get(tom, "homePlanet").get("id"),
-    secret_lab: null
+  Ember.run(function() {
+    serializer.serialize(tom).then(function(json) {
+      deepEqual(json, {
+        first_name: get(tom, "firstName"),
+        last_name: get(tom, "lastName"),
+        home_planet_id: get(tom, "homePlanet").get("id"),
+        secret_lab: null
+      });
+    });
   });
 });
 
@@ -898,18 +932,21 @@ test("serializing relationships with an embedded and without calls super when no
   }));
   var serializer = env.container.lookup("serializer:superVillain");
 
-  var json = serializer.serialize(superVillain);
-  deepEqual(json, {
-    firstName: get(superVillain, "firstName"),
-    lastName: get(superVillain, "lastName"),
-    homePlanetId: "123",
-    evilMinions: [{
-      id: get(evilMinion, "id"),
-      name: get(evilMinion, "name"),
-      superVillainId: "1"
-    }],
-    secretLabId: "101",
-    secretWeaponIds: ["1"]
+  Ember.run(function() {
+    serializer.serialize(superVillain).then(function(json) {
+      deepEqual(json, {
+        firstName: get(superVillain, "firstName"),
+        lastName: get(superVillain, "lastName"),
+        homePlanetId: "123",
+        evilMinions: [{
+          id: get(evilMinion, "id"),
+          name: get(evilMinion, "name"),
+          superVillainId: "1"
+        }],
+        secretLabId: "101",
+        secretWeaponIds: ["1"]
+      });
+    });
   });
   ok(calledSerializeBelongsTo);
   ok(calledSerializeHasMany);

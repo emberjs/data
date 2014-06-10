@@ -147,7 +147,11 @@ var ActiveModelSerializer = RESTSerializer.extend({
   */
   serializeIntoHash: function(data, type, record, options) {
     var root = underscore(decamelize(type.typeKey));
-    data[root] = this.serialize(record, options);
+
+    return this.serialize(record, options).then(function(serialized) {
+      data[root] = serialized;
+      return data;
+    });
   },
 
   /**
@@ -159,13 +163,9 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param relationship
   */
   serializePolymorphicType: function(record, json, relationship) {
-    var key = relationship.key,
-        belongsTo = get(record, key);
-
-    if (belongsTo) {
-      key = this.keyForAttribute(key);
-      json[key + "_type"] = capitalize(belongsTo.constructor.typeKey);
-    }
+    var key = relationship.key;
+    key = this.keyForAttribute(key);
+    json[key + "_type"] = capitalize(camelize(record.constructor.typeKey));
   },
 
   // EXTRACT

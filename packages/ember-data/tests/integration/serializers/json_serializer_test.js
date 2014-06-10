@@ -1,5 +1,5 @@
 var get = Ember.get, set = Ember.set;
-var Post, post, Comment, comment, env;
+var Post, post, Comment, comment, Favourite, favourite, env;
 
 module("integration/serializer/json - JSONSerializer", {
   setup: function() {
@@ -11,12 +11,17 @@ module("integration/serializer/json - JSONSerializer", {
       body: DS.attr('string'),
       post: DS.belongsTo('post')
     });
+    Favourite = DS.Model.extend({
+      post: DS.belongsTo('post', { polymorphic: true, async: true })
+    });
     env = setupStore({
       post:     Post,
-      comment:  Comment
+      comment:  Comment,
+      favourite: Favourite
     });
     env.store.modelFor('post');
     env.store.modelFor('comment');
+    env.store.modelFor('favourite');
   },
 
   teardown: function() {
@@ -110,12 +115,34 @@ test("serializeHasMany respects keyForRelationship", function() {
   });
 });
 
+test('serializeBelongsTo with async polymorphic', function() {
+  var json = {},
+      expectedJSON = { post: '1', postTYPE: 'post' };
+
+  env.container.register('serializer:favourite', DS.JSONSerializer.extend({
+    serializePolymorphicType: function(record, json, relationship) {
+      var key = relationship.key;
+      json[relationship.key + 'TYPE'] = record.constructor.typeKey;
+    }
+  }));
+
+  post = env.store.createRecord(Post, { title: 'Kitties are omakase', id: '1' });
+  favourite = env.store.createRecord(Favourite, { post: post, id: '3' });
+
+  env.container.lookup('serializer:favourite').serializeBelongsTo(favourite, json, { key: 'post', options: { polymorphic: true, async: true } }).then(function(json) {
+    deepEqual(
+      json,
+      expectedJSON,
+      'Expected: ' + JSON.stringify(expectedJSON) + ', Got: ' + JSON.stringify(json)
+    );
+  });
+});
+
 test("serializePolymorphicType", function() {
   env.container.register('serializer:comment', DS.JSONSerializer.extend({
     serializePolymorphicType: function(record, json, relationship) {
-      var key = relationship.key,
-          belongsTo = get(record, key);
-      json[relationship.key + "TYPE"] = belongsTo.constructor.typeKey;
+      var key = relationship.key;
+      json[relationship.key + "TYPE"] = record.constructor.typeKey;
     }
   }));
 
@@ -174,9 +201,11 @@ test('Serializer should respect the attrs hash when serializing records', functi
 
   post = env.store.createRecord("post", { title: "Rails is omakase"});
 
-  var payload = env.container.lookup("serializer:post").serialize(post);
-
-  equal(payload.title_payload_key, "Rails is omakase");
+  Ember.run(function() {
+    env.container.lookup("serializer:post").serialize(post).then(function(payload) {
+      equal(payload.title_payload_key, "Rails is omakase");
+    });
+  });
 });
 
 test("Serializer should respect the primaryKey attribute when extracting records", function() {
@@ -199,7 +228,9 @@ test("Serializer should respect the primaryKey attribute when serializing record
 
   post = env.store.createRecord("post", { id: "1", title: "Rails is omakase"});
 
-  var payload = env.container.lookup("serializer:post").serialize(post, {includeId: true});
-
-  equal(payload._ID_, "1");
+  Ember.run(function() {
+    env.container.lookup("serializer:post").serialize(post, {includeId: true}).then(function(payload) {
+      equal(payload._ID_, "1");
+    });
+  });
 });

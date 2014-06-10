@@ -736,7 +736,10 @@ method in your `ApplicationSerializer`.
 App.ApplicationSerializer = DS.RESTSerializer.extend({
   serializeIntoHash: function(data, type, record, options) {
     var root = Ember.String.decamelize(type.typeKey);
-    data[root] = this.serialize(record, options);
+    return this.serialize(record, options).then(function(serialized) {
+      data[root] = serialized;
+      return data;
+    });
   }
 });
 ```
@@ -933,10 +936,9 @@ on your serializer.
 ```
 App.CommentSerializer = DS.RESTSerializer.extend({
   serializePolymorphicType: function(record, json, relationship) {
-    var key = relationship.key,
-        belongsTo = get(record, key);
+    var key = relationship.key;
     key = this.keyForAttribute ? this.keyForAttribute(key) : key;
-    json[key + "_type"] = belongsTo.constructor.typeKey;
+    json[key + "_type"] = record.constructor.typeKey;
   }
 });
 ```
