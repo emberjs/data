@@ -130,7 +130,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
         "API_KEY": Ember.get(document.cookie.match(/apiKey\=([^;]*)/), "1"),
         "ANOTHER_HEADER": "Some header value"
       };
-    }.property().volatile();
+    }.property().volatile()
   });
   ```
 
