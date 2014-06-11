@@ -720,9 +720,10 @@ export default Adapter.extend({
 
     @method ajaxError
     @param  {Object} jqXHR
+    @param  {Object} responseText
     @return {Object} jqXHR
   */
-  ajaxError: function(jqXHR) {
+  ajaxError: function(jqXHR, responseText) {
     if (jqXHR && typeof jqXHR === 'object') {
       jqXHR.then = null;
     }
@@ -748,10 +749,11 @@ export default Adapter.extend({
 
     @method ajaxError
     @param  {Object} jqXHR
+    @param  {Object} jsonPayload
     @return {Object} jqXHR
   */
 
-  ajaxSuccess: function(jsonPayload, jqXHR) {
+  ajaxSuccess: function(jqXHR, jsonPayload) {
     return jsonPayload;
   },
 
@@ -786,7 +788,7 @@ export default Adapter.extend({
       var hash = adapter.ajaxOptions(url, type, options);
 
       hash.success = function(json, textStatus, jqXHR) {
-        json = this.ajaxSuccess(json, jqXHR);
+        json = this.ajaxSuccess(jqXHR, json);
         if (InvalidError.detectInstance(json)){
           Ember.run(null, reject, json);
         } else {
@@ -795,7 +797,7 @@ export default Adapter.extend({
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
-        Ember.run(null, reject, adapter.ajaxError(jqXHR));
+        Ember.run(null, reject, adapter.ajaxError(jqXHR, jqXHR.responseText));
       };
 
       Ember.$.ajax(hash);
