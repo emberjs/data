@@ -468,7 +468,7 @@ Store = Ember.Object.extend({
     @method getById
     @param {String or subclass of DS.Model} type
     @param {String|Integer} id
-    @param {DS.Model} record
+    @return {DS.Model|null} record
   */
   getById: function(type, id) {
     if (this.hasRecordForId(type, id)) {
