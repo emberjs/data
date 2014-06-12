@@ -255,7 +255,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       key = this.keyForRelationship(attr, relationship.kind);
       json[key] = get(record, attr).mapBy('id');
     } else if (includeRecords) {
-      key = this.keyForAttribute(attr);
+      key = getKeyForAttribute.call(this, attr);
       json[key] = get(record, attr).map(function(embeddedRecord) {
         var serializedEmbeddedRecord = embeddedRecord.serialize({includeId: true});
         this.removeEmbeddedForeignKey(record, embeddedRecord, relationship, serializedEmbeddedRecord);
@@ -346,8 +346,9 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     @return Object the primary response to the original request
   */
   extractSingle: function(store, primaryType, payload, recordId) {
-    var root = this.keyForAttribute(primaryType.typeKey),
-        partial = payload[root];
+    var key = primaryType.typeKey;
+    var root = getKeyForAttribute.call(this, key);
+    var partial = payload[root];
 
     updatePayloadWithEmbedded(this, store, primaryType, payload, partial);
 
@@ -405,8 +406,9 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       to the original query.
   */
   extractArray: function(store, primaryType, payload) {
-    var root = this.keyForAttribute(primaryType.typeKey),
-        partials = payload[pluralize(root)];
+    var key = primaryType.typeKey;
+    var root = getKeyForAttribute.call(this, key);
+    var partials = payload[pluralize(root)];
 
     forEach(partials, function(partial) {
       updatePayloadWithEmbedded(this, store, primaryType, payload, partial);
@@ -415,6 +417,11 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     return this._super(store, primaryType, payload);
   }
 });
+
+// `keyForAttribute` is optional but may be defined when extending a serializer prototype
+var getKeyForAttribute = function(attr) {
+ return (this.keyForAttribute) ? this.keyForAttribute(attr) : attr;
+};
 
 // checks config for attrs option to embedded (always) - serialize and deserialize
 function hasEmbeddedAlwaysOption(attrs, attr) {
@@ -486,7 +493,7 @@ function updatePayloadWithEmbeddedHasMany(serializer, store, primaryType, relati
   // it is needed when main type === relationship.type
   var embeddedTypeKey = '_' + serializer.typeForRoot(relationship.type.typeKey);
   var expandedKey = serializer.keyForRelationship(primaryType, relationship.kind);
-  var attribute  = serializer.keyForAttribute(primaryType);
+  var attribute = getKeyForAttribute.call(serializer, primaryType);
   var ids = [];
 
   if (!partial[attribute]) {
@@ -520,7 +527,7 @@ function updatePayloadWithEmbeddedBelongsTo(serializer, store, primaryType, rela
   var primaryKey = get(_serializer, 'primaryKey');
   var embeddedTypeKey = Ember.String.pluralize(attr); // TODO don't use pluralize
   var expandedKey = _serializer.keyForRelationship(primaryType, relationship.kind);
-  var attribute = _serializer.keyForAttribute(primaryType);
+  var attribute = getKeyForAttribute.call(_serializer, primaryType);
 
   if (!partial[attribute]) {
     return;
