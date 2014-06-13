@@ -93,7 +93,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
 
 
   ```js
-  App.ApplicationAdapter = DS.RESTAdapter.extend({
+  DS.RESTAdapter.reopen({
     headers: {
       "API_KEY": "secret key",
       "ANOTHER_HEADER": "Some header value"
@@ -106,7 +106,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
   injected into an adapter by Ember's container.
 
   ```js
-  App.ApplicationAdapter = DS.RESTAdapter.extend({
+  DS.RESTAdapter.reopen({
     headers: function() {
       return {
         "API_KEY": this.get("session.authToken"),
@@ -124,7 +124,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
   be recomputed with every request.
 
   ```js
-  App.ApplicationAdapter = DS.RESTAdapter.extend({
+  DS.RESTAdapter.reopen({
     headers: function() {
       return {
         "API_KEY": Ember.get(document.cookie.match(/apiKey\=([^;]*)/), "1"),
@@ -180,7 +180,7 @@ var RESTAdapter = Adapter.extend({
     customization](/api/data/classes/DS.RESTAdapter.html#toc_headers-customization).
 
     ```javascript
-    App.ApplicationAdapter = DS.RESTAdapter.extend({
+    DS.RESTAdapter.reopen({
       headers: {
         "API_KEY": "secret key",
         "ANOTHER_HEADER": "Some header value"
@@ -516,7 +516,7 @@ var RESTAdapter = Adapter.extend({
     endpoint of "/line_items/".
 
     ```js
-    App.ApplicationAdapter = DS.RESTAdapter.extend({
+    DS.RESTAdapter.reopen({
       pathForType: function(type) {
         var decamelized = Ember.String.decamelize(type);
         return Ember.String.pluralize(decamelized);
@@ -541,7 +541,7 @@ var RESTAdapter = Adapter.extend({
     `errors` object available on the record.
 
     ```javascript
-    App.ApplicationAdapter = DS.RESTAdapter.extend({
+    DS.RESTAdapter.reopen({
       ajaxError: function(jqXHR) {
         var error = this._super(jqXHR);
 
