@@ -44,7 +44,7 @@ var JSONSerializer = Ember.Object.extend({
     The `attrs` object can be used to declare a simple mapping between
     property names on `DS.Model` records and payload keys in the
     serialized JSON object representing the record. An object with the
-    propery `key` can also be used to designate the attribute's key on
+    property `key` can also be used to designate the attribute's key on
     the response payload.
 
     Example
