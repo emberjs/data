@@ -3,7 +3,7 @@
 */
 
 import Adapter from "../system/adapter";
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
 var forEach = Ember.ArrayPolyfills.forEach;
 
 /**
