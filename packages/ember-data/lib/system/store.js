@@ -537,7 +537,7 @@ Store = Ember.Object.extend({
     var promises = [];
 
     forEach(recordsByTypeMap, function(type, records) {
-      var ids = records.mapProperty('id'),
+      var ids = records.mapBy('id'),
           adapter = this.adapterFor(type);
 
       Ember.assert("You tried to load many records but you have no adapter (for " + type + ")", adapter);
@@ -601,7 +601,7 @@ Store = Ember.Object.extend({
 
     records = Ember.A(records);
 
-    var unloadedRecords = records.filterProperty('isEmpty', true),
+    var unloadedRecords = records.filterBy('isEmpty', true),
         manyArray = this.recordArrayManager.createManyArray(type, records);
 
     forEach(unloadedRecords, function(record) {

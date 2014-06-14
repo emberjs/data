@@ -121,7 +121,7 @@ var ManyArray = RecordArray.extend({
         store = get(this, 'store'),
         owner = get(this, 'owner');
 
-    var unloadedRecords = records.filterProperty('isEmpty', true);
+    var unloadedRecords = records.filterBy('isEmpty', true);
     store.fetchMany(unloadedRecords, owner);
   },
 

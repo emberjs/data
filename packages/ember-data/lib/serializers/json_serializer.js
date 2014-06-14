@@ -228,7 +228,7 @@ var JSONSerializer = Ember.Object.extend({
         var json = {
           POST_TTL: post.get('title'),
           POST_BDY: post.get('body'),
-          POST_CMS: post.get('comments').mapProperty('id')
+          POST_CMS: post.get('comments').mapBy('id')
         }
 
         if (options.includeId) {
