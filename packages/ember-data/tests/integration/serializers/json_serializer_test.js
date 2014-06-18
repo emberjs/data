@@ -203,3 +203,52 @@ test("Serializer should respect the primaryKey attribute when serializing record
 
   equal(payload._ID_, "1");
 });
+
+test("Serializer should respect keyForAttribute when extracting records", function() {
+  env.container.register('serializer:post', DS.JSONSerializer.extend({
+    keyForAttribute: function(key) {
+      return key.toUpperCase();
+    }
+  }));
+
+  var jsonHash = {id: 1, TITLE: 'Rails is omakase'};
+
+  post = env.container.lookup("serializer:post").normalize(Post, jsonHash);
+
+  equal(post.id, "1");
+  equal(post.title, "Rails is omakase");
+});
+
+test("Serializer should respect keyForRelationship when extracting records", function() {
+  env.container.register('serializer:post', DS.JSONSerializer.extend({
+    keyForRelationship: function(key, type) {
+      return key.toUpperCase();
+    }
+  }));
+
+  var jsonHash = {id: 1, title: 'Rails is omakase', COMMENTS: ['1']};
+
+  post = env.container.lookup("serializer:post").normalize(Post, jsonHash);
+
+  deepEqual(post.comments, ['1']);
+});
+
+test("normalizePayload is called during extractSingle", function() {
+  env.container.register('serializer:post', DS.JSONSerializer.extend({
+    normalizePayload: function(payload) {
+      return payload.response;
+    }
+  }));
+
+  var jsonHash = {
+    response: {
+      id: 1,
+      title: "Rails is omakase"
+    }
+  };
+
+  post = env.container.lookup("serializer:post").extractSingle(env.store, Post, jsonHash);
+
+  equal(post.id, "1");
+  equal(post.title, "Rails is omakase");
+});
