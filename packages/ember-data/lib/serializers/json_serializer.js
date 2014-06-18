@@ -132,9 +132,72 @@ export default Ember.Object.extend({
     if (!hash) { return hash; }
 
     this.normalizeId(hash);
+    this.normalizeAttributes(type, hash);
+    this.normalizeRelationships(type, hash);
+
     this.normalizeUsingDeclaredMapping(type, hash);
     this.applyTransforms(type, hash);
     return hash;
+  },
+
+  /**
+    You can use this method to normalize all payloads, regardless of whether they
+    represent single records or an array.
+
+    For example, you might want to remove some extraneous data from the payload:
+
+    ```js
+    App.ApplicationSerializer = DS.JSONSerializer.extend({
+      normalizePayload: function(payload) {
+        delete payload.version;
+        delete payload.status;
+        return payload;
+      }
+    });
+    ```
+
+    @method normalizePayload
+    @param {Object} payload
+    @return {Object} the normalized payload
+  */
+  normalizePayload: function(payload) {
+    return payload;
+  },
+
+  /**
+    @method normalizeAttributes
+    @private
+  */
+  normalizeAttributes: function(type, hash) {
+    var payloadKey, key;
+
+    if (this.keyForAttribute) {
+      type.eachAttribute(function(key) {
+        payloadKey = this.keyForAttribute(key);
+        if (key === payloadKey) { return; }
+
+        hash[key] = hash[payloadKey];
+        delete hash[payloadKey];
+      }, this);
+    }
+  },
+
+  /**
+    @method normalizeRelationships
+    @private
+  */
+  normalizeRelationships: function(type, hash) {
+    var payloadKey, key;
+
+    if (this.keyForRelationship) {
+      type.eachRelationship(function(key, relationship) {
+        payloadKey = this.keyForRelationship(key, relationship.kind);
+        if (key === payloadKey) { return; }
+
+        hash[key] = hash[payloadKey];
+        delete hash[payloadKey];
+      }, this);
+    }
   },
 
   /**
@@ -714,6 +777,7 @@ export default Ember.Object.extend({
     @return {Object} json The deserialized payload
   */
   extractSingle: function(store, type, payload) {
+    payload = this.normalizePayload(payload);
     return this.normalize(type, payload);
   },
 
@@ -740,6 +804,7 @@ export default Ember.Object.extend({
     @return {Array} array An array of deserialized objects
   */
   extractArray: function(store, type, arrayPayload) {
+    arrayPayload = this.normalizePayload(arrayPayload);
     var serializer = this;
     return map.call(arrayPayload, function(singlePayload) {
       return serializer.normalize(type, singlePayload);

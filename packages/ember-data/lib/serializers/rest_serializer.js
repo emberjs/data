@@ -184,65 +184,6 @@ export default JSONSerializer.extend({
     return hash;
   },
 
-  /**
-    You can use this method to normalize all payloads, regardless of whether they
-    represent single records or an array.
-
-    For example, you might want to remove some extraneous data from the payload:
-
-    ```js
-    App.ApplicationSerializer = DS.RESTSerializer.extend({
-      normalizePayload: function(payload) {
-        delete payload.version;
-        delete payload.status;
-        return payload;
-      }
-    });
-    ```
-
-    @method normalizePayload
-    @param {Object} payload
-    @return {Object} the normalized payload
-  */
-  normalizePayload: function(payload) {
-    return payload;
-  },
-
-  /**
-    @method normalizeAttributes
-    @private
-  */
-  normalizeAttributes: function(type, hash) {
-    var payloadKey, key;
-
-    if (this.keyForAttribute) {
-      type.eachAttribute(function(key) {
-        payloadKey = this.keyForAttribute(key);
-        if (key === payloadKey) { return; }
-
-        hash[key] = hash[payloadKey];
-        delete hash[payloadKey];
-      }, this);
-    }
-  },
-
-  /**
-    @method normalizeRelationships
-    @private
-  */
-  normalizeRelationships: function(type, hash) {
-    var payloadKey, key;
-
-    if (this.keyForRelationship) {
-      type.eachRelationship(function(key, relationship) {
-        payloadKey = this.keyForRelationship(key, relationship.kind);
-        if (key === payloadKey) { return; }
-
-        hash[key] = hash[payloadKey];
-        delete hash[payloadKey];
-      }, this);
-    }
-  },
 
   /**
     Called when the server has returned a payload representing
