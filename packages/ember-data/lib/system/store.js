@@ -458,11 +458,16 @@ Store = Ember.Object.extend({
   /**
     Get a record by a given type and ID without triggering a fetch.
 
-    This method will synchronously return the record if it's available.
-    Otherwise, it will return null.
+    This method will synchronously return the record if it is available in the store,
+    otherwise it will return `null`. A record is available if it has been fetched earlier, or
+    pushed manually into the store.
+
+    _Note: This is an synchronous method and does not return a promise._
 
     ```js
     var post = store.getById('post', 1);
+    
+    post.get('id'); // 1
     ```
 
     @method getById
