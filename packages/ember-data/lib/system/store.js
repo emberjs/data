@@ -1768,6 +1768,7 @@ function _findHasMany(adapter, store, record, link, relationship) {
 
     var records = store.pushMany(relationship.type, payload);
     record.updateHasMany(relationship.key, records);
+    return records;
   }, null, "DS: Extract payload of " + record + " : hasMany " + relationship.type);
 }
 
