@@ -24,10 +24,11 @@ this bug already.
 
 3. Provide JSFiddle or JSBin demo that specifically shows the problem. This
 demo should be fully operational with the exception of the bug you want to
-demonstrate. The more pared down, the better. A preconfigured JSFiddle with
-mocked requests is available [here][1].
+demonstrate. The more pared down, the better. A preconfigured [JSFiddle][1] |
+[JSBin][2] with mocked requests is available.
 
 [1]: http://jsfiddle.net/mehulkar/Q5NPs/
+[2]: http://emberjs.jsbin.com/vuxijava/1/edit
 
 4. If possible, submit a Pull Request with a failing test. Better yet, take
 a stab at fixing the bug yourself if you can!
@@ -61,7 +62,7 @@ We love pull requests. Here's a quick guide:
 1. Fork the repo.
 
 2. Run the tests. We only take pull requests with passing tests, and it's great
-to know that you have a clean slate, see notes on how to run unit tests [here](https://github.com/emberjs/data#how-to-run-unit-tests). (To see tests in the browser, 
+to know that you have a clean slate, see notes on how to run unit tests [here](https://github.com/emberjs/data#how-to-run-unit-tests). (To see tests in the browser,
 run `grunt dev` and open `http://localhost:9997/tests/?package=all`.)
 
 3. Add a test for your change. Only refactoring and documentation changes
