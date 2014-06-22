@@ -144,6 +144,9 @@
 * move some requires around
 * move grunt tasks into folders
 * ES6!
+* Add `force` option to the store's `find` method which will bypass a
+  record lookup in the local store and always delegate to the adapter's
+  `find` method
 
 ### Ember Data 1.0.0-beta.6 _(January 25, 2014)_
 

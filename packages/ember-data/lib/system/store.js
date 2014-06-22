@@ -345,6 +345,13 @@ Store = Ember.Object.extend({
     The `find` method will always resolve its promise with the same object for
     a given type and `id`.
 
+    If you pass `true` as the last argument the local store will be bypassed and
+    the adapter's `find` method will always be used to find the necessary data.
+
+    ```javascript
+    store.find('person', 1, true);
+    ```
+
     ---
 
     To find all records for a type, call `find` with no additional parameters:
@@ -373,9 +380,10 @@ Store = Ember.Object.extend({
     @method find
     @param {String or subclass of DS.Model} type
     @param {Object|String|Integer|null} id
+    @param {Boolean} force
     @return {Promise} promise
   */
-  find: function(type, id) {
+  find: function(type, id, force) {
     Ember.assert("You need to pass a type to the store's find method", arguments.length >= 1);
     Ember.assert("You may not pass `" + id + "` as id to the store's find method", arguments.length === 1 || !Ember.isNone(id));
 
@@ -388,7 +396,7 @@ Store = Ember.Object.extend({
       return this.findQuery(type, id);
     }
 
-    return this.findById(type, coerceId(id));
+    return this.findById(type, coerceId(id), force);
   },
 
   /**
@@ -400,11 +408,11 @@ Store = Ember.Object.extend({
     @param {String|Integer} id
     @return {Promise} promise
   */
-  findById: function(type, id) {
+  findById: function(type, id, force) {
     type = this.modelFor(type);
 
     var record = this.recordForId(type, id);
-    var fetchedRecord = this.fetchRecord(record);
+    var fetchedRecord = this.fetchRecord(record, force);
 
     return promiseObject(fetchedRecord || record, "DS: Store#findById " + type + " with id: " + id);
   },
@@ -437,10 +445,10 @@ Store = Ember.Object.extend({
     @param {DS.Model} record
     @return {Promise} promise
   */
-  fetchRecord: function(record) {
+  fetchRecord: function(record, force) {
     if (isNone(record)) { return null; }
     if (record._loadingPromise) { return record._loadingPromise; }
-    if (!get(record, 'isEmpty')) { return null; }
+    if (!force && !get(record, 'isEmpty')) { return null; }
 
     var type = record.constructor,
         id = get(record, 'id');
