@@ -1477,6 +1477,7 @@ Store = Ember.Object.extend({
     @return DS.Adapter
   */
   adapterFor: function(type) {
+    type = this.modelFor(type);
     var container = this.container, adapter;
 
     if (container) {
