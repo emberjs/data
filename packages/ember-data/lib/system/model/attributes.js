@@ -264,7 +264,7 @@ function getValue(record, key) {
   @return {Attribute}
 */
 
-function attr(type, options) {
+export default function attr(type, options) {
   options = options || {};
 
   var meta = {
@@ -302,6 +302,4 @@ function attr(type, options) {
   // invalidated from the state manager's setData
   // event.
   }).meta(meta);
-}
-
-export default attr;
+};

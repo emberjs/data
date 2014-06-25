@@ -7,4 +7,7 @@ import hasMany from "./relationships/has_many";
 
 import "../system/relationships/ext";
 
-export {belongsTo, hasMany};
+export {
+  belongsTo,
+  hasMany
+};

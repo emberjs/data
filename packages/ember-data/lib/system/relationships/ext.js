@@ -1,8 +1,12 @@
-import {singularize} from "../../../../ember-inflector/lib/system";
-import {typeForRelationshipMeta, relationshipFromMeta} from "../relationship-meta";
-import {Model} from "../model";
+import { singularize } from "../../../../ember-inflector/lib/system";
+import {
+  typeForRelationshipMeta,
+  relationshipFromMeta
+} from "../relationship-meta";
+import { Model } from "../model";
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
+var set = Ember.set;
 
 /**
   @module ember-data

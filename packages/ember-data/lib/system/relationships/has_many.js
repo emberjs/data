@@ -2,9 +2,16 @@
   @module ember-data
 */
 
-import {PromiseArray} from "../store";
-var get = Ember.get, set = Ember.set, setProperties = Ember.setProperties;
-import {relationshipFromMeta, typeForRelationshipMeta} from "../relationship-meta";
+import { PromiseArray } from "../store";
+
+import {
+  relationshipFromMeta,
+  typeForRelationshipMeta
+} from "../relationship-meta";
+
+var get = Ember.get;
+var set = Ember.set;
+var setProperties = Ember.setProperties;
 
 function asyncHasMany(type, options, meta) {
   return Ember.computed('data', function(key) {

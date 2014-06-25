@@ -2,8 +2,9 @@
   @module ember-data
 */
 
-var get = Ember.get, fmt = Ember.String.fmt,
-    indexOf = Ember.EnumerableUtils.indexOf;
+var get = Ember.get;
+var fmt = Ember.String.fmt;
+var indexOf = Ember.EnumerableUtils.indexOf;
 
 var counter = 0;
 
@@ -26,7 +27,7 @@ import Adapter from "../system/adapter";
   @namespace DS
   @extends DS.Adapter
 */
-var FixtureAdapter = Adapter.extend({
+export default Adapter.extend({
   // by default, fixtures are already in normalized form
   serializer: null,
 
@@ -338,5 +339,3 @@ var FixtureAdapter = Adapter.extend({
     }, "DS: FixtureAdapter#simulateRemoteCall");
   }
 });
-
-export default FixtureAdapter;

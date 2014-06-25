@@ -23,8 +23,7 @@ var empty = Ember.isEmpty;
   @extends DS.Transform
   @namespace DS
  */
-var NumberTransform = Transform.extend({
-
+export default Transform.extend({
   deserialize: function(serialized) {
     return empty(serialized) ? null : Number(serialized);
   },
@@ -33,5 +32,3 @@ var NumberTransform = Transform.extend({
     return empty(deserialized) ? null : Number(deserialized);
   }
 });
-
-export default NumberTransform;

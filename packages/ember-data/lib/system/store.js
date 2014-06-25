@@ -5,9 +5,13 @@
   @module ember-data
 */
 
-import {InvalidError, Adapter} from "./adapter";
-import {singularize} from "ember-inflector/lib/system/string";
-var get = Ember.get, set = Ember.set;
+import {
+  InvalidError,
+  Adapter
+} from "./adapter";
+import { singularize } from "ember-inflector/lib/system/string";
+var get = Ember.get;
+var set = Ember.set;
 var once = Ember.run.once;
 var isNone = Ember.isNone;
 var forEach = Ember.EnumerableUtils.forEach;
@@ -1846,5 +1850,9 @@ function _commit(adapter, store, operation, record) {
   }, label);
 }
 
-export {Store, PromiseArray, PromiseObject};
+export {
+  Store,
+  PromiseArray,
+  PromiseObject
+};
 export default Store;

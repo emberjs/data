@@ -2,8 +2,14 @@
   @module ember-data
 */
 
-import {RecordArray, FilteredRecordArray, AdapterPopulatedRecordArray, ManyArray} from "./record_arrays";
-var get = Ember.get, set = Ember.set;
+import {
+  RecordArray,
+  FilteredRecordArray,
+  AdapterPopulatedRecordArray,
+  ManyArray
+} from "./record_arrays";
+var get = Ember.get;
+var set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;
 
 /**
@@ -12,7 +18,7 @@ var forEach = Ember.EnumerableUtils.forEach;
   @private
   @extends Ember.Object
 */
-var RecordArrayManager = Ember.Object.extend({
+export default Ember.Object.extend({
   init: function() {
     this.filteredRecordArrays = Ember.MapWithDefault.create({
       defaultValue: function() { return []; }
@@ -297,5 +303,3 @@ function flatten(list) {
 
   return result;
 }
-
-export default RecordArrayManager;

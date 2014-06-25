@@ -139,7 +139,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
   @namespace DS
   @extends DS.Adapter
 */
-var RESTAdapter = Adapter.extend({
+export default Adapter.extend({
   defaultSerializer: '-rest',
   /**
     Endpoint paths can be prefixed with a `namespace` by setting the namespace
@@ -651,5 +651,3 @@ var RESTAdapter = Adapter.extend({
   }
 
 });
-
-export default RESTAdapter;

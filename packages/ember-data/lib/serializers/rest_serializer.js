@@ -6,9 +6,9 @@ import JSONSerializer from "./json_serializer";
 var get = Ember.get, set = Ember.set;
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
-
-import {singularize} from "ember-inflector/lib/system/string";
 var camelize = Ember.String.camelize;
+
+import { singularize } from "ember-inflector/lib/system/string";
 
 function coerceId(id) {
   return id == null ? null : id+'';
@@ -54,7 +54,7 @@ function coerceId(id) {
   @namespace DS
   @extends DS.JSONSerializer
 */
-var RESTSerializer = JSONSerializer.extend({
+export default JSONSerializer.extend({
   /**
     If you want to do normalizations specific to some part of the payload, you
     can specify those under `normalizeHash`.
@@ -784,5 +784,3 @@ var RESTSerializer = JSONSerializer.extend({
     json[key + "Type"] = belongsTo.constructor.typeKey;
   }
 });
-
-export default RESTSerializer;

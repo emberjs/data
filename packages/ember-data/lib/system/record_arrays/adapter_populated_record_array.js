@@ -3,7 +3,8 @@ import RecordArray from "./record_array";
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
+var set = Ember.set;
 
 /**
   Represents an ordered list of records whose order and membership is
@@ -15,7 +16,7 @@ var get = Ember.get, set = Ember.set;
   @namespace DS
   @extends DS.RecordArray
 */
-var AdapterPopulatedRecordArray = RecordArray.extend({
+export default RecordArray.extend({
   query: null,
 
   replace: function() {
@@ -48,5 +49,3 @@ var AdapterPopulatedRecordArray = RecordArray.extend({
     Ember.run.once(this, 'trigger', 'didLoad');
   }
 });
-
-export default AdapterPopulatedRecordArray;

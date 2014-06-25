@@ -48,7 +48,7 @@ function sync(change) {
   @namespace DS
   @extends DS.RecordArray
 */
-var ManyArray = RecordArray.extend({
+export default RecordArray.extend({
   init: function() {
     this._super.apply(this, arguments);
     this._changesToSync = Ember.OrderedSet.create();
@@ -230,5 +230,3 @@ var ManyArray = RecordArray.extend({
     return record;
   }
 });
-
-export default ManyArray;

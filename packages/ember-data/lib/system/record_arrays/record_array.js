@@ -2,8 +2,9 @@
   @module ember-data
 */
 
-import {PromiseArray} from "../store";
-var get = Ember.get, set = Ember.set;
+import { PromiseArray } from "../store";
+var get = Ember.get;
+var set = Ember.set;
 
 /**
   A record array is an array that contains records of a certain type. The record
@@ -18,7 +19,7 @@ var get = Ember.get, set = Ember.set;
   @uses Ember.Evented
 */
 
-var RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
+export default Ember.ArrayProxy.extend(Ember.Evented, {
   /**
     The model type contained by this record array.
 
@@ -181,5 +182,3 @@ var RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
     this._super();
   }
 });
-
-export default RecordArray;
