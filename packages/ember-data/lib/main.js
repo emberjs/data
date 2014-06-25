@@ -11,8 +11,17 @@ Ember.RSVP.Promise.cast = Ember.RSVP.Promise.cast || Ember.RSVP.resolve;
 import DS from "./core";
 import "./ext/date";
 
-import {Store, PromiseArray, PromiseObject} from "./system/store";
-import {Model, Errors, RootState, attr} from "./system/model";
+import {
+  Store,
+  PromiseArray,
+  PromiseObject
+} from "./system/store";
+import {
+  Model,
+  Errors,
+  RootState,
+  attr
+} from "./system/model";
 import {
   AttributeChange,
   RelationshipChange,
@@ -23,7 +32,10 @@ import {
   OneToOneChange,
   ManyToManyChange
 } from "./system/changes";
-import {InvalidError, Adapter} from "./system/adapter";
+import {
+  InvalidError,
+  Adapter
+} from "./system/adapter";
 import DebugAdapter from "./system/debug";
 import {
   RecordArray,
@@ -32,7 +44,10 @@ import {
   ManyArray
 } from "./system/record_arrays";
 import RecordArrayManager from "./system/record_array_manager";
-import {RESTAdapter, FixtureAdapter} from "./adapters";
+import {
+  RESTAdapter,
+  FixtureAdapter
+} from "./adapters";
 import JSONSerializer from "./serializers/json_serializer";
 import RESTSerializer from "./serializers/rest_serializer";
 import "../../ember-inflector/lib/main";

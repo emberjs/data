@@ -22,16 +22,11 @@ var none = Ember.isNone;
   @extends DS.Transform
   @namespace DS
  */
-var StringTransform = Transform.extend({
-
+export default Transform.extend({
   deserialize: function(serialized) {
     return none(serialized) ? null : String(serialized);
   },
-
   serialize: function(deserialized) {
     return none(deserialized) ? null : String(deserialized);
   }
-
 });
-
-export default StringTransform;

@@ -1,12 +1,15 @@
-var get = Ember.get, set = Ember.set,
-    isNone = Ember.isNone;
-
+var get = Ember.get;
+var set = Ember.set;
+var isNone = Ember.isNone;
 var Promise = Ember.RSVP.Promise;
 
-import {Model} from "../model";
-import {PromiseObject} from "../store";
-import {RelationshipChange} from "../changes";
-import {relationshipFromMeta, typeForRelationshipMeta} from "../relationship-meta";
+import { Model } from "../model";
+import { PromiseObject } from "../store";
+import { RelationshipChange } from "../changes";
+import {
+  relationshipFromMeta,
+  typeForRelationshipMeta
+} from "../relationship-meta";
 
 /**
   @module ember-data

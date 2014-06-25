@@ -1,13 +1,14 @@
 import RootState from "./states";
 import Errors from "./errors";
-import {PromiseObject} from "../store";
+import { PromiseObject } from "../store";
 /**
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set,
-    merge = Ember.merge,
-    Promise = Ember.RSVP.Promise;
+var get = Ember.get;
+var set = Ember.set;
+var merge = Ember.merge;
+var Promise = Ember.RSVP.Promise;
 
 var JSONSerializer;
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {

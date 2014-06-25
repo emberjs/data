@@ -1,6 +1,8 @@
-import {RelationshipChange} from "../system/changes";
-var get = Ember.get, set = Ember.set, isNone = Ember.isNone,
-    map = Ember.ArrayPolyfills.map;
+import { RelationshipChange } from "../system/changes";
+var get = Ember.get;
+var set = Ember.set;
+var isNone = Ember.isNone;
+var  map = Ember.ArrayPolyfills.map;
 
 /**
   In Ember Data a Serializer is used to serialize and deserialize
@@ -17,7 +19,7 @@ var get = Ember.get, set = Ember.set, isNone = Ember.isNone,
   @class JSONSerializer
   @namespace DS
 */
-var JSONSerializer = Ember.Object.extend({
+export default Ember.Object.extend({
   /**
     The primaryKey is used when serializing and deserializing
     data. Ember Data always uses the `id` property to store the id of
@@ -807,5 +809,3 @@ var JSONSerializer = Ember.Object.extend({
     return transform;
   }
 });
-
-export default JSONSerializer;

@@ -2,9 +2,10 @@
   @module ember-data
 */
 
-import {Model} from "../model";
+import { Model } from "../model";
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
+var set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;
 
 /**
@@ -34,9 +35,9 @@ var RelationshipChange = function(options) {
   @private
   @constructor
 */
-var RelationshipChangeAdd = function(options){
+function RelationshipChangeAdd(options){
   RelationshipChange.call(this, options);
-};
+}
 
 /**
   @class RelationshipChangeRemove
@@ -44,9 +45,9 @@ var RelationshipChangeAdd = function(options){
   @private
   @constructor
 */
-var RelationshipChangeRemove = function(options){
+function RelationshipChangeRemove(options){
   RelationshipChange.call(this, options);
-};
+}
 
 RelationshipChange.create = function(options) {
   return new RelationshipChange(options);
@@ -89,12 +90,10 @@ RelationshipChange.determineRelationshipType = function(recordType, knownSide){
 
   if (!inverse){
     return knownKind === "belongsTo" ? "oneToNone" : "manyToNone";
-  }
-  else{
+  } else {
     if(otherKind === "belongsTo"){
       return knownKind === "belongsTo" ? "oneToOne" : "manyToOne";
-    }
-    else{
+    } else {
       return knownKind === "belongsTo" ? "oneToMany" : "manyToMany";
     }
   }
@@ -107,20 +106,15 @@ RelationshipChange.createChange = function(firstRecord, secondRecord, store, opt
   changeType = RelationshipChange.determineRelationshipType(firstRecordType, options);
   if (changeType === "oneToMany"){
     return OneToManyChange.createChange(firstRecord, secondRecord, store, options);
-  }
-  else if (changeType === "manyToOne"){
+  } else if (changeType === "manyToOne"){
     return OneToManyChange.createChange(secondRecord, firstRecord, store, options);
-  }
-  else if (changeType === "oneToNone"){
+  } else if (changeType === "oneToNone"){
     return OneToNoneChange.createChange(firstRecord, secondRecord, store, options);
-  }
-  else if (changeType === "manyToNone"){
+  } else if (changeType === "manyToNone"){
     return ManyToNoneChange.createChange(firstRecord, secondRecord, store, options);
-  }
-  else if (changeType === "oneToOne"){
+  } else if (changeType === "oneToOne"){
     return OneToOneChange.createChange(firstRecord, secondRecord, store, options);
-  }
-  else if (changeType === "manyToMany"){
+  } else if (changeType === "manyToMany"){
     return ManyToManyChange.createChange(firstRecord, secondRecord, store, options);
   }
 };
@@ -213,7 +207,6 @@ OneToOneChange.createChange = function(childRecord, parentRecord, store, options
 
   store.addRelationshipChangeFor(childRecord, key, parentRecord, null, change);
 
-
   return change;
 };
 
@@ -262,7 +255,6 @@ OneToManyChange.createChange = function(childRecord, parentRecord, store, option
   });
 
   store.addRelationshipChangeFor(childRecord, key, parentRecord, change.getSecondRecordName(), change);
-
 
   return change;
 };
@@ -321,10 +313,10 @@ RelationshipChange.prototype = {
     @private
   */
   destroy: function() {
-    var childRecord = this.childRecord,
-        belongsToName = this.getFirstRecordName(),
-        hasManyName = this.getSecondRecordName(),
-        store = this.store;
+    var childRecord = this.childRecord;
+    var belongsToName = this.getFirstRecordName();
+    var hasManyName = this.getSecondRecordName();
+    var store = this.store;
 
     store.removeRelationshipChangeFor(childRecord, belongsToName, this.parentRecord, hasManyName, this.changeType);
   },
@@ -364,10 +356,10 @@ function isValue(object) {
 
 RelationshipChangeAdd.prototype.changeType = "add";
 RelationshipChangeAdd.prototype.sync = function() {
-  var secondRecordName = this.getSecondRecordName(),
-      firstRecordName = this.getFirstRecordName(),
-      firstRecord = this.getFirstRecord(),
-      secondRecord = this.getSecondRecord();
+  var secondRecordName = this.getSecondRecordName();
+  var firstRecordName = this.getFirstRecordName();
+  var firstRecord = this.getFirstRecord();
+  var secondRecord = this.getSecondRecord();
 
   //Ember.assert("You specified a hasMany (" + hasManyName + ") on " + (!belongsToName && (newParent || oldParent || this.lastParent).constructor) + " but did not specify an inverse belongsTo on " + child.constructor, belongsToName);
   //Ember.assert("You specified a belongsTo (" + belongsToName + ") on " + child.constructor + " but did not specify an inverse hasMany on " + (!hasManyName && (newParent || oldParent || this.lastParentRecord).constructor), hasManyName);
@@ -406,10 +398,10 @@ RelationshipChangeAdd.prototype.sync = function() {
 
 RelationshipChangeRemove.prototype.changeType = "remove";
 RelationshipChangeRemove.prototype.sync = function() {
-  var secondRecordName = this.getSecondRecordName(),
-      firstRecordName = this.getFirstRecordName(),
-      firstRecord = this.getFirstRecord(),
-      secondRecord = this.getSecondRecord();
+  var secondRecordName = this.getSecondRecordName();
+  var firstRecordName = this.getFirstRecordName();
+  var firstRecord = this.getFirstRecord();
+  var secondRecord = this.getSecondRecord();
 
   //Ember.assert("You specified a hasMany (" + hasManyName + ") on " + (!belongsToName && (newParent || oldParent || this.lastParent).constructor) + " but did not specify an inverse belongsTo on " + child.constructor, belongsToName);
   //Ember.assert("You specified a belongsTo (" + belongsToName + ") on " + child.constructor + " but did not specify an inverse hasMany on " + (!hasManyName && (newParent || oldParent || this.lastParentRecord).constructor), hasManyName);
@@ -445,4 +437,12 @@ RelationshipChangeRemove.prototype.sync = function() {
   this.coalesce();
 };
 
-export {RelationshipChange, RelationshipChangeAdd, RelationshipChangeRemove, OneToManyChange, ManyToNoneChange, OneToOneChange, ManyToManyChange};
+export {
+  RelationshipChange,
+  RelationshipChangeAdd,
+  RelationshipChangeRemove,
+  OneToManyChange,
+  ManyToNoneChange,
+  OneToOneChange,
+  ManyToManyChange
+};

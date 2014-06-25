@@ -32,7 +32,7 @@
   @class Transform
   @namespace DS
  */
-var Transform = Ember.Object.extend({
+export default Ember.Object.extend({
   /**
     When given a deserialized value from a record attribute this
     method must return the serialized value.
@@ -68,7 +68,4 @@ var Transform = Ember.Object.extend({
     @return The deserialized value
   */
   deserialize: Ember.required()
-
 });
-
-export default Transform;

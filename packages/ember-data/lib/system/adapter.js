@@ -2,10 +2,19 @@
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
+var set = Ember.set;
 var map = Ember.ArrayPolyfills.map;
 
-var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
+var errorProps = [
+  'description',
+  'fileName',
+  'lineNumber',
+  'message',
+  'name',
+  'number',
+  'stack'
+];
 
 /**
   A `DS.InvalidError` is used by an adapter to signal the external API
@@ -47,14 +56,15 @@ var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'n
   @class InvalidError
   @namespace DS
 */
-var InvalidError = function(errors) {
+function InvalidError(errors) {
   var tmp = Error.prototype.constructor.call(this, "The backend rejected the commit because it was invalid: " + Ember.inspect(errors));
   this.errors = errors;
 
   for (var i=0, l=errorProps.length; i<l; i++) {
     this[errorProps[i]] = tmp[errorProps[i]];
   }
-};
+}
+
 InvalidError.prototype = Ember.create(Error.prototype);
 
 /**
@@ -446,5 +456,8 @@ var Adapter = Ember.Object.extend({
   }
 });
 
-export {InvalidError, Adapter};
+export {
+  InvalidError,
+  Adapter
+};
 export default Adapter;

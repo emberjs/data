@@ -16,7 +16,7 @@ var get = Ember.get;
   @namespace DS
   @extends DS.RecordArray
 */
-var FilteredRecordArray = RecordArray.extend({
+export default RecordArray.extend({
   /**
     The filterFunction is a function used to test records from the store to
     determine if they should be part of the record array.
@@ -64,5 +64,3 @@ var FilteredRecordArray = RecordArray.extend({
     Ember.run.once(this, this._updateFilter);
   }, 'filterFunction')
 });
-
-export default FilteredRecordArray;

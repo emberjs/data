@@ -6,17 +6,17 @@
   @namespace DS
   @private
 */
-var ContainerProxy = function (container){
+function ContainerProxy(container){
   this.container = container;
-};
+}
 
 ContainerProxy.prototype.aliasedFactory = function(path, preLookup) {
   var _this = this;
 
-  return {create: function(){ 
+  return {create: function(){
     if (preLookup) { preLookup(); }
 
-    return _this.container.lookup(path); 
+    return _this.container.lookup(path);
   }};
 };
 
