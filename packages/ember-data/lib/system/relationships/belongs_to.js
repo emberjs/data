@@ -3,13 +3,13 @@ var set = Ember.set;
 var isNone = Ember.isNone;
 var Promise = Ember.RSVP.Promise;
 
-import { Model } from "../model";
-import { PromiseObject } from "../store";
-import { RelationshipChange } from "../changes";
+import { Model } from '../model';
+import { PromiseObject } from '../store';
+import { RelationshipChange } from '../changes';
 import {
   relationshipFromMeta,
   typeForRelationshipMeta
-} from "../relationship-meta";
+} from '../relationship-meta';
 
 /**
   @module ember-data
@@ -17,10 +17,10 @@ import {
 
 function asyncBelongsTo(type, options, meta) {
   return Ember.computed('data', function(key, value) {
-    var data = get(this, 'data'),
-        store = get(this, 'store'),
-        promiseLabel = "DS: Async belongsTo " + this + " : " + key,
-        promise;
+    var data = get(this, 'data');
+    var store = get(this, 'store');
+    var promiseLabel = "DS: Async belongsTo " + this + " : " + key;
+    var promise;
 
     meta.key = key;
 
@@ -31,10 +31,10 @@ function asyncBelongsTo(type, options, meta) {
       });
     }
 
-    var link = data.links && data.links[key],
-        belongsTo = data[key];
+    var link = data.links && data.links[key];
+    var belongsTo = data[key];
 
-    if(!isNone(belongsTo)) {
+    if (!isNone(belongsTo)) {
       promise = store.fetchRecord(belongsTo) || Promise.cast(belongsTo, promiseLabel);
       return PromiseObject.create({
         promise: promise
@@ -120,8 +120,9 @@ function belongsTo(type, options) {
   }
 
   return Ember.computed('data', function(key, value) {
-    var data = get(this, 'data'),
-        store = get(this, 'store'), belongsTo, typeClass;
+    var data = get(this, 'data');
+    var store = get(this, 'store');
+    var belongsTo, typeClass;
 
     if (typeof type === 'string') {
       typeClass = store.modelFor(type);
@@ -165,8 +166,12 @@ Model.reopen({
       var oldParent = get(record, key);
 
       if (oldParent) {
-        var store = get(record, 'store'),
-            change = RelationshipChange.createChange(record, oldParent, store, { key: key, kind: "belongsTo", changeType: "remove" });
+        var store = get(record, 'store');
+        var change = RelationshipChange.createChange(record, oldParent, store, {
+          key: key,
+          kind: 'belongsTo',
+          changeType: 'remove'
+        });
 
         change.sync();
         this._changesToSync[key] = change;
@@ -186,8 +191,12 @@ Model.reopen({
       var newParent = get(record, key);
 
       if (newParent) {
-        var store = get(record, 'store'),
-            change = RelationshipChange.createChange(record, newParent, store, { key: key, kind: "belongsTo", changeType: "add" });
+        var store = get(record, 'store');
+        var change = RelationshipChange.createChange(record, newParent, store, {
+          key: key,
+          kind: 'belongsTo',
+          changeType: 'add'
+        });
 
         change.sync();
       }
