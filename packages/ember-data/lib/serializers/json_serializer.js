@@ -365,7 +365,8 @@ export default Ember.Object.extend({
   */
   serializeAttribute: function(record, json, key, attribute) {
     var attrs = get(this, 'attrs');
-    var value = get(record, key), type = attribute.type;
+    var value = get(record, key);
+    var type = attribute.type;
 
     if (type) {
       var transform = this.transformFor(type);
@@ -406,7 +407,6 @@ export default Ember.Object.extend({
   */
   serializeBelongsTo: function(record, json, relationship) {
     var key = relationship.key;
-
     var belongsTo = get(record, key);
 
     key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo") : key;
