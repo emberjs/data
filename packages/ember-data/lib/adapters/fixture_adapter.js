@@ -78,7 +78,8 @@ export default Adapter.extend({
   },
 
   /**
-    Implement this method in order to query fixtures data
+    Return all fixtures that match the query.
+    When the query is empty, all fixtures are returned.
 
     @method queryFixtures
     @param {Array} fixture
@@ -87,7 +88,14 @@ export default Adapter.extend({
     @return {Promise|Array}
   */
   queryFixtures: function(fixtures, query, type) {
-    Ember.assert('Not implemented: You must override the DS.FixtureAdapter::queryFixtures method to support querying the fixture store.');
+    return fixtures.filter(function(record) {
+      for(var key in query) {
+        if (!query.hasOwnProperty(key)) { continue; }
+        var value = query[key];
+        if (record[key] !== value) { return false; }
+      }
+      return true;
+    });
   },
 
   /**
