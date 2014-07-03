@@ -5,7 +5,9 @@ node_js:
 install:
 - "bin/cached-npm install"
 - "bower install"
-after_success: npm run-script publish-build
+after_success:
+- npm run-script publish-build
+- "./bin/bower-ember-data-build"
 env:
   global:
   - S3_BUILD_CACHE_BUCKET=emberjs-build-cache

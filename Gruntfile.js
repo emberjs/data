@@ -1,4 +1,5 @@
 var matchdep = require('matchdep');
+var emberDataVersion = require('./lib/utilities/ember-data-version');
 module.exports = function(grunt){
 
   matchdep.filterDev('grunt-*').forEach(grunt.loadNpmTasks);
@@ -13,13 +14,15 @@ module.exports = function(grunt){
 
   grunt.initConfig(config);
 
+  grunt.config('versionStamp', emberDataVersion());
+
   grunt.registerTask('buildPackages', [
-    'setVersionStamp',
     'clean',
     'transpile:amd',
     'concat:globals',
     'browser:dist',
-    'jshint'
+    'jshint',
+    'copy:bower'
   ]);
 
   grunt.registerTask('prepareTests', ['buildPackages', 'concat:tests']);
@@ -32,11 +35,12 @@ module.exports = function(grunt){
   grunt.registerTask('test:canary',  ['test:server', 'qunit:canary']);
   grunt.registerTask('test:all',     ['test:server', 'qunit:local', 'qunit:release', 'qunit:beta', 'qunit:canary']);
 
+
   grunt.registerTask('dev', [ 'test:server', 'watch' ]);
   grunt.registerTask('server', 'dev');
 
   grunt.registerTask('dist', ['buildPackages', 'emberDefeatureify:stripDebug', 'uglify:dist']);
   grunt.registerTask('default', ['test']);
 
-  grunt.registerTask('docs', ['setVersionStamp', 'yuidoc']);
+  grunt.registerTask('docs', ['yuidoc']);
 };
