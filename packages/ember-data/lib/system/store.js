@@ -82,10 +82,8 @@ function coerceId(id) {
   backend by specifying a custom adapter:
 
   ```javascript
-   MyApp.store = DS.Store.create({
-     adapter: 'MyApp.CustomAdapter'
-   });
-   ```
+  MyApp.ApplicationAdapter = MyApp.CustomAdapter
+  ```
 
   You can learn more about writing a custom adapter by reading the `DS.Adapter`
   documentation.
