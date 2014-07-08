@@ -7,7 +7,7 @@
   "scripts": {
     "postinstall": "bower install",
     "test": "grunt test:all",
-    "publish-build": "grunt dist && ./bin/publish_to_s3"
+    "publish-build": "grunt dist && ./bin/publish_to_s3.js"
   },
   "devDependencies": {
     "aws-sdk": "~2.0.0-rc8",
