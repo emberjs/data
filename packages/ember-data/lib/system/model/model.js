@@ -548,13 +548,13 @@ var Model = Ember.Object.extend(Ember.Evented, {
     App.ModelDeleteRoute = Ember.Route.extend({
       actions: {
         softDelete: function() {
-          this.get('model').deleteRecord();
+          this.controller.get('model').deleteRecord();
         },
         confirm: function() {
-          this.get('model').save();
+          this.controller.get('model').save();
         },
         undo: function() {
-          this.get('model').rollback();
+          this.controller.get('model').rollback();
         }
       }
     });
@@ -576,7 +576,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
       actions: {
         delete: function() {
           var controller = this.controller;
-          this.get('model').destroyRecord().then(function() {
+          controller.get('model').destroyRecord().then(function() {
             controller.transitionToRoute('model.index');
           });
         }
@@ -923,7 +923,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     App.ModelViewRoute = Ember.Route.extend({
       actions: {
         reload: function() {
-          this.get('model').reload();
+          this.controller.get('model').reload();
         }
       }
     });
