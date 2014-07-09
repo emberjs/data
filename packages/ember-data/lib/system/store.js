@@ -1553,7 +1553,12 @@ function normalizeRelationships(store, type, data, record) {
     var kind = relationship.kind,
         value = data[key];
 
-    if (value == null) { return; }
+    if (value == null) {
+      if (kind === 'hasMany' && record) {
+        value = data[key] = record.get(key).toArray();
+      }
+      return;
+    }
 
     if (kind === 'belongsTo') {
       deserializeRecordId(store, data, key, relationship, value);

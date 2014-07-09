@@ -370,3 +370,22 @@ test("a records ASYNC HM relationship property is readOnly", function(){
     post.set('comments');
   }, 'Cannot Set: comments on: ' + Ember.inspect(post));
 });
+
+test("When a record is saved, its unsaved hasMany records should be kept", function () {
+  expect(1);
+
+  var post, comment;
+
+  env.adapter.createRecord = function(store, type, record) {
+    return Ember.RSVP.resolve({ id: 1 });
+  };
+
+  Ember.run(function () {
+    post = env.store.createRecord('post');
+    comment = env.store.createRecord('comment');
+    post.get('comments').pushObject(comment);
+    post.save();
+  });
+
+  equal(get(post, 'comments.length'), 1, "The unsaved comment should be in the post's comments array");
+});
