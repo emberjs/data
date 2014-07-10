@@ -350,6 +350,8 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     var root = getKeyForAttribute.call(this, key);
     var partial = payload[root];
 
+    Ember.assert('EmbeddedRecordsMixin expected your payload to include a root element for your primary record named "' + root + '"', !!partial);
+
     updatePayloadWithEmbedded(this, store, primaryType, payload, partial);
 
     return this._super(store, primaryType, payload, recordId);
@@ -409,6 +411,8 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     var key = primaryType.typeKey;
     var root = getKeyForAttribute.call(this, key);
     var partials = payload[pluralize(root)];
+
+    Ember.assert('EmbeddedRecordsMixin expected your payload to include a root element for your primary records named "' + pluralize(root) + '"', partials && partials.length);
 
     forEach(partials, function(partial) {
       updatePayloadWithEmbedded(this, store, primaryType, payload, partial);
@@ -536,7 +540,7 @@ function updatePayloadWithEmbeddedBelongsTo(serializer, store, primaryType, rela
   var embeddedType = store.modelFor(relationship.type.typeKey);
   // Recursive call for nested record
   updatePayloadWithEmbedded(_serializer, store, embeddedType, payload, partial[attribute]);
-  partial[expandedKey] = partial[attribute].id;
+  partial[expandedKey] = partial[attribute][primaryKey];
   // Need to move an embedded `belongsTo` object into a pluralized collection
   payload[embeddedTypeKey].push(partial[attribute]);
   // Need a reference to the parent so relationship works between both `belongsTo` records
