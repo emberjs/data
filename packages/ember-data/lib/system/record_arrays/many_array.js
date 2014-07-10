@@ -137,7 +137,11 @@ export default RecordArray.extend({
   },
 
   arrangedContentDidChange: function() {
-    Ember.run.once(this, 'fetch');
+    var owner = get(this, 'owner');
+
+    if (!owner._suspendedRelationships) {
+      Ember.run.once(this, 'fetch');
+    }
   },
 
   arrayContentWillChange: function(index, removed, added) {
