@@ -254,6 +254,26 @@ test("create - a serializer's attributes are consulted when building the payload
   }));
 });
 
+test("create - a serializer's attribute mapping takes precdence over keyForAttribute when building the payload", function() {
+  env.container.register('serializer:post', DS.RESTSerializer.extend({
+    attrs: {
+      name: 'given_name'
+    },
+
+    keyForAttribute: function(attr) {
+      return attr.toUpperCase();
+    }
+  }));
+
+  ajaxResponse();
+
+  var post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
+
+  post.save().then(async(function(post) {
+    deepEqual(passedHash.data, { post: { 'given_name': "The Parley Letter", id: "some-uuid" } });
+  }));
+});
+
 test("create - a record on the many side of a hasMany relationship should update relationships when data is sideloaded", function() {
   expect(3);
 

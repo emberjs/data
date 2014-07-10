@@ -375,7 +375,11 @@ export default Ember.Object.extend({
 
     // if provided, use the mapping provided by `attrs` in
     // the serializer
-    key = attrs && attrs[key] || (this.keyForAttribute ? this.keyForAttribute(key) : key);
+    if (attrs && attrs[key]) {
+      key = attrs[key];
+    } else if (this.keyForAttribute) {
+      key = this.keyForAttribute(key);
+    }
 
     json[key] = value;
   },
