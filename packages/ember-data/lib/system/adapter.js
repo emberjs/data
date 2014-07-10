@@ -131,7 +131,7 @@ var Adapter = Ember.Object.extend({
     set the `defaultSerializer` property to be the name of the custom
     serializer.
 
-    Note the `defaultSerializer` serializer has a lower priority then
+    Note the `defaultSerializer` serializer has a lower priority than
     a model specific serializer (i.e. `PostSerializer`) or the
     `application` serializer.
 
