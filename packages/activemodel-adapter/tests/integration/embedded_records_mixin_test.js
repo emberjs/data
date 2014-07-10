@@ -2,6 +2,7 @@ var get = Ember.get, set = Ember.set;
 var camelize = Ember.String.camelize;
 var singularize = Ember.String.singularize;
 var HomePlanet, SuperVillain, EvilMinion, SecretLab, SecretWeapon, Comment,
+  YellowMinion, DoomsdayDevice, MediocreVillain,
   league, superVillain, evilMinion, secretWeapon, homePlanet, secretLab, env;
 var indexOf = Ember.EnumerableUtils.indexOf;
 
@@ -32,6 +33,15 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
       superVillain:    DS.belongsTo('superVillain'),
       name:            DS.attr('string')
     });
+    YellowMinion = EvilMinion.extend();
+    DoomsdayDevice = DS.Model.extend({
+      name:         DS.attr('string'),
+      evilMinion:   DS.belongsTo('evilMinion', {polymorphic: true})
+    });
+    MediocreVillain = DS.Model.extend({
+      name:         DS.attr('string'),
+      evilMinions:  DS.hasMany('evilMinion', {polymorphic: true})
+    });
     Comment = DS.Model.extend({
       body:            DS.attr('string'),
       root:            DS.attr('boolean'),
@@ -43,6 +53,9 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
       secretLab:       SecretLab,
       secretWeapon:    SecretWeapon,
       evilMinion:      EvilMinion,
+      yellowMinion:   YellowMinion,
+      doomsdayDevice: DoomsdayDevice,
+      mediocreVillain: MediocreVillain,
       comment:         Comment
     });
     env.store.modelFor('superVillain');
@@ -50,6 +63,9 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
     env.store.modelFor('secretLab');
     env.store.modelFor('secretWeapon');
     env.store.modelFor('evilMinion');
+    env.store.modelFor('yellowMinion');
+    env.store.modelFor('doomsdayDevice');
+    env.store.modelFor('mediocreVillain');
     env.store.modelFor('comment');
     env.container.register('serializer:application', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin));
     env.container.register('serializer:-active-model',         DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin));
@@ -309,6 +325,54 @@ test("extractArray with embedded objects", function() {
   env.store.find("superVillain", 1).then(async(function(minion){
     equal(minion.get('firstName'), "Tom");
   }));
+});
+
+test("extractArray with polymorphic embedded objects", function() {
+  env.container.register('adapter:mediocreVillain', DS.ActiveModelAdapter);
+  env.container.register('adapter:evilMinion', DS.ActiveModelAdapter);
+  env.container.register('adapter:yellowMinion', DS.ActiveModelAdapter);
+  env.container.register('serializer:mediocreVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      evilMinions: { embedded: 'always' }
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:mediocreVillain");
+
+  var json_hash = {
+    mediocre_villains: [{
+      id: "1",
+      name: "Gru",
+      evil_minions: [ {
+        id: "1",
+        name: "Kevin",
+        type: "evil_minion"
+      },
+      {
+        id: "1",
+        name: "Stuart",
+        type: "yellow_minion"
+      }]
+    }]
+  };
+
+  var array = serializer.extractArray(env.store, MediocreVillain, json_hash);
+
+  deepEqual(array, [{
+    "id": "1",
+    "name": "Gru",
+    "evilMinions": [{
+      id: "1",
+      type: "evilMinion"
+    },
+    {
+      id: "1",
+      type: "yellowMinion"
+    }]
+  }]);
+
+  equal(env.store.recordForId("evilMinion", "1").get("name"), "Kevin", "Secondary record found in the store");
+  equal(env.store.recordForId("yellowMinion", "1").get("name"), "Stuart", "Secondary record found in the store");
 });
 
 test("extractArray with embedded objects of same type as primary type", function() {
