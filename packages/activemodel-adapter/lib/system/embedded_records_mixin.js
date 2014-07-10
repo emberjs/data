@@ -487,7 +487,7 @@ function updatePayloadWithEmbedded(serializer, store, type, payload, partial) {
 // handles embedding for `hasMany` relationship
 function updatePayloadWithEmbeddedHasMany(serializer, store, primaryType, relationship, payload, partial) {
   var embeddedSerializer = store.serializerFor(relationship.type.typeKey);
-  var primaryKey = get(serializer, 'primaryKey');
+  var embeddedPrimaryKey = get(embeddedSerializer, 'primaryKey');
   var attr = relationship.type.typeKey;
   // underscore forces the embedded records to be side loaded.
   // it is needed when main type === relationship.type
@@ -505,7 +505,7 @@ function updatePayloadWithEmbeddedHasMany(serializer, store, primaryType, relati
   forEach(partial[attribute], function(data) {
     var embeddedType = store.modelFor(attr);
     updatePayloadWithEmbedded(embeddedSerializer, store, embeddedType, payload, data);
-    ids.push(data[primaryKey]);
+    ids.push(data[embeddedPrimaryKey]);
     payload[embeddedTypeKey].push(data);
   });
 
