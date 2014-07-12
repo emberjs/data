@@ -51,7 +51,7 @@ Model.reopen({
   */
   didDefineProperty: function(proto, key, value) {
     // Check if the value being set is a computed property.
-    if (value instanceof Ember.Descriptor) {
+    if (value instanceof Ember.ComputedProperty) {
 
       // If it is, get the metadata for the relationship. This is
       // populated by the `DS.belongsTo` helper when it is creating
