@@ -422,7 +422,7 @@ export default JSONSerializer.extend({
           comments.push(comment);
           postCache[comment.post_id].comments.push(comment);
           delete comment.post_id;
-        }
+        });
 
         payload = { comments: comments, posts: payload };
 
