@@ -254,6 +254,73 @@ test("create - a serializer's attributes are consulted when building the payload
   }));
 });
 
+test("create - a serializer's attribute mapping takes precdence over keyForAttribute when building the payload", function() {
+  env.container.register('serializer:post', DS.RESTSerializer.extend({
+    attrs: {
+      name: 'given_name'
+    },
+
+    keyForAttribute: function(attr) {
+      return attr.toUpperCase();
+    }
+  }));
+
+  ajaxResponse();
+
+  var post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
+
+  post.save().then(async(function(post) {
+    deepEqual(passedHash.data, { post: { 'given_name': "The Parley Letter", id: "some-uuid" } });
+  }));
+});
+
+test("create - a serializer's attribute mapping takes precedence over keyForRelationship (belongsTo) when building the payload", function() {
+  env.container.register('serializer:comment', DS.RESTSerializer.extend({
+    attrs: {
+      post: 'article'
+    },
+
+    keyForRelationship: function(attr, kind) {
+      return attr.toUpperCase();
+    }
+  }));
+
+  ajaxResponse();
+
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  var post = store.createRecord('post', { id: "a-post-id", name: "The Parley Letter" });
+  var comment = store.createRecord('comment', { id: "some-uuid", name: "Letters are fun", post: post });
+
+  comment.save().then(async(function(post) {
+    deepEqual(passedHash.data, { comment: { article: "a-post-id", id: "some-uuid", name: "Letters are fun" } });
+  }));
+});
+
+test("create - a serializer's attribute mapping takes precedence over keyForRelationship (hasMany) when building the payload", function() {
+  env.container.register('serializer:post', DS.RESTSerializer.extend({
+    attrs: {
+      comments: 'opinions'
+    },
+
+    keyForRelationship: function(attr, kind) {
+      return attr.toUpperCase();
+    }
+  }));
+
+  ajaxResponse();
+
+  Post.reopen({ comments: DS.hasMany('comment') });
+
+  var comment = store.createRecord('comment', { id: "a-comment-id", name: "First!" });
+  var post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
+  post.get('comments').pushObject(comment);
+
+  post.save().then(async(function(post) {
+    deepEqual(passedHash.data, { post: { opinions: [ "a-comment-id" ], id: "some-uuid", name: "The Parley Letter" } });
+  }));
+});
+
 test("create - a record on the many side of a hasMany relationship should update relationships when data is sideloaded", function() {
   expect(3);
 

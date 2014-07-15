@@ -375,7 +375,11 @@ export default Ember.Object.extend({
 
     // if provided, use the mapping provided by `attrs` in
     // the serializer
-    key = attrs && attrs[key] || (this.keyForAttribute ? this.keyForAttribute(key) : key);
+    if (attrs && attrs[key]) {
+      key = attrs[key];
+    } else if (this.keyForAttribute) {
+      key = this.keyForAttribute(key);
+    }
 
     json[key] = value;
   },
@@ -406,10 +410,17 @@ export default Ember.Object.extend({
    @param {Object} relationship
   */
   serializeBelongsTo: function(record, json, relationship) {
+    var attrs = get(this, 'attrs');
     var key = relationship.key;
     var belongsTo = get(record, key);
 
-    key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo") : key;
+    // if provided, use the mapping provided by `attrs` in
+    // the serializer
+    if (attrs && attrs[key]) {
+      key = attrs[key];
+    } else if (this.keyForRelationship) {
+      key = this.keyForRelationship(key, "belongsTo");
+    }
 
     if (isNone(belongsTo)) {
       json[key] = belongsTo;
@@ -447,8 +458,20 @@ export default Ember.Object.extend({
    @param {Object} relationship
   */
   serializeHasMany: function(record, json, relationship) {
+    var attrs = get(this, 'attrs');
     var key = relationship.key;
-    var payloadKey = this.keyForRelationship ? this.keyForRelationship(key, "hasMany") : key;
+    var payloadKey;
+
+    // if provided, use the mapping provided by `attrs` in
+    // the serializer
+    if (attrs && attrs[key]) {
+      payloadKey = attrs[key];
+    } else if (this.keyForRelationship) {
+      payloadKey = this.keyForRelationship(key, "hasMany");
+    } else {
+      payloadKey = key;
+    }
+
     var relationshipType = RelationshipChange.determineRelationshipType(record.constructor, relationship);
 
     if (relationshipType === 'manyToNone' || relationshipType === 'manyToMany') {
