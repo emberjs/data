@@ -510,7 +510,9 @@ function updatePayloadWithEmbeddedHasMany(serializer, store, primaryType, relati
   });
 
   partial[expandedKey] = ids;
-  delete partial[attribute];
+  if (expandedKey !== attribute) {
+    delete partial[attribute];
+  }
 }
 
 // handles embedding for `belongsTo` relationship
