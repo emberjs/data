@@ -1651,7 +1651,7 @@ function uniqById(data, records) {
 PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
 /**
   A `PromiseObject` is an object that acts like both an `Ember.Object`
-  and a promise. When the promise is resolved the the resulting value
+  and a promise. When the promise is resolved, then the resulting value
   will be set to the `PromiseObject`'s `content` property. This makes
   it easy to create data bindings with the `PromiseObject` that will
   be updated when the promise resolves.
