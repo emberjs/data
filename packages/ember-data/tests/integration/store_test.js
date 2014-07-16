@@ -15,15 +15,19 @@ var Car = DS.Model.extend({
 
 Car.toString = function() { return "Car"; };
 
+initializeStore = function(adapter) {
+  env = setupStore({
+    adapter: adapter
+  });
+  store = env.store;
+
+  env.container.register('model:car', Car);
+  env.container.register('model:person', Person);
+}
+
 module("integration/store - destroy", {
   setup: function(){
-    env = setupStore({
-      adapter: DS.FixtureAdapter.extend()
-    });
-    store = env.store;
-
-    env.container.register('model:car', Car);
-    env.container.register('model:person', Person);
+    initializeStore(DS.FixtureAdapter.extend());
   }
 });
 
@@ -43,6 +47,61 @@ function tap(obj, methodName, callback) {
 
   return summary;
 }
+
+asyncTest("destroying record during find doesn't cause error", function() {
+  expect(0);
+
+  var TestAdapter = DS.FixtureAdapter.extend({
+    find: function() {
+      return new Ember.RSVP.Promise(function(resolve, reject) {
+        Ember.run.next(function() {
+          store.unloadAll(type);
+          reject();
+        });
+      });
+    }
+  });
+
+  initializeStore(TestAdapter);
+
+  var type = "car";
+  var id = 1
+
+  done = function() {
+    start();
+  };
+
+  store.find(type, id).then(done, done);
+});
+
+asyncTest("find calls do not resolve when the store is destroyed", function() {
+  expect(0);
+
+  var TestAdapter = DS.FixtureAdapter.extend({
+    find: function() {
+      store.destroy();
+      Ember.RSVP.resolve(null);
+    }
+  });
+
+  initializeStore(TestAdapter);
+
+
+  var type = "car";
+  var id = 1;
+
+  store.push = function() {
+    Ember.assert("The test should have destroyed the store by now", store.get("isDestroyed"));
+
+    throw "We shouldn't be pushing data into the store when it is destroyed"
+  }
+
+  store.find(type, id);
+
+  setTimeout(function() {
+    start();
+  }, 500);
+});
 
 
 test("destroying the store correctly cleans everything up", function() {
