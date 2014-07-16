@@ -351,6 +351,45 @@ test("extractArray with embedded objects with custom primary key", function() {
 
   });
 });
+test("extractArray with embedded objects with identical relationship and attribute key ", function() {
+  expect(2);
+  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      villains: {embedded: 'always'}
+    },
+    //Makes the keyForRelationship and keyForAttribute collide.
+    keyForRelationship: function(key, type) {
+      return this.keyForAttribute(key, type);
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:homePlanet");
+
+  var json_hash = {
+    home_planets: [{
+      id: "1",
+      name: "Umber",
+      villains: [{
+        id: "1",
+        first_name: "Alex",
+        last_name: "Baizeau"
+      }]
+    }]
+  };
+
+  var array = serializer.extractArray(env.store, HomePlanet, json_hash);
+
+  deepEqual(array, [{
+    id: "1",
+    name: "Umber",
+    villains: ["1"]
+  }]);
+
+  return env.store.find("superVillain", 1).then(function(minion){
+    equal(minion.get('firstName'), "Alex");
+  });
+});
 test("extractArray with embedded objects of same type as primary type", function() {
   env.container.register('adapter:comment', DS.ActiveModelAdapter);
   env.container.register('serializer:comment', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
