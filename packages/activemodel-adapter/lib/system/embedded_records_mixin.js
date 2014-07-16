@@ -142,6 +142,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     var includeIds = hasSerializeIdsOption(attrs, attr);
     var includeRecords = hasSerializeRecordsOption(attrs, attr);
     var embeddedRecord = record.get(attr);
+    var key;
     if (includeIds) {
       key = this.keyForRelationship(attr, relationship.kind);
       if (!embeddedRecord) {
@@ -150,7 +151,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
         json[key] = get(embeddedRecord, 'id');
       }
     } else if (includeRecords) {
-      var key = this.keyForRelationship(attr);
+      key = getKeyForAttribute.call(this, attr);
       if (!embeddedRecord) {
         json[key] = null;
       } else {
