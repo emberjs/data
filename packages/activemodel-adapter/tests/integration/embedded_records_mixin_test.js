@@ -1017,3 +1017,65 @@ test("serializing relationships with an embedded and without calls super when no
   ok(calledSerializeBelongsTo);
   ok(calledSerializeHasMany);
 });
+
+test("normalizePayload is called when extracting", function() {
+  expect(3);
+  var normalizePayloadCalls = 0;
+
+  env.container.register('adapter:homePlanet', DS.ActiveModelAdapter);
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      villains: {embedded: 'always'}
+    },
+    normalizePayload: function(payload) {
+      normalizePayloadCalls ++;
+      return payload.response || payload;
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:homePlanet");
+  var json = serializer.extractSingle(env.store, HomePlanet, {
+    response: {
+      home_planet: {
+        id: "1",
+        name: "Umber",
+        villains: [{
+          id: "2",
+          first_name: "Tom"
+        }, {
+          id: "3",
+          first_name: "Yehuda"
+        }]
+      }
+    }
+  });
+
+  var jsonFromArray = serializer.extractArray(env.store, HomePlanet, {
+    response: {
+      home_planets: [{
+        id: "1",
+        name: "Umber",
+        villains: [{
+          id: "2",
+          first_name: "Tom",
+          last_name: "Dale"
+        }]
+      }]
+    }
+  });
+
+  deepEqual(json, {
+    id: "1",
+    name: "Umber",
+    villains: ["2", "3"]
+  }, "Payload from extractSingle was correct");
+
+  deepEqual(jsonFromArray, [{
+    id: "1",
+    name: "Umber",
+    villains: ["2"]
+  }], "Payload from extractArray was correct");
+
+  // normalizedPayload is called twice once before extracting embedded then again calling super
+  equal(normalizePayloadCalls, 4, "normalizePayload called with extractSingle and extractArray");
+});
