@@ -1026,6 +1026,12 @@ var Model = Ember.Object.extend(Ember.Evented, {
   willDestroy: function() {
     this._super();
     this.clearRelationships();
+  },
+
+  // This is a temporary solution until we refactor DS.Model to not
+  // rely on the data property.
+  willMergeMixin: function(props) {
+    Ember.assert('`data` is a reserved property name on DS.Model objects. Please choose a different property name for ' + this.constructor.toString(), !props.data);
   }
 });
 
