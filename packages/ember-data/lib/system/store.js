@@ -451,6 +451,13 @@ Store = Ember.Object.extend({
     Ember.assert("You tried to find a record but your adapter (for " + type + ") does not implement 'find'", adapter.find);
 
     var promise = _find(adapter, this, type, id);
+
+    promise.then(function(newRecord) {
+      if (!record.get('isNew') && newRecord.get('id') !== record.get('id')) {
+        record.transitionTo('deleted.uncommitted');
+      }
+    });
+
     record.loadingData(promise);
     return promise;
   },

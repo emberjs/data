@@ -144,6 +144,8 @@
 * move some requires around
 * move grunt tasks into folders
 * ES6!
+* Ensure place-holder records do are removed after querying and an id
+  mismatch
 
 ### Ember Data 1.0.0-beta.6 _(January 25, 2014)_
 
