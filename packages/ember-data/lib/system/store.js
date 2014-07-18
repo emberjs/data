@@ -1274,6 +1274,31 @@ Store = Ember.Object.extend({
   },
 
   /**
+    `normalize` converts a json payload into the normalized form that
+    [push](#method_push) expects.
+
+    Example
+
+    ```js
+    socket.on('message', function(message) {
+      var modelName = message.model;
+      var data = message.data;
+      store.push(modelName, store.normalize(modelName, data));
+    });
+    ```
+
+    @method normalize
+    @param {String} The name of the model type for this payload
+    @param {Object} payload
+    @return {Object} The normalized payload
+  */
+  normalize: function (type, payload) {
+    var serializer = this.serializerFor(type);
+    var model = this.modelFor(type);
+    return serializer.normalize(model, payload);
+  },
+
+  /**
     Update existing records in the store. Unlike [push](#method_push),
     update will merge the new data properties with the existing
     properties. This makes it safe to use with a subset of record
