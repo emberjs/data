@@ -298,3 +298,20 @@ test("Calling pushPayload without a type should use a model's serializer when no
 
   equal(person.get('firstName'), "Yehuda", "you can push raw JSON into the store");
 });
+
+
+
+test("Calling normalize should normalize the payload ", function () {
+  expect(1);
+
+  var normalizedPayload = store.normalize('post', {
+    id: '1',
+    post_title: 'Ember rocks'
+  });
+
+  deepEqual(normalizedPayload, {
+    id: '1',
+    postTitle: 'Ember rocks'
+  });
+
+});
