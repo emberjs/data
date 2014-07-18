@@ -351,7 +351,7 @@ RelationshipChangeRemove.prototype = Ember.create(RelationshipChange.create({}))
 
 // the object is a value, and not a promise
 function isValue(object) {
-  return typeof object === 'object' && (!object.then || typeof object.then !== 'function');
+  return object && typeof object === 'object' && (!object.then || typeof object.then !== 'function');
 }
 
 RelationshipChangeAdd.prototype.changeType = "add";
