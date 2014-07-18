@@ -103,7 +103,7 @@ test("it should cache attributes", function() {
   var store = createStore();
 
   var Post = DS.Model.extend({
-    updatedAt: DS.attr('string')
+    updatedAt: DS.attr('date')
   });
 
   var dateString = "Sat, 31 Dec 2011 00:08:16 GMT";
@@ -220,7 +220,8 @@ module("unit/model - with a simple Person model", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
     Person = DS.Model.extend({
-      name: DS.attr('string')
+      name: DS.attr('string'),
+      age: DS.attr('number')
     });
     store = createStore({
       person: Person
@@ -422,4 +423,11 @@ test("A DS.Model can be JSONified", function() {
   var store = createStore({ person: Person });
   var record = store.createRecord('person', { name: "TomHuda" });
   deepEqual(record.toJSON(), { name: "TomHuda" });
+});
+
+test("setting a property causes the attributes transform to be applied", function() {
+  var record = store.createRecord(Person);
+  set(record, 'age', '1');
+
+  strictEqual(get(record, 'age'), 1, "property was set on the record");
 });
