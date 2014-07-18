@@ -794,7 +794,9 @@ export default Ember.Object.extend({
    @param {String} key
    @return {String} normalized key
   */
-
+  keyForAttribute: function(key){
+    return key;
+  },
 
   /**
    `keyForRelationship` can be used to define a custom key when
@@ -816,6 +818,10 @@ export default Ember.Object.extend({
    @param {String} relationship type
    @return {String} normalized key
   */
+
+  keyForRelationship: function(key, type){
+    return key;
+  },
 
   // HELPERS
 

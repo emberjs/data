@@ -975,7 +975,7 @@ test("serializing relationships with an embedded and without calls super when no
   var Serializer = DS.RESTSerializer.extend({
     serializeBelongsTo: function(record, json, relationship) {
       calledSerializeBelongsTo = true;
-      return DS.RESTSerializer.prototype.serializeBelongsTo.call(this, record, json, relationship);
+      return this._super(record, json, relationship);
     },
     serializeHasMany: function(record, json, relationship) {
       calledSerializeHasMany = true;
