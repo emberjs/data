@@ -554,6 +554,27 @@ test("delete - a payload with sideloaded updates pushes the updates", function()
   }));
 });
 
+test("delete - a payload with sidloaded updates pushes the updates when the original record is omitted", function() {
+  store.push('post', { id: 1, name: "Rails is omakase" });
+
+  store.find('post', 1).then(async(function(post) {
+   ajaxResponse({ posts: [{ id: 2, name: "The Parley Letter" }] });
+
+    post.deleteRecord();
+    return post.save();
+  })).then(async(function(post) {
+    equal(passedUrl, "/posts/1");
+    equal(passedVerb, "DELETE");
+    equal(passedHash, undefined);
+
+    equal(post.get('isDirty'), false, "the original post isn't dirty anymore");
+    equal(post.get('isDeleted'), true, "the original post is now deleted");
+
+    var newPost = store.getById('post', 2);
+    equal(newPost.get('name'), "The Parley Letter", "The new post was added to the store");
+  }));
+});
+
 test("delete - deleting a newly created record should not throw an error", function() {
   var post = store.createRecord('post');
 
