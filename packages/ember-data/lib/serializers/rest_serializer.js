@@ -267,8 +267,15 @@ export default JSONSerializer.extend({
     var primaryRecord;
 
     for (var prop in payload) {
-      var typeName  = this.typeForRoot(prop);
-      var type = store.modelFor(typeName);
+      var typeName = this.typeForRoot(prop);
+      var type;
+
+      try {
+        type = store.modelFor(typeName);
+      } catch (e) {
+        continue;
+      }
+
       var isPrimary = type.typeKey === primaryTypeName;
       var value = payload[prop];
 
