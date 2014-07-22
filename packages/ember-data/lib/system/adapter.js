@@ -157,7 +157,7 @@ var Adapter = Ember.Object.extend({
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
       find: function(store, type, id) {
-        var url = [type, id].join('/');
+        var url = [type.typeKey, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
           jQuery.getJSON(url).then(function(data) {
