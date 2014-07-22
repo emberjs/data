@@ -9,6 +9,7 @@ var get = Ember.get;
 var set = Ember.set;
 var merge = Ember.merge;
 var Promise = Ember.RSVP.Promise;
+var forEach = Ember.EnumerableUtils.forEach;
 
 var JSONSerializer;
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
@@ -627,6 +628,52 @@ var Model = Ember.Object.extend(Ember.Evented, {
   updateRecordArrays: function() {
     this._updatingRecordArraysLater = false;
     get(this, 'store').dataWasUpdated(this.constructor, this);
+  },
+
+  _preloadData: function(preload) {
+    var record = this;
+    //TODO(Igor) consider the polymorphic case
+    forEach(Ember.keys(preload), function(key) {
+      var preloadValue = get(preload, key);
+      var relationshipMeta = record.constructor.metaForProperty(key);
+      if (relationshipMeta.isRelationship) {
+        record._preloadRelationship(key, preloadValue);
+      } else {
+        set(record, key, preloadValue);
+      }
+    });
+  },
+
+  _preloadRelationship: function(key, preloadValue) {
+    var relationshipMeta = this.constructor.metaForProperty(key);
+    var type = relationshipMeta.type;
+    if (relationshipMeta.kind === 'hasMany'){
+      this._preloadHasMany(key, preloadValue, type);
+    } else {
+      this._preloadBelongsTo(key, preloadValue, type);
+    }
+  },
+
+  _preloadHasMany: function(key, preloadValue, type) {
+    Ember.assert("You need to pass in an array to set a hasMany property on a record", Ember.isArray(preloadValue));
+    var record = this;
+
+    forEach(preloadValue, function(recordToPush) {
+      recordToPush = record._convertStringOrNumberIntoRecord(recordToPush, type);
+      get(record, key).pushObject(recordToPush);
+    });
+  },
+
+  _preloadBelongsTo: function(key, preloadValue, type){
+    var recordToPush = this._convertStringOrNumberIntoRecord(preloadValue, type);
+    set(this, key, recordToPush);
+  },
+
+  _convertStringOrNumberIntoRecord: function(value, type) {
+    if (Ember.typeOf(value) === 'string' || Ember.typeOf(value) === 'number'){
+      return this.store.recordForId(type, value);
+    }
+    return value;
   },
 
   /**

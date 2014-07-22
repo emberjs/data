@@ -55,8 +55,9 @@ test("unload a record", function() {
     equal(get(record, 'isDeleted'), true, "record is deleted");
 
     tryToFind = false;
-    store.find(Record, 1);
-    equal(tryToFind, true, "not found record with id 1");
+    store.find(Record, 1).then(async(function(){
+      equal(tryToFind, true, "not found record with id 1");
+    }));
   }));
 });
 

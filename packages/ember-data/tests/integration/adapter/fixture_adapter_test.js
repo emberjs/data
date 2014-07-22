@@ -63,14 +63,14 @@ test("should load data for a type asynchronously when it is requested", function
     equal(get(ebryn, 'height'), 70, "data from fixtures is loaded correctly");
 
     return Ember.RSVP.hash({ ebryn: ebryn, wycats: env.store.find('person', 'wycats') });
-  }, 1000)).then(async(function(records) {
+  }, 2000)).then(async(function(records) {
     equal(get(records.wycats, 'isLoaded'), true, "subsequent requests for records are returned asynchronously");
     equal(get(records.wycats, 'height'), 65, "subsequent requested records contain correct information");
 
     return get(records.ebryn, 'phones');
-  }, 1000)).then(async(function(phones) {
+  }, 2000)).then(async(function(phones) {
     equal(get(phones, 'length'), 2, "relationships from fixtures is loaded correctly");
-  }, 1000));
+  }, 2000));
 });
 
 test("should load data asynchronously at the end of the runloop when simulateRemoteResponse is false", function() {

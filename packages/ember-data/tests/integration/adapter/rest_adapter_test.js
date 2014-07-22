@@ -1152,6 +1152,114 @@ test('buildURL - with camelized names', function() {
   }));
 });
 
+test('buildURL - buildURL takes a record from find', function() {
+  Comment.reopen({ post: DS.belongsTo('post') });
+  adapter.buildURL = function(type, id, record) {
+    return "/posts/" + record.get('post.id') + '/comments/' + record.get('id');
+  };
+
+  ajaxResponse({ comments: [{ id: 1 }] });
+
+  var post = store.push('post', { id: 2 });
+  store.find('comment', 1, {post: post}).then(async(function(post) {
+    equal(passedUrl, "/posts/2/comments/1");
+  }));
+});
+
+test('buildURL - buildURL takes the records from findMany', function() {
+  Comment.reopen({ post: DS.belongsTo('post') });
+  Post.reopen({ comments: DS.hasMany('comment', {async: true}) });
+
+  adapter.buildURL = function(type, ids, records) {
+    return "/posts/" + records.get('firstObject.post.id') + '/comments/';
+  };
+
+  ajaxResponse({ comments: [{ id: 1 }, {id:2}, {id:3}] });
+
+  var post = store.push('post', { id: 2, comments: [1,2,3] });
+
+  post.get('comments').then(async(function(post) {
+    equal(passedUrl, "/posts/2/comments/");
+  }));
+});
+
+test('buildURL - buildURL takes a record from create', function() {
+  Comment.reopen({ post: DS.belongsTo('post') });
+  adapter.buildURL = function(type, id, record) {
+    return "/posts/" + record.get('post.id') + '/comments/';
+  };
+
+  ajaxResponse({ comments: [{ id: 1 }] });
+
+  var post = store.push('post', { id: 2 });
+  var comment = store.createRecord('comment');
+  comment.set('post', post);
+  comment.save().then(async(function(post) {
+    equal(passedUrl, "/posts/2/comments/");
+  }));
+});
+
+test('buildURL - buildURL takes a record from update', function() {
+  Comment.reopen({ post: DS.belongsTo('post') });
+  adapter.buildURL = function(type, id, record) {
+    return "/posts/" + record.get('post.id') + '/comments/' + record.get('id');
+  };
+
+  ajaxResponse({ comments: [{ id: 1 }] });
+
+  var post = store.push('post', { id: 2 });
+  var comment = store.push('comment', { id: 1 });
+  comment.set('post', post);
+  comment.save().then(async(function(post) {
+    equal(passedUrl, "/posts/2/comments/1");
+  }));
+});
+
+test('buildURL - buildURL takes a record from delete', function() {
+  Comment.reopen({ post: DS.belongsTo('post') });
+  adapter.buildURL = function(type, id, record) {
+    return '/comments/' + record.get('id');
+  };
+
+  ajaxResponse({ comments: [{ id: 1 }] });
+
+  var post = store.push('post', { id: 2 });
+  var comment = store.push('comment', { id: 1 });
+
+  comment.set('post', post);
+  comment.deleteRecord();
+  comment.save().then(async(function(post) {
+    equal(passedUrl, "/comments/1");
+  }));
+});
+
+test('groupRecordsForFindMany groups records based on their url', function() {
+  Comment.reopen({ post: DS.belongsTo('post') });
+  Post.reopen({ comments: DS.hasMany('comment', {async: true}) });
+
+  adapter.buildURL = function(type, id, record) {
+    if (id === '1'){
+      return '/comments/1';
+    } else {
+      return '/other_comments/' + id;
+    }
+  };
+
+  adapter.find = function(store, type, id, record ) {
+    equal(id, '1');
+    return Ember.RSVP.resolve({comments: {id:1}});
+  };
+
+  adapter.findMany = function(store, type, ids, records ) {
+    deepEqual(ids, ['2', '3']);
+    return Ember.RSVP.resolve({comments: [{id:2}, {id:3}]});
+  };
+
+  var post = store.push('post', { id: 2, comments: [1,2,3] });
+
+  post.get('comments');
+});
+
 test('normalizeKey - to set up _ids and _id', function() {
   env.container.register('serializer:application', DS.RESTSerializer.extend({
     keyForAttribute: function(attr) {

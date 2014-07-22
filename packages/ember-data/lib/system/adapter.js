@@ -445,14 +445,33 @@ var Adapter = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type   the DS.Model class of the records
     @param {Array}    ids
+    @param {Array} records
     @return {Promise} promise
   */
-  findMany: function(store, type, ids) {
+  findMany: function(store, type, ids, records) {
     var promises = map.call(ids, function(id) {
       return this.find(store, type, id);
     }, this);
 
     return Ember.RSVP.all(promises);
+  },
+
+  /**
+    Organize records into groups, each of which is to be passed to separate
+    calls to `findMany`.
+
+    For example, if your api has nested URLs that depend on the parent, you will
+    want to group records by their parent.
+
+    The default implementation returns the records as a single group.
+
+    @method groupRecordsForFindMany
+    @param {Array} records
+    @returns {Array}  an array of arrays of records, each of which is to be
+                      loaded separately by `findMany`.
+  */
+  groupRecordsForFindMany: function (store, records) {
+    return [records];
   }
 });
 

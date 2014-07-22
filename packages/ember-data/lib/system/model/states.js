@@ -254,6 +254,9 @@ var DirtyState = {
     // EVENTS
     didSetProperty: didSetProperty,
 
+    //TODO(Igor) think this through
+    loadingData: Ember.K,
+
     propertyWasReset: function(record, name) {
       var stillDirty = false;
 
@@ -477,6 +480,8 @@ var RootState = {
   empty: {
     isEmpty: true,
 
+    didSetProperty: Ember.K,
+
     // EVENTS
     loadingData: function(record, promise) {
       record._loadingPromise = promise;
@@ -535,6 +540,9 @@ var RootState = {
 
     // FLAGS
     isLoaded: true,
+
+    //TODO(Igor) think this through
+    loadingData: Ember.K,
 
     // SUBSTATES
 
