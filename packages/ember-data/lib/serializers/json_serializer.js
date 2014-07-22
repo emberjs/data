@@ -87,6 +87,8 @@ export default Ember.Object.extend({
   */
   applyTransforms: function(type, data) {
     type.eachTransformedAttribute(function(key, type) {
+      if (!data.hasOwnProperty(key)) { return; }
+
       var transform = this.transformFor(type);
       data[key] = transform.deserialize(data[key]);
     }, this);
@@ -176,6 +178,7 @@ export default Ember.Object.extend({
       type.eachAttribute(function(key) {
         payloadKey = this.keyForAttribute(key);
         if (key === payloadKey) { return; }
+        if (!hash.hasOwnProperty(payloadKey)) { return; }
 
         hash[key] = hash[payloadKey];
         delete hash[payloadKey];
@@ -194,6 +197,7 @@ export default Ember.Object.extend({
       type.eachRelationship(function(key, relationship) {
         payloadKey = this.keyForRelationship(key, relationship.kind);
         if (key === payloadKey) { return; }
+        if (!hash.hasOwnProperty(payloadKey)) { return; }
 
         hash[key] = hash[payloadKey];
         delete hash[payloadKey];
@@ -214,6 +218,8 @@ export default Ember.Object.extend({
         if (payloadKey && payloadKey.key) {
           payloadKey = payloadKey.key;
         }
+        if (!hash.hasOwnProperty(payloadKey)) { continue; }
+
         if (typeof payloadKey === 'string') {
           hash[key] = hash[payloadKey];
           delete hash[payloadKey];

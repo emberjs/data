@@ -264,3 +264,39 @@ test("normalizePayload is called during extractSingle", function() {
   equal(post.id, "1");
   equal(post.title, "Rails is omakase");
 });
+
+test("Calling normalize should normalize the payload (only the passed keys)", function () {
+  expect(1);
+  var Person = DS.Model.extend({
+    posts: DS.hasMany('post')
+  });
+  env.container.register('serializer:post', DS.JSONSerializer.extend({
+    attrs: {
+      notInHash: 'aCustomAttrNotInHash',
+      inHash: 'aCustomAttrInHash'
+    }
+  }));
+
+  env.container.register('model:person', Person);
+
+  Post.reopen({
+    content: DS.attr('string'),
+    author: DS.belongsTo('person'),
+    notInHash: DS.attr('string'),
+    inHash: DS.attr('string')
+  });
+
+  var normalizedPayload = env.container.lookup("serializer:post").normalize(Post, {
+    id: '1',
+    title: 'Ember rocks',
+    author: 1,
+    aCustomAttrInHash: 'blah'
+  });
+
+  deepEqual(normalizedPayload, {
+    id: '1',
+    title: 'Ember rocks',
+    author: 1,
+    inHash: 'blah'
+  });
+});

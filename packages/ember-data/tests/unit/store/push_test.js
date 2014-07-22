@@ -106,6 +106,24 @@ test("Calling update with partial records updates just those attributes", functi
   }));
 });
 
+test("Calling update on normalize allows partial updates with raw JSON", function () {
+  env.container.register('serializer:person', DS.RESTSerializer);
+
+  var person = store.push('person', {
+    id: '1',
+    firstName: "Robert",
+    lastName: "Jackson"
+  });
+
+  store.update('person', store.normalize('person', {
+    id: '1',
+    firstName: "Jacquie"
+  }));
+
+  equal(person.get('firstName'), "Jacquie", "you can push raw JSON into the store");
+  equal(person.get('lastName'), "Jackson", "existing fields are untouched");
+});
+
 test("Calling push with a normalized hash containing related records returns a record", function() {
   var number1 = store.push('phone-number', {
     id: 1,
@@ -297,21 +315,4 @@ test("Calling pushPayload without a type should use a model's serializer when no
   var person = store.getById('person', 2);
 
   equal(person.get('firstName'), "Yehuda", "you can push raw JSON into the store");
-});
-
-
-
-test("Calling normalize should normalize the payload ", function () {
-  expect(1);
-
-  var normalizedPayload = store.normalize('post', {
-    id: '1',
-    post_title: 'Ember rocks'
-  });
-
-  deepEqual(normalizedPayload, {
-    id: '1',
-    postTitle: 'Ember rocks'
-  });
-
 });
