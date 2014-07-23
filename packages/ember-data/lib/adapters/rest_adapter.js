@@ -324,9 +324,9 @@ export default Adapter.extend({
     @return {Promise} promise
   */
   findHasMany: function(store, record, url) {
-    var host = get(this, 'host'),
-        id   = get(record, 'id'),
-        type = record.constructor.typeKey;
+    var host = get(this, 'host');
+    var id   = get(record, 'id');
+    var type = record.constructor.typeKey;
 
     if (host && url.charAt(0) === '/' && url.charAt(1) !== '/') {
       url = host + url;
@@ -363,8 +363,8 @@ export default Adapter.extend({
     @return {Promise} promise
   */
   findBelongsTo: function(store, record, url) {
-    var id   = get(record, 'id'),
-        type = record.constructor.typeKey;
+    var id   = get(record, 'id');
+    var type = record.constructor.typeKey;
 
     return this.ajax(this.urlPrefix(url, this.buildURL(type, id)), 'GET');
   },
@@ -454,9 +454,9 @@ export default Adapter.extend({
     @return {String} url
   */
   buildURL: function(type, id) {
-    var url = [],
-        host = get(this, 'host'),
-        prefix = this.urlPrefix();
+    var url = [];
+    var host = get(this, 'host');
+    var prefix = this.urlPrefix();
 
     if (type) { url.push(this.pathForType(type)); }
     if (id) { url.push(id); }
@@ -477,9 +477,9 @@ export default Adapter.extend({
     @return {String} urlPrefix
   */
   urlPrefix: function(path, parentURL) {
-    var host = get(this, 'host'),
-        namespace = get(this, 'namespace'),
-        url = [];
+    var host = get(this, 'host');
+    var namespace = get(this, 'namespace');
+    var url = [];
 
     if (path) {
       // Absolute path
@@ -599,11 +599,11 @@ export default Adapter.extend({
     @param {Object} hash
     @return {Promise} promise
   */
-  ajax: function(url, type, hash) {
+  ajax: function(url, type, options) {
     var adapter = this;
 
     return new Ember.RSVP.Promise(function(resolve, reject) {
-      hash = adapter.ajaxOptions(url, type, hash);
+      var hash = adapter.ajaxOptions(url, type, options);
 
       hash.success = function(json) {
         Ember.run(null, resolve, json);
@@ -625,8 +625,8 @@ export default Adapter.extend({
     @param {Object} hash
     @return {Object} hash
   */
-  ajaxOptions: function(url, type, hash) {
-    hash = hash || {};
+  ajaxOptions: function(url, type, options) {
+    var hash = options || {};
     hash.url = url;
     hash.type = type;
     hash.dataType = 'json';
@@ -646,8 +646,6 @@ export default Adapter.extend({
       };
     }
 
-
     return hash;
   }
-
 });

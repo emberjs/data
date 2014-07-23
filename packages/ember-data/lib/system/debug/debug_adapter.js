@@ -91,8 +91,8 @@ export default Ember.DataAdapter.extend({
   },
 
   observeRecord: function(record, recordUpdated) {
-    var releaseMethods = Ember.A(), self = this,
-        keysToObserve = Ember.A(['id', 'isNew', 'isDirty']);
+    var releaseMethods = Ember.A(), self = this;
+    var keysToObserve = Ember.A(['id', 'isNew', 'isDirty']);
 
     record.eachAttribute(function(key) {
       keysToObserve.push(key);

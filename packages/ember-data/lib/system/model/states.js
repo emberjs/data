@@ -542,8 +542,8 @@ var RootState = {
     // in the `saved` state.
     saved: {
       setup: function(record) {
-        var attrs = record._attributes,
-            isDirty = false;
+        var attrs = record._attributes;
+        var isDirty = false;
 
         for (var prop in attrs) {
           if (attrs.hasOwnProperty(prop)) {

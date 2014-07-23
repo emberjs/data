@@ -15,8 +15,8 @@ var setProperties = Ember.setProperties;
 
 function asyncHasMany(type, options, meta) {
   return Ember.computed('data', function(key) {
-    var relationship = this._relationships[key],
-        promiseLabel = "DS: Async hasMany " + this + " : " + key;
+    var relationship = this._relationships[key];
+    var promiseLabel = "DS: Async hasMany " + this + " : " + key;
 
     meta.key = key;
 
@@ -53,8 +53,8 @@ function buildRelationship(record, key, options, callback) {
 
   if (rels[key]) { return rels[key]; }
 
-  var data = get(record, 'data'),
-      store = get(record, 'store');
+  var data = get(record, 'data');
+  var store = get(record, 'store');
 
   var relationship = rels[key] = callback.call(record, store, data);
 

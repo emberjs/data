@@ -68,10 +68,10 @@ var OneToOneChange = {};
 var ManyToManyChange = {};
 
 RelationshipChange._createChange = function(options){
-  if(options.changeType === "add"){
+  if (options.changeType === "add"){
     return RelationshipChangeAdd.create(options);
   }
-  if(options.changeType === "remove"){
+  if (options.changeType === "remove"){
     return RelationshipChangeRemove.create(options);
   }
 };

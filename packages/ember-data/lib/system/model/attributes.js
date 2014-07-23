@@ -56,7 +56,7 @@ Model.reopenClass({
     });
 
     return map;
-  }),
+  }).readOnly(),
 
   /**
     A map whose keys are the attributes of the model (properties
@@ -99,7 +99,7 @@ Model.reopenClass({
     });
 
     return map;
-  }),
+  }).readOnly(),
 
   /**
     Iterates through the attributes of the model, calling the passed function on each

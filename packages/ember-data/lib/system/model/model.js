@@ -453,16 +453,16 @@ var Model = Ember.Object.extend(Ember.Evented, {
     // POSSIBLE TODO: Remove this code and replace with
     // always having direct references to state objects
 
-    var pivotName = name.split(".", 1),
-        currentState = get(this, 'currentState'),
-        state = currentState;
+    var pivotName = name.split('.', 1);
+    var currentState = get(this, 'currentState');
+    var state = currentState;
 
     do {
       if (state.exit) { state.exit(this); }
       state = state.parentState;
     } while (!state.hasOwnProperty(pivotName));
 
-    var path = name.split(".");
+    var path = name.split('.');
 
     var setups = [], enters = [], i, l;
 
@@ -651,10 +651,10 @@ var Model = Ember.Object.extend(Ember.Evented, {
       and value is an [oldProp, newProp] array.
   */
   changedAttributes: function() {
-    var oldData = get(this, '_data'),
-        newData = get(this, '_attributes'),
-        diffData = {},
-        prop;
+    var oldData = get(this, '_data');
+    var newData = get(this, '_attributes');
+    var diffData = {};
+    var prop;
 
     for (prop in newData) {
       diffData[prop] = [oldData[prop], newData[prop]];
@@ -907,7 +907,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this._inFlightAttributes = this._attributes;
     this._attributes = {};
 
-    return PromiseObject.create({ promise: resolver.promise });
+    return PromiseObject.create({
+      promise: resolver.promise
+    });
   },
 
   /**
@@ -937,8 +939,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   reload: function() {
     set(this, 'isReloading', true);
 
-    var  record = this;
-
+    var record = this;
     var promiseLabel = "DS: Model#reload of " + this;
     var promise = new Promise(function(resolve){
        record.send('reloadRecord', resolve);
@@ -951,7 +952,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
       throw reason;
     }, "DS: Model#reload complete, update flags");
 
-    return PromiseObject.create({ promise: promise });
+    return PromiseObject.create({
+      promise: promise
+    });
   },
 
   // FOR USE DURING COMMIT PROCESS
@@ -1016,7 +1019,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   },
 
   _triggerDeferredTriggers: function() {
-    for (var i=0, l=this._deferredTriggers.length; i<l; i++) {
+    for (var i=0, l= this._deferredTriggers.length; i<l; i++) {
       this.trigger.apply(this, this._deferredTriggers[i]);
     }
 
@@ -1036,7 +1039,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
 });
 
 Model.reopenClass({
-
   /**
     Alias DS.Model's `create` method to `_create`. This allows us to create DS.Model
     instances from within the store, but if end users accidentally call `create()`

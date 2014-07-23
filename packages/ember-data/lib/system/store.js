@@ -10,6 +10,7 @@ import {
   Adapter
 } from "./adapter";
 import { singularize } from "ember-inflector/lib/system/string";
+
 var get = Ember.get;
 var set = Ember.set;
 var once = Ember.run.once;
@@ -1443,6 +1444,7 @@ Store = Ember.Object.extend({
     var parentClientId = parentRecord ? parentRecord : parentRecord;
     var key = childKey + parentKey;
     var changes = this._relationshipChanges;
+
     if (!(clientId in changes)) {
       changes[clientId] = {};
     }
@@ -1460,6 +1462,7 @@ Store = Ember.Object.extend({
     var parentClientId = parentRecord ? parentRecord.clientId : parentRecord;
     var changes = this._relationshipChanges;
     var key = childKey + parentKey;
+
     if (!(clientId in changes) || !(parentClientId in changes[clientId]) || !(key in changes[clientId][parentClientId])){
       return;
     }

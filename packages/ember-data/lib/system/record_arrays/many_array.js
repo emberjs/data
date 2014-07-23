@@ -117,9 +117,9 @@ export default RecordArray.extend({
     @private
   */
   fetch: function() {
-    var records = get(this, 'content'),
-        store = get(this, 'store'),
-        owner = get(this, 'owner');
+    var records = get(this, 'content');
+    var store = get(this, 'store');
+    var owner = get(this, 'owner');
 
     var unloadedRecords = records.filterBy('isEmpty', true);
     store.fetchMany(unloadedRecords, owner);
@@ -141,8 +141,8 @@ export default RecordArray.extend({
   },
 
   arrayContentWillChange: function(index, removed, added) {
-    var owner = get(this, 'owner'),
-        name = get(this, 'name');
+    var owner = get(this, 'owner');
+    var name = get(this, 'name');
 
     if (!owner._suspendedRelationships) {
       // This code is the first half of code that continues inside
@@ -174,9 +174,9 @@ export default RecordArray.extend({
   arrayContentDidChange: function(index, removed, added) {
     this._super.apply(this, arguments);
 
-    var owner = get(this, 'owner'),
-        name = get(this, 'name'),
-        store = get(this, 'store');
+    var owner = get(this, 'owner');
+    var name = get(this, 'name');
+    var store = get(this, 'store');
 
     if (!owner._suspendedRelationships) {
       // This code is the second half of code that started in
@@ -217,10 +217,10 @@ export default RecordArray.extend({
     @return {DS.Model} record
   */
   createRecord: function(hash) {
-    var owner = get(this, 'owner'),
-        store = get(owner, 'store'),
-        type = get(this, 'type'),
-        record;
+    var owner = get(this, 'owner');
+    var store = get(owner, 'store');
+    var type = get(this, 'type');
+    var record;
 
     Ember.assert("You cannot add '" + type.typeKey + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
 

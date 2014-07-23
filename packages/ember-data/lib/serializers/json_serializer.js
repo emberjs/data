@@ -828,9 +828,10 @@ export default Ember.Object.extend({
     @return {Array} array An array of deserialized objects
   */
   extractArray: function(store, type, arrayPayload, id, requestType) {
-    arrayPayload = this.normalizePayload(arrayPayload);
+    var normalizedPayload = this.normalizePayload(arrayPayload);
     var serializer = this;
-    return map.call(arrayPayload, function(singlePayload) {
+
+    return map.call(normalizedPayload, function(singlePayload) {
       return serializer.normalize(type, singlePayload);
     });
   },
