@@ -254,6 +254,10 @@ var DirtyState = {
     // EVENTS
     didSetProperty: didSetProperty,
 
+    //TODO(Igor) reloading now triggers a
+    //loadingData event, though it seems fine?
+    loadingData: Ember.K,
+
     propertyWasReset: function(record, name) {
       var stillDirty = false;
 
@@ -535,6 +539,10 @@ var RootState = {
 
     // FLAGS
     isLoaded: true,
+
+    //TODO(Igor) Reloading now triggers a loadingData event,
+    //but it should be ok?
+    loadingData: Ember.K,
 
     // SUBSTATES
 

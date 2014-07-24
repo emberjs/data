@@ -122,7 +122,7 @@ export default RecordArray.extend({
     var owner = get(this, 'owner');
 
     var unloadedRecords = records.filterBy('isEmpty', true);
-    store.fetchMany(unloadedRecords, owner);
+    store.scheduleFetchMany(unloadedRecords, owner);
   },
 
   // Overrides Ember.Array's replace method to implement

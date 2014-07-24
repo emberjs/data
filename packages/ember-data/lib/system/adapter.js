@@ -417,42 +417,43 @@ var Adapter = Ember.Object.extend({
   deleteRecord: Ember.required(Function),
 
   /**
-    Find multiple records at once.
+    By default the store will try to coalesce all `fetchRecord` calls within the same runloop
+    into as few requests as possible by calling groupRecordsForFindMany and passing it into a findMany call.
+    You can opt out of this behaviour by either not implementing the findMany hook or by setting
+    coalesceFindRequests to false
 
-    By default, it loops over the provided ids and calls `find` on each.
-    May be overwritten to improve performance and reduce the number of
-    server requests.
+    @property coalesceFindRequests
+    @type {boolean}
+  */
+  coalesceFindRequests: true,
 
-    Example
-
-    ```javascript
-    App.ApplicationAdapter = DS.Adapter.extend({
-      findMany: function(store, type, ids) {
-        var url = type;
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-          jQuery.getJSON(url, {ids: ids}).then(function(data) {
-            Ember.run(null, resolve, data);
-          }, function(jqXHR) {
-            jqXHR.then = null; // tame jQuery's ill mannered promises
-            Ember.run(null, reject, jqXHR);
-          });
-        });
-      }
-    });
-    ```
+  /**
+    Find multiple records at once if coalesceFindRequests is true
 
     @method findMany
     @param {DS.Store} store
     @param {subclass of DS.Model} type   the DS.Model class of the records
     @param {Array}    ids
+    @param {Array} records
     @return {Promise} promise
   */
-  findMany: function(store, type, ids) {
-    var promises = map.call(ids, function(id) {
-      return this.find(store, type, id);
-    }, this);
 
-    return Ember.RSVP.all(promises);
+  /**
+    Organize records into groups, each of which is to be passed to separate
+    calls to `findMany`.
+
+    For example, if your api has nested URLs that depend on the parent, you will
+    want to group records by their parent.
+
+    The default implementation returns the records as a single group.
+
+    @method groupRecordsForFindMany
+    @param {Array} records
+    @returns {Array}  an array of arrays of records, each of which is to be
+                      loaded separately by `findMany`.
+  */
+  groupRecordsForFindMany: function (store, records) {
+    return [records];
   }
 });
 

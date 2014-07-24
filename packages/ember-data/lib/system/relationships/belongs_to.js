@@ -35,7 +35,13 @@ function asyncBelongsTo(type, options, meta) {
     var belongsTo = data[key];
 
     if (!isNone(belongsTo)) {
-      promise = store.fetchRecord(belongsTo) || Promise.cast(belongsTo, promiseLabel);
+      var inverse = this.constructor.inverseFor(key);
+      //but for now only in the oneToOne case
+      if (inverse && inverse.kind === 'belongsTo'){
+        set(belongsTo, inverse.name, this);
+      }
+      //TODO(Igor) after OR doesn't seem that will be called
+      promise = store.findById(belongsTo.constructor, belongsTo.get('id')) || Promise.cast(belongsTo, promiseLabel);
       return PromiseObject.create({
         promise: promise
       });
@@ -139,7 +145,7 @@ function belongsTo(type, options) {
 
     if (isNone(belongsTo)) { return null; }
 
-    store.fetchRecord(belongsTo);
+    store.findById(belongsTo.constructor, belongsTo.get('id'));
 
     return belongsTo;
   }).meta(meta);

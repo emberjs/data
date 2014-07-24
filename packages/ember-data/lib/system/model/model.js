@@ -9,6 +9,7 @@ var get = Ember.get;
 var set = Ember.set;
 var merge = Ember.merge;
 var Promise = Ember.RSVP.Promise;
+var forEach = Ember.ArrayPolyfills.forEach;
 
 var JSONSerializer;
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
@@ -627,6 +628,67 @@ var Model = Ember.Object.extend(Ember.Evented, {
   updateRecordArrays: function() {
     this._updatingRecordArraysLater = false;
     get(this, 'store').dataWasUpdated(this.constructor, this);
+  },
+
+  /**
+    When a find request is triggered on the store, the user can optionally passed in
+    attributes and relationships to be preloaded. These are meant to behave as if they
+    came back from the server, expect the user obtained them out of band and is informing
+    the store of their existence. The most common use case is for supporting client side
+    nested URLs, such as `/posts/1/comments/2` so the user can do
+    `store.find('comment', 2, {post:1})` without having to fetch the post.
+
+    Preloaded data can be attributes and relationships passed in either as IDs or as actual
+    models.
+
+    @method _preloadData
+    @private
+    @param {Object} preload
+  */
+  _preloadData: function(preload) {
+    var record = this;
+    //TODO(Igor) consider the polymorphic case
+    forEach.call(Ember.keys(preload), function(key) {
+      var preloadValue = get(preload, key);
+      var relationshipMeta = record.constructor.metaForProperty(key);
+      if (relationshipMeta.isRelationship) {
+        record._preloadRelationship(key, preloadValue);
+      } else {
+        get(record, '_data')[key] = preloadValue;
+      }
+    });
+  },
+
+  _preloadRelationship: function(key, preloadValue) {
+    var relationshipMeta = this.constructor.metaForProperty(key);
+    var type = relationshipMeta.type;
+    if (relationshipMeta.kind === 'hasMany'){
+      this._preloadHasMany(key, preloadValue, type);
+    } else {
+      this._preloadBelongsTo(key, preloadValue, type);
+    }
+  },
+
+  _preloadHasMany: function(key, preloadValue, type) {
+    Ember.assert("You need to pass in an array to set a hasMany property on a record", Ember.isArray(preloadValue));
+    var record = this;
+
+    forEach.call(preloadValue, function(recordToPush) {
+      recordToPush = record._convertStringOrNumberIntoRecord(recordToPush, type);
+      get(record, key).pushObject(recordToPush);
+    });
+  },
+
+  _preloadBelongsTo: function(key, preloadValue, type){
+    var recordToPush = this._convertStringOrNumberIntoRecord(preloadValue, type);
+    set(this, key, recordToPush);
+  },
+
+  _convertStringOrNumberIntoRecord: function(value, type) {
+    if (Ember.typeOf(value) === 'string' || Ember.typeOf(value) === 'number'){
+      return this.store.recordForId(type, value);
+    }
+    return value;
   },
 
   /**

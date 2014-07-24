@@ -141,6 +141,50 @@ var forEach = Ember.ArrayPolyfills.forEach;
 */
 export default Adapter.extend({
   defaultSerializer: '-rest',
+
+  /**
+    By default the RESTAdapter will send each find request coming from a `store.find`
+    or from accessing a relationship separately to the server. If your server supports passing
+    ids as a query string, you can set coalesceFindRequests to true to coalesce all find requests
+    within a single runloop.
+
+    For example, if you have an initial payload of
+    ```javascript
+    post: {
+      id:1,
+      comments: [1,2]
+    }
+    ```
+
+    By default calling `post.get('comments')` will trigger the following requests(assuming the
+    comments haven't been loaded before):
+
+    ```
+    GET /comments/1
+    GET /comments/2
+    ```
+
+    If you set coalesceFindRequests to `true` it will instead trigger the following request:
+
+    ```
+    GET /comments?ids[]=1&ids[]=2
+    ```
+
+    Setting coalesceFindRequests to `true` also works for `store.find` requests and `belongsTo`
+    relationships accessed within the same runloop. If you set `coalesceFindRequests: true`
+
+    ```javascript
+    store.find('comment', 1);
+    store.find('comment', 2);
+    ```
+
+    will also send a request to: `GET /comments?ids[]=1&ids[]=2`
+
+    @property coalesceFindRequests
+    @type {boolean}
+  */
+  coalesceFindRequests: false,
+
   /**
     Endpoint paths can be prefixed with a `namespace` by setting the namespace
     property on the adapter:
@@ -205,10 +249,11 @@ export default Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {String} id
+    @param {DS.Model} record
     @return {Promise} promise
   */
-  find: function(store, type, id) {
-    return this.ajax(this.buildURL(type.typeKey, id), 'GET');
+  find: function(store, type, id, record) {
+    return this.ajax(this.buildURL(type.typeKey, id, record), 'GET');
   },
 
   /**
@@ -257,9 +302,7 @@ export default Adapter.extend({
   },
 
   /**
-    Called by the store in order to fetch a JSON array for
-    the unloaded records in a has-many relationship that were originally
-    specified as IDs.
+    Called by the store in order to fetch several records together if `coalesceFindRequests` is true
 
     For example, if the original payload looks like:
 
@@ -288,10 +331,11 @@ export default Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Array} ids
+    @param {Array} records
     @return {Promise} promise
   */
-  findMany: function(store, type, ids) {
-    return this.ajax(this.buildURL(type.typeKey), 'GET', { data: { ids: ids } });
+  findMany: function(store, type, ids, records) {
+    return this.ajax(this.buildURL(type.typeKey, ids, records), 'GET', { data: { ids: ids } });
   },
 
   /**
@@ -391,7 +435,7 @@ export default Adapter.extend({
 
     serializer.serializeIntoHash(data, type, record, { includeId: true });
 
-    return this.ajax(this.buildURL(type.typeKey), "POST", { data: data });
+    return this.ajax(this.buildURL(type.typeKey, null, record), "POST", { data: data });
   },
 
   /**
@@ -418,7 +462,7 @@ export default Adapter.extend({
 
     var id = get(record, 'id');
 
-    return this.ajax(this.buildURL(type.typeKey, id), "PUT", { data: data });
+    return this.ajax(this.buildURL(type.typeKey, id, record), "PUT", { data: data });
   },
 
   /**
@@ -435,7 +479,7 @@ export default Adapter.extend({
   deleteRecord: function(store, type, record) {
     var id = get(record, 'id');
 
-    return this.ajax(this.buildURL(type.typeKey, id), "DELETE");
+    return this.ajax(this.buildURL(type.typeKey, id, record), "DELETE");
   },
 
   /**
@@ -451,15 +495,20 @@ export default Adapter.extend({
     @method buildURL
     @param {String} type
     @param {String} id
+    @param {DS.Model} record
     @return {String} url
   */
-  buildURL: function(type, id) {
-    var url = [];
-    var host = get(this, 'host');
-    var prefix = this.urlPrefix();
+  buildURL: function(type, id, record) {
+    var url = [],
+        host = get(this, 'host'),
+        prefix = this.urlPrefix();
 
     if (type) { url.push(this.pathForType(type)); }
-    if (id) { url.push(id); }
+
+    //We might get passed in an array of ids from findMany
+    //in which case we don't want to modify the url, as the
+    //ids will be passed in through a query param
+    if (id && !Ember.isArray(id)) { url.push(id); }
 
     if (prefix) { url.unshift(prefix); }
 
@@ -502,6 +551,60 @@ export default Adapter.extend({
     }
 
     return url.join('/');
+  },
+
+  _stripIDFromURL: function(store, record) {
+    var type = store.modelFor(record);
+    var url = this.buildURL(type.typeKey, record.get('id'), record);
+
+    var expandedURL = url.split('/');
+    //Case when the url is of the format ...something/:id
+    var lastSegment = expandedURL[ expandedURL.length - 1 ];
+    var id = record.get('id');
+    if (lastSegment === id) {
+      expandedURL[expandedURL.length - 1] = "";
+    } else if(endsWith(lastSegment, '?id=' + id)) {
+      //Case when the url is of the format ...something?id=:id
+      expandedURL[expandedURL.length - 1] = lastSegment.substring(0, lastSegment.length - id.length - 1);
+    }
+
+    return expandedURL.join('/');
+  },
+
+  /**
+    Organize records into groups, each of which is to be passed to separate
+    calls to `findMany`.
+
+    This implementation groups together records that have the same base URL but
+    differing ids. For example `/comments/1` and `/comments/2` will be grouped together
+    because we know findMany can coalesce them together as `/comments?ids[]=1&ids[]=2`
+
+    It also supports urls where ids are passed as a query param, such as `/comments?id=1`
+    but not those where there is more than 1 query param such as `/comments?id=2&name=David`
+    Currently only the query param of `id` is supported. If you need to support others, please
+    override this or the `_stripIDFromURL` method.
+
+    It does not group records that have differing base urls, such as for example: `/posts/1/comments/2`
+    and `/posts/2/comments/3`
+
+    @method groupRecordsForFindMany
+    @param {Array} records
+    @returns {Array}  an array of arrays of records, each of which is to be
+                      loaded separately by `findMany`.
+  */
+  groupRecordsForFindMany: function (store, records) {
+    var groups = Ember.MapWithDefault.create({defaultValue: function(){return [];}});
+    var adapter = this;
+    forEach.call(records, function(record){
+      var baseUrl = adapter._stripIDFromURL(store, record);
+      groups.get(baseUrl).push(record);
+    });
+    var groupsArray = [];
+    groups.forEach(function(key, group){
+      groupsArray.push(group);
+    });
+
+    return groupsArray;
   },
 
   /**
@@ -649,3 +752,13 @@ export default Adapter.extend({
     return hash;
   }
 });
+
+//From http://stackoverflow.com/questions/280634/endswith-in-javascript
+function endsWith(string, suffix){
+  if (typeof String.prototype.endsWith !== 'function') {
+    return string.indexOf(suffix, string.length - suffix.length) !== -1;
+  } else {
+    return string.endsWith(suffix);
+  }
+}
+
