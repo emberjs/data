@@ -119,7 +119,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   },
 
   /**
-    Adds a record to the `RecordArray`.
+    Adds a record to the `RecordArray` without duplicates
 
     @method addRecord
     @private
@@ -128,6 +128,18 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   addRecord: function(record) {
     get(this, 'content').addObject(record);
   },
+
+  /**
+    Adds a record to the `RecordArray`, but allows duplicates
+
+    @method pushRecord
+    @private
+    @param {DS.Model} record
+  */
+  pushRecord: function(record) {
+    get(this, 'content').pushObject(record);
+  },
+
 
   /**
     Removes a record to the `RecordArray`.
