@@ -1,4 +1,7 @@
-import {pluralize, singularize} from "../system/string";
+import {
+  pluralize,
+  singularize
+} from "../system/string";
 
 if (Ember.EXTEND_PROTOTYPES === true || Ember.EXTEND_PROTOTYPES.String) {
   /**

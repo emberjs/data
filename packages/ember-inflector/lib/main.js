@@ -1,4 +1,9 @@
-import {Inflector, defaultRules, pluralize, singularize} from "./system";
+import {
+  Inflector,
+  defaultRules,
+  pluralize,
+  singularize
+} from "./system";
 
 Inflector.defaultRules = defaultRules;
 Ember.Inflector        = Inflector;
@@ -10,4 +15,7 @@ import "./ext/string";
 
 export default Inflector;
 
-export {pluralize, singularize};
+export {
+  pluralize,
+  singularize
+};

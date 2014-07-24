@@ -1,10 +1,14 @@
 import Inflector from "./inflector";
-var pluralize = function(word) {
+
+function pluralize(word) {
   return Inflector.inflector.pluralize(word);
-};
+}
 
-var singularize = function(word) {
+function singularize(word) {
   return Inflector.inflector.singularize(word);
-};
+}
 
-export {pluralize, singularize};
+export {
+  pluralize,
+  singularize
+};
