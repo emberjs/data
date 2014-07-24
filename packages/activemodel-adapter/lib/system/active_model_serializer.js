@@ -1,4 +1,4 @@
-import {singularize} from "../../../ember-inflector/lib/main";
+import { singularize } from "../../../ember-inflector/lib/main";
 import RESTSerializer from "../../../ember-data/lib/serializers/rest_serializer";
 /**
   @module ember-data
@@ -120,8 +120,8 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param {String} kind
     @return String
   */
-  keyForRelationship: function(key, kind) {
-    key = decamelize(key);
+  keyForRelationship: function(rawKey, kind) {
+    var key = decamelize(rawKey);
     if (kind === "belongsTo") {
       return key + "_id";
     } else if (kind === "hasMany") {
@@ -159,8 +159,8 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param relationship
   */
   serializePolymorphicType: function(record, json, relationship) {
-    var key = relationship.key,
-        belongsTo = get(record, key);
+    var key = relationship.key;
+    var belongsTo = get(record, key);
 
     if (belongsTo) {
       key = this.keyForAttribute(key);
