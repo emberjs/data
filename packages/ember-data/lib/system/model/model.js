@@ -16,6 +16,21 @@ var retrieveFromCurrentState = Ember.computed('currentState', function(key, valu
   return get(get(this, 'currentState'), key);
 }).readOnly();
 
+var _extractPivotNameCache = Object.create(null);
+var _splitOnDotCache = Object.create(null);
+
+function splitOnDot(name) {
+  return _splitOnDotCache[name] || (
+    _splitOnDotCache[name] = name.split('.')
+  );
+}
+
+function extractPivotName(name) {
+  return _extractPivotNameCache[name] || (
+    _extractPivotNameCache[name] = splitOnDot(name)[0]
+  );
+}
+
 /**
 
   The model class that all Ember Data records descend from.
@@ -454,7 +469,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     // POSSIBLE TODO: Remove this code and replace with
     // always having direct references to state objects
 
-    var pivotName = name.split('.', 1);
+    var pivotName = extractPivotName(name);
     var currentState = get(this, 'currentState');
     var state = currentState;
 
@@ -463,8 +478,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
       state = state.parentState;
     } while (!state.hasOwnProperty(pivotName));
 
-    var path = name.split('.');
-
+    var path = splitOnDot(name);
     var setups = [], enters = [], i, l;
 
     for (i=0, l=path.length; i<l; i++) {
