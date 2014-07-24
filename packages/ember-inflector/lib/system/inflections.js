@@ -1,4 +1,4 @@
-var defaultRules = {
+export default {
   plurals: [
     [/$/, 's'],
     [/s$/i, 's'],
@@ -76,5 +76,3 @@ var defaultRules = {
     'police'
   ]
 };
-
-export default defaultRules;

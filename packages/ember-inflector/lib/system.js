@@ -1,5 +1,8 @@
 import Inflector from "./system/inflector";
-import {pluralize, singularize} from "./system/string";
+import {
+  pluralize,
+  singularize
+} from "./system/string";
 import defaultRules from "./system/inflections";
 
 Inflector.inflector = new Inflector(defaultRules);
