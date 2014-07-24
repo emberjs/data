@@ -842,6 +842,26 @@ test("findQuery - data is normalized through custom serializers", function() {
   }));
 });
 
+test("findMany - findMany uses a correct URL to access the records", function() {
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+
+  store.push('post', { id: 1, name: "Rails is omakase", comments: [ 1, 2, 3 ] });
+
+  var post = store.getById('post', 1);
+  ajaxResponse({
+    comments: [
+      { id: 1, name: "FIRST" },
+      { id: 2, name: "Rails is unagi" },
+      { id: 3, name: "What is omakase?" }
+    ]
+  });
+  post.get('comments').then(async(function(comments) {
+    equal(passedUrl, "/comments");
+    deepEqual(passedHash, {data: {ids: ["1", "2", "3"]}});
+  }));
+});
+
+
 test("findMany - returning an array populates the array", function() {
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
