@@ -1,4 +1,8 @@
-import {ActiveModelAdapter, ActiveModelSerializer, EmbeddedRecordsMixin} from "./system";
+import {
+  ActiveModelAdapter,
+  ActiveModelSerializer,
+  EmbeddedRecordsMixin
+} from "./system";
 
 export {
   ActiveModelAdapter,

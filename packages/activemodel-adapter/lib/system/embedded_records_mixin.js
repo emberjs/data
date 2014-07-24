@@ -2,7 +2,7 @@ var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
 var camelize = Ember.String.camelize;
 
-import {pluralize} from "../../../ember-inflector/lib/main";
+import { pluralize } from "../../../ember-inflector/lib/main";
 
 /**
   ## Using Embedded Records
@@ -109,9 +109,8 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
    @return {Object} the normalized hash
   **/
   normalize: function(type, hash, prop) {
-    hash = this._super(type, hash, prop);
-    hash  = extractEmbeddedRecords(this, this.store, type, hash);
-    return hash;
+    var normalizedHash = this._super(type, hash, prop);
+    return extractEmbeddedRecords(this, this.store, type, normalizedHash);
   },
 
   keyForRelationship: function(key, type){

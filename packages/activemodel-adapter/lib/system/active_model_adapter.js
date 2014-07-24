@@ -28,7 +28,7 @@ var decamelize = Ember.String.decamelize,
 
   The ActiveModelAdapter expects the JSON returned from your server to follow
   the REST adapter conventions substituting underscored keys for camelcased ones.
-  
+
   Unlike the DS.RESTAdapter, async relationship keys must be the singular form
   of the relationship name, followed by "_id" for DS.belongsTo relationships,
   or "_ids" for DS.hasMany relationships.
