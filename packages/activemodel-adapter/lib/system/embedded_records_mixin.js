@@ -2,7 +2,7 @@ var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
 var camelize = Ember.String.camelize;
 
-import {pluralize} from "../../../ember-inflector/lib/main";
+import {pluralize} from "ember-inflector";
 
 /**
   ## Using Embedded Records

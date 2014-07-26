@@ -1,6 +1,6 @@
-import RootState from "./states";
-import Errors from "./errors";
-import { PromiseObject } from "../store";
+import RootState from "ember-data/system/model/states";
+import Errors from "ember-data/system/model/errors";
+import { PromiseObject } from "ember-data/system/store";
 /**
   @module ember-data
 */
@@ -354,7 +354,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @return {Object} A JSON representation of the object.
   */
   toJSON: function(options) {
-    if (!JSONSerializer) { JSONSerializer = requireModule("ember-data/lib/serializers/json_serializer")["default"]; }
+    if (!JSONSerializer) { JSONSerializer = requireModule("ember-data/serializers/json_serializer")["default"]; }
     // container is for lazy transform lookups
     var serializer = JSONSerializer.create({ container: this.container });
     return serializer.serialize(this, options);

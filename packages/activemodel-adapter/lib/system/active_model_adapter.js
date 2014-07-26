@@ -1,8 +1,8 @@
-import {RESTAdapter} from "../../../ember-data/lib/adapters";
-import {InvalidError} from "../../../ember-data/lib/system/adapter";
-import {pluralize} from "../../../ember-inflector/lib/main";
-import ActiveModelSerializer from "./active_model_serializer";
-import EmbeddedRecordsMixin from "./embedded_records_mixin";
+import {RESTAdapter} from "ember-data/adapters";
+import {InvalidError} from "ember-data/system/adapter";
+import {pluralize} from "ember-inflector";
+import ActiveModelSerializer from "activemodel-adapter/system/active_model_serializer";
+import EmbeddedRecordsMixin from "activemodel-adapter/system/embedded_records_mixin";
 
 /**
   @module ember-data
@@ -28,7 +28,7 @@ var decamelize = Ember.String.decamelize,
 
   The ActiveModelAdapter expects the JSON returned from your server to follow
   the REST adapter conventions substituting underscored keys for camelcased ones.
-  
+
   Unlike the DS.RESTAdapter, async relationship keys must be the singular form
   of the relationship name, followed by "_id" for DS.belongsTo relationships,
   or "_ids" for DS.hasMany relationships.

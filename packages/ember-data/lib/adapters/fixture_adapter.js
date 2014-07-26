@@ -8,7 +8,7 @@ var indexOf = Ember.EnumerableUtils.indexOf;
 
 var counter = 0;
 
-import Adapter from "../system/adapter";
+import Adapter from "ember-data/system/adapter";
 
 /**
   `DS.FixtureAdapter` is an adapter that loads records from memory.

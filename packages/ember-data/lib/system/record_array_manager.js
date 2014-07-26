@@ -7,7 +7,7 @@ import {
   FilteredRecordArray,
   AdapterPopulatedRecordArray,
   ManyArray
-} from "./record_arrays";
+} from "ember-data/system/record_arrays";
 var get = Ember.get;
 var set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;

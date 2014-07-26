@@ -1,4 +1,4 @@
-import { RelationshipChange } from "../system/changes";
+import { RelationshipChange } from "ember-data/system/changes";
 var get = Ember.get;
 var set = Ember.set;
 var isNone = Ember.isNone;

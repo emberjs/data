@@ -2,12 +2,12 @@
   @module ember-data
 */
 
-import { PromiseArray } from "../store";
+import { PromiseArray } from "ember-data/system/store";
 
 import {
   relationshipFromMeta,
   typeForRelationshipMeta
-} from "../relationship-meta";
+} from "ember-data/system/relationship-meta";
 
 var get = Ember.get;
 var set = Ember.set;

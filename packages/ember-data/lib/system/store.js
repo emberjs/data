@@ -8,8 +8,8 @@
 import {
   InvalidError,
   Adapter
-} from "./adapter";
-import { singularize } from "ember-inflector/lib/system/string";
+} from "ember-data/system/adapter";
+import { singularize } from "ember-inflector/system/string";
 var get = Ember.get;
 var set = Ember.set;
 var once = Ember.run.once;
@@ -133,7 +133,7 @@ Store = Ember.Object.extend({
   */
   init: function() {
     // internal bookkeeping; not observable
-    if (!RecordArrayManager) { RecordArrayManager = requireModule("ember-data/lib/system/record_array_manager")["default"]; }
+    if (!RecordArrayManager) { RecordArrayManager = requireModule("ember-data/system/record_array_manager")["default"]; }
     this.typeMaps = {};
     this.recordArrayManager = RecordArrayManager.create({
       store: this
@@ -1572,7 +1572,7 @@ function normalizeRelationships(store, type, data, record) {
 }
 
 function deserializeRecordId(store, data, key, relationship, id) {
-  if (!Model) { Model = requireModule("ember-data/lib/system/model")["Model"]; }
+  if (!Model) { Model = requireModule("ember-data/system/model")["Model"]; }
   if (isNone(id) || id instanceof Model) {
     return;
   }

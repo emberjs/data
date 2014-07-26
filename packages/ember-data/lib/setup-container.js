@@ -1,8 +1,8 @@
-import initializeStore from './initializers/store';
-import initializeTransforms from './initializers/transforms';
-import initializeStoreInjections from './initializers/store_injections';
-import initializeDataAdapter from './initializers/data_adapter';
-import setupActiveModelContainer from '../../../activemodel-adapter/lib/setup-container';
+import initializeStore from 'ember-data/initializers/store';
+import initializeTransforms from 'ember-data/initializers/transforms';
+import initializeStoreInjections from 'ember-data/initializers/store_injections';
+import initializeDataAdapter from 'ember-data/initializers/data_adapter';
+import setupActiveModelContainer from 'activemodel-adapter/setup-container';
 
 export default function setupContainer(container, application){
   // application is not a required argument. This ensures

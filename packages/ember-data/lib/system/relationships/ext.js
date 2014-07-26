@@ -1,9 +1,9 @@
-import { singularize } from "../../../../ember-inflector/lib/system";
+import { singularize } from "ember-inflector/system";
 import {
   typeForRelationshipMeta,
   relationshipFromMeta
-} from "../relationship-meta";
-import { Model } from "../model";
+} from "ember-data/system/relationship-meta";
+import { Model } from "ember-data/system/model";
 
 var get = Ember.get;
 var set = Ember.set;
@@ -124,7 +124,7 @@ Model.reopenClass({
       inverseName = options.inverse;
       inverse = Ember.get(inverseType, 'relationshipsByName').get(inverseName);
 
-      Ember.assert("We found no inverse relationships by the name of '" + inverseName + "' on the '" + inverseType.typeKey + 
+      Ember.assert("We found no inverse relationships by the name of '" + inverseName + "' on the '" + inverseType.typeKey +
         "' model. This is most likely due to a missing attribute on your model definition.", !Ember.isNone(inverse));
 
       inverseKind = inverse.kind;
@@ -133,7 +133,7 @@ Model.reopenClass({
 
       if (possibleRelationships.length === 0) { return null; }
 
-      Ember.assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " + 
+      Ember.assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " +
         this + " were found on " + inverseType + ". Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
         possibleRelationships.length === 1);
 

@@ -1,4 +1,4 @@
-import Transform from "./base";
+import Transform from "ember-data/transforms/base";
 var none = Ember.isNone;
 
 /**

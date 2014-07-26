@@ -1,4 +1,4 @@
-import { singularize } from "../../../ember-inflector/lib/system";
+import { singularize } from "ember-inflector/system";
 
 export function typeForRelationshipMeta(store, meta) {
   var typeKey, type;

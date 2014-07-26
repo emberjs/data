@@ -1,4 +1,4 @@
-import Model from "./model";
+import Model from "ember-data/system/model/model";
 
 /**
   @module ember-data

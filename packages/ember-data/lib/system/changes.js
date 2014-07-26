@@ -10,7 +10,7 @@ import {
   ManyToNoneChange,
   OneToOneChange,
   ManyToManyChange
-} from "./changes/relationship_change";
+} from "ember-data/system/changes/relationship_change";
 
 export {
   RelationshipChange,

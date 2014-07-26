@@ -1,5 +1,5 @@
-import {singularize} from "../../../ember-inflector/lib/main";
-import RESTSerializer from "../../../ember-data/lib/serializers/rest_serializer";
+import {singularize} from "ember-inflector";
+import RESTSerializer from "ember-data/serializers/rest_serializer";
 /**
   @module ember-data
 */
