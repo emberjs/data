@@ -1,0 +1,7 @@
+{
+  "test_page": "tests/index.html",
+  "serve_files": [
+    "dist/**/*.js",
+    "tests/**/*"
+  ]
+}

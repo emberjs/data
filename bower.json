@@ -6,5 +6,9 @@
     "qunit": "~1.13.0",
     "jquery": "~1.10.x",
     "handlebars": "~1.3.0"
+  },
+  "devDependencies": {
+    "loader.js": "~1.0.0",
+    "ember-inflector": "git@github.com:stefanpenner/ember-inflector.git#9ddd559d848ea27143fccd0943af360795c1af3b"
   }
 }
