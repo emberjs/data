@@ -423,3 +423,15 @@ test("A DS.Model can be JSONified", function() {
   var record = store.createRecord('person', { name: "TomHuda" });
   deepEqual(record.toJSON(), { name: "TomHuda" });
 });
+
+test("A subclass of DS.Model can not use the `data` property", function() {
+  var Person = DS.Model.extend({
+    data: DS.attr('string')
+  });
+
+  var store = createStore({ person: Person });
+
+  expectAssertion(function() {
+    var record = store.createRecord('person', { name: "TomHuda" });
+  }, /`data` is a reserved property name on DS.Model objects/);
+});

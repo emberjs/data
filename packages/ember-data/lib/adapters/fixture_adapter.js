@@ -136,8 +136,8 @@ export default Adapter.extend({
     @return {Promise} promise
   */
   find: function(store, type, id) {
-    var fixtures = this.fixturesForType(type),
-        fixture;
+    var fixtures = this.fixturesForType(type);
+    var fixture;
 
     Ember.assert("Unable to find fixtures for model type "+type.toString() +". If you're defining your fixtures using `Model.FIXTURES = ...`, please change it to `Model.reopenClass({ FIXTURES: ... })`.", fixtures);
 
@@ -279,7 +279,7 @@ export default Adapter.extend({
   deleteLoadedFixture: function(type, record) {
     var existingFixture = this.findExistingFixture(type, record);
 
-    if(existingFixture) {
+    if (existingFixture) {
       var index = indexOf(type.FIXTURES, existingFixture);
       type.FIXTURES.splice(index, 1);
       return true;
@@ -307,7 +307,7 @@ export default Adapter.extend({
   */
   findFixtureById: function(fixtures, id) {
     return Ember.A(fixtures).find(function(r) {
-      if(''+get(r, 'id') === ''+id) {
+      if (''+get(r, 'id') === ''+id) {
         return true;
       } else {
         return false;

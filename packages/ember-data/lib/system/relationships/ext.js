@@ -206,19 +206,21 @@ Model.reopenClass({
 
     // Loop through each computed property on the class
     this.eachComputedProperty(function(name, meta) {
-
       // If the computed property is a relationship, add
       // it to the map.
       if (meta.isRelationship) {
         meta.key = name;
         var relationshipsForType = map.get(typeForRelationshipMeta(this.store, meta));
 
-        relationshipsForType.push({ name: name, kind: meta.kind });
+        relationshipsForType.push({
+          name: name,
+          kind: meta.kind
+        });
       }
     });
 
     return map;
-  }).cacheable(false),
+  }).cacheable(false).readOnly(),
 
   /**
     A hash containing lists of the model's relationships, grouped
@@ -250,7 +252,10 @@ Model.reopenClass({
     @readOnly
   */
   relationshipNames: Ember.computed(function() {
-    var names = { hasMany: [], belongsTo: [] };
+    var names = {
+      hasMany: [],
+      belongsTo: []
+    };
 
     this.eachComputedProperty(function(name, meta) {
       if (meta.isRelationship) {
@@ -290,8 +295,8 @@ Model.reopenClass({
     @readOnly
   */
   relatedTypes: Ember.computed(function() {
-    var type,
-        types = Ember.A();
+    var type;
+    var types = Ember.A();
 
     // Loop through each computed property on the class,
     // and create an array of the unique types involved
@@ -311,7 +316,7 @@ Model.reopenClass({
     });
 
     return types;
-  }).cacheable(false),
+  }).cacheable(false).readOnly(),
 
   /**
     A map whose keys are the relationships of a model and whose values are
@@ -357,7 +362,7 @@ Model.reopenClass({
     });
 
     return map;
-  }).cacheable(false),
+  }).cacheable(false).readOnly(),
 
   /**
     A map whose keys are the fields of the model and whose values are strings
@@ -406,7 +411,7 @@ Model.reopenClass({
     });
 
     return map;
-  }),
+  }).readOnly(),
 
   /**
     Given a callback, iterates over each of the relationships in the model,

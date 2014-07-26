@@ -74,9 +74,9 @@ export default Ember.Object.extend({
   },
 
   _recordWasChanged: function (record) {
-    var type = record.constructor,
-        recordArrays = this.filteredRecordArrays.get(type),
-        filter;
+    var type = record.constructor;
+    var recordArrays = this.filteredRecordArrays.get(type);
+    var filter;
 
     forEach(recordArrays, function(array) {
       filter = get(array, 'filterFunction');
@@ -140,8 +140,8 @@ export default Ember.Object.extend({
     @param filter
   */
   updateFilter: function(array, type, filter) {
-    var typeMap = this.store.typeMapFor(type),
-        records = typeMap.records, record;
+    var typeMap = this.store.typeMapFor(type);
+    var records = typeMap.records, record;
 
     for (var i=0, l=records.length; i<l; i++) {
       record = records[i];

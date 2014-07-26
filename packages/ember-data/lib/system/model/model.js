@@ -9,11 +9,27 @@ var get = Ember.get;
 var set = Ember.set;
 var merge = Ember.merge;
 var Promise = Ember.RSVP.Promise;
+var forEach = Ember.ArrayPolyfills.forEach;
 
 var JSONSerializer;
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
   return get(get(this, 'currentState'), key);
 }).readOnly();
+
+var _extractPivotNameCache = Object.create(null);
+var _splitOnDotCache = Object.create(null);
+
+function splitOnDot(name) {
+  return _splitOnDotCache[name] || (
+    _splitOnDotCache[name] = name.split('.')
+  );
+}
+
+function extractPivotName(name) {
+  return _extractPivotNameCache[name] || (
+    _extractPivotNameCache[name] = splitOnDot(name)[0]
+  );
+}
 
 /**
 
@@ -453,17 +469,16 @@ var Model = Ember.Object.extend(Ember.Evented, {
     // POSSIBLE TODO: Remove this code and replace with
     // always having direct references to state objects
 
-    var pivotName = name.split(".", 1),
-        currentState = get(this, 'currentState'),
-        state = currentState;
+    var pivotName = extractPivotName(name);
+    var currentState = get(this, 'currentState');
+    var state = currentState;
 
     do {
       if (state.exit) { state.exit(this); }
       state = state.parentState;
     } while (!state.hasOwnProperty(pivotName));
 
-    var path = name.split(".");
-
+    var path = splitOnDot(name);
     var setups = [], enters = [], i, l;
 
     for (i=0, l=path.length; i<l; i++) {
@@ -630,6 +645,67 @@ var Model = Ember.Object.extend(Ember.Evented, {
   },
 
   /**
+    When a find request is triggered on the store, the user can optionally passed in
+    attributes and relationships to be preloaded. These are meant to behave as if they
+    came back from the server, expect the user obtained them out of band and is informing
+    the store of their existence. The most common use case is for supporting client side
+    nested URLs, such as `/posts/1/comments/2` so the user can do
+    `store.find('comment', 2, {post:1})` without having to fetch the post.
+
+    Preloaded data can be attributes and relationships passed in either as IDs or as actual
+    models.
+
+    @method _preloadData
+    @private
+    @param {Object} preload
+  */
+  _preloadData: function(preload) {
+    var record = this;
+    //TODO(Igor) consider the polymorphic case
+    forEach.call(Ember.keys(preload), function(key) {
+      var preloadValue = get(preload, key);
+      var relationshipMeta = record.constructor.metaForProperty(key);
+      if (relationshipMeta.isRelationship) {
+        record._preloadRelationship(key, preloadValue);
+      } else {
+        get(record, '_data')[key] = preloadValue;
+      }
+    });
+  },
+
+  _preloadRelationship: function(key, preloadValue) {
+    var relationshipMeta = this.constructor.metaForProperty(key);
+    var type = relationshipMeta.type;
+    if (relationshipMeta.kind === 'hasMany'){
+      this._preloadHasMany(key, preloadValue, type);
+    } else {
+      this._preloadBelongsTo(key, preloadValue, type);
+    }
+  },
+
+  _preloadHasMany: function(key, preloadValue, type) {
+    Ember.assert("You need to pass in an array to set a hasMany property on a record", Ember.isArray(preloadValue));
+    var record = this;
+
+    forEach.call(preloadValue, function(recordToPush) {
+      recordToPush = record._convertStringOrNumberIntoRecord(recordToPush, type);
+      get(record, key).pushObject(recordToPush);
+    });
+  },
+
+  _preloadBelongsTo: function(key, preloadValue, type){
+    var recordToPush = this._convertStringOrNumberIntoRecord(preloadValue, type);
+    set(this, key, recordToPush);
+  },
+
+  _convertStringOrNumberIntoRecord: function(value, type) {
+    if (Ember.typeOf(value) === 'string' || Ember.typeOf(value) === 'number'){
+      return this.store.recordForId(type, value);
+    }
+    return value;
+  },
+
+  /**
     Returns an object, whose keys are changed properties, and value is
     an [oldProp, newProp] array.
 
@@ -651,10 +727,10 @@ var Model = Ember.Object.extend(Ember.Evented, {
       and value is an [oldProp, newProp] array.
   */
   changedAttributes: function() {
-    var oldData = get(this, '_data'),
-        newData = get(this, '_attributes'),
-        diffData = {},
-        prop;
+    var oldData = get(this, '_data');
+    var newData = get(this, '_attributes');
+    var diffData = {};
+    var prop;
 
     for (prop in newData) {
       diffData[prop] = [oldData[prop], newData[prop]];
@@ -907,7 +983,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this._inFlightAttributes = this._attributes;
     this._attributes = {};
 
-    return PromiseObject.create({ promise: resolver.promise });
+    return PromiseObject.create({
+      promise: resolver.promise
+    });
   },
 
   /**
@@ -937,8 +1015,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   reload: function() {
     set(this, 'isReloading', true);
 
-    var  record = this;
-
+    var record = this;
     var promiseLabel = "DS: Model#reload of " + this;
     var promise = new Promise(function(resolve){
        record.send('reloadRecord', resolve);
@@ -951,7 +1028,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
       throw reason;
     }, "DS: Model#reload complete, update flags");
 
-    return PromiseObject.create({ promise: promise });
+    return PromiseObject.create({
+      promise: promise
+    });
   },
 
   // FOR USE DURING COMMIT PROCESS
@@ -1016,7 +1095,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   },
 
   _triggerDeferredTriggers: function() {
-    for (var i=0, l=this._deferredTriggers.length; i<l; i++) {
+    for (var i=0, l= this._deferredTriggers.length; i<l; i++) {
       this.trigger.apply(this, this._deferredTriggers[i]);
     }
 
@@ -1026,11 +1105,16 @@ var Model = Ember.Object.extend(Ember.Evented, {
   willDestroy: function() {
     this._super();
     this.clearRelationships();
+  },
+
+  // This is a temporary solution until we refactor DS.Model to not
+  // rely on the data property.
+  willMergeMixin: function(props) {
+    Ember.assert('`data` is a reserved property name on DS.Model objects. Please choose a different property name for ' + this.constructor.toString(), !props.data);
   }
 });
 
 Model.reopenClass({
-
   /**
     Alias DS.Model's `create` method to `_create`. This allows us to create DS.Model
     instances from within the store, but if end users accidentally call `create()`

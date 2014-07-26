@@ -254,6 +254,10 @@ var DirtyState = {
     // EVENTS
     didSetProperty: didSetProperty,
 
+    //TODO(Igor) reloading now triggers a
+    //loadingData event, though it seems fine?
+    loadingData: Ember.K,
+
     propertyWasReset: function(record, name) {
       var stillDirty = false;
 
@@ -536,14 +540,18 @@ var RootState = {
     // FLAGS
     isLoaded: true,
 
+    //TODO(Igor) Reloading now triggers a loadingData event,
+    //but it should be ok?
+    loadingData: Ember.K,
+
     // SUBSTATES
 
     // If there are no local changes to a record, it remains
     // in the `saved` state.
     saved: {
       setup: function(record) {
-        var attrs = record._attributes,
-            isDirty = false;
+        var attrs = record._attributes;
+        var isDirty = false;
 
         for (var prop in attrs) {
           if (attrs.hasOwnProperty(prop)) {

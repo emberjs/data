@@ -21,9 +21,9 @@ export default function initializeStore(container, application){
 
   var proxy = new ContainerProxy(container);
   proxy.registerDeprecations([
-    {deprecated: 'serializer:_default',  valid: 'serializer:-default'},
-    {deprecated: 'serializer:_rest',     valid: 'serializer:-rest'},
-    {deprecated: 'adapter:_rest',        valid: 'adapter:-rest'}
+    { deprecated: 'serializer:_default',  valid: 'serializer:-default' },
+    { deprecated: 'serializer:_rest',     valid: 'serializer:-rest' },
+    { deprecated: 'adapter:_rest',        valid: 'adapter:-rest' }
   ]);
 
   // new go forward paths
