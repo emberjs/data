@@ -3,5 +3,9 @@
   "serve_files": [
     "dist/**/*.js",
     "tests/**/*"
-  ]
+  ],
+  "routes": {
+    "/ember-data.js": "dist/ember-data.js",
+    "/tests/tests.js": "dist/tests.js"
+  }
 }

@@ -4,5 +4,11 @@
   "main": "ember-data.js",
   "dependencies": {
     "ember": ">= 1.0.0"
-  }
+  },
+  "ignore": [
+    "**/*_configuration.js",
+    "ember-data-setup.js",
+    "docs",
+    "**/*.html"
+  ]
 }

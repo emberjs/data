@@ -13,6 +13,7 @@ var defeatureify  = require('broccoli-defeatureify');
 var version = require('./lib/utilities/ember-data-version')();
 var renderTemplate = require('broccoli-render-template');
 var yuidoc = require('broccoli-yuidoc');
+var replace = require('broccoli-string-replace');
 
 function moveFromLibAndMainJS(packageName, vendored){
   var root = vendored ? 'bower_components/' + packageName + "/packages/" + packageName + '/lib':
@@ -27,6 +28,9 @@ function moveFromLibAndMainJS(packageName, vendored){
     destFile: '/' + packageName + '.js'
   });
   tree = es6(tree, {moduleName: true});
+  if (env === 'production'){
+    tree = es3SafeRecast(tree);
+  }
   return tree;
 }
 
@@ -152,7 +156,21 @@ var bower = pickFiles('bower_components', {
   destDir: '/bower_components'
 });
 
-var trees = merge([testFiles, globalBuild, namedAMDBuild, yuidocTree, testRunner, bower]);
+var configurationFiles = pickFiles('config/package_manager_files', {
+  srcDir: '/',
+  destDir: '/',
+  inputFiles: [ '**/*' ]
+});
+
+configurationFiles = replace(configurationFiles, {
+  files: [ '**/*' ],
+  pattern: {
+    match: /VERSION_STRING_PLACEHOLDER/g,
+    replacement: version
+  }
+});
+
+var trees = merge([testFiles, globalBuild, namedAMDBuild, yuidocTree, testRunner, bower, configurationFiles]);
 
 if (env === 'production') {
   var minifiedAMD = minify(namedAMDBuild, 'ember-data.named-amd');
