@@ -5,7 +5,7 @@ node_js:
 install:
 - "bin/cached-npm install"
 - "bower install"
-- "broccoli build dist"
+- "npm run-script build"
 script:
   - testem
   - testem -f config/testem-beta.json

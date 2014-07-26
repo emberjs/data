@@ -7,7 +7,8 @@
   "scripts": {
     "postinstall": "bower install",
     "start": "broccoli serve",
-    "test": "rm -rf dist && broccoli build dist && testem ci",
+    "build": "rm -rf dist && broccoli build dist",
+    "test": "testem ci",
     "publish-build": "rm -rf dist && broccoli build dist && ./bin/publish_to_s3.js"
   },
   "devDependencies": {
