@@ -46,7 +46,6 @@
     "load-grunt-tasks": "~0.2.1",
     "lockfile": "~0.4.2",
     "matchdep": "~0.3.0",
-    "testem-multi": "^0.4.2",
     "yuidocjs": "~0.3.46"
   }
 }
