@@ -35,7 +35,7 @@ function moveFromLibAndMainJS(packageName, vendored){
 }
 
 function minify(tree, name){
-  var config = require('./tasks/options/emberDefeatureify');
+  var config = require('./config/ember-defeatureify');
   tree = defeatureify(tree, {
     debugStatements: config.options.debugStatements,
     enableStripDebug: config.stripDebug
