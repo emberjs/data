@@ -5,6 +5,11 @@ node_js:
 install:
 - "bin/cached-npm install"
 - "bower install"
+script:
+  - testem
+  - testem -f config/testem-beta.json
+  - testem -f config/testem-canary.json
+  - testem -f config/testem-stable.json
 after_success:
 - npm run-script publish-build
 - "./bin/bower-ember-data-build"

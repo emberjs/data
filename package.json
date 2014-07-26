@@ -6,7 +6,7 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "bower install",
-    "test": "grunt test:all",
+    "test": "rm -rf dist && broccoli build dist && testem ci",
     "publish-build": "grunt dist && ./bin/publish_to_s3.js"
   },
   "devDependencies": {
