@@ -68,14 +68,16 @@ function coerceId(id) {
   for a specific id, use `DS.Store`'s `find()` method:
 
   ```javascript
-  var person = store.find('person', 123);
+  store.find('person', 123).then(function (person) {
+  });
   ```
 
   If your application has multiple `DS.Store` instances (an unusual case), you can
   specify which store should be used:
 
   ```javascript
-  var person = store.find('person', 123);
+  store.find('person', 123).then(function (person) {
+  });
   ```
 
   By default, the store will talk to your backend using a standard
@@ -365,8 +367,9 @@ Store = Ember.Object.extend({
     If you have access to the post model you can also pass the model itself:
 
     ```javascript
-    var myPostModel = store.find('post', 1);
-    store.find('comment', 2, {post: myPostModel});
+    store.find('post', 1).then(function (myPostModel) {
+      store.find('comment', 2, {post: myPostModel});
+    });
     ```
 
     This way, your adapter's `find` or `buildURL` method will be able to look up the
