@@ -2,7 +2,8 @@ import { RelationshipChange } from "../system/changes";
 var get = Ember.get;
 var set = Ember.set;
 var isNone = Ember.isNone;
-var  map = Ember.ArrayPolyfills.map;
+var map = Ember.ArrayPolyfills.map;
+var merge = Ember.merge;
 
 /**
   In Ember Data a Serializer is used to serialize and deserialize
@@ -401,6 +402,34 @@ export default Ember.Object.extend({
     }, this);
 
     return json;
+  },
+
+  /**
+    You can use this method to customize how a serialized record is added to the complete
+    JSON hash to be sent to the server. By default the JSON Serializer does not namespace
+    the payload and just sends the raw serialized JSON object.
+    If your server expects namespaced keys, you should consider using the RESTSerializer.
+    Otherwise you can override this method to customize how the record is added to the hash.
+
+    For example, your server may expect underscored root objects.
+
+    ```js
+    App.ApplicationSerializer = DS.RESTSerializer.extend({
+      serializeIntoHash: function(data, type, record, options) {
+        var root = Ember.String.decamelize(type.typeKey);
+        data[root] = this.serialize(record, options);
+      }
+    });
+    ```
+
+    @method serializeIntoHash
+    @param {Object} hash
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @param {Object} options
+  */
+  serializeIntoHash: function(hash, type, record, options) {
+    merge(hash, this.serialize(record, options));
   },
 
   /**

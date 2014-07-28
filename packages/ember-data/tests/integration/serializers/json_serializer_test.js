@@ -110,6 +110,18 @@ test("serializeHasMany respects keyForRelationship", function() {
   });
 });
 
+test("serializeIntoHash", function() {
+  post = env.store.createRecord("post", { title: "Rails is omakase"});
+  var json = {};
+
+  env.serializer.serializeIntoHash(json, Post, post);
+
+  deepEqual(json, {
+    title: "Rails is omakase",
+    comments: []
+  });
+});
+
 test("serializePolymorphicType", function() {
   env.container.register('serializer:comment', DS.JSONSerializer.extend({
     serializePolymorphicType: function(record, json, relationship) {
