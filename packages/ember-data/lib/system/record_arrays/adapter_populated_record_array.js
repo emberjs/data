@@ -6,6 +6,14 @@ import RecordArray from "ember-data/system/record_arrays/record_array";
 var get = Ember.get;
 var set = Ember.set;
 
+function cloneNull(source) {
+  var clone = Object.create(null);
+  for (var key in source) {
+    clone[key] = source[key];
+  }
+  return clone;
+}
+
 /**
   Represents an ordered list of records whose order and membership is
   determined by the adapter. For example, a query sent to the adapter
@@ -38,7 +46,7 @@ export default RecordArray.extend({
     this.setProperties({
       content: Ember.A(records),
       isLoaded: true,
-      meta: Ember.copy(meta)
+      meta: cloneNull(meta)
     });
 
     records.forEach(function(record) {

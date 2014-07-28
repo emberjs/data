@@ -68,14 +68,16 @@ function coerceId(id) {
   for a specific id, use `DS.Store`'s `find()` method:
 
   ```javascript
-  var person = store.find('person', 123);
+  store.find('person', 123).then(function (person) {
+  });
   ```
 
   If your application has multiple `DS.Store` instances (an unusual case), you can
   specify which store should be used:
 
   ```javascript
-  var person = store.find('person', 123);
+  store.find('person', 123).then(function (person) {
+  });
   ```
 
   By default, the store will talk to your backend using a standard
@@ -365,8 +367,9 @@ Store = Ember.Object.extend({
     If you have access to the post model you can also pass the model itself:
 
     ```javascript
-    var myPostModel = store.find('post', 1);
-    store.find('comment', 2, {post: myPostModel});
+    store.find('post', 1).then(function (myPostModel) {
+      store.find('comment', 2, {post: myPostModel});
+    });
     ```
 
     This way, your adapter's `find` or `buildURL` method will be able to look up the
@@ -679,7 +682,7 @@ Store = Ember.Object.extend({
     var idToRecord = this.typeMapFor(type).idToRecord;
     var record = idToRecord[id];
 
-    if (!record || !idToRecord.hasOwnProperty(id)) {
+    if (!record || !idToRecord[id]) {
       record = this.buildRecord(type, id);
     }
 
@@ -1163,9 +1166,9 @@ Store = Ember.Object.extend({
     if (typeMap) { return typeMap; }
 
     typeMap = {
-      idToRecord: {},
+      idToRecord: Object.create(null),
       records: [],
-      metadata: {},
+      metadata: Object.create(null),
       type: type
     };
 
@@ -1472,7 +1475,7 @@ Store = Ember.Object.extend({
     var typeMap = this.typeMapFor(type);
     var idToRecord = typeMap.idToRecord;
 
-    Ember.assert('The id ' + id + ' has already been used with another record of type ' + type.toString() + '.', !id || !idToRecord.hasOwnProperty(id));
+    Ember.assert('The id ' + id + ' has already been used with another record of type ' + type.toString() + '.', !id || !idToRecord[id]);
     Ember.assert("`" + Ember.inspect(type)+ "` does not appear to be an ember-data model", (typeof type._create === 'function') );
 
     // lookupFactory should really return an object that creates
