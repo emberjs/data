@@ -174,6 +174,16 @@ test("extractSingle loads secondary records with correct serializer", function()
   equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
 });
 
+test("extractSingle ignores payload properties without models", function() {
+  var jsonHash = {
+    evilMinion: {id: "1", name: "Tom Dale", superVillain: 1},
+    unknownModel: [{id: "1"}]
+  };
+
+  var array = env.restSerializer.extractSingle(env.store, EvilMinion, jsonHash);
+  ok(true);
+});
+
 test("extractArray loads secondary records with correct serializer", function() {
   var superVillainNormalizeCount = 0;
 
