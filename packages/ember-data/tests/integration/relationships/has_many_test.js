@@ -227,6 +227,27 @@ test("Polymorphic relationships work with a hasMany whose type is inferred", fun
   }));
 });
 
+test("Polymorphic relationships with a hasMany is set up correctly on both sides", function() {
+  expect(1);
+
+  Email.reopen({
+    posts: DS.hasMany('post')
+  });
+
+  Post.reopen({
+    contact: DS.belongsTo('contact', { polymorphic: true })
+  });
+
+  Ember.run(function () {
+    email = env.store.createRecord('email');
+    post = env.store.createRecord('post', {
+      contact: email
+    });
+  });
+
+  equal(get(email, 'posts.length'), 1, "The association should be set up correctly on the email side.");
+});
+
 test("A record can't be created from a polymorphic hasMany relationship", function() {
   env.store.push('user', { id: 1, messages: [] });
 
