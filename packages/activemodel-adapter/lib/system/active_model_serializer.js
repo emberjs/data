@@ -272,6 +272,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
           }
         } else {
           payloadKey = this.keyForRelationship(key, relationship.kind);
+          if (!hash.hasOwnProperty(payloadKey)) { return; }
           payload = hash[payloadKey];
         }
 
