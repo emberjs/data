@@ -7,9 +7,9 @@
   "scripts": {
     "postinstall": "bower install",
     "start": "ember serve",
-    "dist": "rm -rf dist && ember build",
+    "dist": "rm -rf dist && ember build --environment production",
     "test": "testem -R dot ci",
-    "publish-build": "rm -rf dist && ember build && ./bin/publish_to_s3.js",
+    "publish-build": "rm -rf dist && ember build --environment production && ./bin/publish_to_s3.js",
     "testem-local": "testem -R dot ci",
     "testem-beta": "testem -f config/testem-beta.json -R dot ci",
     "testem-canary": "testem -f config/testem-canary.json -R dot ci",
