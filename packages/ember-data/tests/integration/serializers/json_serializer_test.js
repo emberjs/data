@@ -164,31 +164,40 @@ test("extractArray normalizes each record in the array", function() {
 test('Serializer should respect the attrs hash when extracting records', function(){
   env.container.register("serializer:post", DS.JSONSerializer.extend({
     attrs: {
-      title: "title_payload_key"
+      title: "title_payload_key",
+      comments: { key: 'my_comments' }
     }
   }));
 
   var jsonHash = {
-    title_payload_key: "Rails is omakase"
+    title_payload_key: "Rails is omakase",
+    my_comments: [1, 2]
   };
 
   var post = env.container.lookup("serializer:post").extractSingle(env.store, Post, jsonHash);
 
   equal(post.title, "Rails is omakase");
+  deepEqual(post.comments, [1,2]);
 });
 
 test('Serializer should respect the attrs hash when serializing records', function(){
+  Post.reopen({
+    parentPost: DS.belongsTo('post')
+  });
   env.container.register("serializer:post", DS.JSONSerializer.extend({
     attrs: {
-      title: "title_payload_key"
+      title: "title_payload_key",
+      parentPost: {key: 'my_parent'}
     }
   }));
 
-  post = env.store.createRecord("post", { title: "Rails is omakase"});
+  var parentPost = env.store.push("post", { id:2, title: "Rails is omakase"});
+  post = env.store.createRecord("post", { title: "Rails is omakase", parentPost: parentPost});
 
   var payload = env.container.lookup("serializer:post").serialize(post);
 
   equal(payload.title_payload_key, "Rails is omakase");
+  equal(payload.my_parent, '2');
 });
 
 test("Serializer should respect the primaryKey attribute when extracting records", function() {

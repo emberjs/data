@@ -214,19 +214,17 @@ export default Ember.Object.extend({
 
     if (attrs) {
       for (key in attrs) {
-        payloadKey = attrs[key];
-        if (payloadKey && payloadKey.key) {
-          payloadKey = payloadKey.key;
-        }
+        payloadKey = this._getMappedKey(key);
         if (!hash.hasOwnProperty(payloadKey)) { continue; }
 
-        if (typeof payloadKey === 'string') {
+        if (payloadKey !== key) {
           hash[key] = hash[payloadKey];
           delete hash[payloadKey];
         }
       }
     }
   },
+
   /**
     @method normalizeId
     @private
@@ -238,6 +236,33 @@ export default Ember.Object.extend({
 
     hash.id = hash[primaryKey];
     delete hash[primaryKey];
+  },
+
+  /**
+    Looks up the property key that was set by the custom `attr` mapping
+    passed to the serializer.
+
+    @method _getMappedKey
+    @private
+    @param {String} key
+    @return {String} key
+  */
+  _getMappedKey: function(key) {
+    var attrs = get(this, 'attrs');
+    var mappedKey;
+    if (attrs && attrs[key]) {
+      mappedKey = attrs[key];
+      //We need to account for both the {title: 'post_title'} and
+      //{title: {key: 'post_title'}} forms
+      if (mappedKey.key){
+        mappedKey = mappedKey.key;
+      }
+      if (typeof mappedKey === 'string'){
+        key = mappedKey;
+      }
+    }
+
+    return key;
   },
 
   // SERIALIZE
@@ -473,13 +498,13 @@ export default Ember.Object.extend({
 
     // if provided, use the mapping provided by `attrs` in
     // the serializer
-    if (attrs && attrs[key]) {
-      key = attrs[key];
-    } else if (this.keyForAttribute) {
-      key = this.keyForAttribute(key);
+    var payloadKey =  this._getMappedKey(key);
+
+    if (payloadKey === key && this.keyForAttribute) {
+      payloadKey = this.keyForAttribute(key);
     }
 
-    json[key] = value;
+    json[payloadKey] = value;
   },
 
   /**
@@ -514,16 +539,15 @@ export default Ember.Object.extend({
 
     // if provided, use the mapping provided by `attrs` in
     // the serializer
-    if (attrs && attrs[key]) {
-      key = attrs[key];
-    } else if (this.keyForRelationship) {
-      key = this.keyForRelationship(key, "belongsTo");
+    var payloadKey = this._getMappedKey(key);
+    if (payloadKey === key && this.keyForRelationship) {
+      payloadKey = this.keyForRelationship(key, "belongsTo");
     }
 
     if (isNone(belongsTo)) {
-      json[key] = belongsTo;
+      json[payloadKey] = belongsTo;
     } else {
-      json[key] = get(belongsTo, 'id');
+      json[payloadKey] = get(belongsTo, 'id');
     }
 
     if (relationship.options.polymorphic) {
@@ -562,12 +586,9 @@ export default Ember.Object.extend({
 
     // if provided, use the mapping provided by `attrs` in
     // the serializer
-    if (attrs && attrs[key]) {
-      payloadKey = attrs[key];
-    } else if (this.keyForRelationship) {
+    payloadKey = this._getMappedKey(key);
+    if (payloadKey === key && this.keyForRelationship) {
       payloadKey = this.keyForRelationship(key, "hasMany");
-    } else {
-      payloadKey = key;
     }
 
     var relationshipType = RelationshipChange.determineRelationshipType(record.constructor, relationship);
