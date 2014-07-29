@@ -260,9 +260,7 @@ export default Adapter.extend({
     @return {Promise} promise
   */
   deleteRecord: function(store, type, record) {
-    var fixture = this.mockJSON(store, type, record);
-
-    this.deleteLoadedFixture(type, fixture);
+    this.deleteLoadedFixture(type, record);
 
     return this.simulateRemoteCall(function() {
       // no payload in a deletion
