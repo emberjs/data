@@ -30,7 +30,7 @@ Similarly the latest passing build from the "beta" branch can be found
 on [http://emberjs.com/builds/#/beta](http://emberjs.com/builds/#/beta)
 
 You also have the option to build ember-data.js yourself.  Clone the
-repository, run `grunt buildPackages` after [setup](#setup). You'll find
+repository, run `broccoli build dist` after [setup](#setup). You'll find
 ember-data.js in the `dist` directory.
 
 ### Instantiating the Store
@@ -166,20 +166,18 @@ post [The Road to Ember Data
 
 1. Install Node.js from http://nodejs.org or your favorite package manager.
 
-2. Install grunt and bower. `npm install -g grunt-cli bower`
+2. Install broccoli and bower. `npm install -g broccoli-cli bower`
 
 3. Run `npm install` inside the project root to install the JS dependencies.
 
 ### In Your Browser
 
-1. To start the development server, run `grunt dev`.
+1. To start the development server, run `npm start`.
 
-2. Visit http://localhost:9997/tests
+2. Visit http://localhost:4200
 
 ### From the CLI
 
 1. Install phantomjs from http://phantomjs.org
 
-2. Run `grunt test`
-
-3. Run `grunt dev` to automatically re-run tests when any files are changed.
+2. Run `npm test`
