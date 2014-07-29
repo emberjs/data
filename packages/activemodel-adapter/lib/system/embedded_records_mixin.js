@@ -373,7 +373,7 @@ function hasDeserializeRecordsOption(attrs, attr) {
 }
 
 function attrsOption(attrs, attr) {
-  return attrs && (attrs[Ember.String.camelize(attr)] || attrs[attr]);
+  return attrs && (attrs[camelize(attr)] || attrs[attr]);
 }
 
 // chooses a relationship kind to branch which function is used to update payload
