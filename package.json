@@ -6,10 +6,10 @@
   "license": "MIT",
   "scripts": {
     "postinstall": "bower install",
-    "start": "broccoli serve",
-    "dist": "rm -rf dist && broccoli build dist",
+    "start": "ember serve",
+    "dist": "rm -rf dist && ember build",
     "test": "testem -R dot ci",
-    "publish-build": "rm -rf dist && broccoli build dist && ./bin/publish_to_s3.js",
+    "publish-build": "rm -rf dist && ember build && ./bin/publish_to_s3.js",
     "testem-local": "testem -R dot ci",
     "testem-beta": "testem -f config/testem-beta.json -R dot ci",
     "testem-canary": "testem -f config/testem-canary.json -R dot ci",
@@ -38,6 +38,7 @@
     "broccoli-yuidoc": "^1.3.0",
     "defeatureify": "~0.1.4",
     "ejs": "^1.0.0",
+    "ember-cli": "0.0.40",
     "ember-publisher": "0.0.6",
     "testem": "^0.6.17",
     "yuidocjs": "~0.3.46"
