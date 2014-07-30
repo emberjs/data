@@ -1,4 +1,4 @@
-import DebugAdapter from "../system/debug/debug_adapter";
+import DebugAdapter from "ember-data/system/debug/debug_adapter";
 
 /**
   Configures a container with injections on Ember applications

@@ -1,5 +1,5 @@
-import RecordArray from "./record_array";
-import {RelationshipChange} from "../changes";
+import RecordArray from "ember-data/system/record_arrays/record_array";
+import {RelationshipChange} from "ember-data/system/changes";
 
 /**
   @module ember-data

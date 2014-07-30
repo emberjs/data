@@ -1,8 +1,8 @@
-import {RESTAdapter} from "../../../ember-data/lib/adapters";
-import {InvalidError} from "../../../ember-data/lib/system/adapter";
-import {pluralize} from "../../../ember-inflector/lib/main";
-import ActiveModelSerializer from "./active_model_serializer";
-import EmbeddedRecordsMixin from "./embedded_records_mixin";
+import {RESTAdapter} from "ember-data/adapters";
+import {InvalidError} from "ember-data/system/adapter";
+import {pluralize} from "ember-inflector";
+import ActiveModelSerializer from "activemodel-adapter/system/active_model_serializer";
+import EmbeddedRecordsMixin from "activemodel-adapter/system/embedded_records_mixin";
 
 /**
   @module ember-data

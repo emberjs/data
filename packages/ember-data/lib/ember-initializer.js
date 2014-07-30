@@ -1,4 +1,4 @@
-import setupContainer from './setup-container';
+import setupContainer from 'ember-data/setup-container';
 
 var K = Ember.K;
 

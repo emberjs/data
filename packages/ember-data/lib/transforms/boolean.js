@@ -1,4 +1,4 @@
-import Transform from "./base";
+import Transform from "ember-data/transforms/base";
 
 /**
   The `DS.BooleanTransform` class is used to serialize and deserialize

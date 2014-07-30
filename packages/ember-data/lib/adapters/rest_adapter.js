@@ -2,7 +2,7 @@
   @module ember-data
 */
 
-import Adapter from "../system/adapter";
+import Adapter from "ember-data/system/adapter";
 var get = Ember.get;
 var forEach = Ember.ArrayPolyfills.forEach;
 

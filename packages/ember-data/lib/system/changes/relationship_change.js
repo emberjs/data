@@ -2,7 +2,7 @@
   @module ember-data
 */
 
-import { Model } from "../model";
+import { Model } from "ember-data/system/model";
 
 var get = Ember.get;
 var set = Ember.set;

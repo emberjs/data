@@ -3,13 +3,13 @@ var set = Ember.set;
 var isNone = Ember.isNone;
 var Promise = Ember.RSVP.Promise;
 
-import { Model } from '../model';
-import { PromiseObject } from '../store';
-import { RelationshipChange } from '../changes';
+import { Model } from 'ember-data/system/model';
+import { PromiseObject } from 'ember-data/system/store';
+import { RelationshipChange } from 'ember-data/system/changes';
 import {
   relationshipFromMeta,
   typeForRelationshipMeta
-} from '../relationship-meta';
+} from 'ember-data/system/relationship-meta';
 
 /**
   @module ember-data

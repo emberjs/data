@@ -2,7 +2,7 @@
   @module ember-data
 */
 
-import "./debug/debug_info";
-import DebugAdapter from "./debug/debug_adapter";
+import "ember-data/system/debug/debug_info";
+import DebugAdapter from "ember-data/system/debug/debug_adapter";
 
 export default DebugAdapter;

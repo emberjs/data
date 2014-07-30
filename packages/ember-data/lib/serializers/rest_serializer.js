@@ -2,14 +2,14 @@
   @module ember-data
 */
 
-import JSONSerializer from "./json_serializer";
+import JSONSerializer from "ember-data/serializers/json_serializer";
 var get = Ember.get;
 var set = Ember.set;
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var camelize = Ember.String.camelize;
 
-import { singularize } from "ember-inflector/lib/system/string";
+import { singularize } from "ember-inflector/system/string";
 
 function coerceId(id) {
   return id == null ? null : id + '';

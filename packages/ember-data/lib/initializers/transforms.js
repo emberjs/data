@@ -3,7 +3,7 @@ import {
   DateTransform,
   StringTransform,
   NumberTransform
-} from "../transforms";
+} from "ember-data/transforms";
 
 /**
   Configures a container for use with Ember-Data

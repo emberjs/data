@@ -17,7 +17,7 @@
   @extends DS.Transform
   @namespace DS
  */
-import Transform from "./base";
+import Transform from "ember-data/transforms/base";
 
 function pad(num) {
   return num < 10 ? "0"+num : ""+num;

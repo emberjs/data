@@ -2,7 +2,7 @@
   @module ember-data
 */
 
-import { PromiseArray } from "../store";
+import { PromiseArray } from "ember-data/system/store";
 var get = Ember.get;
 var set = Ember.set;
 

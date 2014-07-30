@@ -5,7 +5,8 @@
     <title>Ember Data</title>
     <link rel="stylesheet" href="/bower_components/qunit/qunit/qunit.css">
     <script src="/bower_components/qunit/qunit/qunit.js"></script>
-    <script src="/tests/qunit_configuration.js"></script>
+    <script src="/testem.js"></script>
+    <script src="qunit_configuration.js"></script>
     <script src="/bower_components/handlebars/handlebars.js"></script>
 
     <script type="text/javascript">
@@ -31,7 +32,7 @@
       // Close the script tag to make sure document.write happens
     </script>
 
-    <script src="/tests/ember_configuration.js"></script>
+    <script src="ember_configuration.js"></script>
 
     <script type="text/javascript">
       var emberChannel = QUnit.urlParams.emberchannel || "release", emberPath;
@@ -45,9 +46,9 @@
       loadScript(emberPath);
     </script>
 
-    <script src="/dist/ember-data.js"></script>
-    <script src="/tests/ember-data-setup.js"></script>
-    <script src="/tmp/tests.js"></script>
+    <script src="/ember-data.js"></script>
+    <script src="ember-data-setup.js"></script>
+    <script src="tests.js"></script>
   </head>
 <body>
   <div id="qunit"></div>
