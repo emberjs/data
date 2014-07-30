@@ -535,12 +535,7 @@ Store = Ember.Object.extend({
     var resolvers = Ember.A(recordResolverPairs).mapBy('resolver');
 
     function _fetchRecord(recordResolverPair) {
-      var resolver = recordResolverPair.resolver;
-      store.fetchRecord(recordResolverPair.record).then(function(record){
-        resolver.resolve(record);
-      }, function(error){
-        resolver.reject(error);
-      });
+      recordResolverPair.resolver.resolve(store.fetchRecord(recordResolverPair.record));
     }
 
     function resolveFoundRecords(records) {
