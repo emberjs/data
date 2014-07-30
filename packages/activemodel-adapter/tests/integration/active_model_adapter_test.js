@@ -31,8 +31,8 @@ test('ajaxError - returns invalid error if 422 response', function() {
   equal(adapter.ajaxError(jqXHR), error.toString());
 });
 
-test('ajaxError - invalid error has camelized keys', function() {
-  var error = new DS.InvalidError({ firstName: "can't be blank" });
+test('ajaxError - invalid error has whatever keys are passed', function() {
+  var error = new DS.InvalidError({ first_name: "can't be blank" });
 
   var jqXHR = {
     status: 422,
