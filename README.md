@@ -166,7 +166,7 @@ post [The Road to Ember Data
 
 1. Install Node.js from http://nodejs.org or your favorite package manager.
 
-2. Install broccoli and bower. `npm install -g broccoli-cli bower`
+2. Install broccoli and bower. `npm install -g ember-cli bower`
 
 3. Run `npm install` inside the project root to install the JS dependencies.
 
