@@ -151,7 +151,7 @@ var ActiveModelAdapter = RESTAdapter.extend({
         var jsonErrors = response.errors;
 
         forEach(Ember.keys(jsonErrors), function(key) {
-          errors[Ember.String.camelize(key)] = jsonErrors[key];
+          errors[key] = jsonErrors[key];
         });
       }
 
