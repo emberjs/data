@@ -200,6 +200,22 @@ test('Serializer should respect the attrs hash when serializing records', functi
   equal(payload.my_parent, '2');
 });
 
+test('Serializer respects `serialize: false` on the attrs hash', function(){
+  expect(2);
+  env.container.register("serializer:post", DS.JSONSerializer.extend({
+    attrs: {
+      title: {serialize: false}
+    }
+  }));
+
+  post = env.store.createRecord("post", { title: "Rails is omakase"});
+
+  var payload = env.container.lookup("serializer:post").serialize(post);
+
+  ok(!payload.hasOwnProperty('title'), "Does not add the key to instance");
+  ok(!payload.hasOwnProperty('[object Object]'),"Does not add some random key like [object Object]");
+});
+
 test("Serializer should respect the primaryKey attribute when extracting records", function() {
   env.container.register('serializer:post', DS.JSONSerializer.extend({
     primaryKey: '_ID_'

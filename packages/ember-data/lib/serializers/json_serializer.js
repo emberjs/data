@@ -68,6 +68,30 @@ export default Ember.Object.extend({
     });
     ```
 
+    You can also remove attributes by setting the `serialize` key to
+    false in your mapping object.
+
+    Example
+
+    ```javascript
+    App.PersonSerializer = DS.JSONSerializer.extend({
+      attrs: {
+        admin: {serialize: false},
+        occupation: {key: 'career'}
+      }
+    });
+    ```
+
+    When serialized:
+
+    ```javascript
+    {
+      "career": "magician"
+    }
+    ```
+
+    Note that the `admin` is now not included in the payload.
+
     @property attrs
     @type {Object}
   */
@@ -496,6 +520,11 @@ export default Ember.Object.extend({
       value = transform.serialize(value);
     }
 
+    // If attrs.key.serialize is false, do not include the value in the
+    // response to the server at all.
+    if (attrs && attrs[key] && attrs[key].serialize === false) {
+      return;
+    }
     // if provided, use the mapping provided by `attrs` in
     // the serializer
     var payloadKey =  this._getMappedKey(key);
