@@ -9,6 +9,6 @@
   },
   "devDependencies": {
     "loader.js": "~1.0.0",
-    "ember-inflector": "https://github.com/stefanpenner/ember-inflector.git#4cab0648fc828dc050ec9ee50fec1f8064ff9974"
+    "ember-inflector": "https://github.com/stefanpenner/ember-inflector.git#v1.0.0"
   }
 }
