@@ -449,7 +449,7 @@ var Adapter = Ember.Object.extend({
 
     @method groupRecordsForFindMany
     @param {Array} records
-    @returns {Array}  an array of arrays of records, each of which is to be
+    @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
   */
   groupRecordsForFindMany: function (store, records) {
