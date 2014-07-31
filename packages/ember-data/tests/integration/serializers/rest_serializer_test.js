@@ -48,6 +48,14 @@ module("integration/serializer/rest - RESTSerializer", {
   }
 });
 
+test("typeForRoot returns always same typeKey even for uncountable multi words keys", function() {
+  expect(2);
+  Ember.Inflector.inflector.uncountable('words');
+  expectedTypeKey = 'multiWords';
+  equal(env.restSerializer.typeForRoot('multi_words'), expectedTypeKey);
+  equal(env.restSerializer.typeForRoot('multiWords'), expectedTypeKey);
+});
+
 test("extractArray with custom typeForRoot", function() {
   env.restSerializer.typeForRoot = function(root) {
     var camelized = Ember.String.camelize(root);
