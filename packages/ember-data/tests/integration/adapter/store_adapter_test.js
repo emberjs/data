@@ -1,4 +1,4 @@
-/**
+/*
  This is an integration test that tests the communication between a store
  and its adapter.
 

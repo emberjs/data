@@ -8,7 +8,7 @@ var run = Ember.run,
 
 var app, App, container;
 
-/**
+/*
   These tests ensure that Ember Data works with Ember.js' application
   initialization and dependency injection APIs.
 */
