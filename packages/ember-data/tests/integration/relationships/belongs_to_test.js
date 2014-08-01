@@ -287,3 +287,54 @@ test("relationshipsByName does not cache a factory", function() {
   equal( messageModelFromRelationType, messageModelFromStore,
          "model factory based on relationship type matches the model based on store.modelFor" );
 });
+
+test("asdf", function() {
+  expect(2);
+
+  /*  Scenario:
+   *  ---------
+   *
+   *    post HM async comments
+   *    comments bt sync post
+   *
+   *    scenario:
+   *     - post hm C [1,2,3]
+   *     - post has a partially realized comments array comment#1 has been realized
+   *     - comment has not yet realized its post relationship
+   *     - comment is destroyed
+   */
+
+  env.store.modelFor('post').reopen({
+    comments: DS.hasMany('comment', {
+      async: true,
+      inverse: 'post'
+    })
+  });
+
+  env.store.modelFor('comment').reopen({
+    post: DS.belongsTo('post', {
+    })
+  });
+
+  var post = env.store.push('post', {
+    id: 1,
+    comments: [1, 2, 3]
+  });
+
+  var comment = env.store.push('comment', {
+    id:   1,
+    post: 1
+  });
+
+  env.adapter.deleteRecord = function(store, type, record) {
+    ok(record instanceof type);
+    equal(record.id, 1, 'should first comment')
+    return record;
+  };
+
+  env.adapter.findMany = function(store, type, ids, records) {
+    ok(false, 'should not need to findMay more comments, but attempted to anyways');
+  };
+
+  comment.destroyRecord();
+});
