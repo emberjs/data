@@ -1992,7 +1992,7 @@ function _commit(adapter, store, operation, record) {
   var serializer = serializerForAdapter(adapter, type);
   var label = "DS: Extract and notify about " + operation + " completion of " + record;
 
-  Ember.assert("Your adapter's '" + operation + "' method must return a promise, but it returned " + promise, isThenable(promise));
+  Ember.assert("Your adapter's '" + operation + "' method must return a value, but it returned `undefined", promise !==undefined);
 
   promise = Promise.cast(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
