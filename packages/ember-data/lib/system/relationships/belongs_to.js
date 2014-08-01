@@ -3,7 +3,7 @@ var set = Ember.set;
 var isNone = Ember.isNone;
 var Promise = Ember.RSVP.Promise;
 
-import { Model } from 'ember-data/system/model';
+import Model from 'ember-data/system/model/model';
 import { PromiseObject } from 'ember-data/system/store';
 import { RelationshipChange } from 'ember-data/system/changes';
 import {
@@ -103,7 +103,7 @@ function asyncBelongsTo(type, options, meta) {
   @param {Object} options a hash of options
   @return {Ember.computed} relationship
 */
-function belongsTo(type, options) {
+export default function belongsTo(type, options) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;
@@ -149,7 +149,7 @@ function belongsTo(type, options) {
 
     return belongsTo;
   }).meta(meta);
-}
+};
 
 /**
   These observers observe all `belongsTo` relationships on the record. See
@@ -211,5 +211,3 @@ Model.reopen({
     delete this._changesToSync[key];
   })
 });
-
-export default belongsTo;
