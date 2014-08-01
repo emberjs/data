@@ -481,9 +481,8 @@ Store = Ember.Object.extend({
     @return {Promise} promise
   */
   fetchRecord: function(record) {
-    var type = record.constructor,
-        id = get(record, 'id');
-
+    var type = record.constructor;
+    var id = get(record, 'id');
     var adapter = this.adapterFor(type);
 
     Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
@@ -502,8 +501,11 @@ Store = Ember.Object.extend({
     if (isNone(record)) { return null; }
     if (record._loadingPromise) { return record._loadingPromise; }
 
-    var resolver = Ember.RSVP.defer("Fetching " + type + "with id: " + record.get('id'));
-    var recordResolverPair = {record: record, resolver: resolver};
+    var resolver = Ember.RSVP.defer('Fetching ' + type + 'with id: ' + record.get('id'));
+    var recordResolverPair = {
+      record: record,
+      resolver: resolver
+    };
     var promise = resolver.promise;
 
     record.loadingData(promise);
@@ -697,8 +699,8 @@ Store = Ember.Object.extend({
     var type = this.modelFor(typeName);
     var records = Ember.A(inputRecords);
     var unloadedRecords = records.filterProperty('isEmpty', true);
-
     var manyArray = this.recordArrayManager.createManyArray(type, records);
+
     manyArray.loadingRecordsCount = unloadedRecords.length;
 
     if (unloadedRecords.length) {
@@ -1565,9 +1567,9 @@ Store = Ember.Object.extend({
     //TODO(Igor) What about the other side
     var changesObject = this._relationshipChanges[record.clientId];
     for (var objKey in changesObject){
-      if(changesObject.hasOwnProperty(objKey)){
+      if (changesObject.hasOwnProperty(objKey)){
         for (var changeKey in changesObject[objKey]){
-          if(changesObject[objKey].hasOwnProperty(changeKey)){
+          if (changesObject[objKey].hasOwnProperty(changeKey)){
             toReturn.push(changesObject[objKey][changeKey]);
           }
         }
@@ -1666,8 +1668,8 @@ function normalizeRelationships(store, type, data, record) {
       return;
     }
 
-    var kind = relationship.kind,
-        value = data[key];
+    var kind = relationship.kind;
+    var value = data[key];
 
     if (value == null) {
       if (kind === 'hasMany' && record) {
@@ -1865,9 +1867,9 @@ function _bind(fn) {
 }
 
 function _find(adapter, store, type, id, record) {
-  var promise = adapter.find(store, type, id, record),
-      serializer = serializerForAdapter(adapter, type),
-      label = "DS: Handle Adapter#find of " + type + " with id: " + id;
+  var promise = adapter.find(store, type, id, record);
+  var serializer = serializerForAdapter(adapter, type);
+  var label = "DS: Handle Adapter#find of " + type + " with id: " + id;
 
   promise = Promise.cast(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
@@ -1888,10 +1890,16 @@ function _find(adapter, store, type, id, record) {
 
 
 function _findMany(adapter, store, type, ids, records) {
-  var promise = adapter.findMany(store, type, ids, records),
-      serializer = serializerForAdapter(adapter, type),
-      label = "DS: Handle Adapter#findMany of " + type;
+  var promise = adapter.findMany(store, type, ids, records);
+  var serializer = serializerForAdapter(adapter, type);
+  var label = "DS: Handle Adapter#findMany of " + type;
+
+  if (promise === undefined) {
+    throw new Error('adapter.findMany returned undefined, this was very likely a mistake');
+  }
+
   var guardedPromise;
+
   promise = Promise.cast(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
