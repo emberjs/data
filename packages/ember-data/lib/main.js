@@ -51,10 +51,10 @@ import {
 import JSONSerializer from "ember-data/serializers/json_serializer";
 import RESTSerializer from "ember-data/serializers/rest_serializer";
 import "ember-inflector";
+import EmbeddedRecordsMixin from "ember-data/serializers/embedded_records_mixin";
 import {
   ActiveModelAdapter,
-  ActiveModelSerializer,
-  EmbeddedRecordsMixin
+  ActiveModelSerializer
 } from "activemodel-adapter";
 
 import {

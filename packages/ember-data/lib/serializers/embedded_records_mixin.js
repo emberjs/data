@@ -15,7 +15,7 @@ import {pluralize} from "ember-inflector";
   Below is an example of a per-type serializer ('post' type).
 
   ```js
-  App.PostSerializer = DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  App.PostSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       author: {embedded: 'always'},
       comments: {serialize: 'ids'}
@@ -40,14 +40,14 @@ import {pluralize} from "ember-inflector";
   In the case where embedded JSON is expected while extracting a payload (reading)
   the setting is `deserialize: 'records'`, there is no need to use `ids` when
   extracting as that is the default behavior without this mixin if you are using
-  the vanilla ActiveModelAdapter. Likewise, to embed JSON in the payload while
+  the vanilla EmbeddedRecordsMixin. Likewise, to embed JSON in the payload while
   serializing `serialize: 'records'` is the setting to use. There is an option of
   not embedding JSON in the serialized payload by using `serialize: 'ids'`. If you
   do not want the relationship sent at all, you can use `serialize: 'no'`.
 
 
-  ### ActiveModelSerializer defaults
-  If you do not overwrite `attrs` for a specific relationship, the `ActiveModelSerializer`
+  ### EmbeddedRecordsMixin defaults
+  If you do not overwrite `attrs` for a specific relationship, the `EmbeddedRecordsMixin`
   will behave in the following way:
 
   BelongsTo: `{serialize:'id', deserialize:'id'}`
