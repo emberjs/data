@@ -76,7 +76,6 @@ RelationshipChange._createChange = function(options){
   }
 };
 
-
 RelationshipChange.determineRelationshipType = function(recordType, knownSide){
   var knownKey = knownSide.key, key, otherKind;
   var knownKind = knownSide.kind;
@@ -97,7 +96,6 @@ RelationshipChange.determineRelationshipType = function(recordType, knownSide){
       return knownKind === 'belongsTo' ? 'oneToMany' : 'manyToMany';
     }
   }
-
 };
 
 RelationshipChange.createChange = function(firstRecord, secondRecord, store, options){
@@ -258,7 +256,6 @@ OneToManyChange.createChange = function(childRecord, parentRecord, store, option
   return change;
 };
 
-
 OneToManyChange.maintainInvariant = function(options, store, childRecord, key){
   if (options.changeType === 'add' && childRecord) {
     var oldParent = get(childRecord, key);
@@ -346,9 +343,11 @@ RelationshipChange.prototype = {
 RelationshipChangeAdd.prototype = Ember.create(RelationshipChange.create({}));
 RelationshipChangeRemove.prototype = Ember.create(RelationshipChange.create({}));
 
-// the object is a value, and not a promise
-function isValue(object) {
-  return object && typeof object === 'object' && (!object.then || typeof object.then !== 'function');
+function isSyncRelationship(record, relationshipName) {
+  var meta = Ember.meta(record);
+  var desc = meta.descs[relationshipName];
+
+  return desc && !desc._meta.options.async;
 }
 
 RelationshipChangeAdd.prototype.changeType = 'add';
@@ -366,10 +365,10 @@ RelationshipChangeAdd.prototype.sync = function() {
       secondRecord.suspendRelationshipObservers(function() {
         set(secondRecord, secondRecordName, firstRecord);
       });
-    } else if (this.secondRecordKind === 'hasMany') {
+    } else if (this.secondRecordKind === 'hasMany' && isSyncRelationship(secondRecord, secondRecordName)) {
       secondRecord.suspendRelationshipObservers(function() {
         var relationship = get(secondRecord, secondRecordName);
-        if (isValue(relationship)) { relationship.addObject(firstRecord); }
+        relationship.addObject(firstRecord);
       });
     }
   }
@@ -379,14 +378,13 @@ RelationshipChangeAdd.prototype.sync = function() {
       firstRecord.suspendRelationshipObservers(function() {
         set(firstRecord, firstRecordName, secondRecord);
       });
-    } else if (this.firstRecordKind === 'hasMany') {
+    } else if (this.firstRecordKind === 'hasMany' && isSyncRelationship(secondRecord, secondRecordName)) {
       firstRecord.suspendRelationshipObservers(function() {
         var relationship = get(firstRecord, firstRecordName);
-        if (isValue(relationship)) { relationship.addObject(secondRecord); }
+         relationship.addObject(secondRecord);
       });
     }
   }
-
   this.coalesce();
 };
 
@@ -405,10 +403,10 @@ RelationshipChangeRemove.prototype.sync = function() {
       secondRecord.suspendRelationshipObservers(function() {
         set(secondRecord, secondRecordName, null);
       });
-    } else if (this.secondRecordKind === 'hasMany') {
+    } else if (this.secondRecordKind === 'hasMany' && isSyncRelationship(secondRecord, secondRecordName)) {
       secondRecord.suspendRelationshipObservers(function() {
         var relationship = get(secondRecord, secondRecordName);
-        if (isValue(relationship)) { relationship.removeObject(firstRecord); }
+        relationship.removeObject(firstRecord);
       });
     }
   }
@@ -418,10 +416,10 @@ RelationshipChangeRemove.prototype.sync = function() {
       firstRecord.suspendRelationshipObservers(function() {
         set(firstRecord, firstRecordName, null);
       });
-    } else if (this.firstRecordKind === 'hasMany') {
+    } else if (this.firstRecordKind === 'hasMany' && isSyncRelationship(firstRecord, firstRecordName)) {
       firstRecord.suspendRelationshipObservers(function() {
         var relationship = get(firstRecord, firstRecordName);
-        if (isValue(relationship)) { relationship.removeObject(secondRecord); }
+        relationship.removeObject(secondRecord);
       });
     }
   }
