@@ -17,8 +17,13 @@
   @extends DS.Transform
   @namespace DS
  */
-import Transform from "./base";
-var DateTransform = Transform.extend({
+import Transform from "ember-data/transforms/base";
+
+function pad(num) {
+  return num < 10 ? "0"+num : ""+num;
+}
+
+export default Transform.extend({
 
   deserialize: function(serialized) {
     var type = typeof serialized;
@@ -38,21 +43,37 @@ var DateTransform = Transform.extend({
 
   serialize: function(date) {
     if (date instanceof Date) {
-      var days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-      var months = ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"];
+      var days = [
+        "Sun",
+        "Mon",
+        "Tue",
+        "Wed",
+        "Thu",
+        "Fri",
+        "Sat"
+      ];
+      var months = [
+        "Jan",
+        "Feb",
+        "Mar",
+        "Apr",
+        "May",
+        "Jun",
+        "Jul",
+        "Aug",
+        "Sep",
+        "Oct",
+        "Nov",
+        "Dec"
+      ];
 
-      var pad = function(num) {
-        return num < 10 ? "0"+num : ""+num;
-      };
-
-      var utcYear = date.getUTCFullYear(),
-          utcMonth = date.getUTCMonth(),
-          utcDayOfMonth = date.getUTCDate(),
-          utcDay = date.getUTCDay(),
-          utcHours = date.getUTCHours(),
-          utcMinutes = date.getUTCMinutes(),
-          utcSeconds = date.getUTCSeconds();
-
+      var utcYear = date.getUTCFullYear();
+      var utcMonth = date.getUTCMonth();
+      var utcDayOfMonth = date.getUTCDate();
+      var utcDay = date.getUTCDay();
+      var utcHours = date.getUTCHours();
+      var utcMinutes = date.getUTCMinutes();
+      var utcSeconds = date.getUTCSeconds();
 
       var dayOfWeek = days[utcDay];
       var dayOfMonth = pad(utcDayOfMonth);
@@ -63,8 +84,5 @@ var DateTransform = Transform.extend({
     } else {
       return null;
     }
-  } 
-
+  }
 });
-
-export default DateTransform;

@@ -1,0 +1,14 @@
+{
+  "test_page": "tests/index.html?emberchannel=stable&nojshint=true",
+  "serve_files": [
+    "dist/**/*.js",
+    "tests/**/*"
+  ],
+  "launch_in_ci": [
+    "PhantomJS"
+  ],
+  "routes": {
+    "/ember-data.js": "dist/ember-data.js",
+    "/tests/tests.js": "dist/tests.js"
+  }
+}

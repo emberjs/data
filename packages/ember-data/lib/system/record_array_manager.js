@@ -2,8 +2,14 @@
   @module ember-data
 */
 
-import {RecordArray, FilteredRecordArray, AdapterPopulatedRecordArray, ManyArray} from "./record_arrays";
-var get = Ember.get, set = Ember.set;
+import {
+  RecordArray,
+  FilteredRecordArray,
+  AdapterPopulatedRecordArray,
+  ManyArray
+} from "ember-data/system/record_arrays";
+var get = Ember.get;
+var set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;
 
 /**
@@ -12,7 +18,7 @@ var forEach = Ember.EnumerableUtils.forEach;
   @private
   @extends Ember.Object
 */
-var RecordArrayManager = Ember.Object.extend({
+export default Ember.Object.extend({
   init: function() {
     this.filteredRecordArrays = Ember.MapWithDefault.create({
       defaultValue: function() { return []; }
@@ -68,9 +74,9 @@ var RecordArrayManager = Ember.Object.extend({
   },
 
   _recordWasChanged: function (record) {
-    var type = record.constructor,
-        recordArrays = this.filteredRecordArrays.get(type),
-        filter;
+    var type = record.constructor;
+    var recordArrays = this.filteredRecordArrays.get(type);
+    var filter;
 
     forEach(recordArrays, function(array) {
       filter = get(array, 'filterFunction');
@@ -111,8 +117,10 @@ var RecordArrayManager = Ember.Object.extend({
     var recordArrays = this.recordArraysForRecord(record);
 
     if (shouldBeInArray) {
-      recordArrays.add(array);
-      array.addRecord(record);
+      if (!recordArrays.has(array)) {
+        array.pushRecord(record);
+        recordArrays.add(array);
+      }
     } else if (!shouldBeInArray) {
       recordArrays.remove(array);
       array.removeRecord(record);
@@ -132,8 +140,8 @@ var RecordArrayManager = Ember.Object.extend({
     @param filter
   */
   updateFilter: function(array, type, filter) {
-    var typeMap = this.store.typeMapFor(type),
-        records = typeMap.records, record;
+    var typeMap = this.store.typeMapFor(type);
+    var records = typeMap.records, record;
 
     for (var i=0, l=records.length; i<l; i++) {
       record = records[i];
@@ -195,10 +203,12 @@ var RecordArrayManager = Ember.Object.extend({
     @method createFilteredRecordArray
     @param {Class} type
     @param {Function} filter
+    @param {Object} query (optional
     @return {DS.FilteredRecordArray}
   */
-  createFilteredRecordArray: function(type, filter) {
+  createFilteredRecordArray: function(type, filter, query) {
     var array = FilteredRecordArray.create({
+      query: query,
       type: type,
       content: Ember.A(),
       store: this.store,
@@ -224,7 +234,8 @@ var RecordArrayManager = Ember.Object.extend({
       type: type,
       query: query,
       content: Ember.A(),
-      store: this.store
+      store: this.store,
+      manager: this
     });
 
     this._adapterPopulatedRecordArrays.push(array);
@@ -264,8 +275,8 @@ var RecordArrayManager = Ember.Object.extend({
   willDestroy: function(){
     this._super();
 
-    flatten(values(this.filteredRecordArrays.values)).forEach(destroy);
-    this._adapterPopulatedRecordArrays.forEach(destroy);
+    forEach(flatten(values(this.filteredRecordArrays.values)), destroy);
+    forEach(this._adapterPopulatedRecordArrays, destroy);
   }
 });
 
@@ -294,5 +305,3 @@ function flatten(list) {
 
   return result;
 }
-
-export default RecordArrayManager;

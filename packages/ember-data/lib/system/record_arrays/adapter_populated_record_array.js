@@ -1,9 +1,18 @@
-import RecordArray from "./record_array";
+import RecordArray from "ember-data/system/record_arrays/record_array";
 /**
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
+var set = Ember.set;
+
+function cloneNull(source) {
+  var clone = Object.create(null);
+  for (var key in source) {
+    clone[key] = source[key];
+  }
+  return clone;
+}
 
 /**
   Represents an ordered list of records whose order and membership is
@@ -15,7 +24,7 @@ var get = Ember.get, set = Ember.set;
   @namespace DS
   @extends DS.RecordArray
 */
-var AdapterPopulatedRecordArray = RecordArray.extend({
+export default RecordArray.extend({
   query: null,
 
   replace: function() {
@@ -29,20 +38,22 @@ var AdapterPopulatedRecordArray = RecordArray.extend({
     @param {Array} data
   */
   load: function(data) {
-    var store = get(this, 'store'),
-        type = get(this, 'type'),
-        records = store.pushMany(type, data),
-        meta = store.metadataFor(type);
+    var store = get(this, 'store');
+    var type = get(this, 'type');
+    var records = store.pushMany(type, data);
+    var meta = store.metadataFor(type);
 
     this.setProperties({
       content: Ember.A(records),
       isLoaded: true,
-      meta: meta
+      meta: cloneNull(meta)
     });
+
+    records.forEach(function(record) {
+      this.manager.recordArraysForRecord(record).add(this);
+    }, this);
 
     // TODO: should triggering didLoad event be the last action of the runLoop?
     Ember.run.once(this, 'trigger', 'didLoad');
   }
 });
-
-export default AdapterPopulatedRecordArray;

@@ -1,8 +1,10 @@
 /**
   @module ember-data
 */
-import {Model} from "../model";
-var get = Ember.get, capitalize = Ember.String.capitalize, underscore = Ember.String.underscore;
+import { Model } from "ember-data/system/model";
+var get = Ember.get;
+var capitalize = Ember.String.capitalize;
+var underscore = Ember.String.underscore;
 
 /**
   Extend `Ember.DataAdapter` with ED specific code.
@@ -12,7 +14,7 @@ var get = Ember.get, capitalize = Ember.String.capitalize, underscore = Ember.St
   @extends Ember.DataAdapter
   @private
 */
-var DebugAdapter = Ember.DataAdapter.extend({
+export default Ember.DataAdapter.extend({
   getFilters: function() {
     return [
       { name: 'isNew', desc: 'New' },
@@ -26,7 +28,12 @@ var DebugAdapter = Ember.DataAdapter.extend({
   },
 
   columnsForType: function(type) {
-    var columns = [{ name: 'id', desc: 'Id' }], count = 0, self = this;
+    var columns = [{
+      name: 'id',
+      desc: 'Id'
+    }];
+    var count = 0;
+    var self = this;
     get(type, 'attributes').forEach(function(name, meta) {
         if (count++ > self.attributeLimit) { return false; }
         var desc = capitalize(underscore(name).replace('_', ' '));
@@ -40,8 +47,8 @@ var DebugAdapter = Ember.DataAdapter.extend({
   },
 
   getRecordColumnValues: function(record) {
-    var self = this, count = 0,
-        columnValues = { id: get(record, 'id') };
+    var self = this, count = 0;
+    var columnValues = { id: get(record, 'id') };
 
     record.eachAttribute(function(key) {
       if (count++ > self.attributeLimit) {
@@ -54,7 +61,8 @@ var DebugAdapter = Ember.DataAdapter.extend({
   },
 
   getRecordKeywords: function(record) {
-    var keywords = [], keys = Ember.A(['id']);
+    var keywords = [];
+    var keys = Ember.A(['id']);
     record.eachAttribute(function(key) {
       keys.push(key);
     });
@@ -83,8 +91,8 @@ var DebugAdapter = Ember.DataAdapter.extend({
   },
 
   observeRecord: function(record, recordUpdated) {
-    var releaseMethods = Ember.A(), self = this,
-        keysToObserve = Ember.A(['id', 'isNew', 'isDirty']);
+    var releaseMethods = Ember.A(), self = this;
+    var keysToObserve = Ember.A(['id', 'isNew', 'isDirty']);
 
     record.eachAttribute(function(key) {
       keysToObserve.push(key);
@@ -108,5 +116,3 @@ var DebugAdapter = Ember.DataAdapter.extend({
   }
 
 });
-
-export default DebugAdapter;

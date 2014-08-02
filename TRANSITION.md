@@ -496,7 +496,7 @@ Ember Data 1.0.beta.1 is expecting a payload like this:
     "id": 1
     "title": "Rails is omakase",
     "comments": ["1", "2"],
-    "_links": {
+    "links": {
       "user": "/people/dhh"
     },
   },
@@ -517,12 +517,12 @@ totally work.
 
 ```js
 App.PostSerializer = DS.RESTSerializer.extend({
-  extractSingle: function(store, type, payload, id, requestType) {
+  extractSingle: function(store, type, payload, id) {
     var post = {}, commentIds = [];
 
     post.id = payload.id;
     post.title = payload.title;
-    post._links = { user: payload._links.mapProperty('user').findProperty('href').href };
+    post.links = { user: payload._links.mapBy('user').findBy('href').href };
 
     // Leave the original un-normalized comments alone, but put them
     // in the right place in the payload. We'll normalize the comments
@@ -536,7 +536,7 @@ App.PostSerializer = DS.RESTSerializer.extend({
     
     var post_payload = { post: post, comments: comments };
 
-    return this._super(store, type, post_payload, id, requestType);
+    return this._super(store, type, post_payload, id);
   }
 });
 ```
@@ -547,22 +547,22 @@ normalization to do on different pieces of the JSON.
 
 ```js
 App.PostSerializer = DS.RESTSerializer.extend({
-  extractSingle: function(store, type, payload, id, requestType) {
+  extractSingle: function(store, type, payload, id) {
     var post = {}, commentIds = [];
 
     post.id = payload.id;
     post.title = payload.title;
-    post._links = { user: payload._links.mapProperty('user').findProperty('href').href };
+    post.links = { user: payload._links.mapBy('user').findBy('href').href };
 
     // Leave the original un-normalized comments alone, but put them
     // in the right place in the payload. We'll normalize the comments
     // below in `normalizeHash`
     var comments = payload._embedded.comments;
-    post.comments = comments.mapProperty('ID_');
+    post.comments = comments.mapBy('ID_');
     
     var post_payload = { post: post, comments: comments };
 
-    return this._super(store, type, post_payload, id, requestType);
+    return this._super(store, type, post_payload, id);
   },
 
   normalizeHash: {
@@ -772,10 +772,11 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
 
 ### Embedded Records
 
-Explicit support for embedded records is gone for now.
+Explicit support for embedded records has been moved into a mixin within
+the activemodel-adapter package.
 
 You can handle embedded records yourself by implementing `extractSingle`
-and reorganizing the payload.
+and reorganizing the payload, or using the DS.EmbeddedRecordsMixin
 
 Consider this payload:
 
@@ -799,9 +800,9 @@ You could handle embedded records like this:
 
 ```js
 App.PostSerializer = DS.RESTSerializer.extend({
-  extractSingle: function(store, type, payload, id, requestType) {
+  extractSingle: function(store, type, payload, id) {
     var comments = payload.post.comments,
-        commentIds = comments.mapProperty('id');
+        commentIds = comments.mapBy('id');
 
     payload.comments = comments;
     payload.post.comments = commentIds;

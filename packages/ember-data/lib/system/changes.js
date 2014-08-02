@@ -2,8 +2,6 @@
   @module ember-data
 */
 
-import AttributeChange from "./changes/attribute_change";
-
 import {
   RelationshipChange,
   RelationshipChangeAdd,
@@ -12,10 +10,9 @@ import {
   ManyToNoneChange,
   OneToOneChange,
   ManyToManyChange
-} from "./changes/relationship_change";
+} from "ember-data/system/changes/relationship_change";
 
 export {
-  AttributeChange,
   RelationshipChange,
   RelationshipChangeAdd,
   RelationshipChangeRemove,

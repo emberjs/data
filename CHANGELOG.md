@@ -1,5 +1,69 @@
 # Ember Data Changelog
 
+### Master
+
+### Ember Data 1.0.0-beta.8 _(May 28, 2014)_
+
+* Each RecordArray gets a copy of the models's metada object instead of sharing the same meta object. Enables several paginated arrays to coexist without clobbering each other
+* Drop the `type` argument from `normalizePayload` calls. This argument was not consistently passed. Overridding the `extract` functions on the serializer is a suggested alternative if you require the model type.
+* Introduce `DS._setupContainer()` for use in testing
+* Deprecate the 5 Ember initializers, use just one named "ember-data"
+* DS.EmbeddedRecordsMixin methods for serializing relationships call super if needed
+* moved normalizeId to JSONSerializer
+* JSONSerializer should use the attrs hash when extracting records Also breaks the _super chain in normalize to preserve ordering in the RESTSerializer
+* Remove unnessary loop in extracting single using DS.EmbeddedRecordsMixin
+* Do not presume returned data arrays support .pushObjects
+* [BUGFIX] store.fetchMany should always return a promise.
+* Use keyForRelationship in JSONSerializer's serializeHasMany method
+* Makes sure extractArray is normalizing each record in the array instead of trying to normalize the whole payload as an object.
+* Do not cache model factories on meta, or on other model CPs
+* Removed unused resolver from ManyArray.fetch
+* normalizePayload only gets the payload
+* [BUGFIX] Normalize typeKeys to always be camelCase
+* Update the docs on pushPayload to clarify how model is used
+* Put the initialization docs back with the initializers
+* [DOC] Fix jsdoc for `Serializer#extractSingle`
+* filteredRecordArray derived from filterFn + query, should retain its query (just as adapterPopulated does)
+* Setting a filter function on a filteredRecordArray should only cause 1 re-filter per run-loop
+* [Bugfix] when a record which exists in an adapterPopulatedRecordArray is destroyed, it is also now removed from the array
+* [BUGFIX] Add missing support for belongsTo in DS.EmbeddedRecordsMixin
+* Add support for serializing hasMany as ids
+* incase jQuery.ajax returns a null or undefined jqXHR
+* Fixes a typo in the documentation of the serializeAttribute method of json_serializer.js
+* [DOC] `bower install` is part of `npm install`, removing it from README
+* [DOC] Fix docs for method signature of extractSingle, extractArray
+* Import InvalidError instead of looking at global DS
+* allow saving records from invalid state
+* [DOC beta] Clarify adapter settings with ActiveModel::Serializers
+* Add examples to the DS.Errors api docs.
+* Extend from Controller for ApplicationController.
+* Update error messages from push and update
+* Bring back deprecated initializers
+* Refactor Ember initializer to use DS._setupContainer
+* Fix incorrect documentation for isError.
+* Explicitly define a bower install directory
+* Import 'defaultRules', fixes missing Inflector.defaultRules
+* Add an example of sending cookie information in the header and updated confusing reopen example.
+* Expands isDeleted documentation
+* Clarify adapter header documentation
+* Documents invalid use of `attr` for attribute of `id`
+* Store#pushPayload should use the type's serializer for normalizing
+* Remove internal reliance on Ember.lookup.DS in favor of requireModule().
+* Remove reliance on global DS
+* Deprecate App.Store in favor of App.ApplicationStore.
+* Remove `window` references in favor of `Ember.lookup`.
+* Document the difference between Store push() vs. createRecord() ect.
+* Document the store#update method.
+* Make sure data adapter tests pass for Ember <= 1.4
+* Update data adapter test with new Ember version
+* change documentation from hash to payload
+* Use the ApplicationAdapter property instead of creating a custom Store just to create a custom adapter.
+* Use string model lookup instead of class lookup
+* Improve store docs to use container lookup not concrete class
+* Do not call adapter.deleteRecord for a record that is already saved and deleted
+* Remove DS.AttributeChange
+* Fix rollback on invalid record after set
+
 ### Ember Data 1.0.0-beta.7 _(February 19, 2014)_
 
 * Release 1.0.0-beta.7

@@ -8,12 +8,13 @@
   Example
 
   ```javascript
-  App.RawTransform = DS.Transform.extend({
+  // Converts centigrade in the JSON to fahrenheit in the app
+  App.TemperatureTransform = DS.Transform.extend({
     deserialize: function(serialized) {
-      return serialized;
+      return (serialized *  1.8) + 32;
     },
     serialize: function(deserialized) {
-      return deserialized;
+      return (deserialized - 32) / 1.8;
     }
   });
   ```
@@ -24,14 +25,14 @@
   var attr = DS.attr;
   App.Requirement = DS.Model.extend({
     name: attr('string'),
-    optionsArray: attr('raw')
+    temperature: attr('temperature')
   });
   ```
 
   @class Transform
   @namespace DS
  */
-var Transform = Ember.Object.extend({
+export default Ember.Object.extend({
   /**
     When given a deserialized value from a record attribute this
     method must return the serialized value.
@@ -67,7 +68,4 @@ var Transform = Ember.Object.extend({
     @return The deserialized value
   */
   deserialize: Ember.required()
-
 });
-
-export default Transform;

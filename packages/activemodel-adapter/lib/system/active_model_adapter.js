@@ -1,8 +1,7 @@
-import {RESTAdapter} from "../../../ember-data/lib/adapters";
-import {InvalidError} from "../../../ember-data/lib/system/adapter";
-import {pluralize} from "../../../ember-inflector/lib/main";
-import ActiveModelSerializer from "./active_model_serializer";
-import EmbeddedRecordsMixin from "./embedded_records_mixin";
+import {RESTAdapter} from "ember-data/adapters";
+import {InvalidError} from "ember-data/system/adapter";
+import {pluralize} from "ember-inflector";
+import ActiveModelSerializer from "activemodel-adapter/system/active_model_serializer";
 
 /**
   @module ember-data
@@ -14,10 +13,11 @@ var decamelize = Ember.String.decamelize,
 
 /**
   The ActiveModelAdapter is a subclass of the RESTAdapter designed to integrate
-  with a JSON API that uses an underscored naming convention instead of camelcasing.
+  with a JSON API that uses an underscored naming convention instead of camelCasing.
   It has been designed to work out of the box with the
   [active_model_serializers](http://github.com/rails-api/active_model_serializers)
-  Ruby gem.
+  Ruby gem. This Adapter expects specific settings using ActiveModel::Serializers,
+  `embed :ids, include: true` which sideloads the records.
 
   This adapter extends the DS.RESTAdapter by making consistent use of the camelization,
   decamelization and pluralization methods to normalize the serialized JSON into a
@@ -27,6 +27,10 @@ var decamelize = Ember.String.decamelize,
 
   The ActiveModelAdapter expects the JSON returned from your server to follow
   the REST adapter conventions substituting underscored keys for camelcased ones.
+
+  Unlike the DS.RESTAdapter, async relationship keys must be the singular form
+  of the relationship name, followed by "_id" for DS.belongsTo relationships,
+  or "_ids" for DS.hasMany relationships.
 
   ### Conventional Names
 
@@ -48,10 +52,47 @@ var decamelize = Ember.String.decamelize,
   ```js
   {
     "famous_person": {
+      "id": 1,
       "first_name": "Barack",
       "last_name": "Obama",
       "occupation": "President"
     }
+  }
+  ```
+
+  Let's imagine that `Occupation` is just another model:
+
+  ```js
+  App.Person = DS.Model.extend({
+    firstName: DS.attr('string'),
+    lastName: DS.attr('string'),
+    occupation: DS.belongsTo('occupation')
+  });
+
+  App.Occupation = DS.Model.extend({
+    name: DS.attr('string'),
+    salary: DS.attr('number'),
+    people: DS.hasMany('person')
+  });
+  ```
+
+  The JSON needed to avoid extra server calls, should look like this:
+
+  ```js
+  {
+    "people": [{
+      "id": 1,
+      "first_name": "Barack",
+      "last_name": "Obama",
+      "occupation_id": 1
+    }],
+
+    "occupations": [{
+      "id": 1,
+      "name": "President",
+      "salary": 100000,
+      "person_ids": [1]
+    }]
   }
   ```
 
@@ -74,7 +115,7 @@ var ActiveModelAdapter = RESTAdapter.extend({
 
     @method pathForType
     @param {String} type
-    @returns String
+    @return String
   */
   pathForType: function(type) {
     var decamelized = decamelize(type);
@@ -96,7 +137,7 @@ var ActiveModelAdapter = RESTAdapter.extend({
 
     @method ajaxError
     @param jqXHR
-    @returns error
+    @return error
   */
   ajaxError: function(jqXHR) {
     var error = this._super(jqXHR);

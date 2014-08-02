@@ -1,4 +1,4 @@
-import Transform from "./base";
+import Transform from "ember-data/transforms/base";
 
 /**
   The `DS.BooleanTransform` class is used to serialize and deserialize
@@ -21,7 +21,7 @@ import Transform from "./base";
   @extends DS.Transform
   @namespace DS
  */
-var BooleanTransform = Transform.extend({
+export default Transform.extend({
   deserialize: function(serialized) {
     var type = typeof serialized;
 
@@ -40,4 +40,3 @@ var BooleanTransform = Transform.extend({
     return Boolean(deserialized);
   }
 });
-export default BooleanTransform;

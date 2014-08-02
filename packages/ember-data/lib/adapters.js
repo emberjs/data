@@ -2,7 +2,10 @@
   @module ember-data
 */
 
-import FixtureAdapter from "./adapters/fixture_adapter";
-import RESTAdapter from "./adapters/rest_adapter";
+import FixtureAdapter from "ember-data/adapters/fixture_adapter";
+import RESTAdapter from "ember-data/adapters/rest_adapter";
 
-export {RESTAdapter, FixtureAdapter};
+export {
+  RESTAdapter,
+  FixtureAdapter
+};

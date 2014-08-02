@@ -1,13 +1,22 @@
 ---
+language: node_js
 node_js:
   - "0.10"
 install:
 - "bin/cached-npm install"
 - "bower install"
-script: grunt test:all
-after_success: grunt dist publish
+- "npm run-script dist"
+script:
+  - npm run-script testem-local
+  - npm run-script testem-beta
+  - npm run-script testem-stable
+  - npm run-script testem-canary
+after_success:
+- npm run-script publish-build
+- "./bin/bower-ember-data-build"
 env:
   global:
+  - BROCCOLI_ENV="production"
   - S3_BUILD_CACHE_BUCKET=emberjs-build-cache
   - S3_BUCKET_NAME=builds.emberjs.com
   - secure: ! 'S+DIdzEPvqQenk1cFq5UjbkoEKDY4j3E/g+Wlz798xxyTkrKQZxoazLXng8I
@@ -20,3 +29,5 @@ env:
       UvaE/CbWMxO/6FszR02gJHaF+YyfU5WAS0ahFFLHuC1twMtQPxi+nScjKZEs
 
       kLwKiKgRNhindV3WvbUcoiIrmrgBMCiBRRd4eyVBlhbZ8RTo1Ig='
+
+  - secure: "hJZXijsot2wMiMsxbDImH+nB5v77a7O7lQ7bicOQEQxmnTtXSvqfa4X4vQ/d4o7NNYYYHUuOpyILgRV+arqI6UOi7XEVGka/7M5q58R5exS6bk0cY0jnpUhUVW/8mpKEUgcVeE6mIDWaR090l3uaT2JhU/WSLkzbj45e38HaF/4="

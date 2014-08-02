@@ -216,3 +216,28 @@ test("When a record's polymorphic belongsTo relationship is set, it can specify 
   equal(post.get('youMessages.length'), 0, "youMessages has no posts");
   equal(post.get('everyoneWeKnowMessages.length'), 0, "everyoneWeKnowMessages has no posts");
 });
+
+test("Inverse relationships that don't exist throw a nice error", function () {
+  User = DS.Model.extend();
+  Comment = DS.Model.extend();
+
+  Post = DS.Model.extend({
+    comments: DS.hasMany(Comment, { inverse: 'testPost' }),
+    user: DS.belongsTo(User, { inverse: 'testPost' })
+  });
+
+  var env = setupStore({ post: Post, comment: Comment, user: User });
+  var post = env.store.createRecord('post');
+  var user = env.store.createRecord('user');
+  var comment = env.store.createRecord('comment');
+
+  expectAssertion(function() {
+    post.set('user', user);
+  }, /We found no inverse relationships by the name of 'testPost' on the 'user' model/);
+
+  expectAssertion(function() {
+    post.get('comments').addRecord(comment);
+  }, /We found no inverse relationships by the name of 'testPost' on the 'comment' model/);
+});
+
+

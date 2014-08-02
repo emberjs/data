@@ -8,11 +8,20 @@
 // support RSVP 2.x via resolve,  but prefer RSVP 3.x's Promise.cast
 Ember.RSVP.Promise.cast = Ember.RSVP.Promise.cast || Ember.RSVP.resolve;
 
-import DS from "./core";
-import "./ext/date";
+import DS from "ember-data/core";
+import "ember-data/ext/date";
 
-import {Store, PromiseArray, PromiseObject} from "./system/store";
-import {Model, Errors, RootState, attr} from "./system/model";
+import {
+  Store,
+  PromiseArray,
+  PromiseObject
+} from "ember-data/system/store";
+import {
+  Model,
+  Errors,
+  RootState,
+  attr
+} from "ember-data/system/model";
 import {
   AttributeChange,
   RelationshipChange,
@@ -22,25 +31,31 @@ import {
   ManyToNoneChange,
   OneToOneChange,
   ManyToManyChange
-} from "./system/changes";
-import {InvalidError, Adapter} from "./system/adapter";
-import DebugAdapter from "./system/debug";
+} from "ember-data/system/changes";
+import {
+  InvalidError,
+  Adapter
+} from "ember-data/system/adapter";
+import DebugAdapter from "ember-data/system/debug";
 import {
   RecordArray,
   FilteredRecordArray,
   AdapterPopulatedRecordArray,
   ManyArray
-} from "./system/record_arrays";
-import RecordArrayManager from "./system/record_array_manager";
-import {RESTAdapter, FixtureAdapter} from "./adapters";
-import JSONSerializer from "./serializers/json_serializer";
-import RESTSerializer from "./serializers/rest_serializer";
-import "../../ember-inflector/lib/main";
+} from "ember-data/system/record_arrays";
+import RecordArrayManager from "ember-data/system/record_array_manager";
+import {
+  RESTAdapter,
+  FixtureAdapter
+} from "ember-data/adapters";
+import JSONSerializer from "ember-data/serializers/json_serializer";
+import RESTSerializer from "ember-data/serializers/rest_serializer";
+import "ember-inflector";
+import EmbeddedRecordsMixin from "ember-data/serializers/embedded_records_mixin";
 import {
   ActiveModelAdapter,
-  ActiveModelSerializer,
-  EmbeddedRecordsMixin
-} from "../../activemodel-adapter/lib/main";
+  ActiveModelSerializer
+} from "activemodel-adapter";
 
 import {
   Transform,
@@ -48,12 +63,13 @@ import {
   NumberTransform,
   StringTransform,
   BooleanTransform
-} from "./transforms";
+} from "ember-data/transforms";
 
-import {hasMany, belongsTo} from "./system/relationships";
-import "./initializers";
+import {hasMany, belongsTo} from "ember-data/system/relationships";
+import "ember-data/ember-initializer";
+import setupContainer from "ember-data/setup-container";
 
-import ContainerProxy from "./system/container_proxy";
+import ContainerProxy from "ember-data/system/container_proxy";
 
 DS.Store         = Store;
 DS.PromiseArray  = PromiseArray;
@@ -104,6 +120,8 @@ DS.belongsTo = belongsTo;
 DS.hasMany   = hasMany;
 
 DS.ContainerProxy = ContainerProxy;
+
+DS._setupContainer = setupContainer;
 
 Ember.lookup.DS = DS;
 

@@ -6,17 +6,17 @@
   @namespace DS
   @private
 */
-var ContainerProxy = function (container){
+function ContainerProxy(container){
   this.container = container;
-};
+}
 
 ContainerProxy.prototype.aliasedFactory = function(path, preLookup) {
   var _this = this;
 
-  return {create: function(){ 
+  return {create: function(){
     if (preLookup) { preLookup(); }
 
-    return _this.container.lookup(path); 
+    return _this.container.lookup(path);
   }};
 };
 
@@ -36,10 +36,12 @@ ContainerProxy.prototype.registerDeprecation = function(deprecated, valid) {
 };
 
 ContainerProxy.prototype.registerDeprecations = function(proxyPairs) {
-  for (var i = proxyPairs.length; i > 0; i--) {
-    var proxyPair = proxyPairs[i - 1],
-        deprecated = proxyPair['deprecated'],
-        valid = proxyPair['valid'];
+  var i, proxyPair, deprecated, valid, proxy;
+
+  for (i = proxyPairs.length; i > 0; i--) {
+    proxyPair = proxyPairs[i - 1];
+    deprecated = proxyPair['deprecated'];
+    valid = proxyPair['valid'];
 
     this.registerDeprecation(deprecated, valid);
   }

@@ -3,9 +3,8 @@ var App, store, debugAdapter, get = Ember.get;
 module("DS.DebugAdapter", {
   setup: function() {
     Ember.run(function() {
-      App = Ember.Application.create({
-        toString: function() { return 'App'; }
-      });
+      App = Ember.Application.create();
+      App.toString = function(){ return 'App'; };
 
       App.ApplicationStore = DS.Store.extend({
         adapter: DS.Adapter.extend()
@@ -15,7 +14,6 @@ module("DS.DebugAdapter", {
         title: DS.attr('string')
       });
 
-      App.advanceReadiness();
     });
 
     store = App.__container__.lookup('store:main');

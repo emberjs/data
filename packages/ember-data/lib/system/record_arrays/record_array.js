@@ -2,8 +2,9 @@
   @module ember-data
 */
 
-import {PromiseArray} from "../store";
-var get = Ember.get, set = Ember.set;
+import { PromiseArray } from "ember-data/system/store";
+var get = Ember.get;
+var set = Ember.set;
 
 /**
   A record array is an array that contains records of a certain type. The record
@@ -18,7 +19,7 @@ var get = Ember.get, set = Ember.set;
   @uses Ember.Evented
 */
 
-var RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
+export default Ember.ArrayProxy.extend(Ember.Evented, {
   /**
     The model type contained by this record array.
 
@@ -111,14 +112,14 @@ var RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
   update: function() {
     if (get(this, 'isUpdating')) { return; }
 
-    var store = get(this, 'store'),
-        type = get(this, 'type');
+    var store = get(this, 'store');
+    var type = get(this, 'type');
 
     return store.fetchAll(type, this);
   },
 
   /**
-    Adds a record to the `RecordArray`.
+    Adds a record to the `RecordArray` without duplicates
 
     @method addRecord
     @private
@@ -127,6 +128,18 @@ var RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
   addRecord: function(record) {
     get(this, 'content').addObject(record);
   },
+
+  /**
+    Adds a record to the `RecordArray`, but allows duplicates
+
+    @method pushRecord
+    @private
+    @param {DS.Model} record
+  */
+  pushRecord: function(record) {
+    get(this, 'content').pushObject(record);
+  },
+
 
   /**
     Removes a record to the `RecordArray`.
@@ -181,5 +194,3 @@ var RecordArray = Ember.ArrayProxy.extend(Ember.Evented, {
     this._super();
   }
 });
-
-export default RecordArray;

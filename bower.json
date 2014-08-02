@@ -2,8 +2,13 @@
   "name": "ember-data",
   "private": true,
   "dependencies": {
-    "ember": "~1.4.0",
+    "ember": "~1.6.0-beta.5",
     "qunit": "~1.13.0",
+    "jquery": "~1.10.x",
     "handlebars": "~1.3.0"
+  },
+  "devDependencies": {
+    "loader.js": "~1.0.0",
+    "ember-inflector": "https://github.com/stefanpenner/ember-inflector.git#v1.0.0"
   }
 }

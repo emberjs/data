@@ -163,16 +163,16 @@ test("When a polymorphic hasMany relationship is accessed, the adapter's findMan
   }));
 });
 
-test("When a polymorphic hasMany relationship is accessed, the store can call multiple adapters' findMany method if the records are not loaded", function() {
+test("When a polymorphic hasMany relationship is accessed, the store can call multiple adapters' findMany or find methods if the records are not loaded", function() {
   User.reopen({
     messages: hasMany('message', { polymorphic: true, async: true })
   });
 
-  env.adapter.findMany = function(store, type) {
+  env.adapter.find = function(store, type) {
     if (type === Post) {
-      return Ember.RSVP.resolve([{ id: 1 }]);
+      return Ember.RSVP.resolve({ id: 1 });
     } else if (type === Comment) {
-      return Ember.RSVP.resolve([{ id: 3 }]);
+      return Ember.RSVP.resolve({ id: 3 });
     }
   };
 
@@ -440,4 +440,22 @@ test("Abstract polymorphic base classes can be used for models", function() {
     equal(fileTwo.get('parent').get('type'), 'folder', "The folder should have a parent of type 'folder'");
     equal(fileTwo.get('parent').get('name'), 'folder 1', "The folder's parent should have the name 'folder 1'");
   }));
+
+test("When a record is saved, its unsaved hasMany records should be kept", function () {
+  expect(1);
+
+  var post, comment;
+
+  env.adapter.createRecord = function(store, type, record) {
+    return Ember.RSVP.resolve({ id: 1 });
+  };
+
+  Ember.run(function () {
+    post = env.store.createRecord('post');
+    comment = env.store.createRecord('comment');
+    post.get('comments').pushObject(comment);
+    post.save();
+  });
+
+  equal(get(post, 'comments.length'), 1, "The unsaved comment should be in the post's comments array");
 });

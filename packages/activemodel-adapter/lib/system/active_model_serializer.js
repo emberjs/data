@@ -1,5 +1,5 @@
-import {singularize} from "../../../ember-inflector/lib/main";
-import RESTSerializer from "../../../ember-data/lib/serializers/rest_serializer";
+import {singularize} from "ember-inflector";
+import RESTSerializer from "ember-data/serializers/rest_serializer";
 /**
   @module ember-data
 */
@@ -10,16 +10,102 @@ var get = Ember.get,
     capitalize = Ember.String.capitalize,
     decamelize = Ember.String.decamelize,
     underscore = Ember.String.underscore;
+/**
+  The ActiveModelSerializer is a subclass of the RESTSerializer designed to integrate
+  with a JSON API that uses an underscored naming convention instead of camelCasing.
+  It has been designed to work out of the box with the
+  [active_model_serializers](http://github.com/rails-api/active_model_serializers)
+  Ruby gem. This Serializer expects specific settings using ActiveModel::Serializers,
+  `embed :ids, include: true` which sideloads the records.
 
+  This serializer extends the DS.RESTSerializer by making consistent
+  use of the camelization, decamelization and pluralization methods to
+  normalize the serialized JSON into a format that is compatible with
+  a conventional Rails backend and Ember Data.
+
+  ## JSON Structure
+
+  The ActiveModelSerializer expects the JSON returned from your server
+  to follow the REST adapter conventions substituting underscored keys
+  for camelcased ones.
+
+  ### Conventional Names
+
+  Attribute names in your JSON payload should be the underscored versions of
+  the attributes in your Ember.js models.
+
+  For example, if you have a `Person` model:
+
+  ```js
+  App.FamousPerson = DS.Model.extend({
+    firstName: DS.attr('string'),
+    lastName: DS.attr('string'),
+    occupation: DS.attr('string')
+  });
+  ```
+
+  The JSON returned should look like this:
+
+  ```js
+  {
+    "famous_person": {
+      "id": 1,
+      "first_name": "Barack",
+      "last_name": "Obama",
+      "occupation": "President"
+    }
+  }
+  ```
+
+  Let's imagine that `Occupation` is just another model:
+
+  ```js
+  App.Person = DS.Model.extend({
+    firstName: DS.attr('string'),
+    lastName: DS.attr('string'),
+    occupation: DS.belongsTo('occupation')
+  });
+
+  App.Occupation = DS.Model.extend({
+    name: DS.attr('string'),
+    salary: DS.attr('number'),
+    people: DS.hasMany('person')
+  });
+  ```
+
+  The JSON needed to avoid extra server calls, should look like this:
+
+  ```js
+  {
+    "people": [{
+      "id": 1,
+      "first_name": "Barack",
+      "last_name": "Obama",
+      "occupation_id": 1
+    }],
+
+    "occupations": [{
+      "id": 1,
+      "name": "President",
+      "salary": 100000,
+      "person_ids": [1]
+    }]
+  }
+  ```
+
+  @class ActiveModelSerializer
+  @namespace DS
+  @extends DS.RESTSerializer
+*/
 var ActiveModelSerializer = RESTSerializer.extend({
   // SERIALIZE
 
   /**
-    Converts camelcased attributes to underscored when serializing.
+    Converts camelCased attributes to underscored when serializing.
 
     @method keyForAttribute
     @param {String} attribute
-    @returns String
+    @return String
   */
   keyForAttribute: function(attr) {
     return decamelize(attr);
@@ -32,10 +118,10 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @method keyForRelationship
     @param {String} key
     @param {String} kind
-    @returns String
+    @return String
   */
-  keyForRelationship: function(key, kind) {
-    key = decamelize(key);
+  keyForRelationship: function(rawKey, kind) {
+    var key = decamelize(rawKey);
     if (kind === "belongsTo") {
       return key + "_id";
     } else if (kind === "hasMany") {
@@ -45,7 +131,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     }
   },
 
-  /**
+  /*
     Does not serialize hasMany relationships by default.
   */
   serializeHasMany: Ember.K,
@@ -73,31 +159,21 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param relationship
   */
   serializePolymorphicType: function(record, json, relationship) {
-    var key = relationship.key,
-        belongsTo = get(record, key);
-    key = this.keyForAttribute(key);
-    json[key + "_type"] = capitalize(camelize(belongsTo.constructor.typeKey));
+    var key = relationship.key;
+    var belongsTo = get(record, key);
+
+    if (belongsTo) {
+      key = this.keyForAttribute(key);
+      json[key + "_type"] = capitalize(belongsTo.constructor.typeKey);
+    }
   },
 
   // EXTRACT
 
   /**
-    Extracts the model typeKey from underscored root objects.
+    Add extra step to `DS.RESTSerializer.normalize` so links are normalized.
 
-    @method typeForRoot
-    @param {String} root
-    @returns String the model's typeKey
-  */
-  typeForRoot: function(root) {
-    var camelized = camelize(root);
-    return singularize(camelized);
-  },
-
-  /**
-    Add extra step to `DS.RESTSerializer.normalize` so links are
-    normalized.
-
-    If your payload looks like this
+    If your payload looks like:
 
     ```js
     {
@@ -108,6 +184,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
       }
     }
     ```
+
     The normalized version would look like this
 
     ```js
@@ -124,7 +201,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param {subclass of DS.Model} type
     @param {Object} hash
     @param {String} prop
-    @returns Object
+    @return Object
   */
 
   normalize: function(type, hash, prop) {
@@ -137,7 +214,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     Convert `snake_cased` links  to `camelCase`
 
     @method normalizeLinks
-    @param {Object} hash
+    @param {Object} data
   */
 
   normalizeLinks: function(data){
@@ -178,10 +255,10 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @private
   */
   normalizeRelationships: function(type, hash) {
-    var payloadKey, payload;
 
     if (this.keyForRelationship) {
       type.eachRelationship(function(key, relationship) {
+        var payloadKey, payload;
         if (relationship.options.polymorphic) {
           payloadKey = this.keyForAttribute(key);
           payload = hash[payloadKey];
@@ -195,6 +272,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
           }
         } else {
           payloadKey = this.keyForRelationship(key, relationship.kind);
+          if (!hash.hasOwnProperty(payloadKey)) { return; }
           payload = hash[payloadKey];
         }
 

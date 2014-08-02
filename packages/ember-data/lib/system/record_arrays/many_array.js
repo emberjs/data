@@ -1,5 +1,5 @@
-import RecordArray from "./record_array";
-import {RelationshipChange} from "../changes";
+import RecordArray from "ember-data/system/record_arrays/record_array";
+import {RelationshipChange} from "ember-data/system/changes";
 
 /**
   @module ember-data
@@ -48,7 +48,7 @@ function sync(change) {
   @namespace DS
   @extends DS.RecordArray
 */
-var ManyArray = RecordArray.extend({
+export default RecordArray.extend({
   init: function() {
     this._super.apply(this, arguments);
     this._changesToSync = Ember.OrderedSet.create();
@@ -117,13 +117,12 @@ var ManyArray = RecordArray.extend({
     @private
   */
   fetch: function() {
-    var records = get(this, 'content'),
-        store = get(this, 'store'),
-        owner = get(this, 'owner'),
-        resolver = Ember.RSVP.defer("DS: ManyArray#fetch " + get(this, 'type'));
+    var records = get(this, 'content');
+    var store = get(this, 'store');
+    var owner = get(this, 'owner');
 
-    var unloadedRecords = records.filterProperty('isEmpty', true);
-    store.fetchMany(unloadedRecords, owner, resolver);
+    var unloadedRecords = records.filterBy('isEmpty', true);
+    store.scheduleFetchMany(unloadedRecords, owner);
   },
 
   // Overrides Ember.Array's replace method to implement
@@ -148,8 +147,8 @@ var ManyArray = RecordArray.extend({
   },
 
   arrayContentWillChange: function(index, removed, added) {
-    var owner = get(this, 'owner'),
-        name = get(this, 'name');
+    var owner = get(this, 'owner');
+    var name = get(this, 'name');
 
     if (!owner._suspendedRelationships) {
       // This code is the first half of code that continues inside
@@ -181,9 +180,9 @@ var ManyArray = RecordArray.extend({
   arrayContentDidChange: function(index, removed, added) {
     this._super.apply(this, arguments);
 
-    var owner = get(this, 'owner'),
-        name = get(this, 'name'),
-        store = get(this, 'store');
+    var owner = get(this, 'owner');
+    var name = get(this, 'name');
+    var store = get(this, 'store');
 
     if (!owner._suspendedRelationships) {
       // This code is the second half of code that started in
@@ -224,10 +223,10 @@ var ManyArray = RecordArray.extend({
     @return {DS.Model} record
   */
   createRecord: function(hash) {
-    var owner = get(this, 'owner'),
-        store = get(owner, 'store'),
-        type = get(this, 'type'),
-        record;
+    var owner = get(this, 'owner');
+    var store = get(owner, 'store');
+    var type = get(this, 'type');
+    var record;
 
     Ember.assert("You cannot add '" + type.typeKey + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
 
@@ -237,5 +236,3 @@ var ManyArray = RecordArray.extend({
     return record;
   }
 });
-
-export default ManyArray;

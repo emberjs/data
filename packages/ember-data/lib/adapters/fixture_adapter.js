@@ -2,20 +2,21 @@
   @module ember-data
 */
 
-var get = Ember.get, fmt = Ember.String.fmt,
-    indexOf = Ember.EnumerableUtils.indexOf;
+var get = Ember.get;
+var fmt = Ember.String.fmt;
+var indexOf = Ember.EnumerableUtils.indexOf;
 
 var counter = 0;
 
-import Adapter from "../system/adapter";
+import Adapter from "ember-data/system/adapter";
 
 /**
   `DS.FixtureAdapter` is an adapter that loads records from memory.
-  Its primarily used for development and testing. You can also use
-  `DS.FixtureAdapter` while working on the API but are not ready to
+  It's primarily used for development and testing. You can also use
+  `DS.FixtureAdapter` while working on the API but is not ready to
   integrate yet. It is a fully functioning adapter. All CRUD methods
   are implemented. You can also implement query logic that a remote
-  system would do. Its possible to do develop your entire application
+  system would do. It's possible to develop your entire application
   with `DS.FixtureAdapter`.
 
   For information on how to use the `FixtureAdapter` in your
@@ -26,7 +27,7 @@ import Adapter from "../system/adapter";
   @namespace DS
   @extends DS.Adapter
 */
-var FixtureAdapter = Adapter.extend({
+export default Adapter.extend({
   // by default, fixtures are already in normalized form
   serializer: null,
 
@@ -135,13 +136,13 @@ var FixtureAdapter = Adapter.extend({
     @return {Promise} promise
   */
   find: function(store, type, id) {
-    var fixtures = this.fixturesForType(type),
-        fixture;
+    var fixtures = this.fixturesForType(type);
+    var fixture;
 
-    Ember.assert("Unable to find fixtures for model type "+type.toString(), fixtures);
+    Ember.assert("Unable to find fixtures for model type "+type.toString() +". If you're defining your fixtures using `Model.FIXTURES = ...`, please change it to `Model.reopenClass({ FIXTURES: ... })`.", fixtures);
 
     if (fixtures) {
-      fixture = Ember.A(fixtures).findProperty('id', id);
+      fixture = Ember.A(fixtures).findBy('id', id);
     }
 
     if (fixture) {
@@ -259,9 +260,7 @@ var FixtureAdapter = Adapter.extend({
     @return {Promise} promise
   */
   deleteRecord: function(store, type, record) {
-    var fixture = this.mockJSON(store, type, record);
-
-    this.deleteLoadedFixture(type, fixture);
+    this.deleteLoadedFixture(type, record);
 
     return this.simulateRemoteCall(function() {
       // no payload in a deletion
@@ -278,7 +277,7 @@ var FixtureAdapter = Adapter.extend({
   deleteLoadedFixture: function(type, record) {
     var existingFixture = this.findExistingFixture(type, record);
 
-    if(existingFixture) {
+    if (existingFixture) {
       var index = indexOf(type.FIXTURES, existingFixture);
       type.FIXTURES.splice(index, 1);
       return true;
@@ -306,7 +305,7 @@ var FixtureAdapter = Adapter.extend({
   */
   findFixtureById: function(fixtures, id) {
     return Ember.A(fixtures).find(function(r) {
-      if(''+get(r, 'id') === ''+id) {
+      if (''+get(r, 'id') === ''+id) {
         return true;
       } else {
         return false;
@@ -338,5 +337,3 @@ var FixtureAdapter = Adapter.extend({
     }, "DS: FixtureAdapter#simulateRemoteCall");
   }
 });
-
-export default FixtureAdapter;

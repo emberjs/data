@@ -5,6 +5,9 @@
 import belongsTo from "./relationships/belongs_to";
 import hasMany from "./relationships/has_many";
 
-import "../system/relationships/ext";
+import "ember-data/system/relationships/ext";
 
-export {belongsTo, hasMany};
+export {
+  belongsTo,
+  hasMany
+};

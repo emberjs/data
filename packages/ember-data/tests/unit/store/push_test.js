@@ -106,6 +106,24 @@ test("Calling update with partial records updates just those attributes", functi
   }));
 });
 
+test("Calling update on normalize allows partial updates with raw JSON", function () {
+  env.container.register('serializer:person', DS.RESTSerializer);
+
+  var person = store.push('person', {
+    id: '1',
+    firstName: "Robert",
+    lastName: "Jackson"
+  });
+
+  store.update('person', store.normalize('person', {
+    id: '1',
+    firstName: "Jacquie"
+  }));
+
+  equal(person.get('firstName'), "Jacquie", "you can push raw JSON into the store");
+  equal(person.get('lastName'), "Jackson", "existing fields are untouched");
+});
+
 test("Calling push with a normalized hash containing related records returns a record", function() {
   var number1 = store.push('phone-number', {
     id: 1,

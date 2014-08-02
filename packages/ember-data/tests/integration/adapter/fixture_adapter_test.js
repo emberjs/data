@@ -151,7 +151,10 @@ test("should delete record asynchronously when it is committed", function() {
 
   var paul = env.store.push('person', { id: 'paul', firstName: 'Paul', lastName: 'Chavard', height: 70 });
 
-  paul.deleteRecord();
+  paul.save().then(function(){
+    paul.deleteRecord();
+    paul.save();
+  });
 
   paul.on('didDelete', function() {
     clearTimeout(timer);
@@ -163,7 +166,6 @@ test("should delete record asynchronously when it is committed", function() {
     equal(Person.FIXTURES.length, 0, "Record removed from FIXTURES");
   });
 
-  paul.save();
 });
 
 test("should follow isUpdating semantics", function() {

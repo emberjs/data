@@ -2,10 +2,19 @@
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
+var set = Ember.set;
 var map = Ember.ArrayPolyfills.map;
 
-var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'number', 'stack'];
+var errorProps = [
+  'description',
+  'fileName',
+  'lineNumber',
+  'message',
+  'name',
+  'number',
+  'stack'
+];
 
 /**
   A `DS.InvalidError` is used by an adapter to signal the external API
@@ -47,14 +56,15 @@ var errorProps = ['description', 'fileName', 'lineNumber', 'message', 'name', 'n
   @class InvalidError
   @namespace DS
 */
-var InvalidError = function(errors) {
+function InvalidError(errors) {
   var tmp = Error.prototype.constructor.call(this, "The backend rejected the commit because it was invalid: " + Ember.inspect(errors));
   this.errors = errors;
 
   for (var i=0, l=errorProps.length; i<l; i++) {
     this[errorProps[i]] = tmp[errorProps[i]];
   }
-};
+}
+
 InvalidError.prototype = Ember.create(Error.prototype);
 
 /**
@@ -121,7 +131,7 @@ var Adapter = Ember.Object.extend({
     set the `defaultSerializer` property to be the name of the custom
     serializer.
 
-    Note the `defaultSerializer` serializer has a lower priority then
+    Note the `defaultSerializer` serializer has a lower priority than
     a model specific serializer (i.e. `PostSerializer`) or the
     `application` serializer.
 
@@ -147,7 +157,7 @@ var Adapter = Ember.Object.extend({
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
       find: function(store, type, id) {
-        var url = [type, id].join('/');
+        var url = [type.typeKey, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
           jQuery.getJSON(url).then(function(data) {
@@ -407,44 +417,48 @@ var Adapter = Ember.Object.extend({
   deleteRecord: Ember.required(Function),
 
   /**
-    Find multiple records at once.
+    By default the store will try to coalesce all `fetchRecord` calls within the same runloop
+    into as few requests as possible by calling groupRecordsForFindMany and passing it into a findMany call.
+    You can opt out of this behaviour by either not implementing the findMany hook or by setting
+    coalesceFindRequests to false
 
-    By default, it loops over the provided ids and calls `find` on each.
-    May be overwritten to improve performance and reduce the number of
-    server requests.
+    @property coalesceFindRequests
+    @type {boolean}
+  */
+  coalesceFindRequests: true,
 
-    Example
-
-    ```javascript
-    App.ApplicationAdapter = DS.Adapter.extend({
-      findMany: function(store, type, ids) {
-        var url = type;
-        return new Ember.RSVP.Promise(function(resolve, reject) {
-          jQuery.getJSON(url, {ids: ids}).then(function(data) {
-            Ember.run(null, resolve, data);
-          }, function(jqXHR) {
-            jqXHR.then = null; // tame jQuery's ill mannered promises
-            Ember.run(null, reject, jqXHR);
-          });
-        });
-      }
-    });
-    ```
+  /**
+    Find multiple records at once if coalesceFindRequests is true
 
     @method findMany
     @param {DS.Store} store
     @param {subclass of DS.Model} type   the DS.Model class of the records
     @param {Array}    ids
+    @param {Array} records
     @return {Promise} promise
   */
-  findMany: function(store, type, ids) {
-    var promises = map.call(ids, function(id) {
-      return this.find(store, type, id);
-    }, this);
 
-    return Ember.RSVP.all(promises);
+  /**
+    Organize records into groups, each of which is to be passed to separate
+    calls to `findMany`.
+
+    For example, if your api has nested URLs that depend on the parent, you will
+    want to group records by their parent.
+
+    The default implementation returns the records as a single group.
+
+    @method groupRecordsForFindMany
+    @param {Array} records
+    @return {Array}  an array of arrays of records, each of which is to be
+                      loaded separately by `findMany`.
+  */
+  groupRecordsForFindMany: function (store, records) {
+    return [records];
   }
 });
 
-export {InvalidError, Adapter};
+export {
+  InvalidError,
+  Adapter
+};
 export default Adapter;

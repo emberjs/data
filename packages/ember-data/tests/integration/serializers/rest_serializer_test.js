@@ -54,12 +54,12 @@ test("extractArray with custom typeForRoot", function() {
     return Ember.String.singularize(camelized);
   };
 
-  var json_hash = {
+  var jsonHash = {
     home_planets: [{id: "1", name: "Umber", superVillains: [1]}],
     super_villains: [{id: "1", firstName: "Tom", lastName: "Dale", homePlanet: "1"}]
   };
 
-  var array = env.restSerializer.extractArray(env.store, HomePlanet, json_hash);
+  var array = env.restSerializer.extractArray(env.store, HomePlanet, jsonHash);
 
   deepEqual(array, [{
     "id": "1",
@@ -78,13 +78,13 @@ test("extractArray failure with custom typeForRoot", function() {
     return Ember.String.singularize(root);
   };
 
-  var json_hash = {
+  var jsonHash = {
     home_planets: [{id: "1", name: "Umber", superVillains: [1]}],
     super_villains: [{id: "1", firstName: "Tom", lastName: "Dale", homePlanet: "1"}]
   };
 
-  raises(function(){
-    env.restSerializer.extractArray(env.store, HomePlanet, json_hash);
+  throws(function(){
+    env.restSerializer.extractArray(env.store, HomePlanet, jsonHash);
   }, "No model was found for 'home_planets'",
   "raised error message expected to contain \"No model was found for 'home_planets'\"");
 });
@@ -112,8 +112,26 @@ test("serialize polymorphicType with decamelized typeKey", function() {
   deepEqual(json["evilMinionType"], "yellowMinion");
 });
 
+test("normalizePayload is called during extractSingle", function() {
+  env.container.register('serializer:application', DS.RESTSerializer.extend({
+    normalizePayload: function(payload) {
+      return payload.response;
+    }
+  }));
+
+  var jsonHash = { response: {
+    evilMinion: {id: "1", name: "Tom Dale", superVillain: 1},
+    superVillains: [{id: "1", firstName: "Yehuda", lastName: "Katz", homePlanet: "1"}]
+  } };
+
+  var applicationSerializer = env.container.lookup('serializer:application');
+  var data = applicationSerializer.extractSingle(env.store, EvilMinion, jsonHash);
+
+  equal(data.name, jsonHash.response.evilMinion.name, "normalize reads off the response");
+});
+
 test("extractArray can load secondary records of the same type without affecting the query count", function() {
-  var json_hash = {
+  var jsonHash = {
     comments: [{id: "1", body: "Parent Comment", root: true, children: [2, 3]}],
     _comments: [
       { id: "2", body: "Child Comment 1", root: false },
@@ -121,7 +139,7 @@ test("extractArray can load secondary records of the same type without affecting
     ]
   };
 
-  var array = env.restSerializer.extractArray(env.store, Comment, json_hash);
+  var array = env.restSerializer.extractArray(env.store, Comment, jsonHash);
 
   deepEqual(array, [{
     "id": "1",
@@ -146,12 +164,12 @@ test("extractSingle loads secondary records with correct serializer", function()
     }
   }));
 
-  var json_hash = {
+  var jsonHash = {
     evilMinion: {id: "1", name: "Tom Dale", superVillain: 1},
     superVillains: [{id: "1", firstName: "Yehuda", lastName: "Katz", homePlanet: "1"}]
   };
 
-  var array = env.restSerializer.extractSingle(env.store, EvilMinion, json_hash);
+  var array = env.restSerializer.extractSingle(env.store, EvilMinion, jsonHash);
 
   equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
 });
@@ -166,12 +184,12 @@ test("extractArray loads secondary records with correct serializer", function() 
     }
   }));
 
-  var json_hash = {
+  var jsonHash = {
     evilMinions: [{id: "1", name: "Tom Dale", superVillain: 1}],
     superVillains: [{id: "1", firstName: "Yehuda", lastName: "Katz", homePlanet: "1"}]
   };
 
-  var array = env.restSerializer.extractArray(env.store, EvilMinion, json_hash);
+  var array = env.restSerializer.extractArray(env.store, EvilMinion, jsonHash);
 
   equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
 });

@@ -1,7 +1,12 @@
-import {singularize} from "../../../../ember-inflector/lib/system";
-import {Model} from "../model";
+import { singularize } from "ember-inflector/system";
+import {
+  typeForRelationshipMeta,
+  relationshipFromMeta
+} from "ember-data/system/relationship-meta";
+import { Model } from "ember-data/system/model";
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
+var set = Ember.set;
 
 /**
   @module ember-data
@@ -46,7 +51,7 @@ Model.reopen({
   */
   didDefineProperty: function(proto, key, value) {
     // Check if the value being set is a computed property.
-    if (value instanceof Ember.Descriptor) {
+    if (value instanceof Ember.ComputedProperty) {
 
       // If it is, get the metadata for the relationship. This is
       // populated by the `DS.belongsTo` helper when it is creating
@@ -113,18 +118,23 @@ Model.reopenClass({
 
     if (options.inverse === null) { return null; }
 
-    var inverseName, inverseKind;
+    var inverseName, inverseKind, inverse;
 
     if (options.inverse) {
       inverseName = options.inverse;
-      inverseKind = Ember.get(inverseType, 'relationshipsByName');
-      if (inverseKind === undefined) { return null; }
-      inverseKind = inverseKind.get(inverseName).kind;
+      inverse = Ember.get(inverseType, 'relationshipsByName').get(inverseName);
+
+      Ember.assert("We found no inverse relationships by the name of '" + inverseName + "' on the '" + inverseType.typeKey +
+        "' model. This is most likely due to a missing attribute on your model definition.", !Ember.isNone(inverse));
+
+      inverseKind = inverse.kind;
     } else {
       var possibleRelationships = findPossibleInverses(this, inverseType);
       if (!possibleRelationships || possibleRelationships.length === 0) { return null; }
 
-      Ember.assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " + this + " were found on " + inverseType + ". Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses", possibleRelationships.length === 1);
+      Ember.assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " +
+        this + " were found on " + inverseType + ". Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
+        possibleRelationships.length === 1);
 
       inverseName = possibleRelationships[0].name;
       inverseKind = possibleRelationships[0].kind;
@@ -195,22 +205,21 @@ Model.reopenClass({
 
     // Loop through each computed property on the class
     this.eachComputedProperty(function(name, meta) {
-
       // If the computed property is a relationship, add
       // it to the map.
       if (meta.isRelationship) {
-        if (typeof meta.type === 'string') {
-          meta.type = this.store.modelFor(meta.type);
-        }
+        meta.key = name;
+        var relationshipsForType = map.get(typeForRelationshipMeta(this.store, meta));
 
-        var relationshipsForType = map.get(meta.type);
-
-        relationshipsForType.push({ name: name, kind: meta.kind });
+        relationshipsForType.push({
+          name: name,
+          kind: meta.kind
+        });
       }
     });
 
     return map;
-  }),
+  }).cacheable(false).readOnly(),
 
   /**
     A hash containing lists of the model's relationships, grouped
@@ -242,7 +251,10 @@ Model.reopenClass({
     @readOnly
   */
   relationshipNames: Ember.computed(function() {
-    var names = { hasMany: [], belongsTo: [] };
+    var names = {
+      hasMany: [],
+      belongsTo: []
+    };
 
     this.eachComputedProperty(function(name, meta) {
       if (meta.isRelationship) {
@@ -282,19 +294,16 @@ Model.reopenClass({
     @readOnly
   */
   relatedTypes: Ember.computed(function() {
-    var type,
-        types = Ember.A();
+    var type;
+    var types = Ember.A();
 
     // Loop through each computed property on the class,
     // and create an array of the unique types involved
     // in relationships
     this.eachComputedProperty(function(name, meta) {
       if (meta.isRelationship) {
-        type = meta.type;
-
-        if (typeof type === 'string') {
-          type = get(this, type, false) || this.store.modelFor(type);
-        }
+        meta.key = name;
+        type = typeForRelationshipMeta(this.store, meta);
 
         Ember.assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.",  type);
 
@@ -306,7 +315,7 @@ Model.reopenClass({
     });
 
     return types;
-  }),
+  }).cacheable(false).readOnly(),
 
   /**
     A map whose keys are the relationships of a model and whose values are
@@ -340,29 +349,19 @@ Model.reopenClass({
     @readOnly
   */
   relationshipsByName: Ember.computed(function() {
-    var map = Ember.Map.create(), type;
+    var map = Ember.Map.create();
 
     this.eachComputedProperty(function(name, meta) {
       if (meta.isRelationship) {
         meta.key = name;
-        type = meta.type;
-
-        if (!type && meta.kind === 'hasMany') {
-          type = singularize(name);
-        } else if (!type) {
-          type = name;
-        }
-
-        if (typeof type === 'string') {
-          meta.type = this.store.modelFor(type);
-        }
-
-        map.set(name, meta);
+        var relationship = relationshipFromMeta(this.store, meta);
+        relationship.type = typeForRelationshipMeta(this.store, meta);
+        map.set(name, relationship);
       }
     });
 
     return map;
-  }),
+  }).cacheable(false).readOnly(),
 
   /**
     A map whose keys are the fields of the model and whose values are strings
@@ -411,7 +410,7 @@ Model.reopenClass({
     });
 
     return map;
-  }),
+  }).readOnly(),
 
   /**
     Given a callback, iterates over each of the relationships in the model,

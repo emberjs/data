@@ -94,6 +94,10 @@ test("serializeIntoHash with decamelized types", function() {
 
 
 test("normalize", function() {
+  SuperVillain.reopen({
+    yellowMinion: DS.belongsTo('yellowMinion')
+  })
+
   var superVillain_hash = {first_name: "Tom", last_name: "Dale", home_planet_id: "123", evil_minion_ids: [1,2]};
 
   var json = env.amsSerializer.normalize(SuperVillain, superVillain_hash, "superVillain");

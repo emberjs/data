@@ -1,4 +1,7 @@
-import JSONSerializer from "./serializers/json_serializer";
-import RESTSerializer from "./serializers/rest_serializer";
+import JSONSerializer from "ember-data/serializers/json_serializer";
+import RESTSerializer from "ember-data/serializers/rest_serializer";
 
-export { JSONSerializer, RESTSerializer };
+export {
+  JSONSerializer,
+  RESTSerializer
+};

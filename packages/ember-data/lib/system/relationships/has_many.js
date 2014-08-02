@@ -2,13 +2,24 @@
   @module ember-data
 */
 
-import {PromiseArray} from "../store";
-var get = Ember.get, set = Ember.set, setProperties = Ember.setProperties;
+import { PromiseArray } from "ember-data/system/store";
+
+import {
+  relationshipFromMeta,
+  typeForRelationshipMeta
+} from "ember-data/system/relationship-meta";
+
+var get = Ember.get;
+var set = Ember.set;
+var setProperties = Ember.setProperties;
+var map = Ember.EnumerableUtils.map;
 
 function asyncHasMany(type, options, meta) {
   return Ember.computed('data', function(key) {
-    var relationship = this._relationships[key],
-        promiseLabel = "DS: Async hasMany " + this + " : " + key;
+    var relationship = this._relationships[key];
+    var promiseLabel = "DS: Async hasMany " + this + " : " + key;
+
+    meta.key = key;
 
     if (!relationship) {
       var resolver = Ember.RSVP.defer(promiseLabel);
@@ -16,9 +27,21 @@ function asyncHasMany(type, options, meta) {
         var link = data.links && data.links[key];
         var rel;
         if (link) {
-          rel = store.findHasMany(this, link, meta, resolver);
+          rel = store.findHasMany(this, link, relationshipFromMeta(store, meta), resolver);
         } else {
-          rel = store.findMany(this, data[key], meta.type, resolver);
+          //This is a temporary workaround for setting owner on the relationship
+          //until single source of truth lands. It only works for OneToMany atm
+          var records = data[key];
+          var inverse = this.constructor.inverseFor(key);
+          var owner = this;
+          if (inverse && records) {
+            if (inverse.kind === 'belongsTo'){
+              map(records, function(record){
+                set(record, inverse.name, owner);
+              });
+            }
+          }
+          rel = store.findMany(owner, data[key], typeForRelationshipMeta(store, meta), resolver);
         }
         // cache the promise so we can use it
         // when we come back and don't need to rebuild
@@ -43,8 +66,8 @@ function buildRelationship(record, key, options, callback) {
 
   if (rels[key]) { return rels[key]; }
 
-  var data = get(record, 'data'),
-      store = get(record, 'store');
+  var data = get(record, 'data');
+  var store = get(record, 'store');
 
   var relationship = rels[key] = callback.call(record, store, data);
 
@@ -62,7 +85,8 @@ function hasRelationship(type, options) {
     type: type,
     isRelationship: true,
     options: options,
-    kind: 'hasMany'
+    kind: 'hasMany',
+    key: null
   };
 
   if (options.async) {
@@ -72,8 +96,8 @@ function hasRelationship(type, options) {
   return Ember.computed('data', function(key) {
     return buildRelationship(this, key, options, function(store, data) {
       var records = data[key];
-      Ember.assert("You looked up the '" + key + "' relationship on '" + this + "' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", Ember.A(records).everyProperty('isEmpty', false));
-      return store.findMany(this, data[key], meta.type);
+      Ember.assert("You looked up the '" + key + "' relationship on '" + this + "' but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", Ember.A(records).isEvery('isEmpty', false));
+      return store.findMany(this, data[key], typeForRelationshipMeta(store, meta));
     });
   }).meta(meta).readOnly();
 }
