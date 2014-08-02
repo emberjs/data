@@ -178,7 +178,6 @@ var trees = merge([
   testFiles,
   globalBuild,
   namedAMDBuild,
-  yuidocTree,
   testRunner,
   bower,
   configurationFiles
@@ -187,7 +186,12 @@ var trees = merge([
 if (env === 'production') {
   var minifiedAMD = minify(namedAMDBuild, 'ember-data.named-amd');
   var minifiedGlobals = minify(globalBuild, 'ember-data');
-  trees = merge([trees, minifiedAMD, minifiedGlobals]);
+  trees = merge([
+    yuidocTree,
+    trees,
+    minifiedAMD,
+    minifiedGlobals
+  ]);
 }
 
 module.exports = trees;
