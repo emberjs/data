@@ -110,7 +110,11 @@ var yuidocTree = yuidoc('packages', {
   }
 });
 
-var libFiles = merge([emberInflectorFiles, emberDataFiles, activeModelAdapterFiles]);
+var libFiles = merge([
+  emberInflectorFiles,
+  emberDataFiles,
+  activeModelAdapterFiles
+]);
 
 var testFiles = merge([
   testTree(emberDataFiles, 'ember-data'),
@@ -170,7 +174,15 @@ configurationFiles = replace(configurationFiles, {
   }
 });
 
-var trees = merge([testFiles, globalBuild, namedAMDBuild, yuidocTree, testRunner, bower, configurationFiles]);
+var trees = merge([
+  testFiles,
+  globalBuild,
+  namedAMDBuild,
+  yuidocTree,
+  testRunner,
+  bower,
+  configurationFiles
+]);
 
 if (env === 'production') {
   var minifiedAMD = minify(namedAMDBuild, 'ember-data.named-amd');
