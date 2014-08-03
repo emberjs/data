@@ -135,16 +135,16 @@ function belongsTo(type, options) {
     var store = get(this, 'store');
     var belongsTo, typeClass;
 
-    if (isPolymorphic && value && value.get('type')) {
-      typeClass = store.modelFor(value.get('type'));
-    } else if (typeof type === 'string') {
+    if (typeof type === 'string') {
       typeClass = store.modelFor(type);
     } else {
       typeClass = type;
     }
 
     if (arguments.length === 2) {
-      Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof typeClass);
+      if (!isPolymorphic) {
+        Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof typeClass);
+      }
       return value === undefined ? null : value;
     }
 

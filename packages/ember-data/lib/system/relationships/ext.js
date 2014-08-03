@@ -122,7 +122,12 @@ Model.reopenClass({
 
     if (options.inverse) {
       inverseName = options.inverse;
-      inverse = Ember.get(inverseType, 'relationshipsByName').get(inverseName);
+
+      if (options.polymorphic && options.inverse && options.inverseKind) {
+        inverse = {kind: options.inverseKind};
+      } else {
+        inverse = Ember.get(inverseType, 'relationshipsByName').get(inverseName);
+      }
 
       Ember.assert("We found no inverse relationships by the name of '" + inverseName + "' on the '" + inverseType.typeKey +
         "' model. This is most likely due to a missing attribute on your model definition.", !Ember.isNone(inverse));
