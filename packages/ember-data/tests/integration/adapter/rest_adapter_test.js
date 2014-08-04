@@ -1399,3 +1399,64 @@ test('normalizeKey - to set up _ids and _id', function() {
     deepEqual(post.get('comments').mapBy('body'), ["Rails is unagi", "What is omakase?"]);
   }));
 });
+
+test('groupRecordsForFindMany splits up calls for large ids', function() {
+  Comment.reopen({ post: DS.belongsTo('post') });
+  Post.reopen({ comments: DS.hasMany('comment', {async: true}) });
+
+  expect(2);
+
+  function repeatChar(character, n) {
+    return Array(n+1).join(character);
+  }
+
+  var a2000 = repeatChar('a', 2000);
+  var b2000 = repeatChar('b', 2000);
+  var post = store.push('post', { id: 1, comments: [a2000, b2000] });
+
+  adapter.coalesceFindRequests = true;
+
+  adapter.find = function(store, type, id, record) {
+    if (id === a2000 || id === b2000) {
+      ok(true, "Found " + id)
+    }
+
+    return Ember.RSVP.resolve({ comments: { id: id } });
+  };
+
+  adapter.findMany = function(store, type, ids, records) {
+    ok(false, "findMany should not be called - we expect 2 calls to find for a2000 and b2000")
+    return Ember.RSVP.reject();
+  }
+
+  post.get('comments');
+});
+
+test('groupRecordsForFindMany groups calls for small ids', function() {
+  Comment.reopen({ post: DS.belongsTo('post') });
+  Post.reopen({ comments: DS.hasMany('comment', {async: true}) });
+
+  expect(1);
+
+  function repeatChar(character, n) {
+    return Array(n+1).join(character);
+  }
+
+  var a100 = repeatChar('a', 100);
+  var b100 = repeatChar('b', 100);
+  var post = store.push('post', { id: 1, comments: [a100, b100] });
+
+  adapter.coalesceFindRequests = true;
+
+  adapter.find = function(store, type, id, record) {
+    ok(false, "find should not be called - we expect 1 call to findMany for a100 and b100")
+    return Ember.RSVP.reject();
+  };
+
+  adapter.findMany = function(store, type, ids, records) {
+    deepEqual(ids, [a100, b100]);
+    return Ember.RSVP.resolve({ comments: { id: ids } });
+  }
+
+  post.get('comments');
+});
