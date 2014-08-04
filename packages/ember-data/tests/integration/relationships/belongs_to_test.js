@@ -328,7 +328,7 @@ test("asdf", function() {
 
   env.adapter.deleteRecord = function(store, type, record) {
     ok(record instanceof type);
-    equal(record.id, 1, 'should first comment')
+    equal(record.id, 1, 'should first comment');
     return record;
   };
 
@@ -337,4 +337,39 @@ test("asdf", function() {
   };
 
   comment.destroyRecord();
+});
+
+test("Destroying a record with an unloaded aync belongsTo association does not fetch the record", function() {
+  expect(2);
+  var post;
+
+  env.store.modelFor('message').reopen({
+    user: DS.hasMany('user', {
+      async: true
+    })
+  });
+
+  env.store.modelFor('post').reopen({
+    user: DS.belongsTo('user', {
+      async: true,
+      inverse: 'messages'
+    })
+  });
+
+  post = env.store.push('post', {
+    id: 1,
+    user: 2
+  });
+
+  env.adapter.find = function() {
+    throw new Error("Adapter's find method should not be called");
+  };
+
+  env.adapter.deleteRecord = function(store, type, record) {
+    ok(record instanceof type);
+    equal(record.id, 1, 'should first post');
+    return record;
+  };
+
+  post.destroyRecord();
 });

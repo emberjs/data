@@ -3,6 +3,7 @@
 */
 
 import Model from "ember-data/system/model/model";
+import { isSyncRelationship } from 'ember-data/system/relationship-meta';
 
 var get = Ember.get;
 var set = Ember.set;
@@ -342,13 +343,6 @@ RelationshipChange.prototype = {
 
 RelationshipChangeAdd.prototype = Ember.create(RelationshipChange.create({}));
 RelationshipChangeRemove.prototype = Ember.create(RelationshipChange.create({}));
-
-function isSyncRelationship(record, relationshipName) {
-  var meta = Ember.meta(record);
-  var desc = meta.descs[relationshipName];
-
-  return desc && !desc._meta.options.async;
-}
 
 RelationshipChangeAdd.prototype.changeType = 'add';
 RelationshipChangeAdd.prototype.sync = function() {
