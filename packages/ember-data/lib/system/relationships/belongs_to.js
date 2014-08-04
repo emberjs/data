@@ -8,7 +8,8 @@ import { PromiseObject } from 'ember-data/system/store';
 import { RelationshipChange } from 'ember-data/system/changes';
 import {
   relationshipFromMeta,
-  typeForRelationshipMeta
+  typeForRelationshipMeta,
+  isSyncRelationship
 } from 'ember-data/system/relationship-meta';
 
 /**
@@ -168,7 +169,7 @@ Model.reopen({
     @param key
   */
   belongsToWillChange: Ember.beforeObserver(function(record, key) {
-    if (get(record, 'isLoaded')) {
+    if (get(record, 'isLoaded') && isSyncRelationship(record, key)) {
       var oldParent = get(record, key);
 
       if (oldParent) {
