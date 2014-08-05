@@ -237,9 +237,9 @@ Store = Ember.Object.extend({
       newly created record.
     @return {DS.Model} record
   */
-  createRecord: function(typeName, inputPropoperties) {
+  createRecord: function(typeName, inputProperties) {
     var type = this.modelFor(typeName);
-    var properties = copy(inputPropoperties) || {};
+    var properties = copy(inputProperties) || {};
 
     // If the passed properties do not include a primary key,
     // give the adapter an opportunity to generate one. Typically,
