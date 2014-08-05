@@ -767,7 +767,7 @@ App.ApplicationSerializer = DS.RESTSerializer.extend({
 
     json[key] = value;
   }
-}
+});
 ```
 
 ### Embedded Records
