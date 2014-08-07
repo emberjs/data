@@ -508,6 +508,7 @@ export default Adapter.extend({
     //We might get passed in an array of ids from findMany
     //in which case we don't want to modify the url, as the
     //ids will be passed in through a query param
+
     if (id && !Ember.isArray(id)) { url.push(id); }
 
     if (prefix) { url.unshift(prefix); }

@@ -117,6 +117,48 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
   }));
 });
 
+test("If no has-many value is provided in the payload, the adapter's buildURLForHasMany is called and the result is passed to findHasMany", function() {
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  // When the store asks the adapter for the record with ID 1,
+  // provide some fake data.
+  env.adapter.find = function(store, type, id) {
+    equal(type, Post, "find type was Post");
+    equal(id, "1", "find id was 1");
+
+    return Ember.RSVP.resolve({ id: 1 });
+  };
+
+  env.adapter.findMany = function() {
+    throw new Error("Adapter's findMany should not be called");
+  };
+
+  env.adapter.buildURLForHasMany = function(store, record, relationshipName) {
+    equal(relationshipName, 'comments');
+    return "/posts/" + record.get('id') + "/comments";
+  };
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    equal(relationship.type, Comment, "findHasMany relationship type was Comment");
+    equal(relationship.key, 'comments', "findHasMany relationship key was comments");
+    equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
+
+    return Ember.RSVP.resolve([
+      { id: 1, body: "First" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+
+  env.store.find('post', 1).then(async(function(post) {
+    return post.get('comments');
+  })).then(async(function(comments) {
+    equal(comments.get('isLoaded'), true, "comments are loaded");
+    equal(comments.get('length'), 2, "comments have 2 length");
+  }));
+});
+
 test("An updated `links` value should invalidate a relationship cache", function() {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })

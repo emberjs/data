@@ -52,14 +52,36 @@ function asyncHasMany(type, options, meta) {
       var rel;
       var promiseLabel = "DS: Async hasMany " + this + " : " + key;
       var resolver = Ember.RSVP.defer(promiseLabel);
+      var records = data[key];
+
+      // If a relationship is not specified by the adapter when it
+      // provides a payload for a record, we give the adapter a
+      // chance to lazily generate a URL based on record information
+      // (via the `buildURLForHasMany` hook). In the case of newly
+      // created records, however, we assume that the relationship
+      // is empty, and just-in-time initialize the backing data to
+      // an empty array.
+      if (get(this, 'isNew')) {
+        records = [];
+        this.updateHasMany(key, records);
+      }
 
       if (link) {
+        // The relationship URL was explicitly provided in the data
+        // payload, so invoke the store's findHasMany with that.
         rel = store.findHasMany(this, link, relationshipFromMeta(store, meta), resolver);
+      } else if (records === undefined) {
+        // The relationship was not provided at all, so we'll let the
+        // adapter synthesize a URL for the relationship using
+        // information from the record.
+        rel = store.findHasMany(this, records, relationshipFromMeta(store, meta), resolver);
       } else {
+        // The payload provided the relationship as an array of IDs, so
+        // fetch those and stick them in the ManyArray.
 
-        //This is a temporary workaround for setting owner on the relationship
-        //until single source of truth lands. It only works for OneToMany atm
-        var records = data[key];
+        // This is a temporary workaround for setting owner on the
+        // relationship until single source of truth lands. It only works
+        // for OneToMany at the moment.
         var inverse = this.constructor.inverseFor(key);
         var owner = this;
         if (inverse && records) {

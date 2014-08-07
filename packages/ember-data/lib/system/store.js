@@ -740,7 +740,13 @@ Store = Ember.Object.extend({
     var adapter = this.adapterFor(owner.constructor);
 
     Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + owner.constructor + ")", adapter);
-    Ember.assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", adapter.findHasMany);
+
+    if (link === undefined) {
+      Ember.assert("You tried to load a hasMany relationship, but no relationship information was included in the payload from the server and your adapter does not implement `buildURLForHasMany`", adapter.buildURLForHasMany);
+      link = adapter.buildURLForHasMany(this, owner, relationship.key);
+    } else {
+      Ember.assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", adapter.findHasMany);
+    }
 
     var records = this.recordArrayManager.createManyArray(relationship.type, Ember.A([]));
     resolver.resolve(_findHasMany(adapter, this, owner, link, relationship));
@@ -1672,8 +1678,8 @@ function normalizeRelationships(store, type, data, record) {
     var value = data[key];
 
     if (value == null) {
-      if (kind === 'hasMany' && record) {
-        value = data[key] = record.get(key).toArray();
+      if (kind === 'hasMany' && record && record.cacheFor(key)) {
+        data[key] = record.get(key).toArray();
       }
       return;
     }
