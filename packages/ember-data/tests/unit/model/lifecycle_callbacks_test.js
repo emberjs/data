@@ -1,4 +1,6 @@
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
+var set = Ember.set;
+var run = Ember.run;
 
 module("unit/model/lifecycle_callbacks - Lifecycle Callbacks");
 
@@ -140,6 +142,8 @@ test("a record receives a didDelete callback when it has finished deleting", fun
 });
 
 test("a record receives a becameInvalid callback when it became invalid", function() {
+  expect(6);
+
   var callCount = 0;
 
   var Person = DS.Model.extend({
@@ -174,10 +178,18 @@ test("a record receives a becameInvalid callback when it became invalid", functi
 
   // Make sure that the error handler has a chance to attach before
   // save fails.
-  Ember.run(function() {
+  run(function() {
     asyncPerson.then(async(function(person) {
       person.set('bar', "Bar");
       return person.save();
+    })).then(null, async(function() {
+      equal(callCount, 1, "becameInvalid called after invalidating");
+    }));
+  });
+
+  run(function() {
+    asyncPerson.then(async(function(person) {
+      person.destroyRecord();
     })).then(null, async(function() {
       equal(callCount, 1, "becameInvalid called after invalidating");
     }));

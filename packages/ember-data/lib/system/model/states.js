@@ -678,6 +678,10 @@ var RootState = {
       becameError: function(record) {
         record.transitionTo('uncommitted');
         record.triggerLater('becameError', record);
+      },
+
+      becameInvalid: function(record) {
+        record.transitionTo('invalid');
       }
     },
 
