@@ -261,3 +261,58 @@ test("should throw if ids are not defined in the FIXTURES", function() {
     ok(false, "should not get here");
   });
 });
+
+module("integration/adapter/fixture_adapter - DS.FixtureAdapter sync hasMany", {
+  setup: function() {
+    Person = DS.Model.extend({
+      phones: DS.hasMany('phone')
+    });
+
+    Phone = DS.Model.extend({
+      person: DS.belongsTo('person'),
+      number: DS.attr('string')
+    });
+
+    env = setupStore({ person: Person, phone: Phone, adapter: DS.FixtureAdapter });
+    env.adapter.simulateRemoteResponse = true;
+
+    // Enable setTimeout.
+    Ember.testing = false;
+
+    Person.FIXTURES = [];
+    Phone.FIXTURES = [];
+  },
+  teardown: function() {
+    Ember.testing = true;
+
+    env.container.destroy();
+  }
+});
+
+
+test("should load data for a type synchronously when it is requested", function() {
+  Person.FIXTURES = [{
+    id: 'ebryn',
+    phones: [1, 2]
+  }];
+
+  Phone.FIXTURES = [{
+    id: 1,
+    number: '246-5789',
+    person: 'ebryn'
+  }, {
+    id: 2,
+    number: '555-5555',
+    person: 'ebryn'
+  }];
+
+  env.store.find('person', 'ebryn').then(async(function(ebryn) {
+    equal(get(ebryn, 'isLoaded'), true, "data loads asynchronously");
+    equal(ebryn.get('phones.firstObject.number'), null, "data is not present immediately");
+    return new Ember.RSVP.Promise(function(resolve, reject){
+      ebryn.get('phones').one('didLoad', function(){ resolve(ebryn); });
+    });
+  }, 1000)).then(async(function(ebryn) {
+    ok(ebryn.get('phones.firstObject.number'), "data is present later");
+  }, 1000));
+});
