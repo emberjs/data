@@ -532,7 +532,7 @@ export default JSONSerializer.extend({
     @return {String} the model's typeKey
   */
   typeForRoot: function(key) {
-    return camelize(singularize(key));
+    return singularize(camelize(key));
   },
 
   // SERIALIZE
