@@ -369,8 +369,8 @@ test("a DS.Model can describe Date attributes", function() {
   converts('date', null, null);
   converts('date', undefined, undefined);
 
-  var dateString = "Sat, 31 Dec 2011 00:08:16 GMT";
-  var date = new Date(dateString);
+  var dateString = "2011-12-31T00:08:16.000Z";
+  var date = new Date(Ember.Date.parse(dateString));
 
   var store = createStore();
 

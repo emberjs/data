@@ -2,6 +2,8 @@
 
 ### Master
 
+* DS.DateTransform now serializes to ISO8601 format by default. Adds millisecond precision to serializing dates
+
 ### Ember Data 1.0.0-beta.8 _(May 28, 2014)_
 
 * Each RecordArray gets a copy of the models's metada object instead of sharing the same meta object. Enables several paginated arrays to coexist without clobbering each other
