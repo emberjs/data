@@ -8,7 +8,6 @@ var env           = process.env.EMBER_ENV;
 var pickFiles     = require('broccoli-static-compiler');
 var merge         = require('broccoli-merge-trees');
 var moveFile      = require('broccoli-file-mover');
-var removeFile    = require('broccoli-file-remover');
 var wrap          = require('broccoli-wrap');
 var jshint        = require('broccoli-jshint');
 var defeatureify  = require('broccoli-defeatureify');

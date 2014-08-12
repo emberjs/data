@@ -27,7 +27,6 @@
     "broccoli-es6-module-transpiler": "^0.1.1",
     "broccoli-es6-transpiler": "^0.1.0",
     "broccoli-file-mover": "~0.2.0",
-    "broccoli-file-remover": "^0.2.2",
     "broccoli-jshint": "^0.5.1",
     "broccoli-merge-trees": "^0.1.4",
     "broccoli-render-template": "0.0.3",
