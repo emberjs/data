@@ -642,7 +642,12 @@ export default Ember.Object.extend({
         var key = relationship.key,
             belongsTo = get(record, key);
         key = this.keyForAttribute ? this.keyForAttribute(key) : key;
-        json[key + "_type"] = belongsTo.constructor.typeKey;
+
+        if (Ember.isNone(belongsTo)) {
+          json[key + "_type"] = null;
+        } else {
+          json[key + "_type"] = belongsTo.constructor.typeKey;
+        }
       }
     });
    ```
