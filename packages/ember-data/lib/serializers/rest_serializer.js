@@ -723,6 +723,10 @@ export default JSONSerializer.extend({
     var key = relationship.key;
     var belongsTo = get(record, key);
     key = this.keyForAttribute ? this.keyForAttribute(key) : key;
-    json[key + "Type"] = belongsTo.constructor.typeKey;
+    if (Ember.isNone(belongsTo)) {
+      json[key + "Type"] = null;
+    } else {
+      json[key + "Type"] = Ember.String.camelize(belongsTo.constructor.typeKey);
+    }
   }
 });
