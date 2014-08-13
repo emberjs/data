@@ -504,6 +504,24 @@ test("extractArray with embedded objects of same type, but from separate attribu
   equal(env.store.recordForId("superVillain", "6").get("firstName"), "Trek", "Secondary records found in the store");
 });
 
+test("serialize supports serialize:false on non-relationship properties", function() {
+  var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", id: '1' });
+
+  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      firstName: {serialize: false}
+    }
+  }));
+  var serializer = env.container.lookup("serializer:superVillain");
+  var json = serializer.serialize(tom);
+
+  deepEqual(json, {
+    last_name: "Dale",
+    home_planet_id: null,
+    secret_lab_id: null
+  });
+});
+
 test("serialize with embedded objects (hasMany relationship)", function() {
   league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
   var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league, id: '1' });
@@ -529,13 +547,13 @@ test("serialize with embedded objects (hasMany relationship)", function() {
   });
 });
 
-test("serialize with embedded objects (hasMany relationship) supports serialize:no", function() {
+test("serialize with embedded objects (hasMany relationship) supports serialize:false", function() {
   league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
   var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league, id: '1' });
 
   env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
-      villains: {serialize: 'no'}
+      villains: {serialize: false}
     }
   }));
   var serializer = env.container.lookup("serializer:homePlanet");
@@ -804,11 +822,11 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
   });
 });
 
-test("serialize with embedded object (belongsTo relationship) supports serialize:no", function() {
+test("serialize with embedded object (belongsTo relationship) supports serialize:false", function() {
   env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
   env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
-      secretLab: {serialize: 'no'}
+      secretLab: {serialize: false}
     }
   }));
   var serializer = env.container.lookup("serializer:superVillain");

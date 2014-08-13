@@ -31,7 +31,7 @@ import {pluralize} from "ember-inflector";
 
   ### Configuring Attrs
 
-  A resource's `attrs` option may be set to use `ids`, `records` or `no` for the
+  A resource's `attrs` option may be set to use `ids`, `records` or false for the
   `serialize`  and `deserialize` settings.
 
   The `attrs` property can be set on the ApplicationSerializer or a per-type
@@ -43,7 +43,7 @@ import {pluralize} from "ember-inflector";
   the vanilla EmbeddedRecordsMixin. Likewise, to embed JSON in the payload while
   serializing `serialize: 'records'` is the setting to use. There is an option of
   not embedding JSON in the serialized payload by using `serialize: 'ids'`. If you
-  do not want the relationship sent at all, you can use `serialize: 'no'`.
+  do not want the relationship sent at all, you can use `serialize: false`.
 
 
   ### EmbeddedRecordsMixin defaults
@@ -51,7 +51,7 @@ import {pluralize} from "ember-inflector";
   will behave in the following way:
 
   BelongsTo: `{serialize:'id', deserialize:'id'}`
-  HasMany:   `{serialize:'no',  deserialize:'ids'}`
+  HasMany:   `{serialize:false,  deserialize:'ids'}`
 
   ### Model Relationships
 
