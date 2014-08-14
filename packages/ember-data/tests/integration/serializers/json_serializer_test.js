@@ -216,6 +216,42 @@ test('Serializer respects `serialize: false` on the attrs hash', function(){
   ok(!payload.hasOwnProperty('[object Object]'),"Does not add some random key like [object Object]");
 });
 
+test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function(){
+  expect(1);
+  env.container.register("serializer:post", DS.JSONSerializer.extend({
+    attrs: {
+      comments: {serialize: false}
+    }
+  }));
+
+  post = env.store.createRecord("post", { title: "Rails is omakase"});
+  comment = env.store.createRecord(Comment, { body: "Omakase is delicious", post: post});
+
+  var serializer = env.container.lookup("serializer:post");
+  var serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
+
+  var payload = serializer.serialize(post);
+  ok(!payload.hasOwnProperty(serializedProperty), "Does not add the key to instance");
+});
+
+test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function(){
+  expect(1);
+  env.container.register("serializer:comment", DS.JSONSerializer.extend({
+    attrs: {
+      post: {serialize: false}
+    }
+  }));
+
+  post = env.store.createRecord("post", { title: "Rails is omakase"});
+  comment = env.store.createRecord(Comment, { body: "Omakase is delicious", post: post});
+
+  var serializer = env.container.lookup("serializer:comment");
+  var serializedProperty = serializer.keyForRelationship('post', 'belongsTo');
+
+  var payload = serializer.serialize(comment);
+  ok(!payload.hasOwnProperty(serializedProperty), "Does not add the key to instance");
+});
+
 test("Serializer should respect the primaryKey attribute when extracting records", function() {
   env.container.register('serializer:post', DS.JSONSerializer.extend({
     primaryKey: '_ID_'

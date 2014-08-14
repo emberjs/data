@@ -289,6 +289,21 @@ export default Ember.Object.extend({
     return key;
   },
 
+  /**
+    Check attrs.key.serialize property to inform if the `key`
+    can be serialized
+
+    @method _canSerialize
+    @private
+    @param {String} key
+    @return {boolean} true if the key can be serialized
+  */
+  _canSerialize: function(key) {
+    var attrs = get(this, 'attrs');
+
+    return !attrs || !attrs[key] || attrs[key].serialize !== false;
+  },
+
   // SERIALIZE
   /**
     Called when a record is saved in order to convert the
@@ -511,29 +526,25 @@ export default Ember.Object.extend({
    @param {Object} attribute
   */
   serializeAttribute: function(record, json, key, attribute) {
-    var attrs = get(this, 'attrs');
-    var value = get(record, key);
     var type = attribute.type;
 
-    if (type) {
-      var transform = this.transformFor(type);
-      value = transform.serialize(value);
-    }
+    if (this._canSerialize(key)) {
+      var value = get(record, key);
+      if (type) {
+        var transform = this.transformFor(type);
+        value = transform.serialize(value);
+      }
 
-    // If attrs.key.serialize is false, do not include the value in the
-    // response to the server at all.
-    if (attrs && attrs[key] && attrs[key].serialize === false) {
-      return;
-    }
-    // if provided, use the mapping provided by `attrs` in
-    // the serializer
-    var payloadKey =  this._getMappedKey(key);
+      // if provided, use the mapping provided by `attrs` in
+      // the serializer
+      var payloadKey =  this._getMappedKey(key);
 
-    if (payloadKey === key && this.keyForAttribute) {
-      payloadKey = this.keyForAttribute(key);
-    }
+      if (payloadKey === key && this.keyForAttribute) {
+        payloadKey = this.keyForAttribute(key);
+      }
 
-    json[payloadKey] = value;
+      json[payloadKey] = value;
+    }
   },
 
   /**
@@ -562,25 +573,27 @@ export default Ember.Object.extend({
    @param {Object} relationship
   */
   serializeBelongsTo: function(record, json, relationship) {
-    var attrs = get(this, 'attrs');
     var key = relationship.key;
-    var belongsTo = get(record, key);
 
-    // if provided, use the mapping provided by `attrs` in
-    // the serializer
-    var payloadKey = this._getMappedKey(key);
-    if (payloadKey === key && this.keyForRelationship) {
-      payloadKey = this.keyForRelationship(key, "belongsTo");
-    }
+    if (this._canSerialize(key)) {
+      var belongsTo = get(record, key);
 
-    if (isNone(belongsTo)) {
-      json[payloadKey] = belongsTo;
-    } else {
-      json[payloadKey] = get(belongsTo, 'id');
-    }
+      // if provided, use the mapping provided by `attrs` in
+      // the serializer
+      var payloadKey = this._getMappedKey(key);
+      if (payloadKey === key && this.keyForRelationship) {
+        payloadKey = this.keyForRelationship(key, "belongsTo");
+      }
 
-    if (relationship.options.polymorphic) {
-      this.serializePolymorphicType(record, json, relationship);
+      if (isNone(belongsTo)) {
+        json[payloadKey] = belongsTo;
+      } else {
+        json[payloadKey] = get(belongsTo, 'id');
+      }
+
+      if (relationship.options.polymorphic) {
+        this.serializePolymorphicType(record, json, relationship);
+      }
     }
   },
 
@@ -609,22 +622,24 @@ export default Ember.Object.extend({
    @param {Object} relationship
   */
   serializeHasMany: function(record, json, relationship) {
-    var attrs = get(this, 'attrs');
     var key = relationship.key;
-    var payloadKey;
 
-    // if provided, use the mapping provided by `attrs` in
-    // the serializer
-    payloadKey = this._getMappedKey(key);
-    if (payloadKey === key && this.keyForRelationship) {
-      payloadKey = this.keyForRelationship(key, "hasMany");
-    }
+    if (this._canSerialize(key)) {
+      var payloadKey;
 
-    var relationshipType = RelationshipChange.determineRelationshipType(record.constructor, relationship);
+      // if provided, use the mapping provided by `attrs` in
+      // the serializer
+      payloadKey = this._getMappedKey(key);
+      if (payloadKey === key && this.keyForRelationship) {
+        payloadKey = this.keyForRelationship(key, "hasMany");
+      }
 
-    if (relationshipType === 'manyToNone' || relationshipType === 'manyToMany') {
-      json[payloadKey] = get(record, key).mapBy('id');
-      // TODO support for polymorphic manyToNone and manyToMany relationships
+      var relationshipType = RelationshipChange.determineRelationshipType(record.constructor, relationship);
+
+      if (relationshipType === 'manyToNone' || relationshipType === 'manyToMany') {
+        json[payloadKey] = get(record, key).mapBy('id');
+        // TODO support for polymorphic manyToNone and manyToMany relationships
+      }
     }
   },
 
