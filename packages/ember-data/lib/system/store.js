@@ -93,7 +93,7 @@ function coerceId(id) {
 
   ### Store createRecord() vs. push() vs. pushPayload() vs. update()
 
-  The store provides multiple ways to create new records object. They have
+  The store provides multiple ways to create new record objects. They have
   some subtle differences in their use which are detailed below:
 
   [createRecord](#method_createRecord) is used for creating new
