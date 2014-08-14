@@ -1395,7 +1395,7 @@ Store = Ember.Object.extend({
     properties. This makes it safe to use with a subset of record
     attributes. This method expects normalized data.
 
-    `update` is useful if you app broadcasts partial updates to
+    `update` is useful if your app broadcasts partial updates to
     records.
 
     ```js
