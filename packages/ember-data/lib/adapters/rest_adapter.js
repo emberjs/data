@@ -34,6 +34,24 @@ var forEach = Ember.ArrayPolyfills.forEach;
   }
   ```
 
+  Similarly, in response to a `GET` request for `/posts`, the JSON should
+  look like this:
+
+  ```js
+  {
+    "posts": [
+      {
+        "title": "I'm Running to Reform the W3C's Tag",
+        "author": "Yehuda Katz"
+      },
+      {
+        "title": "Rails is omakase",
+        "author": "D2H"
+      }
+    ]
+  }
+  ```
+
   ### Conventional Names
 
   Attribute names in your JSON payload should be the camelCased versions of
