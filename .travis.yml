@@ -3,7 +3,7 @@ language: node_js
 node_js:
   - "0.10"
 install:
-- "bin/cached-npm install"
+- "npm install"
 - "bower install"
 - "npm run-script dist"
 script:
