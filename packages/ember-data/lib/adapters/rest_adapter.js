@@ -28,6 +28,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
   ```js
   {
     "post": {
+      "id": 1,
       "title": "I'm Running to Reform the W3C's Tag",
       "author": "Yehuda Katz"
     }
@@ -41,10 +42,12 @@ var forEach = Ember.ArrayPolyfills.forEach;
   {
     "posts": [
       {
+        "id": 1,
         "title": "I'm Running to Reform the W3C's Tag",
         "author": "Yehuda Katz"
       },
       {
+        "id": 2,
         "title": "Rails is omakase",
         "author": "D2H"
       }
@@ -72,6 +75,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
   ```js
   {
     "person": {
+      "id": 5,
       "firstName": "Barack",
       "lastName": "Obama",
       "occupation": "President"
