@@ -98,3 +98,49 @@ test("Accessing a record in a hasMany relationship should trigger the adapter's 
   }));
 });
 
+
+test("Calling findAll on a hasMany relationship should load all the records.", function() {
+  expect(3);
+
+  env.adapter.findMany = function(store, type, ids) {
+    var recordsArray = ids.map(function(id) {
+      return { id: id };
+    });
+
+    return recordsArray;
+  };
+
+  env.store.push('post', { id: 1, comments: [ 1, 2, 3 ] });
+
+  env.store.find('post', 1).then(async(function(post) {
+    post.get('comments').findAll().then(async(function(comments) {
+      comments.forEach(function(comment) {
+        ok(comment.get('isLoaded'), "Record should be loaded.");
+      });
+    }));
+  }));
+});
+
+test("Calling findAll on a then'ed hasMany relationship should load all the records.", function() {
+  expect(3);
+
+  env.adapter.findMany = function(store, type, ids) {
+    var recordsArray = ids.map(function(id) {
+      return { id: id };
+    });
+
+    return recordsArray;
+  };
+
+  env.store.push('post', { id: 1, comments: [ 1, 2, 3 ] });
+
+  env.store.find('post', 1).then(async(function(post) {
+    post.get('comments').then(async(function(comments) {
+      comments.findAll().then(async(function(comments) {
+        comments.forEach(function(comment) {
+          ok(comment.get('isLoaded'), "Record should be loaded.");
+        });
+      }));
+    }));
+  }));
+});

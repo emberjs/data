@@ -79,6 +79,15 @@ export default ManyArray.extend({
     }
   },
 
+  findAll: function() {
+    var store = get(this, 'store');
+    var records = get(this, 'content');
+
+    return Ember.RSVP.Promise.all(records.map(function(unloadedRecord) {
+      return store._findByRecord(unloadedRecord);
+    }));
+  },
+
   /**
     @method fetch
     @private
