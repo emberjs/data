@@ -70,7 +70,12 @@ function asyncHasMany(type, options, meta) {
           }
         }
 
-        rel = store.findMany(owner, data[key], typeForRelationshipMeta(store, meta), resolver);
+        var typeName = typeForRelationshipMeta(store, meta);
+        var type = store.modelFor(typeName);
+
+        rel = store.recordArrayManager.createAsyncManyArray(type, data[key]);
+        resolver.resolve();
+        // rel = store.findMany(owner, data[key], typeForRelationshipMeta(store, meta), resolver);
       }
 
       // Cache the promise so we can use it when we come back and don't

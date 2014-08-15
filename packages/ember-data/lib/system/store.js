@@ -432,10 +432,15 @@ Store = Ember.Object.extend({
     @return {Promise} promise
   */
   findById: function(typeName, id, preload) {
-    var fetchedRecord;
-
     var type = this.modelFor(typeName);
     var record = this.recordForId(type, id);
+
+    return this._findByRecord(record, preload);
+  },
+
+  _findByRecord: function(record, preload) {
+    var fetchedRecord;
+
 
     if (preload) {
       record._preloadData(preload);
@@ -448,7 +453,7 @@ Store = Ember.Object.extend({
       fetchedRecord = record._loadingPromise;
     }
 
-    return promiseObject(fetchedRecord || record, "DS: Store#findById " + type + " with id: " + id);
+    return promiseObject(fetchedRecord || record, "DS: Store#findById " + record.typeKey + " with id: " + get(record, 'id'));
   },
 
   /**
