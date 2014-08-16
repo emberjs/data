@@ -98,9 +98,7 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
     throw new Error("Adapter's findMany should not be called");
   };
 
-  env.adapter.findHasMany = function(store, record, link, relationship) {
-    equal(relationship.type, Comment, "findHasMany relationship type was Comment");
-    equal(relationship.key, 'comments', "findHasMany relationship key was comments");
+  env.adapter.findHasMany = function(store, record, link) {
     equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
 
     return Ember.RSVP.resolve([
@@ -114,9 +112,11 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
   })).then(async(function(comments) {
     equal(comments.get('isLoaded'), true, "comments are loaded");
     equal(comments.get('length'), 2, "comments have 2 length");
+    equal(comments.objectAt(0).get('body'), 'First', "comment loaded successfully");
   }));
 });
 
+//TODO(Igor) confer with tomhuda about what the exact behaviour should be re:promises
 test("An updated `links` value should invalidate a relationship cache", function() {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
@@ -127,9 +127,7 @@ test("An updated `links` value should invalidate a relationship cache", function
     return Ember.RSVP.resolve({ id: 1, links: { comments: "/posts/1/comments" } });
   };
 
-  env.adapter.findHasMany = function(store, record, link, relationship) {
-    equal(relationship.type, Comment, "findHasMany relationship type was Comment");
-    equal(relationship.key, 'comments', "findHasMany relationship key was comments");
+  env.adapter.findHasMany = function(store, record, link) {
     equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
 
     return Ember.RSVP.resolve([

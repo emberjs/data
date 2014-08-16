@@ -137,6 +137,7 @@ test("Calling push with a normalized hash containing related records returns a r
     person: 'wat'
   });
 
+  //TODO(Igor) think about canonical here, and how the order is supposed to work
   var person = store.push('person', {
     id: 'wat',
     firstName: 'John',

@@ -366,6 +366,7 @@ test("it is possible to remove an item from a relationship", function() {
   }));
 });
 
+//TODO(Igor) add more ordering tests
 test("it is possible to add an item to a relationship, remove it, then add it again", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string'),

@@ -11,6 +11,14 @@ import {
 } from "ember-data/system/adapter";
 import { singularize } from "ember-inflector/system/string";
 
+import {
+  PromiseArray,
+  PromiseObject,
+  promiseArray,
+  promiseObject
+} from "ember-data/system/promise_proxies";
+
+
 var get = Ember.get;
 var set = Ember.set;
 var once = Ember.run.once;
@@ -20,7 +28,7 @@ var indexOf = Ember.EnumerableUtils.indexOf;
 var map = Ember.EnumerableUtils.map;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
-var Store, PromiseObject, PromiseArray, RecordArrayManager, Model;
+var Store, RecordArrayManager, Model;
 
 var camelize = Ember.String.camelize;
 
@@ -141,7 +149,6 @@ Store = Ember.Object.extend({
     this.recordArrayManager = RecordArrayManager.create({
       store: this
     });
-    this._relationshipChanges = {};
     this._pendingSave = [];
     //Used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = Ember.Map.create();
@@ -432,10 +439,15 @@ Store = Ember.Object.extend({
     @return {Promise} promise
   */
   findById: function(typeName, id, preload) {
-    var fetchedRecord;
 
     var type = this.modelFor(typeName);
     var record = this.recordForId(type, id);
+
+    return this._findByRecord(record, preload);
+  },
+
+  _findByRecord: function(record, preload) {
+    var fetchedRecord;
 
     if (preload) {
       record._preloadData(preload);
@@ -448,7 +460,7 @@ Store = Ember.Object.extend({
       fetchedRecord = record._loadingPromise;
     }
 
-    return promiseObject(fetchedRecord || record, "DS: Store#findById " + type + " with id: " + id);
+    return promiseObject(fetchedRecord || record, "DS: Store#findById " + record.typeKey + " with id: " + get(record, 'id'));
   },
 
   /**
@@ -695,28 +707,13 @@ Store = Ember.Object.extend({
     @param {Resolver} resolver
     @return {DS.ManyArray} records
   */
-  findMany: function(owner, inputRecords, typeName, resolver) {
-    var type = this.modelFor(typeName);
-    var records = Ember.A(inputRecords);
-    var unloadedRecords = records.filterProperty('isEmpty', true);
-    var manyArray = this.recordArrayManager.createManyArray(type, records);
-
-    manyArray.loadingRecordsCount = unloadedRecords.length;
-
-    if (unloadedRecords.length) {
-      forEach(unloadedRecords, function(record) {
-        this.recordArrayManager.registerWaitingRecordArray(record, manyArray);
-      }, this);
-
-      resolver.resolve(this.scheduleFetchMany(unloadedRecords, owner));
-    } else {
-      if (resolver) { resolver.resolve(); }
-      manyArray.set('isLoaded', true);
-      once(manyArray, 'trigger', 'didLoad');
-    }
-
-    return manyArray;
+  findMany: function(records) {
+    var store = this;
+    return Promise.all( map(records, function(record) {
+      return store._findByRecord(record);
+    }));
   },
+
 
   /**
     If a relationship was originally populated by the adapter as a link
@@ -736,15 +733,13 @@ Store = Ember.Object.extend({
     @param {String or subclass of DS.Model} type
     @return {Promise} promise
   */
-  findHasMany: function(owner, link, relationship, resolver) {
+  findHasMany: function(owner, link, type) {
     var adapter = this.adapterFor(owner.constructor);
 
     Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + owner.constructor + ")", adapter);
     Ember.assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", adapter.findHasMany);
 
-    var records = this.recordArrayManager.createManyArray(relationship.type, Ember.A([]));
-    resolver.resolve(_findHasMany(adapter, this, owner, link, relationship));
-    return records;
+    return _findHasMany(adapter, this, owner, link, type);
   },
 
   /**
@@ -1090,6 +1085,7 @@ Store = Ember.Object.extend({
     if (data) {
       // normalize relationship IDs into records
       data = normalizeRelationships(this, record.constructor, data, record);
+      setupRelationships(this, record, data);
 
       this.updateId(record, data);
     }
@@ -1298,12 +1294,25 @@ Store = Ember.Object.extend({
 
     var type = this.modelFor(typeName);
 
-    // normalize relationship IDs into records
+    // If the payload contains relationships that are specified as
+    // IDs, normalizeRelationships will convert them into DS.Model instances
+    // (possibly unloaded) before we push the payload into the
+    // store.
+
     data = normalizeRelationships(this, type, data);
+
+    // Actually load the record into the store.
 
     this._load(type, data, _partial);
 
-    return this.recordForId(type, data.id);
+    var record = this.recordForId(type, data.id);
+
+    // Now that the pushed record as well as any related records
+    // are in the store, create the data structures used to track
+    // relationships.
+    setupRelationships(this, record, data);
+
+    return record;
   },
 
   /**
@@ -1530,59 +1539,6 @@ Store = Ember.Object.extend({
     typeMap.records.splice(loc, 1);
   },
 
-  // ........................
-  // . RELATIONSHIP CHANGES .
-  // ........................
-
-  addRelationshipChangeFor: function(childRecord, childKey, parentRecord, parentKey, change) {
-    var clientId = childRecord.clientId;
-    var parentClientId = parentRecord ? parentRecord : parentRecord;
-    var key = childKey + parentKey;
-    var changes = this._relationshipChanges;
-
-    if (!(clientId in changes)) {
-      changes[clientId] = {};
-    }
-    if (!(parentClientId in changes[clientId])) {
-      changes[clientId][parentClientId] = {};
-    }
-    if (!(key in changes[clientId][parentClientId])) {
-      changes[clientId][parentClientId][key] = {};
-    }
-    changes[clientId][parentClientId][key][change.changeType] = change;
-  },
-
-  removeRelationshipChangeFor: function(clientRecord, childKey, parentRecord, parentKey, type) {
-    var clientId = clientRecord.clientId;
-    var parentClientId = parentRecord ? parentRecord.clientId : parentRecord;
-    var changes = this._relationshipChanges;
-    var key = childKey + parentKey;
-
-    if (!(clientId in changes) || !(parentClientId in changes[clientId]) || !(key in changes[clientId][parentClientId])){
-      return;
-    }
-    delete changes[clientId][parentClientId][key][type];
-  },
-
-  relationshipChangePairsFor: function(record){
-    var toReturn = [];
-
-    if( !record ) { return toReturn; }
-
-    //TODO(Igor) What about the other side
-    var changesObject = this._relationshipChanges[record.clientId];
-    for (var objKey in changesObject){
-      if (changesObject.hasOwnProperty(objKey)){
-        for (var changeKey in changesObject[objKey]){
-          if (changesObject[objKey].hasOwnProperty(changeKey)){
-            toReturn.push(changesObject[objKey][changeKey]);
-          }
-        }
-      }
-    }
-    return toReturn;
-  },
-
   // ......................
   // . PER-TYPE ADAPTERS
   // ......................
@@ -1664,30 +1620,15 @@ Store = Ember.Object.extend({
   }
 });
 
+
 function normalizeRelationships(store, type, data, record) {
   type.eachRelationship(function(key, relationship) {
-    // A link (usually a URL) was already provided in
-    // normalized form
-    if (data.links && data.links[key]) {
-      if (record && relationship.options.async) { record._relationships[key] = null; }
-      return;
-    }
-
     var kind = relationship.kind;
     var value = data[key];
-
-    if (value == null) {
-      if (kind === 'hasMany' && record) {
-        value = data[key] = record.get(key).toArray();
-      }
-      return;
-    }
-
     if (kind === 'belongsTo') {
       deserializeRecordId(store, data, key, relationship, value);
     } else if (kind === 'hasMany') {
       deserializeRecordIds(store, data, key, relationship, value);
-      addUnsavedRecords(record, key, value);
     }
   });
 
@@ -1720,6 +1661,9 @@ function typeFor(relationship, key, data) {
 }
 
 function deserializeRecordIds(store, data, key, relationship, ids) {
+  if (!Ember.isArray(ids)) {
+    return;
+  }
   for (var i=0, l=ids.length; i<l; i++) {
     deserializeRecordId(store, ids, i, relationship, ids[i]);
   }
@@ -1742,78 +1686,7 @@ function uniqById(data, records) {
 }
 
 // Delegation to the adapter and promise management
-/**
-  A `PromiseArray` is an object that acts like both an `Ember.Array`
-  and a promise. When the promise is resolved the resulting value
-  will be set to the `PromiseArray`'s `content` property. This makes
-  it easy to create data bindings with the `PromiseArray` that will be
-  updated when the promise resolves.
 
-  For more information see the [Ember.PromiseProxyMixin
-  documentation](/api/classes/Ember.PromiseProxyMixin.html).
-
-  Example
-
-  ```javascript
-  var promiseArray = DS.PromiseArray.create({
-    promise: $.getJSON('/some/remote/data.json')
-  });
-
-  promiseArray.get('length'); // 0
-
-  promiseArray.then(function() {
-    promiseArray.get('length'); // 100
-  });
-  ```
-
-  @class PromiseArray
-  @namespace DS
-  @extends Ember.ArrayProxy
-  @uses Ember.PromiseProxyMixin
-*/
-PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
-/**
-  A `PromiseObject` is an object that acts like both an `Ember.Object`
-  and a promise. When the promise is resolved, then the resulting value
-  will be set to the `PromiseObject`'s `content` property. This makes
-  it easy to create data bindings with the `PromiseObject` that will
-  be updated when the promise resolves.
-
-  For more information see the [Ember.PromiseProxyMixin
-  documentation](/api/classes/Ember.PromiseProxyMixin.html).
-
-  Example
-
-  ```javascript
-  var promiseObject = DS.PromiseObject.create({
-    promise: $.getJSON('/some/remote/data.json')
-  });
-
-  promiseObject.get('name'); // null
-
-  promiseObject.then(function() {
-    promiseObject.get('name'); // 'Tomster'
-  });
-  ```
-
-  @class PromiseObject
-  @namespace DS
-  @extends Ember.ObjectProxy
-  @uses Ember.PromiseProxyMixin
-*/
-PromiseObject = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
-
-function promiseObject(promise, label) {
-  return PromiseObject.create({
-    promise: Promise.cast(promise, label)
-  });
-}
-
-function promiseArray(promise, label) {
-  return PromiseArray.create({
-    promise: Promise.cast(promise, label)
-  });
-}
 
 function isThenable(object) {
   return object && typeof object.then === 'function';
@@ -1917,23 +1790,23 @@ function _findMany(adapter, store, type, ids, records) {
   }, null, "DS: Extract payload of " + type);
 }
 
-function _findHasMany(adapter, store, record, link, relationship) {
-  var promise = adapter.findHasMany(store, record, link, relationship);
-  var serializer = serializerForAdapter(adapter, relationship.type);
-  var label = "DS: Handle Adapter#findHasMany of " + record + " : " + relationship.type;
+function _findHasMany(adapter, store, record, link, type) {
+  var promise = adapter.findHasMany(store, record, link);
+  var serializer = serializerForAdapter(adapter, type);
+  var label = "DS: Handle Adapter#findHasMany of " + record + " : " + type;
 
   promise = Promise.cast(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
   promise = _guard(promise, _bind(_objectIsAlive, record));
 
   return promise.then(function(adapterPayload) {
-    var payload = serializer.extract(store, relationship.type, adapterPayload, null, 'findHasMany');
+    var payload = serializer.extract(store, type, adapterPayload, null, 'findHasMany');
 
     Ember.assert("The response from a findHasMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
-    var records = store.pushMany(relationship.type, payload);
-    record.updateHasMany(relationship.key, records);
-  }, null, "DS: Extract payload of " + record + " : hasMany " + relationship.type);
+    var records = store.pushMany(type, payload);
+    return records;
+  }, null, "DS: Extract payload of " + record + " : hasMany " + type);
 }
 
 function _findBelongsTo(adapter, store, record, link, relationship) {
@@ -1948,8 +1821,6 @@ function _findBelongsTo(adapter, store, record, link, relationship) {
   return promise.then(function(adapterPayload) {
     var payload = serializer.extract(store, relationship.type, adapterPayload, null, 'findBelongsTo');
     var record = store.push(relationship.type, payload);
-
-    record.updateBelongsTo(relationship.key, record);
     return record;
   }, null, "DS: Extract payload of " + record + " : " + relationship.type);
 }
@@ -2025,10 +1896,28 @@ function _commit(adapter, store, operation, record) {
   }, label);
 }
 
-export {
-  Store,
-  PromiseArray,
-  PromiseObject
-};
+function setupRelationships(store, record, data) {
+  var type = record.constructor;
 
+  type.eachRelationship(function(key, descriptor) {
+    var kind = descriptor.kind;
+    var value = data[key];
+    var relationship = record._relationships[key];
+
+    if (data.links && data.links[key]) {
+      relationship.updateLink(data.links[key]);
+    }
+
+    if (kind === 'belongsTo') {
+      if (value === undefined) {
+        return;
+      }
+      relationship.setRecord(value);
+    } else if (kind === 'hasMany' && value) {
+     relationship.updateRecordsFromServer(value);
+    }
+  });
+}
+
+export { Store };
 export default Store;

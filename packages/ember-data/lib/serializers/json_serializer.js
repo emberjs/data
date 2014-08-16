@@ -1,4 +1,3 @@
-import { RelationshipChange } from "ember-data/system/changes";
 var get = Ember.get;
 var set = Ember.set;
 var isNone = Ember.isNone;
@@ -634,7 +633,7 @@ export default Ember.Object.extend({
         payloadKey = this.keyForRelationship(key, "hasMany");
       }
 
-      var relationshipType = RelationshipChange.determineRelationshipType(record.constructor, relationship);
+      var relationshipType = record.constructor.determineRelationshipType(relationship);
 
       if (relationshipType === 'manyToNone' || relationshipType === 'manyToMany') {
         json[payloadKey] = get(record, key).mapBy('id');

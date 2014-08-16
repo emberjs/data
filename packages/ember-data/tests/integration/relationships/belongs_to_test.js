@@ -12,8 +12,8 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
   setup: function() {
     User = DS.Model.extend({
       name: attr('string'),
-      messages: hasMany('message', {polymorphic: true}),
-      favouriteMessage: belongsTo('message', {polymorphic: true})
+      messages: hasMany('message', {polymorphic: true})
+      //favouriteMessage: belongsTo('message', {polymorphic: true})
     });
 
     User.toString = stringify('User');
