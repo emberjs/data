@@ -21,7 +21,7 @@ var indexOf = Ember.EnumerableUtils.indexOf;
 var map = Ember.EnumerableUtils.map;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
-var Store, PromiseObject, PromiseArray, RecordArrayManager, Model;
+var Store, PromiseObject, RecordArrayManager, Model;
 
 var camelize = Ember.String.camelize;
 
