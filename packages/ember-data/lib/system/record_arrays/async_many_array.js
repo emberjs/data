@@ -58,26 +58,24 @@ export default ManyArray.extend({
   */
   promise: null,
 
-  /**
-    @method loadingRecordsCount
-    @param {Number} count
-    @private
-  */
-  loadingRecordsCount: function(count) {
-    this.loadingRecordsCount = count;
-  },
+  isLoaded: Ember.computed('content.@each.isLoaded', function() {
+    console.log("isLoaded computed");
 
-  /**
-    @method loadedRecord
-    @private
-  */
-  loadedRecord: function() {
-    this.loadingRecordsCount--;
-    if (this.loadingRecordsCount === 0) {
+    var items = this.get('content');
+    var itemsLoadStatus = items.every(function(item) {
+      console.log("item", item, item.get('isLoaded'));
+      return item.get('isLoaded');
+    });
+
+    console.log("loaded", itemsLoadStatus);
+
+    if (itemsLoadStatus) {
       set(this, 'isLoaded', true);
       this.trigger('didLoad');
     }
-  },
+
+    return itemsLoadStatus;
+  }),
 
   findAll: function() {
     var store = get(this, 'store');

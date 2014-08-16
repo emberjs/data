@@ -144,3 +144,31 @@ test("Calling findAll on a then'ed hasMany relationship should load all the reco
     }));
   }));
 });
+
+test("Loading count", function() {
+  expect(5);
+
+  env.adapter.find = function(store, type, id) {
+    return { id: id };
+  };
+
+  env.store.push('post', { id: 1, comments: [ 1, 2 ] });
+
+  env.store.find('post', 1).then(async(function(post) {
+    post.get('comments').then(async(function(comments) {
+      var commentPromise = comments.objectAt(0);
+
+      ok(!comments.get('isLoaded'), "Comments should be unloaded.");
+
+      commentPromise.then(async(function(comment) {
+        ok(comment.get('isLoaded'), "Comment should be loaded.");
+        ok(!comments.get('isLoaded'), "Comments should be unloaded.");
+
+        comments.objectAt(1).then(async(function(comment) {
+          ok(comment.get('isLoaded'), "Comment should be loaded.");
+          ok(comments.get('isLoaded'), "Comments should be loaded.");
+        }));
+      }));
+    }));
+  }));
+});
