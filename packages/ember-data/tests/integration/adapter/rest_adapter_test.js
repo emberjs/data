@@ -897,7 +897,7 @@ test("findMany - returning an array populates the array", function() {
       ]
     });
 
-return post.get('comments');
+    return post.get('comments');
   })).then(async(function(comments) {
     var comment1 = store.getById('comment', 1),
         comment2 = store.getById('comment', 2),
