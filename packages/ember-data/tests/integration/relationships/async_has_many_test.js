@@ -80,11 +80,11 @@ test("When a hasMany relationship is accessed, the adapter's find/findMany metho
 });
 
 test("Accessing a record in a hasMany relationship should trigger the adapter's find method.", function() {
-  expect(2);
+  expect(1);
 
 
   env.adapter.find = function(store, type, id, record) {
-    notEqual(id, "2", "Find method should be called with the correct id.");
+    equal(id, "1", "Find method should be called with the correct id.");
 
     return { id: id };
   };
