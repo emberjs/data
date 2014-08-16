@@ -1,6 +1,8 @@
 import RootState from "ember-data/system/model/states";
 import Errors from "ember-data/system/model/errors";
-import { PromiseObject } from "ember-data/system/store";
+import { PromiseObject } from "ember-data/system/promise_proxies";
+import { createRelationshipFor } from "ember-data/system/relationships/relationship";
+
 /**
   @module ember-data
 */
@@ -10,6 +12,7 @@ var set = Ember.set;
 var merge = Ember.merge;
 var Promise = Ember.RSVP.Promise;
 var forEach = Ember.ArrayPolyfills.forEach;
+var map = Ember.ArrayPolyfills.map;
 
 var JSONSerializer;
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
@@ -442,6 +445,12 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this._attributes = {};
     this._inFlightAttributes = {};
     this._relationships = {};
+    var model = this;
+    //TODO Move into a getter for better perf
+    this.constructor.eachRelationship(function(key, descriptor) {
+        model._relationships[key] = createRelationshipFor(model, descriptor, model.store);
+    });
+
   },
 
   /**
@@ -624,13 +633,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   clearRelationships: function() {
     this.eachRelationship(function(name, relationship) {
-      if (relationship.kind === 'belongsTo') {
-        set(this, name, null);
-      } else if (relationship.kind === 'hasMany') {
-        var hasMany = this._relationships[name];
-        if (hasMany) { // relationships are created lazily
-          hasMany.destroy();
-        }
+      var rel = this._relationships[name];
+      if (rel){
+        //TODO(Igor) figure out whether we want to clear or disconnect
+        rel.clear();
+        rel.destroy();
       }
     }, this);
   },
@@ -687,15 +694,20 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Ember.assert("You need to pass in an array to set a hasMany property on a record", Ember.isArray(preloadValue));
     var record = this;
 
-    forEach.call(preloadValue, function(recordToPush) {
-      recordToPush = record._convertStringOrNumberIntoRecord(recordToPush, type);
-      get(record, key).pushObject(recordToPush);
+    var recordsToSet = map.call(preloadValue, function(recordToPush) {
+      return record._convertStringOrNumberIntoRecord(recordToPush, type);
     });
+    //We use the pathway of setting the hasMany as if it came from the adapter
+    //because the user told us that they know this relationships exists already
+    this._relationships[key].updateRecordsFromAdapter(recordsToSet);
   },
 
   _preloadBelongsTo: function(key, preloadValue, type){
-    var recordToPush = this._convertStringOrNumberIntoRecord(preloadValue, type);
-    set(this, key, recordToPush);
+    var recordToSet = this._convertStringOrNumberIntoRecord(preloadValue, type);
+
+    //We use the pathway of setting the hasMany as if it came from the adapter
+    //because the user told us that they know this relationships exists already
+    this._relationships[key].setRecord(recordToSet);
   },
 
   _convertStringOrNumberIntoRecord: function(value, type) {
@@ -770,7 +782,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     if (!data) { return; }
 
-    this._dataDidChange();
+    this.notifyPropertyChange('data');
   },
 
   /**
@@ -782,32 +794,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this.updateRecordArraysLater();
   },
 
-  dataDidChange: Ember.observer(function() {
-    this.reloadHasManys();
-  }, 'data'),
-
-  reloadHasManys: function() {
-    var relationships = get(this.constructor, 'relationshipsByName');
-    this.updateRecordArraysLater();
-    relationships.forEach(function(name, relationship) {
-      if (this._data.links && this._data.links[name]) { return; }
-      if (relationship.kind === 'hasMany') {
-        this.hasManyDidChange(relationship.key);
-      }
-    }, this);
-  },
-
-  hasManyDidChange: function(key) {
-    var hasMany = this._relationships[key];
-
-    if (hasMany) {
-      var records = this._data[key] || [];
-
-      set(hasMany, 'content', Ember.A(records));
-      set(hasMany, 'isLoaded', true);
-      hasMany.trigger('didLoad');
-    }
-  },
 
   /**
     @method updateRecordArraysLater
@@ -835,16 +821,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
       this._data = data;
     }
 
-    var relationships = this._relationships;
-
-    this.eachRelationship(function(name, rel) {
-      if (data.links && data.links[name]) { return; }
-      if (rel.options.async) { relationships[name] = null; }
-    });
-
     if (data) { this.pushedData(); }
 
-    this._dataDidChange();
+    this.notifyPropertyChange('data');
   },
 
   materializeId: function(id) {
@@ -858,27 +837,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
   materializeAttribute: function(name, value) {
     this._data[name] = value;
-  },
-
-  /**
-    @method updateHasMany
-    @private
-    @param {String} name
-    @param {Array} records
-  */
-  updateHasMany: function(name, records) {
-    this._data[name] = records;
-    this.hasManyDidChange(name);
-  },
-
-  /**
-    @method updateBelongsTo
-    @private
-    @param {String} name
-    @param {DS.Model} record
-  */
-  updateBelongsTo: function(name, record) {
-    this._data[name] = record;
   },
 
   /**
@@ -911,50 +869,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     this.send('rolledBack');
 
-    this._dataDidChange();
-  },
-
-  _dataDidChange: function() {
-    this.suspendRelationshipObservers(function _dataDidChange_suspectRelationshipObservers() {
-      this.notifyPropertyChange('data');
-    });
+    this.notifyPropertyChange('data');
   },
 
   toStringExtension: function() {
     return get(this, 'id');
-  },
-
-  /**
-    The goal of this method is to temporarily disable specific observers
-    that take action in response to application changes.
-
-    This allows the system to make changes (such as materialization and
-    rollback) that should not trigger secondary behavior (such as setting an
-    inverse relationship or marking records as dirty).
-
-    The specific implementation will likely change as Ember proper provides
-    better infrastructure for suspending groups of observers, and if Array
-    observation becomes more unified with regular observers.
-
-    @method suspendRelationshipObservers
-    @private
-    @param callback
-    @param binding
-  */
-  suspendRelationshipObservers: function(callback, binding) {
-    var observers = get(this.constructor, 'relationshipNames').belongsTo;
-    var self = this;
-
-    try {
-      this._suspendedRelationships = true;
-      Ember._suspendObservers(self, observers, null, 'belongsToDidChange', function() {
-        Ember._suspendBeforeObservers(self, observers, null, 'belongsToWillChange', function() {
-          callback.call(binding || self);
-        });
-      });
-    } finally {
-      this._suspendedRelationships = false;
-    }
   },
 
   /**

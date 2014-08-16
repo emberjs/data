@@ -10,14 +10,14 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
     SuperVillain = DS.Model.extend({
       firstName:       DS.attr('string'),
       lastName:        DS.attr('string'),
-      homePlanet:      DS.belongsTo("homePlanet"),
+      homePlanet:      DS.belongsTo("homePlanet", {inverse: 'villains'}),
       secretLab:       DS.belongsTo("secretLab"),
       secretWeapons:   DS.hasMany("secretWeapon"),
       evilMinions:     DS.hasMany("evilMinion")
     });
     HomePlanet = DS.Model.extend({
       name:            DS.attr('string'),
-      villains:        DS.hasMany('superVillain')
+      villains:        DS.hasMany('superVillain', {inverse: 'homePlanet'})
     });
     SecretLab = DS.Model.extend({
       minionCapacity:  DS.attr('number'),
@@ -229,7 +229,7 @@ test("extractSingle with embedded objects inside embedded objects of same type",
 
 test("extractSingle with embedded objects of same type, but from separate attributes", function() {
   HomePlanet.reopen({
-    reformedVillains: DS.hasMany('superVillain')
+    reformedVillains: DS.hasMany('superVillain', {inverse: null})
   });
 
   env.container.register('adapter:home_planet', DS.ActiveModelAdapter);
@@ -1033,7 +1033,7 @@ test("serializing relationships with an embedded and without calls super when no
       calledSerializeHasMany = true;
       var key = relationship.key;
       var payloadKey = this.keyForRelationship ? this.keyForRelationship(key, "hasMany") : key;
-      var relationshipType = DS.RelationshipChange.determineRelationshipType(record.constructor, relationship);
+      var relationshipType = record.constructor.determineRelationshipType(relationship);
       // "manyToOne" not supported in DS.RESTSerializer.prototype.serializeHasMany
       var relationshipTypes = Ember.String.w('manyToNone manyToMany manyToOne');
       if (indexOf(relationshipTypes, relationshipType) > -1) {

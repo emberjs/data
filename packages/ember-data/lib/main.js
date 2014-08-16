@@ -12,9 +12,11 @@ import DS from "ember-data/core";
 import "ember-data/ext/date";
 
 import {
-  Store,
   PromiseArray,
   PromiseObject
+} from "ember-data/system/promise_proxies";
+import {
+  Store
 } from "ember-data/system/store";
 import {
   Model,
@@ -22,16 +24,6 @@ import {
   RootState,
   attr
 } from "ember-data/system/model";
-import {
-  AttributeChange,
-  RelationshipChange,
-  RelationshipChangeAdd,
-  RelationshipChangeRemove,
-  OneToManyChange,
-  ManyToNoneChange,
-  OneToOneChange,
-  ManyToManyChange
-} from "ember-data/system/changes";
 import {
   InvalidError,
   Adapter
@@ -79,16 +71,6 @@ DS.Model     = Model;
 DS.RootState = RootState;
 DS.attr      = attr;
 DS.Errors    = Errors;
-
-DS.AttributeChange          = AttributeChange;
-DS.RelationshipChange       = RelationshipChange;
-DS.RelationshipChangeAdd    = RelationshipChangeAdd;
-DS.RelationshipChangeRemove = RelationshipChangeRemove;
-DS.ManyToNoneChange         = ManyToNoneChange;
-DS.OneToManyChange          = OneToManyChange;
-DS.ManyToNoneChange         = OneToManyChange;
-DS.OneToOneChange           = OneToOneChange;
-DS.ManyToManyChange         = ManyToManyChange;
 
 DS.Adapter      = Adapter;
 DS.InvalidError = InvalidError;

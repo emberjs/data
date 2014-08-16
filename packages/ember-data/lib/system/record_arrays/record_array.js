@@ -2,7 +2,7 @@
   @module ember-data
 */
 
-import { PromiseArray } from "ember-data/system/store";
+import { PromiseArray } from "ember-data/system/promise_proxies";
 var get = Ember.get;
 
 /**
@@ -123,9 +123,17 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method addRecord
     @private
     @param {DS.Model} record
+    @param {DS.Model} an optional index to insert at
   */
-  addRecord: function(record) {
-    get(this, 'content').addObject(record);
+  addRecord: function(record, idx) {
+    var content = get(this, 'content');
+    if (idx === undefined) {
+      content.addObject(record);
+    } else {
+      if (!content.contains(record)) {
+       content.insertAt(idx, record);
+      }
+    }
   },
 
   /**

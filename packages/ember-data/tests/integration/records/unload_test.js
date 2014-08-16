@@ -80,6 +80,7 @@ test("unloading all records also updates record array from all()", function() {
 });
 
 
+//TODO(Igor) think about how this works with ssot and unloading
 test("unloading a record also clears it's relationship", function() {
   var adam = env.store.push('person', {
     id: 1,

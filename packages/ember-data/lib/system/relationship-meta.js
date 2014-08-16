@@ -26,10 +26,3 @@ export function relationshipFromMeta(store, meta) {
     isRelationship: true
   };
 }
-
-export function isSyncRelationship(record, relationshipName) {
-  var meta = Ember.meta(record);
-  var desc = meta.descs[relationshipName];
-
-  return desc && !desc._meta.options.async;
-}
