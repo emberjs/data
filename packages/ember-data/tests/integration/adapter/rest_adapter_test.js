@@ -856,7 +856,7 @@ test("findMany - findMany uses a correct URL to access the records", function() 
       { id: 3, name: "What is omakase?" }
     ]
   });
-  post.get('comments').then(async(function(comments) {
+  post.get('comments').findAll().then(async(function(comments) {
     equal(passedUrl, "/comments");
     deepEqual(passedHash, {data: {ids: ["1", "2", "3"]}});
   }));
@@ -876,7 +876,7 @@ test("findMany - findMany does not coalesce by default", function() {
       { id: 3, name: "What is omakase?" }
     ]
   });
-  post.get('comments').then(async(function(comments) {
+  post.get('comments').findAll().then(async(function(comments) {
     equal(passedUrl, "/comments/3");
     equal(passedHash, null);
   }));
@@ -897,7 +897,7 @@ test("findMany - returning an array populates the array", function() {
       ]
     });
 
-    return post.get('comments');
+    return post.get('comments').findAll();
   })).then(async(function(comments) {
     var comment1 = store.getById('comment', 1),
         comment2 = store.getById('comment', 2),
@@ -932,7 +932,7 @@ test("findMany - returning sideloaded data loads the data", function() {
       posts: [{ id: 2, name: "The Parley Letter" }]
     });
 
-    return post.get('comments');
+    return post.get('comments').findAll();
   })).then(async(function(comments) {
     var comment1 = store.getById('comment', 1),
         comment2 = store.getById('comment', 2),
@@ -975,7 +975,7 @@ test("findMany - a custom serializer is used if present", function() {
         { _ID_: 3, _NAME_: "What is omakase?" }]
     });
 
-    return post.get('comments');
+    return post.get('comments').findAll();
   })).then(async(function(comments) {
     var comment1 = store.getById('comment', 1),
         comment2 = store.getById('comment', 2),
@@ -1103,7 +1103,8 @@ test("findMany - a custom serializer is used if present", function() {
         { _ID_: 3, _NAME_: "What is omakase?" }
       ]
     });
-    return post.get('comments');
+
+    return post.get('comments').findAll();
   })).then(async(function(comments) {
     var comment1 = store.getById('comment', 1),
         comment2 = store.getById('comment', 2),
@@ -1235,7 +1236,7 @@ test('buildURL - buildURL takes the records from findMany', function() {
 
   var post = store.push('post', { id: 2, comments: [1,2,3] });
 
-  post.get('comments').then(async(function(post) {
+  post.get('comments').findAll().then(async(function(post) {
     equal(passedUrl, "/posts/2/comments/");
   }));
 });
