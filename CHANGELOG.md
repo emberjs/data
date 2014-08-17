@@ -2,7 +2,51 @@
 
 ### Master
 
+### Ember Data 1.0.0-beta.9 _(August 18, 2014)_
+
+* bring in ember-inflector 1.1.0
+* [DOCS] Add ids to RESTAdapter JSON payload examples
+* [Doc] Fix typo, your, not you in DS.Store#update method comments
+* [DOC] Add plural example for REST adapter.
+* Substitute serialize:no to serialize:false in EmbeddedRecordsMixin
+* Add support for JSONSerializer.attrs.key.serialize for `hasMany` and `belongsTo` relationships
+* Refactor hasMany code for comments and clarity
+* Batch hasMany requests with many id's to avoid max URL length issues
+* Expose embedded options
+* Changing an async belongsTo association does not load unfetched record.
+* [Bugfix] relationship changes shouldn’t cause async fetches
+* loosen constraint of adapter method return values
+* Move EmbeddedRecordsMixin to core from activemodel
+* Correct various yuidoc warnings to clean up some console noise when build the api docs
+* factor out promise usage
+* Do not serialize fixtures when deleting
+* Refactor JSON serializer to use _getMappedKey
+* Don't normalize the key if not present in the hash
+* Add serializeIntoHash to the JSON Serializer
+* prefer Object.create(null) for typeMap backing stores. Cache misses are faster, and won’t collide with prototype pollution
+* since the recordArrayManager already maintains the uniq index, we can use that to simply push the record onto the record array without needing the safety of addRecords dupe guard. This prevents another O(n) operation
+* the string splitting in transitionTo is wasteful and for large payloads can be surprisingly costly. As they never actually change, we should simply cache and forget about them.
+* Coalesce find requests, add support for preloading data
+* allow attributes to be excluded via the attrs hash
 * DS.DateTransform now serializes to ISO8601 format by default. Adds millisecond precision to serializing dates
+* Added id and requestType back to extract* hooks
+* Moved several normalize helper methods to the JSONSerializer - Move `normalizeAttributes` to the `JSONSerializer` (mirrors `serializeAttributes`) - Move `normalizeRelationships` to the `JSONSerializer` - Move `normalizePayload` to the `JSONSerializer`
+* Throw an error if a user attempts to add a `data` property to a subclass of DS.Model
+* Add a store.normalize() method to make it easy to normalize record data for store.push()
+* Add a test for embedded belongsTo with a custom primaryKey
+* Refactored EmbeddedRecordsMixin to push records instead of sideload
+* PERF: O(n) -> O(1) record within recordArray check
+* Add guard before deleting partial[attribute]
+* Fixes embedded hasMany primary key lookup.
+* Allow `attr` mapping in `belongsTo` & `hasMany` attributes;
+* Favour declared mapping over keyForAttribute, if defined;
+* improve debug ergonomics (as I debug)
+* rest_adapter: Remove unused `set` definition
+* Added documentation for ajaxError with DS.Errors.
+* updated '_links' to just 'links'
+* Better error for missing inverse on hasMany/belongsTo
+* adapt usage example for TemperatureTransform
+* [Bugfix] Decouple DS.EmbeddedRecordsMixin from DS.ActiveModelSerializer
 
 ### Ember Data 1.0.0-beta.8 _(May 28, 2014)_
 
