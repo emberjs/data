@@ -4,6 +4,9 @@
 
 ### Ember Data 1.0.0-beta.9 _(August 18, 2014)_
 
+**Important:** IE8 and other environments which don't support `Object.create`
+correctly will need a shim for Object.create.
+
 * bring in ember-inflector 1.1.0
 * [DOCS] Add ids to RESTAdapter JSON payload examples
 * [Doc] Fix typo, your, not you in DS.Store#update method comments
