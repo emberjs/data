@@ -985,7 +985,10 @@ test("findMany - a custom serializer is used if present", function() {
     deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });
     deepEqual(comment3.getProperties('id', 'name'), { id: "3", name: "What is omakase?" });
 
-    deepEqual(comments.toArray(), [ comment1, comment2, comment3 ], "The correct records are in the array");
+    deepEqual(
+      comments.toArray(),
+      [ comment1, comment2, comment3 ],
+      "The correct records are in the array");
   }));
 });
 
@@ -1024,7 +1027,10 @@ test("findHasMany - returning an array populates the array", function() {
     deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });
     deepEqual(comment3.getProperties('id', 'name'), { id: "3", name: "What is omakase?" });
 
-    deepEqual(comments.toArray(), [ comment1, comment2, comment3 ], "The correct records are in the array");
+    deepEqual(
+      comments.toArray(),
+      [ comment1, comment2, comment3 ],
+      "The correct records are in the array");
   }));
 });
 
@@ -1058,7 +1064,10 @@ test("findMany - returning sideloaded data loads the data", function() {
         comment3 = store.getById('comment', 3),
         post2    = store.getById('post', 2);
 
-    deepEqual(comments.toArray(), [ comment1, comment2, comment3 ], "The correct records are in the array");
+    deepEqual(
+      comments.toArray(),
+      [ comment1, comment2, comment3 ],
+      "The correct records are in the array");
 
     deepEqual(post2.getProperties('id', 'name'), { id: "2", name: "The Parley Letter" });
   }));
@@ -1104,7 +1113,10 @@ test("findMany - a custom serializer is used if present", function() {
     deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });
     deepEqual(comment3.getProperties('id', 'name'), { id: "3", name: "What is omakase?" });
 
-    deepEqual(comments.toArray(), [ comment1, comment2, comment3 ], "The correct records are in the array");
+    deepEqual(
+      comments.toArray(),
+      [ comment1, comment2, comment3 ],
+      "The correct records are in the array");
   }));
 });
 
