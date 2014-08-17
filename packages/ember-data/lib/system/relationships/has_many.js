@@ -46,7 +46,7 @@ function asyncHasMany(type, options, meta) {
     // Configure the metadata for the computed property to contain
     // the key.
     meta.key = key;
-
+    var asyncManyArray;
     var relationship = buildRelationship(this, key, options, function(store, data) {
       var link = data.links && data.links[key];
       var rel;
@@ -73,7 +73,8 @@ function asyncHasMany(type, options, meta) {
         var typeName = typeForRelationshipMeta(store, meta);
         var type = store.modelFor(typeName);
 
-        rel = store.recordArrayManager.createAsyncManyArray(type, data[key]);
+        asyncManyArray = store.recordArrayManager.createAsyncManyArray(type, data[key]);
+        rel = get(asyncManyArray, 'content');
         resolver.resolve();
         // rel = store.findMany(owner, data[key], typeForRelationshipMeta(store, meta), resolver);
       }
@@ -86,7 +87,7 @@ function asyncHasMany(type, options, meta) {
     });
 
     var promise = relationship.get('promise').then(function() {
-      return relationship;
+      return asyncManyArray;
     }, null, "DS: Async hasMany records received");
 
     return PromiseArray.create({

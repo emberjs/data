@@ -183,7 +183,7 @@ export default Ember.Object.extend({
     var recordsArray = Ember.A(records);
     var manyArray = AsyncManyArray.create({
       type: type,
-      content: recordsArray,
+      content: this.createManyArray(type, recordsArray),
       store: this.store
     });
 

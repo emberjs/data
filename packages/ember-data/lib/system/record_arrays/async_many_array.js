@@ -48,7 +48,7 @@ function sync(change) {
   @namespace DS
   @extends DS.RecordArray
 */
-export default ManyArray.extend({
+export default Ember.ArrayProxy.extend({
   /**
     Used for async `hasMany` arrays
     to keep track of when they will resolve.
@@ -59,19 +59,16 @@ export default ManyArray.extend({
   promise: null,
 
   isLoaded: Ember.computed('content.@each.isLoaded', function() {
-    console.log("isLoaded computed");
-
     var items = this.get('content');
     var itemsLoadStatus = items.every(function(item) {
-      console.log("item", item, item.get('isLoaded'));
       return item.get('isLoaded');
     });
 
-    console.log("loaded", itemsLoadStatus);
+    var content = get(this, 'content');
 
     if (itemsLoadStatus) {
-      set(this, 'isLoaded', true);
-      this.trigger('didLoad');
+      set(content, 'isLoaded', true);
+      content.trigger('didLoad');
     }
 
     return itemsLoadStatus;
@@ -83,7 +80,9 @@ export default ManyArray.extend({
 
     return Ember.RSVP.Promise.all(records.map(function(unloadedRecord) {
       return store._findByRecord(unloadedRecord);
-    }));
+    })).then(function() {
+      return records;
+    });
   },
 
   /**
@@ -106,5 +105,13 @@ export default ManyArray.extend({
     if (!record) { return; }
 
     return store._findByRecord(record);
+  },
+
+  addRecord: function(record) {
+    this.get('content').addRecord(record);
+  },
+
+  removeRecord: function(record) {
+    this.get('content').removeRecord(record);
   }
 });
