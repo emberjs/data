@@ -404,6 +404,7 @@ Store = Ember.Object.extend({
     @method find
     @param {String or subclass of DS.Model} type
     @param {Object|String|Integer|null} id
+    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
   find: function(type, id, preload) {
@@ -429,6 +430,7 @@ Store = Ember.Object.extend({
     @private
     @param {String or subclass of DS.Model} type
     @param {String|Integer} id
+    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
   findById: function(typeName, id, preload) {
