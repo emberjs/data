@@ -356,7 +356,7 @@ Store = Ember.Object.extend({
     You can optionally preload specific attributes and relationships that you know of
     by passing them as the third argument to find.
 
-    For example, if your Ember route looks like `/posts/1/comments/2` and you API route
+    For example, if your Ember route looks like `/posts/1/comments/2` and your API route
     for the comment also looks like `/posts/1/comments/2` if you want to fetch the comment
     without fetching the post you can pass in the post to the `find` call:
 
