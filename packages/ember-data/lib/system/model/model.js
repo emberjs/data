@@ -645,7 +645,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   },
 
   /**
-    When a find request is triggered on the store, the user can optionally passed in
+    When a find request is triggered on the store, the user can optionally pass in
     attributes and relationships to be preloaded. These are meant to behave as if they
     came back from the server, expect the user obtained them out of band and is informing
     the store of their existence. The most common use case is for supporting client side
