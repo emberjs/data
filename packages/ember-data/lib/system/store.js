@@ -2007,7 +2007,7 @@ function _commit(adapter, store, operation, record) {
     var payload;
 
     if (adapterPayload) {
-      payload = serializer.extract(store, type, adapterPayload, get(record, 'id'), operation);
+      payload = serializer.extract(store, type, adapterPayload, get(record, 'id'), operation, record);
     } else {
       payload = adapterPayload;
     }

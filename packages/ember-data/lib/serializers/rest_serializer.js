@@ -261,10 +261,17 @@ export default JSONSerializer.extend({
     @param {String} recordId
     @return {Object} the primary response to the original request
   */
-  extractSingle: function(store, primaryType, rawPayload, recordId) {
+  extractSingle: function(store, primaryType, rawPayload, recordId, requestType, record) {
     var payload = this.normalizePayload(rawPayload);
     var primaryTypeName = primaryType.typeKey;
     var primaryRecord;
+
+    if (record && !recordId) {
+      primaryRecord = this.extractPrimaryRecord(store, primaryType, payload, record);
+      if (primaryRecord) {
+        store.updateId(record, primaryRecord);
+      }
+    }
 
     for (var prop in payload) {
       var typeName  = this.typeForRoot(prop);
@@ -299,6 +306,38 @@ export default JSONSerializer.extend({
           primaryRecord = hash;
         } else {
           store.push(typeName, hash);
+        }
+      }, this);
+    }
+
+    return primaryRecord;
+  },
+
+  extractPrimaryRecord: function(store, primaryType, payload) {
+    var primaryTypeName = primaryType.typeKey;
+    var primaryRecord;
+    for (var prop in payload) {
+      var typeName  = this.typeForRoot(prop);
+      var type = store.modelFor(typeName);
+      var isPrimary = type.typeKey === primaryTypeName;
+      var value = payload[prop];
+
+      // legacy support for singular resources
+      if (isPrimary && Ember.typeOf(value) !== "array" ) {
+        primaryRecord = this.normalize(primaryType, value, prop);
+        return primaryRecord;
+      }
+      // end legacy support for singular resources
+
+      /*jshint loopfunc:true*/
+      forEach.call(value, function(hash) {
+        var isFirstCreatedRecord = isPrimary && !primaryRecord;
+        if (isFirstCreatedRecord) {
+          var typeName = this.typeForRoot(prop);
+          var type = store.modelFor(typeName);
+          var typeSerializer = store.serializerFor(type);
+          hash = typeSerializer.normalize(type, hash, prop);
+          primaryRecord = hash;
         }
       }, this);
     }
