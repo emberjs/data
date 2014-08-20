@@ -1211,11 +1211,11 @@ Store = Ember.Object.extend({
     var factory;
 
     if (typeof key === 'string') {
-      var normalizedKey = this.container.normalize('model:' + key);
-
-      factory = this.container.lookupFactory(normalizedKey);
-      if (!factory) { throw new Ember.Error("No model was found for '" + key + "'"); }
-      factory.typeKey = this._normalizeTypeKey(normalizedKey.split(':', 2)[1]);
+      factory = this.container.lookupFactory('model:' + key);
+      if (!factory) {
+        throw new Ember.Error("No model was found for '" + key + "'");
+      }
+      factory.typeKey = factory.typeKey || this._normalizeTypeKey(key);
     } else {
       // A factory already supplied. Ensure it has a normalized key.
       factory = key;
