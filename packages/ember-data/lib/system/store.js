@@ -1438,9 +1438,14 @@ Store = Ember.Object.extend({
     @return {Array}
   */
   pushMany: function(type, datas) {
-    return map(datas, function(data) {
-      return this.push(type, data);
-    }, this);
+    var length = datas.length;
+    var result = new Array(length);
+
+    for (var i = 0; i < length; i++) {
+      result[i] = this.push(type, datas[i]);
+    }
+
+    return result;
   },
 
   /**
