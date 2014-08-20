@@ -353,7 +353,7 @@ Store = Ember.Object.extend({
 
     ---
 
-    You can optionally preload specific attributes and relationships that you know of
+    You can optionally `preload` specific attributes and relationships that you know of
     by passing them as the third argument to find.
 
     For example, if your Ember route looks like `/posts/1/comments/2` and your API route
@@ -400,13 +400,6 @@ Store = Ember.Object.extend({
     This will ask the adapter's `findQuery` method to find the records for
     the query, and return a promise that will be resolved once the server
     responds.
-
-    When a find request is triggered on the store, the user can optionally pass in
-    attributes and relationships to be preloaded. These are meant to behave as if they
-    came back from the server, except the user obtained them out of band and is informing
-    the store of their existence. The most common use case is for supporting client side
-    nested URLs, such as `/posts/1/comments/2` so the user can do
-    `store.find('comment', 2, {post:1})` without having to fetch the post.
 
     @method find
     @param {String or subclass of DS.Model} type
