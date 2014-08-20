@@ -770,9 +770,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     if (!data) { return; }
 
-    this.suspendRelationshipObservers(function() {
-      this.notifyPropertyChange('data');
-    });
+    this._dataDidChange();
   },
 
   /**
@@ -846,9 +844,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     if (data) { this.pushedData(); }
 
-    this.suspendRelationshipObservers(function() {
-      this.notifyPropertyChange('data');
-    });
+    this._dataDidChange();
   },
 
   materializeId: function(id) {
@@ -915,7 +911,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     this.send('rolledBack');
 
-    this.suspendRelationshipObservers(function() {
+    this._dataDidChange();
+  },
+
+  _dataDidChange: function() {
+    this.suspendRelationshipObservers(function _dataDidChange_suspectRelationshipObservers() {
       this.notifyPropertyChange('data');
     });
   },
