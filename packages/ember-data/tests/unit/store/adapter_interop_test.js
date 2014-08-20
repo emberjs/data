@@ -417,7 +417,7 @@ test("initial values of hasMany can be passed in as the third argument to find a
   equal(store.getById(Person, 1).get('friends').toArray()[0].get('id'), '2', 'Preloaded hasMany set');
 });
 
-test("records inside a collection view should have their ids updated", function() {
+test("records should have their ids updated when the adapter returns the id data", function() {
   var Person = DS.Model.extend();
 
   var idCounter = 1;
@@ -431,21 +431,15 @@ test("records inside a collection view should have their ids updated", function(
     adapter: adapter
   });
 
-  var container = Ember.CollectionView.create({
-    content: store.all(Person)
-  });
-
-  container.appendTo('#qunit-fixture');
+  var people = store.all(Person);
 
   var tom = store.createRecord(Person, {name: 'Tom Dale'});
   var yehuda = store.createRecord(Person, {name: 'Yehuda Katz'});
 
   Ember.RSVP.all([ tom.save(), yehuda.save() ]).then(async(function() {
-    container.content.forEach(function(person, index) {
+    people.forEach(function(person, index) {
       equal(person.get('id'), index + 1, "The record's id should be correct.");
     });
-
-    container.destroy();
   }));
 });
 
