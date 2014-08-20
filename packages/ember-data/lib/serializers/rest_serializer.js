@@ -471,7 +471,7 @@ export default JSONSerializer.extend({
     @param {DS.Store} store
     @param {Object} payload
   */
-  pushPayload: function(store, rawPayload) {
+  pushPayload: function(store, rawPayload, _partial) {
     var payload = this.normalizePayload(rawPayload);
 
     for (var prop in payload) {
@@ -484,7 +484,7 @@ export default JSONSerializer.extend({
         return typeSerializer.normalize(type, hash, prop);
       }, this);
 
-      store.pushMany(typeName, normalizedArray);
+      store.pushMany(typeName, normalizedArray, _partial);
     }
   },
 
