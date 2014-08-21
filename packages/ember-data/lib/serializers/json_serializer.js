@@ -202,7 +202,6 @@ export default Ember.Object.extend({
       type.eachAttribute(function(key) {
         payloadKey = this.keyForAttribute(key);
         if (key === payloadKey) { return; }
-        if (!hash.hasOwnProperty(payloadKey)) { return; }
 
         hash[key] = hash[payloadKey];
         delete hash[payloadKey];
@@ -221,7 +220,6 @@ export default Ember.Object.extend({
       type.eachRelationship(function(key, relationship) {
         payloadKey = this.keyForRelationship(key, relationship.kind);
         if (key === payloadKey) { return; }
-        if (!hash.hasOwnProperty(payloadKey)) { return; }
 
         hash[key] = hash[payloadKey];
         delete hash[payloadKey];
