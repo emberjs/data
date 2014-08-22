@@ -322,24 +322,15 @@ export default JSONSerializer.extend({
       var isPrimary = type.typeKey === primaryTypeName;
       var value = payload[prop];
 
-      // legacy support for singular resources
-      if (isPrimary && Ember.typeOf(value) !== "array" ) {
-        primaryRecord = this.normalize(primaryType, value, prop);
-        return primaryRecord;
-      }
-      // end legacy support for singular resources
+      if (!isPrimary) { continue; }
 
-      /*jshint loopfunc:true*/
-      forEach.call(value, function(hash) {
-        var isFirstCreatedRecord = isPrimary && !primaryRecord;
-        if (isFirstCreatedRecord) {
-          var typeName = this.typeForRoot(prop);
-          var type = store.modelFor(typeName);
-          var typeSerializer = store.serializerFor(type);
-          hash = typeSerializer.normalize(type, hash, prop);
-          primaryRecord = hash;
-        }
-      }, this);
+      // legacy support for singular resources
+      if (Ember.typeOf(value) !== "array" ) {
+        primaryRecord = this.normalize(primaryType, value, prop);
+      } else if (value && value[0]) {
+        var typeSerializer = store.serializerFor(type);
+        primaryRecord = typeSerializer.normalize(type, value[0], prop);
+      }
     }
 
     return primaryRecord;
