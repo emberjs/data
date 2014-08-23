@@ -36,7 +36,7 @@ ContainerProxy.prototype.registerDeprecation = function(deprecated, valid) {
 };
 
 ContainerProxy.prototype.registerDeprecations = function(proxyPairs) {
-  var i, proxyPair, deprecated, valid, proxy;
+  var i, proxyPair, deprecated, valid;
 
   for (i = proxyPairs.length; i > 0; i--) {
     proxyPair = proxyPairs[i - 1];

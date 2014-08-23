@@ -4,7 +4,6 @@
 
 import { PromiseArray } from "ember-data/system/store";
 var get = Ember.get;
-var set = Ember.set;
 
 /**
   A record array is an array that contains records of a certain type. The record

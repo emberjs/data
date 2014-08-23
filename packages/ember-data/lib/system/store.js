@@ -465,7 +465,6 @@ Store = Ember.Object.extend({
   */
   findByIds: function(type, ids) {
     var store = this;
-    var promiseLabel = "DS: Store#findByIds " + type;
 
     return promiseArray(Ember.RSVP.all(map(ids, function(id) {
       return store.findById(type, id);
@@ -536,7 +535,6 @@ Store = Ember.Object.extend({
     var adapter = store.adapterFor(type);
     var shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
     var records = Ember.A(recordResolverPairs).mapBy('record');
-    var resolvers = Ember.A(recordResolverPairs).mapBy('resolver');
 
     function _fetchRecord(recordResolverPair) {
       recordResolverPair.resolver.resolve(store.fetchRecord(recordResolverPair.record));
@@ -1638,7 +1636,6 @@ Store = Ember.Object.extend({
   willDestroy: function() {
     var typeMaps = this.typeMaps;
     var keys = Ember.keys(typeMaps);
-    var store = this;
 
     var types = map(keys, byType);
 
@@ -1817,10 +1814,6 @@ function promiseArray(promise, label) {
   });
 }
 
-function isThenable(object) {
-  return object && typeof object.then === 'function';
-}
-
 function serializerFor(container, type, defaultSerializer) {
   return container.lookup('serializer:'+type) ||
                  container.lookup('serializer:application') ||
@@ -1904,8 +1897,6 @@ function _findMany(adapter, store, type, ids, records) {
   if (promise === undefined) {
     throw new Error('adapter.findMany returned undefined, this was very likely a mistake');
   }
-
-  var guardedPromise;
 
   promise = Promise.cast(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));

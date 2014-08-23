@@ -1,7 +1,6 @@
 import {RESTAdapter} from "ember-data/adapters";
 import {InvalidError} from "ember-data/system/adapter";
 import {pluralize} from "ember-inflector";
-import ActiveModelSerializer from "activemodel-adapter/system/active_model_serializer";
 
 /**
   @module ember-data

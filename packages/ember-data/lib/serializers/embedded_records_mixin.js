@@ -2,8 +2,6 @@ var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
 var camelize = Ember.String.camelize;
 
-import {pluralize} from "ember-inflector";
-
 /**
   ## Using Embedded Records
 
@@ -172,7 +170,6 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
   */
   serializeBelongsTo: function(record, json, relationship) {
     var attr = relationship.key;
-    var attrs = this.get('attrs');
     if (this.noSerializeOptionSpecified(attr)) {
       this._super(record, json, relationship);
       return;
@@ -282,7 +279,6 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
   */
   serializeHasMany: function(record, json, relationship) {
     var attr = relationship.key;
-    var attrs = this.get('attrs');
     if (this.noSerializeOptionSpecified(attr)) {
       this._super(record, json, relationship);
       return;
@@ -357,8 +353,6 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
   // checks config for attrs option to serialize records
   noSerializeOptionSpecified: function(attr) {
     var option = this.attrsOption(attr);
-    var serializeRecords = this.hasSerializeRecordsOption(attr);
-    var serializeIds = this.hasSerializeIdsOption(attr);
     return !(option && (option.serialize || option.embedded));
   },
 

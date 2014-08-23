@@ -3,8 +3,6 @@
 */
 
 var get = Ember.get;
-var set = Ember.set;
-var map = Ember.ArrayPolyfills.map;
 
 var errorProps = [
   'description',
