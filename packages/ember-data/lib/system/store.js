@@ -1293,8 +1293,8 @@ Store = Ember.Object.extend({
     // _partial is an internal param used by `update`.
     // If passed, it means that the data should be
     // merged into the existing data, not replace it.
-
-    Ember.assert("You must include an `id` for " + typeName+ " in a hash passed to `push`", data.id != null);
+    Ember.assert("Expected an object as `data` in a call to push for " + typeName + " , but was " + data, Ember.typeOf(data) === 'object');
+    Ember.assert("You must include an `id` for " + typeName + " in an object passed to `push`", data.id != null);
 
     var type = this.modelFor(typeName);
 
