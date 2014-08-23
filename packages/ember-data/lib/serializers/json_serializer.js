@@ -110,7 +110,7 @@ export default Ember.Object.extend({
    @return {Object} data The transformed data object
   */
   applyTransforms: function(type, data) {
-    type.eachTransformedAttribute(function(key, type) {
+    type.eachTransformedAttribute(function applyTransform(key, type) {
       if (!data.hasOwnProperty(key)) { return; }
 
       var transform = this.transformFor(type);
