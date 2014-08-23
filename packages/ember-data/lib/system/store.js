@@ -353,7 +353,7 @@ Store = Ember.Object.extend({
 
     ---
 
-    You can optionally preload specific attributes and relationships that you know of
+    You can optionally `preload` specific attributes and relationships that you know of
     by passing them as the third argument to find.
 
     For example, if your Ember route looks like `/posts/1/comments/2` and your API route
@@ -404,6 +404,7 @@ Store = Ember.Object.extend({
     @method find
     @param {String or subclass of DS.Model} type
     @param {Object|String|Integer|null} id
+    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
   find: function(type, id, preload) {
@@ -429,6 +430,7 @@ Store = Ember.Object.extend({
     @private
     @param {String or subclass of DS.Model} type
     @param {String|Integer} id
+    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
   findById: function(typeName, id, preload) {
