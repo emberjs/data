@@ -80,13 +80,15 @@ DS.RootState = RootState;
 DS.attr      = attr;
 DS.Errors    = Errors;
 
-DS.AttributeChange       = AttributeChange;
-DS.RelationshipChange    = RelationshipChange;
-DS.RelationshipChangeAdd = RelationshipChangeAdd;
-DS.OneToManyChange       = OneToManyChange;
-DS.ManyToNoneChange      = OneToManyChange;
-DS.OneToOneChange        = OneToOneChange;
-DS.ManyToManyChange      = ManyToManyChange;
+DS.AttributeChange          = AttributeChange;
+DS.RelationshipChange       = RelationshipChange;
+DS.RelationshipChangeAdd    = RelationshipChangeAdd;
+DS.RelationshipChangeRemove = RelationshipChangeRemove;
+DS.ManyToNoneChange         = ManyToNoneChange;
+DS.OneToManyChange          = OneToManyChange;
+DS.ManyToNoneChange         = OneToManyChange;
+DS.OneToOneChange           = OneToOneChange;
+DS.ManyToManyChange         = ManyToManyChange;
 
 DS.Adapter      = Adapter;
 DS.InvalidError = InvalidError;

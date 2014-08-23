@@ -1,4 +1,3 @@
-import { singularize } from "ember-inflector/system";
 import {
   typeForRelationshipMeta,
   relationshipFromMeta
@@ -6,7 +5,6 @@ import {
 import { Model } from "ember-data/system/model";
 
 var get = Ember.get;
-var set = Ember.set;
 
 /**
   @module ember-data

@@ -173,18 +173,6 @@ var set = Ember.set;
   @class RootState
 */
 
-function hasDefinedProperties(object) {
-  // Ignore internal property defined by simulated `Ember.create`.
-  var names = Ember.keys(object);
-  var i, l, name;
-  for (i = 0, l = names.length; i < l; i++ ) {
-    name = names[i];
-    if (object.hasOwnProperty(name) && object[name]) { return true; }
-  }
-
-  return false;
-}
-
 function didSetProperty(record, context) {
   if (context.value === context.originalValue) {
     delete record._attributes[context.name];
@@ -259,12 +247,8 @@ var DirtyState = {
     loadingData: Ember.K,
 
     propertyWasReset: function(record, name) {
-      var stillDirty = false;
-
-      for (var prop in record._attributes) {
-        stillDirty = true;
-        break;
-      }
+      var length = Ember.keys(record._attributes);
+      var stillDirty = length > 0;
 
       if (!stillDirty) { record.send('rolledBack'); }
     },

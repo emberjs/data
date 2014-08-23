@@ -1,6 +1,5 @@
 import { RelationshipChange } from "ember-data/system/changes";
 var get = Ember.get;
-var set = Ember.set;
 var isNone = Ember.isNone;
 var map = Ember.ArrayPolyfills.map;
 var merge = Ember.merge;
@@ -196,7 +195,7 @@ export default Ember.Object.extend({
     @private
   */
   normalizeAttributes: function(type, hash) {
-    var payloadKey, key;
+    var payloadKey;
 
     if (this.keyForAttribute) {
       type.eachAttribute(function(key) {
@@ -215,7 +214,7 @@ export default Ember.Object.extend({
     @private
   */
   normalizeRelationships: function(type, hash) {
-    var payloadKey, key;
+    var payloadKey;
 
     if (this.keyForRelationship) {
       type.eachRelationship(function(key, relationship) {

@@ -4,7 +4,6 @@
 
 import JSONSerializer from "ember-data/serializers/json_serializer";
 var get = Ember.get;
-var set = Ember.set;
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var camelize = Ember.String.camelize;
