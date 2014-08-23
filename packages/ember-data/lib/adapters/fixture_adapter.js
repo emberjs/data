@@ -323,15 +323,16 @@ export default Adapter.extend({
     var adapter = this;
 
     return new Ember.RSVP.Promise(function(resolve) {
+      var value = Ember.copy(callback.call(context), true);
       if (get(adapter, 'simulateRemoteResponse')) {
         // Schedule with setTimeout
         Ember.run.later(function() {
-          resolve(callback.call(context));
+          resolve(value);
         }, get(adapter, 'latency'));
       } else {
         // Asynchronous, but at the of the runloop with zero latency
         Ember.run.schedule('actions', null, function() {
-          resolve(callback.call(context));
+          resolve(value);
         });
       }
     }, "DS: FixtureAdapter#simulateRemoteCall");

@@ -261,3 +261,35 @@ test("should throw if ids are not defined in the FIXTURES", function() {
     ok(false, "should not get here");
   });
 });
+
+asyncTest("copies fixtures instead of passing the direct reference", function(){
+  var returnedFixture;
+
+  expect(2);
+
+  Person.FIXTURES = [{
+    id: '1',
+    firstName: 'Katie',
+    lastName: 'Gengler'
+  }];
+
+  var PersonAdapter = DS.FixtureAdapter.extend({
+    find: function(store, type, id){
+      return this._super(store, type, id).then(function(fixture){
+        return returnedFixture = fixture;
+      });
+    }
+  });
+
+  Ember.run(function(){
+    env.container.register('adapter:person', PersonAdapter);
+  });
+
+  env.store.find('person', 1).then(function(){
+    start();
+    ok(Person.FIXTURES[0] !== returnedFixture, 'returnedFixture does not have object identity with defined fixture');
+    deepEqual(Person.FIXTURES[0], returnedFixture);
+  }, function(err){
+    ok(false, 'got error' + err);
+  });
+});
