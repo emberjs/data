@@ -316,3 +316,23 @@ test("Calling pushPayload without a type should use a model's serializer when no
 
   equal(person.get('firstName'), "Yehuda", "you can push raw JSON into the store");
 });
+
+test('calling push without data argument as an object raises an error', function(){
+  var invalidValues = [
+    undefined,
+    null,
+    1,
+    'string',
+    Ember.Object.create(),
+    Ember.Object.extend(),
+    true
+  ];
+
+  expect(invalidValues.length);
+
+  Ember.EnumerableUtils.forEach(invalidValues, function(invalidValue){
+    throws(function(){
+      store.push('person', invalidValue);
+    }, /object/);
+  });
+});
