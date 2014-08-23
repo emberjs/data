@@ -22,6 +22,11 @@ import {pluralize} from "ember-inflector";
     }
   })
   ```
+  Note that this use of `{embedded: 'always'}` is unrelated to
+  the `{embedded: 'always'}` that is defined as an option on `DS.attr` as part of
+  defining a model while working with the ActiveModelSerializer.  Nevertheless,
+  using `{embedded: 'always'}` as an option to DS.attr is not a valid way to setup
+  embedded records.
 
   The `attrs` option for a resource `{embedded: 'always'}` is shorthand for:
 
@@ -55,7 +60,11 @@ import {pluralize} from "ember-inflector";
 
   ### Model Relationships
 
-  Embedded records must have a model defined to be extracted and serialized.
+  Embedded records must have a model defined to be extracted and serialized. Note that
+  when defining any relationships on your model such as `belongsTo` and `hasMany`, you
+  should not both specify `async:true` and also indicate through the serializer's
+  `attrs` attribute that the related model should be embedded.  If a model is
+  declared embedded, then do not use `async:true`.
 
   To successfully extract and serialize embedded records the model relationships
   must be setup correcty See the
