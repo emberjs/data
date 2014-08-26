@@ -1056,15 +1056,30 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @private
   */
   adapterDidInvalidate: function(errors) {
-    var recordErrors = get(this, 'errors');
-    function addError(name) {
-      if (errors[name]) {
-        recordErrors.add(name, errors[name]);
+    var recordErrors = get(this, 'errors'),
+        store = get(this, 'store'),
+        serializer = store.serializerFor(this.constructor.typeKey);
+
+    serializer.normalizeUsingDeclaredMapping(this.constructor, errors);
+
+    function addError(name, key) {
+      if (errors[name, key]) {
+        recordErrors.add(name, errors[key]);
       }
     }
 
-    this.eachAttribute(addError);
-    this.eachRelationship(addError);
+    function addAttributeError(name) {
+      var key = serializer.errorKeyForAttribute(name);
+      addError(name, key);
+    }
+
+    function addRelationshipError(name) {
+      var key = serializer.errorKeyForRelationship(name);
+      addError(name, key);
+    }
+
+    this.eachAttribute(addAttributeError);
+    this.eachRelationship(addRelationshipError);
   },
 
   /**

@@ -131,6 +131,29 @@ var ActiveModelSerializer = RESTSerializer.extend({
     }
   },
 
+  /**
+    Converts camelCased attributes to underscored when looking up error keys.
+
+    @method errorKeyForAttribute
+    @param {String} attribute or relationship name
+    @return String
+  */
+  errorKeyForAttribute: function(name) {
+    return this.keyForAttribute(name);
+  },
+
+  /**
+    Converts camelCased relationships to underscored when looking up error keys.
+
+    @method errorKeyForRelationship
+    @param {String} attribute or relationship name
+    @param {String} kind The kind of relationship, e.g., belongsTo/hasMany
+    @return String
+  */
+  errorKeyForRelationship: function(name, kind) {
+    return this.keyForRelationship(name, kind);
+  },
+
   /*
     Does not serialize hasMany relationships by default.
   */

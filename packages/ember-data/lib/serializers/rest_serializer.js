@@ -721,7 +721,7 @@ export default JSONSerializer.extend({
   serializePolymorphicType: function(record, json, relationship) {
     var key = relationship.key;
     var belongsTo = get(record, key);
-    key = this.keyForAttribute ? this.keyForAttribute(key) : key;
+    key = this.keyForAttribute(key);
     if (Ember.isNone(belongsTo)) {
       json[key + "Type"] = null;
     } else {

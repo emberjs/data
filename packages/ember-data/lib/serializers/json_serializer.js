@@ -197,16 +197,14 @@ export default Ember.Object.extend({
   normalizeAttributes: function(type, hash) {
     var payloadKey;
 
-    if (this.keyForAttribute) {
-      type.eachAttribute(function(key) {
-        payloadKey = this.keyForAttribute(key);
-        if (key === payloadKey) { return; }
-        if (!hash.hasOwnProperty(payloadKey)) { return; }
+    type.eachAttribute(function(key) {
+      payloadKey = this.keyForAttribute(key);
+      if (key === payloadKey) { return; }
+      if (!hash.hasOwnProperty(payloadKey)) { return; }
 
-        hash[key] = hash[payloadKey];
-        delete hash[payloadKey];
-      }, this);
-    }
+      hash[key] = hash[payloadKey];
+      delete hash[payloadKey];
+    }, this);
   },
 
   /**
@@ -1015,6 +1013,29 @@ export default Ember.Object.extend({
 
   keyForRelationship: function(key, type){
     return key;
+  },
+
+  /**
+    Converts camelCased attributes to underscored when looking up error keys.
+
+    @method errorKeyForAttribute
+    @param {String} attribute or relationship name
+    @return String
+  */
+  errorKeyForAttribute: function(name) {
+    return name;
+  },
+
+  /**
+    Converts camelCased relationships to underscored when looking up error keys.
+
+    @method errorKeyForRelationship
+    @param {String} attribute or relationship name
+    @param {String} kind The kind of relationship, e.g., belongsTo/hasMany
+    @return String
+  */
+  errorKeyForRelationship: function(name, kind) {
+    return name;
   },
 
   // HELPERS
