@@ -1245,6 +1245,30 @@ test('buildURL - buildURL takes a record from create', function() {
   }));
 });
 
+test('buildURL - buildURL takes a record from create to query a resolved async belongsTo relationship', function() {
+  Comment.reopen({ post: DS.belongsTo('post', {async: true}) });
+
+  ajaxResponse({ posts: [{ id: 2 }] });
+
+  store.find('post', 2).then(async(function(post) {
+    equal(post.get('id'), 2);
+
+    adapter.buildURL = function(type, id, record) {
+      return "/posts/" + record.get('post.id') + '/comments/';
+    };
+
+    ajaxResponse({ comments: [{ id: 1 }] });
+
+    var comment = store.createRecord('comment');
+    comment.set('post', post);
+    comment.save().then(async(function(post) {
+      equal(passedUrl, "/posts/2/comments/");
+    }));
+
+  }));
+
+});
+
 test('buildURL - buildURL takes a record from update', function() {
   Comment.reopen({ post: DS.belongsTo('post') });
   adapter.buildURL = function(type, id, record) {

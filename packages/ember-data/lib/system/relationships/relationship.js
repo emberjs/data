@@ -229,7 +229,12 @@ BelongsToRelationship.prototype.getRecord = function() {
         return record;
       });
     } else if (this.inverseRecord) {
-      promise = this.store._findByRecord(this.inverseRecord);
+      var record = this.inverseRecord;
+      if (record.get('isEmpty') || record.get('isLoading')) {
+        promise = this.store._findByRecord(record);
+      } else {
+        promise = Ember.RSVP.resolve(record);
+      }
     } else {
       promise = Ember.RSVP.Promise.resolve(null);
     }
