@@ -74,9 +74,9 @@ var camelize = Ember.String.camelize;
 
   ### Example JSON payloads, Models and Serializers
 
-  **When customizing a serializer it is imporant to grok what the cusomizations
-  are, please read the docs for the methods this mixin provides, in case you need
-  to modify to fit your specific needs.**
+  **When customizing a serializer it is important to grok what the customizations
+  are. Please read the docs for the methods this mixin provides, in case you need
+  to modify it to fit your specific needs.**
 
   For example review the docs for each method of this mixin:
   * [normalize](/api/data/classes/DS.EmbeddedRecordsMixin.html#method_normalize)
