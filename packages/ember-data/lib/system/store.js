@@ -734,7 +734,8 @@ Store = Ember.Object.extend({
     @param {DS.Model} owner
     @param {any} link
     @param {String or subclass of DS.Model} type
-    @return {Promise} promise
+    @param {Resolver} resolver
+    @return {DS.ManyArray}
   */
   findHasMany: function(owner, link, relationship, resolver) {
     var adapter = this.adapterFor(owner.constructor);
@@ -1926,6 +1927,7 @@ function _findHasMany(adapter, store, record, link, relationship) {
 
     var records = store.pushMany(relationship.type, payload);
     record.updateHasMany(relationship.key, records);
+    return records;
   }, null, "DS: Extract payload of " + record + " : hasMany " + relationship.type);
 }
 
