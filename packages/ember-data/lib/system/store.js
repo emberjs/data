@@ -5,6 +5,7 @@
   @module ember-data
 */
 
+import PromiseArray from "ember-data/system/store/promise_array";
 import {
   InvalidError,
   Adapter
@@ -20,7 +21,7 @@ var indexOf = Ember.EnumerableUtils.indexOf;
 var map = Ember.EnumerableUtils.map;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
-var Store, PromiseObject, PromiseArray, RecordArrayManager, Model;
+var Store, PromiseObject, RecordArrayManager, Model;
 
 var camelize = Ember.String.camelize;
 
@@ -434,10 +435,15 @@ Store = Ember.Object.extend({
     @return {Promise} promise
   */
   findById: function(typeName, id, preload) {
-    var fetchedRecord;
-
     var type = this.modelFor(typeName);
     var record = this.recordForId(type, id);
+
+    return this._findByRecord(record, preload);
+  },
+
+  _findByRecord: function(record, preload) {
+    var fetchedRecord;
+
 
     if (preload) {
       record._preloadData(preload);
@@ -450,7 +456,7 @@ Store = Ember.Object.extend({
       fetchedRecord = record._loadingPromise;
     }
 
-    return promiseObject(fetchedRecord || record, "DS: Store#findById " + type + " with id: " + id);
+    return promiseObject(fetchedRecord || record, "DS: Store#findById " + record.typeKey + " with id: " + get(record, 'id'));
   },
 
   /**
@@ -1740,37 +1746,6 @@ function uniqById(data, records) {
   });
 }
 
-// Delegation to the adapter and promise management
-/**
-  A `PromiseArray` is an object that acts like both an `Ember.Array`
-  and a promise. When the promise is resolved the resulting value
-  will be set to the `PromiseArray`'s `content` property. This makes
-  it easy to create data bindings with the `PromiseArray` that will be
-  updated when the promise resolves.
-
-  For more information see the [Ember.PromiseProxyMixin
-  documentation](/api/classes/Ember.PromiseProxyMixin.html).
-
-  Example
-
-  ```javascript
-  var promiseArray = DS.PromiseArray.create({
-    promise: $.getJSON('/some/remote/data.json')
-  });
-
-  promiseArray.get('length'); // 0
-
-  promiseArray.then(function() {
-    promiseArray.get('length'); // 100
-  });
-  ```
-
-  @class PromiseArray
-  @namespace DS
-  @extends Ember.ArrayProxy
-  @uses Ember.PromiseProxyMixin
-*/
-PromiseArray = Ember.ArrayProxy.extend(Ember.PromiseProxyMixin);
 /**
   A `PromiseObject` is an object that acts like both an `Ember.Object`
   and a promise. When the promise is resolved, then the resulting value

@@ -6,7 +6,8 @@ import {
   RecordArray,
   FilteredRecordArray,
   AdapterPopulatedRecordArray,
-  ManyArray
+  ManyArray,
+  AsyncManyArray
 } from "ember-data/system/record_arrays";
 var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
@@ -169,6 +170,23 @@ export default Ember.Object.extend({
     });
 
     forEach(records, function(record) {
+      var arrays = this.recordArraysForRecord(record);
+      arrays.add(manyArray);
+    }, this);
+
+    return manyArray;
+  },
+
+  createAsyncManyArray: function(type, records) {
+    //TODO Figure out whether we should wrap here on before
+    var recordsArray = Ember.A(records);
+    var manyArray = AsyncManyArray.create({
+      type: type,
+      content: this.createManyArray(type, recordsArray),
+      store: this.store
+    });
+
+    forEach(recordsArray, function(record) {
       var arrays = this.recordArraysForRecord(record);
       arrays.add(manyArray);
     }, this);
