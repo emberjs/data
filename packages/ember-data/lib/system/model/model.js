@@ -758,7 +758,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     set(this, 'isError', false);
 
     if (data) {
-      this._data = data;
+      this.setData(data);
     } else {
       Ember.mixin(this._data, this._inFlightAttributes);
     }
@@ -829,11 +829,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
       the existing data, not replace it.
   */
   setupData: function(data, partial) {
-    if (partial) {
-      Ember.merge(this._data, data);
-    } else {
-      this._data = data;
-    }
+    this.setData(data, partial);
 
     var relationships = this._relationships;
 
@@ -845,6 +841,14 @@ var Model = Ember.Object.extend(Ember.Evented, {
     if (data) { this.pushedData(); }
 
     this._dataDidChange();
+  },
+
+  setData: function(data, partial) {
+    if (partial) {
+      merge(this._data, data);
+    } else {
+      this._data = data;
+    }
   },
 
   materializeId: function(id) {
