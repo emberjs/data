@@ -93,7 +93,7 @@ Relationship.prototype = {
   updateRecordsFromAdapter: function(records) {
     //TODO Keep the newlyCreated records
     //TODO(Igor) Think about the ordering
-    var delta = this.computeChanges(records);
+    this.computeChanges(records);
   }
 };
 
@@ -107,8 +107,8 @@ var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
 };
 
 ManyRelationship.prototype = Object.create(Relationship.prototype);
-
 ManyRelationship.prototype.constructor = ManyRelationship;
+
 ManyRelationship.prototype.destroy = function() {
   this.manyArray.destroy();
 };
@@ -160,7 +160,7 @@ var BelongsToRelationship = function(store, record, inverseKey, relationshipMeta
 };
 
 BelongsToRelationship.prototype = Object.create(Relationship.prototype);
-ManyRelationship.prototype.constructor = BelongsToRelationship;
+BelongsToRelationship.prototype.constructor = BelongsToRelationship;
 
 BelongsToRelationship.prototype.setRecord = function(newRecord) {
   if (newRecord) {
@@ -180,7 +180,7 @@ BelongsToRelationship.prototype.addRecord = function(newRecord) {
   }
 
   this.inverseRecord = newRecord;
-  this.constructor.prototype.addRecord.call(this, newRecord);
+  Relationship.prototype.addRecord.call(this, newRecord);
 };
 
 BelongsToRelationship.prototype.notifyRecordRelationshipAdded = function(newRecord) {
@@ -193,7 +193,7 @@ BelongsToRelationship.prototype.notifyRecordRelationshipRemoved = function(recor
 
 BelongsToRelationship.prototype.removeRecord = function(record) {
   if (!this.members.has(record)){ return;}
-  this.constructor.prototype.removeRecord.call(this, record);
+  Relationship.prototype.removeRecord.call(this, record);
   this.inverseRecord = null;
 };
 
