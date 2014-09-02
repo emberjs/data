@@ -105,6 +105,11 @@ function asyncBelongsTo(type, options, meta) {
   @return {Ember.computed} relationship
 */
 function belongsTo(type, options) {
+  var isPolymorphic;
+  if (options && options.hasOwnProperty('polymorphic')) {
+    isPolymorphic = options.polymorphic;
+  }
+
   if (typeof type === 'object') {
     options = type;
     type = undefined;
@@ -138,7 +143,9 @@ function belongsTo(type, options) {
     }
 
     if (arguments.length === 2) {
-      Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof typeClass);
+      if (!isPolymorphic) {
+        Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof typeClass);
+      }
       return value === undefined ? null : value;
     }
 

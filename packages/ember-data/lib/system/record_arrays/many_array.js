@@ -129,7 +129,13 @@ export default RecordArray.extend({
   replaceContent: function(index, removed, added) {
     // Map the array of record objects into an array of  client ids.
     added = map(added, function(record) {
-      Ember.assert("You cannot add '" + record.constructor.typeKey + "' records to this relationship (only '" + this.type.typeKey + "' allowed)", !this.type || record instanceof this.type);
+      var polymorphicType;
+      if (this.isPolymorphic && record.get('type')) {
+        polymorphicType = this.store.modelFor(record.get('type'));
+        Ember.assert("You cannot add '" + record.constructor.typeKey + "' records to this relationship (only '" + polymorphicType.typeKey + "' allowed)", !polymorphicType || record instanceof polymorphicType);
+      } else {
+        Ember.assert("You cannot add '" + record.constructor.typeKey + "' records to this relationship (only '" + this.type.typeKey + "' allowed)", !this.type || record instanceof this.type);
+      }
       return record;
     }, this);
 
