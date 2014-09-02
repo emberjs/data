@@ -239,19 +239,19 @@ function setForArray(array) {
   return set;
 }
 
-var createRelationshipFor = function(record, knownSide, store){
+var createRelationshipFor = function(record, relationshipMeta, store){
   var inverseKey;
-  var inverse = record.constructor.inverseFor(knownSide.key);
+  var inverse = record.constructor.inverseFor(relationshipMeta.key);
 
   if (inverse) {
     inverseKey = inverse.name;
   }
 
-  if (knownSide.kind === 'hasMany'){
-    return new ManyRelationship(store, record, inverseKey, knownSide);
+  if (relationshipMeta.kind === 'hasMany'){
+    return new ManyRelationship(store, record, inverseKey, relationshipMeta);
   }
   else {
-    return new BelongsToRelationship(store, record, inverseKey, knownSide);
+    return new BelongsToRelationship(store, record, inverseKey, relationshipMeta);
   }
 };
 
