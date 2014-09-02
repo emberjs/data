@@ -99,6 +99,28 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
   equal(post.get('everyoneWeKnowComments.length'), 0, "everyoneWeKnowComments has no posts");
 });
 
+test("When a record's async belongsTo relationship is set, it can update the inverse relationship", function() {
+  Post = DS.Model.extend({
+    comments: DS.hasMany('comment', { async: true}),
+  });
+
+  Comment = DS.Model.extend({
+    post: DS.belongsTo('post', { async: true })
+  });
+
+  var env = setupStore({ post: Post, comment: Comment }),
+      store = env.store;
+
+  var comment = store.push('comment', {id: 2});
+  var post = store.push('post', {id: 1});
+
+  equal(post.get('comments.length'), 0, "comments has no posts");
+
+  comment.set('post', post);
+
+  equal(post.get('comments.length'), 1, "comments had the post added");
+});
+
 test("When a record is added to or removed from a polymorphic has-many relationship, the inverse belongsTo can be set explicitly", function() {
   User = DS.Model.extend({
     messages: DS.hasMany('message', {
