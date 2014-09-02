@@ -79,7 +79,7 @@ function belongsTo(type, options) {
       this._relationships[key].setRecord(value);
     }
 
-    return this._relationships[key].getValue();
+    return this._relationships[key].getRecord();
   }).meta(meta);
 }
 

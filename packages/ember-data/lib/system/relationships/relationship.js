@@ -122,7 +122,7 @@ ManyRelationship.prototype.notifyRecordRelationshipRemoved = function(record) {
   this.record.notifyHasManyRemoved(this.key, record);
 };
 
-ManyRelationship.prototype.getValue = function() {
+ManyRelationship.prototype.getRecords = function() {
   if (this.isAsync) {
     var self = this;
     var promise;
@@ -201,7 +201,7 @@ BelongsToRelationship.prototype.currentOtherSideFor = function() {
   return this.inverseRecord;
 };
 
-BelongsToRelationship.prototype.getValue = function() {
+BelongsToRelationship.prototype.getRecord = function() {
   if (this.isAsync) {
     var promise;
 
