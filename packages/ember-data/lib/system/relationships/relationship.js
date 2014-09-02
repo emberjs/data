@@ -90,7 +90,7 @@ Relationship.prototype = {
     }
   },
 
-  updateRecordsFromServer: function(records) {
+  updateRecordsFromAdapter: function(records) {
     //TODO Keep the newlyCreated records
     //TODO(Igor) Think about the ordering
     var delta = this.computeChanges(records);
@@ -128,7 +128,7 @@ ManyRelationship.prototype.getRecords = function() {
     var promise;
     if (this.link && !this.hasFetchedLink) {
       promise = this.store.findHasMany(this.record, this.link, this.belongsToType).then(function(records){
-        self.updateRecordsFromServer(records);
+        self.updateRecordsFromAdapter(records);
         self.hasFetchedLink = true;
         //TODO(Igor) try to abstract the isLoaded part
         self.manyArray.set('isLoaded', true);
