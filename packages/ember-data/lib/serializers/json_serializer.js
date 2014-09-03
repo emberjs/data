@@ -706,6 +706,7 @@ export default Ember.Object.extend({
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
+    @param record
     @return {Object} json The deserialized payload
   */
   extract: function(store, type, payload, id, requestType, record) {
@@ -791,6 +792,7 @@ export default Ember.Object.extend({
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
+    @param record
     @return {Object} json The deserialized payload
   */
   extractCreateRecord: function(store, type, payload, id, requestType, record) {
@@ -872,6 +874,7 @@ export default Ember.Object.extend({
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
+    @param record
     @return {Object} json The deserialized payload
   */
   extractSave: function(store, type, payload, id, requestType, record) {

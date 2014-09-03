@@ -259,6 +259,8 @@ export default JSONSerializer.extend({
     @param {subclass of DS.Model} primaryType
     @param {Object} payload
     @param {String} recordId
+    @param {String} requestType
+    @param record
     @return {Object} the primary response to the original request
   */
   extractSingle: function(store, primaryType, rawPayload, recordId, requestType, record) {
@@ -267,7 +269,7 @@ export default JSONSerializer.extend({
     var primaryRecord;
 
     if (record && !recordId) {
-      primaryRecord = this.extractPrimaryRecord(store, primaryType, payload, record);
+      primaryRecord = this.extractPrimaryRecord(store, primaryType, payload);
       if (primaryRecord) {
         store.updateId(record, primaryRecord);
       }

@@ -389,7 +389,7 @@ test("create - response can contain relationships the client doesn't yet know ab
 
   var post = store.createRecord('post', { name: "Rails is omakase" });
 
-  post.save().then(async(function(comment) {
+  post.save().then(async(function(post) {
     equal(post.get('comments.firstObject.post'), post, "the comments are related to the correct post model");
     equal(store.typeMapFor(Post).records.length, 1, "There should only be one post record");
   }));
