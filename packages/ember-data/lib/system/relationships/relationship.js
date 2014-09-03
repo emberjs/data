@@ -24,7 +24,7 @@ Relationship.prototype = {
   },
 
   computeChanges: function(records) {
-     var  members = this.members;
+     var members = this.members;
 
     records = setForArray(records);
 
@@ -98,7 +98,7 @@ Relationship.prototype = {
 };
 
 var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
-  Relationship.apply(this, arguments);
+  this._super$constructor(store, record, inverseKey, relationshipMeta);
   this.belongsToType = relationshipMeta.type;
   this.manyArray = store.recordArrayManager.createManyArray(this.belongsToType, Ember.A());
   this.manyArray.relationship = this;
@@ -108,6 +108,7 @@ var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
 
 ManyRelationship.prototype = Object.create(Relationship.prototype);
 ManyRelationship.prototype.constructor = ManyRelationship;
+ManyRelationship.prototype._super$constructor = Relationship;
 
 ManyRelationship.prototype.destroy = function() {
   this.manyArray.destroy();
@@ -151,7 +152,7 @@ ManyRelationship.prototype.getRecords = function() {
 };
 
 var BelongsToRelationship = function(store, record, inverseKey, relationshipMeta) {
-  Relationship.apply(this, arguments);
+  this._super$constructor(store, record, inverseKey, relationshipMeta);
   this.members.add(record);
   this.record = record;
   this.key = relationshipMeta.key;
@@ -161,6 +162,7 @@ var BelongsToRelationship = function(store, record, inverseKey, relationshipMeta
 
 BelongsToRelationship.prototype = Object.create(Relationship.prototype);
 BelongsToRelationship.prototype.constructor = BelongsToRelationship;
+BelongsToRelationship.prototype._super$constructor = Relationship;
 
 BelongsToRelationship.prototype.setRecord = function(newRecord) {
   if (newRecord) {
@@ -170,6 +172,7 @@ BelongsToRelationship.prototype.setRecord = function(newRecord) {
   }
 };
 
+BelongsToRelationship.prototype._super$addRecord = Relationship.prototype.addRecord;
 BelongsToRelationship.prototype.addRecord = function(newRecord) {
   if (this.members.has(newRecord)){ return;}
   var type = this.relationshipMeta.type;
@@ -180,7 +183,7 @@ BelongsToRelationship.prototype.addRecord = function(newRecord) {
   }
 
   this.inverseRecord = newRecord;
-  Relationship.prototype.addRecord.call(this, newRecord);
+  this._super$addRecord(newRecord);
 };
 
 BelongsToRelationship.prototype.notifyRecordRelationshipAdded = function(newRecord) {
@@ -191,9 +194,10 @@ BelongsToRelationship.prototype.notifyRecordRelationshipRemoved = function(recor
   this.record.notifyBelongsToRemoved(this.key, this);
 };
 
+BelongsToRelationship.prototype._super$removeRecord = Relationship.prototype.removeRecord;
 BelongsToRelationship.prototype.removeRecord = function(record) {
   if (!this.members.has(record)){ return;}
-  Relationship.prototype.removeRecord.call(this, record);
+  this._super$removeRecord(record);
   this.inverseRecord = null;
 };
 

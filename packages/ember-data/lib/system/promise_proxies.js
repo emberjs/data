@@ -64,13 +64,13 @@ var PromiseObject = Ember.ObjectProxy.extend(Ember.PromiseProxyMixin);
 
 var promiseObject = function(promise, label) {
   return PromiseObject.create({
-    promise: Promise.cast(promise, label)
+    promise: Promise.resolve(promise, label)
   });
 };
 
 var promiseArray = function(promise, label) {
   return PromiseArray.create({
-    promise: Promise.cast(promise, label)
+    promise: Promise.resolve(promise, label)
   });
 };
 

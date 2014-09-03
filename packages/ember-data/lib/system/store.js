@@ -460,7 +460,7 @@ Store = Ember.Object.extend({
       fetchedRecord = record._loadingPromise;
     }
 
-    return promiseObject(fetchedRecord || record, "DS: Store#findById " + record.typeKey + " with id: " + get(record, 'id'));
+    return promiseObject(fetchedRecord || record, "DS: Store#findByRecord " + record.typeKey + " with id: " + get(record, 'id'));
   },
 
   /**
