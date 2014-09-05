@@ -4,12 +4,19 @@
   "namespace": "DS",
   "repository": "git://github.com/emberjs/data.git",
   "license": "MIT",
+  "keywords": [
+    "ember-addon"
+  ],
+  "ember-addon": {
+    "main": "lib/ember-addon-main.js"
+  },
   "scripts": {
     "postinstall": "bower install",
+    "prepublish": "ember build --output-path=dist/ember-data/ --environment production",
     "start": "ember serve",
-    "dist": "rm -rf dist && ember build --environment production",
+    "dist": "ember build --environment production",
     "test": "testem -R dot ci",
-    "publish-build": "rm -rf dist && ember build --environment production && ./bin/publish_to_s3.js",
+    "publish-build": "npm run dist && ./bin/publish_to_s3.js",
     "testem-local": "testem -R dot ci",
     "testem-beta": "testem -f config/testem-beta.json -R dot ci",
     "testem-canary": "testem -f config/testem-canary.json -R dot ci",
@@ -37,7 +44,7 @@
     "broccoli-yuidoc": "^1.3.0",
     "defeatureify": "~0.1.4",
     "ejs": "^1.0.0",
-    "ember-cli": "0.0.40",
+    "ember-cli": "0.0.43",
     "ember-publisher": "0.0.6",
     "testem": "^0.6.17",
     "yuidocjs": "~0.3.46"
