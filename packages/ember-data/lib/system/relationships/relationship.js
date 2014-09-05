@@ -51,6 +51,7 @@ Relationship.prototype = {
       if (this.inverseKey) {
         record._relationships[this.inverseKey].addRecord(this.record);
       }
+      this.record.updateRecordArrays();
     }
   },
 
@@ -65,6 +66,7 @@ Relationship.prototype = {
           inverseRelationship.removeRecord(this.record);
         }
       }
+      this.record.updateRecordArrays();
     }
   },
 

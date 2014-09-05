@@ -62,6 +62,7 @@ import "ember-data/ember-initializer";
 import setupContainer from "ember-data/setup-container";
 
 import ContainerProxy from "ember-data/system/container_proxy";
+import {Relationship} from "ember-data/system/relationships/relationship";
 
 DS.Store         = Store;
 DS.PromiseArray  = PromiseArray;
@@ -102,6 +103,8 @@ DS.EmbeddedRecordsMixin  = EmbeddedRecordsMixin;
 
 DS.belongsTo = belongsTo;
 DS.hasMany   = hasMany;
+
+DS.Relationship  = Relationship;
 
 DS.ContainerProxy = ContainerProxy;
 
