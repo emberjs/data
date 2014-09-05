@@ -79,6 +79,7 @@ test("When all records for a type are requested, a rejection should reject the p
 
 test("When all records for a type are requested, records that are already loaded should be returned immediately.", function() {
   expect(3);
+  store = createStore({ adapter: DS.Adapter.extend()});
 
   // Load a record from the server
   store.push(Person, { id: 1, name: "Jeremy Ashkenas" });
@@ -95,6 +96,8 @@ test("When all records for a type are requested, records that are already loaded
 
 test("When all records for a type are requested, records that are created on the client should be added to the record array.", function() {
   expect(3);
+
+  store = createStore({ adapter: DS.Adapter.extend()});
 
   allRecords = store.all(Person);
 

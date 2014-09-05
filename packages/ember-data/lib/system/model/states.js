@@ -473,10 +473,7 @@ var RootState = {
 
     loadedData: function(record) {
       record.transitionTo('loaded.created.uncommitted');
-
-      record.suspendRelationshipObservers(function() {
-        record.notifyPropertyChange('data');
-      });
+      record.notifyPropertyChange('data');
     },
 
     pushedData: function(record) {

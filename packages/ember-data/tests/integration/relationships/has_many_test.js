@@ -1,5 +1,6 @@
 var env, User, Contact, Email, Phone, Message, Post, Comment;
 var get = Ember.get, set = Ember.set;
+var resolve = Ember.RSVP.resolve;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
 
@@ -98,9 +99,7 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
     throw new Error("Adapter's findMany should not be called");
   };
 
-  env.adapter.findHasMany = function(store, record, link, relationship) {
-    equal(relationship.type, Comment, "findHasMany relationship type was Comment");
-    equal(relationship.key, 'comments', "findHasMany relationship key was comments");
+  env.adapter.findHasMany = function(store, record, link) {
     equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
 
     return Ember.RSVP.resolve([
@@ -114,35 +113,42 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
   })).then(async(function(comments) {
     equal(comments.get('isLoaded'), true, "comments are loaded");
     equal(comments.get('length'), 2, "comments have 2 length");
+    equal(comments.objectAt(0).get('body'), 'First', "comment loaded successfully");
   }));
 });
 
 test("An updated `links` value should invalidate a relationship cache", function() {
+  expect(6);
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
 
-  env.adapter.createRecord = function(store, type, record) {
-    var data = record.serialize();
-    return Ember.RSVP.resolve({ id: 1, links: { comments: "/posts/1/comments" } });
+  env.adapter.findHasMany = function(store, record, link) {
+    if (link === '/first') {
+      return Ember.RSVP.resolve([
+        { id: 1, body: "First" },
+        { id: 2, body: "Second" }
+      ]);
+    } else if (link === '/second') {
+      return Ember.RSVP.resolve([
+        { id: 3, body: "Third" },
+        { id: 4, body: "Fourth" },
+        { id: 5, body: "Fifth" }
+      ]);
+    }
   };
 
-  env.adapter.findHasMany = function(store, record, link, relationship) {
-    equal(relationship.type, Comment, "findHasMany relationship type was Comment");
-    equal(relationship.key, 'comments', "findHasMany relationship key was comments");
-    equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
-
-    return Ember.RSVP.resolve([
-      { id: 1, body: "First" },
-      { id: 2, body: "Second" }
-    ]);
-  };
-
-  env.store.createRecord('post', {}).save().then(async(function(post) {
-    return post.get('comments');
-  })).then(async(function(comments) {
+  var post = env.store.push('post', {id:1, links: { comments: '/first' }});
+  post.get('comments').then(async(function(comments) {
     equal(comments.get('isLoaded'), true, "comments are loaded");
     equal(comments.get('length'), 2, "comments have 2 length");
+    equal(comments.objectAt(0).get('body'), 'First', "comment 1 successfully loaded");
+    env.store.push('post', {id:1, links: { comments: '/second' }});
+    post.get('comments').then(async(function(newComments) {
+      equal(comments, newComments, "hasMany array was kept the same");
+      equal(newComments.get('length'), 3, "comments updated successfully");
+      equal(newComments.objectAt(0).get('body'), 'Third', "third comment loaded successfully");
+    }));
   }));
 });
 
@@ -389,3 +395,64 @@ test("When a record is saved, its unsaved hasMany records should be kept", funct
 
   equal(get(post, 'comments.length'), 1, "The unsaved comment should be in the post's comments array");
 });
+
+test("When an unloaded record is added to the hasMany, it gets fetched once the hasMany is accessed even if the hasMany has been already fetched", function() {
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.findMany = function() {
+    return resolve([{id:1, body: 'first'}, {id:2, body:'second'}]);
+  };
+
+  env.adapter.find = function() {
+    return resolve({id:3, body: 'third'});
+  };
+
+
+  var post = env.store.push('post', { id: 1, comments: [1, 2] });
+
+  post.get('comments').then(async(function(fetchedComments) {
+    equal(fetchedComments.get('length'), 2, 'comments fetched successfully');
+    equal(fetchedComments.objectAt(0).get('body'), 'first', 'first comment loaded successfully');
+    env.store.push('post', { id: 1, comments: [1, 2, 3] });
+    post.get('comments').then(async(function(newlyFetchedComments) {
+      equal(newlyFetchedComments.get('length'), 3, 'all three comments fetched successfully');
+      equal(newlyFetchedComments.objectAt(2).get('body'), 'third', 'third comment loaded successfully');
+    }));
+  }));
+});
+
+test("A sync hasMany errors out if there are unlaoded records in it", function() {
+  var post = env.store.push('post', { id: 1, comments: [1, 2] });
+
+  expectAssertion(function() {
+    post.get('comments');
+  }, /You looked up the 'comments' relationship on a 'post' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`DS.hasMany\({ async: true }\)`\)/);
+});
+
+test("If reordered hasMany data has been pushed to the store, the many array reflects the ordering change - sync", function() {
+  var comment1 = env.store.push('comment', { id: 1 });
+  var comment2 = env.store.push('comment', { id: 2 });
+  var comment3 = env.store.push('comment', { id: 3 });
+  var comment4 = env.store.push('comment', { id: 4 });
+
+  var post = env.store.push('post', { id: 1, comments: [1, 2] });
+  deepEqual(post.get('comments').toArray(), [comment1, comment2], 'Initial ordering is correct');
+
+  env.store.push('post', { id: 1, comments: [2, 1] });
+  deepEqual(post.get('comments').toArray(), [comment2, comment1], 'Updated ordering is correct');
+
+  env.store.push('post', { id: 1, comments: [2] });
+  deepEqual(post.get('comments').toArray(), [comment2], 'Updated ordering is correct');
+
+  env.store.push('post', { id: 1, comments: [1,2,3,4] });
+  deepEqual(post.get('comments').toArray(), [comment1, comment2, comment3, comment4], 'Updated ordering is correct');
+
+  env.store.push('post', { id: 1, comments: [4,3] });
+  deepEqual(post.get('comments').toArray(), [comment4, comment3], 'Updated ordering is correct');
+
+  env.store.push('post', { id: 1, comments: [4,2,3,1] });
+  deepEqual(post.get('comments').toArray(), [comment4, comment2, comment3, comment1], 'Updated ordering is correct');
+});
+

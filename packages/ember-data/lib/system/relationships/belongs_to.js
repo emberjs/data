@@ -1,61 +1,5 @@
-var get = Ember.get;
-var set = Ember.set;
-var isNone = Ember.isNone;
-var Promise = Ember.RSVP.Promise;
-
 import { Model } from 'ember-data/system/model';
-import { PromiseObject } from 'ember-data/system/store';
-import { RelationshipChange } from 'ember-data/system/changes';
-import {
-  relationshipFromMeta,
-  typeForRelationshipMeta,
-  isSyncRelationship
-} from 'ember-data/system/relationship-meta';
 
-/**
-  @module ember-data
-*/
-
-function asyncBelongsTo(type, options, meta) {
-  return Ember.computed('data', function(key, value) {
-    var data = get(this, 'data');
-    var store = get(this, 'store');
-    var promiseLabel = "DS: Async belongsTo " + this + " : " + key;
-    var promise;
-
-    meta.key = key;
-
-    if (arguments.length === 2) {
-      Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof typeForRelationshipMeta(store, meta));
-      return value === undefined ? null : PromiseObject.create({
-        promise: Promise.cast(value, promiseLabel)
-      });
-    }
-
-    var link = data.links && data.links[key];
-    var belongsTo = data[key];
-
-    if (!isNone(belongsTo)) {
-      var inverse = this.constructor.inverseFor(key);
-      //but for now only in the oneToOne case
-      if (inverse && inverse.kind === 'belongsTo'){
-        set(belongsTo, inverse.name, this);
-      }
-      //TODO(Igor) after OR doesn't seem that will be called
-      promise = store.findById(belongsTo.constructor, belongsTo.get('id')) || Promise.cast(belongsTo, promiseLabel);
-      return PromiseObject.create({
-        promise: promise
-      });
-    } else if (link) {
-      promise = store.findBelongsTo(this, link, relationshipFromMeta(store, meta));
-      return PromiseObject.create({
-        promise: promise
-      });
-    } else {
-      return null;
-    }
-  }).meta(meta);
-}
 
 /**
   `DS.belongsTo` is used to define One-To-One and One-To-Many
@@ -122,33 +66,15 @@ function belongsTo(type, options) {
     key: null
   };
 
-  if (options.async) {
-    return asyncBelongsTo(type, options, meta);
-  }
-
-  return Ember.computed('data', function(key, value) {
-    var data = get(this, 'data');
-    var store = get(this, 'store');
-    var belongsTo, typeClass;
-
-    if (typeof type === 'string') {
-      typeClass = store.modelFor(type);
-    } else {
-      typeClass = type;
+  return Ember.computed(function(key, value) {
+    if (arguments.length>1) {
+      if ( value === undefined ) {
+        value = null;
+      }
+      this._relationships[key].setRecord(value);
     }
 
-    if (arguments.length === 2) {
-      Ember.assert("You can only add a '" + type + "' record to this relationship", !value || value instanceof typeClass);
-      return value === undefined ? null : value;
-    }
-
-    belongsTo = data[key];
-
-    if (isNone(belongsTo)) { return null; }
-
-    store.findById(belongsTo.constructor, belongsTo.get('id'));
-
-    return belongsTo;
+    return this._relationships[key].getRecord();
   }).meta(meta);
 }
 
@@ -160,57 +86,13 @@ function belongsTo(type, options) {
   @namespace DS
 */
 Model.reopen({
+  notifyBelongsToAdded: function(key, relationship) {
+    this.notifyPropertyChange(key);
+  },
 
-  /**
-    @method belongsToWillChange
-    @private
-    @static
-    @param record
-    @param key
-  */
-  belongsToWillChange: Ember.beforeObserver(function(record, key) {
-    if (get(record, 'isLoaded') && isSyncRelationship(record, key)) {
-      var oldParent = get(record, key);
-
-      if (oldParent) {
-        var store = get(record, 'store');
-        var change = RelationshipChange.createChange(record, oldParent, store, {
-          key: key,
-          kind: 'belongsTo',
-          changeType: 'remove'
-        });
-
-        change.sync();
-        this._changesToSync[key] = change;
-      }
-    }
-  }),
-
-  /**
-    @method belongsToDidChange
-    @private
-    @static
-    @param record
-    @param key
-  */
-  belongsToDidChange: Ember.immediateObserver(function(record, key) {
-    if (get(record, 'isLoaded')) {
-      var newParent = get(record, key);
-
-      if (newParent) {
-        var store = get(record, 'store');
-        var change = RelationshipChange.createChange(record, newParent, store, {
-          key: key,
-          kind: 'belongsTo',
-          changeType: 'add'
-        });
-
-        change.sync();
-      }
-    }
-
-    delete this._changesToSync[key];
-  })
+  notifyBelongsToRemoved: function(key) {
+    this.notifyPropertyChange(key);
+  }
 });
 
 export default belongsTo;

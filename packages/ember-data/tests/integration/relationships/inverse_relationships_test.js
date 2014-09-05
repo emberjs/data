@@ -94,10 +94,122 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
 
   comment.set('post', post);
 
+  equal(comment.get('post'), post, 'The post that was set can be retrieved');
+
   equal(post.get('meComments.length'), 0, "meComments has no posts");
   equal(post.get('youComments.length'), 1, "youComments had the post added");
   equal(post.get('everyoneWeKnowComments.length'), 0, "everyoneWeKnowComments has no posts");
 });
+
+test("When setting a belongsTo, the OneToOne invariant is respected even when other records have been previously used", function() {
+  Post = DS.Model.extend({
+    bestComment: DS.belongsTo('comment')
+  });
+
+  Comment = DS.Model.extend({
+    post: DS.belongsTo('post')
+  });
+
+  var env = setupStore({ post: Post, comment: Comment }),
+      store = env.store;
+
+  var comment = store.createRecord('comment');
+  var post = store.createRecord('post');
+  var post2 = store.createRecord('post');
+
+  comment.set('post', post);
+  post2.set('bestComment', null);
+
+  equal(comment.get('post'), post);
+  equal(post.get('bestComment'), comment);
+  equal(post2.get('bestComment'), null);
+
+  comment.set('post', post2);
+
+  equal(comment.get('post'), post2);
+  equal(post.get('bestComment'), null);
+  equal(post2.get('bestComment'), comment);
+});
+
+test("When setting a belongsTo, the OneToOne invariant is transitive", function() {
+  Post = DS.Model.extend({
+    bestComment: DS.belongsTo('comment')
+  });
+
+  Comment = DS.Model.extend({
+    post: DS.belongsTo('post')
+  });
+
+  var env = setupStore({ post: Post, comment: Comment }),
+      store = env.store;
+
+  var comment = store.createRecord('comment');
+  var post = store.createRecord('post');
+  var post2 = store.createRecord('post');
+
+  comment.set('post', post);
+
+  equal(comment.get('post'), post);
+  equal(post.get('bestComment'), comment);
+  equal(post2.get('bestComment'), null);
+
+  post2.set('bestComment', comment);
+
+  equal(comment.get('post'), post2);
+  equal(post.get('bestComment'), null);
+  equal(post2.get('bestComment'), comment);
+
+});
+
+test("When setting a belongsTo, the OneToOne invariant is commutative", function() {
+  Post = DS.Model.extend({
+    bestComment: DS.belongsTo('comment')
+  });
+
+  Comment = DS.Model.extend({
+    post: DS.belongsTo('post')
+  });
+
+  var env = setupStore({ post: Post, comment: Comment }),
+      store = env.store;
+
+  var comment = store.createRecord('comment');
+  var post = store.createRecord('post');
+  var comment2 = store.createRecord('comment');
+
+  comment.set('post', post);
+
+  equal(comment.get('post'), post);
+  equal(post.get('bestComment'), comment);
+  equal(comment2.get('post'), null);
+
+  post.set('bestComment', comment2);
+
+  equal(comment.get('post'), null);
+  equal(post.get('bestComment'), comment2);
+  equal(comment2.get('post'), post);
+});
+
+test("OneToNone relationship works", function() {
+  Post = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  Comment = DS.Model.extend({
+    post: DS.belongsTo('post')
+  });
+
+  var env = setupStore({ post: Post, comment: Comment }),
+      store = env.store;
+
+  var comment = store.createRecord('comment');
+  var post = store.createRecord('post');
+
+  comment.set('post', post);
+
+  equal(comment.get('post'), post);
+});
+
 
 test("When a record is added to or removed from a polymorphic has-many relationship, the inverse belongsTo can be set explicitly", function() {
   User = DS.Model.extend({
@@ -180,9 +292,9 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
 
 test("When a record's polymorphic belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", function() {
   Message = DS.Model.extend({
-    meMessages: DS.hasMany('comment'),
-    youMessages: DS.hasMany('comment'),
-    everyoneWeKnowMessages: DS.hasMany('comment')
+    meMessages: DS.hasMany('comment', {inverse: null}),
+    youMessages: DS.hasMany('comment', {inverse: 'message'}),
+    everyoneWeKnowMessages: DS.hasMany('comment', {inverse: null})
   });
 
   Post = Message.extend();
@@ -217,27 +329,38 @@ test("When a record's polymorphic belongsTo relationship is set, it can specify 
   equal(post.get('everyoneWeKnowMessages.length'), 0, "everyoneWeKnowMessages has no posts");
 });
 
-test("Inverse relationships that don't exist throw a nice error", function () {
+test("Inverse relationships that don't exist throw a nice error for a hasMany", function () {
   User = DS.Model.extend();
   Comment = DS.Model.extend();
 
   Post = DS.Model.extend({
-    comments: DS.hasMany(Comment, { inverse: 'testPost' }),
+    comments: DS.hasMany(Comment, { inverse: 'testPost' })
+  });
+
+  var env = setupStore({ post: Post, comment: Comment, user: User });
+  var comment = env.store.createRecord('comment');
+
+  expectAssertion(function() {
+    var post = env.store.createRecord('post');
+  }, /We found no inverse relationships by the name of 'testPost' on the 'comment' model/);
+
+});
+
+test("Inverse relationships that don't exist throw a nice error for a belongsTo", function () {
+  User = DS.Model.extend();
+  Comment = DS.Model.extend();
+
+  Post = DS.Model.extend({
     user: DS.belongsTo(User, { inverse: 'testPost' })
   });
 
   var env = setupStore({ post: Post, comment: Comment, user: User });
-  var post = env.store.createRecord('post');
   var user = env.store.createRecord('user');
-  var comment = env.store.createRecord('comment');
 
   expectAssertion(function() {
-    post.set('user', user);
+    var post = env.store.createRecord('post');
   }, /We found no inverse relationships by the name of 'testPost' on the 'user' model/);
 
-  expectAssertion(function() {
-    post.get('comments').addRecord(comment);
-  }, /We found no inverse relationships by the name of 'testPost' on the 'comment' model/);
 });
 
 

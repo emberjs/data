@@ -12,8 +12,8 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
   setup: function() {
     User = DS.Model.extend({
       name: attr('string'),
-      messages: hasMany('message', {polymorphic: true}),
-      favouriteMessage: belongsTo('message', {polymorphic: true})
+      messages: hasMany('message', {polymorphic: true})
+      //favouriteMessage: belongsTo('message', {polymorphic: true})
     });
 
     User.toString = stringify('User');
@@ -373,3 +373,12 @@ test("Destroying a record with an unloaded aync belongsTo association does not f
 
   post.destroyRecord();
 });
+
+test("A sync belongsTo errors out if the record is unlaoded", function() {
+  var message = env.store.push('message', { id: 1, user: 2 });
+
+  expectAssertion(function() {
+    message.get('user');
+  }, /You looked up the 'user' relationship on a 'message' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`DS.belongsTo\({ async: true }\)`\)/);
+});
+
