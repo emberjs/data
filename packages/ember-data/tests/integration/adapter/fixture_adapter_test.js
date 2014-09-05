@@ -262,3 +262,39 @@ test("should throw if ids are not defined in the FIXTURES", function() {
     ok(false, "should not get here");
   });
 });
+
+test("should save hasMany records", function() {
+  var tom, phone, CreatePhone, SavePerson, AssertPersonPhones;
+
+  expect(2);
+
+  Person.FIXTURES = [{ id: 'tomjerry', firstName: "Tom", lastName: "Jerry", height: 3 }];
+
+  CreatePhone = async(function(tom) {
+    env.store.createRecord('phone', {person: tom});
+
+    stop();
+    tom.get('phones').then(function(p) {
+      equal(p.get('length'), 1, "hasMany relationships are created in the store");
+      start();
+    });
+    return tom;
+  });
+
+  SavePerson = async(function(tom) {
+    return tom.save();
+  });
+
+  AssertPersonPhones = async(function(record) {
+    var phonesPromise = record.get('phones');
+    stop();
+    phonesPromise.then(function(phones) {
+      equal(phones.get('length'), 1, "hasMany relationship saved correctly");
+      start();
+    });
+  });
+
+  tom = env.store.find('person', 'tomjerry').then(CreatePhone)
+                                            .then(SavePerson)
+                                            .then(AssertPersonPhones);
+});
