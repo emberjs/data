@@ -14,8 +14,8 @@ var shouldNotContain = function(array, item) {
 
 module("integration/filter - DS.Model updating", {
   setup: function() {
-    array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
-    Person = DS.Model.extend({ name: DS.attr('string') });
+    array = [{ id: 1, name: "Scumbag Dale", bestFriend: 2 }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
+    Person = DS.Model.extend({ name: DS.attr('string'), bestFriend: DS.belongsTo('person') });
 
     env = setupStore({ person: Person });
     store = env.store;
@@ -50,6 +50,33 @@ test("when a DS.Model updates its attributes, its changes affect its filtered Ar
   equal(get(people, 'query'), null, 'expected no query object set');
   equal(get(people, 'length'), 0, "there are now no items");
 });
+
+test("when a DS.Model updates its relationships, its changes affect its filtered Array membership", function() {
+  store.pushMany('person', array);
+
+  var people = store.filter('person', function(person) {
+    if (person.get('bestFriend') && person.get('bestFriend.name').match(/Katz$/)) { return true; }
+  });
+
+  equal(get(people, 'length'), 1, "precond - one item is in the RecordArray");
+
+  var person = people.objectAt(0);
+
+  equal(get(person, 'name'), "Scumbag Dale", "precond - the item is correct");
+
+  set(person, 'bestFriend', null);
+
+  equal(get(people, 'length'), 0, "there are now 0 items");
+
+  var erik = store.getById('person', 3);
+  var yehuda = store.getById('person', 2);
+  erik.set('bestFriend', yehuda);
+
+  person = people.objectAt(0);
+  equal(get(people, 'length'), 1, "there is now 1 item");
+  equal(get(person, 'name'), "Scumbag Bryn", "precond - the item is correct");
+});
+
 
 test("a record array can have a filter on it", function() {
   store.pushMany('person', array);

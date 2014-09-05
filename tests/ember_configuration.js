@@ -177,6 +177,9 @@
       clear: syncForTest()
     });
 
+    DS.Relationship.prototype.addRecord = syncForTest(DS.Relationship.prototype.addRecord);
+    DS.Relationship.prototype.removeRecord = syncForTest(DS.Relationship.prototype.removeRecord);
+
     var transforms = {
       'boolean': DS.BooleanTransform.create(),
       'date': DS.DateTransform.create(),
