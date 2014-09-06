@@ -2,9 +2,11 @@
   @module ember-data
 */
 
-import {Adapter, InvalidError} from "ember-data/system/adapter";
+import {
+  Adapter,
+  InvalidError
+} from "ember-data/system/adapter";
 var get = Ember.get;
-var set = Ember.set;
 var forEach = Ember.ArrayPolyfills.forEach;
 
 /**
@@ -745,7 +747,7 @@ export default Adapter.extend({
     2. Your API might return errors as successful responses with status code
     200 and an Errors text or object. You can return a DS.InvalidError from
     this hook and it will automatically reject the promise and put your record
-    into  the invald state.
+    into the invald state.
 
     @method ajaxError
     @param  {Object} jqXHR
@@ -788,8 +790,8 @@ export default Adapter.extend({
       var hash = adapter.ajaxOptions(url, type, options);
 
       hash.success = function(json, textStatus, jqXHR) {
-        json = this.ajaxSuccess(jqXHR, json);
-        if (InvalidError.detectInstance(json)){
+        json = adapter.ajaxSuccess(jqXHR, json);
+        if (json instanceof InvalidError) {
           Ember.run(null, reject, json);
         } else {
           Ember.run(null, resolve, json);
