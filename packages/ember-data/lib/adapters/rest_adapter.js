@@ -2,7 +2,10 @@
   @module ember-data
 */
 
-import Adapter from "ember-data/system/adapter";
+import {
+  Adapter,
+  InvalidError
+} from "ember-data/system/adapter";
 var get = Ember.get;
 var forEach = Ember.ArrayPolyfills.forEach;
 
@@ -719,14 +722,41 @@ export default Adapter.extend({
 
     @method ajaxError
     @param  {Object} jqXHR
+    @param  {Object} responseText
     @return {Object} jqXHR
   */
-  ajaxError: function(jqXHR) {
+  ajaxError: function(jqXHR, responseText) {
     if (jqXHR && typeof jqXHR === 'object') {
       jqXHR.then = null;
     }
 
     return jqXHR;
+  },
+
+  /**
+    Takes an ajax response, and returns the json payload.
+
+    By default this hook just returns the jsonPayload passed to it.
+    You might want to override it in two cases:
+
+    1. Your API might return useful results in the request headers.
+    If you need to access these, you can override this hook to copy them
+    from jqXHR to the payload object so they can be processed in you serializer.
+
+
+    2. Your API might return errors as successful responses with status code
+    200 and an Errors text or object. You can return a DS.InvalidError from
+    this hook and it will automatically reject the promise and put your record
+    into the invald state.
+
+    @method ajaxError
+    @param  {Object} jqXHR
+    @param  {Object} jsonPayload
+    @return {Object} jqXHR
+  */
+
+  ajaxSuccess: function(jqXHR, jsonPayload) {
+    return jsonPayload;
   },
 
   /**
@@ -759,12 +789,17 @@ export default Adapter.extend({
     return new Ember.RSVP.Promise(function(resolve, reject) {
       var hash = adapter.ajaxOptions(url, type, options);
 
-      hash.success = function(json) {
-        Ember.run(null, resolve, json);
+      hash.success = function(json, textStatus, jqXHR) {
+        json = adapter.ajaxSuccess(jqXHR, json);
+        if (json instanceof InvalidError) {
+          Ember.run(null, reject, json);
+        } else {
+          Ember.run(null, resolve, json);
+        }
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
-        Ember.run(null, reject, adapter.ajaxError(jqXHR));
+        Ember.run(null, reject, adapter.ajaxError(jqXHR, jqXHR.responseText));
       };
 
       Ember.$.ajax(hash);

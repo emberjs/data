@@ -1461,3 +1461,51 @@ test('groupRecordsForFindMany groups calls for small ids', function() {
 
   post.get('comments');
 });
+
+test("calls adapter.ajaxSuccess with the jqXHR and json", function(){
+  expect(2);
+  var originalAjax = Ember.$.ajax;
+  var jqXHR = {};
+  var data = {
+    post: {
+      id: "1",
+      name: "Docker is amazing"
+    }
+  };
+
+  var receivedData, receivedJqXHR;
+
+  Ember.$.ajax = function(hash){
+    hash.success(data, 'ok', jqXHR);
+  };
+
+  adapter.ajaxSuccess = function(xhr, json) {
+    deepEqual(jqXHR, xhr);
+    deepEqual(json, data);
+    return json;
+  };
+
+  store.find('post', '1');
+  Ember.$.ajax = originalAjax;
+});
+
+test('calls ajaxError with jqXHR, jqXHR.responseText', function(){
+  expect(2);
+  var originalAjax = Ember.$.ajax;
+  var jqXHR = {
+    responseText: 'Nope lol'
+  };
+
+  Ember.$.ajax = function(hash){
+    hash.error(jqXHR, jqXHR.responseText);
+  };
+
+  adapter.ajaxError = function(xhr, responseText) {
+    deepEqual(xhr, jqXHR);
+    deepEqual(responseText, jqXHR.responseText);
+    return {error: {nope: 'lol'}};
+  };
+
+  store.find('post', '1');
+  Ember.$.ajax = originalAjax;
+});
