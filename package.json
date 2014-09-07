@@ -10,9 +10,12 @@
   "ember-addon": {
     "main": "lib/ember-addon-main.js"
   },
+  "files": [
+    "dist",
+    "lib/ember-addon-main.js"
+  ],
   "scripts": {
-    "postinstall": "bower install",
-    "prepublish": "ember build --output-path=dist/ember-data/ --environment production",
+    "prepublish": "bower install && rm -rf dist/ && ember build --output-path=dist/ember-data/ --environment production && rm -rf dist/ember-data/bower_components dist/ember-data/docs",
     "start": "ember serve",
     "dist": "ember build --environment production",
     "test": "testem -R dot ci",
