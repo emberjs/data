@@ -99,7 +99,7 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
     throw new Error("Adapter's findMany should not be called");
   };
 
-  env.adapter.findHasMany = function(store, record, link) {
+  env.adapter.findHasMany = function(store, record, link, relationship) {
     equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
 
     return Ember.RSVP.resolve([
@@ -123,7 +123,7 @@ test("An updated `links` value should invalidate a relationship cache", function
     comments: DS.hasMany('comment', { async: true })
   });
 
-  env.adapter.findHasMany = function(store, record, link) {
+  env.adapter.findHasMany = function(store, record, link, relationship) {
     if (link === '/first') {
       return Ember.RSVP.resolve([
         { id: 1, body: "First" },
