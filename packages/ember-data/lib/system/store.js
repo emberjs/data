@@ -1766,7 +1766,7 @@ function _findMany(adapter, store, type, ids, records) {
 }
 
 function _findHasMany(adapter, store, record, link, type) {
-  var promise = adapter.findHasMany(store, record, link);
+  var promise = adapter.findHasMany(store, record, link, type);
   var serializer = serializerForAdapter(adapter, type);
   var label = "DS: Handle Adapter#findHasMany of " + record + " : " + type;
 
