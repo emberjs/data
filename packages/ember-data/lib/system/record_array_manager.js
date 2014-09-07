@@ -140,15 +140,13 @@ export default Ember.Object.extend({
   */
   updateFilter: function(array, type, filter) {
     var typeMap = this.store.typeMapFor(type);
-    var records = typeMap.records, record;
+    var records = typeMap.records;
 
-    for (var i=0, l=records.length; i<l; i++) {
-      record = records[i];
-
+    forEach(records, function (record) {
       if (!get(record, 'isDeleted') && !get(record, 'isEmpty')) {
         this.updateRecordArray(array, filter, type, record);
       }
-    }
+    }, this);
   },
 
   /**
@@ -283,9 +281,9 @@ function values(obj) {
   var result = [];
   var keys = Ember.keys(obj);
 
-  for (var i = 0; i < keys.length; i++) {
-    result.push(obj[keys[i]]);
-  }
+  forEach(keys, function(key) {
+    result.push(obj[key]);
+  });
 
   return result;
 }
@@ -295,12 +293,11 @@ function destroy(entry) {
 }
 
 function flatten(list) {
-  var length = list.length;
   var result = Ember.A();
 
-  for (var i = 0; i < length; i++) {
-    result = result.concat(list[i]);
-  }
+  forEach(list, function(item) {
+    result = result.concat(item);
+  });
 
   return result;
 }
