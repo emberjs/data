@@ -138,7 +138,7 @@ ManyRelationship.prototype.getRecords = function() {
     var self = this;
     var promise;
     if (this.link && !this.hasFetchedLink) {
-      promise = this.store.findHasMany(this.record, this.link, this.belongsToType).then(function(records){
+      promise = this.store.findHasMany(this.record, this.link, this.relationshipMeta).then(function(records){
         self.updateRecordsFromAdapter(records);
         self.hasFetchedLink = true;
         //TODO(Igor) try to abstract the isLoaded part
