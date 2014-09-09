@@ -673,6 +673,13 @@ var Model = Ember.Object.extend(Ember.Evented, {
     });
   },
 
+  reconnectRelationships: function() {
+    this.eachRelationship(function(name, relationship) {
+      this._relationships[name].reconnect();
+    }, this);
+  },
+
+
   /**
     @method updateRecordArrays
     @private
@@ -892,6 +899,13 @@ var Model = Ember.Object.extend(Ember.Evented, {
     if (get(this, 'isError')) {
       this._inFlightAttributes = {};
       set(this, 'isError', false);
+    }
+
+    //Eventually rollback will always work for relationships
+    //For now we support it only out of deleted state, because we
+    //have an explicit way of knowing when the server acked the relationship change
+    if (get(this, 'isDeleted')) {
+      this.reconnectRelationships();
     }
 
     if (!get(this, 'isValid')) {
