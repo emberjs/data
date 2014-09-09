@@ -392,7 +392,7 @@ export default Adapter.extend({
     @param {String} url
     @return {Promise} promise
   */
-  findHasMany: function(store, record, url) {
+  findHasMany: function(store, record, url, relationship) {
     var host = get(this, 'host');
     var id   = get(record, 'id');
     var type = record.constructor.typeKey;
@@ -431,7 +431,7 @@ export default Adapter.extend({
     @param {String} url
     @return {Promise} promise
   */
-  findBelongsTo: function(store, record, url) {
+  findBelongsTo: function(store, record, url, relationship) {
     var id   = get(record, 'id');
     var type = record.constructor.typeKey;
 
