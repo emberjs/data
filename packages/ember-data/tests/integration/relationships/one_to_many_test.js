@@ -295,3 +295,48 @@ test("Setting the belongsTo side to null removes the record from the hasMany sid
 
   equal(user.get('accounts.length'), 0, 'the account got removed correctly');
 });
+
+/*
+Deleting
+*/
+
+test("When deleting a record that has a belongsTo it is removed from the hasMany side but not the belongsTo side- async", function () {
+  var user = store.push('user', {id:1, name: 'Stanley', messages: [2]});
+  var message = store.push('message', {id: 2, title: 'EmberFest was great'});
+  message.deleteRecord();
+  message.get('user').then(async(function(fetchedUser) {
+    equal(fetchedUser, user, 'Message still has the user');
+  }));
+  user.get('messages').then(async(function(fetchedMessages) {
+    equal(fetchedMessages.get('length'), 0, 'User was removed from the messages');
+  }));
+});
+
+test("When deleting a record that has a belongsTo it is removed from the hasMany side but not the belongsTo side- sync", function () {
+  var account = store.push('account', {id:2 , state: 'lonely'});
+  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  account.deleteRecord();
+  equal(user.get('accounts.length'), 0, "User was removed from the accounts");
+  equal(account.get('user'), user, 'Account still has the user');
+});
+
+test("When deleting a record that has a hasMany it is removed from the belongsTo side but not the hasMany side- async", function () {
+  var user = store.push('user', {id:1, name: 'Stanley', messages: [2]});
+  var message = store.push('message', {id: 2, title: 'EmberFest was great'});
+  user.deleteRecord();
+  message.get('user').then(async(function(fetchedUser) {
+    equal(fetchedUser, null, 'Message does not have the user anymore');
+  }));
+  user.get('messages').then(async(function(fetchedMessages) {
+    equal(fetchedMessages.get('length'), 1, 'User still has the messages');
+  }));
+});
+
+test("When deleting a record that has a hasMany it is removed from the belongsTo side but not the hasMany side - sync", function () {
+  var account = store.push('account', {id:2 , state: 'lonely'});
+  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  user.deleteRecord();
+  equal(user.get('accounts.length'), 1, "User still has the accounts");
+  equal(account.get('user'), null, 'Account no longer has the user');
+});
+
