@@ -1386,7 +1386,7 @@ Store = Ember.Object.extend({
     ```
 
     @method normalize
-    @param {String} The name of the model type for this payload
+    @param {String} type The name of the model type for this payload
     @param {Object} payload
     @return {Object} The normalized payload
   */
