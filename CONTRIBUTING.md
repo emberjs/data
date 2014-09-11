@@ -24,11 +24,11 @@ this bug already.
 
 3. Provide JSFiddle or JSBin demo that specifically shows the problem. This
 demo should be fully operational with the exception of the bug you want to
-demonstrate. The more pared down, the better. A preconfigured [JSFiddle][1] |
-[JSBin][2] with mocked requests is available.
+demonstrate. The more pared down, the better. A preconfigured [JSBin][1] |
+[JSFiddle][2] with mocked requests is available.
 
-[1]: http://jsfiddle.net/mehulkar/Q5NPs/
-[2]: http://emberjs.jsbin.com/vuxijava/1/edit
+[1]: http://emberjs.jsbin.com/butef/1/edit
+[2]: http://jsfiddle.net/ty6xgfqc/
 
 4. If possible, submit a Pull Request with a failing test. Better yet, take
 a stab at fixing the bug yourself if you can!
