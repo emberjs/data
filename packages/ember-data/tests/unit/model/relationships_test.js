@@ -632,6 +632,32 @@ test("When finding a belongsTo relationship the inverse belongsTo relationship i
   store.getById('person', 1).get('occupation');
 });
 
+test("belongsTo supports reflexive relation", function() {
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    parent: DS.belongsTo('person')
+  });
+  Person.toString = function() { return "Person"; };
+
+  var env = setupStore({ person: Person }),
+      store = env.store;
+
+  env.adapter.findAll = function() {
+    return Ember.RSVP.resolve([
+      { id: 1, name: "A person", parent: null },
+      { id: 2, name: "A child of 1", parent: 1 },
+      { id: 3, name: "An other child of 1", parent: 1 },
+      { id: 4, name: "A child of 3", parent: 3 }
+    ]);
+  };
+
+  store.find('person').then(async(function(persons) {
+    var sortedPeople = persons.sortBy('id');
+    deepEqual(sortedPeople.getEach('parent.id'), [null, "1", "1", "3"]);
+  }));
+});
+
 test("belongsTo supports relationships to models with id 0", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
