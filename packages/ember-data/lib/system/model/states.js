@@ -324,7 +324,7 @@ var DirtyState = {
     // EVENTS
     deleteRecord: function(record) {
       record.transitionTo('deleted.uncommitted');
-      record.clearRelationships();
+      record.disconnectRelationships();
     },
 
     didSetProperty: function(record, context) {
@@ -405,7 +405,7 @@ var updatedState = dirtyState({
 });
 
 createdState.uncommitted.deleteRecord = function(record) {
-  record.clearRelationships();
+  record.disconnectRelationships();
   record.transitionTo('deleted.saved');
 };
 
@@ -424,7 +424,7 @@ updatedState.inFlight.unloadRecord = assertAgainstUnloadRecord;
 
 updatedState.uncommitted.deleteRecord = function(record) {
   record.transitionTo('deleted.uncommitted');
-  record.clearRelationships();
+  record.disconnectRelationships();
 };
 
 var RootState = {
@@ -565,7 +565,7 @@ var RootState = {
 
       deleteRecord: function(record) {
         record.transitionTo('deleted.uncommitted');
-        record.clearRelationships();
+        record.disconnectRelationships();
       },
 
       unloadRecord: function(record) {

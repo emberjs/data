@@ -642,6 +642,12 @@ var Model = Ember.Object.extend(Ember.Evented, {
     }, this);
   },
 
+  disconnectRelationships: function() {
+    this.eachRelationship(function(name, relationship) {
+      this._relationships[name].disconnect();
+    }, this);
+  },
+
   /**
     @method updateRecordArrays
     @private

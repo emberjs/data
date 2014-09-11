@@ -26,6 +26,12 @@ Relationship.prototype = {
     }, this);
   },
 
+  disconnect: function(){
+    this.members.forEach(function(member) {
+      this.removeRecordFromInverse(member);
+    }, this);
+  },
+
   removeRecords: function(records){
     var that = this;
     records.forEach(function(record){
@@ -43,7 +49,6 @@ Relationship.prototype = {
     });
   },
 
-
   addRecord: function(record, idx) {
     if (!this.members.has(record)) {
       this.members.add(record);
@@ -57,17 +62,25 @@ Relationship.prototype = {
 
   removeRecord: function(record) {
     if (this.members.has(record)) {
-      this.members.remove(record);
-      this.notifyRecordRelationshipRemoved(record);
+      this.removeRecordFromOwn(record);
       if (this.inverseKey) {
-        var inverseRelationship = record._relationships[this.inverseKey];
-        //Need to check for existence, as the record might unloading at the moment
-        if (inverseRelationship) {
-          inverseRelationship.removeRecord(this.record);
-        }
+        this.removeRecordFromInverse(record);
       }
-      this.record.updateRecordArrays();
     }
+  },
+
+  removeRecordFromInverse: function(record) {
+    var inverseRelationship = record._relationships[this.inverseKey];
+    //Need to check for existence, as the record might unloading at the moment
+    if (inverseRelationship) {
+      inverseRelationship.removeRecordFromOwn(this.record);
+    }
+  },
+
+  removeRecordFromOwn: function(record) {
+    this.members.remove(record);
+    this.notifyRecordRelationshipRemoved(record);
+    this.record.updateRecordArrays();
   },
 
   updateLink: function(link) {
@@ -165,7 +178,6 @@ ManyRelationship.prototype.getRecords = function() {
 
 var BelongsToRelationship = function(store, record, inverseKey, relationshipMeta) {
   this._super$constructor(store, record, inverseKey, relationshipMeta);
-  this.members.add(record);
   this.record = record;
   this.key = relationshipMeta.key;
   this.inverseKey = inverseKey;
@@ -206,15 +218,11 @@ BelongsToRelationship.prototype.notifyRecordRelationshipRemoved = function(recor
   this.record.notifyBelongsToRemoved(this.key, this);
 };
 
-BelongsToRelationship.prototype._super$removeRecord = Relationship.prototype.removeRecord;
-BelongsToRelationship.prototype.removeRecord = function(record) {
+BelongsToRelationship.prototype._super$removeRecordFromOwn = Relationship.prototype.removeRecordFromOwn;
+BelongsToRelationship.prototype.removeRecordFromOwn = function(record) {
   if (!this.members.has(record)){ return;}
-  this._super$removeRecord(record);
+  this._super$removeRecordFromOwn(record);
   this.inverseRecord = null;
-};
-
-BelongsToRelationship.prototype.currentOtherSideFor = function() {
-  return this.inverseRecord;
 };
 
 BelongsToRelationship.prototype.getRecord = function() {
