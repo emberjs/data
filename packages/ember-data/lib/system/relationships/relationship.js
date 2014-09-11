@@ -243,7 +243,8 @@ BelongsToRelationship.prototype.getRecord = function() {
     }
 
     return PromiseObject.create({
-      promise: promise
+      promise: promise,
+      content: this.inverseRecord
     });
   } else {
     Ember.assert("You looked up the '" + this.key + "' relationship on a '" + this.record.constructor.typeKey + "' with id " + this.record.get('id') +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", this.inverseRecord === null || !this.inverseRecord.get('isEmpty'));
