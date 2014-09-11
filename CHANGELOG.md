@@ -2,6 +2,30 @@
 
 ### Master
 
+### Ember Data 1.0.0-beta.10 _(September 9, 2014)_
+
+* Bring back relationship parameter for findHasMany & findBelongsTo
+* add es5-shim/sham requirement to README
+* Add-on uses blueprint `addBowerPackageToProject()` hook to add ed as bower dep instead of including a pre-built version
+* ember add-on vendor tree is relative to this file, so needs to go back a dir
+* tests and typo fix for ajaxSuccess/ajaxError
+* Add ajaxSuccess hook to the RESTAdapter
+* Added ember-addon support via npm
+* Update recordArrays whenever there are changes to relationships
+* Refactor relationship handling code
+* Add support for embedded polymorphic hasMany
+* improve error message for push
+* [BUGFIX] fixture adapter copies defined fixtures
+* remove unused variables and enforce in jshint
+* Updated docs to warn against use of async:true with EmbeddedRecodsMixin
+* Removed a duplicate explanation of preload
+* small perf, this map was unfortunately adding 5ms -> 8ms overhead for pushMany of N=1000. Removing it removed the overhead entirely.
+* modelFor was used constantly, the extra normalization and string splitting was causing measurable slowdown.
+* Don't use the DOM in the store tests
+* Added an example of how to use the preload arg
+* Added documentation for preload parameter
+* [Documentation] typo in `find` documentation
+
 ### Ember Data 1.0.0-beta.9 _(August 18, 2014)_
 
 **Important:** IE8 and other environments which don't support `Object.create`

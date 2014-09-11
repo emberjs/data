@@ -72,6 +72,22 @@ test("a loaded record is removed from a record array when it is deleted", functi
   }));
 });
 
+test("a loaded record is removed from a record array when it is deleted even if the belongsTo side isn't defined", function() {
+  var Tag = DS.Model.extend({
+    people: DS.hasMany('person')
+  });
+
+  var env = setupStore({ tag: Tag, person: Person }),
+      store = env.store;
+
+  var scumbag = store.push('person', {id:1, name: 'Scumbag Tom'});
+  var tag = store.push('tag', { id: 1, people:[1] });
+
+  scumbag.deleteRecord();
+
+  equal(tag.get('people.length'), 0, "record is removed from the record array");
+});
+
 // GitHub Issue #168
 test("a newly created record is removed from a record array when it is deleted", function() {
   var store = createStore(),

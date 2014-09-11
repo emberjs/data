@@ -1386,7 +1386,7 @@ Store = Ember.Object.extend({
     ```
 
     @method normalize
-    @param {String} The name of the model type for this payload
+    @param {String} type The name of the model type for this payload
     @param {Object} payload
     @return {Object} The normalized payload
   */
@@ -1765,23 +1765,23 @@ function _findMany(adapter, store, type, ids, records) {
   }, null, "DS: Extract payload of " + type);
 }
 
-function _findHasMany(adapter, store, record, link, type) {
-  var promise = adapter.findHasMany(store, record, link);
-  var serializer = serializerForAdapter(adapter, type);
-  var label = "DS: Handle Adapter#findHasMany of " + record + " : " + type;
+function _findHasMany(adapter, store, record, link, relationship) {
+  var promise = adapter.findHasMany(store, record, link, relationship);
+  var serializer = serializerForAdapter(adapter, relationship.type);
+  var label = "DS: Handle Adapter#findHasMany of " + record + " : " + relationship.type;
 
   promise = Promise.cast(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
   promise = _guard(promise, _bind(_objectIsAlive, record));
 
   return promise.then(function(adapterPayload) {
-    var payload = serializer.extract(store, type, adapterPayload, null, 'findHasMany');
+    var payload = serializer.extract(store, relationship.type, adapterPayload, null, 'findHasMany');
 
     Ember.assert("The response from a findHasMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
-    var records = store.pushMany(type, payload);
+    var records = store.pushMany(relationship.type, payload);
     return records;
-  }, null, "DS: Extract payload of " + record + " : hasMany " + type);
+  }, null, "DS: Extract payload of " + record + " : hasMany " + relationship.type);
 }
 
 function _findBelongsTo(adapter, store, record, link, relationship) {

@@ -445,6 +445,27 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this._attributes = {};
     this._inFlightAttributes = {};
     this._relationships = {};
+    /*
+      implicit relationships are relationship which have not been declared but the inverse side exists on
+      another record somewhere
+      For example if we are a
+      ```
+        App.Comment = DS.Model.extend({
+          name: DS.attr()
+        })
+      ```
+      but there is a
+      ```
+        App.Post = DS.Model.extend({
+          name: DS.attr(),
+          comments: DS.hasMany('comment')
+        })
+      ```
+
+      would have a implicit post relationship in order to be do things like remove ourselves from the post
+      when we are deleted
+    */
+    this._implicitRelationships = {};
     var model = this;
     //TODO Move into a getter for better perf
     this.constructor.eachRelationship(function(key, descriptor) {
@@ -646,6 +667,10 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this.eachRelationship(function(name, relationship) {
       this._relationships[name].disconnect();
     }, this);
+    var model = this;
+    forEach.call(Ember.keys(this._implicitRelationships), function(key) {
+      model._implicitRelationships[key].disconnect();
+    });
   },
 
   /**
