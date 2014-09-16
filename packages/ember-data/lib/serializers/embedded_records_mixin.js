@@ -57,7 +57,7 @@ var camelize = Ember.String.camelize;
   will behave in the following way:
 
   BelongsTo: `{ serialize: 'id', deserialize: 'id' }`  
-  HasMany:   `{ serialize: false,  deserialize: 'ids' }`
+  HasMany:   `{ serialize: false, deserialize: 'ids' }`
 
   ### Model Relationships
 
