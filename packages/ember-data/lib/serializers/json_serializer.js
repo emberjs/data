@@ -583,8 +583,9 @@ export default Ember.Object.extend({
         payloadKey = this.keyForRelationship(key, "belongsTo");
       }
 
-      if (isNone(belongsTo)) {
-        json[payloadKey] = belongsTo;
+      //Need to check whether the id is there for new&async records
+      if (isNone(belongsTo) || isNone(get(belongsTo, 'id'))) {
+        json[payloadKey] = null;
       } else {
         json[payloadKey] = get(belongsTo, 'id');
       }
