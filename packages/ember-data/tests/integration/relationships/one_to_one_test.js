@@ -119,6 +119,19 @@ test("Setting a OneToOne relationship reflects correctly on the other side- sync
   equal(job.get('user'), user, 'User relationship was set up correctly');
 });
 
+test("Setting a BelongsTo to a promise unwraps the promise before setting- async", function () {
+  var stanley = store.push('user', {id:1, name: 'Stanley', bestFriend:2});
+  var stanleysFriend = store.push('user', {id:2, name: "Stanley's friend"});
+  var newFriend = store.push('user', {id:3, name: "New friend"});
+  newFriend.set('bestFriend', stanleysFriend.get('bestFriend'));
+  stanley.get('bestFriend').then(async(function(fetchedUser) {
+    equal(fetchedUser, newFriend, 'User relationship was updated correctly');
+  }));
+  newFriend.get('bestFriend').then(async(function(fetchedUser) {
+    equal(fetchedUser, stanley, 'User relationship was updated correctly');
+  }));
+});
+
 test("Setting a OneToOne relationship to null reflects correctly on the other side - async", function () {
   var stanley = store.push('user', {id:1, name: 'Stanley', bestFriend:2});
   var stanleysFriend = store.push('user', {id:2, name: "Stanley's friend", bestFriend:1});
