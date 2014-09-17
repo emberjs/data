@@ -71,7 +71,11 @@ function belongsTo(type, options) {
       if ( value === undefined ) {
         value = null;
       }
-      this._relationships[key].setRecord(value);
+      if (value && value.then) {
+        this._relationships[key].setRecordPromise(value);
+      } else {
+        this._relationships[key].setRecord(value);
+      }
     }
 
     return this._relationships[key].getRecord();
