@@ -102,17 +102,41 @@ Model.reopenClass({
     return relationship && relationship.type;
   },
 
-  inverseFor: function(name) {
-    var inverseType = this.typeForRelationship(name);
+  /*
+    Find the relationship which is the inverse of the one asked for.
 
+    For example, if you define models like this:
+
+   ```javascript
+      App.Post = DS.Model.extend({
+        comments: DS.hasMany('message', {inverse: null})
+      });
+
+      App.Message = DS.Model.extend({
+        owner: DS.belongsTo('post')
+      });
+    ```
+
+    App.Post.inverseFor('comments') -> {type: App.Message, name:'owner', kind:'belongsTo'}
+    App.Message.inverseFor('owner') -> {type: App.Post, name:'comments', kind:'hasMany'}
+
+    @method inverseFor
+    @static
+    @param {String} name the name of the relationship
+    @return {Object} the inverse relationship, or null
+  */
+  inverseFor: function(name) {
+
+    var inverseType = this.typeForRelationship(name);
     if (!inverseType) { return null; }
 
+    //If inverse is manually specified to be null, like  `comments: DS.hasMany('message', {inverse: null})`
     var options = this.metaForProperty(name).options;
-
     if (options.inverse === null) { return null; }
 
     var inverseName, inverseKind, inverse;
 
+    //If inverse is specified manually, return the inverse
     if (options.inverse) {
       inverseName = options.inverse;
       inverse = Ember.get(inverseType, 'relationshipsByName').get(inverseName);
@@ -122,6 +146,7 @@ Model.reopenClass({
 
       inverseKind = inverse.kind;
     } else {
+      //No inverse was specified manually, we need to use a heuristic to guess one
       var possibleRelationships = findPossibleInverses(this, inverseType);
 
       if (possibleRelationships.length === 0) { return null; }
@@ -145,6 +170,7 @@ Model.reopenClass({
         possibleRelationships.push.apply(possibleRelationships, relationshipMap.get(type));
       }
 
+      //Recurse to support polymorphism
       if (type.superclass) {
         findPossibleInverses(type.superclass, inverseType, possibleRelationships);
       }
