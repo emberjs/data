@@ -109,7 +109,7 @@ Model.reopenClass({
 
    ```javascript
       App.Post = DS.Model.extend({
-        comments: DS.hasMany('message', {inverse: null})
+        comments: DS.hasMany('message')
       });
 
       App.Message = DS.Model.extend({
