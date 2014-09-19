@@ -1650,7 +1650,7 @@ function deserializeRecordId(store, data, key, relationship, id) {
 }
 
 function typeFor(relationship, key, data) {
-  if (relationship.options.polymorphic) {
+  if (relationship.options.polymorphic && !relationship.options.embedded) {
     return data[key + "Type"];
   } else {
     return relationship.type;

@@ -399,7 +399,12 @@ function extractEmbeddedRecords(serializer, store, type, partial) {
         }
       }
       if (relationship.kind === "belongsTo") {
-        extractEmbeddedBelongsTo(store, key, embeddedType, partial);
+        if (relationship.options.polymorphic) {
+          extractEmbeddedBelongsToPolymorphic(store, key, partial);
+        }
+        else {
+          extractEmbeddedBelongsTo(store, key, embeddedType, partial);
+        }
       }
     }
   });
@@ -459,6 +464,22 @@ function extractEmbeddedBelongsTo(store, key, embeddedType, hash) {
 
   hash[key] = embeddedRecord.id;
   //TODO Need to add a reference to the parent later so relationship works between both `belongsTo` records
+  return hash;
+}
+
+function extractEmbeddedBelongsToPolymorphic(store, key, hash) {
+  if (!hash[key]) {
+    return hash;
+  }
+
+  var embeddedHash = hash[key];
+  var typeKey = embeddedHash.type;
+  var embeddedSerializer = store.serializerFor(typeKey);
+  var embeddedType = store.modelFor(typeKey);
+  var embeddedRecord = embeddedSerializer.normalize(embeddedType, embeddedHash, null);
+  store.push(embeddedType, embeddedRecord);
+
+  hash[key] = {id: embeddedRecord.id, type: typeKey};
   return hash;
 }
 
