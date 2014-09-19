@@ -12,6 +12,9 @@ var Relationship = function(store, record, inverseKey, relationshipMeta) {
   this.key = relationshipMeta.key;
   this.isAsync = relationshipMeta.options.async;
   this.relationshipMeta = relationshipMeta;
+  //This probably breaks for polymorphic relationship in complex scenarios, due to
+  //multiple possible typeKeys
+  this.inversKeyForimplicit = this.typeKey + this.key;
 };
 
 Relationship.prototype = {
@@ -55,6 +58,11 @@ Relationship.prototype = {
       this.notifyRecordRelationshipAdded(record, idx);
       if (this.inverseKey) {
         record._relationships[this.inverseKey].addRecord(this.record);
+      } else {
+        if (!record._implicitRelationships[this.inverseKeyForimplicit]) {
+          record._implicitRelationships[this.inverseKeyForimplicit] = new Relationship(this.store, record, this.key,  {options:{}});
+        }
+        record._implicitRelationships[this.inverseKeyForimplicit].addRecord(this.record);
       }
       this.record.updateRecordArrays();
     }
@@ -65,6 +73,10 @@ Relationship.prototype = {
       this.removeRecordFromOwn(record);
       if (this.inverseKey) {
         this.removeRecordFromInverse(record);
+      } else {
+        if (record._implicitRelationships[this.inverseKeyForimplicit]) {
+          record._implicitRelationships[this.inverseKeyForimplicit].removeRecord(this.record);
+        }
       }
     }
   },
@@ -94,7 +106,10 @@ Relationship.prototype = {
   updateRecordsFromAdapter: function(records) {
     //TODO Once we have adapter support, we need to handle updated and canonical changes
     this.computeChanges(records);
-  }
+  },
+
+  notifyRecordRelationshipAdded: Ember.K,
+  notifyRecordRelationshipRemoved: Ember.K
 };
 
 var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
@@ -180,7 +195,6 @@ var BelongsToRelationship = function(store, record, inverseKey, relationshipMeta
   this._super$constructor(store, record, inverseKey, relationshipMeta);
   this.record = record;
   this.key = relationshipMeta.key;
-  this.inverseKey = inverseKey;
   this.inverseRecord = null;
 };
 
