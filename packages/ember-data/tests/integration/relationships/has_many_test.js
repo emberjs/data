@@ -169,8 +169,6 @@ test("A sync hasMany relationship can be reloaded if it was fetched via ids", fu
     comments: DS.hasMany('comment')
   });
 
-  debugger;
-
   env.adapter.find = function(store, type, id) {
     equal(type, Post, "find type was Post");
     equal(id, "1", "find id was 1");
@@ -194,7 +192,6 @@ test("A sync hasMany relationship can be reloaded if it was fetched via ids", fu
 
     return comments.reload();
   })).then(async(function(newComments){
-    // equal(newComments.get('length'), 3, "reloaded comments have a length of 3");
     equal(newComments.get('firstObject.body'), 'FirstUpdated', "Record body was correctly updated");
   }));
 });
@@ -234,6 +231,34 @@ test("A hasMany relationship can be reloaded if it was fetched via ids", functio
     return comments.reload();
   })).then(async(function(newComments){
     equal(newComments.get('firstObject.body'), 'FirstUpdated', "Record body was correctly updated");
+  }));
+});
+
+test("A hasMany relationship can be directly reloaded if it was fetched via ids", function() {
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.find = function(store, type, id) {
+    equal(type, Post, "find type was Post");
+    equal(id, "1", "find id was 1");
+
+    return Ember.RSVP.resolve({ id: 1, comments: [1,2] });
+  };
+
+  env.adapter.findMany = function(store, type, ids, records) {
+    return Ember.RSVP.resolve([
+      { id: 1, body: "FirstUpdated" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+
+  env.store.find('post', 1).then(async(function(post) {
+    return post.get('comments').reload().then(async(function(comments) {
+      equal(comments.get('isLoaded'), true, "comments are loaded");
+      equal(comments.get('length'), 2, "comments have 2 length");
+      equal(comments.get('firstObject.body'), "FirstUpdated", "Record body was correctly updated");
+    }));
   }));
 });
 
