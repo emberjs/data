@@ -109,6 +109,13 @@ export default RecordArray.extend({
       this.get('relationship').addRecords(objects, idx);
     }
   },
+  /**
+    @method reload
+    @public
+  */
+  reload: function() {
+    return this.relationship.reload();
+  },
 
   /**
     Create a child record within the owner
