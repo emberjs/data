@@ -81,16 +81,6 @@ Model.reopen({
 
 Model.reopenClass({
 
-  reopen: function(){
-    this.inverseMap = Ember.Map.create();
-    return this._super.apply(this, arguments);
-  },
-
-  extend: function(){
-    var newClass = this._super.apply(this, arguments);
-    newClass.inverseMap = Ember.Map.create();
-    return newClass;
-  },
   /**
     For a given relationship name, returns the model type of the relationship.
 
@@ -114,7 +104,9 @@ Model.reopenClass({
     return relationship && relationship.type;
   },
 
-  inverseMap: null,
+  inverseMap: Ember.computed(function() {
+    return Object.create(null);
+  }),
 
   /*
     Find the relationship which is the inverse of the one asked for.
@@ -140,19 +132,23 @@ Model.reopenClass({
     @return {Object} the inverse relationship, or null
   */
   inverseFor: function(name) {
-    if (this.inverseMap.has(name)) {
-      return this.inverseMap.get(name);
+    var inverseMap = get(this, 'inverseMap');
+    if (inverseMap[name]) {
+      return inverseMap[name];
     } else {
-      var inverse = this.findInverseFor(name);
-      this.inverseMap.set(name, inverse);
+      var inverse = this._findInverseFor(name);
+      inverseMap[name] = inverse;
       return inverse;
     }
   },
+
   //Calculate the inverse, ignoring the cache
-  findInverseFor: function(name) {
+  _findInverseFor: function(name) {
 
     var inverseType = this.typeForRelationship(name);
-    if (!inverseType) { return null; }
+    if (!inverseType) {
+      return null;
+    }
 
     //If inverse is manually specified to be null, like  `comments: DS.hasMany('message', {inverse: null})`
     var options = this.metaForProperty(name).options;
