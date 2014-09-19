@@ -1,5 +1,5 @@
 import {
-  PromiseArray,
+  PromiseManyArray,
   PromiseObject
 } from "ember-data/system/promise_proxies";
 
@@ -138,6 +138,19 @@ ManyRelationship.prototype.notifyRecordRelationshipRemoved = function(record) {
   this.record.notifyHasManyRemoved(this.key, record);
 };
 
+ManyRelationship.prototype.reload = function() {
+  var self = this;
+  if (this.link) {
+    return this.fetchLink();
+  } else {
+    return this.store.scheduleFetchMany(this.manyArray.toArray()).then(function() {
+      //Goes away after the manyArray refactor
+      self.manyArray.set('isLoaded', true);
+      return self.manyArray;
+    });
+  }
+};
+
 ManyRelationship.prototype.computeChanges = function(records) {
   var members = this.members;
 
@@ -160,27 +173,33 @@ ManyRelationship.prototype.computeChanges = function(records) {
   }, this);
 };
 
+ManyRelationship.prototype.fetchLink = function() {
+  var self = this;
+  return this.store.findHasMany(this.record, this.link, this.relationshipMeta).then(function(records){
+    self.updateRecordsFromAdapter(records);
+    self.hasFetchedLink = true;
+    //Goes away after the manyArray refactor
+    self.manyArray.set('isLoaded', true);
+    return self.manyArray;
+  });
+};
 
 ManyRelationship.prototype.getRecords = function() {
   if (this.isAsync) {
     var self = this;
     var promise;
     if (this.link && !this.hasFetchedLink) {
-      promise = this.store.findHasMany(this.record, this.link, this.relationshipMeta).then(function(records){
-        self.updateRecordsFromAdapter(records);
-        self.hasFetchedLink = true;
-        //TODO(Igor) try to abstract the isLoaded part
-        self.manyArray.set('isLoaded', true);
-        return self.manyArray;
-      });
+      promise = this.fetchLink();
     } else {
       var manyArray = this.manyArray;
       promise = this.store.findMany(manyArray.toArray()).then(function(){
+        //Goes away after the manyArray refactor
         self.manyArray.set('isLoaded', true);
         return manyArray;
       });
     }
-    return PromiseArray.create({
+    return PromiseManyArray.create({
+      content: this.manyArray,
       promise: promise
     });
   } else {
