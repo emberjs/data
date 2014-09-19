@@ -5,6 +5,7 @@ import {
 import { Model } from "ember-data/system/model";
 
 var get = Ember.get;
+var filter = Ember.ArrayPolyfills.filter;
 
 /**
   @module ember-data
@@ -79,6 +80,17 @@ Model.reopen({
 */
 
 Model.reopenClass({
+
+  reopen: function(){
+    this.inverseMap = Ember.Map.create();
+    return this._super.apply(this, arguments);
+  },
+
+  extend: function(){
+    var newClass = this._super.apply(this, arguments);
+    newClass.inverseMap = Ember.Map.create();
+    return newClass;
+  },
   /**
     For a given relationship name, returns the model type of the relationship.
 
@@ -101,6 +113,8 @@ Model.reopenClass({
     var relationship = get(this, 'relationshipsByName').get(name);
     return relationship && relationship.type;
   },
+
+  inverseMap: null,
 
   /*
     Find the relationship which is the inverse of the one asked for.
@@ -126,6 +140,16 @@ Model.reopenClass({
     @return {Object} the inverse relationship, or null
   */
   inverseFor: function(name) {
+    if (this.inverseMap.has(name)) {
+      return this.inverseMap.get(name);
+    } else {
+      var inverse = this.findInverseFor(name);
+      this.inverseMap.set(name, inverse);
+      return inverse;
+    }
+  },
+  //Calculate the inverse, ignoring the cache
+  findInverseFor: function(name) {
 
     var inverseType = this.typeForRelationship(name);
     if (!inverseType) { return null; }
@@ -151,6 +175,19 @@ Model.reopenClass({
 
       if (possibleRelationships.length === 0) { return null; }
 
+      var filteredRelationships = filter.call(possibleRelationships, function(possibleRelationship) {
+        var optionsForRelationship = inverseType.metaForProperty(possibleRelationship.name).options;
+        return name === optionsForRelationship.inverse;
+      });
+
+      Ember.assert("You defined the '" + name + "' relationship on " + this + ", but you defined the inverse relationships of type " +
+        inverseType.toString() + " multiple times. Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
+        filteredRelationships.length < 2);
+
+      if (filteredRelationships.length === 1 ) {
+        possibleRelationships = filteredRelationships;
+      }
+
       Ember.assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " +
         this + " were found on " + inverseType + ". Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
         possibleRelationships.length === 1);
@@ -166,8 +203,19 @@ Model.reopenClass({
       if (!relationshipMap) { return; }
 
       var relationships = relationshipMap.get(type);
+
+      relationships = filter.call(relationships, function(relationship) {
+        var optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
+
+        if (!optionsForRelationship.inverse){
+          return true;
+        }
+
+        return name === optionsForRelationship.inverse;
+      });
+
       if (relationships) {
-        possibleRelationships.push.apply(possibleRelationships, relationshipMap.get(type));
+        possibleRelationships.push.apply(possibleRelationships, relationships);
       }
 
       //Recurse to support polymorphism
