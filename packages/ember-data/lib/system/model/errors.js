@@ -50,7 +50,7 @@ var map = Ember.EnumerableUtils.map;
   or using the `messages` property to get an array of all errors.
 
   ```handlebars
-  {{#each errors.messages}}
+  {{#each message in errors.messages}}
     <div class="error">
       {{message}}
     </div>
@@ -144,7 +144,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     record. This is useful for displaying all errors to the user.
 
     ```handlebars
-    {{#each errors.messages}}
+    {{#each message in errors.messages}}
       <div class="error">
         {{message}}
       </div>
