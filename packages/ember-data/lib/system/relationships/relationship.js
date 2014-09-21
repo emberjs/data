@@ -176,6 +176,22 @@ ManyRelationship.prototype.getRecords = function() {
  }
 };
 
+ManyRelationship.prototype._super$addRecords = Relationship.prototype.addRecords;
+ManyRelationship.prototype.addRecords = function(records, idx) {
+  var underlyingRecords = records.map(function(record) {
+    if (record && record.then) {
+      var underlyingRecord = record.get('content');
+      Ember.assert("You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.`)", underlyingRecord !== undefined);
+      return underlyingRecord
+    } else {
+      return record;
+    }
+  });
+
+  this._super$addRecords(underlyingRecords, idx)
+};
+
+
 var BelongsToRelationship = function(store, record, inverseKey, relationshipMeta) {
   this._super$constructor(store, record, inverseKey, relationshipMeta);
   this.record = record;
