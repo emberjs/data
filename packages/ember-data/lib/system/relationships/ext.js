@@ -159,8 +159,8 @@ Model.reopenClass({
       inverseKind = possibleRelationships[0].kind;
     }
 
-    function findPossibleInverses(type, inverseType, possibleRelationships) {
-      possibleRelationships = possibleRelationships || [];
+    function findPossibleInverses(type, inverseType, relationshipsSoFar) {
+      var possibleRelationships = relationshipsSoFar || [];
 
       var relationshipMap = get(inverseType, 'relationships');
       if (!relationshipMap) { return; }
