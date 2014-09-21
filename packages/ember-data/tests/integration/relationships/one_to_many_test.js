@@ -25,14 +25,22 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', {
 
     Message = DS.Model.extend({
       title: attr('string'),
-      user: belongsTo('user', {async: true})
+      user: belongsTo('user', {async: true}),
+      pictures: hasMany('picture')
     });
     Message.toString = stringify('Message');
+
+    Picture = DS.Model.extend({
+      url: attr('string'),
+      message: belongsTo('message', {async: true})
+    });
+    Picture.toString = stringify('Picture');
 
     env = setupStore({
       user: User,
       message: Message,
-      account: Account
+      account: Account,
+      picture: Picture
     });
 
     store = env.store;
@@ -237,6 +245,86 @@ test("Pushing to the hasMany reflects the change on the belongsTo side - sync", 
   });
 
   equal(account2.get('user'), user, 'user got set correctly');
+});
+
+test("pushObject'ing a promise to a hasMany unwraps the promise - async", function() {
+  expect(2);
+
+  var user, picture, rawMessage, promiseMessage;
+
+  run(function() {
+    rawMessage = store.push('message', {id: 1, title: 'blah'});
+    picture = store.push('picture', {id: 1, message: 1});
+    promiseMessage = picture.get('message');
+
+    user = store.push('user', {id: 1, name: 'Bobby'});
+  });
+
+  run(function() {
+    user.get('messages').then(async(function(messages) {
+      messages.pushObject(promiseMessage);
+
+      equal(messages.contains(rawMessage), true, 'rawMessage should be present in the users messages');
+      rawMessage.get('user').then(async(function(fetchedUser) {
+        equal(fetchedUser, user, "the message's user should be set");
+      }));
+    }));
+  });
+});
+
+test("addObject'ing a promise to a hasMany unwraps the promise - async", function() {
+  expect(2);
+
+  var user, picture, rawMessage, promiseMessage;
+
+  run(function() {
+    rawMessage = store.push('message', {id: 1, title: 'blah'});
+    picture = store.push('picture', {id: 1, message: 1});
+    promiseMessage = picture.get('message');
+
+    user = store.push('user', {id: 1, name: 'Bobby'});
+  });
+
+  run(function() {
+    user.get('messages').then(async(function(messages) {
+      messages.addObject(promiseMessage);
+
+      equal(messages.contains(rawMessage), true, 'rawMessage should be present in the users messages');
+      rawMessage.get('user').then(async(function(fetchedUser) {
+        equal(fetchedUser, user, "the message's user should be set");
+      }));
+    }));
+  });
+});
+
+test("Pushing a mix of promises and raw records to a hasMany unwraps the promise - async", function() {
+  expect(4);
+  var user, rawMessage1, rawMessage2, promiseMessage2, picture;
+
+  run(function() {
+    user = store.push('user', {id: 1, name: 'Bobby'});
+    rawMessage1 = store.push('message', {id: 1, title: 'I like pie'});
+    rawMessage2 = store.push('message', {id: 2, title: 'No, cake is the best!'});
+    picture = store.push('picture', {id: 1, message: 2});
+    promiseMessage2 = picture.get('message');
+  });
+
+  run(function() {
+    user.get('messages').then(async(function(messages) {
+      messages.pushObjects([rawMessage1, promiseMessage2]);
+
+      equal(messages.contains(rawMessage1), true, "message1 should be present in the users messages");
+      equal(messages.contains(rawMessage2), true, "message2 should be present in the users messages");
+
+      rawMessage1.get('user').then(async(function(fetchedUser) {
+        equal(fetchedUser, user, "the second messages user should be set");
+      }));
+
+      rawMessage2.get('user').then(async(function(fetchedUser) {
+        equal(fetchedUser, user, "the second messages user should be set");
+      }));
+    }));
+  });
 });
 
 test("Removing from the hasMany side reflects the change on the belongsTo side - async", function () {
