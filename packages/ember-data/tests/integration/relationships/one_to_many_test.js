@@ -182,7 +182,7 @@ test("Pushing to the hasMany reflects the change on the belongsTo side - sync", 
 });
 
 test("Pushing a promise to a hasMany unwraps the promise - async", function() {
-  var user = store.push('user', {id: 1, naem: 'Bobby', messages: [1]});
+  var user = store.push('user', {id: 1, name: 'Bobby', messages: [1]});
   var message1 = store.push('message', {id: 1, title: 'I like pie'});
 
   var rawMessage2 = store.push('message', {id: 2, title: 'No, cake is the best!'});
@@ -192,6 +192,29 @@ test("Pushing a promise to a hasMany unwraps the promise - async", function() {
     messages.pushObject(promiseMessage2);
 
     equal(messages.contains(rawMessage2), true, "message2 should be present in the users messages");
+    rawMessage2.get('user').then(async(function(fetchedUser) {
+      equal(fetchedUser, user, "the second messages user should be set");
+    }));
+  }));
+});
+
+test("Pushing a mix of promises and raw records to a hasMany unwraps the promise - async", function() {
+  var user = store.push('user', {id: 1, name: 'Bobby', messages: []});
+
+  var rawMessage1 = store.push('message', {id: 1, title: 'I like pie'});
+  var rawMessage2 = store.push('message', {id: 2, title: 'No, cake is the best!'});
+  var promiseMessage2 = store.find('message', 2);
+
+  user.get('messages').then(async(function(messages) {
+    messages.pushObjects([rawMessage1, promiseMessage2]);
+
+    equal(messages.contains(rawMessage1), true, "message1 should be present in the users messages");
+    equal(messages.contains(rawMessage2), true, "message2 should be present in the users messages");
+
+    rawMessage1.get('user').then(async(function(fetchedUser) {
+      equal(fetchedUser, user, "the second messages user should be set");
+    }));
+
     rawMessage2.get('user').then(async(function(fetchedUser) {
       equal(fetchedUser, user, "the second messages user should be set");
     }));
