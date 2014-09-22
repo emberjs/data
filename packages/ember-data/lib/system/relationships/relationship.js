@@ -14,7 +14,7 @@ var Relationship = function(store, record, inverseKey, relationshipMeta) {
   this.relationshipMeta = relationshipMeta;
   //This probably breaks for polymorphic relationship in complex scenarios, due to
   //multiple possible typeKeys
-  this.inverseKeyForimplicit = this.store.modelFor(this.record.constructor).typeKey + this.key;
+  this.inverseKeyForImplicit = this.store.modelFor(this.record.constructor).typeKey + this.key;
 };
 
 Relationship.prototype = {
@@ -65,10 +65,10 @@ Relationship.prototype = {
       if (this.inverseKey) {
         record._relationships[this.inverseKey].addRecord(this.record);
       } else {
-        if (!record._implicitRelationships[this.inverseKeyForimplicit]) {
-          record._implicitRelationships[this.inverseKeyForimplicit] = new Relationship(this.store, record, this.key,  {options:{}});
+        if (!record._implicitRelationships[this.inverseKeyForImplicit]) {
+          record._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, record, this.key,  {options:{}});
         }
-        record._implicitRelationships[this.inverseKeyForimplicit].addRecord(this.record);
+        record._implicitRelationships[this.inverseKeyForImplicit].addRecord(this.record);
       }
       this.record.updateRecordArrays();
     }
@@ -80,8 +80,8 @@ Relationship.prototype = {
       if (this.inverseKey) {
         this.removeRecordFromInverse(record);
       } else {
-        if (record._implicitRelationships[this.inverseKeyForimplicit]) {
-          record._implicitRelationships[this.inverseKeyForimplicit].removeRecord(this.record);
+        if (record._implicitRelationships[this.inverseKeyForImplicit]) {
+          record._implicitRelationships[this.inverseKeyForImplicit].removeRecord(this.record);
         }
       }
     }

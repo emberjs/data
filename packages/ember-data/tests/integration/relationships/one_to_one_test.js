@@ -13,15 +13,13 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', {
       bestFriend: belongsTo('user', {async: true}),
       job: belongsTo('job')
     });
-
     User.toString = stringify('User');
 
     Job = DS.Model.extend({
       isGood: attr(),
       user: belongsTo('user')
     });
-
-    Job.toString = stringify('Account');
+    Job.toString = stringify('Job');
 
     env = setupStore({
       user: User,
@@ -208,7 +206,7 @@ test("Rollbacking a deleted record restores the relationship on both sides - asy
   }));
 });
 
-test("Rollbacking a deleted record restores the relationship on both sides - async", function () {
+test("Rollbacking a deleted record restores the relationship on both sides - sync", function () {
   var job = store.push('job', {id:2 , isGood: true});
   var user = store.push('user', {id:1, name: 'Stanley', job:2 });
   job.deleteRecord();
