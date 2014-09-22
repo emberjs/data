@@ -1492,6 +1492,7 @@ Store = Ember.Object.extend({
     var record = type._create({
       id: id,
       store: this,
+      adapter: this.adapterFor(type),
       container: this.container
     });
 

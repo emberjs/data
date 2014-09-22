@@ -19,6 +19,13 @@ test("doesn't modify passed in properties hash", function(){
   deepEqual(attributes, { foo: 'bar' }, "The properties hash is not modified");
 });
 
+test("model has access to store and adapter", function() {
+  var attrs = { foo: 'bar'}
+  record1 = store.createRecord(Record, attrs);
+  equal(record1.get('store'), store);
+  equal(record1.get('adapter'), store.adapterFor(Record));
+});
+
 module("unit/store/createRecord - Store with models by dash", {
   setup: function() {
     var env = setupStore({
