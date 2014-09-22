@@ -970,6 +970,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var promise = new Promise(function(resolve){
        record.send('reloadRecord', resolve);
     }, promiseLabel).then(function() {
+      record.updateRecordArrays();
       record.set('isReloading', false);
       record.set('isError', false);
       return record;
