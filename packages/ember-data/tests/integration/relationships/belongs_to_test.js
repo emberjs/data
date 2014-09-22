@@ -15,35 +15,44 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
       messages: hasMany('message', {polymorphic: true})
       //favouriteMessage: belongsTo('message', {polymorphic: true})
     });
-
     User.toString = stringify('User');
 
     Message = DS.Model.extend({
       user: belongsTo('user'),
       created_at: attr('date')
     });
-
     Message.toString = stringify('Message');
 
     Post = Message.extend({
       title: attr('string'),
       comments: hasMany('comment')
     });
-
     Post.toString = stringify('Post');
 
     Comment = Message.extend({
       body: DS.attr('string'),
       message: DS.belongsTo('message', { polymorphic: true })
     });
-
     Comment.toString = stringify('Comment');
+
+    Book = DS.Model.extend({
+      name: attr('string'),
+      author: belongsTo('author')
+    });
+    Book.toString = stringify('Book');
+
+    Author = DS.Model.extend({
+      name: attr('string')
+    });
+    Author.toString = stringify('Author');
 
     env = setupStore({
       user: User,
       post: Post,
       comment: Comment,
-      message: Message
+      message: Message,
+      book: Book,
+      author: Author
     });
 
     env.container.register('serializer:user', DS.JSONSerializer.extend({
@@ -382,3 +391,23 @@ test("A sync belongsTo errors out if the record is unlaoded", function() {
   }, /You looked up the 'user' relationship on a 'message' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`DS.belongsTo\({ async: true }\)`\)/);
 });
 
+test("Rollbacking a deleted record restores implicit relationship - async", function () {
+  Book.reopen({
+    author: DS.belongsTo('author', { async: true })
+  });
+  var book = env.store.push('book', { id: 1, name: "Stanley's Amazing Adventures", author: 2 });
+  var author = env.store.push('author', { id: 2, name: 'Stanley' });
+  author.deleteRecord();
+  author.rollback();
+  book.get('author').then(async(function(fetchedAuthor) {
+    equal(fetchedAuthor, author, 'Book has an author after rollback');
+  }));
+});
+
+test("Rollbacking a deleted record restores implicit relationship - sync", function () {
+  var book = env.store.push('book', { id: 1, name: "Stanley's Amazing Adventures", author: 2 });
+  var author = env.store.push('author', { id: 2, name: 'Stanley' });
+  author.deleteRecord();
+  author.rollback();
+  equal(book.get('author'), author, 'Book has an author after rollback');
+});

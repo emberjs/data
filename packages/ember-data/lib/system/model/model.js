@@ -677,6 +677,10 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this.eachRelationship(function(name, relationship) {
       this._relationships[name].reconnect();
     }, this);
+    var model = this;
+    forEach.call(Ember.keys(this._implicitRelationships), function(key) {
+      model._implicitRelationships[key].reconnect();
+    });
   },
 
 

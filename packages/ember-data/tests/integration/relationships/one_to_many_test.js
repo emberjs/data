@@ -16,21 +16,18 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', {
       messages: hasMany('message', {async: true}),
       accounts: hasMany('account')
     });
-
     User.toString = stringify('User');
 
     Account = DS.Model.extend({
       state: attr(),
       user: belongsTo('user')
     });
-
     Account.toString = stringify('Account');
 
     Message = DS.Model.extend({
       title: attr('string'),
       user: belongsTo('user', {async: true})
     });
-
     Message.toString = stringify('Message');
 
     env = setupStore({
