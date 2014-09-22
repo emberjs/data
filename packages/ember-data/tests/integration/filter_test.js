@@ -398,8 +398,6 @@ test("it is possible to filter created records by isReloading", function() {
     name: "Tom Dale"
   });
 
-  debugger;
-
   person.reload().then(async(function(person) {
     equal(filter.get('length'), 1, "isReloading is set to false on the reloaded object");
   }));
