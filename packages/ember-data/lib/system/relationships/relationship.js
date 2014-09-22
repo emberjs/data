@@ -14,7 +14,7 @@ var Relationship = function(store, record, inverseKey, relationshipMeta) {
   this.relationshipMeta = relationshipMeta;
   //This probably breaks for polymorphic relationship in complex scenarios, due to
   //multiple possible typeKeys
-  this.inversKeyForimplicit = this.typeKey + this.key;
+  this.inverseKeyForimplicit = this.store.modelFor(this.record.constructor).typeKey + this.key;
 };
 
 Relationship.prototype = {
