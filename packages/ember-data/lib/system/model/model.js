@@ -921,15 +921,19 @@ var Model = Ember.Object.extend(Ember.Evented, {
       // Error callback
     });
     ```
+
+    Extra parameters can be passed along with the request issued by the adapter.
+
     @method save
+    @param {Object} extraParams
     @return {Promise} a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
   */
-  save: function() {
+  save: function(extraData) {
     var promiseLabel = "DS: Model#save " + this;
     var resolver = Ember.RSVP.defer(promiseLabel);
 
-    this.get('store').scheduleSave(this, resolver);
+    this.get('store').scheduleSave(this, resolver, extraData);
     this._inFlightAttributes = this._attributes;
     this._attributes = {};
 

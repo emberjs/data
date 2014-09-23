@@ -172,12 +172,15 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     messages.save();
     ```
 
+    Extra parameters can be passed along with the request issued by the adapter.
+
     @method save
+    @param {Object} extraParams
     @return {DS.PromiseArray} promise
   */
-  save: function() {
+  save: function(extraParams) {
     var promiseLabel = "DS: RecordArray#save " + get(this, 'type');
-    var promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).then(function(array) {
+    var promise = Ember.RSVP.all(this.invoke("save", extraParams), promiseLabel).then(function(array) {
       return Ember.A(array);
     }, null, "DS: RecordArray#save apply Ember.NativeArray");
 

@@ -396,6 +396,20 @@ test("create - relationships are not duplicated", function() {
   }));
 });
 
+test("create - extra parameters are supported", function() {
+  ajaxResponse();
+
+  var post = store.createRecord('post', { name: "Rails is omakase" });
+
+  post.save({
+    extra: 'Joking'
+  }).then(async(function(post) {
+    equal(passedUrl, "/posts");
+    equal(passedVerb, "POST");
+    deepEqual(passedHash.data, { post: { name: "Rails is omakase" }, extra: 'Joking' }, "Extra params are passed");
+  }));
+});
+
 test("update - an empty payload is a basic success", function() {
   store.push('post', { id: 1, name: "Rails is omakase" });
 
@@ -513,6 +527,21 @@ test("update - a serializer's primary key and attributes are consulted when buil
     return post.save();
   })).then(async(function(post) {
     deepEqual(passedHash.data, { post: { '_name_': "The Parley Letter" } });
+  }));
+});
+
+test("update - extra parameters are supported", function() {
+  store.push('post', { id: 1, name: "Rails is omakase" });
+
+  store.find('post', 1).then(async(function(post) {
+    ajaxResponse();
+
+    post.set('name', "The Parley Letter");
+    return post.save({ funny: 'Dave' });
+  })).then(async(function(post) {
+    equal(passedUrl, "/posts/1");
+    equal(passedVerb, "PUT");
+    deepEqual(passedHash.data, { post: { name: "The Parley Letter" }, funny: 'Dave' }, "Extra params are passed");
   }));
 });
 

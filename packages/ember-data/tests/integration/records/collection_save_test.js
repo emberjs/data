@@ -89,3 +89,22 @@ test("Collection will reject save on invalid", function() {
     ok(true, 'save operation was rejected');
   }));
 });
+
+test("Collection save supports extra parameters", function() {
+  expect(2);
+  env.store.createRecord('post', {title: 'Hello'});
+  env.store.createRecord('post', {title: 'World'});
+
+  var posts = env.store.all('post');
+
+  env.adapter.createRecord = function(store, type, record, extraData) {
+    return Ember.RSVP.resolve({ title: extraData.extra + ' ' + record.get('title') });
+  };
+
+  posts.save({
+    extra: 'say:'
+  }).then(function(posts) {
+    equal(posts.get('firstObject.title'), 'say: Hello', 'extra parameters were passed on first request');
+    equal(posts.get('lastObject.title'),  'say: World', 'extra parameters were passed on last request');
+  });
+});
