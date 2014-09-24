@@ -103,8 +103,8 @@ test("Collection save supports extra parameters", function() {
 
   posts.save({
     extra: 'say:'
-  }).then(function(posts) {
-    equal(posts.get('firstObject.title'), 'say: Hello', 'extra parameters were passed on first request');
-    equal(posts.get('lastObject.title'),  'say: World', 'extra parameters were passed on last request');
-  });
+  }).then(async(function(savedPosts) {
+    equal(posts.get('firstObject.title'), 'say: Hello', 'extra parameters should be passed on first request');
+    equal(posts.get('lastObject.title'),  'say: World', 'extra parameters should be passed on last request');
+  }));
 });
