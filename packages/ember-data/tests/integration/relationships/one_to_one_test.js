@@ -119,6 +119,63 @@ test("Setting a OneToOne relationship reflects correctly on the other side- sync
   equal(job.get('user'), user, 'User relationship was set up correctly');
 });
 
+test("Setting a BelongsTo to a promise unwraps the promise before setting- async", function () {
+  var stanley = store.push('user', {id:1, name: 'Stanley', bestFriend:2});
+  var stanleysFriend = store.push('user', {id:2, name: "Stanley's friend"});
+  var newFriend = store.push('user', {id:3, name: "New friend"});
+  newFriend.set('bestFriend', stanleysFriend.get('bestFriend'));
+  stanley.get('bestFriend').then(async(function(fetchedUser) {
+    equal(fetchedUser, newFriend, 'User relationship was updated correctly');
+  }));
+  newFriend.get('bestFriend').then(async(function(fetchedUser) {
+    equal(fetchedUser, stanley, 'User relationship was updated correctly');
+  }));
+});
+
+test("Setting a BelongsTo to a promise works when the promise returns null- async", function () {
+  store.push('user', {id:1, name: 'Stanley'});
+  var igor = store.push('user', {id:2, name: "Igor"});
+  var newFriend = store.push('user', {id:3, name: "New friend", bestFriend:1});
+  newFriend.set('bestFriend', igor.get('bestFriend'));
+  newFriend.get('bestFriend').then(async(function(fetchedUser) {
+    equal(fetchedUser, null, 'User relationship was updated correctly');
+  }));
+});
+
+test("Setting a BelongsTo to a promise that didn't come from a relationship errors out", function () {
+  var stanley = store.push('user', {id:1, name: 'Stanley', bestFriend:2});
+  var igor = store.push('user', {id:3, name: 'Igor'});
+  expectAssertion(function() {
+    stanley.set('bestFriend', Ember.RSVP.resolve(igor));
+  }, /You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call./);
+});
+
+test("Setting a BelongsTo to a promise multiple times is resistant to race conditions- async", function () {
+  expect(1);
+  var stanley = store.push('user', {id:1, name: 'Stanley', bestFriend:2});
+  var igor = store.push('user', {id:3, name: "Igor", bestFriend:5});
+  var newFriend = store.push('user', {id:7, name: "New friend"});
+  env.adapter.find = function(store, type, id) {
+    if (id === '5') {
+      return Ember.RSVP.resolve({id:5, name: "Igor's friend"});
+    } else if (id === '2') {
+      stop();
+      return new Ember.RSVP.Promise(function(resolve, reject) {
+        setTimeout(function(){
+          start();
+          resolve({id:2, name:"Stanley's friend"});
+        }, 1);
+      });
+    }
+  };
+
+  newFriend.set('bestFriend', stanley.get('bestFriend'));
+  newFriend.set('bestFriend', igor.get('bestFriend'));
+  newFriend.get('bestFriend').then(async(function(fetchedUser) {
+    equal(fetchedUser.get('name'), "Igor's friend", 'User relationship was updated correctly');
+  }));
+});
+
 test("Setting a OneToOne relationship to null reflects correctly on the other side - async", function () {
   var stanley = store.push('user', {id:1, name: 'Stanley', bestFriend:2});
   var stanleysFriend = store.push('user', {id:2, name: "Stanley's friend", bestFriend:1});

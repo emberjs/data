@@ -243,6 +243,12 @@ BelongsToRelationship.prototype.addRecord = function(newRecord) {
   this._super$addRecord(newRecord);
 };
 
+BelongsToRelationship.prototype.setRecordPromise = function(newPromise) {
+  var content = newPromise.get && newPromise.get('content');
+  Ember.assert("You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.", content !== undefined);
+  this.setRecord(content);
+};
+
 BelongsToRelationship.prototype.notifyRecordRelationshipAdded = function(newRecord) {
   this.record.notifyBelongsToAdded(this.key, this);
 };
