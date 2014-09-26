@@ -994,7 +994,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     }, function(reason) {
       record.set('isError', true);
       throw reason;
-    }, "DS: Model#reload complete, update flags").finally(function () {
+    }, "DS: Model#reload complete, update flags")['finally'](function () {
       record.updateRecordArrays();
     });
 
