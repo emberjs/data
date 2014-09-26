@@ -310,6 +310,15 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   currentState: RootState.empty,
 
+  getRelationships: function() {
+    var relationships = {};
+
+    this.eachRelationship(function(relationshipName, relationship) {
+      relationships[relationshipName] = this.get(relationshipName);
+    }, this);
+
+    return Ember.RSVP.hash(relationships);
+  },
   /**
     When the record is in the `invalid` state this object will contain
     any errors returned by the adapter. When present the errors hash
