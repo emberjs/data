@@ -13,15 +13,13 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', {
       bestFriend: belongsTo('user', {async: true}),
       job: belongsTo('job')
     });
-
     User.toString = stringify('User');
 
     Job = DS.Model.extend({
       isGood: attr(),
       user: belongsTo('user')
     });
-
-    Job.toString = stringify('Account');
+    Job.toString = stringify('Job');
 
     env = setupStore({
       user: User,
@@ -191,3 +189,28 @@ test("When deleting a record that has a belongsTo relationship, the record is re
   equal(job.get('user'), user, 'Job still has the user');
 });
 
+/*
+Rollback tests
+*/
+
+test("Rollbacking a deleted record restores the relationship on both sides - async", function () {
+  var stanley = store.push('user', {id:1, name: 'Stanley', bestFriend:2});
+  var stanleysFriend = store.push('user', {id:2, name: "Stanley's friend"});
+  stanley.deleteRecord();
+  stanley.rollback();
+  stanleysFriend.get('bestFriend').then(async(function(fetchedUser) {
+    equal(fetchedUser, stanley, 'Stanley got rollbacked correctly');
+  }));
+  stanley.get('bestFriend').then(async(function(fetchedUser) {
+    equal(fetchedUser, stanleysFriend, 'Stanleys friend did not get removed');
+  }));
+});
+
+test("Rollbacking a deleted record restores the relationship on both sides - sync", function () {
+  var job = store.push('job', {id:2 , isGood: true});
+  var user = store.push('user', {id:1, name: 'Stanley', job:2 });
+  job.deleteRecord();
+  job.rollback();
+  equal(user.get('job'), job, 'Job got rollbacked correctly');
+  equal(job.get('user'), user, 'Job still has the user');
+});

@@ -150,3 +150,29 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
   equal(account.get('users.length'), 1, 'Users are still there');
   equal(user.get('accounts.length'), 0, 'Acocount got removed from the user');
 });
+
+/*
+  Rollback tests
+*/
+
+test("Rollbacking a deleted record that has a ManyToMany relationship works correctly - async", function () {
+  var user = store.push('user', {id:1, name: 'Stanley', topics: [2]});
+  var topic = store.push('topic', {id: 2, title: 'EmberFest was great'});
+  topic.deleteRecord();
+  topic.rollback();
+  topic.get('users').then(async(function(fetchedUsers) {
+    equal(fetchedUsers.get('length'), 1, 'Users are still there');
+  }));
+  user.get('topics').then(async(function(fetchedTopics) {
+    equal(fetchedTopics.get('length'), 1, 'Topic got rollbacked into the user');
+  }));
+});
+
+test("Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync", function () {
+  var account = store.push('account', {id:2 , state: 'lonely'});
+  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  account.deleteRecord();
+  account.rollback();
+  equal(account.get('users.length'), 1, 'Users are still there');
+  equal(user.get('accounts.length'), 1, 'Account got rolledback correctly into the user');
+});

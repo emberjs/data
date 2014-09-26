@@ -32,6 +32,7 @@
       // Close the script tag to make sure document.write happens
     </script>
 
+
     <script src="ember_configuration.js"></script>
 
     <script type="text/javascript">
@@ -45,6 +46,11 @@
 
       loadScript(emberPath);
     </script>
+    <!--[if lte IE 8]>
+      <script src="/bower_components/es5-shim/es5-shim.js"></script>
+      <script src="/bower_components/es5-shim/es5-sham.js"></script>
+    <![endif]]-->
+
 
     <script src="/ember-data.js"></script>
     <script src="ember-data-setup.js"></script>

@@ -48,22 +48,6 @@ export default RecordArray.extend({
   },
 
   /**
-    The property name of the relationship
-
-    @property {String} name
-    @private
-  */
-  name: null,
-
-  /**
-    The record to which this relationship belongs.
-
-    @property {DS.Model} owner
-    @private
-  */
-  owner: null,
-
-  /**
     `true` if the relationship is polymorphic, `false` otherwise.
 
     @property {Boolean} isPolymorphic
@@ -124,6 +108,13 @@ export default RecordArray.extend({
     if (objects){
       this.get('relationship').addRecords(objects, idx);
     }
+  },
+  /**
+    @method reload
+    @public
+  */
+  reload: function() {
+    return this.relationship.reload();
   },
 
   /**

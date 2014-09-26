@@ -46,6 +46,23 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     });
     Comment.toString = stringify('Comment');
 
+    Book = DS.Model.extend({
+      title: attr(),
+      chapters: hasMany('chapter', { async: true })
+    });
+    Book.toString = stringify('Book');
+
+    Chapter = DS.Model.extend({
+      title: attr()
+    });
+    Chapter.toString = stringify('Chapter');
+
+    Page = DS.Model.extend({
+      number: attr('number'),
+      chapter: belongsTo('chapter')
+    });
+    Page.toString = stringify('Page');
+
     env = setupStore({
       user: User,
       contact: Contact,
@@ -53,7 +70,10 @@ module("integration/relationships/has_many - Has-Many Relationships", {
       phone: Phone,
       post: Post,
       comment: Comment,
-      message: Message
+      message: Message,
+      book: Book,
+      chapter: Chapter,
+      page: Page
     });
   },
 
@@ -99,8 +119,9 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
     throw new Error("Adapter's findMany should not be called");
   };
 
-  env.adapter.findHasMany = function(store, record, link) {
+  env.adapter.findHasMany = function(store, record, link, relationship) {
     equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
+    equal(relationship.type.typeKey, "comment", "relationship was passed correctly");
 
     return Ember.RSVP.resolve([
       { id: 1, body: "First" },
@@ -117,13 +138,160 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
   }));
 });
 
-test("An updated `links` value should invalidate a relationship cache", function() {
-  expect(6);
+test("A hasMany relationship can be reloaded if it was fetched via a link", function() {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
 
-  env.adapter.findHasMany = function(store, record, link) {
+  env.adapter.find = function(store, type, id) {
+    equal(type, Post, "find type was Post");
+    equal(id, "1", "find id was 1");
+
+    return Ember.RSVP.resolve({ id: 1, links: { comments: "/posts/1/comments" } });
+  };
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    equal(relationship.type, Comment, "findHasMany relationship type was Comment");
+    equal(relationship.key, 'comments', "findHasMany relationship key was comments");
+    equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
+
+    return Ember.RSVP.resolve([
+      { id: 1, body: "First" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+
+  env.store.find('post', 1).then(async(function(post) {
+    return post.get('comments');
+  })).then(async(function(comments) {
+    equal(comments.get('isLoaded'), true, "comments are loaded");
+    equal(comments.get('length'), 2, "comments have 2 length");
+
+    env.adapter.findHasMany = function(store, record, link, relationship) {
+      equal(relationship.type, Comment, "findHasMany relationship type was Comment");
+      equal(relationship.key, 'comments', "findHasMany relationship key was comments");
+      equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
+
+      return Ember.RSVP.resolve([
+        { id: 1, body: "First" },
+        { id: 2, body: "Second" },
+        { id: 3, body: "Thirds" }
+      ]);
+    };
+
+    return comments.reload();
+  })).then(async(function(newComments){
+    equal(newComments.get('length'), 3, "reloaded comments have 3 length");
+  }));
+});
+
+test("A sync hasMany relationship can be reloaded if it was fetched via ids", function() {
+  Post.reopen({
+    comments: DS.hasMany('comment')
+  });
+
+  env.adapter.find = function(store, type, id) {
+    equal(type, Post, "find type was Post");
+    equal(id, "1", "find id was 1");
+
+    return Ember.RSVP.resolve({ id: 1, comments: [ 1, 2 ] });
+  };
+
+  env.store.pushMany('comment', [{ id: 1, body: "First" }, { id: 2, body: "Second" }]);
+
+  env.store.find('post', 1).then(async(function(post) {
+    var comments = post.get('comments');
+    equal(comments.get('isLoaded'), true, "comments are loaded");
+    equal(comments.get('length'), 2, "comments have a length of 2");
+
+    env.adapter.findMany = function(store, type, ids, records) {
+      return Ember.RSVP.resolve([
+        { id: 1, body: "FirstUpdated" },
+        { id: 2, body: "Second" }
+      ]);
+    };
+
+    return comments.reload();
+  })).then(async(function(newComments){
+    equal(newComments.get('firstObject.body'), 'FirstUpdated', "Record body was correctly updated");
+  }));
+});
+
+test("A hasMany relationship can be reloaded if it was fetched via ids", function() {
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.find = function(store, type, id) {
+    equal(type, Post, "find type was Post");
+    equal(id, "1", "find id was 1");
+
+    return Ember.RSVP.resolve({ id: 1, comments: [1,2] });
+  };
+
+  env.adapter.findMany = function(store, type, ids, records) {
+    return Ember.RSVP.resolve([
+      { id: 1, body: "First" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+
+  env.store.find('post', 1).then(async(function(post) {
+    return post.get('comments');
+  })).then(async(function(comments) {
+    equal(comments.get('isLoaded'), true, "comments are loaded");
+    equal(comments.get('length'), 2, "comments have 2 length");
+
+    env.adapter.findMany = function(store, type, ids, records) {
+      return Ember.RSVP.resolve([
+        { id: 1, body: "FirstUpdated" },
+        { id: 2, body: "Second" }
+      ]);
+    };
+
+    return comments.reload();
+  })).then(async(function(newComments){
+    equal(newComments.get('firstObject.body'), 'FirstUpdated', "Record body was correctly updated");
+  }));
+});
+
+test("A hasMany relationship can be directly reloaded if it was fetched via ids", function() {
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.find = function(store, type, id) {
+    equal(type, Post, "find type was Post");
+    equal(id, "1", "find id was 1");
+
+    return Ember.RSVP.resolve({ id: 1, comments: [1,2] });
+  };
+
+  env.adapter.findMany = function(store, type, ids, records) {
+    return Ember.RSVP.resolve([
+      { id: 1, body: "FirstUpdated" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+
+  env.store.find('post', 1).then(async(function(post) {
+    return post.get('comments').reload().then(async(function(comments) {
+      equal(comments.get('isLoaded'), true, "comments are loaded");
+      equal(comments.get('length'), 2, "comments have 2 length");
+      equal(comments.get('firstObject.body'), "FirstUpdated", "Record body was correctly updated");
+    }));
+  }));
+});
+
+test("An updated `links` value should invalidate a relationship cache", function() {
+  expect(8);
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    equal(relationship.type.typeKey, "comment", "relationship was passed correctly");
+
     if (link === '/first') {
       return Ember.RSVP.resolve([
         { id: 1, body: "First" },
@@ -456,3 +624,41 @@ test("If reordered hasMany data has been pushed to the store, the many array ref
   deepEqual(post.get('comments').toArray(), [comment4, comment2, comment3, comment1], 'Updated ordering is correct');
 });
 
+test("Rollbacking a deleted record restores implicit relationship correctly when the hasMany side has been deleted - async", function () {
+  var book = env.store.push('book', { id: 1, title: "Stanley's Amazing Adventures", chapters: [2] });
+  var chapter = env.store.push('chapter', { id: 2, title: 'Sailing the Seven Seas' });
+  chapter.deleteRecord();
+  chapter.rollback();
+  book.get('chapters').then(async(function(fetchedChapters) {
+    equal(fetchedChapters.objectAt(0), chapter, 'Book has a chapter after rollback');
+  }));
+});
+
+test("Rollbacking a deleted record restores implicit relationship correctly when the hasMany side has been deleted - sync", function () {
+  var book = env.store.push('book', { id: 1, title: "Stanley's Amazing Adventures", chapters: [2] });
+  var chapter = env.store.push('chapter', { id: 2, title: 'Sailing the Seven Seas' });
+  chapter.deleteRecord();
+  chapter.rollback();
+  equal(book.get('chapters.firstObject'), chapter, "Book has a chapter after rollback");
+});
+
+test("Rollbacking a deleted record restores implicit relationship correctly when the belongsTo side has been deleted - async", function () {
+  Page.reopen({
+    chapter: DS.belongsTo('chapter', { async: true })
+  });
+  var chapter = env.store.push('chapter', { id: 2, title: 'Sailing the Seven Seas' });
+  var page = env.store.push('page', { id: 3, number: 1, chapter: 2 });
+  chapter.deleteRecord();
+  chapter.rollback();
+  page.get('chapter').then(async(function(fetchedChapter) {
+    equal(fetchedChapter, chapter, 'Page has a chapter after rollback');
+  }));
+});
+
+test("Rollbacking a deleted record restores implicit relationship correctly when the belongsTo side has been deleted - sync", function () {
+  var chapter = env.store.push('chapter', { id: 2, title: 'Sailing the Seven Seas' });
+  var page = env.store.push('page', { id: 3, number: 1, chapter: 2 });
+  chapter.deleteRecord();
+  chapter.rollback();
+  equal(page.get('chapter'), chapter, "Page has a chapter after rollback");
+});

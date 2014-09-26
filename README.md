@@ -33,6 +33,10 @@ You also have the option to build ember-data.js yourself.  Clone the
 repository, run `broccoli build dist` after [setup](#setup). You'll find
 ember-data.js in the `dist` directory.
 
+#### Internet Explorer 8
+
+If you need to support Internet Explorer, you will need to use es5-shim.js and es5-sham.js from [es5-shim](https://github.com/es-shims/es5-shim).
+
 ### Instantiating the Store
 
 In Ember Data, the _store_ is responsible for managing the lifecycle of

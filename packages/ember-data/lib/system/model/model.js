@@ -445,6 +445,27 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this._attributes = {};
     this._inFlightAttributes = {};
     this._relationships = {};
+    /*
+      implicit relationships are relationship which have not been declared but the inverse side exists on
+      another record somewhere
+      For example if there was
+      ```
+        App.Comment = DS.Model.extend({
+          name: DS.attr()
+        })
+      ```
+      but there is also
+      ```
+        App.Post = DS.Model.extend({
+          name: DS.attr(),
+          comments: DS.hasMany('comment')
+        })
+      ```
+
+      would have a implicit post relationship in order to be do things like remove ourselves from the post
+      when we are deleted
+    */
+    this._implicitRelationships = Object.create(null);
     var model = this;
     //TODO Move into a getter for better perf
     this.constructor.eachRelationship(function(key, descriptor) {
@@ -646,7 +667,22 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this.eachRelationship(function(name, relationship) {
       this._relationships[name].disconnect();
     }, this);
+    var model = this;
+    forEach.call(Ember.keys(this._implicitRelationships), function(key) {
+      model._implicitRelationships[key].disconnect();
+    });
   },
+
+  reconnectRelationships: function() {
+    this.eachRelationship(function(name, relationship) {
+      this._relationships[name].reconnect();
+    }, this);
+    var model = this;
+    forEach.call(Ember.keys(this._implicitRelationships), function(key) {
+      model._implicitRelationships[key].reconnect();
+    });
+  },
+
 
   /**
     @method updateRecordArrays
@@ -867,6 +903,13 @@ var Model = Ember.Object.extend(Ember.Evented, {
     if (get(this, 'isError')) {
       this._inFlightAttributes = {};
       set(this, 'isError', false);
+    }
+
+    //Eventually rollback will always work for relationships
+    //For now we support it only out of deleted state, because we
+    //have an explicit way of knowing when the server acked the relationship change
+    if (get(this, 'isDeleted')) {
+      this.reconnectRelationships();
     }
 
     if (!get(this, 'isValid')) {

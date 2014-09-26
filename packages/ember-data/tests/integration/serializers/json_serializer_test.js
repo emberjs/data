@@ -76,6 +76,20 @@ test("serializeBelongsTo with null", function() {
   }, "Can set a belongsTo to a null value");
 });
 
+test("async serializeBelongsTo with null", function() {
+  Comment.reopen({
+    post: DS.belongsTo('post', {async:true})
+   });
+  comment = env.store.createRecord(Comment, { body: "Omakase is delicious", post: null});
+  var json = {};
+
+  env.serializer.serializeBelongsTo(comment, json, {key: "post", options: {}});
+
+  deepEqual(json, {
+    post: null
+  }, "Can set a belongsTo to a null value");
+});
+
 test("serializeBelongsTo respects keyForRelationship", function() {
   env.container.register('serializer:post', DS.JSONSerializer.extend({
     keyForRelationship: function(key, type) {

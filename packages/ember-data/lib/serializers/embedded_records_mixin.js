@@ -15,21 +15,24 @@ var camelize = Ember.String.camelize;
   ```js
   App.PostSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
-      author: {embedded: 'always'},
-      comments: {serialize: 'ids'}
+      author: { embedded: 'always' },
+      comments: { serialize: 'ids' }
     }
-  })
+  });
   ```
-  Note that this use of `{embedded: 'always'}` is unrelated to
-  the `{embedded: 'always'}` that is defined as an option on `DS.attr` as part of
+  Note that this use of `{ embedded: 'always' }` is unrelated to
+  the `{ embedded: 'always' }` that is defined as an option on `DS.attr` as part of
   defining a model while working with the ActiveModelSerializer.  Nevertheless,
-  using `{embedded: 'always'}` as an option to DS.attr is not a valid way to setup
+  using `{ embedded: 'always' }` as an option to DS.attr is not a valid way to setup
   embedded records.
 
-  The `attrs` option for a resource `{embedded: 'always'}` is shorthand for:
+  The `attrs` option for a resource `{ embedded: 'always' }` is shorthand for:
 
   ```js
-  {serialize: 'records', deserialize: 'records'}
+  { 
+    serialize: 'records',
+    deserialize: 'records'
+  }
   ```
 
   ### Configuring Attrs
@@ -53,8 +56,8 @@ var camelize = Ember.String.camelize;
   If you do not overwrite `attrs` for a specific relationship, the `EmbeddedRecordsMixin`
   will behave in the following way:
 
-  BelongsTo: `{serialize:'id', deserialize:'id'}`
-  HasMany:   `{serialize:false,  deserialize:'ids'}`
+  BelongsTo: `{ serialize: 'id', deserialize: 'id' }`  
+  HasMany:   `{ serialize: false, deserialize: 'ids' }`
 
   ### Model Relationships
 

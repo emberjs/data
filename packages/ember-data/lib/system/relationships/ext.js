@@ -5,6 +5,7 @@ import {
 import { Model } from "ember-data/system/model";
 
 var get = Ember.get;
+var filter = Ember.ArrayPolyfills.filter;
 
 /**
   @module ember-data
@@ -79,6 +80,7 @@ Model.reopen({
 */
 
 Model.reopenClass({
+
   /**
     For a given relationship name, returns the model type of the relationship.
 
@@ -102,17 +104,59 @@ Model.reopenClass({
     return relationship && relationship.type;
   },
 
+  inverseMap: Ember.computed(function() {
+    return Object.create(null);
+  }),
+
+  /*
+    Find the relationship which is the inverse of the one asked for.
+
+    For example, if you define models like this:
+
+   ```javascript
+      App.Post = DS.Model.extend({
+        comments: DS.hasMany('message')
+      });
+
+      App.Message = DS.Model.extend({
+        owner: DS.belongsTo('post')
+      });
+    ```
+
+    App.Post.inverseFor('comments') -> {type: App.Message, name:'owner', kind:'belongsTo'}
+    App.Message.inverseFor('owner') -> {type: App.Post, name:'comments', kind:'hasMany'}
+
+    @method inverseFor
+    @static
+    @param {String} name the name of the relationship
+    @return {Object} the inverse relationship, or null
+  */
   inverseFor: function(name) {
+    var inverseMap = get(this, 'inverseMap');
+    if (inverseMap[name]) {
+      return inverseMap[name];
+    } else {
+      var inverse = this._findInverseFor(name);
+      inverseMap[name] = inverse;
+      return inverse;
+    }
+  },
+
+  //Calculate the inverse, ignoring the cache
+  _findInverseFor: function(name) {
+
     var inverseType = this.typeForRelationship(name);
+    if (!inverseType) {
+      return null;
+    }
 
-    if (!inverseType) { return null; }
-
+    //If inverse is manually specified to be null, like  `comments: DS.hasMany('message', {inverse: null})`
     var options = this.metaForProperty(name).options;
-
     if (options.inverse === null) { return null; }
 
     var inverseName, inverseKind, inverse;
 
+    //If inverse is specified manually, return the inverse
     if (options.inverse) {
       inverseName = options.inverse;
       inverse = Ember.get(inverseType, 'relationshipsByName').get(inverseName);
@@ -122,9 +166,23 @@ Model.reopenClass({
 
       inverseKind = inverse.kind;
     } else {
+      //No inverse was specified manually, we need to use a heuristic to guess one
       var possibleRelationships = findPossibleInverses(this, inverseType);
 
       if (possibleRelationships.length === 0) { return null; }
+
+      var filteredRelationships = filter.call(possibleRelationships, function(possibleRelationship) {
+        var optionsForRelationship = inverseType.metaForProperty(possibleRelationship.name).options;
+        return name === optionsForRelationship.inverse;
+      });
+
+      Ember.assert("You defined the '" + name + "' relationship on " + this + ", but you defined the inverse relationships of type " +
+        inverseType.toString() + " multiple times. Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
+        filteredRelationships.length < 2);
+
+      if (filteredRelationships.length === 1 ) {
+        possibleRelationships = filteredRelationships;
+      }
 
       Ember.assert("You defined the '" + name + "' relationship on " + this + ", but multiple possible inverse relationships of type " +
         this + " were found on " + inverseType + ". Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses",
@@ -134,17 +192,29 @@ Model.reopenClass({
       inverseKind = possibleRelationships[0].kind;
     }
 
-    function findPossibleInverses(type, inverseType, possibleRelationships) {
-      possibleRelationships = possibleRelationships || [];
+    function findPossibleInverses(type, inverseType, relationshipsSoFar) {
+      var possibleRelationships = relationshipsSoFar || [];
 
       var relationshipMap = get(inverseType, 'relationships');
       if (!relationshipMap) { return; }
 
       var relationships = relationshipMap.get(type);
+
+      relationships = filter.call(relationships, function(relationship) {
+        var optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
+
+        if (!optionsForRelationship.inverse){
+          return true;
+        }
+
+        return name === optionsForRelationship.inverse;
+      });
+
       if (relationships) {
-        possibleRelationships.push.apply(possibleRelationships, relationshipMap.get(type));
+        possibleRelationships.push.apply(possibleRelationships, relationships);
       }
 
+      //Recurse to support polymorphism
       if (type.superclass) {
         findPossibleInverses(type.superclass, inverseType, possibleRelationships);
       }

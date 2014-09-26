@@ -152,6 +152,7 @@
       filter: syncForTest(),
       find: syncForTest(),
       findMany: syncForTest(),
+      findHasMany: syncForTest(),
       findByIds: syncForTest(),
       didSaveRecord: syncForTest(),
       didSaveRecords: syncForTest(),
@@ -168,7 +169,12 @@
       reload: syncForTest(),
       deleteRecord: syncForTest(),
       dataDidChange: Ember.observer(syncForTest(), 'data'),
-      updateRecordArraysLater: syncForTest()
+      updateRecordArraysLater: syncForTest(),
+      updateRecordArrays: syncForTest()
+    });
+
+    DS.ManyArray.reopen({
+      reload: syncForTest()
     });
 
     DS.Errors.reopen({
@@ -179,6 +185,11 @@
 
     DS.Relationship.prototype.addRecord = syncForTest(DS.Relationship.prototype.addRecord);
     DS.Relationship.prototype.removeRecord = syncForTest(DS.Relationship.prototype.removeRecord);
+
+    DS.Relationship.prototype.removeRecordFromInverse = syncForTest(DS.Relationship.prototype.removeRecordFromInverse);
+    DS.Relationship.prototype.removeRecordFromOwn = syncForTest(DS.Relationship.prototype.removeRecordFromOwn);
+
+    DS.Relationship.prototype.addRecordToInverse = syncForTest(DS.Relationship.prototype.addRecordToInverse);
 
     var transforms = {
       'boolean': DS.BooleanTransform.create(),

@@ -16,21 +16,18 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', {
       messages: hasMany('message', {async: true}),
       accounts: hasMany('account')
     });
-
     User.toString = stringify('User');
 
     Account = DS.Model.extend({
       state: attr(),
       user: belongsTo('user')
     });
-
     Account.toString = stringify('Account');
 
     Message = DS.Model.extend({
       title: attr('string'),
       user: belongsTo('user', {async: true})
     });
-
     Message.toString = stringify('Message');
 
     env = setupStore({
@@ -340,3 +337,50 @@ test("When deleting a record that has a hasMany it is removed from the belongsTo
   equal(account.get('user'), null, 'Account no longer has the user');
 });
 
+/*
+Rollback from deleted state
+*/
+
+test("Rollbacking a deleted record works correctly when the hasMany side has been deleted - async", function () {
+  var user = store.push('user', {id:1, name: 'Stanley', messages: [2]});
+  var message = store.push('message', {id: 2, title: 'EmberFest was great'});
+  message.deleteRecord();
+  message.rollback();
+  message.get('user').then(async(function(fetchedUser) {
+    equal(fetchedUser, user, 'Message still has the user');
+  }));
+  user.get('messages').then(async(function(fetchedMessages) {
+    equal(fetchedMessages.objectAt(0), message, 'User has the message');
+  }));
+});
+
+test("Rollbacking a deleted record works correctly when the hasMany side has been deleted - sync", function () {
+  var account = store.push('account', {id:2 , state: 'lonely'});
+  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  account.deleteRecord();
+  account.rollback();
+  equal(user.get('accounts.length'), 1, "Accounts are rolled back");
+  equal(account.get('user'), user, 'Account still has the user');
+});
+
+test("Rollbacking a deleted record works correctly when the belongsTo side has been deleted - async", function () {
+  var user = store.push('user', {id:1, name: 'Stanley', messages: [2]});
+  var message = store.push('message', {id: 2, title: 'EmberFest was great'});
+  user.deleteRecord();
+  user.rollback();
+  message.get('user').then(async(function(fetchedUser) {
+    equal(fetchedUser, user, 'Message has the user again');
+  }));
+  user.get('messages').then(async(function(fetchedMessages) {
+    equal(fetchedMessages.get('length'), 1, 'User still has the messages');
+  }));
+});
+
+test("Rollbacking a deleted record works correctly when the belongsTo side has been deleted - sync", function () {
+  var account = store.push('account', {id:2 , state: 'lonely'});
+  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  user.deleteRecord();
+  user.rollback();
+  equal(user.get('accounts.length'), 1, "User still has the accounts");
+  equal(account.get('user'), user, 'Account has the user again');
+});
