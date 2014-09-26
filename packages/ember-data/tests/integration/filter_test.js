@@ -379,6 +379,30 @@ test("it is possible to filter created records by dirtiness", function() {
   }));
 });
 
+test("it is possible to filter created records by isReloading", function() {
+  set(store, 'adapter', DS.Adapter.extend({
+    find: function() {
+      return Ember.RSVP.resolve({
+        id: 1,
+        name: "Tom Dalle"
+      });
+    }
+  }));
+
+  var filter = store.filter('person', function(person) {
+    return !person.get('isReloading');
+  });
+
+  var person = store.createRecord('person', {
+    id: 1,
+    name: "Tom Dale"
+  });
+
+  person.reload().then(async(function(person) {
+    equal(filter.get('length'), 1, "the filter correctly returned a reloaded object");
+  }));
+});
+
 
 // SERVER SIDE TESTS
 var edited;
