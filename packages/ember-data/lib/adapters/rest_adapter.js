@@ -452,13 +452,15 @@ export default Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {DS.Model} record
+    @param {Object} extraParams
     @return {Promise} promise
   */
-  createRecord: function(store, type, record) {
+  createRecord: function(store, type, record, extraParams) {
     var data = {};
     var serializer = store.serializerFor(type.typeKey);
 
     serializer.serializeIntoHash(data, type, record, { includeId: true });
+    Ember.merge(data, extraParams);
 
     return this.ajax(this.buildURL(type.typeKey, null, record), "POST", { data: data });
   },
@@ -477,13 +479,15 @@ export default Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {DS.Model} record
+    @param {Object} extraParams
     @return {Promise} promise
   */
-  updateRecord: function(store, type, record) {
+  updateRecord: function(store, type, record, extraParams) {
     var data = {};
     var serializer = store.serializerFor(type.typeKey);
 
     serializer.serializeIntoHash(data, type, record);
+    Ember.merge(data, extraParams);
 
     var id = get(record, 'id');
 

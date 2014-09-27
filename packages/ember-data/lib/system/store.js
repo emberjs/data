@@ -1023,16 +1023,19 @@ Store = Ember.Object.extend({
     This method is called by `record.save`, and gets passed a
     resolver for the promise that `record.save` returns.
 
+    Extra parameters can be passed along with the request to the server.
+
     It schedules saving to happen at the end of the run loop.
 
     @method scheduleSave
     @private
     @param {DS.Model} record
     @param {Resolver} resolver
+    @param {Object} extraParams
   */
-  scheduleSave: function(record, resolver) {
+  scheduleSave: function(record, resolver, extraParams) {
     record.adapterWillCommit();
-    this._pendingSave.push([record, resolver]);
+    this._pendingSave.push([record, resolver, extraParams]);
     once(this, 'flushPendingSave');
   },
 
@@ -1048,7 +1051,7 @@ Store = Ember.Object.extend({
     this._pendingSave = [];
 
     forEach(pending, function(tuple) {
-      var record = tuple[0], resolver = tuple[1];
+      var record = tuple[0], resolver = tuple[1], extraParams = tuple[2];
       var adapter = this.adapterFor(record.constructor);
       var operation;
 
@@ -1062,7 +1065,7 @@ Store = Ember.Object.extend({
         operation = 'updateRecord';
       }
 
-      resolver.resolve(_commit(adapter, this, operation, record));
+      resolver.resolve(_commit(adapter, this, operation, record, extraParams));
     }, this);
   },
 
@@ -1837,9 +1840,9 @@ function _findQuery(adapter, store, type, query, recordArray) {
   }, null, "DS: Extract payload of findQuery " + type);
 }
 
-function _commit(adapter, store, operation, record) {
+function _commit(adapter, store, operation, record, extraParams) {
   var type = record.constructor;
-  var promise = adapter[operation](store, type, record);
+  var promise = adapter[operation](store, type, record, extraParams);
   var serializer = serializerForAdapter(adapter, type);
   var label = "DS: Extract and notify about " + operation + " completion of " + record;
 

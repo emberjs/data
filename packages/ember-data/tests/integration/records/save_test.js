@@ -73,3 +73,18 @@ test("Will reject save on invalid", function() {
     ok(true, 'save operation was rejected');
   }));
 });
+
+test("Save supports extra parameters", function() {
+  expect(1);
+  var post = env.store.createRecord('post', {title: 'Hello world'});
+
+  env.adapter.createRecord = function(store, type, record, extraData) {
+    return Ember.RSVP.resolve({ title: extraData.extra + ' ' + record.get('title') });
+  };
+
+  post.save({
+    extra: 'say:'
+  }).then(function(post) {
+    equal(post.get('title'), 'say: Hello world', 'extra parameters were passed on request');
+  });
+});
