@@ -310,15 +310,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   currentState: RootState.empty,
 
-  getRelationships: function() {
-    var relationships = {};
-
-    this.eachRelationship(function(relationshipName, relationship) {
-      relationships[relationshipName] = this.get(relationshipName);
-    }, this);
-
-    return Ember.RSVP.hash(relationships);
-  },
   /**
     When the record is in the `invalid` state this object will contain
     any errors returned by the adapter. When present the errors hash
@@ -347,6 +338,33 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     return errors;
   }).readOnly(),
+
+  /**
+    Returns a RSVP.hash with model's relationships.
+
+   `getRelationships` takes an array containing wanted relationships
+   as an optional parameter.
+
+    @method getRelationships
+    @param {Object} relationshipNames
+    @return {RSVP.hash} a hash with all relationships
+  */
+  getRelationships: function(relationshipNames) {
+    var relationships = {},
+      self = this;
+
+    if (relationshipNames) {
+      forEach.call(relationshipNames, function(relationshipName) {
+        relationships[relationshipName] = self.get(relationshipName);
+      });
+    } else {
+      this.eachRelationship(function(relationshipName, relationship) {
+        relationships[relationshipName] = this.get(relationshipName);
+      }, this);
+    }
+
+    return Ember.RSVP.hash(relationships);
+  },
 
   /**
     Create a JSON representation of the record, using the serialization

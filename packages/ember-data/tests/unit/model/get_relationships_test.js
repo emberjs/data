@@ -55,3 +55,24 @@ test("getRelationships returns hasMany and belongsTo relationships in a RSVP.has
     deepEqual(relations.comments.content[0], comment, 'Hash with hasMany relations was returned');
   }));
 });
+
+test("getRelationships receives relationships names and returns them", function() {
+  Comment = DS.Model.extend({
+    body: DS.attr('string'),
+    post: DS.belongsTo(Post)
+  });
+
+  Post.reopen({
+    title: DS.attr('string'),
+    author: DS.belongsTo(Author),
+    comments: DS.hasMany(Comment)
+  });
+
+  var post = store.createRecord(Post, {title: 'The post', author: author}),
+    comment = store.createRecord(Comment, {body: 'Comment', post: post});
+
+  post.getRelationships(['comments']).then(async(function(relations){
+    deepEqual(relations.author, undefined, 'Hash did not have relationship that was not passed in');
+    deepEqual(relations.comments.content[0], comment, 'Hash has relationship that was passed in');
+  }));
+});
