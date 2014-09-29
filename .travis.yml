@@ -8,9 +8,9 @@ install:
 - "npm run-script dist"
 script:
   - npm run-script testem-local
-  - npm run-script testem-beta
   - npm run-script testem-stable
-  - npm run-script testem-canary
+  # - npm run-script testem-beta
+  # - npm run-script testem-canary
 after_success:
 - npm run-script publish-build
 - "./bin/bower-ember-data-build"
