@@ -48,7 +48,7 @@
     "ejs": "^1.0.0",
     "ember-cli": "0.0.43",
     "ember-publisher": "0.0.6",
-    "testem": "^0.6.17",
+    "testem": "^0.6.19",
     "yuidocjs": "~0.3.46"
   }
 }
