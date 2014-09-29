@@ -129,10 +129,8 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     var content = get(this, 'content');
     if (idx === undefined) {
       content.addObject(record);
-    } else {
-      if (!content.contains(record)) {
-       content.insertAt(idx, record);
-      }
+    } else if (!content.contains(record)) {
+      content.insertAt(idx, record);
     }
   },
 
@@ -185,15 +183,13 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   },
 
   _dissociateFromOwnRecords: function() {
-    var array = this;
-
     this.forEach(function(record){
       var recordArrays = record._recordArrays;
 
       if (recordArrays) {
-        recordArrays.remove(array);
+        recordArrays.remove(this);
       }
-    });
+    }, this);
   },
 
   willDestroy: function(){

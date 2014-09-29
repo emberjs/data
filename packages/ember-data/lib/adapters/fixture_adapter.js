@@ -168,9 +168,7 @@ export default Adapter.extend({
       fixtures = fixtures.filter(function(item) {
         return indexOf(ids, item.id) !== -1;
       });
-    }
-
-    if (fixtures) {
+      
       return this.simulateRemoteCall(function() {
         return fixtures;
       }, this);

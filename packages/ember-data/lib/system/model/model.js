@@ -354,8 +354,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @return {Object} an object whose values are primitive JSON values only
   */
   serialize: function(options) {
-    var store = get(this, 'store');
-    return store.serialize(this, options);
+    return get(this, 'store').serialize(this, options);
   },
 
   /**
@@ -375,8 +374,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   toJSON: function(options) {
     if (!JSONSerializer) { JSONSerializer = requireModule("ember-data/serializers/json_serializer")["default"]; }
     // container is for lazy transform lookups
-    var serializer = JSONSerializer.create({ container: this.container });
-    return serializer.serialize(this, options);
+    return JSONSerializer.create({ container: this.container }).serialize(this, options);
   },
 
   /**
@@ -709,17 +707,16 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @param {Object} preload
   */
   _preloadData: function(preload) {
-    var record = this;
     //TODO(Igor) consider the polymorphic case
     forEach.call(Ember.keys(preload), function(key) {
       var preloadValue = get(preload, key);
-      var relationshipMeta = record.constructor.metaForProperty(key);
+      var relationshipMeta = this.constructor.metaForProperty(key);
       if (relationshipMeta.isRelationship) {
-        record._preloadRelationship(key, preloadValue);
+        this._preloadRelationship(key, preloadValue);
       } else {
-        get(record, '_data')[key] = preloadValue;
+        get(this, '_data')[key] = preloadValue;
       }
-    });
+    }, this);
   },
 
   _preloadRelationship: function(key, preloadValue) {

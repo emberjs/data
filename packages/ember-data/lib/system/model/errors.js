@@ -113,7 +113,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
 
     removedItem: function(errors, error) {
       errors.get(error.attribute).removeObject(error);
-
+      
       return errors;
     }
   }),

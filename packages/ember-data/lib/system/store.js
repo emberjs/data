@@ -879,13 +879,11 @@ Store = Ember.Object.extend({
     var modelType = this.modelFor(type);
     var typeMap = this.typeMapFor(modelType);
     var records = typeMap.records.slice();
-    var record;
 
-    for (var i = 0; i < records.length; i++) {
-      record = records[i];
+    forEach(records, function(record) {
       record.unloadRecord();
       record.destroy(); // maybe within unloadRecord
-    }
+    });
 
     typeMap.findAllCache = null;
   },
@@ -1448,9 +1446,9 @@ Store = Ember.Object.extend({
     var length = datas.length;
     var result = new Array(length);
 
-    for (var i = 0; i < length; i++) {
+    forEach(datas, function(data, i) {
       result[i] = this.push(type, datas[i]);
-    }
+    }, this);
 
     return result;
   },

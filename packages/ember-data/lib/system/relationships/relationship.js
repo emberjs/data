@@ -42,20 +42,18 @@ Relationship.prototype = {
   },
 
   removeRecords: function(records){
-    var that = this;
     records.forEach(function(record){
-      that.removeRecord(record);
-    });
+      this.removeRecord(record);
+    }, this);
   },
 
   addRecords: function(records, idx){
-    var that = this;
     records.forEach(function(record){
-      that.addRecord(record, idx);
+      this.addRecord(record, idx);
       if (idx !== undefined) {
         idx++;
       }
-    });
+    }, this);
   },
 
   addRecord: function(record, idx) {
@@ -164,21 +162,18 @@ ManyRelationship.prototype.reload = function() {
 };
 
 ManyRelationship.prototype.computeChanges = function(records) {
-  var members = this.members;
 
   records = setForArray(records);
 
-  members.forEach(function(member) {
+  this.members.forEach(function(member) {
     if (records.has(member)) return;
 
     this.removeRecord(member);
   }, this);
 
-  var hasManyArray = this.manyArray;
-
   records.forEach(function(record, index) {
     //Need to preserve the order of incoming records
-    if (hasManyArray.objectAt(index) === record ) return;
+    if (this.manyArray.objectAt(index) === record ) return;
 
     this.removeRecord(record);
     this.addRecord(record, index);
