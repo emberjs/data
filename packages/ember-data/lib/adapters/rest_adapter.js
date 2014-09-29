@@ -648,7 +648,7 @@ export default Adapter.extend({
     }
 
     var groupsArray = [];
-    groups.forEach(function(key, group){
+    groups.forEach(function(group, key){
       // http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
       var maxUrlLength = 2048;
       var splitGroups = splitGroupToFitInUrl(group, maxUrlLength);

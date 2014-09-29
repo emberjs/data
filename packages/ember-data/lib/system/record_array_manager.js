@@ -67,7 +67,7 @@ export default Ember.Object.extend({
 
     if (!recordArrays) { return; }
 
-    forEach(recordArrays, function(array) {
+    recordArrays.forEach(function(array){
       array.removeRecord(record);
     });
   },
@@ -121,7 +121,7 @@ export default Ember.Object.extend({
         recordArrays.add(array);
       }
     } else if (!shouldBeInArray) {
-      recordArrays.remove(array);
+      recordArrays.delete(array);
       array.removeRecord(record);
     }
   },

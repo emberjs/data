@@ -540,7 +540,7 @@ Store = Ember.Object.extend({
     this._pendingFetch = Ember.Map.create();
   },
 
-  _flushPendingFetchForType: function (type, recordResolverPairs) {
+  _flushPendingFetchForType: function (recordResolverPairs, type) {
     var store = this;
     var adapter = store.adapterFor(type);
     var shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;

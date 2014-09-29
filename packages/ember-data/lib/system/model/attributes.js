@@ -143,7 +143,7 @@ Model.reopenClass({
     @static
   */
   eachAttribute: function(callback, binding) {
-    get(this, 'attributes').forEach(function(name, meta) {
+    get(this, 'attributes').forEach(function(meta, name) {
       callback.call(binding, name, meta);
     }, binding);
   },
@@ -191,7 +191,7 @@ Model.reopenClass({
     @static
   */
   eachTransformedAttribute: function(callback, binding) {
-    get(this, 'transformedAttributes').forEach(function(name, type) {
+    get(this, 'transformedAttributes').forEach(function(type, name) {
       callback.call(binding, name, type);
     });
   }

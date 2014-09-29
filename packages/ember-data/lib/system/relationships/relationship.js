@@ -103,7 +103,7 @@ Relationship.prototype = {
   },
 
   removeRecordFromOwn: function(record) {
-    this.members.remove(record);
+    this.members.delete(record);
     this.notifyRecordRelationshipRemoved(record);
     this.record.updateRecordArrays();
   },
@@ -180,16 +180,22 @@ ManyRelationship.prototype.computeChanges = function(records) {
   var members = this.members;
 
   records = setForArray(records);
+  var recordsToRemove = [];
 
   members.forEach(function(member) {
     if (records.has(member)) return;
 
-    this.removeRecord(member);
-  }, this);
+    recordsToRemove.push(member);
+  });
+  this.removeRecords(recordsToRemove);
 
   var hasManyArray = this.manyArray;
 
-  records.forEach(function(record, index) {
+  // Using records.toArray() since currently using
+  // removeRecord can modify length, messing stuff up
+  // forEach since it directly looks at "length" each
+  // iteration
+  records.toArray().forEach(function(record, index) {
     //Need to preserve the order of incoming records
     if (hasManyArray.objectAt(index) === record ) return;
 
