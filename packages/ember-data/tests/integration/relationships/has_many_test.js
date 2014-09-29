@@ -138,6 +138,72 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
   }));
 });
 
+test("Accessing a hasMany backed by a link multiple times triggers only one request", function() {
+  expect(2);
+  var count = 0;
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  Comment.reopen({
+    message: DS.belongsTo('post', { async: true })
+  });
+
+  var post = env.store.push('post', { id: 1, links: {comments: '/posts/1/comments'}});
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    start();
+    count++;
+    equal(count, 1, "findHasMany has only been called once");
+    stop();
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      setTimeout(function(){
+        var value = [
+          { id: 1, body: "First" },
+          { id: 2, body: "Second" }
+        ];
+        resolve(value);
+      }, 100);
+    });
+  };
+
+  stop();
+  var promise1 = post.get('comments');
+  //Invalidate the post.comments CP
+  env.store.push('comment', { id:1, message: 1 });
+  var promise2 = post.get('comments');
+  Ember.RSVP.all([promise1, promise2]).then(function() {
+    start();
+  });
+  equal(promise1.promise, promise2.promise, "Same promise is returned both times");
+});
+
+test("A hasMany backed by a link remains a promise after a record has been added to it", function() {
+  expect(1);
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  Comment.reopen({
+    message: DS.belongsTo('post', { async: true })
+  });
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    return Ember.RSVP.resolve([
+      { id: 1, body: "First" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+
+  var post = env.store.push('post', { id: 1, links: {comments: '/posts/1/comments'}});
+
+  post.get('comments').then(async(function() {
+    env.store.push('comment', { id:3, message: 1 });
+    post.get('comments').then(async(function() {
+      ok(true, 'Promise was called');
+    }));
+  }));
+});
+
 test("A hasMany relationship can be reloaded if it was fetched via a link", function() {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
