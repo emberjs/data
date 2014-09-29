@@ -106,7 +106,17 @@ export default RecordArray.extend({
       this.get('relationship').removeRecords(records);
     }
     if (objects){
-      this.get('relationship').addRecords(objects, idx);
+      var underlyingRecords = objects.map(function(record) {
+        if (record && record.then) {
+          var underlyingRecord = record.get('content');
+          Ember.assert("You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.`)", underlyingRecord !== undefined);
+          return underlyingRecord;
+        } else {
+          return record;
+        }
+      });
+
+      this.get('relationship').addRecords(underlyingRecords, idx);
     }
   },
 
