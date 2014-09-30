@@ -10,6 +10,9 @@ import {
   Adapter
 } from "ember-data/system/adapter";
 import { singularize } from "ember-inflector/system/string";
+import {
+  Map
+} from "ember-data/system/map";
 
 import {
   promiseArray,
@@ -149,7 +152,7 @@ Store = Ember.Object.extend({
     });
     this._pendingSave = [];
     //Used to keep track of all the find requests that need to be coalesced
-    this._pendingFetch = Ember.Map.create();
+    this._pendingFetch = Map.create();
   },
 
   /**
@@ -537,10 +540,10 @@ Store = Ember.Object.extend({
     }
 
     this._pendingFetch.forEach(this._flushPendingFetchForType, this);
-    this._pendingFetch = Ember.Map.create();
+    this._pendingFetch = Map.create();
   },
 
-  _flushPendingFetchForType: function (type, recordResolverPairs) {
+  _flushPendingFetchForType: function (recordResolverPairs, type) {
     var store = this;
     var adapter = store.adapterFor(type);
     var shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;

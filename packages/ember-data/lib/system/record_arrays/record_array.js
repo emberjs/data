@@ -191,7 +191,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
       var recordArrays = record._recordArrays;
 
       if (recordArrays) {
-        recordArrays.remove(array);
+        recordArrays.delete(array);
       }
     });
   },

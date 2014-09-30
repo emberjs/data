@@ -2,9 +2,12 @@ import {
   PromiseManyArray,
   PromiseObject
 } from "ember-data/system/promise_proxies";
+import {
+  OrderedSet
+} from "ember-data/system/map";
 
 var Relationship = function(store, record, inverseKey, relationshipMeta) {
-  this.members = new Ember.OrderedSet();
+  this.members = new OrderedSet();
   this.store = store;
   this.key = relationshipMeta.key;
   this.inverseKey = inverseKey;
@@ -103,7 +106,7 @@ Relationship.prototype = {
   },
 
   removeRecordFromOwn: function(record) {
-    this.members.remove(record);
+    this.members.delete(record);
     this.notifyRecordRelationshipRemoved(record);
     this.record.updateRecordArrays();
   },
@@ -178,24 +181,37 @@ ManyRelationship.prototype.reload = function() {
 
 ManyRelationship.prototype.computeChanges = function(records) {
   var members = this.members;
+  var recordsToRemove = [];
+  var length;
+  var record;
+  var i;
 
   records = setForArray(records);
 
   members.forEach(function(member) {
     if (records.has(member)) return;
 
-    this.removeRecord(member);
-  }, this);
+    recordsToRemove.push(member);
+  });
+  this.removeRecords(recordsToRemove);
 
   var hasManyArray = this.manyArray;
 
-  records.forEach(function(record, index) {
+  // Using records.toArray() since currently using
+  // removeRecord can modify length, messing stuff up
+  // forEach since it directly looks at "length" each
+  // iteration
+  records = records.toArray();
+  length = records.length;
+  for (i = 0; i < length; i++){
+    record = records[i];
     //Need to preserve the order of incoming records
-    if (hasManyArray.objectAt(index) === record ) return;
-
+    if (hasManyArray.objectAt(i) === record ) {
+      continue;
+    }
     this.removeRecord(record);
-    this.addRecord(record, index);
-  }, this);
+    this.addRecord(record, i);
+  }
 };
 
 ManyRelationship.prototype.fetchLink = function() {
@@ -331,7 +347,7 @@ BelongsToRelationship.prototype.getRecord = function() {
 };
 
 function setForArray(array) {
-  var set = new Ember.OrderedSet();
+  var set = new OrderedSet();
 
   if (array) {
     for (var i=0, l=array.length; i<l; i++) {

@@ -34,7 +34,7 @@ export default Ember.DataAdapter.extend({
     }];
     var count = 0;
     var self = this;
-    get(type, 'attributes').forEach(function(name, meta) {
+    get(type, 'attributes').forEach(function(meta, name) {
         if (count++ > self.attributeLimit) { return false; }
         var desc = capitalize(underscore(name).replace('_', ' '));
         columns.push({ name: name, desc: desc });

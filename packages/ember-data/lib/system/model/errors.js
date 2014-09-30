@@ -2,6 +2,10 @@ var get = Ember.get;
 var isEmpty = Ember.isEmpty;
 var map = Ember.EnumerableUtils.map;
 
+import {
+  MapWithDefault
+} from "ember-data/system/map";
+
 /**
 @module ember-data
 */
@@ -98,7 +102,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
   */
   errorsByAttributeName: Ember.reduceComputed("content", {
     initialValue: function() {
-      return Ember.MapWithDefault.create({
+      return MapWithDefault.create({
         defaultValue: function() {
           return Ember.A();
         }

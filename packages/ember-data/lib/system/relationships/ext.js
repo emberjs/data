@@ -3,6 +3,10 @@ import {
   relationshipFromMeta
 } from "ember-data/system/relationship-meta";
 import { Model } from "ember-data/system/model";
+import {
+  Map,
+  MapWithDefault
+} from "ember-data/system/map";
 
 var get = Ember.get;
 var filter = Ember.ArrayPolyfills.filter;
@@ -263,7 +267,7 @@ Model.reopenClass({
     @readOnly
   */
   relationships: Ember.computed(function() {
-    var map = new Ember.MapWithDefault({
+    var map = new MapWithDefault({
       defaultValue: function() { return []; }
     });
 
@@ -413,7 +417,7 @@ Model.reopenClass({
     @readOnly
   */
   relationshipsByName: Ember.computed(function() {
-    var map = Ember.Map.create();
+    var map = Map.create();
 
     this.eachComputedProperty(function(name, meta) {
       if (meta.isRelationship) {
@@ -463,7 +467,7 @@ Model.reopenClass({
     @readOnly
   */
   fields: Ember.computed(function() {
-    var map = Ember.Map.create();
+    var map = Map.create();
 
     this.eachComputedProperty(function(name, meta) {
       if (meta.isRelationship) {
@@ -487,7 +491,7 @@ Model.reopenClass({
     @param {any} binding the value to which the callback's `this` should be bound
   */
   eachRelationship: function(callback, binding) {
-    get(this, 'relationshipsByName').forEach(function(name, relationship) {
+    get(this, 'relationshipsByName').forEach(function(relationship, name) {
       callback.call(binding, name, relationship);
     });
   },

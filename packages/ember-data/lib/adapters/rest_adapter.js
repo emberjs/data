@@ -6,6 +6,9 @@ import {
   Adapter,
   InvalidError
 } from "ember-data/system/adapter";
+import {
+  MapWithDefault
+} from "ember-data/system/map";
 var get = Ember.get;
 var forEach = Ember.ArrayPolyfills.forEach;
 
@@ -618,7 +621,7 @@ export default Adapter.extend({
                       loaded separately by `findMany`.
   */
   groupRecordsForFindMany: function (store, records) {
-    var groups = Ember.MapWithDefault.create({defaultValue: function(){return [];}});
+    var groups = MapWithDefault.create({defaultValue: function(){return [];}});
     var adapter = this;
 
     forEach.call(records, function(record){
@@ -648,7 +651,7 @@ export default Adapter.extend({
     }
 
     var groupsArray = [];
-    groups.forEach(function(key, group){
+    groups.forEach(function(group, key){
       // http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
       var maxUrlLength = 2048;
       var splitGroups = splitGroupToFitInUrl(group, maxUrlLength);
