@@ -8,6 +8,10 @@ import {
   AdapterPopulatedRecordArray,
   ManyArray
 } from "ember-data/system/record_arrays";
+import {
+  MapWithDefault,
+  OrderedSet
+} from "ember-data/system/map";
 var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
 
@@ -19,7 +23,7 @@ var forEach = Ember.EnumerableUtils.forEach;
 */
 export default Ember.Object.extend({
   init: function() {
-    this.filteredRecordArrays = Ember.MapWithDefault.create({
+    this.filteredRecordArrays = MapWithDefault.create({
       defaultValue: function() { return []; }
     });
 
@@ -34,7 +38,7 @@ export default Ember.Object.extend({
   },
 
   recordArraysForRecord: function(record) {
-    record._recordArrays = record._recordArrays || Ember.OrderedSet.create();
+    record._recordArrays = record._recordArrays || OrderedSet.create();
     return record._recordArrays;
   },
 

@@ -2,9 +2,12 @@ import {
   PromiseManyArray,
   PromiseObject
 } from "ember-data/system/promise_proxies";
+import {
+  OrderedSet
+} from "ember-data/system/map";
 
 var Relationship = function(store, record, inverseKey, relationshipMeta) {
-  this.members = new Ember.OrderedSet();
+  this.members = new OrderedSet();
   this.store = store;
   this.key = relationshipMeta.key;
   this.inverseKey = inverseKey;
@@ -337,7 +340,7 @@ BelongsToRelationship.prototype.getRecord = function() {
 };
 
 function setForArray(array) {
-  var set = new Ember.OrderedSet();
+  var set = new OrderedSet();
 
   if (array) {
     for (var i=0, l=array.length; i<l; i++) {

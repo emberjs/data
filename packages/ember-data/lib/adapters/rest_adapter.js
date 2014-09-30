@@ -6,6 +6,9 @@ import {
   Adapter,
   InvalidError
 } from "ember-data/system/adapter";
+import {
+  MapWithDefault
+} from "ember-data/system/map";
 var get = Ember.get;
 var forEach = Ember.ArrayPolyfills.forEach;
 
@@ -618,7 +621,7 @@ export default Adapter.extend({
                       loaded separately by `findMany`.
   */
   groupRecordsForFindMany: function (store, records) {
-    var groups = Ember.MapWithDefault.create({defaultValue: function(){return [];}});
+    var groups = MapWithDefault.create({defaultValue: function(){return [];}});
     var adapter = this;
 
     forEach.call(records, function(record){
