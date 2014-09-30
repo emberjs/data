@@ -181,9 +181,12 @@ ManyRelationship.prototype.reload = function() {
 
 ManyRelationship.prototype.computeChanges = function(records) {
   var members = this.members;
+  var recordsToRemove = [];
+  var length;
+  var record;
+  var i;
 
   records = setForArray(records);
-  var recordsToRemove = [];
 
   members.forEach(function(member) {
     if (records.has(member)) return;
@@ -198,13 +201,17 @@ ManyRelationship.prototype.computeChanges = function(records) {
   // removeRecord can modify length, messing stuff up
   // forEach since it directly looks at "length" each
   // iteration
-  records.toArray().forEach(function(record, index) {
+  records = records.toArray();
+  length = records.length;
+  for (i = 0; i < length; i++){
+    record = records[i];
     //Need to preserve the order of incoming records
-    if (hasManyArray.objectAt(index) === record ) return;
-
+    if (hasManyArray.objectAt(i) === record ) {
+      continue;
+    }
     this.removeRecord(record);
-    this.addRecord(record, index);
-  }, this);
+    this.addRecord(record, i);
+  }
 };
 
 ManyRelationship.prototype.fetchLink = function() {
