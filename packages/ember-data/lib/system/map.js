@@ -33,13 +33,21 @@ OrderedSet.create = function(){
   return new OrderedSet();
 };
 
+/**
+ * returns a function that calls the original
+ * callback function in the correct order.
+ * if we are in pre-Ember.1.8 land, Map/MapWithDefault
+ * forEach calls with key, value, in that order.
+ * >= 1.8 forEach is called with the order value, key as per
+ * the ES6 spec.
+*/
 function translate(valueKeyOrderedCallback){
   return function(key, value){
     valueKeyOrderedCallback.call(this, value, key);
   };
 }
 
-// old, non ES6 compliant behavir
+// old, non ES6 compliant behavior
 if (usesOldBehavior){
   mapForEach = function(callback, thisArg){
     Ember.Map.prototype.forEach.call(this, translate(callback), thisArg);
