@@ -50,18 +50,20 @@ function translate(valueKeyOrderedCallback){
 // old, non ES6 compliant behavior
 if (usesOldBehavior){
   mapForEach = function(callback, thisArg){
-    Ember.Map.prototype.forEach.call(this, translate(callback), thisArg);
+    this.__super$forEach(translate(callback), thisArg);
   };
 
   /* alias to remove */
   deleteFn = function(thing){
-    this.remove.apply(this, arguments);
+    this.remove(thing);
   };
 
+  Map.prototype.__super$forEach = Ember.Map.prototype.forEach;
   Map.prototype.forEach = mapForEach;
   Map.prototype.delete = deleteFn;
 
   MapWithDefault.prototype.forEach = mapForEach;
+  MapWithDefault.prototype.__super$forEach = Ember.MapWithDefault.prototype.forEach;
   MapWithDefault.prototype.delete = deleteFn;
 
   OrderedSet.prototype.delete = deleteFn;
