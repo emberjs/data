@@ -279,7 +279,7 @@ BelongsToRelationship.prototype.addRecord = function(newRecord) {
   var type = this.relationshipMeta.type;
   Ember.assert("You can only add a '" + type.typeKey + "' record to this relationship", newRecord instanceof type);
 
-  if (this.inverseRecord && this.inverseKey) {
+  if (this.inverseRecord) {
     this.removeRecord(this.inverseRecord);
   }
 
