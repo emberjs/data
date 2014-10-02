@@ -191,6 +191,7 @@ test("When setting a belongsTo, the OneToOne invariant is commutative", function
 });
 
 test("OneToNone relationship works", function() {
+  expect(3);
   Post = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -203,11 +204,17 @@ test("OneToNone relationship works", function() {
       store = env.store;
 
   var comment = store.createRecord('comment');
-  var post = store.createRecord('post');
+  var post1 = store.createRecord('post');
+  var post2 = store.createRecord('post');
 
-  comment.set('post', post);
+  comment.set('post', post1);
+  equal(comment.get('post'), post1, 'the post is set to the first one');
 
-  equal(comment.get('post'), post);
+  comment.set('post', post2);
+  equal(comment.get('post'), post2, 'the post is set to the second one');
+
+  comment.set('post', post1);
+  equal(comment.get('post'), post1, 'the post is re-set to the first one');
 });
 
 
