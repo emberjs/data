@@ -6,7 +6,7 @@ import {
   OrderedSet
 } from "ember-data/system/map";
 
-var Relationship = function(store, record, inverseKey, relationshipMeta) {
+function Relationship(store, record, inverseKey, relationshipMeta) {
   this.members = new OrderedSet();
   this.store = store;
   this.key = relationshipMeta.key;
@@ -16,13 +16,18 @@ var Relationship = function(store, record, inverseKey, relationshipMeta) {
   this.relationshipMeta = relationshipMeta;
   //This probably breaks for polymorphic relationship in complex scenarios, due to
   //multiple possible typeKeys
-  this.inverseKeyForImplicit = this.store.modelFor(this.record.constructor).typeKey + this.key;
+  this.isPolymorphic = relationshipMeta.options.polymorphic;
+  this.inverseKeyForImplicit = this._inverseKeyForImplicit();
   //Cached promise when fetching the relationship from a link
   this.linkPromise = null;
-};
+}
 
 Relationship.prototype = {
   constructor: Relationship,
+
+  _inverseKeyForImplicit: function Relationship_inverseKeyForImplicit(){
+    return this.store.modelFor(this.record.constructor).typeKey + this.key;
+  },
 
   destroy: Ember.K,
 
@@ -62,6 +67,11 @@ Relationship.prototype = {
   },
 
   addRecord: function(record, idx) {
+    if (!this.isPolymorphic) {
+      var type = this.relationshipMeta.type;
+      debugger
+      Ember.assert("You can only add a '" + type.typeKey + "' record to this relationship", record instanceof type);
+    }
     if (!this.members.has(record)) {
       this.members.add(record);
       this.notifyRecordRelationshipAdded(record, idx);
@@ -145,7 +155,6 @@ var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
   this.belongsToType = relationshipMeta.type;
   this.manyArray = store.recordArrayManager.createManyArray(this.belongsToType, Ember.A());
   this.manyArray.relationship = this;
-  this.isPolymorphic = relationshipMeta.options.polymorphic;
   this.manyArray.isPolymorphic = this.isPolymorphic;
 };
 
@@ -279,7 +288,7 @@ BelongsToRelationship.prototype._super$addRecord = Relationship.prototype.addRec
 BelongsToRelationship.prototype.addRecord = function(newRecord) {
   if (this.members.has(newRecord)){ return;}
   var type = this.relationshipMeta.type;
-  Ember.assert("You can only add a '" + type.typeKey + "' record to this relationship", newRecord instanceof type);
+  Ember.assert("You can only add a '" + type.typeKey + "' record to this relationship", !this.isPolymorphic || newRecord instanceof type);
 
   if (this.inverseRecord) {
     this.removeRecord(this.inverseRecord);

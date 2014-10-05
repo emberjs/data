@@ -657,3 +657,51 @@ test("belongsTo supports relationships to models with id 0", function() {
     asyncEqual(get(person, 'tag'), store.find(Tag, 0), "relationship object is the same as object retrieved directly");
   }));
 });
+
+test("belongsTo with unknown model key, non-polymorphic relationship", function(){
+  var Person;
+  var Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    people: DS.hasMany('person')
+  });
+  Tag.toString = function() { return "Tag"; };
+
+  Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tag: DS.belongsTo('lolnotamodel')
+  });
+  Person.toString = function() { return "Person"; };
+
+  var env = setupStore({ tag: Tag, person: Person }),
+      store = env.store;
+
+  raises(function(){
+    store.createRecord('person').get('tag');
+  }, /No model/);
+});
+
+test("belongsTo with unknown model key, polymorphic relationship", function(){
+  var Person;
+  var Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    people: DS.hasMany('person')
+  });
+  Tag.toString = function() { return "Tag"; };
+
+  Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.hasMany('lolnotamodel', {polymorphic: true})
+  });
+  Person.toString = function() { return "Person"; };
+
+  var env = setupStore({ tag: Tag, person: Person }),
+      store = env.store;
+
+  try {
+    store.createRecord('person').get('tag');
+    ok(true, 'Did not warn for polymorphic model');
+  } catch (e) {
+    ok(false, e.message);
+    throw new Ember.Error(e);
+  }
+});
