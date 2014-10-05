@@ -212,4 +212,37 @@
   // to make the QUnit global check run clean
   jQuery(window).data('testing', true);
 
+  window.warns = function(callback, regex){
+    var warnWasCalled = false;
+    var oldWarn = Ember.warn;
+    Ember.warn = function Ember_assertWarning(message, test){
+      warnWasCalled = true;
+      if (regex && !test) {
+        ok(regex.test(message), 'Ember.warn called with expected message, but was called with ' + message);
+      } else if (test) {
+        ok(false, "Expected warn to receive a falsy test, but got a truthy test");
+      }
+    };
+    try {
+      callback();
+      ok(warnWasCalled, 'expected Ember.warn to warn, but was not called');
+    } finally {
+      Ember.warn = oldWarn;
+    }
+  };
+
+  window.noWarns = function(callback){
+    var oldWarn = Ember.warn;
+    var warnWasCalled = false;
+    Ember.warn = function Ember_noWarn(message, test){
+      warnWasCalled = !test;
+    };
+    try {
+      callback();
+    } finally {
+      ok(!warnWasCalled, 'Ember.warn warned when it should not have warned');
+      Ember.warn = oldWarn;
+    }
+  };
+
 })();
