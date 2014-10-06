@@ -927,7 +927,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
   /**
     Save the record and persist any changes to the record to an
-    extenal source via the adapter.
+    external source via the adapter.
 
     Example
 
