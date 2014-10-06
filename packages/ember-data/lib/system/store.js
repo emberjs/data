@@ -55,7 +55,7 @@ var camelize = Ember.String.camelize;
 // ID into the URL, and if we later try to deserialize that URL and find the
 // corresponding record, we will not know if it is a string or a number.
 function coerceId(id) {
-  return id == null ? null : id+'';
+  return id == null || id === '' ? null : id+'';
 }
 
 /**
