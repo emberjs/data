@@ -336,3 +336,30 @@ test('calling push without data argument as an object raises an error', function
     }, /object/);
   });
 });
+
+test('Calling push with a link containing an object throws an assertion error', function() {
+  expectAssertion(function() {
+    store.push('person', {
+      id: '1',
+      links: {
+        phoneNumbers: {
+          href: '/api/people/1/phone-numbers'
+        }
+      }
+    });
+  },  "You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the value of that link is not a string.");
+});
+
+test('Calling push with a link containing the value null', function() {  
+  store.push('person', {
+    id: '1',
+    firstName: 'Tan',
+    links: {
+      phoneNumbers: null
+    }
+  });
+
+  var person = store.getById('person', 1);
+
+  equal(person.get('firstName'), "Tan", "you can use links that contain null as a value");
+});
