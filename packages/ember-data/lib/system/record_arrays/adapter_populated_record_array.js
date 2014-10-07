@@ -37,22 +37,25 @@ export default RecordArray.extend({
     @param {Array} data
   */
   load: function(data) {
+    var recordArray = this;
     var store = get(this, 'store');
     var type = get(this, 'type');
-    var records = store.pushMany(type, data);
+    var promise = store.pushMany(type, data);
     var meta = store.metadataFor(type);
 
-    this.setProperties({
-      content: Ember.A(records),
-      isLoaded: true,
-      meta: cloneNull(meta)
+    return promise.then(function(records) {
+      recordArray.setProperties({
+        content: Ember.A(records),
+        isLoaded: true,
+        meta: cloneNull(meta)
+      });
+
+      records.forEach(function(record) {
+        recordArray.manager.recordArraysForRecord(record).add(recordArray);
+      });
+
+      // TODO: should triggering didLoad event be the last action of the runLoop?
+      Ember.run.once(recordArray, 'trigger', 'didLoad');
     });
-
-    records.forEach(function(record) {
-      this.manager.recordArraysForRecord(record).add(this);
-    }, this);
-
-    // TODO: should triggering didLoad event be the last action of the runLoop?
-    Ember.run.once(this, 'trigger', 'didLoad');
   }
 });
