@@ -26,16 +26,16 @@ bower install ember-data --save
 The latest passing build from the "master" branch is available on
 [http://emberjs.com/builds/#/canary](http://emberjs.com/builds/#/canary).
 
-Similarly the latest passing build from the "beta" branch can be found
+Similarly, the latest passing build from the "beta" branch can be found
 on [http://emberjs.com/builds/#/beta](http://emberjs.com/builds/#/beta)
 
-You also have the option to build ember-data.js yourself.  Clone the
-repository, run `broccoli build dist` after [setup](#setup). You'll find
-ember-data.js in the `dist` directory.
+Or build ember-data.js yourself. Clone the repository and run `npm run dist`
+after [setup](#setup). You'll find ember-data.js in the `dist` directory.
 
 #### Internet Explorer 8
 
-If you need to support Internet Explorer, you will need to use es5-shim.js and es5-sham.js from [es5-shim](https://github.com/es-shims/es5-shim).
+If you need to support Internet Explorer, you will need to use es5-shim.js and
+es5-sham.js from [es5-shim](https://github.com/es-shims/es5-shim).
 
 ### Instantiating the Store
 
