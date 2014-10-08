@@ -264,6 +264,19 @@ export default Ember.Object.extend({
     this.updateFilter(array, type, filter);
   },
 
+  /**
+    Unregister a FilteredRecordArray.
+    So manager will not update this array.
+
+    @method unregisterFilteredRecordArray
+    @param {DS.RecordArray} array
+  */
+  unregisterFilteredRecordArray: function(array) {
+    var recordArrays = this.filteredRecordArrays.get(array.type);
+    var index = recordArrays.indexOf(array);
+    recordArrays.splice(index, 1);
+  },
+
   // Internally, we maintain a map of all unloaded IDs requested by
   // a ManyArray. As the adapter loads data into the store, the
   // store notifies any interested ManyArrays. When the ManyArray's
