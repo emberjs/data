@@ -564,8 +564,12 @@ test("destroying filteredRecordArray unregisters models from being filtered", fu
 
   equal(filterFn.summary.called.length, 1);
 
-  Ember.run(recordArray, recordArray.destroy);
-  person.set('name', 'Tom');
+  Ember.run(function(){
+    recordArray.then(function(array){
+      array.destroy()
+    });
+  });
+  clientEdits([1]);
 
   equal(filterFn.summary.called.length, 1, 'expected the filter function not being called anymore');
 });
