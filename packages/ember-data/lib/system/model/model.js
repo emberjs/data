@@ -1054,13 +1054,30 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @private
     @param name
   */
-  trigger: function(name) {
-    Ember.tryInvoke(this, name, [].slice.call(arguments, 1));
+  trigger: function() {
+    var length = arguments.length;
+    var args = new Array(length - 1);
+    var name = arguments[0];
+
+    for (var i = 1; i < length; i++ ){
+      args[i - 1] = arguments[i];
+    }
+
+    Ember.tryInvoke(this, name, args);
     this._super.apply(this, arguments);
   },
 
   triggerLater: function() {
-    if (this._deferredTriggers.push(arguments) !== 1) { return; }
+    var length = arguments.length;
+    var args = new Array(length);
+
+    for (var i = 0; i < length; i++ ){
+      args[i] = arguments[i];
+    }
+
+    if (this._deferredTriggers.push(args) !== 1) {
+      return;
+    }
     Ember.run.schedule('actions', this, '_triggerDeferredTriggers');
   },
 

@@ -270,7 +270,9 @@ test("when an event is triggered on a record the method with the same name is in
 
 test("when a method is invoked from an event with the same name the arguments are passed through", function(){
   var eventMethodArgs = null;
-  var F = function() { eventMethodArgs = arguments; };
+  var F = function() {
+    eventMethodArgs = arguments;
+  };
   var record = store.createRecord(Person);
 
   record.eventThatTriggersMethod = F;
