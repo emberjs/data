@@ -1208,7 +1208,7 @@ Store = Ember.Object.extend({
     var factory;
 
     if (typeof key === 'string') {
-      factory = this.container.lookupFactory('model:' + key);
+      factory = this.modelFactoryFor(key);
       if (!factory) {
         throw new Ember.Error("No model was found for '" + key + "'");
       }
@@ -1223,6 +1223,10 @@ Store = Ember.Object.extend({
 
     factory.store = this;
     return factory;
+  },
+
+  modelFactoryFor: function(key){
+    return this.container.lookupFactory('model:' + key);
   },
 
   /**

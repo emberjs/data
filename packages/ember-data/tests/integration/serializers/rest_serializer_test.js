@@ -1,5 +1,6 @@
 var get = Ember.get, set = Ember.set;
 var HomePlanet, league, SuperVillain, superVillain, EvilMinion, YellowMinion, DoomsdayDevice, Comment, env;
+var run = Ember.run;
 
 module("integration/serializer/rest - RESTSerializer", {
   setup: function() {
@@ -80,21 +81,196 @@ test("extractArray with custom typeForRoot", function() {
   }));
 });
 
-test("extractArray failure with custom typeForRoot", function() {
+test("extractArray warning with custom typeForRoot", function() {
+  var homePlanets;
   env.restSerializer.typeForRoot = function(root) {
-    //should be camelized too, but, whoops, the developer forgot!
-    return Ember.String.singularize(root);
+    //return some garbage that won"t resolve in the container
+    return "garbage";
   };
 
   var jsonHash = {
-    home_planets: [{id: "1", name: "Umber", superVillains: [1]}],
-    super_villains: [{id: "1", firstName: "Tom", lastName: "Dale", homePlanet: "1"}]
+    home_planets: [{id: "1", name: "Umber", superVillains: [1]}]
   };
 
-  throws(function(){
+  warns(function(){
     env.restSerializer.extractArray(env.store, HomePlanet, jsonHash);
-  }, "No model was found for 'home_planets'",
-  "raised error message expected to contain \"No model was found for 'home_planets'\"");
+  }, /Encountered "home_planets" in payload, but no model was found for model name "garbage"/);
+
+  // should not warn if a model is found.
+  env.restSerializer.typeForRoot = function(root){
+    return Ember.String.camelize(Ember.String.singularize(root));
+  };
+
+  jsonHash = {
+    home_planets: [{id: "1", name: "Umber", superVillains: [1]}]
+  };
+
+  noWarns(function(){
+    homePlanets = Ember.A(env.restSerializer.extractArray(env.store, HomePlanet, jsonHash));
+  });
+
+  equal(get(homePlanets, "length"), 1);
+  equal(get(homePlanets, "firstObject.name"), "Umber");
+  deepEqual(get(homePlanets, "firstObject.superVillains"), [1]);
+});
+
+test("extractSingle warning with custom typeForRoot", function() {
+  var homePlanet;
+  env.restSerializer.typeForRoot = function(root) {
+    //return some garbage that won"t resolve in the container
+    return "garbage";
+  };
+
+  var jsonHash = {
+    home_planet: {id: "1", name: "Umber", superVillains: [1]}
+  };
+
+  warns(Ember.run.bind(null, function(){
+    env.restSerializer.extractSingle(env.store, HomePlanet, jsonHash);
+  }), /Encountered "home_planet" in payload, but no model was found for model name "garbage"/);
+
+  // should not warn if a model is found.
+  env.restSerializer.typeForRoot = function(root){
+    return Ember.String.camelize(Ember.String.singularize(root));
+  };
+
+  jsonHash = {
+    home_planet: {id: "1", name: "Umber", superVillains: [1]}
+  };
+
+  noWarns(function(){
+    homePlanet = env.restSerializer.extractSingle(env.store, HomePlanet, jsonHash);
+  });
+
+  equal(get(homePlanet, "name"), "Umber");
+  deepEqual(get(homePlanet, "superVillains"), [1]);
+});
+
+test("pushPayload - single record payload - warning with custom typeForRoot", function() {
+  var homePlanet;
+  var HomePlanetRestSerializer = DS.RESTSerializer.extend({
+    typeForRoot: function(root){
+      //return some garbage that won"t resolve in the container
+      if (root === "home_planet") {
+        return "garbage";
+      } else {
+        return Ember.String.singularize(Ember.String.camelize(root));
+      }
+    }
+  });
+
+  env.container.register("serializer:homePlanet", HomePlanetRestSerializer);
+
+  var jsonHash = {
+    home_planet: {id: "1", name: "Umber", superVillains: [1]},
+    super_villains: [
+      {
+        "id": "1",
+        "firstName": "Stanley"
+      }
+    ]
+  };
+
+  warns(function(){
+    env.store.pushPayload("homePlanet", jsonHash);
+  }, /Encountered "home_planet" in payload, but no model was found for model name "garbage"/);
+
+
+  // assert non-warned records get pushed into store correctly
+  var superVillain = env.store.getById("superVillain", "1");
+  equal(get(superVillain, "firstName"), "Stanley");
+
+  // Serializers are singletons, so that"s why we use the store which
+  // looks at the container to look it up
+  env.store.serializerFor("homePlanet").reopen({
+    typeForRoot: function(root){
+      // should not warn if a model is found.
+      return Ember.String.camelize(Ember.String.singularize(root));
+    }
+  });
+
+  jsonHash = {
+    home_planet: {id: "1", name: "Umber", superVillains: [1]},
+    super_villains: [
+      {
+        "id": "1",
+        "firstName": "Stanley"
+      }
+    ]
+  };
+
+  noWarns(function(){
+    env.store.pushPayload("homePlanet", jsonHash);
+    run(function(){
+      homePlanet = env.store.getById("homePlanet", "1");
+    });
+  });
+
+  equal(get(homePlanet, "name"), "Umber");
+  deepEqual(get(homePlanet, "superVillains.firstObject.firstName"), "Stanley");
+});
+
+test("pushPayload - multiple record payload (extractArray) - warning with custom typeForRoot", function() {
+  var homePlanet;
+  var HomePlanetRestSerializer = DS.RESTSerializer.extend({
+    typeForRoot: function(root){
+      //return some garbage that won"t resolve in the container
+      if (root === "home_planets") {
+        return "garbage";
+      } else {
+        return Ember.String.singularize(Ember.String.camelize(root));
+      }
+    }
+  });
+
+  env.container.register("serializer:homePlanet", HomePlanetRestSerializer);
+
+  var jsonHash = {
+    home_planets: [{id: "1", name: "Umber", superVillains: [1]}],
+    super_villains: [
+      {
+        "id": "1",
+        "firstName": "Stanley"
+      }
+    ]
+  };
+
+  warns(function(){
+    env.store.pushPayload("homePlanet", jsonHash);
+  }, /Encountered "home_planets" in payload, but no model was found for model name "garbage"/);
+
+  // assert non-warned records get pushed into store correctly
+  var superVillain = env.store.getById("superVillain", "1");
+  equal(get(superVillain, "firstName"), "Stanley");
+
+  // Serializers are singletons, so that"s why we use the store which
+  // looks at the container to look it up
+  env.store.serializerFor("homePlanet").reopen({
+    typeForRoot: function(root){
+      // should not warn if a model is found.
+      return Ember.String.camelize(Ember.String.singularize(root));
+    }
+  });
+
+  jsonHash = {
+    home_planets: [{id: "1", name: "Umber", superVillains: [1]}],
+    super_villains: [
+      {
+        "id": "1",
+        "firstName": "Stanley"
+      }
+    ]
+  };
+
+  noWarns(function(){
+    env.store.pushPayload("homePlanet", jsonHash);
+    run(function(){
+      homePlanet = env.store.getById("homePlanet", "1");
+    });
+  });
+
+  equal(get(homePlanet, "name"), "Umber");
+  deepEqual(get(homePlanet, "superVillains.firstObject.firstName"), "Stanley");
 });
 
 test("serialize polymorphicType", function() {

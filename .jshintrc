@@ -32,8 +32,9 @@
         "invokeAsync",
         "jQuery",
         "expectAssertion",
-        "expectDeprecation"
-
+        "expectDeprecation",
+        "warns",
+        "noWarns"
     ],
 
     "node" : false,
