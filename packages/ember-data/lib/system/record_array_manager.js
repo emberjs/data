@@ -74,6 +74,8 @@ export default Ember.Object.extend({
     recordArrays.forEach(function(array){
       array.removeRecord(record);
     });
+
+    record._recordArrays = null;
   },
 
   _recordWasChanged: function (record) {
