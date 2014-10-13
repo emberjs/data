@@ -135,7 +135,7 @@ var ActiveModelAdapter = RESTAdapter.extend({
     https://tools.ietf.org/html/rfc4918#section-11.2
 
     @method ajaxError
-    @param jqXHR
+    @param {Object} jqXHR
     @return error
   */
   ajaxError: function(jqXHR) {

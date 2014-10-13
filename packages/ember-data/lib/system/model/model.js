@@ -1052,7 +1052,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     @method trigger
     @private
-    @param name
+    @param {String} name
   */
   trigger: function() {
     var length = arguments.length;

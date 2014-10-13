@@ -48,9 +48,9 @@ Model.reopen({
     property returned by `DS.belongsTo` as the value.
 
     @method didDefineProperty
-    @param proto
-    @param key
-    @param value
+    @param {Object} proto
+    @param {String} key
+    @param {Ember.ComputedProperty} value
   */
   didDefineProperty: function(proto, key, value) {
     // Check if the value being set is a computed property.

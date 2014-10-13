@@ -156,7 +156,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @method serializePolymorphicType
     @param {DS.Model} record
     @param {Object} json
-    @param relationship
+    @param {Object} relationship
   */
   serializePolymorphicType: function(record, json, relationship) {
     var key = relationship.key;

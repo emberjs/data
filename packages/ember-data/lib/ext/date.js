@@ -19,7 +19,8 @@ var origParse = Date.parse, numericKeys = [ 1, 4, 5, 6, 7, 10, 11 ];
 
 /**
   @method parse
-  @param date
+  @param {Date} date
+  @return {Number} timestamp
 */
 Ember.Date.parse = function (date) {
     var timestamp, struct, minutesOffset = 0;

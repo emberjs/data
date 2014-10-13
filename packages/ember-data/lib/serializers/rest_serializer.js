@@ -687,8 +687,9 @@ var RESTSerializer = JSONSerializer.extend({
     ```
 
     @method serialize
-    @param record
-    @param options
+    @param {subclass of DS.Model} record
+    @param {Object} options
+    @return {Object} json
   */
   serialize: function(record, options) {
     return this._super.apply(this, arguments);
