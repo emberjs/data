@@ -2,6 +2,38 @@
 
 ### Master
 
+### Ember Data 1.0.0-beta.11 _(October 13, 2014)_
+
+* Rollback after delete record failure
+* warn instead of throw when resolving keys to model
+* added note about coalescing and custom URLs
+* pass ids through encodeURIComponent when turning them into urls
+* Always remove the inverse record (if exists) from a belongsTo relationship fixes #2331
+* polyfill Ember.Map behavior
+* use new Em.Map function signatures
+* Refactor relationships with links
+* Implemented rollbacking of implicit relationships
+* Add support for rollback of relationships from deleted state
+* Unwrap promises when setting a belongsTo
+* Update tests on filters returning reloaded objects
+* Update recordArrays when record has reloaded
+* Refactor inverseFor cache
+* Makes it possible to custom define inverses on only one side
+* HasMany relationships now reload correctly
+* Add a test for calling reload directly on the promiseProxy
+* Add a test for reload on sync hasMany relationships
+* Added a reload to the ManyArray
+* [DOC fix] Remove misleading {inverse: null}
+* Added implicit relationships
+* Improve comments for the inverseFor method
+* Serialize belongsTo where id===null as null
+* [DOCS] Cleanup "USING EMBEDDED RECORDS" API readability
+* preload the belongsTo to be available synchronously
+* Add a test for an async belongsTo with buildURL
+* removed private unused properties in ManyArray
+* Small typo in #normalize documentation
+* Do not clear own relationships when deleting records
+
 ### Ember Data 1.0.0-beta.10 _(September 9, 2014)_
 
 * Bring back relationship parameter for findHasMany & findBelongsTo
