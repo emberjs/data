@@ -1147,7 +1147,7 @@ Store = Ember.Object.extend({
 
     @method typeMapFor
     @private
-    @param type
+    @param {subclass of DS.Model} type
     @return {Object} typeMap
   */
   typeMapFor: function(type) {
