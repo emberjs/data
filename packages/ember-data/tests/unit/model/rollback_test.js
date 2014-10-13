@@ -75,6 +75,28 @@ test("a record's changes can be made if it fails to save", function() {
   }));
 });
 
+test("a deleted record can be rollbacked if it fails to save, record arrays are updated accordingly", function() {
+  expect(6);
+  env.adapter.deleteRecord = function(store, type, record) {
+    return Ember.RSVP.reject();
+  };
+
+  var person = store.push('person', { id: 1, firstName: "Tom", lastName: "Dale" });
+  people = store.all('person');
+  person.deleteRecord();
+  equal(people.get('length'), 0, "a deleted record does not appear in record array anymore");
+
+  person.save().then(null, async(function() {
+    equal(person.get('isError'), true);
+    equal(person.get('isDeleted'), true);
+    person.rollback();
+    equal(person.get('isDeleted'), false);
+    equal(person.get('isError'), false);
+  })).then(async(function() {
+    equal(people.get('length'), 1, "the underlying record array is updated accordingly in an asynchronous way");
+  }));
+});
+
 test("new record can be rollbacked", function() {
   var person = store.createRecord('person', { id: 1 });
 
@@ -90,13 +112,15 @@ test("new record can be rollbacked", function() {
 
 test("deleted record can be rollbacked", function() {
   var person = store.push('person', { id: 1 });
+  var people = store.all('person');
 
   person.deleteRecord();
+  equal(people.get('length'), 0, "a deleted record does not appear in record array anymore");
 
   equal(person.get('isDeleted'), true, "must be deleted");
 
   person.rollback();
-
+  equal(people.get('length'), 1, "the rollbacked record should appear again in the record array");
   equal(person.get('isDeleted'), false, "must not be deleted");
   equal(person.get('isDirty'), false, "must not be dirty");
 });
