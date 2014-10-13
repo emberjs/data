@@ -336,3 +336,13 @@ test('calling push without data argument as an object raises an error', function
     }, /object/);
   });
 });
+
+test("Pushing a belongsTo with an array as a value should error nicely", function() {
+  throws(function() {
+    store.push('phone-number', {
+      id: 1,
+      number: '5551212',
+      person: ['wat']
+    });
+  }, /person/);
+});
