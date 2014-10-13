@@ -8,15 +8,24 @@ module("unit/store/push - DS.Store#push", {
       lastName: attr('string'),
       phoneNumbers: hasMany('phone-number')
     });
+    Person.toString = function() {
+      return 'Person';
+    };
 
     PhoneNumber = DS.Model.extend({
       number: attr('string'),
       person: belongsTo('person')
     });
+    PhoneNumber.toString = function() {
+      return 'PhoneNumber';
+    };
 
     Post = DS.Model.extend({
       postTitle: attr('string')
     });
+    Post.toString = function() {
+      return 'Post';
+    };
 
     env = setupStore({"post": Post,
                       "person": Person,
@@ -350,7 +359,7 @@ test('Calling push with a link containing an object throws an assertion error', 
   },  "You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the value of that link is not a string.");
 });
 
-test('Calling push with a link containing the value null', function() {  
+test('Calling push with a link containing the value null', function() {
   store.push('person', {
     id: '1',
     firstName: 'Tan',
@@ -362,4 +371,28 @@ test('Calling push with a link containing the value null', function() {
   var person = store.getById('person', 1);
 
   equal(person.get('firstName'), "Tan", "you can use links that contain null as a value");
+});
+
+test('calling push with hasMany relationship the value must be an array', function(){
+  var invalidValues = [
+    1,
+    'string',
+    Ember.Object.create(),
+    Ember.Object.extend(),
+    true
+  ];
+
+  expect(invalidValues.length);
+
+  Ember.EnumerableUtils.forEach(invalidValues, function(invalidValue){
+    throws(function() {
+      store.push('person', { id: 1, phoneNumbers: invalidValue });
+    }, /must be an array/);
+  });
+});
+
+test('calling push with belongsTo relationship the value must not be an array', function(){
+  throws(function() {
+    store.push('phone-number', { id: 1, person: [1] });
+  }, /must not be an array/);
 });
