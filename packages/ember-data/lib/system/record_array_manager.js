@@ -140,9 +140,9 @@ export default Ember.Object.extend({
     method is invoked when the filter is created in th first place.
 
     @method updateFilter
-    @param array
-    @param type
-    @param filter
+    @param {Array} array
+    @param {String} type
+    @param {Function} filter
   */
   updateFilter: function(array, type, filter) {
     var typeMap = this.store.typeMapFor(type);
