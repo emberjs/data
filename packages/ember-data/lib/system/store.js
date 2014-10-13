@@ -23,6 +23,7 @@ import {
 var get = Ember.get;
 var set = Ember.set;
 var once = Ember.run.once;
+var isArray = Ember.isArray;
 var isNone = Ember.isNone;
 var forEach = Ember.EnumerableUtils.forEach;
 var indexOf = Ember.EnumerableUtils.indexOf;
@@ -1646,7 +1647,9 @@ function deserializeRecordId(store, data, key, relationship, id) {
   }
 
   var type;
-
+  if (isArray(id)) {
+    throw new Error('the value for the \''+ key + '\' belongsTo relationship on the type ' + relationship.type + ' must not be an array');
+  }
   if (typeof id === 'number' || typeof id === 'string') {
     type = typeFor(relationship, key, data);
     data[key] = store.recordForId(type, id);
