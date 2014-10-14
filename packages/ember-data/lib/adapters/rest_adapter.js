@@ -753,9 +753,9 @@ export default Adapter.extend({
     2. Your API might return errors as successful responses with status code
     200 and an Errors text or object. You can return a DS.InvalidError from
     this hook and it will automatically reject the promise and put your record
-    into the invald state.
+    into the invalid state.
 
-    @method ajaxError
+    @method ajaxSuccess
     @param  {Object} jqXHR
     @param  {Object} jsonPayload
     @return {Object} jqXHR
