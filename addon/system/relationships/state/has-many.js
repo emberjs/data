@@ -99,6 +99,17 @@ ManyRelationship.prototype.notifyRecordRelationshipAdded = function(record, idx)
 
 ManyRelationship.prototype.reload = function() {
   var self = this;
+  var manyArrayLoadedState = this.manyArray.get('isLoaded');
+
+  if (this._loadingPromise) {
+    if (this._loadingPromise.get('isPending')) {
+      return this._loadingPromise;
+    }
+    if (this._loadingPromise.get('isRejected')) {
+      this.manyArray.set('isLoaded', manyArrayLoadedState);
+    }
+  }
+
   if (this.link) {
     return this.fetchLink();
   } else {
@@ -147,6 +158,7 @@ ManyRelationship.prototype.fetchLink = function() {
     }
     this.store._backburner.join(() => {
       this.updateRecordsFromAdapter(records);
+      this.manyArray.set('isLoaded', true);
     });
     return this.manyArray;
   });
@@ -180,10 +192,11 @@ ManyRelationship.prototype.getRecords = function() {
     } else {
       promise = this.findRecords();
     }
-    return PromiseManyArray.create({
+    this._loadingPromise = PromiseManyArray.create({
       content: this.manyArray,
       promise: promise
     });
+    return this._loadingPromise;
   } else {
     Ember.assert("You looked up the '" + this.key + "' relationship on a '" + this.record.type.modelName + "' with id " + this.record.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", this.manyArray.isEvery('isEmpty', false));
 
