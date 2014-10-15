@@ -55,17 +55,19 @@ export default RecordArray.extend({
   */
   isPolymorphic: false,
 
-  // LOADING STATE
+  /**
+    The loading state of this array
 
+    @property {Boolean} isLoaded
+  */
   isLoaded: false,
 
    /**
      The relationship which manages this array.
 
-     @property {DS.Model} owner
+     @property {ManyRelationship} relationship
      @private
    */
-
   relationship: null,
 
 
