@@ -134,7 +134,7 @@ export default RecordArray.extend({
 
     Ember.assert("You cannot add '" + type.typeKey + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
 
-    record = store.createRecord.call(store, type, hash);
+    record = store.createRecord(type, hash);
     this.pushObject(record);
 
     return record;
