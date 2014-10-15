@@ -112,7 +112,7 @@ Model.reopenClass({
     return Object.create(null);
   }),
 
-  /*
+  /**
     Find the relationship which is the inverse of the one asked for.
 
     For example, if you define models like this:
