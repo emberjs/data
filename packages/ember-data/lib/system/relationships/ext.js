@@ -450,7 +450,7 @@ Model.reopenClass({
     });
 
     var fields = Ember.get(App.Blog, 'fields');
-    fields.forEach(function(field, kind) {
+    fields.forEach(function(kind, field) {
       console.log(field, kind);
     });
 
