@@ -152,6 +152,7 @@ test("a record receives a becameInvalid callback when it became invalid", functi
       equal(get(this, 'isDirty'), true, "record should be dirty");
     }
   });
+  Person.typeKey = "person";
 
   var adapter = DS.Adapter.extend({
     find: function(store, type, id) {
@@ -165,9 +166,11 @@ test("a record receives a becameInvalid callback when it became invalid", functi
     }
   });
 
-  var store = createStore({
-    adapter: adapter
+  var env = setupStore({
+    adapter: adapter,
+    "person": Person
   });
+  var store = env.store;
 
   var asyncPerson = store.find(Person, 1);
   equal(callCount, 0, "precond - becameInvalid callback was not called yet");
