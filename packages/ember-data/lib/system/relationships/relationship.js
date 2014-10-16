@@ -12,7 +12,6 @@ var Relationship = function(store, record, inverseKey, relationshipMeta) {
   this.key = relationshipMeta.key;
   this.inverseKey = inverseKey;
   this.record = record;
-  this.key = relationshipMeta.key;
   this.isAsync = relationshipMeta.options.async;
   this.relationshipMeta = relationshipMeta;
   //This probably breaks for polymorphic relationship in complex scenarios, due to
@@ -112,6 +111,7 @@ Relationship.prototype = {
   },
 
   updateLink: function(link) {
+    Ember.assert("You have pushed a record of type '" + this.record.constructor.typeKey + "' with '" + this.key + "' as a link, but the value of that link is not a string.", typeof link === 'string' || link === null);
     if (link !== this.link) {
       this.link = link;
       this.linkPromise = null;
