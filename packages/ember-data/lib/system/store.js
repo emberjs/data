@@ -1869,7 +1869,9 @@ function _commit(adapter, store, operation, record) {
     return record;
   }, function(reason) {
     if (reason instanceof InvalidError) {
-      store.recordWasInvalid(record, reason.errors);
+      var errors = serializer.extractErrors(store, type, reason.errors, get(record, 'id'));
+      store.recordWasInvalid(record, errors);
+      reason = new InvalidError(errors);
     } else {
       store.recordWasError(record, reason);
     }
