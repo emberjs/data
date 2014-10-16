@@ -413,16 +413,22 @@ test("updating the content of a RecordArray updates its content", function() {
   var env = setupStore({ tag: Tag }),
       store = env.store;
 
-  var records = store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
+  var records = [
+    { id: 5, name: "friendly" },
+    { id: 2, name: "smarmy" },
+    { id: 12, name: "oohlala" }
+  ];
 
-  var tags = DS.RecordArray.create({ content: Ember.A(records.slice(0, 2)), store: store, type: Tag });
+  store.pushMany('tag', records).then(async(function(records) {
+    var tags = DS.RecordArray.create({ content: Ember.A(records.slice(0, 2)), store: store, type: Tag });
 
-  var tag = tags.objectAt(0);
-  equal(get(tag, 'name'), "friendly", "precond - we're working with the right tags");
+    var tag = tags.objectAt(0);
+    equal(get(tag, 'name'), "friendly", "precond - we're working with the right tags");
 
-  set(tags, 'content', Ember.A(records.slice(1, 3)));
-  tag = tags.objectAt(0);
-  equal(get(tag, 'name'), "smarmy", "the lookup was updated");
+    set(tags, 'content', Ember.A(records.slice(1, 3)));
+    tag = tags.objectAt(0);
+    equal(get(tag, 'name'), "smarmy", "the lookup was updated");
+  }));
 });
 
 test("can create child record from a hasMany relationship", function() {

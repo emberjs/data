@@ -1444,22 +1444,48 @@ Store = Ember.Object.extend({
   /**
     If you have an Array of normalized data to push,
     you can call `pushMany` with the Array, and it will
-    call `push` repeatedly for you.
+    call `push` repeatedly for you. This operation is
+    asynchronous and returns a promise that resolves with
+    the newly pushed records.
+
+    If `DS.yieldFn` exists, it will be invoked between each
+    push and passed a callback and the index of the record
+    to be pushed next. The function is responsible for
+    calling the callback to continue pushing records.
 
     @method pushMany
     @param {String or subclass of DS.Model} type
     @param {Array} datas
-    @return {Array}
+    @return {Promise} promise
   */
   pushMany: function(type, datas) {
+    var store = this;
+    var yieldFn = DS.yieldFn;
     var length = datas.length;
     var result = new Array(length);
+    var index = 0;
 
-    for (var i = 0; i < length; i++) {
-      result[i] = this.push(type, datas[i]);
+    if (typeof yieldFn === 'function') {
+      return new Ember.RSVP.Promise(function(resolve, reject) {
+        yieldFn(step, index, !length);
+
+        function step() {
+          if (index < length) {
+            result[index] = store.push(type, datas[index]);
+            index++;
+            yieldFn(step, index, index === length);
+          } else {
+            resolve(result);
+          }
+        }
+      });
+    } else {
+      for (var i = 0; i < length; i++) {
+        result[i] = this.push(type, datas[i]);
+      }
+
+      return Ember.RSVP.Promise.cast(result);
     }
-
-    return result;
   },
 
   /**
@@ -1820,9 +1846,10 @@ function _findAll(adapter, store, type, sinceToken) {
 
     Ember.assert("The response from a findAll must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
-    store.pushMany(type, payload);
-    store.didUpdateAll(type);
-    return store.all(type);
+    return store.pushMany(type, payload).then(function() {
+      store.didUpdateAll(type);
+      return store.all(type);
+    });
   }, null, "DS: Extract payload of findAll " + type);
 }
 

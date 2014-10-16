@@ -1,3 +1,4 @@
+var get = Ember.get;
 var env, store, Person, PhoneNumber, Post;
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
 
@@ -335,4 +336,35 @@ test('calling push without data argument as an object raises an error', function
       store.push('person', invalidValue);
     }, /object/);
   });
+});
+
+test('Calling pushMany uses DS.yieldFn if it exists', function() {
+  expect(12);
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var env = setupStore({ person: Person });
+  var store = env.store;
+  var index = 0;
+
+  var records = [
+    { id: 1, name: 'Egon' },
+    { id: 2, name: 'Peter' },
+    { id: 3, name: 'Winston' },
+    { id: 4, name: 'Ray' }
+  ];
+
+  DS.yieldFn = function(next, i, done) {
+    equal(done, index === records.length, 'yieldFn was called with the correct value for done flag');
+    equal(i, index++, 'yieldFn was called with the correct index');
+    next();
+  };
+
+  store.pushMany('person', records).then(async(function(people) {
+    equal(get(people[0], 'name'), 'Egon', 'records were added to the record array');
+    equal(get(people, 'length'), records.length, 'all records were added to the record array');
+    delete DS.yieldFn;
+  }));
 });
