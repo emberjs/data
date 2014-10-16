@@ -23,6 +23,10 @@ var errorProps = [
   transition to the `invalid` state and the errors will be set to the
   `errors` property on the record.
 
+  This function should return the entire payload as received from the
+  server.  Error object extraction and normalization of model errors
+  should be performed by `extractErrors` on the serializer.
+
   Example
 
   ```javascript
@@ -31,7 +35,7 @@ var errorProps = [
       var error = this._super(jqXHR);
 
       if (jqXHR && jqXHR.status === 422) {
-        var jsonErrors = Ember.$.parseJSON(jqXHR.responseText)["errors"];
+        var jsonErrors = Ember.$.parseJSON(jqXHR.responseText);
         return new DS.InvalidError(jsonErrors);
       } else {
         return error;

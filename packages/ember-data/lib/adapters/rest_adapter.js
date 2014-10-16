@@ -697,11 +697,17 @@ export default Adapter.extend({
   },
 
   /**
-    Takes an ajax response, and returns a relevant error.
+    Takes an ajax response, and returns an error payload.
 
     Returning a `DS.InvalidError` from this method will cause the
     record to transition into the `invalid` state and make the
     `errors` object available on the record.
+
+    This function should return the entire payload as received from the
+    server.  Error object extraction and normalization of model errors
+    should be performed by `extractErrors` on the serializer.
+
+    Example
 
     ```javascript
     App.ApplicationAdapter = DS.RESTAdapter.extend({
@@ -709,7 +715,7 @@ export default Adapter.extend({
         var error = this._super(jqXHR);
 
         if (jqXHR && jqXHR.status === 422) {
-          var jsonErrors = Ember.$.parseJSON(jqXHR.responseText)["errors"];
+          var jsonErrors = Ember.$.parseJSON(jqXHR.responseText);
 
           return new DS.InvalidError(jsonErrors);
         } else {
