@@ -63,8 +63,8 @@ export default Adapter.extend({
     @return {Array}
   */
   fixturesForType: function(type) {
-    if (type.FIXTURES) {
-      var fixtures = Ember.A(type.FIXTURES);
+    var fixtures = this.getRawFixtures(type);
+    if (fixtures) {
       return fixtures.map(function(fixture){
         var fixtureIdType = typeof fixture.id;
         if(fixtureIdType !== "number" && fixtureIdType !== "string"){
@@ -75,6 +75,41 @@ export default Adapter.extend({
       });
     }
     return null;
+  },
+
+  /**
+
+    @method setFixturesForType
+    @param {Subclass of DS.Model} type
+    @param {mixed} fixtures
+    @return {Array}
+  */
+  setFixturesForType: function(type, fixtures) {
+    return this.setRawFixtures(type, Ember.A(fixtures));
+  },
+
+  /**
+    Override ths method to change how the fixtures are accessed in your app
+
+    @method fetchFixtures
+    @param {Subclass of DS.Model} type
+    @return {Array}
+  */
+  getRawFixtures: function (type) {
+    return type.FIXTURES || null;
+  },
+
+  /**
+    Override ths method to change how the fixtures are defined in your app
+
+    @method setRawFixtures
+    @param {Subclass of DS.Model} type
+    @param {mixed} fixtures
+    @return {Array}
+  */
+  setRawFixtures: function (type, fixtures) {
+    type.FIXTURES = Ember.A(fixtures);
+    return type.FIXTURES;
   },
 
   /**
@@ -96,15 +131,13 @@ export default Adapter.extend({
     @param {Array} fixture
   */
   updateFixtures: function(type, fixture) {
-    if(!type.FIXTURES) {
-      type.FIXTURES = [];
+    var fixtures = Ember.A(this.fixturesForType(type));
+    if(Ember.isArray(fixtures)) {
+      this.deleteLoadedFixture(type, fixture);
     }
-
-    var fixtures = type.FIXTURES;
-
-    this.deleteLoadedFixture(type, fixture);
-
+    fixtures = Ember.A(fixtures);
     fixtures.push(fixture);
+    this.setFixturesForType(type, fixtures);
   },
 
   /**
@@ -276,10 +309,12 @@ export default Adapter.extend({
   */
   deleteLoadedFixture: function(type, record) {
     var existingFixture = this.findExistingFixture(type, record);
+    var fixtures = Ember.A(this.fixturesForType(type));
 
     if (existingFixture) {
-      var index = indexOf(type.FIXTURES, existingFixture);
-      type.FIXTURES.splice(index, 1);
+      var index = indexOf(fixtures, existingFixture);
+      fixtures.splice(index, 1);
+      this.setFixturesForType(type, fixtures);
       return true;
     }
   },
