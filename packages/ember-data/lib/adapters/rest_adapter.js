@@ -585,7 +585,7 @@ export default Adapter.extend({
   },
 
   _stripIDFromURL: function(store, record) {
-    var type = store.modelFor(record);
+    var type = record.constructor;
     var url = this.buildURL(type.typeKey, record.get('id'), record);
 
     var expandedURL = url.split('/');
@@ -601,6 +601,11 @@ export default Adapter.extend({
 
     return expandedURL.join('/');
   },
+
+  /**
+    http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
+  */
+  maxUrlLength: 2048,
 
   /**
     Organize records into groups, each of which is to be passed to separate
@@ -619,6 +624,7 @@ export default Adapter.extend({
     and `/posts/2/comments/3`
 
     @method groupRecordsForFindMany
+    @param {DS.Store} store
     @param {Array} records
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
@@ -626,19 +632,20 @@ export default Adapter.extend({
   groupRecordsForFindMany: function (store, records) {
     var groups = MapWithDefault.create({defaultValue: function(){return [];}});
     var adapter = this;
+    var maxUrlLength = this.maxUrlLength;
 
     forEach.call(records, function(record){
       var baseUrl = adapter._stripIDFromURL(store, record);
       groups.get(baseUrl).push(record);
     });
 
-    function splitGroupToFitInUrl(group, maxUrlLength) {
+    function splitGroupToFitInUrl(group, maxUrlLength, paramNameLength) {
       var baseUrl = adapter._stripIDFromURL(store, group[0]);
       var idsSize = 0;
       var splitGroups = [[]];
 
       forEach.call(group, function(record) {
-        var additionalLength = '&ids[]='.length + record.get('id.length');
+        var additionalLength = encodeURIComponent(record.get('id')).length + paramNameLength;
         if (baseUrl.length + idsSize + additionalLength >= maxUrlLength) {
           idsSize = 0;
           splitGroups.push([]);
@@ -655,9 +662,8 @@ export default Adapter.extend({
 
     var groupsArray = [];
     groups.forEach(function(group, key){
-      // http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
-      var maxUrlLength = 2048;
-      var splitGroups = splitGroupToFitInUrl(group, maxUrlLength);
+      var paramNameLength = '&ids%5B%5D='.length;
+      var splitGroups = splitGroupToFitInUrl(group, maxUrlLength, paramNameLength);
 
       forEach.call(splitGroups, function(splitGroup) {
         groupsArray.push(splitGroup);
