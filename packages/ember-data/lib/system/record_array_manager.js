@@ -14,6 +14,7 @@ import {
 } from "ember-data/system/map";
 var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
+var indexOf = Ember.EnumerableUtils.indexOf;
 
 /**
   @class RecordArrayManager
@@ -273,7 +274,7 @@ export default Ember.Object.extend({
   */
   unregisterFilteredRecordArray: function(array) {
     var recordArrays = this.filteredRecordArrays.get(array.type);
-    var index = recordArrays.indexOf(array);
+    var index = indexOf(recordArrays, array);
     recordArrays.splice(index, 1);
   },
 
