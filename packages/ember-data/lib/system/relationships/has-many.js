@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import computedPolyfill from "ember-data/utils/computed-polyfill";
 import Model from "ember-data/system/model";
 import normalizeModelName from "ember-data/system/normalize-model-name";
 
@@ -120,10 +121,18 @@ function hasMany(type, options) {
     key: null
   };
 
-  return Ember.computed(function(key) {
-    var relationship = this._relationships[key];
-    return relationship.getRecords();
-  }).meta(meta).readOnly();
+  return computedPolyfill({
+    get: function(key) {
+      var relationship = this._relationships[key];
+      return relationship.getRecords();
+    },
+    set: function(key, records) {
+      var relationship = this._relationships[key];
+      relationship.clear();
+      relationship.addRecords(records);
+      return relationship.getRecords();
+    }
+  }).meta(meta);
 }
 
 Model.reopen({
