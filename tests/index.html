@@ -7,7 +7,7 @@
     <script src="/bower_components/qunit/qunit/qunit.js"></script>
     <script src="/testem.js"></script>
     <script src="qunit_configuration.js"></script>
-    <script src="/bower_components/handlebars/handlebars.js"></script>
+    <script src="/bower_components/handlebars/handlebars.js" ></script>
 
     <script type="text/javascript">
       window.loadScript = function(url) {
@@ -32,6 +32,13 @@
       // Close the script tag to make sure document.write happens
     </script>
 
+    <script type="text/javascript">
+      var emberChannel = QUnit.urlParams.emberchannel || "release";
+      if (emberChannel === 'canary') {
+        window.Handlebars = null;
+        loadScript("http://builds.handlebarsjs.com.s3.amazonaws.com/handlebars-v2.0.0.js");
+      }
+    </script>
 
     <script src="ember_configuration.js"></script>
 
