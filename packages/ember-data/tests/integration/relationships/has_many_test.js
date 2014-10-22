@@ -375,6 +375,27 @@ test("PromiseArray proxies createRecord to its ManyArray once hasMany is loaded"
   }));
 });
 
+test("PromiseArray proxies createRecord to its ManyArray before the hasMany is loaded", function() {
+  expect(1);
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    return Ember.RSVP.resolve([
+      { id: 1, body: "First" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+
+  var post = env.store.push('post', {id:1, links: {comments: 'someLink'}});
+
+  post.get('comments').createRecord().then(async(function(comments) {
+    equal(comments.get('length'), 3, "comments have 3 length, including new record");
+  }));
+});
+
 test("An updated `links` value should invalidate a relationship cache", function() {
   expect(8);
   Post.reopen({
