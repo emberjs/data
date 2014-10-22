@@ -969,7 +969,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
     App.ModelViewRoute = Ember.Route.extend({
       actions: {
         reload: function() {
-          this.controller.get('model').reload();
+          this.controller.get('model').reload().then(function(model) {
+            // do something with the reloaded model
+          });
         }
       }
     });
