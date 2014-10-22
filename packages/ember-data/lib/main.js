@@ -64,7 +64,7 @@ import "ember-data/ember-initializer";
 import setupContainer from "ember-data/setup-container";
 
 import ContainerProxy from "ember-data/system/container_proxy";
-import {Relationship} from "ember-data/system/relationships/relationship";
+import Relationship from "ember-data/system/relationships/state/relationship";
 
 DS.Store         = Store;
 DS.PromiseArray  = PromiseArray;

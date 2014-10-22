@@ -17,3 +17,4 @@ docs/node_modules/
 
 node_modules/
 bower_components/
+.metadata_never_index

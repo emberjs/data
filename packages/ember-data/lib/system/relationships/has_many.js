@@ -122,21 +122,14 @@ function hasMany(type, options) {
 }
 
 Model.reopen({
-  notifyHasManyAdded: function(key, record, idx) {
-    var relationship = this._relationships[key];
-    var manyArray = relationship.manyArray;
-    manyArray.addRecord(record, idx);
+  notifyHasManyAdded: function(key) {
     //We need to notifyPropertyChange in the adding case because we need to make sure
     //we fetch the newly added record in case it is unloaded
     //TODO(Igor): Consider whether we could do this only if the record state is unloaded
+
+    //Goes away once hasMany is double promisified
     this.notifyPropertyChange(key);
   },
-
-  notifyHasManyRemoved: function(key, record) {
-    var relationship = this._relationships[key];
-    var manyArray = relationship.manyArray;
-    manyArray.removeRecord(record);
-  }
 });
 
 

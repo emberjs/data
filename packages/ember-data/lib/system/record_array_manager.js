@@ -5,8 +5,7 @@
 import {
   RecordArray,
   FilteredRecordArray,
-  AdapterPopulatedRecordArray,
-  ManyArray
+  AdapterPopulatedRecordArray
 } from "ember-data/system/record_arrays";
 import {
   MapWithDefault,
@@ -156,31 +155,6 @@ export default Ember.Object.extend({
         this.updateRecordArray(array, filter, type, record);
       }
     }
-  },
-
-  /**
-    Create a `DS.ManyArray` for a type and list of record references, and index
-    the `ManyArray` under each reference. This allows us to efficiently remove
-    records from `ManyArray`s when they are deleted.
-
-    @method createManyArray
-    @param {Class} type
-    @param {Array} references
-    @return {DS.ManyArray}
-  */
-  createManyArray: function(type, records) {
-    var manyArray = ManyArray.create({
-      type: type,
-      content: records,
-      store: this.store
-    });
-
-    forEach(records, function(record) {
-      var arrays = this.recordArraysForRecord(record);
-      arrays.add(manyArray);
-    }, this);
-
-    return manyArray;
   },
 
   /**
