@@ -160,8 +160,8 @@ test("serializePolymorphicType", function() {
 test("extractArray normalizes each record in the array", function() {
   var postNormalizeCount = 0;
   var posts = [
-    { title: "Rails is omakase"},
-    { title: "Another Post"}
+    { id: "1", title: "Rails is omakase"},
+    { id: "2", title: "Another Post"}
   ];
 
   env.container.register('serializer:post', DS.JSONSerializer.extend({
@@ -184,6 +184,7 @@ test('Serializer should respect the attrs hash when extracting records', functio
   }));
 
   var jsonHash = {
+    id: "1",
     title_payload_key: "Rails is omakase",
     my_comments: [1, 2]
   };

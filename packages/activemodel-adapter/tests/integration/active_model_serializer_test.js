@@ -98,11 +98,12 @@ test("normalize", function() {
     yellowMinion: DS.belongsTo('yellowMinion')
   })
 
-  var superVillain_hash = {first_name: "Tom", last_name: "Dale", home_planet_id: "123", evil_minion_ids: [1,2]};
+  var superVillain_hash = {id: "1", first_name: "Tom", last_name: "Dale", home_planet_id: "123", evil_minion_ids: [1,2]};
 
   var json = env.amsSerializer.normalize(SuperVillain, superVillain_hash, "superVillain");
 
   deepEqual(json, {
+    id: "1",
     firstName: "Tom",
     lastName: "Dale",
     homePlanet: "123",

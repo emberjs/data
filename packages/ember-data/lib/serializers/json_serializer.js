@@ -254,10 +254,12 @@ export default Ember.Object.extend({
   normalizeId: function(hash) {
     var primaryKey = get(this, 'primaryKey');
 
-    if (primaryKey === 'id') { return; }
+    if (primaryKey !== 'id') {
+      hash.id = hash[primaryKey];
+      delete hash[primaryKey];
+    }
 
-    hash.id = hash[primaryKey];
-    delete hash[primaryKey];
+    Ember.assert("Ember Data requires every record to have an ID but no '" + primaryKey + "' property was found in your payload.", !isNone(hash.id));
   },
 
   /**
