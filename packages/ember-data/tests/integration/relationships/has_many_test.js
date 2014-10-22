@@ -349,8 +349,8 @@ test("A hasMany relationship can be directly reloaded if it was fetched via ids"
   }));
 });
 
-test("PromiseArray proxies createRecord to its ManyArray once hasMany is loaded", function() {
-  expect(3);
+test("PromiseArray proxies createRecord to its ManyArray once the hasMany is loaded", function() {
+  expect(4);
 
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
@@ -369,9 +369,9 @@ test("PromiseArray proxies createRecord to its ManyArray once hasMany is loaded"
     equal(comments.get('isLoaded'), true, "comments are loaded");
     equal(comments.get('length'), 2, "comments have 2 length");
 
-    post.get('comments').createRecord().then(async(function() {
-      equal(comments.get('length'), 3, "comments have 3 length, including new record");
-    }));
+    var newComment = post.get('comments').createRecord({body: 'Third'});
+    equal(newComment.get('body'), 'Third', "new comment is returned");
+    equal(comments.get('length'), 3, "comments have 3 length, including new record");
   }));
 });
 
