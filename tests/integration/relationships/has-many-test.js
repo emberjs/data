@@ -2475,3 +2475,40 @@ test("Updated related link should take precedence over local data", function(ass
     });
   });
 });
+
+test("PromiseArray proxies createRecord to its ManyArray before the hasMany is loaded", function(assert) {
+  assert.expect(1);
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    return Ember.RSVP.resolve([
+      { id: 1, body: "First" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+
+  run(function() {
+    var post = env.store.push({
+      data: {
+        type: 'post',
+        id: 1,
+        relationships: {
+          comments: {
+            links: {
+              related: 'someLink'
+            }
+          }
+        }
+      }
+    });
+
+    var comments = post.get('comments');
+    comments.createRecord();
+    comments.then(function(comments) {
+      assert.equal(comments.get('length'), 3, "comments have 3 length, including new record");
+    });
+  });
+});
