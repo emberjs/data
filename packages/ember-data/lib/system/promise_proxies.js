@@ -92,8 +92,7 @@ var PromiseManyArray = PromiseArray.extend({
 
   createRecord: function() {
     var content = get(this, 'content');
-    content.createRecord.apply(content, arguments);
-    return this;
+    return content.createRecord.apply(content, arguments);
   }
 });
 
