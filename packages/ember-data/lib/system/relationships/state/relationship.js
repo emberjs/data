@@ -124,7 +124,7 @@ Relationship.prototype = {
         }
         record._implicitRelationships[this.inverseKeyForImplicit].addRecord(this.record);
       }
-      this.record.updateRecordArrays();
+      this.record.updateRecordArraysLater();
     }
   },
 

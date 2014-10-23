@@ -25,9 +25,7 @@ module("integration/record_array_manager- destroy", {
     });
     store = env.store;
 
-    manager = DS.RecordArrayManager.create({
-      store: store
-    });
+    manager = store.recordArrayManager;
 
     env.container.register('model:car', Car);
     env.container.register('model:person', Person);
@@ -102,4 +100,31 @@ test("destroying the store correctly cleans everything up", function() {
 
   equal(filterdSummary.called.length, 1);
   equal(adapterPopulatedSummary.called.length, 1);
+});
+
+
+test("Should not filter a stor.all() array when a record property is changed", function() {
+  var car;
+
+  var filterdSummary = tap(store.recordArrayManager, 'updateRecordArray');
+
+  var allCars = store.all('car');
+
+  run(function(){
+    car = store.push('car', {
+      id: 1,
+      make: 'BMC',
+      model: 'Mini Cooper',
+      person: 1
+    });
+  });
+
+  equal(filterdSummary.called.length, 1);
+
+  run(function(){
+    car.set('model', 'Mini');
+  });
+
+  equal(filterdSummary.called.length, 1);
+
 });

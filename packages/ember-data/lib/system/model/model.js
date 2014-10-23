@@ -378,6 +378,15 @@ var Model = Ember.Object.extend(Ember.Evented, {
   },
 
   /**
+    Fired when the record is ready to be interacted with,
+    that is either loaded from the server or created locally.
+
+    @event ready
+  */
+  ready: function() {
+    this.store.recordArrayManager.recordWasLoaded(this);
+  },
+  /**
     Fired when the record is loaded from the server.
 
     @event didLoad
