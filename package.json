@@ -49,6 +49,7 @@
     "ember-cli": "0.0.43",
     "ember-publisher": "0.0.6",
     "testem": "^0.6.19",
-    "yuidocjs": "~0.3.46"
+    "yuidocjs": "~0.3.46",
+    "git-repo-version": "0.0.2"
   }
 }
