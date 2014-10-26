@@ -81,6 +81,11 @@ var promiseArray = function(promise, label) {
   Right now we proxy:
     `reload()`
     `createRecord()`
+    `on()`
+    `one()`
+    `trigger()`
+    `off()`
+    `has()`
 */
 
 function proxyToContent(method) {
@@ -97,7 +102,17 @@ var PromiseManyArray = PromiseArray.extend({
     return get(this, 'content').reload();
   },
 
-  createRecord: proxyToContent('createRecord')
+  createRecord: proxyToContent('createRecord'),
+
+  on: proxyToContent('on'),
+
+  one: proxyToContent('one'),
+
+  trigger: proxyToContent('trigger'),
+
+  off: proxyToContent('off'),
+
+  has: proxyToContent('has')
 });
 
 var promiseManyArray = function(promise, label) {
