@@ -60,13 +60,13 @@ if (usesOldBehavior){
 
   Map.prototype.__super$forEach = Ember.Map.prototype.forEach;
   Map.prototype.forEach = mapForEach;
-  Map.prototype.delete = deleteFn;
+  Map.prototype['delete'] = deleteFn;
 
   MapWithDefault.prototype.forEach = mapForEach;
   MapWithDefault.prototype.__super$forEach = Ember.MapWithDefault.prototype.forEach;
-  MapWithDefault.prototype.delete = deleteFn;
+  MapWithDefault.prototype['delete'] = deleteFn;
 
-  OrderedSet.prototype.delete = deleteFn;
+  OrderedSet.prototype['delete'] = deleteFn;
 }
 
 MapWithDefault.constructor = MapWithDefault;
