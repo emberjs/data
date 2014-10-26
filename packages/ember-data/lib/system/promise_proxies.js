@@ -83,6 +83,13 @@ var promiseArray = function(promise, label) {
     `createRecord()`
 */
 
+function proxyToContent(method) {
+  return function() {
+    var content = get(this, 'content');
+    return content[method].apply(content, arguments);
+  };
+}
+
 var PromiseManyArray = PromiseArray.extend({
   reload: function() {
     //I don't think this should ever happen right now, but worth guarding if we refactor the async relationships
@@ -90,10 +97,7 @@ var PromiseManyArray = PromiseArray.extend({
     return get(this, 'content').reload();
   },
 
-  createRecord: function() {
-    var content = get(this, 'content');
-    return content.createRecord.apply(content, arguments);
-  }
+  createRecord: proxyToContent('createRecord')
 });
 
 var promiseManyArray = function(promise, label) {
