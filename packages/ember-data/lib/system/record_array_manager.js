@@ -127,7 +127,7 @@ export default Ember.Object.extend({
         recordArrays.add(array);
       }
     } else if (!shouldBeInArray) {
-      recordArrays.delete(array);
+      recordArrays['delete'](array);
       array.removeRecord(record);
     }
   },

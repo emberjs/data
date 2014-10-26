@@ -105,7 +105,7 @@ Relationship.prototype = {
   },
 
   removeRecordFromOwn: function(record) {
-    this.members.delete(record);
+    this.members['delete'](record);
     this.notifyRecordRelationshipRemoved(record);
     this.record.updateRecordArrays();
   },
