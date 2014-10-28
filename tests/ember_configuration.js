@@ -216,11 +216,11 @@
     var warnWasCalled = false;
     var oldWarn = Ember.warn;
     Ember.warn = function Ember_assertWarning(message, test){
-      warnWasCalled = true;
-      if (regex && !test) {
-        ok(regex.test(message), 'Ember.warn called with expected message, but was called with ' + message);
-      } else if (test) {
-        ok(false, "Expected warn to receive a falsy test, but got a truthy test");
+      if (!test) {
+        warnWasCalled = true;
+        if (regex) {
+          ok(regex.test(message), 'the call to Ember.warn got an unexpected message: ' + message);
+        }
       }
     };
     try {
