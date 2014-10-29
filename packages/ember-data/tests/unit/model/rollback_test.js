@@ -4,10 +4,13 @@ module("unit/model/rollback - model.rollback()", {
   setup: function() {
     Person = DS.Model.extend({
       firstName: DS.attr(),
-      lastName: DS.attr()
+      lastName: DS.attr(),
+      dogs: DS.hasMany('dog')
     });
 
-    env = setupStore({ person: Person });
+    Dog = DS.Model.extend();
+
+    env = setupStore({ person: Person, dog: Dog });
     store = env.store;
   }
 });
@@ -123,6 +126,21 @@ test("deleted record can be rollbacked", function() {
   equal(people.get('length'), 1, "the rollbacked record should appear again in the record array");
   equal(person.get('isDeleted'), false, "must not be deleted");
   equal(person.get('isDirty'), false, "must not be dirty");
+});
+
+test("deleted record with hasMany can be rolled back", function() {
+  store.push('dog', { id: 2, person: 1 });
+  var person = store.push('person', { id: 1, dogs: [2] });
+
+  person.get('dogs.length');
+
+  person.deleteRecord();
+
+  equal(person.get('isDeleted'), true, "must be deleted");
+
+  person.rollback();
+
+  equal(person.get('dogs.length'), 1, "hasMany relationship has been reinstated");
 });
 
 test("invalid record can be rollbacked", function() {
