@@ -603,7 +603,6 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
 
   _stripIDFromURL: function(store, snapshot) {
     var url = this.buildURL(snapshot.modelName, snapshot.id, snapshot);
-
     var expandedURL = url.split('/');
     //Case when the url is of the format ...something/:id
     var lastSegment = expandedURL[expandedURL.length - 1];

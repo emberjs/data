@@ -169,6 +169,68 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
   });
 });
 
+test("Will use adapters buildURLForHasMany function to generate links", function() {
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.buildURLForHasMany = function(relationshipName, recordName, record) {
+    equal(relationshipName, 'comments');
+    equal(recordName, 'message');
+    return "/comments?post_id=" + record.id;
+  };
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    equal(link, "/comments?post_id=1", "findHasMany link was /comments?post_id=1");
+
+    return Ember.RSVP.resolve([
+      { id: 1, body: "First" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+
+  run(function() {
+    env.store.push('post', { id: 1 });
+    env.store.find('post', 1).then(async(function(post) {
+      return post.get('comments');
+    })).then(async(function(comments) {
+      equal(comments.get('isLoaded'), true, "comments are loaded");
+      equal(comments.get('length'), 2, "comments have 2 length");
+    }));
+  });
+});
+
+test("Will ignore buildURLForHasMany if links exist", function() {
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.buildURLForHasMany = function(relationshipName, recordName, record) {
+    throw new Error("Adapter's buildURLForHasMany should not be called");
+  };
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+
+    equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
+
+    return Ember.RSVP.resolve([
+      { id: 1, body: "First" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+
+  run(function() {
+    env.store.push('post', { id: 1, links: { comments: '/posts/1/comments' } });
+    env.store.find('post', 1).then(async(function(post) {
+      return post.get('comments');
+    })).then(async(function(comments) {
+      equal(comments.get('isLoaded'), true, "comments are loaded");
+      equal(comments.get('length'), 2, "comments have 2 length");
+    }));
+  });
+});
+
+
 test("Accessing a hasMany backed by a link multiple times triggers only one request", function() {
   expect(2);
   var count = 0;
