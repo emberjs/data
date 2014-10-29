@@ -271,3 +271,23 @@ test("Rollbacking a deleted record restores the relationship on both sides - syn
   equal(user.get('job'), job, 'Job got rollbacked correctly');
   equal(job.get('user'), user, 'Job still has the user');
 });
+
+test("Rollbacking a created record removes the relationship on both sides - async", function () {
+  var stanleysFriend = store.push('user', {id:2, name: "Stanley's friend"});
+  var stanley = store.createRecord('user', {bestFriend: stanleysFriend});
+  stanley.rollback();
+  stanleysFriend.get('bestFriend').then(async(function(fetchedUser) {
+    equal(fetchedUser, null, 'Stanley got rollbacked correctly');
+  }));
+  stanley.get('bestFriend').then(async(function(fetchedUser) {
+    equal(fetchedUser, null, 'Stanleys friend did got removed');
+  }));
+});
+
+test("Rollbacking a created record removes the relationship on both sides - sync", function () {
+  var user = store.push('user', {id:1, name: 'Stanley'});
+  var job = store.createRecord('job', {user: user});
+  job.rollback();
+  equal(user.get('job'), null, 'Job got rollbacked correctly');
+  equal(job.get('user'), null, 'Job does not have user anymore');
+});
