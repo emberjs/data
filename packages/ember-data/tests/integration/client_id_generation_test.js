@@ -60,7 +60,7 @@ test("If an adapter implements the `generateIdForRecord` method, the store shoul
   comment.save();
   post.save();
 });
-test("null stuff", function() {
+test("empty string and undefined ids should coerce to null", function() {
   expect(6);
   var idCount = 0;
   var ids = [undefined, ''];
