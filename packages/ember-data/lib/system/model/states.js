@@ -397,7 +397,6 @@ var createdState = dirtyState({
 });
 
 createdState.uncommitted.rolledBack = function(record) {
-  record.clearRelationships();
   record.transitionTo('deleted.saved');
 };
 
