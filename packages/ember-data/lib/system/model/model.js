@@ -912,6 +912,10 @@ var Model = Ember.Object.extend(Ember.Evented, {
       this.reconnectRelationships();
     }
 
+    if (get(this, 'isNew')) {
+      this.clearRelationships();
+    }
+
     if (!get(this, 'isValid')) {
       this._inFlightAttributes = {};
     }
