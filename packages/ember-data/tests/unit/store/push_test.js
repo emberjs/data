@@ -391,6 +391,22 @@ test('calling push with hasMany relationship the value must be an array', functi
   });
 });
 
+test('calling push with missing or invalid `id` throws assertion error', function(){
+  var invalidValues = [
+    {},
+    { id: null },
+    { id: '' },
+  ];
+
+  expect(invalidValues.length);
+
+  Ember.EnumerableUtils.forEach(invalidValues, function(invalidValue){
+    throws(function() {
+      store.push('person', invalidValue);
+    }, /You must include an `id`/);
+  });
+});
+
 test('calling push with belongsTo relationship the value must not be an array', function(){
   throws(function() {
     store.push('phone-number', { id: 1, person: [1] });
