@@ -1309,8 +1309,9 @@ test('buildURL - buildURL takes a record from update', function() {
 
 test('buildURL - buildURL takes a record from delete', function() {
   Comment.reopen({ post: DS.belongsTo('post') });
+  Post.reopen({ comments: DS.hasMany('comment') });
   adapter.buildURL = function(type, id, record) {
-    return '/comments/' + record.get('id');
+    return 'posts/' + record.get('post.id') + '/comments/' + record.get('id');
   };
 
   ajaxResponse({ comments: [{ id: 1 }] });
@@ -1321,7 +1322,7 @@ test('buildURL - buildURL takes a record from delete', function() {
   comment.set('post', post);
   comment.deleteRecord();
   comment.save().then(async(function(post) {
-    equal(passedUrl, "/comments/1");
+    equal(passedUrl, "posts/2/comments/1");
   }));
 });
 
