@@ -1,21 +1,22 @@
 /* jshint node: true */
 
-var es6           = require('broccoli-es6-module-transpiler');
-var concat        = require('broccoli-concat');
-var uglify        = require('broccoli-uglify-js');
-var es3SafeRecast = require('broccoli-es3-safe-recast');
-var env           = process.env.EMBER_ENV;
-var pickFiles     = require('broccoli-static-compiler');
-var merge         = require('broccoli-merge-trees');
-var moveFile      = require('broccoli-file-mover');
-var wrap          = require('broccoli-wrap');
-var jshint        = require('broccoli-jshint');
-var defeatureify  = require('broccoli-defeatureify');
-var version       = require('git-repo-version')(10);
-var renderTemplate = require('broccoli-render-template');
-var yuidoc = require('broccoli-yuidoc');
-var replace = require('broccoli-string-replace');
-var derequire = require('broccoli-derequire');
+var es6             = require('broccoli-es6-module-transpiler');
+var PackageResolver = require('es6-module-transpiler-package-resolver');
+var compileModules  = require('broccoli-compile-modules');
+var concat          = require('broccoli-concat');
+var uglify          = require('broccoli-uglify-js');
+var es3SafeRecast   = require('broccoli-es3-safe-recast');
+var env             = process.env.EMBER_ENV;
+var pickFiles       = require('broccoli-static-compiler');
+var merge           = require('broccoli-merge-trees');
+var moveFile        = require('broccoli-file-mover');
+var wrap            = require('broccoli-wrap');
+var jshint          = require('broccoli-jshint');
+var defeatureify    = require('broccoli-defeatureify');
+var version         = require('git-repo-version')(10);
+var renderTemplate  = require('broccoli-render-template');
+var yuidoc          = require('broccoli-yuidoc');
+var replace         = require('broccoli-string-replace');
 
 function moveFromLibAndMainJS(packageName, vendored){
   var root = vendored ? 'bower_components/' + packageName + "/packages/" + packageName + '/lib':
@@ -112,6 +113,18 @@ var yuidocTree = yuidoc('packages', {
   }
 });
 
+var packages = merge([
+  'bower_components/ember-inflector/packages',
+  'packages'
+]);
+
+var globalBuild = compileModules(packages, {
+  inputFiles: ['ember-data'],
+  output: '/ember-data.js',
+  resolvers: [PackageResolver],
+  formatter: 'bundle'
+});
+
 var libFiles = merge([
   emberInflectorFiles,
   emberDataFiles,
@@ -128,18 +141,6 @@ var namedAMDBuild = concat(libFiles, {
   separator: '\n',
   outputFile: '/ember-data.named-amd.js'
 });
-
-var globalBuild = concat(merge([libFiles, loaderJS]), {
-  inputFiles: ['loader.js', '**/*.js'],
-  separator: '\n',
-  outputFile: '/ember-data.js'
-});
-
-globalBuild = wrap(globalBuild, {
-  wrapper: [ "(function(global){\n", "\n global.DS = requireModule('ember-data')['default'];\n })(this);"]
-});
-
-globalBuild = versionStamp(globalBuild, 'ember-data.js');
 namedAMDBuild = versionStamp(namedAMDBuild, 'ember-data.named-amd.js');
 
 if (env === 'production'){
@@ -189,8 +190,6 @@ var trees = [
 ];
 
 if (env === 'production') {
-  globalBuild = derequire(globalBuild);
-
   var minifiedAMD = minify(namedAMDBuild, 'ember-data.named-amd');
   var minifiedGlobals = minify(globalBuild, 'ember-data');
 
