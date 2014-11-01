@@ -81,14 +81,6 @@ function coerceId(id) {
   });
   ```
 
-  If your application has multiple `DS.Store` instances (an unusual case), you can
-  specify which store should be used:
-
-  ```javascript
-  store.find('person', 123).then(function (person) {
-  });
-  ```
-
   By default, the store will talk to your backend using a standard
   REST mechanism. You can customize how the store talks to your
   backend by specifying a custom adapter:
