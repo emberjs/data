@@ -513,6 +513,51 @@ test("it is possible to filter created records by isReloading", function() {
   }));
 });
 
+test("it is possible to filter by async value", function() {
+  var filterFn = function(obj) {
+    return new Ember.RSVP.resolve( obj.get('id') === "42");
+  };
+  run(function() {
+    store.pushMany('person', [{ id: "42" }, { id: "2" }]);
+  });
+
+  var recordArray = store.filter('person', filterFn);
+
+  equal(recordArray.get('length'), 1, 'expected the filter array to have one record');
+});
+
+test("filter cares only about latest value from filter function", function() {
+  var resolve_1 = null;
+  var resolve_2 = null;
+  var filterFn1 = function(obj) {
+    return new Ember.RSVP.Promise(function(resolve) {
+      resolve_1 = resolve;
+    });
+  };
+  var filterFn2 = function(obj) {
+    return new Ember.RSVP.Promise(function(resolve) {
+      resolve_2 = resolve;
+    });
+  };
+
+  run(function() {
+    store.push('person', { id: "42" });
+  });
+
+  store.filter('person', filterFn1).then(async(function(recordArray) {
+    run(function() {
+      recordArray.set('filterFunction', filterFn2);
+      equal(recordArray.get('length'), 0, 'expected the filter array to have zero records');
+    });
+
+    run(function() {
+      resolve_2(false);
+      resolve_1(true);
+    });
+
+    equal(recordArray.get('length'), 0, 'expected the filter array to have zero records');
+  }));
+});
 
 // SERVER SIDE TESTS
 var edited;

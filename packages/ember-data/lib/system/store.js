@@ -1191,7 +1191,8 @@ Store = Service.extend({
 
     The filter function takes a materialized record, and returns true
     if the record should be included in the filter and false if it should
-    not.
+    not. Also callback function may return promise that should resolve either
+    to true or false.
 
     Example
 
