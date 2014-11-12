@@ -120,3 +120,22 @@ test("When a single record is requested, and the promise is rejected, .find() is
     }));
   });
 });
+
+test("When a single record is requested, and the promise is rejected, the record should be dematerialized.", function() {
+  expect(2);
+
+  store = createStore({ adapter: DS.Adapter.extend({
+      find: function(store, type, id) {
+        return Ember.RSVP.reject();
+      }
+    })
+  });
+
+  run(function() {
+    store.find(Person, 1).then(null, async(function(reason) {
+      ok(true, "The rejection handler was called");
+    }));
+  });
+
+  ok(!store.hasRecordForId(Person, 1), "The record has been dematerialized");
+});
