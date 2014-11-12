@@ -412,3 +412,14 @@ test('calling push with belongsTo relationship the value must not be an array', 
     store.push('phone-number', { id: 1, person: [1] });
   }, /must not be an array/);
 });
+
+test("Calling push with unknown keys in the provided payload should warn", function() {
+  warns(function() {
+    store.push('person', {
+      id: '1',
+      firstName: 'Tomster',
+      emailAddress: 'tomster@emberjs.com',
+      isMascot: true
+    });
+  }, /The payload for 'person' contains these unknown keys: \[emailAddress,isMascot\]. Make sure they've been defined in your model./);
+});
