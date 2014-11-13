@@ -1804,6 +1804,11 @@ function _findBelongsTo(adapter, store, record, link, relationship) {
 
   return promise.then(function(adapterPayload) {
     var payload = serializer.extract(store, relationship.type, adapterPayload, null, 'findBelongsTo');
+
+    if (!payload) {
+      return null;
+    }
+
     var record = store.push(relationship.type, payload);
     return record;
   }, null, "DS: Extract payload of " + record + " : " + relationship.type);

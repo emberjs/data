@@ -366,6 +366,18 @@ test("extractSingle loads secondary records with correct serializer", function()
   equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
 });
 
+test("extractSingle returns null if payload contains null", function() {
+  expect(1);
+
+  var jsonHash = {
+    evilMinion: null
+  };
+
+  var value = env.restSerializer.extractSingle(env.store, EvilMinion, jsonHash);
+
+  equal(value, null, "returned value is null");
+});
+
 test("extractArray loads secondary records with correct serializer", function() {
   var superVillainNormalizeCount = 0;
 
