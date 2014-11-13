@@ -866,17 +866,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @method setupData
     @private
     @param {Object} data
-    @param {Boolean} partial the data should be merged into
-      the existing data, not replace it.
   */
-  setupData: function(data, partial) {
+  setupData: function(data) {
     Ember.assert("Expected an object as `data` in `setupData`", Ember.typeOf(data) === 'object');
 
-    if (partial) {
-      merge(this._data, data);
-    } else {
-      this._data = data;
-    }
+    Ember.merge(this._data, data);
 
     this.pushedData();
 
