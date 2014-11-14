@@ -69,7 +69,9 @@ test("Will reject save on invalid", function() {
     return Ember.RSVP.reject({ title: 'invalid' });
   };
 
-  post.save().then(function() {}, async(function() {
-    ok(true, 'save operation was rejected');
-  }));
+  Ember.run(function(){
+    post.save().then(function() {}, async(function() {
+      ok(true, 'save operation was rejected');
+    }));
+  });
 });

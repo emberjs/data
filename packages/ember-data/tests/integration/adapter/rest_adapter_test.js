@@ -1537,7 +1537,7 @@ test("calls adapter.ajaxSuccess with the jqXHR and json", function(){
 });
 
 test('calls ajaxError with jqXHR, jqXHR.responseText', function(){
-  expect(2);
+  expect(3);
   var originalAjax = Ember.$.ajax;
   var jqXHR = {
     responseText: 'Nope lol'
@@ -1553,6 +1553,10 @@ test('calls ajaxError with jqXHR, jqXHR.responseText', function(){
     return {error: {nope: 'lol'}};
   };
 
-  store.find('post', '1');
+  Ember.run(function(){
+    store.find('post', '1').catch(function(err){
+      ok(err, 'promise rejected');
+    });
+  });
   Ember.$.ajax = originalAjax;
 });
