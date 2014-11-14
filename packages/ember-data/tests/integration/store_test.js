@@ -216,7 +216,6 @@ test("Using store#fetch on non existing record calls find", function() {
   });
 
   var car = store.hasRecordForId('car', 20);
-  console.log('car: ', car);
   ok(!car, 'Car with id=20 should not exist');
 
   store.fetch('car', 20).then(function (car) {
