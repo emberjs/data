@@ -163,3 +163,63 @@ test("destroying the store correctly cleans everything up", function() {
   equal(adapterPopulatedPeopleWillDestroy.called.length, 1, 'expected adapterPopulatedPeople to recieve willDestroy once');
   equal(filterdPeopleWillDestroy.called.length, 1, 'expected filterdPeople.willDestroy to have been called once');
 });
+
+module("integration/store - fetch", {
+  setup: function(){
+    initializeStore(DS.RESTAdapter.extend());
+  }
+});
+
+function ajaxResponse(value) {
+  env.adapter.ajax = function(url, verb, hash) {
+    passedUrl = url;
+    passedVerb = verb;
+    passedHash = hash;
+
+    return Ember.RSVP.resolve(value);
+  };
+}
+
+test("Using store#fetch on existing record reloads it", function() {
+  expect(2);
+
+  var car = store.push('car', {
+    id: 1,
+    make: 'BMC',
+    model: 'Mini'
+  });
+
+  ajaxResponse({
+    cars: [{
+      id: 1,
+      make: 'BMCW',
+      model: 'Mini'
+    }]
+  });
+
+  equal(car.get('make'), 'BMC');
+
+  store.fetch('car', 1).then(function (car) {
+    equal(car.get('make'), 'BMCW');
+  });
+});
+
+test("Using store#fetch on non existing record calls find", function() {
+  expect(2);
+
+  ajaxResponse({
+    cars: [{
+      id: 20,
+      make: 'BMCW',
+      model: 'Mini'
+    }]
+  });
+
+  var car = store.hasRecordForId('car', 20);
+  console.log('car: ', car);
+  ok(!car, 'Car with id=20 should not exist');
+
+  store.fetch('car', 20).then(function (car) {
+    equal(car.get('make'), 'BMCW', 'Car with id=20 is now loaded');
+  });
+});

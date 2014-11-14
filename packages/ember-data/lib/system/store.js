@@ -435,9 +435,9 @@ Store = Ember.Object.extend({
   fetch: function(type, id, preload) {
     var store = this;
 
-    if (store.hasRecordForId(type, id) {
+    if (store.hasRecordForId(type, id)) {
       return store.getById(type, id).reload();
-     } else {
+    } else {
       return store.find(type, id, preload);
     }
   },
