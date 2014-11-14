@@ -2,6 +2,7 @@ var get = Ember.get, set = Ember.set;
 var attr = DS.attr;
 var belongsTo = DS.belongsTo;
 var hasMany = DS.hasMany;
+var run = Ember.run;
 var env;
 
 var Person = DS.Model.extend({
@@ -33,7 +34,10 @@ module("integration/unload - Unloading Records", {
 });
 
 test("can unload a single record", function () {
-  var adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
+  var adam;
+  run(function(){
+    adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
+  });
 
   Ember.run(function(){
     adam.unloadRecord();
@@ -43,8 +47,11 @@ test("can unload a single record", function () {
 });
 
 test("can unload all records for a given type", function () {
-  var adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
-  var bob = env.store.push('person', {id: 2, name: "Bob Bobson"});
+  var adam, bob;
+  run(function(){
+    adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
+    bob = env.store.push('person', {id: 2, name: "Bob Bobson"});
+  });
 
   Ember.run(function(){
     env.store.unloadAll('person');
@@ -54,8 +61,11 @@ test("can unload all records for a given type", function () {
 });
 
 test("removes findAllCache after unloading all records", function () {
-  var adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
-  var bob = env.store.push('person', {id: 2, name: "Bob Bobson"});
+  var adam, bob;
+  run(function(){
+    adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
+    bob = env.store.push('person', {id: 2, name: "Bob Bobson"});
+  });
 
   Ember.run(function(){
     env.store.all('person');
@@ -66,8 +76,11 @@ test("removes findAllCache after unloading all records", function () {
 });
 
 test("unloading all records also updates record array from all()", function() {
-  var adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
-  var bob = env.store.push('person', {id: 2, name: "Bob Bobson"});
+  var adam, bob;
+  run(function(){
+    adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
+    bob = env.store.push('person', {id: 2, name: "Bob Bobson"});
+  });
   var all = env.store.all('person');
 
   equal(all.get('length'), 2);
@@ -82,20 +95,25 @@ test("unloading all records also updates record array from all()", function() {
 
 //TODO(Igor) think about how this works with ssot and unloading
 test("unloading a record also clears it's relationship", function() {
-  var adam = env.store.push('person', {
-    id: 1,
-    name: "Adam Sunderland",
-    cars: [1]
+  var adam, bob;
+  run(function(){
+    adam = env.store.push('person', {
+      id: 1,
+      name: "Adam Sunderland",
+      cars: [1]
+    });
   });
 
-  var bob = env.store.push('car', {
-    id: 1,
-    make: "Lotus",
-    model: "Exige",
-    person: 1
+  run(function(){
+    bob = env.store.push('car', {
+      id: 1,
+      make: "Lotus",
+      model: "Exige",
+      person: 1
+    });
   });
 
-  env.store.find('person', 1).then(function(person){
+  run(env.store, 'find', 'person', 1).then(function(person){
     equal(person.get('cars.length'), 1, 'aaaa');
 
     Ember.run(function(){

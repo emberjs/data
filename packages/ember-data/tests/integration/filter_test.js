@@ -1,6 +1,7 @@
 var get = Ember.get, set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;
 var indexOf = Ember.EnumerableUtils.indexOf;
+var run = Ember.run;
 
 var Person, store, env, array, recordArray;
 
@@ -21,56 +22,78 @@ module("integration/filter - DS.Model updating", {
     store = env.store;
   },
   teardown: function() {
-    store.destroy();
+    run(store, 'destroy');
     Person = null;
     array = null;
   }
 });
 
 test("when a DS.Model updates its attributes, its changes affect its filtered Array membership", function() {
-  store.pushMany('person', array);
+  run(function(){
+    store.pushMany('person', array);
+  });
+  var people;
 
-  var people = store.filter('person', function(hash) {
-    if (hash.get('name').match(/Katz$/)) { return true; }
+  run(function(){
+    people = store.filter('person', function(hash) {
+      if (hash.get('name').match(/Katz$/)) { return true; }
+    });
   });
 
-  equal(get(people, 'length'), 1, "precond - one item is in the RecordArray");
+  run(function(){
+    equal(get(people, 'length'), 1, "precond - one item is in the RecordArray");
+  });
 
   var person = people.objectAt(0);
 
   equal(get(person, 'name'), "Scumbag Katz", "precond - the item is correct");
 
-  set(person, 'name', "Yehuda Katz");
+  run(function(){
+    set(person, 'name', "Yehuda Katz");
+  });
 
   equal(get(people, 'length'), 1, "there is still one item");
   equal(get(person, 'name'), "Yehuda Katz", "it has the updated item");
 
-  set(person, 'name', "Yehuda Katz-Foo");
+  run(function(){
+    set(person, 'name', "Yehuda Katz-Foo");
+  });
 
   equal(get(people, 'query'), null, 'expected no query object set');
   equal(get(people, 'length'), 0, "there are now no items");
 });
 
 test("when a DS.Model updates its relationships, its changes affect its filtered Array membership", function() {
-  store.pushMany('person', array);
+  run(function(){
+    store.pushMany('person', array);
+  });
+  var people;
 
-  var people = store.filter('person', function(person) {
-    if (person.get('bestFriend') && person.get('bestFriend.name').match(/Katz$/)) { return true; }
+  run(function(){
+    people = store.filter('person', function(person) {
+      if (person.get('bestFriend') && person.get('bestFriend.name').match(/Katz$/)) { return true; }
+    });
   });
 
-  equal(get(people, 'length'), 1, "precond - one item is in the RecordArray");
+  run(function(){
+    equal(get(people, 'length'), 1, "precond - one item is in the RecordArray");
+  });
 
   var person = people.objectAt(0);
 
   equal(get(person, 'name'), "Scumbag Dale", "precond - the item is correct");
 
-  set(person, 'bestFriend', null);
+  run(function(){
+    set(person, 'bestFriend', null);
+  });
 
   equal(get(people, 'length'), 0, "there are now 0 items");
 
   var erik = store.getById('person', 3);
   var yehuda = store.getById('person', 2);
-  erik.set('bestFriend', yehuda);
+  run(function(){
+    erik.set('bestFriend', yehuda);
+  });
 
   person = people.objectAt(0);
   equal(get(people, 'length'), 1, "there is now 1 item");
@@ -79,52 +102,78 @@ test("when a DS.Model updates its relationships, its changes affect its filtered
 
 
 test("a record array can have a filter on it", function() {
-  store.pushMany('person', array);
+  run(function(){
+    store.pushMany('person', array);
+  });
+  var recordArray;
 
-  var recordArray = store.filter('person', function(hash) {
-    if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
+  run(function(){
+    recordArray = store.filter('person', function(hash) {
+      if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
+    });
   });
 
   equal(get(recordArray, 'length'), 2, "The Record Array should have the filtered objects on it");
 
-  store.push('person', { id: 4, name: "Scumbag Koz" });
+  run(function(){
+    store.push('person', { id: 4, name: "Scumbag Koz" });
+  });
 
   equal(get(recordArray, 'length'), 3, "The Record Array should be updated as new items are added to the store");
 
-  store.push('person', { id: 1, name: "Scumbag Tom" });
+  run(function(){
+    store.push('person', { id: 1, name: "Scumbag Tom" });
+  });
 
   equal(get(recordArray, 'length'), 2, "The Record Array should be updated as existing members are updated");
 });
 
 test("a filtered record array includes created elements", function() {
-  store.pushMany('person', array);
+  run(function(){
+    store.pushMany('person', array);
+  });
+  var recordArray;
 
-  var recordArray = store.filter('person', function(hash) {
-    if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
+  run(function(){
+    recordArray = store.filter('person', function(hash) {
+      if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
+    });
   });
 
   equal(get(recordArray, 'length'), 2, "precond - The Record Array should have the filtered objects on it");
 
-  store.createRecord('person', { name: "Scumbag Koz" });
+  run(function(){
+    store.createRecord('person', { name: "Scumbag Koz" });
+  });
 
   equal(get(recordArray, 'length'), 3, "The record array has the new object on it");
 });
 
 test("a Record Array can update its filter", function() {
-  set(store, 'adapter', DS.Adapter.extend({
-    deleteRecord: function(store, type, record) {
-      return Ember.RSVP.resolve();
-    }
-  }));
+  run(function(){
+    set(store, 'adapter', DS.Adapter.extend({
+      deleteRecord: function(store, type, record) {
+        return Ember.RSVP.resolve();
+      }
+    }));
+  });
 
-  store.pushMany('person', array);
+  run(function(){
+    store.pushMany('person', array);
+  });
 
-  var dickens = store.createRecord('person', { id: 4, name: "Scumbag Dickens" });
-  dickens.deleteRecord();
+  var dickens = run(function(){
+    var record = store.createRecord('person', { id: 4, name: "Scumbag Dickens" });
+    record.deleteRecord();
+    return record;
+  });
+  var asyncDale, asyncKatz, asyncBryn;
 
-  var asyncDale = store.find('person', 1);
-  var asyncKatz = store.find('person', 2);
-  var asyncBryn = store.find('person', 3);
+  run(function(){
+    asyncDale = store.find('person', 1);
+    asyncKatz = store.find('person', 2);
+    asyncBryn = store.find('person', 3);
+  });
 
   store.filter(Person, function(hash) {
     if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
@@ -160,20 +209,31 @@ test("a Record Array can update its filter", function() {
 });
 
 test("a Record Array can update its filter and notify array observers", function() {
-  set(store, 'adapter', DS.Adapter.extend({
-    deleteRecord: function(store, type, record) {
-      return Ember.RSVP.resolve();
-    }
-  }));
+  run(function(){
+    set(store, 'adapter', DS.Adapter.extend({
+      deleteRecord: function(store, type, record) {
+        return Ember.RSVP.resolve();
+      }
+    }));
+  });
 
-  store.pushMany('person', array);
+  run(function(){
+    store.pushMany('person', array);
+  });
+  var dickens;
 
-  var dickens = store.createRecord('person', { id: 4, name: "Scumbag Dickens" });
-  dickens.deleteRecord();
+  run(function(){
+    dickens = store.createRecord('person', { id: 4, name: "Scumbag Dickens" });
+    dickens.deleteRecord();
+  });
 
-  var asyncDale = store.find('person', 1);
-  var asyncKatz = store.find('person', 2);
-  var asyncBryn = store.find('person', 3);
+  var asyncDale, asyncKatz, asyncBryn;
+
+  run(function(){
+    asyncDale = store.find('person', 1);
+    asyncKatz = store.find('person', 2);
+    asyncBryn = store.find('person', 3);
+  });
 
   store.filter(Person, function(hash) {
     if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
@@ -238,14 +298,19 @@ test("it is possible to filter by computed properties", function() {
       return this.get('name').toUpperCase();
     }).property('name')
   });
+  var filter;
 
-  var filter = store.filter('person', function(person) {
-    return person.get('upperName') === "TOM DALE";
+  run(function(){
+    filter = store.filter('person', function(person) {
+      return person.get('upperName') === "TOM DALE";
+    });
   });
 
   equal(filter.get('length'), 0, "precond - the filter starts empty");
 
-  store.push('person', { id: 1, name: "Tom Dale" });
+  run(function(){
+    store.push('person', { id: 1, name: "Tom Dale" });
+  });
 
   equal(filter.get('length'), 1, "the filter now has a record in it");
 
@@ -266,10 +331,15 @@ test("a filter created after a record is already loaded works", function() {
     }).property('name')
   });
 
-  store.push('person', { id: 1, name: "Tom Dale" });
+  run(function(){
+    store.push('person', { id: 1, name: "Tom Dale" });
+  });
+  var filter;
 
-  var filter = store.filter('person', function(person) {
-    return person.get('upperName') === "TOM DALE";
+  run(function(){
+    filter = store.filter('person', function(person) {
+      return person.get('upperName') === "TOM DALE";
+    });
   });
 
   equal(filter.get('length'), 1, "the filter now has a record in it");
@@ -285,9 +355,12 @@ test("filter with query persists query on the resulting filteredRecordArray", fu
       }]);
     }
   }));
+  var filter;
 
-  var filter = store.filter(Person, { foo: 1 }, function(person) {
-    return true;
+  run(function(){
+    filter = store.filter(Person, { foo: 1 }, function(person) {
+      return true;
+    });
   });
 
   Ember.run(function() {
@@ -299,14 +372,17 @@ test("filter with query persists query on the resulting filteredRecordArray", fu
 
 
 test("it is possible to filter by state flags", function() {
-  set(store, 'adapter', DS.Adapter.extend({
-    find: function(store, type, id) {
-      return Ember.RSVP.resolve({ id: id, name: "Tom Dale" });
-    }
-  }));
+  var filter;
+  run(function(){
+    set(store, 'adapter', DS.Adapter.extend({
+      find: function(store, type, id) {
+        return Ember.RSVP.resolve({ id: id, name: "Tom Dale" });
+      }
+    }));
 
-  var filter = store.filter(Person, function(person) {
-    return person.get('isLoaded');
+    filter = store.filter(Person, function(person) {
+      return person.get('isLoaded');
+    });
   });
 
   equal(filter.get('length'), 0, "precond - there are no records yet");
@@ -435,16 +511,18 @@ var clientCreates = function(names) {
 };
 
 var serverResponds = function(){
-  forEach(edited, function(person) { person.save(); });
+  forEach(edited, function(person) { run(person, 'save'); });
 };
 
 var setup = function(serverCallbacks) {
-  set(store, 'adapter', DS.Adapter.extend(serverCallbacks));
+  run(function(){
+    set(store, 'adapter', DS.Adapter.extend(serverCallbacks));
 
-  store.pushMany('person', array);
+    store.pushMany('person', array);
 
-  recordArray = store.filter('person', function(hash) {
-    if (hash.get('name').match(/Scumbag/)) { return true; }
+    recordArray = store.filter('person', function(hash) {
+      if (hash.get('name').match(/Scumbag/)) { return true; }
+    });
   });
 
   equal(get(recordArray, 'length'), 3, "The filter function should work");

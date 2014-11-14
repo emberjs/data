@@ -13,15 +13,17 @@
   ENV['EXTEND_PROTOTYPES'] = !!extendPrototypes;
 
   window.async = function(callback, timeout) {
+    var timer;
     stop();
 
-    timeout = setTimeout(function() {
+    console.log(timeout);
+    timer = setTimeout(function() {
       start();
       ok(false, "Timeout was reached");
     }, timeout || 200);
 
     return function() {
-      clearTimeout(timeout);
+      clearTimeout(timer);
 
       start();
 
@@ -80,52 +82,6 @@
     return setupStore(options).store;
   };
 
-  var syncForTest = window.syncForTest = function(fn) {
-    var callSuper;
-
-    if (typeof fn !== "function") { callSuper = true; }
-
-    return function() {
-      var override = false, ret;
-
-      if (Ember.run && !Ember.run.currentRunLoop) {
-        Ember.run.begin();
-        override = true;
-      }
-
-      try {
-        if (callSuper) {
-          ret = this._super.apply(this, arguments);
-        } else {
-          ret = fn.apply(this, arguments);
-        }
-      } finally {
-        if (override) {
-          Ember.run.end();
-        }
-      }
-
-      return ret;
-    };
-  };
-
-  Ember.config.overrideAccessors = function() {
-    Ember.set = syncForTest(Ember.set);
-    Ember.get = syncForTest(Ember.get);
-  };
-
-  Ember.config.overrideClassMixin = function(ClassMixin) {
-    ClassMixin.reopen({
-      create: syncForTest()
-    });
-  };
-
-  Ember.config.overridePrototypeMixin = function(PrototypeMixin) {
-    PrototypeMixin.reopen({
-      destroy: syncForTest()
-    });
-  };
-
   QUnit.begin(function(){
     Ember.RSVP.configure('onerror', function(reason) {
       // only print error messages if they're exceptions;
@@ -136,60 +92,6 @@
         throw reason;
       }
     });
-
-    Ember.RSVP.resolve = syncForTest(Ember.RSVP.resolve);
-
-    Ember.View.reopen({
-      _insertElementLater: syncForTest()
-    });
-
-    DS.Store.reopen({
-      save: syncForTest(),
-      createRecord: syncForTest(),
-      deleteRecord: syncForTest(),
-      push: syncForTest(),
-      pushMany: syncForTest(),
-      filter: syncForTest(),
-      find: syncForTest(),
-      findMany: syncForTest(),
-      findHasMany: syncForTest(),
-      findByIds: syncForTest(),
-      didSaveRecord: syncForTest(),
-      didSaveRecords: syncForTest(),
-      didUpdateAttribute: syncForTest(),
-      didUpdateAttributes: syncForTest(),
-      didUpdateRelationship: syncForTest(),
-      didUpdateRelationships: syncForTest(),
-      scheduleFetch: syncForTest(),
-      scheduleFetchMany: syncForTest()
-    });
-
-    DS.Model.reopen({
-      save: syncForTest(),
-      reload: syncForTest(),
-      deleteRecord: syncForTest(),
-      dataDidChange: Ember.observer(syncForTest(), 'data'),
-      updateRecordArraysLater: syncForTest(),
-      updateRecordArrays: syncForTest()
-    });
-
-    DS.ManyArray.reopen({
-      reload: syncForTest()
-    });
-
-    DS.Errors.reopen({
-      add: syncForTest(),
-      remove: syncForTest(),
-      clear: syncForTest()
-    });
-
-    DS.Relationship.prototype.addRecord = syncForTest(DS.Relationship.prototype.addRecord);
-    DS.Relationship.prototype.removeRecord = syncForTest(DS.Relationship.prototype.removeRecord);
-
-    DS.Relationship.prototype.removeRecordFromInverse = syncForTest(DS.Relationship.prototype.removeRecordFromInverse);
-    DS.Relationship.prototype.removeRecordFromOwn = syncForTest(DS.Relationship.prototype.removeRecordFromOwn);
-
-    DS.Relationship.prototype.addRecordToInverse = syncForTest(DS.Relationship.prototype.addRecordToInverse);
 
     var transforms = {
       'boolean': DS.BooleanTransform.create(),
@@ -205,7 +107,6 @@
       }
     });
 
-    Ember.RSVP.Promise.prototype.then = syncForTest(Ember.RSVP.Promise.prototype.then);
   });
 
   // Generate the jQuery expando on window ahead of time

@@ -1,6 +1,6 @@
 var get = Ember.get, set = Ember.set;
-
 var Person, adapter, store, allRecords;
+var run = Ember.run;
 
 module("integration/adapter/find_all - Finding All Records of a Type", {
   setup: function() {
@@ -15,8 +15,10 @@ module("integration/adapter/find_all - Finding All Records of a Type", {
   },
 
   teardown: function() {
-    if (allRecords) { allRecords.destroy(); }
-    store.destroy();
+    run(function(){
+      if (allRecords) { allRecords.destroy(); }
+      store.destroy();
+    });
   }
 });
 
@@ -81,11 +83,12 @@ test("When all records for a type are requested, records that are already loaded
   expect(3);
   store = createStore({ adapter: DS.Adapter.extend()});
 
-  // Load a record from the server
-  store.push(Person, { id: 1, name: "Jeremy Ashkenas" });
-
-  // Create a new, unsaved record in the store
-  store.createRecord(Person, { name: "Alex MacCaw" });
+  run(function(){
+    // Load a record from the server
+    store.push(Person, { id: 1, name: "Jeremy Ashkenas" });
+    // Create a new, unsaved record in the store
+    store.createRecord(Person, { name: "Alex MacCaw" });
+  });
 
   allRecords = store.all(Person);
 
@@ -103,7 +106,9 @@ test("When all records for a type are requested, records that are created on the
 
   equal(get(allRecords, 'length'), 0, "precond - the record array's length is zero before any records are loaded");
 
-  store.createRecord(Person, { name: "Carsten Nielsen" });
+  run(function(){
+    store.createRecord(Person, { name: "Carsten Nielsen" });
+  });
 
   equal(get(allRecords, 'length'), 1, "the record array's length is 1");
   equal(allRecords.objectAt(0).get('name'), "Carsten Nielsen", "the first item in the record array is Carsten Nielsen");

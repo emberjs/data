@@ -1,4 +1,5 @@
 var get = Ember.get, set = Ember.set;
+var run = Ember.run;
 
 var Person, store, array, moreArray;
 
@@ -11,19 +12,23 @@ module("integration/all - DS.Store#all()", {
     store = createStore({ person: Person });
   },
   teardown: function() {
-    store.destroy();
+    run(store, 'destroy');
     Person = null;
     array = null;
   }
 });
 
 test("store.all('person') should return all records and should update with new ones", function() {
-  store.pushMany('person', array);
+  run(function(){
+    store.pushMany('person', array);
+  });
 
   var all = store.all('person');
   equal(get(all, 'length'), 2);
 
-  store.pushMany('person', moreArray);
+  run(function(){
+    store.pushMany('person', moreArray);
+  });
 
   equal(get(all, 'length'), 3);
 });

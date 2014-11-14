@@ -1,6 +1,7 @@
 var Person, env;
 var attr = DS.attr;
 var resolve = Ember.RSVP.resolve;
+var run = Ember.run;
 
 module("integration/lifecycle_hooks - Lifecycle Hooks", {
   setup: function() {
@@ -14,7 +15,7 @@ module("integration/lifecycle_hooks - Lifecycle Hooks", {
   },
 
   teardown: function() {
-    env.container.destroy();
+    run(env.container, 'destroy');
   }
 });
 
@@ -24,8 +25,11 @@ asyncTest("When the adapter acknowledges that a record has been created, a `didC
   env.adapter.createRecord = function(store, type, record) {
     return resolve({ id: 99, name: "Yehuda Katz" });
   };
+  var person;
 
-  var person = env.store.createRecord(Person, { name: "Yehuda Katz" });
+  run(function(){
+    person = env.store.createRecord(Person, { name: "Yehuda Katz" });
+  });
 
   person.on('didCreate', function() {
     equal(this, person, "this is bound to the record");
@@ -34,7 +38,7 @@ asyncTest("When the adapter acknowledges that a record has been created, a `didC
     start();
   });
 
-  person.save();
+  run(person, 'save');
 });
 
 test("When the adapter acknowledges that a record has been created without a new data payload, a `didCreate` event is triggered.", function() {
@@ -43,8 +47,11 @@ test("When the adapter acknowledges that a record has been created without a new
   env.adapter.createRecord = function(store, type, record) {
     return Ember.RSVP.resolve();
   };
+  var person;
 
-  var person = env.store.createRecord(Person, { id: 99, name: "Yehuda Katz" });
+  run(function(){
+    person = env.store.createRecord(Person, { id: 99, name: "Yehuda Katz" });
+  });
 
   person.on('didCreate', function() {
     equal(this, person, "this is bound to the record");
@@ -52,5 +59,5 @@ test("When the adapter acknowledges that a record has been created without a new
     equal(this.get('name'), "Yehuda Katz", "the attribute has been assigned");
   });
 
-  person.save();
+  run(person, 'save');
 });

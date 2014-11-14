@@ -1,5 +1,6 @@
 var get = Ember.get, set = Ember.set;
 var Person, env, store, adapter;
+var run = Ember.run;
 
 module("integration/adapter/queries - Queries", {
   setup: function() {
@@ -16,7 +17,7 @@ module("integration/adapter/queries - Queries", {
   },
 
   teardown: function() {
-    env.container.destroy();
+    run(env.container, 'destroy');
   }
 });
 

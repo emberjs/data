@@ -1,5 +1,6 @@
 var get = Ember.get, set = Ember.set;
 var Person, store, adapter;
+var run = Ember.run;
 
 module("integration/adapter/find - Finding Records", {
   setup: function() {
@@ -12,7 +13,7 @@ module("integration/adapter/find - Finding Records", {
   },
 
   teardown: function() {
-    store.destroy();
+    run(store,'destroy');
   }
 });
 
@@ -52,8 +53,10 @@ test("When a single record is requested, the adapter's find method should be cal
     })
   });
 
-  store.find(Person, 1);
-  store.find(Person, 1);
+  run(function(){
+    store.find(Person, 1);
+    store.find(Person, 1);
+  });
 });
 
 test("When a single record is requested multiple times, all .find() calls are resolved after the promise is resolved", function() {
@@ -66,34 +69,38 @@ test("When a single record is requested multiple times, all .find() calls are re
     })
   });
 
-  store.find(Person, 1).then(async(function(person) {
-    equal(person.get('id'), "1");
-    equal(person.get('name'), "Braaaahm Dale");
+  run(function(){
+    store.find(Person, 1).then(async(function(person) {
+      equal(person.get('id'), "1");
+      equal(person.get('name'), "Braaaahm Dale");
 
-    stop();
-    deferred.promise.then(function(value){
-      start();
-      ok(true, 'expected deferred.promise to fulfill');
-    },function(reason){
-      start();
-      ok(false, 'expected deferred.promise to fulfill, but rejected');
-    });
-  }));
+      stop();
+      deferred.promise.then(function(value){
+        start();
+        ok(true, 'expected deferred.promise to fulfill');
+      },function(reason){
+        start();
+        ok(false, 'expected deferred.promise to fulfill, but rejected');
+      });
+    }));
+  });
 
-  store.find(Person, 1).then(async(function(post) {
-    equal(post.get('id'), "1");
-    equal(post.get('name'), "Braaaahm Dale");
+  run(function(){
+    store.find(Person, 1).then(async(function(post) {
+      equal(post.get('id'), "1");
+      equal(post.get('name'), "Braaaahm Dale");
 
-    stop();
-    deferred.promise.then(function(value){
-      start();
-      ok(true, 'expected deferred.promise to fulfill');
-    }, function(reason){
-      start();
-      ok(false, 'expected deferred.promise to fulfill, but rejected');
-    });
+      stop();
+      deferred.promise.then(function(value){
+        start();
+        ok(true, 'expected deferred.promise to fulfill');
+      }, function(reason){
+        start();
+        ok(false, 'expected deferred.promise to fulfill, but rejected');
+      });
 
-  }));
+    }));
+  });
 
   Ember.run(function() {
     deferred.resolve({ id: 1, name: "Braaaahm Dale" });
@@ -110,7 +117,9 @@ test("When a single record is requested, and the promise is rejected, .find() is
     })
   });
 
-  store.find(Person, 1).then(null, async(function(reason) {
-    ok(true, "The rejection handler was called");
-  }));
+  run(function(){
+    store.find(Person, 1).then(null, async(function(reason) {
+      ok(true, "The rejection handler was called");
+    }));
+  });
 });

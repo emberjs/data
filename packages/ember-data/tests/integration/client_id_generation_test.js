@@ -1,6 +1,7 @@
 var get = Ember.get, set = Ember.set;
 var serializer, adapter, store;
 var Post, Comment, env;
+var run = Ember.run;
 
 module("integration/client_id_generation - Client-side ID Generation", {
   setup: function() {
@@ -19,7 +20,7 @@ module("integration/client_id_generation - Client-side ID Generation", {
   },
 
   teardown: function() {
-    env.container.destroy();
+    run(env.container, 'destroy');
   }
 });
 
@@ -44,14 +45,19 @@ test("If an adapter implements the `generateIdForRecord` method, the store shoul
     }
   };
 
-  var comment = env.store.createRecord('comment');
-  var post = env.store.createRecord('post');
+  var comment, post;
+  run(function(){
+    comment = env.store.createRecord('comment');
+    post = env.store.createRecord('post');
+  });
 
   equal(get(comment, 'id'), 'id-1', "comment is assigned id 'id-1'");
   equal(get(post, 'id'), 'id-2', "post is assigned id 'id-2'");
 
   // Despite client-generated IDs, calling commit() on the store should still
   // invoke the adapter's `createRecord` method.
-  comment.save();
-  post.save();
+  run(function(){
+    comment.save();
+    post.save();
+  });
 });

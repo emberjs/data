@@ -1,6 +1,7 @@
 var get = Ember.get, set = Ember.set;
 var attr = DS.attr;
 var Person, env;
+var run = Ember.run;
 
 module("integration/deletedRecord - Deleting Records", {
   setup: function() {
@@ -23,8 +24,11 @@ module("integration/deletedRecord - Deleting Records", {
 });
 
 test("records can be deleted during record array enumeration", function () {
-  var adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
-  var dave = env.store.push('person', {id: 2, name: "Dave Sunderland"});
+  var adam, dave;
+  run(function(){
+    adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
+    dave = env.store.push('person', {id: 2, name: "Dave Sunderland"});
+  });
   var all  = env.store.all('person');
 
   // pre-condition
@@ -40,18 +44,25 @@ test("records can be deleted during record array enumeration", function () {
 });
 
 test("when deleted records are rolled back, they are still in their previous record arrays", function () {
-  var jaime = env.store.push('person', {id: 1, name: "Jaime Lannister"});
-  var cersei = env.store.push('person', {id: 2, name: "Cersei Lannister"});
+  var jaime, cersei;
+  run(function(){
+    jaime = env.store.push('person', {id: 1, name: "Jaime Lannister"});
+    cersei = env.store.push('person', {id: 2, name: "Cersei Lannister"});
+  });
   var all = env.store.all('person');
-  var filtered = env.store.filter('person', function () {
-    return true;
+  var filtered;
+  run(function(){
+    filtered = env.store.filter('person', function () {
+      return true;
+    });
   });
 
   equal(all.get('length'), 2, 'precond - we start with two people');
   equal(filtered.get('length'), 2, 'precond - we start with two people');
-  jaime.deleteRecord();
-  jaime.rollback();
+  run(function(){
+    jaime.deleteRecord();
+    jaime.rollback();
+  });
   equal(all.get('length'), 2, 'record was not removed');
   equal(filtered.get('length'), 2, 'record was not removed');
-
 });
