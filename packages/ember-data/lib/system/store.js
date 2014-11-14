@@ -424,6 +424,26 @@ Store = Ember.Object.extend({
   },
 
   /**
+    This method returns a fresh record for a given type and id combination.
+
+    @method fetch
+    @param {String or subclass of DS.Model} type
+    @param {Object|String|Integer|null} id
+    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
+    @return {Promise} promise
+  */
+  fetch: function(type, id, preload) {
+    var store = this;
+    var adapter = store.adapterFor(type);
+
+    if (store.hasRecordForId(type, id) {
+      return store.getById(type, id).reload();
+     } else {
+      return adapter.find(type, id, preload);
+    }
+  },
+
+  /**
     This method returns a record for a given type and id combination.
 
     @method findById
