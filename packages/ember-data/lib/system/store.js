@@ -492,7 +492,7 @@ Store = Ember.Object.extend({
     var adapter = this.adapterFor(type);
 
     Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
-    Ember.assert("You tried to find a record but your adapter (for " + type + ") does not implement 'find'", adapter.find);
+    Ember.assert("You tried to find a record but your adapter (for " + type + ") does not implement 'find'", typeof adapter.find === 'function');
 
     var promise = _find(adapter, this, type, id, record);
     return promise;
@@ -649,7 +649,7 @@ Store = Ember.Object.extend({
 
     Ember.assert("You cannot reload a record without an ID", id);
     Ember.assert("You tried to reload a record but you have no adapter (for " + type + ")", adapter);
-    Ember.assert("You tried to reload a record but your adapter does not implement `find`", adapter.find);
+    Ember.assert("You tried to reload a record but your adapter does not implement `find`", typeof adapter.find === 'function');
 
     return this.scheduleFetch(record);
   },
@@ -730,7 +730,7 @@ Store = Ember.Object.extend({
     var adapter = this.adapterFor(owner.constructor);
 
     Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + owner.constructor + ")", adapter);
-    Ember.assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", adapter.findHasMany);
+    Ember.assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", typeof adapter.findHasMany === 'function');
 
     return _findHasMany(adapter, this, owner, link, type);
   },
@@ -747,7 +747,7 @@ Store = Ember.Object.extend({
     var adapter = this.adapterFor(owner.constructor);
 
     Ember.assert("You tried to load a belongsTo relationship but you have no adapter (for " + owner.constructor + ")", adapter);
-    Ember.assert("You tried to load a belongsTo relationship from a specified `link` in the original payload but your adapter does not implement `findBelongsTo`", adapter.findBelongsTo);
+    Ember.assert("You tried to load a belongsTo relationship from a specified `link` in the original payload but your adapter does not implement `findBelongsTo`", typeof adapter.findBelongsTo === 'function');
 
     return _findBelongsTo(adapter, this, owner, link, relationship);
   },
@@ -777,7 +777,7 @@ Store = Ember.Object.extend({
     var adapter = this.adapterFor(type);
 
     Ember.assert("You tried to load a query but you have no adapter (for " + type + ")", adapter);
-    Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", adapter.findQuery);
+    Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", typeof adapter.findQuery === 'function');
 
     return promiseArray(_findQuery(adapter, this, type, query, array));
   },
@@ -812,7 +812,7 @@ Store = Ember.Object.extend({
     set(array, 'isUpdating', true);
 
     Ember.assert("You tried to load all records but you have no adapter (for " + type + ")", adapter);
-    Ember.assert("You tried to load all records but your adapter does not implement `findAll`", adapter.findAll);
+    Ember.assert("You tried to load all records but your adapter does not implement `findAll`", typeof adapter.findAll === 'function');
 
     return promiseArray(_findAll(adapter, this, type, sinceToken));
   },
@@ -1362,7 +1362,7 @@ Store = Ember.Object.extend({
     if (!inputPayload) {
       payload = type;
       serializer = defaultSerializer(this.container);
-      Ember.assert("You cannot use `store#pushPayload` without a type unless your default serializer defines `pushPayload`", serializer.pushPayload);
+      Ember.assert("You cannot use `store#pushPayload` without a type unless your default serializer defines `pushPayload`", typeof serializer.pushPayload === 'function');
     } else {
       payload = inputPayload;
       serializer = this.serializerFor(type);
