@@ -426,6 +426,8 @@ Store = Ember.Object.extend({
   /**
     This method returns a fresh record for a given type and id combination.
 
+    If a record is available for the given type/id combination, then it will fetch this record from the store then reload it. If there's no record corresponding in the store it will simply call store.find.
+
     @method fetch
     @param {String or subclass of DS.Model} type
     @param {Object|String|Integer|null} id
@@ -433,12 +435,10 @@ Store = Ember.Object.extend({
     @return {Promise} promise
   */
   fetch: function(type, id, preload) {
-    var store = this;
-
-    if (store.hasRecordForId(type, id)) {
-      return store.getById(type, id).reload();
+    if (this.hasRecordForId(type, id)) {
+      return this.getById(type, id).reload();
     } else {
-      return store.find(type, id, preload);
+      return this.find(type, id, preload);
     }
   },
 
