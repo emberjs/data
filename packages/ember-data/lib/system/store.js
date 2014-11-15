@@ -890,9 +890,17 @@ Store = Ember.Object.extend({
     remains up to date as new records are loaded into the store or created
     locally.
 
-    The callback function takes a materialized record, and returns true
+    The filter function takes a materialized record, and returns true
     if the record should be included in the filter and false if it should
     not.
+
+    Example
+
+    ```javascript
+    store.filter('post', function(post) {
+      return post.get('unread');
+    });
+    ```
 
     The filter function is called once on all records for the type when
     it is created, and then once on each newly loaded or created record.
@@ -901,14 +909,19 @@ Store = Ember.Object.extend({
     filter function will be invoked again to determine whether it should
     still be in the array.
 
-    Optionally you can pass a query which will be triggered at first. The
-    results returned by the server could then appear in the filter if they
-    match the filter function.
+    Optionally you can pass a query, which is the equivalent of calling
+    [find](#method_find) with that same query, to fetch additional records
+    from the server. The results returned by the server could then appear
+    in the filter if they match the filter function.
+
+    The query itself is not used to filter records, it's only sent to your
+    server for you to be able to do server-side filtering. The filter
+    function will be applied on the returned results regardless.
 
     Example
 
     ```javascript
-    store.filter('post', {unread: true}, function(post) {
+    store.filter('post', { unread: true }, function(post) {
       return post.get('unread');
     }).then(function(unreadPosts) {
       unreadPosts.get('length'); // 5
