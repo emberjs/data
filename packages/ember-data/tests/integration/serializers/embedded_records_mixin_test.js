@@ -1,7 +1,7 @@
 var get = Ember.get, set = Ember.set;
 var camelize = Ember.String.camelize;
 var singularize = Ember.String.singularize;
-var HomePlanet, SuperVillain, EvilMinion, SecretLab, SecretWeapon, Comment,
+var HomePlanet, SuperVillain, EvilMinion, SecretLab, SuperSecretLab, SecretWeapon, Comment,
   league, superVillain, evilMinion, secretWeapon, homePlanet, secretLab, env;
 var indexOf = Ember.EnumerableUtils.indexOf;
 
@@ -24,6 +24,9 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
       vicinity:        DS.attr('string'),
       superVillain:    DS.belongsTo('superVillain')
     });
+    SuperSecretLab = SecretLab.extend({
+      location: 'Underground'
+    });
     SecretWeapon = DS.Model.extend({
       name:            DS.attr('string'),
       superVillain:    DS.belongsTo('superVillain')
@@ -44,6 +47,7 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
       superVillain:    SuperVillain,
       homePlanet:      HomePlanet,
       secretLab:       SecretLab,
+      superSecretLab:  SuperSecretLab,
       secretWeapon:    SecretWeapon,
       lightSaber:      LightSaber,
       evilMinion:      EvilMinion,
@@ -52,6 +56,7 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
     env.store.modelFor('superVillain');
     env.store.modelFor('homePlanet');
     env.store.modelFor('secretLab');
+    env.store.modelFor('superSecretLab');
     env.store.modelFor('secretWeapon');
     env.store.modelFor('lightSaber');
     env.store.modelFor('evilMinion');
@@ -997,6 +1002,74 @@ test("extractSingle with polymorphic hasMany", function() {
 
 
 });
+
+test("extractSingle with polymorphic & embedded belongTo", function() {
+  SuperVillain.reopen({
+    secretLab: DS.belongsTo("secretLab", {embedded: true, polymorphic: true}),
+  });
+
+  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      secretLab: {embedded: 'always'}
+    }
+  }));
+  var serializer = env.container.lookup("serializer:superVillain");
+
+
+  //Secret Lab
+  var json_hash = {
+    super_villain: {
+      id: "1",
+      first_name: "Tom",
+      last_name: "Dale",
+      secret_lab: {
+        id: "100",
+        type: "SecretLab",
+        minionCapacity: 5000,
+        vicinity: "California, USA"
+      }
+    }
+  };
+
+  var json = serializer.extractSingle(env.store, SuperVillain, json_hash);
+  deepEqual(json, {
+    id: "1",
+    firstName: "Tom",
+    lastName: "Dale",
+    secretLab: {id: "100", type: "secretLab"}
+  }, "Primary entry was correct");
+
+  equal(env.store.recordForId("secretLab", "100").get("vicinity"), "California, USA", "Embedded polymorphic SecretLab found");
+
+
+  //SuperSecret Lab
+  var json_hash = {
+    super_villain: {
+      id: "2",
+      first_name: "Asaf",
+      last_name: "Shakarchi",
+      secret_lab: {
+        id: "101",
+        type: "SuperSecretLab",
+        minionCapacity: 5000,
+        vicinity: "Tel Aviv, IL"
+      }
+    }
+  };
+
+  var json = serializer.extractSingle(env.store, SuperVillain, json_hash);
+  deepEqual(json, {
+    id: "2",
+    firstName: "Asaf",
+    lastName: "Shakarchi",
+    secretLab: {id: "101", type: "superSecretLab"}
+  }, "Primary entry was correct");
+
+  equal(env.store.recordForId("superSecretLab", "101").get("vicinity"), "Tel Aviv, IL", "Embedded polymorphic SuperSecretLab found");
+
+});
+
 
 test("Mixin can be used with RESTSerializer which does not define keyForAttribute", function() {
   homePlanet = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
