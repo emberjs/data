@@ -1752,7 +1752,7 @@ function deserializeRecordId(store, data, key, relationship, id) {
     type = typeFor(relationship, key, data);
     data[key] = store.recordForId(type, id);
   } else if (typeof id === 'object') {
-    // polymorphic
+    // hasMany polymorphic
     Ember.assert('Ember Data expected a number or string to represent the record(s) in the `' + relationship.key + '` relationship instead it found an object. If this is a polymorphic relationship please specify a `type` key. If this is an embedded relationship please include the `DS.EmbeddedRecordsMixin` and specify the `' + relationship.key +'` property in your serializer\'s attrs hash.', id.type);
     data[key] = store.recordForId(id.type, id.id);
   }
