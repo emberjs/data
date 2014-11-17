@@ -321,7 +321,9 @@ BelongsToRelationship.prototype.findRecord = function() {
 BelongsToRelationship.prototype.fetchLink = function() {
   var self = this;
   return this.store.findBelongsTo(this.record, this.link, this.relationshipMeta).then(function(record){
-    self.addRecord(record);
+    if (record) {
+      self.addRecord(record);
+    }
     return record;
   });
 };
