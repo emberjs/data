@@ -1,0 +1,884 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>packages/ember-data/lib/system/model/states.js</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title=""></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/DS.html">DS</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelAdapter.html">DS.ActiveModelAdapter</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelSerializer.html">DS.ActiveModelSerializer</a></li>
+            
+                <li><a href="../classes/DS.Adapter.html">DS.Adapter</a></li>
+            
+                <li><a href="../classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a></li>
+            
+                <li><a href="../classes/DS.BooleanTransform.html">DS.BooleanTransform</a></li>
+            
+                <li><a href="../classes/DS.ContainerProxy.html">DS.ContainerProxy</a></li>
+            
+                <li><a href="../classes/DS.DateTransform.html">DS.DateTransform</a></li>
+            
+                <li><a href="../classes/DS.DebugAdapter.html">DS.DebugAdapter</a></li>
+            
+                <li><a href="../classes/DS.EmbeddedRecordsMixin.html">DS.EmbeddedRecordsMixin</a></li>
+            
+                <li><a href="../classes/DS.Errors.html">DS.Errors</a></li>
+            
+                <li><a href="../classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a></li>
+            
+                <li><a href="../classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a></li>
+            
+                <li><a href="../classes/DS.InvalidError.html">DS.InvalidError</a></li>
+            
+                <li><a href="../classes/DS.JSONSerializer.html">DS.JSONSerializer</a></li>
+            
+                <li><a href="../classes/DS.ManyArray.html">DS.ManyArray</a></li>
+            
+                <li><a href="../classes/DS.Model.html">DS.Model</a></li>
+            
+                <li><a href="../classes/DS.NumberTransform.html">DS.NumberTransform</a></li>
+            
+                <li><a href="../classes/DS.PromiseArray.html">DS.PromiseArray</a></li>
+            
+                <li><a href="../classes/DS.PromiseObject.html">DS.PromiseObject</a></li>
+            
+                <li><a href="../classes/DS.RecordArray.html">DS.RecordArray</a></li>
+            
+                <li><a href="../classes/DS.RecordArrayManager.html">DS.RecordArrayManager</a></li>
+            
+                <li><a href="../classes/DS.RESTAdapter.html">DS.RESTAdapter</a></li>
+            
+                <li><a href="../classes/DS.RESTSerializer.html">DS.RESTSerializer</a></li>
+            
+                <li><a href="../classes/DS.RootState.html">DS.RootState</a></li>
+            
+                <li><a href="../classes/DS.Store.html">DS.Store</a></li>
+            
+                <li><a href="../classes/DS.StringTransform.html">DS.StringTransform</a></li>
+            
+                <li><a href="../classes/DS.Transform.html">DS.Transform</a></li>
+            
+                <li><a href="../classes/Ember.Date.html">Ember.Date</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/ember-data.html">ember-data</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: packages/ember-data/lib/system/model/states.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+/**
+  @module ember-data
+*/
+
+var get = Ember.get;
+var set = Ember.set;
+/*
+  This file encapsulates the various states that a record can transition
+  through during its lifecycle.
+*/
+/**
+  ### State
+
+  Each record has a &#x60;currentState&#x60; property that explicitly tracks what
+  state a record is in at any given time. For instance, if a record is
+  newly created and has not yet been sent to the adapter to be saved,
+  it would be in the &#x60;root.loaded.created.uncommitted&#x60; state.  If a
+  record has had local modifications made to it that are in the
+  process of being saved, the record would be in the
+  &#x60;root.loaded.updated.inFlight&#x60; state. (This state paths will be
+  explained in more detail below.)
+
+  Events are sent by the record or its store to the record&#x27;s
+  &#x60;currentState&#x60; property. How the state reacts to these events is
+  dependent on which state it is in. In some states, certain events
+  will be invalid and will cause an exception to be raised.
+
+  States are hierarchical and every state is a substate of the
+  &#x60;RootState&#x60;. For example, a record can be in the
+  &#x60;root.deleted.uncommitted&#x60; state, then transition into the
+  &#x60;root.deleted.inFlight&#x60; state. If a child state does not implement
+  an event handler, the state manager will attempt to invoke the event
+  on all parent states until the root state is reached. The state
+  hierarchy of a record is described in terms of a path string. You
+  can determine a record&#x27;s current state by getting the state&#x27;s
+  &#x60;stateName&#x60; property:
+
+  &#x60;&#x60;&#x60;javascript
+  record.get(&#x27;currentState.stateName&#x27;);
+  //=&gt; &quot;root.created.uncommitted&quot;
+   &#x60;&#x60;&#x60;
+
+  The hierarchy of valid states that ship with ember data looks like
+  this:
+
+  &#x60;&#x60;&#x60;text
+  * root
+    * deleted
+      * saved
+      * uncommitted
+      * inFlight
+    * empty
+    * loaded
+      * created
+        * uncommitted
+        * inFlight
+      * saved
+      * updated
+        * uncommitted
+        * inFlight
+    * loading
+  &#x60;&#x60;&#x60;
+
+  The &#x60;DS.Model&#x60; states are themselves stateless. What that means is
+  that, the hierarchical states that each of *those* points to is a
+  shared data structure. For performance reasons, instead of each
+  record getting its own copy of the hierarchy of states, each record
+  points to this global, immutable shared instance. How does a state
+  know which record it should be acting on? We pass the record
+  instance into the state&#x27;s event handlers as the first argument.
+
+  The record passed as the first parameter is where you should stash
+  state about the record if needed; you should never store data on the state
+  object itself.
+
+  ### Events and Flags
+
+  A state may implement zero or more events and flags.
+
+  #### Events
+
+  Events are named functions that are invoked when sent to a record. The
+  record will first look for a method with the given name on the
+  current state. If no method is found, it will search the current
+  state&#x27;s parent, and then its grandparent, and so on until reaching
+  the top of the hierarchy. If the root is reached without an event
+  handler being found, an exception will be raised. This can be very
+  helpful when debugging new features.
+
+  Here&#x27;s an example implementation of a state with a &#x60;myEvent&#x60; event handler:
+
+  &#x60;&#x60;&#x60;javascript
+  aState: DS.State.create({
+    myEvent: function(manager, param) {
+      console.log(&quot;Received myEvent with&quot;, param);
+    }
+  })
+  &#x60;&#x60;&#x60;
+
+  To trigger this event:
+
+  &#x60;&#x60;&#x60;javascript
+  record.send(&#x27;myEvent&#x27;, &#x27;foo&#x27;);
+  //=&gt; &quot;Received myEvent with foo&quot;
+  &#x60;&#x60;&#x60;
+
+  Note that an optional parameter can be sent to a record&#x27;s &#x60;send()&#x60; method,
+  which will be passed as the second parameter to the event handler.
+
+  Events should transition to a different state if appropriate. This can be
+  done by calling the record&#x27;s &#x60;transitionTo()&#x60; method with a path to the
+  desired state. The state manager will attempt to resolve the state path
+  relative to the current state. If no state is found at that path, it will
+  attempt to resolve it relative to the current state&#x27;s parent, and then its
+  parent, and so on until the root is reached. For example, imagine a hierarchy
+  like this:
+
+      * created
+        * uncommitted &lt;-- currentState
+        * inFlight
+      * updated
+        * inFlight
+
+  If we are currently in the &#x60;uncommitted&#x60; state, calling
+  &#x60;transitionTo(&#x27;inFlight&#x27;)&#x60; would transition to the &#x60;created.inFlight&#x60; state,
+  while calling &#x60;transitionTo(&#x27;updated.inFlight&#x27;)&#x60; would transition to
+  the &#x60;updated.inFlight&#x60; state.
+
+  Remember that *only events* should ever cause a state transition. You should
+  never call &#x60;transitionTo()&#x60; from outside a state&#x27;s event handler. If you are
+  tempted to do so, create a new event and send that to the state manager.
+
+  #### Flags
+
+  Flags are Boolean values that can be used to introspect a record&#x27;s current
+  state in a more user-friendly way than examining its state path. For example,
+  instead of doing this:
+
+  &#x60;&#x60;&#x60;javascript
+  var statePath = record.get(&#x27;stateManager.currentPath&#x27;);
+  if (statePath === &#x27;created.inFlight&#x27;) {
+    doSomething();
+  }
+  &#x60;&#x60;&#x60;
+
+  You can say:
+
+  &#x60;&#x60;&#x60;javascript
+  if (record.get(&#x27;isNew&#x27;) &amp;&amp; record.get(&#x27;isSaving&#x27;)) {
+    doSomething();
+  }
+  &#x60;&#x60;&#x60;
+
+  If your state does not set a value for a given flag, the value will
+  be inherited from its parent (or the first place in the state hierarchy
+  where it is defined).
+
+  The current set of flags are defined below. If you want to add a new flag,
+  in addition to the area below, you will also need to declare it in the
+  &#x60;DS.Model&#x60; class.
+
+
+   * [isEmpty](DS.Model.html#property_isEmpty)
+   * [isLoading](DS.Model.html#property_isLoading)
+   * [isLoaded](DS.Model.html#property_isLoaded)
+   * [isDirty](DS.Model.html#property_isDirty)
+   * [isSaving](DS.Model.html#property_isSaving)
+   * [isDeleted](DS.Model.html#property_isDeleted)
+   * [isNew](DS.Model.html#property_isNew)
+   * [isValid](DS.Model.html#property_isValid)
+
+  @namespace DS
+  @class RootState
+*/
+
+function didSetProperty(record, context) {
+  if (context.value === context.originalValue) {
+    delete record._attributes[context.name];
+    record.send(&#x27;propertyWasReset&#x27;, context.name);
+  } else if (context.value !== context.oldValue) {
+    record.send(&#x27;becomeDirty&#x27;);
+  }
+
+  record.updateRecordArraysLater();
+}
+
+// Implementation notes:
+//
+// Each state has a boolean value for all of the following flags:
+//
+// * isLoaded: The record has a populated &#x60;data&#x60; property. When a
+//   record is loaded via &#x60;store.find&#x60;, &#x60;isLoaded&#x60; is false
+//   until the adapter sets it. When a record is created locally,
+//   its &#x60;isLoaded&#x60; property is always true.
+// * isDirty: The record has local changes that have not yet been
+//   saved by the adapter. This includes records that have been
+//   created (but not yet saved) or deleted.
+// * isSaving: The record has been committed, but
+//   the adapter has not yet acknowledged that the changes have
+//   been persisted to the backend.
+// * isDeleted: The record was marked for deletion. When &#x60;isDeleted&#x60;
+//   is true and &#x60;isDirty&#x60; is true, the record is deleted locally
+//   but the deletion was not yet persisted. When &#x60;isSaving&#x60; is
+//   true, the change is in-flight. When both &#x60;isDirty&#x60; and
+//   &#x60;isSaving&#x60; are false, the change has persisted.
+// * isError: The adapter reported that it was unable to save
+//   local changes to the backend. This may also result in the
+//   record having its &#x60;isValid&#x60; property become false if the
+//   adapter reported that server-side validations failed.
+// * isNew: The record was created on the client and the adapter
+//   did not yet report that it was successfully saved.
+// * isValid: The adapter did not report any server-side validation
+//   failures.
+
+// The dirty state is a abstract state whose functionality is
+// shared between the &#x60;created&#x60; and &#x60;updated&#x60; states.
+//
+// The deleted state shares the &#x60;isDirty&#x60; flag with the
+// subclasses of &#x60;DirtyState&#x60;, but with a very different
+// implementation.
+//
+// Dirty states have three child states:
+//
+// &#x60;uncommitted&#x60;: the store has not yet handed off the record
+//   to be saved.
+// &#x60;inFlight&#x60;: the store has handed off the record to be saved,
+//   but the adapter has not yet acknowledged success.
+// &#x60;invalid&#x60;: the record has invalid information and cannot be
+//   send to the adapter yet.
+var DirtyState = {
+  initialState: &#x27;uncommitted&#x27;,
+
+  // FLAGS
+  isDirty: true,
+
+  // SUBSTATES
+
+  // When a record first becomes dirty, it is &#x60;uncommitted&#x60;.
+  // This means that there are local pending changes, but they
+  // have not yet begun to be saved, and are not invalid.
+  uncommitted: {
+    // EVENTS
+    didSetProperty: didSetProperty,
+
+    //TODO(Igor) reloading now triggers a
+    //loadingData event, though it seems fine?
+    loadingData: Ember.K,
+
+    propertyWasReset: function(record, name) {
+      var length = Ember.keys(record._attributes);
+      var stillDirty = length &gt; 0;
+
+      if (!stillDirty) { record.send(&#x27;rolledBack&#x27;); }
+    },
+
+    pushedData: Ember.K,
+
+    becomeDirty: Ember.K,
+
+    willCommit: function(record) {
+      record.transitionTo(&#x27;inFlight&#x27;);
+    },
+
+    reloadRecord: function(record, resolve) {
+      resolve(get(record, &#x27;store&#x27;).reloadRecord(record));
+    },
+
+    rolledBack: function(record) {
+      record.transitionTo(&#x27;loaded.saved&#x27;);
+    },
+
+    becameInvalid: function(record) {
+      record.transitionTo(&#x27;invalid&#x27;);
+    },
+
+    rollback: function(record) {
+      record.rollback();
+    }
+  },
+
+  // Once a record has been handed off to the adapter to be
+  // saved, it is in the &#x27;in flight&#x27; state. Changes to the
+  // record cannot be made during this window.
+  inFlight: {
+    // FLAGS
+    isSaving: true,
+
+    // EVENTS
+    didSetProperty: didSetProperty,
+    becomeDirty: Ember.K,
+    pushedData: Ember.K,
+
+    unloadRecord: function(record) {
+      Ember.assert(&quot;You can only unload a record which is not inFlight. &#x60;&quot; + Ember.inspect(record) + &quot; &#x60;&quot;, false);
+    },
+
+    // TODO: More robust semantics around save-while-in-flight
+    willCommit: Ember.K,
+
+    didCommit: function(record) {
+      var dirtyType = get(this, &#x27;dirtyType&#x27;);
+
+      record.transitionTo(&#x27;saved&#x27;);
+      record.send(&#x27;invokeLifecycleCallbacks&#x27;, dirtyType);
+    },
+
+    becameInvalid: function(record) {
+      record.transitionTo(&#x27;invalid&#x27;);
+      record.send(&#x27;invokeLifecycleCallbacks&#x27;);
+    },
+
+    becameError: function(record) {
+      record.transitionTo(&#x27;uncommitted&#x27;);
+      record.triggerLater(&#x27;becameError&#x27;, record);
+    }
+  },
+
+  // A record is in the &#x60;invalid&#x60; if the adapter has indicated
+  // the the record failed server-side invalidations.
+  invalid: {
+    // FLAGS
+    isValid: false,
+
+    // EVENTS
+    deleteRecord: function(record) {
+      record.transitionTo(&#x27;deleted.uncommitted&#x27;);
+      record.disconnectRelationships();
+    },
+
+    didSetProperty: function(record, context) {
+      get(record, &#x27;errors&#x27;).remove(context.name);
+
+      didSetProperty(record, context);
+    },
+
+    becomeDirty: Ember.K,
+
+    willCommit: function(record) {
+      get(record, &#x27;errors&#x27;).clear();
+      record.transitionTo(&#x27;inFlight&#x27;);
+    },
+
+    rolledBack: function(record) {
+      get(record, &#x27;errors&#x27;).clear();
+    },
+
+    becameValid: function(record) {
+      record.transitionTo(&#x27;uncommitted&#x27;);
+    },
+
+    invokeLifecycleCallbacks: function(record) {
+      record.triggerLater(&#x27;becameInvalid&#x27;, record);
+    },
+
+    exit: function(record) {
+      record._inFlightAttributes = {};
+    }
+  }
+};
+
+// The created and updated states are created outside the state
+// chart so we can reopen their substates and add mixins as
+// necessary.
+
+function deepClone(object) {
+  var clone = {}, value;
+
+  for (var prop in object) {
+    value = object[prop];
+    if (value &amp;&amp; typeof value === &#x27;object&#x27;) {
+      clone[prop] = deepClone(value);
+    } else {
+      clone[prop] = value;
+    }
+  }
+
+  return clone;
+}
+
+function mixin(original, hash) {
+  for (var prop in hash) {
+    original[prop] = hash[prop];
+  }
+
+  return original;
+}
+
+function dirtyState(options) {
+  var newState = deepClone(DirtyState);
+  return mixin(newState, options);
+}
+
+var createdState = dirtyState({
+  dirtyType: &#x27;created&#x27;,
+  // FLAGS
+  isNew: true
+});
+
+createdState.uncommitted.rolledBack = function(record) {
+  record.transitionTo(&#x27;deleted.saved&#x27;);
+};
+
+var updatedState = dirtyState({
+  dirtyType: &#x27;updated&#x27;
+});
+
+createdState.uncommitted.deleteRecord = function(record) {
+  record.disconnectRelationships();
+  record.transitionTo(&#x27;deleted.saved&#x27;);
+};
+
+createdState.uncommitted.rollback = function(record) {
+  DirtyState.uncommitted.rollback.apply(this, arguments);
+  record.transitionTo(&#x27;deleted.saved&#x27;);
+};
+
+createdState.uncommitted.propertyWasReset = Ember.K;
+
+function assertAgainstUnloadRecord(record) {
+  Ember.assert(&quot;You can only unload a record which is not inFlight. &#x60;&quot; + Ember.inspect(record) + &quot;&#x60;&quot;, false);
+}
+
+updatedState.inFlight.unloadRecord = assertAgainstUnloadRecord;
+
+updatedState.uncommitted.deleteRecord = function(record) {
+  record.transitionTo(&#x27;deleted.uncommitted&#x27;);
+  record.disconnectRelationships();
+};
+
+var RootState = {
+  // FLAGS
+  isEmpty: false,
+  isLoading: false,
+  isLoaded: false,
+  isDirty: false,
+  isSaving: false,
+  isDeleted: false,
+  isNew: false,
+  isValid: true,
+
+  // DEFAULT EVENTS
+
+  // Trying to roll back if you&#x27;re not in the dirty state
+  // doesn&#x27;t change your state. For example, if you&#x27;re in the
+  // in-flight state, rolling back the record doesn&#x27;t move
+  // you out of the in-flight state.
+  rolledBack: Ember.K,
+  unloadRecord: function(record) {
+    // clear relationships before moving to deleted state
+    // otherwise it fails
+    record.clearRelationships();
+    record.transitionTo(&#x27;deleted.saved&#x27;);
+  },
+
+
+  propertyWasReset: Ember.K,
+
+  // SUBSTATES
+
+  // A record begins its lifecycle in the &#x60;empty&#x60; state.
+  // If its data will come from the adapter, it will
+  // transition into the &#x60;loading&#x60; state. Otherwise, if
+  // the record is being created on the client, it will
+  // transition into the &#x60;created&#x60; state.
+  empty: {
+    isEmpty: true,
+
+    // EVENTS
+    loadingData: function(record, promise) {
+      record._loadingPromise = promise;
+      record.transitionTo(&#x27;loading&#x27;);
+    },
+
+    loadedData: function(record) {
+      record.transitionTo(&#x27;loaded.created.uncommitted&#x27;);
+      record.notifyPropertyChange(&#x27;data&#x27;);
+    },
+
+    pushedData: function(record) {
+      record.transitionTo(&#x27;loaded.saved&#x27;);
+      record.triggerLater(&#x27;didLoad&#x27;);
+    }
+  },
+
+  // A record enters this state when the store asks
+  // the adapter for its data. It remains in this state
+  // until the adapter provides the requested data.
+  //
+  // Usually, this process is asynchronous, using an
+  // XHR to retrieve the data.
+  loading: {
+    // FLAGS
+    isLoading: true,
+
+    exit: function(record) {
+      record._loadingPromise = null;
+    },
+
+    // EVENTS
+    pushedData: function(record) {
+      record.transitionTo(&#x27;loaded.saved&#x27;);
+      record.triggerLater(&#x27;didLoad&#x27;);
+      set(record, &#x27;isError&#x27;, false);
+    },
+
+    becameError: function(record) {
+      record.triggerLater(&#x27;becameError&#x27;, record);
+    },
+
+    notFound: function(record) {
+      record.transitionTo(&#x27;empty&#x27;);
+    }
+  },
+
+  // A record enters this state when its data is populated.
+  // Most of a record&#x27;s lifecycle is spent inside substates
+  // of the &#x60;loaded&#x60; state.
+  loaded: {
+    initialState: &#x27;saved&#x27;,
+
+    // FLAGS
+    isLoaded: true,
+
+    //TODO(Igor) Reloading now triggers a loadingData event,
+    //but it should be ok?
+    loadingData: Ember.K,
+
+    // SUBSTATES
+
+    // If there are no local changes to a record, it remains
+    // in the &#x60;saved&#x60; state.
+    saved: {
+      setup: function(record) {
+        var attrs = record._attributes;
+        var isDirty = false;
+
+        for (var prop in attrs) {
+          if (attrs.hasOwnProperty(prop)) {
+            isDirty = true;
+            break;
+          }
+        }
+
+        if (isDirty) {
+          record.adapterDidDirty();
+        }
+      },
+
+      // EVENTS
+      didSetProperty: didSetProperty,
+
+      pushedData: Ember.K,
+
+      becomeDirty: function(record) {
+        record.transitionTo(&#x27;updated.uncommitted&#x27;);
+      },
+
+      willCommit: function(record) {
+        record.transitionTo(&#x27;updated.inFlight&#x27;);
+      },
+
+      reloadRecord: function(record, resolve) {
+        resolve(get(record, &#x27;store&#x27;).reloadRecord(record));
+      },
+
+      deleteRecord: function(record) {
+        record.transitionTo(&#x27;deleted.uncommitted&#x27;);
+        record.disconnectRelationships();
+      },
+
+      unloadRecord: function(record) {
+        // clear relationships before moving to deleted state
+        // otherwise it fails
+        record.clearRelationships();
+        record.transitionTo(&#x27;deleted.saved&#x27;);
+      },
+
+      didCommit: function(record) {
+        record.send(&#x27;invokeLifecycleCallbacks&#x27;, get(record, &#x27;lastDirtyType&#x27;));
+      },
+
+      // loaded.saved.notFound would be triggered by a failed
+      // &#x60;reload()&#x60; on an unchanged record
+      notFound: Ember.K
+
+    },
+
+    // A record is in this state after it has been locally
+    // created but before the adapter has indicated that
+    // it has been saved.
+    created: createdState,
+
+    // A record is in this state if it has already been
+    // saved to the server, but there are new local changes
+    // that have not yet been saved.
+    updated: updatedState
+  },
+
+  // A record is in this state if it was deleted from the store.
+  deleted: {
+    initialState: &#x27;uncommitted&#x27;,
+    dirtyType: &#x27;deleted&#x27;,
+
+    // FLAGS
+    isDeleted: true,
+    isLoaded: true,
+    isDirty: true,
+
+    // TRANSITIONS
+    setup: function(record) {
+      record.updateRecordArrays();
+    },
+
+    // SUBSTATES
+
+    // When a record is deleted, it enters the &#x60;start&#x60;
+    // state. It will exit this state when the record
+    // starts to commit.
+    uncommitted: {
+
+      // EVENTS
+
+      willCommit: function(record) {
+        record.transitionTo(&#x27;inFlight&#x27;);
+      },
+
+      rollback: function(record) {
+        record.rollback();
+      },
+
+      becomeDirty: Ember.K,
+      deleteRecord: Ember.K,
+
+      rolledBack: function(record) {
+        record.transitionTo(&#x27;loaded.saved&#x27;);
+      }
+    },
+
+    // After a record starts committing, but
+    // before the adapter indicates that the deletion
+    // has saved to the server, a record is in the
+    // &#x60;inFlight&#x60; substate of &#x60;deleted&#x60;.
+    inFlight: {
+      // FLAGS
+      isSaving: true,
+
+      // EVENTS
+
+      unloadRecord: assertAgainstUnloadRecord,
+
+      // TODO: More robust semantics around save-while-in-flight
+      willCommit: Ember.K,
+      didCommit: function(record) {
+        record.transitionTo(&#x27;saved&#x27;);
+
+        record.send(&#x27;invokeLifecycleCallbacks&#x27;);
+      },
+
+      becameError: function(record) {
+        record.transitionTo(&#x27;uncommitted&#x27;);
+        record.triggerLater(&#x27;becameError&#x27;, record);
+      }
+    },
+
+    // Once the adapter indicates that the deletion has
+    // been saved, the record enters the &#x60;saved&#x60; substate
+    // of &#x60;deleted&#x60;.
+    saved: {
+      // FLAGS
+      isDirty: false,
+
+      setup: function(record) {
+        var store = get(record, &#x27;store&#x27;);
+        store.dematerializeRecord(record);
+      },
+
+      invokeLifecycleCallbacks: function(record) {
+        record.triggerLater(&#x27;didDelete&#x27;, record);
+        record.triggerLater(&#x27;didCommit&#x27;, record);
+      },
+
+      willCommit: Ember.K,
+
+      didCommit: Ember.K
+    }
+  },
+
+  invokeLifecycleCallbacks: function(record, dirtyType) {
+    if (dirtyType === &#x27;created&#x27;) {
+      record.triggerLater(&#x27;didCreate&#x27;, record);
+    } else {
+      record.triggerLater(&#x27;didUpdate&#x27;, record);
+    }
+
+    record.triggerLater(&#x27;didCommit&#x27;, record);
+  }
+};
+
+function wireState(object, parent, name) {
+  /*jshint proto:true*/
+  // TODO: Use Object.create and copy instead
+  object = mixin(parent ? Ember.create(parent) : {}, object);
+  object.parentState = parent;
+  object.stateName = name;
+
+  for (var prop in object) {
+    if (!object.hasOwnProperty(prop) || prop === &#x27;parentState&#x27; || prop === &#x27;stateName&#x27;) { continue; }
+    if (typeof object[prop] === &#x27;object&#x27;) {
+      object[prop] = wireState(object[prop], object, name + &quot;.&quot; + prop);
+    }
+  }
+
+  return object;
+}
+
+RootState = wireState(RootState, null, &quot;root&quot;);
+
+export default RootState;
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

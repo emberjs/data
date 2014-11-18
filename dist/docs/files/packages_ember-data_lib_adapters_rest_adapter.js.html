@@ -1,0 +1,1022 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>packages/ember-data/lib/adapters/rest_adapter.js</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title=""></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/DS.html">DS</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelAdapter.html">DS.ActiveModelAdapter</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelSerializer.html">DS.ActiveModelSerializer</a></li>
+            
+                <li><a href="../classes/DS.Adapter.html">DS.Adapter</a></li>
+            
+                <li><a href="../classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a></li>
+            
+                <li><a href="../classes/DS.BooleanTransform.html">DS.BooleanTransform</a></li>
+            
+                <li><a href="../classes/DS.ContainerProxy.html">DS.ContainerProxy</a></li>
+            
+                <li><a href="../classes/DS.DateTransform.html">DS.DateTransform</a></li>
+            
+                <li><a href="../classes/DS.DebugAdapter.html">DS.DebugAdapter</a></li>
+            
+                <li><a href="../classes/DS.EmbeddedRecordsMixin.html">DS.EmbeddedRecordsMixin</a></li>
+            
+                <li><a href="../classes/DS.Errors.html">DS.Errors</a></li>
+            
+                <li><a href="../classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a></li>
+            
+                <li><a href="../classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a></li>
+            
+                <li><a href="../classes/DS.InvalidError.html">DS.InvalidError</a></li>
+            
+                <li><a href="../classes/DS.JSONSerializer.html">DS.JSONSerializer</a></li>
+            
+                <li><a href="../classes/DS.ManyArray.html">DS.ManyArray</a></li>
+            
+                <li><a href="../classes/DS.Model.html">DS.Model</a></li>
+            
+                <li><a href="../classes/DS.NumberTransform.html">DS.NumberTransform</a></li>
+            
+                <li><a href="../classes/DS.PromiseArray.html">DS.PromiseArray</a></li>
+            
+                <li><a href="../classes/DS.PromiseObject.html">DS.PromiseObject</a></li>
+            
+                <li><a href="../classes/DS.RecordArray.html">DS.RecordArray</a></li>
+            
+                <li><a href="../classes/DS.RecordArrayManager.html">DS.RecordArrayManager</a></li>
+            
+                <li><a href="../classes/DS.RESTAdapter.html">DS.RESTAdapter</a></li>
+            
+                <li><a href="../classes/DS.RESTSerializer.html">DS.RESTSerializer</a></li>
+            
+                <li><a href="../classes/DS.RootState.html">DS.RootState</a></li>
+            
+                <li><a href="../classes/DS.Store.html">DS.Store</a></li>
+            
+                <li><a href="../classes/DS.StringTransform.html">DS.StringTransform</a></li>
+            
+                <li><a href="../classes/DS.Transform.html">DS.Transform</a></li>
+            
+                <li><a href="../classes/Ember.Date.html">Ember.Date</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/ember-data.html">ember-data</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: packages/ember-data/lib/adapters/rest_adapter.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+/**
+  @module ember-data
+*/
+
+import {
+  Adapter,
+  InvalidError
+} from &quot;ember-data/system/adapter&quot;;
+import {
+  MapWithDefault
+} from &quot;ember-data/system/map&quot;;
+var get = Ember.get;
+var forEach = Ember.ArrayPolyfills.forEach;
+
+/**
+  The REST adapter allows your store to communicate with an HTTP server by
+  transmitting JSON via XHR. Most Ember.js apps that consume a JSON API
+  should use the REST adapter.
+
+  This adapter is designed around the idea that the JSON exchanged with
+  the server should be conventional.
+
+  ## JSON Structure
+
+  The REST adapter expects the JSON returned from your server to follow
+  these conventions.
+
+  ### Object Root
+
+  The JSON payload should be an object that contains the record inside a
+  root property. For example, in response to a &#x60;GET&#x60; request for
+  &#x60;/posts/1&#x60;, the JSON should look like this:
+
+  &#x60;&#x60;&#x60;js
+  {
+    &quot;post&quot;: {
+      &quot;id&quot;: 1,
+      &quot;title&quot;: &quot;I&#x27;m Running to Reform the W3C&#x27;s Tag&quot;,
+      &quot;author&quot;: &quot;Yehuda Katz&quot;
+    }
+  }
+  &#x60;&#x60;&#x60;
+
+  Similarly, in response to a &#x60;GET&#x60; request for &#x60;/posts&#x60;, the JSON should
+  look like this:
+
+  &#x60;&#x60;&#x60;js
+  {
+    &quot;posts&quot;: [
+      {
+        &quot;id&quot;: 1,
+        &quot;title&quot;: &quot;I&#x27;m Running to Reform the W3C&#x27;s Tag&quot;,
+        &quot;author&quot;: &quot;Yehuda Katz&quot;
+      },
+      {
+        &quot;id&quot;: 2,
+        &quot;title&quot;: &quot;Rails is omakase&quot;,
+        &quot;author&quot;: &quot;D2H&quot;
+      }
+    ]
+  }
+  &#x60;&#x60;&#x60;
+
+  ### Conventional Names
+
+  Attribute names in your JSON payload should be the camelCased versions of
+  the attributes in your Ember.js models.
+
+  For example, if you have a &#x60;Person&#x60; model:
+
+  &#x60;&#x60;&#x60;js
+  App.Person = DS.Model.extend({
+    firstName: DS.attr(&#x27;string&#x27;),
+    lastName: DS.attr(&#x27;string&#x27;),
+    occupation: DS.attr(&#x27;string&#x27;)
+  });
+  &#x60;&#x60;&#x60;
+
+  The JSON returned should look like this:
+
+  &#x60;&#x60;&#x60;js
+  {
+    &quot;person&quot;: {
+      &quot;id&quot;: 5,
+      &quot;firstName&quot;: &quot;Barack&quot;,
+      &quot;lastName&quot;: &quot;Obama&quot;,
+      &quot;occupation&quot;: &quot;President&quot;
+    }
+  }
+  &#x60;&#x60;&#x60;
+
+  ## Customization
+
+  ### Endpoint path customization
+
+  Endpoint paths can be prefixed with a &#x60;namespace&#x60; by setting the namespace
+  property on the adapter:
+
+  &#x60;&#x60;&#x60;js
+  DS.RESTAdapter.reopen({
+    namespace: &#x27;api/1&#x27;
+  });
+  &#x60;&#x60;&#x60;
+  Requests for &#x60;App.Person&#x60; would now target &#x60;/api/1/people/1&#x60;.
+
+  ### Host customization
+
+  An adapter can target other hosts by setting the &#x60;host&#x60; property.
+
+  &#x60;&#x60;&#x60;js
+  DS.RESTAdapter.reopen({
+    host: &#x27;https://api.example.com&#x27;
+  });
+  &#x60;&#x60;&#x60;
+
+  ### Headers customization
+
+  Some APIs require HTTP headers, e.g. to provide an API key. Arbitrary
+  headers can be set as key/value pairs on the &#x60;RESTAdapter&#x60;&#x27;s &#x60;headers&#x60;
+  object and Ember Data will send them along with each ajax request.
+
+
+  &#x60;&#x60;&#x60;js
+  App.ApplicationAdapter = DS.RESTAdapter.extend({
+    headers: {
+      &quot;API_KEY&quot;: &quot;secret key&quot;,
+      &quot;ANOTHER_HEADER&quot;: &quot;Some header value&quot;
+    }
+  });
+  &#x60;&#x60;&#x60;
+
+  &#x60;headers&#x60; can also be used as a computed property to support dynamic
+  headers. In the example below, the &#x60;session&#x60; object has been
+  injected into an adapter by Ember&#x27;s container.
+
+  &#x60;&#x60;&#x60;js
+  App.ApplicationAdapter = DS.RESTAdapter.extend({
+    headers: function() {
+      return {
+        &quot;API_KEY&quot;: this.get(&quot;session.authToken&quot;),
+        &quot;ANOTHER_HEADER&quot;: &quot;Some header value&quot;
+      };
+    }.property(&quot;session.authToken&quot;)
+  });
+  &#x60;&#x60;&#x60;
+
+  In some cases, your dynamic headers may require data from some
+  object outside of Ember&#x27;s observer system (for example
+  &#x60;document.cookie&#x60;). You can use the
+  [volatile](/api/classes/Ember.ComputedProperty.html#method_volatile)
+  function to set the property into a non-cached mode causing the headers to
+  be recomputed with every request.
+
+  &#x60;&#x60;&#x60;js
+  App.ApplicationAdapter = DS.RESTAdapter.extend({
+    headers: function() {
+      return {
+        &quot;API_KEY&quot;: Ember.get(document.cookie.match(/apiKey\=([^;]*)/), &quot;1&quot;),
+        &quot;ANOTHER_HEADER&quot;: &quot;Some header value&quot;
+      };
+    }.property().volatile()
+  });
+  &#x60;&#x60;&#x60;
+
+  @class RESTAdapter
+  @constructor
+  @namespace DS
+  @extends DS.Adapter
+*/
+export default Adapter.extend({
+  defaultSerializer: &#x27;-rest&#x27;,
+
+  /**
+    By default the RESTAdapter will send each find request coming from a &#x60;store.find&#x60;
+    or from accessing a relationship separately to the server. If your server supports passing
+    ids as a query string, you can set coalesceFindRequests to true to coalesce all find requests
+    within a single runloop.
+
+    For example, if you have an initial payload of
+    &#x60;&#x60;&#x60;javascript
+    post: {
+      id:1,
+      comments: [1,2]
+    }
+    &#x60;&#x60;&#x60;
+
+    By default calling &#x60;post.get(&#x27;comments&#x27;)&#x60; will trigger the following requests(assuming the
+    comments haven&#x27;t been loaded before):
+
+    &#x60;&#x60;&#x60;
+    GET /comments/1
+    GET /comments/2
+    &#x60;&#x60;&#x60;
+
+    If you set coalesceFindRequests to &#x60;true&#x60; it will instead trigger the following request:
+
+    &#x60;&#x60;&#x60;
+    GET /comments?ids[]=1&amp;ids[]=2
+    &#x60;&#x60;&#x60;
+
+    Setting coalesceFindRequests to &#x60;true&#x60; also works for &#x60;store.find&#x60; requests and &#x60;belongsTo&#x60;
+    relationships accessed within the same runloop. If you set &#x60;coalesceFindRequests: true&#x60;
+
+    &#x60;&#x60;&#x60;javascript
+    store.find(&#x27;comment&#x27;, 1);
+    store.find(&#x27;comment&#x27;, 2);
+    &#x60;&#x60;&#x60;
+
+    will also send a request to: &#x60;GET /comments?ids[]=1&amp;ids[]=2&#x60;
+
+    Note: Requests coalescing rely on URL building strategy. So if you override &#x60;buildUrl&#x60; in your app
+    &#x60;groupRecordsForFindMany&#x60; more likely should be overriden as well in order for coalescing to work.
+
+    @property coalesceFindRequests
+    @type {boolean}
+  */
+  coalesceFindRequests: false,
+
+  /**
+    Endpoint paths can be prefixed with a &#x60;namespace&#x60; by setting the namespace
+    property on the adapter:
+
+    &#x60;&#x60;&#x60;javascript
+    DS.RESTAdapter.reopen({
+      namespace: &#x27;api/1&#x27;
+    });
+    &#x60;&#x60;&#x60;
+
+    Requests for &#x60;App.Post&#x60; would now target &#x60;/api/1/post/&#x60;.
+
+    @property namespace
+    @type {String}
+  */
+
+  /**
+    An adapter can target other hosts by setting the &#x60;host&#x60; property.
+
+    &#x60;&#x60;&#x60;javascript
+    DS.RESTAdapter.reopen({
+      host: &#x27;https://api.example.com&#x27;
+    });
+    &#x60;&#x60;&#x60;
+
+    Requests for &#x60;App.Post&#x60; would now target &#x60;https://api.example.com/post/&#x60;.
+
+    @property host
+    @type {String}
+  */
+
+  /**
+    Some APIs require HTTP headers, e.g. to provide an API
+    key. Arbitrary headers can be set as key/value pairs on the
+    &#x60;RESTAdapter&#x60;&#x27;s &#x60;headers&#x60; object and Ember Data will send them
+    along with each ajax request. For dynamic headers see [headers
+    customization](/api/data/classes/DS.RESTAdapter.html#toc_headers-customization).
+
+    &#x60;&#x60;&#x60;javascript
+    App.ApplicationAdapter = DS.RESTAdapter.extend({
+      headers: {
+        &quot;API_KEY&quot;: &quot;secret key&quot;,
+        &quot;ANOTHER_HEADER&quot;: &quot;Some header value&quot;
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @property headers
+    @type {Object}
+  */
+
+  /**
+    Called by the store in order to fetch the JSON for a given
+    type and ID.
+
+    The &#x60;find&#x60; method makes an Ajax request to a URL computed by &#x60;buildURL&#x60;, and returns a
+    promise for the resulting payload.
+
+    This method performs an HTTP &#x60;GET&#x60; request with the id provided as part of the query string.
+
+    @method find
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {String} id
+    @param {DS.Model} record
+    @return {Promise} promise
+  */
+  find: function(store, type, id, record) {
+    return this.ajax(this.buildURL(type.typeKey, id, record), &#x27;GET&#x27;);
+  },
+
+  /**
+    Called by the store in order to fetch a JSON array for all
+    of the records for a given type.
+
+    The &#x60;findAll&#x60; method makes an Ajax (HTTP GET) request to a URL computed by &#x60;buildURL&#x60;, and returns a
+    promise for the resulting payload.
+
+    @private
+    @method findAll
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {String} sinceToken
+    @return {Promise} promise
+  */
+  findAll: function(store, type, sinceToken) {
+    var query;
+
+    if (sinceToken) {
+      query = { since: sinceToken };
+    }
+
+    return this.ajax(this.buildURL(type.typeKey), &#x27;GET&#x27;, { data: query });
+  },
+
+  /**
+    Called by the store in order to fetch a JSON array for
+    the records that match a particular query.
+
+    The &#x60;findQuery&#x60; method makes an Ajax (HTTP GET) request to a URL computed by &#x60;buildURL&#x60;, and returns a
+    promise for the resulting payload.
+
+    The &#x60;query&#x60; argument is a simple JavaScript object that will be passed directly
+    to the server as parameters.
+
+    @private
+    @method findQuery
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} query
+    @return {Promise} promise
+  */
+  findQuery: function(store, type, query) {
+    return this.ajax(this.buildURL(type.typeKey), &#x27;GET&#x27;, { data: query });
+  },
+
+  /**
+    Called by the store in order to fetch several records together if &#x60;coalesceFindRequests&#x60; is true
+
+    For example, if the original payload looks like:
+
+    &#x60;&#x60;&#x60;js
+    {
+      &quot;id&quot;: 1,
+      &quot;title&quot;: &quot;Rails is omakase&quot;,
+      &quot;comments&quot;: [ 1, 2, 3 ]
+    }
+    &#x60;&#x60;&#x60;
+
+    The IDs will be passed as a URL-encoded Array of IDs, in this form:
+
+    &#x60;&#x60;&#x60;
+    ids[]=1&amp;ids[]=2&amp;ids[]=3
+    &#x60;&#x60;&#x60;
+
+    Many servers, such as Rails and PHP, will automatically convert this URL-encoded array
+    into an Array for you on the server-side. If you want to encode the
+    IDs, differently, just override this (one-line) method.
+
+    The &#x60;findMany&#x60; method makes an Ajax (HTTP GET) request to a URL computed by &#x60;buildURL&#x60;, and returns a
+    promise for the resulting payload.
+
+    @method findMany
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Array} ids
+    @param {Array} records
+    @return {Promise} promise
+  */
+  findMany: function(store, type, ids, records) {
+    return this.ajax(this.buildURL(type.typeKey, ids, records), &#x27;GET&#x27;, { data: { ids: ids } });
+  },
+
+  /**
+    Called by the store in order to fetch a JSON array for
+    the unloaded records in a has-many relationship that were originally
+    specified as a URL (inside of &#x60;links&#x60;).
+
+    For example, if your original payload looks like this:
+
+    &#x60;&#x60;&#x60;js
+    {
+      &quot;post&quot;: {
+        &quot;id&quot;: 1,
+        &quot;title&quot;: &quot;Rails is omakase&quot;,
+        &quot;links&quot;: { &quot;comments&quot;: &quot;/posts/1/comments&quot; }
+      }
+    }
+    &#x60;&#x60;&#x60;
+
+    This method will be called with the parent record and &#x60;/posts/1/comments&#x60;.
+
+    The &#x60;findHasMany&#x60; method will make an Ajax (HTTP GET) request to the originally specified URL.
+    If the URL is host-relative (starting with a single slash), the
+    request will use the host specified on the adapter (if any).
+
+    @method findHasMany
+    @param {DS.Store} store
+    @param {DS.Model} record
+    @param {String} url
+    @return {Promise} promise
+  */
+  findHasMany: function(store, record, url, relationship) {
+    var host = get(this, &#x27;host&#x27;);
+    var id   = get(record, &#x27;id&#x27;);
+    var type = record.constructor.typeKey;
+
+    if (host &amp;&amp; url.charAt(0) === &#x27;/&#x27; &amp;&amp; url.charAt(1) !== &#x27;/&#x27;) {
+      url = host + url;
+    }
+
+    return this.ajax(this.urlPrefix(url, this.buildURL(type, id)), &#x27;GET&#x27;);
+  },
+
+  /**
+    Called by the store in order to fetch a JSON array for
+    the unloaded records in a belongs-to relationship that were originally
+    specified as a URL (inside of &#x60;links&#x60;).
+
+    For example, if your original payload looks like this:
+
+    &#x60;&#x60;&#x60;js
+    {
+      &quot;person&quot;: {
+        &quot;id&quot;: 1,
+        &quot;name&quot;: &quot;Tom Dale&quot;,
+        &quot;links&quot;: { &quot;group&quot;: &quot;/people/1/group&quot; }
+      }
+    }
+    &#x60;&#x60;&#x60;
+
+    This method will be called with the parent record and &#x60;/people/1/group&#x60;.
+
+    The &#x60;findBelongsTo&#x60; method will make an Ajax (HTTP GET) request to the originally specified URL.
+
+    @method findBelongsTo
+    @param {DS.Store} store
+    @param {DS.Model} record
+    @param {String} url
+    @return {Promise} promise
+  */
+  findBelongsTo: function(store, record, url, relationship) {
+    var id   = get(record, &#x27;id&#x27;);
+    var type = record.constructor.typeKey;
+
+    return this.ajax(this.urlPrefix(url, this.buildURL(type, id)), &#x27;GET&#x27;);
+  },
+
+  /**
+    Called by the store when a newly created record is
+    saved via the &#x60;save&#x60; method on a model record instance.
+
+    The &#x60;createRecord&#x60; method serializes the record and makes an Ajax (HTTP POST) request
+    to a URL computed by &#x60;buildURL&#x60;.
+
+    See &#x60;serialize&#x60; for information on how to customize the serialized form
+    of a record.
+
+    @method createRecord
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @return {Promise} promise
+  */
+  createRecord: function(store, type, record) {
+    var data = {};
+    var serializer = store.serializerFor(type.typeKey);
+
+    serializer.serializeIntoHash(data, type, record, { includeId: true });
+
+    return this.ajax(this.buildURL(type.typeKey, null, record), &quot;POST&quot;, { data: data });
+  },
+
+  /**
+    Called by the store when an existing record is saved
+    via the &#x60;save&#x60; method on a model record instance.
+
+    The &#x60;updateRecord&#x60; method serializes the record and makes an Ajax (HTTP PUT) request
+    to a URL computed by &#x60;buildURL&#x60;.
+
+    See &#x60;serialize&#x60; for information on how to customize the serialized form
+    of a record.
+
+    @method updateRecord
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @return {Promise} promise
+  */
+  updateRecord: function(store, type, record) {
+    var data = {};
+    var serializer = store.serializerFor(type.typeKey);
+
+    serializer.serializeIntoHash(data, type, record);
+
+    var id = get(record, &#x27;id&#x27;);
+
+    return this.ajax(this.buildURL(type.typeKey, id, record), &quot;PUT&quot;, { data: data });
+  },
+
+  /**
+    Called by the store when a record is deleted.
+
+    The &#x60;deleteRecord&#x60; method  makes an Ajax (HTTP DELETE) request to a URL computed by &#x60;buildURL&#x60;.
+
+    @method deleteRecord
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @return {Promise} promise
+  */
+  deleteRecord: function(store, type, record) {
+    var id = get(record, &#x27;id&#x27;);
+
+    return this.ajax(this.buildURL(type.typeKey, id, record), &quot;DELETE&quot;);
+  },
+
+  /**
+    Builds a URL for a given type and optional ID.
+
+    By default, it pluralizes the type&#x27;s name (for example, &#x27;post&#x27;
+    becomes &#x27;posts&#x27; and &#x27;person&#x27; becomes &#x27;people&#x27;). To override the
+    pluralization see [pathForType](#method_pathForType).
+
+    If an ID is specified, it adds the ID to the path generated
+    for the type, separated by a &#x60;/&#x60;.
+
+    @method buildURL
+    @param {String} type
+    @param {String} id
+    @param {DS.Model} record
+    @return {String} url
+  */
+  buildURL: function(type, id, record) {
+    var url = [],
+        host = get(this, &#x27;host&#x27;),
+        prefix = this.urlPrefix();
+
+    if (type) { url.push(this.pathForType(type)); }
+
+    //We might get passed in an array of ids from findMany
+    //in which case we don&#x27;t want to modify the url, as the
+    //ids will be passed in through a query param
+    if (id &amp;&amp; !Ember.isArray(id)) { url.push(encodeURIComponent(id)); }
+
+    if (prefix) { url.unshift(prefix); }
+
+    url = url.join(&#x27;/&#x27;);
+    if (!host &amp;&amp; url) { url = &#x27;/&#x27; + url; }
+
+    return url;
+  },
+
+  /**
+    @method urlPrefix
+    @private
+    @param {String} path
+    @param {String} parentUrl
+    @return {String} urlPrefix
+  */
+  urlPrefix: function(path, parentURL) {
+    var host = get(this, &#x27;host&#x27;);
+    var namespace = get(this, &#x27;namespace&#x27;);
+    var url = [];
+
+    if (path) {
+      // Absolute path
+      if (path.charAt(0) === &#x27;/&#x27;) {
+        if (host) {
+          path = path.slice(1);
+          url.push(host);
+        }
+      // Relative path
+      } else if (!/^http(s)?:\/\//.test(path)) {
+        url.push(parentURL);
+      }
+    } else {
+      if (host) { url.push(host); }
+      if (namespace) { url.push(namespace); }
+    }
+
+    if (path) {
+      url.push(path);
+    }
+
+    return url.join(&#x27;/&#x27;);
+  },
+
+  _stripIDFromURL: function(store, record) {
+    var type = store.modelFor(record);
+    var url = this.buildURL(type.typeKey, record.get(&#x27;id&#x27;), record);
+
+    var expandedURL = url.split(&#x27;/&#x27;);
+    //Case when the url is of the format ...something/:id
+    var lastSegment = expandedURL[ expandedURL.length - 1 ];
+    var id = record.get(&#x27;id&#x27;);
+    if (lastSegment === id) {
+      expandedURL[expandedURL.length - 1] = &quot;&quot;;
+    } else if(endsWith(lastSegment, &#x27;?id=&#x27; + id)) {
+      //Case when the url is of the format ...something?id=:id
+      expandedURL[expandedURL.length - 1] = lastSegment.substring(0, lastSegment.length - id.length - 1);
+    }
+
+    return expandedURL.join(&#x27;/&#x27;);
+  },
+
+  /**
+    Organize records into groups, each of which is to be passed to separate
+    calls to &#x60;findMany&#x60;.
+
+    This implementation groups together records that have the same base URL but
+    differing ids. For example &#x60;/comments/1&#x60; and &#x60;/comments/2&#x60; will be grouped together
+    because we know findMany can coalesce them together as &#x60;/comments?ids[]=1&amp;ids[]=2&#x60;
+
+    It also supports urls where ids are passed as a query param, such as &#x60;/comments?id=1&#x60;
+    but not those where there is more than 1 query param such as &#x60;/comments?id=2&amp;name=David&#x60;
+    Currently only the query param of &#x60;id&#x60; is supported. If you need to support others, please
+    override this or the &#x60;_stripIDFromURL&#x60; method.
+
+    It does not group records that have differing base urls, such as for example: &#x60;/posts/1/comments/2&#x60;
+    and &#x60;/posts/2/comments/3&#x60;
+
+    @method groupRecordsForFindMany
+    @param {Array} records
+    @return {Array}  an array of arrays of records, each of which is to be
+                      loaded separately by &#x60;findMany&#x60;.
+  */
+  groupRecordsForFindMany: function (store, records) {
+    var groups = MapWithDefault.create({defaultValue: function(){return [];}});
+    var adapter = this;
+
+    forEach.call(records, function(record){
+      var baseUrl = adapter._stripIDFromURL(store, record);
+      groups.get(baseUrl).push(record);
+    });
+
+    function splitGroupToFitInUrl(group, maxUrlLength) {
+      var baseUrl = adapter._stripIDFromURL(store, group[0]);
+      var idsSize = 0;
+      var splitGroups = [[]];
+
+      forEach.call(group, function(record) {
+        var additionalLength = &#x27;&amp;ids[]=&#x27;.length + record.get(&#x27;id.length&#x27;);
+        if (baseUrl.length + idsSize + additionalLength &gt;= maxUrlLength) {
+          idsSize = 0;
+          splitGroups.push([]);
+        }
+
+        idsSize += additionalLength;
+
+        var lastGroupIndex = splitGroups.length - 1;
+        splitGroups[lastGroupIndex].push(record);
+      });
+
+      return splitGroups;
+    }
+
+    var groupsArray = [];
+    groups.forEach(function(group, key){
+      // http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
+      var maxUrlLength = 2048;
+      var splitGroups = splitGroupToFitInUrl(group, maxUrlLength);
+
+      forEach.call(splitGroups, function(splitGroup) {
+        groupsArray.push(splitGroup);
+      });
+    });
+
+    return groupsArray;
+  },
+
+  /**
+    Determines the pathname for a given type.
+
+    By default, it pluralizes the type&#x27;s name (for example,
+    &#x27;post&#x27; becomes &#x27;posts&#x27; and &#x27;person&#x27; becomes &#x27;people&#x27;).
+
+    ### Pathname customization
+
+    For example if you have an object LineItem with an
+    endpoint of &quot;/line_items/&quot;.
+
+    &#x60;&#x60;&#x60;js
+    App.ApplicationAdapter = DS.RESTAdapter.extend({
+      pathForType: function(type) {
+        var decamelized = Ember.String.decamelize(type);
+        return Ember.String.pluralize(decamelized);
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method pathForType
+    @param {String} type
+    @return {String} path
+  **/
+  pathForType: function(type) {
+    var camelized = Ember.String.camelize(type);
+    return Ember.String.pluralize(camelized);
+  },
+
+  /**
+    Takes an ajax response, and returns a relevant error.
+
+    Returning a &#x60;DS.InvalidError&#x60; from this method will cause the
+    record to transition into the &#x60;invalid&#x60; state and make the
+    &#x60;errors&#x60; object available on the record.
+
+    &#x60;&#x60;&#x60;javascript
+    App.ApplicationAdapter = DS.RESTAdapter.extend({
+      ajaxError: function(jqXHR) {
+        var error = this._super(jqXHR);
+
+        if (jqXHR &amp;&amp; jqXHR.status === 422) {
+          var jsonErrors = Ember.$.parseJSON(jqXHR.responseText)[&quot;errors&quot;];
+
+          return new DS.InvalidError(jsonErrors);
+        } else {
+          return error;
+        }
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    Note: As a correctness optimization, the default implementation of
+    the &#x60;ajaxError&#x60; method strips out the &#x60;then&#x60; method from jquery&#x27;s
+    ajax response (jqXHR). This is important because the jqXHR&#x27;s
+    &#x60;then&#x60; method fulfills the promise with itself resulting in a
+    circular &quot;thenable&quot; chain which may cause problems for some
+    promise libraries.
+
+    @method ajaxError
+    @param  {Object} jqXHR
+    @param  {Object} responseText
+    @return {Object} jqXHR
+  */
+  ajaxError: function(jqXHR, responseText) {
+    if (jqXHR &amp;&amp; typeof jqXHR === &#x27;object&#x27;) {
+      jqXHR.then = null;
+    }
+
+    return jqXHR;
+  },
+
+  /**
+    Takes an ajax response, and returns the json payload.
+
+    By default this hook just returns the jsonPayload passed to it.
+    You might want to override it in two cases:
+
+    1. Your API might return useful results in the request headers.
+    If you need to access these, you can override this hook to copy them
+    from jqXHR to the payload object so they can be processed in you serializer.
+
+
+    2. Your API might return errors as successful responses with status code
+    200 and an Errors text or object. You can return a DS.InvalidError from
+    this hook and it will automatically reject the promise and put your record
+    into the invald state.
+
+    @method ajaxError
+    @param  {Object} jqXHR
+    @param  {Object} jsonPayload
+    @return {Object} jqXHR
+  */
+
+  ajaxSuccess: function(jqXHR, jsonPayload) {
+    return jsonPayload;
+  },
+
+  /**
+    Takes a URL, an HTTP method and a hash of data, and makes an
+    HTTP request.
+
+    When the server responds with a payload, Ember Data will call into &#x60;extractSingle&#x60;
+    or &#x60;extractArray&#x60; (depending on whether the original query was for one record or
+    many records).
+
+    By default, &#x60;ajax&#x60; method has the following behavior:
+
+    * It sets the response &#x60;dataType&#x60; to &#x60;&quot;json&quot;&#x60;
+    * If the HTTP method is not &#x60;&quot;GET&quot;&#x60;, it sets the &#x60;Content-Type&#x60; to be
+      &#x60;application/json; charset=utf-8&#x60;
+    * If the HTTP method is not &#x60;&quot;GET&quot;&#x60;, it stringifies the data passed in. The
+      data is the serialized record in the case of a save.
+    * Registers success and failure handlers.
+
+    @method ajax
+    @private
+    @param {String} url
+    @param {String} type The request type GET, POST, PUT, DELETE etc.
+    @param {Object} hash
+    @return {Promise} promise
+  */
+  ajax: function(url, type, options) {
+    var adapter = this;
+
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      var hash = adapter.ajaxOptions(url, type, options);
+
+      hash.success = function(json, textStatus, jqXHR) {
+        json = adapter.ajaxSuccess(jqXHR, json);
+        if (json instanceof InvalidError) {
+          Ember.run(null, reject, json);
+        } else {
+          Ember.run(null, resolve, json);
+        }
+      };
+
+      hash.error = function(jqXHR, textStatus, errorThrown) {
+        Ember.run(null, reject, adapter.ajaxError(jqXHR, jqXHR.responseText));
+      };
+
+      Ember.$.ajax(hash);
+    }, &quot;DS: RESTAdapter#ajax &quot; + type + &quot; to &quot; + url);
+  },
+
+  /**
+    @method ajaxOptions
+    @private
+    @param {String} url
+    @param {String} type The request type GET, POST, PUT, DELETE etc.
+    @param {Object} hash
+    @return {Object} hash
+  */
+  ajaxOptions: function(url, type, options) {
+    var hash = options || {};
+    hash.url = url;
+    hash.type = type;
+    hash.dataType = &#x27;json&#x27;;
+    hash.context = this;
+
+    if (hash.data &amp;&amp; type !== &#x27;GET&#x27;) {
+      hash.contentType = &#x27;application/json; charset=utf-8&#x27;;
+      hash.data = JSON.stringify(hash.data);
+    }
+
+    var headers = get(this, &#x27;headers&#x27;);
+    if (headers !== undefined) {
+      hash.beforeSend = function (xhr) {
+        forEach.call(Ember.keys(headers), function(key) {
+          xhr.setRequestHeader(key, headers[key]);
+        });
+      };
+    }
+
+    return hash;
+  }
+});
+
+//From http://stackoverflow.com/questions/280634/endswith-in-javascript
+function endsWith(string, suffix){
+  if (typeof String.prototype.endsWith !== &#x27;function&#x27;) {
+    return string.indexOf(suffix, string.length - suffix.length) !== -1;
+  } else {
+    return string.endsWith(suffix);
+  }
+}
+
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

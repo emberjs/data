@@ -1,0 +1,510 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>packages/ember-data/lib/system/model/errors.js</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title=""></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/DS.html">DS</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelAdapter.html">DS.ActiveModelAdapter</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelSerializer.html">DS.ActiveModelSerializer</a></li>
+            
+                <li><a href="../classes/DS.Adapter.html">DS.Adapter</a></li>
+            
+                <li><a href="../classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a></li>
+            
+                <li><a href="../classes/DS.BooleanTransform.html">DS.BooleanTransform</a></li>
+            
+                <li><a href="../classes/DS.ContainerProxy.html">DS.ContainerProxy</a></li>
+            
+                <li><a href="../classes/DS.DateTransform.html">DS.DateTransform</a></li>
+            
+                <li><a href="../classes/DS.DebugAdapter.html">DS.DebugAdapter</a></li>
+            
+                <li><a href="../classes/DS.EmbeddedRecordsMixin.html">DS.EmbeddedRecordsMixin</a></li>
+            
+                <li><a href="../classes/DS.Errors.html">DS.Errors</a></li>
+            
+                <li><a href="../classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a></li>
+            
+                <li><a href="../classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a></li>
+            
+                <li><a href="../classes/DS.InvalidError.html">DS.InvalidError</a></li>
+            
+                <li><a href="../classes/DS.JSONSerializer.html">DS.JSONSerializer</a></li>
+            
+                <li><a href="../classes/DS.ManyArray.html">DS.ManyArray</a></li>
+            
+                <li><a href="../classes/DS.Model.html">DS.Model</a></li>
+            
+                <li><a href="../classes/DS.NumberTransform.html">DS.NumberTransform</a></li>
+            
+                <li><a href="../classes/DS.PromiseArray.html">DS.PromiseArray</a></li>
+            
+                <li><a href="../classes/DS.PromiseObject.html">DS.PromiseObject</a></li>
+            
+                <li><a href="../classes/DS.RecordArray.html">DS.RecordArray</a></li>
+            
+                <li><a href="../classes/DS.RecordArrayManager.html">DS.RecordArrayManager</a></li>
+            
+                <li><a href="../classes/DS.RESTAdapter.html">DS.RESTAdapter</a></li>
+            
+                <li><a href="../classes/DS.RESTSerializer.html">DS.RESTSerializer</a></li>
+            
+                <li><a href="../classes/DS.RootState.html">DS.RootState</a></li>
+            
+                <li><a href="../classes/DS.Store.html">DS.Store</a></li>
+            
+                <li><a href="../classes/DS.StringTransform.html">DS.StringTransform</a></li>
+            
+                <li><a href="../classes/DS.Transform.html">DS.Transform</a></li>
+            
+                <li><a href="../classes/Ember.Date.html">Ember.Date</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/ember-data.html">ember-data</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: packages/ember-data/lib/system/model/errors.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+var get = Ember.get;
+var isEmpty = Ember.isEmpty;
+var map = Ember.EnumerableUtils.map;
+
+import {
+  MapWithDefault
+} from &quot;ember-data/system/map&quot;;
+
+/**
+@module ember-data
+*/
+
+/**
+  Holds validation errors for a given record organized by attribute names.
+
+  Every DS.Model has an &#x60;errors&#x60; property that is an instance of
+  &#x60;DS.Errors&#x60;. This can be used to display validation error
+  messages returned from the server when a &#x60;record.save()&#x60; rejects.
+  This works automatically with &#x60;DS.ActiveModelAdapter&#x60;, but you
+  can implement [ajaxError](api/data/classes/DS.RESTAdapter.html#method_ajaxError)
+  in other adapters as well.
+
+  For Example, if you had an &#x60;User&#x60; model that looked like this:
+
+  &#x60;&#x60;&#x60;javascript
+  App.User = DS.Model.extend({
+    username: attr(&#x27;string&#x27;),
+    email: attr(&#x27;string&#x27;)
+  });
+  &#x60;&#x60;&#x60;
+  And you attempted to save a record that did not validate on the backend.
+
+  &#x60;&#x60;&#x60;javascript
+  var user = store.createRecord(&#x27;user&#x27;, {
+    username: &#x27;tomster&#x27;,
+    email: &#x27;invalidEmail&#x27;
+  });
+  user.save();
+  &#x60;&#x60;&#x60;
+
+  Your backend data store might return a response that looks like
+  this. This response will be used to populate the error object.
+
+  &#x60;&#x60;&#x60;javascript
+  {
+    &quot;errors&quot;: {
+      &quot;username&quot;: [&quot;This username is already taken!&quot;],
+      &quot;email&quot;: [&quot;Doesn&#x27;t look like a valid email.&quot;]
+    }
+  }
+  &#x60;&#x60;&#x60;
+
+  Errors can be displayed to the user by accessing their property name
+  or using the &#x60;messages&#x60; property to get an array of all errors.
+
+  &#x60;&#x60;&#x60;handlebars
+  {{#each errors.messages}}
+    &lt;div class=&quot;error&quot;&gt;
+      {{message}}
+    &lt;/div&gt;
+  {{/each}}
+
+  &lt;label&gt;Username: {{input value=username}} &lt;/label&gt;
+  {{#each errors.username}}
+    &lt;div class=&quot;error&quot;&gt;
+      {{message}}
+    &lt;/div&gt;
+  {{/each}}
+
+  &lt;label&gt;Email: {{input value=email}} &lt;/label&gt;
+  {{#each errors.email}}
+    &lt;div class=&quot;error&quot;&gt;
+      {{message}}
+    &lt;/div&gt;
+  {{/each}}
+  &#x60;&#x60;&#x60;
+
+  @class Errors
+  @namespace DS
+  @extends Ember.Object
+  @uses Ember.Enumerable
+  @uses Ember.Evented
+ */
+export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
+  /**
+    Register with target handler
+
+    @method registerHandlers
+    @param {Object} target
+    @param {Function} becameInvalid
+    @param {Function} becameValid
+  */
+  registerHandlers: function(target, becameInvalid, becameValid) {
+    this.on(&#x27;becameInvalid&#x27;, target, becameInvalid);
+    this.on(&#x27;becameValid&#x27;, target, becameValid);
+  },
+
+  /**
+    @property errorsByAttributeName
+    @type {Ember.MapWithDefault}
+    @private
+  */
+  errorsByAttributeName: Ember.reduceComputed(&quot;content&quot;, {
+    initialValue: function() {
+      return MapWithDefault.create({
+        defaultValue: function() {
+          return Ember.A();
+        }
+      });
+    },
+
+    addedItem: function(errors, error) {
+      errors.get(error.attribute).pushObject(error);
+
+      return errors;
+    },
+
+    removedItem: function(errors, error) {
+      errors.get(error.attribute).removeObject(error);
+
+      return errors;
+    }
+  }),
+
+  /**
+    Returns errors for a given attribute
+
+    &#x60;&#x60;&#x60;javascript
+    var user = store.createRecord(&#x27;user&#x27;, {
+      username: &#x27;tomster&#x27;,
+      email: &#x27;invalidEmail&#x27;
+    });
+    user.save().catch(function(){
+      user.get(&#x27;errors&#x27;).errorsFor(&#x27;email&#x27;); // [&quot;Doesn&#x27;t look like a valid email.&quot;]
+    });
+    &#x60;&#x60;&#x60;
+
+    @method errorsFor
+    @param {String} attribute
+    @return {Array}
+  */
+  errorsFor: function(attribute) {
+    return get(this, &#x27;errorsByAttributeName&#x27;).get(attribute);
+  },
+
+  /**
+    An array containing all of the error messages for this
+    record. This is useful for displaying all errors to the user.
+
+    &#x60;&#x60;&#x60;handlebars
+    {{#each errors.messages}}
+      &lt;div class=&quot;error&quot;&gt;
+        {{message}}
+      &lt;/div&gt;
+    {{/each}}
+    &#x60;&#x60;&#x60;
+
+    @property messages
+    @type {Array}
+  */
+  messages: Ember.computed.mapBy(&#x27;content&#x27;, &#x27;message&#x27;),
+
+  /**
+    @property content
+    @type {Array}
+    @private
+  */
+  content: Ember.computed(function() {
+    return Ember.A();
+  }),
+
+  /**
+    @method unknownProperty
+    @private
+  */
+  unknownProperty: function(attribute) {
+    var errors = this.errorsFor(attribute);
+    if (isEmpty(errors)) { return null; }
+    return errors;
+  },
+
+  /**
+    @method nextObject
+    @private
+  */
+  nextObject: function(index, previousObject, context) {
+    return get(this, &#x27;content&#x27;).objectAt(index);
+  },
+
+  /**
+    Total number of errors.
+
+    @property length
+    @type {Number}
+    @readOnly
+  */
+  length: Ember.computed.oneWay(&#x27;content.length&#x27;).readOnly(),
+
+  /**
+    @property isEmpty
+    @type {Boolean}
+    @readOnly
+  */
+  isEmpty: Ember.computed.not(&#x27;length&#x27;).readOnly(),
+
+  /**
+    Adds error messages to a given attribute and sends
+    &#x60;becameInvalid&#x60; event to the record.
+
+    Example:
+
+    &#x60;&#x60;&#x60;javascript
+    if (!user.get(&#x27;username&#x27;) {
+      user.get(&#x27;errors&#x27;).add(&#x27;username&#x27;, &#x27;This field is required&#x27;);
+    }
+    &#x60;&#x60;&#x60;
+
+    @method add
+    @param {String} attribute
+    @param {Array|String} messages
+  */
+  add: function(attribute, messages) {
+    var wasEmpty = get(this, &#x27;isEmpty&#x27;);
+
+    messages = this._findOrCreateMessages(attribute, messages);
+    get(this, &#x27;content&#x27;).addObjects(messages);
+
+    this.notifyPropertyChange(attribute);
+    this.enumerableContentDidChange();
+
+    if (wasEmpty &amp;&amp; !get(this, &#x27;isEmpty&#x27;)) {
+      this.trigger(&#x27;becameInvalid&#x27;);
+    }
+  },
+
+  /**
+    @method _findOrCreateMessages
+    @private
+  */
+  _findOrCreateMessages: function(attribute, messages) {
+    var errors = this.errorsFor(attribute);
+
+    return map(Ember.makeArray(messages), function(message) {
+      return errors.findBy(&#x27;message&#x27;, message) || {
+        attribute: attribute,
+        message: message
+      };
+    });
+  },
+
+  /**
+    Removes all error messages from the given attribute and sends
+    &#x60;becameValid&#x60; event to the record if there no more errors left.
+
+    Example:
+
+    &#x60;&#x60;&#x60;javascript
+    App.User = DS.Model.extend({
+      email: DS.attr(&#x27;string&#x27;),
+      twoFactorAuth: DS.attr(&#x27;boolean&#x27;),
+      phone: DS.attr(&#x27;string&#x27;)
+    });
+
+    App.UserEditRoute = Ember.Route.extend({
+      actions: {
+        save: function(user) {
+           if (!user.get(&#x27;twoFactorAuth&#x27;)) {
+             user.get(&#x27;errors&#x27;).remove(&#x27;phone&#x27;);
+           }
+           user.save();
+         }
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method remove
+    @param {String} attribute
+  */
+  remove: function(attribute) {
+    if (get(this, &#x27;isEmpty&#x27;)) { return; }
+
+    var content = get(this, &#x27;content&#x27;).rejectBy(&#x27;attribute&#x27;, attribute);
+    get(this, &#x27;content&#x27;).setObjects(content);
+
+    this.notifyPropertyChange(attribute);
+    this.enumerableContentDidChange();
+
+    if (get(this, &#x27;isEmpty&#x27;)) {
+      this.trigger(&#x27;becameValid&#x27;);
+    }
+  },
+
+  /**
+    Removes all error messages and sends &#x60;becameValid&#x60; event
+    to the record.
+
+    Example:
+
+    &#x60;&#x60;&#x60;javascript
+    App.UserEditRoute = Ember.Route.extend({
+      actions: {
+        retrySave: function(user) {
+           user.get(&#x27;errors&#x27;).clear();
+           user.save();
+         }
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method clear
+  */
+  clear: function() {
+    if (get(this, &#x27;isEmpty&#x27;)) { return; }
+
+    get(this, &#x27;content&#x27;).clear();
+    this.enumerableContentDidChange();
+
+    this.trigger(&#x27;becameValid&#x27;);
+  },
+
+  /**
+    Checks if there is error messages for the given attribute.
+
+    &#x60;&#x60;&#x60;javascript
+    App.UserEditRoute = Ember.Route.extend({
+      actions: {
+        save: function(user) {
+           if (user.get(&#x27;errors&#x27;).has(&#x27;email&#x27;)) {
+             return alert(&#x27;Please update your email before attempting to save.&#x27;);
+           }
+           user.save();
+         }
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method has
+    @param {String} attribute
+    @return {Boolean} true if there some errors on given attribute
+  */
+  has: function(attribute) {
+    return !isEmpty(this.errorsFor(attribute));
+  }
+});
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

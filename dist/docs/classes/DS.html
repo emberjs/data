@@ -1,0 +1,817 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>DS</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title=""></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/DS.html">DS</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelAdapter.html">DS.ActiveModelAdapter</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelSerializer.html">DS.ActiveModelSerializer</a></li>
+            
+                <li><a href="../classes/DS.Adapter.html">DS.Adapter</a></li>
+            
+                <li><a href="../classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a></li>
+            
+                <li><a href="../classes/DS.BooleanTransform.html">DS.BooleanTransform</a></li>
+            
+                <li><a href="../classes/DS.ContainerProxy.html">DS.ContainerProxy</a></li>
+            
+                <li><a href="../classes/DS.DateTransform.html">DS.DateTransform</a></li>
+            
+                <li><a href="../classes/DS.DebugAdapter.html">DS.DebugAdapter</a></li>
+            
+                <li><a href="../classes/DS.EmbeddedRecordsMixin.html">DS.EmbeddedRecordsMixin</a></li>
+            
+                <li><a href="../classes/DS.Errors.html">DS.Errors</a></li>
+            
+                <li><a href="../classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a></li>
+            
+                <li><a href="../classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a></li>
+            
+                <li><a href="../classes/DS.InvalidError.html">DS.InvalidError</a></li>
+            
+                <li><a href="../classes/DS.JSONSerializer.html">DS.JSONSerializer</a></li>
+            
+                <li><a href="../classes/DS.ManyArray.html">DS.ManyArray</a></li>
+            
+                <li><a href="../classes/DS.Model.html">DS.Model</a></li>
+            
+                <li><a href="../classes/DS.NumberTransform.html">DS.NumberTransform</a></li>
+            
+                <li><a href="../classes/DS.PromiseArray.html">DS.PromiseArray</a></li>
+            
+                <li><a href="../classes/DS.PromiseObject.html">DS.PromiseObject</a></li>
+            
+                <li><a href="../classes/DS.RecordArray.html">DS.RecordArray</a></li>
+            
+                <li><a href="../classes/DS.RecordArrayManager.html">DS.RecordArrayManager</a></li>
+            
+                <li><a href="../classes/DS.RESTAdapter.html">DS.RESTAdapter</a></li>
+            
+                <li><a href="../classes/DS.RESTSerializer.html">DS.RESTSerializer</a></li>
+            
+                <li><a href="../classes/DS.RootState.html">DS.RootState</a></li>
+            
+                <li><a href="../classes/DS.Store.html">DS.Store</a></li>
+            
+                <li><a href="../classes/DS.StringTransform.html">DS.StringTransform</a></li>
+            
+                <li><a href="../classes/DS.Transform.html">DS.Transform</a></li>
+            
+                <li><a href="../classes/Ember.Date.html">Ember.Date</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/ember-data.html">ember-data</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1>DS Class</h1>
+<div class="box meta">
+    
+
+    
+
+    
+        <div class="foundat">
+            Defined in: <a href="../files/packages_ember-data_lib_core.js.html#l5"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;core.js:5</code></a>
+        </div>
+    
+
+    
+        
+            Module: <a href="../modules/ember-data.html">ember-data</a>
+        
+    
+
+    
+</div>
+
+
+
+<div class="box intro">
+    <p>All Ember Data methods and functions are defined inside of this namespace.</p>
+
+</div>
+
+
+
+<div id="classdocs" class="tabview">
+    <ul class="api-class-tabs">
+        <li class="api-class-tab index"><a href="#index">Index</a></li>
+
+        
+            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+        
+        
+            <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
+        
+        
+        
+    </ul>
+
+    <div>
+        <div id="index" class="api-class-tabpanel index">
+            <h2 class="off-left">Item Index</h2>
+
+            
+                <div class="index-section methods">
+                    <h3>Methods</h3>
+
+                    <ul class="index-list methods">
+                        
+                            <li class="index-item method">
+                                <a href="#method_attr">attr</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_belongsTo">belongsTo</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_hasMany">hasMany</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+                <div class="index-section properties">
+                    <h3>Properties</h3>
+
+                    <ul class="index-list properties">
+                        
+                            <li class="index-item property">
+                                <a href="#property_VERSION">VERSION</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+
+            
+        </div>
+
+        
+            <div id="methods" class="api-class-tabpanel">
+                <h2 class="off-left">Methods</h2>
+
+                
+                    <div id="method_attr" class="method item">
+    <h3 class="name"><code>attr</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>options</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Attribute</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_attributes.js.html#l234"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;attributes.js:234</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p><code>DS.attr</code> defines an attribute on a <a href="/api/data/classes/DS.Model.html">DS.Model</a>.
+By default, attributes are passed through as-is, however you can specify an
+optional type to have the value automatically transformed.
+Ember Data ships with four basic transform types: <code>string</code>, <code>number</code>,
+<code>boolean</code> and <code>date</code>. You can define your own transforms by subclassing
+<a href="/api/data/classes/DS.Transform.html">DS.Transform</a>.</p>
+<p>Note that you cannot use <code>attr</code> to define an attribute of <code>id</code>.</p>
+<p><code>DS.attr</code> takes an optional hash as a second parameter, currently
+supported options are:</p>
+<ul>
+<li><code>defaultValue</code>: Pass a string or a function to be called to set the attribute<pre class="code prettyprint"><code>            to a default value if none is supplied.</code></pre>
+</li>
+</ul>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">var attr = DS.attr;
+
+App.User = DS.Model.extend({
+  username: attr(&#39;string&#39;),
+  email: attr(&#39;string&#39;),
+  verified: attr(&#39;boolean&#39;, {defaultValue: false})
+});</code></pre>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the attribute type</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">options</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>a hash of options</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Attribute</span>:
+                    
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_belongsTo" class="method item">
+    <h3 class="name"><code>belongsTo</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>options</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Ember.computed</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_relationships_belongs_to.js.html#l4"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;relationships&#x2F;belongs_to.js:4</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p><code>DS.belongsTo</code> is used to define One-To-One and One-To-Many
+relationships on a <a href="/api/data/classes/DS.Model.html">DS.Model</a>.</p>
+<p><code>DS.belongsTo</code> takes an optional hash as a second parameter, currently
+supported options are:</p>
+<ul>
+<li><code>async</code>: A boolean value used to explicitly declare this to be an async relationship.</li>
+<li><code>inverse</code>: A string used to identify the inverse property on a
+related model in a One-To-Many relationship. See <a href="#toc_explicit-inverses">Explicit Inverses</a></li>
+</ul>
+<h4 id="one-to-one">One-To-One</h4>
+<p>To declare a one-to-one relationship between two models, use
+<code>DS.belongsTo</code>:</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.User = DS.Model.extend({
+  profile: DS.belongsTo(&#39;profile&#39;)
+});
+
+App.Profile = DS.Model.extend({
+  user: DS.belongsTo(&#39;user&#39;)
+});</code></pre>
+<h4 id="one-to-many">One-To-Many</h4>
+<p>To declare a one-to-many relationship between two models, use
+<code>DS.belongsTo</code> in combination with <code>DS.hasMany</code>, like this:</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.Post = DS.Model.extend({
+  comments: DS.hasMany(&#39;comment&#39;)
+});
+
+App.Comment = DS.Model.extend({
+  post: DS.belongsTo(&#39;post&#39;)
+});</code></pre>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">String or DS.Model</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the model type of the relationship</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">options</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>a hash of options</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Ember.computed</span>:
+                    
+                    <p>relationship</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_hasMany" class="method item">
+    <h3 class="name"><code>hasMany</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>options</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Ember.computed</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_relationships_has_many.js.html#l7"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;relationships&#x2F;has_many.js:7</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p><code>DS.hasMany</code> is used to define One-To-Many and Many-To-Many
+relationships on a <a href="/api/data/classes/DS.Model.html">DS.Model</a>.</p>
+<p><code>DS.hasMany</code> takes an optional hash as a second parameter, currently
+supported options are:</p>
+<ul>
+<li><code>async</code>: A boolean value used to explicitly declare this to be an async relationship.</li>
+<li><code>inverse</code>: A string used to identify the inverse property on a related model.</li>
+</ul>
+<h4 id="one-to-many">One-To-Many</h4>
+<p>To declare a one-to-many relationship between two models, use
+<code>DS.belongsTo</code> in combination with <code>DS.hasMany</code>, like this:</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.Post = DS.Model.extend({
+  comments: DS.hasMany(&#39;comment&#39;)
+});
+
+App.Comment = DS.Model.extend({
+  post: DS.belongsTo(&#39;post&#39;)
+});</code></pre>
+<h4 id="many-to-many">Many-To-Many</h4>
+<p>To declare a many-to-many relationship between two models, use
+<code>DS.hasMany</code>:</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.Post = DS.Model.extend({
+  tags: DS.hasMany(&#39;tag&#39;)
+});
+
+App.Tag = DS.Model.extend({
+  posts: DS.hasMany(&#39;post&#39;)
+});</code></pre>
+<h4 id="explicit-inverses">Explicit Inverses</h4>
+<p>Ember Data will do its best to discover which relationships map to
+one another. In the one-to-many code above, for example, Ember Data
+can figure out that changing the <code>comments</code> relationship should update
+the <code>post</code> relationship on the inverse because post is the only
+relationship to that model.</p>
+<p>However, sometimes you may have multiple <code>belongsTo</code>/<code>hasManys</code> for the
+same type. You can specify which property on the related model is
+the inverse using <code>DS.hasMany</code>&#39;s <code>inverse</code> option:</p>
+<pre class="code prettyprint"><code class="lang-javascript">var belongsTo = DS.belongsTo,
+    hasMany = DS.hasMany;
+
+App.Comment = DS.Model.extend({
+  onePost: belongsTo(&#39;post&#39;),
+  twoPost: belongsTo(&#39;post&#39;),
+  redPost: belongsTo(&#39;post&#39;),
+  bluePost: belongsTo(&#39;post&#39;)
+});
+
+App.Post = DS.Model.extend({
+  comments: hasMany(&#39;comment&#39;, {
+    inverse: &#39;redPost&#39;
+  })
+});</code></pre>
+<p>You can also specify an inverse on a <code>belongsTo</code>, which works how
+you&#39;d expect.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">String or DS.Model</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the model type of the relationship</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">options</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>a hash of options</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Ember.computed</span>:
+                    
+                    <p>relationship</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+            </div>
+        
+
+        
+            <div id="properties" class="api-class-tabpanel">
+                <h2 class="off-left">Properties</h2>
+
+                
+                    <div id="property_VERSION" class="property item">
+    <h3 class="name"><code>VERSION</code></h3>
+    <span class="type">String</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_core.js.html#l13"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;core.js:13</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+        <p><strong>Default:</strong> &#x27;&lt;%= versionStamp %&gt;&#x27;</p>
+    
+
+    
+
+    
+</div>
+
+                
+            </div>
+        
+
+        
+
+        
+    </div>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

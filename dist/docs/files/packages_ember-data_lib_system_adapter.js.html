@@ -1,0 +1,628 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>packages/ember-data/lib/system/adapter.js</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title=""></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/DS.html">DS</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelAdapter.html">DS.ActiveModelAdapter</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelSerializer.html">DS.ActiveModelSerializer</a></li>
+            
+                <li><a href="../classes/DS.Adapter.html">DS.Adapter</a></li>
+            
+                <li><a href="../classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a></li>
+            
+                <li><a href="../classes/DS.BooleanTransform.html">DS.BooleanTransform</a></li>
+            
+                <li><a href="../classes/DS.ContainerProxy.html">DS.ContainerProxy</a></li>
+            
+                <li><a href="../classes/DS.DateTransform.html">DS.DateTransform</a></li>
+            
+                <li><a href="../classes/DS.DebugAdapter.html">DS.DebugAdapter</a></li>
+            
+                <li><a href="../classes/DS.EmbeddedRecordsMixin.html">DS.EmbeddedRecordsMixin</a></li>
+            
+                <li><a href="../classes/DS.Errors.html">DS.Errors</a></li>
+            
+                <li><a href="../classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a></li>
+            
+                <li><a href="../classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a></li>
+            
+                <li><a href="../classes/DS.InvalidError.html">DS.InvalidError</a></li>
+            
+                <li><a href="../classes/DS.JSONSerializer.html">DS.JSONSerializer</a></li>
+            
+                <li><a href="../classes/DS.ManyArray.html">DS.ManyArray</a></li>
+            
+                <li><a href="../classes/DS.Model.html">DS.Model</a></li>
+            
+                <li><a href="../classes/DS.NumberTransform.html">DS.NumberTransform</a></li>
+            
+                <li><a href="../classes/DS.PromiseArray.html">DS.PromiseArray</a></li>
+            
+                <li><a href="../classes/DS.PromiseObject.html">DS.PromiseObject</a></li>
+            
+                <li><a href="../classes/DS.RecordArray.html">DS.RecordArray</a></li>
+            
+                <li><a href="../classes/DS.RecordArrayManager.html">DS.RecordArrayManager</a></li>
+            
+                <li><a href="../classes/DS.RESTAdapter.html">DS.RESTAdapter</a></li>
+            
+                <li><a href="../classes/DS.RESTSerializer.html">DS.RESTSerializer</a></li>
+            
+                <li><a href="../classes/DS.RootState.html">DS.RootState</a></li>
+            
+                <li><a href="../classes/DS.Store.html">DS.Store</a></li>
+            
+                <li><a href="../classes/DS.StringTransform.html">DS.StringTransform</a></li>
+            
+                <li><a href="../classes/DS.Transform.html">DS.Transform</a></li>
+            
+                <li><a href="../classes/Ember.Date.html">Ember.Date</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/ember-data.html">ember-data</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: packages/ember-data/lib/system/adapter.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+/**
+  @module ember-data
+*/
+
+var get = Ember.get;
+
+var errorProps = [
+  &#x27;description&#x27;,
+  &#x27;fileName&#x27;,
+  &#x27;lineNumber&#x27;,
+  &#x27;message&#x27;,
+  &#x27;name&#x27;,
+  &#x27;number&#x27;,
+  &#x27;stack&#x27;
+];
+
+/**
+  A &#x60;DS.InvalidError&#x60; is used by an adapter to signal the external API
+  was unable to process a request because the content was not
+  semantically correct or meaningful per the API. Usually this means a
+  record failed some form of server side validation. When a promise
+  from an adapter is rejected with a &#x60;DS.InvalidError&#x60; the record will
+  transition to the &#x60;invalid&#x60; state and the errors will be set to the
+  &#x60;errors&#x60; property on the record.
+
+  Example
+
+  &#x60;&#x60;&#x60;javascript
+  App.ApplicationAdapter = DS.RESTAdapter.extend({
+    ajaxError: function(jqXHR) {
+      var error = this._super(jqXHR);
+
+      if (jqXHR &amp;&amp; jqXHR.status === 422) {
+        var jsonErrors = Ember.$.parseJSON(jqXHR.responseText)[&quot;errors&quot;];
+        return new DS.InvalidError(jsonErrors);
+      } else {
+        return error;
+      }
+    }
+  });
+  &#x60;&#x60;&#x60;
+
+  The &#x60;DS.InvalidError&#x60; must be constructed with a single object whose
+  keys are the invalid model properties, and whose values are the
+  corresponding error messages. For example:
+
+  &#x60;&#x60;&#x60;javascript
+  return new DS.InvalidError({
+    length: &#x27;Must be less than 15&#x27;,
+    name: &#x27;Must not be blank
+  });
+  &#x60;&#x60;&#x60;
+
+  @class InvalidError
+  @namespace DS
+*/
+function InvalidError(errors) {
+  var tmp = Error.prototype.constructor.call(this, &quot;The backend rejected the commit because it was invalid: &quot; + Ember.inspect(errors));
+  this.errors = errors;
+
+  for (var i=0, l=errorProps.length; i&lt;l; i++) {
+    this[errorProps[i]] = tmp[errorProps[i]];
+  }
+}
+
+InvalidError.prototype = Ember.create(Error.prototype);
+
+/**
+  An adapter is an object that receives requests from a store and
+  translates them into the appropriate action to take against your
+  persistence layer. The persistence layer is usually an HTTP API, but
+  may be anything, such as the browser&#x27;s local storage. Typically the
+  adapter is not invoked directly instead its functionality is accessed
+  through the &#x60;store&#x60;.
+
+  ### Creating an Adapter
+
+  Create a new subclass of &#x60;DS.Adapter&#x60;, then assign
+  it to the &#x60;ApplicationAdapter&#x60; property of the application.
+
+  &#x60;&#x60;&#x60;javascript
+  var MyAdapter = DS.Adapter.extend({
+    // ...your code here
+  });
+
+  App.ApplicationAdapter = MyAdapter;
+  &#x60;&#x60;&#x60;
+
+  Model-specific adapters can be created by assigning your adapter
+  class to the &#x60;ModelName&#x60; + &#x60;Adapter&#x60; property of the application.
+
+  &#x60;&#x60;&#x60;javascript
+  var MyPostAdapter = DS.Adapter.extend({
+    // ...Post-specific adapter code goes here
+  });
+
+  App.PostAdapter = MyPostAdapter;
+  &#x60;&#x60;&#x60;
+
+  &#x60;DS.Adapter&#x60; is an abstract base class that you should override in your
+  application to customize it for your backend. The minimum set of methods
+  that you should implement is:
+
+    * &#x60;find()&#x60;
+    * &#x60;createRecord()&#x60;
+    * &#x60;updateRecord()&#x60;
+    * &#x60;deleteRecord()&#x60;
+    * &#x60;findAll()&#x60;
+    * &#x60;findQuery()&#x60;
+
+  To improve the network performance of your application, you can optimize
+  your adapter by overriding these lower-level methods:
+
+    * &#x60;findMany()&#x60;
+
+
+  For an example implementation, see &#x60;DS.RESTAdapter&#x60;, the
+  included REST adapter.
+
+  @class Adapter
+  @namespace DS
+  @extends Ember.Object
+*/
+
+var Adapter = Ember.Object.extend({
+
+  /**
+    If you would like your adapter to use a custom serializer you can
+    set the &#x60;defaultSerializer&#x60; property to be the name of the custom
+    serializer.
+
+    Note the &#x60;defaultSerializer&#x60; serializer has a lower priority than
+    a model specific serializer (i.e. &#x60;PostSerializer&#x60;) or the
+    &#x60;application&#x60; serializer.
+
+    &#x60;&#x60;&#x60;javascript
+    var DjangoAdapter = DS.Adapter.extend({
+      defaultSerializer: &#x27;django&#x27;
+    });
+    &#x60;&#x60;&#x60;
+
+    @property defaultSerializer
+    @type {String}
+  */
+
+  /**
+    The &#x60;find()&#x60; method is invoked when the store is asked for a record that
+    has not previously been loaded. In response to &#x60;find()&#x60; being called, you
+    should query your persistence layer for a record with the given ID. Once
+    found, you can asynchronously call the store&#x27;s &#x60;push()&#x60; method to push
+    the record into the store.
+
+    Here is an example &#x60;find&#x60; implementation:
+
+    &#x60;&#x60;&#x60;javascript
+    App.ApplicationAdapter = DS.Adapter.extend({
+      find: function(store, type, id) {
+        var url = [type.typeKey, id].join(&#x27;/&#x27;);
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+          jQuery.getJSON(url).then(function(data) {
+            Ember.run(null, resolve, data);
+          }, function(jqXHR) {
+            jqXHR.then = null; // tame jQuery&#x27;s ill mannered promises
+            Ember.run(null, reject, jqXHR);
+          });
+        });
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method find
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {String} id
+    @return {Promise} promise
+  */
+  find: Ember.required(Function),
+
+  /**
+    The &#x60;findAll()&#x60; method is called when you call &#x60;find&#x60; on the store
+    without an ID (i.e. &#x60;store.find(&#x27;post&#x27;)&#x60;).
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    App.ApplicationAdapter = DS.Adapter.extend({
+      findAll: function(store, type, sinceToken) {
+        var url = type;
+        var query = { since: sinceToken };
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+          jQuery.getJSON(url, query).then(function(data) {
+            Ember.run(null, resolve, data);
+          }, function(jqXHR) {
+            jqXHR.then = null; // tame jQuery&#x27;s ill mannered promises
+            Ember.run(null, reject, jqXHR);
+          });
+        });
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @private
+    @method findAll
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {String} sinceToken
+    @return {Promise} promise
+  */
+  findAll: null,
+
+  /**
+    This method is called when you call &#x60;find&#x60; on the store with a
+    query object as the second parameter (i.e. &#x60;store.find(&#x27;person&#x27;, {
+    page: 1 })&#x60;).
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    App.ApplicationAdapter = DS.Adapter.extend({
+      findQuery: function(store, type, query) {
+        var url = type;
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+          jQuery.getJSON(url, query).then(function(data) {
+            Ember.run(null, resolve, data);
+          }, function(jqXHR) {
+            jqXHR.then = null; // tame jQuery&#x27;s ill mannered promises
+            Ember.run(null, reject, jqXHR);
+          });
+        });
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @private
+    @method findQuery
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} query
+    @param {DS.AdapterPopulatedRecordArray} recordArray
+    @return {Promise} promise
+  */
+  findQuery: null,
+
+  /**
+    If the globally unique IDs for your records should be generated on the client,
+    implement the &#x60;generateIdForRecord()&#x60; method. This method will be invoked
+    each time you create a new record, and the value returned from it will be
+    assigned to the record&#x27;s &#x60;primaryKey&#x60;.
+
+    Most traditional REST-like HTTP APIs will not use this method. Instead, the ID
+    of the record will be set by the server, and your adapter will update the store
+    with the new ID when it calls &#x60;didCreateRecord()&#x60;. Only implement this method if
+    you intend to generate record IDs on the client-side.
+
+    The &#x60;generateIdForRecord()&#x60; method will be invoked with the requesting store as
+    the first parameter and the newly created record as the second parameter:
+
+    &#x60;&#x60;&#x60;javascript
+    generateIdForRecord: function(store, record) {
+      var uuid = App.generateUUIDWithStatisticallyLowOddsOfCollision();
+      return uuid;
+    }
+    &#x60;&#x60;&#x60;
+
+    @method generateIdForRecord
+    @param {DS.Store} store
+    @param {DS.Model} record
+    @return {String|Number} id
+  */
+  generateIdForRecord: null,
+
+  /**
+    Proxies to the serializer&#x27;s &#x60;serialize&#x60; method.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    App.ApplicationAdapter = DS.Adapter.extend({
+      createRecord: function(store, type, record) {
+        var data = this.serialize(record, { includeId: true });
+        var url = type;
+
+        // ...
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method serialize
+    @param {DS.Model} record
+    @param {Object}   options
+    @return {Object} serialized record
+  */
+  serialize: function(record, options) {
+    return get(record, &#x27;store&#x27;).serializerFor(record.constructor.typeKey).serialize(record, options);
+  },
+
+  /**
+    Implement this method in a subclass to handle the creation of
+    new records.
+
+    Serializes the record and send it to the server.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    App.ApplicationAdapter = DS.Adapter.extend({
+      createRecord: function(store, type, record) {
+        var data = this.serialize(record, { includeId: true });
+        var url = type;
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+          jQuery.ajax({
+            type: &#x27;POST&#x27;,
+            url: url,
+            dataType: &#x27;json&#x27;,
+            data: data
+          }).then(function(data) {
+            Ember.run(null, resolve, data);
+          }, function(jqXHR) {
+            jqXHR.then = null; // tame jQuery&#x27;s ill mannered promises
+            Ember.run(null, reject, jqXHR);
+          });
+        });
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method createRecord
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} record
+    @return {Promise} promise
+  */
+  createRecord: Ember.required(Function),
+
+  /**
+    Implement this method in a subclass to handle the updating of
+    a record.
+
+    Serializes the record update and send it to the server.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    App.ApplicationAdapter = DS.Adapter.extend({
+      updateRecord: function(store, type, record) {
+        var data = this.serialize(record, { includeId: true });
+        var id = record.get(&#x27;id&#x27;);
+        var url = [type, id].join(&#x27;/&#x27;);
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+          jQuery.ajax({
+            type: &#x27;PUT&#x27;,
+            url: url,
+            dataType: &#x27;json&#x27;,
+            data: data
+          }).then(function(data) {
+            Ember.run(null, resolve, data);
+          }, function(jqXHR) {
+            jqXHR.then = null; // tame jQuery&#x27;s ill mannered promises
+            Ember.run(null, reject, jqXHR);
+          });
+        });
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method updateRecord
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} record
+    @return {Promise} promise
+  */
+  updateRecord: Ember.required(Function),
+
+  /**
+    Implement this method in a subclass to handle the deletion of
+    a record.
+
+    Sends a delete request for the record to the server.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    App.ApplicationAdapter = DS.Adapter.extend({
+      deleteRecord: function(store, type, record) {
+        var data = this.serialize(record, { includeId: true });
+        var id = record.get(&#x27;id&#x27;);
+        var url = [type, id].join(&#x27;/&#x27;);
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+          jQuery.ajax({
+            type: &#x27;DELETE&#x27;,
+            url: url,
+            dataType: &#x27;json&#x27;,
+            data: data
+          }).then(function(data) {
+            Ember.run(null, resolve, data);
+          }, function(jqXHR) {
+            jqXHR.then = null; // tame jQuery&#x27;s ill mannered promises
+            Ember.run(null, reject, jqXHR);
+          });
+        });
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method deleteRecord
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} record
+    @return {Promise} promise
+  */
+  deleteRecord: Ember.required(Function),
+
+  /**
+    By default the store will try to coalesce all &#x60;fetchRecord&#x60; calls within the same runloop
+    into as few requests as possible by calling groupRecordsForFindMany and passing it into a findMany call.
+    You can opt out of this behaviour by either not implementing the findMany hook or by setting
+    coalesceFindRequests to false
+
+    @property coalesceFindRequests
+    @type {boolean}
+  */
+  coalesceFindRequests: true,
+
+  /**
+    Find multiple records at once if coalesceFindRequests is true
+
+    @method findMany
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type   the DS.Model class of the records
+    @param {Array}    ids
+    @param {Array} records
+    @return {Promise} promise
+  */
+
+  /**
+    Organize records into groups, each of which is to be passed to separate
+    calls to &#x60;findMany&#x60;.
+
+    For example, if your api has nested URLs that depend on the parent, you will
+    want to group records by their parent.
+
+    The default implementation returns the records as a single group.
+
+    @method groupRecordsForFindMany
+    @param {Array} records
+    @return {Array}  an array of arrays of records, each of which is to be
+                      loaded separately by &#x60;findMany&#x60;.
+  */
+  groupRecordsForFindMany: function (store, records) {
+    return [records];
+  }
+});
+
+export {
+  InvalidError,
+  Adapter
+};
+export default Adapter;
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

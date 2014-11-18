@@ -1,0 +1,478 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>packages/ember-data/lib/system/record_array_manager.js</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title=""></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/DS.html">DS</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelAdapter.html">DS.ActiveModelAdapter</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelSerializer.html">DS.ActiveModelSerializer</a></li>
+            
+                <li><a href="../classes/DS.Adapter.html">DS.Adapter</a></li>
+            
+                <li><a href="../classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a></li>
+            
+                <li><a href="../classes/DS.BooleanTransform.html">DS.BooleanTransform</a></li>
+            
+                <li><a href="../classes/DS.ContainerProxy.html">DS.ContainerProxy</a></li>
+            
+                <li><a href="../classes/DS.DateTransform.html">DS.DateTransform</a></li>
+            
+                <li><a href="../classes/DS.DebugAdapter.html">DS.DebugAdapter</a></li>
+            
+                <li><a href="../classes/DS.EmbeddedRecordsMixin.html">DS.EmbeddedRecordsMixin</a></li>
+            
+                <li><a href="../classes/DS.Errors.html">DS.Errors</a></li>
+            
+                <li><a href="../classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a></li>
+            
+                <li><a href="../classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a></li>
+            
+                <li><a href="../classes/DS.InvalidError.html">DS.InvalidError</a></li>
+            
+                <li><a href="../classes/DS.JSONSerializer.html">DS.JSONSerializer</a></li>
+            
+                <li><a href="../classes/DS.ManyArray.html">DS.ManyArray</a></li>
+            
+                <li><a href="../classes/DS.Model.html">DS.Model</a></li>
+            
+                <li><a href="../classes/DS.NumberTransform.html">DS.NumberTransform</a></li>
+            
+                <li><a href="../classes/DS.PromiseArray.html">DS.PromiseArray</a></li>
+            
+                <li><a href="../classes/DS.PromiseObject.html">DS.PromiseObject</a></li>
+            
+                <li><a href="../classes/DS.RecordArray.html">DS.RecordArray</a></li>
+            
+                <li><a href="../classes/DS.RecordArrayManager.html">DS.RecordArrayManager</a></li>
+            
+                <li><a href="../classes/DS.RESTAdapter.html">DS.RESTAdapter</a></li>
+            
+                <li><a href="../classes/DS.RESTSerializer.html">DS.RESTSerializer</a></li>
+            
+                <li><a href="../classes/DS.RootState.html">DS.RootState</a></li>
+            
+                <li><a href="../classes/DS.Store.html">DS.Store</a></li>
+            
+                <li><a href="../classes/DS.StringTransform.html">DS.StringTransform</a></li>
+            
+                <li><a href="../classes/DS.Transform.html">DS.Transform</a></li>
+            
+                <li><a href="../classes/Ember.Date.html">Ember.Date</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/ember-data.html">ember-data</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: packages/ember-data/lib/system/record_array_manager.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+/**
+  @module ember-data
+*/
+
+import {
+  RecordArray,
+  FilteredRecordArray,
+  AdapterPopulatedRecordArray,
+  ManyArray
+} from &quot;ember-data/system/record_arrays&quot;;
+import {
+  MapWithDefault,
+  OrderedSet
+} from &quot;ember-data/system/map&quot;;
+var get = Ember.get;
+var forEach = Ember.EnumerableUtils.forEach;
+
+/**
+  @class RecordArrayManager
+  @namespace DS
+  @private
+  @extends Ember.Object
+*/
+export default Ember.Object.extend({
+  init: function() {
+    this.filteredRecordArrays = MapWithDefault.create({
+      defaultValue: function() { return []; }
+    });
+
+    this.changedRecords = [];
+    this._adapterPopulatedRecordArrays = [];
+  },
+
+  recordDidChange: function(record) {
+    if (this.changedRecords.push(record) !== 1) { return; }
+
+    Ember.run.schedule(&#x27;actions&#x27;, this, this.updateRecordArrays);
+  },
+
+  recordArraysForRecord: function(record) {
+    record._recordArrays = record._recordArrays || OrderedSet.create();
+    return record._recordArrays;
+  },
+
+  /**
+    This method is invoked whenever data is loaded into the store by the
+    adapter or updated by the adapter, or when a record has changed.
+
+    It updates all record arrays that a record belongs to.
+
+    To avoid thrashing, it only runs at most once per run loop.
+
+    @method updateRecordArrays
+    @param {Class} type
+    @param {Number|String} clientId
+  */
+  updateRecordArrays: function() {
+    forEach(this.changedRecords, function(record) {
+      if (get(record, &#x27;isDeleted&#x27;)) {
+        this._recordWasDeleted(record);
+      } else {
+        this._recordWasChanged(record);
+      }
+    }, this);
+
+    this.changedRecords.length = 0;
+  },
+
+  _recordWasDeleted: function (record) {
+    var recordArrays = record._recordArrays;
+
+    if (!recordArrays) { return; }
+
+    recordArrays.forEach(function(array){
+      array.removeRecord(record);
+    });
+
+    record._recordArrays = null;
+  },
+
+  _recordWasChanged: function (record) {
+    var type = record.constructor;
+    var recordArrays = this.filteredRecordArrays.get(type);
+    var filter;
+
+    forEach(recordArrays, function(array) {
+      filter = get(array, &#x27;filterFunction&#x27;);
+      this.updateRecordArray(array, filter, type, record);
+    }, this);
+
+    // loop through all manyArrays containing an unloaded copy of this
+    // clientId and notify them that the record was loaded.
+    var manyArrays = record._loadingRecordArrays;
+
+    if (manyArrays) {
+      for (var i=0, l=manyArrays.length; i&lt;l; i++) {
+        manyArrays[i].loadedRecord();
+      }
+
+      record._loadingRecordArrays = [];
+    }
+  },
+
+  /**
+    Update an individual filter.
+
+    @method updateRecordArray
+    @param {DS.FilteredRecordArray} array
+    @param {Function} filter
+    @param {Class} type
+    @param {Number|String} clientId
+  */
+  updateRecordArray: function(array, filter, type, record) {
+    var shouldBeInArray;
+
+    if (!filter) {
+      shouldBeInArray = true;
+    } else {
+      shouldBeInArray = filter(record);
+    }
+
+    var recordArrays = this.recordArraysForRecord(record);
+
+    if (shouldBeInArray) {
+      if (!recordArrays.has(array)) {
+        array.pushRecord(record);
+        recordArrays.add(array);
+      }
+    } else if (!shouldBeInArray) {
+      recordArrays.delete(array);
+      array.removeRecord(record);
+    }
+  },
+
+  /**
+    This method is invoked if the &#x60;filterFunction&#x60; property is
+    changed on a &#x60;DS.FilteredRecordArray&#x60;.
+
+    It essentially re-runs the filter from scratch. This same
+    method is invoked when the filter is created in th first place.
+
+    @method updateFilter
+    @param {Array} array
+    @param {String} type
+    @param {Function} filter
+  */
+  updateFilter: function(array, type, filter) {
+    var typeMap = this.store.typeMapFor(type);
+    var records = typeMap.records, record;
+
+    for (var i=0, l=records.length; i&lt;l; i++) {
+      record = records[i];
+
+      if (!get(record, &#x27;isDeleted&#x27;) &amp;&amp; !get(record, &#x27;isEmpty&#x27;)) {
+        this.updateRecordArray(array, filter, type, record);
+      }
+    }
+  },
+
+  /**
+    Create a &#x60;DS.ManyArray&#x60; for a type and list of record references, and index
+    the &#x60;ManyArray&#x60; under each reference. This allows us to efficiently remove
+    records from &#x60;ManyArray&#x60;s when they are deleted.
+
+    @method createManyArray
+    @param {Class} type
+    @param {Array} references
+    @return {DS.ManyArray}
+  */
+  createManyArray: function(type, records) {
+    var manyArray = ManyArray.create({
+      type: type,
+      content: records,
+      store: this.store
+    });
+
+    forEach(records, function(record) {
+      var arrays = this.recordArraysForRecord(record);
+      arrays.add(manyArray);
+    }, this);
+
+    return manyArray;
+  },
+
+  /**
+    Create a &#x60;DS.RecordArray&#x60; for a type and register it for updates.
+
+    @method createRecordArray
+    @param {Class} type
+    @return {DS.RecordArray}
+  */
+  createRecordArray: function(type) {
+    var array = RecordArray.create({
+      type: type,
+      content: Ember.A(),
+      store: this.store,
+      isLoaded: true
+    });
+
+    this.registerFilteredRecordArray(array, type);
+
+    return array;
+  },
+
+  /**
+    Create a &#x60;DS.FilteredRecordArray&#x60; for a type and register it for updates.
+
+    @method createFilteredRecordArray
+    @param {Class} type
+    @param {Function} filter
+    @param {Object} query (optional
+    @return {DS.FilteredRecordArray}
+  */
+  createFilteredRecordArray: function(type, filter, query) {
+    var array = FilteredRecordArray.create({
+      query: query,
+      type: type,
+      content: Ember.A(),
+      store: this.store,
+      manager: this,
+      filterFunction: filter
+    });
+
+    this.registerFilteredRecordArray(array, type, filter);
+
+    return array;
+  },
+
+  /**
+    Create a &#x60;DS.AdapterPopulatedRecordArray&#x60; for a type with given query.
+
+    @method createAdapterPopulatedRecordArray
+    @param {Class} type
+    @param {Object} query
+    @return {DS.AdapterPopulatedRecordArray}
+  */
+  createAdapterPopulatedRecordArray: function(type, query) {
+    var array = AdapterPopulatedRecordArray.create({
+      type: type,
+      query: query,
+      content: Ember.A(),
+      store: this.store,
+      manager: this
+    });
+
+    this._adapterPopulatedRecordArrays.push(array);
+
+    return array;
+  },
+
+  /**
+    Register a RecordArray for a given type to be backed by
+    a filter function. This will cause the array to update
+    automatically when records of that type change attribute
+    values or states.
+
+    @method registerFilteredRecordArray
+    @param {DS.RecordArray} array
+    @param {Class} type
+    @param {Function} filter
+  */
+  registerFilteredRecordArray: function(array, type, filter) {
+    var recordArrays = this.filteredRecordArrays.get(type);
+    recordArrays.push(array);
+
+    this.updateFilter(array, type, filter);
+  },
+
+  // Internally, we maintain a map of all unloaded IDs requested by
+  // a ManyArray. As the adapter loads data into the store, the
+  // store notifies any interested ManyArrays. When the ManyArray&#x27;s
+  // total number of loading records drops to zero, it becomes
+  // &#x60;isLoaded&#x60; and fires a &#x60;didLoad&#x60; event.
+  registerWaitingRecordArray: function(record, array) {
+    var loadingRecordArrays = record._loadingRecordArrays || [];
+    loadingRecordArrays.push(array);
+    record._loadingRecordArrays = loadingRecordArrays;
+  },
+
+  willDestroy: function(){
+    this._super();
+
+    forEach(flatten(values(this.filteredRecordArrays.values)), destroy);
+    forEach(this._adapterPopulatedRecordArrays, destroy);
+  }
+});
+
+function values(obj) {
+  var result = [];
+  var keys = Ember.keys(obj);
+
+  for (var i = 0; i &lt; keys.length; i++) {
+    result.push(obj[keys[i]]);
+  }
+
+  return result;
+}
+
+function destroy(entry) {
+  entry.destroy();
+}
+
+function flatten(list) {
+  var length = list.length;
+  var result = Ember.A();
+
+  for (var i = 0; i &lt; length; i++) {
+    result = result.concat(list[i]);
+  }
+
+  return result;
+}
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

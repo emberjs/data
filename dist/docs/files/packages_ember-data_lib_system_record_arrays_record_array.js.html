@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>packages/ember-data/lib/system/record_arrays/record_array.js</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title=""></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/DS.html">DS</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelAdapter.html">DS.ActiveModelAdapter</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelSerializer.html">DS.ActiveModelSerializer</a></li>
+            
+                <li><a href="../classes/DS.Adapter.html">DS.Adapter</a></li>
+            
+                <li><a href="../classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a></li>
+            
+                <li><a href="../classes/DS.BooleanTransform.html">DS.BooleanTransform</a></li>
+            
+                <li><a href="../classes/DS.ContainerProxy.html">DS.ContainerProxy</a></li>
+            
+                <li><a href="../classes/DS.DateTransform.html">DS.DateTransform</a></li>
+            
+                <li><a href="../classes/DS.DebugAdapter.html">DS.DebugAdapter</a></li>
+            
+                <li><a href="../classes/DS.EmbeddedRecordsMixin.html">DS.EmbeddedRecordsMixin</a></li>
+            
+                <li><a href="../classes/DS.Errors.html">DS.Errors</a></li>
+            
+                <li><a href="../classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a></li>
+            
+                <li><a href="../classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a></li>
+            
+                <li><a href="../classes/DS.InvalidError.html">DS.InvalidError</a></li>
+            
+                <li><a href="../classes/DS.JSONSerializer.html">DS.JSONSerializer</a></li>
+            
+                <li><a href="../classes/DS.ManyArray.html">DS.ManyArray</a></li>
+            
+                <li><a href="../classes/DS.Model.html">DS.Model</a></li>
+            
+                <li><a href="../classes/DS.NumberTransform.html">DS.NumberTransform</a></li>
+            
+                <li><a href="../classes/DS.PromiseArray.html">DS.PromiseArray</a></li>
+            
+                <li><a href="../classes/DS.PromiseObject.html">DS.PromiseObject</a></li>
+            
+                <li><a href="../classes/DS.RecordArray.html">DS.RecordArray</a></li>
+            
+                <li><a href="../classes/DS.RecordArrayManager.html">DS.RecordArrayManager</a></li>
+            
+                <li><a href="../classes/DS.RESTAdapter.html">DS.RESTAdapter</a></li>
+            
+                <li><a href="../classes/DS.RESTSerializer.html">DS.RESTSerializer</a></li>
+            
+                <li><a href="../classes/DS.RootState.html">DS.RootState</a></li>
+            
+                <li><a href="../classes/DS.Store.html">DS.Store</a></li>
+            
+                <li><a href="../classes/DS.StringTransform.html">DS.StringTransform</a></li>
+            
+                <li><a href="../classes/DS.Transform.html">DS.Transform</a></li>
+            
+                <li><a href="../classes/Ember.Date.html">Ember.Date</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/ember-data.html">ember-data</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: packages/ember-data/lib/system/record_arrays/record_array.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+/**
+  @module ember-data
+*/
+
+import { PromiseArray } from &quot;ember-data/system/promise_proxies&quot;;
+var get = Ember.get;
+
+/**
+  A record array is an array that contains records of a certain type. The record
+  array materializes records as needed when they are retrieved for the first
+  time. You should not create record arrays yourself. Instead, an instance of
+  &#x60;DS.RecordArray&#x60; or its subclasses will be returned by your application&#x27;s store
+  in response to queries.
+
+  @class RecordArray
+  @namespace DS
+  @extends Ember.ArrayProxy
+  @uses Ember.Evented
+*/
+
+export default Ember.ArrayProxy.extend(Ember.Evented, {
+  /**
+    The model type contained by this record array.
+
+    @property type
+    @type DS.Model
+  */
+  type: null,
+
+  /**
+    The array of client ids backing the record array. When a
+    record is requested from the record array, the record
+    for the client id at the same index is materialized, if
+    necessary, by the store.
+
+    @property content
+    @private
+    @type Ember.Array
+  */
+  content: null,
+
+  /**
+    The flag to signal a &#x60;RecordArray&#x60; is currently loading data.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    var people = store.all(&#x27;person&#x27;);
+    people.get(&#x27;isLoaded&#x27;); // true
+    &#x60;&#x60;&#x60;
+
+    @property isLoaded
+    @type Boolean
+  */
+  isLoaded: false,
+  /**
+    The flag to signal a &#x60;RecordArray&#x60; is currently loading data.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    var people = store.all(&#x27;person&#x27;);
+    people.get(&#x27;isUpdating&#x27;); // false
+    people.update();
+    people.get(&#x27;isUpdating&#x27;); // true
+    &#x60;&#x60;&#x60;
+
+    @property isUpdating
+    @type Boolean
+  */
+  isUpdating: false,
+
+  /**
+    The store that created this record array.
+
+    @property store
+    @private
+    @type DS.Store
+  */
+  store: null,
+
+  /**
+    Retrieves an object from the content by index.
+
+    @method objectAtContent
+    @private
+    @param {Number} index
+    @return {DS.Model} record
+  */
+  objectAtContent: function(index) {
+    var content = get(this, &#x27;content&#x27;);
+
+    return content.objectAt(index);
+  },
+
+  /**
+    Used to get the latest version of all of the records in this array
+    from the adapter.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    var people = store.all(&#x27;person&#x27;);
+    people.get(&#x27;isUpdating&#x27;); // false
+    people.update();
+    people.get(&#x27;isUpdating&#x27;); // true
+    &#x60;&#x60;&#x60;
+
+    @method update
+  */
+  update: function() {
+    if (get(this, &#x27;isUpdating&#x27;)) { return; }
+
+    var store = get(this, &#x27;store&#x27;);
+    var type = get(this, &#x27;type&#x27;);
+
+    return store.fetchAll(type, this);
+  },
+
+  /**
+    Adds a record to the &#x60;RecordArray&#x60; without duplicates
+
+    @method addRecord
+    @private
+    @param {DS.Model} record
+    @param {DS.Model} an optional index to insert at
+  */
+  addRecord: function(record, idx) {
+    var content = get(this, &#x27;content&#x27;);
+    if (idx === undefined) {
+      content.addObject(record);
+    } else {
+      if (!content.contains(record)) {
+       content.insertAt(idx, record);
+      }
+    }
+  },
+
+  /**
+    Adds a record to the &#x60;RecordArray&#x60;, but allows duplicates
+
+    @method pushRecord
+    @private
+    @param {DS.Model} record
+  */
+  pushRecord: function(record) {
+    get(this, &#x27;content&#x27;).pushObject(record);
+  },
+
+
+  /**
+    Removes a record to the &#x60;RecordArray&#x60;.
+
+    @method removeRecord
+    @private
+    @param {DS.Model} record
+  */
+  removeRecord: function(record) {
+    get(this, &#x27;content&#x27;).removeObject(record);
+  },
+
+  /**
+    Saves all of the records in the &#x60;RecordArray&#x60;.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    var messages = store.all(&#x27;message&#x27;);
+    messages.forEach(function(message) {
+      message.set(&#x27;hasBeenSeen&#x27;, true);
+    });
+    messages.save();
+    &#x60;&#x60;&#x60;
+
+    @method save
+    @return {DS.PromiseArray} promise
+  */
+  save: function() {
+    var promiseLabel = &quot;DS: RecordArray#save &quot; + get(this, &#x27;type&#x27;);
+    var promise = Ember.RSVP.all(this.invoke(&quot;save&quot;), promiseLabel).then(function(array) {
+      return Ember.A(array);
+    }, null, &quot;DS: RecordArray#save apply Ember.NativeArray&quot;);
+
+    return PromiseArray.create({ promise: promise });
+  },
+
+  _dissociateFromOwnRecords: function() {
+    var array = this;
+
+    this.forEach(function(record){
+      var recordArrays = record._recordArrays;
+
+      if (recordArrays) {
+        recordArrays.delete(array);
+      }
+    });
+  },
+
+  willDestroy: function(){
+    this._dissociateFromOwnRecords();
+    this._super();
+  }
+});
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

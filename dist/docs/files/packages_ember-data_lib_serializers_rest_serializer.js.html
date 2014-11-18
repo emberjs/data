@@ -1,0 +1,920 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>packages/ember-data/lib/serializers/rest_serializer.js</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title=""></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/DS.html">DS</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelAdapter.html">DS.ActiveModelAdapter</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelSerializer.html">DS.ActiveModelSerializer</a></li>
+            
+                <li><a href="../classes/DS.Adapter.html">DS.Adapter</a></li>
+            
+                <li><a href="../classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a></li>
+            
+                <li><a href="../classes/DS.BooleanTransform.html">DS.BooleanTransform</a></li>
+            
+                <li><a href="../classes/DS.ContainerProxy.html">DS.ContainerProxy</a></li>
+            
+                <li><a href="../classes/DS.DateTransform.html">DS.DateTransform</a></li>
+            
+                <li><a href="../classes/DS.DebugAdapter.html">DS.DebugAdapter</a></li>
+            
+                <li><a href="../classes/DS.EmbeddedRecordsMixin.html">DS.EmbeddedRecordsMixin</a></li>
+            
+                <li><a href="../classes/DS.Errors.html">DS.Errors</a></li>
+            
+                <li><a href="../classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a></li>
+            
+                <li><a href="../classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a></li>
+            
+                <li><a href="../classes/DS.InvalidError.html">DS.InvalidError</a></li>
+            
+                <li><a href="../classes/DS.JSONSerializer.html">DS.JSONSerializer</a></li>
+            
+                <li><a href="../classes/DS.ManyArray.html">DS.ManyArray</a></li>
+            
+                <li><a href="../classes/DS.Model.html">DS.Model</a></li>
+            
+                <li><a href="../classes/DS.NumberTransform.html">DS.NumberTransform</a></li>
+            
+                <li><a href="../classes/DS.PromiseArray.html">DS.PromiseArray</a></li>
+            
+                <li><a href="../classes/DS.PromiseObject.html">DS.PromiseObject</a></li>
+            
+                <li><a href="../classes/DS.RecordArray.html">DS.RecordArray</a></li>
+            
+                <li><a href="../classes/DS.RecordArrayManager.html">DS.RecordArrayManager</a></li>
+            
+                <li><a href="../classes/DS.RESTAdapter.html">DS.RESTAdapter</a></li>
+            
+                <li><a href="../classes/DS.RESTSerializer.html">DS.RESTSerializer</a></li>
+            
+                <li><a href="../classes/DS.RootState.html">DS.RootState</a></li>
+            
+                <li><a href="../classes/DS.Store.html">DS.Store</a></li>
+            
+                <li><a href="../classes/DS.StringTransform.html">DS.StringTransform</a></li>
+            
+                <li><a href="../classes/DS.Transform.html">DS.Transform</a></li>
+            
+                <li><a href="../classes/Ember.Date.html">Ember.Date</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/ember-data.html">ember-data</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: packages/ember-data/lib/serializers/rest_serializer.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+/**
+  @module ember-data
+*/
+
+import JSONSerializer from &quot;ember-data/serializers/json_serializer&quot;;
+var get = Ember.get;
+var forEach = Ember.ArrayPolyfills.forEach;
+var map = Ember.ArrayPolyfills.map;
+var camelize = Ember.String.camelize;
+
+import { singularize } from &quot;ember-inflector/system/string&quot;;
+
+function coerceId(id) {
+  return id == null ? null : id + &#x27;&#x27;;
+}
+
+/**
+  Normally, applications will use the &#x60;RESTSerializer&#x60; by implementing
+  the &#x60;normalize&#x60; method and individual normalizations under
+  &#x60;normalizeHash&#x60;.
+
+  This allows you to do whatever kind of munging you need, and is
+  especially useful if your server is inconsistent and you need to
+  do munging differently for many different kinds of responses.
+
+  See the &#x60;normalize&#x60; documentation for more information.
+
+  ## Across the Board Normalization
+
+  There are also a number of hooks that you might find useful to define
+  across-the-board rules for your payload. These rules will be useful
+  if your server is consistent, or if you&#x27;re building an adapter for
+  an infrastructure service, like Parse, and want to encode service
+  conventions.
+
+  For example, if all of your keys are underscored and all-caps, but
+  otherwise consistent with the names you use in your models, you
+  can implement across-the-board rules for how to convert an attribute
+  name in your model to a key in your JSON.
+
+  &#x60;&#x60;&#x60;js
+  App.ApplicationSerializer = DS.RESTSerializer.extend({
+    keyForAttribute: function(attr) {
+      return Ember.String.underscore(attr).toUpperCase();
+    }
+  });
+  &#x60;&#x60;&#x60;
+
+  You can also implement &#x60;keyForRelationship&#x60;, which takes the name
+  of the relationship as the first parameter, and the kind of
+  relationship (&#x60;hasMany&#x60; or &#x60;belongsTo&#x60;) as the second parameter.
+
+  @class RESTSerializer
+  @namespace DS
+  @extends DS.JSONSerializer
+*/
+var RESTSerializer = JSONSerializer.extend({
+  /**
+    If you want to do normalizations specific to some part of the payload, you
+    can specify those under &#x60;normalizeHash&#x60;.
+
+    For example, given the following json where the the &#x60;IDs&#x60; under
+    &#x60;&quot;comments&quot;&#x60; are provided as &#x60;_id&#x60; instead of &#x60;id&#x60;.
+
+    &#x60;&#x60;&#x60;javascript
+    {
+      &quot;post&quot;: {
+        &quot;id&quot;: 1,
+        &quot;title&quot;: &quot;Rails is omakase&quot;,
+        &quot;comments&quot;: [ 1, 2 ]
+      },
+      &quot;comments&quot;: [{
+        &quot;_id&quot;: 1,
+        &quot;body&quot;: &quot;FIRST&quot;
+      }, {
+        &quot;_id&quot;: 2,
+        &quot;body&quot;: &quot;Rails is unagi&quot;
+      }]
+    }
+    &#x60;&#x60;&#x60;
+
+    You use &#x60;normalizeHash&#x60; to normalize just the comments:
+
+    &#x60;&#x60;&#x60;javascript
+    App.PostSerializer = DS.RESTSerializer.extend({
+      normalizeHash: {
+        comments: function(hash) {
+          hash.id = hash._id;
+          delete hash._id;
+          return hash;
+        }
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    The key under &#x60;normalizeHash&#x60; is usually just the original key
+    that was in the original payload. However, key names will be
+    impacted by any modifications done in the &#x60;normalizePayload&#x60;
+    method. The &#x60;DS.RESTSerializer&#x60;&#x27;s default implementation makes no
+    changes to the payload keys.
+
+    @property normalizeHash
+    @type {Object}
+    @default undefined
+  */
+
+  /**
+    Normalizes a part of the JSON payload returned by
+    the server. You should override this method, munge the hash
+    and call super if you have generic normalization to do.
+
+    It takes the type of the record that is being normalized
+    (as a DS.Model class), the property where the hash was
+    originally found, and the hash to normalize.
+
+    For example, if you have a payload that looks like this:
+
+    &#x60;&#x60;&#x60;js
+    {
+      &quot;post&quot;: {
+        &quot;id&quot;: 1,
+        &quot;title&quot;: &quot;Rails is omakase&quot;,
+        &quot;comments&quot;: [ 1, 2 ]
+      },
+      &quot;comments&quot;: [{
+        &quot;id&quot;: 1,
+        &quot;body&quot;: &quot;FIRST&quot;
+      }, {
+        &quot;id&quot;: 2,
+        &quot;body&quot;: &quot;Rails is unagi&quot;
+      }]
+    }
+    &#x60;&#x60;&#x60;
+
+    The &#x60;normalize&#x60; method will be called three times:
+
+    * With &#x60;App.Post&#x60;, &#x60;&quot;posts&quot;&#x60; and &#x60;{ id: 1, title: &quot;Rails is omakase&quot;, ... }&#x60;
+    * With &#x60;App.Comment&#x60;, &#x60;&quot;comments&quot;&#x60; and &#x60;{ id: 1, body: &quot;FIRST&quot; }&#x60;
+    * With &#x60;App.Comment&#x60;, &#x60;&quot;comments&quot;&#x60; and &#x60;{ id: 2, body: &quot;Rails is unagi&quot; }&#x60;
+
+    You can use this method, for example, to normalize underscored keys to camelized
+    or other general-purpose normalizations.
+
+    If you want to do normalizations specific to some part of the payload, you
+    can specify those under &#x60;normalizeHash&#x60;.
+
+    For example, if the &#x60;IDs&#x60; under &#x60;&quot;comments&quot;&#x60; are provided as &#x60;_id&#x60; instead of
+    &#x60;id&#x60;, you can specify how to normalize just the comments:
+
+    &#x60;&#x60;&#x60;js
+    App.PostSerializer = DS.RESTSerializer.extend({
+      normalizeHash: {
+        comments: function(hash) {
+          hash.id = hash._id;
+          delete hash._id;
+          return hash;
+        }
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    The key under &#x60;normalizeHash&#x60; is just the original key that was in the original
+    payload.
+
+    @method normalize
+    @param {subclass of DS.Model} type
+    @param {Object} hash
+    @param {String} prop
+    @return {Object}
+  */
+  normalize: function(type, hash, prop) {
+    this.normalizeId(hash);
+    this.normalizeAttributes(type, hash);
+    this.normalizeRelationships(type, hash);
+
+    this.normalizeUsingDeclaredMapping(type, hash);
+
+    if (this.normalizeHash &amp;&amp; this.normalizeHash[prop]) {
+      this.normalizeHash[prop](hash);
+    }
+
+    this.applyTransforms(type, hash);
+    return hash;
+  },
+
+
+  /**
+    Called when the server has returned a payload representing
+    a single record, such as in response to a &#x60;find&#x60; or &#x60;save&#x60;.
+
+    It is your opportunity to clean up the server&#x27;s response into the normalized
+    form expected by Ember Data.
+
+    If you want, you can just restructure the top-level of your payload, and
+    do more fine-grained normalization in the &#x60;normalize&#x60; method.
+
+    For example, if you have a payload like this in response to a request for
+    post 1:
+
+    &#x60;&#x60;&#x60;js
+    {
+      &quot;id&quot;: 1,
+      &quot;title&quot;: &quot;Rails is omakase&quot;,
+
+      &quot;_embedded&quot;: {
+        &quot;comment&quot;: [{
+          &quot;_id&quot;: 1,
+          &quot;comment_title&quot;: &quot;FIRST&quot;
+        }, {
+          &quot;_id&quot;: 2,
+          &quot;comment_title&quot;: &quot;Rails is unagi&quot;
+        }]
+      }
+    }
+    &#x60;&#x60;&#x60;
+
+    You could implement a serializer that looks like this to get your payload
+    into shape:
+
+    &#x60;&#x60;&#x60;js
+    App.PostSerializer = DS.RESTSerializer.extend({
+      // First, restructure the top-level so it&#x27;s organized by type
+      extractSingle: function(store, type, payload, id) {
+        var comments = payload._embedded.comment;
+        delete payload._embedded;
+
+        payload = { comments: comments, post: payload };
+        return this._super(store, type, payload, id);
+      },
+
+      normalizeHash: {
+        // Next, normalize individual comments, which (after &#x60;extract&#x60;)
+        // are now located under &#x60;comments&#x60;
+        comments: function(hash) {
+          hash.id = hash._id;
+          hash.title = hash.comment_title;
+          delete hash._id;
+          delete hash.comment_title;
+          return hash;
+        }
+      }
+    })
+    &#x60;&#x60;&#x60;
+
+    When you call super from your own implementation of &#x60;extractSingle&#x60;, the
+    built-in implementation will find the primary record in your normalized
+    payload and push the remaining records into the store.
+
+    The primary record is the single hash found under &#x60;post&#x60; or the first
+    element of the &#x60;posts&#x60; array.
+
+    The primary record has special meaning when the record is being created
+    for the first time or updated (&#x60;createRecord&#x60; or &#x60;updateRecord&#x60;). In
+    particular, it will update the properties of the record that was saved.
+
+    @method extractSingle
+    @param {DS.Store} store
+    @param {subclass of DS.Model} primaryType
+    @param {Object} payload
+    @param {String} recordId
+    @return {Object} the primary response to the original request
+  */
+  extractSingle: function(store, primaryType, rawPayload, recordId) {
+    var payload = this.normalizePayload(rawPayload);
+    var primaryTypeName = primaryType.typeKey;
+    var primaryRecord;
+
+    for (var prop in payload) {
+      var typeName  = this.typeForRoot(prop);
+      if (!store.modelFactoryFor(typeName)){
+        Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
+        continue;
+      }
+      var type = store.modelFor(typeName);
+      var isPrimary = type.typeKey === primaryTypeName;
+      var value = payload[prop];
+
+      // legacy support for singular resources
+      if (isPrimary &amp;&amp; Ember.typeOf(value) !== &quot;array&quot; ) {
+        primaryRecord = this.normalize(primaryType, value, prop);
+        continue;
+      }
+
+      /*jshint loopfunc:true*/
+      forEach.call(value, function(hash) {
+        var typeName = this.typeForRoot(prop);
+        var type = store.modelFor(typeName);
+        var typeSerializer = store.serializerFor(type);
+
+        hash = typeSerializer.normalize(type, hash, prop);
+
+        var isFirstCreatedRecord = isPrimary &amp;&amp; !recordId &amp;&amp; !primaryRecord;
+        var isUpdatedRecord = isPrimary &amp;&amp; coerceId(hash.id) === recordId;
+
+        // find the primary record.
+        //
+        // It&#x27;s either:
+        // * the record with the same ID as the original request
+        // * in the case of a newly created record that didn&#x27;t have an ID, the first
+        //   record in the Array
+        if (isFirstCreatedRecord || isUpdatedRecord) {
+          primaryRecord = hash;
+        } else {
+          store.push(typeName, hash);
+        }
+      }, this);
+    }
+
+    return primaryRecord;
+  },
+
+  /**
+    Called when the server has returned a payload representing
+    multiple records, such as in response to a &#x60;findAll&#x60; or &#x60;findQuery&#x60;.
+
+    It is your opportunity to clean up the server&#x27;s response into the normalized
+    form expected by Ember Data.
+
+    If you want, you can just restructure the top-level of your payload, and
+    do more fine-grained normalization in the &#x60;normalize&#x60; method.
+
+    For example, if you have a payload like this in response to a request for
+    all posts:
+
+    &#x60;&#x60;&#x60;js
+    {
+      &quot;_embedded&quot;: {
+        &quot;post&quot;: [{
+          &quot;id&quot;: 1,
+          &quot;title&quot;: &quot;Rails is omakase&quot;
+        }, {
+          &quot;id&quot;: 2,
+          &quot;title&quot;: &quot;The Parley Letter&quot;
+        }],
+        &quot;comment&quot;: [{
+          &quot;_id&quot;: 1,
+          &quot;comment_title&quot;: &quot;Rails is unagi&quot;
+          &quot;post_id&quot;: 1
+        }, {
+          &quot;_id&quot;: 2,
+          &quot;comment_title&quot;: &quot;Don&#x27;t tread on me&quot;,
+          &quot;post_id&quot;: 2
+        }]
+      }
+    }
+    &#x60;&#x60;&#x60;
+
+    You could implement a serializer that looks like this to get your payload
+    into shape:
+
+    &#x60;&#x60;&#x60;js
+    App.PostSerializer = DS.RESTSerializer.extend({
+      // First, restructure the top-level so it&#x27;s organized by type
+      // and the comments are listed under a post&#x27;s &#x60;comments&#x60; key.
+      extractArray: function(store, type, payload) {
+        var posts = payload._embedded.post;
+        var comments = [];
+        var postCache = {};
+
+        posts.forEach(function(post) {
+          post.comments = [];
+          postCache[post.id] = post;
+        });
+
+        payload._embedded.comment.forEach(function(comment) {
+          comments.push(comment);
+          postCache[comment.post_id].comments.push(comment);
+          delete comment.post_id;
+        });
+
+        payload = { comments: comments, posts: payload };
+
+        return this._super(store, type, payload);
+      },
+
+      normalizeHash: {
+        // Next, normalize individual comments, which (after &#x60;extract&#x60;)
+        // are now located under &#x60;comments&#x60;
+        comments: function(hash) {
+          hash.id = hash._id;
+          hash.title = hash.comment_title;
+          delete hash._id;
+          delete hash.comment_title;
+          return hash;
+        }
+      }
+    })
+    &#x60;&#x60;&#x60;
+
+    When you call super from your own implementation of &#x60;extractArray&#x60;, the
+    built-in implementation will find the primary array in your normalized
+    payload and push the remaining records into the store.
+
+    The primary array is the array found under &#x60;posts&#x60;.
+
+    The primary record has special meaning when responding to &#x60;findQuery&#x60;
+    or &#x60;findHasMany&#x60;. In particular, the primary array will become the
+    list of records in the record array that kicked off the request.
+
+    If your primary array contains secondary (embedded) records of the same type,
+    you cannot place these into the primary array &#x60;posts&#x60;. Instead, place the
+    secondary items into an underscore prefixed property &#x60;_posts&#x60;, which will
+    push these items into the store and will not affect the resulting query.
+
+    @method extractArray
+    @param {DS.Store} store
+    @param {subclass of DS.Model} primaryType
+    @param {Object} payload
+    @return {Array} The primary array that was returned in response
+      to the original query.
+  */
+  extractArray: function(store, primaryType, rawPayload) {
+    var payload = this.normalizePayload(rawPayload);
+    var primaryTypeName = primaryType.typeKey;
+    var primaryArray;
+
+    for (var prop in payload) {
+      var typeKey = prop;
+      var forcedSecondary = false;
+
+      if (prop.charAt(0) === &#x27;_&#x27;) {
+        forcedSecondary = true;
+        typeKey = prop.substr(1);
+      }
+
+      var typeName = this.typeForRoot(typeKey);
+      if (!store.modelFactoryFor(typeName)) {
+        Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
+        continue;
+      }
+      var type = store.modelFor(typeName);
+      var typeSerializer = store.serializerFor(type);
+      var isPrimary = (!forcedSecondary &amp;&amp; (type.typeKey === primaryTypeName));
+
+      /*jshint loopfunc:true*/
+      var normalizedArray = map.call(payload[prop], function(hash) {
+        return typeSerializer.normalize(type, hash, prop);
+      }, this);
+
+      if (isPrimary) {
+        primaryArray = normalizedArray;
+      } else {
+        store.pushMany(typeName, normalizedArray);
+      }
+    }
+
+    return primaryArray;
+  },
+
+  /**
+    This method allows you to push a payload containing top-level
+    collections of records organized per type.
+
+    &#x60;&#x60;&#x60;js
+    {
+      &quot;posts&quot;: [{
+        &quot;id&quot;: &quot;1&quot;,
+        &quot;title&quot;: &quot;Rails is omakase&quot;,
+        &quot;author&quot;, &quot;1&quot;,
+        &quot;comments&quot;: [ &quot;1&quot; ]
+      }],
+      &quot;comments&quot;: [{
+        &quot;id&quot;: &quot;1&quot;,
+        &quot;body&quot;: &quot;FIRST&quot;
+      }],
+      &quot;users&quot;: [{
+        &quot;id&quot;: &quot;1&quot;,
+        &quot;name&quot;: &quot;@d2h&quot;
+      }]
+    }
+    &#x60;&#x60;&#x60;
+
+    It will first normalize the payload, so you can use this to push
+    in data streaming in from your server structured the same way
+    that fetches and saves are structured.
+
+    @method pushPayload
+    @param {DS.Store} store
+    @param {Object} payload
+  */
+  pushPayload: function(store, rawPayload) {
+    var payload = this.normalizePayload(rawPayload);
+
+    for (var prop in payload) {
+      var typeName = this.typeForRoot(prop);
+      if (!store.modelFactoryFor(typeName, prop)){
+        Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
+        continue;
+      }
+      var type = store.modelFor(typeName);
+      var typeSerializer = store.serializerFor(type);
+
+      /*jshint loopfunc:true*/
+      var normalizedArray = map.call(Ember.makeArray(payload[prop]), function(hash) {
+        return typeSerializer.normalize(type, hash, prop);
+      }, this);
+
+      store.pushMany(typeName, normalizedArray);
+    }
+  },
+
+  /**
+    This method is used to convert each JSON root key in the payload
+    into a typeKey that it can use to look up the appropriate model for
+    that part of the payload. By default the typeKey for a model is its
+    name in camelCase, so if your JSON root key is &#x27;fast-car&#x27; you would
+    use typeForRoot to convert it to &#x27;fastCar&#x27; so that Ember Data finds
+    the &#x60;FastCar&#x60; model.
+
+    If you diverge from this norm you should also consider changes to
+    store._normalizeTypeKey as well.
+
+    For example, your server may return prefixed root keys like so:
+
+    &#x60;&#x60;&#x60;js
+    {
+      &quot;response-fast-car&quot;: {
+        &quot;id&quot;: &quot;1&quot;,
+        &quot;name&quot;: &quot;corvette&quot;
+      }
+    }
+    &#x60;&#x60;&#x60;
+
+    In order for Ember Data to know that the model corresponding to
+    the &#x27;response-fast-car&#x27; hash is &#x60;FastCar&#x60; (typeKey: &#x27;fastCar&#x27;),
+    you can override typeForRoot to convert &#x27;response-fast-car&#x27; to
+    &#x27;fastCar&#x27; like so:
+
+    &#x60;&#x60;&#x60;js
+    App.ApplicationSerializer = DS.RESTSerializer.extend({
+      typeForRoot: function(root) {
+        // &#x27;response-fast-car&#x27; should become &#x27;fast-car&#x27;
+        var subRoot = root.substring(9);
+
+        // _super normalizes &#x27;fast-car&#x27; to &#x27;fastCar&#x27;
+        return this._super(subRoot);
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method typeForRoot
+    @param {String} key
+    @return {String} the model&#x27;s typeKey
+  */
+  typeForRoot: function(key) {
+    return camelize(singularize(key));
+  },
+
+  // SERIALIZE
+
+  /**
+    Called when a record is saved in order to convert the
+    record into JSON.
+
+    By default, it creates a JSON object with a key for
+    each attribute and belongsTo relationship.
+
+    For example, consider this model:
+
+    &#x60;&#x60;&#x60;js
+    App.Comment = DS.Model.extend({
+      title: DS.attr(),
+      body: DS.attr(),
+
+      author: DS.belongsTo(&#x27;user&#x27;)
+    });
+    &#x60;&#x60;&#x60;
+
+    The default serialization would create a JSON object like:
+
+    &#x60;&#x60;&#x60;js
+    {
+      &quot;title&quot;: &quot;Rails is unagi&quot;,
+      &quot;body&quot;: &quot;Rails? Omakase? O_O&quot;,
+      &quot;author&quot;: 12
+    }
+    &#x60;&#x60;&#x60;
+
+    By default, attributes are passed through as-is, unless
+    you specified an attribute type (&#x60;DS.attr(&#x27;date&#x27;)&#x60;). If
+    you specify a transform, the JavaScript value will be
+    serialized when inserted into the JSON hash.
+
+    By default, belongs-to relationships are converted into
+    IDs when inserted into the JSON hash.
+
+    ## IDs
+
+    &#x60;serialize&#x60; takes an options hash with a single option:
+    &#x60;includeId&#x60;. If this option is &#x60;true&#x60;, &#x60;serialize&#x60; will,
+    by default include the ID in the JSON object it builds.
+
+    The adapter passes in &#x60;includeId: true&#x60; when serializing
+    a record for &#x60;createRecord&#x60;, but not for &#x60;updateRecord&#x60;.
+
+    ## Customization
+
+    Your server may expect a different JSON format than the
+    built-in serialization format.
+
+    In that case, you can implement &#x60;serialize&#x60; yourself and
+    return a JSON hash of your choosing.
+
+    &#x60;&#x60;&#x60;js
+    App.PostSerializer = DS.RESTSerializer.extend({
+      serialize: function(post, options) {
+        var json = {
+          POST_TTL: post.get(&#x27;title&#x27;),
+          POST_BDY: post.get(&#x27;body&#x27;),
+          POST_CMS: post.get(&#x27;comments&#x27;).mapBy(&#x27;id&#x27;)
+        }
+
+        if (options.includeId) {
+          json.POST_ID_ = post.get(&#x27;id&#x27;);
+        }
+
+        return json;
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    ## Customizing an App-Wide Serializer
+
+    If you want to define a serializer for your entire
+    application, you&#x27;ll probably want to use &#x60;eachAttribute&#x60;
+    and &#x60;eachRelationship&#x60; on the record.
+
+    &#x60;&#x60;&#x60;js
+    App.ApplicationSerializer = DS.RESTSerializer.extend({
+      serialize: function(record, options) {
+        var json = {};
+
+        record.eachAttribute(function(name) {
+          json[serverAttributeName(name)] = record.get(name);
+        })
+
+        record.eachRelationship(function(name, relationship) {
+          if (relationship.kind === &#x27;hasMany&#x27;) {
+            json[serverHasManyName(name)] = record.get(name).mapBy(&#x27;id&#x27;);
+          }
+        });
+
+        if (options.includeId) {
+          json.ID_ = record.get(&#x27;id&#x27;);
+        }
+
+        return json;
+      }
+    });
+
+    function serverAttributeName(attribute) {
+      return attribute.underscore().toUpperCase();
+    }
+
+    function serverHasManyName(name) {
+      return serverAttributeName(name.singularize()) + &quot;_IDS&quot;;
+    }
+    &#x60;&#x60;&#x60;
+
+    This serializer will generate JSON that looks like this:
+
+    &#x60;&#x60;&#x60;js
+    {
+      &quot;TITLE&quot;: &quot;Rails is omakase&quot;,
+      &quot;BODY&quot;: &quot;Yep. Omakase.&quot;,
+      &quot;COMMENT_IDS&quot;: [ 1, 2, 3 ]
+    }
+    &#x60;&#x60;&#x60;
+
+    ## Tweaking the Default JSON
+
+    If you just want to do some small tweaks on the default JSON,
+    you can call super first and make the tweaks on the returned
+    JSON.
+
+    &#x60;&#x60;&#x60;js
+    App.PostSerializer = DS.RESTSerializer.extend({
+      serialize: function(record, options) {
+        var json = this._super(record, options);
+
+        json.subject = json.title;
+        delete json.title;
+
+        return json;
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method serialize
+    @param {subclass of DS.Model} record
+    @param {Object} options
+    @return {Object} json
+  */
+  serialize: function(record, options) {
+    return this._super.apply(this, arguments);
+  },
+
+  /**
+    You can use this method to customize the root keys serialized into the JSON.
+    By default the REST Serializer sends the typeKey of a model, which is a camelized
+    version of the name.
+
+    For example, your server may expect underscored root objects.
+
+    &#x60;&#x60;&#x60;js
+    App.ApplicationSerializer = DS.RESTSerializer.extend({
+      serializeIntoHash: function(data, type, record, options) {
+        var root = Ember.String.decamelize(type.typeKey);
+        data[root] = this.serialize(record, options);
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method serializeIntoHash
+    @param {Object} hash
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @param {Object} options
+  */
+  serializeIntoHash: function(hash, type, record, options) {
+    hash[type.typeKey] = this.serialize(record, options);
+  },
+
+  /**
+    You can use this method to customize how polymorphic objects are serialized.
+    By default the JSON Serializer creates the key by appending &#x60;Type&#x60; to
+    the attribute and value from the model&#x27;s camelcased model name.
+
+    @method serializePolymorphicType
+    @param {DS.Model} record
+    @param {Object} json
+    @param {Object} relationship
+  */
+  serializePolymorphicType: function(record, json, relationship) {
+    var key = relationship.key;
+    var belongsTo = get(record, key);
+    key = this.keyForAttribute ? this.keyForAttribute(key) : key;
+    if (Ember.isNone(belongsTo)) {
+      json[key + &quot;Type&quot;] = null;
+    } else {
+      json[key + &quot;Type&quot;] = Ember.String.camelize(belongsTo.constructor.typeKey);
+    }
+  }
+});
+
+Ember.runInDebug(function(){
+  RESTSerializer.reopen({
+    warnMessageNoModelForKey: function(prop, typeKey){
+      return &#x27;Encountered &quot;&#x27; + prop + &#x27;&quot; in payload, but no model was found for model name &quot;&#x27; + typeKey + &#x27;&quot; (resolved model name using &#x27; + this.constructor.toString() + &#x27;.typeForRoot(&quot;&#x27; + prop + &#x27;&quot;))&#x27;;
+    }
+  });
+});
+
+export default RESTSerializer;
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

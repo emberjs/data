@@ -1,0 +1,3418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>DS.ActiveModelAdapter</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title=""></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/DS.html">DS</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelAdapter.html">DS.ActiveModelAdapter</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelSerializer.html">DS.ActiveModelSerializer</a></li>
+            
+                <li><a href="../classes/DS.Adapter.html">DS.Adapter</a></li>
+            
+                <li><a href="../classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a></li>
+            
+                <li><a href="../classes/DS.BooleanTransform.html">DS.BooleanTransform</a></li>
+            
+                <li><a href="../classes/DS.ContainerProxy.html">DS.ContainerProxy</a></li>
+            
+                <li><a href="../classes/DS.DateTransform.html">DS.DateTransform</a></li>
+            
+                <li><a href="../classes/DS.DebugAdapter.html">DS.DebugAdapter</a></li>
+            
+                <li><a href="../classes/DS.EmbeddedRecordsMixin.html">DS.EmbeddedRecordsMixin</a></li>
+            
+                <li><a href="../classes/DS.Errors.html">DS.Errors</a></li>
+            
+                <li><a href="../classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a></li>
+            
+                <li><a href="../classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a></li>
+            
+                <li><a href="../classes/DS.InvalidError.html">DS.InvalidError</a></li>
+            
+                <li><a href="../classes/DS.JSONSerializer.html">DS.JSONSerializer</a></li>
+            
+                <li><a href="../classes/DS.ManyArray.html">DS.ManyArray</a></li>
+            
+                <li><a href="../classes/DS.Model.html">DS.Model</a></li>
+            
+                <li><a href="../classes/DS.NumberTransform.html">DS.NumberTransform</a></li>
+            
+                <li><a href="../classes/DS.PromiseArray.html">DS.PromiseArray</a></li>
+            
+                <li><a href="../classes/DS.PromiseObject.html">DS.PromiseObject</a></li>
+            
+                <li><a href="../classes/DS.RecordArray.html">DS.RecordArray</a></li>
+            
+                <li><a href="../classes/DS.RecordArrayManager.html">DS.RecordArrayManager</a></li>
+            
+                <li><a href="../classes/DS.RESTAdapter.html">DS.RESTAdapter</a></li>
+            
+                <li><a href="../classes/DS.RESTSerializer.html">DS.RESTSerializer</a></li>
+            
+                <li><a href="../classes/DS.RootState.html">DS.RootState</a></li>
+            
+                <li><a href="../classes/DS.Store.html">DS.Store</a></li>
+            
+                <li><a href="../classes/DS.StringTransform.html">DS.StringTransform</a></li>
+            
+                <li><a href="../classes/DS.Transform.html">DS.Transform</a></li>
+            
+                <li><a href="../classes/Ember.Date.html">Ember.Date</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/ember-data.html">ember-data</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1>DS.ActiveModelAdapter Class</h1>
+<div class="box meta">
+    
+
+    
+        <div class="extends">
+            Extends <a href="../classes/DS.RESTAdapter.html" class="crosslink">DS.RESTAdapter</a>
+        </div>
+    
+
+    
+        <div class="foundat">
+            Defined in: <a href="../files/packages_activemodel-adapter_lib_system_active_model_adapter.js.html#l13"><code>packages&#x2F;activemodel-adapter&#x2F;lib&#x2F;system&#x2F;active_model_adapter.js:13</code></a>
+        </div>
+    
+
+    
+        
+            Module: <a href="../modules/ember-data.html">ember-data</a>
+        
+    
+
+    
+</div>
+
+
+
+<div class="box intro">
+    <p>The ActiveModelAdapter is a subclass of the RESTAdapter designed to integrate
+with a JSON API that uses an underscored naming convention instead of camelCasing.
+It has been designed to work out of the box with the
+<a href="http://github.com/rails-api/active_model_serializers">active_model_serializers</a>
+Ruby gem. This Adapter expects specific settings using ActiveModel::Serializers,
+<code>embed :ids, include: true</code> which sideloads the records.</p>
+<p>This adapter extends the DS.RESTAdapter by making consistent use of the camelization,
+decamelization and pluralization methods to normalize the serialized JSON into a
+format that is compatible with a conventional Rails backend and Ember Data.</p>
+<h2 id="json-structure">JSON Structure</h2>
+<p>The ActiveModelAdapter expects the JSON returned from your server to follow
+the REST adapter conventions substituting underscored keys for camelcased ones.</p>
+<p>Unlike the DS.RESTAdapter, async relationship keys must be the singular form
+of the relationship name, followed by &quot;_id&quot; for DS.belongsTo relationships,
+or &quot;_ids&quot; for DS.hasMany relationships.</p>
+<h3 id="conventional-names">Conventional Names</h3>
+<p>Attribute names in your JSON payload should be the underscored versions of
+the attributes in your Ember.js models.</p>
+<p>For example, if you have a <code>Person</code> model:</p>
+<pre class="code prettyprint"><code class="lang-js">App.FamousPerson = DS.Model.extend({
+  firstName: DS.attr(&#39;string&#39;),
+  lastName: DS.attr(&#39;string&#39;),
+  occupation: DS.attr(&#39;string&#39;)
+});</code></pre>
+<p>The JSON returned should look like this:</p>
+<pre class="code prettyprint"><code class="lang-js">{
+  &quot;famous_person&quot;: {
+    &quot;id&quot;: 1,
+    &quot;first_name&quot;: &quot;Barack&quot;,
+    &quot;last_name&quot;: &quot;Obama&quot;,
+    &quot;occupation&quot;: &quot;President&quot;
+  }
+}</code></pre>
+<p>Let&#39;s imagine that <code>Occupation</code> is just another model:</p>
+<pre class="code prettyprint"><code class="lang-js">App.Person = DS.Model.extend({
+  firstName: DS.attr(&#39;string&#39;),
+  lastName: DS.attr(&#39;string&#39;),
+  occupation: DS.belongsTo(&#39;occupation&#39;)
+});
+
+App.Occupation = DS.Model.extend({
+  name: DS.attr(&#39;string&#39;),
+  salary: DS.attr(&#39;number&#39;),
+  people: DS.hasMany(&#39;person&#39;)
+});</code></pre>
+<p>The JSON needed to avoid extra server calls, should look like this:</p>
+<pre class="code prettyprint"><code class="lang-js">{
+  &quot;people&quot;: [{
+    &quot;id&quot;: 1,
+    &quot;first_name&quot;: &quot;Barack&quot;,
+    &quot;last_name&quot;: &quot;Obama&quot;,
+    &quot;occupation_id&quot;: 1
+  }],
+
+  &quot;occupations&quot;: [{
+    &quot;id&quot;: 1,
+    &quot;name&quot;: &quot;President&quot;,
+    &quot;salary&quot;: 100000,
+    &quot;person_ids&quot;: [1]
+  }]
+}</code></pre>
+
+</div>
+
+
+    <div class="constructor">
+        <h2>Constructor</h2>
+        <div id="method_DS.ActiveModelAdapter" class="method item">
+    <h3 class="name"><code>DS.ActiveModelAdapter</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_activemodel-adapter_lib_system_active_model_adapter.js.html#l13"><code>packages&#x2F;activemodel-adapter&#x2F;lib&#x2F;system&#x2F;active_model_adapter.js:13</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+    </div>
+
+
+<div id="classdocs" class="tabview">
+    <ul class="api-class-tabs">
+        <li class="api-class-tab index"><a href="#index">Index</a></li>
+
+        
+            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+        
+        
+            <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
+        
+        
+        
+    </ul>
+
+    <div>
+        <div id="index" class="api-class-tabpanel index">
+            <h2 class="off-left">Item Index</h2>
+
+            
+                <div class="index-section methods">
+                    <h3>Methods</h3>
+
+                    <ul class="index-list methods extends">
+                        
+                            <li class="index-item method private inherited">
+                                <a href="#method_ajax">ajax</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited">
+                                <a href="#method_ajaxError">ajaxError</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private inherited">
+                                <a href="#method_ajaxOptions">ajaxOptions</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited">
+                                <a href="#method_buildURL">buildURL</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited inherited">
+                                <a href="#method_createRecord">createRecord</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited inherited">
+                                <a href="#method_deleteRecord">deleteRecord</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited inherited">
+                                <a href="#method_find">find</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private inherited inherited">
+                                <a href="#method_findAll">findAll</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited">
+                                <a href="#method_findBelongsTo">findBelongsTo</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited">
+                                <a href="#method_findHasMany">findHasMany</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited inherited">
+                                <a href="#method_findMany">findMany</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private inherited inherited">
+                                <a href="#method_findQuery">findQuery</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited">
+                                <a href="#method_generateIdForRecord">generateIdForRecord</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited inherited">
+                                <a href="#method_groupRecordsForFindMany">groupRecordsForFindMany</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited">
+                                <a href="#method_pathForType">pathForType</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited">
+                                <a href="#method_serialize">serialize</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method inherited inherited">
+                                <a href="#method_updateRecord">updateRecord</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private inherited">
+                                <a href="#method_urlPrefix">urlPrefix</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+                <div class="index-section properties">
+                    <h3>Properties</h3>
+
+                    <ul class="index-list properties extends">
+                        
+                            <li class="index-item property inherited inherited">
+                                <a href="#property_coalesceFindRequests">coalesceFindRequests</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property inherited">
+                                <a href="#property_defaultSerializer">defaultSerializer</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property inherited">
+                                <a href="#property_headers">headers</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property inherited">
+                                <a href="#property_host">host</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property inherited">
+                                <a href="#property_namespace">namespace</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+
+            
+        </div>
+
+        
+            <div id="methods" class="api-class-tabpanel">
+                <h2 class="off-left">Methods</h2>
+
+                
+                    <div id="method_ajax" class="method item private inherited">
+    <h3 class="name"><code>ajax</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>url</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>hash</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Promise</span>
+        </span>
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/DS.RESTAdapter.html#method_ajax">DS.RESTAdapter</a>:
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l768"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:768</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Takes a URL, an HTTP method and a hash of data, and makes an
+HTTP request.</p>
+<p>When the server responds with a payload, Ember Data will call into <code>extractSingle</code>
+or <code>extractArray</code> (depending on whether the original query was for one record or
+many records).</p>
+<p>By default, <code>ajax</code> method has the following behavior:</p>
+<ul>
+<li>It sets the response <code>dataType</code> to <code>&quot;json&quot;</code></li>
+<li>If the HTTP method is not <code>&quot;GET&quot;</code>, it sets the <code>Content-Type</code> to be
+<code>application/json; charset=utf-8</code></li>
+<li>If the HTTP method is not <code>&quot;GET&quot;</code>, it stringifies the data passed in. The
+data is the serialized record in the case of a save.</li>
+<li>Registers success and failure handlers.</li>
+</ul>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">url</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The request type GET, POST, PUT, DELETE etc.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">hash</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Promise</span>:
+                    
+                    <p>promise</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_ajaxError" class="method item">
+    <h3 class="name"><code>ajaxError</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>jqXHR</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type"></span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            <p>Inherited from
+            <a href="../classes/DS.RESTAdapter.html#method_ajaxError">
+                DS.RESTAdapter
+            </a>
+            
+            but overwritten in
+            
+        
+        
+        <a href="../files/packages_activemodel-adapter_lib_system_active_model_adapter.js.html#l125"><code>packages&#x2F;activemodel-adapter&#x2F;lib&#x2F;system&#x2F;active_model_adapter.js:125</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The ActiveModelAdapter overrides the <code>ajaxError</code> method
+to return a DS.InvalidError for all 422 Unprocessable Entity
+responses.</p>
+<p>A 422 HTTP response from the server generally implies that the request
+was well formed but the API was unable to process it because the
+content was not semantically correct or meaningful per the API.</p>
+<p>For more information on 422 HTTP Error code see 11.2 WebDAV RFC 4918
+<a href="https://tools.ietf.org/html/rfc4918#section-11.2">https://tools.ietf.org/html/rfc4918#section-11.2</a></p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">jqXHR</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                    <p>error</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_ajaxOptions" class="method item private inherited">
+    <h3 class="name"><code>ajaxOptions</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>url</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>hash</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/DS.RESTAdapter.html#method_ajaxOptions">DS.RESTAdapter</a>:
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l815"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:815</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">url</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The request type GET, POST, PUT, DELETE etc.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">hash</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Object</span>:
+                    
+                    <p>hash</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_buildURL" class="method item inherited">
+    <h3 class="name"><code>buildURL</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>id</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>record</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">String</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/DS.RESTAdapter.html#method_buildURL">DS.RESTAdapter</a>:
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l516"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:516</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Builds a URL for a given type and optional ID.</p>
+<p>By default, it pluralizes the type&#39;s name (for example, &#39;post&#39;
+becomes &#39;posts&#39; and &#39;person&#39; becomes &#39;people&#39;). To override the
+pluralization see <a href="#method_pathForType">pathForType</a>.</p>
+<p>If an ID is specified, it adds the ID to the path generated
+for the type, separated by a <code>/</code>.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">id</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">record</code>
+                        <span class="type"><a href="../classes/DS.Model.html" class="crosslink">DS.Model</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">String</span>:
+                    
+                    <p>url</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_createRecord" class="method item inherited">
+    <h3 class="name"><code>createRecord</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>store</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>record</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Promise</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            <p>Inherited from
+            <a href="../classes/DS.Adapter.html#method_createRecord">
+                DS.Adapter
+            </a>
+            
+            but overwritten in
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l447"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:447</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Called by the store when a newly created record is
+saved via the <code>save</code> method on a model record instance.</p>
+<p>The <code>createRecord</code> method serializes the record and makes an Ajax (HTTP POST) request
+to a URL computed by <code>buildURL</code>.</p>
+<p>See <code>serialize</code> for information on how to customize the serialized form
+of a record.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">store</code>
+                        <span class="type"><a href="../classes/DS.Store.html" class="crosslink">DS.Store</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">subclass of DS.Model</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">record</code>
+                        <span class="type"><a href="../classes/DS.Model.html" class="crosslink">DS.Model</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Promise</span>:
+                    
+                    <p>promise</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_deleteRecord" class="method item inherited">
+    <h3 class="name"><code>deleteRecord</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>store</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>record</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Promise</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            <p>Inherited from
+            <a href="../classes/DS.Adapter.html#method_deleteRecord">
+                DS.Adapter
+            </a>
+            
+            but overwritten in
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l499"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:499</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Called by the store when a record is deleted.</p>
+<p>The <code>deleteRecord</code> method  makes an Ajax (HTTP DELETE) request to a URL computed by <code>buildURL</code>.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">store</code>
+                        <span class="type"><a href="../classes/DS.Store.html" class="crosslink">DS.Store</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">subclass of DS.Model</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">record</code>
+                        <span class="type"><a href="../classes/DS.Model.html" class="crosslink">DS.Model</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Promise</span>:
+                    
+                    <p>promise</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_find" class="method item inherited">
+    <h3 class="name"><code>find</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>store</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>id</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>record</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Promise</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            <p>Inherited from
+            <a href="../classes/DS.Adapter.html#method_find">
+                DS.Adapter
+            </a>
+            
+            but overwritten in
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l270"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:270</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Called by the store in order to fetch the JSON for a given
+type and ID.</p>
+<p>The <code>find</code> method makes an Ajax request to a URL computed by <code>buildURL</code>, and returns a
+promise for the resulting payload.</p>
+<p>This method performs an HTTP <code>GET</code> request with the id provided as part of the query string.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">store</code>
+                        <span class="type"><a href="../classes/DS.Store.html" class="crosslink">DS.Store</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">subclass of DS.Model</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">id</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">record</code>
+                        <span class="type"><a href="../classes/DS.Model.html" class="crosslink">DS.Model</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Promise</span>:
+                    
+                    <p>promise</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_findAll" class="method item private inherited">
+    <h3 class="name"><code>findAll</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>store</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>sinceToken</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Promise</span>
+        </span>
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            <p>Inherited from
+            <a href="../classes/DS.Adapter.html#method_findAll">
+                DS.Adapter
+            </a>
+            
+            but overwritten in
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l290"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:290</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Called by the store in order to fetch a JSON array for all
+of the records for a given type.</p>
+<p>The <code>findAll</code> method makes an Ajax (HTTP GET) request to a URL computed by <code>buildURL</code>, and returns a
+promise for the resulting payload.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">store</code>
+                        <span class="type"><a href="../classes/DS.Store.html" class="crosslink">DS.Store</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">subclass of DS.Model</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">sinceToken</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Promise</span>:
+                    
+                    <p>promise</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_findBelongsTo" class="method item inherited">
+    <h3 class="name"><code>findBelongsTo</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>store</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>record</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>url</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Promise</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/DS.RESTAdapter.html#method_findBelongsTo">DS.RESTAdapter</a>:
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l413"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:413</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Called by the store in order to fetch a JSON array for
+the unloaded records in a belongs-to relationship that were originally
+specified as a URL (inside of <code>links</code>).</p>
+<p>For example, if your original payload looks like this:</p>
+<pre class="code prettyprint"><code class="lang-js">{
+  &quot;person&quot;: {
+    &quot;id&quot;: 1,
+    &quot;name&quot;: &quot;Tom Dale&quot;,
+    &quot;links&quot;: { &quot;group&quot;: &quot;/people/1/group&quot; }
+  }
+}</code></pre>
+<p>This method will be called with the parent record and <code>/people/1/group</code>.</p>
+<p>The <code>findBelongsTo</code> method will make an Ajax (HTTP GET) request to the originally specified URL.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">store</code>
+                        <span class="type"><a href="../classes/DS.Store.html" class="crosslink">DS.Store</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">record</code>
+                        <span class="type"><a href="../classes/DS.Model.html" class="crosslink">DS.Model</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">url</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Promise</span>:
+                    
+                    <p>promise</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_findHasMany" class="method item inherited">
+    <h3 class="name"><code>findHasMany</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>store</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>record</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>url</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Promise</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/DS.RESTAdapter.html#method_findHasMany">DS.RESTAdapter</a>:
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l372"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:372</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Called by the store in order to fetch a JSON array for
+the unloaded records in a has-many relationship that were originally
+specified as a URL (inside of <code>links</code>).</p>
+<p>For example, if your original payload looks like this:</p>
+<pre class="code prettyprint"><code class="lang-js">{
+  &quot;post&quot;: {
+    &quot;id&quot;: 1,
+    &quot;title&quot;: &quot;Rails is omakase&quot;,
+    &quot;links&quot;: { &quot;comments&quot;: &quot;/posts/1/comments&quot; }
+  }
+}</code></pre>
+<p>This method will be called with the parent record and <code>/posts/1/comments</code>.</p>
+<p>The <code>findHasMany</code> method will make an Ajax (HTTP GET) request to the originally specified URL.
+If the URL is host-relative (starting with a single slash), the
+request will use the host specified on the adapter (if any).</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">store</code>
+                        <span class="type"><a href="../classes/DS.Store.html" class="crosslink">DS.Store</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">record</code>
+                        <span class="type"><a href="../classes/DS.Model.html" class="crosslink">DS.Model</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">url</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Promise</span>:
+                    
+                    <p>promise</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_findMany" class="method item inherited">
+    <h3 class="name"><code>findMany</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>store</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>ids</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>records</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Promise</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            <p>Inherited from
+            <a href="../classes/DS.Adapter.html#method_findMany">
+                DS.Adapter
+            </a>
+            
+            but overwritten in
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l335"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:335</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Called by the store in order to fetch several records together if <code>coalesceFindRequests</code> is true</p>
+<p>For example, if the original payload looks like:</p>
+<pre class="code prettyprint"><code class="lang-js">{
+  &quot;id&quot;: 1,
+  &quot;title&quot;: &quot;Rails is omakase&quot;,
+  &quot;comments&quot;: [ 1, 2, 3 ]
+}</code></pre>
+<p>The IDs will be passed as a URL-encoded Array of IDs, in this form:</p>
+<pre class="code prettyprint"><code>ids[]=1&amp;ids[]=2&amp;ids[]=3</code></pre>
+<p>Many servers, such as Rails and PHP, will automatically convert this URL-encoded array
+into an Array for you on the server-side. If you want to encode the
+IDs, differently, just override this (one-line) method.</p>
+<p>The <code>findMany</code> method makes an Ajax (HTTP GET) request to a URL computed by <code>buildURL</code>, and returns a
+promise for the resulting payload.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">store</code>
+                        <span class="type"><a href="../classes/DS.Store.html" class="crosslink">DS.Store</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">subclass of DS.Model</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">ids</code>
+                        <span class="type">Array</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">records</code>
+                        <span class="type">Array</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Promise</span>:
+                    
+                    <p>promise</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_findQuery" class="method item private inherited">
+    <h3 class="name"><code>findQuery</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>store</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>query</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Promise</span>
+        </span>
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            <p>Inherited from
+            <a href="../classes/DS.Adapter.html#method_findQuery">
+                DS.Adapter
+            </a>
+            
+            but overwritten in
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l314"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:314</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Called by the store in order to fetch a JSON array for
+the records that match a particular query.</p>
+<p>The <code>findQuery</code> method makes an Ajax (HTTP GET) request to a URL computed by <code>buildURL</code>, and returns a
+promise for the resulting payload.</p>
+<p>The <code>query</code> argument is a simple JavaScript object that will be passed directly
+to the server as parameters.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">store</code>
+                        <span class="type"><a href="../classes/DS.Store.html" class="crosslink">DS.Store</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">subclass of DS.Model</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">query</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Promise</span>:
+                    
+                    <p>promise</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_generateIdForRecord" class="method item inherited">
+    <h3 class="name"><code>generateIdForRecord</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>store</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>record</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">String | Number</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/DS.Adapter.html#method_generateIdForRecord">DS.Adapter</a>:
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_adapter.js.html#l245"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;adapter.js:245</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If the globally unique IDs for your records should be generated on the client,
+implement the <code>generateIdForRecord()</code> method. This method will be invoked
+each time you create a new record, and the value returned from it will be
+assigned to the record&#39;s <code>primaryKey</code>.</p>
+<p>Most traditional REST-like HTTP APIs will not use this method. Instead, the ID
+of the record will be set by the server, and your adapter will update the store
+with the new ID when it calls <code>didCreateRecord()</code>. Only implement this method if
+you intend to generate record IDs on the client-side.</p>
+<p>The <code>generateIdForRecord()</code> method will be invoked with the requesting store as
+the first parameter and the newly created record as the second parameter:</p>
+<pre class="code prettyprint"><code class="lang-javascript">generateIdForRecord: function(store, record) {
+  var uuid = App.generateUUIDWithStatisticallyLowOddsOfCollision();
+  return uuid;
+}</code></pre>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">store</code>
+                        <span class="type"><a href="../classes/DS.Store.html" class="crosslink">DS.Store</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">record</code>
+                        <span class="type"><a href="../classes/DS.Model.html" class="crosslink">DS.Model</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">String | Number</span>:
+                    
+                    <p>id</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_groupRecordsForFindMany" class="method item inherited">
+    <h3 class="name"><code>groupRecordsForFindMany</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>records</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Array</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            <p>Inherited from
+            <a href="../classes/DS.Adapter.html#method_groupRecordsForFindMany">
+                DS.Adapter
+            </a>
+            
+            but overwritten in
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l605"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:605</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Organize records into groups, each of which is to be passed to separate
+calls to <code>findMany</code>.</p>
+<p>This implementation groups together records that have the same base URL but
+differing ids. For example <code>/comments/1</code> and <code>/comments/2</code> will be grouped together
+because we know findMany can coalesce them together as <code>/comments?ids[]=1&amp;ids[]=2</code></p>
+<p>It also supports urls where ids are passed as a query param, such as <code>/comments?id=1</code>
+but not those where there is more than 1 query param such as <code>/comments?id=2&amp;name=David</code>
+Currently only the query param of <code>id</code> is supported. If you need to support others, please
+override this or the <code>_stripIDFromURL</code> method.</p>
+<p>It does not group records that have differing base urls, such as for example: <code>/posts/1/comments/2</code>
+and <code>/posts/2/comments/3</code></p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">records</code>
+                        <span class="type">Array</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Array</span>:
+                    
+                    <p>an array of arrays of records, each of which is to be
+                  loaded separately by <code>findMany</code>.</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_pathForType" class="method item">
+    <h3 class="name"><code>pathForType</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type"></span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            <p>Inherited from
+            <a href="../classes/DS.RESTAdapter.html#method_pathForType">
+                DS.RESTAdapter
+            </a>
+            
+            but overwritten in
+            
+        
+        
+        <a href="../files/packages_activemodel-adapter_lib_system_active_model_adapter.js.html#l106"><code>packages&#x2F;activemodel-adapter&#x2F;lib&#x2F;system&#x2F;active_model_adapter.js:106</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The ActiveModelAdapter overrides the <code>pathForType</code> method to build
+underscored URLs by decamelizing and pluralizing the object type name.</p>
+<pre class="code prettyprint"><code class="lang-js">  this.pathForType(&quot;famousPerson&quot;);
+  //=&gt; &quot;famous_people&quot;</code></pre>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                    <p>String</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_serialize" class="method item inherited">
+    <h3 class="name"><code>serialize</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>record</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>options</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/DS.Adapter.html#method_serialize">DS.Adapter</a>:
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_adapter.js.html#l273"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;adapter.js:273</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Proxies to the serializer&#39;s <code>serialize</code> method.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.ApplicationAdapter = DS.Adapter.extend({
+  createRecord: function(store, type, record) {
+    var data = this.serialize(record, { includeId: true });
+    var url = type;
+
+    // ...
+  }
+});</code></pre>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">record</code>
+                        <span class="type"><a href="../classes/DS.Model.html" class="crosslink">DS.Model</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">options</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Object</span>:
+                    
+                    <p>serialized record</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_updateRecord" class="method item inherited">
+    <h3 class="name"><code>updateRecord</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>store</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>type</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>record</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Promise</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            <p>Inherited from
+            <a href="../classes/DS.Adapter.html#method_updateRecord">
+                DS.Adapter
+            </a>
+            
+            but overwritten in
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l472"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:472</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Called by the store when an existing record is saved
+via the <code>save</code> method on a model record instance.</p>
+<p>The <code>updateRecord</code> method serializes the record and makes an Ajax (HTTP PUT) request
+to a URL computed by <code>buildURL</code>.</p>
+<p>See <code>serialize</code> for information on how to customize the serialized form
+of a record.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">store</code>
+                        <span class="type"><a href="../classes/DS.Store.html" class="crosslink">DS.Store</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">type</code>
+                        <span class="type">subclass of DS.Model</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">record</code>
+                        <span class="type"><a href="../classes/DS.Model.html" class="crosslink">DS.Model</a></span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Promise</span>:
+                    
+                    <p>promise</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_urlPrefix" class="method item private inherited">
+    <h3 class="name"><code>urlPrefix</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>path</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>parentUrl</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">String</span>
+        </span>
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/DS.RESTAdapter.html#method_urlPrefix">DS.RESTAdapter</a>:
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l552"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:552</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">path</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">parentUrl</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">String</span>:
+                    
+                    <p>urlPrefix</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+            </div>
+        
+
+        
+            <div id="properties" class="api-class-tabpanel">
+                <h2 class="off-left">Properties</h2>
+
+                
+                    <div id="property_coalesceFindRequests" class="property item inherited">
+    <h3 class="name"><code>coalesceFindRequests</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            <p>Inherited from
+            <a href="../classes/DS.Adapter.html#property_coalesceFindRequests">
+                DS.Adapter
+            </a>
+            
+            but overwritten in
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l173"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:173</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>By default the RESTAdapter will send each find request coming from a <code>store.find</code>
+or from accessing a relationship separately to the server. If your server supports passing
+ids as a query string, you can set coalesceFindRequests to true to coalesce all find requests
+within a single runloop.</p>
+<p>For example, if you have an initial payload of</p>
+<pre class="code prettyprint"><code class="lang-javascript">post: {
+  id:1,
+  comments: [1,2]
+}</code></pre>
+<p>By default calling <code>post.get(&#39;comments&#39;)</code> will trigger the following requests(assuming the
+comments haven&#39;t been loaded before):</p>
+<pre class="code prettyprint"><code>GET /comments/1
+GET /comments/2</code></pre>
+<p>If you set coalesceFindRequests to <code>true</code> it will instead trigger the following request:</p>
+<pre class="code prettyprint"><code>GET /comments?ids[]=1&amp;ids[]=2</code></pre>
+<p>Setting coalesceFindRequests to <code>true</code> also works for <code>store.find</code> requests and <code>belongsTo</code>
+relationships accessed within the same runloop. If you set <code>coalesceFindRequests: true</code></p>
+<pre class="code prettyprint"><code class="lang-javascript">store.find(&#39;comment&#39;, 1);
+store.find(&#39;comment&#39;, 2);</code></pre>
+<p>will also send a request to: <code>GET /comments?ids[]=1&amp;ids[]=2</code></p>
+<p>Note: Requests coalescing rely on URL building strategy. So if you override <code>buildUrl</code> in your app
+<code>groupRecordsForFindMany</code> more likely should be overriden as well in order for coalescing to work.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_defaultSerializer" class="property item inherited">
+    <h3 class="name"><code>defaultSerializer</code></h3>
+    <span class="type">String</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/DS.Adapter.html#property_defaultSerializer">DS.Adapter</a>:
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_adapter.js.html#l127"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;adapter.js:127</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If you would like your adapter to use a custom serializer you can
+set the <code>defaultSerializer</code> property to be the name of the custom
+serializer.</p>
+<p>Note the <code>defaultSerializer</code> serializer has a lower priority than
+a model specific serializer (i.e. <code>PostSerializer</code>) or the
+<code>application</code> serializer.</p>
+<pre class="code prettyprint"><code class="lang-javascript">var DjangoAdapter = DS.Adapter.extend({
+  defaultSerializer: &#39;django&#39;
+});</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_headers" class="property item inherited">
+    <h3 class="name"><code>headers</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/DS.RESTAdapter.html#property_headers">DS.RESTAdapter</a>:
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l250"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:250</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Some APIs require HTTP headers, e.g. to provide an API
+key. Arbitrary headers can be set as key/value pairs on the
+<code>RESTAdapter</code>&#39;s <code>headers</code> object and Ember Data will send them
+along with each ajax request. For dynamic headers see <a href="/api/data/classes/DS.RESTAdapter.html#toc_headers-customization">headers
+customization</a>.</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.ApplicationAdapter = DS.RESTAdapter.extend({
+  headers: {
+    &quot;API_KEY&quot;: &quot;secret key&quot;,
+    &quot;ANOTHER_HEADER&quot;: &quot;Some header value&quot;
+  }
+});</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_host" class="property item inherited">
+    <h3 class="name"><code>host</code></h3>
+    <span class="type">String</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/DS.RESTAdapter.html#property_host">DS.RESTAdapter</a>:
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l235"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:235</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>An adapter can target other hosts by setting the <code>host</code> property.</p>
+<pre class="code prettyprint"><code class="lang-javascript">DS.RESTAdapter.reopen({
+  host: &#39;https://api.example.com&#39;
+});</code></pre>
+<p>Requests for <code>App.Post</code> would now target <code>https://api.example.com/post/</code>.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_namespace" class="property item inherited">
+    <h3 class="name"><code>namespace</code></h3>
+    <span class="type">String</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                <p>Inherited from
+                <a href="../classes/DS.RESTAdapter.html#property_namespace">DS.RESTAdapter</a>:
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_adapters_rest_adapter.js.html#l219"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;adapters&#x2F;rest_adapter.js:219</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Endpoint paths can be prefixed with a <code>namespace</code> by setting the namespace
+property on the adapter:</p>
+<pre class="code prettyprint"><code class="lang-javascript">DS.RESTAdapter.reopen({
+  namespace: &#39;api/1&#39;
+});</code></pre>
+<p>Requests for <code>App.Post</code> would now target <code>/api/1/post/</code>.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+            </div>
+        
+
+        
+
+        
+    </div>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

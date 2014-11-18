@@ -1,0 +1,5353 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>DS.Model</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title=""></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/DS.html">DS</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelAdapter.html">DS.ActiveModelAdapter</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelSerializer.html">DS.ActiveModelSerializer</a></li>
+            
+                <li><a href="../classes/DS.Adapter.html">DS.Adapter</a></li>
+            
+                <li><a href="../classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a></li>
+            
+                <li><a href="../classes/DS.BooleanTransform.html">DS.BooleanTransform</a></li>
+            
+                <li><a href="../classes/DS.ContainerProxy.html">DS.ContainerProxy</a></li>
+            
+                <li><a href="../classes/DS.DateTransform.html">DS.DateTransform</a></li>
+            
+                <li><a href="../classes/DS.DebugAdapter.html">DS.DebugAdapter</a></li>
+            
+                <li><a href="../classes/DS.EmbeddedRecordsMixin.html">DS.EmbeddedRecordsMixin</a></li>
+            
+                <li><a href="../classes/DS.Errors.html">DS.Errors</a></li>
+            
+                <li><a href="../classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a></li>
+            
+                <li><a href="../classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a></li>
+            
+                <li><a href="../classes/DS.InvalidError.html">DS.InvalidError</a></li>
+            
+                <li><a href="../classes/DS.JSONSerializer.html">DS.JSONSerializer</a></li>
+            
+                <li><a href="../classes/DS.ManyArray.html">DS.ManyArray</a></li>
+            
+                <li><a href="../classes/DS.Model.html">DS.Model</a></li>
+            
+                <li><a href="../classes/DS.NumberTransform.html">DS.NumberTransform</a></li>
+            
+                <li><a href="../classes/DS.PromiseArray.html">DS.PromiseArray</a></li>
+            
+                <li><a href="../classes/DS.PromiseObject.html">DS.PromiseObject</a></li>
+            
+                <li><a href="../classes/DS.RecordArray.html">DS.RecordArray</a></li>
+            
+                <li><a href="../classes/DS.RecordArrayManager.html">DS.RecordArrayManager</a></li>
+            
+                <li><a href="../classes/DS.RESTAdapter.html">DS.RESTAdapter</a></li>
+            
+                <li><a href="../classes/DS.RESTSerializer.html">DS.RESTSerializer</a></li>
+            
+                <li><a href="../classes/DS.RootState.html">DS.RootState</a></li>
+            
+                <li><a href="../classes/DS.Store.html">DS.Store</a></li>
+            
+                <li><a href="../classes/DS.StringTransform.html">DS.StringTransform</a></li>
+            
+                <li><a href="../classes/DS.Transform.html">DS.Transform</a></li>
+            
+                <li><a href="../classes/Ember.Date.html">Ember.Date</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/ember-data.html">ember-data</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1>DS.Model Class</h1>
+<div class="box meta">
+    
+        <div class="uses">
+            Uses
+            <ul class="inline commas">
+                
+                    <li><a href="Ember.Evented.html">Ember.Evented</a></li>
+                
+            </ul>
+        </div>
+    
+
+    
+        <div class="extends">
+            Extends Ember.Object
+        </div>
+    
+
+    
+        <div class="foundat">
+            Defined in: <a href="../files/packages_ember-data_lib_system_relationships_ext.js.html#l23"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;relationships&#x2F;ext.js:23</code></a>
+        </div>
+    
+
+    
+        
+            Module: <a href="../modules/ember-data.html">ember-data</a>
+        
+    
+
+    
+</div>
+
+
+
+<div class="box intro">
+    <p>These observers observe all <code>belongsTo</code> relationships on the record. See
+<code>relationships/ext</code> to see how these observers get their dependencies.</p>
+
+</div>
+
+
+
+<div id="classdocs" class="tabview">
+    <ul class="api-class-tabs">
+        <li class="api-class-tab index"><a href="#index">Index</a></li>
+
+        
+            <li class="api-class-tab methods"><a href="#methods">Methods</a></li>
+        
+        
+            <li class="api-class-tab properties"><a href="#properties">Properties</a></li>
+        
+        
+        
+            <li class="api-class-tab events"><a href="#events">Events</a></li>
+        
+    </ul>
+
+    <div>
+        <div id="index" class="api-class-tabpanel index">
+            <h2 class="off-left">Item Index</h2>
+
+            
+                <div class="index-section methods">
+                    <h3>Methods</h3>
+
+                    <ul class="index-list methods extends">
+                        
+                            <li class="index-item method private">
+                                <a href="#method__create">_create</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method__debugInfo">_debugInfo</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method__preloadData">_preloadData</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_adapterDidCommit">adapterDidCommit</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_adapterDidDirty">adapterDidDirty</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_adapterDidError">adapterDidError</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_adapterDidInvalidate">adapterDidInvalidate</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_adapterWillCommit">adapterWillCommit</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_changedAttributes">changedAttributes</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_clearRelationships">clearRelationships</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_create">create</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_deleteRecord">deleteRecord</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_destroyRecord">destroyRecord</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_didDefineProperty">didDefineProperty</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_eachAttribute">eachAttribute</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_eachRelatedType">eachRelatedType</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_eachRelationship">eachRelationship</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_eachRelationship">eachRelationship</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_eachTransformedAttribute">eachTransformedAttribute</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_loadedData">loadedData</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_loadingData">loadingData</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_notFound">notFound</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_pushedData">pushedData</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_reload">reload</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_rollback">rollback</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_save">save</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_send">send</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_serialize">serialize</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_setupData">setupData</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_toJSON">toJSON</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_transitionTo">transitionTo</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_trigger">trigger</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method">
+                                <a href="#method_typeForRelationship">typeForRelationship</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_unloadRecord">unloadRecord</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_updateRecordArrays">updateRecordArrays</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item method private">
+                                <a href="#method_updateRecordArraysLater">updateRecordArraysLater</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+                <div class="index-section properties">
+                    <h3>Properties</h3>
+
+                    <ul class="index-list properties extends">
+                        
+                            <li class="index-item property">
+                                <a href="#property_attributes">attributes</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property private">
+                                <a href="#property_clientId">clientId</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property private">
+                                <a href="#property_currentState">currentState</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property private">
+                                <a href="#property_data">data</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_dirtyType">dirtyType</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_errors">errors</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_fields">fields</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_id">id</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_isDeleted">isDeleted</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_isDirty">isDirty</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_isEmpty">isEmpty</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_isError">isError</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_isLoaded">isLoaded</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_isLoading">isLoading</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_isNew">isNew</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_isReloading">isReloading</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_isSaving">isSaving</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_isValid">isValid</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_relatedTypes">relatedTypes</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_relationshipNames">relationshipNames</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_relationships">relationships</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_relationshipsByName">relationshipsByName</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item property">
+                                <a href="#property_transformedAttributes">transformedAttributes</a>
+
+                                
+                                    <span class="flag static">static</span>
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+
+            
+
+            
+                <div class="index-section events">
+                    <h3>Events</h3>
+
+                    <ul class="index-list events extends">
+                        
+                            <li class="index-item event">
+                                <a href="#event_becameError">becameError</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item event">
+                                <a href="#event_becameInvalid">becameInvalid</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item event">
+                                <a href="#event_didCreate">didCreate</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item event">
+                                <a href="#event_didDelete">didDelete</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item event">
+                                <a href="#event_didLoad">didLoad</a>
+
+                                
+                                
+                            </li>
+                        
+                            <li class="index-item event">
+                                <a href="#event_didUpdate">didUpdate</a>
+
+                                
+                                
+                            </li>
+                        
+                    </ul>
+                </div>
+            
+        </div>
+
+        
+            <div id="methods" class="api-class-tabpanel">
+                <h2 class="off-left">Methods</h2>
+
+                
+                    <div id="method__create" class="method item private">
+    <h3 class="name"><code>_create</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l1105"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:1105</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Alias DS.Model&#39;s <code>create</code> method to <code>_create</code>. This allows us to create DS.Model
+instances from within the store, but if end users accidentally call <code>create()</code>
+(instead of <code>createRecord()</code>), we can raise an error.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method__debugInfo" class="method item private">
+    <h3 class="name"><code>_debugInfo</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_debug_debug_info.js.html#l5"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;debug&#x2F;debug_info.js:5</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Provides info about the model for debugging purposes
+by grouping the properties into more semantic groups.</p>
+<p>Meant to be used by debugging tools such as the Chrome Ember Extension.</p>
+<ul>
+<li>Groups all attributes in &quot;Attributes&quot; group.</li>
+<li>Groups all belongsTo relationships in &quot;Belongs To&quot; group.</li>
+<li>Groups all hasMany relationships in &quot;Has Many&quot; group.</li>
+<li>Groups all flags in &quot;Flags&quot; group.</li>
+<li>Flags relationship CPs as expensive properties.</li>
+</ul>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method__preloadData" class="method item private">
+    <h3 class="name"><code>_preloadData</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>preload</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l696"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:696</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>When a find request is triggered on the store, the user can optionally pass in
+attributes and relationships to be preloaded. These are meant to behave as if they
+came back from the server, except the user obtained them out of band and is informing
+the store of their existence. The most common use case is for supporting client side
+nested URLs, such as <code>/posts/1/comments/2</code> so the user can do
+<code>store.find(&#39;comment&#39;, 2, {post:1})</code> without having to fetch the post.</p>
+<p>Preloaded data can be attributes and relationships passed in either as IDs or as actual
+models.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">preload</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_adapterDidCommit" class="method item">
+    <h3 class="name"><code>adapterDidCommit</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l804"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:804</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If the adapter did not return a hash in response to a commit,
+merge the changed attributes and relationships into the existing
+saved data.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_adapterDidDirty" class="method item private">
+    <h3 class="name"><code>adapterDidDirty</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l830"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:830</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_adapterDidError" class="method item private">
+    <h3 class="name"><code>adapterDidError</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l1040"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:1040</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_adapterDidInvalidate" class="method item private">
+    <h3 class="name"><code>adapterDidInvalidate</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l1024"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:1024</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_adapterWillCommit" class="method item private">
+    <h3 class="name"><code>adapterWillCommit</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l796"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:796</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_changedAttributes" class="method item">
+    <h3 class="name"><code>changedAttributes</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l762"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:762</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Returns an object, whose keys are changed properties, and value is
+an [oldProp, newProp] array.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.Mascot = DS.Model.extend({
+  name: attr(&#39;string&#39;)
+});
+
+var person = store.createRecord(&#39;person&#39;);
+person.changedAttributes(); // {}
+person.set(&#39;name&#39;, &#39;Tomster&#39;);
+person.changedAttributes(); // {name: [undefined, &#39;Tomster&#39;]}</code></pre>
+
+    </div>
+
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Object</span>:
+                    
+                    <p>an object, whose keys are changed properties,
+  and value is an [oldProp, newProp] array.</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_clearRelationships" class="method item private">
+    <h3 class="name"><code>clearRelationships</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l651"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:651</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_create" class="method item private">
+    <h3 class="name"><code>create</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l1116"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:1116</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Override the class&#39; <code>create()</code> method to raise an error. This
+prevents end users from inadvertently calling <code>create()</code> instead
+of <code>createRecord()</code>. The store is still able to create instances
+by calling the <code>_create()</code> method. To create an instance of a
+<code>DS.Model</code> use <a href="DS.Store.html#method_createRecord">store.createRecord</a>.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_deleteRecord" class="method item">
+    <h3 class="name"><code>deleteRecord</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l584"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:584</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Marks the record as deleted but does not save it. You must call
+<code>save</code> afterwards if you want to persist it. You might use this
+method if you want to allow the user to still <code>rollback()</code> a
+delete after it was made.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.ModelDeleteRoute = Ember.Route.extend({
+  actions: {
+    softDelete: function() {
+      this.controller.get(&#39;model&#39;).deleteRecord();
+    },
+    confirm: function() {
+      this.controller.get(&#39;model&#39;).save();
+    },
+    undo: function() {
+      this.controller.get(&#39;model&#39;).rollback();
+    }
+  }
+});</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_destroyRecord" class="method item">
+    <h3 class="name"><code>destroyRecord</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Promise</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l614"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:614</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Same as <code>deleteRecord</code>, but saves the record immediately.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.ModelDeleteRoute = Ember.Route.extend({
+  actions: {
+    delete: function() {
+      var controller = this.controller;
+      controller.get(&#39;model&#39;).destroyRecord().then(function() {
+        controller.transitionToRoute(&#39;model.index&#39;);
+      });
+    }
+  }
+});</code></pre>
+
+    </div>
+
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Promise</span>:
+                    
+                    <p>a promise that will be resolved when the adapter returns
+successfully or rejected if the adapter returns with an error.</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_didDefineProperty" class="method item">
+    <h3 class="name"><code>didDefineProperty</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>proto</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>key</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>value</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_relationships_ext.js.html#l29"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;relationships&#x2F;ext.js:29</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>This Ember.js hook allows an object to be notified when a property
+is defined.</p>
+<p>In this case, we use it to be notified when an Ember Data user defines a
+belongs-to relationship. In that case, we need to set up observers for
+each one, allowing us to track relationship changes and automatically
+reflect changes in the inverse has-many array.</p>
+<p>This hook passes the class being set up, as well as the key and value
+being defined. So, for example, when the user does this:</p>
+<pre class="code prettyprint"><code class="lang-javascript">DS.Model.extend({
+  parent: DS.belongsTo(&#39;user&#39;)
+});</code></pre>
+<p>This hook would be called with &quot;parent&quot; as the key and the computed
+property returned by <code>DS.belongsTo</code> as the value.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">proto</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">key</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">value</code>
+                        <span class="type">Ember.ComputedProperty</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_eachAttribute" class="method item">
+    <h3 class="name"><code>eachAttribute</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>callback</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code class="optional">[target]</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_attributes.js.html#l107"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;attributes.js:107</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Iterates through the attributes of the model, calling the passed function on each
+attribute.</p>
+<p>The callback method you provide should have the following signature (all
+parameters are optional):</p>
+<pre class="code prettyprint"><code class="lang-javascript">function(name, meta);</code></pre>
+<ul>
+<li><code>name</code> the name of the current property in the iteration</li>
+<li><code>meta</code> the meta object for the attribute property in the iteration</li>
+</ul>
+<p>Note that in addition to a callback, you can also pass an optional target
+object that will be set as <code>this</code> on the context.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.Person = DS.Model.extend({
+  firstName: attr(&#39;string&#39;),
+  lastName: attr(&#39;string&#39;),
+  birthday: attr(&#39;date&#39;)
+});
+
+App.Person.eachAttribute(function(name, meta) {
+  console.log(name, meta);
+});
+
+// prints:
+// firstName {type: &quot;string&quot;, isAttribute: true, options: Object, parentType: function, name: &quot;firstName&quot;}
+// lastName {type: &quot;string&quot;, isAttribute: true, options: Object, parentType: function, name: &quot;lastName&quot;}
+// birthday {type: &quot;date&quot;, isAttribute: true, options: Object, parentType: function, name: &quot;birthday&quot;}</code></pre>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">callback</code>
+                        <span class="type">Function</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The callback to execute</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name optional">[target]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The target object to use</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_eachRelatedType" class="method item">
+    <h3 class="name"><code>eachRelatedType</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>callback</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>binding</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_relationships_ext.js.html#l499"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;relationships&#x2F;ext.js:499</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Given a callback, iterates over each of the types related to a model,
+invoking the callback with the related type&#39;s class. Each type will be
+returned just once, regardless of how many different relationships it has
+with a model.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">callback</code>
+                        <span class="type">Function</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the callback to invoke</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">binding</code>
+                        <span class="type">Any</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the value to which the callback&#39;s <code>this</code> should be bound</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_eachRelationship" class="method item">
+    <h3 class="name"><code>eachRelationship</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>callback</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>binding</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_relationships_ext.js.html#l483"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;relationships&#x2F;ext.js:483</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Given a callback, iterates over each of the relationships in the model,
+invoking the callback with the name of each relationship and its relationship
+descriptor.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">callback</code>
+                        <span class="type">Function</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the callback to invoke</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">binding</code>
+                        <span class="type">Any</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the value to which the callback&#39;s <code>this</code> should be bound</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_eachRelationship" class="method item">
+    <h3 class="name"><code>eachRelationship</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>callback</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>binding</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_relationships_ext.js.html#l539"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;relationships&#x2F;ext.js:539</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Given a callback, iterates over each of the relationships in the model,
+invoking the callback with the name of each relationship and its relationship
+descriptor.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">callback</code>
+                        <span class="type">Function</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the callback to invoke</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">binding</code>
+                        <span class="type">Any</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the value to which the callback&#39;s <code>this</code> should be bound</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_eachTransformedAttribute" class="method item">
+    <h3 class="name"><code>eachTransformedAttribute</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>callback</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code class="optional">[target]</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_attributes.js.html#l154"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;attributes.js:154</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Iterates through the transformedAttributes of the model, calling
+the passed function on each attribute. Note the callback will not be
+called for any attributes that do not have an transformation type.</p>
+<p>The callback method you provide should have the following signature (all
+parameters are optional):</p>
+<pre class="code prettyprint"><code class="lang-javascript">function(name, type);</code></pre>
+<ul>
+<li><code>name</code> the name of the current property in the iteration</li>
+<li><code>type</code> a string containing the name of the type of transformed
+applied to the attribute</li>
+</ul>
+<p>Note that in addition to a callback, you can also pass an optional target
+object that will be set as <code>this</code> on the context.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.Person = DS.Model.extend({
+  firstName: attr(),
+  lastName: attr(&#39;string&#39;),
+  birthday: attr(&#39;date&#39;)
+});
+
+App.Person.eachTransformedAttribute(function(name, type) {
+  console.log(name, type);
+});
+
+// prints:
+// lastName string
+// birthday date</code></pre>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">callback</code>
+                        <span class="type">Function</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The callback to execute</p>
+
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name optional">[target]</code>
+                        <span class="type">Object</span>
+                        <span class="flag optional" title="This parameter is optional.">optional</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>The target object to use</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_loadedData" class="method item private">
+    <h3 class="name"><code>loadedData</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l560"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:560</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_loadingData" class="method item private">
+    <h3 class="name"><code>loadingData</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>promise</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l551"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:551</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">promise</code>
+                        <span class="type">Promise</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_notFound" class="method item private">
+    <h3 class="name"><code>notFound</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l568"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:568</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_pushedData" class="method item private">
+    <h3 class="name"><code>pushedData</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l576"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:576</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_reload" class="method item">
+    <h3 class="name"><code>reload</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Promise</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l959"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:959</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Reload the record from the adapter.</p>
+<p>This will only work if the record has already finished loading
+and has not yet been modified (<code>isLoaded</code> but not <code>isDirty</code>,
+or <code>isSaving</code>).</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.ModelViewRoute = Ember.Route.extend({
+  actions: {
+    reload: function() {
+      this.controller.get(&#39;model&#39;).reload();
+    }
+  }
+});</code></pre>
+
+    </div>
+
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Promise</span>:
+                    
+                    <p>a promise that will be resolved with the record when the
+adapter returns successfully or rejected if the adapter returns
+with an error.</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_rollback" class="method item">
+    <h3 class="name"><code>rollback</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l884"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:884</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If the model <code>isDirty</code> this function will discard any unsaved
+changes</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">record.get(&#39;name&#39;); // &#39;Untitled Document&#39;
+record.set(&#39;name&#39;, &#39;Doc 1&#39;);
+record.get(&#39;name&#39;); // &#39;Doc 1&#39;
+record.rollback();
+record.get(&#39;name&#39;); // &#39;Untitled Document&#39;</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_save" class="method item">
+    <h3 class="name"><code>save</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Promise</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l928"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:928</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Save the record and persist any changes to the record to an
+external source via the adapter.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">record.set(&#39;name&#39;, &#39;Tomster&#39;);
+record.save().then(function(){
+  // Success callback
+}, function() {
+  // Error callback
+});</code></pre>
+
+    </div>
+
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Promise</span>:
+                    
+                    <p>a promise that will be resolved when the adapter returns
+successfully or rejected if the adapter returns with an error.</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_send" class="method item private">
+    <h3 class="name"><code>send</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>name</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>context</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l477"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:477</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">name</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">context</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_serialize" class="method item">
+    <h3 class="name"><code>serialize</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>options</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l342"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:342</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Create a JSON representation of the record, using the serialization
+strategy of the store&#39;s adapter.</p>
+<p>   <code>serialize</code> takes an optional hash as a parameter, currently
+supported options are:</p>
+<ul>
+<li><code>includeId</code>: <code>true</code> if the record&#39;s ID should be included in the
+JSON representation.</li>
+</ul>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">options</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Object</span>:
+                    
+                    <p>an object whose values are primitive JSON values only</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_setupData" class="method item private">
+    <h3 class="name"><code>setupData</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>data</code>
+                    
+                </li>
+            
+                <li class="arg">
+                    
+                        <code>partial</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l852"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:852</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">data</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+                <li class="param">
+                    
+                        <code class="param-name">partial</code>
+                        <span class="type">Boolean</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the data should be merged into
+  the existing data, not replace it.</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_toJSON" class="method item">
+    <h3 class="name"><code>toJSON</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>options</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">Object</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l361"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:361</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Use <a href="DS.JSONSerializer.html">DS.JSONSerializer</a> to
+get the JSON representation of a record.</p>
+<p><code>toJSON</code> takes an optional hash as a parameter, currently
+supported options are:</p>
+<ul>
+<li><code>includeId</code>: <code>true</code> if the record&#39;s ID should be included in the
+JSON representation.</li>
+</ul>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">options</code>
+                        <span class="type">Object</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">Object</span>:
+                    
+                    <p>A JSON representation of the object.</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_transitionTo" class="method item private">
+    <h3 class="name"><code>transitionTo</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>name</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l493"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:493</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">name</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_trigger" class="method item private">
+    <h3 class="name"><code>trigger</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>name</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l1049"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:1049</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Override the default event firing from Ember.Evented to
+also call methods with the given name.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">name</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                         
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_typeForRelationship" class="method item">
+    <h3 class="name"><code>typeForRelationship</code></h3>
+
+    
+        <div class="args">
+            <span class="paren">(</span><ul class="args-list inline commas">
+            
+                <li class="arg">
+                    
+                        <code>name</code>
+                    
+                </li>
+            
+            </ul><span class="paren">)</span>
+        </div>
+    
+
+    
+        <span class="returns-inline">
+            <span class="type">subclass of DS.Model</span>
+        </span>
+    
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_relationships_ext.js.html#l88"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;relationships&#x2F;ext.js:88</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>For a given relationship name, returns the model type of the relationship.</p>
+<p>For example, if you define a model like this:</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.Post = DS.Model.extend({
+  comments: DS.hasMany(&#39;comment&#39;)
+});</code></pre>
+<p>Calling <code>App.Post.typeForRelationship(&#39;comments&#39;)</code> will return <code>App.Comment</code>.</p>
+
+    </div>
+
+    
+        <div class="params">
+            <h4>Parameters:</h4>
+
+            <ul class="params-list">
+            
+                <li class="param">
+                    
+                        <code class="param-name">name</code>
+                        <span class="type">String</span>
+                    
+
+                    
+
+                    <div class="param-description">
+                        <p>the name of the relationship</p>
+
+                    </div>
+
+                    
+                </li>
+            
+            </ul>
+        </div>
+    
+
+    
+        <div class="returns">
+            <h4>Returns:</h4>
+
+            <div class="returns-description">
+                
+                    
+                        <span class="type">subclass of DS.Model</span>:
+                    
+                    <p>the type of the relationship, or undefined</p>
+
+                
+            </div>
+        </div>
+    
+
+    
+</div>
+
+                
+                    <div id="method_unloadRecord" class="method item private">
+    <h3 class="name"><code>unloadRecord</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l641"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:641</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_updateRecordArrays" class="method item private">
+    <h3 class="name"><code>updateRecordArrays</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l687"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:687</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="method_updateRecordArraysLater" class="method item private">
+    <h3 class="name"><code>updateRecordArraysLater</code></h3>
+
+    
+        <span class="paren">()</span>
+    
+
+    
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l840"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:840</code></a>
+        
+        </p>
+
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+            </div>
+        
+
+        
+            <div id="properties" class="api-class-tabpanel">
+                <h2 class="off-left">Properties</h2>
+
+                
+                    <div id="property_attributes" class="property item">
+    <h3 class="name"><code>attributes</code></h3>
+    <span class="type">Ember.Map</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_attributes.js.html#l17"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;attributes.js:17</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A map whose keys are the attributes of the model (properties
+described by DS.attr) and whose values are the meta object for the
+property.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">
+App.Person = DS.Model.extend({
+  firstName: attr(&#39;string&#39;),
+  lastName: attr(&#39;string&#39;),
+  birthday: attr(&#39;date&#39;)
+});
+
+var attributes = Ember.get(App.Person, &#39;attributes&#39;)
+
+attributes.forEach(function(name, meta) {
+  console.log(name, meta);
+});
+
+// prints:
+// firstName {type: &quot;string&quot;, isAttribute: true, options: Object, parentType: function, name: &quot;firstName&quot;}
+// lastName {type: &quot;string&quot;, isAttribute: true, options: Object, parentType: function, name: &quot;lastName&quot;}
+// birthday {type: &quot;date&quot;, isAttribute: true, options: Object, parentType: function, name: &quot;birthday&quot;}</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_clientId" class="property item private">
+    <h3 class="name"><code>clientId</code></h3>
+    <span class="type">Number | String</span>
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l274"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:274</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The <code>clientId</code> property is a transient numerical identifier
+generated at runtime by the data store. It is important
+primarily because newly created objects may not yet have an
+externally generated id.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_currentState" class="property item private">
+    <h3 class="name"><code>currentState</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l306"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:306</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_data" class="property item private">
+    <h3 class="name"><code>data</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+        <span class="flag private">private</span>
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l424"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:424</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_dirtyType" class="property item">
+    <h3 class="name"><code>dirtyType</code></h3>
+    <span class="type">String</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l215"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:215</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If the record is in the dirty state this property will report what
+kind of change has caused it to move into the dirty
+state. Possible values are:</p>
+<ul>
+<li><code>created</code> The record has been created by the client and not yet saved to the adapter.</li>
+<li><code>updated</code> The record has been updated by the client and not yet saved to the adapter.</li>
+<li><code>deleted</code> The record has been deleted by the client and not yet saved to the adapter.</li>
+</ul>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">var record = store.createRecord(&#39;model&#39;);
+record.get(&#39;dirtyType&#39;); // &#39;created&#39;</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_errors" class="property item">
+    <h3 class="name"><code>errors</code></h3>
+    <span class="type"><a href="../classes/DS.Errors.html" class="crosslink">DS.Errors</a></span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l313"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:313</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>When the record is in the <code>invalid</code> state this object will contain
+any errors returned by the adapter. When present the errors hash
+typically contains keys corresponding to the invalid property names
+and values which are an array of error messages.</p>
+<pre class="code prettyprint"><code class="lang-javascript">record.get(&#39;errors.length&#39;); // 0
+record.set(&#39;foo&#39;, &#39;invalid value&#39;);
+record.save().then(null, function() {
+  record.get(&#39;errors&#39;).get(&#39;foo&#39;); // [&#39;foo should be a number.&#39;]
+});</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_fields" class="property item">
+    <h3 class="name"><code>fields</code></h3>
+    <span class="type">Ember.Map</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_relationships_ext.js.html#l434"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;relationships&#x2F;ext.js:434</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A map whose keys are the fields of the model and whose values are strings
+describing the kind of the field. A model&#39;s fields are the union of all of its
+attributes and relationships.</p>
+<p>For example:</p>
+<pre class="code prettyprint"><code class="lang-javascript">
+App.Blog = DS.Model.extend({
+  users: DS.hasMany(&#39;user&#39;),
+  owner: DS.belongsTo(&#39;user&#39;),
+
+  posts: DS.hasMany(&#39;post&#39;),
+
+  title: DS.attr(&#39;string&#39;)
+});
+
+var fields = Ember.get(App.Blog, &#39;fields&#39;);
+fields.forEach(function(field, kind) {
+  console.log(field, kind);
+});
+
+// prints:
+// users, hasMany
+// owner, belongsTo
+// posts, hasMany
+// title, attribute</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_id" class="property item">
+    <h3 class="name"><code>id</code></h3>
+    <span class="type">String</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l285"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:285</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>All ember models have an id property. This is an identifier
+managed by an external source. These are always coerced to be
+strings before being used internally. Note when declaring the
+attributes for a model it is an error to declare an id
+attribute.</p>
+<pre class="code prettyprint"><code class="lang-javascript">var record = store.createRecord(&#39;model&#39;);
+record.get(&#39;id&#39;); // null
+
+store.find(&#39;model&#39;, 1).then(function(model) {
+  model.get(&#39;id&#39;); // &#39;1&#39;
+});</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_isDeleted" class="property item">
+    <h3 class="name"><code>isDeleted</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l144"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:144</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If this property is <code>true</code> the record is in the <code>deleted</code> state
+and has been marked for deletion. When <code>isDeleted</code> is true and
+<code>isDirty</code> is true, the record is deleted locally but the deletion
+was not yet persisted. When <code>isSaving</code> is true, the change is
+in-flight. When both <code>isDirty</code> and <code>isSaving</code> are false, the
+change has persisted.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">var record = store.createRecord(&#39;model&#39;);
+record.get(&#39;isDeleted&#39;);    // false
+record.deleteRecord();
+
+// Locally deleted
+record.get(&#39;isDeleted&#39;);    // true
+record.get(&#39;isDirty&#39;);      // true
+record.get(&#39;isSaving&#39;);     // false
+
+// Persisting the deletion
+var promise = record.save();
+record.get(&#39;isDeleted&#39;);    // true
+record.get(&#39;isSaving&#39;);     // true
+
+// Deletion Persisted
+promise.then(function() {
+  record.get(&#39;isDeleted&#39;);  // true
+  record.get(&#39;isSaving&#39;);   // false
+  record.get(&#39;isDirty&#39;);    // false
+});</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_isDirty" class="property item">
+    <h3 class="name"><code>isDirty</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l97"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:97</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If this property is <code>true</code> the record is in the <code>dirty</code> state. The
+record has local changes that have not yet been saved by the
+adapter. This includes records that have been created (but not yet
+saved) or deleted.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">var record = store.createRecord(&#39;model&#39;);
+record.get(&#39;isDirty&#39;); // true
+
+store.find(&#39;model&#39;, 1).then(function(model) {
+  model.get(&#39;isDirty&#39;); // false
+  model.set(&#39;foo&#39;, &#39;some value&#39;);
+  model.get(&#39;isDirty&#39;); // true
+});</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_isEmpty" class="property item">
+    <h3 class="name"><code>isEmpty</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l50"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:50</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If this property is <code>true</code> the record is in the <code>empty</code>
+state. Empty is the first state all records enter after they have
+been created. Most records created by the store will quickly
+transition to the <code>loading</code> state if data needs to be fetched from
+the server or the <code>created</code> state if the record is created on the
+client. A record can also enter the empty state if the adapter is
+unable to locate the record.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_isError" class="property item">
+    <h3 class="name"><code>isError</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l237"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:237</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If <code>true</code> the adapter reported that it was unable to save local
+changes to the backend for any reason other than a server-side
+validation error.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">record.get(&#39;isError&#39;); // false
+record.set(&#39;foo&#39;, &#39;valid value&#39;);
+record.save().then(null, function() {
+  record.get(&#39;isError&#39;); // true
+});</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_isLoaded" class="property item">
+    <h3 class="name"><code>isLoaded</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l75"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:75</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If this property is <code>true</code> the record is in the <code>loaded</code> state. A
+record enters this state when its data is populated. Most of a
+record&#39;s lifecycle is spent inside substates of the <code>loaded</code>
+state.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">var record = store.createRecord(&#39;model&#39;);
+record.get(&#39;isLoaded&#39;); // true
+
+store.find(&#39;model&#39;, 1).then(function(model) {
+  model.get(&#39;isLoaded&#39;); // true
+});</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_isLoading" class="property item">
+    <h3 class="name"><code>isLoading</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l64"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:64</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If this property is <code>true</code> the record is in the <code>loading</code> state. A
+record enters this state when the store asks the adapter for its
+data. It remains in this state until the adapter provides the
+requested data.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_isNew" class="property item">
+    <h3 class="name"><code>isNew</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l182"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:182</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If this property is <code>true</code> the record is in the <code>new</code> state. A
+record will be in the <code>new</code> state when it has been created on the
+client and the adapter has not yet report that it was successfully
+saved.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">var record = store.createRecord(&#39;model&#39;);
+record.get(&#39;isNew&#39;); // true
+
+record.save().then(function(model) {
+  model.get(&#39;isNew&#39;); // false
+});</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_isReloading" class="property item">
+    <h3 class="name"><code>isReloading</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l257"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:257</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If <code>true</code> the store is attempting to reload the record form the adapter.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">record.get(&#39;isReloading&#39;); // false
+record.reload();
+record.get(&#39;isReloading&#39;); // true</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_isSaving" class="property item">
+    <h3 class="name"><code>isSaving</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l121"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:121</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If this property is <code>true</code> the record is in the <code>saving</code> state. A
+record enters the saving state when <code>save</code> is called, but the
+adapter has not yet acknowledged that the changes have been
+persisted to the backend.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">var record = store.createRecord(&#39;model&#39;);
+record.get(&#39;isSaving&#39;); // false
+var promise = record.save();
+record.get(&#39;isSaving&#39;); // true
+promise.then(function() {
+  record.get(&#39;isSaving&#39;); // false
+});</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_isValid" class="property item">
+    <h3 class="name"><code>isValid</code></h3>
+    <span class="type">Boolean</span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l204"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:204</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>If this property is <code>true</code> the record is in the <code>valid</code> state.</p>
+<p>A record will be in the <code>valid</code> state when the adapter did not report any
+server-side validation failures.</p>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_relatedTypes" class="property item">
+    <h3 class="name"><code>relatedTypes</code></h3>
+    <span class="type">Ember.Array</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_relationships_ext.js.html#l336"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;relationships&#x2F;ext.js:336</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>An array of types directly related to a model. Each type will be
+included once, regardless of the number of relationships it has with
+the model.</p>
+<p>For example, given a model with this definition:</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.Blog = DS.Model.extend({
+  users: DS.hasMany(&#39;user&#39;),
+  owner: DS.belongsTo(&#39;user&#39;),
+
+  posts: DS.hasMany(&#39;post&#39;)
+});</code></pre>
+<p>This property would contain the following:</p>
+<pre class="code prettyprint"><code class="lang-javascript">var relatedTypes = Ember.get(App.Blog, &#39;relatedTypes&#39;);
+//=&gt; [ App.User, App.Post ]</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_relationshipNames" class="property item">
+    <h3 class="name"><code>relationshipNames</code></h3>
+    <span class="type">Object</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_relationships_ext.js.html#l292"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;relationships&#x2F;ext.js:292</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A hash containing lists of the model&#39;s relationships, grouped
+by the relationship kind. For example, given a model with this
+definition:</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.Blog = DS.Model.extend({
+  users: DS.hasMany(&#39;user&#39;),
+  owner: DS.belongsTo(&#39;user&#39;),
+
+  posts: DS.hasMany(&#39;post&#39;)
+});</code></pre>
+<p>This property would contain the following:</p>
+<pre class="code prettyprint"><code class="lang-javascript">var relationshipNames = Ember.get(App.Blog, &#39;relationshipNames&#39;);
+relationshipNames.hasMany;
+//=&gt; [&#39;users&#39;, &#39;posts&#39;]
+relationshipNames.belongsTo;
+//=&gt; [&#39;owner&#39;]</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_relationships" class="property item">
+    <h3 class="name"><code>relationships</code></h3>
+    <span class="type">Ember.Map</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_relationships_ext.js.html#l236"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;relationships&#x2F;ext.js:236</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>The model&#39;s relationships as a map, keyed on the type of the
+relationship. The value of each entry is an array containing a descriptor
+for each relationship with that type, describing the name of the relationship
+as well as the type.</p>
+<p>For example, given the following model definition:</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.Blog = DS.Model.extend({
+  users: DS.hasMany(&#39;user&#39;),
+  owner: DS.belongsTo(&#39;user&#39;),
+  posts: DS.hasMany(&#39;post&#39;)
+});</code></pre>
+<p>This computed property would return a map describing these
+relationships, like this:</p>
+<pre class="code prettyprint"><code class="lang-javascript">var relationships = Ember.get(App.Blog, &#39;relationships&#39;);
+relationships.get(App.User);
+//=&gt; [ { name: &#39;users&#39;, kind: &#39;hasMany&#39; },
+//     { name: &#39;owner&#39;, kind: &#39;belongsTo&#39; } ]
+relationships.get(App.Post);
+//=&gt; [ { name: &#39;posts&#39;, kind: &#39;hasMany&#39; } ]</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_relationshipsByName" class="property item">
+    <h3 class="name"><code>relationshipsByName</code></h3>
+    <span class="type">Ember.Map</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_relationships_ext.js.html#l388"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;relationships&#x2F;ext.js:388</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A map whose keys are the relationships of a model and whose values are
+relationship descriptors.</p>
+<p>For example, given a model with this
+definition:</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.Blog = DS.Model.extend({
+  users: DS.hasMany(&#39;user&#39;),
+  owner: DS.belongsTo(&#39;user&#39;),
+
+  posts: DS.hasMany(&#39;post&#39;)
+});</code></pre>
+<p>This property would contain the following:</p>
+<pre class="code prettyprint"><code class="lang-javascript">var relationshipsByName = Ember.get(App.Blog, &#39;relationshipsByName&#39;);
+relationshipsByName.get(&#39;users&#39;);
+//=&gt; { key: &#39;users&#39;, kind: &#39;hasMany&#39;, type: App.User }
+relationshipsByName.get(&#39;owner&#39;);
+//=&gt; { key: &#39;owner&#39;, kind: &#39;belongsTo&#39;, type: App.User }</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+                    <div id="property_transformedAttributes" class="property item">
+    <h3 class="name"><code>transformedAttributes</code></h3>
+    <span class="type">Ember.Map</span>
+
+    
+
+    
+
+    
+
+    
+        <span class="flag static">static</span>
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_attributes.js.html#l64"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;attributes.js:64</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>A map whose keys are the attributes of the model (properties
+described by DS.attr) and whose values are type of transformation
+applied to each attribute. This map does not include any
+attributes that do not have an transformation type.</p>
+<p>Example</p>
+<pre class="code prettyprint"><code class="lang-javascript">App.Person = DS.Model.extend({
+  firstName: attr(),
+  lastName: attr(&#39;string&#39;),
+  birthday: attr(&#39;date&#39;)
+});
+
+var transformedAttributes = Ember.get(App.Person, &#39;transformedAttributes&#39;)
+
+transformedAttributes.forEach(function(field, type) {
+  console.log(field, type);
+});
+
+// prints:
+// lastName string
+// birthday date</code></pre>
+
+    </div>
+
+    
+
+    
+
+    
+</div>
+
+                
+            </div>
+        
+
+        
+
+        
+            <div id="events" class="api-class-tabpanel">
+                <h2 class="off-left">Events</h2>
+
+                
+                    <div id="event_becameError" class="events item">
+    <h3 class="name"><code>becameError</code></h3>
+    <span class="type"></span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l417"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:417</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Fired when the record enters the error state.</p>
+
+    </div>
+
+    
+
+
+    
+</div>
+
+                
+                    <div id="event_becameInvalid" class="events item">
+    <h3 class="name"><code>becameInvalid</code></h3>
+    <span class="type"></span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l410"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:410</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Fired when the record becomes invalid.</p>
+
+    </div>
+
+    
+
+
+    
+</div>
+
+                
+                    <div id="event_didCreate" class="events item">
+    <h3 class="name"><code>didCreate</code></h3>
+    <span class="type"></span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l396"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:396</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Fired when the record is created.</p>
+
+    </div>
+
+    
+
+
+    
+</div>
+
+                
+                    <div id="event_didDelete" class="events item">
+    <h3 class="name"><code>didDelete</code></h3>
+    <span class="type"></span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l403"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:403</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Fired when the record is deleted.</p>
+
+    </div>
+
+    
+
+
+    
+</div>
+
+                
+                    <div id="event_didLoad" class="events item">
+    <h3 class="name"><code>didLoad</code></h3>
+    <span class="type"></span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l382"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:382</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Fired when the record is loaded from the server.</p>
+
+    </div>
+
+    
+
+
+    
+</div>
+
+                
+                    <div id="event_didUpdate" class="events item">
+    <h3 class="name"><code>didUpdate</code></h3>
+    <span class="type"></span>
+
+    
+
+    
+
+    
+
+    
+
+    <div class="meta">
+        
+            
+                
+                <p>
+                
+                Defined in
+                
+            
+        
+        
+        <a href="../files/packages_ember-data_lib_system_model_model.js.html#l389"><code>packages&#x2F;ember-data&#x2F;lib&#x2F;system&#x2F;model&#x2F;model.js:389</code></a>
+        
+        </p>
+
+        
+
+        
+    </div>
+
+    <div class="description">
+        <p>Fired when the record is updated.</p>
+
+    </div>
+
+    
+
+
+    
+</div>
+
+                
+            </div>
+        
+    </div>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

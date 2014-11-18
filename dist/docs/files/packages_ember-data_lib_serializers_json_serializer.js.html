@@ -1,0 +1,1200 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8">
+    <title>packages/ember-data/lib/serializers/json_serializer.js</title>
+    <link rel="stylesheet" href="http://yui.yahooapis.com/3.9.1/build/cssgrids/cssgrids-min.css">
+    <link rel="stylesheet" href="../assets/vendor/prettify/prettify-min.css">
+    <link rel="stylesheet" href="../assets/css/main.css" id="site_styles">
+    <link rel="shortcut icon" type="image/png" href="../assets/favicon.png">
+    <script src="http://yui.yahooapis.com/combo?3.9.1/build/yui/yui-min.js"></script>
+</head>
+<body class="yui3-skin-sam">
+
+<div id="doc">
+    <div id="hd" class="yui3-g header">
+        <div class="yui3-u-3-4">
+            
+                <h1><img src="../assets/css/logo.png" title=""></h1>
+            
+        </div>
+        <div class="yui3-u-1-4 version">
+            <em>API Docs for: </em>
+        </div>
+    </div>
+    <div id="bd" class="yui3-g">
+
+        <div class="yui3-u-1-4">
+            <div id="docs-sidebar" class="sidebar apidocs">
+                <div id="api-list">
+    <h2 class="off-left">APIs</h2>
+    <div id="api-tabview" class="tabview">
+        <ul class="tabs">
+            <li><a href="#api-classes">Classes</a></li>
+            <li><a href="#api-modules">Modules</a></li>
+        </ul>
+
+        <div id="api-tabview-filter">
+            <input type="search" id="api-filter" placeholder="Type to filter APIs">
+        </div>
+
+        <div id="api-tabview-panel">
+            <ul id="api-classes" class="apis classes">
+            
+                <li><a href="../classes/DS.html">DS</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelAdapter.html">DS.ActiveModelAdapter</a></li>
+            
+                <li><a href="../classes/DS.ActiveModelSerializer.html">DS.ActiveModelSerializer</a></li>
+            
+                <li><a href="../classes/DS.Adapter.html">DS.Adapter</a></li>
+            
+                <li><a href="../classes/DS.AdapterPopulatedRecordArray.html">DS.AdapterPopulatedRecordArray</a></li>
+            
+                <li><a href="../classes/DS.BooleanTransform.html">DS.BooleanTransform</a></li>
+            
+                <li><a href="../classes/DS.ContainerProxy.html">DS.ContainerProxy</a></li>
+            
+                <li><a href="../classes/DS.DateTransform.html">DS.DateTransform</a></li>
+            
+                <li><a href="../classes/DS.DebugAdapter.html">DS.DebugAdapter</a></li>
+            
+                <li><a href="../classes/DS.EmbeddedRecordsMixin.html">DS.EmbeddedRecordsMixin</a></li>
+            
+                <li><a href="../classes/DS.Errors.html">DS.Errors</a></li>
+            
+                <li><a href="../classes/DS.FilteredRecordArray.html">DS.FilteredRecordArray</a></li>
+            
+                <li><a href="../classes/DS.FixtureAdapter.html">DS.FixtureAdapter</a></li>
+            
+                <li><a href="../classes/DS.InvalidError.html">DS.InvalidError</a></li>
+            
+                <li><a href="../classes/DS.JSONSerializer.html">DS.JSONSerializer</a></li>
+            
+                <li><a href="../classes/DS.ManyArray.html">DS.ManyArray</a></li>
+            
+                <li><a href="../classes/DS.Model.html">DS.Model</a></li>
+            
+                <li><a href="../classes/DS.NumberTransform.html">DS.NumberTransform</a></li>
+            
+                <li><a href="../classes/DS.PromiseArray.html">DS.PromiseArray</a></li>
+            
+                <li><a href="../classes/DS.PromiseObject.html">DS.PromiseObject</a></li>
+            
+                <li><a href="../classes/DS.RecordArray.html">DS.RecordArray</a></li>
+            
+                <li><a href="../classes/DS.RecordArrayManager.html">DS.RecordArrayManager</a></li>
+            
+                <li><a href="../classes/DS.RESTAdapter.html">DS.RESTAdapter</a></li>
+            
+                <li><a href="../classes/DS.RESTSerializer.html">DS.RESTSerializer</a></li>
+            
+                <li><a href="../classes/DS.RootState.html">DS.RootState</a></li>
+            
+                <li><a href="../classes/DS.Store.html">DS.Store</a></li>
+            
+                <li><a href="../classes/DS.StringTransform.html">DS.StringTransform</a></li>
+            
+                <li><a href="../classes/DS.Transform.html">DS.Transform</a></li>
+            
+                <li><a href="../classes/Ember.Date.html">Ember.Date</a></li>
+            
+            </ul>
+
+            <ul id="api-modules" class="apis modules">
+            
+                <li><a href="../modules/ember-data.html">ember-data</a></li>
+            
+            </ul>
+        </div>
+    </div>
+</div>
+
+            </div>
+        </div>
+        <div class="yui3-u-3-4">
+                <div id="api-options">
+        Show:
+        <label for="api-show-inherited">
+            <input type="checkbox" id="api-show-inherited" checked>
+            Inherited
+        </label>
+
+        <label for="api-show-protected">
+            <input type="checkbox" id="api-show-protected">
+            Protected
+        </label>
+
+        <label for="api-show-private">
+            <input type="checkbox" id="api-show-private">
+            Private
+        </label>
+        <label for="api-show-deprecated">
+            <input type="checkbox" id="api-show-deprecated">
+            Deprecated
+        </label>
+
+    </div>
+
+
+            <div class="apidocs">
+                <div id="docs-main">
+                    <div class="content">
+                        <h1 class="file-heading">File: packages/ember-data/lib/serializers/json_serializer.js</h1>
+
+<div class="file">
+    <pre class="code prettyprint linenums">
+var get = Ember.get;
+var isNone = Ember.isNone;
+var map = Ember.ArrayPolyfills.map;
+var merge = Ember.merge;
+
+/**
+  In Ember Data a Serializer is used to serialize and deserialize
+  records when they are transferred in and out of an external source.
+  This process involves normalizing property names, transforming
+  attribute values and serializing relationships.
+
+  For maximum performance Ember Data recommends you use the
+  [RESTSerializer](DS.RESTSerializer.html) or one of its subclasses.
+
+  &#x60;JSONSerializer&#x60; is useful for simpler or legacy backends that may
+  not support the http://jsonapi.org/ spec.
+
+  @class JSONSerializer
+  @namespace DS
+*/
+export default Ember.Object.extend({
+  /**
+    The primaryKey is used when serializing and deserializing
+    data. Ember Data always uses the &#x60;id&#x60; property to store the id of
+    the record. The external source may not always follow this
+    convention. In these cases it is useful to override the
+    primaryKey property to match the primaryKey of your external
+    store.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    App.ApplicationSerializer = DS.JSONSerializer.extend({
+      primaryKey: &#x27;_id&#x27;
+    });
+    &#x60;&#x60;&#x60;
+
+    @property primaryKey
+    @type {String}
+    @default &#x27;id&#x27;
+  */
+  primaryKey: &#x27;id&#x27;,
+
+  /**
+    The &#x60;attrs&#x60; object can be used to declare a simple mapping between
+    property names on &#x60;DS.Model&#x60; records and payload keys in the
+    serialized JSON object representing the record. An object with the
+    property &#x60;key&#x60; can also be used to designate the attribute&#x27;s key on
+    the response payload.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    App.Person = DS.Model.extend({
+      firstName: DS.attr(&#x27;string&#x27;),
+      lastName: DS.attr(&#x27;string&#x27;),
+      occupation: DS.attr(&#x27;string&#x27;),
+      admin: DS.attr(&#x27;boolean&#x27;)
+    });
+
+    App.PersonSerializer = DS.JSONSerializer.extend({
+      attrs: {
+        admin: &#x27;is_admin&#x27;,
+        occupation: {key: &#x27;career&#x27;}
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    You can also remove attributes by setting the &#x60;serialize&#x60; key to
+    false in your mapping object.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    App.PersonSerializer = DS.JSONSerializer.extend({
+      attrs: {
+        admin: {serialize: false},
+        occupation: {key: &#x27;career&#x27;}
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    When serialized:
+
+    &#x60;&#x60;&#x60;javascript
+    {
+      &quot;career&quot;: &quot;magician&quot;
+    }
+    &#x60;&#x60;&#x60;
+
+    Note that the &#x60;admin&#x60; is now not included in the payload.
+
+    @property attrs
+    @type {Object}
+  */
+
+  /**
+   Given a subclass of &#x60;DS.Model&#x60; and a JSON object this method will
+   iterate through each attribute of the &#x60;DS.Model&#x60; and invoke the
+   &#x60;DS.Transform#deserialize&#x60; method on the matching property of the
+   JSON object.  This method is typically called after the
+   serializer&#x27;s &#x60;normalize&#x60; method.
+
+   @method applyTransforms
+   @private
+   @param {subclass of DS.Model} type
+   @param {Object} data The data to transform
+   @return {Object} data The transformed data object
+  */
+  applyTransforms: function(type, data) {
+    type.eachTransformedAttribute(function applyTransform(key, type) {
+      if (!data.hasOwnProperty(key)) { return; }
+
+      var transform = this.transformFor(type);
+      data[key] = transform.deserialize(data[key]);
+    }, this);
+
+    return data;
+  },
+
+  /**
+    Normalizes a part of the JSON payload returned by
+    the server. You should override this method, munge the hash
+    and call super if you have generic normalization to do.
+
+    It takes the type of the record that is being normalized
+    (as a DS.Model class), the property where the hash was
+    originally found, and the hash to normalize.
+
+    You can use this method, for example, to normalize underscored keys to camelized
+    or other general-purpose normalizations.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    App.ApplicationSerializer = DS.JSONSerializer.extend({
+      normalize: function(type, hash) {
+        var fields = Ember.get(type, &#x27;fields&#x27;);
+        fields.forEach(function(field) {
+          var payloadField = Ember.String.underscore(field);
+          if (field === payloadField) { return; }
+
+          hash[field] = hash[payloadField];
+          delete hash[payloadField];
+        });
+        return this._super.apply(this, arguments);
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method normalize
+    @param {subclass of DS.Model} type
+    @param {Object} hash
+    @return {Object}
+  */
+  normalize: function(type, hash) {
+    if (!hash) { return hash; }
+
+    this.normalizeId(hash);
+    this.normalizeAttributes(type, hash);
+    this.normalizeRelationships(type, hash);
+
+    this.normalizeUsingDeclaredMapping(type, hash);
+    this.applyTransforms(type, hash);
+    return hash;
+  },
+
+  /**
+    You can use this method to normalize all payloads, regardless of whether they
+    represent single records or an array.
+
+    For example, you might want to remove some extraneous data from the payload:
+
+    &#x60;&#x60;&#x60;js
+    App.ApplicationSerializer = DS.JSONSerializer.extend({
+      normalizePayload: function(payload) {
+        delete payload.version;
+        delete payload.status;
+        return payload;
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method normalizePayload
+    @param {Object} payload
+    @return {Object} the normalized payload
+  */
+  normalizePayload: function(payload) {
+    return payload;
+  },
+
+  /**
+    @method normalizeAttributes
+    @private
+  */
+  normalizeAttributes: function(type, hash) {
+    var payloadKey;
+
+    if (this.keyForAttribute) {
+      type.eachAttribute(function(key) {
+        payloadKey = this.keyForAttribute(key);
+        if (key === payloadKey) { return; }
+        if (!hash.hasOwnProperty(payloadKey)) { return; }
+
+        hash[key] = hash[payloadKey];
+        delete hash[payloadKey];
+      }, this);
+    }
+  },
+
+  /**
+    @method normalizeRelationships
+    @private
+  */
+  normalizeRelationships: function(type, hash) {
+    var payloadKey;
+
+    if (this.keyForRelationship) {
+      type.eachRelationship(function(key, relationship) {
+        payloadKey = this.keyForRelationship(key, relationship.kind);
+        if (key === payloadKey) { return; }
+        if (!hash.hasOwnProperty(payloadKey)) { return; }
+
+        hash[key] = hash[payloadKey];
+        delete hash[payloadKey];
+      }, this);
+    }
+  },
+
+  /**
+    @method normalizeUsingDeclaredMapping
+    @private
+  */
+  normalizeUsingDeclaredMapping: function(type, hash) {
+    var attrs = get(this, &#x27;attrs&#x27;), payloadKey, key;
+
+    if (attrs) {
+      for (key in attrs) {
+        payloadKey = this._getMappedKey(key);
+        if (!hash.hasOwnProperty(payloadKey)) { continue; }
+
+        if (payloadKey !== key) {
+          hash[key] = hash[payloadKey];
+          delete hash[payloadKey];
+        }
+      }
+    }
+  },
+
+  /**
+    @method normalizeId
+    @private
+  */
+  normalizeId: function(hash) {
+    var primaryKey = get(this, &#x27;primaryKey&#x27;);
+
+    if (primaryKey === &#x27;id&#x27;) { return; }
+
+    hash.id = hash[primaryKey];
+    delete hash[primaryKey];
+  },
+
+  /**
+    Looks up the property key that was set by the custom &#x60;attr&#x60; mapping
+    passed to the serializer.
+
+    @method _getMappedKey
+    @private
+    @param {String} key
+    @return {String} key
+  */
+  _getMappedKey: function(key) {
+    var attrs = get(this, &#x27;attrs&#x27;);
+    var mappedKey;
+    if (attrs &amp;&amp; attrs[key]) {
+      mappedKey = attrs[key];
+      //We need to account for both the {title: &#x27;post_title&#x27;} and
+      //{title: {key: &#x27;post_title&#x27;}} forms
+      if (mappedKey.key){
+        mappedKey = mappedKey.key;
+      }
+      if (typeof mappedKey === &#x27;string&#x27;){
+        key = mappedKey;
+      }
+    }
+
+    return key;
+  },
+
+  /**
+    Check attrs.key.serialize property to inform if the &#x60;key&#x60;
+    can be serialized
+
+    @method _canSerialize
+    @private
+    @param {String} key
+    @return {boolean} true if the key can be serialized
+  */
+  _canSerialize: function(key) {
+    var attrs = get(this, &#x27;attrs&#x27;);
+
+    return !attrs || !attrs[key] || attrs[key].serialize !== false;
+  },
+
+  // SERIALIZE
+  /**
+    Called when a record is saved in order to convert the
+    record into JSON.
+
+    By default, it creates a JSON object with a key for
+    each attribute and belongsTo relationship.
+
+    For example, consider this model:
+
+    &#x60;&#x60;&#x60;javascript
+    App.Comment = DS.Model.extend({
+      title: DS.attr(),
+      body: DS.attr(),
+
+      author: DS.belongsTo(&#x27;user&#x27;)
+    });
+    &#x60;&#x60;&#x60;
+
+    The default serialization would create a JSON object like:
+
+    &#x60;&#x60;&#x60;javascript
+    {
+      &quot;title&quot;: &quot;Rails is unagi&quot;,
+      &quot;body&quot;: &quot;Rails? Omakase? O_O&quot;,
+      &quot;author&quot;: 12
+    }
+    &#x60;&#x60;&#x60;
+
+    By default, attributes are passed through as-is, unless
+    you specified an attribute type (&#x60;DS.attr(&#x27;date&#x27;)&#x60;). If
+    you specify a transform, the JavaScript value will be
+    serialized when inserted into the JSON hash.
+
+    By default, belongs-to relationships are converted into
+    IDs when inserted into the JSON hash.
+
+    ## IDs
+
+    &#x60;serialize&#x60; takes an options hash with a single option:
+    &#x60;includeId&#x60;. If this option is &#x60;true&#x60;, &#x60;serialize&#x60; will,
+    by default include the ID in the JSON object it builds.
+
+    The adapter passes in &#x60;includeId: true&#x60; when serializing
+    a record for &#x60;createRecord&#x60;, but not for &#x60;updateRecord&#x60;.
+
+    ## Customization
+
+    Your server may expect a different JSON format than the
+    built-in serialization format.
+
+    In that case, you can implement &#x60;serialize&#x60; yourself and
+    return a JSON hash of your choosing.
+
+    &#x60;&#x60;&#x60;javascript
+    App.PostSerializer = DS.JSONSerializer.extend({
+      serialize: function(post, options) {
+        var json = {
+          POST_TTL: post.get(&#x27;title&#x27;),
+          POST_BDY: post.get(&#x27;body&#x27;),
+          POST_CMS: post.get(&#x27;comments&#x27;).mapBy(&#x27;id&#x27;)
+        }
+
+        if (options.includeId) {
+          json.POST_ID_ = post.get(&#x27;id&#x27;);
+        }
+
+        return json;
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    ## Customizing an App-Wide Serializer
+
+    If you want to define a serializer for your entire
+    application, you&#x27;ll probably want to use &#x60;eachAttribute&#x60;
+    and &#x60;eachRelationship&#x60; on the record.
+
+    &#x60;&#x60;&#x60;javascript
+    App.ApplicationSerializer = DS.JSONSerializer.extend({
+      serialize: function(record, options) {
+        var json = {};
+
+        record.eachAttribute(function(name) {
+          json[serverAttributeName(name)] = record.get(name);
+        })
+
+        record.eachRelationship(function(name, relationship) {
+          if (relationship.kind === &#x27;hasMany&#x27;) {
+            json[serverHasManyName(name)] = record.get(name).mapBy(&#x27;id&#x27;);
+          }
+        });
+
+        if (options.includeId) {
+          json.ID_ = record.get(&#x27;id&#x27;);
+        }
+
+        return json;
+      }
+    });
+
+    function serverAttributeName(attribute) {
+      return attribute.underscore().toUpperCase();
+    }
+
+    function serverHasManyName(name) {
+      return serverAttributeName(name.singularize()) + &quot;_IDS&quot;;
+    }
+    &#x60;&#x60;&#x60;
+
+    This serializer will generate JSON that looks like this:
+
+    &#x60;&#x60;&#x60;javascript
+    {
+      &quot;TITLE&quot;: &quot;Rails is omakase&quot;,
+      &quot;BODY&quot;: &quot;Yep. Omakase.&quot;,
+      &quot;COMMENT_IDS&quot;: [ 1, 2, 3 ]
+    }
+    &#x60;&#x60;&#x60;
+
+    ## Tweaking the Default JSON
+
+    If you just want to do some small tweaks on the default JSON,
+    you can call super first and make the tweaks on the returned
+    JSON.
+
+    &#x60;&#x60;&#x60;javascript
+    App.PostSerializer = DS.JSONSerializer.extend({
+      serialize: function(record, options) {
+        var json = this._super.apply(this, arguments);
+
+        json.subject = json.title;
+        delete json.title;
+
+        return json;
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method serialize
+    @param {subclass of DS.Model} record
+    @param {Object} options
+    @return {Object} json
+  */
+  serialize: function(record, options) {
+    var json = {};
+
+    if (options &amp;&amp; options.includeId) {
+      var id = get(record, &#x27;id&#x27;);
+
+      if (id) {
+        json[get(this, &#x27;primaryKey&#x27;)] = id;
+      }
+    }
+
+    record.eachAttribute(function(key, attribute) {
+      this.serializeAttribute(record, json, key, attribute);
+    }, this);
+
+    record.eachRelationship(function(key, relationship) {
+      if (relationship.kind === &#x27;belongsTo&#x27;) {
+        this.serializeBelongsTo(record, json, relationship);
+      } else if (relationship.kind === &#x27;hasMany&#x27;) {
+        this.serializeHasMany(record, json, relationship);
+      }
+    }, this);
+
+    return json;
+  },
+
+  /**
+    You can use this method to customize how a serialized record is added to the complete
+    JSON hash to be sent to the server. By default the JSON Serializer does not namespace
+    the payload and just sends the raw serialized JSON object.
+    If your server expects namespaced keys, you should consider using the RESTSerializer.
+    Otherwise you can override this method to customize how the record is added to the hash.
+
+    For example, your server may expect underscored root objects.
+
+    &#x60;&#x60;&#x60;js
+    App.ApplicationSerializer = DS.RESTSerializer.extend({
+      serializeIntoHash: function(data, type, record, options) {
+        var root = Ember.String.decamelize(type.typeKey);
+        data[root] = this.serialize(record, options);
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method serializeIntoHash
+    @param {Object} hash
+    @param {subclass of DS.Model} type
+    @param {DS.Model} record
+    @param {Object} options
+  */
+  serializeIntoHash: function(hash, type, record, options) {
+    merge(hash, this.serialize(record, options));
+  },
+
+  /**
+   &#x60;serializeAttribute&#x60; can be used to customize how &#x60;DS.attr&#x60;
+   properties are serialized
+
+   For example if you wanted to ensure all your attributes were always
+   serialized as properties on an &#x60;attributes&#x60; object you could
+   write:
+
+   &#x60;&#x60;&#x60;javascript
+   App.ApplicationSerializer = DS.JSONSerializer.extend({
+     serializeAttribute: function(record, json, key, attributes) {
+       json.attributes = json.attributes || {};
+       this._super(record, json.attributes, key, attributes);
+     }
+   });
+   &#x60;&#x60;&#x60;
+
+   @method serializeAttribute
+   @param {DS.Model} record
+   @param {Object} json
+   @param {String} key
+   @param {Object} attribute
+  */
+  serializeAttribute: function(record, json, key, attribute) {
+    var type = attribute.type;
+
+    if (this._canSerialize(key)) {
+      var value = get(record, key);
+      if (type) {
+        var transform = this.transformFor(type);
+        value = transform.serialize(value);
+      }
+
+      // if provided, use the mapping provided by &#x60;attrs&#x60; in
+      // the serializer
+      var payloadKey =  this._getMappedKey(key);
+
+      if (payloadKey === key &amp;&amp; this.keyForAttribute) {
+        payloadKey = this.keyForAttribute(key);
+      }
+
+      json[payloadKey] = value;
+    }
+  },
+
+  /**
+   &#x60;serializeBelongsTo&#x60; can be used to customize how &#x60;DS.belongsTo&#x60;
+   properties are serialized.
+
+   Example
+
+   &#x60;&#x60;&#x60;javascript
+   App.PostSerializer = DS.JSONSerializer.extend({
+     serializeBelongsTo: function(record, json, relationship) {
+       var key = relationship.key;
+
+       var belongsTo = get(record, key);
+
+       key = this.keyForRelationship ? this.keyForRelationship(key, &quot;belongsTo&quot;) : key;
+
+       json[key] = Ember.isNone(belongsTo) ? belongsTo : belongsTo.toJSON();
+     }
+   });
+   &#x60;&#x60;&#x60;
+
+   @method serializeBelongsTo
+   @param {DS.Model} record
+   @param {Object} json
+   @param {Object} relationship
+  */
+  serializeBelongsTo: function(record, json, relationship) {
+    var key = relationship.key;
+
+    if (this._canSerialize(key)) {
+      var belongsTo = get(record, key);
+
+      // if provided, use the mapping provided by &#x60;attrs&#x60; in
+      // the serializer
+      var payloadKey = this._getMappedKey(key);
+      if (payloadKey === key &amp;&amp; this.keyForRelationship) {
+        payloadKey = this.keyForRelationship(key, &quot;belongsTo&quot;);
+      }
+
+      //Need to check whether the id is there for new&amp;async records
+      if (isNone(belongsTo) || isNone(get(belongsTo, &#x27;id&#x27;))) {
+        json[payloadKey] = null;
+      } else {
+        json[payloadKey] = get(belongsTo, &#x27;id&#x27;);
+      }
+
+      if (relationship.options.polymorphic) {
+        this.serializePolymorphicType(record, json, relationship);
+      }
+    }
+  },
+
+  /**
+   &#x60;serializeHasMany&#x60; can be used to customize how &#x60;DS.hasMany&#x60;
+   properties are serialized.
+
+   Example
+
+   &#x60;&#x60;&#x60;javascript
+   App.PostSerializer = DS.JSONSerializer.extend({
+     serializeHasMany: function(record, json, relationship) {
+       var key = relationship.key;
+       if (key === &#x27;comments&#x27;) {
+         return;
+       } else {
+         this._super.apply(this, arguments);
+       }
+     }
+   });
+   &#x60;&#x60;&#x60;
+
+   @method serializeHasMany
+   @param {DS.Model} record
+   @param {Object} json
+   @param {Object} relationship
+  */
+  serializeHasMany: function(record, json, relationship) {
+    var key = relationship.key;
+
+    if (this._canSerialize(key)) {
+      var payloadKey;
+
+      // if provided, use the mapping provided by &#x60;attrs&#x60; in
+      // the serializer
+      payloadKey = this._getMappedKey(key);
+      if (payloadKey === key &amp;&amp; this.keyForRelationship) {
+        payloadKey = this.keyForRelationship(key, &quot;hasMany&quot;);
+      }
+
+      var relationshipType = record.constructor.determineRelationshipType(relationship);
+
+      if (relationshipType === &#x27;manyToNone&#x27; || relationshipType === &#x27;manyToMany&#x27;) {
+        json[payloadKey] = get(record, key).mapBy(&#x27;id&#x27;);
+        // TODO support for polymorphic manyToNone and manyToMany relationships
+      }
+    }
+  },
+
+  /**
+    You can use this method to customize how polymorphic objects are
+    serialized. Objects are considered to be polymorphic if
+    &#x60;{polymorphic: true}&#x60; is pass as the second argument to the
+    &#x60;DS.belongsTo&#x60; function.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    App.CommentSerializer = DS.JSONSerializer.extend({
+      serializePolymorphicType: function(record, json, relationship) {
+        var key = relationship.key,
+            belongsTo = get(record, key);
+        key = this.keyForAttribute ? this.keyForAttribute(key) : key;
+
+        if (Ember.isNone(belongsTo)) {
+          json[key + &quot;_type&quot;] = null;
+        } else {
+          json[key + &quot;_type&quot;] = belongsTo.constructor.typeKey;
+        }
+      }
+    });
+   &#x60;&#x60;&#x60;
+
+    @method serializePolymorphicType
+    @param {DS.Model} record
+    @param {Object} json
+    @param {Object} relationship
+  */
+  serializePolymorphicType: Ember.K,
+
+  // EXTRACT
+
+  /**
+    The &#x60;extract&#x60; method is used to deserialize payload data from the
+    server. By default the &#x60;JSONSerializer&#x60; does not push the records
+    into the store. However records that subclass &#x60;JSONSerializer&#x60;
+    such as the &#x60;RESTSerializer&#x60; may push records into the store as
+    part of the extract call.
+
+    This method delegates to a more specific extract method based on
+    the &#x60;requestType&#x60;.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    var get = Ember.get;
+    socket.on(&#x27;message&#x27;, function(message) {
+      var modelName = message.model;
+      var data = message.data;
+      var type = store.modelFor(modelName);
+      var serializer = store.serializerFor(type.typeKey);
+      var record = serializer.extract(store, type, data, get(data, &#x27;id&#x27;), &#x27;single&#x27;);
+      store.push(modelName, record);
+    });
+    &#x60;&#x60;&#x60;
+
+    @method extract
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
+    @return {Object} json The deserialized payload
+  */
+  extract: function(store, type, payload, id, requestType) {
+    this.extractMeta(store, type, payload);
+
+    var specificExtract = &quot;extract&quot; + requestType.charAt(0).toUpperCase() + requestType.substr(1);
+    return this[specificExtract](store, type, payload, id, requestType);
+  },
+
+  /**
+    &#x60;extractFindAll&#x60; is a hook into the extract method used when a
+    call is made to &#x60;DS.Store#findAll&#x60;. By default this method is an
+    alias for [extractArray](#method_extractArray).
+
+    @method extractFindAll
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
+    @return {Array} array An array of deserialized objects
+  */
+  extractFindAll: function(store, type, payload, id, requestType){
+    return this.extractArray(store, type, payload, id, requestType);
+  },
+  /**
+    &#x60;extractFindQuery&#x60; is a hook into the extract method used when a
+    call is made to &#x60;DS.Store#findQuery&#x60;. By default this method is an
+    alias for [extractArray](#method_extractArray).
+
+    @method extractFindQuery
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
+    @return {Array} array An array of deserialized objects
+  */
+  extractFindQuery: function(store, type, payload, id, requestType){
+    return this.extractArray(store, type, payload, id, requestType);
+  },
+  /**
+    &#x60;extractFindMany&#x60; is a hook into the extract method used when a
+    call is made to &#x60;DS.Store#findMany&#x60;. By default this method is
+    alias for [extractArray](#method_extractArray).
+
+    @method extractFindMany
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
+    @return {Array} array An array of deserialized objects
+  */
+  extractFindMany: function(store, type, payload, id, requestType){
+    return this.extractArray(store, type, payload, id, requestType);
+  },
+  /**
+    &#x60;extractFindHasMany&#x60; is a hook into the extract method used when a
+    call is made to &#x60;DS.Store#findHasMany&#x60;. By default this method is
+    alias for [extractArray](#method_extractArray).
+
+    @method extractFindHasMany
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
+    @return {Array} array An array of deserialized objects
+  */
+  extractFindHasMany: function(store, type, payload, id, requestType){
+    return this.extractArray(store, type, payload, id, requestType);
+  },
+
+  /**
+    &#x60;extractCreateRecord&#x60; is a hook into the extract method used when a
+    call is made to &#x60;DS.Store#createRecord&#x60;. By default this method is
+    alias for [extractSave](#method_extractSave).
+
+    @method extractCreateRecord
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
+    @return {Object} json The deserialized payload
+  */
+  extractCreateRecord: function(store, type, payload, id, requestType) {
+    return this.extractSave(store, type, payload, id, requestType);
+  },
+  /**
+    &#x60;extractUpdateRecord&#x60; is a hook into the extract method used when
+    a call is made to &#x60;DS.Store#update&#x60;. By default this method is alias
+    for [extractSave](#method_extractSave).
+
+    @method extractUpdateRecord
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
+    @return {Object} json The deserialized payload
+  */
+  extractUpdateRecord: function(store, type, payload, id, requestType) {
+    return this.extractSave(store, type, payload, id, requestType);
+  },
+  /**
+    &#x60;extractDeleteRecord&#x60; is a hook into the extract method used when
+    a call is made to &#x60;DS.Store#deleteRecord&#x60;. By default this method is
+    alias for [extractSave](#method_extractSave).
+
+    @method extractDeleteRecord
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
+    @return {Object} json The deserialized payload
+  */
+  extractDeleteRecord: function(store, type, payload, id, requestType) {
+    return this.extractSave(store, type, payload, id, requestType);
+  },
+
+  /**
+    &#x60;extractFind&#x60; is a hook into the extract method used when
+    a call is made to &#x60;DS.Store#find&#x60;. By default this method is
+    alias for [extractSingle](#method_extractSingle).
+
+    @method extractFind
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
+    @return {Object} json The deserialized payload
+  */
+  extractFind: function(store, type, payload, id, requestType) {
+    return this.extractSingle(store, type, payload, id, requestType);
+  },
+  /**
+    &#x60;extractFindBelongsTo&#x60; is a hook into the extract method used when
+    a call is made to &#x60;DS.Store#findBelongsTo&#x60;. By default this method is
+    alias for [extractSingle](#method_extractSingle).
+
+    @method extractFindBelongsTo
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
+    @return {Object} json The deserialized payload
+  */
+  extractFindBelongsTo: function(store, type, payload, id, requestType) {
+    return this.extractSingle(store, type, payload, id, requestType);
+  },
+  /**
+    &#x60;extractSave&#x60; is a hook into the extract method used when a call
+    is made to &#x60;DS.Model#save&#x60;. By default this method is alias
+    for [extractSingle](#method_extractSingle).
+
+    @method extractSave
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
+    @return {Object} json The deserialized payload
+  */
+  extractSave: function(store, type, payload, id, requestType) {
+    return this.extractSingle(store, type, payload, id, requestType);
+  },
+
+  /**
+    &#x60;extractSingle&#x60; is used to deserialize a single record returned
+    from the adapter.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    App.PostSerializer = DS.JSONSerializer.extend({
+      extractSingle: function(store, type, payload) {
+        payload.comments = payload._embedded.comment;
+        delete payload._embedded;
+
+        return this._super(store, type, payload);
+      },
+    });
+    &#x60;&#x60;&#x60;
+
+    @method extractSingle
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
+    @return {Object} json The deserialized payload
+  */
+  extractSingle: function(store, type, payload, id, requestType) {
+    payload = this.normalizePayload(payload);
+    return this.normalize(type, payload);
+  },
+
+  /**
+    &#x60;extractArray&#x60; is used to deserialize an array of records
+    returned from the adapter.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    App.PostSerializer = DS.JSONSerializer.extend({
+      extractArray: function(store, type, payload) {
+        return payload.map(function(json) {
+          return this.extractSingle(store, type, json);
+        }, this);
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method extractArray
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+    @param {String or Number} id
+    @param {String} requestType
+    @return {Array} array An array of deserialized objects
+  */
+  extractArray: function(store, type, arrayPayload, id, requestType) {
+    var normalizedPayload = this.normalizePayload(arrayPayload);
+    var serializer = this;
+
+    return map.call(normalizedPayload, function(singlePayload) {
+      return serializer.normalize(type, singlePayload);
+    });
+  },
+
+  /**
+    &#x60;extractMeta&#x60; is used to deserialize any meta information in the
+    adapter payload. By default Ember Data expects meta information to
+    be located on the &#x60;meta&#x60; property of the payload object.
+
+    Example
+
+    &#x60;&#x60;&#x60;javascript
+    App.PostSerializer = DS.JSONSerializer.extend({
+      extractMeta: function(store, type, payload) {
+        if (payload &amp;&amp; payload._pagination) {
+          store.metaForType(type, payload._pagination);
+          delete payload._pagination;
+        }
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+    @method extractMeta
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} payload
+  */
+  extractMeta: function(store, type, payload) {
+    if (payload &amp;&amp; payload.meta) {
+      store.metaForType(type, payload.meta);
+      delete payload.meta;
+    }
+  },
+
+  /**
+   &#x60;keyForAttribute&#x60; can be used to define rules for how to convert an
+   attribute name in your model to a key in your JSON.
+
+   Example
+
+   &#x60;&#x60;&#x60;javascript
+   App.ApplicationSerializer = DS.RESTSerializer.extend({
+     keyForAttribute: function(attr) {
+       return Ember.String.underscore(attr).toUpperCase();
+     }
+   });
+   &#x60;&#x60;&#x60;
+
+   @method keyForAttribute
+   @param {String} key
+   @return {String} normalized key
+  */
+  keyForAttribute: function(key){
+    return key;
+  },
+
+  /**
+   &#x60;keyForRelationship&#x60; can be used to define a custom key when
+   serializing relationship properties. By default &#x60;JSONSerializer&#x60;
+   does not provide an implementation of this method.
+
+   Example
+
+    &#x60;&#x60;&#x60;javascript
+    App.PostSerializer = DS.JSONSerializer.extend({
+      keyForRelationship: function(key, relationship) {
+         return &#x27;rel_&#x27; + Ember.String.underscore(key);
+      }
+    });
+    &#x60;&#x60;&#x60;
+
+   @method keyForRelationship
+   @param {String} key
+   @param {String} relationship type
+   @return {String} normalized key
+  */
+
+  keyForRelationship: function(key, type){
+    return key;
+  },
+
+  // HELPERS
+
+  /**
+   @method transformFor
+   @private
+   @param {String} attributeType
+   @param {Boolean} skipAssertion
+   @return {DS.Transform} transform
+  */
+  transformFor: function(attributeType, skipAssertion) {
+    var transform = this.container.lookup(&#x27;transform:&#x27; + attributeType);
+    Ember.assert(&quot;Unable to find transform for &#x27;&quot; + attributeType + &quot;&#x27;&quot;, skipAssertion || !!transform);
+    return transform;
+  }
+});
+
+    </pre>
+</div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<script src="../assets/vendor/prettify/prettify-min.js"></script>
+<script>prettyPrint();</script>
+<script src="../assets/js/yui-prettify.js"></script>
+<script src="../assets/../api.js"></script>
+<script src="../assets/js/api-filter.js"></script>
+<script src="../assets/js/api-list.js"></script>
+<script src="../assets/js/api-search.js"></script>
+<script src="../assets/js/apidocs.js"></script>
+</body>
+</html>

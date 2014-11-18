@@ -1,0 +1,63 @@
+<!doctype html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>Ember Data</title>
+    <link rel="stylesheet" href="/bower_components/qunit/qunit/qunit.css">
+    <script src="/bower_components/qunit/qunit/qunit.js"></script>
+    <script src="/testem.js"></script>
+    <script src="qunit_configuration.js"></script>
+    <script src="/bower_components/handlebars/handlebars.js"></script>
+
+    <script type="text/javascript">
+      window.loadScript = function(url) {
+            document.write(unescape('%3Cscript src="'+url+'"%3E%3C/script%3E'));
+      };
+    </script>
+
+    <script type="text/javascript">
+      // Load custom version of jQuery if possible (assign to window so IE8 can use in later blocks)
+      var jQueryVersion = QUnit.urlParams.jquery;
+      if (jQueryVersion) {
+        loadScript('https://code.jquery.com/jquery-'+jQueryVersion+'.js');
+      }
+      // Close the script tag to make sure document.write happens
+    </script>
+
+    <script type="text/javascript">
+      // Fallback to default jQuery
+      if (jQueryVersion !== 'none' && !window.jQuery) {
+        loadScript('/bower_components/jquery/jquery.js');
+      }
+      // Close the script tag to make sure document.write happens
+    </script>
+
+
+    <script src="ember_configuration.js"></script>
+
+    <script type="text/javascript">
+      var emberChannel = QUnit.urlParams.emberchannel || "release", emberPath;
+
+      if (emberChannel === "release") {
+        emberPath = "/bower_components/ember/ember.js";
+      } else {
+        emberPath = 'https://s3.amazonaws.com/builds.emberjs.com/' + emberChannel + '/ember.js';
+      }
+
+      loadScript(emberPath);
+    </script>
+    <!--[if lte IE 8]>
+      <script src="/bower_components/es5-shim/es5-shim.js"></script>
+      <script src="/bower_components/es5-shim/es5-sham.js"></script>
+    <![endif]]-->
+
+
+    <script src="/ember-data.js"></script>
+    <script src="ember-data-setup.js"></script>
+    <script src="tests.js"></script>
+  </head>
+<body>
+  <div id="qunit"></div>
+  <div id="qunit-fixture"></div>
+</body>
+</html>
