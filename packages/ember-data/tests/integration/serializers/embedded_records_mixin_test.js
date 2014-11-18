@@ -582,6 +582,7 @@ test("serialize with (new) embedded objects (hasMany relationship)", function() 
   var serializer = env.container.lookup("serializer:homePlanet");
 
   var json = serializer.serialize(league);
+  delete json.villains[0]._clientId;
   deepEqual(json, {
     name: "Villain League",
     villains: [{
@@ -1125,4 +1126,111 @@ test("serializing relationships with an embedded and without calls super when no
   });
   ok(calledSerializeBelongsTo);
   ok(calledSerializeHasMany);
+});
+test("serialize embeds objects without 'id' if it doesnt exist", function() {
+  league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
+  var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      villains: {embedded: 'always'}
+    }
+  }));
+  var serializer = env.container.lookup("serializer:homePlanet");
+  var json = serializer.serialize(league);
+  delete json.villains[0]._clientId;
+  deepEqual(json, {
+    name: "Villain League",
+    villains: [{
+      first_name: "Tom",
+      last_name: "Dale",
+      home_planet_id: get(league, "id"),
+      secret_lab_id: null
+    }]
+  });
+});
+test("serialize embeds objects with a temporary client id when they have not been persisted", function() {
+  league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
+  var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      villains: {embedded: 'always'}
+    }
+  }));
+  var serializer = env.container.lookup("serializer:homePlanet");
+  var json = serializer.serialize(league);
+  ok(json.villains[0]._clientId, "client id should be non null");
+});
+test("serialize uses a custom client id key when specified in the serializer", function() {
+  league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
+  var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      villains: {embedded: 'always'}
+    },
+      clientIdKey: 'localId'
+  }));
+  var serializer = env.container.lookup("serializer:homePlanet");
+  var json = serializer.serialize(league);
+  ok(json.villains[0].localId, "custom client id key should be present");
+});
+test("serialize stores a client id for any new embedded object", function() {
+  league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
+  var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league }),
+  yehuda = env.store.createRecord(SuperVillain, { firstName: "Yehuda", lastName: "Katz", homePlanet: league });
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      villains: {embedded: 'always'}
+    }
+  }));
+  var serializer = env.container.lookup("serializer:homePlanet");
+  var json = serializer.serialize(league);
+  equal(Object.keys(serializer.clientIdMap).length, 2, "serializer client id map should contain 2 references");
+  notEqual(json.villains[0]._clientId, json.villains[1]._clientId, "client id should be different for each object");
+  ok(serializer.clientIdMap[json.villains[0]._clientId], "serializer client id should be present in map");
+  ok(serializer.clientIdMap[json.villains[1]._clientId], "serializer client id should be present in map");
+  equal(serializer.clientIdMap[json.villains[0]._clientId], tom, "serializer client id map should point to the correct embedded record");
+  equal(serializer.clientIdMap[json.villains[1]._clientId], yehuda, "serializer client id map should point to the correct embedded record");
+});
+test("serialize + extractSingle updates new embedded records in memory instead of creating duplicates", function() {
+  league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
+  var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      villains: {embedded: 'always'}
+    }
+  }));
+  var serializer = env.container.lookup("serializer:homePlanet");
+  var json = serializer.serialize(league);
+  var apiResponse = { home_planet: json };
+  // emulate a server assigned ID for the embedded record
+  apiResponse.home_planet.villains[0].id = "1";
+  var normalized = serializer.extractSingle(env.store, HomePlanet, apiResponse);
+  deepEqual(normalized, {
+      name: "Villain League",
+      villains: [ "1" ]
+    }, "Primary array was correct");
+  equal(env.store.recordForId("superVillain", "1").get("firstName"), "Tom", "Embedded record should be in the store");
+  equal(league.get('villains.length'), 1, "Only one hasMany record should exist on the parent");
+  equal(league.get('villains.firstObject'), env.store.recordForId("superVillain", "1"), "Embedded record and hasMany record should be the same");
+  equal(env.store.typeMapFor(env.store.modelFor("superVillain")).records.length, 1, "Only one record of the child type should exist in memory");
+});
+test("serialize + extractSingle removes client id mapping entry after updating the record", function() {
+  league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
+  var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+     villains: {embedded: 'always'}
+    }
+  }));
+  var serializer = env.container.lookup("serializer:homePlanet");
+  var json = serializer.serialize(league);
+  var apiResponse = { home_planet: json };
+  // emulate a server assigned ID for the embedded record
+  apiResponse.home_planet.villains[0].id = "1";
+  var normalized = serializer.extractSingle(env.store, HomePlanet, apiResponse);
+  deepEqual(normalized, {
+      name: "Villain League",
+      villains: [ "1" ]
+    }, "Primary array was correct");
+  deepEqual(serializer.clientIdMap, {}, "client id mapping should be empty");
 });

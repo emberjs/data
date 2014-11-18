@@ -130,7 +130,48 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       return this._super(key, type) || key;
     }
   },
+  /**
+   The property to use when serializing a client id.
 
+   @property clientIdKey
+   @type {String}
+   */
+  clientIdKey: '_clientId',
+
+  /**
+   Map of client ids, these are temporary ids used when saving new embedded records.
+
+   They will be reconciled upon loading embedded records. Once a client id has been
+   reconciled with a record that has since been given a real id, the clientIdMap
+   entry will be deleted
+
+   @property clientIdMap
+   @type {Object}
+   */
+  clientIdMap: Ember.computed(function () {
+    return {};
+  }),
+
+   /**
+   Needed because the Ember.computed above does not work (??)
+   */
+  init: function () {
+    this._super();
+    this.clientIdMap = {};
+  },
+
+   /**
+   Return a unique client id
+
+   @property createClientId
+   @type {String}
+   */
+  createClientId: function (record) {
+     var guid = Ember.guidFor(record);
+
+     this.clientIdMap[guid] = record;
+     return guid;
+  },
   /**
     Serialize `belongsTo` relationship when it is configured as an embedded object.
 
@@ -305,7 +346,11 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       key = this.keyForAttribute(attr);
       json[key] = get(record, attr).map(function(embeddedRecord) {
         var serializedEmbeddedRecord = embeddedRecord.serialize({includeId: true});
+        var clientIdKey = this.clientIdKey;
         this.removeEmbeddedForeignKey(record, embeddedRecord, relationship, serializedEmbeddedRecord);
+        if (serializedEmbeddedRecord['id'] == null) {
+          serializedEmbeddedRecord[clientIdKey] = this.createClientId(embeddedRecord);
+        }
         return serializedEmbeddedRecord;
       }, this);
     }
@@ -395,7 +440,7 @@ function extractEmbeddedRecords(serializer, store, type, partial) {
           extractEmbeddedHasManyPolymorphic(store, key, partial);
         }
         else {
-          extractEmbeddedHasMany(store, key, embeddedType, partial);
+          extractEmbeddedHasMany(store, key, embeddedType, partial, serializer);
         }
       }
       if (relationship.kind === "belongsTo") {
@@ -408,7 +453,7 @@ function extractEmbeddedRecords(serializer, store, type, partial) {
 }
 
 // handles embedding for `hasMany` relationship
-function extractEmbeddedHasMany(store, key, embeddedType, hash) {
+function extractEmbeddedHasMany(store, key, embeddedType, hash, parentSerializer) {
   if (!hash[key]) {
     return hash;
   }
@@ -418,7 +463,17 @@ function extractEmbeddedHasMany(store, key, embeddedType, hash) {
   var embeddedSerializer = store.serializerFor(embeddedType.typeKey);
   forEach(hash[key], function(data) {
     var embeddedRecord = embeddedSerializer.normalize(embeddedType, data, null);
-    store.push(embeddedType, embeddedRecord);
+    var clientId = data[embeddedSerializer.clientIdKey];
+    var clientRecord = parentSerializer.clientIdMap[clientId];
+    
+    // if embedded data contains client id, mimic a createRecord/save
+    if (clientRecord) {
+      clientRecord.adapterWillCommit();
+      store.didSaveRecord(clientRecord, data);
+      delete parentSerializer.clientIdMap[clientId];
+    } else {
+      store.push(embeddedType, embeddedRecord);
+    }
     ids.push(embeddedRecord.id);
   });
 
