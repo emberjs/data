@@ -1001,7 +1001,7 @@
         },
         {
             "file": "packages/activemodel-adapter/lib/system/active_model_serializer.js",
-            "line": 114,
+            "line": 118,
             "description": "Underscores relationship names and appends \"_id\" or \"_ids\" when serializing\nrelationship keys.",
             "itemtype": "method",
             "name": "keyForRelationship",
@@ -1026,7 +1026,7 @@
         },
         {
             "file": "packages/activemodel-adapter/lib/system/active_model_serializer.js",
-            "line": 139,
+            "line": 143,
             "description": "Underscores the JSON root keys when serializing.",
             "itemtype": "method",
             "name": "serializeIntoHash",
@@ -1058,7 +1058,7 @@
         },
         {
             "file": "packages/activemodel-adapter/lib/system/active_model_serializer.js",
-            "line": 153,
+            "line": 157,
             "description": "Serializes a polymorphic type as a fully capitalized model name.",
             "itemtype": "method",
             "name": "serializePolymorphicType",
@@ -1085,7 +1085,7 @@
         },
         {
             "file": "packages/activemodel-adapter/lib/system/active_model_serializer.js",
-            "line": 175,
+            "line": 179,
             "description": "Add extra step to `DS.RESTSerializer.normalize` so links are normalized.\n\nIf your payload looks like:\n\n```js\n{\n  \"post\": {\n    \"id\": 1,\n    \"title\": \"Rails is omakase\",\n    \"links\": { \"flagged_comments\": \"api/comments/flagged\" }\n  }\n}\n```\n\nThe normalized version would look like this\n\n```js\n{\n  \"post\": {\n    \"id\": 1,\n    \"title\": \"Rails is omakase\",\n    \"links\": { \"flaggedComments\": \"api/comments/flagged\" }\n  }\n}\n```",
             "itemtype": "method",
             "name": "normalize",
@@ -1115,7 +1115,7 @@
         },
         {
             "file": "packages/activemodel-adapter/lib/system/active_model_serializer.js",
-            "line": 215,
+            "line": 219,
             "description": "Convert `snake_cased` links  to `camelCase`",
             "itemtype": "method",
             "name": "normalizeLinks",
@@ -1132,7 +1132,7 @@
         },
         {
             "file": "packages/activemodel-adapter/lib/system/active_model_serializer.js",
-            "line": 237,
+            "line": 241,
             "description": "Normalize the polymorphic type from the JSON.\n\nNormalize:\n```js\n  {\n    id: \"1\"\n    minion: { type: \"evil_minion\", id: \"12\"}\n  }\n```\n\nTo:\n```js\n  {\n    id: \"1\"\n    minion: { type: \"evilMinion\", id: \"12\"}\n  }\n```",
             "itemtype": "method",
             "name": "normalizeRelationships",
@@ -2186,7 +2186,7 @@
         },
         {
             "file": "packages/ember-data/lib/serializers/embedded_records_mixin.js",
-            "line": 133,
+            "line": 136,
             "description": "The property to use when serializing a client id.",
             "itemtype": "property",
             "name": "clientIdKey",
@@ -2197,7 +2197,7 @@
         },
         {
             "file": "packages/ember-data/lib/serializers/embedded_records_mixin.js",
-            "line": 141,
+            "line": 144,
             "description": "Map of client ids, these are temporary ids used when saving new embedded records.\n\nThey will be reconciled upon loading embedded records. Once a client id has been\nreconciled with a record that has since been given a real id, the clientIdMap\nentry will be deleted",
             "itemtype": "property",
             "name": "clientIdMap",
@@ -2208,7 +2208,7 @@
         },
         {
             "file": "packages/ember-data/lib/serializers/embedded_records_mixin.js",
-            "line": 155,
+            "line": 158,
             "description": "Needed because the Ember.computed above does not work (??)",
             "class": "DS.EmbeddedRecordsMixin",
             "module": "ember-data",
@@ -2216,7 +2216,7 @@
         },
         {
             "file": "packages/ember-data/lib/serializers/embedded_records_mixin.js",
-            "line": 163,
+            "line": 166,
             "description": "Return a unique client id",
             "itemtype": "property",
             "name": "createClientId",
@@ -2227,7 +2227,7 @@
         },
         {
             "file": "packages/ember-data/lib/serializers/embedded_records_mixin.js",
-            "line": 175,
+            "line": 178,
             "description": "Serialize `belongsTo` relationship when it is configured as an embedded object.\n\nThis example of an author model belongs to a post model:\n\n```js\nPost = DS.Model.extend({\n  title:    DS.attr('string'),\n  body:     DS.attr('string'),\n  author:   DS.belongsTo('author')\n});\n\nAuthor = DS.Model.extend({\n  name:     DS.attr('string'),\n  post:     DS.belongsTo('post')\n});\n```\n\nUse a custom (type) serializer for the post model to configure embedded author\n\n```js\nApp.PostSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {\n  attrs: {\n    author: {embedded: 'always'}\n  }\n})\n```\n\nA payload with an attribute configured for embedded records can serialize\nthe records together under the root attribute's payload:\n\n```js\n{\n  \"post\": {\n    \"id\": \"1\"\n    \"title\": \"Rails is omakase\",\n    \"author\": {\n      \"id\": \"2\"\n      \"name\": \"dhh\"\n    }\n  }\n}\n```",
             "itemtype": "method",
             "name": "serializeBelongsTo",
@@ -2254,7 +2254,7 @@
         },
         {
             "file": "packages/ember-data/lib/serializers/embedded_records_mixin.js",
-            "line": 252,
+            "line": 255,
             "description": "Serialize `hasMany` relationship when it is configured as embedded objects.\n\nThis example of a post model has many comments:\n\n```js\nPost = DS.Model.extend({\n  title:    DS.attr('string'),\n  body:     DS.attr('string'),\n  comments: DS.hasMany('comment')\n});\n\nComment = DS.Model.extend({\n  body:     DS.attr('string'),\n  post:     DS.belongsTo('post')\n});\n```\n\nUse a custom (type) serializer for the post model to configure embedded comments\n\n```js\nApp.PostSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {\n  attrs: {\n    comments: {embedded: 'always'}\n  }\n})\n```\n\nA payload with an attribute configured for embedded records can serialize\nthe records together under the root attribute's payload:\n\n```js\n{\n  \"post\": {\n    \"id\": \"1\"\n    \"title\": \"Rails is omakase\",\n    \"body\": \"I want this for my ORM, I want that for my template language...\"\n    \"comments\": [{\n      \"id\": \"1\",\n      \"body\": \"Rails is unagi\"\n    }, {\n      \"id\": \"2\",\n      \"body\": \"Omakase O_o\"\n    }]\n  }\n}\n```\n\nThe attrs options object can use more specific instruction for extracting and\nserializing. When serializing, an option to embed `ids` or `records` can be set.\nWhen extracting the only option is `records`.\n\nSo `{embedded: 'always'}` is shorthand for:\n`{serialize: 'records', deserialize: 'records'}`\n\nTo embed the `ids` for a related object (using a hasMany relationship):\n\n```js\nApp.PostSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {\n  attrs: {\n    comments: {serialize: 'ids', deserialize: 'records'}\n  }\n})\n```\n\n```js\n{\n  \"post\": {\n    \"id\": \"1\"\n    \"title\": \"Rails is omakase\",\n    \"body\": \"I want this for my ORM, I want that for my template language...\"\n    \"comments\": [\"1\", \"2\"]\n  }\n}\n```",
             "itemtype": "method",
             "name": "serializeHasMany",
@@ -2281,7 +2281,7 @@
         },
         {
             "file": "packages/ember-data/lib/serializers/embedded_records_mixin.js",
-            "line": 359,
+            "line": 362,
             "description": "When serializing an embedded record, modify the property (in the json payload)\nthat refers to the parent record (foreign key for relationship).\n\nSerializing a `belongsTo` relationship removes the property that refers to the\nparent record\n\nSerializing a `hasMany` relationship does not remove the property that refers to\nthe parent record.",
             "itemtype": "method",
             "name": "removeEmbeddedForeignKey",
@@ -6844,7 +6844,7 @@
     "warnings": [
         {
             "message": "Missing item type\nNeeded because the Ember.computed above does not work (??)",
-            "line": " packages/ember-data/lib/serializers/embedded_records_mixin.js:155"
+            "line": " packages/ember-data/lib/serializers/embedded_records_mixin.js:158"
         },
         {
             "message": "Missing item type\nPolyfill Ember.Map behavior for Ember <= 1.7\nThis can probably be removed before 1.0 final",

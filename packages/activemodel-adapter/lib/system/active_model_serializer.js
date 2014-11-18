@@ -111,6 +111,10 @@ var ActiveModelSerializer = RESTSerializer.extend({
     return decamelize(attr);
   },
 
+  formatEmbeddedKey: function(key){
+    return key + "_attributes";
+  },
+
   /**
     Underscores relationship names and appends "_id" or "_ids" when serializing
     relationship keys.
