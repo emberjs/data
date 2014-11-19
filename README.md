@@ -19,6 +19,9 @@ other JavaScript APIs is easy.
 
 ### Getting Ember Data
 
+After updating remember to run `npm run dist`.
+We are serving gem from here!!
+
 ```no-highlight
 bower install ember-data --save
 ```
