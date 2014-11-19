@@ -2244,6 +2244,22 @@ define("ember-data/serializers/embedded_records_mixin",
         var normalizedHash = this._super(type, hash, prop);
         return extractEmbeddedRecords(this, this.store, type, normalizedHash);
       },
+      storePush: function(store, typeName, hash, primarySerializer) {
+        if(!primarySerializer)
+          store.push(typeName, hash);
+        
+        var clientId = hash[primarySerializer.clientIdKey];
+        var clientRecord = primarySerializer.clientIdMap[clientId];
+        
+        // if embedded hash contains client id, mimic a createRecord/save
+        if (clientRecord) {
+          clientRecord.adapterWillCommit();
+          store.didSaveRecord(clientRecord, hash);
+          delete primarySerializer.clientIdMap[clientId];
+        } else {
+          store.push(typeName, hash);
+        }
+      },
       keyForEmbeddedAttribute: function(attr){
         var key = this.keyForAttribute(attr);
         return this.formatEmbeddedKey ? this.formatEmbeddedKey(key) : key;
@@ -2588,17 +2604,7 @@ define("ember-data/serializers/embedded_records_mixin",
       var embeddedSerializer = store.serializerFor(embeddedType.typeKey);
       forEach(hash[key], function(data) {
         var embeddedRecord = embeddedSerializer.normalize(embeddedType, data, null);
-        var clientId = data[embeddedSerializer.clientIdKey];
-        var clientRecord = parentSerializer.clientIdMap[clientId];
-        
-        // if embedded data contains client id, mimic a createRecord/save
-        if (clientRecord) {
-          clientRecord.adapterWillCommit();
-          store.didSaveRecord(clientRecord, data);
-          delete parentSerializer.clientIdMap[clientId];
-        } else {
-          store.push(embeddedType, embeddedRecord);
-        }
+        embeddedSerializer.storePush(store, embeddedType, embeddedRecord, parentSerializer);
         ids.push(embeddedRecord.id);
       });
 
@@ -3952,6 +3958,7 @@ define("ember-data/serializers/rest_serializer",
       extractSingle: function(store, primaryType, rawPayload, recordId) {
         var payload = this.normalizePayload(rawPayload);
         var primaryTypeName = primaryType.typeKey;
+        var primarySerializer = store.serializerFor(primaryType);
         var primaryRecord;
 
         for (var prop in payload) {
@@ -3990,14 +3997,16 @@ define("ember-data/serializers/rest_serializer",
             if (isFirstCreatedRecord || isUpdatedRecord) {
               primaryRecord = hash;
             } else {
-              store.push(typeName, hash);
+              this.storePush(store, typeName, hash, primarySerializer);
             }
           }, this);
         }
 
         return primaryRecord;
       },
-
+      storePush: function(store, typeName, hash, primarySerializer) {
+        store.push(typeName, hash);
+      },
       /**
         Called when the server has returned a payload representing
         multiple records, such as in response to a `findAll` or `findQuery`.

@@ -268,6 +268,22 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     var normalizedHash = this._super(type, hash, prop);
     return extractEmbeddedRecords(this, this.store, type, normalizedHash);
   },
+  storePush: function(store, typeName, hash, primarySerializer) {
+    if(!primarySerializer)
+      store.push(typeName, hash);
+    
+    var clientId = hash[primarySerializer.clientIdKey];
+    var clientRecord = primarySerializer.clientIdMap[clientId];
+    
+    // if embedded hash contains client id, mimic a createRecord/save
+    if (clientRecord) {
+      clientRecord.adapterWillCommit();
+      store.didSaveRecord(clientRecord, hash);
+      delete primarySerializer.clientIdMap[clientId];
+    } else {
+      store.push(typeName, hash);
+    }
+  },
   keyForEmbeddedAttribute: function(attr){
     var key = this.keyForAttribute(attr);
     return this.formatEmbeddedKey ? this.formatEmbeddedKey(key) : key;
@@ -612,17 +628,7 @@ function extractEmbeddedHasMany(store, key, embeddedType, hash, parentSerializer
   var embeddedSerializer = store.serializerFor(embeddedType.typeKey);
   forEach(hash[key], function(data) {
     var embeddedRecord = embeddedSerializer.normalize(embeddedType, data, null);
-    var clientId = data[embeddedSerializer.clientIdKey];
-    var clientRecord = parentSerializer.clientIdMap[clientId];
-    
-    // if embedded data contains client id, mimic a createRecord/save
-    if (clientRecord) {
-      clientRecord.adapterWillCommit();
-      store.didSaveRecord(clientRecord, data);
-      delete parentSerializer.clientIdMap[clientId];
-    } else {
-      store.push(embeddedType, embeddedRecord);
-    }
+    embeddedSerializer.storePush(store, embeddedType, embeddedRecord, parentSerializer);
     ids.push(embeddedRecord.id);
   });
 

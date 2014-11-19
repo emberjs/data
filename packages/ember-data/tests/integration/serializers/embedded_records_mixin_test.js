@@ -1240,3 +1240,27 @@ test("serialize + extractSingle removes client id mapping entry after updating t
     }, "Primary array was correct");
   deepEqual(serializer.clientIdMap, {}, "client id mapping should be empty");
 });
+test("serialize + extractSingle from embedded ids include true removes client id mapping entry after updating the record", function() {
+  league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
+  var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+     villains: { serialize: 'records', deserialize: 'ids' }
+    }
+  }));
+  var serializer = env.container.lookup("serializer:homePlanet");
+  var json = serializer.serialize(league);
+  var apiResponse = { home_planet: json };
+  // emulate a server assigned ID for the embedded record
+  apiResponse.home_planet.villains = ["1"];
+  apiResponse.home_planet.villains_attributes[0].id = "1";
+  apiResponse.super_villains = apiResponse.home_planet.villains_attributes;
+  delete apiResponse.home_planet.villains_attributes;
+  
+  var normalized = serializer.extractSingle(env.store, HomePlanet, apiResponse);
+  deepEqual(normalized, {
+      name: "Villain League",
+      villains: [ "1" ]
+    }, "Primary array was correct");
+  deepEqual(serializer.clientIdMap, {}, "client id mapping should be empty");
+});
