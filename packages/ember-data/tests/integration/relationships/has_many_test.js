@@ -177,6 +177,44 @@ test("Accessing a hasMany backed by a link multiple times triggers only one requ
   equal(promise1.promise, promise2.promise, "Same promise is returned both times");
 });
 
+test("Calling reload on an async hasMany with a link the second time doesn't send a new request even if the first one hasn't returned", function() {
+  expect(2);
+  var count = 0;
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  Comment.reopen({
+    message: DS.belongsTo('post', { async: true })
+  });
+
+  var post = env.store.push('post', { id: 1, links: {comments: '/posts/1/comments'} });
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    var value = [
+      { id: 1, body: 'First' },
+      { id: 2, body: 'Second' }
+    ];
+    count++;
+    return new Ember.RSVP.Promise(function(resolve, reject) {
+      return setTimeout(function(){
+        resolve(value);
+      }, 100);
+    });
+  };
+
+  stop();
+  var promise1 = post.get('comments').reload();
+  var promise2 = post.get('comments').reload();
+
+  Ember.RSVP.all([promise1, promise2]).then(function() {
+    start();
+  });
+  // The first request is made by the initial request, the secon by the first .reload()
+  equal(count, 2, 'The two reload triggered only one request.');
+});
+
 test("A hasMany backed by a link remains a promise after a record has been added to it", function() {
   expect(1);
   Post.reopen({
