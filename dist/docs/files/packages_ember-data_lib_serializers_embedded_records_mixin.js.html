@@ -514,7 +514,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       json[key] = get(record, attr).map(function(embeddedRecord) {
         var serializedEmbeddedRecord = embeddedRecord.serialize({includeId: true});
         this.removeEmbeddedForeignKey(record, embeddedRecord, relationship, serializedEmbeddedRecord);
-        if (embeddedRecord.isDestroyed) {
+        if (embeddedRecord.get(&#x27;isDeleted&#x27;)) {
           serializedEmbeddedRecord[&#x27;_destroy&#x27;] = true;
           this.embededToRemove.push(embeddedRecord);
         } else {

@@ -1177,7 +1177,7 @@ test("serialize adds _destroy for destroyed objects", function() {
   league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
   var tom = env.store.createRecord(SuperVillain, { id: "1", firstName: "Tom", lastName: "Dale", homePlanet: league });
   league.get('villains').pushObject(tom);
-  tom.isDestroyed=true;
+  tom.transitionTo('deleted.uncommitted');
   env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: {embedded: 'always'}

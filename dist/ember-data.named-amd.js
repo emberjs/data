@@ -2490,7 +2490,7 @@ define("ember-data/serializers/embedded_records_mixin",
           json[key] = get(record, attr).map(function(embeddedRecord) {
             var serializedEmbeddedRecord = embeddedRecord.serialize({includeId: true});
             this.removeEmbeddedForeignKey(record, embeddedRecord, relationship, serializedEmbeddedRecord);
-            if (embeddedRecord.isDestroyed) {
+            if (embeddedRecord.get('isDeleted')) {
               serializedEmbeddedRecord['_destroy'] = true;
               this.embededToRemove.push(embeddedRecord);
             } else {
