@@ -765,7 +765,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   _notifyProperties: function(keys) {
     Ember.beginPropertyChanges();
-    map.call(keys, this.notifyPropertyChange, this);
+    var key;
+    for (var i = 0, length = keys.length; i < length; i++){
+      key = keys[i];
+      this.notifyPropertyChange(key);
+    }
     Ember.endPropertyChanges();
   },
 
