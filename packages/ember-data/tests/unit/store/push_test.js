@@ -133,6 +133,29 @@ test("Calling update on normalize allows partial updates with raw JSON", functio
   equal(person.get('lastName'), "Jackson", "existing fields are untouched");
 });
 
+test("Calling update with partial records triggers observers for just those attributes", function() {
+  expect(1);
+
+  var person = store.push('person', {
+    id: 'wat',
+    firstName: "Yehuda",
+    lastName: "Katz"
+  });
+
+  person.addObserver('firstName', function() {
+    ok(false, 'firstName observer should not be triggered');
+  });
+
+  person.addObserver('lastName', function() {
+    ok(true, 'lastName observer should be triggered');
+  });
+
+  store.update('person', {
+    id: 'wat',
+    lastName: "Katz!"
+  });
+});
+
 test("Calling push with a normalized hash containing related records returns a record", function() {
   var number1 = store.push('phone-number', {
     id: 1,
