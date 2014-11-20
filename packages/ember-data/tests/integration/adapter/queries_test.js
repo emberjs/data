@@ -1,4 +1,4 @@
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
 var Person, env, store, adapter;
 
 module("integration/adapter/queries - Queries", {

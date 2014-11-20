@@ -1,5 +1,3 @@
-var get = Ember.get, set = Ember.set;
-
 var store;
 
 var TestAdapter = DS.Adapter.extend();

@@ -64,7 +64,7 @@ test("Supplying a model class for `push` is the same as supplying a string", fun
   var Programmer = Person.extend();
   env.container.register('model:programmer', Programmer);
 
-  var programmer = store.push(Programmer, {
+  store.push(Programmer, {
     id: 'wat',
     firstName: "Yehuda",
     lastName: "Katz"
@@ -395,7 +395,7 @@ test('calling push with missing or invalid `id` throws assertion error', functio
   var invalidValues = [
     {},
     { id: null },
-    { id: '' },
+    { id: '' }
   ];
 
   expect(invalidValues.length);

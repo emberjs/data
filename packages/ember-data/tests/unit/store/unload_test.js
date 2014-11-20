@@ -1,4 +1,4 @@
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
 var store, tryToFind, Record;
 
 module("unit/store/unload - Store unloading records", {
@@ -75,7 +75,7 @@ test("can commit store after unload record with relationships", function() {
     })
   });
 
-  var like, product, brand;
+  var like, product;
 
   var Brand = DS.Model.extend({
     name: DS.attr('string')

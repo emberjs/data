@@ -70,7 +70,7 @@ test("trying to set an `id` attribute should raise", function() {
 
   expectAssertion(function() {
     store.push(Person, { id: 1, name: "Scumdale" });
-    var person = store.find(Person, 1);
+    store.find(Person, 1);
   }, /You may not set `id`/);
 });
 
@@ -330,7 +330,7 @@ var convertsWhenSet = function(type, provided, expected) {
   var testStore = createStore({model: Model});
 
   testStore.push(Model, { id: 2 });
-  var record = testStore.find('model', 2).then(async(function(record) {
+  testStore.find('model', 2).then(async(function(record) {
     set(record, 'name', provided);
     deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
   }));
@@ -434,6 +434,6 @@ test("A subclass of DS.Model can not use the `data` property", function() {
   var store = createStore({ person: Person });
 
   expectAssertion(function() {
-    var record = store.createRecord('person', { name: "TomHuda" });
+    store.createRecord('person', { name: "TomHuda" });
   }, /`data` is a reserved property name on DS.Model objects/);
 });

@@ -1,4 +1,4 @@
-var Comment, Post, env;
+var env;
 
 module("integration/records/save - Save Record", {
   setup: function() {

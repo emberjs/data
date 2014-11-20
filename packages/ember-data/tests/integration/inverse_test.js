@@ -38,7 +38,7 @@ module('integration/inverse_test - inverseFor', {
 
 test("Finds the inverse when there is only one possible available", function () {
   //Maybe store is evaluated lazily, so we need this :(
-  var user = store.push('user', {id:1});
+  store.push('user', {id:1});
 
   deepEqual(Job.inverseFor('user'), {
     type: User,
@@ -50,15 +50,15 @@ test("Finds the inverse when there is only one possible available", function () 
 test("Finds the inverse when only one side has defined it manually", function () {
   Job.reopen({
     owner: belongsTo('user', {inverse: 'previousJob'})
-  })
+  });
 
   User.reopen({
     previousJob: belongsTo('job')
-  })
+  });
 
   //Maybe store is evaluated lazily, so we need this :(
-  var user = store.push('user', {id:1});
-  var job = store.push('user', {id:1});
+  store.push('user', {id:1});
+  store.push('user', {id:1});
 
   deepEqual(Job.inverseFor('owner'), {
     type: User, //the model's type
@@ -82,7 +82,7 @@ test("Returns null if inverse relationship it is manually set with a different r
     job: belongsTo('job')
   });
   //Maybe store is evaluated lazily, so we need this :(
-  var user = store.push('user', {id:1});
+  store.push('user', {id:1});
 
   equal(User.inverseFor('job'), null, 'There is no inverse');
 });
@@ -99,7 +99,7 @@ test("Errors out if you define 2 inverses to the same model", function () {
 
   //Maybe store is evaluated lazily, so we need this :(
   expectAssertion(function() {
-    var user = store.push('user', {id:1});
+    store.push('user', {id:1});
     User.inverseFor('job');
   },  "You defined the 'job' relationship on user, but you defined the inverse relationships of type job multiple times. Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses");
 });
@@ -108,7 +108,7 @@ test("Errors out if you define 2 inverses to the same model", function () {
 test("Caches findInverseFor return value", function () {
   expect(1);
   //Maybe store is evaluated lazily, so we need this :(
-  var user = store.push('user', {id:1});
+  store.push('user', {id:1});
   var inverseForUser = Job.inverseFor('user');
 
   Job.findInverseFor = function(){

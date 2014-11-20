@@ -1,5 +1,4 @@
-var get = Ember.get, set = Ember.set;
-var Person, store, adapter;
+var Person, store;
 
 module("integration/adapter/find - Finding Records", {
   setup: function() {
@@ -101,8 +100,6 @@ test("When a single record is requested multiple times, all .find() calls are re
 });
 
 test("When a single record is requested, and the promise is rejected, .find() is rejected.", function() {
-  var count = 0;
-
   store = createStore({ adapter: DS.Adapter.extend({
       find: function(store, type, id) {
         return Ember.RSVP.reject();

@@ -1,9 +1,8 @@
-var get = Ember.get, set = Ember.set;
-var camelize = Ember.String.camelize;
-var singularize = Ember.String.singularize;
+var get = Ember.get;
 var HomePlanet, SuperVillain, EvilMinion, SecretLab, SecretWeapon, Comment,
   league, superVillain, evilMinion, secretWeapon, homePlanet, secretLab, env;
 var indexOf = Ember.EnumerableUtils.indexOf;
+var LightSaber;
 
 module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
   setup: function() {
@@ -554,7 +553,7 @@ test("serialize with embedded objects (hasMany relationship)", function() {
 
 test("serialize with embedded objects (hasMany relationship) supports serialize:false", function() {
   league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
-  var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league, id: '1' });
+  env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league, id: '1' });
 
   env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
@@ -572,7 +571,7 @@ test("serialize with embedded objects (hasMany relationship) supports serialize:
 
 test("serialize with (new) embedded objects (hasMany relationship)", function() {
   league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
-  var superVillain = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
+  env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
 
   env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
@@ -948,7 +947,7 @@ test("extractSingle with multiply-nested belongsTo", function() {
 
 test("extractSingle with polymorphic hasMany", function() {
   SuperVillain.reopen({
-    secretWeapons: DS.hasMany("secretWeapon", {polymorphic: true}),
+    secretWeapons: DS.hasMany("secretWeapon", {polymorphic: true})
   });
 
   env.container.register('adapter:superVillain', DS.ActiveModelAdapter);

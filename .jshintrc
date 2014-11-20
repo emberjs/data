@@ -34,9 +34,9 @@
         "expectAssertion",
         "expectDeprecation",
         "warns",
-        "noWarns"
+        "noWarns",
+        "throws"
     ],
-
     "node" : false,
     "browser" : true,
     "boss" : true,

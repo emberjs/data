@@ -1,8 +1,9 @@
-var env, store, User, Message, Post, Comment;
-var get = Ember.get, set = Ember.set;
+var env, store, User, Message, Post, Comment, Book, Author;
+var NewMessage;
+var get = Ember.get;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
-var resolve = Ember.RSVP.resolve, hash = Ember.RSVP.hash;
+var hash = Ember.RSVP.hash;
 
 function stringify(string) {
   return function() { return string; };
@@ -356,7 +357,7 @@ test("asdf", function() {
     })
   });
 
-  var post = env.store.push('post', {
+  env.store.push('post', {
     id: 1,
     comments: [1, 2, 3]
   });

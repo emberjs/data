@@ -1,5 +1,4 @@
-var get = Ember.get, set = Ember.set;
-var serializer, adapter, store;
+var get = Ember.get;
 var Post, Comment, env;
 
 module("integration/client_id_generation - Client-side ID Generation", {

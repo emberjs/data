@@ -1,4 +1,4 @@
-var container, store, app;
+var container, store;
 
 module("unit/store/serializer_for - DS.Store#serializerFor", {
   setup: function() {

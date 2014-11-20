@@ -15,7 +15,7 @@ var Car = DS.Model.extend({
 
 Car.toString = function() { return "Car"; };
 
-initializeStore = function(adapter) {
+function initializeStore(adapter) {
   env = setupStore({
     adapter: adapter
   });
@@ -65,11 +65,11 @@ asyncTest("destroying record during find doesn't cause error", function() {
   initializeStore(TestAdapter);
 
   var type = "car";
-  var id = 1
+  var id = 1;
 
-  done = function() {
+  function done(){
     start();
-  };
+  }
 
   store.find(type, id).then(done, done);
 });
@@ -93,8 +93,8 @@ asyncTest("find calls do not resolve when the store is destroyed", function() {
   store.push = function() {
     Ember.assert("The test should have destroyed the store by now", store.get("isDestroyed"));
 
-    throw "We shouldn't be pushing data into the store when it is destroyed"
-  }
+    throw new Error("We shouldn't be pushing data into the store when it is destroyed");
+  };
 
   store.find(type, id);
 
@@ -138,7 +138,7 @@ test("destroying the store correctly cleans everything up", function() {
   var filterdPeopleWillDestroy =  tap(filterdPeople.content, 'willDestroy');
   var adapterPopulatedPeopleWillDestroy = tap(adapterPopulatedPeople.content, 'willDestroy');
 
-  var adapterPopulatedPerson = store.find('person', 2);
+  store.find('person', 2);
 
   equal(personWillDestroy.called.length, 0, 'expected person.willDestroy to not have been called');
   equal(carWillDestroy.called.length, 0, 'expected car.willDestroy to not have been called');

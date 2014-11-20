@@ -1,4 +1,3 @@
-var get = Ember.get, set = Ember.set;
 var Person, Place, store, adapter, env;
 
 module("integration/adapter/ajax - building requests", {
