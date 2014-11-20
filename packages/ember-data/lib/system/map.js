@@ -25,9 +25,9 @@ testMap.forEach(function(value, key){
   usesOldBehavior = value === 'key' && key === 'value';
 });
 
-Map.prototype            = Object.create(Ember.Map.prototype);
-MapWithDefault.prototype = Object.create(Ember.MapWithDefault.prototype);
-OrderedSet.prototype     = Object.create(Ember.OrderedSet.prototype);
+Map.prototype            = Ember.create(Ember.Map.prototype);
+MapWithDefault.prototype = Ember.create(Ember.MapWithDefault.prototype);
+OrderedSet.prototype     = Ember.create(Ember.OrderedSet.prototype);
 
 OrderedSet.create = function(){
   return new OrderedSet();

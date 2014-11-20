@@ -19,8 +19,8 @@ var retrieveFromCurrentState = Ember.computed('currentState', function(key, valu
   return get(get(this, 'currentState'), key);
 }).readOnly();
 
-var _extractPivotNameCache = Object.create(null);
-var _splitOnDotCache = Object.create(null);
+var _extractPivotNameCache = Ember.create(null);
+var _splitOnDotCache = Ember.create(null);
 
 function splitOnDot(name) {
   return _splitOnDotCache[name] || (
@@ -465,7 +465,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
       would have a implicit post relationship in order to be do things like remove ourselves from the post
       when we are deleted
     */
-    this._implicitRelationships = Object.create(null);
+    this._implicitRelationships = Ember.create(null);
     var model = this;
     //TODO Move into a getter for better perf
     this.constructor.eachRelationship(function(key, descriptor) {

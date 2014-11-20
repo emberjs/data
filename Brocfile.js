@@ -142,6 +142,10 @@ globalBuild = wrap(globalBuild, {
 globalBuild = versionStamp(globalBuild, 'ember-data.js');
 namedAMDBuild = versionStamp(namedAMDBuild, 'ember-data.named-amd.js');
 
+if (env === 'production'){
+  testFiles = es3SafeRecast(testFiles);
+}
+
 testFiles = concat(testFiles, {
   inputFiles: ['**/*.js'],
   separator: '\n',

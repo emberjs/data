@@ -6,7 +6,7 @@ import RecordArray from "ember-data/system/record_arrays/record_array";
 var get = Ember.get;
 
 function cloneNull(source) {
-  var clone = Object.create(null);
+  var clone = Ember.create(null);
   for (var key in source) {
     clone[key] = source[key];
   }

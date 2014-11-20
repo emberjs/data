@@ -45,20 +45,24 @@ Relationship.prototype = {
   },
 
   removeRecords: function(records){
-    var that = this;
-    records.forEach(function(record){
-      that.removeRecord(record);
-    });
+    var length = Ember.get(records, 'length');
+    var record;
+    for (var i = 0; i < length; i++){
+      record = records[i];
+      this.removeRecord(record);
+    }
   },
 
   addRecords: function(records, idx){
-    var that = this;
-    records.forEach(function(record){
-      that.addRecord(record, idx);
+    var length = Ember.get(records, 'length');
+    var record;
+    for (var i = 0; i < length; i++){
+      record = records[i];
+      this.addRecord(record, idx);
       if (idx !== undefined) {
         idx++;
       }
-    });
+    }
   },
 
   addRecord: function(record, idx) {
@@ -149,7 +153,7 @@ var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
   this.manyArray.isPolymorphic = this.isPolymorphic;
 };
 
-ManyRelationship.prototype = Object.create(Relationship.prototype);
+ManyRelationship.prototype = Ember.create(Relationship.prototype);
 ManyRelationship.prototype.constructor = ManyRelationship;
 ManyRelationship.prototype._super$constructor = Relationship;
 
@@ -263,7 +267,7 @@ var BelongsToRelationship = function(store, record, inverseKey, relationshipMeta
   this.inverseRecord = null;
 };
 
-BelongsToRelationship.prototype = Object.create(Relationship.prototype);
+BelongsToRelationship.prototype = Ember.create(Relationship.prototype);
 BelongsToRelationship.prototype.constructor = BelongsToRelationship;
 BelongsToRelationship.prototype._super$constructor = Relationship;
 
