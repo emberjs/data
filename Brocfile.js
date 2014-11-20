@@ -169,7 +169,7 @@ var configurationFiles = pickFiles('config/package_manager_files', {
 });
 
 configurationFiles = replace(configurationFiles, {
-  files: [ '**/*' ],
+  files: [ 'bower.json', 'component.json', 'package.json' ],
   pattern: {
     match: /VERSION_STRING_PLACEHOLDER/g,
     replacement: version
