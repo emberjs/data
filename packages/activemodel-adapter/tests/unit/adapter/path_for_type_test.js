@@ -1,4 +1,4 @@
-var env, store, adapter;
+var env, adapter;
 module("unit/adapter/path_for_type - DS.ActiveModelAdapter#pathForType", {
   setup: function() {
     env = setupStore({

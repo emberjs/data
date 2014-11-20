@@ -82,7 +82,7 @@ test("a deleted record can be rollbacked if it fails to save, record arrays are 
   };
 
   var person = store.push('person', { id: 1, firstName: "Tom", lastName: "Dale" });
-  people = store.all('person');
+  var people = store.all('person');
   person.deleteRecord();
   equal(people.get('length'), 0, "a deleted record does not appear in record array anymore");
 

@@ -1,5 +1,5 @@
-var env, store, adapter, Post, Person, Comment, SuperUser;
-var originalAjax, passedUrl, passedVerb, passedHash;
+var env, store, adapter, Post, Comment, SuperUser;
+var passedUrl, passedVerb, passedHash;
 
 module("integration/adapter/rest_adapter - REST Adapter", {
   setup: function() {
@@ -67,8 +67,6 @@ test("find - basic payload (with legacy singular name)", function() {
   }));
 });
 test("find - payload with sideloaded records of the same type", function() {
-  var count = 0;
-
   ajaxResponse({
     posts: [
       { id: 1, name: "Rails is omakase" },
@@ -371,7 +369,7 @@ test("create - a record on the many side of a hasMany relationship should update
 
 test("create - sideloaded belongsTo relationships are both marked as loaded", function () {
   expect(4);
-  var post, comment;
+  var post;
 
   Post.reopen({ comment: DS.belongsTo('comment') });
   Comment.reopen({ post: DS.belongsTo('post') });
@@ -1455,7 +1453,7 @@ test('groupRecordsForFindMany splits up calls for large ids', function() {
   expect(2);
 
   function repeatChar(character, n) {
-    return Array(n+1).join(character);
+    return new Array(n+1).join(character);
   }
 
   var a2000 = repeatChar('a', 2000);
@@ -1466,16 +1464,16 @@ test('groupRecordsForFindMany splits up calls for large ids', function() {
 
   adapter.find = function(store, type, id, record) {
     if (id === a2000 || id === b2000) {
-      ok(true, "Found " + id)
+      ok(true, "Found " + id);
     }
 
     return Ember.RSVP.resolve({ comments: { id: id } });
   };
 
   adapter.findMany = function(store, type, ids, records) {
-    ok(false, "findMany should not be called - we expect 2 calls to find for a2000 and b2000")
+    ok(false, "findMany should not be called - we expect 2 calls to find for a2000 and b2000");
     return Ember.RSVP.reject();
-  }
+  };
 
   post.get('comments');
 });
@@ -1487,7 +1485,7 @@ test('groupRecordsForFindMany groups calls for small ids', function() {
   expect(1);
 
   function repeatChar(character, n) {
-    return Array(n+1).join(character);
+    return new Array(n+1).join(character);
   }
 
   var a100 = repeatChar('a', 100);
@@ -1497,14 +1495,14 @@ test('groupRecordsForFindMany groups calls for small ids', function() {
   adapter.coalesceFindRequests = true;
 
   adapter.find = function(store, type, id, record) {
-    ok(false, "find should not be called - we expect 1 call to findMany for a100 and b100")
+    ok(false, "find should not be called - we expect 1 call to findMany for a100 and b100");
     return Ember.RSVP.reject();
   };
 
   adapter.findMany = function(store, type, ids, records) {
     deepEqual(ids, [a100, b100]);
     return Ember.RSVP.resolve({ comments: { id: ids } });
-  }
+  };
 
   post.get('comments');
 });
@@ -1519,8 +1517,6 @@ test("calls adapter.ajaxSuccess with the jqXHR and json", function(){
       name: "Docker is amazing"
     }
   };
-
-  var receivedData, receivedJqXHR;
 
   Ember.$.ajax = function(hash){
     hash.success(data, 'ok', jqXHR);

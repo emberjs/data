@@ -131,7 +131,7 @@ test("can load data for the same record if it is not dirty", function() {
 
   store.push(Person, { id: 1, name: "Tom Dale" });
 
-  var tom = store.find(Person, 1).then(async(function(tom) {
+  store.find(Person, 1).then(async(function(tom) {
     equal(get(tom, 'isDirty'), false, "precond - record is not dirty");
     equal(get(tom, 'name'), "Tom Dale", "returns the correct name");
 
@@ -456,7 +456,7 @@ test("store.fetchMany should always return a promise", function() {
   var store = createStore({
     adapter: TestAdapter.extend()
   });
-  var owner = store.createRecord(Person);
+  store.createRecord(Person);
   var records = Ember.A([]);
 
   var results = store.scheduleFetchMany(records);
@@ -504,7 +504,7 @@ test("store.scheduleFetchMany should not resolve until all the records are resol
     adapter: adapter
   });
 
-  var owner = store.createRecord(Person);
+  store.createRecord(Person);
 
   var records = Ember.A([
     store.recordForId(Person, 10),
@@ -521,7 +521,6 @@ test("store.scheduleFetchMany should not resolve until all the records are resol
 test("the store calls adapter.findMany according to groupings returned by adapter.groupRecordsForFindMany", function() {
   expect(3);
 
-  var callCount = 0;
   var Person = DS.Model.extend();
 
   var adapter = TestAdapter.extend({
