@@ -456,7 +456,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
 function removeRemovedObjects(serializer, store){
   if (serializer && serializer.embededToRemove){
     forEach(serializer.embededToRemove, function(clientRecord) {
-      store.didSaveRecord(clientRecord, null);
+      clientRecord.unloadRecord();
     });
     serializer.embededToRemove = [];
   }
