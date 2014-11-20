@@ -120,6 +120,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
   **/
   normalize: function(type, hash, prop) {
     var normalizedHash = this._super(type, hash, prop);
+    removeRemovedObjects(this, this.store);
     return extractEmbeddedRecords(this, this.store, type, normalizedHash);
   },
   storePush: function(store, typeName, hash, primarySerializer) {
@@ -177,6 +178,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
   init: function () {
     this._super();
     this.clientIdMap = {};
+    this.embededToRemove = [];
   },
 
    /**
@@ -365,10 +367,15 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       key = this.keyForEmbeddedAttribute(attr);
       json[key] = get(record, attr).map(function(embeddedRecord) {
         var serializedEmbeddedRecord = embeddedRecord.serialize({includeId: true});
-        var clientIdKey = this.clientIdKey;
         this.removeEmbeddedForeignKey(record, embeddedRecord, relationship, serializedEmbeddedRecord);
-        if (serializedEmbeddedRecord['id'] == null) {
-          serializedEmbeddedRecord[clientIdKey] = this.createClientId(embeddedRecord);
+        if (embeddedRecord.isDestroyed) {
+          serializedEmbeddedRecord['_destroy'] = true;
+          this.embededToRemove.push(embeddedRecord);
+        } else {
+          var clientIdKey = this.clientIdKey;
+          if (serializedEmbeddedRecord['id'] == null) {
+            serializedEmbeddedRecord[clientIdKey] = this.createClientId(embeddedRecord);
+          }
         }
         return serializedEmbeddedRecord;
       }, this);
@@ -446,7 +453,14 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     return attrs && (attrs[camelize(attr)] || attrs[attr]);
   }
 });
-
+function removeRemovedObjects(serializer, store){
+  if (serializer && serializer.embededToRemove){
+    forEach(serializer.embededToRemove, function(clientRecord) {
+      store.didSaveRecord(clientRecord, null);
+    });
+    serializer.embededToRemove = [];
+  }
+}
 // chooses a relationship kind to branch which function is used to update payload
 // does not change payload if attr is not embedded
 function extractEmbeddedRecords(serializer, store, type, partial) {

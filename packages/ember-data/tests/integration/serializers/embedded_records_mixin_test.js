@@ -1173,6 +1173,21 @@ test("serialize uses a custom client id key when specified in the serializer", f
   var json = serializer.serialize(league);
   ok(json.villains_attributes[0].localId, "custom client id key should be present");
 });
+test("serialize adds _destroy for destroyed objects", function() {
+  league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
+  var tom = env.store.createRecord(SuperVillain, { id: "1", firstName: "Tom", lastName: "Dale", homePlanet: league });
+  league.get('villains').pushObject(tom);
+  tom.isDestroyed=true;
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      villains: {embedded: 'always'}
+    },
+      clientIdKey: 'localId'
+  }));
+  var serializer = env.container.lookup("serializer:homePlanet");
+  var json = serializer.serialize(league);
+  equal(json.villains_attributes[0]._destroy, true,"_destroy should be present and true");
+});
 test("serialize stores a client id for any new embedded object", function() {
   league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
   var tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league }),
