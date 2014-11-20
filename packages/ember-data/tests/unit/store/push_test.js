@@ -556,6 +556,24 @@ test('calling push with an embedded relationship throws a useful error', functio
     }, /If this is an embedded relationship/);
 });
 
+test("Ember.ENV.DS_NO_WARN_ON_UNUSED_KEYS suppresses unknown keys warning", function() {
+  Ember.run(function(){
+    try {
+      Ember.ENV.DS_NO_WARN_ON_UNUSED_KEYS = true;
+        noWarns(function() {
+          store.push('person', {
+            id: '1',
+            firstName: 'Tomster',
+            emailAddress: 'tomster@emberjs.com',
+            isMascot: true
+          });
+        });
+    } finally {
+      Ember.ENV.DS_NO_WARN_ON_UNUSED_KEYS = null;
+    }
+  });
+});
+
 test("Calling push with unknown keys in the provided payload should warn", function() {
   warns(function() {
     run(function(){
