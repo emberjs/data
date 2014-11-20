@@ -760,6 +760,20 @@ var Model = Ember.Object.extend(Ember.Evented, {
   },
 
   /**
+    @method _notifyProperties
+    @private
+  */
+  _notifyProperties: function(keys) {
+    Ember.beginPropertyChanges();
+    var key;
+    for (var i = 0, length = keys.length; i < length; i++){
+      key = keys[i];
+      this.notifyPropertyChange(key);
+    }
+    Ember.endPropertyChanges();
+  },
+
+  /**
     Returns an object, whose keys are changed properties, and value is
     an [oldProp, newProp] array.
 
@@ -824,7 +838,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     if (!data) { return; }
 
-    this.notifyPropertyChange('data');
+    this._notifyProperties(Ember.keys(data));
   },
 
   /**
@@ -857,15 +871,17 @@ var Model = Ember.Object.extend(Ember.Evented, {
       the existing data, not replace it.
   */
   setupData: function(data, partial) {
+    Ember.assert("Expected an object as `data` in `setupData`", Ember.typeOf(data) === 'object');
+
     if (partial) {
       Ember.merge(this._data, data);
     } else {
       this._data = data;
     }
 
-    if (data) { this.pushedData(); }
+    this.pushedData();
 
-    this.notifyPropertyChange('data');
+    this._notifyProperties(Ember.keys(data));
   },
 
   materializeId: function(id) {
@@ -922,7 +938,8 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     this.send('rolledBack');
 
-    this.notifyPropertyChange('data');
+    this._notifyProperties(Ember.keys(this._data));
+
   },
 
   toStringExtension: function() {

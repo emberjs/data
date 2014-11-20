@@ -1,4 +1,4 @@
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
 
 module("unit/model/lifecycle_callbacks - Lifecycle Callbacks");
 

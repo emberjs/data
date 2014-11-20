@@ -3,8 +3,7 @@ var run = Ember.run,
     Controller = Ember.Controller,
     View = Ember.View,
     Store = DS.Store,
-    Namespace = Ember.Namespace,
-    Object = Ember.Object;
+    Namespace = Ember.Namespace;
 
 var app, App, container;
 
@@ -50,7 +49,7 @@ test("registering App.Store is deprecated but functional", function(){
     run(function() {
       app = Application.create({
         Store: DS.Store.extend({ isCustomButDeprecated: true }),
-        FooController: Controller.extend(),
+        FooController: Controller.extend()
       });
     });
   }, 'Specifying a custom Store for Ember Data on your global namespace as `App.Store` ' +

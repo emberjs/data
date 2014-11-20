@@ -1,5 +1,6 @@
 var env, User, Contact, Email, Phone, Message, Post, Comment;
-var get = Ember.get, set = Ember.set;
+var Book, Chapter, Page;
+var get = Ember.get;
 var resolve = Ember.RSVP.resolve;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;

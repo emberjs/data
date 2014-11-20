@@ -305,9 +305,9 @@ BelongsToRelationship.prototype.notifyRecordRelationshipRemoved = function(recor
 
 BelongsToRelationship.prototype._super$removeRecordFromOwn = Relationship.prototype.removeRecordFromOwn;
 BelongsToRelationship.prototype.removeRecordFromOwn = function(record) {
-  if (!this.members.has(record)){ return;}
-  this._super$removeRecordFromOwn(record);
+  if (!this.members.has(record)) { return; }
   this.inverseRecord = null;
+  this._super$removeRecordFromOwn(record);
 };
 
 BelongsToRelationship.prototype.findRecord = function() {
@@ -321,7 +321,9 @@ BelongsToRelationship.prototype.findRecord = function() {
 BelongsToRelationship.prototype.fetchLink = function() {
   var self = this;
   return this.store.findBelongsTo(this.record, this.link, this.relationshipMeta).then(function(record){
-    self.addRecord(record);
+    if (record) {
+      self.addRecord(record);
+    }
     return record;
   });
 };

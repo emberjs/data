@@ -1,4 +1,4 @@
-var env, store, adapter;
+var env, adapter;
 module("unit/adapters/rest_adapter/path_for_type - DS.RESTAdapter#pathForType", {
   setup: function() {
     env = setupStore({

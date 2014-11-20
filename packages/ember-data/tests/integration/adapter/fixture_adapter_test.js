@@ -1,5 +1,5 @@
-var get = Ember.get, set = Ember.set;
-var env, Person, Phone, App;
+var get = Ember.get;
+var env, Person, Phone;
 
 module("integration/adapter/fixture_adapter - DS.FixtureAdapter", {
   setup: function() {

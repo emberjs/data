@@ -27,6 +27,23 @@ module("integration/filter - DS.Model updating", {
   }
 });
 
+function tapFn(fn, callback) {
+  var old_fn = fn;
+
+  var new_fn = function() {
+    var result = old_fn.apply(this, arguments);
+    if (callback) {
+      callback.apply(obj, arguments);
+    }
+    new_fn.summary.called.push(arguments);
+    return result;
+  };
+  new_fn.summary = { called: [] };
+
+  return new_fn;
+}
+
+
 test("when a DS.Model updates its attributes, its changes affect its filtered Array membership", function() {
   store.pushMany('person', array);
 
@@ -514,4 +531,45 @@ test("a Record Array can update its filter after server-side creates multiple re
 
   serverResponds();
   equal(get(recordArray, 'length'), 5, "The record array updates when the server creates multiple records");
+});
+
+test("a Record Array can update its filter after server-side creates multiple records", function() {
+  setup({
+    createRecord: function(store, type, record) {
+      switch (record.get('name')) {
+        case "Client-side Mike":
+          return Ember.RSVP.resolve({id: 4, name: "Scumbag Server-side Mike"});
+        case "Client-side David":
+          return Ember.RSVP.resolve({id: 5, name: "Scumbag Server-side David"});
+      }
+    }
+  });
+
+  clientCreates(["Mike", "David"]);
+  equal(get(recordArray, 'length'), 3, "The record array does not include non-matching records");
+
+  serverResponds();
+  equal(get(recordArray, 'length'), 5, "The record array updates when the server creates multiple records");
+});
+
+test("destroying filteredRecordArray unregisters models from being filtered", function() {
+  var filterFn = tapFn( function(){ return true; } );
+
+  var person = store.push('person', {
+    id: 1,
+    name: 'Tom Dale'
+  });
+
+  var recordArray = store.filter('person', filterFn);
+
+  equal(filterFn.summary.called.length, 1);
+
+  Ember.run(function(){
+    recordArray.then(function(array){
+      array.destroy()
+    });
+  });
+  clientEdits([1]);
+
+  equal(filterFn.summary.called.length, 1, 'expected the filter function not being called anymore');
 });
