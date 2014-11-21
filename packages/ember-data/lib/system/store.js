@@ -553,12 +553,16 @@ Store = Ember.Object.extend({
           resolver.resolve(record);
         }
       });
+
+      return records;
     }
 
     function makeMissingRecordsRejector(requestedRecords) {
       return function rejectMissingRecords(resolvedRecords) {
         var missingRecords = requestedRecords.without(resolvedRecords);
         rejectRecords(missingRecords);
+
+        return resolvedRecords;
       };
     }
 
