@@ -595,7 +595,7 @@ Store = Ember.Object.extend({
           _findMany(adapter, store, type, ids, requestedRecords).
             then(resolveFoundRecords).
             then(makeMissingRecordsRejector(requestedRecords)).
-            then(null, makeRecordsRejector(requestedRecords));
+            catch(makeRecordsRejector(requestedRecords));
         } else if (ids.length === 1) {
           var pair = Ember.A(recordResolverPairs).findBy('record', groupOfRecords[0]);
           _fetchRecord(pair);
