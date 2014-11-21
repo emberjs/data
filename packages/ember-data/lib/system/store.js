@@ -569,6 +569,8 @@ Store = Ember.Object.extend({
     }
 
     function rejectRecords(records, error) {
+      Ember.assert("cannot reject records without a reason", error instanceof Error);
+
       forEach(records, function(record){
         var pair = Ember.A(recordResolverPairs).findBy('record', record);
         if (pair){
