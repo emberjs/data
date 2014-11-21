@@ -2254,11 +2254,16 @@ define("ember-data/serializers/embedded_records_mixin",
         
         // if embedded hash contains client id, mimic a createRecord/save
         if (clientRecord) {
-          clientRecord.adapterWillCommit();
+          clientRecord.adapterDidCommit(hash);
           store.didSaveRecord(clientRecord, hash);
           delete primarySerializer.clientIdMap[clientId];
         } else {
-          store.push(typeName, hash);
+          var record = store.getById(typeName, hash.id);
+          if(record && !record.get('isEmpty')){
+              store.didSaveRecord(record, hash);
+          }else{
+            store.push(typeName, hash);
+          }
         }
       },
       keyForEmbeddedAttribute: function(attr){
@@ -2498,7 +2503,10 @@ define("ember-data/serializers/embedded_records_mixin",
               if (serializedEmbeddedRecord['id'] == null) {
                 serializedEmbeddedRecord[clientIdKey] = this.createClientId(embeddedRecord);
               }
+              embeddedRecord._inFlightAttributes = embeddedRecord._attributes;
+              embeddedRecord._attributes = {};
             }
+            embeddedRecord.send('willCommit');
             return serializedEmbeddedRecord;
           }, this);
         }
@@ -2578,6 +2586,7 @@ define("ember-data/serializers/embedded_records_mixin",
     function removeRemovedObjects(serializer, store){
       if (serializer && serializer.embededToRemove){
         forEach(serializer.embededToRemove, function(clientRecord) {
+          clientRecord.send('didCommit');
           clientRecord.unloadRecord();
         });
         serializer.embededToRemove = [];

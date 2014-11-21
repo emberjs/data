@@ -278,11 +278,16 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     
     // if embedded hash contains client id, mimic a createRecord/save
     if (clientRecord) {
-      clientRecord.adapterWillCommit();
+      clientRecord.adapterDidCommit(hash);
       store.didSaveRecord(clientRecord, hash);
       delete primarySerializer.clientIdMap[clientId];
     } else {
-      store.push(typeName, hash);
+      var record = store.getById(typeName, hash.id);
+      if(record &amp;&amp; !record.get(&#x27;isEmpty&#x27;)){
+          store.didSaveRecord(record, hash);
+      }else{
+        store.push(typeName, hash);
+      }
     }
   },
   keyForEmbeddedAttribute: function(attr){
@@ -522,7 +527,10 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
           if (serializedEmbeddedRecord[&#x27;id&#x27;] == null) {
             serializedEmbeddedRecord[clientIdKey] = this.createClientId(embeddedRecord);
           }
+          embeddedRecord._inFlightAttributes = embeddedRecord._attributes;
+          embeddedRecord._attributes = {};
         }
+        embeddedRecord.send(&#x27;willCommit&#x27;);
         return serializedEmbeddedRecord;
       }, this);
     }
@@ -602,6 +610,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
 function removeRemovedObjects(serializer, store){
   if (serializer &amp;&amp; serializer.embededToRemove){
     forEach(serializer.embededToRemove, function(clientRecord) {
+      clientRecord.send(&#x27;didCommit&#x27;);
       clientRecord.unloadRecord();
     });
     serializer.embededToRemove = [];
