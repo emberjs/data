@@ -499,7 +499,7 @@ Store = Ember.Object.extend({
   },
 
   scheduleFetchMany: function(records) {
-    return Ember.RSVP.all(map(records, this.scheduleFetch, this));
+    return Promise.all(map(records, this.scheduleFetch, this));
   },
 
   scheduleFetch: function(record) {
@@ -702,7 +702,7 @@ Store = Ember.Object.extend({
   */
   findMany: function(records) {
     var store = this;
-    return Promise.all( map(records, function(record) {
+    return Promise.all(map(records, function(record) {
       return store._findByRecord(record);
     }));
   },
