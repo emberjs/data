@@ -36,6 +36,8 @@
 
 ### Ember Data 1.0.0-beta.10 _(September 9, 2014)_
 
+**NOTE:** A bug was introduced in this version where the saving of a model with async hasMany property will send an empty list to the server in the payload, so is discouraged to use this version if you have such relationships on your application. For more details https://github.com/emberjs/data/issues/2339
+
 * Bring back relationship parameter for findHasMany & findBelongsTo
 * add es5-shim/sham requirement to README
 * Add-on uses blueprint `addBowerPackageToProject()` hook to add ed as bower dep instead of including a pre-built version
