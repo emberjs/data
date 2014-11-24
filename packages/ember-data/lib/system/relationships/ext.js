@@ -109,7 +109,7 @@ Model.reopenClass({
   },
 
   inverseMap: Ember.computed(function() {
-    return Object.create(null);
+    return Ember.create(null);
   }),
 
   /**
