@@ -376,6 +376,51 @@ test("PromiseArray proxies createRecord to its ManyArray once the hasMany is loa
   }));
 });
 
+test("PromiseArray proxies evented methods to its ManyArray", function() {
+  expect(6);
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    return Ember.RSVP.resolve([
+      { id: 1, body: "First" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+
+  var post = env.store.push('post', {id:1, links: {comments: 'someLink'}});
+
+  var comments = post.get('comments');
+
+  comments.on('on-event', function() {
+    ok(true);
+  });
+
+  comments.trigger('on-event');
+
+  equal(comments.has('on-event'), true);
+
+  comments.on('off-event', function() {
+    ok(false);
+  });
+
+  comments.off('off-event');
+
+  equal(comments.has('off-event'), false);
+
+  comments.one('one-event', function() {
+    ok(true);
+  });
+
+  equal(comments.has('one-event'), true);
+
+  comments.trigger('one-event');
+
+  equal(comments.has('one-event'), false);
+});
+
 test("An updated `links` value should invalidate a relationship cache", function() {
   expect(8);
   Post.reopen({
