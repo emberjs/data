@@ -2,6 +2,7 @@ import RootState from "ember-data/system/model/states";
 import Errors from "ember-data/system/model/errors";
 import { PromiseObject } from "ember-data/system/promise_proxies";
 import { createRelationshipFor } from "ember-data/system/relationships/relationship";
+import JSONSerializer from "ember-data/serializers/json_serializer";
 
 /**
   @module ember-data
@@ -14,7 +15,6 @@ var Promise = Ember.RSVP.Promise;
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 
-var JSONSerializer;
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
   return get(get(this, 'currentState'), key);
 }).readOnly();
@@ -373,7 +373,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @return {Object} A JSON representation of the object.
   */
   toJSON: function(options) {
-    if (!JSONSerializer) { JSONSerializer = requireModule("ember-data/serializers/json_serializer")["default"]; }
     // container is for lazy transform lookups
     var serializer = JSONSerializer.create({ container: this.container });
     return serializer.serialize(this, options);

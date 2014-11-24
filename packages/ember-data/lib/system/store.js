@@ -19,6 +19,9 @@ import {
   promiseObject
 } from "ember-data/system/promise_proxies";
 
+import RecordArrayManager from "ember-data/system/record_array_manager";
+
+import { Model } from "ember-data/system/model";
 
 var get = Ember.get;
 var set = Ember.set;
@@ -29,7 +32,7 @@ var indexOf = Ember.EnumerableUtils.indexOf;
 var map = Ember.EnumerableUtils.map;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
-var Store, RecordArrayManager, Model;
+var Store;
 
 var camelize = Ember.String.camelize;
 
@@ -137,7 +140,6 @@ Store = Ember.Object.extend({
   */
   init: function() {
     // internal bookkeeping; not observable
-    if (!RecordArrayManager) { RecordArrayManager = requireModule("ember-data/system/record_array_manager")["default"]; }
     this.typeMaps = {};
     this.recordArrayManager = RecordArrayManager.create({
       store: this
@@ -1675,7 +1677,6 @@ function normalizeRelationships(store, type, data, record) {
 }
 
 function deserializeRecordId(store, data, key, relationship, id) {
-  if (!Model) { Model = requireModule("ember-data/system/model")["Model"]; }
   if (isNone(id) || id instanceof Model) {
     return;
   }
