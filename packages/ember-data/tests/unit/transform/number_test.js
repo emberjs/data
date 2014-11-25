@@ -8,8 +8,9 @@ test("#serialize", function() {
   equal(transform.serialize("1.1"),           1.1);
   equal(transform.serialize(1.1),             1.1);
   equal(transform.serialize(new Number(1.1)), 1.1);
-
-  ok(isNaN(transform.serialize(NaN)));
+  equal(transform.serialize(NaN),             null);
+  equal(transform.serialize(Infinity),        null);
+  equal(transform.serialize(-Infinity),       null);
 });
 
 test("#deserialize", function() {
@@ -20,6 +21,7 @@ test("#deserialize", function() {
   equal(transform.deserialize("1.1"),           1.1);
   equal(transform.deserialize(1.1),             1.1);
   equal(transform.deserialize(new Number(1.1)), 1.1);
-
-  ok(isNaN(transform.deserialize(NaN)));
+  equal(transform.deserialize(NaN),             null);
+  equal(transform.deserialize(Infinity),        null);
+  equal(transform.deserialize(-Infinity),       null);
 });
