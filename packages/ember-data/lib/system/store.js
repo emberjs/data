@@ -560,7 +560,7 @@ Store = Ember.Object.extend({
     function makeMissingRecordsRejector(requestedRecords) {
       return function rejectMissingRecords(resolvedRecords) {
         var missingRecords = requestedRecords.without(resolvedRecords);
-        rejectRecords(missingRecords);
+        rejectRecords(missingRecords, new Error('MissingRecords'));
 
         return resolvedRecords;
       };
