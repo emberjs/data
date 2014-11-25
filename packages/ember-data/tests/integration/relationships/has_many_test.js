@@ -205,6 +205,45 @@ test("A hasMany backed by a link remains a promise after a record has been added
   }));
 });
 
+asyncTest("A hasMany updated link should not remove new children", function() {
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  Comment.reopen({
+    message: DS.belongsTo('post', { async: true })
+  });
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    return Ember.RSVP.resolve([]);
+  };
+
+  env.adapter.createRecord = function(store, record, link, relationship) {
+    return Ember.RSVP.resolve({
+      links: {
+        comments: '/some/link'
+      }
+    });
+  };
+
+  var post = env.store.createRecord('post', {});
+  env.store.createRecord('comment', {message: post});
+
+  post.get('comments')
+    .then(function(comments) {
+      equal(comments.get('length'), 1);
+
+      return post.save();
+    })
+    .then(function() {
+      return post.get('comments');
+    })
+    .then(function(comments) {
+      equal(comments.get('length'), 1);
+      start();
+    });
+});
+
 test("A hasMany relationship can be reloaded if it was fetched via a link", function() {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
