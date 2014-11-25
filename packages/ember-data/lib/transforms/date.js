@@ -46,7 +46,6 @@ if (Ember.SHIM_ES5) {
 }
 
 export default Transform.extend({
-
   deserialize: function(serialized) {
     var type = typeof serialized;
 
