@@ -1479,8 +1479,12 @@ test('groupRecordsForFindMany splits up calls for large ids', function() {
 });
 
 test('groupRecordsForFindMany groups calls for small ids', function() {
-  Comment.reopen({ post: DS.belongsTo('post') });
-  Post.reopen({ comments: DS.hasMany('comment', {async: true}) });
+  Comment.reopen({
+    post: DS.belongsTo('post')
+  });
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
 
   expect(1);
 
@@ -1490,7 +1494,10 @@ test('groupRecordsForFindMany groups calls for small ids', function() {
 
   var a100 = repeatChar('a', 100);
   var b100 = repeatChar('b', 100);
-  var post = store.push('post', { id: 1, comments: [a100, b100] });
+  var post = store.push('post', {
+    id: 1,
+    comments: [a100, b100]
+  });
 
   adapter.coalesceFindRequests = true;
 
@@ -1501,7 +1508,13 @@ test('groupRecordsForFindMany groups calls for small ids', function() {
 
   adapter.findMany = function(store, type, ids, records) {
     deepEqual(ids, [a100, b100]);
-    return Ember.RSVP.resolve({ comments: { id: ids } });
+
+    return {
+      comments: [
+        { id: ids[0] },
+        { id: ids[1] }
+      ]
+    };
   };
 
   post.get('comments');
