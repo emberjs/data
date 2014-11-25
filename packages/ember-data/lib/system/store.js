@@ -531,8 +531,10 @@ Store = Ember.Object.extend({
       return;
     }
 
-    this._pendingFetch.forEach(this._flushPendingFetchForType, this);
+    var pendingFetch = this._pendingFetch;
     this._pendingFetch = Map.create();
+
+    pendingFetch.forEach(this._flushPendingFetchForType, this);
   },
 
   _flushPendingFetchForType: function (recordResolverPairs, type) {
