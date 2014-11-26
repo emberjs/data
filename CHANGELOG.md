@@ -2,6 +2,78 @@
 
 ### Master
 
+### Ember Data 1.0.0-beta.12_(November 20, 2014)_
+
+**Breaking Changes**
+
+#### watching `data` and keys missing from response to reset value to null
+https://github.com/emberjs/data/pull/2460
+
+Previously, if you had a model like this:
+
+```javascript
+var record = store.createRecord('person', {
+  firstName: 'Grace',
+  lastName: 'Hopper'
+});
+```
+
+and sent the following payload via `reload()`, etc:
+
+```javascript
+//
+{
+  "person": {
+    "role": "Computer Science Pioneer"
+  }
+}
+// Note how firstName and lastName are missing from the "person" payload
+```
+
+Then the following code would have reset the values of `firstName` and `lastName`:
+
+```javascript
+record.get('firstName'); // => null
+record.get('lastName'); // => null
+```
+
+*Beginning in 1.0.0-beta.12, those values will not reset, but stay the same.*
+Additionally, it will not cause a bug that causes observers to fire even
+if the value didn't change (see https://github.com/emberjs/data/issues/2450).
+
+*If you need to reset values to null, you should have your server
+explicitly send back null values in the payload*:
+
+```javascript
+{
+  "person": {
+    "firstName": null,
+    "lastName": null
+    "role": "Computer Science Pioneer"
+  }
+}
+```
+
+If you cannot change your API and you desire this behavior, you can
+create a serializer and do the logic yourself:
+
+```javascript
+// app/serializers/person.js
+// or App.PersonSerializer if you aren't using Ember CLI
+export default DS.RESTSerializer.extend({
+  extractSingle: function(store, primaryType, rawPayload, recordId){
+    var hash = rawPayload.person;
+    if (!hash.hasOwnProperty('firstName')){
+      hash.firstName = null;
+    }
+    if (!hash.hasOwnProperty('lastName')){
+      hash.firstName = null;
+    }
+    return this._super(store, primaryType, rawPayload, recordId);
+  }
+});
+```
+
 ### Ember Data 1.0.0-beta.11 _(October 13, 2014)_
 
 * Rollback after delete record failure
