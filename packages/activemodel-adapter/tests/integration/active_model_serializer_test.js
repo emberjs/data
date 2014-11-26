@@ -1,5 +1,5 @@
-var get = Ember.get, set = Ember.set;
-var HomePlanet, league, SuperVillain, superVillain, EvilMinion, YellowMinion, DoomsdayDevice, MediocreVillain, env;
+var get = Ember.get;
+var HomePlanet, league, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, MediocreVillain, env;
 
 module("integration/active_model - ActiveModelSerializer", {
   setup: function() {
@@ -96,7 +96,7 @@ test("serializeIntoHash with decamelized types", function() {
 test("normalize", function() {
   SuperVillain.reopen({
     yellowMinion: DS.belongsTo('yellowMinion')
-  })
+  });
 
   var superVillain_hash = {first_name: "Tom", last_name: "Dale", home_planet_id: "123", evil_minion_ids: [1,2]};
 

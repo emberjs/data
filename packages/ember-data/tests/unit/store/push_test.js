@@ -8,15 +8,24 @@ module("unit/store/push - DS.Store#push", {
       lastName: attr('string'),
       phoneNumbers: hasMany('phone-number')
     });
+    Person.toString = function() {
+      return 'Person';
+    };
 
     PhoneNumber = DS.Model.extend({
       number: attr('string'),
       person: belongsTo('person')
     });
+    PhoneNumber.toString = function() {
+      return 'PhoneNumber';
+    };
 
     Post = DS.Model.extend({
       postTitle: attr('string')
     });
+    Post.toString = function() {
+      return 'Post';
+    };
 
     env = setupStore({"post": Post,
                       "person": Person,
@@ -55,7 +64,7 @@ test("Supplying a model class for `push` is the same as supplying a string", fun
   var Programmer = Person.extend();
   env.container.register('model:programmer', Programmer);
 
-  var programmer = store.push(Programmer, {
+  store.push(Programmer, {
     id: 'wat',
     firstName: "Yehuda",
     lastName: "Katz"
@@ -122,6 +131,29 @@ test("Calling update on normalize allows partial updates with raw JSON", functio
 
   equal(person.get('firstName'), "Jacquie", "you can push raw JSON into the store");
   equal(person.get('lastName'), "Jackson", "existing fields are untouched");
+});
+
+test("Calling update with partial records triggers observers for just those attributes", function() {
+  expect(1);
+
+  var person = store.push('person', {
+    id: 'wat',
+    firstName: "Yehuda",
+    lastName: "Katz"
+  });
+
+  person.addObserver('firstName', function() {
+    ok(false, 'firstName observer should not be triggered');
+  });
+
+  person.addObserver('lastName', function() {
+    ok(true, 'lastName observer should be triggered');
+  });
+
+  store.update('person', {
+    id: 'wat',
+    lastName: "Katz!"
+  });
 });
 
 test("Calling push with a normalized hash containing related records returns a record", function() {
@@ -335,4 +367,82 @@ test('calling push without data argument as an object raises an error', function
       store.push('person', invalidValue);
     }, /object/);
   });
+});
+
+test('Calling push with a link containing an object throws an assertion error', function() {
+  expectAssertion(function() {
+    store.push('person', {
+      id: '1',
+      links: {
+        phoneNumbers: {
+          href: '/api/people/1/phone-numbers'
+        }
+      }
+    });
+  },  "You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the value of that link is not a string.");
+});
+
+test('Calling push with a link containing the value null', function() {
+  store.push('person', {
+    id: '1',
+    firstName: 'Tan',
+    links: {
+      phoneNumbers: null
+    }
+  });
+
+  var person = store.getById('person', 1);
+
+  equal(person.get('firstName'), "Tan", "you can use links that contain null as a value");
+});
+
+test('calling push with hasMany relationship the value must be an array', function(){
+  var invalidValues = [
+    1,
+    'string',
+    Ember.Object.create(),
+    Ember.Object.extend(),
+    true
+  ];
+
+  expect(invalidValues.length);
+
+  Ember.EnumerableUtils.forEach(invalidValues, function(invalidValue){
+    throws(function() {
+      store.push('person', { id: 1, phoneNumbers: invalidValue });
+    }, /must be an array/);
+  });
+});
+
+test('calling push with missing or invalid `id` throws assertion error', function(){
+  var invalidValues = [
+    {},
+    { id: null },
+    { id: '' }
+  ];
+
+  expect(invalidValues.length);
+
+  Ember.EnumerableUtils.forEach(invalidValues, function(invalidValue){
+    throws(function() {
+      store.push('person', invalidValue);
+    }, /You must include an `id`/);
+  });
+});
+
+test('calling push with belongsTo relationship the value must not be an array', function(){
+  throws(function() {
+    store.push('phone-number', { id: 1, person: [1] });
+  }, /must not be an array/);
+});
+
+test("Calling push with unknown keys in the provided payload should warn", function() {
+  warns(function() {
+    store.push('person', {
+      id: '1',
+      firstName: 'Tomster',
+      emailAddress: 'tomster@emberjs.com',
+      isMascot: true
+    });
+  }, /The payload for 'person' contains these unknown keys: \[emailAddress,isMascot\]. Make sure they've been defined in your model./);
 });

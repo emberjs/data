@@ -23,6 +23,10 @@ var errorProps = [
   transition to the `invalid` state and the errors will be set to the
   `errors` property on the record.
 
+  This function should return the entire payload as received from the
+  server.  Error object extraction and normalization of model errors
+  should be performed by `extractErrors` on the serializer.
+
   Example
 
   ```javascript
@@ -31,7 +35,7 @@ var errorProps = [
       var error = this._super(jqXHR);
 
       if (jqXHR && jqXHR.status === 422) {
-        var jsonErrors = Ember.$.parseJSON(jqXHR.responseText)["errors"];
+        var jsonErrors = Ember.$.parseJSON(jqXHR.responseText);
         return new DS.InvalidError(jsonErrors);
       } else {
         return error;
@@ -47,7 +51,7 @@ var errorProps = [
   ```javascript
   return new DS.InvalidError({
     length: 'Must be less than 15',
-    name: 'Must not be blank
+    name: 'Must not be blank'
   });
   ```
 
@@ -446,6 +450,7 @@ var Adapter = Ember.Object.extend({
     The default implementation returns the records as a single group.
 
     @method groupRecordsForFindMany
+    @param {DS.Store} store
     @param {Array} records
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.

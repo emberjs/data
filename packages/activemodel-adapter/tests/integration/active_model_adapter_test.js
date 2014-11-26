@@ -1,5 +1,5 @@
 var env, store, adapter, SuperUser;
-var originalAjax, passedUrl, passedVerb, passedHash;
+var passedUrl, passedVerb, passedHash;
 module("integration/active_model_adapter - AMS Adapter", {
   setup: function() {
     SuperUser = DS.Model.extend();
@@ -21,7 +21,7 @@ test('buildURL - decamelizes names', function() {
 });
 
 test('ajaxError - returns invalid error if 422 response', function() {
-  var error = new DS.InvalidError({ name: "can't be blank" });
+  var error = new DS.InvalidError({ errors: { name: "can't be blank" } });
 
   var jqXHR = {
     status: 422,
@@ -32,7 +32,7 @@ test('ajaxError - returns invalid error if 422 response', function() {
 });
 
 test('ajaxError - invalid error has camelized keys', function() {
-  var error = new DS.InvalidError({ firstName: "can't be blank" });
+  var error = new DS.InvalidError({ errors: { firstName: "can't be blank" } });
 
   var jqXHR = {
     status: 422,

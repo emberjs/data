@@ -276,7 +276,7 @@ export default function attr(type, options) {
     options: options
   };
 
-  return Ember.computed('data', function(key, value) {
+  return Ember.computed(function(key, value) {
     if (arguments.length > 1) {
       Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
       var oldValue = getValue(this, key);

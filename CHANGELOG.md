@@ -2,6 +2,96 @@
 
 ### Master
 
+### Ember Data 1.0.0-beta.12 (November 25, 2014)
+
+#### Breaking Changes
+
+##### Internet Explorer 8 Requires Ember 1.8
+
+A bug in Ember 1.7's `Ember.create` method (which is a polyfill for
+`Object.create`) combined with a bug in es5-shim's `Object.create` prevent us
+from giving Ember Data users a good alternative to use. Internally, Ember Data
+uses `Object.create` for efficient caches. Ember 1.8 ships a working
+`Object.create` polyfill on `Ember.create` so if you are using Internet
+Explorer 8 and Ember Data in production, you should upgrade to Ember 1.8 as
+soon as you can.
+
+If you are using browsers that provide `Object.create`, you do not need to do
+any additional work here. This includes mobile browsers, evergreen browsers
+(Chrome, Opera, Firefox), Safari, and IE9+.
+
+##### Ember 1.7 Support Will Be Completely Dropped in Beta.13
+
+Ember Data relies heavily on JavaScript language-level shims (such as the
+`Object.create` issue mentioned above) and other useful internals that Ember
+provides. Rather than creating our own detection algorithms and more polyfills
+for broken code in Ember 1.7, we are deciding to drop 1.7 support in the next
+release of Ember Data. We do so in order to not increase the final size of
+Ember Data's build. You should upgrade to Ember 1.8 as soon as you can.
+
+##### Observing `data` For Changes Has Been Removed
+
+Although `model.get('data')` has been private in Ember Data for a long time, we
+have noticed users may subscribe to changes on `data` for any change to the
+model's attributes. This means that the following code:
+
+```javascript
+var Post = DS.Model.extend({
+  doSomethingWhenDataChanges: function(){
+    // do the work
+  }.property('data')
+});
+```
+
+**no longer works**. Instead, you should just watch each attribute like you
+would with any `Ember.Object`:
+
+```javascript
+var Post = DS.Model.extend({
+  name: DS.attr(),
+  date: DS.attr(),
+  doSomethingWhenDataChanges: function(){
+    // do the work
+  }.property('name', 'date')
+});
+```
+
+* Add Test Coverage for `ember-data/transforms`
+* prefer Ember.create to Object.create
+* Update the store.all docs to make it clearer that it only returns in-memory records.
+* Allow async belongsTo to return null
+* Add test for repeated failed model saves state
+* Improve store.filter() docs
+* Add more info about the store.fetch method
+* Add tests for store#fetch
+* Use store to call the find method
+* Add fetch method to the store
+* fix error propogating up through RSVP handler in tests
+* update Ember.assert calls to check type
+* Remove attr() data dependency
+* Expand the package configuration filename glob declaration in `Brocfile.js` into the affected filenames, as the `broccoli-string-replace` plugin doesn't support globbing
+* Clear inverseRecord for deleted belongsTo properly
+* Warn when pushing unknown payload keys into the store
+* RestAdapter's buildUrl from delete can ask for record's relations. closes #534
+* Ensure production builds do not use require internally.
+* [DOCS] InvalidError docs missing quote
+* Use the model rollback and not state machine for created records rollback
+* Relationship rollback from created state
+* Don't allow empty strings as id in push/update
+* Improve warns() test helper to better handle multiple calls
+* `PromiseManyArray` proxies `Ember.Evented` methods to its `content`
+* Extract function to proxy `PromiseManyArray`'s method to `content`
+* createRecord on PromiseManyArray returns the new record instead of a Promise
+* Add `createRecord` to PromiseArray so it proxies to ManyArray
+* Nicer errors when pushing belongsTo/hasMany with invalid values
+* Fixing an issue when grouping requests could result in URL longer than configured length.
+* Refactored InvalidError handling into a serializer concern.
+* [DOC] Fix usage of DS.Model.fields
+* [DOC] Fix to apply js doc style to DS.ManyArray
+* [DOC] Update usage of AMS
+* [DOC] Fix typos in `ajaxSuccess`
+* Added assertion for updateLink
+
 ### Ember Data 1.0.0-beta.11 _(October 13, 2014)_
 
 * Rollback after delete record failure
@@ -35,6 +125,8 @@
 * Do not clear own relationships when deleting records
 
 ### Ember Data 1.0.0-beta.10 _(September 9, 2014)_
+
+**NOTE:** A bug was introduced in this version where the saving of a model with async hasMany property will send an empty list to the server in the payload, so is discouraged to use this version if you have such relationships on your application. For more details https://github.com/emberjs/data/issues/2339
 
 * Bring back relationship parameter for findHasMany & findBelongsTo
 * add es5-shim/sham requirement to README

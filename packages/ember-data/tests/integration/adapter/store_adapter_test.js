@@ -386,7 +386,7 @@ test("if a created record is marked as invalid by the server, you can attempt th
       ok(get(yehuda, 'errors.name'), "The errors.name property exists");
       equal(get(yehuda, 'isNew'), true, "precond - record is still new");
       set(yehuda, 'name', 'Brohuda Brokatz');
-      return yehuda.save()
+      return yehuda.save();
     })).then(async(function(person) {
       equal(saveCount, 3, "The record has been saved thrice");
       equal(get(yehuda, 'isValid'), true, "record is valid");
@@ -491,7 +491,7 @@ test("if an updated record is marked as invalid by the server, you can attempt t
       equal(get(yehuda, 'isValid'), false, "record is still invalid");
       equal(get(yehuda, 'isDirty'), true, "record is still dirty");
       set(yehuda, 'name', 'Brohuda Brokatz');
-      return yehuda.save()
+      return yehuda.save();
     })).then(async(function(person) {
       equal(saveCount, 3, "The record has been saved thrice");
       equal(get(yehuda, 'isValid'), true, "record is valid");

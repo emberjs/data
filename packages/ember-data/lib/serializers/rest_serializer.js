@@ -268,6 +268,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     for (var prop in payload) {
       var typeName  = this.typeForRoot(prop);
+
       if (!store.modelFactoryFor(typeName)){
         Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
         continue;
@@ -275,6 +276,10 @@ var RESTSerializer = JSONSerializer.extend({
       var type = store.modelFor(typeName);
       var isPrimary = type.typeKey === primaryTypeName;
       var value = payload[prop];
+
+      if (value === null) {
+        continue;
+      }
 
       // legacy support for singular resources
       if (isPrimary && Ember.typeOf(value) !== "array" ) {

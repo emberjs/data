@@ -1,4 +1,4 @@
-var Comment, Post, env;
+var env;
 
 module("integration/records/collection_save - Save Collection of Records", {
   setup: function() {
@@ -85,7 +85,9 @@ test("Collection will reject save on invalid", function() {
     return Ember.RSVP.reject({ title: 'invalid' });
   };
 
-  posts.save().then(function() {}, async(function() {
-    ok(true, 'save operation was rejected');
-  }));
+  Ember.run(function(){
+    posts.save().then(function() {}, async(function() {
+      ok(true, 'save operation was rejected');
+    }));
+  });
 });

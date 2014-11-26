@@ -1,9 +1,8 @@
-var Post, Account, Message, User, store, env;
-var env, store, User, Message, Post, Comment;
-var get = Ember.get, set = Ember.set;
+var Account, Message, User, store, env;
+var env, store, User, Message;
+var get = Ember.get;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
-var resolve = Ember.RSVP.resolve, hash = Ember.RSVP.hash;
 
 function stringify(string) {
   return function() { return string; };
@@ -383,4 +382,52 @@ test("Rollbacking a deleted record works correctly when the belongsTo side has b
   user.rollback();
   equal(user.get('accounts.length'), 1, "User still has the accounts");
   equal(account.get('user'), user, 'Account has the user again');
+});
+
+/*
+Rollback from created state
+*/
+
+test("Rollbacking a created record works correctly when the hasMany side has been created - async", function () {
+  var user = store.push('user', {id:1, name: 'Stanley'});
+  var message = store.createRecord('message', {user: user});
+  message.rollback();
+  message.get('user').then(async(function(fetchedUser) {
+    equal(fetchedUser, null, 'Message does not have the user anymore');
+  }));
+  user.get('messages').then(async(function(fetchedMessages) {
+    equal(fetchedMessages.get('length'), 0, message, 'User does not have the message anymore');
+  }));
+});
+
+test("Rollbacking a created record works correctly when the hasMany side has been created - sync", function () {
+  var user = store.push('user', {id:1, name: 'Stanley'});
+  var account = store.createRecord('account', {user: user});
+  account.rollback();
+  equal(user.get('accounts.length'), 0, "Accounts are rolled back");
+  equal(account.get('user'), null, 'Account does not have the user anymore');
+});
+
+test("Rollbacking a created record works correctly when the belongsTo side has been created - async", function () {
+  var message = store.push('message', {id: 2, title: 'EmberFest was great'});
+  var user = store.createRecord('user');
+  user.get('messages').then(async(function(messages) {
+    messages.pushObject(message);
+    user.rollback();
+    message.get('user').then(async(function(fetchedUser) {
+      equal(fetchedUser, null, 'Message does not have the user anymore');
+    }));
+    user.get('messages').then(async(function(fetchedMessages) {
+      equal(fetchedMessages.get('length'), 0, 'User does not have the message anymore');
+    }));
+  }));
+});
+
+test("Rollbacking a created record works correctly when the belongsTo side has been created - sync", function () {
+  var account = store.push('account', {id:2 , state: 'lonely'});
+  var user = store.createRecord('user');
+  user.get('accounts').pushObject(account);
+  user.rollback();
+  equal(user.get('accounts.length'), undefined, "User does not have the account anymore");
+  equal(account.get('user'), null, 'Account does not have the user anymore');
 });

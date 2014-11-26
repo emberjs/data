@@ -1,4 +1,3 @@
-var get = Ember.get, set = Ember.set;
 var store, container, Record;
 
 module("unit/store/createRecord - Store creating records", {
@@ -12,9 +11,9 @@ module("unit/store/createRecord - Store creating records", {
 });
 
 test("doesn't modify passed in properties hash", function(){
-  var attributes = { foo: 'bar' },
-      record1 = store.createRecord(Record, attributes),
-      record2 = store.createRecord(Record, attributes);
+  var attributes = { foo: 'bar' };
+  store.createRecord(Record, attributes);
+  store.createRecord(Record, attributes);
 
   deepEqual(attributes, { foo: 'bar' }, "The properties hash is not modified");
 });

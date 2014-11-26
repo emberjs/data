@@ -27,8 +27,8 @@ demo should be fully operational with the exception of the bug you want to
 demonstrate. The more pared down, the better. A preconfigured [JSBin][1] |
 [JSFiddle][2] with mocked requests is available.
 
-[1]: http://emberjs.jsbin.com/butef/1/edit
-[2]: http://jsfiddle.net/ty6xgfqc/
+[1]: http://emberjs.jsbin.com/qovara/1/edit?html,js,output
+[2]: http://jsfiddle.net/842xesgc/
 
 4. If possible, submit a Pull Request with a failing test. Better yet, take
 a stab at fixing the bug yourself if you can!
@@ -63,7 +63,7 @@ We love pull requests. Here's a quick guide:
 
 2. Run the tests. We only take pull requests with passing tests, and it's great
 to know that you have a clean slate, see notes on how to run unit tests [here](https://github.com/emberjs/data#how-to-run-unit-tests). (To see tests in the browser,
-run `grunt dev` and open `http://localhost:9997/tests/?package=all`.)
+run `npm start` and open `http://localhost:4200`.)
 
 3. Add a test for your change. Only refactoring and documentation changes
 require no new tests. If you are adding functionality or fixing a bug, we need

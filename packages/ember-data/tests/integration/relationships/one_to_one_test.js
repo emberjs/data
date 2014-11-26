@@ -227,8 +227,18 @@ Deleting tests
 */
 
 test("When deleting a record that has a belongsTo relationship, the record is removed from the inverse but still has access to its own relationship - async", function () {
-  var stanley = store.push('user', {id:1, name: 'Stanley', bestFriend:2});
+  // This observer is here to make sure that inverseRecord gets cleared, when
+  // the record is deleted, before notifyRecordRelationshipRemoved() and in turn
+  // notifyPropertyChange() gets called. If not properly cleared observers will
+  // trigger with the old value of the relationship.
+  User.reopen({
+    bestFriendObserver: Ember.observer('bestFriend', function () {
+      this.get('bestFriend');
+    })
+  });
+
   var stanleysFriend = store.push('user', {id:2, name: "Stanley's friend"});
+  var stanley = store.push('user', {id:1, name: 'Stanley', bestFriend:2});
   stanley.deleteRecord();
   stanleysFriend.get('bestFriend').then(async(function(fetchedUser) {
     equal(fetchedUser, null, 'Stanley got removed');
@@ -270,4 +280,24 @@ test("Rollbacking a deleted record restores the relationship on both sides - syn
   job.rollback();
   equal(user.get('job'), job, 'Job got rollbacked correctly');
   equal(job.get('user'), user, 'Job still has the user');
+});
+
+test("Rollbacking a created record removes the relationship on both sides - async", function () {
+  var stanleysFriend = store.push('user', {id:2, name: "Stanley's friend"});
+  var stanley = store.createRecord('user', {bestFriend: stanleysFriend});
+  stanley.rollback();
+  stanleysFriend.get('bestFriend').then(async(function(fetchedUser) {
+    equal(fetchedUser, null, 'Stanley got rollbacked correctly');
+  }));
+  stanley.get('bestFriend').then(async(function(fetchedUser) {
+    equal(fetchedUser, null, 'Stanleys friend did got removed');
+  }));
+});
+
+test("Rollbacking a created record removes the relationship on both sides - sync", function () {
+  var user = store.push('user', {id:1, name: 'Stanley'});
+  var job = store.createRecord('job', {user: user});
+  job.rollback();
+  equal(user.get('job'), null, 'Job got rollbacked correctly');
+  equal(job.get('user'), null, 'Job does not have user anymore');
 });

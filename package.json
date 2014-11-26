@@ -1,6 +1,6 @@
 {
   "name": "ember-data",
-  "version": "1.0.0-beta.11",
+  "version": "1.0.0-beta.12",
   "namespace": "DS",
   "repository": "git://github.com/emberjs/data.git",
   "license": "MIT",
@@ -31,6 +31,7 @@
     "broccoli-cli": "0.0.1",
     "broccoli-concat": "0.0.7",
     "broccoli-defeatureify": "^0.3.0",
+    "broccoli-derequire": "0.0.1",
     "broccoli-env": "0.0.1",
     "broccoli-es3-safe-recast": "0.0.8",
     "broccoli-es6-module-transpiler": "^0.1.1",
@@ -48,6 +49,7 @@
     "ejs": "^1.0.0",
     "ember-cli": "0.0.43",
     "ember-publisher": "0.0.6",
+    "git-repo-version": "0.0.2",
     "testem": "^0.6.19",
     "yuidocjs": "~0.3.46"
   }

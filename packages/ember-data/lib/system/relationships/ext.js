@@ -109,10 +109,10 @@ Model.reopenClass({
   },
 
   inverseMap: Ember.computed(function() {
-    return Object.create(null);
+    return Ember.create(null);
   }),
 
-  /*
+  /**
     Find the relationship which is the inverse of the one asked for.
 
     For example, if you define models like this:
@@ -450,7 +450,7 @@ Model.reopenClass({
     });
 
     var fields = Ember.get(App.Blog, 'fields');
-    fields.forEach(function(field, kind) {
+    fields.forEach(function(kind, field) {
       console.log(field, kind);
     });
 

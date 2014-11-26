@@ -1,5 +1,3 @@
-/*global Tag App*/
-
 var get = Ember.get, set = Ember.set;
 
 module("unit/model/relationships - DS.Model");
@@ -69,8 +67,6 @@ test("hasMany handles pre-loaded relationships", function() {
   store.pushMany('pet', [{ id: 4, name: "fluffy" }, { id: 7, name: "snowy" }, { id: 12, name: "cerberus" }]);
   store.push('person', { id: 1, name: "Tom Dale", tags: [5] });
   store.push('person', { id: 2, name: "Yehuda Katz", tags: [12] });
-
-  var wycats;
 
   store.find('person', 1).then(async(function(person) {
     equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");

@@ -1,5 +1,6 @@
 var env, User, Contact, Email, Phone, Message, Post, Comment;
-var get = Ember.get, set = Ember.set;
+var Book, Chapter, Page;
+var get = Ember.get;
 var resolve = Ember.RSVP.resolve;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
@@ -347,6 +348,77 @@ test("A hasMany relationship can be directly reloaded if it was fetched via ids"
       equal(comments.get('firstObject.body'), "FirstUpdated", "Record body was correctly updated");
     }));
   }));
+});
+
+test("PromiseArray proxies createRecord to its ManyArray once the hasMany is loaded", function() {
+  expect(4);
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    return Ember.RSVP.resolve([
+      { id: 1, body: "First" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+
+  var post = env.store.push('post', {id:1, links: {comments: 'someLink'}});
+
+  post.get('comments').then(async(function(comments) {
+    equal(comments.get('isLoaded'), true, "comments are loaded");
+    equal(comments.get('length'), 2, "comments have 2 length");
+
+    var newComment = post.get('comments').createRecord({body: 'Third'});
+    equal(newComment.get('body'), 'Third', "new comment is returned");
+    equal(comments.get('length'), 3, "comments have 3 length, including new record");
+  }));
+});
+
+test("PromiseArray proxies evented methods to its ManyArray", function() {
+  expect(6);
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    return Ember.RSVP.resolve([
+      { id: 1, body: "First" },
+      { id: 2, body: "Second" }
+    ]);
+  };
+
+  var post = env.store.push('post', {id:1, links: {comments: 'someLink'}});
+
+  var comments = post.get('comments');
+
+  comments.on('on-event', function() {
+    ok(true);
+  });
+
+  comments.trigger('on-event');
+
+  equal(comments.has('on-event'), true);
+
+  comments.on('off-event', function() {
+    ok(false);
+  });
+
+  comments.off('off-event');
+
+  equal(comments.has('off-event'), false);
+
+  comments.one('one-event', function() {
+    ok(true);
+  });
+
+  equal(comments.has('one-event'), true);
+
+  comments.trigger('one-event');
+
+  equal(comments.has('one-event'), false);
 });
 
 test("An updated `links` value should invalidate a relationship cache", function() {

@@ -55,17 +55,19 @@ export default RecordArray.extend({
   */
   isPolymorphic: false,
 
-  // LOADING STATE
+  /**
+    The loading state of this array
 
+    @property {Boolean} isLoaded
+  */
   isLoaded: false,
 
    /**
      The relationship which manages this array.
 
-     @property {DS.Model} owner
+     @property {ManyRelationship} relationship
      @private
    */
-
   relationship: null,
 
 
@@ -132,7 +134,7 @@ export default RecordArray.extend({
 
     Ember.assert("You cannot add '" + type.typeKey + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
 
-    record = store.createRecord.call(store, type, hash);
+    record = store.createRecord(type, hash);
     this.pushObject(record);
 
     return record;

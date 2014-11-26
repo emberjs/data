@@ -1,8 +1,9 @@
-var env, store, User, Message, Post, Comment;
-var get = Ember.get, set = Ember.set;
+var env, store, User, Message, Post, Comment, Book, Author;
+var NewMessage;
+var get = Ember.get;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
-var resolve = Ember.RSVP.resolve, hash = Ember.RSVP.hash;
+var hash = Ember.RSVP.hash;
 
 function stringify(string) {
   return function() { return string; };
@@ -232,6 +233,37 @@ test('A record with an async belongsTo relationship always returns a promise for
   }));
 });
 
+test("A record with an async belongsTo relationship returning null should resolve null", function() {
+  expect(1);
+
+  var Group = DS.Model.extend({
+    people: DS.hasMany()
+  });
+
+  var Person = DS.Model.extend({
+    group: DS.belongsTo({ async: true })
+  });
+
+  env.container.register('model:group', Group);
+  env.container.register('model:person', Person);
+
+  store.push('person', { id: 1, links: { group: '/people/1/group' } });
+
+  env.adapter.find = function() {
+    throw new Error("Adapter's find method should not be called");
+  };
+
+  env.adapter.findBelongsTo = async(function(store, record, link, relationship) {
+    return Ember.RSVP.resolve(null);
+  });
+
+  env.store.find('person', 1).then(async(function(person) {
+    return person.get('group');
+  })).then(async(function(group) {
+    ok(group === null, "group should be null");
+  }));
+});
+
 test("TODO (embedded): The store can load an embedded polymorphic belongsTo association", function() {
   expect(0);
   //serializer.keyForEmbeddedType = function() {
@@ -325,7 +357,7 @@ test("asdf", function() {
     })
   });
 
-  var post = env.store.push('post', {
+  env.store.push('post', {
     id: 1,
     comments: [1, 2, 3]
   });

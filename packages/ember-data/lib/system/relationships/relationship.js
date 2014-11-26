@@ -12,7 +12,6 @@ var Relationship = function(store, record, inverseKey, relationshipMeta) {
   this.key = relationshipMeta.key;
   this.inverseKey = inverseKey;
   this.record = record;
-  this.key = relationshipMeta.key;
   this.isAsync = relationshipMeta.options.async;
   this.relationshipMeta = relationshipMeta;
   //This probably breaks for polymorphic relationship in complex scenarios, due to
@@ -46,20 +45,24 @@ Relationship.prototype = {
   },
 
   removeRecords: function(records){
-    var that = this;
-    records.forEach(function(record){
-      that.removeRecord(record);
-    });
+    var length = Ember.get(records, 'length');
+    var record;
+    for (var i = 0; i < length; i++){
+      record = records[i];
+      this.removeRecord(record);
+    }
   },
 
   addRecords: function(records, idx){
-    var that = this;
-    records.forEach(function(record){
-      that.addRecord(record, idx);
+    var length = Ember.get(records, 'length');
+    var record;
+    for (var i = 0; i < length; i++){
+      record = records[i];
+      this.addRecord(record, idx);
       if (idx !== undefined) {
         idx++;
       }
-    });
+    }
   },
 
   addRecord: function(record, idx) {
@@ -112,6 +115,7 @@ Relationship.prototype = {
   },
 
   updateLink: function(link) {
+    Ember.assert("You have pushed a record of type '" + this.record.constructor.typeKey + "' with '" + this.key + "' as a link, but the value of that link is not a string.", typeof link === 'string' || link === null);
     if (link !== this.link) {
       this.link = link;
       this.linkPromise = null;
@@ -149,7 +153,7 @@ var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
   this.manyArray.isPolymorphic = this.isPolymorphic;
 };
 
-ManyRelationship.prototype = Object.create(Relationship.prototype);
+ManyRelationship.prototype = Ember.create(Relationship.prototype);
 ManyRelationship.prototype.constructor = ManyRelationship;
 ManyRelationship.prototype._super$constructor = Relationship;
 
@@ -249,7 +253,9 @@ ManyRelationship.prototype.getRecords = function() {
   } else {
       Ember.assert("You looked up the '" + this.key + "' relationship on a '" + this.record.constructor.typeKey + "' with id " + this.record.get('id') +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", this.manyArray.isEvery('isEmpty', false));
 
-    this.manyArray.set('isLoaded', true);
+    if (!this.manyArray.get('isDestroyed')) {
+      this.manyArray.set('isLoaded', true);
+    }
     return this.manyArray;
  }
 };
@@ -261,7 +267,7 @@ var BelongsToRelationship = function(store, record, inverseKey, relationshipMeta
   this.inverseRecord = null;
 };
 
-BelongsToRelationship.prototype = Object.create(Relationship.prototype);
+BelongsToRelationship.prototype = Ember.create(Relationship.prototype);
 BelongsToRelationship.prototype.constructor = BelongsToRelationship;
 BelongsToRelationship.prototype._super$constructor = Relationship;
 
@@ -303,9 +309,9 @@ BelongsToRelationship.prototype.notifyRecordRelationshipRemoved = function(recor
 
 BelongsToRelationship.prototype._super$removeRecordFromOwn = Relationship.prototype.removeRecordFromOwn;
 BelongsToRelationship.prototype.removeRecordFromOwn = function(record) {
-  if (!this.members.has(record)){ return;}
-  this._super$removeRecordFromOwn(record);
+  if (!this.members.has(record)) { return; }
   this.inverseRecord = null;
+  this._super$removeRecordFromOwn(record);
 };
 
 BelongsToRelationship.prototype.findRecord = function() {
@@ -319,7 +325,9 @@ BelongsToRelationship.prototype.findRecord = function() {
 BelongsToRelationship.prototype.fetchLink = function() {
   var self = this;
   return this.store.findBelongsTo(this.record, this.link, this.relationshipMeta).then(function(record){
-    self.addRecord(record);
+    if (record) {
+      self.addRecord(record);
+    }
     return record;
   });
 };

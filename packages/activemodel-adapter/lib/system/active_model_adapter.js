@@ -6,7 +6,6 @@ import {pluralize} from "ember-inflector";
   @module ember-data
 */
 
-var forEach = Ember.EnumerableUtils.forEach;
 var decamelize = Ember.String.decamelize,
     underscore = Ember.String.underscore;
 
@@ -16,7 +15,7 @@ var decamelize = Ember.String.decamelize,
   It has been designed to work out of the box with the
   [active_model_serializers](http://github.com/rails-api/active_model_serializers)
   Ruby gem. This Adapter expects specific settings using ActiveModel::Serializers,
-  `embed :ids, include: true` which sideloads the records.
+  `embed :ids, embed_in_root: true` which sideloads the records.
 
   This adapter extends the DS.RESTAdapter by making consistent use of the camelization,
   decamelization and pluralization methods to normalize the serialized JSON into a
@@ -142,18 +141,7 @@ var ActiveModelAdapter = RESTAdapter.extend({
     var error = this._super(jqXHR);
 
     if (jqXHR && jqXHR.status === 422) {
-      var response = Ember.$.parseJSON(jqXHR.responseText),
-          errors = {};
-
-      if (response.errors !== undefined) {
-        var jsonErrors = response.errors;
-
-        forEach(Ember.keys(jsonErrors), function(key) {
-          errors[Ember.String.camelize(key)] = jsonErrors[key];
-        });
-      }
-
-      return new InvalidError(errors);
+      return new InvalidError(Ember.$.parseJSON(jqXHR.responseText));
     } else {
       return error;
     }

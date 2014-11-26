@@ -1,7 +1,7 @@
 var run = Ember.run,
     Container = Ember.Container,
     Store = DS.Store,
-    Object = Ember.Object,
+    EmberObject = Ember.Object,
     setupContainer = DS._setupContainer;
 
 var container;
@@ -27,7 +27,7 @@ test("The store should be registered into a container.", function() {
 });
 
 test("If a store is instantiated, it should be made available to each controller.", function() {
-  container.register('controller:foo', Object.extend({}));
+  container.register('controller:foo', EmberObject.extend({}));
   var fooController = container.lookup('controller:foo');
   ok(fooController.get('store') instanceof Store, "the store was injected");
 });

@@ -11,10 +11,11 @@ var moveFile      = require('broccoli-file-mover');
 var wrap          = require('broccoli-wrap');
 var jshint        = require('broccoli-jshint');
 var defeatureify  = require('broccoli-defeatureify');
-var version = require('./lib/utilities/ember-data-version')();
+var version       = require('git-repo-version')(10);
 var renderTemplate = require('broccoli-render-template');
 var yuidoc = require('broccoli-yuidoc');
 var replace = require('broccoli-string-replace');
+var derequire = require('broccoli-derequire');
 
 function moveFromLibAndMainJS(packageName, vendored){
   var root = vendored ? 'bower_components/' + packageName + "/packages/" + packageName + '/lib':
@@ -141,6 +142,10 @@ globalBuild = wrap(globalBuild, {
 globalBuild = versionStamp(globalBuild, 'ember-data.js');
 namedAMDBuild = versionStamp(namedAMDBuild, 'ember-data.named-amd.js');
 
+if (env === 'production'){
+  testFiles = es3SafeRecast(testFiles);
+}
+
 testFiles = concat(testFiles, {
   inputFiles: ['**/*.js'],
   separator: '\n',
@@ -168,31 +173,32 @@ var configurationFiles = pickFiles('config/package_manager_files', {
 });
 
 configurationFiles = replace(configurationFiles, {
-  files: [ '**/*' ],
+  files: [ 'bower.json', 'component.json', 'package.json' ],
   pattern: {
     match: /VERSION_STRING_PLACEHOLDER/g,
     replacement: version
   }
 });
 
-var trees = merge([
+var trees = [
   testFiles,
-  globalBuild,
   namedAMDBuild,
   testRunner,
   bower,
   configurationFiles
-]);
+];
 
 if (env === 'production') {
+  globalBuild = derequire(globalBuild);
+
   var minifiedAMD = minify(namedAMDBuild, 'ember-data.named-amd');
   var minifiedGlobals = minify(globalBuild, 'ember-data');
-  trees = merge([
-    yuidocTree,
-    trees,
-    minifiedAMD,
-    minifiedGlobals
-  ]);
+
+  trees.push(yuidocTree);
+  trees.push(minifiedAMD);
+  trees.push(minifiedGlobals);
 }
 
-module.exports = trees;
+trees.push(globalBuild);
+
+module.exports = merge(trees);
