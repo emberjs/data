@@ -426,11 +426,24 @@ Store = Ember.Object.extend({
   /**
     This method returns a fresh record for a given type and id combination.
 
-    If a record is available for the given type/id combination, then it will fetch this record from the store then reload it. If there's no record corresponding in the store it will simply call store.find.
+    If a record is available for the given type/id combination, then
+    it will fetch this record from the store then reload it. If
+    there's no record corresponding in the store it will simply call
+    `store.find`.
+
+    Example
+
+    ```javascript
+    App.PostRoute = Ember.Route.extend({
+      model: function(params) {
+        return this.store.fetch('post', params.post_id);
+      }
+    });
+    ```
 
     @method fetch
     @param {String or subclass of DS.Model} type
-    @param {Object|String|Integer|null} id
+    @param {String|Integer} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
