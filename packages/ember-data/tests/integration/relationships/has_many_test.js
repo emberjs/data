@@ -967,3 +967,15 @@ test("Rollbacking a deleted record restores implicit relationship correctly when
     equal(page.get('chapter'), chapter, "Page has a chapter after rollback");
   });
 });
+
+test("Passing a model as type to hasMany should not work", function () {
+  expect(1);
+
+  expectAssertion(function() {
+    User = DS.Model.extend();
+
+    Contact = DS.Model.extend({
+      users: hasMany(User)
+    });
+  }, /The first argument to DS.hasMany must be a string/);
+});

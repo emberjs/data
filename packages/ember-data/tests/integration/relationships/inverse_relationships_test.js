@@ -33,17 +33,28 @@ test("Inverse relationships can be explicitly nullable", function () {
   User = DS.Model.extend();
 
   Post = DS.Model.extend({
-    lastParticipant: DS.belongsTo(User, { inverse: null }),
-    participants: DS.hasMany(User, { inverse: 'posts' })
+    lastParticipant: DS.belongsTo('user', { inverse: null }),
+    participants: DS.hasMany('user', { inverse: 'posts' })
   });
 
   User.reopen({
-    posts: DS.hasMany(Post, { inverse: 'participants' })
+    posts: DS.hasMany('post', { inverse: 'participants' })
   });
 
-  equal(User.inverseFor('posts').name, 'participants', 'User.posts inverse is Post.participants');
-  equal(Post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
-  equal(Post.inverseFor('participants').name, 'posts', 'Post.participants inverse is User.posts');
+  var store = createStore({
+    user: User,
+    post: Post
+  });
+  var user, post;
+
+  run(function() {
+    user = store.createRecord('user');
+    post = store.createRecord('post');
+  });
+
+  equal(user.inverseFor('posts').name, 'participants', 'User.posts inverse is Post.participants');
+  equal(post.inverseFor('lastParticipant'), null, 'Post.lastParticipant has no inverse');
+  equal(post.inverseFor('participants').name, 'posts', 'Post.participants inverse is User.posts');
 });
 
 test("When a record is added to a has-many relationship, the inverse belongsTo can be set explicitly", function() {
@@ -162,9 +173,10 @@ test("When setting a belongsTo, the OneToOne invariant is transitive", function(
     post: DS.belongsTo('post')
   });
 
-  var env = setupStore({ post: Post, comment: Comment }),
-  store = env.store;
-  var comment, post, post2;
+  var store = createStore({
+    post: Post,
+    comment: Comment
+  });
 
   run(function(){
     comment = store.createRecord('comment');
@@ -198,9 +210,10 @@ test("When setting a belongsTo, the OneToOne invariant is commutative", function
     post: DS.belongsTo('post')
   });
 
-  var env = setupStore({ post: Post, comment: Comment }),
-  store = env.store;
-  var comment, post, comment2;
+  var store = createStore({
+    post: Post,
+    comment: Comment
+  });
 
   run(function(){
     comment = store.createRecord('comment');
@@ -406,7 +419,7 @@ test("Inverse relationships that don't exist throw a nice error for a hasMany", 
   Comment = DS.Model.extend();
 
   Post = DS.Model.extend({
-    comments: DS.hasMany(Comment, { inverse: 'testPost' })
+    comments: DS.hasMany('comment', { inverse: 'testPost' })
   });
 
   var env = setupStore({ post: Post, comment: Comment, user: User });
@@ -427,7 +440,7 @@ test("Inverse relationships that don't exist throw a nice error for a belongsTo"
   Comment = DS.Model.extend();
 
   Post = DS.Model.extend({
-    user: DS.belongsTo(User, { inverse: 'testPost' })
+    user: DS.belongsTo('user', { inverse: 'testPost' })
   });
 
   var env = setupStore({ post: Post, comment: Comment, user: User });

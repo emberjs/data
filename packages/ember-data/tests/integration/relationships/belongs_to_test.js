@@ -488,3 +488,15 @@ test("Rollbacking a deleted record restores implicit relationship - sync", funct
   });
   equal(book.get('author'), author, 'Book has an author after rollback');
 });
+
+test("Passing a model as type to belongsTo should not work", function () {
+  expect(1);
+
+  expectAssertion(function() {
+    User = DS.Model.extend();
+
+    Contact = DS.Model.extend({
+      user: belongsTo(User)
+    });
+  }, /The first argument to DS.belongsTo must be a string/);
+});
