@@ -138,6 +138,16 @@ test("changedAttributes() return correct values", function() {
   deepEqual({}, mascot.changedAttributes(), 'after rollback there are no changes');
 });
 
+test("a DS.Model does not require an attribute type", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr()
+  });
+
+  var tag = store.createRecord(Tag, { name: "test" });
+
+  equal(get(tag, 'name'), "test", "the value is persisted");
+});
+
 module("unit/model - DS.Model updating", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
