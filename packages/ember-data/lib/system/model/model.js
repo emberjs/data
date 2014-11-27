@@ -375,7 +375,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
   toJSON: function(options) {
     if (!JSONSerializer) { JSONSerializer = requireModule("ember-data/serializers/json_serializer")["default"]; }
     // container is for lazy transform lookups
-    var serializer = JSONSerializer.create({ container: this.container });
+    var serializer = JSONSerializer.create({
+      container: this.container
+    });
     return serializer.serialize(this, options);
   },
 
@@ -430,8 +432,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this._data = this._data || {};
     return this._data;
   }).readOnly(),
-
-  _data: null,
 
   init: function() {
     this._super();
