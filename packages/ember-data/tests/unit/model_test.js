@@ -118,6 +118,26 @@ test("it should cache attributes", function() {
   }));
 });
 
+test("changedAttributes() return correct values", function() {
+  expect(3);
+
+  var Mascot = DS.Model.extend({
+    name: DS.attr('string'),
+    likes: DS.attr('string'),
+    isMascot: DS.attr('boolean')
+  });
+
+  var mascot = store.push(Mascot, { id: 1, likes: 'JavaScript', isMascot: true })
+
+  deepEqual({}, mascot.changedAttributes(), 'there are no initial changes');
+  mascot.set('name', 'Tomster');   // new value
+  mascot.set('likes', 'Ember.js'); // changed value
+  mascot.set('isMascot', true);    // same value
+  deepEqual({ name: [undefined, 'Tomster'], likes: ['JavaScript', 'Ember.js'] }, mascot.changedAttributes(), 'attributes has changed');
+  mascot.rollback();
+  deepEqual({}, mascot.changedAttributes(), 'after rollback there are no changes');
+});
+
 module("unit/model - DS.Model updating", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
