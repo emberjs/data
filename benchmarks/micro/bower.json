@@ -1,0 +1,24 @@
+{
+  "name": "micro",
+  "main": "index.js",
+  "version": "1.0.0-beta.12",
+  "homepage": "https://github.com/emberjs/data",
+  "authors": [
+    "Stefan Penner <stefan.penner@gmail.com>"
+  ],
+  "license": "MIT",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "ember": "~1.8.1"
+  },
+  "resolutions": {
+    "handlebars": ">= 2.0.0 < 3.0.0",
+    "ember": "canary"
+  }
+}
