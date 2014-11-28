@@ -148,6 +148,16 @@ test("a DS.Model does not require an attribute type", function() {
   equal(get(tag, 'name'), "test", "the value is persisted");
 });
 
+test("a DS.Model can have a defaultValue without an attribute type", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr({ defaultValue: "unknown" })
+  });
+
+  var tag = store.createRecord(Tag);
+
+  equal(get(tag, 'name'), "unknown", "the default value is found");
+});
+
 module("unit/model - DS.Model updating", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
