@@ -329,7 +329,58 @@ test("relationshipsByName does not cache a factory", function() {
          "model factory based on relationship type matches the model based on store.modelFor" );
 });
 
-test("asdf", function() {
+test("relationshipsByName is cached in production", function() {
+  var model = store.modelFor('user');
+  var oldTesting = Ember.testing;
+  //We set the cacheable to true because that is the default state for any CP and then assert that it
+  //did not get dynamically changed when accessed
+  var oldCacheable = Ember.meta(model).descs.relationshipsByName._cacheable;
+  Ember.meta(model).descs.relationshipsByName._cacheable = true;
+  Ember.testing = false;
+  try {
+    equal(get(model, 'relationshipsByName'), get(model, 'relationshipsByName'), 'relationshipsByName are cached');
+    equal(get(model, 'relationshipsByName'), get(model, 'relationshipsByName'), 'relationshipsByName are cached');
+  } finally {
+    Ember.testing = oldTesting;
+    Ember.meta(model).descs.relationshipsByName._cacheable = oldCacheable;
+  }
+});
+
+test("relatedTypes is cached in production", function() {
+  var model = store.modelFor('user');
+  var oldTesting = Ember.testing;
+  //We set the cacheable to true because that is the default state for any CP and then assert that it
+  //did not get dynamically changed when accessed
+  var oldCacheable = Ember.meta(model).descs.relatedTypes._cacheable;
+  Ember.meta(model).descs.relatedTypes._cacheable = true;
+  Ember.testing = false;
+  try {
+    equal(get(model, 'relatedTypes'), get(model, 'relatedTypes'), 'relatedTypes are cached');
+    equal(get(model, 'relatedTypes'), get(model, 'relatedTypes'), 'relatedTypes are cached');
+  } finally {
+    Ember.testing = oldTesting;
+    Ember.meta(model).descs.relatedTypes._cacheable = oldCacheable;
+  }
+});
+
+test("relationships is cached in production", function() {
+  var model = store.modelFor('user');
+  var oldTesting = Ember.testing;
+  //We set the cacheable to true because that is the default state for any CP and then assert that it
+  //did not get dynamically changed when accessed
+  var oldCacheable = Ember.meta(model).descs.relatedTypes._cacheable;
+  Ember.meta(model).descs.relationships._cacheable = true;
+  Ember.testing = false;
+  try {
+    equal(get(model, 'relationships'), get(model, 'relationships'), 'relationships are cached');
+    equal(get(model, 'relationships'), get(model, 'relationships'), 'relationships are cached');
+  } finally {
+    Ember.testing = oldTesting;
+    Ember.meta(model).descs.relationships._cacheable = oldCacheable;
+  }
+});
+
+test("relationship changes shouldn’t cause async fetches", function() {
   expect(2);
 
   /*  Scenario:
