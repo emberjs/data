@@ -247,7 +247,7 @@ var DirtyState = {
     loadingData: Ember.K,
 
     propertyWasReset: function(record, name) {
-      var length = Ember.keys(record._attributes);
+      var length = Ember.keys(record._attributes).length;
       var stillDirty = length > 0;
 
       if (!stillDirty) { record.send('rolledBack'); }
@@ -532,14 +532,7 @@ var RootState = {
     saved: {
       setup: function(record) {
         var attrs = record._attributes;
-        var isDirty = false;
-
-        for (var prop in attrs) {
-          if (attrs.hasOwnProperty(prop)) {
-            isDirty = true;
-            break;
-          }
-        }
+        var isDirty = Ember.keys(attrs).length > 0;
 
         if (isDirty) {
           record.adapterDidDirty();
