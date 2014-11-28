@@ -11,10 +11,10 @@ require('./runner')(
 
 require('./runner')(
   {
-    distribution: [0, 1, 5, 100, 1000, 10000],
-    name: 'pushPayload',
+    distribution: [0, 5, 100],
+    name: 'pushPayload simple-relationship',
     suites: [
-      require('./push-payload/push-payload')
+      require('./push-payload-relationships/push-payload')
     ]
   }
 );
