@@ -33,6 +33,7 @@ module.exports.setup = function() {
   }
 
   var setup = this.____setup;
+  setup.store.typeMapFor('person').records.length = 0;
   //setup.store.typeMapFor(Person).records.length = 0;
 
   var data, id, type, store, attrs;
