@@ -11,6 +11,8 @@ Future plan is to generate these index files more dynamically, for more granular
 todo:
 -----
 
+- [ ] better on-disk format
+- [ ] more convention
 - [ ] stats via automated commandline tool
 - [ ] more tests
 - [ ] make it nicer
