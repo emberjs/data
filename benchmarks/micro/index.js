@@ -1,10 +1,10 @@
+
 require('./runner')(
   {
-    distribution: [0, 1, 5],
-    name: 'create',
+    distribution: [0],
+    name: 'buildRecord',
     suites: [
-      require('./create/create-record'),
-      require('./create/create-object')
+      require('./build/build-record')
     ]
   }
 );
