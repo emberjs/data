@@ -99,6 +99,9 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
 
 test("Only a record of the same type can be used with a monomorphic belongsTo relationship", function() {
   expect(1);
+  env.store.modelFor('post').reopen({
+    user: DS.belongsTo('user', {inverse: null})
+  });
 
   store.push('post', { id: 1 });
   store.push('comment', { id: 2 });
