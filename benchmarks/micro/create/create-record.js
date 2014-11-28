@@ -1,9 +1,5 @@
 var name = 'create record';
 
-var Person = DS.Model({
-
-});
-
 function fn() {
   return this.data.klass._create();
 }
