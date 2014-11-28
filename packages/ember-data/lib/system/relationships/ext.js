@@ -429,7 +429,7 @@ Model.reopenClass({
     });
 
     return map;
-  }).cacheable(false).readOnly(),
+  }).readOnly(),
 
   /**
     A map whose keys are the fields of the model and whose values are strings
