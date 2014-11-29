@@ -6,6 +6,8 @@ import {
   OrderedSet
 } from "ember-data/system/map";
 
+var forEach = Ember.EnumerableUtils.forEach;
+
 var Relationship = function(store, record, inverseKey, relationshipMeta) {
   this.members = new OrderedSet();
   this.store = store;
@@ -45,24 +47,20 @@ Relationship.prototype = {
   },
 
   removeRecords: function(records){
-    var length = Ember.get(records, 'length');
-    var record;
-    for (var i = 0; i < length; i++){
-      record = records[i];
-      this.removeRecord(record);
-    }
+    var self = this;
+    forEach(records, function(record){
+      self.removeRecord(record);
+    });
   },
 
   addRecords: function(records, idx){
-    var length = Ember.get(records, 'length');
-    var record;
-    for (var i = 0; i < length; i++){
-      record = records[i];
-      this.addRecord(record, idx);
+    var self = this;
+    forEach(records, function(record){
+      self.addRecord(record, idx);
       if (idx !== undefined) {
         idx++;
       }
-    }
+    });
   },
 
   addRecord: function(record, idx) {
