@@ -1,9 +1,9 @@
-var Comment, Post, env;
+var Post, env;
 var run = Ember.run;
 
 module("integration/records/save - Save Record", {
   setup: function() {
-    var Post = DS.Model.extend({
+    Post = DS.Model.extend({
       title: DS.attr('string')
     });
 
@@ -70,6 +70,24 @@ test("Retry is allowed in a failure handler", function() {
     })).then(async(function(post) {
       equal(post.get('id'), '123', "The post ID made it through");
     }));
+  });
+});
+
+test("Repeated failed saves keeps the record in uncommited state", function() {
+  expect(2);
+
+  var post = env.store.createRecord('post', {title: 'toto'});
+
+  env.adapter.createRecord = function(store, type, record) {
+    return Ember.RSVP.reject();
+  };
+
+  post.save().then(null, function() {
+    equal(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
+
+    post.save().then(null, function() {
+      equal(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
+    });
   });
 });
 

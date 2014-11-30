@@ -64,7 +64,7 @@ test("Supplying a model class for `push` is the same as supplying a string", fun
   var Programmer = Person.extend();
   env.container.register('model:programmer', Programmer);
 
-  var programmer = store.push(Programmer, {
+  store.push(Programmer, {
     id: 'wat',
     firstName: "Yehuda",
     lastName: "Katz"
@@ -131,6 +131,29 @@ test("Calling update on normalize allows partial updates with raw JSON", functio
 
   equal(person.get('firstName'), "Jacquie", "you can push raw JSON into the store");
   equal(person.get('lastName'), "Jackson", "existing fields are untouched");
+});
+
+test("Calling update with partial records triggers observers for just those attributes", function() {
+  expect(1);
+
+  var person = store.push('person', {
+    id: 'wat',
+    firstName: "Yehuda",
+    lastName: "Katz"
+  });
+
+  person.addObserver('firstName', function() {
+    ok(false, 'firstName observer should not be triggered');
+  });
+
+  person.addObserver('lastName', function() {
+    ok(true, 'lastName observer should be triggered');
+  });
+
+  store.update('person', {
+    id: 'wat',
+    lastName: "Katz!"
+  });
 });
 
 test("Calling push with a normalized hash containing related records returns a record", function() {
@@ -395,7 +418,7 @@ test('calling push with missing or invalid `id` throws assertion error', functio
   var invalidValues = [
     {},
     { id: null },
-    { id: '' },
+    { id: '' }
   ];
 
   expect(invalidValues.length);

@@ -1,4 +1,3 @@
-var get = Ember.get, set = Ember.set;
 var attr = DS.attr;
 var Person, env;
 var run = Ember.run;

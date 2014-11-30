@@ -1,5 +1,3 @@
-/*global Tag App*/
-
 var get = Ember.get, set = Ember.set;
 
 module("unit/model/relationships - DS.Model");
@@ -69,8 +67,6 @@ test("hasMany handles pre-loaded relationships", function() {
   store.pushMany('pet', [{ id: 4, name: "fluffy" }, { id: 7, name: "snowy" }, { id: 12, name: "cerberus" }]);
   store.push('person', { id: 1, name: "Tom Dale", tags: [5] });
   store.push('person', { id: 2, name: "Yehuda Katz", tags: [12] });
-
-  var wycats;
 
   store.find('person', 1).then(async(function(person) {
     equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
@@ -336,6 +332,42 @@ test("it is possible to add a new item to a relationship", function() {
 
     equal(get(person, 'tags').objectAt(1), tag, "newly added relationship works");
   }));
+});
+
+test("possible to replace items in a relationship using setObjects w/ Ember Enumerable Array/Object as the argument (GH-2533)", function(){
+  var Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    person: DS.belongsTo('person')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.hasMany('tag')
+  });
+
+  var env   = setupStore({ tag: Tag, person: Person });
+  var store = env.store;
+  var run   = Ember.run;
+
+  Ember.run(function(){
+    store.push('person', { id: 1, name: "Tom Dale", tags: [ 1 ] });
+    store.push('person', { id: 2, name: "Sylvain Mina", tags: [ 2 ] });
+    store.push('tag', { id: 1, name: "ember" });
+    store.push('tag', { id: 2, name: "ember-data" });
+  });
+
+  var tom, sylvain;
+
+  run(function(){
+    tom = store.getById('person', '1');
+    sylvain = store.getById('person', '2');
+    // Test that since sylvain.get('tags') instanceof DS.ManyArray,
+    // addRecords on Relationship iterates correctly.
+    tom.get('tags').setObjects(sylvain.get('tags'));
+  });
+
+  equal(tom.get('tags.length'), 1);
+  equal(tom.get('tags.firstObject'), store.getById('tag', 2));
 });
 
 test("it is possible to remove an item from a relationship", function() {

@@ -1,4 +1,3 @@
-var get = Ember.get, set = Ember.set;
 var attr = DS.attr;
 var belongsTo = DS.belongsTo;
 var hasMany = DS.hasMany;

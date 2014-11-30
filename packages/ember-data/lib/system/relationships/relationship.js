@@ -6,6 +6,8 @@ import {
   OrderedSet
 } from "ember-data/system/map";
 
+var forEach = Ember.EnumerableUtils.forEach;
+
 var Relationship = function(store, record, inverseKey, relationshipMeta) {
   this.members = new OrderedSet();
   this.store = store;
@@ -45,16 +47,16 @@ Relationship.prototype = {
   },
 
   removeRecords: function(records){
-    var that = this;
-    records.forEach(function(record){
-      that.removeRecord(record);
+    var self = this;
+    forEach(records, function(record){
+      self.removeRecord(record);
     });
   },
 
   addRecords: function(records, idx){
-    var that = this;
-    records.forEach(function(record){
-      that.addRecord(record, idx);
+    var self = this;
+    forEach(records, function(record){
+      self.addRecord(record, idx);
       if (idx !== undefined) {
         idx++;
       }
@@ -149,7 +151,7 @@ var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
   this.manyArray.isPolymorphic = this.isPolymorphic;
 };
 
-ManyRelationship.prototype = Object.create(Relationship.prototype);
+ManyRelationship.prototype = Ember.create(Relationship.prototype);
 ManyRelationship.prototype.constructor = ManyRelationship;
 ManyRelationship.prototype._super$constructor = Relationship;
 
@@ -263,7 +265,7 @@ var BelongsToRelationship = function(store, record, inverseKey, relationshipMeta
   this.inverseRecord = null;
 };
 
-BelongsToRelationship.prototype = Object.create(Relationship.prototype);
+BelongsToRelationship.prototype = Ember.create(Relationship.prototype);
 BelongsToRelationship.prototype.constructor = BelongsToRelationship;
 BelongsToRelationship.prototype._super$constructor = Relationship;
 
@@ -321,7 +323,9 @@ BelongsToRelationship.prototype.findRecord = function() {
 BelongsToRelationship.prototype.fetchLink = function() {
   var self = this;
   return this.store.findBelongsTo(this.record, this.link, this.relationshipMeta).then(function(record){
-    self.addRecord(record);
+    if (record) {
+      self.addRecord(record);
+    }
     return record;
   });
 };

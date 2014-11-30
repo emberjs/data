@@ -1,10 +1,8 @@
-var Post, Account, Message, User, store, env;
-var env, store, User, Message, Post, Comment;
-var get = Ember.get, set = Ember.set;
+var env, store, User, Message, Account;
+var get = Ember.get;
 var run = Ember.run;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
-var resolve = Ember.RSVP.resolve, hash = Ember.RSVP.hash;
 
 function stringify(string) {
   return function() { return string; };

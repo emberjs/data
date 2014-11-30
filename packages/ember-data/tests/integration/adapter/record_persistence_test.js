@@ -2,7 +2,7 @@ var get = Ember.get, set = Ember.set, attr = DS.attr;
 var Person, env, store;
 var run = Ember.run;
 
-var all = Ember.RSVP.all, hash = Ember.RSVP.hash, resolve = Ember.RSVP.resolve;
+var all = Ember.RSVP.all, hash = Ember.RSVP.hash;
 
 function assertClean(promise) {
   return promise.then(async(function(record) {
@@ -145,8 +145,6 @@ test("An adapter can notify the store that records were updated by calling `didS
 });
 
 test("An adapter can notify the store that records were updated and provide new data by calling `didSaveRecords`.", function() {
-  var tom, yehuda;
-
   env.adapter.updateRecord = function(store, type, record) {
     if (record.get('id') === "1") {
       return Ember.RSVP.resolve({ id: 1, name: "Tom Dale", updatedAt: "now" });

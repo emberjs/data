@@ -70,7 +70,7 @@ test("trying to set an `id` attribute should raise", function() {
 
   expectAssertion(function() {
     store.push(Person, { id: 1, name: "Scumdale" });
-    var person = store.find(Person, 1);
+    store.find(Person, 1);
   }, /You may not set `id`/);
 });
 
@@ -116,6 +116,46 @@ test("it should cache attributes", function() {
     deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
     strictEqual(get(record, 'updatedAt'), get(record, 'updatedAt'), "second get still returns the same object");
   }));
+});
+
+test("changedAttributes() return correct values", function() {
+  expect(3);
+
+  var Mascot = DS.Model.extend({
+    name: DS.attr('string'),
+    likes: DS.attr('string'),
+    isMascot: DS.attr('boolean')
+  });
+
+  var mascot = store.push(Mascot, { id: 1, likes: 'JavaScript', isMascot: true })
+
+  deepEqual({}, mascot.changedAttributes(), 'there are no initial changes');
+  mascot.set('name', 'Tomster');   // new value
+  mascot.set('likes', 'Ember.js'); // changed value
+  mascot.set('isMascot', true);    // same value
+  deepEqual({ name: [undefined, 'Tomster'], likes: ['JavaScript', 'Ember.js'] }, mascot.changedAttributes(), 'attributes has changed');
+  mascot.rollback();
+  deepEqual({}, mascot.changedAttributes(), 'after rollback there are no changes');
+});
+
+test("a DS.Model does not require an attribute type", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr()
+  });
+
+  var tag = store.createRecord(Tag, { name: "test" });
+
+  equal(get(tag, 'name'), "test", "the value is persisted");
+});
+
+test("a DS.Model can have a defaultValue without an attribute type", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr({ defaultValue: "unknown" })
+  });
+
+  var tag = store.createRecord(Tag);
+
+  equal(get(tag, 'name'), "unknown", "the default value is found");
 });
 
 module("unit/model - DS.Model updating", {
@@ -330,7 +370,7 @@ var convertsWhenSet = function(type, provided, expected) {
   var testStore = createStore({model: Model});
 
   testStore.push(Model, { id: 2 });
-  var record = testStore.find('model', 2).then(async(function(record) {
+  testStore.find('model', 2).then(async(function(record) {
     set(record, 'name', provided);
     deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
   }));
@@ -434,6 +474,6 @@ test("A subclass of DS.Model can not use the `data` property", function() {
   var store = createStore({ person: Person });
 
   expectAssertion(function() {
-    var record = store.createRecord('person', { name: "TomHuda" });
+    store.createRecord('person', { name: "TomHuda" });
   }, /`data` is a reserved property name on DS.Model objects/);
 });

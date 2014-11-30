@@ -19,6 +19,9 @@ import {
   promiseObject
 } from "ember-data/system/promise_proxies";
 
+import RecordArrayManager from "ember-data/system/record_array_manager";
+
+import { Model } from "ember-data/system/model";
 
 var get = Ember.get;
 var set = Ember.set;
@@ -29,7 +32,7 @@ var indexOf = Ember.EnumerableUtils.indexOf;
 var map = Ember.EnumerableUtils.map;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
-var Store, RecordArrayManager, Model;
+var Store;
 
 var camelize = Ember.String.camelize;
 
@@ -137,7 +140,6 @@ Store = Ember.Object.extend({
   */
   init: function() {
     // internal bookkeeping; not observable
-    if (!RecordArrayManager) { RecordArrayManager = requireModule("ember-data/system/record_array_manager")["default"]; }
     this.typeMaps = {};
     this.recordArrayManager = RecordArrayManager.create({
       store: this
@@ -424,6 +426,38 @@ Store = Ember.Object.extend({
   },
 
   /**
+    This method returns a fresh record for a given type and id combination.
+
+    If a record is available for the given type/id combination, then
+    it will fetch this record from the store then reload it. If
+    there's no record corresponding in the store it will simply call
+    `store.find`.
+
+    Example
+
+    ```javascript
+    App.PostRoute = Ember.Route.extend({
+      model: function(params) {
+        return this.store.fetch('post', params.post_id);
+      }
+    });
+    ```
+
+    @method fetch
+    @param {String or subclass of DS.Model} type
+    @param {String|Integer} id
+    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
+    @return {Promise} promise
+  */
+  fetch: function(type, id, preload) {
+    if (this.hasRecordForId(type, id)) {
+      return this.getById(type, id).reload();
+    } else {
+      return this.find(type, id, preload);
+    }
+  },
+
+  /**
     This method returns a record for a given type and id combination.
 
     @method findById
@@ -499,7 +533,7 @@ Store = Ember.Object.extend({
   },
 
   scheduleFetchMany: function(records) {
-    return Ember.RSVP.all(map(records, this.scheduleFetch, this));
+    return Promise.all(map(records, this.scheduleFetch, this));
   },
 
   scheduleFetch: function(record) {
@@ -702,7 +736,7 @@ Store = Ember.Object.extend({
   */
   findMany: function(records) {
     var store = this;
-    return Promise.all( map(records, function(record) {
+    return Promise.all(map(records, function(record) {
       return store._findByRecord(record);
     }));
   },
@@ -827,14 +861,17 @@ Store = Ember.Object.extend({
   },
 
   /**
-    This method returns a filtered array that contains all of the known records
-    for a given type.
+    This method returns a filtered array that contains all of the
+    known records for a given type in the store.
 
-    Note that because it's just a filter, it will have any locally
-    created records of the type.
+    Note that because it's just a filter, the result will contain any
+    locally created records of the type, however, it will not make a
+    request to the backend to retrieve additional records. If you
+    would like to request all the records from the backend please use
+    [store.find](#method_find).
 
     Also note that multiple calls to `all` for a given type will always
-    return the same RecordArray.
+    return the same `RecordArray`.
 
     Example
 
@@ -890,9 +927,17 @@ Store = Ember.Object.extend({
     remains up to date as new records are loaded into the store or created
     locally.
 
-    The callback function takes a materialized record, and returns true
+    The filter function takes a materialized record, and returns true
     if the record should be included in the filter and false if it should
     not.
+
+    Example
+
+    ```javascript
+    store.filter('post', function(post) {
+      return post.get('unread');
+    });
+    ```
 
     The filter function is called once on all records for the type when
     it is created, and then once on each newly loaded or created record.
@@ -901,14 +946,19 @@ Store = Ember.Object.extend({
     filter function will be invoked again to determine whether it should
     still be in the array.
 
-    Optionally you can pass a query which will be triggered at first. The
-    results returned by the server could then appear in the filter if they
-    match the filter function.
+    Optionally you can pass a query, which is the equivalent of calling
+    [find](#method_find) with that same query, to fetch additional records
+    from the server. The results returned by the server could then appear
+    in the filter if they match the filter function.
+
+    The query itself is not used to filter records, it's only sent to your
+    server for you to be able to do server-side filtering. The filter
+    function will be applied on the returned results regardless.
 
     Example
 
     ```javascript
-    store.filter('post', {unread: true}, function(post) {
+    store.filter('post', { unread: true }, function(post) {
       return post.get('unread');
     }).then(function(unreadPosts) {
       unreadPosts.get('length'); // 5
@@ -1152,9 +1202,9 @@ Store = Ember.Object.extend({
     if (typeMap) { return typeMap; }
 
     typeMap = {
-      idToRecord: Object.create(null),
+      idToRecord: Ember.create(null),
       records: [],
-      metadata: Object.create(null),
+      metadata: Ember.create(null),
       type: type
     };
 
@@ -1290,6 +1340,7 @@ Store = Ember.Object.extend({
     Ember.assert("You must include an `id` for " + typeName + " in an object passed to `push`/`update`", data.id != null && data.id !== '');
 
     var type = this.modelFor(typeName);
+    var filter = Ember.EnumerableUtils.filter;
 
     // If the payload contains relationships that are specified as
     // IDs, normalizeRelationships will convert them into DS.Model instances
@@ -1299,10 +1350,10 @@ Store = Ember.Object.extend({
     data = normalizeRelationships(this, type, data);
 
     Ember.warn("The payload for '" + typeName + "' contains these unknown keys: " +
-      Ember.inspect(Ember.keys(data).filter(function(key) {
+      Ember.inspect(filter(Ember.keys(data), function(key) {
         return !get(type, 'fields').has(key) && key !== 'id' && key !== 'links';
       })) + ". Make sure they've been defined in your model.",
-      Ember.keys(data).filter(function(key) {
+      filter(Ember.keys(data), function(key) {
         return !get(type, 'fields').has(key) && key !== 'id' && key !== 'links';
       }).length === 0
     );
@@ -1639,7 +1690,6 @@ function normalizeRelationships(store, type, data, record) {
 }
 
 function deserializeRecordId(store, data, key, relationship, id) {
-  if (!Model) { Model = requireModule("ember-data/system/model")["Model"]; }
   if (isNone(id) || id instanceof Model) {
     return;
   }
@@ -1804,6 +1854,11 @@ function _findBelongsTo(adapter, store, record, link, relationship) {
 
   return promise.then(function(adapterPayload) {
     var payload = serializer.extract(store, relationship.type, adapterPayload, null, 'findBelongsTo');
+
+    if (!payload) {
+      return null;
+    }
+
     var record = store.push(relationship.type, payload);
     return record;
   }, null, "DS: Extract payload of " + record + " : " + relationship.type);

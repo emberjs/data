@@ -62,5 +62,18 @@ export default RecordArray.extend({
 
   updateFilter: Ember.observer(function() {
     Ember.run.once(this, this._updateFilter);
-  }, 'filterFunction')
+  }, 'filterFunction'),
+
+  /**
+    @method _unregisterFromManager
+    @private
+  */
+  _unregisterFromManager: function(){
+    this.manager.unregisterFilteredRecordArray(this);
+  },
+
+  willDestroy: function(){
+    this._unregisterFromManager();
+    this._super();
+  }
 });

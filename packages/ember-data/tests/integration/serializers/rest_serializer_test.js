@@ -1,5 +1,5 @@
-var get = Ember.get, set = Ember.set;
-var HomePlanet, league, SuperVillain, superVillain, EvilMinion, YellowMinion, DoomsdayDevice, Comment, env;
+var get = Ember.get;
+var HomePlanet, league, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, Comment, env;
 var run = Ember.run;
 
 module("integration/serializer/rest - RESTSerializer", {
@@ -52,7 +52,7 @@ module("integration/serializer/rest - RESTSerializer", {
 test("typeForRoot returns always same typeKey even for uncountable multi words keys", function() {
   expect(2);
   Ember.Inflector.inflector.uncountable('words');
-  expectedTypeKey = 'multiWords';
+  var expectedTypeKey = 'multiWords';
   equal(env.restSerializer.typeForRoot('multi_words'), expectedTypeKey);
   equal(env.restSerializer.typeForRoot('multiWords'), expectedTypeKey);
 });
@@ -361,9 +361,21 @@ test("extractSingle loads secondary records with correct serializer", function()
     superVillains: [{id: "1", firstName: "Yehuda", lastName: "Katz", homePlanet: "1"}]
   };
 
-  var array = env.restSerializer.extractSingle(env.store, EvilMinion, jsonHash);
+  env.restSerializer.extractSingle(env.store, EvilMinion, jsonHash);
 
   equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
+});
+
+test("extractSingle returns null if payload contains null", function() {
+  expect(1);
+
+  var jsonHash = {
+    evilMinion: null
+  };
+
+  var value = env.restSerializer.extractSingle(env.store, EvilMinion, jsonHash);
+
+  equal(value, null, "returned value is null");
 });
 
 test("extractArray loads secondary records with correct serializer", function() {
@@ -381,7 +393,7 @@ test("extractArray loads secondary records with correct serializer", function() 
     superVillains: [{id: "1", firstName: "Yehuda", lastName: "Katz", homePlanet: "1"}]
   };
 
-  var array = env.restSerializer.extractArray(env.store, EvilMinion, jsonHash);
+  env.restSerializer.extractArray(env.store, EvilMinion, jsonHash);
 
   equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
 });

@@ -14,6 +14,7 @@ import {
 } from "ember-data/system/map";
 var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
+var indexOf = Ember.EnumerableUtils.indexOf;
 
 /**
   @class RecordArrayManager
@@ -264,6 +265,19 @@ export default Ember.Object.extend({
     recordArrays.push(array);
 
     this.updateFilter(array, type, filter);
+  },
+
+  /**
+    Unregister a FilteredRecordArray.
+    So manager will not update this array.
+
+    @method unregisterFilteredRecordArray
+    @param {DS.RecordArray} array
+  */
+  unregisterFilteredRecordArray: function(array) {
+    var recordArrays = this.filteredRecordArrays.get(array.type);
+    var index = indexOf(recordArrays, array);
+    recordArrays.splice(index, 1);
   },
 
   // Internally, we maintain a map of all unloaded IDs requested by

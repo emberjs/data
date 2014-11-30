@@ -1,4 +1,4 @@
-var Post, Comment, Message, User, store, env;
+var Post, Comment, Message, User;
 var run = Ember.run;
 
 module('integration/relationships/inverse_relationships - Inverse Relationships');
@@ -417,7 +417,7 @@ test("Inverse relationships that don't exist throw a nice error for a hasMany", 
 
   expectAssertion(function() {
     run(function(){
-      var post = env.store.createRecord('post');
+      env.store.createRecord('post');
     });
   }, /We found no inverse relationships by the name of 'testPost' on the 'comment' model/);
 });
@@ -438,7 +438,7 @@ test("Inverse relationships that don't exist throw a nice error for a belongsTo"
 
   expectAssertion(function() {
     run(function(){
-      post = env.store.createRecord('post');
+      env.store.createRecord('post');
     });
   }, /We found no inverse relationships by the name of 'testPost' on the 'user' model/);
 });

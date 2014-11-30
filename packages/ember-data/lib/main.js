@@ -8,8 +8,10 @@
 // support RSVP 2.x via resolve,  but prefer RSVP 3.x's Promise.cast
 Ember.RSVP.Promise.cast = Ember.RSVP.Promise.cast || Ember.RSVP.resolve;
 
+import "ember-data/system/create";
 import DS from "ember-data/core";
 import "ember-data/ext/date";
+import "ember-inflector/main";
 
 import {
   PromiseArray,

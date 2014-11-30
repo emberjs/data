@@ -1,9 +1,9 @@
-var Comment, Post, env;
+var Post, env;
 var run = Ember.run;
 
 module("integration/records/collection_save - Save Collection of Records", {
   setup: function() {
-    var Post = DS.Model.extend({
+    Post = DS.Model.extend({
       title: DS.attr('string')
     });
 
@@ -100,7 +100,7 @@ test("Collection will reject save on invalid", function() {
     return Ember.RSVP.reject({ title: 'invalid' });
   };
 
-  run(function(){
+  Ember.run(function(){
     posts.save().then(function() {}, async(function() {
       ok(true, 'save operation was rejected');
     }));

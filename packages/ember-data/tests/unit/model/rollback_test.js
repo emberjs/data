@@ -64,14 +64,17 @@ test("a record's changes can be made if it fails to save", function() {
   var person = store.push('person', { id: 1, firstName: "Tom", lastName: "Dale" });
 
   person.set('firstName', "Thomas");
+  deepEqual(person.changedAttributes(), {firstName: ["Tom", "Thomas"]});
 
   person.save().then(null, async(function() {
     equal(person.get('isError'), true);
+    deepEqual(person.changedAttributes(), {firstName: ["Tom", "Thomas"]});
 
     person.rollback();
 
     equal(person.get('firstName'), "Tom");
     equal(person.get('isError'), false);
+    deepEqual(person.changedAttributes(), {});
   }));
 });
 
@@ -82,7 +85,7 @@ test("a deleted record can be rollbacked if it fails to save, record arrays are 
   };
 
   var person = store.push('person', { id: 1, firstName: "Tom", lastName: "Dale" });
-  people = store.all('person');
+  var people = store.all('person');
   person.deleteRecord();
   equal(people.get('length'), 0, "a deleted record does not appear in record array anymore");
 

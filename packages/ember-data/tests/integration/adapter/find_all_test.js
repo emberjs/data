@@ -1,5 +1,5 @@
-var get = Ember.get, set = Ember.set;
-var Person, adapter, store, allRecords;
+var get = Ember.get;
+var Person, store, allRecords;
 var run = Ember.run;
 
 module("integration/adapter/find_all - Finding All Records of a Type", {
