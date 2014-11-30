@@ -2,7 +2,6 @@
 
 var es6             = require('broccoli-es6-module-transpiler');
 var PackageResolver = require('es6-module-transpiler-package-resolver');
-var compileModules  = require('broccoli-compile-modules');
 var concat          = require('broccoli-concat');
 var uglify          = require('broccoli-uglify-js');
 var es3SafeRecast   = require('broccoli-es3-safe-recast');
@@ -154,10 +153,11 @@ var trees = [
 ];
 
 if (env === 'production') {
+  globalBuild = versionStamp(globalBuild);
+  globalBuild = es3SafeRecast(globalBuild);
   var minifiedGlobals = minify(globalBuild, 'ember-data');
   trees.push(yuidocTree);
   trees.push(minifiedGlobals);
-  globalBuild = versionStamp(globalBuild);
 }
 
 trees.push(globalBuild);
