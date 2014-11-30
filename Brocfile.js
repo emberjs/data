@@ -113,7 +113,7 @@ testFiles = concat(testFiles, {
   separator: '\n',
   wrapInEval: true,
   wrapInFunction: true,
-  outputFile: '/yolo.js'
+  outputFile: '/ember-data-tests.js'
 });
 
 var testRunner = pickFiles('tests', {
