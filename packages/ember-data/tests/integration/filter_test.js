@@ -632,19 +632,26 @@ test("a Record Array can update its filter after server-side creates multiple re
 
 test("destroying filteredRecordArray unregisters models from being filtered", function() {
   var filterFn = tapFn( function(){ return true; } );
+  var person;
 
-  var person = store.push('person', {
-    id: 1,
-    name: 'Tom Dale'
+  run(function(){
+    person = store.push('person', {
+      id: 1,
+      name: 'Tom Dale'
+    });
   });
 
-  var recordArray = store.filter('person', filterFn);
+  var recordArray;
+
+  run(function(){
+    recordArray = store.filter('person', filterFn);
+  });
 
   equal(filterFn.summary.called.length, 1);
 
   Ember.run(function(){
     recordArray.then(function(array){
-      array.destroy()
+      array.destroy();
     });
   });
   clientEdits([1]);

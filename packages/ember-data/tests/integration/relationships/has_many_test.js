@@ -408,16 +408,21 @@ test("PromiseArray proxies evented methods to its ManyArray", function() {
       { id: 2, body: "Second" }
     ]);
   };
+  var post, comments;
 
-  var post = env.store.push('post', {id:1, links: {comments: 'someLink'}});
+  run(function(){
+    post = env.store.push('post', {id:1, links: {comments: 'someLink'}});
+    comments = post.get('comments');
+  });
 
-  var comments = post.get('comments');
 
   comments.on('on-event', function() {
     ok(true);
   });
 
-  comments.trigger('on-event');
+  run(function(){
+    comments.trigger('on-event');
+  });
 
   equal(comments.has('on-event'), true);
 
@@ -435,7 +440,9 @@ test("PromiseArray proxies evented methods to its ManyArray", function() {
 
   equal(comments.has('one-event'), true);
 
-  comments.trigger('one-event');
+  run(function(){
+    comments.trigger('one-event');
+  });
 
   equal(comments.has('one-event'), false);
 });
@@ -789,7 +796,7 @@ test("dual non-async HM <-> BT", function(){
     return env.store.createRecord('comment', {
       post: post
     }).save();
-  }).then(function(comment){
+  }).then(async(function(comment){
     var commentPost = comment.get('post');
     var postComments = comment.get('post.comments');
     var postCommentsLength = comment.get('post.comments.length');
@@ -799,7 +806,7 @@ test("dual non-async HM <-> BT", function(){
     equal(postCommentsLength, 2, "comment's post should have a reference back to comment");
     ok(postComments && postComments.indexOf(firstComment) !== -1, 'expect to contain first comment');
     ok(postComments && postComments.indexOf(comment) !== -1, 'expected to contain the new comment');
-  });
+  }));
 });
 
 test("When an unloaded record is added to the hasMany, it gets fetched once the hasMany is accessed even if the hasMany has been already fetched", function() {

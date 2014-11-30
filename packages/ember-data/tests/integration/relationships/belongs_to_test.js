@@ -263,7 +263,9 @@ test("A record with an async belongsTo relationship returning null should resolv
   env.container.register('model:group', Group);
   env.container.register('model:person', Person);
 
-  store.push('person', { id: 1, links: { group: '/people/1/group' } });
+  run(function(){
+    store.push('person', { id: 1, links: { group: '/people/1/group' } });
+  });
 
   env.adapter.find = function() {
     throw new Error("Adapter's find method should not be called");

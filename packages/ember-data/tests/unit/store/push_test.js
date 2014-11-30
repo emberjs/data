@@ -1,5 +1,6 @@
 var env, store, Person, PhoneNumber, Post;
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
+var run = Ember.run;
 
 module("unit/store/push - DS.Store#push", {
   setup: function() {
@@ -44,39 +45,42 @@ module("unit/store/push - DS.Store#push", {
 });
 
 test("Calling push with a normalized hash returns a record", function() {
-  var person = store.push('person', {
-    id: 'wat',
-    firstName: "Yehuda",
-    lastName: "Katz"
-  });
-
-  store.find('person', 'wat').then(async(function(foundPerson) {
-    equal(foundPerson, person, "record returned via load() is the same as the record returned from find()");
-    deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
+  run(function(){
+    var person = store.push('person', {
       id: 'wat',
       firstName: "Yehuda",
       lastName: "Katz"
     });
-  }));
+    store.find('person', 'wat').then(async(function(foundPerson) {
+      equal(foundPerson, person, "record returned via load() is the same as the record returned from find()");
+      deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
+        id: 'wat',
+        firstName: "Yehuda",
+        lastName: "Katz"
+      });
+    }));
+  });
 });
 
 test("Supplying a model class for `push` is the same as supplying a string", function () {
   var Programmer = Person.extend();
   env.container.register('model:programmer', Programmer);
 
-  store.push(Programmer, {
-    id: 'wat',
-    firstName: "Yehuda",
-    lastName: "Katz"
-  });
-
-  store.find('programmer', 'wat').then(async(function(foundProgrammer) {
-    deepEqual(foundProgrammer.getProperties('id', 'firstName', 'lastName'), {
+  run(function(){
+    store.push(Programmer, {
       id: 'wat',
       firstName: "Yehuda",
       lastName: "Katz"
     });
-  }));
+
+    store.find('programmer', 'wat').then(async(function(foundProgrammer) {
+      deepEqual(foundProgrammer.getProperties('id', 'firstName', 'lastName'), {
+        id: 'wat',
+        firstName: "Yehuda",
+        lastName: "Katz"
+      });
+    }));
+  });
 });
 
 test("Calling push triggers `didLoad` even if the record hasn't been requested from the adapter", function() {
@@ -86,48 +90,56 @@ test("Calling push triggers `didLoad` even if the record hasn't been requested f
     })
   });
 
-  store.push('person', {
-    id: 'wat',
-    firstName: "Yehuda",
-    lastName: "Katz"
+  run(function(){
+    store.push('person', {
+      id: 'wat',
+      firstName: "Yehuda",
+      lastName: "Katz"
+    });
   });
 });
 
 test("Calling update with partial records updates just those attributes", function() {
-  var person = store.push('person', {
-    id: 'wat',
-    firstName: "Yehuda",
-    lastName: "Katz"
-  });
-
-  store.update('person', {
-    id: 'wat',
-    lastName: "Katz!"
-  });
-
-  store.find('person', 'wat').then(async(function(foundPerson) {
-    equal(foundPerson, person, "record returned via load() is the same as the record returned from find()");
-    deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
+  var person;
+  run(function(){
+    person = store.push('person', {
       id: 'wat',
       firstName: "Yehuda",
+      lastName: "Katz"
+    });
+
+    store.update('person', {
+      id: 'wat',
       lastName: "Katz!"
     });
-  }));
+
+    store.find('person', 'wat').then(async(function(foundPerson) {
+      equal(foundPerson, person, "record returned via load() is the same as the record returned from find()");
+      deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
+        id: 'wat',
+        firstName: "Yehuda",
+        lastName: "Katz!"
+      });
+    }));
+  });
 });
 
 test("Calling update on normalize allows partial updates with raw JSON", function () {
   env.container.register('serializer:person', DS.RESTSerializer);
+  var person;
 
-  var person = store.push('person', {
-    id: '1',
-    firstName: "Robert",
-    lastName: "Jackson"
+  run(function(){
+    person = store.push('person', {
+      id: '1',
+      firstName: "Robert",
+      lastName: "Jackson"
+    });
+
+    store.update('person', store.normalize('person', {
+      id: '1',
+      firstName: "Jacquie"
+    }));
   });
-
-  store.update('person', store.normalize('person', {
-    id: '1',
-    firstName: "Jacquie"
-  }));
 
   equal(person.get('firstName'), "Jacquie", "you can push raw JSON into the store");
   equal(person.get('lastName'), "Jackson", "existing fields are untouched");
@@ -135,11 +147,14 @@ test("Calling update on normalize allows partial updates with raw JSON", functio
 
 test("Calling update with partial records triggers observers for just those attributes", function() {
   expect(1);
+  var person;
 
-  var person = store.push('person', {
-    id: 'wat',
-    firstName: "Yehuda",
-    lastName: "Katz"
+  run(function(){
+    person = store.push('person', {
+      id: 'wat',
+      firstName: "Yehuda",
+      lastName: "Katz"
+    });
   });
 
   person.addObserver('firstName', function() {
@@ -150,31 +165,37 @@ test("Calling update with partial records triggers observers for just those attr
     ok(true, 'lastName observer should be triggered');
   });
 
-  store.update('person', {
-    id: 'wat',
-    lastName: "Katz!"
+  run(function(){
+    store.update('person', {
+      id: 'wat',
+      lastName: "Katz!"
+    });
   });
 });
 
 test("Calling push with a normalized hash containing related records returns a record", function() {
-  var number1 = store.push('phone-number', {
-    id: 1,
-    number: '5551212',
-    person: 'wat'
+  var number1, number, person;
+  run(function(){
+    number1 = store.push('phone-number', {
+      id: 1,
+      number: '5551212',
+      person: 'wat'
+    });
+
+    number2 = store.push('phone-number', {
+      id: 2,
+      number: '5552121',
+      person: 'wat'
+    });
+
+    person = store.push('person', {
+      id: 'wat',
+      firstName: 'John',
+      lastName: 'Smith',
+      phoneNumbers: [number1, number2]
+    });
   });
 
-  var number2 = store.push('phone-number', {
-    id: 2,
-    number: '5552121',
-    person: 'wat'
-  });
-
-  var person = store.push('person', {
-    id: 'wat',
-    firstName: 'John',
-    lastName: 'Smith',
-    phoneNumbers: [number1, number2]
-  });
 
   deepEqual(person.get('phoneNumbers').toArray(), [ number1, number2 ], "phoneNumbers array is correct");
 });
@@ -201,61 +222,71 @@ test("Calling push with a normalized hash containing IDs of related records retu
       });
     }
   };
+  var person;
 
-  var person = store.push('person', {
-    id: 'wat',
-    firstName: 'John',
-    lastName: 'Smith',
-    phoneNumbers: ["1", "2"]
+  run(function(){
+    person = store.push('person', {
+      id: 'wat',
+      firstName: 'John',
+      lastName: 'Smith',
+      phoneNumbers: ["1", "2"]
+    });
+    person.get('phoneNumbers').then(async(function(phoneNumbers) {
+      deepEqual(phoneNumbers.map(function(item) {
+        return item.getProperties('id', 'number', 'person');
+      }), [{
+        id: "1",
+        number: '5551212',
+        person: person
+      }, {
+        id: "2",
+        number: '5552121',
+        person: person
+      }]);
+    }));
   });
-
-  person.get('phoneNumbers').then(async(function(phoneNumbers) {
-    deepEqual(phoneNumbers.map(function(item) {
-      return item.getProperties('id', 'number', 'person');
-    }), [{
-      id: "1",
-      number: '5551212',
-      person: person
-    }, {
-      id: "2",
-      number: '5552121',
-      person: person
-    }]);
-  }));
 });
 
 test("Calling pushPayload allows pushing raw JSON", function () {
-  store.pushPayload('post', {posts: [{
-    id: '1',
-    post_title: "Ember rocks"
-  }]});
+  run(function(){
+    store.pushPayload('post', {posts: [{
+      id: '1',
+      post_title: "Ember rocks"
+    }]});
+  });
 
   var post = store.getById('post', 1);
 
   equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
 
-  store.pushPayload('post', {posts: [{
-    id: '1',
-    post_title: "Ember rocks (updated)"
-  }]});
+  run(function(){
+    store.pushPayload('post', {posts: [{
+      id: '1',
+      post_title: "Ember rocks (updated)"
+    }]});
+  });
 
   equal(post.get('postTitle'), "Ember rocks (updated)", "You can update data in the store");
 });
 
 test("Calling pushPayload allows pushing singular payload properties", function () {
-  store.pushPayload('post', {post: {
-    id: '1',
-    post_title: "Ember rocks"
-  }});
+  run(function(){
+    store.pushPayload('post', {post: {
+      id: '1',
+      post_title: "Ember rocks"
+    }});
+  });
 
   var post = store.getById('post', 1);
 
   equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
 
-  store.pushPayload('post', {post: {
-    id: '1',
-    post_title: "Ember rocks (updated)"
-  }});
+  run(function(){
+    store.pushPayload('post', {post: {
+      id: '1',
+      post_title: "Ember rocks (updated)"
+    }});
+  });
 
   equal(post.get('postTitle'), "Ember rocks (updated)", "You can update data in the store");
 });
@@ -275,15 +306,17 @@ test("Calling pushPayload should use the type's serializer for normalizing", fun
     }
   }));
 
-  store.pushPayload('post', {
-    posts: [{
-      id: 1,
-      postTitle: "Ember rocks"
-    }],
-    people: [{
-      id: 2,
-      firstName: "Yehuda"
-    }]
+  run(function(){
+    store.pushPayload('post', {
+      posts: [{
+        id: 1,
+        postTitle: "Ember rocks"
+      }],
+      people: [{
+        id: 2,
+        firstName: "Yehuda"
+      }]
+    });
   });
 
   var post = store.getById('post', 1);
@@ -305,10 +338,12 @@ test("Calling pushPayload without a type uses application serializer's pushPaylo
     }
   }));
 
-  store.pushPayload({posts: [{
-    id: '1',
-    postTitle: "Ember rocks"
-  }]});
+  run(function(){
+    store.pushPayload({posts: [{
+      id: '1',
+      postTitle: "Ember rocks"
+    }]});
+  });
 });
 
 test("Calling pushPayload without a type should use a model's serializer when normalizing", function () {
@@ -328,16 +363,17 @@ test("Calling pushPayload without a type should use a model's serializer when no
     }
   }));
 
-
-  store.pushPayload({
-    posts: [{
-      id: '1',
-      postTitle: "Ember rocks"
-    }],
-    people: [{
-      id: '2',
-      firstName: 'Yehuda'
-    }]
+  run(function(){
+    store.pushPayload({
+      posts: [{
+        id: '1',
+        postTitle: "Ember rocks"
+      }],
+      people: [{
+        id: '2',
+        firstName: 'Yehuda'
+      }]
+    });
   });
 
   var post = store.getById('post', 1);
@@ -364,31 +400,37 @@ test('calling push without data argument as an object raises an error', function
 
   Ember.EnumerableUtils.forEach(invalidValues, function(invalidValue){
     throws(function(){
-      store.push('person', invalidValue);
+      run(function(){
+        store.push('person', invalidValue);
+      });
     }, /object/);
   });
 });
 
 test('Calling push with a link containing an object throws an assertion error', function() {
   expectAssertion(function() {
-    store.push('person', {
-      id: '1',
-      links: {
-        phoneNumbers: {
-          href: '/api/people/1/phone-numbers'
+    run(function(){
+      store.push('person', {
+        id: '1',
+        links: {
+          phoneNumbers: {
+            href: '/api/people/1/phone-numbers'
+          }
         }
-      }
+      });
     });
   },  "You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the value of that link is not a string.");
 });
 
 test('Calling push with a link containing the value null', function() {
-  store.push('person', {
-    id: '1',
-    firstName: 'Tan',
-    links: {
-      phoneNumbers: null
-    }
+  run(function(){
+    store.push('person', {
+      id: '1',
+      firstName: 'Tan',
+      links: {
+        phoneNumbers: null
+      }
+    });
   });
 
   var person = store.getById('person', 1);
@@ -409,7 +451,9 @@ test('calling push with hasMany relationship the value must be an array', functi
 
   Ember.EnumerableUtils.forEach(invalidValues, function(invalidValue){
     throws(function() {
-      store.push('person', { id: 1, phoneNumbers: invalidValue });
+      run(function(){
+        store.push('person', { id: 1, phoneNumbers: invalidValue });
+      });
     }, /must be an array/);
   });
 });
@@ -425,24 +469,30 @@ test('calling push with missing or invalid `id` throws assertion error', functio
 
   Ember.EnumerableUtils.forEach(invalidValues, function(invalidValue){
     throws(function() {
-      store.push('person', invalidValue);
+      run(function(){
+        store.push('person', invalidValue);
+      });
     }, /You must include an `id`/);
   });
 });
 
 test('calling push with belongsTo relationship the value must not be an array', function(){
   throws(function() {
-    store.push('phone-number', { id: 1, person: [1] });
+    run(function(){
+      store.push('phone-number', { id: 1, person: [1] });
+    });
   }, /must not be an array/);
 });
 
 test("Calling push with unknown keys in the provided payload should warn", function() {
   warns(function() {
-    store.push('person', {
-      id: '1',
-      firstName: 'Tomster',
-      emailAddress: 'tomster@emberjs.com',
-      isMascot: true
+    run(function(){
+      store.push('person', {
+        id: '1',
+        firstName: 'Tomster',
+        emailAddress: 'tomster@emberjs.com',
+        isMascot: true
+      });
     });
   }, /The payload for 'person' contains these unknown keys: \[emailAddress,isMascot\]. Make sure they've been defined in your model./);
 });

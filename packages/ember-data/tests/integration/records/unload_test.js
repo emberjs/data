@@ -93,7 +93,7 @@ test("unloading all records also updates record array from all()", function() {
 
 
 //TODO(Igor) think about how this works with ssot and unloading
-test("unloading a record also clears it's relationship", function() {
+test("unloading a record also clears its relationship", function() {
   var adam, bob;
   run(function(){
     adam = env.store.push('person', {
@@ -112,13 +112,13 @@ test("unloading a record also clears it's relationship", function() {
     });
   });
 
-  run(env.store, 'find', 'person', 1).then(function(person){
+  run(env.store, 'find', 'person', 1).then(async(function(person){
     equal(person.get('cars.length'), 1, 'aaaa');
 
-    Ember.run(function(){
+    run(function(){
       person.unloadRecord();
     });
 
     equal(person.get('cars.length'), undefined);
-  });
+  }));
 });

@@ -1,4 +1,5 @@
 var Person, Place, store, adapter, env;
+var run = Ember.run;
 
 module("integration/adapter/ajax - building requests", {
   setup: function() {
@@ -10,9 +11,10 @@ module("integration/adapter/ajax - building requests", {
   },
 
   teardown: function() {
-    store.destroy();
-    env.container.destroy();
-
+    run(function(){
+      store.destroy();
+      env.container.destroy();
+    });
   }
 });
 
@@ -25,8 +27,10 @@ test("When an id is searched, the correct url should be generated", function() {
     count++;
     return Ember.RSVP.resolve();
   };
-  adapter.find(store, Person, 1);
-  adapter.find(store, Place, 1);
+  run(function(){
+    adapter.find(store, Person, 1);
+    adapter.find(store, Place, 1);
+  });
 });
 test("id's should be sanatized", function() {
   expect(1);
@@ -34,5 +38,7 @@ test("id's should be sanatized", function() {
     equal(url, '/people/..%2Fplace%2F1', "should create the correct url");
     return Ember.RSVP.resolve();
   };
-   adapter.find(store, Person, '../place/1');
+  run(function(){
+    adapter.find(store, Person, '../place/1');
+  });
 });

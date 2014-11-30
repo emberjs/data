@@ -75,18 +75,23 @@ test("Retry is allowed in a failure handler", function() {
 
 test("Repeated failed saves keeps the record in uncommited state", function() {
   expect(2);
+  var post;
 
-  var post = env.store.createRecord('post', {title: 'toto'});
+  run(function(){
+    post = env.store.createRecord('post', {title: 'toto'});
+  });
 
   env.adapter.createRecord = function(store, type, record) {
     return Ember.RSVP.reject();
   };
 
-  post.save().then(null, function() {
-    equal(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
-
+  run(function(){
     post.save().then(null, function() {
       equal(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
+
+      post.save().then(null, function() {
+        equal(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
+      });
     });
   });
 });

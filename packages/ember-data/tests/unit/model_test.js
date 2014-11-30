@@ -1,6 +1,7 @@
 var get = Ember.get, set = Ember.set;
 
 var Person, store, array;
+var run = Ember.run;
 
 module("unit/model - DS.Model", {
   setup: function() {
@@ -13,53 +14,70 @@ module("unit/model - DS.Model", {
   },
 
   teardown: function() {
+    run(function(){
+      store.destroy();
+    });
     Person = null;
     store = null;
   }
 });
 
 test("can have a property set on it", function() {
-  var record = store.createRecord(Person);
-  set(record, 'name', 'bar');
+  var record;
+  run(function(){
+    record = store.createRecord(Person);
+    set(record, 'name', 'bar');
+  });
 
   equal(get(record, 'name'), 'bar', "property was set on the record");
 });
 
 test("setting a property on a record that has not changed does not cause it to become dirty", function() {
-  store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
-  store.find(Person, 1).then(async(function(person) {
-    equal(person.get('isDirty'), false, "precond - person record should not be dirty");
-    person.set('name', "Peter");
-    person.set('isDrugAddict', true);
-    equal(person.get('isDirty'), false, "record does not become dirty after setting property to old value");
-  }));
+  run(function(){
+    store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
+    store.find(Person, 1).then(async(function(person) {
+      equal(person.get('isDirty'), false, "precond - person record should not be dirty");
+
+      run(function(){
+        person.set('name', "Peter");
+        person.set('isDrugAddict', true);
+      });
+
+      equal(person.get('isDirty'), false, "record does not become dirty after setting property to old value");
+    }));
+  });
 });
 
 test("resetting a property on a record cause it to become clean again", function() {
-  store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
-  store.find(Person, 1).then(async(function(person) {
-    equal(person.get('isDirty'), false, "precond - person record should not be dirty");
-    person.set('isDrugAddict', false);
-    equal(person.get('isDirty'), true, "record becomes dirty after setting property to a new value");
-    person.set('isDrugAddict', true);
-    equal(person.get('isDirty'), false, "record becomes clean after resetting property to the old value");
-  }));
+  run(function(){
+    store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
+    store.find(Person, 1).then(async(function(person) {
+      equal(person.get('isDirty'), false, "precond - person record should not be dirty");
+      person.set('isDrugAddict', false);
+      equal(person.get('isDirty'), true, "record becomes dirty after setting property to a new value");
+      person.set('isDrugAddict', true);
+      equal(person.get('isDirty'), false, "record becomes clean after resetting property to the old value");
+    }));
+  });
 });
 
 test("a record reports its unique id via the `id` property", function() {
-  store.push(Person, { id: 1 });
-
-  store.find(Person, 1).then(async(function(record) {
-    equal(get(record, 'id'), 1, "reports id as id by default");
-  }));
+  run(function(){
+    store.push(Person, { id: 1 });
+    store.find(Person, 1).then(async(function(record) {
+      equal(get(record, 'id'), 1, "reports id as id by default");
+    }));
+  });
 });
 
 test("a record's id is included in its toString representation", function() {
-  store.push(Person, { id: 1 });
+  run(function(){
+    store.push(Person, { id: 1 });
 
-  store.find(Person, 1).then(async(function(record) {
-    equal(record.toString(), '<(subclass of DS.Model):'+Ember.guidFor(record)+':1>', "reports id in toString");
-  }));
+    store.find(Person, 1).then(async(function(record) {
+      equal(record.toString(), '<(subclass of DS.Model):'+Ember.guidFor(record)+':1>', "reports id in toString");
+    }));
+  });
 });
 
 test("trying to set an `id` attribute should raise", function() {
@@ -69,8 +87,10 @@ test("trying to set an `id` attribute should raise", function() {
   });
 
   expectAssertion(function() {
-    store.push(Person, { id: 1, name: "Scumdale" });
-    store.find(Person, 1);
+    run(function(){
+      store.push(Person, { id: 1, name: "Scumdale" });
+      store.find(Person, 1);
+    });
   }, /You may not set `id`/);
 });
 
@@ -80,10 +100,12 @@ test("a collision of a record's id with object function's name", function() {
     if (!hasWatchMethod) {
       Object.prototype.watch = function(){};
     }
-    store.push(Person, { id: 'watch' });
-    store.find(Person, 'watch').then(async(function(record) {
-      equal(get(record, 'id'), 'watch', "record is successfully created and could be found by its id");
-    }));
+    run(function(){
+      store.push(Person, { id: 'watch' });
+      store.find(Person, 'watch').then(async(function(record) {
+        equal(get(record, 'id'), 'watch', "record is successfully created and could be found by its id");
+      }));
+    });
   } finally {
     if (!hasWatchMethod) {
       delete Object.prototype.watch;
@@ -92,11 +114,13 @@ test("a collision of a record's id with object function's name", function() {
 });
 
 test("it should use `_reference` and not `reference` to store its reference", function() {
-  store.push(Person, { id: 1 });
+  run(function(){
+    store.push(Person, { id: 1 });
 
-  store.find(Person, 1).then(async(function(record) {
-    equal(record.get('reference'), undefined, "doesn't shadow reference key");
-  }));
+    store.find(Person, 1).then(async(function(record) {
+      equal(record.get('reference'), undefined, "doesn't shadow reference key");
+    }));
+  });
 });
 
 test("it should cache attributes", function() {
@@ -109,13 +133,19 @@ test("it should cache attributes", function() {
   var dateString = "Sat, 31 Dec 2011 00:08:16 GMT";
   var date = new Date(dateString);
 
-  store.push(Post, { id: 1 });
+  run(function(){
+    store.push(Post, { id: 1 });
+    store.find(Post, 1).then(async(function(record) {
+      run(function(){
+        record.set('updatedAt', date);
+      });
+      deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
+      strictEqual(get(record, 'updatedAt'), get(record, 'updatedAt'), "second get still returns the same object");
+    })).finally(function(){
+      run(store, 'destroy');
+    });
+  });
 
-  store.find(Post, 1).then(async(function(record) {
-    record.set('updatedAt', date);
-    deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
-    strictEqual(get(record, 'updatedAt'), get(record, 'updatedAt'), "second get still returns the same object");
-  }));
 });
 
 test("changedAttributes() return correct values", function() {
@@ -126,15 +156,24 @@ test("changedAttributes() return correct values", function() {
     likes: DS.attr('string'),
     isMascot: DS.attr('boolean')
   });
+  var mascot;
 
-  var mascot = store.push(Mascot, { id: 1, likes: 'JavaScript', isMascot: true })
+
+  run(function(){
+    mascot = store.push(Mascot, { id: 1, likes: 'JavaScript', isMascot: true });
+  });
 
   deepEqual({}, mascot.changedAttributes(), 'there are no initial changes');
-  mascot.set('name', 'Tomster');   // new value
-  mascot.set('likes', 'Ember.js'); // changed value
-  mascot.set('isMascot', true);    // same value
+  run(function(){
+    mascot.set('name', 'Tomster');   // new value
+    mascot.set('likes', 'Ember.js'); // changed value
+    mascot.set('isMascot', true);    // same value
+  });
   deepEqual({ name: [undefined, 'Tomster'], likes: ['JavaScript', 'Ember.js'] }, mascot.changedAttributes(), 'attributes has changed');
-  mascot.rollback();
+
+  run(function(){
+    mascot.rollback();
+  });
   deepEqual({}, mascot.changedAttributes(), 'after rollback there are no changes');
 });
 
@@ -142,8 +181,11 @@ test("a DS.Model does not require an attribute type", function() {
   var Tag = DS.Model.extend({
     name: DS.attr()
   });
+  var tag;
 
-  var tag = store.createRecord(Tag, { name: "test" });
+  run(function(){
+    tag = store.createRecord(Tag, { name: "test" });
+  });
 
   equal(get(tag, 'name'), "test", "the value is persisted");
 });
@@ -152,8 +194,11 @@ test("a DS.Model can have a defaultValue without an attribute type", function() 
   var Tag = DS.Model.extend({
     name: DS.attr({ defaultValue: "unknown" })
   });
+  var tag;
 
-  var tag = store.createRecord(Tag);
+  run(function(){
+    tag = store.createRecord(Tag);
+  });
 
   equal(get(tag, 'name'), "unknown", "the default value is found");
 });
@@ -163,32 +208,46 @@ module("unit/model - DS.Model updating", {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
     Person = DS.Model.extend({ name: DS.attr('string') });
     store = createStore();
-    store.pushMany(Person, array);
+    run(function(){
+      store.pushMany(Person, array);
+    });
   },
   teardown: function() {
-    Person = null;
-    store = null;
-    array = null;
+    run(function(){
+      store.destroy();
+      Person = null;
+      store = null;
+      array = null;
+    });
   }
 });
 
 test("a DS.Model can update its attributes", function() {
-  store.find(Person, 2).then(async(function(person) {
-    set(person, 'name', "Brohuda Katz");
-    equal(get(person, 'name'), "Brohuda Katz", "setting took hold");
-  }));
+  run(function(){
+    store.find(Person, 2).then(async(function(person) {
+      run(function(){
+        set(person, 'name', "Brohuda Katz");
+      });
+      equal(get(person, 'name'), "Brohuda Katz", "setting took hold");
+    }));
+  });
 });
 
 test("a DS.Model can have a defaultValue", function() {
   var Tag = DS.Model.extend({
     name: DS.attr('string', { defaultValue: "unknown" })
   });
+  var tag;
 
-  var tag = store.createRecord(Tag);
+  run(function(){
+    tag = store.createRecord(Tag);
+  });
 
   equal(get(tag, 'name'), "unknown", "the default value is found");
 
-  set(tag, 'name', null);
+  run(function(){
+    set(tag, 'name', null);
+  });
 
   equal(get(tag, 'name'), null, "null doesn't shadow defaultValue");
 });
@@ -201,8 +260,11 @@ test("a defaultValue for an attribute can be a function", function() {
       }
     })
   });
+  var tag;
 
-  var tag = store.createRecord(Tag);
+  run(function(){
+    tag = store.createRecord(Tag);
+  });
   equal(get(tag, 'createdAt'), "le default value", "the defaultValue function is evaluated");
 });
 
@@ -218,8 +280,12 @@ test("a defaultValue function gets the record, options, and key", function() {
       }
     })
   });
+  var tag;
 
-  var tag = store.createRecord(Tag);
+  run(function(){
+    tag = store.createRecord(Tag);
+  });
+
   get(tag, 'createdAt');
 });
 
@@ -227,15 +293,23 @@ test("setting a property to undefined on a newly created record should not impac
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
+  var tag;
 
-  var tag = store.createRecord(Tag);
-
-  set(tag, 'name', 'testing');
-  set(tag, 'name', undefined);
+  run(function(){
+    tag = store.createRecord(Tag);
+  });
+  run(function(){
+    set(tag, 'name', 'testing');
+  });
+  run(function(){
+    set(tag, 'name', undefined);
+  });
 
   equal(get(tag, 'currentState.stateName'), "root.loaded.created.uncommitted");
 
-  tag = store.createRecord(Tag, {name: undefined});
+  run(function(){
+    tag = store.createRecord(Tag, {name: undefined});
+  });
 
   equal(get(tag, 'currentState.stateName'), "root.loaded.created.uncommitted");
 });
@@ -243,17 +317,19 @@ test("setting a property to undefined on a newly created record should not impac
 // NOTE: this is a 'backdoor' test that ensures internal consistency, and should be
 // thrown out if/when the current `_attributes` hash logic is removed.
 test("setting a property back to its original value removes the property from the `_attributes` hash", function() {
-  store.find(Person, 1).then(async(function(person) {
-    equal(person._attributes.name, undefined, "the `_attributes` hash is clean");
+  run(function(){
+    store.find(Person, 1).then(async(function(person) {
+      equal(person._attributes.name, undefined, "the `_attributes` hash is clean");
 
-    set(person, 'name', "Niceguy Dale");
+      set(person, 'name', "Niceguy Dale");
 
-    equal(person._attributes.name, "Niceguy Dale", "the `_attributes` hash contains the changed value");
+      equal(person._attributes.name, "Niceguy Dale", "the `_attributes` hash contains the changed value");
 
-    set(person, 'name', "Scumbag Dale");
+      set(person, 'name', "Scumbag Dale");
 
-    equal(person._attributes.name, undefined, "the `_attributes` hash is reset");
-  }));
+      equal(person._attributes.name, undefined, "the `_attributes` hash is reset");
+    }));
+  });
 });
 
 module("unit/model - with a simple Person model", {
@@ -265,12 +341,17 @@ module("unit/model - with a simple Person model", {
     store = createStore({
       person: Person
     });
-    store.pushMany(Person, array);
+    run(function(){
+      store.pushMany(Person, array);
+    });
   },
   teardown: function() {
-    Person = null;
-    store = null;
-    array = null;
+    run(function(){
+      store.destroy();
+      Person = null;
+      store = null;
+      array = null;
+    });
   }
 });
 
@@ -284,14 +365,22 @@ test("can ask if record with a given id is loaded", function() {
 test("a listener can be added to a record", function() {
   var count = 0;
   var F = function() { count++; };
-  var record = store.createRecord(Person);
+  var record;
+
+  run(function(){
+    record = store.createRecord(Person);
+  });
 
   record.on('event!', F);
-  record.trigger('event!');
+  run(function(){
+    record.trigger('event!');
+  });
 
   equal(count, 1, "the event was triggered");
 
-  record.trigger('event!');
+  run(function(){
+    record.trigger('event!');
+  });
 
   equal(count, 2, "the event was triggered");
 });
@@ -299,11 +388,17 @@ test("a listener can be added to a record", function() {
 test("when an event is triggered on a record the method with the same name is invoked with arguments", function(){
   var count = 0;
   var F = function() { count++; };
-  var record = store.createRecord(Person);
+  var record;
+
+  run(function(){
+    record = store.createRecord(Person);
+  });
 
   record.eventNamedMethod = F;
 
-  record.trigger('eventNamedMethod');
+  run(function(){
+    record.trigger('eventNamedMethod');
+  });
 
   equal(count, 1, "the corresponding method was called");
 });
@@ -313,11 +408,17 @@ test("when a method is invoked from an event with the same name the arguments ar
   var F = function() {
     eventMethodArgs = arguments;
   };
-  var record = store.createRecord(Person);
+  var record;
+
+  run(function(){
+    record = store.createRecord(Person);
+  });
 
   record.eventThatTriggersMethod = F;
 
-  record.trigger('eventThatTriggersMethod', 1, 2);
+  run(function(){
+    record.trigger('eventThatTriggersMethod', 1, 2);
+  });
 
   equal( eventMethodArgs[0], 1);
   equal( eventMethodArgs[1], 2);
@@ -333,12 +434,13 @@ var converts = function(type, provided, expected) {
   var testStore = createStore({model: Model}),
       serializer = DS.JSONSerializer.create({ store: testStore, container: container });
 
-  testStore.push(Model, serializer.normalize(Model, { id: 1, name: provided }));
-  testStore.push(Model, serializer.normalize(Model, { id: 2 }));
-
-  testStore.find('model', 1).then(async(function(record) {
-    deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
-  }));
+  run(function(){
+    testStore.push(Model, serializer.normalize(Model, { id: 1, name: provided }));
+    testStore.push(Model, serializer.normalize(Model, { id: 2 }));
+    testStore.find('model', 1).then(async(function(record) {
+      deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
+    }));
+  });
 
   // See: Github issue #421
   // record = testStore.find(Model, 2);
@@ -356,10 +458,12 @@ var convertsFromServer = function(type, provided, expected) {
   var testStore = createStore({model: Model}),
       serializer = DS.JSONSerializer.create({ store: testStore, container: container });
 
-  testStore.push(Model, serializer.normalize(Model, { id: "1", name: provided }));
-  testStore.find('model', 1).then(async(function(record) {
-    deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
-  }));
+  run(function(){
+    testStore.push(Model, serializer.normalize(Model, { id: "1", name: provided }));
+    testStore.find('model', 1).then(async(function(record) {
+      deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
+    }));
+  });
 };
 
 var convertsWhenSet = function(type, provided, expected) {
@@ -369,11 +473,13 @@ var convertsWhenSet = function(type, provided, expected) {
 
   var testStore = createStore({model: Model});
 
-  testStore.push(Model, { id: 2 });
-  testStore.find('model', 2).then(async(function(record) {
-    set(record, 'name', provided);
-    deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
-  }));
+  run(function(){
+    testStore.push(Model, { id: 2 });
+    testStore.find('model', 2).then(async(function(record) {
+      set(record, 'name', provided);
+      deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
+    }));
+  });
 };
 
 test("a DS.Model can describe String attributes", function() {
@@ -420,12 +526,15 @@ test("a DS.Model can describe Date attributes", function() {
     updatedAt: DS.attr('date')
   });
 
-  store.push(Person, { id: 1 });
-  store.find(Person, 1).then(async(function(record) {
-    record.set('updatedAt', date);
-    deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
-  }));
-
+  run(function(){
+    store.push(Person, { id: 1 });
+    store.find(Person, 1).then(async(function(record) {
+      run(function(){
+        record.set('updatedAt', date);
+      });
+      deepEqual(date, get(record, 'updatedAt'), "setting a date returns the same date");
+    }));
+  });
   convertsFromServer('date', dateString, date);
   convertsWhenSet('date', date, dateString);
 });
@@ -434,10 +543,16 @@ test("don't allow setting", function(){
   var store = createStore();
 
   var Person = DS.Model.extend();
-  var record = store.createRecord(Person);
+  var record;
+
+  run(function(){
+    record = store.createRecord(Person);
+  });
 
   raises(function(){
-    record.set('isLoaded', true);
+    run(function(){
+      record.set('isLoaded', true);
+    });
   }, "raised error when trying to set an unsettable record");
 });
 
@@ -450,10 +565,12 @@ test("ensure model exits loading state, materializes data and fulfills promise o
     })
   });
 
-  store.find(Person, 1).then(async(function(person) {
-    equal(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
-    equal(get(person, 'isLoaded'), true, 'model is loaded');
-  }));
+  run(function(){
+    store.find(Person, 1).then(async(function(person) {
+      equal(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
+      equal(get(person, 'isLoaded'), true, 'model is loaded');
+    }));
+  });
 });
 
 test("A DS.Model can be JSONified", function() {
@@ -462,7 +579,11 @@ test("A DS.Model can be JSONified", function() {
   });
 
   var store = createStore({ person: Person });
-  var record = store.createRecord('person', { name: "TomHuda" });
+  var record;
+
+  run(function(){
+    record = store.createRecord('person', { name: "TomHuda" });
+  });
   deepEqual(record.toJSON(), { name: "TomHuda" });
 });
 
@@ -474,6 +595,8 @@ test("A subclass of DS.Model can not use the `data` property", function() {
   var store = createStore({ person: Person });
 
   expectAssertion(function() {
-    store.createRecord('person', { name: "TomHuda" });
+    run(function(){
+      store.createRecord('person', { name: "TomHuda" });
+    });
   }, /`data` is a reserved property name on DS.Model objects/);
 });

@@ -3,6 +3,8 @@ var container, store;
 var camelize  = Ember.String.camelize,
     dasherize = Ember.String.dasherize;
 
+var run = Ember.run;
+
 module("unit/store/model_for - DS.Store#modelFor", {
   setup: function() {
     store = createStore({
@@ -13,8 +15,10 @@ module("unit/store/model_for - DS.Store#modelFor", {
   },
 
   teardown: function() {
-    container.destroy();
-    store.destroy();
+    run(function(){
+      container.destroy();
+      store.destroy();
+    });
   }
 });
 
