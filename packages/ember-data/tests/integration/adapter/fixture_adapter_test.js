@@ -323,7 +323,7 @@ test("should save hasMany records", function() {
     }));
   });
 
-  ensureFixtureAdapterDoesNotLeak = async(function(){
+  var ensureFixtureAdapterDoesNotLeak = async(function(){
     env.store.destroy();
     env = setupStore({ person: Person, phone: Phone, adapter: DS.FixtureAdapter });
     return env.store.find('phone').then(async(function(phones) {

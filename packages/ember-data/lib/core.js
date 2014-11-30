@@ -8,21 +8,20 @@
   @class DS
   @static
 */
-var DS;
-if ('undefined' === typeof DS) {
-  /**
-    @property VERSION
-    @type String
-    @default '<%= versionStamp %>'
-    @static
-  */
-  DS = Ember.Namespace.create({
-    VERSION: '<%= versionStamp %>'
-  });
 
-  if (Ember.libraries) {
-    Ember.libraries.registerCoreLibrary('Ember Data', DS.VERSION);
-  }
+/**
+  @property VERSION
+  @type String
+  @default '<%= versionStamp %>'
+  @static
+*/
+/*jshint -W079 */
+var DS = Ember.Namespace.create({
+  VERSION: '<%= versionStamp %>'
+});
+
+if (Ember.libraries) {
+  Ember.libraries.registerCoreLibrary('Ember Data', DS.VERSION);
 }
 
 export default DS;

@@ -11,4 +11,4 @@ export default function setupActiveModelAdapter(container, application){
 
   container.register('serializer:-active-model', ActiveModelSerializer);
   container.register('adapter:-active-model', ActiveModelAdapter);
-};
+}

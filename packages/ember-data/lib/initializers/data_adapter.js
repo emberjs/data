@@ -9,4 +9,4 @@ import DebugAdapter from "ember-data/system/debug/debug_adapter";
 */
 export default function initializeDebugAdapter(container){
   container.register('data-adapter:main', DebugAdapter);
-};
+}

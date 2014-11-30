@@ -17,4 +17,4 @@ export default function initializeTransforms(container){
   container.register('transform:date',    DateTransform);
   container.register('transform:number',  NumberTransform);
   container.register('transform:string',  StringTransform);
-};
+}

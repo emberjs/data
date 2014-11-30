@@ -310,4 +310,4 @@ export default function attr(type, options) {
   // invalidated from the state manager's setData
   // event.
   }).meta(meta);
-};
+}
