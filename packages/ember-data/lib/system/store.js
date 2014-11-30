@@ -1304,9 +1304,15 @@ Store = Ember.Object.extend({
     }
     ```
 
-    If you're streaming data or implementing an adapter,
-    make sure that you have converted the incoming data
-    into this form.
+    If you're streaming data or implementing an adapter, make sure
+    that you have converted the incoming data into this form. The
+    store's [normalize](#method_normalize) method is a convenience
+    helper for converting a json payload into the form Ember Data
+    expects.
+
+    ```js
+    store.push('person', store.normalize('person', data));
+    ```
 
     This method can be used both to push in brand new
     records, as well as to update existing records.
