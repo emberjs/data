@@ -120,9 +120,34 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
   **/
   normalize: function(type, hash, prop) {
     var normalizedHash = this._super(type, hash, prop);
+    removeRemovedObjects(this, this.store);
     return extractEmbeddedRecords(this, this.store, type, normalizedHash);
   },
-
+  storePush: function(store, typeName, hash, primarySerializer) {
+    if(!primarySerializer)
+      store.push(typeName, hash);
+    
+    var clientId = hash[primarySerializer.clientIdKey];
+    var clientRecord = primarySerializer.clientIdMap[clientId];
+    
+    // if embedded hash contains client id, mimic a createRecord/save
+    if (clientRecord) {
+      clientRecord.adapterDidCommit(hash);
+      store.didSaveRecord(clientRecord, hash);
+      delete primarySerializer.clientIdMap[clientId];
+    } else {
+      var record = store.getById(typeName, hash.id);
+      if(record && !record.get('isEmpty')){
+          store.didSaveRecord(record, hash);
+      }else{
+        store.push(typeName, hash);
+      }
+    }
+  },
+  keyForEmbeddedAttribute: function(attr){
+    var key = this.keyForAttribute(attr);
+    return this.formatEmbeddedKey ? this.formatEmbeddedKey(key) : key;
+  },
   keyForRelationship: function(key, type){
     if (this.hasDeserializeRecordsOption(key)) {
       return this.keyForAttribute(key);
@@ -130,7 +155,49 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       return this._super(key, type) || key;
     }
   },
+  /**
+   The property to use when serializing a client id.
 
+   @property clientIdKey
+   @type {String}
+   */
+  clientIdKey: '_clientId',
+
+  /**
+   Map of client ids, these are temporary ids used when saving new embedded records.
+
+   They will be reconciled upon loading embedded records. Once a client id has been
+   reconciled with a record that has since been given a real id, the clientIdMap
+   entry will be deleted
+
+   @property clientIdMap
+   @type {Object}
+   */
+  clientIdMap: Ember.computed(function () {
+    return {};
+  }),
+
+   /**
+   Needed because the Ember.computed above does not work (??)
+   */
+  init: function () {
+    this._super();
+    this.clientIdMap = {};
+    this.embededToRemove = [];
+  },
+
+   /**
+   Return a unique client id
+
+   @property createClientId
+   @type {String}
+   */
+  createClientId: function (record) {
+     var guid = Ember.guidFor(record);
+
+     this.clientIdMap[guid] = record;
+     return guid;
+  },
   /**
     Serialize `belongsTo` relationship when it is configured as an embedded object.
 
@@ -198,7 +265,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
         json[key] = get(embeddedRecord, 'id');
       }
     } else if (includeRecords) {
-      key = this.keyForAttribute(attr);
+      key = this.keyForEmbeddedAttribute(attr);
       if (!embeddedRecord) {
         json[key] = null;
       } else {
@@ -302,10 +369,22 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       key = this.keyForRelationship(attr, relationship.kind);
       json[key] = get(record, attr).mapBy('id');
     } else if (includeRecords) {
-      key = this.keyForAttribute(attr);
+      key = this.keyForEmbeddedAttribute(attr);
       json[key] = get(record, attr).map(function(embeddedRecord) {
         var serializedEmbeddedRecord = embeddedRecord.serialize({includeId: true});
         this.removeEmbeddedForeignKey(record, embeddedRecord, relationship, serializedEmbeddedRecord);
+        if (embeddedRecord.get('isDeleted')) {
+          serializedEmbeddedRecord['_destroy'] = true;
+          this.embededToRemove.push(embeddedRecord);
+        } else {
+          var clientIdKey = this.clientIdKey;
+          if (serializedEmbeddedRecord['id'] == null) {
+            serializedEmbeddedRecord[clientIdKey] = this.createClientId(embeddedRecord);
+          }
+          embeddedRecord._inFlightAttributes = embeddedRecord._attributes;
+          embeddedRecord._attributes = {};
+        }
+        embeddedRecord.send('willCommit');
         return serializedEmbeddedRecord;
       }, this);
     }
@@ -382,7 +461,15 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     return attrs && (attrs[camelize(attr)] || attrs[attr]);
   }
 });
-
+function removeRemovedObjects(serializer, store){
+  if (serializer && serializer.embededToRemove){
+    forEach(serializer.embededToRemove, function(clientRecord) {
+      clientRecord.send('didCommit');
+      clientRecord.unloadRecord();
+    });
+    serializer.embededToRemove = [];
+  }
+}
 // chooses a relationship kind to branch which function is used to update payload
 // does not change payload if attr is not embedded
 function extractEmbeddedRecords(serializer, store, type, partial) {
@@ -395,7 +482,7 @@ function extractEmbeddedRecords(serializer, store, type, partial) {
           extractEmbeddedHasManyPolymorphic(store, key, partial);
         }
         else {
-          extractEmbeddedHasMany(store, key, embeddedType, partial);
+          extractEmbeddedHasMany(store, key, embeddedType, partial, serializer);
         }
       }
       if (relationship.kind === "belongsTo") {
@@ -408,7 +495,7 @@ function extractEmbeddedRecords(serializer, store, type, partial) {
 }
 
 // handles embedding for `hasMany` relationship
-function extractEmbeddedHasMany(store, key, embeddedType, hash) {
+function extractEmbeddedHasMany(store, key, embeddedType, hash, parentSerializer) {
   if (!hash[key]) {
     return hash;
   }
@@ -418,7 +505,7 @@ function extractEmbeddedHasMany(store, key, embeddedType, hash) {
   var embeddedSerializer = store.serializerFor(embeddedType.typeKey);
   forEach(hash[key], function(data) {
     var embeddedRecord = embeddedSerializer.normalize(embeddedType, data, null);
-    store.push(embeddedType, embeddedRecord);
+    embeddedSerializer.storePush(store, embeddedType, embeddedRecord, parentSerializer);
     ids.push(embeddedRecord.id);
   });
 
