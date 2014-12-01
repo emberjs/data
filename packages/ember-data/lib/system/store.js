@@ -565,8 +565,10 @@ Store = Ember.Object.extend({
       return;
     }
 
-    this._pendingFetch.forEach(this._flushPendingFetchForType, this);
+    var pendingFetch = this._pendingFetch;
     this._pendingFetch = Map.create();
+
+    pendingFetch.forEach(this._flushPendingFetchForType, this);
   },
 
   _flushPendingFetchForType: function (recordResolverPairs, type) {
@@ -587,12 +589,16 @@ Store = Ember.Object.extend({
           resolver.resolve(record);
         }
       });
+
+      return records;
     }
 
     function makeMissingRecordsRejector(requestedRecords) {
       return function rejectMissingRecords(resolvedRecords) {
         var missingRecords = requestedRecords.without(resolvedRecords);
-        rejectRecords(missingRecords);
+        rejectRecords(missingRecords, new Error('MissingRecords'));
+
+        return resolvedRecords;
       };
     }
 
@@ -603,6 +609,8 @@ Store = Ember.Object.extend({
     }
 
     function rejectRecords(records, error) {
+      Ember.assert("cannot reject records without a reason", error instanceof Error);
+
       forEach(records, function(record){
         var pair = Ember.A(recordResolverPairs).findBy('record', record);
         if (pair){
@@ -623,7 +631,7 @@ Store = Ember.Object.extend({
           _findMany(adapter, store, type, ids, requestedRecords).
             then(resolveFoundRecords).
             then(makeMissingRecordsRejector(requestedRecords)).
-            then(null, makeRecordsRejector(requestedRecords));
+            catch(makeRecordsRejector(requestedRecords));
         } else if (ids.length === 1) {
           var pair = Ember.A(recordResolverPairs).findBy('record', groupOfRecords[0]);
           _fetchRecord(pair);
