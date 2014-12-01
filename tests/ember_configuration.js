@@ -16,7 +16,6 @@
     var timer;
     stop();
 
-    console.log(timeout);
     timer = setTimeout(function() {
       start();
       ok(false, "Timeout was reached");

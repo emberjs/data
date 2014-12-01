@@ -94,11 +94,10 @@ test("When a hasMany relationship is accessed, the adapter's findMany method sho
   run(function(){
     env.store.push('post', { id: 1, comments: [ 1 ] });
     env.store.push('comment', { id: 1 });
+    env.store.find('post', 1).then(function(post) {
+      return post.get('comments');
+    });
   });
-
-  env.store.find('post', 1).then(async(function(post) {
-    return post.get('comments');
-  }));
 });
 
 // This tests the case where a serializer materializes a has-many
@@ -211,12 +210,14 @@ test("A hasMany backed by a link remains a promise after a record has been added
     post = env.store.push('post', { id: 1, links: {comments: '/posts/1/comments'}});
   });
 
-  run(post, 'get', 'comments').then(async(function() {
-    env.store.push('comment', { id:3, message: 1 });
-    post.get('comments').then(async(function() {
-      ok(true, 'Promise was called');
-    }));
-  }));
+  run(function(){
+    post.get('comments').then(function() {
+      env.store.push('comment', { id:3, message: 1 });
+      post.get('comments').then(function() {
+        ok(true, 'Promise was called');
+      });
+    });
+  });
 });
 
 test("A hasMany relationship can be reloaded if it was fetched via a link", function() {
@@ -242,28 +243,30 @@ test("A hasMany relationship can be reloaded if it was fetched via a link", func
     ]);
   };
 
-  run(env.store, 'find', 'post', 1).then(async(function(post) {
-    return post.get('comments');
-  })).then(async(function(comments) {
-    equal(comments.get('isLoaded'), true, "comments are loaded");
-    equal(comments.get('length'), 2, "comments have 2 length");
+  run(function(){
+    run(env.store, 'find', 'post', 1).then(function(post) {
+      return post.get('comments');
+    }).then(function(comments) {
+      equal(comments.get('isLoaded'), true, "comments are loaded");
+      equal(comments.get('length'), 2, "comments have 2 length");
 
-    env.adapter.findHasMany = function(store, record, link, relationship) {
-      equal(relationship.type, Comment, "findHasMany relationship type was Comment");
-      equal(relationship.key, 'comments', "findHasMany relationship key was comments");
-      equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
+      env.adapter.findHasMany = function(store, record, link, relationship) {
+        equal(relationship.type, Comment, "findHasMany relationship type was Comment");
+        equal(relationship.key, 'comments', "findHasMany relationship key was comments");
+        equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
 
-      return Ember.RSVP.resolve([
-        { id: 1, body: "First" },
-        { id: 2, body: "Second" },
-        { id: 3, body: "Thirds" }
-      ]);
-    };
+        return Ember.RSVP.resolve([
+          { id: 1, body: "First" },
+          { id: 2, body: "Second" },
+          { id: 3, body: "Thirds" }
+        ]);
+      };
 
-    return comments.reload();
-  })).then(async(function(newComments){
-    equal(newComments.get('length'), 3, "reloaded comments have 3 length");
-  }));
+      return comments.reload();
+    }).then(function(newComments){
+      equal(newComments.get('length'), 3, "reloaded comments have 3 length");
+    });
+  });
 });
 
 test("A sync hasMany relationship can be reloaded if it was fetched via ids", function() {
@@ -280,24 +283,24 @@ test("A sync hasMany relationship can be reloaded if it was fetched via ids", fu
 
   run(function(){
     env.store.pushMany('comment', [{ id: 1, body: "First" }, { id: 2, body: "Second" }]);
+
+    env.store.find('post', '1').then(function(post) {
+      var comments = post.get('comments');
+      equal(comments.get('isLoaded'), true, "comments are loaded");
+      equal(comments.get('length'), 2, "comments have a length of 2");
+
+      env.adapter.findMany = function(store, type, ids, records) {
+        return Ember.RSVP.resolve([
+          { id: 1, body: "FirstUpdated" },
+          { id: 2, body: "Second" }
+        ]);
+      };
+
+      return comments.reload();
+    }).then(function(newComments){
+      equal(newComments.get('firstObject.body'), 'FirstUpdated', "Record body was correctly updated");
+    });
   });
-
-  run(env.store, 'find', 'post', 1).then(async(function(post) {
-    var comments = post.get('comments');
-    equal(comments.get('isLoaded'), true, "comments are loaded");
-    equal(comments.get('length'), 2, "comments have a length of 2");
-
-    env.adapter.findMany = function(store, type, ids, records) {
-      return Ember.RSVP.resolve([
-        { id: 1, body: "FirstUpdated" },
-        { id: 2, body: "Second" }
-      ]);
-    };
-
-    return comments.reload();
-  })).then(async(function(newComments){
-    equal(newComments.get('firstObject.body'), 'FirstUpdated', "Record body was correctly updated");
-  }));
 });
 
 test("A hasMany relationship can be reloaded if it was fetched via ids", function() {
@@ -319,23 +322,25 @@ test("A hasMany relationship can be reloaded if it was fetched via ids", functio
     ]);
   };
 
-  run(env.store, 'find', 'post', 1).then(async(function(post) {
-    return post.get('comments');
-  })).then(async(function(comments) {
-    equal(comments.get('isLoaded'), true, "comments are loaded");
-    equal(comments.get('length'), 2, "comments have 2 length");
+  run(function(){
+    env.store.find('post', 1).then(function(post) {
+      return post.get('comments');
+    }).then(function(comments) {
+      equal(comments.get('isLoaded'), true, "comments are loaded");
+      equal(comments.get('length'), 2, "comments have 2 length");
 
-    env.adapter.findMany = function(store, type, ids, records) {
-      return Ember.RSVP.resolve([
-        { id: 1, body: "FirstUpdated" },
-        { id: 2, body: "Second" }
-      ]);
-    };
+      env.adapter.findMany = function(store, type, ids, records) {
+        return Ember.RSVP.resolve([
+          { id: 1, body: "FirstUpdated" },
+          { id: 2, body: "Second" }
+        ]);
+      };
 
-    return comments.reload();
-  })).then(async(function(newComments){
-    equal(newComments.get('firstObject.body'), 'FirstUpdated', "Record body was correctly updated");
-  }));
+      return comments.reload();
+    }).then(function(newComments){
+      equal(newComments.get('firstObject.body'), 'FirstUpdated', "Record body was correctly updated");
+    });
+  });
 });
 
 test("A hasMany relationship can be directly reloaded if it was fetched via ids", function() {
@@ -357,13 +362,15 @@ test("A hasMany relationship can be directly reloaded if it was fetched via ids"
     ]);
   };
 
-  run(env.store, 'find', 'post', 1).then(async(function(post) {
-    return post.get('comments').reload().then(async(function(comments) {
-      equal(comments.get('isLoaded'), true, "comments are loaded");
-      equal(comments.get('length'), 2, "comments have 2 length");
-      equal(comments.get('firstObject.body'), "FirstUpdated", "Record body was correctly updated");
-    }));
-  }));
+  run(function(){
+    env.store.find('post', 1).then(function(post) {
+      return post.get('comments').reload().then(function(comments) {
+        equal(comments.get('isLoaded'), true, "comments are loaded");
+        equal(comments.get('length'), 2, "comments have 2 length");
+        equal(comments.get('firstObject.body'), "FirstUpdated", "Record body was correctly updated");
+      });
+    });
+  });
 });
 
 test("PromiseArray proxies createRecord to its ManyArray once the hasMany is loaded", function() {
@@ -385,14 +392,16 @@ test("PromiseArray proxies createRecord to its ManyArray once the hasMany is loa
     post = env.store.push('post', {id:1, links: {comments: 'someLink'}});
   });
 
-  run(post, 'get', 'comments').then(async(function(comments) {
-    equal(comments.get('isLoaded'), true, "comments are loaded");
-    equal(comments.get('length'), 2, "comments have 2 length");
+  run(function(){
+    post.get('comments').then(function(comments) {
+      equal(comments.get('isLoaded'), true, "comments are loaded");
+      equal(comments.get('length'), 2, "comments have 2 length");
 
-    var newComment = post.get('comments').createRecord({body: 'Third'});
-    equal(newComment.get('body'), 'Third', "new comment is returned");
-    equal(comments.get('length'), 3, "comments have 3 length, including new record");
-  }));
+      var newComment = post.get('comments').createRecord({body: 'Third'});
+      equal(newComment.get('body'), 'Third', "new comment is returned");
+      equal(comments.get('length'), 3, "comments have 3 length, including new record");
+    });
+  });
 });
 
 test("PromiseArray proxies evented methods to its ManyArray", function() {
@@ -475,17 +484,19 @@ test("An updated `links` value should invalidate a relationship cache", function
     post = env.store.push('post', {id:1, links: { comments: '/first' }});
   });
 
-  run(post, 'get', 'comments').then(async(function(comments) {
-    equal(comments.get('isLoaded'), true, "comments are loaded");
-    equal(comments.get('length'), 2, "comments have 2 length");
-    equal(comments.objectAt(0).get('body'), 'First', "comment 1 successfully loaded");
-    env.store.push('post', {id:1, links: { comments: '/second' }});
-    post.get('comments').then(async(function(newComments) {
-      equal(comments, newComments, "hasMany array was kept the same");
-      equal(newComments.get('length'), 3, "comments updated successfully");
-      equal(newComments.objectAt(0).get('body'), 'Third', "third comment loaded successfully");
-    }));
-  }));
+  run(function(){
+    post.get('comments').then(function(comments){
+      equal(comments.get('isLoaded'), true, "comments are loaded");
+      equal(comments.get('length'), 2, "comments have 2 length");
+      equal(comments.objectAt(0).get('body'), 'First', "comment 1 successfully loaded");
+      env.store.push('post', {id:1, links: { comments: '/second' }});
+      post.get('comments').then(function(newComments) {
+        equal(comments, newComments, "hasMany array was kept the same");
+        equal(newComments.get('length'), 3, "comments updated successfully");
+        equal(newComments.objectAt(0).get('body'), 'Third', "third comment loaded successfully");
+      });
+    });
+  });
 });
 
 test("When a polymorphic hasMany relationship is accessed, the adapter's findMany method should not be called if all the records in the relationship are already loaded", function() {
@@ -502,10 +513,10 @@ test("When a polymorphic hasMany relationship is accessed, the adapter's findMan
   });
 
   run(function(){
-    env.store.find('user', 1).then(async(function(user) {
+    env.store.find('user', 1).then(function(user) {
       var messages = user.get('messages');
       equal(messages.get('length'), 2, "The messages are correctly loaded");
-    }));
+    });
   });
 });
 
@@ -527,11 +538,11 @@ test("When a polymorphic hasMany relationship is accessed, the store can call mu
   });
 
   run(function(){
-    env.store.find('user', 1).then(async(function(user) {
+    env.store.find('user', 1).then(function(user) {
       return user.get('messages');
-    })).then(async(function(messages) {
+    }).then(function(messages) {
       equal(messages.get('length'), 2, "The messages are correctly loaded");
-    }));
+    });
   });
 });
 
@@ -542,11 +553,11 @@ test("Type can be inferred from the key of a hasMany relationship", function() {
     env.store.push('contact', { id: 1 });
   });
   run(function(){
-    env.store.find('user', 1).then(async(function(user) {
+    env.store.find('user', 1).then(function(user) {
       return user.get('contacts');
-    })).then(async(function(contacts) {
+    }).then(function(contacts) {
       equal(contacts.get('length'), 1, "The contacts relationship is correctly set up");
-    }));
+    });
   });
 });
 
@@ -561,11 +572,11 @@ test("Type can be inferred from the key of an async hasMany relationship", funct
     env.store.push('contact', { id: 1 });
   });
   run(function(){
-    env.store.find('user', 1).then(async(function(user) {
+    env.store.find('user', 1).then(function(user) {
       return user.get('contacts');
-    })).then(async(function(contacts) {
+    }).then(function(contacts) {
       equal(contacts.get('length'), 1, "The contacts relationship is correctly set up");
-    }));
+    });
   });
 });
 
@@ -581,11 +592,11 @@ test("Polymorphic relationships work with a hasMany whose type is inferred", fun
     env.store.push('phone', { id: 2 });
   });
   run(function(){
-    env.store.find('user', 1).then(async(function(user) {
+    env.store.find('user', 1).then(function(user) {
       return user.get('contacts');
-    })).then(async(function(contacts) {
+    }).then(function(contacts) {
       equal(contacts.get('length'), 2, "The contacts relationship is correctly set up");
-    }));
+    });
   });
 });
 
@@ -595,13 +606,13 @@ test("A record can't be created from a polymorphic hasMany relationship", functi
   });
 
   run(function(){
-    env.store.find('user', 1).then(async(function(user) {
+    env.store.find('user', 1).then(function(user) {
       return user.get('messages');
-    })).then(async(function(messages) {
+    }).then(function(messages) {
       expectAssertion(function() {
         messages.createRecord();
       }, /You cannot add 'message' records to this polymorphic relationship/);
-    }));
+    });
   });
 });
 
@@ -613,11 +624,11 @@ test("Only records of the same type can be added to a monomorphic hasMany relati
   });
 
   run(function(){
-    Ember.RSVP.all([ env.store.find('post', 1), env.store.find('post', 2) ]).then(async(function(records) {
+    Ember.RSVP.all([ env.store.find('post', 1), env.store.find('post', 2) ]).then(function(records) {
       expectAssertion(function() {
         records[0].get('comments').pushObject(records[1]);
       }, /You cannot add 'post' records to this relationship/);
-    }));
+    });
   });
 });
 
@@ -638,20 +649,20 @@ test("Only records of the same base type can be added to a polymorphic hasMany r
       post: env.store.find('post', 1),
       comment: env.store.find('comment', 3)
     });
+
+    asyncRecords.then(function(records) {
+      records.messages = records.user.get('messages');
+      return Ember.RSVP.hash(records);
+    }).then(function(records) {
+      records.messages.pushObject(records.post);
+      records.messages.pushObject(records.comment);
+      equal(records.messages.get('length'), 2, "The messages are correctly added");
+
+      expectAssertion(function() {
+        records.messages.pushObject(records.anotherUser);
+      }, /You cannot add 'user' records to this relationship/);
+    });
   });
-
-  asyncRecords.then(async(function(records) {
-    records.messages = records.user.get('messages');
-    return Ember.RSVP.hash(records);
-  })).then(async(function(records) {
-    records.messages.pushObject(records.post);
-    records.messages.pushObject(records.comment);
-    equal(records.messages.get('length'), 2, "The messages are correctly added");
-
-    expectAssertion(function() {
-      records.messages.pushObject(records.anotherUser);
-    }, /You cannot add 'user' records to this relationship/);
-  }));
 });
 
 test("A record can be removed from a polymorphic association", function() {
@@ -668,19 +679,19 @@ test("A record can be removed from a polymorphic association", function() {
       user: env.store.find('user', 1),
       comment: env.store.find('comment', 3)
     });
+
+    asyncRecords.then(function(records) {
+      records.messages = records.user.get('messages');
+      return Ember.RSVP.hash(records);
+    }).then(function(records) {
+      equal(records.messages.get('length'), 1, "The user has 1 message");
+
+      var removedObject = records.messages.popObject();
+
+      equal(removedObject, records.comment, "The message is correctly removed");
+      equal(records.messages.get('length'), 0, "The user does not have any messages");
+    });
   });
-
-  asyncRecords.then(async(function(records) {
-    records.messages = records.user.get('messages');
-    return Ember.RSVP.hash(records);
-  })).then(async(function(records) {
-    equal(records.messages.get('length'), 1, "The user has 1 message");
-
-    var removedObject = records.messages.popObject();
-
-    equal(removedObject, records.comment, "The message is correctly removed");
-    equal(records.messages.get('length'), 0, "The user does not have any messages");
-  }));
 });
 
 test("When a record is created on the client, its hasMany arrays should be in a loaded state", function() {
@@ -790,23 +801,21 @@ test("dual non-async HM <-> BT", function(){
   run(function(){
     post = env.store.push('post', { id: 1, comments: [ 1 ] });
     firstComment = env.store.push('comment', { id: 1, post: 1 });
-  });
 
-  Ember.run(function(){
-    return env.store.createRecord('comment', {
+    env.store.createRecord('comment', {
       post: post
-    }).save();
-  }).then(async(function(comment){
-    var commentPost = comment.get('post');
-    var postComments = comment.get('post.comments');
-    var postCommentsLength = comment.get('post.comments.length');
+    }).save().then(function(comment){
+      var commentPost = comment.get('post');
+      var postComments = comment.get('post.comments');
+      var postCommentsLength = comment.get('post.comments.length');
 
-    deepEqual(post, commentPost, 'expect the new comments post, to be the correct post');
-    ok(postComments, "comments should exist");
-    equal(postCommentsLength, 2, "comment's post should have a reference back to comment");
-    ok(postComments && postComments.indexOf(firstComment) !== -1, 'expect to contain first comment');
-    ok(postComments && postComments.indexOf(comment) !== -1, 'expected to contain the new comment');
-  }));
+      deepEqual(post, commentPost, 'expect the new comments post, to be the correct post');
+      ok(postComments, "comments should exist");
+      equal(postCommentsLength, 2, "comment's post should have a reference back to comment");
+      ok(postComments && postComments.indexOf(firstComment) !== -1, 'expect to contain first comment');
+      ok(postComments && postComments.indexOf(comment) !== -1, 'expected to contain the new comment');
+    });
+  });
 });
 
 test("When an unloaded record is added to the hasMany, it gets fetched once the hasMany is accessed even if the hasMany has been already fetched", function() {
@@ -903,9 +912,9 @@ test("Rollbacking a deleted record restores implicit relationship correctly when
     chapter.rollback();
   });
   run(function(){
-    book.get('chapters').then(async(function(fetchedChapters) {
+    book.get('chapters').then(function(fetchedChapters) {
       equal(fetchedChapters.objectAt(0), chapter, 'Book has a chapter after rollback');
-    }));
+    });
   });
 });
 
@@ -938,9 +947,9 @@ test("Rollbacking a deleted record restores implicit relationship correctly when
     chapter.rollback();
   });
   run(function(){
-    page.get('chapter').then(async(function(fetchedChapter) {
+    page.get('chapter').then(function(fetchedChapter) {
       equal(fetchedChapter, chapter, 'Page has a chapter after rollback');
-    }));
+    });
   });
 });
 

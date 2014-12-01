@@ -220,9 +220,9 @@ test("Using store#fetch on existing record reloads it", function() {
   equal(car.get('make'), 'BMC');
 
   run(function(){
-    store.fetch('car', 1).then(async(function(car) {
+    store.fetch('car', 1).then(function(car) {
       equal(car.get('make'), 'BMCW');
-    }));
+    });
   });
 });
 
@@ -241,8 +241,8 @@ test("Using store#fetch on non existing record calls find", function() {
   ok(!car, 'Car with id=20 should not exist');
 
   run(function(){
-    store.fetch('car', 20).then(async(function (car) {
+    store.fetch('car', 20).then(function (car) {
       equal(car.get('make'), 'BMCW', 'Car with id=20 is now loaded');
-    }));
+    });
   });
 });

@@ -20,11 +20,11 @@ test("a record array is backed by records", function() {
   });
 
   run(function(){
-    store.findByIds(Person, [1,2,3]).then(async(function(records) {
+    store.findByIds(Person, [1,2,3]).then(function(records) {
       for (var i=0, l=get(array, 'length'); i<l; i++) {
         deepEqual(records[i].getProperties('id', 'name'), array[i], "a record array materializes objects on demand");
       }
-    }));
+    });
   });
 });
 
@@ -66,7 +66,7 @@ test("a loaded record is removed from a record array when it is deleted", functi
       tag: store.find('tag', 1)
     });
 
-    asyncRecords.then(async(function(records) {
+    asyncRecords.then(function(records) {
       var scumbag = records.scumbag, tag = records.tag;
 
       run(function(){
@@ -79,12 +79,10 @@ test("a loaded record is removed from a record array when it is deleted", functi
       equal(get(recordArray, 'length'), 1, "precond - record array has one item");
       equal(get(recordArray.objectAt(0), 'name'), "Scumbag Dale", "item at index 0 is record with id 1");
 
-      run(function(){
-        scumbag.deleteRecord();
-      });
+      scumbag.deleteRecord();
 
       equal(get(recordArray, 'length'), 0, "record is removed from the record array");
-    }));
+    });
   });
 });
 
@@ -210,9 +208,9 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
   };
 
   run(function(){
-    store.find('person', { page: 1 }).then(async(function(people) {
+    store.find('person', { page: 1 }).then(function(people) {
       equal(get(people, 'isLoaded'), true, "The array is now loaded");
-    }));
+    });
   });
 });
 

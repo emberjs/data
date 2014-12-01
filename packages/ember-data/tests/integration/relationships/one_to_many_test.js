@@ -54,9 +54,9 @@ test("Relationship is available from the belongsTo side even if only loaded from
     message = store.push('message', {id: 2, title: 'EmberFest was great'});
   });
   run(function(){
-    message.get('user').then(async(function(fetchedUser) {
+    message.get('user').then(function(fetchedUser) {
       equal(fetchedUser, user, 'User relationship was set up correctly');
-    }));
+    });
   });
 });
 
@@ -76,9 +76,9 @@ test("Relationship is available from the hasMany side even if only loaded from t
     message = store.push('message', {id: 2, title: 'EmberFest was great', user:1});
   });
   run(function(){
-    user.get('messages').then(async(function(fetchedMessages) {
+    user.get('messages').then(function(fetchedMessages) {
       equal(fetchedMessages.objectAt(0), message, 'Messages relationship was set up correctly');
-    }));
+    });
   });
 });
 
@@ -101,9 +101,9 @@ test("Fetching a belongsTo that is set to null removes the record from a relatio
     store.push('message', {id: 2, title: 'EmberConf will be better', user:null});
   });
   run(function(){
-    user.get('messages').then(async(function(fetchedMessages) {
+    user.get('messages').then(function(fetchedMessages) {
       equal(get(fetchedMessages, 'length'), 1, 'Messages relationship was set up correctly');
-    }));
+    });
   });
 });
 
@@ -127,9 +127,9 @@ test("Fetching a belongsTo that is not defined does not remove the record from a
     store.push('message', {id: 2, title: 'EmberConf will be better'});
   });
   run(function(){
-    user.get('messages').then(async(function(fetchedMessages) {
+    user.get('messages').then(function(fetchedMessages) {
       equal(get(fetchedMessages, 'length'), 2, 'Messages relationship was set up correctly');
-    }));
+    });
   });
 });
 
@@ -155,13 +155,13 @@ test("Fetching the hasMany that doesn't contain the belongsTo, sets the belongsT
   });
 
   run(function(){
-    message.get('user').then(async(function(fetchedUser) {
+    message.get('user').then(function(fetchedUser) {
       equal(fetchedUser, null, 'User was removed correctly');
-    }));
+    });
 
-    message2.get('user').then(async(function(fetchedUser) {
+    message2.get('user').then(function(fetchedUser) {
       equal(fetchedUser, user, 'User was set on the second message');
-    }));
+    });
   });
 });
 
@@ -186,9 +186,9 @@ test("Fetching the hasMany side where the hasMany is undefined does not change t
   });
 
   run(function(){
-    message.get('user').then(async(function(fetchedUser) {
+    message.get('user').then(function(fetchedUser) {
       equal(fetchedUser, user, 'User was not removed');
-    }));
+    });
   });
 });
 
@@ -217,12 +217,12 @@ test("Pushing to the hasMany reflects the change on the belongsTo side - async",
   });
 
   run(function(){
-    user.get('messages').then(async(function(fetchedMessages) {
+    user.get('messages').then(function(fetchedMessages) {
       fetchedMessages.pushObject(message2);
-      message2.get('user').then(async(function(fetchedUser) {
+      message2.get('user').then(function(fetchedUser) {
         equal(fetchedUser, user, "user got set correctly");
-      }));
-    }));
+      });
+    });
   });
 });
 
@@ -247,12 +247,12 @@ test("Removing from the hasMany side reflects the change on the belongsTo side -
   });
 
   run(function(){
-    user.get('messages').then(async(function(fetchedMessages) {
+    user.get('messages').then(function(fetchedMessages) {
       fetchedMessages.removeObject(message);
-      message.get('user').then(async(function(fetchedUser) {
+      message.get('user').then(function(fetchedUser) {
         equal(fetchedUser, null, "user got removed correctly");
-      }));
-    }));
+      });
+    });
   });
 });
 
@@ -279,17 +279,17 @@ test("Pushing to the hasMany side keeps the oneToMany invariant on the belongsTo
   });
 
   run(function(){
-    user2.get('messages').then(async(function(fetchedMessages) {
+    user2.get('messages').then(function(fetchedMessages) {
       fetchedMessages.pushObject(message);
 
-      message.get('user').then(async(function(fetchedUser) {
+      message.get('user').then(function(fetchedUser) {
         equal(fetchedUser, user2, "user got set correctly");
-      }));
+      });
 
-      user.get('messages').then(async(function(newFetchedMessages) {
+      user.get('messages').then(function(newFetchedMessages) {
         equal(get(newFetchedMessages, 'length'), 0, 'message got removed from the old messages hasMany');
-      }));
-    }));
+      });
+    });
   });
 });
 
@@ -318,14 +318,14 @@ test("Setting the belongsTo side keeps the oneToMany invariant on the hasMany- a
   });
 
   run(function(){
-    user.get('messages').then(async(function(fetchedMessages) {
+    user.get('messages').then(function(fetchedMessages) {
       equal(get(fetchedMessages, 'length'), 0, 'message got removed from the first user correctly');
-    }));
+    });
   });
   run(function(){
-    user2.get('messages').then(async(function(fetchedMessages) {
+    user2.get('messages').then(function(fetchedMessages) {
       equal(get(fetchedMessages, 'length'), 1, 'message got added to the second user correctly');
-    }));
+    });
   });
 });
 
@@ -355,15 +355,15 @@ test("Setting the belongsTo side to null removes the record from the hasMany sid
   });
 
   run(function(){
-    user.get('messages').then(async(function(fetchedMessages) {
+    user.get('messages').then(function(fetchedMessages) {
       equal(get(fetchedMessages, 'length'), 0, 'message got removed from the  user correctly');
-    }));
+    });
   });
 
   run(function(){
-    message.get('user').then(async(function(fetchedUser) {
+    message.get('user').then(function(fetchedUser) {
       equal(fetchedUser, null, 'user got set to null correctly');
-    }));
+    });
   });
 });
 
@@ -392,12 +392,12 @@ test("When deleting a record that has a belongsTo it is removed from the hasMany
   });
   run(message, 'deleteRecord');
   run(function(){
-    message.get('user').then(async(function(fetchedUser) {
+    message.get('user').then(function(fetchedUser) {
       equal(fetchedUser, user, 'Message still has the user');
-    }));
-    user.get('messages').then(async(function(fetchedMessages) {
+    });
+    user.get('messages').then(function(fetchedMessages) {
       equal(fetchedMessages.get('length'), 0, 'User was removed from the messages');
-    }));
+    });
   });
 });
 
@@ -420,12 +420,12 @@ test("When deleting a record that has a hasMany it is removed from the belongsTo
   });
   run(user, 'deleteRecord');
   run(function(){
-    message.get('user').then(async(function(fetchedUser) {
+    message.get('user').then(function(fetchedUser) {
       equal(fetchedUser, null, 'Message does not have the user anymore');
-    }));
-    user.get('messages').then(async(function(fetchedMessages) {
+    });
+    user.get('messages').then(function(fetchedMessages) {
       equal(fetchedMessages.get('length'), 1, 'User still has the messages');
-    }));
+    });
   });
 });
 
@@ -457,12 +457,12 @@ test("Rollbacking a deleted record works correctly when the hasMany side has bee
     message.rollback();
   });
   run(function(){
-    message.get('user').then(async(function(fetchedUser) {
+    message.get('user').then(function(fetchedUser) {
       equal(fetchedUser, user, 'Message still has the user');
-    }));
-    user.get('messages').then(async(function(fetchedMessages) {
+    });
+    user.get('messages').then(function(fetchedMessages) {
       equal(fetchedMessages.objectAt(0), message, 'User has the message');
-    }));
+    });
   });
 });
 
@@ -491,12 +491,12 @@ test("Rollbacking a deleted record works correctly when the belongsTo side has b
     user.rollback();
   });
   run(function(){
-    message.get('user').then(async(function(fetchedUser) {
+    message.get('user').then(function(fetchedUser) {
      equal(fetchedUser, user, 'Message has the user again');
-    }));
-    user.get('messages').then(async(function(fetchedMessages) {
+    });
+    user.get('messages').then(function(fetchedMessages) {
       equal(fetchedMessages.get('length'), 1, 'User still has the messages');
-    }));
+    });
   });
 });
 
@@ -526,12 +526,12 @@ test("Rollbacking a created record works correctly when the hasMany side has bee
   });
   run(message, 'rollback');
   run(function(){
-    message.get('user').then(async(function(fetchedUser) {
+    message.get('user').then(function(fetchedUser) {
       equal(fetchedUser, null, 'Message does not have the user anymore');
-    }));
-    user.get('messages').then(async(function(fetchedMessages) {
+    });
+    user.get('messages').then(function(fetchedMessages) {
       equal(fetchedMessages.get('length'), 0, message, 'User does not have the message anymore');
-    }));
+    });
   });
 });
 
@@ -553,16 +553,16 @@ test("Rollbacking a created record works correctly when the belongsTo side has b
     user = store.createRecord('user');
   });
   run(function(){
-    user.get('messages').then(async(function(messages) {
+    user.get('messages').then(function(messages) {
       messages.pushObject(message);
       user.rollback();
-      message.get('user').then(async(function(fetchedUser) {
+      message.get('user').then(function(fetchedUser) {
         equal(fetchedUser, null, 'Message does not have the user anymore');
-      }));
-      user.get('messages').then(async(function(fetchedMessages) {
+      });
+      user.get('messages').then(function(fetchedMessages) {
         equal(fetchedMessages.get('length'), 0, 'User does not have the message anymore');
-      }));
-    }));
+      });
+    });
   });
 });
 

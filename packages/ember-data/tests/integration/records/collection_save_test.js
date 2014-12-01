@@ -101,8 +101,8 @@ test("Collection will reject save on invalid", function() {
   };
 
   Ember.run(function(){
-    posts.save().then(function() {}, async(function() {
+    posts.save().then(function() {}, function() {
       ok(true, 'save operation was rejected');
-    }));
+    });
   });
 });

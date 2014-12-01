@@ -29,30 +29,28 @@ test("unload a dirty record", function() {
       title: 'toto'
     });
 
-    store.find(Record, 1).then(async(function(record) {
-      run(function(){
-        record.set('title', 'toto2');
-        record.send('willCommit');
-      });
+    store.find(Record, 1).then(function(record) {
+      record.set('title', 'toto2');
+      record.send('willCommit');
 
       equal(get(record, 'isDirty'), true, "record is dirty");
 
       expectAssertion(function() {
-        run(record, 'unloadRecord');
+        record.unloadRecord();
       }, "You can only unload a record which is not inFlight. `" + Ember.inspect(record) + "`", "can not unload dirty record");
 
       // force back into safe to unload mode.
       run(function(){
         record.transitionTo('deleted.saved');
       });
-    }));
+    });
   });
 });
 
 test("unload a record", function() {
   run(function(){
     store.push(Record, {id: 1, title: 'toto'});
-    store.find(Record, 1).then(async(function(record) {
+    store.find(Record, 1).then(function(record) {
       equal(get(record, 'id'), 1, "found record with id 1");
       equal(get(record, 'isDirty'), false, "record is not dirty");
 
@@ -64,12 +62,10 @@ test("unload a record", function() {
       equal(get(record, 'isDeleted'), true, "record is deleted");
 
       tryToFind = false;
-      run(function(){
-        store.find(Record, 1).then(async(function(){
-          equal(tryToFind, true, "not found record with id 1");
-        }));
+      return store.find(Record, 1).then(function(){
+        equal(tryToFind, true, "not found record with id 1");
       });
-    }));
+    });
   });
 });
 
@@ -110,22 +106,16 @@ test("can commit store after unload record with relationships", function() {
       brand: store.find(Brand, 1),
       product: store.find(Product, 1)
     });
-    asyncRecords.then(async(function(records) {
-      return run(function(){
-        like = store.createRecord(Like, { id: 1, product: product });
-        records.like = like.save();
-        return Ember.RSVP.hash(records);
-      });
-    })).then(async(function(records) {
-      return run(function(){
-        store.unloadRecord(records.product);
-        return store.find(Product, 1);
-      });
-    })).then(async(function(product) {
+    asyncRecords.then(function(records) {
+      like = store.createRecord(Like, { id: 1, product: product });
+      records.like = like.save();
+      return Ember.RSVP.hash(records);
+    }).then(function(records) {
+      store.unloadRecord(records.product);
+      return store.find(Product, 1);
+    }).then(function(product) {
       equal(product.get('description'), 'cuisinart', "The record was unloaded and the adapter's `find` was called");
-      run(function(){
-        store.destroy();
-      });
-    }));
+      store.destroy();
+    });
   });
 });

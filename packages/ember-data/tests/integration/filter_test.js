@@ -430,7 +430,9 @@ test("it is possible to filter loaded records by dirtiness", function() {
     return !person.get('isDirty');
   });
 
-  store.push('person', { id: 1, name: "Tom Dale" });
+  run(function(){
+    store.push('person', { id: 1, name: "Tom Dale" });
+  });
 
   store.find('person', 1).then(async(function(person) {
     equal(filter.get('length'), 1, "the clean record is in the filter");
@@ -450,26 +452,38 @@ test("it is possible to filter loaded records by dirtiness", function() {
 });
 
 test("it is possible to filter created records by dirtiness", function() {
-  set(store, 'adapter', DS.Adapter.extend({
-    createRecord: function() {
-      return Ember.RSVP.resolve();
-    }
-  }));
-
-  var filter = store.filter('person', function(person) {
-    return !person.get('isDirty');
+  run(function(){
+    set(store, 'adapter', DS.Adapter.extend({
+      createRecord: function() {
+        return Ember.RSVP.resolve();
+      }
+    }));
   });
 
-  var person = store.createRecord('person', {
-    id: 1,
-    name: "Tom Dale"
+  var filter;
+
+  run(function(){
+    filter = store.filter('person', function(person) {
+      return !person.get('isDirty');
+    });
+  });
+
+  var person;
+
+  run(function(){
+    person = store.createRecord('person', {
+      id: 1,
+      name: "Tom Dale"
+    });
   });
 
   equal(filter.get('length'), 0, "the dirty record is not in the filter");
 
-  person.save().then(async(function(person) {
-    equal(filter.get('length'), 1, "the clean record is in the filter");
-  }));
+  run(function(){
+    person.save().then(function(person) {
+      equal(filter.get('length'), 1, "the clean record is in the filter");
+    });
+  });
 });
 
 test("it is possible to filter created records by isReloading", function() {

@@ -99,9 +99,11 @@ test("extractSingle with embedded objects", function() {
     name: "Umber",
     villains: ["1"]
   });
-  env.store.find("superVillain", 1).then(async(function(minion) {
-    equal(minion.get('firstName'), "Tom");
-  }));
+  run(function(){
+    env.store.find("superVillain", 1).then(function(minion) {
+      equal(minion.get('firstName'), "Tom");
+    });
+  });
 });
 
 test("extractSingle with embedded objects inside embedded objects", function() {
@@ -144,14 +146,16 @@ test("extractSingle with embedded objects inside embedded objects", function() {
     name: "Umber",
     villains: ["1"]
   });
-  env.store.find("superVillain", 1).then(async(function(villain) {
-    equal(villain.get('firstName'), "Tom");
-    equal(villain.get('evilMinions.length'), 1, "Should load the embedded child");
-    equal(villain.get('evilMinions.firstObject.name'), "Alex", "Should load the embedded child");
-  }));
-  env.store.find("evilMinion", 1).then(async(function(minion) {
-    equal(minion.get('name'), "Alex");
-  }));
+  run(function(){
+    env.store.find("superVillain", 1).then(function(villain) {
+      equal(villain.get('firstName'), "Tom");
+      equal(villain.get('evilMinions.length'), 1, "Should load the embedded child");
+      equal(villain.get('evilMinions.firstObject.name'), "Alex", "Should load the embedded child");
+    });
+    env.store.find("evilMinion", 1).then(function(minion) {
+      equal(minion.get('name'), "Alex");
+    });
+  });
 });
 
 test("extractSingle with embedded objects of same type", function() {
@@ -329,9 +333,11 @@ test("extractArray with embedded objects", function() {
     villains: ["1"]
   }]);
 
-  env.store.find("superVillain", 1).then(async(function(minion){
-    equal(minion.get('firstName'), "Tom");
-  }));
+  run(function(){
+    env.store.find("superVillain", 1).then(function(minion){
+      equal(minion.get('firstName'), "Tom");
+    });
+  });
 });
 
 test("extractArray with embedded objects with custom primary key", function() {
@@ -372,10 +378,10 @@ test("extractArray with embedded objects with custom primary key", function() {
   }]);
 
   run(function(){
-    return env.store.find("superVillain", 1).then(async(function(minion){
+    return env.store.find("superVillain", 1).then(function(minion){
       env.container.unregister('serializer:superVillain');
       equal(minion.get('firstName'), "Alex");
-    }));
+    });
   });
 });
 test("extractArray with embedded objects with identical relationship and attribute key ", function() {
@@ -416,9 +422,11 @@ test("extractArray with embedded objects with identical relationship and attribu
     villains: ["1"]
   }]);
 
-  return env.store.find("superVillain", 1).then(async(function(minion){
-    equal(minion.get('firstName'), "Alex");
-  }));
+  run(function(){
+    env.store.find("superVillain", 1).then(function(minion){
+      equal(minion.get('firstName'), "Alex");
+    });
+  });
 });
 test("extractArray with embedded objects of same type as primary type", function() {
   env.container.register('adapter:comment', DS.ActiveModelAdapter);
@@ -725,11 +733,11 @@ test("extractSingle with embedded object (belongsTo relationship)", function() {
   });
 
   run(function(){
-    env.store.find("secretLab", 101).then(async(function(secretLab) {
+    env.store.find("secretLab", 101).then(function(secretLab) {
       equal(secretLab.get('id'), '101');
       equal(secretLab.get('minionCapacity'), 5000);
       equal(secretLab.get('vicinity'), 'California, USA');
-    }));
+    });
   });
 });
 

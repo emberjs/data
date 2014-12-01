@@ -72,7 +72,7 @@ test("hasMany handles pre-loaded relationships", function() {
   });
 
   run(function(){
-    store.find('person', 1).then(async(function(person) {
+    store.find('person', 1).then(function(person) {
       equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
       var tags = get(person, 'tags');
@@ -94,26 +94,25 @@ test("hasMany handles pre-loaded relationships", function() {
       });
 
       return store.find('person', 3);
-    })).then(async(function(kselden) {
+    }).then(function(kselden) {
       equal(get(get(kselden, 'tags'), 'length'), 0, "a relationship that has not been supplied returns an empty array");
 
       run(function(){
         store.push('person', { id: 4, name: "Cyvid Hamluck", pets: [4] });
       });
       return store.find('person', 4);
-    })).then(async(function(cyvid) {
+    }).then(function(cyvid) {
       equal(get(cyvid, 'name'), "Cyvid Hamluck", "precond - retrieves person record from store");
 
       var pets = get(cyvid, 'pets');
       equal(get(pets, 'length'), 1, "the list of pets should have the correct length");
       equal(get(pets.objectAt(0), 'name'), "fluffy", "the first pet should be correct");
 
-      run(function(){
       store.push(Person, { id: 4, name: "Cyvid Hamluck", pets: [4, 12] });
-      });
+
       equal(pets, get(cyvid, 'pets'), "a relationship returns the same object every time");
       equal(get(get(cyvid, 'pets'), 'length'), 2, "the length is updated after new data is loaded");
-    }));
+    });
   });
 });
 
@@ -158,7 +157,7 @@ test("hasMany lazily loads async relationships", function() {
   var wycats;
 
   run(function(){
-    store.find('person', 2).then(async(function(person) {
+    store.find('person', 2).then(function(person) {
       wycats = person;
 
       equal(get(wycats, 'name'), "Yehuda Katz", "precond - retrieves person record from store");
@@ -167,23 +166,21 @@ test("hasMany lazily loads async relationships", function() {
         wycats: wycats,
         tags: wycats.get('tags')
       });
-    })).then(async(function(records) {
+    }).then(function(records) {
       equal(get(records.tags, 'length'), 1, "the list of tags should have the correct length");
       equal(get(records.tags.objectAt(0), 'name'), "oohlala", "the first tag should be a Tag");
 
       strictEqual(records.tags.objectAt(0), records.tags.objectAt(0), "the returned object is always the same");
       asyncEqual(records.tags.objectAt(0), store.find(Tag, 12), "relationship objects are the same as objects retrieved directly");
 
-      return run(function(){
-        return get(wycats, 'tags');
-      });
-    })).then(async(function(tags) {
+      return get(wycats, 'tags');
+    }).then(function(tags) {
       var newTag;
       run(function(){
         newTag = store.createRecord(Tag);
         tags.pushObject(newTag);
       });
-    }));
+    });
   });
 });
 
@@ -277,10 +274,10 @@ test("relationships work when declared with a string path", function() {
   });
 
   run(function(){
-    env.store.find('person', 1).then(async(function(person) {
+    env.store.find('person', 1).then(function(person) {
       equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
       equal(get(person, 'tags.length'), 2, "the list of tags should have the correct length");
-    }));
+    });
   });
 });
 
@@ -318,17 +315,17 @@ test("hasMany relationships work when the data hash has not been loaded", functi
   };
 
   run(function(){
-    store.find('person', 1).then(async(function(person) {
+    store.find('person', 1).then(function(person) {
       equal(get(person, 'name'), "Tom Dale", "The person is now populated");
 
       return run(function(){
         return person.get('tags');
       });
-    })).then(async(function(tags) {
+    }).then(function(tags) {
       equal(get(tags, 'length'), 2, "the tags object still exists");
       equal(get(tags.objectAt(0), 'name'), "friendly", "Tom Dale is now friendly");
       equal(get(tags.objectAt(0), 'isLoaded'), true, "Tom Dale is now loaded");
-    }));
+    });
   });
 });
 
@@ -356,18 +353,16 @@ test("it is possible to add a new item to a relationship", function() {
   });
 
   run(function(){
-    store.find(Person, 1).then(async(function(person) {
+    store.find(Person, 1).then(function(person) {
       var tag = get(person, 'tags').objectAt(0);
 
       equal(get(tag, 'name'), "ember", "precond - relationships work");
 
-      run(function(){
-        tag = store.createRecord(Tag, { name: "js" });
-        get(person, 'tags').pushObject(tag);
-      });
+      tag = store.createRecord(Tag, { name: "js" });
+      get(person, 'tags').pushObject(tag);
 
       equal(get(person, 'tags').objectAt(1), tag, "newly added relationship works");
-    }));
+    });
   });
 });
 

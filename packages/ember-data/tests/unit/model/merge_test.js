@@ -36,17 +36,20 @@ test("When a record is in flight, changes can be made", function() {
 
     person.set('name', "Thomas Dale");
 
-    promise.then(async(function(person) {
+    promise.then(function(person) {
       equal(person.get('isDirty'), true, "The person is still dirty");
       equal(person.get('name'), "Thomas Dale", "The changes made still apply");
-    }));
+    });
   });
 });
 
 test("When a record is in flight, pushes are applied underneath the in flight changes", function() {
   var adapter = DS.Adapter.extend({
     updateRecord: function(store, type, record) {
-      return Ember.RSVP.resolve({ id: 1, name: "Senor Thomas Dale, Esq.", city: "Portland" });
+    // Make sure saving isn't resolved synchronously
+      return new Ember.RSVP.Promise(function(resolve, reject){
+        Ember.run.next(null, resolve, { id: 1, name: "Senor Thomas Dale, Esq.", city: "Portland" });
+      });
     }
   });
 
@@ -58,7 +61,6 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
     person.set('name', "Thomas Dale");
   });
 
-  // Make sure saving isn't resolved synchronously
   Ember.run(function() {
     var promise = person.save();
 
@@ -116,9 +118,9 @@ test("A record with no changes can still be saved", function() {
   });
 
   run(function(){
-    person.save().then(async(function() {
+    person.save().then(function() {
       equal(person.get('name'), "Thomas Dale", "the updates occurred");
-    }));
+    });
   });
 });
 
@@ -138,10 +140,10 @@ test("A dirty record can be reloaded", function() {
   });
 
   run(function(){
-    person.reload().then(async(function() {
+    person.reload().then(function() {
       equal(person.get('isDirty'), true, "the person is dirty");
       equal(person.get('name'), "Tomasz Dale", "the local changes remain");
       equal(person.get('city'), "Portland", "the new changes apply");
-    }));
+    });
   });
 });

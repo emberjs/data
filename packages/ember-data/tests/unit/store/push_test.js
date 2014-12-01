@@ -51,14 +51,14 @@ test("Calling push with a normalized hash returns a record", function() {
       firstName: "Yehuda",
       lastName: "Katz"
     });
-    store.find('person', 'wat').then(async(function(foundPerson) {
+    store.find('person', 'wat').then(function(foundPerson) {
       equal(foundPerson, person, "record returned via load() is the same as the record returned from find()");
       deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
         id: 'wat',
         firstName: "Yehuda",
         lastName: "Katz"
       });
-    }));
+    });
   });
 });
 
@@ -73,13 +73,13 @@ test("Supplying a model class for `push` is the same as supplying a string", fun
       lastName: "Katz"
     });
 
-    store.find('programmer', 'wat').then(async(function(foundProgrammer) {
+    store.find('programmer', 'wat').then(function(foundProgrammer) {
       deepEqual(foundProgrammer.getProperties('id', 'firstName', 'lastName'), {
         id: 'wat',
         firstName: "Yehuda",
         lastName: "Katz"
       });
-    }));
+    });
   });
 });
 
@@ -113,14 +113,14 @@ test("Calling update with partial records updates just those attributes", functi
       lastName: "Katz!"
     });
 
-    store.find('person', 'wat').then(async(function(foundPerson) {
+    store.find('person', 'wat').then(function(foundPerson) {
       equal(foundPerson, person, "record returned via load() is the same as the record returned from find()");
       deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
         id: 'wat',
         firstName: "Yehuda",
         lastName: "Katz!"
       });
-    }));
+    });
   });
 });
 
@@ -231,7 +231,7 @@ test("Calling push with a normalized hash containing IDs of related records retu
       lastName: 'Smith',
       phoneNumbers: ["1", "2"]
     });
-    person.get('phoneNumbers').then(async(function(phoneNumbers) {
+    person.get('phoneNumbers').then(function(phoneNumbers) {
       deepEqual(phoneNumbers.map(function(item) {
         return item.getProperties('id', 'number', 'person');
       }), [{
@@ -243,7 +243,7 @@ test("Calling push with a normalized hash containing IDs of related records retu
         number: '5552121',
         person: person
       }]);
-    }));
+    });
   });
 });
 

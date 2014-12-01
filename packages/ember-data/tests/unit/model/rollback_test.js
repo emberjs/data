@@ -32,7 +32,10 @@ test("changes to attributes can be rolled back", function() {
 
 test("changes to attributes made after a record is in-flight only rolls back the local changes", function() {
   env.adapter.updateRecord = function(store, type, record) {
-    return Ember.RSVP.resolve();
+    // Make sure the save is async
+    return new Ember.RSVP.Promise(function(resolve, reject){
+      Ember.run.later(null, resolve, 15);
+    });
   };
   var person;
 
@@ -41,7 +44,6 @@ test("changes to attributes made after a record is in-flight only rolls back the
     person.set('firstName', "Thomas");
   });
 
-  // Make sure the save is async
   Ember.run(function() {
     var saving = person.save();
 
@@ -77,7 +79,7 @@ test("a record's changes can be made if it fails to save", function() {
   deepEqual(person.changedAttributes(), {firstName: ["Tom", "Thomas"]});
 
   run(function(){
-    person.save().then(null, async(function() {
+    person.save().then(null, function() {
       equal(person.get('isError'), true);
       deepEqual(person.changedAttributes(), {firstName: ["Tom", "Thomas"]});
 
@@ -86,7 +88,7 @@ test("a record's changes can be made if it fails to save", function() {
       equal(person.get('firstName'), "Tom");
       equal(person.get('isError'), false);
       deepEqual(person.changedAttributes(), {});
-    }));
+    });
   });
 });
 
@@ -108,7 +110,7 @@ test("a deleted record can be rollbacked if it fails to save, record arrays are 
   equal(people.get('length'), 0, "a deleted record does not appear in record array anymore");
 
   run(function(){
-    person.save().then(null, async(function() {
+    person.save().then(null, function() {
       equal(person.get('isError'), true);
       equal(person.get('isDeleted'), true);
       run(function(){
@@ -116,9 +118,9 @@ test("a deleted record can be rollbacked if it fails to save, record arrays are 
       });
       equal(person.get('isDeleted'), false);
       equal(person.get('isError'), false);
-    })).then(async(function() {
+    }).then(function() {
       equal(people.get('length'), 1, "the underlying record array is updated accordingly in an asynchronous way");
-    }));
+    });
   });
 });
 

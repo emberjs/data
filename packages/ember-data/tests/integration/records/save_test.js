@@ -28,9 +28,11 @@ test("Will resolve save on success", function() {
     return Ember.RSVP.resolve({ id: 123 });
   };
 
-  run(post, 'save').then(async(function() {
-    ok(true, 'save operation was resolved');
-  }));
+  run(function(){
+    post.save().then(function() {
+      ok(true, 'save operation was resolved');
+    });
+  });
 });
 
 test("Will reject save on error", function() {
@@ -43,9 +45,11 @@ test("Will reject save on error", function() {
     return Ember.RSVP.reject();
   };
 
-  run(post, 'save').then(function() {}, async(function() {
-    ok(true, 'save operation was rejected');
-  }));
+  run(function(){
+    post.save().then(function() {}, function() {
+      ok(true, 'save operation was rejected');
+    });
+  });
 });
 
 test("Retry is allowed in a failure handler", function() {
@@ -65,11 +69,11 @@ test("Retry is allowed in a failure handler", function() {
   };
 
   run(function(){
-    post.save().then(function() {}, async(function() {
+    post.save().then(function() {}, function() {
       return post.save();
-    })).then(async(function(post) {
+    }).then(function(post) {
       equal(post.get('id'), '123', "The post ID made it through");
-    }));
+    });
   });
 });
 
@@ -108,8 +112,8 @@ test("Will reject save on invalid", function() {
   };
 
   run(function(){
-    post.save().then(function() {}, async(function() {
+    post.save().then(function() {}, function() {
       ok(true, 'save operation was rejected');
-    }));
+    });
   });
 });

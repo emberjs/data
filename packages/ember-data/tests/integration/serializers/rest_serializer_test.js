@@ -79,9 +79,11 @@ test("extractArray with custom typeForRoot", function() {
     "superVillains": [1]
   }]);
 
-  env.store.find("superVillain", 1).then(async(function(minion){
-    equal(minion.get('firstName'), "Tom");
-  }));
+  run(function(){
+    env.store.find("superVillain", 1).then(function(minion){
+      equal(minion.get('firstName'), "Tom");
+    });
+  });
 });
 
 test("extractArray warning with custom typeForRoot", function() {

@@ -112,13 +112,15 @@ test("unloading a record also clears its relationship", function() {
     });
   });
 
-  run(env.store, 'find', 'person', 1).then(async(function(person){
-    equal(person.get('cars.length'), 1, 'aaaa');
+  run(function(){
+    env.store.find('person', 1).then(function(person){
+      equal(person.get('cars.length'), 1, 'aaaa');
 
-    run(function(){
-      person.unloadRecord();
+      run(function(){
+        person.unloadRecord();
+      });
+
+      equal(person.get('cars.length'), undefined);
     });
-
-    equal(person.get('cars.length'), undefined);
-  }));
+  });
 });
