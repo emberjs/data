@@ -888,7 +888,10 @@ Store = Ember.Object.extend({
     var typeMap = this.typeMapFor(type);
     var findAllCache = typeMap.findAllCache;
 
-    if (findAllCache) { return findAllCache; }
+    if (findAllCache) {
+      this.recordArrayManager.updateFilter(findAllCache, type);
+      return findAllCache;
+    }
 
     var array = this.recordArrayManager.createRecordArray(type);
 
