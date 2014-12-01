@@ -9,6 +9,6 @@
   ],
   "routes": {
     "/ember-data.js": "dist/ember-data.js",
-    "/tests/tests.js": "dist/tests.js"
+    "/tests/ember-data-tests.js": "dist/ember-data-tests.js"
   }
 }
