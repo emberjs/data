@@ -1687,3 +1687,30 @@ test('calls ajaxError with jqXHR, jqXHR.responseText', function(){
   });
   Ember.$.ajax = originalAjax;
 });
+
+test("rejects promise if DS.InvalidError is returned from adapter.ajaxSuccess", function(){
+  expect(3);
+  var originalAjax = Ember.$.ajax;
+  var jqXHR = {};
+  var data = {
+    something: 'is invalid'
+  }
+
+  Ember.$.ajax = function(hash) {
+    hash.success(data, 'ok', jqXHR);
+  };
+
+  adapter.ajaxSuccess = function(xhr, json) {
+    ok(true, 'ajaxSuccess should be called');
+    return new DS.InvalidError(json);
+  };
+
+  Ember.run(function() {
+    store.find('post', '1').then(null, function(reason) {
+      ok(true, 'promise should be rejected');
+      ok(reason instanceof DS.InvalidError, 'reason should be an instance of DS.InvalidError')
+    });
+  });
+
+  Ember.$.ajax = originalAjax;
+});
