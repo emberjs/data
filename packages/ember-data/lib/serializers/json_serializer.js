@@ -961,7 +961,7 @@ export default Ember.Object.extend({
     App.PostSerializer = DS.JSONSerializer.extend({
       extractMeta: function(store, type, payload) {
         if (payload && payload._pagination) {
-          store.metaForType(type, payload._pagination);
+          store.setMetadataFor(type, payload._pagination);
           delete payload._pagination;
         }
       }
@@ -975,7 +975,7 @@ export default Ember.Object.extend({
   */
   extractMeta: function(store, type, payload) {
     if (payload && payload.meta) {
-      store.metaForType(type, payload.meta);
+      store.setMetadataFor(type, payload.meta);
       delete payload.meta;
     }
   },
