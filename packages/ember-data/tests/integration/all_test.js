@@ -32,3 +32,24 @@ test("store.all('person') should return all records and should update with new o
 
   equal(get(all, 'length'), 3);
 });
+
+test("Calling store.all() multiple times should update immediately inside the runloop", function() {
+  expect(3);
+
+  Ember.run(function() {
+    equal(get(store.all('person'), 'length'), 0, 'should initially be empty');
+    store.createRecord('person', { name: "Tomster" });
+    equal(get(store.all('person'), 'length'), 1, 'should contain one person');
+    store.push('person', { id: 1, name: "Tomster's friend" });
+    equal(get(store.all('person'), 'length'), 2, 'should contain two people');
+  });
+});
+
+test("Calling store.all() after creating a record should return correct data", function() {
+  expect(1);
+
+  Ember.run(function() {
+    store.createRecord('person', { name: "Tomster" });
+    equal(get(store.all('person'), 'length'), 1, 'should contain one person');
+  });
+});
