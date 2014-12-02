@@ -1657,10 +1657,13 @@ test("calls adapter.ajaxSuccess with the jqXHR and json", function(){
     return json;
   };
 
-  run(function(){
-    store.find('post', '1');
-  });
-  Ember.$.ajax = originalAjax;
+  try {
+    run(function(){
+      store.find('post', '1');
+    });
+  } finally {
+    Ember.$.ajax = originalAjax;
+  }
 });
 
 test('calls ajaxError with jqXHR, jqXHR.responseText', function(){
@@ -1680,12 +1683,15 @@ test('calls ajaxError with jqXHR, jqXHR.responseText', function(){
     return new Error('nope!');
   };
 
-  run(function(){
-    store.find('post', '1').catch(function(err){
-      ok(err, 'promise rejected');
+  try {
+    run(function(){
+      store.find('post', '1').catch(function(err){
+        ok(err, 'promise rejected');
+      });
     });
-  });
-  Ember.$.ajax = originalAjax;
+  } finally {
+    Ember.$.ajax = originalAjax;
+  }
 });
 
 test("rejects promise if DS.InvalidError is returned from adapter.ajaxSuccess", function(){
