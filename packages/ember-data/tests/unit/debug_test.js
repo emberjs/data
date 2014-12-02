@@ -1,4 +1,5 @@
 var store;
+var run = Ember.run;
 
 var TestAdapter = DS.Adapter.extend();
 
@@ -10,8 +11,10 @@ module("Debug", {
   },
 
   teardown: function() {
-    store.destroy();
-    store = null;
+    run(function(){
+      store.destroy();
+      store = null;
+    });
   }
 });
 
@@ -30,8 +33,11 @@ test("_debugInfo groups the attributes and relationships correctly", function() 
     maritalStatus: DS.belongsTo(MaritalStatus),
     posts: DS.hasMany(Post)
   });
+  var record;
 
-  var record = store.createRecord(User);
+  run(function(){
+    record = store.createRecord(User);
+  });
 
   var propertyInfo = record._debugInfo().propertyInfo;
 

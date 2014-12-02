@@ -1,13 +1,16 @@
 var get = Ember.get, set = Ember.set;
 var resolve = Ember.RSVP.resolve;
 var TestAdapter, store;
+var run = Ember.run;
 
 module("unit/store/adapter_interop - DS.Store working with a DS.Adapter", {
   setup: function() {
     TestAdapter = DS.Adapter.extend();
   },
   teardown: function() {
-    if (store) { store.destroy(); }
+    run(function(){
+      if (store) { store.destroy(); }
+    });
   }
 });
 
@@ -51,7 +54,9 @@ test("Calling Store#find invokes its adapter#find", function() {
   var currentStore = createStore({ adapter: adapter });
   var currentType = DS.Model.extend();
 
-  currentStore.find(currentType, 1);
+  run(function(){
+    currentStore.find(currentType, 1);
+  });
 });
 
 test("Calling Store#findById multiple times coalesces the calls into a adapter#findMany call", function() {
@@ -92,9 +97,11 @@ test("Returning a promise from `find` asynchronously loads data", function() {
     name: DS.attr('string')
   });
 
-  currentStore.find(currentType, 1).then(async(function(object) {
-    strictEqual(get(object, 'name'), "Scumbag Dale", "the data was pushed");
-  }));
+  run(function(){
+    currentStore.find(currentType, 1).then(async(function(object) {
+      strictEqual(get(object, 'name'), "Scumbag Dale", "the data was pushed");
+    }));
+  });
 });
 
 test("IDs provided as numbers are coerced to strings", function() {
@@ -110,14 +117,18 @@ test("IDs provided as numbers are coerced to strings", function() {
     name: DS.attr('string')
   });
 
-  currentStore.find(currentType, 1).then(async(function(object) {
-    equal(typeof object.get('id'), 'string', "id was coerced to a string");
-    currentStore.push(currentType, { id: 2, name: "Scumbag Sam Saffron" });
-    return currentStore.find(currentType, 2);
-  })).then(async(function(object) {
-    ok(object, "object was found");
-    equal(typeof object.get('id'), 'string', "id is a string despite being supplied and searched for as a number");
-  }));
+  run(function(){
+    currentStore.find(currentType, 1).then(async(function(object) {
+      equal(typeof object.get('id'), 'string', "id was coerced to a string");
+      run(function(){
+        currentStore.push(currentType, { id: 2, name: "Scumbag Sam Saffron" });
+      });
+      return currentStore.find(currentType, 2);
+    })).then(async(function(object) {
+      ok(object, "object was found");
+      equal(typeof object.get('id'), 'string', "id is a string despite being supplied and searched for as a number");
+    }));
+  });
 });
 
 
@@ -129,16 +140,17 @@ test("can load data for the same record if it is not dirty", function() {
     name: DS.attr('string')
   });
 
-  store.push(Person, { id: 1, name: "Tom Dale" });
+  run(function(){
+    store.push(Person, { id: 1, name: "Tom Dale" });
 
-  store.find(Person, 1).then(async(function(tom) {
-    equal(get(tom, 'isDirty'), false, "precond - record is not dirty");
-    equal(get(tom, 'name'), "Tom Dale", "returns the correct name");
+    store.find(Person, 1).then(async(function(tom) {
+      equal(get(tom, 'isDirty'), false, "precond - record is not dirty");
+      equal(get(tom, 'name'), "Tom Dale", "returns the correct name");
 
-    store.push(Person, { id: 1, name: "Captain Underpants" });
-    equal(get(tom, 'name'), "Captain Underpants", "updated record with new date");
-  }));
-
+      store.push(Person, { id: 1, name: "Captain Underpants" });
+      equal(get(tom, 'name'), "Captain Underpants", "updated record with new date");
+    }));
+  });
 });
 
 /*
@@ -158,10 +170,12 @@ test("pushMany extracts ids from an Array of hashes if no ids are specified", fu
 
   var Person = DS.Model.extend({ name: DS.attr('string') });
 
-  store.pushMany(Person, array);
-  store.find(Person, 1).then(async(function(person) {
-    equal(get(person, 'name'), "Scumbag Dale", "correctly extracted id for loaded data");
-  }));
+  run(function(){
+    store.pushMany(Person, array);
+    store.find(Person, 1).then(async(function(person) {
+      equal(get(person, 'name'), "Scumbag Dale", "correctly extracted id for loaded data");
+    }));
+  });
 });
 
 test("loadMany takes an optional Object and passes it on to the Adapter", function() {
@@ -183,7 +197,9 @@ test("loadMany takes an optional Object and passes it on to the Adapter", functi
     adapter: adapter
   });
 
-  store.find(Person, passedQuery);
+  run(function(){
+    store.find(Person, passedQuery);
+  });
 });
 
 test("Find with query calls the correct extract", function() {
@@ -214,7 +230,9 @@ test("Find with query calls the correct extract", function() {
 
   store.container.register('serializer:application', ApplicationSerializer);
 
-  store.find(Person, passedQuery);
+  run(function(){
+    store.find(Person, passedQuery);
+  });
   equal(callCount, 1, 'extractFindQuery was called');
 });
 
@@ -224,13 +242,17 @@ test("all(type) returns a record array of all records of a specific type", funct
     name: DS.attr('string')
   });
 
-  store.push(Person, { id: 1, name: "Tom Dale" });
+  run(function(){
+    store.push(Person, { id: 1, name: "Tom Dale" });
+  });
 
   var results = store.all(Person);
   equal(get(results, 'length'), 1, "record array should have the original object");
   equal(get(results.objectAt(0), 'name'), "Tom Dale", "record has the correct information");
 
-  store.push(Person, { id: 2, name: "Yehuda Katz" });
+  run(function(){
+    store.push(Person, { id: 2, name: "Yehuda Katz" });
+  });
   equal(get(results, 'length'), 2, "record array should have the new object");
   equal(get(results.objectAt(1), 'name'), "Yehuda Katz", "record has the correct information");
 
@@ -242,14 +264,19 @@ test("a new record of a particular type is created via store.createRecord(type)"
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });
+  var person;
 
-  var person = store.createRecord(Person);
+  run(function(){
+    person = store.createRecord(Person);
+  });
 
   equal(get(person, 'isLoaded'), true, "A newly created record is loaded");
   equal(get(person, 'isNew'), true, "A newly created record is new");
   equal(get(person, 'isDirty'), true, "A newly created record is dirty");
 
-  set(person, 'name', "Braaahm Dale");
+  run(function(){
+    set(person, 'name', "Braaahm Dale");
+  });
 
   equal(get(person, 'name'), "Braaahm Dale", "Even if no hash is supplied, `set` still worked");
 });
@@ -266,10 +293,14 @@ test("a new record with a specific id can't be created if this id is already use
     }
   });
 
-  store.createRecord(Person, {id: 5});
+  run(function(){
+    store.createRecord(Person, {id: 5});
+  });
 
   expectAssertion(function() {
-    store.createRecord(Person, {id: 5});
+    run(function(){
+      store.createRecord(Person, {id: 5});
+    });
   }, /The id 5 has already been used with another record of type Person/);
 });
 
@@ -278,8 +309,11 @@ test("an initial data hash can be provided via store.createRecord(type, hash)", 
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });
+  var person;
 
-  var person = store.createRecord(Person, { name: "Brohuda Katz" });
+  run(function(){
+    person = store.createRecord(Person, { name: "Brohuda Katz" });
+  });
 
   equal(get(person, 'isLoaded'), true, "A newly created record is loaded");
   equal(get(person, 'isNew'), true, "A newly created record is new");
@@ -293,18 +327,20 @@ test("if an id is supplied in the initial data hash, it can be looked up using `
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });
+  var person;
 
-  var person = store.createRecord(Person, { id: 1, name: "Brohuda Katz" });
-
-  store.find(Person, 1).then(async(function(again) {
-    strictEqual(person, again, "the store returns the loaded object");
-  }));
+  run(function(){
+    person = store.createRecord(Person, { id: 1, name: "Brohuda Katz" });
+    store.find(Person, 1).then(async(function(again) {
+      strictEqual(person, again, "the store returns the loaded object");
+    }));
+  });
 });
 
 test("initial values of attributes can be passed in as the third argument to find", function() {
   var adapter = TestAdapter.extend({
     find: function(store, type, query) {
-      return new Ember.RSVP.Promise(function(){});
+      return Ember.RSVP.resolve({id: '1', name: 'Test'});
     }
   });
 
@@ -316,9 +352,11 @@ test("initial values of attributes can be passed in as the third argument to fin
     name: DS.attr('string')
   });
 
-
-  store.find(Person, 1, {name: 'Test'});
-  equal(store.getById(Person, 1).get('name'), 'Test', 'Preloaded attribtue set');
+  run(function(){
+    store.find(Person, 1, {name: 'Test'}).then(async(function(){
+      equal(store.getById(Person, 1).get('name'), 'Test', 'Preloaded attribtue set');
+    }));
+  });
 });
 
 test("initial values of belongsTo can be passed in as the third argument to find as records", function() {
@@ -338,10 +376,12 @@ test("initial values of belongsTo can be passed in as the third argument to find
   });
 
   store.container.register('model:person', Person);
+  var tom;
 
-  var tom = store.push(Person, {id:2, name:'Tom'});
-
-  store.find(Person, 1, {friend: tom});
+  run(function(){
+    tom = store.push(Person, {id:2, name:'Tom'});
+    store.find(Person, 1, {friend: tom});
+  });
 
   equal(store.getById(Person, 1).get('friend.name'), 'Tom', 'Preloaded belongsTo set');
 });
@@ -365,11 +405,13 @@ test("initial values of belongsTo can be passed in as the third argument to find
 
   store.container.register('model:person', Person);
 
-  store.find(Person, 1, {friend: 2});
-
-  store.getById(Person, 1).get('friend').then(async(function(friend) {
-    equal(friend.get('id'), '2', 'Preloaded belongsTo set');
-  }));
+  run(function(){
+    store.find(Person, 1, {friend: 2}).then(async(function(){
+      store.getById(Person, 1).get('friend').then(async(function(friend) {
+        equal(friend.get('id'), '2', 'Preloaded belongsTo set');
+      }));
+    }));
+  });
 });
 
 test("initial values of hasMany can be passed in as the third argument to find as records", function() {
@@ -389,10 +431,12 @@ test("initial values of hasMany can be passed in as the third argument to find a
   });
 
   store.container.register('model:person', Person);
+  var tom;
 
-  var tom = store.push(Person, {id:2, name:'Tom'});
-
-  store.find(Person, 1, {friends: [tom]});
+  run(function(){
+    tom = store.push(Person, {id:2, name:'Tom'});
+    store.find(Person, 1, {friends: [tom]});
+  });
 
   equal(store.getById(Person, 1).get('friends').toArray()[0].get('name'), 'Tom', 'Preloaded hasMany set');
 });
@@ -417,12 +461,12 @@ test("initial values of hasMany can be passed in as the third argument to find a
 
   store.container.register('model:person', Person);
 
-  store.find(Person, 1, {friends: [2]});
-
-  store.getById(Person, 1).get('friends').then(async(function(friends){
-    equal(friends.objectAt(0).get('id'), '2', 'Preloaded hasMany set');
-  }));
-
+  run(function(){
+    store.find(Person, 1, {friends: [2]});
+    store.getById(Person, 1).get('friends').then(async(function(friends){
+      equal(friends.objectAt(0).get('id'), '2', 'Preloaded hasMany set');
+    }));
+  });
 });
 
 test("records should have their ids updated when the adapter returns the id data", function() {
@@ -440,15 +484,20 @@ test("records should have their ids updated when the adapter returns the id data
   });
 
   var people = store.all(Person);
+  var tom, yehuda;
 
-  var tom = store.createRecord(Person, {name: 'Tom Dale'});
-  var yehuda = store.createRecord(Person, {name: 'Yehuda Katz'});
+  run(function(){
+    tom = store.createRecord(Person, {name: 'Tom Dale'});
+    yehuda = store.createRecord(Person, {name: 'Yehuda Katz'});
+  });
 
-  Ember.RSVP.all([ tom.save(), yehuda.save() ]).then(async(function() {
-    people.forEach(function(person, index) {
-      equal(person.get('id'), index + 1, "The record's id should be correct.");
-    });
-  }));
+  run(function(){
+    Ember.RSVP.all([ tom.save(), yehuda.save() ]).then(async(function() {
+      people.forEach(function(person, index) {
+        equal(person.get('id'), index + 1, "The record's id should be correct.");
+      });
+    }));
+  });
 });
 
 test("store.fetchMany should always return a promise", function() {
@@ -456,10 +505,15 @@ test("store.fetchMany should always return a promise", function() {
   var store = createStore({
     adapter: TestAdapter.extend()
   });
-  store.createRecord(Person);
+  run(function(){
+    store.createRecord(Person);
+  });
   var records = Ember.A([]);
+  var results;
 
-  var results = store.scheduleFetchMany(records);
+  run(function(){
+    results = store.scheduleFetchMany(records);
+  });
   ok(results, "A call to store.scheduleFetchMany() should return a result");
   ok(results.then, "A call to store.scheduleFetchMany() should return a promise");
 
@@ -504,7 +558,9 @@ test("store.scheduleFetchMany should not resolve until all the records are resol
     adapter: adapter
   });
 
-  store.createRecord(Person);
+  run(function(){
+    store.createRecord(Person);
+  });
 
   var records = Ember.A([
     store.recordForId(Person, 10),
@@ -512,10 +568,12 @@ test("store.scheduleFetchMany should not resolve until all the records are resol
     store.recordForId(Phone, 21)
   ]);
 
-  store.scheduleFetchMany(records).then(async(function() {
-    var unloadedRecords = records.filterBy('isEmpty');
-    equal(get(unloadedRecords, 'length'), 0, 'All unloaded records should be loaded');
-  }));
+  run(function(){
+    store.scheduleFetchMany(records).then(async(function() {
+      var unloadedRecords = records.filterBy('isEmpty');
+      equal(get(unloadedRecords, 'length'), 0, 'All unloaded records should be loaded');
+    }));
+  });
 });
 
 test("the store calls adapter.findMany according to groupings returned by adapter.groupRecordsForFindMany", function() {
@@ -559,10 +617,12 @@ test("the store calls adapter.findMany according to groupings returned by adapte
     store.recordForId(Person, 21)
   ]);
 
-  store.scheduleFetchMany(records).then(async(function() {
-    var ids = records.mapBy('id');
-    deepEqual(ids, ["10", "20", "21"], "The promise fulfills with the records");
-  }));
+  run(function(){
+    store.scheduleFetchMany(records).then(async(function() {
+      var ids = records.mapBy('id');
+      deepEqual(ids, ["10", "20", "21"], "The promise fulfills with the records");
+    }));
+  });
 });
 
 test("the promise returned by `scheduleFetch`, when it resolves, does not depend on the promises returned to other calls to `scheduleFetch` that are in the same run loop, but different groups", function() {

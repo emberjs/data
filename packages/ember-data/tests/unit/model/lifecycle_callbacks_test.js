@@ -1,4 +1,5 @@
 var get = Ember.get;
+var run = Ember.run;
 
 module("unit/model/lifecycle_callbacks - Lifecycle Callbacks");
 
@@ -20,10 +21,12 @@ test("a record receives a didLoad callback when it has finished loading", functi
     adapter: adapter
   });
 
-  store.find(Person, 1).then(async(function(person) {
-    equal(person.get('id'), "1", "The person's ID is available");
-    equal(person.get('name'), "Foo", "The person's properties are available");
-  }));
+  run(function(){
+    store.find(Person, 1).then(function(person) {
+      equal(person.get('id'), "1", "The person's ID is available");
+      equal(person.get('name'), "Foo", "The person's properties are available");
+    });
+  });
 });
 
 test("a record receives a didUpdate callback when it has finished updating", function() {
@@ -54,16 +57,23 @@ test("a record receives a didUpdate callback when it has finished updating", fun
   var store = createStore({
     adapter: adapter
   });
+  var asyncPerson;
 
-  var asyncPerson = store.find(Person, 1);
+  run(function(){
+    asyncPerson = store.find(Person, 1);
+  });
   equal(callCount, 0, "precond - didUpdate callback was not called yet");
 
-  asyncPerson.then(async(function(person) {
-    person.set('bar', "Bar");
-    return person.save();
-  })).then(async(function() {
-    equal(callCount, 1, "didUpdate called after update");
-  }));
+  run(function(){
+    asyncPerson.then(function(person) {
+      return run(function(){
+        person.set('bar', "Bar");
+        return person.save();
+      });
+    }).then(function() {
+      equal(callCount, 1, "didUpdate called after update");
+    });
+  });
 });
 
 test("a record receives a didCreate callback when it has finished updating", function() {
@@ -90,12 +100,18 @@ test("a record receives a didCreate callback when it has finished updating", fun
   });
 
   equal(callCount, 0, "precond - didCreate callback was not called yet");
+  var person;
 
-  var person = store.createRecord(Person, { id: 69, name: "Newt Gingrich" });
+  run(function(){
+    person = store.createRecord(Person, { id: 69, name: "Newt Gingrich" });
+  });
 
-  person.save().then(async(function() {
-    equal(callCount, 1, "didCreate called after commit");
-  }));
+
+  run(function(){
+    person.save().then(function() {
+      equal(callCount, 1, "didCreate called after commit");
+    });
+  });
 });
 
 test("a record receives a didDelete callback when it has finished deleting", function() {
@@ -127,16 +143,24 @@ test("a record receives a didDelete callback when it has finished deleting", fun
   var store = createStore({
     adapter: adapter
   });
+  var asyncPerson;
 
-  var asyncPerson = store.find(Person, 1);
+  run(function(){
+    asyncPerson = store.find(Person, 1);
+  });
+
   equal(callCount, 0, "precond - didDelete callback was not called yet");
 
-  asyncPerson.then(async(function(person) {
-    person.deleteRecord();
-    return person.save();
-  })).then(async(function() {
-    equal(callCount, 1, "didDelete called after delete");
-  }));
+  run(function(){
+    asyncPerson.then(function(person) {
+      return run(function(){
+        person.deleteRecord();
+        return person.save();
+      });
+    }).then(function() {
+      equal(callCount, 1, "didDelete called after delete");
+    });
+  });
 });
 
 test("a record receives a becameInvalid callback when it became invalid", function() {
@@ -168,19 +192,24 @@ test("a record receives a becameInvalid callback when it became invalid", functi
   var store = createStore({
     adapter: adapter
   });
+  var asyncPerson;
 
-  var asyncPerson = store.find(Person, 1);
+  run(function(){
+    asyncPerson = store.find(Person, 1);
+  });
   equal(callCount, 0, "precond - becameInvalid callback was not called yet");
 
   // Make sure that the error handler has a chance to attach before
   // save fails.
-  Ember.run(function() {
-    asyncPerson.then(async(function(person) {
-      person.set('bar', "Bar");
-      return person.save();
-    })).then(null, async(function() {
+  run(function() {
+    asyncPerson.then(function(person) {
+      return run(function(){
+        person.set('bar', "Bar");
+        return person.save();
+      });
+    }).then(null, function() {
       equal(callCount, 1, "becameInvalid called after invalidating");
-    }));
+    });
   });
 });
 
@@ -191,6 +220,9 @@ test("an ID of 0 is allowed", function() {
     name: DS.attr('string')
   });
 
-  store.push(Person, { id: 0, name: "Tom Dale" });
+  run(function(){
+    store.push(Person, { id: 0, name: "Tom Dale" });
+  });
+
   equal(store.all(Person).objectAt(0).get('name'), "Tom Dale", "found record with id 0");
 });

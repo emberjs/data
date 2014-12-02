@@ -1,6 +1,7 @@
 var get = Ember.get;
 var attr = DS.attr;
 var Person, env;
+var run = Ember.run;
 
 module("integration/reload - Reloading Records", {
   setup: function() {
@@ -17,7 +18,7 @@ module("integration/reload - Reloading Records", {
   },
 
   teardown: function() {
-    env.container.destroy();
+    run(env.container, 'destroy');
   }
 });
 
@@ -36,20 +37,25 @@ test("When a single record is requested, the adapter's find method should be cal
     }
   };
 
-  env.store.find('person', 1).then(async(function(person) {
-    equal(get(person, 'name'), "Tom Dale", "The person is loaded with the right name");
-    equal(get(person, 'isLoaded'), true, "The person is now loaded");
-    var promise = person.reload();
-    equal(get(person, 'isReloading'), true, "The person is now reloading");
-    return promise;
-  })).then(async(function(person) {
-    equal(get(person, 'isReloading'), false, "The person is no longer reloading");
-    equal(get(person, 'name'), "Braaaahm Dale", "The person is now updated with the right name");
-  }));
+  run(function(){
+    env.store.find('person', 1).then(function(person) {
+      equal(get(person, 'name'), "Tom Dale", "The person is loaded with the right name");
+      equal(get(person, 'isLoaded'), true, "The person is now loaded");
+      var promise = person.reload();
+      equal(get(person, 'isReloading'), true, "The person is now reloading");
+      return promise;
+    }).then(function(person) {
+      equal(get(person, 'isReloading'), false, "The person is no longer reloading");
+      equal(get(person, 'name'), "Braaaahm Dale", "The person is now updated with the right name");
+    });
+  });
 });
 
 test("When a record is reloaded and fails, it can try again", function() {
-  var tom = env.store.push('person', { id: 1, name: "Tom Dale" });
+  var tom;
+  run(function(){
+    tom = env.store.push('person', { id: 1, name: "Tom Dale" });
+  });
 
   var count = 0;
   env.adapter.find = function(store, type, id) {
@@ -60,29 +66,35 @@ test("When a record is reloaded and fails, it can try again", function() {
     }
   };
 
-  tom.reload().then(null, async(function() {
-    equal(tom.get('isError'), true, "Tom is now errored");
-    return tom.reload();
-  })).then(async(function(person) {
-    equal(person, tom, "The resolved value is the record");
-    equal(tom.get('isError'), false, "Tom is no longer errored");
-    equal(tom.get('name'), "Thomas Dale", "the updates apply");
-  }));
+  run(function(){
+    tom.reload().then(null, function() {
+      equal(tom.get('isError'), true, "Tom is now errored");
+      return tom.reload();
+    }).then(function(person) {
+      equal(person, tom, "The resolved value is the record");
+      equal(tom.get('isError'), false, "Tom is no longer errored");
+      equal(tom.get('name'), "Thomas Dale", "the updates apply");
+    });
+  });
 });
 
 test("When a record is loaded a second time, isLoaded stays true", function() {
-  env.store.push('person', { id: 1, name: "Tom Dale" });
-
-  env.store.find('person', 1).then(async(function(person) {
-    equal(get(person, 'isLoaded'), true, "The person is loaded");
-    person.addObserver('isLoaded', isLoadedDidChange);
-
-    // Reload the record
+  run(function(){
     env.store.push('person', { id: 1, name: "Tom Dale" });
-    equal(get(person, 'isLoaded'), true, "The person is still loaded after load");
+  });
 
-    person.removeObserver('isLoaded', isLoadedDidChange);
-  }));
+  run(function(){
+    env.store.find('person', 1).then(function(person) {
+      equal(get(person, 'isLoaded'), true, "The person is loaded");
+      person.addObserver('isLoaded', isLoadedDidChange);
+
+      // Reload the record
+      env.store.push('person', { id: 1, name: "Tom Dale" });
+      equal(get(person, 'isLoaded'), true, "The person is still loaded after load");
+
+      person.removeObserver('isLoaded', isLoadedDidChange);
+    });
+  });
 
   function isLoadedDidChange() {
     // This shouldn't be hit
@@ -113,20 +125,21 @@ test("When a record is reloaded, its async hasMany relationships still work", fu
 
   var tom;
 
-  env.store.find('person', 1).then(async(function(person) {
-    tom = person;
-    equal(person.get('name'), "Tom", "precond");
+  run(function(){
+    env.store.find('person', 1).then(function(person) { tom = person;
+      equal(person.get('name'), "Tom", "precond");
 
-    return person.get('tags');
-  })).then(async(function(tags) {
-    deepEqual(tags.mapBy('name'), [ 'hipster', 'hair' ]);
+      return person.get('tags');
+    }).then(function(tags) {
+      deepEqual(tags.mapBy('name'), [ 'hipster', 'hair' ]);
 
-    return tom.reload();
-  })).then(async(function(person) {
-    equal(person.get('name'), "Tom", "precond");
+      return tom.reload();
+    }).then(function(person) {
+      equal(person.get('name'), "Tom", "precond");
 
-    return person.get('tags');
-  })).then(async(function(tags) {
-    deepEqual(tags.mapBy('name'), [ 'hipster', 'hair' ], "The tags are still there");
-  }));
+      return person.get('tags');
+    }).then(function(tags) {
+      deepEqual(tags.mapBy('name'), [ 'hipster', 'hair' ], "The tags are still there");
+    });
+  });
 });

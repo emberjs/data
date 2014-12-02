@@ -1,6 +1,7 @@
 var get = Ember.get;
 
 var Person, array;
+var run = Ember.run;
 
 module("unit/record_array - DS.RecordArray", {
   setup: function() {
@@ -14,23 +15,31 @@ module("unit/record_array - DS.RecordArray", {
 
 test("a record array is backed by records", function() {
   var store = createStore();
-  store.pushMany(Person, array);
+  run(function(){
+    store.pushMany(Person, array);
+  });
 
-  store.findByIds(Person, [1,2,3]).then(async(function(records) {
-    for (var i=0, l=get(array, 'length'); i<l; i++) {
-      deepEqual(records[i].getProperties('id', 'name'), array[i], "a record array materializes objects on demand");
-    }
-  }));
+  run(function(){
+    store.findByIds(Person, [1,2,3]).then(function(records) {
+      for (var i=0, l=get(array, 'length'); i<l; i++) {
+        deepEqual(records[i].getProperties('id', 'name'), array[i], "a record array materializes objects on demand");
+      }
+    });
+  });
 });
 
 test("acts as a live query", function() {
   var store = createStore();
 
   var recordArray = store.all(Person);
-  store.push(Person, { id: 1, name: 'wycats' });
+  run(function(){
+    store.push(Person, { id: 1, name: 'wycats' });
+  });
   equal(get(recordArray, 'lastObject.name'), 'wycats');
 
-  store.push(Person, { id: 2, name: 'brohuda' });
+  run(function(){
+    store.push(Person, { id: 2, name: 'brohuda' });
+  });
   equal(get(recordArray, 'lastObject.name'), 'brohuda');
 });
 
@@ -46,29 +55,35 @@ test("a loaded record is removed from a record array when it is deleted", functi
   var env = setupStore({ tag: Tag, person: Person }),
       store = env.store;
 
-  store.pushMany('person', array);
-  store.push('tag', { id: 1 });
-
-  var asyncRecords = Ember.RSVP.hash({
-    scumbag: store.find('person', 1),
-    tag: store.find('tag', 1)
+  run(function(){
+    store.pushMany('person', array);
+    store.push('tag', { id: 1 });
   });
 
-  asyncRecords.then(async(function(records) {
-    var scumbag = records.scumbag, tag = records.tag;
+  run(function(){
+    var asyncRecords = Ember.RSVP.hash({
+      scumbag: store.find('person', 1),
+      tag: store.find('tag', 1)
+    });
 
-    tag.get('people').addObject(scumbag);
-    equal(get(scumbag, 'tag'), tag, "precond - the scumbag's tag has been set");
+    asyncRecords.then(function(records) {
+      var scumbag = records.scumbag, tag = records.tag;
 
-    var recordArray = tag.get('people');
+      run(function(){
+        tag.get('people').addObject(scumbag);
+      });
+      equal(get(scumbag, 'tag'), tag, "precond - the scumbag's tag has been set");
 
-    equal(get(recordArray, 'length'), 1, "precond - record array has one item");
-    equal(get(recordArray.objectAt(0), 'name'), "Scumbag Dale", "item at index 0 is record with id 1");
+      var recordArray = tag.get('people');
 
-    scumbag.deleteRecord();
+      equal(get(recordArray, 'length'), 1, "precond - record array has one item");
+      equal(get(recordArray.objectAt(0), 'name'), "Scumbag Dale", "item at index 0 is record with id 1");
 
-    equal(get(recordArray, 'length'), 0, "record is removed from the record array");
-  }));
+      scumbag.deleteRecord();
+
+      equal(get(recordArray, 'length'), 0, "record is removed from the record array");
+    });
+  });
 });
 
 test("a loaded record is removed from a record array when it is deleted even if the belongsTo side isn't defined", function() {
@@ -78,11 +93,13 @@ test("a loaded record is removed from a record array when it is deleted even if 
 
   var env = setupStore({ tag: Tag, person: Person }),
       store = env.store;
+  var scumbag, tag;
 
-  var scumbag = store.push('person', {id:1, name: 'Scumbag Tom'});
-  var tag = store.push('tag', { id: 1, people:[1] });
-
-  scumbag.deleteRecord();
+  run(function(){
+    scumbag = store.push('person', {id:1, name: 'Scumbag Tom'});
+    tag = store.push('tag', { id: 1, people:[1] });
+    scumbag.deleteRecord();
+  });
 
   equal(tag.get('people.length'), 0, "record is removed from the record array");
 });
@@ -98,15 +115,20 @@ test("a loaded record is removed both from the record array and from the belongs
 
   var env = setupStore({ tag: Tag, person: Person, tool: Tool }),
       store = env.store;
+  var scumbag, tag, tool;
 
-  var scumbag = store.push('person', {id:1, name: 'Scumbag Tom'});
-  var tag = store.push('tag', { id: 1, people:[1] });
-  var tool = store.push('tool', {id: 1, person:1});
+  run(function(){
+    scumbag = store.push('person', {id:1, name: 'Scumbag Tom'});
+    tag = store.push('tag', { id: 1, people:[1] });
+    tool = store.push('tool', {id: 1, person:1});
+  });
 
   equal(tag.get('people.length'), 1, "record is in the record array");
   equal(tool.get('person'), scumbag, "the tool belongs to the record");
 
-  scumbag.deleteRecord();
+  run(function(){
+    scumbag.deleteRecord();
+  });
 
   equal(tag.get('people.length'), 0, "record is removed from the record array");
   equal(tool.get('person'), null, "the tool is now orphan");
@@ -118,9 +140,12 @@ test("a newly created record is removed from a record array when it is deleted",
       recordArray;
 
   recordArray = store.all(Person);
+  var scumbag;
 
-  var scumbag = store.createRecord(Person, {
-    name: "Scumbag Dale"
+  run(function(){
+    scumbag = store.createRecord(Person, {
+      name: "Scumbag Dale"
+    });
   });
 
   equal(get(recordArray, 'length'), 1, "precond - record array already has the first created item");
@@ -135,11 +160,15 @@ test("a newly created record is removed from a record array when it is deleted",
   equal(get(recordArray, 'length'), 4, "precond - record array has the created item");
   equal(get(recordArray.objectAt(0), 'name'), "Scumbag Dale", "item at index 0 is record with id 1");
 
-  scumbag.deleteRecord();
+  run(function(){
+    scumbag.deleteRecord();
+  });
 
   equal(get(recordArray, 'length'), 3, "record is removed from the record array");
 
-  recordArray.objectAt(0).set('name', 'toto');
+  run(function(){
+    recordArray.objectAt(0).set('name', 'toto');
+  });
 
   equal(get(recordArray, 'length'), 3, "record is still removed from the record array");
 });
@@ -147,7 +176,9 @@ test("a newly created record is removed from a record array when it is deleted",
 test("a record array returns undefined when asking for a member outside of its content Array's range", function() {
   var store = createStore();
 
-  store.pushMany(Person, array);
+  run(function(){
+    store.pushMany(Person, array);
+  });
 
   var recordArray = store.all(Person);
 
@@ -157,7 +188,9 @@ test("a record array returns undefined when asking for a member outside of its c
 // This tests for a bug in the recordCache, where the records were being cached in the incorrect order.
 test("a record array should be able to be enumerated in any order", function() {
   var store = createStore();
-  store.pushMany(Person, array);
+  run(function(){
+    store.pushMany(Person, array);
+  });
 
   var recordArray = store.all(Person);
 
@@ -174,9 +207,11 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
     return Ember.RSVP.resolve(array);
   };
 
-  store.find('person', { page: 1 }).then(async(function(people) {
-    equal(get(people, 'isLoaded'), true, "The array is now loaded");
-  }));
+  run(function(){
+    store.find('person', { page: 1 }).then(function(people) {
+      equal(get(people, 'isLoaded'), true, "The array is now loaded");
+    });
+  });
 });
 
 test("a record array should return a promise when updating", function() {
@@ -188,6 +223,8 @@ test("a record array should return a promise when updating", function() {
   };
 
   recordArray = store.all(Person);
-  promise = recordArray.update();
+  run(function(){
+    promise = recordArray.update();
+  });
   ok((promise.then && typeof promise.then === "function"), "#update returns a promise");
 });

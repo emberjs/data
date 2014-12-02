@@ -1,6 +1,6 @@
-var Account, Message, User, store, env;
-var env, store, User, Message;
+var env, store, User, Message, Account;
 var get = Ember.get;
+var run = Ember.run;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
 
@@ -39,7 +39,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', {
   },
 
   teardown: function() {
-    env.container.destroy();
+    run(env.container, 'destroy');
   }
 });
 
@@ -48,104 +48,158 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', {
 */
 
 test("Relationship is available from the belongsTo side even if only loaded from the hasMany side - async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', messages: [2, 3]});
-  var message = store.push('message', {id: 2, title: 'EmberFest was great'});
-  message.get('user').then(async(function(fetchedUser) {
-    equal(fetchedUser, user, 'User relationship was set up correctly');
-  }));
+  var user, message;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', messages: [2, 3]});
+    message = store.push('message', {id: 2, title: 'EmberFest was great'});
+  });
+  run(function(){
+    message.get('user').then(function(fetchedUser) {
+      equal(fetchedUser, user, 'User relationship was set up correctly');
+    });
+  });
 });
 
 test("Relationship is available from the belongsTo side even if only loaded from the hasMany side - sync", function () {
-  var account = store.push('account', {id:2 , state: 'lonely'});
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  var account, user;
+  run(function(){
+    account = store.push('account', {id:2 , state: 'lonely'});
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  });
   equal(account.get('user'), user, 'User relationship was set up correctly');
 });
 
 test("Relationship is available from the hasMany side even if only loaded from the belongsTo side - async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley'});
-  var message = store.push('message', {id: 2, title: 'EmberFest was great', user:1});
-  user.get('messages').then(async(function(fetchedMessages) {
-    equal(fetchedMessages.objectAt(0), message, 'Messages relationship was set up correctly');
-  }));
+  var user, message;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley'});
+    message = store.push('message', {id: 2, title: 'EmberFest was great', user:1});
+  });
+  run(function(){
+    user.get('messages').then(function(fetchedMessages) {
+      equal(fetchedMessages.objectAt(0), message, 'Messages relationship was set up correctly');
+    });
+  });
 });
 
 test("Relationship is available from the hasMany side even if only loaded from the belongsTo side - sync", function () {
-  var user = store.push('user', {id:1, name: 'Stanley'});
-  var account = store.push('account', {id:2 , state: 'lonely', user:1});
+  var user, account;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley'});
+    account = store.push('account', {id:2 , state: 'lonely', user:1});
+  });
   equal(user.get('accounts').objectAt(0), account, 'Accounts relationship was set up correctly');
 });
 
 test("Fetching a belongsTo that is set to null removes the record from a relationship - async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', messages: [1,2]});
-  store.push('message', {id: 1, title: 'EmberFest was great', user:1});
-  store.push('message', {id: 2, title: 'EmberConf will be better', user:null});
-  user.get('messages').then(async(function(fetchedMessages) {
-    equal(get(fetchedMessages, 'length'), 1, 'Messages relationship was set up correctly');
-  }));
+  var user;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', messages: [1,2]});
+  });
+  run(function(){
+    store.push('message', {id: 1, title: 'EmberFest was great', user:1});
+    store.push('message', {id: 2, title: 'EmberConf will be better', user:null});
+  });
+  run(function(){
+    user.get('messages').then(function(fetchedMessages) {
+      equal(get(fetchedMessages, 'length'), 1, 'Messages relationship was set up correctly');
+    });
+  });
 });
 
 test("Fetching a belongsTo that is set to null removes the record from a relationship - sync", function () {
-  var account = store.push('account', {id:2 , state: 'lonely'});
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
-  account = store.push('account', {id:2 , state: 'lonely', user:null});
+  var account, user;
+  run(function(){
+    account = store.push('account', {id:2 , state: 'lonely'});
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+    account = store.push('account', {id:2 , state: 'lonely', user:null});
+  });
   equal(user.get('accounts').objectAt(0), null, 'Account was sucesfully removed');
 });
 
 test("Fetching a belongsTo that is not defined does not remove the record from a relationship - async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', messages: [1,2]});
-  store.push('message', {id: 1, title: 'EmberFest was great', user:1});
-  store.push('message', {id: 2, title: 'EmberConf will be better'});
-  user.get('messages').then(async(function(fetchedMessages) {
-    equal(get(fetchedMessages, 'length'), 2, 'Messages relationship was set up correctly');
-  }));
+  var user;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', messages: [1,2]});
+  });
+  run(function(){
+    store.push('message', {id: 1, title: 'EmberFest was great', user:1});
+    store.push('message', {id: 2, title: 'EmberConf will be better'});
+  });
+  run(function(){
+    user.get('messages').then(function(fetchedMessages) {
+      equal(get(fetchedMessages, 'length'), 2, 'Messages relationship was set up correctly');
+    });
+  });
 });
 
 test("Fetching a belongsTo that is not defined does not remove the record from a relationship - sync", function () {
-  var account = store.push('account', {id:2 , state: 'lonely'});
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
-  account = store.push('account', {id:2 , state: 'lonely'});
+  var account, user;
+  run(function(){
+    account = store.push('account', {id:2 , state: 'lonely'});
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+    account = store.push('account', {id:2 , state: 'lonely'});
+  });
   equal(user.get('accounts').objectAt(0), account, 'Account was sucesfully removed');
 });
 
 test("Fetching the hasMany that doesn't contain the belongsTo, sets the belongsTo to null - async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', messages: [1]});
-  var message = store.push('message', {id: 1, title: 'EmberFest was great', user:1});
-  var message2 = store.push('message', {id: 2, title: 'EmberConf is gonna be better'});
-  store.push('user', {id:1, name: 'Stanley', messages: [2]});
+  var user, message, message2;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', messages: [1]});
+    message = store.push('message', {id: 1, title: 'EmberFest was great', user:1});
+    message2 = store.push('message', {id: 2, title: 'EmberConf is gonna be better'});
+  });
+  run(function(){
+    store.push('user', {id:1, name: 'Stanley', messages: [2]});
+  });
 
-  message.get('user').then(async(function(fetchedUser) {
-    equal(fetchedUser, null, 'User was removed correctly');
-  }));
+  run(function(){
+    message.get('user').then(function(fetchedUser) {
+      equal(fetchedUser, null, 'User was removed correctly');
+    });
 
-  message2.get('user').then(async(function(fetchedUser) {
-    equal(fetchedUser, user, 'User was set on the second message');
-  }));
+    message2.get('user').then(function(fetchedUser) {
+      equal(fetchedUser, user, 'User was set on the second message');
+    });
+  });
 });
 
 test("Fetching the hasMany that doesn't contain the belongsTo, sets the belongsTo to null - sync", function () {
-  store.push('user', {id:1, name: 'Stanley', accounts: [1]});
-  var account = store.push('account', {id: 1, state: 'great', user:1});
-  store.push('account', {id: 2, state: 'awesome'});
-  store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  var account;
+  run(function(){
+    store.push('user', {id:1, name: 'Stanley', accounts: [1]});
+    account = store.push('account', {id: 1, state: 'great', user:1});
+    store.push('account', {id: 2, state: 'awesome'});
+    store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  });
 
   equal(account.get('user'), null, 'User was removed correctly');
 });
 
 test("Fetching the hasMany side where the hasMany is undefined does not change the belongsTo side - async", function () {
-  store.push('user', {id:1, name: 'Stanley', messages: [1]});
-  var message = store.push('message', {id: 1, title: 'EmberFest was great', user:1});
-  var user = store.push('user', {id:1, name: 'Stanley'});
+  var message, user;
+  run(function(){
+    store.push('user', {id:1, name: 'Stanley', messages: [1]});
+    message = store.push('message', {id: 1, title: 'EmberFest was great', user:1});
+    user = store.push('user', {id:1, name: 'Stanley'});
+  });
 
-  message.get('user').then(async(function(fetchedUser) {
-    equal(fetchedUser, user, 'User was not removed');
-  }));
+  run(function(){
+    message.get('user').then(function(fetchedUser) {
+      equal(fetchedUser, user, 'User was not removed');
+    });
+  });
 });
 
 test("Fetching the hasMany side where the hasMany is undefined does not change the belongsTo side - sync", function () {
-  store.push('user', {id:1, name: 'Stanley', accounts: [1]});
-  var account = store.push('account', {id: 1, state: 'great', user:1});
-  store.push('account', {id: 2, state: 'awesome'});
-  var user = store.push('user', {id:1, name: 'Stanley'});
+  var account, user;
+  run(function(){
+    store.push('user', {id:1, name: 'Stanley', accounts: [1]});
+    account = store.push('account', {id: 1, state: 'great', user:1});
+    store.push('account', {id: 2, state: 'awesome'});
+    user = store.push('user', {id:1, name: 'Stanley'});
+  });
 
   equal(account.get('user'), user, 'User was not removed');
 });
@@ -155,75 +209,99 @@ test("Fetching the hasMany side where the hasMany is undefined does not change t
 */
 
 test("Pushing to the hasMany reflects the change on the belongsTo side - async", function () {
-  var user =  store.push('user', {id:1, name: 'Stanley', messages: [1]});
-  store.push('message', {id: 1, title: 'EmberFest was great'});
-  var message2 = store.push('message', {id: 2, title: 'EmberFest was great'});
+  var user, message2;
+  run(function(){
+    user =  store.push('user', {id:1, name: 'Stanley', messages: [1]});
+    store.push('message', {id: 1, title: 'EmberFest was great'});
+    message2 = store.push('message', {id: 2, title: 'EmberFest was great'});
+  });
 
-  user.get('messages').then(async(function(fetchedMessages) {
-    fetchedMessages.pushObject(message2);
-    message2.get('user').then(async(function(fetchedUser) {
-      equal(fetchedUser, user, "user got set correctly");
-    }));
-  }));
+  run(function(){
+    user.get('messages').then(function(fetchedMessages) {
+      fetchedMessages.pushObject(message2);
+      message2.get('user').then(function(fetchedUser) {
+        equal(fetchedUser, user, "user got set correctly");
+      });
+    });
+  });
 });
 
 test("Pushing to the hasMany reflects the change on the belongsTo side - sync", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [1]});
-  store.push('account', {id: 1, state: 'great', user:1});
+  var user, account2;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [1]});
+    store.push('account', {id: 1, state: 'great', user:1});
 
-  var account2 = store.push('account', {id: 2, state: 'awesome'});
-  user.get('accounts').pushObject(account2);
+    account2 = store.push('account', {id: 2, state: 'awesome'});
+    user.get('accounts').pushObject(account2);
+  });
 
   equal(account2.get('user'), user, 'user got set correctly');
 });
 
 test("Removing from the hasMany side reflects the change on the belongsTo side - async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', messages: [1]});
-  var message = store.push('message', {id: 1, title: 'EmberFest was great'});
+  var user, message;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', messages: [1]});
+    message = store.push('message', {id: 1, title: 'EmberFest was great'});
+  });
 
-  user.get('messages').then(async(function(fetchedMessages) {
-    fetchedMessages.removeObject(message);
-    message.get('user').then(async(function(fetchedUser) {
-      equal(fetchedUser, null, "user got removed correctly");
-    }));
-  }));
+  run(function(){
+    user.get('messages').then(function(fetchedMessages) {
+      fetchedMessages.removeObject(message);
+      message.get('user').then(function(fetchedUser) {
+        equal(fetchedUser, null, "user got removed correctly");
+      });
+    });
+  });
 });
 
 test("Removing from the hasMany side reflects the change on the belongsTo side - sync", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [1]});
-  var account = store.push('account', {id: 1, state: 'great', user:1});
-
-  user.get('accounts').removeObject(account);
+  var user, account;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [1]});
+    account = store.push('account', {id: 1, state: 'great', user:1});
+  });
+  run(function(){
+    user.get('accounts').removeObject(account);
+  });
 
   equal(account.get('user'), null, 'user got removed correctly');
 });
 
 test("Pushing to the hasMany side keeps the oneToMany invariant on the belongsTo side - async", function () {
   expect(2);
-  var user =  store.push('user', {id:1, name: 'Stanley', messages: [1]});
-  var user2 =  store.push('user', {id:2, name: 'Tomhuda'});
-  var message = store.push('message', {id: 1, title: 'EmberFest was great'});
+  var user, user2, message;
+  run(function(){
+    user =  store.push('user', {id:1, name: 'Stanley', messages: [1]});
+    user2 =  store.push('user', {id:2, name: 'Tomhuda'});
+    message = store.push('message', {id: 1, title: 'EmberFest was great'});
+  });
 
-  user2.get('messages').then(async(function(fetchedMessages) {
-    fetchedMessages.pushObject(message);
+  run(function(){
+    user2.get('messages').then(function(fetchedMessages) {
+      fetchedMessages.pushObject(message);
 
-    message.get('user').then(async(function(fetchedUser) {
-      equal(fetchedUser, user2, "user got set correctly");
-    }));
+      message.get('user').then(function(fetchedUser) {
+        equal(fetchedUser, user2, "user got set correctly");
+      });
 
-    user.get('messages').then(async(function(newFetchedMessages) {
-      equal(get(newFetchedMessages, 'length'), 0, 'message got removed from the old messages hasMany');
-    }));
-  }));
+      user.get('messages').then(function(newFetchedMessages) {
+        equal(get(newFetchedMessages, 'length'), 0, 'message got removed from the old messages hasMany');
+      });
+    });
+  });
 });
 
 test("Pushing to the hasMany side keeps the oneToMany invariant - sync", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [1]});
-  var user2 = store.push('user', {id:2, name: 'Stanley'});
+  var user, user2, account;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [1]});
+    user2 = store.push('user', {id:2, name: 'Stanley'});
+    account = store.push('account', {id: 1, state: 'great'});
+    user2.get('accounts').pushObject(account);
+  });
 
-  var account = store.push('account', {id: 1, state: 'great'});
-
-  user2.get('accounts').pushObject(account);
   equal(account.get('user'), user2, 'user got set correctly');
   equal(user.get('accounts.length'), 0, 'the account got removed correctly');
   equal(user2.get('accounts.length'), 1, 'the account got pushed correctly');
@@ -231,30 +309,34 @@ test("Pushing to the hasMany side keeps the oneToMany invariant - sync", functio
 
 test("Setting the belongsTo side keeps the oneToMany invariant on the hasMany- async", function () {
   expect(2);
-  var user =  store.push('user', {id:1, name: 'Stanley', messages: [1]});
-  var user2 =  store.push('user', {id:2, name: 'Tomhuda'});
+  var user, user2, message;
+  run(function(){
+    user =  store.push('user', {id:1, name: 'Stanley', messages: [1]});
+    user2 =  store.push('user', {id:2, name: 'Tomhuda'});
+    message = store.push('message', {id: 1, title: 'EmberFest was great', user: 1});
+    message.set('user', user2);
+  });
 
-  var message = store.push('message', {id: 1, title: 'EmberFest was great', user: 1});
-
-  message.set('user', user2);
-
-  user.get('messages').then(async(function(fetchedMessages) {
-    equal(get(fetchedMessages, 'length'), 0, 'message got removed from the first user correctly');
-  }));
-
-  user2.get('messages').then(async(function(fetchedMessages) {
-    equal(get(fetchedMessages, 'length'), 1, 'message got added to the second user correctly');
-  }));
-
+  run(function(){
+    user.get('messages').then(function(fetchedMessages) {
+      equal(get(fetchedMessages, 'length'), 0, 'message got removed from the first user correctly');
+    });
+  });
+  run(function(){
+    user2.get('messages').then(function(fetchedMessages) {
+      equal(get(fetchedMessages, 'length'), 1, 'message got added to the second user correctly');
+    });
+  });
 });
 
 test("Setting the belongsTo side keeps the oneToMany invariant on the hasMany- sync", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [1]});
-  var user2 = store.push('user', {id:2, name: 'Stanley'});
-
-  var account = store.push('account', {id: 1, state: 'great', user: 1});
-
-  account.set('user', user2);
+  var user, user2, account;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [1]});
+    user2 = store.push('user', {id:2, name: 'Stanley'});
+    account = store.push('account', {id: 1, state: 'great', user: 1});
+    account.set('user', user2);
+  });
 
   equal(account.get('user'), user2, 'user got set correctly');
 
@@ -265,27 +347,33 @@ test("Setting the belongsTo side keeps the oneToMany invariant on the hasMany- s
 
 test("Setting the belongsTo side to null removes the record from the hasMany side - async", function () {
   expect(2);
-  var user =  store.push('user', {id:1, name: 'Stanley', messages: [1]});
-  var message = store.push('message', {id: 1, title: 'EmberFest was great', user: 1});
-
+  var user, message;
+  run(function(){
+    user =  store.push('user', {id:1, name: 'Stanley', messages: [1]});
+    message = store.push('message', {id: 1, title: 'EmberFest was great', user: 1});
   message.set('user', null);
+  });
 
-  user.get('messages').then(async(function(fetchedMessages) {
-    equal(get(fetchedMessages, 'length'), 0, 'message got removed from the  user correctly');
-  }));
+  run(function(){
+    user.get('messages').then(function(fetchedMessages) {
+      equal(get(fetchedMessages, 'length'), 0, 'message got removed from the  user correctly');
+    });
+  });
 
-  message.get('user').then(async(function(fetchedUser) {
-    equal(fetchedUser, null, 'user got set to null correctly');
-  }));
-
+  run(function(){
+    message.get('user').then(function(fetchedUser) {
+      equal(fetchedUser, null, 'user got set to null correctly');
+    });
+  });
 });
 
 test("Setting the belongsTo side to null removes the record from the hasMany side - sync", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [1]});
-
-  var account = store.push('account', {id: 1, state: 'great', user: 1});
-
-  account.set('user', null);
+  var user, account;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [1]});
+    account = store.push('account', {id: 1, state: 'great', user: 1});
+    account.set('user', null);
+  });
 
   equal(account.get('user'), null, 'user got set to null correctly');
 
@@ -297,41 +385,59 @@ Deleting
 */
 
 test("When deleting a record that has a belongsTo it is removed from the hasMany side but not the belongsTo side- async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', messages: [2]});
-  var message = store.push('message', {id: 2, title: 'EmberFest was great'});
-  message.deleteRecord();
-  message.get('user').then(async(function(fetchedUser) {
-    equal(fetchedUser, user, 'Message still has the user');
-  }));
-  user.get('messages').then(async(function(fetchedMessages) {
-    equal(fetchedMessages.get('length'), 0, 'User was removed from the messages');
-  }));
+  var user, message;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', messages: [2]});
+    message = store.push('message', {id: 2, title: 'EmberFest was great'});
+  });
+  run(message, 'deleteRecord');
+  run(function(){
+    message.get('user').then(function(fetchedUser) {
+      equal(fetchedUser, user, 'Message still has the user');
+    });
+    user.get('messages').then(function(fetchedMessages) {
+      equal(fetchedMessages.get('length'), 0, 'User was removed from the messages');
+    });
+  });
 });
 
 test("When deleting a record that has a belongsTo it is removed from the hasMany side but not the belongsTo side- sync", function () {
-  var account = store.push('account', {id:2 , state: 'lonely'});
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
-  account.deleteRecord();
+  var account, user;
+  run(function(){
+    account = store.push('account', {id:2 , state: 'lonely'});
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+    account.deleteRecord();
+  });
   equal(user.get('accounts.length'), 0, "User was removed from the accounts");
   equal(account.get('user'), user, 'Account still has the user');
 });
 
 test("When deleting a record that has a hasMany it is removed from the belongsTo side but not the hasMany side- async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', messages: [2]});
-  var message = store.push('message', {id: 2, title: 'EmberFest was great'});
-  user.deleteRecord();
-  message.get('user').then(async(function(fetchedUser) {
-    equal(fetchedUser, null, 'Message does not have the user anymore');
-  }));
-  user.get('messages').then(async(function(fetchedMessages) {
-    equal(fetchedMessages.get('length'), 1, 'User still has the messages');
-  }));
+  var user, message;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', messages: [2]});
+    message = store.push('message', {id: 2, title: 'EmberFest was great'});
+  });
+  run(user, 'deleteRecord');
+  run(function(){
+    message.get('user').then(function(fetchedUser) {
+      equal(fetchedUser, null, 'Message does not have the user anymore');
+    });
+    user.get('messages').then(function(fetchedMessages) {
+      equal(fetchedMessages.get('length'), 1, 'User still has the messages');
+    });
+  });
 });
 
 test("When deleting a record that has a hasMany it is removed from the belongsTo side but not the hasMany side - sync", function () {
-  var account = store.push('account', {id:2 , state: 'lonely'});
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
-  user.deleteRecord();
+  var account, user;
+  run(function(){
+    account = store.push('account', {id:2 , state: 'lonely'});
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  });
+  run(function(){
+    user.deleteRecord();
+  });
   equal(user.get('accounts.length'), 1, "User still has the accounts");
   equal(account.get('user'), null, 'Account no longer has the user');
 });
@@ -341,45 +447,69 @@ Rollback from deleted state
 */
 
 test("Rollbacking a deleted record works correctly when the hasMany side has been deleted - async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', messages: [2]});
-  var message = store.push('message', {id: 2, title: 'EmberFest was great'});
-  message.deleteRecord();
-  message.rollback();
-  message.get('user').then(async(function(fetchedUser) {
-    equal(fetchedUser, user, 'Message still has the user');
-  }));
-  user.get('messages').then(async(function(fetchedMessages) {
-    equal(fetchedMessages.objectAt(0), message, 'User has the message');
-  }));
+  var user, message;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', messages: [2]});
+    message = store.push('message', {id: 2, title: 'EmberFest was great'});
+  });
+  run(function(){
+    message.deleteRecord();
+    message.rollback();
+  });
+  run(function(){
+    message.get('user').then(function(fetchedUser) {
+      equal(fetchedUser, user, 'Message still has the user');
+    });
+    user.get('messages').then(function(fetchedMessages) {
+      equal(fetchedMessages.objectAt(0), message, 'User has the message');
+    });
+  });
 });
 
 test("Rollbacking a deleted record works correctly when the hasMany side has been deleted - sync", function () {
-  var account = store.push('account', {id:2 , state: 'lonely'});
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
-  account.deleteRecord();
-  account.rollback();
+  var account, user;
+  run(function(){
+    account = store.push('account', {id:2 , state: 'lonely'});
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  });
+  run(function(){
+    account.deleteRecord();
+    account.rollback();
+  });
   equal(user.get('accounts.length'), 1, "Accounts are rolled back");
   equal(account.get('user'), user, 'Account still has the user');
 });
 
 test("Rollbacking a deleted record works correctly when the belongsTo side has been deleted - async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', messages: [2]});
-  var message = store.push('message', {id: 2, title: 'EmberFest was great'});
-  user.deleteRecord();
-  user.rollback();
-  message.get('user').then(async(function(fetchedUser) {
-    equal(fetchedUser, user, 'Message has the user again');
-  }));
-  user.get('messages').then(async(function(fetchedMessages) {
-    equal(fetchedMessages.get('length'), 1, 'User still has the messages');
-  }));
+  var user, message;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', messages: [2]});
+    message = store.push('message', {id: 2, title: 'EmberFest was great'});
+  });
+  run(function(){
+    user.deleteRecord();
+    user.rollback();
+  });
+  run(function(){
+    message.get('user').then(function(fetchedUser) {
+     equal(fetchedUser, user, 'Message has the user again');
+    });
+    user.get('messages').then(function(fetchedMessages) {
+      equal(fetchedMessages.get('length'), 1, 'User still has the messages');
+    });
+  });
 });
 
 test("Rollbacking a deleted record works correctly when the belongsTo side has been deleted - sync", function () {
-  var account = store.push('account', {id:2 , state: 'lonely'});
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
-  user.deleteRecord();
-  user.rollback();
+  var account, user;
+  run(function(){
+    account = store.push('account', {id:2 , state: 'lonely'});
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  });
+  run(function(){
+    user.deleteRecord();
+    user.rollback();
+  });
   equal(user.get('accounts.length'), 1, "User still has the accounts");
   equal(account.get('user'), user, 'Account has the user again');
 });
@@ -389,45 +519,63 @@ Rollback from created state
 */
 
 test("Rollbacking a created record works correctly when the hasMany side has been created - async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley'});
-  var message = store.createRecord('message', {user: user});
-  message.rollback();
-  message.get('user').then(async(function(fetchedUser) {
-    equal(fetchedUser, null, 'Message does not have the user anymore');
-  }));
-  user.get('messages').then(async(function(fetchedMessages) {
-    equal(fetchedMessages.get('length'), 0, message, 'User does not have the message anymore');
-  }));
+  var user, message;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley'});
+    message = store.createRecord('message', {user: user});
+  });
+  run(message, 'rollback');
+  run(function(){
+    message.get('user').then(function(fetchedUser) {
+      equal(fetchedUser, null, 'Message does not have the user anymore');
+    });
+    user.get('messages').then(function(fetchedMessages) {
+      equal(fetchedMessages.get('length'), 0, message, 'User does not have the message anymore');
+    });
+  });
 });
 
 test("Rollbacking a created record works correctly when the hasMany side has been created - sync", function () {
-  var user = store.push('user', {id:1, name: 'Stanley'});
-  var account = store.createRecord('account', {user: user});
-  account.rollback();
+  var user, account;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley'});
+    account = store.createRecord('account', {user: user});
+  });
+  run(account, 'rollback');
   equal(user.get('accounts.length'), 0, "Accounts are rolled back");
   equal(account.get('user'), null, 'Account does not have the user anymore');
 });
 
 test("Rollbacking a created record works correctly when the belongsTo side has been created - async", function () {
-  var message = store.push('message', {id: 2, title: 'EmberFest was great'});
-  var user = store.createRecord('user');
-  user.get('messages').then(async(function(messages) {
-    messages.pushObject(message);
-    user.rollback();
-    message.get('user').then(async(function(fetchedUser) {
-      equal(fetchedUser, null, 'Message does not have the user anymore');
-    }));
-    user.get('messages').then(async(function(fetchedMessages) {
-      equal(fetchedMessages.get('length'), 0, 'User does not have the message anymore');
-    }));
-  }));
+  var message, user;
+  run(function(){
+    message = store.push('message', {id: 2, title: 'EmberFest was great'});
+    user = store.createRecord('user');
+  });
+  run(function(){
+    user.get('messages').then(function(messages) {
+      messages.pushObject(message);
+      user.rollback();
+      message.get('user').then(function(fetchedUser) {
+        equal(fetchedUser, null, 'Message does not have the user anymore');
+      });
+      user.get('messages').then(function(fetchedMessages) {
+        equal(fetchedMessages.get('length'), 0, 'User does not have the message anymore');
+      });
+    });
+  });
 });
 
 test("Rollbacking a created record works correctly when the belongsTo side has been created - sync", function () {
-  var account = store.push('account', {id:2 , state: 'lonely'});
-  var user = store.createRecord('user');
-  user.get('accounts').pushObject(account);
-  user.rollback();
+  var account, user;
+  run(function(){
+    account = store.push('account', {id:2 , state: 'lonely'});
+    user = store.createRecord('user');
+  });
+  run(function(){
+    user.get('accounts').pushObject(account);
+  });
+  run(user, 'rollback');
   equal(user.get('accounts.length'), undefined, "User does not have the account anymore");
   equal(account.get('user'), null, 'Account does not have the user anymore');
 });

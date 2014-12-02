@@ -1,4 +1,5 @@
 var Account, Topic, User, store, env;
+var run = Ember.run;
 
 var attr = DS.attr, hasMany = DS.hasMany;
 
@@ -40,7 +41,9 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
   },
 
   teardown: function() {
-    env.container.destroy();
+    run(function(){
+      env.container.destroy();
+    });
   }
 });
 
@@ -49,38 +52,56 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
 */
 
 test("Loading from one hasMany side reflects on the other hasMany side - async", function () {
-  store.push('user', {id:1, name: 'Stanley', topics: [2, 3]});
-  var topic = store.push('topic', {id: 2, title: 'EmberFest was great'});
-  topic.get('users').then(async(function(fetchedUsers) {
-    equal(fetchedUsers.get('length'), 1, 'User relationship was set up correctly');
-  }));
+  run(function(){
+    store.push('user', {id:1, name: 'Stanley', topics: [2, 3]});
+  });
+  var topic = run(function(){
+    return store.push('topic', {id: 2, title: 'EmberFest was great'});
+  });
+  run(function(){
+    topic.get('users').then(async(function(fetchedUsers) {
+      equal(fetchedUsers.get('length'), 1, 'User relationship was set up correctly');
+    }));
+  });
 });
 
 test("Relationship is available from the belongsTo side even if only loaded from the hasMany side - sync", function () {
-  var account = store.push('account', {id:2 , state: 'lonely'});
-  store.push('user', {id:1, name: 'Stanley', accounts: [2]});
-  equal(account.get('users.length'), 1, 'User relationship was set up correctly');
+  var account;
+  run(function(){
+    account = store.push('account', {id:2 , state: 'lonely'});
+    store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  });
+  run(function(){
+    equal(account.get('users.length'), 1, 'User relationship was set up correctly');
+  });
 });
 
 test("Fetching a hasMany where a record was removed reflects on the other hasMany side - async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', topics: [2]});
-  var topic = store.push('topic', {id: 2, title: 'EmberFest was great', users:[]});
-  user.get('topics').then(async(function(fetchedTopics) {
-    equal(fetchedTopics.get('length'), 0, 'Topics were removed correctly');
-    topic.get('users').then(async(function(fetchedUsers) {
-      equal(fetchedUsers.get('length'), 0, 'Users were removed correctly');
+  var user, topic;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', topics: [2]});
+    topic = store.push('topic', {id: 2, title: 'EmberFest was great', users:[]});
+  });
+  run(function(){
+    user.get('topics').then(async(function(fetchedTopics) {
+      equal(fetchedTopics.get('length'), 0, 'Topics were removed correctly');
+      topic.get('users').then(async(function(fetchedUsers) {
+        equal(fetchedUsers.get('length'), 0, 'Users were removed correctly');
+      }));
     }));
-  }));
+  });
 });
 
 test("Fetching a hasMany where a record was removed reflects on the other hasMany side - async", function () {
-  var account = store.push('account', {id:2 , state: 'lonely'});
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
-  account = store.push('account', {id:2 , state: 'lonely', users: []});
+  var account, user;
+  run(function(){
+    account = store.push('account', {id:2 , state: 'lonely'});
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+    account = store.push('account', {id:2 , state: 'lonely', users: []});
+  });
   equal(user.get('accounts.length'), 0, 'Accounts were removed correctly');
   equal(account.get('users.length'), 0, 'Users were removed correctly');
 });
-
 
 /*
   Local edits
@@ -88,65 +109,91 @@ test("Fetching a hasMany where a record was removed reflects on the other hasMan
 
 test("Pushing to a hasMany reflects on the other hasMany side - async", function () {
   expect(1);
-  var user = store.push('user', {id:1, name: 'Stanley', topics: []});
-  var topic = store.push('topic', {id: 2, title: 'EmberFest was great'});
-  topic.get('users').then(async(function(fetchedUsers) {
-    fetchedUsers.pushObject(user);
-    user.get('topics').then(async(function(fetchedTopics) {
-      equal(fetchedTopics.get('length'), 1, 'User relationship was set up correctly');
+  var user, topic;
+
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', topics: []});
+    topic = store.push('topic', {id: 2, title: 'EmberFest was great'});
+  });
+  run(function(){
+    topic.get('users').then(async(function(fetchedUsers) {
+      fetchedUsers.pushObject(user);
+      user.get('topics').then(async(function(fetchedTopics) {
+        equal(fetchedTopics.get('length'), 1, 'User relationship was set up correctly');
+      }));
     }));
-  }));
+  });
 });
 
 test("Pushing to a hasMany reflects on the other hasMany side - sync", function () {
-  var account = store.push('account', {id:2 , state: 'lonely'});
-  var stanley = store.push('user', {id:1, name: 'Stanley'});
-  stanley.get('accounts').pushObject(account);
+  var account, stanley;
+  run(function(){
+    account = store.push('account', {id:2 , state: 'lonely'});
+    stanley = store.push('user', {id:1, name: 'Stanley'});
+    stanley.get('accounts').pushObject(account);
+  });
   equal(account.get('users.length'), 1, 'User relationship was set up correctly');
 });
 
 test("Removing a record from a hasMany reflects on the other hasMany side - async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', topics: [2]});
-  var topic = store.push('topic', {id: 2, title: 'EmberFest was great'});
-  user.get('topics').then(async(function(fetchedTopics) {
-    equal(fetchedTopics.get('length'), 1, 'Topics were setup correctly');
-    fetchedTopics.removeObject(topic);
-    topic.get('users').then(async(function(fetchedUsers) {
-      equal(fetchedUsers.get('length'), 0, 'Users were removed correctly');
+  var user, topic;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', topics: [2]});
+    topic = store.push('topic', {id: 2, title: 'EmberFest was great'});
+  });
+  run(function(){
+    user.get('topics').then(async(function(fetchedTopics) {
+      equal(fetchedTopics.get('length'), 1, 'Topics were setup correctly');
+      fetchedTopics.removeObject(topic);
+      topic.get('users').then(async(function(fetchedUsers) {
+        equal(fetchedUsers.get('length'), 0, 'Users were removed correctly');
+      }));
     }));
-  }));
+  });
 });
 
 test("Removing a record from a hasMany reflects on the other hasMany side - sync", function () {
-  var account = store.push('account', {id:2 , state: 'lonely'});
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  var account, user;
+  run(function(){
+    account = store.push('account', {id:2 , state: 'lonely'});
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  });
   equal(account.get('users.length'), 1, 'Users were setup correctly');
-  account.get('users').removeObject(user);
+  run(function(){
+    account.get('users').removeObject(user);
+  });
   equal(user.get('accounts.length'), 0, 'Accounts were removed correctly');
   equal(account.get('users.length'), 0, 'Users were removed correctly');
 });
-
 
 /*
 Deleting tests
 */
 
 test("Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', topics: [2]});
-  var topic = store.push('topic', {id: 2, title: 'EmberFest was great'});
-  topic.deleteRecord();
-  topic.get('users').then(async(function(fetchedUsers) {
-    equal(fetchedUsers.get('length'), 1, 'Users are still there');
-  }));
-  user.get('topics').then(async(function(fetchedTopics) {
-    equal(fetchedTopics.get('length'), 0, 'Topic got removed from the user');
-  }));
+  var user, topic;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', topics: [2]});
+    topic = store.push('topic', {id: 2, title: 'EmberFest was great'});
+  });
+  run(topic, 'deleteRecord');
+  run(function(){
+    topic.get('users').then(async(function(fetchedUsers) {
+      equal(fetchedUsers.get('length'), 1, 'Users are still there');
+    }));
+    user.get('topics').then(async(function(fetchedTopics) {
+      equal(fetchedTopics.get('length'), 0, 'Topic got removed from the user');
+    }));
+  });
 });
 
 test("Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync", function () {
-  var account = store.push('account', {id:2 , state: 'lonely'});
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
-  account.deleteRecord();
+  var account, user;
+  run(function(){
+    account = store.push('account', {id:2 , state: 'lonely'});
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  });
+  run(account, 'deleteRecord');
   equal(account.get('users.length'), 1, 'Users are still there');
   equal(user.get('accounts.length'), 0, 'Acocount got removed from the user');
 });
@@ -156,47 +203,69 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
 */
 
 test("Rollbacking a deleted record that has a ManyToMany relationship works correctly - async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley', topics: [2]});
-  var topic = store.push('topic', {id: 2, title: 'EmberFest was great'});
-  topic.deleteRecord();
-  topic.rollback();
-  topic.get('users').then(async(function(fetchedUsers) {
-    equal(fetchedUsers.get('length'), 1, 'Users are still there');
-  }));
-  user.get('topics').then(async(function(fetchedTopics) {
-    equal(fetchedTopics.get('length'), 1, 'Topic got rollbacked into the user');
-  }));
+  var user, topic;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley', topics: [2]});
+    topic = store.push('topic', {id: 2, title: 'EmberFest was great'});
+  });
+  run(function(){
+    topic.deleteRecord();
+    topic.rollback();
+  });
+  run(function(){
+    topic.get('users').then(async(function(fetchedUsers) {
+      equal(fetchedUsers.get('length'), 1, 'Users are still there');
+    }));
+    user.get('topics').then(async(function(fetchedTopics) {
+      equal(fetchedTopics.get('length'), 1, 'Topic got rollbacked into the user');
+    }));
+  });
 });
 
 test("Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync", function () {
-  var account = store.push('account', {id:2 , state: 'lonely'});
-  var user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
-  account.deleteRecord();
-  account.rollback();
+  var account, user;
+  run(function(){
+    account = store.push('account', {id:2 , state: 'lonely'});
+    user = store.push('user', {id:1, name: 'Stanley', accounts: [2]});
+  });
+  run(function(){
+    account.deleteRecord();
+    account.rollback();
+  });
   equal(account.get('users.length'), 1, 'Users are still there');
   equal(user.get('accounts.length'), 1, 'Account got rolledback correctly into the user');
 });
 
 test("Rollbacking a created record that has a ManyToMany relationship works correctly - async", function () {
-  var user = store.push('user', {id:1, name: 'Stanley'});
-  var topic = store.createRecord('topic');
-  user.get('topics').then(async(function(fetchedTopics) {
-    fetchedTopics.pushObject(topic);
-    topic.rollback();
-    topic.get('users').then(async(function(fetchedUsers) {
-      equal(fetchedUsers.get('length'), 0, 'Users got removed');
-    }));
+  var user, topic;
+  run(function(){
+    user = store.push('user', {id:1, name: 'Stanley'});
+    topic = store.createRecord('topic');
+  });
+  run(function(){
     user.get('topics').then(async(function(fetchedTopics) {
-      equal(fetchedTopics.get('length'), 0, 'Topics got removed');
+      fetchedTopics.pushObject(topic);
+      topic.rollback();
+      topic.get('users').then(async(function(fetchedUsers) {
+        equal(fetchedUsers.get('length'), 0, 'Users got removed');
+      }));
+      user.get('topics').then(async(function(fetchedTopics) {
+        equal(fetchedTopics.get('length'), 0, 'Topics got removed');
+      }));
     }));
-  }));
+  });
 });
 
 test("Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync", function () {
-  var account = store.push('account', {id:2 , state: 'lonely'});
-  var user = store.createRecord('user');
-  account.get('users').pushObject(user);
-  user.rollback();
+  var account, user;
+  run(function(){
+    account = store.push('account', {id:2 , state: 'lonely'});
+    user = store.createRecord('user');
+  });
+  run(function(){
+    account.get('users').pushObject(user);
+    user.rollback();
+  });
   equal(account.get('users.length'), 0, 'Users got removed');
   equal(user.get('accounts.length'), undefined, 'Accounts got rolledback correctly');
 });
