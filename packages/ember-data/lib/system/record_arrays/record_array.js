@@ -196,7 +196,20 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     });
   },
 
+  /**
+    @method _unregisterFromManager
+    @private
+  */
+  _unregisterFromManager: function(){
+    var manager = get(this, 'manager');
+    //We will stop needing this stupid if statement soon, once manyArray are refactored to not be RecordArrays
+    if (manager) {
+      manager.unregisterFilteredRecordArray(this);
+    }
+  },
+
   willDestroy: function(){
+    this._unregisterFromManager();
     this._dissociateFromOwnRecords();
     this._super();
   }

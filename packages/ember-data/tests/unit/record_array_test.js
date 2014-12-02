@@ -43,6 +43,29 @@ test("acts as a live query", function() {
   equal(get(recordArray, 'lastObject.name'), 'brohuda');
 });
 
+test("stops updating when destroyed", function() {
+  expect(3);
+  var store = createStore();
+
+  var recordArray = store.all(Person);
+  run(function(){
+    store.push(Person, { id: 1, name: 'wycats' });
+  });
+
+  run(function() {
+    recordArray.destroy();
+  });
+
+  run(function() {
+    equal(recordArray.get('length'), undefined, "Has no more records");
+    store.push(Person, { id: 2, name: 'brohuda' });
+  });
+
+  equal(recordArray.get('length'), undefined, "Has not been updated");
+  equal(recordArray.get('content'), undefined, "Has not been updated");
+});
+
+
 test("a loaded record is removed from a record array when it is deleted", function() {
   var Tag = DS.Model.extend({
     people: DS.hasMany('person')
