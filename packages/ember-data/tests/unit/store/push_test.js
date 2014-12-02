@@ -484,6 +484,18 @@ test('calling push with belongsTo relationship the value must not be an array', 
   }, /must not be an array/);
 });
 
+test('calling push with an embedded relationship throws a useful error', function(){
+  throws(function() {
+    store.push('person', {
+      id: 1,
+      firstName: 'Ada',
+      lastName: 'Lovelace',
+      phoneNumbers: [
+        {number: '5551212', person: 1}
+      ] });
+  }, /If this is an embedded relationship/);
+});
+
 test("Calling push with unknown keys in the provided payload should warn", function() {
   warns(function() {
     run(function(){
