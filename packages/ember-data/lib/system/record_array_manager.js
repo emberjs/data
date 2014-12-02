@@ -195,7 +195,8 @@ export default Ember.Object.extend({
       type: type,
       content: Ember.A(),
       store: this.store,
-      isLoaded: true
+      isLoaded: true,
+      manager: this
     });
 
     this.registerFilteredRecordArray(array, type);
