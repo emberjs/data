@@ -1355,7 +1355,7 @@ Store = Ember.Object.extend({
 
     data = normalizeRelationships(this, type, data);
 
-    Ember.warn("The payload for '" + typeName + "' contains these unknown keys: " +
+    Ember.warn("The payload for '" + type.typeKey + "' contains these unknown keys: " +
       Ember.inspect(filter(Ember.keys(data), function(key) {
         return !get(type, 'fields').has(key) && key !== 'id' && key !== 'links';
       })) + ". Make sure they've been defined in your model.",
