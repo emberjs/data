@@ -220,7 +220,7 @@ test("A hasMany backed by a link remains a promise after a record has been added
   });
 });
 
-asyncTest("A hasMany updated link should not remove new children", function() {
+test("A hasMany updated link should not remove new children", function() {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
   });
@@ -241,22 +241,23 @@ asyncTest("A hasMany updated link should not remove new children", function() {
     });
   };
 
-  var post = env.store.createRecord('post', {});
-  env.store.createRecord('comment', {message: post});
+  run(function() {
+    var post = env.store.createRecord('post', {});
+    env.store.createRecord('comment', {message: post});
 
-  post.get('comments')
-    .then(function(comments) {
-      equal(comments.get('length'), 1);
+    post.get('comments')
+      .then(function(comments) {
+        equal(comments.get('length'), 1);
 
-      return post.save();
-    })
-    .then(function() {
-      return post.get('comments');
-    })
-    .then(function(comments) {
-      equal(comments.get('length'), 1);
-      start();
-    });
+        return post.save();
+      })
+      .then(function() {
+        return post.get('comments');
+      })
+      .then(function(comments) {
+        equal(comments.get('length'), 1);
+      });
+  });
 });
 
 test("A hasMany relationship can be reloaded if it was fetched via a link", function() {
