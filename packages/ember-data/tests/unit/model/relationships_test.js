@@ -7,12 +7,23 @@ test("exposes a hash of the relationships on a model", function() {
   var Occupation = DS.Model.extend();
 
   var Person = DS.Model.extend({
-    occupations: DS.hasMany(Occupation)
+    occupations: DS.hasMany('occupation')
   });
 
   Person.reopen({
-    people: DS.hasMany(Person),
-    parent: DS.belongsTo(Person)
+    people: DS.hasMany('person', { inverse: 'parent' }),
+    parent: DS.belongsTo('person')
+  });
+
+  var store = createStore({
+    occupation: Occupation,
+    person: Person
+  });
+  var person, occupation;
+
+  run(function() {
+    person = store.createRecord('person');
+    occupation = store.createRecord('occupation');
   });
 
   var relationships = get(Person, 'relationships');
@@ -20,7 +31,6 @@ test("exposes a hash of the relationships on a model", function() {
     { name: "people", kind: "hasMany" },
     { name: "parent", kind: "belongsTo" }
   ]);
-
   deepEqual(relationships.get(Occupation), [
     { name: "occupations", kind: "hasMany" }
   ]);
@@ -191,7 +201,18 @@ test("should be able to retrieve the type for a hasMany relationship from its me
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tags: DS.hasMany(Tag)
+    tags: DS.hasMany('tag')
+  });
+
+  var store = createStore({
+    tag: Tag,
+    person: Person
+  });
+  var tag, person;
+
+  run(function() {
+    tag = store.createRecord('tag');
+    person = store.createRecord('person');
   });
 
   equal(Person.typeForRelationship('tags'), Tag, "returns the relationship type");

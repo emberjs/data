@@ -3,20 +3,7 @@ var run = Ember.run;
 
 var TestAdapter = DS.Adapter.extend();
 
-module("Debug", {
-  setup: function() {
-    store = DS.Store.create({
-      adapter: TestAdapter.extend()
-    });
-  },
-
-  teardown: function() {
-    run(function(){
-      store.destroy();
-      store = null;
-    });
-  }
-});
+module("Debug");
 
 test("_debugInfo groups the attributes and relationships correctly", function() {
   var MaritalStatus = DS.Model.extend({
@@ -30,8 +17,15 @@ test("_debugInfo groups the attributes and relationships correctly", function() 
   var User = DS.Model.extend({
     name: DS.attr('string'),
     isDrugAddict: DS.attr('boolean'),
-    maritalStatus: DS.belongsTo(MaritalStatus),
-    posts: DS.hasMany(Post)
+    maritalStatus: DS.belongsTo('maritalStatus'),
+    posts: DS.hasMany('post')
+  });
+
+  var store = createStore({
+    adapter: TestAdapter.extend(),
+    maritalStatus: MaritalStatus,
+    post: Post,
+    user: User
   });
   var record;
 

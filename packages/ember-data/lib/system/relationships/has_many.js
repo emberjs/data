@@ -78,7 +78,7 @@ import { Model } from "ember-data/system/model";
   @namespace
   @method hasMany
   @for DS
-  @param {String or DS.Model} type the model type of the relationship
+  @param {String} type the model type of the relationship
   @param {Object} options a hash of options
   @return {Ember.computed} relationship
 */
@@ -87,6 +87,8 @@ function hasMany(type, options) {
     options = type;
     type = undefined;
   }
+
+  Ember.assert("The first argument to DS.hasMany must be a string representing a model type key, not an instance of " + Ember.inspect(type) + ". E.g., to define a relation to the Comment model, use DS.hasMany('comment')", typeof type === 'string' || typeof type === 'undefined');
 
   options = options || {};
 

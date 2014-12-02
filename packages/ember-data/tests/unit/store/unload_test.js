@@ -73,16 +73,6 @@ module("DS.Store - unload record with relationships");
 
 
 test("can commit store after unload record with relationships", function() {
-  store = createStore({ adapter: DS.Adapter.extend({
-      find: function() {
-        return Ember.RSVP.resolve({ id: 1, description: 'cuisinart', brand: 1 });
-      },
-      createRecord: function(store, type, record) {
-        return Ember.RSVP.resolve();
-      }
-    })
-  });
-
   var like, product;
 
   var Brand = DS.Model.extend({
@@ -91,11 +81,25 @@ test("can commit store after unload record with relationships", function() {
 
   var Product = DS.Model.extend({
     description: DS.attr('string'),
-    brand: DS.belongsTo(Brand)
+    brand: DS.belongsTo('brand')
   });
 
   var Like = DS.Model.extend({
-    product: DS.belongsTo(Product)
+    product: DS.belongsTo('product')
+  });
+
+  var store = createStore({
+    adapter: DS.Adapter.extend({
+      find: function() {
+        return Ember.RSVP.resolve({ id: 1, description: 'cuisinart', brand: 1 });
+      },
+      createRecord: function(store, type, record) {
+        return Ember.RSVP.resolve();
+      }
+    }),
+    brand: Brand,
+    product: Product,
+    like: Like
   });
   var asyncRecords;
 
