@@ -191,7 +191,7 @@ ManyRelationship.prototype.computeChanges = function(records) {
   records = setForArray(records);
 
   members.forEach(function(member) {
-    if (records.has(member)) return;
+    if (member.get('isNew') || records.has(member)) return;
 
     recordsToRemove.push(member);
   });
