@@ -1,5 +1,5 @@
 var get = Ember.get;
-var Post, post, Comment, comment, env;
+var Post, post, Comment, comment, Favorite, favorite, env;
 var run = Ember.run;
 
 module("integration/serializer/json - JSONSerializer", {
@@ -12,12 +12,17 @@ module("integration/serializer/json - JSONSerializer", {
       body: DS.attr('string'),
       post: DS.belongsTo('post')
     });
+    Favorite = DS.Model.extend({
+      post: DS.belongsTo('post', { async: true, polymorphic: true })
+    });
     env = setupStore({
       post:     Post,
-      comment:  Comment
+      comment:  Comment,
+      favorite: Favorite
     });
     env.store.modelFor('post');
     env.store.modelFor('comment');
+    env.store.modelFor('favorite');
   },
 
   teardown: function() {
@@ -428,4 +433,29 @@ test("Calling normalize should normalize the payload (only the passed keys)", fu
     author: 1,
     inHash: 'blah'
   });
+});
+
+test('serializeBelongsTo with async polymorphic', function() {
+  var json = {},
+      expectedJSON = { post: '1', postTYPE: 'post' };
+
+  env.container.register('serializer:favorite', DS.JSONSerializer.extend({
+    serializePolymorphicType: function(record, json, relationship) {
+      var key = relationship.key;
+      json[relationship.key + 'TYPE'] = record.constructor.typeKey;
+    }
+  }));
+
+  run(function() {
+    post = env.store.createRecord(Post, { title: 'Kitties are omakase', id: '1' });
+    favorite = env.store.createRecord(Favorite, { post: post, id: '3' });
+  });
+
+  env.container.lookup('serializer:favorite').serializeBelongsTo(favorite, json, { key: 'post', options: { polymorphic: true, async: true } });
+
+  deepEqual(
+    json,
+    expectedJSON,
+    'Expected: ' + JSON.stringify(expectedJSON) + ', Got: ' + JSON.stringify(json)
+  );
 });
