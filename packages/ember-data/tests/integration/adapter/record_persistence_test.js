@@ -1,5 +1,6 @@
 var get = Ember.get, set = Ember.set, attr = DS.attr;
 var Person, env, store;
+var run = Ember.run;
 
 var all = Ember.RSVP.all, hash = Ember.RSVP.hash;
 
@@ -26,7 +27,7 @@ module("integration/adapter/record_persistence - Persisting Records", {
   },
 
   teardown: function() {
-    env.container.destroy();
+    run(env.container, 'destroy');
   }
 });
 
@@ -37,10 +38,12 @@ test("When a store is committed, the adapter's `commit` method should be called 
     equal(type, Person, "the type is correct");
     equal(record, tom, "the record is correct");
 
-    return Ember.RSVP.resolve();
+    return run(Ember.RSVP, 'resolve');
   };
 
-  env.store.push('person', { id: 1, name: "Braaaahm Dale" });
+  run(function(){
+    env.store.push('person', { id: 1, name: "Braaaahm Dale" });
+  });
 
   var tom;
 
@@ -53,6 +56,7 @@ test("When a store is committed, the adapter's `commit` method should be called 
 
 test("When a store is committed, the adapter's `commit` method should be called with records that have been created.", function() {
   expect(2);
+  var tom;
 
   env.adapter.createRecord = function(store, type, record) {
     equal(type, Person, "the type is correct");
@@ -61,19 +65,24 @@ test("When a store is committed, the adapter's `commit` method should be called 
     return Ember.RSVP.resolve({ id: 1, name: "Tom Dale" });
   };
 
-  var tom = env.store.createRecord('person', { name: "Tom Dale" });
-  tom.save();
+  run(function(){
+    tom = env.store.createRecord('person', { name: "Tom Dale" });
+    tom.save();
+  });
 });
 
 test("After a created record has been assigned an ID, finding a record by that ID returns the original record.", function() {
   expect(1);
+  var tom;
 
   env.adapter.createRecord = function(store, type, record) {
     return Ember.RSVP.resolve({ id: 1, name: "Tom Dale" });
   };
 
-  var tom = env.store.createRecord('person', { name: "Tom Dale" });
-  tom.save();
+  run(function(){
+    tom = env.store.createRecord('person', { name: "Tom Dale" });
+    tom.save();
+  });
 
   asyncEqual(tom, env.store.find('person', 1), "the retrieved record is the same as the created record");
 });
@@ -83,12 +92,14 @@ test("when a store is committed, the adapter's `commit` method should be called 
     equal(type, Person, "the type is correct");
     equal(record, tom, "the record is correct");
 
-    return Ember.RSVP.resolve();
+    return run(Ember.RSVP, 'resolve');
   };
 
   var tom;
 
-  env.store.push('person', { id: 1, name: "Tom Dale" });
+  run(function(){
+    env.store.push('person', { id: 1, name: "Tom Dale" });
+  });
   env.store.find('person', 1).then(async(function(person) {
     tom = person;
     tom.deleteRecord();
@@ -107,8 +118,10 @@ test("An adapter can notify the store that records were updated by calling `didS
     return Ember.RSVP.resolve();
   };
 
-  env.store.push('person', { id: 1 });
-  env.store.push('person', { id: 2 });
+  run(function(){
+    env.store.push('person', { id: 1 });
+    env.store.push('person', { id: 2 });
+  });
 
   all([ env.store.find('person', 1), env.store.find('person', 2)  ])
     .then(async(function(array) {
@@ -140,8 +153,10 @@ test("An adapter can notify the store that records were updated and provide new 
     }
   };
 
-  env.store.push('person', { id: 1, name: "Braaaahm Dale" });
-  env.store.push('person', { id: 2, name: "Gentile Katz" });
+  run(function(){
+    env.store.push('person', { id: 1, name: "Braaaahm Dale" });
+    env.store.push('person', { id: 2, name: "Gentile Katz" });
+  });
 
   hash({ tom: env.store.find('person', 1), yehuda: env.store.find('person', 2) }).then(async(function(people) {
     people.tom.set('name', "Draaaaaahm Dale");
@@ -161,8 +176,10 @@ test("An adapter can notify the store that a record was updated by calling `didS
     return Ember.RSVP.resolve();
   };
 
-  store.push('person', { id: 1 });
-  store.push('person', { id: 2 });
+  run(function(){
+    store.push('person', { id: 1 });
+    store.push('person', { id: 2 });
+  });
 
   hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(async(function(people) {
     people.tom.set('name', "Tom Dale");
@@ -187,9 +204,10 @@ test("An adapter can notify the store that a record was updated and provide new 
     }
   };
 
-  env.store.push('person', { id: 1, name: "Braaaahm Dale" });
-  env.store.push('person', { id: 2, name: "Gentile Katz" });
-
+  run(function(){
+    env.store.push('person', { id: 1, name: "Braaaahm Dale" });
+    env.store.push('person', { id: 2, name: "Gentile Katz" });
+  });
 
   hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(async(function(people) {
     people.tom.set('name', "Draaaaaahm Dale");
@@ -210,8 +228,10 @@ test("An adapter can notify the store that records were deleted by calling `didS
     return Ember.RSVP.resolve();
   };
 
-  env.store.push('person', { id: 1, name: "Braaaahm Dale" });
-  env.store.push('person', { id: 2, name: "Gentile Katz" });
+  run(function(){
+    env.store.push('person', { id: 1, name: "Braaaahm Dale" });
+    env.store.push('person', { id: 2, name: "Gentile Katz" });
+  });
 
   hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(async(function(people) {
     people.tom.deleteRecord();

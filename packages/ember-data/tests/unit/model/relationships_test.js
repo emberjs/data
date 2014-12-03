@@ -1,4 +1,5 @@
 var get = Ember.get, set = Ember.set;
+var run = Ember.run;
 
 module("unit/model/relationships - DS.Model");
 
@@ -6,12 +7,23 @@ test("exposes a hash of the relationships on a model", function() {
   var Occupation = DS.Model.extend();
 
   var Person = DS.Model.extend({
-    occupations: DS.hasMany(Occupation)
+    occupations: DS.hasMany('occupation')
   });
 
   Person.reopen({
-    people: DS.hasMany(Person),
-    parent: DS.belongsTo(Person)
+    people: DS.hasMany('person', { inverse: 'parent' }),
+    parent: DS.belongsTo('person')
+  });
+
+  var store = createStore({
+    occupation: Occupation,
+    person: Person
+  });
+  var person, occupation;
+
+  run(function() {
+    person = store.createRecord('person');
+    occupation = store.createRecord('occupation');
   });
 
   var relationships = get(Person, 'relationships');
@@ -19,7 +31,6 @@ test("exposes a hash of the relationships on a model", function() {
     { name: "people", kind: "hasMany" },
     { name: "parent", kind: "belongsTo" }
   ]);
-
   deepEqual(relationships.get(Occupation), [
     { name: "occupations", kind: "hasMany" }
   ]);
@@ -63,44 +74,56 @@ test("hasMany handles pre-loaded relationships", function() {
 
   var store = env.store;
 
-  store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }]);
-  store.pushMany('pet', [{ id: 4, name: "fluffy" }, { id: 7, name: "snowy" }, { id: 12, name: "cerberus" }]);
-  store.push('person', { id: 1, name: "Tom Dale", tags: [5] });
-  store.push('person', { id: 2, name: "Yehuda Katz", tags: [12] });
+  run(function(){
+    store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }]);
+    store.pushMany('pet', [{ id: 4, name: "fluffy" }, { id: 7, name: "snowy" }, { id: 12, name: "cerberus" }]);
+    store.push('person', { id: 1, name: "Tom Dale", tags: [5] });
+    store.push('person', { id: 2, name: "Yehuda Katz", tags: [12] });
+  });
 
-  store.find('person', 1).then(async(function(person) {
-    equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
+  run(function(){
+    store.find('person', 1).then(function(person) {
+      equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
-    var tags = get(person, 'tags');
-    equal(get(tags, 'length'), 1, "the list of tags should have the correct length");
-    equal(get(tags.objectAt(0), 'name'), "friendly", "the first tag should be a Tag");
+      var tags = get(person, 'tags');
+      equal(get(tags, 'length'), 1, "the list of tags should have the correct length");
+      equal(get(tags.objectAt(0), 'name'), "friendly", "the first tag should be a Tag");
 
-    store.push('person', { id: 1, name: "Tom Dale", tags: [5, 2] });
-    equal(tags, get(person, 'tags'), "a relationship returns the same object every time");
-    equal(get(get(person, 'tags'), 'length'), 2, "the length is updated after new data is loaded");
+      run(function(){
+        store.push('person', { id: 1, name: "Tom Dale", tags: [5, 2] });
+      });
 
-    strictEqual(get(person, 'tags').objectAt(0), get(person, 'tags').objectAt(0), "the returned object is always the same");
-    asyncEqual(get(person, 'tags').objectAt(0), store.find(Tag, 5), "relationship objects are the same as objects retrieved directly");
+      equal(tags, get(person, 'tags'), "a relationship returns the same object every time");
+      equal(get(get(person, 'tags'), 'length'), 2, "the length is updated after new data is loaded");
 
-    store.push('person', { id: 3, name: "KSelden" });
+      strictEqual(get(person, 'tags').objectAt(0), get(person, 'tags').objectAt(0), "the returned object is always the same");
+      asyncEqual(get(person, 'tags').objectAt(0), store.find(Tag, 5), "relationship objects are the same as objects retrieved directly");
 
-    return store.find('person', 3);
-  })).then(async(function(kselden) {
-    equal(get(get(kselden, 'tags'), 'length'), 0, "a relationship that has not been supplied returns an empty array");
+      run(function(){
+        store.push('person', { id: 3, name: "KSelden" });
+      });
 
-    store.push('person', { id: 4, name: "Cyvid Hamluck", pets: [4] });
-    return store.find('person', 4);
-  })).then(async(function(cyvid) {
-    equal(get(cyvid, 'name'), "Cyvid Hamluck", "precond - retrieves person record from store");
+      return store.find('person', 3);
+    }).then(function(kselden) {
+      equal(get(get(kselden, 'tags'), 'length'), 0, "a relationship that has not been supplied returns an empty array");
 
-    var pets = get(cyvid, 'pets');
-    equal(get(pets, 'length'), 1, "the list of pets should have the correct length");
-    equal(get(pets.objectAt(0), 'name'), "fluffy", "the first pet should be correct");
+      run(function(){
+        store.push('person', { id: 4, name: "Cyvid Hamluck", pets: [4] });
+      });
+      return store.find('person', 4);
+    }).then(function(cyvid) {
+      equal(get(cyvid, 'name'), "Cyvid Hamluck", "precond - retrieves person record from store");
 
-    store.push(Person, { id: 4, name: "Cyvid Hamluck", pets: [4, 12] });
-    equal(pets, get(cyvid, 'pets'), "a relationship returns the same object every time");
-    equal(get(get(cyvid, 'pets'), 'length'), 2, "the length is updated after new data is loaded");
-  }));
+      var pets = get(cyvid, 'pets');
+      equal(get(pets, 'length'), 1, "the list of pets should have the correct length");
+      equal(get(pets.objectAt(0), 'name'), "fluffy", "the first pet should be correct");
+
+      store.push(Person, { id: 4, name: "Cyvid Hamluck", pets: [4, 12] });
+
+      equal(pets, get(cyvid, 'pets'), "a relationship returns the same object every time");
+      equal(get(get(cyvid, 'pets'), 'length'), 2, "the length is updated after new data is loaded");
+    });
+  });
 });
 
 test("hasMany lazily loads async relationships", function() {
@@ -134,34 +157,41 @@ test("hasMany lazily loads async relationships", function() {
 
   var store = env.store;
 
-  store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }]);
-  store.pushMany('pet', [{ id: 4, name: "fluffy" }, { id: 7, name: "snowy" }, { id: 12, name: "cerberus" }]);
-  store.push('person', { id: 1, name: "Tom Dale", tags: [5] });
-  store.push('person', { id: 2, name: "Yehuda Katz", tags: [12] });
+  run(function(){
+    store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }]);
+    store.pushMany('pet', [{ id: 4, name: "fluffy" }, { id: 7, name: "snowy" }, { id: 12, name: "cerberus" }]);
+    store.push('person', { id: 1, name: "Tom Dale", tags: [5] });
+    store.push('person', { id: 2, name: "Yehuda Katz", tags: [12] });
+  });
 
   var wycats;
 
-  store.find('person', 2).then(async(function(person) {
-    wycats = person;
+  run(function(){
+    store.find('person', 2).then(function(person) {
+      wycats = person;
 
-    equal(get(wycats, 'name'), "Yehuda Katz", "precond - retrieves person record from store");
+      equal(get(wycats, 'name'), "Yehuda Katz", "precond - retrieves person record from store");
 
-    return Ember.RSVP.hash({
-      wycats: wycats,
-      tags: wycats.get('tags')
+      return Ember.RSVP.hash({
+        wycats: wycats,
+        tags: wycats.get('tags')
+      });
+    }).then(function(records) {
+      equal(get(records.tags, 'length'), 1, "the list of tags should have the correct length");
+      equal(get(records.tags.objectAt(0), 'name'), "oohlala", "the first tag should be a Tag");
+
+      strictEqual(records.tags.objectAt(0), records.tags.objectAt(0), "the returned object is always the same");
+      asyncEqual(records.tags.objectAt(0), store.find(Tag, 12), "relationship objects are the same as objects retrieved directly");
+
+      return get(wycats, 'tags');
+    }).then(function(tags) {
+      var newTag;
+      run(function(){
+        newTag = store.createRecord(Tag);
+        tags.pushObject(newTag);
+      });
     });
-  })).then(async(function(records) {
-    equal(get(records.tags, 'length'), 1, "the list of tags should have the correct length");
-    equal(get(records.tags.objectAt(0), 'name'), "oohlala", "the first tag should be a Tag");
-
-    strictEqual(records.tags.objectAt(0), records.tags.objectAt(0), "the returned object is always the same");
-    asyncEqual(records.tags.objectAt(0), store.find(Tag, 12), "relationship objects are the same as objects retrieved directly");
-
-    return get(wycats, 'tags');
-  })).then(async(function(tags) {
-    var newTag = store.createRecord(Tag);
-    tags.pushObject(newTag);
-  }));
+  });
 });
 
 test("should be able to retrieve the type for a hasMany relationship from its metadata", function() {
@@ -171,7 +201,18 @@ test("should be able to retrieve the type for a hasMany relationship from its me
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    tags: DS.hasMany(Tag)
+    tags: DS.hasMany('tag')
+  });
+
+  var store = createStore({
+    tag: Tag,
+    person: Person
+  });
+  var tag, person;
+
+  run(function() {
+    tag = store.createRecord('tag');
+    person = store.createRecord('person');
   });
 
   equal(Person.typeForRelationship('tags'), Tag, "returns the relationship type");
@@ -248,13 +289,17 @@ test("relationships work when declared with a string path", function() {
     tag: Tag
   });
 
-  env.store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
-  env.store.push('person', { id: 1, name: "Tom Dale", tags: [5, 2] });
+  run(function(){
+    env.store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
+    env.store.push('person', { id: 1, name: "Tom Dale", tags: [5, 2] });
+  });
 
-  env.store.find('person', 1).then(async(function(person) {
-    equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
-    equal(get(person, 'tags.length'), 2, "the list of tags should have the correct length");
-  }));
+  run(function(){
+    env.store.find('person', 1).then(function(person) {
+      equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
+      equal(get(person, 'tags.length'), 2, "the list of tags should have the correct length");
+    });
+  });
 });
 
 test("hasMany relationships work when the data hash has not been loaded", function() {
@@ -290,15 +335,19 @@ test("hasMany relationships work when the data hash has not been loaded", functi
     return Ember.RSVP.resolve({ id: 1, name: "Tom Dale", tags: [5, 2] });
   };
 
-  store.find('person', 1).then(async(function(person) {
-    equal(get(person, 'name'), "Tom Dale", "The person is now populated");
+  run(function(){
+    store.find('person', 1).then(function(person) {
+      equal(get(person, 'name'), "Tom Dale", "The person is now populated");
 
-    return person.get('tags');
-  })).then(async(function(tags) {
-    equal(get(tags, 'length'), 2, "the tags object still exists");
-    equal(get(tags.objectAt(0), 'name'), "friendly", "Tom Dale is now friendly");
-    equal(get(tags.objectAt(0), 'isLoaded'), true, "Tom Dale is now loaded");
-  }));
+      return run(function(){
+        return person.get('tags');
+      });
+    }).then(function(tags) {
+      equal(get(tags, 'length'), 2, "the tags object still exists");
+      equal(get(tags.objectAt(0), 'name'), "friendly", "Tom Dale is now friendly");
+      equal(get(tags.objectAt(0), 'isLoaded'), true, "Tom Dale is now loaded");
+    });
+  });
 });
 
 test("it is possible to add a new item to a relationship", function() {
@@ -319,19 +368,59 @@ test("it is possible to add a new item to a relationship", function() {
 
   var store = env.store;
 
-  store.push('person', { id: 1, name: "Tom Dale", tags: [ 1 ] });
-  store.push('tag', { id: 1, name: "ember" });
+  run(function(){
+    store.push('person', { id: 1, name: "Tom Dale", tags: [ 1 ] });
+    store.push('tag', { id: 1, name: "ember" });
+  });
 
-  store.find(Person, 1).then(async(function(person) {
-    var tag = get(person, 'tags').objectAt(0);
+  run(function(){
+    store.find(Person, 1).then(function(person) {
+      var tag = get(person, 'tags').objectAt(0);
 
-    equal(get(tag, 'name'), "ember", "precond - relationships work");
+      equal(get(tag, 'name'), "ember", "precond - relationships work");
 
-    tag = store.createRecord(Tag, { name: "js" });
-    get(person, 'tags').pushObject(tag);
+      tag = store.createRecord(Tag, { name: "js" });
+      get(person, 'tags').pushObject(tag);
 
-    equal(get(person, 'tags').objectAt(1), tag, "newly added relationship works");
-  }));
+      equal(get(person, 'tags').objectAt(1), tag, "newly added relationship works");
+    });
+  });
+});
+
+test("possible to replace items in a relationship using setObjects w/ Ember Enumerable Array/Object as the argument (GH-2533)", function(){
+  var Tag = DS.Model.extend({
+    name: DS.attr('string'),
+    person: DS.belongsTo('person')
+  });
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    tags: DS.hasMany('tag')
+  });
+
+  var env   = setupStore({ tag: Tag, person: Person });
+  var store = env.store;
+  var run   = Ember.run;
+
+  Ember.run(function(){
+    store.push('person', { id: 1, name: "Tom Dale", tags: [ 1 ] });
+    store.push('person', { id: 2, name: "Sylvain Mina", tags: [ 2 ] });
+    store.push('tag', { id: 1, name: "ember" });
+    store.push('tag', { id: 2, name: "ember-data" });
+  });
+
+  var tom, sylvain;
+
+  run(function(){
+    tom = store.getById('person', '1');
+    sylvain = store.getById('person', '2');
+    // Test that since sylvain.get('tags') instanceof DS.ManyArray,
+    // addRecords on Relationship iterates correctly.
+    tom.get('tags').setObjects(sylvain.get('tags'));
+  });
+
+  equal(tom.get('tags.length'), 1);
+  equal(tom.get('tags.firstObject'), store.getById('tag', 2));
 });
 
 test("it is possible to remove an item from a relationship", function() {
@@ -348,18 +437,24 @@ test("it is possible to remove an item from a relationship", function() {
   var env = setupStore({ tag: Tag, person: Person }),
       store = env.store;
 
-  store.push('person', { id: 1, name: "Tom Dale", tags: [ 1 ] });
-  store.push('tag', { id: 1, name: "ember" });
+  run(function(){
+    store.push('person', { id: 1, name: "Tom Dale", tags: [ 1 ] });
+    store.push('tag', { id: 1, name: "ember" });
+  });
 
-  store.find('person', 1).then(async(function(person) {
-    var tag = get(person, 'tags').objectAt(0);
+  run(function(){
+    store.find('person', 1).then(async(function(person) {
+      var tag = get(person, 'tags').objectAt(0);
 
-    equal(get(tag, 'name'), "ember", "precond - relationships work");
+      equal(get(tag, 'name'), "ember", "precond - relationships work");
 
-    get(person, 'tags').removeObject(tag);
+      run(function(){
+        get(person, 'tags').removeObject(tag);
+      });
 
-    equal(get(person, 'tags.length'), 0, "object is removed from the relationship");
-  }));
+      equal(get(person, 'tags.length'), 0, "object is removed from the relationship");
+    }));
+  });
 });
 
 test("it is possible to add an item to a relationship, remove it, then add it again", function() {
@@ -378,21 +473,30 @@ test("it is possible to add an item to a relationship, remove it, then add it ag
 
   var env = setupStore({ tag: Tag, person: Person }),
       store = env.store;
+  var person, tag1, tag2, tag3;
 
-  var person = store.createRecord('person');
-  var tag1 = store.createRecord('tag');
-  var tag2 = store.createRecord('tag');
-  var tag3 = store.createRecord('tag');
+  run(function(){
+    person = store.createRecord('person');
+    tag1 = store.createRecord('tag');
+    tag2 = store.createRecord('tag');
+    tag3 = store.createRecord('tag');
+  });
 
   var tags = get(person, 'tags');
 
-  tags.pushObjects([tag1, tag2, tag3]);
-  tags.removeObject(tag2);
+  run(function(){
+    tags.pushObjects([tag1, tag2, tag3]);
+    tags.removeObject(tag2);
+  });
+
   equal(tags.objectAt(0), tag1);
   equal(tags.objectAt(1), tag3);
   equal(get(person, 'tags.length'), 2, "object is removed from the relationship");
 
-  tags.insertAt(0, tag2);
+  run(function(){
+    tags.insertAt(0, tag2);
+  });
+
   equal(get(person, 'tags.length'), 3, "object is added back to the relationship");
   equal(tags.objectAt(0), tag2);
   equal(tags.objectAt(1), tag1);
@@ -408,15 +512,20 @@ test("updating the content of a RecordArray updates its content", function() {
 
   var env = setupStore({ tag: Tag }),
       store = env.store;
+  var records, tags;
 
-  var records = store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
-
-  var tags = DS.RecordArray.create({ content: Ember.A(records.slice(0, 2)), store: store, type: Tag });
+  run(function(){
+    records = store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
+    tags = DS.RecordArray.create({ content: Ember.A(records.slice(0, 2)), store: store, type: Tag });
+  });
 
   var tag = tags.objectAt(0);
   equal(get(tag, 'name'), "friendly", "precond - we're working with the right tags");
 
-  set(tags, 'content', Ember.A(records.slice(1, 3)));
+  run(function(){
+    set(tags, 'content', Ember.A(records.slice(1, 3)));
+  });
+
   tag = tags.objectAt(0);
   equal(get(tag, 'name'), "smarmy", "the lookup was updated");
 });
@@ -435,15 +544,19 @@ test("can create child record from a hasMany relationship", function() {
   var env = setupStore({ tag: Tag, person: Person }),
       store = env.store;
 
-  store.push('person', { id: 1, name: "Tom Dale"});
+  run(function(){
+    store.push('person', { id: 1, name: "Tom Dale"});
+  });
 
-  store.find('person', 1).then(async(function(person) {
-    person.get("tags").createRecord({ name: "cool" });
+  run(function(){
+    store.find('person', 1).then(async(function(person) {
+      person.get("tags").createRecord({ name: "cool" });
 
-    equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
-    equal(get(person, 'tags.length'), 1, "tag is added to the parent record");
-    equal(get(person, 'tags').objectAt(0).get("name"), "cool", "tag values are passed along");
-  }));
+      equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
+      equal(get(person, 'tags.length'), 1, "tag is added to the parent record");
+      equal(get(person, 'tags').objectAt(0).get("name"), "cool", "tag values are passed along");
+    }));
+  });
 });
 
 module("unit/model/relationships - DS.belongsTo");
@@ -464,18 +577,22 @@ test("belongsTo lazily loads relationships as needed", function() {
   var env = setupStore({ tag: Tag, person: Person }),
       store = env.store;
 
-  store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
-  store.push('person', { id: 1, name: "Tom Dale", tag: 5 });
+  run(function(){
+    store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
+    store.push('person', { id: 1, name: "Tom Dale", tag: 5 });
+  });
 
-  store.find('person', 1).then(async(function(person) {
-    equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
+  run(function(){
+    store.find('person', 1).then(async(function(person) {
+      equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
-    equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
-    equal(get(person, 'tag.name'), "friendly", "the tag shuld have name");
+      equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
+      equal(get(person, 'tag.name'), "friendly", "the tag shuld have name");
 
-    strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
-    asyncEqual(get(person, 'tag'), store.find('tag', 5), "relationship object is the same as object retrieved directly");
-  }));
+      strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
+      asyncEqual(get(person, 'tag'), store.find('tag', 5), "relationship object is the same as object retrieved directly");
+    }));
+  });
 });
 
 test("async belongsTo relationships work when the data hash has not been loaded", function() {
@@ -503,14 +620,18 @@ test("async belongsTo relationships work when the data hash has not been loaded"
     }
   };
 
-  store.find('person', 1).then(async(function(person) {
-    equal(get(person, 'name'), "Tom Dale", "The person is now populated");
+  run(function(){
+    store.find('person', 1).then(async(function(person) {
+      equal(get(person, 'name'), "Tom Dale", "The person is now populated");
 
-    return get(person, 'tag');
-  })).then(async(function(tag) {
-    equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
-    equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
-  }));
+      return run(function(){
+        return get(person, 'tag');
+      });
+    })).then(async(function(tag) {
+      equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
+      equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
+    }));
+  });
 });
 
 test("async belongsTo relationships work when the data hash has already been loaded", function() {
@@ -526,16 +647,22 @@ test("async belongsTo relationships work when the data hash has already been loa
   var env = setupStore({ tag: Tag, person: Person }),
       store = env.store;
 
+  run(function(){
     store.push('tag', { id: 2, name: "friendly"});
     store.push('person', { id: 1, name: "Tom Dale", tag: 2});
+  });
 
+  run(function(){
     store.find('person', 1).then(async(function(person) {
-        equal(get(person, 'name'), "Tom Dale", "The person is now populated");
+      equal(get(person, 'name'), "Tom Dale", "The person is now populated");
+      return run(function(){
         return get(person, 'tag');
+      });
     })).then(async(function(tag) {
-        equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
-        equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
-  }));
+      equal(get(tag, 'name'), "friendly", "Tom Dale is now friendly");
+      equal(get(tag, 'isLoaded'), true, "Tom Dale is now loaded");
+    }));
+  });
 });
 
 test("calling createRecord and passing in an undefined value for a relationship should be treated as if null", function () {
@@ -552,11 +679,15 @@ test("calling createRecord and passing in an undefined value for a relationship 
   var env = setupStore({ tag: Tag, person: Person }),
       store = env.store;
 
-  store.createRecord('person', {id: 1, tag: undefined});
+  run(function(){
+    store.createRecord('person', {id: 1, tag: undefined});
+  });
 
-  store.find(Person, 1).then(async(function(person) {
-    strictEqual(person.get('tag'), null, "undefined values should return null relationships");
-  }));
+  run(function(){
+    store.find(Person, 1).then(async(function(person) {
+      strictEqual(person.get('tag'), null, "undefined values should return null relationships");
+    }));
+  });
 });
 
 test("When finding a hasMany relationship the inverse belongsTo relationship is available immediately", function() {
@@ -584,19 +715,23 @@ test("When finding a hasMany relationship the inverse belongsTo relationship is 
 
   env.adapter.coalesceFindRequests = true;
 
-  store.push('person', { id: 1, name: "Tom Dale", occupations: [5, 2] });
+  run(function(){
+    store.push('person', { id: 1, name: "Tom Dale", occupations: [5, 2] });
+  });
 
-  store.find('person', 1).then(async(function(person) {
-    equal(get(person, 'isLoaded'), true, "isLoaded should be true");
-    equal(get(person, 'name'), "Tom Dale", "the person is still Tom Dale");
+  run(function(){
+    store.find('person', 1).then(async(function(person) {
+      equal(get(person, 'isLoaded'), true, "isLoaded should be true");
+      equal(get(person, 'name'), "Tom Dale", "the person is still Tom Dale");
 
-    return get(person, 'occupations');
-  })).then(async(function(occupations) {
-    equal(get(occupations, 'length'), 2, "the list of occupations should have the correct length");
+      return get(person, 'occupations');
+    })).then(async(function(occupations) {
+      equal(get(occupations, 'length'), 2, "the list of occupations should have the correct length");
 
-    equal(get(occupations.objectAt(0), 'description'), "fifth", "the occupation is the fifth");
-    equal(get(occupations.objectAt(0), 'isLoaded'), true, "the occupation is now loaded");
-  }));
+      equal(get(occupations.objectAt(0), 'description'), "fifth", "the occupation is the fifth");
+      equal(get(occupations.objectAt(0), 'isLoaded'), true, "the occupation is now loaded");
+    }));
+  });
 });
 
 test("When finding a belongsTo relationship the inverse belongsTo relationship is available immediately", function() {
@@ -623,9 +758,13 @@ test("When finding a belongsTo relationship the inverse belongsTo relationship i
     return Ember.RSVP.resolve({ id: 5, description: "fifth" });
   };
 
-  store.push('person', { id: 1, name: "Tom Dale", occupation: 5 });
+  run(function(){
+    store.push('person', { id: 1, name: "Tom Dale", occupation: 5 });
+  });
 
-  store.getById('person', 1).get('occupation');
+  run(function(){
+    store.getById('person', 1).get('occupation');
+  });
 });
 
 test("belongsTo supports relationships to models with id 0", function() {
@@ -644,16 +783,20 @@ test("belongsTo supports relationships to models with id 0", function() {
   var env = setupStore({ tag: Tag, person: Person }),
       store = env.store;
 
-  store.pushMany('tag', [{ id: 0, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
-  store.push('person', { id: 1, name: "Tom Dale", tag: 0 });
+  run(function(){
+    store.pushMany('tag', [{ id: 0, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
+    store.push('person', { id: 1, name: "Tom Dale", tag: 0 });
+  });
 
-  store.find('person', 1).then(async(function(person) {
-    equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
+  run(function(){
+    store.find('person', 1).then(async(function(person) {
+      equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
-    equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
-    equal(get(person, 'tag.name'), "friendly", "the tag should have name");
+      equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
+      equal(get(person, 'tag.name'), "friendly", "the tag should have name");
 
-    strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
-    asyncEqual(get(person, 'tag'), store.find(Tag, 0), "relationship object is the same as object retrieved directly");
-  }));
+      strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
+      asyncEqual(get(person, 'tag'), store.find(Tag, 0), "relationship object is the same as object retrieved directly");
+    }));
+  });
 });

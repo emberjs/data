@@ -12,38 +12,6 @@
     }
   });
 
-  Ember.RSVP.resolve = syncForTest(Ember.RSVP.resolve);
-
-  Ember.View.reopen({
-    _insertElementLater: syncForTest()
-  });
-
-  DS.Store.reopen({
-    save: syncForTest(),
-    createRecord: syncForTest(),
-    deleteRecord: syncForTest(),
-    push: syncForTest(),
-    pushMany: syncForTest(),
-    filter: syncForTest(),
-    find: syncForTest(),
-    findMany: syncForTest(),
-    findByIds: syncForTest(),
-    didSaveRecord: syncForTest(),
-    didSaveRecords: syncForTest(),
-    didUpdateAttribute: syncForTest(),
-    didUpdateAttributes: syncForTest(),
-    didUpdateRelationship: syncForTest(),
-    didUpdateRelationships: syncForTest()
-  });
-
-  DS.Model.reopen({
-    save: syncForTest(),
-    reload: syncForTest(),
-    deleteRecord: syncForTest(),
-    dataDidChange: Ember.observer(syncForTest(), 'data'),
-    updateRecordArraysLater: syncForTest()
-  });
-
   var transforms = {
     'boolean': DS.BooleanTransform.create(),
     'date': DS.DateTransform.create(),
@@ -58,5 +26,4 @@
     }
   });
 
-  Ember.RSVP.Promise.prototype.then = syncForTest(Ember.RSVP.Promise.prototype.then);
 })();

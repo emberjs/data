@@ -1,4 +1,5 @@
 var store, env;
+var run = Ember.run;
 
 var Person = DS.Model.extend({
   name: DS.attr('string'),
@@ -52,18 +53,23 @@ function tap(obj, methodName, callback) {
 
 test("destroying the store correctly cleans everything up", function() {
   var query = { };
+  var person;
 
-  store.push('car', {
-    id: 1,
-    make: 'BMC',
-    model: 'Mini Cooper',
-    person: 1
+  run(function(){
+    store.push('car', {
+      id: 1,
+      make: 'BMC',
+      model: 'Mini Cooper',
+      person: 1
+    });
   });
 
-  var person = store.push('person', {
-    id: 1,
-    name: 'Tom Dale',
-    cars: [1]
+  run(function(){
+    person = store.push('person', {
+      id: 1,
+      name: 'Tom Dale',
+      cars: [1]
+    });
   });
 
   var filterd = manager.createFilteredRecordArray(Person, function(){ return true; });

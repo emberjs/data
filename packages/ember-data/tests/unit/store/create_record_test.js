@@ -1,4 +1,5 @@
 var store, container, Record;
+var run = Ember.run;
 
 module("unit/store/createRecord - Store creating records", {
   setup: function() {
@@ -12,8 +13,10 @@ module("unit/store/createRecord - Store creating records", {
 
 test("doesn't modify passed in properties hash", function(){
   var attributes = { foo: 'bar' };
-  store.createRecord(Record, attributes);
-  store.createRecord(Record, attributes);
+  run(function(){
+    store.createRecord(Record, attributes);
+    store.createRecord(Record, attributes);
+  });
 
   deepEqual(attributes, { foo: 'bar' }, "The properties hash is not modified");
 });
@@ -32,16 +35,24 @@ module("unit/store/createRecord - Store with models by dash", {
 });
 
 test("creating a record by camel-case string finds the model", function(){
-  var attributes = { foo: 'bar' },
-      record = store.createRecord('someThing', attributes);
+  var attributes = { foo: 'bar' };
+  var record;
+
+  run(function(){
+    record = store.createRecord('someThing', attributes);
+  });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
   equal(store.modelFor('someThing').typeKey, 'someThing');
 });
 
 test("creating a record by dasherize string finds the model", function(){
-  var attributes = { foo: 'bar' },
-      record = store.createRecord('some-thing', attributes);
+  var attributes = { foo: 'bar' };
+  var record;
+
+  run(function(){
+    record = store.createRecord('some-thing', attributes);
+  });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
   equal(store.modelFor('some-thing').typeKey, 'someThing');
@@ -61,16 +72,24 @@ module("unit/store/createRecord - Store with models by camelCase", {
 });
 
 test("creating a record by camel-case string finds the model", function(){
-  var attributes = { foo: 'bar' },
-      record = store.createRecord('someThing', attributes);
+  var attributes = { foo: 'bar' };
+  var record;
+
+  run(function(){
+    record = store.createRecord('someThing', attributes);
+  });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
   equal(store.modelFor('someThing').typeKey, 'someThing');
 });
 
 test("creating a record by dasherize string finds the model", function(){
-  var attributes = { foo: 'bar' },
-      record = store.createRecord('some-thing', attributes);
+  var attributes = { foo: 'bar' };
+  var record;
+
+  run(function(){
+    record = store.createRecord('some-thing', attributes);
+  });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
   equal(store.modelFor('some-thing').typeKey, 'someThing');

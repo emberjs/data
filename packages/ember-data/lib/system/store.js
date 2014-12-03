@@ -19,6 +19,9 @@ import {
   promiseObject
 } from "ember-data/system/promise_proxies";
 
+import RecordArrayManager from "ember-data/system/record_array_manager";
+
+import { Model } from "ember-data/system/model";
 
 var get = Ember.get;
 var set = Ember.set;
@@ -29,7 +32,7 @@ var indexOf = Ember.EnumerableUtils.indexOf;
 var map = Ember.EnumerableUtils.map;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
-var Store, RecordArrayManager, Model;
+var Store;
 
 var camelize = Ember.String.camelize;
 
@@ -137,7 +140,6 @@ Store = Ember.Object.extend({
   */
   init: function() {
     // internal bookkeeping; not observable
-    if (!RecordArrayManager) { RecordArrayManager = requireModule("ember-data/system/record_array_manager")["default"]; }
     this.typeMaps = {};
     this.recordArrayManager = RecordArrayManager.create({
       store: this
@@ -886,7 +888,10 @@ Store = Ember.Object.extend({
     var typeMap = this.typeMapFor(type);
     var findAllCache = typeMap.findAllCache;
 
-    if (findAllCache) { return findAllCache; }
+    if (findAllCache) {
+      this.recordArrayManager.updateFilter(findAllCache, type);
+      return findAllCache;
+    }
 
     var array = this.recordArrayManager.createRecordArray(type);
 
@@ -1317,9 +1322,15 @@ Store = Ember.Object.extend({
     }
     ```
 
-    If you're streaming data or implementing an adapter,
-    make sure that you have converted the incoming data
-    into this form.
+    If you're streaming data or implementing an adapter, make sure
+    that you have converted the incoming data into this form. The
+    store's [normalize](#method_normalize) method is a convenience
+    helper for converting a json payload into the form Ember Data
+    expects.
+
+    ```js
+    store.push('person', store.normalize('person', data));
+    ```
 
     This method can be used both to push in brand new
     records, as well as to update existing records.
@@ -1347,7 +1358,7 @@ Store = Ember.Object.extend({
 
     data = normalizeRelationships(this, type, data);
 
-    Ember.warn("The payload for '" + typeName + "' contains these unknown keys: " +
+    Ember.warn("The payload for '" + type.typeKey + "' contains these unknown keys: " +
       Ember.inspect(filter(Ember.keys(data), function(key) {
         return !get(type, 'fields').has(key) && key !== 'id' && key !== 'links';
       })) + ". Make sure they've been defined in your model.",
@@ -1688,7 +1699,6 @@ function normalizeRelationships(store, type, data, record) {
 }
 
 function deserializeRecordId(store, data, key, relationship, id) {
-  if (!Model) { Model = requireModule("ember-data/system/model")["Model"]; }
   if (isNone(id) || id instanceof Model) {
     return;
   }
@@ -1701,6 +1711,7 @@ function deserializeRecordId(store, data, key, relationship, id) {
     data[key] = store.recordForId(type, id);
   } else if (typeof id === 'object') {
     // polymorphic
+    Ember.assert('Ember Data expected a number or string to represent the record(s) in the `' + relationship.key + '` relationship instead it found an object. If this is a polymorphic relationship please specify a `type` key. If this is an embedded relationship please include the `DS.EmbeddedRecordsMixin` and specify the `' + relationship.key +'` property in your serializer\'s attrs hash.', id.type);
     data[key] = store.recordForId(id.type, id.id);
   }
 }

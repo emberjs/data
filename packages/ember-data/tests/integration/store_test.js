@@ -5,6 +5,8 @@ var Person = DS.Model.extend({
   cars: DS.hasMany('car')
 });
 
+var run = Ember.run;
+
 Person.toString = function() { return "Person"; };
 
 var Car = DS.Model.extend({
@@ -71,7 +73,9 @@ asyncTest("destroying record during find doesn't cause error", function() {
     start();
   }
 
-  store.find(type, id).then(done, done);
+  run(function(){
+    store.find(type, id).then(done, done);
+  });
 });
 
 asyncTest("find calls do not resolve when the store is destroyed", function() {
@@ -96,7 +100,9 @@ asyncTest("find calls do not resolve when the store is destroyed", function() {
     throw new Error("We shouldn't be pushing data into the store when it is destroyed");
   };
 
-  store.find(type, id);
+  run(function(){
+    store.find(type, id);
+  });
 
   setTimeout(function() {
     start();
@@ -105,17 +111,20 @@ asyncTest("find calls do not resolve when the store is destroyed", function() {
 
 
 test("destroying the store correctly cleans everything up", function() {
-  var car = store.push('car', {
-    id: 1,
-    make: 'BMC',
-    model: 'Mini',
-    person: 1
-  });
+  var car, person;
+  run(function(){
+    car = store.push('car', {
+      id: 1,
+      make: 'BMC',
+      model: 'Mini',
+      person: 1
+    });
 
-  var person = store.push('person', {
-    id: 1,
-    name: 'Tom Dale',
-    cars: [1]
+    person = store.push('person', {
+      id: 1,
+      name: 'Tom Dale',
+      cars: [1]
+    });
   });
 
   var personWillDestroy = tap(person, 'willDestroy');
@@ -128,17 +137,24 @@ test("destroying the store correctly cleans everything up", function() {
       name: 'Yehuda'
     }];
   };
+  var adapterPopulatedPeople, filterdPeople;
 
-  var adapterPopulatedPeople = store.find('person', {
-    someCrazy: 'query'
+  run(function(){
+    adapterPopulatedPeople = store.find('person', {
+      someCrazy: 'query'
+    });
   });
 
-  var filterdPeople = store.filter('person', function(){ return true; });
+  run(function(){
+    filterdPeople = store.filter('person', function(){ return true; });
+  });
 
   var filterdPeopleWillDestroy =  tap(filterdPeople.content, 'willDestroy');
   var adapterPopulatedPeopleWillDestroy = tap(adapterPopulatedPeople.content, 'willDestroy');
 
-  store.find('person', 2);
+  run(function(){
+    store.find('person', 2);
+  });
 
   equal(personWillDestroy.called.length, 0, 'expected person.willDestroy to not have been called');
   equal(carWillDestroy.called.length, 0, 'expected car.willDestroy to not have been called');
@@ -171,6 +187,7 @@ module("integration/store - fetch", {
 });
 
 function ajaxResponse(value) {
+  var passedUrl, passedVerb, passedHash;
   env.adapter.ajax = function(url, verb, hash) {
     passedUrl = url;
     passedVerb = verb;
@@ -182,13 +199,16 @@ function ajaxResponse(value) {
 
 test("Using store#fetch on existing record reloads it", function() {
   expect(2);
+  var car;
 
-  var car = store.push('car', {
-    id: 1,
-    make: 'BMC',
-    model: 'Mini'
+  run(function(){
+    car = store.push('car', {
+      id: 1,
+      make: 'BMC',
+      model: 'Mini'
+    });
+
   });
-
   ajaxResponse({
     cars: [{
       id: 1,
@@ -199,8 +219,10 @@ test("Using store#fetch on existing record reloads it", function() {
 
   equal(car.get('make'), 'BMC');
 
-  store.fetch('car', 1).then(function (car) {
-    equal(car.get('make'), 'BMCW');
+  run(function(){
+    store.fetch('car', 1).then(function(car) {
+      equal(car.get('make'), 'BMCW');
+    });
   });
 });
 
@@ -218,7 +240,9 @@ test("Using store#fetch on non existing record calls find", function() {
   var car = store.hasRecordForId('car', 20);
   ok(!car, 'Car with id=20 should not exist');
 
-  store.fetch('car', 20).then(function (car) {
-    equal(car.get('make'), 'BMCW', 'Car with id=20 is now loaded');
+  run(function(){
+    store.fetch('car', 20).then(function (car) {
+      equal(car.get('make'), 'BMCW', 'Car with id=20 is now loaded');
+    });
   });
 });

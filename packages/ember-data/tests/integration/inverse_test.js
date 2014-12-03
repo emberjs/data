@@ -1,6 +1,7 @@
 var env, store, User, Job;
 
 var attr = DS.attr, belongsTo = DS.belongsTo;
+var run = Ember.run;
 
 function stringify(string) {
   return function() { return string; };
@@ -32,13 +33,13 @@ module('integration/inverse_test - inverseFor', {
   },
 
   teardown: function() {
-    env.container.destroy();
+    run(env.container, 'destroy');
   }
 });
 
 test("Finds the inverse when there is only one possible available", function () {
   //Maybe store is evaluated lazily, so we need this :(
-  store.push('user', {id:1});
+  run(store, 'push', 'user', {id:1});
 
   deepEqual(Job.inverseFor('user'), {
     type: User,
@@ -57,8 +58,11 @@ test("Finds the inverse when only one side has defined it manually", function ()
   });
 
   //Maybe store is evaluated lazily, so we need this :(
-  store.push('user', {id:1});
-  store.push('user', {id:1});
+  var user, job;
+  run(function(){
+    user = store.push('user', {id:1});
+    job = store.push('user', {id:1});
+  });
 
   deepEqual(Job.inverseFor('owner'), {
     type: User, //the model's type
@@ -82,7 +86,10 @@ test("Returns null if inverse relationship it is manually set with a different r
     job: belongsTo('job')
   });
   //Maybe store is evaluated lazily, so we need this :(
-  store.push('user', {id:1});
+  var user;
+  run(function(){
+    user = store.push('user', {id:1});
+  });
 
   equal(User.inverseFor('job'), null, 'There is no inverse');
 });
@@ -99,7 +106,9 @@ test("Errors out if you define 2 inverses to the same model", function () {
 
   //Maybe store is evaluated lazily, so we need this :(
   expectAssertion(function() {
-    store.push('user', {id:1});
+    run(function(){
+      store.push('user', {id:1});
+    });
     User.inverseFor('job');
   },  "You defined the 'job' relationship on user, but you defined the inverse relationships of type job multiple times. Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses");
 });
@@ -108,9 +117,11 @@ test("Errors out if you define 2 inverses to the same model", function () {
 test("Caches findInverseFor return value", function () {
   expect(1);
   //Maybe store is evaluated lazily, so we need this :(
-  store.push('user', {id:1});
-  var inverseForUser = Job.inverseFor('user');
+  run(function(){
+    store.push('user', {id:1});
+  });
 
+  var inverseForUser = Job.inverseFor('user');
   Job.findInverseFor = function(){
     ok(false, 'Find is not called anymore');
   };

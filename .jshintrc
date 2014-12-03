@@ -2,6 +2,7 @@
     "predef": [
         "console",
         "requireModule",
+        "-Promise",
         "Ember",
         "DS",
         "Handlebars",
