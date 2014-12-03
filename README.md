@@ -34,8 +34,7 @@ after [setup](#setup). You'll find ember-data.js in the `dist` directory.
 
 #### Internet Explorer 8
 
-If you need to support Internet Explorer, you will need to use es5-shim.js and
-es5-sham.js from [es5-shim](https://github.com/es-shims/es5-shim).
+Internet Explorer 8 support requires Ember 1.8.1 (which provides a polyfill for `Object.create`).
 
 ### Instantiating the Store
 
