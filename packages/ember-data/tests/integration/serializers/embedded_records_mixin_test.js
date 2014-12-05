@@ -26,7 +26,8 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
     });
     SecretWeapon = DS.Model.extend({
       name:            DS.attr('string'),
-      superVillain:    DS.belongsTo('superVillain')
+      superVillain:    DS.belongsTo('superVillain'),
+      type:            DS.attr('string')
     });
     LightSaber = SecretWeapon.extend({
       color:           DS.attr('string')
@@ -1049,7 +1050,7 @@ test("extractSingle with multiply-nested belongsTo", function() {
         home_planet: {
           id: "1",
           name: "Umber",
-          super_villain_ids: ["1"]
+          villain_ids: ["1"]
         }
       }
     }

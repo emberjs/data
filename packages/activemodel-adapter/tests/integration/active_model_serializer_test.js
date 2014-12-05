@@ -16,7 +16,8 @@ module("integration/active_model - ActiveModelSerializer", {
     });
     EvilMinion = DS.Model.extend({
       superVillain: DS.belongsTo('superVillain'),
-      name:         DS.attr('string')
+      name:         DS.attr('string'),
+      doomsdayDevice: DS.hasMany('doomsdayDevice', { async: true })
     });
     YellowMinion = EvilMinion.extend();
     DoomsdayDevice = DS.Model.extend({
