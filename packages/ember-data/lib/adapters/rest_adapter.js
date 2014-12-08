@@ -743,9 +743,14 @@ export default Adapter.extend({
     @param  {Object} responseText
     @return {Object} jqXHR
   */
-  ajaxError: function(jqXHR, responseText) {
-    if (jqXHR && typeof jqXHR === 'object') {
+  ajaxError: function(jqXHR, responseText, errorThrown) {
+    var isObject = jqXHR !== null && typeof jqXHR === 'object';
+
+    if (isObject) {
       jqXHR.then = null;
+      if (!jqXHR.errorThrown) {
+        jqXHR.errorThrown = errorThrown;
+      }
     }
 
     return jqXHR;
@@ -817,11 +822,11 @@ export default Adapter.extend({
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
-        Ember.run(null, reject, adapter.ajaxError(jqXHR, jqXHR.responseText));
+        Ember.run(null, reject, adapter.ajaxError(jqXHR, jqXHR.responseText, errorThrown));
       };
 
       Ember.$.ajax(hash);
-    }, "DS: RESTAdapter#ajax " + type + " to " + url);
+    }, 'DS: RESTAdapter#ajax ' + type + ' to ' + url);
   },
 
   /**

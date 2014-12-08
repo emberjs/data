@@ -138,7 +138,7 @@ var ActiveModelAdapter = RESTAdapter.extend({
     @return error
   */
   ajaxError: function(jqXHR) {
-    var error = this._super(jqXHR);
+    var error = this._super.apply(this, arguments);
 
     if (jqXHR && jqXHR.status === 422) {
       return new InvalidError(Ember.$.parseJSON(jqXHR.responseText));

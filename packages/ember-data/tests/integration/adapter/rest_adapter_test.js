@@ -1720,3 +1720,38 @@ test("rejects promise if DS.InvalidError is returned from adapter.ajaxSuccess", 
 
   Ember.$.ajax = originalAjax;
 });
+
+test('ajaxError appends errorThrown for sanity', function() {
+  expect(6);
+
+  var originalAjax = Ember.$.ajax;
+  var jqXHR = {
+    responseText: 'Nope lol'
+  };
+
+  var errorThrown = new Error('nope!');
+
+  Ember.$.ajax = function(hash) {
+    hash.error(jqXHR, jqXHR.responseText, errorThrown);
+  };
+
+  var originalAjaxError = adapter.ajaxError;
+  adapter.ajaxError = function(xhr, responseText, _errorThrown) {
+    deepEqual(_errorThrown, errorThrown);
+    ok(errorThrown);
+    deepEqual(xhr, jqXHR);
+    deepEqual(responseText, jqXHR.responseText);
+    return originalAjaxError.apply(adapter, arguments);
+  };
+
+  try {
+    run(function(){
+      store.find('post', '1').catch(function(err){
+        equal(err.errorThrown, errorThrown);
+        ok(err, 'promise rejected');
+      });
+    });
+  } finally {
+    Ember.$.ajax = originalAjax;
+  }
+});
