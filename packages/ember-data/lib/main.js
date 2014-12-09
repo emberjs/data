@@ -15,7 +15,8 @@ import "ember-inflector/main";
 
 import {
   PromiseArray,
-  PromiseObject
+  PromiseObject,
+  PromiseManyArray
 } from "ember-data/system/promise_proxies";
 import {
   Store
@@ -69,6 +70,8 @@ import {Relationship} from "ember-data/system/relationships/relationship";
 DS.Store         = Store;
 DS.PromiseArray  = PromiseArray;
 DS.PromiseObject = PromiseObject;
+
+DS.PromiseManyArray = PromiseManyArray;
 
 DS.Model     = Model;
 DS.RootState = RootState;
