@@ -99,7 +99,9 @@ var PromiseManyArray = PromiseArray.extend({
   reload: function() {
     //I don't think this should ever happen right now, but worth guarding if we refactor the async relationships
     Ember.assert('You are trying to reload an async manyArray before it has been created', get(this, 'content'));
-    return get(this, 'content').reload();
+    return PromiseManyArray.create({
+      promise: get(this, 'content').reload()
+    });
   },
 
   createRecord: proxyToContent('createRecord'),

@@ -1000,7 +1000,6 @@ Store = Ember.Object.extend({
 
     promise = promise || Promise.cast(array);
 
-
     return promiseArray(promise.then(function() {
       return array;
     }, null, "DS: Store#filter of " + type));
