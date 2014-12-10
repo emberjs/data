@@ -40,7 +40,8 @@ import {
   _findHasMany,
   _findBelongsTo,
   _findAll,
-  _query
+  _query,
+  _queryRecord
 } from "ember-data/system/store/finders";
 
 import coerceId from "ember-data/system/coerce-id";
@@ -1036,6 +1037,36 @@ Store = Service.extend({
     Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", typeof adapter.findQuery === 'function');
 
     return promiseArray(_query(adapter, this, typeClass, query, array));
+  },
+
+  /**
+    This method delegates a query to the adapter. This is the one place where
+    adapter-level semantics are exposed to the application.
+
+    Exposing queries this way seems preferable to creating an abstract query
+    language for all server-side queries, and then require all adapters to
+    implement them.
+
+    This method returns a promise, which is resolved with a `RecordObject`
+    once the server returns.
+
+    @method queryRecord
+    @param {String or subclass of DS.Model} type
+    @param {any} query an opaque query to be used by the adapter
+    @return {Promise} promise
+  */
+  queryRecord: function(modelName, query) {
+    Ember.assert("You need to pass a type to the store's queryRecord method", modelName);
+    Ember.assert("You need to pass a query hash to the store's queryRecord method", query);
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
+
+    var typeClass = this.modelFor(modelName);
+    var adapter = this.adapterFor(modelName);
+
+    Ember.assert("You tried to make a query but you have no adapter (for " + typeClass + ")", adapter);
+    Ember.assert("You tried to make a query but your adapter does not implement `queryRecord`", typeof adapter.queryRecord === 'function');
+
+    return promiseObject(_queryRecord(adapter, this, typeClass, query));
   },
 
   /**

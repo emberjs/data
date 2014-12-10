@@ -190,6 +190,44 @@ var Adapter = Ember.Object.extend({
   findQuery: null,
 
   /**
+    The `queryRecord()` method is invoked when the store is asked for a single
+    record through a query object.
+
+    In response to `queryRecord()` being called, you should always fetch fresh
+    data. Once found, you can asynchronously call the store's `push()` method
+    to push the record into the store.
+
+    Here is an example `queryRecord` implementation:
+
+    Example
+
+    ```javascript
+    App.ApplicationAdapter = DS.Adapter.extend({
+      queryRecord: function(store, typeClass, query) {
+        var url = [type.typeKey, id].join('/');
+
+        return new Ember.RSVP.Promise(function(resolve, reject) {
+          jQuery.getJSON(url, query).then(function(data) {
+            Ember.run(null, resolve, data);
+          }, function(jqXHR) {
+            jqXHR.then = null; // tame jQuery's ill mannered promises
+            Ember.run(null, reject, jqXHR);
+          });
+        });
+      }
+    });
+    ```
+
+    @method queryRecord
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Object} query
+    @param {String} id
+    @return {Promise} promise
+  */
+  queryRecord: null,
+
+  /**
     If the globally unique IDs for your records should be generated on the client,
     implement the `generateIdForRecord()` method. This method will be invoked
     each time you create a new record, and the value returned from it will be
