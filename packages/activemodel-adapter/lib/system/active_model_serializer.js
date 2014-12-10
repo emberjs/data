@@ -4,8 +4,7 @@ import RESTSerializer from "ember-data/serializers/rest_serializer";
   @module ember-data
 */
 
-var get = Ember.get,
-    forEach = Ember.EnumerableUtils.forEach,
+var forEach = Ember.EnumerableUtils.forEach,
     camelize =   Ember.String.camelize,
     capitalize = Ember.String.capitalize,
     decamelize = Ember.String.decamelize,
@@ -154,19 +153,18 @@ var ActiveModelSerializer = RESTSerializer.extend({
     Serializes a polymorphic type as a fully capitalized model name.
 
     @method serializePolymorphicType
-    @param {DS.Model} record
+    @param {DS.Model} record the relationship's inverse record
     @param {Object} json
-    @param {Object} relationship
+    @param {Object} relationship the relationship's descriptor
   */
   serializePolymorphicType: function(record, json, relationship) {
     var key = relationship.key;
-    var belongsTo = get(record, key);
     var jsonKey = underscore(key + "_type");
 
-    if (Ember.isNone(belongsTo)) {
+    if (Ember.isNone(record)) {
       json[jsonKey] = null;
     } else {
-      json[jsonKey] = capitalize(camelize(belongsTo.constructor.typeKey));
+      json[jsonKey] = capitalize(camelize(record.constructor.typeKey));
     }
   },
 
