@@ -11,6 +11,7 @@ import {
 } from "ember-data/system/adapter";
 import { singularize } from "ember-inflector/system/string";
 import {
+  MapWithDefault,
   Map
 } from "ember-data/system/map";
 
@@ -32,6 +33,10 @@ var copy = Ember.copy;
 var Store, RecordArrayManager, Model;
 
 var camelize = Ember.String.camelize;
+
+function pendingFetchDefault(key) {
+  return new Map();
+}
 
 // Implementors Note:
 //
@@ -144,7 +149,9 @@ Store = Ember.Object.extend({
     });
     this._pendingSave = [];
     //Used to keep track of all the find requests that need to be coalesced
-    this._pendingFetch = Map.create();
+    this._pendingFetch = MapWithDefault.create({
+      defaultValue: pendingFetchDefault
+    });
   },
 
   /**
@@ -504,26 +511,19 @@ Store = Ember.Object.extend({
 
   scheduleFetch: function(record) {
     var type = record.constructor;
+
     if (isNone(record)) { return null; }
     if (record._loadingPromise) { return record._loadingPromise; }
 
     var resolver = Ember.RSVP.defer('Fetching ' + type + 'with id: ' + record.get('id'));
-    var recordResolverPair = {
-      record: record,
-      resolver: resolver
-    };
-    var promise = resolver.promise;
 
-    record.loadingData(promise);
+    record.loadingData(resolver.promise);
 
-    if (!this._pendingFetch.get(type)){
-      this._pendingFetch.set(type, [recordResolverPair]);
-    } else {
-      this._pendingFetch.get(type).push(recordResolverPair);
-    }
+    this._pendingFetch.get(type).set(record, resolver);
+
     Ember.run.scheduleOnce('afterRender', this, this.flushAllPendingFetches);
 
-    return promise;
+    return resolver.promise;
   },
 
   flushAllPendingFetches: function(){
@@ -532,7 +532,10 @@ Store = Ember.Object.extend({
     }
 
     var pendingFetch = this._pendingFetch;
-    this._pendingFetch = Map.create();
+
+    this._pendingFetch = MapWithDefault.create({
+      defaultValue: pendingFetchDefault
+    });
 
     pendingFetch.forEach(this._flushPendingFetchForType, this);
   },
@@ -541,19 +544,19 @@ Store = Ember.Object.extend({
     var store = this;
     var adapter = store.adapterFor(type);
     var shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
-    var records = Ember.A(recordResolverPairs).mapBy('record');
+    var records = [];
 
-    function _fetchRecord(recordResolverPair) {
-      recordResolverPair.resolver.resolve(store.fetchRecord(recordResolverPair.record));
+    recordResolverPairs.forEach(function(value) {
+      records.push(value);
+    });
+
+    function _fetchRecord(record, resolver) {
+      resolver.resolve(store.fetchRecord(record));
     }
 
     function resolveFoundRecords(records) {
-      forEach(records, function(record){
-        var pair = Ember.A(recordResolverPairs).findBy('record', record);
-        if (pair){
-          var resolver = pair.resolver;
-          resolver.resolve(record);
-        }
+      recordResolverPairs.forEach(function(resolver, record) {
+        resolver.resolve(record);
       });
 
       return records;
@@ -575,9 +578,9 @@ Store = Ember.Object.extend({
     }
 
     function rejectRecords(records, error) {
-      Ember.assert("cannot reject records without a reason", error instanceof Error);
+      Ember.assert('cannot reject records without a reason', error instanceof Error);
 
-      forEach(records, function(record){
+      forEach(records, function(record) {
         var pair = Ember.A(recordResolverPairs).findBy('record', record);
         if (pair){
           var resolver = pair.resolver;
@@ -586,11 +589,16 @@ Store = Ember.Object.extend({
       });
     }
 
-    if (recordResolverPairs.length === 1) {
+    if (recordResolverPairs.size === 1) {
+      debugger;
+      // TODO: make this work
       _fetchRecord(recordResolverPairs[0]);
     } else if (shouldCoalesce) {
+      // debugger;
+
       var groups = adapter.groupRecordsForFindMany(this, records);
-      forEach(groups, function (groupOfRecords) {
+
+      forEach(groups, function(groupOfRecords) {
         var requestedRecords = Ember.A(groupOfRecords);
         var ids = requestedRecords.mapBy('id');
         if (ids.length > 1) {
@@ -599,14 +607,15 @@ Store = Ember.Object.extend({
             then(makeMissingRecordsRejector(requestedRecords)).
             catch(makeRecordsRejector(requestedRecords));
         } else if (ids.length === 1) {
-          var pair = Ember.A(recordResolverPairs).findBy('record', groupOfRecords[0]);
-          _fetchRecord(pair);
+          var record = groupOfRecords[0];
+          var resolver = recordResolverPairs.get(record);
+          _fetchRecord(resolver, pair);
         } else {
-          Ember.assert("You cannot return an empty array from adapter's method groupRecordsForFindMany", false);
+          Ember.assert('You cannot return an empty array from adapter\'s method groupRecordsForFindMany', false);
         }
       });
     } else {
-      forEach(recordResolverPairs, _fetchRecord);
+      recordResolverPairs.forEach(_fetchRecord);
     }
   },
 
