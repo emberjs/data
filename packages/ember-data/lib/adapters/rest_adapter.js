@@ -524,7 +524,8 @@ export default Adapter.extend({
     var data = {};
     var serializer = store.serializerFor(type.typeKey);
 
-    serializer.serializeIntoHash(data, type, record, { includeId: true });
+    var snapshot = record._createSnapshot();
+    serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
 
     return this.ajax(this.buildURL(type.typeKey, null, record), "POST", { data: data });
   },
@@ -549,7 +550,8 @@ export default Adapter.extend({
     var data = {};
     var serializer = store.serializerFor(type.typeKey);
 
-    serializer.serializeIntoHash(data, type, record);
+    var snapshot = record._createSnapshot();
+    serializer.serializeIntoHash(data, type, snapshot);
 
     var id = get(record, 'id');
 

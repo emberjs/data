@@ -4,12 +4,12 @@ import RESTSerializer from "ember-data/serializers/rest_serializer";
   @module ember-data
 */
 
-var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
 var camelize =   Ember.String.camelize;
 var capitalize = Ember.String.capitalize;
 var decamelize = Ember.String.decamelize;
 var underscore = Ember.String.underscore;
+
 /**
   The ActiveModelSerializer is a subclass of the RESTSerializer designed to integrate
   with a JSON API that uses an underscored naming convention instead of camelCasing.
@@ -142,31 +142,31 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @method serializeIntoHash
     @param {Object} hash
     @param {subclass of DS.Model} type
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @param {Object} options
   */
-  serializeIntoHash: function(data, type, record, options) {
+  serializeIntoHash: function(data, type, snapshot, options) {
     var root = underscore(decamelize(type.typeKey));
-    data[root] = this.serialize(record, options);
+    data[root] = this.serialize(snapshot, options);
   },
 
   /**
     Serializes a polymorphic type as a fully capitalized model name.
 
     @method serializePolymorphicType
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */
-  serializePolymorphicType: function(record, json, relationship) {
+  serializePolymorphicType: function(snapshot, json, relationship) {
     var key = relationship.key;
-    var belongsTo = get(record, key);
+    var belongsTo = snapshot.belongsTo(key);
     var jsonKey = underscore(key + "_type");
 
     if (Ember.isNone(belongsTo)) {
       json[jsonKey] = null;
     } else {
-      json[jsonKey] = capitalize(camelize(belongsTo.constructor.typeKey));
+      json[jsonKey] = capitalize(camelize(belongsTo.typeKey));
     }
   },
 

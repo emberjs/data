@@ -567,7 +567,7 @@ test("serialize supports serialize:false on non-relationship properties", functi
   var serializer, json;
   run(function() {
     serializer = env.container.lookup("serializer:superVillain");
-    json = serializer.serialize(tom);
+    json = serializer.serialize(tom._createSnapshot());
   });
 
   deepEqual(json, {
@@ -594,7 +594,7 @@ test("serialize with embedded objects (hasMany relationship)", function() {
   run(function() {
     serializer = env.container.lookup("serializer:homePlanet");
 
-    json = serializer.serialize(league);
+    json = serializer.serialize(league._createSnapshot());
   });
 
   deepEqual(json, {
@@ -624,7 +624,7 @@ test("serialize with embedded objects (hasMany relationship) supports serialize:
   run(function() {
     serializer = env.container.lookup("serializer:homePlanet");
 
-    json = serializer.serialize(league);
+    json = serializer.serialize(league._createSnapshot());
   });
 
   deepEqual(json, {
@@ -647,7 +647,7 @@ test("serialize with (new) embedded objects (hasMany relationship)", function() 
   run(function() {
     serializer = env.container.lookup("serializer:homePlanet");
 
-    json = serializer.serialize(league);
+    json = serializer.serialize(league._createSnapshot());
   });
   deepEqual(json, {
     name: "Villain League",
@@ -679,7 +679,7 @@ test("serialize with embedded objects (hasMany relationships, including related 
   run(function() {
     serializer = env.container.lookup("serializer:superVillain");
 
-    json = serializer.serialize(superVillain);
+    json = serializer.serialize(superVillain._createSnapshot());
   });
   deepEqual(json, {
     first_name: get(superVillain, "firstName"),
@@ -769,7 +769,7 @@ test("serialize with embedded object (belongsTo relationship)", function() {
   });
 
   run(function() {
-    json = serializer.serialize(tom);
+    json = serializer.serialize(tom._createSnapshot());
   });
 
   deepEqual(json, {
@@ -812,7 +812,7 @@ test("serialize with embedded object (belongsTo relationship) works with differe
   });
 
   run(function() {
-    json = serializer.serialize(tom);
+    json = serializer.serialize(tom._createSnapshot());
   });
 
   deepEqual(json, {
@@ -851,7 +851,7 @@ test("serialize with embedded object (belongsTo relationship, new no id)", funct
   });
 
   run(function() {
-    json = serializer.serialize(tom);
+    json = serializer.serialize(tom._createSnapshot());
   });
 
   deepEqual(json, {
@@ -888,7 +888,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
   });
 
   run(function() {
-    json = serializer.serialize(tom);
+    json = serializer.serialize(tom._createSnapshot());
   });
 
   deepEqual(json, {
@@ -923,7 +923,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
   });
 
   run(function() {
-    json = serializer.serialize(tom);
+    json = serializer.serialize(tom._createSnapshot());
   });
 
   deepEqual(json, {
@@ -956,7 +956,7 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
   });
 
   run(function() {
-    json = serializer.serialize(tom);
+    json = serializer.serialize(tom._createSnapshot());
   });
 
   deepEqual(json, {
@@ -986,7 +986,7 @@ test("serialize with embedded object (belongsTo relationship) serializes the id 
   });
 
   run(function() {
-    json = serializer.serialize(tom);
+    json = serializer.serialize(tom._createSnapshot());
   });
 
   deepEqual(json, {
@@ -1017,7 +1017,7 @@ test("when related record is not present, serialize embedded record (with a belo
   });
 
   run(function() {
-    json = serializer.serialize(tom);
+    json = serializer.serialize(tom._createSnapshot());
   });
 
   deepEqual(json, {
@@ -1200,7 +1200,7 @@ test("Mixin can be used with RESTSerializer which does not define keyForAttribut
   var json;
 
   run(function() {
-    json = serializer.serialize(superVillain);
+    json = serializer.serialize(superVillain._createSnapshot());
   });
 
   deepEqual(json, {
@@ -1273,19 +1273,19 @@ test("serializing relationships with an embedded and without calls super when no
   var calledSerializeHasMany = false;
 
   var Serializer = DS.RESTSerializer.extend({
-    serializeBelongsTo: function(record, json, relationship) {
+    serializeBelongsTo: function(snapshot, json, relationship) {
       calledSerializeBelongsTo = true;
-      return this._super(record, json, relationship);
+      return this._super(snapshot, json, relationship);
     },
-    serializeHasMany: function(record, json, relationship) {
+    serializeHasMany: function(snapshot, json, relationship) {
       calledSerializeHasMany = true;
       var key = relationship.key;
       var payloadKey = this.keyForRelationship ? this.keyForRelationship(key, "hasMany") : key;
-      var relationshipType = record.constructor.determineRelationshipType(relationship);
+      var relationshipType = snapshot.type.determineRelationshipType(relationship);
       // "manyToOne" not supported in DS.RESTSerializer.prototype.serializeHasMany
       var relationshipTypes = Ember.String.w('manyToNone manyToMany manyToOne');
       if (indexOf(relationshipTypes, relationshipType) > -1) {
-        json[payloadKey] = get(record, key).mapBy('id');
+        json[payloadKey] = snapshot.hasMany(key, { ids: true });
       }
     }
   });
@@ -1302,7 +1302,7 @@ test("serializing relationships with an embedded and without calls super when no
 
   var json;
   run(function() {
-    json = serializer.serialize(superVillain);
+    json = serializer.serialize(superVillain._createSnapshot());
   });
 
   deepEqual(json, {

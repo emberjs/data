@@ -3,7 +3,7 @@
 */
 
 import JSONSerializer from "ember-data/serializers/json_serializer";
-var get = Ember.get;
+
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var camelize = Ember.String.camelize;
@@ -608,15 +608,15 @@ var RESTSerializer = JSONSerializer.extend({
 
     ```js
     App.PostSerializer = DS.RESTSerializer.extend({
-      serialize: function(post, options) {
+      serialize: function(snapshot, options) {
         var json = {
-          POST_TTL: post.get('title'),
-          POST_BDY: post.get('body'),
-          POST_CMS: post.get('comments').mapBy('id')
+          POST_TTL: snapshot.attr('title'),
+          POST_BDY: snapshot.attr('body'),
+          POST_CMS: snapshot.hasMany('comments', { ids: true })
         }
 
         if (options.includeId) {
-          json.POST_ID_ = post.get('id');
+          json.POST_ID_ = snapshot.id;
         }
 
         return json;
@@ -632,21 +632,21 @@ var RESTSerializer = JSONSerializer.extend({
 
     ```js
     App.ApplicationSerializer = DS.RESTSerializer.extend({
-      serialize: function(record, options) {
+      serialize: function(snapshot, options) {
         var json = {};
 
-        record.eachAttribute(function(name) {
-          json[serverAttributeName(name)] = record.get(name);
+        snapshot.eachAttribute(function(name) {
+          json[serverAttributeName(name)] = snapshot.attr(name);
         })
 
-        record.eachRelationship(function(name, relationship) {
+        snapshot.eachRelationship(function(name, relationship) {
           if (relationship.kind === 'hasMany') {
-            json[serverHasManyName(name)] = record.get(name).mapBy('id');
+            json[serverHasManyName(name)] = snapshot.hasMany(name, { ids: true });
           }
         });
 
         if (options.includeId) {
-          json.ID_ = record.get('id');
+          json.ID_ = snapshot.id;
         }
 
         return json;
@@ -680,8 +680,8 @@ var RESTSerializer = JSONSerializer.extend({
 
     ```js
     App.PostSerializer = DS.RESTSerializer.extend({
-      serialize: function(record, options) {
-        var json = this._super(record, options);
+      serialize: function(snapshot, options) {
+        var json = this._super(snapshot, options);
 
         json.subject = json.title;
         delete json.title;
@@ -692,11 +692,11 @@ var RESTSerializer = JSONSerializer.extend({
     ```
 
     @method serialize
-    @param {subclass of DS.Model} record
+    @param {DS.Snapshot} snapshot
     @param {Object} options
     @return {Object} json
   */
-  serialize: function(record, options) {
+  serialize: function(snapshot, options) {
     return this._super.apply(this, arguments);
   },
 
@@ -719,11 +719,11 @@ var RESTSerializer = JSONSerializer.extend({
     @method serializeIntoHash
     @param {Object} hash
     @param {subclass of DS.Model} type
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @param {Object} options
   */
-  serializeIntoHash: function(hash, type, record, options) {
-    hash[type.typeKey] = this.serialize(record, options);
+  serializeIntoHash: function(hash, type, snapshot, options) {
+    hash[type.typeKey] = this.serialize(snapshot, options);
   },
 
   /**
@@ -732,18 +732,18 @@ var RESTSerializer = JSONSerializer.extend({
     the attribute and value from the model's camelcased model name.
 
     @method serializePolymorphicType
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */
-  serializePolymorphicType: function(record, json, relationship) {
+  serializePolymorphicType: function(snapshot, json, relationship) {
     var key = relationship.key;
-    var belongsTo = get(record, key);
+    var belongsTo = snapshot.belongsTo(key);
     key = this.keyForAttribute ? this.keyForAttribute(key) : key;
     if (Ember.isNone(belongsTo)) {
       json[key + "Type"] = null;
     } else {
-      json[key + "Type"] = Ember.String.camelize(belongsTo.constructor.typeKey);
+      json[key + "Type"] = Ember.String.camelize(belongsTo.typeKey);
     }
   }
 });

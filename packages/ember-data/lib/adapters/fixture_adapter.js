@@ -110,11 +110,13 @@ export default Adapter.extend({
     Implement this method in order to provide json for CRUD methods
 
     @method mockJSON
+    @param {DS.Store} store
     @param {Subclass of DS.Model} type
     @param {DS.Model} record
   */
   mockJSON: function(store, type, record) {
-    return store.serializerFor(type).serialize(record, { includeId: true });
+    var snapshot = record._createSnapshot();
+    return store.serializerFor(snapshot.typeKey).serialize(snapshot, { includeId: true });
   },
 
   /**
