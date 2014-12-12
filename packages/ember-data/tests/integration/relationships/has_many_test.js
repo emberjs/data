@@ -1020,6 +1020,36 @@ test("Passing a model as type to hasMany should not work", function () {
   }, /The first argument to DS.hasMany must be a string/);
 });
 
+test("Relationship.clear removes all records correctly", function(){
+  var post;
+
+  run(function(){
+    post = env.store.push('post', { id: 2, title: 'Sailing the Seven Seas', comments: [1,2] });
+    env.store.pushMany('comment', [
+      {
+        id: 1,
+        post: 2
+      },
+      {
+        id: 2,
+        post: 2
+      },
+      {
+        id: 3,
+        post: 2
+      }
+    ]);
+  });
+
+  run(function(){
+    post._relationships['comments'].clear();
+    var comments = Em.A(env.store.all('comment'));
+    deepEqual(comments.mapBy('post'), [undefined, undefined, undefined]);
+  });
+
+});
+
+
 test('unloading a record with associated records does not prevent the store from tearing down', function(){
   var post;
 
