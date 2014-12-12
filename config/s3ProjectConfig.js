@@ -8,23 +8,24 @@ module.exports = function(revision, tag, date){
 }
 
 function fileObject(fileName, contentType, currentRevision, tag, date) {
+  var filePath = '/' + fileName;
   return {
     contentType: contentType,
     destinations: {
       canary: [
-        'canary' + fileName,
-        'canary/daily/' + date + fileName,
-        'canary/shas/' + currentRevision + fileName
+        'canary' + filePath,
+        'canary/daily/' + date + filePath,
+        'canary/shas/' + currentRevision + filePath
       ],
       stable: [
-        'stable' + fileName,
-        'stable/daily/' + date + fileName,
-        'stable/shas/' + currentRevision + fileName
+        'stable' + filePath,
+        'stable/daily/' + date + filePath,
+        'stable/shas/' + currentRevision + filePath
       ],
       beta: [
-        'beta' + fileName,
-        'beta/daily/' + date + fileName,
-        'beta/shas/' + currentRevision + fileName
+        'beta' + filePath,
+        'beta/daily/' + date + filePath,
+        'beta/shas/' + currentRevision + filePath
       ]
     }
   }
