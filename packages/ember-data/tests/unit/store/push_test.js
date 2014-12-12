@@ -99,7 +99,15 @@ test("Calling push triggers `didLoad` even if the record hasn't been requested f
   });
 });
 
-test("Calling update with partial records updates just those attributes", function() {
+test("Calling update should be deprecated", function() {
+  expectDeprecation(function() {
+    run(function() {
+      store.update('person', { id: '1', name: 'Tomster' });
+    });
+  });
+});
+
+test("Calling push with partial records updates just those attributes", function() {
   var person;
   run(function(){
     person = store.push('person', {
@@ -124,7 +132,7 @@ test("Calling update with partial records updates just those attributes", functi
   });
 });
 
-test("Calling update on normalize allows partial updates with raw JSON", function () {
+test("Calling push on normalize allows partial updates with raw JSON", function () {
   env.container.register('serializer:person', DS.RESTSerializer);
   var person;
 
@@ -135,7 +143,7 @@ test("Calling update on normalize allows partial updates with raw JSON", functio
       lastName: "Jackson"
     });
 
-    store.update('person', store.normalize('person', {
+    store.push('person', store.normalize('person', {
       id: '1',
       firstName: "Jacquie"
     }));
@@ -145,7 +153,7 @@ test("Calling update on normalize allows partial updates with raw JSON", functio
   equal(person.get('lastName'), "Jackson", "existing fields are untouched");
 });
 
-test("Calling update with partial records triggers observers for just those attributes", function() {
+test("Calling push with partial records triggers observers for just those attributes", function() {
   expect(1);
   var person;
 
@@ -166,7 +174,7 @@ test("Calling update with partial records triggers observers for just those attr
   });
 
   run(function(){
-    store.update('person', {
+    store.push('person', {
       id: 'wat',
       lastName: "Katz!"
     });
@@ -383,6 +391,39 @@ test("Calling pushPayload without a type should use a model's serializer when no
   var person = store.getById('person', 2);
 
   equal(person.get('firstName'), "Yehuda", "you can push raw JSON into the store");
+});
+
+test("Calling pushPayload allows partial updates with raw JSON", function () {
+  env.container.register('serializer:person', DS.RESTSerializer);
+
+  var person;
+
+  run(function() {
+    store.pushPayload('person', {
+      people: [{
+        id: '1',
+        firstName: "Robert",
+        lastName: "Jackson"
+      }]
+    });
+  });
+
+  var person = store.getById('person', 1);
+
+  equal(person.get('firstName'), "Robert", "you can push raw JSON into the store");
+  equal(person.get('lastName'), "Jackson", "you can push raw JSON into the store");
+
+  run(function() {
+    store.pushPayload('person', {
+      people: [{
+        id: '1',
+        firstName: "Jacquie"
+      }]
+    });
+  });
+
+  equal(person.get('firstName'), "Jacquie", "you can push raw JSON into the store");
+  equal(person.get('lastName'), "Jackson", "existing fields are untouched");
 });
 
 test('calling push without data argument as an object raises an error', function(){

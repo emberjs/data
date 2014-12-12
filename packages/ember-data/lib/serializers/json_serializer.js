@@ -791,8 +791,8 @@ export default Ember.Object.extend({
 
   /**
     `extractCreateRecord` is a hook into the extract method used when a
-    call is made to `DS.Store#createRecord`. By default this method is
-    alias for [extractSave](#method_extractSave).
+    call is made to `DS.Model#save` and the record is new. By default
+    this method is alias for [extractSave](#method_extractSave).
 
     @method extractCreateRecord
     @param {DS.Store} store
@@ -807,8 +807,8 @@ export default Ember.Object.extend({
   },
   /**
     `extractUpdateRecord` is a hook into the extract method used when
-    a call is made to `DS.Store#update`. By default this method is alias
-    for [extractSave](#method_extractSave).
+    a call is made to `DS.Model#save` and the record has been updated.
+    By default this method is alias for [extractSave](#method_extractSave).
 
     @method extractUpdateRecord
     @param {DS.Store} store
@@ -823,8 +823,8 @@ export default Ember.Object.extend({
   },
   /**
     `extractDeleteRecord` is a hook into the extract method used when
-    a call is made to `DS.Store#deleteRecord`. By default this method is
-    alias for [extractSave](#method_extractSave).
+    a call is made to `DS.Model#save` and the record has been deleted.
+    By default this method is alias for [extractSave](#method_extractSave).
 
     @method extractDeleteRecord
     @param {DS.Store} store
