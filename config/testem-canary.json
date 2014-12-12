@@ -1,5 +1,5 @@
 {
-  "test_page": "tests/index.html?emberchannel=canary&nojshint=true",
+  "test_page": "dist/index.html?emberchannel=canary&nojshint=true",
   "serve_files": [
     "dist/**/*.js",
     "tests/**/*"
