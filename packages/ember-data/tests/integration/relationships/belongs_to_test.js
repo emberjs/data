@@ -13,13 +13,13 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
   setup: function() {
     User = DS.Model.extend({
       name: attr('string'),
-      messages: hasMany('message', {polymorphic: true})
-      //favouriteMessage: belongsTo('message', {polymorphic: true})
+      messages: hasMany('message', {polymorphic: true}),
+      favouriteMessage: belongsTo('message', {polymorphic: true, inverse: null}),
     });
     User.toString = stringify('User');
 
     Message = DS.Model.extend({
-      user: belongsTo('user'),
+      user: belongsTo('user', { inverse: 'messages' }),
       created_at: attr('date')
     });
     Message.toString = stringify('Message');
@@ -290,6 +290,26 @@ test("A record with an async belongsTo relationship returning null should resolv
   })).then(async(function(group) {
     ok(group === null, "group should be null");
   }));
+});
+
+test("polymorphic belongsTo type-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled", function() {
+  expect(1);
+
+  var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
+  Ember.MODEL_FACTORY_INJECTIONS = true;
+
+  try {
+    run(function () {
+      var igor = env.store.createRecord('user', { name: 'Igor' });
+      var post = env.store.createRecord('post', { title: "Igor's unimaginative blog post" });
+
+      igor.set('favouriteMessage', post);
+
+      equal(igor.get('favouriteMessage.title'), "Igor's unimaginative blog post");
+    });
+  } finally {
+    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
+  }
 });
 
 test("relationshipsByName does not cache a factory", function() {

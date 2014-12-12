@@ -62,7 +62,15 @@ BelongsToRelationship.prototype._super$addRecord = Relationship.prototype.addRec
 BelongsToRelationship.prototype.addRecord = function(newRecord) {
   if (this.members.has(newRecord)){ return;}
   var type = this.relationshipMeta.type;
-  Ember.assert("You can only add a '" + type.typeKey + "' record to this relationship", newRecord instanceof type);
+  Ember.assert("You can only add a '" + type.typeKey + "' record to this relationship", (function () {
+    if (newRecord instanceof type) {
+      return true;
+    } else if (Ember.MODEL_FACTORY_INJECTIONS) {
+      return newRecord instanceof type.superclass;
+    }
+
+    return false;
+  })());
 
   if (this.inverseRecord) {
     this.removeRecord(this.inverseRecord);

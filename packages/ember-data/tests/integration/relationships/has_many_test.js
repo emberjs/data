@@ -628,6 +628,28 @@ test("When a polymorphic hasMany relationship is accessed, the store can call mu
   });
 });
 
+test("polymorphic hasMany type-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled", function() {
+  expect(1);
+
+  var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
+  Ember.MODEL_FACTORY_INJECTIONS = true;
+
+  try {
+    run(function () {
+      var igor = env.store.createRecord('user', { name: 'Igor' });
+      var comment = env.store.createRecord('comment', { body: "Well I thought the title was fine" });
+
+      igor.get('messages').addObject(comment);
+
+      equal(igor.get('messages.firstObject.body'), "Well I thought the title was fine");
+    });
+  } finally {
+    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
+  }
+});
+
+
+
 test("Type can be inferred from the key of a hasMany relationship", function() {
   expect(1);
   run(function(){
@@ -731,7 +753,7 @@ test("Only records of the same type can be added to a monomorphic hasMany relati
     Ember.RSVP.all([ env.store.find('post', 1), env.store.find('post', 2) ]).then(function(records) {
       expectAssertion(function() {
         records[0].get('comments').pushObject(records[1]);
-      }, /You cannot add 'post' records to this relationship/);
+      }, /You cannot add 'post' records to the post.comments relationship \(only 'comment' allowed\)/);
     });
   });
 });
@@ -764,7 +786,7 @@ test("Only records of the same base type can be added to a polymorphic hasMany r
 
       expectAssertion(function() {
         records.messages.pushObject(records.anotherUser);
-      }, /You cannot add 'user' records to this relationship/);
+      }, /You cannot add 'user' records to the user.messages relationship \(only 'message' allowed\)/);
     });
   });
 });
