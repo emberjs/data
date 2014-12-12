@@ -1019,3 +1019,37 @@ test("Passing a model as type to hasMany should not work", function () {
     });
   }, /The first argument to DS.hasMany must be a string/);
 });
+
+test('unloading a record with associated records does not prevent the store from tearing down', function(){
+  var post;
+
+  run(function(){
+    post = env.store.push('post', { id: 2, title: 'Sailing the Seven Seas', comments: [1,2] });
+    env.store.pushMany('comment', [
+      {
+        id: 1,
+        post: 2
+      },
+      {
+        id: 2,
+        post: 2
+      }
+    ]);
+
+    // This line triggers the original bug that gets manifested
+    // in teardown for apps, e.g. store.destroy that is caused by
+    // App.destroy().
+    // Relationship#clear uses Ember.Set#forEach, which does incorrect
+    // iteration when the set is being mutated (in our case, the index gets off
+    // because records are being removed)
+    env.store.unloadRecord(post);
+  });
+  try {
+    run(function(){
+      env.store.destroy();
+    });
+    ok(true, "store destroyed correctly");
+  } catch (error) {
+    ok(false, "store prevented from being destroyed");
+  }
+});
