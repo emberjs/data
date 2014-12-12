@@ -29,9 +29,13 @@ Relationship.prototype = {
   destroy: Ember.K,
 
   clear: function() {
-    this.members.forEach(function(member) {
+    var members = this.members.list;
+    var member;
+
+    while (members.length > 0){
+      member = members[0];
       this.removeRecord(member);
-    }, this);
+    }
   },
 
   disconnect: function(){
