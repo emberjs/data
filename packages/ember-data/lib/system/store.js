@@ -1033,12 +1033,25 @@ Store = Ember.Object.extend({
     This method returns the metadata for a specific type.
 
     @method metadataFor
-    @param {String or subclass of DS.Model} type
+    @param {String or subclass of DS.Model} typeName
     @return {object}
   */
-  metadataFor: function(type) {
-    type = this.modelFor(type);
+  metadataFor: function(typeName) {
+    var type = this.modelFor(typeName);
     return this.typeMapFor(type).metadata;
+  },
+
+  /**
+    This method sets the metadata for a specific type.
+
+    @method setMetadataFor
+    @param {String or subclass of DS.Model} typeName
+    @param {Object} metadata metadata to set
+    @return {object}
+  */
+  setMetadataFor: function(typeName, metadata) {
+    var type = this.modelFor(typeName);
+    Ember.merge(this.typeMapFor(type).metadata, metadata);
   },
 
   // ............
@@ -1521,17 +1534,14 @@ Store = Ember.Object.extend({
   },
 
   /**
-    If you have some metadata to set for a type
-    you can call `metaForType`.
-
     @method metaForType
-    @param {String or subclass of DS.Model} type
+    @param {String or subclass of DS.Model} typeName
     @param {Object} metadata
+    @deprecated Use [setMetadataFor](#method_setMetadataFor) instead
   */
   metaForType: function(typeName, metadata) {
-    var type = this.modelFor(typeName);
-
-    Ember.merge(this.typeMapFor(type).metadata, metadata);
+    Ember.deprecate('Using store.metaForType() has been deprecated. Use store.setMetadataFor() to set metadata for a specific type.');
+    this.setMetadataFor(typeName, metadata);
   },
 
   /**

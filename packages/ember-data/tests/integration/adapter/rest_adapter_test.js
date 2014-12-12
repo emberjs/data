@@ -769,7 +769,7 @@ test("findAll - since token is passed to the adapter", function() {
     ]
   });
 
-  store.metaForType('post', { since: 'now' });
+  store.setMetadataFor('post', { since: 'now' });
 
   store.findAll('post').then(async(function(posts) {
     equal(passedUrl, '/posts');
