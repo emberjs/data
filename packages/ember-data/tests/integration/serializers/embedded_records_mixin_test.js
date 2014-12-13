@@ -1269,3 +1269,74 @@ test("serializing relationships with an embedded and without calls super when no
   ok(calledSerializeBelongsTo);
   ok(calledSerializeHasMany);
 });
+
+
+test("embedded records should be created in multiple stores", function() {
+
+  env.container.register('store:primary', DS.Store);
+  env.container.register('store:secondary', DS.Store);
+
+  env.primaryStore = env.container.lookup('store:primary');
+  env.secondaryStore = env.container.lookup('store:primary');
+
+  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.container.register('adapter:homePlanet', DS.ActiveModelAdapter);
+
+  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  attrs: {
+    villains: {embedded: 'always'}
+  }
+  }));
+
+  var serializer = env.container.lookup("serializer:homePlanet");
+  var json_hash = {
+  home_planet: {
+    id: "1",
+    name: "Earth",
+    villains: [{
+    id: "1",
+    first_name: "Tom",
+    last_name: "Dale"
+    }]
+  }
+  };
+  var json_hash_primary = {
+  home_planet: {
+    id: "1",
+    name: "Mars",
+    villains: [{
+    id: "1",
+    first_name: "James",
+    last_name: "Murphy"
+    }]
+  }
+  };
+  var json_hash_secondary = {
+  home_planet: {
+    id: "1",
+    name: "Saturn",
+    villains: [{
+    id: "1",
+    first_name: "Jade",
+    last_name: "John"
+    }]
+  }
+  };
+  var json, json_primary, json_secondary;
+
+  run(function(){
+  json = serializer.extractSingle(env.store, HomePlanet, json_hash);
+  equal(env.store.hasRecordForId("superVillain","1"), true, "superVillain should exist in store:main");
+  });
+
+  run(function(){
+  json_primary = serializer.extractSingle(env.primaryStore, HomePlanet, json_hash_primary);
+  equal(env.primaryStore.hasRecordForId("superVillain","1"), true, "superVillain should exist in store:primary");
+  });
+
+  run(function(){
+  json_secondary = serializer.extractSingle(env.secondaryStore, HomePlanet, json_hash_secondary);
+  equal(env.primaryStore.hasRecordForId("superVillain","1"), true, "superVillain should exist in store:secondary");
+  });
+
+});
