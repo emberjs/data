@@ -117,6 +117,7 @@ Relationship.prototype = {
   },
 
   updateLink: function(link) {
+    Ember.warn("You have pushed a record of type '" + this.record.constructor.typeKey + "' with '" + this.key + "' as a link, but the association is not an aysnc relationship.", this.isAsync);
     Ember.assert("You have pushed a record of type '" + this.record.constructor.typeKey + "' with '" + this.key + "' as a link, but the value of that link is not a string.", typeof link === 'string' || link === null);
     if (link !== this.link) {
       this.link = link;

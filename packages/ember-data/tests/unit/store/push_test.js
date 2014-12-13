@@ -448,6 +448,23 @@ test('calling push without data argument as an object raises an error', function
   });
 });
 
+test('Calling push with a link for a non async relationship should warn', function() {
+  Person.reopen({
+    phoneNumbers: hasMany('phone-number', { async: false })
+  });
+
+  warns(function() {
+    run(function(){
+      store.push('person', {
+        id: '1',
+        links: {
+          phoneNumbers: '/api/people/1/phone-numbers'
+        }
+      });
+    });
+  },  /You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the association is not an aysnc relationship./);
+});
+
 test('Calling push with a link containing an object throws an assertion error', function() {
   expectAssertion(function() {
     run(function(){
