@@ -194,37 +194,25 @@ test("hasMany lazily loads async relationships", function() {
   });
 });
 
-test("should be able to retrieve the type for a hasMany relationship from its metadata", function() {
-  var Tag = DS.Model.extend({
-    name: DS.attr('string')
-  });
+test("should be able to retrieve the type for a hasMany relationship without specifying a type from its metadata", function() {
+  var Tag = DS.Model.extend({});
 
   var Person = DS.Model.extend({
-    name: DS.attr('string'),
-    tags: DS.hasMany('tag')
+    tags: DS.hasMany()
   });
 
-  var store = createStore({
+  var env = setupStore({
     tag: Tag,
     person: Person
   });
-  var tag, person;
 
-  run(function() {
-    tag = store.createRecord('tag');
-    person = store.createRecord('person');
-  });
-
-  equal(Person.typeForRelationship('tags'), Tag, "returns the relationship type");
+  equal(env.store.modelFor('person').typeForRelationship('tags'), Tag, "returns the relationship type");
 });
 
 test("should be able to retrieve the type for a hasMany relationship specified using a string from its metadata", function() {
-  var Tag = DS.Model.extend({
-    name: DS.attr('string')
-  });
+  var Tag = DS.Model.extend({});
 
   var Person = DS.Model.extend({
-    name: DS.attr('string'),
     tags: DS.hasMany('tag')
   });
 
@@ -236,14 +224,11 @@ test("should be able to retrieve the type for a hasMany relationship specified u
   equal(env.store.modelFor('person').typeForRelationship('tags'), Tag, "returns the relationship type");
 });
 
-test("should be able to retrieve the type for a belongsTo relationship from its metadata", function() {
-  var Tag = DS.Model.extend({
-    name: DS.attr('string')
-  });
+test("should be able to retrieve the type for a belongsTo relationship without specifying a type from its metadata", function() {
+  var Tag = DS.Model.extend({});
 
   var Person = DS.Model.extend({
-    name: DS.attr('string'),
-    tags: DS.belongsTo('tag')
+    tag: DS.belongsTo()
   });
 
   var env = setupStore({
@@ -251,7 +236,7 @@ test("should be able to retrieve the type for a belongsTo relationship from its 
     person: Person
   });
 
-  equal(env.store.modelFor('person').typeForRelationship('tags'), Tag, "returns the relationship type");
+  equal(env.store.modelFor('person').typeForRelationship('tag'), Tag, "returns the relationship type");
 });
 
 test("should be able to retrieve the type for a belongsTo relationship specified using a string from its metadata", function() {
@@ -260,7 +245,6 @@ test("should be able to retrieve the type for a belongsTo relationship specified
   });
 
   var Person = DS.Model.extend({
-    name: DS.attr('string'),
     tags: DS.belongsTo('tag')
   });
 

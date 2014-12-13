@@ -42,6 +42,17 @@ import { Model } from "ember-data/system/model";
   });
   ```
 
+  You can avoid passing a string as the first parameter. In that case Ember Data
+  will infer the type from the singularized key name.
+
+  ```javascript
+  App.Post = DS.Model.extend({
+    tags: DS.hasMany()
+  });
+  ```
+
+  will lookup for a Tag type.
+
   #### Explicit Inverses
 
   Ember Data will do its best to discover which relationships map to
@@ -78,8 +89,8 @@ import { Model } from "ember-data/system/model";
   @namespace
   @method hasMany
   @for DS
-  @param {String} type the model type of the relationship
-  @param {Object} options a hash of options
+  @param {String} type (optional) type of the relationship
+  @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
 */
 function hasMany(type, options) {
