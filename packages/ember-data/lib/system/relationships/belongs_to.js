@@ -41,11 +41,22 @@ import { Model } from 'ember-data/system/model';
   });
   ```
 
+  You can avoid passing a string as the first parameter. In that case Ember Data
+  will infer the type from the key name.
+
+  ```javascript
+  App.Comment = DS.Model.extend({
+    post: DS.belongsTo()
+  });
+  ```
+
+  will lookup for a Post type.
+
   @namespace
   @method belongsTo
   @for DS
-  @param {String} type the model type of the relationship
-  @param {Object} options a hash of options
+  @param {String} type (optional) type of the relationship
+  @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
 */
 function belongsTo(type, options) {

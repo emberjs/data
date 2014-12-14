@@ -292,35 +292,6 @@ test("A record with an async belongsTo relationship returning null should resolv
   }));
 });
 
-test("TODO (embedded): The store can load an embedded polymorphic belongsTo association", function() {
-  expect(0);
-  //serializer.keyForEmbeddedType = function() {
-    //return 'embeddedType';
-  //};
-
-  //adapter.load(store, App.User, { id: 2, favourite_message: { id: 1, embeddedType: 'comment'}});
-
-  //var user = store.find(App.User, 2),
-      //message = store.find(App.Comment, 1);
-
-  //equal(user.get('favouriteMessage'), message);
-});
-
-test("TODO (embedded): The store can serialize an embedded polymorphic belongsTo association", function() {
-  expect(0);
-  //serializer.keyForEmbeddedType = function() {
-    //return 'embeddedType';
-  //};
-  //adapter.load(store, App.User, { id: 2, favourite_message: { id: 1, embeddedType: 'comment'}});
-
-  //var user = store.find(App.User, 2),
-      //serialized = store.serialize(user, {includeId: true});
-
-  //ok(serialized.hasOwnProperty('favourite_message'));
-  //equal(serialized.favourite_message.id, 1);
-  //equal(serialized.favourite_message.embeddedType, 'comment');
-});
-
 test("relationshipsByName does not cache a factory", function() {
 
   // The model is loaded up via a container. It has relationshipsByName
