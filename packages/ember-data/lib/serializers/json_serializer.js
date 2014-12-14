@@ -1014,7 +1014,67 @@ export default Ember.Object.extend({
     }
     return payload;
   },
+  
+  // LOAD
+  
+  /**
+    
+    
+    TBC
+    
+    @method pushIntoStore
+    @param {DS.Store} store
+    @param {String or subclass of DS.Model} type
+    @param {Object} data
+    
+    @return {DS.Model} the record that was created or updated 
+      from the store.
+  */
+  
+  // TODO: remove this? should it only be used/defined in EmbeddedRecordsMixin
+  
+  //pushIntoStore: function(store, type, data) {
+  //  return store.push(type, data);
+  //},
+  
+  /**
+    
+    TBC
+    
+    @method pushManyIntoStore
+    @param {DS.Store} store
+    @param {String or subclass of DS.Model} type
+    @param {Array} datas
+    @return {Array}
 
+  */
+  
+  // TODO: remove this? should it only be used/defined in EmbeddedRecordsMixin
+  
+  //pushManyIntoStore: function(store, type, datas) {
+  //  return store.pushMany(type, datas);
+  //},
+  
+  /**
+    
+    TBC
+    
+    @method loadRecordArray
+    @param {DS.RecordArray} recordArray
+    @param {DS.Store} store
+    @param {subclass of DS.Model} type
+    @param {Array} datas
+    
+    @return {DS.RecordArray}
+  */
+  
+  // TODO: remove this? should it only be used/defined in EmbeddedRecordsMixin
+  
+  //loadRecordArray: function(recordArray, store, type, datas) {
+  //  recordArray.load(datas);
+  //  return recordArray;
+  //},
+  
   /**
    `keyForAttribute` can be used to define rules for how to convert an
    attribute name in your model to a key in your JSON.

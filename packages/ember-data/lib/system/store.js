@@ -1777,8 +1777,11 @@ function _find(adapter, store, type, id, record) {
   return promise.then(function(adapterPayload) {
     Ember.assert("You made a request for a " + type.typeKey + " with id " + id + ", but the adapter's response did not have any data", adapterPayload);
     var payload = serializer.extract(store, type, adapterPayload, id, 'find');
-
-    return store.push(type, payload);
+    if (serializer.pushIntoStore) {
+      return serializer.pushIntoStore(store, type, payload);  
+    } else {
+      return store.push(type, payload);
+    }
   }, function(error) {
     var record = store.getById(type, id);
     if (record) {
@@ -1805,8 +1808,11 @@ function _findMany(adapter, store, type, ids, records) {
     var payload = serializer.extract(store, type, adapterPayload, null, 'findMany');
 
     Ember.assert("The response from a findMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
-
-    return store.pushMany(type, payload);
+    if (serializer.pushManyIntoStore) {
+      return serializer.pushManyIntoStore(store, type, payload);
+    } else {
+      return store.pushMany(type, payload);
+    }
   }, null, "DS: Extract payload of " + type);
 }
 
@@ -1823,9 +1829,12 @@ function _findHasMany(adapter, store, record, link, relationship) {
     var payload = serializer.extract(store, relationship.type, adapterPayload, null, 'findHasMany');
 
     Ember.assert("The response from a findHasMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
-
-    var records = store.pushMany(relationship.type, payload);
-    return records;
+    
+    if (serializer.pushManyIntoStore) {
+      return serializer.pushManyIntoStore(store, relationship.type, payload);
+    } else {
+      return store.pushMany(relationship.type, payload);
+    }
   }, null, "DS: Extract payload of " + record + " : hasMany " + relationship.type);
 }
 
@@ -1844,9 +1853,12 @@ function _findBelongsTo(adapter, store, record, link, relationship) {
     if (!payload) {
       return null;
     }
-
-    var record = store.push(relationship.type, payload);
-    return record;
+    
+    if (serializer.pushIntoStore) {
+      return serializer.pushIntoStore(store, relationship.type, payload);
+    } else {
+      return store.push(relationship.type, payload);
+    }
   }, null, "DS: Extract payload of " + record + " : " + relationship.type);
 }
 
@@ -1862,8 +1874,12 @@ function _findAll(adapter, store, type, sinceToken) {
     var payload = serializer.extract(store, type, adapterPayload, null, 'findAll');
 
     Ember.assert("The response from a findAll must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
-
-    store.pushMany(type, payload);
+    
+    if (serializer.pushManyIntoStore) {
+      serializer.pushManyIntoStore(store, type, payload);
+    } else {
+      store.pushMany(type, payload);
+    }
     store.didUpdateAll(type);
     return store.all(type);
   }, null, "DS: Extract payload of findAll " + type);
@@ -1881,8 +1897,12 @@ function _findQuery(adapter, store, type, query, recordArray) {
     var payload = serializer.extract(store, type, adapterPayload, null, 'findQuery');
 
     Ember.assert("The response from a findQuery must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
-
-    recordArray.load(payload);
+    
+    if (serializer.loadRecordArray) {
+      serializer.loadRecordArray(recordArray, store, type, payload);
+    } else {
+      recordArray.load(payload);
+    }
     return recordArray;
   }, null, "DS: Extract payload of findQuery " + type);
 }
