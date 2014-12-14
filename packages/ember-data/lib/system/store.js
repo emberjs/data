@@ -425,8 +425,10 @@ Store = Ember.Object.extend({
     This method returns a fresh record for a given type and id combination.
 
     If a record is available for the given type/id combination, then
-    it will fetch this record from the store then reload it. If
-    there's no record corresponding in the store it will simply call
+    it will fetch this record from the store and call `reload()` on it.
+    That will fire a request to server and return a promise that will
+    resolve once the record has been reloaded.
+    If there's no record corresponding in the store it will simply call
     `store.find`.
 
     Example
