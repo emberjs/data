@@ -65,9 +65,16 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
   flushCanonical: function() {
     //TODO make this smarter, currently its plenty stupid
+    var toSet = this.canonicalState.slice(0);
+    //a hack for not removing new records
+    //TODO remove once we have proper diffing
+    var newRecords = this.currentState.filter(function(record) {
+      return record.get('isNew');
+    });
+    toSet = toSet.concat(newRecords);
     this.arrayContentWillChange(0, this.length, this.length);
-    this.set('length', this.canonicalState.length);
-    this.currentState = this.canonicalState.slice(0);
+    this.set('length', toSet.length);
+    this.currentState = toSet;
     this.arrayContentDidChange(0, this.length, this.length);
     //TODO Figure out to notify only on additions and maybe only if unloaded
     this.relationship.notifyHasManyChanged();

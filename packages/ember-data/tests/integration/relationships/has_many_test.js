@@ -260,6 +260,47 @@ test("A hasMany updated link should not remove new children", function() {
   });
 });
 
+test("A hasMany updated link should not remove new children when the parent record has children already", function() {
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
+
+  Comment.reopen({
+    message: DS.belongsTo('post', { async: true })
+  });
+
+  env.adapter.findHasMany = function(store, record, link, relationship) {
+    return Ember.RSVP.resolve([{id:5, body: 'hello'}]);
+  };
+
+  env.adapter.createRecord = function(store, record, link, relationship) {
+    return Ember.RSVP.resolve({
+      links: {
+        comments: '/some/link'
+      }
+    });
+  };
+
+  run(function() {
+    var post = env.store.createRecord('post', {});
+    env.store.createRecord('comment', {message: post});
+
+    post.get('comments')
+      .then(function(comments) {
+        equal(comments.get('length'), 1);
+
+        return post.save();
+      })
+      .then(function() {
+        return post.get('comments');
+      })
+      .then(function(comments) {
+        equal(comments.get('length'), 2);
+      });
+  });
+});
+
+
 test("A hasMany relationship can be reloaded if it was fetched via a link", function() {
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })

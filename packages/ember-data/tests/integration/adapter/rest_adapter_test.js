@@ -357,12 +357,13 @@ test("create - a record on the many side of a hasMany relationship should update
       comments: [1,2]
     }],
     comments: [{
-      id: "1",
-      name: "Dat Parley Letter",
-      post: 1
-    },{
       id: "2",
       name: "Another Comment",
+      post: 1
+    },
+{
+      id: "1",
+      name: "Dat Parley Letter",
       post: 1
     }]
     // My API is returning a comment:{} as well as a comments:[{...},...]

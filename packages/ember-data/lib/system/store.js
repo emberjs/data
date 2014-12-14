@@ -1148,7 +1148,9 @@ Store = Ember.Object.extend({
       this.updateId(record, data);
     }
 
-    this._backburner.schedule('finished', record, 'adapterDidCommit', data);
+    //We first make sure the primary data has been updated
+    //TODO try to move notification to the user to the end of the runloop
+    record.adapterDidCommit(data);
   },
 
   /**

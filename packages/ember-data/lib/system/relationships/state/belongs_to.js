@@ -48,6 +48,11 @@ BelongsToRelationship.prototype.addCanonicalRecord = function(newRecord) {
 
 BelongsToRelationship.prototype._super$flushCanonical = Relationship.prototype.flushCanonical;
 BelongsToRelationship.prototype.flushCanonical = function() {
+  //temporary fix to not remove newly created records if server returned null.
+  //TODO remove once we have proper diffing
+  if (this.inverseRecord && this.inverseRecord.get('isNew') && !this.canonicalState) {
+    return;
+  }
   this.inverseRecord = this.canonicalState;
   this.record.notifyBelongsToChanged(this.key);
   this._super$flushCanonical();

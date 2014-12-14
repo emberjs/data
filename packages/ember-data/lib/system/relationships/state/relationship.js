@@ -170,8 +170,19 @@ Relationship.prototype = {
 
   flushCanonical: function() {
     this.willSync = false;
+    //a hack for not removing new records
+    //TODO remove once we have proper diffing
+    var newRecords = [];
+    for (var i=0; i<this.members.list.length; i++) {
+      if (this.members.list[i].get('isNew')) {
+        newRecords.push(this.members.list[i]);
+      }
+    }
     //TODO(Igor) make this less abysmally slow
     this.members = this.canonicalMembers.copy();
+    for (i=0; i<newRecords.length; i++) {
+      this.members.add(newRecords[i]);
+    }
   },
 
   flushCanonicalLater: function() {
