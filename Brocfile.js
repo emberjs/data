@@ -6,6 +6,7 @@ var concat          = require('broccoli-concat');
 var uglify          = require('broccoli-uglify-js');
 var es3SafeRecast   = require('broccoli-es3-safe-recast');
 var env             = process.env.EMBER_ENV;
+var amdBuild        = require('./lib/amd-build');
 var pickFiles       = require('broccoli-static-compiler');
 var merge           = require('broccoli-merge-trees');
 var moveFile        = require('broccoli-file-mover');
@@ -91,12 +92,20 @@ var packages = merge([
   package('activemodel-adapter')
 ]);
 
-var globalBuild = es6(packages, {
-  inputFiles: ['ember-data'],
-  output: '/ember-data.js',
-  resolvers: [PackageResolver],
-  formatter: 'bundle'
-});
+var globalBuild;
+
+// Bundle formatter for smaller payload
+if (env === 'production') {
+  globalBuild = es6(packages, {
+    inputFiles: ['ember-data'],
+    output: '/ember-data.js',
+    resolvers: [PackageResolver],
+    formatter: 'bundle'
+  });
+} else {
+// Use AMD for faster rebuilds in dev
+  globalBuild = amdBuild(packages);
+}
 
 var testFiles = merge([
   testTree('ember-data'),
