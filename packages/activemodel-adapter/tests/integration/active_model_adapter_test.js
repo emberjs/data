@@ -39,7 +39,9 @@ test('ajaxError - invalid error has camelized keys', function() {
     responseText: JSON.stringify({ errors: { first_name: "can't be blank" } })
   };
 
-  equal(adapter.ajaxError(jqXHR), error.toString());
+  var ajaxResponse = adapter.ajaxError(jqXHR);
+
+  equal(Ember.keys(ajaxResponse.errors.errors), Ember.keys(error.errors.errors));
 });
 
 test('ajaxError - returns ajax response if not 422 response', function() {
