@@ -164,6 +164,16 @@ For details on anticipated changes before the 1.0 release, see the blog
 post [The Road to Ember Data
 1.0](http://emberjs.com/blog/2014/03/18/the-road-to-ember-data-1-0.html).
 
+# Building Ember Data
+
+1. Ensure that [Node.js](http://nodejs.org/) is installed.
+2. Run `npm install` to ensure the required dependencies are installed.
+3. Run `npm run dist` to build Ember Data. The builds will be placed in the `dist/` directory.
+
+# Contribution
+
+See [CONTRIBUTING.md](https://github.com/emberjs/data/blob/master/CONTRIBUTING.md)
+
 ## How to Run Unit Tests
 
 ### Setup
