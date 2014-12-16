@@ -41,7 +41,7 @@ test('ajaxError - invalid error has camelized keys', function() {
 
   var ajaxResponse = adapter.ajaxError(jqXHR);
 
-  equal(Ember.keys(ajaxResponse.errors.errors), Ember.keys(error.errors.errors));
+  deepEqual(Ember.keys(ajaxResponse.errors.errors), Ember.keys(error.errors.errors));
 });
 
 test('ajaxError - returns ajax response if not 422 response', function() {
