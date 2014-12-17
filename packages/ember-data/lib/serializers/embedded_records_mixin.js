@@ -1,5 +1,6 @@
 var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
+var map = Ember.EnumerableUtils.map;
 var camelize = Ember.String.camelize;
 
 /**
@@ -90,39 +91,38 @@ var camelize = Ember.String.camelize;
   @namespace DS
 */
 var EmbeddedRecordsMixin = Ember.Mixin.create({
-
-  /**
-    Normalize the record and recursively normalize/extract all the embedded records
-    while pushing them into the store as they are encountered
-
-    A payload with an attr configured for embedded records needs to be extracted:
-
-    ```js
-    {
-      "post": {
-        "id": "1"
-        "title": "Rails is omakase",
-        "comments": [{
-          "id": "1",
-          "body": "Rails is unagi"
-        }, {
-          "id": "2",
-          "body": "Omakase O_o"
-        }]
-      }
-    }
-    ```
-   @method normalize
-   @param {subclass of DS.Model} type
-   @param {Object} hash to be normalized
-   @param {String} key the hash has been referenced by
-   @return {Object} the normalized hash
-  **/
-  normalize: function(type, hash, prop) {
-    var normalizedHash = this._super(type, hash, prop);
-    return extractEmbeddedRecords(this, this.store, type, normalizedHash);
+  
+  
+  pushIntoStore: function(store, type, data) {
+    var fixedEmbeddedRecords = extractEmbeddedRecords(this, store, type, data);
+    return store.push(type, fixedEmbeddedRecords);
   },
-
+  
+  
+  pushManyIntoStore: function(store, type, datas) {
+    var serializer = this;
+    var fixedEmbeddedRecords = map(datas, function(data) {
+      return extractEmbeddedRecords(serializer, store, type, data);
+    });
+    
+    return store.pushMany(type, fixedEmbeddedRecords);
+  },
+  
+  
+  // TODO: make a test that uses this function? embedded records retrieved using findQuery (and subsequently this function)
+  // haven't been tested
+  loadRecordArray: function(recordArray, store, type, datas) {
+    var serializer = this;
+    
+    var fixedEmbeddedRecords = map(datas, function(data) {
+      return extractEmbeddedRecords(serializer, store, type, data);  
+    });
+    
+    recordArray.load(fixedEmbeddedRecords);
+    return recordArray;
+  },
+  
+  
   keyForRelationship: function(key, type){
     if (this.hasDeserializeRecordsOption(key)) {
       return this.keyForAttribute(key);
@@ -407,6 +407,18 @@ function extractEmbeddedRecords(serializer, store, type, partial) {
   return partial;
 }
 
+function pushEmbeddedRecord(store, embeddedType, embeddedHash) {
+  var embeddedSerializer = store.serializerFor(embeddedType.typeKey);
+  var embeddedNormalizedHash = embeddedSerializer.normalize(embeddedType, embeddedHash, null);
+  
+  if (embeddedSerializer.pushIntoStore) {
+    embeddedSerializer.pushIntoStore(store, embeddedType, embeddedNormalizedHash);  
+  } else {
+    store.push(embeddedType, embeddedNormalizedHash);  
+  }
+  return embeddedNormalizedHash.id;
+}
+
 // handles embedding for `hasMany` relationship
 function extractEmbeddedHasMany(store, key, embeddedType, hash) {
   if (!hash[key]) {
@@ -415,11 +427,8 @@ function extractEmbeddedHasMany(store, key, embeddedType, hash) {
 
   var ids = [];
 
-  var embeddedSerializer = store.serializerFor(embeddedType.typeKey);
   forEach(hash[key], function(data) {
-    var embeddedRecord = embeddedSerializer.normalize(embeddedType, data, null);
-    store.push(embeddedType, embeddedRecord);
-    ids.push(embeddedRecord.id);
+    ids.push(pushEmbeddedRecord(store, embeddedType, data));
   });
 
   hash[key] = ids;
@@ -435,13 +444,10 @@ function extractEmbeddedHasManyPolymorphic(store, key, hash) {
 
   forEach(hash[key], function(data) {
     var typeKey = data.type;
-    var embeddedSerializer = store.serializerFor(typeKey);
     var embeddedType = store.modelFor(typeKey);
-    var primaryKey = get(embeddedSerializer, 'primaryKey');
-
-    var embeddedRecord = embeddedSerializer.normalize(embeddedType, data, null);
-    store.push(embeddedType, embeddedRecord);
-    ids.push({ id: embeddedRecord[primaryKey], type: typeKey });
+    var id = { type: typeKey, id: pushEmbeddedRecord(store, embeddedType, data) };
+    
+    ids.push(id);
   });
 
   hash[key] = ids;
@@ -452,12 +458,9 @@ function extractEmbeddedBelongsTo(store, key, embeddedType, hash) {
   if (!hash[key]) {
     return hash;
   }
-
-  var embeddedSerializer = store.serializerFor(embeddedType.typeKey);
-  var embeddedRecord = embeddedSerializer.normalize(embeddedType, hash[key], null);
-  store.push(embeddedType, embeddedRecord);
-
-  hash[key] = embeddedRecord.id;
+  
+  hash[key] = pushEmbeddedRecord(store, embeddedType, hash[key]);
+  
   //TODO Need to add a reference to the parent later so relationship works between both `belongsTo` records
   return hash;
 }
