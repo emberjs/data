@@ -59,6 +59,23 @@ test("resetting a property on a record cause it to become clean again", function
   });
 });
 
+test("a record becomes clean again only if all changed properties are reset", function() {
+  run(function(){
+    store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
+    store.find(Person, 1).then(function(person) {
+      equal(person.get('isDirty'), false, "precond - person record should not be dirty");
+      person.set('isDrugAddict', false);
+      equal(person.get('isDirty'), true, "record becomes dirty after setting one property to a new value");
+      person.set('name', 'Mark');
+      equal(person.get('isDirty'), true, "record stays dirty after setting another property to a new value");
+      person.set('isDrugAddict', true);
+      equal(person.get('isDirty'), true, "record stays dirty after resetting only one property to the old value");
+      person.set('name', 'Peter');
+      equal(person.get('isDirty'), false, "record becomes clean after resetting both properties to the old value");
+    });
+  });
+});
+
 test("a record reports its unique id via the `id` property", function() {
   run(function(){
     store.push(Person, { id: 1 });
