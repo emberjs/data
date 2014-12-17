@@ -165,7 +165,14 @@ ManyRelationship.prototype.destroy = function() {
 };
 
 ManyRelationship.prototype.notifyRecordRelationshipAdded = function(record, idx) {
-  Ember.assert("You cannot add '" + record.constructor.typeKey + "' records to this relationship (only '" + this.belongsToType.typeKey + "' allowed)", !this.belongsToType || record instanceof this.belongsToType);
+  Ember.assert(
+    "You cannot add '" + record.constructor.typeKey +
+    "' records to this relationship (only '" + this.belongsToType.typeKey + "' allowed)",
+    !this.belongsToType || record instanceof this.belongsToType || (
+      Ember.MODEL_FACTORY_INJECTIONS &&
+      record instanceof this.store.container.resolve('model:' + this.belongsToType.typeKey)
+    )
+  );
   this.record.notifyHasManyAdded(this.key, record, idx);
 };
 
@@ -286,7 +293,12 @@ BelongsToRelationship.prototype._super$addRecord = Relationship.prototype.addRec
 BelongsToRelationship.prototype.addRecord = function(newRecord) {
   if (this.members.has(newRecord)){ return;}
   var type = this.relationshipMeta.type;
-  Ember.assert("You can only add a '" + type.typeKey + "' record to this relationship", newRecord instanceof type);
+  Ember.assert("You can only add a '" + type.typeKey + "' record to this relationship",
+    newRecord instanceof type || (
+      Ember.MODEL_FACTORY_INJECTIONS &&
+      newRecord instanceof this.store.container.resolve('model:' + type.typeKey)
+    )
+  );
 
   if (this.inverseRecord) {
     this.removeRecord(this.inverseRecord);
