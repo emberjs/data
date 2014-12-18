@@ -1,9 +1,9 @@
 import RootState from "ember-data/system/model/states";
 import Errors from "ember-data/system/model/errors";
 import { PromiseObject } from "ember-data/system/promise_proxies";
-import { createRelationshipFor } from "ember-data/system/relationships/relationship";
 import merge from "ember-data/system/merge";
 import JSONSerializer from "ember-data/serializers/json_serializer";
+import createRelationshipFor from "ember-data/system/relationships/state/create";
 
 /**
   @module ember-data

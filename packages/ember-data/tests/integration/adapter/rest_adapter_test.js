@@ -357,12 +357,13 @@ test("create - a record on the many side of a hasMany relationship should update
       comments: [1,2]
     }],
     comments: [{
-      id: "1",
-      name: "Dat Parley Letter",
-      post: 1
-    },{
       id: "2",
       name: "Another Comment",
+      post: 1
+    },
+{
+      id: "1",
+      name: "Dat Parley Letter",
       post: 1
     }]
     // My API is returning a comment:{} as well as a comments:[{...},...]
@@ -420,6 +421,43 @@ test("create - sideloaded belongsTo relationships are both marked as loaded", fu
       equal(store.getById('comment', 1).get('post.isLoaded'), true, "comment's post isLoaded (via store)");
       equal(record.get('comment.isLoaded'), true, "post's comment isLoaded (via record)");
       equal(record.get('comment.post.isLoaded'), true, "post's comment's post isLoaded (via record)");
+    }));
+  });
+});
+
+test("create - response can contain relationships the client doesn't yet know about", function() {
+  expect(3); // while records.length is 2, we are getting 4 assertions
+
+  ajaxResponse({
+    posts: [{
+      id: "1",
+      name: "Rails is omakase",
+      comments: [2]
+    }],
+    comments: [{
+      id: "2",
+      name: "Another Comment",
+      post: 1
+    }]
+  });
+
+  Post.reopen({ comments: DS.hasMany('comment') });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  var post;
+  run(function() {
+    post = store.createRecord('post', { name: "Rails is omakase" });
+  });
+
+  run(function() {
+    post.save().then(async(function(post) {
+      equal(post.get('comments.firstObject.post'), post, "the comments are related to the correct post model");
+      equal(store.typeMapFor(Post).records.length, 1, "There should only be one post record in the store");
+
+      var postRecords = store.typeMapFor(Post).records;
+      for(var i = 0; i < postRecords.length; i++) {
+        equal(post, postRecords[i], "The object in the identity map is the same");
+      }
     }));
   });
 });

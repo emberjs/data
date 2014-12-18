@@ -118,7 +118,9 @@ test("hasMany handles pre-loaded relationships", function() {
       equal(get(pets, 'length'), 1, "the list of pets should have the correct length");
       equal(get(pets.objectAt(0), 'name'), "fluffy", "the first pet should be correct");
 
-      store.push(Person, { id: 4, name: "Cyvid Hamluck", pets: [4, 12] });
+      Ember.run(function() {
+        store.push(Person, { id: 4, name: "Cyvid Hamluck", pets: [4, 12] });
+      });
 
       equal(pets, get(cyvid, 'pets'), "a relationship returns the same object every time");
       equal(get(get(cyvid, 'pets'), 'length'), 2, "the length is updated after new data is loaded");
