@@ -12,7 +12,7 @@ var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
   this.manyArray.isPolymorphic = this.isPolymorphic;
 };
 
-ManyRelationship.prototype = Object.create(Relationship.prototype);
+ManyRelationship.prototype = Ember.create(Relationship.prototype);
 ManyRelationship.prototype.constructor = ManyRelationship;
 ManyRelationship.prototype._super$constructor = Relationship;
 
