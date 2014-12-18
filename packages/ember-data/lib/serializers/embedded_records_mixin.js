@@ -132,7 +132,6 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     
     // if embedded hash contains client id, mimic a createRecord/save
     if (clientRecord) {
-      clientRecord.adapterDidCommit(hash);
       store.didSaveRecord(clientRecord, hash);
       delete primarySerializer.clientIdMap[clientId];
     } else {
