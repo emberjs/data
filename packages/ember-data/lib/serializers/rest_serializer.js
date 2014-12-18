@@ -258,12 +258,21 @@ var RESTSerializer = JSONSerializer.extend({
     @param {subclass of DS.Model} primaryType
     @param {Object} payload
     @param {String} recordId
+    @param {String} requestType
+    @param record
     @return {Object} the primary response to the original request
   */
-  extractSingle: function(store, primaryType, rawPayload, recordId) {
+  extractSingle: function(store, primaryType, rawPayload, recordId, requestType, record) {
     var payload = this.normalizePayload(rawPayload);
     var primaryTypeName = primaryType.typeKey;
     var primaryRecord;
+
+    if (record && !recordId) {
+      primaryRecord = this.extractPrimaryRecord(store, primaryType, payload);
+      if (primaryRecord) {
+        store.updateId(record, primaryRecord);
+      }
+    }
 
     for (var prop in payload) {
       var typeName  = this.typeForRoot(prop);
@@ -309,6 +318,29 @@ var RESTSerializer = JSONSerializer.extend({
           store.push(typeName, hash);
         }
       }, this);
+    }
+
+    return primaryRecord;
+  },
+
+  extractPrimaryRecord: function(store, primaryType, payload) {
+    var primaryTypeName = primaryType.typeKey;
+    var primaryRecord;
+    for (var prop in payload) {
+      var typeName  = this.typeForRoot(prop);
+      var type = store.modelFor(typeName);
+      var isPrimary = type.typeKey === primaryTypeName;
+      var value = payload[prop];
+
+      if (!isPrimary) { continue; }
+
+      // legacy support for singular resources
+      if (Ember.typeOf(value) !== "array" ) {
+        primaryRecord = this.normalize(primaryType, value, prop);
+      } else if (value && value[0]) {
+        var typeSerializer = store.serializerFor(type);
+        primaryRecord = typeSerializer.normalize(type, value[0], prop);
+      }
     }
 
     return primaryRecord;
