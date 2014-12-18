@@ -25,6 +25,46 @@ import { Model } from "ember-data/system/model";
 //Stanley told me to do this
 var Backburner = Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
 
+//Shim Backburner.join
+if (!Backburner.prototype.join) {
+  var isString = function(suspect) {
+    return typeof suspect === 'string';
+  };
+
+  Backburner.prototype.join = function(/*target, method, args */) {
+    var method, target;
+
+    if (this.currentInstance) {
+      var length = arguments.length;
+      if (length === 1) {
+        method = arguments[0];
+        target = null;
+      } else {
+        target = arguments[0];
+        method = arguments[1];
+      }
+
+      if (isString(method)) {
+        method = target[method];
+      }
+
+      if (length === 1) {
+        return method();
+      } else if (length === 2) {
+        return method.call(target);
+      } else {
+        var args = new Array(length - 2);
+        for (var i =0, l = length - 2; i < l; i++) {
+          args[i] = arguments[i + 2];
+        }
+        return method.apply(target, args);
+      }
+    } else {
+      return this.run.apply(this, arguments);
+    }
+  };
+}
+
 
 var get = Ember.get;
 var set = Ember.set;
