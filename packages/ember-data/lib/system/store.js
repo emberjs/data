@@ -23,7 +23,7 @@ import RecordArrayManager from "ember-data/system/record_array_manager";
 
 import { Model } from "ember-data/system/model";
 //Stanley told me to do this
-var Backburner = Ember.__loader.require('backburner')['default'];
+var Backburner = Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
 
 
 var get = Ember.get;
