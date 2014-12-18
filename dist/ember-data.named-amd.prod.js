@@ -2247,7 +2247,6 @@ define("ember-data/serializers/embedded_records_mixin",
         
         // if embedded hash contains client id, mimic a createRecord/save
         if (clientRecord) {
-          clientRecord.adapterDidCommit(hash);
           store.didSaveRecord(clientRecord, hash);
           delete primarySerializer.clientIdMap[clientId];
         } else {
@@ -12221,14 +12220,28 @@ define("ember-inflector/helpers",
      *
      * Example:
      *
+     * {{pluralize count myProperty}}
+     * {{pluralize 1 "oxen"}}
      * {{pluralize myProperty}}
-     * {{pluralize "oxen"}}
+     * {{pluralize "ox"}}
      *
      * @for Ember.Handlebars.helpers
      * @method pluralize
+     * @param {Number|Property} [count] count of objects
      * @param {String|Property} word word to pluralize
     */
-    Ember.Handlebars.helper('pluralize', pluralize);
+    Ember.Handlebars.helper('pluralize', function(count, word, options) {
+      if(arguments.length < 3) {
+        return pluralize(count);
+      } else {
+        /* jshint eqeqeq: false */
+        if(count != 1) {
+          /* jshint eqeqeq: true */
+          word = pluralize(word);
+        }
+        return count + " " + word;
+      }
+    });
   });
 define("ember-inflector/system",
   ["./system/inflector","./system/string","./system/inflections","exports"],
