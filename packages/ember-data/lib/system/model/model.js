@@ -907,7 +907,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @method rollback
   */
   rollback: function() {
-    var dirtyKeys = this.dirtyKeys();
+    var dirtyKeys = Ember.keys(this._attributes);
 
     this._attributes = Ember.create(null);
 
@@ -934,16 +934,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this.send('rolledBack');
 
     this._notifyProperties(dirtyKeys);
-  },
-
-  dirtyKeys: function() {
-    var keys = Ember.keys(this._attributes);
-
-    if (get(this, 'isNew')) {
-      keys.concat(Ember.keys(this._data));
-    }
-
-    return keys;
   },
 
   toStringExtension: function() {
