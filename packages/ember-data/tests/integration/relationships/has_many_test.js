@@ -55,7 +55,8 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     Book.toString = stringify('Book');
 
     Chapter = DS.Model.extend({
-      title: attr()
+      title: attr(),
+      pages: hasMany('page')
     });
     Chapter.toString = stringify('Chapter');
 
@@ -1068,6 +1069,64 @@ test("Rollbacking a deleted record restores implicit relationship correctly when
   });
   run(function(){
     equal(page.get('chapter'), chapter, "Page has a chapter after rollback");
+  });
+});
+
+test("ManyArray notifies the array observers and flushes bindings when removing", function () {
+  expect(2);
+  var chapter, page, page2;
+  var observe = false;
+  var arr = Ember.A([1,2]);
+  run(function(){
+    page = env.store.push('page', { id: 1, number: 1 });
+    page2 = env.store.push('page', { id: 2, number: 2 });
+    chapter = env.store.push('chapter', { id: 1, title: 'Sailing the Seven Seas', pages: [1, 2] });
+    chapter.get('pages').addEnumerableObserver(this, {
+      willChange: function(pages, removing, addCount){
+        if (observe) {
+          equal(removing[0], page2, 'page2 is passed to willChange');
+        }
+      },
+      didChange:function(pages, removeCount, adding){
+        if (observe) {
+          equal(removeCount, 1, 'removeCount is correct');
+        }
+      }
+    });
+  });
+  run(function(){
+    observe = true;
+    page2.set('chapter', null);
+    observe = false;
+  });
+});
+
+test("ManyArray notifies the array observers and flushes bindings when adding", function () {
+  expect(2);
+  var chapter, page, page2;
+  var observe = false;
+  var arr = Ember.A([1,2]);
+  run(function(){
+    page = env.store.push('page', { id: 1, number: 1 });
+    page2 = env.store.push('page', { id: 2, number: 2 });
+    chapter = env.store.push('chapter', { id: 1, title: 'Sailing the Seven Seas', pages: [1] });
+    chapter.get('pages').addEnumerableObserver(this, {
+      willChange: function(pages, removing, addCount){
+        if (observe) {
+          equal(addCount, 1, 'addCount is correct');
+        }
+      },
+      didChange:function(pages, removeCount, adding){
+        if (observe) {
+          equal(adding[0], page2, 'page2 is passed to didChange');
+        }
+      }
+    });
+  });
+  run(function(){
+    observe = true;
+    page2.set('chapter', chapter);
+    observe = false;
   });
 });
 
