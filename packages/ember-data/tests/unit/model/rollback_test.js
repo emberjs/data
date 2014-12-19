@@ -141,6 +141,21 @@ test("new record can be rollbacked", function() {
   equal(person.get('isDeleted'), true, "must be deleted");
 });
 
+test("locally set attributes can be rolled back", function() {
+  var person;
+
+  run(function(){
+    person = store.push('person', { id: 1 });
+    person.set('firstName', 'wecc');
+  });
+
+
+  equal(person.get('firstName'), 'wecc', "firstName is set originally");
+  Ember.run(person, 'rollback');
+
+  equal(person.get('firstName'), undefined, "must be deleted");
+});
+
 test("deleted record can be rollbacked", function() {
   var person, people;
 
