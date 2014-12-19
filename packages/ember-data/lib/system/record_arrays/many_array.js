@@ -107,10 +107,10 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     if (!objects) {
       objects = [];
     }
-    this.arrayContentWillChange(idx, 0, objects.length);
+    this.arrayContentWillChange(idx, amt, objects.length);
     this.currentState.splice.apply(this.currentState, [idx, amt].concat(objects));
     this.set('length', this.currentState.length);
-    this.arrayContentDidChange(idx, 0, objects.length);
+    this.arrayContentDidChange(idx, amt, objects.length);
     if (objects){
       //TODO(Igor) probably needed only for unloaded records
       this.relationship.notifyHasManyChanged();
