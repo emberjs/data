@@ -907,9 +907,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @method rollback
   */
   rollback: function() {
+    var toNotify = this._attributes;
     this._attributes = Ember.create(null);
 
     if (get(this, 'isError')) {
+      Ember.merge(toNotify, this._inFlightAttributes);
       this._inFlightAttributes = Ember.create(null);
       set(this, 'isError', false);
     }
@@ -926,12 +928,13 @@ var Model = Ember.Object.extend(Ember.Evented, {
     }
 
     if (!get(this, 'isValid')) {
+      Ember.merge(toNotify, this._inFlightAttributes);
       this._inFlightAttributes = Ember.create(null);
     }
 
     this.send('rolledBack');
 
-    this._notifyProperties(Ember.keys(this._data));
+    this._notifyProperties(Ember.keys(toNotify));
 
   },
 
