@@ -8,6 +8,7 @@ dist/
 .project
 
 .github-upload-token
+*.swp
 
 tests/ember-data-tests.js
 *gem
