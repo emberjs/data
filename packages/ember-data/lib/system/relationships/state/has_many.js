@@ -78,7 +78,17 @@ ManyRelationship.prototype.removeRecordFromOwn = function(record, idx) {
 };
 
 ManyRelationship.prototype.notifyRecordRelationshipAdded = function(record, idx) {
-  Ember.assert("You cannot add '" + record.constructor.typeKey + "' records to this relationship (only '" + this.belongsToType.typeKey + "' allowed)", !this.belongsToType || record instanceof this.belongsToType);
+  var type = this.relationshipMeta.type;
+  Ember.assert("You cannot add '" + record.constructor.typeKey + "' records to the " + this.record.constructor.typeKey + "." + this.key + " relationship (only '" + this.belongsToType.typeKey + "' allowed)", (function () {
+    if (record instanceof type) {
+      return true;
+    } else if (Ember.MODEL_FACTORY_INJECTIONS) {
+      return record instanceof type.superclass;
+    }
+
+    return false;
+  })());
+
   this.record.notifyHasManyAdded(this.key, record, idx);
 };
 
