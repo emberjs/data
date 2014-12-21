@@ -7,7 +7,8 @@ import {pluralize} from "ember-inflector";
 */
 
 var decamelize = Ember.String.decamelize,
-    underscore = Ember.String.underscore;
+    underscore = Ember.String.underscore,
+    camelize   = Ember.String.camelize;
 
 /**
   The ActiveModelAdapter is a subclass of the RESTAdapter designed to integrate
@@ -141,7 +142,16 @@ var ActiveModelAdapter = RESTAdapter.extend({
     var error = this._super.apply(this, arguments);
 
     if (jqXHR && jqXHR.status === 422) {
-      return new InvalidError(Ember.$.parseJSON(jqXHR.responseText));
+      var parsedError = Ember.$.parseJSON(jqXHR.responseText);
+      var camelizedErrors = {};
+
+      for(var key in parsedError.errors) {
+        camelizedErrors[camelize(key)] = parsedError.errors[key];
+      }
+
+      parsedError.errors = camelizedErrors;
+
+      return new InvalidError(parsedError);
     } else {
       return error;
     }
