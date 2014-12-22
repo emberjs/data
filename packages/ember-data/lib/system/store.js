@@ -1131,10 +1131,15 @@ Store = Ember.Object.extend({
     @private
     @param {DS.Model} record
     @param {Resolver} resolver
+    @param {Object} options
   */
-  scheduleSave: function(record, resolver) {
+  scheduleSave: function(record, resolver, options) {
     record.adapterWillCommit();
-    this._pendingSave.push([record, resolver]);
+    this._pendingSave.push({
+      record: record,
+      resolver: resolver,
+      options: options
+    });
     once(this, 'flushPendingSave');
   },
 
@@ -1149,8 +1154,10 @@ Store = Ember.Object.extend({
     var pending = this._pendingSave.slice();
     this._pendingSave = [];
 
-    forEach(pending, function(tuple) {
-      var record = tuple[0], resolver = tuple[1];
+    forEach(pending, function(pendingItem) {
+      var record = pendingItem.record;
+      var resolver = pendingItem.resolver;
+      var options = pendingItem.options;
       var adapter = this.adapterFor(record.constructor);
       var operation;
 
@@ -1164,7 +1171,7 @@ Store = Ember.Object.extend({
         operation = 'updateRecord';
       }
 
-      resolver.resolve(_commit(adapter, this, operation, record));
+      resolver.resolve(_commit(adapter, this, operation, record, options));
     }, this);
   },
 
@@ -1967,9 +1974,9 @@ function _findQuery(adapter, store, type, query, recordArray) {
   }, null, "DS: Extract payload of findQuery " + type);
 }
 
-function _commit(adapter, store, operation, record) {
+function _commit(adapter, store, operation, record, options) {
   var type = record.constructor;
-  var promise = adapter[operation](store, type, record);
+  var promise = adapter[operation](store, type, record, options);
   var serializer = serializerForAdapter(adapter, type);
   var label = "DS: Extract and notify about " + operation + " completion of " + record;
 
