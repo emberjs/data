@@ -955,6 +955,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     });
     ```
     @method save
+    @param {Object} options a hash specifying save options sent to the server.
     @return {Promise} a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
   */
