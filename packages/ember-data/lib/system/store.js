@@ -1296,12 +1296,17 @@ Store = Service.extend({
     @private
     @param {InternalModel} internalModel
     @param {Resolver} resolver
+    @param {Object} options
   */
-  scheduleSave: function(internalModel, resolver) {
+  scheduleSave: function(internalModel, resolver, options) {
     var snapshot = internalModel.createSnapshot();
     internalModel.flushChangedAttributes();
     internalModel.adapterWillCommit();
-    this._pendingSave.push([snapshot, resolver]);
+    this._pendingSave.push({
+      snapshot: snapshot,
+      response: resolver,
+      options: options
+    });
     once(this, 'flushPendingSave');
   },
 
@@ -1316,9 +1321,10 @@ Store = Service.extend({
     var pending = this._pendingSave.slice();
     this._pendingSave = [];
 
-    forEach(pending, function(tuple) {
-      var snapshot = tuple[0];
-      var resolver = tuple[1];
+    forEach(pending, function(pendingItem) {
+      var snapshot = pendingItem.snapshot;
+      var resolver = pendingItem.resolver;
+      var options = pendingItem.options;
       var record = snapshot._internalModel;
       var adapter = this.adapterFor(record.type.modelName);
       var operation;
@@ -1333,7 +1339,7 @@ Store = Service.extend({
         operation = 'updateRecord';
       }
 
-      resolver.resolve(_commit(adapter, this, operation, snapshot));
+      resolver.resolve(_commit(adapter, this, operation, snapshot, options));
     }, this);
   },
 
@@ -2108,11 +2114,11 @@ function defaultSerializer(container) {
          container.lookup('serializer:-default');
 }
 
-function _commit(adapter, store, operation, snapshot) {
+function _commit(adapter, store, operation, snapshot, options) {
   var record = snapshot._internalModel;
   var modelName = snapshot.modelName;
   var type = store.modelFor(modelName);
-  var promise = adapter[operation](store, type, snapshot);
+  var promise = adapter[operation](store, type, snapshot, options); // TODO check this out
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Extract and notify about " + operation + " completion of " + record;
 
