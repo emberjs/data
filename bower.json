@@ -5,7 +5,7 @@
     "ember": "~1.9.0"
   },
   "devDependencies": {
-    "qunit": "~1.13.0",
+    "qunit": "~1.16.0",
     "jquery": "~1.10.x",
     "handlebars": ">= 2.0.0 < 3.0.0",
     "loader.js": "~1.0.0",
