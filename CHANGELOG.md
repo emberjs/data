@@ -155,11 +155,11 @@ would with any `Ember.Object`:
 
 ```javascript
 var Post = DS.Model.extend({
-name: DS.attr(),
-date: DS.attr(),
-doSomethingWhenDataChanges: function(){
-// do the work
-}.property('name', 'date')
+  name: DS.attr(),
+  date: DS.attr(),
+  doSomethingWhenDataChanges: function(){
+  // do the work
+  }.property('name', 'date')
 });
 ```
 
