@@ -28,12 +28,11 @@ module("unit/store/createRecord - Store with models by dash", {
     });
     store = env.store;
     container = env.container;
-    container.normalize = function(key){
+    env.replaceContainerNormalize(function(key){
       return Ember.String.dasherize(key);
-    };
+    });
   }
 });
-
 test("creating a record by camel-case string finds the model", function(){
   var attributes = { foo: 'bar' };
   var record;
@@ -65,9 +64,7 @@ module("unit/store/createRecord - Store with models by camelCase", {
     });
     store = env.store;
     container = env.container;
-    container.normalize = function(key){
-      return Ember.String.camelize(key);
-    };
+    env.replaceContainerNormalize(Ember.String.camelize);
   }
 });
 

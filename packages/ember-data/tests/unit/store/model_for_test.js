@@ -4,13 +4,15 @@ var camelize  = Ember.String.camelize,
     dasherize = Ember.String.dasherize;
 
 var run = Ember.run;
+var env;
 
 module("unit/store/model_for - DS.Store#modelFor", {
   setup: function() {
-    store = createStore({
+    env = setupStore({
       blogPost: DS.Model.extend(),
       "blog-post": DS.Model.extend()
     });
+    store = env.store;
     container = store.container;
   },
 
@@ -23,18 +25,16 @@ module("unit/store/model_for - DS.Store#modelFor", {
 });
 
 test("when fetching factory from string, sets a normalized key as typeKey", function() {
-  container.normalize = function(fullName){
-    return camelize(fullName);
-  };
+  env.replaceContainerNormalize(camelize);
 
   equal(container.normalize('some.post'), 'somePost', 'precond - container camelizes');
   equal(store.modelFor("blog.post").typeKey, "blogPost", "typeKey is normalized to camelCase");
 });
 
 test("when fetching factory from string and dashing normalizer, sets a normalized key as typeKey", function() {
-  container.normalize = function(fullName){
+  env.replaceContainerNormalize(function(fullName){
     return dasherize(camelize(fullName));
-  };
+  });
 
   equal(container.normalize('some.post'), 'some-post', 'precond - container dasherizes');
   equal(store.modelFor("blog.post").typeKey, "blogPost", "typeKey is normalized to camelCase");
