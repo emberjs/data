@@ -2,6 +2,8 @@
 
 ### Master
 
+### Ember Data 1.0.0-beta.13 (December 25, 2014)
+
 #### Breaking Changes
 
 ##### `store.update()` has been deprecated
@@ -11,9 +13,9 @@ handling partial payloads:
 
 ```javascript
 var post = store.push('post', {
-  id: 1,
-  title: 'Ember.js is fantastic',
-  author: 'Tomster'
+id: 1,
+title: 'Ember.js is fantastic',
+author: 'Tomster'
 });
 
 post.get('title'); // => 'Ember.js is fantastic'
@@ -33,11 +35,11 @@ send back null values in the payload:
 
 ```javascript
 {
-  "person": {
-    "firstName": null,
-    "lastName": null
-    "role": "Computer Science Pioneer"
-  }
+"person": {
+"firstName": null,
+"lastName": null
+"role": "Computer Science Pioneer"
+}
 }
 ```
 
@@ -48,16 +50,16 @@ serializer and do the logic yourself:
 // app/serializers/person.js
 // or App.PersonSerializer if you aren't using Ember CLI
 export default DS.RESTSerializer.extend({
-  normalize: function(type, hash, prop) {
-    hash = this._super(type, hash, prop);
-    if (!hash.hasOwnProperty('firstName')){
-      hash.firstName = null;
-    }
-    if (!hash.hasOwnProperty('lastName')){
-      hash.lastName = null;
-    }
-    return hash;
-  }
+normalize: function(type, hash, prop) {
+hash = this._super(type, hash, prop);
+if (!hash.hasOwnProperty('firstName')){
+hash.firstName = null;
+}
+if (!hash.hasOwnProperty('lastName')){
+hash.lastName = null;
+}
+return hash;
+}
 });
 ```
 
@@ -67,22 +69,49 @@ Or if you want to restore the old behavior for all of your models:
 // app/serializers/application.js
 // or App.ApplicationSerializer
 export default DS.RESTSerializer.extend({
-  normalize: function(type, hash, prop) {
-    hash = this._super(type, hash, prop);
-    type.eachAttribute(function(key) {
-      if (!hash.hasOwnProperty(key)) {
-        hash[key] = null;
-      }
-    }, this);
-    return hash;
-  }
+normalize: function(type, hash, prop) {
+hash = this._super(type, hash, prop);
+type.eachAttribute(function(key) {
+if (!hash.hasOwnProperty(key)) {
+hash[key] = null;
+}
+}, this);
+return hash;
+}
 });
 ```
 
+#### Changes
+
+* Fix references to buildURL in documentation
+* fix canary build for recent Ember.Container refactors
+* [DOC] Stop using deprecated `each` helper syntax
+* Work around type check issues with MODEL_FACTORY_INJECTIONS.
+* [DOC] Add page for `DS.PromiseManyArray`
+* [DOC] Fix markup for AcriveModelAdapter
+* Add Ember.ENV.DS_NO_WARN_ON_UNUSED_KEYS option
+* Fixed model rollback in the case where an attribute is not assigned so that it rolls back to unassigned instead of cached value. Added a supporting unit test.
+* Fix array change notification in many arrays
+* Use Ember.create and Ember.EnumerableUtils for relationships
+* Backport pushing non async relationship as a link
+* Backport relationship.proto.clear bugfix
+* Schedule relationship normalization and split paths for canonical/client relationship updates
+* fix DS.Errors#errorsFor documentation
+* add test about model's attributes dirtiness
+* Include build instructions in the readme
+* Clarify that `store.fetch` documentation.
+* Document and explicitely test specifying relationships type is optional
+* Warn when pushing in a relationship as a link and its not an async relationship
+* Removed unused notify on 'data' property
+* fix Relationship.proto.clear bug
+* Remove metaForType()/metadataFor() ambiguousness
+* [Bugfix] promiseHasMany.reload() should return another promiseHasMany
+* [Feature thrownError] tag errorThrown from jQuery onto the jqXHR like ic-ajax does.
+* Cache relationships meta in production
+* Deprecate store.update()
 
 ### Ember Data 1.0.0-beta.12 (November 25, 2014)
 
-#### Breaking Changes
 
 ##### Internet Explorer 8 Requires Ember 1.8
 
@@ -115,9 +144,9 @@ model's attributes. This means that the following code:
 
 ```javascript
 var Post = DS.Model.extend({
-  doSomethingWhenDataChanges: function(){
-    // do the work
-  }.property('data')
+doSomethingWhenDataChanges: function(){
+// do the work
+}.property('data')
 });
 ```
 
@@ -126,11 +155,11 @@ would with any `Ember.Object`:
 
 ```javascript
 var Post = DS.Model.extend({
-  name: DS.attr(),
-  date: DS.attr(),
-  doSomethingWhenDataChanges: function(){
-    // do the work
-  }.property('name', 'date')
+name: DS.attr(),
+date: DS.attr(),
+doSomethingWhenDataChanges: function(){
+// do the work
+}.property('name', 'date')
 });
 ```
 
@@ -436,7 +465,6 @@ correctly will need a shim for Object.create.
 * [BUGFIX] missing return statement in RecordArray#update
 * Fixes a small typo in DS.Store deleteRecord docs
 * Setting a property to undefined on a new record should not transition the record to root.deleted.saved
-* Revert "Merge pull request #1652 from abuiles/camelize-in-pathForType"
 * Don't assume that factory.typeKey is always camelized.
 * Normalize typeNames when comparing against typeKey.
 * Force underscore after decamelizing typeKey.
@@ -481,7 +509,7 @@ correctly will need a shim for Object.create.
 ### Ember Data 1.0.0-beta.3 _(September 28, 2013)_
 
 * Add `normalizePayload` to `RESTAdapter` for payload normalization that is the same
-  across all requests.
+across all requests.
 * Add `record.toJSON()`
 * Normalize relationships on payloads returned from saves.
 * Rename `rootForType` to `pathForType` in `RESTAdapter`
@@ -490,14 +518,14 @@ correctly will need a shim for Object.create.
 * Add `typeFromRoot`
 * Allow retries of records that were not found
 * Add `pushPayload` for pushing out of band records that still go through the
-  appropriate normalization logic.
+appropriate normalization logic.
 * Add an API for registering custom pluralization rules (see
-  4df69d14ef2677977f520986070a2fdc45664008)
+4df69d14ef2677977f520986070a2fdc45664008)
 * Add `unloadAll` on store
 * Infer the type of hasMany and belongsTo relationships by inflecting the key
 * Polymorphic relationship improvements
 * ActiveModel Adapter for working with Rails-like servers, not included by default
-  in the Ember Data build but available separately.
+in the Ember Data build but available separately.
 * `store.metadataFor(type)` to get metadata provided by `findAll`.
 * `RecordArray#save`
 * `store.getById` returns null if a record isn't found
@@ -506,7 +534,7 @@ correctly will need a shim for Object.create.
 * A number of `links`-related fixes
 * Ensure that `didLoad` fires when a record is created for the first time
 * Support primary and sideloaded data of the same type to be returned from array
-  lookups (via `posts` and `_posts`).
+lookups (via `posts` and `_posts`).
 * IE8 fixes
 * Add `record.changedAttributes()`
 * Properly handle absolute and relative links in the `RESTAdapter`
@@ -528,9 +556,9 @@ correctly will need a shim for Object.create.
 * RESTAdapter now has `rootForType` to convert a type into the root
 * `store.update` to update some, but not all attributes
 * Thanks to Paul Chavard, Toran Billups, Bradley Priest, Kasper Tidemann, Yann Mainier,
-  Dali Zheng, Jeremy Green, Robert Jackson, Joe Bartels, Alexandre de Oliveria,
-  Floren Jaby, Gordon Hempton, Ivan Vanderbyl, Johannes Würbach, Márcio Júnior,
-  Nick Ragaz, Ricardo Mendes, Ryunosuke SATO, Sylvain Mina, and ssured
+Dali Zheng, Jeremy Green, Robert Jackson, Joe Bartels, Alexandre de Oliveria,
+Floren Jaby, Gordon Hempton, Ivan Vanderbyl, Johannes Würbach, Márcio Júnior,
+Nick Ragaz, Ricardo Mendes, Ryunosuke SATO, Sylvain Mina, and ssured
 
 ### Ember Data 1.0.0-beta.1 _(September 01, 2013)_
 
