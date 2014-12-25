@@ -150,7 +150,7 @@ var Post = DS.Model.extend({
 * Expand the package configuration filename glob declaration in `Brocfile.js` into the affected filenames, as the `broccoli-string-replace` plugin doesn't support globbing
 * Clear inverseRecord for deleted belongsTo properly
 * Warn when pushing unknown payload keys into the store
-* RestAdapter's buildUrl from delete can ask for record's relations. closes #534
+* RESTAdapter's buildURL from delete can ask for record's relations. closes #534
 * Ensure production builds do not use require internally.
 * [DOCS] InvalidError docs missing quote
 * Use the model rollback and not state machine for created records rollback

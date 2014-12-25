@@ -208,7 +208,7 @@ export default Adapter.extend({
 
     will also send a request to: `GET /comments?ids[]=1&ids[]=2`
 
-    Note: Requests coalescing rely on URL building strategy. So if you override `buildUrl` in your app
+    Note: Requests coalescing rely on URL building strategy. So if you override `buildURL` in your app
     `groupRecordsForFindMany` more likely should be overridden as well in order for coalescing to work.
 
     @property coalesceFindRequests
