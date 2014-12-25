@@ -13,9 +13,9 @@ handling partial payloads:
 
 ```javascript
 var post = store.push('post', {
-id: 1,
-title: 'Ember.js is fantastic',
-author: 'Tomster'
+  id: 1,
+  title: 'Ember.js is fantastic',
+  author: 'Tomster'
 });
 
 post.get('title'); // => 'Ember.js is fantastic'
@@ -35,11 +35,11 @@ send back null values in the payload:
 
 ```javascript
 {
-"person": {
-"firstName": null,
-"lastName": null
-"role": "Computer Science Pioneer"
-}
+  "person": {
+  "firstName": null,
+  "lastName": null
+  "role": "Computer Science Pioneer"
+  }
 }
 ```
 
@@ -50,16 +50,16 @@ serializer and do the logic yourself:
 // app/serializers/person.js
 // or App.PersonSerializer if you aren't using Ember CLI
 export default DS.RESTSerializer.extend({
-normalize: function(type, hash, prop) {
-hash = this._super(type, hash, prop);
-if (!hash.hasOwnProperty('firstName')){
-hash.firstName = null;
-}
-if (!hash.hasOwnProperty('lastName')){
-hash.lastName = null;
-}
-return hash;
-}
+  normalize: function(type, hash, prop) {
+  hash = this._super(type, hash, prop);
+  if (!hash.hasOwnProperty('firstName')){
+  hash.firstName = null;
+  }
+  if (!hash.hasOwnProperty('lastName')){
+  hash.lastName = null;
+  }
+  return hash;
+  }
 });
 ```
 
@@ -69,15 +69,15 @@ Or if you want to restore the old behavior for all of your models:
 // app/serializers/application.js
 // or App.ApplicationSerializer
 export default DS.RESTSerializer.extend({
-normalize: function(type, hash, prop) {
-hash = this._super(type, hash, prop);
-type.eachAttribute(function(key) {
-if (!hash.hasOwnProperty(key)) {
-hash[key] = null;
-}
-}, this);
-return hash;
-}
+  normalize: function(type, hash, prop) {
+  hash = this._super(type, hash, prop);
+  type.eachAttribute(function(key) {
+  if (!hash.hasOwnProperty(key)) {
+  hash[key] = null;
+  }
+  }, this);
+  return hash;
+  }
 });
 ```
 
