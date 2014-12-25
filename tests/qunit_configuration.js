@@ -95,7 +95,7 @@
   // raises is deprecated, but we likely want to keep it around for our es3
   // test runs.
   // taken from emberjs/ember-dev here: http://git.io/sQhl3A
-  QUnit.constructor.prototype.raises = QUnit['throws'];
+  QUnit.raises = QUnit['throws'];
   window.raises = QUnit['throws'];
 
   QUnit.jsDump.parsers.emberObject = function(obj) {

@@ -26,16 +26,28 @@ test("metaForType should be deprecated", function() {
 });
 
 test("metadataFor and setMetadataFor should return and set correct metadata", function() {
-  expect(4);
+  expect(7);
+  var keys = Ember.keys;
+  function metadataKeys(type){
+    return keys(store.metadataFor(type));
+  }
 
-  deepEqual(store.metadataFor('post'), {}, 'metadata for post is initially empty');
+  // Currently not using QUnit.deepEqual due to the way deepEqual
+  // comparing __proto__. In its check to see if an object has
+  // no proto, it checks strict equality on null instead of null or undefined.
+
+  deepEqual(metadataKeys('post'), [], 'Metadata for post is initially empty');
 
   store.setMetadataFor('post', { foo: 'bar' });
 
-  deepEqual(store.metadataFor('post'), { foo: 'bar' }, 'metadata for post contains foo:bar');
+  deepEqual(metadataKeys('post'), ['foo'], 'metadata for post contains foo:bar');
+  equal(store.metadataFor('post').foo, 'bar');
 
   store.setMetadataFor('post', { hello: 'world' });
 
-  deepEqual(store.metadataFor('post'), { foo: 'bar', hello: 'world' }, 'metadata for post contains both foo:bar and hello:world');
-  deepEqual(store.metadataFor('comment'), {}, 'metadata for comment is empty');
+  deepEqual(metadataKeys('post'), ['foo', 'hello']);
+  equal(store.metadataFor('post').foo, 'bar', 'keeps original metadata');
+  equal(store.metadataFor('post').hello, 'world', 'merges new metadata');
+
+  deepEqual(metadataKeys('comment'), [], 'metadata for comment is empty');
 });
