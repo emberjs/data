@@ -52,6 +52,22 @@
 
     var container = env.container = new Ember.Container();
 
+    // We have to currently work around some container refactors until
+    // https://github.com/emberjs/ember.js/pull/9981 is on the stable release
+    // of ember
+    if (typeof Ember.Registry !== 'undefined') {
+      var registry = new Ember.Registry();
+      container._registry = registry;
+      env.registry = registry;
+    }
+    env.replaceContainerNormalize = function replaceContainerNormalize(fn) {
+      if (env.registry) {
+        env.registry.normalize = fn;
+      } else {
+        env.container.normalize = fn;
+      }
+    }
+
     var adapter = env.adapter = (options.adapter || DS.Adapter);
     delete options.adapter;
 
