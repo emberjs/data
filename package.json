@@ -14,7 +14,7 @@
     "lib/ember-addon"
   ],
   "scripts": {
-    "prepublish": "npm run-script dist",
+    "prepublish": "bower install && npm run-script dist",
     "start": "ember serve",
     "dist": "ember build --environment=production",
     "test": "testem -R dot ci",
