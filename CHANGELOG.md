@@ -144,9 +144,9 @@ model's attributes. This means that the following code:
 
 ```javascript
 var Post = DS.Model.extend({
-doSomethingWhenDataChanges: function(){
-// do the work
-}.property('data')
+  doSomethingWhenDataChanges: function(){
+    // do the work
+  }.property('data')
 });
 ```
 
@@ -158,7 +158,7 @@ var Post = DS.Model.extend({
   name: DS.attr(),
   date: DS.attr(),
   doSomethingWhenDataChanges: function(){
-  // do the work
+    // do the work
   }.property('name', 'date')
 });
 ```
