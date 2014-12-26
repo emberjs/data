@@ -15,7 +15,7 @@ var jshint          = require('broccoli-jshint');
 var defeatureify    = require('broccoli-defeatureify');
 var version         = require('git-repo-version')(10);
 var yuidoc          = require('broccoli-yuidoc');
-var replace         = require('broccoli-string-replace');
+var replace         = require('broccoli-replace');
 var path            = require('path');
 
 function minify(tree, name){
@@ -145,10 +145,10 @@ var configurationFiles = pickFiles('config/package_manager_files', {
 function versionStamp(tree){
   return replace(tree, {
     files: ['**/*'],
-    pattern: {
+    patterns: [{
       match: /VERSION_STRING_PLACEHOLDER/g,
       replacement: version
-    }
+    }]
   });
 }
 
