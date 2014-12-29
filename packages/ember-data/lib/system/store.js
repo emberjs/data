@@ -428,7 +428,8 @@ Store = Ember.Object.extend({
 
     This will ask the adapter's `findAll` method to find the records for the
     given type, and return a promise that will be resolved once the server
-    returns the values.
+    returns the values. The promise will resolve into all records of this type
+    present in the store, even if the server only returns a subset of them.
 
     ---
 
