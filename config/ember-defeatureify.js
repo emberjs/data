@@ -11,7 +11,9 @@ module.exports = {
       "emberDebug",
       "Ember.Logger.info",
       "Ember.runInDebug",
-      "runInDebug"
+      "runInDebug",
+      "Ember.deprecateProperty",
+      "deprecateProperty"
     ]
   },
   stripDebug: {
