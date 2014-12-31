@@ -2,7 +2,13 @@
 
 ### Master
 
-### Ember Data 1.0.0-beta.13 (December 25, 2014)
+### Ember Data 1.0.0-beta.14.1 (December 31, 2014)
+
+* Replace `<%= versionStamp %>` with actual version stamp. Thanks
+  @tricknotes!
+* Fix sourcemap loading in Ember CLI and Rails.
+
+### Ember Data 1.0.0-beta.14 (December 25, 2014)
 
 #### Breaking Changes
 
