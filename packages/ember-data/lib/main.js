@@ -15,7 +15,6 @@ Ember.runInDebug(function(){
   }
 });
 
-import "ember-data/system/create";
 import DS from "ember-data/core";
 import "ember-data/ext/date";
 
