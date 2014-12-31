@@ -153,7 +153,7 @@ test("Calling push on normalize allows partial updates with raw JSON", function 
   equal(person.get('lastName'), "Jackson", "existing fields are untouched");
 });
 
-test("Calling push with partial records triggers observers for just those attributes", function() {
+test("Calling push with partial records triggers observers for just those attributes that changed", function() {
   expect(1);
   var person;
 
@@ -176,7 +176,8 @@ test("Calling push with partial records triggers observers for just those attrib
   run(function(){
     store.push('person', {
       id: 'wat',
-      lastName: "Katz!"
+      firstName: 'Yehuda',
+      lastName: 'Katz!'
     });
   });
 });
