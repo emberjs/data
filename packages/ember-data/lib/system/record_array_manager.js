@@ -88,17 +88,6 @@ export default Ember.Object.extend({
       this.updateRecordArray(array, filter, type, record);
     }, this);
 
-    // loop through all manyArrays containing an unloaded copy of this
-    // clientId and notify them that the record was loaded.
-    var manyArrays = record._loadingRecordArrays;
-
-    if (manyArrays) {
-      for (var i=0, l=manyArrays.length; i<l; i++) {
-        manyArrays[i].loadedRecord();
-      }
-
-      record._loadingRecordArrays = [];
-    }
   },
 
   /**
@@ -253,17 +242,6 @@ export default Ember.Object.extend({
     var recordArrays = this.filteredRecordArrays.get(array.type);
     var index = indexOf(recordArrays, array);
     recordArrays.splice(index, 1);
-  },
-
-  // Internally, we maintain a map of all unloaded IDs requested by
-  // a ManyArray. As the adapter loads data into the store, the
-  // store notifies any interested ManyArrays. When the ManyArray's
-  // total number of loading records drops to zero, it becomes
-  // `isLoaded` and fires a `didLoad` event.
-  registerWaitingRecordArray: function(record, array) {
-    var loadingRecordArrays = record._loadingRecordArrays || [];
-    loadingRecordArrays.push(array);
-    record._loadingRecordArrays = loadingRecordArrays;
   },
 
   willDestroy: function(){

@@ -46,7 +46,6 @@ function extractPivotName(name) {
 var Model = Ember.Object.extend(Ember.Evented, {
   _recordArrays: undefined,
   _relationships: undefined,
-  _loadingRecordArrays: undefined,
   /**
     If this property is `true` the record is in the `empty`
     state. Empty is the first state all records enter after they have
