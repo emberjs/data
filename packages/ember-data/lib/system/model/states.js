@@ -275,6 +275,7 @@ var DirtyState = {
 
     rollback: function(record) {
       record.rollback();
+      record.triggerLater('ready');
     }
   },
 
@@ -342,6 +343,7 @@ var DirtyState = {
 
     rolledBack: function(record) {
       get(record, 'errors').clear();
+      record.triggerLater('ready');
     },
 
     becameValid: function(record) {
@@ -473,11 +475,13 @@ var RootState = {
 
     loadedData: function(record) {
       record.transitionTo('loaded.created.uncommitted');
+      record.triggerLater('ready');
     },
 
     pushedData: function(record) {
       record.transitionTo('loaded.saved');
       record.triggerLater('didLoad');
+      record.triggerLater('ready');
     }
   },
 
@@ -499,6 +503,7 @@ var RootState = {
     pushedData: function(record) {
       record.transitionTo('loaded.saved');
       record.triggerLater('didLoad');
+      record.triggerLater('ready');
       set(record, 'isError', false);
     },
 
@@ -618,6 +623,7 @@ var RootState = {
 
       rollback: function(record) {
         record.rollback();
+        record.triggerLater('ready');
       },
 
       becomeDirty: Ember.K,
@@ -625,6 +631,7 @@ var RootState = {
 
       rolledBack: function(record) {
         record.transitionTo('loaded.saved');
+        record.triggerLater('ready');
       }
     },
 

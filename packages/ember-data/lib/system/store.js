@@ -1102,9 +1102,8 @@ Store = Ember.Object.extend({
   // ............
 
   /**
-    If the adapter updates attributes or acknowledges creation
-    or deletion, the record will notify the store to update its
-    membership in any filters.
+    If the adapter updates attributes the record will notify
+    the store to update its  membership in any filters.
     To avoid thrashing, this method is invoked only once per
 
     run loop per record.
@@ -1612,6 +1611,11 @@ Store = Ember.Object.extend({
     typeMap.records.push(record);
 
     return record;
+  },
+
+  //Called by the state machine to notify the store that the record is ready to be interacted with
+  recordWasLoaded: function(record) {
+    this.recordArrayManager.recordWasLoaded(record);
   },
 
   // ...............

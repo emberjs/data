@@ -58,6 +58,7 @@ test("when deleted records are rolled back, they are still in their previous rec
 
   equal(all.get('length'), 2, 'precond - we start with two people');
   equal(filtered.get('length'), 2, 'precond - we start with two people');
+
   run(function(){
     jaime.deleteRecord();
     jaime.rollback();
