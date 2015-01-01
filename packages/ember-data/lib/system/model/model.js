@@ -342,11 +342,12 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Create a JSON representation of the record, using the serialization
     strategy of the store's adapter.
 
-   `serialize` takes an optional hash as a parameter, currently
+    `serialize` takes an optional hash as a parameter, currently
     supported options are:
 
-   - `includeId`: `true` if the record's ID should be included in the
+    - `includeId`: `true` if the record's ID should be included in the
       JSON representation.
+    - `serializer`: The serializer name
 
     @method serialize
     @param {Object} options

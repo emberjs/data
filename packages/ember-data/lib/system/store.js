@@ -214,6 +214,7 @@ Store = Ember.Object.extend({
 
     * `includeId`: `true` if the record's ID should be included in
       the JSON representation
+    * `serializer`: The serializer name
 
     @method serialize
     @private
@@ -221,7 +222,14 @@ Store = Ember.Object.extend({
     @param {Object} options an options hash
   */
   serialize: function(record, options) {
-    return this.serializerFor(record.constructor.typeKey).serialize(record, options);
+    var serializer;
+    if (options && options.serializer) {
+      serializer = this.container.lookup('serializer:'+options.serializer);
+      Ember.assert('The serializer `' + options.serializer + '` is not registered.', serializer);
+    } else {
+      serializer = this.serializerFor(record.constructor.typeKey);
+    }
+    return serializer.serialize(record, options);
   },
 
   /**
