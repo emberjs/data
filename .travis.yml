@@ -2,15 +2,17 @@
 language: node_js
 node_js:
   - "0.10"
+before_install:
+  - "npm config set spin false"
+  - "npm install -g npm@^2"
 install:
-- npm config set registry http://registry.nodejitsu.com
 - "npm install"
 - "bower install"
-- "npm run-script dist"
+- "npm run-script build:production"
 script:
   - npm run-script test
-  - npm run-script testem-beta
-  # - npm run-script testem-canary
+  - npm run-script test:beta
+#  - npm run-script test:canary
 after_success:
 - npm run-script publish-build
 - "./bin/bower-ember-data-build"
