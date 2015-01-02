@@ -197,7 +197,51 @@ function ajaxResponse(value) {
   };
 }
 
-test("Using store#fetch on existing record reloads it", function() {
+test("Using store#fetch is deprecated", function() {
+  ajaxResponse({
+    cars: [
+      { id: 1, make: 'BMW', model: 'Mini' }
+    ]
+  });
+
+  expectDeprecation(
+    function() {
+      run(function() {
+        store.fetch('car', 1);
+      });
+    },
+    'Using store.fetch() has been deprecated. Use store.fetchById for fetching individual records or store.fetchAll for collections'
+  );
+});
+
+module("integration/store - fetchById", {
+  setup: function() {
+    initializeStore(DS.RESTAdapter.extend());
+  }
+});
+
+test("Using store#fetchById on non existing record fetches it from the server", function() {
+  expect(2);
+
+  ajaxResponse({
+    cars: [{
+      id: 20,
+      make: 'BMCW',
+      model: 'Mini'
+    }]
+  });
+
+  var car = store.hasRecordForId('car', 20);
+  ok(!car, 'Car with id=20 should not exist');
+
+  run(function() {
+    store.fetchById('car', 20).then(function (car) {
+      equal(car.get('make'), 'BMCW', 'Car with id=20 is now loaded');
+    });
+  });
+});
+
+test("Using store#fetchById on existing record reloads it", function() {
   expect(2);
   var car;
 
@@ -220,29 +264,108 @@ test("Using store#fetch on existing record reloads it", function() {
   equal(car.get('make'), 'BMC');
 
   run(function() {
-    store.fetch('car', 1).then(function(car) {
+    store.fetchById('car', 1).then(function(car) {
       equal(car.get('make'), 'BMCW');
     });
   });
 });
 
-test("Using store#fetch on non existing record calls find", function() {
+module("integration/store - fetchAll", {
+  setup: function() {
+    initializeStore(DS.RESTAdapter.extend());
+  }
+});
+
+test("Using store#fetchAll with no records triggers a query", function() {
   expect(2);
 
   ajaxResponse({
     cars: [{
-      id: 20,
-      make: 'BMCW',
+      id: 1,
+      make: 'BMC',
       model: 'Mini'
+    },
+    {
+      id: 2,
+      make: 'BMCW',
+      model: 'Isetta'
     }]
   });
 
-  var car = store.hasRecordForId('car', 20);
-  ok(!car, 'Car with id=20 should not exist');
+  var cars = store.all('car');
+  ok(!cars.get('length'), 'There is no cars in the store');
 
   run(function() {
-    store.fetch('car', 20).then(function (car) {
-      equal(car.get('make'), 'BMCW', 'Car with id=20 is now loaded');
+    store.fetchAll('car').then(function(cars) {
+      equal(cars.get('length'), 2, 'Two car were fetched');
     });
   });
+});
+
+test("Using store#fetchAll with existing records performs a query, updating existing records and returning new ones", function() {
+  expect(3);
+
+  run(function() {
+    store.push('car', {
+      id: 1,
+      make: 'BMC',
+      model: 'Mini'
+    });
+  });
+
+  ajaxResponse({
+    cars: [{
+      id: 1,
+      make: 'BMC',
+      model: 'New Mini'
+    },
+    {
+      id: 2,
+      make: 'BMCW',
+      model: 'Isetta'
+    }]
+  });
+
+  var cars = store.all('car');
+  equal(cars.get('length'), 1, 'There is one car in the store');
+
+  run(function() {
+    store.fetchAll('car').then(function(cars) {
+      equal(cars.get('length'), 2, 'There is 2 cars in the store now');
+      var mini = cars.findBy('id', '1');
+      equal(mini.get('model'), 'New Mini', 'Existing records have been updated');
+    });
+  });
+});
+
+test("When is used store#fetchAll with existing, and the response doesn't contain some of those records, WHAT DO WE DO?!?!?!", function() {
+  expect(4);
+
+  run(function() {
+    store.push('car', { id: 1, make: 'BMC', model: 'Mini' });
+    store.push('car', { id: 2, make: 'BMCW', model: 'Isetta' });
+  });
+
+  ajaxResponse({
+    cars: [{
+      id: 1,
+      make: 'BMC',
+      model: 'New Mini'
+    }]
+  });
+
+  var cars = store.all('car');
+  equal(cars.get('length'), 2, 'There is two cars in the store');
+
+  run(function() {
+    store.fetchAll('car').then(function(cars) {
+      equal(cars.get('length'), 2, 'It returns 1 car');
+      var mini = cars.findBy('id', '1');
+      equal(mini.get('model'), 'New Mini', 'Existing records have been updated');
+
+      var carsInStore = store.all('car');
+      equal(carsInStore.get('length'), 2, 'There is 2 cars in the store');
+    });
+  });
+
 });
