@@ -9,6 +9,12 @@ var counter = 0;
 
 import Adapter from "ember-data/system/adapter";
 
+function generateRemoteCallback (data, type) {
+  return function () {
+    return this.wrapFixture(data, type);
+  };
+}
+
 /**
   `DS.FixtureAdapter` is an adapter that loads records from memory.
   It's primarily used for development and testing. You can also use
@@ -55,6 +61,7 @@ export default Adapter.extend({
   latency: 50,
 
   /**
+
     Implement this method in order to provide data associated with a type
 
     @method fixturesForType
@@ -62,18 +69,51 @@ export default Adapter.extend({
     @return {Array}
   */
   fixturesForType: function(type) {
-    if (type.FIXTURES) {
-      var fixtures = Ember.A(type.FIXTURES);
-      return fixtures.map(function(fixture){
-        var fixtureIdType = typeof fixture.id;
-        if(fixtureIdType !== "number" && fixtureIdType !== "string"){
-          throw new Error(fmt('the id property must be defined as a number or string for fixture %@', [fixture]));
-        }
-        fixture.id = fixture.id + '';
-        return fixture;
-      });
-    }
-    return null;
+    var fixtures = this.getRawFixtures(type);
+    Ember.assert("Unable to find fixtures for model type " + type.toString(), fixtures);
+    return fixtures.map(function(fixture){
+      var fixtureIdType = typeof fixture.id;
+      if(fixtureIdType !== "number" && fixtureIdType !== "string"){
+        throw new Error(fmt('the id property must be defined as a number or string for fixture %@', [fixture]));
+      }
+      fixture.id = fixture.id + '';
+      return fixture;
+    });
+  },
+
+  /**
+
+    @method setFixturesForType
+    @param {Subclass of DS.Model} type
+    @param {mixed} fixtures
+    @return {Array}
+  */
+  setFixturesForType: function(type, fixtures) {
+    return this.setRawFixtures(type, Ember.A(fixtures));
+  },
+
+  /**
+    Override ths method to change how the fixtures are accessed in your app
+
+    @method fetchFixtures
+    @param {Subclass of DS.Model} type
+    @return {Array}
+  */
+  getRawFixtures: function (type) {
+    return type.FIXTURES || null;
+  },
+
+  /**
+    Override ths method to change how the fixtures are defined in your app
+
+    @method setRawFixtures
+    @param {Subclass of DS.Model} type
+    @param {mixed} fixtures
+    @return {Array}
+  */
+  setRawFixtures: function (type, fixtures) {
+    type.FIXTURES = Ember.A(fixtures);
+    return type.FIXTURES;
   },
 
   /**
@@ -85,7 +125,7 @@ export default Adapter.extend({
     @param {Subclass of DS.Model} type
     @return {Promise|Array}
   */
-  queryFixtures: function(fixtures, query, type) {
+  queryFixtures: function(/*fixtures, query, type*/) {
     Ember.assert('Not implemented: You must override the DS.FixtureAdapter::queryFixtures method to support querying the fixture store.');
   },
 
@@ -95,15 +135,13 @@ export default Adapter.extend({
     @param {Array} fixture
   */
   updateFixtures: function(type, fixture) {
-    if(!type.FIXTURES) {
-      type.FIXTURES = [];
+    var fixtures = Ember.A(this.fixturesForType(type));
+    if(Ember.isArray(fixtures)) {
+      this.deleteLoadedFixture(type, fixture);
     }
-
-    var fixtures = type.FIXTURES;
-
-    this.deleteLoadedFixture(type, fixture);
-
+    fixtures = Ember.A(fixtures);
     fixtures.push(fixture);
+    this.setFixturesForType(type, fixtures);
   },
 
   /**
@@ -123,7 +161,7 @@ export default Adapter.extend({
     @param {DS.Model} record
     @return {String} id
   */
-  generateIdForRecord: function(store) {
+  generateIdForRecord: function(/*store*/) {
     return "fixture-" + counter++;
   },
 
@@ -138,17 +176,37 @@ export default Adapter.extend({
     var fixtures = this.fixturesForType(type);
     var fixture;
 
-    Ember.assert("Unable to find fixtures for model type "+type.toString() +". If you're defining your fixtures using `Model.FIXTURES = ...`, please change it to `Model.reopenClass({ FIXTURES: ... })`.", fixtures);
-
-    if (fixtures) {
-      fixture = Ember.A(fixtures).findBy('id', id);
-    }
+    fixture = Ember.A(fixtures).findBy('id', id);
 
     if (fixture) {
-      return this.simulateRemoteCall(function() {
-        return fixture;
-      }, this);
+      return this.simulateRemoteCall(generateRemoteCallback(fixture, type), this);
+    } else {
+      return this.fixtureNotFound(type, id);
     }
+  },
+
+  /**
+
+    Override to handle how unexisting fixtures should be handled
+
+    @method fixtureNotFound
+    @param {subclass of DS.Model} type
+    @param {String} id
+  */
+  fixtureNotFound: function (type, id) {
+    throw new Error('Fixture with ID %@ for type %@ not found'.fmt(id, type));
+  },
+
+  /**
+
+    Override this method so the payload looks fine to your serializers
+    @method wrapFixture
+    @param {Object} fixture
+    @param {subclass of DS.Model} type
+    @return {Object}
+  */
+  wrapFixture: function (fixture/*, type*/) {
+    return fixture;
   },
 
   /**
@@ -161,8 +219,6 @@ export default Adapter.extend({
   findMany: function(store, type, ids) {
     var fixtures = this.fixturesForType(type);
 
-    Ember.assert("Unable to find fixtures for model type "+type.toString(), fixtures);
-
     if (fixtures) {
       fixtures = fixtures.filter(function(item) {
         return indexOf(ids, item.id) !== -1;
@@ -170,9 +226,7 @@ export default Adapter.extend({
     }
 
     if (fixtures) {
-      return this.simulateRemoteCall(function() {
-        return fixtures;
-      }, this);
+      return this.simulateRemoteCall(generateRemoteCallback(fixtures, type), this);
     }
   },
 
@@ -187,11 +241,7 @@ export default Adapter.extend({
   findAll: function(store, type) {
     var fixtures = this.fixturesForType(type);
 
-    Ember.assert("Unable to find fixtures for model type "+type.toString(), fixtures);
-
-    return this.simulateRemoteCall(function() {
-      return fixtures;
-    }, this);
+    return this.simulateRemoteCall(generateRemoteCallback(fixtures, type), this);
   },
 
   /**
@@ -203,17 +253,13 @@ export default Adapter.extend({
     @param {DS.AdapterPopulatedRecordArray} recordArray
     @return {Promise} promise
   */
-  findQuery: function(store, type, query, array) {
+  findQuery: function(store, type, query/*, array*/) {
     var fixtures = this.fixturesForType(type);
-
-    Ember.assert("Unable to find fixtures for model type " + type.toString(), fixtures);
 
     fixtures = this.queryFixtures(fixtures, query, type);
 
     if (fixtures) {
-      return this.simulateRemoteCall(function() {
-        return fixtures;
-      }, this);
+      return this.simulateRemoteCall(generateRemoteCallback(fixtures, type), this);
     }
   },
 
@@ -229,9 +275,7 @@ export default Adapter.extend({
 
     this.updateFixtures(type, fixture);
 
-    return this.simulateRemoteCall(function() {
-      return fixture;
-    }, this);
+    return this.simulateRemoteCall(generateRemoteCallback(fixture, type), this);
   },
 
   /**
@@ -246,9 +290,7 @@ export default Adapter.extend({
 
     this.updateFixtures(type, fixture);
 
-    return this.simulateRemoteCall(function() {
-      return fixture;
-    }, this);
+    return this.simulateRemoteCall(generateRemoteCallback(fixture, type), this);
   },
 
   /**
@@ -261,10 +303,7 @@ export default Adapter.extend({
   deleteRecord: function(store, type, record) {
     this.deleteLoadedFixture(type, record);
 
-    return this.simulateRemoteCall(function() {
-      // no payload in a deletion
-      return null;
-    });
+    return this.simulateRemoteCall(generateRemoteCallback(null, type), this);
   },
 
   /*
@@ -275,10 +314,12 @@ export default Adapter.extend({
   */
   deleteLoadedFixture: function(type, record) {
     var existingFixture = this.findExistingFixture(type, record);
+    var fixtures = Ember.A(this.fixturesForType(type));
 
     if (existingFixture) {
-      var index = indexOf(type.FIXTURES, existingFixture);
-      type.FIXTURES.splice(index, 1);
+      var index = indexOf(fixtures, existingFixture);
+      fixtures.splice(index, 1);
+      this.setFixturesForType(type, fixtures);
       return true;
     }
   },
