@@ -831,7 +831,8 @@ Store = Service.extend({
   hasRecordForId: function(typeName, inputId) {
     var type = this.modelFor(typeName);
     var id = coerceId(inputId);
-    return !!this.typeMapFor(type).idToRecord[id];
+    var record = this.typeMapFor(type).idToRecord[id];
+    return !!record && !get(record, 'isEmpty');
   },
 
   /**
