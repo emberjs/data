@@ -246,3 +246,32 @@ test("Using store#fetch on non existing record calls find", function() {
     });
   });
 });
+
+test("Using store#fetch on an empty record calls find", function() {
+  expect(2);
+
+  ajaxResponse({
+    cars: [{
+      id: 20,
+      make: 'BMCW',
+      model: 'Mini'
+    }]
+  });
+
+  run(function() {
+    store.push('person', {
+      id: 1,
+      name: 'Tom Dale',
+      cars: [20]
+    });
+  });
+
+  var car = store.recordForId('car', 20);
+  ok(car.get('isEmpty'), 'Car with id=20 should be empty');
+
+  run(function() {
+    store.fetch('car', 20).then(function (car) {
+      equal(car.get('make'), 'BMCW', 'Car with id=20 is now loaded');
+    });
+  });
+});
