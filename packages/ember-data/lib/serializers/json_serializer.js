@@ -601,7 +601,13 @@ export default Ember.Object.extend({
       }
 
       if (relationship.options.polymorphic) {
-        this.serializePolymorphicType(record, json, relationship);
+        var inverseRecord;
+        if (relationship.options.async) {
+          inverseRecord = get(belongsTo, 'content');
+        } else {
+          inverseRecord = belongsTo;
+        }
+        this.serializePolymorphicType(inverseRecord, json, relationship);
       }
     }
   },
@@ -677,9 +683,9 @@ export default Ember.Object.extend({
    ```
 
     @method serializePolymorphicType
-    @param {DS.Model} record
+    @param {DS.Model} record relationship's inverse record
     @param {Object} json
-    @param {Object} relationship
+    @param {Object} relationship the relationship's descriptor
   */
   serializePolymorphicType: Ember.K,
 

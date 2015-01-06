@@ -157,28 +157,42 @@ test("serializeIntoHash", function() {
   });
 });
 
-test("serializePolymorphicType", function() {
+test("serializePolymorphicType sync", function() {
+  expect(1);
+
   env.container.register('serializer:comment', DS.JSONSerializer.extend({
     serializePolymorphicType: function(record, json, relationship) {
-      var key = relationship.key,
-          belongsTo = get(record, key);
-      json[relationship.key + "TYPE"] = belongsTo.constructor.typeKey;
+      ok(record instanceof Post, "serializePolymorphicType is called  when serialize a polymorphic belongsTo");
     }
   }));
 
+  var json = {};
   run(function(){
     post = env.store.createRecord(Post, { title: "Rails is omakase", id: "1"});
     comment = env.store.createRecord(Comment, { body: "Omakase is delicious", post: post});
   });
+  env.container.lookup("serializer:comment").serializeBelongsTo(comment, {}, {key: "post", options: {polymorphic: true}});
+});
+
+test("serializePolymorphicType async", function() {
+  expect(1);
+
+  Comment.reopen({
+    post: DS.belongsTo('post', {async: true})
+  });
+
+  env.container.register('serializer:comment', DS.JSONSerializer.extend({
+    serializePolymorphicType: function(record, json, relationship) {
+      ok(record instanceof Post, "serializePolymorphicType is called  when serialize a polymorphic belongsTo");
+    }
+  }));
 
   var json = {};
-
-  env.container.lookup("serializer:comment").serializeBelongsTo(comment, json, {key: "post", options: { polymorphic: true}});
-
-  deepEqual(json, {
-    post: "1",
-    postTYPE: "post"
+  run(function(){
+    post = env.store.createRecord(Post, { title: "Rails is omakase", id: "1"});
+    comment = env.store.createRecord(Comment, { body: "Omakase is delicious", post: post});
   });
+  env.container.lookup("serializer:comment").serializeBelongsTo(comment, {}, {key: "post", options: {async: true, polymorphic: true}});
 });
 
 test("extractArray normalizes each record in the array", function() {

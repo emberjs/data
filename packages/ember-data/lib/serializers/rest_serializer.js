@@ -3,7 +3,6 @@
 */
 
 import JSONSerializer from "ember-data/serializers/json_serializer";
-var get = Ember.get;
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var camelize = Ember.String.camelize;
@@ -732,18 +731,17 @@ var RESTSerializer = JSONSerializer.extend({
     the attribute and value from the model's camelcased model name.
 
     @method serializePolymorphicType
-    @param {DS.Model} record
+    @param {DS.Model} record the relationship's inverse record
     @param {Object} json
-    @param {Object} relationship
+    @param {Object} relationship the relationship's descriptor
   */
   serializePolymorphicType: function(record, json, relationship) {
     var key = relationship.key;
-    var belongsTo = get(record, key);
     key = this.keyForAttribute ? this.keyForAttribute(key) : key;
-    if (Ember.isNone(belongsTo)) {
+    if (Ember.isNone(record)) {
       json[key + "Type"] = null;
     } else {
-      json[key + "Type"] = Ember.String.camelize(belongsTo.constructor.typeKey);
+      json[key + "Type"] = Ember.String.camelize(record.constructor.typeKey);
     }
   }
 });
