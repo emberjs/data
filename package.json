@@ -14,15 +14,16 @@
     "lib/ember-addon"
   ],
   "scripts": {
-    "prepublish": "bower install && npm run-script dist",
+    "build": "ember build",
+    "build:production": "ember build --environment=production",
+    "prepublish": "bower install && npm run-script build:production",
     "start": "ember serve",
-    "dist": "ember build --environment=production",
     "test": "testem -R dot ci",
-    "publish-build": "npm run dist && ./bin/publish_to_s3.js",
-    "testem-local": "testem -R dot ci",
-    "testem-beta": "testem -f config/testem-beta.json -R dot ci",
-    "testem-canary": "testem -f config/testem-canary.json -R dot ci",
-    "testem-stable": "testem -f config/testem-stable.json -R dot ci"
+    "publish-build": "npm run build:production && ./bin/publish_to_s3.js",
+    "test:local": "testem -R dot ci",
+    "test:beta": "testem -f config/testem-beta.json -R dot ci",
+    "test:canary": "testem -f config/testem-canary.json -R dot ci",
+    "test:stable": "testem -f config/testem-stable.json -R dot ci"
   },
   "devDependencies": {
     "aws-sdk": "~2.0.0-rc8",
