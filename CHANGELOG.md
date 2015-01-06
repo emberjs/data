@@ -87,6 +87,12 @@ export default DS.RESTSerializer.extend({
 });
 ```
 
+##### `store.metaForType()` has been deprecated
+
+`store.metaForType()` has been deprecated because of it's ambiguous naming.
+Please use `store.metadataFor()` to get metadata and `store.setMetadataFor()`
+to set metadata.
+
 #### Changes
 
 * Fix references to buildURL in documentation
