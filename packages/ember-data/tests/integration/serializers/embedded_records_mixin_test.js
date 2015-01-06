@@ -24,6 +24,9 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
       vicinity:        DS.attr('string'),
       superVillain:    DS.belongsTo('superVillain')
     });
+    BatCave = SecretLab.extend({
+      infiltrated:     DS.attr('boolean')
+    });
     SecretWeapon = DS.Model.extend({
       name:            DS.attr('string'),
       superVillain:    DS.belongsTo('superVillain')
@@ -44,6 +47,7 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
       superVillain:    SuperVillain,
       homePlanet:      HomePlanet,
       secretLab:       SecretLab,
+      batCave:         BatCave,
       secretWeapon:    SecretWeapon,
       lightSaber:      LightSaber,
       evilMinion:      EvilMinion,
@@ -52,6 +56,7 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
     env.store.modelFor('superVillain');
     env.store.modelFor('homePlanet');
     env.store.modelFor('secretLab');
+    env.store.modelFor('batCave');
     env.store.modelFor('secretWeapon');
     env.store.modelFor('lightSaber');
     env.store.modelFor('evilMinion');
@@ -292,7 +297,7 @@ test("extractSingle with embedded objects of same type, but from separate attrib
     name: "Earth",
     villains: ["1", "3"],
     reformedVillains: ["2", "4"]
-  }, "Primary array was correct");
+  }, "Primary hash was correct");
 
   equal(env.store.recordForId("superVillain", "1").get("firstName"), "Tom", "Secondary records found in the store");
   equal(env.store.recordForId("superVillain", "2").get("firstName"), "Alex", "Secondary records found in the store");
@@ -1064,7 +1069,7 @@ test("extractSingle with multiply-nested belongsTo", function() {
     id: "1",
     name: "Alex",
     superVillain: "1"
-  }, "Primary array was correct");
+  }, "Primary hash was correct");
 
   equal(env.store.recordForId("superVillain", "1").get("firstName"), "Tom", "Secondary record, Tom, found in the steore");
   equal(env.store.recordForId("homePlanet", "1").get("name"), "Umber", "Nested Secondary record, Umber, found in the store");
@@ -1117,11 +1122,57 @@ test("extractSingle with polymorphic hasMany", function() {
       {id: "1", type: "lightSaber"},
       {id: "1", type: "secretWeapon"}
     ]
-  }, "Primary array was correct");
+  }, "Primary hash was correct");
 
   equal(env.store.recordForId("secretWeapon", "1").get("name"), "The Death Star", "Embedded polymorphic SecretWeapon found");
   equal(env.store.recordForId("lightSaber", "1").get("name"), "Tom's LightSaber", "Embedded polymorphic LightSaber found");
 
+
+});
+
+test("extractSingle with polymorphic belongsTo", function() {
+  expect(2);
+
+  SuperVillain.reopen({
+    secretLab: DS.belongsTo("secretLab", {polymorphic: true}),
+  });
+
+  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      secretLab: {embedded: 'always'}
+    }
+  }));
+  var serializer = env.container.lookup("serializer:superVillain");
+
+  var json_hash = {
+    super_villain: {
+      id: "1",
+      first_name: "Tom",
+      last_name: "Dale",
+      secret_lab: {
+        id: "1",
+        type: "BatCave",
+        infiltrated: true
+      }
+    }
+  };
+
+  var json;
+
+  run(function() {
+    json = serializer.extractSingle(env.store, SuperVillain, json_hash);
+  });
+
+  deepEqual(json, {
+    id: "1",
+    firstName: "Tom",
+    lastName: "Dale",
+    secretLab: "1",
+    secretLabType: "batCave"
+  }, "Primary has was correct");
+
+  equal(env.store.recordForId("batCave", "1").get("infiltrated"), true, "Embedded polymorphic BatCave was found");
 
 });
 
@@ -1200,7 +1251,7 @@ test("normalize with custom belongsTo primary key", function() {
     id: "1",
     name: "Alex",
     superVillain: "1"
-  }, "Primary array was correct");
+  }, "Primary hash was correct");
 
   equal(env.store.recordForId("superVillain", "1").get("firstName"), "Tom", "Secondary record, Tom, found in the steore");
 });
