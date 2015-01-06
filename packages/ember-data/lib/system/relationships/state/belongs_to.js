@@ -35,8 +35,6 @@ BelongsToRelationship.prototype.setCanonicalRecord = function(newRecord) {
 BelongsToRelationship.prototype._super$addCanonicalRecord = Relationship.prototype.addCanonicalRecord;
 BelongsToRelationship.prototype.addCanonicalRecord = function(newRecord) {
   if (this.canonicalMembers.has(newRecord)){ return;}
-  var type = this.relationshipMeta.type;
-  Ember.assert("You can only add a '" + type.typeKey + "' record to this relationship", newRecord instanceof type);
 
   if (this.canonicalState) {
     this.removeCanonicalRecord(this.canonicalState);

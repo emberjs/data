@@ -312,6 +312,24 @@ test("polymorphic belongsTo type-checks check the superclass when MODEL_FACTORY_
   }
 });
 
+test("the subclass in a polymorphic belongsTo relationship is an instanceof its superclass", function() {
+  expect(1);
+
+  var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
+  Ember.MODEL_FACTORY_INJECTIONS = true;
+
+  try {
+    run(function () {
+      var message = env.store.createRecord('message', { id: 1 });
+      var comment = env.store.createRecord('comment', { id: 2, message: message });
+      ok(comment instanceof Message, 'a comment is an instance of a message');
+    });
+
+  } finally {
+    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
+  }
+});
+
 test("relationshipsByName does not cache a factory", function() {
 
   // The model is loaded up via a container. It has relationshipsByName
