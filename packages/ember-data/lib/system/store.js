@@ -1400,15 +1400,15 @@ Store = Ember.Object.extend({
     var type = this.modelFor(typeName);
     var filter = Ember.EnumerableUtils.filter;
 
-    // If the payload contains unused keys log a warning.
-    // Adding `Ember.ENV.DS_NO_WARN_ON_UNUSED_KEYS = true` will suppress the warning.
-    if (!Ember.ENV.DS_NO_WARN_ON_UNUSED_KEYS) {
+    // If Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
+    // contains unknown keys, log a warning.
+    if (Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS) {
       Ember.warn("The payload for '" + type.typeKey + "' contains these unknown keys: " +
         Ember.inspect(filter(Ember.keys(data), function(key) {
-          return !get(type, 'fields').has(key) && key !== 'id' && key !== 'links';
+          return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
         })) + ". Make sure they've been defined in your model.",
         filter(Ember.keys(data), function(key) {
-          return !get(type, 'fields').has(key) && key !== 'id' && key !== 'links';
+          return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
         }).length === 0
       );
     }
