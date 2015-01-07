@@ -7,21 +7,18 @@ module("unit/model/merge - Merging", {
       name: DS.attr(),
       city: DS.attr()
     });
-  },
-
-  teardown: function() {
-
   }
 });
 
 test("When a record is in flight, changes can be made", function() {
+  expect(3);
+
   var adapter = DS.Adapter.extend({
     createRecord: function(store, type, record) {
       return Ember.RSVP.resolve({ id: 1, name: "Tom Dale" });
     }
   });
   var person;
-
   var store = createStore({ adapter: adapter });
 
   run(function(){
@@ -29,7 +26,7 @@ test("When a record is in flight, changes can be made", function() {
   });
 
   // Make sure saving isn't resolved synchronously
-  Ember.run(function() {
+  run(function() {
     var promise = person.save();
 
     equal(person.get('name'), "Tom Dale");
@@ -44,11 +41,13 @@ test("When a record is in flight, changes can be made", function() {
 });
 
 test("When a record is in flight, pushes are applied underneath the in flight changes", function() {
+  expect(6);
+
   var adapter = DS.Adapter.extend({
     updateRecord: function(store, type, record) {
     // Make sure saving isn't resolved synchronously
       return new Ember.RSVP.Promise(function(resolve, reject){
-        Ember.run.next(null, resolve, { id: 1, name: "Senor Thomas Dale, Esq.", city: "Portland" });
+        run.next(null, resolve, { id: 1, name: "Senor Thomas Dale, Esq.", city: "Portland" });
       });
     }
   });
@@ -61,7 +60,7 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
     person.set('name', "Thomas Dale");
   });
 
-  Ember.run(function() {
+  run(function() {
     var promise = person.save();
 
     equal(person.get('name'), "Thomas Dale");
@@ -104,6 +103,8 @@ test("When a record is dirty, pushes are overridden by local changes", function(
 });
 
 test("A record with no changes can still be saved", function() {
+  expect(1);
+
   var adapter = DS.Adapter.extend({
     updateRecord: function(store, type, record) {
       return Ember.RSVP.resolve({ id: 1, name: "Thomas Dale" });
@@ -125,6 +126,8 @@ test("A record with no changes can still be saved", function() {
 });
 
 test("A dirty record can be reloaded", function() {
+  expect(3);
+
   var adapter = DS.Adapter.extend({
     find: function(store, type, id) {
       return Ember.RSVP.resolve({ id: 1, name: "Thomas Dale", city: "Portland" });

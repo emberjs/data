@@ -1,7 +1,8 @@
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
+var set = Ember.set;
+var run = Ember.run;
 
 var Person, store, array;
-var run = Ember.run;
 
 module("unit/model - DS.Model", {
   setup: function() {
@@ -33,6 +34,8 @@ test("can have a property set on it", function() {
 });
 
 test("setting a property on a record that has not changed does not cause it to become dirty", function() {
+  expect(2);
+
   run(function(){
     store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
     store.find(Person, 1).then(function(person) {
@@ -47,6 +50,8 @@ test("setting a property on a record that has not changed does not cause it to b
 });
 
 test("resetting a property on a record cause it to become clean again", function() {
+  expect(3);
+
   run(function(){
     store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
     store.find(Person, 1).then(function(person) {
@@ -60,6 +65,8 @@ test("resetting a property on a record cause it to become clean again", function
 });
 
 test("a record becomes clean again only if all changed properties are reset", function() {
+  expect(5);
+
   run(function(){
     store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
     store.find(Person, 1).then(function(person) {
@@ -77,6 +84,8 @@ test("a record becomes clean again only if all changed properties are reset", fu
 });
 
 test("a record reports its unique id via the `id` property", function() {
+  expect(1);
+
   run(function(){
     store.push(Person, { id: 1 });
     store.find(Person, 1).then(function(record) {
@@ -86,13 +95,12 @@ test("a record reports its unique id via the `id` property", function() {
 });
 
 test("a record's id is included in its toString representation", function() {
+  expect(1);
+
   run(function(){
     store.push(Person, { id: 1 });
-
-    run(function(){
-      store.find(Person, 1).then(function(record) {
-        equal(record.toString(), '<(subclass of DS.Model):'+Ember.guidFor(record)+':1>', "reports id in toString");
-      });
+    store.find(Person, 1).then(function(record) {
+      equal(record.toString(), '<(subclass of DS.Model):'+Ember.guidFor(record)+':1>', "reports id in toString");
     });
   });
 });
@@ -112,6 +120,8 @@ test("trying to set an `id` attribute should raise", function() {
 });
 
 test("a collision of a record's id with object function's name", function() {
+  expect(1);
+
   var hasWatchMethod = Object.prototype.watch;
   try {
     if (!hasWatchMethod) {
@@ -131,6 +141,8 @@ test("a collision of a record's id with object function's name", function() {
 });
 
 test("it should use `_reference` and not `reference` to store its reference", function() {
+  expect(1);
+
   run(function(){
     store.push(Person, { id: 1 });
 
@@ -141,6 +153,8 @@ test("it should use `_reference` and not `reference` to store its reference", fu
 });
 
 test("it should cache attributes", function() {
+  expect(2);
+
   var store = createStore();
 
   var Post = DS.Model.extend({
@@ -240,6 +254,8 @@ module("unit/model - DS.Model updating", {
 });
 
 test("a DS.Model can update its attributes", function() {
+  expect(1);
+
   run(function(){
     store.find(Person, 2).then(function(person) {
       set(person, 'name', "Brohuda Katz");
@@ -312,11 +328,7 @@ test("setting a property to undefined on a newly created record should not impac
 
   run(function(){
     tag = store.createRecord(Tag);
-  });
-  run(function(){
     set(tag, 'name', 'testing');
-  });
-  run(function(){
     set(tag, 'name', undefined);
   });
 
@@ -332,6 +344,8 @@ test("setting a property to undefined on a newly created record should not impac
 // NOTE: this is a 'backdoor' test that ensures internal consistency, and should be
 // thrown out if/when the current `_attributes` hash logic is removed.
 test("setting a property back to its original value removes the property from the `_attributes` hash", function() {
+  expect(3);
+
   run(function(){
     store.find(Person, 1).then(function(person) {
       equal(person._attributes.name, undefined, "the `_attributes` hash is clean");
@@ -349,7 +363,11 @@ test("setting a property back to its original value removes the property from th
 
 module("unit/model - with a simple Person model", {
   setup: function() {
-    array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
+    array = [
+      { id: 1, name: "Scumbag Dale" },
+      { id: 2, name: "Scumbag Katz" },
+      { id: 3, name: "Scumbag Bryn" }
+    ];
     Person = DS.Model.extend({
       name: DS.attr('string')
     });
@@ -498,6 +516,8 @@ var convertsWhenSet = function(type, provided, expected) {
 };
 
 test("a DS.Model can describe String attributes", function() {
+  expect(6);
+
   converts('string', "Scumbag Tom", "Scumbag Tom");
   converts('string', 1, "1");
   converts('string', "", "");
@@ -507,6 +527,8 @@ test("a DS.Model can describe String attributes", function() {
 });
 
 test("a DS.Model can describe Number attributes", function() {
+  expect(9);
+
   converts('number', "1", 1);
   converts('number', "0", 0);
   converts('number', 1, 1);
@@ -519,6 +541,8 @@ test("a DS.Model can describe Number attributes", function() {
 });
 
 test("a DS.Model can describe Boolean attributes", function() {
+  expect(7);
+
   converts('boolean', "1", true);
   converts('boolean', "", false);
   converts('boolean', 1, true);
@@ -529,6 +553,8 @@ test("a DS.Model can describe Boolean attributes", function() {
 });
 
 test("a DS.Model can describe Date attributes", function() {
+  expect(5);
+
   converts('date', null, null);
   converts('date', undefined, undefined);
 
@@ -572,6 +598,8 @@ test("don't allow setting", function(){
 });
 
 test("ensure model exits loading state, materializes data and fulfills promise only after data is available", function () {
+  expect(2);
+
   var store = createStore({
     adapter: DS.Adapter.extend({
       find: function(store, type, id) {

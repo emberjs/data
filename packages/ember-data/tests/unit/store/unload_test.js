@@ -1,6 +1,6 @@
 var get = Ember.get;
-var store, tryToFind, Record;
 var run = Ember.run;
+var store, tryToFind, Record;
 
 module("unit/store/unload - Store unloading records", {
   setup: function() {
@@ -23,6 +23,8 @@ module("unit/store/unload - Store unloading records", {
 });
 
 test("unload a dirty record", function() {
+  expect(2);
+
   run(function(){
     store.push(Record, {
       id: 1,
@@ -48,6 +50,8 @@ test("unload a dirty record", function() {
 });
 
 test("unload a record", function() {
+  expect(5);
+
   run(function(){
     store.push(Record, {id: 1, title: 'toto'});
     store.find(Record, 1).then(function(record) {
@@ -73,6 +77,8 @@ module("DS.Store - unload record with relationships");
 
 
 test("can commit store after unload record with relationships", function() {
+  expect(1);
+
   var like, product;
 
   var Brand = DS.Model.extend({
