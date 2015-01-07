@@ -4,6 +4,8 @@ var run = Ember.run;
 module("unit/model/lifecycle_callbacks - Lifecycle Callbacks");
 
 test("a record receives a didLoad callback when it has finished loading", function() {
+  expect(3);
+
   var Person = DS.Model.extend({
     name: DS.attr(),
     didLoad: function() {
@@ -30,6 +32,8 @@ test("a record receives a didLoad callback when it has finished loading", functi
 });
 
 test("a record receives a didUpdate callback when it has finished updating", function() {
+  expect(5);
+
   var callCount = 0;
 
   var Person = DS.Model.extend({
@@ -77,6 +81,8 @@ test("a record receives a didUpdate callback when it has finished updating", fun
 });
 
 test("a record receives a didCreate callback when it has finished updating", function() {
+  expect(5);
+
   var callCount = 0;
 
   var Person = DS.Model.extend({
@@ -115,6 +121,8 @@ test("a record receives a didCreate callback when it has finished updating", fun
 });
 
 test("a record receives a didDelete callback when it has finished deleting", function() {
+  expect(5);
+
   var callCount = 0;
 
   var Person = DS.Model.extend({
@@ -164,6 +172,8 @@ test("a record receives a didDelete callback when it has finished deleting", fun
 });
 
 test("a record receives a becameInvalid callback when it became invalid", function() {
+  expect(5);
+
   var callCount = 0;
 
   var Person = DS.Model.extend({

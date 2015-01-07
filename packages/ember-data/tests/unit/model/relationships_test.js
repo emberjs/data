@@ -44,6 +44,8 @@ module("unit/model/relationships - DS.hasMany", {
 });
 
 test("hasMany handles pre-loaded relationships", function() {
+  expect(13);
+
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
     person: DS.belongsTo('person')
@@ -118,7 +120,7 @@ test("hasMany handles pre-loaded relationships", function() {
       equal(get(pets, 'length'), 1, "the list of pets should have the correct length");
       equal(get(pets.objectAt(0), 'name'), "fluffy", "the first pet should be correct");
 
-      Ember.run(function() {
+      run(function() {
         store.push(Person, { id: 4, name: "Cyvid Hamluck", pets: [4, 12] });
       });
 
@@ -129,6 +131,8 @@ test("hasMany handles pre-loaded relationships", function() {
 });
 
 test("hasMany lazily loads async relationships", function() {
+  expect(5);
+
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
     person: DS.belongsTo('person')
@@ -259,6 +263,8 @@ test("should be able to retrieve the type for a belongsTo relationship specified
 });
 
 test("relationships work when declared with a string path", function() {
+  expect(2);
+
   window.App = {};
 
   var Person = DS.Model.extend({
@@ -289,6 +295,8 @@ test("relationships work when declared with a string path", function() {
 });
 
 test("hasMany relationships work when the data hash has not been loaded", function() {
+  expect(8);
+
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
     person: DS.belongsTo('person')
@@ -337,6 +345,8 @@ test("hasMany relationships work when the data hash has not been loaded", functi
 });
 
 test("it is possible to add a new item to a relationship", function() {
+  expect(2);
+
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
     people: DS.belongsTo('person')
@@ -374,6 +384,8 @@ test("it is possible to add a new item to a relationship", function() {
 });
 
 test("possible to replace items in a relationship using setObjects w/ Ember Enumerable Array/Object as the argument (GH-2533)", function(){
+  expect(2);
+
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
     person: DS.belongsTo('person')
@@ -386,9 +398,8 @@ test("possible to replace items in a relationship using setObjects w/ Ember Enum
 
   var env   = setupStore({ tag: Tag, person: Person });
   var store = env.store;
-  var run   = Ember.run;
 
-  Ember.run(function(){
+  run(function(){
     store.push('person', { id: 1, name: "Tom Dale", tags: [ 1 ] });
     store.push('person', { id: 2, name: "Sylvain Mina", tags: [ 2 ] });
     store.push('tag', { id: 1, name: "ember" });
@@ -410,6 +421,8 @@ test("possible to replace items in a relationship using setObjects w/ Ember Enum
 });
 
 test("it is possible to remove an item from a relationship", function() {
+  expect(2);
+
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
     person: DS.belongsTo('person')
@@ -517,6 +530,8 @@ test("updating the content of a RecordArray updates its content", function() {
 });
 
 test("can create child record from a hasMany relationship", function() {
+  expect(3);
+
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
     person: DS.belongsTo('person')
@@ -548,6 +563,8 @@ test("can create child record from a hasMany relationship", function() {
 module("unit/model/relationships - DS.belongsTo");
 
 test("belongsTo lazily loads relationships as needed", function() {
+  expect(5);
+
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
     people: DS.hasMany('person')
@@ -582,6 +599,8 @@ test("belongsTo lazily loads relationships as needed", function() {
 });
 
 test("async belongsTo relationships work when the data hash has not been loaded", function() {
+  expect(5);
+
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -621,6 +640,8 @@ test("async belongsTo relationships work when the data hash has not been loaded"
 });
 
 test("async belongsTo relationships work when the data hash has already been loaded", function() {
+  expect(3);
+
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -652,6 +673,8 @@ test("async belongsTo relationships work when the data hash has already been loa
 });
 
 test("calling createRecord and passing in an undefined value for a relationship should be treated as if null", function () {
+  expect(1);
+
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
     person: DS.belongsTo('person')
@@ -722,6 +745,7 @@ test("When finding a hasMany relationship the inverse belongsTo relationship is 
 
 test("When finding a belongsTo relationship the inverse belongsTo relationship is available immediately", function() {
   expect(1);
+
   var Occupation = DS.Model.extend({
     description: DS.attr('string'),
     person: DS.belongsTo('person')
@@ -754,6 +778,8 @@ test("When finding a belongsTo relationship the inverse belongsTo relationship i
 });
 
 test("belongsTo supports relationships to models with id 0", function() {
+  expect(5);
+
   var Tag = DS.Model.extend({
     name: DS.attr('string'),
     people: DS.hasMany('person')

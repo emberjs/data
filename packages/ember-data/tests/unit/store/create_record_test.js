@@ -60,7 +60,7 @@ test("creating a record by dasherize string finds the model", function(){
 module("unit/store/createRecord - Store with models by camelCase", {
   setup: function() {
     var env = setupStore({
-      'someThing': DS.Model.extend({ foo: DS.attr('string') })
+      someThing: DS.Model.extend({ foo: DS.attr('string') })
     });
     store = env.store;
     container = env.container;

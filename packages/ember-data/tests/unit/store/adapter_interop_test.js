@@ -15,7 +15,7 @@ module("unit/store/adapter_interop - DS.Store working with a DS.Adapter", {
 });
 
 test("Adapter can be set as a factory", function() {
-  store = createStore({adapter: TestAdapter});
+  store = createStore({ adapter: TestAdapter });
 
   ok(store.get('defaultAdapter') instanceof TestAdapter);
 });
@@ -27,6 +27,8 @@ test('Adapter can be set as a name', function() {
 });
 
 test('Adapter can not be set as an instance', function() {
+  expect(5);
+
   store = DS.Store.create({
     adapter: DS.Adapter.create()
   });
@@ -79,13 +81,15 @@ test("Calling Store#findById multiple times coalesces the calls into a adapter#f
   var currentType = DS.Model.extend();
   currentType.typeKey = "test";
   stop();
-  Ember.run(function(){
+  run(function(){
     currentStore.find(currentType, 1);
     currentStore.find(currentType, 2);
   });
 });
 
 test("Returning a promise from `find` asynchronously loads data", function() {
+  expect(1);
+
   var adapter = TestAdapter.extend({
     find: function(store, type, id) {
       return resolve({ id: 1, name: "Scumbag Dale" });
@@ -105,6 +109,8 @@ test("Returning a promise from `find` asynchronously loads data", function() {
 });
 
 test("IDs provided as numbers are coerced to strings", function() {
+  expect(4);
+
   var adapter = TestAdapter.extend({
     find: function(store, type, id) {
       equal(typeof id, 'string', "id has been normalized to a string");
@@ -135,6 +141,8 @@ test("IDs provided as numbers are coerced to strings", function() {
 var array = [{ id: "1", name: "Scumbag Dale" }, { id: "2", name: "Scumbag Katz" }, { id: "3", name: "Scumbag Bryn" }];
 
 test("can load data for the same record if it is not dirty", function() {
+  expect(3);
+
   var store = createStore();
   var Person = DS.Model.extend({
     name: DS.attr('string')
@@ -166,6 +174,8 @@ test("DS.Store loads individual records without explicit IDs with a custom prima
 */
 
 test("pushMany extracts ids from an Array of hashes if no ids are specified", function() {
+  expect(1);
+
   var store = createStore();
 
   var Person = DS.Model.extend({ name: DS.attr('string') });
@@ -179,6 +189,8 @@ test("pushMany extracts ids from an Array of hashes if no ids are specified", fu
 });
 
 test("loadMany takes an optional Object and passes it on to the Adapter", function() {
+  expect(2);
+
   var passedQuery = { page: 1 };
 
   var Person = DS.Model.extend({
@@ -323,6 +335,8 @@ test("an initial data hash can be provided via store.createRecord(type, hash)", 
 });
 
 test("if an id is supplied in the initial data hash, it can be looked up using `store.find`", function() {
+  expect(1);
+
   var store = createStore();
   var Person = DS.Model.extend({
     name: DS.attr('string')
@@ -338,6 +352,8 @@ test("if an id is supplied in the initial data hash, it can be looked up using `
 });
 
 test("initial values of attributes can be passed in as the third argument to find", function() {
+  expect(1);
+
   var adapter = TestAdapter.extend({
     find: function(store, type, query) {
       return Ember.RSVP.resolve({id: '1', name: 'Test'});
@@ -388,6 +404,7 @@ test("initial values of belongsTo can be passed in as the third argument to find
 
 test("initial values of belongsTo can be passed in as the third argument to find as ids", function() {
   expect(1);
+
   var adapter = TestAdapter.extend({
     find: function(store, type, id) {
       return Ember.RSVP.Promise.resolve({id: id});
@@ -470,6 +487,8 @@ test("initial values of hasMany can be passed in as the third argument to find a
 });
 
 test("records should have their ids updated when the adapter returns the id data", function() {
+  expect(2);
+
   var Person = DS.Model.extend();
 
   var idCounter = 1;
@@ -501,6 +520,8 @@ test("records should have their ids updated when the adapter returns the id data
 });
 
 test("store.fetchMany should always return a promise", function() {
+  expect(3);
+
   var Person = DS.Model.extend();
   var store = createStore({
     adapter: TestAdapter.extend()
@@ -522,7 +543,9 @@ test("store.fetchMany should always return a promise", function() {
   }));
 });
 
-test("store.scheduleFetchMany should not resolve until all the records are resolve", function() {
+test("store.scheduleFetchMany should not resolve until all the records are resolved", function() {
+  expect(1);
+
   var Person = DS.Model.extend();
   var Phone = DS.Model.extend();
 
@@ -533,7 +556,7 @@ test("store.scheduleFetchMany should not resolve until all the records are resol
       var record = { id: id };
 
       return new Ember.RSVP.Promise(function(resolve, reject) {
-        Ember.run.later(function() {
+        run.later(function() {
           resolve(record);
         }, wait);
       });
@@ -547,7 +570,7 @@ test("store.scheduleFetchMany should not resolve until all the records are resol
       });
 
       return new Ember.RSVP.Promise(function(resolve, reject) {
-        Ember.run.later(function() {
+        run.later(function() {
           resolve(records);
         }, wait);
       });
@@ -627,6 +650,7 @@ test("the store calls adapter.findMany according to groupings returned by adapte
 
 test("the promise returned by `scheduleFetch`, when it resolves, does not depend on the promises returned to other calls to `scheduleFetch` that are in the same run loop, but different groups", function() {
   expect(2);
+
   var Person = DS.Model.extend();
   var davidResolved = false;
 
@@ -645,7 +669,7 @@ test("the promise returned by `scheduleFetch`, when it resolves, does not depend
         if (id === 'igor') {
           resolve(record);
         } else {
-          Ember.run.later(function () {
+          run.later(function () {
             davidResolved = true;
             resolve(record);
           }, 5);
@@ -658,7 +682,7 @@ test("the promise returned by `scheduleFetch`, when it resolves, does not depend
     adapter: adapter
   });
 
-  Ember.run(function () {
+  run(function () {
     var davidPromise = store.find(Person, 'david');
     var igorPromise = store.find(Person, 'igor');
 
@@ -674,6 +698,7 @@ test("the promise returned by `scheduleFetch`, when it resolves, does not depend
 
 test("the promise returned by `scheduleFetch`, when it rejects, does not depend on the promises returned to other calls to `scheduleFetch` that are in the same run loop, but different groups", function() {
   expect(2);
+
   var Person = DS.Model.extend();
   var davidResolved = false;
 
@@ -692,7 +717,7 @@ test("the promise returned by `scheduleFetch`, when it rejects, does not depend 
         if (id === 'igor') {
           reject(record);
         } else {
-          Ember.run.later(function () {
+          run.later(function () {
             davidResolved = true;
             resolve(record);
           }, 5);
@@ -705,7 +730,7 @@ test("the promise returned by `scheduleFetch`, when it rejects, does not depend 
     adapter: adapter
   });
 
-  Ember.run(function () {
+  run(function () {
     var davidPromise = store.find(Person, 'david');
     var igorPromise = store.find(Person, 'igor');
 
@@ -721,6 +746,7 @@ test("the promise returned by `scheduleFetch`, when it rejects, does not depend 
 
 test("store.fetchRecord reject records that were not found, even when those requests were coalesced with records that were found", function() {
   expect(2);
+
   var Person = DS.Model.extend();
 
   var adapter = TestAdapter.extend({
@@ -741,7 +767,7 @@ test("store.fetchRecord reject records that were not found, even when those requ
     adapter: adapter
   });
 
-  Ember.run(function () {
+  run(function () {
     var davidPromise = store.find(Person, 'david');
     var igorPromise = store.find(Person, 'igor');
 

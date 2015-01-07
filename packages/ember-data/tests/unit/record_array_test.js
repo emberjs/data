@@ -14,6 +14,8 @@ module("unit/record_array - DS.RecordArray", {
 });
 
 test("a record array is backed by records", function() {
+  expect(3);
+
   var store = createStore();
   run(function(){
     store.pushMany(Person, array);
@@ -67,6 +69,8 @@ test("stops updating when destroyed", function() {
 
 
 test("a loaded record is removed from a record array when it is deleted", function() {
+  expect(4);
+
   var Tag = DS.Model.extend({
     people: DS.hasMany('person')
   });
@@ -223,6 +227,8 @@ test("a record array should be able to be enumerated in any order", function() {
 });
 
 test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
+  expect(1);
+
   var env = setupStore({ person: Person }),
       store = env.store;
 

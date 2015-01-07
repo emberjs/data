@@ -1,5 +1,7 @@
 var env, store, Person, PhoneNumber, Post;
-var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
+var attr = DS.attr;
+var hasMany = DS.hasMany;
+var belongsTo = DS.belongsTo;
 var run = Ember.run;
 
 module("unit/store/push - DS.Store#push", {
@@ -38,13 +40,15 @@ module("unit/store/push - DS.Store#push", {
   },
 
   teardown: function() {
-    Ember.run(function() {
+    run(function() {
       store.destroy();
     });
   }
 });
 
 test("Calling push with a normalized hash returns a record", function() {
+  expect(2);
+
   run(function(){
     var person = store.push('person', {
       id: 'wat',
@@ -63,6 +67,8 @@ test("Calling push with a normalized hash returns a record", function() {
 });
 
 test("Supplying a model class for `push` is the same as supplying a string", function () {
+  expect(1);
+
   var Programmer = Person.extend();
   env.container.register('model:programmer', Programmer);
 
@@ -84,6 +90,8 @@ test("Supplying a model class for `push` is the same as supplying a string", fun
 });
 
 test("Calling push triggers `didLoad` even if the record hasn't been requested from the adapter", function() {
+  expect(1);
+
   Person.reopen({
     didLoad: async(function() {
       ok(true, "The didLoad callback was called");
@@ -108,9 +116,10 @@ test("Calling update should be deprecated", function() {
 });
 
 test("Calling push with partial records updates just those attributes", function() {
-  var person;
+  expect(2);
+
   run(function(){
-    person = store.push('person', {
+    var person = store.push('person', {
       id: 'wat',
       firstName: "Yehuda",
       lastName: "Katz"
@@ -210,6 +219,8 @@ test("Calling push with a normalized hash containing related records returns a r
 });
 
 test("Calling push with a normalized hash containing IDs of related records returns a record", function() {
+  expect(1);
+
   Person.reopen({
     phoneNumbers: hasMany('phone-number', { async: true })
   });
@@ -558,7 +569,7 @@ test('calling push with an embedded relationship throws a useful error', functio
 });
 
 test("Ember.ENV.DS_NO_WARN_ON_UNUSED_KEYS suppresses unknown keys warning", function() {
-  Ember.run(function(){
+  run(function(){
     try {
       Ember.ENV.DS_NO_WARN_ON_UNUSED_KEYS = true;
         noWarns(function() {
