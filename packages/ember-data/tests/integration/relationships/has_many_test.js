@@ -1167,8 +1167,16 @@ test("Passing a model as type to hasMany should not work", function () {
 test("Relationship.clear removes all records correctly", function(){
   var post;
 
+  Comment.reopen({
+    post: DS.belongsTo('post')
+  });
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { inverse: 'post' })
+  });
+
   run(function(){
-    post = env.store.push('post', { id: 2, title: 'Sailing the Seven Seas', comments: [1,2] });
+    post = env.store.push('post', { id: 2, title: 'Sailing the Seven Seas', comments: [1, 2] });
     env.store.pushMany('comment', [
       {
         id: 1,
@@ -1188,7 +1196,7 @@ test("Relationship.clear removes all records correctly", function(){
   run(function(){
     post._relationships['comments'].clear();
     var comments = Em.A(env.store.all('comment'));
-    deepEqual(comments.mapBy('post'), [undefined, undefined, undefined]);
+    deepEqual(comments.mapBy('post'), [null, null, null]);
   });
 
 });
@@ -1196,6 +1204,14 @@ test("Relationship.clear removes all records correctly", function(){
 
 test('unloading a record with associated records does not prevent the store from tearing down', function(){
   var post;
+
+  Comment.reopen({
+    post: DS.belongsTo('post')
+  });
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { inverse: 'post' })
+  });
 
   run(function(){
     post = env.store.push('post', { id: 2, title: 'Sailing the Seven Seas', comments: [1,2] });

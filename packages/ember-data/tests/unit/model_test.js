@@ -100,7 +100,7 @@ test("a record's id is included in its toString representation", function() {
 test("trying to set an `id` attribute should raise", function() {
   Person = DS.Model.extend({
     id: DS.attr('number'),
-    name: "Scumdale"
+    name: DS.attr('string'),
   });
 
   expectAssertion(function() {
@@ -575,7 +575,7 @@ test("ensure model exits loading state, materializes data and fulfills promise o
   var store = createStore({
     adapter: DS.Adapter.extend({
       find: function(store, type, id) {
-        return Ember.RSVP.resolve({ id: 1, name: "John", isDrugAddict: false });
+        return Ember.RSVP.resolve({ id: 1, name: "John" });
       }
     })
   });
@@ -604,7 +604,8 @@ test("A DS.Model can be JSONified", function() {
 
 test("A subclass of DS.Model can not use the `data` property", function() {
   var Person = DS.Model.extend({
-    data: DS.attr('string')
+    data: DS.attr('string'),
+    name: DS.attr('string')
   });
 
   var store = createStore({ person: Person });

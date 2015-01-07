@@ -1054,7 +1054,7 @@ test("extractSingle with multiply-nested belongsTo", function() {
         home_planet: {
           id: "1",
           name: "Umber",
-          super_villain_ids: ["1"]
+          villain_ids: ["1"]
         }
       }
     }

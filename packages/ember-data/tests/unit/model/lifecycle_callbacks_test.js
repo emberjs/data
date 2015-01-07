@@ -34,6 +34,7 @@ test("a record receives a didUpdate callback when it has finished updating", fun
 
   var Person = DS.Model.extend({
     bar: DS.attr('string'),
+    name: DS.attr('string'),
 
     didUpdate: function() {
       callCount++;
@@ -119,6 +120,7 @@ test("a record receives a didDelete callback when it has finished deleting", fun
 
   var Person = DS.Model.extend({
     bar: DS.attr('string'),
+    name: DS.attr('string'),
 
     didDelete: function() {
       callCount++;
@@ -168,6 +170,7 @@ test("a record receives a becameInvalid callback when it became invalid", functi
 
   var Person = DS.Model.extend({
     bar: DS.attr('string'),
+    name: DS.attr('string'),
 
     becameInvalid: function() {
       callCount++;

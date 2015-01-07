@@ -102,7 +102,7 @@ test("Calling push triggers `didLoad` even if the record hasn't been requested f
 test("Calling update should be deprecated", function() {
   expectDeprecation(function() {
     run(function() {
-      store.update('person', { id: '1', name: 'Tomster' });
+      store.update('person', { id: '1', firstName: 'Yehuda', lastName: 'Katz' });
     });
   });
 });
@@ -467,6 +467,10 @@ test('Calling push with a link for a non async relationship should warn', functi
 });
 
 test('Calling push with a link containing an object throws an assertion error', function() {
+  Person.reopen({
+    phoneNumbers: hasMany('phone-number', { async: true })
+  });
+
   expectAssertion(function() {
     run(function(){
       store.push('person', {
