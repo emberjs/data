@@ -116,7 +116,7 @@ test("Calling push with partial records updates just those attributes", function
       lastName: "Katz"
     });
 
-    store.update('person', {
+    store.push('person', {
       id: 'wat',
       lastName: "Katz!"
     });
