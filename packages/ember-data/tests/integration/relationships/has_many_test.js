@@ -714,8 +714,9 @@ test("Polymorphic relationships with a hasMany is set up correctly on both sides
   Post.reopen({
     contact: DS.belongsTo('contact', { polymorphic: true })
   });
+  var email, post;
 
-  Ember.run(function () {
+  run(function () {
     email = env.store.createRecord('email');
     post = env.store.createRecord('post', {
       contact: email
@@ -825,7 +826,7 @@ test("When a record is created on the client, its hasMany arrays should be in a 
 
   var post;
 
-  Ember.run(function() {
+  run(function() {
     post = env.store.createRecord('post');
   });
 
@@ -847,7 +848,7 @@ test("When a record is created on the client, its async hasMany arrays should be
     comments: DS.hasMany('comment', { async: true })
   });
 
-  var post = Ember.run(function() {
+  var post = run(function() {
     return env.store.createRecord('post');
   });
 
@@ -864,7 +865,7 @@ test("When a record is created on the client, its async hasMany arrays should be
 
 test("a records SYNC HM relationship property is readOnly", function(){
   expect(1);
-  var post = Ember.run(function() {
+  var post = run(function() {
     return env.store.createRecord('post');
   });
 
@@ -880,7 +881,7 @@ test("a records ASYNC HM relationship property is readOnly", function(){
     comments: DS.hasMany('comment', { async: true })
   });
 
-  var post = Ember.run(function() {
+  var post = run(function() {
     return env.store.createRecord('post');
   });
 
@@ -898,7 +899,7 @@ test("When a record is saved, its unsaved hasMany records should be kept", funct
     return Ember.RSVP.resolve({ id: 1 });
   };
 
-  Ember.run(function () {
+  run(function () {
     post = env.store.createRecord('post');
     comment = env.store.createRecord('comment');
     post.get('comments').pushObject(comment);
@@ -1098,7 +1099,7 @@ test("ManyArray notifies the array observers and flushes bindings when removing"
   expect(2);
   var chapter, page, page2;
   var observe = false;
-  var arr = Ember.A([1,2]);
+
   run(function(){
     page = env.store.push('page', { id: 1, number: 1 });
     page2 = env.store.push('page', { id: 2, number: 2 });
@@ -1127,7 +1128,7 @@ test("ManyArray notifies the array observers and flushes bindings when adding", 
   expect(2);
   var chapter, page, page2;
   var observe = false;
-  var arr = Ember.A([1,2]);
+
   run(function(){
     page = env.store.push('page', { id: 1, number: 1 });
     page2 = env.store.push('page', { id: 2, number: 2 });
@@ -1170,24 +1171,15 @@ test("Relationship.clear removes all records correctly", function(){
   run(function(){
     post = env.store.push('post', { id: 2, title: 'Sailing the Seven Seas', comments: [1,2] });
     env.store.pushMany('comment', [
-      {
-        id: 1,
-        post: 2
-      },
-      {
-        id: 2,
-        post: 2
-      },
-      {
-        id: 3,
-        post: 2
-      }
+      { id: 1, post: 2 },
+      { id: 2, post: 2 },
+      { id: 3, post: 2 }
     ]);
   });
 
   run(function(){
     post._relationships['comments'].clear();
-    var comments = Em.A(env.store.all('comment'));
+    var comments = Ember.A(env.store.all('comment'));
     deepEqual(comments.mapBy('post'), [undefined, undefined, undefined]);
   });
 
@@ -1200,14 +1192,8 @@ test('unloading a record with associated records does not prevent the store from
   run(function(){
     post = env.store.push('post', { id: 2, title: 'Sailing the Seven Seas', comments: [1,2] });
     env.store.pushMany('comment', [
-      {
-        id: 1,
-        post: 2
-      },
-      {
-        id: 2,
-        post: 2
-      }
+      { id: 1, post: 2 },
+      { id: 2, post: 2 }
     ]);
 
     // This line triggers the original bug that gets manifested

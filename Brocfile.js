@@ -41,14 +41,14 @@ function testTree(packageName){
     files: [ '**/*.js' ],
     destDir: '/' + packageName
   });
-  var jshinted = jshint('packages/' + packageName + '/lib', {
+  var jshinted = jshint('packages/' + packageName + '/', {
     jshintrcPath: path.join(__dirname, '.jshintrc')
   });
   jshinted = wrap(jshinted, {
     wrapper: [ "if (!QUnit.urlParams.nojshint) {\n", "\n}"],
   });
   jshinted = pickFiles(jshinted, {
-    files: ['**/*.js'],
+    files: ['{lib,tests}/**/*.js'],
     srcDir: '/',
     destDir: '/' + packageName + '-jshint'
   });

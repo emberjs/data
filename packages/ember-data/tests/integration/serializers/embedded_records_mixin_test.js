@@ -1,5 +1,5 @@
 var get = Ember.get;
-var HomePlanet, SuperVillain, EvilMinion, SecretLab, SecretWeapon, Comment,
+var HomePlanet, SuperVillain, EvilMinion, SecretLab, SecretWeapon, BatCave, Comment,
   league, superVillain, evilMinion, secretWeapon, homePlanet, secretLab, env;
 var indexOf = Ember.EnumerableUtils.indexOf;
 var run = Ember.run;

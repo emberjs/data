@@ -192,7 +192,7 @@ test("Calling push with partial records triggers observers for just those attrib
 });
 
 test("Calling push with a normalized hash containing related records returns a record", function() {
-  var number1, number, person;
+  var number1, number2, person;
   run(function(){
     number1 = store.push('phone-number', {
       id: 1,
@@ -420,7 +420,7 @@ test("Calling pushPayload allows partial updates with raw JSON", function () {
     });
   });
 
-  var person = store.getById('person', 1);
+  person = store.getById('person', 1);
 
   equal(person.get('firstName'), "Robert", "you can push raw JSON into the store");
   equal(person.get('lastName'), "Jackson", "you can push raw JSON into the store");

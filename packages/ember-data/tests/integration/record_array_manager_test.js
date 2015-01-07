@@ -105,10 +105,9 @@ test("destroying the store correctly cleans everything up", function() {
 
 test("Should not filter a stor.all() array when a record property is changed", function() {
   var car;
-
   var filterdSummary = tap(store.recordArrayManager, 'updateRecordArray');
 
-  var allCars = store.all('car');
+  store.all('car');
 
   run(function(){
     car = store.push('car', {
