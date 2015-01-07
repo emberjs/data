@@ -602,9 +602,7 @@ export default Adapter.extend({
     return expandedURL.join('/');
   },
 
-  /**
-    http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
-  */
+  // http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
   maxUrlLength: 2048,
 
   /**
