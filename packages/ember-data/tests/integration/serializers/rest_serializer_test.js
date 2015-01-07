@@ -539,3 +539,18 @@ test("serializeIntoHash with decamelized typeKey", function() {
     }
   });
 });
+
+test('serializeBelongsTo with async polymorphic', function() {
+  var evilMinion, doomsdayDevice;
+  var json = {};
+  var expected = { evilMinion: '1', evilMinionType: 'evilMinion' };
+
+  run(function() {
+    evilMinion = env.store.createRecord('evilMinion', { id: 1, name: 'Tomster' });
+    doomsdayDevice = env.store.createRecord('doomsdayDevice', { id: 2, name: 'Yehuda', evilMinion: evilMinion });
+  });
+
+  env.restSerializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, { key: 'evilMinion', options: { polymorphic: true, async: true } });
+
+  deepEqual(json, expected, 'returned JSON is correct');
+});

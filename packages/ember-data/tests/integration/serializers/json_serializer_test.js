@@ -436,13 +436,14 @@ test("Calling normalize should normalize the payload (only the passed keys)", fu
 });
 
 test('serializeBelongsTo with async polymorphic', function() {
-  var json = {},
-      expectedJSON = { post: '1', postTYPE: 'post' };
+  var post, favorite;
+  var json = {};
+  var expected = { post: '1', postTYPE: 'post' };
 
   env.container.register('serializer:favorite', DS.JSONSerializer.extend({
-    serializePolymorphicType: function(record, json, relationship) {
+    serializePolymorphicType: function(snapshot, json, relationship) {
       var key = relationship.key;
-      json[relationship.key + 'TYPE'] = record.constructor.typeKey;
+      json[key + 'TYPE'] = snapshot.belongsTo(key).typeKey;
     }
   }));
 
@@ -451,11 +452,7 @@ test('serializeBelongsTo with async polymorphic', function() {
     favorite = env.store.createRecord(Favorite, { post: post, id: '3' });
   });
 
-  env.container.lookup('serializer:favorite').serializeBelongsTo(favorite, json, { key: 'post', options: { polymorphic: true, async: true } });
+  env.container.lookup('serializer:favorite').serializeBelongsTo(favorite._createSnapshot(), json, { key: 'post', options: { polymorphic: true, async: true } });
 
-  deepEqual(
-    json,
-    expectedJSON,
-    'Expected: ' + JSON.stringify(expectedJSON) + ', Got: ' + JSON.stringify(json)
-  );
+  deepEqual(json, expected, 'returned JSON is correct');
 });
