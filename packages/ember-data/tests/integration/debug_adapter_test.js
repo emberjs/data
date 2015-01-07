@@ -22,11 +22,6 @@ module("DS.DebugAdapter", {
 
     debugAdapter.reopen({
       getModelTypes: function() {
-        // Support Ember < 1.5.
-        // TODO: Remove this workaround (if statement) when Ember 1.5 is released.
-        if (!this.get('containerDebugAdapter')) {
-          return Ember.A([App.Post]);
-        }
         return Ember.A([{ klass: App.Post, name: 'App.Post' }]);
       }
     });
