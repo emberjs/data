@@ -39,11 +39,17 @@ Ember.Date.parse = function (date) {
         struct[2] = (+struct[2] || 1) - 1;
         struct[3] = +struct[3] || 1;
 
-        if (struct[8] !== 'Z' && struct[9] !== undefined) {
-            minutesOffset = struct[10] * 60 + struct[11];
+        if (struct[8] !== 'Z') {
+            if (struct[9] !== undefined) {
+                minutesOffset = struct[10] * 60 + struct[11];
 
-            if (struct[9] === '+') {
-                minutesOffset = 0 - minutesOffset;
+                if (struct[9] === '+') {
+                    minutesOffset = 0 - minutesOffset;
+                }
+            // ES6 §20.3.1.15 states "If the time zone offset is absent, the date-time is interpreted as a
+            // local time."
+            } else {
+                minutesOffset = new Date().getTimezoneOffset();
             }
         }
 
