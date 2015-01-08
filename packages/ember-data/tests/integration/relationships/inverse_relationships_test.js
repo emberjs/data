@@ -16,14 +16,14 @@ test("When a record is added to a has-many relationship, the inverse belongsTo i
   store = env.store;
   var comment, post;
 
-  run(function(){
+  run(function() {
     comment = store.createRecord('comment');
     post = store.createRecord('post');
   });
 
   equal(comment.get('post'), null, "no post has been set on the comment");
 
-  run(function(){
+  run(function() {
     post.get('comments').pushObject(comment);
   });
   equal(comment.get('post'), post, "post was set on the comment");
@@ -73,7 +73,7 @@ test("When a record is added to a has-many relationship, the inverse belongsTo c
   store = env.store;
   var comment, post;
 
-  run(function(){
+  run(function() {
     comment = store.createRecord('comment');
     post = store.createRecord('post');
   });
@@ -83,7 +83,7 @@ test("When a record is added to a has-many relationship, the inverse belongsTo c
   equal(comment.get('redPost'), null, "redPost has not been set on the comment");
   equal(comment.get('bluePost'), null, "bluePost has not been set on the comment");
 
-  run(function(){
+  run(function() {
     post.get('comments').pushObject(comment);
   });
 
@@ -108,7 +108,7 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
   store = env.store;
   var comment, post;
 
-  run(function(){
+  run(function() {
     comment = store.createRecord('comment');
     post = store.createRecord('post');
   });
@@ -117,7 +117,7 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
   equal(post.get('youComments.length'), 0, "youComments has no posts");
   equal(post.get('everyoneWeKnowComments.length'), 0, "everyoneWeKnowComments has no posts");
 
-  run(function(){
+  run(function() {
     comment.set('post', post);
   });
 
@@ -141,12 +141,12 @@ test("When setting a belongsTo, the OneToOne invariant is respected even when ot
   store = env.store;
   var comment, post, post2;
 
-  run(function(){
+  run(function() {
     comment = store.createRecord('comment');
     post = store.createRecord('post');
     post2 = store.createRecord('post');
   });
-  run(function(){
+  run(function() {
     comment.set('post', post);
     post2.set('bestComment', null);
   });
@@ -155,7 +155,7 @@ test("When setting a belongsTo, the OneToOne invariant is respected even when ot
   equal(post.get('bestComment'), comment);
   equal(post2.get('bestComment'), null);
 
-  run(function(){
+  run(function() {
     comment.set('post', post2);
   });
 
@@ -179,13 +179,13 @@ test("When setting a belongsTo, the OneToOne invariant is transitive", function(
   });
   var post, post2, comment;
 
-  run(function(){
+  run(function() {
     comment = store.createRecord('comment');
     post = store.createRecord('post');
     post2 = store.createRecord('post');
   });
 
-  run(function(){
+  run(function() {
     comment.set('post', post);
   });
 
@@ -193,7 +193,7 @@ test("When setting a belongsTo, the OneToOne invariant is transitive", function(
   equal(post.get('bestComment'), comment);
   equal(post2.get('bestComment'), null);
 
-  run(function(){
+  run(function() {
     post2.set('bestComment', comment);
   });
 
@@ -217,7 +217,7 @@ test("When setting a belongsTo, the OneToOne invariant is commutative", function
   });
   var post, comment, comment2;
 
-  run(function(){
+  run(function() {
     post = store.createRecord('post');
     comment = store.createRecord('comment');
     comment2 = store.createRecord('comment');
@@ -229,7 +229,7 @@ test("When setting a belongsTo, the OneToOne invariant is commutative", function
   equal(post.get('bestComment'), comment);
   equal(comment2.get('post'), null);
 
-  run(function(){
+  run(function() {
     post.set('bestComment', comment2);
   });
 
@@ -252,23 +252,23 @@ test("OneToNone relationship works", function() {
   store = env.store;
   var comment, post1, post2;
 
-  run(function(){
+  run(function() {
     comment = store.createRecord('comment');
     post1 = store.createRecord('post');
     post2 = store.createRecord('post');
   });
 
-  run(function(){
+  run(function() {
     comment.set('post', post1);
   });
   equal(comment.get('post'), post1, 'the post is set to the first one');
 
-  run(function(){
+  run(function() {
     comment.set('post', post2);
   });
   equal(comment.get('post'), post2, 'the post is set to the second one');
 
-  run(function(){
+  run(function() {
     comment.set('post', post1);
   });
   equal(comment.get('post'), post1, 'the post is re-set to the first one');
@@ -296,7 +296,7 @@ test("When a record is added to or removed from a polymorphic has-many relations
   store = env.store;
   var post, user;
 
-  run(function(){
+  run(function() {
     post = store.createRecord('post');
     user = store.createRecord('user');
   });
@@ -306,7 +306,7 @@ test("When a record is added to or removed from a polymorphic has-many relations
   equal(post.get('redUser'), null, "redUser has not been set on the user");
   equal(post.get('blueUser'), null, "blueUser has not been set on the user");
 
-  run(function(){
+  run(function() {
     user.get('messages').pushObject(post);
   });
 
@@ -315,7 +315,7 @@ test("When a record is added to or removed from a polymorphic has-many relations
   equal(post.get('redUser'), user, "redUser has been set on the user");
   equal(post.get('blueUser'), null, "blueUser has not been set on the user");
 
-  run(function(){
+  run(function() {
     user.get('messages').popObject();
   });
 
@@ -342,7 +342,7 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
   store = env.store;
   var user, post;
 
-  run(function(){
+  run(function() {
     user = store.createRecord('user');
     post = store.createRecord('post');
   });
@@ -351,7 +351,7 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
   equal(user.get('youMessages.length'), 0, "youMessages has no posts");
   equal(user.get('everyoneWeKnowMessages.length'), 0, "everyoneWeKnowMessages has no posts");
 
-  run(function(){
+  run(function() {
     post.set('user', user);
   });
 
@@ -359,7 +359,7 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
   equal(user.get('youMessages.length'), 1, "youMessages had the post added");
   equal(user.get('everyoneWeKnowMessages.length'), 0, "everyoneWeKnowMessages has no posts");
 
-  run(function(){
+  run(function() {
     post.set('user', null);
   });
 
@@ -370,9 +370,9 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
 
 test("When a record's polymorphic belongsTo relationship is set, it can specify the inverse hasMany to which the new child should be added", function() {
   Message = DS.Model.extend({
-    meMessages: DS.hasMany('comment', {inverse: null}),
-    youMessages: DS.hasMany('comment', {inverse: 'message'}),
-    everyoneWeKnowMessages: DS.hasMany('comment', {inverse: null})
+    meMessages: DS.hasMany('comment', { inverse: null }),
+    youMessages: DS.hasMany('comment', { inverse: 'message' }),
+    everyoneWeKnowMessages: DS.hasMany('comment', { inverse: null })
   });
 
   Post = Message.extend();
@@ -388,7 +388,7 @@ test("When a record's polymorphic belongsTo relationship is set, it can specify 
   store = env.store;
   var comment, post;
 
-  run(function(){
+  run(function() {
     comment = store.createRecord('comment');
     post = store.createRecord('post');
   });
@@ -397,7 +397,7 @@ test("When a record's polymorphic belongsTo relationship is set, it can specify 
   equal(post.get('youMessages.length'), 0, "youMessages has no posts");
   equal(post.get('everyoneWeKnowMessages.length'), 0, "everyoneWeKnowMessages has no posts");
 
-  run(function(){
+  run(function() {
     comment.set('message', post);
   });
 
@@ -405,7 +405,7 @@ test("When a record's polymorphic belongsTo relationship is set, it can specify 
   equal(post.get('youMessages.length'), 1, "youMessages had the post added");
   equal(post.get('everyoneWeKnowMessages.length'), 0, "everyoneWeKnowMessages has no posts");
 
-  run(function(){
+  run(function() {
     comment.set('message', null);
   });
 
@@ -424,12 +424,12 @@ test("Inverse relationships that don't exist throw a nice error for a hasMany", 
 
   var env = setupStore({ post: Post, comment: Comment, user: User });
   var comment;
-  run(function(){
+  run(function() {
     comment = env.store.createRecord('comment');
   });
 
   expectAssertion(function() {
-    run(function(){
+    run(function() {
       env.store.createRecord('post');
     });
   }, /We found no inverse relationships by the name of 'testPost' on the 'comment' model/);
@@ -445,12 +445,12 @@ test("Inverse relationships that don't exist throw a nice error for a belongsTo"
 
   var env = setupStore({ post: Post, comment: Comment, user: User });
   var user;
-  run(function(){
+  run(function() {
     user = env.store.createRecord('user');
   });
 
   expectAssertion(function() {
-    run(function(){
+    run(function() {
       env.store.createRecord('post');
     });
   }, /We found no inverse relationships by the name of 'testPost' on the 'user' model/);

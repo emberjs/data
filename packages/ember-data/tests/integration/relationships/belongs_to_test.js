@@ -11,8 +11,8 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
   setup: function() {
     User = DS.Model.extend({
       name: attr('string'),
-      messages: hasMany('message', {polymorphic: true}),
-      favouriteMessage: belongsTo('message', {polymorphic: true, inverse: null}),
+      messages: hasMany('message', { polymorphic: true }),
+      favouriteMessage: belongsTo('message', { polymorphic: true, inverse: null })
     });
 
     Message = DS.Model.extend({
@@ -79,14 +79,14 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
     });
   };
 
-  run(function(){
+  run(function() {
     env.store.push('post', {
       id: 1,
       user: 2
     });
   });
 
-  run(function(){
+  run(function() {
     env.store.find('post', 1).then(function(post) {
       post.get('user');
     });
@@ -96,12 +96,12 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
 test("Only a record of the same type can be used with a monomorphic belongsTo relationship", function() {
   expect(1);
 
-  run(function(){
+  run(function() {
     store.push('post', { id: 1 });
     store.push('comment', { id: 2 });
   });
 
-  run(function(){
+  run(function() {
     hash({
       post: store.find('post', 1),
       comment: store.find('comment', 2)
@@ -115,14 +115,14 @@ test("Only a record of the same type can be used with a monomorphic belongsTo re
 
 test("Only a record of the same base type can be used with a polymorphic belongsTo relationship", function() {
   expect(1);
-  run(function(){
+  run(function() {
     store.push('comment', { id: 1 });
     store.push('comment', { id: 2 });
     store.push('post', { id: 1 });
     store.push('user', { id: 3 });
   });
 
-  run(function(){
+  run(function() {
     var asyncRecords = hash({
       user: store.find('user', 3),
       post: store.find('post', 1),
@@ -145,12 +145,12 @@ test("Only a record of the same base type can be used with a polymorphic belongs
 });
 
 test("The store can load a polymorphic belongsTo association", function() {
-  run(function(){
+  run(function() {
     env.store.push('post', { id: 1 });
     env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
   });
 
-  run(function(){
+  run(function() {
     hash({
       message: store.find('post', 1),
       comment: store.find('comment', 2)
@@ -165,7 +165,7 @@ test("The store can serialize a polymorphic belongsTo association", function() {
     ok(true, "The serializer's serializePolymorphicType method should be called");
     json["message_type"] = "post";
   };
-  run(function(){
+  run(function() {
     env.store.push('post', { id: 1 });
     env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
 
@@ -189,7 +189,7 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
   env.container.register('model:group', Group);
   env.container.register('model:person', Person);
 
-  run(function(){
+  run(function() {
     store.push('person', { id: 1, links: { group: '/people/1/group' } });
   });
 
@@ -205,7 +205,7 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
     return Ember.RSVP.resolve({ id: 1, people: [1] });
   });
 
-  run(function(){
+  run(function() {
     env.store.find('person', 1).then(function(person) {
       return person.get('group');
     }).then(function(group) {
@@ -227,7 +227,7 @@ test('A record with an async belongsTo relationship always returns a promise for
   env.container.register('model:seat', Seat);
   env.container.register('model:person', Person);
 
-  run(function(){
+  run(function() {
     store.push('person', { id: 1, links: { seat: '/people/1/seat' } });
   });
 
@@ -236,16 +236,16 @@ test('A record with an async belongsTo relationship always returns a promise for
   };
 
   env.adapter.findBelongsTo = async(function(store, record, link, relationship) {
-    return Ember.RSVP.resolve({ id: 1});
+    return Ember.RSVP.resolve({ id: 1 });
   });
 
-  run(function(){
+  run(function() {
     env.store.find('person', 1).then(function(person) {
       person.get('seat').then(function(seat) {
-          // this assertion fails too
-          // ok(seat.get('person') === person, 'parent relationship should be populated');
-          seat.set('person', person);
-          ok(person.get('seat').then, 'seat should be a PromiseObject');
+        // this assertion fails too
+        // ok(seat.get('person') === person, 'parent relationship should be populated');
+        seat.set('person', person);
+        ok(person.get('seat').then, 'seat should be a PromiseObject');
       });
     });
   });
@@ -265,7 +265,7 @@ test("A record with an async belongsTo relationship returning null should resolv
   env.container.register('model:group', Group);
   env.container.register('model:person', Person);
 
-  run(function(){
+  run(function() {
     store.push('person', { id: 1, links: { group: '/people/1/group' } });
   });
 
@@ -436,7 +436,7 @@ test("relationship changes shouldn’t cause async fetches", function() {
     })
   });
   var post, comment;
-  run(function(){
+  run(function() {
     post = env.store.push('post', {
       id: 1,
       comments: [1, 2, 3]
@@ -478,7 +478,7 @@ test("Destroying a record with an unloaded aync belongsTo association does not f
     })
   });
 
-  run(function(){
+  run(function() {
     post = env.store.push('post', {
       id: 1,
       user: 2
@@ -500,7 +500,7 @@ test("Destroying a record with an unloaded aync belongsTo association does not f
 
 test("A sync belongsTo errors out if the record is unlaoded", function() {
   var message;
-  run(function(){
+  run(function() {
     message = env.store.push('message', { id: 1, user: 2 });
   });
 
@@ -514,11 +514,11 @@ test("Rollbacking a deleted record restores implicit relationship - async", func
     author: DS.belongsTo('author', { async: true })
   });
   var book, author;
-  run(function(){
+  run(function() {
     book = env.store.push('book', { id: 1, name: "Stanley's Amazing Adventures", author: 2 });
     author = env.store.push('author', { id: 2, name: 'Stanley' });
   });
-  run(function(){
+  run(function() {
     author.deleteRecord();
     author.rollback();
     book.get('author').then(function(fetchedAuthor) {
@@ -529,11 +529,11 @@ test("Rollbacking a deleted record restores implicit relationship - async", func
 
 test("Rollbacking a deleted record restores implicit relationship - sync", function () {
   var book, author;
-  run(function(){
+  run(function() {
     book = env.store.push('book', { id: 1, name: "Stanley's Amazing Adventures", author: 2 });
     author = env.store.push('author', { id: 2, name: 'Stanley' });
   });
-  run(function(){
+  run(function() {
     author.deleteRecord();
     author.rollback();
   });

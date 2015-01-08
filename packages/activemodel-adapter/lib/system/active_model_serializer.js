@@ -219,7 +219,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param {Object} data
   */
 
-  normalizeLinks: function(data){
+  normalizeLinks: function(data) {
     if (data.links) {
       var links = data.links;
 

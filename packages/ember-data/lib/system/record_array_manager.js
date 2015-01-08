@@ -71,7 +71,7 @@ export default Ember.Object.extend({
 
     if (!recordArrays) { return; }
 
-    recordArrays.forEach(function(array){
+    recordArrays.forEach(function(array) {
       array.removeRecord(record);
     });
 
@@ -258,7 +258,7 @@ export default Ember.Object.extend({
     recordArrays.splice(index, 1);
   },
 
-  willDestroy: function(){
+  willDestroy: function() {
     this._super();
 
     this.filteredRecordArrays.forEach(function(value) {

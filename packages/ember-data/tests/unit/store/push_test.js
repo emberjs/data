@@ -30,9 +30,11 @@ module("unit/store/push - DS.Store#push", {
       return 'Post';
     };
 
-    env = setupStore({"post": Post,
-                      "person": Person,
-                      "phone-number": PhoneNumber});
+    env = setupStore({
+      post: Post,
+      person: Person,
+      "phone-number": PhoneNumber
+    });
 
     store = env.store;
 
@@ -49,7 +51,7 @@ module("unit/store/push - DS.Store#push", {
 test("Calling push with a normalized hash returns a record", function() {
   expect(2);
 
-  run(function(){
+  run(function() {
     var person = store.push('person', {
       id: 'wat',
       firstName: "Yehuda",
@@ -72,7 +74,7 @@ test("Supplying a model class for `push` is the same as supplying a string", fun
   var Programmer = Person.extend();
   env.container.register('model:programmer', Programmer);
 
-  run(function(){
+  run(function() {
     store.push(Programmer, {
       id: 'wat',
       firstName: "Yehuda",
@@ -98,7 +100,7 @@ test("Calling push triggers `didLoad` even if the record hasn't been requested f
     })
   });
 
-  run(function(){
+  run(function() {
     store.push('person', {
       id: 'wat',
       firstName: "Yehuda",
@@ -118,7 +120,7 @@ test("Calling update should be deprecated", function() {
 test("Calling push with partial records updates just those attributes", function() {
   expect(2);
 
-  run(function(){
+  run(function() {
     var person = store.push('person', {
       id: 'wat',
       firstName: "Yehuda",
@@ -145,7 +147,7 @@ test("Calling push on normalize allows partial updates with raw JSON", function 
   env.container.register('serializer:person', DS.RESTSerializer);
   var person;
 
-  run(function(){
+  run(function() {
     person = store.push('person', {
       id: '1',
       firstName: "Robert",
@@ -166,7 +168,7 @@ test("Calling push with partial records triggers observers for just those attrib
   expect(1);
   var person;
 
-  run(function(){
+  run(function() {
     person = store.push('person', {
       id: 'wat',
       firstName: "Yehuda",
@@ -182,7 +184,7 @@ test("Calling push with partial records triggers observers for just those attrib
     ok(true, 'lastName observer should be triggered');
   });
 
-  run(function(){
+  run(function() {
     store.push('person', {
       id: 'wat',
       firstName: 'Yehuda',
@@ -193,7 +195,7 @@ test("Calling push with partial records triggers observers for just those attrib
 
 test("Calling push with a normalized hash containing related records returns a record", function() {
   var number1, number2, person;
-  run(function(){
+  run(function() {
     number1 = store.push('phone-number', {
       id: 1,
       number: '5551212',
@@ -215,7 +217,7 @@ test("Calling push with a normalized hash containing related records returns a r
   });
 
 
-  deepEqual(person.get('phoneNumbers').toArray(), [ number1, number2 ], "phoneNumbers array is correct");
+  deepEqual(person.get('phoneNumbers').toArray(), [number1, number2], "phoneNumbers array is correct");
 });
 
 test("Calling push with a normalized hash containing IDs of related records returns a record", function() {
@@ -244,7 +246,7 @@ test("Calling push with a normalized hash containing IDs of related records retu
   };
   var person;
 
-  run(function(){
+  run(function() {
     person = store.push('person', {
       id: 'wat',
       firstName: 'John',
@@ -268,44 +270,52 @@ test("Calling push with a normalized hash containing IDs of related records retu
 });
 
 test("Calling pushPayload allows pushing raw JSON", function () {
-  run(function(){
-    store.pushPayload('post', {posts: [{
-      id: '1',
-      post_title: "Ember rocks"
-    }]});
+  run(function() {
+    store.pushPayload('post', {
+      posts: [{
+        id: '1',
+        post_title: "Ember rocks"
+      }]
+    });
   });
 
   var post = store.getById('post', 1);
 
   equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
 
-  run(function(){
-    store.pushPayload('post', {posts: [{
-      id: '1',
-      post_title: "Ember rocks (updated)"
-    }]});
+  run(function() {
+    store.pushPayload('post', {
+      posts: [{
+        id: '1',
+        post_title: "Ember rocks (updated)"
+      }]
+    });
   });
 
   equal(post.get('postTitle'), "Ember rocks (updated)", "You can update data in the store");
 });
 
 test("Calling pushPayload allows pushing singular payload properties", function () {
-  run(function(){
-    store.pushPayload('post', {post: {
-      id: '1',
-      post_title: "Ember rocks"
-    }});
+  run(function() {
+    store.pushPayload('post', {
+      post: {
+        id: '1',
+        post_title: "Ember rocks"
+      }
+    });
   });
 
   var post = store.getById('post', 1);
 
   equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
 
-  run(function(){
-    store.pushPayload('post', {post: {
-      id: '1',
-      post_title: "Ember rocks (updated)"
-    }});
+  run(function() {
+    store.pushPayload('post', {
+      post: {
+        id: '1',
+        post_title: "Ember rocks (updated)"
+      }
+    });
   });
 
   equal(post.get('postTitle'), "Ember rocks (updated)", "You can update data in the store");
@@ -326,7 +336,7 @@ test("Calling pushPayload should use the type's serializer for normalizing", fun
     }
   }));
 
-  run(function(){
+  run(function() {
     store.pushPayload('post', {
       posts: [{
         id: 1,
@@ -358,11 +368,10 @@ test("Calling pushPayload without a type uses application serializer's pushPaylo
     }
   }));
 
-  run(function(){
-    store.pushPayload({posts: [{
-      id: '1',
-      postTitle: "Ember rocks"
-    }]});
+  run(function() {
+    store.pushPayload({
+      posts: [{ id: '1', postTitle: "Ember rocks" }]
+    });
   });
 });
 
@@ -383,7 +392,7 @@ test("Calling pushPayload without a type should use a model's serializer when no
     }
   }));
 
-  run(function(){
+  run(function() {
     store.pushPayload({
       posts: [{
         id: '1',
@@ -438,7 +447,7 @@ test("Calling pushPayload allows partial updates with raw JSON", function () {
   equal(person.get('lastName'), "Jackson", "existing fields are untouched");
 });
 
-test('calling push without data argument as an object raises an error', function(){
+test('calling push without data argument as an object raises an error', function() {
   var invalidValues = [
     undefined,
     null,
@@ -451,9 +460,9 @@ test('calling push without data argument as an object raises an error', function
 
   expect(invalidValues.length);
 
-  Ember.EnumerableUtils.forEach(invalidValues, function(invalidValue){
-    throws(function(){
-      run(function(){
+  Ember.EnumerableUtils.forEach(invalidValues, function(invalidValue) {
+    throws(function() {
+      run(function() {
         store.push('person', invalidValue);
       });
     }, /object/);
@@ -466,7 +475,7 @@ test('Calling push with a link for a non async relationship should warn', functi
   });
 
   warns(function() {
-    run(function(){
+    run(function() {
       store.push('person', {
         id: '1',
         links: {
@@ -483,7 +492,7 @@ test('Calling push with a link containing an object throws an assertion error', 
   });
 
   expectAssertion(function() {
-    run(function(){
+    run(function() {
       store.push('person', {
         id: '1',
         links: {
@@ -497,7 +506,7 @@ test('Calling push with a link containing an object throws an assertion error', 
 });
 
 test('Calling push with a link containing the value null', function() {
-  run(function(){
+  run(function() {
     store.push('person', {
       id: '1',
       firstName: 'Tan',
@@ -512,7 +521,7 @@ test('Calling push with a link containing the value null', function() {
   equal(person.get('firstName'), "Tan", "you can use links that contain null as a value");
 });
 
-test('calling push with hasMany relationship the value must be an array', function(){
+test('calling push with hasMany relationship the value must be an array', function() {
   var invalidValues = [
     1,
     'string',
@@ -523,16 +532,16 @@ test('calling push with hasMany relationship the value must be an array', functi
 
   expect(invalidValues.length);
 
-  Ember.EnumerableUtils.forEach(invalidValues, function(invalidValue){
+  Ember.EnumerableUtils.forEach(invalidValues, function(invalidValue) {
     throws(function() {
-      run(function(){
+      run(function() {
         store.push('person', { id: 1, phoneNumbers: invalidValue });
       });
     }, /must be an array/);
   });
 });
 
-test('calling push with missing or invalid `id` throws assertion error', function(){
+test('calling push with missing or invalid `id` throws assertion error', function() {
   var invalidValues = [
     {},
     { id: null },
@@ -541,24 +550,24 @@ test('calling push with missing or invalid `id` throws assertion error', functio
 
   expect(invalidValues.length);
 
-  Ember.EnumerableUtils.forEach(invalidValues, function(invalidValue){
+  Ember.EnumerableUtils.forEach(invalidValues, function(invalidValue) {
     throws(function() {
-      run(function(){
+      run(function() {
         store.push('person', invalidValue);
       });
     }, /You must include an `id`/);
   });
 });
 
-test('calling push with belongsTo relationship the value must not be an array', function(){
+test('calling push with belongsTo relationship the value must not be an array', function() {
   throws(function() {
-    run(function(){
+    run(function() {
       store.push('phone-number', { id: 1, person: [1] });
     });
   }, /must not be an array/);
 });
 
-test('calling push with an embedded relationship throws a useful error', function(){
+test('calling push with an embedded relationship throws a useful error', function() {
   throws(function() {
     run(function() {
       store.push('person', {
@@ -566,14 +575,15 @@ test('calling push with an embedded relationship throws a useful error', functio
         firstName: 'Ada',
         lastName: 'Lovelace',
         phoneNumbers: [
-          {number: '5551212', person: 1}
-        ] });
+          { number: '5551212', person: 1 }
+        ]
       });
-    }, /If this is an embedded relationship/);
+    });
+  }, /If this is an embedded relationship/);
 });
 
 test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown keys", function() {
-  run(function(){
+  run(function() {
     var originalFlagValue = Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS;
     try {
       Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = true;
@@ -585,6 +595,7 @@ test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown keys", f
             isMascot: true
           });
         });
+      });
     } finally {
       Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = originalFlagValue;
     }
@@ -593,7 +604,7 @@ test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown keys", f
 
 test("Calling push with unknown keys should not warn by default", function() {
   noWarns(function() {
-    run(function(){
+    run(function() {
       store.push('person', {
         id: '1',
         firstName: 'Tomster',

@@ -130,10 +130,8 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     var content = get(this, 'content');
     if (idx === undefined) {
       content.addObject(record);
-    } else {
-      if (!content.contains(record)) {
-       content.insertAt(idx, record);
-      }
+    } else if (!content.contains(record)) {
+      content.insertAt(idx, record);
     }
   },
 
@@ -192,7 +190,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   _dissociateFromOwnRecords: function() {
     var array = this;
 
-    this.forEach(function(record){
+    this.forEach(function(record) {
       var recordArrays = record._recordArrays;
 
       if (recordArrays) {
@@ -205,7 +203,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method _unregisterFromManager
     @private
   */
-  _unregisterFromManager: function(){
+  _unregisterFromManager: function() {
     var manager = get(this, 'manager');
     //We will stop needing this stupid if statement soon, once manyArray are refactored to not be RecordArrays
     if (manager) {
@@ -213,7 +211,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     }
   },
 
-  willDestroy: function(){
+  willDestroy: function() {
     this._unregisterFromManager();
     this._dissociateFromOwnRecords();
     set(this, 'content', undefined);

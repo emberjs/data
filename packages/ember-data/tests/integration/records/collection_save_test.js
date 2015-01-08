@@ -19,9 +19,9 @@ module("integration/records/collection_save - Save Collection of Records", {
 
 test("Collection will resolve save on success", function() {
   expect(1);
-  run(function(){
-    env.store.createRecord('post', {title: 'Hello'});
-    env.store.createRecord('post', {title: 'World'});
+  run(function() {
+    env.store.createRecord('post', { title: 'Hello' });
+    env.store.createRecord('post', { title: 'World' });
   });
 
   var posts = env.store.all('post');
@@ -30,7 +30,7 @@ test("Collection will resolve save on success", function() {
     return Ember.RSVP.resolve({ id: 123 });
   };
 
-  run(function(){
+  run(function() {
     posts.save().then(async(function() {
       ok(true, 'save operation was resolved');
     }));
@@ -38,9 +38,9 @@ test("Collection will resolve save on success", function() {
 });
 
 test("Collection will reject save on error", function() {
-  run(function(){
-    env.store.createRecord('post', {title: 'Hello'});
-    env.store.createRecord('post', {title: 'World'});
+  run(function() {
+    env.store.createRecord('post', { title: 'Hello' });
+    env.store.createRecord('post', { title: 'World' });
   });
 
   var posts = env.store.all('post');
@@ -49,7 +49,7 @@ test("Collection will reject save on error", function() {
     return Ember.RSVP.reject();
   };
 
-  run(function(){
+  run(function() {
     posts.save().then(function() {}, async(function() {
       ok(true, 'save operation was rejected');
     }));
@@ -57,9 +57,9 @@ test("Collection will reject save on error", function() {
 });
 
 test("Retry is allowed in a failure handler", function() {
-  run(function(){
-    env.store.createRecord('post', {title: 'Hello'});
-    env.store.createRecord('post', {title: 'World'});
+  run(function() {
+    env.store.createRecord('post', { title: 'Hello' });
+    env.store.createRecord('post', { title: 'World' });
   });
 
   var posts = env.store.all('post');
@@ -78,7 +78,7 @@ test("Retry is allowed in a failure handler", function() {
     return Ember.RSVP.resolve({ id: 123 });
   };
 
-  run(function(){
+  run(function() {
     posts.save().then(function() {}, async(function() {
       return posts.save();
     })).then(async(function(post) {
@@ -89,9 +89,9 @@ test("Retry is allowed in a failure handler", function() {
 
 test("Collection will reject save on invalid", function() {
   expect(1);
-  run(function(){
-    env.store.createRecord('post', {title: 'Hello'});
-    env.store.createRecord('post', {title: 'World'});
+  run(function() {
+    env.store.createRecord('post', { title: 'Hello' });
+    env.store.createRecord('post', { title: 'World' });
   });
 
   var posts = env.store.all('post');
@@ -100,7 +100,7 @@ test("Collection will reject save on invalid", function() {
     return Ember.RSVP.reject({ title: 'invalid' });
   };
 
-  Ember.run(function(){
+  Ember.run(function() {
     posts.save().then(function() {}, function() {
       ok(true, 'save operation was rejected');
     });

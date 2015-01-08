@@ -28,7 +28,7 @@ test("_debugInfo groups the attributes and relationships correctly", function() 
   });
   var record;
 
-  run(function(){
+  run(function() {
     record = store.createRecord(User);
   });
 

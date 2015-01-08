@@ -528,7 +528,7 @@ Store = Ember.Object.extend({
     if (get(record, 'isEmpty')) {
       fetchedRecord = this.scheduleFetch(record);
       //TODO double check about reloading
-    } else if (get(record, 'isLoading')){
+    } else if (get(record, 'isLoading')) {
       fetchedRecord = record._loadingPromise;
     }
 
@@ -593,7 +593,7 @@ Store = Ember.Object.extend({
 
     record.loadingData(promise);
 
-    if (!this._pendingFetch.get(type)){
+    if (!this._pendingFetch.get(type)) {
       this._pendingFetch.set(type, [recordResolverPair]);
     } else {
       this._pendingFetch.get(type).push(recordResolverPair);
@@ -603,7 +603,7 @@ Store = Ember.Object.extend({
     return promise;
   },
 
-  flushAllPendingFetches: function(){
+  flushAllPendingFetches: function() {
     if (this.isDestroyed || this.isDestroying) {
       return;
     }
@@ -623,9 +623,9 @@ Store = Ember.Object.extend({
     }
 
     function resolveFoundRecords(records) {
-      forEach(records, function(record){
+      forEach(records, function(record) {
         var pair = Ember.A(recordResolverPairs).findBy('record', record);
-        if (pair){
+        if (pair) {
           var resolver = pair.resolver;
           resolver.resolve(record);
         }
@@ -646,9 +646,9 @@ Store = Ember.Object.extend({
     }
 
     function rejectRecords(records, error) {
-      forEach(records, function(record){
+      forEach(records, function(record) {
         var pair = Ember.A(recordResolverPairs).findBy('record', record);
-        if (pair){
+        if (pair) {
           var resolver = pair.resolver;
           resolver.reject(error);
         }
@@ -1322,7 +1322,7 @@ Store = Ember.Object.extend({
     return factory;
   },
 
-  modelFactoryFor: function(key){
+  modelFactoryFor: function(key) {
     return this.container.lookupFactory('model:' + key);
   },
 
@@ -2028,7 +2028,7 @@ function setupRelationships(store, record, data) {
       }
       relationship.setCanonicalRecord(value);
     } else if (kind === 'hasMany' && value) {
-     relationship.updateRecordsFromAdapter(value);
+      relationship.updateRecordsFromAdapter(value);
     }
   });
 }

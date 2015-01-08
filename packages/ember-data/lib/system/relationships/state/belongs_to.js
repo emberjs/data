@@ -34,7 +34,7 @@ BelongsToRelationship.prototype.setCanonicalRecord = function(newRecord) {
 
 BelongsToRelationship.prototype._super$addCanonicalRecord = Relationship.prototype.addCanonicalRecord;
 BelongsToRelationship.prototype.addCanonicalRecord = function(newRecord) {
-  if (this.canonicalMembers.has(newRecord)){ return;}
+  if (this.canonicalMembers.has(newRecord)) { return;}
 
   if (this.canonicalState) {
     this.removeCanonicalRecord(this.canonicalState);
@@ -58,7 +58,7 @@ BelongsToRelationship.prototype.flushCanonical = function() {
 
 BelongsToRelationship.prototype._super$addRecord = Relationship.prototype.addRecord;
 BelongsToRelationship.prototype.addRecord = function(newRecord) {
-  if (this.members.has(newRecord)){ return;}
+  if (this.members.has(newRecord)) { return;}
   var type = this.relationshipMeta.type;
   Ember.assert("You can only add a '" + type.typeKey + "' record to this relationship", (function () {
     if (newRecord instanceof type) {
@@ -87,7 +87,7 @@ BelongsToRelationship.prototype.setRecordPromise = function(newPromise) {
 
 BelongsToRelationship.prototype._super$removeRecordFromOwn = Relationship.prototype.removeRecordFromOwn;
 BelongsToRelationship.prototype.removeRecordFromOwn = function(record) {
-  if (!this.members.has(record)){ return;}
+  if (!this.members.has(record)) { return;}
   this.inverseRecord = null;
   this._super$removeRecordFromOwn(record);
   this.record.notifyBelongsToChanged(this.key);
@@ -95,7 +95,7 @@ BelongsToRelationship.prototype.removeRecordFromOwn = function(record) {
 
 BelongsToRelationship.prototype._super$removeCanonicalRecordFromOwn = Relationship.prototype.removeCanonicalRecordFromOwn;
 BelongsToRelationship.prototype.removeCanonicalRecordFromOwn = function(record) {
-  if (!this.canonicalMembers.has(record)){ return;}
+  if (!this.canonicalMembers.has(record)) { return;}
   this.canonicalState = null;
   this._super$removeCanonicalRecordFromOwn(record);
 };
@@ -110,7 +110,7 @@ BelongsToRelationship.prototype.findRecord = function() {
 
 BelongsToRelationship.prototype.fetchLink = function() {
   var self = this;
-  return this.store.findBelongsTo(this.record, this.link, this.relationshipMeta).then(function(record){
+  return this.store.findBelongsTo(this.record, this.link, this.relationshipMeta).then(function(record) {
     if (record) {
       self.addRecord(record);
     }
@@ -122,7 +122,7 @@ BelongsToRelationship.prototype.getRecord = function() {
   //TODO(Igor) flushCanonical here once our syncing is not stupid
   if (this.isAsync) {
     var promise;
-    if (this.link){
+    if (this.link) {
       var self = this;
       promise = this.findLink().then(function() {
         return self.findRecord();

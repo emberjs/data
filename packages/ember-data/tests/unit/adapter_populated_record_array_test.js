@@ -1,7 +1,8 @@
 var Person, array, store;
+var run = Ember.run;
 
 var adapter = DS.Adapter.extend({
-  deleteRecord: function(){
+  deleteRecord: function() {
     return Ember.RSVP.Promise.resolve();
   }
 });
@@ -27,13 +28,13 @@ test("when a record is deleted in an adapter populated record array, it should b
   var recordArray = store.recordArrayManager
     .createAdapterPopulatedRecordArray(Person, null);
 
-  Ember.run(function(){
+  run(function() {
     recordArray.load(array);
   });
 
   equal(recordArray.get('length'), 3, "expected recordArray to contain exactly 3 records");
 
-  Ember.run(function(){
+  run(function() {
     recordArray.get('firstObject').destroyRecord();
   });
 

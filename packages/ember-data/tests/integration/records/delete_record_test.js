@@ -16,7 +16,7 @@ module("integration/deletedRecord - Deleting Records", {
   },
 
   teardown: function() {
-    Ember.run(function(){
+    Ember.run(function() {
       env.container.destroy();
     });
   }
@@ -24,16 +24,16 @@ module("integration/deletedRecord - Deleting Records", {
 
 test("records can be deleted during record array enumeration", function () {
   var adam, dave;
-  run(function(){
-    adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
-    dave = env.store.push('person', {id: 2, name: "Dave Sunderland"});
+  run(function() {
+    adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
+    dave = env.store.push('person', { id: 2, name: "Dave Sunderland" });
   });
   var all  = env.store.all('person');
 
   // pre-condition
   equal(all.get('length'), 2, 'expected 2 records');
 
-  Ember.run(function(){
+  Ember.run(function() {
     all.forEach(function(record) {
       record.deleteRecord();
     });
@@ -44,13 +44,13 @@ test("records can be deleted during record array enumeration", function () {
 
 test("when deleted records are rolled back, they are still in their previous record arrays", function () {
   var jaime, cersei;
-  run(function(){
-    jaime = env.store.push('person', {id: 1, name: "Jaime Lannister"});
-    cersei = env.store.push('person', {id: 2, name: "Cersei Lannister"});
+  run(function() {
+    jaime = env.store.push('person', { id: 1, name: "Jaime Lannister" });
+    cersei = env.store.push('person', { id: 2, name: "Cersei Lannister" });
   });
   var all = env.store.all('person');
   var filtered;
-  run(function(){
+  run(function() {
     filtered = env.store.filter('person', function () {
       return true;
     });
@@ -59,7 +59,7 @@ test("when deleted records are rolled back, they are still in their previous rec
   equal(all.get('length'), 2, 'precond - we start with two people');
   equal(filtered.get('length'), 2, 'precond - we start with two people');
 
-  run(function(){
+  run(function() {
     jaime.deleteRecord();
     jaime.rollback();
   });

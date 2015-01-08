@@ -19,14 +19,14 @@ module("integration/all - DS.Store#all()", {
 });
 
 test("store.all('person') should return all records and should update with new ones", function() {
-  run(function(){
+  run(function() {
     store.pushMany('person', array);
   });
 
   var all = store.all('person');
   equal(get(all, 'length'), 2);
 
-  run(function(){
+  run(function() {
     store.pushMany('person', moreArray);
   });
 

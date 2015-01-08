@@ -12,30 +12,30 @@ var get = Ember.get;
 var filter = Ember.ArrayPolyfills.filter;
 
 var relationshipsDescriptor = Ember.computed(function() {
-   if (Ember.testing === true && relationshipsDescriptor._cacheable === true) {
-      relationshipsDescriptor._cacheable = false;
+  if (Ember.testing === true && relationshipsDescriptor._cacheable === true) {
+    relationshipsDescriptor._cacheable = false;
+  }
+
+  var map = new MapWithDefault({
+    defaultValue: function() { return []; }
+  });
+
+  // Loop through each computed property on the class
+  this.eachComputedProperty(function(name, meta) {
+    // If the computed property is a relationship, add
+    // it to the map.
+    if (meta.isRelationship) {
+      meta.key = name;
+      var relationshipsForType = map.get(typeForRelationshipMeta(this.store, meta));
+
+      relationshipsForType.push({
+        name: name,
+        kind: meta.kind
+      });
     }
+  });
 
-    var map = new MapWithDefault({
-      defaultValue: function() { return []; }
-    });
-
-    // Loop through each computed property on the class
-    this.eachComputedProperty(function(name, meta) {
-      // If the computed property is a relationship, add
-      // it to the map.
-      if (meta.isRelationship) {
-        meta.key = name;
-        var relationshipsForType = map.get(typeForRelationshipMeta(this.store, meta));
-
-        relationshipsForType.push({
-          name: name,
-          kind: meta.kind
-        });
-      }
-    });
-
-    return map;
+  return map;
 }).readOnly();
 
 var relatedTypesDescriptor = Ember.computed(function() {
@@ -281,7 +281,7 @@ Model.reopenClass({
       relationships = filter.call(relationships, function(relationship) {
         var optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
 
-        if (!optionsForRelationship.inverse){
+        if (!optionsForRelationship.inverse) {
           return true;
         }
 

@@ -28,34 +28,34 @@ Relationship.prototype = {
     var members = this.members.list;
     var member;
 
-    while (members.length > 0){
+    while (members.length > 0) {
       member = members[0];
       this.removeRecord(member);
     }
   },
 
-  disconnect: function(){
+  disconnect: function() {
     this.members.forEach(function(member) {
       this.removeRecordFromInverse(member);
     }, this);
   },
 
-  reconnect: function(){
+  reconnect: function() {
     this.members.forEach(function(member) {
       this.addRecordToInverse(member);
     }, this);
   },
 
-  removeRecords: function(records){
+  removeRecords: function(records) {
     var self = this;
-    forEach(records, function(record){
+    forEach(records, function(record) {
       self.removeRecord(record);
     });
   },
 
-  addRecords: function(records, idx){
+  addRecords: function(records, idx) {
     var self = this;
-    forEach(records, function(record){
+    forEach(records, function(record) {
       self.addRecord(record, idx);
       if (idx !== undefined) {
         idx++;
@@ -80,7 +80,7 @@ Relationship.prototype = {
         record._relationships[this.inverseKey].addCanonicalRecord(this.record);
       } else {
         if (!record._implicitRelationships[this.inverseKeyForImplicit]) {
-          record._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, record, this.key,  {options:{}});
+          record._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, record, this.key,  { options: {} });
         }
         record._implicitRelationships[this.inverseKeyForImplicit].addCanonicalRecord(this.record);
       }
@@ -120,7 +120,7 @@ Relationship.prototype = {
         record._relationships[this.inverseKey].addRecord(this.record);
       } else {
         if (!record._implicitRelationships[this.inverseKeyForImplicit]) {
-          record._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, record, this.key,  {options:{}});
+          record._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, record, this.key,  { options: {} });
         }
         record._implicitRelationships[this.inverseKeyForImplicit].addRecord(this.record);
       }

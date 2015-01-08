@@ -21,7 +21,7 @@ test("When a record is in flight, changes can be made", function() {
   var person;
   var store = createStore({ adapter: adapter });
 
-  run(function(){
+  run(function() {
     person = store.createRecord(Person, { name: "Tom Dale" });
   });
 
@@ -46,7 +46,7 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
   var adapter = DS.Adapter.extend({
     updateRecord: function(store, type, record) {
     // Make sure saving isn't resolved synchronously
-      return new Ember.RSVP.Promise(function(resolve, reject){
+      return new Ember.RSVP.Promise(function(resolve, reject) {
         run.next(null, resolve, { id: 1, name: "Senor Thomas Dale, Esq.", city: "Portland" });
       });
     }
@@ -55,7 +55,7 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
   var store = createStore({ adapter: adapter });
   var person;
 
-  run(function(){
+  run(function() {
     person = store.push(Person, { id: 1, name: "Tom" });
     person.set('name', "Thomas Dale");
   });
@@ -84,7 +84,7 @@ test("When a record is dirty, pushes are overridden by local changes", function(
   var store = createStore({ adapter: DS.Adapter });
   var person;
 
-  run(function(){
+  run(function() {
     person = store.push(Person, { id: 1, name: "Tom Dale", city: "San Francisco" });
     person.set('name', "Tomasz Dale");
   });
@@ -93,7 +93,7 @@ test("When a record is dirty, pushes are overridden by local changes", function(
   equal(person.get('name'), "Tomasz Dale", "the update was effective");
   equal(person.get('city'), "San Francisco", "the original data applies");
 
-  run(function(){
+  run(function() {
     store.push(Person, { id: 1, name: "Thomas Dale", city: "Portland" });
   });
 
@@ -114,11 +114,11 @@ test("A record with no changes can still be saved", function() {
   var store = createStore({ adapter: adapter });
   var person;
 
-  run(function(){
+  run(function() {
     person = store.push(Person, { id: 1, name: "Tom Dale" });
   });
 
-  run(function(){
+  run(function() {
     person.save().then(function() {
       equal(person.get('name'), "Thomas Dale", "the updates occurred");
     });
@@ -137,12 +137,12 @@ test("A dirty record can be reloaded", function() {
   var store = createStore({ adapter: adapter });
   var person;
 
-  run(function(){
+  run(function() {
     person = store.push(Person, { id: 1, name: "Tom Dale" });
     person.set('name', "Tomasz Dale");
   });
 
-  run(function(){
+  run(function() {
     person.reload().then(function() {
       equal(person.get('isDirty'), true, "the person is dirty");
       equal(person.get('name'), "Tomasz Dale", "the local changes remain");

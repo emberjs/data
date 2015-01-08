@@ -21,7 +21,7 @@ module("integration/serializer/rest - RESTSerializer", {
     YellowMinion = EvilMinion.extend();
     DoomsdayDevice = DS.Model.extend({
       name:         DS.attr('string'),
-      evilMinion:   DS.belongsTo('evilMinion', {polymorphic: true})
+      evilMinion:   DS.belongsTo('evilMinion', { polymorphic: true })
     });
     Comment = DS.Model.extend({
       body: DS.attr('string'),
@@ -64,23 +64,23 @@ test("extractArray with custom typeForRoot", function() {
   };
 
   var jsonHash = {
-    home_planets: [{id: "1", name: "Umber", superVillains: [1]}],
-    super_villains: [{id: "1", firstName: "Tom", lastName: "Dale", homePlanet: "1"}]
+    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }],
+    super_villains: [{ id: "1", firstName: "Tom", lastName: "Dale", homePlanet: "1" }]
   };
   var array;
 
-  run(function(){
+  run(function() {
     array = env.restSerializer.extractArray(env.store, HomePlanet, jsonHash);
   });
 
   deepEqual(array, [{
-    "id": "1",
-    "name": "Umber",
-    "superVillains": [1]
+    id: "1",
+    name: "Umber",
+    superVillains: [1]
   }]);
 
-  run(function(){
-    env.store.find("superVillain", 1).then(function(minion){
+  run(function() {
+    env.store.find("superVillain", 1).then(function(minion) {
       equal(minion.get('firstName'), "Tom");
     });
   });
@@ -94,24 +94,24 @@ test("extractArray warning with custom typeForRoot", function() {
   };
 
   var jsonHash = {
-    home_planets: [{id: "1", name: "Umber", superVillains: [1]}]
+    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }]
   };
 
-  warns(function(){
+  warns(function() {
     env.restSerializer.extractArray(env.store, HomePlanet, jsonHash);
   }, /Encountered "home_planets" in payload, but no model was found for model name "garbage"/);
 
   // should not warn if a model is found.
-  env.restSerializer.typeForRoot = function(root){
+  env.restSerializer.typeForRoot = function(root) {
     return Ember.String.camelize(Ember.String.singularize(root));
   };
 
   jsonHash = {
-    home_planets: [{id: "1", name: "Umber", superVillains: [1]}]
+    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }]
   };
 
-  noWarns(function(){
-    run(function(){
+  noWarns(function() {
+    run(function() {
       homePlanets = Ember.A(env.restSerializer.extractArray(env.store, HomePlanet, jsonHash));
     });
   });
@@ -129,26 +129,26 @@ test("extractSingle warning with custom typeForRoot", function() {
   };
 
   var jsonHash = {
-    home_planet: {id: "1", name: "Umber", superVillains: [1]}
+    home_planet: { id: "1", name: "Umber", superVillains: [1] }
   };
 
-  warns(Ember.run.bind(null, function(){
-    run(function(){
+  warns(Ember.run.bind(null, function() {
+    run(function() {
       env.restSerializer.extractSingle(env.store, HomePlanet, jsonHash);
     });
   }), /Encountered "home_planet" in payload, but no model was found for model name "garbage"/);
 
   // should not warn if a model is found.
-  env.restSerializer.typeForRoot = function(root){
+  env.restSerializer.typeForRoot = function(root) {
     return Ember.String.camelize(Ember.String.singularize(root));
   };
 
   jsonHash = {
-    home_planet: {id: "1", name: "Umber", superVillains: [1]}
+    home_planet: { id: "1", name: "Umber", superVillains: [1] }
   };
 
-  noWarns(function(){
-    run(function(){
+  noWarns(function() {
+    run(function() {
       homePlanet = env.restSerializer.extractSingle(env.store, HomePlanet, jsonHash);
     });
   });
@@ -160,7 +160,7 @@ test("extractSingle warning with custom typeForRoot", function() {
 test("pushPayload - single record payload - warning with custom typeForRoot", function() {
   var homePlanet;
   var HomePlanetRestSerializer = DS.RESTSerializer.extend({
-    typeForRoot: function(root){
+    typeForRoot: function(root) {
       //return some garbage that won"t resolve in the container
       if (root === "home_planet") {
         return "garbage";
@@ -173,17 +173,12 @@ test("pushPayload - single record payload - warning with custom typeForRoot", fu
   env.container.register("serializer:homePlanet", HomePlanetRestSerializer);
 
   var jsonHash = {
-    home_planet: {id: "1", name: "Umber", superVillains: [1]},
-    super_villains: [
-      {
-        "id": "1",
-        "firstName": "Stanley"
-      }
-    ]
+    home_planet: { id: "1", name: "Umber", superVillains: [1] },
+    super_villains: [{ id: "1", firstName: "Stanley" }]
   };
 
-  warns(function(){
-    run(function(){
+  warns(function() {
+    run(function() {
       env.store.pushPayload("homePlanet", jsonHash);
     });
   }, /Encountered "home_planet" in payload, but no model was found for model name "garbage"/);
@@ -196,24 +191,19 @@ test("pushPayload - single record payload - warning with custom typeForRoot", fu
   // Serializers are singletons, so that"s why we use the store which
   // looks at the container to look it up
   env.store.serializerFor("homePlanet").reopen({
-    typeForRoot: function(root){
+    typeForRoot: function(root) {
       // should not warn if a model is found.
       return Ember.String.camelize(Ember.String.singularize(root));
     }
   });
 
   jsonHash = {
-    home_planet: {id: "1", name: "Umber", superVillains: [1]},
-    super_villains: [
-      {
-        "id": "1",
-        "firstName": "Stanley"
-      }
-    ]
+    home_planet: { id: "1", name: "Umber", superVillains: [1] },
+    super_villains: [{ id: "1", firstName: "Stanley" }]
   };
 
-  noWarns(function(){
-    run(function(){
+  noWarns(function() {
+    run(function() {
       env.store.pushPayload("homePlanet", jsonHash);
       homePlanet = env.store.getById("homePlanet", "1");
     });
@@ -226,7 +216,7 @@ test("pushPayload - single record payload - warning with custom typeForRoot", fu
 test("pushPayload - multiple record payload (extractArray) - warning with custom typeForRoot", function() {
   var homePlanet;
   var HomePlanetRestSerializer = DS.RESTSerializer.extend({
-    typeForRoot: function(root){
+    typeForRoot: function(root) {
       //return some garbage that won"t resolve in the container
       if (root === "home_planets") {
         return "garbage";
@@ -239,17 +229,12 @@ test("pushPayload - multiple record payload (extractArray) - warning with custom
   env.container.register("serializer:homePlanet", HomePlanetRestSerializer);
 
   var jsonHash = {
-    home_planets: [{id: "1", name: "Umber", superVillains: [1]}],
-    super_villains: [
-      {
-        "id": "1",
-        "firstName": "Stanley"
-      }
-    ]
+    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }],
+    super_villains: [{ id: "1", firstName: "Stanley" }]
   };
 
-  warns(function(){
-    run(function(){
+  warns(function() {
+    run(function() {
       env.store.pushPayload("homePlanet", jsonHash);
     });
   }, /Encountered "home_planets" in payload, but no model was found for model name "garbage"/);
@@ -261,24 +246,19 @@ test("pushPayload - multiple record payload (extractArray) - warning with custom
   // Serializers are singletons, so that"s why we use the store which
   // looks at the container to look it up
   env.store.serializerFor("homePlanet").reopen({
-    typeForRoot: function(root){
+    typeForRoot: function(root) {
       // should not warn if a model is found.
       return Ember.String.camelize(Ember.String.singularize(root));
     }
   });
 
   jsonHash = {
-    home_planets: [{id: "1", name: "Umber", superVillains: [1]}],
-    super_villains: [
-      {
-        "id": "1",
-        "firstName": "Stanley"
-      }
-    ]
+    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }],
+    super_villains: [{ id: "1", firstName: "Stanley" }]
   };
 
-  noWarns(function(){
-    run(function(){
+  noWarns(function() {
+    run(function() {
       env.store.pushPayload("homePlanet", jsonHash);
       homePlanet = env.store.getById("homePlanet", "1");
     });
@@ -290,9 +270,9 @@ test("pushPayload - multiple record payload (extractArray) - warning with custom
 
 test("serialize polymorphicType", function() {
   var tom, ray;
-  run(function(){
-    tom = env.store.createRecord(YellowMinion,   {name: "Alex", id: "124"});
-    ray = env.store.createRecord(DoomsdayDevice, {evilMinion: tom, name: "DeathRay"});
+  run(function() {
+    tom = env.store.createRecord(YellowMinion,   { name: "Alex", id: "124" });
+    ray = env.store.createRecord(DoomsdayDevice, { evilMinion: tom, name: "DeathRay" });
   });
 
   var json = env.restSerializer.serialize(ray);
@@ -307,9 +287,9 @@ test("serialize polymorphicType", function() {
 test("serialize polymorphicType with decamelized typeKey", function() {
   YellowMinion.typeKey = 'yellow-minion';
   var tom, ray;
-  run(function(){
-    tom = env.store.createRecord(YellowMinion,   {name: "Alex", id: "124"});
-    ray = env.store.createRecord(DoomsdayDevice, {evilMinion: tom, name: "DeathRay"});
+  run(function() {
+    tom = env.store.createRecord(YellowMinion,   { name: "Alex", id: "124" });
+    ray = env.store.createRecord(DoomsdayDevice, { evilMinion: tom, name: "DeathRay" });
   });
 
   var json = env.restSerializer.serialize(ray);
@@ -324,15 +304,17 @@ test("normalizePayload is called during extractSingle", function() {
     }
   }));
 
-  var jsonHash = { response: {
-    evilMinion: {id: "1", name: "Tom Dale", superVillain: 1},
-    superVillains: [{id: "1", firstName: "Yehuda", lastName: "Katz", homePlanet: "1"}]
-  } };
+  var jsonHash = {
+    response: {
+      evilMinion: { id: "1", name: "Tom Dale", superVillain: 1 },
+      superVillains: [{ id: "1", firstName: "Yehuda", lastName: "Katz", homePlanet: "1" }]
+    }
+  };
 
   var applicationSerializer = env.container.lookup('serializer:application');
   var data;
 
-  run(function(){
+  run(function() {
     data = applicationSerializer.extractSingle(env.store, EvilMinion, jsonHash);
   });
 
@@ -341,8 +323,8 @@ test("normalizePayload is called during extractSingle", function() {
 });
 test("serialize polymorphic when associated object is null", function() {
   var ray;
-  run(function(){
-    ray = env.store.createRecord(DoomsdayDevice, {name: "DeathRay"});
+  run(function() {
+    ray = env.store.createRecord(DoomsdayDevice, { name: "DeathRay" });
   });
 
   var json = env.restSerializer.serialize(ray);
@@ -352,7 +334,7 @@ test("serialize polymorphic when associated object is null", function() {
 
 test("extractArray can load secondary records of the same type without affecting the query count", function() {
   var jsonHash = {
-    comments: [{id: "1", body: "Parent Comment", root: true, children: [2, 3]}],
+    comments: [{ id: "1", body: "Parent Comment", root: true, children: [2, 3] }],
     _comments: [
       { id: "2", body: "Child Comment 1", root: false },
       { id: "3", body: "Child Comment 2", root: false }
@@ -360,7 +342,7 @@ test("extractArray can load secondary records of the same type without affecting
   };
   var array;
 
-  run(function(){
+  run(function() {
     array = env.restSerializer.extractArray(env.store, Comment, jsonHash);
   });
 
@@ -388,11 +370,11 @@ test("extractSingle loads secondary records with correct serializer", function()
   }));
 
   var jsonHash = {
-    evilMinion: {id: "1", name: "Tom Dale", superVillain: 1},
-    superVillains: [{id: "1", firstName: "Yehuda", lastName: "Katz", homePlanet: "1"}]
+    evilMinion: { id: "1", name: "Tom Dale", superVillain: 1 },
+    superVillains: [{ id: "1", firstName: "Yehuda", lastName: "Katz", homePlanet: "1" }]
   };
 
-  run(function(){
+  run(function() {
     env.restSerializer.extractSingle(env.store, EvilMinion, jsonHash);
   });
 
@@ -407,7 +389,7 @@ test("extractSingle returns null if payload contains null", function() {
   };
   var value;
 
-  run(function(){
+  run(function() {
     value = env.restSerializer.extractSingle(env.store, EvilMinion, jsonHash);
   });
 
@@ -425,18 +407,18 @@ test("extractArray loads secondary records with correct serializer", function() 
   }));
 
   var jsonHash = {
-    evilMinions: [{id: "1", name: "Tom Dale", superVillain: 1}],
-    superVillains: [{id: "1", firstName: "Yehuda", lastName: "Katz", homePlanet: "1"}]
+    evilMinions: [{ id: "1", name: "Tom Dale", superVillain: 1 }],
+    superVillains: [{ id: "1", firstName: "Yehuda", lastName: "Katz", homePlanet: "1" }]
   };
 
-  run(function(){
+  run(function() {
     env.restSerializer.extractArray(env.store, EvilMinion, jsonHash);
   });
 
   equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
 });
 
-test('normalizeHash normalizes specific parts of the payload', function(){
+test('normalizeHash normalizes specific parts of the payload', function() {
   env.container.register('serializer:application', DS.RESTSerializer.extend({
     normalizeHash: {
       homePlanets: function(hash) {
@@ -447,10 +429,12 @@ test('normalizeHash normalizes specific parts of the payload', function(){
     }
   }));
 
-  var jsonHash = { homePlanets: [{_id: "1", name: "Umber", superVillains: [1]}] };
+  var jsonHash = {
+    homePlanets: [{ _id: "1", name: "Umber", superVillains: [1] }]
+  };
   var array;
 
-  run(function(){
+  run(function() {
     array = env.restSerializer.extractArray(env.store, HomePlanet, jsonHash);
   });
 
@@ -461,7 +445,7 @@ test('normalizeHash normalizes specific parts of the payload', function(){
   }]);
 });
 
-test('normalizeHash works with transforms', function(){
+test('normalizeHash works with transforms', function() {
   env.container.register('serializer:application', DS.RESTSerializer.extend({
     normalizeHash: {
       evilMinions: function(hash) {
@@ -492,18 +476,18 @@ test('normalizeHash works with transforms', function(){
   EvilMinion.reopen({ condition: DS.attr('condition') });
 
   var jsonHash = {
-    evilMinions: [{id: "1", name: "Tom Dale", superVillain: 1, _condition: 1}]
+    evilMinions: [{ id: "1", name: "Tom Dale", superVillain: 1, _condition: 1 }]
   };
   var array;
 
-  run(function(){
+  run(function() {
     array = env.restSerializer.extractArray(env.store, EvilMinion, jsonHash);
   });
 
   equal(array[0].condition, "healing");
 });
 
-test('normalize should allow for different levels of normalization', function(){
+test('normalize should allow for different levels of normalization', function() {
   env.container.register('serializer:application', DS.RESTSerializer.extend({
     attrs: {
       superVillain: 'is_super_villain'
@@ -514,11 +498,11 @@ test('normalize should allow for different levels of normalization', function(){
   }));
 
   var jsonHash = {
-    evilMinions: [{id: "1", name: "Tom Dale", is_super_villain: 1}]
+    evilMinions: [{ id: "1", name: "Tom Dale", is_super_villain: 1 }]
   };
   var array;
 
-  run(function(){
+  run(function() {
     array = env.restSerializer.extractArray(env.store, EvilMinion, jsonHash);
   });
 
@@ -526,7 +510,7 @@ test('normalize should allow for different levels of normalization', function(){
 });
 
 test("serializeIntoHash", function() {
-  run(function(){
+  run(function() {
     league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
   });
   var json = {};
@@ -542,7 +526,7 @@ test("serializeIntoHash", function() {
 
 test("serializeIntoHash with decamelized typeKey", function() {
   HomePlanet.typeKey = 'home-planet';
-  run(function(){
+  run(function() {
     league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
   });
   var json = {};

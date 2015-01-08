@@ -37,7 +37,7 @@ module("unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
 test('groupRecordsForFindMany - findMany', function() {
 
   Ember.run(function() {
-    for(var i = 1; i <= 1024; i++) {
+    for (var i = 1; i <= 1024; i++) {
       Store.find('testRecord', i);
     }
   });

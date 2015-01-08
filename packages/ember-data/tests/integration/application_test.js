@@ -12,11 +12,11 @@ var app, App, container;
   initialization and dependency injection APIs.
 */
 
-function getStore(){
+function getStore() {
   return lookup('store:main');
 }
 
-function lookup(thing){
+function lookup(thing) {
   return run(container, 'lookup', thing);
 }
 
@@ -43,7 +43,7 @@ module("integration/application - Injecting a Custom Store", {
 });
 
 test("If a Store property exists on an Ember.Application, it should be instantiated.", function() {
-  run(function(){
+  run(function() {
     ok(getStore().get('isCustom'), "the custom store was instantiated");
   });
 });
@@ -54,10 +54,10 @@ test("If a store is instantiated, it should be made available to each controller
   ok(isCustom, "the custom store was injected");
 });
 
-test("registering App.Store is deprecated but functional", function(){
+test("registering App.Store is deprecated but functional", function() {
   run(app, 'destroy');
 
-  expectDeprecation(function(){
+  expectDeprecation(function() {
     run(function() {
       app = Application.create({
         Store: DS.Store.extend({ isCustomButDeprecated: true }),
@@ -68,12 +68,12 @@ test("registering App.Store is deprecated but functional", function(){
   }, 'Specifying a custom Store for Ember Data on your global namespace as `App.Store` ' +
      'has been deprecated. Please use `App.ApplicationStore` instead.');
 
-  run(function(){
+  run(function() {
     ok(lookup('store:main').get('isCustomButDeprecated'), "the custom store was instantiated");
   });
 
   var fooController = lookup('controller:foo');
-  run(function(){
+  run(function() {
     ok(fooController.get('store.isCustomButDeprecated'), "the custom store was injected");
   });
 });
@@ -103,14 +103,14 @@ test("If a Store property exists on an Ember.Application, it should be instantia
 });
 
 test("If a store is instantiated, it should be made available to each controller.", function() {
-  run(function(){
+  run(function() {
     var fooController = lookup('controller:foo');
     ok(fooController.get('store') instanceof DS.Store, "the store was injected");
   });
 });
 
 test("the DS namespace should be accessible", function() {
-  run(function(){
+  run(function() {
     ok(Namespace.byName('DS') instanceof Namespace, "the DS namespace is accessible");
   });
 });
@@ -128,75 +128,75 @@ module("integration/application - Attaching initializer", {
   }
 });
 
-test("ember-data initializer is run", function(){
+test("ember-data initializer is run", function() {
   var ran = false;
   App.initializer({
     name:       "after-ember-data",
     after:      "ember-data",
-    initialize: function(){ ran = true; }
+    initialize: function() { ran = true; }
   });
 
-  run(function(){
+  run(function() {
     app = App.create();
   });
 
   ok(ran, 'ember-data initializer was found');
 });
 
-test("store initializer is run (DEPRECATED)", function(){
+test("store initializer is run (DEPRECATED)", function() {
   var ran = false;
   App.initializer({
     name:       "after-store",
     after:      'store',
-    initialize: function(){ ran = true; }
+    initialize: function() { ran = true; }
   });
 
-  run(function(){
+  run(function() {
     app = App.create();
   });
 
   ok(ran, 'store initializer was found');
 });
 
-test("injectStore initializer is run (DEPRECATED)", function(){
+test("injectStore initializer is run (DEPRECATED)", function() {
   var ran = false;
   App.initializer({
     name:       "after-store",
     after:      'injectStore',
-    initialize: function(){ ran = true; }
+    initialize: function() { ran = true; }
   });
 
-  run(function(){
+  run(function() {
     app = App.create();
   });
 
   ok(ran, 'injectStore initializer was found');
 });
 
-test("transforms initializer is run (DEPRECATED)", function(){
+test("transforms initializer is run (DEPRECATED)", function() {
   var ran = false;
   App.initializer({
     name:       "after-store",
     after:      'transforms',
-    initialize: function(){ ran = true; }
+    initialize: function() { ran = true; }
   });
 
-  run(function(){
+  run(function() {
     app = App.create();
   });
 
   ok(ran, 'transforms initializer was found');
 });
 
-test("activeModelAdapter initializer is run (DEPRECATED)", function(){
+test("activeModelAdapter initializer is run (DEPRECATED)", function() {
   var ran = false;
   App.initializer({
     name:       "after-store",
     after:      'activeModelAdapter',
-    initialize: function(){ ran = true; }
+    initialize: function() { ran = true; }
   });
 
-  run(function(){
+  run(function() {
     app = App.create();
   });
 
