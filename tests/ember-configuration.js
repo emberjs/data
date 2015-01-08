@@ -123,7 +123,6 @@
         return this._super(attributeType, true) || transforms[attributeType];
       }
     });
-
   });
 
   // Generate the jQuery expando on window ahead of time

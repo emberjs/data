@@ -11,13 +11,12 @@ module("unit/store/serializer_for - DS.Store#serializerFor", {
 
   teardown: function() {
     run(function() {
-      container.destroy();
       store.destroy();
     });
   }
 });
 
-test("Calling serializerFor looks up 'serializer:<type>' from the container", function() {
+test("Calling serializerFor looks up 'serializer:<type>' from the registry", function() {
   var PersonSerializer = DS.JSONSerializer.extend();
 
   registry.register('serializer:person', PersonSerializer);

@@ -1,6 +1,6 @@
 (function() {
   /*global namespace: true */
-  
+
   window.EmberDev = window.EmberDev || {};
 
   EmberDev.afterEach = function() {

@@ -10,16 +10,16 @@ before_install:
   - "npm config set spin false"
   - "npm install -g npm@^2"
 install:
-- "npm install"
+  - "npm install"
+
 script:
-  - npm run-script test
-  - npm run-script test:beta
-  - npm run-script test:canary
+  - npm test
+
 after_success:
-  - npm run-script publish-build:prebuilt
-  - "./bin/bower-ember-data-build"
+  - "npm run-script publish"
 env:
   global:
+  - CI="true"
   - BROCCOLI_ENV="production"
   - S3_BUILD_CACHE_BUCKET=emberjs-build-cache
   - S3_BUCKET_NAME=builds.emberjs.com
@@ -35,3 +35,7 @@ env:
       kLwKiKgRNhindV3WvbUcoiIrmrgBMCiBRRd4eyVBlhbZ8RTo1Ig='
 
   - secure: "hJZXijsot2wMiMsxbDImH+nB5v77a7O7lQ7bicOQEQxmnTtXSvqfa4X4vQ/d4o7NNYYYHUuOpyILgRV+arqI6UOi7XEVGka/7M5q58R5exS6bk0cY0jnpUhUVW/8mpKEUgcVeE6mIDWaR090l3uaT2JhU/WSLkzbj45e38HaF/4="
+  matrix:
+    - EMBER_CHANNEL=release
+    - EMBER_CHANNEL=beta
+    - EMBER_CHANNEL=canary
