@@ -720,8 +720,8 @@ test("findAll - returning an array populates the array", function() {
     equal(passedVerb, "GET");
     equal(passedHash.data, undefined);
 
-    var post1 = store.getById('post', 1),
-        post2 = store.getById('post', 2);
+    var post1 = store.getById('post', 1);
+    var post2 = store.getById('post', 2);
 
     deepEqual(
       post1.getProperties('id', 'name'),
@@ -774,8 +774,8 @@ test("findAll - data is normalized through custom serializers", function() {
   });
 
   store.findAll('post').then(async(function(posts) {
-    var post1 = store.getById('post', 1),
-        post2 = store.getById('post', 2);
+    var post1 = store.getById('post', 1);
+    var post2 = store.getById('post', 2);
 
     deepEqual(
       post1.getProperties('id', 'name'),
@@ -883,8 +883,8 @@ test("findQuery - returning an array populates the array", function() {
     equal(passedVerb, 'GET');
     deepEqual(passedHash.data, { page: 1 });
 
-    var post1 = store.getById('post', 1),
-        post2 = store.getById('post', 2);
+    var post1 = store.getById('post', 1);
+    var post2 = store.getById('post', 2);
 
     deepEqual(
       post1.getProperties('id', 'name'),
@@ -935,8 +935,8 @@ test("findQuery - data is normalized through custom serializers", function() {
   });
 
   store.findQuery('post', { page: 1 }).then(async(function(posts) {
-    var post1 = store.getById('post', 1),
-        post2 = store.getById('post', 2);
+    var post1 = store.getById('post', 1);
+    var post2 = store.getById('post', 2);
 
     deepEqual(
       post1.getProperties('id', 'name'),
@@ -1023,9 +1023,9 @@ test("findMany - returning an array populates the array", function() {
 
     return post.get('comments');
   })).then(async(function(comments) {
-    var comment1 = store.getById('comment', 1),
-        comment2 = store.getById('comment', 2),
-        comment3 = store.getById('comment', 3);
+    var comment1 = store.getById('comment', 1);
+    var comment2 = store.getById('comment', 2);
+    var comment3 = store.getById('comment', 3);
 
     deepEqual(comment1.getProperties('id', 'name'), { id: "1", name: "FIRST" });
     deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });
@@ -1060,11 +1060,11 @@ test("findMany - returning sideloaded data loads the data", function() {
 
     return post.get('comments');
   })).then(async(function(comments) {
-    var comment1 = store.getById('comment', 1),
-        comment2 = store.getById('comment', 2),
-        comment3 = store.getById('comment', 3),
-        comment4 = store.getById('comment', 4),
-        post2    = store.getById('post', 2);
+    var comment1 = store.getById('comment', 1);
+    var comment2 = store.getById('comment', 2);
+    var comment3 = store.getById('comment', 3);
+    var comment4 = store.getById('comment', 4);
+    var post2    = store.getById('post', 2);
 
     deepEqual(
       comments.toArray(),
@@ -1105,9 +1105,9 @@ test("findMany - a custom serializer is used if present", function() {
 
     return post.get('comments');
   })).then(async(function(comments) {
-    var comment1 = store.getById('comment', 1),
-        comment2 = store.getById('comment', 2),
-        comment3 = store.getById('comment', 3);
+    var comment1 = store.getById('comment', 1);
+    var comment2 = store.getById('comment', 2);
+    var comment3 = store.getById('comment', 3);
 
     deepEqual(comment1.getProperties('id', 'name'), { id: "1", name: "FIRST" });
     deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });
@@ -1146,9 +1146,9 @@ test("findHasMany - returning an array populates the array", function() {
     equal(passedVerb, 'GET');
     equal(passedHash, undefined);
 
-    var comment1 = store.getById('comment', 1),
-        comment2 = store.getById('comment', 2),
-        comment3 = store.getById('comment', 3);
+    var comment1 = store.getById('comment', 1);
+    var comment2 = store.getById('comment', 2);
+    var comment3 = store.getById('comment', 3);
 
     deepEqual(comment1.getProperties('id', 'name'), { id: "1", name: "FIRST" });
     deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });
@@ -1185,10 +1185,10 @@ test("findMany - returning sideloaded data loads the data", function() {
 
     return post.get('comments');
   })).then(async(function(comments) {
-    var comment1 = store.getById('comment', 1),
-        comment2 = store.getById('comment', 2),
-        comment3 = store.getById('comment', 3),
-        post2    = store.getById('post', 2);
+    var comment1 = store.getById('comment', 1);
+    var comment2 = store.getById('comment', 2);
+    var comment3 = store.getById('comment', 3);
+    var post2    = store.getById('post', 2);
 
     deepEqual(comments.toArray(), [comment1, comment2, comment3], "The correct records are in the array");
 
@@ -1230,9 +1230,9 @@ test("findMany - a custom serializer is used if present", function() {
     });
     return post.get('comments');
   })).then(async(function(comments) {
-    var comment1 = store.getById('comment', 1),
-        comment2 = store.getById('comment', 2),
-        comment3 = store.getById('comment', 3);
+    var comment1 = store.getById('comment', 1);
+    var comment2 = store.getById('comment', 2);
+    var comment3 = store.getById('comment', 3);
 
     deepEqual(comment1.getProperties('id', 'name'), { id: "1", name: "FIRST" });
     deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });
@@ -1810,8 +1810,8 @@ test('ajaxError wraps the error string in an Error object', function() {
   };
 
   try {
-    run(function(){
-      store.find('post', '1').catch(function(err){
+    run(function() {
+      store.find('post', '1').catch(function(err) {
         equal(err.errorThrown.message, errorThrown);
         ok(err, 'promise rejected');
       });

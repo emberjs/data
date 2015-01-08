@@ -11,9 +11,10 @@
  the given record or record array changes state appropriately.
 */
 
-var get = Ember.get, set = Ember.set;
-var Person, Dog, env, store, adapter;
+var get = Ember.get;
+var set = Ember.set;
 var run = Ember.run;
+var Person, Dog, env, store, adapter;
 
 module("integration/adapter/store_adapter - DS.Store and DS.Adapter integration test", {
   setup: function() {
@@ -54,8 +55,8 @@ test("Records loaded multiple times and retrieved in recordArray are ready to se
 
     return Ember.RSVP.hash({ people: people, people2: people2 });
   })).then(async(function(results) {
-    equal(results.people2.get('length'), 2, 'return the elements' );
-    ok( results.people2.get('isLoaded'), 'array is loaded' );
+    equal(results.people2.get('length'), 2, 'return the elements');
+    ok(results.people2.get('isLoaded'), 'array is loaded');
 
     var person = results.people.objectAt(0);
     ok(person.get('isLoaded'), 'record is loaded');
@@ -145,14 +146,16 @@ test("by default, updateRecords calls updateRecord once per record", function() 
   });
 
   promise.then(async(function(records) {
-    var tom = records.tom, yehuda = records.yehuda;
+    var tom = records.tom;
+    var yehuda = records.yehuda;
 
     set(tom, "name", "Tom Dale");
     set(yehuda, "name", "Yehuda Katz");
 
     return Ember.RSVP.hash({ tom: tom.save(), yehuda: yehuda.save() });
   })).then(async(function(records) {
-    var tom = records.tom, yehuda = records.yehuda;
+    var tom = records.tom;
+    var yehuda = records.yehuda;
 
     equal(tom.get('isSaving'), false, "record is no longer saving");
     equal(tom.get('isLoaded'), true, "record is loaded");
@@ -192,14 +195,16 @@ test("calling store.didSaveRecord can provide an optional hash", function() {
     });
   });
   promise.then(async(function(records) {
-    var tom = records.tom, yehuda = records.yehuda;
+    var tom = records.tom;
+    var yehuda = records.yehuda;
 
     set(tom, "name", "Tom Dale");
     set(yehuda, "name", "Yehuda Katz");
 
     return Ember.RSVP.hash({ tom: tom.save(), yehuda: yehuda.save() });
   })).then(async(function(records) {
-    var tom = records.tom, yehuda = records.yehuda;
+    var tom = records.tom;
+    var yehuda = records.yehuda;
 
     equal(get(tom, 'isDirty'), false, "the record should not be dirty");
     equal(get(tom, 'updatedAt'), "now", "the hash was updated");
@@ -243,7 +248,8 @@ test("by default, deleteRecord calls deleteRecord once per record", function() {
   });
 
   promise.then(async(function(records) {
-    var tom = records.tom, yehuda = records.yehuda;
+    var tom = records.tom;
+    var yehuda = records.yehuda;
 
     tom.deleteRecord();
     yehuda.deleteRecord();
@@ -287,7 +293,8 @@ test("by default, destroyRecord calls deleteRecord once per record without requi
   });
 
   promise.then(async(function(records) {
-    var tom = records.tom, yehuda = records.yehuda;
+    var tom = records.tom;
+    var yehuda = records.yehuda;
 
     tom.destroyRecord();
     yehuda.destroyRecord();

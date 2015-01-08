@@ -1,8 +1,8 @@
-var run = Ember.run,
-    Container = Ember.Container,
-    Store = DS.Store,
-    EmberObject = Ember.Object,
-    setupContainer = DS._setupContainer;
+var run = Ember.run;
+var Container = Ember.Container;
+var Store = DS.Store;
+var EmberObject = Ember.Object;
+var setupContainer = DS._setupContainer;
 
 var container;
 
@@ -33,7 +33,8 @@ test("If a store is instantiated, it should be made available to each controller
 });
 
 test("the deprecated serializer:_default is resolved as serializer:default", function() {
-  var deprecated, valid = container.lookup('serializer:-default');
+  var deprecated;
+  var valid = container.lookup('serializer:-default');
   expectDeprecation(function() {
     deprecated = container.lookup('serializer:_default');
   });
@@ -42,7 +43,8 @@ test("the deprecated serializer:_default is resolved as serializer:default", fun
 });
 
 test("the deprecated serializer:_rest is resolved as serializer:rest", function() {
-  var deprecated, valid = container.lookup('serializer:-rest');
+  var deprecated;
+  var valid = container.lookup('serializer:-rest');
   expectDeprecation(function() {
     deprecated = container.lookup('serializer:_rest');
   });
@@ -51,7 +53,8 @@ test("the deprecated serializer:_rest is resolved as serializer:rest", function(
 });
 
 test("the deprecated adapter:_rest is resolved as adapter:rest", function() {
-  var deprecated, valid = container.lookup('adapter:-rest');
+  var deprecated;
+  var valid = container.lookup('adapter:-rest');
   expectDeprecation(function() {
     deprecated = container.lookup('adapter:_rest');
   });

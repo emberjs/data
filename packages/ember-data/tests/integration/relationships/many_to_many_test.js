@@ -1,7 +1,8 @@
 var Account, Topic, User, store, env;
 var run = Ember.run;
 
-var attr = DS.attr, hasMany = DS.hasMany;
+var attr = DS.attr;
+var hasMany = DS.hasMany;
 
 function stringify(string) {
   return function() { return string; };

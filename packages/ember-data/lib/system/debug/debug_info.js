@@ -19,9 +19,9 @@ Model.reopen({
     @private
   */
   _debugInfo: function() {
-    var attributes = ['id'],
-        relationships = { belongsTo: [], hasMany: [] },
-        expensiveProperties = [];
+    var attributes = ['id'];
+    var relationships = { belongsTo: [], hasMany: [] };
+    var expensiveProperties = [];
 
     this.eachAttribute(function(name, meta) {
       attributes.push(name);

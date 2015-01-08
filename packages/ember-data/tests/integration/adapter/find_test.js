@@ -12,7 +12,7 @@ module("integration/adapter/find - Finding Records", {
   },
 
   teardown: function() {
-    run(store,'destroy');
+    run(store, 'destroy');
   }
 });
 

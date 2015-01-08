@@ -15,7 +15,8 @@
 */
 Ember.Date = Ember.Date || {};
 
-var origParse = Date.parse, numericKeys = [1, 4, 5, 6, 7, 10, 11];
+var origParse = Date.parse;
+var numericKeys = [1, 4, 5, 6, 7, 10, 11];
 
 /**
   @method parse
@@ -23,7 +24,8 @@ var origParse = Date.parse, numericKeys = [1, 4, 5, 6, 7, 10, 11];
   @return {Number} timestamp
 */
 Ember.Date.parse = function (date) {
-  var timestamp, struct, minutesOffset = 0;
+  var timestamp, struct;
+  var minutesOffset = 0;
 
   // ES5 §15.9.4.2 states that the string should attempt to be parsed as a Date Time String Format string
   // before falling back to any implementation-specific date parsing, so that’s what we do, even if native

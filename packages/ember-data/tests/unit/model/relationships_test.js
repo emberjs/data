@@ -1,4 +1,5 @@
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
+var set = Ember.set;
 var run = Ember.run;
 
 module("unit/model/relationships - DS.Model");
@@ -301,18 +302,16 @@ test("hasMany relationships work when the data hash has not been loaded", functi
     name: DS.attr('string'),
     person: DS.belongsTo('person')
   });
-
   Tag.toString = function() { return "Tag"; };
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     tags: DS.hasMany('tag', { async: true })
   });
-
   Person.toString = function() { return "Person"; };
 
-  var env = setupStore({ tag: Tag, person: Person }),
-      store = env.store;
+  var env = setupStore({ tag: Tag, person: Person });
+  var store = env.store;
 
   env.adapter.coalesceFindRequests = true;
   env.adapter.findMany = function(store, type, ids) {
@@ -433,8 +432,8 @@ test("it is possible to remove an item from a relationship", function() {
     tags: DS.hasMany('tag')
   });
 
-  var env = setupStore({ tag: Tag, person: Person }),
-      store = env.store;
+  var env = setupStore({ tag: Tag, person: Person });
+  var store = env.store;
 
   run(function() {
     store.push('person', { id: 1, name: "Tom Dale", tags: [1] });
@@ -461,17 +460,16 @@ test("it is possible to add an item to a relationship, remove it, then add it ag
     name: DS.attr('string'),
     person: DS.belongsTo('person')
   });
+  Tag.toString = function() { return "Tag"; };
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     tags: DS.hasMany('tag')
   });
-
-  Tag.toString = function() { return "Tag"; };
   Person.toString = function() { return "Person"; };
 
-  var env = setupStore({ tag: Tag, person: Person }),
-      store = env.store;
+  var env = setupStore({ tag: Tag, person: Person });
+  var store = env.store;
   var person, tag1, tag2, tag3;
 
   run(function() {
@@ -509,8 +507,8 @@ test("updating the content of a RecordArray updates its content", function() {
     name: DS.attr('string')
   });
 
-  var env = setupStore({ tag: Tag }),
-      store = env.store;
+  var env = setupStore({ tag: Tag });
+  var store = env.store;
   var records, tags;
 
   run(function() {
@@ -542,8 +540,8 @@ test("can create child record from a hasMany relationship", function() {
     tags: DS.hasMany('tag')
   });
 
-  var env = setupStore({ tag: Tag, person: Person }),
-      store = env.store;
+  var env = setupStore({ tag: Tag, person: Person });
+  var store = env.store;
 
   run(function() {
     store.push('person', { id: 1, name: "Tom Dale" });
@@ -577,8 +575,8 @@ test("belongsTo lazily loads relationships as needed", function() {
   });
   Person.toString = function() { return "Person"; };
 
-  var env = setupStore({ tag: Tag, person: Person }),
-      store = env.store;
+  var env = setupStore({ tag: Tag, person: Person });
+  var store = env.store;
 
   run(function() {
     store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
@@ -610,8 +608,8 @@ test("async belongsTo relationships work when the data hash has not been loaded"
     tag: DS.belongsTo('tag', { async: true })
   });
 
-  var env = setupStore({ tag: Tag, person: Person }),
-      store = env.store;
+  var env = setupStore({ tag: Tag, person: Person });
+  var store = env.store;
 
   env.adapter.find = function(store, type, id) {
     if (type === Person) {
@@ -651,8 +649,8 @@ test("async belongsTo relationships work when the data hash has already been loa
     tag: DS.belongsTo('tag', { async: true })
   });
 
-  var env = setupStore({ tag: Tag, person: Person }),
-      store = env.store;
+  var env = setupStore({ tag: Tag, person: Person });
+  var store = env.store;
 
   run(function() {
     store.push('tag', { id: 2, name: "friendly" });
@@ -685,8 +683,8 @@ test("calling createRecord and passing in an undefined value for a relationship 
     tag: DS.belongsTo('tag')
   });
 
-  var env = setupStore({ tag: Tag, person: Person }),
-      store = env.store;
+  var env = setupStore({ tag: Tag, person: Person });
+  var store = env.store;
 
   run(function() {
     store.createRecord('person', { id: 1, tag: undefined });
@@ -714,8 +712,8 @@ test("When finding a hasMany relationship the inverse belongsTo relationship is 
 
   Person.toString = function() { return "Person"; };
 
-  var env = setupStore({ occupation: Occupation, person: Person }),
-      store = env.store;
+  var env = setupStore({ occupation: Occupation, person: Person });
+  var store = env.store;
 
   env.adapter.findMany = function(store, type, ids, records) {
     equal(records[0].get('person.id'), '1');
@@ -760,8 +758,8 @@ test("When finding a belongsTo relationship the inverse belongsTo relationship i
 
   Person.toString = function() { return "Person"; };
 
-  var env = setupStore({ occupation: Occupation, person: Person }),
-      store = env.store;
+  var env = setupStore({ occupation: Occupation, person: Person });
+  var store = env.store;
 
   env.adapter.find = function(store, type, id, record) {
     equal(record.get('person.id'), '1');
@@ -792,8 +790,8 @@ test("belongsTo supports relationships to models with id 0", function() {
   });
   Person.toString = function() { return "Person"; };
 
-  var env = setupStore({ tag: Tag, person: Person }),
-      store = env.store;
+  var env = setupStore({ tag: Tag, person: Person });
+  var store = env.store;
 
   run(function() {
     store.pushMany('tag', [{ id: 0, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);

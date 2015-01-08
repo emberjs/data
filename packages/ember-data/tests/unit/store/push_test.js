@@ -587,13 +587,12 @@ test("Enabling Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS should warn on unknown keys", f
     var originalFlagValue = Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS;
     try {
       Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS = true;
-        warns(function() {
-          store.push('person', {
-            id: '1',
-            firstName: 'Tomster',
-            emailAddress: 'tomster@emberjs.com',
-            isMascot: true
-          });
+      warns(function() {
+        store.push('person', {
+          id: '1',
+          firstName: 'Tomster',
+          emailAddress: 'tomster@emberjs.com',
+          isMascot: true
         });
       });
     } finally {

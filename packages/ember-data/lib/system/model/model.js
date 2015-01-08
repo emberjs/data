@@ -543,7 +543,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
     } while (!state.hasOwnProperty(pivotName));
 
     var path = splitOnDot(name);
-    var setups = [], enters = [], i, l;
+    var setups = [];
+    var enters = [];
+    var i, l;
 
     for (i=0, l=path.length; i<l; i++) {
       state = state[path[i]];

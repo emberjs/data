@@ -2,7 +2,8 @@
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
+var set = Ember.set;
 
 /**
   A `ManyArray` is a `RecordArray` that represents the contents of a has-many

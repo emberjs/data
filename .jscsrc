@@ -1,12 +1,13 @@
 {
   "esnext": true,
-  "excludeFiles": [],
-  "additionalRules": [],
+  "additionalRules": [ "lib/jscs-rules/*.js" ],
   "disallowSpacesInsideArrayBrackets": "all",
+  "disallowMultipleVarDeclWithAssignment": true,
   "requireSpaceBeforeObjectValues": true,
   "requireCommaBeforeLineBreak": true,
   "requireBlocksOnNewline": 1,
   "disallowKeywordsOnNewLine": ["else"],
+  "disallowSpacesBeforeSemicolons": true,
   "disallowNewlineBeforeBlockStatements": true,
   "requireSpacesInConditionalExpression": {
     "afterTest": true,
@@ -15,6 +16,7 @@
     "beforeAlternate": true
   },
   "disallowSpacesInCallExpression": true,
+  "disallowSpacesInsideRoundBracesInCallExpression": true,
   "disallowEmptyBlocks": true,
   "requireSpacesInsideObjectBrackets": "all",
   "requireCurlyBraces": [
@@ -48,5 +50,10 @@
     "while",
     "with",
     "return"
-  ]
+  ],
+  "requireSpaceBetweenArguments": true,
+  "requireSpacesAfterClosingParenthesisInFunctionDeclaration": {
+    "beforeOpeningRoundBrace": false,
+    "beforeOpeningCurlyBrace": true
+  }
 }

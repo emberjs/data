@@ -1150,7 +1150,8 @@ Store = Ember.Object.extend({
     this._pendingSave = [];
 
     forEach(pending, function(tuple) {
-      var record = tuple[0], resolver = tuple[1];
+      var record = tuple[0];
+      var resolver = tuple[1];
       var adapter = this.adapterFor(record.constructor);
       var operation;
 
@@ -1658,7 +1659,8 @@ Store = Ember.Object.extend({
     @return DS.Adapter
   */
   adapterFor: function(type) {
-    var container = this.container, adapter;
+    var adapter;
+    var container = this.container;
 
     if (container) {
       adapter = container.lookup('adapter:' + type.typeKey) || container.lookup('adapter:application');

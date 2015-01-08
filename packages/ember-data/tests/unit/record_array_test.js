@@ -79,8 +79,8 @@ test("a loaded record is removed from a record array when it is deleted", functi
     tag: DS.belongsTo('tag')
   });
 
-  var env = setupStore({ tag: Tag, person: Person }),
-      store = env.store;
+  var env = setupStore({ tag: Tag, person: Person });
+  var store = env.store;
 
   run(function() {
     store.pushMany('person', array);
@@ -94,7 +94,8 @@ test("a loaded record is removed from a record array when it is deleted", functi
     });
 
     asyncRecords.then(function(records) {
-      var scumbag = records.scumbag, tag = records.tag;
+      var scumbag = records.scumbag;
+      var tag = records.tag;
 
       run(function() {
         tag.get('people').addObject(scumbag);
@@ -118,8 +119,8 @@ test("a loaded record is removed from a record array when it is deleted even if 
     people: DS.hasMany('person')
   });
 
-  var env = setupStore({ tag: Tag, person: Person }),
-      store = env.store;
+  var env = setupStore({ tag: Tag, person: Person });
+  var store = env.store;
   var scumbag, tag;
 
   run(function() {
@@ -140,8 +141,8 @@ test("a loaded record is removed both from the record array and from the belongs
     person: DS.belongsTo('person')
   });
 
-  var env = setupStore({ tag: Tag, person: Person, tool: Tool }),
-      store = env.store;
+  var env = setupStore({ tag: Tag, person: Person, tool: Tool });
+  var store = env.store;
   var scumbag, tag, tool;
 
   run(function() {
@@ -163,10 +164,8 @@ test("a loaded record is removed both from the record array and from the belongs
 
 // GitHub Issue #168
 test("a newly created record is removed from a record array when it is deleted", function() {
-  var store = createStore(),
-      recordArray;
-
-  recordArray = store.all(Person);
+  var store = createStore();
+  var recordArray = store.all(Person);
   var scumbag;
 
   run(function() {
@@ -229,8 +228,8 @@ test("a record array should be able to be enumerated in any order", function() {
 test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
   expect(1);
 
-  var env = setupStore({ person: Person }),
-      store = env.store;
+  var env = setupStore({ person: Person });
+  var store = env.store;
 
   env.adapter.findQuery = function(store, type, query, recordArray) {
     return Ember.RSVP.resolve(array);
@@ -244,8 +243,9 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
 });
 
 test("a record array should return a promise when updating", function() {
-  var env = setupStore({ person: Person }),
-      store = env.store, recordArray, promise;
+  var recordArray, promise;
+  var env = setupStore({ person: Person });
+  var store = env.store;
 
   env.adapter.findAll = function(store, type, query, recordArray) {
     return Ember.RSVP.resolve(array);
@@ -255,5 +255,5 @@ test("a record array should return a promise when updating", function() {
   run(function() {
     promise = recordArray.update();
   });
-  ok((promise.then && typeof promise.then === "function"), "#update returns a promise");
+  ok(promise.then && typeof promise.then === "function", "#update returns a promise");
 });

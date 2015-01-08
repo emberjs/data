@@ -1,9 +1,9 @@
-var run = Ember.run,
-    Application = Ember.Application,
-    Controller = Ember.Controller,
-    View = Ember.View,
-    Store = DS.Store,
-    Namespace = Ember.Namespace;
+var run = Ember.run;
+var Application = Ember.Application;
+var Controller = Ember.Controller;
+var View = Ember.View;
+var Store = DS.Store;
+var Namespace = Ember.Namespace;
 
 var app, App, container;
 

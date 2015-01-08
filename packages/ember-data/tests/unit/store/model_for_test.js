@@ -1,7 +1,7 @@
 var container, store;
 
-var camelize  = Ember.String.camelize,
-    dasherize = Ember.String.dasherize;
+var camelize  = Ember.String.camelize;
+var dasherize = Ember.String.dasherize;
 
 var run = Ember.run;
 var env;

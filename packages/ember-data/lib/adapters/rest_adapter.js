@@ -530,9 +530,9 @@ export default Adapter.extend({
     @return {String} url
   */
   buildURL: function(type, id, record) {
-    var url = [],
-        host = get(this, 'host'),
-        prefix = this.urlPrefix();
+    var url = [];
+    var host = get(this, 'host');
+    var prefix = this.urlPrefix();
 
     if (type) { url.push(this.pathForType(type)); }
 
@@ -590,7 +590,7 @@ export default Adapter.extend({
 
     var expandedURL = url.split('/');
     //Case when the url is of the format ...something/:id
-    var lastSegment = expandedURL[ expandedURL.length - 1 ];
+    var lastSegment = expandedURL[expandedURL.length - 1];
     var id = record.get('id');
     if (lastSegment === id) {
       expandedURL[expandedURL.length - 1] = "";

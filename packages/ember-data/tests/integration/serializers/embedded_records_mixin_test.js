@@ -1269,7 +1269,8 @@ test("serializing relationships with an embedded and without calls super when no
     superVillain.get('evilMinions').pushObject(evilMinion);
   });
 
-  var calledSerializeBelongsTo = false, calledSerializeHasMany = false;
+  var calledSerializeBelongsTo = false;
+  var calledSerializeHasMany = false;
 
   var Serializer = DS.RESTSerializer.extend({
     serializeBelongsTo: function(record, json, relationship) {

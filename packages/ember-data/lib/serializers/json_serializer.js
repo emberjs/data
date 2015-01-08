@@ -232,7 +232,8 @@ export default Ember.Object.extend({
     @private
   */
   normalizeUsingDeclaredMapping: function(type, hash) {
-    var attrs = get(this, 'attrs'), payloadKey, key;
+    var attrs = get(this, 'attrs');
+    var payloadKey, key;
 
     if (attrs) {
       for (key in attrs) {

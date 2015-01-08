@@ -1,4 +1,5 @@
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
+var set = Ember.set;
 var resolve = Ember.RSVP.resolve;
 var TestAdapter, store;
 var run = Ember.run;

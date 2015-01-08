@@ -156,8 +156,8 @@ test("serializeIntoHash", function() {
 test("serializePolymorphicType", function() {
   env.container.register('serializer:comment', DS.JSONSerializer.extend({
     serializePolymorphicType: function(record, json, relationship) {
-      var key = relationship.key,
-          belongsTo = get(record, key);
+      var key = relationship.key;
+      var belongsTo = get(record, key);
       json[relationship.key + "TYPE"] = belongsTo.constructor.typeKey;
     }
   }));

@@ -149,9 +149,10 @@ export default Ember.Object.extend({
   */
   updateFilter: function(array, type, filter) {
     var typeMap = this.store.typeMapFor(type);
-    var records = typeMap.records, record;
+    var records = typeMap.records;
+    var record;
 
-    for (var i=0, l=records.length; i<l; i++) {
+    for (var i = 0, l = records.length; i < l; i++) {
       record = records[i];
 
       if (!get(record, 'isDeleted') && !get(record, 'isEmpty')) {

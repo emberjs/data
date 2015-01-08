@@ -354,7 +354,7 @@ test("relationshipsByName does not cache a factory", function() {
   var messageModelFromRelationType = store.modelFor(messageType);
 
   equal(messageModelFromRelationType, messageModelFromStore,
-         "model factory based on relationship type matches the model based on store.modelFor");
+        "model factory based on relationship type matches the model based on store.modelFor");
 });
 
 test("relationshipsByName is cached in production", function() {

@@ -1,8 +1,11 @@
-var get = Ember.get, set = Ember.set, attr = DS.attr;
+var get = Ember.get;
+var set = Ember.set;
+var attr = DS.attr;
 var Person, env, store;
 var run = Ember.run;
 
-var all = Ember.RSVP.all, hash = Ember.RSVP.hash;
+var all = Ember.RSVP.all;
+var hash = Ember.RSVP.hash;
 
 function assertClean(promise) {
   return promise.then(async(function(record) {

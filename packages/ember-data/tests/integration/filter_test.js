@@ -1,4 +1,5 @@
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
+var set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;
 var indexOf = Ember.EnumerableUtils.indexOf;
 var run = Ember.run;
@@ -256,7 +257,9 @@ test("a Record Array can update its filter and notify array observers", function
     if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
   }).then(async(function(recordArray) {
 
-    var didChangeIdx, didChangeRemoved = 0, didChangeAdded = 0;
+    var didChangeIdx;
+    var didChangeRemoved = 0;
+    var didChangeAdded = 0;
 
     var arrayObserver = {
       arrayWillChange: Ember.K,
@@ -534,8 +537,8 @@ var clientCreates = function(names) {
 
   // wrap in an Ember.run to guarantee coalescence of the
   // iterated `set` calls.
-  Ember.run( function() {
-    forEach(names, function( name ) {
+  Ember.run(function() {
+    forEach(names, function(name) {
       edited.push(store.createRecord('person', { name: 'Client-side ' + name }));
     });
   });
@@ -645,7 +648,7 @@ test("a Record Array can update its filter after server-side creates multiple re
 });
 
 test("destroying filteredRecordArray unregisters models from being filtered", function() {
-  var filterFn = tapFn( function() { return true; } );
+  var filterFn = tapFn(function() { return true; });
   var person;
 
   run(function() {

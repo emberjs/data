@@ -1,6 +1,7 @@
 var env, store, User, Job;
 
-var attr = DS.attr, belongsTo = DS.belongsTo;
+var attr = DS.attr;
+var belongsTo = DS.belongsTo;
 var run = Ember.run;
 
 function stringify(string) {

@@ -1,4 +1,5 @@
-var App, store, debugAdapter, get = Ember.get;
+var App, store, debugAdapter;
+var get = Ember.get;
 var run = Ember.run;
 
 module("DS.DebugAdapter", {
@@ -67,10 +68,10 @@ test("Watching Records", function() {
 
   equal(get(args[0], 'length'), 1);
   record = args[0][0];
-  deepEqual(record.columnValues, { id: '1', title: 'Clean Post' } );
-  deepEqual(record.filterValues, { isNew: false, isModified: false, isClean: true } );
-  deepEqual(record.searchKeywords, ['1', 'Clean Post'] );
-  deepEqual(record.color, 'black' );
+  deepEqual(record.columnValues, { id: '1', title: 'Clean Post' });
+  deepEqual(record.filterValues, { isNew: false, isModified: false, isClean: true });
+  deepEqual(record.searchKeywords, ['1', 'Clean Post']);
+  deepEqual(record.color, 'black');
 
   Ember.run(function() {
     post = store.find('post', 1);
@@ -83,8 +84,8 @@ test("Watching Records", function() {
   record = args[0][0];
   deepEqual(record.columnValues, { id: '1', title: 'Modified Post' });
   deepEqual(record.filterValues, { isNew: false, isModified: true, isClean: false });
-  deepEqual(record.searchKeywords, ['1', 'Modified Post'] );
-  deepEqual(record.color, 'blue' );
+  deepEqual(record.searchKeywords, ['1', 'Modified Post']);
+  deepEqual(record.color, 'blue');
 
   run(function() {
     post = store.createRecord('post', { id: '2', title: 'New Post' });
@@ -92,8 +93,8 @@ test("Watching Records", function() {
   record = args[0][0];
   deepEqual(record.columnValues, { id: '2', title: 'New Post' });
   deepEqual(record.filterValues, { isNew: true, isModified: false, isClean: false });
-  deepEqual(record.searchKeywords, ['2', 'New Post'] );
-  deepEqual(record.color, 'green' );
+  deepEqual(record.searchKeywords, ['2', 'New Post']);
+  deepEqual(record.color, 'green');
 
   Ember.run(post, 'deleteRecord');
 

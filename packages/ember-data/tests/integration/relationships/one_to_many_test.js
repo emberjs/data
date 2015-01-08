@@ -2,7 +2,9 @@ var env, store, User, Message, Account;
 var get = Ember.get;
 var run = Ember.run;
 
-var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
+var attr = DS.attr;
+var hasMany = DS.hasMany;
+var belongsTo = DS.belongsTo;
 
 function stringify(string) {
   return function() { return string; };

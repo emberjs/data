@@ -57,6 +57,6 @@
     "yuidocjs": "~0.3.46"
   },
   "dependencies": {
-    "broccoli-jscs": "0.0.13"
+    "broccoli-jscs": "0.0.12"
   }
 }

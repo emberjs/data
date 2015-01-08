@@ -12,8 +12,8 @@ test("When a record is added to a has-many relationship, the inverse belongsTo i
     post: DS.belongsTo('post')
   });
 
-  var env = setupStore({ post: Post, comment: Comment }),
-  store = env.store;
+  var env = setupStore({ post: Post, comment: Comment });
+  var store = env.store;
   var comment, post;
 
   run(function() {
@@ -69,8 +69,8 @@ test("When a record is added to a has-many relationship, the inverse belongsTo c
     bluePost: DS.belongsTo('post')
   });
 
-  var env = setupStore({ post: Post, comment: Comment }),
-  store = env.store;
+  var env = setupStore({ post: Post, comment: Comment });
+  var store = env.store;
   var comment, post;
 
   run(function() {
@@ -104,8 +104,8 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
     post: DS.belongsTo('post', { inverse: 'youComments' })
   });
 
-  var env = setupStore({ post: Post, comment: Comment }),
-  store = env.store;
+  var env = setupStore({ post: Post, comment: Comment });
+  var store = env.store;
   var comment, post;
 
   run(function() {
@@ -137,8 +137,8 @@ test("When setting a belongsTo, the OneToOne invariant is respected even when ot
     post: DS.belongsTo('post')
   });
 
-  var env = setupStore({ post: Post, comment: Comment }),
-  store = env.store;
+  var env = setupStore({ post: Post, comment: Comment });
+  var store = env.store;
   var comment, post, post2;
 
   run(function() {
@@ -248,8 +248,8 @@ test("OneToNone relationship works", function() {
     post: DS.belongsTo('post')
   });
 
-  var env = setupStore({ post: Post, comment: Comment }),
-  store = env.store;
+  var env = setupStore({ post: Post, comment: Comment });
+  var store = env.store;
   var comment, post1, post2;
 
   run(function() {
@@ -292,8 +292,8 @@ test("When a record is added to or removed from a polymorphic has-many relations
 
   Post = Message.extend();
 
-  var env = setupStore({ user: User, message: Message, post: Post }),
-  store = env.store;
+  var env = setupStore({ user: User, message: Message, post: Post });
+  var store = env.store;
   var post, user;
 
   run(function() {
@@ -338,8 +338,8 @@ test("When a record's belongsTo relationship is set, it can specify the inverse 
 
   Post = Message.extend();
 
-  var env = setupStore({ user: User, message: Message, post: Post }),
-  store = env.store;
+  var env = setupStore({ user: User, message: Message, post: Post });
+  var store = env.store;
   var user, post;
 
   run(function() {
@@ -384,8 +384,8 @@ test("When a record's polymorphic belongsTo relationship is set, it can specify 
     })
   });
 
-  var env = setupStore({ comment: Comment, message: Message, post: Post }),
-  store = env.store;
+  var env = setupStore({ comment: Comment, message: Message, post: Post });
+  var store = env.store;
   var comment, post;
 
   run(function() {

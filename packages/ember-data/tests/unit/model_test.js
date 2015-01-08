@@ -108,7 +108,7 @@ test("a record's id is included in its toString representation", function() {
 test("trying to set an `id` attribute should raise", function() {
   Person = DS.Model.extend({
     id: DS.attr('number'),
-    name: DS.attr('string'),
+    name: DS.attr('string')
   });
 
   expectAssertion(function() {
@@ -453,8 +453,8 @@ test("when a method is invoked from an event with the same name the arguments ar
     record.trigger('eventThatTriggersMethod', 1, 2);
   });
 
-  equal( eventMethodArgs[0], 1);
-  equal( eventMethodArgs[1], 2);
+  equal(eventMethodArgs[0], 1);
+  equal(eventMethodArgs[1], 2);
 });
 
 var converts = function(type, provided, expected) {
@@ -463,9 +463,11 @@ var converts = function(type, provided, expected) {
   });
 
   var container = new Ember.Container();
-
-  var testStore = createStore({ model: Model }),
-      serializer = DS.JSONSerializer.create({ store: testStore, container: container });
+  var testStore = createStore({ model: Model });
+  var serializer = DS.JSONSerializer.create({
+    store: testStore,
+    container: container
+  });
 
   run(function() {
     testStore.push(Model, serializer.normalize(Model, { id: 1, name: provided }));
@@ -487,9 +489,11 @@ var convertsFromServer = function(type, provided, expected) {
   });
 
   var container = new Ember.Container();
-
-  var testStore = createStore({ model: Model }),
-      serializer = DS.JSONSerializer.create({ store: testStore, container: container });
+  var testStore = createStore({ model: Model });
+  var serializer = DS.JSONSerializer.create({
+    store: testStore,
+    container: container
+  });
 
   run(function() {
     testStore.push(Model, serializer.normalize(Model, { id: "1", name: provided }));
