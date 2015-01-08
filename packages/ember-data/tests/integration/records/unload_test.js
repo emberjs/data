@@ -15,8 +15,6 @@ var Car = DS.Model.extend({
   person: belongsTo('person')
 });
 
-Person.toString = function() { return "Person"; };
-
 module("integration/unload - Unloading Records", {
   setup: function() {
    env = setupStore({

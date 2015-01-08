@@ -3,10 +3,6 @@ var run = Ember.run;
 
 var attr = DS.attr, hasMany = DS.hasMany;
 
-function stringify(string) {
-  return function() { return string; };
-}
-
 module('integration/relationships/many_to_many_test - ManyToMany relationships', {
   setup: function() {
     User = DS.Model.extend({
@@ -15,21 +11,15 @@ module('integration/relationships/many_to_many_test - ManyToMany relationships',
       accounts: hasMany('account')
     });
 
-    User.toString = stringify('User');
-
     Account = DS.Model.extend({
       state: attr(),
       users: hasMany('user')
     });
 
-    Account.toString = stringify('Account');
-
     Topic = DS.Model.extend({
       title: attr('string'),
       users: hasMany('user', {async: true})
     });
-
-    Topic.toString = stringify('Topic');
 
     env = setupStore({
       user: User,

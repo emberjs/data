@@ -229,8 +229,6 @@ test("serialize polymorphic when associated object is null", function() {
 
 test("extractPolymorphic hasMany", function() {
   env.container.register('adapter:yellowMinion', DS.ActiveModelAdapter);
-  MediocreVillain.toString   = function() { return "MediocreVillain"; };
-  YellowMinion.toString = function() { return "YellowMinion"; };
 
   var json_hash = {
     mediocre_villain: {id: 1, name: "Dr Horrible", evil_minions: [{ type: "yellow_minion", id: 12}] },
@@ -254,8 +252,6 @@ test("extractPolymorphic hasMany", function() {
 
 test("extractPolymorphic", function() {
   env.container.register('adapter:yellowMinion', DS.ActiveModelAdapter);
-  EvilMinion.toString   = function() { return "EvilMinion"; };
-  YellowMinion.toString = function() { return "YellowMinion"; };
 
   var json_hash = {
     doomsday_device: {id: 1, name: "DeathRay", evil_minion: { type: "yellow_minion", id: 12}},

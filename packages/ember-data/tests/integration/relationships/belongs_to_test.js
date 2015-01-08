@@ -5,10 +5,6 @@ var run = Ember.run;
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
 var hash = Ember.RSVP.hash;
 
-function stringify(string) {
-  return function() { return string; };
-}
-
 module("integration/relationship/belongs_to Belongs-To Relationships", {
   setup: function() {
     User = DS.Model.extend({
@@ -16,36 +12,30 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
       messages: hasMany('message', {polymorphic: true}),
       favouriteMessage: belongsTo('message', {polymorphic: true, inverse: null}),
     });
-    User.toString = stringify('User');
 
     Message = DS.Model.extend({
       user: belongsTo('user', { inverse: 'messages' }),
       created_at: attr('date')
     });
-    Message.toString = stringify('Message');
 
     Post = Message.extend({
       title: attr('string'),
       comments: hasMany('comment')
     });
-    Post.toString = stringify('Post');
 
     Comment = Message.extend({
       body: DS.attr('string'),
       message: DS.belongsTo('message', { polymorphic: true })
     });
-    Comment.toString = stringify('Comment');
 
     Book = DS.Model.extend({
       name: attr('string'),
       author: belongsTo('author')
     });
-    Book.toString = stringify('Book');
 
     Author = DS.Model.extend({
       name: attr('string')
     });
-    Author.toString = stringify('Author');
 
     env = setupStore({
       user: User,
@@ -343,7 +333,6 @@ test("relationshipsByName does not cache a factory", function() {
   // A new model for a relationship is created. Note that this may happen
   // due to an extend call internal to MODEL_FACTORY_INJECTIONS.
   NewMessage = Message.extend();
-  NewMessage.toString = stringify('Message');
 
   // A new store is created.
   env = setupStore({

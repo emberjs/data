@@ -3,10 +3,6 @@ var env, store, User, Job;
 var attr = DS.attr, belongsTo = DS.belongsTo;
 var run = Ember.run;
 
-function stringify(string) {
-  return function() { return string; };
-}
-
 module('integration/inverse_test - inverseFor', {
   setup: function() {
     User = DS.Model.extend({
@@ -15,14 +11,10 @@ module('integration/inverse_test - inverseFor', {
       job: belongsTo('job')
     });
 
-    User.toString = stringify('user');
-
     Job = DS.Model.extend({
       isGood: attr(),
       user: belongsTo('user')
     });
-
-    Job.toString = stringify('job');
 
     env = setupStore({
       user: User,
@@ -99,10 +91,12 @@ test("Errors out if you define 2 inverses to the same model", function () {
     user: belongsTo('user', {inverse: 'job'}),
     owner: belongsTo('user', {inverse: 'job'})
   });
+  Job.toString = function() { return "job"; }
 
   User.reopen({
-    job: belongsTo('job')
+    job: belongsTo('job'),
   });
+  User.toString = function() { return "user"; }
 
   //Maybe store is evaluated lazily, so we need this :(
   expectAssertion(function() {

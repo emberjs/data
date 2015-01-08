@@ -4,10 +4,6 @@ var run = Ember.run;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
 
-function stringify(string) {
-  return function() { return string; };
-}
-
 module('integration/relationships/one_to_many_test - OneToMany relationships', {
   setup: function() {
     User = DS.Model.extend({
@@ -15,19 +11,16 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', {
       messages: hasMany('message', {async: true}),
       accounts: hasMany('account')
     });
-    User.toString = stringify('User');
 
     Account = DS.Model.extend({
       state: attr(),
       user: belongsTo('user')
     });
-    Account.toString = stringify('Account');
 
     Message = DS.Model.extend({
       title: attr('string'),
       user: belongsTo('user', {async: true})
     });
-    Message.toString = stringify('Message');
 
     env = setupStore({
       user: User,

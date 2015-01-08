@@ -302,14 +302,10 @@ test("hasMany relationships work when the data hash has not been loaded", functi
     person: DS.belongsTo('person')
   });
 
-  Tag.toString = function() { return "Tag"; };
-
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     tags: DS.hasMany('tag', { async: true })
   });
-
-  Person.toString = function() { return "Person"; };
 
   var env = setupStore({ tag: Tag, person: Person }),
       store = env.store;
@@ -467,9 +463,6 @@ test("it is possible to add an item to a relationship, remove it, then add it ag
     tags: DS.hasMany('tag')
   });
 
-  Tag.toString = function() { return "Tag"; };
-  Person.toString = function() { return "Person"; };
-
   var env = setupStore({ tag: Tag, person: Person }),
       store = env.store;
   var person, tag1, tag2, tag3;
@@ -569,13 +562,11 @@ test("belongsTo lazily loads relationships as needed", function() {
     name: DS.attr('string'),
     people: DS.hasMany('person')
   });
-  Tag.toString = function() { return "Tag"; };
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     tag: DS.belongsTo('tag')
   });
-  Person.toString = function() { return "Person"; };
 
   var env = setupStore({ tag: Tag, person: Person }),
       store = env.store;
@@ -705,14 +696,10 @@ test("When finding a hasMany relationship the inverse belongsTo relationship is 
     person: DS.belongsTo('person')
   });
 
-  Occupation.toString = function() { return "Occupation"; };
-
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     occupations: DS.hasMany('occupation', { async: true })
   });
-
-  Person.toString = function() { return "Person"; };
 
   var env = setupStore({ occupation: Occupation, person: Person }),
       store = env.store;
@@ -751,14 +738,10 @@ test("When finding a belongsTo relationship the inverse belongsTo relationship i
     person: DS.belongsTo('person')
   });
 
-  Occupation.toString = function() { return "Occupation"; };
-
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     occupation: DS.belongsTo('occupation', { async: true })
   });
-
-  Person.toString = function() { return "Person"; };
 
   var env = setupStore({ occupation: Occupation, person: Person }),
       store = env.store;
@@ -784,14 +767,10 @@ test("belongsTo supports relationships to models with id 0", function() {
     name: DS.attr('string'),
     people: DS.hasMany('person')
   });
-  Tag.toString = function() { return "Tag"; };
-
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     tag: DS.belongsTo('tag')
   });
-  Person.toString = function() { return "Person"; };
-
   var env = setupStore({ tag: Tag, person: Person }),
       store = env.store;
 

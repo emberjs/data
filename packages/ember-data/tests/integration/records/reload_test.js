@@ -12,8 +12,6 @@ module("integration/reload - Reloading Records", {
       lastName: attr('string')
     });
 
-    Person.toString = function() { return "Person"; };
-
     env = setupStore({ person: Person });
   },
 

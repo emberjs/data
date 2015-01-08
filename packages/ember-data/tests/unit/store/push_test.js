@@ -11,24 +11,15 @@ module("unit/store/push - DS.Store#push", {
       lastName: attr('string'),
       phoneNumbers: hasMany('phone-number')
     });
-    Person.toString = function() {
-      return 'Person';
-    };
 
     PhoneNumber = DS.Model.extend({
       number: attr('string'),
       person: belongsTo('person')
     });
-    PhoneNumber.toString = function() {
-      return 'PhoneNumber';
-    };
 
     Post = DS.Model.extend({
       postTitle: attr('string')
     });
-    Post.toString = function() {
-      return 'Post';
-    };
 
     env = setupStore({"post": Post,
                       "person": Person,

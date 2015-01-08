@@ -7,8 +7,6 @@ module("integration/records/collection_save - Save Collection of Records", {
       title: DS.attr('string')
     });
 
-    Post.toString = function() { return "Post"; };
-
     env = setupStore({ post: Post });
   },
 

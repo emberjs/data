@@ -6,10 +6,6 @@ var run = Ember.run;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
 
-function stringify(string) {
-  return function() { return string; };
-}
-
 module("integration/relationships/has_many - Has-Many Relationships", {
   setup: function() {
     User = DS.Model.extend({
@@ -34,37 +30,31 @@ module("integration/relationships/has_many - Has-Many Relationships", {
       user: belongsTo('user'),
       created_at: attr('date')
     });
-    Message.toString = stringify('Message');
 
     Post = Message.extend({
       title: attr('string'),
       comments: hasMany('comment')
     });
-    Post.toString = stringify('Post');
 
     Comment = Message.extend({
       body: DS.attr('string'),
       message: DS.belongsTo('post', { polymorphic: true })
     });
-    Comment.toString = stringify('Comment');
 
     Book = DS.Model.extend({
       title: attr(),
       chapters: hasMany('chapter', { async: true })
     });
-    Book.toString = stringify('Book');
 
     Chapter = DS.Model.extend({
       title: attr(),
       pages: hasMany('page')
     });
-    Chapter.toString = stringify('Chapter');
 
     Page = DS.Model.extend({
       number: attr('number'),
       chapter: belongsTo('chapter')
     });
-    Page.toString = stringify('Page');
 
     env = setupStore({
       user: User,
