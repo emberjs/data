@@ -233,8 +233,7 @@ test("extractPolymorphic hasMany", function() {
   YellowMinion.toString = function() { return "YellowMinion"; };
 
   var json_hash = {
-    mediocre_villain: {id: 1, name: "Dr Horrible", evil_minions: [{ type: "yellow_minion", id: 12}] },
-    evil_minions:    [{id: 12, name: "Alex", doomsday_device_ids: [1] }]
+    mediocre_villain: { id: 1, name: "Dr Horrible", evil_minions: [{ type: "yellow_minion", id: 12 }] }
   };
   var json;
 
@@ -258,8 +257,7 @@ test("extractPolymorphic", function() {
   YellowMinion.toString = function() { return "YellowMinion"; };
 
   var json_hash = {
-    doomsday_device: {id: 1, name: "DeathRay", evil_minion: { type: "yellow_minion", id: 12}},
-    evil_minions:    [{id: 12, name: "Alex", doomsday_device_ids: [1] }]
+    doomsday_device: { id: 1, name: "DeathRay", evil_minion: { type: "yellow_minion", id: 12 } }
   };
   var json;
 
@@ -279,8 +277,7 @@ test("extractPolymorphic", function() {
 
 test("extractPolymorphic when the related data is not specified", function() {
   var json = {
-    doomsday_device: {id: 1, name: "DeathRay"},
-    evil_minions:    [{id: 12, name: "Alex", doomsday_device_ids: [1] }]
+    doomsday_device: { id: 1, name: "DeathRay" }
   };
 
   run(function(){

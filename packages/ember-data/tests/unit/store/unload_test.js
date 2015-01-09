@@ -13,7 +13,8 @@ module("unit/store/unload - Store unloading records", {
     });
 
     Record = DS.Model.extend({
-      title: DS.attr('string')
+      title: DS.attr('string'),
+      wasFetched: DS.attr('boolean')
     });
   },
 
