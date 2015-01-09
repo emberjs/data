@@ -177,6 +177,7 @@ test("When setting a belongsTo, the OneToOne invariant is transitive", function(
     post: Post,
     comment: Comment
   });
+  var post, post2, comment;
 
   run(function(){
     comment = store.createRecord('comment');
@@ -214,14 +215,13 @@ test("When setting a belongsTo, the OneToOne invariant is commutative", function
     post: Post,
     comment: Comment
   });
+  var post, comment, comment2;
 
   run(function(){
-    comment = store.createRecord('comment');
     post = store.createRecord('post');
+    comment = store.createRecord('comment');
     comment2 = store.createRecord('comment');
-  });
 
-  run(function(){
     comment.set('post', post);
   });
 

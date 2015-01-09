@@ -34,7 +34,7 @@ function tapFn(fn, callback) {
   var new_fn = function() {
     var result = old_fn.apply(this, arguments);
     if (callback) {
-      callback.apply(obj, arguments);
+      callback.apply(fn, arguments);
     }
     new_fn.summary.called.push(arguments);
     return result;

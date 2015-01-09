@@ -1,13 +1,11 @@
-var env, store, User, Message, Post, Comment, Book, Author, NewMessage;
+var env, store, User, Message, Post, Contact, Comment, Book, Author, NewMessage;
 var get = Ember.get;
 var run = Ember.run;
 
-var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
+var attr = DS.attr;
+var hasMany = DS.hasMany;
+var belongsTo = DS.belongsTo;
 var hash = Ember.RSVP.hash;
-
-function stringify(string) {
-  return function() { return string; };
-}
 
 module("integration/relationship/belongs_to Belongs-To Relationships", {
   setup: function() {
@@ -16,36 +14,30 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
       messages: hasMany('message', {polymorphic: true}),
       favouriteMessage: belongsTo('message', {polymorphic: true, inverse: null}),
     });
-    User.toString = stringify('User');
 
     Message = DS.Model.extend({
       user: belongsTo('user', { inverse: 'messages' }),
       created_at: attr('date')
     });
-    Message.toString = stringify('Message');
 
     Post = Message.extend({
       title: attr('string'),
       comments: hasMany('comment')
     });
-    Post.toString = stringify('Post');
 
     Comment = Message.extend({
       body: DS.attr('string'),
       message: DS.belongsTo('message', { polymorphic: true })
     });
-    Comment.toString = stringify('Comment');
 
     Book = DS.Model.extend({
       name: attr('string'),
       author: belongsTo('author')
     });
-    Book.toString = stringify('Book');
 
     Author = DS.Model.extend({
       name: attr('string')
     });
-    Author.toString = stringify('Author');
 
     env = setupStore({
       user: User,
@@ -343,7 +335,6 @@ test("relationshipsByName does not cache a factory", function() {
   // A new model for a relationship is created. Note that this may happen
   // due to an extend call internal to MODEL_FACTORY_INJECTIONS.
   NewMessage = Message.extend();
-  NewMessage.toString = stringify('Message');
 
   // A new store is created.
   env = setupStore({
@@ -353,17 +344,17 @@ test("relationshipsByName does not cache a factory", function() {
   store = env.store;
 
   // relationshipsByName is called again.
-  var modelViaSecondFactory = store.modelFor('user'),
-      relationshipsByName   = get(modelViaSecondFactory, 'relationshipsByName'),
-      messageType           = relationshipsByName.get('messages').type;
+  var modelViaSecondFactory = store.modelFor('user');
+  var relationshipsByName   = get(modelViaSecondFactory, 'relationshipsByName');
+  var messageType           = relationshipsByName.get('messages').type;
 
   // A model is looked up in the store based on a string, via user input
   var messageModelFromStore        = store.modelFor('message');
   // And the model is lookup up internally via the relationship type
   var messageModelFromRelationType = store.modelFor(messageType);
 
-  equal( messageModelFromRelationType, messageModelFromStore,
-         "model factory based on relationship type matches the model based on store.modelFor" );
+  equal(messageModelFromRelationType, messageModelFromStore,
+         "model factory based on relationship type matches the model based on store.modelFor");
 });
 
 test("relationshipsByName is cached in production", function() {

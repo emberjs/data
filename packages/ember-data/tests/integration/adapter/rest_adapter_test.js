@@ -1738,7 +1738,7 @@ test("rejects promise if DS.InvalidError is returned from adapter.ajaxSuccess", 
   var jqXHR = {};
   var data = {
     something: 'is invalid'
-  }
+  };
 
   Ember.$.ajax = function(hash) {
     hash.success(data, 'ok', jqXHR);
@@ -1752,7 +1752,7 @@ test("rejects promise if DS.InvalidError is returned from adapter.ajaxSuccess", 
   Ember.run(function() {
     store.find('post', '1').then(null, function(reason) {
       ok(true, 'promise should be rejected');
-      ok(reason instanceof DS.InvalidError, 'reason should be an instance of DS.InvalidError')
+      ok(reason instanceof DS.InvalidError, 'reason should be an instance of DS.InvalidError');
     });
   });
 

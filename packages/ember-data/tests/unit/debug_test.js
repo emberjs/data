@@ -1,4 +1,3 @@
-var store;
 var run = Ember.run;
 
 var TestAdapter = DS.Adapter.extend();
