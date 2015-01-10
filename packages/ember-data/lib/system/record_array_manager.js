@@ -261,7 +261,7 @@ export default Ember.Object.extend({
   willDestroy: function(){
     this._super();
 
-    forEach(flatten(values(this.filteredRecordArrays.values)), destroy);
+    forEach(flatten(values(this.filteredRecordArrays._values)), destroy);
     forEach(this._adapterPopulatedRecordArrays, destroy);
   }
 });
