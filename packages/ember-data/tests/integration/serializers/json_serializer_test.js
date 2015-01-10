@@ -1,4 +1,3 @@
-var get = Ember.get;
 var Post, post, Comment, comment, Favorite, favorite, env;
 var run = Ember.run;
 
@@ -436,7 +435,6 @@ test("Calling normalize should normalize the payload (only the passed keys)", fu
 });
 
 test('serializeBelongsTo with async polymorphic', function() {
-  var post, favorite;
   var json = {};
   var expected = { post: '1', postTYPE: 'post' };
 
