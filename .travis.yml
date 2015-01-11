@@ -16,7 +16,7 @@ install:
 script:
   - npm run-script test
   - npm run-script test:beta
-#  - npm run-script test:canary
+  - npm run-script test:canary
 after_success:
 - npm run-script publish-build
 - "./bin/bower-ember-data-build"
