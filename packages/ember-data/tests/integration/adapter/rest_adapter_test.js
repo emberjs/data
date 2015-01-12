@@ -832,6 +832,67 @@ test("metadata is accessible", function() {
   }));
 });
 
+test("findQuery - if `sortQueryParams` option is not provided, query params are sorted alphabetically", function() {
+  adapter.ajax = function(url, verb, hash) {
+    passedUrl = url;
+    passedVerb = verb;
+    passedHash = hash;
+
+    deepEqual(Object.keys(hash.data), ["in", "order", "params", "wrong"], 'query params are received in alphabetical order');
+
+    return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
+  };
+
+  store.findQuery('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
+    // Noop
+  }));
+});
+
+test("findQuery - if `sortQueryParams` is falsey, query params are not sorted at all", function() {
+  adapter.ajax = function(url, verb, hash) {
+    passedUrl = url;
+    passedVerb = verb;
+    passedHash = hash;
+
+    deepEqual(Object.keys(hash.data), ["params", "in", "wrong", "order"], 'query params are received in their original order');
+
+    return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
+  };
+
+  adapter.sortQueryParams = null;
+
+  store.findQuery('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
+    // Noop
+  }));
+});
+
+test("findQuery - if `sortQueryParams` is a custom function, query params passed through that function", function() {
+  adapter.ajax = function(url, verb, hash) {
+    passedUrl = url;
+    passedVerb = verb;
+    passedHash = hash;
+
+    deepEqual(Object.keys(hash.data), ["wrong", "params", "order", "in"], 'query params are received in reverse alphabetical order');
+
+    return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
+  };
+
+  adapter.sortQueryParams = function(obj) {
+    var sortedKeys = Object.keys(obj).sort().reverse();
+    var len = sortedKeys.length;
+    var newQueryParams = {};
+
+    for (var i = 0; i < len; i++) {
+      newQueryParams[sortedKeys[i]] = obj[sortedKeys[i]];
+    }
+    return newQueryParams;
+  };
+
+  store.findQuery('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
+    // Noop
+  }));
+});
+
 test("findQuery - payload 'meta' is accessible on the record array", function() {
   ajaxResponse({
     meta: { offset: 5 },
