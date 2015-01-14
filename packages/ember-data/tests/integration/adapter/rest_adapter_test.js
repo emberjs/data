@@ -1793,3 +1793,30 @@ test('ajaxError appends errorThrown for sanity', function() {
     Ember.$.ajax = originalAjax;
   }
 });
+
+
+test('ajaxError wraps the error string in an Error object', function() {
+  expect(2);
+
+  var originalAjax = Ember.$.ajax;
+  var jqXHR = {
+    responseText: 'Nope lol'
+  };
+
+  var errorThrown = 'nope!';
+
+  Ember.$.ajax = function(hash) {
+    hash.error(jqXHR, jqXHR.responseText, errorThrown);
+  };
+
+  try {
+    run(function(){
+      store.find('post', '1').catch(function(err){
+        equal(err.errorThrown.message, errorThrown);
+        ok(err, 'promise rejected');
+      });
+    });
+  } finally {
+    Ember.$.ajax = originalAjax;
+  }
+});
