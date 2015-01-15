@@ -1234,3 +1234,42 @@ test('unloading a record with associated records does not prevent the store from
     ok(false, "store prevented from being destroyed");
   }
 });
+
+
+test('ManyRelationship can execute `flushCanonical` when the manyArray has been destroyed', function() {
+
+  expect(1);
+  var post;
+
+  Comment.reopen({
+    post: DS.belongsTo('post', { async: true })
+  });
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true, inverse: 'post' })
+  });
+
+  run(function() {
+    post = env.store.push('post', { id: 2, title: 'Sailing the Seven Seas', comments: [1,2] });
+    env.store.pushMany('comment', [
+      { id: 1, post: 2 },
+      { id: 2, post: 2 }
+    ]);
+  });
+
+
+  run(function() {
+    env.store.unloadRecord(post);
+  });
+
+  //flushCanonical could have been scheduled by `flushCanonicalLater`
+  try {
+    run(function() {
+      post._relationships['comments'].flushCanonical();
+    });
+    ok(true, "flushCanonical can be executed on a destroyed relationship");
+  } catch (error) {
+    ok(false, "flushCanonical couldn't be executed on a destroyed relationship");
+  }
+
+});
