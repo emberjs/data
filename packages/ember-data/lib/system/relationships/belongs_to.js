@@ -92,12 +92,9 @@ function belongsTo(type, options) {
   }).meta(meta);
 }
 
-/**
+/*
   These observers observe all `belongsTo` relationships on the record. See
   `relationships/ext` to see how these observers get their dependencies.
-
-  @class Model
-  @namespace DS
 */
 Model.reopen({
   notifyBelongsToChanged: function(key) {
