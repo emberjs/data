@@ -126,7 +126,7 @@ export default Ember.Object.extend({
 
     if (shouldBeInArray) {
       if (!recordArrays.has(array)) {
-        array.pushRecord(record);
+        array._pushRecord(record);
         recordArrays.add(array);
       }
     } else if (!shouldBeInArray) {
