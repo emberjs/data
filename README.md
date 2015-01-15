@@ -57,9 +57,9 @@ Here's what your model definition would look like if you're using
 globals (that is, not something like Ember App Kit or ember-cli):
 
 ```js
-var attr = DS.attr,
-    hasMany = DS.hasMany,
-    belongsTo = DS.belongsTo;
+var attr = DS.attr;
+var hasMany = DS.hasMany;
+var belongsTo = DS.belongsTo;
 
 App.BlogPost = DS.Model.extend({
   title: attr(),
@@ -81,8 +81,8 @@ models would look like this:
 
 ```js
 // app/models/blog-post.js
-var attr = DS.attr,
-    hasMany = DS.hasMany;
+var attr = DS.attr;
+var hasMany = DS.hasMany;
 
 export default DS.Model.extend({
   title: attr(),
@@ -92,8 +92,8 @@ export default DS.Model.extend({
 });
 
 // app/models/comment.js
-var attr = DS.attr,
-    belongsTo = DS.belongsTo;
+var attr = DS.attr;
+var belongsTo = DS.belongsTo;
 
 export default DS.Model.extend({
   body: attr(),
