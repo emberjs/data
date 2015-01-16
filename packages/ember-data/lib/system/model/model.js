@@ -918,7 +918,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   },
 
   materializeAttributes: function(attributes) {
-    Ember.assert("Must pass a hash of attributes to materializeAttributes", !!attributes);
+    Ember.assert("Must pass an object to materializeAttributes", !!attributes);
     merge(this._data, attributes);
   },
 

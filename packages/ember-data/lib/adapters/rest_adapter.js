@@ -805,7 +805,7 @@ export default Adapter.extend({
     @private
     @param {String} url
     @param {String} type The request type GET, POST, PUT, DELETE etc.
-    @param {Object} hash
+    @param {Object} options
     @return {Promise} promise
   */
   ajax: function(url, type, options) {
@@ -836,8 +836,8 @@ export default Adapter.extend({
     @private
     @param {String} url
     @param {String} type The request type GET, POST, PUT, DELETE etc.
-    @param {Object} hash
-    @return {Object} hash
+    @param {Object} options
+    @return {Object}
   */
   ajaxOptions: function(url, type, options) {
     var hash = options || {};
