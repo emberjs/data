@@ -1,4 +1,4 @@
-var env, store, User, Job;
+var env, store, User, Job, ReflexiveModel;
 
 var attr = DS.attr;
 var belongsTo = DS.belongsTo;
@@ -12,7 +12,7 @@ module('integration/inverse_test - inverseFor', {
   setup: function() {
     User = DS.Model.extend({
       name: attr('string'),
-      bestFriend: belongsTo('user', { async: true }),
+      bestFriend: belongsTo('user', { async: true, inverse: null }),
       job: belongsTo('job')
     });
 
@@ -25,9 +25,16 @@ module('integration/inverse_test - inverseFor', {
 
     Job.toString = stringify('job');
 
+    ReflexiveModel = DS.Model.extend({
+      reflexiveProp: belongsTo('reflexiveModel')
+    });
+
+    ReflexiveModel.toString = stringify('reflexiveModel');
+
     env = setupStore({
       user: User,
-      job: Job
+      job: Job,
+      reflexiveModel: ReflexiveModel
     });
 
     store = env.store;
@@ -128,4 +135,15 @@ test("Caches findInverseFor return value", function () {
   };
 
   equal(inverseForUser, Job.inverseFor('user'), 'Inverse cached succesfully');
+});
+
+test("Errors out if you do not define an inverse for a reflexive relationship", function () {
+
+  //Maybe store is evaluated lazily, so we need this :(
+  warns(function() {
+    var reflexiveModel;
+    run(function() {
+      reflexiveModel = store.push('reflexiveModel', { id: 1 });
+    });
+  }, /Detected a reflexive relationship by the name of 'reflexiveProp'/);
 });

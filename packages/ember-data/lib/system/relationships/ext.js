@@ -228,11 +228,14 @@ Model.reopenClass({
       return null;
     }
 
+    var propertyMeta = this.metaForProperty(name);
     //If inverse is manually specified to be null, like  `comments: DS.hasMany('message', {inverse: null})`
-    var options = this.metaForProperty(name).options;
+    var options = propertyMeta.options;
     if (options.inverse === null) { return null; }
 
     var inverseName, inverseKind, inverse;
+
+    Ember.warn("Detected a reflexive relationship by the name of '" + name + "' without an inverse option. Look at http://emberjs.com/guides/models/defining-models/#toc_reflexive-relation for how to explicitly specify inverses.", options.inverse || propertyMeta.type !== propertyMeta.parentType.typeKey);
 
     //If inverse is specified manually, return the inverse
     if (options.inverse) {

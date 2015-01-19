@@ -41,7 +41,7 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
     Comment = DS.Model.extend({
       body:            DS.attr('string'),
       root:            DS.attr('boolean'),
-      children:        DS.hasMany('comment')
+      children:        DS.hasMany('comment', { inverse: null })
     });
     env = setupStore({
       superVillain:    SuperVillain,

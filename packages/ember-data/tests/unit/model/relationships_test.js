@@ -12,7 +12,7 @@ test("exposes a hash of the relationships on a model", function() {
 
   Person.reopen({
     people: DS.hasMany('person', { inverse: 'parent' }),
-    parent: DS.belongsTo('person')
+    parent: DS.belongsTo('person', { inverse: 'people' })
   });
 
   var store = createStore({

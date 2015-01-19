@@ -12,7 +12,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', {
   setup: function() {
     User = DS.Model.extend({
       name: attr('string'),
-      bestFriend: belongsTo('user', { async: true }),
+      bestFriend: belongsTo('user', { async: true, inverse: 'bestFriend' }),
       job: belongsTo('job')
     });
     User.toString = stringify('User');

@@ -218,7 +218,7 @@ test('Serializer should respect the attrs hash when extracting records', functio
 
 test('Serializer should respect the attrs hash when serializing records', function() {
   Post.reopen({
-    parentPost: DS.belongsTo('post')
+    parentPost: DS.belongsTo('post', { inverse: null })
   });
   env.container.register("serializer:post", DS.JSONSerializer.extend({
     attrs: {
