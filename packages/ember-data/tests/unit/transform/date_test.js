@@ -1,6 +1,8 @@
 module("unit/transform - DS.DateTransform");
 
 var dateString = "2015-01-01T00:00:00.000Z";
+var dateStringNoTz = "2015-01-01";
+var localNewYear = new Date(2015, 0, 1).toISOString();
 var dateInMillis = Ember.Date.parse(dateString);
 var date = new Date(dateInMillis);
 
@@ -18,6 +20,8 @@ test("#deserialize", function() {
 
   // from String
   equal(transform.deserialize(dateString).toISOString(),        dateString);
+
+  equal(transform.deserialize(dateStringNoTz).toISOString(),    localNewYear);
 
   // from Number
   equal(transform.deserialize(dateInMillis).valueOf(),          dateInMillis);
