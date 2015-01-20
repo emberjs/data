@@ -1297,6 +1297,27 @@ test('buildURL - with absolute paths in links', function() {
   }));
 });
 
+
+test('buildURL - with absolute paths in links and protocol relative host', function() {
+  run(function() {
+    adapter.setProperties({
+      host: '//example.com',
+      namespace: 'api/v1'
+    });
+  });
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
+
+  run(store, 'find', 'post', 1).then(async(function(post) {
+    ajaxResponse({ comments: [{ id: 1 }] });
+    return post.get('comments');
+  })).then(async(function (comments) {
+    equal(passedUrl, "//example.com/api/v1/posts/1/comments");
+  }));
+});
+
 test('buildURL - with full URLs in links', function() {
   adapter.setProperties({
     host: 'http://example.com',
