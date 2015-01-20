@@ -20,7 +20,6 @@ module("integration/adapter/record_persistence - Persisting Records", {
       firstName: attr('string'),
       lastName: attr('string')
     });
-    Person.toString = function() { return "Person"; };
 
     env = setupStore({ person: Person });
     store = env.store;

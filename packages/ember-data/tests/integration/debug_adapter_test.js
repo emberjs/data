@@ -5,7 +5,6 @@ module("DS.DebugAdapter", {
   setup: function() {
     Ember.run(function() {
       App = Ember.Application.create();
-      App.toString = function(){ return 'App'; };
 
       App.ApplicationStore = DS.Store.extend({
         adapter: DS.Adapter.extend()
