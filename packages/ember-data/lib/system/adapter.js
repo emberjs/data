@@ -334,6 +334,7 @@ var Adapter = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type   the DS.Model class of the record
     @param {DS.Model} record
+    @param {Object} options
     @return {Promise} promise
   */
   createRecord: Ember.required(Function),
@@ -374,6 +375,7 @@ var Adapter = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type   the DS.Model class of the record
     @param {DS.Model} record
+    @param {Object} options
     @return {Promise} promise
   */
   updateRecord: Ember.required(Function),
@@ -414,6 +416,7 @@ var Adapter = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type   the DS.Model class of the record
     @param {DS.Model} record
+    @param {Object} options
     @return {Promise} promise
   */
   deleteRecord: Ember.required(Function),

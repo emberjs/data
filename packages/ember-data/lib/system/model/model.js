@@ -991,14 +991,15 @@ var Model = Ember.Object.extend(Ember.Evented, {
     });
     ```
     @method save
+    @param {Object} options a hash specifying save options sent to the server.
     @return {Promise} a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
   */
-  save: function() {
-    var promiseLabel = "DS: Model#save " + this;
+  save: function(options) {
+    var promiseLabel = 'DS: Model#save ' + this;
     var resolver = Ember.RSVP.defer(promiseLabel);
 
-    this.get('store').scheduleSave(this, resolver);
+    this.get('store').scheduleSave(this, resolver, options);
     this._inFlightAttributes = this._attributes;
     this._attributes = Ember.create(null);
 
