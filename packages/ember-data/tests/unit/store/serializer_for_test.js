@@ -3,12 +3,12 @@ var run = Ember.run;
 
 module("unit/store/serializer_for - DS.Store#serializerFor", {
   setup: function() {
-    store = createStore({person: DS.Model.extend()});
+    store = createStore({ person: DS.Model.extend() });
     container = store.container;
   },
 
   teardown: function() {
-    run(function(){
+    run(function() {
       container.destroy();
       store.destroy();
     });

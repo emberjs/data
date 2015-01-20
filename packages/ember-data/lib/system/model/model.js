@@ -503,7 +503,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var model = this;
     //TODO Move into a getter for better perf
     this.constructor.eachRelationship(function(key, descriptor) {
-        model._relationships[key] = createRelationshipFor(model, descriptor, model.store);
+      model._relationships[key] = createRelationshipFor(model, descriptor, model.store);
     });
 
   },
@@ -543,7 +543,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
     } while (!state.hasOwnProperty(pivotName));
 
     var path = splitOnDot(name);
-    var setups = [], enters = [], i, l;
+    var setups = [];
+    var enters = [];
+    var i, l;
 
     for (i=0, l=path.length; i<l; i++) {
       state = state[path[i]];
@@ -689,7 +691,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   clearRelationships: function() {
     this.eachRelationship(function(name, relationship) {
       var rel = this._relationships[name];
-      if (rel){
+      if (rel) {
         //TODO(Igor) figure out whether we want to clear or disconnect
         rel.clear();
         rel.destroy();
@@ -759,7 +761,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   _preloadRelationship: function(key, preloadValue) {
     var relationshipMeta = this.constructor.metaForProperty(key);
     var type = relationshipMeta.type;
-    if (relationshipMeta.kind === 'hasMany'){
+    if (relationshipMeta.kind === 'hasMany') {
       this._preloadHasMany(key, preloadValue, type);
     } else {
       this._preloadBelongsTo(key, preloadValue, type);
@@ -778,7 +780,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this._relationships[key].updateRecordsFromAdapter(recordsToSet);
   },
 
-  _preloadBelongsTo: function(key, preloadValue, type){
+  _preloadBelongsTo: function(key, preloadValue, type) {
     var recordToSet = this._convertStringOrNumberIntoRecord(preloadValue, type);
 
     //We use the pathway of setting the hasMany as if it came from the adapter
@@ -787,7 +789,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   },
 
   _convertStringOrNumberIntoRecord: function(value, type) {
-    if (Ember.typeOf(value) === 'string' || Ember.typeOf(value) === 'number'){
+    if (Ember.typeOf(value) === 'string' || Ember.typeOf(value) === 'number') {
       return this.store.recordForId(type, value);
     }
     return value;
@@ -800,7 +802,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   _notifyProperties: function(keys) {
     Ember.beginPropertyChanges();
     var key;
-    for (var i = 0, length = keys.length; i < length; i++){
+    for (var i = 0, length = keys.length; i < length; i++) {
       key = keys[i];
       this.notifyPropertyChange(key);
     }
@@ -984,7 +986,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     ```javascript
     record.set('name', 'Tomster');
-    record.save().then(function(){
+    record.save().then(function() {
       // Success callback
     }, function() {
       // Error callback
@@ -1038,8 +1040,8 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     var record = this;
     var promiseLabel = "DS: Model#reload of " + this;
-    var promise = new Promise(function(resolve){
-       record.send('reloadRecord', resolve);
+    var promise = new Promise(function(resolve) {
+      record.send('reloadRecord', resolve);
     }, promiseLabel).then(function() {
       record.set('isReloading', false);
       record.set('isError', false);
@@ -1108,7 +1110,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var args = new Array(length - 1);
     var name = arguments[0];
 
-    for (var i = 1; i < length; i++ ){
+    for (var i = 1; i < length; i++) {
       args[i - 1] = arguments[i];
     }
 
@@ -1120,7 +1122,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var length = arguments.length;
     var args = new Array(length);
 
-    for (var i = 0; i < length; i++ ){
+    for (var i = 0; i < length; i++) {
       args[i] = arguments[i];
     }
 

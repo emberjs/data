@@ -35,9 +35,9 @@ export default Ember.DataAdapter.extend({
     var count = 0;
     var self = this;
     get(type, 'attributes').forEach(function(meta, name) {
-        if (count++ > self.attributeLimit) { return false; }
-        var desc = capitalize(underscore(name).replace('_', ' '));
-        columns.push({ name: name, desc: desc });
+      if (count++ > self.attributeLimit) { return false; }
+      var desc = capitalize(underscore(name).replace('_', ' '));
+      columns.push({ name: name, desc: desc });
     });
     return columns;
   },
@@ -47,7 +47,8 @@ export default Ember.DataAdapter.extend({
   },
 
   getRecordColumnValues: function(record) {
-    var self = this, count = 0;
+    var self = this;
+    var count = 0;
     var columnValues = { id: get(record, 'id') };
 
     record.eachAttribute(function(key) {
@@ -91,7 +92,8 @@ export default Ember.DataAdapter.extend({
   },
 
   observeRecord: function(record, recordUpdated) {
-    var releaseMethods = Ember.A(), self = this;
+    var releaseMethods = Ember.A();
+    var self = this;
     var keysToObserve = Ember.A(['id', 'isNew', 'isDirty']);
 
     record.eachAttribute(function(key) {

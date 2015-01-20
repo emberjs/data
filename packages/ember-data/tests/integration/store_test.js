@@ -28,7 +28,7 @@ function initializeStore(adapter) {
 }
 
 module("integration/store - destroy", {
-  setup: function(){
+  setup: function() {
     initializeStore(DS.FixtureAdapter.extend());
   }
 });
@@ -69,11 +69,11 @@ asyncTest("destroying record during find doesn't cause error", function() {
   var type = "car";
   var id = 1;
 
-  function done(){
+  function done() {
     start();
   }
 
-  run(function(){
+  run(function() {
     store.find(type, id).then(done, done);
   });
 });
@@ -100,7 +100,7 @@ asyncTest("find calls do not resolve when the store is destroyed", function() {
     throw new Error("We shouldn't be pushing data into the store when it is destroyed");
   };
 
-  run(function(){
+  run(function() {
     store.find(type, id);
   });
 
@@ -112,7 +112,7 @@ asyncTest("find calls do not resolve when the store is destroyed", function() {
 
 test("destroying the store correctly cleans everything up", function() {
   var car, person;
-  run(function(){
+  run(function() {
     car = store.push('car', {
       id: 1,
       make: 'BMC',
@@ -139,20 +139,20 @@ test("destroying the store correctly cleans everything up", function() {
   };
   var adapterPopulatedPeople, filterdPeople;
 
-  run(function(){
+  run(function() {
     adapterPopulatedPeople = store.find('person', {
       someCrazy: 'query'
     });
   });
 
-  run(function(){
-    filterdPeople = store.filter('person', function(){ return true; });
+  run(function() {
+    filterdPeople = store.filter('person', function() { return true; });
   });
 
   var filterdPeopleWillDestroy =  tap(filterdPeople.content, 'willDestroy');
   var adapterPopulatedPeopleWillDestroy = tap(adapterPopulatedPeople.content, 'willDestroy');
 
-  run(function(){
+  run(function() {
     store.find('person', 2);
   });
 
@@ -181,7 +181,7 @@ test("destroying the store correctly cleans everything up", function() {
 });
 
 module("integration/store - fetch", {
-  setup: function(){
+  setup: function() {
     initializeStore(DS.RESTAdapter.extend());
   }
 });
@@ -201,7 +201,7 @@ test("Using store#fetch on existing record reloads it", function() {
   expect(2);
   var car;
 
-  run(function(){
+  run(function() {
     car = store.push('car', {
       id: 1,
       make: 'BMC',
@@ -219,7 +219,7 @@ test("Using store#fetch on existing record reloads it", function() {
 
   equal(car.get('make'), 'BMC');
 
-  run(function(){
+  run(function() {
     store.fetch('car', 1).then(function(car) {
       equal(car.get('make'), 'BMCW');
     });
@@ -240,7 +240,7 @@ test("Using store#fetch on non existing record calls find", function() {
   var car = store.hasRecordForId('car', 20);
   ok(!car, 'Car with id=20 should not exist');
 
-  run(function(){
+  run(function() {
     store.fetch('car', 20).then(function (car) {
       equal(car.get('make'), 'BMCW', 'Car with id=20 is now loaded');
     });

@@ -123,7 +123,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     return extractEmbeddedRecords(this, this.store, type, normalizedHash);
   },
 
-  keyForRelationship: function(key, type){
+  keyForRelationship: function(key, type) {
     if (this.hasDeserializeRecordsOption(key)) {
       return this.keyForAttribute(key);
     } else {
@@ -202,7 +202,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       if (!embeddedRecord) {
         json[key] = null;
       } else {
-        json[key] = embeddedRecord.serialize({includeId: true});
+        json[key] = embeddedRecord.serialize({ includeId: true });
         this.removeEmbeddedForeignKey(record, embeddedRecord, relationship, json[key]);
       }
     }
@@ -304,7 +304,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     } else if (includeRecords) {
       key = this.keyForAttribute(attr);
       json[key] = get(record, attr).map(function(embeddedRecord) {
-        var serializedEmbeddedRecord = embeddedRecord.serialize({includeId: true});
+        var serializedEmbeddedRecord = embeddedRecord.serialize({ includeId: true });
         this.removeEmbeddedForeignKey(record, embeddedRecord, relationship, serializedEmbeddedRecord);
         return serializedEmbeddedRecord;
       }, this);

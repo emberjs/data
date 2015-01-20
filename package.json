@@ -18,7 +18,7 @@
     "build:production": "ember build --environment=production",
     "prepublish": "bower install && npm run-script build:production",
     "start": "ember serve",
-    "test": "testem -R dot ci",
+    "test": "node_modules/broccoli-jscs/node_modules/jscs/bin/jscs packages && testem -R dot ci",
     "publish-build": "npm run build:production && ./bin/publish_to_s3.js",
     "test:local": "testem -R dot ci",
     "test:beta": "testem -f config/testem-beta.json -R dot ci",
@@ -55,5 +55,8 @@
     "git-repo-version": "0.0.2",
     "testem": "^0.6.19",
     "yuidocjs": "~0.3.46"
+  },
+  "dependencies": {
+    "broccoli-jscs": "0.0.12"
   }
 }

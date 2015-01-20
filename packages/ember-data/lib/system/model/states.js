@@ -365,7 +365,8 @@ var DirtyState = {
 // necessary.
 
 function deepClone(object) {
-  var clone = {}, value;
+  var clone = {};
+  var value;
 
   for (var prop in object) {
     value = object[prop];

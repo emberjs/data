@@ -17,6 +17,8 @@ var version         = require('git-repo-version')(10);
 var yuidoc          = require('broccoli-yuidoc');
 var replace         = require('broccoli-replace');
 var path            = require('path');
+var fs              = require('fs');
+var jscsTree        = require('broccoli-jscs');
 
 function minify(tree, name){
   var config = require('./config/ember-defeatureify');
@@ -154,11 +156,14 @@ function versionStamp(tree){
 
 configurationFiles = versionStamp(configurationFiles);
 
+var jscsFiles = jscsTree("packages");
+
 var trees = [
   testFiles,
   testRunner,
   bower,
-  configurationFiles
+  configurationFiles,
+  jscsFiles
 ];
 
 if (env === 'production') {

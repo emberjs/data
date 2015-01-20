@@ -27,7 +27,7 @@ asyncTest("When the adapter acknowledges that a record has been created, a `didC
   };
   var person;
 
-  run(function(){
+  run(function() {
     person = env.store.createRecord(Person, { name: "Yehuda Katz" });
   });
 
@@ -49,7 +49,7 @@ test("When the adapter acknowledges that a record has been created without a new
   };
   var person;
 
-  run(function(){
+  run(function() {
     person = env.store.createRecord(Person, { id: 99, name: "Yehuda Katz" });
   });
 

@@ -71,7 +71,7 @@ export default Ember.Object.extend({
 
     if (!recordArrays) { return; }
 
-    recordArrays.forEach(function(array){
+    recordArrays.forEach(function(array) {
       array.removeRecord(record);
     });
 
@@ -149,9 +149,10 @@ export default Ember.Object.extend({
   */
   updateFilter: function(array, type, filter) {
     var typeMap = this.store.typeMapFor(type);
-    var records = typeMap.records, record;
+    var records = typeMap.records;
+    var record;
 
-    for (var i=0, l=records.length; i<l; i++) {
+    for (var i = 0, l = records.length; i < l; i++) {
       record = records[i];
 
       if (!get(record, 'isDeleted') && !get(record, 'isEmpty')) {
@@ -258,7 +259,7 @@ export default Ember.Object.extend({
     recordArrays.splice(index, 1);
   },
 
-  willDestroy: function(){
+  willDestroy: function() {
     this._super();
 
     this.filteredRecordArrays.forEach(function(value) {

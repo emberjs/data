@@ -7,7 +7,13 @@ var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
   this._super$constructor(store, record, inverseKey, relationshipMeta);
   this.belongsToType = relationshipMeta.type;
   this.canonicalState = [];
-  this.manyArray = ManyArray.create({ canonicalState:this.canonicalState, store:this.store, relationship:this, type:this.belongsToType, record:record});
+  this.manyArray = ManyArray.create({
+    canonicalState: this.canonicalState,
+    store: this.store,
+    relationship: this,
+    type: this.belongsToType,
+    record: record
+  });
   this.isPolymorphic = relationshipMeta.options.polymorphic;
   this.manyArray.isPolymorphic = this.isPolymorphic;
 };
@@ -115,7 +121,7 @@ ManyRelationship.prototype.computeChanges = function(records) {
   records = setForArray(records);
 
   members.forEach(function(member) {
-    if (records.has(member)) return;
+    if (records.has(member)) { return; }
 
     recordsToRemove.push(member);
   });
@@ -130,7 +136,7 @@ ManyRelationship.prototype.computeChanges = function(records) {
   // iteration
   records = records.toArray();
   length = records.length;
-  for (i = 0; i < length; i++){
+  for (i = 0; i < length; i++) {
     record = records[i];
     //Need to preserve the order of incoming records
     if (hasManyArray.objectAt(i) === record ) {
@@ -143,7 +149,7 @@ ManyRelationship.prototype.computeChanges = function(records) {
 
 ManyRelationship.prototype.fetchLink = function() {
   var self = this;
-  return this.store.findHasMany(this.record, this.link, this.relationshipMeta).then(function(records){
+  return this.store.findHasMany(this.record, this.link, this.relationshipMeta).then(function(records) {
     self.updateRecordsFromAdapter(records);
     return self.manyArray;
   });
@@ -151,7 +157,7 @@ ManyRelationship.prototype.fetchLink = function() {
 
 ManyRelationship.prototype.findRecords = function() {
   var manyArray = this.manyArray;
-  return this.store.findMany(manyArray.toArray()).then(function(){
+  return this.store.findMany(manyArray.toArray()).then(function() {
     //Goes away after the manyArray refactor
     manyArray.set('isLoaded', true);
     return manyArray;
@@ -178,14 +184,14 @@ ManyRelationship.prototype.getRecords = function() {
       promise: promise
     });
   } else {
-      Ember.assert("You looked up the '" + this.key + "' relationship on a '" + this.record.constructor.typeKey + "' with id " + this.record.get('id') +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", this.manyArray.isEvery('isEmpty', false));
+    Ember.assert("You looked up the '" + this.key + "' relationship on a '" + this.record.constructor.typeKey + "' with id " + this.record.get('id') +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", this.manyArray.isEvery('isEmpty', false));
 
     //TODO(Igor) WTF DO I DO HERE?
     if (!this.manyArray.get('isDestroyed')) {
       this.manyArray.set('isLoaded', true);
     }
     return this.manyArray;
- }
+  }
 };
 
 function setForArray(array) {

@@ -1,8 +1,11 @@
-var get = Ember.get, set = Ember.set, attr = DS.attr;
+var get = Ember.get;
+var set = Ember.set;
+var attr = DS.attr;
 var Person, env, store;
 var run = Ember.run;
 
-var all = Ember.RSVP.all, hash = Ember.RSVP.hash;
+var all = Ember.RSVP.all;
+var hash = Ember.RSVP.hash;
 
 function assertClean(promise) {
   return promise.then(async(function(record) {
@@ -41,7 +44,7 @@ test("When a store is committed, the adapter's `commit` method should be called 
     return run(Ember.RSVP, 'resolve');
   };
 
-  run(function(){
+  run(function() {
     env.store.push('person', { id: 1, name: "Braaaahm Dale" });
   });
 
@@ -65,7 +68,7 @@ test("When a store is committed, the adapter's `commit` method should be called 
     return Ember.RSVP.resolve({ id: 1, name: "Tom Dale" });
   };
 
-  run(function(){
+  run(function() {
     tom = env.store.createRecord('person', { name: "Tom Dale" });
     tom.save();
   });
@@ -79,7 +82,7 @@ test("After a created record has been assigned an ID, finding a record by that I
     return Ember.RSVP.resolve({ id: 1, name: "Tom Dale" });
   };
 
-  run(function(){
+  run(function() {
     tom = env.store.createRecord('person', { name: "Tom Dale" });
     tom.save();
   });
@@ -97,7 +100,7 @@ test("when a store is committed, the adapter's `commit` method should be called 
 
   var tom;
 
-  run(function(){
+  run(function() {
     env.store.push('person', { id: 1, name: "Tom Dale" });
   });
   env.store.find('person', 1).then(async(function(person) {
@@ -118,12 +121,12 @@ test("An adapter can notify the store that records were updated by calling `didS
     return Ember.RSVP.resolve();
   };
 
-  run(function(){
+  run(function() {
     env.store.push('person', { id: 1 });
     env.store.push('person', { id: 2 });
   });
 
-  all([ env.store.find('person', 1), env.store.find('person', 2)  ])
+  all([env.store.find('person', 1), env.store.find('person', 2)])
     .then(async(function(array) {
       tom = array[0];
       yehuda = array[1];
@@ -153,7 +156,7 @@ test("An adapter can notify the store that records were updated and provide new 
     }
   };
 
-  run(function(){
+  run(function() {
     env.store.push('person', { id: 1, name: "Braaaahm Dale" });
     env.store.push('person', { id: 2, name: "Gentile Katz" });
   });
@@ -176,7 +179,7 @@ test("An adapter can notify the store that a record was updated by calling `didS
     return Ember.RSVP.resolve();
   };
 
-  run(function(){
+  run(function() {
     store.push('person', { id: 1 });
     store.push('person', { id: 2 });
   });
@@ -204,7 +207,7 @@ test("An adapter can notify the store that a record was updated and provide new 
     }
   };
 
-  run(function(){
+  run(function() {
     env.store.push('person', { id: 1, name: "Braaaahm Dale" });
     env.store.push('person', { id: 2, name: "Gentile Katz" });
   });
@@ -228,7 +231,7 @@ test("An adapter can notify the store that records were deleted by calling `didS
     return Ember.RSVP.resolve();
   };
 
-  run(function(){
+  run(function() {
     env.store.push('person', { id: 1, name: "Braaaahm Dale" });
     env.store.push('person', { id: 2, name: "Gentile Katz" });
   });

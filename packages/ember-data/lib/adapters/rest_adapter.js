@@ -530,9 +530,9 @@ export default Adapter.extend({
     @return {String} url
   */
   buildURL: function(type, id, record) {
-    var url = [],
-        host = get(this, 'host'),
-        prefix = this.urlPrefix();
+    var url = [];
+    var host = get(this, 'host');
+    var prefix = this.urlPrefix();
 
     if (type) { url.push(this.pathForType(type)); }
 
@@ -590,11 +590,11 @@ export default Adapter.extend({
 
     var expandedURL = url.split('/');
     //Case when the url is of the format ...something/:id
-    var lastSegment = expandedURL[ expandedURL.length - 1 ];
+    var lastSegment = expandedURL[expandedURL.length - 1];
     var id = record.get('id');
     if (lastSegment === id) {
       expandedURL[expandedURL.length - 1] = "";
-    } else if(endsWith(lastSegment, '?id=' + id)) {
+    } else if (endsWith(lastSegment, '?id=' + id)) {
       //Case when the url is of the format ...something?id=:id
       expandedURL[expandedURL.length - 1] = lastSegment.substring(0, lastSegment.length - id.length - 1);
     }
@@ -628,11 +628,11 @@ export default Adapter.extend({
                       loaded separately by `findMany`.
   */
   groupRecordsForFindMany: function (store, records) {
-    var groups = MapWithDefault.create({defaultValue: function(){return [];}});
+    var groups = MapWithDefault.create({ defaultValue: function() { return []; } });
     var adapter = this;
     var maxUrlLength = this.maxUrlLength;
 
-    forEach.call(records, function(record){
+    forEach.call(records, function(record) {
       var baseUrl = adapter._stripIDFromURL(store, record);
       groups.get(baseUrl).push(record);
     });
@@ -659,7 +659,7 @@ export default Adapter.extend({
     }
 
     var groupsArray = [];
-    groups.forEach(function(group, key){
+    groups.forEach(function(group, key) {
       var paramNameLength = '&ids%5B%5D='.length;
       var splitGroups = splitGroupToFitInUrl(group, maxUrlLength, paramNameLength);
 
@@ -865,7 +865,7 @@ export default Adapter.extend({
 });
 
 //From http://stackoverflow.com/questions/280634/endswith-in-javascript
-function endsWith(string, suffix){
+function endsWith(string, suffix) {
   if (typeof String.prototype.endsWith !== 'function') {
     return string.indexOf(suffix, string.length - suffix.length) !== -1;
   } else {

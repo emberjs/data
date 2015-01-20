@@ -1,7 +1,7 @@
 var container, store;
 
-var camelize  = Ember.String.camelize,
-    dasherize = Ember.String.dasherize;
+var camelize  = Ember.String.camelize;
+var dasherize = Ember.String.dasherize;
 
 var run = Ember.run;
 var env;
@@ -17,7 +17,7 @@ module("unit/store/model_for - DS.Store#modelFor", {
   },
 
   teardown: function() {
-    run(function(){
+    run(function() {
       container.destroy();
       store.destroy();
     });
@@ -32,7 +32,7 @@ test("when fetching factory from string, sets a normalized key as typeKey", func
 });
 
 test("when fetching factory from string and dashing normalizer, sets a normalized key as typeKey", function() {
-  env.replaceContainerNormalize(function(fullName){
+  env.replaceContainerNormalize(function(fullName) {
     return dasherize(camelize(fullName));
   });
 
@@ -41,11 +41,11 @@ test("when fetching factory from string and dashing normalizer, sets a normalize
 });
 
 test("when returning passed factory, sets a normalized key as typeKey", function() {
-  var factory = {typeKey: 'some-thing'};
+  var factory = { typeKey: 'some-thing' };
   equal(store.modelFor(factory).typeKey, "someThing", "typeKey is normalized to camelCase");
 });
 
 test("when returning passed factory without typeKey, allows it", function() {
-  var factory = {typeKey: undefined};
+  var factory = { typeKey: undefined };
   equal(store.modelFor(factory).typeKey, undefined, "typeKey is undefined");
 });

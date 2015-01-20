@@ -7,8 +7,8 @@
 // support RSVP 2.x via resolve,  but prefer RSVP 3.x's Promise.cast
 Ember.RSVP.Promise.cast = Ember.RSVP.Promise.cast || Ember.RSVP.resolve;
 
-Ember.runInDebug(function(){
-  if (Ember.VERSION.match(/1\.[0-7]\./)){
+Ember.runInDebug(function() {
+  if (Ember.VERSION.match(/1\.[0-7]\./)) {
     throw new Ember.Error("Ember Data requires at least Ember 1.8.0, but you have " +
                           Ember.VERSION +
                           ". Please upgrade your version of Ember, then upgrade Ember Data");

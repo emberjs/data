@@ -15,14 +15,14 @@ module("unit/model/rollback - model.rollback()", {
 
 test("changes to attributes can be rolled back", function() {
   var person;
-  run(function(){
+  run(function() {
     person = store.push('person', { id: 1, firstName: "Tom", lastName: "Dale" });
     person.set('firstName', "Thomas");
   });
 
   equal(person.get('firstName'), "Thomas");
 
-  run(function(){
+  run(function() {
     person.rollback();
   });
 
@@ -32,14 +32,14 @@ test("changes to attributes can be rolled back", function() {
 
 test("changes to unassigned attributes can be rolled back", function() {
   var person;
-  run(function(){
+  run(function() {
     person = store.push('person', { id: 1, lastName: "Dale" });
     person.set('firstName', "Thomas");
   });
 
   equal(person.get('firstName'), "Thomas");
 
-  run(function(){
+  run(function() {
     person.rollback();
   });
 
@@ -50,13 +50,13 @@ test("changes to unassigned attributes can be rolled back", function() {
 test("changes to attributes made after a record is in-flight only rolls back the local changes", function() {
   env.adapter.updateRecord = function(store, type, record) {
     // Make sure the save is async
-    return new Ember.RSVP.Promise(function(resolve, reject){
+    return new Ember.RSVP.Promise(function(resolve, reject) {
       Ember.run.later(null, resolve, 15);
     });
   };
   var person;
 
-  run(function(){
+  run(function() {
     person = store.push('person', { id: 1, firstName: "Tom", lastName: "Dale" });
     person.set('firstName', "Thomas");
   });
@@ -88,17 +88,17 @@ test("a record's changes can be made if it fails to save", function() {
   };
   var person;
 
-  run(function(){
+  run(function() {
     person = store.push('person', { id: 1, firstName: "Tom", lastName: "Dale" });
     person.set('firstName', "Thomas");
   });
 
-  deepEqual(person.changedAttributes(), {firstName: ["Tom", "Thomas"]});
+  deepEqual(person.changedAttributes(), { firstName: ["Tom", "Thomas"] });
 
-  run(function(){
+  run(function() {
     person.save().then(null, function() {
       equal(person.get('isError'), true);
-      deepEqual(person.changedAttributes(), {firstName: ["Tom", "Thomas"]});
+      deepEqual(person.changedAttributes(), { firstName: ["Tom", "Thomas"] });
 
       person.rollback();
 
@@ -116,21 +116,21 @@ test("a deleted record can be rollbacked if it fails to save, record arrays are 
   };
   var person, people;
 
-  run(function(){
+  run(function() {
     person = store.push('person', { id: 1, firstName: "Tom", lastName: "Dale" });
     people = store.all('person');
   });
 
-  run(function(){
+  run(function() {
     person.deleteRecord();
   });
   equal(people.get('length'), 0, "a deleted record does not appear in record array anymore");
 
-  run(function(){
+  run(function() {
     person.save().then(null, function() {
       equal(person.get('isError'), true);
       equal(person.get('isDeleted'), true);
-      run(function(){
+      run(function() {
         person.rollback();
       });
       equal(person.get('isDeleted'), false);
@@ -144,7 +144,7 @@ test("a deleted record can be rollbacked if it fails to save, record arrays are 
 test("new record can be rollbacked", function() {
   var person;
 
-  run(function(){
+  run(function() {
     person = store.createRecord('person', { id: 1 });
   });
 
@@ -161,7 +161,7 @@ test("new record can be rollbacked", function() {
 test("deleted record can be rollbacked", function() {
   var person, people;
 
-  run(function(){
+  run(function() {
     person = store.push('person', { id: 1 });
     people = store.all('person');
     person.deleteRecord();
@@ -171,7 +171,7 @@ test("deleted record can be rollbacked", function() {
 
   equal(person.get('isDeleted'), true, "must be deleted");
 
-  run(function(){
+  run(function() {
     person.rollback();
   });
   equal(people.get('length'), 1, "the rollbacked record should appear again in the record array");
@@ -195,8 +195,8 @@ test("invalid record can be rollbacked", function() {
            So wrapping the reject in an Ember.run.next makes it so save
            completes without failure and the failure hits the failure route
            of the promise instead of crashing the save. */
-        Ember.run.next(function(){
-          reject(adapter.ajaxError({name: 'is invalid'}));
+        Ember.run.next(function() {
+          reject(adapter.ajaxError({ name: 'is invalid' }));
         });
       });
     },
@@ -206,14 +206,14 @@ test("invalid record can be rollbacked", function() {
     }
   });
 
-  env = setupStore({ dog: Dog, adapter: adapter});
+  env = setupStore({ dog: Dog, adapter: adapter });
   var dog;
-  run(function(){
+  run(function() {
     dog = env.store.push('dog', { id: 1, name: "Pluto" });
     dog.set('name', "is a dwarf planet");
   });
 
-  run(function(){
+  run(function() {
     dog.save().then(null, async(function() {
       dog.rollback();
 
@@ -240,8 +240,8 @@ test("invalid record is rolled back to correct state after set", function() {
            So wrapping the reject in an Ember.run.next makes it so save
            completes without failure and the failure hits the failure route
            of the promise instead of crashing the save. */
-        Ember.run.next(function(){
-          reject(adapter.ajaxError({name: 'is invalid'}));
+        Ember.run.next(function() {
+          reject(adapter.ajaxError({ name: 'is invalid' }));
         });
       });
     },
@@ -251,27 +251,27 @@ test("invalid record is rolled back to correct state after set", function() {
     }
   });
 
-  env = setupStore({ dog: Dog, adapter: adapter});
+  env = setupStore({ dog: Dog, adapter: adapter });
   var dog;
-  run(function(){
+  run(function() {
     dog = env.store.push('dog', { id: 1, name: "Pluto", breed: "Disney" });
     dog.set('name', "is a dwarf planet");
     dog.set('breed', 'planet');
   });
 
-  run(function(){
+  run(function() {
     dog.save().then(null, async(function() {
       equal(dog.get('name'), "is a dwarf planet");
       equal(dog.get('breed'), "planet");
 
-      run(function(){
+      run(function() {
         dog.set('name', 'Seymour Asses');
       });
 
       equal(dog.get('name'), "Seymour Asses");
       equal(dog.get('breed'), "planet");
 
-      run(function(){
+      run(function() {
         dog.rollback();
       });
 

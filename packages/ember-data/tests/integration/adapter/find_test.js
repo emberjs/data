@@ -12,7 +12,7 @@ module("integration/adapter/find - Finding Records", {
   },
 
   teardown: function() {
-    run(store,'destroy');
+    run(store, 'destroy');
   }
 });
 
@@ -52,7 +52,7 @@ test("When a single record is requested, the adapter's find method should be cal
     })
   });
 
-  run(function(){
+  run(function() {
     store.find(Person, 1);
     store.find(Person, 1);
   });
@@ -68,32 +68,32 @@ test("When a single record is requested multiple times, all .find() calls are re
     })
   });
 
-  run(function(){
+  run(function() {
     store.find(Person, 1).then(async(function(person) {
       equal(person.get('id'), "1");
       equal(person.get('name'), "Braaaahm Dale");
 
       stop();
-      deferred.promise.then(function(value){
+      deferred.promise.then(function(value) {
         start();
         ok(true, 'expected deferred.promise to fulfill');
-      },function(reason){
+      },function(reason) {
         start();
         ok(false, 'expected deferred.promise to fulfill, but rejected');
       });
     }));
   });
 
-  run(function(){
+  run(function() {
     store.find(Person, 1).then(async(function(post) {
       equal(post.get('id'), "1");
       equal(post.get('name'), "Braaaahm Dale");
 
       stop();
-      deferred.promise.then(function(value){
+      deferred.promise.then(function(value) {
         start();
         ok(true, 'expected deferred.promise to fulfill');
-      }, function(reason){
+      }, function(reason) {
         start();
         ok(false, 'expected deferred.promise to fulfill, but rejected');
       });
@@ -114,7 +114,7 @@ test("When a single record is requested, and the promise is rejected, .find() is
     })
   });
 
-  run(function(){
+  run(function() {
     store.find(Person, 1).then(null, async(function(reason) {
       ok(true, "The rejection handler was called");
     }));

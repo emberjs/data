@@ -7,6 +7,6 @@ import DebugAdapter from "ember-data/system/debug/debug_adapter";
   @method initializeStoreInjections
   @param {Ember.Container} container
 */
-export default function initializeDebugAdapter(container){
+export default function initializeDebugAdapter(container) {
   container.register('data-adapter:main', DebugAdapter);
 }

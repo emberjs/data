@@ -268,7 +268,7 @@ var RESTSerializer = JSONSerializer.extend({
     for (var prop in payload) {
       var typeName  = this.typeForRoot(prop);
 
-      if (!store.modelFactoryFor(typeName)){
+      if (!store.modelFactoryFor(typeName)) {
         Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
         continue;
       }
@@ -488,7 +488,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     for (var prop in payload) {
       var typeName = this.typeForRoot(prop);
-      if (!store.modelFactoryFor(typeName, prop)){
+      if (!store.modelFactoryFor(typeName, prop)) {
         Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
         continue;
       }
@@ -748,9 +748,9 @@ var RESTSerializer = JSONSerializer.extend({
   }
 });
 
-Ember.runInDebug(function(){
+Ember.runInDebug(function() {
   RESTSerializer.reopen({
-    warnMessageNoModelForKey: function(prop, typeKey){
+    warnMessageNoModelForKey: function(prop, typeKey) {
       return 'Encountered "' + prop + '" in payload, but no model was found for model name "' + typeKey + '" (resolved model name using ' + this.constructor.toString() + '.typeForRoot("' + prop + '"))';
     }
   });

@@ -19,7 +19,7 @@ Car.toString = function() { return "Car"; };
 var manager;
 
 module("integration/record_array_manager- destroy", {
-  setup: function(){
+  setup: function() {
     env = setupStore({
       adapter: DS.FixtureAdapter.extend()
     });
@@ -53,7 +53,7 @@ test("destroying the store correctly cleans everything up", function() {
   var query = { };
   var person;
 
-  run(function(){
+  run(function() {
     store.push('car', {
       id: 1,
       make: 'BMC',
@@ -62,7 +62,7 @@ test("destroying the store correctly cleans everything up", function() {
     });
   });
 
-  run(function(){
+  run(function() {
     person = store.push('person', {
       id: 1,
       name: 'Tom Dale',
@@ -70,8 +70,8 @@ test("destroying the store correctly cleans everything up", function() {
     });
   });
 
-  var filterd = manager.createFilteredRecordArray(Person, function(){ return true; });
-  var filterd2 = manager.createFilteredRecordArray(Person, function(){ return true; });
+  var filterd = manager.createFilteredRecordArray(Person, function() { return true; });
+  var filterd2 = manager.createFilteredRecordArray(Person, function() { return true; });
   var adapterPopulated = manager.createAdapterPopulatedRecordArray(Person, query);
 
   var filterdSummary = tap(filterd, 'willDestroy');
@@ -109,7 +109,7 @@ test("Should not filter a stor.all() array when a record property is changed", f
 
   store.all('car');
 
-  run(function(){
+  run(function() {
     car = store.push('car', {
       id: 1,
       make: 'BMC',
@@ -120,7 +120,7 @@ test("Should not filter a stor.all() array when a record property is changed", f
 
   equal(filterdSummary.called.length, 1);
 
-  run(function(){
+  run(function() {
     car.set('model', 'Mini');
   });
 

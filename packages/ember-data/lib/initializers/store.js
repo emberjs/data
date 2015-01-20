@@ -11,7 +11,7 @@ import Store from "ember-data/system/store";
   @param {Ember.Container} container
   @param {Object} [application] an application namespace
 */
-export default function initializeStore(container, application){
+export default function initializeStore(container, application) {
   Ember.deprecate('Specifying a custom Store for Ember Data on your global namespace as `App.Store` ' +
                   'has been deprecated. Please use `App.ApplicationStore` instead.', !(application && application.Store));
 

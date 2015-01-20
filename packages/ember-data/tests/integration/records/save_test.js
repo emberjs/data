@@ -20,15 +20,15 @@ module("integration/records/save - Save Record", {
 test("Will resolve save on success", function() {
   expect(1);
   var post;
-  run(function(){
-    post = env.store.createRecord('post', {title: 'toto'});
+  run(function() {
+    post = env.store.createRecord('post', { title: 'toto' });
   });
 
   env.adapter.createRecord = function(store, type, record) {
     return Ember.RSVP.resolve({ id: 123 });
   };
 
-  run(function(){
+  run(function() {
     post.save().then(function() {
       ok(true, 'save operation was resolved');
     });
@@ -37,15 +37,15 @@ test("Will resolve save on success", function() {
 
 test("Will reject save on error", function() {
   var post;
-  run(function(){
-    post = env.store.createRecord('post', {title: 'toto'});
+  run(function() {
+    post = env.store.createRecord('post', { title: 'toto' });
   });
 
   env.adapter.createRecord = function(store, type, record) {
     return Ember.RSVP.reject();
   };
 
-  run(function(){
+  run(function() {
     post.save().then(function() {}, function() {
       ok(true, 'save operation was rejected');
     });
@@ -54,8 +54,8 @@ test("Will reject save on error", function() {
 
 test("Retry is allowed in a failure handler", function() {
   var post;
-  run(function(){
-    post = env.store.createRecord('post', {title: 'toto'});
+  run(function() {
+    post = env.store.createRecord('post', { title: 'toto' });
   });
 
   var count = 0;
@@ -68,7 +68,7 @@ test("Retry is allowed in a failure handler", function() {
     }
   };
 
-  run(function(){
+  run(function() {
     post.save().then(function() {}, function() {
       return post.save();
     }).then(function(post) {
@@ -81,15 +81,15 @@ test("Repeated failed saves keeps the record in uncommited state", function() {
   expect(2);
   var post;
 
-  run(function(){
-    post = env.store.createRecord('post', {title: 'toto'});
+  run(function() {
+    post = env.store.createRecord('post', { title: 'toto' });
   });
 
   env.adapter.createRecord = function(store, type, record) {
     return Ember.RSVP.reject();
   };
 
-  run(function(){
+  run(function() {
     post.save().then(null, function() {
       equal(post.get('currentState.stateName'), 'root.loaded.created.uncommitted');
 
@@ -103,15 +103,15 @@ test("Repeated failed saves keeps the record in uncommited state", function() {
 test("Will reject save on invalid", function() {
   expect(1);
   var post;
-  run(function(){
-    post = env.store.createRecord('post', {title: 'toto'});
+  run(function() {
+    post = env.store.createRecord('post', { title: 'toto' });
   });
 
   env.adapter.createRecord = function(store, type, record) {
     return Ember.RSVP.reject({ title: 'invalid' });
   };
 
-  run(function(){
+  run(function() {
     post.save().then(function() {}, function() {
       ok(true, 'save operation was rejected');
     });

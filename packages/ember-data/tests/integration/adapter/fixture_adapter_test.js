@@ -14,7 +14,7 @@ module("integration/adapter/fixture_adapter - DS.FixtureAdapter", {
     });
 
     Phone = DS.Model.extend({
-      person: DS.belongsTo('person', { async: true})
+      person: DS.belongsTo('person', { async: true })
     });
 
     env = setupStore({ person: Person, phone: Phone, adapter: DS.FixtureAdapter });
@@ -99,8 +99,8 @@ test("should create record asynchronously when it is committed", function() {
   var paul;
   equal(Person.FIXTURES.length, 0, "Fixtures is empty");
 
-  run(function(){
-    paul = env.store.createRecord('person', {firstName: 'Paul', lastName: 'Chavard', height: 70});
+  run(function() {
+    paul = env.store.createRecord('person', { firstName: 'Paul', lastName: 'Chavard', height: 70 });
   });
 
   paul.on('didCreate', async(function() {
@@ -124,7 +124,7 @@ test("should create record asynchronously when it is committed", function() {
 test("should update record asynchronously when it is committed", function() {
   equal(Person.FIXTURES.length, 0, "Fixtures is empty");
 
-  var paul = env.store.push('person', { id: 1, firstName: 'Paul', lastName: 'Chavard', height: 70});
+  var paul = env.store.push('person', { id: 1, firstName: 'Paul', lastName: 'Chavard', height: 70 });
 
   paul.set('height', 80);
 
@@ -156,7 +156,7 @@ test("should delete record asynchronously when it is committed", function() {
 
   var paul = env.store.push('person', { id: 'paul', firstName: 'Paul', lastName: 'Chavard', height: 70 });
 
-  paul.save().then(function(){
+  paul.save().then(function() {
     paul.deleteRecord();
     paul.save();
   });
@@ -253,8 +253,8 @@ test("should throw if ids are not defined in the FIXTURES", function() {
     height: 65
   }];
 
-  raises(function(){
-    run(function(){
+  raises(function() {
+    run(function() {
       env.store.find('person', 1);
     });
   }, /the id property must be defined as a number or string for fixture/);
@@ -282,22 +282,22 @@ asyncTest("copies fixtures instead of passing the direct reference", function() 
   }];
 
   var PersonAdapter = DS.FixtureAdapter.extend({
-    find: function(store, type, id){
-      return this._super(store, type, id).then(function(fixture){
+    find: function(store, type, id) {
+      return this._super(store, type, id).then(function(fixture) {
         return returnedFixture = fixture;
       });
     }
   });
 
-  Ember.run(function(){
+  Ember.run(function() {
     env.container.register('adapter:person', PersonAdapter);
   });
 
-  env.store.find('person', 1).then(function(){
+  env.store.find('person', 1).then(function() {
     start();
     ok(Person.FIXTURES[0] !== returnedFixture, 'returnedFixture does not have object identity with defined fixture');
     deepEqual(Person.FIXTURES[0], returnedFixture);
-  }, function(err){
+  }, function(err) {
     ok(false, 'got error' + err);
   });
 });
@@ -310,7 +310,7 @@ test("should save hasMany records", function() {
   Person.FIXTURES = [{ id: 'tomjerry', firstName: "Tom", lastName: "Jerry", height: 3 }];
 
   createPhone = async(function(tom) {
-    env.store.createRecord('phone', {person: tom});
+    env.store.createRecord('phone', { person: tom });
 
     return tom.get('phones').then(async(function(p) {
       equal(p.get('length'), 1, "hasMany relationships are created in the store");
@@ -330,7 +330,7 @@ test("should save hasMany records", function() {
     }));
   });
 
-  var ensureFixtureAdapterDoesNotLeak = async(function(){
+  var ensureFixtureAdapterDoesNotLeak = async(function() {
     env.store.destroy();
     env = setupStore({ person: Person, phone: Phone, adapter: DS.FixtureAdapter });
     return env.store.find('phone').then(async(function(phones) {

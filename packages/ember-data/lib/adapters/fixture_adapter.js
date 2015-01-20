@@ -64,9 +64,9 @@ export default Adapter.extend({
   fixturesForType: function(type) {
     if (type.FIXTURES) {
       var fixtures = Ember.A(type.FIXTURES);
-      return fixtures.map(function(fixture){
+      return fixtures.map(function(fixture) {
         var fixtureIdType = typeof fixture.id;
-        if(fixtureIdType !== "number" && fixtureIdType !== "string"){
+        if (fixtureIdType !== "number" && fixtureIdType !== "string") {
           throw new Error(fmt('the id property must be defined as a number or string for fixture %@', [fixture]));
         }
         fixture.id = fixture.id + '';
@@ -95,7 +95,7 @@ export default Adapter.extend({
     @param {Array} fixture
   */
   updateFixtures: function(type, fixture) {
-    if(!type.FIXTURES) {
+    if (!type.FIXTURES) {
       type.FIXTURES = [];
     }
 
