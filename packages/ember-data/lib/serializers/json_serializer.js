@@ -1,3 +1,5 @@
+import Serializer from "ember-data/system/serializer";
+
 var get = Ember.get;
 var isNone = Ember.isNone;
 var map = Ember.ArrayPolyfills.map;
@@ -17,8 +19,9 @@ var merge = Ember.merge;
 
   @class JSONSerializer
   @namespace DS
+  @extends DS.Serializer
 */
-export default Ember.Object.extend({
+export default Serializer.extend({
   /**
     The primaryKey is used when serializing and deserializing
     data. Ember Data always uses the `id` property to store the id of

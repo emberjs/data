@@ -36,6 +36,7 @@ import {
   InvalidError,
   Adapter
 } from "ember-data/system/adapter";
+import Serializer from "ember-data/system/serializer";
 import DebugAdapter from "ember-data/system/debug";
 import {
   RecordArray,
@@ -85,6 +86,8 @@ DS.Errors    = Errors;
 
 DS.Adapter      = Adapter;
 DS.InvalidError = InvalidError;
+
+DS.Serializer = Serializer;
 
 DS.DebugAdapter = DebugAdapter;
 
