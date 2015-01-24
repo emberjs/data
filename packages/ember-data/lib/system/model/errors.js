@@ -43,34 +43,41 @@ import {
 
   ```javascript
   {
-    "errors": {
-      "username": ["This username is already taken!"],
-      "email": ["Doesn't look like a valid email."]
-    }
+    "username": ["This username is already taken!"],
+    "email": ["Doesn't look like a valid email."]
   }
   ```
 
   Errors can be displayed to the user by accessing their property name
-  or using the `messages` property to get an array of all errors.
+  to get an array of all the error objects for that property. Each
+  error object is a JavaScript object with two keys:
+
+  - `message` A string containing the error message from the backend
+  - `attribute` The name of the property associated with this error message
 
   ```handlebars
-  {{#each message in errors.messages}}
-    <div class="error">
-      {{message}}
-    </div>
-  {{/each}}
-
   <label>Username: {{input value=username}} </label>
-  {{#each error in errors.username}}
+  {{#each error in model.errors.username}}
     <div class="error">
       {{error.message}}
     </div>
   {{/each}}
 
   <label>Email: {{input value=email}} </label>
-  {{#each error in errors.email}}
+  {{#each error in model.errors.email}}
     <div class="error">
       {{error.message}}
+    </div>
+  {{/each}}
+  ```
+
+  You can also access the special `messages` property on the error
+  object to get an array of all the error strings.
+
+  ```handlebars
+  {{#each message in model.errors.messages}}
+    <div class="error">
+      {{message}}
     </div>
   {{/each}}
   ```
@@ -149,7 +156,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     record. This is useful for displaying all errors to the user.
 
     ```handlebars
-    {{#each message in errors.messages}}
+    {{#each message in model.errors.messages}}
       <div class="error">
         {{message}}
       </div>
