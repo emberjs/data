@@ -1256,7 +1256,7 @@ test('unloading a record with associated records does not prevent the store from
   }
 });
 
-test("adding and removing records from hasMany relationship #2666", function(){
+test("adding and removing records from hasMany relationship #2666", function() {
   expect(4);
 
   var Post = DS.Model.extend({
@@ -1264,7 +1264,7 @@ test("adding and removing records from hasMany relationship #2666", function(){
   });
   Post.reopenClass({
     FIXTURES: [
-      { id: 1, comments: [ 1, 2, 3 ] }
+      { id: 1, comments: [1, 2, 3] }
     ]
   });
 
