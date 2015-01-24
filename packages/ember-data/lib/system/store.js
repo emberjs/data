@@ -440,9 +440,37 @@ Store = Ember.Object.extend({
     store.find('person', { page: 1 });
     ```
 
-    This will ask the adapter's `findQuery` method to find the records for
-    the query, and return a promise that will be resolved once the server
-    responds.
+    By passing an object `{page: 1}` as an argument to the find method, it
+    delegates to the adapter's findQuery method. The adapter then makes
+    a call to the server, transforming the object `{page: 1}` as parameters
+    that are sent along, and will return a RecordArray when the promise
+    resolves.
+
+    Exposing queries this way seems preferable to creating an abstract query
+    language for all server-side queries, and then require all adapters to
+    implement them.
+
+    The call made to the server, using a Rails backend, will look something like this:
+
+    ```
+    Started GET "/api/v1/person?page=1"
+    Processing by Api::V1::PersonsController#index as HTML
+    Parameters: {"page"=>"1"}
+    ```
+
+    If you do something like this:
+
+    ```javascript
+    store.find('person', {ids: [1, 2, 3]});
+    ```
+
+    The call to the server, using a Rails backend, will look something like this:
+
+    ```
+    Started GET "/api/v1/person?ids%5B%5D=1&ids%5B%5D=2&ids%5B%5D=3"
+    Processing by Api::V1::PersonsController#index as HTML
+    Parameters: {"ids"=>["1", "2", "3"]}
+    ```
 
     @method find
     @param {String or subclass of DS.Model} type
