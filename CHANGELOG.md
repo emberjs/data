@@ -121,6 +121,7 @@ to set metadata.
 * [Feature thrownError] tag errorThrown from jQuery onto the jqXHR like ic-ajax does.
 * Cache relationships meta in production
 * Deprecate store.update()
+* Relationships are no long `ArrayProxy`, you can directly access them, so instead of relationship.get('content'). just use `relationship.toArray()`.
 
 ### Ember Data 1.0.0-beta.12 (November 25, 2014)
 
