@@ -216,15 +216,15 @@ function getDefaultValue(record, options, key) {
 }
 
 function hasValue(record, key) {
-  return record._attributes.hasOwnProperty(key) ||
-         record._inFlightAttributes.hasOwnProperty(key) ||
+  return key in record._attributes ||
+         key in record._inFlightAttributes ||
          record._data.hasOwnProperty(key);
 }
 
 function getValue(record, key) {
-  if (record._attributes.hasOwnProperty(key)) {
+  if (key in record._attributes) {
     return record._attributes[key];
-  } else if (record._inFlightAttributes.hasOwnProperty(key)) {
+  } else if (key in record._inFlightAttributes) {
     return record._inFlightAttributes[key];
   } else {
     return record._data[key];
@@ -268,7 +268,12 @@ function getValue(record, key) {
 */
 
 export default function attr(type, options) {
-  options = options || {};
+  if (typeof type === 'object') {
+    options = type;
+    type = undefined;
+  } else {
+    options = options || {};
+  }
 
   var meta = {
     type: type,
@@ -305,4 +310,4 @@ export default function attr(type, options) {
   // invalidated from the state manager's setData
   // event.
   }).meta(meta);
-};
+}

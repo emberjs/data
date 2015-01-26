@@ -10,4 +10,4 @@ export default function initializeStoreInjections(container){
   container.injection('route',        'store', 'store:main');
   container.injection('serializer',   'store', 'store:main');
   container.injection('data-adapter', 'store', 'store:main');
-};
+}

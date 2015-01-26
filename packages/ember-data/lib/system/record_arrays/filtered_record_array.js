@@ -64,16 +64,4 @@ export default RecordArray.extend({
     Ember.run.once(this, this._updateFilter);
   }, 'filterFunction'),
 
-  /**
-    @method _unregisterFromManager
-    @private
-  */
-  _unregisterFromManager: function(){
-    this.manager.unregisterFilteredRecordArray(this);
-  },
-
-  willDestroy: function(){
-    this._unregisterFromManager();
-    this._super();
-  }
 });

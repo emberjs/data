@@ -8,6 +8,7 @@ dist/
 .project
 
 .github-upload-token
+*.swp
 
 tests/ember-data-tests.js
 *gem
@@ -17,4 +18,6 @@ docs/node_modules/
 
 node_modules/
 bower_components/
+.metadata_never_index
+npm-debug.log
 .idea

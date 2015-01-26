@@ -4,6 +4,7 @@
 
 import { PromiseArray } from "ember-data/system/promise_proxies";
 var get = Ember.get;
+var set = Ember.set;
 
 /**
   A record array is an array that contains records of a certain type. The record
@@ -146,8 +147,6 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   pushRecord: function(record) {
     get(this, 'content').pushObject(record);
   },
-
-
   /**
     Removes a record to the `RecordArray`.
 
@@ -196,8 +195,22 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     });
   },
 
+  /**
+    @method _unregisterFromManager
+    @private
+  */
+  _unregisterFromManager: function(){
+    var manager = get(this, 'manager');
+    //We will stop needing this stupid if statement soon, once manyArray are refactored to not be RecordArrays
+    if (manager) {
+      manager.unregisterFilteredRecordArray(this);
+    }
+  },
+
   willDestroy: function(){
+    this._unregisterFromManager();
     this._dissociateFromOwnRecords();
+    set(this, 'content', undefined);
     this._super();
   }
 });

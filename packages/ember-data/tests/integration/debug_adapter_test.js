@@ -1,4 +1,5 @@
 var App, store, debugAdapter, get = Ember.get;
+var run = Ember.run;
 
 module("DS.DebugAdapter", {
   setup: function() {
@@ -31,7 +32,7 @@ module("DS.DebugAdapter", {
     });
   },
   teardown: function() {
-    App.destroy();
+    run(App, App.destroy);
   }
 });
 
@@ -51,7 +52,9 @@ test("Watching Model Types", function() {
 
   debugAdapter.watchModelTypes(added, updated);
 
-  store.push('post', {id: 1, title: 'Post Title'});
+  run(function(){
+    store.push('post', {id: 1, title: 'Post Title'});
+  });
 });
 
 test("Watching Records", function() {
@@ -88,7 +91,9 @@ test("Watching Records", function() {
   deepEqual(record.searchKeywords, ['1', 'Modified Post'] );
   deepEqual(record.color, 'blue' );
 
-  post = store.createRecord('post', { id: '2', title: 'New Post' });
+  run(function(){
+    post = store.createRecord('post', { id: '2', title: 'New Post' });
+  });
   record = args[0][0];
   deepEqual(record.columnValues, { id: '2', title: 'New Post'});
   deepEqual(record.filterValues, { isNew: true, isModified: false, isClean: false });

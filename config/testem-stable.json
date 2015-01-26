@@ -1,5 +1,5 @@
 {
-  "test_page": "tests/index.html?emberchannel=stable&nojshint=true",
+  "test_page": "dist/index.html?emberchannel=stable&nojshint=true",
   "serve_files": [
     "dist/**/*.js",
     "tests/**/*"
@@ -9,6 +9,6 @@
   ],
   "routes": {
     "/ember-data.js": "dist/ember-data.js",
-    "/tests/tests.js": "dist/tests.js"
+    "/tests/ember-data-tests.js": "dist/ember-data-tests.js"
   }
 }
