@@ -696,17 +696,20 @@ export default Ember.Object.extend({
     This method delegates to a more specific extract method based on
     the `requestType`.
 
-    Example
+    To override this method with a custom one, make sure to call
+    `this._super(store, type, payload, id, requestType)` with your
+    pre-processed data.
+
+    Here's an example of using `extract` manually:
 
     ```javascript
-    var get = Ember.get;
     socket.on('message', function(message) {
-      var modelName = message.model;
       var data = message.data;
-      var type = store.modelFor(modelName);
+      var type = store.modelFor(message.modelName);
       var serializer = store.serializerFor(type.typeKey);
-      var record = serializer.extract(store, type, data, get(data, 'id'), 'single');
-      store.push(modelName, record);
+      var record = serializer.extract(store, type, data, data.id, 'single');
+
+      store.push(message.modelName, record);
     });
     ```
 
