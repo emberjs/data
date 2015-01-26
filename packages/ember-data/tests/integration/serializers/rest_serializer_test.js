@@ -284,19 +284,6 @@ test("serialize polymorphicType", function() {
   });
 });
 
-test("serialize polymorphicType with decamelized typeKey", function() {
-  YellowMinion.typeKey = 'yellow-minion';
-  var tom, ray;
-  run(function() {
-    tom = env.store.createRecord(YellowMinion, { name: "Alex", id: "124" });
-    ray = env.store.createRecord(DoomsdayDevice, { evilMinion: tom, name: "DeathRay" });
-  });
-
-  var json = env.restSerializer.serialize(ray._createSnapshot());
-
-  deepEqual(json["evilMinionType"], "yellowMinion");
-});
-
 test("normalizePayload is called during extractSingle", function() {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
     normalizePayload: function(payload) {
@@ -510,22 +497,6 @@ test('normalize should allow for different levels of normalization', function() 
 });
 
 test("serializeIntoHash", function() {
-  run(function() {
-    league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
-  });
-  var json = {};
-
-  env.restSerializer.serializeIntoHash(json, HomePlanet, league._createSnapshot());
-
-  deepEqual(json, {
-    homePlanet: {
-      name: "Umber"
-    }
-  });
-});
-
-test("serializeIntoHash with decamelized typeKey", function() {
-  HomePlanet.typeKey = 'home-planet';
   run(function() {
     league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
   });
