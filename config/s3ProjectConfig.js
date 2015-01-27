@@ -1,30 +1,31 @@
 module.exports = function(revision, tag, date){
   return {
-    'ember-data.js': fileObject('ember-data', '.js', 'text/javascript', revision, tag, date),
-    'ember-data.min.js': fileObject('ember-data.min', '.js', 'text/javascript', revision, tag, date),
-    'ember-data.prod.js': fileObject('ember-data.prod', '.js', 'text/javascript', revision, tag, date)
+    'ember-data.js': fileObject('ember-data.js', 'text/javascript', revision, tag, date),
+    'ember-data.js.map': fileObject('ember-data.js.map', 'application/json', revision, tag, date),
+    'ember-data.min.js': fileObject('ember-data.min.js', 'text/javascript', revision, tag, date),
+    'ember-data.prod.js': fileObject('ember-data.prod.js', 'text/javascript', revision, tag, date)
   }
 }
 
-function fileObject(baseName, extension, contentType, currentRevision, tag, date) {
-  var fullName = "/" + baseName + extension;
+function fileObject(fileName, contentType, currentRevision, tag, date) {
+  var filePath = '/' + fileName;
   return {
     contentType: contentType,
     destinations: {
       canary: [
-        'canary' + fullName,
-        'canary/daily/' + date + fullName,
-        'canary/shas/' + currentRevision + fullName
+        'canary' + filePath,
+        'canary/daily/' + date + filePath,
+        'canary/shas/' + currentRevision + filePath
       ],
       stable: [
-        'stable' + fullName,
-        'stable/daily/' + date + fullName,
-        'stable/shas/' + currentRevision + fullName
+        'stable' + filePath,
+        'stable/daily/' + date + filePath,
+        'stable/shas/' + currentRevision + filePath
       ],
       beta: [
-        'beta' + fullName,
-        'beta/daily/' + date + fullName,
-        'beta/shas/' + currentRevision + fullName
+        'beta' + filePath,
+        'beta/daily/' + date + filePath,
+        'beta/shas/' + currentRevision + filePath
       ]
     }
   }

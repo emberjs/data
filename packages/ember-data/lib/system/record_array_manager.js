@@ -5,8 +5,7 @@
 import {
   RecordArray,
   FilteredRecordArray,
-  AdapterPopulatedRecordArray,
-  ManyArray
+  AdapterPopulatedRecordArray
 } from "ember-data/system/record_arrays";
 import {
   MapWithDefault,
@@ -14,6 +13,7 @@ import {
 } from "ember-data/system/map";
 var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
+var indexOf = Ember.EnumerableUtils.indexOf;
 
 /**
   @class RecordArrayManager
@@ -158,31 +158,6 @@ export default Ember.Object.extend({
   },
 
   /**
-    Create a `DS.ManyArray` for a type and list of record references, and index
-    the `ManyArray` under each reference. This allows us to efficiently remove
-    records from `ManyArray`s when they are deleted.
-
-    @method createManyArray
-    @param {Class} type
-    @param {Array} references
-    @return {DS.ManyArray}
-  */
-  createManyArray: function(type, records) {
-    var manyArray = ManyArray.create({
-      type: type,
-      content: records,
-      store: this.store
-    });
-
-    forEach(records, function(record) {
-      var arrays = this.recordArraysForRecord(record);
-      arrays.add(manyArray);
-    }, this);
-
-    return manyArray;
-  },
-
-  /**
     Create a `DS.RecordArray` for a type and register it for updates.
 
     @method createRecordArray
@@ -194,7 +169,8 @@ export default Ember.Object.extend({
       type: type,
       content: Ember.A(),
       store: this.store,
-      isLoaded: true
+      isLoaded: true,
+      manager: this
     });
 
     this.registerFilteredRecordArray(array, type);
@@ -264,6 +240,19 @@ export default Ember.Object.extend({
     recordArrays.push(array);
 
     this.updateFilter(array, type, filter);
+  },
+
+  /**
+    Unregister a FilteredRecordArray.
+    So manager will not update this array.
+
+    @method unregisterFilteredRecordArray
+    @param {DS.RecordArray} array
+  */
+  unregisterFilteredRecordArray: function(array) {
+    var recordArrays = this.filteredRecordArrays.get(array.type);
+    var index = indexOf(recordArrays, array);
+    recordArrays.splice(index, 1);
   },
 
   // Internally, we maintain a map of all unloaded IDs requested by

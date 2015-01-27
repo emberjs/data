@@ -41,20 +41,31 @@ import { Model } from 'ember-data/system/model';
   });
   ```
 
+  You can avoid passing a string as the first parameter. In that case Ember Data
+  will infer the type from the key name.
+
+  ```javascript
+  App.Comment = DS.Model.extend({
+    post: DS.belongsTo()
+  });
+  ```
+
+  will lookup for a Post type.
+
   @namespace
   @method belongsTo
   @for DS
-  @param {String or DS.Model} type the model type of the relationship
-  @param {Object} options a hash of options
+  @param {String} type (optional) type of the relationship
+  @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
 */
 function belongsTo(type, options) {
   if (typeof type === 'object') {
     options = type;
     type = undefined;
-  } else {
-    Ember.assert("The first argument to DS.belongsTo must be a string representing a model type key, e.g. use DS.belongsTo('person') to define a relation to the App.Person model", !!type && (typeof type === 'string' || Model.detect(type)));
   }
+
+  Ember.assert("The first argument to DS.belongsTo must be a string representing a model type key, not an instance of " + Ember.inspect(type) + ". E.g., to define a relation to the Person model, use DS.belongsTo('person')", typeof type === 'string' || typeof type === 'undefined');
 
   options = options || {};
 
@@ -90,11 +101,7 @@ function belongsTo(type, options) {
   @namespace DS
 */
 Model.reopen({
-  notifyBelongsToAdded: function(key, relationship) {
-    this.notifyPropertyChange(key);
-  },
-
-  notifyBelongsToRemoved: function(key) {
+  notifyBelongsToChanged: function(key) {
     this.notifyPropertyChange(key);
   }
 });

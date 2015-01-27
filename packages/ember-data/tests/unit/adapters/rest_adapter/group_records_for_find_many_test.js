@@ -1,8 +1,8 @@
 var GroupsAdapter, Store;
 var maxLength = -1;
-var lengths = [];
+var lengths = Ember.A([]);
 
-module("unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAdapter#groupRecordsForFindMany", { 
+module("unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAdapter#groupRecordsForFindMany", {
   setup: function() {
     GroupsAdapter = DS.RESTAdapter.extend({
 
@@ -26,7 +26,7 @@ module("unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
 
     });
 
-    Store = createStore({ 
+    Store = createStore({
       adapter: GroupsAdapter,
       testRecord: DS.Model.extend()
      });

@@ -1,5 +1,3 @@
-import RecordArray from "ember-data/system/record_arrays/record_array";
-
 /**
   @module ember-data
 */
@@ -42,11 +40,46 @@ var get = Ember.get, set = Ember.set;
   @namespace DS
   @extends DS.RecordArray
 */
-export default RecordArray.extend({
+export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   init: function() {
-    this._super.apply(this, arguments);
+    this.currentState = Ember.A([]);
+    this.diff = [];
   },
 
+  record: null,
+
+  canonicalState: null,
+  currentState: null,
+
+  diff: null,
+
+  length: 0,
+
+  objectAt: function(index) {
+    if (this.currentState[index]) {
+      return this.currentState[index];
+    } else {
+      return this.canonicalState[index];
+    }
+  },
+
+  flushCanonical: function() {
+    //TODO make this smarter, currently its plenty stupid
+    var toSet = this.canonicalState.slice(0);
+    //a hack for not removing new records
+    //TODO remove once we have proper diffing
+    var newRecords = this.currentState.filter(function(record) {
+      return record.get('isNew');
+    });
+    toSet = toSet.concat(newRecords);
+    this.arrayContentWillChange(0, this.length, this.length);
+    this.set('length', toSet.length);
+    this.currentState = toSet;
+    this.arrayContentDidChange(0, this.length, this.length);
+    //TODO Figure out to notify only on additions and maybe only if unloaded
+    this.relationship.notifyHasManyChanged();
+    this.record.updateRecordArrays();
+  },
   /**
     `true` if the relationship is polymorphic, `false` otherwise.
 
@@ -70,7 +103,48 @@ export default RecordArray.extend({
    */
   relationship: null,
 
+  internalReplace: function(idx, amt, objects) {
+    if (!objects) {
+      objects = [];
+    }
+    this.arrayContentWillChange(idx, amt, objects.length);
+    this.currentState.splice.apply(this.currentState, [idx, amt].concat(objects));
+    this.set('length', this.currentState.length);
+    this.arrayContentDidChange(idx, amt, objects.length);
+    if (objects){
+      //TODO(Igor) probably needed only for unloaded records
+      this.relationship.notifyHasManyChanged();
+    }
+    this.record.updateRecordArrays();
+  },
 
+  //TODO(Igor) optimize
+  internalRemoveRecords: function(records) {
+    var index;
+    for(var i=0; i < records.length; i++) {
+      index = this.currentState.indexOf(records[i]);
+      this.internalReplace(index, 1);
+    }
+  },
+
+  //TODO(Igor) optimize
+  internalAddRecords: function(records, idx) {
+    if (idx === undefined) {
+      idx = this.currentState.length;
+    }
+    this.internalReplace(idx, 0, records);
+  },
+
+  replace: function(idx, amt, objects) {
+    var records;
+    if (amt > 0){
+      records = this.currentState.slice(idx, idx+amt);
+      this.get('relationship').removeRecords(records);
+    }
+    if (objects){
+      this.get('relationship').addRecords(objects, idx);
+    }
+  },
   /**
     Used for async `hasMany` arrays
     to keep track of when they will resolve.
@@ -101,16 +175,6 @@ export default RecordArray.extend({
     }
   },
 
-  replaceContent: function(idx, amt, objects){
-    var records;
-    if (amt > 0){
-      records = get(this, 'content').slice(idx, idx+amt);
-      this.get('relationship').removeRecords(records);
-    }
-    if (objects){
-      this.get('relationship').addRecords(objects, idx);
-    }
-  },
   /**
     @method reload
     @public

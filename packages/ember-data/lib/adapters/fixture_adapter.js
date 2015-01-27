@@ -1,7 +1,6 @@
 /**
   @module ember-data
 */
-
 var get = Ember.get;
 var fmt = Ember.String.fmt;
 var indexOf = Ember.EnumerableUtils.indexOf;

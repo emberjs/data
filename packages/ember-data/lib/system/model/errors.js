@@ -54,23 +54,23 @@ import {
   or using the `messages` property to get an array of all errors.
 
   ```handlebars
-  {{#each errors.messages}}
+  {{#each message in errors.messages}}
     <div class="error">
       {{message}}
     </div>
   {{/each}}
 
   <label>Username: {{input value=username}} </label>
-  {{#each errors.username}}
+  {{#each error in errors.username}}
     <div class="error">
-      {{message}}
+      {{error.message}}
     </div>
   {{/each}}
 
   <label>Email: {{input value=email}} </label>
-  {{#each errors.email}}
+  {{#each error in errors.email}}
     <div class="error">
-      {{message}}
+      {{error.message}}
     </div>
   {{/each}}
   ```
@@ -131,7 +131,8 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
       email: 'invalidEmail'
     });
     user.save().catch(function(){
-      user.get('errors').errorsFor('email'); // ["Doesn't look like a valid email."]
+      user.get('errors').errorsFor('email'); // returns:
+      // [{attribute: "email", message: "Doesn't look like a valid email."}]
     });
     ```
 
@@ -148,7 +149,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     record. This is useful for displaying all errors to the user.
 
     ```handlebars
-    {{#each errors.messages}}
+    {{#each message in errors.messages}}
       <div class="error">
         {{message}}
       </div>

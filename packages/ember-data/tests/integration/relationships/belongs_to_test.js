@@ -1,8 +1,9 @@
-var env, store, User, Message, Post, Comment;
-var get = Ember.get, set = Ember.set;
+var env, store, User, Message, Post, Comment, Book, Author, NewMessage;
+var get = Ember.get;
+var run = Ember.run;
 
 var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
-var resolve = Ember.RSVP.resolve, hash = Ember.RSVP.hash;
+var hash = Ember.RSVP.hash;
 
 function stringify(string) {
   return function() { return string; };
@@ -12,13 +13,13 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
   setup: function() {
     User = DS.Model.extend({
       name: attr('string'),
-      messages: hasMany('message', {polymorphic: true})
-      //favouriteMessage: belongsTo('message', {polymorphic: true})
+      messages: hasMany('message', {polymorphic: true}),
+      favouriteMessage: belongsTo('message', {polymorphic: true, inverse: null}),
     });
     User.toString = stringify('User');
 
     Message = DS.Model.extend({
-      user: belongsTo('user'),
+      user: belongsTo('user', { inverse: 'messages' }),
       created_at: attr('date')
     });
     Message.toString = stringify('Message');
@@ -65,7 +66,7 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
   },
 
   teardown: function() {
-    env.container.destroy();
+    run(env.container, 'destroy');
   }
 });
 
@@ -86,69 +87,85 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
     });
   };
 
-  env.store.push('post', {
-    id: 1,
-    user: 2
+  run(function(){
+    env.store.push('post', {
+      id: 1,
+      user: 2
+    });
   });
 
-  env.store.find('post', 1).then(async(function(post) {
-    post.get('user');
-  }));
+  run(function(){
+    env.store.find('post', 1).then(function(post) {
+      post.get('user');
+    });
+  });
 });
 
 test("Only a record of the same type can be used with a monomorphic belongsTo relationship", function() {
   expect(1);
 
-  store.push('post', { id: 1 });
-  store.push('comment', { id: 2 });
+  run(function(){
+    store.push('post', { id: 1 });
+    store.push('comment', { id: 2 });
+  });
 
-  hash({
-    post: store.find('post', 1),
-    comment: store.find('comment', 2)
-  }).then(async(function(records) {
-    expectAssertion(function() {
-      records.post.set('user', records.comment);
-    }, /You can only add a 'user' record to this relationship/);
-  }));
+  run(function(){
+    hash({
+      post: store.find('post', 1),
+      comment: store.find('comment', 2)
+    }).then(function(records) {
+      expectAssertion(function() {
+        records.post.set('user', records.comment);
+      }, /You can only add a 'user' record to this relationship/);
+    });
+  });
 });
 
 test("Only a record of the same base type can be used with a polymorphic belongsTo relationship", function() {
   expect(1);
-  store.push('comment', { id: 1 });
-  store.push('comment', { id: 2 });
-  store.push('post', { id: 1 });
-  store.push('user', { id: 3 });
-
-  var asyncRecords = hash({
-    user: store.find('user', 3),
-    post: store.find('post', 1),
-    comment: store.find('comment', 1),
-    anotherComment: store.find('comment', 2)
+  run(function(){
+    store.push('comment', { id: 1 });
+    store.push('comment', { id: 2 });
+    store.push('post', { id: 1 });
+    store.push('user', { id: 3 });
   });
 
-  asyncRecords.then(async(function(records) {
-    var comment = records.comment;
+  run(function(){
+    var asyncRecords = hash({
+      user: store.find('user', 3),
+      post: store.find('post', 1),
+      comment: store.find('comment', 1),
+      anotherComment: store.find('comment', 2)
+    });
 
-    comment.set('message', records.anotherComment);
-    comment.set('message', records.post);
-    comment.set('message', null);
+    asyncRecords.then(function(records) {
+      var comment = records.comment;
 
-    expectAssertion(function() {
-      comment.set('message', records.user);
-    }, /You can only add a 'message' record to this relationship/);
-  }));
+      comment.set('message', records.anotherComment);
+      comment.set('message', records.post);
+      comment.set('message', null);
+
+      expectAssertion(function() {
+        comment.set('message', records.user);
+      }, /You can only add a 'message' record to this relationship/);
+    });
+  });
 });
 
 test("The store can load a polymorphic belongsTo association", function() {
-  env.store.push('post', { id: 1 });
-  env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
+  run(function(){
+    env.store.push('post', { id: 1 });
+    env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
+  });
 
-  hash({
-    message: store.find('post', 1),
-    comment: store.find('comment', 2)
-  }).then(async(function(records) {
-    equal(records.comment.get('message'), records.message);
-  }));
+  run(function(){
+    hash({
+      message: store.find('post', 1),
+      comment: store.find('comment', 2)
+    }).then(function(records) {
+      equal(records.comment.get('message'), records.message);
+    });
+  });
 });
 
 test("The store can serialize a polymorphic belongsTo association", function() {
@@ -156,14 +173,16 @@ test("The store can serialize a polymorphic belongsTo association", function() {
     ok(true, "The serializer's serializePolymorphicType method should be called");
     json["message_type"] = "post";
   };
-  env.store.push('post', { id: 1 });
-  env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
+  run(function(){
+    env.store.push('post', { id: 1 });
+    env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
 
-  store.find('comment', 2).then(async(function(comment) {
-    var serialized = store.serialize(comment, { includeId: true });
-    equal(serialized['message'], 1);
-    equal(serialized['message_type'], 'post');
-  }));
+    store.find('comment', 2).then(function(comment) {
+      var serialized = store.serialize(comment, { includeId: true });
+      equal(serialized['message'], 1);
+      equal(serialized['message_type'], 'post');
+    });
+  });
 });
 
 test("A serializer can materialize a belongsTo as a link that gets sent back to findBelongsTo", function() {
@@ -178,7 +197,9 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
   env.container.register('model:group', Group);
   env.container.register('model:person', Person);
 
-  store.push('person', { id: 1, links: { group: '/people/1/group' } });
+  run(function(){
+    store.push('person', { id: 1, links: { group: '/people/1/group' } });
+  });
 
   env.adapter.find = function() {
     throw new Error("Adapter's find method should not be called");
@@ -192,12 +213,14 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
     return Ember.RSVP.resolve({ id: 1, people: [1] });
   });
 
-  env.store.find('person', 1).then(async(function(person) {
-    return person.get('group');
-  })).then(async(function(group) {
-    ok(group instanceof Group, "A group object is loaded");
-    ok(group.get('id') === '1', 'It is the group we are expecting');
-  }));
+  run(function(){
+    env.store.find('person', 1).then(function(person) {
+      return person.get('group');
+    }).then(function(group) {
+      ok(group instanceof Group, "A group object is loaded");
+      ok(group.get('id') === '1', 'It is the group we are expecting');
+    });
+  });
 });
 
 test('A record with an async belongsTo relationship always returns a promise for that relationship', function () {
@@ -212,7 +235,9 @@ test('A record with an async belongsTo relationship always returns a promise for
   env.container.register('model:seat', Seat);
   env.container.register('model:person', Person);
 
-  store.push('person', { id: 1, links: { seat: '/people/1/seat' } });
+  run(function(){
+    store.push('person', { id: 1, links: { seat: '/people/1/seat' } });
+  });
 
   env.adapter.find = function() {
     throw new Error("Adapter's find method should not be called");
@@ -222,14 +247,16 @@ test('A record with an async belongsTo relationship always returns a promise for
     return Ember.RSVP.resolve({ id: 1});
   });
 
-  env.store.find('person', 1).then(async(function(person) {
-    person.get('seat').then(async(function(seat) {
-        // this assertion fails too
-        // ok(seat.get('person') === person, 'parent relationship should be populated');
-        seat.set('person', person);
-        ok(person.get('seat').then, 'seat should be a PromiseObject');
-    }));
-  }));
+  run(function(){
+    env.store.find('person', 1).then(function(person) {
+      person.get('seat').then(function(seat) {
+          // this assertion fails too
+          // ok(seat.get('person') === person, 'parent relationship should be populated');
+          seat.set('person', person);
+          ok(person.get('seat').then, 'seat should be a PromiseObject');
+      });
+    });
+  });
 });
 
 test("A record with an async belongsTo relationship returning null should resolve null", function() {
@@ -246,7 +273,9 @@ test("A record with an async belongsTo relationship returning null should resolv
   env.container.register('model:group', Group);
   env.container.register('model:person', Person);
 
-  store.push('person', { id: 1, links: { group: '/people/1/group' } });
+  run(function(){
+    store.push('person', { id: 1, links: { group: '/people/1/group' } });
+  });
 
   env.adapter.find = function() {
     throw new Error("Adapter's find method should not be called");
@@ -263,33 +292,24 @@ test("A record with an async belongsTo relationship returning null should resolv
   }));
 });
 
-test("TODO (embedded): The store can load an embedded polymorphic belongsTo association", function() {
-  expect(0);
-  //serializer.keyForEmbeddedType = function() {
-    //return 'embeddedType';
-  //};
+test("polymorphic belongsTo type-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled", function() {
+  expect(1);
 
-  //adapter.load(store, App.User, { id: 2, favourite_message: { id: 1, embeddedType: 'comment'}});
+  var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
+  Ember.MODEL_FACTORY_INJECTIONS = true;
 
-  //var user = store.find(App.User, 2),
-      //message = store.find(App.Comment, 1);
+  try {
+    run(function () {
+      var igor = env.store.createRecord('user', { name: 'Igor' });
+      var post = env.store.createRecord('post', { title: "Igor's unimaginative blog post" });
 
-  //equal(user.get('favouriteMessage'), message);
-});
+      igor.set('favouriteMessage', post);
 
-test("TODO (embedded): The store can serialize an embedded polymorphic belongsTo association", function() {
-  expect(0);
-  //serializer.keyForEmbeddedType = function() {
-    //return 'embeddedType';
-  //};
-  //adapter.load(store, App.User, { id: 2, favourite_message: { id: 1, embeddedType: 'comment'}});
-
-  //var user = store.find(App.User, 2),
-      //serialized = store.serialize(user, {includeId: true});
-
-  //ok(serialized.hasOwnProperty('favourite_message'));
-  //equal(serialized.favourite_message.id, 1);
-  //equal(serialized.favourite_message.embeddedType, 'comment');
+      equal(igor.get('favouriteMessage.title'), "Igor's unimaginative blog post");
+    });
+  } finally {
+    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
+  }
 });
 
 test("relationshipsByName does not cache a factory", function() {
@@ -300,7 +320,7 @@ test("relationshipsByName does not cache a factory", function() {
   get(modelViaFirstFactory, 'relationshipsByName');
 
   // An app is reset, or the container otherwise destroyed.
-  env.container.destroy();
+  run(env.container, 'destroy');
 
   // A new model for a relationship is created. Note that this may happen
   // due to an extend call internal to MODEL_FACTORY_INJECTIONS.
@@ -328,7 +348,58 @@ test("relationshipsByName does not cache a factory", function() {
          "model factory based on relationship type matches the model based on store.modelFor" );
 });
 
-test("asdf", function() {
+test("relationshipsByName is cached in production", function() {
+  var model = store.modelFor('user');
+  var oldTesting = Ember.testing;
+  //We set the cacheable to true because that is the default state for any CP and then assert that it
+  //did not get dynamically changed when accessed
+  var oldCacheable = Ember.meta(model).descs.relationshipsByName._cacheable;
+  Ember.meta(model).descs.relationshipsByName._cacheable = true;
+  Ember.testing = false;
+  try {
+    equal(get(model, 'relationshipsByName'), get(model, 'relationshipsByName'), 'relationshipsByName are cached');
+    equal(get(model, 'relationshipsByName'), get(model, 'relationshipsByName'), 'relationshipsByName are cached');
+  } finally {
+    Ember.testing = oldTesting;
+    Ember.meta(model).descs.relationshipsByName._cacheable = oldCacheable;
+  }
+});
+
+test("relatedTypes is cached in production", function() {
+  var model = store.modelFor('user');
+  var oldTesting = Ember.testing;
+  //We set the cacheable to true because that is the default state for any CP and then assert that it
+  //did not get dynamically changed when accessed
+  var oldCacheable = Ember.meta(model).descs.relatedTypes._cacheable;
+  Ember.meta(model).descs.relatedTypes._cacheable = true;
+  Ember.testing = false;
+  try {
+    equal(get(model, 'relatedTypes'), get(model, 'relatedTypes'), 'relatedTypes are cached');
+    equal(get(model, 'relatedTypes'), get(model, 'relatedTypes'), 'relatedTypes are cached');
+  } finally {
+    Ember.testing = oldTesting;
+    Ember.meta(model).descs.relatedTypes._cacheable = oldCacheable;
+  }
+});
+
+test("relationships is cached in production", function() {
+  var model = store.modelFor('user');
+  var oldTesting = Ember.testing;
+  //We set the cacheable to true because that is the default state for any CP and then assert that it
+  //did not get dynamically changed when accessed
+  var oldCacheable = Ember.meta(model).descs.relatedTypes._cacheable;
+  Ember.meta(model).descs.relationships._cacheable = true;
+  Ember.testing = false;
+  try {
+    equal(get(model, 'relationships'), get(model, 'relationships'), 'relationships are cached');
+    equal(get(model, 'relationships'), get(model, 'relationships'), 'relationships are cached');
+  } finally {
+    Ember.testing = oldTesting;
+    Ember.meta(model).descs.relationships._cacheable = oldCacheable;
+  }
+});
+
+test("relationship changes shouldn’t cause async fetches", function() {
   expect(2);
 
   /*  Scenario:
@@ -355,15 +426,17 @@ test("asdf", function() {
     post: DS.belongsTo('post', {
     })
   });
+  var post, comment;
+  run(function(){
+    post = env.store.push('post', {
+      id: 1,
+      comments: [1, 2, 3]
+    });
 
-  var post = env.store.push('post', {
-    id: 1,
-    comments: [1, 2, 3]
-  });
-
-  var comment = env.store.push('comment', {
-    id:   1,
-    post: 1
+    comment = env.store.push('comment', {
+      id:   1,
+      post: 1
+    });
   });
 
   env.adapter.deleteRecord = function(store, type, record) {
@@ -376,7 +449,7 @@ test("asdf", function() {
     ok(false, 'should not need to findMay more comments, but attempted to anyways');
   };
 
-  comment.destroyRecord();
+  run(comment, 'destroyRecord');
 });
 
 test("Destroying a record with an unloaded aync belongsTo association does not fetch the record", function() {
@@ -396,9 +469,11 @@ test("Destroying a record with an unloaded aync belongsTo association does not f
     })
   });
 
-  post = env.store.push('post', {
-    id: 1,
-    user: 2
+  run(function(){
+    post = env.store.push('post', {
+      id: 1,
+      user: 2
+    });
   });
 
   env.adapter.find = function() {
@@ -411,11 +486,14 @@ test("Destroying a record with an unloaded aync belongsTo association does not f
     return record;
   };
 
-  post.destroyRecord();
+  run(post, 'destroyRecord');
 });
 
 test("A sync belongsTo errors out if the record is unlaoded", function() {
-  var message = env.store.push('message', { id: 1, user: 2 });
+  var message;
+  run(function(){
+    message = env.store.push('message', { id: 1, user: 2 });
+  });
 
   expectAssertion(function() {
     message.get('user');
@@ -426,19 +504,41 @@ test("Rollbacking a deleted record restores implicit relationship - async", func
   Book.reopen({
     author: DS.belongsTo('author', { async: true })
   });
-  var book = env.store.push('book', { id: 1, name: "Stanley's Amazing Adventures", author: 2 });
-  var author = env.store.push('author', { id: 2, name: 'Stanley' });
-  author.deleteRecord();
-  author.rollback();
-  book.get('author').then(async(function(fetchedAuthor) {
-    equal(fetchedAuthor, author, 'Book has an author after rollback');
-  }));
+  var book, author;
+  run(function(){
+    book = env.store.push('book', { id: 1, name: "Stanley's Amazing Adventures", author: 2 });
+    author = env.store.push('author', { id: 2, name: 'Stanley' });
+  });
+  run(function(){
+    author.deleteRecord();
+    author.rollback();
+    book.get('author').then(function(fetchedAuthor) {
+      equal(fetchedAuthor, author, 'Book has an author after rollback');
+    });
+  });
 });
 
 test("Rollbacking a deleted record restores implicit relationship - sync", function () {
-  var book = env.store.push('book', { id: 1, name: "Stanley's Amazing Adventures", author: 2 });
-  var author = env.store.push('author', { id: 2, name: 'Stanley' });
-  author.deleteRecord();
-  author.rollback();
+  var book, author;
+  run(function(){
+    book = env.store.push('book', { id: 1, name: "Stanley's Amazing Adventures", author: 2 });
+    author = env.store.push('author', { id: 2, name: 'Stanley' });
+  });
+  run(function(){
+    author.deleteRecord();
+    author.rollback();
+  });
   equal(book.get('author'), author, 'Book has an author after rollback');
+});
+
+test("Passing a model as type to belongsTo should not work", function () {
+  expect(1);
+
+  expectAssertion(function() {
+    User = DS.Model.extend();
+
+    Contact = DS.Model.extend({
+      user: belongsTo(User)
+    });
+  }, /The first argument to DS.belongsTo must be a string/);
 });

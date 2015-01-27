@@ -3,11 +3,12 @@ language: node_js
 node_js:
   - "0.10"
 install:
+- npm config set registry http://registry.nodejitsu.com
 - "npm install"
 - "bower install"
 - "npm run-script dist"
 script:
-  - npm run-script testem-stable
+  - npm run-script test
   - npm run-script testem-beta
   - npm run-script testem-canary
 after_success:

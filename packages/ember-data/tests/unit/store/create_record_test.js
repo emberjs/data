@@ -1,5 +1,5 @@
-var get = Ember.get, set = Ember.set;
 var store, container, Record;
+var run = Ember.run;
 
 module("unit/store/createRecord - Store creating records", {
   setup: function() {
@@ -12,9 +12,11 @@ module("unit/store/createRecord - Store creating records", {
 });
 
 test("doesn't modify passed in properties hash", function(){
-  var attributes = { foo: 'bar' },
-      record1 = store.createRecord(Record, attributes),
-      record2 = store.createRecord(Record, attributes);
+  var attributes = { foo: 'bar' };
+  run(function(){
+    store.createRecord(Record, attributes);
+    store.createRecord(Record, attributes);
+  });
 
   deepEqual(attributes, { foo: 'bar' }, "The properties hash is not modified");
 });
@@ -26,23 +28,30 @@ module("unit/store/createRecord - Store with models by dash", {
     });
     store = env.store;
     container = env.container;
-    container.normalize = function(key){
+    env.replaceContainerNormalize(function(key){
       return Ember.String.dasherize(key);
-    };
+    });
   }
 });
-
 test("creating a record by camel-case string finds the model", function(){
-  var attributes = { foo: 'bar' },
-      record = store.createRecord('someThing', attributes);
+  var attributes = { foo: 'bar' };
+  var record;
+
+  run(function(){
+    record = store.createRecord('someThing', attributes);
+  });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
   equal(store.modelFor('someThing').typeKey, 'someThing');
 });
 
 test("creating a record by dasherize string finds the model", function(){
-  var attributes = { foo: 'bar' },
-      record = store.createRecord('some-thing', attributes);
+  var attributes = { foo: 'bar' };
+  var record;
+
+  run(function(){
+    record = store.createRecord('some-thing', attributes);
+  });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
   equal(store.modelFor('some-thing').typeKey, 'someThing');
@@ -55,23 +64,29 @@ module("unit/store/createRecord - Store with models by camelCase", {
     });
     store = env.store;
     container = env.container;
-    container.normalize = function(key){
-      return Ember.String.camelize(key);
-    };
+    env.replaceContainerNormalize(Ember.String.camelize);
   }
 });
 
 test("creating a record by camel-case string finds the model", function(){
-  var attributes = { foo: 'bar' },
-      record = store.createRecord('someThing', attributes);
+  var attributes = { foo: 'bar' };
+  var record;
+
+  run(function(){
+    record = store.createRecord('someThing', attributes);
+  });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
   equal(store.modelFor('someThing').typeKey, 'someThing');
 });
 
 test("creating a record by dasherize string finds the model", function(){
-  var attributes = { foo: 'bar' },
-      record = store.createRecord('some-thing', attributes);
+  var attributes = { foo: 'bar' };
+  var record;
+
+  run(function(){
+    record = store.createRecord('some-thing', attributes);
+  });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
   equal(store.modelFor('some-thing').typeKey, 'someThing');

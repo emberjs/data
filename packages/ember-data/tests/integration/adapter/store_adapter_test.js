@@ -13,6 +13,7 @@
 
 var get = Ember.get, set = Ember.set;
 var Person, Dog, env, store, adapter;
+var run = Ember.run;
 
 module("integration/adapter/store_adapter - DS.Store and DS.Adapter integration test", {
   setup: function() {
@@ -33,7 +34,7 @@ module("integration/adapter/store_adapter - DS.Store and DS.Adapter integration 
   },
 
   teardown: function() {
-    env.container.destroy();
+    run(env.container, 'destroy');
   }
 });
 
@@ -48,7 +49,7 @@ test("Records loaded multiple times and retrieved in recordArray are ready to se
     }]);
   };
 
-  store.findQuery('person', {q: 'bla'}).then(async(function(people) {
+  run(store, 'findQuery', 'person', {q: 'bla'}).then(async(function(people) {
     var people2 = store.findQuery('person', { q: 'bla2' });
 
     return Ember.RSVP.hash({ people: people, people2: people2 });
@@ -86,11 +87,20 @@ test("by default, createRecords calls createRecord once per record", function() 
     count++;
     return Ember.RSVP.resolve(hash);
   };
+  var tom, yehuda;
 
-  var tom = store.createRecord('person', { name: "Tom Dale" });
-  var yehuda = store.createRecord('person', { name: "Yehuda Katz" });
+  run(function(){
+    tom = store.createRecord('person', { name: "Tom Dale" });
+    yehuda = store.createRecord('person', { name: "Yehuda Katz" });
+  });
 
-  Ember.RSVP.hash({ tom: tom.save(), yehuda: yehuda.save() }).then(async(function(records) {
+  var promise = run(function(){
+    return Ember.RSVP.hash({
+      tom: tom.save(),
+      yehuda: yehuda.save()
+    });
+  });
+  promise.then(async(function(records) {
     tom = records.tom;
     yehuda = records.yehuda;
 
@@ -122,10 +132,19 @@ test("by default, updateRecords calls updateRecord once per record", function() 
     return Ember.RSVP.resolve();
   };
 
-  store.push('person', { id: 1, name: "Braaaahm Dale" });
-  store.push('person', { id: 2, name: "Brohuda Katz" });
+  run(function(){
+    store.push('person', { id: 1, name: "Braaaahm Dale" });
+    store.push('person', { id: 2, name: "Brohuda Katz" });
+  });
 
-  Ember.RSVP.hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(async(function(records) {
+  var promise = run(function(){
+    return Ember.RSVP.hash({
+      tom: store.find('person', 1),
+      yehuda: store.find('person', 2)
+    });
+  });
+
+  promise.then(async(function(records) {
     var tom = records.tom, yehuda = records.yehuda;
 
     set(tom, "name", "Tom Dale");
@@ -161,10 +180,18 @@ test("calling store.didSaveRecord can provide an optional hash", function() {
     }
   };
 
-  store.push('person', { id: 1, name: "Braaaahm Dale" });
-  store.push('person', { id: 2, name: "Brohuda Katz" });
+  run(function(){
+    store.push('person', { id: 1, name: "Braaaahm Dale" });
+    store.push('person', { id: 2, name: "Brohuda Katz" });
+  });
 
-  Ember.RSVP.hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(async(function(records) {
+  var promise = run(function(){
+    return Ember.RSVP.hash({
+      tom: store.find('person', 1),
+      yehuda: store.find('person', 2)
+    });
+  });
+  promise.then(async(function(records) {
     var tom = records.tom, yehuda = records.yehuda;
 
     set(tom, "name", "Tom Dale");
@@ -203,10 +230,19 @@ test("by default, deleteRecord calls deleteRecord once per record", function() {
     return Ember.RSVP.resolve();
   };
 
-  store.push('person', { id: 1, name: "Tom Dale" });
-  store.push('person', { id: 2, name: "Yehuda Katz" });
+  run(function(){
+    store.push('person', { id: 1, name: "Tom Dale" });
+    store.push('person', { id: 2, name: "Yehuda Katz" });
+  });
 
-  Ember.RSVP.hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(async(function(records) {
+  var promise = run(function(){
+    return Ember.RSVP.hash({
+      tom: store.find('person', 1),
+      yehuda: store.find('person', 2)
+    });
+  });
+
+  promise.then(async(function(records) {
     var tom = records.tom, yehuda = records.yehuda;
 
     tom.deleteRecord();
@@ -238,10 +274,19 @@ test("by default, destroyRecord calls deleteRecord once per record without requi
     return Ember.RSVP.resolve();
   };
 
-  store.push('person', { id: 1, name: "Tom Dale" });
-  store.push('person', { id: 2, name: "Yehuda Katz" });
+  run(function(){
+    store.push('person', { id: 1, name: "Tom Dale" });
+    store.push('person', { id: 2, name: "Yehuda Katz" });
+  });
 
-  Ember.RSVP.hash({ tom: store.find('person', 1), yehuda: store.find('person', 2) }).then(async(function(records) {
+  var promise = run(function(){
+    return Ember.RSVP.hash({
+      tom: store.find('person', 1),
+      yehuda: store.find('person', 2)
+    });
+  });
+
+  promise.then(async(function(records) {
     var tom = records.tom, yehuda = records.yehuda;
 
     tom.destroyRecord();
@@ -267,10 +312,12 @@ test("if an existing model is edited then deleted, deleteRecord is called on the
   };
 
   // Load data for a record into the store.
-  store.push('person', { id: 'deleted-record', name: "Tom Dale" });
+  run(function(){
+    store.push('person', { id: 'deleted-record', name: "Tom Dale" });
+  });
 
   // Retrieve that loaded record and edit it so it becomes dirty
-  store.find('person', 'deleted-record').then(async(function(tom) {
+  run(store, 'find', 'person', 'deleted-record').then(async(function(tom) {
     tom.set('name', "Tom Mothereffin' Dale");
 
     equal(get(tom, 'isDirty'), true, "precond - record should be dirty after editing");
@@ -294,22 +341,26 @@ test("if a deleted record errors, it enters the error state", function() {
     }
   };
 
-  store.push('person', { id: 'deleted-record', name: "Tom Dale" });
+  run(function(){
+    store.push('person', { id: 'deleted-record', name: "Tom Dale" });
+  });
 
   var tom;
 
-  store.find('person', 'deleted-record').then(async(function(person) {
-    tom = person;
-    person.deleteRecord();
-    return person.save();
-  })).then(null, async(function() {
-    equal(tom.get('isError'), true, "Tom is now errored");
+  run(function(){
+    store.find('person', 'deleted-record').then(async(function(person) {
+      tom = person;
+      person.deleteRecord();
+      return person.save();
+    })).then(null, async(function() {
+      equal(tom.get('isError'), true, "Tom is now errored");
 
-    // this time it succeeds
-    return tom.save();
-  })).then(async(function() {
-    equal(tom.get('isError'), false, "Tom is not errored anymore");
-  }));
+      // this time it succeeds
+      return tom.save();
+    })).then(async(function() {
+      equal(tom.get('isError'), false, "Tom is not errored anymore");
+    }));
+  });
 });
 
 test("if a created record is marked as invalid by the server, it enters an error state", function() {
@@ -323,8 +374,9 @@ test("if a created record is marked as invalid by the server, it enters an error
     }
   };
 
-  var yehuda = store.createRecord('person', { id: 1, name: "Yehuda Katz" });
-
+  var yehuda = run(function(){
+    return store.createRecord('person', { id: 1, name: "Yehuda Katz" });
+  });
   // Wrap this in an Ember.run so that all chained async behavior is set up
   // before flushing any scheduled behavior.
   Ember.run(function() {
@@ -365,7 +417,9 @@ test("if a created record is marked as invalid by the server, you can attempt th
     }
   };
 
-  var yehuda = store.createRecord('person', { id: 1, name: "Yehuda Katz" });
+  var yehuda = run(function(){
+    return store.createRecord('person', { id: 1, name: "Yehuda Katz" });
+  });
 
   // Wrap this in an Ember.run so that all chained async behavior is set up
   // before flushing any scheduled behavior.
@@ -386,7 +440,7 @@ test("if a created record is marked as invalid by the server, you can attempt th
       ok(get(yehuda, 'errors.name'), "The errors.name property exists");
       equal(get(yehuda, 'isNew'), true, "precond - record is still new");
       set(yehuda, 'name', 'Brohuda Brokatz');
-      return yehuda.save()
+      return yehuda.save();
     })).then(async(function(person) {
       equal(saveCount, 3, "The record has been saved thrice");
       equal(get(yehuda, 'isValid'), true, "record is valid");
@@ -421,7 +475,9 @@ test("if an updated record is marked as invalid by the server, it enters an erro
     }
   };
 
-  var yehuda = store.push('person', { id: 1, name: "Brohuda Brokatz" });
+  var yehuda = run(function(){
+    return store.push('person', { id: 1, name: "Brohuda Brokatz" });
+  });
 
   Ember.run(function() {
     store.find('person', 1).then(async(function(person) {
@@ -466,7 +522,9 @@ test("if an updated record is marked as invalid by the server, you can attempt t
     }
   };
 
-  var yehuda = store.push('person', { id: 1, name: "Brohuda Brokatz" });
+  var yehuda = run(function(){
+    return store.push('person', { id: 1, name: "Brohuda Brokatz" });
+  });
 
   Ember.run(function() {
     store.find('person', 1).then(async(function(person) {
@@ -491,7 +549,7 @@ test("if an updated record is marked as invalid by the server, you can attempt t
       equal(get(yehuda, 'isValid'), false, "record is still invalid");
       equal(get(yehuda, 'isDirty'), true, "record is still dirty");
       set(yehuda, 'name', 'Brohuda Brokatz');
-      return yehuda.save()
+      return yehuda.save();
     })).then(async(function(person) {
       equal(saveCount, 3, "The record has been saved thrice");
       equal(get(yehuda, 'isValid'), true, "record is valid");
@@ -507,9 +565,11 @@ test("if a updated record is marked as erred by the server, it enters an error s
     return Ember.RSVP.reject();
   };
 
-  var person = store.push(Person, { id: 1, name: "John Doe" });
+  var person = run(function(){
+    return store.push(Person, { id: 1, name: "John Doe" });
+  });
 
-  store.find('person', 1).then(async(function(record) {
+  run(store, 'find', 'person', 1).then(async(function(record) {
     equal(record, person, "The person was resolved");
     person.set('name', "Jonathan Doe");
     return person.save();
@@ -526,7 +586,9 @@ test("can be created after the DS.Store", function() {
     return Ember.RSVP.resolve({ id: 1 });
   };
 
-  store.find('person', 1);
+  run(function(){
+    store.find('person', 1);
+  });
 });
 
 test("the filter method can optionally take a server query as well", function() {
@@ -557,7 +619,9 @@ test("relationships returned via `commit` do not trigger additional findManys", 
     dogs: DS.hasMany()
   });
 
-  store.push('dog', { id: 1, name: "Scruffy" });
+  run(function(){
+    store.push('dog', { id: 1, name: "Scruffy" });
+  });
 
   adapter.find = function(store, type, id) {
     return Ember.RSVP.resolve({ id: 1, name: "Tom Dale", dogs: [1] });
@@ -575,14 +639,16 @@ test("relationships returned via `commit` do not trigger additional findManys", 
     ok(false, "Should not get here");
   };
 
-  store.find('person', 1).then(async(function(person) {
-    return Ember.RSVP.hash({ tom: person, dog: store.find('dog', 1) });
-  })).then(async(function(records) {
-    records.tom.get('dogs');
-    return records.dog.save();
-  })).then(async(function(tom) {
-    ok(true, "Tom was saved");
-  }));
+  run(function(){
+    store.find('person', 1).then(async(function(person) {
+      return Ember.RSVP.hash({ tom: person, dog: store.find('dog', 1) });
+    })).then(async(function(records) {
+      records.tom.get('dogs');
+      return records.dog.save();
+    })).then(async(function(tom) {
+      ok(true, "Tom was saved");
+    }));
+  });
 });
 
 test("relationships don't get reset if the links is the same", function() {
@@ -598,11 +664,13 @@ test("relationships don't get reset if the links is the same", function() {
     return Ember.RSVP.resolve([{ id: 1, name: "Scruffy" }]);
   };
 
-  store.push('person', { id: 1, name: "Tom Dale", links: { dogs: "/dogs" } });
+  run(function(){
+    store.push('person', { id: 1, name: "Tom Dale", links: { dogs: "/dogs" } });
+  });
 
   var tom, dogs;
 
-  store.find('person', 1).then(async(function(person) {
+  run(store, 'find', 'person', 1).then(async(function(person) {
     tom = person;
     dogs = tom.get('dogs');
     return dogs;
@@ -616,7 +684,6 @@ test("relationships don't get reset if the links is the same", function() {
   }));
 });
 
-
 test("async hasMany always returns a promise", function() {
   Person.reopen({
     dogs: DS.hasMany({ async: true })
@@ -628,11 +695,17 @@ test("async hasMany always returns a promise", function() {
     hash.id = 1;
     return Ember.RSVP.resolve(hash);
   };
+  var tom;
 
-  var tom = store.createRecord('person', { name: "Tom Dale" });
+  run(function(){
+    tom = store.createRecord('person', { name: "Tom Dale" });
+  });
+
   ok(tom.get('dogs') instanceof DS.PromiseArray, "dogs is a promise before save");
 
-  tom.save().then(async(function() {
-    ok(tom.get('dogs') instanceof DS.PromiseArray, "dogs is a promise after save");
-  }));
+  run(function(){
+    tom.save().then(async(function() {
+      ok(tom.get('dogs') instanceof DS.PromiseArray, "dogs is a promise after save");
+    }));
+  });
 });

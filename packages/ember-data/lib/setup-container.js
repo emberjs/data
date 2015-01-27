@@ -14,4 +14,4 @@ export default function setupContainer(container, application){
   initializeStoreInjections(container, application);
   initializeStore(container, application);
   setupActiveModelContainer(container, application);
-};
+}

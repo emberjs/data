@@ -14,7 +14,7 @@ var get = Ember.get,
   The ActiveModelSerializer is a subclass of the RESTSerializer designed to integrate
   with a JSON API that uses an underscored naming convention instead of camelCasing.
   It has been designed to work out of the box with the
-  [active_model_serializers](http://github.com/rails-api/active_model_serializers)
+  [active\_model\_serializers](http://github.com/rails-api/active_model_serializers)
   Ruby gem. This Serializer expects specific settings using ActiveModel::Serializers,
   `embed :ids, embed_in_root: true` which sideloads the records.
 

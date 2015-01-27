@@ -1,4 +1,5 @@
-var container, store, app;
+var container, store;
+var run = Ember.run;
 
 module("unit/store/serializer_for - DS.Store#serializerFor", {
   setup: function() {
@@ -7,8 +8,10 @@ module("unit/store/serializer_for - DS.Store#serializerFor", {
   },
 
   teardown: function() {
-    container.destroy();
-    store.destroy();
+    run(function(){
+      container.destroy();
+      store.destroy();
+    });
   }
 });
 

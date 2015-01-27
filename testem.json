@@ -1,5 +1,5 @@
 {
-  "test_page": "tests/index.html",
+  "test_page": "dist/index.html",
   "serve_files": [
     "dist/**/*.js",
     "tests/**/*"

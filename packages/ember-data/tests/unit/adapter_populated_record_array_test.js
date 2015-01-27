@@ -1,6 +1,3 @@
-var get = Ember.get, set = Ember.set;
-var indexOf = Ember.EnumerableUtils.indexOf;
-
 var Person, array, store;
 
 var adapter = DS.Adapter.extend({
@@ -11,13 +8,13 @@ var adapter = DS.Adapter.extend({
 
 module("unit/adapter_populated_record_array - DS.AdapterPopulatedRecordArray", {
   setup: function() {
-    
+
     store = createStore({
       adapter: adapter
     });
-    
-    array = [{ id: '1', name: "Scumbag Dale" }, 
-             { id: '2', name: "Scumbag Katz" }, 
+
+    array = [{ id: '1', name: "Scumbag Dale" },
+             { id: '2', name: "Scumbag Katz" },
              { id: '3', name: "Scumbag Bryn" }];
 
     Person = DS.Model.extend({
@@ -38,7 +35,7 @@ test("when a record is deleted in an adapter populated record array, it should b
 
   Ember.run(function(){
     recordArray.get('firstObject').destroyRecord();
-  })
-  
+  });
+
   equal(recordArray.get('length'), 2, "expected recordArray to contain exactly 2 records");
 });

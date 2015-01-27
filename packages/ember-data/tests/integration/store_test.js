@@ -5,6 +5,8 @@ var Person = DS.Model.extend({
   cars: DS.hasMany('car')
 });
 
+var run = Ember.run;
+
 Person.toString = function() { return "Person"; };
 
 var Car = DS.Model.extend({
@@ -15,7 +17,7 @@ var Car = DS.Model.extend({
 
 Car.toString = function() { return "Car"; };
 
-initializeStore = function(adapter) {
+function initializeStore(adapter) {
   env = setupStore({
     adapter: adapter
   });
@@ -65,13 +67,15 @@ asyncTest("destroying record during find doesn't cause error", function() {
   initializeStore(TestAdapter);
 
   var type = "car";
-  var id = 1
+  var id = 1;
 
-  done = function() {
+  function done(){
     start();
-  };
+  }
 
-  store.find(type, id).then(done, done);
+  run(function(){
+    store.find(type, id).then(done, done);
+  });
 });
 
 asyncTest("find calls do not resolve when the store is destroyed", function() {
@@ -93,10 +97,12 @@ asyncTest("find calls do not resolve when the store is destroyed", function() {
   store.push = function() {
     Ember.assert("The test should have destroyed the store by now", store.get("isDestroyed"));
 
-    throw "We shouldn't be pushing data into the store when it is destroyed"
-  }
+    throw new Error("We shouldn't be pushing data into the store when it is destroyed");
+  };
 
-  store.find(type, id);
+  run(function(){
+    store.find(type, id);
+  });
 
   setTimeout(function() {
     start();
@@ -105,17 +111,20 @@ asyncTest("find calls do not resolve when the store is destroyed", function() {
 
 
 test("destroying the store correctly cleans everything up", function() {
-  var car = store.push('car', {
-    id: 1,
-    make: 'BMC',
-    model: 'Mini',
-    person: 1
-  });
+  var car, person;
+  run(function(){
+    car = store.push('car', {
+      id: 1,
+      make: 'BMC',
+      model: 'Mini',
+      person: 1
+    });
 
-  var person = store.push('person', {
-    id: 1,
-    name: 'Tom Dale',
-    cars: [1]
+    person = store.push('person', {
+      id: 1,
+      name: 'Tom Dale',
+      cars: [1]
+    });
   });
 
   var personWillDestroy = tap(person, 'willDestroy');
@@ -128,17 +137,24 @@ test("destroying the store correctly cleans everything up", function() {
       name: 'Yehuda'
     }];
   };
+  var adapterPopulatedPeople, filterdPeople;
 
-  var adapterPopulatedPeople = store.find('person', {
-    someCrazy: 'query'
+  run(function(){
+    adapterPopulatedPeople = store.find('person', {
+      someCrazy: 'query'
+    });
   });
 
-  var filterdPeople = store.filter('person', function(){ return true; });
+  run(function(){
+    filterdPeople = store.filter('person', function(){ return true; });
+  });
 
   var filterdPeopleWillDestroy =  tap(filterdPeople.content, 'willDestroy');
   var adapterPopulatedPeopleWillDestroy = tap(adapterPopulatedPeople.content, 'willDestroy');
 
-  var adapterPopulatedPerson = store.find('person', 2);
+  run(function(){
+    store.find('person', 2);
+  });
 
   equal(personWillDestroy.called.length, 0, 'expected person.willDestroy to not have been called');
   equal(carWillDestroy.called.length, 0, 'expected car.willDestroy to not have been called');
@@ -162,4 +178,71 @@ test("destroying the store correctly cleans everything up", function() {
   equal(carsWillDestroy.called.length, 1, 'expected cars to recieve willDestroy once');
   equal(adapterPopulatedPeopleWillDestroy.called.length, 1, 'expected adapterPopulatedPeople to recieve willDestroy once');
   equal(filterdPeopleWillDestroy.called.length, 1, 'expected filterdPeople.willDestroy to have been called once');
+});
+
+module("integration/store - fetch", {
+  setup: function(){
+    initializeStore(DS.RESTAdapter.extend());
+  }
+});
+
+function ajaxResponse(value) {
+  var passedUrl, passedVerb, passedHash;
+  env.adapter.ajax = function(url, verb, hash) {
+    passedUrl = url;
+    passedVerb = verb;
+    passedHash = hash;
+
+    return Ember.RSVP.resolve(value);
+  };
+}
+
+test("Using store#fetch on existing record reloads it", function() {
+  expect(2);
+  var car;
+
+  run(function(){
+    car = store.push('car', {
+      id: 1,
+      make: 'BMC',
+      model: 'Mini'
+    });
+
+  });
+  ajaxResponse({
+    cars: [{
+      id: 1,
+      make: 'BMCW',
+      model: 'Mini'
+    }]
+  });
+
+  equal(car.get('make'), 'BMC');
+
+  run(function(){
+    store.fetch('car', 1).then(function(car) {
+      equal(car.get('make'), 'BMCW');
+    });
+  });
+});
+
+test("Using store#fetch on non existing record calls find", function() {
+  expect(2);
+
+  ajaxResponse({
+    cars: [{
+      id: 20,
+      make: 'BMCW',
+      model: 'Mini'
+    }]
+  });
+
+  var car = store.hasRecordForId('car', 20);
+  ok(!car, 'Car with id=20 should not exist');
+
+  run(function(){
+    store.fetch('car', 20).then(function (car) {
+      equal(car.get('make'), 'BMCW', 'Car with id=20 is now loaded');
+    });
+  });
 });

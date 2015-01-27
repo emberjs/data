@@ -208,8 +208,8 @@ export default Adapter.extend({
 
     will also send a request to: `GET /comments?ids[]=1&ids[]=2`
 
-    Note: Requests coalescing rely on URL building strategy. So if you override `buildUrl` in your app
-    `groupRecordsForFindMany` more likely should be overriden as well in order for coalescing to work.
+    Note: Requests coalescing rely on URL building strategy. So if you override `buildURL` in your app
+    `groupRecordsForFindMany` more likely should be overridden as well in order for coalescing to work.
 
     @property coalesceFindRequests
     @type {boolean}
@@ -743,9 +743,14 @@ export default Adapter.extend({
     @param  {Object} responseText
     @return {Object} jqXHR
   */
-  ajaxError: function(jqXHR, responseText) {
-    if (jqXHR && typeof jqXHR === 'object') {
+  ajaxError: function(jqXHR, responseText, errorThrown) {
+    var isObject = jqXHR !== null && typeof jqXHR === 'object';
+
+    if (isObject) {
       jqXHR.then = null;
+      if (!jqXHR.errorThrown) {
+        jqXHR.errorThrown = errorThrown;
+      }
     }
 
     return jqXHR;
@@ -770,7 +775,7 @@ export default Adapter.extend({
     @method ajaxSuccess
     @param  {Object} jqXHR
     @param  {Object} jsonPayload
-    @return {Object} jqXHR
+    @return {Object} jsonPayload
   */
 
   ajaxSuccess: function(jqXHR, jsonPayload) {
@@ -817,11 +822,11 @@ export default Adapter.extend({
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
-        Ember.run(null, reject, adapter.ajaxError(jqXHR, jqXHR.responseText));
+        Ember.run(null, reject, adapter.ajaxError(jqXHR, jqXHR.responseText, errorThrown));
       };
 
       Ember.$.ajax(hash);
-    }, "DS: RESTAdapter#ajax " + type + " to " + url);
+    }, 'DS: RESTAdapter#ajax ' + type + ' to ' + url);
   },
 
   /**
