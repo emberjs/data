@@ -1434,10 +1434,10 @@ Store = Ember.Object.extend({
     if (Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS) {
       Ember.warn("The payload for '" + type.typeKey + "' contains these unknown keys: " +
         Ember.inspect(filter(Ember.keys(data), function(key) {
-          return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
+          return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
         })) + ". Make sure they've been defined in your model.",
         filter(Ember.keys(data), function(key) {
-          return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
+          return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
         }).length === 0
       );
     }
