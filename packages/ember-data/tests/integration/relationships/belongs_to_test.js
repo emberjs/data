@@ -1,51 +1,43 @@
-var env, store, User, Message, Post, Comment, Book, Author, NewMessage;
+var env, store, User, Message, Post, Contact, Comment, Book, Author, NewMessage;
 var get = Ember.get;
 var run = Ember.run;
 
-var attr = DS.attr, hasMany = DS.hasMany, belongsTo = DS.belongsTo;
+var attr = DS.attr;
+var hasMany = DS.hasMany;
+var belongsTo = DS.belongsTo;
 var hash = Ember.RSVP.hash;
-
-function stringify(string) {
-  return function() { return string; };
-}
 
 module("integration/relationship/belongs_to Belongs-To Relationships", {
   setup: function() {
     User = DS.Model.extend({
       name: attr('string'),
-      messages: hasMany('message', {polymorphic: true}),
-      favouriteMessage: belongsTo('message', {polymorphic: true, inverse: null}),
+      messages: hasMany('message', { polymorphic: true }),
+      favouriteMessage: belongsTo('message', { polymorphic: true, inverse: null })
     });
-    User.toString = stringify('User');
 
     Message = DS.Model.extend({
       user: belongsTo('user', { inverse: 'messages' }),
       created_at: attr('date')
     });
-    Message.toString = stringify('Message');
 
     Post = Message.extend({
       title: attr('string'),
       comments: hasMany('comment')
     });
-    Post.toString = stringify('Post');
 
     Comment = Message.extend({
       body: DS.attr('string'),
       message: DS.belongsTo('message', { polymorphic: true })
     });
-    Comment.toString = stringify('Comment');
 
     Book = DS.Model.extend({
       name: attr('string'),
       author: belongsTo('author')
     });
-    Book.toString = stringify('Book');
 
     Author = DS.Model.extend({
       name: attr('string')
     });
-    Author.toString = stringify('Author');
 
     env = setupStore({
       user: User,
@@ -87,14 +79,14 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
     });
   };
 
-  run(function(){
+  run(function() {
     env.store.push('post', {
       id: 1,
       user: 2
     });
   });
 
-  run(function(){
+  run(function() {
     env.store.find('post', 1).then(function(post) {
       post.get('user');
     });
@@ -104,12 +96,12 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
 test("Only a record of the same type can be used with a monomorphic belongsTo relationship", function() {
   expect(1);
 
-  run(function(){
+  run(function() {
     store.push('post', { id: 1 });
     store.push('comment', { id: 2 });
   });
 
-  run(function(){
+  run(function() {
     hash({
       post: store.find('post', 1),
       comment: store.find('comment', 2)
@@ -123,14 +115,14 @@ test("Only a record of the same type can be used with a monomorphic belongsTo re
 
 test("Only a record of the same base type can be used with a polymorphic belongsTo relationship", function() {
   expect(1);
-  run(function(){
+  run(function() {
     store.push('comment', { id: 1 });
     store.push('comment', { id: 2 });
     store.push('post', { id: 1 });
     store.push('user', { id: 3 });
   });
 
-  run(function(){
+  run(function() {
     var asyncRecords = hash({
       user: store.find('user', 3),
       post: store.find('post', 1),
@@ -153,12 +145,12 @@ test("Only a record of the same base type can be used with a polymorphic belongs
 });
 
 test("The store can load a polymorphic belongsTo association", function() {
-  run(function(){
+  run(function() {
     env.store.push('post', { id: 1 });
     env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
   });
 
-  run(function(){
+  run(function() {
     hash({
       message: store.find('post', 1),
       comment: store.find('comment', 2)
@@ -173,7 +165,7 @@ test("The store can serialize a polymorphic belongsTo association", function() {
     ok(true, "The serializer's serializePolymorphicType method should be called");
     json["message_type"] = "post";
   };
-  run(function(){
+  run(function() {
     env.store.push('post', { id: 1 });
     env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
 
@@ -197,7 +189,7 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
   env.container.register('model:group', Group);
   env.container.register('model:person', Person);
 
-  run(function(){
+  run(function() {
     store.push('person', { id: 1, links: { group: '/people/1/group' } });
   });
 
@@ -213,7 +205,7 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
     return Ember.RSVP.resolve({ id: 1, people: [1] });
   });
 
-  run(function(){
+  run(function() {
     env.store.find('person', 1).then(function(person) {
       return person.get('group');
     }).then(function(group) {
@@ -235,7 +227,7 @@ test('A record with an async belongsTo relationship always returns a promise for
   env.container.register('model:seat', Seat);
   env.container.register('model:person', Person);
 
-  run(function(){
+  run(function() {
     store.push('person', { id: 1, links: { seat: '/people/1/seat' } });
   });
 
@@ -244,16 +236,16 @@ test('A record with an async belongsTo relationship always returns a promise for
   };
 
   env.adapter.findBelongsTo = async(function(store, record, link, relationship) {
-    return Ember.RSVP.resolve({ id: 1});
+    return Ember.RSVP.resolve({ id: 1 });
   });
 
-  run(function(){
+  run(function() {
     env.store.find('person', 1).then(function(person) {
       person.get('seat').then(function(seat) {
-          // this assertion fails too
-          // ok(seat.get('person') === person, 'parent relationship should be populated');
-          seat.set('person', person);
-          ok(person.get('seat').then, 'seat should be a PromiseObject');
+        // this assertion fails too
+        // ok(seat.get('person') === person, 'parent relationship should be populated');
+        seat.set('person', person);
+        ok(person.get('seat').then, 'seat should be a PromiseObject');
       });
     });
   });
@@ -273,7 +265,7 @@ test("A record with an async belongsTo relationship returning null should resolv
   env.container.register('model:group', Group);
   env.container.register('model:person', Person);
 
-  run(function(){
+  run(function() {
     store.push('person', { id: 1, links: { group: '/people/1/group' } });
   });
 
@@ -312,6 +304,24 @@ test("polymorphic belongsTo type-checks check the superclass when MODEL_FACTORY_
   }
 });
 
+test("the subclass in a polymorphic belongsTo relationship is an instanceof its superclass", function() {
+  expect(1);
+
+  var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
+  Ember.MODEL_FACTORY_INJECTIONS = true;
+
+  try {
+    run(function () {
+      var message = env.store.createRecord('message', { id: 1 });
+      var comment = env.store.createRecord('comment', { id: 2, message: message });
+      ok(comment instanceof Message, 'a comment is an instance of a message');
+    });
+
+  } finally {
+    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
+  }
+});
+
 test("relationshipsByName does not cache a factory", function() {
 
   // The model is loaded up via a container. It has relationshipsByName
@@ -325,7 +335,6 @@ test("relationshipsByName does not cache a factory", function() {
   // A new model for a relationship is created. Note that this may happen
   // due to an extend call internal to MODEL_FACTORY_INJECTIONS.
   NewMessage = Message.extend();
-  NewMessage.toString = stringify('Message');
 
   // A new store is created.
   env = setupStore({
@@ -335,17 +344,17 @@ test("relationshipsByName does not cache a factory", function() {
   store = env.store;
 
   // relationshipsByName is called again.
-  var modelViaSecondFactory = store.modelFor('user'),
-      relationshipsByName   = get(modelViaSecondFactory, 'relationshipsByName'),
-      messageType           = relationshipsByName.get('messages').type;
+  var modelViaSecondFactory = store.modelFor('user');
+  var relationshipsByName   = get(modelViaSecondFactory, 'relationshipsByName');
+  var messageType           = relationshipsByName.get('messages').type;
 
   // A model is looked up in the store based on a string, via user input
   var messageModelFromStore        = store.modelFor('message');
   // And the model is lookup up internally via the relationship type
   var messageModelFromRelationType = store.modelFor(messageType);
 
-  equal( messageModelFromRelationType, messageModelFromStore,
-         "model factory based on relationship type matches the model based on store.modelFor" );
+  equal(messageModelFromRelationType, messageModelFromStore,
+        "model factory based on relationship type matches the model based on store.modelFor");
 });
 
 test("relationshipsByName is cached in production", function() {
@@ -427,7 +436,7 @@ test("relationship changes shouldn’t cause async fetches", function() {
     })
   });
   var post, comment;
-  run(function(){
+  run(function() {
     post = env.store.push('post', {
       id: 1,
       comments: [1, 2, 3]
@@ -469,7 +478,7 @@ test("Destroying a record with an unloaded aync belongsTo association does not f
     })
   });
 
-  run(function(){
+  run(function() {
     post = env.store.push('post', {
       id: 1,
       user: 2
@@ -491,7 +500,7 @@ test("Destroying a record with an unloaded aync belongsTo association does not f
 
 test("A sync belongsTo errors out if the record is unlaoded", function() {
   var message;
-  run(function(){
+  run(function() {
     message = env.store.push('message', { id: 1, user: 2 });
   });
 
@@ -505,11 +514,11 @@ test("Rollbacking a deleted record restores implicit relationship - async", func
     author: DS.belongsTo('author', { async: true })
   });
   var book, author;
-  run(function(){
+  run(function() {
     book = env.store.push('book', { id: 1, name: "Stanley's Amazing Adventures", author: 2 });
     author = env.store.push('author', { id: 2, name: 'Stanley' });
   });
-  run(function(){
+  run(function() {
     author.deleteRecord();
     author.rollback();
     book.get('author').then(function(fetchedAuthor) {
@@ -520,11 +529,11 @@ test("Rollbacking a deleted record restores implicit relationship - async", func
 
 test("Rollbacking a deleted record restores implicit relationship - sync", function () {
   var book, author;
-  run(function(){
+  run(function() {
     book = env.store.push('book', { id: 1, name: "Stanley's Amazing Adventures", author: 2 });
     author = env.store.push('author', { id: 2, name: 'Stanley' });
   });
-  run(function(){
+  run(function() {
     author.deleteRecord();
     author.rollback();
   });

@@ -3,6 +3,7 @@
         "console",
         "requireModule",
         "-Promise",
+        "-Map",
         "Ember",
         "DS",
         "Handlebars",

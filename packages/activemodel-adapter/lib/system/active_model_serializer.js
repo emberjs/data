@@ -1,15 +1,15 @@
-import {singularize} from "ember-inflector";
+import { singularize } from "ember-inflector";
 import RESTSerializer from "ember-data/serializers/rest_serializer";
 /**
   @module ember-data
 */
 
-var get = Ember.get,
-    forEach = Ember.EnumerableUtils.forEach,
-    camelize =   Ember.String.camelize,
-    capitalize = Ember.String.capitalize,
-    decamelize = Ember.String.decamelize,
-    underscore = Ember.String.underscore;
+var get = Ember.get;
+var forEach = Ember.EnumerableUtils.forEach;
+var camelize =   Ember.String.camelize;
+var capitalize = Ember.String.capitalize;
+var decamelize = Ember.String.decamelize;
+var underscore = Ember.String.underscore;
 /**
   The ActiveModelSerializer is a subclass of the RESTSerializer designed to integrate
   with a JSON API that uses an underscored naming convention instead of camelCasing.
@@ -223,7 +223,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param {Object} data
   */
 
-  normalizeLinks: function(data){
+  normalizeLinks: function(data) {
     if (data.links) {
       var links = data.links;
 

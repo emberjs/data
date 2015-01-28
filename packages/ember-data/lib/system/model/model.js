@@ -34,6 +34,33 @@ function extractPivotName(name) {
   );
 }
 
+// Like Ember.merge, but instead returns a list of keys
+// for values that fail a strict equality check
+// instead of the original object.
+function mergeAndReturnChangedKeys(original, updates) {
+  var changedKeys = [];
+
+  if (!updates || typeof updates !== 'object') {
+    return changedKeys;
+  }
+
+  var keys   = Ember.keys(updates);
+  var length = keys.length;
+  var i, val, key;
+
+  for (i = 0; i < length; i++) {
+    key = keys[i];
+    val = updates[key];
+
+    if (original[key] !== val) {
+      changedKeys.push(key);
+    }
+
+    original[key] = val;
+  }
+  return changedKeys;
+}
+
 /**
 
   The model class that all Ember Data records descend from.
@@ -46,7 +73,6 @@ function extractPivotName(name) {
 var Model = Ember.Object.extend(Ember.Evented, {
   _recordArrays: undefined,
   _relationships: undefined,
-  _loadingRecordArrays: undefined,
   /**
     If this property is `true` the record is in the `empty`
     state. Empty is the first state all records enter after they have
@@ -379,6 +405,15 @@ var Model = Ember.Object.extend(Ember.Evented, {
   },
 
   /**
+    Fired when the record is ready to be interacted with,
+    that is either loaded from the server or created locally.
+
+    @event ready
+  */
+  ready: function() {
+    this.store.recordArrayManager.recordWasLoaded(this);
+  },
+  /**
     Fired when the record is loaded from the server.
 
     @event didLoad
@@ -468,7 +503,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var model = this;
     //TODO Move into a getter for better perf
     this.constructor.eachRelationship(function(key, descriptor) {
-        model._relationships[key] = createRelationshipFor(model, descriptor, model.store);
+      model._relationships[key] = createRelationshipFor(model, descriptor, model.store);
     });
 
   },
@@ -508,7 +543,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
     } while (!state.hasOwnProperty(pivotName));
 
     var path = splitOnDot(name);
-    var setups = [], enters = [], i, l;
+    var setups = [];
+    var enters = [];
+    var i, l;
 
     for (i=0, l=path.length; i<l; i++) {
       state = state[path[i]];
@@ -654,7 +691,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   clearRelationships: function() {
     this.eachRelationship(function(name, relationship) {
       var rel = this._relationships[name];
-      if (rel){
+      if (rel) {
         //TODO(Igor) figure out whether we want to clear or disconnect
         rel.clear();
         rel.destroy();
@@ -724,7 +761,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   _preloadRelationship: function(key, preloadValue) {
     var relationshipMeta = this.constructor.metaForProperty(key);
     var type = relationshipMeta.type;
-    if (relationshipMeta.kind === 'hasMany'){
+    if (relationshipMeta.kind === 'hasMany') {
       this._preloadHasMany(key, preloadValue, type);
     } else {
       this._preloadBelongsTo(key, preloadValue, type);
@@ -743,7 +780,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this._relationships[key].updateRecordsFromAdapter(recordsToSet);
   },
 
-  _preloadBelongsTo: function(key, preloadValue, type){
+  _preloadBelongsTo: function(key, preloadValue, type) {
     var recordToSet = this._convertStringOrNumberIntoRecord(preloadValue, type);
 
     //We use the pathway of setting the hasMany as if it came from the adapter
@@ -752,7 +789,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   },
 
   _convertStringOrNumberIntoRecord: function(value, type) {
-    if (Ember.typeOf(value) === 'string' || Ember.typeOf(value) === 'number'){
+    if (Ember.typeOf(value) === 'string' || Ember.typeOf(value) === 'number') {
       return this.store.recordForId(type, value);
     }
     return value;
@@ -765,7 +802,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   _notifyProperties: function(keys) {
     Ember.beginPropertyChanges();
     var key;
-    for (var i = 0, length = keys.length; i < length; i++){
+    for (var i = 0, length = keys.length; i < length; i++) {
       key = keys[i];
       this.notifyPropertyChange(key);
     }
@@ -822,10 +859,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @method adapterDidCommit
   */
   adapterDidCommit: function(data) {
+    var changedKeys;
     set(this, 'isError', false);
 
     if (data) {
-      this._data = data;
+      changedKeys = mergeAndReturnChangedKeys(this._data, data);
     } else {
       merge(this._data, this._inFlightAttributes);
     }
@@ -837,7 +875,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     if (!data) { return; }
 
-    this._notifyProperties(Ember.keys(data));
+    this._notifyProperties(changedKeys);
   },
 
   /**
@@ -870,11 +908,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
   setupData: function(data) {
     Ember.assert("Expected an object as `data` in `setupData`", Ember.typeOf(data) === 'object');
 
-    Ember.merge(this._data, data);
+    var changedKeys = mergeAndReturnChangedKeys(this._data, data);
 
     this.pushedData();
 
-    this._notifyProperties(Ember.keys(data));
+    this._notifyProperties(changedKeys);
   },
 
   materializeId: function(id) {
@@ -882,7 +920,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   },
 
   materializeAttributes: function(attributes) {
-    Ember.assert("Must pass a hash of attributes to materializeAttributes", !!attributes);
+    Ember.assert("Must pass an object to materializeAttributes", !!attributes);
     merge(this._data, attributes);
   },
 
@@ -948,7 +986,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     ```javascript
     record.set('name', 'Tomster');
-    record.save().then(function(){
+    record.save().then(function() {
       // Success callback
     }, function() {
       // Error callback
@@ -1002,8 +1040,8 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     var record = this;
     var promiseLabel = "DS: Model#reload of " + this;
-    var promise = new Promise(function(resolve){
-       record.send('reloadRecord', resolve);
+    var promise = new Promise(function(resolve) {
+      record.send('reloadRecord', resolve);
     }, promiseLabel).then(function() {
       record.set('isReloading', false);
       record.set('isError', false);
@@ -1072,7 +1110,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var args = new Array(length - 1);
     var name = arguments[0];
 
-    for (var i = 1; i < length; i++ ){
+    for (var i = 1; i < length; i++) {
       args[i - 1] = arguments[i];
     }
 
@@ -1084,7 +1122,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var length = arguments.length;
     var args = new Array(length);
 
-    for (var i = 0; i < length; i++ ){
+    for (var i = 0; i < length; i++) {
       args[i] = arguments[i];
     }
 

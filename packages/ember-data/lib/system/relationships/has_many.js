@@ -129,7 +129,7 @@ Model.reopen({
 
     //Goes away once hasMany is double promisified
     this.notifyPropertyChange(key);
-  },
+  }
 });
 
 

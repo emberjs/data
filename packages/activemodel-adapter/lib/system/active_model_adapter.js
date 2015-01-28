@@ -6,8 +6,8 @@ import {pluralize} from "ember-inflector";
   @module ember-data
 */
 
-var decamelize = Ember.String.decamelize,
-    underscore = Ember.String.underscore;
+var decamelize = Ember.String.decamelize;
+var underscore = Ember.String.underscore;
 
 /**
   The ActiveModelAdapter is a subclass of the RESTAdapter designed to integrate

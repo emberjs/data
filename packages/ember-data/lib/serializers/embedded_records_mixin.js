@@ -29,7 +29,7 @@ var camelize = Ember.String.camelize;
   The `attrs` option for a resource `{ embedded: 'always' }` is shorthand for:
 
   ```js
-  { 
+  {
     serialize: 'records',
     deserialize: 'records'
   }
@@ -56,7 +56,7 @@ var camelize = Ember.String.camelize;
   If you do not overwrite `attrs` for a specific relationship, the `EmbeddedRecordsMixin`
   will behave in the following way:
 
-  BelongsTo: `{ serialize: 'id', deserialize: 'id' }`  
+  BelongsTo: `{ serialize: 'id', deserialize: 'id' }`
   HasMany:   `{ serialize: false, deserialize: 'ids' }`
 
   ### Model Relationships
@@ -126,10 +126,10 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
   storePush: function(store, typeName, hash, primarySerializer) {
     if(!primarySerializer)
       store.push(typeName, hash);
-    
+
     var clientId = hash[primarySerializer.clientIdKey];
     var clientRecord = primarySerializer.clientIdMap[clientId];
-    
+
     // if embedded hash contains client id, mimic a createRecord/save
     if (clientRecord) {
       store.didSaveRecord(clientRecord, hash);
@@ -147,7 +147,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     var key = this.keyForAttribute(attr);
     return this.formatEmbeddedKey ? this.formatEmbeddedKey(key) : key;
   },
-  keyForRelationship: function(key, type){
+  keyForRelationship: function(key, type) {
     if (this.hasDeserializeRecordsOption(key)) {
       return this.keyForAttribute(key);
     } else {
@@ -268,7 +268,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       if (!embeddedRecord) {
         json[key] = null;
       } else {
-        json[key] = embeddedRecord.serialize({includeId: true});
+        json[key] = embeddedRecord.serialize({ includeId: true });
         this.removeEmbeddedForeignKey(record, embeddedRecord, relationship, json[key]);
       }
     }
@@ -370,7 +370,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     } else if (includeRecords) {
       key = this.keyForEmbeddedAttribute(attr);
       json[key] = get(record, attr).map(function(embeddedRecord) {
-        var serializedEmbeddedRecord = embeddedRecord.serialize({includeId: true});
+        var serializedEmbeddedRecord = embeddedRecord.serialize({ includeId: true });
         this.removeEmbeddedForeignKey(record, embeddedRecord, relationship, serializedEmbeddedRecord);
         if (embeddedRecord.get('isDeleted')) {
           serializedEmbeddedRecord['_destroy'] = true;
@@ -479,13 +479,16 @@ function extractEmbeddedRecords(serializer, store, type, partial) {
       if (relationship.kind === "hasMany") {
         if (relationship.options.polymorphic) {
           extractEmbeddedHasManyPolymorphic(store, key, partial);
-        }
-        else {
+        } else {
           extractEmbeddedHasMany(store, key, embeddedType, partial, serializer);
         }
       }
       if (relationship.kind === "belongsTo") {
-        extractEmbeddedBelongsTo(store, key, embeddedType, partial);
+        if (relationship.options.polymorphic) {
+          extractEmbeddedBelongsToPolymorphic(store, key, partial);
+        } else {
+          extractEmbeddedBelongsTo(store, key, embeddedType, partial);
+        }
       }
     }
   });
@@ -545,6 +548,25 @@ function extractEmbeddedBelongsTo(store, key, embeddedType, hash) {
 
   hash[key] = embeddedRecord.id;
   //TODO Need to add a reference to the parent later so relationship works between both `belongsTo` records
+  return hash;
+}
+
+function extractEmbeddedBelongsToPolymorphic(store, key, hash) {
+  if (!hash[key]) {
+    return hash;
+  }
+
+  var data = hash[key];
+  var typeKey = data.type;
+  var embeddedSerializer = store.serializerFor(typeKey);
+  var embeddedType = store.modelFor(typeKey);
+  var primaryKey = get(embeddedSerializer, 'primaryKey');
+
+  var embeddedRecord = embeddedSerializer.normalize(embeddedType, data, null);
+  store.push(embeddedType, embeddedRecord);
+
+  hash[key] = embeddedRecord[primaryKey];
+  hash[key + 'Type'] = typeKey;
   return hash;
 }
 

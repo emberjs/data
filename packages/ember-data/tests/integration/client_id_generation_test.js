@@ -45,7 +45,7 @@ test("If an adapter implements the `generateIdForRecord` method, the store shoul
   };
 
   var comment, post;
-  run(function(){
+  run(function() {
     comment = env.store.createRecord('comment');
     post = env.store.createRecord('post');
   });
@@ -55,7 +55,7 @@ test("If an adapter implements the `generateIdForRecord` method, the store shoul
 
   // Despite client-generated IDs, calling commit() on the store should still
   // invoke the adapter's `createRecord` method.
-  run(function(){
+  run(function() {
     comment.save();
     post.save();
   });

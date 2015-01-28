@@ -19,15 +19,13 @@ Car.toString = function() { return "Car"; };
 var manager;
 
 module("integration/record_array_manager- destroy", {
-  setup: function(){
+  setup: function() {
     env = setupStore({
       adapter: DS.FixtureAdapter.extend()
     });
     store = env.store;
 
-    manager = DS.RecordArrayManager.create({
-      store: store
-    });
+    manager = store.recordArrayManager;
 
     env.container.register('model:car', Car);
     env.container.register('model:person', Person);
@@ -55,7 +53,7 @@ test("destroying the store correctly cleans everything up", function() {
   var query = { };
   var person;
 
-  run(function(){
+  run(function() {
     store.push('car', {
       id: 1,
       make: 'BMC',
@@ -64,7 +62,7 @@ test("destroying the store correctly cleans everything up", function() {
     });
   });
 
-  run(function(){
+  run(function() {
     person = store.push('person', {
       id: 1,
       name: 'Tom Dale',
@@ -72,8 +70,8 @@ test("destroying the store correctly cleans everything up", function() {
     });
   });
 
-  var filterd = manager.createFilteredRecordArray(Person, function(){ return true; });
-  var filterd2 = manager.createFilteredRecordArray(Person, function(){ return true; });
+  var filterd = manager.createFilteredRecordArray(Person, function() { return true; });
+  var filterd2 = manager.createFilteredRecordArray(Person, function() { return true; });
   var adapterPopulated = manager.createAdapterPopulatedRecordArray(Person, query);
 
   var filterdSummary = tap(filterd, 'willDestroy');
@@ -102,4 +100,30 @@ test("destroying the store correctly cleans everything up", function() {
 
   equal(filterdSummary.called.length, 1);
   equal(adapterPopulatedSummary.called.length, 1);
+});
+
+
+test("Should not filter a stor.all() array when a record property is changed", function() {
+  var car;
+  var filterdSummary = tap(store.recordArrayManager, 'updateRecordArray');
+
+  store.all('car');
+
+  run(function() {
+    car = store.push('car', {
+      id: 1,
+      make: 'BMC',
+      model: 'Mini Cooper',
+      person: 1
+    });
+  });
+
+  equal(filterdSummary.called.length, 1);
+
+  run(function() {
+    car.set('model', 'Mini');
+  });
+
+  equal(filterdSummary.called.length, 1);
+
 });

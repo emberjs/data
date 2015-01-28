@@ -1,3 +1,5 @@
+/* jshint -W053 */
+
 module("unit/transform - DS.NumberTransform");
 
 test("#serialize", function() {

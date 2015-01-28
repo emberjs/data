@@ -6,14 +6,13 @@ var createRelationshipFor = function(record, relationshipMeta, store) {
   var inverse = record.constructor.inverseFor(relationshipMeta.key);
 
   if (inverse) {
-     inverseKey = inverse.name;
-   }
-
-  if (relationshipMeta.kind === 'hasMany'){
-   return new ManyRelationship(store, record, inverseKey, relationshipMeta);
+    inverseKey = inverse.name;
   }
-  else {
-   return new BelongsToRelationship(store, record, inverseKey, relationshipMeta);
+
+  if (relationshipMeta.kind === 'hasMany') {
+    return new ManyRelationship(store, record, inverseKey, relationshipMeta);
+  } else {
+    return new BelongsToRelationship(store, record, inverseKey, relationshipMeta);
   }
 };
 

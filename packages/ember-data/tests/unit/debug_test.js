@@ -1,4 +1,3 @@
-var store;
 var run = Ember.run;
 
 var TestAdapter = DS.Adapter.extend();
@@ -29,7 +28,7 @@ test("_debugInfo groups the attributes and relationships correctly", function() 
   });
   var record;
 
-  run(function(){
+  run(function() {
     record = store.createRecord(User);
   });
 

@@ -4,7 +4,7 @@ import initializeStoreInjections from 'ember-data/initializers/store_injections'
 import initializeDataAdapter from 'ember-data/initializers/data_adapter';
 import setupActiveModelContainer from 'activemodel-adapter/setup-container';
 
-export default function setupContainer(container, application){
+export default function setupContainer(container, application) {
   // application is not a required argument. This ensures
   // testing setups can setup a container without booting an
   // entire ember application.

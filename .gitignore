@@ -3,6 +3,7 @@ bundle
 tmp/
 tests/source/
 dist/
+.idea
 
 .DS_Store
 .project

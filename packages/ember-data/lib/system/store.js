@@ -113,7 +113,7 @@ function coerceId(id) {
   Define your application's store like this:
 
   ```javascript
-  MyApp.Store = DS.Store.extend();
+  MyApp.ApplicationStore = DS.Store.extend();
   ```
 
   Most Ember.js applications will only have a single `DS.Store` that is
@@ -428,7 +428,8 @@ Store = Ember.Object.extend({
 
     This will ask the adapter's `findAll` method to find the records for the
     given type, and return a promise that will be resolved once the server
-    returns the values.
+    returns the values. The promise will resolve into all records of this type
+    present in the store, even if the server only returns a subset of them.
 
     ---
 
@@ -439,9 +440,37 @@ Store = Ember.Object.extend({
     store.find('person', { page: 1 });
     ```
 
-    This will ask the adapter's `findQuery` method to find the records for
-    the query, and return a promise that will be resolved once the server
-    responds.
+    By passing an object `{page: 1}` as an argument to the find method, it
+    delegates to the adapter's findQuery method. The adapter then makes
+    a call to the server, transforming the object `{page: 1}` as parameters
+    that are sent along, and will return a RecordArray when the promise
+    resolves.
+
+    Exposing queries this way seems preferable to creating an abstract query
+    language for all server-side queries, and then require all adapters to
+    implement them.
+
+    The call made to the server, using a Rails backend, will look something like this:
+
+    ```
+    Started GET "/api/v1/person?page=1"
+    Processing by Api::V1::PersonsController#index as HTML
+    Parameters: {"page"=>"1"}
+    ```
+
+    If you do something like this:
+
+    ```javascript
+    store.find('person', {ids: [1, 2, 3]});
+    ```
+
+    The call to the server, using a Rails backend, will look something like this:
+
+    ```
+    Started GET "/api/v1/person?ids%5B%5D=1&ids%5B%5D=2&ids%5B%5D=3"
+    Processing by Api::V1::PersonsController#index as HTML
+    Parameters: {"ids"=>["1", "2", "3"]}
+    ```
 
     @method find
     @param {String or subclass of DS.Model} type
@@ -527,7 +556,7 @@ Store = Ember.Object.extend({
     if (get(record, 'isEmpty')) {
       fetchedRecord = this.scheduleFetch(record);
       //TODO double check about reloading
-    } else if (get(record, 'isLoading')){
+    } else if (get(record, 'isLoading')) {
       fetchedRecord = record._loadingPromise;
     }
 
@@ -592,7 +621,7 @@ Store = Ember.Object.extend({
 
     record.loadingData(promise);
 
-    if (!this._pendingFetch.get(type)){
+    if (!this._pendingFetch.get(type)) {
       this._pendingFetch.set(type, [recordResolverPair]);
     } else {
       this._pendingFetch.get(type).push(recordResolverPair);
@@ -602,7 +631,7 @@ Store = Ember.Object.extend({
     return promise;
   },
 
-  flushAllPendingFetches: function(){
+  flushAllPendingFetches: function() {
     if (this.isDestroyed || this.isDestroying) {
       return;
     }
@@ -622,9 +651,9 @@ Store = Ember.Object.extend({
     }
 
     function resolveFoundRecords(records) {
-      forEach(records, function(record){
+      forEach(records, function(record) {
         var pair = Ember.A(recordResolverPairs).findBy('record', record);
-        if (pair){
+        if (pair) {
           var resolver = pair.resolver;
           resolver.resolve(record);
         }
@@ -645,9 +674,9 @@ Store = Ember.Object.extend({
     }
 
     function rejectRecords(records, error) {
-      forEach(records, function(record){
+      forEach(records, function(record) {
         var pair = Ember.A(recordResolverPairs).findBy('record', record);
-        if (pair){
+        if (pair) {
           var resolver = pair.resolver;
           resolver.reject(error);
         }
@@ -1101,9 +1130,8 @@ Store = Ember.Object.extend({
   // ............
 
   /**
-    If the adapter updates attributes or acknowledges creation
-    or deletion, the record will notify the store to update its
-    membership in any filters.
+    If the adapter updates attributes the record will notify
+    the store to update its  membership in any filters.
     To avoid thrashing, this method is invoked only once per
 
     run loop per record.
@@ -1150,7 +1178,8 @@ Store = Ember.Object.extend({
     this._pendingSave = [];
 
     forEach(pending, function(tuple) {
-      var record = tuple[0], resolver = tuple[1];
+      var record = tuple[0];
+      var resolver = tuple[1];
       var adapter = this.adapterFor(record.constructor);
       var operation;
 
@@ -1322,7 +1351,7 @@ Store = Ember.Object.extend({
     return factory;
   },
 
-  modelFactoryFor: function(key){
+  modelFactoryFor: function(key) {
     return this.container.lookupFactory('model:' + key);
   },
 
@@ -1400,15 +1429,15 @@ Store = Ember.Object.extend({
     var type = this.modelFor(typeName);
     var filter = Ember.EnumerableUtils.filter;
 
-    // If the payload contains unused keys log a warning.
-    // Adding `Ember.ENV.DS_NO_WARN_ON_UNUSED_KEYS = true` will suppress the warning.
-    if (!Ember.ENV.DS_NO_WARN_ON_UNUSED_KEYS) {
+    // If Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
+    // contains unknown keys, log a warning.
+    if (Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS) {
       Ember.warn("The payload for '" + type.typeKey + "' contains these unknown keys: " +
         Ember.inspect(filter(Ember.keys(data), function(key) {
-          return !get(type, 'fields').has(key) && key !== 'id' && key !== 'links';
+          return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
         })) + ". Make sure they've been defined in your model.",
         filter(Ember.keys(data), function(key) {
-          return !get(type, 'fields').has(key) && key !== 'id' && key !== 'links';
+          return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
         }).length === 0
       );
     }
@@ -1613,6 +1642,11 @@ Store = Ember.Object.extend({
     return record;
   },
 
+  //Called by the state machine to notify the store that the record is ready to be interacted with
+  recordWasLoaded: function(record) {
+    this.recordArrayManager.recordWasLoaded(record);
+  },
+
   // ...............
   // . DESTRUCTION .
   // ...............
@@ -1653,7 +1687,8 @@ Store = Ember.Object.extend({
     @return DS.Adapter
   */
   adapterFor: function(type) {
-    var container = this.container, adapter;
+    var adapter;
+    var container = this.container;
 
     if (container) {
       adapter = container.lookup('adapter:' + type.typeKey) || container.lookup('adapter:application');
@@ -1747,8 +1782,8 @@ function deserializeRecordId(store, data, key, relationship, id) {
     type = typeFor(relationship, key, data);
     data[key] = store.recordForId(type, id);
   } else if (typeof id === 'object') {
-    // polymorphic
-    Ember.assert('Ember Data expected a number or string to represent the record(s) in the `' + relationship.key + '` relationship instead it found an object. If this is a polymorphic relationship please specify a `type` key. If this is an embedded relationship please include the `DS.EmbeddedRecordsMixin` and specify the `' + relationship.key +'` property in your serializer\'s attrs hash.', id.type);
+    // hasMany polymorphic
+    Ember.assert('Ember Data expected a number or string to represent the record(s) in the `' + relationship.key + '` relationship instead it found an object. If this is a polymorphic relationship please specify a `type` key. If this is an embedded relationship please include the `DS.EmbeddedRecordsMixin` and specify the `' + relationship.key +'` property in your serializer\'s attrs object.', id.type);
     data[key] = store.recordForId(id.type, id.id);
   }
 }
@@ -2023,7 +2058,7 @@ function setupRelationships(store, record, data) {
       }
       relationship.setCanonicalRecord(value);
     } else if (kind === 'hasMany' && value) {
-     relationship.updateRecordsFromAdapter(value);
+      relationship.updateRecordsFromAdapter(value);
     }
   });
 }

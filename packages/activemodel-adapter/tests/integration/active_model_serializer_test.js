@@ -12,7 +12,7 @@ module("integration/active_model - ActiveModelSerializer", {
     });
     HomePlanet = DS.Model.extend({
       name:          DS.attr('string'),
-      superVillains: DS.hasMany('superVillain', {async: true})
+      superVillains: DS.hasMany('superVillain', { async: true })
     });
     EvilMinion = DS.Model.extend({
       superVillain: DS.belongsTo('superVillain'),
@@ -21,11 +21,11 @@ module("integration/active_model - ActiveModelSerializer", {
     YellowMinion = EvilMinion.extend();
     DoomsdayDevice = DS.Model.extend({
       name:         DS.attr('string'),
-      evilMinion:   DS.belongsTo('evilMinion', {polymorphic: true})
+      evilMinion:   DS.belongsTo('evilMinion', { polymorphic: true })
     });
     MediocreVillain = DS.Model.extend({
       name:         DS.attr('string'),
-      evilMinions:  DS.hasMany('evilMinion', {polymorphic: true})
+      evilMinions:  DS.hasMany('evilMinion', { polymorphic: true })
     });
     env = setupStore({
       superVillain:   SuperVillain,
@@ -55,7 +55,7 @@ module("integration/active_model - ActiveModelSerializer", {
 
 test("serialize", function() {
   var tom;
-  run(function(){
+  run(function() {
     league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
     tom           = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
   });
@@ -70,7 +70,7 @@ test("serialize", function() {
 });
 
 test("serializeIntoHash", function() {
-  run(function(){
+  run(function() {
     league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
   });
   var json = {};
@@ -86,7 +86,7 @@ test("serializeIntoHash", function() {
 
 test("serializeIntoHash with decamelized types", function() {
   HomePlanet.typeKey = 'home-planet';
-  run(function(){
+  run(function() {
     league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
   });
   var json = {};
@@ -106,7 +106,7 @@ test("normalize", function() {
     yellowMinion: DS.belongsTo('yellowMinion')
   });
 
-  var superVillain_hash = {first_name: "Tom", last_name: "Dale", home_planet_id: "123", evil_minion_ids: [1,2]};
+  var superVillain_hash = { first_name: "Tom", last_name: "Dale", home_planet_id: "123", evil_minion_ids: [1,2] };
 
   var json = env.amsSerializer.normalize(SuperVillain, superVillain_hash, "superVillain");
 
@@ -135,7 +135,7 @@ test("extractSingle", function() {
   env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
 
   var json_hash = {
-    home_planet:   {id: "1", name: "Umber", super_villain_ids: [1]},
+    home_planet:   { id: "1", name: "Umber", super_villain_ids: [1] },
     super_villains:  [{
       id: "1",
       first_name: "Tom",
@@ -145,7 +145,7 @@ test("extractSingle", function() {
   };
 
   var json;
-  run(function(){
+  run(function() {
     json = env.amsSerializer.extractSingle(env.store, HomePlanet, json_hash);
   });
 
@@ -155,8 +155,8 @@ test("extractSingle", function() {
     "superVillains": [1]
   });
 
-  run(function(){
-    env.store.find("superVillain", 1).then(function(minion){
+  run(function() {
+    env.store.find("superVillain", 1).then(function(minion) {
       equal(minion.get('firstName'), "Tom");
     });
   });
@@ -167,11 +167,11 @@ test("extractArray", function() {
   var array;
 
   var json_hash = {
-    home_planets: [{id: "1", name: "Umber", super_villain_ids: [1]}],
-    super_villains: [{id: "1", first_name: "Tom", last_name: "Dale", home_planet_id: "1"}]
+    home_planets: [{ id: "1", name: "Umber", super_villain_ids: [1] }],
+    super_villains: [{ id: "1", first_name: "Tom", last_name: "Dale", home_planet_id: "1" }]
   };
 
-  run(function(){
+  run(function() {
     array = env.amsSerializer.extractArray(env.store, HomePlanet, json_hash);
   });
 
@@ -181,8 +181,8 @@ test("extractArray", function() {
     "superVillains": [1]
   }]);
 
-  run(function(){
-    env.store.find("superVillain", 1).then(function(minion){
+  run(function() {
+    env.store.find("superVillain", 1).then(function(minion) {
       equal(minion.get('firstName'), "Tom");
     });
   });
@@ -190,9 +190,9 @@ test("extractArray", function() {
 
 test("serialize polymorphic", function() {
   var tom, ray;
-  run(function(){
-    tom = env.store.createRecord(YellowMinion,   {name: "Alex", id: "124"});
-    ray = env.store.createRecord(DoomsdayDevice, {evilMinion: tom, name: "DeathRay"});
+  run(function() {
+    tom = env.store.createRecord(YellowMinion,   { name: "Alex", id: "124" });
+    ray = env.store.createRecord(DoomsdayDevice, { evilMinion: tom, name: "DeathRay" });
   });
 
   var json = env.amsSerializer.serialize(ray);
@@ -207,9 +207,9 @@ test("serialize polymorphic", function() {
 test("serialize polymorphic when type key is not camelized", function() {
   YellowMinion.typeKey = 'yellow-minion';
   var tom, ray;
-  run(function(){
-    tom = env.store.createRecord(YellowMinion,   {name: "Alex", id: "124"});
-    ray = env.store.createRecord(DoomsdayDevice, {evilMinion: tom, name: "DeathRay"});
+  run(function() {
+    tom = env.store.createRecord(YellowMinion,   { name: "Alex", id: "124" });
+    ray = env.store.createRecord(DoomsdayDevice, { evilMinion: tom, name: "DeathRay" });
   });
 
   var json = env.amsSerializer.serialize(ray);
@@ -219,8 +219,8 @@ test("serialize polymorphic when type key is not camelized", function() {
 
 test("serialize polymorphic when associated object is null", function() {
   var ray, json;
-  run(function(){
-    ray = env.store.createRecord(DoomsdayDevice, {name: "DeathRay"});
+  run(function() {
+    ray = env.store.createRecord(DoomsdayDevice, { name: "DeathRay" });
     json = env.amsSerializer.serialize(ray);
   });
 
@@ -233,12 +233,12 @@ test("extractPolymorphic hasMany", function() {
   YellowMinion.toString = function() { return "YellowMinion"; };
 
   var json_hash = {
-    mediocre_villain: {id: 1, name: "Dr Horrible", evil_minions: [{ type: "yellow_minion", id: 12}] },
-    evil_minions:    [{id: 12, name: "Alex", doomsday_device_ids: [1] }]
+    mediocre_villain: { id: 1, name: "Dr Horrible", evil_minions: [{ type: "yellow_minion", id: 12 }] },
+    evil_minions:    [{ id: 12, name: "Alex", doomsday_device_ids: [1] }]
   };
   var json;
 
-  run(function(){
+  run(function() {
     json = env.amsSerializer.extractSingle(env.store, MediocreVillain, json_hash);
   });
 
@@ -258,12 +258,12 @@ test("extractPolymorphic", function() {
   YellowMinion.toString = function() { return "YellowMinion"; };
 
   var json_hash = {
-    doomsday_device: {id: 1, name: "DeathRay", evil_minion: { type: "yellow_minion", id: 12}},
-    evil_minions:    [{id: 12, name: "Alex", doomsday_device_ids: [1] }]
+    doomsday_device: { id: 1, name: "DeathRay", evil_minion: { type: "yellow_minion", id: 12 } },
+    evil_minions:    [{ id: 12, name: "Alex", doomsday_device_ids: [1] }]
   };
   var json;
 
-  run(function(){
+  run(function() {
     json = env.amsSerializer.extractSingle(env.store, DoomsdayDevice, json_hash);
   });
 
@@ -279,11 +279,11 @@ test("extractPolymorphic", function() {
 
 test("extractPolymorphic when the related data is not specified", function() {
   var json = {
-    doomsday_device: {id: 1, name: "DeathRay"},
-    evil_minions:    [{id: 12, name: "Alex", doomsday_device_ids: [1] }]
+    doomsday_device: { id: 1, name: "DeathRay" },
+    evil_minions:    [{ id: 12, name: "Alex", doomsday_device_ids: [1] }]
   };
 
-  run(function(){
+  run(function() {
     json = env.amsSerializer.extractSingle(env.store, DoomsdayDevice, json);
   });
 
@@ -296,10 +296,10 @@ test("extractPolymorphic when the related data is not specified", function() {
 
 test("extractPolymorphic hasMany when the related data is not specified", function() {
   var json = {
-    mediocre_villain: {id: 1, name: "Dr Horrible"}
+    mediocre_villain: { id: 1, name: "Dr Horrible" }
   };
 
-  run(function(){
+  run(function() {
     json = env.amsSerializer.extractSingle(env.store, MediocreVillain, json);
   });
 
@@ -312,10 +312,10 @@ test("extractPolymorphic hasMany when the related data is not specified", functi
 
 test("extractPolymorphic does not break hasMany relationships", function() {
   var json = {
-    mediocre_villain: {id: 1, name: "Dr. Evil", evil_minions: []}
+    mediocre_villain: { id: 1, name: "Dr. Evil", evil_minions: [] }
   };
 
-  run(function (){
+  run(function () {
     json = env.amsSerializer.extractSingle(env.store, MediocreVillain, json);
   });
 

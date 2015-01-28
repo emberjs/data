@@ -19,14 +19,14 @@ Person.toString = function() { return "Person"; };
 
 module("integration/unload - Unloading Records", {
   setup: function() {
-   env = setupStore({
-     person: Person,
-     car: Car
-   });
+    env = setupStore({
+      person: Person,
+      car: Car
+    });
   },
 
   teardown: function() {
-    Ember.run(function(){
+    Ember.run(function() {
       env.container.destroy();
     });
   }
@@ -34,11 +34,11 @@ module("integration/unload - Unloading Records", {
 
 test("can unload a single record", function () {
   var adam;
-  run(function(){
-    adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
+  run(function() {
+    adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
   });
 
-  Ember.run(function(){
+  Ember.run(function() {
     adam.unloadRecord();
   });
 
@@ -47,12 +47,12 @@ test("can unload a single record", function () {
 
 test("can unload all records for a given type", function () {
   var adam, bob;
-  run(function(){
-    adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
-    bob = env.store.push('person', {id: 2, name: "Bob Bobson"});
+  run(function() {
+    adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
+    bob = env.store.push('person', { id: 2, name: "Bob Bobson" });
   });
 
-  Ember.run(function(){
+  Ember.run(function() {
     env.store.unloadAll('person');
   });
 
@@ -61,12 +61,12 @@ test("can unload all records for a given type", function () {
 
 test("removes findAllCache after unloading all records", function () {
   var adam, bob;
-  run(function(){
-    adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
-    bob = env.store.push('person', {id: 2, name: "Bob Bobson"});
+  run(function() {
+    adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
+    bob = env.store.push('person', { id: 2, name: "Bob Bobson" });
   });
 
-  Ember.run(function(){
+  Ember.run(function() {
     env.store.all('person');
     env.store.unloadAll('person');
   });
@@ -76,15 +76,15 @@ test("removes findAllCache after unloading all records", function () {
 
 test("unloading all records also updates record array from all()", function() {
   var adam, bob;
-  run(function(){
-    adam = env.store.push('person', {id: 1, name: "Adam Sunderland"});
-    bob = env.store.push('person', {id: 2, name: "Bob Bobson"});
+  run(function() {
+    adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
+    bob = env.store.push('person', { id: 2, name: "Bob Bobson" });
   });
   var all = env.store.all('person');
 
   equal(all.get('length'), 2);
 
-  Ember.run(function(){
+  Ember.run(function() {
     env.store.unloadAll('person');
   });
 
@@ -95,7 +95,7 @@ test("unloading all records also updates record array from all()", function() {
 //TODO(Igor) think about how this works with ssot and unloading
 test("unloading a record also clears its relationship", function() {
   var adam, bob;
-  run(function(){
+  run(function() {
     adam = env.store.push('person', {
       id: 1,
       name: "Adam Sunderland",
@@ -103,7 +103,7 @@ test("unloading a record also clears its relationship", function() {
     });
   });
 
-  run(function(){
+  run(function() {
     bob = env.store.push('car', {
       id: 1,
       make: "Lotus",
@@ -112,11 +112,11 @@ test("unloading a record also clears its relationship", function() {
     });
   });
 
-  run(function(){
-    env.store.find('person', 1).then(function(person){
+  run(function() {
+    env.store.find('person', 1).then(function(person) {
       equal(person.get('cars.length'), 1, 'aaaa');
 
-      run(function(){
+      run(function() {
         person.unloadRecord();
       });
 

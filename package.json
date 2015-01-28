@@ -1,6 +1,6 @@
 {
   "name": "ember-data",
-  "version": "1.0.0-beta.14",
+  "version": "1.0.0-beta.15-canary",
   "namespace": "DS",
   "repository": "git://github.com/emberjs/data.git",
   "license": "MIT",
@@ -14,15 +14,16 @@
     "lib/ember-addon"
   ],
   "scripts": {
-    "prepublish": "npm run-script dist",
+    "build": "ember build",
+    "build:production": "ember build --environment=production",
+    "prepublish": "bower install && npm run-script build:production",
     "start": "ember serve",
-    "dist": "ember build --environment=production",
-    "test": "testem -R dot ci",
-    "publish-build": "npm run dist && ./bin/publish_to_s3.js",
-    "testem-local": "testem -R dot ci",
-    "testem-beta": "testem -f config/testem-beta.json -R dot ci",
-    "testem-canary": "testem -f config/testem-canary.json -R dot ci",
-    "testem-stable": "testem -f config/testem-stable.json -R dot ci"
+    "test": "node_modules/broccoli-jscs/node_modules/jscs/bin/jscs packages && testem -R dot ci",
+    "publish-build": "npm run build:production && ./bin/publish_to_s3.js",
+    "test:local": "testem -R dot ci",
+    "test:beta": "testem -f config/testem-beta.json -R dot ci",
+    "test:canary": "testem -f config/testem-canary.json -R dot ci",
+    "test:stable": "testem -f config/testem-stable.json -R dot ci"
   },
   "devDependencies": {
     "aws-sdk": "~2.0.0-rc8",
@@ -40,7 +41,7 @@
     "broccoli-merge-trees": "^0.1.4",
     "broccoli-render-template": "0.0.3",
     "broccoli-static-compiler": "^0.2.1",
-    "broccoli-string-replace": "0.0.2",
+    "broccoli-replace": "~0.2.0",
     "broccoli-uglify-js": "^0.1.3",
     "broccoli-wrap": "0.0.2",
     "broccoli-yuidoc": "^1.3.0",
@@ -54,5 +55,8 @@
     "git-repo-version": "0.0.2",
     "testem": "^0.6.19",
     "yuidocjs": "~0.3.46"
+  },
+  "dependencies": {
+    "broccoli-jscs": "0.0.12"
   }
 }

@@ -11,7 +11,7 @@ module("unit/store/metadata_for - DS.Store#metadataFor", {
   },
 
   teardown: function() {
-    run(function(){
+    run(function() {
       store.destroy();
     });
   }
@@ -27,9 +27,9 @@ test("metaForType should be deprecated", function() {
 
 test("metadataFor and setMetadataFor should return and set correct metadata", function() {
   expect(7);
-  var keys = Ember.keys;
-  function metadataKeys(type){
-    return keys(store.metadataFor(type));
+
+  function metadataKeys(type) {
+    return Ember.keys(store.metadataFor(type));
   }
 
   // Currently not using QUnit.deepEqual due to the way deepEqual

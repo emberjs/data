@@ -51,7 +51,7 @@ test("get error", function() {
   errors.add('firstName', 'error');
   errors.trigger = unexpectedSend;
   ok(errors.get('firstName').length === 1, 'returns errors');
-  deepEqual(errors.get('firstObject'), {attribute: 'firstName', message: 'error'});
+  deepEqual(errors.get('firstObject'), { attribute: 'firstName', message: 'error' });
   errors.add('firstName', 'error2');
   ok(errors.get('firstName').length === 2, 'returns errors');
   errors.add('lastName', 'error3');

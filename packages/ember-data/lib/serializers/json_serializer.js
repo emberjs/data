@@ -232,7 +232,8 @@ export default Ember.Object.extend({
     @private
   */
   normalizeUsingDeclaredMapping: function(type, hash) {
-    var attrs = get(this, 'attrs'), payloadKey, key;
+    var attrs = get(this, 'attrs');
+    var payloadKey, key;
 
     if (attrs) {
       for (key in attrs) {
@@ -286,10 +287,10 @@ export default Ember.Object.extend({
       mappedKey = attrs[key];
       //We need to account for both the {title: 'post_title'} and
       //{title: {key: 'post_title'}} forms
-      if (mappedKey.key){
+      if (mappedKey.key) {
         mappedKey = mappedKey.key;
       }
-      if (typeof mappedKey === 'string'){
+      if (typeof mappedKey === 'string') {
         key = mappedKey;
       }
     }
@@ -737,7 +738,7 @@ export default Ember.Object.extend({
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindAll: function(store, type, payload, id, requestType){
+  extractFindAll: function(store, type, payload, id, requestType) {
     return this.extractArray(store, type, payload, id, requestType);
   },
   /**
@@ -753,7 +754,7 @@ export default Ember.Object.extend({
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindQuery: function(store, type, payload, id, requestType){
+  extractFindQuery: function(store, type, payload, id, requestType) {
     return this.extractArray(store, type, payload, id, requestType);
   },
   /**
@@ -769,7 +770,7 @@ export default Ember.Object.extend({
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindMany: function(store, type, payload, id, requestType){
+  extractFindMany: function(store, type, payload, id, requestType) {
     return this.extractArray(store, type, payload, id, requestType);
   },
   /**
@@ -785,7 +786,7 @@ export default Ember.Object.extend({
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindHasMany: function(store, type, payload, id, requestType){
+  extractFindHasMany: function(store, type, payload, id, requestType) {
     return this.extractArray(store, type, payload, id, requestType);
   },
 
@@ -1033,7 +1034,7 @@ export default Ember.Object.extend({
    @param {String} key
    @return {String} normalized key
   */
-  keyForAttribute: function(key){
+  keyForAttribute: function(key) {
     return key;
   },
 
@@ -1058,7 +1059,7 @@ export default Ember.Object.extend({
    @return {String} normalized key
   */
 
-  keyForRelationship: function(key, type){
+  keyForRelationship: function(key, type) {
     return key;
   },
 

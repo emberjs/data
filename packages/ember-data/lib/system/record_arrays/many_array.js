@@ -2,7 +2,8 @@
   @module ember-data
 */
 
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
+var set = Ember.set;
 
 /**
   A `ManyArray` is a `RecordArray` that represents the contents of a has-many
@@ -38,7 +39,8 @@ var get = Ember.get, set = Ember.set;
 
   @class ManyArray
   @namespace DS
-  @extends DS.RecordArray
+  @extends Ember.Object
+  @uses Ember.MutableArray, Ember.Evented
 */
 export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   init: function() {
@@ -111,7 +113,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     this.currentState.splice.apply(this.currentState, [idx, amt].concat(objects));
     this.set('length', this.currentState.length);
     this.arrayContentDidChange(idx, amt, objects.length);
-    if (objects){
+    if (objects) {
       //TODO(Igor) probably needed only for unloaded records
       this.relationship.notifyHasManyChanged();
     }
@@ -121,7 +123,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   //TODO(Igor) optimize
   internalRemoveRecords: function(records) {
     var index;
-    for(var i=0; i < records.length; i++) {
+    for (var i=0; i < records.length; i++) {
       index = this.currentState.indexOf(records[i]);
       this.internalReplace(index, 1);
     }
@@ -137,11 +139,11 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
   replace: function(idx, amt, objects) {
     var records;
-    if (amt > 0){
+    if (amt > 0) {
       records = this.currentState.slice(idx, idx+amt);
       this.get('relationship').removeRecords(records);
     }
-    if (objects){
+    if (objects) {
       this.get('relationship').addRecords(objects, idx);
     }
   },
@@ -202,5 +204,25 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     this.pushObject(record);
 
     return record;
+  },
+
+  /**
+    @method addRecord
+    @param {DS.Model} record
+    @deprecated Use `addObject()` instead
+  */
+  addRecord: function(record) {
+    Ember.deprecate('Using manyArray.addRecord() has been deprecated. You should use manyArray.addObject() instead.');
+    this.addObject(record);
+  },
+
+  /**
+    @method removeRecord
+    @param {DS.Model} record
+    @deprecated Use `removeObject()` instead
+  */
+  removeRecord: function(record) {
+    Ember.deprecate('Using manyArray.removeRecord() has been deprecated. You should use manyArray.removeObject() instead.');
+    this.removeObject(record);
   }
 });

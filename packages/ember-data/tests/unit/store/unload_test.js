@@ -1,6 +1,6 @@
 var get = Ember.get;
-var store, tryToFind, Record;
 var run = Ember.run;
+var store, tryToFind, Record;
 
 module("unit/store/unload - Store unloading records", {
   setup: function() {
@@ -13,7 +13,8 @@ module("unit/store/unload - Store unloading records", {
     });
 
     Record = DS.Model.extend({
-      title: DS.attr('string')
+      title: DS.attr('string'),
+      wasFetched: DS.attr('boolean')
     });
   },
 
@@ -23,7 +24,9 @@ module("unit/store/unload - Store unloading records", {
 });
 
 test("unload a dirty record", function() {
-  run(function(){
+  expect(2);
+
+  run(function() {
     store.push(Record, {
       id: 1,
       title: 'toto'
@@ -40,7 +43,7 @@ test("unload a dirty record", function() {
       }, "You can only unload a record which is not inFlight. `" + Ember.inspect(record) + "`", "can not unload dirty record");
 
       // force back into safe to unload mode.
-      run(function(){
+      run(function() {
         record.transitionTo('deleted.saved');
       });
     });
@@ -48,13 +51,15 @@ test("unload a dirty record", function() {
 });
 
 test("unload a record", function() {
-  run(function(){
-    store.push(Record, {id: 1, title: 'toto'});
+  expect(5);
+
+  run(function() {
+    store.push(Record, { id: 1, title: 'toto' });
     store.find(Record, 1).then(function(record) {
       equal(get(record, 'id'), 1, "found record with id 1");
       equal(get(record, 'isDirty'), false, "record is not dirty");
 
-      run(function(){
+      run(function() {
         store.unloadRecord(record);
       });
 
@@ -62,7 +67,7 @@ test("unload a record", function() {
       equal(get(record, 'isDeleted'), true, "record is deleted");
 
       tryToFind = false;
-      return store.find(Record, 1).then(function(){
+      return store.find(Record, 1).then(function() {
         equal(tryToFind, true, "not found record with id 1");
       });
     });
@@ -73,6 +78,8 @@ module("DS.Store - unload record with relationships");
 
 
 test("can commit store after unload record with relationships", function() {
+  expect(1);
+
   var like, product;
 
   var Brand = DS.Model.extend({
@@ -103,7 +110,7 @@ test("can commit store after unload record with relationships", function() {
   });
   var asyncRecords;
 
-  run(function(){
+  run(function() {
     store.push(Brand, { id: 1, name: 'EmberJS' });
     store.push(Product, { id: 1, description: 'toto', brand: 1 });
     asyncRecords = Ember.RSVP.hash({

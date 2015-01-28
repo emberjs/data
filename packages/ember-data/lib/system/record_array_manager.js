@@ -71,14 +71,30 @@ export default Ember.Object.extend({
 
     if (!recordArrays) { return; }
 
-    recordArrays.forEach(function(array){
+    recordArrays.forEach(function(array) {
       array.removeRecord(record);
     });
 
     record._recordArrays = null;
   },
 
+
+  //Don't need to update non filtered arrays on simple changes
   _recordWasChanged: function (record) {
+    var type = record.constructor;
+    var recordArrays = this.filteredRecordArrays.get(type);
+    var filter;
+
+    forEach(recordArrays, function(array) {
+      filter = get(array, 'filterFunction');
+      if (filter) {
+        this.updateRecordArray(array, filter, type, record);
+      }
+    }, this);
+  },
+
+  //Need to update live arrays on loading
+  recordWasLoaded: function(record) {
     var type = record.constructor;
     var recordArrays = this.filteredRecordArrays.get(type);
     var filter;
@@ -87,20 +103,7 @@ export default Ember.Object.extend({
       filter = get(array, 'filterFunction');
       this.updateRecordArray(array, filter, type, record);
     }, this);
-
-    // loop through all manyArrays containing an unloaded copy of this
-    // clientId and notify them that the record was loaded.
-    var manyArrays = record._loadingRecordArrays;
-
-    if (manyArrays) {
-      for (var i=0, l=manyArrays.length; i<l; i++) {
-        manyArrays[i].loadedRecord();
-      }
-
-      record._loadingRecordArrays = [];
-    }
   },
-
   /**
     Update an individual filter.
 
@@ -123,7 +126,7 @@ export default Ember.Object.extend({
 
     if (shouldBeInArray) {
       if (!recordArrays.has(array)) {
-        array.pushRecord(record);
+        array._pushRecord(record);
         recordArrays.add(array);
       }
     } else if (!shouldBeInArray) {
@@ -146,9 +149,10 @@ export default Ember.Object.extend({
   */
   updateFilter: function(array, type, filter) {
     var typeMap = this.store.typeMapFor(type);
-    var records = typeMap.records, record;
+    var records = typeMap.records;
+    var record;
 
-    for (var i=0, l=records.length; i<l; i++) {
+    for (var i = 0, l = records.length; i < l; i++) {
       record = records[i];
 
       if (!get(record, 'isDeleted') && !get(record, 'isEmpty')) {
@@ -255,35 +259,15 @@ export default Ember.Object.extend({
     recordArrays.splice(index, 1);
   },
 
-  // Internally, we maintain a map of all unloaded IDs requested by
-  // a ManyArray. As the adapter loads data into the store, the
-  // store notifies any interested ManyArrays. When the ManyArray's
-  // total number of loading records drops to zero, it becomes
-  // `isLoaded` and fires a `didLoad` event.
-  registerWaitingRecordArray: function(record, array) {
-    var loadingRecordArrays = record._loadingRecordArrays || [];
-    loadingRecordArrays.push(array);
-    record._loadingRecordArrays = loadingRecordArrays;
-  },
-
-  willDestroy: function(){
+  willDestroy: function() {
     this._super();
 
-    forEach(flatten(values(this.filteredRecordArrays.values)), destroy);
+    this.filteredRecordArrays.forEach(function(value) {
+      forEach(flatten(value), destroy);
+    });
     forEach(this._adapterPopulatedRecordArrays, destroy);
   }
 });
-
-function values(obj) {
-  var result = [];
-  var keys = Ember.keys(obj);
-
-  for (var i = 0; i < keys.length; i++) {
-    result.push(obj[keys[i]]);
-  }
-
-  return result;
-}
 
 function destroy(entry) {
   entry.destroy();

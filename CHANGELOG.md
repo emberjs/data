@@ -2,7 +2,13 @@
 
 ### Master
 
-### Ember Data 1.0.0-beta.13 (December 25, 2014)
+### Ember Data 1.0.0-beta.14.1 (December 31, 2014)
+
+* Replace `<%= versionStamp %>` with actual version stamp. Thanks
+  @tricknotes!
+* Fix sourcemap loading in Ember CLI and Rails.
+
+### Ember Data 1.0.0-beta.14 (December 25, 2014)
 
 #### Breaking Changes
 
@@ -81,6 +87,12 @@ export default DS.RESTSerializer.extend({
 });
 ```
 
+##### `store.metaForType()` has been deprecated
+
+`store.metaForType()` has been deprecated because of it's ambiguous naming.
+Please use `store.metadataFor()` to get metadata and `store.setMetadataFor()`
+to set metadata.
+
 #### Changes
 
 * Fix references to buildURL in documentation
@@ -109,6 +121,7 @@ export default DS.RESTSerializer.extend({
 * [Feature thrownError] tag errorThrown from jQuery onto the jqXHR like ic-ajax does.
 * Cache relationships meta in production
 * Deprecate store.update()
+* Relationships are no long `ArrayProxy`, you can directly access them, so instead of relationship.get('content'). just use `relationship.toArray()`.
 
 ### Ember Data 1.0.0-beta.12 (November 25, 2014)
 

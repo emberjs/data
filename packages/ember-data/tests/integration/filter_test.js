@@ -1,4 +1,5 @@
-var get = Ember.get, set = Ember.set;
+var get = Ember.get;
+var set = Ember.set;
 var forEach = Ember.EnumerableUtils.forEach;
 var indexOf = Ember.EnumerableUtils.indexOf;
 var run = Ember.run;
@@ -34,7 +35,7 @@ function tapFn(fn, callback) {
   var new_fn = function() {
     var result = old_fn.apply(this, arguments);
     if (callback) {
-      callback.apply(obj, arguments);
+      callback.apply(fn, arguments);
     }
     new_fn.summary.called.push(arguments);
     return result;
@@ -46,18 +47,18 @@ function tapFn(fn, callback) {
 
 
 test("when a DS.Model updates its attributes, its changes affect its filtered Array membership", function() {
-  run(function(){
+  run(function() {
     store.pushMany('person', array);
   });
   var people;
 
-  run(function(){
+  run(function() {
     people = store.filter('person', function(hash) {
       if (hash.get('name').match(/Katz$/)) { return true; }
     });
   });
 
-  run(function(){
+  run(function() {
     equal(get(people, 'length'), 1, "precond - one item is in the RecordArray");
   });
 
@@ -65,14 +66,14 @@ test("when a DS.Model updates its attributes, its changes affect its filtered Ar
 
   equal(get(person, 'name'), "Scumbag Katz", "precond - the item is correct");
 
-  run(function(){
+  run(function() {
     set(person, 'name', "Yehuda Katz");
   });
 
   equal(get(people, 'length'), 1, "there is still one item");
   equal(get(person, 'name'), "Yehuda Katz", "it has the updated item");
 
-  run(function(){
+  run(function() {
     set(person, 'name', "Yehuda Katz-Foo");
   });
 
@@ -81,18 +82,18 @@ test("when a DS.Model updates its attributes, its changes affect its filtered Ar
 });
 
 test("when a DS.Model updates its relationships, its changes affect its filtered Array membership", function() {
-  run(function(){
+  run(function() {
     store.pushMany('person', array);
   });
   var people;
 
-  run(function(){
+  run(function() {
     people = store.filter('person', function(person) {
       if (person.get('bestFriend') && person.get('bestFriend.name').match(/Katz$/)) { return true; }
     });
   });
 
-  run(function(){
+  run(function() {
     equal(get(people, 'length'), 1, "precond - one item is in the RecordArray");
   });
 
@@ -100,7 +101,7 @@ test("when a DS.Model updates its relationships, its changes affect its filtered
 
   equal(get(person, 'name'), "Scumbag Dale", "precond - the item is correct");
 
-  run(function(){
+  run(function() {
     set(person, 'bestFriend', null);
   });
 
@@ -108,7 +109,7 @@ test("when a DS.Model updates its relationships, its changes affect its filtered
 
   var erik = store.getById('person', 3);
   var yehuda = store.getById('person', 2);
-  run(function(){
+  run(function() {
     erik.set('bestFriend', yehuda);
   });
 
@@ -119,12 +120,12 @@ test("when a DS.Model updates its relationships, its changes affect its filtered
 
 
 test("a record array can have a filter on it", function() {
-  run(function(){
+  run(function() {
     store.pushMany('person', array);
   });
   var recordArray;
 
-  run(function(){
+  run(function() {
     recordArray = store.filter('person', function(hash) {
       if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
     });
@@ -132,13 +133,13 @@ test("a record array can have a filter on it", function() {
 
   equal(get(recordArray, 'length'), 2, "The Record Array should have the filtered objects on it");
 
-  run(function(){
+  run(function() {
     store.push('person', { id: 4, name: "Scumbag Koz" });
   });
 
   equal(get(recordArray, 'length'), 3, "The Record Array should be updated as new items are added to the store");
 
-  run(function(){
+  run(function() {
     store.push('person', { id: 1, name: "Scumbag Tom" });
   });
 
@@ -146,12 +147,12 @@ test("a record array can have a filter on it", function() {
 });
 
 test("a filtered record array includes created elements", function() {
-  run(function(){
+  run(function() {
     store.pushMany('person', array);
   });
   var recordArray;
 
-  run(function(){
+  run(function() {
     recordArray = store.filter('person', function(hash) {
       if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
     });
@@ -159,7 +160,7 @@ test("a filtered record array includes created elements", function() {
 
   equal(get(recordArray, 'length'), 2, "precond - The Record Array should have the filtered objects on it");
 
-  run(function(){
+  run(function() {
     store.createRecord('person', { name: "Scumbag Koz" });
   });
 
@@ -167,7 +168,7 @@ test("a filtered record array includes created elements", function() {
 });
 
 test("a Record Array can update its filter", function() {
-  run(function(){
+  run(function() {
     set(store, 'adapter', DS.Adapter.extend({
       deleteRecord: function(store, type, record) {
         return Ember.RSVP.resolve();
@@ -175,18 +176,18 @@ test("a Record Array can update its filter", function() {
     }));
   });
 
-  run(function(){
+  run(function() {
     store.pushMany('person', array);
   });
 
-  var dickens = run(function(){
+  var dickens = run(function() {
     var record = store.createRecord('person', { id: 4, name: "Scumbag Dickens" });
     record.deleteRecord();
     return record;
   });
   var asyncDale, asyncKatz, asyncBryn;
 
-  run(function(){
+  run(function() {
     asyncDale = store.find('person', 1);
     asyncKatz = store.find('person', 2);
     asyncBryn = store.find('person', 3);
@@ -226,7 +227,7 @@ test("a Record Array can update its filter", function() {
 });
 
 test("a Record Array can update its filter and notify array observers", function() {
-  run(function(){
+  run(function() {
     set(store, 'adapter', DS.Adapter.extend({
       deleteRecord: function(store, type, record) {
         return Ember.RSVP.resolve();
@@ -234,19 +235,19 @@ test("a Record Array can update its filter and notify array observers", function
     }));
   });
 
-  run(function(){
+  run(function() {
     store.pushMany('person', array);
   });
   var dickens;
 
-  run(function(){
+  run(function() {
     dickens = store.createRecord('person', { id: 4, name: "Scumbag Dickens" });
     dickens.deleteRecord();
   });
 
   var asyncDale, asyncKatz, asyncBryn;
 
-  run(function(){
+  run(function() {
     asyncDale = store.find('person', 1);
     asyncKatz = store.find('person', 2);
     asyncBryn = store.find('person', 3);
@@ -256,7 +257,9 @@ test("a Record Array can update its filter and notify array observers", function
     if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
   }).then(async(function(recordArray) {
 
-    var didChangeIdx, didChangeRemoved = 0, didChangeAdded = 0;
+    var didChangeIdx;
+    var didChangeRemoved = 0;
+    var didChangeAdded = 0;
 
     var arrayObserver = {
       arrayWillChange: Ember.K,
@@ -276,7 +279,7 @@ test("a Record Array can update its filter and notify array observers", function
       });
     });
 
-    Ember.RSVP.all([ asyncDale, asyncKatz, asyncBryn ]).then(async(function() {
+    Ember.RSVP.all([asyncDale, asyncKatz, asyncBryn]).then(async(function() {
       equal(didChangeRemoved, 1, "removed one item from array");
       didChangeRemoved = 0;
 
@@ -317,7 +320,7 @@ test("it is possible to filter by computed properties", function() {
   });
   var filter;
 
-  run(function(){
+  run(function() {
     filter = store.filter('person', function(person) {
       return person.get('upperName') === "TOM DALE";
     });
@@ -325,7 +328,7 @@ test("it is possible to filter by computed properties", function() {
 
   equal(filter.get('length'), 0, "precond - the filter starts empty");
 
-  run(function(){
+  run(function() {
     store.push('person', { id: 1, name: "Tom Dale" });
   });
 
@@ -348,12 +351,12 @@ test("a filter created after a record is already loaded works", function() {
     }).property('name')
   });
 
-  run(function(){
+  run(function() {
     store.push('person', { id: 1, name: "Tom Dale" });
   });
   var filter;
 
-  run(function(){
+  run(function() {
     filter = store.filter('person', function(person) {
       return person.get('upperName') === "TOM DALE";
     });
@@ -374,7 +377,7 @@ test("filter with query persists query on the resulting filteredRecordArray", fu
   }));
   var filter;
 
-  run(function(){
+  run(function() {
     filter = store.filter(Person, { foo: 1 }, function(person) {
       return true;
     });
@@ -390,7 +393,7 @@ test("filter with query persists query on the resulting filteredRecordArray", fu
 
 test("it is possible to filter by state flags", function() {
   var filter;
-  run(function(){
+  run(function() {
     set(store, 'adapter', DS.Adapter.extend({
       find: function(store, type, id) {
         return Ember.RSVP.resolve({ id: id, name: "Tom Dale" });
@@ -430,7 +433,7 @@ test("it is possible to filter loaded records by dirtiness", function() {
     return !person.get('isDirty');
   });
 
-  run(function(){
+  run(function() {
     store.push('person', { id: 1, name: "Tom Dale" });
   });
 
@@ -452,7 +455,7 @@ test("it is possible to filter loaded records by dirtiness", function() {
 });
 
 test("it is possible to filter created records by dirtiness", function() {
-  run(function(){
+  run(function() {
     set(store, 'adapter', DS.Adapter.extend({
       createRecord: function() {
         return Ember.RSVP.resolve();
@@ -462,7 +465,7 @@ test("it is possible to filter created records by dirtiness", function() {
 
   var filter;
 
-  run(function(){
+  run(function() {
     filter = store.filter('person', function(person) {
       return !person.get('isDirty');
     });
@@ -470,7 +473,7 @@ test("it is possible to filter created records by dirtiness", function() {
 
   var person;
 
-  run(function(){
+  run(function() {
     person = store.createRecord('person', {
       id: 1,
       name: "Tom Dale"
@@ -479,7 +482,7 @@ test("it is possible to filter created records by dirtiness", function() {
 
   equal(filter.get('length'), 0, "the dirty record is not in the filter");
 
-  run(function(){
+  run(function() {
     person.save().then(function(person) {
       equal(filter.get('length'), 1, "the clean record is in the filter");
     });
@@ -534,19 +537,19 @@ var clientCreates = function(names) {
 
   // wrap in an Ember.run to guarantee coalescence of the
   // iterated `set` calls.
-  Ember.run( function() {
-    forEach(names, function( name ) {
+  Ember.run(function() {
+    forEach(names, function(name) {
       edited.push(store.createRecord('person', { name: 'Client-side ' + name }));
     });
   });
 };
 
-var serverResponds = function(){
+var serverResponds = function() {
   forEach(edited, function(person) { run(person, 'save'); });
 };
 
 var setup = function(serverCallbacks) {
-  run(function(){
+  run(function() {
     set(store, 'adapter', DS.Adapter.extend(serverCallbacks));
 
     store.pushMany('person', array);
@@ -562,7 +565,7 @@ var setup = function(serverCallbacks) {
 test("a Record Array can update its filter after server-side updates one record", function() {
   setup({
     updateRecord: function(store, type, record) {
-      return Ember.RSVP.resolve({id: 1, name: "Scumbag Server-side Dale"});
+      return Ember.RSVP.resolve({ id: 1, name: "Scumbag Server-side Dale" });
     }
   });
 
@@ -595,7 +598,7 @@ test("a Record Array can update its filter after server-side updates multiple re
 test("a Record Array can update its filter after server-side creates one record", function() {
   setup({
     createRecord: function(store, type, record) {
-      return Ember.RSVP.resolve({id: 4, name: "Scumbag Server-side Tim"});
+      return Ember.RSVP.resolve({ id: 4, name: "Scumbag Server-side Tim" });
     }
   });
 
@@ -611,9 +614,9 @@ test("a Record Array can update its filter after server-side creates multiple re
     createRecord: function(store, type, record) {
       switch (record.get('name')) {
         case "Client-side Mike":
-          return Ember.RSVP.resolve({id: 4, name: "Scumbag Server-side Mike"});
+          return Ember.RSVP.resolve({ id: 4, name: "Scumbag Server-side Mike" });
         case "Client-side David":
-          return Ember.RSVP.resolve({id: 5, name: "Scumbag Server-side David"});
+          return Ember.RSVP.resolve({ id: 5, name: "Scumbag Server-side David" });
       }
     }
   });
@@ -630,9 +633,9 @@ test("a Record Array can update its filter after server-side creates multiple re
     createRecord: function(store, type, record) {
       switch (record.get('name')) {
         case "Client-side Mike":
-          return Ember.RSVP.resolve({id: 4, name: "Scumbag Server-side Mike"});
+          return Ember.RSVP.resolve({ id: 4, name: "Scumbag Server-side Mike" });
         case "Client-side David":
-          return Ember.RSVP.resolve({id: 5, name: "Scumbag Server-side David"});
+          return Ember.RSVP.resolve({ id: 5, name: "Scumbag Server-side David" });
       }
     }
   });
@@ -645,10 +648,10 @@ test("a Record Array can update its filter after server-side creates multiple re
 });
 
 test("destroying filteredRecordArray unregisters models from being filtered", function() {
-  var filterFn = tapFn( function(){ return true; } );
+  var filterFn = tapFn(function() { return true; });
   var person;
 
-  run(function(){
+  run(function() {
     person = store.push('person', {
       id: 1,
       name: 'Tom Dale'
@@ -657,14 +660,14 @@ test("destroying filteredRecordArray unregisters models from being filtered", fu
 
   var recordArray;
 
-  run(function(){
+  run(function() {
     recordArray = store.filter('person', filterFn);
   });
 
   equal(filterFn.summary.called.length, 1);
 
-  Ember.run(function(){
-    recordArray.then(function(array){
+  Ember.run(function() {
+    recordArray.then(function(array) {
       array.destroy();
     });
   });

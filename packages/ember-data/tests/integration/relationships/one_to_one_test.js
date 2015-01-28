@@ -1,7 +1,8 @@
 var env, store, User, Job;
 var run = Ember.run;
 
-var attr = DS.attr, belongsTo = DS.belongsTo;
+var attr = DS.attr;
+var belongsTo = DS.belongsTo;
 
 function stringify(string) {
   return function() { return string; };
@@ -11,7 +12,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', {
   setup: function() {
     User = DS.Model.extend({
       name: attr('string'),
-      bestFriend: belongsTo('user', {async: true}),
+      bestFriend: belongsTo('user', { async: true }),
       job: belongsTo('job')
     });
     User.toString = stringify('User');
@@ -41,9 +42,9 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', {
 
 test("Relationship is available from both sides even if only loaded from one side - async", function () {
   var stanley, stanleysFriend;
-  run(function(){
-    stanley = store.push('user', {id:1, name: 'Stanley', bestFriend: 2});
-    stanleysFriend = store.push('user', {id:2, name: "Stanley's friend"});
+  run(function() {
+    stanley = store.push('user', { id: 1, name: 'Stanley', bestFriend: 2 });
+    stanleysFriend = store.push('user', { id: 2, name: "Stanley's friend" });
     stanleysFriend.get('bestFriend').then(function(fetchedUser) {
       equal(fetchedUser, stanley, 'User relationship was set up correctly');
     });
@@ -52,18 +53,18 @@ test("Relationship is available from both sides even if only loaded from one sid
 
 test("Relationship is available from both sides even if only loaded from one side - sync", function () {
   var job, user;
-  run(function(){
-    job = store.push('job', {id:2 , isGood: true});
-    user = store.push('user', {id:1, name: 'Stanley', job:2 });
+  run(function() {
+    job = store.push('job', { id: 2 , isGood: true });
+    user = store.push('user', { id: 1, name: 'Stanley', job: 2 });
   });
   equal(job.get('user'), user, 'User relationship was set up correctly');
 });
 
 test("Fetching a belongsTo that is set to null removes the record from a relationship - async", function () {
   var stanleysFriend;
-  run(function(){
-    stanleysFriend = store.push('user', {id:2, name: "Stanley's friend", bestFriend: 1});
-    store.push('user', {id:1, name: 'Stanley', bestFriend: null});
+  run(function() {
+    stanleysFriend = store.push('user', { id: 2, name: "Stanley's friend", bestFriend: 1 });
+    store.push('user', { id: 1, name: 'Stanley', bestFriend: null });
     stanleysFriend.get('bestFriend').then(function(fetchedUser) {
       equal(fetchedUser, null, 'User relationship was removed correctly');
     });
@@ -72,12 +73,12 @@ test("Fetching a belongsTo that is set to null removes the record from a relatio
 
 test("Fetching a belongsTo that is set to null removes the record from a relationship - sync", function () {
   var job;
-  run(function(){
-    job = store.push('job', {id:2 , isGood: true});
-    store.push('user', {id:1, name: 'Stanley', job:2 });
+  run(function() {
+    job = store.push('job', { id: 2 , isGood: true });
+    store.push('user', { id: 1, name: 'Stanley', job: 2 });
   });
-  run(function(){
-    job = store.push('job', {id:2 , isGood: true, user:null});
+  run(function() {
+    job = store.push('job', { id: 2 , isGood: true, user: null });
   });
   equal(job.get('user'), null, 'User relationship was removed correctly');
 });
@@ -85,22 +86,22 @@ test("Fetching a belongsTo that is set to null removes the record from a relatio
 test("Fetching a belongsTo that is set to a different record, sets the old relationship to null - async", function () {
   expect(3);
   var stanley, stanleysFriend;
-  run(function(){
-    stanley = store.push('user', {id:1, name: 'Stanley', bestFriend: 2});
-    stanleysFriend = store.push('user', {id:2, name: "Stanley's friend", bestFriend: 1});
+  run(function() {
+    stanley = store.push('user', { id: 1, name: 'Stanley', bestFriend: 2 });
+    stanleysFriend = store.push('user', { id: 2, name: "Stanley's friend", bestFriend: 1 });
 
     stanleysFriend.get('bestFriend').then(function(fetchedUser) {
       equal(fetchedUser, stanley, 'User relationship was initally setup correctly');
       var stanleysNewFriend;
-      run(function(){
-        stanleysNewFriend = store.push('user', {id:3, name: "Stanley's New friend", bestFriend: 1});
+      run(function() {
+        stanleysNewFriend = store.push('user', { id: 3, name: "Stanley's New friend", bestFriend: 1 });
       });
 
-      stanley.get('bestFriend').then(function(fetchedNewFriend){
+      stanley.get('bestFriend').then(function(fetchedNewFriend) {
         equal(fetchedNewFriend, stanleysNewFriend, 'User relationship was updated correctly');
       });
 
-      stanleysFriend.get('bestFriend').then(function(fetchedOldFriend){
+      stanleysFriend.get('bestFriend').then(function(fetchedOldFriend) {
         equal(fetchedOldFriend, null, 'The old relationship was set to null correctly');
       });
     });
@@ -109,13 +110,13 @@ test("Fetching a belongsTo that is set to a different record, sets the old relat
 
 test("Fetching a belongsTo that is set to a different record, sets the old relationship to null - sync", function () {
   var job, user, newBetterJob;
-  run(function(){
-    job = store.push('job', {id:2 , isGood: false});
-    user = store.push('user', {id:1, name: 'Stanley', job:2 });
+  run(function() {
+    job = store.push('job', { id: 2 , isGood: false });
+    user = store.push('user', { id: 1, name: 'Stanley', job: 2 });
   });
   equal(job.get('user'), user, 'Job and user initially setup correctly');
-  run(function(){
-    newBetterJob = store.push('job', {id:3, isGood: true, user:1 });
+  run(function() {
+    newBetterJob = store.push('job', { id: 3, isGood: true, user: 1 });
   });
 
   equal(user.get('job'), newBetterJob, 'Job updated correctly');
@@ -129,11 +130,11 @@ test("Fetching a belongsTo that is set to a different record, sets the old relat
 
 test("Setting a OneToOne relationship reflects correctly on the other side- async", function () {
   var stanley, stanleysFriend;
-  run(function(){
-    stanley = store.push('user', {id:1, name: 'Stanley'});
-    stanleysFriend = store.push('user', {id:2, name: "Stanley's friend"});
+  run(function() {
+    stanley = store.push('user', { id: 1, name: 'Stanley' });
+    stanleysFriend = store.push('user', { id: 2, name: "Stanley's friend" });
   });
-  run(function(){
+  run(function() {
     stanley.set('bestFriend', stanleysFriend);
     stanleysFriend.get('bestFriend').then(function(fetchedUser) {
       equal(fetchedUser, stanley, 'User relationship was updated correctly');
@@ -143,11 +144,11 @@ test("Setting a OneToOne relationship reflects correctly on the other side- asyn
 
 test("Setting a OneToOne relationship reflects correctly on the other side- sync", function () {
   var job, user;
-  run(function(){
-    job = store.push('job', {id:2 , isGood: true});
-    user = store.push('user', {id:1, name: 'Stanley'});
+  run(function() {
+    job = store.push('job', { id: 2 , isGood: true });
+    user = store.push('user', { id: 1, name: 'Stanley' });
   });
-  run(function(){
+  run(function() {
     user.set('job', job);
   });
   equal(job.get('user'), user, 'User relationship was set up correctly');
@@ -155,12 +156,12 @@ test("Setting a OneToOne relationship reflects correctly on the other side- sync
 
 test("Setting a BelongsTo to a promise unwraps the promise before setting- async", function () {
   var stanley, stanleysFriend, newFriend;
-  run(function(){
-    stanley = store.push('user', {id:1, name: 'Stanley', bestFriend:2});
-    stanleysFriend = store.push('user', {id:2, name: "Stanley's friend"});
-    newFriend = store.push('user', {id:3, name: "New friend"});
+  run(function() {
+    stanley = store.push('user', { id: 1, name: 'Stanley', bestFriend: 2 });
+    stanleysFriend = store.push('user', { id: 2, name: "Stanley's friend" });
+    newFriend = store.push('user', { id: 3, name: "New friend" });
   });
-  run(function(){
+  run(function() {
     newFriend.set('bestFriend', stanleysFriend.get('bestFriend'));
     stanley.get('bestFriend').then(function(fetchedUser) {
       equal(fetchedUser, newFriend, 'User relationship was updated correctly');
@@ -173,12 +174,12 @@ test("Setting a BelongsTo to a promise unwraps the promise before setting- async
 
 test("Setting a BelongsTo to a promise works when the promise returns null- async", function () {
   var igor, newFriend;
-  run(function(){
-    store.push('user', {id:1, name: 'Stanley'});
-    igor = store.push('user', {id:2, name: "Igor"});
-    newFriend = store.push('user', {id:3, name: "New friend", bestFriend:1});
+  run(function() {
+    store.push('user', { id: 1, name: 'Stanley' });
+    igor = store.push('user', { id: 2, name: "Igor" });
+    newFriend = store.push('user', { id: 3, name: "New friend", bestFriend: 1 });
   });
-  run(function(){
+  run(function() {
     newFriend.set('bestFriend', igor.get('bestFriend'));
     newFriend.get('bestFriend').then(function(fetchedUser) {
       equal(fetchedUser, null, 'User relationship was updated correctly');
@@ -188,12 +189,12 @@ test("Setting a BelongsTo to a promise works when the promise returns null- asyn
 
 test("Setting a BelongsTo to a promise that didn't come from a relationship errors out", function () {
   var stanley, igor;
-  run(function(){
-    stanley = store.push('user', {id:1, name: 'Stanley', bestFriend:2});
-    igor = store.push('user', {id:3, name: 'Igor'});
+  run(function() {
+    stanley = store.push('user', { id: 1, name: 'Stanley', bestFriend: 2 });
+    igor = store.push('user', { id: 3, name: 'Igor' });
   });
   expectAssertion(function() {
-    run(function(){
+    run(function() {
       stanley.set('bestFriend', Ember.RSVP.resolve(igor));
     });
   }, /You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call./);
@@ -202,26 +203,26 @@ test("Setting a BelongsTo to a promise that didn't come from a relationship erro
 test("Setting a BelongsTo to a promise multiple times is resistant to race conditions- async", function () {
   expect(1);
   var stanley, igor, newFriend;
-  run(function(){
-    stanley = store.push('user', {id:1, name: 'Stanley', bestFriend:2});
-    igor = store.push('user', {id:3, name: "Igor", bestFriend:5});
-    newFriend = store.push('user', {id:7, name: "New friend"});
+  run(function() {
+    stanley = store.push('user', { id: 1, name: 'Stanley', bestFriend: 2 });
+    igor = store.push('user', { id: 3, name: "Igor", bestFriend: 5 });
+    newFriend = store.push('user', { id: 7, name: "New friend" });
   });
   env.adapter.find = function(store, type, id) {
     if (id === '5') {
-      return Ember.RSVP.resolve({id:5, name: "Igor's friend"});
+      return Ember.RSVP.resolve({ id: 5, name: "Igor's friend" });
     } else if (id === '2') {
       stop();
       return new Ember.RSVP.Promise(function(resolve, reject) {
-        setTimeout(function(){
+        setTimeout(function() {
           start();
-          resolve({id:2, name:"Stanley's friend"});
+          resolve({ id: 2, name: "Stanley's friend" });
         }, 1);
       });
     }
   };
 
-  run(function(){
+  run(function() {
     newFriend.set('bestFriend', stanley.get('bestFriend'));
     newFriend.set('bestFriend', igor.get('bestFriend'));
     newFriend.get('bestFriend').then(function(fetchedUser) {
@@ -232,11 +233,11 @@ test("Setting a BelongsTo to a promise multiple times is resistant to race condi
 
 test("Setting a OneToOne relationship to null reflects correctly on the other side - async", function () {
   var stanley, stanleysFriend;
-  run(function(){
-    stanley = store.push('user', {id:1, name: 'Stanley', bestFriend:2});
-    stanleysFriend = store.push('user', {id:2, name: "Stanley's friend", bestFriend:1});
+  run(function() {
+    stanley = store.push('user', { id: 1, name: 'Stanley', bestFriend: 2 });
+    stanleysFriend = store.push('user', { id: 2, name: "Stanley's friend", bestFriend: 1 });
   });
-  run(function(){
+  run(function() {
     stanley.set('bestFriend', null); // :(
     stanleysFriend.get('bestFriend').then(function(fetchedUser) {
       equal(fetchedUser, null, 'User relationship was removed correctly');
@@ -246,11 +247,11 @@ test("Setting a OneToOne relationship to null reflects correctly on the other si
 
 test("Setting a OneToOne relationship to null reflects correctly on the other side - sync", function () {
   var job, user;
-  run(function(){
-    job = store.push('job', {id:2 , isGood: false, user:1});
-    user = store.push('user', {id:1, name: 'Stanley', job:2});
+  run(function() {
+    job = store.push('job', { id: 2 , isGood: false, user: 1 });
+    user = store.push('user', { id: 1, name: 'Stanley', job: 2 });
   });
-  run(function(){
+  run(function() {
     user.set('job', null);
   });
   equal(job.get('user'), null, 'User relationship was removed correctly');
@@ -258,23 +259,24 @@ test("Setting a OneToOne relationship to null reflects correctly on the other si
 
 test("Setting a belongsTo to a different record, sets the old relationship to null - async", function () {
   expect(3);
+
   var stanley, stanleysFriend;
-  run(function(){
-    stanley = store.push('user', {id:1, name: 'Stanley', bestFriend: 2});
-    stanleysFriend = store.push('user', {id:2, name: "Stanley's friend", bestFriend: 1});
+  run(function() {
+    stanley = store.push('user', { id: 1, name: 'Stanley', bestFriend: 2 });
+    stanleysFriend = store.push('user', { id: 2, name: "Stanley's friend", bestFriend: 1 });
 
     stanleysFriend.get('bestFriend').then(function(fetchedUser) {
       equal(fetchedUser, stanley, 'User relationship was initally setup correctly');
-      var stanleysNewFriend = store.push('user', {id:3, name: "Stanley's New friend"});
-      run(function(){
+      var stanleysNewFriend = store.push('user', { id: 3, name: "Stanley's New friend" });
+      run(function() {
         stanleysNewFriend.set('bestFriend', stanley);
       });
 
-      stanley.get('bestFriend').then(function(fetchedNewFriend){
+      stanley.get('bestFriend').then(function(fetchedNewFriend) {
         equal(fetchedNewFriend, stanleysNewFriend, 'User relationship was updated correctly');
       });
 
-      stanleysFriend.get('bestFriend').then(function(fetchedOldFriend){
+      stanleysFriend.get('bestFriend').then(function(fetchedOldFriend) {
         equal(fetchedOldFriend, null, 'The old relationship was set to null correctly');
       });
     });
@@ -283,15 +285,15 @@ test("Setting a belongsTo to a different record, sets the old relationship to nu
 
 test("Setting a belongsTo to a different record, sets the old relationship to null - sync", function () {
   var job, user, newBetterJob;
-  run(function(){
-    job = store.push('job', {id:2 , isGood: false});
-    user = store.push('user', {id:1, name: 'Stanley', job:2 });
+  run(function() {
+    job = store.push('job', { id: 2 , isGood: false });
+    user = store.push('user', { id: 1, name: 'Stanley', job: 2 });
   });
 
   equal(job.get('user'), user, 'Job and user initially setup correctly');
 
-  run(function(){
-    newBetterJob = store.push('job', {id:3, isGood: true});
+  run(function() {
+    newBetterJob = store.push('job', { id: 3, isGood: true });
     newBetterJob.set('user', user);
   });
 
@@ -310,17 +312,17 @@ test("When deleting a record that has a belongsTo relationship, the record is re
   // notifyPropertyChange() gets called. If not properly cleared observers will
   // trigger with the old value of the relationship.
   User.reopen({
-    bestFriendObserver: Ember.observer('bestFriend', function () {
+    bestFriendObserver: Ember.observer('bestFriend', function() {
       this.get('bestFriend');
     })
   });
   var stanleysFriend, stanley;
 
-  run(function(){
-    stanleysFriend = store.push('user', {id:2, name: "Stanley's friend"});
-    stanley = store.push('user', {id:1, name: 'Stanley', bestFriend:2});
+  run(function() {
+    stanleysFriend = store.push('user', { id: 2, name: "Stanley's friend" });
+    stanley = store.push('user', { id: 1, name: 'Stanley', bestFriend: 2 });
   });
-  run(function(){
+  run(function() {
     stanley.deleteRecord();
     stanleysFriend.get('bestFriend').then(function(fetchedUser) {
       equal(fetchedUser, null, 'Stanley got removed');
@@ -333,11 +335,11 @@ test("When deleting a record that has a belongsTo relationship, the record is re
 
 test("When deleting a record that has a belongsTo relationship, the record is removed from the inverse but still has access to its own relationship - sync", function () {
   var job, user;
-  run(function(){
-    job = store.push('job', {id:2 , isGood: true});
-    user = store.push('user', {id:1, name: 'Stanley', job:2 });
+  run(function() {
+    job = store.push('job', { id: 2 , isGood: true });
+    user = store.push('user', { id: 1, name: 'Stanley', job: 2 });
   });
-  run(function(){
+  run(function() {
     job.deleteRecord();
   });
   equal(user.get('job'), null, 'Job got removed from the user');
@@ -350,14 +352,14 @@ Rollback tests
 
 test("Rollbacking a deleted record restores the relationship on both sides - async", function () {
   var stanley, stanleysFriend;
-  run(function(){
-    stanley = store.push('user', {id:1, name: 'Stanley', bestFriend:2});
-    stanleysFriend = store.push('user', {id:2, name: "Stanley's friend"});
+  run(function() {
+    stanley = store.push('user', { id: 1, name: 'Stanley', bestFriend: 2 });
+    stanleysFriend = store.push('user', { id: 2, name: "Stanley's friend" });
   });
-  run(function(){
+  run(function() {
     stanley.deleteRecord();
   });
-  run(function(){
+  run(function() {
     stanley.rollback();
     stanleysFriend.get('bestFriend').then(function(fetchedUser) {
       equal(fetchedUser, stanley, 'Stanley got rollbacked correctly');
@@ -370,11 +372,11 @@ test("Rollbacking a deleted record restores the relationship on both sides - asy
 
 test("Rollbacking a deleted record restores the relationship on both sides - sync", function () {
   var job, user;
-  run(function(){
-    job = store.push('job', {id:2 , isGood: true});
-    user = store.push('user', {id:1, name: 'Stanley', job:2 });
+  run(function() {
+    job = store.push('job', { id: 2 , isGood: true });
+    user = store.push('user', { id: 1, name: 'Stanley', job: 2 });
   });
-  run(function(){
+  run(function() {
     job.deleteRecord();
     job.rollback();
   });
@@ -384,11 +386,11 @@ test("Rollbacking a deleted record restores the relationship on both sides - syn
 
 test("Rollbacking a created record removes the relationship on both sides - async", function () {
   var stanleysFriend, stanley;
-  run(function(){
-    stanleysFriend = store.push('user', {id:2, name: "Stanley's friend"});
-    stanley = store.createRecord('user', {bestFriend: stanleysFriend});
+  run(function() {
+    stanleysFriend = store.push('user', { id: 2, name: "Stanley's friend" });
+    stanley = store.createRecord('user', { bestFriend: stanleysFriend });
   });
-  run(function(){
+  run(function() {
     stanley.rollback();
     stanleysFriend.get('bestFriend').then(function(fetchedUser) {
       equal(fetchedUser, null, 'Stanley got rollbacked correctly');
@@ -401,11 +403,11 @@ test("Rollbacking a created record removes the relationship on both sides - asyn
 
 test("Rollbacking a created record removes the relationship on both sides - sync", function () {
   var user, job;
-  run(function(){
-    user = store.push('user', {id:1, name: 'Stanley'});
-    job = store.createRecord('job', {user: user});
+  run(function() {
+    user = store.push('user', { id: 1, name: 'Stanley' });
+    job = store.createRecord('job', { user: user });
   });
-  run(function(){
+  run(function() {
     job.rollback();
   });
   equal(user.get('job'), null, 'Job got rollbacked correctly');

@@ -6,18 +6,20 @@
   @namespace DS
   @private
 */
-function ContainerProxy(container){
+function ContainerProxy(container) {
   this.container = container;
 }
 
 ContainerProxy.prototype.aliasedFactory = function(path, preLookup) {
   var _this = this;
 
-  return {create: function(){
-    if (preLookup) { preLookup(); }
+  return {
+    create: function() {
+      if (preLookup) { preLookup(); }
 
-    return _this.container.lookup(path);
-  }};
+      return _this.container.lookup(path);
+    }
+  };
 };
 
 ContainerProxy.prototype.registerAlias = function(source, dest, preLookup) {
@@ -27,7 +29,7 @@ ContainerProxy.prototype.registerAlias = function(source, dest, preLookup) {
 };
 
 ContainerProxy.prototype.registerDeprecation = function(deprecated, valid) {
-  var preLookupCallback = function(){
+  var preLookupCallback = function() {
     Ember.deprecate("You tried to look up '" + deprecated + "', " +
                     "but this has been deprecated in favor of '" + valid + "'.", false);
   };

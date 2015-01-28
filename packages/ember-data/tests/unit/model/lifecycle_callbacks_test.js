@@ -4,6 +4,8 @@ var run = Ember.run;
 module("unit/model/lifecycle_callbacks - Lifecycle Callbacks");
 
 test("a record receives a didLoad callback when it has finished loading", function() {
+  expect(3);
+
   var Person = DS.Model.extend({
     name: DS.attr(),
     didLoad: function() {
@@ -21,7 +23,7 @@ test("a record receives a didLoad callback when it has finished loading", functi
     adapter: adapter
   });
 
-  run(function(){
+  run(function() {
     store.find(Person, 1).then(function(person) {
       equal(person.get('id'), "1", "The person's ID is available");
       equal(person.get('name'), "Foo", "The person's properties are available");
@@ -30,10 +32,13 @@ test("a record receives a didLoad callback when it has finished loading", functi
 });
 
 test("a record receives a didUpdate callback when it has finished updating", function() {
+  expect(5);
+
   var callCount = 0;
 
   var Person = DS.Model.extend({
     bar: DS.attr('string'),
+    name: DS.attr('string'),
 
     didUpdate: function() {
       callCount++;
@@ -59,14 +64,14 @@ test("a record receives a didUpdate callback when it has finished updating", fun
   });
   var asyncPerson;
 
-  run(function(){
+  run(function() {
     asyncPerson = store.find(Person, 1);
   });
   equal(callCount, 0, "precond - didUpdate callback was not called yet");
 
-  run(function(){
+  run(function() {
     asyncPerson.then(function(person) {
-      return run(function(){
+      return run(function() {
         person.set('bar', "Bar");
         return person.save();
       });
@@ -77,6 +82,8 @@ test("a record receives a didUpdate callback when it has finished updating", fun
 });
 
 test("a record receives a didCreate callback when it has finished updating", function() {
+  expect(5);
+
   var callCount = 0;
 
   var Person = DS.Model.extend({
@@ -102,12 +109,12 @@ test("a record receives a didCreate callback when it has finished updating", fun
   equal(callCount, 0, "precond - didCreate callback was not called yet");
   var person;
 
-  run(function(){
+  run(function() {
     person = store.createRecord(Person, { id: 69, name: "Newt Gingrich" });
   });
 
 
-  run(function(){
+  run(function() {
     person.save().then(function() {
       equal(callCount, 1, "didCreate called after commit");
     });
@@ -115,10 +122,13 @@ test("a record receives a didCreate callback when it has finished updating", fun
 });
 
 test("a record receives a didDelete callback when it has finished deleting", function() {
+  expect(5);
+
   var callCount = 0;
 
   var Person = DS.Model.extend({
     bar: DS.attr('string'),
+    name: DS.attr('string'),
 
     didDelete: function() {
       callCount++;
@@ -145,15 +155,15 @@ test("a record receives a didDelete callback when it has finished deleting", fun
   });
   var asyncPerson;
 
-  run(function(){
+  run(function() {
     asyncPerson = store.find(Person, 1);
   });
 
   equal(callCount, 0, "precond - didDelete callback was not called yet");
 
-  run(function(){
+  run(function() {
     asyncPerson.then(function(person) {
-      return run(function(){
+      return run(function() {
         person.deleteRecord();
         return person.save();
       });
@@ -164,10 +174,13 @@ test("a record receives a didDelete callback when it has finished deleting", fun
 });
 
 test("a record receives a becameInvalid callback when it became invalid", function() {
+  expect(5);
+
   var callCount = 0;
 
   var Person = DS.Model.extend({
     bar: DS.attr('string'),
+    name: DS.attr('string'),
 
     becameInvalid: function() {
       callCount++;
@@ -194,7 +207,7 @@ test("a record receives a becameInvalid callback when it became invalid", functi
   });
   var asyncPerson;
 
-  run(function(){
+  run(function() {
     asyncPerson = store.find(Person, 1);
   });
   equal(callCount, 0, "precond - becameInvalid callback was not called yet");
@@ -203,7 +216,7 @@ test("a record receives a becameInvalid callback when it became invalid", functi
   // save fails.
   run(function() {
     asyncPerson.then(function(person) {
-      return run(function(){
+      return run(function() {
         person.set('bar', "Bar");
         return person.save();
       });
@@ -220,7 +233,7 @@ test("an ID of 0 is allowed", function() {
     name: DS.attr('string')
   });
 
-  run(function(){
+  run(function() {
     store.push(Person, { id: 0, name: "Tom Dale" });
   });
 

@@ -7,29 +7,26 @@ module("unit/model/merge - Merging", {
       name: DS.attr(),
       city: DS.attr()
     });
-  },
-
-  teardown: function() {
-
   }
 });
 
 test("When a record is in flight, changes can be made", function() {
+  expect(3);
+
   var adapter = DS.Adapter.extend({
     createRecord: function(store, type, record) {
       return Ember.RSVP.resolve({ id: 1, name: "Tom Dale" });
     }
   });
   var person;
-
   var store = createStore({ adapter: adapter });
 
-  run(function(){
+  run(function() {
     person = store.createRecord(Person, { name: "Tom Dale" });
   });
 
   // Make sure saving isn't resolved synchronously
-  Ember.run(function() {
+  run(function() {
     var promise = person.save();
 
     equal(person.get('name'), "Tom Dale");
@@ -44,11 +41,13 @@ test("When a record is in flight, changes can be made", function() {
 });
 
 test("When a record is in flight, pushes are applied underneath the in flight changes", function() {
+  expect(6);
+
   var adapter = DS.Adapter.extend({
     updateRecord: function(store, type, record) {
     // Make sure saving isn't resolved synchronously
-      return new Ember.RSVP.Promise(function(resolve, reject){
-        Ember.run.next(null, resolve, { id: 1, name: "Senor Thomas Dale, Esq.", city: "Portland" });
+      return new Ember.RSVP.Promise(function(resolve, reject) {
+        run.next(null, resolve, { id: 1, name: "Senor Thomas Dale, Esq.", city: "Portland" });
       });
     }
   });
@@ -56,12 +55,12 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
   var store = createStore({ adapter: adapter });
   var person;
 
-  run(function(){
+  run(function() {
     person = store.push(Person, { id: 1, name: "Tom" });
     person.set('name', "Thomas Dale");
   });
 
-  Ember.run(function() {
+  run(function() {
     var promise = person.save();
 
     equal(person.get('name'), "Thomas Dale");
@@ -85,7 +84,7 @@ test("When a record is dirty, pushes are overridden by local changes", function(
   var store = createStore({ adapter: DS.Adapter });
   var person;
 
-  run(function(){
+  run(function() {
     person = store.push(Person, { id: 1, name: "Tom Dale", city: "San Francisco" });
     person.set('name', "Tomasz Dale");
   });
@@ -94,7 +93,7 @@ test("When a record is dirty, pushes are overridden by local changes", function(
   equal(person.get('name'), "Tomasz Dale", "the update was effective");
   equal(person.get('city'), "San Francisco", "the original data applies");
 
-  run(function(){
+  run(function() {
     store.push(Person, { id: 1, name: "Thomas Dale", city: "Portland" });
   });
 
@@ -104,6 +103,8 @@ test("When a record is dirty, pushes are overridden by local changes", function(
 });
 
 test("A record with no changes can still be saved", function() {
+  expect(1);
+
   var adapter = DS.Adapter.extend({
     updateRecord: function(store, type, record) {
       return Ember.RSVP.resolve({ id: 1, name: "Thomas Dale" });
@@ -113,11 +114,11 @@ test("A record with no changes can still be saved", function() {
   var store = createStore({ adapter: adapter });
   var person;
 
-  run(function(){
+  run(function() {
     person = store.push(Person, { id: 1, name: "Tom Dale" });
   });
 
-  run(function(){
+  run(function() {
     person.save().then(function() {
       equal(person.get('name'), "Thomas Dale", "the updates occurred");
     });
@@ -125,6 +126,8 @@ test("A record with no changes can still be saved", function() {
 });
 
 test("A dirty record can be reloaded", function() {
+  expect(3);
+
   var adapter = DS.Adapter.extend({
     find: function(store, type, id) {
       return Ember.RSVP.resolve({ id: 1, name: "Thomas Dale", city: "Portland" });
@@ -134,12 +137,12 @@ test("A dirty record can be reloaded", function() {
   var store = createStore({ adapter: adapter });
   var person;
 
-  run(function(){
+  run(function() {
     person = store.push(Person, { id: 1, name: "Tom Dale" });
     person.set('name', "Tomasz Dale");
   });
 
-  run(function(){
+  run(function() {
     person.reload().then(function() {
       equal(person.get('isDirty'), true, "the person is dirty");
       equal(person.get('name'), "Tomasz Dale", "the local changes remain");

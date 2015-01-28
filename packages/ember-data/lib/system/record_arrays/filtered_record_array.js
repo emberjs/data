@@ -62,6 +62,5 @@ export default RecordArray.extend({
 
   updateFilter: Ember.observer(function() {
     Ember.run.once(this, this._updateFilter);
-  }, 'filterFunction'),
-
+  }, 'filterFunction')
 });
