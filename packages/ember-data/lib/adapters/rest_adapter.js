@@ -562,8 +562,15 @@ export default Adapter.extend({
     var url = [];
 
     if (path) {
+      // Protocol relative url
+      //jscs:disable disallowEmptyBlocks
+      if (/^\/\//.test(path)) {
+        // Do nothing, the full host is already included. This branch
+        // avoids the absolute path logic and the relative path logic.
+
       // Absolute path
-      if (path.charAt(0) === '/') {
+      } else if (path.charAt(0) === '/') {
+        //jscs:enable disallowEmptyBlocks
         if (host) {
           path = path.slice(1);
           url.push(host);
@@ -872,4 +879,3 @@ function endsWith(string, suffix) {
     return string.endsWith(suffix);
   }
 }
-
