@@ -895,7 +895,7 @@ test("a records ASYNC HM relationship property is readOnly", function() {
   }, 'Cannot Set: comments on: ' + Ember.inspect(post));
 });
 
-test("When a record is saved, its unsaved hasMany records should be kept", function () {
+test("When a record is saved, its unsaved hasMany records should be kept", function () {
   expect(1);
 
   var post, comment;
