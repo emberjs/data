@@ -120,3 +120,41 @@ test("When a single record is requested, and the promise is rejected, .find() is
     }));
   });
 });
+
+test("store.find(type) has been deprecated.", function() {
+  expect(2);
+
+  store = createStore({
+    adapter: DS.Adapter.extend({
+      findAll: function(store, type, id) {
+        ok(true, 'adapter.findAll() was called');
+        return Ember.RSVP.resolve([]);
+      }
+    })
+  });
+
+  run(function() {
+    expectDeprecation(function() {
+      store.find(Person);
+    });
+  });
+});
+
+test("store.find(type, query) has been deprecated.", function() {
+  expect(2);
+
+  store = createStore({
+    adapter: DS.Adapter.extend({
+      findQuery: function(store, type, query, recordArray) {
+        ok(true, 'adapter.findQuery() was called');
+        return Ember.RSVP.resolve([]);
+      }
+    })
+  });
+
+  run(function() {
+    expectDeprecation(function() {
+      store.find(Person, { page: 1 });
+    });
+  });
+});

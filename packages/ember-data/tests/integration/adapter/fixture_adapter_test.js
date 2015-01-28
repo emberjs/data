@@ -333,7 +333,7 @@ test("should save hasMany records", function() {
   var ensureFixtureAdapterDoesNotLeak = async(function() {
     env.store.destroy();
     env = setupStore({ person: Person, phone: Phone, adapter: DS.FixtureAdapter });
-    return env.store.find('phone').then(async(function(phones) {
+    return env.store.findAll('phone').then(async(function(phones) {
       equal(phones.get('length'), 0, "the fixture adapter should not leak after destroying the store");
     }));
   });

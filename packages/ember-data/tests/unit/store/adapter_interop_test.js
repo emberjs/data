@@ -211,7 +211,7 @@ test("loadMany takes an optional Object and passes it on to the Adapter", functi
   });
 
   run(function() {
-    store.find(Person, passedQuery);
+    store.findQuery(Person, passedQuery);
   });
 });
 
@@ -244,7 +244,7 @@ test("Find with query calls the correct extract", function() {
   store.container.register('serializer:application', ApplicationSerializer);
 
   run(function() {
-    store.find(Person, passedQuery);
+    store.findQuery(Person, passedQuery);
   });
   equal(callCount, 1, 'extractFindQuery was called');
 });
