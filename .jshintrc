@@ -53,6 +53,7 @@
     "newcap": true,
     "noarg": true,
     "noempty": false,
+    "nonbsp": true,
     "nonew": false,
     "nomen": false,
     "onevar": false,
