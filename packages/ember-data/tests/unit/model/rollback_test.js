@@ -247,7 +247,7 @@ test("invalid record is rolled back to correct state after set", function() {
     },
 
     ajaxError: function(jqXHR) {
-      return new DS.InvalidError(jqXHR);
+      return new Error(jqXHR);
     }
   });
 
