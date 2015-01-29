@@ -206,10 +206,11 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     @return {DS.PromiseArray} promise
   */
   save: function() {
+    var manyArray = this;
     var promiseLabel = "DS: ManyArray#save " + get(this, 'type');
     var promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).then(function(array) {
-      return Ember.A(array);
-    }, null, "DS: ManyArray#save apply Ember.NativeArray");
+      return manyArray;
+    }, null, "DS: ManyArray#save return ManyArray");
 
     return PromiseArray.create({ promise: promise });
   },
