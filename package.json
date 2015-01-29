@@ -21,7 +21,7 @@
     "test": "node_modules/broccoli-jscs/node_modules/jscs/bin/jscs packages && testem -R dot ci",
     "publish-build": "npm run build:production && ./bin/publish_to_s3.js",
     "test:local": "testem -R dot ci",
-    "test:beta": "testem -f config/testem-beta.json -R dot ci",
+    "test:beta": "testem -f config/testem-beta.json ci",
     "test:canary": "testem -f config/testem-canary.json -R dot ci",
     "test:stable": "testem -f config/testem-stable.json -R dot ci"
   },
