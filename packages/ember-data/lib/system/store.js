@@ -289,7 +289,7 @@ Store = Ember.Object.extend({
     // to avoid conflicts.
 
     if (isNone(properties.id)) {
-      properties.id = this._generateId(type, properties);
+      properties.id = this._generateId(type);
     }
 
     // Coerce ID to a string
@@ -314,14 +314,13 @@ Store = Ember.Object.extend({
     @method _generateId
     @private
     @param {String} type
-    @param {Object} properties from the new record
     @return {String} if the adapter can generate one, an ID
   */
-  _generateId: function(type, properties) {
+  _generateId: function(type) {
     var adapter = this.adapterFor(type);
 
     if (adapter && adapter.generateIdForRecord) {
-      return adapter.generateIdForRecord(this, type, properties);
+      return adapter.generateIdForRecord(this);
     }
 
     return null;
