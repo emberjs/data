@@ -215,6 +215,6 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     this._unregisterFromManager();
     this._dissociateFromOwnRecords();
     set(this, 'content', undefined);
-    this._super();
+    this._super.apply(this, arguments);
   }
 });
