@@ -468,7 +468,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   _data: null,
 
   init: function() {
-    this._super();
+    this._super.apply(this, arguments);
     this._setup();
   },
 
@@ -1141,7 +1141,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   },
 
   willDestroy: function() {
-    this._super();
+    this._super.apply(this, arguments);
     this.clearRelationships();
   },
 
