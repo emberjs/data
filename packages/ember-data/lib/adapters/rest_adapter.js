@@ -113,6 +113,18 @@ var forEach = Ember.ArrayPolyfills.forEach;
   });
   ```
 
+  ### Root model customization
+
+  An adapter can scope requests to a root model by setting the rootModel
+  property on the adapter:
+
+  ```js
+  DS.RESTAdapter.reopen({
+    rootModel: 'post'
+  });
+  ```
+  Requests for `App.Comment` would now target `/posts/1/comments/1`
+
   ### Headers customization
 
   Some APIs require HTTP headers, e.g. to provide an API key. Arbitrary
@@ -533,6 +545,9 @@ export default Adapter.extend({
     var url = [];
     var host = get(this, 'host');
     var prefix = this.urlPrefix();
+    var rootModel = get(this, 'rootModel');
+
+    if (rootModel) { url.push(this.pathForRootModel(record, rootModel)); }
 
     if (type) { url.push(this.pathForType(type)); }
 
@@ -705,6 +720,24 @@ export default Adapter.extend({
   pathForType: function(type) {
     var camelized = Ember.String.camelize(type);
     return Ember.String.pluralize(camelized);
+  },
+
+  /**
+    Determines the root model path for a given model and root
+
+    Uses pathForType to build the root model path
+
+    @method pathForRootModel
+    @param {DS.Model} record
+    @param {String} rootModel
+    @return {String} path
+  **/
+
+  pathForRootModel: function(record, rootModel) {
+    return [
+      this.pathForType(rootModel),
+      encodeURIComponent(record.get(rootModel).get('id'))
+    ].join('/');
   },
 
   /**

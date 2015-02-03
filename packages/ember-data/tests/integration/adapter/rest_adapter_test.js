@@ -1257,6 +1257,29 @@ test('buildURL - with host and namespace', function() {
   }));
 });
 
+test('buildURL - with parentKey', function() {
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  run(function() {
+    store.push('post', { id: 1, comments: [37], name: "Rails is omakase" });
+  });
+
+  run(function() {
+    adapter.setProperties({
+      rootModel: 'post'
+    });
+  });
+
+  run(function() {
+    ajaxResponse({ comments: [{ id: 37, post_id: 1, name: "Ember Data progress update" }] });
+  });
+
+  run(store, 'find', 'comment', 37).then(async(function(comment) {
+    equal(passedUrl, "/posts/1/comments/37", "Url scoped to root model");
+  }));
+});
+
 test('buildURL - with relative paths in links', function() {
   run(function() {
     adapter.setProperties({
