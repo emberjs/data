@@ -515,18 +515,45 @@ Store = Ember.Object.extend({
     });
     ```
 
-    @method fetch
+    @method fetchById
     @param {String or subclass of DS.Model} type
     @param {String|Integer} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
-  fetch: function(type, id, preload) {
+  fetchById: function(type, id, preload) {
     if (this.hasRecordForId(type, id)) {
       return this.getById(type, id).reload();
     } else {
       return this.find(type, id, preload);
     }
+  },
+
+  /**
+    This method returns a fresh collection from the server, regardless of if there is already records
+    in the store or not.
+
+    @method fetchAll
+    @param {String or subclass of DS.Model} type
+    @return {Promise} promise
+  */
+  fetchAll: function(type) {
+    type = this.modelFor(type);
+
+    return this._fetchAll(type, this.all(type));
+  },
+
+  /**
+    @method fetch
+    @param {String or subclass of DS.Model} type
+    @param {String|Integer} id
+    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
+    @return {Promise} promise
+    @deprecated Use [fetchById](#method_fetchById) instead
+  */
+  fetch: function(type, id, preload) {
+    Ember.deprecate('Using store.fetch() has been deprecated. Use store.fetchById for fetching individual records or store.fetchAll for collections');
+    return this.fetchById(type, id, preload);
   },
 
   /**
@@ -899,19 +926,17 @@ Store = Ember.Object.extend({
     @return {DS.AdapterPopulatedRecordArray}
   */
   findAll: function(typeName) {
-    var type = this.modelFor(typeName);
-
-    return this.fetchAll(type, this.all(type));
+    return this.fetchAll(typeName);
   },
 
   /**
-    @method fetchAll
+    @method _fetchAll
     @private
     @param {DS.Model} type
     @param {DS.RecordArray} array
     @return {Promise} promise
   */
-  fetchAll: function(type, array) {
+  _fetchAll: function(type, array) {
     var adapter = this.adapterFor(type);
     var sinceToken = this.typeMapFor(type).metadata.since;
 
