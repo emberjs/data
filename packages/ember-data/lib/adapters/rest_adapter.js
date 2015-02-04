@@ -176,11 +176,14 @@ export default Adapter.extend({
     ids as a query string, you can set coalesceFindRequests to true to coalesce all find requests
     within a single runloop.
 
-    For example, if you have an initial payload of
+    For example, if you have an initial payload of:
+
     ```javascript
-    post: {
-      id:1,
-      comments: [1,2]
+    {
+      post: {
+        id: 1,
+        comments: [1, 2]
+      }
     }
     ```
 
