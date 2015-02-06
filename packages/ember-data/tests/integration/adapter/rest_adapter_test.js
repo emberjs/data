@@ -622,6 +622,37 @@ test("update - a serializer's primary key and attributes are consulted when buil
   }));
 });
 
+test("update - hasMany relationships faithfully reflect simultaneous adds and removes", function() {
+  Post.reopen({ comments: DS.hasMany('comment') });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  run(function() {
+    store.push('post', { id: 1, name: "Not everyone uses Rails", comments: [1] });
+    store.push('comment', { id: 1, name: "Rails is omakase" });
+    store.push('comment', { id: 2, name: "Yes. Yes it is." });
+  });
+
+  ajaxResponse({
+    posts: { id: 1, name: "Not everyone uses Rails", comments: [2] }
+  });
+
+  store.find('comment', 2).then(async(function() {
+    return store.find('post', 1);
+  })).then(async(function(post) {
+    var newComment = store.getById('comment', 2);
+    var comments = post.get('comments');
+
+    // Replace the comment with a new one
+    comments.popObject();
+    comments.pushObject(newComment);
+
+    return post.save();
+  })).then(async(function(post) {
+    equal(post.get('comments.length'), 1, "the post has the correct number of comments");
+    equal(post.get('comments.firstObject.name'), "Yes. Yes it is.", "the post has the correct comment");
+  }));
+});
+
 test("delete - an empty payload is a basic success", function() {
   run(function() {
     store.push('post', { id: 1, name: "Rails is omakase" });
