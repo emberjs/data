@@ -171,6 +171,60 @@ export default Adapter.extend({
   defaultSerializer: '-rest',
 
   /**
+    By default, the RESTAdapter will send the query params sorted alphabetically to the
+    server.
+
+    For example:
+
+    ```js
+      store.find('posts', {sort: 'price', category: 'pets'});
+    ```
+
+    will generate a requests like this `/posts?category=pets&sort=price`, even if the
+    parameters were specified in a different order.
+
+    That way the generated URL will be deterministic and that simplifies caching mechanisms
+    in the backend.
+
+    Setting `sortQueryParams` to a falsey value will respect the original order.
+
+    In case you want to sort the query parameters with a different criteria, set
+    `sortQueryParams` to your custom sort function.
+
+    ```js
+    export default DS.RESTAdapter.extend({
+      sortQueryParams: function(params) {
+        var sortedKeys = Object.keys(params).sort().reverse();
+        var len = sortedKeys.length, newParams = {};
+
+        for (var i = 0; i < len; i++) {
+          newParams[sortedKeys[i]] = params[sortedKeys[i]];
+        }
+        return newParams;
+      }
+    });
+    ```
+
+    @method sortQueryParams
+    @param {Object} obj
+    @return {Object}
+  */
+  sortQueryParams: function(obj) {
+    var keys = Ember.keys(obj);
+    var len = keys.length;
+    if (len < 2) {
+      return obj;
+    }
+    var newQueryParams = {};
+    var sortedKeys = keys.sort();
+
+    for (var i = 0; i < len; i++) {
+      newQueryParams[sortedKeys[i]] = obj[sortedKeys[i]];
+    }
+    return newQueryParams;
+  },
+
+  /**
     By default the RESTAdapter will send each find request coming from a `store.find`
     or from accessing a relationship separately to the server. If your server supports passing
     ids as a query string, you can set coalesceFindRequests to true to coalesce all find requests
@@ -329,6 +383,9 @@ export default Adapter.extend({
     @return {Promise} promise
   */
   findQuery: function(store, type, query) {
+    if (this.sortQueryParams) {
+      query = this.sortQueryParams(query);
+    }
     return this.ajax(this.buildURL(type.typeKey), 'GET', { data: query });
   },
 
