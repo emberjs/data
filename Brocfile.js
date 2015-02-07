@@ -128,13 +128,12 @@ testFiles = concat(testFiles, {
 
 var testRunner = pickFiles('tests', {
   srcDir: '/',
-  inputFiles: [ '**/*' ],
+  files: [ '**/*' ],
   destDir: '/'
 });
 
 var bower = pickFiles('bower_components', {
   srcDir: '/',
-  inputFiles: [ '**/*' ],
   destDir: '/bower_components'
 });
 
