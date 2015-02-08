@@ -11,8 +11,6 @@ before_install:
   - "npm install -g npm@^2"
 install:
 - "npm install"
-- "bower install"
-- "npm run-script build:production"
 script:
   - npm run-script test
   - npm run-script test:beta
