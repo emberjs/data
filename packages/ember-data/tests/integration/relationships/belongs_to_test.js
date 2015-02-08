@@ -7,6 +7,21 @@ var hasMany = DS.hasMany;
 var belongsTo = DS.belongsTo;
 var hash = Ember.RSVP.hash;
 
+// Before https://github.com/emberjs/ember.js/pull/10323 the computed
+// property descriptor was stored on the ember meta object. After that
+// pr it was moved to the ember object. This code normalized that
+// lookup because the Ember Data ci tests run against diferent version
+// of Ember. Once that code reaches the release branch this code can
+// be removed.
+function getComputedPropertyDesc(model, key) {
+  if (Ember.meta(model).descs) {
+    return Ember.meta(model).descs[key];
+  }
+  var possibleDesc = model[key];
+  var desc = (possibleDesc !== null && typeof possibleDesc === 'object' && possibleDesc.isDescriptor) ? possibleDesc : undefined;
+  return desc;
+}
+
 module("integration/relationship/belongs_to Belongs-To Relationships", {
   setup: function() {
     User = DS.Model.extend({
@@ -362,15 +377,16 @@ test("relationshipsByName is cached in production", function() {
   var oldTesting = Ember.testing;
   //We set the cacheable to true because that is the default state for any CP and then assert that it
   //did not get dynamically changed when accessed
-  var oldCacheable = Ember.meta(model).descs.relationshipsByName._cacheable;
-  Ember.meta(model).descs.relationshipsByName._cacheable = true;
+  var relationshipsByName = getComputedPropertyDesc(model, 'relationshipsByName');
+  var oldCacheable = relationshipsByName._cacheable;
+  relationshipsByName._cacheable = true;
   Ember.testing = false;
   try {
     equal(get(model, 'relationshipsByName'), get(model, 'relationshipsByName'), 'relationshipsByName are cached');
     equal(get(model, 'relationshipsByName'), get(model, 'relationshipsByName'), 'relationshipsByName are cached');
   } finally {
     Ember.testing = oldTesting;
-    Ember.meta(model).descs.relationshipsByName._cacheable = oldCacheable;
+    relationshipsByName._cacheable = oldCacheable;
   }
 });
 
@@ -379,15 +395,16 @@ test("relatedTypes is cached in production", function() {
   var oldTesting = Ember.testing;
   //We set the cacheable to true because that is the default state for any CP and then assert that it
   //did not get dynamically changed when accessed
-  var oldCacheable = Ember.meta(model).descs.relatedTypes._cacheable;
-  Ember.meta(model).descs.relatedTypes._cacheable = true;
+  var relatedTypes = getComputedPropertyDesc(model, 'relatedTypes');
+  var oldCacheable = relatedTypes._cacheable;
+  relatedTypes._cacheable = true;
   Ember.testing = false;
   try {
     equal(get(model, 'relatedTypes'), get(model, 'relatedTypes'), 'relatedTypes are cached');
     equal(get(model, 'relatedTypes'), get(model, 'relatedTypes'), 'relatedTypes are cached');
   } finally {
     Ember.testing = oldTesting;
-    Ember.meta(model).descs.relatedTypes._cacheable = oldCacheable;
+    relatedTypes._cacheable = oldCacheable;
   }
 });
 
@@ -396,15 +413,16 @@ test("relationships is cached in production", function() {
   var oldTesting = Ember.testing;
   //We set the cacheable to true because that is the default state for any CP and then assert that it
   //did not get dynamically changed when accessed
-  var oldCacheable = Ember.meta(model).descs.relatedTypes._cacheable;
-  Ember.meta(model).descs.relationships._cacheable = true;
+  var relationships = getComputedPropertyDesc(model, 'relationships');
+  var oldCacheable = relationships._cacheable;
+  relationships._cacheable = true;
   Ember.testing = false;
   try {
     equal(get(model, 'relationships'), get(model, 'relationships'), 'relationships are cached');
     equal(get(model, 'relationships'), get(model, 'relationships'), 'relationships are cached');
   } finally {
     Ember.testing = oldTesting;
-    Ember.meta(model).descs.relationships._cacheable = oldCacheable;
+    relationships._cacheable = oldCacheable;
   }
 });
 
@@ -451,7 +469,7 @@ test("relationship changes shouldn’t cause async fetches", function() {
   env.adapter.deleteRecord = function(store, type, record) {
     ok(record instanceof type);
     equal(record.id, 1, 'should first comment');
-    return record;
+    return record.toJSON({ includeId: true });
   };
 
   env.adapter.findMany = function(store, type, ids, records) {
@@ -492,7 +510,12 @@ test("Destroying a record with an unloaded aync belongsTo association does not f
   env.adapter.deleteRecord = function(store, type, record) {
     ok(record instanceof type);
     equal(record.id, 1, 'should first post');
-    return record;
+    return {
+      id: "1",
+      title: null,
+      created_at: null,
+      user: "2"
+    };
   };
 
   run(post, 'destroyRecord');

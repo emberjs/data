@@ -54,7 +54,7 @@ var relatedTypesDescriptor = Ember.computed(function() {
       meta.key = name;
       type = typeForRelationshipMeta(this.store, meta);
 
-      Ember.assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.",  type);
+      Ember.assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.", type);
 
       if (!types.contains(type)) {
         Ember.assert("Trying to sideload " + name + " on " + this.toString() + " but the type doesn't exist.", !!type);

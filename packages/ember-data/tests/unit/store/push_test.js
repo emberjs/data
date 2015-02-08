@@ -483,7 +483,7 @@ test('Calling push with a link for a non async relationship should warn', functi
         }
       });
     });
-  },  /You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the association is not an async relationship./);
+  }, /You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the association is not an async relationship./);
 });
 
 test('Calling push with a link containing an object throws an assertion error', function() {
@@ -502,7 +502,7 @@ test('Calling push with a link containing an object throws an assertion error', 
         }
       });
     });
-  },  "You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the value of that link is not a string.");
+  }, "You have pushed a record of type 'person' with 'phoneNumbers' as a link, but the value of that link is not a string.");
 });
 
 test('Calling push with a link containing the value null', function() {

@@ -171,7 +171,6 @@ test("destroying the store correctly cleans everything up", function() {
   Ember.run(store, 'destroy');
 
   equal(car.get('person'), null, "expected car.person to no longer be present");
-  equal(person.get('cars'), undefined, "expected person.cars to be empty");
 
   equal(personWillDestroy.called.length, 1, 'expected person to have recieved willDestroy once');
   equal(carWillDestroy.called.length, 1, 'expected car to recieve willDestroy once');

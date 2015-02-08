@@ -254,7 +254,7 @@ test('Serializer respects `serialize: false` on the attrs hash', function() {
   var payload = env.container.lookup("serializer:post").serialize(post);
 
   ok(!payload.hasOwnProperty('title'), "Does not add the key to instance");
-  ok(!payload.hasOwnProperty('[object Object]'),"Does not add some random key like [object Object]");
+  ok(!payload.hasOwnProperty('[object Object]'), "Does not add some random key like [object Object]");
 });
 
 test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function() {

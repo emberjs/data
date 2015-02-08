@@ -14,7 +14,7 @@ import {
 */
 export default function initializeTransforms(container) {
   container.register('transform:boolean', BooleanTransform);
-  container.register('transform:date',    DateTransform);
-  container.register('transform:number',  NumberTransform);
-  container.register('transform:string',  StringTransform);
+  container.register('transform:date', DateTransform);
+  container.register('transform:number', NumberTransform);
+  container.register('transform:string', StringTransform);
 }

@@ -128,7 +128,7 @@ test("normalize links", function() {
 
   var json = env.amsSerializer.normalize(HomePlanet, home_planet, "homePlanet");
 
-  equal(json.links.superVillains,  "/api/super_villians/1", "normalize links");
+  equal(json.links.superVillains, "/api/super_villians/1", "normalize links");
 });
 
 test("extractSingle", function() {
@@ -191,7 +191,7 @@ test("extractArray", function() {
 test("serialize polymorphic", function() {
   var tom, ray;
   run(function() {
-    tom = env.store.createRecord(YellowMinion,   { name: "Alex", id: "124" });
+    tom = env.store.createRecord(YellowMinion, { name: "Alex", id: "124" });
     ray = env.store.createRecord(DoomsdayDevice, { evilMinion: tom, name: "DeathRay" });
   });
 
@@ -208,7 +208,7 @@ test("serialize polymorphic when type key is not camelized", function() {
   YellowMinion.typeKey = 'yellow-minion';
   var tom, ray;
   run(function() {
-    tom = env.store.createRecord(YellowMinion,   { name: "Alex", id: "124" });
+    tom = env.store.createRecord(YellowMinion, { name: "Alex", id: "124" });
     ray = env.store.createRecord(DoomsdayDevice, { evilMinion: tom, name: "DeathRay" });
   });
 

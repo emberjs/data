@@ -49,6 +49,11 @@ test("stops updating when destroyed", function() {
   expect(3);
   var store = createStore();
 
+  // TODO remove once
+  // https://github.com/emberjs/ember.js/commit/c3f13e85a62069295965dd49ca487fe6ddba1188
+  // is on the release branch
+  var emptyLength = Ember.meta(store).descs ? undefined : 0;
+
   var recordArray = store.all(Person);
   run(function() {
     store.push(Person, { id: 1, name: 'wycats' });
@@ -59,11 +64,11 @@ test("stops updating when destroyed", function() {
   });
 
   run(function() {
-    equal(recordArray.get('length'), undefined, "Has no more records");
+    equal(recordArray.get('length'), emptyLength, "Has no more records");
     store.push(Person, { id: 2, name: 'brohuda' });
   });
 
-  equal(recordArray.get('length'), undefined, "Has not been updated");
+  equal(recordArray.get('length'), emptyLength, "Has not been updated");
   equal(recordArray.get('content'), undefined, "Has not been updated");
 });
 

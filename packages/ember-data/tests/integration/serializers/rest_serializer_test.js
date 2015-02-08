@@ -45,7 +45,7 @@ module("integration/serializer/rest - RESTSerializer", {
   },
 
   teardown: function() {
-    run(env.store,'destroy');
+    run(env.store, 'destroy');
   }
 });
 
@@ -271,7 +271,7 @@ test("pushPayload - multiple record payload (extractArray) - warning with custom
 test("serialize polymorphicType", function() {
   var tom, ray;
   run(function() {
-    tom = env.store.createRecord(YellowMinion,   { name: "Alex", id: "124" });
+    tom = env.store.createRecord(YellowMinion, { name: "Alex", id: "124" });
     ray = env.store.createRecord(DoomsdayDevice, { evilMinion: tom, name: "DeathRay" });
   });
 
@@ -288,7 +288,7 @@ test("serialize polymorphicType with decamelized typeKey", function() {
   YellowMinion.typeKey = 'yellow-minion';
   var tom, ray;
   run(function() {
-    tom = env.store.createRecord(YellowMinion,   { name: "Alex", id: "124" });
+    tom = env.store.createRecord(YellowMinion, { name: "Alex", id: "124" });
     ray = env.store.createRecord(DoomsdayDevice, { evilMinion: tom, name: "DeathRay" });
   });
 
