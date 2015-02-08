@@ -77,7 +77,7 @@ test("When a single record is requested multiple times, all .find() calls are re
       deferred.promise.then(function(value) {
         start();
         ok(true, 'expected deferred.promise to fulfill');
-      },function(reason) {
+      }, function(reason) {
         start();
         ok(false, 'expected deferred.promise to fulfill, but rejected');
       });

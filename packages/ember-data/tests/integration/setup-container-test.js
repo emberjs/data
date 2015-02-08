@@ -65,5 +65,5 @@ test("the deprecated adapter:_rest is resolved as adapter:rest", function() {
 test("a deprecation is made when looking up adapter:_rest", function() {
   expectDeprecation(function() {
     container.lookup('serializer:_default');
-  },"You tried to look up 'serializer:_default', but this has been deprecated in favor of 'serializer:-default'.");
+  }, "You tried to look up 'serializer:_default', but this has been deprecated in favor of 'serializer:-default'.");
 });

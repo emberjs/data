@@ -111,7 +111,7 @@ test("Errors out if you define 2 inverses to the same model", function () {
       store.push('user', { id: 1 });
     });
     User.inverseFor('job');
-  },  "You defined the 'job' relationship on user, but you defined the inverse relationships of type job multiple times. Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses");
+  }, "You defined the 'job' relationship on user, but you defined the inverse relationships of type job multiple times. Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses");
 });
 
 
