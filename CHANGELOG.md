@@ -93,6 +93,27 @@ export default DS.RESTSerializer.extend({
 Please use `store.metadataFor()` to get metadata and `store.setMetadataFor()`
 to set metadata.
 
+
+##### `ManyArray`s are no longer `RecordArray`s
+[ManyArray](http://emberjs.com/api/data/classes/DS.ManyArray.html),
+the object Ember Data uses to represent `DS.hasMany` relationships has
+been changed so it no longer extends from `RecordArray`. This means if
+you were relying on the RecordArray's `content` property to access the
+underlying array you will now need to use the `.toArray()` method.
+
+```javascript
+// Ember Data 1.0.0-beta.12
+record.get('myHasManyRelationship').get('content').map(...);
+
+// Ember Data 1.0.0-beta.14
+record.get('myHasManyRelationship').toArray().map(...);
+```
+
+Additionally if you were using the `RecordArray`'s `.addRecord()` and
+`.removeRecord()` methods you will now need to use the `.addObject()`
+/ `.removeObject()` array methods.
+
+
 #### Changes
 
 * Fix references to buildURL in documentation
