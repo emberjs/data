@@ -1,6 +1,7 @@
 /**
   @module ember-data
 */
+import { PromiseArray } from "ember-data/system/promise_proxies";
 
 var get = Ember.get;
 var set = Ember.set;
@@ -183,6 +184,35 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   */
   reload: function() {
     return this.relationship.reload();
+  },
+
+  /**
+    Saves all of the records in the `ManyArray`.
+
+    Example
+
+    ```javascript
+    store.find('inbox', 1).then(function(inbox) {
+      inbox.get('messages').then(function(messages) {
+        messages.forEach(function(message) {
+          message.set('isRead', true);
+        });
+        messages.save()
+      });
+    });
+    ```
+
+    @method save
+    @return {DS.PromiseArray} promise
+  */
+  save: function() {
+    var manyArray = this;
+    var promiseLabel = "DS: ManyArray#save " + get(this, 'type');
+    var promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).then(function(array) {
+      return manyArray;
+    }, null, "DS: ManyArray#save return ManyArray");
+
+    return PromiseArray.create({ promise: promise });
   },
 
   /**

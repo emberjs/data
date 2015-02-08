@@ -4,9 +4,11 @@ var hasMany = DS.hasMany;
 var belongsTo = DS.belongsTo;
 var run = Ember.run;
 
+var Post, Tag;
+
 module("unit/many_array - DS.ManyArray", {
   setup: function() {
-    var Post = DS.Model.extend({
+    Post = DS.Model.extend({
       title: attr('string'),
       tags: hasMany('tag')
     });
@@ -14,7 +16,7 @@ module("unit/many_array - DS.ManyArray", {
       return 'Post';
     };
 
-    var Tag = DS.Model.extend({
+    Tag = DS.Model.extend({
       name: attr('string'),
       post: belongsTo('post')
     });
@@ -34,6 +36,27 @@ module("unit/many_array - DS.ManyArray", {
       store.destroy();
     });
   }
+});
+
+test("manyArray.save() calls save() on all records", function() {
+  expect(3);
+
+  run(function() {
+    Tag.reopen({
+      save: function() {
+        ok(true, 'record.save() was called');
+        return Ember.RSVP.resolve();
+      }
+    });
+
+    store.push('tag', { id: 1, name: 'Ember.js' });
+    store.push('tag', { id: 2, name: 'Tomster' });
+
+    var post = store.push('post', { id: 3, title: 'A framework for creating ambitious web applications', tags: [1, 2] });
+    post.get('tags').save().then(function() {
+      ok(true, 'manyArray.save() promise resolved');
+    });
+  });
 });
 
 test("manyArray.addRecord() has been deprecated", function() {

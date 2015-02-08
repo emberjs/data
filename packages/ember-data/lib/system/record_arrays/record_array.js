@@ -179,10 +179,11 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @return {DS.PromiseArray} promise
   */
   save: function() {
+    var recordArray = this;
     var promiseLabel = "DS: RecordArray#save " + get(this, 'type');
     var promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).then(function(array) {
-      return Ember.A(array);
-    }, null, "DS: RecordArray#save apply Ember.NativeArray");
+      return recordArray;
+    }, null, "DS: RecordArray#save return RecordArray");
 
     return PromiseArray.create({ promise: promise });
   },
