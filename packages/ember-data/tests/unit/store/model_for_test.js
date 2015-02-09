@@ -28,7 +28,7 @@ test("when fetching factory from string, sets a normalized key as typeKey", func
   env.replaceContainerNormalize(camelize);
 
   equal(container.normalize('some.post'), 'somePost', 'precond - container camelizes');
-  equal(store.modelFor("blog.post").typeKey, "blogPost", "typeKey is normalized to camelCase");
+  equal(store.modelFor("blog.post").typeKey, "blogPost", "typeKey is normalized by the container");
 });
 
 test("when fetching factory from string and dashing normalizer, sets a normalized key as typeKey", function() {
@@ -37,12 +37,12 @@ test("when fetching factory from string and dashing normalizer, sets a normalize
   });
 
   equal(container.normalize('some.post'), 'some-post', 'precond - container dasherizes');
-  equal(store.modelFor("blog.post").typeKey, "blogPost", "typeKey is normalized to camelCase");
+  equal(store.modelFor("blog.post").typeKey, "blog-post", "typeKey is normalized by the container");
 });
 
 test("when returning passed factory, sets a normalized key as typeKey", function() {
   var factory = { typeKey: 'some-thing' };
-  equal(store.modelFor(factory).typeKey, "someThing", "typeKey is normalized to camelCase");
+  equal(store.modelFor(factory).typeKey, "some-thing", "typeKey is normalized to camelCase");
 });
 
 test("when returning passed factory without typeKey, allows it", function() {

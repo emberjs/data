@@ -723,7 +723,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash: function(hash, type, record, options) {
-    hash[type.typeKey] = this.serialize(record, options);
+    hash[this.typeForRoot(type.typeKey)] = this.serialize(record, options);
   },
 
   /**
