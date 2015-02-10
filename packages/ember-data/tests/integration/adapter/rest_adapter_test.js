@@ -111,7 +111,7 @@ test("find - payload with sideloaded records of a different type", function() {
 
 
 test("find - payload with an serializer-specified primary key", function() {
-  env.container.register('serializer:post', DS.RESTSerializer.extend({
+  env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_ID_'
   }));
 
@@ -128,7 +128,7 @@ test("find - payload with an serializer-specified primary key", function() {
 });
 
 test("find - payload with a serializer-specified attribute mapping", function() {
-  env.container.register('serializer:post', DS.RESTSerializer.extend({
+  env.registry.register('serializer:post', DS.RESTSerializer.extend({
     attrs: {
       'name': '_NAME_',
       'createdAt': { key: '_CREATED_AT_', someOtherOption: 'option' }
@@ -234,7 +234,7 @@ test("create - findMany doesn't overwrite owner", function() {
 
 test("create - a serializer's primary key and attributes are consulted when building the payload", function() {
   var post;
-  env.container.register('serializer:post', DS.RESTSerializer.extend({
+  env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_id_',
 
     attrs: {
@@ -255,7 +255,7 @@ test("create - a serializer's primary key and attributes are consulted when buil
 
 test("create - a serializer's attributes are consulted when building the payload if no id is pre-defined", function() {
   var post;
-  env.container.register('serializer:post', DS.RESTSerializer.extend({
+  env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primarykey: '_id_',
 
     attrs: {
@@ -275,7 +275,7 @@ test("create - a serializer's attributes are consulted when building the payload
 });
 
 test("create - a serializer's attribute mapping takes precdence over keyForAttribute when building the payload", function() {
-  env.container.register('serializer:post', DS.RESTSerializer.extend({
+  env.registry.register('serializer:post', DS.RESTSerializer.extend({
     attrs: {
       name: 'given_name'
     },
@@ -297,7 +297,7 @@ test("create - a serializer's attribute mapping takes precdence over keyForAttri
 });
 
 test("create - a serializer's attribute mapping takes precedence over keyForRelationship (belongsTo) when building the payload", function() {
-  env.container.register('serializer:comment', DS.RESTSerializer.extend({
+  env.registry.register('serializer:comment', DS.RESTSerializer.extend({
     attrs: {
       post: 'article'
     },
@@ -322,7 +322,7 @@ test("create - a serializer's attribute mapping takes precedence over keyForRela
 });
 
 test("create - a serializer's attribute mapping takes precedence over keyForRelationship (hasMany) when building the payload", function() {
-  env.container.register('serializer:post', DS.RESTSerializer.extend({
+  env.registry.register('serializer:post', DS.RESTSerializer.extend({
     attrs: {
       comments: 'opinions'
     },
@@ -601,7 +601,7 @@ test("update - a payload with sideloaded updates pushes the updates", function()
 });
 
 test("update - a serializer's primary key and attributes are consulted when building the payload", function() {
-  env.container.register('serializer:post', DS.RESTSerializer.extend({
+  env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_id_',
 
     attrs: {
@@ -761,7 +761,7 @@ test("findAll - returning sideloaded data loads the data", function() {
 });
 
 test("findAll - data is normalized through custom serializers", function() {
-  env.container.register('serializer:post', DS.RESTSerializer.extend({
+  env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_ID_',
     attrs: { name: '_NAME_' }
   }));
@@ -985,7 +985,7 @@ test("findQuery - returning sideloaded data loads the data", function() {
 });
 
 test("findQuery - data is normalized through custom serializers", function() {
-  env.container.register('serializer:post', DS.RESTSerializer.extend({
+  env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_ID_',
     attrs: { name: '_NAME_' }
   }));
@@ -1139,12 +1139,12 @@ test("findMany - returning sideloaded data loads the data", function() {
 });
 
 test("findMany - a custom serializer is used if present", function() {
-  env.container.register('serializer:post', DS.RESTSerializer.extend({
+  env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_ID_',
     attrs: { name: '_NAME_' }
   }));
 
-  env.container.register('serializer:comment', DS.RESTSerializer.extend({
+  env.registry.register('serializer:comment', DS.RESTSerializer.extend({
     primaryKey: '_ID_',
     attrs: { name: '_NAME_' }
   }));
@@ -1258,12 +1258,12 @@ test("findMany - returning sideloaded data loads the data", function() {
 });
 
 test("findMany - a custom serializer is used if present", function() {
-  env.container.register('serializer:post', DS.RESTSerializer.extend({
+  env.registry.register('serializer:post', DS.RESTSerializer.extend({
     primaryKey: '_ID_',
     attrs: { name: '_NAME_' }
   }));
 
-  env.container.register('serializer:comment', DS.RESTSerializer.extend({
+  env.registry.register('serializer:comment', DS.RESTSerializer.extend({
     primaryKey: '_ID_',
     attrs: { name: '_NAME_' }
   }));
@@ -1617,7 +1617,7 @@ test('groupRecordsForFindMany groups records correctly when singular URLs are en
 });
 
 test('normalizeKey - to set up _ids and _id', function() {
-  env.container.register('serializer:application', DS.RESTSerializer.extend({
+  env.registry.register('serializer:application', DS.RESTSerializer.extend({
     keyForAttribute: function(attr) {
       return Ember.String.underscore(attr);
     },
@@ -1636,19 +1636,19 @@ test('normalizeKey - to set up _ids and _id', function() {
     }
   }));
 
-  env.container.register('model:post', DS.Model.extend({
+  env.registry.register('model:post', DS.Model.extend({
     name: DS.attr(),
     authorName: DS.attr(),
     author: DS.belongsTo('user'),
     comments: DS.hasMany('comment')
   }));
 
-  env.container.register('model:user', DS.Model.extend({
+  env.registry.register('model:user', DS.Model.extend({
     createdAt: DS.attr(),
     name: DS.attr()
   }));
 
-  env.container.register('model:comment', DS.Model.extend({
+  env.registry.register('model:comment', DS.Model.extend({
     body: DS.attr()
   }));
 

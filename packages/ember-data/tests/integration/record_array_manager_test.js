@@ -27,8 +27,8 @@ module("integration/record_array_manager- destroy", {
 
     manager = store.recordArrayManager;
 
-    env.container.register('model:car', Car);
-    env.container.register('model:person', Person);
+    env.registry.register('model:car', Car);
+    env.registry.register('model:person', Person);
   }
 });
 

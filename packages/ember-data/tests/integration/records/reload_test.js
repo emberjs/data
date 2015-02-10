@@ -103,12 +103,12 @@ test("When a record is loaded a second time, isLoaded stays true", function() {
 });
 
 test("When a record is reloaded, its async hasMany relationships still work", function() {
-  env.container.register('model:person', DS.Model.extend({
+  env.registry.register('model:person', DS.Model.extend({
     name: DS.attr(),
     tags: DS.hasMany('tag', { async: true })
   }));
 
-  env.container.register('model:tag', DS.Model.extend({
+  env.registry.register('model:tag', DS.Model.extend({
     name: DS.attr()
   }));
 

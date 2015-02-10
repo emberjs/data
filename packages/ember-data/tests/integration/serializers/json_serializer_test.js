@@ -39,7 +39,7 @@ test("serializeAttribute", function() {
 });
 
 test("serializeAttribute respects keyForAttribute", function() {
-  env.container.register('serializer:post', DS.JSONSerializer.extend({
+  env.registry.register('serializer:post', DS.JSONSerializer.extend({
     keyForAttribute: function(key) {
       return key.toUpperCase();
     }
@@ -99,7 +99,7 @@ test("async serializeBelongsTo with null", function() {
 });
 
 test("serializeBelongsTo respects keyForRelationship", function() {
-  env.container.register('serializer:post', DS.JSONSerializer.extend({
+  env.registry.register('serializer:post', DS.JSONSerializer.extend({
     keyForRelationship: function(key, type) {
       return key.toUpperCase();
     }
@@ -118,7 +118,7 @@ test("serializeBelongsTo respects keyForRelationship", function() {
 });
 
 test("serializeHasMany respects keyForRelationship", function() {
-  env.container.register('serializer:post', DS.JSONSerializer.extend({
+  env.registry.register('serializer:post', DS.JSONSerializer.extend({
     keyForRelationship: function(key, type) {
       return key.toUpperCase();
     }
@@ -154,7 +154,7 @@ test("serializeIntoHash", function() {
 });
 
 test("serializePolymorphicType", function() {
-  env.container.register('serializer:comment', DS.JSONSerializer.extend({
+  env.registry.register('serializer:comment', DS.JSONSerializer.extend({
     serializePolymorphicType: function(record, json, relationship) {
       var key = relationship.key;
       var belongsTo = get(record, key);
@@ -184,7 +184,7 @@ test("extractArray normalizes each record in the array", function() {
     { title: "Another Post" }
   ];
 
-  env.container.register('serializer:post', DS.JSONSerializer.extend({
+  env.registry.register('serializer:post', DS.JSONSerializer.extend({
     normalize: function () {
       postNormalizeCount++;
       return this._super.apply(this, arguments);
@@ -198,7 +198,7 @@ test("extractArray normalizes each record in the array", function() {
 });
 
 test('Serializer should respect the attrs hash when extracting records', function() {
-  env.container.register("serializer:post", DS.JSONSerializer.extend({
+  env.registry.register("serializer:post", DS.JSONSerializer.extend({
     attrs: {
       title: "title_payload_key",
       comments: { key: 'my_comments' }
@@ -220,7 +220,7 @@ test('Serializer should respect the attrs hash when serializing records', functi
   Post.reopen({
     parentPost: DS.belongsTo('post')
   });
-  env.container.register("serializer:post", DS.JSONSerializer.extend({
+  env.registry.register("serializer:post", DS.JSONSerializer.extend({
     attrs: {
       title: "title_payload_key",
       parentPost: { key: "my_parent" }
@@ -241,7 +241,7 @@ test('Serializer should respect the attrs hash when serializing records', functi
 
 test('Serializer respects `serialize: false` on the attrs hash', function() {
   expect(2);
-  env.container.register("serializer:post", DS.JSONSerializer.extend({
+  env.registry.register("serializer:post", DS.JSONSerializer.extend({
     attrs: {
       title: { serialize: false }
     }
@@ -259,7 +259,7 @@ test('Serializer respects `serialize: false` on the attrs hash', function() {
 
 test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function() {
   expect(1);
-  env.container.register("serializer:post", DS.JSONSerializer.extend({
+  env.registry.register("serializer:post", DS.JSONSerializer.extend({
     attrs: {
       comments: { serialize: false }
     }
@@ -279,7 +279,7 @@ test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` p
 
 test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function() {
   expect(1);
-  env.container.register("serializer:comment", DS.JSONSerializer.extend({
+  env.registry.register("serializer:comment", DS.JSONSerializer.extend({
     attrs: {
       post: { serialize: false }
     }
@@ -298,7 +298,7 @@ test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo`
 });
 
 test("Serializer should respect the primaryKey attribute when extracting records", function() {
-  env.container.register('serializer:post', DS.JSONSerializer.extend({
+  env.registry.register('serializer:post', DS.JSONSerializer.extend({
     primaryKey: '_ID_'
   }));
 
@@ -313,7 +313,7 @@ test("Serializer should respect the primaryKey attribute when extracting records
 });
 
 test("Serializer should respect the primaryKey attribute when serializing records", function() {
-  env.container.register('serializer:post', DS.JSONSerializer.extend({
+  env.registry.register('serializer:post', DS.JSONSerializer.extend({
     primaryKey: '_ID_'
   }));
 
@@ -327,7 +327,7 @@ test("Serializer should respect the primaryKey attribute when serializing record
 });
 
 test("Serializer should respect keyForAttribute when extracting records", function() {
-  env.container.register('serializer:post', DS.JSONSerializer.extend({
+  env.registry.register('serializer:post', DS.JSONSerializer.extend({
     keyForAttribute: function(key) {
       return key.toUpperCase();
     }
@@ -342,7 +342,7 @@ test("Serializer should respect keyForAttribute when extracting records", functi
 });
 
 test("Serializer should respect keyForRelationship when extracting records", function() {
-  env.container.register('serializer:post', DS.JSONSerializer.extend({
+  env.registry.register('serializer:post', DS.JSONSerializer.extend({
     keyForRelationship: function(key, type) {
       return key.toUpperCase();
     }
@@ -356,7 +356,7 @@ test("Serializer should respect keyForRelationship when extracting records", fun
 });
 
 test("normalizePayload is called during extractSingle", function() {
-  env.container.register('serializer:post', DS.JSONSerializer.extend({
+  env.registry.register('serializer:post', DS.JSONSerializer.extend({
     normalizePayload: function(payload) {
       return payload.response;
     }
@@ -382,14 +382,14 @@ test("Calling normalize should normalize the payload (only the passed keys)", fu
   var Person = DS.Model.extend({
     posts: DS.hasMany('post')
   });
-  env.container.register('serializer:post', DS.JSONSerializer.extend({
+  env.registry.register('serializer:post', DS.JSONSerializer.extend({
     attrs: {
       notInHash: 'aCustomAttrNotInHash',
       inHash: 'aCustomAttrInHash'
     }
   }));
 
-  env.container.register('model:person', Person);
+  env.registry.register('model:person', Person);
 
   Post.reopen({
     content: DS.attr('string'),

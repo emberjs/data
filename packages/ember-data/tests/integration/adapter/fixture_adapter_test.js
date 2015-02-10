@@ -290,7 +290,7 @@ asyncTest("copies fixtures instead of passing the direct reference", function() 
   });
 
   Ember.run(function() {
-    env.container.register('adapter:person', PersonAdapter);
+    env.registry.register('adapter:person', PersonAdapter);
   });
 
   env.store.find('person', 1).then(function() {

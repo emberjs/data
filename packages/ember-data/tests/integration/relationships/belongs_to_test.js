@@ -63,7 +63,7 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
       author: Author
     });
 
-    env.container.register('serializer:user', DS.JSONSerializer.extend({
+    env.registry.register('serializer:user', DS.JSONSerializer.extend({
       attrs: {
         favouriteMessage: { embedded: 'always' }
       }
@@ -201,8 +201,8 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
     group: DS.belongsTo({ async: true })
   });
 
-  env.container.register('model:group', Group);
-  env.container.register('model:person', Person);
+  env.registry.register('model:group', Group);
+  env.registry.register('model:person', Person);
 
   run(function() {
     store.push('person', { id: 1, links: { group: '/people/1/group' } });
@@ -239,8 +239,8 @@ test('A record with an async belongsTo relationship always returns a promise for
     seat: DS.belongsTo('seat', { async: true })
   });
 
-  env.container.register('model:seat', Seat);
-  env.container.register('model:person', Person);
+  env.registry.register('model:seat', Seat);
+  env.registry.register('model:person', Person);
 
   run(function() {
     store.push('person', { id: 1, links: { seat: '/people/1/seat' } });
@@ -277,8 +277,8 @@ test("A record with an async belongsTo relationship returning null should resolv
     group: DS.belongsTo({ async: true })
   });
 
-  env.container.register('model:group', Group);
-  env.container.register('model:person', Person);
+  env.registry.register('model:group', Group);
+  env.registry.register('model:person', Person);
 
   run(function() {
     store.push('person', { id: 1, links: { group: '/people/1/group' } });

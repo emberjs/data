@@ -41,9 +41,9 @@ module("integration/active_model - ActiveModelSerializer", {
     env.store.modelFor('yellowMinion');
     env.store.modelFor('doomsdayDevice');
     env.store.modelFor('mediocreVillain');
-    env.container.register('serializer:application', DS.ActiveModelSerializer);
-    env.container.register('serializer:-active-model', DS.ActiveModelSerializer);
-    env.container.register('adapter:-active-model', DS.ActiveModelAdapter);
+    env.registry.register('serializer:application', DS.ActiveModelSerializer);
+    env.registry.register('serializer:-active-model', DS.ActiveModelSerializer);
+    env.registry.register('adapter:-active-model', DS.ActiveModelAdapter);
     env.amsSerializer = env.container.lookup("serializer:-active-model");
     env.amsAdapter    = env.container.lookup("adapter:-active-model");
   },
@@ -132,7 +132,7 @@ test("normalize links", function() {
 });
 
 test("extractSingle", function() {
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
 
   var json_hash = {
     home_planet:   { id: "1", name: "Umber", super_villain_ids: [1] },
@@ -163,7 +163,7 @@ test("extractSingle", function() {
 });
 
 test("extractArray", function() {
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
   var array;
 
   var json_hash = {
@@ -228,7 +228,7 @@ test("serialize polymorphic when associated object is null", function() {
 });
 
 test("extractPolymorphic hasMany", function() {
-  env.container.register('adapter:yellowMinion', DS.ActiveModelAdapter);
+  env.registry.register('adapter:yellowMinion', DS.ActiveModelAdapter);
   MediocreVillain.toString   = function() { return "MediocreVillain"; };
   YellowMinion.toString = function() { return "YellowMinion"; };
 
@@ -253,7 +253,7 @@ test("extractPolymorphic hasMany", function() {
 });
 
 test("extractPolymorphic", function() {
-  env.container.register('adapter:yellowMinion', DS.ActiveModelAdapter);
+  env.registry.register('adapter:yellowMinion', DS.ActiveModelAdapter);
   EvilMinion.toString   = function() { return "EvilMinion"; };
   YellowMinion.toString = function() { return "YellowMinion"; };
 

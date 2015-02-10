@@ -38,7 +38,7 @@ module("unit/store/push - DS.Store#push", {
 
     store = env.store;
 
-    env.container.register('serializer:post', DS.ActiveModelSerializer);
+    env.registry.register('serializer:post', DS.ActiveModelSerializer);
   },
 
   teardown: function() {
@@ -72,7 +72,7 @@ test("Supplying a model class for `push` is the same as supplying a string", fun
   expect(1);
 
   var Programmer = Person.extend();
-  env.container.register('model:programmer', Programmer);
+  env.registry.register('model:programmer', Programmer);
 
   run(function() {
     store.push(Programmer, {
@@ -144,7 +144,7 @@ test("Calling push with partial records updates just those attributes", function
 });
 
 test("Calling push on normalize allows partial updates with raw JSON", function () {
-  env.container.register('serializer:person', DS.RESTSerializer);
+  env.registry.register('serializer:person', DS.RESTSerializer);
   var person;
 
   run(function() {
@@ -323,13 +323,13 @@ test("Calling pushPayload allows pushing singular payload properties", function 
 
 test("Calling pushPayload should use the type's serializer for normalizing", function () {
   expect(4);
-  env.container.register('serializer:post', DS.RESTSerializer.extend({
+  env.registry.register('serializer:post', DS.RESTSerializer.extend({
     normalize: function(store, payload) {
       ok(true, "normalized is called on Post serializer");
       return this._super(store, payload);
     }
   }));
-  env.container.register('serializer:person', DS.RESTSerializer.extend({
+  env.registry.register('serializer:person', DS.RESTSerializer.extend({
     normalize: function(store, payload) {
       ok(true, "normalized is called on Person serializer");
       return this._super(store, payload);
@@ -361,7 +361,7 @@ test("Calling pushPayload should use the type's serializer for normalizing", fun
 test("Calling pushPayload without a type uses application serializer's pushPayload method", function () {
   expect(1);
 
-  env.container.register('serializer:application', DS.RESTSerializer.extend({
+  env.registry.register('serializer:application', DS.RESTSerializer.extend({
     pushPayload: function(store, payload) {
       ok(true, "pushPayload is called on Application serializer");
       return this._super(store, payload);
@@ -378,14 +378,14 @@ test("Calling pushPayload without a type uses application serializer's pushPaylo
 test("Calling pushPayload without a type should use a model's serializer when normalizing", function () {
   expect(4);
 
-  env.container.register('serializer:post', DS.RESTSerializer.extend({
+  env.registry.register('serializer:post', DS.RESTSerializer.extend({
     normalize: function(store, payload) {
       ok(true, "normalized is called on Post serializer");
       return this._super(store, payload);
     }
   }));
 
-  env.container.register('serializer:application', DS.RESTSerializer.extend({
+  env.registry.register('serializer:application', DS.RESTSerializer.extend({
     normalize: function(store, payload) {
       ok(true, "normalized is called on Application serializer");
       return this._super(store, payload);
@@ -415,7 +415,7 @@ test("Calling pushPayload without a type should use a model's serializer when no
 });
 
 test("Calling pushPayload allows partial updates with raw JSON", function () {
-  env.container.register('serializer:person', DS.RESTSerializer);
+  env.registry.register('serializer:person', DS.RESTSerializer);
 
   var person;
 
