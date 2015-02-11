@@ -61,9 +61,9 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
     env.store.modelFor('lightSaber');
     env.store.modelFor('evilMinion');
     env.store.modelFor('comment');
-    env.container.register('serializer:application', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin));
-    env.container.register('serializer:-active-model', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin));
-    env.container.register('adapter:-active-model', DS.ActiveModelAdapter);
+    env.registry.register('serializer:application', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin));
+    env.registry.register('serializer:-active-model', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin));
+    env.registry.register('adapter:-active-model', DS.ActiveModelAdapter);
     env.amsSerializer = env.container.lookup("serializer:-active-model");
     env.amsAdapter    = env.container.lookup("adapter:-active-model");
   },
@@ -74,8 +74,8 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
 });
 
 test("extractSingle with embedded objects", function() {
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' }
     }
@@ -112,13 +112,13 @@ test("extractSingle with embedded objects", function() {
 });
 
 test("extractSingle with embedded objects inside embedded objects", function() {
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' }
     }
   }));
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       evilMinions: { embedded: 'always' }
     }
@@ -164,8 +164,8 @@ test("extractSingle with embedded objects inside embedded objects", function() {
 });
 
 test("extractSingle with embedded objects of same type", function() {
-  env.container.register('adapter:comment', DS.ActiveModelAdapter);
-  env.container.register('serializer:comment', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:comment', DS.ActiveModelAdapter);
+  env.registry.register('serializer:comment', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       children: { embedded: 'always' }
     }
@@ -205,8 +205,8 @@ test("extractSingle with embedded objects of same type", function() {
 });
 
 test("extractSingle with embedded objects inside embedded objects of same type", function() {
-  env.container.register('adapter:comment', DS.ActiveModelAdapter);
-  env.container.register('serializer:comment', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:comment', DS.ActiveModelAdapter);
+  env.registry.register('serializer:comment', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       children: { embedded: 'always' }
     }
@@ -258,8 +258,8 @@ test("extractSingle with embedded objects of same type, but from separate attrib
     reformedVillains: DS.hasMany('superVillain', { inverse: null })
   });
 
-  env.container.register('adapter:home_planet', DS.ActiveModelAdapter);
-  env.container.register('serializer:home_planet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:home_planet', DS.ActiveModelAdapter);
+  env.registry.register('serializer:home_planet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' },
       reformedVillains: { embedded: 'always' }
@@ -306,8 +306,8 @@ test("extractSingle with embedded objects of same type, but from separate attrib
 });
 
 test("extractArray with embedded objects", function() {
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' }
     }
@@ -347,11 +347,11 @@ test("extractArray with embedded objects", function() {
 
 test("extractArray with embedded objects with custom primary key", function() {
   expect(2);
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend({
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend({
     primaryKey: 'villain_id'
   }));
-  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' }
     }
@@ -391,8 +391,8 @@ test("extractArray with embedded objects with custom primary key", function() {
 });
 test("extractArray with embedded objects with identical relationship and attribute key ", function() {
   expect(2);
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' }
     },
@@ -434,8 +434,8 @@ test("extractArray with embedded objects with identical relationship and attribu
   });
 });
 test("extractArray with embedded objects of same type as primary type", function() {
-  env.container.register('adapter:comment', DS.ActiveModelAdapter);
-  env.container.register('serializer:comment', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:comment', DS.ActiveModelAdapter);
+  env.registry.register('serializer:comment', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       children: { embedded: 'always' }
     }
@@ -482,8 +482,8 @@ test("extractArray with embedded objects of same type, but from separate attribu
     reformedVillains: DS.hasMany('superVillain')
   });
 
-  env.container.register('adapter:homePlanet', DS.ActiveModelAdapter);
-  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:homePlanet', DS.ActiveModelAdapter);
+  env.registry.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' },
       reformedVillains: { embedded: 'always' }
@@ -559,7 +559,7 @@ test("serialize supports serialize:false on non-relationship properties", functi
     tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", id: '1' });
   });
 
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       firstName: { serialize: false }
     }
@@ -584,7 +584,7 @@ test("serialize with embedded objects (hasMany relationship)", function() {
     tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league, id: '1' });
   });
 
-  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' }
     }
@@ -615,7 +615,7 @@ test("serialize with embedded objects (hasMany relationship) supports serialize:
     env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league, id: '1' });
   });
 
-  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { serialize: false }
     }
@@ -638,7 +638,7 @@ test("serialize with (new) embedded objects (hasMany relationship)", function() 
     env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
   });
 
-  env.container.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' }
     }
@@ -669,7 +669,7 @@ test("serialize with embedded objects (hasMany relationships, including related 
     superVillain.get('secretWeapons').pushObject(secretWeapon);
   });
 
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       evilMinions: { serialize: 'records', deserialize: 'records' },
       secretWeapons: { serialize: 'ids' }
@@ -697,8 +697,8 @@ test("serialize with embedded objects (hasMany relationships, including related 
 
 test("extractSingle with embedded object (belongsTo relationship)", function() {
   expect(4);
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { embedded: 'always' }
     }
@@ -747,8 +747,8 @@ test("extractSingle with embedded object (belongsTo relationship)", function() {
 });
 
 test("serialize with embedded object (belongsTo relationship)", function() {
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { embedded: 'always' }
     }
@@ -785,14 +785,14 @@ test("serialize with embedded object (belongsTo relationship)", function() {
 });
 
 test("serialize with embedded object (belongsTo relationship) works with different primaryKeys", function() {
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     primaryKey: '_id',
     attrs: {
       secretLab: { embedded: 'always' }
     }
   }));
-  env.container.register('serializer:secretLab', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('serializer:secretLab', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     primaryKey: 'crazy_id'
   }));
 
@@ -828,8 +828,8 @@ test("serialize with embedded object (belongsTo relationship) works with differe
 });
 
 test("serialize with embedded object (belongsTo relationship, new no id)", function() {
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { embedded: 'always' }
     }
@@ -866,8 +866,8 @@ test("serialize with embedded object (belongsTo relationship, new no id)", funct
 });
 
 test("serialize with embedded object (belongsTo relationship) supports serialize:ids", function() {
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { serialize: 'ids' }
     }
@@ -900,8 +900,8 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
 });
 
 test("serialize with embedded object (belongsTo relationship) supports serialize:id", function() {
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { serialize: 'id' }
     }
@@ -935,8 +935,8 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
 });
 
 test("serialize with embedded object (belongsTo relationship) supports serialize:false", function() {
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { serialize: false }
     }
@@ -967,8 +967,8 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
 });
 
 test("serialize with embedded object (belongsTo relationship) serializes the id by default if no option specified", function() {
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin));
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin));
   var serializer = env.container.lookup("serializer:superVillain");
 
   // records with an id, persisted
@@ -998,8 +998,8 @@ test("serialize with embedded object (belongsTo relationship) serializes the id 
 });
 
 test("when related record is not present, serialize embedded record (with a belongsTo relationship) as null", function() {
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { embedded: 'always' }
     }
@@ -1029,13 +1029,13 @@ test("when related record is not present, serialize embedded record (with a belo
 });
 
 test("extractSingle with multiply-nested belongsTo", function() {
-  env.container.register('adapter:evilMinion', DS.ActiveModelAdapter);
-  env.container.register('serializer:evilMinion', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:evilMinion', DS.ActiveModelAdapter);
+  env.registry.register('serializer:evilMinion', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       superVillain: { embedded: 'always' }
     }
   }));
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       homePlanet: { embedded: 'always' }
     }
@@ -1080,8 +1080,8 @@ test("extractSingle with polymorphic hasMany", function() {
     secretWeapons: DS.hasMany("secretWeapon", { polymorphic: true })
   });
 
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretWeapons: { embedded: 'always' }
     }
@@ -1137,8 +1137,8 @@ test("extractSingle with polymorphic belongsTo", function() {
     secretLab: DS.belongsTo("secretLab", { polymorphic: true })
   });
 
-  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       secretLab: { embedded: 'always' }
     }
@@ -1189,9 +1189,9 @@ test("Mixin can be used with RESTSerializer which does not define keyForAttribut
     superVillain.get('evilMinions').pushObject(evilMinion);
   });
 
-  env.container.register('serializer:evilMinion', DS.RESTSerializer);
-  env.container.register('serializer:secretWeapon', DS.RESTSerializer);
-  env.container.register('serializer:superVillain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('serializer:evilMinion', DS.RESTSerializer);
+  env.registry.register('serializer:secretWeapon', DS.RESTSerializer);
+  env.registry.register('serializer:superVillain', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       evilMinions: { serialize: 'records', deserialize: 'records' }
     }
@@ -1219,13 +1219,13 @@ test("Mixin can be used with RESTSerializer which does not define keyForAttribut
 });
 
 test("normalize with custom belongsTo primary key", function() {
-  env.container.register('adapter:evilMinion', DS.ActiveModelAdapter);
-  env.container.register('serializer:evilMinion', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('adapter:evilMinion', DS.ActiveModelAdapter);
+  env.registry.register('serializer:evilMinion', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       superVillain: { embedded: 'always' }
     }
   }));
-  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend({
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend({
     primaryKey: 'custom'
   }));
 
@@ -1289,9 +1289,9 @@ test("serializing relationships with an embedded and without calls super when no
       }
     }
   });
-  env.container.register('serializer:evilMinion', Serializer);
-  env.container.register('serializer:secretWeapon', Serializer);
-  env.container.register('serializer:superVillain', Serializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('serializer:evilMinion', Serializer);
+  env.registry.register('serializer:secretWeapon', Serializer);
+  env.registry.register('serializer:superVillain', Serializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       evilMinions: { serialize: 'records', deserialize: 'records' }
       // some relationships are not listed here, so super should be called on those

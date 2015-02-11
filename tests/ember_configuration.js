@@ -47,19 +47,19 @@
   };
 
   window.setupStore = function(options) {
+    var container, registry;
+    var emberChannel = QUnit.urlParams.emberchannel || "release";
     var env = {};
     options = options || {};
 
-    var container = env.container = new Ember.Container();
-
-    // We have to currently work around some container refactors until
-    // https://github.com/emberjs/ember.js/pull/9981 is on the stable release
-    // of ember
-    if (typeof Ember.Registry !== 'undefined') {
-      var registry = new Ember.Registry();
-      container._registry = registry;
-      env.registry = registry;
+    if (emberChannel.match(/^beta|canary$/i)) {
+      registry = env.registry = new Ember.Registry();
+      container = env.container = registry.container();
+    } else {
+      container = env.container = new Ember.Container();
+      registry = env.registry = container;
     }
+
     env.replaceContainerNormalize = function replaceContainerNormalize(fn) {
       if (env.registry) {
         env.registry.normalize = fn;
@@ -72,18 +72,18 @@
     delete options.adapter;
 
     for (var prop in options) {
-      container.register('model:' + prop, options[prop]);
+      registry.register('model:' + prop, options[prop]);
     }
 
-    container.register('store:main', DS.Store.extend({
+    registry.register('store:main', DS.Store.extend({
       adapter: adapter
     }));
 
-    container.register('serializer:-default', DS.JSONSerializer);
-    container.register('serializer:-rest', DS.RESTSerializer);
-    container.register('adapter:-rest', DS.RESTAdapter);
+    registry.register('serializer:-default', DS.JSONSerializer);
+    registry.register('serializer:-rest', DS.RESTSerializer);
+    registry.register('adapter:-rest', DS.RESTAdapter);
 
-    container.injection('serializer', 'store', 'store:main');
+    registry.injection('serializer', 'store', 'store:main');
 
     env.serializer = container.lookup('serializer:-default');
     env.restSerializer = container.lookup('serializer:-rest');

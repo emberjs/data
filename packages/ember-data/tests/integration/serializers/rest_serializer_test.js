@@ -170,7 +170,7 @@ test("pushPayload - single record payload - warning with custom typeForRoot", fu
     }
   });
 
-  env.container.register("serializer:homePlanet", HomePlanetRestSerializer);
+  env.registry.register("serializer:homePlanet", HomePlanetRestSerializer);
 
   var jsonHash = {
     home_planet: { id: "1", name: "Umber", superVillains: [1] },
@@ -226,7 +226,7 @@ test("pushPayload - multiple record payload (extractArray) - warning with custom
     }
   });
 
-  env.container.register("serializer:homePlanet", HomePlanetRestSerializer);
+  env.registry.register("serializer:homePlanet", HomePlanetRestSerializer);
 
   var jsonHash = {
     home_planets: [{ id: "1", name: "Umber", superVillains: [1] }],
@@ -298,7 +298,7 @@ test("serialize polymorphicType with decamelized typeKey", function() {
 });
 
 test("normalizePayload is called during extractSingle", function() {
-  env.container.register('serializer:application', DS.RESTSerializer.extend({
+  env.registry.register('serializer:application', DS.RESTSerializer.extend({
     normalizePayload: function(payload) {
       return payload.response;
     }
@@ -362,7 +362,7 @@ test("extractArray can load secondary records of the same type without affecting
 test("extractSingle loads secondary records with correct serializer", function() {
   var superVillainNormalizeCount = 0;
 
-  env.container.register('serializer:superVillain', DS.RESTSerializer.extend({
+  env.registry.register('serializer:superVillain', DS.RESTSerializer.extend({
     normalize: function() {
       superVillainNormalizeCount++;
       return this._super.apply(this, arguments);
@@ -399,7 +399,7 @@ test("extractSingle returns null if payload contains null", function() {
 test("extractArray loads secondary records with correct serializer", function() {
   var superVillainNormalizeCount = 0;
 
-  env.container.register('serializer:superVillain', DS.RESTSerializer.extend({
+  env.registry.register('serializer:superVillain', DS.RESTSerializer.extend({
     normalize: function() {
       superVillainNormalizeCount++;
       return this._super.apply(this, arguments);
@@ -419,7 +419,7 @@ test("extractArray loads secondary records with correct serializer", function() 
 });
 
 test('normalizeHash normalizes specific parts of the payload', function() {
-  env.container.register('serializer:application', DS.RESTSerializer.extend({
+  env.registry.register('serializer:application', DS.RESTSerializer.extend({
     normalizeHash: {
       homePlanets: function(hash) {
         hash.id = hash._id;
@@ -446,7 +446,7 @@ test('normalizeHash normalizes specific parts of the payload', function() {
 });
 
 test('normalizeHash works with transforms', function() {
-  env.container.register('serializer:application', DS.RESTSerializer.extend({
+  env.registry.register('serializer:application', DS.RESTSerializer.extend({
     normalizeHash: {
       evilMinions: function(hash) {
         hash.condition = hash._condition;
@@ -456,7 +456,7 @@ test('normalizeHash works with transforms', function() {
     }
   }));
 
-  env.container.register('transform:condition', DS.Transform.extend({
+  env.registry.register('transform:condition', DS.Transform.extend({
     deserialize: function(serialized) {
       if (serialized === 1) {
         return "healing";
@@ -488,7 +488,7 @@ test('normalizeHash works with transforms', function() {
 });
 
 test('normalize should allow for different levels of normalization', function() {
-  env.container.register('serializer:application', DS.RESTSerializer.extend({
+  env.registry.register('serializer:application', DS.RESTSerializer.extend({
     attrs: {
       superVillain: 'is_super_villain'
     },
