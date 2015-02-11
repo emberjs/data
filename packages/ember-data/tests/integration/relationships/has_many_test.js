@@ -103,6 +103,27 @@ test("When a hasMany relationship is accessed, the adapter's findMany method sho
   });
 });
 
+test("adapter.findMany only gets unique IDs even if duplicate IDs are present in the hasMany relationship", function() {
+  expect(2);
+
+  env.adapter.findMany = function(store, type, ids, records) {
+    equal(type, Chapter, 'type passed to adapter.findMany is correct');
+    deepEqual(ids, ['2', '3'], 'ids passed to adapter.findMany are unique');
+
+    return Ember.RSVP.resolve([
+      { id: 2, title: 'Chapter One' },
+      { id: 3, title: 'Chapter Two' }
+    ]);
+  };
+
+  run(function() {
+    env.store.push('book', { id: 1, chapters: [2, 3, 3] });
+    env.store.find('book', 1).then(function(book) {
+      return book.get('chapters');
+    });
+  });
+});
+
 // This tests the case where a serializer materializes a has-many
 // relationship as a reference that it can fetch lazily. The most
 // common use case of this is to provide a URL to a collection that
