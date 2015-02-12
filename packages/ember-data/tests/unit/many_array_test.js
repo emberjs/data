@@ -66,3 +66,37 @@ test("manyArray.removeRecord() has been deprecated", function() {
     equal(tags.length, 0, 'there should not be any tags');
   });
 });
+
+
+test("manyArray trigger arrayContentChange functions with the correct values", function() {
+  expect(12);
+  var willChangeStartIdx;
+  var willChangeRemoveAmt;
+  var willChangeAddAmt;
+  var originalArrayContentWillChange = DS.ManyArray.prototype.arrayContentWillChange;
+  var originalArrayContentDidChange = DS.ManyArray.prototype.arrayContentDidChange;
+  DS.ManyArray.reopen({
+    arrayContentWillChange: function(startIdx, removeAmt, addAmt) {
+      willChangeStartIdx = startIdx;
+      willChangeRemoveAmt = removeAmt;
+      willChangeAddAmt = addAmt;
+      return this._super.apply(arguments);
+    },
+    arrayContentDidChange: function(startIdx, removeAmt, addAmt) {
+      equal(startIdx, willChangeStartIdx, 'WillChange and DidChange startIdx should match');
+      equal(removeAmt, willChangeRemoveAmt, 'WillChange and DidChange removeAmt should match');
+      equal(addAmt, willChangeAddAmt, 'WillChange and DidChange addAmt should match');
+      return this._super.apply(arguments);
+    }
+  });
+  run(function() {
+    store.push('tag', { id: 1, name: 'Ember.js' });
+    store.push('tag', { id: 2, name: 'Ember Data' });
+    var post = store.push('post', { id: 2, title: 'A framework for creating ambitious web applications', tags: [1] });
+    post = store.push('post', { id: 2, title: 'A framework for creating ambitious web applications', tags: [1, 2] });
+  });
+  DS.ManyArray.reopen({
+    arrayContentWillChange: originalArrayContentWillChange,
+    arrayContentDidChange: originalArrayContentDidChange
+  });
+});

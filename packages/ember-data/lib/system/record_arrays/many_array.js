@@ -74,10 +74,11 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
       return record.get('isNew');
     });
     toSet = toSet.concat(newRecords);
-    this.arrayContentWillChange(0, this.length, this.length);
+    var oldLength = this.length;
+    this.arrayContentWillChange(0, this.length, toSet.length);
     this.set('length', toSet.length);
     this.currentState = toSet;
-    this.arrayContentDidChange(0, this.length, this.length);
+    this.arrayContentDidChange(0, oldLength, this.length);
     //TODO Figure out to notify only on additions and maybe only if unloaded
     this.relationship.notifyHasManyChanged();
     this.record.updateRecordArrays();
