@@ -121,7 +121,7 @@ test("When a single record is requested, and the promise is rejected, .find() is
   });
 });
 
-test("When a single record is requested, and the promise is rejected, the record should be dematerialized.", function() {
+test("When a single record is requested, and the promise is rejected, the record should be unloaded.", function() {
   expect(2);
 
   store = createStore({ adapter: DS.Adapter.extend({
@@ -137,5 +137,5 @@ test("When a single record is requested, and the promise is rejected, the record
     }));
   });
 
-  ok(!store.hasRecordForId(Person, 1), "The record has been dematerialized");
+  ok(!store.hasRecordForId(Person, 1), "The record has been unloaded");
 });

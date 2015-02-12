@@ -1912,7 +1912,7 @@ function _find(adapter, store, type, id, record) {
     if (record) {
       record.notFound();
       if (get(record, 'isEmpty')) {
-        store.dematerializeRecord(record);
+        store.unloadRecord(record);
       }
     }
     throw error;
