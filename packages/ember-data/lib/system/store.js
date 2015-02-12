@@ -1678,14 +1678,25 @@ Store = Ember.Object.extend({
   // ...............
 
   /**
-    When a record is destroyed, this un-indexes it and
-    removes it from any record arrays so it can be GCed.
-
     @method dematerializeRecord
     @private
     @param {DS.Model} record
+    @deprecated Use [unloadRecord](#method_unloadRecord) instead
   */
   dematerializeRecord: function(record) {
+    Ember.deprecate('Using store.dematerializeRecord() has been deprecated since it was intended for private use only. You should use store.unloadRecord() instead.');
+    this._dematerializeRecord(record);
+  },
+
+  /**
+    When a record is destroyed, this un-indexes it and
+    removes it from any record arrays so it can be GCed.
+
+    @method _dematerializeRecord
+    @private
+    @param {DS.Model} record
+  */
+  _dematerializeRecord: function(record) {
     var type = record.constructor;
     var typeMap = this.typeMapFor(type);
     var id = get(record, 'id');

@@ -671,7 +671,7 @@ var RootState = {
 
       setup: function(record) {
         var store = get(record, 'store');
-        store.dematerializeRecord(record);
+        store._dematerializeRecord(record);
       },
 
       invokeLifecycleCallbacks: function(record) {
