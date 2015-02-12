@@ -17,7 +17,7 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     User = DS.Model.extend({
       name: attr('string'),
       messages: hasMany('message', { polymorphic: true }),
-      contacts: hasMany()
+      contacts: hasMany('user', { inverse: null })
     });
 
     Contact = DS.Model.extend({

@@ -389,7 +389,7 @@ test("initial values of belongsTo can be passed in as the third argument to find
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    friend: DS.belongsTo('person')
+    friend: DS.belongsTo('person', { inverse: null })
   });
 
   store.container.register('model:person', Person);
@@ -418,7 +418,7 @@ test("initial values of belongsTo can be passed in as the third argument to find
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    friend: DS.belongsTo('person', { async: true })
+    friend: DS.belongsTo('person', { async: true, inverse: null })
   });
 
   store.container.register('model:person', Person);
@@ -445,7 +445,7 @@ test("initial values of hasMany can be passed in as the third argument to find a
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    friends: DS.hasMany('person')
+    friends: DS.hasMany('person', { inverse: null })
   });
 
   store.container.register('model:person', Person);
@@ -474,7 +474,7 @@ test("initial values of hasMany can be passed in as the third argument to find a
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
-    friends: DS.hasMany('person', { async: true })
+    friends: DS.hasMany('person', { async: true, inverse: null })
   });
 
   store.container.register('model:person', Person);
