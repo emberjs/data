@@ -2,6 +2,29 @@
 
 ### Master
 
+#### Breaking Changes
+
+##### `store.find(type)` and `store.find(type, query)` has been deprecated
+
+Using `store.find()` to find all records by type or by type and query has been
+deprecated. Use `store.find()` only to find a single record by type and id.
+
+Use `store.findAll()` to find all records by type and `store.findQuery()` to
+find all records by type and query.
+
+Example
+
+```javascript
+// Finding a record by type and id stays the same
+store.find('user', 1);
+
+// Finding all records by type
+store.findAll('user');
+
+// Finding all records by type and query
+store.findQuery('post', { page: 1 });
+```
+
 ### Ember Data 1.0.0-beta.14.1 (December 31, 2014)
 
 * Replace `<%= versionStamp %>` with actual version stamp. Thanks

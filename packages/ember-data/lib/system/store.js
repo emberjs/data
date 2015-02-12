@@ -419,63 +419,9 @@ Store = Ember.Object.extend({
     relationship on the record and construct the nested URL without having to first
     fetch the post.
 
-    ---
-
-    To find all records for a type, call `find` with no additional parameters:
-
-    ```javascript
-    store.find('person');
-    ```
-
-    This will ask the adapter's `findAll` method to find the records for the
-    given type, and return a promise that will be resolved once the server
-    returns the values. The promise will resolve into all records of this type
-    present in the store, even if the server only returns a subset of them.
-
-    ---
-
-    To find a record by a query, call `find` with a hash as the second
-    parameter:
-
-    ```javascript
-    store.find('person', { page: 1 });
-    ```
-
-    By passing an object `{page: 1}` as an argument to the find method, it
-    delegates to the adapter's findQuery method. The adapter then makes
-    a call to the server, transforming the object `{page: 1}` as parameters
-    that are sent along, and will return a RecordArray when the promise
-    resolves.
-
-    Exposing queries this way seems preferable to creating an abstract query
-    language for all server-side queries, and then require all adapters to
-    implement them.
-
-    The call made to the server, using a Rails backend, will look something like this:
-
-    ```
-    Started GET "/api/v1/person?page=1"
-    Processing by Api::V1::PersonsController#index as HTML
-    Parameters: {"page"=>"1"}
-    ```
-
-    If you do something like this:
-
-    ```javascript
-    store.find('person', {ids: [1, 2, 3]});
-    ```
-
-    The call to the server, using a Rails backend, will look something like this:
-
-    ```
-    Started GET "/api/v1/person?ids%5B%5D=1&ids%5B%5D=2&ids%5B%5D=3"
-    Processing by Api::V1::PersonsController#index as HTML
-    Parameters: {"ids"=>["1", "2", "3"]}
-    ```
-
     @method find
     @param {String or subclass of DS.Model} type
-    @param {Object|String|Integer|null} id
+    @param {String|Integer} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
@@ -484,11 +430,13 @@ Store = Ember.Object.extend({
     Ember.assert("You may not pass `" + id + "` as id to the store's find method", arguments.length === 1 || !Ember.isNone(id));
 
     if (arguments.length === 1) {
+      Ember.deprecate('Using store.find(type) to find all records by type has been deprecated. You should use store.findAll(type) instead.');
       return this.findAll(type);
     }
 
     // We are passed a query instead of an id.
     if (Ember.typeOf(id) === 'object') {
+      Ember.deprecate('Using store.find(type, query) to find all records by type and query has been deprecated. You should use store.findQuery(type, query) instead.');
       return this.findQuery(type, id);
     }
 
@@ -896,8 +844,35 @@ Store = Ember.Object.extend({
     This method returns a promise, which is resolved with a `RecordArray`
     once the server returns.
 
+    Example
+
+    ```javascript
+    store.findQuery('person', { page: 1 });
+    ```
+
+    The call made to the server, using a Rails backend, will look something like this:
+
+    ```
+    Started GET "/api/v1/person?page=1"
+    Processing by Api::V1::PersonsController#index as HTML
+    Parameters: {"page"=>"1"}
+    ```
+
+    If you do something like this:
+
+    ```javascript
+    store.findQuery('person', {ids: [1, 2, 3]});
+    ```
+
+    The call to the server, using a Rails backend, will look something like this:
+
+    ```
+    Started GET "/api/v1/person?ids%5B%5D=1&ids%5B%5D=2&ids%5B%5D=3"
+    Processing by Api::V1::PersonsController#index as HTML
+    Parameters: {"ids"=>["1", "2", "3"]}
+    ```
+
     @method findQuery
-    @private
     @param {String or subclass of DS.Model} type
     @param {any} query an opaque query to be used by the adapter
     @return {Promise} promise
@@ -916,12 +891,18 @@ Store = Ember.Object.extend({
   },
 
   /**
-    This method returns an array of all records adapter can find.
-    It triggers the adapter's `findAll` method to give it an opportunity to populate
-    the array with records of that type.
+    This will ask the adapter's `findAll` method to find the records for the
+    given type, and return a promise that will be resolved once the server
+    returns the values. The promise will resolve into all records of this type
+    present in the store, even if the server only returns a subset of them.
+
+    Example
+
+    ```javascript
+    store.findAll('person');
+    ```
 
     @method findAll
-    @private
     @param {String or subclass of DS.Model} type
     @return {DS.AdapterPopulatedRecordArray}
   */
