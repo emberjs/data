@@ -176,34 +176,34 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     ```
 
     @method serializeBelongsTo
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */
-  serializeBelongsTo: function(record, json, relationship) {
+  serializeBelongsTo: function(snapshot, json, relationship) {
     var attr = relationship.key;
     if (this.noSerializeOptionSpecified(attr)) {
-      this._super(record, json, relationship);
+      this._super(snapshot, json, relationship);
       return;
     }
     var includeIds = this.hasSerializeIdsOption(attr);
     var includeRecords = this.hasSerializeRecordsOption(attr);
-    var embeddedRecord = record.get(attr);
+    var embeddedSnapshot = snapshot.belongsTo(attr);
     var key;
     if (includeIds) {
       key = this.keyForRelationship(attr, relationship.kind);
-      if (!embeddedRecord) {
+      if (!embeddedSnapshot) {
         json[key] = null;
       } else {
-        json[key] = get(embeddedRecord, 'id');
+        json[key] = embeddedSnapshot.id;
       }
     } else if (includeRecords) {
       key = this.keyForAttribute(attr);
-      if (!embeddedRecord) {
+      if (!embeddedSnapshot) {
         json[key] = null;
       } else {
-        json[key] = embeddedRecord.serialize({ includeId: true });
-        this.removeEmbeddedForeignKey(record, embeddedRecord, relationship, json[key]);
+        json[key] = embeddedSnapshot.record.serialize({ includeId: true });
+        this.removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, json[key]);
       }
     }
   },
@@ -285,14 +285,14 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     ```
 
     @method serializeHasMany
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */
-  serializeHasMany: function(record, json, relationship) {
+  serializeHasMany: function(snapshot, json, relationship) {
     var attr = relationship.key;
     if (this.noSerializeOptionSpecified(attr)) {
-      this._super(record, json, relationship);
+      this._super(snapshot, json, relationship);
       return;
     }
     var includeIds = this.hasSerializeIdsOption(attr);
@@ -300,13 +300,13 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     var key;
     if (includeIds) {
       key = this.keyForRelationship(attr, relationship.kind);
-      json[key] = get(record, attr).mapBy('id');
+      json[key] = snapshot.hasMany(attr, { ids: true });
     } else if (includeRecords) {
       key = this.keyForAttribute(attr);
-      json[key] = get(record, attr).map(function(embeddedRecord) {
-        var serializedEmbeddedRecord = embeddedRecord.serialize({ includeId: true });
-        this.removeEmbeddedForeignKey(record, embeddedRecord, relationship, serializedEmbeddedRecord);
-        return serializedEmbeddedRecord;
+      json[key] = snapshot.hasMany(attr).map(function(embeddedSnapshot) {
+        var embeddedJson = embeddedSnapshot.record.serialize({ includeId: true });
+        this.removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, embeddedJson);
+        return embeddedJson;
       }, this);
     }
   },
@@ -322,19 +322,19 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     the parent record.
 
     @method removeEmbeddedForeignKey
-    @param {DS.Model} record
-    @param {DS.Model} embeddedRecord
+    @param {DS.Snapshot} snapshot
+    @param {DS.Snapshot} embeddedSnapshot
     @param {Object} relationship
     @param {Object} json
   */
-  removeEmbeddedForeignKey: function (record, embeddedRecord, relationship, json) {
+  removeEmbeddedForeignKey: function (snapshot, embeddedSnapshot, relationship, json) {
     if (relationship.kind === 'hasMany') {
       return;
     } else if (relationship.kind === 'belongsTo') {
-      var parentRecord = record.constructor.inverseFor(relationship.key);
+      var parentRecord = snapshot.type.inverseFor(relationship.key);
       if (parentRecord) {
         var name = parentRecord.name;
-        var embeddedSerializer = this.store.serializerFor(embeddedRecord.constructor);
+        var embeddedSerializer = this.store.serializerFor(embeddedSnapshot.type);
         var parentKey = embeddedSerializer.keyForRelationship(name, parentRecord.kind);
         if (parentKey) {
           delete json[parentKey];

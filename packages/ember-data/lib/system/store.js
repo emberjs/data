@@ -221,7 +221,8 @@ Store = Ember.Object.extend({
     @param {Object} options an options hash
   */
   serialize: function(record, options) {
-    return this.serializerFor(record.constructor.typeKey).serialize(record, options);
+    var snapshot = record._createSnapshot();
+    return this.serializerFor(snapshot.typeKey).serialize(snapshot, options);
   },
 
   /**

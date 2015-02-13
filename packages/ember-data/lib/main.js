@@ -32,6 +32,7 @@ import {
   RootState,
   attr
 } from "ember-data/system/model";
+import Snapshot from "ember-data/system/snapshot";
 import {
   InvalidError,
   Adapter
@@ -83,6 +84,8 @@ DS.Model     = Model;
 DS.RootState = RootState;
 DS.attr      = attr;
 DS.Errors    = Errors;
+
+DS.Snapshot = Snapshot;
 
 DS.Adapter      = Adapter;
 DS.InvalidError = InvalidError;

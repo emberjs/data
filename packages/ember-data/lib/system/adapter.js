@@ -297,7 +297,8 @@ var Adapter = Ember.Object.extend({
     @return {Object} serialized record
   */
   serialize: function(record, options) {
-    return get(record, 'store').serializerFor(record.constructor.typeKey).serialize(record, options);
+    var snapshot = record._createSnapshot();
+    return get(record, 'store').serializerFor(snapshot.typeKey).serialize(snapshot, options);
   },
 
   /**
