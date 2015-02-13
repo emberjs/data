@@ -266,6 +266,50 @@ test('A record with an async belongsTo relationship always returns a promise for
   });
 });
 
+test('A record should fetch the async belongsTo if this one was unloaded after fetched', function () {
+  expect(4);
+  var Seat = DS.Model.extend({
+    person: DS.belongsTo('person')
+  });
+
+  var Person = DS.Model.extend({
+    seat: DS.belongsTo('seat', { async: true })
+  });
+
+  env.registry.register('model:seat', Seat);
+  env.registry.register('model:person', Person);
+
+  run(function() {
+    store.push('person', { id: 1, links: { seat: '/people/1/seat' } });
+  });
+
+  env.adapter.find = function() {
+    throw new Error("Adapter's find method should not be called");
+  };
+
+  env.adapter.findBelongsTo = async(function(store, record, link, relationship) {
+    ok(true);
+    return Ember.RSVP.resolve({ id: 1 });
+  });
+
+  run(function() {
+    env.store.find('person', 1).then(function(person) {
+      person.get('seat').then(function(seat) {
+        seat.unloadRecord();
+      });
+    });
+  });
+
+  run(function() {
+    env.store.find('person', 1).then(function(person) {
+      person.get('seat').then(function(seat) {
+        ok(seat.get('person') === person, 'parent relationship should be populated');
+        ok(person.get('seat').then, 'seat should be a PromiseObject');
+      });
+    });
+  });
+});
+
 test("A record with an async belongsTo relationship returning null should resolve null", function() {
   expect(1);
 
