@@ -45,15 +45,12 @@ var set = Ember.set;
 export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   init: function() {
     this.currentState = Ember.A([]);
-    this.diff = [];
   },
 
   record: null,
 
   canonicalState: null,
   currentState: null,
-
-  diff: null,
 
   length: 0,
 
