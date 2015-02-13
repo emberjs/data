@@ -1066,10 +1066,14 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   adapterDidInvalidate: function(errors) {
     var recordErrors = get(this, 'errors');
-    for (var key in errors) {
-      if (!errors.hasOwnProperty(key)) continue;
-      recordErrors.add(key, errors[key]);
+    function addError(name) {
+      if (errors[name]) {
+        recordErrors.add(name, errors[name]);
+      }
     }
+
+    this.eachAttribute(addError);
+    this.eachRelationship(addError);
     this._saveWasRejected();
   },
 
