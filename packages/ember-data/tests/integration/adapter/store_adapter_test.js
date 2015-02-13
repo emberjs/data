@@ -411,6 +411,48 @@ test("if a created record is marked as invalid by the server, it enters an error
   });
 });
 
+test("allows errors on arbitrary properties on create", function() {
+  adapter.createRecord = function(store, type, record) {
+    if (get(record, 'name').indexOf('Bro') === -1) {
+      return Ember.RSVP.reject(new DS.InvalidError({ base: ['is a generally unsavoury character'] }));
+    } else {
+      return Ember.RSVP.resolve();
+    }
+  };
+
+  var yehuda = run(function () {
+    return store.createRecord('person', { id: 1, name: "Yehuda Katz" });
+  });
+
+  // Wrap this in an Ember.run so that all chained async behavior is set up
+  // before flushing any scheduled behavior.
+  run(function() {
+    yehuda.save().then(null, async(function(error) {
+      equal(get(yehuda, 'isValid'), false, "the record is invalid");
+      ok(get(yehuda, 'errors.base'), "The errors.base property exists");
+      deepEqual(get(yehuda, 'errors').errorsFor('base'), [{attribute: 'base', message: "is a generally unsavoury character"}]);
+
+      set(yehuda, 'updatedAt', true);
+      equal(get(yehuda, 'isValid'), false, "the record is still invalid");
+
+      set(yehuda, 'name', "Brohuda Brokatz");
+
+      equal(get(yehuda, 'isValid'), false, "the record is still invalid as far as we know");
+      equal(get(yehuda, 'isDirty'), true, "the record has outstanding changes");
+
+      equal(get(yehuda, 'isNew'), true, "precond - record is still new");
+
+      return yehuda.save();
+    })).then(async(function(person) {
+      strictEqual(person, yehuda, "The promise resolves with the saved record");
+      ok(!get(yehuda, 'errors.base'), "The errors.base property does not exist");
+      deepEqual(get(yehuda, 'errors').errorsFor('base'), []);
+      equal(get(yehuda, 'isValid'), true, "record remains valid after committing");
+      equal(get(yehuda, 'isNew'), false, "record is no longer new");
+    }));
+  });
+});
+
 test("if a created record is marked as invalid by the server, you can attempt the save again", function() {
   var saveCount = 0;
   adapter.createRecord = function(store, type, record) {
@@ -515,6 +557,55 @@ test("if an updated record is marked as invalid by the server, it enters an erro
     }));
   });
 });
+
+
+test("records can have errors on arbitrary properties after update", function() {
+  adapter.updateRecord = function(store, type, record) {
+    if (get(record, 'name').indexOf('Bro') === -1) {
+      return Ember.RSVP.reject(new DS.InvalidError({ base: ['is a generally unsavoury character'] }));
+    } else {
+      return Ember.RSVP.resolve();
+    }
+  };
+
+  var yehuda = run(function() {
+    return store.push('person', { id: 1, name: "Brohuda Brokatz" });
+  });
+
+  run(function() {
+    store.find('person', 1).then(async(function(person) {
+      equal(person, yehuda, "The same object is passed through");
+
+      equal(get(yehuda, 'isValid'), true, "precond - the record is valid");
+      set(yehuda, 'name', "Yehuda Katz");
+      equal(get(yehuda, 'isValid'), true, "precond - the record is still valid as far as we know");
+
+      equal(get(yehuda, 'isDirty'), true, "the record is dirty");
+
+      return yehuda.save();
+    })).then(null, async(function(reason) {
+      equal(get(yehuda, 'isDirty'), true, "the record is still dirty");
+      equal(get(yehuda, 'isValid'), false, "the record is invalid");
+      ok(get(yehuda, 'errors.base'), "The errors.base property exists");
+      deepEqual(get(yehuda, 'errors').errorsFor('base'), [{attribute: 'base', message: "is a generally unsavoury character"}]);
+
+      set(yehuda, 'updatedAt', true);
+      equal(get(yehuda, 'isValid'), false, "the record is still invalid");
+
+      set(yehuda, 'name', "Brohuda Brokatz");
+      equal(get(yehuda, 'isValid'), false, "the record is still invalid after changing (only server can know if it's now valid)");
+      equal(get(yehuda, 'isDirty'), true, "the record has outstanding changes");
+
+      return yehuda.save();
+    })).then(async(function(yehuda) {
+      equal(get(yehuda, 'isValid'), true, "record remains valid after committing");
+      equal(get(yehuda, 'isDirty'), false, "record is no longer new");
+      ok(!get(yehuda, 'errors.base'), "The errors.base property does not exist");
+      deepEqual(get(yehuda, 'errors').errorsFor('base'), []);
+    }));
+  });
+});
+
 
 
 test("if an updated record is marked as invalid by the server, you can attempt the save again", function() {
