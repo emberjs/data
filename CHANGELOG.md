@@ -2,6 +2,91 @@
 
 ### Master
 
+#### serializer.serialize() now receives a Snapshot instead of a record instance
+A snapshot represents the frozen state of a record at a particular
+moment in time. Its initial purpose is to be passed to serializers
+instead of the real record. This allows the serializer to examine the
+current state of that record in the moment without triggering
+side-effects, like loading relationships.
+
+The serializer has a different API from a record for accessing
+properties so you will know you are working with a snapshot. Using
+`snapshot.get` is still supported for compatibility however it will
+log a deprecated warning to encourage you to use the new apis.
+
+To access attributes you should now use the `attr` function.
+
+```js
+// Ember Data 1.0.0-beta.14.1
+post.get('title');
+// Ember Data 1.0.0-beta.15
+postSnapshot.attr('title');
+```
+
+To access a belongsTo relationship you should use `.belongsTo()` method.
+
+```js
+// Ember Data 1.0.0-beta.14.1
+post.get('author');
+// Ember Data 1.0.0-beta.15
+postSnapshot.belongsTo('author');
+```
+
+To access a hasMany relationship you should use `.hasMany()` method.
+
+```js
+// Ember Data 1.0.0-beta.14.1
+post.get('comments');
+// Ember Data 1.0.0-beta.15
+postSnapshot.hasMany('comments');
+```
+
+#### RecordArray.pushRecord and ManyArray.addRecord/removeRecord are deprecated
+
+If you would like to add a new record to a `RecordArray` or a
+`ManyArray` you should now use the `addObject` and `removeObject`
+methods.
+
+### Release 1.0.0-beta.15 (February 14, 2015)
+  * use package.json for ember addon
+  * Initial implementation of the Snapshot API
+  * Allow errors on arbitrary properties, not just defined attributes or relationships
+  * Fix bug preventing hasMany relationships from correctly tracking simultaneous adds and removes.
+  * remove unused code.
+  * Deprecate store.dematerializeRecord()
+  * Use store.unloadRecord() in favor of store.dematerializeRecord()
+  * Correctly trigger arrayContentDidChange when updating hasMany relationships
+  * Warn if the user specifies a reflexive relationship without explicitly defining the inverse
+  * bump ember-inflector dependency for HTMLBars compat
+  * Add adapter.hasMany unique IDs test
+  * Replace calls to `container` with `registry`
+  * Dematerialize rejected _find() if record isEmpty
+  * Add a Serializer base class
+  * Make ManyArray.save() and RecordArray.save() return themselves
+  * Added save() to ManyArray
+  * idiomatic super usage.
+  * Created `store.fetchById` and `store.fetchAll`.
+  * Update the generateIdForRecord docs to show it gets passed an Object not a record instance.
+  * Sort query params in ajax calls.
+  * Cleanup JSONSerializer#extract example
+  * Split Relationship Tests into Separate Files
+  * [DOCS]Update about defining application's store
+  * add documentation for the Store's find method
+  * Do not double include the host when it uses a protocol relative url.
+  * Deprecate RecordArray.pushRecord()
+  * Wrap the errorThrown in an Error object if it's a string.
+  * Use forEach instead of private api for accessing Map values
+  * Disable unknown keys warning by default
+  * remove type check for addCanonicalRecord in belongsto relationship
+  * Add support for embedded polymorphic belongsTo
+  * observers only fire for properties that changed
+  * Don't refilter .all() and .find() if only properties changed
+  * fixes to load beta 14/14.1 sourcemaps in ember-cli
+  * fix version for dropped <= Ember 1.7 support
+  * generateIdForRecord gets type & object properties passed to it
+  * Clarify store.find via findAll docs
+  * Deprecate addRecord/removeRecord for ManyArray
+
 ### Ember Data 1.0.0-beta.14.1 (December 31, 2014)
 
 * Replace `<%= versionStamp %>` with actual version stamp. Thanks
