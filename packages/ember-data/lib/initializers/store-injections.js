@@ -8,6 +8,5 @@
 export default function initializeStoreInjections(registry) {
   registry.injection('controller', 'store', 'store:main');
   registry.injection('route', 'store', 'store:main');
-  registry.injection('serializer', 'store', 'store:main');
   registry.injection('data-adapter', 'store', 'store:main');
 }
