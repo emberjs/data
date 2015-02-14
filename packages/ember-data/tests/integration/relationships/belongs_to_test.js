@@ -63,6 +63,10 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
       author: Author
     });
 
+
+    env.registry.optionsForType('serializer', { singleton: false });
+    env.registry.optionsForType('adapter', { singleton: false });
+
     env.registry.register('serializer:user', DS.JSONSerializer.extend({
       attrs: {
         favouriteMessage: { embedded: 'always' }
@@ -176,7 +180,9 @@ test("The store can load a polymorphic belongsTo association", function() {
 });
 
 test("The store can serialize a polymorphic belongsTo association", function() {
-  env.serializer.serializePolymorphicType = function(record, json, relationship) {
+  var serializerInstance = store.serializerFor('comment');
+
+  serializerInstance.serializePolymorphicType = function(record, json, relationship) {
     ok(true, "The serializer's serializePolymorphicType method should be called");
     json["message_type"] = "post";
   };

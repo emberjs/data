@@ -205,6 +205,7 @@ Store = Ember.Object.extend({
       store: this
     });
     this._pendingSave = [];
+    this._containerCache = Ember.create(null);
     //Used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = Map.create();
   },
@@ -271,7 +272,8 @@ Store = Ember.Object.extend({
 
     if (DS.Adapter.detect(adapter)) {
       adapter = adapter.create({
-        container: this.container
+        container: this.container,
+        store: this
       });
     }
 
@@ -1776,20 +1778,26 @@ Store = Ember.Object.extend({
   // ......................
 
   /**
-    Returns the adapter for a given type.
+    Returns an instance of the adapter for a given type. For
+    example, `adapterFor('person')` will return an instance of
+    `App.PersonAdapter`.
+
+    If no `App.PersonAdapter` is found, this method will look
+    for an `App.ApplicationAdapter` (the default adapter for
+    your entire application).
+
+    If no `App.ApplicationAdapter` is found, it will return
+    the value of the `defaultAdapter`.
 
     @method adapterFor
     @private
-    @param {subclass of DS.Model} type
+    @param {String or subclass of DS.Model} type
     @return DS.Adapter
   */
   adapterFor: function(type) {
-    var adapter;
-    var container = this.container;
+    type = this.modelFor(type);
 
-    if (container) {
-      adapter = container.lookup('adapter:' + type.typeKey) || container.lookup('adapter:application');
-    }
+    var adapter = this.lookupAdapter(type.typeKey) || this.lookupAdapter('application');
 
     return adapter || get(this, 'defaultAdapter');
   },
@@ -1811,19 +1819,70 @@ Store = Ember.Object.extend({
     for an `App.ApplicationSerializer` (the default serializer for
     your entire application).
 
-    If no `App.ApplicationSerializer` is found, it will fall back
+    if no `App.ApplicationSerializer` is found, it will attempt
+    to get the `defaultSerializer` from the `PersonAdapter`
+    (`adapterFor('person')`).
+
+    If a serializer cannot be found on the adapter, it will fall back
     to an instance of `DS.JSONSerializer`.
 
     @method serializerFor
     @private
-    @param {String} type the record to serialize
+    @param {String or subclass of DS.Model} type the record to serialize
     @return {DS.Serializer}
   */
   serializerFor: function(type) {
     type = this.modelFor(type);
-    var adapter = this.adapterFor(type);
 
-    return serializerFor(this.container, type.typeKey, adapter && adapter.defaultSerializer);
+    var serializer = this.lookupSerializer(type.typeKey) || this.lookupSerializer('application');
+
+    if (!serializer) {
+      var adapter = this.adapterFor(type);
+      serializer = this.lookupSerializer(adapter.defaultSerializer);
+    }
+
+    if (!serializer) {
+      serializer = this.lookupSerializer('-default');
+    }
+
+    return serializer;
+  },
+
+  /**
+    Retrieve a particular instance from the
+    container cache. If not found, creates it and
+    placing it in the cache.
+
+    Enabled a store to manage local instances of
+    adapters and serializers.
+
+    @method retrieveManagedInstance
+    @private
+    @param {String} type the object type
+    @param {String} type the object name
+    @return {Ember.Object}
+  */
+  retrieveManagedInstance: function(type, name) {
+    var key = type+":"+name;
+
+    if (!this._containerCache[key]) {
+      var instance = this.container.lookup(key);
+
+      if (instance) {
+        set(instance, 'store', this);
+        this._containerCache[key] = instance;
+      }
+    }
+
+    return this._containerCache[key];
+  },
+
+  lookupAdapter: function(name) {
+    return this.retrieveManagedInstance('adapter', name);
+  },
+
+  lookupSerializer: function(name) {
+    return this.retrieveManagedInstance('serializer', name);
   },
 
   willDestroy: function() {

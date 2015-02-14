@@ -79,6 +79,9 @@
       adapter: adapter
     }));
 
+    registry.optionsForType('serializer', { singleton: false });
+    registry.optionsForType('adapter', { singleton: false });
+
     registry.register('serializer:-default', DS.JSONSerializer);
     registry.register('serializer:-rest', DS.RESTSerializer);
     registry.register('adapter:-rest', DS.RESTAdapter);
