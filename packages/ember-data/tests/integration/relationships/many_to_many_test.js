@@ -270,3 +270,17 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
   equal(account.get('users.length'), 0, 'Users got removed');
   equal(user.get('accounts.length'), undefined, 'Accounts got rolledback correctly');
 });
+
+
+test("Re-loading a removed record should re add it to the relationship when the removed record is the last one in the relationship", function () {
+  var account, ada, byron;
+  run(function() {
+    account = store.push('account', { id: 2 , state: 'account 1' });
+    ada = store.push('user', { id: 1, name: 'Ada Lovelace', accounts: [2] });
+    byron = store.push('user', { id: 2, name: 'Lord Byron', accounts: [2] });
+    account.get('users').removeObject(byron);
+    account = store.push('account', { id: 2 , state: 'account 1', users: [1, 2] });
+  });
+
+  equal(account.get('users.length'), 2, 'Accounts were updated correctly');
+});

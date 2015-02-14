@@ -648,3 +648,19 @@ test("A subclass of DS.Model can not use the `data` property", function() {
     });
   }, /`data` is a reserved property name on DS.Model objects/);
 });
+
+
+test("Pushing a record into the store should transition it to the loaded state", function() {
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var store = createStore({ person: Person });
+
+  run(function() {
+    var person = store.createRecord('person', { id: 1, name: 'TomHuda' });
+    equal(person.get('isNew'), true, 'createRecord should put records into the new state');
+    store.push('person', { id: 1, name: 'TomHuda' });
+    equal(person.get('isNew'), false, 'push should put records into the loaded state');
+  });
+});

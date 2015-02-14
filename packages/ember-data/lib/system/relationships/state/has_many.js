@@ -128,8 +128,6 @@ ManyRelationship.prototype.computeChanges = function(records) {
 
   this.removeCanonicalRecords(recordsToRemove);
 
-  var hasManyArray = this.manyArray;
-
   // Using records.toArray() since currently using
   // removeRecord can modify length, messing stuff up
   // forEach since it directly looks at "length" each
@@ -138,10 +136,6 @@ ManyRelationship.prototype.computeChanges = function(records) {
   length = records.length;
   for (i = 0; i < length; i++) {
     record = records[i];
-    //Need to preserve the order of incoming records
-    if (hasManyArray.objectAt(i) === record ) {
-      continue;
-    }
     this.removeCanonicalRecord(record);
     this.addCanonicalRecord(record, i);
   }

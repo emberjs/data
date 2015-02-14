@@ -417,6 +417,11 @@ createdState.uncommitted.rollback = function(record) {
   record.transitionTo('deleted.saved');
 };
 
+createdState.uncommitted.pushedData = function(record) {
+  record.transitionTo('loaded.updated.uncommitted');
+  record.triggerLater('didLoad');
+};
+
 createdState.uncommitted.propertyWasReset = Ember.K;
 
 function assertAgainstUnloadRecord(record) {
