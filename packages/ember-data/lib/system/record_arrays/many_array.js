@@ -7,7 +7,7 @@ var get = Ember.get;
 var set = Ember.set;
 
 /**
-  A `ManyArray` is a `RecordArray` that represents the contents of a has-many
+  A `ManyArray` is a `MutableArray` that represents the contents of a has-many
   relationship.
 
   The `ManyArray` is instantiated lazily the first time the relationship is
