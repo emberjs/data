@@ -65,7 +65,9 @@ ManyRelationship.prototype.removeCanonicalRecordFromOwn = function(record, idx) 
 
 ManyRelationship.prototype._super$flushCanonical = Relationship.prototype.flushCanonical;
 ManyRelationship.prototype.flushCanonical = function() {
-  this.manyArray.flushCanonical();
+  if (!this.manyArray.get('isDestroyed')) {
+    this.manyArray.flushCanonical();
+  }
   this._super$flushCanonical();
 };
 
