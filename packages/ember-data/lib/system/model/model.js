@@ -431,7 +431,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   didUpdate: Ember.K,
 
   /**
-    Fired when the record is created.
+    Fired when a new record is commited to the server.
 
     @event didCreate
   */
