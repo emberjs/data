@@ -4,7 +4,7 @@
 /**
   @module ember-data
 */
-
+import FindCoalescer from './find-coalescer';
 import {
   InvalidError,
   Adapter
@@ -186,7 +186,9 @@ Store = Ember.Object.extend({
     });
     this._pendingSave = [];
     //Used to keep track of all the find requests that need to be coalesced
-    this._pendingFetch = Map.create();
+    this._pendingFetch = new Ember.MapWithDefault({
+      defaultValue: function() { return []; }
+    });
   },
 
   /**
@@ -642,19 +644,18 @@ Store = Ember.Object.extend({
     if (record._loadingPromise) { return record._loadingPromise; }
 
     var resolver = Ember.RSVP.defer('Fetching ' + type + 'with id: ' + record.get('id'));
+
     var recordResolverPair = {
       record: record,
       resolver: resolver
     };
+
     var promise = resolver.promise;
 
     record.loadingData(promise);
 
-    if (!this._pendingFetch.get(type)) {
-      this._pendingFetch.set(type, [recordResolverPair]);
-    } else {
-      this._pendingFetch.get(type).push(recordResolverPair);
-    }
+    this._pendingFetch.get(type).push(recordResolverPair);
+
     Ember.run.scheduleOnce('afterRender', this, this.flushAllPendingFetches);
 
     return promise;
@@ -666,7 +667,9 @@ Store = Ember.Object.extend({
     }
 
     this._pendingFetch.forEach(this._flushPendingFetchForType, this);
-    this._pendingFetch = Map.create();
+    this._pendingFetch = new Ember.MapWithDefault({
+      defaultValue: function() { return []; }
+    });
   },
 
   _flushPendingFetchForType: function (recordResolverPairs, type) {
@@ -2103,6 +2106,6 @@ function setupRelationships(store, record, data) {
     }
   });
 }
-
+Store.FindCoalescer = FindCoalescer;
 export { Store };
 export default Store;

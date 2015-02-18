@@ -1753,8 +1753,13 @@ test('groupRecordsForFindMany splits up calls for large ids', function() {
 });
 
 test('groupRecordsForFindMany groups calls for small ids', function() {
-  Comment.reopen({ post: DS.belongsTo('post') });
-  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+  Comment.reopen({
+    post: DS.belongsTo('post')
+  });
+
+  Post.reopen({
+    comments: DS.hasMany('comment', { async: true })
+  });
 
   expect(1);
 
@@ -1764,31 +1769,35 @@ test('groupRecordsForFindMany groups calls for small ids', function() {
 
   var a100 = repeatChar('a', 100);
   var b100 = repeatChar('b', 100);
-  var post;
-
-  run(function() {
-    post = store.push('post', { id: 1, comments: [a100, b100] });
+  var post = run(function() {
+    return store.push('post', {
+      id: 1,
+      comments: [a100, b100]
+    });
   });
 
   adapter.coalesceFindRequests = true;
 
   adapter.find = function(store, type, id, record) {
-    ok(false, "find should not be called - we expect 1 call to findMany for a100 and b100");
-    return Ember.RSVP.reject();
+    ok(false, 'find should not be called - we expect 1 call to findMany for a100 and b100');
+    return Ember.RSVP.Promise.reject();
   };
 
   adapter.findMany = function(store, type, ids, records) {
     deepEqual(ids, [a100, b100]);
-    return Ember.RSVP.resolve({ comments: { id: ids } });
+    return Ember.RSVP.Promise.resolve({
+      comments: { id: ids }
+    });
   };
 
-  run(function() {
-    post.get('comments');
+  return run(function() {
+    return post.get('comments');
   });
 });
 
 test("calls adapter.ajaxSuccess with the jqXHR and json", function() {
   expect(2);
+
   var originalAjax = Ember.$.ajax;
   var jqXHR = {};
   var data = {
