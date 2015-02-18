@@ -1,4 +1,4 @@
-var GroupsAdapter, Store;
+var GroupsAdapter, store;
 var maxLength = -1;
 var lengths = Ember.A([]);
 
@@ -21,12 +21,19 @@ module("unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
         maxLength = this.get('maxUrlLength');
         lengths.push(fullUrl.length);
 
-        return Ember.RSVP.Promise.resolve({ 'testRecords' : [] });
-      }
+        var response = Ember.EnumerableUtils.map(options.data.ids, function(id) {
+          return {
+            id: id
+          };
+        });
 
+        return Ember.RSVP.Promise.resolve({
+          testRecords: response
+        });
+      }
     });
 
-    Store = createStore({
+    store = createStore({
       adapter: GroupsAdapter,
       testRecord: DS.Model.extend()
      });
@@ -35,15 +42,14 @@ module("unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
 });
 
 test('groupRecordsForFindMany - findMany', function() {
-
   Ember.run(function() {
     for (var i = 1; i <= 1024; i++) {
-      Store.find('testRecord', i);
+      store.find('testRecord', i);
     }
   });
 
   ok(lengths.every(function(len) {
-      return len <= maxLength;
-    }), "Some URLs are longer than " + maxLength + " chars");
+    return len <= maxLength;
+  }), 'Some URLs are longer than ' + maxLength + ' chars');
 
 });
