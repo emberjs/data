@@ -799,7 +799,8 @@ Store = Ember.Object.extend({
   hasRecordForId: function(typeName, inputId) {
     var type = this.modelFor(typeName);
     var id = coerceId(inputId);
-    return !!this.typeMapFor(type).idToRecord[id];
+    var model = this.typeMapFor(type).idToRecord[id];
+    return !!model && model.get('isLoaded');
   },
 
   /**
