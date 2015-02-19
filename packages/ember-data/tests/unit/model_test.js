@@ -10,7 +10,8 @@ module("unit/model - DS.Model", {
 
     Person = DS.Model.extend({
       name: DS.attr('string'),
-      isDrugAddict: DS.attr('boolean')
+      isDrugAddict: DS.attr('boolean'),
+      addictions: DS.attr({ defaultValue: [] })
     });
   },
 
@@ -45,6 +46,21 @@ test("setting a property on a record that has not changed does not cause it to b
       person.set('isDrugAddict', true);
 
       equal(person.get('isDirty'), false, "record does not become dirty after setting property to old value");
+    });
+  });
+});
+
+test("mutating an array property on a record causes it to become dirty", function() {
+  expect(2);
+
+  run(function() {
+    store.push(Person, { id: 1, addictions: [] });
+    store.find(Person, 1).then(function(person) {
+      equal(person.get("isDirty"), false, "precond - person record should not be dirty");
+
+      person.get(addictions).pushObjects(["drugs"]);
+
+      equal(person.get("isDirty"), true, "record becomes dirty after mutating an array property");
     });
   });
 });
