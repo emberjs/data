@@ -10,9 +10,6 @@ import {
   Adapter
 } from "ember-data/system/adapter";
 import { singularize } from "ember-inflector/system/string";
-import {
-  Map
-} from "ember-data/system/map";
 
 import {
   promiseArray,
@@ -738,6 +735,7 @@ Store = Ember.Object.extend({
     if (recordResolverPairs.length === 1) {
       _fetchRecord(recordResolverPairs[0]);
     } else if (shouldCoalesce) {
+
       var groups = adapter.groupRecordsForFindMany(this, records);
       forEach(groups, function (groupOfRecords) {
         var requestedRecords = Ember.A(groupOfRecords);
@@ -1854,6 +1852,10 @@ Store = Ember.Object.extend({
   */
   _normalizeTypeKey: function(key) {
     return camelize(singularize(key));
+  },
+
+  _findMany: function(adapter, store, type, ids, records) {
+    return _findMany(adapter, store, type, ids, records);
   }
 });
 
