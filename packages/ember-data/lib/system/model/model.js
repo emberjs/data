@@ -700,6 +700,11 @@ var Model = Ember.Object.extend(Ember.Evented, {
         rel.destroy();
       }
     }, this);
+    var model = this;
+    forEach.call(Ember.keys(this._implicitRelationships), function(key) {
+      model._implicitRelationships[key].clear();
+      model._implicitRelationships[key].destroy();
+    });
   },
 
   disconnectRelationships: function() {
