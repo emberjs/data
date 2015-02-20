@@ -27,8 +27,7 @@ import {
 
 import {
   serializerFor,
-  serializerForAdapter,
-  _adapterRun
+  serializerForAdapter
 } from "ember-data/system/utils/store";
 
 import {
@@ -1612,7 +1611,7 @@ Store = Ember.Object.extend({
       serializer = this.serializerFor(type);
     }
     var store = this;
-    _adapterRun(this, function() {
+    this._adapterRun(function() {
       serializer.pushPayload(store, payload);
     });
   },
@@ -1793,6 +1792,10 @@ Store = Ember.Object.extend({
     return adapter || get(this, 'defaultAdapter');
   },
 
+  _adapterRun: function (fn) {
+    return this._backburner.run(fn);
+  },
+
   // ..............................
   // . RECORD CHANGE NOTIFICATION .
   // ..............................
@@ -1927,7 +1930,7 @@ function _commit(adapter, store, operation, record) {
   return promise.then(function(adapterPayload) {
     var payload;
 
-    _adapterRun(store, function() {
+    store._adapterRun(function() {
       if (adapterPayload) {
         payload = serializer.extract(store, type, adapterPayload, get(record, 'id'), operation);
       } else {

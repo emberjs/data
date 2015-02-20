@@ -22,7 +22,3 @@ export function serializerForAdapter(adapter, type) {
 
   return serializer;
 }
-
-export function _adapterRun(store, fn) {
-  return store._backburner.run(fn);
-}
