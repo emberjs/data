@@ -9,19 +9,28 @@ var Person = DS.Model.extend({
   cars: hasMany('car')
 });
 
+Person.toString = function() { return "Person"; };
+
+var Group = DS.Model.extend({
+  people: hasMany('person')
+});
+
+Group.toString = function() { return "Group"; };
+
 var Car = DS.Model.extend({
   make: attr('string'),
   model: attr('string'),
   person: belongsTo('person')
 });
 
-Person.toString = function() { return "Person"; };
+Car.toString = function() { return "Car"; };
 
 module("integration/unload - Unloading Records", {
   setup: function() {
     env = setupStore({
       person: Person,
-      car: Car
+      car: Car,
+      group: Group
     });
   },
 
@@ -92,7 +101,6 @@ test("unloading all records also updates record array from all()", function() {
 });
 
 
-//TODO(Igor) think about how this works with ssot and unloading
 test("unloading a record also clears its relationship", function() {
   var adam, bob;
   run(function() {
@@ -114,13 +122,42 @@ test("unloading a record also clears its relationship", function() {
 
   run(function() {
     env.store.find('person', 1).then(function(person) {
-      equal(person.get('cars.length'), 1, 'aaaa');
+      equal(person.get('cars.length'), 1, 'The inital length of cars is correct');
 
       run(function() {
         person.unloadRecord();
       });
 
       equal(person.get('cars.length'), undefined);
+    });
+  });
+});
+
+test("unloading a record also clears the implicit inverse relationships", function() {
+  var adam, bob;
+  run(function() {
+    adam = env.store.push('person', {
+      id: 1,
+      name: "Adam Sunderland"
+    });
+  });
+
+  run(function() {
+    bob = env.store.push('group', {
+      id: 1,
+      people: [1]
+    });
+  });
+
+  run(function() {
+    env.store.find('group', 1).then(function(group) {
+      equal(group.get('people.length'), 1, 'The inital length of people is correct');
+      var person = env.store.getById('person', 1);
+      run(function() {
+        person.unloadRecord();
+      });
+
+      equal(group.get('people.length'), 0, 'Person was removed from the people array');
     });
   });
 });
