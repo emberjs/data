@@ -283,6 +283,26 @@ test("a DS.Model can have a defaultValue", function() {
   equal(get(tag, 'name'), null, "null doesn't shadow defaultValue");
 });
 
+test("a DS.model can define 'setUnknownProperty'", function() {
+  var tag;
+  var Tag = DS.Model.extend({
+    name: DS.attr("string"),
+
+    setUnknownProperty: function(key, value) {
+      if (key === "title") {
+        this.set("name", value);
+      }
+    }
+  });
+
+  run(function() {
+    tag = store.createRecord(Tag, { name: "old" });
+    set(tag, "title", "new");
+  });
+
+  equal(get(tag, "name"), "new", "setUnknownProperty not triggered");
+});
+
 test("a defaultValue for an attribute can be a function", function() {
   var Tag = DS.Model.extend({
     createdAt: DS.attr('string', {
