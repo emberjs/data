@@ -2,11 +2,11 @@ import {
   _bind,
   _guard,
   _objectIsAlive
-} from "ember-data/system/utils/common";
+} from "ember-data/system/store/common";
 
 import {
   serializerForAdapter
-} from "ember-data/system/utils/store";
+} from "ember-data/system/store/store";
 
 
 var get = Ember.get;

@@ -23,12 +23,12 @@ import {
   _bind,
   _guard,
   _objectIsAlive
-} from "ember-data/system/utils/common";
+} from "ember-data/system/store/common";
 
 import {
   serializerFor,
   serializerForAdapter
-} from "ember-data/system/utils/store";
+} from "ember-data/system/store/store";
 
 import {
   _find,
@@ -37,7 +37,7 @@ import {
   _findBelongsTo,
   _findAll,
   _findQuery
-} from "ember-data/system/utils/finders";
+} from "ember-data/system/store/finders";
 
 import RecordArrayManager from "ember-data/system/record_array_manager";
 
