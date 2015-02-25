@@ -28,7 +28,7 @@ import {
 import {
   serializerFor,
   serializerForAdapter
-} from "ember-data/system/store/store";
+} from "ember-data/system/store/serializers";
 
 import {
   _find,
