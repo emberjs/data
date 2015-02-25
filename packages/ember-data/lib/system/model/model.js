@@ -384,8 +384,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @return {Object} an object whose values are primitive JSON values only
   */
   serialize: function(options) {
-    var store = get(this, 'store');
-    return store.serialize(this, options);
+    return this.store.serialize(this, options);
   },
 
   /**
@@ -737,7 +736,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   updateRecordArrays: function() {
     this._updatingRecordArraysLater = false;
-    get(this, 'store').dataWasUpdated(this.constructor, this);
+    this.store.dataWasUpdated(this.constructor, this);
   },
 
   /**
@@ -1019,7 +1018,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var promiseLabel = "DS: Model#save " + this;
     var resolver = Ember.RSVP.defer(promiseLabel);
 
-    this.get('store').scheduleSave(this, resolver);
+    this.store.scheduleSave(this, resolver);
     this._inFlightAttributes = this._attributes;
     this._attributes = Ember.create(null);
 
