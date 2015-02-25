@@ -99,6 +99,11 @@ var Store;
 
 var camelize = Ember.String.camelize;
 
+var Service = Ember.Service;
+if (!Service) {
+  Service = Ember.Object;
+}
+
 // Implementors Note:
 //
 //   The variables in this file are consistently named according to the following
@@ -189,9 +194,9 @@ function coerceId(id) {
 
   @class Store
   @namespace DS
-  @extends Ember.Object
+  @extends Ember.Service
 */
-Store = Ember.Object.extend({
+Store = Service.extend({
 
   /**
     @method init
