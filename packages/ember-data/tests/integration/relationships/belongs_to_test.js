@@ -154,7 +154,7 @@ test("Only a record of the same base type can be used with a polymorphic belongs
 
       expectAssertion(function() {
         comment.set('message', records.user);
-      }, /You can only add a 'message' record to this relationship/);
+      }, /You cannot add a 'user' record to the 'comment.message'. You can only add a 'message' record to this relationship./);
     });
   });
 });
