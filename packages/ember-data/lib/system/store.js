@@ -1899,6 +1899,12 @@ Store = Ember.Object.extend({
       return typeMaps[entry]['type'];
     }
 
+    for (var cacheKey in this._containerCache) {
+      this._containerCache[cacheKey].destroy();
+      delete this._containerCache[cacheKey];
+    }
+
+    delete this._containerCache;
   },
 
   /**
