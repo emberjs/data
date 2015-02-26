@@ -1391,8 +1391,10 @@ Store = Ember.Object.extend({
       this.container.register('model:' + key, DS.Model.extend(mixin));
     }
     var factory = this.modelFactoryFor(key);
-    factory.__isMixin = true;
-    factory.__mixin = mixin;
+    if (factory) {
+      factory.__isMixin = true;
+      factory.__mixin = mixin;
+    }
 
     return factory;
   },
