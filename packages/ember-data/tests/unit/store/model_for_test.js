@@ -49,3 +49,9 @@ test("when returning passed factory without typeKey, allows it", function() {
   var factory = { typeKey: undefined };
   equal(store.modelFor(factory).typeKey, undefined, "typeKey is undefined");
 });
+
+test("when fetching something that doesn't exist, throws error", function() {
+  throws(function() {
+    store.modelFor('wild-stuff');
+  }, /No model was found/);
+});
