@@ -1423,7 +1423,7 @@ Store = Service.extend({
     if (typeof key === 'string') {
       factory = this.modelFactoryFor(key);
       if (!factory) {
-        //Support looking up mixins as base types for polymorphic relationships
+        // Support looking up mixins as base types for polymorphic relationships
         factory = this._modelForMixin(key);
       }
       if (!factory) {

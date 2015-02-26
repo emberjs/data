@@ -511,6 +511,23 @@ test("serializeIntoHash", function() {
   });
 });
 
+test("serializeIntoHash with dasherized model", function() {
+  env.container.register('model:home-planet', HomePlanet);
+  var model = env.store.modelFor('home-planet');
+  run(function() {
+    league = env.store.createRecord(model, { name: "Umber", id: "123" });
+  });
+  var json = {};
+
+  env.restSerializer.serializeIntoHash(json, model, league._createSnapshot());
+
+  deepEqual(json, {
+    homePlanet: {
+      name: "Umber"
+    }
+  });
+});
+
 test('serializeBelongsTo with async polymorphic', function() {
   var evilMinion, doomsdayDevice;
   var json = {};

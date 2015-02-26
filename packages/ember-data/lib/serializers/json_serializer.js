@@ -487,17 +487,32 @@ export default Serializer.extend({
   },
 
   /**
-    You can use this method to customize how a serialized record is added to the complete
-    JSON hash to be sent to the server. By default the JSON Serializer does not namespace
-    the payload and just sends the raw serialized JSON object.
-    If your server expects namespaced keys, you should consider using the RESTSerializer.
-    Otherwise you can override this method to customize how the record is added to the hash.
+    Serialize a model snapshot into a server request payload.
 
-    For example, your server may expect underscored root objects.
+    By default the JSON Serializer does not namespace
+    payloads, instead a "raw" serialized object is sent. For example:
+
+    ```js
+    {
+      id: 'car-one',
+      speed: 'fast'
+    }
+    ```
+
+    Note the lack of a namespace, and of any information about what
+    model this payload refers to.
+
+    If your server expects namespaced payloads, you should consider using the RESTSerializer.
+
+    You can also override this method to customize serialization behavior.
+    For example, your server may expect underscored model namespaces:
 
     ```js
     App.ApplicationSerializer = DS.RESTSerializer.extend({
       serializeIntoHash: function(data, type, snapshot, options) {
+        // type.typeKey is a model name with formatting decided by your
+        // application container. In globals mode, ususally camelCase. In
+        // Ember-CLI, usually dasherize-case.
         var root = Ember.String.decamelize(type.typeKey);
         data[root] = this.serialize(snapshot, options);
       }
@@ -678,7 +693,10 @@ export default Serializer.extend({
         }
       }
     });
-   ```
+    ```
+
+    The default behavior of this method is to not serialize
+    type data for polymorphic relationships.
 
     @method serializePolymorphicType
     @param {DS.Snapshot} snapshot
