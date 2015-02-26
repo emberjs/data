@@ -26,7 +26,6 @@ import {
 } from "ember-data/system/store/common";
 
 import {
-  serializerFor,
   serializerForAdapter
 } from "ember-data/system/store/serializers";
 
@@ -1985,7 +1984,7 @@ function defaultSerializer(container) {
 function _commit(adapter, store, operation, record) {
   var type = record.constructor;
   var promise = adapter[operation](store, type, record);
-  var serializer = serializerForAdapter(adapter, type);
+  var serializer = serializerForAdapter(store, adapter, type);
   var label = "DS: Extract and notify about " + operation + " completion of " + record;
 
   Ember.assert("Your adapter's '" + operation + "' method must return a value, but it returned `undefined", promise !==undefined);
