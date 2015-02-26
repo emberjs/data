@@ -669,6 +669,20 @@ test("A subclass of DS.Model can not use the `data` property", function() {
   }, /`data` is a reserved property name on DS.Model objects/);
 });
 
+test("A subclass of DS.Model can not use the `store` property", function() {
+  var Retailer = DS.Model.extend({
+    store: DS.attr(),
+    name: DS.attr()
+  });
+
+  var store = createStore({ retailer: Retailer });
+
+  expectAssertion(function() {
+    run(function() {
+      store.createRecord('retailer', { name: "Buy n Large" });
+    });
+  }, /`store` is a reserved property name on DS.Model objects/);
+});
 
 test("Pushing a record into the store should transition it to the loaded state", function() {
   var Person = DS.Model.extend({
