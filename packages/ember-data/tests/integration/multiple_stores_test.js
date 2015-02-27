@@ -25,10 +25,6 @@ module("integration/multiple_stores - Multiple Stores Tests", {
       evilMinion:     EvilMinion
     });
 
-    env.store.modelFor('superVillain');
-    env.store.modelFor('homePlanet');
-    env.store.modelFor('evilMinion');
-
     env.container.register('serializer:application', DS.ActiveModelSerializer);
     env.container.register('serializer:-active-model', DS.ActiveModelSerializer);
     env.container.register('adapter:-active-model', DS.ActiveModelAdapter);
