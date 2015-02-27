@@ -68,13 +68,6 @@ test("should be able to push into multiple stores", function() {
 });
 
 test("embedded records should be created in multiple stores", function() {
-
-  env.container.register('store:primary', DS.Store);
-  env.container.register('store:secondary', DS.Store);
-
-  env.primaryStore = env.container.lookup('store:primary');
-  env.secondaryStore = env.container.lookup('store:secondary');
-
   env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
   env.container.register('adapter:homePlanet', DS.ActiveModelAdapter);
 
@@ -84,11 +77,11 @@ test("embedded records should be created in multiple stores", function() {
     }
   }));
 
-  var serializer = env.store.serializerFor("homePlanet");
-  var serializer_primary = env.primaryStore.serializerFor("homePlanet");
-  var serializer_secondary = env.secondaryStore.serializerFor("homePlanet");
+  var serializer_main = env.store.serializerFor("homePlanet");
+  var serializer_a = env.store_a.serializerFor("homePlanet");
+  var serializer_b = env.store_b.serializerFor("homePlanet");
 
-  var json_hash = {
+  var json_hash_main = {
     home_planet: {
       id: "1",
       name: "Earth",
@@ -99,7 +92,7 @@ test("embedded records should be created in multiple stores", function() {
       }]
     }
   };
-  var json_hash_primary = {
+  var json_hash_a = {
     home_planet: {
       id: "1",
       name: "Mars",
@@ -110,7 +103,7 @@ test("embedded records should be created in multiple stores", function() {
       }]
     }
   };
-  var json_hash_secondary = {
+  var json_hash_b = {
     home_planet: {
       id: "1",
       name: "Saturn",
@@ -121,21 +114,21 @@ test("embedded records should be created in multiple stores", function() {
       }]
     }
   };
-  var json, json_primary, json_secondary;
+  var json_main, json_a, json_b;
 
   run(function() {
-    json = serializer.extractSingle(env.store, HomePlanet, json_hash);
+    json_main = serializer_main.extractSingle(env.store, HomePlanet, json_hash_main);
     equal(env.store.hasRecordForId("superVillain", "1"), true, "superVillain should exist in store:main");
   });
 
   run(function() {
-    json_primary = serializer_primary.extractSingle(env.primaryStore, HomePlanet, json_hash_primary);
-    equal(env.primaryStore.hasRecordForId("superVillain", "1"), true, "superVillain should exist in store:primary");
+    json_a = serializer_a.extractSingle(env.store_a, HomePlanet, json_hash_a);
+    equal(env.store_a.hasRecordForId("superVillain", "1"), true, "superVillain should exist in store:store-a");
   });
 
   run(function() {
-    json_secondary = serializer_secondary.extractSingle(env.secondaryStore, HomePlanet, json_hash_secondary);
-    equal(env.secondaryStore.hasRecordForId("superVillain", "1"), true, "superVillain should exist in store:secondary");
+    json_b = serializer_b.extractSingle(env.store_b, HomePlanet, json_hash_b);
+    equal(env.store_b.hasRecordForId("superVillain", "1"), true, "superVillain should exist in store:store-b");
   });
 
 });
