@@ -168,6 +168,7 @@ import BuildURLMixin from "ember-data/adapters/build_url_mixin";
   @constructor
   @namespace DS
   @extends DS.Adapter
+  @uses DS.BuildURLMixin
 */
 export default Adapter.extend(BuildURLMixin, {
   defaultSerializer: '-rest',

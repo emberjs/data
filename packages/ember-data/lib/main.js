@@ -50,6 +50,7 @@ import {
   RESTAdapter,
   FixtureAdapter
 } from "ember-data/adapters";
+import BuildURLMixin from "ember-data/adapters/build_url_mixin";
 import JSONSerializer from "ember-data/serializers/json_serializer";
 import RESTSerializer from "ember-data/serializers/rest_serializer";
 import "ember-inflector";
@@ -102,6 +103,7 @@ DS.ManyArray                   = ManyArray;
 DS.RecordArrayManager = RecordArrayManager;
 
 DS.RESTAdapter    = RESTAdapter;
+DS.BuildURLMixin  = BuildURLMixin;
 DS.FixtureAdapter = FixtureAdapter;
 
 DS.RESTSerializer = RESTSerializer;
