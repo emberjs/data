@@ -529,7 +529,7 @@ test("serializeIntoHash with dasherized model", function() {
 });
 
 test("serializeIntoHash with and typeForPayload", function() {
-  env.restSerializer.typeForPayload = function(key){
+  env.restSerializer.typeForPayload = function(key) {
     return key.toUpperCase();
   };
   env.container.register('model:home-planet', HomePlanet);
@@ -568,7 +568,7 @@ test('serializeBelongsTo with async polymorphic with typeForPayload', function()
   var json = {};
   var expected = { evilMinion: '1', evilMinionType: 'evil_minion' };
 
-  env.restSerializer.typeForPayload = function(key){
+  env.restSerializer.typeForPayload = function(key) {
     return Ember.String.decamelize(key);
   };
 

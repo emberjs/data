@@ -1388,7 +1388,7 @@ test("extractSingle with polymorphic hasMany", function() {
     attrs: {
       secretWeapons: { embedded: 'always' }
     },
-    typeForRoot: function(type){
+    typeForRoot: function(type) {
       return Ember.String.dasherize(type);
     }
   }));
@@ -1429,10 +1429,10 @@ test("extractSingle with polymorphic hasMany", function() {
     ]
   }, "Primary hash was correct");
 
-  equal( env.store.recordForId("secret-weapon", "1").get("name"), "The Death Star",
-         "Embedded polymorphic SecretWeapon found" );
-  equal( env.store.recordForId("light-saber", "1").get("name"), "Tom's LightSaber",
-         "Embedded polymorphic LightSaber found" );
+  equal(env.store.recordForId("secret-weapon", "1").get("name"), "The Death Star",
+        "Embedded polymorphic SecretWeapon found" );
+  equal(env.store.recordForId("light-saber", "1").get("name"), "Tom's LightSaber",
+        "Embedded polymorphic LightSaber found" );
 
 });
 
@@ -1448,7 +1448,7 @@ test("extractSingle with polymorphic belongsTo", function() {
     attrs: {
       secretLab: { embedded: 'always' }
     },
-    typeForRoot: function(type){
+    typeForRoot: function(type) {
       return Ember.String.dasherize(type);
     }
   }));
@@ -1479,6 +1479,6 @@ test("extractSingle with polymorphic belongsTo", function() {
     secretLabType: "batCave"
   }, "Primary has was correct");
 
-  equal( env.store.recordForId("bat-cave", "1").get("infiltrated"), true,
-         "Embedded polymorphic BatCave was found" );
+  equal(env.store.recordForId("bat-cave", "1").get("infiltrated"), true,
+        "Embedded polymorphic BatCave was found" );
 });
