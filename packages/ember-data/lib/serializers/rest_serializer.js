@@ -7,7 +7,6 @@ import JSONSerializer from "ember-data/serializers/json_serializer";
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var camelize = Ember.String.camelize;
-
 import { singularize } from "ember-inflector/system/string";
 
 function coerceId(id) {
@@ -516,6 +515,7 @@ var RESTSerializer = JSONSerializer.extend({
     For example, your server may return prefixed root keys like so:
 
     ```js
+    // a response payload
     {
       "response-fast-car": {
         "id": "1",
@@ -718,19 +718,18 @@ var RESTSerializer = JSONSerializer.extend({
 
   /**
     You can use this method to customize the root keys serialized into the JSON.
-    By default the REST Serializer sends a camelized version of the model name.
-    This can be changed by overridding the `serializeIntoHash` function.
+    By default `serializeIntoHash` calls `typeForPayload` to decide the namespace
+    of the model payload.
 
-    For example, your server may expect underscored root objects.
+    Your serve may expect a different kind of payload. For example, this
+    version of `serializeIntoHash` wraps the data in a `payload` namespace.
 
     ```js
     App.ApplicationSerializer = DS.RESTSerializer.extend({
       serializeIntoHash: function(data, type, record, options) {
-        // type.typeKey is a model name with formatting decided by your
-        // application container. In globals mode, ususally camelCase. In
-        // Ember-CLI, usually dasherize-case.
-        var root = Ember.String.decamelize(type.typeKey);
-        data[root] = this.serialize(record, options);
+        data['payload'] = data['payload'] || {};
+        var root = this.typeForPayload(type.typeKey);
+        data['payload'][root] = this.serialize(record, options);
       }
     });
     ```
@@ -742,7 +741,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash: function(hash, type, snapshot, options) {
-    hash[camelize(type.typeKey)] = this.serialize(snapshot, options);
+    hash[this.typeForPayload(type.typeKey)] = this.serialize(snapshot, options);
   },
 
   /**
@@ -762,7 +761,7 @@ var RESTSerializer = JSONSerializer.extend({
     if (Ember.isNone(belongsTo)) {
       json[key + "Type"] = null;
     } else {
-      json[key + "Type"] = Ember.String.camelize(belongsTo.typeKey);
+      json[key + "Type"] = this.typeForPayload(belongsTo.typeKey);
     }
   }
 });

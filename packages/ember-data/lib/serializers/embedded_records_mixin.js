@@ -478,7 +478,7 @@ function extractEmbeddedBelongsToPolymorphic(store, key, hash) {
   store.push(embeddedType, embeddedRecord);
 
   hash[key] = embeddedRecord[primaryKey];
-  hash[key + 'Type'] = embeddedType.typeKey;
+  hash[key + 'Type'] = embeddedSerializer.typeForPayload(embeddedType.typeKey);
   return hash;
 }
 

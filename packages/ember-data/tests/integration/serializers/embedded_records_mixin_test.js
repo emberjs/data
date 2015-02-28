@@ -1476,7 +1476,7 @@ test("extractSingle with polymorphic belongsTo", function() {
     firstName: "Tom",
     lastName: "Dale",
     secretLab: "1",
-    secretLabType: "bat-cave"
+    secretLabType: "batCave"
   }, "Primary has was correct");
 
   equal( env.store.recordForId("bat-cave", "1").get("infiltrated"), true,

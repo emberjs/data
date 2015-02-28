@@ -1,4 +1,6 @@
 import Serializer from "ember-data/system/serializer";
+var camelize = Ember.String.camelize;
+import { singularize } from "ember-inflector/system/string";
 
 var get = Ember.get;
 var isNone = Ember.isNone;
@@ -1100,5 +1102,38 @@ export default Serializer.extend({
     var transform = this.container.lookup('transform:' + attributeType);
     Ember.assert("Unable to find transform for '" + attributeType + "'", skipAssertion || !!transform);
     return transform;
+  },
+
+  /**
+    Convert an Ember-Data model type string into a type string for a request
+    payload. For example, your server may expect types to be camelCased:
+
+    ```js
+    // a request payload
+    {
+      "fastCar": {
+        "id": "1",
+        "name": "corvette"
+      }
+    }
+    ```
+
+    The default behavior is to camelCase and singularize model keys.
+    This method is used in `serializeIntoHash`, `serializePolymorphicType`
+    and in the embedded records mixin.
+
+    If you customize this behavior, keep in mind that Model naming
+    conventions may vary between applications and environements, but
+    will most often follow these standards:
+
+    * Ember-CLI applications will follow the pattern: `dasherized-model-name`.
+    * Globals-mode Ember applications will follow the pattern `camelCaseName`.
+
+    @method typeForPayload
+    @param {String} key
+    @return {String} the model's name in your request payloads
+  */
+  typeForPayload: function(key) {
+    return camelize(singularize(key));
   }
 });
