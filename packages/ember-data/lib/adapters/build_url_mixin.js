@@ -1,5 +1,32 @@
 var get = Ember.get;
 
+/**
+
+  WARNING: This interface is likely to change in order to accomodate https://github.com/emberjs/rfcs/pull/4
+
+  ## Using BuildURLMixin
+
+  To use url building, include the mixin when extending an adapter, and call `buildURL` where needed.
+  The default behaviour is designed for RESTAdapter.
+
+  ### Example
+
+  ```javascript
+  export default DS.Adapter.extend(BuildURLMixin, {
+    find: function(store, type, id, record) {
+      var url = this.buildURL(type.typeKey, id, record);
+      return this.ajax(url, 'GET');
+    }
+  });
+  ```
+
+  ### Attributes
+
+  The `host` and `namespace` attributes will be used if defined, and are optional.
+
+  @class BuildURLMixin
+  @namespace DS
+*/
 export default Ember.Mixin.create({
   /**
     Builds a URL for a given type and optional ID.
