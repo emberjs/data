@@ -1955,3 +1955,13 @@ test('ajaxError wraps the error string in an Error object', function() {
     Ember.$.ajax = originalAjax;
   }
 });
+
+test('uses responseDataType when overriden', function(){
+  adapter.setProperties({
+    responseDataType: 'jsonp'
+  });
+
+  var hash = adapter.ajaxOptions("posts/1",'GET');
+
+  equal(hash.dataType, 'jsonp');
+});
