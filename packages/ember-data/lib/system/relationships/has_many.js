@@ -2,7 +2,7 @@
   @module ember-data
 */
 
-import { Model } from "ember-data/system/model";
+import Model from "ember-data/system/model";
 
 /**
   `DS.hasMany` is used to define One-To-Many and Many-To-Many
