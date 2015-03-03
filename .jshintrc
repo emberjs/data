@@ -37,7 +37,8 @@
         "expectDeprecation",
         "warns",
         "noWarns",
-        "throws"
+        "throws",
+        "-Comment"
     ],
     "node" : false,
     "browser" : true,

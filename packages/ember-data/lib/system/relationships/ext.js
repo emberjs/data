@@ -2,7 +2,7 @@ import {
   typeForRelationshipMeta,
   relationshipFromMeta
 } from "ember-data/system/relationship-meta";
-import { Model } from "ember-data/system/model";
+import Model from "ember-data/system/model";
 import {
   Map,
   MapWithDefault

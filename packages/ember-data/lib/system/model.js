@@ -8,8 +8,9 @@ import RootState from "ember-data/system/model/states";
 import Errors from "ember-data/system/model/errors";
 
 export {
-  Model,
   RootState,
   attr,
   Errors
 };
+
+export default Model;

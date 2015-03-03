@@ -27,11 +27,11 @@ import {
   Store
 } from "ember-data/system/store";
 import {
-  Model,
   Errors,
   RootState,
   attr
 } from "ember-data/system/model";
+import Model from "ember-data/system/model";
 import Snapshot from "ember-data/system/snapshot";
 import {
   InvalidError,

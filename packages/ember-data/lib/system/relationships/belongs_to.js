@@ -1,4 +1,4 @@
-import { Model } from 'ember-data/system/model';
+import Model from 'ember-data/system/model';
 
 /**
   `DS.belongsTo` is used to define One-To-One and One-To-Many
