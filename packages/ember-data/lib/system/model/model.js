@@ -1166,6 +1166,18 @@ var Model = Ember.Object.extend(Ember.Evented, {
   willMergeMixin: function(props) {
     Ember.assert('`data` is a reserved property name on DS.Model objects. Please choose a different property name for ' + this.constructor.toString(), !props.data);
     Ember.assert('`store` is a reserved property name on DS.Model objects. Please choose a different property name for '+ this.constructor.toString(), !props.store);
+  },
+
+  attr: function() {
+    Ember.assert("The `attr` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
+  },
+
+  belongsTo: function() {
+    Ember.assert("The `belongsTo` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
+  },
+
+  hasMany: function() {
+    Ember.assert("The `hasMany` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
   }
 });
 

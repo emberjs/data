@@ -234,6 +234,32 @@ test("a DS.Model can have a defaultValue without an attribute type", function() 
   equal(get(tag, 'name'), "unknown", "the default value is found");
 });
 
+test("Calling attr(), belongsTo() or hasMany() throws a warning", function() {
+  expect(3);
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var store = createStore({ person: Person });
+
+  run(function() {
+    var person = store.createRecord('person', { id: 1, name: 'TomHuda' });
+
+    throws(function() {
+      person.attr();
+    }, /The `attr` method is not available on DS.Model, a DS.Snapshot was probably expected/, "attr() throws a warning");
+
+    throws(function() {
+      person.belongsTo();
+    }, /The `belongsTo` method is not available on DS.Model, a DS.Snapshot was probably expected/, "belongTo() throws a warning");
+
+    throws(function() {
+      person.hasMany();
+    }, /The `hasMany` method is not available on DS.Model, a DS.Snapshot was probably expected/, "hasMany() throws a warning");
+  });
+});
+
 module("unit/model - DS.Model updating", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
