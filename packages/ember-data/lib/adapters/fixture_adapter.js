@@ -29,6 +29,8 @@ import Adapter from "ember-data/system/adapter";
 export default Adapter.extend({
   // by default, fixtures are already in normalized form
   serializer: null,
+  // The fixture adapter does not support coalesceFindRequests
+  coalesceFindRequests: false,
 
   /**
     If `simulateRemoteResponse` is `true` the `FixtureAdapter` will

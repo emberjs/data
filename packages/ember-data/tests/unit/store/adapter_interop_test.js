@@ -746,7 +746,7 @@ test("the promise returned by `scheduleFetch`, when it rejects, does not depend 
 });
 
 test("store.fetchRecord reject records that were not found, even when those requests were coalesced with records that were found", function() {
-  expect(2);
+  expect(4);
 
   var Person = DS.Model.extend();
 
@@ -768,16 +768,18 @@ test("store.fetchRecord reject records that were not found, even when those requ
     adapter: adapter
   });
 
-  run(function () {
-    var davidPromise = store.find(Person, 'david');
-    var igorPromise = store.find(Person, 'igor');
+  warns(function() {
+    run(function () {
+      var davidPromise = store.find(Person, 'david');
+      var igorPromise = store.find(Person, 'igor');
 
-    davidPromise.then(async(function () {
-      ok(true, "David resolved");
-    }));
+      davidPromise.then(async(function () {
+        ok(true, "David resolved");
+      }));
 
-    igorPromise.then(null, async(function () {
-      ok(true, "Igor rejected");
-    }));
-  });
+      igorPromise.then(null, async(function () {
+        ok(true, "Igor rejected");
+      }));
+    });
+  }, /expected to find records with the following ids in the adapter response but they were missing/);
 });
