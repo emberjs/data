@@ -1613,6 +1613,9 @@ Store = Ember.Object.extend({
       serializer = this.serializerFor(type);
     }
     var store = this;
+    if (payload.meta) {
+      store.setMetadataFor(type, payload.meta);
+    }
     this._adapterRun(function() {
       serializer.pushPayload(store, payload);
     });

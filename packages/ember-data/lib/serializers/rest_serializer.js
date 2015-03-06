@@ -479,6 +479,9 @@ var RESTSerializer = JSONSerializer.extend({
     in data streaming in from your server structured the same way
     that fetches and saves are structured.
 
+    Meta properties are silently ignored, as they are handled by the store's
+    pushPayload method directly.
+
     @method pushPayload
     @param {DS.Store} store
     @param {Object} payload
@@ -487,20 +490,22 @@ var RESTSerializer = JSONSerializer.extend({
     var payload = this.normalizePayload(rawPayload);
 
     for (var prop in payload) {
-      var typeName = this.typeForRoot(prop);
-      if (!store.modelFactoryFor(typeName, prop)) {
-        Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
-        continue;
+      if (prop !== "meta") {
+        var typeName = this.typeForRoot(prop);
+        if (!store.modelFactoryFor(typeName, prop)) {
+          Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
+          continue;
+        }
+        var type = store.modelFor(typeName);
+        var typeSerializer = store.serializerFor(type);
+
+        /*jshint loopfunc:true*/
+        var normalizedArray = map.call(Ember.makeArray(payload[prop]), function(hash) {
+          return typeSerializer.normalize(type, hash, prop);
+        }, this);
+
+        store.pushMany(typeName, normalizedArray);
       }
-      var type = store.modelFor(typeName);
-      var typeSerializer = store.serializerFor(type);
-
-      /*jshint loopfunc:true*/
-      var normalizedArray = map.call(Ember.makeArray(payload[prop]), function(hash) {
-        return typeSerializer.normalize(type, hash, prop);
-      }, this);
-
-      store.pushMany(typeName, normalizedArray);
     }
   },
 

@@ -469,6 +469,25 @@ test('calling push without data argument as an object raises an error', function
   });
 });
 
+test('Calling pushPayload with a meta key, should update the meta store for the model', function() {
+  env.registry.register('serializer:person', DS.RESTSerializer);
+
+  run(function() {
+    store.pushPayload('person', {
+      person: {
+        id: '1',
+        firstName: "Robert",
+        lastName: "Jackson"
+      },
+      meta: {
+        total: 10
+      }
+    });
+  });
+
+  equal(store.metadataFor('person').total, 10, "no metadata was found");
+});
+
 test('Calling push with a link for a non async relationship should warn', function() {
   Person.reopen({
     phoneNumbers: hasMany('phone-number', { async: false })
