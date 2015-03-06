@@ -211,7 +211,7 @@ function getDefaultValue(record, options, key) {
   if (typeof options.defaultValue === "function") {
     return options.defaultValue.apply(null, arguments);
   } else {
-    return options.defaultValue;
+    return Ember.copy(options.defaultValue);
   }
 }
 
