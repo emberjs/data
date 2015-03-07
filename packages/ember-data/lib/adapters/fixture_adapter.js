@@ -12,11 +12,25 @@ import Adapter from "ember-data/system/adapter";
 /**
   `DS.FixtureAdapter` is an adapter that loads records from memory.
   It's primarily used for development and testing. You can also use
-  `DS.FixtureAdapter` while working on the API but is not ready to
-  integrate yet. It is a fully functioning adapter. All CRUD methods
+  it while working on your application's API, before it's ready to be
+  integrated, although it is a fully functioning adapter. All CRUD methods
   are implemented. You can also implement query logic that a remote
-  system would do. It's possible to develop your entire application
-  with `DS.FixtureAdapter`.
+  system would do by overriding the [`queryFixtures`](#method_queryFixtures) method. 
+  It's possible to develop your entire application with `DS.FixtureAdapter`.
+
+
+  This adapter is asynchronous by default, making even sideloaded relationships
+  that are not set to `async: true` behave asynchronously. To override this
+  default, simple extend the adapter like so:
+
+  ```js
+  App.ApplicationAdapter = DS.FixtureAdapter.extend({
+    simulateRemoteResponse: false
+  });
+  ```
+
+  **Note:** Since the `FixtureAdapter` deals with normalized data, it does not have
+  an associated serializer.
 
   For information on how to use the `FixtureAdapter` in your
   application please see the [FixtureAdapter
