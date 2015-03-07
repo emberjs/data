@@ -901,6 +901,28 @@ export default Adapter.extend({
   },
 
   /**
+   * This is a hook called before making an AJAX request that affords
+   * extending and modifying the options that are ultimately passed
+   * to Ember.$.ajax.
+   *
+   * In general, the options here behave exactly the same as the
+   * options that you can pass to `jQuery.ajax`. There are, however,
+   * a few notable changes:
+   *
+   *  - `dataType` is always set to `json`.
+   *
+   *  - `processData`, if true or undefined, will JSON stringify the
+   *     data passed and set the `contentType` to `application/json`.
+   *     If `false`, the adapter will not touch the data passed in the
+   *     AJAX request.
+   *
+   *  - `context` is always set to `this`, which is the adapter used
+   *     to make the ajax request. This ultimately ends up as the value
+   *     of `this` in the AJAX request callbacks.
+   *
+   * Finally, this will add any headers defined in a `headers` property
+   * to the AJAX request.
+   *
     @method ajaxOptions
     @private
     @param {String} url
@@ -915,7 +937,11 @@ export default Adapter.extend({
     hash.dataType = 'json';
     hash.context = this;
 
-    if (hash.data && type !== 'GET') {
+    if (typeof hash.processData === 'undefined') {
+      hash.processData = true;
+    }
+
+    if (hash.data && hash.processData !== false && type !== 'GET') {
       hash.contentType = 'application/json; charset=utf-8';
       hash.data = JSON.stringify(hash.data);
     }
