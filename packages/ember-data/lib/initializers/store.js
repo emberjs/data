@@ -33,5 +33,6 @@ export default function initializeStore(container, application) {
 
   // Eagerly generate the store so defaultStore is populated.
   // TODO: Do this in a finisher hook
-  container.lookup('store:main');
+  var store = container.lookup('store:main');
+  container.register('service:store', store, { instantiate: false });
 }
