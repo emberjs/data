@@ -309,6 +309,20 @@ test("a DS.Model can have a defaultValue", function() {
   equal(get(tag, 'name'), null, "null doesn't shadow defaultValue");
 });
 
+test("a DS.Model copies the defaultValue", function() {
+  var Tag = DS.Model.extend({
+    name: DS.attr('string', { defaultValue: [] })
+  });
+  var tag1, tag2;
+
+  run(function() {
+    tag1 = store.createRecord(Tag);
+    tag2 = store.createRecord(Tag);
+  });
+
+  notEqual(get(tag1, 'name'), get(tag2, 'name'), "The default value is copied");
+});
+
 test("a DS.model can define 'setUnknownProperty'", function() {
   var tag;
   var Tag = DS.Model.extend({
@@ -344,6 +358,8 @@ test("a defaultValue for an attribute can be a function", function() {
   });
   equal(get(tag, 'createdAt'), "le default value", "the defaultValue function is evaluated");
 });
+
+
 
 test("a defaultValue function gets the record, options, and key", function() {
   expect(2);
