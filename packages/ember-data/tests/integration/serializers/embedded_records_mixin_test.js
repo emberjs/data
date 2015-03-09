@@ -784,6 +784,45 @@ test("serialize with embedded object (belongsTo relationship)", function() {
   });
 });
 
+test("serialize with embedded object (belongsTo relationship) with custom keyForAttribute", function() {
+  env.container.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.container.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      secretLab: {embedded: 'always'}
+    },
+    keyForAttribute: function (attr) {
+      if (attr === 'minionCapacity') {
+        return 'capacity';
+      } else {
+        return this._super(attr);
+      }
+    }
+  }));
+  var serializer = env.container.lookup("serializer:superVillain");
+
+  // records with an id, persisted
+
+  var tom = env.store.createRecord(
+    SuperVillain,
+    { firstName: "Tom", lastName: "Dale", id: "1",
+      secretLab: env.store.createRecord(SecretLab, { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
+      homePlanet: env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" })
+    }
+  );
+
+  var json = serializer.serialize(tom);
+  deepEqual(json, {
+    first_name: get(tom, "firstName"),
+    last_name: get(tom, "lastName"),
+    home_planet_id: get(tom, "homePlanet").get("id"),
+    secret_lab: {
+      id: get(tom, "secretLab").get("id"),
+      capacity: get(tom, "secretLab").get("minionCapacity"),
+      vicinity: get(tom, "secretLab").get("vicinity")
+    }
+  });
+});
+
 test("serialize with embedded object (belongsTo relationship) works with different primaryKeys", function() {
   env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
   env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
