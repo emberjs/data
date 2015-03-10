@@ -462,6 +462,40 @@ test("create - response can contain relationships the client doesn't yet know ab
   });
 });
 
+test("create - response can contain relationships the client doesn't yet know about", function() {
+  expect(3); // while records.length is 2, we are getting 4 assertions
+
+  ajaxResponse({
+    posts: [{
+      id: "1",
+      name: "Rails is omakase",
+      comments: [2]
+    }],
+    comments: [{
+      id: "2",
+      name: "Another Comment",
+      post: 1
+    }]
+  });
+
+  Post.reopen({ comments: DS.hasMany('comment') });
+  Comment.reopen({ post: DS.belongsTo('post') });
+
+  var post = store.createRecord('post', { name: "Rails is omakase" });
+
+  post.save().then(async(function(post) {
+    equal(post.get('comments.firstObject.post'), post, "the comments are related to the correct post model");
+    equal(store.typeMapFor(Post).records.length, 1, "There should only be one post record in the store");
+
+    var postRecords = store.typeMapFor(Post).records;
+    for(var i = 0; i < postRecords.length; i++) {
+      var post = postRecords[i];
+      var string = post.toString();
+      equal(string, '<Post:' + Ember.guidFor(post) + ':1>', "post.toString() should have the correct id");
+    }
+  }));
+});
+
 test("create - relationships are not duplicated", function() {
   var post, comment;
 
