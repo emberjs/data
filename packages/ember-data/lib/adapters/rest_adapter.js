@@ -658,6 +658,10 @@ export default Adapter.extend({
     var url = this.buildURL(type.typeKey, record.get('id'), record);
 
     var expandedURL = url.split('/');
+    // Handle urls with trailing slash
+    if (expandedURL[expandedURL.length - 1] === '') {
+      delete expandedURL[expandedURL.length - 1];
+    }
     //Case when the url is of the format ...something/:id
     var lastSegment = expandedURL[expandedURL.length - 1];
     var id = record.get('id');
