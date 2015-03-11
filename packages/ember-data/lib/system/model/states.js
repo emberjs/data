@@ -664,6 +664,11 @@ var RootState = {
       becameError: function(record) {
         record.transitionTo('uncommitted');
         record.triggerLater('becameError', record);
+      },
+
+      becameInvalid: function(record) {
+        record.transitionTo('invalid');
+        record.triggerLater('becameInvalid', record);
       }
     },
 
@@ -687,6 +692,32 @@ var RootState = {
       willCommit: Ember.K,
 
       didCommit: Ember.K
+    },
+
+    invalid: {
+      isValid: false,
+
+      didSetProperty: function(record, context) {
+        get(record, 'errors').remove(context.name);
+
+        didSetProperty(record, context);
+      },
+
+      deleteRecord: Ember.K,
+      becomeDirty: Ember.K,
+      willCommit: Ember.K,
+
+
+      rolledBack: function(record) {
+        get(record, 'errors').clear();
+        record.transitionTo('loaded.saved');
+        record.triggerLater('ready');
+      },
+
+      becameValid: function(record) {
+        record.transitionTo('uncommitted');
+      }
+
     }
   },
 
