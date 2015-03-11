@@ -144,7 +144,9 @@ ManyRelationship.prototype.computeChanges = function(records) {
 ManyRelationship.prototype.fetchLink = function() {
   var self = this;
   return this.store.findHasMany(this.record, this.link, this.relationshipMeta).then(function(records) {
-    self.updateRecordsFromAdapter(records);
+    self.store._backburner.join(function() {
+      self.updateRecordsFromAdapter(records);
+    });
     return self.manyArray;
   });
 };
