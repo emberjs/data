@@ -292,8 +292,8 @@ test("when destroying a record setup the record state to invalid, the record can
       var adapter = this;
 
       return new Ember.RSVP.Promise(function(resolve, reject) {
-        Ember.run.next(function(){
-          reject(adapter.ajaxError({name: 'is invalid'}));
+        Ember.run.next(function() {
+          reject(adapter.ajaxError({ name: 'is invalid' }));
         });
       });
     },
@@ -303,13 +303,13 @@ test("when destroying a record setup the record state to invalid, the record can
     }
   });
 
-  env = setupStore({ dog: Dog, adapter: adapter});
+  env = setupStore({ dog: Dog, adapter: adapter });
   var dog;
-  run(function(){
+  run(function() {
     dog = env.store.push('dog', { id: 1, name: "Pluto" });
   });
 
-  run(function(){
+  run(function() {
     dog.destroyRecord().then(null, async(function() {
 
 
