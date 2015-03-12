@@ -59,6 +59,9 @@ export default Ember.Object.extend({
   updateRecordArrays: function() {
     this.changedRecords.forEach((record) => {
       if (record.isDeleted()) {
+      // TODO: it can be refactored after #2862 && #2859 are closed
+      // if (get(record, 'isDestroyed') || get(record, 'isDestroying') ||
+      //     (get(record, 'isDeleted') && !get(record, 'isDirty'))) {
         this._recordWasDeleted(record);
       } else {
         this._recordWasChanged(record);
