@@ -63,8 +63,8 @@ test("unload a record", function() {
         store.unloadRecord(record);
       });
 
-      equal(get(record, 'isDirty'), false, "record is not dirty");
-      equal(get(record, 'isDeleted'), true, "record is deleted");
+      equal(get(record, 'isDestroyed'), true, "record is destroyed");
+      equal(store.hasRecordForId(Record, 1), false, "record is dematerialized");
 
       tryToFind = false;
       return store.find(Record, 1).then(function() {

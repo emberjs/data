@@ -455,10 +455,9 @@ var RootState = {
   // you out of the in-flight state.
   rolledBack: Ember.K,
   unloadRecord: function(record) {
-    // clear relationships before moving to deleted state
-    // otherwise it fails
-    record.clearRelationships();
-    record.transitionTo('deleted.saved');
+    record.destroy();
+    var store = get(record, 'store');
+    store._dematerializeRecord(record);
   },
 
 
@@ -573,10 +572,9 @@ var RootState = {
       },
 
       unloadRecord: function(record) {
-        // clear relationships before moving to deleted state
-        // otherwise it fails
-        record.clearRelationships();
-        record.transitionTo('deleted.saved');
+        record.destroy();
+        var store = get(record, 'store');
+        store._dematerializeRecord(record);
       },
 
       didCommit: function(record) {
