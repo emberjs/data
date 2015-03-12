@@ -536,7 +536,7 @@ Store = Service.extend({
     ```javascript
     App.PostRoute = Ember.Route.extend({
       model: function(params) {
-        return this.store.fetch('post', params.post_id);
+        return this.store.fetchById('post', params.post_id);
       }
     });
     ```
