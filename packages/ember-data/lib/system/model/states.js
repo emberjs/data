@@ -410,6 +410,7 @@ var updatedState = dirtyState({
 createdState.uncommitted.deleteRecord = function(record) {
   record.disconnectRelationships();
   record.transitionTo('deleted.saved');
+  record.send('invokeLifecycleCallbacks');
 };
 
 createdState.uncommitted.rollback = function(record) {
