@@ -1049,7 +1049,6 @@ Store = Service.extend({
     for (var i = 0; i < records.length; i++) {
       record = records[i];
       record.unloadRecord();
-      record.destroy(); // maybe within unloadRecord
     }
 
     typeMap.findAllCache = null;
