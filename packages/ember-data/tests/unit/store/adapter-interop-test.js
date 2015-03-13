@@ -356,7 +356,8 @@ test("initial values of attributes can be passed in as the third argument to fin
   expect(1);
 
   var adapter = TestAdapter.extend({
-    find: function(store, type, query) {
+    find: function(store, type, query, record) {
+      equal(record.get('name'), 'Test', 'Preloaded attribtue set');
       return Ember.RSVP.resolve({ id: '1', name: 'Test' });
     }
   });
@@ -370,15 +371,15 @@ test("initial values of attributes can be passed in as the third argument to fin
   });
 
   run(function() {
-    store.find(Person, 1, { name: 'Test' }).then(async(function() {
-      equal(store.getById(Person, 1).get('name'), 'Test', 'Preloaded attribtue set');
-    }));
+    store.find(Person, 1, { name: 'Test' });
   });
 });
 
 test("initial values of belongsTo can be passed in as the third argument to find as records", function() {
+  expect(1);
   var adapter = TestAdapter.extend({
-    find: function(store, type, query) {
+    find: function(store, type, query, record) {
+      equal(record.get('friend.name'), 'Tom', 'Preloaded belongsTo set');
       return new Ember.RSVP.Promise(function() {});
     }
   });
@@ -399,8 +400,6 @@ test("initial values of belongsTo can be passed in as the third argument to find
     tom = store.push(Person, { id: 2, name: 'Tom' });
     store.find(Person, 1, { friend: tom });
   });
-
-  equal(store.getById(Person, 1).get('friend.name'), 'Tom', 'Preloaded belongsTo set');
 });
 
 test("initial values of belongsTo can be passed in as the third argument to find as ids", function() {
@@ -433,8 +432,12 @@ test("initial values of belongsTo can be passed in as the third argument to find
 });
 
 test("initial values of hasMany can be passed in as the third argument to find as records", function() {
+  expect(1);
   var adapter = TestAdapter.extend({
-    find: function(store, type, query) {
+    find: function(store, type, query, record) {
+
+      equal(record.get('friends').toArray()[0].get('name'), 'Tom', 'Preloaded hasMany set');
+
       return new Ember.RSVP.Promise(function() {});
     }
   });
@@ -455,15 +458,14 @@ test("initial values of hasMany can be passed in as the third argument to find a
     tom = store.push(Person, { id: 2, name: 'Tom' });
     store.find(Person, 1, { friends: [tom] });
   });
-
-  equal(store.getById(Person, 1).get('friends').toArray()[0].get('name'), 'Tom', 'Preloaded hasMany set');
 });
 
 test("initial values of hasMany can be passed in as the third argument to find as ids", function() {
   expect(1);
 
   var adapter = TestAdapter.extend({
-    find: function(store, type, id) {
+    find: function(store, type, id, record) {
+      equal(record.get('friends.firstObject.id'), '2', 'Preloaded hasMany set');
       return Ember.RSVP.resolve({ id: id });
     }
   });
@@ -481,9 +483,6 @@ test("initial values of hasMany can be passed in as the third argument to find a
 
   run(function() {
     store.find(Person, 1, { friends: [2] });
-    store.getById(Person, 1).get('friends').then(async(function(friends) {
-      equal(friends.objectAt(0).get('id'), '2', 'Preloaded hasMany set');
-    }));
   });
 });
 

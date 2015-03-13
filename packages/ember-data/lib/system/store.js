@@ -832,7 +832,7 @@ Store = Service.extend({
     var type = this.modelFor(typeName);
     var id = coerceId(inputId);
     var record = this.typeMapFor(type).idToRecord[id];
-    return !!record && !get(record, 'isEmpty');
+    return !!record && get(record, 'isLoaded');
   },
 
   /**
