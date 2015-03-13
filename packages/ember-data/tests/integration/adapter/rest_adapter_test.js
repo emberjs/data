@@ -470,7 +470,7 @@ test("create - relationships are not duplicated", function() {
 
   run(function() {
     post = store.createRecord('post', { name: "Tomtomhuda" });
-    comment = store.createRecord('comment', { id: 2, name: "Comment title" });
+    comment = store.createRecord('comment', { name: "Comment title" });
   });
 
   ajaxResponse({ post: [{ id: 1, name: "Rails is omakase", comments: [] }] });
