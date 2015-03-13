@@ -42,9 +42,9 @@ import DebugAdapter from "ember-data/system/debug";
 import {
   RecordArray,
   FilteredRecordArray,
-  AdapterPopulatedRecordArray,
-  ManyArray
+  AdapterPopulatedRecordArray
 } from "ember-data/system/record_arrays";
+import ManyArray from "ember-data/system/many_array";
 import RecordArrayManager from "ember-data/system/record_array_manager";
 import {
   RESTAdapter,
