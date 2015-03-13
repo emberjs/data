@@ -42,7 +42,8 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
 
     Comment = Message.extend({
       body: DS.attr('string'),
-      message: DS.belongsTo('message', { polymorphic: true })
+      message: DS.belongsTo('message', { polymorphic: true }),
+      messageType: DS.attr('string')
     });
 
     Book = DS.Model.extend({

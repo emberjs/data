@@ -29,7 +29,8 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
     });
     SecretWeapon = DS.Model.extend({
       name:            DS.attr('string'),
-      superVillain:    DS.belongsTo('superVillain')
+      superVillain:    DS.belongsTo('superVillain'),
+      type:            DS.attr('string')
     });
     LightSaber = SecretWeapon.extend({
       color:           DS.attr('string')
