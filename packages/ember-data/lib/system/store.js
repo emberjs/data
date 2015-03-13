@@ -1303,9 +1303,10 @@ Store = Service.extend({
     @method recordWasError
     @private
     @param {DS.Model} record
+    @param {Error} error
   */
-  recordWasError: function(record) {
-    record.adapterDidError();
+  recordWasError: function(record, error) {
+    record.adapterDidError(error);
   },
 
   /**

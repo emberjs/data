@@ -1,3 +1,5 @@
+import { ADAPTER_SOURCE } from "ember-data/system/model/errors";
+
 /**
   @module ember-data
 */
@@ -329,7 +331,7 @@ var DirtyState = {
     },
 
     didSetProperty: function(record, context) {
-      get(record, 'errors').remove(context.name);
+      get(record, 'errors').remove(context.name, ADAPTER_SOURCE);
 
       didSetProperty(record, context);
     },
@@ -337,12 +339,12 @@ var DirtyState = {
     becomeDirty: Ember.K,
 
     willCommit: function(record) {
-      get(record, 'errors').clear();
+      get(record, 'errors').clear(ADAPTER_SOURCE);
       record.transitionTo('inFlight');
     },
 
     rolledBack: function(record) {
-      get(record, 'errors').clear();
+      get(record, 'errors').clear(ADAPTER_SOURCE);
       record.triggerLater('ready');
     },
 

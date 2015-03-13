@@ -5,6 +5,7 @@ import merge from "ember-data/system/merge";
 import JSONSerializer from "ember-data/serializers/json_serializer";
 import createRelationshipFor from "ember-data/system/relationships/state/create";
 import Snapshot from "ember-data/system/snapshot";
+import { ADAPTER_SOURCE } from "ember-data/system/model/errors";
 
 /**
   @module ember-data
@@ -358,15 +359,15 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @type {DS.Errors}
   */
   errors: Ember.computed(function() {
-    var errors = Errors.create();
-
-    errors.registerHandlers(this, function() {
-      this.send('becameInvalid');
-    }, function() {
-      this.send('becameValid');
+    var model = this;
+    return Errors.create({
+      becameInvalid: function() {
+        model.send('becameInvalid');
+      },
+      becameValid: function() {
+        model.send('becameValid');
+      }
     });
-
-    return errors;
   }).readOnly(),
 
   /**
@@ -1084,11 +1085,12 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   adapterDidInvalidate: function(errors) {
     var recordErrors = get(this, 'errors');
+
     for (var key in errors) {
       if (!errors.hasOwnProperty(key)) {
         continue;
       }
-      recordErrors.add(key, errors[key]);
+      recordErrors.add(key, errors[key], ADAPTER_SOURCE);
     }
     this._saveWasRejected();
   },
@@ -1097,7 +1099,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @method adapterDidError
     @private
   */
-  adapterDidError: function() {
+  adapterDidError: function(error) {
     this.send('becameError');
     set(this, 'isError', true);
     this._saveWasRejected();
