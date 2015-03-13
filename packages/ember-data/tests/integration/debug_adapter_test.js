@@ -105,7 +105,7 @@ test("Watching Records", function() {
   deepEqual(record.searchKeywords, ['2', 'New Post']);
   deepEqual(record.color, 'green');
 
-  Ember.run(post, 'deleteRecord');
+  Ember.run(post, 'unloadRecord');
 
   equal(removedIndex, 1);
   equal(removedCount, 1);
