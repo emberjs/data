@@ -61,6 +61,8 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
     env.store.modelFor('lightSaber');
     env.store.modelFor('evilMinion');
     env.store.modelFor('comment');
+    env.container.optionsForType('serializer', { singleton: false });
+    env.container.optionsForType('adapter', { singleton: false });
     env.registry.register('serializer:application', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin));
     env.registry.register('serializer:-active-model', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin));
     env.registry.register('adapter:-active-model', DS.ActiveModelAdapter);
