@@ -1,6 +1,4 @@
-import {
-  OrderedSet
-} from "ember-data/system/map";
+import OrderedSet from "ember-data/system/ordered-set";
 
 var forEach = Ember.EnumerableUtils.forEach;
 
@@ -114,7 +112,7 @@ Relationship.prototype = {
 
   addRecord: function(record, idx) {
     if (!this.members.has(record)) {
-      this.members.add(record);
+      this.members.addWithIndex(record, idx);
       this.notifyRecordRelationshipAdded(record, idx);
       if (this.inverseKey) {
         record._relationships[this.inverseKey].addRecord(this.record);

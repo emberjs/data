@@ -182,6 +182,27 @@ test("snapshot.hasMany() returns array of IDs if option.ids is set", function() 
   });
 });
 
+test("snapshot.hasMany() respects the order of items in the relationship", function() {
+  expect(3);
+
+  run(function() {
+    env.store.push('comment', { id: 1, body: 'This is the first comment' });
+    env.store.push('comment', { id: 2, body: 'This is the second comment' });
+    var comment3 = env.store.push('comment', { id: 3, body: 'This is the third comment' });
+    var post = env.store.push('post', { id: 4, title: 'Hello World', comments: [1, 2, 3] });
+
+    post.get('comments').removeObject(comment3);
+    post.get('comments').insertAt(0, comment3);
+
+    var snapshot = post._createSnapshot();
+    var relationship = snapshot.hasMany('comments');
+
+    equal(relationship[0].id, '3', 'order of comment 3 is correct');
+    equal(relationship[1].id, '1', 'order of comment 1 is correct');
+    equal(relationship[2].id, '2', 'order of comment 2 is correct');
+  });
+});
+
 test("snapshot.eachAttribute() proxies to record", function() {
   expect(1);
 
