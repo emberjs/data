@@ -1,7 +1,7 @@
-import { PromiseManyArray } from "ember-data/system/promise_proxies";
+import { PromiseManyArray } from "ember-data/system/promise-proxies";
 import Relationship from "ember-data/system/relationships/state/relationship";
 import OrderedSet from "ember-data/system/ordered-set";
-import ManyArray from "ember-data/system/many_array";
+import ManyArray from "ember-data/system/many-array";
 
 var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
   this._super$constructor(store, record, inverseKey, relationshipMeta);

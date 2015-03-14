@@ -6,7 +6,7 @@ import {
   RecordArray,
   FilteredRecordArray,
   AdapterPopulatedRecordArray
-} from "ember-data/system/record_arrays";
+} from "ember-data/system/record-arrays";
 import {
   MapWithDefault
 } from "ember-data/system/map";

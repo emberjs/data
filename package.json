@@ -20,7 +20,7 @@
     "prepublish": "bower install && npm run-script build:production",
     "start": "ember serve",
     "test": "jscs packages && testem -R dot ci",
-    "publish-build": "npm run build:production && ./bin/publish_to_s3.js",
+    "publish-build": "npm run build:production && ./bin/publish-to-s3.js",
     "test:local": "testem -R dot ci",
     "test:beta": "testem -f config/testem-beta.json -R dot ci",
     "test:canary": "testem -f config/testem-canary.json -R dot ci",
