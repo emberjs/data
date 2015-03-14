@@ -499,6 +499,14 @@ Store = Service.extend({
     Parameters: {"ids"=>["1", "2", "3"]}
     ```
 
+    Alternatively, to find a record by a query call `find` with an array as
+    the second parameter:
+
+    ```javascript
+    var filters = [ { name: 'filter', value: 'age<30' }, { name: 'filter', value: 'age>20'} ];
+    store.find('person', filters });
+    ```
+
     @method find
     @param {String or subclass of DS.Model} type
     @param {Object|String|Integer|null} id
@@ -514,7 +522,7 @@ Store = Service.extend({
     }
 
     // We are passed a query instead of an id.
-    if (Ember.typeOf(id) === 'object') {
+    if (Ember.typeOf(id) === 'object' || Ember.typeOf(id) === 'array') {
       return this.findQuery(type, id);
     }
 
