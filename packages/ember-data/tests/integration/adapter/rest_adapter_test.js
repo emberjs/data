@@ -1,4 +1,4 @@
-var env, store, adapter, Post, Comment, SuperUser;
+var env, store, adapter, Post, Comment, SuperUser, EmberCliUser;
 var passedUrl, passedVerb, passedHash;
 var run = Ember.run;
 
@@ -16,12 +16,17 @@ module("integration/adapter/rest_adapter - REST Adapter", {
       name: DS.attr("string")
     });
 
+    EmberCliUser = DS.Model.extend({
+      name: DS.attr("string")
+    });
+
     SuperUser = DS.Model.extend();
 
     env = setupStore({
       post: Post,
       comment: Comment,
       superUser: SuperUser,
+      'ember-cli-user': EmberCliUser,
       adapter: DS.RESTAdapter
     });
 
@@ -165,6 +170,22 @@ test("create - an empty payload is a basic success if an id was specified", func
 
       equal(post.get('isDirty'), false, "the post isn't dirty anymore");
       equal(post.get('name'), "The Parley Letter", "the post was updated");
+    }));
+  });
+});
+
+test("create dasherized model name is a basic success", function() {
+  ajaxResponse();
+  var emberCliUser;
+
+  run(function() {
+    emberCliUser = store.createRecord('ember-cli-user', { name: "The Parley Letter" });
+    emberCliUser.save().then(async(function(post) {
+      equal(passedUrl, "/emberCliUsers");
+      equal(passedVerb, "POST");
+
+      equal(post.get('isDirty'), false, "the ember-cli-user isn't dirty anymore");
+      equal(post.get('name'), "The Parley Letter", "the ember-cli-user was updated");
     }));
   });
 });

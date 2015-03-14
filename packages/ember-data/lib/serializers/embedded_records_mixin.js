@@ -437,14 +437,13 @@ function extractEmbeddedHasManyPolymorphic(store, key, hash) {
   var ids = [];
 
   forEach(hash[key], function(data) {
-    var typeKey = data.type;
-    var embeddedSerializer = store.serializerFor(typeKey);
-    var embeddedType = store.modelFor(typeKey);
+    var embeddedType = store.modelFor(data.type);
+    var embeddedSerializer = store.serializerFor(embeddedType.typeKey);
     var primaryKey = get(embeddedSerializer, 'primaryKey');
 
     var embeddedRecord = embeddedSerializer.normalize(embeddedType, data, null);
     store.push(embeddedType, embeddedRecord);
-    ids.push({ id: embeddedRecord[primaryKey], type: typeKey });
+    ids.push({ id: embeddedRecord[primaryKey], type: embeddedType.typeKey });
   });
 
   hash[key] = ids;
@@ -471,16 +470,15 @@ function extractEmbeddedBelongsToPolymorphic(store, key, hash) {
   }
 
   var data = hash[key];
-  var typeKey = data.type;
-  var embeddedSerializer = store.serializerFor(typeKey);
-  var embeddedType = store.modelFor(typeKey);
+  var embeddedType = store.modelFor(data.type);
+  var embeddedSerializer = store.serializerFor(embeddedType.typeKey);
   var primaryKey = get(embeddedSerializer, 'primaryKey');
 
   var embeddedRecord = embeddedSerializer.normalize(embeddedType, data, null);
   store.push(embeddedType, embeddedRecord);
 
   hash[key] = embeddedRecord[primaryKey];
-  hash[key + 'Type'] = typeKey;
+  hash[key + 'Type'] = embeddedSerializer.typeForPayload(embeddedType.typeKey);
   return hash;
 }
 

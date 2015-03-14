@@ -9,7 +9,6 @@ import {
   InvalidError,
   Adapter
 } from "ember-data/system/adapter";
-import { singularize } from "ember-inflector/system/string";
 import {
   Map
 } from "ember-data/system/map";
@@ -96,8 +95,6 @@ var map = Ember.EnumerableUtils.map;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
 var Store;
-
-var camelize = Ember.String.camelize;
 
 var Service = Ember.Service;
 if (!Service) {
@@ -1426,7 +1423,7 @@ Store = Service.extend({
     if (typeof key === 'string') {
       factory = this.modelFactoryFor(key);
       if (!factory) {
-        //Support looking up mixins as base types for polymorphic relationships
+        // Support looking up mixins as base types for polymorphic relationships
         factory = this._modelForMixin(key);
       }
       if (!factory) {
@@ -1864,7 +1861,11 @@ Store = Service.extend({
     @return {String} if the adapter can generate one, an ID
   */
   _normalizeTypeKey: function(key) {
-    return camelize(singularize(key));
+    // Delegate to the container for normalization. The container
+    // requires a ':' to normalize so we add `model:` then slice off
+    // the first 6 characters to remove the `model:` in the return
+    // value
+    return this.container.normalize('model:' + key).slice(6);
   }
 });
 

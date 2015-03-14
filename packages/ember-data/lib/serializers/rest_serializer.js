@@ -7,7 +7,6 @@ import JSONSerializer from "ember-data/serializers/json_serializer";
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var camelize = Ember.String.camelize;
-
 import { singularize } from "ember-inflector/system/string";
 
 function coerceId(id) {
@@ -505,19 +504,18 @@ var RESTSerializer = JSONSerializer.extend({
   },
 
   /**
-    This method is used to convert each JSON root key in the payload
-    into a typeKey that it can use to look up the appropriate model for
-    that part of the payload. By default the typeKey for a model is its
-    name in camelCase, so if your JSON root key is 'fast-car' you would
-    use typeForRoot to convert it to 'fastCar' so that Ember Data finds
-    the `FastCar` model.
+    This method is used to convert each JSON root key (from a payload)
+    into a model name. Model naming conventions may vary between
+    applications and environements, but will most often follow
+    these standards:
 
-    If you diverge from this norm you should also consider changes to
-    store._normalizeTypeKey as well.
+    * Ember-CLI applications will follow the pattern: `dasherized-model-name`.
+    * Globals-mode Ember applications will follow the pattern `camelCaseName`.
 
     For example, your server may return prefixed root keys like so:
 
     ```js
+    // a response payload
     {
       "response-fast-car": {
         "id": "1",
@@ -527,25 +525,43 @@ var RESTSerializer = JSONSerializer.extend({
     ```
 
     In order for Ember Data to know that the model corresponding to
-    the 'response-fast-car' hash is `FastCar` (typeKey: 'fastCar'),
-    you can override typeForRoot to convert 'response-fast-car' to
-    'fastCar' like so:
+    the `response-fast-car` property is the Globals-mode class
+    `App.FastCar` the `typeForRoot` must be overridden. For example:
 
     ```js
     App.ApplicationSerializer = DS.RESTSerializer.extend({
       typeForRoot: function(root) {
         // 'response-fast-car' should become 'fast-car'
         var subRoot = root.substring(9);
+        // normalizes 'fast-car' to 'fastCar'
+        // singularize for good measure
+        return subRoot.singularize().camelize();
+      }
+    });
+    ```
 
-        // _super normalizes 'fast-car' to 'fastCar'
-        return this._super(subRoot);
+    The default implementation of `typeForRoot` is to
+    `singularize` then `camelize` a payload property name.
+    This does not technically match the conventions of
+    Ember-CLI, and although it will work well in apps
+    and acceptance tests, may be problematic in unit tests.
+
+    A suggested implementation for Ember-CLI users would
+    be:
+
+    ```js
+    // app/serializers/application.js
+    import DS from "ember-data";
+    export default DS.RESTSerializer.extend({
+      typeForRoot: function(root) {
+        return subRoot.singularize().dasherize();
       }
     });
     ```
 
     @method typeForRoot
     @param {String} key
-    @return {String} the model's typeKey
+    @return {String} the model's name in the container
   */
   typeForRoot: function(key) {
     return camelize(singularize(key));
@@ -702,16 +718,18 @@ var RESTSerializer = JSONSerializer.extend({
 
   /**
     You can use this method to customize the root keys serialized into the JSON.
-    By default the REST Serializer sends the typeKey of a model, which is a camelized
-    version of the name.
+    By default `serializeIntoHash` calls `typeForPayload` to decide the namespace
+    of the model payload.
 
-    For example, your server may expect underscored root objects.
+    Your serve may expect a different kind of payload. For example, this
+    version of `serializeIntoHash` wraps the data in a `payload` namespace.
 
     ```js
     App.ApplicationSerializer = DS.RESTSerializer.extend({
       serializeIntoHash: function(data, type, record, options) {
-        var root = Ember.String.decamelize(type.typeKey);
-        data[root] = this.serialize(record, options);
+        data['payload'] = data['payload'] || {};
+        var root = this.typeForPayload(type.typeKey);
+        data['payload'][root] = this.serialize(record, options);
       }
     });
     ```
@@ -723,13 +741,13 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash: function(hash, type, snapshot, options) {
-    hash[type.typeKey] = this.serialize(snapshot, options);
+    hash[this.typeForPayload(type.typeKey)] = this.serialize(snapshot, options);
   },
 
   /**
     You can use this method to customize how polymorphic objects are serialized.
-    By default the JSON Serializer creates the key by appending `Type` to
-    the attribute and value from the model's camelcased model name.
+    By default the payload property name is the model's name converted to
+    camelCase, with `Type` appended. For example, `fastCarType`.
 
     @method serializePolymorphicType
     @param {DS.Snapshot} snapshot
@@ -743,7 +761,7 @@ var RESTSerializer = JSONSerializer.extend({
     if (Ember.isNone(belongsTo)) {
       json[key + "Type"] = null;
     } else {
-      json[key + "Type"] = Ember.String.camelize(belongsTo.typeKey);
+      json[key + "Type"] = this.typeForPayload(belongsTo.typeKey);
     }
   }
 });

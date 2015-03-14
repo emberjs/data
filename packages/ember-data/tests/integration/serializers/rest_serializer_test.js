@@ -284,19 +284,6 @@ test("serialize polymorphicType", function() {
   });
 });
 
-test("serialize polymorphicType with decamelized typeKey", function() {
-  YellowMinion.typeKey = 'yellow-minion';
-  var tom, ray;
-  run(function() {
-    tom = env.store.createRecord(YellowMinion, { name: "Alex", id: "124" });
-    ray = env.store.createRecord(DoomsdayDevice, { evilMinion: tom, name: "DeathRay" });
-  });
-
-  var json = env.restSerializer.serialize(ray._createSnapshot());
-
-  deepEqual(json["evilMinionType"], "yellowMinion");
-});
-
 test("normalizePayload is called during extractSingle", function() {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
     normalizePayload: function(payload) {
@@ -524,17 +511,38 @@ test("serializeIntoHash", function() {
   });
 });
 
-test("serializeIntoHash with decamelized typeKey", function() {
-  HomePlanet.typeKey = 'home-planet';
+test("serializeIntoHash with dasherized model", function() {
+  env.container.register('model:home-planet', HomePlanet);
+  var model = env.store.modelFor('home-planet');
   run(function() {
-    league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
+    league = env.store.createRecord(model, { name: "Umber", id: "123" });
   });
   var json = {};
 
-  env.restSerializer.serializeIntoHash(json, HomePlanet, league._createSnapshot());
+  env.restSerializer.serializeIntoHash(json, model, league._createSnapshot());
 
   deepEqual(json, {
     homePlanet: {
+      name: "Umber"
+    }
+  });
+});
+
+test("serializeIntoHash with and typeForPayload", function() {
+  env.restSerializer.typeForPayload = function(key) {
+    return key.toUpperCase();
+  };
+  env.container.register('model:home-planet', HomePlanet);
+  var model = env.store.modelFor('home-planet');
+  run(function() {
+    league = env.store.createRecord(model, { name: "Umber", id: "123" });
+  });
+  var json = {};
+
+  env.restSerializer.serializeIntoHash(json, model, league._createSnapshot());
+
+  deepEqual(json, {
+    HOMEPLANET: {
       name: "Umber"
     }
   });
@@ -544,6 +552,25 @@ test('serializeBelongsTo with async polymorphic', function() {
   var evilMinion, doomsdayDevice;
   var json = {};
   var expected = { evilMinion: '1', evilMinionType: 'evilMinion' };
+
+  run(function() {
+    evilMinion = env.store.createRecord('evilMinion', { id: 1, name: 'Tomster' });
+    doomsdayDevice = env.store.createRecord('doomsdayDevice', { id: 2, name: 'Yehuda', evilMinion: evilMinion });
+  });
+
+  env.restSerializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, { key: 'evilMinion', options: { polymorphic: true, async: true } });
+
+  deepEqual(json, expected, 'returned JSON is correct');
+});
+
+test('serializeBelongsTo with async polymorphic with typeForPayload', function() {
+  var evilMinion, doomsdayDevice;
+  var json = {};
+  var expected = { evilMinion: '1', evilMinionType: 'evil_minion' };
+
+  env.restSerializer.typeForPayload = function(key) {
+    return Ember.String.decamelize(key);
+  };
 
   run(function() {
     evilMinion = env.store.createRecord('evilMinion', { id: 1, name: 'Tomster' });

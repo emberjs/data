@@ -1321,3 +1321,164 @@ test("serializing relationships with an embedded and without calls super when no
   ok(calledSerializeBelongsTo);
   ok(calledSerializeHasMany);
 });
+
+module("integration/embedded_records_mixin - EmbeddedRecordsMixin with dasherized model names in container", {
+  setup: function() {
+    SuperVillain = DS.Model.extend({
+      firstName:       DS.attr('string'),
+      lastName:        DS.attr('string'),
+      homePlanet:      DS.belongsTo("home-planet", { inverse: 'villains' }),
+      secretLab:       DS.belongsTo("secret-lab"),
+      secretWeapons:   DS.hasMany("secret-weapon"),
+      evilMinions:     DS.hasMany("evil-minion")
+    });
+    HomePlanet = DS.Model.extend({
+      name:            DS.attr('string'),
+      villains:        DS.hasMany('super-villain', { inverse: 'homePlanet' })
+    });
+    SecretLab = DS.Model.extend({
+      minionCapacity:  DS.attr('number'),
+      vicinity:        DS.attr('string'),
+      superVillain:    DS.belongsTo('super-villain')
+    });
+    BatCave = SecretLab.extend({
+      infiltrated:     DS.attr('boolean')
+    });
+    SecretWeapon = DS.Model.extend({
+      name:            DS.attr('string'),
+      superVillain:    DS.belongsTo('super-villain')
+    });
+    LightSaber = SecretWeapon.extend({
+      color:           DS.attr('string')
+    });
+    EvilMinion = DS.Model.extend({
+      superVillain:    DS.belongsTo('super-villain'),
+      name:            DS.attr('string')
+    });
+    env = setupStore({
+      'super-villain': SuperVillain,
+      'home-planet':   HomePlanet,
+      'secret-lab':    SecretLab,
+      'bat-cave':      BatCave,
+      'secret-weapon': SecretWeapon,
+      'light-saber':   LightSaber,
+      'evil-minion':   EvilMinion
+    });
+    env.store.modelFor('super-villain');
+    env.store.modelFor('home-planet');
+    env.store.modelFor('secret-lab');
+    env.store.modelFor('bat-cave');
+    env.store.modelFor('secret-weapon');
+    env.store.modelFor('light-saber');
+    env.store.modelFor('evil-minion');
+  },
+
+  teardown: function() {
+    run(env.store, 'destroy');
+  }
+});
+
+test("extractSingle with polymorphic hasMany", function() {
+  SuperVillain.reopen({
+    secretWeapons: DS.hasMany("secret-weapon", { polymorphic: true })
+  });
+
+  env.registry.register('adapter:super-villain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:super-villain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      secretWeapons: { embedded: 'always' }
+    },
+    typeForRoot: function(type) {
+      return Ember.String.dasherize(type);
+    }
+  }));
+  var serializer = env.container.lookup("serializer:super-villain");
+
+  var json_hash = {
+    super_villain: {
+      id: "1",
+      first_name: "Tom",
+      last_name: "Dale",
+      secret_weapons: [
+        {
+          id: "1",
+          type: "LightSaber",
+          name: "Tom's LightSaber",
+          color: "Red"
+        },
+        {
+          id: "1",
+          type: "SecretWeapon",
+          name: "The Death Star"
+        }
+      ]
+    }
+  };
+
+  var json = run(function() {
+    return serializer.extractSingle(env.store, SuperVillain, json_hash);
+  });
+
+  deepEqual(json, {
+    id: "1",
+    firstName: "Tom",
+    lastName: "Dale",
+    secretWeapons: [
+      { id: "1", type: "light-saber" },
+      { id: "1", type: "secret-weapon" }
+    ]
+  }, "Primary hash was correct");
+
+  equal(env.store.recordForId("secret-weapon", "1").get("name"), "The Death Star",
+        "Embedded polymorphic SecretWeapon found" );
+  equal(env.store.recordForId("light-saber", "1").get("name"), "Tom's LightSaber",
+        "Embedded polymorphic LightSaber found" );
+
+});
+
+test("extractSingle with polymorphic belongsTo", function() {
+  expect(2);
+
+  SuperVillain.reopen({
+    secretLab: DS.belongsTo("secret-lab", { polymorphic: true })
+  });
+
+  env.registry.register('adapter:super-villain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:super-villain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      secretLab: { embedded: 'always' }
+    },
+    typeForRoot: function(type) {
+      return Ember.String.dasherize(type);
+    }
+  }));
+  var serializer = env.container.lookup("serializer:super-villain");
+
+  var json_hash = {
+    super_villain: {
+      id: "1",
+      first_name: "Tom",
+      last_name: "Dale",
+      secret_lab: {
+        id: "1",
+        type: "BatCave",
+        infiltrated: true
+      }
+    }
+  };
+
+  var json = run(function() {
+    return serializer.extractSingle(env.store, SuperVillain, json_hash);
+  });
+
+  deepEqual(json, {
+    id: "1",
+    firstName: "Tom",
+    lastName: "Dale",
+    secretLab: "1",
+    secretLabType: "batCave"
+  }, "Primary has was correct");
+
+  equal(env.store.recordForId("bat-cave", "1").get("infiltrated"), true,
+        "Embedded polymorphic BatCave was found" );
+});
