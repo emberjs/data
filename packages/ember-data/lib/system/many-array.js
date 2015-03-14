@@ -108,6 +108,46 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   */
   relationship: null,
 
+  /**
+    Metadata associated with the request for async hasMany relationships.
+
+    Example
+
+    Given that the server returns the following JSON payload when fetching a
+    hasMany relationship:
+
+    ```js
+    {
+      "comments": [{
+        "id": 1,
+        "comment": "This is the first comment",
+      }, {
+        // ...
+      }],
+
+      "meta": {
+        "page": 1,
+        "total": 5
+      }
+    }
+    ```
+
+    You can then access the metadata via the `meta` property:
+
+    ```js
+    post.get('comments').then(function(comments) {
+      var meta = comments.get('meta');
+
+      // meta.page => 1
+      // meta.total => 5
+    });
+    ```
+
+    @property {Object} meta
+    @public
+  */
+  meta: null,
+
   internalReplace: function(idx, amt, objects) {
     if (!objects) {
       objects = [];

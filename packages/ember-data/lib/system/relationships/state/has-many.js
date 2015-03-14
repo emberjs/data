@@ -2,6 +2,7 @@ import { PromiseManyArray } from "ember-data/system/promise-proxies";
 import Relationship from "ember-data/system/relationships/state/relationship";
 import OrderedSet from "ember-data/system/ordered-set";
 import ManyArray from "ember-data/system/many-array";
+import cloneNull from "ember-data/system/clone-null";
 
 var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
   this._super$constructor(store, record, inverseKey, relationshipMeta);
@@ -144,6 +145,9 @@ ManyRelationship.prototype.computeChanges = function(records) {
 ManyRelationship.prototype.fetchLink = function() {
   var self = this;
   return this.store.findHasMany(this.record, this.link, this.relationshipMeta).then(function(records) {
+    var meta = self.store.metadataFor(self.relationshipMeta.type);
+    self.manyArray.set('meta', cloneNull(meta));
+
     self.store._backburner.join(function() {
       self.updateRecordsFromAdapter(records);
     });
