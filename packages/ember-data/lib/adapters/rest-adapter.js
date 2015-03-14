@@ -12,7 +12,7 @@ import {
 var get = Ember.get;
 var forEach = Ember.ArrayPolyfills.forEach;
 
-import BuildURLMixin from "ember-data/adapters/build_url_mixin";
+import BuildURLMixin from "ember-data/adapters/build-url-mixin";
 
 /**
   The REST adapter allows your store to communicate with an HTTP server by

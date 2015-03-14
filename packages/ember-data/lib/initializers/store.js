@@ -1,6 +1,6 @@
 import {JSONSerializer, RESTSerializer} from "ember-data/serializers";
 import {RESTAdapter} from "ember-data/adapters";
-import ContainerProxy from "ember-data/system/container_proxy";
+import ContainerProxy from "ember-data/system/container-proxy";
 import Store from "ember-data/system/store";
 
 /**

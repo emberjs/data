@@ -17,7 +17,7 @@ import {
 import {
   promiseArray,
   promiseObject
-} from "ember-data/system/promise_proxies";
+} from "ember-data/system/promise-proxies";
 
 import {
   _bind,
@@ -39,7 +39,7 @@ import {
   _findQuery
 } from "ember-data/system/store/finders";
 
-import RecordArrayManager from "ember-data/system/record_array_manager";
+import RecordArrayManager from "ember-data/system/record-array-manager";
 
 import Model from "ember-data/system/model";
 //Stanley told me to do this
