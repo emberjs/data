@@ -1443,5 +1443,33 @@ test("Model's belongsTo relationship should be created during 'get' method", fun
     user = env.store.createRecord('user');
     user.get('messages');
     ok(user._internalModel._relationships.has('messages'), "Newly created record with relationships in params passed in its constructor should have relationships");
+});
+
+test("metadata is accessible", function() {
+  expect(1);
+
+  env.adapter.findHasMany = function() {
+    return resolve({
+      meta: {
+        foo: 'bar'
+      },
+      chapters: [
+        { id: '2' },
+        { id: '3' }
+      ]
+    });
+  };
+
+  var book;
+
+  run(function() {
+    book = env.store.push('book', { id: 1, title: 'Sailing the Seven Seas', links: { chapters: '/chapters' } });
+  });
+
+  run(function() {
+    book.get('chapters').then(function(chapters) {
+      var meta = chapters.get('meta');
+      equal(get(meta, 'foo'), 'bar', 'metadata is available');
+    });
   });
 });
