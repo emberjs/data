@@ -413,3 +413,43 @@ test("Rollbacking a created record removes the relationship on both sides - sync
   equal(user.get('job'), null, 'Job got rollbacked correctly');
   equal(job.get('user'), null, 'Job does not have user anymore');
 });
+
+test("Rollbacking a record restores the relationship on both sides - async", function () {
+  var stanley, bob, jim;
+  run(function() {
+    stanley = store.push('user', { id: 1, name: 'Stanley', bestFriend: 2 });
+    bob = store.push('user', { id: 2, name: "Stanley's friend" });
+    jim = store.push('user', { id: 3, name: "Stanley's other friend" });
+  });
+  run(function() {
+    stanley.set('bestFriend', jim);
+  });
+  run(function() {
+    stanley.rollback();
+    stanley.get('bestFriend').then(function(fetchedUser) {
+      equal(fetchedUser, bob, "Stanley's bestFriend is still Bob");
+    });
+    bob.get('bestFriend').then(function(fetchedUser) {
+      equal(fetchedUser, stanley, "Bob's  bestFriend is still Stanley");
+    });
+    jim.get('bestFriend').then(function(fetchedUser) {
+      equal(fetchedUser, null, "Jim still has no bestFriend");
+    });
+  });
+});
+
+test("Rollbacking a record restores the relationship on both sides - sync", function () {
+  var job, stanley, bob;
+  run(function() {
+    job = store.push('job', { id: 2 , isGood: true });
+    stanley = store.push('user', { id: 1, name: 'Stanley', job: 2 });
+    bob = store.push('user', { id: 2, name: 'Bob' });
+  });
+  run(function() {
+    job.set('user', bob);
+    job.rollback();
+  });
+  equal(stanley.get('job'), job, 'Stanley still has a job');
+  equal(bob.get('job'), null, 'Bob still has no job');
+  equal(job.get('user'), stanley, 'The job still belongs to Stanley');
+});

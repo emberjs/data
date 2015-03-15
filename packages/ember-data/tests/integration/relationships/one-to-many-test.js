@@ -581,3 +581,105 @@ test("Rollbacking a created record works correctly when the belongsTo side has b
   equal(user.get('accounts.length'), undefined, "User does not have the account anymore");
   equal(account.get('user'), null, 'Account does not have the user anymore');
 });
+
+/*
+ Rollback from dirty state
+ */
+
+test("Rollbacking a record works correctly when the hasMany side has been edited - async", function () {
+  var user, message1, message2;
+  run(function() {
+    user = store.push('user', { id: 1, name: 'Stanley' });
+    message1 = store.push('message', { id: 1, user: user });
+    message2 = store.push('message', { id: 2, user: null });
+    message2.set('user', user);
+  });
+
+  run(message2, 'rollback');
+
+  run(function() {
+    message2.get('user').then(function(fetchedUser) {
+      equal(fetchedUser, null, 'Message does not have the user anymore');
+    });
+    user.get('messages').then(function(fetchedMessages) {
+      equal(fetchedMessages.get('length'), 1, 'User does not have the message anymore');
+      deepEqual(fetchedMessages.toArray(), [message1], 'User only has the original message');
+    });
+  });
+});
+
+test("Rollbacking a record works correctly when the hasMany side has been edited - sync", function () {
+  var user, account1, account2;
+  run(function() {
+    user = store.push('user', { id: 1, name: 'Stanley' });
+    account1 = store.push('account', { id: 1, user: user });
+    account2 = store.push('account', { id: 2, user: null });
+    account2.set('user', user);
+  });
+
+  run(account2, 'rollback');
+
+  equal(account2.get('user'), null, 'Account does not have the user anymore');
+  equal(user.get('accounts.length'), 1, "User does not have the account anymore");
+  deepEqual(user.get('accounts').toArray(), [account1], "User only has the original account");
+});
+
+test("Rollbacking a record works correctly when the belongsTo side has been edited - async", function () {
+  var user, message1, message2, message3, message4, message5, message6, message7, message8, message9;
+  run(function() {
+    user = store.push('user', { id: 1, name: 'Stanley' });
+    message1 = store.push('message', { id: 1, user: user });
+    message2 = store.push('message', { id: 2, user: user });
+    message3 = store.push('message', { id: 3, user: user });
+    message4 = store.push('message', { id: 4, user: user });
+    message5 = store.push('message', { id: 5, user: user });
+    message6 = store.push('message', { id: 6, user: null });
+    message7 = store.push('message', { id: 7, user: null });
+    message8 = store.push('message', { id: 8, user: null });
+    message9 = store.push('message', { id: 9, user: null });
+    user.get('messages').addObject(message8);
+    user.get('messages').addObject(message6);
+    user.get('messages').removeObject(message3);
+    user.get('messages').addObject(message9);
+    user.get('messages').addObject(message7);
+    user.get('messages').removeObject(message1);
+    user.get('messages').removeObject(message5);
+    user.get('messages').addObject(message3);
+  });
+
+  run(user, 'rollback');
+
+  run(function() {
+    message8.get('user').then(function(fetchedUser) {
+      equal(fetchedUser, null, 'Message 8 does not have the user anymore');
+    });
+    message6.get('user').then(function(fetchedUser) {
+      equal(fetchedUser, null, 'Message 6 does not have the user anymore');
+    });
+    message9.get('user').then(function(fetchedUser) {
+      equal(fetchedUser, null, 'Message 9 does not have the user anymore');
+    });
+    message7.get('user').then(function(fetchedUser) {
+      equal(fetchedUser, null, 'Message 7 does not have the user anymore');
+    });
+    user.get('messages').then(function(fetchedMessages) {
+      deepEqual(fetchedMessages.toArray(), [message1,message2,message3,message4,message5], 'User still has the original 5 messages');
+    });
+  });
+});
+
+test("Rollbacking a record works correctly when the belongsTo side has been edited - sync", function () {
+  var user, account1, account2;
+  run(function() {
+    user = store.push('user', { id: 1, name: 'Stanley' });
+    account1 = store.push('account', { id: 1, user: user });
+    account2 = store.push('account', { id: 2, user: null });
+    user.get('accounts').pushObject(account2);
+  });
+
+  run(user, 'rollback');
+
+  equal(account1.get('user'), user, 'Account 1 still has the user');
+  equal(account2.get('user'), null, 'Account 2 still does not have the user');
+  deepEqual(user.get('accounts').toArray(), [account1], "User only has the original account");
+});

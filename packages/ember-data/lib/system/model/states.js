@@ -4,6 +4,8 @@
 
 var get = Ember.get;
 var set = Ember.set;
+var classify = Ember.String.classify;
+
 /*
   This file encapsulates the various states that a record can transition
   through during its lifecycle.
@@ -174,11 +176,21 @@ var set = Ember.set;
 */
 
 function didSetProperty(record, context) {
-  if (context.value === context.originalValue) {
-    delete record._attributes[context.name];
-    record.send('propertyWasReset', context.name);
-  } else if (context.value !== context.oldValue) {
+  var adapter = get(record, 'store').adapterFor(record.constructor);
+  var fn = adapter['dirtyRecordFor' + classify(context.kind) + 'Change'];
+
+  if (fn(record, context)) {
+    if (context.isRelationship) {
+      record._relationships[context.key].isDirty = true;
+    }
     record.send('becomeDirty');
+  } else {
+    if (context.isRelationship) {
+      record._relationships[context.key].isDirty = false;
+    } else {
+      delete record._attributes[context.key];
+    }
+    record.send('propertyWasReset', context.key);
   }
 
   record.updateRecordArraysLater();
@@ -247,8 +259,14 @@ var DirtyState = {
     loadingData: Ember.K,
 
     propertyWasReset: function(record, name) {
-      var length = Ember.keys(record._attributes).length;
-      var stillDirty = length > 0;
+      var stillDirty = Ember.keys(record._attributes).length > 0;
+
+      if (stillDirty) { return; }
+
+      var relationships = record._relationships;
+      record.constructor.eachRelationship(function (key) {
+        stillDirty |= relationships[key].isDirty;
+      });
 
       if (!stillDirty) { record.send('rolledBack'); }
     },
@@ -329,8 +347,7 @@ var DirtyState = {
     },
 
     didSetProperty: function(record, context) {
-      get(record, 'errors').remove(context.name);
-
+      get(record, 'errors').remove(context.key);
       didSetProperty(record, context);
     },
 
@@ -475,6 +492,9 @@ var RootState = {
     isEmpty: true,
 
     // EVENTS
+
+    didSetProperty: Ember.K,
+
     loadingData: function(record, promise) {
       record._loadingPromise = promise;
       record.transitionTo('loading');
@@ -507,6 +527,9 @@ var RootState = {
     },
 
     // EVENTS
+
+    didSetProperty: Ember.K,
+
     pushedData: function(record) {
       record.transitionTo('loaded.saved');
       record.triggerLater('didLoad');
@@ -624,6 +647,8 @@ var RootState = {
 
       // EVENTS
 
+      didSetProperty: Ember.K,
+
       willCommit: function(record) {
         record.transitionTo('inFlight');
       },
@@ -689,6 +714,10 @@ var RootState = {
         record.triggerLater('didDelete', record);
         record.triggerLater('didCommit', record);
       },
+
+      // EVENTS
+
+      didSetProperty: Ember.K,
 
       willCommit: Ember.K,
 

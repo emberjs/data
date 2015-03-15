@@ -141,4 +141,8 @@ BelongsToRelationship.prototype.getRecord = function() {
   }
 };
 
+BelongsToRelationship.prototype.rollback = function() {
+  this.setRecord(this.canonicalState);
+};
+
 export default BelongsToRelationship;

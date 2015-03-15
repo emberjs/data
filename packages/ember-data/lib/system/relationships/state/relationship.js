@@ -16,6 +16,7 @@ var Relationship = function(store, record, inverseKey, relationshipMeta) {
   this.inverseKeyForImplicit = this.store.modelFor(this.record.constructor).typeKey + this.key;
   this.linkPromise = null;
   this.hasData = false;
+  this.isDirty = false;
 };
 
 Relationship.prototype = {
@@ -44,6 +45,8 @@ Relationship.prototype = {
       this.addRecordToInverse(member);
     }, this);
   },
+
+  rollback: Ember.K,
 
   removeRecords: function(records) {
     var self = this;
