@@ -14,7 +14,7 @@ test("When a record is in flight, changes can be made", function() {
   expect(3);
 
   var adapter = DS.Adapter.extend({
-    createRecord: function(store, type, record) {
+    createRecord: function(store, type, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Tom Dale" });
     }
   });
@@ -44,7 +44,7 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
   expect(6);
 
   var adapter = DS.Adapter.extend({
-    updateRecord: function(store, type, record) {
+    updateRecord: function(store, type, snapshot) {
     // Make sure saving isn't resolved synchronously
       return new Ember.RSVP.Promise(function(resolve, reject) {
         run.next(null, resolve, { id: 1, name: "Senor Thomas Dale, Esq.", city: "Portland" });
@@ -106,7 +106,7 @@ test("A record with no changes can still be saved", function() {
   expect(1);
 
   var adapter = DS.Adapter.extend({
-    updateRecord: function(store, type, record) {
+    updateRecord: function(store, type, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Thomas Dale" });
     }
   });
@@ -129,7 +129,7 @@ test("A dirty record can be reloaded", function() {
   expect(3);
 
   var adapter = DS.Adapter.extend({
-    find: function(store, type, id) {
+    find: function(store, type, id, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Thomas Dale", city: "Portland" });
     }
   });

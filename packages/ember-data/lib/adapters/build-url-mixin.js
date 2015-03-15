@@ -13,8 +13,8 @@ var get = Ember.get;
 
   ```javascript
   export default DS.Adapter.extend(BuildURLMixin, {
-    find: function(store, type, id, record) {
-      var url = this.buildURL(type.typeKey, id, record);
+    find: function(store, type, id, snapshot) {
+      var url = this.buildURL(type.typeKey, id, snapshot);
       return this.ajax(url, 'GET');
     }
   });
@@ -38,13 +38,16 @@ export default Ember.Mixin.create({
     If an ID is specified, it adds the ID to the path generated
     for the type, separated by a `/`.
 
+    When called by RESTAdapter.findMany() the `id` and `snapshot` parameters
+    will be arrays of ids and snapshots.
+
     @method buildURL
     @param {String} type
-    @param {String} id
-    @param {DS.Model} record
+    @param {String|Array} id single id or array of ids
+    @param {DS.Snapshot|Array} snapshot single snapshot or array of snapshots
     @return {String} url
   */
-  buildURL: function(type, id, record) {
+  buildURL: function(type, id, snapshot) {
     var url = [];
     var host = get(this, 'host');
     var prefix = this.urlPrefix();

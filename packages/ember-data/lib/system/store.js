@@ -748,8 +748,22 @@ Store = Service.extend({
     if (recordResolverPairs.length === 1) {
       _fetchRecord(recordResolverPairs[0]);
     } else if (shouldCoalesce) {
-      var groups = adapter.groupRecordsForFindMany(this, records);
-      forEach(groups, function (groupOfRecords) {
+
+      // TODO: Improve records => snapshots => records => snapshots
+      //
+      // We want to provide records to all store methods and snapshots to all
+      // adapter methods. To make sure we're doing that we're providing an array
+      // of snapshots to adapter.groupRecordsForFindMany(), which in turn will
+      // return grouped snapshots instead of grouped records.
+      //
+      // But since the _findMany() finder is a store method we need to get the
+      // records from the grouped snapshots even though the _findMany() finder
+      // will once again convert the records to snapshots for adapter.findMany()
+
+      var snapshots = Ember.A(records).invoke('_createSnapshot');
+      var groups = adapter.groupRecordsForFindMany(this, snapshots);
+      forEach(groups, function (groupOfSnapshots) {
+        var groupOfRecords = Ember.A(groupOfSnapshots).mapBy('record');
         var requestedRecords = Ember.A(groupOfRecords);
         var ids = requestedRecords.mapBy('id');
         if (ids.length > 1) {
@@ -1992,7 +2006,8 @@ function defaultSerializer(container) {
 
 function _commit(adapter, store, operation, record) {
   var type = record.constructor;
-  var promise = adapter[operation](store, type, record);
+  var snapshot = record._createSnapshot();
+  var promise = adapter[operation](store, type, snapshot);
   var serializer = serializerForAdapter(store, adapter, type);
   var label = "DS: Extract and notify about " + operation + " completion of " + record;
 

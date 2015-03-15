@@ -355,6 +355,15 @@ Snapshot.prototype = {
   */
   unknownProperty: function(keyName) {
     return this.get(keyName);
+  },
+
+  /**
+    @method _createSnapshot
+    @private
+  */
+  _createSnapshot: function() {
+    Ember.deprecate("You called _createSnapshot on what's already a DS.Snapshot. You shouldn't manually create snapshots in your adapter since the store passes snapshots to adapters by default.");
+    return this;
   }
 };
 

@@ -22,7 +22,7 @@ module("integration/lifecycle_hooks - Lifecycle Hooks", {
 asyncTest("When the adapter acknowledges that a record has been created, a `didCreate` event is triggered.", function() {
   expect(3);
 
-  env.adapter.createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, snapshot) {
     return resolve({ id: 99, name: "Yehuda Katz" });
   };
   var person;
@@ -44,7 +44,7 @@ asyncTest("When the adapter acknowledges that a record has been created, a `didC
 test("When the adapter acknowledges that a record has been created without a new data payload, a `didCreate` event is triggered.", function() {
   expect(3);
 
-  env.adapter.createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, snapshot) {
     return Ember.RSVP.resolve();
   };
   var person;
