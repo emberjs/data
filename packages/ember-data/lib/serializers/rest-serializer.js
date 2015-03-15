@@ -2,7 +2,7 @@
   @module ember-data
 */
 
-import JSONSerializer from "ember-data/serializers/json_serializer";
+import JSONSerializer from "ember-data/serializers/json-serializer";
 
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;

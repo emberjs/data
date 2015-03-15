@@ -21,7 +21,10 @@ module("unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
         maxLength = this.get('maxUrlLength');
         lengths.push(fullUrl.length);
 
-        return Ember.RSVP.Promise.resolve({ 'testRecords' : [] });
+        var testRecords = options.data.ids.map(function(id) {
+          return { id: id };
+        });
+        return Ember.RSVP.Promise.resolve({ 'testRecords' :  testRecords });
       }
 
     });

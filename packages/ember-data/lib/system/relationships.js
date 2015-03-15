@@ -2,8 +2,8 @@
   @module ember-data
 */
 
-import belongsTo from "./relationships/belongs_to";
-import hasMany from "./relationships/has_many";
+import belongsTo from "./relationships/belongs-to";
+import hasMany from "./relationships/has-many";
 
 import "ember-data/system/relationships/ext";
 

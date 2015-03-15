@@ -26,6 +26,10 @@ test("The store should be registered into a container.", function() {
   ok(container.lookup('store:main') instanceof Store, "the custom store is instantiated");
 });
 
+test("The store should be registered into the container as a service.", function() {
+  ok(container.lookup('service:store') instanceof Store, "the store as a service is registered");
+});
+
 test("If a store is instantiated, it should be made available to each controller.", function() {
   container.register('controller:foo', EmberObject.extend({}));
   var fooController = container.lookup('controller:foo');

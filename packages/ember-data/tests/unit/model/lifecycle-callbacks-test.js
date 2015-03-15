@@ -173,6 +173,40 @@ test("a record receives a didDelete callback when it has finished deleting", fun
   });
 });
 
+test("an uncommited record also receives a didDelete callback when it is deleted", function() {
+  expect(4);
+
+  var callCount = 0;
+
+  var Person = DS.Model.extend({
+    bar: DS.attr('string'),
+    name: DS.attr('string'),
+
+    didDelete: function() {
+      callCount++;
+      equal(get(this, 'isSaving'), false, "record should not be saving");
+      equal(get(this, 'isDirty'), false, "record should not be dirty");
+    }
+  });
+
+  var store = createStore({
+    adapter: DS.Adapter.extend()
+  });
+
+  var person;
+  run(function() {
+    person = store.createRecord(Person, { name: 'Tomster' });
+  });
+
+  equal(callCount, 0, "precond - didDelete callback was not called yet");
+
+  run(function() {
+    person.deleteRecord();
+  });
+
+  equal(callCount, 1, "didDelete called after delete");
+});
+
 test("a record receives a becameInvalid callback when it became invalid", function() {
   expect(5);
 

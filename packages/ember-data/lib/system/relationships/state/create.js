@@ -1,5 +1,5 @@
-import ManyRelationship from "ember-data/system/relationships/state/has_many";
-import BelongsToRelationship from "ember-data/system/relationships/state/belongs_to";
+import ManyRelationship from "ember-data/system/relationships/state/has-many";
+import BelongsToRelationship from "ember-data/system/relationships/state/belongs-to";
 
 var createRelationshipFor = function(record, relationshipMeta, store) {
   var inverseKey;

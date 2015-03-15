@@ -281,3 +281,49 @@ test("invalid record is rolled back to correct state after set", function() {
     }));
   });
 });
+
+test("when destroying a record setup the record state to invalid, the record can be rollbacked", function() {
+  Dog = DS.Model.extend({
+    name: DS.attr()
+  });
+
+  var adapter = DS.RESTAdapter.extend({
+    ajax: function(url, type, hash) {
+      var adapter = this;
+
+      return new Ember.RSVP.Promise(function(resolve, reject) {
+        Ember.run.next(function() {
+          reject(adapter.ajaxError({ name: 'is invalid' }));
+        });
+      });
+    },
+
+    ajaxError: function(jqXHR) {
+      return new DS.InvalidError(jqXHR);
+    }
+  });
+
+  env = setupStore({ dog: Dog, adapter: adapter });
+  var dog;
+  run(function() {
+    dog = env.store.push('dog', { id: 1, name: "Pluto" });
+  });
+
+  run(function() {
+    dog.destroyRecord().then(null, async(function() {
+
+
+      equal(dog.get('isError'), false, "must not be error");
+      equal(dog.get('isDeleted'), true, "must be deleted");
+      equal(dog.get('isValid'), false, "must not be valid");
+      ok(dog.get('errors.length') > 0, "must have errors");
+
+      dog.rollback();
+
+      equal(dog.get('isError'), false, "must not be error after `rollback`");
+      equal(dog.get('isDeleted'), false, "must not be deleted after `rollback`");
+      equal(dog.get('isValid'), true, "must be valid after `rollback`");
+      ok(dog.get('errors.length') === 0, "must not have errors");
+    }));
+  });
+});

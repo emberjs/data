@@ -1,4 +1,4 @@
-import RecordArray from "ember-data/system/record_arrays/record_array";
+import RecordArray from "ember-data/system/record-arrays/record-array";
 /**
   @module ember-data
 */

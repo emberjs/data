@@ -137,7 +137,7 @@ var bower = pickFiles('bower_components', {
   destDir: '/bower_components'
 });
 
-var configurationFiles = pickFiles('config/package_manager_files', {
+var configurationFiles = pickFiles('config/package-manager-files', {
   srcDir: '/',
   destDir: '/',
   files: [ '**/*.json' ]

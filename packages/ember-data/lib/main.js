@@ -22,7 +22,7 @@ import {
   PromiseArray,
   PromiseObject,
   PromiseManyArray
-} from "ember-data/system/promise_proxies";
+} from "ember-data/system/promise-proxies";
 import {
   Store
 } from "ember-data/system/store";
@@ -42,18 +42,19 @@ import DebugAdapter from "ember-data/system/debug";
 import {
   RecordArray,
   FilteredRecordArray,
-  AdapterPopulatedRecordArray,
-  ManyArray
-} from "ember-data/system/record_arrays";
-import RecordArrayManager from "ember-data/system/record_array_manager";
+  AdapterPopulatedRecordArray
+} from "ember-data/system/record-arrays";
+import ManyArray from "ember-data/system/many-array";
+import RecordArrayManager from "ember-data/system/record-array-manager";
 import {
   RESTAdapter,
   FixtureAdapter
 } from "ember-data/adapters";
-import JSONSerializer from "ember-data/serializers/json_serializer";
-import RESTSerializer from "ember-data/serializers/rest_serializer";
+import BuildURLMixin from "ember-data/adapters/build-url-mixin";
+import JSONSerializer from "ember-data/serializers/json-serializer";
+import RESTSerializer from "ember-data/serializers/rest-serializer";
 import "ember-inflector";
-import EmbeddedRecordsMixin from "ember-data/serializers/embedded_records_mixin";
+import EmbeddedRecordsMixin from "ember-data/serializers/embedded-records-mixin";
 import {
   ActiveModelAdapter,
   ActiveModelSerializer
@@ -71,7 +72,7 @@ import {hasMany, belongsTo} from "ember-data/system/relationships";
 import "ember-data/ember-initializer";
 import setupContainer from "ember-data/setup-container";
 
-import ContainerProxy from "ember-data/system/container_proxy";
+import ContainerProxy from "ember-data/system/container-proxy";
 import Relationship from "ember-data/system/relationships/state/relationship";
 
 DS.Store         = Store;
@@ -102,6 +103,7 @@ DS.ManyArray                   = ManyArray;
 DS.RecordArrayManager = RecordArrayManager;
 
 DS.RESTAdapter    = RESTAdapter;
+DS.BuildURLMixin  = BuildURLMixin;
 DS.FixtureAdapter = FixtureAdapter;
 
 DS.RESTSerializer = RESTSerializer;

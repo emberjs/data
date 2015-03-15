@@ -6,11 +6,11 @@ import {
   RecordArray,
   FilteredRecordArray,
   AdapterPopulatedRecordArray
-} from "ember-data/system/record_arrays";
+} from "ember-data/system/record-arrays";
 import {
-  MapWithDefault,
-  OrderedSet
+  MapWithDefault
 } from "ember-data/system/map";
+import OrderedSet from "ember-data/system/ordered-set";
 var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
 var indexOf = Ember.EnumerableUtils.indexOf;

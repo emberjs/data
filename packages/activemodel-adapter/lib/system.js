@@ -1,5 +1,5 @@
-import ActiveModelAdapter from "activemodel-adapter/system/active_model_adapter";
-import ActiveModelSerializer from "activemodel-adapter/system/active_model_serializer";
+import ActiveModelAdapter from "activemodel-adapter/system/active-model-adapter";
+import ActiveModelSerializer from "activemodel-adapter/system/active-model-serializer";
 
 export {
   ActiveModelAdapter,

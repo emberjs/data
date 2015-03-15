@@ -1,6 +1,6 @@
 import {JSONSerializer, RESTSerializer} from "ember-data/serializers";
 import {RESTAdapter} from "ember-data/adapters";
-import ContainerProxy from "ember-data/system/container_proxy";
+import ContainerProxy from "ember-data/system/container-proxy";
 import Store from "ember-data/system/store";
 
 /**
@@ -33,5 +33,6 @@ export default function initializeStore(container, application) {
 
   // Eagerly generate the store so defaultStore is populated.
   // TODO: Do this in a finisher hook
-  container.lookup('store:main');
+  var store = container.lookup('store:main');
+  container.register('service:store', store, { instantiate: false });
 }

@@ -17,7 +17,7 @@ import {
 import {
   promiseArray,
   promiseObject
-} from "ember-data/system/promise_proxies";
+} from "ember-data/system/promise-proxies";
 
 import {
   _bind,
@@ -39,7 +39,7 @@ import {
   _findQuery
 } from "ember-data/system/store/finders";
 
-import RecordArrayManager from "ember-data/system/record_array_manager";
+import RecordArrayManager from "ember-data/system/record-array-manager";
 
 import Model from "ember-data/system/model";
 //Stanley told me to do this
@@ -98,6 +98,11 @@ var copy = Ember.copy;
 var Store;
 
 var camelize = Ember.String.camelize;
+
+var Service = Ember.Service;
+if (!Service) {
+  Service = Ember.Object;
+}
 
 // Implementors Note:
 //
@@ -189,9 +194,9 @@ function coerceId(id) {
 
   @class Store
   @namespace DS
-  @extends Ember.Object
+  @extends Ember.Service
 */
-Store = Ember.Object.extend({
+Store = Service.extend({
 
   /**
     @method init
@@ -531,7 +536,7 @@ Store = Ember.Object.extend({
     ```javascript
     App.PostRoute = Ember.Route.extend({
       model: function(params) {
-        return this.store.fetch('post', params.post_id);
+        return this.store.fetchById('post', params.post_id);
       }
     });
     ```
@@ -707,11 +712,18 @@ Store = Ember.Object.extend({
           resolver.resolve(record);
         }
       });
+      return records;
     }
 
     function makeMissingRecordsRejector(requestedRecords) {
       return function rejectMissingRecords(resolvedRecords) {
-        var missingRecords = requestedRecords.without(resolvedRecords);
+        resolvedRecords = Ember.A(resolvedRecords);
+        var missingRecords = requestedRecords.reject(function(record) {
+          return resolvedRecords.contains(record);
+        });
+        if (missingRecords.length) {
+          Ember.warn('Ember Data expected to find records with the following ids in the adapter response but they were missing: ' + Ember.inspect(Ember.A(missingRecords).mapBy('id')), false);
+        }
         rejectRecords(missingRecords);
       };
     }

@@ -337,7 +337,7 @@ test("Using store#fetchAll with existing records performs a query, updating exis
   });
 });
 
-test("When is used store#fetchAll with existing, and the response doesn't contain some of those records, WHAT DO WE DO?!?!?!", function() {
+test("store#fetchAll should return all known records even if they are not in the adapter response", function() {
   expect(4);
 
   run(function() {
@@ -358,7 +358,7 @@ test("When is used store#fetchAll with existing, and the response doesn't contai
 
   run(function() {
     store.fetchAll('car').then(function(cars) {
-      equal(cars.get('length'), 2, 'It returns 1 car');
+      equal(cars.get('length'), 2, 'It returns all cars');
       var mini = cars.findBy('id', '1');
       equal(mini.get('model'), 'New Mini', 'Existing records have been updated');
 
