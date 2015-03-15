@@ -1,10 +1,11 @@
 var run = Ember.run;
 var Container = Ember.Container;
+var Registry = Ember.Registry;
 var Store = DS.Store;
 var EmberObject = Ember.Object;
 var setupContainer = DS._setupContainer;
 
-var container;
+var container, registry;
 
 /*
   These tests ensure that Ember Data works with Ember.js' container
@@ -13,8 +14,14 @@ var container;
 
 module("integration/setup-container - Setting up a container", {
   setup: function() {
-    container = new Container();
-    setupContainer(container);
+    if (Registry) {
+      registry = new Registry();
+      container = registry.container();
+    } else {
+      container = new Container();
+      registry = container;
+    }
+    setupContainer(registry);
   },
 
   teardown: function() {
@@ -31,7 +38,7 @@ test("The store should be registered into the container as a service.", function
 });
 
 test("If a store is instantiated, it should be made available to each controller.", function() {
-  container.register('controller:foo', EmberObject.extend({}));
+  registry.register('controller:foo', EmberObject.extend({}));
   var fooController = container.lookup('controller:foo');
   ok(fooController.get('store') instanceof Store, "the store was injected");
 });

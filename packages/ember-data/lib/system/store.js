@@ -1397,10 +1397,11 @@ Store = Service.extend({
   */
 
   _modelForMixin: function(key) {
-    var mixin = this.container.resolve('mixin:' + key);
+    var registry = this.container._registry ? this.container._registry : this.container;
+    var mixin = registry.resolve('mixin:' + key);
     if (mixin) {
       //Cache the class as a model
-      this.container.register('model:' + key, DS.Model.extend(mixin));
+      registry.register('model:' + key, DS.Model.extend(mixin));
     }
     var factory = this.modelFactoryFor(key);
     if (factory) {
@@ -1446,11 +1447,7 @@ Store = Service.extend({
   },
 
   modelFactoryFor: function(key) {
-    if (this.container.has('model:' + key)) {
-      return this.container.lookupFactory('model:' + key);
-    } else {
-      return null;
-    }
+    return this.container.lookupFactory('model:' + key);
   },
 
   /**

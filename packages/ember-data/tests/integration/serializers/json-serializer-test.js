@@ -184,7 +184,7 @@ test("serializePolymorphicType async", function() {
     post: DS.belongsTo('post', { async: true })
   });
 
-  env.container.register('serializer:comment', DS.JSONSerializer.extend({
+  env.registry.register('serializer:comment', DS.JSONSerializer.extend({
     serializePolymorphicType: function(record, json, relationship) {
       ok(true, 'serializePolymorphicType is called when serialize a polymorphic belongsTo');
     }
@@ -438,7 +438,7 @@ test('serializeBelongsTo with async polymorphic', function() {
   var json = {};
   var expected = { post: '1', postTYPE: 'post' };
 
-  env.container.register('serializer:favorite', DS.JSONSerializer.extend({
+  env.registry.register('serializer:favorite', DS.JSONSerializer.extend({
     serializePolymorphicType: function(snapshot, json, relationship) {
       var key = relationship.key;
       json[key + 'TYPE'] = snapshot.belongsTo(key).typeKey;

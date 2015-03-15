@@ -6,15 +6,15 @@ import {
 } from "ember-data/transforms";
 
 /**
-  Configures a container for use with Ember-Data
+  Configures a registry for use with Ember-Data
   transforms.
 
   @method initializeTransforms
-  @param {Ember.Container} container
+  @param {Ember.Registry} registry
 */
-export default function initializeTransforms(container) {
-  container.register('transform:boolean', BooleanTransform);
-  container.register('transform:date', DateTransform);
-  container.register('transform:number', NumberTransform);
-  container.register('transform:string', StringTransform);
+export default function initializeTransforms(registry) {
+  registry.register('transform:boolean', BooleanTransform);
+  registry.register('transform:date', DateTransform);
+  registry.register('transform:number', NumberTransform);
+  registry.register('transform:string', StringTransform);
 }
