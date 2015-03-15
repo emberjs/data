@@ -30,6 +30,7 @@ function minify(tree, name){
     srcFile: name + '.js',
     destFile: '/' + name + '.prod.js'
   });
+  tree = removeSourceMappingURL(tree);
   var uglified = moveFile(uglify(tree, {mangle: true}),{
     srcFile: name + '.prod.js',
     destFile: '/' + name + '.min.js'
@@ -143,12 +144,22 @@ var configurationFiles = pickFiles('config/package-manager-files', {
   files: [ '**/*.json' ]
 });
 
-function versionStamp(tree){
+function versionStamp(tree) {
   return replace(tree, {
     files: ['**/*'],
     patterns: [{
       match: /VERSION_STRING_PLACEHOLDER/g,
       replacement: version
+    }]
+  });
+}
+
+function removeSourceMappingURL(tree) {
+  return replace(tree, {
+    files: ['**/*'],
+    patterns: [{
+      match: /\/\/(.*)sourceMappingURL=(.*)/g,
+      replacement: ''
     }]
   });
 }
