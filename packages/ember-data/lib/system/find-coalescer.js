@@ -1,3 +1,11 @@
+import {
+  _findMany
+} from "ember-data/system/utils/finders";
+
+import {
+  coerceId
+} from "ember-data/system/utils/common";
+
 var get = Ember.get;
 
 /**
@@ -54,11 +62,14 @@ FindCoalescer.prototype._findMany = function(map, type) {
   var missing = [];
 
   // For each item in map
-  a_forEach(map, function(deferred, record, map) {
+  a_forEach(map, function(deferred, id, map) {
     // Accumulate missing records
-    if (isLoaded(record)) {
+    var record = store.recordForId(type, id);
+    if (!isLoaded(record)) {
+      console.log("MISSING: " + type + ": " + id);
       missing.push(record);
     } else {
+      console.log("NOT MISSING: " + type + ": " + id);
       map.get(get(record, 'id')).resolve(record);
     }
   });
@@ -71,11 +82,11 @@ FindCoalescer.prototype._findMany = function(map, type) {
     return get(record, 'id');
   });
 
-  var grouped = adapter.groupRecordsForFindMany(this, missing);
+  var grouped = adapter.groupRecordsForFindMany(this.store, missing);
 
   // Iterate over all groups of ids
   return Promise.all(a_map(grouped, function(group) {
-    return store._findMany(adapter, store, type, ids, group).then(function() {
+    return _findMany(adapter, store, type, ids, group).then(function() {
       a_forEach(group, function(record) {
         if (isLoaded(record)) {
           map.get(record).resolve(record);
@@ -111,7 +122,7 @@ FindCoalescer.prototype.find = function(type, id) {
   } else {
     // Not requested yet, create a new promise and return it
     promise = new Promise(function(resolve, reject) {
-      finder._pending.get(type).set(id, {
+      finder._pending.get(type).set(coerceId(id), {
         resolve: resolve,
         reject: reject,
         promise: promise

@@ -7,6 +7,9 @@ module('FindCoalescer', {
   setup: function() {
     store = createStore({
       adapter: DS.RESTAdapter.extend({
+        buildURL: function(type, id, record) {
+          debugger;
+        },
         modelFactoryFor: function (key) {
           return {
             'user': User,
@@ -14,7 +17,8 @@ module('FindCoalescer', {
             'comment': Comment
           }[key];
         },
-        find: function(store, type, id) {
+        
+        ajax: function(url, type, options) {
           debugger;
         }
       })
@@ -34,14 +38,23 @@ test('exists', function() {
 
 test('find 3 of same type: all succeed', function() {
   var first, second, third;
+
+  stop();
+  expect(3);
+
   run(function () {
+    finder._begin();
     first  = finder.find(User, 1);
     second = finder.find(User, 2);
     third  = finder.find(User, 3);
-  });
 
-  return Promise.all([first, second, third]).then(function() {
-    // completed
+    run.scheduleOnce('afterRender', function () {
+      Promise.all([first, second, third]).then(function() {
+        start();
+        debugger;
+        // completed
+      });
+    });
   });
 });
 
