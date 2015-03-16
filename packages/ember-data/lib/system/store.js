@@ -1192,7 +1192,6 @@ Store = Service.extend({
     If the adapter updates attributes the record will notify
     the store to update its  membership in any filters.
     To avoid thrashing, this method is invoked only once per
-
     run loop per record.
 
     @method dataWasUpdated
