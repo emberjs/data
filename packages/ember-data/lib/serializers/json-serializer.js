@@ -308,9 +308,10 @@ export default Serializer.extend({
     @method _canSerialize
     @private
     @param {String} key
+    @param {Object} snapshot
     @return {boolean} true if the key can be serialized
   */
-  _canSerialize: function(key) {
+  _canSerialize: function(key, snapshot) {
     var attrs = get(this, 'attrs');
 
     return !attrs || !attrs[key] || attrs[key].serialize !== false;
@@ -540,7 +541,7 @@ export default Serializer.extend({
   serializeAttribute: function(snapshot, json, key, attribute) {
     var type = attribute.type;
 
-    if (this._canSerialize(key)) {
+    if (this._canSerialize(key, snapshot)) {
       var value = snapshot.attr(key);
       if (type) {
         var transform = this.transformFor(type);
@@ -587,7 +588,7 @@ export default Serializer.extend({
   serializeBelongsTo: function(snapshot, json, relationship) {
     var key = relationship.key;
 
-    if (this._canSerialize(key)) {
+    if (this._canSerialize(key, snapshot)) {
       var belongsToId = snapshot.belongsTo(key, { id: true });
 
       // if provided, use the mapping provided by `attrs` in
@@ -637,7 +638,7 @@ export default Serializer.extend({
   serializeHasMany: function(snapshot, json, relationship) {
     var key = relationship.key;
 
-    if (this._canSerialize(key)) {
+    if (this._canSerialize(key, snapshot)) {
       var payloadKey;
 
       // if provided, use the mapping provided by `attrs` in
