@@ -361,7 +361,7 @@ test("create - a record on the many side of a hasMany relationship should update
       name: "Another Comment",
       post: 1
     },
-{
+    {
       id: "1",
       name: "Dat Parley Letter",
       post: 1
