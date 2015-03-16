@@ -76,7 +76,7 @@ Relationship.prototype = {
     if (!this.canonicalMembers.has(record)) {
       this.canonicalMembers.add(record);
       if (this.inverseKey) {
-        record._relationships[this.inverseKey].addCanonicalRecord(this.record);
+        record._relationships.get(this.inverseKey).addCanonicalRecord(this.record);
       } else {
         if (!record._implicitRelationships[this.inverseKeyForImplicit]) {
           record._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, record, this.key,  { options: {} });
@@ -117,7 +117,7 @@ Relationship.prototype = {
       this.members.addWithIndex(record, idx);
       this.notifyRecordRelationshipAdded(record, idx);
       if (this.inverseKey) {
-        record._relationships[this.inverseKey].addRecord(this.record);
+        record._relationships.get(this.inverseKey).addRecord(this.record);
       } else {
         if (!record._implicitRelationships[this.inverseKeyForImplicit]) {
           record._implicitRelationships[this.inverseKeyForImplicit] = new Relationship(this.store, record, this.key,  { options: {} });
@@ -144,12 +144,12 @@ Relationship.prototype = {
 
   addRecordToInverse: function(record) {
     if (this.inverseKey) {
-      record._relationships[this.inverseKey].addRecord(this.record);
+      record._relationships.get(this.inverseKey).addRecord(this.record);
     }
   },
 
   removeRecordFromInverse: function(record) {
-    var inverseRelationship = record._relationships[this.inverseKey];
+    var inverseRelationship = record._relationships.get(this.inverseKey);
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
       inverseRelationship.removeRecordFromOwn(this.record);
@@ -163,7 +163,7 @@ Relationship.prototype = {
   },
 
   removeCanonicalRecordFromInverse: function(record) {
-    var inverseRelationship = record._relationships[this.inverseKey];
+    var inverseRelationship = record._relationships.get(this.inverseKey);
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
       inverseRelationship.removeCanonicalRecordFromOwn(this.record);
