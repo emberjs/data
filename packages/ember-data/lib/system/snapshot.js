@@ -196,7 +196,7 @@ Snapshot.prototype = {
       return this._belongsToRelationships[keyName];
     }
 
-    relationship = this.record._relationships[keyName];
+    relationship = this.record._relationships.get(keyName);
     if (!(relationship && relationship.relationshipMeta.kind === 'belongsTo')) {
       throw new Ember.Error("Model '" + Ember.inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined.");
     }
@@ -256,7 +256,7 @@ Snapshot.prototype = {
       return this._hasManyRelationships[keyName];
     }
 
-    relationship = this.record._relationships[keyName];
+    relationship = this.record._relationships.get(keyName);
     if (!(relationship && relationship.relationshipMeta.kind === 'hasMany')) {
       throw new Ember.Error("Model '" + Ember.inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined.");
     }
@@ -335,7 +335,7 @@ Snapshot.prototype = {
       return this.attr(keyName);
     }
 
-    var relationship = this.record._relationships[keyName];
+    var relationship = this.record._relationships.get(keyName);
 
     if (relationship && relationship.relationshipMeta.kind === 'belongsTo') {
       return this.belongsTo(keyName);

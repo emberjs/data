@@ -3,7 +3,7 @@ import Errors from "ember-data/system/model/errors";
 import { PromiseObject } from "ember-data/system/promise-proxies";
 import merge from "ember-data/system/merge";
 import JSONSerializer from "ember-data/serializers/json-serializer";
-import createRelationshipFor from "ember-data/system/relationships/state/create";
+import Relationships from "ember-data/system/relationships/state/create";
 import Snapshot from "ember-data/system/snapshot";
 
 /**
@@ -483,7 +483,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this._data = {};
     this._attributes = Ember.create(null);
     this._inFlightAttributes = Ember.create(null);
-    this._relationships = {};
+    this._relationships = new Relationships(this);
     /*
       implicit relationships are relationship which have not been declared but the inverse side exists on
       another record somewhere
@@ -505,11 +505,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
       when we are deleted
     */
     this._implicitRelationships = Ember.create(null);
-    var model = this;
-    //TODO Move into a getter for better perf
-    this.constructor.eachRelationship(function(key, descriptor) {
-      model._relationships[key] = createRelationshipFor(model, descriptor, model.store);
-    });
 
   },
 
@@ -695,8 +690,8 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   clearRelationships: function() {
     this.eachRelationship(function(name, relationship) {
-      var rel = this._relationships[name];
-      if (rel) {
+      if (this._relationships.has(name)) {
+        var rel = this._relationships.get(name);
         //TODO(Igor) figure out whether we want to clear or disconnect
         rel.clear();
         rel.destroy();
@@ -711,7 +706,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
   disconnectRelationships: function() {
     this.eachRelationship(function(name, relationship) {
-      this._relationships[name].disconnect();
+      this._relationships.get(name).disconnect();
     }, this);
     var model = this;
     forEach.call(Ember.keys(this._implicitRelationships), function(key) {
@@ -721,7 +716,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
   reconnectRelationships: function() {
     this.eachRelationship(function(name, relationship) {
-      this._relationships[name].reconnect();
+      this._relationships.get(name).reconnect();
     }, this);
     var model = this;
     forEach.call(Ember.keys(this._implicitRelationships), function(key) {
@@ -787,7 +782,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     });
     //We use the pathway of setting the hasMany as if it came from the adapter
     //because the user told us that they know this relationships exists already
-    this._relationships[key].updateRecordsFromAdapter(recordsToSet);
+    this._relationships.get(key).updateRecordsFromAdapter(recordsToSet);
   },
 
   _preloadBelongsTo: function(key, preloadValue, type) {
@@ -795,7 +790,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     //We use the pathway of setting the hasMany as if it came from the adapter
     //because the user told us that they know this relationships exists already
-    this._relationships[key].setRecord(recordToSet);
+    this._relationships.get(key).setRecord(recordToSet);
   },
 
   _convertStringOrNumberIntoRecord: function(value, type) {

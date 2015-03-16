@@ -574,3 +574,42 @@ test("Passing a model as type to belongsTo should not work", function () {
     });
   }, /The first argument to DS.belongsTo must be a string/);
 });
+
+test("Model's belongsTo relationship should not be created during model creation", function () {
+  var user;
+  run(function () {
+    user = env.store.createRecord('user');
+    ok(!user._relationships.has('favouriteMessage'), 'Newly created record should not have relationships');
+  });
+});
+
+test("Model's belongsTo relationship should be created during model creation if relationship passed in constructor", function () {
+  var user, message;
+  run(function () {
+    message = env.store.createRecord('message');
+    user = env.store.createRecord('user', {
+      name: 'John Doe',
+      favouriteMessage: message
+    });
+    ok(user._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
+  });
+});
+
+test("Model's belongsTo relationship should be created during 'set' method", function () {
+  var user, message;
+  run(function () {
+    message = env.store.createRecord('message');
+    user = env.store.createRecord('user');
+    user.set('favouriteMessage', message);
+    ok(user._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
+  });
+});
+
+test("Model's belongsTo relationship should be created during 'get' method", function () {
+  var user;
+  run(function () {
+    user = env.store.createRecord('user');
+    user.get('favouriteMessage');
+    ok(user._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
+  });
+});

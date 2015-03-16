@@ -1,6 +1,8 @@
 import ManyRelationship from "ember-data/system/relationships/state/has-many";
 import BelongsToRelationship from "ember-data/system/relationships/state/belongs-to";
 
+var get = Ember.get;
+
 var createRelationshipFor = function(record, relationshipMeta, store) {
   var inverseKey;
   var inverse = record.constructor.inverseFor(relationshipMeta.key);
@@ -16,4 +18,22 @@ var createRelationshipFor = function(record, relationshipMeta, store) {
   }
 };
 
-export default createRelationshipFor;
+var Relationships = function(record) {
+  this.record = record;
+  this.initializedRelationships = Ember.create(null);
+};
+
+Relationships.prototype.has = function(key) {
+  return !!this.initializedRelationships[key];
+};
+
+Relationships.prototype.get = function(key) {
+  var relationships = this.initializedRelationships;
+  var relationshipsByName = get(this.record.constructor, 'relationshipsByName');
+  if (!relationships[key] && relationshipsByName.get(key)) {
+    relationships[key] = createRelationshipFor(this.record, relationshipsByName.get(key), this.record.store);
+  }
+  return relationships[key];
+};
+
+export default Relationships;

@@ -1973,9 +1973,10 @@ function setupRelationships(store, record, data) {
   type.eachRelationship(function(key, descriptor) {
     var kind = descriptor.kind;
     var value = data[key];
-    var relationship = record._relationships[key];
+    var relationship;
 
     if (data.links && data.links[key]) {
+      relationship = record._relationships.get(key);
       relationship.updateLink(data.links[key]);
     }
 
@@ -1983,8 +1984,10 @@ function setupRelationships(store, record, data) {
       if (value === undefined) {
         return;
       }
+      relationship = record._relationships.get(key);
       relationship.setCanonicalRecord(value);
     } else if (kind === 'hasMany' && value) {
+      relationship = record._relationships.get(key);
       relationship.updateRecordsFromAdapter(value);
     }
   });
