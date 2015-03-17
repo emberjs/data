@@ -19,14 +19,9 @@ import {
 import {
   _bind,
   _guard,
-<<<<<<< Updated upstream
-  _objectIsAlive
-} from "ember-data/system/store/common";
-=======
   _objectIsAlive,
   coerceId
 } from "ember-data/system/utils/common";
->>>>>>> Stashed changes
 
 import {
   serializerFor,
