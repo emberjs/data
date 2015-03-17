@@ -1,10 +1,10 @@
 var run = Ember.run;
-var Container = Ember.Container;
+var Registry  = Ember.Registry;
 var Store = DS.Store;
 var EmberObject = Ember.Object;
 var setupContainer = DS._setupContainer;
 
-var container;
+var container, registry;
 
 /*
   These tests ensure that Ember Data works with Ember.js' container
@@ -13,12 +13,16 @@ var container;
 
 module("integration/setup-container - Setting up a container", {
   setup: function() {
-    container = new Container();
-    setupContainer(container);
+    // container = new Container();
+    registry = new Registry();
+    container = registry._defaultContainer = registry.container();
+    setupContainer(registry);
   },
 
   teardown: function() {
-    run(container, container.destroy);
+    run(container, 'destroy');
+    registry = null;
+    // run(registry, registry.destroy);
   }
 });
 
@@ -63,7 +67,7 @@ test("the deprecated adapter:_rest is resolved as adapter:rest", function() {
     deprecated = container.lookup('adapter:_rest');
   });
 
-  ok(deprecated === valid, "they should resolve to the same thing");
+  ok(deprecated._debugContainerKey === valid._debugContainerKey, "they should resolve to the same thing");
 });
 
 test("a deprecation is made when looking up adapter:_rest", function() {
