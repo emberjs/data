@@ -734,7 +734,6 @@ export default Adapter.extend(BuildURLMixin, {
     If you need to access these, you can override this hook to copy them
     from jqXHR to the payload object so they can be processed in you serializer.
 
-
     2. Your API might return errors as successful responses with status code
     200 and an Errors text or object. You can return a DS.InvalidError from
     this hook and it will automatically reject the promise and put your record
