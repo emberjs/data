@@ -14,7 +14,7 @@ import { singularize } from "ember-inflector/system/string";
 import {
   promiseArray,
   promiseObject
-} from "ember-data/system/promise_proxies";
+} from "ember-data/system/promise-proxies";
 
 import {
   _bind,
@@ -31,7 +31,7 @@ import {
 import {
   serializerFor,
   serializerForAdapter
-} from "ember-data/system/store/store";
+} from "ember-data/system/store/serializers";
 
 import {
   _find,
@@ -42,9 +42,9 @@ import {
   _findQuery
 } from "ember-data/system/store/finders";
 
-import RecordArrayManager from "ember-data/system/record_array_manager";
+import RecordArrayManager from "ember-data/system/record-array-manager";
 
-import { Model } from "ember-data/system/model";
+import Model from "ember-data/system/model";
 //Stanley told me to do this
 var Backburner = Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
 
@@ -101,6 +101,11 @@ var copy = Ember.copy;
 var Store;
 
 var camelize = Ember.String.camelize;
+
+var Service = Ember.Service;
+if (!Service) {
+  Service = Ember.Object;
+}
 
 // Implementors Note:
 //
@@ -182,9 +187,9 @@ var camelize = Ember.String.camelize;
 
   @class Store
   @namespace DS
-  @extends Ember.Object
+  @extends Ember.Service
 */
-Store = Ember.Object.extend({
+Store = Service.extend({
 
   /**
     @method init
@@ -526,7 +531,7 @@ Store = Ember.Object.extend({
     ```javascript
     App.PostRoute = Ember.Route.extend({
       model: function(params) {
-        return this.store.fetch('post', params.post_id);
+        return this.store.fetchById('post', params.post_id);
       }
     });
     ```
@@ -703,11 +708,18 @@ Store = Ember.Object.extend({
           resolver.resolve(record);
         }
       });
+      return records;
     }
 
     function makeMissingRecordsRejector(requestedRecords) {
       return function rejectMissingRecords(resolvedRecords) {
-        var missingRecords = requestedRecords.without(resolvedRecords);
+        resolvedRecords = Ember.A(resolvedRecords);
+        var missingRecords = requestedRecords.reject(function(record) {
+          return resolvedRecords.contains(record);
+        });
+        if (missingRecords.length) {
+          Ember.warn('Ember Data expected to find records with the following ids in the adapter response but they were missing: ' + Ember.inspect(Ember.A(missingRecords).mapBy('id')), false);
+        }
         rejectRecords(missingRecords);
       };
     }
@@ -1177,7 +1189,6 @@ Store = Ember.Object.extend({
     If the adapter updates attributes the record will notify
     the store to update its  membership in any filters.
     To avoid thrashing, this method is invoked only once per
-
     run loop per record.
 
     @method dataWasUpdated
@@ -1388,8 +1399,10 @@ Store = Ember.Object.extend({
       this.container.register('model:' + key, DS.Model.extend(mixin));
     }
     var factory = this.modelFactoryFor(key);
-    factory.__isMixin = true;
-    factory.__mixin = mixin;
+    if (factory) {
+      factory.__isMixin = true;
+      factory.__mixin = mixin;
+    }
 
     return factory;
   },

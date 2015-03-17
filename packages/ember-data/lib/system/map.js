@@ -1,5 +1,5 @@
 /*
- The Map/MapWithDefault/OrderedSet code has been in flux as we try
+ The Map/MapWithDefault code has been in flux as we try
  to catch up with ES6. This is difficult as we support multiple
  versions of Ember.
  This file is currently here in case we have to polyfill ember's code
@@ -8,7 +8,6 @@
 */
 var Map            = Ember.Map;
 var MapWithDefault = Ember.MapWithDefault;
-var OrderedSet     = Ember.OrderedSet;
 
 export default Map;
-export {Map, MapWithDefault, OrderedSet};
+export {Map, MapWithDefault};

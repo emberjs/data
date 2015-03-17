@@ -6,7 +6,7 @@ import {
 
 import {
   serializerForAdapter
-} from "ember-data/system/store/store";
+} from "ember-data/system/store/serializers";
 
 
 var get = Ember.get;
