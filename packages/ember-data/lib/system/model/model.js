@@ -343,15 +343,49 @@ var Model = Ember.Object.extend(Ember.Evented, {
   /**
     When the record is in the `invalid` state this object will contain
     any errors returned by the adapter. When present the errors hash
-    typically contains keys corresponding to the invalid property names
-    and values which are an array of error messages.
+    contains keys corresponding to the invalid property names
+    and values which are arrays of Javascript objects with two keys:
+
+    - `message` A string containing the error message from the backend
+    - `attribute` The name of the property associated with this error message
 
     ```javascript
     record.get('errors.length'); // 0
     record.set('foo', 'invalid value');
-    record.save().then(null, function() {
-      record.get('errors').get('foo'); // ['foo should be a number.']
+    record.save().catch(function() {
+      record.get('errors').get('foo');
+      // [{message: 'foo should be a number.', attribute: 'foo'}]
     });
+    ```
+
+    The `errors` property us useful for displaying error messages to
+    the user.
+
+    ```handlebars
+    <label>Username: {{input value=username}} </label>
+    {{#each error in model.errors.username}}
+      <div class="error">
+        {{error.message}}
+      </div>
+    {{/each}}
+    <label>Email: {{input value=email}} </label>
+    {{#each error in model.errors.email}}
+      <div class="error">
+        {{error.message}}
+      </div>
+    {{/each}}
+    ```
+
+
+    You can also access the special `messages` property on the error
+    object to get an array of all the error strings.
+
+    ```handlebars
+    {{#each message in model.errors.messages}}
+      <div class="error">
+        {{message}}
+      </div>
+    {{/each}}
     ```
 
     @property errors
