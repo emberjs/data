@@ -705,6 +705,7 @@ export default Adapter.extend(BuildURLMixin, {
     @method ajaxError
     @param  {Object} jqXHR
     @param  {Object} responseText
+    @param  {Object} errorThrown
     @return {Object} jqXHR
   */
   ajaxError: function(jqXHR, responseText, errorThrown) {
