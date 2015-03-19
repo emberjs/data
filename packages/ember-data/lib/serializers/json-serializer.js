@@ -700,7 +700,7 @@ export default Serializer.extend({
     the `requestType`.
 
     To override this method with a custom one, make sure to call
-    `this._super(store, type, payload, id, requestType)` with your
+    `return this._super(store, type, payload, id, requestType)` with your
     pre-processed data.
 
     Here's an example of using `extract` manually:
