@@ -499,7 +499,7 @@ export default Adapter.extend({
   */
   findBelongsTo: function(store, record, url, relationship) {
     var id   = get(record, 'id');
-    var type = record.constructor.typeKey;
+    var type = store.modelFor(record.constructor.typeKey);
 
     return this.ajax(this.urlPrefix(url, this.buildURL(type, id)), 'GET');
   },

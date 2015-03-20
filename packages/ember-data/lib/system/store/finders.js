@@ -74,7 +74,7 @@ export function _findHasMany(adapter, store, record, link, relationship) {
 
   return promise.then(function(adapterPayload) {
     return store._adapterRun(function() {
-      var payload = serializer.extract(store, relationship.type, adapterPayload, null, 'findHasMany');
+      var payload = serializer.extract(store, store.modelFor(relationship.type), adapterPayload, null, 'findHasMany');
 
       Ember.assert("The response from a findHasMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 

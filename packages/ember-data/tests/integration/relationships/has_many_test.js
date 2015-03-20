@@ -80,6 +80,20 @@ module("integration/relationships/has_many - Has-Many Relationships", {
       chapter: Chapter,
       page: Page
     });
+
+
+    var store = env.store;
+
+    User = store.modelFor('user');
+    Contact = store.modelFor('contact');
+    Email = store.modelFor('email');
+    Phone = store.modelFor('phone');
+    Message = store.modelFor('message');
+    Comment = store.modelFor('comment');
+    Post = store.modelFor('post');
+    Book = store.modelFor('book');
+    Chapter = store.modelFor('chapter');
+    Page = store.modelFor('page');
   },
 
   teardown: function() {
@@ -148,7 +162,7 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
 
   env.adapter.findHasMany = function(store, record, link, relationship) {
     equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
-    equal(relationship.type.typeKey, "comment", "relationship was passed correctly");
+    equal(relationship.type, "comment", "relationship was passed correctly");
 
     return Ember.RSVP.resolve([
       { id: 1, body: "First" },
@@ -338,7 +352,7 @@ test("A hasMany relationship can be reloaded if it was fetched via a link", func
   };
 
   env.adapter.findHasMany = function(store, record, link, relationship) {
-    equal(relationship.type, Comment, "findHasMany relationship type was Comment");
+    equal(relationship.type, "comment", "findHasMany relationship type was Comment");
     equal(relationship.key, 'comments', "findHasMany relationship key was comments");
     equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
 
@@ -356,7 +370,7 @@ test("A hasMany relationship can be reloaded if it was fetched via a link", func
       equal(comments.get('length'), 2, "comments have 2 length");
 
       env.adapter.findHasMany = function(store, record, link, relationship) {
-        equal(relationship.type, Comment, "findHasMany relationship type was Comment");
+        equal(relationship.type, "comment", "findHasMany relationship type was Comment");
         equal(relationship.key, 'comments', "findHasMany relationship key was comments");
         equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
 
@@ -568,7 +582,7 @@ test("An updated `links` value should invalidate a relationship cache", function
   });
 
   env.adapter.findHasMany = function(store, record, link, relationship) {
-    equal(relationship.type.typeKey, "comment", "relationship was passed correctly");
+    equal(relationship.type, "comment", "relationship was passed correctly");
 
     if (link === '/first') {
       return Ember.RSVP.resolve([
@@ -654,24 +668,15 @@ test("When a polymorphic hasMany relationship is accessed, the store can call mu
 test("polymorphic hasMany type-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled", function() {
   expect(1);
 
-  var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
-  Ember.MODEL_FACTORY_INJECTIONS = true;
+  run(function () {
+    var igor = env.store.createRecord('user', { name: 'Igor' });
+    var comment = env.store.createRecord('comment', { body: "Well I thought the title was fine" });
 
-  try {
-    run(function () {
-      var igor = env.store.createRecord('user', { name: 'Igor' });
-      var comment = env.store.createRecord('comment', { body: "Well I thought the title was fine" });
+    igor.get('messages').addObject(comment);
 
-      igor.get('messages').addObject(comment);
-
-      equal(igor.get('messages.firstObject.body'), "Well I thought the title was fine");
-    });
-  } finally {
-    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
-  }
+    equal(igor.get('messages.firstObject.body'), "Well I thought the title was fine");
+  });
 });
-
-
 
 test("Type can be inferred from the key of a hasMany relationship", function() {
   expect(1);
@@ -770,17 +775,17 @@ test("Only records of the same type can be added to a monomorphic hasMany relati
   expect(1);
   run(function() {
     env.store.push('post', { id: 1, comments: [] });
-    env.store.push('post', { id: 2 });
+    env.store.push('contact', { id: 2 });
   });
 
   run(function() {
     Ember.RSVP.all([
       env.store.find('post', 1),
-      env.store.find('post', 2)
+      env.store.find('contact', 2)
     ]).then(function(records) {
       expectAssertion(function() {
         records[0].get('comments').pushObject(records[1]);
-      }, /You cannot add 'post' records to the post.comments relationship \(only 'comment' allowed\)/);
+      }, /You cannot add 'contact' records to the post.comments relationship \(only 'comment' allowed\)/);
     });
   });
 });

@@ -235,7 +235,4 @@ Relationship.prototype = {
   notifyRecordRelationshipRemoved: Ember.K
 };
 
-
-
-
 export default Relationship;

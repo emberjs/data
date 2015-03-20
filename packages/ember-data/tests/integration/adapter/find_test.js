@@ -17,7 +17,9 @@ module("integration/adapter/find - Finding Records", {
 });
 
 test("It raises an assertion when no type is passed", function() {
-  store = createStore();
+  store = createStore({
+    person: Person
+  });
 
   expectAssertion(function() {
     store.find();
@@ -25,14 +27,16 @@ test("It raises an assertion when no type is passed", function() {
 });
 
 test("It raises an assertion when `undefined` is passed as id (#1705)", function() {
-  store = createStore();
+  store = createStore({
+    person: Person
+  });
 
   expectAssertion(function() {
-    store.find(Person, undefined);
+    store.find('person', undefined);
   }, "You may not pass `undefined` as id to the store's find method");
 
   expectAssertion(function() {
-    store.find(Person, null);
+    store.find('person', null);
   }, "You may not pass `null` as id to the store's find method");
 });
 
@@ -41,7 +45,9 @@ test("When a single record is requested, the adapter's find method should be cal
 
   var count = 0;
 
-  store = createStore({ adapter: DS.Adapter.extend({
+  store = createStore({
+    person: Person,
+    adapter: DS.Adapter.extend({
       find: function(store, type, id) {
         equal(type, Person, "the find method is called with the correct type");
         equal(count, 0, "the find method is only called once");
@@ -53,15 +59,17 @@ test("When a single record is requested, the adapter's find method should be cal
   });
 
   run(function() {
-    store.find(Person, 1);
-    store.find(Person, 1);
+    store.find('person', 1);
+    store.find('person', 1);
   });
 });
 
 test("When a single record is requested multiple times, all .find() calls are resolved after the promise is resolved", function() {
   var deferred = Ember.RSVP.defer();
 
-  store = createStore({ adapter: DS.Adapter.extend({
+  store = createStore({
+    person: Person,
+    adapter: DS.Adapter.extend({
       find:  function(store, type, id) {
         return deferred.promise;
       }
@@ -69,7 +77,7 @@ test("When a single record is requested multiple times, all .find() calls are re
   });
 
   run(function() {
-    store.find(Person, 1).then(async(function(person) {
+    store.find('person', 1).then(async(function(person) {
       equal(person.get('id'), "1");
       equal(person.get('name'), "Braaaahm Dale");
 
@@ -85,7 +93,7 @@ test("When a single record is requested multiple times, all .find() calls are re
   });
 
   run(function() {
-    store.find(Person, 1).then(async(function(post) {
+    store.find('person', 1).then(async(function(post) {
       equal(post.get('id'), "1");
       equal(post.get('name'), "Braaaahm Dale");
 
@@ -107,7 +115,9 @@ test("When a single record is requested multiple times, all .find() calls are re
 });
 
 test("When a single record is requested, and the promise is rejected, .find() is rejected.", function() {
-  store = createStore({ adapter: DS.Adapter.extend({
+  store = createStore({
+    person: Person,
+    adapter: DS.Adapter.extend({
       find: function(store, type, id) {
         return Ember.RSVP.reject();
       }
@@ -115,7 +125,7 @@ test("When a single record is requested, and the promise is rejected, .find() is
   });
 
   run(function() {
-    store.find(Person, 1).then(null, async(function(reason) {
+    store.find('person', 1).then(null, async(function(reason) {
       ok(true, "The rejection handler was called");
     }));
   });
@@ -124,7 +134,9 @@ test("When a single record is requested, and the promise is rejected, .find() is
 test("When a single record is requested, and the promise is rejected, the record should be unloaded.", function() {
   expect(2);
 
-  store = createStore({ adapter: DS.Adapter.extend({
+  store = createStore({
+    person: Person,
+    adapter: DS.Adapter.extend({
       find: function(store, type, id) {
         return Ember.RSVP.reject();
       }
@@ -132,10 +144,10 @@ test("When a single record is requested, and the promise is rejected, the record
   });
 
   run(function() {
-    store.find(Person, 1).then(null, async(function(reason) {
+    store.find('person', 1).then(null, async(function(reason) {
       ok(true, "The rejection handler was called");
     }));
   });
 
-  ok(!store.hasRecordForId(Person, 1), "The record has been unloaded");
+  ok(!store.hasRecordForId('person', 1), "The record has been unloaded");
 });

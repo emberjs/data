@@ -12,6 +12,8 @@ module("integration/active_model_adapter - AMS Adapter", {
     store = env.store;
     adapter = env.adapter;
 
+    SuperUser = env.store.modelFor('superUser');
+
     passedUrl = passedVerb = passedHash = null;
   }
 });

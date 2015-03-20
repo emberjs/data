@@ -38,6 +38,10 @@ module('integration/inverse_test - inverseFor', {
     });
 
     store = env.store;
+
+    User = store.modelFor('user');
+    Job = store.modelFor('job');
+    ReflexiveModel = store.modelFor('reflexiveModel');
   },
 
   teardown: function() {

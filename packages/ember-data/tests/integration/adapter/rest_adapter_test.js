@@ -16,6 +16,10 @@ module("integration/adapter/rest_adapter - REST Adapter", {
       name: DS.attr("string")
     });
 
+    Comment.toString = function(){
+      return "Comment";
+    };
+
     SuperUser = DS.Model.extend();
 
     env = setupStore({
@@ -27,6 +31,10 @@ module("integration/adapter/rest_adapter - REST Adapter", {
 
     store = env.store;
     adapter = env.adapter;
+
+    Comment = store.modelFor('comment');
+    Post    = store.modelFor('post');
+    SuperUser = store.modelFor('superUser');
 
     passedUrl = passedVerb = passedHash = null;
   }
@@ -1667,21 +1675,21 @@ test('normalizeKey - to set up _ids and _id', function() {
     }
   }));
 
-  env.registry.register('model:post', DS.Model.extend({
+  Post.reopen({
     name: DS.attr(),
     authorName: DS.attr(),
-    author: DS.belongsTo('user'),
+    author: DS.belongsTo('superUser'),
     comments: DS.hasMany('comment')
-  }));
+  });
 
-  env.registry.register('model:user', DS.Model.extend({
+  SuperUser.reopen({
     createdAt: DS.attr(),
     name: DS.attr()
-  }));
+  });
 
-  env.registry.register('model:comment', DS.Model.extend({
+  Comment.reopen({
     body: DS.attr()
-  }));
+  });
 
   ajaxResponse({
     posts: [{
@@ -1692,7 +1700,7 @@ test('normalizeKey - to set up _ids and _id', function() {
       comment_ids: ["1", "2"]
     }],
 
-    users: [{
+    superUsers: [{
       id: "1",
       name: "D2H"
     }],

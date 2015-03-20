@@ -1410,12 +1410,14 @@ Store = Ember.Object.extend({
   */
   modelFor: function(key) {
     var factory;
+    var singularizedKey;
 
     if (typeof key === 'string') {
-      factory = this.modelFactoryFor(key);
+      singularizedKey = singularize(key);
+      factory = this.modelFactoryFor(singularizedKey);
       if (!factory) {
         //Support looking up mixins as base types for polymorphic relationships
-        factory = this._modelForMixin(key);
+        factory = this._modelForMixin(singularizedKey);
       }
       if (!factory) {
         throw new Ember.Error("No model was found for '" + key + "'");
@@ -1434,8 +1436,9 @@ Store = Ember.Object.extend({
   },
 
   modelFactoryFor: function(key) {
-    if (this.container.has('model:' + key)) {
-      return this.container.lookupFactory('model:' + key);
+    var singularized = singularize(key);
+    if (this.container.has('model:' + singularized)) {
+      return this.container.lookupFactory('model:' + singularized);
     } else {
       return null;
     }

@@ -35,12 +35,12 @@ module("integration/active_model - ActiveModelSerializer", {
       doomsdayDevice: DoomsdayDevice,
       mediocreVillain: MediocreVillain
     });
-    env.store.modelFor('superVillain');
-    env.store.modelFor('homePlanet');
-    env.store.modelFor('evilMinion');
-    env.store.modelFor('yellowMinion');
-    env.store.modelFor('doomsdayDevice');
-    env.store.modelFor('mediocreVillain');
+    SuperVillain = env.store.modelFor('superVillain');
+    HomePlanet = env.store.modelFor('homePlanet');
+    EvilMinion = env.store.modelFor('evilMinion');
+    YellowMinion = env.store.modelFor('yellowMinion');
+    DoomsdayDevice = env.store.modelFor('doomsdayDevice');
+    MediocreVillain = env.store.modelFor('mediocreVillain');
     env.registry.register('serializer:application', DS.ActiveModelSerializer);
     env.registry.register('serializer:-active-model', DS.ActiveModelSerializer);
     env.registry.register('adapter:-active-model', DS.ActiveModelAdapter);

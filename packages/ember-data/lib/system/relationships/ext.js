@@ -179,7 +179,7 @@ Model.reopenClass({
   */
   typeForRelationship: function(name) {
     var relationship = get(this, 'relationshipsByName').get(name);
-    return relationship && relationship.type;
+    return relationship && this.store.modelFor(relationship.type);
   },
 
   inverseMap: Ember.computed(function() {
@@ -207,6 +207,7 @@ Model.reopenClass({
     @method inverseFor
     @static
     @param {String} name the name of the relationship
+    @param {DS.Store} store the current store
     @return {Object} the inverse relationship, or null
   */
   inverseFor: function(name) {
@@ -277,9 +278,9 @@ Model.reopenClass({
       var possibleRelationships = relationshipsSoFar || [];
 
       var relationshipMap = get(inverseType, 'relationships');
-      if (!relationshipMap) { return; }
+      if (!relationshipMap) { return possibleRelationships; }
 
-      var relationships = relationshipMap.get(type);
+      var relationships = relationshipMap.get(type.typeKey);
 
       relationships = filter.call(relationships, function(relationship) {
         var optionsForRelationship = inverseType.metaForProperty(relationship.name).options;

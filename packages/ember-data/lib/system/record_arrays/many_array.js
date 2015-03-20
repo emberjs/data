@@ -226,7 +226,9 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     var type = get(this, 'type');
     var record;
 
-    Ember.assert("You cannot add '" + type.typeKey + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
+    var klass = store.modelFactoryFor(type);
+
+    Ember.assert("You cannot add '" + klass.typeKey + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
 
     record = store.createRecord(type, hash);
     this.pushObject(record);

@@ -158,13 +158,14 @@ export default Serializer.extend({
   */
   normalize: function(type, hash) {
     if (!hash) { return hash; }
+    var model = this.store.modelFor(type);
 
     this.normalizeId(hash);
-    this.normalizeAttributes(type, hash);
-    this.normalizeRelationships(type, hash);
+    this.normalizeAttributes(model, hash);
+    this.normalizeRelationships(model, hash);
 
-    this.normalizeUsingDeclaredMapping(type, hash);
-    this.applyTransforms(type, hash);
+    this.normalizeUsingDeclaredMapping(model, hash);
+    this.applyTransforms(model, hash);
     return hash;
   },
 
@@ -647,7 +648,7 @@ export default Serializer.extend({
         payloadKey = this.keyForRelationship(key, "hasMany");
       }
 
-      var relationshipType = snapshot.type.determineRelationshipType(relationship);
+      var relationshipType = snapshot.type.determineRelationshipType(relationship, this.store);
 
       if (relationshipType === 'manyToNone' || relationshipType === 'manyToMany') {
         json[payloadKey] = snapshot.hasMany(key, { ids: true });
