@@ -23,9 +23,39 @@ var errorProps = [
   transition to the `invalid` state and the errors will be set to the
   `errors` property on the record.
 
-  This function should return the entire payload as received from the
-  server.  Error object extraction and normalization of model errors
-  should be performed by `extractErrors` on the serializer.
+  For Ember Data to correctly map errors to their corresponding
+  properties on the model, Ember Data expects each error to be
+  namespaced under a key that matches the property name. For example
+  if you had a Post model that looked like this.
+
+  ```js
+  App.Post = DS.Model.extend({
+    title: DS.attr('string'),
+    content: DS.attr('string')
+  });
+  ```
+
+  To show an error from the server related to the `title` and
+  `content` properties your adapter could return a promise that
+  rejects with a `DS.InvalidError` object that looks like this:
+
+  ```js
+  App.PostAdapter = DS.RESTAdapter.extend({
+    updateRecord: function() {
+      // Fictional adapter that always rejects
+      return Ember.RSVP.reject(new DS.InvalidError({
+        title: ['Must be unique'],
+        content: ['Must not be blank'],
+      }));
+    }
+  });
+  ```
+
+  Your backend may use different property names for your records the
+  store will attempt extract and normalize the errors using the
+  serializer's `extractErrors` method before the errors get added to
+  the the model. As a result, it is safe for the `InvalidError` to
+  wrap the error payload unaltered.
 
   Example
 
@@ -34,24 +64,17 @@ var errorProps = [
     ajaxError: function(jqXHR) {
       var error = this._super(jqXHR);
 
+      // 422 is used by this fictional server to signal a validation error
       if (jqXHR && jqXHR.status === 422) {
         var jsonErrors = Ember.$.parseJSON(jqXHR.responseText);
         return new DS.InvalidError(jsonErrors);
       } else {
+        // The ajax request failed however it is not a result of this
+        // record being in an invalid state so we do not return a
+        // `InvalidError` object.
         return error;
       }
     }
-  });
-  ```
-
-  The `DS.InvalidError` must be constructed with a single object whose
-  keys are the invalid model properties, and whose values contain
-  arrays of the corresponding error messages. For example:
-
-  ```javascript
-  return new DS.InvalidError({
-    length: ['Must be less than 15'],
-    name: ['Must not be blank']
   });
   ```
 

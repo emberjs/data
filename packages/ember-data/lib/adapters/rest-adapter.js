@@ -671,11 +671,10 @@ export default Adapter.extend(BuildURLMixin, {
 
     Returning a `DS.InvalidError` from this method will cause the
     record to transition into the `invalid` state and make the
-    `errors` object available on the record.
-
-    This function should return the entire payload as received from the
-    server.  Error object extraction and normalization of model errors
-    should be performed by `extractErrors` on the serializer.
+    `errors` object available on the record. When returning an
+    `InvalidError` the store will attempt to normalize the error data
+    returned from the server using the serializer's `extractErrors`
+    method.
 
     Example
 
