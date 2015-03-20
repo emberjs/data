@@ -2,7 +2,11 @@
 
 ### Master
 
-#### serializer.serialize() now receives a Snapshot instead of a record instance
+### Release 1.0.0-beta.15 (February 14, 2015)
+
+#### Breaking Changes
+
+##### serializer.serialize() now receives a Snapshot instead of a record instance
 A snapshot represents the frozen state of a record at a particular
 moment in time. Its initial purpose is to be passed to serializers
 instead of the real record. This allows the serializer to examine the
@@ -41,13 +45,14 @@ post.get('comments');
 postSnapshot.hasMany('comments');
 ```
 
-#### RecordArray.pushRecord and ManyArray.addRecord/removeRecord are deprecated
+##### RecordArray.pushRecord and ManyArray.addRecord/removeRecord are deprecated
 
 If you would like to add a new record to a `RecordArray` or a
 `ManyArray` you should now use the `addObject` and `removeObject`
 methods.
 
-### Release 1.0.0-beta.15 (February 14, 2015)
+#### Changes
+
   * use package.json for ember addon
   * Initial implementation of the Snapshot API
   * Allow errors on arbitrary properties, not just defined attributes or relationships
@@ -89,9 +94,11 @@ methods.
 
 ### Ember Data 1.0.0-beta.14.1 (December 31, 2014)
 
-* Replace `<%= versionStamp %>` with actual version stamp. Thanks
-  @tricknotes!
-* Fix sourcemap loading in Ember CLI and Rails.
+#### Changes
+
+  * Replace `<%= versionStamp %>` with actual version stamp. Thanks
+    @tricknotes!
+  * Fix sourcemap loading in Ember CLI and Rails.
 
 ### Ember Data 1.0.0-beta.14 (December 25, 2014)
 
