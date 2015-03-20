@@ -46,7 +46,7 @@ var Serializer = Ember.Object.extend({
     @param {String} requestType
     @return {Object}
   */
-  extract: Ember.required(Function),
+  extract: null,
 
   /**
     The `serialize` method is used when a record is saved in order to convert
@@ -62,7 +62,7 @@ var Serializer = Ember.Object.extend({
     @param {Object} [options]
     @return {Object}
   */
-  serialize: Ember.required(Function),
+  serialize: null,
 
   /**
     The `normalize` method is used to convert a payload received from your
