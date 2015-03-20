@@ -6,8 +6,9 @@
   @namespace DS
   @private
 */
-function ContainerProxy(container) {
-  this.container = container;
+function ContainerProxy(registry) {
+  this.registry = registry;
+  this.container = registry.container();
 }
 
 ContainerProxy.prototype.aliasedFactory = function(path, preLookup) {
@@ -25,7 +26,7 @@ ContainerProxy.prototype.aliasedFactory = function(path, preLookup) {
 ContainerProxy.prototype.registerAlias = function(source, dest, preLookup) {
   var factory = this.aliasedFactory(dest, preLookup);
 
-  return this.container.register(source, factory);
+  return this.registry.register(source, factory);
 };
 
 ContainerProxy.prototype.registerDeprecation = function(deprecated, valid) {
