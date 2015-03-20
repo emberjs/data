@@ -1,6 +1,6 @@
 import {
   PromiseObject
-} from "ember-data/system/promise_proxies";
+} from "ember-data/system/promise-proxies";
 
 import Relationship from "ember-data/system/relationships/state/relationship";
 

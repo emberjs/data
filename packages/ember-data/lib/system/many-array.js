@@ -1,7 +1,7 @@
 /**
   @module ember-data
 */
-import { PromiseArray } from "ember-data/system/promise_proxies";
+import { PromiseArray } from "ember-data/system/promise-proxies";
 
 var get = Ember.get;
 var set = Ember.set;

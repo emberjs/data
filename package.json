@@ -7,6 +7,7 @@
   "keywords": [
     "ember-addon"
   ],
+  "main": "lib/ember-addon/index.js",
   "ember-addon": {
     "main": "lib/ember-addon/index.js"
   },
@@ -19,7 +20,7 @@
     "prepublish": "bower install && npm run-script build:production",
     "start": "ember serve",
     "test": "jscs packages && testem -R dot ci",
-    "publish-build": "npm run build:production && ./bin/publish_to_s3.js",
+    "publish-build": "npm run build:production && ./bin/publish-to-s3.js",
     "test:local": "testem -R dot ci",
     "test:beta": "testem -f config/testem-beta.json -R dot ci",
     "test:canary": "testem -f config/testem-canary.json -R dot ci",
@@ -48,7 +49,7 @@
     "broccoli-yuidoc": "^1.3.0",
     "defeatureify": "~0.1.4",
     "ejs": "^1.0.0",
-    "ember-cli": "^0.1.4",
+    "ember-cli": "^0.2.0",
     "ember-publisher": "0.0.6",
     "es6-module-transpiler": "^0.9.5",
     "es6-module-transpiler-amd-formatter": "^0.2.4",

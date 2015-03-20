@@ -115,6 +115,32 @@ test("the DS namespace should be accessible", function() {
   });
 });
 
+if (Ember.inject && Ember.inject.service) {
+  module("integration/application - Using the store as a service", {
+    setup: function() {
+      run(function() {
+        app = Application.create({
+          DoodleService: Ember.Object.extend({ store: Ember.inject.service() })
+        });
+      });
+
+      container = app.__container__;
+    },
+
+    teardown: function() {
+      run(app, 'destroy');
+      Ember.BOOTED = false;
+    }
+  });
+
+  test("The store can be injected as a service", function() {
+    run(function() {
+      var doodleService = lookup('service:doodle');
+      ok(doodleService.get('store') instanceof Store, "the store can be used as a service");
+    });
+  });
+}
+
 module("integration/application - Attaching initializer", {
   setup: function() {
     App = Application.extend();

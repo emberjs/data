@@ -16,7 +16,7 @@ module("integration/adapter/rest_adapter - REST Adapter", {
       name: DS.attr("string")
     });
 
-    Comment.toString = function(){
+    Comment.toString = function() {
       return "Comment";
     };
 
@@ -369,7 +369,7 @@ test("create - a record on the many side of a hasMany relationship should update
       name: "Another Comment",
       post: 1
     },
-{
+    {
       id: "1",
       name: "Dat Parley Letter",
       post: 1
@@ -1501,6 +1501,24 @@ test('buildURL - buildURL takes the records from findMany', function() {
   });
 });
 
+
+test('coalesceFindRequests warns if the expected records are not returned in the coalesced request', function() {
+  Comment.reopen({ post: DS.belongsTo('post') });
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+
+  adapter.coalesceFindRequests = true;
+
+  ajaxResponse({ comments: [{ id: 1 }] });
+  var post;
+
+  warns(function() {
+    run(function() {
+      post = store.push('post', { id: 2, comments: [1,2,3] });
+      post.get('comments');
+    });
+  }, /expected to find records with the following ids in the adapter response but they were missing: \[2,3\]/);
+});
+
 test('buildURL - buildURL takes a record from create', function() {
   Comment.reopen({ post: DS.belongsTo('post') });
   adapter.buildURL = function(type, id, record) {
@@ -1787,13 +1805,14 @@ test('groupRecordsForFindMany groups calls for small ids', function() {
 
   adapter.findMany = function(store, type, ids, records) {
     deepEqual(ids, [a100, b100]);
-    return Ember.RSVP.resolve({ comments: { id: ids } });
+    return Ember.RSVP.resolve({ comments: [{ id: a100 }, { id: b100 }] });
   };
 
   run(function() {
     post.get('comments');
   });
 });
+
 
 test("calls adapter.ajaxSuccess with the jqXHR and json", function() {
   expect(2);

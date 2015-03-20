@@ -23,6 +23,16 @@
 */
 
 var Serializer = Ember.Object.extend({
+  /**
+    The `store` property is the application's `store` that contains all records.
+    It's injected as a service.
+    It can be used to push records from a non flat data structure server
+    response.
+
+    @property store
+    @type {DS.Store}
+    @public
+  */
 
   /**
     The `extract` method is used to deserialize the payload received from your

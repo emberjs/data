@@ -54,20 +54,27 @@ test("Watching Model Types", function() {
 });
 
 test("Watching Records", function() {
-  var post, args, record;
+  var post, record, addedRecords, updatedRecords, removedIndex, removedCount;
 
   Ember.run(function() {
     store.push('post', { id: '1', title: 'Clean Post' });
   });
 
-  var callback = function() {
-    args = arguments;
+  var recordsAdded = function(wrappedRecords) {
+    addedRecords = wrappedRecords;
+  };
+  var  recordsUpdated = function(wrappedRecords) {
+    updatedRecords = wrappedRecords;
+  };
+  var recordsRemoved = function(index, count) {
+    removedIndex = index;
+    removedCount = count;
   };
 
-  debugAdapter.watchRecords(App.Post, callback, callback, callback);
+  debugAdapter.watchRecords(App.Post, recordsAdded, recordsUpdated, recordsRemoved);
 
-  equal(get(args[0], 'length'), 1);
-  record = args[0][0];
+  equal(get(addedRecords, 'length'), 1);
+  record = addedRecords[0];
   deepEqual(record.columnValues, { id: '1', title: 'Clean Post' });
   deepEqual(record.filterValues, { isNew: false, isModified: false, isClean: true });
   deepEqual(record.searchKeywords, ['1', 'Clean Post']);
@@ -81,7 +88,8 @@ test("Watching Records", function() {
     post.set('title', 'Modified Post');
   });
 
-  record = args[0][0];
+  equal(get(updatedRecords, 'length'), 1);
+  record = updatedRecords[0];
   deepEqual(record.columnValues, { id: '1', title: 'Modified Post' });
   deepEqual(record.filterValues, { isNew: false, isModified: true, isClean: false });
   deepEqual(record.searchKeywords, ['1', 'Modified Post']);
@@ -90,7 +98,8 @@ test("Watching Records", function() {
   run(function() {
     post = store.createRecord('post', { id: '2', title: 'New Post' });
   });
-  record = args[0][0];
+  equal(get(addedRecords, 'length'), 1);
+  record = addedRecords[0];
   deepEqual(record.columnValues, { id: '2', title: 'New Post' });
   deepEqual(record.filterValues, { isNew: true, isModified: false, isClean: false });
   deepEqual(record.searchKeywords, ['2', 'New Post']);
@@ -98,8 +107,6 @@ test("Watching Records", function() {
 
   Ember.run(post, 'deleteRecord');
 
-  var index = args[0];
-  var count = args[1];
-  equal(index, 1);
-  equal(count, 1);
+  equal(removedIndex, 1);
+  equal(removedCount, 1);
 });

@@ -259,6 +259,21 @@ function getValue(record, key) {
   });
   ```
 
+  Default value can also be a function. This is useful it you want to return
+  a new object for each attribute.
+
+  ```javascript
+  var attr = DS.attr;
+
+  App.User = DS.Model.extend({
+    username: attr('string'),
+    email: attr('string'),
+    settings: attr({defaultValue: function() {
+      return {};
+    }})
+  });
+  ```
+
   @namespace
   @method attr
   @for DS

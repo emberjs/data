@@ -258,7 +258,9 @@ test("should throw if ids are not defined in the FIXTURES", function() {
       env.store.find('person', 1);
     });
   }, /the id property must be defined as a number or string for fixture/);
+});
 
+test("0 is an acceptable ID in FIXTURES", function() {
   Person.FIXTURES = [{
     id: 0
   }];
