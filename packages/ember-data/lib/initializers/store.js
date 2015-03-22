@@ -15,6 +15,9 @@ export default function initializeStore(registry, application) {
   Ember.deprecate('Specifying a custom Store for Ember Data on your global namespace as `App.Store` ' +
                   'has been deprecated. Please use `App.ApplicationStore` instead.', !(application && application.Store));
 
+  registry.optionsForType('serializer', { singleton: false });
+  registry.optionsForType('adapter', { singleton: false });
+
   registry.register('store:main', registry.lookupFactory('store:application') || (application && application.Store) || Store);
 
   // allow older names to be looked up

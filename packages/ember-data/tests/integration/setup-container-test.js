@@ -50,7 +50,7 @@ test("the deprecated serializer:_default is resolved as serializer:default", fun
     deprecated = container.lookup('serializer:_default');
   });
 
-  ok(deprecated === valid, "they should resolve to the same thing");
+  ok(deprecated.constructor === valid.constructor, "they should resolve to the same thing");
 });
 
 test("the deprecated serializer:_rest is resolved as serializer:rest", function() {
@@ -60,7 +60,7 @@ test("the deprecated serializer:_rest is resolved as serializer:rest", function(
     deprecated = container.lookup('serializer:_rest');
   });
 
-  ok(deprecated === valid, "they should resolve to the same thing");
+  ok(deprecated.constructor === valid.constructor, "they should resolve to the same thing");
 });
 
 test("the deprecated adapter:_rest is resolved as adapter:rest", function() {
@@ -70,11 +70,25 @@ test("the deprecated adapter:_rest is resolved as adapter:rest", function() {
     deprecated = container.lookup('adapter:_rest');
   });
 
-  ok(deprecated === valid, "they should resolve to the same thing");
+  ok(deprecated.constructor === valid.constructor, "they should resolve to the same thing");
 });
 
 test("a deprecation is made when looking up adapter:_rest", function() {
   expectDeprecation(function() {
     container.lookup('serializer:_default');
   }, "You tried to look up 'serializer:_default', but this has been deprecated in favor of 'serializer:-default'.");
+});
+
+test("serializers are not returned as singletons - each lookup should return a different instance", function() {
+  var serializer1, serializer2;
+  serializer1 = container.lookup('serializer:-rest');
+  serializer2 = container.lookup('serializer:-rest');
+  notEqual(serializer1, serializer2);
+});
+
+test("adapters are not returned as singletons - each lookup should return a different instance", function() {
+  var adapter1, adapter2;
+  adapter1 = container.lookup('adapter:-rest');
+  adapter2 = container.lookup('adapter:-rest');
+  notEqual(adapter1, adapter2);
 });
