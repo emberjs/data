@@ -508,7 +508,14 @@ var converts = function(type, provided, expected) {
     name: DS.attr(type)
   });
 
-  var container = new Ember.Container();
+  var registry, container;
+  if (Ember.Registry) {
+    registry = new Ember.Registry();
+    container = registry.container();
+  } else {
+    container = new Ember.Container();
+    registry = container;
+  }
   var testStore = createStore({ model: Model });
   var serializer = DS.JSONSerializer.create({
     store: testStore,
@@ -534,7 +541,14 @@ var convertsFromServer = function(type, provided, expected) {
     name: DS.attr(type)
   });
 
-  var container = new Ember.Container();
+  var registry, container;
+  if (Ember.Registry) {
+    registry = new Ember.Registry();
+    container = registry.container();
+  } else {
+    container = new Ember.Container();
+    registry = container;
+  }
   var testStore = createStore({ model: Model });
   var serializer = DS.JSONSerializer.create({
     store: testStore,

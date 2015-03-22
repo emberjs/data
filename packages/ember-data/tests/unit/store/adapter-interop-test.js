@@ -237,11 +237,12 @@ test("Find with query calls the correct extract", function() {
     }
   });
 
-  var store = createStore({
+  var env = setupStore({
     adapter: adapter
   });
+  var store = env.store;
 
-  store.container.register('serializer:application', ApplicationSerializer);
+  env.registry.register('serializer:application', ApplicationSerializer);
 
   run(function() {
     store.find(Person, passedQuery);
@@ -383,16 +384,17 @@ test("initial values of belongsTo can be passed in as the third argument to find
     }
   });
 
-  var store = createStore({
+  var env = setupStore({
     adapter: adapter
   });
+  var store = env.store;
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     friend: DS.belongsTo('person', { inverse: null })
   });
 
-  store.container.register('model:person', Person);
+  env.registry.register('model:person', Person);
   var tom;
 
   run(function() {
@@ -412,16 +414,17 @@ test("initial values of belongsTo can be passed in as the third argument to find
     }
   });
 
-  var store = createStore({
+  var env = setupStore({
     adapter: adapter
   });
+  var store = env.store;
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     friend: DS.belongsTo('person', { async: true, inverse: null })
   });
 
-  store.container.register('model:person', Person);
+  env.registry.register('model:person', Person);
 
   run(function() {
     store.find(Person, 1, { friend: 2 }).then(async(function() {
@@ -439,16 +442,17 @@ test("initial values of hasMany can be passed in as the third argument to find a
     }
   });
 
-  var store = createStore({
+  var env = setupStore({
     adapter: adapter
   });
+  var store = env.store;
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     friends: DS.hasMany('person', { inverse: null })
   });
 
-  store.container.register('model:person', Person);
+  env.registry.register('model:person', Person);
   var tom;
 
   run(function() {
@@ -468,16 +472,17 @@ test("initial values of hasMany can be passed in as the third argument to find a
     }
   });
 
-  var store = createStore({
+  var env = setupStore({
     adapter: adapter
   });
+  var store = env.store;
 
   var Person = DS.Model.extend({
     name: DS.attr('string'),
     friends: DS.hasMany('person', { async: true, inverse: null })
   });
 
-  store.container.register('model:person', Person);
+  env.registry.register('model:person', Person);
 
   run(function() {
     store.find(Person, 1, { friends: [2] });

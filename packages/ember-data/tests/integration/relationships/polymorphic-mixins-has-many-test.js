@@ -37,7 +37,7 @@ module('integration/relationships/polymorphic_mixins_has_many_test - Polymorphic
       notMessage: NotMessage
     });
 
-    env.container.register('mixin:message', Message);
+    env.registry.register('mixin:message', Message);
     store = env.store;
   },
 

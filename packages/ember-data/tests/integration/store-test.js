@@ -23,8 +23,8 @@ function initializeStore(adapter) {
   });
   store = env.store;
 
-  env.container.register('model:car', Car);
-  env.container.register('model:person', Person);
+  env.registry.register('model:car', Car);
+  env.registry.register('model:person', Person);
 }
 
 module("integration/store - destroy", {
