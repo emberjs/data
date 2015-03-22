@@ -202,7 +202,7 @@ var Adapter = Ember.Object.extend({
     @param {String} id
     @return {Promise} promise
   */
-  find: Ember.required(Function),
+  find: null,
 
   /**
     The `findAll()` method is called when you call `find` on the store
@@ -361,7 +361,7 @@ var Adapter = Ember.Object.extend({
     @param {DS.Model} record
     @return {Promise} promise
   */
-  createRecord: Ember.required(Function),
+  createRecord: null,
 
   /**
     Implement this method in a subclass to handle the updating of
@@ -401,7 +401,7 @@ var Adapter = Ember.Object.extend({
     @param {DS.Model} record
     @return {Promise} promise
   */
-  updateRecord: Ember.required(Function),
+  updateRecord: null,
 
   /**
     Implement this method in a subclass to handle the deletion of
@@ -441,7 +441,7 @@ var Adapter = Ember.Object.extend({
     @param {DS.Model} record
     @return {Promise} promise
   */
-  deleteRecord: Ember.required(Function),
+  deleteRecord: null,
 
   /**
     By default the store will try to coalesce all `fetchRecord` calls within the same runloop
