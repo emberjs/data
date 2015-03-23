@@ -2,6 +2,8 @@
 
 ### Master
 
+### Release 1.0.0-beta.16 (March 23, 2015)
+
 #### Breaking Changes
 
 ##### The store now passes snapshots instead of records to adapter methods
@@ -44,6 +46,51 @@ If you need to access the underlying record of a snapshot you can do so by
 accessing `snapshot.record`.
 
 The full API reference of `DS.Snapshot` can be found [here](http://emberjs.com/api/data/classes/DS.Snapshot.html).
+
+#### Changes
+  * Do not re-add deleted records to a hasMany relationship
+  * Shorten the list of reserved attributes on the model
+  * Remove _createSnapshot() from DS.Snapshot documentation examples
+  * Pass snapshots to adapters instead of records
+  * Refactor the model assert so it will be correctly removed from the prod build.
+  * Adapters and Serializers are Store Managed
+  * Delete `Ember.required` (it is deprecated).
+  * Adding clearer wording for calling super form extract messages
+  * Missing parameter for JSDoc
+  * Add examples of how to use model.errors in a template
+  * Add doc example for defaultValue as a function on DS.attr
+  * Update the InvalidError docs to make it more clear about where the server payload gets normalized.
+  * Assert if the user tries to redefine a reserved property name.
+  * Remove container deprecation warnings in Ember Data tests
+  * hasRecordForId should return false if the record is not loaded
+  * [BUGFIX] fetching an empty record runs find
+  * bump ember-cli to 2.0 & remove sourcemapping comments in production
+  * commit record-arrays.js separately so it doesn't clobber the rename
+  * Rename local files to use dashes instead of underscores
+  * Have snapshots respect the order of items in hasMany relationships
+  * remove ManyArray from record_arrays
+  * update docs about `store` in serializer
+  * fetch() -> fetchById() in docs
+  * Run findHasMany inside an ED runloop
+  * Cleanup debug adapter test: Watching Records
+  * Fixed didDelete event/callback not fired in uncommited state
+  * Add main entry point for package.json.
+  * register the store as a service
+  * Warn when expected coalesced records are not found in the response
+  * Warn if calling attr, belongsTo or hasMany on model
+  * move Model to use default export instead of named export
+  * Move buildURL and related methods to a mixin
+  * Correct modelFor model not found errors
+  * Declare `store` property on DS.Model
+  * improve error message for belongsTo
+  * Move _adapterRun onto the DS.Store object
+  * Move utility functions out of DS.Store, and into their own modules for reuse across ember-data
+  * CLean up implicit relationships on record unload
+  * Add assertion for `store` property on DS.Model subclasses
+  * Adds support for using mixins in polymorphic relationships
+  * [DOC]: Clarify when didCreate is fired
+  * (Docs) ManyArray is no longer a RecordArray
+  * Fix: root.deleted.invalid state
 
 
 ### Release 1.0.0-beta.15 (February 14, 2015)
