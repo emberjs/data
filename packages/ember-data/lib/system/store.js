@@ -1924,18 +1924,14 @@ Store = Service.extend({
       type = this.modelFor(type);
     }
 
-    var serializer = this.lookupSerializer(type.modelName) || this.lookupSerializer('application');
+    var serializer = this.lookupSerializer(type.modelName);
 
     if (!serializer) {
-      var adapter = this.adapterFor(type);
+      var adapter = this.lookupAdapter(type.modelName);
       serializer = this.lookupSerializer(get(adapter, 'defaultSerializer'));
     }
 
-    if (!serializer) {
-      serializer = this.lookupSerializer('-default');
-    }
-
-    return serializer;
+    return serializer || get(this, 'defaultSerializer');
   },
 
   /**
