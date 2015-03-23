@@ -1198,17 +1198,8 @@ var Model = Ember.Object.extend(Ember.Evented, {
   // This is a temporary solution until we refactor DS.Model to not
   // rely on the data property.
   willMergeMixin: function(props) {
-    var constructor = this.constructor;
-    [
-      'attributes', 'clientId', 'currentState', 'data', 'dirtyType',
-      'errors', 'fields', 'isDeleted', 'isDirty', 'isDestroyed',
-      'isDestroying', 'isEmpty', 'isError', 'isLoaded',
-      'isLoading', 'isNew', 'isReloading', 'isSaving', 'isValid',
-      'relatedTypes', 'relationshipNames', 'relationships',
-      'relationshipsByName', 'transformedAttributes', 'store'
-    ].forEach(function(reservedProperty) {
-      Ember.assert('`' + reservedProperty + '` is a reserved property name on DS.Model objects. Please choose a different property name for ' + constructor.toString(), !props[reservedProperty]);
-    });
+    Ember.assert('`data` is a reserved property name on DS.Model objects. Please choose a different property name for ' + this.constructor.toString(), !props.data);
+    Ember.assert('`store` is a reserved property name on DS.Model objects. Please choose a different property name for '+ this.constructor.toString(), !props.store);
   },
 
   attr: function() {
