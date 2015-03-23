@@ -2,6 +2,50 @@
 
 ### Master
 
+#### Breaking Changes
+
+##### The store now passes snapshots instead of records to adapter methods
+
+In 1.0.0-beta.15 serializers were updated to be passed snapshots instead of
+records to prevent side-effects like fetching data when inspecting
+relationships. This has now been extended to also include adapters methods.
+
+The following adapter methods are now passed snapshots instead of records:
+
+- `find(store, type, id, snapshot)`
+- `findMany(store, type, ids, snapshots)`
+- `findHasMany(store, snapshot, url, relationship)`
+- `findBelongsTo(store, snapshot, url, relationship)`
+- `createRecord(store, type, snapshot)`
+- `updateRecord(store, type, snapshot)`
+- `deleteRecord(store, type, snapshot)`
+
+The signature of `buildURL(type, id, snapshot)` has also been updated to receive
+snapshots instead of records.
+
+This change removes the need for adapters to create snapshots manually using the
+private API `record._createSnapshot()` to be able to pass snapshots to
+serializers.
+
+Snapshots are backwards-compatible with records (with deprecation warnings) and
+it should be pretty straight forward to update current code to the public
+Snapshot API:
+
+```js
+post.get('id')           => postSnapshot.id
+post.get('title')        => postSnapshot.attr('title')
+post.get('author')       => postSnapshot.belongsTo('author')
+post.get('comments')     => postSnapshot.hasMany('comments')
+post.constructor         => postSnapshot.type;
+post.constructor.typeKey => postSnapshot.typeKey
+```
+
+If you need to access the underlying record of a snapshot you can do so by
+accessing `snapshot.record`.
+
+The full API reference of `DS.Snapshot` can be found [here](http://emberjs.com/api/data/classes/DS.Snapshot.html).
+
+
 ### Release 1.0.0-beta.15 (February 14, 2015)
 
 #### Breaking Changes

@@ -181,7 +181,7 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      find: function(store, type, id) {
+      find: function(store, type, id, snapshot) {
         var url = [type.typeKey, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -200,6 +200,7 @@ var Adapter = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {String} id
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
   find: null,
@@ -305,8 +306,8 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      createRecord: function(store, type, record) {
-        var data = this.serialize(record, { includeId: true });
+      createRecord: function(store, type, snapshot) {
+        var data = this.serialize(snapshot, { includeId: true });
         var url = type;
 
         // ...
@@ -334,8 +335,8 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      createRecord: function(store, type, record) {
-        var data = this.serialize(record, { includeId: true });
+      createRecord: function(store, type, snapshot) {
+        var data = this.serialize(snapshot, { includeId: true });
         var url = type;
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -358,7 +359,7 @@ var Adapter = Ember.Object.extend({
     @method createRecord
     @param {DS.Store} store
     @param {subclass of DS.Model} type   the DS.Model class of the record
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
   createRecord: null,
@@ -373,9 +374,9 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      updateRecord: function(store, type, record) {
-        var data = this.serialize(record, { includeId: true });
-        var id = record.get('id');
+      updateRecord: function(store, type, snapshot) {
+        var data = this.serialize(snapshot, { includeId: true });
+        var id = snapshot.id;
         var url = [type, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -398,7 +399,7 @@ var Adapter = Ember.Object.extend({
     @method updateRecord
     @param {DS.Store} store
     @param {subclass of DS.Model} type   the DS.Model class of the record
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
   updateRecord: null,
@@ -413,9 +414,9 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      deleteRecord: function(store, type, record) {
-        var data = this.serialize(record, { includeId: true });
-        var id = record.get('id');
+      deleteRecord: function(store, type, snapshot) {
+        var data = this.serialize(snapshot, { includeId: true });
+        var id = snapshot.id;
         var url = [type, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -438,7 +439,7 @@ var Adapter = Ember.Object.extend({
     @method deleteRecord
     @param {DS.Store} store
     @param {subclass of DS.Model} type   the DS.Model class of the record
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
   deleteRecord: null,
@@ -461,7 +462,7 @@ var Adapter = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type   the DS.Model class of the records
     @param {Array}    ids
-    @param {Array} records
+    @param {Array} snapshots
     @return {Promise} promise
   */
 
@@ -476,12 +477,12 @@ var Adapter = Ember.Object.extend({
 
     @method groupRecordsForFindMany
     @param {DS.Store} store
-    @param {Array} records
+    @param {Array} snapshots
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
   */
-  groupRecordsForFindMany: function (store, records) {
-    return [records];
+  groupRecordsForFindMany: function(store, snapshots) {
+    return [snapshots];
   }
 });
 

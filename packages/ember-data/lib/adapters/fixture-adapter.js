@@ -114,10 +114,9 @@ export default Adapter.extend({
     @method mockJSON
     @param {DS.Store} store
     @param {Subclass of DS.Model} type
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
   */
-  mockJSON: function(store, type, record) {
-    var snapshot = record._createSnapshot();
+  mockJSON: function(store, type, snapshot) {
     return store.serializerFor(snapshot.typeKey).serialize(snapshot, { includeId: true });
   },
 
@@ -136,9 +135,10 @@ export default Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {String} id
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  find: function(store, type, id) {
+  find: function(store, type, id, snapshot) {
     var fixtures = this.fixturesForType(type);
     var fixture;
 
@@ -160,9 +160,10 @@ export default Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Array} ids
+    @param {Array} snapshots
     @return {Promise} promise
   */
-  findMany: function(store, type, ids) {
+  findMany: function(store, type, ids, snapshots) {
     var fixtures = this.fixturesForType(type);
 
     Ember.assert("Unable to find fixtures for model type "+type.toString(), fixtures);
@@ -225,11 +226,11 @@ export default Adapter.extend({
     @method createRecord
     @param {DS.Store} store
     @param {subclass of DS.Model} type
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  createRecord: function(store, type, record) {
-    var fixture = this.mockJSON(store, type, record);
+  createRecord: function(store, type, snapshot) {
+    var fixture = this.mockJSON(store, type, snapshot);
 
     this.updateFixtures(type, fixture);
 
@@ -242,11 +243,11 @@ export default Adapter.extend({
     @method updateRecord
     @param {DS.Store} store
     @param {subclass of DS.Model} type
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  updateRecord: function(store, type, record) {
-    var fixture = this.mockJSON(store, type, record);
+  updateRecord: function(store, type, snapshot) {
+    var fixture = this.mockJSON(store, type, snapshot);
 
     this.updateFixtures(type, fixture);
 
@@ -259,11 +260,11 @@ export default Adapter.extend({
     @method deleteRecord
     @param {DS.Store} store
     @param {subclass of DS.Model} type
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  deleteRecord: function(store, type, record) {
-    this.deleteLoadedFixture(type, record);
+  deleteRecord: function(store, type, snapshot) {
+    this.deleteLoadedFixture(type, snapshot);
 
     return this.simulateRemoteCall(function() {
       // no payload in a deletion
@@ -275,10 +276,10 @@ export default Adapter.extend({
     @method deleteLoadedFixture
     @private
     @param type
-    @param record
+    @param snapshot
   */
-  deleteLoadedFixture: function(type, record) {
-    var existingFixture = this.findExistingFixture(type, record);
+  deleteLoadedFixture: function(type, snapshot) {
+    var existingFixture = this.findExistingFixture(type, snapshot);
 
     if (existingFixture) {
       var index = indexOf(type.FIXTURES, existingFixture);
@@ -291,11 +292,11 @@ export default Adapter.extend({
     @method findExistingFixture
     @private
     @param type
-    @param record
+    @param snapshot
   */
-  findExistingFixture: function(type, record) {
+  findExistingFixture: function(type, snapshot) {
     var fixtures = this.fixturesForType(type);
-    var id = get(record, 'id');
+    var id = snapshot.id;
 
     return this.findFixtureById(fixtures, id);
   },

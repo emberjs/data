@@ -70,18 +70,18 @@ test("Records loaded multiple times and retrieved in recordArray are ready to se
 test("by default, createRecords calls createRecord once per record", function() {
   var count = 1;
 
-  adapter.createRecord = function(store, type, record) {
+  adapter.createRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
 
     if (count === 1) {
-      equal(get(record, 'name'), "Tom Dale");
+      equal(snapshot.attr('name'), "Tom Dale");
     } else if (count === 2) {
-      equal(get(record, 'name'), "Yehuda Katz");
+      equal(snapshot.attr('name'), "Yehuda Katz");
     } else {
       ok(false, "should not have invoked more than 2 times");
     }
 
-    var hash = get(record, 'data');
+    var hash = snapshot.attributes();
     hash.id = count;
     hash.updatedAt = "now";
 
@@ -115,20 +115,20 @@ test("by default, createRecords calls createRecord once per record", function() 
 test("by default, updateRecords calls updateRecord once per record", function() {
   var count = 0;
 
-  adapter.updateRecord = function(store, type, record) {
+  adapter.updateRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
 
     if (count === 0) {
-      equal(get(record, 'name'), "Tom Dale");
+      equal(snapshot.attr('name'), "Tom Dale");
     } else if (count === 1) {
-      equal(get(record, 'name'), "Yehuda Katz");
+      equal(snapshot.attr('name'), "Yehuda Katz");
     } else {
       ok(false, "should not get here");
     }
 
     count++;
 
-    equal(record.get('isSaving'), true, "record is saving");
+    equal(snapshot.record.get('isSaving'), true, "record is saving");
 
     return Ember.RSVP.resolve();
   };
@@ -168,15 +168,15 @@ test("by default, updateRecords calls updateRecord once per record", function() 
 test("calling store.didSaveRecord can provide an optional hash", function() {
   var count = 0;
 
-  adapter.updateRecord = function(store, type, record) {
+  adapter.updateRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
 
     count++;
     if (count === 1) {
-      equal(get(record, 'name'), "Tom Dale");
+      equal(snapshot.attr('name'), "Tom Dale");
       return Ember.RSVP.resolve({ id: 1, name: "Tom Dale", updatedAt: "now" });
     } else if (count === 2) {
-      equal(get(record, 'name'), "Yehuda Katz");
+      equal(snapshot.attr('name'), "Yehuda Katz");
       return Ember.RSVP.resolve({ id: 2, name: "Yehuda Katz", updatedAt: "now!" });
     } else {
       ok(false, "should not get here");
@@ -219,13 +219,13 @@ test("by default, deleteRecord calls deleteRecord once per record", function() {
 
   var count = 0;
 
-  adapter.deleteRecord = function(store, type, record) {
+  adapter.deleteRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
 
     if (count === 0) {
-      equal(get(record, 'name'), "Tom Dale");
+      equal(snapshot.attr('name'), "Tom Dale");
     } else if (count === 1) {
-      equal(get(record, 'name'), "Yehuda Katz");
+      equal(snapshot.attr('name'), "Yehuda Katz");
     } else {
       ok(false, "should not get here");
     }
@@ -264,13 +264,13 @@ test("by default, destroyRecord calls deleteRecord once per record without requi
 
   var count = 0;
 
-  adapter.deleteRecord = function(store, type, record) {
+  adapter.deleteRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
 
     if (count === 0) {
-      equal(get(record, 'name'), "Tom Dale");
+      equal(snapshot.attr('name'), "Tom Dale");
     } else if (count === 1) {
-      equal(get(record, 'name'), "Yehuda Katz");
+      equal(snapshot.attr('name'), "Yehuda Katz");
     } else {
       ok(false, "should not get here");
     }
@@ -306,9 +306,9 @@ test("if an existing model is edited then deleted, deleteRecord is called on the
 
   var count = 0;
 
-  adapter.deleteRecord = function(store, type, record) {
+  adapter.deleteRecord = function(store, type, snapshot) {
     count++;
-    equal(get(record, 'id'), 'deleted-record', "should pass correct record to deleteRecord");
+    equal(snapshot.id, 'deleted-record', "should pass correct record to deleteRecord");
     equal(count, 1, "should only call deleteRecord method of adapter once");
 
     return Ember.RSVP.resolve();
@@ -340,7 +340,7 @@ test("if an existing model is edited then deleted, deleteRecord is called on the
 test("if a deleted record errors, it enters the error state", function() {
   var count = 0;
 
-  adapter.deleteRecord = function(store, type, record) {
+  adapter.deleteRecord = function(store, type, snapshot) {
     if (count++ === 0) {
       return Ember.RSVP.reject();
     } else {
@@ -371,10 +371,10 @@ test("if a deleted record errors, it enters the error state", function() {
 });
 
 test("if a created record is marked as invalid by the server, it enters an error state", function() {
-  adapter.createRecord = function(store, type, record) {
+  adapter.createRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
 
-    if (get(record, 'name').indexOf('Bro') === -1) {
+    if (snapshot.attr('name').indexOf('Bro') === -1) {
       return Ember.RSVP.reject(new DS.InvalidError({ name: ['common... name requires a "bro"'] }));
     } else {
       return Ember.RSVP.resolve();
@@ -412,8 +412,8 @@ test("if a created record is marked as invalid by the server, it enters an error
 });
 
 test("allows errors on arbitrary properties on create", function() {
-  adapter.createRecord = function(store, type, record) {
-    if (get(record, 'name').indexOf('Bro') === -1) {
+  adapter.createRecord = function(store, type, snapshot) {
+    if (snapshot.attr('name').indexOf('Bro') === -1) {
       return Ember.RSVP.reject(new DS.InvalidError({ base: ['is a generally unsavoury character'] }));
     } else {
       return Ember.RSVP.resolve();
@@ -455,11 +455,11 @@ test("allows errors on arbitrary properties on create", function() {
 
 test("if a created record is marked as invalid by the server, you can attempt the save again", function() {
   var saveCount = 0;
-  adapter.createRecord = function(store, type, record) {
+  adapter.createRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
     saveCount++;
 
-    if (get(record, 'name').indexOf('Bro') === -1) {
+    if (snapshot.attr('name').indexOf('Bro') === -1) {
       return Ember.RSVP.reject(new DS.InvalidError({ name: ['common... name requires a "bro"'] }));
     } else {
       return Ember.RSVP.resolve();
@@ -500,7 +500,7 @@ test("if a created record is marked as invalid by the server, you can attempt th
 });
 
 test("if a created record is marked as erred by the server, it enters an error state", function() {
-  adapter.createRecord = function(store, type, record) {
+  adapter.createRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject();
   };
 
@@ -514,10 +514,10 @@ test("if a created record is marked as erred by the server, it enters an error s
 });
 
 test("if an updated record is marked as invalid by the server, it enters an error state", function() {
-  adapter.updateRecord = function(store, type, record) {
+  adapter.updateRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
 
-    if (get(record, 'name').indexOf('Bro') === -1) {
+    if (snapshot.attr('name').indexOf('Bro') === -1) {
       return Ember.RSVP.reject(new DS.InvalidError({ name: ['common... name requires a "bro"'] }));
     } else {
       return Ember.RSVP.resolve();
@@ -560,8 +560,8 @@ test("if an updated record is marked as invalid by the server, it enters an erro
 
 
 test("records can have errors on arbitrary properties after update", function() {
-  adapter.updateRecord = function(store, type, record) {
-    if (get(record, 'name').indexOf('Bro') === -1) {
+  adapter.updateRecord = function(store, type, snapshot) {
+    if (snapshot.attr('name').indexOf('Bro') === -1) {
       return Ember.RSVP.reject(new DS.InvalidError({ base: ['is a generally unsavoury character'] }));
     } else {
       return Ember.RSVP.resolve();
@@ -610,10 +610,10 @@ test("records can have errors on arbitrary properties after update", function() 
 
 test("if an updated record is marked as invalid by the server, you can attempt the save again", function() {
   var saveCount = 0;
-  adapter.updateRecord = function(store, type, record) {
+  adapter.updateRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
     saveCount++;
-    if (get(record, 'name').indexOf('Bro') === -1) {
+    if (snapshot.attr('name').indexOf('Bro') === -1) {
       return Ember.RSVP.reject(new DS.InvalidError({ name: ['common... name requires a "bro"'] }));
     } else {
       return Ember.RSVP.resolve();
@@ -659,7 +659,7 @@ test("if an updated record is marked as invalid by the server, you can attempt t
 
 
 test("if a updated record is marked as erred by the server, it enters an error state", function() {
-  adapter.updateRecord = function(store, type, record) {
+  adapter.updateRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject();
   };
 
@@ -679,7 +679,7 @@ test("if a updated record is marked as erred by the server, it enters an error s
 test("can be created after the DS.Store", function() {
   expect(1);
 
-  adapter.find = function(store, type) {
+  adapter.find = function(store, type, id, snapshot) {
     equal(type, Person, "the type is correct");
     return Ember.RSVP.resolve({ id: 1 });
   };
@@ -721,11 +721,11 @@ test("relationships returned via `commit` do not trigger additional findManys", 
     store.push('dog', { id: 1, name: "Scruffy" });
   });
 
-  adapter.find = function(store, type, id) {
+  adapter.find = function(store, type, id, snapshot) {
     return Ember.RSVP.resolve({ id: 1, name: "Tom Dale", dogs: [1] });
   };
 
-  adapter.updateRecord = function(store, type, record) {
+  adapter.updateRecord = function(store, type, snapshot) {
     return new Ember.RSVP.Promise(function(resolve, reject) {
       store.push('person', { id: 1, name: "Tom Dale", dogs: [1, 2] });
       store.push('dog', { id: 2, name: "Scruffles" });
@@ -733,7 +733,7 @@ test("relationships returned via `commit` do not trigger additional findManys", 
     });
   };
 
-  adapter.findMany = function(store, type, ids) {
+  adapter.findMany = function(store, type, ids, snapshots) {
     ok(false, "Should not get here");
   };
 
@@ -756,7 +756,7 @@ test("relationships don't get reset if the links is the same", function() {
 
   var count = 0;
 
-  adapter.findHasMany = function() {
+  adapter.findHasMany = function(store, snapshot, link, relationship) {
     ok(count++ === 0, "findHasMany is only called once");
 
     return Ember.RSVP.resolve([{ id: 1, name: "Scruffy" }]);
@@ -787,7 +787,7 @@ test("async hasMany always returns a promise", function() {
     dogs: DS.hasMany({ async: true })
   });
 
-  adapter.createRecord = function(store, type, record) {
+  adapter.createRecord = function(store, type, snapshot) {
     var hash = { name: "Tom Dale" };
     hash.dogs = [];
     hash.id = 1;
@@ -805,5 +805,145 @@ test("async hasMany always returns a promise", function() {
     tom.save().then(async(function() {
       ok(tom.get('dogs') instanceof DS.PromiseArray, "dogs is a promise after save");
     }));
+  });
+});
+
+test("createRecord receives a snapshot", function() {
+  expect(1);
+
+  adapter.createRecord = function(store, type, snapshot) {
+    ok(snapshot instanceof DS.Snapshot, "snapshot is an instance of DS.Snapshot");
+    return Ember.RSVP.resolve();
+  };
+
+  var person;
+
+  run(function() {
+    person = store.createRecord('person', { name: "Tom Dale" });
+    person.save();
+  });
+});
+
+test("updateRecord receives a snapshot", function() {
+  expect(1);
+
+  adapter.updateRecord = function(store, type, snapshot) {
+    ok(snapshot instanceof DS.Snapshot, "snapshot is an instance of DS.Snapshot");
+    return Ember.RSVP.resolve();
+  };
+
+  var person;
+
+  run(function() {
+    person = store.push('person', { id: 1, name: "Tom Dale" });
+  });
+
+  run(function() {
+    set(person, "name", "Tomster");
+    person.save();
+  });
+});
+
+test("deleteRecord receives a snapshot", function() {
+  expect(1);
+
+  adapter.deleteRecord = function(store, type, snapshot) {
+    ok(snapshot instanceof DS.Snapshot, "snapshot is an instance of DS.Snapshot");
+    return Ember.RSVP.resolve();
+  };
+
+  var person;
+
+  run(function() {
+    person = store.push('person', { id: 1, name: "Tom Dale" });
+  });
+
+  run(function() {
+    person.deleteRecord();
+    person.save();
+  });
+});
+
+test("find receives a snapshot", function() {
+  expect(1);
+
+  adapter.find = function(store, type, id, snapshot) {
+    ok(snapshot instanceof DS.Snapshot, "snapshot is an instance of DS.Snapshot");
+    return Ember.RSVP.resolve({ id: 1 });
+  };
+
+  run(function() {
+    store.find('person', 1);
+  });
+});
+
+test("findMany receives an array of snapshots", function() {
+  expect(2);
+
+  Person.reopen({
+    dogs: DS.hasMany({ async: true })
+  });
+
+  adapter.coalesceFindRequests = true;
+  adapter.findMany = function(store, type, ids, snapshots) {
+    ok(snapshots[0] instanceof DS.Snapshot, "snapshots[0] is an instance of DS.Snapshot");
+    ok(snapshots[1] instanceof DS.Snapshot, "snapshots[1] is an instance of DS.Snapshot");
+    return Ember.RSVP.resolve([{ id: 2 }, { id: 3 }]);
+  };
+
+  var person;
+
+  run(function() {
+    person = store.push('person', { id: 1, dogs: [2, 3] });
+  });
+
+  run(function() {
+    person.get('dogs');
+  });
+});
+
+test("findHasMany receives a snapshot", function() {
+  expect(1);
+
+  Person.reopen({
+    dogs: DS.hasMany({ async: true })
+  });
+
+  env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+    ok(snapshot instanceof DS.Snapshot, "snapshot is an instance of DS.Snapshot");
+    return Ember.RSVP.resolve([{ id: 2 }, { id: 3 }]);
+  };
+
+  var person;
+
+  run(function() {
+    person = store.push('person', { id: 1, links: { dogs: 'dogs' } });
+  });
+
+  run(function() {
+    person.get('dogs');
+  });
+});
+
+test("findBelongsTo receives a snapshot", function() {
+  expect(1);
+
+  Person.reopen({
+    dog: DS.belongsTo({ async: true })
+  });
+
+  env.adapter.findBelongsTo = async(function(store, snapshot, link, relationship) {
+    ok(snapshot instanceof DS.Snapshot, "snapshot is an instance of DS.Snapshot");
+    return Ember.RSVP.resolve({ id: 2 });
+  });
+
+  var person;
+
+  run(function() {
+    person = store.push('person', { id: 1, links: { dog: 'dog' } });
+  });
+
+  run(function() {
+    person.get('dog');
   });
 });

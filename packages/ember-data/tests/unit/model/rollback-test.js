@@ -48,7 +48,7 @@ test("changes to unassigned attributes can be rolled back", function() {
 });
 
 test("changes to attributes made after a record is in-flight only rolls back the local changes", function() {
-  env.adapter.updateRecord = function(store, type, record) {
+  env.adapter.updateRecord = function(store, type, snapshot) {
     // Make sure the save is async
     return new Ember.RSVP.Promise(function(resolve, reject) {
       Ember.run.later(null, resolve, 15);
@@ -83,7 +83,7 @@ test("changes to attributes made after a record is in-flight only rolls back the
 });
 
 test("a record's changes can be made if it fails to save", function() {
-  env.adapter.updateRecord = function(store, type, record) {
+  env.adapter.updateRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject();
   };
   var person;
@@ -111,7 +111,7 @@ test("a record's changes can be made if it fails to save", function() {
 
 test("a deleted record can be rollbacked if it fails to save, record arrays are updated accordingly", function() {
   expect(6);
-  env.adapter.deleteRecord = function(store, type, record) {
+  env.adapter.deleteRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject();
   };
   var person, people;

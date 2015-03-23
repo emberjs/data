@@ -31,7 +31,7 @@ test("hasMany handles pre-loaded relationships", function() {
   env.registry.register('model:pet', Pet);
   env.registry.register('model:person', Person);
 
-  env.adapter.find = function(store, type, id) {
+  env.adapter.find = function(store, type, id, snapshot) {
     if (type === Tag && id === '12') {
       return Ember.RSVP.resolve({ id: 12, name: "oohlala" });
     } else {
@@ -118,7 +118,7 @@ test("hasMany lazily loads async relationships", function() {
   env.registry.register('model:pet', Pet);
   env.registry.register('model:person', Person);
 
-  env.adapter.find = function(store, type, id) {
+  env.adapter.find = function(store, type, id, snapshot) {
     if (type === Tag && id === '12') {
       return Ember.RSVP.resolve({ id: 12, name: "oohlala" });
     } else {
@@ -280,14 +280,14 @@ test("hasMany relationships work when the data hash has not been loaded", functi
   var store = env.store;
 
   env.adapter.coalesceFindRequests = true;
-  env.adapter.findMany = function(store, type, ids) {
+  env.adapter.findMany = function(store, type, ids, snapshots) {
     equal(type, Tag, "type should be Tag");
     deepEqual(ids, ['5', '2'], "ids should be 5 and 2");
 
     return Ember.RSVP.resolve([{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }]);
   };
 
-  env.adapter.find = function(store, type, id) {
+  env.adapter.find = function(store, type, id, snapshot) {
     equal(type, Person, "type should be Person");
     equal(id, 1, "id should be 1");
 

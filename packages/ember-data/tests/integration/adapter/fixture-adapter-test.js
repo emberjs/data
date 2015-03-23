@@ -284,7 +284,7 @@ asyncTest("copies fixtures instead of passing the direct reference", function() 
   }];
 
   var PersonAdapter = DS.FixtureAdapter.extend({
-    find: function(store, type, id) {
+    find: function(store, type, id, snapshot) {
       return this._super(store, type, id).then(function(fixture) {
         return returnedFixture = fixture;
       });

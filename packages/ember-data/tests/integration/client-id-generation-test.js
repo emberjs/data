@@ -34,12 +34,12 @@ test("If an adapter implements the `generateIdForRecord` method, the store shoul
     return "id-" + idCount++;
   };
 
-  env.adapter.createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, snapshot) {
     if (type === Comment) {
-      equal(get(record, 'id'), 'id-1', "Comment passed to `createRecord` has 'id-1' assigned");
+      equal(snapshot.id, 'id-1', "Comment passed to `createRecord` has 'id-1' assigned");
       return Ember.RSVP.resolve();
     } else {
-      equal(get(record, 'id'), 'id-2', "Post passed to `createRecord` has 'id-2' assigned");
+      equal(snapshot.id, 'id-2', "Post passed to `createRecord` has 'id-2' assigned");
       return Ember.RSVP.resolve();
     }
   };

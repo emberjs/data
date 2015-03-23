@@ -43,12 +43,12 @@ test("Calling Store#find invokes its adapter#find", function() {
   expect(5);
 
   var adapter = TestAdapter.extend({
-    find: function(store, type, id, record) {
+    find: function(store, type, id, snapshot) {
       ok(true, "Adapter#find was called");
       equal(store, currentStore, "Adapter#find was called with the right store");
       equal(type, currentType, "Adapter#find was called with the type passed into Store#find");
       equal(id, 1, "Adapter#find was called with the id passed into Store#find");
-      equal(record.get('id'), '1', "Adapter#find was called with the record created from Store#find");
+      equal(snapshot.id, '1', "Adapter#find was called with the record created from Store#find");
 
       return Ember.RSVP.resolve({ id: 1 });
     }
@@ -66,10 +66,10 @@ test("Calling Store#findById multiple times coalesces the calls into a adapter#f
   expect(2);
 
   var adapter = TestAdapter.extend({
-    find: function(store, type, id) {
+    find: function(store, type, id, snapshot) {
       ok(false, "Adapter#find was not called");
     },
-    findMany: function(store, type, ids) {
+    findMany: function(store, type, ids, snapshots) {
       start();
       ok(true, "Adapter#findMany was called");
       deepEqual(ids, ["1","2"], 'Correct ids were passed in to findMany');
@@ -92,7 +92,7 @@ test("Returning a promise from `find` asynchronously loads data", function() {
   expect(1);
 
   var adapter = TestAdapter.extend({
-    find: function(store, type, id) {
+    find: function(store, type, id, snapshot) {
       return resolve({ id: 1, name: "Scumbag Dale" });
     }
   });
@@ -113,7 +113,7 @@ test("IDs provided as numbers are coerced to strings", function() {
   expect(4);
 
   var adapter = TestAdapter.extend({
-    find: function(store, type, id) {
+    find: function(store, type, id, snapshot) {
       equal(typeof id, 'string', "id has been normalized to a string");
       return resolve({ id: 1, name: "Scumbag Sylvain" });
     }
@@ -357,8 +357,8 @@ test("initial values of attributes can be passed in as the third argument to fin
   expect(1);
 
   var adapter = TestAdapter.extend({
-    find: function(store, type, query, record) {
-      equal(record.get('name'), 'Test', 'Preloaded attribtue set');
+    find: function(store, type, id, snapshot) {
+      equal(snapshot.attr('name'), 'Test', 'Preloaded attribtue set');
       return Ember.RSVP.resolve({ id: '1', name: 'Test' });
     }
   });
@@ -379,8 +379,8 @@ test("initial values of attributes can be passed in as the third argument to fin
 test("initial values of belongsTo can be passed in as the third argument to find as records", function() {
   expect(1);
   var adapter = TestAdapter.extend({
-    find: function(store, type, query, record) {
-      equal(record.get('friend.name'), 'Tom', 'Preloaded belongsTo set');
+    find: function(store, type, id, snapshot) {
+      equal(snapshot.belongsTo('friend').attr('name'), 'Tom', 'Preloaded belongsTo set');
       return new Ember.RSVP.Promise(function() {});
     }
   });
@@ -408,7 +408,7 @@ test("initial values of belongsTo can be passed in as the third argument to find
   expect(1);
 
   var adapter = TestAdapter.extend({
-    find: function(store, type, id) {
+    find: function(store, type, id, snapshot) {
       return Ember.RSVP.Promise.resolve({ id: id });
     }
   });
@@ -437,10 +437,8 @@ test("initial values of belongsTo can be passed in as the third argument to find
 test("initial values of hasMany can be passed in as the third argument to find as records", function() {
   expect(1);
   var adapter = TestAdapter.extend({
-    find: function(store, type, query, record) {
-
-      equal(record.get('friends').toArray()[0].get('name'), 'Tom', 'Preloaded hasMany set');
-
+    find: function(store, type, id, snapshot) {
+      equal(snapshot.hasMany('friends')[0].attr('name'), 'Tom', 'Preloaded hasMany set');
       return new Ember.RSVP.Promise(function() {});
     }
   });
@@ -468,8 +466,8 @@ test("initial values of hasMany can be passed in as the third argument to find a
   expect(1);
 
   var adapter = TestAdapter.extend({
-    find: function(store, type, id, record) {
-      equal(record.get('friends.firstObject.id'), '2', 'Preloaded hasMany set');
+    find: function(store, type, id, snapshot) {
+      equal(snapshot.hasMany('friends')[0].id, '2', 'Preloaded hasMany set');
       return Ember.RSVP.resolve({ id: id });
     }
   });
@@ -494,12 +492,14 @@ test("initial values of hasMany can be passed in as the third argument to find a
 test("records should have their ids updated when the adapter returns the id data", function() {
   expect(2);
 
-  var Person = DS.Model.extend();
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
 
   var idCounter = 1;
   var adapter = TestAdapter.extend({
-    createRecord: function(store, type, record) {
-      return Ember.RSVP.resolve({ name: record.get('name'), id: idCounter++ });
+    createRecord: function(store, type, snapshot) {
+      return Ember.RSVP.resolve({ name: snapshot.attr('name'), id: idCounter++ });
     }
   });
 
@@ -555,7 +555,7 @@ test("store.scheduleFetchMany should not resolve until all the records are resol
   var Phone = DS.Model.extend();
 
   var adapter = TestAdapter.extend({
-    find: function (store, type, id) {
+    find: function (store, type, id, snapshot) {
       var wait = 5;
 
       var record = { id: id };
@@ -567,7 +567,7 @@ test("store.scheduleFetchMany should not resolve until all the records are resol
       });
     },
 
-    findMany: function(store, type, ids) {
+    findMany: function(store, type, ids, snapshots) {
       var wait = 15;
 
       var records = ids.map(function(id) {
@@ -610,19 +610,19 @@ test("the store calls adapter.findMany according to groupings returned by adapte
   var Person = DS.Model.extend();
 
   var adapter = TestAdapter.extend({
-    groupRecordsForFindMany: function (store, records) {
+    groupRecordsForFindMany: function(store, snapshots) {
       return [
-        [records[0]],
-        [records[1], records[2]]
+        [snapshots[0]],
+        [snapshots[1], snapshots[2]]
       ];
     },
 
-    find: function(store, type, id) {
+    find: function(store, type, id, snapshot) {
       equal(id, "10", "The first group is passed to find");
       return Ember.RSVP.resolve({ id: id });
     },
 
-    findMany: function(store, type, ids) {
+    findMany: function(store, type, ids, snapshots) {
       var records = ids.map(function(id) {
         return { id: id };
       });
@@ -660,14 +660,14 @@ test("the promise returned by `scheduleFetch`, when it resolves, does not depend
   var davidResolved = false;
 
   var adapter = TestAdapter.extend({
-    groupRecordsForFindMany: function (store, records) {
+    groupRecordsForFindMany: function (store, snapshots) {
       return [
-        [records[0]],
-        [records[1]]
+        [snapshots[0]],
+        [snapshots[1]]
       ];
     },
 
-    find: function(store, type, id) {
+    find: function(store, type, id, snapshot) {
       var record = { id: id };
 
       return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -708,14 +708,14 @@ test("the promise returned by `scheduleFetch`, when it rejects, does not depend 
   var davidResolved = false;
 
   var adapter = TestAdapter.extend({
-    groupRecordsForFindMany: function (store, records) {
+    groupRecordsForFindMany: function(store, snapshots) {
       return [
-        [records[0]],
-        [records[1]]
+        [snapshots[0]],
+        [snapshots[1]]
       ];
     },
 
-    find: function(store, type, id) {
+    find: function(store, type, id, snapshot) {
       var record = { id: id };
 
       return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -755,7 +755,7 @@ test("store.fetchRecord reject records that were not found, even when those requ
   var Person = DS.Model.extend();
 
   var adapter = TestAdapter.extend({
-    findMany: function(store, type, ids) {
+    findMany: function(store, type, ids, snapshots) {
       var records = ids.map(function(id) {
         return { id: id };
       });

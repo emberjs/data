@@ -666,7 +666,7 @@ test("ensure model exits loading state, materializes data and fulfills promise o
 
   var store = createStore({
     adapter: DS.Adapter.extend({
-      find: function(store, type, id) {
+      find: function(store, type, id, snapshot) {
         return Ember.RSVP.resolve({ id: 1, name: "John" });
       }
     })

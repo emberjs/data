@@ -1455,8 +1455,8 @@ test('buildURL - with camelized names', function() {
 
 test('buildURL - buildURL takes a record from find', function() {
   Comment.reopen({ post: DS.belongsTo('post') });
-  adapter.buildURL = function(type, id, record) {
-    return "/posts/" + record.get('post.id') + '/comments/' + record.get('id');
+  adapter.buildURL = function(type, id, snapshot) {
+    return "/posts/" + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
   };
 
   ajaxResponse({ comments: [{ id: 1 }] });
@@ -1477,8 +1477,11 @@ test('buildURL - buildURL takes the records from findMany', function() {
   Comment.reopen({ post: DS.belongsTo('post') });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
-  adapter.buildURL = function(type, ids, records) {
-    return "/posts/" + records.get('firstObject.post.id') + '/comments/';
+  adapter.buildURL = function(type, ids, snapshots) {
+    if (Ember.isArray(snapshots)) {
+      return "/posts/" + snapshots.get('firstObject').belongsTo('post', { id: true }) + '/comments/';
+    }
+    return "";
   };
   adapter.coalesceFindRequests = true;
 
@@ -1513,8 +1516,8 @@ test('coalesceFindRequests warns if the expected records are not returned in the
 
 test('buildURL - buildURL takes a record from create', function() {
   Comment.reopen({ post: DS.belongsTo('post') });
-  adapter.buildURL = function(type, id, record) {
-    return "/posts/" + record.get('post.id') + '/comments/';
+  adapter.buildURL = function(type, id, snapshot) {
+    return "/posts/" + snapshot.belongsTo('post', { id: true }) + '/comments/';
   };
 
   ajaxResponse({ comments: [{ id: 1 }] });
@@ -1538,8 +1541,8 @@ test('buildURL - buildURL takes a record from create to query a resolved async b
     store.find('post', 2).then(async(function(post) {
       equal(post.get('id'), 2);
 
-      adapter.buildURL = function(type, id, record) {
-        return "/posts/" + record.get('post.id') + '/comments/';
+      adapter.buildURL = function(type, id, snapshot) {
+        return "/posts/" + snapshot.belongsTo('post', { id: true }) + '/comments/';
       };
 
       ajaxResponse({ comments: [{ id: 1 }] });
@@ -1556,8 +1559,8 @@ test('buildURL - buildURL takes a record from create to query a resolved async b
 
 test('buildURL - buildURL takes a record from update', function() {
   Comment.reopen({ post: DS.belongsTo('post') });
-  adapter.buildURL = function(type, id, record) {
-    return "/posts/" + record.get('post.id') + '/comments/' + record.get('id');
+  adapter.buildURL = function(type, id, snapshot) {
+    return "/posts/" + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
   };
 
   ajaxResponse({ comments: [{ id: 1 }] });
@@ -1578,8 +1581,8 @@ test('buildURL - buildURL takes a record from update', function() {
 test('buildURL - buildURL takes a record from delete', function() {
   Comment.reopen({ post: DS.belongsTo('post') });
   Post.reopen({ comments: DS.hasMany('comment') });
-  adapter.buildURL = function(type, id, record) {
-    return 'posts/' + record.get('post.id') + '/comments/' + record.get('id');
+  adapter.buildURL = function(type, id, snapshot) {
+    return 'posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
   };
 
   ajaxResponse({ comments: [{ id: 1 }] });
@@ -1604,7 +1607,7 @@ test('groupRecordsForFindMany groups records based on their url', function() {
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
   adapter.coalesceFindRequests = true;
 
-  adapter.buildURL = function(type, id, record) {
+  adapter.buildURL = function(type, id, snapshot) {
     if (id === '1') {
       return '/comments/1';
     } else {
@@ -1612,12 +1615,12 @@ test('groupRecordsForFindMany groups records based on their url', function() {
     }
   };
 
-  adapter.find = function(store, type, id, record ) {
+  adapter.find = function(store, type, id, snapshot) {
     equal(id, '1');
     return Ember.RSVP.resolve({ comments: { id: 1 } });
   };
 
-  adapter.findMany = function(store, type, ids, records ) {
+  adapter.findMany = function(store, type, ids, snapshots) {
     deepEqual(ids, ['2', '3']);
     return Ember.RSVP.resolve({ comments: [{ id: 2 }, { id: 3 }] });
   };
@@ -1637,7 +1640,7 @@ test('groupRecordsForFindMany groups records correctly when singular URLs are en
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
   adapter.coalesceFindRequests = true;
 
-  adapter.buildURL = function(type, id, record) {
+  adapter.buildURL = function(type, id, snapshot) {
     if (id === '1') {
       return '/comments?id=1';
     } else {
@@ -1645,12 +1648,12 @@ test('groupRecordsForFindMany groups records correctly when singular URLs are en
     }
   };
 
-  adapter.find = function(store, type, id, record ) {
+  adapter.find = function(store, type, id, snapshot) {
     equal(id, '1');
     return Ember.RSVP.resolve({ comments: { id: 1 } });
   };
 
-  adapter.findMany = function(store, type, ids, records ) {
+  adapter.findMany = function(store, type, ids, snapshots) {
     deepEqual(ids, ['2', '3']);
     return Ember.RSVP.resolve({ comments: [{ id: 2 }, { id: 3 }] });
   };
@@ -1752,7 +1755,7 @@ test('groupRecordsForFindMany splits up calls for large ids', function() {
 
   adapter.coalesceFindRequests = true;
 
-  adapter.find = function(store, type, id, record) {
+  adapter.find = function(store, type, id, snapshot) {
     if (id === a2000 || id === b2000) {
       ok(true, "Found " + id);
     }
@@ -1760,7 +1763,7 @@ test('groupRecordsForFindMany splits up calls for large ids', function() {
     return Ember.RSVP.resolve({ comments: { id: id } });
   };
 
-  adapter.findMany = function(store, type, ids, records) {
+  adapter.findMany = function(store, type, ids, snapshots) {
     ok(false, "findMany should not be called - we expect 2 calls to find for a2000 and b2000");
     return Ember.RSVP.reject();
   };
@@ -1790,12 +1793,12 @@ test('groupRecordsForFindMany groups calls for small ids', function() {
 
   adapter.coalesceFindRequests = true;
 
-  adapter.find = function(store, type, id, record) {
+  adapter.find = function(store, type, id, snapshot) {
     ok(false, "find should not be called - we expect 1 call to findMany for a100 and b100");
     return Ember.RSVP.reject();
   };
 
-  adapter.findMany = function(store, type, ids, records) {
+  adapter.findMany = function(store, type, ids, snapshots) {
     deepEqual(ids, [a100, b100]);
     return Ember.RSVP.resolve({ comments: [{ id: a100 }, { id: b100 }] });
   };

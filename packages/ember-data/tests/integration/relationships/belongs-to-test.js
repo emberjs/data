@@ -91,7 +91,7 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
     })
   });
 
-  env.adapter.find = function(store, type, id) {
+  env.adapter.find = function(store, type, id, snapshot) {
     ok(true, "The adapter's find method should be called");
     return Ember.RSVP.resolve({
       id: 1
@@ -214,11 +214,11 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
     store.push('person', { id: 1, links: { group: '/people/1/group' } });
   });
 
-  env.adapter.find = function() {
+  env.adapter.find = function(store, type, id, snapshot) {
     throw new Error("Adapter's find method should not be called");
   };
 
-  env.adapter.findBelongsTo = async(function(store, record, link, relationship) {
+  env.adapter.findBelongsTo = async(function(store, snapshot, link, relationship) {
     equal(relationship.type, Group);
     equal(relationship.key, 'group');
     equal(link, "/people/1/group");
@@ -252,11 +252,11 @@ test('A record with an async belongsTo relationship always returns a promise for
     store.push('person', { id: 1, links: { seat: '/people/1/seat' } });
   });
 
-  env.adapter.find = function() {
+  env.adapter.find = function(store, type, id, snapshot) {
     throw new Error("Adapter's find method should not be called");
   };
 
-  env.adapter.findBelongsTo = async(function(store, record, link, relationship) {
+  env.adapter.findBelongsTo = async(function(store, snapshot, link, relationship) {
     return Ember.RSVP.resolve({ id: 1 });
   });
 
@@ -290,11 +290,11 @@ test("A record with an async belongsTo relationship returning null should resolv
     store.push('person', { id: 1, links: { group: '/people/1/group' } });
   });
 
-  env.adapter.find = function() {
+  env.adapter.find = function(store, type, id, snapshot) {
     throw new Error("Adapter's find method should not be called");
   };
 
-  env.adapter.findBelongsTo = async(function(store, record, link, relationship) {
+  env.adapter.findBelongsTo = async(function(store, snapshot, link, relationship) {
     return Ember.RSVP.resolve(null);
   });
 
@@ -472,13 +472,13 @@ test("relationship changes shouldn’t cause async fetches", function() {
     });
   });
 
-  env.adapter.deleteRecord = function(store, type, record) {
-    ok(record instanceof type);
-    equal(record.id, 1, 'should first comment');
-    return record.toJSON({ includeId: true });
+  env.adapter.deleteRecord = function(store, type, snapshot) {
+    ok(snapshot.record instanceof type);
+    equal(snapshot.id, 1, 'should first comment');
+    return snapshot.record.toJSON({ includeId: true });
   };
 
-  env.adapter.findMany = function(store, type, ids, records) {
+  env.adapter.findMany = function(store, type, ids, snapshots) {
     ok(false, 'should not need to findMay more comments, but attempted to anyways');
   };
 
@@ -509,13 +509,13 @@ test("Destroying a record with an unloaded aync belongsTo association does not f
     });
   });
 
-  env.adapter.find = function() {
+  env.adapter.find = function(store, type, id, snapshot) {
     throw new Error("Adapter's find method should not be called");
   };
 
-  env.adapter.deleteRecord = function(store, type, record) {
-    ok(record instanceof type);
-    equal(record.id, 1, 'should first post');
+  env.adapter.deleteRecord = function(store, type, snapshot) {
+    ok(snapshot.record instanceof type);
+    equal(snapshot.id, 1, 'should first post');
     return {
       id: "1",
       title: null,
