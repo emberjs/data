@@ -82,13 +82,13 @@ function belongsTo(type, options) {
         value = null;
       }
       if (value && value.then) {
-        this._relationships[key].setRecordPromise(value);
+        this._relationships.get(key).setRecordPromise(value);
       } else {
-        this._relationships[key].setRecord(value);
+        this._relationships.get(key).setRecord(value);
       }
     }
 
-    return this._relationships[key].getRecord();
+    return this._relationships.get(key).getRecord();
   }).meta(meta);
 }
 

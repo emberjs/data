@@ -144,6 +144,7 @@ test("Errors out if you do not define an inverse for a reflexive relationship", 
     var reflexiveModel;
     run(function() {
       reflexiveModel = store.push('reflexiveModel', { id: 1 });
+      reflexiveModel.get('reflexiveProp');
     });
   }, /Detected a reflexive relationship by the name of 'reflexiveProp'/);
 });
