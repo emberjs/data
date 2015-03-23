@@ -32,6 +32,7 @@ export default function initializeStore(registry, application) {
   // new go forward paths
   registry.register('serializer:-default', JSONSerializer);
   registry.register('serializer:-rest', RESTSerializer);
+  registry.register('adapter:-default', RESTAdapter);
   registry.register('adapter:-rest', RESTAdapter);
 
   // Eagerly generate the store so defaultStore is populated.

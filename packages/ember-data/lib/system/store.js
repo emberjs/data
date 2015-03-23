@@ -284,7 +284,7 @@ Store = Service.extend({
     }
 
     if (isNone(adapter)) {
-      adapter = this.lookupAdapter('application') || this.lookupAdapter('-rest');
+      adapter = this.lookupAdapter('application') || this.lookupAdapter('-default');
     }
 
     return adapter;
