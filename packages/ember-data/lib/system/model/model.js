@@ -15,15 +15,6 @@ var set = Ember.set;
 var Promise = Ember.RSVP.Promise;
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
-var intersection = Ember.EnumerableUtils.intersection;
-var RESERVED_MODEL_PROPS = [
-  'attributes', 'clientId', 'currentState', 'data', 'dirtyType',
-  'errors', 'fields', 'isDeleted', 'isDirty', 'isDestroyed',
-  'isDestroying', 'isEmpty', 'isError', 'isLoaded',
-  'isLoading', 'isNew', 'isReloading', 'isSaving', 'isValid',
-  'relatedTypes', 'relationshipNames', 'relationships',
-  'relationshipsByName', 'transformedAttributes', 'store'
-];
 
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
   return get(get(this, 'currentState'), key);
@@ -1208,7 +1199,16 @@ var Model = Ember.Object.extend(Ember.Evented, {
   // rely on the data property.
   willMergeMixin: function(props) {
     var constructor = this.constructor;
-    Ember.assert('`' + intersection(Ember.keys(props), RESERVED_MODEL_PROPS)[0] + '` is a reserved property name on DS.Model objects. Please choose a different property name for ' + constructor.toString(), !intersection(Ember.keys(props), RESERVED_MODEL_PROPS)[0]);
+    [
+      'attributes', 'clientId', 'currentState', 'data', 'dirtyType',
+      'errors', 'fields', 'isDeleted', 'isDirty', 'isDestroyed',
+      'isDestroying', 'isEmpty', 'isError', 'isLoaded',
+      'isLoading', 'isNew', 'isReloading', 'isSaving', 'isValid',
+      'relatedTypes', 'relationshipNames', 'relationships',
+      'relationshipsByName', 'transformedAttributes', 'store'
+    ].forEach(function(reservedProperty) {
+      Ember.assert('`' + reservedProperty + '` is a reserved property name on DS.Model objects. Please choose a different property name for ' + constructor.toString(), !props[reservedProperty]);
+    });
   },
 
   attr: function() {
