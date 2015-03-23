@@ -1887,9 +1887,7 @@ Store = Service.extend({
       type = this.modelFor(type);
     }
 
-    var adapter = this.lookupAdapter(type.modelName) || this.lookupAdapter('application');
-
-    return adapter || get(this, 'defaultAdapter');
+    return this.lookupAdapter(type.modelName) || get(this, 'defaultAdapter');
   },
 
   _adapterRun: function (fn) {
