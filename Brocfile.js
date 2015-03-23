@@ -16,6 +16,7 @@ var defeatureify    = require('broccoli-defeatureify');
 var version         = require('git-repo-version')(10);
 var yuidoc          = require('broccoli-yuidoc');
 var replace         = require('broccoli-replace');
+var stew            = require('broccoli-stew');
 var path            = require('path');
 var fs              = require('fs');
 var jscsTree        = require('broccoli-jscs');
@@ -71,7 +72,7 @@ var yuidocTree = yuidoc('packages', {
       "paths": [
         "packages/ember-data/lib",
         "packages/activemodel-adapter/lib",
-        "packages/ember-inflector/lib"
+        "packages/ember-inflector/addon"
       ],
       "exclude": "vendor",
       "outdir":   "docs/build"
@@ -89,10 +90,19 @@ function package(packagePath, vendorPath) {
   });
 }
 
+function packageAddon(packagePath, vendorPath) {
+  return stew.rename(pickFiles(vendorPath + packagePath, {
+    files: [ '**/*.js' ],
+    srcDir: '/addon',
+    destDir: '/' + packagePath + '/lib'
+  }), 'index.js', 'main.js');
+}
+
 var packages = merge([
-  package('ember-inflector', 'bower_components/ember-inflector/packages/'),
+  packageAddon('ember-inflector', 'node_modules/'),
   package('ember-data'),
-  package('activemodel-adapter')
+  package('activemodel-adapter'),
+  package('ember')
 ]);
 
 var globalBuild;
