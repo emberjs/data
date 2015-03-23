@@ -396,3 +396,12 @@ test("Using store#fetch on an empty record calls find", function() {
     });
   });
 });
+
+test("Using store#adapterFor should not throw an error when looking up the application adapter", function() {
+  expect(1);
+
+  run(function() {
+    var applicationAdapter = store.adapterFor('application');
+    ok(applicationAdapter);
+  });
+});
