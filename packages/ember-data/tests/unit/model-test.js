@@ -724,30 +724,6 @@ test("A subclass of DS.Model can not use the `store` property", function() {
   }, /`store` is a reserved property name on DS.Model objects/);
 });
 
-test("A subclass of DS.Model can not use reserved properties", function() {
-  expect(25);
-  [
-    'attributes', 'clientId', 'currentState', 'data', 'dirtyType',
-    'errors', 'fields', 'isDeleted', 'isDirty', 'isDestroyed',
-    'isDestroying', 'isEmpty', 'isError', 'isLoaded',
-    'isLoading', 'isNew', 'isReloading', 'isSaving', 'isValid',
-    'relatedTypes', 'relationshipNames', 'relationships',
-    'relationshipsByName', 'transformedAttributes', 'store'
-  ].forEach(function(reservedProperty) {
-    var invalidExtendObject = {};
-    invalidExtendObject[reservedProperty] = DS.attr();
-    var Post = DS.Model.extend(invalidExtendObject);
-
-    var store = createStore({ post: Post });
-
-    expectAssertion(function() {
-      run(function() {
-        store.createRecord('post', {});
-      });
-    }, /is a reserved property name on DS.Model objects/);
-  });
-});
-
 test("Pushing a record into the store should transition it to the loaded state", function() {
   var Person = DS.Model.extend({
     name: DS.attr('string')
