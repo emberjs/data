@@ -216,19 +216,19 @@ Store = Service.extend({
   /**
     The adapter to use to communicate to a backend server or other persistence layer.
 
-    This can be specified as an instance, class, or string.
+    This must be specified as a string.
 
-    If you want to specify `App.CustomAdapter` as a string, do:
+    If you want to specify `App.CustomAdapter`, do:
 
     ```js
     adapter: 'custom'
     ```
 
     @property adapter
-    @default DS.RESTAdapter
-    @type {DS.Adapter|String}
+    @default null
+    @type {String}
   */
-  adapter: '-rest',
+  adapter: null,
 
   /**
     Returns a JSON representation of the record using a custom
@@ -253,13 +253,6 @@ Store = Service.extend({
     This property returns the adapter, after resolving a possible
     string key.
 
-    If the supplied `adapter` was a class, or a String property
-    path resolved to a class, this property will instantiate the
-    class.
-
-    This property is cacheable, so the same instance of a specified
-    adapter class should be used for the lifetime of the store.
-
     @property defaultAdapter
     @private
     @return DS.Adapter
@@ -267,17 +260,14 @@ Store = Service.extend({
   defaultAdapter: Ember.computed('adapter', function() {
     var adapter = get(this, 'adapter');
 
-    Ember.assert('You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a name or a factory', !(adapter instanceof Adapter));
+    Ember.assert('You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a string', !(adapter instanceof Adapter));
 
     if (typeof adapter === 'string') {
-      adapter = this.container.lookup('adapter:' + adapter) || this.container.lookup('adapter:application') || this.container.lookup('adapter:-rest');
+      adapter = this.lookupAdapter(adapter);
     }
 
-    if (DS.Adapter.detect(adapter)) {
-      adapter = adapter.create({
-        container: this.container,
-        store: this
-      });
+    if (isNone(adapter)) {
+      adapter = this.lookupAdapter('application') || this.lookupAdapter('-rest');
     }
 
     return adapter;
