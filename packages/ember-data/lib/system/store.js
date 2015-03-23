@@ -231,6 +231,23 @@ Store = Service.extend({
   adapter: null,
 
   /**
+    The serializer to use to communicate to a backend server or other persistence layer.
+
+    This must be specified as a string.
+
+    If you want to specify `App.CustomSerializer`, do:
+
+    ```js
+    serializer: 'custom'
+    ```
+
+    @property serializer
+    @default null
+    @type {String}
+  */
+  serializer: null,
+
+  /**
     Returns a JSON representation of the record using a custom
     type-specific serializer, if one exists.
 
@@ -271,6 +288,31 @@ Store = Service.extend({
     }
 
     return adapter;
+  }),
+
+
+  /**
+    This property returns the serializer, after resolving a possible
+    string key.
+
+    @property defaultSerializer
+    @private
+    @return DS.Serializer
+  */
+  defaultSerializer: Ember.computed('serializer', function() {
+    var serializer = get(this, 'serializer');
+
+    Ember.assert('You tried to set `serializer` property to an instance of `DS.Serializer`, where it should be a string', !(serializer instanceof Serializer));
+
+    if (typeof serializer === 'string') {
+      serializer = this.lookupSerializer(serializer);
+    }
+
+    if (isNone(serializer)) {
+      serializer = this.lookupSerializer('application') || this.lookupSerializer('-default');
+    }
+
+    return serializer;
   }),
 
   // .....................
