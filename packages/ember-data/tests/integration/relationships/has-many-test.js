@@ -1255,3 +1255,60 @@ test('unloading a record with associated records does not prevent the store from
     ok(false, "store prevented from being destroyed");
   }
 });
+
+test("adding and removing records from hasMany relationship #2666", function() {
+  expect(4);
+
+  var Post = DS.Model.extend({
+    comments: DS.hasMany('comment', { async: true })
+  });
+  Post.reopenClass({
+    FIXTURES: [
+      { id: 1, comments: [1, 2, 3] }
+    ]
+  });
+
+  var Comment = DS.Model.extend({
+    post: DS.belongsTo('post')
+  });
+  Comment.reopenClass({
+    FIXTURES: [
+      { id: 1 },
+      { id: 2 },
+      { id: 3 }
+    ]
+  });
+
+  env = setupStore({ post: Post, comment: Comment, adapter: DS.FixtureAdapter });
+
+  run(function() {
+    stop();
+    env.store.find('post', 1).then(function (post) {
+      var comments = post.get('comments');
+      equal(comments.get('length'), 3, "Initial comments count");
+
+      // Add comment #4
+      var comment = env.store.createRecord('comment');
+      comments.addObject(comment);
+      return comment.save().then(function() {
+        var comments = post.get('comments');
+        equal(comments.get('length'), 4, "Comments count after first add");
+
+        // Delete comment #4
+        return comments.get('lastObject').destroyRecord();
+      }).then(function() {
+        var comments = post.get('comments');
+        equal(comments.get('length'), 3, "Comments count after delete");
+
+        // Add another comment #4
+        var comment = env.store.createRecord('comment');
+        comments.addObject(comment);
+        return comment.save();
+      }).then(function() {
+        var comments = post.get('comments');
+        equal(comments.get('length'), 4, "Comments count after second add");
+        start();
+      });
+    });
+  });
+});
