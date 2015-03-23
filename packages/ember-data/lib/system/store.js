@@ -1817,7 +1817,9 @@ Store = Service.extend({
     @return DS.Adapter
   */
   adapterFor: function(type) {
-    type = this.modelFor(type);
+    if (type !== 'application') {
+      type = this.modelFor(type);
+    }
 
     var adapter = this.lookupAdapter(type.typeKey) || this.lookupAdapter('application');
 
