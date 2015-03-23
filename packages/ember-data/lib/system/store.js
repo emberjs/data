@@ -4,15 +4,12 @@
 /**
   @module ember-data
 */
-
+import FindCoalescer from './find-coalescer';
 import {
   InvalidError,
   Adapter
 } from "ember-data/system/adapter";
 import { singularize } from "ember-inflector/system/string";
-import {
-  Map
-} from "ember-data/system/map";
 
 import {
   promiseArray,
@@ -22,8 +19,9 @@ import {
 import {
   _bind,
   _guard,
-  _objectIsAlive
-} from "ember-data/system/store/common";
+  _objectIsAlive,
+  coerceId
+} from "ember-data/system/utils/common";
 
 import {
   serializerForAdapter
@@ -118,16 +116,6 @@ if (!Service) {
 //     record, even if it has not yet been fully materialized.
 //   * +type+ means a subclass of DS.Model.
 
-// Used by the store to normalize IDs entering the store.  Despite the fact
-// that developers may provide IDs as numbers (e.g., `store.find(Person, 1)`),
-// it is important that internally we use strings, since IDs may be serialized
-// and lose type information.  For example, Ember's router may put a record's
-// ID into the URL, and if we later try to deserialize that URL and find the
-// corresponding record, we will not know if it is a string or a number.
-function coerceId(id) {
-  return id == null ? null : id+'';
-}
-
 /**
   The store contains all of the data for records loaded from the server.
   It is also responsible for creating instances of `DS.Model` that wrap
@@ -211,7 +199,9 @@ Store = Service.extend({
     this._pendingSave = [];
     this._containerCache = Ember.create(null);
     //Used to keep track of all the find requests that need to be coalesced
-    this._pendingFetch = Map.create();
+    this._pendingFetch = new Ember.MapWithDefault({
+      defaultValue: function() { return []; }
+    });
   },
 
   /**
@@ -668,19 +658,18 @@ Store = Service.extend({
     if (record._loadingPromise) { return record._loadingPromise; }
 
     var resolver = Ember.RSVP.defer('Fetching ' + type + 'with id: ' + record.get('id'));
+
     var recordResolverPair = {
       record: record,
       resolver: resolver
     };
+
     var promise = resolver.promise;
 
     record.loadingData(promise);
 
-    if (!this._pendingFetch.get(type)) {
-      this._pendingFetch.set(type, [recordResolverPair]);
-    } else {
-      this._pendingFetch.get(type).push(recordResolverPair);
-    }
+    this._pendingFetch.get(type).push(recordResolverPair);
+
     Ember.run.scheduleOnce('afterRender', this, this.flushAllPendingFetches);
 
     return promise;
@@ -692,7 +681,9 @@ Store = Service.extend({
     }
 
     this._pendingFetch.forEach(this._flushPendingFetchForType, this);
-    this._pendingFetch = Map.create();
+    this._pendingFetch = new Ember.MapWithDefault({
+      defaultValue: function() { return []; }
+    });
   },
 
   _flushPendingFetchForType: function (recordResolverPairs, type) {
@@ -748,6 +739,7 @@ Store = Service.extend({
     if (recordResolverPairs.length === 1) {
       _fetchRecord(recordResolverPairs[0]);
     } else if (shouldCoalesce) {
+
       var groups = adapter.groupRecordsForFindMany(this, records);
       forEach(groups, function (groupOfRecords) {
         var requestedRecords = Ember.A(groupOfRecords);
@@ -1926,6 +1918,10 @@ Store = Service.extend({
   */
   _normalizeTypeKey: function(key) {
     return camelize(singularize(key));
+  },
+
+  _findMany: function(adapter, store, type, ids, records) {
+    return _findMany(adapter, store, type, ids, records);
   }
 });
 
@@ -2050,6 +2046,6 @@ function setupRelationships(store, record, data) {
     }
   });
 }
-
+Store.FindCoalescer = FindCoalescer;
 export { Store };
 export default Store;
