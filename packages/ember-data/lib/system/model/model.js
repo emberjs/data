@@ -17,10 +17,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var intersection = Ember.EnumerableUtils.intersection;
 var RESERVED_MODEL_PROPS = [
-  'attributes', 'clientId', 'currentState', 'data', 'dirtyType',
-  'errors', 'fields', 'isDeleted', 'isDirty', 'isDestroyed',
-  'isDestroying', 'isEmpty', 'isError', 'isLoaded',
-  'isLoading', 'isNew', 'isReloading', 'isSaving', 'isValid',
+  'attributes', 'currentState', 'data',
   'relatedTypes', 'relationshipNames', 'relationships',
   'relationshipsByName', 'transformedAttributes', 'store'
 ];

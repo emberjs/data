@@ -725,12 +725,9 @@ test("A subclass of DS.Model can not use the `store` property", function() {
 });
 
 test("A subclass of DS.Model can not use reserved properties", function() {
-  expect(25);
+  expect(9);
   [
-    'attributes', 'clientId', 'currentState', 'data', 'dirtyType',
-    'errors', 'fields', 'isDeleted', 'isDirty', 'isDestroyed',
-    'isDestroying', 'isEmpty', 'isError', 'isLoaded',
-    'isLoading', 'isNew', 'isReloading', 'isSaving', 'isValid',
+    'attributes', 'currentState', 'data',
     'relatedTypes', 'relationshipNames', 'relationships',
     'relationshipsByName', 'transformedAttributes', 'store'
   ].forEach(function(reservedProperty) {
