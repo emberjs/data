@@ -1406,3 +1406,48 @@ test("hasMany hasData sync created", function () {
     equal(relationship.hasData, true, 'relationship has data');
   });
 });
+
+test("metadata should be reset between requests", function() {
+  var counter = 0;
+
+  env.adapter.findHasMany = function() {
+    var data = {
+      meta: {
+        foo: 'bar'
+      },
+      chapters: [
+        { id: '2' },
+        { id: '3' }
+      ]
+    };
+
+    ok(true, 'findHasMany should be called twice');
+
+    if (counter === 1) {
+      delete data.meta;
+    }
+
+    counter++;
+
+    return resolve(data);
+  };
+
+  var book1, book2;
+
+  run(function() {
+    book1 = env.store.push('book', { id: 1, title: 'Sailing the Seven Seas', links: { chapters: 'chapters' } });
+    book2 = env.store.push('book', { id: 2, title: 'Another book title', links: { chapters: 'chapters' } });
+  });
+
+  run(function() {
+    book1.get('chapters').then(function(chapters) {
+      var meta = chapters.get('meta');
+      equal(get(meta, 'foo'), 'bar', 'metadata should available');
+
+      book2.get('chapters').then(function(chapters) {
+        var meta = chapters.get('meta');
+        equal(get(meta, 'foo'), undefined, 'metadata should not be available');
+      });
+    });
+  });
+});
