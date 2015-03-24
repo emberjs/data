@@ -2,6 +2,13 @@
 
 ### Master
 
+### Release 1.0.0-beta.16.1 (March 24, 2015)
+
+ * Use ember-inflector 1.5
+ * Fix doc for Snapshot.attributes()
+ * Special case "application" in the store.serializerFor method
+ * Allow the store to lookup the applicationAdapter using adapterFor
+
 ### Release 1.0.0-beta.16 (March 23, 2015)
 
 #### Breaking Changes
