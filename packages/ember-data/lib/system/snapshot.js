@@ -143,7 +143,7 @@ Snapshot.prototype = {
     ```
 
     @method attributes
-    @return {Array} All attributes for the current snapshot
+    @return {Object} All attributes of the current snapshot
   */
   attributes: function() {
     return Ember.copy(this._attributes);
