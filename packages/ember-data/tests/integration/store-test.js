@@ -391,7 +391,7 @@ test("Using store#fetch on an empty record calls find", function() {
   ok(car.get('isEmpty'), 'Car with id=20 should be empty');
 
   run(function() {
-    store.fetch('car', 20).then(function (car) {
+    store.fetchById('car', 20).then(function (car) {
       equal(car.get('make'), 'BMCW', 'Car with id=20 is now loaded');
     });
   });
