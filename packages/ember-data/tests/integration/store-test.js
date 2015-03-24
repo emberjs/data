@@ -405,3 +405,13 @@ test("Using store#adapterFor should not throw an error when looking up the appli
     ok(applicationAdapter);
   });
 });
+
+
+test("Using store#serializerFor should not throw an error when looking up the application serializer", function() {
+  expect(1);
+
+  run(function() {
+    var applicationSerializer = store.serializerFor('application');
+    ok(applicationSerializer);
+  });
+});
