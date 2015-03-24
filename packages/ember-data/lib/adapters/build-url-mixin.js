@@ -14,7 +14,7 @@ var get = Ember.get;
   ```javascript
   export default DS.Adapter.extend(BuildURLMixin, {
     find: function(store, type, id, snapshot) {
-      var url = this.buildURL(type.typeKey, id, snapshot);
+      var url = this.buildURL(type.typeKey, id, snapshot, 'find');
       return this.ajax(url, 'GET');
     }
   });
@@ -45,9 +45,10 @@ export default Ember.Mixin.create({
     @param {String} type
     @param {String|Array} id single id or array of ids
     @param {DS.Snapshot|Array} snapshot single snapshot or array of snapshots
+    @param {String} requestType
     @return {String} url
   */
-  buildURL: function(type, id, snapshot) {
+  buildURL: function(type, id, snapshot, requestType) {
     var url = [];
     var host = get(this, 'host');
     var prefix = this.urlPrefix();

@@ -1,8 +1,11 @@
 var env, adapter;
-module("unit/adapters/rest_adapter/path_for_type - DS.RESTAdapter#pathForType", {
+
+module("unit/adapters/build-url-mixin/path-for-type - DS.BuildURLMixin#pathForType", {
   setup: function() {
+    var Adapter = DS.Adapter.extend(DS.BuildURLMixin);
+
     env = setupStore({
-      adapter: DS.RESTAdapter
+      adapter: Adapter
     });
 
     adapter = env.adapter;
