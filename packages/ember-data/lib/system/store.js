@@ -10,7 +10,6 @@ import {
   InvalidError,
   Adapter
 } from "ember-data/system/adapter";
-import Serializer from "ember-data/system/serializer";
 import {
   Map
 } from "ember-data/system/map";
@@ -307,8 +306,6 @@ Store = Service.extend({
   */
   defaultSerializer: Ember.computed('serializer', function() {
     var serializer = get(this, 'serializer');
-
-    Ember.assert('You tried to set `serializer` property to an instance of `DS.Serializer`, where it should be a string', !(serializer instanceof Serializer));
 
     if (typeof serializer === 'string') {
       serializer = this.lookupSerializer(serializer);
