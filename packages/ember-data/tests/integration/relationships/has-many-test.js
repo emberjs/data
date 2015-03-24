@@ -1,4 +1,4 @@
-var env, User, Contact, Email, Phone, Message, Post, Comment;
+var env, store, User, Contact, Email, Phone, Message, Post, Comment;
 var Book, Chapter, Page;
 var get = Ember.get;
 var resolve = Ember.RSVP.resolve;
@@ -80,6 +80,8 @@ module("integration/relationships/has_many - Has-Many Relationships", {
       chapter: Chapter,
       page: Page
     });
+
+    store = env.store;
   },
 
   teardown: function() {
@@ -1310,5 +1312,97 @@ test("adding and removing records from hasMany relationship #2666", function() {
         start();
       });
     });
+  });
+});
+
+test("hasMany hasData async loaded", function () {
+  expect(1);
+
+  Chapter.reopen({
+    pages: hasMany('pages', { async: true })
+  });
+
+  env.adapter.find = function(store, type, id, snapshot) {
+    return Ember.RSVP.resolve({ id: 1, title: 'The Story Begins', pages: [2, 3] });
+  };
+
+  run(function() {
+    store.find('chapter', 1).then(function(chapter) {
+      var relationship = chapter._relationships['pages'];
+      equal(relationship.hasData, true, 'relationship has data');
+    });
+  });
+});
+
+test("hasMany hasData sync loaded", function () {
+  expect(1);
+
+  env.adapter.find = function(store, type, id, snapshot) {
+    return Ember.RSVP.resolve({ id: 1, title: 'The Story Begins', pages: [2, 3] });
+  };
+
+  run(function() {
+    store.find('chapter', 1).then(function(chapter) {
+      var relationship = chapter._relationships['pages'];
+      equal(relationship.hasData, true, 'relationship has data');
+    });
+  });
+});
+
+test("hasMany hasData async not loaded", function () {
+  expect(1);
+
+  Chapter.reopen({
+    pages: hasMany('pages', { async: true })
+  });
+
+  env.adapter.find = function(store, type, id, snapshot) {
+    return Ember.RSVP.resolve({ id: 1, title: 'The Story Begins', links: { pages: 'pages' } });
+  };
+
+  run(function() {
+    store.find('chapter', 1).then(function(chapter) {
+      var relationship = chapter._relationships['pages'];
+      equal(relationship.hasData, false, 'relationship does not have data');
+    });
+  });
+});
+
+test("hasMany hasData sync not loaded", function () {
+  expect(1);
+
+  env.adapter.find = function(store, type, id, snapshot) {
+    return Ember.RSVP.resolve({ id: 1, title: 'The Story Begins' });
+  };
+
+  run(function() {
+    store.find('chapter', 1).then(function(chapter) {
+      var relationship = chapter._relationships['pages'];
+      equal(relationship.hasData, false, 'relationship does not have data');
+    });
+  });
+});
+
+test("hasMany hasData async created", function () {
+  expect(1);
+
+  Chapter.reopen({
+    pages: hasMany('pages', { async: true })
+  });
+
+  run(function() {
+    var chapter = store.createRecord('chapter', { title: 'The Story Begins' });
+    var relationship = chapter._relationships['pages'];
+    equal(relationship.hasData, true, 'relationship has data');
+  });
+});
+
+test("hasMany hasData sync created", function () {
+  expect(1);
+
+  run(function() {
+    var chapter = store.createRecord('chapter', { title: 'The Story Begins' });
+    var relationship = chapter._relationships['pages'];
+    equal(relationship.hasData, true, 'relationship has data');
   });
 });

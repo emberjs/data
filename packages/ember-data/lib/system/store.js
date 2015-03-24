@@ -331,6 +331,10 @@ Store = Service.extend({
     // Set the properties specified on the record.
     record.setProperties(properties);
 
+    record.eachRelationship(function(key, descriptor) {
+      record._relationships[key].setHasData(true);
+    });
+
     return record;
   },
 
@@ -2057,13 +2061,13 @@ function setupRelationships(store, record, data) {
       relationship.updateLink(data.links[key]);
     }
 
-    if (kind === 'belongsTo') {
-      if (value === undefined) {
-        return;
+    if (value !== undefined) {
+      if (kind === 'belongsTo') {
+        relationship.setCanonicalRecord(value);
+      } else if (kind === 'hasMany') {
+        relationship.updateRecordsFromAdapter(value);
       }
-      relationship.setCanonicalRecord(value);
-    } else if (kind === 'hasMany' && value) {
-      relationship.updateRecordsFromAdapter(value);
+      relationship.setHasData(true);
     }
   });
 }

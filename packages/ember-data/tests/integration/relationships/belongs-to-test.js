@@ -1,4 +1,4 @@
-var env, store, User, Message, Post, Contact, Comment, Book, Author, NewMessage;
+var env, store, User, Message, Post, Contact, Comment, Book, Chapter, Author, NewMessage;
 var get = Ember.get;
 var run = Ember.run;
 
@@ -47,11 +47,18 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
 
     Book = DS.Model.extend({
       name: attr('string'),
-      author: belongsTo('author')
+      author: belongsTo('author'),
+      chapters: hasMany('chapters')
+    });
+
+    Chapter = DS.Model.extend({
+      title: attr('string'),
+      belongsTo: belongsTo('book')
     });
 
     Author = DS.Model.extend({
-      name: attr('string')
+      name: attr('string'),
+      books: hasMany('books')
     });
 
     env = setupStore({
@@ -60,6 +67,7 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
       comment: Comment,
       message: Message,
       book: Book,
+      chapter: Chapter,
       author: Author
     });
 
@@ -579,4 +587,96 @@ test("Passing a model as type to belongsTo should not work", function () {
       user: belongsTo(User)
     });
   }, /The first argument to DS.belongsTo must be a string/);
+});
+
+test("belongsTo hasData async loaded", function () {
+  expect(1);
+
+  Book.reopen({
+    author: belongsTo('author', { async: true })
+  });
+
+  env.adapter.find = function(store, type, id, snapshot) {
+    return Ember.RSVP.resolve({ id: 1, name: 'The Greatest Book', author: 2 });
+  };
+
+  run(function() {
+    store.find('book', 1).then(function(book) {
+      var relationship = book._relationships['author'];
+      equal(relationship.hasData, true, 'relationship has data');
+    });
+  });
+});
+
+test("belongsTo hasData sync loaded", function () {
+  expect(1);
+
+  env.adapter.find = function(store, type, id, snapshot) {
+    return Ember.RSVP.resolve({ id: 1, name: 'The Greatest Book', author: 2 });
+  };
+
+  run(function() {
+    store.find('book', 1).then(function(book) {
+      var relationship = book._relationships['author'];
+      equal(relationship.hasData, true, 'relationship has data');
+    });
+  });
+});
+
+test("belongsTo hasData async not loaded", function () {
+  expect(1);
+
+  Book.reopen({
+    author: belongsTo('author', { async: true })
+  });
+
+  env.adapter.find = function(store, type, id, snapshot) {
+    return Ember.RSVP.resolve({ id: 1, name: 'The Greatest Book', links: { author: 'author' } });
+  };
+
+  run(function() {
+    store.find('book', 1).then(function(book) {
+      var relationship = book._relationships['author'];
+      equal(relationship.hasData, false, 'relationship does not have data');
+    });
+  });
+});
+
+test("belongsTo hasData sync not loaded", function () {
+  expect(1);
+
+  env.adapter.find = function(store, type, id, snapshot) {
+    return Ember.RSVP.resolve({ id: 1, name: 'The Greatest Book' });
+  };
+
+  run(function() {
+    store.find('book', 1).then(function(book) {
+      var relationship = book._relationships['author'];
+      equal(relationship.hasData, false, 'relationship does not have data');
+    });
+  });
+});
+
+test("belongsTo hasData async created", function () {
+  expect(1);
+
+  Book.reopen({
+    author: belongsTo('author', { async: true })
+  });
+
+  run(function() {
+    var book = store.createRecord('book', { name: 'The Greatest Book' });
+    var relationship = book._relationships['author'];
+    equal(relationship.hasData, true, 'relationship has data');
+  });
+});
+
+test("belongsTo hasData sync created", function () {
+  expect(1);
+
+  run(function() {
+    var book = store.createRecord('book', { name: 'The Greatest Book' });
+    var relationship = book._relationships['author'];
+    equal(relationship.hasData, true, 'relationship has data');
+  });
 });
