@@ -1856,7 +1856,9 @@ Store = Service.extend({
     @return {DS.Serializer}
   */
   serializerFor: function(type) {
-    type = this.modelFor(type);
+    if (type !== 'application') {
+      type = this.modelFor(type);
+    }
 
     var serializer = this.lookupSerializer(type.typeKey) || this.lookupSerializer('application');
 
