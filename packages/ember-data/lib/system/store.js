@@ -10,6 +10,7 @@ import {
   InvalidError,
   Adapter
 } from "ember-data/system/adapter";
+import Serializer from "ember-data/system/serializer";
 import {
   Map
 } from "ember-data/system/map";
@@ -278,6 +279,11 @@ Store = Service.extend({
     var adapter = get(this, 'adapter');
 
     Ember.assert('You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a string', !(adapter instanceof Adapter));
+
+    if (Adapter.detect(adapter)) {
+      Ember.deprecate('Using a class in the store.adapter property is deprecated. Please use string values.');
+      adapter = adapter.create({ container: this.container, store: this });
+    }
 
     if (typeof adapter === 'string') {
       adapter = this.lookupAdapter(adapter);
