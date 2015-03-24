@@ -1,5 +1,7 @@
+/*globals Ember*/
+
 export function serializerForAdapter(store, adapter, type) {
-  var serializer = adapter.serializer;
+  var serializer = Ember.get(adapter, 'serializer');
 
   if (serializer === undefined) {
     serializer = store.serializerFor(type);

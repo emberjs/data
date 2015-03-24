@@ -83,6 +83,7 @@
 
     registry.register('serializer:-default', DS.JSONSerializer);
     registry.register('serializer:-rest', DS.RESTSerializer);
+    registry.register('adapter:-default', DS.RESTAdapter);
     registry.register('adapter:-rest', DS.RESTAdapter);
 
     registry.injection('serializer', 'store', 'store:main');

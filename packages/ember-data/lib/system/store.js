@@ -1934,7 +1934,7 @@ Store = Service.extend({
 
     if (!serializer) {
       var adapter = this.lookupAdapter(type.modelName);
-      serializer = this.lookupSerializer(get(adapter, 'defaultSerializer'));
+      serializer = adapter && this.lookupSerializer(get(adapter, 'defaultSerializer'));
     }
 
     return serializer || get(this, 'defaultSerializer');

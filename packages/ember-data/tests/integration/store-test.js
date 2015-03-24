@@ -18,13 +18,41 @@ var Car = DS.Model.extend({
 Car.toString = function() { return "Car"; };
 
 function initializeStore(adapter) {
-  env = setupStore({
-    adapter: adapter
-  });
+  env = setupStore();
   store = env.store;
+
+  env.registry.register('serializer:car', DS.RESTSerializer);
+  env.registry.register('serializer:person', DS.RESTSerializer);
+
+  env.registry.register('adapter:car', adapter);
+  env.registry.register('adapter:person', adapter);
 
   env.registry.register('model:car', Car);
   env.registry.register('model:person', Person);
+}
+
+function adapterFix(property, value, store) {
+  var car_adapter = store.adapterFor('car');
+  var person_adapter = store.adapterFor('person');
+  var default_adapter = store.get('defaultAdapter');
+
+  car_adapter[property] = value;
+  person_adapter[property] = value;
+  default_adapter[property] = value;
+}
+
+function ajaxResponse(value, store) {
+  var passedUrl, passedVerb, passedHash;
+
+  function ajaxResponseFix(url, verb, hash) {
+    passedUrl = url;
+    passedVerb = verb;
+    passedHash = hash;
+
+    return Ember.RSVP.resolve(value);
+  }
+
+  adapterFix('ajax', ajaxResponseFix, store);
 }
 
 module("integration/store - destroy", {
@@ -131,12 +159,12 @@ test("destroying the store correctly cleans everything up", function() {
   var carWillDestroy = tap(car, 'willDestroy');
   var carsWillDestroy = tap(car.get('person.cars'), 'willDestroy');
 
-  env.adapter.findQuery = function() {
+  adapterFix('findQuery', function() {
     return [{
       id: 2,
       name: 'Yehuda'
     }];
-  };
+  }, store);
   var adapterPopulatedPeople, filterdPeople;
 
   run(function() {
@@ -185,23 +213,12 @@ module("integration/store - fetch", {
   }
 });
 
-function ajaxResponse(value) {
-  var passedUrl, passedVerb, passedHash;
-  env.adapter.ajax = function(url, verb, hash) {
-    passedUrl = url;
-    passedVerb = verb;
-    passedHash = hash;
-
-    return Ember.RSVP.resolve(value);
-  };
-}
-
 test("Using store#fetch is deprecated", function() {
   ajaxResponse({
     cars: [
       { id: 1, make: 'BMW', model: 'Mini' }
     ]
-  });
+  }, store);
 
   expectDeprecation(
     function() {
@@ -228,7 +245,7 @@ test("Using store#fetchById on non existing record fetches it from the server", 
       make: 'BMCW',
       model: 'Mini'
     }]
-  });
+  }, store);
 
   var car = store.hasRecordForId('car', 20);
   ok(!car, 'Car with id=20 should not exist');
@@ -258,7 +275,7 @@ test("Using store#fetchById on existing record reloads it", function() {
       make: 'BMCW',
       model: 'Mini'
     }]
-  });
+  }, store);
 
   equal(car.get('make'), 'BMC');
 
@@ -289,7 +306,7 @@ test("Using store#fetchAll with no records triggers a query", function() {
       make: 'BMCW',
       model: 'Isetta'
     }]
-  });
+  }, store);
 
   var cars = store.all('car');
   ok(!cars.get('length'), 'There is no cars in the store');
@@ -323,7 +340,7 @@ test("Using store#fetchAll with existing records performs a query, updating exis
       make: 'BMCW',
       model: 'Isetta'
     }]
-  });
+  }, store);
 
   var cars = store.all('car');
   equal(cars.get('length'), 1, 'There is one car in the store');
@@ -351,7 +368,7 @@ test("store#fetchAll should return all known records even if they are not in the
       make: 'BMC',
       model: 'New Mini'
     }]
-  });
+  }, store);
 
   var cars = store.all('car');
   equal(cars.get('length'), 2, 'There is two cars in the store');
@@ -377,7 +394,7 @@ test("Using store#fetch on an empty record calls find", function() {
       make: 'BMCW',
       model: 'Mini'
     }]
-  });
+  }, store);
 
   run(function() {
     store.push('person', {
