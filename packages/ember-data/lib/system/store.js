@@ -2006,7 +2006,7 @@ function _commit(adapter, store, operation, record) {
   var type = record.constructor;
   var snapshot = record._createSnapshot();
   var promise = adapter[operation](store, type, snapshot);
-  var serializer = adapter.serializer || store.serializerFor(type);
+  var serializer = get(adapter, 'serializer') || store.serializerFor(type);
 
   var label = "DS: Extract and notify about " + operation + " completion of " + record;
 
