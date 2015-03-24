@@ -9,7 +9,7 @@ import {
   InvalidError,
   Adapter
 } from "ember-data/system/adapter";
-import { singularize } from "ember-inflector/system/string";
+import { singularize } from "ember-inflector/lib/system/string";
 import {
   Map
 } from "ember-data/system/map";
