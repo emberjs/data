@@ -344,7 +344,7 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   find: function(store, type, id, snapshot) {
-    return this.ajax(this.buildURL(type.typeKey, id, snapshot), 'GET');
+    return this.ajax(this.buildURL(type.typeKey, id, snapshot, 'find'), 'GET');
   },
 
   /**
@@ -362,13 +362,15 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findAll: function(store, type, sinceToken) {
-    var query;
+    var query, url;
 
     if (sinceToken) {
       query = { since: sinceToken };
     }
 
-    return this.ajax(this.buildURL(type.typeKey), 'GET', { data: query });
+    url = this.buildURL(type.typeKey, null, null, 'findAll');
+
+    return this.ajax(url, 'GET', { data: query });
   },
 
   /**
@@ -389,10 +391,13 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findQuery: function(store, type, query) {
+    var url = this.buildURL(type.typeKey, null, null, 'findQuery');
+
     if (this.sortQueryParams) {
       query = this.sortQueryParams(query);
     }
-    return this.ajax(this.buildURL(type.typeKey), 'GET', { data: query });
+
+    return this.ajax(url, 'GET', { data: query });
   },
 
   /**
@@ -429,7 +434,8 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findMany: function(store, type, ids, snapshots) {
-    return this.ajax(this.buildURL(type.typeKey, ids, snapshots), 'GET', { data: { ids: ids } });
+    var url = this.buildURL(type.typeKey, ids, snapshots, 'findMany');
+    return this.ajax(url, 'GET', { data: { ids: ids } });
   },
 
   /**
@@ -470,7 +476,9 @@ export default Adapter.extend(BuildURLMixin, {
       url = host + url;
     }
 
-    return this.ajax(this.urlPrefix(url, this.buildURL(type, id)), 'GET');
+    url = this.urlPrefix(url, this.buildURL(type, id, null, 'findHasMany'));
+
+    return this.ajax(url, 'GET');
   },
 
   /**
@@ -504,7 +512,8 @@ export default Adapter.extend(BuildURLMixin, {
     var id   = snapshot.id;
     var type = snapshot.typeKey;
 
-    return this.ajax(this.urlPrefix(url, this.buildURL(type, id)), 'GET');
+    url = this.urlPrefix(url, this.buildURL(type, id, null, 'findBelongsTo'));
+    return this.ajax(url, 'GET');
   },
 
   /**
@@ -526,10 +535,11 @@ export default Adapter.extend(BuildURLMixin, {
   createRecord: function(store, type, snapshot) {
     var data = {};
     var serializer = store.serializerFor(type.typeKey);
+    var url = this.buildURL(type.typeKey, null, snapshot, 'createRecord');
 
     serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
 
-    return this.ajax(this.buildURL(type.typeKey, null, snapshot), "POST", { data: data });
+    return this.ajax(url, "POST", { data: data });
   },
 
   /**
@@ -555,8 +565,9 @@ export default Adapter.extend(BuildURLMixin, {
     serializer.serializeIntoHash(data, type, snapshot);
 
     var id = snapshot.id;
+    var url = this.buildURL(type.typeKey, id, snapshot, 'updateRecord');
 
-    return this.ajax(this.buildURL(type.typeKey, id, snapshot), "PUT", { data: data });
+    return this.ajax(url, "PUT", { data: data });
   },
 
   /**
@@ -573,7 +584,7 @@ export default Adapter.extend(BuildURLMixin, {
   deleteRecord: function(store, type, snapshot) {
     var id = snapshot.id;
 
-    return this.ajax(this.buildURL(type.typeKey, id, snapshot), "DELETE");
+    return this.ajax(this.buildURL(type.typeKey, id, snapshot, 'deleteRecord'), "DELETE");
   },
 
   _stripIDFromURL: function(store, snapshot) {
