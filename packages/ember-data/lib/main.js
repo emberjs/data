@@ -33,10 +33,7 @@ import {
 } from "ember-data/system/model";
 import Model from "ember-data/system/model";
 import Snapshot from "ember-data/system/snapshot";
-import {
-  InvalidError,
-  Adapter
-} from "ember-data/system/adapter";
+import { Adapter } from "ember-data/system/adapter";
 import Serializer from "ember-data/system/serializer";
 import DebugAdapter from "ember-data/system/debug";
 import {
@@ -74,6 +71,7 @@ import setupContainer from "ember-data/setup-container";
 
 import ContainerProxy from "ember-data/system/container-proxy";
 import Relationship from "ember-data/system/relationships/state/relationship";
+import InvalidError from "ember-data/system/model/errors/invalid";
 
 DS.Store         = Store;
 DS.PromiseArray  = PromiseArray;
