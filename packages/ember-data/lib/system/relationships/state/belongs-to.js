@@ -22,6 +22,7 @@ BelongsToRelationship.prototype.setRecord = function(newRecord) {
   } else if (this.inverseRecord) {
     this.removeRecord(this.inverseRecord);
   }
+  this.setHasData(true);
 };
 
 BelongsToRelationship.prototype.setCanonicalRecord = function(newRecord) {
@@ -30,6 +31,7 @@ BelongsToRelationship.prototype.setCanonicalRecord = function(newRecord) {
   } else if (this.inverseRecord) {
     this.removeCanonicalRecord(this.inverseRecord);
   }
+  this.setHasData(true);
 };
 
 BelongsToRelationship.prototype._super$addCanonicalRecord = Relationship.prototype.addCanonicalRecord;

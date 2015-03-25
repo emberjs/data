@@ -85,6 +85,7 @@ Relationship.prototype = {
       }
     }
     this.flushCanonicalLater();
+    this.setHasData(true);
   },
 
   removeCanonicalRecords: function(records, idx) {
@@ -125,6 +126,7 @@ Relationship.prototype = {
       }
       this.record.updateRecordArraysLater();
     }
+    this.setHasData(true);
   },
 
   removeRecord: function(record) {
@@ -228,13 +230,14 @@ Relationship.prototype = {
     var self = this;
     //TODO Once we have adapter support, we need to handle updated and canonical changes
     self.computeChanges(records);
+    self.setHasData(true);
   },
 
   notifyRecordRelationshipAdded: Ember.K,
   notifyRecordRelationshipRemoved: Ember.K,
 
-  setHasData: function() {
-    this.hasData = true;
+  setHasData: function(value) {
+    this.hasData = value;
   }
 };
 

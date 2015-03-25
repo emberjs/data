@@ -2070,7 +2070,6 @@ function setupRelationships(store, record, data) {
       } else if (kind === 'hasMany') {
         relationship.updateRecordsFromAdapter(value);
       }
-      relationship.setHasData(true);
     }
   });
 }
