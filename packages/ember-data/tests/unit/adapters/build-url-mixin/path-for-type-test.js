@@ -2,7 +2,16 @@ var env, adapter;
 
 module("unit/adapters/build-url-mixin/path-for-type - DS.BuildURLMixin#pathForType", {
   setup: function() {
-    var Adapter = DS.Adapter.extend(DS.BuildURLMixin);
+
+    // test for overriden pathForType methods which return null path values
+    var customPathForType = {
+      pathForType: function(type) {
+        if (type === 'rootModel') { return ''; }
+        return this._super(type);
+      }
+    };
+
+    var Adapter = DS.Adapter.extend(DS.BuildURLMixin, customPathForType);
 
     env = setupStore({
       adapter: Adapter
@@ -22,4 +31,8 @@ test('pathForType - works with dasherized types', function() {
 
 test('pathForType - works with underscored types', function() {
   equal(adapter.pathForType('super_user'), "superUsers");
+});
+
+test('buildURL - works with empty paths', function() {
+  equal(adapter.buildURL('rootModel', 1), "/1");
 });
