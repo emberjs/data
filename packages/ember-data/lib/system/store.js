@@ -884,7 +884,7 @@ Store = Service.extend({
     @param {Array} records
     @param {String or subclass of DS.Model} type
     @param {Resolver} resolver
-    @return {DS.ManyArray} records
+    @return {Promise} promise
   */
   findMany: function(records) {
     var store = this;
