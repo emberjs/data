@@ -29,7 +29,7 @@ The latest passing build from the "master" branch is available on
 Similarly, the latest passing build from the "beta" branch can be found
 on [http://emberjs.com/builds/#/beta](http://emberjs.com/builds/#/beta)
 
-Or build ember-data.js yourself. Clone the repository and run `npm run dist`
+Or build ember-data.js yourself. Clone the repository and run `npm run build:production`
 after [setup](#setup). You'll find ember-data.js in the `dist` directory.
 
 #### Internet Explorer 8
@@ -167,7 +167,7 @@ post [The Road to Ember Data
 
 1. Ensure that [Node.js](http://nodejs.org/) is installed.
 2. Run `npm install` to ensure the required dependencies are installed.
-3. Run `npm run dist` to build Ember Data. The builds will be placed in the `dist/` directory.
+3. Run `npm run build:production` to build Ember Data. The builds will be placed in the `dist/` directory.
 
 # Contribution
 
