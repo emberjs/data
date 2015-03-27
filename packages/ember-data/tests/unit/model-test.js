@@ -725,11 +725,9 @@ test("A subclass of DS.Model can not use the `store` property", function() {
 });
 
 test("A subclass of DS.Model can not use reserved properties", function() {
-  expect(9);
+  expect(3);
   [
-    'attributes', 'currentState', 'data',
-    'relatedTypes', 'relationshipNames', 'relationships',
-    'relationshipsByName', 'transformedAttributes', 'store'
+    'currentState', 'data', 'store'
   ].forEach(function(reservedProperty) {
     var invalidExtendObject = {};
     invalidExtendObject[reservedProperty] = DS.attr();
