@@ -345,7 +345,7 @@ var DirtyState = {
 
     rolledBack: function(record) {
       get(record, 'errors').clear();
-      record.triggerLater('ready');
+      record.transitionTo('loaded.saved');
     },
 
     becameValid: function(record) {

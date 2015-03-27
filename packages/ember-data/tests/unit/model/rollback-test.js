@@ -215,10 +215,12 @@ test("invalid record can be rollbacked", function() {
 
   run(function() {
     dog.save().then(null, async(function() {
+      equal(dog.get('isValid'), false);
       dog.rollback();
 
       equal(dog.get('name'), "Pluto");
       ok(dog.get('isValid'));
+      equal(dog.get('isDirty'), false);
     }));
   });
 });
