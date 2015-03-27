@@ -146,6 +146,34 @@ test("When a record is dirty, pushes are overridden by local changes", function(
   equal(person.get('city'), "Portland", "if there are no local changes, the new data applied");
 });
 
+test("When a record is invalid, pushes are overridden by local changes", function() {
+  var store = createStore({
+    adapter: DS.Adapter,
+    person: Person
+  });
+  var person;
+
+  run(function() {
+    person = store.push('person', { id: 1, name: "Brendan McLoughlin", city: "Boston" });
+    person.set('name', "Brondan McLoughlin");
+    person.send('becameInvalid');
+  });
+
+  equal(person.get('isDirty'), true, "the person is currently dirty");
+  equal(person.get('isValid'), false, "the person is currently invalid");
+  equal(person.get('name'), "Brondan McLoughlin", "the update was effective");
+  equal(person.get('city'), "Boston", "the original data applies");
+
+  run(function() {
+    store.push('person', { id: 1, name: "bmac", city: "Prague" });
+  });
+
+  equal(person.get('isDirty'), true, "the local changes are reapplied");
+  equal(person.get('isValid'), false, "record is still invalid");
+  equal(person.get('name'), "Brondan McLoughlin", "the local changes are reapplied");
+  equal(person.get('city'), "Prague", "if there are no local changes, the new data applied");
+});
+
 test("A record with no changes can still be saved", function() {
   expect(1);
 
