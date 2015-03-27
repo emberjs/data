@@ -17,9 +17,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var intersection = Ember.EnumerableUtils.intersection;
 var RESERVED_MODEL_PROPS = [
-  'attributes', 'currentState', 'data',
-  'relatedTypes', 'relationshipNames', 'relationships',
-  'relationshipsByName', 'transformedAttributes', 'store'
+  'currentState', 'data', 'store'
 ];
 
 var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
