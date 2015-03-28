@@ -1,2 +1,2 @@
 // Shim Ember module
-export default self.Ember;
+export default Ember;
