@@ -1073,6 +1073,7 @@ Store = Service.extend({
     }
 
     typeMap.findAllCache = null;
+    typeMap.metadata = Ember.create(null);
   },
 
   /**
