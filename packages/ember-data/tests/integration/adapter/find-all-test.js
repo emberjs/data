@@ -57,8 +57,9 @@ test("When all records for a type are requested, a rejection should reject the p
   expect(5);
 
   var count = 0;
-  store = createStore({ adapter: DS.Adapter.extend({
-    findAll: function(store, type, since) {
+  store = createStore({
+    adapter: DS.Adapter.extend({
+      findAll: function(store, type, since) {
         // this will get called twice
         ok(true, "the adapter's findAll method should be invoked");
 
