@@ -20,7 +20,7 @@ var RESERVED_MODEL_PROPS = [
   'currentState', 'data', 'store'
 ];
 
-var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
+var retrieveFromCurrentState = Ember.computed('currentState', function(key) {
   return get(get(this, 'currentState'), key);
 }).readOnly();
 
