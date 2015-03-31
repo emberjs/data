@@ -321,8 +321,8 @@ export default function attr(type, options) {
       return getDefaultValue(this, options, key);
     }
 
-  // `data` is never set directly. However, it may be
-  // invalidated from the state manager's setData
-  // event.
+    // `data` is never set directly. However, it may be
+    // invalidated from the state manager's setData
+    // event.
   }).meta(meta);
 }
