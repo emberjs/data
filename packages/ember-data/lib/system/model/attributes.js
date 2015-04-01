@@ -3,6 +3,8 @@ import {
   Map
 } from "ember-data/system/map";
 
+import computedPolyfill from "ember-data/utils/computed-polyfill";
+
 /**
   @module ember-data
 */
@@ -296,8 +298,15 @@ export default function attr(type, options) {
     options: options
   };
 
-  return Ember.computed(function(key, value) {
-    if (arguments.length > 1) {
+  return computedPolyfill({
+    get: function(key) {
+      if (hasValue(this, key)) {
+        return getValue(this, key);
+      } else {
+        return getDefaultValue(this, options, key);
+      }
+    },
+    set: function(key, value) {
       Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
       var oldValue = getValue(this, key);
 
@@ -315,14 +324,6 @@ export default function attr(type, options) {
       }
 
       return value;
-    } else if (hasValue(this, key)) {
-      return getValue(this, key);
-    } else {
-      return getDefaultValue(this, options, key);
     }
-
-    // `data` is never set directly. However, it may be
-    // invalidated from the state manager's setData
-    // event.
   }).meta(meta);
 }
