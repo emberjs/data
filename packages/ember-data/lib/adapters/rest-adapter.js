@@ -391,7 +391,7 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findQuery: function(store, type, query) {
-    var url = this.buildURL(type.typeKey, null, null, 'findQuery');
+    var url = this.buildURL(type.typeKey, query, null, 'findQuery');
 
     if (this.sortQueryParams) {
       query = this.sortQueryParams(query);
