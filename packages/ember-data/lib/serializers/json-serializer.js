@@ -152,20 +152,20 @@ export default Serializer.extend({
     ```
 
     @method normalize
-    @param {subclass of DS.Model} type
+    @param {String} type
     @param {Object} hash
     @return {Object}
   */
   normalize: function(type, hash) {
     if (!hash) { return hash; }
-    var model = this.store.modelFor(type);
+    var typeClass = this.store.modelFor(type);
 
     this.normalizeId(hash);
-    this.normalizeAttributes(model, hash);
-    this.normalizeRelationships(model, hash);
+    this.normalizeAttributes(typeClass, hash);
+    this.normalizeRelationships(typeClass, hash);
 
-    this.normalizeUsingDeclaredMapping(model, hash);
-    this.applyTransforms(model, hash);
+    this.normalizeUsingDeclaredMapping(typeClass, hash);
+    this.applyTransforms(typeClass, hash);
     return hash;
   },
 

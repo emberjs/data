@@ -502,7 +502,7 @@ export default Adapter.extend(BuildURLMixin, {
   */
   findBelongsTo: function(store, record, url, relationship) {
     var id   = get(record, 'id');
-    var type = store.modelFor(record.constructor.typeKey);
+    var type = record.constructor;
 
     return this.ajax(this.urlPrefix(url, this.buildURL(type, id)), 'GET');
   },

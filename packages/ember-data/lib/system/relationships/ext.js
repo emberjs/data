@@ -26,7 +26,7 @@ var relationshipsDescriptor = Ember.computed(function() {
     // it to the map.
     if (meta.isRelationship) {
       meta.key = name;
-      var relationshipsForType = map.get(typeForRelationshipMeta(this.store, meta));
+      var relationshipsForType = map.get(typeForRelationshipMeta(meta));
 
       relationshipsForType.push({
         name: name,
@@ -52,7 +52,7 @@ var relatedTypesDescriptor = Ember.computed(function() {
   this.eachComputedProperty(function(name, meta) {
     if (meta.isRelationship) {
       meta.key = name;
-      type = typeForRelationshipMeta(this.store, meta);
+      type = typeForRelationshipMeta(meta);
 
       Ember.assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.", type);
 
@@ -76,8 +76,8 @@ var relationshipsByNameDescriptor = Ember.computed(function() {
   this.eachComputedProperty(function(name, meta) {
     if (meta.isRelationship) {
       meta.key = name;
-      var relationship = relationshipFromMeta(this.store, meta);
-      relationship.type = typeForRelationshipMeta(this.store, meta);
+      var relationship = relationshipFromMeta(meta);
+      relationship.type = typeForRelationshipMeta(meta);
       map.set(name, relationship);
     }
   });
@@ -274,13 +274,13 @@ Model.reopenClass({
       inverseKind = possibleRelationships[0].kind;
     }
 
-    function findPossibleInverses(type, inverseType, relationshipsSoFar) {
+    function findPossibleInverses(modelClass, inverseType, relationshipsSoFar) {
       var possibleRelationships = relationshipsSoFar || [];
 
       var relationshipMap = get(inverseType, 'relationships');
       if (!relationshipMap) { return possibleRelationships; }
 
-      var relationships = relationshipMap.get(type.typeKey);
+      var relationships = relationshipMap.get(modelClass.typeKey);
 
       relationships = filter.call(relationships, function(relationship) {
         var optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
@@ -297,8 +297,8 @@ Model.reopenClass({
       }
 
       //Recurse to support polymorphism
-      if (type.superclass) {
-        findPossibleInverses(type.superclass, inverseType, possibleRelationships);
+      if (modelClass.superclass) {
+        findPossibleInverses(modelClass.superclass, inverseType, possibleRelationships);
       }
 
       return possibleRelationships;

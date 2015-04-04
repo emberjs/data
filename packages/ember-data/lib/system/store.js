@@ -1396,12 +1396,13 @@ Store = Service.extend({
   */
 
   _modelForMixin: function(key) {
-    var mixin = this.container.resolve('mixin:' + key);
+    var singularizedKey = singularize(key);
+    var mixin = this.container.resolve('mixin:' + singularizedKey);
     if (mixin) {
       //Cache the class as a model
-      this.container.register('model:' + key, DS.Model.extend(mixin));
+      this.container.register('model:' + singularizedKey, DS.Model.extend(mixin));
     }
-    var factory = this.modelFactoryFor(key);
+    var factory = this.modelFactoryFor(singularizedKey);
     if (factory) {
       factory.__isMixin = true;
       factory.__mixin = mixin;
@@ -1421,14 +1422,12 @@ Store = Service.extend({
   */
   modelFor: function(key) {
     var factory;
-    var singularizedKey;
 
     if (typeof key === 'string') {
-      singularizedKey = singularize(key);
-      factory = this.modelFactoryFor(singularizedKey);
+      factory = this.modelFactoryFor(key);
       if (!factory) {
         //Support looking up mixins as base types for polymorphic relationships
-        factory = this._modelForMixin(singularizedKey);
+        factory = this._modelForMixin(key);
       }
       if (!factory) {
         throw new Ember.Error("No model was found for '" + key + "'");

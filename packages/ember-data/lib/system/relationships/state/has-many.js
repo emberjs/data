@@ -6,7 +6,7 @@ import ManyArray from "ember-data/system/many-array";
 
 var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
   this._super$constructor(store, record, inverseKey, relationshipMeta);
-  this.belongsToType = typeForRelationshipMeta(store, relationshipMeta);
+  this.belongsToType = typeForRelationshipMeta(relationshipMeta);
   this.canonicalState = [];
   this.manyArray = ManyArray.create({
     canonicalState: this.canonicalState,

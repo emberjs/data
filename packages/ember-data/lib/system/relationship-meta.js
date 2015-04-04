@@ -1,6 +1,6 @@
 import { singularize } from "ember-inflector/system";
 
-export function typeForRelationshipMeta(store, meta) {
+export function typeForRelationshipMeta(meta) {
   var typeKey, type;
 
   typeKey = meta.type || meta.key;
@@ -16,11 +16,11 @@ export function typeForRelationshipMeta(store, meta) {
   return type;
 }
 
-export function relationshipFromMeta(store, meta) {
+export function relationshipFromMeta(meta) {
   return {
     key:  meta.key,
     kind: meta.kind,
-    type: typeForRelationshipMeta(store, meta),
+    type: typeForRelationshipMeta(meta),
     options:    meta.options,
     parentType: meta.parentType,
     isRelationship: true
