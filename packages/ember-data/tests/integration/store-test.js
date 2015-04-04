@@ -23,8 +23,8 @@ function initializeStore(adapter) {
   });
   store = env.store;
 
-  env.container.register('model:car', Car);
-  env.container.register('model:person', Person);
+  env.registry.register('model:car', Car);
+  env.registry.register('model:person', Person);
 }
 
 module("integration/store - destroy", {
@@ -54,7 +54,7 @@ asyncTest("destroying record during find doesn't cause error", function() {
   expect(0);
 
   var TestAdapter = DS.FixtureAdapter.extend({
-    find: function() {
+    find: function(store, type, id, snapshot) {
       return new Ember.RSVP.Promise(function(resolve, reject) {
         Ember.run.next(function() {
           store.unloadAll(type);
@@ -82,7 +82,7 @@ asyncTest("find calls do not resolve when the store is destroyed", function() {
   expect(0);
 
   var TestAdapter = DS.FixtureAdapter.extend({
-    find: function() {
+    find: function(store, type, id, snapshot) {
       store.destroy();
       Ember.RSVP.resolve(null);
     }
@@ -366,5 +366,52 @@ test("store#fetchAll should return all known records even if they are not in the
       equal(carsInStore.get('length'), 2, 'There is 2 cars in the store');
     });
   });
+});
 
+test("Using store#fetch on an empty record calls find", function() {
+  expect(2);
+
+  ajaxResponse({
+    cars: [{
+      id: 20,
+      make: 'BMCW',
+      model: 'Mini'
+    }]
+  });
+
+  run(function() {
+    store.push('person', {
+      id: 1,
+      name: 'Tom Dale',
+      cars: [20]
+    });
+  });
+
+  var car = store.recordForId('car', 20);
+  ok(car.get('isEmpty'), 'Car with id=20 should be empty');
+
+  run(function() {
+    store.fetchById('car', 20).then(function (car) {
+      equal(car.get('make'), 'BMCW', 'Car with id=20 is now loaded');
+    });
+  });
+});
+
+test("Using store#adapterFor should not throw an error when looking up the application adapter", function() {
+  expect(1);
+
+  run(function() {
+    var applicationAdapter = store.adapterFor('application');
+    ok(applicationAdapter);
+  });
+});
+
+
+test("Using store#serializerFor should not throw an error when looking up the application serializer", function() {
+  expect(1);
+
+  run(function() {
+    var applicationSerializer = store.serializerFor('application');
+    ok(applicationSerializer);
+  });
 });

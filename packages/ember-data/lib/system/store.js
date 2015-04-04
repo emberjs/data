@@ -9,7 +9,7 @@ import {
   InvalidError,
   Adapter
 } from "ember-data/system/adapter";
-import { singularize } from "ember-inflector/system/string";
+import { singularize } from "ember-inflector/lib/system/string";
 import {
   Map
 } from "ember-data/system/map";
@@ -26,7 +26,6 @@ import {
 } from "ember-data/system/store/common";
 
 import {
-  serializerFor,
   serializerForAdapter
 } from "ember-data/system/store/serializers";
 
@@ -210,6 +209,7 @@ Store = Service.extend({
       store: this
     });
     this._pendingSave = [];
+    this._containerCache = Ember.create(null);
     //Used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = Map.create();
   },
@@ -276,7 +276,8 @@ Store = Service.extend({
 
     if (DS.Adapter.detect(adapter)) {
       adapter = adapter.create({
-        container: this.container
+        container: this.container,
+        store: this
       });
     }
 
@@ -329,6 +330,10 @@ Store = Service.extend({
 
     // Set the properties specified on the record.
     record.setProperties(properties);
+
+    record.eachRelationship(function(key, descriptor) {
+      record._relationships[key].setHasData(true);
+    });
 
     return record;
   },
@@ -747,8 +752,22 @@ Store = Service.extend({
     if (recordResolverPairs.length === 1) {
       _fetchRecord(recordResolverPairs[0]);
     } else if (shouldCoalesce) {
-      var groups = adapter.groupRecordsForFindMany(this, records);
-      forEach(groups, function (groupOfRecords) {
+
+      // TODO: Improve records => snapshots => records => snapshots
+      //
+      // We want to provide records to all store methods and snapshots to all
+      // adapter methods. To make sure we're doing that we're providing an array
+      // of snapshots to adapter.groupRecordsForFindMany(), which in turn will
+      // return grouped snapshots instead of grouped records.
+      //
+      // But since the _findMany() finder is a store method we need to get the
+      // records from the grouped snapshots even though the _findMany() finder
+      // will once again convert the records to snapshots for adapter.findMany()
+
+      var snapshots = Ember.A(records).invoke('_createSnapshot');
+      var groups = adapter.groupRecordsForFindMany(this, snapshots);
+      forEach(groups, function (groupOfSnapshots) {
+        var groupOfRecords = Ember.A(groupOfSnapshots).mapBy('record');
         var requestedRecords = Ember.A(groupOfRecords);
         var ids = requestedRecords.mapBy('id');
         if (ids.length > 1) {
@@ -831,7 +850,8 @@ Store = Service.extend({
   hasRecordForId: function(typeName, inputId) {
     var type = this.modelFor(typeName);
     var id = coerceId(inputId);
-    return !!this.typeMapFor(type).idToRecord[id];
+    var record = this.typeMapFor(type).idToRecord[id];
+    return !!record && get(record, 'isLoaded');
   },
 
   /**
@@ -864,7 +884,7 @@ Store = Service.extend({
     @param {Array} records
     @param {String or subclass of DS.Model} type
     @param {Resolver} resolver
-    @return {DS.ManyArray} records
+    @return {Promise} promise
   */
   findMany: function(records) {
     var store = this;
@@ -1053,6 +1073,7 @@ Store = Service.extend({
     }
 
     typeMap.findAllCache = null;
+    typeMap.metadata = Ember.create(null);
   },
 
   /**
@@ -1397,10 +1418,11 @@ Store = Service.extend({
 
   _modelForMixin: function(key) {
     var singularizedKey = singularize(key);
-    var mixin = this.container.resolve('mixin:' + singularizedKey);
+    var registry = this.container._registry ? this.container._registry : this.container;
+    var mixin = registry.resolve('mixin:' + singularizedKey);
     if (mixin) {
       //Cache the class as a model
-      this.container.register('model:' + singularizedKey, DS.Model.extend(mixin));
+      registry.register('model:' + singularizedKey, DS.Model.extend(mixin));
     }
     var factory = this.modelFactoryFor(singularizedKey);
     if (factory) {
@@ -1447,11 +1469,7 @@ Store = Service.extend({
 
   modelFactoryFor: function(key) {
     var singularized = singularize(key);
-    if (this.container.has('model:' + singularized)) {
-      return this.container.lookupFactory('model:' + singularized);
-    } else {
-      return null;
-    }
+    return this.container.lookupFactory('model:' + singularized);
   },
 
   /**
@@ -1789,20 +1807,28 @@ Store = Service.extend({
   // ......................
 
   /**
-    Returns the adapter for a given type.
+    Returns an instance of the adapter for a given type. For
+    example, `adapterFor('person')` will return an instance of
+    `App.PersonAdapter`.
+
+    If no `App.PersonAdapter` is found, this method will look
+    for an `App.ApplicationAdapter` (the default adapter for
+    your entire application).
+
+    If no `App.ApplicationAdapter` is found, it will return
+    the value of the `defaultAdapter`.
 
     @method adapterFor
     @private
-    @param {subclass of DS.Model} type
+    @param {String or subclass of DS.Model} type
     @return DS.Adapter
   */
   adapterFor: function(type) {
-    var adapter;
-    var container = this.container;
-
-    if (container) {
-      adapter = container.lookup('adapter:' + type.typeKey) || container.lookup('adapter:application');
+    if (type !== 'application') {
+      type = this.modelFor(type);
     }
+
+    var adapter = this.lookupAdapter(type.typeKey) || this.lookupAdapter('application');
 
     return adapter || get(this, 'defaultAdapter');
   },
@@ -1824,19 +1850,72 @@ Store = Service.extend({
     for an `App.ApplicationSerializer` (the default serializer for
     your entire application).
 
-    If no `App.ApplicationSerializer` is found, it will fall back
+    if no `App.ApplicationSerializer` is found, it will attempt
+    to get the `defaultSerializer` from the `PersonAdapter`
+    (`adapterFor('person')`).
+
+    If a serializer cannot be found on the adapter, it will fall back
     to an instance of `DS.JSONSerializer`.
 
     @method serializerFor
     @private
-    @param {String} type the record to serialize
+    @param {String or subclass of DS.Model} type the record to serialize
     @return {DS.Serializer}
   */
   serializerFor: function(type) {
-    type = this.modelFor(type);
-    var adapter = this.adapterFor(type);
+    if (type !== 'application') {
+      type = this.modelFor(type);
+    }
 
-    return serializerFor(this.container, type.typeKey, adapter && adapter.defaultSerializer);
+    var serializer = this.lookupSerializer(type.typeKey) || this.lookupSerializer('application');
+
+    if (!serializer) {
+      var adapter = this.adapterFor(type);
+      serializer = this.lookupSerializer(get(adapter, 'defaultSerializer'));
+    }
+
+    if (!serializer) {
+      serializer = this.lookupSerializer('-default');
+    }
+
+    return serializer;
+  },
+
+  /**
+    Retrieve a particular instance from the
+    container cache. If not found, creates it and
+    placing it in the cache.
+
+    Enabled a store to manage local instances of
+    adapters and serializers.
+
+    @method retrieveManagedInstance
+    @private
+    @param {String} type the object type
+    @param {String} type the object name
+    @return {Ember.Object}
+  */
+  retrieveManagedInstance: function(type, name) {
+    var key = type+":"+name;
+
+    if (!this._containerCache[key]) {
+      var instance = this.container.lookup(key);
+
+      if (instance) {
+        set(instance, 'store', this);
+        this._containerCache[key] = instance;
+      }
+    }
+
+    return this._containerCache[key];
+  },
+
+  lookupAdapter: function(name) {
+    return this.retrieveManagedInstance('adapter', name);
+  },
+
+  lookupSerializer: function(name) {
+    return this.retrieveManagedInstance('serializer', name);
   },
 
   willDestroy: function() {
@@ -1853,6 +1932,12 @@ Store = Service.extend({
       return typeMaps[entry]['type'];
     }
 
+    for (var cacheKey in this._containerCache) {
+      this._containerCache[cacheKey].destroy();
+      delete this._containerCache[cacheKey];
+    }
+
+    delete this._containerCache;
   },
 
   /**
@@ -1932,8 +2017,9 @@ function defaultSerializer(container) {
 
 function _commit(adapter, store, operation, record) {
   var type = record.constructor;
-  var promise = adapter[operation](store, type, record);
-  var serializer = serializerForAdapter(adapter, type);
+  var snapshot = record._createSnapshot();
+  var promise = adapter[operation](store, type, snapshot);
+  var serializer = serializerForAdapter(store, adapter, type);
   var label = "DS: Extract and notify about " + operation + " completion of " + record;
 
   Ember.assert("Your adapter's '" + operation + "' method must return a value, but it returned `undefined", promise !==undefined);
@@ -1980,13 +2066,13 @@ function setupRelationships(store, record, data) {
       relationship.updateLink(data.links[key]);
     }
 
-    if (kind === 'belongsTo') {
-      if (value === undefined) {
-        return;
+    if (value !== undefined) {
+      if (kind === 'belongsTo') {
+        relationship.setCanonicalRecord(value);
+      } else if (kind === 'hasMany') {
+        relationship.updateRecordsFromAdapter(value);
       }
-      relationship.setCanonicalRecord(value);
-    } else if (kind === 'hasMany' && value) {
-      relationship.updateRecordsFromAdapter(value);
+      relationship.setHasData(true);
     }
   });
 }

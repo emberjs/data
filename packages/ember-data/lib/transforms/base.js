@@ -49,7 +49,7 @@ export default Ember.Object.extend({
     @param {mixed} deserialized The deserialized value
     @return {mixed} The serialized value
   */
-  serialize: Ember.required(),
+  serialize: null,
 
   /**
     When given a serialize value from a JSON object this method must
@@ -67,5 +67,5 @@ export default Ember.Object.extend({
     @param {mixed} serialized The serialized value
     @return {mixed} The deserialized value
   */
-  deserialize: Ember.required()
+  deserialize: null
 });

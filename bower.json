@@ -9,7 +9,6 @@
     "jquery": "~1.10.x",
     "handlebars": ">= 2.0.0 < 3.0.0",
     "loader.js": "~1.0.0",
-    "ember-inflector": "https://github.com/stefanpenner/ember-inflector.git#v1.4.0",
     "es5-shim": "~4.0.3"
   },
   "resolutions": {

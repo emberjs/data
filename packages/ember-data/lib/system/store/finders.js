@@ -13,8 +13,9 @@ var get = Ember.get;
 var Promise = Ember.RSVP.Promise;
 
 export function _find(adapter, store, type, id, record) {
-  var promise = adapter.find(store, type, id, record);
-  var serializer = serializerForAdapter(adapter, type);
+  var snapshot = record._createSnapshot();
+  var promise = adapter.find(store, type, id, snapshot);
+  var serializer = serializerForAdapter(store, adapter, type);
   var label = "DS: Handle Adapter#find of " + type + " with id: " + id;
 
   promise = Promise.cast(promise, label);
@@ -41,8 +42,9 @@ export function _find(adapter, store, type, id, record) {
 
 
 export function _findMany(adapter, store, type, ids, records) {
-  var promise = adapter.findMany(store, type, ids, records);
-  var serializer = serializerForAdapter(adapter, type);
+  var snapshots = Ember.A(records).invoke('_createSnapshot');
+  var promise = adapter.findMany(store, type, ids, snapshots);
+  var serializer = serializerForAdapter(store, adapter, type);
   var label = "DS: Handle Adapter#findMany of " + type;
 
   if (promise === undefined) {
@@ -64,8 +66,9 @@ export function _findMany(adapter, store, type, ids, records) {
 }
 
 export function _findHasMany(adapter, store, record, link, relationship) {
-  var promise = adapter.findHasMany(store, record, link, relationship);
-  var serializer = serializerForAdapter(adapter, relationship.type);
+  var snapshot = record._createSnapshot();
+  var promise = adapter.findHasMany(store, snapshot, link, relationship);
+  var serializer = serializerForAdapter(store, adapter, relationship.type);
   var label = "DS: Handle Adapter#findHasMany of " + record + " : " + relationship.type;
 
   promise = Promise.cast(promise, label);
@@ -85,8 +88,9 @@ export function _findHasMany(adapter, store, record, link, relationship) {
 }
 
 export function _findBelongsTo(adapter, store, record, link, relationship) {
-  var promise = adapter.findBelongsTo(store, record, link, relationship);
-  var serializer = serializerForAdapter(adapter, relationship.type);
+  var snapshot = record._createSnapshot();
+  var promise = adapter.findBelongsTo(store, snapshot, link, relationship);
+  var serializer = serializerForAdapter(store, adapter, relationship.type);
   var label = "DS: Handle Adapter#findBelongsTo of " + record + " : " + relationship.type;
 
   promise = Promise.cast(promise, label);
@@ -109,7 +113,7 @@ export function _findBelongsTo(adapter, store, record, link, relationship) {
 
 export function _findAll(adapter, store, type, sinceToken) {
   var promise = adapter.findAll(store, type, sinceToken);
-  var serializer = serializerForAdapter(adapter, type);
+  var serializer = serializerForAdapter(store, adapter, type);
   var label = "DS: Handle Adapter#findAll of " + type;
 
   promise = Promise.cast(promise, label);
@@ -131,7 +135,7 @@ export function _findAll(adapter, store, type, sinceToken) {
 
 export function _findQuery(adapter, store, type, query, recordArray) {
   var promise = adapter.findQuery(store, type, query, recordArray);
-  var serializer = serializerForAdapter(adapter, type);
+  var serializer = serializerForAdapter(store, adapter, type);
   var label = "DS: Handle Adapter#findQuery of " + type;
 
   promise = Promise.cast(promise, label);

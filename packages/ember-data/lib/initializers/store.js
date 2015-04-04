@@ -4,22 +4,25 @@ import ContainerProxy from "ember-data/system/container-proxy";
 import Store from "ember-data/system/store";
 
 /**
-  Configures a container for use with an Ember-Data
+  Configures a registry for use with an Ember-Data
   store. Accepts an optional namespace argument.
 
   @method initializeStore
-  @param {Ember.Container} container
+  @param {Ember.Registry} registry
   @param {Object} [application] an application namespace
 */
-export default function initializeStore(container, application) {
+export default function initializeStore(registry, application) {
   Ember.deprecate('Specifying a custom Store for Ember Data on your global namespace as `App.Store` ' +
                   'has been deprecated. Please use `App.ApplicationStore` instead.', !(application && application.Store));
 
-  container.register('store:main', container.lookupFactory('store:application') || (application && application.Store) || Store);
+  registry.optionsForType('serializer', { singleton: false });
+  registry.optionsForType('adapter', { singleton: false });
+
+  registry.register('store:main', registry.lookupFactory('store:application') || (application && application.Store) || Store);
 
   // allow older names to be looked up
 
-  var proxy = new ContainerProxy(container);
+  var proxy = new ContainerProxy(registry);
   proxy.registerDeprecations([
     { deprecated: 'serializer:_default',  valid: 'serializer:-default' },
     { deprecated: 'serializer:_rest',     valid: 'serializer:-rest' },
@@ -27,12 +30,12 @@ export default function initializeStore(container, application) {
   ]);
 
   // new go forward paths
-  container.register('serializer:-default', JSONSerializer);
-  container.register('serializer:-rest', RESTSerializer);
-  container.register('adapter:-rest', RESTAdapter);
+  registry.register('serializer:-default', JSONSerializer);
+  registry.register('serializer:-rest', RESTSerializer);
+  registry.register('adapter:-rest', RESTAdapter);
 
   // Eagerly generate the store so defaultStore is populated.
   // TODO: Do this in a finisher hook
-  var store = container.lookup('store:main');
-  container.register('service:store', store, { instantiate: false });
+  var store = registry.lookup('store:main');
+  registry.register('service:store', store, { instantiate: false });
 }

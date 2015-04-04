@@ -26,7 +26,7 @@ test("Collection will resolve save on success", function() {
 
   var posts = env.store.all('post');
 
-  env.adapter.createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, snapshot) {
     return Ember.RSVP.resolve({ id: 123 });
   };
 
@@ -45,7 +45,7 @@ test("Collection will reject save on error", function() {
 
   var posts = env.store.all('post');
 
-  env.adapter.createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject();
   };
 
@@ -66,7 +66,7 @@ test("Retry is allowed in a failure handler", function() {
 
   var count = 0;
 
-  env.adapter.createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, snapshot) {
     if (count++ === 0) {
       return Ember.RSVP.reject();
     } else {
@@ -74,7 +74,7 @@ test("Retry is allowed in a failure handler", function() {
     }
   };
 
-  env.adapter.updateRecord = function(store, type, record) {
+  env.adapter.updateRecord = function(store, type, snapshot) {
     return Ember.RSVP.resolve({ id: 123 });
   };
 
@@ -96,7 +96,7 @@ test("Collection will reject save on invalid", function() {
 
   var posts = env.store.all('post');
 
-  env.adapter.createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject({ title: 'invalid' });
   };
 

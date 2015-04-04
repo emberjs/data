@@ -65,10 +65,9 @@ Snapshot.prototype = {
     Example
 
     ```javascript
-    var post = store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
-    var snapshot = post._createSnapshot();
+    // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
 
-    snapshot.id; // => '1'
+    postSnapshot.id; // => '1'
     ```
 
     @property id
@@ -113,11 +112,10 @@ Snapshot.prototype = {
     Example
 
     ```javascript
-    var post = store.createRecord('post', { author: 'Tomster', title: 'Ember.js rocks' });
-    var snapshot = post._createSnapshot();
+    // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
 
-    snapshot.attr('author'); // => 'Tomster'
-    snapshot.attr('title'); // => 'Ember.js rocks'
+    postSnapshot.attr('author'); // => 'Tomster'
+    postSnapshot.attr('title'); // => 'Ember.js rocks'
     ```
 
     Note: Values are loaded eagerly and cached when the snapshot is created.
@@ -139,14 +137,13 @@ Snapshot.prototype = {
     Example
 
     ```javascript
-    var post = store.createRecord('post', { author: 'Tomster', title: 'Ember.js rocks' });
-    var snapshot = post._createSnapshot();
+    // store.push('post', { id: 1, author: 'Tomster', title: 'Hello World' });
 
-    snapshot.attributes(); // => { author: 'Tomster', title: 'Ember.js rocks' }
+    postSnapshot.attributes(); // => { author: 'Tomster', title: 'Ember.js rocks' }
     ```
 
     @method attributes
-    @return {Array} All attributes for the current snapshot
+    @return {Object} All attributes of the current snapshot
   */
   attributes: function() {
     return Ember.copy(this._attributes);
@@ -164,12 +161,11 @@ Snapshot.prototype = {
     Example
 
     ```javascript
-    var post = store.push('post', { id: 1, title: 'Hello World' });
-    var comment = store.createRecord('comment', { body: 'Lorem ipsum', post: post });
-    var snapshot = comment._createSnapshot();
+    // store.push('post', { id: 1, title: 'Hello World' });
+    // store.createRecord('comment', { body: 'Lorem ipsum', post: post });
 
-    snapshot.belongsTo('post'); // => DS.Snapshot of post
-    snapshot.belongsTo('post', { id: true }); // => '1'
+    commentSnapshot.belongsTo('post'); // => DS.Snapshot
+    commentSnapshot.belongsTo('post', { id: true }); // => '1'
     ```
 
     Calling `belongsTo` will return a new Snapshot as long as there's any
@@ -229,11 +225,10 @@ Snapshot.prototype = {
     Example
 
     ```javascript
-    var post = store.createRecord('post', { title: 'Hello World', comments: [2, 3] });
-    var snapshot = post._createSnapshot();
+    // store.push('post', { id: 1, title: 'Hello World', comments: [2, 3] });
 
-    snapshot.hasMany('comments'); // => [DS.Snapshot, DS.Snapshot]
-    snapshot.hasMany('comments', { ids: true }); // => ['2', '3']
+    postSnapshot.hasMany('comments'); // => [DS.Snapshot, DS.Snapshot]
+    postSnapshot.hasMany('comments', { ids: true }); // => ['2', '3']
     ```
 
     Note: Relationships are loaded lazily and cached upon first access.
@@ -355,6 +350,15 @@ Snapshot.prototype = {
   */
   unknownProperty: function(keyName) {
     return this.get(keyName);
+  },
+
+  /**
+    @method _createSnapshot
+    @private
+  */
+  _createSnapshot: function() {
+    Ember.deprecate("You called _createSnapshot on what's already a DS.Snapshot. You shouldn't manually create snapshots in your adapter since the store passes snapshots to adapters by default.");
+    return this;
   }
 };
 

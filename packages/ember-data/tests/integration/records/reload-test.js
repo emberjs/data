@@ -25,7 +25,7 @@ module("integration/reload - Reloading Records", {
 test("When a single record is requested, the adapter's find method should be called unless it's loaded.", function() {
   var count = 0;
 
-  env.adapter.find = function(store, type, id) {
+  env.adapter.find = function(store, type, id, snapshot) {
     if (count === 0) {
       count++;
       return Ember.RSVP.resolve({ id: id, name: "Tom Dale" });
@@ -58,7 +58,7 @@ test("When a record is reloaded and fails, it can try again", function() {
   });
 
   var count = 0;
-  env.adapter.find = function(store, type, id) {
+  env.adapter.find = function(store, type, id, snapshot) {
     if (count++ === 0) {
       return Ember.RSVP.reject();
     } else {
@@ -114,7 +114,7 @@ test("When a record is reloaded, its async hasMany relationships still work", fu
 
   var tags = { 1: "hipster", 2: "hair" };
 
-  env.adapter.find = function(store, type, id) {
+  env.adapter.find = function(store, type, id, snapshot) {
     switch (type.typeKey) {
       case 'person':
         return Ember.RSVP.resolve({ id: 1, name: "Tom", tags: [1, 2] });

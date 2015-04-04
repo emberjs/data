@@ -5,7 +5,7 @@ var store, tryToFind, Record;
 module("unit/store/unload - Store unloading records", {
   setup: function() {
     store = createStore({ adapter: DS.Adapter.extend({
-        find: function(store, type, id) {
+        find: function(store, type, id, snapshot) {
           tryToFind = true;
           return Ember.RSVP.resolve({ id: id, wasFetched: true });
         }
@@ -97,10 +97,10 @@ test("can commit store after unload record with relationships", function() {
 
   var store = createStore({
     adapter: DS.Adapter.extend({
-      find: function() {
+      find: function(store, type, id, snapshot) {
         return Ember.RSVP.resolve({ id: 1, description: 'cuisinart', brand: 1 });
       },
-      createRecord: function(store, type, record) {
+      createRecord: function(store, type, snapshot) {
         return Ember.RSVP.resolve();
       }
     }),

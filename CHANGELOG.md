@@ -2,7 +2,109 @@
 
 ### Master
 
-#### serializer.serialize() now receives a Snapshot instead of a record instance
+### Release 1.0.0-beta.16.1 (March 24, 2015)
+
+ * Use ember-inflector 1.5
+ * Fix doc for Snapshot.attributes()
+ * Special case "application" in the store.serializerFor method
+ * Allow the store to lookup the applicationAdapter using adapterFor
+
+### Release 1.0.0-beta.16 (March 23, 2015)
+
+#### Breaking Changes
+
+##### The store now passes snapshots instead of records to adapter methods
+
+In 1.0.0-beta.15 serializers were updated to be passed snapshots instead of
+records to prevent side-effects like fetching data when inspecting
+relationships. This has now been extended to also include adapters methods.
+
+The following adapter methods are now passed snapshots instead of records:
+
+- `find(store, type, id, snapshot)`
+- `findMany(store, type, ids, snapshots)`
+- `findHasMany(store, snapshot, url, relationship)`
+- `findBelongsTo(store, snapshot, url, relationship)`
+- `createRecord(store, type, snapshot)`
+- `updateRecord(store, type, snapshot)`
+- `deleteRecord(store, type, snapshot)`
+
+The signature of `buildURL(type, id, snapshot)` has also been updated to receive
+snapshots instead of records.
+
+This change removes the need for adapters to create snapshots manually using the
+private API `record._createSnapshot()` to be able to pass snapshots to
+serializers.
+
+Snapshots are backwards-compatible with records (with deprecation warnings) and
+it should be pretty straight forward to update current code to the public
+Snapshot API:
+
+```js
+post.get('id')           => postSnapshot.id
+post.get('title')        => postSnapshot.attr('title')
+post.get('author')       => postSnapshot.belongsTo('author')
+post.get('comments')     => postSnapshot.hasMany('comments')
+post.constructor         => postSnapshot.type;
+post.constructor.typeKey => postSnapshot.typeKey
+```
+
+If you need to access the underlying record of a snapshot you can do so by
+accessing `snapshot.record`.
+
+The full API reference of `DS.Snapshot` can be found [here](http://emberjs.com/api/data/classes/DS.Snapshot.html).
+
+#### Changes
+  * Do not re-add deleted records to a hasMany relationship
+  * Shorten the list of reserved attributes on the model
+  * Remove _createSnapshot() from DS.Snapshot documentation examples
+  * Pass snapshots to adapters instead of records
+  * Refactor the model assert so it will be correctly removed from the prod build.
+  * Adapters and Serializers are Store Managed
+  * Delete `Ember.required` (it is deprecated).
+  * Adding clearer wording for calling super form extract messages
+  * Missing parameter for JSDoc
+  * Add examples of how to use model.errors in a template
+  * Add doc example for defaultValue as a function on DS.attr
+  * Update the InvalidError docs to make it more clear about where the server payload gets normalized.
+  * Assert if the user tries to redefine a reserved property name.
+  * Remove container deprecation warnings in Ember Data tests
+  * hasRecordForId should return false if the record is not loaded
+  * [BUGFIX] fetching an empty record runs find
+  * bump ember-cli to 2.0 & remove sourcemapping comments in production
+  * commit record-arrays.js separately so it doesn't clobber the rename
+  * Rename local files to use dashes instead of underscores
+  * Have snapshots respect the order of items in hasMany relationships
+  * remove ManyArray from record_arrays
+  * update docs about `store` in serializer
+  * fetch() -> fetchById() in docs
+  * Run findHasMany inside an ED runloop
+  * Cleanup debug adapter test: Watching Records
+  * Fixed didDelete event/callback not fired in uncommited state
+  * Add main entry point for package.json.
+  * register the store as a service
+  * Warn when expected coalesced records are not found in the response
+  * Warn if calling attr, belongsTo or hasMany on model
+  * move Model to use default export instead of named export
+  * Move buildURL and related methods to a mixin
+  * Correct modelFor model not found errors
+  * Declare `store` property on DS.Model
+  * improve error message for belongsTo
+  * Move _adapterRun onto the DS.Store object
+  * Move utility functions out of DS.Store, and into their own modules for reuse across ember-data
+  * CLean up implicit relationships on record unload
+  * Add assertion for `store` property on DS.Model subclasses
+  * Adds support for using mixins in polymorphic relationships
+  * [DOC]: Clarify when didCreate is fired
+  * (Docs) ManyArray is no longer a RecordArray
+  * Fix: root.deleted.invalid state
+
+
+### Release 1.0.0-beta.15 (February 14, 2015)
+
+#### Breaking Changes
+
+##### serializer.serialize() now receives a Snapshot instead of a record instance
 A snapshot represents the frozen state of a record at a particular
 moment in time. Its initial purpose is to be passed to serializers
 instead of the real record. This allows the serializer to examine the
@@ -41,13 +143,14 @@ post.get('comments');
 postSnapshot.hasMany('comments');
 ```
 
-#### RecordArray.pushRecord and ManyArray.addRecord/removeRecord are deprecated
+##### RecordArray.pushRecord and ManyArray.addRecord/removeRecord are deprecated
 
 If you would like to add a new record to a `RecordArray` or a
 `ManyArray` you should now use the `addObject` and `removeObject`
 methods.
 
-### Release 1.0.0-beta.15 (February 14, 2015)
+#### Changes
+
   * use package.json for ember addon
   * Initial implementation of the Snapshot API
   * Allow errors on arbitrary properties, not just defined attributes or relationships
@@ -89,9 +192,11 @@ methods.
 
 ### Ember Data 1.0.0-beta.14.1 (December 31, 2014)
 
-* Replace `<%= versionStamp %>` with actual version stamp. Thanks
-  @tricknotes!
-* Fix sourcemap loading in Ember CLI and Rails.
+#### Changes
+
+  * Replace `<%= versionStamp %>` with actual version stamp. Thanks
+    @tricknotes!
+  * Fix sourcemap loading in Ember CLI and Rails.
 
 ### Ember Data 1.0.0-beta.14 (December 25, 2014)
 

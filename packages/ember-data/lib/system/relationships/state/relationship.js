@@ -15,6 +15,7 @@ var Relationship = function(store, record, inverseKey, relationshipMeta) {
   //multiple possible typeKeys
   this.inverseKeyForImplicit = this.store.modelFor(this.record.constructor).typeKey + this.key;
   this.linkPromise = null;
+  this.hasData = false;
 };
 
 Relationship.prototype = {
@@ -230,7 +231,11 @@ Relationship.prototype = {
   },
 
   notifyRecordRelationshipAdded: Ember.K,
-  notifyRecordRelationshipRemoved: Ember.K
+  notifyRecordRelationshipRemoved: Ember.K,
+
+  setHasData: function() {
+    this.hasData = true;
+  }
 };
 
 export default Relationship;

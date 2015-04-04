@@ -14,7 +14,7 @@ test("a record receives a didLoad callback when it has finished loading", functi
   });
 
   var adapter = DS.Adapter.extend({
-    find: function(store, type, id) {
+    find: function(store, type, id, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Foo" });
     }
   });
@@ -48,11 +48,11 @@ test("a record receives a didUpdate callback when it has finished updating", fun
   });
 
   var adapter = DS.Adapter.extend({
-    find: function(store, type, id) {
+    find: function(store, type, id, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Foo" });
     },
 
-    updateRecord: function(store, type, record) {
+    updateRecord: function(store, type, snapshot) {
       equal(callCount, 0, "didUpdate callback was not called until didSaveRecord is called");
 
       return Ember.RSVP.resolve();
@@ -95,7 +95,7 @@ test("a record receives a didCreate callback when it has finished updating", fun
   });
 
   var adapter = DS.Adapter.extend({
-    createRecord: function(store, type, record) {
+    createRecord: function(store, type, snapshot) {
       equal(callCount, 0, "didCreate callback was not called until didSaveRecord is called");
 
       return Ember.RSVP.resolve();
@@ -139,11 +139,11 @@ test("a record receives a didDelete callback when it has finished deleting", fun
   });
 
   var adapter = DS.Adapter.extend({
-    find: function(store, type, id) {
+    find: function(store, type, id, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Foo" });
     },
 
-    deleteRecord: function(store, type, record) {
+    deleteRecord: function(store, type, snapshot) {
       equal(callCount, 0, "didDelete callback was not called until didSaveRecord is called");
 
       return Ember.RSVP.resolve();
@@ -225,11 +225,11 @@ test("a record receives a becameInvalid callback when it became invalid", functi
   });
 
   var adapter = DS.Adapter.extend({
-    find: function(store, type, id) {
+    find: function(store, type, id, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Foo" });
     },
 
-    updateRecord: function(store, type, record) {
+    updateRecord: function(store, type, snapshot) {
       equal(callCount, 0, "becameInvalid callback was not called until recordWasInvalid is called");
 
       return Ember.RSVP.reject(new DS.InvalidError({ bar: 'error' }));

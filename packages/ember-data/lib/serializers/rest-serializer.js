@@ -8,7 +8,7 @@ var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var camelize = Ember.String.camelize;
 
-import { singularize } from "ember-inflector/system/string";
+import { singularize } from "ember-inflector/lib/system/string";
 
 function coerceId(id) {
   return id == null ? null : id + '';

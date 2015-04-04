@@ -48,7 +48,7 @@ test("When a single record is requested, the adapter's find method should be cal
   store = createStore({
     person: Person,
     adapter: DS.Adapter.extend({
-      find: function(store, type, id) {
+      find: function(store, type, id, snapshot) {
         equal(type, Person, "the find method is called with the correct type");
         equal(count, 0, "the find method is only called once");
 
@@ -70,7 +70,7 @@ test("When a single record is requested multiple times, all .find() calls are re
   store = createStore({
     person: Person,
     adapter: DS.Adapter.extend({
-      find:  function(store, type, id) {
+      find:  function(store, type, id, snapshot) {
         return deferred.promise;
       }
     })
@@ -118,7 +118,7 @@ test("When a single record is requested, and the promise is rejected, .find() is
   store = createStore({
     person: Person,
     adapter: DS.Adapter.extend({
-      find: function(store, type, id) {
+      find: function(store, type, id, snapshot) {
         return Ember.RSVP.reject();
       }
     })
@@ -137,7 +137,7 @@ test("When a single record is requested, and the promise is rejected, the record
   store = createStore({
     person: Person,
     adapter: DS.Adapter.extend({
-      find: function(store, type, id) {
+      find: function(store, type, id, snapshot) {
         return Ember.RSVP.reject();
       }
     })

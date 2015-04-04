@@ -1,4 +1,4 @@
-var container, store;
+var container, store, registry;
 
 var camelize  = Ember.String.camelize;
 var dasherize = Ember.String.dasherize;
@@ -14,6 +14,7 @@ module("unit/store/model_for - DS.Store#modelFor", {
     });
     store = env.store;
     container = store.container;
+    registry = env.registry;
   },
 
   teardown: function() {
@@ -27,7 +28,7 @@ module("unit/store/model_for - DS.Store#modelFor", {
 test("when fetching factory from string, sets a normalized key as typeKey", function() {
   env.replaceContainerNormalize(camelize);
 
-  equal(container.normalize('some.post'), 'somePost', 'precond - container camelizes');
+  equal(registry.normalize('some.post'), 'somePost', 'precond - container camelizes');
   equal(store.modelFor("blog.post").typeKey, "blogPost", "typeKey is normalized to camelCase");
 });
 
@@ -36,7 +37,7 @@ test("when fetching factory from string and dashing normalizer, sets a normalize
     return dasherize(camelize(fullName));
   });
 
-  equal(container.normalize('some.post'), 'some-post', 'precond - container dasherizes');
+  equal(registry.normalize('some.post'), 'some-post', 'precond - container dasherizes');
   equal(store.modelFor("blog.post").typeKey, "blogPost", "typeKey is normalized to camelCase");
 });
 
