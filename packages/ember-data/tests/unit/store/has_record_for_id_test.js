@@ -26,7 +26,7 @@ module("unit/store/hasRecordForId - Store hasRecordForId", {
 
     env = setupStore({
       person: Person,
-      "phone-number": PhoneNumber
+      "phoneNumber": PhoneNumber
     });
 
     store = env.store;

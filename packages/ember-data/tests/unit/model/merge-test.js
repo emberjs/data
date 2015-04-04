@@ -19,7 +19,10 @@ test("When a record is in flight, changes can be made", function() {
     }
   });
   var person;
-  var store = createStore({ adapter: adapter });
+  var store = createStore({
+    adapter: adapter,
+    person: Person
+  });
 
   run(function() {
     person = store.createRecord(Person, { name: "Tom Dale" });
@@ -52,11 +55,14 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
     }
   });
 
-  var store = createStore({ adapter: adapter });
+  var store = createStore({
+    person: Person,
+    adapter: adapter
+  });
   var person;
 
   run(function() {
-    person = store.push(Person, { id: 1, name: "Tom" });
+    person = store.push('person', { id: 1, name: "Tom" });
     person.set('name', "Thomas Dale");
   });
 
@@ -67,7 +73,7 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
 
     person.set('name', "Tomasz Dale");
 
-    store.push(Person, { id: 1, name: "Tommy Dale", city: "PDX" });
+    store.push('person', { id: 1, name: "Tommy Dale", city: "PDX" });
 
     equal(person.get('name'), "Tomasz Dale", "the local changes applied on top");
     equal(person.get('city'), "PDX", "the pushed change is available");
@@ -81,11 +87,14 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
 });
 
 test("When a record is dirty, pushes are overridden by local changes", function() {
-  var store = createStore({ adapter: DS.Adapter });
+  var store = createStore({
+    adapter: DS.Adapter,
+    person: Person
+  });
   var person;
 
   run(function() {
-    person = store.push(Person, { id: 1, name: "Tom Dale", city: "San Francisco" });
+    person = store.push('person', { id: 1, name: "Tom Dale", city: "San Francisco" });
     person.set('name', "Tomasz Dale");
   });
 
@@ -94,7 +103,7 @@ test("When a record is dirty, pushes are overridden by local changes", function(
   equal(person.get('city'), "San Francisco", "the original data applies");
 
   run(function() {
-    store.push(Person, { id: 1, name: "Thomas Dale", city: "Portland" });
+    store.push('person', { id: 1, name: "Thomas Dale", city: "Portland" });
   });
 
   equal(person.get('isDirty'), true, "the local changes are reapplied");
@@ -111,11 +120,14 @@ test("A record with no changes can still be saved", function() {
     }
   });
 
-  var store = createStore({ adapter: adapter });
+  var store = createStore({
+    adapter: adapter,
+    person: Person
+  });
   var person;
 
   run(function() {
-    person = store.push(Person, { id: 1, name: "Tom Dale" });
+    person = store.push('person', { id: 1, name: "Tom Dale" });
   });
 
   run(function() {
@@ -134,11 +146,14 @@ test("A dirty record can be reloaded", function() {
     }
   });
 
-  var store = createStore({ adapter: adapter });
+  var store = createStore({
+    adapter: adapter,
+    person: Person
+  });
   var person;
 
   run(function() {
-    person = store.push(Person, { id: 1, name: "Tom Dale" });
+    person = store.push('person', { id: 1, name: "Tom Dale" });
     person.set('name', "Tomasz Dale");
   });
 

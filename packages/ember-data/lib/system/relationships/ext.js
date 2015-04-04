@@ -207,7 +207,6 @@ Model.reopenClass({
     @method inverseFor
     @static
     @param {String} name the name of the relationship
-    @param {DS.Store} store the current store
     @return {Object} the inverse relationship, or null
   */
   inverseFor: function(name) {

@@ -8,6 +8,10 @@ import {
   serializerForAdapter
 } from "ember-data/system/store/serializers";
 
+import {
+  typeForRelationshipMeta
+} from "ember-data/system/relationship-meta";
+
 
 var get = Ember.get;
 var Promise = Ember.RSVP.Promise;
@@ -65,11 +69,12 @@ export function _findMany(adapter, store, type, ids, records) {
   }, null, "DS: Extract payload of " + type);
 }
 
-export function _findHasMany(adapter, store, record, link, relationship) {
+export function _findHasMany(adapter, store, record, link, relationshipMeta) {
   var snapshot = record._createSnapshot();
-  var promise = adapter.findHasMany(store, snapshot, link, relationship);
-  var serializer = serializerForAdapter(store, adapter, relationship.type);
-  var label = "DS: Handle Adapter#findHasMany of " + record + " : " + relationship.type;
+  var promise = adapter.findHasMany(store, snapshot, link, relationshipMeta);
+  var typeKey = typeForRelationshipMeta(relationshipMeta);
+  var serializer = serializerForAdapter(store, adapter, typeKey);
+  var label = "DS: Handle Adapter#findHasMany of " + record + " : " + typeKey;
 
   promise = Promise.cast(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
@@ -77,14 +82,14 @@ export function _findHasMany(adapter, store, record, link, relationship) {
 
   return promise.then(function(adapterPayload) {
     return store._adapterRun(function() {
-      var payload = serializer.extract(store, store.modelFor(relationship.type), adapterPayload, null, 'findHasMany');
+      var payload = serializer.extract(store, store.modelFor(typeKey), adapterPayload, null, 'findHasMany');
 
       Ember.assert("The response from a findHasMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
-      var records = store.pushMany(relationship.type, payload);
+      var records = store.pushMany(typeKey, payload);
       return records;
     });
-  }, null, "DS: Extract payload of " + record + " : hasMany " + relationship.type);
+  }, null, "DS: Extract payload of " + record + " : hasMany " + typeKey);
 }
 
 export function _findBelongsTo(adapter, store, record, link, relationship) {

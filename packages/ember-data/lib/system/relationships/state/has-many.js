@@ -85,15 +85,16 @@ ManyRelationship.prototype.removeRecordFromOwn = function(record, idx) {
 };
 
 ManyRelationship.prototype.notifyRecordRelationshipAdded = function(record, idx) {
-  var type = this.store.modelFor(this.relationshipMeta.type);
+  var typeKey   = typeForRelationshipMeta(this.relationshipMeta);
+  var typeClass = this.store.modelFor(typeKey);
   Ember.assert("You cannot add '" + record.constructor.typeKey + "' records to the " + this.record.constructor.typeKey + "." + this.key + " relationship (only '" + this.belongsToType + "' allowed)", (function () {
-    if (type.__isMixin) {
-      return type.__mixin.detect(record);
+    if (typeClass.__isMixin) {
+      return typeClass.__mixin.detect(record);
     }
-    if (type.superclass && type.superclass !== DS.Model) {
-      type = type.superclass;
+    if (typeClass.superclass && typeClass.superclass !== DS.Model) {
+      typeClass = typeClass.superclass;
     }
-    return record instanceof type;
+    return record instanceof typeClass;
   })());
 
   this.record.notifyHasManyAdded(this.key, record, idx);
