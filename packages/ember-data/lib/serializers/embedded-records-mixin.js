@@ -64,8 +64,9 @@ var camelize = Ember.String.camelize;
   Embedded records must have a model defined to be extracted and serialized. Note that
   when defining any relationships on your model such as `belongsTo` and `hasMany`, you
   should not both specify `async:true` and also indicate through the serializer's
-  `attrs` attribute that the related model should be embedded.  If a model is
-  declared embedded, then do not use `async:true`.
+  `attrs` attribute that the related model should be embedded for deserialization.
+  If a model is declared embedded for deserialization (`embedded: 'always'`,
+  `deserialize: 'record'` or `deserialize: 'records'`), then do not use `async:true`.
 
   To successfully extract and serialize embedded records the model relationships
   must be setup correcty See the
