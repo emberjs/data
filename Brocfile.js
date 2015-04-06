@@ -16,6 +16,7 @@ var defeatureify    = require('broccoli-defeatureify');
 var version         = require('git-repo-version')(10);
 var yuidoc          = require('broccoli-yuidoc');
 var replace         = require('broccoli-replace');
+var stew            = require('broccoli-stew');
 var path            = require('path');
 var fs              = require('fs');
 var jscsTree        = require('broccoli-jscs');
@@ -30,6 +31,7 @@ function minify(tree, name){
     srcFile: name + '.js',
     destFile: '/' + name + '.prod.js'
   });
+  tree = removeSourceMappingURL(tree);
   var uglified = moveFile(uglify(tree, {mangle: true}),{
     srcFile: name + '.prod.js',
     destFile: '/' + name + '.min.js'
@@ -70,7 +72,7 @@ var yuidocTree = yuidoc('packages', {
       "paths": [
         "packages/ember-data/lib",
         "packages/activemodel-adapter/lib",
-        "packages/ember-inflector/lib"
+        "packages/ember-inflector/addon"
       ],
       "exclude": "vendor",
       "outdir":   "docs/build"
@@ -88,10 +90,19 @@ function package(packagePath, vendorPath) {
   });
 }
 
+function packageAddon(packagePath, vendorPath) {
+  return stew.rename(pickFiles(vendorPath + packagePath, {
+    files: [ '**/*.js' ],
+    srcDir: '/addon',
+    destDir: '/' + packagePath + '/lib'
+  }), 'index.js', 'main.js');
+}
+
 var packages = merge([
-  package('ember-inflector', 'bower_components/ember-inflector/packages/'),
+  packageAddon('ember-inflector', 'node_modules/'),
   package('ember-data'),
-  package('activemodel-adapter')
+  package('activemodel-adapter'),
+  package('ember')
 ]);
 
 var globalBuild;
@@ -143,12 +154,22 @@ var configurationFiles = pickFiles('config/package-manager-files', {
   files: [ '**/*.json' ]
 });
 
-function versionStamp(tree){
+function versionStamp(tree) {
   return replace(tree, {
     files: ['**/*'],
     patterns: [{
       match: /VERSION_STRING_PLACEHOLDER/g,
       replacement: version
+    }]
+  });
+}
+
+function removeSourceMappingURL(tree) {
+  return replace(tree, {
+    files: ['**/*'],
+    patterns: [{
+      match: /\/\/(.*)sourceMappingURL=(.*)/g,
+      replacement: ''
     }]
   });
 }

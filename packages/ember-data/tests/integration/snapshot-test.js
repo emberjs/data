@@ -37,6 +37,23 @@ test("record._createSnapshot() returns a snapshot", function() {
   });
 });
 
+test("snapshot._createSnapshot() returns a snapshot (self) but is deprecated", function() {
+  expect(2);
+
+  run(function() {
+    var post = env.store.push('post', { id: 1, title: 'Hello World' });
+    var snapshot1 = post._createSnapshot();
+    var snapshot2;
+
+    expectDeprecation(function() {
+      snapshot2 = snapshot1._createSnapshot();
+    }, /You called _createSnapshot on what's already a DS.Snapshot. You shouldn't manually create snapshots in your adapter since the store passes snapshots to adapters by default./);
+
+    ok(snapshot2 === snapshot1, 'snapshot._createSnapshot() returns self');
+  });
+
+});
+
 test("snapshot.id, snapshot.type and snapshot.typeKey returns correctly", function() {
   expect(3);
 

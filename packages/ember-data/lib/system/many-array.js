@@ -5,6 +5,7 @@ import { PromiseArray } from "ember-data/system/promise-proxies";
 
 var get = Ember.get;
 var set = Ember.set;
+var filter = Ember.ArrayPolyfills.filter;
 
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
@@ -65,7 +66,10 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
 
   flushCanonical: function() {
     //TODO make this smarter, currently its plenty stupid
-    var toSet = this.canonicalState.slice(0);
+    var toSet = filter.call(this.canonicalState, function(record) {
+      return !record.get('isDeleted');
+    });
+
     //a hack for not removing new records
     //TODO remove once we have proper diffing
     var newRecords = this.currentState.filter(function(record) {
@@ -96,12 +100,12 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   */
   isLoaded: false,
 
-   /**
-     The relationship which manages this array.
+  /**
+    The relationship which manages this array.
 
-     @property {ManyRelationship} relationship
-     @private
-   */
+    @property {ManyRelationship} relationship
+    @private
+  */
   relationship: null,
 
   internalReplace: function(idx, amt, objects) {

@@ -508,7 +508,14 @@ var converts = function(type, provided, expected) {
     name: DS.attr(type)
   });
 
-  var container = new Ember.Container();
+  var registry, container;
+  if (Ember.Registry) {
+    registry = new Ember.Registry();
+    container = registry.container();
+  } else {
+    container = new Ember.Container();
+    registry = container;
+  }
   var testStore = createStore({ model: Model });
   var serializer = DS.JSONSerializer.create({
     store: testStore,
@@ -534,7 +541,14 @@ var convertsFromServer = function(type, provided, expected) {
     name: DS.attr(type)
   });
 
-  var container = new Ember.Container();
+  var registry, container;
+  if (Ember.Registry) {
+    registry = new Ember.Registry();
+    container = registry.container();
+  } else {
+    container = new Ember.Container();
+    registry = container;
+  }
   var testStore = createStore({ model: Model });
   var serializer = DS.JSONSerializer.create({
     store: testStore,
@@ -652,7 +666,7 @@ test("ensure model exits loading state, materializes data and fulfills promise o
 
   var store = createStore({
     adapter: DS.Adapter.extend({
-      find: function(store, type, id) {
+      find: function(store, type, id, snapshot) {
         return Ember.RSVP.resolve({ id: 1, name: "John" });
       }
     })
@@ -708,6 +722,25 @@ test("A subclass of DS.Model can not use the `store` property", function() {
       store.createRecord('retailer', { name: "Buy n Large" });
     });
   }, /`store` is a reserved property name on DS.Model objects/);
+});
+
+test("A subclass of DS.Model can not use reserved properties", function() {
+  expect(3);
+  [
+    'currentState', 'data', 'store'
+  ].forEach(function(reservedProperty) {
+    var invalidExtendObject = {};
+    invalidExtendObject[reservedProperty] = DS.attr();
+    var Post = DS.Model.extend(invalidExtendObject);
+
+    var store = createStore({ post: Post });
+
+    expectAssertion(function() {
+      run(function() {
+        store.createRecord('post', {});
+      });
+    }, /is a reserved property name on DS.Model objects/);
+  });
 });
 
 test("Pushing a record into the store should transition it to the loaded state", function() {

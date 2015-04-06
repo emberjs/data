@@ -37,9 +37,9 @@ module("integration/adapter/record_persistence - Persisting Records", {
 test("When a store is committed, the adapter's `commit` method should be called with records that have been changed.", function() {
   expect(2);
 
-  env.adapter.updateRecord = function(store, type, record) {
+  env.adapter.updateRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
-    equal(record, tom, "the record is correct");
+    equal(snapshot.record, tom, "the record is correct");
 
     return run(Ember.RSVP, 'resolve');
   };
@@ -61,9 +61,9 @@ test("When a store is committed, the adapter's `commit` method should be called 
   expect(2);
   var tom;
 
-  env.adapter.createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
-    equal(record, tom, "the record is correct");
+    equal(snapshot.record, tom, "the record is correct");
 
     return Ember.RSVP.resolve({ id: 1, name: "Tom Dale" });
   };
@@ -78,7 +78,7 @@ test("After a created record has been assigned an ID, finding a record by that I
   expect(1);
   var tom;
 
-  env.adapter.createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, snapshot) {
     return Ember.RSVP.resolve({ id: 1, name: "Tom Dale" });
   };
 
@@ -91,9 +91,9 @@ test("After a created record has been assigned an ID, finding a record by that I
 });
 
 test("when a store is committed, the adapter's `commit` method should be called with records that have been deleted.", function() {
-  env.adapter.deleteRecord = function(store, type, record) {
+  env.adapter.deleteRecord = function(store, type, snapshot) {
     equal(type, Person, "the type is correct");
-    equal(record, tom, "the record is correct");
+    equal(snapshot.record, tom, "the record is correct");
 
     return run(Ember.RSVP, 'resolve');
   };
@@ -117,7 +117,7 @@ test("An adapter can notify the store that records were updated by calling `didS
 
   var tom, yehuda;
 
-  env.adapter.updateRecord = function(store, type, record) {
+  env.adapter.updateRecord = function(store, type, snapshot) {
     return Ember.RSVP.resolve();
   };
 
@@ -148,10 +148,10 @@ test("An adapter can notify the store that records were updated by calling `didS
 });
 
 test("An adapter can notify the store that records were updated and provide new data by calling `didSaveRecords`.", function() {
-  env.adapter.updateRecord = function(store, type, record) {
-    if (record.get('id') === "1") {
+  env.adapter.updateRecord = function(store, type, snapshot) {
+    if (snapshot.id === "1") {
       return Ember.RSVP.resolve({ id: 1, name: "Tom Dale", updatedAt: "now" });
-    } else if (record.get('id') === "2") {
+    } else if (snapshot.id === "2") {
       return Ember.RSVP.resolve({ id: 2, name: "Yehuda Katz", updatedAt: "now!" });
     }
   };
@@ -175,7 +175,7 @@ test("An adapter can notify the store that records were updated and provide new 
 });
 
 test("An adapter can notify the store that a record was updated by calling `didSaveRecord`.", function() {
-  env.adapter.updateRecord = function(store, type, record) {
+  env.adapter.updateRecord = function(store, type, snapshot) {
     return Ember.RSVP.resolve();
   };
 
@@ -198,8 +198,8 @@ test("An adapter can notify the store that a record was updated by calling `didS
 });
 
 test("An adapter can notify the store that a record was updated and provide new data by calling `didSaveRecord`.", function() {
-  env.adapter.updateRecord = function(store, type, record) {
-    switch (record.get('id')) {
+  env.adapter.updateRecord = function(store, type, snapshot) {
+    switch (snapshot.id) {
       case "1":
         return Ember.RSVP.resolve({ id: 1, name: "Tom Dale", updatedAt: "now" });
       case "2":
@@ -227,7 +227,7 @@ test("An adapter can notify the store that a record was updated and provide new 
 });
 
 test("An adapter can notify the store that records were deleted by calling `didSaveRecords`.", function() {
-  env.adapter.deleteRecord = function(store, type, record) {
+  env.adapter.deleteRecord = function(store, type, snapshot) {
     return Ember.RSVP.resolve();
   };
 

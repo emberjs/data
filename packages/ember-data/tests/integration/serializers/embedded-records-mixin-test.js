@@ -384,7 +384,7 @@ test("extractArray with embedded objects with custom primary key", function() {
 
   run(function() {
     return env.store.find("superVillain", 1).then(function(minion) {
-      env.container.unregister('serializer:superVillain');
+      env.registry.unregister('serializer:superVillain');
       equal(minion.get('firstName'), "Alex");
     });
   });

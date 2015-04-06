@@ -68,6 +68,24 @@ test("can unload all records for a given type", function () {
   equal(env.store.all('person').get('length'), 0);
 });
 
+test("Unloading all records for a given type clears saved meta data.", function () {
+
+  function metadataKeys(type) {
+    return Ember.keys(env.store.metadataFor(type));
+  }
+
+  run(function() {
+    env.store.setMetadataFor('person', { count: 10 });
+  });
+
+  Ember.run(function() {
+    env.store.unloadAll('person');
+  });
+
+  deepEqual(metadataKeys('person'), [], 'Metadata for person is empty');
+
+});
+
 test("removes findAllCache after unloading all records", function () {
   var adam, bob;
   run(function() {

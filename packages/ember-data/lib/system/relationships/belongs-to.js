@@ -1,5 +1,7 @@
 import Model from 'ember-data/system/model';
 
+import computedPolyfill from "ember-data/utils/computed-polyfill";
+
 /**
   `DS.belongsTo` is used to define One-To-One and One-To-Many
   relationships on a [DS.Model](/api/data/classes/DS.Model.html).
@@ -76,9 +78,12 @@ function belongsTo(type, options) {
     key: null
   };
 
-  return Ember.computed(function(key, value) {
-    if (arguments.length>1) {
-      if ( value === undefined ) {
+  return computedPolyfill({
+    get: function(key) {
+      return this._relationships[key].getRecord();
+    },
+    set: function(key, value) {
+      if (value === undefined) {
         value = null;
       }
       if (value && value.then) {
@@ -86,9 +91,9 @@ function belongsTo(type, options) {
       } else {
         this._relationships[key].setRecord(value);
       }
-    }
 
-    return this._relationships[key].getRecord();
+      return this._relationships[key].getRecord();
+    }
   }).meta(meta);
 }
 

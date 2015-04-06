@@ -24,7 +24,7 @@ test("Will resolve save on success", function() {
     post = env.store.createRecord('post', { title: 'toto' });
   });
 
-  env.adapter.createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, snapshot) {
     return Ember.RSVP.resolve({ id: 123 });
   };
 
@@ -41,7 +41,7 @@ test("Will reject save on error", function() {
     post = env.store.createRecord('post', { title: 'toto' });
   });
 
-  env.adapter.createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject();
   };
 
@@ -60,7 +60,7 @@ test("Retry is allowed in a failure handler", function() {
 
   var count = 0;
 
-  env.adapter.createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, snapshot) {
     if (count++ === 0) {
       return Ember.RSVP.reject();
     } else {
@@ -85,7 +85,7 @@ test("Repeated failed saves keeps the record in uncommited state", function() {
     post = env.store.createRecord('post', { title: 'toto' });
   });
 
-  env.adapter.createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject();
   };
 
@@ -107,7 +107,7 @@ test("Will reject save on invalid", function() {
     post = env.store.createRecord('post', { title: 'toto' });
   });
 
-  env.adapter.createRecord = function(store, type, record) {
+  env.adapter.createRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject({ title: 'invalid' });
   };
 

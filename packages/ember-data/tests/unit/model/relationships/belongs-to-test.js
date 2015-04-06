@@ -54,7 +54,7 @@ test("async belongsTo relationships work when the data hash has not been loaded"
   var env = setupStore({ tag: Tag, person: Person });
   var store = env.store;
 
-  env.adapter.find = function(store, type, id) {
+  env.adapter.find = function(store, type, id, snapshot) {
     if (type === Person) {
       equal(id, 1, "id should be 1");
 
@@ -158,8 +158,8 @@ test("When finding a hasMany relationship the inverse belongsTo relationship is 
   var env = setupStore({ occupation: Occupation, person: Person });
   var store = env.store;
 
-  env.adapter.findMany = function(store, type, ids, records) {
-    equal(records[0].get('person.id'), '1');
+  env.adapter.findMany = function(store, type, ids, snapshots) {
+    equal(snapshots[0].belongsTo('person').id, '1');
     return Ember.RSVP.resolve([{ id: 5, description: "fifth" }, { id: 2, description: "second" }]);
   };
 
@@ -204,8 +204,8 @@ test("When finding a belongsTo relationship the inverse belongsTo relationship i
   var env = setupStore({ occupation: Occupation, person: Person });
   var store = env.store;
 
-  env.adapter.find = function(store, type, id, record) {
-    equal(record.get('person.id'), '1');
+  env.adapter.find = function(store, type, id, snapshot) {
+    equal(snapshot.belongsTo('person').id, '1');
     return Ember.RSVP.resolve({ id: 5, description: "fifth" });
   };
 

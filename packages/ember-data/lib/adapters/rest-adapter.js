@@ -340,11 +340,11 @@ export default Adapter.extend(BuildURLMixin, {
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {String} id
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  find: function(store, type, id, record) {
-    return this.ajax(this.buildURL(type.typeKey, id, record), 'GET');
+  find: function(store, type, id, snapshot) {
+    return this.ajax(this.buildURL(type.typeKey, id, snapshot, 'find'), 'GET');
   },
 
   /**
@@ -362,13 +362,15 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findAll: function(store, type, sinceToken) {
-    var query;
+    var query, url;
 
     if (sinceToken) {
       query = { since: sinceToken };
     }
 
-    return this.ajax(this.buildURL(type.typeKey), 'GET', { data: query });
+    url = this.buildURL(type.typeKey, null, null, 'findAll');
+
+    return this.ajax(url, 'GET', { data: query });
   },
 
   /**
@@ -389,10 +391,13 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findQuery: function(store, type, query) {
+    var url = this.buildURL(type.typeKey, null, null, 'findQuery');
+
     if (this.sortQueryParams) {
       query = this.sortQueryParams(query);
     }
-    return this.ajax(this.buildURL(type.typeKey), 'GET', { data: query });
+
+    return this.ajax(url, 'GET', { data: query });
   },
 
   /**
@@ -425,11 +430,12 @@ export default Adapter.extend(BuildURLMixin, {
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {Array} ids
-    @param {Array} records
+    @param {Array} snapshots
     @return {Promise} promise
   */
-  findMany: function(store, type, ids, records) {
-    return this.ajax(this.buildURL(type.typeKey, ids, records), 'GET', { data: { ids: ids } });
+  findMany: function(store, type, ids, snapshots) {
+    var url = this.buildURL(type.typeKey, ids, snapshots, 'findMany');
+    return this.ajax(url, 'GET', { data: { ids: ids } });
   },
 
   /**
@@ -457,20 +463,22 @@ export default Adapter.extend(BuildURLMixin, {
 
     @method findHasMany
     @param {DS.Store} store
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @param {String} url
     @return {Promise} promise
   */
-  findHasMany: function(store, record, url, relationship) {
+  findHasMany: function(store, snapshot, url, relationship) {
     var host = get(this, 'host');
-    var id   = get(record, 'id');
-    var type = record.constructor.typeKey;
+    var id   = snapshot.id;
+    var type = snapshot.typeKey;
 
     if (host && url.charAt(0) === '/' && url.charAt(1) !== '/') {
       url = host + url;
     }
 
-    return this.ajax(this.urlPrefix(url, this.buildURL(type, id)), 'GET');
+    url = this.urlPrefix(url, this.buildURL(type, id, null, 'findHasMany'));
+
+    return this.ajax(url, 'GET');
   },
 
   /**
@@ -496,15 +504,16 @@ export default Adapter.extend(BuildURLMixin, {
 
     @method findBelongsTo
     @param {DS.Store} store
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @param {String} url
     @return {Promise} promise
   */
-  findBelongsTo: function(store, record, url, relationship) {
-    var id   = get(record, 'id');
-    var type = record.constructor.typeKey;
+  findBelongsTo: function(store, snapshot, url, relationship) {
+    var id   = snapshot.id;
+    var type = snapshot.typeKey;
 
-    return this.ajax(this.urlPrefix(url, this.buildURL(type, id)), 'GET');
+    url = this.urlPrefix(url, this.buildURL(type, id, null, 'findBelongsTo'));
+    return this.ajax(url, 'GET');
   },
 
   /**
@@ -520,17 +529,17 @@ export default Adapter.extend(BuildURLMixin, {
     @method createRecord
     @param {DS.Store} store
     @param {subclass of DS.Model} type
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  createRecord: function(store, type, record) {
+  createRecord: function(store, type, snapshot) {
     var data = {};
     var serializer = store.serializerFor(type.typeKey);
+    var url = this.buildURL(type.typeKey, null, snapshot, 'createRecord');
 
-    var snapshot = record._createSnapshot();
     serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
 
-    return this.ajax(this.buildURL(type.typeKey, null, record), "POST", { data: data });
+    return this.ajax(url, "POST", { data: data });
   },
 
   /**
@@ -546,19 +555,19 @@ export default Adapter.extend(BuildURLMixin, {
     @method updateRecord
     @param {DS.Store} store
     @param {subclass of DS.Model} type
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  updateRecord: function(store, type, record) {
+  updateRecord: function(store, type, snapshot) {
     var data = {};
     var serializer = store.serializerFor(type.typeKey);
 
-    var snapshot = record._createSnapshot();
     serializer.serializeIntoHash(data, type, snapshot);
 
-    var id = get(record, 'id');
+    var id = snapshot.id;
+    var url = this.buildURL(type.typeKey, id, snapshot, 'updateRecord');
 
-    return this.ajax(this.buildURL(type.typeKey, id, record), "PUT", { data: data });
+    return this.ajax(url, "PUT", { data: data });
   },
 
   /**
@@ -569,23 +578,22 @@ export default Adapter.extend(BuildURLMixin, {
     @method deleteRecord
     @param {DS.Store} store
     @param {subclass of DS.Model} type
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  deleteRecord: function(store, type, record) {
-    var id = get(record, 'id');
+  deleteRecord: function(store, type, snapshot) {
+    var id = snapshot.id;
 
-    return this.ajax(this.buildURL(type.typeKey, id, record), "DELETE");
+    return this.ajax(this.buildURL(type.typeKey, id, snapshot, 'deleteRecord'), "DELETE");
   },
 
-  _stripIDFromURL: function(store, record) {
-    var type = record.constructor;
-    var url = this.buildURL(type.typeKey, record.get('id'), record);
+  _stripIDFromURL: function(store, snapshot) {
+    var url = this.buildURL(snapshot.typeKey, snapshot.id, snapshot);
 
     var expandedURL = url.split('/');
     //Case when the url is of the format ...something/:id
     var lastSegment = expandedURL[expandedURL.length - 1];
-    var id = record.get('id');
+    var id = snapshot.id;
     if (lastSegment === id) {
       expandedURL[expandedURL.length - 1] = "";
     } else if (endsWith(lastSegment, '?id=' + id)) {
@@ -617,18 +625,18 @@ export default Adapter.extend(BuildURLMixin, {
 
     @method groupRecordsForFindMany
     @param {DS.Store} store
-    @param {Array} records
+    @param {Array} snapshots
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
   */
-  groupRecordsForFindMany: function (store, records) {
+  groupRecordsForFindMany: function (store, snapshots) {
     var groups = MapWithDefault.create({ defaultValue: function() { return []; } });
     var adapter = this;
     var maxUrlLength = this.maxUrlLength;
 
-    forEach.call(records, function(record) {
-      var baseUrl = adapter._stripIDFromURL(store, record);
-      groups.get(baseUrl).push(record);
+    forEach.call(snapshots, function(snapshot) {
+      var baseUrl = adapter._stripIDFromURL(store, snapshot);
+      groups.get(baseUrl).push(snapshot);
     });
 
     function splitGroupToFitInUrl(group, maxUrlLength, paramNameLength) {
@@ -636,8 +644,8 @@ export default Adapter.extend(BuildURLMixin, {
       var idsSize = 0;
       var splitGroups = [[]];
 
-      forEach.call(group, function(record) {
-        var additionalLength = encodeURIComponent(record.get('id')).length + paramNameLength;
+      forEach.call(group, function(snapshot) {
+        var additionalLength = encodeURIComponent(snapshot.id).length + paramNameLength;
         if (baseUrl.length + idsSize + additionalLength >= maxUrlLength) {
           idsSize = 0;
           splitGroups.push([]);
@@ -646,7 +654,7 @@ export default Adapter.extend(BuildURLMixin, {
         idsSize += additionalLength;
 
         var lastGroupIndex = splitGroups.length - 1;
-        splitGroups[lastGroupIndex].push(record);
+        splitGroups[lastGroupIndex].push(snapshot);
       });
 
       return splitGroups;
@@ -671,11 +679,10 @@ export default Adapter.extend(BuildURLMixin, {
 
     Returning a `DS.InvalidError` from this method will cause the
     record to transition into the `invalid` state and make the
-    `errors` object available on the record.
-
-    This function should return the entire payload as received from the
-    server.  Error object extraction and normalization of model errors
-    should be performed by `extractErrors` on the serializer.
+    `errors` object available on the record. When returning an
+    `InvalidError` the store will attempt to normalize the error data
+    returned from the server using the serializer's `extractErrors`
+    method.
 
     Example
 
@@ -705,6 +712,7 @@ export default Adapter.extend(BuildURLMixin, {
     @method ajaxError
     @param  {Object} jqXHR
     @param  {Object} responseText
+    @param  {Object} errorThrown
     @return {Object} jqXHR
   */
   ajaxError: function(jqXHR, responseText, errorThrown) {
@@ -733,7 +741,6 @@ export default Adapter.extend(BuildURLMixin, {
     1. Your API might return useful results in the request headers.
     If you need to access these, you can override this hook to copy them
     from jqXHR to the payload object so they can be processed in you serializer.
-
 
     2. Your API might return errors as successful responses with status code
     200 and an Errors text or object. You can return a DS.InvalidError from

@@ -1,73 +1,10 @@
+import InvalidError from "ember-data/system/model/errors/invalid";
+
 /**
   @module ember-data
 */
 
 var get = Ember.get;
-
-var errorProps = [
-  'description',
-  'fileName',
-  'lineNumber',
-  'message',
-  'name',
-  'number',
-  'stack'
-];
-
-/**
-  A `DS.InvalidError` is used by an adapter to signal the external API
-  was unable to process a request because the content was not
-  semantically correct or meaningful per the API. Usually this means a
-  record failed some form of server side validation. When a promise
-  from an adapter is rejected with a `DS.InvalidError` the record will
-  transition to the `invalid` state and the errors will be set to the
-  `errors` property on the record.
-
-  This function should return the entire payload as received from the
-  server.  Error object extraction and normalization of model errors
-  should be performed by `extractErrors` on the serializer.
-
-  Example
-
-  ```javascript
-  App.ApplicationAdapter = DS.RESTAdapter.extend({
-    ajaxError: function(jqXHR) {
-      var error = this._super(jqXHR);
-
-      if (jqXHR && jqXHR.status === 422) {
-        var jsonErrors = Ember.$.parseJSON(jqXHR.responseText);
-        return new DS.InvalidError(jsonErrors);
-      } else {
-        return error;
-      }
-    }
-  });
-  ```
-
-  The `DS.InvalidError` must be constructed with a single object whose
-  keys are the invalid model properties, and whose values contain
-  arrays of the corresponding error messages. For example:
-
-  ```javascript
-  return new DS.InvalidError({
-    length: ['Must be less than 15'],
-    name: ['Must not be blank']
-  });
-  ```
-
-  @class InvalidError
-  @namespace DS
-*/
-function InvalidError(errors) {
-  var tmp = Error.prototype.constructor.call(this, "The backend rejected the commit because it was invalid: " + Ember.inspect(errors));
-  this.errors = errors;
-
-  for (var i=0, l=errorProps.length; i<l; i++) {
-    this[errorProps[i]] = tmp[errorProps[i]];
-  }
-}
-
-InvalidError.prototype = Ember.create(Error.prototype);
 
 /**
   An adapter is an object that receives requests from a store and
@@ -158,7 +95,7 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      find: function(store, type, id) {
+      find: function(store, type, id, snapshot) {
         var url = [type.typeKey, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -177,9 +114,10 @@ var Adapter = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type
     @param {String} id
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  find: Ember.required(Function),
+  find: null,
 
   /**
     The `findAll()` method is called when you call `find` on the store
@@ -282,8 +220,8 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      createRecord: function(store, type, record) {
-        var data = this.serialize(record, { includeId: true });
+      createRecord: function(store, type, snapshot) {
+        var data = this.serialize(snapshot, { includeId: true });
         var url = type;
 
         // ...
@@ -292,13 +230,12 @@ var Adapter = Ember.Object.extend({
     ```
 
     @method serialize
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @param {Object}   options
-    @return {Object} serialized record
+    @return {Object} serialized snapshot
   */
-  serialize: function(record, options) {
-    var snapshot = record._createSnapshot();
-    return get(record, 'store').serializerFor(snapshot.typeKey).serialize(snapshot, options);
+  serialize: function(snapshot, options) {
+    return get(snapshot.record, 'store').serializerFor(snapshot.typeKey).serialize(snapshot, options);
   },
 
   /**
@@ -311,8 +248,8 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      createRecord: function(store, type, record) {
-        var data = this.serialize(record, { includeId: true });
+      createRecord: function(store, type, snapshot) {
+        var data = this.serialize(snapshot, { includeId: true });
         var url = type;
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -335,10 +272,10 @@ var Adapter = Ember.Object.extend({
     @method createRecord
     @param {DS.Store} store
     @param {subclass of DS.Model} type   the DS.Model class of the record
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  createRecord: Ember.required(Function),
+  createRecord: null,
 
   /**
     Implement this method in a subclass to handle the updating of
@@ -350,9 +287,9 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      updateRecord: function(store, type, record) {
-        var data = this.serialize(record, { includeId: true });
-        var id = record.get('id');
+      updateRecord: function(store, type, snapshot) {
+        var data = this.serialize(snapshot, { includeId: true });
+        var id = snapshot.id;
         var url = [type, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -375,10 +312,10 @@ var Adapter = Ember.Object.extend({
     @method updateRecord
     @param {DS.Store} store
     @param {subclass of DS.Model} type   the DS.Model class of the record
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  updateRecord: Ember.required(Function),
+  updateRecord: null,
 
   /**
     Implement this method in a subclass to handle the deletion of
@@ -390,9 +327,9 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      deleteRecord: function(store, type, record) {
-        var data = this.serialize(record, { includeId: true });
-        var id = record.get('id');
+      deleteRecord: function(store, type, snapshot) {
+        var data = this.serialize(snapshot, { includeId: true });
+        var id = snapshot.id;
         var url = [type, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -415,10 +352,10 @@ var Adapter = Ember.Object.extend({
     @method deleteRecord
     @param {DS.Store} store
     @param {subclass of DS.Model} type   the DS.Model class of the record
-    @param {DS.Model} record
+    @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  deleteRecord: Ember.required(Function),
+  deleteRecord: null,
 
   /**
     By default the store will try to coalesce all `fetchRecord` calls within the same runloop
@@ -438,7 +375,7 @@ var Adapter = Ember.Object.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} type   the DS.Model class of the records
     @param {Array}    ids
-    @param {Array} records
+    @param {Array} snapshots
     @return {Promise} promise
   */
 
@@ -453,12 +390,12 @@ var Adapter = Ember.Object.extend({
 
     @method groupRecordsForFindMany
     @param {DS.Store} store
-    @param {Array} records
+    @param {Array} snapshots
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
   */
-  groupRecordsForFindMany: function (store, records) {
-    return [records];
+  groupRecordsForFindMany: function(store, snapshots) {
+    return [snapshots];
   }
 });
 
