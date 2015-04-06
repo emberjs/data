@@ -490,22 +490,20 @@ var RESTSerializer = JSONSerializer.extend({
     var payload = this.normalizePayload(rawPayload);
 
     for (var prop in payload) {
-      if (prop !== "meta") {
-        var typeName = this.typeForRoot(prop);
-        if (!store.modelFactoryFor(typeName, prop)) {
-          Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
-          continue;
-        }
-        var type = store.modelFor(typeName);
-        var typeSerializer = store.serializerFor(type);
-
-        /*jshint loopfunc:true*/
-        var normalizedArray = map.call(Ember.makeArray(payload[prop]), function(hash) {
-          return typeSerializer.normalize(type, hash, prop);
-        }, this);
-
-        store.pushMany(typeName, normalizedArray);
+      var typeName = this.typeForRoot(prop);
+      if (!store.modelFactoryFor(typeName, prop)) {
+        Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
+        continue;
       }
+      var type = store.modelFor(typeName);
+      var typeSerializer = store.serializerFor(type);
+
+      /*jshint loopfunc:true*/
+      var normalizedArray = map.call(Ember.makeArray(payload[prop]), function(hash) {
+        return typeSerializer.normalize(type, hash, prop);
+      }, this);
+
+      store.pushMany(typeName, normalizedArray);
     }
   },
 
