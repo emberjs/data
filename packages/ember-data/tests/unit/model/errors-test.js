@@ -45,7 +45,7 @@ test("add error", function() {
 });
 
 test("get error", function() {
-  expect(8);
+  expect(9);
   ok(errors.get('firstObject') === undefined, 'returns undefined');
   errors.trigger = becameInvalid;
   errors.add('firstName', 'error');
@@ -65,6 +65,11 @@ test("get error", function() {
     { attribute: 'firstName', message: 'error2' }
   ]);
   deepEqual(errors.get('messages'), ['error', 'error2', 'error3']);
+  deepEqual(errors.get('fullMessages'), [
+    'First name error',
+    'First name error2',
+    'Last name error3'
+  ]);
 });
 
 test("remove error", function() {

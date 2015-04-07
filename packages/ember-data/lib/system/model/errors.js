@@ -1,6 +1,8 @@
+var capitalize = Ember.String.capitalize;
 var get = Ember.get;
 var isEmpty = Ember.isEmpty;
 var map = Ember.EnumerableUtils.map;
+var underscore = Ember.String.underscore;
 
 import {
   MapWithDefault
@@ -155,6 +157,16 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     An array containing all of the error messages for this
     record. This is useful for displaying all errors to the user.
 
+    ```javascript
+    user.get('errors').add('firstName', 'is required');
+    user.get('errors').add('lastName', 'is required');
+
+    user.get('errors.messages');
+    // ["is required", "is required"]
+    ```
+
+    This is useful for displaying all errors to the user.
+
     ```handlebars
     {{#each model.errors.messages as |message|}}
       <div class="error">
@@ -167,6 +179,41 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     @type {Array}
   */
   messages: Ember.computed.mapBy('content', 'message'),
+
+  /**
+    An array containing all of the error messages, capitalized and prefixed
+    with their attribute, for this record.
+
+    ```javascript
+    user.get('errors').add('firstName', 'is required');
+    user.get('errors').add('lastName', 'is required');
+
+    user.get('errors.fullMessages');
+    // ["First name is required", "Last name is required"]
+    ```
+
+    This is useful for displaying all errors to the user.
+
+    ```handlebars
+    {{#each model.errors.fullMessages as |message|}}
+      <div class="error">
+        {{message}}
+      </div>
+    {{/each}}
+    ```
+
+    @property fullMessages
+    @type {Array}
+  */
+  fullMessages: Ember.computed('content', function() {
+    var errors = get(this, 'content');
+
+    return map(errors, function(error) {
+      var attribute = underscore(error.attribute).replace('_', ' ');
+
+      return capitalize(attribute) + ' ' + error.message;
+    });
+  }),
 
   /**
     @property content
