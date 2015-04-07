@@ -57,14 +57,14 @@ import {
 
   ```handlebars
   <label>Username: {{input value=username}} </label>
-  {{#each error in model.errors.username}}
+  {{#each model.errors.username as |error|}}
     <div class="error">
       {{error.message}}
     </div>
   {{/each}}
 
   <label>Email: {{input value=email}} </label>
-  {{#each error in model.errors.email}}
+  {{#each model.errors.email as |error|}}
     <div class="error">
       {{error.message}}
     </div>
@@ -75,7 +75,7 @@ import {
   object to get an array of all the error strings.
 
   ```handlebars
-  {{#each message in model.errors.messages}}
+  {{#each model.errors.messages as |message|}}
     <div class="error">
       {{message}}
     </div>
@@ -156,7 +156,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     record. This is useful for displaying all errors to the user.
 
     ```handlebars
-    {{#each message in model.errors.messages}}
+    {{#each model.errors.messages as |message|}}
       <div class="error">
         {{message}}
       </div>
