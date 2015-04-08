@@ -53,7 +53,7 @@ controllers in your app.
 First thing's first: tell Ember Data about the models in your
 application. For example, imagine we're writing a blog reader app.
 Here's what your model definition would look like if you're using
-globals (that is, not something like Ember App Kit or ember-cli):
+globals (that is, not something like  or ember-cli):
 
 ```js
 var attr = DS.attr;
@@ -75,7 +75,7 @@ App.Comment = DS.Model.extend({
 });
 ```
 
-If you're using ES6 modules (via Ember App Kit or ember-cli), your
+If you're using ES6 modules (via ember-cli), your
 models would look like this:
 
 ```js
