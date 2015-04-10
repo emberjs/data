@@ -200,7 +200,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     ```
 
     @method normalize
-    @param {subclass of DS.Model} type
+    @param {String} type
     @param {Object} hash
     @param {String} prop
     @return Object

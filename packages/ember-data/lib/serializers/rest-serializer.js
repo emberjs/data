@@ -163,7 +163,7 @@ var RESTSerializer = JSONSerializer.extend({
     payload.
 
     @method normalize
-    @param {subclass of DS.Model} type
+    @param {String} type
     @param {Object} hash
     @param {String} prop
     @return {Object}
@@ -282,7 +282,7 @@ var RESTSerializer = JSONSerializer.extend({
 
       // legacy support for singular resources
       if (isPrimary && Ember.typeOf(value) !== "array" ) {
-        primaryRecord = this.normalize(primaryType, value, prop);
+        primaryRecord = this.normalize(type, value, prop);
         continue;
       }
 
@@ -409,7 +409,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     @method extractArray
     @param {DS.Store} store
-    @param {subclass of DS.Model} primaryType
+    @param {String} primaryType
     @param {Object} payload
     @return {Array} The primary array that was returned in response
       to the original query.
