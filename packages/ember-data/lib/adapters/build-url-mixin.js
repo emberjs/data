@@ -67,7 +67,9 @@ export default Ember.Mixin.create({
     if (prefix) { url.unshift(prefix); }
 
     url = url.join('/');
-    if (!host && url) { url = '/' + url; }
+    if (!host && url && url.charAt(0) !== '/') {
+      url = '/' + url;
+    }
 
     return url;
   },
