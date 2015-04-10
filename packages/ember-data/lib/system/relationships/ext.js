@@ -77,7 +77,6 @@ var relationshipsByNameDescriptor = Ember.computed(function() {
     if (meta.isRelationship) {
       meta.key = name;
       var relationship = relationshipFromMeta(meta);
-      relationship.type = typeForRelationshipMeta(meta);
       map.set(name, relationship);
     }
   });

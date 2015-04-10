@@ -152,7 +152,7 @@ export default Serializer.extend({
     ```
 
     @method normalize
-    @param {String} type
+    @param {subclass of DS.Model} type
     @param {Object} hash
     @return {Object}
   */

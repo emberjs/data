@@ -163,7 +163,7 @@ var RESTSerializer = JSONSerializer.extend({
     payload.
 
     @method normalize
-    @param {String} type
+    @param {subclass of DS.Model} type
     @param {Object} hash
     @param {String} prop
     @return {Object}
@@ -409,7 +409,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     @method extractArray
     @param {DS.Store} store
-    @param {String} primaryType
+    @param {subclass of DS.Model} primaryType
     @param {Object} payload
     @return {Array} The primary array that was returned in response
       to the original query.
