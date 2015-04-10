@@ -291,3 +291,16 @@ test('buildURL - buildURL takes a record from delete', function() {
   });
 });
 
+test('buildURL - with absolute namespace', function() {
+  run(function() {
+    adapter.setProperties({
+      namespace: '/api/v1'
+    });
+  });
+
+  ajaxResponse({ posts: [{ id: 1 }] });
+
+  run(store, 'find', 'post', 1).then(async(function(post) {
+    equal(passedUrl, "/api/v1/posts/1");
+  }));
+});

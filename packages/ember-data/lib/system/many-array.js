@@ -100,12 +100,12 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   */
   isLoaded: false,
 
-   /**
-     The relationship which manages this array.
+  /**
+    The relationship which manages this array.
 
-     @property {ManyRelationship} relationship
-     @private
-   */
+    @property {ManyRelationship} relationship
+    @private
+  */
   relationship: null,
 
   internalReplace: function(idx, amt, objects) {

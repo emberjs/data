@@ -52,8 +52,12 @@ export default Ember.Mixin.create({
     var url = [];
     var host = get(this, 'host');
     var prefix = this.urlPrefix();
+    var path;
 
-    if (type) { url.push(this.pathForType(type)); }
+    if (type) {
+      path = this.pathForType(type);
+      if (path) { url.push(path); }
+    }
 
     //We might get passed in an array of ids from findMany
     //in which case we don't want to modify the url, as the
@@ -63,7 +67,9 @@ export default Ember.Mixin.create({
     if (prefix) { url.unshift(prefix); }
 
     url = url.join('/');
-    if (!host && url) { url = '/' + url; }
+    if (!host && url && url.charAt(0) !== '/') {
+      url = '/' + url;
+    }
 
     return url;
   },

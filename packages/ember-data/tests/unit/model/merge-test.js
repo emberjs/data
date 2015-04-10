@@ -45,7 +45,7 @@ test("When a record is in flight, pushes are applied underneath the in flight ch
 
   var adapter = DS.Adapter.extend({
     updateRecord: function(store, type, snapshot) {
-    // Make sure saving isn't resolved synchronously
+      // Make sure saving isn't resolved synchronously
       return new Ember.RSVP.Promise(function(resolve, reject) {
         run.next(null, resolve, { id: 1, name: "Senor Thomas Dale, Esq.", city: "Portland" });
       });

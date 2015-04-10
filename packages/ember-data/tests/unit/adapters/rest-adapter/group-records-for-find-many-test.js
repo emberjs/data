@@ -32,7 +32,7 @@ module("unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
     Store = createStore({
       adapter: GroupsAdapter,
       testRecord: DS.Model.extend()
-     });
+    });
 
   }
 });

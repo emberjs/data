@@ -29,7 +29,7 @@ The latest passing build from the "master" branch is available on
 Similarly, the latest passing build from the "beta" branch can be found
 on [http://emberjs.com/builds/#/beta](http://emberjs.com/builds/#/beta)
 
-Or build ember-data.js yourself. Clone the repository and run `npm run dist`
+Or build ember-data.js yourself. Clone the repository and run `npm run build:production`
 after [setup](#setup). You'll find ember-data.js in the `dist` directory.
 
 #### Internet Explorer 8
@@ -53,7 +53,7 @@ controllers in your app.
 First thing's first: tell Ember Data about the models in your
 application. For example, imagine we're writing a blog reader app.
 Here's what your model definition would look like if you're using
-globals (that is, not something like Ember App Kit or ember-cli):
+globals (that is, not something like  or ember-cli):
 
 ```js
 var attr = DS.attr;
@@ -75,7 +75,7 @@ App.Comment = DS.Model.extend({
 });
 ```
 
-If you're using ES6 modules (via Ember App Kit or ember-cli), your
+If you're using ES6 modules (via ember-cli), your
 models would look like this:
 
 ```js
@@ -167,7 +167,7 @@ post [The Road to Ember Data
 
 1. Ensure that [Node.js](http://nodejs.org/) is installed.
 2. Run `npm install` to ensure the required dependencies are installed.
-3. Run `npm run dist` to build Ember Data. The builds will be placed in the `dist/` directory.
+3. Run `npm run build:production` to build Ember Data. The builds will be placed in the `dist/` directory.
 
 # Contribution
 

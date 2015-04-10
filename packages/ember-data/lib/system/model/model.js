@@ -17,12 +17,10 @@ var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var intersection = Ember.EnumerableUtils.intersection;
 var RESERVED_MODEL_PROPS = [
-  'attributes', 'currentState', 'data',
-  'relatedTypes', 'relationshipNames', 'relationships',
-  'relationshipsByName', 'transformedAttributes', 'store'
+  'currentState', 'data', 'store'
 ];
 
-var retrieveFromCurrentState = Ember.computed('currentState', function(key, value) {
+var retrieveFromCurrentState = Ember.computed('currentState', function(key) {
   return get(get(this, 'currentState'), key);
 }).readOnly();
 
@@ -369,13 +367,13 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     ```handlebars
     <label>Username: {{input value=username}} </label>
-    {{#each error in model.errors.username}}
+    {{#each model.errors.username as |error|}}
       <div class="error">
         {{error.message}}
       </div>
     {{/each}}
     <label>Email: {{input value=email}} </label>
-    {{#each error in model.errors.email}}
+    {{#each model.errors.email as |error|}}
       <div class="error">
         {{error.message}}
       </div>
@@ -387,7 +385,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     object to get an array of all the error strings.
 
     ```handlebars
-    {{#each message in model.errors.messages}}
+    {{#each model.errors.messages as |message|}}
       <div class="error">
         {{message}}
       </div>

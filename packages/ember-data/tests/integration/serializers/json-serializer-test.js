@@ -88,7 +88,7 @@ test("serializeBelongsTo with null", function() {
 test("async serializeBelongsTo with null", function() {
   Comment.reopen({
     post: DS.belongsTo('post', { async: true })
-   });
+  });
   run(function() {
     comment = env.store.createRecord(Comment, { body: "Omakase is delicious", post: null });
   });
