@@ -37,7 +37,7 @@ test("unload a dirty record", function() {
 
     store.find(Record, 1).then(function(record) {
       record.set('title', 'toto2');
-      record.send('willCommit');
+      record._internalModel.send('willCommit');
 
       equal(get(record, 'isDirty'), true, "record is dirty");
 
@@ -47,7 +47,7 @@ test("unload a dirty record", function() {
 
       // force back into safe to unload mode.
       run(function() {
-        record.transitionTo('deleted.saved');
+        record._internalModel.transitionTo('deleted.saved');
       });
     });
   });

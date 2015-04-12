@@ -664,7 +664,7 @@ test("if a updated record is marked as erred by the server, it enters an error s
   };
 
   var person = run(function() {
-    return store.push(Person, { id: 1, name: "John Doe" });
+    return store.push('person', { id: 1, name: "John Doe" });
   });
 
   run(store, 'find', 'person', 1).then(async(function(record) {
