@@ -2,16 +2,12 @@
   "name": "ember-data",
   "private": true,
   "dependencies": {
-    "ember": "~1.10.0"
+    "ember": "~1.11.1"
   },
   "devDependencies": {
     "qunit": "~1.17.0",
     "jquery": "~1.10.x",
-    "handlebars": ">= 2.0.0 < 3.0.0",
     "loader.js": "~1.0.0",
     "es5-shim": "~4.0.3"
-  },
-  "resolutions": {
-    "handlebars": ">= 2.0.0 < 3.0.0"
   }
 }
