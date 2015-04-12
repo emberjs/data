@@ -48,11 +48,10 @@
 
   window.setupStore = function(options) {
     var container, registry;
-    var emberChannel = QUnit.urlParams.emberchannel || "release";
     var env = {};
     options = options || {};
 
-    if (emberChannel.match(/^beta|canary$/i)) {
+    if (Ember.Registry) {
       registry = env.registry = new Ember.Registry();
       container = env.container = registry.container();
     } else {
