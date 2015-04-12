@@ -9,8 +9,8 @@ import {
 } from "ember-data/system/store/serializers";
 
 
-var get = Ember.get;
 var Promise = Ember.RSVP.Promise;
+var map = Ember.EnumerableUtils.map;
 
 export function _find(adapter, store, typeClass, id, record) {
   var snapshot = record._createSnapshot();
@@ -26,12 +26,14 @@ export function _find(adapter, store, typeClass, id, record) {
     return store._adapterRun(function() {
       var payload = serializer.extract(store, typeClass, adapterPayload, id, 'find');
 
-      return store.push(typeClass, payload);
+      //TODO Optimize
+      var record = store.push(typeClass, payload);
+      return record.reference;
     });
   }, function(error) {
     record.notFound();
-    if (get(record, 'isEmpty')) {
-      store.unloadRecord(record);
+    if (record.isEmpty()) {
+      record.unloadRecord();
     }
 
     throw error;
@@ -58,7 +60,9 @@ export function _findMany(adapter, store, typeClass, ids, records) {
 
       Ember.assert("The response from a findMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
-      return store.pushMany(typeClass, payload);
+      //TODO Optimize, no need to materialize here
+      var records = store.pushMany(typeClass, payload);
+      return map(records, function(record) { return record.reference; });
     });
   }, null, "DS: Extract payload of " + typeClass);
 }
@@ -79,8 +83,9 @@ export function _findHasMany(adapter, store, record, link, relationship) {
 
       Ember.assert("The response from a findHasMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
+      //TODO Use a non record creating push
       var records = store.pushMany(relationship.type, payload);
-      return records;
+      return map(records, function(record) { return record.reference; });
     });
   }, null, "DS: Extract payload of " + record + " : hasMany " + relationship.type);
 }
@@ -104,7 +109,8 @@ export function _findBelongsTo(adapter, store, record, link, relationship) {
       }
 
       var record = store.push(relationship.type, payload);
-      return record;
+      //TODO Optimize
+      return record.reference;
     });
   }, null, "DS: Extract payload of " + record + " : " + relationship.type);
 }

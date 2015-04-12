@@ -90,8 +90,11 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   */
   objectAtContent: function(index) {
     var content = get(this, 'content');
-
-    return content.objectAt(index);
+    if (content.objectAt(index)) {
+      return content.objectAt(index).getRecord();
+    } else {
+      return content.objectAt(index);
+    }
   },
 
   /**
@@ -191,7 +194,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   _dissociateFromOwnRecords: function() {
     var array = this;
 
-    this.forEach(function(record) {
+    this.get('content').forEach(function(record) {
       var recordArrays = record._recordArrays;
 
       if (recordArrays) {

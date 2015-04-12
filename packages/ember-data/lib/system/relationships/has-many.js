@@ -121,7 +121,7 @@ function hasMany(type, options) {
   };
 
   return Ember.computed(function(key) {
-    var relationship = this._relationships[key];
+    var relationship = this.reference._relationships[key];
     return relationship.getRecords();
   }).meta(meta).readOnly();
 }

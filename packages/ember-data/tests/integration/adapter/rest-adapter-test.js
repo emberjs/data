@@ -487,7 +487,7 @@ test("create - response can contain relationships the client doesn't yet know ab
 
       var postRecords = store.typeMapFor(Post).records;
       for (var i = 0; i < postRecords.length; i++) {
-        equal(post, postRecords[i], "The object in the identity map is the same");
+        equal(post, postRecords[i].getRecord(), "The object in the identity map is the same");
       }
     }));
   });

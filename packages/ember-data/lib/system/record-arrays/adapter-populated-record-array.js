@@ -42,13 +42,15 @@ export default RecordArray.extend({
     var records = store.pushMany(type, data);
     var meta = store.metadataFor(type);
 
+    //TODO Optimize
+    var refs = Ember.A(records).mapBy('reference');
     this.setProperties({
-      content: Ember.A(records),
+      content: Ember.A(refs),
       isLoaded: true,
       meta: cloneNull(meta)
     });
 
-    records.forEach(function(record) {
+    refs.forEach(function(record) {
       this.manager.recordArraysForRecord(record).add(this);
     }, this);
 

@@ -50,7 +50,7 @@ BelongsToRelationship.prototype._super$flushCanonical = Relationship.prototype.f
 BelongsToRelationship.prototype.flushCanonical = function() {
   //temporary fix to not remove newly created records if server returned null.
   //TODO remove once we have proper diffing
-  if (this.inverseRecord && this.inverseRecord.get('isNew') && !this.canonicalState) {
+  if (this.inverseRecord && this.inverseRecord.isNew() && !this.canonicalState) {
     return;
   }
   this.inverseRecord = this.canonicalState;
@@ -62,14 +62,16 @@ BelongsToRelationship.prototype._super$addRecord = Relationship.prototype.addRec
 BelongsToRelationship.prototype.addRecord = function(newRecord) {
   if (this.members.has(newRecord)) { return;}
   var type = this.relationshipMeta.type;
-  Ember.assert("You cannot add a '" + newRecord.constructor.modelName + "' record to the '" + this.record.constructor.modelName + "." + this.key +"'. " + "You can only add a '" + type.modelName + "' record to this relationship.", (function () {
+  //TODO GAAAAAA, we need to do a subclass check here insted of instance of
+  Ember.assert("You cannot add a '" + newRecord.type.modelName + "' record to the '" + this.record.type.modelName + "." + this.key +"'. " + "You can only add a '" + type.modelName + "' record to this relationship.", (function () {
     if (type.__isMixin) {
-      return type.__mixin.detect(newRecord);
+      //TODO What am I doing here, ask Stef/Wycats what to do
+      return type.__mixin.detect(newRecord.type.PrototypeMixin);
     }
     if (Ember.MODEL_FACTORY_INJECTIONS) {
       type = type.superclass;
     }
-    return newRecord instanceof type;
+    return type.detect(newRecord.type);
   })());
 
   if (this.inverseRecord) {
@@ -138,8 +140,12 @@ BelongsToRelationship.prototype.getRecord = function() {
       content: this.inverseRecord
     });
   } else {
-    Ember.assert("You looked up the '" + this.key + "' relationship on a '" + this.record.constructor.modelName + "' with id " + this.record.get('id') +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", this.inverseRecord === null || !this.inverseRecord.get('isEmpty'));
-    return this.inverseRecord;
+    if (this.inverseRecord === null) {
+      return null;
+    }
+    var toReturn = this.inverseRecord.getRecord();
+    Ember.assert("You looked up the '" + this.key + "' relationship on a '" + this.record.type.modelName + "' with id " + this.record.id +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", toReturn === null || !toReturn.get('isEmpty'));
+    return toReturn;
   }
 };
 
