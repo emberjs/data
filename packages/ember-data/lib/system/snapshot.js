@@ -66,7 +66,6 @@ Snapshot.prototype = {
 
     ```javascript
     // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
-
     postSnapshot.id; // => '1'
     ```
 
@@ -113,7 +112,6 @@ Snapshot.prototype = {
 
     ```javascript
     // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
-
     postSnapshot.attr('author'); // => 'Tomster'
     postSnapshot.attr('title'); // => 'Ember.js rocks'
     ```
@@ -138,7 +136,6 @@ Snapshot.prototype = {
 
     ```javascript
     // store.push('post', { id: 1, author: 'Tomster', title: 'Hello World' });
-
     postSnapshot.attributes(); // => { author: 'Tomster', title: 'Ember.js rocks' }
     ```
 
@@ -163,26 +160,31 @@ Snapshot.prototype = {
     ```javascript
     // store.push('post', { id: 1, title: 'Hello World' });
     // store.createRecord('comment', { body: 'Lorem ipsum', post: post });
-
     commentSnapshot.belongsTo('post'); // => DS.Snapshot
     commentSnapshot.belongsTo('post', { id: true }); // => '1'
+
+    // store.push('comment', { id: 1, body: 'Lorem ipsum' });
+    commentSnapshot.belongsTo('post'); // => undefined
     ```
 
-    Calling `belongsTo` will return a new Snapshot as long as there's any
-    data available, such as an ID. If there's no data available `belongsTo` will
-    return undefined.
+    Calling `belongsTo` will return a new Snapshot as long as there's any known
+    data for the relationship available, such as an ID. If the relationship is
+    known but unset, `belongsTo` will return `null`. If the contents of the
+    relationship is unknown `belongsTo` will return `undefined`.
 
     Note: Relationships are loaded lazily and cached upon first access.
 
     @method belongsTo
     @param {String} keyName
     @param {Object} [options]
-    @return {DS.Snapshot|String|undefined} A snapshot or ID of a belongsTo relationship, or undefined
+    @return {DS.Snapshot|String|null|undefined} A snapshot or ID of a known
+      relationship or null if the relationship is known but unset. undefined
+      will be returned if the contents of the relationship is unknown.
   */
   belongsTo: function(keyName, options) {
     var id = options && options.id;
+    var relationship, inverseRecord, hasData;
     var result;
-    var relationship, inverseRecord;
 
     if (id && keyName in this._belongsToIds) {
       return this._belongsToIds[keyName];
@@ -197,16 +199,24 @@ Snapshot.prototype = {
       throw new Ember.Error("Model '" + Ember.inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined.");
     }
 
+    hasData = get(relationship, 'hasData');
     inverseRecord = get(relationship, 'inverseRecord');
-    if (id) {
+
+    if (hasData) {
       if (inverseRecord) {
-        result = get(inverseRecord, 'id');
+        if (id) {
+          result = get(inverseRecord, 'id');
+        } else {
+          result = inverseRecord._createSnapshot();
+        }
+      } else {
+        result = null;
       }
+    }
+
+    if (id) {
       this._belongsToIds[keyName] = result;
     } else {
-      if (inverseRecord) {
-        result = inverseRecord._createSnapshot();
-      }
       this._belongsToRelationships[keyName] = result;
     }
 
@@ -226,9 +236,11 @@ Snapshot.prototype = {
 
     ```javascript
     // store.push('post', { id: 1, title: 'Hello World', comments: [2, 3] });
-
     postSnapshot.hasMany('comments'); // => [DS.Snapshot, DS.Snapshot]
     postSnapshot.hasMany('comments', { ids: true }); // => ['2', '3']
+
+    // store.push('post', { id: 1, title: 'Hello World' });
+    postSnapshot.hasMany('comments'); // => undefined
     ```
 
     Note: Relationships are loaded lazily and cached upon first access.
@@ -236,12 +248,14 @@ Snapshot.prototype = {
     @method hasMany
     @param {String} keyName
     @param {Object} [options]
-    @return {Array} An array of snapshots or IDs of a hasMany relationship
+    @return {Array|undefined} An array of snapshots or IDs of a known
+      relationship or an empty array if the relationship is known but unset.
+      undefined will be returned if the contents of the relationship is unknown.
   */
   hasMany: function(keyName, options) {
     var ids = options && options.ids;
-    var results = [];
-    var relationship, members;
+    var relationship, members, hasData;
+    var results;
 
     if (ids && keyName in this._hasManyIds) {
       return this._hasManyIds[keyName];
@@ -256,17 +270,23 @@ Snapshot.prototype = {
       throw new Ember.Error("Model '" + Ember.inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined.");
     }
 
+    hasData = get(relationship, 'hasData');
     members = get(relationship, 'members');
 
-    if (ids) {
+    if (hasData) {
+      results = [];
       members.forEach(function(member) {
-        results.push(get(member, 'id'));
+        if (ids) {
+          results.push(get(member, 'id'));
+        } else {
+          results.push(member._createSnapshot());
+        }
       });
+    }
+
+    if (ids) {
       this._hasManyIds[keyName] = results;
     } else {
-      members.forEach(function(member) {
-        results.push(member._createSnapshot());
-      });
       this._hasManyRelationships[keyName] = results;
     }
 
