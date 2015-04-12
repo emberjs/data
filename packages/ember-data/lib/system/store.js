@@ -40,6 +40,8 @@ import {
 
 import RecordArrayManager from "ember-data/system/record-array-manager";
 
+import Reference from "ember-data/system/reference";
+
 import Model from "ember-data/system/model";
 
 //Stanley told me to do this
@@ -86,6 +88,18 @@ if (!Backburner.prototype.join) {
 }
 
 
+function promiseRecord(reference, label) {
+  //TODO cleanup
+  var toReturn = reference;
+  if (!reference.then) {
+    toReturn = reference.getRecord();
+  } else {
+    toReturn = reference.then(function(ref) {
+      return ref.getRecord();
+    });
+  }
+  return promiseObject(toReturn, label);
+}
 var get = Ember.get;
 var set = Ember.set;
 var once = Ember.run.once;
@@ -321,17 +335,19 @@ Store = Service.extend({
     // Coerce ID to a string
     properties.id = coerceId(properties.id);
 
-    var record = this.buildRecord(typeClass, properties.id);
+    var reference = this.buildReference(typeClass, properties.id);
+    var record = reference.getRecord();
 
     // Move the record out of its initial `empty` state into
     // the `loaded` state.
-    record.loadedData();
+    reference.loadedData();
 
     // Set the properties specified on the record.
     record.setProperties(properties);
 
-    record.eachRelationship(function(key, descriptor) {
-      record._relationships[key].setHasData(true);
+    //TODO Bring baaaaack
+    reference.eachRelationship(function(key, descriptor) {
+      reference._relationships[key].setHasData(true);
     });
 
     return record;
@@ -598,11 +614,29 @@ Store = Service.extend({
   */
   findById: function(modelName, id, preload) {
 
-    var typeClass = this.modelFor(modelName);
-    var record = this.recordForId(typeClass, id);
+    var type = this.modelFor(modelName);
+    var reference = this.referenceForId(type, id);
 
-    return this._findByRecord(record, preload);
+    return this._findByRecord(reference, preload);
   },
+
+  _findByReference: function(reference, preload) {
+    var fetchedReference;
+
+    if (preload) {
+      reference._preloadData(preload);
+    }
+
+    if (reference.isEmpty()) {
+      fetchedReference = this.scheduleFetch(reference);
+      //TODO double check about reloading
+    } else if (reference.isLoading()) {
+      fetchedReference = reference._loadingPromise;
+    }
+
+    return promiseRecord(fetchedReference || reference, "DS: Store#findByRecord " + reference.typeKey + " with id: " + get(reference, 'id'));
+  },
+
 
   _findByRecord: function(record, preload) {
     var fetchedRecord;
@@ -611,14 +645,14 @@ Store = Service.extend({
       record._preloadData(preload);
     }
 
-    if (get(record, 'isEmpty')) {
+    if (record.isEmpty()) {
       fetchedRecord = this.scheduleFetch(record);
       //TODO double check about reloading
-    } else if (get(record, 'isLoading')) {
+    } else if (record.isLoading()) {
       fetchedRecord = record._loadingPromise;
     }
 
-    return promiseObject(fetchedRecord || record, "DS: Store#findByRecord " + record.modelName + " with id: " + get(record, 'id'));
+    return promiseRecord(fetchedRecord || record, "DS: Store#findByRecord " + record.modelName + " with id: " + get(record, 'id'));
   },
 
   /**
@@ -650,7 +684,7 @@ Store = Service.extend({
     @return {Promise} promise
   */
   fetchRecord: function(record) {
-    var typeClass = record.constructor;
+    var typeClass = record.type;
     var id = get(record, 'id');
     var adapter = this.adapterFor(typeClass);
 
@@ -662,15 +696,17 @@ Store = Service.extend({
   },
 
   scheduleFetchMany: function(records) {
-    return Promise.all(map(records, this.scheduleFetch, this));
+    var references = map(records, function(record) { return record.reference; });
+    return Promise.all(map(references, this.scheduleFetch, this));
   },
 
   scheduleFetch: function(record) {
-    var typeClass = record.constructor;
+    var typeClass = record.type;
+
     if (isNone(record)) { return null; }
     if (record._loadingPromise) { return record._loadingPromise; }
 
-    var resolver = Ember.RSVP.defer('Fetching ' + typeClass + 'with id: ' + record.get('id'));
+    var resolver = Ember.RSVP.defer('Fetching ' + typeClass + 'with id: ' + record.id);
     var recordResolverPair = {
       record: record,
       resolver: resolver
@@ -766,7 +802,7 @@ Store = Service.extend({
       var snapshots = Ember.A(records).invoke('_createSnapshot');
       var groups = adapter.groupRecordsForFindMany(this, snapshots);
       forEach(groups, function (groupOfSnapshots) {
-        var groupOfRecords = Ember.A(groupOfSnapshots).mapBy('record');
+        var groupOfRecords = Ember.A(groupOfSnapshots).mapBy('record.reference');
         var requestedRecords = Ember.A(groupOfRecords);
         var ids = requestedRecords.mapBy('id');
         if (ids.length > 1) {
@@ -808,7 +844,7 @@ Store = Service.extend({
   */
   getById: function(type, id) {
     if (this.hasRecordForId(type, id)) {
-      return this.recordForId(type, id);
+      return this.referenceForId(type, id).getRecord();
     } else {
       return null;
     }
@@ -850,7 +886,7 @@ Store = Service.extend({
     var typeClass = this.modelFor(modelName);
     var id = coerceId(inputId);
     var record = this.typeMapFor(typeClass).idToRecord[id];
-    return !!record && get(record, 'isLoaded');
+    return !!record && record.isLoaded();
   },
 
   /**
@@ -863,18 +899,24 @@ Store = Service.extend({
     @param {String|Integer} id
     @return {DS.Model} record
   */
-  recordForId: function(modelName, inputId) {
-    var typeClass = this.modelFor(modelName);
+  recordForId: function(modelName, id) {
+    return this.referenceForId(modelName, id).getRecord();
+  },
+
+  referenceForId: function(typeName, inputId) {
+    var typeClass = this.modelFor(typeName);
     var id = coerceId(inputId);
     var idToRecord = this.typeMapFor(typeClass).idToRecord;
     var record = idToRecord[id];
 
     if (!record || !idToRecord[id]) {
-      record = this.buildRecord(typeClass, id);
+      record = this.buildReference(typeClass, id);
     }
 
     return record;
   },
+
+
 
   /**
     @method findMany
@@ -912,9 +954,9 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findHasMany: function(owner, link, type) {
-    var adapter = this.adapterFor(owner.constructor);
+    var adapter = this.adapterFor(owner.type);
 
-    Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + owner.constructor + ")", adapter);
+    Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + owner.type + ")", adapter);
     Ember.assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", typeof adapter.findHasMany === 'function');
 
     return _findHasMany(adapter, this, owner, link, type);
@@ -929,9 +971,9 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findBelongsTo: function(owner, link, relationship) {
-    var adapter = this.adapterFor(owner.constructor);
+    var adapter = this.adapterFor(owner.type);
 
-    Ember.assert("You tried to load a belongsTo relationship but you have no adapter (for " + owner.constructor + ")", adapter);
+    Ember.assert("You tried to load a belongsTo relationship but you have no adapter (for " + owner.type + ")", adapter);
     Ember.assert("You tried to load a belongsTo relationship from a specified `link` in the original payload but your adapter does not implement `findBelongsTo`", typeof adapter.findBelongsTo === 'function');
 
     return _findBelongsTo(adapter, this, owner, link, relationship);
@@ -1190,8 +1232,7 @@ Store = Service.extend({
     @return {boolean}
   */
   recordIsLoaded: function(type, id) {
-    if (!this.hasRecordForId(type, id)) { return false; }
-    return !get(this.recordForId(type, id), 'isEmpty');
+    return this.hasRecordForId(type, id);
   },
 
   /**
@@ -1273,14 +1314,14 @@ Store = Service.extend({
     forEach(pending, function(tuple) {
       var record = tuple[0];
       var resolver = tuple[1];
-      var adapter = this.adapterFor(record.constructor);
+      var adapter = this.adapterFor(record.type);
       var operation;
 
       if (get(record, 'currentState.stateName') === 'root.deleted.saved') {
         return resolver.resolve(record);
-      } else if (get(record, 'isNew')) {
+      } else if (record.isNew()) {
         operation = 'createRecord';
-      } else if (get(record, 'isDeleted')) {
+      } else if (record.isDeleted()) {
         operation = 'deleteRecord';
       } else {
         operation = 'updateRecord';
@@ -1306,7 +1347,7 @@ Store = Service.extend({
   didSaveRecord: function(record, data) {
     if (data) {
       // normalize relationship IDs into records
-      this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', record, record.constructor, data);
+      this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', record, record.type, data);
       this.updateId(record, data);
     }
 
@@ -1358,9 +1399,9 @@ Store = Service.extend({
 
     Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId);
 
-    this.typeMapFor(record.constructor).idToRecord[id] = record;
+    this.typeMapFor(record.type).idToRecord[id] = record;
 
-    set(record, 'id', id);
+    record.setId(id);
   },
 
   /**
@@ -1404,12 +1445,13 @@ Store = Service.extend({
   */
   _load: function(type, data) {
     var id = coerceId(data.id);
-    var record = this.recordForId(type, id);
+    var reference = this.referenceForId(type, id);
 
-    record.setupData(data);
-    this.recordArrayManager.recordDidChange(record);
+    reference.setupData(data);
 
-    return record;
+    this.recordArrayManager.recordDidChange(reference);
+
+    return reference;
   },
 
   /*
@@ -1482,7 +1524,11 @@ Store = Service.extend({
         configurable: false,
         get: function() {
           Ember.deprecate('Usage of `typeKey` has been deprecated and will be removed in Ember Data 1.0. It has been replaced by `modelName` on the model class.');
-          return Ember.String.camelize(this.modelName);
+          var typeKey = this.modelName;
+          if (typeKey) {
+            typeKey =  Ember.String.camelize(this.modelName);
+          }
+          return typeKey;
         },
         set: function() {
           Ember.assert('Setting typeKey is not supported. In addition, typeKey has also been deprecated in favor of modelName. Setting modelName is also not supported.');
@@ -1587,17 +1633,15 @@ Store = Service.extend({
     }
 
     // Actually load the record into the store.
+    var reference = this._load(type, data);
 
-    this._load(type, data);
-
-    var record = this.recordForId(type, data.id);
     var store = this;
 
     this._backburner.join(function() {
-      store._backburner.schedule('normalizeRelationships', store, '_setupRelationships', record, type, data);
+      store._backburner.schedule('normalizeRelationships', store, '_setupRelationships', reference, type, data);
     });
 
-    return record;
+    return reference.getRecord();
   },
 
   _setupRelationships: function(record, type, data) {
@@ -1756,7 +1800,7 @@ Store = Service.extend({
     @param {Object} data
     @return {DS.Model} record
   */
-  buildRecord: function(type, id, data) {
+  buildReference: function(type, id, data) {
     var typeMap = this.typeMapFor(type);
     var idToRecord = typeMap.idToRecord;
 
@@ -1765,25 +1809,17 @@ Store = Service.extend({
 
     // lookupFactory should really return an object that creates
     // instances with the injections applied
-    var record = type._create({
-      id: id,
-      store: this,
-      container: this.container
-    });
-
-    if (data) {
-      record.setupData(data);
-    }
+    var reference = new Reference(type, id, this, this.container, data);
 
     // if we're creating an item, this process will be done
     // later, once the object has been persisted.
     if (id) {
-      idToRecord[id] = record;
+      idToRecord[id] = reference;
     }
 
-    typeMap.records.push(record);
+    typeMap.records.push(reference);
 
-    return record;
+    return reference;
   },
 
   //Called by the state machine to notify the store that the record is ready to be interacted with
@@ -1815,7 +1851,7 @@ Store = Service.extend({
     @param {DS.Model} record
   */
   _dematerializeRecord: function(record) {
-    var type = record.constructor;
+    var type = record.type;
     var typeMap = this.typeMapFor(type);
     var id = get(record, 'id');
 
@@ -1977,20 +2013,27 @@ function normalizeRelationships(store, type, data, record) {
 }
 
 function deserializeRecordId(store, data, key, relationship, id) {
-  if (isNone(id) || id instanceof Model) {
+  if (isNone(id)) {
     return;
   }
+
+  //If record objects were given to push directly, uncommon, not sure whether we should actually support
+  if (id instanceof Model) {
+    data[key] = id.reference;
+    return;
+  }
+
   Ember.assert("A " + relationship.parentType + " record was pushed into the store with the value of " + key + " being " + Ember.inspect(id) + ", but " + key + " is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.", !Ember.isArray(id));
 
   var type;
 
   if (typeof id === 'number' || typeof id === 'string') {
     type = typeFor(relationship, key, data);
-    data[key] = store.recordForId(type, id);
+    data[key] = store.referenceForId(type, id);
   } else if (typeof id === 'object') {
     // hasMany polymorphic
     Ember.assert('Ember Data expected a number or string to represent the record(s) in the `' + relationship.key + '` relationship instead it found an object. If this is a polymorphic relationship please specify a `type` key. If this is an embedded relationship please include the `DS.EmbeddedRecordsMixin` and specify the `' + relationship.key +'` property in your serializer\'s attrs object.', id.type);
-    data[key] = store.recordForId(id.type, id.id);
+    data[key] = store.referenceForId(id.type, id.id);
   }
 }
 
@@ -2023,7 +2066,7 @@ function defaultSerializer(container) {
 }
 
 function _commit(adapter, store, operation, record) {
-  var type = record.constructor;
+  var type = record.type;
   var snapshot = record._createSnapshot();
   var promise = adapter[operation](store, type, snapshot);
   var serializer = serializerForAdapter(store, adapter, type);
@@ -2060,7 +2103,7 @@ function _commit(adapter, store, operation, record) {
 }
 
 function setupRelationships(store, record, data) {
-  var typeClass = record.constructor;
+  var typeClass = record.type;
 
   typeClass.eachRelationship(function(key, descriptor) {
     var kind = descriptor.kind;

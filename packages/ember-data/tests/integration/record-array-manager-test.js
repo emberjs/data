@@ -84,17 +84,17 @@ test("destroying the store correctly cleans everything up", function() {
 
   equal(filterd2Summary.called.length, 0);
 
-  equal(person._recordArrays.list.length, 2, 'expected the person to be a member of 2 recordArrays');
+  equal(person.reference._recordArrays.list.length, 2, 'expected the person to be a member of 2 recordArrays');
 
   Ember.run(filterd2, filterd2.destroy);
 
-  equal(person._recordArrays.list.length, 1, 'expected the person to be a member of 1 recordArrays');
+  equal(person.reference._recordArrays.list.length, 1, 'expected the person to be a member of 1 recordArrays');
 
   equal(filterd2Summary.called.length, 1);
 
   Ember.run(manager, manager.destroy);
 
-  equal(person._recordArrays.list.length, 0, 'expected the person to be a member of no recordArrays');
+  equal(person.reference._recordArrays.list.length, 0, 'expected the person to be a member of no recordArrays');
 
   equal(filterd2Summary.called.length, 1);
 

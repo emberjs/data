@@ -1218,7 +1218,7 @@ test("Relationship.clear removes all records correctly", function() {
   });
 
   run(function() {
-    post._relationships['comments'].clear();
+    post.reference._relationships['comments'].clear();
     var comments = Ember.A(env.store.all('comment'));
     deepEqual(comments.mapBy('post'), [null, null, null]);
   });
@@ -1350,7 +1350,7 @@ test("hasMany hasData async loaded", function () {
 
   run(function() {
     store.find('chapter', 1).then(function(chapter) {
-      var relationship = chapter._relationships['pages'];
+      var relationship = chapter.reference._relationships['pages'];
       equal(relationship.hasData, true, 'relationship has data');
     });
   });
@@ -1365,7 +1365,7 @@ test("hasMany hasData sync loaded", function () {
 
   run(function() {
     store.find('chapter', 1).then(function(chapter) {
-      var relationship = chapter._relationships['pages'];
+      var relationship = chapter.reference._relationships['pages'];
       equal(relationship.hasData, true, 'relationship has data');
     });
   });
@@ -1384,7 +1384,7 @@ test("hasMany hasData async not loaded", function () {
 
   run(function() {
     store.find('chapter', 1).then(function(chapter) {
-      var relationship = chapter._relationships['pages'];
+      var relationship = chapter.reference._relationships['pages'];
       equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
@@ -1399,7 +1399,7 @@ test("hasMany hasData sync not loaded", function () {
 
   run(function() {
     store.find('chapter', 1).then(function(chapter) {
-      var relationship = chapter._relationships['pages'];
+      var relationship = chapter.reference._relationships['pages'];
       equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
@@ -1414,7 +1414,7 @@ test("hasMany hasData async created", function () {
 
   run(function() {
     var chapter = store.createRecord('chapter', { title: 'The Story Begins' });
-    var relationship = chapter._relationships['pages'];
+    var relationship = chapter.reference._relationships['pages'];
     equal(relationship.hasData, true, 'relationship has data');
   });
 });
@@ -1424,7 +1424,7 @@ test("hasMany hasData sync created", function () {
 
   run(function() {
     var chapter = store.createRecord('chapter', { title: 'The Story Begins' });
-    var relationship = chapter._relationships['pages'];
+    var relationship = chapter.reference._relationships['pages'];
     equal(relationship.hasData, true, 'relationship has data');
   });
 });

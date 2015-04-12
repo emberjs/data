@@ -6,6 +6,7 @@ import { PromiseArray } from "ember-data/system/promise-proxies";
 var get = Ember.get;
 var set = Ember.set;
 var filter = Ember.ArrayPolyfills.filter;
+var map = Ember.EnumerableUtils.map;
 
 /**
   A `ManyArray` is a `MutableArray` that represents the contents of a has-many
@@ -57,19 +58,23 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   length: 0,
 
   objectAt: function(index) {
-    return this.currentState[index];
+    //Ember observers such as 'firstObject', 'lastObject' might do out of bounds accesses
+    if (!this.currentState[index]) {
+      return undefined;
+    }
+    return this.currentState[index].getRecord();
   },
 
   flushCanonical: function() {
     //TODO make this smarter, currently its plenty stupid
     var toSet = filter.call(this.canonicalState, function(record) {
-      return !record.get('isDeleted');
+      return !record.isDeleted();
     });
 
     //a hack for not removing new records
     //TODO remove once we have proper diffing
     var newRecords = this.currentState.filter(function(record) {
-      return record.get('isNew');
+      return record.isNew();
     });
     toSet = toSet.concat(newRecords);
     var oldLength = this.length;
@@ -143,7 +148,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
       this.get('relationship').removeRecords(records);
     }
     if (objects) {
-      this.get('relationship').addRecords(objects, idx);
+      this.get('relationship').addRecords(map(objects, function(obj) { return obj.reference; }), idx);
     }
   },
   /**
