@@ -18,14 +18,15 @@ function Snapshot(record) {
   this._hasManyRelationships = Ember.create(null);
   this._hasManyIds = Ember.create(null);
 
+  this.record = record.getRecord();
   record.eachAttribute(function(keyName) {
-    this._attributes[keyName] = get(record, keyName);
+    this._attributes[keyName] = get(this.record, keyName);
   }, this);
 
   this.id = get(record, 'id');
-  this.record = record;
-  this.type = record.constructor;
-  this.modelName = record.constructor.modelName;
+  this.reference = record;
+  this.type = record.type;
+  this.modelName = record.type.modelName;
 
   // The following code is here to keep backwards compatibility when accessing
   // `constructor` directly.
@@ -194,7 +195,7 @@ Snapshot.prototype = {
       return this._belongsToRelationships[keyName];
     }
 
-    relationship = this.record._relationships[keyName];
+    relationship = this.reference._relationships[keyName];
     if (!(relationship && relationship.relationshipMeta.kind === 'belongsTo')) {
       throw new Ember.Error("Model '" + Ember.inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined.");
     }
@@ -265,7 +266,7 @@ Snapshot.prototype = {
       return this._hasManyRelationships[keyName];
     }
 
-    relationship = this.record._relationships[keyName];
+    relationship = this.reference._relationships[keyName];
     if (!(relationship && relationship.relationshipMeta.kind === 'hasMany')) {
       throw new Ember.Error("Model '" + Ember.inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined.");
     }
@@ -350,7 +351,7 @@ Snapshot.prototype = {
       return this.attr(keyName);
     }
 
-    var relationship = this.record._relationships[keyName];
+    var relationship = this.reference._relationships[keyName];
 
     if (relationship && relationship.relationshipMeta.kind === 'belongsTo') {
       return this.belongsTo(keyName);
