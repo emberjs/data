@@ -190,7 +190,8 @@ InternalModel.prototype = {
   },
 
   setupData: function(data) {
-    var changedKeys = mergeAndReturnChangedKeys(this._data, data);
+    var changedKeys = this._changedKeys(data);
+    merge(this._data, data);
     this.pushedData();
     if (this.record) {
       this.record._notifyProperties(changedKeys);
@@ -584,11 +585,11 @@ InternalModel.prototype = {
     @method adapterDidCommit
   */
   adapterDidCommit: function(data) {
-    var changedKeys;
     this.didCleanError();
+    var changedKeys = this._changedKeys(data);
 
     if (data) {
-      changedKeys = mergeAndReturnChangedKeys(this._data, data);
+      merge(this._data, data);
     } else {
       merge(this._data, this._inFlightAttributes);
     }
@@ -663,6 +664,35 @@ InternalModel.prototype = {
     this._inFlightAttributes = Ember.create(null);
   },
 
+    /**
+    @method _changedKeys
+    @private
+  */
+  _changedKeys: function(updates) {
+    var changedKeys = [];
+
+    if (updates && typeof updates === 'object') {
+      var original, i, value, key;
+      var keys = Ember.keys(updates);
+      var length = keys.length;
+
+      original = merge({}, this._data);
+      original = merge(original, this._attributes);
+      original = merge(original, this._inFlightAttributes);
+
+      for (i = 0; i < length; i++) {
+        key = keys[i];
+        value = updates[key];
+
+        if (original[key] !== value) {
+          changedKeys.push(key);
+        }
+      }
+    }
+
+    return changedKeys;
+  },
+
   toString: function() {
     if (this.record) {
       return this.record.toString();
@@ -672,31 +702,5 @@ InternalModel.prototype = {
   }
 };
 
-// Like Ember.merge, but instead returns a list of keys
-// for values that fail a strict equality check
-// instead of the original object.
-function mergeAndReturnChangedKeys(original, updates) {
-  var changedKeys = [];
-
-  if (!updates || typeof updates !== 'object') {
-    return changedKeys;
-  }
-
-  var keys   = Ember.keys(updates);
-  var length = keys.length;
-  var i, val, key;
-
-  for (i = 0; i < length; i++) {
-    key = keys[i];
-    val = updates[key];
-
-    if (original[key] !== val) {
-      changedKeys.push(key);
-    }
-
-    original[key] = val;
-  }
-  return changedKeys;
-}
 
 export default InternalModel;
