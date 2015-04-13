@@ -1054,13 +1054,13 @@ Store = Service.extend({
     This method unloads all of the known records for a given type.
 
     ```javascript
-    store.unloadAll('post');
+    store.unloadType('post');
     ```
 
-    @method unloadAll
+    @method unloadType
     @param {String or subclass of DS.Model} type
   */
-  unloadAll: function(type) {
+  unloadType: function(type) {
     var modelType = this.modelFor(type);
     var typeMap = this.typeMapFor(modelType);
     var records = typeMap.records.slice();
@@ -1074,6 +1074,33 @@ Store = Service.extend({
 
     typeMap.findAllCache = null;
     typeMap.metadata = Ember.create(null);
+  },
+
+  /**
+   This method unloads all records in the store.
+
+   ```javascript
+   store.unloadAll();
+   ```
+
+   @method unloadAll
+  */
+  unloadAll: function(type) {
+    if (arguments.length === 1) {
+      Ember.deprecate('Using store.unloadAll(type) has been deprecated. You should use store.unloadType(type) instead.');
+      this.unloadType(type);
+    } else {
+      var typeMaps = this.typeMaps;
+      var keys = Ember.keys(typeMaps);
+
+      var types = map(keys, byType);
+
+      forEach(types, this.unloadType, this);
+    }
+
+    function byType(entry) {
+      return typeMaps[entry]['type'];
+    }
   },
 
   /**
@@ -1917,18 +1944,9 @@ Store = Service.extend({
   },
 
   willDestroy: function() {
-    var typeMaps = this.typeMaps;
-    var keys = Ember.keys(typeMaps);
-
-    var types = map(keys, byType);
-
     this.recordArrayManager.destroy();
 
-    forEach(types, this.unloadAll, this);
-
-    function byType(entry) {
-      return typeMaps[entry]['type'];
-    }
+    this.unloadAll();
 
     for (var cacheKey in this._containerCache) {
       this._containerCache[cacheKey].destroy();
