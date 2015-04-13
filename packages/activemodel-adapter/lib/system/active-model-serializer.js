@@ -262,7 +262,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
       type.eachRelationship(function(key, relationship) {
         var payloadKey, payload;
         if (relationship.options.polymorphic) {
-          payloadKey = this.keyForAttribute(key);
+          payloadKey = this.keyForAttribute(key, "deserialize");
           payload = hash[payloadKey];
           if (payload && payload.type) {
             payload.type = this.typeForRoot(payload.type);
@@ -273,7 +273,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
             });
           }
         } else {
-          payloadKey = this.keyForRelationship(key, relationship.kind);
+          payloadKey = this.keyForRelationship(key, relationship.kind, "deserialize");
           if (!hash.hasOwnProperty(payloadKey)) { return; }
           payload = hash[payloadKey];
         }

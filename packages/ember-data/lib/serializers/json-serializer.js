@@ -201,7 +201,7 @@ export default Serializer.extend({
 
     if (this.keyForAttribute) {
       type.eachAttribute(function(key) {
-        payloadKey = this.keyForAttribute(key);
+        payloadKey = this.keyForAttribute(key, 'deserialize');
         if (key === payloadKey) { return; }
         if (!hash.hasOwnProperty(payloadKey)) { return; }
 
@@ -220,7 +220,7 @@ export default Serializer.extend({
 
     if (this.keyForRelationship) {
       type.eachRelationship(function(key, relationship) {
-        payloadKey = this.keyForRelationship(key, relationship.kind);
+        payloadKey = this.keyForRelationship(key, relationship.kind, 'deserialize');
         if (key === payloadKey) { return; }
         if (!hash.hasOwnProperty(payloadKey)) { return; }
 
@@ -572,7 +572,7 @@ export default Serializer.extend({
 
        var belongsTo = snapshot.belongsTo(key);
 
-       key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo") : key;
+       key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", "serialize") : key;
 
        json[key] = Ember.isNone(belongsTo) ? belongsTo : belongsTo.record.toJSON();
      }
@@ -594,7 +594,7 @@ export default Serializer.extend({
       // the serializer
       var payloadKey = this._getMappedKey(key);
       if (payloadKey === key && this.keyForRelationship) {
-        payloadKey = this.keyForRelationship(key, "belongsTo");
+        payloadKey = this.keyForRelationship(key, "belongsTo", "serialize");
       }
 
       //Need to check whether the id is there for new&async records
@@ -644,7 +644,7 @@ export default Serializer.extend({
       // the serializer
       payloadKey = this._getMappedKey(key);
       if (payloadKey === key && this.keyForRelationship) {
-        payloadKey = this.keyForRelationship(key, "hasMany");
+        payloadKey = this.keyForRelationship(key, "hasMany", "serialize");
       }
 
       var relationshipType = snapshot.type.determineRelationshipType(relationship);

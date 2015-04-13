@@ -934,6 +934,41 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
   });
 });
 
+test("serialize with embedded object (belongsTo relationship) supports serialize:id in conjunction with deserialize:records", function() {
+  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      secretLab: { serialize: 'id', deserialize: 'records' }
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:superVillain");
+
+  // records with an id, persisted
+  var tom, json;
+
+  run(function() {
+    tom = env.store.createRecord(
+      SuperVillain,
+      { firstName: "Tom", lastName: "Dale", id: "1",
+        secretLab: env.store.createRecord(SecretLab, { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
+        homePlanet: env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" })
+      }
+    );
+  });
+
+  run(function() {
+    json = serializer.serialize(tom._createSnapshot());
+  });
+
+  deepEqual(json, {
+    first_name: get(tom, "firstName"),
+    last_name: get(tom, "lastName"),
+    home_planet_id: get(tom, "homePlanet").get("id"),
+    secret_lab_id: get(tom, "secretLab").get("id")
+  });
+});
+
 test("serialize with embedded object (belongsTo relationship) supports serialize:false", function() {
   env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
   env.registry.register('serializer:superVillain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {

@@ -124,11 +124,11 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     return extractEmbeddedRecords(this, this.store, type, normalizedHash);
   },
 
-  keyForRelationship: function(key, type) {
-    if (this.hasDeserializeRecordsOption(key)) {
-      return this.keyForAttribute(key);
+  keyForRelationship: function(key, type, method) {
+    if ((method === 'serialize' && this.hasSerializeRecordsOption(key)) || (method === 'deserialize' && this.hasDeserializeRecordsOption(key))) {
+      return this.keyForAttribute(key, method);
     } else {
-      return this._super(key, type) || key;
+      return this._super(key, type, method) || key;
     }
   },
 
@@ -192,14 +192,14 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     var embeddedSnapshot = snapshot.belongsTo(attr);
     var key;
     if (includeIds) {
-      key = this.keyForRelationship(attr, relationship.kind);
+      key = this.keyForRelationship(attr, relationship.kind, 'serialize');
       if (!embeddedSnapshot) {
         json[key] = null;
       } else {
         json[key] = embeddedSnapshot.id;
       }
     } else if (includeRecords) {
-      key = this.keyForAttribute(attr);
+      key = this.keyForAttribute(attr, 'serialize');
       if (!embeddedSnapshot) {
         json[key] = null;
       } else {
@@ -300,10 +300,10 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     var includeRecords = this.hasSerializeRecordsOption(attr);
     var key;
     if (includeIds) {
-      key = this.keyForRelationship(attr, relationship.kind);
+      key = this.keyForRelationship(attr, relationship.kind, 'serialize');
       json[key] = snapshot.hasMany(attr, { ids: true });
     } else if (includeRecords) {
-      key = this.keyForAttribute(attr);
+      key = this.keyForAttribute(attr, 'serialize');
       json[key] = snapshot.hasMany(attr).map(function(embeddedSnapshot) {
         var embeddedJson = embeddedSnapshot.record.serialize({ includeId: true });
         this.removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, embeddedJson);
@@ -336,7 +336,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       if (parentRecord) {
         var name = parentRecord.name;
         var embeddedSerializer = this.store.serializerFor(embeddedSnapshot.type);
-        var parentKey = embeddedSerializer.keyForRelationship(name, parentRecord.kind);
+        var parentKey = embeddedSerializer.keyForRelationship(name, parentRecord.kind, 'deserialize');
         if (parentKey) {
           delete json[parentKey];
         }

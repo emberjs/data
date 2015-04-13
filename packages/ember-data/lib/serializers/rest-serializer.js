@@ -47,8 +47,9 @@ function coerceId(id) {
   ```
 
   You can also implement `keyForRelationship`, which takes the name
-  of the relationship as the first parameter, and the kind of
-  relationship (`hasMany` or `belongsTo`) as the second parameter.
+  of the relationship as the first parameter, the kind of
+  relationship (`hasMany` or `belongsTo`) as the second parameter, and
+  the method (`serialize` or `deserialize`) as the third parameter.
 
   @class RESTSerializer
   @namespace DS
@@ -739,7 +740,7 @@ var RESTSerializer = JSONSerializer.extend({
   serializePolymorphicType: function(snapshot, json, relationship) {
     var key = relationship.key;
     var belongsTo = snapshot.belongsTo(key);
-    key = this.keyForAttribute ? this.keyForAttribute(key) : key;
+    key = this.keyForAttribute ? this.keyForAttribute(key, "serialize") : key;
     if (Ember.isNone(belongsTo)) {
       json[key + "Type"] = null;
     } else {
