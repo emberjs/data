@@ -241,7 +241,6 @@ Store = Service.extend({
       the JSON representation
 
     @method serialize
-    @private
     @param {DS.Model} record the record to serialize
     @param {Object} options an options hash
   */
