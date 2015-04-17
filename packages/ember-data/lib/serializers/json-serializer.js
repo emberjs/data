@@ -87,6 +87,8 @@ export default Serializer.extend({
 
     ```javascript
     {
+      "firstName": "Harry",
+      "lastName": "Houdini",
       "career": "magician"
     }
     ```
