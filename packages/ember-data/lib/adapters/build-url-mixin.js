@@ -1,4 +1,6 @@
 var get = Ember.get;
+var isArray = Ember.isArray;
+var sanitize = encodeURIComponent;
 
 /**
 
@@ -28,6 +30,10 @@ var get = Ember.get;
   @namespace DS
 */
 export default Ember.Mixin.create({
+  // Default template should mimick original behaviour
+  urlTemplate: '{+host}{/namespace}{/pathForType}{/id}',
+  mergedProperties: ['urlSegments'],
+
   /**
     Builds a URL for a given type and optional ID.
 
@@ -78,26 +84,20 @@ export default Ember.Mixin.create({
     @param {String} id
     @return {String} url
   */
-  _buildURL: function(type, id) {
-    var url = [];
-    var host = get(this, 'host');
-    var prefix = this.urlPrefix();
-    var path;
+  _buildURL: function(type, id, snapshot) {
+    var template = _compileTemplate(this.get('urlTemplate'));
+    var templateResolver = this.templateResolverFor(type);
+    var adapter = this;
 
-    if (type) {
-      path = this.pathForType(type);
-      if (path) { url.push(path); }
-    }
+    return template.fill(function(name) {
+      var result = templateResolver.get(name);
 
-    if (id) { url.push(encodeURIComponent(id)); }
-    if (prefix) { url.unshift(prefix); }
-
-    url = url.join('/');
-    if (!host && url && url.charAt(0) !== '/') {
-      url = '/' + url;
-    }
-
-    return url;
+      if (Ember.typeOf(result) === 'function') {
+        return result.call(adapter, type, id, snapshot);
+      } else {
+        return result;
+      }
+    });
   },
 
   /**
@@ -108,7 +108,7 @@ export default Ember.Mixin.create({
    * @return {String} url
    */
   urlForFind: function(id, type, snapshot) {
-    return this._buildURL(type, id);
+    return this._buildURL(type, id, snapshot);
   },
 
   /**
@@ -127,7 +127,7 @@ export default Ember.Mixin.create({
    * @return {String} url
    */
   urlForFindQuery: function(query, type) {
-    return this._buildURL(type);
+    return this._buildURL(type, null, query);
   },
 
   /**
@@ -168,7 +168,7 @@ export default Ember.Mixin.create({
    * @return {String} url
    */
   urlForCreateRecord: function(type, snapshot) {
-    return this._buildURL(type);
+    return this._buildURL(type, null, snapshot);
   },
 
   /**
@@ -179,7 +179,38 @@ export default Ember.Mixin.create({
    * @return {String} url
    */
   urlForDeleteRecord: function(id, type, snapshot) {
-    return this._buildURL(type, id);
+    return this._buildURL(type, id, snapshot);
+  },
+
+  //
+  // TODO: Add ability to customize templateResolver
+  templateResolverFor: function(type) {
+    return Ember.Object.create(get(this, 'urlSegments'));
+  },
+
+  urlSegments: {
+    host: function () { return this.get('host'); },
+    pathForType: function(type) { return this.pathForType(type); },
+
+    namespace: function() {
+      var namespace = this.get('namespace');
+      // HACK to accommodate https://github.com/emberjs/data/pull/2983
+      if (namespace) {
+        namespace = namespace.replace(/^\//, '');
+      }
+
+      return namespace;
+    },
+
+    id: function(type, id, record) {
+      if (id && !isArray(id)) { return sanitize(id); }
+    },
+
+    unknownProperty: function(key) {
+      return function(type, id, snapshot) {
+        return get(snapshot, key);
+      };
+    }
   },
 
   /**
@@ -254,3 +285,26 @@ export default Ember.Mixin.create({
     return Ember.String.pluralize(camelized);
   }
 });
+
+
+// TODO: Use fully compliant rfc6570 library
+var _compileTemplate = function(template) {
+  return Ember.Object.create({
+    template: template,
+    fill: function(fn) {
+      return this.get('template').replace(/\{([\/?+]?)(\w+)\}/g, function(_, prefix, name) {
+        var result = fn(name);
+
+        if (prefix === '?') { prefix = '?' + name + '='; }
+        if (prefix === '+') { prefix = ''; }
+
+        if (result) {
+          return prefix + result;
+        } else {
+          return '';
+        }
+      });
+    }
+  });
+};
+
