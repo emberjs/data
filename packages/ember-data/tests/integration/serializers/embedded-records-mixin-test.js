@@ -1572,3 +1572,33 @@ test("serializing belongsTo correctly removes embedded foreign key", function() 
     }
   });
 });
+
+test('extractErrors extracts embedded errors', function() {
+  SuperVillain.reopen({
+    evilMinions: DS.hasMany('secret-weapon', { polymorphic: true })
+  });
+
+  env.registry.register('serializer:super-villain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      evilMinions: { embedded: 'always' }
+    }
+  }));
+
+  var serializer = env.container.lookup('serializer:super-villain');
+  var payload = {
+    errors: {
+      evil_minions: [
+        { name: ['required'] }
+      ]
+    }
+  };
+
+  serializer.extractErrors(env.store, SuperVillain, payload, null); // id (last param) is not relevant here
+  deepEqual(payload, {
+    errors: {
+      evilMinions: [
+        { name: ['required'] }
+      ]
+    }
+  });
+});
