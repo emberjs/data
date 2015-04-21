@@ -340,7 +340,7 @@ var RESTSerializer = JSONSerializer.extend({
         }],
         "comment": [{
           "_id": 1,
-          "comment_title": "Rails is unagi"
+          "comment_title": "Rails is unagi",
           "post_id": 1
         }, {
           "_id": 2,
@@ -374,7 +374,7 @@ var RESTSerializer = JSONSerializer.extend({
           delete comment.post_id;
         });
 
-        payload = { comments: comments, posts: payload };
+        payload = { comments: comments, posts: posts };
 
         return this._super(store, type, payload);
       },
