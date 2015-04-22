@@ -458,8 +458,6 @@ export default Adapter.extend(BuildURLMixin, {
     This method will be called with the parent record and `/posts/1/comments`.
 
     The `findHasMany` method will make an Ajax (HTTP GET) request to the originally specified URL.
-    If the URL is host-relative (starting with a single slash), the
-    request will use the host specified on the adapter (if any).
 
     @method findHasMany
     @param {DS.Store} store
@@ -468,13 +466,8 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findHasMany: function(store, snapshot, url, relationship) {
-    var host = get(this, 'host');
     var id   = snapshot.id;
     var type = snapshot.typeKey;
-
-    if (host && url.charAt(0) === '/' && url.charAt(1) !== '/') {
-      url = host + url;
-    }
 
     url = this.urlPrefix(url, this.buildURL(type, id, null, 'findHasMany'));
 
