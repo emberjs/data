@@ -106,7 +106,7 @@ test('buildURL - findBelongsTo requestType delegates to urlForFindBelongsTo', fu
   equal(adapter.buildURL('super-user', 1, null, 'findBelongsTo'), '/superUsers/1');
 });
 
-test('buildURL - createRecord requestType delegates to urlForFindBelongsTo', function() {
+test('buildURL - createRecord requestType delegates to urlForCreateRecord', function() {
   expect(3);
   var snapshotStub = { snapshot: true };
   var originalMethod = adapter.urlForCreateRecord;
