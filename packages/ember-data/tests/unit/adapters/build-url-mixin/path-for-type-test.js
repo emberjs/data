@@ -118,6 +118,19 @@ test('buildURL - createRecord requestType delegates to urlForFindBelongsTo', fun
   equal(adapter.buildURL('super-user', null, snapshotStub, 'createRecord'), '/superUsers');
 });
 
+test('buildURL - updateRecord requestType delegates to urlForUpdateRecord', function() {
+  expect(4);
+  var snapshotStub = { snapshot: true };
+  var originalMethod = adapter.urlForUpdateRecord;
+  adapter.urlForUpdateRecord = function(id, type, snapshot) {
+    equal(id, 1);
+    equal(type, 'super-user');
+    equal(snapshot, snapshotStub);
+    return originalMethod.apply(this, arguments);
+  };
+  equal(adapter.buildURL('super-user', 1, snapshotStub, 'updateRecord'), '/superUsers/1');
+});
+
 test('buildURL - deleteRecord requestType delegates to urlForDeleteRecord', function() {
   expect(4);
   var snapshotStub = { snapshot: true };
