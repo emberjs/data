@@ -64,6 +64,8 @@ export default Ember.Mixin.create({
         return this.urlForFindBelongsTo(id, type);
       case 'createRecord':
         return this.urlForCreateRecord(type, snapshot);
+      case 'updateRecord':
+        return this.urlForUpdateRecord(id, type, snapshot);
       case 'deleteRecord':
         return this.urlForDeleteRecord(id, type, snapshot);
       default:
@@ -169,6 +171,17 @@ export default Ember.Mixin.create({
    */
   urlForCreateRecord: function(type, snapshot) {
     return this._buildURL(type);
+  },
+
+  /**
+   * @method urlForUpdateRecord
+   * @param {String} id
+   * @param {String} type
+   * @param {DS.Snapshot} snapshot
+   * @return {String} url
+   */
+  urlForUpdateRecord: function(id, type, snapshot) {
+    return this._buildURL(type, id);
   },
 
   /**
