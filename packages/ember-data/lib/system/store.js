@@ -2032,8 +2032,6 @@ function _commit(adapter, store, operation, record) {
     store._adapterRun(function() {
       if (adapterPayload) {
         payload = serializer.extract(store, type, adapterPayload, get(record, 'id'), operation);
-      } else {
-        payload = adapterPayload;
       }
       store.didSaveRecord(record, payload);
     });
