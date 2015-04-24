@@ -304,3 +304,51 @@ test('buildURL - with absolute namespace', function() {
     equal(passedUrl, "/api/v1/posts/1");
   }));
 });
+
+
+test('buildURL - with a url template', function() {
+  run(function() {
+    adapter.setProperties({
+      host: 'http://example.com',
+      urlTemplate: '{host}/api/v1/{pathForType}/{id}'
+    });
+  });
+
+  ajaxResponse({ posts: [{ id: 1 }] });
+
+  run(store, 'find', 'post', 1).then(async(function(post) {
+    equal(passedUrl, "http://example.com/api/v1/posts/1");
+  }));
+});
+
+test('buildURL - with a url and urlSegment overrides', function() {
+  run(function() {
+
+    var CustomAdapter = DS.RESTAdapter.extend({
+      host: 'http://example.com',
+      urlTemplate: '{+host}/api/v1/{pathForType}/{id}',
+      urlSegments: {
+        host: 'https://example.com',
+        id: function(type, id, record) {
+          return id + "-foo";
+        }
+      }
+    });
+
+    env = setupStore({
+      post: Post,
+      comment: Comment,
+      superUser: SuperUser,
+      adapter: CustomAdapter
+    });
+
+    store = env.store;
+    adapter = env.adapter;
+  });
+
+  ajaxResponse({ posts: [{ id: 1 }] });
+
+  run(store, 'find', 'post', 1).then(async(function(post) {
+    equal(passedUrl, "https://example.com/api/v1/posts/1-foo");
+  }));
+});
