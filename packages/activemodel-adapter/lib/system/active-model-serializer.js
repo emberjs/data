@@ -6,7 +6,7 @@ import RESTSerializer from "ember-data/serializers/rest-serializer";
 
 var forEach = Ember.EnumerableUtils.forEach;
 var camelize =   Ember.String.camelize;
-var capitalize = Ember.String.capitalize;
+var classify = Ember.String.classify;
 var decamelize = Ember.String.decamelize;
 var underscore = Ember.String.underscore;
 
@@ -166,7 +166,9 @@ var ActiveModelSerializer = RESTSerializer.extend({
     if (Ember.isNone(belongsTo)) {
       json[jsonKey] = null;
     } else {
-      json[jsonKey] = capitalize(camelize(belongsTo.typeKey));
+      json[jsonKey] = classify(belongsTo.typeKey).replace(/(\/)([a-z])/g, function(match, separator, chr) {
+        return match.toUpperCase();
+      }).replace('/', '::');
     }
   },
 
@@ -285,6 +287,11 @@ var ActiveModelSerializer = RESTSerializer.extend({
         }
       }, this);
     }
+  },
+  typeForRoot: function(key) {
+    return camelize(singularize(key)).replace(/(^|\:)([A-Z])/g, function(match, separator, chr) {
+      return match.toLowerCase();
+    }).replace('::', '/');
   }
 });
 

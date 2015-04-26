@@ -2,6 +2,8 @@
 
 ### Master
 
+ * Fix ActiveModelSerializer polymorphic type processing for namespaced model names. Now AMS accepts '::' instead of '/'.
+
 ### Release 1.0.0-beta.16.1 (March 24, 2015)
 
  * Use ember-inflector 1.5
