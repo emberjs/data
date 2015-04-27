@@ -1049,53 +1049,41 @@ Store = Service.extend({
     return array;
   },
 
-
-  /**
-    This method unloads all of the known records for a given type.
-
-    ```javascript
-    store.unloadType('post');
-    ```
-
-    @method unloadType
-    @param {String or subclass of DS.Model} type
-  */
-  unloadType: function(type) {
-    var modelType = this.modelFor(type);
-    var typeMap = this.typeMapFor(modelType);
-    var records = typeMap.records.slice();
-    var record;
-
-    for (var i = 0; i < records.length; i++) {
-      record = records[i];
-      record.unloadRecord();
-      record.destroy(); // maybe within unloadRecord
-    }
-
-    typeMap.findAllCache = null;
-    typeMap.metadata = Ember.create(null);
-  },
-
   /**
    This method unloads all records in the store.
 
+   Optionally you can pass a type which unload all records for a given type.
+
    ```javascript
    store.unloadAll();
+   store.unloadAll('post');
    ```
 
    @method unloadAll
+   @param {String or subclass of DS.Model} optional type
   */
   unloadAll: function(type) {
-    if (arguments.length === 1) {
-      Ember.deprecate('Using store.unloadAll(type) has been deprecated. You should use store.unloadType(type) instead.');
-      this.unloadType(type);
-    } else {
+    if (arguments.length === 0) {
       var typeMaps = this.typeMaps;
       var keys = Ember.keys(typeMaps);
 
       var types = map(keys, byType);
 
-      forEach(types, this.unloadType, this);
+      forEach(types, this.unloadAll, this);
+    } else {
+      var modelType = this.modelFor(type);
+      var typeMap = this.typeMapFor(modelType);
+      var records = typeMap.records.slice();
+      var record;
+
+      for (var i = 0; i < records.length; i++) {
+        record = records[i];
+        record.unloadRecord();
+        record.destroy(); // maybe within unloadRecord
+      }
+
+      typeMap.findAllCache = null;
+      typeMap.metadata = Ember.create(null);
     }
 
     function byType(entry) {

@@ -71,37 +71,8 @@ test("can unload all records for a given type", function () {
   });
 
   Ember.run(function() {
-    env.store.unloadType('person');
+    env.store.unloadAll('person');
   });
-
-  equal(env.store.all('person').get('length'), 0);
-  equal(env.store.all('car').get('length'), 1);
-});
-
-test("Using store#unloadAll('type') is deprecated", function() {
-  expect(3);
-
-  var adam, bob, dudu;
-  run(function() {
-    adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
-    bob = env.store.push('person', { id: 2, name: "Bob Bobson" });
-
-    dudu = env.store.push('car', {
-      id: 1,
-      make: "VW",
-      model: "Beetle",
-      person: 1
-    });
-  });
-
-  expectDeprecation(
-    function() {
-      run(function() {
-        env.store.unloadAll('person');
-      });
-    },
-    'Using store.unloadAll(type) has been deprecated. You should use store.unloadType(type) instead.'
-  );
 
   equal(env.store.all('person').get('length'), 0);
   equal(env.store.all('car').get('length'), 1);
@@ -142,7 +113,7 @@ test("Unloading all records for a given type clears saved meta data.", function 
   });
 
   Ember.run(function() {
-    env.store.unloadType('person');
+    env.store.unloadAll('person');
   });
 
   deepEqual(metadataKeys('person'), [], 'Metadata for person is empty');
@@ -158,7 +129,7 @@ test("removes findAllCache after unloading all records", function () {
 
   Ember.run(function() {
     env.store.all('person');
-    env.store.unloadType('person');
+    env.store.unloadAll('person');
   });
 
   equal(env.store.all('person').get('length'), 0);
@@ -175,7 +146,7 @@ test("unloading all records also updates record array from all()", function() {
   equal(all.get('length'), 2);
 
   Ember.run(function() {
-    env.store.unloadType('person');
+    env.store.unloadAll('person');
   });
 
   equal(all.get('length'), 0);
