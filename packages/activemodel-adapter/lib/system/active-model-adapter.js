@@ -142,7 +142,8 @@ var ActiveModelAdapter = RESTAdapter.extend({
 
     if (jqXHR && jqXHR.status === 422) {
       var response = Ember.$.parseJSON(jqXHR.responseText);
-      return new InvalidError(response.errors);
+      var errors = response.errors ? response.errors : response;
+      return new InvalidError(errors);
     } else {
       return error;
     }

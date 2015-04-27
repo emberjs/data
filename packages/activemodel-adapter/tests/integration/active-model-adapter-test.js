@@ -31,6 +31,17 @@ test('ajaxError - returns invalid error if 422 response', function() {
   equal(adapter.ajaxError(jqXHR), error.toString());
 });
 
+test('ajaxError - accepts any kind of json on 422', function() {
+  var error = new DS.InvalidError({ name: "can't be blank" });
+
+  var jqXHR = {
+    status: 422,
+    responseText: JSON.stringify({ name: "can't be blank" })
+  };
+
+  equal(adapter.ajaxError(jqXHR), error.toString());
+});
+
 test('ajaxError - invalid error has camelized keys', function() {
   var error = new DS.InvalidError({ firstName: "can't be blank" });
 
