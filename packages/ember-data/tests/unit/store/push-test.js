@@ -33,7 +33,7 @@ module("unit/store/push - DS.Store#push", {
     env = setupStore({
       post: Post,
       person: Person,
-      "phone-number": PhoneNumber
+      phoneNumber: PhoneNumber
     });
 
     store = env.store;

@@ -241,7 +241,4 @@ Relationship.prototype = {
   }
 };
 
-
-
-
 export default Relationship;

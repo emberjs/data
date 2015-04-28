@@ -227,7 +227,7 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
   };
 
   env.adapter.findBelongsTo = async(function(store, snapshot, link, relationship) {
-    equal(relationship.type, Group);
+    equal(relationship.type, 'group');
     equal(relationship.key, 'group');
     equal(link, "/people/1/group");
 
@@ -316,21 +316,14 @@ test("A record with an async belongsTo relationship returning null should resolv
 test("polymorphic belongsTo type-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled", function() {
   expect(1);
 
-  var injectionValue = Ember.MODEL_FACTORY_INJECTIONS;
-  Ember.MODEL_FACTORY_INJECTIONS = true;
+  run(function () {
+    var igor = env.store.createRecord('user', { name: 'Igor' });
+    var post = env.store.createRecord('post', { title: "Igor's unimaginative blog post" });
 
-  try {
-    run(function () {
-      var igor = env.store.createRecord('user', { name: 'Igor' });
-      var post = env.store.createRecord('post', { title: "Igor's unimaginative blog post" });
+    igor.set('favouriteMessage', post);
 
-      igor.set('favouriteMessage', post);
-
-      equal(igor.get('favouriteMessage.title'), "Igor's unimaginative blog post");
-    });
-  } finally {
-    Ember.MODEL_FACTORY_INJECTIONS = injectionValue;
-  }
+    equal(igor.get('favouriteMessage.title'), "Igor's unimaginative blog post");
+  });
 });
 
 test("the subclass in a polymorphic belongsTo relationship is an instanceof its superclass", function() {

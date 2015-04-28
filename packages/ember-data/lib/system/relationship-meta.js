@@ -1,14 +1,14 @@
-import { singularize } from "ember-inflector/lib/system";
+import normalizeTypeKey from 'ember-data/system/normalize-type-key';
 
-export function typeForRelationshipMeta(store, meta) {
+export function typeForRelationshipMeta(meta) {
   var typeKey, type;
 
   typeKey = meta.type || meta.key;
   if (typeof typeKey === 'string') {
     if (meta.kind === 'hasMany') {
-      typeKey = singularize(typeKey);
+      typeKey = normalizeTypeKey(typeKey);
     }
-    type = store.modelFor(typeKey);
+    type = typeKey;
   } else {
     type = meta.type;
   }
@@ -16,11 +16,11 @@ export function typeForRelationshipMeta(store, meta) {
   return type;
 }
 
-export function relationshipFromMeta(store, meta) {
+export function relationshipFromMeta(meta) {
   return {
     key:  meta.key,
     kind: meta.kind,
-    type: typeForRelationshipMeta(store, meta),
+    type: typeForRelationshipMeta(meta),
     options:    meta.options,
     parentType: meta.parentType,
     isRelationship: true

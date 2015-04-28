@@ -93,7 +93,8 @@ import Model from "ember-data/system/model";
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
 */
-function hasMany(type, options) {
+export default function hasMany(type, options) {
+  // TODO: Don't rewrite arguments
   if (typeof type === 'object') {
     options = type;
     type = undefined;
@@ -115,6 +116,7 @@ function hasMany(type, options) {
     key: null
   };
 
+
   return Ember.computed(function(key) {
     var relationship = this._relationships[key];
     return relationship.getRecords();
@@ -132,5 +134,3 @@ Model.reopen({
   }
 });
 
-
-export default hasMany;

@@ -3,10 +3,14 @@ var run = Ember.run;
 
 module("unit/store/createRecord - Store creating records", {
   setup: function() {
-    store = createStore({ adapter: DS.Adapter.extend() });
 
     Record = DS.Model.extend({
       title: DS.attr('string')
+    });
+
+    store = createStore({
+      adapter: DS.Adapter.extend(),
+      record: Record
     });
   }
 });

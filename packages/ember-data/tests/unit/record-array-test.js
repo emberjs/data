@@ -16,13 +16,15 @@ module("unit/record_array - DS.RecordArray", {
 test("a record array is backed by records", function() {
   expect(3);
 
-  var store = createStore();
+  var store = createStore({
+    person: Person
+  });
   run(function() {
-    store.pushMany(Person, array);
+    store.pushMany('person', array);
   });
 
   run(function() {
-    store.findByIds(Person, [1,2,3]).then(function(records) {
+    store.findByIds('person', [1,2,3]).then(function(records) {
       for (var i=0, l=get(array, 'length'); i<l; i++) {
         deepEqual(records[i].getProperties('id', 'name'), array[i], "a record array materializes objects on demand");
       }
@@ -31,23 +33,27 @@ test("a record array is backed by records", function() {
 });
 
 test("acts as a live query", function() {
-  var store = createStore();
+  var store = createStore({
+    person: Person
+  });
 
   var recordArray = store.all(Person);
   run(function() {
-    store.push(Person, { id: 1, name: 'wycats' });
+    store.push('person', { id: 1, name: 'wycats' });
   });
   equal(get(recordArray, 'lastObject.name'), 'wycats');
 
   run(function() {
-    store.push(Person, { id: 2, name: 'brohuda' });
+    store.push('person', { id: 2, name: 'brohuda' });
   });
   equal(get(recordArray, 'lastObject.name'), 'brohuda');
 });
 
 test("stops updating when destroyed", function() {
   expect(3);
-  var store = createStore();
+  var store = createStore({
+    person: Person
+  });
 
   // TODO remove once
   // https://github.com/emberjs/ember.js/commit/c3f13e85a62069295965dd49ca487fe6ddba1188
@@ -56,7 +62,7 @@ test("stops updating when destroyed", function() {
 
   var recordArray = store.all(Person);
   run(function() {
-    store.push(Person, { id: 1, name: 'wycats' });
+    store.push('person', { id: 1, name: 'wycats' });
   });
 
   run(function() {
@@ -65,7 +71,7 @@ test("stops updating when destroyed", function() {
 
   run(function() {
     equal(recordArray.get('length'), emptyLength, "Has no more records");
-    store.push(Person, { id: 2, name: 'brohuda' });
+    store.push('person', { id: 2, name: 'brohuda' });
   });
 
   equal(recordArray.get('length'), emptyLength, "Has not been updated");
@@ -169,12 +175,14 @@ test("a loaded record is removed both from the record array and from the belongs
 
 // GitHub Issue #168
 test("a newly created record is removed from a record array when it is deleted", function() {
-  var store = createStore();
-  var recordArray = store.all(Person);
+  var store = createStore({
+    person: Person
+  });
+  var recordArray = store.all('person');
   var scumbag;
 
   run(function() {
-    scumbag = store.createRecord(Person, {
+    scumbag = store.createRecord('person', {
       name: "Scumbag Dale"
     });
   });
@@ -183,9 +191,9 @@ test("a newly created record is removed from a record array when it is deleted",
 
   // guarantee coalescence
   Ember.run(function() {
-    store.createRecord(Person, { name: 'p1' });
-    store.createRecord(Person, { name: 'p2' });
-    store.createRecord(Person, { name: 'p3' });
+    store.createRecord('person', { name: 'p1' });
+    store.createRecord('person', { name: 'p2' });
+    store.createRecord('person', { name: 'p3' });
   });
 
   equal(get(recordArray, 'length'), 4, "precond - record array has the created item");
@@ -205,13 +213,15 @@ test("a newly created record is removed from a record array when it is deleted",
 });
 
 test("a record array returns undefined when asking for a member outside of its content Array's range", function() {
-  var store = createStore();
-
-  run(function() {
-    store.pushMany(Person, array);
+  var store = createStore({
+    person: Person
   });
 
-  var recordArray = store.all(Person);
+  run(function() {
+    store.pushMany('person', array);
+  });
+
+  var recordArray = store.all('person');
 
   strictEqual(recordArray.objectAt(20), undefined, "objects outside of the range just return undefined");
 });

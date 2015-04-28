@@ -230,7 +230,13 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
     var type = get(this, 'type');
     var record;
 
-    Ember.assert("You cannot add '" + type.typeKey + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
+    var klass = store.modelFactoryFor(type);
+
+    // TODO: Do we need to actually make sure the type defined in the relationship exists for polymorphic relationships?
+    // It seems polymorphic relationships should be able to use any DS.Model instance
+    if (klass) {
+      Ember.assert("You cannot add '" + klass.typeKey + "' records to this polymorphic relationship.", !get(this, 'isPolymorphic'));
+    }
 
     record = store.createRecord(type, hash);
     this.pushObject(record);

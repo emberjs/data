@@ -9,7 +9,7 @@ import {
   InvalidError,
   Adapter
 } from "ember-data/system/adapter";
-import { singularize } from "ember-inflector/lib/system/string";
+import normalizeTypeKey from "ember-data/system/normalize-type-key";
 import {
   Map
 } from "ember-data/system/map";
@@ -95,8 +95,6 @@ var map = Ember.EnumerableUtils.map;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
 var Store;
-
-var camelize = Ember.String.camelize;
 
 var Service = Ember.Service;
 if (!Service) {
@@ -1432,13 +1430,14 @@ Store = Service.extend({
   */
 
   _modelForMixin: function(key) {
+    var normalizedKey = normalizeTypeKey(key);
     var registry = this.container._registry ? this.container._registry : this.container;
-    var mixin = registry.resolve('mixin:' + key);
+    var mixin = registry.resolve('mixin:' + normalizedKey);
     if (mixin) {
       //Cache the class as a model
-      registry.register('model:' + key, DS.Model.extend(mixin));
+      registry.register('model:' + normalizedKey, DS.Model.extend(mixin));
     }
-    var factory = this.modelFactoryFor(key);
+    var factory = this.modelFactoryFor(normalizedKey);
     if (factory) {
       factory.__isMixin = true;
       factory.__mixin = mixin;
@@ -1458,22 +1457,25 @@ Store = Service.extend({
   */
   modelFor: function(key) {
     var factory;
+    var normalizedTypeKey;
 
     if (typeof key === 'string') {
-      factory = this.modelFactoryFor(key);
+      normalizedTypeKey = normalizeTypeKey(key);
+      factory = this.modelFactoryFor(normalizedTypeKey);
       if (!factory) {
         //Support looking up mixins as base types for polymorphic relationships
-        factory = this._modelForMixin(key);
+        factory = this._modelForMixin(normalizedTypeKey);
       }
       if (!factory) {
-        throw new Ember.Error("No model was found for '" + key + "'");
+        throw new Ember.Error("No model was found for '" + normalizedTypeKey + "'");
       }
-      factory.typeKey = factory.typeKey || this._normalizeTypeKey(key);
+      factory.typeKey = factory.typeKey || normalizedTypeKey;
     } else {
+      // TODO: This won't be supported in the future.
       // A factory already supplied. Ensure it has a normalized key.
       factory = key;
       if (factory.typeKey) {
-        factory.typeKey = this._normalizeTypeKey(factory.typeKey);
+        factory.typeKey = normalizeTypeKey(factory.typeKey);
       }
     }
 
@@ -1482,7 +1484,7 @@ Store = Service.extend({
   },
 
   modelFactoryFor: function(key) {
-    return this.container.lookupFactory('model:' + key);
+    return this.container.lookupFactory('model:' + normalizeTypeKey(key));
   },
 
   /**
@@ -1942,19 +1944,6 @@ Store = Service.extend({
     }
 
     delete this._containerCache;
-  },
-
-  /**
-    All typeKeys are camelCase internally. Changing this function may
-    require changes to other normalization hooks (such as typeForRoot).
-
-    @method _normalizeTypeKey
-    @private
-    @param {String} type
-    @return {String} if the adapter can generate one, an ID
-  */
-  _normalizeTypeKey: function(key) {
-    return camelize(singularize(key));
   }
 });
 

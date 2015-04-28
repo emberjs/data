@@ -283,7 +283,7 @@ var RESTSerializer = JSONSerializer.extend({
 
       // legacy support for singular resources
       if (isPrimary && Ember.typeOf(value) !== "array" ) {
-        primaryRecord = this.normalize(primaryType, value, prop);
+        primaryRecord = this.normalize(type, value, prop);
         continue;
       }
 

@@ -1,11 +1,12 @@
 import { PromiseManyArray } from "ember-data/system/promise-proxies";
 import Relationship from "ember-data/system/relationships/state/relationship";
+import { typeForRelationshipMeta } from "ember-data/system/relationship-meta";
 import OrderedSet from "ember-data/system/ordered-set";
 import ManyArray from "ember-data/system/many-array";
 
 var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
   this._super$constructor(store, record, inverseKey, relationshipMeta);
-  this.belongsToType = relationshipMeta.type;
+  this.belongsToType = typeForRelationshipMeta(relationshipMeta);
   this.canonicalState = [];
   this.manyArray = ManyArray.create({
     canonicalState: this.canonicalState,
@@ -84,15 +85,16 @@ ManyRelationship.prototype.removeRecordFromOwn = function(record, idx) {
 };
 
 ManyRelationship.prototype.notifyRecordRelationshipAdded = function(record, idx) {
-  var type = this.relationshipMeta.type;
-  Ember.assert("You cannot add '" + record.constructor.typeKey + "' records to the " + this.record.constructor.typeKey + "." + this.key + " relationship (only '" + this.belongsToType.typeKey + "' allowed)", (function () {
-    if (type.__isMixin) {
-      return type.__mixin.detect(record);
+  var typeKey   = typeForRelationshipMeta(this.relationshipMeta);
+  var typeClass = this.store.modelFor(typeKey);
+  Ember.assert("You cannot add '" + record.constructor.typeKey + "' records to the " + this.record.constructor.typeKey + "." + this.key + " relationship (only '" + this.belongsToType + "' allowed)", (function () {
+    if (typeClass.__isMixin) {
+      return typeClass.__mixin.detect(record);
     }
-    if (Ember.MODEL_FACTORY_INJECTIONS) {
-      type = type.superclass;
+    if (typeClass.superclass && typeClass.superclass !== DS.Model) {
+      typeClass = typeClass.superclass;
     }
-    return record instanceof type;
+    return record instanceof typeClass;
   })());
 
   this.record.notifyHasManyAdded(this.key, record, idx);

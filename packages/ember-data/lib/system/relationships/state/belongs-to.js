@@ -4,13 +4,13 @@ import {
 
 import Relationship from "ember-data/system/relationships/state/relationship";
 
-var BelongsToRelationship = function(store, record, inverseKey, relationshipMeta) {
+function BelongsToRelationship(store, record, inverseKey, relationshipMeta) {
   this._super$constructor(store, record, inverseKey, relationshipMeta);
   this.record = record;
   this.key = relationshipMeta.key;
   this.inverseRecord = null;
   this.canonicalState = null;
-};
+}
 
 BelongsToRelationship.prototype = Ember.create(Relationship.prototype);
 BelongsToRelationship.prototype.constructor = BelongsToRelationship;
@@ -62,14 +62,18 @@ BelongsToRelationship.prototype._super$addRecord = Relationship.prototype.addRec
 BelongsToRelationship.prototype.addRecord = function(newRecord) {
   if (this.members.has(newRecord)) { return;}
   var type = this.relationshipMeta.type;
-  Ember.assert("You cannot add a '" + newRecord.constructor.typeKey + "' record to the '" + this.record.constructor.typeKey + "." + this.key +"'. " + "You can only add a '" + type.typeKey + "' record to this relationship.", (function () {
-    if (type.__isMixin) {
-      return type.__mixin.detect(newRecord);
+  var modelClass = this.store.modelFor(type);
+  Ember.assert("You cannot add a '" + newRecord.constructor.typeKey + "' record to the '" + this.record.constructor.typeKey + "." + this.key +"'. " + "You can only add a '" + modelClass.typeKey + "' record to this relationship.", (function () {
+    if (modelClass.__isMixin) {
+      return modelClass.__mixin.detect(newRecord);
     }
-    if (Ember.MODEL_FACTORY_INJECTIONS) {
-      type = type.superclass;
+
+    // TODO: There seems to be a weird cylic error with loader js here.
+    if (modelClass.superclass && modelClass.superclass !== DS.Model) {
+      modelClass = modelClass.superclass;
     }
-    return newRecord instanceof type;
+
+    return newRecord instanceof modelClass;
   })());
 
   if (this.inverseRecord) {
