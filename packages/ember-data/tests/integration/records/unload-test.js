@@ -55,10 +55,19 @@ test("can unload a single record", function () {
 });
 
 test("can unload all records for a given type", function () {
-  var adam, bob;
+  expect(2);
+
+  var adam, bob, dudu;
   run(function() {
     adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
     bob = env.store.push('person', { id: 2, name: "Bob Bobson" });
+
+    dudu = env.store.push('car', {
+      id: 1,
+      make: "VW",
+      model: "Beetle",
+      person: 1
+    });
   });
 
   Ember.run(function() {
@@ -66,6 +75,31 @@ test("can unload all records for a given type", function () {
   });
 
   equal(env.store.all('person').get('length'), 0);
+  equal(env.store.all('car').get('length'), 1);
+});
+
+test("can unload all records", function () {
+  expect(2);
+
+  var adam, bob, dudu;
+  run(function() {
+    adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
+    bob = env.store.push('person', { id: 2, name: "Bob Bobson" });
+
+    dudu = env.store.push('car', {
+      id: 1,
+      make: "VW",
+      model: "Beetle",
+      person: 1
+    });
+  });
+
+  Ember.run(function() {
+    env.store.unloadAll();
+  });
+
+  equal(env.store.all('person').get('length'), 0);
+  equal(env.store.all('car').get('length'), 0);
 });
 
 test("Unloading all records for a given type clears saved meta data.", function () {
