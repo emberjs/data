@@ -6,6 +6,7 @@ import {pluralize} from "ember-inflector";
   @module ember-data
 */
 
+var camelize = Ember.String.camelize;
 var decamelize = Ember.String.decamelize;
 var underscore = Ember.String.underscore;
 
@@ -141,7 +142,19 @@ var ActiveModelAdapter = RESTAdapter.extend({
     var error = this._super.apply(this, arguments);
 
     if (jqXHR && jqXHR.status === 422) {
-      return new InvalidError(Ember.$.parseJSON(jqXHR.responseText));
+      var response = Ember.$.parseJSON(jqXHR.responseText);
+      var errors = response.errors ? response.errors : response;
+
+      for (var underscoredError in errors) {
+        var camelizedError = camelize(underscoredError);
+
+        if (camelizedError !== underscoredError) {
+          errors[camelizedError] = errors[underscoredError];
+          delete errors[underscoredError];
+        }
+      }
+
+      return new InvalidError(errors);
     } else {
       return error;
     }
