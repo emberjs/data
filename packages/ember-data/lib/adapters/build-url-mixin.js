@@ -42,52 +42,52 @@ export default Ember.Mixin.create({
     will be arrays of ids and snapshots.
 
     @method buildURL
-    @param {String} type
+    @param {String} typeKey
     @param {String|Array|Object} id single id or array of ids or query
     @param {DS.Snapshot|Array} snapshot single snapshot or array of snapshots
     @param {String} requestType
     @return {String} url
   */
-  buildURL: function(type, id, snapshot, requestType) {
+  buildURL: function(typeKey, id, snapshot, requestType) {
     switch (requestType) {
       case 'find':
-        return this.urlForFind(id, type, snapshot);
+        return this.urlForFind(id, typeKey, snapshot);
       case 'findAll':
-        return this.urlForFindAll(type);
+        return this.urlForFindAll(typeKey);
       case 'findQuery':
-        return this.urlForFindQuery(id, type);
+        return this.urlForFindQuery(id, typeKey);
       case 'findMany':
-        return this.urlForFindMany(id, type, snapshot);
+        return this.urlForFindMany(id, typeKey, snapshot);
       case 'findHasMany':
-        return this.urlForFindHasMany(id, type);
+        return this.urlForFindHasMany(id, typeKey);
       case 'findBelongsTo':
-        return this.urlForFindBelongsTo(id, type);
+        return this.urlForFindBelongsTo(id, typeKey);
       case 'createRecord':
-        return this.urlForCreateRecord(type, snapshot);
+        return this.urlForCreateRecord(typeKey, snapshot);
       case 'updateRecord':
-        return this.urlForUpdateRecord(id, type, snapshot);
+        return this.urlForUpdateRecord(id, typeKey, snapshot);
       case 'deleteRecord':
-        return this.urlForDeleteRecord(id, type, snapshot);
+        return this.urlForDeleteRecord(id, typeKey, snapshot);
       default:
-        return this._buildURL(type, id);
+        return this._buildURL(typeKey, id);
     }
   },
 
   /**
     @method _buildURL
     @private
-    @param {String} type
+    @param {String} typeKey
     @param {String} id
     @return {String} url
   */
-  _buildURL: function(type, id) {
+  _buildURL: function(typeKey, id) {
     var url = [];
     var host = get(this, 'host');
     var prefix = this.urlPrefix();
     var path;
 
-    if (type) {
-      path = this.pathForType(type);
+    if (typeKey) {
+      path = this.pathForType(typeKey);
       if (path) { url.push(path); }
     }
 
@@ -105,31 +105,31 @@ export default Ember.Mixin.create({
   /**
    * @method urlForFind
    * @param {String} id
-   * @param {String} type
+   * @param {String} typeKey
    * @param {DS.Snapshot} snapshot
    * @return {String} url
    */
-  urlForFind: function(id, type, snapshot) {
-    return this._buildURL(type, id);
+  urlForFind: function(id, typeKey, snapshot) {
+    return this._buildURL(typeKey, id);
   },
 
   /**
    * @method urlForFindAll
-   * @param {String} type
+   * @param {String} typeKey
    * @return {String} url
    */
-  urlForFindAll: function(type) {
-    return this._buildURL(type);
+  urlForFindAll: function(typeKey) {
+    return this._buildURL(typeKey);
   },
 
   /**
    * @method urlForFindQuery
    * @param {Object} query
-   * @param {String} type
+   * @param {String} typeKey
    * @return {String} url
    */
-  urlForFindQuery: function(query, type) {
-    return this._buildURL(type);
+  urlForFindQuery: function(query, typeKey) {
+    return this._buildURL(typeKey);
   },
 
   /**
@@ -139,60 +139,60 @@ export default Ember.Mixin.create({
    * @param {Array} snapshots
    * @return {String} url
    */
-  urlForFindMany: function(ids, type, snapshots) {
-    return this._buildURL(type);
+  urlForFindMany: function(ids, typeKey, snapshots) {
+    return this._buildURL(typeKey);
   },
 
   /**
    * @method urlForFindHasMany
    * @param {String} id
-   * @param {String} type
+   * @param {String} typeKey
    * @return {String} url
    */
-  urlForFindHasMany: function(id, type) {
-    return this._buildURL(type, id);
+  urlForFindHasMany: function(id, typeKey) {
+    return this._buildURL(typeKey, id);
   },
 
   /**
    * @method urlForFindBelongTo
    * @param {String} id
-   * @param {String} type
+   * @param {String} typeKey
    * @return {String} url
    */
-  urlForFindBelongsTo: function(id, type) {
-    return this._buildURL(type, id);
+  urlForFindBelongsTo: function(id, typeKey) {
+    return this._buildURL(typeKey, id);
   },
 
   /**
    * @method urlForCreateRecord
-   * @param {String} type
+   * @param {String} typeKey
    * @param {DS.Snapshot} snapshot
    * @return {String} url
    */
-  urlForCreateRecord: function(type, snapshot) {
-    return this._buildURL(type);
+  urlForCreateRecord: function(typeKey, snapshot) {
+    return this._buildURL(typeKey);
   },
 
   /**
    * @method urlForUpdateRecord
    * @param {String} id
-   * @param {String} type
+   * @param {String} typeKey
    * @param {DS.Snapshot} snapshot
    * @return {String} url
    */
-  urlForUpdateRecord: function(id, type, snapshot) {
-    return this._buildURL(type, id);
+  urlForUpdateRecord: function(id, typeKey, snapshot) {
+    return this._buildURL(typeKey, id);
   },
 
   /**
    * @method urlForDeleteRecord
    * @param {String} id
-   * @param {String} type
+   * @param {String} typeKey
    * @param {DS.Snapshot} snapshot
    * @return {String} url
    */
-  urlForDeleteRecord: function(id, type, snapshot) {
-    return this._buildURL(type, id);
+  urlForDeleteRecord: function(id, typeKey, snapshot) {
+    return this._buildURL(typeKey, id);
   },
 
   /**
@@ -251,19 +251,19 @@ export default Ember.Mixin.create({
 
     ```js
     App.ApplicationAdapter = DS.RESTAdapter.extend({
-      pathForType: function(type) {
-        var decamelized = Ember.String.decamelize(type);
+      pathForType: function(typeKey) {
+        var decamelized = Ember.String.decamelize(typeKey);
         return Ember.String.pluralize(decamelized);
       }
     });
     ```
 
     @method pathForType
-    @param {String} type
+    @param {String} typeKey
     @return {String} path
   **/
-  pathForType: function(type) {
-    var camelized = Ember.String.camelize(type);
+  pathForType: function(typeKey) {
+    var camelized = Ember.String.camelize(typeKey);
     return Ember.String.pluralize(camelized);
   }
 });

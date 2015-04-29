@@ -51,8 +51,6 @@ export default Ember.Object.extend({
     To avoid thrashing, it only runs at most once per run loop.
 
     @method updateRecordArrays
-    @param {Class} type
-    @param {Number|String} clientId
   */
   updateRecordArrays: function() {
     forEach(this.changedRecords, function(record) {
@@ -81,27 +79,27 @@ export default Ember.Object.extend({
 
   //Don't need to update non filtered arrays on simple changes
   _recordWasChanged: function (record) {
-    var type = record.constructor;
-    var recordArrays = this.filteredRecordArrays.get(type);
+    var typeClass = record.constructor;
+    var recordArrays = this.filteredRecordArrays.get(typeClass);
     var filter;
 
     forEach(recordArrays, function(array) {
       filter = get(array, 'filterFunction');
       if (filter) {
-        this.updateRecordArray(array, filter, type, record);
+        this.updateRecordArray(array, filter, typeClass, record);
       }
     }, this);
   },
 
   //Need to update live arrays on loading
   recordWasLoaded: function(record) {
-    var type = record.constructor;
-    var recordArrays = this.filteredRecordArrays.get(type);
+    var typeClass = record.constructor;
+    var recordArrays = this.filteredRecordArrays.get(typeClass);
     var filter;
 
     forEach(recordArrays, function(array) {
       filter = get(array, 'filterFunction');
-      this.updateRecordArray(array, filter, type, record);
+      this.updateRecordArray(array, filter, typeClass, record);
     }, this);
   },
   /**
@@ -110,10 +108,10 @@ export default Ember.Object.extend({
     @method updateRecordArray
     @param {DS.FilteredRecordArray} array
     @param {Function} filter
-    @param {Class} type
+    @param {subclass of DS.Model} typeClass
     @param {Number|String} clientId
   */
-  updateRecordArray: function(array, filter, type, record) {
+  updateRecordArray: function(array, filter, typeClass, record) {
     var shouldBeInArray;
 
     if (!filter) {
@@ -144,11 +142,11 @@ export default Ember.Object.extend({
 
     @method updateFilter
     @param {Array} array
-    @param {String} type
+    @param {String} typeKey
     @param {Function} filter
   */
-  updateFilter: function(array, type, filter) {
-    var typeMap = this.store.typeMapFor(type);
+  updateFilter: function(array, typeKey, filter) {
+    var typeMap = this.store.typeMapFor(typeKey);
     var records = typeMap.records;
     var record;
 
@@ -156,7 +154,7 @@ export default Ember.Object.extend({
       record = records[i];
 
       if (!get(record, 'isDeleted') && !get(record, 'isEmpty')) {
-        this.updateRecordArray(array, filter, type, record);
+        this.updateRecordArray(array, filter, typeKey, record);
       }
     }
   },
@@ -165,19 +163,19 @@ export default Ember.Object.extend({
     Create a `DS.RecordArray` for a type and register it for updates.
 
     @method createRecordArray
-    @param {Class} type
+    @param {Class} typeClass
     @return {DS.RecordArray}
   */
-  createRecordArray: function(type) {
+  createRecordArray: function(typeClass) {
     var array = RecordArray.create({
-      type: type,
+      type: typeClass,
       content: Ember.A(),
       store: this.store,
       isLoaded: true,
       manager: this
     });
 
-    this.registerFilteredRecordArray(array, type);
+    this.registerFilteredRecordArray(array, typeClass);
 
     return array;
   },
@@ -186,22 +184,22 @@ export default Ember.Object.extend({
     Create a `DS.FilteredRecordArray` for a type and register it for updates.
 
     @method createFilteredRecordArray
-    @param {Class} type
+    @param {subclass of DS.Model} typeClass
     @param {Function} filter
     @param {Object} query (optional
     @return {DS.FilteredRecordArray}
   */
-  createFilteredRecordArray: function(type, filter, query) {
+  createFilteredRecordArray: function(typeClass, filter, query) {
     var array = FilteredRecordArray.create({
       query: query,
-      type: type,
+      type: typeClass,
       content: Ember.A(),
       store: this.store,
       manager: this,
       filterFunction: filter
     });
 
-    this.registerFilteredRecordArray(array, type, filter);
+    this.registerFilteredRecordArray(array, typeClass, filter);
 
     return array;
   },
@@ -210,13 +208,13 @@ export default Ember.Object.extend({
     Create a `DS.AdapterPopulatedRecordArray` for a type with given query.
 
     @method createAdapterPopulatedRecordArray
-    @param {Class} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} query
     @return {DS.AdapterPopulatedRecordArray}
   */
-  createAdapterPopulatedRecordArray: function(type, query) {
+  createAdapterPopulatedRecordArray: function(typeClass, query) {
     var array = AdapterPopulatedRecordArray.create({
-      type: type,
+      type: typeClass,
       query: query,
       content: Ember.A(),
       store: this.store,
@@ -236,14 +234,14 @@ export default Ember.Object.extend({
 
     @method registerFilteredRecordArray
     @param {DS.RecordArray} array
-    @param {Class} type
+    @param {subclass of DS.Model} typeClass
     @param {Function} filter
   */
-  registerFilteredRecordArray: function(array, type, filter) {
-    var recordArrays = this.filteredRecordArrays.get(type);
+  registerFilteredRecordArray: function(array, typeClass, filter) {
+    var recordArrays = this.filteredRecordArrays.get(typeClass);
     recordArrays.push(array);
 
-    this.updateFilter(array, type, filter);
+    this.updateFilter(array, typeClass, filter);
   },
 
   /**

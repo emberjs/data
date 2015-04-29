@@ -40,7 +40,7 @@ var Serializer = Ember.Object.extend({
 
     @method extract
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
     @param {String|Number} id
     @param {String} requestType
@@ -71,11 +71,11 @@ var Serializer = Ember.Object.extend({
     payload.
 
     @method normalize
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} hash
     @return {Object}
   */
-  normalize: function(type, hash) {
+  normalize: function(typeClass, hash) {
     return hash;
   }
 

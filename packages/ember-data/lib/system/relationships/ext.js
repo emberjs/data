@@ -43,7 +43,7 @@ var relatedTypesDescriptor = Ember.computed(function() {
     relatedTypesDescriptor._cacheable = false;
   }
 
-  var type;
+  var typeKey;
   var types = Ember.A();
 
   // Loop through each computed property on the class,
@@ -52,13 +52,13 @@ var relatedTypesDescriptor = Ember.computed(function() {
   this.eachComputedProperty(function(name, meta) {
     if (meta.isRelationship) {
       meta.key = name;
-      type = typeForRelationshipMeta(this.store, meta);
+      typeKey = typeForRelationshipMeta(this.store, meta);
 
-      Ember.assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.", type);
+      Ember.assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.", typeKey);
 
-      if (!types.contains(type)) {
-        Ember.assert("Trying to sideload " + name + " on " + this.toString() + " but the type doesn't exist.", !!type);
-        types.push(type);
+      if (!types.contains(typeKey)) {
+        Ember.assert("Trying to sideload " + name + " on " + this.toString() + " but the type doesn't exist.", !!typeKey);
+        types.push(typeKey);
       }
     }
   });

@@ -1,19 +1,19 @@
 import { singularize } from "ember-inflector/lib/system";
 
 export function typeForRelationshipMeta(store, meta) {
-  var typeKey, type;
+  var typeKey, typeClass;
 
   typeKey = meta.type || meta.key;
   if (typeof typeKey === 'string') {
     if (meta.kind === 'hasMany') {
       typeKey = singularize(typeKey);
     }
-    type = store.modelFor(typeKey);
+    typeClass = store.modelFor(typeKey);
   } else {
-    type = meta.type;
+    typeClass = meta.type;
   }
 
-  return type;
+  return typeClass;
 }
 
 export function relationshipFromMeta(store, meta) {

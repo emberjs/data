@@ -112,11 +112,11 @@ var ActiveModelAdapter = RESTAdapter.extend({
     ```
 
     @method pathForType
-    @param {String} type
+    @param {String} typeKey
     @return String
   */
-  pathForType: function(type) {
-    var decamelized = decamelize(type);
+  pathForType: function(typeKey) {
+    var decamelized = decamelize(typeKey);
     var underscored = underscore(decamelized);
     return pluralize(underscored);
   },
