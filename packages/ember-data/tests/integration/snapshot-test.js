@@ -54,7 +54,7 @@ test("snapshot._createSnapshot() returns a snapshot (self) but is deprecated", f
 
 });
 
-test("snapshot.id, snapshot.type and snapshot.typeKey returns correctly", function() {
+test("snapshot.id, snapshot.type and snapshot.modelName returns correctly", function() {
   expect(3);
 
   run(function() {
@@ -63,7 +63,7 @@ test("snapshot.id, snapshot.type and snapshot.typeKey returns correctly", functi
 
     equal(snapshot.id, '1', 'id is correct');
     ok(DS.Model.detect(snapshot.type), 'type is correct');
-    equal(snapshot.typeKey, 'post', 'typeKey is correct');
+    equal(snapshot.modelName, 'post', 'modelName is correct');
   });
 });
 
@@ -77,11 +77,11 @@ test("snapshot.constructor is unique and deprecated", function() {
     var postSnapshot = post._createSnapshot();
 
     expectDeprecation(function() {
-      equal(commentSnapshot.constructor.typeKey, 'comment', 'constructor.typeKey is unique per type');
+      equal(commentSnapshot.constructor.modelName, 'comment', 'constructor.modelName is unique per type');
     });
 
     expectDeprecation(function() {
-      equal(postSnapshot.constructor.typeKey, 'post', 'constructor.typeKey is unique per type');
+      equal(postSnapshot.constructor.modelName, 'post', 'constructor.modelName is unique per type');
     });
   });
 });
@@ -512,4 +512,18 @@ test("snapshot.get() proxies property to record unless identified as id, attribu
       equal(snapshot.get('category'), 'Ember.js', 'snapshot proxies unknown property correctly');
     });
   });
+});
+
+test('snapshot.typeKey is deprecated', function() {
+  expect(1);
+
+  run(function() {
+    var post = env.store.push('post', { id: 1, title: 'Hello World' });
+    var snapshot = post._createSnapshot();
+
+    expectDeprecation(function() {
+      return snapshot.typeKey;
+    });
+  });
+
 });

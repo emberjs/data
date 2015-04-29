@@ -96,7 +96,7 @@ var Adapter = Ember.Object.extend({
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
       find: function(store, type, id, snapshot) {
-        var url = [type.typeKey, id].join('/');
+        var url = [type.modelName, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
           jQuery.getJSON(url).then(function(data) {
@@ -235,7 +235,7 @@ var Adapter = Ember.Object.extend({
     @return {Object} serialized snapshot
   */
   serialize: function(snapshot, options) {
-    return get(snapshot.record, 'store').serializerFor(snapshot.typeKey).serialize(snapshot, options);
+    return get(snapshot.record, 'store').serializerFor(snapshot.modelName).serialize(snapshot, options);
   },
 
   /**

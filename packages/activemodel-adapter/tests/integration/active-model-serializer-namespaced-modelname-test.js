@@ -63,7 +63,7 @@ test("serialize polymorphic", function() {
 });
 
 test("serialize polymorphic when type key is not camelized", function() {
-  YellowMinion.typeKey = 'evil-minions/yellow-minion';
+  YellowMinion.modelName = 'evil-minions/yellow-minion';
   var tom, ray;
   run(function() {
     tom = env.store.createRecord(YellowMinion, { name: "Alex", id: "124" });
@@ -90,7 +90,7 @@ test("extractPolymorphic hasMany", function() {
     "id": 1,
     "name": "Dr Horrible",
     "evilMinions": [{
-      type: "evilMinions/yellowMinion",
+      type: "evil-minions/yellow-minion",
       id: 12
     }]
   });
@@ -111,7 +111,7 @@ test("extractPolymorphic", function() {
     "id": 1,
     "name": "DeathRay",
     "evilMinion": {
-      type: "evilMinions/yellowMinion",
+      type: "evil-minions/yellow-minion",
       id: 12
     }
   });

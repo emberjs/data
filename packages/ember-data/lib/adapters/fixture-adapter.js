@@ -117,7 +117,7 @@ export default Adapter.extend({
     @param {DS.Snapshot} snapshot
   */
   mockJSON: function(store, typeClass, snapshot) {
-    return store.serializerFor(snapshot.typeKey).serialize(snapshot, { includeId: true });
+    return store.serializerFor(snapshot.modelName).serialize(snapshot, { includeId: true });
   },
 
   /**

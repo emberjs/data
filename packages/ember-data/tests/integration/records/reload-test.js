@@ -118,7 +118,7 @@ test("When a record is reloaded, its async hasMany relationships still work", fu
   var tags = { 1: "hipster", 2: "hair" };
 
   env.adapter.find = function(store, type, id, snapshot) {
-    switch (type.typeKey) {
+    switch (type.modelName) {
       case 'person':
         return Ember.RSVP.resolve({ id: 1, name: "Tom", tags: [1, 2] });
       case 'tag':

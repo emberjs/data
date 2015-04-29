@@ -18,6 +18,8 @@ Ember.runInDebug(function() {
 import DS from "ember-data/core";
 import "ember-data/ext/date";
 
+import normalizeModelName from "ember-data/system/normalize-model-name";
+
 import {
   PromiseArray,
   PromiseObject,
@@ -125,6 +127,13 @@ DS.Relationship  = Relationship;
 DS.ContainerProxy = ContainerProxy;
 
 DS._setupContainer = setupContainer;
+
+Ember.defineProperty(DS, 'normalizeModelName', {
+  enumerable: true,
+  writable: false,
+  configurable: false,
+  value: normalizeModelName
+});
 
 Ember.lookup.DS = DS;
 
