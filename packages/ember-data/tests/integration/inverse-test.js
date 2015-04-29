@@ -26,7 +26,7 @@ module('integration/inverse_test - inverseFor', {
     Job.toString = stringify('job');
 
     ReflexiveModel = DS.Model.extend({
-      reflexiveProp: belongsTo('reflexiveModel')
+      reflexiveProp: belongsTo('reflexive-model')
     });
 
     ReflexiveModel.toString = stringify('reflexiveModel');

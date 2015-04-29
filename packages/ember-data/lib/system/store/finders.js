@@ -13,6 +13,7 @@ var get = Ember.get;
 var Promise = Ember.RSVP.Promise;
 
 export function _find(adapter, store, typeClass, id, record) {
+  var typeKey = typeClass.typeKey;
   var snapshot = record._createSnapshot();
   var promise = adapter.find(store, typeClass, id, snapshot);
   var serializer = serializerForAdapter(store, adapter, typeClass);
@@ -26,7 +27,7 @@ export function _find(adapter, store, typeClass, id, record) {
     return store._adapterRun(function() {
       var payload = serializer.extract(store, typeClass, adapterPayload, id, 'find');
 
-      return store.push(typeClass, payload);
+      return store.push(typeKey, payload);
     });
   }, function(error) {
     record.notFound();

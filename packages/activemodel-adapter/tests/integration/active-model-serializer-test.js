@@ -7,25 +7,25 @@ module("integration/active_model - ActiveModelSerializer", {
     SuperVillain = DS.Model.extend({
       firstName:     DS.attr('string'),
       lastName:      DS.attr('string'),
-      homePlanet:    DS.belongsTo("homePlanet"),
-      evilMinions:   DS.hasMany("evilMinion")
+      homePlanet:    DS.belongsTo('home-planet'),
+      evilMinions:   DS.hasMany('evil-minion')
     });
     HomePlanet = DS.Model.extend({
       name:          DS.attr('string'),
-      superVillains: DS.hasMany('superVillain', { async: true })
+      superVillains: DS.hasMany('super-villain', { async: true })
     });
     EvilMinion = DS.Model.extend({
-      superVillain: DS.belongsTo('superVillain'),
+      superVillain: DS.belongsTo('super-villain'),
       name:         DS.attr('string')
     });
     YellowMinion = EvilMinion.extend();
     DoomsdayDevice = DS.Model.extend({
       name:         DS.attr('string'),
-      evilMinion:   DS.belongsTo('evilMinion', { polymorphic: true })
+      evilMinion:   DS.belongsTo('evil-minion', { polymorphic: true })
     });
     MediocreVillain = DS.Model.extend({
       name:         DS.attr('string'),
-      evilMinions:  DS.hasMany('evilMinion', { polymorphic: true })
+      evilMinions:  DS.hasMany('evil-minion', { polymorphic: true })
     });
     env = setupStore({
       superVillain:   SuperVillain,
@@ -35,12 +35,12 @@ module("integration/active_model - ActiveModelSerializer", {
       doomsdayDevice: DoomsdayDevice,
       mediocreVillain: MediocreVillain
     });
-    env.store.modelFor('superVillain');
-    env.store.modelFor('homePlanet');
-    env.store.modelFor('evilMinion');
-    env.store.modelFor('yellowMinion');
-    env.store.modelFor('doomsdayDevice');
-    env.store.modelFor('mediocreVillain');
+    env.store.modelFor('super-villain');
+    env.store.modelFor('home-planet');
+    env.store.modelFor('evil-minion');
+    env.store.modelFor('yellow-minion');
+    env.store.modelFor('doomsday-device');
+    env.store.modelFor('mediocre-villain');
     env.registry.register('serializer:application', DS.ActiveModelSerializer);
     env.registry.register('serializer:-active-model', DS.ActiveModelSerializer);
     env.registry.register('adapter:-active-model', DS.ActiveModelAdapter);
@@ -56,8 +56,8 @@ module("integration/active_model - ActiveModelSerializer", {
 test("serialize", function() {
   var tom;
   run(function() {
-    league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
-    tom           = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
+    league = env.store.createRecord('home-planet', { name: "Villain League", id: "123" });
+    tom           = env.store.createRecord('super-villain', { firstName: "Tom", lastName: "Dale", homePlanet: league });
   });
 
   var json = env.amsSerializer.serialize(tom._createSnapshot());
@@ -71,7 +71,7 @@ test("serialize", function() {
 
 test("serializeIntoHash", function() {
   run(function() {
-    league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
+    league = env.store.createRecord('home-planet', { name: "Umber", id: "123" });
   });
   var json = {};
 
@@ -87,7 +87,7 @@ test("serializeIntoHash", function() {
 test("serializeIntoHash with decamelized types", function() {
   HomePlanet.typeKey = 'home-planet';
   run(function() {
-    league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
+    league = env.store.createRecord('home-planet', { name: "Umber", id: "123" });
   });
   var json = {};
 
@@ -103,7 +103,7 @@ test("serializeIntoHash with decamelized types", function() {
 
 test("normalize", function() {
   SuperVillain.reopen({
-    yellowMinion: DS.belongsTo('yellowMinion')
+    yellowMinion: DS.belongsTo('yellow-minion')
   });
 
   var superVillain_hash = { first_name: "Tom", last_name: "Dale", home_planet_id: "123", evil_minion_ids: [1,2] };
@@ -156,7 +156,7 @@ test("extractSingle", function() {
   });
 
   run(function() {
-    env.store.find("superVillain", 1).then(function(minion) {
+    env.store.find('super-villain', 1).then(function(minion) {
       equal(minion.get('firstName'), "Tom");
     });
   });
@@ -182,7 +182,7 @@ test("extractArray", function() {
   }]);
 
   run(function() {
-    env.store.find("superVillain", 1).then(function(minion) {
+    env.store.find('super-villain', 1).then(function(minion) {
       equal(minion.get('firstName'), "Tom");
     });
   });
@@ -191,8 +191,8 @@ test("extractArray", function() {
 test("serialize polymorphic", function() {
   var tom, ray;
   run(function() {
-    tom = env.store.createRecord(YellowMinion, { name: "Alex", id: "124" });
-    ray = env.store.createRecord(DoomsdayDevice, { evilMinion: tom, name: "DeathRay" });
+    tom = env.store.createRecord('yellow-minion', { name: "Alex", id: "124" });
+    ray = env.store.createRecord('doomsday-device', { evilMinion: tom, name: "DeathRay" });
   });
 
   var json = env.amsSerializer.serialize(ray._createSnapshot());
@@ -208,8 +208,8 @@ test("serialize polymorphic when type key is not camelized", function() {
   YellowMinion.typeKey = 'yellow-minion';
   var tom, ray;
   run(function() {
-    tom = env.store.createRecord(YellowMinion, { name: "Alex", id: "124" });
-    ray = env.store.createRecord(DoomsdayDevice, { evilMinion: tom, name: "DeathRay" });
+    tom = env.store.createRecord('yellow-minion', { name: "Alex", id: "124" });
+    ray = env.store.createRecord('doomsday-device', { evilMinion: tom, name: "DeathRay" });
   });
 
   var json = env.amsSerializer.serialize(ray._createSnapshot());
@@ -220,7 +220,7 @@ test("serialize polymorphic when type key is not camelized", function() {
 test("serialize polymorphic when associated object is null", function() {
   var ray, json;
   run(function() {
-    ray = env.store.createRecord(DoomsdayDevice, { name: "DeathRay" });
+    ray = env.store.createRecord('doomsday-device', { name: "DeathRay" });
     json = env.amsSerializer.serialize(ray._createSnapshot());
   });
 

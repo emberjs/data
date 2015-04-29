@@ -41,8 +41,7 @@ import {
 import RecordArrayManager from "ember-data/system/record-array-manager";
 
 import Model from "ember-data/system/model";
-//Stanley told me to do this
-var Backburner = Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
+var Backburner = Ember.Backburner || Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
 
 //Shim Backburner.join
 if (!Backburner.prototype.join) {
@@ -305,6 +304,7 @@ Store = Service.extend({
     @return {DS.Model} record
   */
   createRecord: function(typeKey, inputProperties) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     var typeClass = this.modelFor(typeKey);
     var properties = copy(inputProperties) || {};
 
@@ -509,6 +509,7 @@ Store = Service.extend({
     @return {Promise} promise
   */
   find: function(typeKey, id, preload) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     Ember.assert("You need to pass a type to the store's find method", arguments.length >= 1);
     Ember.assert("You may not pass `" + id + "` as id to the store's find method", arguments.length === 1 || !Ember.isNone(id));
 
@@ -551,6 +552,7 @@ Store = Service.extend({
     @return {Promise} promise
   */
   fetchById: function(typeKey, id, preload) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     if (this.hasRecordForId(typeKey, id)) {
       return this.getById(typeKey, id).reload();
     } else {
@@ -567,6 +569,7 @@ Store = Service.extend({
     @return {Promise} promise
   */
   fetchAll: function(typeKey) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     var typeClass = this.modelFor(typeKey);
 
     return this._fetchAll(typeClass, this.all(typeKey));
@@ -581,6 +584,7 @@ Store = Service.extend({
     @deprecated Use [fetchById](#method_fetchById) instead
   */
   fetch: function(typeKey, id, preload) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     Ember.deprecate('Using store.fetch() has been deprecated. Use store.fetchById for fetching individual records or store.fetchAll for collections');
     return this.fetchById(typeKey, id, preload);
   },
@@ -596,9 +600,9 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findById: function(typeKey, id, preload) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
 
-    var typeClass = this.modelFor(typeKey);
-    var record = this.recordForId(typeClass, id);
+    var record = this.recordForId(typeKey, id);
 
     return this._findByRecord(record, preload);
   },
@@ -631,6 +635,7 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findByIds: function(typeKey, ids) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     var store = this;
 
     return promiseArray(Ember.RSVP.all(map(ids, function(id) {
@@ -651,7 +656,7 @@ Store = Service.extend({
   fetchRecord: function(record) {
     var typeClass = record.constructor;
     var id = get(record, 'id');
-    var adapter = this.adapterFor(typeClass);
+    var adapter = this.adapterFor(typeClass.typeKey);
 
     Ember.assert("You tried to find a record but you have no adapter (for " + typeClass + ")", adapter);
     Ember.assert("You tried to find a record but your adapter (for " + typeClass + ") does not implement 'find'", typeof adapter.find === 'function');
@@ -699,7 +704,7 @@ Store = Service.extend({
 
   _flushPendingFetchForType: function (recordResolverPairs, typeClass) {
     var store = this;
-    var adapter = store.adapterFor(typeClass);
+    var adapter = store.adapterFor(typeClass.typeKey);
     var shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
     var records = Ember.A(recordResolverPairs).mapBy('record');
 
@@ -801,11 +806,12 @@ Store = Service.extend({
     ```
 
     @method getById
-    @param {String or subclass of DS.Model} type
+    @param {String} typeKey
     @param {String|Integer} id
     @return {DS.Model|null} record
   */
-  getById: function(type, id) {
+  getById: function(typeKey, id) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     if (this.hasRecordForId(type, id)) {
       return this.recordForId(type, id);
     } else {
@@ -846,6 +852,7 @@ Store = Service.extend({
     @return {Boolean}
   */
   hasRecordForId: function(typeKey, inputId) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     var typeClass = this.modelFor(typeKey);
     var id = coerceId(inputId);
     var record = this.typeMapFor(typeClass).idToRecord[id];
@@ -863,6 +870,7 @@ Store = Service.extend({
     @return {DS.Model} record
   */
   recordForId: function(typeKey, inputId) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     var typeClass = this.modelFor(typeKey);
     var id = coerceId(inputId);
     var idToRecord = this.typeMapFor(typeClass).idToRecord;
@@ -949,11 +957,12 @@ Store = Service.extend({
 
     @method findQuery
     @private
-    @param {String or subclass of DS.Model} type
+    @param {String} typeKey
     @param {any} query an opaque query to be used by the adapter
     @return {Promise} promise
   */
-  findQuery: function(typeName, query) {
+  findQuery: function(typeKey, query) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     var type = this.modelFor(typeName);
     var array = this.recordArrayManager
       .createAdapterPopulatedRecordArray(type, query);
@@ -977,6 +986,7 @@ Store = Service.extend({
     @return {DS.AdapterPopulatedRecordArray}
   */
   findAll: function(typeKey) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     return this.fetchAll(typeKey);
   },
 
@@ -1002,6 +1012,7 @@ Store = Service.extend({
   /**
     @method didUpdateAll
     @param {DS.Model} typeClass
+    @private
   */
   didUpdateAll: function(typeClass) {
     var findAllCache = this.typeMapFor(typeClass).findAllCache;
@@ -1032,6 +1043,7 @@ Store = Service.extend({
     @return {DS.RecordArray}
   */
   all: function(typeKey) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     var typeClass = this.modelFor(typeKey);
     var typeMap = this.typeMapFor(typeClass);
     var findAllCache = typeMap.findAllCache;
@@ -1061,6 +1073,7 @@ Store = Service.extend({
    @param {String} optional typeKey
   */
   unloadAll: function(typeKey) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), !typeKey || typeof typeKey === 'string');
     if (arguments.length === 0) {
       var typeMaps = this.typeMaps;
       var keys = Ember.keys(typeMaps);
@@ -1085,7 +1098,7 @@ Store = Service.extend({
     }
 
     function byType(entry) {
-      return typeMaps[entry]['type'];
+      return typeMaps[entry]['type'].typeKey;
     }
   },
 
@@ -1136,12 +1149,13 @@ Store = Service.extend({
     ```
 
     @method filter
-    @param {String or subclass of DS.Model} type
+    @param {String} typeKey
     @param {Object} query optional query
     @param {Function} filter
     @return {DS.PromiseArray}
   */
-  filter: function(type, query, filter) {
+  filter: function(typeKey, query, filter) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     var promise;
     var length = arguments.length;
     var array;
@@ -1149,24 +1163,24 @@ Store = Service.extend({
 
     // allow an optional server query
     if (hasQuery) {
-      promise = this.findQuery(type, query);
+      promise = this.findQuery(typeKey, query);
     } else if (arguments.length === 2) {
       filter = query;
     }
 
-    type = this.modelFor(type);
+    typeKey = this.modelFor(typeKey);
 
     if (hasQuery) {
-      array = this.recordArrayManager.createFilteredRecordArray(type, filter, query);
+      array = this.recordArrayManager.createFilteredRecordArray(typeKey, filter, query);
     } else {
-      array = this.recordArrayManager.createFilteredRecordArray(type, filter);
+      array = this.recordArrayManager.createFilteredRecordArray(typeKey, filter);
     }
 
     promise = promise || Promise.cast(array);
 
     return promiseArray(promise.then(function() {
       return array;
-    }, null, "DS: Store#filter of " + type));
+    }, null, "DS: Store#filter of " + typeKey));
   },
 
   /**
@@ -1184,24 +1198,26 @@ Store = Service.extend({
     ```
 
     @method recordIsLoaded
-    @param {String or subclass of DS.Model} type
+    @param {String} typeKey
     @param {string} id
     @return {boolean}
   */
-  recordIsLoaded: function(type, id) {
-    if (!this.hasRecordForId(type, id)) { return false; }
-    return !get(this.recordForId(type, id), 'isEmpty');
+  recordIsLoaded: function(typeKey, id) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
+    if (!this.hasRecordForId(typeKey, id)) { return false; }
+    return !get(this.recordForId(typeKey, id), 'isEmpty');
   },
 
   /**
     This method returns the metadata for a specific type.
 
     @method metadataFor
-    @param {String or subclass of DS.Model} typeName
+    @param {String or subclass of DS.Model} typeKey
     @return {object}
   */
-  metadataFor: function(typeName) {
-    var typeClass = this.modelFor(typeName);
+  metadataFor: function(typeKey) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
+    var typeClass = this.modelFor(typeKey);
     return this.typeMapFor(typeClass).metadata;
   },
 
@@ -1209,12 +1225,13 @@ Store = Service.extend({
     This method sets the metadata for a specific type.
 
     @method setMetadataFor
-    @param {String or subclass of DS.Model} typeName
+    @param {String} typeKey
     @param {Object} metadata metadata to set
     @return {object}
   */
-  setMetadataFor: function(typeName, metadata) {
-    var typeClass = this.modelFor(typeName);
+  setMetadataFor: function(typeKey, metadata) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
+    var typeClass = this.modelFor(typeKey);
     Ember.merge(this.typeMapFor(typeClass).metadata, metadata);
   },
 
@@ -1450,25 +1467,26 @@ Store = Service.extend({
     etc.)
 
     @method modelFor
-    @param {String or subclass of DS.Model} key
+    @param {String} typeKey
     @return {subclass of DS.Model}
   */
-  modelFor: function(key) {
+  modelFor: function(typeKey) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     var factory;
 
-    if (typeof key === 'string') {
-      factory = this.modelFactoryFor(key);
+    if (typeof typeKey === 'string') {
+      factory = this.modelFactoryFor(typeKey);
       if (!factory) {
         //Support looking up mixins as base types for polymorphic relationships
-        factory = this._modelForMixin(key);
+        factory = this._modelForMixin(typeKey);
       }
       if (!factory) {
-        throw new Ember.Error("No model was found for '" + key + "'");
+        throw new Ember.Error("No model was found for '" + typeKey + "'");
       }
-      factory.typeKey = factory.typeKey || this._normalizeTypeKey(key);
+      factory.typeKey = factory.typeKey || this._normalizeTypeKey(typeKey);
     } else {
-      // A factory already supplied. Ensure it has a normalized key.
-      factory = key;
+      // A factory already supplied. Ensure it has a normalized typeKey.
+      factory = typeKey;
       if (factory.typeKey) {
         factory.typeKey = this._normalizeTypeKey(factory.typeKey);
       }
@@ -1478,8 +1496,9 @@ Store = Service.extend({
     return factory;
   },
 
-  modelFactoryFor: function(key) {
-    var normalizedKey = this._normalizeTypeKey(key);
+  modelFactoryFor: function(typeKey) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
+    var normalizedKey = this._normalizeTypeKey(typeKey);
     return this.container.lookupFactory('model:' + normalizedKey);
   },
 
@@ -1545,12 +1564,20 @@ Store = Service.extend({
     records, as well as to update existing records.
 
     @method push
+<<<<<<< HEAD
     @param {String or subclass of DS.Model} typeKey
+=======
+    @param {String} typeKey
+>>>>>>> wip
     @param {Object} data
     @return {DS.Model} the record that was created or
       updated.
   */
   push: function(typeKey, data) {
+<<<<<<< HEAD
+=======
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
+>>>>>>> wip
     Ember.assert("Expected an object as `data` in a call to `push` for " + typeKey + " , but was " + data, Ember.typeOf(data) === 'object');
     Ember.assert("You must include an `id` for " + typeKey + " in an object passed to `push`", data.id != null && data.id !== '');
 
@@ -1572,9 +1599,9 @@ Store = Service.extend({
 
     // Actually load the record into the store.
 
-    this._load(type, data);
+    this._load(typeKey, data);
 
-    var record = this.recordForId(type, data.id);
+    var record = this.recordForId(typeKey, data.id);
     var store = this;
 
     this._backburner.join(function() {
@@ -1640,19 +1667,20 @@ Store = Service.extend({
     ```
 
     @method pushPayload
-    @param {String} type Optionally, a model used to determine which serializer will be used
+    @param {String} typeKey Optionally, a model type used to determine which serializer will be used
     @param {Object} payload
   */
-  pushPayload: function (type, inputPayload) {
+  pushPayload: function (typeKey, inputPayload) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     var serializer;
     var payload;
     if (!inputPayload) {
-      payload = type;
+      payload = typeKey;
       serializer = defaultSerializer(this.container);
-      Ember.assert("You cannot use `store#pushPayload` without a type unless your default serializer defines `pushPayload`", typeof serializer.pushPayload === 'function');
+      Ember.assert("You cannot use `store#pushPayload` without a typeKey unless your default serializer defines `pushPayload`", typeof serializer.pushPayload === 'function');
     } else {
       payload = inputPayload;
-      serializer = this.serializerFor(type);
+      serializer = this.serializerFor(typeKey);
     }
     var store = this;
     this._adapterRun(function() {
@@ -1675,26 +1703,28 @@ Store = Service.extend({
     ```
 
     @method normalize
-    @param {String} type The name of the model type for this payload
+    @param {String} typeKey The name of the model type for this payload
     @param {Object} payload
     @return {Object} The normalized payload
   */
-  normalize: function (type, payload) {
-    var serializer = this.serializerFor(type);
-    var model = this.modelFor(type);
+  normalize: function (typeKey, payload) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
+    var serializer = this.serializerFor(typeKey);
+    var model = this.modelFor(typeKey);
     return serializer.normalize(model, payload);
   },
 
   /**
     @method update
-    @param {String} type
+    @param {String} typeKey
     @param {Object} data
     @return {DS.Model} the record that was updated.
     @deprecated Use [push](#method_push) instead
   */
-  update: function(type, data) {
+  update: function(typeKey, data) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     Ember.deprecate('Using store.update() has been deprecated since store.push() now handles partial updates. You should use store.push() instead.');
-    return this.push(type, data);
+    return this.push(typeKey, data);
   },
 
   /**
@@ -1703,16 +1733,17 @@ Store = Service.extend({
     call `push` repeatedly for you.
 
     @method pushMany
-    @param {String or subclass of DS.Model} type
+    @param {String} typeKey
     @param {Array} datas
     @return {Array}
   */
-  pushMany: function(type, datas) {
+  pushMany: function(typeKey, datas) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     var length = datas.length;
     var result = new Array(length);
 
     for (var i = 0; i < length; i++) {
-      result[i] = this.push(type, datas[i]);
+      result[i] = this.push(typeKey, datas[i]);
     }
 
     return result;
@@ -1720,13 +1751,14 @@ Store = Service.extend({
 
   /**
     @method metaForType
-    @param {String or subclass of DS.Model} typeName
+    @param {String or subclass of DS.Model} typeKey
     @param {Object} metadata
     @deprecated Use [setMetadataFor](#method_setMetadataFor) instead
   */
-  metaForType: function(typeName, metadata) {
+  metaForType: function(typeKey, metadata) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
     Ember.deprecate('Using store.metaForType() has been deprecated. Use store.setMetadataFor() to set metadata for a specific type.');
-    this.setMetadataFor(typeName, metadata);
+    this.setMetadataFor(typeKey, metadata);
   },
 
   /**
@@ -1870,18 +1902,19 @@ Store = Service.extend({
 
     @method serializerFor
     @private
-    @param {String or subclass of DS.Model} type the record to serialize
+    @param {String} typeKey the record to serialize
     @return {DS.Serializer}
   */
-  serializerFor: function(type) {
-    if (type !== 'application') {
-      type = this.modelFor(type);
+  serializerFor: function(typeKey) {
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(typeKey), typeof typeKey === 'string');
+    if (typeKey !== 'application') {
+      typeKey = this.modelFor(typeKey);
     }
 
-    var serializer = this.lookupSerializer(type.typeKey) || this.lookupSerializer('application');
+    var serializer = this.lookupSerializer(typeKey) || this.lookupSerializer('application');
 
     if (!serializer) {
-      var adapter = this.adapterFor(type);
+      var adapter = this.adapterFor(typeKey);
       serializer = this.lookupSerializer(get(adapter, 'defaultSerializer'));
     }
 
@@ -1908,7 +1941,11 @@ Store = Service.extend({
   */
   retrieveManagedInstance: function(typeKey, name) {
     var normalizedTypeKey = this._normalizeTypeKey(typeKey);
+<<<<<<< HEAD
     var key = normalizedTypeKey + ":" +name;
+=======
+    var key = normalizedTypeKey +":"+name;
+>>>>>>> 8c97324... use dasherized model names everywhere
 
     if (!this._containerCache[key]) {
       var instance = this.container.lookup(key);
