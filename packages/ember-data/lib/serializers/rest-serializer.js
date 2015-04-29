@@ -3,12 +3,11 @@
 */
 
 import JSONSerializer from "ember-data/serializers/json-serializer";
+import normalizeTypeKey from "ember-data/system/normalize-type-key";
 
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var camelize = Ember.String.camelize;
-
-import { singularize } from "ember-inflector/lib/system/string";
 
 function coerceId(id) {
   return id == null ? null : id + '';
@@ -509,8 +508,8 @@ var RESTSerializer = JSONSerializer.extend({
     This method is used to convert each JSON root key in the payload
     into a typeKey that it can use to look up the appropriate model for
     that part of the payload. By default the typeKey for a model is its
-    name in camelCase, so if your JSON root key is 'fast-car' you would
-    use typeForRoot to convert it to 'fastCar' so that Ember Data finds
+    name in camelCase, so if your JSON root key is 'fast_car' you would
+    use typeForRoot to convert it to 'fast-car' so that Ember Data finds
     the `FastCar` model.
 
     If you diverge from this norm you should also consider changes to
@@ -549,7 +548,7 @@ var RESTSerializer = JSONSerializer.extend({
     @return {String} the model's typeKey
   */
   typeForRoot: function(key) {
-    return camelize(singularize(key));
+    return normalizeTypeKey(key);
   },
 
   // SERIALIZE
@@ -724,7 +723,8 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash: function(hash, typeClass, snapshot, options) {
-    hash[typeClass.typeKey] = this.serialize(snapshot, options);
+    var rootTypeKey = camelize(typeClass.typeKey);
+    hash[rootTypeKey] = this.serialize(snapshot, options);
   },
 
   /**

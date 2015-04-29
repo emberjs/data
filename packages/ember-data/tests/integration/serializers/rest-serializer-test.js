@@ -52,7 +52,7 @@ module("integration/serializer/rest - RESTSerializer", {
 test("typeForRoot returns always same typeKey even for uncountable multi words keys", function() {
   expect(2);
   Ember.Inflector.inflector.uncountable('words');
-  var expectedTypeKey = 'multiWords';
+  var expectedTypeKey = 'multi-words';
   equal(env.restSerializer.typeForRoot('multi_words'), expectedTypeKey);
   equal(env.restSerializer.typeForRoot('multiWords'), expectedTypeKey);
 });
@@ -170,7 +170,7 @@ test("pushPayload - single record payload - warning with custom typeForRoot", fu
     }
   });
 
-  env.registry.register("serializer:homePlanet", HomePlanetRestSerializer);
+  env.registry.register("serializer:home-planet", HomePlanetRestSerializer);
 
   var jsonHash = {
     home_planet: { id: "1", name: "Umber", superVillains: [1] },
@@ -226,7 +226,7 @@ test("pushPayload - multiple record payload (extractArray) - warning with custom
     }
   });
 
-  env.registry.register("serializer:homePlanet", HomePlanetRestSerializer);
+  env.registry.register("serializer:home-planet", HomePlanetRestSerializer);
 
   var jsonHash = {
     home_planets: [{ id: "1", name: "Umber", superVillains: [1] }],
@@ -362,7 +362,7 @@ test("extractArray can load secondary records of the same type without affecting
 test("extractSingle loads secondary records with correct serializer", function() {
   var superVillainNormalizeCount = 0;
 
-  env.registry.register('serializer:superVillain', DS.RESTSerializer.extend({
+  env.registry.register('serializer:super-villain', DS.RESTSerializer.extend({
     normalize: function() {
       superVillainNormalizeCount++;
       return this._super.apply(this, arguments);
@@ -399,7 +399,7 @@ test("extractSingle returns null if payload contains null", function() {
 test("extractArray loads secondary records with correct serializer", function() {
   var superVillainNormalizeCount = 0;
 
-  env.registry.register('serializer:superVillain', DS.RESTSerializer.extend({
+  env.registry.register('serializer:super-villain', DS.RESTSerializer.extend({
     normalize: function() {
       superVillainNormalizeCount++;
       return this._super.apply(this, arguments);

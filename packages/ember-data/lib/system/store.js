@@ -5,11 +5,11 @@
   @module ember-data
 */
 
+import normalizeTypeKey from "ember-data/system/normalize-type-key";
 import {
   InvalidError,
   Adapter
 } from "ember-data/system/adapter";
-import { singularize } from "ember-inflector/lib/system/string";
 import {
   Map
 } from "ember-data/system/map";
@@ -95,8 +95,6 @@ var map = Ember.EnumerableUtils.map;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
 var Store;
-
-var camelize = Ember.String.camelize;
 
 var Service = Ember.Service;
 if (!Service) {
@@ -1429,14 +1427,15 @@ Store = Service.extend({
     in this case
   */
 
-  _modelForMixin: function(key) {
+  _modelForMixin: function(typeKey) {
+    var normalizedTypeKey = this._normalizeTypeKey(typeKey);
     var registry = this.container._registry ? this.container._registry : this.container;
-    var mixin = registry.resolve('mixin:' + key);
+    var mixin = registry.resolve('mixin:' + normalizedTypeKey);
     if (mixin) {
       //Cache the class as a model
-      registry.register('model:' + key, DS.Model.extend(mixin));
+      registry.register('model:' + normalizedTypeKey, DS.Model.extend(mixin));
     }
-    var factory = this.modelFactoryFor(key);
+    var factory = this.modelFactoryFor(normalizedTypeKey);
     if (factory) {
       factory.__isMixin = true;
       factory.__mixin = mixin;
@@ -1480,7 +1479,8 @@ Store = Service.extend({
   },
 
   modelFactoryFor: function(key) {
-    return this.container.lookupFactory('model:' + key);
+    var normalizedKey = this._normalizeTypeKey(key);
+    return this.container.lookupFactory('model:' + normalizedKey);
   },
 
   /**
@@ -1545,16 +1545,16 @@ Store = Service.extend({
     records, as well as to update existing records.
 
     @method push
-    @param {String or subclass of DS.Model} type
+    @param {String or subclass of DS.Model} typeKey
     @param {Object} data
     @return {DS.Model} the record that was created or
       updated.
   */
-  push: function(typeName, data) {
-    Ember.assert("Expected an object as `data` in a call to `push` for " + typeName + " , but was " + data, Ember.typeOf(data) === 'object');
-    Ember.assert("You must include an `id` for " + typeName + " in an object passed to `push`", data.id != null && data.id !== '');
+  push: function(typeKey, data) {
+    Ember.assert("Expected an object as `data` in a call to `push` for " + typeKey + " , but was " + data, Ember.typeOf(data) === 'object');
+    Ember.assert("You must include an `id` for " + typeKey + " in an object passed to `push`", data.id != null && data.id !== '');
 
-    var type = this.modelFor(typeName);
+    var type = this.modelFor(typeKey);
     var filter = Ember.EnumerableUtils.filter;
 
     // If Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
@@ -1902,12 +1902,13 @@ Store = Service.extend({
 
     @method retrieveManagedInstance
     @private
-    @param {String} type the object type
+    @param {String} type the object typeKey
     @param {String} type the object name
     @return {Ember.Object}
   */
-  retrieveManagedInstance: function(type, name) {
-    var key = type+":"+name;
+  retrieveManagedInstance: function(typeKey, name) {
+    var normalizedTypeKey = this._normalizeTypeKey(typeKey);
+    var key = normalizedTypeKey + ":" +name;
 
     if (!this._containerCache[key]) {
       var instance = this.container.lookup(key);
@@ -1952,7 +1953,7 @@ Store = Service.extend({
     @return {String} if the adapter can generate one, an ID
   */
   _normalizeTypeKey: function(key) {
-    return camelize(singularize(key));
+    return normalizeTypeKey(key);
   }
 });
 

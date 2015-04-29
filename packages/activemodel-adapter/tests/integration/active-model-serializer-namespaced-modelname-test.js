@@ -90,7 +90,7 @@ test("extractPolymorphic hasMany", function() {
     "id": 1,
     "name": "Dr Horrible",
     "evilMinions": [{
-      type: "evilMinions/yellowMinion",
+      type: "evil-minions/yellow-minion",
       id: 12
     }]
   });
@@ -111,7 +111,7 @@ test("extractPolymorphic", function() {
     "id": 1,
     "name": "DeathRay",
     "evilMinion": {
-      type: "evilMinions/yellowMinion",
+      type: "evil-minions/yellow-minion",
       id: 12
     }
   });

@@ -3,6 +3,7 @@
 */
 
 import Model from "ember-data/system/model";
+import normalizeTypeKey from "ember-data/system/normalize-type-key";
 
 /**
   `DS.hasMany` is used to define One-To-Many and Many-To-Many
@@ -102,6 +103,10 @@ function hasMany(type, options) {
   Ember.assert("The first argument to DS.hasMany must be a string representing a model type key, not an instance of " + Ember.inspect(type) + ". E.g., to define a relation to the Comment model, use DS.hasMany('comment')", typeof type === 'string' || typeof type === 'undefined');
 
   options = options || {};
+
+  if (typeof type === 'string') {
+    type = normalizeTypeKey(type);
+  }
 
   // Metadata about relationships is stored on the meta of
   // the relationship. This is used for introspection and

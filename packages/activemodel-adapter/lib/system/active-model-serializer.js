@@ -290,9 +290,10 @@ var ActiveModelSerializer = RESTSerializer.extend({
     }
   },
   typeForRoot: function(key) {
-    return camelize(singularize(key)).replace(/(^|\:)([A-Z])/g, function(match, separator, chr) {
+    var normalized = camelize(singularize(key)).replace(/(^|\:)([A-Z])/g, function(match, separator, chr) {
       return match.toLowerCase();
     }).replace('::', '/');
+    return this._super(normalized);
   }
 });
 

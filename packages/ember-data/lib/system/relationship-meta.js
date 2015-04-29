@@ -1,4 +1,4 @@
-import { singularize } from "ember-inflector/lib/system";
+import normalizeTypeKey from "ember-data/system/normalize-type-key";
 
 export function typeForRelationshipMeta(store, meta) {
   var typeKey, typeClass;
@@ -6,7 +6,7 @@ export function typeForRelationshipMeta(store, meta) {
   typeKey = meta.type || meta.key;
   if (typeof typeKey === 'string') {
     if (meta.kind === 'hasMany') {
-      typeKey = singularize(typeKey);
+      typeKey = normalizeTypeKey(typeKey);
     }
     typeClass = store.modelFor(typeKey);
   } else {

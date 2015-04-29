@@ -147,7 +147,7 @@ test('buildURL - with camelized names', function() {
   adapter.setProperties({
     pathForType: function(type) {
       var decamelized = Ember.String.decamelize(type);
-      return Ember.String.pluralize(decamelized);
+      return Ember.String.underscore(Ember.String.pluralize(decamelized));
     }
   });
 
