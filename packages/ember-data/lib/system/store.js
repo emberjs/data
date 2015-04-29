@@ -301,13 +301,13 @@ Store = Service.extend({
     ```
 
     @method createRecord
-    @param {String} type
+    @param {String} typeKey
     @param {Object} properties a hash of properties to set on the
       newly created record.
     @return {DS.Model} record
   */
-  createRecord: function(typeName, inputProperties) {
-    var type = this.modelFor(typeName);
+  createRecord: function(typeKey, inputProperties) {
+    var typeClass = this.modelFor(typeKey);
     var properties = copy(inputProperties) || {};
 
     // If the passed properties do not include a primary key,
@@ -316,13 +316,13 @@ Store = Service.extend({
     // to avoid conflicts.
 
     if (isNone(properties.id)) {
-      properties.id = this._generateId(type, properties);
+      properties.id = this._generateId(typeClass, properties);
     }
 
     // Coerce ID to a string
     properties.id = coerceId(properties.id);
 
-    var record = this.buildRecord(type, properties.id);
+    var record = this.buildRecord(typeClass, properties.id);
 
     // Move the record out of its initial `empty` state into
     // the `loaded` state.
@@ -344,15 +344,15 @@ Store = Service.extend({
 
     @method _generateId
     @private
-    @param {String} type
+    @param {String} typeKey
     @param {Object} properties from the new record
     @return {String} if the adapter can generate one, an ID
   */
-  _generateId: function(type, properties) {
-    var adapter = this.adapterFor(type);
+  _generateId: function(typeKey, properties) {
+    var adapter = this.adapterFor(typeKey);
 
     if (adapter && adapter.generateIdForRecord) {
-      return adapter.generateIdForRecord(this, type, properties);
+      return adapter.generateIdForRecord(this, typeKey, properties);
     }
 
     return null;
@@ -505,25 +505,25 @@ Store = Service.extend({
     ```
 
     @method find
-    @param {String or subclass of DS.Model} type
+    @param {String} typeKey
     @param {Object|String|Integer|null} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
-  find: function(type, id, preload) {
+  find: function(typeKey, id, preload) {
     Ember.assert("You need to pass a type to the store's find method", arguments.length >= 1);
     Ember.assert("You may not pass `" + id + "` as id to the store's find method", arguments.length === 1 || !Ember.isNone(id));
 
     if (arguments.length === 1) {
-      return this.findAll(type);
+      return this.findAll(typeKey);
     }
 
     // We are passed a query instead of an id.
     if (Ember.typeOf(id) === 'object') {
-      return this.findQuery(type, id);
+      return this.findQuery(typeKey, id);
     }
 
-    return this.findById(type, coerceId(id), preload);
+    return this.findById(typeKey, coerceId(id), preload);
   },
 
   /**
@@ -547,16 +547,16 @@ Store = Service.extend({
     ```
 
     @method fetchById
-    @param {String or subclass of DS.Model} type
+    @param {String} typeKey
     @param {String|Integer} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
-  fetchById: function(type, id, preload) {
-    if (this.hasRecordForId(type, id)) {
-      return this.getById(type, id).reload();
+  fetchById: function(typeKey, id, preload) {
+    if (this.hasRecordForId(typeKey, id)) {
+      return this.getById(typeKey, id).reload();
     } else {
-      return this.find(type, id, preload);
+      return this.find(typeKey, id, preload);
     }
   },
 
@@ -565,26 +565,26 @@ Store = Service.extend({
     in the store or not.
 
     @method fetchAll
-    @param {String or subclass of DS.Model} type
+    @param {String} typeKey
     @return {Promise} promise
   */
-  fetchAll: function(type) {
-    type = this.modelFor(type);
+  fetchAll: function(typeKey) {
+    var typeClass = this.modelFor(typeKey);
 
-    return this._fetchAll(type, this.all(type));
+    return this._fetchAll(typeClass, this.all(typeKey));
   },
 
   /**
     @method fetch
-    @param {String or subclass of DS.Model} type
+    @param {String} typeKey
     @param {String|Integer} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
     @deprecated Use [fetchById](#method_fetchById) instead
   */
-  fetch: function(type, id, preload) {
+  fetch: function(typeKey, id, preload) {
     Ember.deprecate('Using store.fetch() has been deprecated. Use store.fetchById for fetching individual records or store.fetchAll for collections');
-    return this.fetchById(type, id, preload);
+    return this.fetchById(typeKey, id, preload);
   },
 
   /**
@@ -592,15 +592,15 @@ Store = Service.extend({
 
     @method findById
     @private
-    @param {String or subclass of DS.Model} type
+    @param {String} typeKey
     @param {String|Integer} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
-  findById: function(typeName, id, preload) {
+  findById: function(typeKey, id, preload) {
 
-    var type = this.modelFor(typeName);
-    var record = this.recordForId(type, id);
+    var typeClass = this.modelFor(typeKey);
+    var record = this.recordForId(typeClass, id);
 
     return this._findByRecord(record, preload);
   },
@@ -628,16 +628,16 @@ Store = Service.extend({
 
     @private
     @method findByIds
-    @param {String} type
+    @param {String} typeKey
     @param {Array} ids
     @return {Promise} promise
   */
-  findByIds: function(type, ids) {
+  findByIds: function(typeKey, ids) {
     var store = this;
 
     return promiseArray(Ember.RSVP.all(map(ids, function(id) {
-      return store.findById(type, id);
-    })).then(Ember.A, null, "DS: Store#findByIds of " + type + " complete"));
+      return store.findById(typeKey, id);
+    })).then(Ember.A, null, "DS: Store#findByIds of " + typeKey + " complete"));
   },
 
   /**
@@ -651,14 +651,14 @@ Store = Service.extend({
     @return {Promise} promise
   */
   fetchRecord: function(record) {
-    var type = record.constructor;
+    var typeClass = record.constructor;
     var id = get(record, 'id');
-    var adapter = this.adapterFor(type);
+    var adapter = this.adapterFor(typeClass);
 
-    Ember.assert("You tried to find a record but you have no adapter (for " + type + ")", adapter);
-    Ember.assert("You tried to find a record but your adapter (for " + type + ") does not implement 'find'", typeof adapter.find === 'function');
+    Ember.assert("You tried to find a record but you have no adapter (for " + typeClass + ")", adapter);
+    Ember.assert("You tried to find a record but your adapter (for " + typeClass + ") does not implement 'find'", typeof adapter.find === 'function');
 
-    var promise = _find(adapter, this, type, id, record);
+    var promise = _find(adapter, this, typeClass, id, record);
     return promise;
   },
 
@@ -667,11 +667,11 @@ Store = Service.extend({
   },
 
   scheduleFetch: function(record) {
-    var type = record.constructor;
+    var typeClass = record.constructor;
     if (isNone(record)) { return null; }
     if (record._loadingPromise) { return record._loadingPromise; }
 
-    var resolver = Ember.RSVP.defer('Fetching ' + type + 'with id: ' + record.get('id'));
+    var resolver = Ember.RSVP.defer('Fetching ' + typeClass + 'with id: ' + record.get('id'));
     var recordResolverPair = {
       record: record,
       resolver: resolver
@@ -680,10 +680,10 @@ Store = Service.extend({
 
     record.loadingData(promise);
 
-    if (!this._pendingFetch.get(type)) {
-      this._pendingFetch.set(type, [recordResolverPair]);
+    if (!this._pendingFetch.get(typeClass)) {
+      this._pendingFetch.set(typeClass, [recordResolverPair]);
     } else {
-      this._pendingFetch.get(type).push(recordResolverPair);
+      this._pendingFetch.get(typeClass).push(recordResolverPair);
     }
     Ember.run.scheduleOnce('afterRender', this, this.flushAllPendingFetches);
 
@@ -699,9 +699,9 @@ Store = Service.extend({
     this._pendingFetch = Map.create();
   },
 
-  _flushPendingFetchForType: function (recordResolverPairs, type) {
+  _flushPendingFetchForType: function (recordResolverPairs, typeClass) {
     var store = this;
-    var adapter = store.adapterFor(type);
+    var adapter = store.adapterFor(typeClass);
     var shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
     var records = Ember.A(recordResolverPairs).mapBy('record');
 
@@ -771,7 +771,7 @@ Store = Service.extend({
         var requestedRecords = Ember.A(groupOfRecords);
         var ids = requestedRecords.mapBy('id');
         if (ids.length > 1) {
-          _findMany(adapter, store, type, ids, requestedRecords).
+          _findMany(adapter, store, typeClass, ids, requestedRecords).
             then(resolveFoundRecords).
             then(makeMissingRecordsRejector(requestedRecords)).
             then(null, makeRecordsRejector(requestedRecords));
@@ -847,10 +847,10 @@ Store = Service.extend({
     @param {String|Integer} id
     @return {Boolean}
   */
-  hasRecordForId: function(typeName, inputId) {
-    var type = this.modelFor(typeName);
+  hasRecordForId: function(typeKey, inputId) {
+    var typeClass = this.modelFor(typeKey);
     var id = coerceId(inputId);
-    var record = this.typeMapFor(type).idToRecord[id];
+    var record = this.typeMapFor(typeClass).idToRecord[id];
     return !!record && get(record, 'isLoaded');
   },
 
@@ -860,18 +860,18 @@ Store = Service.extend({
 
     @method recordForId
     @private
-    @param {String or subclass of DS.Model} type
+    @param {String} typeKey
     @param {String|Integer} id
     @return {DS.Model} record
   */
-  recordForId: function(typeName, inputId) {
-    var type = this.modelFor(typeName);
+  recordForId: function(typeKey, inputId) {
+    var typeClass = this.modelFor(typeKey);
     var id = coerceId(inputId);
-    var idToRecord = this.typeMapFor(type).idToRecord;
+    var idToRecord = this.typeMapFor(typeClass).idToRecord;
     var record = idToRecord[id];
 
     if (!record || !idToRecord[id]) {
-      record = this.buildRecord(type, id);
+      record = this.buildRecord(typeClass, id);
     }
 
     return record;
@@ -975,38 +975,38 @@ Store = Service.extend({
 
     @method findAll
     @private
-    @param {String or subclass of DS.Model} type
+    @param {String} typeKey
     @return {DS.AdapterPopulatedRecordArray}
   */
-  findAll: function(typeName) {
-    return this.fetchAll(typeName);
+  findAll: function(typeKey) {
+    return this.fetchAll(typeKey);
   },
 
   /**
     @method _fetchAll
     @private
-    @param {DS.Model} type
+    @param {DS.Model} typeClass
     @param {DS.RecordArray} array
     @return {Promise} promise
   */
-  _fetchAll: function(type, array) {
-    var adapter = this.adapterFor(type);
-    var sinceToken = this.typeMapFor(type).metadata.since;
+  _fetchAll: function(typeClass, array) {
+    var adapter = this.adapterFor(typeClass);
+    var sinceToken = this.typeMapFor(typeClass).metadata.since;
 
     set(array, 'isUpdating', true);
 
-    Ember.assert("You tried to load all records but you have no adapter (for " + type + ")", adapter);
+    Ember.assert("You tried to load all records but you have no adapter (for " + typeClass + ")", adapter);
     Ember.assert("You tried to load all records but your adapter does not implement `findAll`", typeof adapter.findAll === 'function');
 
-    return promiseArray(_findAll(adapter, this, type, sinceToken));
+    return promiseArray(_findAll(adapter, this, typeClass, sinceToken));
   },
 
   /**
     @method didUpdateAll
-    @param {DS.Model} type
+    @param {DS.Model} typeClass
   */
-  didUpdateAll: function(type) {
-    var findAllCache = this.typeMapFor(type).findAllCache;
+  didUpdateAll: function(typeClass) {
+    var findAllCache = this.typeMapFor(typeClass).findAllCache;
     set(findAllCache, 'isUpdating', false);
   },
 
@@ -1030,20 +1030,20 @@ Store = Service.extend({
     ```
 
     @method all
-    @param {String or subclass of DS.Model} type
+    @param {String} typeKey
     @return {DS.RecordArray}
   */
-  all: function(typeName) {
-    var type = this.modelFor(typeName);
-    var typeMap = this.typeMapFor(type);
+  all: function(typeKey) {
+    var typeClass = this.modelFor(typeKey);
+    var typeMap = this.typeMapFor(typeClass);
     var findAllCache = typeMap.findAllCache;
 
     if (findAllCache) {
-      this.recordArrayManager.updateFilter(findAllCache, type);
+      this.recordArrayManager.updateFilter(findAllCache, typeClass);
       return findAllCache;
     }
 
-    var array = this.recordArrayManager.createRecordArray(type);
+    var array = this.recordArrayManager.createRecordArray(typeClass);
 
     typeMap.findAllCache = array;
     return array;
@@ -1060,9 +1060,9 @@ Store = Service.extend({
    ```
 
    @method unloadAll
-   @param {String or subclass of DS.Model} optional type
+   @param {String} optional typeKey
   */
-  unloadAll: function(type) {
+  unloadAll: function(typeKey) {
     if (arguments.length === 0) {
       var typeMaps = this.typeMaps;
       var keys = Ember.keys(typeMaps);
@@ -1071,8 +1071,8 @@ Store = Service.extend({
 
       forEach(types, this.unloadAll, this);
     } else {
-      var modelType = this.modelFor(type);
-      var typeMap = this.typeMapFor(modelType);
+      var typeClass = this.modelFor(typeKey);
+      var typeMap = this.typeMapFor(typeClass);
       var records = typeMap.records.slice();
       var record;
 
@@ -1203,8 +1203,8 @@ Store = Service.extend({
     @return {object}
   */
   metadataFor: function(typeName) {
-    var type = this.modelFor(typeName);
-    return this.typeMapFor(type).metadata;
+    var typeClass = this.modelFor(typeName);
+    return this.typeMapFor(typeClass).metadata;
   },
 
   /**
@@ -1216,8 +1216,8 @@ Store = Service.extend({
     @return {object}
   */
   setMetadataFor: function(typeName, metadata) {
-    var type = this.modelFor(typeName);
-    Ember.merge(this.typeMapFor(type).metadata, metadata);
+    var typeClass = this.modelFor(typeName);
+    Ember.merge(this.typeMapFor(typeClass).metadata, metadata);
   },
 
   // ............
@@ -1369,15 +1369,13 @@ Store = Service.extend({
 
     @method typeMapFor
     @private
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @return {Object} typeMap
   */
-  typeMapFor: function(type) {
+  typeMapFor: function(typeClass) {
     var typeMaps = get(this, 'typeMaps');
-    var guid = Ember.guidFor(type);
-    var typeMap;
-
-    typeMap = typeMaps[guid];
+    var guid = Ember.guidFor(typeClass);
+    var typeMap = typeMaps[guid];
 
     if (typeMap) { return typeMap; }
 
@@ -1385,7 +1383,7 @@ Store = Service.extend({
       idToRecord: Ember.create(null),
       records: [],
       metadata: Ember.create(null),
-      type: type
+      type: typeClass
     };
 
     typeMaps[guid] = typeMap;
@@ -2057,9 +2055,9 @@ function _commit(adapter, store, operation, record) {
 }
 
 function setupRelationships(store, record, data) {
-  var type = record.constructor;
+  var typeClass = record.constructor;
 
-  type.eachRelationship(function(key, descriptor) {
+  typeClass.eachRelationship(function(key, descriptor) {
     var kind = descriptor.kind;
     var value = data[key];
     var relationship = record._relationships[key];

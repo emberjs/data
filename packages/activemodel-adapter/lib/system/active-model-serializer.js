@@ -116,12 +116,12 @@ var ActiveModelSerializer = RESTSerializer.extend({
     relationship keys.
 
     @method keyForRelationship
-    @param {String} key
+    @param {String} relationshipTypeKey
     @param {String} kind
     @return String
   */
-  keyForRelationship: function(rawKey, kind) {
-    var key = decamelize(rawKey);
+  keyForRelationship: function(relationshipTypeKey, kind) {
+    var key = decamelize(relationshipTypeKey);
     if (kind === "belongsTo") {
       return key + "_id";
     } else if (kind === "hasMany") {
@@ -141,12 +141,12 @@ var ActiveModelSerializer = RESTSerializer.extend({
 
     @method serializeIntoHash
     @param {Object} hash
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {DS.Snapshot} snapshot
     @param {Object} options
   */
-  serializeIntoHash: function(data, type, snapshot, options) {
-    var root = underscore(decamelize(type.typeKey));
+  serializeIntoHash: function(data, typeClass, snapshot, options) {
+    var root = underscore(decamelize(typeClass.typeKey));
     data[root] = this.serialize(snapshot, options);
   },
 
@@ -200,16 +200,16 @@ var ActiveModelSerializer = RESTSerializer.extend({
     ```
 
     @method normalize
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} hash
     @param {String} prop
     @return Object
   */
 
-  normalize: function(type, hash, prop) {
+  normalize: function(typeClass, hash, prop) {
     this.normalizeLinks(hash);
 
-    return this._super(type, hash, prop);
+    return this._super(typeClass, hash, prop);
   },
 
   /**
@@ -253,13 +253,14 @@ var ActiveModelSerializer = RESTSerializer.extend({
       }
     ```
 
+    @param {Subclass of DS.Model} typeClass
     @method normalizeRelationships
     @private
   */
-  normalizeRelationships: function(type, hash) {
+  normalizeRelationships: function(typeClass, hash) {
 
     if (this.keyForRelationship) {
-      type.eachRelationship(function(key, relationship) {
+      typeClass.eachRelationship(function(key, relationship) {
         var payloadKey, payload;
         if (relationship.options.polymorphic) {
           payloadKey = this.keyForAttribute(key, "deserialize");

@@ -23,18 +23,18 @@ export default Ember.DataAdapter.extend({
     ];
   },
 
-  detect: function(klass) {
-    return klass !== Model && Model.detect(klass);
+  detect: function(typeClass) {
+    return typeClass !== Model && Model.detect(typeClass);
   },
 
-  columnsForType: function(type) {
+  columnsForType: function(typeClass) {
     var columns = [{
       name: 'id',
       desc: 'Id'
     }];
     var count = 0;
     var self = this;
-    get(type, 'attributes').forEach(function(meta, name) {
+    get(typeClass, 'attributes').forEach(function(meta, name) {
       if (count++ > self.attributeLimit) { return false; }
       var desc = capitalize(underscore(name).replace('_', ' '));
       columns.push({ name: name, desc: desc });
@@ -42,8 +42,8 @@ export default Ember.DataAdapter.extend({
     return columns;
   },
 
-  getRecords: function(type) {
-    return this.get('store').all(type);
+  getRecords: function(typeKey) {
+    return this.get('store').all(typeKey);
   },
 
   getRecordColumnValues: function(record) {

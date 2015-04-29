@@ -164,23 +164,23 @@ var RESTSerializer = JSONSerializer.extend({
     payload.
 
     @method normalize
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} hash
     @param {String} prop
     @return {Object}
   */
-  normalize: function(type, hash, prop) {
+  normalize: function(typeClass, hash, prop) {
     this.normalizeId(hash);
-    this.normalizeAttributes(type, hash);
-    this.normalizeRelationships(type, hash);
+    this.normalizeAttributes(typeClass, hash);
+    this.normalizeRelationships(typeClass, hash);
 
-    this.normalizeUsingDeclaredMapping(type, hash);
+    this.normalizeUsingDeclaredMapping(typeClass, hash);
 
     if (this.normalizeHash && this.normalizeHash[prop]) {
       this.normalizeHash[prop](hash);
     }
 
-    this.applyTransforms(type, hash);
+    this.applyTransforms(typeClass, hash);
     return hash;
   },
 
@@ -221,12 +221,12 @@ var RESTSerializer = JSONSerializer.extend({
     ```js
     App.PostSerializer = DS.RESTSerializer.extend({
       // First, restructure the top-level so it's organized by type
-      extractSingle: function(store, type, payload, id) {
+      extractSingle: function(store, typeClass, payload, id) {
         var comments = payload._embedded.comment;
         delete payload._embedded;
 
         payload = { comments: comments, post: payload };
-        return this._super(store, type, payload, id);
+        return this._super(store, typeClass, payload, id);
       },
 
       normalizeHash: {
@@ -256,14 +256,14 @@ var RESTSerializer = JSONSerializer.extend({
 
     @method extractSingle
     @param {DS.Store} store
-    @param {subclass of DS.Model} primaryType
+    @param {subclass of DS.Model} primaryTypeClasss
     @param {Object} payload
     @param {String} recordId
     @return {Object} the primary response to the original request
   */
-  extractSingle: function(store, primaryType, rawPayload, recordId) {
+  extractSingle: function(store, primaryTypeClass, rawPayload, recordId) {
     var payload = this.normalizePayload(rawPayload);
-    var primaryTypeName = primaryType.typeKey;
+    var primaryTypeClassName = primaryTypeClass.typeKey;
     var primaryRecord;
 
     for (var prop in payload) {
@@ -274,7 +274,7 @@ var RESTSerializer = JSONSerializer.extend({
         continue;
       }
       var type = store.modelFor(typeName);
-      var isPrimary = type.typeKey === primaryTypeName;
+      var isPrimary = type.typeKey === primaryTypeClassName;
       var value = payload[prop];
 
       if (value === null) {
@@ -283,7 +283,7 @@ var RESTSerializer = JSONSerializer.extend({
 
       // legacy support for singular resources
       if (isPrimary && Ember.typeOf(value) !== "array" ) {
-        primaryRecord = this.normalize(primaryType, value, prop);
+        primaryRecord = this.normalize(primaryTypeClass, value, prop);
         continue;
       }
 
@@ -410,14 +410,14 @@ var RESTSerializer = JSONSerializer.extend({
 
     @method extractArray
     @param {DS.Store} store
-    @param {subclass of DS.Model} primaryType
+    @param {subclass of DS.Model} primaryTypeClass
     @param {Object} payload
     @return {Array} The primary array that was returned in response
       to the original query.
   */
-  extractArray: function(store, primaryType, rawPayload) {
+  extractArray: function(store, primaryTypeClass, rawPayload) {
     var payload = this.normalizePayload(rawPayload);
-    var primaryTypeName = primaryType.typeKey;
+    var primaryTypeClassName = primaryTypeClass.typeKey;
     var primaryArray;
 
     for (var prop in payload) {
@@ -436,7 +436,7 @@ var RESTSerializer = JSONSerializer.extend({
       }
       var type = store.modelFor(typeName);
       var typeSerializer = store.serializerFor(type);
-      var isPrimary = (!forcedSecondary && (type.typeKey === primaryTypeName));
+      var isPrimary = (!forcedSecondary && (type.typeKey === primaryTypeClassName));
 
       /*jshint loopfunc:true*/
       var normalizedArray = map.call(payload[prop], function(hash) {
@@ -488,12 +488,12 @@ var RESTSerializer = JSONSerializer.extend({
     var payload = this.normalizePayload(rawPayload);
 
     for (var prop in payload) {
-      var typeName = this.typeForRoot(prop);
-      if (!store.modelFactoryFor(typeName, prop)) {
-        Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
+      var typeKey = this.typeForRoot(prop);
+      if (!store.modelFactoryFor(typeKey, prop)) {
+        Ember.warn(this.warnMessageNoModelForKey(prop, typeKey), false);
         continue;
       }
-      var type = store.modelFor(typeName);
+      var type = store.modelFor(typeKey);
       var typeSerializer = store.serializerFor(type);
 
       /*jshint loopfunc:true*/
@@ -501,7 +501,7 @@ var RESTSerializer = JSONSerializer.extend({
         return typeSerializer.normalize(type, hash, prop);
       }, this);
 
-      store.pushMany(typeName, normalizedArray);
+      store.pushMany(typeKey, normalizedArray);
     }
   },
 
@@ -719,12 +719,12 @@ var RESTSerializer = JSONSerializer.extend({
 
     @method serializeIntoHash
     @param {Object} hash
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {DS.Snapshot} snapshot
     @param {Object} options
   */
-  serializeIntoHash: function(hash, type, snapshot, options) {
-    hash[type.typeKey] = this.serialize(snapshot, options);
+  serializeIntoHash: function(hash, typeClass, snapshot, options) {
+    hash[typeClass.typeKey] = this.serialize(snapshot, options);
   },
 
   /**
