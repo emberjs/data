@@ -40,7 +40,7 @@ function coerceId(id) {
 
   ```js
   App.ApplicationSerializer = DS.RESTSerializer.extend({
-    keyForAttribute: function(attr) {
+    keyForAttribute: function(attr, method) {
       return Ember.String.underscore(attr).toUpperCase();
     }
   });
