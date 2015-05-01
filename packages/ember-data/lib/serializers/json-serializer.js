@@ -554,7 +554,7 @@ export default Serializer.extend({
       var payloadKey =  this._getMappedKey(key);
 
       if (payloadKey === key && this.keyForAttribute) {
-        payloadKey = this.keyForAttribute(key);
+        payloadKey = this.keyForAttribute(key, 'serialize');
       }
 
       json[payloadKey] = value;
@@ -671,7 +671,7 @@ export default Serializer.extend({
       serializePolymorphicType: function(snapshot, json, relationship) {
         var key = relationship.key,
             belongsTo = snapshot.belongsTo(key);
-        key = this.keyForAttribute ? this.keyForAttribute(key) : key;
+        key = this.keyForAttribute ? this.keyForAttribute(key, "serialize") : key;
 
         if (Ember.isNone(belongsTo)) {
           json[key + "_type"] = null;
@@ -1032,7 +1032,7 @@ export default Serializer.extend({
 
    ```javascript
    App.ApplicationSerializer = DS.RESTSerializer.extend({
-     keyForAttribute: function(attr) {
+     keyForAttribute: function(attr, method) {
        return Ember.String.underscore(attr).toUpperCase();
      }
    });
@@ -1040,23 +1040,24 @@ export default Serializer.extend({
 
    @method keyForAttribute
    @param {String} key
+   @param {String} method
    @return {String} normalized key
   */
-  keyForAttribute: function(key) {
+  keyForAttribute: function(key, method) {
     return key;
   },
 
   /**
    `keyForRelationship` can be used to define a custom key when
-   serializing relationship properties. By default `JSONSerializer`
-   does not provide an implementation of this method.
+   serializing and deserializing relationship properties. By default
+   `JSONSerializer` does not provide an implementation of this method.
 
    Example
 
     ```javascript
     App.PostSerializer = DS.JSONSerializer.extend({
-      keyForRelationship: function(key, relationship) {
-         return 'rel_' + Ember.String.underscore(key);
+      keyForRelationship: function(key, relationship, method) {
+        return 'rel_' + Ember.String.underscore(key);
       }
     });
     ```
@@ -1064,10 +1065,11 @@ export default Serializer.extend({
    @method keyForRelationship
    @param {String} key
    @param {String} relationship typeClass
+   @param {String} method
    @return {String} normalized key
   */
 
-  keyForRelationship: function(key, typeClass) {
+  keyForRelationship: function(key, typeClass, method) {
     return key;
   },
 
