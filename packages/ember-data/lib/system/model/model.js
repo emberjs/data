@@ -1099,13 +1099,13 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var promise = new Promise(function(resolve) {
       record.send('reloadRecord', resolve);
     }, promiseLabel).then(function() {
-      record.set('isReloading', false);
       record.set('isError', false);
       return record;
     }, function(reason) {
       record.set('isError', true);
       throw reason;
     }, "DS: Model#reload complete, update flags")['finally'](function () {
+      record.set('isReloading', false);
       record.updateRecordArrays();
     });
 
