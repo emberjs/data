@@ -42,8 +42,14 @@ export default Ember.DataAdapter.extend({
     return columns;
   },
 
-  getRecords: function(typeKey) {
-    return this.get('store').all(typeKey);
+  getRecords: function(modelName) {
+    // TODO: Remove once this gets updated in Ember
+    if (typeof modelName === 'string') {
+      return this.get('store').all(modelName);
+    } else {
+      // Passing the factory
+      return this.get('store').all(modelName.modelName);
+    }
   },
 
   getRecordColumnValues: function(record) {

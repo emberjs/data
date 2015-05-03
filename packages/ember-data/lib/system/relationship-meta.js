@@ -1,14 +1,14 @@
-import normalizeTypeKey from "ember-data/system/normalize-type-key";
+import normalizeModelName from "ember-data/system/normalize-type-key";
 
 export function typeForRelationshipMeta(store, meta) {
-  var typeKey, typeClass;
+  var modelName, typeClass;
 
-  typeKey = meta.type || meta.key;
-  if (typeof typeKey === 'string') {
+  modelName = meta.type || meta.key;
+  if (typeof modelName === 'string') {
     if (meta.kind === 'hasMany') {
-      typeKey = normalizeTypeKey(typeKey);
+      modelName = normalizeModelName(modelName);
     }
-    typeClass = store.modelFor(typeKey);
+    typeClass = store.modelFor(modelName);
   } else {
     typeClass = meta.type;
   }

@@ -29,7 +29,7 @@ test("_debugInfo groups the attributes and relationships correctly", function() 
   var record;
 
   run(function() {
-    record = store.createRecord(User);
+    record = store.createRecord('user');
   });
 
   var propertyInfo = record._debugInfo().propertyInfo;

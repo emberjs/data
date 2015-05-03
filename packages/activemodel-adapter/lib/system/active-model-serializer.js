@@ -116,12 +116,12 @@ var ActiveModelSerializer = RESTSerializer.extend({
     relationship keys.
 
     @method keyForRelationship
-    @param {String} relationshipTypeKey
+    @param {String} relationshipModelName
     @param {String} kind
     @return String
   */
-  keyForRelationship: function(relationshipTypeKey, kind) {
-    var key = decamelize(relationshipTypeKey);
+  keyForRelationship: function(relationshipModelName, kind) {
+    var key = decamelize(relationshipModelName);
     if (kind === "belongsTo") {
       return key + "_id";
     } else if (kind === "hasMany") {
@@ -146,7 +146,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash: function(data, typeClass, snapshot, options) {
-    var root = underscore(decamelize(typeClass.typeKey));
+    var root = underscore(decamelize(typeClass.modelName));
     data[root] = this.serialize(snapshot, options);
   },
 
@@ -166,7 +166,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     if (Ember.isNone(belongsTo)) {
       json[jsonKey] = null;
     } else {
-      json[jsonKey] = classify(belongsTo.typeKey).replace(/(\/)([a-z])/g, function(match, separator, chr) {
+      json[jsonKey] = classify(belongsTo.modelName).replace(/(\/)([a-z])/g, function(match, separator, chr) {
         return match.toUpperCase();
       }).replace('/', '::');
     }

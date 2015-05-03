@@ -163,7 +163,7 @@ test("serializePolymorphicType sync", function() {
     serializePolymorphicType: function(record, json, relationship) {
       var key = relationship.key;
       var belongsTo = record.belongsTo(key);
-      json[relationship.key + "TYPE"] = belongsTo.typeKey;
+      json[relationship.key + "TYPE"] = belongsTo.modelName;
 
       ok(true, 'serializePolymorphicType is called when serialize a polymorphic belongsTo');
     }
@@ -472,7 +472,7 @@ test('serializeBelongsTo with async polymorphic', function() {
   env.registry.register('serializer:favorite', DS.JSONSerializer.extend({
     serializePolymorphicType: function(snapshot, json, relationship) {
       var key = relationship.key;
-      json[key + 'TYPE'] = snapshot.belongsTo(key).typeKey;
+      json[key + 'TYPE'] = snapshot.belongsTo(key).modelName;
     }
   }));
 

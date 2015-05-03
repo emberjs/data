@@ -2,16 +2,19 @@ var get = Ember.get;
 var set = Ember.set;
 var run = Ember.run;
 
-var Person, store, array;
+var Person, store, array, env;
 
 module("unit/model - DS.Model", {
   setup: function() {
-    store = createStore();
-
     Person = DS.Model.extend({
       name: DS.attr('string'),
       isDrugAddict: DS.attr('boolean')
     });
+
+    env = setupStore({
+      person: Person
+    });
+    store = env.store;
   },
 
   teardown: function() {
@@ -26,7 +29,7 @@ module("unit/model - DS.Model", {
 test("can have a property set on it", function() {
   var record;
   run(function() {
-    record = store.createRecord(Person);
+    record = store.createRecord('person');
     set(record, 'name', 'bar');
   });
 
@@ -37,8 +40,8 @@ test("setting a property on a record that has not changed does not cause it to b
   expect(2);
 
   run(function() {
-    store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
-    store.find(Person, 1).then(function(person) {
+    store.push('person', { id: 1, name: "Peter", isDrugAddict: true });
+    store.find('person', 1).then(function(person) {
       equal(person.get('isDirty'), false, "precond - person record should not be dirty");
 
       person.set('name', "Peter");
@@ -53,8 +56,8 @@ test("resetting a property on a record cause it to become clean again", function
   expect(3);
 
   run(function() {
-    store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
-    store.find(Person, 1).then(function(person) {
+    store.push('person', { id: 1, name: "Peter", isDrugAddict: true });
+    store.find('person', 1).then(function(person) {
       equal(person.get('isDirty'), false, "precond - person record should not be dirty");
       person.set('isDrugAddict', false);
       equal(person.get('isDirty'), true, "record becomes dirty after setting property to a new value");
@@ -68,8 +71,8 @@ test("a record becomes clean again only if all changed properties are reset", fu
   expect(5);
 
   run(function() {
-    store.push(Person, { id: 1, name: "Peter", isDrugAddict: true });
-    store.find(Person, 1).then(function(person) {
+    store.push('person', { id: 1, name: "Peter", isDrugAddict: true });
+    store.find('person', 1).then(function(person) {
       equal(person.get('isDirty'), false, "precond - person record should not be dirty");
       person.set('isDrugAddict', false);
       equal(person.get('isDirty'), true, "record becomes dirty after setting one property to a new value");
@@ -87,8 +90,8 @@ test("a record reports its unique id via the `id` property", function() {
   expect(1);
 
   run(function() {
-    store.push(Person, { id: 1 });
-    store.find(Person, 1).then(function(record) {
+    store.push('person', { id: 1 });
+    store.find('person', 1).then(function(record) {
       equal(get(record, 'id'), 1, "reports id as id by default");
     });
   });
@@ -98,8 +101,8 @@ test("a record's id is included in its toString representation", function() {
   expect(1);
 
   run(function() {
-    store.push(Person, { id: 1 });
-    store.find(Person, 1).then(function(record) {
+    store.push('person', { id: 1 });
+    store.find('person', 1).then(function(record) {
       equal(record.toString(), '<(subclass of DS.Model):'+Ember.guidFor(record)+':1>', "reports id in toString");
     });
   });
@@ -111,10 +114,14 @@ test("trying to set an `id` attribute should raise", function() {
     name: DS.attr('string')
   });
 
+  var store = createStore({
+    person: Person
+  });
+
   expectAssertion(function() {
     run(function() {
-      store.push(Person, { id: 1, name: "Scumdale" });
-      store.find(Person, 1);
+      store.push('person', { id: 1, name: "Scumdale" });
+      store.find('person', 1);
     });
   }, /You may not set `id`/);
 });
@@ -128,8 +135,8 @@ test("a collision of a record's id with object function's name", function() {
       Object.prototype.watch = function() {};
     }
     run(function() {
-      store.push(Person, { id: 'watch' });
-      store.find(Person, 'watch').then(function(record) {
+      store.push('person', { id: 'watch' });
+      store.find('person', 'watch').then(function(record) {
         equal(get(record, 'id'), 'watch', "record is successfully created and could be found by its id");
       });
     });
@@ -144,9 +151,9 @@ test("it should use `_reference` and not `reference` to store its reference", fu
   expect(1);
 
   run(function() {
-    store.push(Person, { id: 1 });
+    store.push('person', { id: 1 });
 
-    store.find(Person, 1).then(function(record) {
+    store.find('person', 1).then(function(record) {
       equal(record.get('reference'), undefined, "doesn't shadow reference key");
     });
   });
@@ -155,18 +162,20 @@ test("it should use `_reference` and not `reference` to store its reference", fu
 test("it should cache attributes", function() {
   expect(2);
 
-  var store = createStore();
-
   var Post = DS.Model.extend({
     updatedAt: DS.attr('string')
+  });
+
+  var store = createStore({
+    post: Post
   });
 
   var dateString = "Sat, 31 Dec 2011 00:08:16 GMT";
   var date = new Date(dateString);
 
   run(function() {
-    store.push(Post, { id: 1 });
-    store.find(Post, 1).then(function(record) {
+    store.push('post', { id: 1 });
+    store.find('post', 1).then(function(record) {
       run(function() {
         record.set('updatedAt', date);
       });
@@ -187,11 +196,16 @@ test("changedAttributes() return correct values", function() {
     likes: DS.attr('string'),
     isMascot: DS.attr('boolean')
   });
+
+  var store = createStore({
+    mascot: Mascot
+  });
+
   var mascot;
 
 
   run(function() {
-    mascot = store.push(Mascot, { id: 1, likes: 'JavaScript', isMascot: true });
+    mascot = store.push('mascot', { id: 1, likes: 'JavaScript', isMascot: true });
   });
 
   deepEqual({}, mascot.changedAttributes(), 'there are no initial changes');
@@ -212,10 +226,15 @@ test("a DS.Model does not require an attribute type", function() {
   var Tag = DS.Model.extend({
     name: DS.attr()
   });
+
+  var store = createStore({
+    tag: Tag
+  });
+
   var tag;
 
   run(function() {
-    tag = store.createRecord(Tag, { name: "test" });
+    tag = store.createRecord('tag', { name: "test" });
   });
 
   equal(get(tag, 'name'), "test", "the value is persisted");
@@ -225,10 +244,14 @@ test("a DS.Model can have a defaultValue without an attribute type", function() 
   var Tag = DS.Model.extend({
     name: DS.attr({ defaultValue: "unknown" })
   });
+
+  var store = createStore({
+    tag: Tag
+  });
   var tag;
 
   run(function() {
-    tag = store.createRecord(Tag);
+    tag = store.createRecord('tag');
   });
 
   equal(get(tag, 'name'), "unknown", "the default value is found");
@@ -241,7 +264,9 @@ test("Calling attr(), belongsTo() or hasMany() throws a warning", function() {
     name: DS.attr('string')
   });
 
-  var store = createStore({ person: Person });
+  var store = createStore({
+    person: Person
+  });
 
   run(function() {
     var person = store.createRecord('person', { id: 1, name: 'TomHuda' });
@@ -264,9 +289,12 @@ module("unit/model - DS.Model updating", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
     Person = DS.Model.extend({ name: DS.attr('string') });
-    store = createStore();
+    env = setupStore({
+      person: Person
+    });
+    store = env.store;
     run(function() {
-      store.pushMany(Person, array);
+      store.pushMany('person', array);
     });
   },
   teardown: function() {
@@ -283,7 +311,7 @@ test("a DS.Model can update its attributes", function() {
   expect(1);
 
   run(function() {
-    store.find(Person, 2).then(function(person) {
+    store.find('person', 2).then(function(person) {
       set(person, 'name', "Brohuda Katz");
       equal(get(person, 'name'), "Brohuda Katz", "setting took hold");
     });
@@ -296,8 +324,12 @@ test("a DS.Model can have a defaultValue", function() {
   });
   var tag;
 
+  var store = createStore({
+    tag: Tag
+  });
+
   run(function() {
-    tag = store.createRecord(Tag);
+    tag = store.createRecord('tag');
   });
 
   equal(get(tag, 'name'), "unknown", "the default value is found");
@@ -321,8 +353,12 @@ test("a DS.model can define 'setUnknownProperty'", function() {
     }
   });
 
+  var store = createStore({
+    tag: Tag
+  });
+
   run(function() {
-    tag = store.createRecord(Tag, { name: "old" });
+    tag = store.createRecord('tag', { name: "old" });
     set(tag, "title", "new");
   });
 
@@ -339,8 +375,12 @@ test("a defaultValue for an attribute can be a function", function() {
   });
   var tag;
 
+  var store = createStore({
+    tag: Tag
+  });
+
   run(function() {
-    tag = store.createRecord(Tag);
+    tag = store.createRecord('tag');
   });
   equal(get(tag, 'createdAt'), "le default value", "the defaultValue function is evaluated");
 });
@@ -357,10 +397,14 @@ test("a defaultValue function gets the record, options, and key", function() {
       }
     })
   });
+
+  var store = createStore({
+    tag: Tag
+  });
   var tag;
 
   run(function() {
-    tag = store.createRecord(Tag);
+    tag = store.createRecord('tag');
   });
 
   get(tag, 'createdAt');
@@ -370,10 +414,15 @@ test("setting a property to undefined on a newly created record should not impac
   var Tag = DS.Model.extend({
     name: DS.attr('string')
   });
+
+  var store = createStore({
+    tag: Tag
+  });
+
   var tag;
 
   run(function() {
-    tag = store.createRecord(Tag);
+    tag = store.createRecord('tag');
     set(tag, 'name', 'testing');
     set(tag, 'name', undefined);
   });
@@ -381,7 +430,7 @@ test("setting a property to undefined on a newly created record should not impac
   equal(get(tag, 'currentState.stateName'), "root.loaded.created.uncommitted");
 
   run(function() {
-    tag = store.createRecord(Tag, { name: undefined });
+    tag = store.createRecord('tag', { name: undefined });
   });
 
   equal(get(tag, 'currentState.stateName'), "root.loaded.created.uncommitted");
@@ -393,7 +442,7 @@ test("setting a property back to its original value removes the property from th
   expect(3);
 
   run(function() {
-    store.find(Person, 1).then(function(person) {
+    store.find('person', 1).then(function(person) {
       equal(person._attributes.name, undefined, "the `_attributes` hash is clean");
 
       set(person, 'name', "Niceguy Dale");
@@ -421,7 +470,7 @@ module("unit/model - with a simple Person model", {
       person: Person
     });
     run(function() {
-      store.pushMany(Person, array);
+      store.pushMany('person', array);
     });
   },
   teardown: function() {
@@ -435,9 +484,9 @@ module("unit/model - with a simple Person model", {
 });
 
 test("can ask if record with a given id is loaded", function() {
-  equal(store.recordIsLoaded(Person, 1), true, 'should have person with id 1');
   equal(store.recordIsLoaded('person', 1), true, 'should have person with id 1');
-  equal(store.recordIsLoaded(Person, 4), false, 'should not have person with id 4');
+  equal(store.recordIsLoaded('person', 1), true, 'should have person with id 1');
+  equal(store.recordIsLoaded('person', 4), false, 'should not have person with id 4');
   equal(store.recordIsLoaded('person', 4), false, 'should not have person with id 4');
 });
 
@@ -447,7 +496,7 @@ test("a listener can be added to a record", function() {
   var record;
 
   run(function() {
-    record = store.createRecord(Person);
+    record = store.createRecord('person');
   });
 
   record.on('event!', F);
@@ -470,7 +519,7 @@ test("when an event is triggered on a record the method with the same name is in
   var record;
 
   run(function() {
-    record = store.createRecord(Person);
+    record = store.createRecord('person');
   });
 
   record.eventNamedMethod = F;
@@ -490,7 +539,7 @@ test("when a method is invoked from an event with the same name the arguments ar
   var record;
 
   run(function() {
-    record = store.createRecord(Person);
+    record = store.createRecord('person');
   });
 
   record.eventThatTriggersMethod = F;
@@ -523,8 +572,8 @@ var converts = function(type, provided, expected) {
   });
 
   run(function() {
-    testStore.push(Model, serializer.normalize(Model, { id: 1, name: provided }));
-    testStore.push(Model, serializer.normalize(Model, { id: 2 }));
+    testStore.push('model', serializer.normalize(Model, { id: 1, name: provided }));
+    testStore.push('model', serializer.normalize(Model, { id: 2 }));
     testStore.find('model', 1).then(function(record) {
       deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
     });
@@ -556,7 +605,7 @@ var convertsFromServer = function(type, provided, expected) {
   });
 
   run(function() {
-    testStore.push(Model, serializer.normalize(Model, { id: "1", name: provided }));
+    testStore.push('model', serializer.normalize(Model, { id: "1", name: provided }));
     testStore.find('model', 1).then(function(record) {
       deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
     });
@@ -571,7 +620,7 @@ var convertsWhenSet = function(type, provided, expected) {
   var testStore = createStore({ model: Model });
 
   run(function() {
-    testStore.push(Model, { id: 2 });
+    testStore.push('model', { id: 2 });
     testStore.find('model', 2).then(function(record) {
       set(record, 'name', provided);
       deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
@@ -625,15 +674,18 @@ test("a DS.Model can describe Date attributes", function() {
   var dateString = "2011-12-31T00:08:16.000Z";
   var date = new Date(Ember.Date.parse(dateString));
 
-  var store = createStore();
 
   var Person = DS.Model.extend({
     updatedAt: DS.attr('date')
   });
 
+  var store = createStore({
+    person: Person
+  });
+
   run(function() {
-    store.push(Person, { id: 1 });
-    store.find(Person, 1).then(function(record) {
+    store.push('person', { id: 1 });
+    store.find('person', 1).then(function(record) {
       run(function() {
         record.set('updatedAt', date);
       });
@@ -645,13 +697,15 @@ test("a DS.Model can describe Date attributes", function() {
 });
 
 test("don't allow setting", function() {
-  var store = createStore();
-
   var Person = DS.Model.extend();
   var record;
 
+  var store = createStore({
+    person: Person
+  });
+
   run(function() {
-    record = store.createRecord(Person);
+    record = store.createRecord('person');
   });
 
   raises(function() {
@@ -669,11 +723,12 @@ test("ensure model exits loading state, materializes data and fulfills promise o
       find: function(store, type, id, snapshot) {
         return Ember.RSVP.resolve({ id: 1, name: "John" });
       }
-    })
+    }),
+    person: Person
   });
 
   run(function() {
-    store.find(Person, 1).then(function(person) {
+    store.find('person', 1).then(function(person) {
       equal(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
       equal(get(person, 'isLoaded'), true, 'model is loaded');
     });

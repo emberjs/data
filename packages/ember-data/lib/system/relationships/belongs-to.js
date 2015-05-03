@@ -1,7 +1,7 @@
 import Model from 'ember-data/system/model';
 
 import computedPolyfill from "ember-data/utils/computed-polyfill";
-import normalizeTypeKey from "ember-data/system/normalize-type-key";
+import normalizeModelName from "ember-data/system/normalize-type-key";
 
 /**
   `DS.belongsTo` is used to define One-To-One and One-To-Many
@@ -57,30 +57,30 @@ import normalizeTypeKey from "ember-data/system/normalize-type-key";
   @namespace
   @method belongsTo
   @for DS
-  @param {String} modelTypeKey (optional) type of the relationship
+  @param {String} modelModelName (optional) type of the relationship
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
 */
-function belongsTo(modelTypeKey, options) {
-  var opts, typeKey;
-  if (typeof modelTypeKey === 'object') {
-    opts = modelTypeKey;
-    typeKey = undefined;
+function belongsTo(modelModelName, options) {
+  var opts, modelName;
+  if (typeof modelModelName === 'object') {
+    opts = modelModelName;
+    modelName = undefined;
   } else {
     opts = options;
-    typeKey = modelTypeKey;
+    modelName = modelModelName;
   }
 
-  if (typeof typeKey === 'string') {
-    typeKey = normalizeTypeKey(typeKey);
+  if (typeof modelName === 'string') {
+    modelName = normalizeModelName(modelName);
   }
 
-  Ember.assert("The first argument to DS.belongsTo must be a string representing a model type key, not an instance of " + Ember.inspect(typeKey) + ". E.g., to define a relation to the Person model, use DS.belongsTo('person')", typeof typeKey === 'string' || typeof typeKey === 'undefined');
+  Ember.assert("The first argument to DS.belongsTo must be a string representing a model type key, not an instance of " + Ember.inspect(modelName) + ". E.g., to define a relation to the Person model, use DS.belongsTo('person')", typeof modelName === 'string' || typeof modelName === 'undefined');
 
   opts = opts || {};
 
   var meta = {
-    type: typeKey,
+    type: modelName,
     isRelationship: true,
     options: opts,
     kind: 'belongsTo',

@@ -3,7 +3,7 @@
 */
 
 import Model from "ember-data/system/model";
-import normalizeTypeKey from "ember-data/system/normalize-type-key";
+import normalizeModelName from "ember-data/system/normalize-type-key";
 
 /**
   `DS.hasMany` is used to define One-To-Many and Many-To-Many
@@ -105,7 +105,7 @@ function hasMany(type, options) {
   options = options || {};
 
   if (typeof type === 'string') {
-    type = normalizeTypeKey(type);
+    type = normalizeModelName(type);
   }
 
   // Metadata about relationships is stored on the meta of

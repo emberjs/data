@@ -27,7 +27,8 @@ module("integration/active_model - AMS-namespaced-model-names", {
       evilMinion:     EvilMinion,
       'evilMinions/yellowMinion':   YellowMinion,
       doomsdayDevice: DoomsdayDevice,
-      mediocreVillain: MediocreVillain
+      mediocreVillain: MediocreVillain,
+      yellowMinion: YellowMinion
     });
     env.store.modelFor('super-villain');
     env.store.modelFor('evil-minion');
@@ -63,7 +64,7 @@ test("serialize polymorphic", function() {
 });
 
 test("serialize polymorphic when type key is not camelized", function() {
-  YellowMinion.typeKey = 'evil-minions/yellow-minion';
+  YellowMinion.modelName = 'evil-minions/yellow-minion';
   var tom, ray;
   run(function() {
     tom = env.store.createRecord('yellow-minion', { name: "Alex", id: "124" });

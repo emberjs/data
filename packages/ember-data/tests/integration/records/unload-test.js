@@ -95,7 +95,7 @@ test("can unload all records", function () {
   });
 
   Ember.run(function() {
-    env.store.unloadAll('');
+    env.store.unloadAll();
   });
 
   equal(env.store.all('person').get('length'), 0);

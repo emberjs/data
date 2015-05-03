@@ -90,7 +90,7 @@ test("Setting the polymorphic belongsTo with an object that does not implement t
   var user, video;
   run(function() {
     user = store.push('user', { id: 1, name: 'Stanley' });
-    video = store.push('notMessage', { id: 2, video: 'Here comes Youtube' });
+    video = store.push('not-message', { id: 2, video: 'Here comes Youtube' });
   });
 
   run(function() {
@@ -135,7 +135,7 @@ test("Setting the polymorphic belongsTo with an object that does not implement t
     var user, video;
     run(function() {
       user = store.push('user', { id: 1, name: 'Stanley' });
-      video = store.push('notMessage', { id: 2, video: 'Here comes Youtube' });
+      video = store.push('not-message', { id: 2, video: 'Here comes Youtube' });
     });
 
     run(function() {

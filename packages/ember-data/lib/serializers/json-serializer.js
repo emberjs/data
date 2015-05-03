@@ -502,7 +502,7 @@ export default Serializer.extend({
     ```js
     App.ApplicationSerializer = DS.RESTSerializer.extend({
       serializeIntoHash: function(data, type, snapshot, options) {
-        var root = Ember.String.decamelize(type.typeKey);
+        var root = Ember.String.decamelize(type.modelName);
         data[root] = this.serialize(snapshot, options);
       }
     });
@@ -678,7 +678,7 @@ export default Serializer.extend({
         if (Ember.isNone(belongsTo)) {
           json[key + "_type"] = null;
         } else {
-          json[key + "_type"] = belongsTo.typeKey;
+          json[key + "_type"] = belongsTo.modelName;
         }
       }
     });
@@ -713,7 +713,7 @@ export default Serializer.extend({
     socket.on('message', function(message) {
       var data = message.data;
       var typeClass = store.modelFor(message.modelName);
-      var serializer = store.serializerFor(typeClass.typeKey);
+      var serializer = store.serializerFor(typeClass.modelName);
       var record = serializer.extract(store, typeClass, data, data.id, 'single');
 
       store.push(message.modelName, record);
@@ -729,7 +729,7 @@ export default Serializer.extend({
     @return {Object} json The deserialized payload
   */
   extract: function(store, typeClass, payload, id, requestType) {
-    this.extractMeta(store, typeClass, payload);
+    this.extractMeta(store, typeClass.modelName, payload);
 
     var specificExtract = "extract" + requestType.charAt(0).toUpperCase() + requestType.substr(1);
     return this[specificExtract](store, typeClass, payload, id, requestType);

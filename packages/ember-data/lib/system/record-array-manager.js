@@ -142,11 +142,11 @@ export default Ember.Object.extend({
 
     @method updateFilter
     @param {Array} array
-    @param {String} typeKey
+    @param {String} modelName
     @param {Function} filter
   */
-  updateFilter: function(array, typeKey, filter) {
-    var typeMap = this.store.typeMapFor(typeKey);
+  updateFilter: function(array, modelName, filter) {
+    var typeMap = this.store.typeMapFor(modelName);
     var records = typeMap.records;
     var record;
 
@@ -154,7 +154,7 @@ export default Ember.Object.extend({
       record = records[i];
 
       if (!get(record, 'isDeleted') && !get(record, 'isEmpty')) {
-        this.updateRecordArray(array, filter, typeKey, record);
+        this.updateRecordArray(array, filter, modelName, record);
       }
     }
   },

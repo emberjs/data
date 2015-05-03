@@ -49,12 +49,12 @@ module("integration/serializer/rest - RESTSerializer", {
   }
 });
 
-test("typeForRoot returns always same typeKey even for uncountable multi words keys", function() {
+test("typeForRoot returns always same modelName even for uncountable multi words keys", function() {
   expect(2);
   Ember.Inflector.inflector.uncountable('words');
-  var expectedTypeKey = 'multi-words';
-  equal(env.restSerializer.typeForRoot('multi_words'), expectedTypeKey);
-  equal(env.restSerializer.typeForRoot('multiWords'), expectedTypeKey);
+  var expectedModelName = 'multi-words';
+  equal(env.restSerializer.typeForRoot('multi_words'), expectedModelName);
+  equal(env.restSerializer.typeForRoot('multiWords'), expectedModelName);
 });
 
 test("extractArray with custom typeForRoot", function() {
@@ -284,8 +284,8 @@ test("serialize polymorphicType", function() {
   });
 });
 
-test("serialize polymorphicType with decamelized typeKey", function() {
-  YellowMinion.typeKey = 'yellow-minion';
+test("serialize polymorphicType with decamelized modelName", function() {
+  YellowMinion.modelName = 'yellow-minion';
   var tom, ray;
   run(function() {
     tom = env.store.createRecord('yellow-minion', { name: "Alex", id: "124" });
@@ -524,8 +524,8 @@ test("serializeIntoHash", function() {
   });
 });
 
-test("serializeIntoHash with decamelized typeKey", function() {
-  HomePlanet.typeKey = 'home-planet';
+test("serializeIntoHash with decamelized modelName", function() {
+  HomePlanet.modelName = 'home-planet';
   run(function() {
     league = env.store.createRecord('home-planet', { name: "Umber", id: "123" });
   });

@@ -3,8 +3,8 @@ var run = Ember.run;
 
 module("integration/adapter/ajax - building requests", {
   setup: function() {
-    Person = { typeKey: 'person' };
-    Place = { typeKey: 'place' };
+    Person = { modelName: 'person' };
+    Place = { modelName: 'place' };
     env = setupStore({ adapter: DS.RESTAdapter, person: Person, place: Place });
     store = env.store;
     adapter = env.adapter;

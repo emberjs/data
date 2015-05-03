@@ -12,11 +12,11 @@ function Relationship(store, record, inverseKey, relationshipMeta) {
   this.isAsync = relationshipMeta.options.async;
   this.relationshipMeta = relationshipMeta;
   //This probably breaks for polymorphic relationship in complex scenarios, due to
-  //multiple possible typeKeys
-  this.inverseKeyForImplicit = this.record.constructor.typeKey + this.key;
+  //multiple possible modelNames
+  this.inverseKeyForImplicit = this.record.constructor.modelName + this.key;
   this.linkPromise = null;
   this.hasData = false;
-};
+}
 
 Relationship.prototype = {
   constructor: Relationship,
@@ -204,8 +204,8 @@ Relationship.prototype = {
   },
 
   updateLink: function(link) {
-    Ember.warn("You have pushed a record of type '" + this.record.constructor.typeKey + "' with '" + this.key + "' as a link, but the association is not an async relationship.", this.isAsync);
-    Ember.assert("You have pushed a record of type '" + this.record.constructor.typeKey + "' with '" + this.key + "' as a link, but the value of that link is not a string.", typeof link === 'string' || link === null);
+    Ember.warn("You have pushed a record of type '" + this.record.constructor.modelName + "' with '" + this.key + "' as a link, but the association is not an async relationship.", this.isAsync);
+    Ember.assert("You have pushed a record of type '" + this.record.constructor.modelName + "' with '" + this.key + "' as a link, but the value of that link is not a string.", typeof link === 'string' || link === null);
     if (link !== this.link) {
       this.link = link;
       this.linkPromise = null;

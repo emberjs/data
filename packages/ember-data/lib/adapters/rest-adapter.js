@@ -344,7 +344,7 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   find: function(store, type, id, snapshot) {
-    return this.ajax(this.buildURL(type.typeKey, id, snapshot, 'find'), 'GET');
+    return this.ajax(this.buildURL(type.modelName, id, snapshot, 'find'), 'GET');
   },
 
   /**
@@ -368,7 +368,7 @@ export default Adapter.extend(BuildURLMixin, {
       query = { since: sinceToken };
     }
 
-    url = this.buildURL(type.typeKey, null, null, 'findAll');
+    url = this.buildURL(type.modelName, null, null, 'findAll');
 
     return this.ajax(url, 'GET', { data: query });
   },
@@ -391,7 +391,7 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findQuery: function(store, type, query) {
-    var url = this.buildURL(type.typeKey, query, null, 'findQuery');
+    var url = this.buildURL(type.modelName, query, null, 'findQuery');
 
     if (this.sortQueryParams) {
       query = this.sortQueryParams(query);
@@ -434,7 +434,7 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Promise} promise
   */
   findMany: function(store, type, ids, snapshots) {
-    var url = this.buildURL(type.typeKey, ids, snapshots, 'findMany');
+    var url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { ids: ids } });
   },
 
@@ -467,7 +467,7 @@ export default Adapter.extend(BuildURLMixin, {
   */
   findHasMany: function(store, snapshot, url, relationship) {
     var id   = snapshot.id;
-    var type = snapshot.typeKey;
+    var type = snapshot.modelName;
 
     url = this.urlPrefix(url, this.buildURL(type, id, null, 'findHasMany'));
 
@@ -503,7 +503,7 @@ export default Adapter.extend(BuildURLMixin, {
   */
   findBelongsTo: function(store, snapshot, url, relationship) {
     var id   = snapshot.id;
-    var type = snapshot.typeKey;
+    var type = snapshot.modelName;
 
     url = this.urlPrefix(url, this.buildURL(type, id, null, 'findBelongsTo'));
     return this.ajax(url, 'GET');
@@ -527,8 +527,8 @@ export default Adapter.extend(BuildURLMixin, {
   */
   createRecord: function(store, type, snapshot) {
     var data = {};
-    var serializer = store.serializerFor(type.typeKey);
-    var url = this.buildURL(type.typeKey, null, snapshot, 'createRecord');
+    var serializer = store.serializerFor(type.modelName);
+    var url = this.buildURL(type.modelName, null, snapshot, 'createRecord');
 
     serializer.serializeIntoHash(data, type, snapshot, { includeId: true });
 
@@ -553,12 +553,12 @@ export default Adapter.extend(BuildURLMixin, {
   */
   updateRecord: function(store, type, snapshot) {
     var data = {};
-    var serializer = store.serializerFor(type.typeKey);
+    var serializer = store.serializerFor(type.modelName);
 
     serializer.serializeIntoHash(data, type, snapshot);
 
     var id = snapshot.id;
-    var url = this.buildURL(type.typeKey, id, snapshot, 'updateRecord');
+    var url = this.buildURL(type.modelName, id, snapshot, 'updateRecord');
 
     return this.ajax(url, "PUT", { data: data });
   },
@@ -577,11 +577,11 @@ export default Adapter.extend(BuildURLMixin, {
   deleteRecord: function(store, type, snapshot) {
     var id = snapshot.id;
 
-    return this.ajax(this.buildURL(type.typeKey, id, snapshot, 'deleteRecord'), "DELETE");
+    return this.ajax(this.buildURL(type.modelName, id, snapshot, 'deleteRecord'), "DELETE");
   },
 
   _stripIDFromURL: function(store, snapshot) {
-    var url = this.buildURL(snapshot.typeKey, snapshot.id, snapshot);
+    var url = this.buildURL(snapshot.modelName, snapshot.id, snapshot);
 
     var expandedURL = url.split('/');
     //Case when the url is of the format ...something/:id

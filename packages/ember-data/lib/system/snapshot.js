@@ -25,7 +25,7 @@ function Snapshot(record) {
   this.id = get(record, 'id');
   this.record = record;
   this.type = record.constructor;
-  this.typeKey = record.constructor.typeKey;
+  this.modelName = record.constructor.modelName;
 
   // The following code is here to keep backwards compatibility when accessing
   // `constructor` directly.
@@ -100,10 +100,10 @@ Snapshot.prototype = {
   /**
     The name of the type of the underlying record for this snapshot, as a string.
 
-    @property typeKey
+    @property modelName
     @type {String}
   */
-  typeKey: null,
+  modelName: null,
 
   /**
     Returns the value of an attribute.
