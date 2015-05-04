@@ -454,3 +454,26 @@ test('serializeBelongsTo with async polymorphic', function() {
 
   deepEqual(json, expected, 'returned JSON is correct');
 });
+
+test('extractErrors respects custom key mappings', function() {
+  env.registry.register('serializer:post', DS.JSONSerializer.extend({
+    attrs: {
+      title: 'le_title',
+      comments: { key: 'my_comments' }
+    }
+  }));
+
+  var payload = {
+    errors: {
+      le_title: ["title errors"],
+      my_comments: ["comments errors"]
+    }
+  };
+
+  var errors = env.container.lookup('serializer:post').extractErrors(env.store, Post, payload);
+
+  deepEqual(errors, {
+    title: ["title errors"],
+    comments: ["comments errors"]
+  });
+});
