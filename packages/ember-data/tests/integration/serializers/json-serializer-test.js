@@ -477,3 +477,30 @@ test('extractErrors respects custom key mappings', function() {
     comments: ["comments errors"]
   });
 });
+
+test('extractErrors expects error information located on the errors property of payload', function() {
+  env.registry.register('serializer:post', DS.JSONSerializer.extend());
+
+  var payload = {
+    attributeWhichWillBeRemovedinExtractErrors: ["true"],
+    errors: {
+      title: ["title errors"]
+    }
+  };
+
+  var errors = env.container.lookup('serializer:post').extractErrors(env.store, Post, payload);
+
+  deepEqual(errors, { title: ["title errors"] });
+});
+
+test('extractErrors leaves payload untouched if it has no errors property', function() {
+  env.registry.register('serializer:post', DS.JSONSerializer.extend());
+
+  var payload = {
+    untouchedSinceNoErrorsSiblingPresent: ["true"]
+  };
+
+  var errors = env.container.lookup('serializer:post').extractErrors(env.store, Post, payload);
+
+  deepEqual(errors, { untouchedSinceNoErrorsSiblingPresent: ["true"] });
+});

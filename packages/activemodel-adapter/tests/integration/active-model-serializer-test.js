@@ -325,3 +325,19 @@ test("extractPolymorphic does not break hasMany relationships", function() {
     "evilMinions": []
   });
 });
+
+test("extractErrors camelizes keys", function() {
+  var payload = {
+    errors: {
+      first_name: ["firstName not evil enough"]
+    }
+  };
+
+  run(function() {
+    payload = env.amsSerializer.extractErrors(env.store, SuperVillain, payload);
+  });
+
+  deepEqual(payload, {
+    firstName: ["firstName not evil enough"]
+  });
+});
