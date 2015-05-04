@@ -274,6 +274,7 @@ export default Serializer.extend({
     this.normalizeId(hash);
     this.normalizeAttributes(typeClass, hash);
     this.normalizeRelationships(typeClass, hash);
+    this.normalizeUsingDeclaredMapping(typeClass, hash);
   },
 
   /**
