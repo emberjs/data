@@ -29,13 +29,11 @@ export function _find(adapter, store, typeClass, id, record) {
       return store.push(typeClass, payload);
     });
   }, function(error) {
-    var record = store.getById(typeClass, id);
-    if (record) {
-      record.notFound();
-      if (get(record, 'isEmpty')) {
-        store.unloadRecord(record);
-      }
+    record.notFound();
+    if (get(record, 'isEmpty')) {
+      store.unloadRecord(record);
     }
+
     throw error;
   }, "DS: Extract payload of '" + typeClass + "'");
 }
