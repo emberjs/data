@@ -499,6 +499,13 @@ var Model = Ember.Object.extend(Ember.Evented, {
   becameError: Ember.K,
 
   /**
+    Fired when the record is rolled back.
+
+    @event rolledBack
+  */
+  rolledBack: Ember.K,
+
+  /**
     @property data
     @private
     @type {Object}
