@@ -318,6 +318,32 @@ test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo`
   ok(!payload.hasOwnProperty(serializedProperty), "Does not add the key to instance");
 });
 
+test("Serializer should merge attrs from superclasses", function() {
+  expect(2);
+  Post.reopen({
+    description: DS.attr('string')
+  });
+  var BaseSerializer = DS.JSONSerializer.extend({
+    attrs: {
+      title: "title_payload_key"
+    }
+  });
+  env.registry.register("serializer:post", BaseSerializer.extend({
+    attrs: {
+      description: "description_payload_key"
+    }
+  }));
+
+  run(function() {
+    post = env.store.createRecord("post", { title: "Rails is omakase", description: "Omakase is delicious" });
+  });
+
+  var payload = env.container.lookup("serializer:post").serialize(post._createSnapshot());
+
+  equal(payload.title_payload_key, "Rails is omakase");
+  equal(payload.description_payload_key, "Omakase is delicious");
+});
+
 test("Serializer should respect the primaryKey attribute when extracting records", function() {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
     primaryKey: '_ID_'
