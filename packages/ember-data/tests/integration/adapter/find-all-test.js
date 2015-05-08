@@ -25,20 +25,21 @@ module("integration/adapter/find_all - Finding All Records of a Type", {
 test("When all records for a type are requested, the store should call the adapter's `findAll` method.", function() {
   expect(5);
 
-  store = createStore({ adapter: DS.Adapter.extend({
+  store = createStore({
+    adapter: DS.Adapter.extend({
       findAll: function(store, type, since) {
         // this will get called twice
         ok(true, "the adapter's findAll method should be invoked");
-
         return Ember.RSVP.resolve([{ id: 1, name: "Braaaahm Dale" }]);
       }
-    })
+    }),
+    person: Person
   });
 
   var allRecords;
 
   run(function() {
-    store.find(Person).then(function(all) {
+    store.find('person').then(function(all) {
       allRecords = all;
       equal(get(all, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
       equal(all.objectAt(0).get('name'), "Braaaahm Dale", "the first item in the record array is Braaaahm Dale");
@@ -46,7 +47,7 @@ test("When all records for a type are requested, the store should call the adapt
   });
 
   run(function() {
-    store.find(Person).then(function(all) {
+    store.find('person').then(function(all) {
       // Only one record array per type should ever be created (identity map)
       strictEqual(allRecords, all, "the same record array is returned every time all records of a type are requested");
     });
@@ -69,15 +70,16 @@ test("When all records for a type are requested, a rejection should reject the p
           return Ember.RSVP.resolve([{ id: 1, name: "Braaaahm Dale" }]);
         }
       }
-    })
+    }),
+    person: Person
   });
 
   var allRecords;
 
   run(function() {
-    store.find(Person).then(null, function() {
+    store.find('person').then(null, function() {
       ok(true, "The rejection should get here");
-      return store.find(Person);
+      return store.find('person');
     }).then(function(all) {
       allRecords = all;
       equal(get(all, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
@@ -88,16 +90,19 @@ test("When all records for a type are requested, a rejection should reject the p
 
 test("When all records for a type are requested, records that are already loaded should be returned immediately.", function() {
   expect(3);
-  store = createStore({ adapter: DS.Adapter.extend() });
+  store = createStore({
+    adapter: DS.Adapter.extend(),
+    person: Person
+  });
 
   run(function() {
     // Load a record from the server
-    store.push(Person, { id: 1, name: "Jeremy Ashkenas" });
+    store.push('person', { id: 1, name: "Jeremy Ashkenas" });
     // Create a new, unsaved record in the store
-    store.createRecord(Person, { name: "Alex MacCaw" });
+    store.createRecord('person', { name: "Alex MacCaw" });
   });
 
-  allRecords = store.all(Person);
+  allRecords = store.all('person');
 
   equal(get(allRecords, 'length'), 2, "the record array's length is 2");
   equal(allRecords.objectAt(0).get('name'), "Jeremy Ashkenas", "the first item in the record array is Jeremy Ashkenas");
@@ -107,14 +112,17 @@ test("When all records for a type are requested, records that are already loaded
 test("When all records for a type are requested, records that are created on the client should be added to the record array.", function() {
   expect(3);
 
-  store = createStore({ adapter: DS.Adapter.extend() });
+  store = createStore({
+    adapter: DS.Adapter.extend(),
+    person: Person
+  });
 
-  allRecords = store.all(Person);
+  allRecords = store.all('person');
 
   equal(get(allRecords, 'length'), 0, "precond - the record array's length is zero before any records are loaded");
 
   run(function() {
-    store.createRecord(Person, { name: "Carsten Nielsen" });
+    store.createRecord('person', { name: "Carsten Nielsen" });
   });
 
   equal(get(allRecords, 'length'), 1, "the record array's length is 1");

@@ -682,11 +682,12 @@ test("ensure model exits loading state, materializes data and fulfills promise o
       find: function(store, type, id, snapshot) {
         return Ember.RSVP.resolve({ id: 1, name: "John" });
       }
-    })
+    }),
+    person: Person
   });
 
   run(function() {
-    store.find(Person, 1).then(function(person) {
+    store.find('person', 1).then(function(person) {
       equal(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
       equal(get(person, 'isLoaded'), true, 'model is loaded');
     });
