@@ -98,6 +98,7 @@ export default Serializer.extend({
     @property attrs
     @type {Object}
   */
+  mergedProperties: ['attrs'],
 
   /**
    Given a subclass of `DS.Model` and a JSON object this method will
