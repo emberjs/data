@@ -3,7 +3,7 @@ import {
   Map
 } from "ember-data/system/map";
 
-import computedPolyfill from "ember-data/utils/computed-polyfill";
+import computedPolyfill from "ember-new-computed";
 
 /**
   @module ember-data
