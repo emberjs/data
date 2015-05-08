@@ -57,11 +57,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
   length: 0,
 
   objectAt: function(index) {
-    if (this.currentState[index]) {
-      return this.currentState[index];
-    } else {
-      return this.canonicalState[index];
-    }
+    return this.currentState[index];
   },
 
   flushCanonical: function() {

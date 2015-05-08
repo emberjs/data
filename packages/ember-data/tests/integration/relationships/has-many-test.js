@@ -821,7 +821,7 @@ test("Only records of the same base type can be added to a polymorphic hasMany r
 });
 
 test("A record can be removed from a polymorphic association", function() {
-  expect(3);
+  expect(4);
 
   run(function() {
     env.store.push('user', { id: 1 , messages: [{ id: 3, type: 'comment' }] });
@@ -845,6 +845,7 @@ test("A record can be removed from a polymorphic association", function() {
 
       equal(removedObject, records.comment, "The message is correctly removed");
       equal(records.messages.get('length'), 0, "The user does not have any messages");
+      equal(records.messages.objectAt(0), null, "No messages can't be fetched");
     });
   });
 });

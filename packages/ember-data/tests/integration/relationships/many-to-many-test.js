@@ -86,8 +86,10 @@ test("Fetching a hasMany where a record was removed reflects on the other hasMan
   run(function() {
     user.get('topics').then(async(function(fetchedTopics) {
       equal(fetchedTopics.get('length'), 0, 'Topics were removed correctly');
+      equal(fetchedTopics.objectAt(0), null, "Topics can't be fetched");
       topic.get('users').then(async(function(fetchedUsers) {
         equal(fetchedUsers.get('length'), 0, 'Users were removed correctly');
+        equal(fetchedUsers.objectAt(0), null, "User can't be fetched");
       }));
     }));
   });
@@ -148,6 +150,7 @@ test("Removing a record from a hasMany reflects on the other hasMany side - asyn
       fetchedTopics.removeObject(topic);
       topic.get('users').then(async(function(fetchedUsers) {
         equal(fetchedUsers.get('length'), 0, 'Users were removed correctly');
+        equal(fetchedUsers.objectAt(0), null, "User can't be fetched");
       }));
     }));
   });
@@ -184,6 +187,7 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
     }));
     user.get('topics').then(async(function(fetchedTopics) {
       equal(fetchedTopics.get('length'), 0, 'Topic got removed from the user');
+      equal(fetchedTopics.objectAt(0), null, "Topic can't be fetched");
     }));
   });
 });
@@ -249,9 +253,11 @@ test("Rollbacking a created record that has a ManyToMany relationship works corr
       topic.rollback();
       topic.get('users').then(async(function(fetchedUsers) {
         equal(fetchedUsers.get('length'), 0, 'Users got removed');
+        equal(fetchedUsers.objectAt(0), null, "User can't be fetched");
       }));
       user.get('topics').then(async(function(fetchedTopics) {
         equal(fetchedTopics.get('length'), 0, 'Topics got removed');
+        equal(fetchedTopics.objectAt(0), null, "Topic can't be fetched");
       }));
     }));
   });
