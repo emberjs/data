@@ -11,3 +11,6 @@ entry in `config/features.json`.
 
 ## Feature Flags
 
+* `ds-new-serializer-api`
+
+  Activates the new Serializer API for default serializers.

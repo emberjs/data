@@ -5,9 +5,13 @@ import {
 } from "ember-data/system/store/common";
 
 import {
+  normalizeResponseHelper,
+  pushPayload
+} from "ember-data/system/store/serializer-response";
+
+import {
   serializerForAdapter
 } from "ember-data/system/store/serializers";
-
 
 var Promise = Ember.RSVP.Promise;
 var map = Ember.EnumerableUtils.map;
@@ -24,10 +28,9 @@ export function _find(adapter, store, typeClass, id, internalModel) {
   return promise.then(function(adapterPayload) {
     Ember.assert("You made a request for a " + typeClass.typeClassKey + " with id " + id + ", but the adapter's response did not have any data", adapterPayload);
     return store._adapterRun(function() {
-      var payload = serializer.extract(store, typeClass, adapterPayload, id, 'find');
-
+      var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, id, 'find');
       //TODO Optimize
-      var record = store.push(typeClass.modelName, payload);
+      var record = pushPayload(store, payload);
       return record._internalModel;
     });
   }, function(error) {
@@ -56,12 +59,9 @@ export function _findMany(adapter, store, typeClass, ids, internalModels) {
 
   return promise.then(function(adapterPayload) {
     return store._adapterRun(function() {
-      var payload = serializer.extract(store, typeClass, adapterPayload, null, 'findMany');
-
-      Ember.assert("The response from a findMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
-
+      var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findMany');
       //TODO Optimize, no need to materialize here
-      var records = store.pushMany(typeClass.modelName, payload);
+      var records = pushPayload(store, payload);
       return map(records, function(record) { return record._internalModel; });
     });
   }, null, "DS: Extract payload of " + typeClass);
@@ -80,12 +80,9 @@ export function _findHasMany(adapter, store, internalModel, link, relationship) 
 
   return promise.then(function(adapterPayload) {
     return store._adapterRun(function() {
-      var payload = serializer.extract(store, typeClass, adapterPayload, null, 'findHasMany');
-
-      Ember.assert("The response from a findHasMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
-
+      var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findHasMany');
       //TODO Use a non record creating push
-      var records = store.pushMany(relationship.type, payload);
+      var records = pushPayload(store, payload);
       return map(records, function(record) { return record._internalModel; });
     });
   }, null, "DS: Extract payload of " + internalModel + " : hasMany " + relationship.type);
@@ -104,14 +101,14 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
 
   return promise.then(function(adapterPayload) {
     return store._adapterRun(function() {
-      var payload = serializer.extract(store, typeClass, adapterPayload, null, 'findBelongsTo');
+      var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findBelongsTo');
 
-      if (!payload) {
+      if (!payload.data) {
         return null;
       }
 
-      var record = store.push(relationship.type, payload);
       //TODO Optimize
+      var record = pushPayload(store, payload);
       return record._internalModel;
     });
   }, null, "DS: Extract payload of " + internalModel + " : " + relationship.type);
@@ -128,11 +125,9 @@ export function _findAll(adapter, store, typeClass, sinceToken) {
 
   return promise.then(function(adapterPayload) {
     store._adapterRun(function() {
-      var payload = serializer.extract(store, typeClass, adapterPayload, null, 'findAll');
-
-      Ember.assert("The response from a findAll must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
-
-      store.pushMany(modelName, payload);
+      var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findAll');
+      //TODO Optimize
+      pushPayload(store, payload);
     });
 
     store.didUpdateAll(typeClass);
@@ -150,14 +145,14 @@ export function _findQuery(adapter, store, typeClass, query, recordArray) {
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(function(adapterPayload) {
-    var payload;
+    var records;
     store._adapterRun(function() {
-      payload = serializer.extract(store, typeClass, adapterPayload, null, 'findQuery');
-
-      Ember.assert("The response from a findQuery must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
+      var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findQuery');
+      //TODO Optimize
+      records = pushPayload(store, payload);
     });
 
-    recordArray.load(payload);
+    recordArray.loadRecords(records);
     return recordArray;
 
   }, null, "DS: Extract payload of findQuery " + typeClass);
