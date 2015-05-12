@@ -256,7 +256,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     @method extractSingle
     @param {DS.Store} store
-    @param {subclass of DS.Model} primaryTypeClasss
+    @param {subclass of DS.Model} primaryTypeClass
     @param {Object} payload
     @param {String} recordId
     @return {Object} the primary response to the original request
