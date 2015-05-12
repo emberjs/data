@@ -871,14 +871,15 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
+    var attr = DS.attr;
     App.Mascot = DS.Model.extend({
       name: attr('string')
     });
 
-    var person = store.createRecord('person');
-    person.changedAttributes(); // {}
-    person.set('name', 'Tomster');
-    person.changedAttributes(); // {name: [undefined, 'Tomster']}
+    var mascot = store.createRecord('mascot');
+    mascot.changedAttributes(); // {}
+    mascot.set('name', 'Tomster');
+    mascot.changedAttributes(); // {name: [undefined, 'Tomster']}
     ```
 
     @method changedAttributes
