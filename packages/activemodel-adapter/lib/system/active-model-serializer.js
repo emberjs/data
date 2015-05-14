@@ -1,5 +1,6 @@
 import { singularize } from "ember-inflector";
 import RESTSerializer from "ember-data/serializers/rest-serializer";
+import normalizeModelName from "ember-data/system/normalize-model-name";
 /**
   @module ember-data
 */
@@ -146,7 +147,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash: function(data, typeClass, snapshot, options) {
-    var root = underscore(decamelize(typeClass.typeKey));
+    var root = underscore(decamelize(typeClass.modelName));
     data[root] = this.serialize(snapshot, options);
   },
 
@@ -166,7 +167,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     if (Ember.isNone(belongsTo)) {
       json[jsonKey] = null;
     } else {
-      json[jsonKey] = classify(belongsTo.typeKey).replace(/(\/)([a-z])/g, function(match, separator, chr) {
+      json[jsonKey] = classify(belongsTo.modelName).replace(/(\/)([a-z])/g, function(match, separator, chr) {
         return match.toUpperCase();
       }).replace('/', '::');
     }
@@ -290,9 +291,10 @@ var ActiveModelSerializer = RESTSerializer.extend({
     }
   },
   typeForRoot: function(key) {
-    return camelize(singularize(key)).replace(/(^|\:)([A-Z])/g, function(match, separator, chr) {
+    var convertedFromRubyModule = camelize(singularize(key)).replace(/(^|\:)([A-Z])/g, function(match, separator, chr) {
       return match.toLowerCase();
     }).replace('::', '/');
+    return normalizeModelName(convertedFromRubyModule);
   }
 });
 

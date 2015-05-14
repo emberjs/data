@@ -24,13 +24,10 @@ test("doesn't modify passed in properties hash", function() {
 module("unit/store/createRecord - Store with models by dash", {
   setup: function() {
     var env = setupStore({
-      'some-thing': DS.Model.extend({ foo: DS.attr('string') })
+      someThing: DS.Model.extend({ foo: DS.attr('string') })
     });
     store = env.store;
     container = env.container;
-    env.replaceContainerNormalize(function(key) {
-      return Ember.String.dasherize(key);
-    });
   }
 });
 test("creating a record by camel-case string finds the model", function() {
@@ -42,7 +39,7 @@ test("creating a record by camel-case string finds the model", function() {
   });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
-  equal(store.modelFor('someThing').typeKey, 'someThing');
+  equal(store.modelFor('someThing').modelName, 'some-thing');
 });
 
 test("creating a record by dasherize string finds the model", function() {
@@ -54,7 +51,7 @@ test("creating a record by dasherize string finds the model", function() {
   });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
-  equal(store.modelFor('some-thing').typeKey, 'someThing');
+  equal(store.modelFor('some-thing').modelName, 'some-thing');
 });
 
 module("unit/store/createRecord - Store with models by camelCase", {
@@ -64,7 +61,6 @@ module("unit/store/createRecord - Store with models by camelCase", {
     });
     store = env.store;
     container = env.container;
-    env.replaceContainerNormalize(Ember.String.camelize);
   }
 });
 
@@ -77,7 +73,7 @@ test("creating a record by camel-case string finds the model", function() {
   });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
-  equal(store.modelFor('someThing').typeKey, 'someThing');
+  equal(store.modelFor('someThing').modelName, 'some-thing');
 });
 
 test("creating a record by dasherize string finds the model", function() {
@@ -89,5 +85,5 @@ test("creating a record by dasherize string finds the model", function() {
   });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
-  equal(store.modelFor('some-thing').typeKey, 'someThing');
+  equal(store.modelFor('some-thing').modelName, 'some-thing');
 });

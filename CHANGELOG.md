@@ -2,6 +2,9 @@
 
 ### Master
 
+- `typeKey` on Snapshots and Model classes has been deprecated. Use
+  `modelName` instead.
+
 ### Release 1.0.0-beta.17 (May 10, 2015)
 
 - [#2898](https://github.com/emberjs/data/pull/2898) Pass requestType to buildURL [@amiel](https://github.com/amiel)

@@ -150,7 +150,7 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
     equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
-    equal(relationship.type.typeKey, "comment", "relationship was passed correctly");
+    equal(relationship.type.modelName, "comment", "relationship was passed correctly");
 
     return Ember.RSVP.resolve([
       { id: 1, body: "First" },
@@ -570,7 +570,7 @@ test("An updated `links` value should invalidate a relationship cache", function
   });
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    equal(relationship.type.typeKey, "comment", "relationship was passed correctly");
+    equal(relationship.type.modelName, "comment", "relationship was passed correctly");
 
     if (link === '/first') {
       return Ember.RSVP.resolve([

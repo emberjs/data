@@ -42,8 +42,8 @@ export default Ember.DataAdapter.extend({
     return columns;
   },
 
-  getRecords: function(typeKey) {
-    return this.get('store').all(typeKey);
+  getRecords: function(modelName) {
+    return this.get('store').all(modelName);
   },
 
   getRecordColumnValues: function(record) {

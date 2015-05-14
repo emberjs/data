@@ -1,6 +1,7 @@
 import Model from 'ember-data/system/model';
 
 import computedPolyfill from "ember-data/utils/computed-polyfill";
+import normalizeModelName from "ember-data/system/normalize-model-name";
 
 /**
   `DS.belongsTo` is used to define One-To-One and One-To-Many
@@ -56,24 +57,32 @@ import computedPolyfill from "ember-data/utils/computed-polyfill";
   @namespace
   @method belongsTo
   @for DS
-  @param {String} type (optional) type of the relationship
+  @param {String} modelName (optional) type of the relationship
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
 */
-function belongsTo(type, options) {
-  if (typeof type === 'object') {
-    options = type;
-    type = undefined;
+function belongsTo(modelName, options) {
+  var opts, userEnteredModelName;
+  if (typeof modelName === 'object') {
+    opts = modelName;
+    userEnteredModelName = undefined;
+  } else {
+    opts = options;
+    userEnteredModelName = modelName;
   }
 
-  Ember.assert("The first argument to DS.belongsTo must be a string representing a model type key, not an instance of " + Ember.inspect(type) + ". E.g., to define a relation to the Person model, use DS.belongsTo('person')", typeof type === 'string' || typeof type === 'undefined');
+  if (typeof userEnteredModelName === 'string') {
+    userEnteredModelName = normalizeModelName(userEnteredModelName);
+  }
 
-  options = options || {};
+  Ember.assert("The first argument to DS.belongsTo must be a string representing a model type key, not an instance of " + Ember.inspect(userEnteredModelName) + ". E.g., to define a relation to the Person model, use DS.belongsTo('person')", typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined');
+
+  opts = opts || {};
 
   var meta = {
-    type: type,
+    type: userEnteredModelName,
     isRelationship: true,
-    options: options,
+    options: opts,
     kind: 'belongsTo',
     key: null
   };

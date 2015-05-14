@@ -3,12 +3,12 @@
 */
 
 import JSONSerializer from "ember-data/serializers/json-serializer";
+import normalizeModelName from "ember-data/system/normalize-model-name";
+import {singularize} from "ember-inflector/lib/system/string";
 
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var camelize = Ember.String.camelize;
-
-import { singularize } from "ember-inflector/lib/system/string";
 
 function coerceId(id) {
   return id == null ? null : id + '';
@@ -263,7 +263,7 @@ var RESTSerializer = JSONSerializer.extend({
   */
   extractSingle: function(store, primaryTypeClass, rawPayload, recordId) {
     var payload = this.normalizePayload(rawPayload);
-    var primaryTypeClassName = primaryTypeClass.typeKey;
+    var primaryTypeClassName = primaryTypeClass.modelName;
     var primaryRecord;
 
     for (var prop in payload) {
@@ -274,7 +274,7 @@ var RESTSerializer = JSONSerializer.extend({
         continue;
       }
       var type = store.modelFor(typeName);
-      var isPrimary = type.typeKey === primaryTypeClassName;
+      var isPrimary = type.modelName === primaryTypeClassName;
       var value = payload[prop];
 
       if (value === null) {
@@ -417,26 +417,26 @@ var RESTSerializer = JSONSerializer.extend({
   */
   extractArray: function(store, primaryTypeClass, rawPayload) {
     var payload = this.normalizePayload(rawPayload);
-    var primaryTypeClassName = primaryTypeClass.typeKey;
+    var primaryTypeClassName = primaryTypeClass.modelName;
     var primaryArray;
 
     for (var prop in payload) {
-      var typeKey = prop;
+      var modelName = prop;
       var forcedSecondary = false;
 
       if (prop.charAt(0) === '_') {
         forcedSecondary = true;
-        typeKey = prop.substr(1);
+        modelName = prop.substr(1);
       }
 
-      var typeName = this.typeForRoot(typeKey);
+      var typeName = this.typeForRoot(modelName);
       if (!store.modelFactoryFor(typeName)) {
         Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
         continue;
       }
       var type = store.modelFor(typeName);
       var typeSerializer = store.serializerFor(type);
-      var isPrimary = (!forcedSecondary && (type.typeKey === primaryTypeClassName));
+      var isPrimary = (!forcedSecondary && (type.modelName === primaryTypeClassName));
 
       /*jshint loopfunc:true*/
       var normalizedArray = map.call(payload[prop], function(hash) {
@@ -488,12 +488,12 @@ var RESTSerializer = JSONSerializer.extend({
     var payload = this.normalizePayload(rawPayload);
 
     for (var prop in payload) {
-      var typeKey = this.typeForRoot(prop);
-      if (!store.modelFactoryFor(typeKey, prop)) {
-        Ember.warn(this.warnMessageNoModelForKey(prop, typeKey), false);
+      var modelName = this.typeForRoot(prop);
+      if (!store.modelFactoryFor(modelName, prop)) {
+        Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false);
         continue;
       }
-      var type = store.modelFor(typeKey);
+      var type = store.modelFor(modelName);
       var typeSerializer = store.serializerFor(type);
 
       /*jshint loopfunc:true*/
@@ -501,20 +501,20 @@ var RESTSerializer = JSONSerializer.extend({
         return typeSerializer.normalize(type, hash, prop);
       }, this);
 
-      store.pushMany(typeKey, normalizedArray);
+      store.pushMany(modelName, normalizedArray);
     }
   },
 
   /**
     This method is used to convert each JSON root key in the payload
-    into a typeKey that it can use to look up the appropriate model for
-    that part of the payload. By default the typeKey for a model is its
-    name in camelCase, so if your JSON root key is 'fast-car' you would
-    use typeForRoot to convert it to 'fastCar' so that Ember Data finds
+    into a modelName that it can use to look up the appropriate model for
+    that part of the payload. By default the modelName for a model is its
+    name in camelCase, so if your JSON root key is 'fast_car' you would
+    use typeForRoot to convert it to 'fast-car' so that Ember Data finds
     the `FastCar` model.
 
     If you diverge from this norm you should also consider changes to
-    store._normalizeTypeKey as well.
+    store._normalizeModelName as well.
 
     For example, your server may return prefixed root keys like so:
 
@@ -528,7 +528,7 @@ var RESTSerializer = JSONSerializer.extend({
     ```
 
     In order for Ember Data to know that the model corresponding to
-    the 'response-fast-car' hash is `FastCar` (typeKey: 'fastCar'),
+    the 'response-fast-car' hash is `FastCar` (modelName: 'fastCar'),
     you can override typeForRoot to convert 'response-fast-car' to
     'fastCar' like so:
 
@@ -546,10 +546,10 @@ var RESTSerializer = JSONSerializer.extend({
 
     @method typeForRoot
     @param {String} key
-    @return {String} the model's typeKey
+    @return {String} the model's modelName
   */
   typeForRoot: function(key) {
-    return camelize(singularize(key));
+    return singularize(normalizeModelName(key));
   },
 
   // SERIALIZE
@@ -703,7 +703,7 @@ var RESTSerializer = JSONSerializer.extend({
 
   /**
     You can use this method to customize the root keys serialized into the JSON.
-    By default the REST Serializer sends the typeKey of a model, which is a camelized
+    By default the REST Serializer sends the modelName of a model, which is a camelized
     version of the name.
 
     For example, your server may expect underscored root objects.
@@ -711,7 +711,7 @@ var RESTSerializer = JSONSerializer.extend({
     ```js
     App.ApplicationSerializer = DS.RESTSerializer.extend({
       serializeIntoHash: function(data, type, record, options) {
-        var root = Ember.String.decamelize(type.typeKey);
+        var root = Ember.String.decamelize(type.modelName);
         data[root] = this.serialize(record, options);
       }
     });
@@ -724,7 +724,8 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} options
   */
   serializeIntoHash: function(hash, typeClass, snapshot, options) {
-    hash[typeClass.typeKey] = this.serialize(snapshot, options);
+    var rootTypeKey = camelize(typeClass.modelName);
+    hash[rootTypeKey] = this.serialize(snapshot, options);
   },
 
   /**
@@ -744,15 +745,15 @@ var RESTSerializer = JSONSerializer.extend({
     if (Ember.isNone(belongsTo)) {
       json[key + "Type"] = null;
     } else {
-      json[key + "Type"] = Ember.String.camelize(belongsTo.typeKey);
+      json[key + "Type"] = Ember.String.camelize(belongsTo.modelName);
     }
   }
 });
 
 Ember.runInDebug(function() {
   RESTSerializer.reopen({
-    warnMessageNoModelForKey: function(prop, typeKey) {
-      return 'Encountered "' + prop + '" in payload, but no model was found for model name "' + typeKey + '" (resolved model name using ' + this.constructor.toString() + '.typeForRoot("' + prop + '"))';
+    warnMessageNoModelForKey: function(prop, modelName) {
+      return 'Encountered "' + prop + '" in payload, but no model was found for model name "' + modelName + '" (resolved model name using ' + this.constructor.toString() + '.typeForRoot("' + prop + '"))';
     }
   });
 });

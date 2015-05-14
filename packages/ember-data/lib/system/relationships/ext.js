@@ -43,7 +43,7 @@ var relatedTypesDescriptor = Ember.computed(function() {
     relatedTypesDescriptor._cacheable = false;
   }
 
-  var typeKey;
+  var modelName;
   var types = Ember.A();
 
   // Loop through each computed property on the class,
@@ -52,13 +52,13 @@ var relatedTypesDescriptor = Ember.computed(function() {
   this.eachComputedProperty(function(name, meta) {
     if (meta.isRelationship) {
       meta.key = name;
-      typeKey = typeForRelationshipMeta(this.store, meta);
+      modelName = typeForRelationshipMeta(this.store, meta);
 
-      Ember.assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.", typeKey);
+      Ember.assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.", modelName);
 
-      if (!types.contains(typeKey)) {
-        Ember.assert("Trying to sideload " + name + " on " + this.toString() + " but the type doesn't exist.", !!typeKey);
-        types.push(typeKey);
+      if (!types.contains(modelName)) {
+        Ember.assert("Trying to sideload " + name + " on " + this.toString() + " but the type doesn't exist.", !!modelName);
+        types.push(modelName);
       }
     }
   });
@@ -235,14 +235,14 @@ Model.reopenClass({
 
     var inverseName, inverseKind, inverse;
 
-    Ember.warn("Detected a reflexive relationship by the name of '" + name + "' without an inverse option. Look at http://emberjs.com/guides/models/defining-models/#toc_reflexive-relation for how to explicitly specify inverses.", options.inverse || propertyMeta.type !== propertyMeta.parentType.typeKey);
+    Ember.warn("Detected a reflexive relationship by the name of '" + name + "' without an inverse option. Look at http://emberjs.com/guides/models/defining-models/#toc_reflexive-relation for how to explicitly specify inverses.", options.inverse || propertyMeta.type !== propertyMeta.parentType.modelName);
 
     //If inverse is specified manually, return the inverse
     if (options.inverse) {
       inverseName = options.inverse;
       inverse = Ember.get(inverseType, 'relationshipsByName').get(inverseName);
 
-      Ember.assert("We found no inverse relationships by the name of '" + inverseName + "' on the '" + inverseType.typeKey +
+      Ember.assert("We found no inverse relationships by the name of '" + inverseName + "' on the '" + inverseType.modelName +
         "' model. This is most likely due to a missing attribute on your model definition.", !Ember.isNone(inverse));
 
       inverseKind = inverse.kind;

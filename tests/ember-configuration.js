@@ -71,7 +71,7 @@
     delete options.adapter;
 
     for (var prop in options) {
-      registry.register('model:' + prop, options[prop]);
+      registry.register('model:' + Ember.String.dasherize(prop), options[prop]);
     }
 
     registry.register('store:main', DS.Store.extend({

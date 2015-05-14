@@ -42,8 +42,8 @@ module("integration/multiple_stores - Multiple Stores Tests", {
 });
 
 test("should be able to push into multiple stores", function() {
-  env.registry.register('adapter:homePlanet', DS.ActiveModelAdapter);
-  env.registry.register('serializer:homePlanet', DS.ActiveModelSerializer);
+  env.registry.register('adapter:home-planet', DS.ActiveModelAdapter);
+  env.registry.register('serializer:home-planet', DS.ActiveModelSerializer);
 
   var home_planet_main = { id: '1', name: 'Earth' };
   var home_planet_a = { id: '1', name: 'Mars' };
@@ -68,10 +68,10 @@ test("should be able to push into multiple stores", function() {
 });
 
 test("embedded records should be created in multiple stores", function() {
-  env.registry.register('adapter:superVillain', DS.ActiveModelAdapter);
-  env.registry.register('adapter:homePlanet', DS.ActiveModelAdapter);
+  env.registry.register('adapter:super-villain', DS.ActiveModelAdapter);
+  env.registry.register('adapter:home-planet', DS.ActiveModelAdapter);
 
-  env.registry.register('serializer:homePlanet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+  env.registry.register('serializer:home-planet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       villains: { embedded: 'always' }
     }

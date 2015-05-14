@@ -5,11 +5,11 @@
   @module ember-data
 */
 
+import normalizeModelName from "ember-data/system/normalize-model-name";
 import {
   InvalidError,
   Adapter
 } from "ember-data/system/adapter";
-import { singularize } from "ember-inflector/lib/system/string";
 import {
   Map
 } from "ember-data/system/map";
@@ -41,6 +41,7 @@ import {
 import RecordArrayManager from "ember-data/system/record-array-manager";
 
 import Model from "ember-data/system/model";
+
 //Stanley told me to do this
 var Backburner = Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
 
@@ -95,8 +96,6 @@ var map = Ember.EnumerableUtils.map;
 var Promise = Ember.RSVP.Promise;
 var copy = Ember.copy;
 var Store;
-
-var camelize = Ember.String.camelize;
 
 var Service = Ember.Service;
 if (!Service) {
@@ -247,7 +246,7 @@ Store = Service.extend({
   */
   serialize: function(record, options) {
     var snapshot = record._createSnapshot();
-    return this.serializerFor(snapshot.typeKey).serialize(snapshot, options);
+    return this.serializerFor(snapshot.modelName).serialize(snapshot, options);
   },
 
   /**
@@ -301,13 +300,13 @@ Store = Service.extend({
     ```
 
     @method createRecord
-    @param {String} typeKey
+    @param {String} modelName
     @param {Object} properties a hash of properties to set on the
       newly created record.
     @return {DS.Model} record
   */
-  createRecord: function(typeKey, inputProperties) {
-    var typeClass = this.modelFor(typeKey);
+  createRecord: function(modelName, inputProperties) {
+    var typeClass = this.modelFor(modelName);
     var properties = copy(inputProperties) || {};
 
     // If the passed properties do not include a primary key,
@@ -344,15 +343,15 @@ Store = Service.extend({
 
     @method _generateId
     @private
-    @param {String} typeKey
+    @param {String} modelName
     @param {Object} properties from the new record
     @return {String} if the adapter can generate one, an ID
   */
-  _generateId: function(typeKey, properties) {
-    var adapter = this.adapterFor(typeKey);
+  _generateId: function(modelName, properties) {
+    var adapter = this.adapterFor(modelName);
 
     if (adapter && adapter.generateIdForRecord) {
-      return adapter.generateIdForRecord(this, typeKey, properties);
+      return adapter.generateIdForRecord(this, modelName, properties);
     }
 
     return null;
@@ -505,25 +504,25 @@ Store = Service.extend({
     ```
 
     @method find
-    @param {String} typeKey
+    @param {String} modelName
     @param {Object|String|Integer|null} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
-  find: function(typeKey, id, preload) {
+  find: function(modelName, id, preload) {
     Ember.assert("You need to pass a type to the store's find method", arguments.length >= 1);
     Ember.assert("You may not pass `" + id + "` as id to the store's find method", arguments.length === 1 || !Ember.isNone(id));
 
     if (arguments.length === 1) {
-      return this.findAll(typeKey);
+      return this.findAll(modelName);
     }
 
     // We are passed a query instead of an id.
     if (Ember.typeOf(id) === 'object') {
-      return this.findQuery(typeKey, id);
+      return this.findQuery(modelName, id);
     }
 
-    return this.findById(typeKey, coerceId(id), preload);
+    return this.findById(modelName, coerceId(id), preload);
   },
 
   /**
@@ -547,16 +546,16 @@ Store = Service.extend({
     ```
 
     @method fetchById
-    @param {String} typeKey
+    @param {String} modelName
     @param {String|Integer} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
-  fetchById: function(typeKey, id, preload) {
-    if (this.hasRecordForId(typeKey, id)) {
-      return this.getById(typeKey, id).reload();
+  fetchById: function(modelName, id, preload) {
+    if (this.hasRecordForId(modelName, id)) {
+      return this.getById(modelName, id).reload();
     } else {
-      return this.find(typeKey, id, preload);
+      return this.find(modelName, id, preload);
     }
   },
 
@@ -565,26 +564,26 @@ Store = Service.extend({
     in the store or not.
 
     @method fetchAll
-    @param {String} typeKey
+    @param {String} modelName
     @return {Promise} promise
   */
-  fetchAll: function(typeKey) {
-    var typeClass = this.modelFor(typeKey);
+  fetchAll: function(modelName) {
+    var typeClass = this.modelFor(modelName);
 
-    return this._fetchAll(typeClass, this.all(typeKey));
+    return this._fetchAll(typeClass, this.all(modelName));
   },
 
   /**
     @method fetch
-    @param {String} typeKey
+    @param {String} modelName
     @param {String|Integer} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
     @deprecated Use [fetchById](#method_fetchById) instead
   */
-  fetch: function(typeKey, id, preload) {
+  fetch: function(modelName, id, preload) {
     Ember.deprecate('Using store.fetch() has been deprecated. Use store.fetchById for fetching individual records or store.fetchAll for collections');
-    return this.fetchById(typeKey, id, preload);
+    return this.fetchById(modelName, id, preload);
   },
 
   /**
@@ -592,14 +591,14 @@ Store = Service.extend({
 
     @method findById
     @private
-    @param {String} typeKey
+    @param {String} modelName
     @param {String|Integer} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
-  findById: function(typeKey, id, preload) {
+  findById: function(modelName, id, preload) {
 
-    var typeClass = this.modelFor(typeKey);
+    var typeClass = this.modelFor(modelName);
     var record = this.recordForId(typeClass, id);
 
     return this._findByRecord(record, preload);
@@ -619,7 +618,7 @@ Store = Service.extend({
       fetchedRecord = record._loadingPromise;
     }
 
-    return promiseObject(fetchedRecord || record, "DS: Store#findByRecord " + record.typeKey + " with id: " + get(record, 'id'));
+    return promiseObject(fetchedRecord || record, "DS: Store#findByRecord " + record.modelName + " with id: " + get(record, 'id'));
   },
 
   /**
@@ -628,16 +627,16 @@ Store = Service.extend({
 
     @private
     @method findByIds
-    @param {String} typeKey
+    @param {String} modelName
     @param {Array} ids
     @return {Promise} promise
   */
-  findByIds: function(typeKey, ids) {
+  findByIds: function(modelName, ids) {
     var store = this;
 
     return promiseArray(Ember.RSVP.all(map(ids, function(id) {
-      return store.findById(typeKey, id);
-    })).then(Ember.A, null, "DS: Store#findByIds of " + typeKey + " complete"));
+      return store.findById(modelName, id);
+    })).then(Ember.A, null, "DS: Store#findByIds of " + modelName + " complete"));
   },
 
   /**
@@ -847,8 +846,8 @@ Store = Service.extend({
     @param {String|Integer} id
     @return {Boolean}
   */
-  hasRecordForId: function(typeKey, inputId) {
-    var typeClass = this.modelFor(typeKey);
+  hasRecordForId: function(modelName, inputId) {
+    var typeClass = this.modelFor(modelName);
     var id = coerceId(inputId);
     var record = this.typeMapFor(typeClass).idToRecord[id];
     return !!record && get(record, 'isLoaded');
@@ -860,12 +859,12 @@ Store = Service.extend({
 
     @method recordForId
     @private
-    @param {String} typeKey
+    @param {String} modelName
     @param {String|Integer} id
     @return {DS.Model} record
   */
-  recordForId: function(typeKey, inputId) {
-    var typeClass = this.modelFor(typeKey);
+  recordForId: function(modelName, inputId) {
+    var typeClass = this.modelFor(modelName);
     var id = coerceId(inputId);
     var idToRecord = this.typeMapFor(typeClass).idToRecord;
     var record = idToRecord[id];
@@ -975,11 +974,11 @@ Store = Service.extend({
 
     @method findAll
     @private
-    @param {String} typeKey
+    @param {String} modelName
     @return {DS.AdapterPopulatedRecordArray}
   */
-  findAll: function(typeKey) {
-    return this.fetchAll(typeKey);
+  findAll: function(modelName) {
+    return this.fetchAll(modelName);
   },
 
   /**
@@ -1030,11 +1029,11 @@ Store = Service.extend({
     ```
 
     @method all
-    @param {String} typeKey
+    @param {String} modelName
     @return {DS.RecordArray}
   */
-  all: function(typeKey) {
-    var typeClass = this.modelFor(typeKey);
+  all: function(modelName) {
+    var typeClass = this.modelFor(modelName);
     var typeMap = this.typeMapFor(typeClass);
     var findAllCache = typeMap.findAllCache;
 
@@ -1060,9 +1059,9 @@ Store = Service.extend({
    ```
 
    @method unloadAll
-   @param {String} optional typeKey
+   @param {String} optional modelName
   */
-  unloadAll: function(typeKey) {
+  unloadAll: function(modelName) {
     if (arguments.length === 0) {
       var typeMaps = this.typeMaps;
       var keys = Ember.keys(typeMaps);
@@ -1071,7 +1070,7 @@ Store = Service.extend({
 
       forEach(types, this.unloadAll, this);
     } else {
-      var typeClass = this.modelFor(typeKey);
+      var typeClass = this.modelFor(modelName);
       var typeMap = this.typeMapFor(typeClass);
       var records = typeMap.records.slice();
       var record;
@@ -1429,14 +1428,15 @@ Store = Service.extend({
     in this case
   */
 
-  _modelForMixin: function(key) {
+  _modelForMixin: function(modelName) {
+    var normalizedTypeKey = normalizeModelName(modelName);
     var registry = this.container._registry ? this.container._registry : this.container;
-    var mixin = registry.resolve('mixin:' + key);
+    var mixin = registry.resolve('mixin:' + normalizedTypeKey);
     if (mixin) {
       //Cache the class as a model
-      registry.register('model:' + key, DS.Model.extend(mixin));
+      registry.register('model:' + normalizedTypeKey, DS.Model.extend(mixin));
     }
-    var factory = this.modelFactoryFor(key);
+    var factory = this.modelFactoryFor(normalizedTypeKey);
     if (factory) {
       factory.__isMixin = true;
       factory.__mixin = mixin;
@@ -1466,13 +1466,28 @@ Store = Service.extend({
       if (!factory) {
         throw new Ember.Error("No model was found for '" + key + "'");
       }
-      factory.typeKey = factory.typeKey || this._normalizeTypeKey(key);
+      factory.modelName = factory.modelName || normalizeModelName(key);
     } else {
       // A factory already supplied. Ensure it has a normalized key.
       factory = key;
-      if (factory.typeKey) {
-        factory.typeKey = this._normalizeTypeKey(factory.typeKey);
+      if (factory.modelName) {
+        factory.modelName = normalizeModelName(factory.modelName);
       }
+    }
+
+    // deprecate typeKey
+    if (!('typeKey' in factory)) {
+      Ember.defineProperty(factory, 'typeKey', {
+        enumerable: true,
+        configurable: false,
+        get: function() {
+          Ember.deprecate('Usage of `typeKey` has been deprecated and will be removed in Ember Data 1.0. It has been replaced by `modelName` on the model class.');
+          return Ember.String.camelize(this.modelName);
+        },
+        set: function() {
+          Ember.assert('Setting typeKey is not supported. In addition, typeKey has also been deprecated in favor of modelName. Setting modelName is also not supported.');
+        }
+      });
     }
 
     factory.store = this;
@@ -1480,7 +1495,8 @@ Store = Service.extend({
   },
 
   modelFactoryFor: function(key) {
-    return this.container.lookupFactory('model:' + key);
+    var normalizedKey = normalizeModelName(key);
+    return this.container.lookupFactory('model:' + normalizedKey);
   },
 
   /**
@@ -1545,22 +1561,22 @@ Store = Service.extend({
     records, as well as to update existing records.
 
     @method push
-    @param {String or subclass of DS.Model} type
+    @param {String or subclass of DS.Model} modelName
     @param {Object} data
     @return {DS.Model} the record that was created or
       updated.
   */
-  push: function(typeName, data) {
-    Ember.assert("Expected an object as `data` in a call to `push` for " + typeName + " , but was " + data, Ember.typeOf(data) === 'object');
-    Ember.assert("You must include an `id` for " + typeName + " in an object passed to `push`", data.id != null && data.id !== '');
+  push: function(modelName, data) {
+    Ember.assert("Expected an object as `data` in a call to `push` for " + modelName + " , but was " + data, Ember.typeOf(data) === 'object');
+    Ember.assert("You must include an `id` for " + modelName + " in an object passed to `push`", data.id != null && data.id !== '');
 
-    var type = this.modelFor(typeName);
+    var type = this.modelFor(modelName);
     var filter = Ember.EnumerableUtils.filter;
 
     // If Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
     // contains unknown keys, log a warning.
     if (Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS) {
-      Ember.warn("The payload for '" + type.typeKey + "' contains these unknown keys: " +
+      Ember.warn("The payload for '" + type.modelName + "' contains these unknown keys: " +
         Ember.inspect(filter(Ember.keys(data), function(key) {
           return !(key === 'id' || key === 'links' || get(type, 'fields').has(key) || key.match(/Type$/));
         })) + ". Make sure they've been defined in your model.",
@@ -1839,7 +1855,7 @@ Store = Service.extend({
       type = this.modelFor(type);
     }
 
-    var adapter = this.lookupAdapter(type.typeKey) || this.lookupAdapter('application');
+    var adapter = this.lookupAdapter(type.modelName) || this.lookupAdapter('application');
 
     return adapter || get(this, 'defaultAdapter');
   },
@@ -1878,7 +1894,7 @@ Store = Service.extend({
       type = this.modelFor(type);
     }
 
-    var serializer = this.lookupSerializer(type.typeKey) || this.lookupSerializer('application');
+    var serializer = this.lookupSerializer(type.modelName) || this.lookupSerializer('application');
 
     if (!serializer) {
       var adapter = this.adapterFor(type);
@@ -1902,12 +1918,13 @@ Store = Service.extend({
 
     @method retrieveManagedInstance
     @private
-    @param {String} type the object type
+    @param {String} type the object modelName
     @param {String} type the object name
     @return {Ember.Object}
   */
-  retrieveManagedInstance: function(type, name) {
-    var key = type+":"+name;
+  retrieveManagedInstance: function(modelName, name) {
+    var normalizedTypeKey = normalizeModelName(modelName);
+    var key = normalizedTypeKey + ":" +name;
 
     if (!this._containerCache[key]) {
       var instance = this.container.lookup(key);
@@ -1940,20 +1957,8 @@ Store = Service.extend({
     }
 
     delete this._containerCache;
-  },
-
-  /**
-    All typeKeys are camelCase internally. Changing this function may
-    require changes to other normalization hooks (such as typeForRoot).
-
-    @method _normalizeTypeKey
-    @private
-    @param {String} type
-    @return {String} if the adapter can generate one, an ID
-  */
-  _normalizeTypeKey: function(key) {
-    return camelize(singularize(key));
   }
+
 });
 
 
