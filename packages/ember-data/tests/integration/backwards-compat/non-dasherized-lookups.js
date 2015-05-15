@@ -8,6 +8,8 @@ module('integration/backwards-compat/non-dasherized-lookups - non dasherized loo
       App.PostNote = DS.Model.extend({
         name: DS.attr()
       });
+      App.PostNoteAdapter = DS.RESTAdapater;
+      App.PostNoteSerializer = DS.RESTSerializer;
     });
     store = App.__container__.lookup('store:main');
   },

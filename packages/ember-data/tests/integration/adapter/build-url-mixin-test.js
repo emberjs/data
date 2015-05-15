@@ -29,10 +29,10 @@ module("integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter", {
     adapter = env.adapter;
     env.registry.register('adapter:post', DS.RESTAdapter);
     env.registry.register('adapter:comment', DS.RESTAdapter);
-    env.registry.register('adapter:superUser', DS.RESTAdapter);
+    env.registry.register('adapter:super-user', DS.RESTAdapter);
     env.registry.register('serializer:post', DS.RESTSerializer);
     env.registry.register('serializer:comment', DS.RESTSerializer);
-    env.registry.register('serializer:superUser', DS.RESTSerializer);
+    env.registry.register('serializer:super-user', DS.RESTSerializer);
 
     passedUrl = null;
   }
