@@ -26,7 +26,7 @@ module('integration/inverse_test - inverseFor', {
     Job.toString = stringify('job');
 
     ReflexiveModel = DS.Model.extend({
-      reflexiveProp: belongsTo('reflexiveModel')
+      reflexiveProp: belongsTo('reflexive-model')
     });
 
     ReflexiveModel.toString = stringify('reflexiveModel');
@@ -143,7 +143,7 @@ test("Errors out if you do not define an inverse for a reflexive relationship", 
   warns(function() {
     var reflexiveModel;
     run(function() {
-      reflexiveModel = store.push('reflexiveModel', { id: 1 });
+      reflexiveModel = store.push('reflexive-model', { id: 1 });
     });
   }, /Detected a reflexive relationship by the name of 'reflexiveProp'/);
 });

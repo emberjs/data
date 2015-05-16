@@ -2,7 +2,7 @@ import OrderedSet from "ember-data/system/ordered-set";
 
 var forEach = Ember.EnumerableUtils.forEach;
 
-var Relationship = function(store, record, inverseKey, relationshipMeta) {
+function Relationship(store, record, inverseKey, relationshipMeta) {
   this.members = new OrderedSet();
   this.canonicalMembers = new OrderedSet();
   this.store = store;
@@ -13,10 +13,10 @@ var Relationship = function(store, record, inverseKey, relationshipMeta) {
   this.relationshipMeta = relationshipMeta;
   //This probably breaks for polymorphic relationship in complex scenarios, due to
   //multiple possible modelNames
-  this.inverseKeyForImplicit = this.store.modelFor(this.record.constructor).modelName + this.key;
+  this.inverseKeyForImplicit = this.record.constructor.modelName + this.key;
   this.linkPromise = null;
   this.hasData = false;
-};
+}
 
 Relationship.prototype = {
   constructor: Relationship,

@@ -42,16 +42,6 @@ test("when fetching factory from string and dashing normalizer, sets a normalize
   equal(store.modelFor("blog.post").modelName, "blog.post", "modelName is normalized to dasherized");
 });
 
-test("when returning passed factory, sets a normalized key as modelName", function() {
-  var factory = { modelName: 'some-thing' };
-  equal(store.modelFor(factory).modelName, "some-thing", "modelName is normalized to dasherized");
-});
-
-test("when returning passed factory without modelName, allows it", function() {
-  var factory = { modelName: undefined };
-  equal(store.modelFor(factory).modelName, undefined, "modelName is undefined");
-});
-
 test("when fetching something that doesn't exist, throws error", function() {
   throws(function() {
     store.modelFor('wild-stuff');

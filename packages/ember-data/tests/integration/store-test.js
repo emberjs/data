@@ -57,7 +57,7 @@ asyncTest("destroying record during find doesn't cause error", function() {
     find: function(store, type, id, snapshot) {
       return new Ember.RSVP.Promise(function(resolve, reject) {
         Ember.run.next(function() {
-          store.unloadAll(type);
+          store.unloadAll(type.modelName);
           reject();
         });
       });

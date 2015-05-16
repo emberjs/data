@@ -16,7 +16,7 @@ test("_debugInfo groups the attributes and relationships correctly", function() 
   var User = DS.Model.extend({
     name: DS.attr('string'),
     isDrugAddict: DS.attr('boolean'),
-    maritalStatus: DS.belongsTo('maritalStatus'),
+    maritalStatus: DS.belongsTo('marital-status'),
     posts: DS.hasMany('post')
   });
 
@@ -29,7 +29,7 @@ test("_debugInfo groups the attributes and relationships correctly", function() 
   var record;
 
   run(function() {
-    record = store.createRecord(User);
+    record = store.createRecord('user');
   });
 
   var propertyInfo = record._debugInfo().propertyInfo;

@@ -29,13 +29,13 @@ var _splitOnDotCache = Ember.create(null);
 
 function splitOnDot(name) {
   return _splitOnDotCache[name] || (
-    _splitOnDotCache[name] = name.split('.')
+    (_splitOnDotCache[name] = name.split('.'))
   );
 }
 
 function extractPivotName(name) {
   return _extractPivotNameCache[name] || (
-    _extractPivotNameCache[name] = splitOnDot(name)[0]
+    (_extractPivotNameCache[name] = splitOnDot(name)[0])
   );
 }
 
