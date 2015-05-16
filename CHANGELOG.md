@@ -2,6 +2,13 @@
 
 ### Master
 
+- `typeKey` on Snapshots and Model classes has been deprecated. Use
+  `modelName` instead.
+- `RESTSerializer#typeForRoot` has been deprecated. You can use
+`RESTSerializeer#modelNameFromPayloadKey` instead.
+- Added `RESTSerializer#payloadKeyFromModelName`. This allows you to
+specify the outgoing root key for a JSON payload.
+
 ### Release 1.0.0-beta.17 (May 10, 2015)
 
 - [#2898](https://github.com/emberjs/data/pull/2898) Pass requestType to buildURL [@amiel](https://github.com/amiel)

@@ -5,9 +5,7 @@ export function typeForRelationshipMeta(store, meta) {
 
   modelName = meta.type || meta.key;
   if (typeof modelName === 'string') {
-    if (meta.kind === 'hasMany') {
-      modelName = normalizeModelName(modelName);
-    }
+    modelName = normalizeModelName(modelName);
     typeClass = store.modelFor(modelName);
   } else {
     typeClass = meta.type;

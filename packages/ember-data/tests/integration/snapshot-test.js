@@ -513,3 +513,17 @@ test("snapshot.get() proxies property to record unless identified as id, attribu
     });
   });
 });
+
+test('snapshot.typeKey is deprecated', function() {
+  expect(1);
+
+  run(function() {
+    var post = env.store.push('post', { id: 1, title: 'Hello World' });
+    var snapshot = post._createSnapshot();
+
+    expectDeprecation(function() {
+      return snapshot.typeKey;
+    });
+  });
+
+});

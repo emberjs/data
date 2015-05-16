@@ -42,7 +42,7 @@ test("creating a record by camel-case string finds the model", function() {
   });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
-  equal(store.modelFor('some-thing').modelName, 'some-thing');
+  equal(store.modelFor('someThing').modelName, 'some-thing');
 });
 
 test("creating a record by dasherize string finds the model", function() {
@@ -76,7 +76,7 @@ test("creating a record by camel-case string finds the model", function() {
   });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
-  equal(store.modelFor('some-thing').modelName, 'some-thing');
+  equal(store.modelFor('someThing').modelName, 'some-thing');
 });
 
 test("creating a record by dasherize string finds the model", function() {

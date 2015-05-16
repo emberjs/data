@@ -1,7 +1,7 @@
 import Model from 'ember-data/system/model';
 
 import computedPolyfill from "ember-data/utils/computed-polyfill";
-import normalizeModelName from "ember-data/system/normalize-type-key";
+import normalizeModelName from "ember-data/system/normalize-model-name";
 
 /**
   `DS.belongsTo` is used to define One-To-One and One-To-Many
@@ -57,30 +57,30 @@ import normalizeModelName from "ember-data/system/normalize-type-key";
   @namespace
   @method belongsTo
   @for DS
-  @param {String} modelModelName (optional) type of the relationship
+  @param {String} modelName (optional) type of the relationship
   @param {Object} options (optional) a hash of options
   @return {Ember.computed} relationship
 */
-function belongsTo(modelModelName, options) {
-  var opts, modelName;
-  if (typeof modelModelName === 'object') {
-    opts = modelModelName;
-    modelName = undefined;
+function belongsTo(modelName, options) {
+  var opts, userEnteredModelName;
+  if (typeof modelName === 'object') {
+    opts = modelName;
+    userEnteredModelName = undefined;
   } else {
     opts = options;
-    modelName = modelModelName;
+    userEnteredModelName = modelName;
   }
 
-  if (typeof modelName === 'string') {
-    modelName = normalizeModelName(modelName);
+  if (typeof userEnteredModelName === 'string') {
+    userEnteredModelName = normalizeModelName(userEnteredModelName);
   }
 
-  Ember.assert("The first argument to DS.belongsTo must be a string representing a model type key, not an instance of " + Ember.inspect(modelName) + ". E.g., to define a relation to the Person model, use DS.belongsTo('person')", typeof modelName === 'string' || typeof modelName === 'undefined');
+  Ember.assert("The first argument to DS.belongsTo must be a string representing a model type key, not an instance of " + Ember.inspect(userEnteredModelName) + ". E.g., to define a relation to the Person model, use DS.belongsTo('person')", typeof userEnteredModelName === 'string' || typeof userEnteredModelName === 'undefined');
 
   opts = opts || {};
 
   var meta = {
-    type: modelName,
+    type: userEnteredModelName,
     isRelationship: true,
     options: opts,
     kind: 'belongsTo',

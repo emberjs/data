@@ -3,7 +3,7 @@
 */
 
 import Model from "ember-data/system/model";
-import normalizeModelName from "ember-data/system/normalize-type-key";
+import normalizeModelName from "ember-data/system/normalize-model-name";
 
 /**
   `DS.hasMany` is used to define One-To-Many and Many-To-Many

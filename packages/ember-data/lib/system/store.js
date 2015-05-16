@@ -5,7 +5,7 @@
   @module ember-data
 */
 
-import normalizeModelName from "ember-data/system/normalize-type-key";
+import normalizeModelName from "ember-data/system/normalize-model-name";
 import {
   InvalidError,
   Adapter
@@ -1445,7 +1445,7 @@ Store = Service.extend({
   */
 
   _modelForMixin: function(modelName) {
-    var normalizedModelName = this._normalizeModelName(modelName);
+    var normalizedModelName = normalizeModelName(modelName);
     var registry = this.container._registry ? this.container._registry : this.container;
     var mixin = registry.resolve('mixin:' + normalizedModelName);
     if (mixin) {
@@ -1472,24 +1472,30 @@ Store = Service.extend({
   */
   modelFor: function(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    var factory;
 
-    if (typeof modelName === 'string') {
-      factory = this.modelFactoryFor(modelName);
-      if (!factory) {
-        //Support looking up mixins as base types for polymorphic relationships
-        factory = this._modelForMixin(modelName);
-      }
-      if (!factory) {
-        throw new Ember.Error("No model was found for '" + modelName + "'");
-      }
-      factory.modelName = factory.modelName || this._normalizeModelName(modelName);
-    } else {
-      // A factory already supplied. Ensure it has a normalized modelName.
-      factory = modelName;
-      if (factory.modelName) {
-        factory.modelName = this._normalizeModelName(factory.modelName);
-      }
+    var factory = this.modelFactoryFor(modelName);
+    if (!factory) {
+      //Support looking up mixins as base types for polymorphic relationships
+      factory = this._modelForMixin(modelName);
+    }
+    if (!factory) {
+      throw new Ember.Error("No model was found for '" + modelName + "'");
+    }
+    factory.modelName = factory.modelName || normalizeModelName(modelName);
+
+    // deprecate typeKey
+    if (!('typeKey' in factory)) {
+      Ember.defineProperty(factory, 'typeKey', {
+        enumerable: true,
+        configurable: false,
+        get: function() {
+          Ember.deprecate('Usage of `typeKey` has been deprecated and will be removed in Ember Data 1.0. It has been replaced by `modelName` on the model class.');
+          return Ember.String.camelize(this.modelName);
+        },
+        set: function() {
+          Ember.assert('Setting typeKey is not supported. In addition, typeKey has also been deprecated in favor of modelName. Setting modelName is also not supported.');
+        }
+      });
     }
 
     factory.store = this;
@@ -1498,7 +1504,7 @@ Store = Service.extend({
 
   modelFactoryFor: function(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    var normalizedKey = this._normalizeModelName(modelName);
+    var normalizedKey = normalizeModelName(modelName);
     return this.container.lookupFactory('model:' + normalizedKey);
   },
 
@@ -1927,8 +1933,8 @@ Store = Service.extend({
     @return {Ember.Object}
   */
   retrieveManagedInstance: function(modelName, name) {
-    var normalizedModelName = this._normalizeModelName(modelName);
-    var key = normalizedModelName + ":" +name;
+    var normalizedTypeKey = normalizeModelName(modelName);
+    var key = normalizedTypeKey + ":" +name;
 
     if (!this._containerCache[key]) {
       var instance = this.container.lookup(key);
@@ -1961,20 +1967,8 @@ Store = Service.extend({
     }
 
     delete this._containerCache;
-  },
-
-  /**
-    All modelNames are camelCase internally. Changing this function may
-    require changes to other normalization hooks (such as typeForRoot).
-
-    @method _normalizeModelName
-    @private
-    @param {String} type
-    @return {String} if the adapter can generate one, an ID
-  */
-  _normalizeModelName: function(key) {
-    return normalizeModelName(key);
   }
+
 });
 
 

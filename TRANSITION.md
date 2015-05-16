@@ -712,13 +712,13 @@ response to be camelized.
 ```
 
 If your server uses underscored root objects you can define the
-`typeForRoot` method in your `ApplicationSerializer`.
+`modelNameFromPayloadKey` method in your `ApplicationSerializer`.
 
 ```js
 App.ApplicationSerializer = DS.RESTSerializer.extend({
-  typeForRoot: function(root) {
-    var camelized = Ember.String.camelize(root);
-    return Ember.String.singularize(camelized);
+  modelNameFromPayloadKey: function(root) {
+    var dasherize = Ember.String.dasherize(root);
+    return Ember.String.singularize(dasherize);
   }
 });
 ```

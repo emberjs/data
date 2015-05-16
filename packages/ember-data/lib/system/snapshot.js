@@ -382,4 +382,15 @@ Snapshot.prototype = {
   }
 };
 
+Ember.defineProperty(Snapshot.prototype, 'typeKey', {
+  enumerable: false,
+  get: function() {
+    Ember.deprecate('Snapshot.typeKey is deprecated. Use snapshot.modelName instead.');
+    return this.modelName;
+  },
+  set: function() {
+    Ember.assert('Setting snapshot.typeKey is not supported. In addition, Snapshot.typeKey has been deprecated for Snapshot.modelName.');
+  }
+});
+
 export default Snapshot;
