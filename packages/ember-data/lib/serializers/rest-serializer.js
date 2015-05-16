@@ -267,14 +267,14 @@ var RESTSerializer = JSONSerializer.extend({
     var primaryRecord;
 
     for (var prop in payload) {
-      var typeName  = this.modelNameFromPayloadKey(prop);
+      var modelName = this.modelNameFromPayloadKey(prop);
 
-      if (!store.modelFactoryFor(typeName)) {
-        Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
+      if (!store.modelFactoryFor(modelName)) {
+        Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false);
         continue;
       }
-      var type = store.modelFor(typeName);
-      var isPrimary = type.modelName === primaryTypeClassName;
+      var typeClass = store.modelFor(modelName);
+      var isPrimary = typeClass.modelName === primaryTypeClassName;
       var value = payload[prop];
 
       if (value === null) {
@@ -290,10 +290,9 @@ var RESTSerializer = JSONSerializer.extend({
       /*jshint loopfunc:true*/
       forEach.call(value, function(hash) {
         var typeName = this.modelNameFromPayloadKey(prop);
-        var type = store.modelFor(typeName);
-        var typeSerializer = store.serializerFor(type);
+        var typeSerializer = store.serializerFor(typeName);
 
-        hash = typeSerializer.normalize(type, hash, prop);
+        hash = typeSerializer.normalize(typeClass, hash, prop);
 
         var isFirstCreatedRecord = isPrimary && !recordId && !primaryRecord;
         var isUpdatedRecord = isPrimary && coerceId(hash.id) === recordId;
@@ -307,7 +306,7 @@ var RESTSerializer = JSONSerializer.extend({
         if (isFirstCreatedRecord || isUpdatedRecord) {
           primaryRecord = hash;
         } else {
-          store.push(typeName, hash);
+          store.push(modelName, hash);
         }
       }, this);
     }
@@ -435,7 +434,7 @@ var RESTSerializer = JSONSerializer.extend({
         continue;
       }
       var type = store.modelFor(typeName);
-      var typeSerializer = store.serializerFor(type);
+      var typeSerializer = store.serializerFor(typeName);
       var isPrimary = (!forcedSecondary && (type.modelName === primaryTypeClassName));
 
       /*jshint loopfunc:true*/
@@ -493,12 +492,12 @@ var RESTSerializer = JSONSerializer.extend({
         Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false);
         continue;
       }
-      var type = store.modelFor(modelName);
-      var typeSerializer = store.serializerFor(type);
+      var typeClass = store.modelFor(modelName);
+      var typeSerializer = store.serializerFor(modelName);
 
       /*jshint loopfunc:true*/
       var normalizedArray = map.call(Ember.makeArray(payload[prop]), function(hash) {
-        return typeSerializer.normalize(type, hash, prop);
+        return typeSerializer.normalize(typeClass, hash, prop);
       }, this);
 
       store.pushMany(modelName, normalizedArray);
