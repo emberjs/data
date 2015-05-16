@@ -42,7 +42,11 @@ export default Ember.DataAdapter.extend({
     return columns;
   },
 
-  getRecords: function(modelName) {
+  getRecords: function(modelOrType) {
+    // TODO: Ask Teddy what we should do here.
+    // Ideally this would always be a string passed in.
+
+    var modelName = typeof modelOrType === 'string' ? modelOrType : modelOrType.modelName;
     return this.get('store').all(modelName);
   },
 

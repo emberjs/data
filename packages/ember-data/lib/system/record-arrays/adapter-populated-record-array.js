@@ -39,8 +39,9 @@ export default RecordArray.extend({
   load: function(data) {
     var store = get(this, 'store');
     var type = get(this, 'type');
-    var records = store.pushMany(type, data);
-    var meta = store.metadataFor(type);
+    var modelName = type.modelName;
+    var records = store.pushMany(modelName, data);
+    var meta = store.metadataFor(modelName);
 
     this.setProperties({
       content: Ember.A(records),

@@ -27,13 +27,13 @@ test("When loading a record fails, the isLoading is set to false", function() {
   };
 
   run(function() {
-    env.store.find('post', 1).then(null, function() {
+    env.store.find('post', 1).then(null, async(function() {
       // store.recordForId is private, but there is currently no other way to
       // get the specific record instance, since it is not passed to this
       // rejection handler
       var post = env.store.recordForId('post', 1);
 
       equal(post.get("isLoading"), false, "post is not loading anymore");
-    });
+    }));
   });
 });

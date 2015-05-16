@@ -7,15 +7,15 @@ module("integration/multiple_stores - Multiple Stores Tests", {
     SuperVillain = DS.Model.extend({
       firstName:       DS.attr('string'),
       lastName:        DS.attr('string'),
-      homePlanet:      DS.belongsTo("homePlanet", { inverse: 'villains' }),
-      evilMinions:     DS.hasMany("evilMinion")
+      homePlanet:      DS.belongsTo('home-planet', { inverse: 'villains' }),
+      evilMinions:     DS.hasMany('evil-minion')
     });
     HomePlanet = DS.Model.extend({
       name:            DS.attr('string'),
-      villains:        DS.hasMany('superVillain', { inverse: 'homePlanet' })
+      villains:        DS.hasMany('super-villain', { inverse: 'homePlanet' })
     });
     EvilMinion = DS.Model.extend({
-      superVillain:    DS.belongsTo('superVillain'),
+      superVillain:    DS.belongsTo('super-villain'),
       name:            DS.attr('string')
     });
 
@@ -77,9 +77,9 @@ test("embedded records should be created in multiple stores", function() {
     }
   }));
 
-  var serializer_main = env.store.serializerFor("homePlanet");
-  var serializer_a = env.store_a.serializerFor("homePlanet");
-  var serializer_b = env.store_b.serializerFor("homePlanet");
+  var serializer_main = env.store.serializerFor('home-planet');
+  var serializer_a = env.store_a.serializerFor('home-planet');
+  var serializer_b = env.store_b.serializerFor('home-planet');
 
   var json_hash_main = {
     home_planet: {
@@ -117,18 +117,18 @@ test("embedded records should be created in multiple stores", function() {
   var json_main, json_a, json_b;
 
   run(function() {
-    json_main = serializer_main.extractSingle(env.store, HomePlanet, json_hash_main);
-    equal(env.store.hasRecordForId("superVillain", "1"), true, "superVillain should exist in store:main");
+    json_main = serializer_main.extractSingle(env.store, env.store.modelFor('home-planet'), json_hash_main);
+    equal(env.store.hasRecordForId('super-villain', "1"), true, "superVillain should exist in store:main");
   });
 
   run(function() {
-    json_a = serializer_a.extractSingle(env.store_a, HomePlanet, json_hash_a);
-    equal(env.store_a.hasRecordForId("superVillain", "1"), true, "superVillain should exist in store:store-a");
+    json_a = serializer_a.extractSingle(env.store_a, env.store_a.modelFor('home-planet'), json_hash_a);
+    equal(env.store_a.hasRecordForId("super-villain", "1"), true, "superVillain should exist in store:store-a");
   });
 
   run(function() {
-    json_b = serializer_b.extractSingle(env.store_b, HomePlanet, json_hash_b);
-    equal(env.store_b.hasRecordForId("superVillain", "1"), true, "superVillain should exist in store:store-b");
+    json_b = serializer_b.extractSingle(env.store_b, env.store_a.modelFor('home-planet'), json_hash_b);
+    equal(env.store_b.hasRecordForId("super-villain", "1"), true, "superVillain should exist in store:store-b");
   });
 
 });

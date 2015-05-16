@@ -207,6 +207,7 @@ var Adapter = Ember.Object.extend({
 
     @method generateIdForRecord
     @param {DS.Store} store
+    @param {subclass of DS.Model} type   the DS.Model class of the record
     @param {Object} inputProperties a hash of properties to set on the
       newly created record.
     @return {String|Number} id

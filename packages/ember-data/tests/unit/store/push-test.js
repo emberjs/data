@@ -75,7 +75,7 @@ test("Supplying a model class for `push` is the same as supplying a string", fun
   env.registry.register('model:programmer', Programmer);
 
   run(function() {
-    store.push(Programmer, {
+    store.push('programmer', {
       id: 'wat',
       firstName: "Yehuda",
       lastName: "Katz"

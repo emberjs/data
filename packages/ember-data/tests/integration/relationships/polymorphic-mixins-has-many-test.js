@@ -93,7 +93,7 @@ test("Pushing a an object that does not implement the mixin to the mixin accepti
   var user,notMessage;
   run(function() {
     user = store.push('user', { id: 1, name: 'Stanley', messages: [] });
-    notMessage = store.push('notMessage', { id: 2, video: 'Here comes Youtube' });
+    notMessage = store.push('not-message', { id: 2, video: 'Here comes Youtube' });
   });
 
   run(function() {
@@ -140,7 +140,7 @@ test("Pushing a an object that does not implement the mixin to the mixin accepti
     var user,notMessage;
     run(function() {
       user = store.push('user', { id: 1, name: 'Stanley', messages: [] });
-      notMessage = store.push('notMessage', { id: 2, video: 'Here comes Youtube' });
+      notMessage = store.push('not-message', { id: 2, video: 'Here comes Youtube' });
     });
 
     run(function() {

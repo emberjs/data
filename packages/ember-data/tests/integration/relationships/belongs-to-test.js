@@ -380,7 +380,7 @@ test("relationshipsByName does not cache a factory", function() {
   // A model is looked up in the store based on a string, via user input
   var messageModelFromStore        = store.modelFor('message');
   // And the model is lookup up internally via the relationship type
-  var messageModelFromRelationType = store.modelFor(messageType);
+  var messageModelFromRelationType = store.modelFor(messageType.modelName);
 
   equal(messageModelFromRelationType, messageModelFromStore,
         "model factory based on relationship type matches the model based on store.modelFor");
