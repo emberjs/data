@@ -49,16 +49,16 @@ module("integration/serializer/rest - RESTSerializer", {
   }
 });
 
-test("typeForRoot returns always same modelName even for uncountable multi words keys", function() {
+test("modelNameFromPayloadKey returns always same modelName even for uncountable multi words keys", function() {
   expect(2);
   Ember.Inflector.inflector.uncountable('words');
-  var expectedTypeKey = 'multi-words';
-  equal(env.restSerializer.typeForRoot('multi_words'), expectedTypeKey);
-  equal(env.restSerializer.typeForRoot('multiWords'), expectedTypeKey);
+  var expectedModelName = 'multi-words';
+  equal(env.restSerializer.modelNameFromPayloadKey('multi_words'), expectedModelName);
+  equal(env.restSerializer.modelNameFromPayloadKey('multi-words'), expectedModelName);
 });
 
-test("extractArray with custom typeForRoot", function() {
-  env.restSerializer.typeForRoot = function(root) {
+test("extractArray with custom modelNameFromPayloadKey", function() {
+  env.restSerializer.modelNameFromPayloadKey = function(root) {
     var camelized = Ember.String.camelize(root);
     return Ember.String.singularize(camelized);
   };
@@ -86,9 +86,9 @@ test("extractArray with custom typeForRoot", function() {
   });
 });
 
-test("extractArray warning with custom typeForRoot", function() {
+test("extractArray warning with custom modelNameFromPayloadKey", function() {
   var homePlanets;
-  env.restSerializer.typeForRoot = function(root) {
+  env.restSerializer.modelNameFromPayloadKey = function(root) {
     //return some garbage that won"t resolve in the container
     return "garbage";
   };
@@ -102,7 +102,7 @@ test("extractArray warning with custom typeForRoot", function() {
   }, /Encountered "home_planets" in payload, but no model was found for model name "garbage"/);
 
   // should not warn if a model is found.
-  env.restSerializer.typeForRoot = function(root) {
+  env.restSerializer.modelNameFromPayloadKey = function(root) {
     return Ember.String.camelize(Ember.String.singularize(root));
   };
 
@@ -121,9 +121,9 @@ test("extractArray warning with custom typeForRoot", function() {
   deepEqual(get(homePlanets, "firstObject.superVillains"), [1]);
 });
 
-test("extractSingle warning with custom typeForRoot", function() {
+test("extractSingle warning with custom modelNameFromPayloadKey", function() {
   var homePlanet;
-  env.restSerializer.typeForRoot = function(root) {
+  env.restSerializer.modelNameFromPayloadKey = function(root) {
     //return some garbage that won"t resolve in the container
     return "garbage";
   };
@@ -139,7 +139,7 @@ test("extractSingle warning with custom typeForRoot", function() {
   }), /Encountered "home_planet" in payload, but no model was found for model name "garbage"/);
 
   // should not warn if a model is found.
-  env.restSerializer.typeForRoot = function(root) {
+  env.restSerializer.modelNameFromPayloadKey = function(root) {
     return Ember.String.camelize(Ember.String.singularize(root));
   };
 
@@ -157,10 +157,10 @@ test("extractSingle warning with custom typeForRoot", function() {
   deepEqual(get(homePlanet, "superVillains"), [1]);
 });
 
-test("pushPayload - single record payload - warning with custom typeForRoot", function() {
+test("pushPayload - single record payload - warning with custom modelNameFromPayloadKey", function() {
   var homePlanet;
   var HomePlanetRestSerializer = DS.RESTSerializer.extend({
-    typeForRoot: function(root) {
+    modelNameFromPayloadKey: function(root) {
       //return some garbage that won"t resolve in the container
       if (root === "home_planet") {
         return "garbage";
@@ -191,7 +191,7 @@ test("pushPayload - single record payload - warning with custom typeForRoot", fu
   // Serializers are singletons, so that"s why we use the store which
   // looks at the container to look it up
   env.store.serializerFor("homePlanet").reopen({
-    typeForRoot: function(root) {
+    modelNameFromPayloadKey: function(root) {
       // should not warn if a model is found.
       return Ember.String.camelize(Ember.String.singularize(root));
     }
@@ -213,10 +213,10 @@ test("pushPayload - single record payload - warning with custom typeForRoot", fu
   deepEqual(get(homePlanet, "superVillains.firstObject.firstName"), "Stanley");
 });
 
-test("pushPayload - multiple record payload (extractArray) - warning with custom typeForRoot", function() {
+test("pushPayload - multiple record payload (extractArray) - warning with custom modelNameFromPayloadKey", function() {
   var homePlanet;
   var HomePlanetRestSerializer = DS.RESTSerializer.extend({
-    typeForRoot: function(root) {
+    modelNameFromPayloadKey: function(root) {
       //return some garbage that won"t resolve in the container
       if (root === "home_planets") {
         return "garbage";
@@ -246,7 +246,7 @@ test("pushPayload - multiple record payload (extractArray) - warning with custom
   // Serializers are singletons, so that"s why we use the store which
   // looks at the container to look it up
   env.store.serializerFor("homePlanet").reopen({
-    typeForRoot: function(root) {
+    modelNameFromPayloadKey: function(root) {
       // should not warn if a model is found.
       return Ember.String.camelize(Ember.String.singularize(root));
     }
@@ -553,4 +553,33 @@ test('serializeBelongsTo with async polymorphic', function() {
   env.restSerializer.serializeBelongsTo(doomsdayDevice._createSnapshot(), json, { key: 'evilMinion', options: { polymorphic: true, async: true } });
 
   deepEqual(json, expected, 'returned JSON is correct');
+});
+
+test('serializeIntoHash uses payloadKeyFromModelName to normalize the payload root key', function() {
+  run(function() {
+    league = env.store.createRecord(HomePlanet, { name: "Umber", id: "123" });
+  });
+  var json = {};
+  env.registry.register('serializer:home-planet', DS.RESTSerializer.extend({
+    payloadKeyFromModelName: function(modelName) {
+      return Ember.String.dasherize(modelName);
+    }
+  }));
+
+  env.container.lookup('serializer:home-planet').serializeIntoHash(json, HomePlanet, league._createSnapshot());
+
+  deepEqual(json, {
+    'home-planet': {
+      name: "Umber"
+    }
+  });
+});
+
+test('pathForType is deprecated', function() {
+  expect(1);
+
+  expectDeprecation(function() {
+    Ember.Inflector.inflector.uncountable('words');
+    return env.restSerializer.typeForRoot('multi_words');
+  });
 });
