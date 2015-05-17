@@ -71,7 +71,6 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
       author: Author
     });
 
-
     env.registry.optionsForType('serializer', { singleton: false });
     env.registry.optionsForType('adapter', { singleton: false });
 
@@ -82,6 +81,14 @@ module("integration/relationship/belongs_to Belongs-To Relationships", {
     }));
 
     store = env.store;
+
+    User    = store.modelFor('user');
+    Post    = store.modelFor('post');
+    Comment = store.modelFor('comment');
+    Message = store.modelFor('message');
+    Book    = store.modelFor('book');
+    Chapter = store.modelFor('chapter');
+    Author  = store.modelFor('author');
   },
 
   teardown: function() {
@@ -227,7 +234,7 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
   };
 
   env.adapter.findBelongsTo = async(function(store, snapshot, link, relationship) {
-    equal(relationship.type, Group);
+    equal(relationship.type, 'group');
     equal(relationship.key, 'group');
     equal(link, "/people/1/group");
 
@@ -380,7 +387,7 @@ test("relationshipsByName does not cache a factory", function() {
   // A model is looked up in the store based on a string, via user input
   var messageModelFromStore        = store.modelFor('message');
   // And the model is lookup up internally via the relationship type
-  var messageModelFromRelationType = store.modelFor(messageType.modelName);
+  var messageModelFromRelationType = store.modelFor(messageType);
 
   equal(messageModelFromRelationType, messageModelFromStore,
         "model factory based on relationship type matches the model based on store.modelFor");

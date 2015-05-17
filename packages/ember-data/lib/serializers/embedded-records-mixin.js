@@ -391,7 +391,7 @@ function extractEmbeddedRecords(serializer, store, typeClass, partial) {
 
   typeClass.eachRelationship(function(key, relationship) {
     if (serializer.hasDeserializeRecordsOption(key)) {
-      var embeddedTypeClass = store.modelFor(relationship.type.modelName);
+      var embeddedTypeClass = store.modelFor(relationship.type);
       if (relationship.kind === "hasMany") {
         if (relationship.options.polymorphic) {
           extractEmbeddedHasManyPolymorphic(store, key, partial);

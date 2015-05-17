@@ -11,7 +11,7 @@ var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
     canonicalState: this.canonicalState,
     store: this.store,
     relationship: this,
-    type: this.belongsToType,
+    type: this.store.modelFor(this.belongsToType),
     record: record
   });
   this.isPolymorphic = relationshipMeta.options.polymorphic;
@@ -84,15 +84,15 @@ ManyRelationship.prototype.removeRecordFromOwn = function(record, idx) {
 };
 
 ManyRelationship.prototype.notifyRecordRelationshipAdded = function(record, idx) {
-  var type = this.relationshipMeta.type;
-  Ember.assert("You cannot add '" + record.constructor.modelName + "' records to the " + this.record.constructor.modelName + "." + this.key + " relationship (only '" + this.belongsToType.modelName + "' allowed)", (function () {
-    if (type.__isMixin) {
-      return type.__mixin.detect(record);
+  var typeClass = this.store.modelFor(this.relationshipMeta.type);
+  Ember.assert("You cannot add '" + record.constructor.modelName + "' records to the " + this.record.constructor.modelName + "." + this.key + " relationship (only '" + typeClass.modelName + "' allowed)", (function () {
+    if (typeClass.__isMixin) {
+      return typeClass.__mixin.detect(record);
     }
     if (Ember.MODEL_FACTORY_INJECTIONS) {
-      type = type.superclass;
+      typeClass = typeClass.superclass;
     }
-    return record instanceof type;
+    return record instanceof typeClass;
   })());
 
   this.record.notifyHasManyAdded(this.key, record, idx);

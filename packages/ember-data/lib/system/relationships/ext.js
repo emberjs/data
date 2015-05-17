@@ -26,7 +26,7 @@ var relationshipsDescriptor = Ember.computed(function() {
     // it to the map.
     if (meta.isRelationship) {
       meta.key = name;
-      var relationshipsForType = map.get(typeForRelationshipMeta(this.store, meta));
+      var relationshipsForType = map.get(typeForRelationshipMeta(meta));
 
       relationshipsForType.push({
         name: name,
@@ -52,7 +52,7 @@ var relatedTypesDescriptor = Ember.computed(function() {
   this.eachComputedProperty(function(name, meta) {
     if (meta.isRelationship) {
       meta.key = name;
-      modelName = typeForRelationshipMeta(this.store, meta);
+      modelName = typeForRelationshipMeta(meta);
 
       Ember.assert("You specified a hasMany (" + meta.type + ") on " + meta.parentType + " but " + meta.type + " was not found.", modelName);
 
@@ -76,8 +76,8 @@ var relationshipsByNameDescriptor = Ember.computed(function() {
   this.eachComputedProperty(function(name, meta) {
     if (meta.isRelationship) {
       meta.key = name;
-      var relationship = relationshipFromMeta(this.store, meta);
-      relationship.type = typeForRelationshipMeta(this.store, meta);
+      var relationship = relationshipFromMeta(meta);
+      relationship.type = typeForRelationshipMeta(meta);
       map.set(name, relationship);
     }
   });
@@ -175,11 +175,12 @@ Model.reopenClass({
     @method typeForRelationship
     @static
     @param {String} name the name of the relationship
+    @param {store} store an instance of DS.Store
     @return {subclass of DS.Model} the type of the relationship, or undefined
   */
-  typeForRelationship: function(name) {
+  typeForRelationship: function(name, store) {
     var relationship = get(this, 'relationshipsByName').get(name);
-    return relationship && relationship.type;
+    return relationship && store.modelFor(relationship.type);
   },
 
   inverseMap: Ember.computed(function() {
@@ -209,21 +210,21 @@ Model.reopenClass({
     @param {String} name the name of the relationship
     @return {Object} the inverse relationship, or null
   */
-  inverseFor: function(name) {
+  inverseFor: function(name, store) {
     var inverseMap = get(this, 'inverseMap');
     if (inverseMap[name]) {
       return inverseMap[name];
     } else {
-      var inverse = this._findInverseFor(name);
+      var inverse = this._findInverseFor(name, store);
       inverseMap[name] = inverse;
       return inverse;
     }
   },
 
   //Calculate the inverse, ignoring the cache
-  _findInverseFor: function(name) {
+  _findInverseFor: function(name, store) {
 
-    var inverseType = this.typeForRelationship(name);
+    var inverseType = this.typeForRelationship(name, store);
     if (!inverseType) {
       return null;
     }
@@ -277,9 +278,9 @@ Model.reopenClass({
       var possibleRelationships = relationshipsSoFar || [];
 
       var relationshipMap = get(inverseType, 'relationships');
-      if (!relationshipMap) { return; }
+      if (!relationshipMap) { return possibleRelationships; }
 
-      var relationships = relationshipMap.get(type);
+      var relationships = relationshipMap.get(type.modelName);
 
       relationships = filter.call(relationships, function(relationship) {
         var optionsForRelationship = inverseType.metaForProperty(relationship.name).options;
@@ -535,10 +536,10 @@ Model.reopenClass({
     });
   },
 
-  determineRelationshipType: function(knownSide) {
+  determineRelationshipType: function(knownSide, store) {
     var knownKey = knownSide.key;
     var knownKind = knownSide.kind;
-    var inverse = this.inverseFor(knownKey);
+    var inverse = this.inverseFor(knownKey, store);
     var key, otherKind;
 
     if (!inverse) {
@@ -617,7 +618,7 @@ Model.reopen({
   },
 
   inverseFor: function(key) {
-    return this.constructor.inverseFor(key);
+    return this.constructor.inverseFor(key, this.store);
   }
 
 });
