@@ -67,7 +67,8 @@ export function _findMany(adapter, store, typeClass, ids, records) {
 
 export function _findHasMany(adapter, store, record, link, relationship) {
   var snapshot = record._createSnapshot();
-  var modelName = relationship.type.modelName;
+  var modelName = relationship.type;
+  var typeClass = store.modelFor(modelName);
   var promise = adapter.findHasMany(store, snapshot, link, relationship);
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Handle Adapter#findHasMany of " + record + " : " + relationship.type;
@@ -78,7 +79,7 @@ export function _findHasMany(adapter, store, record, link, relationship) {
 
   return promise.then(function(adapterPayload) {
     return store._adapterRun(function() {
-      var payload = serializer.extract(store, relationship.type, adapterPayload, null, 'findHasMany');
+      var payload = serializer.extract(store, typeClass, adapterPayload, null, 'findHasMany');
 
       Ember.assert("The response from a findHasMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
@@ -89,7 +90,8 @@ export function _findHasMany(adapter, store, record, link, relationship) {
 }
 
 export function _findBelongsTo(adapter, store, record, link, relationship) {
-  var modelName = relationship.type.modelName;
+  var modelName = relationship.type;
+  var typeClass = store.modelFor(modelName);
   var snapshot = record._createSnapshot();
   var promise = adapter.findBelongsTo(store, snapshot, link, relationship);
   var serializer = serializerForAdapter(store, adapter, modelName);
@@ -101,7 +103,7 @@ export function _findBelongsTo(adapter, store, record, link, relationship) {
 
   return promise.then(function(adapterPayload) {
     return store._adapterRun(function() {
-      var payload = serializer.extract(store, relationship.type, adapterPayload, null, 'findBelongsTo');
+      var payload = serializer.extract(store, typeClass, adapterPayload, null, 'findBelongsTo');
 
       if (!payload) {
         return null;

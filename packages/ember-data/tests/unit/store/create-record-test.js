@@ -33,8 +33,8 @@ test("doesn't modify passed in properties hash", function() {
 test("allow passing relationships as well as attributes", function() {
   var records, storage;
   run(function() {
-    records = store.pushMany(Record, [{ id: 1, title: "it's a beautiful day" }, { id: 2, title: "it's a beautiful day" }]);
-    storage = store.createRecord(Storage, { name: 'Great store', records: records });
+    records = store.pushMany('record', [{ id: 1, title: "it's a beautiful day" }, { id: 2, title: "it's a beautiful day" }]);
+    storage = store.createRecord('storage', { name: 'Great store', records: records });
   });
 
   equal(storage.get('name'), 'Great store', "The attribute is well defined");

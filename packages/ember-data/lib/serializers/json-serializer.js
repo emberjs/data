@@ -651,7 +651,7 @@ export default Serializer.extend({
         payloadKey = this.keyForRelationship(key, "hasMany", "serialize");
       }
 
-      var relationshipType = snapshot.type.determineRelationshipType(relationship);
+      var relationshipType = snapshot.type.determineRelationshipType(relationship, this.store);
 
       if (relationshipType === 'manyToNone' || relationshipType === 'manyToMany') {
         json[payloadKey] = snapshot.hasMany(key, { ids: true });

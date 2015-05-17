@@ -61,15 +61,15 @@ BelongsToRelationship.prototype.flushCanonical = function() {
 BelongsToRelationship.prototype._super$addRecord = Relationship.prototype.addRecord;
 BelongsToRelationship.prototype.addRecord = function(newRecord) {
   if (this.members.has(newRecord)) { return;}
-  var type = this.relationshipMeta.type;
-  Ember.assert("You cannot add a '" + newRecord.constructor.modelName + "' record to the '" + this.record.constructor.modelName + "." + this.key +"'. " + "You can only add a '" + type.modelName + "' record to this relationship.", (function () {
-    if (type.__isMixin) {
-      return type.__mixin.detect(newRecord);
+  var typeClass = this.store.modelFor(this.relationshipMeta.type);
+  Ember.assert("You cannot add a '" + newRecord.constructor.modelName + "' record to the '" + this.record.constructor.modelName + "." + this.key +"'. " + "You can only add a '" + typeClass.modelName + "' record to this relationship.", (function () {
+    if (typeClass.__isMixin) {
+      return typeClass.__mixin.detect(newRecord);
     }
     if (Ember.MODEL_FACTORY_INJECTIONS) {
-      type = type.superclass;
+      typeClass = typeClass.superclass;
     }
-    return newRecord instanceof type;
+    return newRecord instanceof typeClass;
   })());
 
   if (this.inverseRecord) {

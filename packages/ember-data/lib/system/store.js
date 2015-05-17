@@ -1498,7 +1498,6 @@ Store = Service.extend({
       });
     }
 
-    factory.store = this;
     return factory;
   },
 

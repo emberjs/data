@@ -27,11 +27,11 @@ test("exposes a hash of the relationships on a model", function() {
   });
 
   var relationships = get(Person, 'relationships');
-  deepEqual(relationships.get(Person), [
+  deepEqual(relationships.get('person'), [
     { name: "people", kind: "hasMany" },
     { name: "parent", kind: "belongsTo" }
   ]);
-  deepEqual(relationships.get(Occupation), [
+  deepEqual(relationships.get('occupation'), [
     { name: "occupations", kind: "hasMany" }
   ]);
 });

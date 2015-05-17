@@ -177,7 +177,7 @@ test("should be able to retrieve the type for a hasMany relationship without spe
     person: Person
   });
 
-  equal(env.store.modelFor('person').typeForRelationship('tags'), Tag, "returns the relationship type");
+  equal(env.store.modelFor('person').typeForRelationship('tags', env.store), Tag, "returns the relationship type");
 });
 
 test("should be able to retrieve the type for a hasMany relationship specified using a string from its metadata", function() {
@@ -192,7 +192,7 @@ test("should be able to retrieve the type for a hasMany relationship specified u
     person: Person
   });
 
-  equal(env.store.modelFor('person').typeForRelationship('tags'), Tag, "returns the relationship type");
+  equal(env.store.modelFor('person').typeForRelationship('tags', env.store), Tag, "returns the relationship type");
 });
 
 test("should be able to retrieve the type for a belongsTo relationship without specifying a type from its metadata", function() {
@@ -207,7 +207,7 @@ test("should be able to retrieve the type for a belongsTo relationship without s
     person: Person
   });
 
-  equal(env.store.modelFor('person').typeForRelationship('tag'), Tag, "returns the relationship type");
+  equal(env.store.modelFor('person').typeForRelationship('tag', env.store), Tag, "returns the relationship type");
 });
 
 test("should be able to retrieve the type for a belongsTo relationship specified using a string from its metadata", function() {
@@ -224,7 +224,7 @@ test("should be able to retrieve the type for a belongsTo relationship specified
     person: Person
   });
 
-  equal(env.store.modelFor('person').typeForRelationship('tags'), Tag, "returns the relationship type");
+  equal(env.store.modelFor('person').typeForRelationship('tags', env.store), Tag, "returns the relationship type");
 });
 
 test("relationships work when declared with a string path", function() {
