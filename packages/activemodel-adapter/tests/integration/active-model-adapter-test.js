@@ -21,25 +21,13 @@ test('buildURL - decamelizes names', function() {
 });
 
 test('ajaxError - returns invalid error if 422 response', function() {
-  var error = new DS.InvalidError({ name: "can't be blank" });
-
-  var jqXHR = {
-    status: 422,
-    responseText: JSON.stringify({ errors: { name: "can't be blank" } })
-  };
-
-  equal(adapter.ajaxError(jqXHR), error.toString());
-});
-
-test('ajaxError - accepts any kind of json on 422', function() {
-  var error = new DS.InvalidError({ name: "can't be blank" });
 
   var jqXHR = {
     status: 422,
     responseText: JSON.stringify({ name: "can't be blank" })
   };
 
-  equal(adapter.ajaxError(jqXHR), error.toString());
+  equal(adapter.ajaxError(jqXHR).errors.name, "can't be blank");
 });
 
 test('ajaxError - returns ajax response if not 422 response', function() {
