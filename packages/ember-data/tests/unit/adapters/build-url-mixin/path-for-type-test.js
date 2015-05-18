@@ -69,7 +69,7 @@ test('buildURL - findQuery requestType delegates to urlForFindQuery', function()
     equal(type, 'super-user');
     return originalMethod.apply(this, arguments);
   };
-  equal(adapter.buildURL('super-user', queryStub, null, 'findQuery'), '/superUsers');
+  equal(adapter.buildURL('super-user', null, null, 'findQuery', queryStub), '/superUsers');
 });
 
 test('buildURL - findMany requestType delegates to urlForFindMany', function() {
