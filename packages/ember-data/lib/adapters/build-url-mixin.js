@@ -46,16 +46,17 @@ export default Ember.Mixin.create({
     @param {String|Array|Object} id single id or array of ids or query
     @param {DS.Snapshot|Array} snapshot single snapshot or array of snapshots
     @param {String} requestType
+    @param {Object} query object of query parameters to send for findQuery requests.
     @return {String} url
   */
-  buildURL: function(modelName, id, snapshot, requestType) {
+  buildURL: function(modelName, id, snapshot, requestType, query) {
     switch (requestType) {
       case 'find':
         return this.urlForFind(id, modelName, snapshot);
       case 'findAll':
         return this.urlForFindAll(modelName);
       case 'findQuery':
-        return this.urlForFindQuery(id, modelName);
+        return this.urlForFindQuery(query, modelName);
       case 'findMany':
         return this.urlForFindMany(id, modelName, snapshot);
       case 'findHasMany':
