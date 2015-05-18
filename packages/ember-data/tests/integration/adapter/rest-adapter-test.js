@@ -369,8 +369,7 @@ test("create - a serializer's attribute mapping takes precedence over keyForRela
 
   run(function() {
     var comment = store.createRecord('comment', { id: "a-comment-id", name: "First!" });
-    var post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
-    post.get('comments').pushObject(comment);
+    var post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter", comments: [comment] });
 
     post.save().then(async(function(post) {
       deepEqual(passedHash.data, { post: { opinions: ["a-comment-id"], id: "some-uuid", name: "The Parley Letter" } });

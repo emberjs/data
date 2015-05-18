@@ -892,19 +892,19 @@ test("When a record is created on the client, its async hasMany arrays should be
   });
 });
 
-test("a records SYNC HM relationship property is readOnly", function() {
+test("we can set records SYNC HM relationship", function() {
   expect(1);
   var post = run(function() {
     return env.store.createRecord('post');
   });
-
-  raises(function() {
-    post.set('comments');
-  }, 'Cannot Set: comments on: ' + Ember.inspect(post));
+  run(function() {
+    post.set('comments', env.store.pushMany('comment', [{ id: 1, body: "First" }, { id: 2, body: "Second" }]));
+  });
+  equal(get(post, 'comments.length'), 2, "we can set HM relationship");
 });
 
 
-test("a records ASYNC HM relationship property is readOnly", function() {
+test("We can set records ASYNC HM relationship", function() {
   expect(1);
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
@@ -913,10 +913,13 @@ test("a records ASYNC HM relationship property is readOnly", function() {
   var post = run(function() {
     return env.store.createRecord('post');
   });
+  run(function() {
+    post.set('comments', env.store.pushMany('comment', [{ id: 1, body: "First" }, { id: 2, body: "Second" }]));
+  });
 
-  raises(function() {
-    run(post, 'set', 'comments');
-  }, 'Cannot Set: comments on: ' + Ember.inspect(post));
+  post.get('comments').then(async(function(comments) {
+    equal(comments.get('length')  , 2, "we can set async HM relationship");
+  }));
 });
 
 test("When a record is saved, its unsaved hasMany records should be kept", function () {
