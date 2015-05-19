@@ -345,7 +345,13 @@ var DirtyState = {
 
     rolledBack: function(record) {
       get(record, 'errors').clear();
-      record.transitionTo('loaded.saved');
+
+      if (record.get('isNew')) {
+        DirtyState.uncommitted.rollback.apply(this, arguments);
+        record.transitionTo('deleted.saved');
+      } else {
+        record.transitionTo('loaded.saved');
+      }
     },
 
     becameValid: function(record) {
