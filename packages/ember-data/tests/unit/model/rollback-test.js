@@ -346,7 +346,7 @@ test("invalid new record can be rollbacked", function() {
            completes without failure and the failure hits the failure route
            of the promise instead of crashing the save. */
         Ember.run.next(function() {
-            reject(adapter.ajaxError({ name: 'is invalid' }));
+          reject(adapter.ajaxError({ name: 'is invalid' }));
         });
       });
     },
