@@ -40,6 +40,7 @@ test("records can be deleted during record array enumeration", function () {
   });
 
   equal(all.get('length'), 0, 'expected 0 records');
+  equal(all.objectAt(0), null, "can't get any records");
 });
 
 test("when deleted records are rolled back, they are still in their previous record arrays", function () {

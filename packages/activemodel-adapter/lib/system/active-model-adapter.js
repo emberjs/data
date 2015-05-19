@@ -112,11 +112,11 @@ var ActiveModelAdapter = RESTAdapter.extend({
     ```
 
     @method pathForType
-    @param {String} type
+    @param {String} modelName
     @return String
   */
-  pathForType: function(type) {
-    var decamelized = decamelize(type);
+  pathForType: function(modelName) {
+    var decamelized = decamelize(modelName);
     var underscored = underscore(decamelized);
     return pluralize(underscored);
   },
@@ -141,7 +141,8 @@ var ActiveModelAdapter = RESTAdapter.extend({
     var error = this._super.apply(this, arguments);
 
     if (jqXHR && jqXHR.status === 422) {
-      return new InvalidError(Ember.$.parseJSON(jqXHR.responseText));
+      var response = Ember.$.parseJSON(jqXHR.responseText);
+      return new InvalidError(response);
     } else {
       return error;
     }

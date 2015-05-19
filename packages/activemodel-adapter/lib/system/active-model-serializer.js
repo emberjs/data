@@ -1,12 +1,13 @@
 import { singularize } from "ember-inflector";
 import RESTSerializer from "ember-data/serializers/rest-serializer";
+import normalizeModelName from "ember-data/system/normalize-model-name";
 /**
   @module ember-data
 */
 
 var forEach = Ember.EnumerableUtils.forEach;
 var camelize =   Ember.String.camelize;
-var capitalize = Ember.String.capitalize;
+var classify = Ember.String.classify;
 var decamelize = Ember.String.decamelize;
 var underscore = Ember.String.underscore;
 
@@ -116,12 +117,12 @@ var ActiveModelSerializer = RESTSerializer.extend({
     relationship keys.
 
     @method keyForRelationship
-    @param {String} key
+    @param {String} relationshipTypeKey
     @param {String} kind
     @return String
   */
-  keyForRelationship: function(rawKey, kind) {
-    var key = decamelize(rawKey);
+  keyForRelationship: function(relationshipTypeKey, kind) {
+    var key = decamelize(relationshipTypeKey);
     if (kind === "belongsTo") {
       return key + "_id";
     } else if (kind === "hasMany") {
@@ -137,17 +138,14 @@ var ActiveModelSerializer = RESTSerializer.extend({
   serializeHasMany: Ember.K,
 
   /**
-    Underscores the JSON root keys when serializing.
+   Underscores the JSON root keys when serializing.
 
-    @method serializeIntoHash
-    @param {Object} hash
-    @param {subclass of DS.Model} type
-    @param {DS.Snapshot} snapshot
-    @param {Object} options
+    @method payloadKeyFromModelName
+    @param {String} modelName
+    @returns {String}
   */
-  serializeIntoHash: function(data, type, snapshot, options) {
-    var root = underscore(decamelize(type.typeKey));
-    data[root] = this.serialize(snapshot, options);
+  payloadKeyFromModelName: function(modelName) {
+    return underscore(decamelize(modelName));
   },
 
   /**
@@ -166,7 +164,9 @@ var ActiveModelSerializer = RESTSerializer.extend({
     if (Ember.isNone(belongsTo)) {
       json[jsonKey] = null;
     } else {
-      json[jsonKey] = capitalize(camelize(belongsTo.typeKey));
+      json[jsonKey] = classify(belongsTo.modelName).replace(/(\/)([a-z])/g, function(match, separator, chr) {
+        return match.toUpperCase();
+      }).replace('/', '::');
     }
   },
 
@@ -200,16 +200,16 @@ var ActiveModelSerializer = RESTSerializer.extend({
     ```
 
     @method normalize
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} hash
     @param {String} prop
     @return Object
   */
 
-  normalize: function(type, hash, prop) {
+  normalize: function(typeClass, hash, prop) {
     this.normalizeLinks(hash);
 
-    return this._super(type, hash, prop);
+    return this._super(typeClass, hash, prop);
   },
 
   /**
@@ -253,27 +253,28 @@ var ActiveModelSerializer = RESTSerializer.extend({
       }
     ```
 
+    @param {Subclass of DS.Model} typeClass
     @method normalizeRelationships
     @private
   */
-  normalizeRelationships: function(type, hash) {
+  normalizeRelationships: function(typeClass, hash) {
 
     if (this.keyForRelationship) {
-      type.eachRelationship(function(key, relationship) {
+      typeClass.eachRelationship(function(key, relationship) {
         var payloadKey, payload;
         if (relationship.options.polymorphic) {
-          payloadKey = this.keyForAttribute(key);
+          payloadKey = this.keyForAttribute(key, "deserialize");
           payload = hash[payloadKey];
           if (payload && payload.type) {
-            payload.type = this.typeForRoot(payload.type);
+            payload.type = this.modelNameFromPayloadKey(payload.type);
           } else if (payload && relationship.kind === "hasMany") {
             var self = this;
             forEach(payload, function(single) {
-              single.type = self.typeForRoot(single.type);
+              single.type = self.modelNameFromPayloadKey(single.type);
             });
           }
         } else {
-          payloadKey = this.keyForRelationship(key, relationship.kind);
+          payloadKey = this.keyForRelationship(key, relationship.kind, "deserialize");
           if (!hash.hasOwnProperty(payloadKey)) { return; }
           payload = hash[payloadKey];
         }
@@ -285,6 +286,12 @@ var ActiveModelSerializer = RESTSerializer.extend({
         }
       }, this);
     }
+  },
+  modelNameFromPayloadKey: function(key) {
+    var convertedFromRubyModule = camelize(singularize(key)).replace(/(^|\:)([A-Z])/g, function(match, separator, chr) {
+      return match.toLowerCase();
+    }).replace('::', '/');
+    return normalizeModelName(convertedFromRubyModule);
   }
 });
 

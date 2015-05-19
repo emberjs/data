@@ -163,7 +163,7 @@ test("serializePolymorphicType sync", function() {
     serializePolymorphicType: function(record, json, relationship) {
       var key = relationship.key;
       var belongsTo = record.belongsTo(key);
-      json[relationship.key + "TYPE"] = belongsTo.typeKey;
+      json[relationship.key + "TYPE"] = belongsTo.modelName;
 
       ok(true, 'serializePolymorphicType is called when serialize a polymorphic belongsTo');
     }
@@ -318,6 +318,37 @@ test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo`
   ok(!payload.hasOwnProperty(serializedProperty), "Does not add the key to instance");
 });
 
+test("Serializer should merge attrs from superclasses", function() {
+  expect(4);
+  Post.reopen({
+    description: DS.attr('string'),
+    anotherString: DS.attr('string')
+  });
+  var BaseSerializer = DS.JSONSerializer.extend({
+    attrs: {
+      title: "title_payload_key",
+      anotherString: "base_another_string_key"
+    }
+  });
+  env.registry.register("serializer:post", BaseSerializer.extend({
+    attrs: {
+      description: "description_payload_key",
+      anotherString: "overwritten_another_string_key"
+    }
+  }));
+
+  run(function() {
+    post = env.store.createRecord("post", { title: "Rails is omakase", description: "Omakase is delicious", anotherString: "yet another string" });
+  });
+
+  var payload = env.container.lookup("serializer:post").serialize(post._createSnapshot());
+
+  equal(payload.title_payload_key, "Rails is omakase");
+  equal(payload.description_payload_key, "Omakase is delicious");
+  equal(payload.overwritten_another_string_key, "yet another string");
+  ok(!payload.base_another_string_key, "overwritten key is not added");
+});
+
 test("Serializer should respect the primaryKey attribute when extracting records", function() {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
     primaryKey: '_ID_'
@@ -441,7 +472,7 @@ test('serializeBelongsTo with async polymorphic', function() {
   env.registry.register('serializer:favorite', DS.JSONSerializer.extend({
     serializePolymorphicType: function(snapshot, json, relationship) {
       var key = relationship.key;
-      json[key + 'TYPE'] = snapshot.belongsTo(key).typeKey;
+      json[key + 'TYPE'] = snapshot.belongsTo(key).modelName;
     }
   }));
 
@@ -453,4 +484,54 @@ test('serializeBelongsTo with async polymorphic', function() {
   env.container.lookup('serializer:favorite').serializeBelongsTo(favorite._createSnapshot(), json, { key: 'post', options: { polymorphic: true, async: true } });
 
   deepEqual(json, expected, 'returned JSON is correct');
+});
+
+test('extractErrors respects custom key mappings', function() {
+  env.registry.register('serializer:post', DS.JSONSerializer.extend({
+    attrs: {
+      title: 'le_title',
+      comments: { key: 'my_comments' }
+    }
+  }));
+
+  var payload = {
+    errors: {
+      le_title: ["title errors"],
+      my_comments: ["comments errors"]
+    }
+  };
+
+  var errors = env.container.lookup('serializer:post').extractErrors(env.store, Post, payload);
+
+  deepEqual(errors, {
+    title: ["title errors"],
+    comments: ["comments errors"]
+  });
+});
+
+test('extractErrors expects error information located on the errors property of payload', function() {
+  env.registry.register('serializer:post', DS.JSONSerializer.extend());
+
+  var payload = {
+    attributeWhichWillBeRemovedinExtractErrors: ["true"],
+    errors: {
+      title: ["title errors"]
+    }
+  };
+
+  var errors = env.container.lookup('serializer:post').extractErrors(env.store, Post, payload);
+
+  deepEqual(errors, { title: ["title errors"] });
+});
+
+test('extractErrors leaves payload untouched if it has no errors property', function() {
+  env.registry.register('serializer:post', DS.JSONSerializer.extend());
+
+  var payload = {
+    untouchedSinceNoErrorsSiblingPresent: ["true"]
+  };
+
+  var errors = env.container.lookup('serializer:post').extractErrors(env.store, Post, payload);
+
+  deepEqual(errors, { untouchedSinceNoErrorsSiblingPresent: ["true"] });
 });

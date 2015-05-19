@@ -260,6 +260,19 @@ test("Calling attr(), belongsTo() or hasMany() throws a warning", function() {
   });
 });
 
+test("supports pushedData in root.deleted.uncommitted", function() {
+  var record;
+  var hash = { id: 1 };
+  run(function() {
+    record = store.push(Person, hash);
+    record.deleteRecord();
+    store.push(Person, hash);
+    equal(get(record, 'currentState.stateName'), 'root.deleted.uncommitted',
+      'record accepts pushedData is in root.deleted.uncommitted state');
+  });
+});
+
+
 module("unit/model - DS.Model updating", {
   setup: function() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];

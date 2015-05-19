@@ -85,7 +85,7 @@ ManyRelationship.prototype.removeRecordFromOwn = function(record, idx) {
 
 ManyRelationship.prototype.notifyRecordRelationshipAdded = function(record, idx) {
   var type = this.relationshipMeta.type;
-  Ember.assert("You cannot add '" + record.constructor.typeKey + "' records to the " + this.record.constructor.typeKey + "." + this.key + " relationship (only '" + this.belongsToType.typeKey + "' allowed)", (function () {
+  Ember.assert("You cannot add '" + record.constructor.modelName + "' records to the " + this.record.constructor.modelName + "." + this.key + " relationship (only '" + this.belongsToType.modelName + "' allowed)", (function () {
     if (type.__isMixin) {
       return type.__mixin.detect(record);
     }
@@ -180,7 +180,7 @@ ManyRelationship.prototype.getRecords = function() {
       promise: promise
     });
   } else {
-    Ember.assert("You looked up the '" + this.key + "' relationship on a '" + this.record.constructor.typeKey + "' with id " + this.record.get('id') +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", this.manyArray.isEvery('isEmpty', false));
+    Ember.assert("You looked up the '" + this.key + "' relationship on a '" + this.record.constructor.modelName + "' with id " + this.record.get('id') +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.hasMany({ async: true })`)", this.manyArray.isEvery('isEmpty', false));
 
     //TODO(Igor) WTF DO I DO HERE?
     if (!this.manyArray.get('isDestroyed')) {

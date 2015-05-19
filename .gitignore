@@ -4,6 +4,7 @@ tmp/
 tests/source/
 dist/
 .idea
+*.iml
 
 .DS_Store
 .project

@@ -150,7 +150,7 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
     equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
-    equal(relationship.type.typeKey, "comment", "relationship was passed correctly");
+    equal(relationship.type.modelName, "comment", "relationship was passed correctly");
 
     return Ember.RSVP.resolve([
       { id: 1, body: "First" },
@@ -570,7 +570,7 @@ test("An updated `links` value should invalidate a relationship cache", function
   });
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    equal(relationship.type.typeKey, "comment", "relationship was passed correctly");
+    equal(relationship.type.modelName, "comment", "relationship was passed correctly");
 
     if (link === '/first') {
       return Ember.RSVP.resolve([
@@ -821,7 +821,7 @@ test("Only records of the same base type can be added to a polymorphic hasMany r
 });
 
 test("A record can be removed from a polymorphic association", function() {
-  expect(3);
+  expect(4);
 
   run(function() {
     env.store.push('user', { id: 1 , messages: [{ id: 3, type: 'comment' }] });
@@ -845,6 +845,7 @@ test("A record can be removed from a polymorphic association", function() {
 
       equal(removedObject, records.comment, "The message is correctly removed");
       equal(records.messages.get('length'), 0, "The user does not have any messages");
+      equal(records.messages.objectAt(0), null, "No messages can't be fetched");
     });
   });
 });
@@ -891,19 +892,19 @@ test("When a record is created on the client, its async hasMany arrays should be
   });
 });
 
-test("a records SYNC HM relationship property is readOnly", function() {
+test("we can set records SYNC HM relationship", function() {
   expect(1);
   var post = run(function() {
     return env.store.createRecord('post');
   });
-
-  raises(function() {
-    post.set('comments');
-  }, 'Cannot Set: comments on: ' + Ember.inspect(post));
+  run(function() {
+    post.set('comments', env.store.pushMany('comment', [{ id: 1, body: "First" }, { id: 2, body: "Second" }]));
+  });
+  equal(get(post, 'comments.length'), 2, "we can set HM relationship");
 });
 
 
-test("a records ASYNC HM relationship property is readOnly", function() {
+test("We can set records ASYNC HM relationship", function() {
   expect(1);
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
@@ -912,10 +913,13 @@ test("a records ASYNC HM relationship property is readOnly", function() {
   var post = run(function() {
     return env.store.createRecord('post');
   });
+  run(function() {
+    post.set('comments', env.store.pushMany('comment', [{ id: 1, body: "First" }, { id: 2, body: "Second" }]));
+  });
 
-  raises(function() {
-    run(post, 'set', 'comments');
-  }, 'Cannot Set: comments on: ' + Ember.inspect(post));
+  post.get('comments').then(async(function(comments) {
+    equal(comments.get('length')  , 2, "we can set async HM relationship");
+  }));
 });
 
 test("When a record is saved, its unsaved hasMany records should be kept", function () {

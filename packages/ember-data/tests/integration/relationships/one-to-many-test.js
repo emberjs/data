@@ -399,6 +399,7 @@ test("When deleting a record that has a belongsTo it is removed from the hasMany
     });
     user.get('messages').then(function(fetchedMessages) {
       equal(fetchedMessages.get('length'), 0, 'User was removed from the messages');
+      equal(fetchedMessages.get('firstObject'), null, "Message can't be accessed");
     });
   });
 });
@@ -533,6 +534,7 @@ test("Rollbacking a created record works correctly when the hasMany side has bee
     });
     user.get('messages').then(function(fetchedMessages) {
       equal(fetchedMessages.get('length'), 0, message, 'User does not have the message anymore');
+      equal(fetchedMessages.get('firstObject'), null, "User message can't be accessed");
     });
   });
 });
@@ -563,6 +565,7 @@ test("Rollbacking a created record works correctly when the belongsTo side has b
       });
       user.get('messages').then(function(fetchedMessages) {
         equal(fetchedMessages.get('length'), 0, 'User does not have the message anymore');
+        equal(fetchedMessages.get('firstObject'), null, "User message can't be accessed");
       });
     });
   });

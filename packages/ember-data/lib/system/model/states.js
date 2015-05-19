@@ -635,6 +635,7 @@ var RootState = {
         record.triggerLater('ready');
       },
 
+      pushedData: Ember.K,
       becomeDirty: Ember.K,
       deleteRecord: Ember.K,
 

@@ -1,12 +1,22 @@
-var store, container, Record;
+var store, container, Record, Storage;
 var run = Ember.run;
 
 module("unit/store/createRecord - Store creating records", {
   setup: function() {
-    store = createStore({ adapter: DS.Adapter.extend() });
 
     Record = DS.Model.extend({
       title: DS.attr('string')
+    });
+
+    Storage = DS.Model.extend({
+      name: DS.attr('name'),
+      records: DS.hasMany('record')
+    });
+
+    store = createStore({
+      adapter: DS.Adapter.extend(),
+      record: Record,
+      storage: Storage
     });
   }
 });
@@ -21,16 +31,25 @@ test("doesn't modify passed in properties hash", function() {
   deepEqual(attributes, { foo: 'bar' }, "The properties hash is not modified");
 });
 
+test("allow passing relationships as well as attributes", function() {
+  var records, storage;
+  run(function() {
+    records = store.pushMany(Record, [{ id: 1, title: "it's a beautiful day" }, { id: 2, title: "it's a beautiful day" }]);
+    storage = store.createRecord(Storage, { name: 'Great store', records: records });
+  });
+
+  equal(storage.get('name'), 'Great store', "The attribute is well defined");
+  equal(storage.get('records').findBy('id', '1'), Ember.A(records).findBy('id', '1'), "Defined relationships are allowed in createRecord");
+  equal(storage.get('records').findBy('id', '2'), Ember.A(records).findBy('id', '2'), "Defined relationships are allowed in createRecord");
+});
+
 module("unit/store/createRecord - Store with models by dash", {
   setup: function() {
     var env = setupStore({
-      'some-thing': DS.Model.extend({ foo: DS.attr('string') })
+      someThing: DS.Model.extend({ foo: DS.attr('string') })
     });
     store = env.store;
     container = env.container;
-    env.replaceContainerNormalize(function(key) {
-      return Ember.String.dasherize(key);
-    });
   }
 });
 test("creating a record by camel-case string finds the model", function() {
@@ -42,7 +61,7 @@ test("creating a record by camel-case string finds the model", function() {
   });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
-  equal(store.modelFor('someThing').typeKey, 'someThing');
+  equal(store.modelFor('someThing').modelName, 'some-thing');
 });
 
 test("creating a record by dasherize string finds the model", function() {
@@ -54,7 +73,7 @@ test("creating a record by dasherize string finds the model", function() {
   });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
-  equal(store.modelFor('some-thing').typeKey, 'someThing');
+  equal(store.modelFor('some-thing').modelName, 'some-thing');
 });
 
 module("unit/store/createRecord - Store with models by camelCase", {
@@ -64,7 +83,6 @@ module("unit/store/createRecord - Store with models by camelCase", {
     });
     store = env.store;
     container = env.container;
-    env.replaceContainerNormalize(Ember.String.camelize);
   }
 });
 
@@ -77,7 +95,7 @@ test("creating a record by camel-case string finds the model", function() {
   });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
-  equal(store.modelFor('someThing').typeKey, 'someThing');
+  equal(store.modelFor('someThing').modelName, 'some-thing');
 });
 
 test("creating a record by dasherize string finds the model", function() {
@@ -89,5 +107,5 @@ test("creating a record by dasherize string finds the model", function() {
   });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
-  equal(store.modelFor('some-thing').typeKey, 'someThing');
+  equal(store.modelFor('some-thing').modelName, 'some-thing');
 });

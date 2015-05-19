@@ -14,7 +14,7 @@ var get = Ember.get;
   ```javascript
   export default DS.Adapter.extend(BuildURLMixin, {
     find: function(store, type, id, snapshot) {
-      var url = this.buildURL(type.typeKey, id, snapshot, 'find');
+      var url = this.buildURL(type.modelName, id, snapshot, 'find');
       return this.ajax(url, 'GET');
     }
   });
@@ -42,28 +42,57 @@ export default Ember.Mixin.create({
     will be arrays of ids and snapshots.
 
     @method buildURL
-    @param {String} type
-    @param {String|Array} id single id or array of ids
+    @param {String} modelName
+    @param {String|Array|Object} id single id or array of ids or query
     @param {DS.Snapshot|Array} snapshot single snapshot or array of snapshots
     @param {String} requestType
+    @param {Object} query object of query parameters to send for findQuery requests.
     @return {String} url
   */
-  buildURL: function(type, id, snapshot, requestType) {
+  buildURL: function(modelName, id, snapshot, requestType, query) {
+    switch (requestType) {
+      case 'find':
+        return this.urlForFind(id, modelName, snapshot);
+      case 'findAll':
+        return this.urlForFindAll(modelName);
+      case 'findQuery':
+        return this.urlForFindQuery(query, modelName);
+      case 'findMany':
+        return this.urlForFindMany(id, modelName, snapshot);
+      case 'findHasMany':
+        return this.urlForFindHasMany(id, modelName);
+      case 'findBelongsTo':
+        return this.urlForFindBelongsTo(id, modelName);
+      case 'createRecord':
+        return this.urlForCreateRecord(modelName, snapshot);
+      case 'updateRecord':
+        return this.urlForUpdateRecord(id, modelName, snapshot);
+      case 'deleteRecord':
+        return this.urlForDeleteRecord(id, modelName, snapshot);
+      default:
+        return this._buildURL(modelName, id);
+    }
+  },
+
+  /**
+    @method _buildURL
+    @private
+    @param {String} modelName
+    @param {String} id
+    @return {String} url
+  */
+  _buildURL: function(modelName, id) {
     var url = [];
     var host = get(this, 'host');
     var prefix = this.urlPrefix();
     var path;
 
-    if (type) {
-      path = this.pathForType(type);
+    if (modelName) {
+      path = this.pathForType(modelName);
       if (path) { url.push(path); }
     }
 
-    //We might get passed in an array of ids from findMany
-    //in which case we don't want to modify the url, as the
-    //ids will be passed in through a query param
-    if (id && !Ember.isArray(id)) { url.push(encodeURIComponent(id)); }
-
+    if (id) { url.push(encodeURIComponent(id)); }
     if (prefix) { url.unshift(prefix); }
 
     url = url.join('/');
@@ -72,6 +101,99 @@ export default Ember.Mixin.create({
     }
 
     return url;
+  },
+
+  /**
+   * @method urlForFind
+   * @param {String} id
+   * @param {String} modelName
+   * @param {DS.Snapshot} snapshot
+   * @return {String} url
+   */
+  urlForFind: function(id, modelName, snapshot) {
+    return this._buildURL(modelName, id);
+  },
+
+  /**
+   * @method urlForFindAll
+   * @param {String} modelName
+   * @return {String} url
+   */
+  urlForFindAll: function(modelName) {
+    return this._buildURL(modelName);
+  },
+
+  /**
+   * @method urlForFindQuery
+   * @param {Object} query
+   * @param {String} modelName
+   * @return {String} url
+   */
+  urlForFindQuery: function(query, modelName) {
+    return this._buildURL(modelName);
+  },
+
+  /**
+   * @method urlForFindMany
+   * @param {Array} ids
+   * @param {String} type
+   * @param {Array} snapshots
+   * @return {String} url
+   */
+  urlForFindMany: function(ids, modelName, snapshots) {
+    return this._buildURL(modelName);
+  },
+
+  /**
+   * @method urlForFindHasMany
+   * @param {String} id
+   * @param {String} modelName
+   * @return {String} url
+   */
+  urlForFindHasMany: function(id, modelName) {
+    return this._buildURL(modelName, id);
+  },
+
+  /**
+   * @method urlForFindBelongTo
+   * @param {String} id
+   * @param {String} modelName
+   * @return {String} url
+   */
+  urlForFindBelongsTo: function(id, modelName) {
+    return this._buildURL(modelName, id);
+  },
+
+  /**
+   * @method urlForCreateRecord
+   * @param {String} modelName
+   * @param {DS.Snapshot} snapshot
+   * @return {String} url
+   */
+  urlForCreateRecord: function(modelName, snapshot) {
+    return this._buildURL(modelName);
+  },
+
+  /**
+   * @method urlForUpdateRecord
+   * @param {String} id
+   * @param {String} modelName
+   * @param {DS.Snapshot} snapshot
+   * @return {String} url
+   */
+  urlForUpdateRecord: function(id, modelName, snapshot) {
+    return this._buildURL(modelName, id);
+  },
+
+  /**
+   * @method urlForDeleteRecord
+   * @param {String} id
+   * @param {String} modelName
+   * @param {DS.Snapshot} snapshot
+   * @return {String} url
+   */
+  urlForDeleteRecord: function(id, modelName, snapshot) {
+    return this._buildURL(modelName, id);
   },
 
   /**
@@ -130,19 +252,19 @@ export default Ember.Mixin.create({
 
     ```js
     App.ApplicationAdapter = DS.RESTAdapter.extend({
-      pathForType: function(type) {
-        var decamelized = Ember.String.decamelize(type);
+      pathForType: function(modelName) {
+        var decamelized = Ember.String.decamelize(modelName);
         return Ember.String.pluralize(decamelized);
       }
     });
     ```
 
     @method pathForType
-    @param {String} type
+    @param {String} modelName
     @return {String} path
   **/
-  pathForType: function(type) {
-    var camelized = Ember.String.camelize(type);
+  pathForType: function(modelName) {
+    var camelized = Ember.String.camelize(modelName);
     return Ember.String.pluralize(camelized);
   }
 });

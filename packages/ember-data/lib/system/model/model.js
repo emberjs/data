@@ -499,6 +499,13 @@ var Model = Ember.Object.extend(Ember.Evented, {
   becameError: Ember.K,
 
   /**
+    Fired when the record is rolled back.
+
+    @event rolledBack
+  */
+  rolledBack: Ember.K,
+
+  /**
     @property data
     @private
     @type {Object}
@@ -864,14 +871,15 @@ var Model = Ember.Object.extend(Ember.Evented, {
     Example
 
     ```javascript
+    var attr = DS.attr;
     App.Mascot = DS.Model.extend({
       name: attr('string')
     });
 
-    var person = store.createRecord('person');
-    person.changedAttributes(); // {}
-    person.set('name', 'Tomster');
-    person.changedAttributes(); // {name: [undefined, 'Tomster']}
+    var mascot = store.createRecord('mascot');
+    mascot.changedAttributes(); // {}
+    mascot.set('name', 'Tomster');
+    mascot.changedAttributes(); // {name: [undefined, 'Tomster']}
     ```
 
     @method changedAttributes
@@ -1099,13 +1107,13 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var promise = new Promise(function(resolve) {
       record.send('reloadRecord', resolve);
     }, promiseLabel).then(function() {
-      record.set('isReloading', false);
       record.set('isError', false);
       return record;
     }, function(reason) {
       record.set('isError', true);
       throw reason;
     }, "DS: Model#reload complete, update flags")['finally'](function () {
+      record.set('isReloading', false);
       record.updateRecordArrays();
     });
 
@@ -1244,7 +1252,35 @@ Model.reopenClass({
   */
   create: function() {
     throw new Ember.Error("You should not call `create` on a model. Instead, call `store.createRecord` with the attributes you would like to set.");
-  }
+  },
+
+  /**
+   Represents the model's class name as a string. This can be used to look up the model through
+   DS.Store's modelFor method.
+
+   `modelName` is generated for you by Ember Data. It will be a lowercased, dasherized string.
+   For example:
+
+   ```javascript
+   store.modelFor('post').modelName; // 'post'
+   store.modelFor('blog-post').modelName; // 'blog-post'
+   ```
+
+   The most common place you'll want to access `modelName` is in your serializer's `payloadKeyFromModelName` method. For example, to change payload
+   keys to underscore (instead of dasherized), you might use the following code:
+
+   ```javascript
+   export default var PostSerializer = DS.RESTSerializer.extend({
+     payloadKeyFromModelName: function(modelName) {
+       return Ember.String.underscore(modelName);
+     }
+   });
+   ```
+   @property
+   @type String
+   @readonly
+  */
+  modelName: null
 });
 
 export default Model;

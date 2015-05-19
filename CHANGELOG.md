@@ -2,6 +2,61 @@
 
 ### Master
 
+### Release 1.0.0-beta.18 (May 18, 2015)
+
+- [#3066](https://github.com/emberjs/data/pull/3066) Doc typo: primaryTypeClasss -> primaryTypeClass [@lolmaus](https://github.com/lolmaus)
+- [#3058](https://github.com/emberjs/data/pull/3058) Fix changelog script to point to emberjs/data [@tonywok](https://github.com/tonywok)
+- [#3034](https://github.com/emberjs/data/pull/3034) **POTENTIALLY BREAKING CHANGE if you override typeForRoot currently** introduce modelNameFromPayloadKey and deprecate typeForRoot [@fivetanley](https://github.com/emberjs)
+  - `RESTSerializer#typeForRoot` has been deprecated. You can use
+  `RESTSerializeer#modelNameFromPayloadKey` instead.
+  - Added `RESTSerializer#payloadKeyFromModelName`. This allows you to
+  - `typeKey` on Snapshots and Model classes has been deprecated. Use
+    `modelName` instead.
+specify the outgoing root key for a JSON payload.
+- [#3031](https://github.com/emberjs/data/pull/3031) Added pushedData hook to root.deleted.uncommitted state. [@aexmachina](https://github.com/aexmachina)
+- [#3033](https://github.com/emberjs/data/pull/3033) dasherize ALL the things: use dasherized model names everywhere [@fivetanley](https://github.com/emberjs)
+- [#3060](https://github.com/emberjs/data/pull/3060) Update changelog with correct-er links [@tonywok](https://github.com/tonywok)
+- [#3065](https://github.com/emberjs/data/pull/3065) [DOC] update typo on #changedAttributes [@mateuspv](https://github.com/mateuspv)
+- [#3068](https://github.com/emberjs/data/pull/3068) Fix incorrect documentation for RecordArray [@sberan](https://github.com/sberan)
+- [#3073](https://github.com/emberjs/data/pull/3073) [DOCS] Added missing param to docs for generateIdForRecord [@joostdevries](https://github.com/joostdevries)
+- [#3076](https://github.com/emberjs/data/pull/3076) Rely on active model serializer to handle error logic [@bdvholmes/bug](https://github.com/bdvholmes/bug)
+
+### Release 1.0.0-beta.17 (May 10, 2015)
+
+- [#2898](https://github.com/emberjs/data/pull/2898) Pass requestType to buildURL [@amiel](https://github.com/amiel)
+- [#2790](https://github.com/emberjs/data/pull/2790) Embedded records mixin should use the correct serialization key when deserialize configuration is set, Fixes #2556 [@agrobbin](https://github.com/agrobbin)
+- [#2933](https://github.com/emberjs/data/pull/2933) Extracts InvalidError into a separate file and makes it a subclass of Ember.Error [@twokul](https://github.com/twokul)
+- [#2936](https://github.com/emberjs/data/pull/2936) Introduce relationship.hasData [@wecc](https://github.com/wecc)
+- [#2940](https://github.com/emberjs/data/pull/2940) [DOC] Fix for DS.Store#findMany [@hibariya](https://github.com/hibariya)
+- [#2939](https://github.com/emberjs/data/pull/2939) Snapshots unknown relationships [@wecc](https://github.com/wecc)
+- [#2958](https://github.com/emberjs/data/pull/2958) adapter.serialize receives a snapshot [@rague](https://github.com/rague)
+- [#2946](https://github.com/emberjs/data/pull/2946) Handle null/empty type paths in build url mixin [@vinilios](https://github.com/vinilios)
+- [#2961](https://github.com/emberjs/data/pull/2961) Use new getter/setter for computed if available [@wecc](https://github.com/wecc)
+- [#2956](https://github.com/emberjs/data/pull/2956) Clear meta data when unloading all records for a type. Fixes #2772 [@runspired](https://github.com/runspired)
+- [#2953](https://github.com/emberjs/data/pull/2953) Do not assert reserved properties for static properties. [@bmac](https://github.com/bmac)
+- [#2959](https://github.com/emberjs/data/pull/2959) Remove value from retrieveFromCurrentState CP [@wecc](https://github.com/wecc)
+- [#2999](https://github.com/emberjs/data/pull/2999) Make unloadAll() unload all records, deprecate unloadAll(type) in favor ... [@svox1](https://github.com/svox1)
+- [#2992](https://github.com/emberjs/data/pull/2992) Feature detect Ember.Registry rather than relying on version numbers [@emberjs](https://github.com/emberjs)
+- [#2983](https://github.com/emberjs/data/pull/2983) Do not prepend a `/` if namespace is absolute. [@rwjblue](https://github.com/rwjblue)
+- [#2966](https://github.com/emberjs/data/pull/2966) Break buildURL into multiple requestType methods [@thejameskyle](https://github.com/thejameskyle)
+- [#2980](https://github.com/emberjs/data/pull/2980) [DOC] Use block params style {{#each}} [@HeroicEric](https://github.com/HeroicEric)
+- [#2965](https://github.com/emberjs/data/pull/2965) Make version check for ember-data strict [@tricknotes](https://github.com/tricknotes)
+- [#3035](https://github.com/emberjs/data/pull/3035) Add method argument to key serialization docs [@Dremora](https://github.com/Dremora)
+- [#3004](https://github.com/emberjs/data/pull/3004) Fix serialization results in the documentation. [@nathanhammond](https://github.com/nathanhammond)
+- [#3037](https://github.com/emberjs/data/pull/3037) Reset Model#isReloading to false when request fails [@pangratz](https://github.com/pangratz)
+- [#3022](https://github.com/emberjs/data/pull/3022) Add missing urlForUpdateRecord to BuildURLMixin [@wecc](https://github.com/wecc)
+- [#3021](https://github.com/emberjs/data/pull/3021) Remove unnecessary URL check in findHasMany [@wecc](https://github.com/wecc)
+- [#3036](https://github.com/emberjs/data/pull/3036) Remove logic for camelCase-ing error keys in ActiveModelAdapter [@pangratz](https://github.com/pangratz)
+- [#3030](https://github.com/emberjs/data/pull/3030) ActiveModelAdapter camelizes keys for errors on 422 [@bdvholmes](https://github.com/bdvholmes)
+- [#3026](https://github.com/emberjs/data/pull/3026) [BUGFIX] AMS polymorphic type for namespaced models [@artych](https://github.com/artych)
+- [#3032](https://github.com/emberjs/data/pull/3032) use typeKey and typeClass instead of using `type` inconsistently [@emberjs](https://github.com/emberjs)
+- [#3040](https://github.com/emberjs/data/pull/3040) JSONSerializer#extractErrors respects custom key mappings [@pangratz](https://github.com/pangratz)
+- [#3043](https://github.com/emberjs/data/pull/3043) Fix bug where record rejected via `find` stayed in loading state [@pangratz](https://github.com/pangratz)
+- [#3046](https://github.com/emberjs/data/pull/3046) Documented the Model's `rolledBack` event [@lolmaus](https://github.com/lolmaus)
+- [#3054](https://github.com/emberjs/data/pull/3054) Fix for deleting from ManyArray [@wagenet](https://github.com/wagenet)
+- [#3055](https://github.com/emberjs/data/pull/3055) Merge `attrs` from superclasses into their subclasses. [@omghax](https://github.com/omghax)
+- [#3056](https://github.com/emberjs/data/pull/3056) Add more assertions for merged attributes from superclass [@pangratz](https://github.com/pangratz)
+
 ### Release 1.0.0-beta.16.1 (March 24, 2015)
 
  * Use ember-inflector 1.5

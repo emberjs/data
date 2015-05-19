@@ -8,5 +8,12 @@
   "main": "./ember-data.js",
   "dependencies": {
     "ember": ">= 1.8.1 < 2.0.0"
+  },
+  "jspm": {
+    "main": "ember-data",
+    "shim": {
+      "ember-data": { "deps": ["ember"], "exports": "DS" },
+      "ember-data.prod": { "deps": ["ember"], "exports": "DS" }
+    }
   }
 }

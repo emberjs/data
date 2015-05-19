@@ -22,6 +22,7 @@ BelongsToRelationship.prototype.setRecord = function(newRecord) {
   } else if (this.inverseRecord) {
     this.removeRecord(this.inverseRecord);
   }
+  this.setHasData(true);
 };
 
 BelongsToRelationship.prototype.setCanonicalRecord = function(newRecord) {
@@ -30,6 +31,7 @@ BelongsToRelationship.prototype.setCanonicalRecord = function(newRecord) {
   } else if (this.inverseRecord) {
     this.removeCanonicalRecord(this.inverseRecord);
   }
+  this.setHasData(true);
 };
 
 BelongsToRelationship.prototype._super$addCanonicalRecord = Relationship.prototype.addCanonicalRecord;
@@ -60,7 +62,7 @@ BelongsToRelationship.prototype._super$addRecord = Relationship.prototype.addRec
 BelongsToRelationship.prototype.addRecord = function(newRecord) {
   if (this.members.has(newRecord)) { return;}
   var type = this.relationshipMeta.type;
-  Ember.assert("You cannot add a '" + newRecord.constructor.typeKey + "' record to the '" + this.record.constructor.typeKey + "." + this.key +"'. " + "You can only add a '" + type.typeKey + "' record to this relationship.", (function () {
+  Ember.assert("You cannot add a '" + newRecord.constructor.modelName + "' record to the '" + this.record.constructor.modelName + "." + this.key +"'. " + "You can only add a '" + type.modelName + "' record to this relationship.", (function () {
     if (type.__isMixin) {
       return type.__mixin.detect(newRecord);
     }
@@ -136,7 +138,7 @@ BelongsToRelationship.prototype.getRecord = function() {
       content: this.inverseRecord
     });
   } else {
-    Ember.assert("You looked up the '" + this.key + "' relationship on a '" + this.record.constructor.typeKey + "' with id " + this.record.get('id') +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", this.inverseRecord === null || !this.inverseRecord.get('isEmpty'));
+    Ember.assert("You looked up the '" + this.key + "' relationship on a '" + this.record.constructor.modelName + "' with id " + this.record.get('id') +  " but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async (`DS.belongsTo({ async: true })`)", this.inverseRecord === null || !this.inverseRecord.get('isEmpty'));
     return this.inverseRecord;
   }
 };

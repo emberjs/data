@@ -54,7 +54,7 @@ test("snapshot._createSnapshot() returns a snapshot (self) but is deprecated", f
 
 });
 
-test("snapshot.id, snapshot.type and snapshot.typeKey returns correctly", function() {
+test("snapshot.id, snapshot.type and snapshot.modelName returns correctly", function() {
   expect(3);
 
   run(function() {
@@ -63,7 +63,7 @@ test("snapshot.id, snapshot.type and snapshot.typeKey returns correctly", functi
 
     equal(snapshot.id, '1', 'id is correct');
     ok(DS.Model.detect(snapshot.type), 'type is correct');
-    equal(snapshot.typeKey, 'post', 'typeKey is correct');
+    equal(snapshot.modelName, 'post', 'modelName is correct');
   });
 });
 
@@ -77,11 +77,11 @@ test("snapshot.constructor is unique and deprecated", function() {
     var postSnapshot = post._createSnapshot();
 
     expectDeprecation(function() {
-      equal(commentSnapshot.constructor.typeKey, 'comment', 'constructor.typeKey is unique per type');
+      equal(commentSnapshot.constructor.modelName, 'comment', 'constructor.modelName is unique per type');
     });
 
     expectDeprecation(function() {
-      equal(postSnapshot.constructor.typeKey, 'post', 'constructor.typeKey is unique per type');
+      equal(postSnapshot.constructor.modelName, 'post', 'constructor.modelName is unique per type');
     });
   });
 });
@@ -124,6 +124,19 @@ test("snapshot.belongsTo() returns undefined if relationship is undefined", func
   });
 });
 
+test("snapshot.belongsTo() returns null if relationship is unset", function() {
+  expect(1);
+
+  run(function() {
+    env.store.push('post', { id: 1, title: 'Hello World' });
+    var comment = env.store.push('comment', { id: 2, body: 'This is comment', post: null });
+    var snapshot = comment._createSnapshot();
+    var relationship = snapshot.belongsTo('post');
+
+    equal(relationship, null, 'relationship is unset');
+  });
+});
+
 test("snapshot.belongsTo() returns a snapshot if relationship is set", function() {
   expect(3);
 
@@ -136,6 +149,86 @@ test("snapshot.belongsTo() returns a snapshot if relationship is set", function(
     ok(relationship instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
     equal(relationship.id, '1', 'post id is correct');
     equal(relationship.attr('title'), 'Hello World', 'post title is correct');
+  });
+});
+
+test("snapshot.belongsTo() returns undefined if relationship is a link", function() {
+  expect(1);
+
+  run(function() {
+    var comment = env.store.push('comment', { id: 2, body: 'This is comment', links: { post: 'post' } });
+    var snapshot = comment._createSnapshot();
+    var relationship = snapshot.belongsTo('post');
+
+    equal(relationship, undefined, 'relationship is undefined');
+  });
+});
+
+test("snapshot.belongsTo() returns a snapshot if relationship link has been fetched", function() {
+  expect(2);
+
+  env.adapter.findBelongsTo = function(store, snapshot, link, relationship) {
+    return Ember.RSVP.resolve({ id: 1, title: 'Hello World' });
+  };
+
+  run(function() {
+    var comment = env.store.push('comment', { id: 2, body: 'This is comment', links: { post: 'post' } });
+
+    comment.get('post').then(function(post) {
+      var snapshot = comment._createSnapshot();
+      var relationship = snapshot.belongsTo('post');
+
+      ok(relationship instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
+      equal(relationship.id, '1', 'post id is correct');
+    });
+  });
+});
+
+test("snapshot.belongsTo() and snapshot.hasMany() returns correctly when adding an object to a hasMany relationship", function() {
+  expect(4);
+
+  run(function() {
+    var post = env.store.push('post', { id: 1, title: 'Hello World' });
+    var comment = env.store.push('comment', { id: 2, body: 'blabla' });
+
+    post.get('comments').then(function(comments) {
+      comments.addObject(comment);
+
+      var postSnapshot = post._createSnapshot();
+      var commentSnapshot = comment._createSnapshot();
+
+      var hasManyRelationship = postSnapshot.hasMany('comments');
+      var belongsToRelationship = commentSnapshot.belongsTo('post');
+
+      ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
+      equal(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
+
+      ok(belongsToRelationship instanceof DS.Snapshot, 'belongsTo relationship is an instance of DS.Snapshot');
+      equal(belongsToRelationship.attr('title'), 'Hello World', 'belongsTo relationship contains related object');
+    });
+  });
+});
+
+test("snapshot.belongsTo() and snapshot.hasMany() returns correctly when setting an object to a belongsTo relationship", function() {
+  expect(4);
+
+  run(function() {
+    var post = env.store.push('post', { id: 1, title: 'Hello World' });
+    var comment = env.store.push('comment', { id: 2, body: 'blabla' });
+
+    comment.set('post', post);
+
+    var postSnapshot = post._createSnapshot();
+    var commentSnapshot = comment._createSnapshot();
+
+    var hasManyRelationship = postSnapshot.hasMany('comments');
+    var belongsToRelationship = commentSnapshot.belongsTo('post');
+
+    ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
+    equal(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
+
+    ok(belongsToRelationship instanceof DS.Snapshot, 'belongsTo relationship is an instance of DS.Snapshot');
+    equal(belongsToRelationship.attr('title'), 'Hello World', 'belongsTo relationship contains related object');
   });
 });
 
@@ -152,11 +245,23 @@ test("snapshot.hasMany() returns ID if option.id is set", function() {
   });
 });
 
-test("snapshot.hasMany() returns empty array if relationship is undefined", function() {
-  expect(2);
+test("snapshot.hasMany() returns undefined if relationship is undefined", function() {
+  expect(1);
 
   run(function() {
     var post = env.store.push('post', { id: 1, title: 'Hello World' });
+    var snapshot = post._createSnapshot();
+    var relationship = snapshot.hasMany('comments');
+
+    equal(relationship, undefined, 'relationship is undefined');
+  });
+});
+
+test("snapshot.hasMany() returns empty array if relationship is unset", function() {
+  expect(2);
+
+  run(function() {
+    var post = env.store.push('post', { id: 1, title: 'Hello World', comments: null });
     var snapshot = post._createSnapshot();
     var relationship = snapshot.hasMany('comments');
 
@@ -196,6 +301,38 @@ test("snapshot.hasMany() returns array of IDs if option.ids is set", function() 
     var relationship = snapshot.hasMany('comments', { ids: true });
 
     deepEqual(relationship, ['2', '3'], 'relationship IDs correctly returned');
+  });
+});
+
+test("snapshot.hasMany() returns undefined if relationship is a link", function() {
+  expect(1);
+
+  run(function() {
+    var post = env.store.push('post', { id: 1, title: 'Hello World', links: { comments: 'comments' } });
+    var snapshot = post._createSnapshot();
+    var relationship = snapshot.hasMany('comments');
+
+    equal(relationship, undefined, 'relationship is undefined');
+  });
+});
+
+test("snapshot.hasMany() returns array of snapshots if relationship link has been fetched", function() {
+  expect(2);
+
+  env.adapter.findHasMany = function(store, snapshot, link, relationship) {
+    return Ember.RSVP.resolve([{ id: 2, body: 'This is comment' }]);
+  };
+
+  run(function() {
+    var post = env.store.push('post', { id: 1, title: 'Hello World', links: { comments: 'comments' } });
+
+    post.get('comments').then(function(comments) {
+      var snapshot = post._createSnapshot();
+      var relationship = snapshot.hasMany('comments');
+
+      ok(relationship instanceof Array, 'relationship is an instance of Array');
+      equal(relationship.length, 1, 'relationship has one item');
+    });
   });
 });
 
@@ -375,4 +512,18 @@ test("snapshot.get() proxies property to record unless identified as id, attribu
       equal(snapshot.get('category'), 'Ember.js', 'snapshot proxies unknown property correctly');
     });
   });
+});
+
+test('snapshot.typeKey is deprecated', function() {
+  expect(1);
+
+  run(function() {
+    var post = env.store.push('post', { id: 1, title: 'Hello World' });
+    var snapshot = post._createSnapshot();
+
+    expectDeprecation(function() {
+      return snapshot.typeKey;
+    });
+  });
+
 });

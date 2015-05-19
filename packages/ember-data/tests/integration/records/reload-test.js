@@ -59,6 +59,7 @@ test("When a record is reloaded and fails, it can try again", function() {
 
   var count = 0;
   env.adapter.find = function(store, type, id, snapshot) {
+    equal(tom.get('isReloading'), true, "Tom is reloading");
     if (count++ === 0) {
       return Ember.RSVP.reject();
     } else {
@@ -69,10 +70,12 @@ test("When a record is reloaded and fails, it can try again", function() {
   run(function() {
     tom.reload().then(null, function() {
       equal(tom.get('isError'), true, "Tom is now errored");
+      equal(tom.get('isReloading'), false, "Tom is no longer reloading");
       return tom.reload();
     }).then(function(person) {
       equal(person, tom, "The resolved value is the record");
       equal(tom.get('isError'), false, "Tom is no longer errored");
+      equal(tom.get('isReloading'), false, "Tom is no longer reloading");
       equal(tom.get('name'), "Thomas Dale", "the updates apply");
     });
   });
@@ -115,7 +118,7 @@ test("When a record is reloaded, its async hasMany relationships still work", fu
   var tags = { 1: "hipster", 2: "hair" };
 
   env.adapter.find = function(store, type, id, snapshot) {
-    switch (type.typeKey) {
+    switch (type.modelName) {
       case 'person':
         return Ember.RSVP.resolve({ id: 1, name: "Tom", tags: [1, 2] });
       case 'tag':

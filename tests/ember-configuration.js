@@ -48,11 +48,10 @@
 
   window.setupStore = function(options) {
     var container, registry;
-    var emberChannel = QUnit.urlParams.emberchannel || "release";
     var env = {};
     options = options || {};
 
-    if (emberChannel.match(/^beta|canary$/i)) {
+    if (Ember.Registry) {
       registry = env.registry = new Ember.Registry();
       container = env.container = registry.container();
     } else {
@@ -72,7 +71,7 @@
     delete options.adapter;
 
     for (var prop in options) {
-      registry.register('model:' + prop, options[prop]);
+      registry.register('model:' + Ember.String.dasherize(prop), options[prop]);
     }
 
     registry.register('store:main', DS.Store.extend({

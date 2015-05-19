@@ -12,8 +12,8 @@ var Relationship = function(store, record, inverseKey, relationshipMeta) {
   this.isAsync = relationshipMeta.options.async;
   this.relationshipMeta = relationshipMeta;
   //This probably breaks for polymorphic relationship in complex scenarios, due to
-  //multiple possible typeKeys
-  this.inverseKeyForImplicit = this.store.modelFor(this.record.constructor).typeKey + this.key;
+  //multiple possible modelNames
+  this.inverseKeyForImplicit = this.store.modelFor(this.record.constructor).modelName + this.key;
   this.linkPromise = null;
   this.hasData = false;
 };
@@ -85,6 +85,7 @@ Relationship.prototype = {
       }
     }
     this.flushCanonicalLater();
+    this.setHasData(true);
   },
 
   removeCanonicalRecords: function(records, idx) {
@@ -125,6 +126,7 @@ Relationship.prototype = {
       }
       this.record.updateRecordArraysLater();
     }
+    this.setHasData(true);
   },
 
   removeRecord: function(record) {
@@ -202,8 +204,8 @@ Relationship.prototype = {
   },
 
   updateLink: function(link) {
-    Ember.warn("You have pushed a record of type '" + this.record.constructor.typeKey + "' with '" + this.key + "' as a link, but the association is not an async relationship.", this.isAsync);
-    Ember.assert("You have pushed a record of type '" + this.record.constructor.typeKey + "' with '" + this.key + "' as a link, but the value of that link is not a string.", typeof link === 'string' || link === null);
+    Ember.warn("You have pushed a record of type '" + this.record.constructor.modelName + "' with '" + this.key + "' as a link, but the association is not an async relationship.", this.isAsync);
+    Ember.assert("You have pushed a record of type '" + this.record.constructor.modelName + "' with '" + this.key + "' as a link, but the value of that link is not a string.", typeof link === 'string' || link === null);
     if (link !== this.link) {
       this.link = link;
       this.linkPromise = null;
@@ -228,13 +230,14 @@ Relationship.prototype = {
     var self = this;
     //TODO Once we have adapter support, we need to handle updated and canonical changes
     self.computeChanges(records);
+    self.setHasData(true);
   },
 
   notifyRecordRelationshipAdded: Ember.K,
   notifyRecordRelationshipRemoved: Ember.K,
 
-  setHasData: function() {
-    this.hasData = true;
+  setHasData: function(value) {
+    this.hasData = value;
   }
 };
 

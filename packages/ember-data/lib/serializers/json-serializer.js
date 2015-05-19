@@ -87,6 +87,8 @@ export default Serializer.extend({
 
     ```javascript
     {
+      "firstName": "Harry",
+      "lastName": "Houdini",
       "career": "magician"
     }
     ```
@@ -96,6 +98,7 @@ export default Serializer.extend({
     @property attrs
     @type {Object}
   */
+  mergedProperties: ['attrs'],
 
   /**
    Given a subclass of `DS.Model` and a JSON object this method will
@@ -106,15 +109,15 @@ export default Serializer.extend({
 
    @method applyTransforms
    @private
-   @param {subclass of DS.Model} type
+   @param {subclass of DS.Model} typeClass
    @param {Object} data The data to transform
    @return {Object} data The transformed data object
   */
-  applyTransforms: function(type, data) {
-    type.eachTransformedAttribute(function applyTransform(key, type) {
+  applyTransforms: function(typeClass, data) {
+    typeClass.eachTransformedAttribute(function applyTransform(key, typeClass) {
       if (!data.hasOwnProperty(key)) { return; }
 
-      var transform = this.transformFor(type);
+      var transform = this.transformFor(typeClass);
       data[key] = transform.deserialize(data[key]);
     }, this);
 
@@ -137,8 +140,8 @@ export default Serializer.extend({
 
     ```javascript
     App.ApplicationSerializer = DS.JSONSerializer.extend({
-      normalize: function(type, hash) {
-        var fields = Ember.get(type, 'fields');
+      normalize: function(typeClass, hash) {
+        var fields = Ember.get(typeClass, 'fields');
         fields.forEach(function(field) {
           var payloadField = Ember.String.underscore(field);
           if (field === payloadField) { return; }
@@ -152,19 +155,19 @@ export default Serializer.extend({
     ```
 
     @method normalize
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} hash
     @return {Object}
   */
-  normalize: function(type, hash) {
+  normalize: function(typeClass, hash) {
     if (!hash) { return hash; }
 
     this.normalizeId(hash);
-    this.normalizeAttributes(type, hash);
-    this.normalizeRelationships(type, hash);
+    this.normalizeAttributes(typeClass, hash);
+    this.normalizeRelationships(typeClass, hash);
 
-    this.normalizeUsingDeclaredMapping(type, hash);
-    this.applyTransforms(type, hash);
+    this.normalizeUsingDeclaredMapping(typeClass, hash);
+    this.applyTransforms(typeClass, hash);
     return hash;
   },
 
@@ -196,12 +199,12 @@ export default Serializer.extend({
     @method normalizeAttributes
     @private
   */
-  normalizeAttributes: function(type, hash) {
+  normalizeAttributes: function(typeClass, hash) {
     var payloadKey;
 
     if (this.keyForAttribute) {
-      type.eachAttribute(function(key) {
-        payloadKey = this.keyForAttribute(key);
+      typeClass.eachAttribute(function(key) {
+        payloadKey = this.keyForAttribute(key, 'deserialize');
         if (key === payloadKey) { return; }
         if (!hash.hasOwnProperty(payloadKey)) { return; }
 
@@ -215,12 +218,12 @@ export default Serializer.extend({
     @method normalizeRelationships
     @private
   */
-  normalizeRelationships: function(type, hash) {
+  normalizeRelationships: function(typeClass, hash) {
     var payloadKey;
 
     if (this.keyForRelationship) {
-      type.eachRelationship(function(key, relationship) {
-        payloadKey = this.keyForRelationship(key, relationship.kind);
+      typeClass.eachRelationship(function(key, relationship) {
+        payloadKey = this.keyForRelationship(key, relationship.kind, 'deserialize');
         if (key === payloadKey) { return; }
         if (!hash.hasOwnProperty(payloadKey)) { return; }
 
@@ -234,7 +237,7 @@ export default Serializer.extend({
     @method normalizeUsingDeclaredMapping
     @private
   */
-  normalizeUsingDeclaredMapping: function(type, hash) {
+  normalizeUsingDeclaredMapping: function(typeClass, hash) {
     var attrs = get(this, 'attrs');
     var payloadKey, key;
 
@@ -268,10 +271,11 @@ export default Serializer.extend({
     @method normalizeErrors
     @private
   */
-  normalizeErrors: function(type, hash) {
+  normalizeErrors: function(typeClass, hash) {
     this.normalizeId(hash);
-    this.normalizeAttributes(type, hash);
-    this.normalizeRelationships(type, hash);
+    this.normalizeAttributes(typeClass, hash);
+    this.normalizeRelationships(typeClass, hash);
+    this.normalizeUsingDeclaredMapping(typeClass, hash);
   },
 
   /**
@@ -498,7 +502,7 @@ export default Serializer.extend({
     ```js
     App.ApplicationSerializer = DS.RESTSerializer.extend({
       serializeIntoHash: function(data, type, snapshot, options) {
-        var root = Ember.String.decamelize(type.typeKey);
+        var root = Ember.String.decamelize(type.modelName);
         data[root] = this.serialize(snapshot, options);
       }
     });
@@ -506,11 +510,11 @@ export default Serializer.extend({
 
     @method serializeIntoHash
     @param {Object} hash
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {DS.Snapshot} snapshot
     @param {Object} options
   */
-  serializeIntoHash: function(hash, type, snapshot, options) {
+  serializeIntoHash: function(hash, typeClass, snapshot, options) {
     merge(hash, this.serialize(snapshot, options));
   },
 
@@ -552,7 +556,7 @@ export default Serializer.extend({
       var payloadKey =  this._getMappedKey(key);
 
       if (payloadKey === key && this.keyForAttribute) {
-        payloadKey = this.keyForAttribute(key);
+        payloadKey = this.keyForAttribute(key, 'serialize');
       }
 
       json[payloadKey] = value;
@@ -572,7 +576,7 @@ export default Serializer.extend({
 
        var belongsTo = snapshot.belongsTo(key);
 
-       key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo") : key;
+       key = this.keyForRelationship ? this.keyForRelationship(key, "belongsTo", "serialize") : key;
 
        json[key] = Ember.isNone(belongsTo) ? belongsTo : belongsTo.record.toJSON();
      }
@@ -594,7 +598,7 @@ export default Serializer.extend({
       // the serializer
       var payloadKey = this._getMappedKey(key);
       if (payloadKey === key && this.keyForRelationship) {
-        payloadKey = this.keyForRelationship(key, "belongsTo");
+        payloadKey = this.keyForRelationship(key, "belongsTo", "serialize");
       }
 
       //Need to check whether the id is there for new&async records
@@ -644,7 +648,7 @@ export default Serializer.extend({
       // the serializer
       payloadKey = this._getMappedKey(key);
       if (payloadKey === key && this.keyForRelationship) {
-        payloadKey = this.keyForRelationship(key, "hasMany");
+        payloadKey = this.keyForRelationship(key, "hasMany", "serialize");
       }
 
       var relationshipType = snapshot.type.determineRelationshipType(relationship);
@@ -669,12 +673,12 @@ export default Serializer.extend({
       serializePolymorphicType: function(snapshot, json, relationship) {
         var key = relationship.key,
             belongsTo = snapshot.belongsTo(key);
-        key = this.keyForAttribute ? this.keyForAttribute(key) : key;
+        key = this.keyForAttribute ? this.keyForAttribute(key, "serialize") : key;
 
         if (Ember.isNone(belongsTo)) {
           json[key + "_type"] = null;
         } else {
-          json[key + "_type"] = belongsTo.typeKey;
+          json[key + "_type"] = belongsTo.modelName;
         }
       }
     });
@@ -708,9 +712,9 @@ export default Serializer.extend({
     ```javascript
     socket.on('message', function(message) {
       var data = message.data;
-      var type = store.modelFor(message.modelName);
-      var serializer = store.serializerFor(type.typeKey);
-      var record = serializer.extract(store, type, data, data.id, 'single');
+      var typeClass = store.modelFor(message.modelName);
+      var serializer = store.serializerFor(typeClass.modelName);
+      var record = serializer.extract(store, typeClass, data, data.id, 'single');
 
       store.push(message.modelName, record);
     });
@@ -718,17 +722,17 @@ export default Serializer.extend({
 
     @method extract
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extract: function(store, type, payload, id, requestType) {
-    this.extractMeta(store, type, payload);
+  extract: function(store, typeClass, payload, id, requestType) {
+    this.extractMeta(store, typeClass, payload);
 
     var specificExtract = "extract" + requestType.charAt(0).toUpperCase() + requestType.substr(1);
-    return this[specificExtract](store, type, payload, id, requestType);
+    return this[specificExtract](store, typeClass, payload, id, requestType);
   },
 
   /**
@@ -738,14 +742,14 @@ export default Serializer.extend({
 
     @method extractFindAll
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindAll: function(store, type, payload, id, requestType) {
-    return this.extractArray(store, type, payload, id, requestType);
+  extractFindAll: function(store, typeClass, payload, id, requestType) {
+    return this.extractArray(store, typeClass, payload, id, requestType);
   },
   /**
     `extractFindQuery` is a hook into the extract method used when a
@@ -760,8 +764,8 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindQuery: function(store, type, payload, id, requestType) {
-    return this.extractArray(store, type, payload, id, requestType);
+  extractFindQuery: function(store, typeClass, payload, id, requestType) {
+    return this.extractArray(store, typeClass, payload, id, requestType);
   },
   /**
     `extractFindMany` is a hook into the extract method used when a
@@ -770,14 +774,14 @@ export default Serializer.extend({
 
     @method extractFindMany
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindMany: function(store, type, payload, id, requestType) {
-    return this.extractArray(store, type, payload, id, requestType);
+  extractFindMany: function(store, typeClass, payload, id, requestType) {
+    return this.extractArray(store, typeClass, payload, id, requestType);
   },
   /**
     `extractFindHasMany` is a hook into the extract method used when a
@@ -786,14 +790,14 @@ export default Serializer.extend({
 
     @method extractFindHasMany
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindHasMany: function(store, type, payload, id, requestType) {
-    return this.extractArray(store, type, payload, id, requestType);
+  extractFindHasMany: function(store, typeClass, payload, id, requestType) {
+    return this.extractArray(store, typeClass, payload, id, requestType);
   },
 
   /**
@@ -803,14 +807,14 @@ export default Serializer.extend({
 
     @method extractCreateRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractCreateRecord: function(store, type, payload, id, requestType) {
-    return this.extractSave(store, type, payload, id, requestType);
+  extractCreateRecord: function(store, typeClass, payload, id, requestType) {
+    return this.extractSave(store, typeClass, payload, id, requestType);
   },
   /**
     `extractUpdateRecord` is a hook into the extract method used when
@@ -819,14 +823,14 @@ export default Serializer.extend({
 
     @method extractUpdateRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractUpdateRecord: function(store, type, payload, id, requestType) {
-    return this.extractSave(store, type, payload, id, requestType);
+  extractUpdateRecord: function(store, typeClass, payload, id, requestType) {
+    return this.extractSave(store, typeClass, payload, id, requestType);
   },
   /**
     `extractDeleteRecord` is a hook into the extract method used when
@@ -835,14 +839,14 @@ export default Serializer.extend({
 
     @method extractDeleteRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractDeleteRecord: function(store, type, payload, id, requestType) {
-    return this.extractSave(store, type, payload, id, requestType);
+  extractDeleteRecord: function(store, typeClass, payload, id, requestType) {
+    return this.extractSave(store, typeClass, payload, id, requestType);
   },
 
   /**
@@ -852,14 +856,14 @@ export default Serializer.extend({
 
     @method extractFind
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractFind: function(store, type, payload, id, requestType) {
-    return this.extractSingle(store, type, payload, id, requestType);
+  extractFind: function(store, typeClass, payload, id, requestType) {
+    return this.extractSingle(store, typeClass, payload, id, requestType);
   },
   /**
     `extractFindBelongsTo` is a hook into the extract method used when
@@ -868,14 +872,14 @@ export default Serializer.extend({
 
     @method extractFindBelongsTo
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractFindBelongsTo: function(store, type, payload, id, requestType) {
-    return this.extractSingle(store, type, payload, id, requestType);
+  extractFindBelongsTo: function(store, typeClass, payload, id, requestType) {
+    return this.extractSingle(store, typeClass, payload, id, requestType);
   },
   /**
     `extractSave` is a hook into the extract method used when a call
@@ -890,8 +894,8 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractSave: function(store, type, payload, id, requestType) {
-    return this.extractSingle(store, type, payload, id, requestType);
+  extractSave: function(store, typeClass, payload, id, requestType) {
+    return this.extractSingle(store, typeClass, payload, id, requestType);
   },
 
   /**
@@ -902,26 +906,26 @@ export default Serializer.extend({
 
     ```javascript
     App.PostSerializer = DS.JSONSerializer.extend({
-      extractSingle: function(store, type, payload) {
+      extractSingle: function(store, typeClass, payload) {
         payload.comments = payload._embedded.comment;
         delete payload._embedded;
 
-        return this._super(store, type, payload);
+        return this._super(store, typeClass, payload);
       },
     });
     ```
 
     @method extractSingle
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractSingle: function(store, type, payload, id, requestType) {
-    payload = this.normalizePayload(payload);
-    return this.normalize(type, payload);
+  extractSingle: function(store, typeClass, payload, id, requestType) {
+    var normalizedPayload = this.normalizePayload(payload);
+    return this.normalize(typeClass, normalizedPayload);
   },
 
   /**
@@ -932,9 +936,9 @@ export default Serializer.extend({
 
     ```javascript
     App.PostSerializer = DS.JSONSerializer.extend({
-      extractArray: function(store, type, payload) {
+      extractArray: function(store, typeClass, payload) {
         return payload.map(function(json) {
-          return this.extractSingle(store, type, json);
+          return this.extractSingle(store, typeClass, json);
         }, this);
       }
     });
@@ -942,18 +946,18 @@ export default Serializer.extend({
 
     @method extractArray
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractArray: function(store, type, arrayPayload, id, requestType) {
+  extractArray: function(store, typeClass, arrayPayload, id, requestType) {
     var normalizedPayload = this.normalizePayload(arrayPayload);
     var serializer = this;
 
     return map.call(normalizedPayload, function(singlePayload) {
-      return serializer.normalize(type, singlePayload);
+      return serializer.normalize(typeClass, singlePayload);
     });
   },
 
@@ -966,9 +970,9 @@ export default Serializer.extend({
 
     ```javascript
     App.PostSerializer = DS.JSONSerializer.extend({
-      extractMeta: function(store, type, payload) {
+      extractMeta: function(store, typeClass, payload) {
         if (payload && payload._pagination) {
-          store.setMetadataFor(type, payload._pagination);
+          store.setMetadataFor(typeClass, payload._pagination);
           delete payload._pagination;
         }
       }
@@ -977,12 +981,12 @@ export default Serializer.extend({
 
     @method extractMeta
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
   */
-  extractMeta: function(store, type, payload) {
+  extractMeta: function(store, typeClass, payload) {
     if (payload && payload.meta) {
-      store.setMetadataFor(type, payload.meta);
+      store.setMetadataFor(typeClass, payload.meta);
       delete payload.meta;
     }
   },
@@ -997,10 +1001,10 @@ export default Serializer.extend({
 
     ```javascript
     App.PostSerializer = DS.JSONSerializer.extend({
-      extractErrors: function(store, type, payload, id) {
+      extractErrors: function(store, typeClass, payload, id) {
         if (payload && typeof payload === 'object' && payload._problems) {
           payload = payload._problems;
-          this.normalizeErrors(type, payload);
+          this.normalizeErrors(typeClass, payload);
         }
         return payload;
       }
@@ -1009,15 +1013,15 @@ export default Serializer.extend({
 
     @method extractErrors
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
     @param {String or Number} id
     @return {Object} json The deserialized errors
   */
-  extractErrors: function(store, type, payload, id) {
+  extractErrors: function(store, typeClass, payload, id) {
     if (payload && typeof payload === 'object' && payload.errors) {
       payload = payload.errors;
-      this.normalizeErrors(type, payload);
+      this.normalizeErrors(typeClass, payload);
     }
     return payload;
   },
@@ -1030,7 +1034,7 @@ export default Serializer.extend({
 
    ```javascript
    App.ApplicationSerializer = DS.RESTSerializer.extend({
-     keyForAttribute: function(attr) {
+     keyForAttribute: function(attr, method) {
        return Ember.String.underscore(attr).toUpperCase();
      }
    });
@@ -1038,34 +1042,36 @@ export default Serializer.extend({
 
    @method keyForAttribute
    @param {String} key
+   @param {String} method
    @return {String} normalized key
   */
-  keyForAttribute: function(key) {
+  keyForAttribute: function(key, method) {
     return key;
   },
 
   /**
    `keyForRelationship` can be used to define a custom key when
-   serializing relationship properties. By default `JSONSerializer`
-   does not provide an implementation of this method.
+   serializing and deserializing relationship properties. By default
+   `JSONSerializer` does not provide an implementation of this method.
 
    Example
 
     ```javascript
     App.PostSerializer = DS.JSONSerializer.extend({
-      keyForRelationship: function(key, relationship) {
-         return 'rel_' + Ember.String.underscore(key);
+      keyForRelationship: function(key, relationship, method) {
+        return 'rel_' + Ember.String.underscore(key);
       }
     });
     ```
 
    @method keyForRelationship
    @param {String} key
-   @param {String} relationship type
+   @param {String} relationship typeClass
+   @param {String} method
    @return {String} normalized key
   */
 
-  keyForRelationship: function(key, type) {
+  keyForRelationship: function(key, typeClass, method) {
     return key;
   },
 

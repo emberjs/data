@@ -110,7 +110,7 @@ test("a record's changes can be made if it fails to save", function() {
 });
 
 test("a deleted record can be rollbacked if it fails to save, record arrays are updated accordingly", function() {
-  expect(6);
+  expect(7);
   env.adapter.deleteRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject();
   };
@@ -125,6 +125,7 @@ test("a deleted record can be rollbacked if it fails to save, record arrays are 
     person.deleteRecord();
   });
   equal(people.get('length'), 0, "a deleted record does not appear in record array anymore");
+  equal(people.objectAt(0), null, "a deleted record does not appear in record array anymore");
 
   run(function() {
     person.save().then(null, function() {
@@ -168,6 +169,7 @@ test("deleted record can be rollbacked", function() {
   });
 
   equal(people.get('length'), 0, "a deleted record does not appear in record array anymore");
+  equal(people.objectAt(0), null, "a deleted record does not appear in record array anymore");
 
   equal(person.get('isDeleted'), true, "must be deleted");
 

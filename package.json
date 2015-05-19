@@ -1,6 +1,6 @@
 {
   "name": "ember-data",
-  "version": "1.0.0-beta.17+canary",
+  "version": "1.0.0-beta.18+canary",
   "namespace": "DS",
   "repository": "git://github.com/emberjs/data.git",
   "license": "MIT",
@@ -60,5 +60,9 @@
     "jscs": "^1.12.0",
     "testem": "^0.6.19",
     "yuidocjs": "~0.3.46"
+  },
+  "dependencies": {
+    "github": "^0.2.4",
+    "rsvp": "^3.0.18"
   }
 }
