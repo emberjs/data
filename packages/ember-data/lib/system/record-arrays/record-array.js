@@ -114,6 +114,11 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 
     var store = get(this, 'store');
     var type = get(this, 'type');
+    var query = get(this, 'query');
+
+    if (query) {
+      return store.findQuery(type, query, this);
+    }
 
     return store.fetchAll(type, this);
   },
