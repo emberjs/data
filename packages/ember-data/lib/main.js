@@ -104,7 +104,6 @@ DS.RecordArrayManager = RecordArrayManager;
 
 DS.RESTAdapter    = RESTAdapter;
 DS.BuildURLMixin  = BuildURLMixin;
-DS.FixtureAdapter = FixtureAdapter;
 
 DS.RESTSerializer = RESTSerializer;
 DS.JSONSerializer = JSONSerializer;
@@ -134,6 +133,22 @@ Ember.defineProperty(DS, 'normalizeModelName', {
   configurable: false,
   value: normalizeModelName
 });
+
+var fixtureAdapterWasDeprecated = false;
+
+if (Ember.platform.hasPropertyAccessors) {
+  Ember.defineProperty(DS, 'FixtureAdapter', {
+    get: function() {
+      if (!fixtureAdapterWasDeprecated) {
+        Ember.deprecate('DS.FixtureAdapter has been deprecated and moved into an unsupported addon: https://github.com/emberjs/ember-data-fixture-adapter/tree/master');
+        fixtureAdapterWasDeprecated = true;
+      }
+      return FixtureAdapter;
+    }
+  });
+} else {
+  DS.FixtureAdapter = FixtureAdapter;
+}
 
 Ember.lookup.DS = DS;
 

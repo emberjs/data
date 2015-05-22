@@ -2,6 +2,10 @@
 
 ### Master
 
+- Removed support for DS.FixtureAdapter. You can use it as an addon, or
+  build it using [Ember Giftwrap](https://github.com/ef4/ember-giftwrap).
+  https://github.com/emberjs/ember-data-fixture-adapter/tree/master
+
 ### Release 1.0.0-beta.18 (May 18, 2015)
 
 - [#3066](https://github.com/emberjs/data/pull/3066) Doc typo: primaryTypeClasss -> primaryTypeClass [@lolmaus](https://github.com/lolmaus)

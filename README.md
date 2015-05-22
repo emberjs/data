@@ -117,12 +117,6 @@ adapter translates that into an XHR request to (for example)
 By default, Ember Data will use the `RESTAdapter`, which adheres to a
 set of RESTful JSON conventions.
 
-Ember Data also ships with the `FixtureAdapter`, useful for testing and
-prototyping before you have a server, and the `ActiveModelAdapter`,
-which is designed to work out-of-the-box with the
-[`ActiveModel::Serializers`](https://github.com/rails-api/active_model_serializers)
-gem for Rails.
-
 To learn more about adapters, including what conventions the
 `RESTAdapter` follows and how to build your own, see the Ember.js
 Guides: [Connecting to an HTTP
