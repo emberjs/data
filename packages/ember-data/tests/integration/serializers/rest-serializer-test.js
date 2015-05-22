@@ -575,7 +575,7 @@ test('serializeIntoHash uses payloadKeyFromModelName to normalize the payload ro
   });
 });
 
-test('pathForType is deprecated', function() {
+test('typeForRoot is deprecated', function() {
   expect(1);
 
   expectDeprecation(function() {
