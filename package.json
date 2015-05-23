@@ -62,6 +62,7 @@
     "yuidocjs": "~0.3.46"
   },
   "dependencies": {
+    "broccoli-babel-transpiler": "^5.0.0",
     "github": "^0.2.4",
     "rsvp": "^3.0.18"
   }
