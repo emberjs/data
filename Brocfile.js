@@ -20,6 +20,8 @@ var stew            = require('broccoli-stew');
 var path            = require('path');
 var fs              = require('fs');
 var jscsTree        = require('broccoli-jscs');
+var babel           = require('broccoli-babel-transpiler');
+var babelOptions    = require('./config/babel');
 
 function minify(tree, name){
   var config = require('./config/ember-defeatureify');
@@ -106,6 +108,8 @@ var packages = merge([
 ]);
 
 var globalBuild;
+
+packages = babel(packages, babelOptions);
 
 // Bundle formatter for smaller payload
 if (env === 'production') {
