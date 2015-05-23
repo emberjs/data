@@ -1268,24 +1268,42 @@ test("adding and removing records from hasMany relationship #2666", function() {
   var Post = DS.Model.extend({
     comments: DS.hasMany('comment', { async: true })
   });
-  Post.reopenClass({
-    FIXTURES: [
-      { id: 1, comments: [1, 2, 3] }
-    ]
-  });
+  var POST_FIXTURES = [
+    { id: 1, comments: [1, 2, 3] }
+  ];
 
   var Comment = DS.Model.extend({
     post: DS.belongsTo('post')
   });
-  Comment.reopenClass({
-    FIXTURES: [
-      { id: 1 },
-      { id: 2 },
-      { id: 3 }
-    ]
+
+  var COMMENT_FIXTURES = [
+    { id: 1 },
+    { id: 2 },
+    { id: 3 }
+  ];
+
+  env = setupStore({
+    post: Post,
+    comment: Comment,
+    adapter: DS.RESTAdapter
   });
 
-  env = setupStore({ post: Post, comment: Comment, adapter: DS.FixtureAdapter });
+  env.registry.register('adapter:comment', DS.RESTAdapter.extend({
+    deleteRecord: function(record) {
+      return Ember.RSVP.resolve();
+    },
+    updateRecord: function(record) {
+      return Ember.RSVP.resolve();
+    },
+    createRecord: function() {
+      return Ember.RSVP.resolve();
+    }
+  }));
+
+  run(function() {
+    env.store.pushMany('post', POST_FIXTURES);
+    env.store.pushMany('comment', COMMENT_FIXTURES);
+  });
 
   run(function() {
     stop();
