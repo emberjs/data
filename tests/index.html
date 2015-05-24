@@ -55,10 +55,33 @@
       <script src="/bower_components/es5-shim/es5-sham.js"></script>
     <![endif]]-->
 
-
+    <script src="/bower_components/loader.js/loader.js"></script>
     <script src="/ember-data.js"></script>
     <script src="ember-data-setup.js"></script>
     <script src="ember-data-tests.js"></script>
+
+    <script type="text/javascript">
+      (function(){
+        var packages = QUnit.urlParams.package;
+        packages     = (packages && packages.split(',')) || [".*"];
+
+        var packageRegexp   = new RegExp('^('+packages.join('|')+')/');
+        var skipPackages    = QUnit.urlParams.skipPackage;
+        skipPackages        = (skipPackages && skipPackages.split(',')) || [];
+
+        var skipPackageRegexp = new RegExp('^('+skipPackages.join('|')+')/');
+
+        var keys = Ember.keys(requirejs.entries);
+
+        for (var i = 0, length = keys.length; i < length; i++) {
+          var moduleName = keys[i];
+          if (!moduleName.match(packageRegexp))   { continue; }
+          if (moduleName.match(skipPackageRegexp)) { continue; }
+          if (moduleName.match(/[_-]test$/)) { require(moduleName); }
+          if (!QUnit.urlParams.nojshint && moduleName.match(/[-_.]jshint$/)) { require(moduleName); }
+        }
+      })();
+    </script>
   </head>
 <body>
   <div id="qunit"></div>
