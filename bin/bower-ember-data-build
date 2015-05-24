@@ -12,7 +12,7 @@ USER="rwjblue"
 # This ensure that no directories within dist will be copied when script is run.
 INCLUDED_FILES=`find dist -maxdepth 1 -type f`
 
-CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+CURRENT_BRANCH=$TRAVIS_BRANCH
 
 echo -e "COMPONENTS_EMBER_REPO_SLUG: ${COMPONENTS_EMBER_REPO_SLUG}\n"
 echo -e "INCLUDED_FILES: ${INCLUDED_FILES}\n"
