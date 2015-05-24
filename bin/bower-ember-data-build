@@ -29,6 +29,14 @@ if [[ -z $GH_TOKEN ]]; then
   exit 0
 fi
 
+# Guard against TRAVIS_BRANCH being the pull request branch
+BRANCH_CONTAINS_HEAD=`git branch --contains HEAD | grep $CURRENT_BRANCH`
+
+if [[ $? -ne 0 ]]; then
+  echo "HEAD commit $(git rev-parse HEAD) not in branch $CHANNEL, exiting to prevent accidental publishes for pushes directly to the main repository."
+  exit 0
+fi
+
 # Set channel to publish to.  If no suitable branch is found exit successfully.
 case $CURRENT_BRANCH in
   "master" )
