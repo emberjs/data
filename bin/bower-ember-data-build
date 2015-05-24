@@ -24,7 +24,7 @@ if [[ -z $GH_TOKEN ]]; then
   exit 0
 fi
 
-if [[ $TRAVIS_PULL_REQUEST ]]; then
+if [[ -n $TRAVIS_PULL_REQUEST ]]; then
   echo "not publishing because this is a pull request."
   exit 0
 fi
