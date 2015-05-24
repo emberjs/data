@@ -10,9 +10,6 @@ module("integration/adapter/find_all - Finding All Records of a Type", {
       firstName: DS.attr('string'),
       lastName: DS.attr('string')
     });
-    //TODO mock for now
-    Person.typeKey = 'person';
-    Person.modelName = 'person';
 
     allRecords = null;
   },
