@@ -18,19 +18,28 @@ module("integration/records/save - Save Record", {
 });
 
 test("Will resolve save on success", function() {
-  expect(1);
+  expect(4);
   var post;
   run(function() {
     post = env.store.createRecord('post', { title: 'toto' });
   });
 
+  var deferred = Ember.RSVP.defer();
   env.adapter.createRecord = function(store, type, snapshot) {
-    return Ember.RSVP.resolve({ id: 123 });
+    return deferred.promise;
   };
 
   run(function() {
-    post.save().then(function() {
+    var saved = post.save();
+
+    // `save` returns a PromiseObject which allows to call get on it
+    equal(saved.get('id'), undefined);
+
+    deferred.resolve({ id: 123 });
+    saved.then(function(model) {
       ok(true, 'save operation was resolved');
+      equal(saved.get('id'), 123);
+      equal(model, post, "resolves with the model");
     });
   });
 });

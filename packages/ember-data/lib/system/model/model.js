@@ -684,8 +684,10 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   save: function() {
     var model = this;
-    return this.reference.save().then(function() {
-      return model;
+    return PromiseObject.create({
+      promise: this.reference.save().then(function() {
+        return model;
+      })
     });
   },
 
