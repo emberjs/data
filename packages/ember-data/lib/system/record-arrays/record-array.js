@@ -90,11 +90,8 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   */
   objectAtContent: function(index) {
     var content = get(this, 'content');
-    if (content.objectAt(index)) {
-      return content.objectAt(index).getRecord();
-    } else {
-      return content.objectAt(index);
-    }
+    var reference = content.objectAt(index);
+    return reference && reference.getRecord();
   },
 
   /**

@@ -9,9 +9,6 @@ module("integration/adapter/find - Finding Records", {
       firstName: DS.attr('string'),
       lastName: DS.attr('string')
     });
-    Person.typeKey = 'person';
-    Person.modelName = 'person';
-
   },
 
   teardown: function() {
