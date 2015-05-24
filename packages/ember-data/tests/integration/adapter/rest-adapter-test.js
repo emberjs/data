@@ -38,7 +38,7 @@ function ajaxResponse(value) {
     passedVerb = verb;
     passedHash = hash;
 
-    return run(Ember.RSVP, 'resolve', value);
+    return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
   };
 }
 

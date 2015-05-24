@@ -36,7 +36,7 @@ function ajaxResponse(value) {
   adapter.ajax = function(url, verb, hash) {
     passedUrl = url;
 
-    return run(Ember.RSVP, 'resolve', value);
+    return run(Ember.RSVP, 'resolve', Ember.copy(value, true));
   };
 }
 
