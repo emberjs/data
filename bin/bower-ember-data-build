@@ -12,12 +12,25 @@ USER="rwjblue"
 # This ensure that no directories within dist will be copied when script is run.
 INCLUDED_FILES=`find dist -maxdepth 1 -type f`
 
+CURRENT_BRANCH=$(git rev-parse --abbrev-ref HEAD)
+
 echo -e "COMPONENTS_EMBER_REPO_SLUG: ${COMPONENTS_EMBER_REPO_SLUG}\n"
 echo -e "INCLUDED_FILES: ${INCLUDED_FILES}\n"
-echo -e "CURRENT_BRANCH: ${TRAVIS_BRANCH}\n"
+echo -e "CURRENT_BRANCH: ${CURRENT_BRANCH}\n"
+
+if [[ -z $GH_TOKEN ]]; then
+  echo "secure environment variables not detected."
+  echo "not a repo owner, exiting."
+  exit 0
+fi
+
+if [[ $TRAVIS_PULL_REQUEST ]]; then
+  echo "not publishing because this is a pull request."
+  exit 0
+fi
 
 # Set channel to publish to.  If no suitable branch is found exit successfully.
-case $TRAVIS_BRANCH in
+case $CURRENT_BRANCH in
   "master" )
     CHANNEL="canary" ;;
   "beta" )
