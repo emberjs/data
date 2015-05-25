@@ -29,7 +29,7 @@ function initializeStore(adapter) {
 
 module("integration/store - destroy", {
   setup: function() {
-    initializeStore(DS.FixtureAdapter.extend());
+    initializeStore(DS.Adapter.extend());
   }
 });
 
@@ -53,7 +53,7 @@ function tap(obj, methodName, callback) {
 asyncTest("destroying record during find doesn't cause error", function() {
   expect(0);
 
-  var TestAdapter = DS.FixtureAdapter.extend({
+  var TestAdapter = DS.Adapter.extend({
     find: function(store, type, id, snapshot) {
       return new Ember.RSVP.Promise(function(resolve, reject) {
         Ember.run.next(function() {
@@ -81,7 +81,7 @@ asyncTest("destroying record during find doesn't cause error", function() {
 asyncTest("find calls do not resolve when the store is destroyed", function() {
   expect(0);
 
-  var TestAdapter = DS.FixtureAdapter.extend({
+  var TestAdapter = DS.Adapter.extend({
     find: function(store, type, id, snapshot) {
       store.destroy();
       Ember.RSVP.resolve(null);

@@ -2,8 +2,28 @@
 
 ### Master
 
-- `typeKey` on Snapshots and Model classes has been deprecated. Use
-  `modelName` instead.
+- Removed support for DS.FixtureAdapter. You can use it as an addon, or
+  build it using [Ember Giftwrap](https://github.com/ef4/ember-giftwrap).
+  https://github.com/emberjs/ember-data-fixture-adapter/tree/master
+
+### Release 1.0.0-beta.18 (May 18, 2015)
+
+- [#3066](https://github.com/emberjs/data/pull/3066) Doc typo: primaryTypeClasss -> primaryTypeClass [@lolmaus](https://github.com/lolmaus)
+- [#3058](https://github.com/emberjs/data/pull/3058) Fix changelog script to point to emberjs/data [@tonywok](https://github.com/tonywok)
+- [#3034](https://github.com/emberjs/data/pull/3034) **POTENTIALLY BREAKING CHANGE if you override typeForRoot currently** introduce modelNameFromPayloadKey and deprecate typeForRoot [@fivetanley](https://github.com/emberjs)
+  - `RESTSerializer#typeForRoot` has been deprecated. You can use
+  `RESTSerializeer#modelNameFromPayloadKey` instead.
+  - Added `RESTSerializer#payloadKeyFromModelName`. This allows you to
+  - `typeKey` on Snapshots and Model classes has been deprecated. Use
+    `modelName` instead.
+specify the outgoing root key for a JSON payload.
+- [#3031](https://github.com/emberjs/data/pull/3031) Added pushedData hook to root.deleted.uncommitted state. [@aexmachina](https://github.com/aexmachina)
+- [#3033](https://github.com/emberjs/data/pull/3033) dasherize ALL the things: use dasherized model names everywhere [@fivetanley](https://github.com/emberjs)
+- [#3060](https://github.com/emberjs/data/pull/3060) Update changelog with correct-er links [@tonywok](https://github.com/tonywok)
+- [#3065](https://github.com/emberjs/data/pull/3065) [DOC] update typo on #changedAttributes [@mateuspv](https://github.com/mateuspv)
+- [#3068](https://github.com/emberjs/data/pull/3068) Fix incorrect documentation for RecordArray [@sberan](https://github.com/sberan)
+- [#3073](https://github.com/emberjs/data/pull/3073) [DOCS] Added missing param to docs for generateIdForRecord [@joostdevries](https://github.com/joostdevries)
+- [#3076](https://github.com/emberjs/data/pull/3076) Rely on active model serializer to handle error logic [@bdvholmes/bug](https://github.com/bdvholmes/bug)
 
 ### Release 1.0.0-beta.17 (May 10, 2015)
 

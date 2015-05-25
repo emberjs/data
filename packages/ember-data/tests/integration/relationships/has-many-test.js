@@ -892,19 +892,19 @@ test("When a record is created on the client, its async hasMany arrays should be
   });
 });
 
-test("a records SYNC HM relationship property is readOnly", function() {
+test("we can set records SYNC HM relationship", function() {
   expect(1);
   var post = run(function() {
     return env.store.createRecord('post');
   });
-
-  raises(function() {
-    post.set('comments');
-  }, 'Cannot Set: comments on: ' + Ember.inspect(post));
+  run(function() {
+    post.set('comments', env.store.pushMany('comment', [{ id: 1, body: "First" }, { id: 2, body: "Second" }]));
+  });
+  equal(get(post, 'comments.length'), 2, "we can set HM relationship");
 });
 
 
-test("a records ASYNC HM relationship property is readOnly", function() {
+test("We can set records ASYNC HM relationship", function() {
   expect(1);
   Post.reopen({
     comments: DS.hasMany('comment', { async: true })
@@ -913,10 +913,13 @@ test("a records ASYNC HM relationship property is readOnly", function() {
   var post = run(function() {
     return env.store.createRecord('post');
   });
+  run(function() {
+    post.set('comments', env.store.pushMany('comment', [{ id: 1, body: "First" }, { id: 2, body: "Second" }]));
+  });
 
-  raises(function() {
-    run(post, 'set', 'comments');
-  }, 'Cannot Set: comments on: ' + Ember.inspect(post));
+  post.get('comments').then(async(function(comments) {
+    equal(comments.get('length')  , 2, "we can set async HM relationship");
+  }));
 });
 
 test("When a record is saved, its unsaved hasMany records should be kept", function () {
@@ -1265,24 +1268,42 @@ test("adding and removing records from hasMany relationship #2666", function() {
   var Post = DS.Model.extend({
     comments: DS.hasMany('comment', { async: true })
   });
-  Post.reopenClass({
-    FIXTURES: [
-      { id: 1, comments: [1, 2, 3] }
-    ]
-  });
+  var POST_FIXTURES = [
+    { id: 1, comments: [1, 2, 3] }
+  ];
 
   var Comment = DS.Model.extend({
     post: DS.belongsTo('post')
   });
-  Comment.reopenClass({
-    FIXTURES: [
-      { id: 1 },
-      { id: 2 },
-      { id: 3 }
-    ]
+
+  var COMMENT_FIXTURES = [
+    { id: 1 },
+    { id: 2 },
+    { id: 3 }
+  ];
+
+  env = setupStore({
+    post: Post,
+    comment: Comment,
+    adapter: DS.RESTAdapter
   });
 
-  env = setupStore({ post: Post, comment: Comment, adapter: DS.FixtureAdapter });
+  env.registry.register('adapter:comment', DS.RESTAdapter.extend({
+    deleteRecord: function(record) {
+      return Ember.RSVP.resolve();
+    },
+    updateRecord: function(record) {
+      return Ember.RSVP.resolve();
+    },
+    createRecord: function() {
+      return Ember.RSVP.resolve();
+    }
+  }));
+
+  run(function() {
+    env.store.pushMany('post', POST_FIXTURES);
+    env.store.pushMany('comment', COMMENT_FIXTURES);
+  });
 
   run(function() {
     stop();

@@ -21,7 +21,7 @@ var manager;
 module("integration/record_array_manager- destroy", {
   setup: function() {
     env = setupStore({
-      adapter: DS.FixtureAdapter.extend()
+      adapter: DS.RESTAdapter.extend()
     });
     store = env.store;
 

@@ -2,6 +2,7 @@
   @module ember-data
 */
 
+import computedPolyfill from "ember-data/utils/computed-polyfill";
 import Model from "ember-data/system/model";
 import normalizeModelName from "ember-data/system/normalize-model-name";
 
@@ -120,10 +121,19 @@ function hasMany(type, options) {
     key: null
   };
 
-  return Ember.computed(function(key) {
-    var relationship = this.reference._relationships[key];
-    return relationship.getRecords();
-  }).meta(meta).readOnly();
+  return computedPolyfill({
+    get: function(key) {
+      var relationship = this.reference._relationships[key];
+      return relationship.getRecords();
+    },
+    set: function(key, records) {
+      var relationship = this.reference._relationships[key];
+      relationship.clear();
+      Ember.assert("You must pass an array of records to set a hasMany relationship", Ember.isArray(records));
+      relationship.addRecords(Ember.A(records).mapBy('reference'));
+      return relationship.getRecords();
+    }
+  }).meta(meta);
 }
 
 Model.reopen({
