@@ -1439,7 +1439,9 @@ test("Polymorphic relationships with hasMany, which are materialized as an array
         return user.get('messages');
       })
       .then(function (messages) {
-        equal(messages.get('length'), 2, "The contacts relationship is correctly set up");
+        equal(messages.get('length'), 2, "The messages relationship has been set up");
+        equal(messages.objectAt(0).get('title'), 'Post', "Polymorphic record at index 0 has the correct fields and data");
+        equal(messages.objectAt(1).get('body'), 'Comment', "Polymorphic record at index 1 has the correct fields and data");
       });
   });
 
