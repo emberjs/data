@@ -1410,7 +1410,7 @@ test("hasMany hasData sync created", function () {
 
 // this depends on unique keys for all the records that can show up in the relationship
 test("Polymorphic relationships with hasMany, which are materialized as an array of IDs without a type use the parent type until loaded", function () {
-  expect(2);
+  expect(4);
 
   env.adapter.findMany = function (store, type, ids, snapshots) {
     equal(type, 'message', "The requested type should equal the parent type of the related records");
