@@ -986,7 +986,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
   /**
     If the model `isDirty` this function will discard any unsaved
-    changes
+    changes. If the model `isNew` it will be removed from the store.
 
     Example
 
