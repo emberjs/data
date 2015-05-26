@@ -26,24 +26,48 @@ module("integration/adapter/rest_adapter - REST Adapter", {
     });
 
     store = env.store;
+
     adapter = env.adapter;
+    env.registry.register('adapter:post', DS.RESTAdapter);
+    env.registry.register('adapter:comment', DS.RESTAdapter);
+    env.registry.register('adapter:superUser', DS.RESTAdapter);
+    env.registry.register('serializer:post', DS.RESTSerializer);
+    env.registry.register('serializer:comment', DS.RESTSerializer);
+    env.registry.register('serializer:superUser', DS.RESTSerializer);
 
     passedUrl = passedVerb = passedHash = null;
   }
 });
 
-function ajaxResponse(value) {
-  adapter.ajax = function(url, verb, hash) {
-    passedUrl = url;
-    passedVerb = verb;
-    passedHash = hash;
+function adapterFix(property, value, store) {
+  var post_adapter = store.adapterFor('post');
+  var comment_adapter = store.adapterFor('comment');
+  var super_user_adapter = store.adapterFor('superUser');
+  var default_adapter = store.get('defaultAdapter');
 
-    return run(Ember.RSVP, 'resolve', value);
-  };
+  post_adapter[property] = value;
+  comment_adapter[property] = value;
+  super_user_adapter[property] = value;
+  default_adapter[property] = value;
+}
+
+function ajaxResponse(value, store) {
+
+  if (typeof value === 'function') {
+    adapterFix('ajax', value, store);
+  } else {
+    adapterFix('ajax', function ajaxResponseFix(url, verb, hash) {
+      passedUrl = url;
+      passedVerb = verb;
+      passedHash = hash;
+
+      return run(Ember.RSVP, 'resolve', value);
+    }, store);
+  }
 }
 
 test("find - basic payload", function() {
-  ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }] });
+  ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }] }, store);
 
   run(store, 'find', 'post', 1).then(async(function(post) {
     equal(passedUrl, "/posts/1");
@@ -57,11 +81,11 @@ test("find - basic payload", function() {
 
 
 test("find - passes buildURL a requestType", function() {
-  adapter.buildURL = function(type, id, snapshot, requestType) {
+  adapterFix('buildURL', function(type, id, snapshot, requestType) {
     return "/" + requestType + "/post/" + id;
-  };
+  }, store);
 
-  ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }] });
+  ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }] }, store);
 
 
   run(store, 'find', 'post', 1).then(async(function(post) {
@@ -70,7 +94,7 @@ test("find - passes buildURL a requestType", function() {
 });
 
 test("find - basic payload (with legacy singular name)", function() {
-  ajaxResponse({ post: { id: 1, name: "Rails is omakase" } });
+  ajaxResponse({ post: { id: 1, name: "Rails is omakase" } }, store);
 
   run(store, 'find', 'post', 1).then(async(function(post) {
     equal(passedUrl, "/posts/1");
@@ -88,7 +112,7 @@ test("find - payload with sideloaded records of the same type", function() {
       { id: 1, name: "Rails is omakase" },
       { id: 2, name: "The Parley Letter" }
     ]
-  });
+  }, store);
 
   run(store, 'find', 'post', 1).then(async(function(post) {
     equal(passedUrl, "/posts/1");
@@ -108,7 +132,7 @@ test("find - payload with sideloaded records of a different type", function() {
   ajaxResponse({
     posts: [{ id: 1, name: "Rails is omakase" }],
     comments: [{ id: 1, name: "FIRST" }]
-  });
+  }, store);
 
   run(store, 'find', 'post', 1).then(async(function(post) {
     equal(passedUrl, "/posts/1");
@@ -130,7 +154,7 @@ test("find - payload with an serializer-specified primary key", function() {
     primaryKey: '_ID_'
   }));
 
-  ajaxResponse({ posts: [{ "_ID_": 1, name: "Rails is omakase" }] });
+  ajaxResponse({ posts: [{ "_ID_": 1, name: "Rails is omakase" }] }, store);
 
   run(store, 'find', 'post', 1).then(async(function(post) {
     equal(passedUrl, "/posts/1");
@@ -154,7 +178,7 @@ test("find - payload with a serializer-specified attribute mapping", function() 
     createdAt: DS.attr("number")
   });
 
-  ajaxResponse({ posts: [{ id: 1, _NAME_: "Rails is omakase", _CREATED_AT_: 2013 }] });
+  ajaxResponse({ posts: [{ id: 1, _NAME_: "Rails is omakase", _CREATED_AT_: 2013 }] }, store);
 
   run(store, 'find', 'post', 1).then(async(function(post) {
     equal(passedUrl, "/posts/1");
@@ -168,7 +192,7 @@ test("find - payload with a serializer-specified attribute mapping", function() 
 });
 
 test("create - an empty payload is a basic success if an id was specified", function() {
-  ajaxResponse();
+  ajaxResponse(undefined, store);
   var post;
 
   run(function() {
@@ -185,11 +209,11 @@ test("create - an empty payload is a basic success if an id was specified", func
 });
 
 test("create - passes buildURL the requestType", function() {
-  adapter.buildURL = function(type, id, snapshot, requestType) {
+  adapterFix('buildURL', function(type, id, snapshot, requestType) {
     return "/post/" + requestType;
-  };
+  }, store);
 
-  ajaxResponse();
+  ajaxResponse(null, store);
   var post;
 
   run(function() {
@@ -201,7 +225,7 @@ test("create - passes buildURL the requestType", function() {
 });
 
 test("create - a payload with a new ID and data applies the updates", function() {
-  ajaxResponse({ posts: [{ id: "1", name: "Dat Parley Letter" }] });
+  ajaxResponse({ posts: [{ id: "1", name: "Dat Parley Letter" }] }, store);
   run(function() {
     var post = store.createRecord('post', { name: "The Parley Letter" });
 
@@ -219,7 +243,7 @@ test("create - a payload with a new ID and data applies the updates", function()
 
 test("create - a payload with a new ID and data applies the updates (with legacy singular name)", function() {
   var post;
-  ajaxResponse({ post: { id: "1", name: "Dat Parley Letter" } });
+  ajaxResponse({ post: { id: "1", name: "Dat Parley Letter" } }, store);
   run(function() {
     post = store.createRecord('post', { name: "The Parley Letter" });
   });
@@ -236,7 +260,7 @@ test("create - a payload with a new ID and data applies the updates (with legacy
 });
 
 test("create - findMany doesn't overwrite owner", function() {
-  ajaxResponse({ comment: { id: "1", name: "Dat Parley Letter", post: 1 } });
+  ajaxResponse({ comment: { id: "1", name: "Dat Parley Letter", post: 1 } }, store);
   var comment;
 
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
@@ -273,7 +297,7 @@ test("create - a serializer's primary key and attributes are consulted when buil
     }
   }));
 
-  ajaxResponse();
+  ajaxResponse(undefined, store);
 
   run(function() {
     post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
@@ -294,7 +318,7 @@ test("create - a serializer's attributes are consulted when building the payload
     }
   }));
 
-  ajaxResponse();
+  ajaxResponse(undefined, store);
 
   run(function() {
     post = store.createRecord('post', { name: "The Parley Letter" });
@@ -316,7 +340,7 @@ test("create - a serializer's attribute mapping takes precdence over keyForAttri
     }
   }));
 
-  ajaxResponse();
+  ajaxResponse(undefined, store);
 
   run(function() {
     var post = store.createRecord('post', { id: "some-uuid", name: "The Parley Letter" });
@@ -338,7 +362,7 @@ test("create - a serializer's attribute mapping takes precedence over keyForRela
     }
   }));
 
-  ajaxResponse();
+  ajaxResponse(undefined, store);
 
   Comment.reopen({ post: DS.belongsTo('post') });
 
@@ -363,7 +387,7 @@ test("create - a serializer's attribute mapping takes precedence over keyForRela
     }
   }));
 
-  ajaxResponse();
+  ajaxResponse(undefined, store);
 
   Post.reopen({ comments: DS.hasMany('comment') });
 
@@ -402,7 +426,7 @@ test("create - a record on the many side of a hasMany relationship should update
     //   name: "Another Comment",
     //   post: 1
     // }
-  });
+  }, store);
 
   Post.reopen({ comments: DS.hasMany('comment') });
   Comment.reopen({ post: DS.belongsTo('post') });
@@ -443,7 +467,7 @@ test("create - sideloaded belongsTo relationships are both marked as loaded", fu
   ajaxResponse({
     posts: [{ id: 1, comment: 1, name: "marked" }],
     comments: [{ id: 1, post: 1, name: "Comcast is a bargain" }]
-  });
+  }, store);
 
   run(function() {
     post.save().then(async(function(record) {
@@ -469,7 +493,7 @@ test("create - response can contain relationships the client doesn't yet know ab
       name: "Another Comment",
       post: 1
     }]
-  });
+  }, store);
 
   Post.reopen({ comments: DS.hasMany('comment') });
   Comment.reopen({ post: DS.belongsTo('post') });
@@ -503,7 +527,7 @@ test("create - relationships are not duplicated", function() {
     comment = store.createRecord('comment', { id: 2, name: "Comment title" });
   });
 
-  ajaxResponse({ post: [{ id: 1, name: "Rails is omakase", comments: [] }] });
+  ajaxResponse({ post: [{ id: 1, name: "Rails is omakase", comments: [] }] }, store);
 
   run(post, 'save').then(async(function(post) {
     equal(post.get('comments.length'), 0, "post has 0 comments");
@@ -513,7 +537,7 @@ test("create - relationships are not duplicated", function() {
     ajaxResponse({
       post: [{ id: 1, name: "Rails is omakase", comments: [2] }],
       comments: [{ id: 2, name: "Comment title" }]
-    });
+    }, store);
 
     return post.save();
   })).then(async(function(post) {
@@ -527,7 +551,7 @@ test("update - an empty payload is a basic success", function() {
   });
 
   store.find('post', 1).then(async(function(post) {
-    ajaxResponse();
+    ajaxResponse(undefined, store);
 
     post.set('name', "The Parley Letter");
     return post.save();
@@ -542,16 +566,16 @@ test("update - an empty payload is a basic success", function() {
 });
 
 test("update - passes the requestType to buildURL", function() {
-  adapter.buildURL = function(type, id, snapshot, requestType) {
+  adapterFix('buildURL', function(type, id, snapshot, requestType) {
     return "/posts/" + id + "/" + requestType;
-  };
+  }, store);
 
   run(function() {
     store.push('post', { id: 1, name: "Rails is omakase" });
   });
 
   store.find('post', 1).then(async(function(post) {
-    ajaxResponse();
+    ajaxResponse(null, store);
 
     post.set('name', "The Parley Letter");
     return post.save();
@@ -566,7 +590,7 @@ test("update - a payload with updates applies the updates", function() {
   });
 
   store.find('post', 1).then(async(function(post) {
-    ajaxResponse({ posts: [{ id: 1, name: "Dat Parley Letter" }] });
+    ajaxResponse({ posts: [{ id: 1, name: "Dat Parley Letter" }] }, store);
 
     post.set('name', "The Parley Letter");
     return post.save();
@@ -586,7 +610,7 @@ test("update - a payload with updates applies the updates (with legacy singular 
   });
 
   store.find('post', 1).then(async(function(post) {
-    ajaxResponse({ post: { id: 1, name: "Dat Parley Letter" } });
+    ajaxResponse({ post: { id: 1, name: "Dat Parley Letter" } }, store);
 
     post.set('name', "The Parley Letter");
     return post.save();
@@ -605,7 +629,7 @@ test("update - a payload with sideloaded updates pushes the updates", function()
   ajaxResponse({
     posts: [{ id: 1, name: "Dat Parley Letter" }],
     comments: [{ id: 1, name: "FIRST" }]
-  });
+  }, store);
   run(function() {
     post = store.createRecord('post', { name: "The Parley Letter" });
     post.save().then(async(function(post) {
@@ -632,7 +656,7 @@ test("update - a payload with sideloaded updates pushes the updates", function()
     ajaxResponse({
       posts: [{ id: 1, name: "Dat Parley Letter" }],
       comments: [{ id: 1, name: "FIRST" }]
-    });
+    }, store);
 
     post.set('name', "The Parley Letter");
     return post.save();
@@ -661,7 +685,7 @@ test("update - a serializer's primary key and attributes are consulted when buil
   run(function() {
     store.push('post', { id: 1, name: "Rails is omakase" });
   });
-  ajaxResponse();
+  ajaxResponse(undefined, store);
 
   store.find('post', 1).then(async(function(post) {
     post.set('name', "The Parley Letter");
@@ -683,7 +707,7 @@ test("update - hasMany relationships faithfully reflect simultaneous adds and re
 
   ajaxResponse({
     posts: { id: 1, name: "Not everyone uses Rails", comments: [2] }
-  });
+  }, store);
 
   store.find('comment', 2).then(async(function() {
     return store.find('post', 1);
@@ -708,7 +732,7 @@ test("delete - an empty payload is a basic success", function() {
   });
 
   store.find('post', 1).then(async(function(post) {
-    ajaxResponse();
+    ajaxResponse(undefined, store);
 
     post.deleteRecord();
     return post.save();
@@ -723,16 +747,16 @@ test("delete - an empty payload is a basic success", function() {
 });
 
 test("delete - passes the requestType to buildURL", function() {
-  adapter.buildURL = function(type, id, snapshot, requestType) {
+  adapterFix('buildURL', function(type, id, snapshot, requestType) {
     return "/posts/" + id + "/" + requestType;
-  };
+  }, store);
 
   run(function() {
     store.push('post', { id: 1, name: "Rails is omakase" });
   });
 
   store.find('post', 1).then(async(function(post) {
-    ajaxResponse();
+    ajaxResponse(null, store);
 
     post.deleteRecord();
     return post.save();
@@ -747,7 +771,7 @@ test("delete - a payload with sideloaded updates pushes the updates", function()
   });
 
   store.find('post', 1).then(async(function(post) {
-    ajaxResponse({ comments: [{ id: 1, name: "FIRST" }] });
+    ajaxResponse({ comments: [{ id: 1, name: "FIRST" }] }, store);
 
     post.deleteRecord();
     return post.save();
@@ -770,7 +794,7 @@ test("delete - a payload with sidloaded updates pushes the updates when the orig
   });
 
   store.find('post', 1).then(async(function(post) {
-    ajaxResponse({ posts: [{ id: 2, name: "The Parley Letter" }] });
+    ajaxResponse({ posts: [{ id: 2, name: "The Parley Letter" }] }, store);
 
     post.deleteRecord();
     return post.save();
@@ -812,7 +836,7 @@ test("findAll - returning an array populates the array", function() {
       { id: 1, name: "Rails is omakase" },
       { id: 2, name: "The Parley Letter" }
     ]
-  });
+  }, store);
 
   store.findAll('post').then(async(function(posts) {
     equal(passedUrl, "/posts");
@@ -846,16 +870,16 @@ test("findAll - returning an array populates the array", function() {
 
 
 test("findAll - passes buildURL the requestType", function() {
-  adapter.buildURL = function(type, id, snapshot, requestType) {
+  adapterFix('buildURL', function(type, id, snapshot, requestType) {
     return "/" + requestType + "/posts";
-  };
+  }, store);
 
   ajaxResponse({
     posts: [
       { id: 1, name: "Rails is omakase" },
       { id: 2, name: "The Parley Letter" }
     ]
-  });
+  }, store);
 
   store.findAll('post').then(async(function(posts) {
     equal(passedUrl, "/findAll/posts");
@@ -868,7 +892,7 @@ test("findAll - returning sideloaded data loads the data", function() {
       { id: 1, name: "Rails is omakase" },
       { id: 2, name: "The Parley Letter" }
     ],
-    comments: [{ id: 1, name: "FIRST" }] });
+    comments: [{ id: 1, name: "FIRST" }] }, store);
 
   store.findAll('post').then(async(function(posts) {
     var comment = store.getById('comment', 1);
@@ -888,7 +912,7 @@ test("findAll - data is normalized through custom serializers", function() {
       { _ID_: 1, _NAME_: "Rails is omakase" },
       { _ID_: 2, _NAME_: "The Parley Letter" }
     ]
-  });
+  }, store);
 
   store.findAll('post').then(async(function(posts) {
     var post1 = store.getById('post', 1);
@@ -922,7 +946,7 @@ test("findAll - since token is passed to the adapter", function() {
       { id: 1, name: "Rails is omakase" },
       { id: 2, name: "The Parley Letter" }
     ]
-  });
+  }, store);
 
   store.setMetadataFor('post', { since: 'now' });
 
@@ -938,7 +962,7 @@ test("metadata is accessible", function() {
   ajaxResponse({
     meta: { offset: 5 },
     posts: [{ id: 1, name: "Rails is very expensive sushi" }]
-  });
+  }, store);
 
   store.findAll('post').then(async(function(posts) {
     equal(
@@ -950,7 +974,7 @@ test("metadata is accessible", function() {
 });
 
 test("findQuery - if `sortQueryParams` option is not provided, query params are sorted alphabetically", function() {
-  adapter.ajax = function(url, verb, hash) {
+  ajaxResponse(function(url, verb, hash) {
     passedUrl = url;
     passedVerb = verb;
     passedHash = hash;
@@ -958,7 +982,7 @@ test("findQuery - if `sortQueryParams` option is not provided, query params are 
     deepEqual(Object.keys(hash.data), ["in", "order", "params", "wrong"], 'query params are received in alphabetical order');
 
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
-  };
+  }, store);
 
   store.findQuery('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
     // Noop
@@ -966,15 +990,15 @@ test("findQuery - if `sortQueryParams` option is not provided, query params are 
 });
 
 test("findQuery - passes buildURL the requestType", function() {
-  adapter.buildURL = function(type, id, snapshot, requestType) {
+  adapterFix('buildURL', function(type, id, snapshot, requestType) {
     return "/" + requestType + "/posts";
-  };
+  }, store);
 
-  adapter.ajax = function(url, verb, hash) {
+  adapterFix('ajax', function(url, verb, hash) {
     equal(url, '/findQuery/posts');
 
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
-  };
+  }, store);
 
   store.findQuery('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
     // NOOP
@@ -982,7 +1006,7 @@ test("findQuery - passes buildURL the requestType", function() {
 });
 
 test("findQuery - if `sortQueryParams` is falsey, query params are not sorted at all", function() {
-  adapter.ajax = function(url, verb, hash) {
+  ajaxResponse(function(url, verb, hash) {
     passedUrl = url;
     passedVerb = verb;
     passedHash = hash;
@@ -990,9 +1014,9 @@ test("findQuery - if `sortQueryParams` is falsey, query params are not sorted at
     deepEqual(Object.keys(hash.data), ["params", "in", "wrong", "order"], 'query params are received in their original order');
 
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
-  };
+  }, store);
 
-  adapter.sortQueryParams = null;
+  adapterFix('sortQueryParams', null, store);
 
   store.findQuery('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
     // Noop
@@ -1000,7 +1024,7 @@ test("findQuery - if `sortQueryParams` is falsey, query params are not sorted at
 });
 
 test("findQuery - if `sortQueryParams` is a custom function, query params passed through that function", function() {
-  adapter.ajax = function(url, verb, hash) {
+  ajaxResponse(function(url, verb, hash) {
     passedUrl = url;
     passedVerb = verb;
     passedHash = hash;
@@ -1008,9 +1032,9 @@ test("findQuery - if `sortQueryParams` is a custom function, query params passed
     deepEqual(Object.keys(hash.data), ["wrong", "params", "order", "in"], 'query params are received in reverse alphabetical order');
 
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
-  };
+  }, store);
 
-  adapter.sortQueryParams = function(obj) {
+  adapterFix('sortQueryParams', function(obj) {
     var sortedKeys = Object.keys(obj).sort().reverse();
     var len = sortedKeys.length;
     var newQueryParams = {};
@@ -1019,7 +1043,7 @@ test("findQuery - if `sortQueryParams` is a custom function, query params passed
       newQueryParams[sortedKeys[i]] = obj[sortedKeys[i]];
     }
     return newQueryParams;
-  };
+  }, store);
 
   store.findQuery('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
     // Noop
@@ -1030,7 +1054,7 @@ test("findQuery - payload 'meta' is accessible on the record array", function() 
   ajaxResponse({
     meta: { offset: 5 },
     posts: [{ id: 1, name: "Rails is very expensive sushi" }]
-  });
+  }, store);
 
   store.findQuery('post', { page: 2 }).then(async(function(posts) {
     equal(
@@ -1045,7 +1069,7 @@ test("findQuery - each record array can have it's own meta object", function() {
   ajaxResponse({
     meta: { offset: 5 },
     posts: [{ id: 1, name: "Rails is very expensive sushi" }]
-  });
+  }, store);
 
   store.findQuery('post', { page: 2 }).then(async(function(posts) {
     equal(
@@ -1056,7 +1080,7 @@ test("findQuery - each record array can have it's own meta object", function() {
     ajaxResponse({
       meta: { offset: 1 },
       posts: [{ id: 1, name: "Rails is very expensive sushi" }]
-    });
+    }, store);
     store.findQuery('post', { page: 1 }).then(async(function(newPosts) {
       equal(newPosts.get('meta.offset'), 1, 'new array has correct metadata');
       equal(posts.get('meta.offset'), 5, 'metadata on the old array hasnt been clobbered');
@@ -1070,7 +1094,7 @@ test("findQuery - returning an array populates the array", function() {
     posts: [
       { id: 1, name: "Rails is omakase" },
       { id: 2, name: "The Parley Letter" }]
-  });
+  }, store);
 
   store.findQuery('post', { page: 1 }).then(async(function(posts) {
     equal(passedUrl, '/posts');
@@ -1108,7 +1132,7 @@ test("findQuery - returning sideloaded data loads the data", function() {
       { id: 2, name: "The Parley Letter" }
     ],
     comments: [{ id: 1, name: "FIRST" }]
-  });
+  }, store);
 
   store.findQuery('post', { page: 1 }).then(async(function(posts) {
     var comment = store.getById('comment', 1);
@@ -1126,7 +1150,7 @@ test("findQuery - data is normalized through custom serializers", function() {
   ajaxResponse({
     posts: [{ _ID_: 1, _NAME_: "Rails is omakase" },
             { _ID_: 2, _NAME_: "The Parley Letter" }]
-  });
+  }, store);
 
   store.findQuery('post', { page: 1 }).then(async(function(posts) {
     var post1 = store.getById('post', 1);
@@ -1156,7 +1180,7 @@ test("findQuery - data is normalized through custom serializers", function() {
 
 test("findMany - findMany uses a correct URL to access the records", function() {
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  adapter.coalesceFindRequests = true;
+  adapterFix('coalesceFindRequests', true, store);
 
   run(function() {
     store.push('post', { id: 1, name: "Rails is omakase", comments: [1, 2, 3] });
@@ -1169,7 +1193,7 @@ test("findMany - findMany uses a correct URL to access the records", function() 
       { id: 2, name: "Rails is unagi" },
       { id: 3, name: "What is omakase?" }
     ]
-  });
+  }, store);
   run(post, 'get', 'comments').then(async(function(comments) {
     equal(passedUrl, "/comments");
     deepEqual(passedHash, { data: { ids: ["1", "2", "3"] } });
@@ -1177,12 +1201,12 @@ test("findMany - findMany uses a correct URL to access the records", function() 
 });
 
 test("findMany - passes buildURL the requestType", function() {
-  adapter.buildURL = function(type, id, snapshot, requestType) {
+  adapterFix('buildURL', function(type, id, snapshot, requestType) {
     return "/" + requestType + "/" + type;
-  };
+  }, store);
 
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  adapter.coalesceFindRequests = true;
+  adapterFix('coalesceFindRequests', true, store);
 
   run(function() {
     store.push('post', { id: 1, name: "Rails is omakase", comments: [1, 2, 3] });
@@ -1195,7 +1219,7 @@ test("findMany - passes buildURL the requestType", function() {
       { id: 2, name: "Rails is unagi" },
       { id: 3, name: "What is omakase?" }
     ]
-  });
+  }, store);
   run(post, 'get', 'comments').then(async(function(comments) {
     equal(passedUrl, "/findMany/comment");
   }));
@@ -1216,7 +1240,7 @@ test("findMany - findMany does not coalesce by default", function() {
       { id: 2, name: "Rails is unagi" },
       { id: 3, name: "What is omakase?" }
     ]
-  });
+  }, store);
   run(post, 'get', 'comments').then(async(function(comments) {
     equal(passedUrl, "/comments/3");
     equal(passedHash, null);
@@ -1225,7 +1249,7 @@ test("findMany - findMany does not coalesce by default", function() {
 
 test("findMany - returning an array populates the array", function() {
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  adapter.coalesceFindRequests = true;
+  adapterFix('coalesceFindRequests', true, store);
 
   run(function() {
     store.push('post', { id: 1, name: "Rails is omakase", comments: [1, 2, 3] });
@@ -1238,7 +1262,7 @@ test("findMany - returning an array populates the array", function() {
         { id: 2, name: "Rails is unagi" },
         { id: 3, name: "What is omakase?" }
       ]
-    });
+    }, store);
 
     return post.get('comments');
   })).then(async(function(comments) {
@@ -1260,7 +1284,7 @@ test("findMany - returning an array populates the array", function() {
 
 test("findMany - returning sideloaded data loads the data", function() {
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  adapter.coalesceFindRequests = true;
+  adapterFix('coalesceFindRequests', true, store);
 
   run(function() {
     store.push('post', { id: 1, name: "Rails is omakase", comments: [1, 2, 3] });
@@ -1275,7 +1299,7 @@ test("findMany - returning sideloaded data loads the data", function() {
         { id: 4, name: "Unrelated comment" }
       ],
       posts: [{ id: 2, name: "The Parley Letter" }]
-    });
+    }, store);
 
     return post.get('comments');
   })).then(async(function(comments) {
@@ -1307,7 +1331,7 @@ test("findMany - a custom serializer is used if present", function() {
     attrs: { name: '_NAME_' }
   }));
 
-  adapter.coalesceFindRequests = true;
+  adapterFix('coalesceFindRequests', true, store);
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
   run(function() {
@@ -1320,7 +1344,7 @@ test("findMany - a custom serializer is used if present", function() {
         { _ID_: 1, _NAME_: "FIRST" },
         { _ID_: 2, _NAME_: "Rails is unagi" },
         { _ID_: 3, _NAME_: "What is omakase?" }]
-    });
+    }, store);
 
     return post.get('comments');
   })).then(async(function(comments) {
@@ -1357,7 +1381,7 @@ test("findHasMany - returning an array populates the array", function() {
         { id: 2, name: "Rails is unagi" },
         { id: 3, name: "What is omakase?" }
       ]
-    });
+    }, store);
 
     return post.get('comments');
   })).then(async(function(comments) {
@@ -1378,9 +1402,9 @@ test("findHasMany - returning an array populates the array", function() {
 });
 
 test("findHasMany - passes buildURL the requestType", function() {
-  adapter.buildURL = function(type, id, snapshot, requestType) {
+  adapterFix('buildURL', function(type, id, snapshot, requestType) {
     equal(requestType, 'findHasMany');
-  };
+  }, store);
 
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
@@ -1402,7 +1426,7 @@ test("findHasMany - passes buildURL the requestType", function() {
         { id: 2, name: "Rails is unagi" },
         { id: 3, name: "What is omakase?" }
       ]
-    });
+    }, store);
 
     return post.get('comments');
   })).then(async(function(comments) {
@@ -1414,7 +1438,7 @@ test("findHasMany - passes buildURL the requestType", function() {
 
 test("findMany - returning sideloaded data loads the data", function() {
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  adapter.coalesceFindRequests = true;
+  adapterFix('coalesceFindRequests', true, store);
 
   run(function() {
     store.push(
@@ -1435,7 +1459,7 @@ test("findMany - returning sideloaded data loads the data", function() {
         { id: 3, name: "What is omakase?" }
       ],
       posts: [{ id: 2, name: "The Parley Letter" }]
-    });
+    }, store);
 
     return post.get('comments');
   })).then(async(function(comments) {
@@ -1481,7 +1505,7 @@ test("findMany - a custom serializer is used if present", function() {
         { _ID_: 2, _NAME_: "Rails is unagi" },
         { _ID_: 3, _NAME_: "What is omakase?" }
       ]
-    });
+    }, store);
     return post.get('comments');
   })).then(async(function(comments) {
     var comment1 = store.getById('comment', 1);
@@ -1497,9 +1521,9 @@ test("findMany - a custom serializer is used if present", function() {
 });
 
 test('findBelongsTo - passes buildURL the requestType', function() {
-  adapter.buildURL = function(type, id, snapshot, requestType) {
+  adapterFix('buildURL', function(type, id, snapshot, requestType) {
     equal(requestType, 'findBelongsTo');
-  };
+  }, store);
 
   Comment.reopen({ post: DS.belongsTo('post', { async: true }) });
 
@@ -1511,7 +1535,7 @@ test('findBelongsTo - passes buildURL the requestType', function() {
   });
 
   run(store, 'find', 'comment', 1).then(async(function(comment) {
-    ajaxResponse({ post: { id: 1, name: 'Rails is omakase' } });
+    ajaxResponse({ post: { id: 1, name: 'Rails is omakase' } }, store);
     return comment.get('post');
   })).then(async(function(post) {
     // NOOP
@@ -1522,9 +1546,9 @@ test('coalesceFindRequests warns if the expected records are not returned in the
   Comment.reopen({ post: DS.belongsTo('post') });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
-  adapter.coalesceFindRequests = true;
+  adapterFix('coalesceFindRequests', true, store);
 
-  ajaxResponse({ comments: [{ id: 1 }] });
+  ajaxResponse({ comments: [{ id: 1 }] }, store);
   var post;
 
   warns(function() {
@@ -1538,25 +1562,25 @@ test('coalesceFindRequests warns if the expected records are not returned in the
 test('groupRecordsForFindMany groups records based on their url', function() {
   Comment.reopen({ post: DS.belongsTo('post') });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  adapter.coalesceFindRequests = true;
+  adapterFix('coalesceFindRequests', true, store);
 
-  adapter.buildURL = function(type, id, snapshot) {
+  adapterFix('buildURL', function(type, id, snapshot) {
     if (id === '1') {
       return '/comments/1';
     } else {
       return '/other_comments/' + id;
     }
-  };
+  }, store);
 
-  adapter.find = function(store, type, id, snapshot) {
+  adapterFix('find', function(store, type, id, snapshot) {
     equal(id, '1');
     return Ember.RSVP.resolve({ comments: { id: 1 } });
-  };
+  }, store);
 
-  adapter.findMany = function(store, type, ids, snapshots) {
+  adapterFix('findMany', function(store, type, ids, snapshots) {
     deepEqual(ids, ['2', '3']);
     return Ember.RSVP.resolve({ comments: [{ id: 2 }, { id: 3 }] });
-  };
+  }, store);
 
   var post;
   run(function() {
@@ -1571,25 +1595,25 @@ test('groupRecordsForFindMany groups records based on their url', function() {
 test('groupRecordsForFindMany groups records correctly when singular URLs are encoded as query params', function() {
   Comment.reopen({ post: DS.belongsTo('post') });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
-  adapter.coalesceFindRequests = true;
+  adapterFix('coalesceFindRequests', true, store);
 
-  adapter.buildURL = function(type, id, snapshot) {
+  adapterFix('buildURL', function(type, id, snapshot) {
     if (id === '1') {
       return '/comments?id=1';
     } else {
       return '/other_comments?id=' + id;
     }
-  };
+  }, store);
 
-  adapter.find = function(store, type, id, snapshot) {
+  adapterFix('find', function(store, type, id, snapshot) {
     equal(id, '1');
     return Ember.RSVP.resolve({ comments: { id: 1 } });
-  };
+  }, store);
 
-  adapter.findMany = function(store, type, ids, snapshots) {
+  adapterFix('findMany', function(store, type, ids, snapshots) {
     deepEqual(ids, ['2', '3']);
     return Ember.RSVP.resolve({ comments: [{ id: 2 }, { id: 3 }] });
-  };
+  }, store);
   var post;
 
   run(function() {
@@ -1602,7 +1626,7 @@ test('groupRecordsForFindMany groups records correctly when singular URLs are en
 });
 
 test('normalizeKey - to set up _ids and _id', function() {
-  env.registry.register('serializer:application', DS.RESTSerializer.extend({
+  var TestAdapter = DS.RESTSerializer.extend({
     keyForAttribute: function(attr) {
       return Ember.String.underscore(attr);
     },
@@ -1619,7 +1643,9 @@ test('normalizeKey - to set up _ids and _id', function() {
         return Ember.String.underscore(singular) + '_ids';
       }
     }
-  }));
+  });
+  env.registry.register('serializer:user', TestAdapter);
+  env.registry.register('serializer:post', TestAdapter);
 
   env.registry.register('model:post', DS.Model.extend({
     name: DS.attr(),
@@ -1658,7 +1684,7 @@ test('normalizeKey - to set up _ids and _id', function() {
       id: "2",
       body: "What is omakase?"
     }]
-  });
+  }, store);
 
   run(function() {
     store.find('post', 1).then(async(function(post) {
@@ -1686,20 +1712,20 @@ test('groupRecordsForFindMany splits up calls for large ids', function() {
     post = store.push('post', { id: 1, comments: [a2000, b2000] });
   });
 
-  adapter.coalesceFindRequests = true;
+  adapterFix('coalesceFindRequests', true, store);
 
-  adapter.find = function(store, type, id, snapshot) {
+  adapterFix('find', function(store, type, id, snapshot) {
     if (id === a2000 || id === b2000) {
       ok(true, "Found " + id);
     }
 
     return Ember.RSVP.resolve({ comments: { id: id } });
-  };
+  }, store);
 
-  adapter.findMany = function(store, type, ids, snapshots) {
+  adapterFix('findMany', function(store, type, ids, snapshots) {
     ok(false, "findMany should not be called - we expect 2 calls to find for a2000 and b2000");
     return Ember.RSVP.reject();
-  };
+  }, store);
 
   run(function() {
     post.get('comments');
@@ -1724,17 +1750,17 @@ test('groupRecordsForFindMany groups calls for small ids', function() {
     post = store.push('post', { id: 1, comments: [a100, b100] });
   });
 
-  adapter.coalesceFindRequests = true;
+  adapterFix('coalesceFindRequests', true, store);
 
-  adapter.find = function(store, type, id, snapshot) {
+  adapterFix('find', function(store, type, id, snapshot) {
     ok(false, "find should not be called - we expect 1 call to findMany for a100 and b100");
     return Ember.RSVP.reject();
-  };
+  }, store);
 
-  adapter.findMany = function(store, type, ids, snapshots) {
+  adapterFix('findMany', function(store, type, ids, snapshots) {
     deepEqual(ids, [a100, b100]);
     return Ember.RSVP.resolve({ comments: [{ id: a100 }, { id: b100 }] });
-  };
+  }, store);
 
   run(function() {
     post.get('comments');
@@ -1757,11 +1783,11 @@ test("calls adapter.ajaxSuccess with the jqXHR and json", function() {
     hash.success(data, 'ok', jqXHR);
   };
 
-  adapter.ajaxSuccess = function(xhr, json) {
+  adapterFix('ajaxSuccess', function(xhr, json) {
     deepEqual(jqXHR, xhr);
     deepEqual(json, data);
     return json;
-  };
+  }, store);
 
   try {
     run(function() {
@@ -1783,11 +1809,11 @@ test('calls ajaxError with jqXHR, jqXHR.responseText', function() {
     hash.error(jqXHR, jqXHR.responseText);
   };
 
-  adapter.ajaxError = function(xhr, responseText) {
+  adapterFix('ajaxError', function(xhr, responseText) {
     deepEqual(xhr, jqXHR);
     deepEqual(responseText, jqXHR.responseText);
     return new Error('nope!');
-  };
+  }, store);
 
   try {
     run(function() {
@@ -1812,10 +1838,10 @@ test("rejects promise if DS.InvalidError is returned from adapter.ajaxSuccess", 
     hash.success(data, 'ok', jqXHR);
   };
 
-  adapter.ajaxSuccess = function(xhr, json) {
+  adapterFix('ajaxSuccess', function(xhr, json) {
     ok(true, 'ajaxSuccess should be called');
     return new DS.InvalidError(json);
-  };
+  }, store);
 
   Ember.run(function() {
     store.find('post', '1').then(null, function(reason) {
@@ -1842,13 +1868,13 @@ test('ajaxError appends errorThrown for sanity', function() {
   };
 
   var originalAjaxError = adapter.ajaxError;
-  adapter.ajaxError = function(xhr, responseText, _errorThrown) {
+  adapterFix('ajaxError', function(xhr, responseText, _errorThrown) {
     deepEqual(_errorThrown, errorThrown);
     ok(errorThrown);
     deepEqual(xhr, jqXHR);
     deepEqual(responseText, jqXHR.responseText);
     return originalAjaxError.apply(adapter, arguments);
-  };
+  }, store);
 
   try {
     run(function() {

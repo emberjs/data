@@ -27,29 +27,64 @@ module("integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter", {
 
     store = env.store;
     adapter = env.adapter;
+    env.registry.register('adapter:post', DS.RESTAdapter);
+    env.registry.register('adapter:comment', DS.RESTAdapter);
+    env.registry.register('adapter:super-user', DS.RESTAdapter);
+    env.registry.register('serializer:post', DS.RESTSerializer);
+    env.registry.register('serializer:comment', DS.RESTSerializer);
+    env.registry.register('serializer:super-user', DS.RESTSerializer);
 
     passedUrl = null;
   }
 });
 
-function ajaxResponse(value) {
-  adapter.ajax = function(url, verb, hash) {
-    passedUrl = url;
+function adapterSetProperties(properties) {
+  var post_adapter = store.adapterFor('post');
+  var comment_adapter = store.adapterFor('comment');
+  var super_user_adapter = store.adapterFor('superUser');
+  var default_adapter = store.get('defaultAdapter');
 
-    return run(Ember.RSVP, 'resolve', value);
-  };
+  post_adapter.setProperties(properties);
+  comment_adapter.setProperties(properties);
+  super_user_adapter.setProperties(properties);
+  default_adapter.setProperties(properties);
+}
+
+function adapterFix(property, value, store) {
+  var post_adapter = store.adapterFor('post');
+  var comment_adapter = store.adapterFor('comment');
+  var super_user_adapter = store.adapterFor('superUser');
+  var default_adapter = store.get('defaultAdapter');
+
+  post_adapter[property] = value;
+  comment_adapter[property] = value;
+  super_user_adapter[property] = value;
+  default_adapter[property] = value;
+}
+
+function ajaxResponse(value, store) {
+
+  if (typeof value === 'function') {
+    adapterFix('ajax', value, store);
+  } else {
+    adapterFix('ajax', function ajaxResponseFix(url, verb, hash) {
+      passedUrl = url;
+
+      return run(Ember.RSVP, 'resolve', value);
+    }, store);
+  }
 }
 
 
 test('buildURL - with host and namespace', function() {
   run(function() {
-    adapter.setProperties({
+    adapterSetProperties({
       host: 'http://example.com',
       namespace: 'api/v1'
-    });
+    }, store);
   });
 
-  ajaxResponse({ posts: [{ id: 1 }] });
+  ajaxResponse({ posts: [{ id: 1 }] }, store);
 
   run(store, 'find', 'post', 1).then(async(function(post) {
     equal(passedUrl, "http://example.com/api/v1/posts/1");
@@ -58,18 +93,18 @@ test('buildURL - with host and namespace', function() {
 
 test('buildURL - with relative paths in links', function() {
   run(function() {
-    adapter.setProperties({
+    adapterSetProperties({
       host: 'http://example.com',
       namespace: 'api/v1'
-    });
+    }, store);
   });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
   Comment.reopen({ post: DS.belongsTo('post') });
 
-  ajaxResponse({ posts: [{ id: 1, links: { comments: 'comments' } }] });
+  ajaxResponse({ posts: [{ id: 1, links: { comments: 'comments' } }] }, store);
 
   run(store, 'find', 'post', '1').then(async(function(post) {
-    ajaxResponse({ comments: [{ id: 1 }] });
+    ajaxResponse({ comments: [{ id: 1 }] }, store);
     return post.get('comments');
   })).then(async(function (comments) {
     equal(passedUrl, "http://example.com/api/v1/posts/1/comments");
@@ -78,18 +113,18 @@ test('buildURL - with relative paths in links', function() {
 
 test('buildURL - with absolute paths in links', function() {
   run(function() {
-    adapter.setProperties({
+    adapterSetProperties({
       host: 'http://example.com',
       namespace: 'api/v1'
-    });
+    }, store);
   });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
   Comment.reopen({ post: DS.belongsTo('post') });
 
-  ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
+  ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] }, store);
 
   run(store, 'find', 'post', 1).then(async(function(post) {
-    ajaxResponse({ comments: [{ id: 1 }] });
+    ajaxResponse({ comments: [{ id: 1 }] }, store);
     return post.get('comments');
   })).then(async(function (comments) {
     equal(passedUrl, "http://example.com/api/v1/posts/1/comments");
@@ -99,18 +134,18 @@ test('buildURL - with absolute paths in links', function() {
 
 test('buildURL - with absolute paths in links and protocol relative host', function() {
   run(function() {
-    adapter.setProperties({
+    adapterSetProperties({
       host: '//example.com',
       namespace: 'api/v1'
-    });
+    }, store);
   });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
   Comment.reopen({ post: DS.belongsTo('post') });
 
-  ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
+  ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] }, store);
 
   run(store, 'find', 'post', 1).then(async(function(post) {
-    ajaxResponse({ comments: [{ id: 1 }] });
+    ajaxResponse({ comments: [{ id: 1 }] }, store);
     return post.get('comments');
   })).then(async(function (comments) {
     equal(passedUrl, "//example.com/api/v1/posts/1/comments");
@@ -118,10 +153,10 @@ test('buildURL - with absolute paths in links and protocol relative host', funct
 });
 
 test('buildURL - with full URLs in links', function() {
-  adapter.setProperties({
+  adapterSetProperties({
     host: 'http://example.com',
     namespace: 'api/v1'
-  });
+  }, store);
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
   Comment.reopen({ post: DS.belongsTo('post') });
 
@@ -131,11 +166,11 @@ test('buildURL - with full URLs in links', function() {
         links: { comments: 'http://example.com/api/v1/posts/1/comments' }
       }
     ]
-  });
+  }, store);
 
   run(function() {
     store.find('post', 1).then(async(function(post) {
-      ajaxResponse({ comments: [{ id: 1 }] });
+      ajaxResponse({ comments: [{ id: 1 }] }, store);
       return post.get('comments');
     })).then(async(function (comments) {
       equal(passedUrl, "http://example.com/api/v1/posts/1/comments");
@@ -144,14 +179,14 @@ test('buildURL - with full URLs in links', function() {
 });
 
 test('buildURL - with camelized names', function() {
-  adapter.setProperties({
+  adapterSetProperties({
     pathForType: function(type) {
       var decamelized = Ember.String.decamelize(type);
       return Ember.String.underscore(Ember.String.pluralize(decamelized));
     }
-  });
+  }, store);
 
-  ajaxResponse({ superUsers: [{ id: 1 }] });
+  ajaxResponse({ superUsers: [{ id: 1 }] }, store);
 
   run(function() {
     store.find('superUser', 1).then(async(function(post) {
@@ -162,11 +197,11 @@ test('buildURL - with camelized names', function() {
 
 test('buildURL - buildURL takes a record from find', function() {
   Comment.reopen({ post: DS.belongsTo('post') });
-  adapter.buildURL = function(type, id, snapshot) {
+  adapterFix('buildURL', function(type, id, snapshot) {
     return "/posts/" + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
-  };
+  }, store);
 
-  ajaxResponse({ comments: [{ id: 1 }] });
+  ajaxResponse({ comments: [{ id: 1 }] }, store);
 
   var post;
   run(function() {
@@ -184,15 +219,15 @@ test('buildURL - buildURL takes the records from findMany', function() {
   Comment.reopen({ post: DS.belongsTo('post') });
   Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
 
-  adapter.buildURL = function(type, ids, snapshots) {
+  adapterFix('buildURL', function(type, ids, snapshots) {
     if (Ember.isArray(snapshots)) {
       return "/posts/" + snapshots.get('firstObject').belongsTo('post', { id: true }) + '/comments/';
     }
     return "";
-  };
-  adapter.coalesceFindRequests = true;
+  }, store);
+  adapterFix('coalesceFindRequests', true, store);
 
-  ajaxResponse({ comments: [{ id: 1 }, { id: 2 }, { id: 3 }] });
+  ajaxResponse({ comments: [{ id: 1 }, { id: 2 }, { id: 3 }] }, store);
   var post;
 
   run(function() {
@@ -205,11 +240,11 @@ test('buildURL - buildURL takes the records from findMany', function() {
 
 test('buildURL - buildURL takes a record from create', function() {
   Comment.reopen({ post: DS.belongsTo('post') });
-  adapter.buildURL = function(type, id, snapshot) {
+  adapterFix('buildURL', function(type, id, snapshot) {
     return "/posts/" + snapshot.belongsTo('post', { id: true }) + '/comments/';
-  };
+  }, store);
 
-  ajaxResponse({ comments: [{ id: 1 }] });
+  ajaxResponse({ comments: [{ id: 1 }] }, store);
 
   run(function() {
     var post = store.push('post', { id: 2 });
@@ -224,17 +259,17 @@ test('buildURL - buildURL takes a record from create', function() {
 test('buildURL - buildURL takes a record from create to query a resolved async belongsTo relationship', function() {
   Comment.reopen({ post: DS.belongsTo('post', { async: true }) });
 
-  ajaxResponse({ posts: [{ id: 2 }] });
+  ajaxResponse({ posts: [{ id: 2 }] }, store);
 
   run(function() {
     store.find('post', 2).then(async(function(post) {
       equal(post.get('id'), 2);
 
-      adapter.buildURL = function(type, id, snapshot) {
+      adapterFix('buildURL', function(type, id, snapshot) {
         return "/posts/" + snapshot.belongsTo('post', { id: true }) + '/comments/';
-      };
+      }, store);
 
-      ajaxResponse({ comments: [{ id: 1 }] });
+      ajaxResponse({ comments: [{ id: 1 }] }, store);
 
       var comment = store.createRecord('comment');
       comment.set('post', post);
@@ -248,11 +283,11 @@ test('buildURL - buildURL takes a record from create to query a resolved async b
 
 test('buildURL - buildURL takes a record from update', function() {
   Comment.reopen({ post: DS.belongsTo('post') });
-  adapter.buildURL = function(type, id, snapshot) {
+  adapterFix('buildURL', function(type, id, snapshot) {
     return "/posts/" + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
-  };
+  }, store);
 
-  ajaxResponse({ comments: [{ id: 1 }] });
+  ajaxResponse({ comments: [{ id: 1 }] }, store);
 
   var post, comment;
   run(function() {
@@ -270,11 +305,11 @@ test('buildURL - buildURL takes a record from update', function() {
 test('buildURL - buildURL takes a record from delete', function() {
   Comment.reopen({ post: DS.belongsTo('post') });
   Post.reopen({ comments: DS.hasMany('comment') });
-  adapter.buildURL = function(type, id, snapshot) {
+  adapterFix('buildURL', function(type, id, snapshot) {
     return 'posts/' + snapshot.belongsTo('post', { id: true }) + '/comments/' + snapshot.id;
-  };
+  }, store);
 
-  ajaxResponse({ comments: [{ id: 1 }] });
+  ajaxResponse({ comments: [{ id: 1 }] }, store);
 
   var post, comment;
   run(function() {
@@ -293,12 +328,12 @@ test('buildURL - buildURL takes a record from delete', function() {
 
 test('buildURL - with absolute namespace', function() {
   run(function() {
-    adapter.setProperties({
+    adapterSetProperties({
       namespace: '/api/v1'
-    });
+    }, store);
   });
 
-  ajaxResponse({ posts: [{ id: 1 }] });
+  ajaxResponse({ posts: [{ id: 1 }] }, store);
 
   run(store, 'find', 'post', 1).then(async(function(post) {
     equal(passedUrl, "/api/v1/posts/1");

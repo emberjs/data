@@ -216,19 +216,36 @@ Store = Service.extend({
   /**
     The adapter to use to communicate to a backend server or other persistence layer.
 
-    This can be specified as an instance, class, or string.
+    This must be specified as a string.
 
-    If you want to specify `App.CustomAdapter` as a string, do:
+    If you want to specify `App.CustomAdapter`, do:
 
     ```js
     adapter: 'custom'
     ```
 
     @property adapter
-    @default DS.RESTAdapter
-    @type {DS.Adapter|String}
+    @default null
+    @type {String}
   */
-  adapter: '-rest',
+  adapter: null,
+
+  /**
+    The serializer to use to communicate to a backend server or other persistence layer.
+
+    This must be specified as a string.
+
+    If you want to specify `App.CustomSerializer`, do:
+
+    ```js
+    serializer: 'custom'
+    ```
+
+    @property serializer
+    @default null
+    @type {String}
+  */
+  serializer: null,
 
   /**
     Returns a JSON representation of the record using a custom
@@ -253,13 +270,6 @@ Store = Service.extend({
     This property returns the adapter, after resolving a possible
     string key.
 
-    If the supplied `adapter` was a class, or a String property
-    path resolved to a class, this property will instantiate the
-    class.
-
-    This property is cacheable, so the same instance of a specified
-    adapter class should be used for the lifetime of the store.
-
     @property defaultAdapter
     @private
     @return DS.Adapter
@@ -267,20 +277,45 @@ Store = Service.extend({
   defaultAdapter: Ember.computed('adapter', function() {
     var adapter = get(this, 'adapter');
 
-    Ember.assert('You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a name or a factory', !(adapter instanceof Adapter));
+    Ember.assert('You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a string', !(adapter instanceof Adapter));
 
-    if (typeof adapter === 'string') {
-      adapter = this.container.lookup('adapter:' + adapter) || this.container.lookup('adapter:application') || this.container.lookup('adapter:-rest');
+    if (Adapter.detect(adapter)) {
+      Ember.deprecate('Using a class in the store.adapter property is deprecated. Please use string values.');
+      adapter = adapter.create({ container: this.container, store: this });
     }
 
-    if (DS.Adapter.detect(adapter)) {
-      adapter = adapter.create({
-        container: this.container,
-        store: this
-      });
+    if (typeof adapter === 'string') {
+      adapter = this.lookupAdapter(adapter);
+    }
+
+    if (isNone(adapter)) {
+      adapter = this.lookupAdapter('application') || this.lookupAdapter('-default');
     }
 
     return adapter;
+  }),
+
+
+  /**
+    This property returns the serializer, after resolving a possible
+    string key.
+
+    @property defaultSerializer
+    @private
+    @return DS.Serializer
+  */
+  defaultSerializer: Ember.computed('serializer', function() {
+    var serializer = get(this, 'serializer');
+
+    if (typeof serializer === 'string') {
+      serializer = this.lookupSerializer(serializer);
+    }
+
+    if (isNone(serializer)) {
+      serializer = this.lookupSerializer('application') || this.lookupSerializer('-default');
+    }
+
+    return serializer;
   }),
 
   // .....................
@@ -1855,9 +1890,7 @@ Store = Service.extend({
       type = this.modelFor(type);
     }
 
-    var adapter = this.lookupAdapter(type.modelName) || this.lookupAdapter('application');
-
-    return adapter || get(this, 'defaultAdapter');
+    return this.lookupAdapter(type.modelName) || get(this, 'defaultAdapter');
   },
 
   _adapterRun: function (fn) {
@@ -1894,18 +1927,14 @@ Store = Service.extend({
       type = this.modelFor(type);
     }
 
-    var serializer = this.lookupSerializer(type.modelName) || this.lookupSerializer('application');
+    var serializer = this.lookupSerializer(type.modelName);
 
     if (!serializer) {
-      var adapter = this.adapterFor(type);
-      serializer = this.lookupSerializer(get(adapter, 'defaultSerializer'));
+      var adapter = this.lookupAdapter(type.modelName);
+      serializer = adapter && this.lookupSerializer(get(adapter, 'defaultSerializer'));
     }
 
-    if (!serializer) {
-      serializer = this.lookupSerializer('-default');
-    }
-
-    return serializer;
+    return serializer || get(this, 'defaultSerializer');
   },
 
   /**
