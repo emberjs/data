@@ -23,16 +23,16 @@ module("integration/find_polymorphic - Find Polymorphic", {
       })
     });
   },
-  teardown: function(){
+  teardown: function() {
     run(store, 'destroy');
   }
 });
 
-test("When find is called on a base of a polymorphic model, each record will be casted into appropriate model", function(){
+test("When find is called on a base of a polymorphic model, each record will be casted into appropriate model", function() {
   expect(1);
   var deferred = Ember.RSVP.defer();
   store = createStore({ adapter: DS.Adapter.extend({
-    find: function(store, type, id, snapshot) {
+    findAll: function(store, type, id, snapshot) {
       return Ember.RSVP.resolve([{ 'id': 1, 'type': 'image_attachment' },{ 'id': 2, 'type': 'link_attachment' }]);
     }
   })
@@ -49,12 +49,12 @@ test("When find is called on a base of a polymorphic model, each record will be 
 });
 
 
-test("When find is called on a base of a polymorphic model with id the record will be casted into appropriate model", function(){
+test("When find is called on a base of a polymorphic model with id the record will be casted into appropriate model", function() {
   expect(1);
   var deferred = Ember.RSVP.defer();
   store = createStore({ adapter: DS.Adapter.extend({
     find: function(store, type, id, snapshot) {
-      return {'id': 1, 'type': 'image_attachment'};
+      return { 'id': 1, 'type': 'image_attachment' };
     }
   })
   });
