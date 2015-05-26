@@ -181,7 +181,7 @@ Reference.prototype = {
     if (this.record) {
       this.record._notifyProperties(changedKeys);
     }
-    this.didInitalizeData();
+    this.didInitializeData();
   },
 
   becameReady: function() {
@@ -191,7 +191,7 @@ Reference.prototype = {
     });
   },
 
-  didInitalizeData: function() {
+  didInitializeData: function() {
     if (!this.dataHasInitialized) {
       this.becameReady();
       this.dataHasInitialized = true;
@@ -227,7 +227,7 @@ Reference.prototype = {
   */
   loadedData: function() {
     this.send('loadedData');
-    this.didInitalizeData();
+    this.didInitializeData();
   },
 
   /**
