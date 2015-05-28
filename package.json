@@ -29,7 +29,6 @@
   "devDependencies": {
     "aws-sdk": "~2.0.0-rc8",
     "bower": "~1.3",
-    "broccoli-babel-transpiler": "^5.0.0",
     "broccoli-compile-modules": "^1.1.0",
     "broccoli-concat": "0.0.12",
     "broccoli-defeatureify": "^0.3.0",
@@ -39,7 +38,7 @@
     "broccoli-es6-transpiler": "^0.1.0",
     "broccoli-file-creator": "^0.1.0",
     "broccoli-file-mover": "~0.2.0",
-    "broccoli-jscs": "0.0.22",
+    "broccoli-jscs": "0.0.14",
     "broccoli-jshint": "^0.5.1",
     "broccoli-merge-trees": "^0.1.4",
     "broccoli-render-template": "0.0.3",
@@ -58,12 +57,13 @@
     "es6-module-transpiler-amd-formatter": "^0.2.4",
     "es6-module-transpiler-package-resolver": "^1.0.1",
     "git-repo-version": "0.0.2",
-    "github": "^0.2.4",
     "jscs": "^1.12.0",
     "testem": "^0.6.19",
     "yuidocjs": "~0.3.46"
   },
   "dependencies": {
+    "broccoli-babel-transpiler": "^5.0.0",
+    "github": "^0.2.4",
     "rsvp": "^3.0.18"
   }
 }
