@@ -784,7 +784,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     @method payloadKeyFromModelName
     @param {String} modelName
-    @returns {String}
+    @return {String}
   */
   payloadKeyFromModelName: function(modelName) {
     return camelize(modelName);
@@ -795,7 +795,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     @method typeForRoot
     @param {String} modelName
-    @returns {String}
+    @return {String}
     @deprecated
   */
   typeForRoot: function(modelName) {

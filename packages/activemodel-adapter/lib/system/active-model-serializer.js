@@ -142,7 +142,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
 
     @method payloadKeyFromModelName
     @param {String} modelName
-    @returns {String}
+    @return {String}
   */
   payloadKeyFromModelName: function(modelName) {
     return underscore(decamelize(modelName));
