@@ -5,7 +5,10 @@ export function typeForRelationshipMeta(meta) {
   var modelName;
 
   modelName = meta.type || meta.key;
-  return singularize(normalizeModelName(modelName));
+  if (meta.kind === 'hasMany') {
+    modelName = singularize(normalizeModelName(modelName));
+  }
+  return modelName;
 }
 
 export function relationshipFromMeta(meta) {
