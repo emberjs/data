@@ -7,6 +7,10 @@
 
 import normalizeModelName from "ember-data/system/normalize-model-name";
 import {
+  modelFor,
+  modelFactoryFor
+} from 'ember-data/system/store/factory-locators';
+import {
   InvalidError,
   Adapter
 } from "ember-data/system/adapter";
@@ -38,13 +42,9 @@ import {
   _findQuery
 } from "ember-data/system/store/finders";
 
-import coerceId from "ember-data/system/coerce-id";
-
 import RecordArrayManager from "ember-data/system/record-array-manager";
 
-import InternalModel from "ember-data/system/model/internal-model";
 import Model from "ember-data/system/model";
-
 var Backburner = Ember.Backburner || Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
 
 //Shim Backburner.join
@@ -88,20 +88,6 @@ if (!Backburner.prototype.join) {
 }
 
 
-//Get the materialized model from the internalModel/promise that returns
-//an internal model and return it in a promiseObject. Useful for returning
-//from find methods
-function promiseRecord(internalModel, label) {
-  //TODO cleanup
-  var toReturn = internalModel;
-  if (!internalModel.then) {
-    toReturn = internalModel.getRecord();
-  } else {
-    toReturn = internalModel.then((model) => model.getRecord());
-  }
-  return promiseObject(toReturn, label);
-}
-
 var get = Ember.get;
 var set = Ember.set;
 var once = Ember.run.once;
@@ -129,9 +115,19 @@ if (!Service) {
 //   * +clientId+ means a transient numerical identifier generated at runtime by
 //     the data store. It is important primarily because newly created objects may
 //     not yet have an externally generated id.
-//   * +internalModel+ means a record internalModel object, which holds metadata about a
+//   * +reference+ means a record reference object, which holds metadata about a
 //     record, even if it has not yet been fully materialized.
-//   * +type+ means a DS.Model.
+//   * +type+ means a subclass of DS.Model.
+
+// Used by the store to normalize IDs entering the store.  Despite the fact
+// that developers may provide IDs as numbers (e.g., `store.find(Person, 1)`),
+// it is important that internally we use strings, since IDs may be serialized
+// and lose type information.  For example, Ember's router may put a record's
+// ID into the URL, and if we later try to deserialize that URL and find the
+// corresponding record, we will not know if it is a string or a number.
+function coerceId(id) {
+  return id == null ? null : id+'';
+}
 
 /**
   The store contains all of the data for records loaded from the server.
@@ -232,7 +228,7 @@ Store = Service.extend({
 
     @property adapter
     @default DS.RESTAdapter
-    @type {(DS.Adapter|String)}
+    @type {DS.Adapter|String}
   */
   adapter: '-rest',
 
@@ -251,8 +247,8 @@ Store = Service.extend({
     @param {Object} options an options hash
   */
   serialize: function(record, options) {
-    var snapshot = record._internalModel.createSnapshot();
-    return snapshot.serialize(options);
+    var snapshot = record._createSnapshot();
+    return this.serializerFor(snapshot.modelName).serialize(snapshot, options);
   },
 
   /**
@@ -307,14 +303,14 @@ Store = Service.extend({
 
     @method createRecord
     @param {String} modelName
-    @param {Object} inputProperties a hash of properties to set on the
+    @param {Object} properties a hash of properties to set on the
       newly created record.
     @return {DS.Model} record
   */
   createRecord: function(modelName, inputProperties) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
-    var properties = copy(inputProperties) || Ember.create(null);
+    var properties = copy(inputProperties) || {};
 
     // If the passed properties do not include a primary key,
     // give the adapter an opportunity to generate one. Typically,
@@ -328,18 +324,17 @@ Store = Service.extend({
     // Coerce ID to a string
     properties.id = coerceId(properties.id);
 
-    var internalModel = this.buildInternalModel(typeClass, properties.id);
-    var record = internalModel.getRecord();
+    var record = this.buildRecord(typeClass, properties.id);
 
     // Move the record out of its initial `empty` state into
     // the `loaded` state.
-    internalModel.loadedData();
+    record.loadedData();
 
     // Set the properties specified on the record.
     record.setProperties(properties);
 
-    internalModel.eachRelationship(function(key, descriptor) {
-      internalModel._relationships.get(key).setHasData(true);
+    record.eachRelationship(function(key, descriptor) {
+      record._relationships[key].setHasData(true);
     });
 
     return record;
@@ -513,7 +508,7 @@ Store = Service.extend({
 
     @method find
     @param {String} modelName
-    @param {(Object|String|Integer|null)} id
+    @param {Object|String|Integer|null} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
@@ -556,7 +551,7 @@ Store = Service.extend({
 
     @method fetchById
     @param {String} modelName
-    @param {(String|Integer)} id
+    @param {String|Integer} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
@@ -587,7 +582,7 @@ Store = Service.extend({
   /**
     @method fetch
     @param {String} modelName
-    @param {(String|Integer)} id
+    @param {String|Integer} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
     @deprecated Use [fetchById](#method_fetchById) instead
@@ -604,33 +599,35 @@ Store = Service.extend({
     @method findById
     @private
     @param {String} modelName
-    @param {(String|Integer)} id
+    @param {String|Integer} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
   findById: function(modelName, id, preload) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    var internalModel = this._internalModelForId(modelName, id);
 
-    return this._findByInternalModel(internalModel, preload);
+    var record = this.recordForId(modelName, id);
+
+    return this._findByRecord(record, preload);
   },
 
-  _findByInternalModel: function(internalModel, preload) {
-    var fetchedInternalModel;
+  _findByRecord: function(record, preload) {
+    var fetchedRecord;
 
     if (preload) {
-      internalModel._preloadData(preload);
+      record._preloadData(preload);
     }
 
-    if (internalModel.isEmpty()) {
-      fetchedInternalModel = this.scheduleFetch(internalModel);
+    if (get(record, 'isEmpty')) {
+      fetchedRecord = this.scheduleFetch(record);
       //TODO double check about reloading
-    } else if (internalModel.isLoading()) {
-      fetchedInternalModel = internalModel._loadingPromise;
+    } else if (get(record, 'isLoading')) {
+      fetchedRecord = record._loadingPromise;
     }
 
-    return promiseRecord(fetchedInternalModel || internalModel, "DS: Store#findByRecord " + internalModel.typeKey + " with id: " + get(internalModel, 'id'));
+    return promiseObject(fetchedRecord || record, "DS: Store#findByRecord " + record.modelName + " with id: " + get(record, 'id'));
   },
+
   /**
     This method makes a series of requests to the adapter's `find` method
     and returns a promise that resolves once they are all loaded.
@@ -657,39 +654,38 @@ Store = Service.extend({
 
     @method fetchRecord
     @private
-    @param {InternalModel} internalModel model
+    @param {DS.Model} record
     @return {Promise} promise
   */
-  fetchRecord: function(internalModel) {
-    var typeClass = internalModel.type;
-    var id = internalModel.id;
+  fetchRecord: function(record) {
+    var typeClass = record.constructor;
+    var id = get(record, 'id');
     var adapter = this.adapterFor(typeClass.modelName);
 
     Ember.assert("You tried to find a record but you have no adapter (for " + typeClass + ")", adapter);
     Ember.assert("You tried to find a record but your adapter (for " + typeClass + ") does not implement 'find'", typeof adapter.find === 'function');
 
-    var promise = _find(adapter, this, typeClass, id, internalModel);
+    var promise = _find(adapter, this, typeClass, id, record);
     return promise;
   },
 
   scheduleFetchMany: function(records) {
-    var internalModels = map(records, function(record) { return record._internalModel; });
-    return Promise.all(map(internalModels, this.scheduleFetch, this));
+    return Promise.all(map(records, this.scheduleFetch, this));
   },
 
-  scheduleFetch: function(internalModel) {
-    var typeClass = internalModel.type;
+  scheduleFetch: function(record) {
+    var typeClass = record.constructor;
+    if (isNone(record)) { return null; }
+    if (record._loadingPromise) { return record._loadingPromise; }
 
-    if (internalModel._loadingPromise) { return internalModel._loadingPromise; }
-
-    var resolver = Ember.RSVP.defer('Fetching ' + typeClass + 'with id: ' + internalModel.id);
+    var resolver = Ember.RSVP.defer('Fetching ' + typeClass + 'with id: ' + record.get('id'));
     var recordResolverPair = {
-      record: internalModel,
+      record: record,
       resolver: resolver
     };
     var promise = resolver.promise;
 
-    internalModel.loadingData(promise);
+    record.loadingData(promise);
 
     if (!this._pendingFetch.get(typeClass)) {
       this._pendingFetch.set(typeClass, [recordResolverPair]);
@@ -775,10 +771,10 @@ Store = Service.extend({
       // records from the grouped snapshots even though the _findMany() finder
       // will once again convert the records to snapshots for adapter.findMany()
 
-      var snapshots = Ember.A(records).invoke('createSnapshot');
+      var snapshots = Ember.A(records).invoke('_createSnapshot');
       var groups = adapter.groupRecordsForFindMany(this, snapshots);
       forEach(groups, function (groupOfSnapshots) {
-        var groupOfRecords = Ember.A(groupOfSnapshots).mapBy('_internalModel');
+        var groupOfRecords = Ember.A(groupOfSnapshots).mapBy('record');
         var requestedRecords = Ember.A(groupOfRecords);
         var ids = requestedRecords.mapBy('id');
         if (ids.length > 1) {
@@ -821,7 +817,7 @@ Store = Service.extend({
   getById: function(modelName, id) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     if (this.hasRecordForId(modelName, id)) {
-      return this._internalModelForId(modelName, id).getRecord();
+      return this.recordForId(modelName, id);
     } else {
       return null;
     }
@@ -836,35 +832,35 @@ Store = Service.extend({
 
     @method reloadRecord
     @private
-    @param {DS.Model} internalModel
+    @param {DS.Model} record
     @return {Promise} promise
   */
-  reloadRecord: function(internalModel) {
-    var modelName = internalModel.type.modelName;
-    var adapter = this.adapterFor(modelName);
-    var id = internalModel.id;
+  reloadRecord: function(record) {
+    var type = record.constructor;
+    var adapter = this.adapterFor(type.modelName);
+    var id = get(record, 'id');
 
     Ember.assert("You cannot reload a record without an ID", id);
-    Ember.assert("You tried to reload a record but you have no adapter (for " + modelName + ")", adapter);
+    Ember.assert("You tried to reload a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to reload a record but your adapter does not implement `find`", typeof adapter.find === 'function');
 
-    return this.scheduleFetch(internalModel);
+    return this.scheduleFetch(record);
   },
 
   /**
     Returns true if a record for a given type and ID is already loaded.
 
     @method hasRecordForId
-    @param {(String|DS.Model)} modelName
-    @param {(String|Integer)} inputId
+    @param {String or subclass of DS.Model} type
+    @param {String|Integer} id
     @return {Boolean}
   */
   hasRecordForId: function(modelName, inputId) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     var id = coerceId(inputId);
-    var internalModel = this.typeMapFor(typeClass).idToRecord[id];
-    return !!internalModel && internalModel.isLoaded();
+    var record = this.typeMapFor(typeClass).idToRecord[id];
+    return !!record && get(record, 'isLoaded');
   },
 
   /**
@@ -874,39 +870,36 @@ Store = Service.extend({
     @method recordForId
     @private
     @param {String} modelName
-    @param {(String|Integer)} id
+    @param {String|Integer} id
     @return {DS.Model} record
   */
-  recordForId: function(modelName, id) {
+  recordForId: function(modelName, inputId) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    return this._internalModelForId(modelName, id).getRecord();
-  },
-
-  _internalModelForId: function(typeName, inputId) {
-    var typeClass = this.modelFor(typeName);
+    var typeClass = this.modelFor(modelName);
     var id = coerceId(inputId);
     var idToRecord = this.typeMapFor(typeClass).idToRecord;
     var record = idToRecord[id];
 
     if (!record || !idToRecord[id]) {
-      record = this.buildInternalModel(typeClass, id);
+      record = this.buildRecord(typeClass, id);
     }
 
     return record;
   },
 
-
-
   /**
     @method findMany
     @private
-    @param {Array} internalModels
+    @param {DS.Model} owner
+    @param {Array} records
+    @param {String or subclass of DS.Model} type
+    @param {Resolver} resolver
     @return {Promise} promise
   */
-  findMany: function(internalModels) {
+  findMany: function(records) {
     var store = this;
-    return Promise.all(map(internalModels, function(internalModel) {
-      return store._findByInternalModel(internalModel);
+    return Promise.all(map(records, function(record) {
+      return store._findByRecord(record);
     }));
   },
 
@@ -926,13 +919,13 @@ Store = Service.extend({
     @private
     @param {DS.Model} owner
     @param {any} link
-    @param {(String|DS.Model)} type
+    @param {String or subclass of DS.Model} type
     @return {Promise} promise
   */
   findHasMany: function(owner, link, type) {
-    var adapter = this.adapterFor(owner.type.modelName);
+    var adapter = this.adapterFor(owner.constructor.modelName);
 
-    Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + owner.type + ")", adapter);
+    Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + owner.constructor + ")", adapter);
     Ember.assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", typeof adapter.findHasMany === 'function');
 
     return _findHasMany(adapter, this, owner, link, type);
@@ -947,9 +940,9 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findBelongsTo: function(owner, link, relationship) {
-    var adapter = this.adapterFor(owner.type.modelName);
+    var adapter = this.adapterFor(owner.constructor.modelName);
 
-    Ember.assert("You tried to load a belongsTo relationship but you have no adapter (for " + owner.type + ")", adapter);
+    Ember.assert("You tried to load a belongsTo relationship but you have no adapter (for " + owner.constructor + ")", adapter);
     Ember.assert("You tried to load a belongsTo relationship from a specified `link` in the original payload but your adapter does not implement `findBelongsTo`", typeof adapter.findBelongsTo === 'function');
 
     return _findBelongsTo(adapter, this, owner, link, relationship);
@@ -1081,7 +1074,7 @@ Store = Service.extend({
    ```
 
    @method unloadAll
-   @param {String=} modelName
+   @param {String} optional modelName
   */
   unloadAll: function(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), !modelName || typeof modelName === 'string');
@@ -1215,14 +1208,15 @@ Store = Service.extend({
   */
   recordIsLoaded: function(modelName, id) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    return this.hasRecordForId(modelName, id);
+    if (!this.hasRecordForId(modelName, id)) { return false; }
+    return !get(this.recordForId(modelName, id), 'isEmpty');
   },
 
   /**
     This method returns the metadata for a specific type.
 
     @method metadataFor
-    @param {String} modelName
+    @param {String or subclass of DS.Model} modelName
     @return {object}
   */
   metadataFor: function(modelName) {
@@ -1258,10 +1252,10 @@ Store = Service.extend({
     @method dataWasUpdated
     @private
     @param {Class} type
-    @param {InternalModel} internalModel
+    @param {DS.Model} record
   */
-  dataWasUpdated: function(type, internalModel) {
-    this.recordArrayManager.recordDidChange(internalModel);
+  dataWasUpdated: function(type, record) {
+    this.recordArrayManager.recordDidChange(record);
   },
 
   // ..............
@@ -1276,14 +1270,12 @@ Store = Service.extend({
 
     @method scheduleSave
     @private
-    @param {InternalModel} internalModel
+    @param {DS.Model} record
     @param {Resolver} resolver
   */
-  scheduleSave: function(internalModel, resolver) {
-    var snapshot = internalModel.createSnapshot();
-    internalModel.flushChangedAttributes();
-    internalModel.adapterWillCommit();
-    this._pendingSave.push([snapshot, resolver]);
+  scheduleSave: function(record, resolver) {
+    record.adapterWillCommit();
+    this._pendingSave.push([record, resolver]);
     once(this, 'flushPendingSave');
   },
 
@@ -1299,23 +1291,22 @@ Store = Service.extend({
     this._pendingSave = [];
 
     forEach(pending, function(tuple) {
-      var snapshot = tuple[0];
+      var record = tuple[0];
       var resolver = tuple[1];
-      var record = snapshot._internalModel;
-      var adapter = this.adapterFor(record.type.modelName);
+      var adapter = this.adapterFor(record.constructor.modelName);
       var operation;
 
       if (get(record, 'currentState.stateName') === 'root.deleted.saved') {
-        return resolver.resolve();
-      } else if (record.isNew()) {
+        return resolver.resolve(record);
+      } else if (get(record, 'isNew')) {
         operation = 'createRecord';
-      } else if (record.isDeleted()) {
+      } else if (get(record, 'isDeleted')) {
         operation = 'deleteRecord';
       } else {
         operation = 'updateRecord';
       }
 
-      resolver.resolve(_commit(adapter, this, operation, snapshot));
+      resolver.resolve(_commit(adapter, this, operation, record));
     }, this);
   },
 
@@ -1329,19 +1320,19 @@ Store = Service.extend({
 
     @method didSaveRecord
     @private
-    @param {InternalModel} internalModel the in-flight internal model
+    @param {DS.Model} record the in-flight record
     @param {Object} data optional data (see above)
   */
-  didSaveRecord: function(internalModel, data) {
+  didSaveRecord: function(record, data) {
     if (data) {
       // normalize relationship IDs into records
-      this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', internalModel, internalModel.type, data);
-      this.updateId(internalModel, data);
+      this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', record, record.constructor, data);
+      this.updateId(record, data);
     }
 
     //We first make sure the primary data has been updated
     //TODO try to move notification to the user to the end of the runloop
-    internalModel.adapterDidCommit(data);
+    record.adapterDidCommit(data);
   },
 
   /**
@@ -1351,11 +1342,11 @@ Store = Service.extend({
 
     @method recordWasInvalid
     @private
-    @param {InternalModel} internalModel
+    @param {DS.Model} record
     @param {Object} errors
   */
-  recordWasInvalid: function(internalModel, errors) {
-    internalModel.adapterDidInvalidate(errors);
+  recordWasInvalid: function(record, errors) {
+    record.adapterDidInvalidate(errors);
   },
 
   /**
@@ -1365,10 +1356,10 @@ Store = Service.extend({
 
     @method recordWasError
     @private
-    @param {InternalModel} internalModel
+    @param {DS.Model} record
   */
-  recordWasError: function(internalModel) {
-    internalModel.adapterDidError();
+  recordWasError: function(record) {
+    record.adapterDidError();
   },
 
   /**
@@ -1378,18 +1369,18 @@ Store = Service.extend({
 
     @method updateId
     @private
-    @param {InternalModel} internalModel
+    @param {DS.Model} record
     @param {Object} data
   */
-  updateId: function(internalModel, data) {
-    var oldId = internalModel.id;
+  updateId: function(record, data) {
+    var oldId = get(record, 'id');
     var id = coerceId(data.id);
 
-    Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + internalModel + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId);
+    Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId);
 
-    this.typeMapFor(internalModel.type).idToRecord[id] = internalModel;
+    this.typeMapFor(record.constructor).idToRecord[id] = record;
 
-    internalModel.setId(id);
+    set(record, 'id', id);
   },
 
   /**
@@ -1397,7 +1388,7 @@ Store = Service.extend({
 
     @method typeMapFor
     @private
-    @param {DS.Model} typeClass
+    @param {subclass of DS.Model} typeClass
     @return {Object} typeMap
   */
   typeMapFor: function(typeClass) {
@@ -1428,51 +1419,17 @@ Store = Service.extend({
 
     @method _load
     @private
-    @param {(String|DS.Model)} type
+    @param {String or subclass of DS.Model} type
     @param {Object} data
   */
   _load: function(type, data) {
     var id = coerceId(data.id);
-    var internalModel = this._internalModelForId(type, id);
+    var record = this.recordForId(type, id);
 
-    internalModel.setupData(data);
+    record.setupData(data);
+    this.recordArrayManager.recordDidChange(record);
 
-    this.recordArrayManager.recordDidChange(internalModel);
-
-    return internalModel;
-  },
-
-  /*
-    In case someone defined a relationship to a mixin, for example:
-    ```
-      var Comment = DS.Model.extend({
-        owner: belongsTo('commentable'. { polymorphic: true})
-      });
-      var Commentable = Ember.Mixin.create({
-        comments: hasMany('comment')
-      });
-    ```
-    we want to look up a Commentable class which has all the necessary
-    relationship metadata. Thus, we look up the mixin and create a mock
-    DS.Model, so we can access the relationship CPs of the mixin (`comments`)
-    in this case
-  */
-
-  _modelForMixin: function(modelName) {
-    var normalizedModelName = normalizeModelName(modelName);
-    var registry = this.container._registry ? this.container._registry : this.container;
-    var mixin = registry.resolve('mixin:' + normalizedModelName);
-    if (mixin) {
-      //Cache the class as a model
-      registry.register('model:' + normalizedModelName, DS.Model.extend(mixin));
-    }
-    var factory = this.modelFactoryFor(normalizedModelName);
-    if (factory) {
-      factory.__isMixin = true;
-      factory.__mixin = mixin;
-    }
-
-    return factory;
+    return record;
   },
 
   /**
@@ -1482,47 +1439,16 @@ Store = Service.extend({
 
     @method modelFor
     @param {String} modelName
-    @return {DS.Model}
+    @return {subclass of DS.Model}
   */
   modelFor: function(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-
-    var factory = this.modelFactoryFor(modelName);
-    if (!factory) {
-      //Support looking up mixins as base types for polymorphic relationships
-      factory = this._modelForMixin(modelName);
-    }
-    if (!factory) {
-      throw new Ember.Error("No model was found for '" + modelName + "'");
-    }
-    factory.modelName = factory.modelName || normalizeModelName(modelName);
-
-    // deprecate typeKey
-    if (!('typeKey' in factory)) {
-      Ember.defineProperty(factory, 'typeKey', {
-        enumerable: true,
-        configurable: false,
-        get: function() {
-          Ember.deprecate('Usage of `typeKey` has been deprecated and will be removed in Ember Data 1.0. It has been replaced by `modelName` on the model class.');
-          var typeKey = this.modelName;
-          if (typeKey) {
-            typeKey =  Ember.String.camelize(this.modelName);
-          }
-          return typeKey;
-        },
-        set: function() {
-          Ember.assert('Setting typeKey is not supported. In addition, typeKey has also been deprecated in favor of modelName. Setting modelName is also not supported.');
-        }
-      });
-    }
-
-    return factory;
+    return modelFor(this.container, modelName);
   },
 
   modelFactoryFor: function(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    var normalizedKey = normalizeModelName(modelName);
-    return this.container.lookupFactory('model:' + normalizedKey);
+    return modelFactoryFor(this.container, modelName);
   },
 
   /**
@@ -1594,11 +1520,6 @@ Store = Service.extend({
   */
   push: function(modelName, data) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    var internalModel = this._pushInternalModel(modelName, data);
-    return internalModel.getRecord();
-  },
-
-  _pushInternalModel: function(modelName, data) {
     Ember.assert("Expected an object as `data` in a call to `push` for " + modelName + " , but was " + data, Ember.typeOf(data) === 'object');
     Ember.assert("You must include an `id` for " + modelName + " in an object passed to `push`", data.id != null && data.id !== '');
 
@@ -1619,15 +1540,17 @@ Store = Service.extend({
     }
 
     // Actually load the record into the store.
-    var internalModel = this._load(modelName, data);
 
+    this._load(modelName, data);
+
+    var record = this.recordForId(modelName, data.id);
     var store = this;
 
     this._backburner.join(function() {
-      store._backburner.schedule('normalizeRelationships', store, '_setupRelationships', internalModel, type, data);
+      store._backburner.schedule('normalizeRelationships', store, '_setupRelationships', record, type, data);
     });
 
-    return internalModel;
+    return record;
   },
 
   _setupRelationships: function(record, type, data) {
@@ -1687,7 +1610,7 @@ Store = Service.extend({
 
     @method pushPayload
     @param {String} modelName Optionally, a model type used to determine which serializer will be used
-    @param {Object} inputPayload
+    @param {Object} payload
   */
   pushPayload: function (modelName, inputPayload) {
     var serializer;
@@ -1770,7 +1693,7 @@ Store = Service.extend({
 
   /**
     @method metaForType
-    @param {String} modelName
+    @param {String or subclass of DS.Model} modelName
     @param {Object} metadata
     @deprecated Use [setMetadataFor](#method_setMetadataFor) instead
   */
@@ -1786,12 +1709,12 @@ Store = Service.extend({
 
     @method buildRecord
     @private
-    @param {DS.Model} type
+    @param {subclass of DS.Model} type
     @param {String} id
     @param {Object} data
-    @return {InternalModel} internal model
+    @return {DS.Model} record
   */
-  buildInternalModel: function(type, id, data) {
+  buildRecord: function(type, id, data) {
     var typeMap = this.typeMapFor(type);
     var idToRecord = typeMap.idToRecord;
 
@@ -1800,17 +1723,25 @@ Store = Service.extend({
 
     // lookupFactory should really return an object that creates
     // instances with the injections applied
-    var internalModel = new InternalModel(type, id, this, this.container, data);
+    var record = type._create({
+      id: id,
+      store: this,
+      container: this.container
+    });
+
+    if (data) {
+      record.setupData(data);
+    }
 
     // if we're creating an item, this process will be done
     // later, once the object has been persisted.
     if (id) {
-      idToRecord[id] = internalModel;
+      idToRecord[id] = record;
     }
 
-    typeMap.records.push(internalModel);
+    typeMap.records.push(record);
 
-    return internalModel;
+    return record;
   },
 
   //Called by the state machine to notify the store that the record is ready to be interacted with
@@ -1839,20 +1770,20 @@ Store = Service.extend({
 
     @method _dematerializeRecord
     @private
-    @param {InternalModel} internalModel
+    @param {DS.Model} record
   */
-  _dematerializeRecord: function(internalModel) {
-    var type = internalModel.type;
+  _dematerializeRecord: function(record) {
+    var type = record.constructor;
     var typeMap = this.typeMapFor(type);
-    var id = internalModel.id;
+    var id = get(record, 'id');
 
-    internalModel.updateRecordArrays();
+    record.updateRecordArrays();
 
     if (id) {
       delete typeMap.idToRecord[id];
     }
 
-    var loc = indexOf(typeMap.records, internalModel);
+    var loc = indexOf(typeMap.records, record);
     typeMap.records.splice(loc, 1);
   },
 
@@ -1925,7 +1856,7 @@ Store = Service.extend({
   serializerFor: function(modelOrClass) {
     var modelName;
 
-    Ember.deprecate('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelOrClass), typeof modelOrClass === 'string');
+    Ember.deprecate('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelOrClass === 'string');
     if (typeof modelOrClass !== 'string') {
       modelName = modelOrClass.modelName;
     } else {
@@ -1956,8 +1887,8 @@ Store = Service.extend({
 
     @method retrieveManagedInstance
     @private
-    @param {String} modelName the object modelName
-    @param {String} name the object name
+    @param {String} type the object modelName
+    @param {String} type the object name
     @return {Ember.Object}
   */
   retrieveManagedInstance: function(modelName, name) {
@@ -2015,27 +1946,20 @@ function normalizeRelationships(store, type, data, record) {
 }
 
 function deserializeRecordId(store, data, key, relationship, id) {
-  if (isNone(id)) {
+  if (isNone(id) || id instanceof Model) {
     return;
   }
-
-  //If record objects were given to push directly, uncommon, not sure whether we should actually support
-  if (id instanceof Model) {
-    data[key] = id._internalModel;
-    return;
-  }
-
   Ember.assert("A " + relationship.parentType + " record was pushed into the store with the value of " + key + " being " + Ember.inspect(id) + ", but " + key + " is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.", !Ember.isArray(id));
 
   var type;
 
   if (typeof id === 'number' || typeof id === 'string') {
     type = typeFor(relationship, key, data);
-    data[key] = store._internalModelForId(type, id);
+    data[key] = store.recordForId(typeof type === 'string' ? type : type.modelName, id);
   } else if (typeof id === 'object') {
     // hasMany polymorphic
     Ember.assert('Ember Data expected a number or string to represent the record(s) in the `' + relationship.key + '` relationship instead it found an object. If this is a polymorphic relationship please specify a `type` key. If this is an embedded relationship please include the `DS.EmbeddedRecordsMixin` and specify the `' + relationship.key +'` property in your serializer\'s attrs object.', id.type);
-    data[key] = store._internalModelForId(id.type, id.id);
+    data[key] = store.recordForId(id.type, id.id);
   }
 }
 
@@ -2067,10 +1991,10 @@ function defaultSerializer(container) {
          container.lookup('serializer:-default');
 }
 
-function _commit(adapter, store, operation, snapshot) {
-  var record = snapshot._internalModel;
-  var modelName = snapshot.modelName;
-  var type = store.modelFor(modelName);
+function _commit(adapter, store, operation, record) {
+  var type = record.constructor;
+  var modelName = type.modelName;
+  var snapshot = record._createSnapshot();
   var promise = adapter[operation](store, type, snapshot);
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Extract and notify about " + operation + " completion of " + record;
@@ -2086,7 +2010,7 @@ function _commit(adapter, store, operation, snapshot) {
 
     store._adapterRun(function() {
       if (adapterPayload) {
-        payload = serializer.extract(store, type, adapterPayload, snapshot.id, operation);
+        payload = serializer.extract(store, type, adapterPayload, get(record, 'id'), operation);
       }
       store.didSaveRecord(record, payload);
     });
@@ -2094,7 +2018,7 @@ function _commit(adapter, store, operation, snapshot) {
     return record;
   }, function(reason) {
     if (reason instanceof InvalidError) {
-      var errors = serializer.extractErrors(store, type, reason.errors, snapshot.id);
+      var errors = serializer.extractErrors(store, type, reason.errors, get(record, 'id'));
       store.recordWasInvalid(record, errors);
       reason = new InvalidError(errors);
     } else {
@@ -2106,24 +2030,21 @@ function _commit(adapter, store, operation, snapshot) {
 }
 
 function setupRelationships(store, record, data) {
-  var typeClass = record.type;
+  var typeClass = record.constructor;
 
   typeClass.eachRelationship(function(key, descriptor) {
     var kind = descriptor.kind;
     var value = data[key];
-    var relationship;
+    var relationship = record._relationships[key];
 
     if (data.links && data.links[key]) {
-      relationship = record._relationships.get(key);
       relationship.updateLink(data.links[key]);
     }
 
     if (value !== undefined) {
       if (kind === 'belongsTo') {
-        relationship = record._relationships.get(key);
         relationship.setCanonicalRecord(value);
       } else if (kind === 'hasMany') {
-        relationship = record._relationships.get(key);
         relationship.updateRecordsFromAdapter(value);
       }
     }

@@ -2,6 +2,11 @@ import {
   typeForRelationshipMeta,
   relationshipFromMeta
 } from "ember-data/system/relationship-meta";
+
+import {
+  modelFor
+} from 'ember-data/system/store/factory-locators';
+
 import Model from "ember-data/system/model";
 import {
   Map,
@@ -178,9 +183,9 @@ Model.reopenClass({
     @param {store} store an instance of DS.Store
     @return {DS.Model} the type of the relationship, or undefined
   */
-  typeForRelationship: function(name, store) {
+  typeForRelationship: function(name) {
     var relationship = get(this, 'relationshipsByName').get(name);
-    return relationship && store.modelFor(relationship.type);
+    return relationship && modelFor(this.__container__, relationship.type);
   },
 
   inverseMap: Ember.computed(function() {
@@ -224,7 +229,7 @@ Model.reopenClass({
   //Calculate the inverse, ignoring the cache
   _findInverseFor: function(name, store) {
 
-    var inverseType = this.typeForRelationship(name, store);
+    var inverseType = this.typeForRelationship(name);
     if (!inverseType) {
       return null;
     }
@@ -618,7 +623,7 @@ Model.reopen({
   },
 
   inverseFor: function(key) {
-    return this.constructor.inverseFor(key, this.store);
+    return this.constructor.inverseFor(key);
   }
 
 });
