@@ -263,7 +263,6 @@ var RESTSerializer = JSONSerializer.extend({
   */
   extractSingle: function(store, primaryTypeClass, rawPayload, recordId) {
     var payload = this.normalizePayload(rawPayload);
-    var primaryTypeClassName = primaryTypeClass.modelName;
     var primaryRecord;
 
     for (var prop in payload) {
@@ -273,8 +272,7 @@ var RESTSerializer = JSONSerializer.extend({
         Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
         continue;
       }
-      var type = store.modelFor(typeName);
-      var isPrimary = type.modelName === primaryTypeClassName;
+      var isPrimary = this.isPrimaryType(store, typeName, primaryTypeClass);
       var value = payload[prop];
 
       if (value === null) {
@@ -287,14 +285,10 @@ var RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
+      var normalizedArray = this.normalizeArray(store, typeName, value, prop);
+
       /*jshint loopfunc:true*/
-      forEach.call(value, function(hash) {
-        var typeName = this.modelNameFromPayloadKey(prop);
-        var type = store.modelFor(typeName);
-        var typeSerializer = store.serializerFor(type);
-
-        hash = typeSerializer.normalize(type, hash, prop);
-
+      forEach.call(normalizedArray, function(hash) {
         var isFirstCreatedRecord = isPrimary && !recordId && !primaryRecord;
         var isUpdatedRecord = isPrimary && coerceId(hash.id) === recordId;
 
@@ -417,7 +411,6 @@ var RESTSerializer = JSONSerializer.extend({
   */
   extractArray: function(store, primaryTypeClass, rawPayload) {
     var payload = this.normalizePayload(rawPayload);
-    var primaryTypeClassName = primaryTypeClass.modelName;
     var primaryArray;
 
     for (var prop in payload) {
@@ -434,14 +427,9 @@ var RESTSerializer = JSONSerializer.extend({
         Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
         continue;
       }
-      var type = store.modelFor(typeName);
-      var typeSerializer = store.serializerFor(type);
-      var isPrimary = (!forcedSecondary && (type.modelName === primaryTypeClassName));
 
-      /*jshint loopfunc:true*/
-      var normalizedArray = map.call(payload[prop], function(hash) {
-        return typeSerializer.normalize(type, hash, prop);
-      }, this);
+      var normalizedArray = this.normalizeArray(store, typeName, payload[prop], prop);
+      var isPrimary = (!forcedSecondary && this.isPrimaryType(store, typeName, primaryTypeClass));
 
       if (isPrimary) {
         primaryArray = normalizedArray;
@@ -451,6 +439,21 @@ var RESTSerializer = JSONSerializer.extend({
     }
 
     return primaryArray;
+  },
+
+  normalizeArray: function(store, typeName, arrayHash, prop) {
+    var typeClass = store.modelFor(typeName);
+    var typeSerializer = store.serializerFor(typeClass);
+
+    /*jshint loopfunc:true*/
+    return map.call(arrayHash, function(hash) {
+      return typeSerializer.normalize(typeClass, hash, prop);
+    }, this);
+  },
+
+  isPrimaryType: function(store, typeName, primaryTypeClass) {
+    var typeClass = store.modelFor(typeName);
+    return typeClass.modelName === primaryTypeClass.modelName;
   },
 
   /**
