@@ -215,19 +215,19 @@ Model.reopenClass({
     @param {String} name the name of the relationship
     @return {Object} the inverse relationship, or null
   */
-  inverseFor: function(name, store) {
+  inverseFor: function(name) {
     var inverseMap = get(this, 'inverseMap');
     if (inverseMap[name]) {
       return inverseMap[name];
     } else {
-      var inverse = this._findInverseFor(name, store);
+      var inverse = this._findInverseFor(name);
       inverseMap[name] = inverse;
       return inverse;
     }
   },
 
   //Calculate the inverse, ignoring the cache
-  _findInverseFor: function(name, store) {
+  _findInverseFor: function(name) {
 
     var inverseType = this.typeForRelationship(name);
     if (!inverseType) {
