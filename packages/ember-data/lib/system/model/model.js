@@ -971,19 +971,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this._notifyProperties(changedKeys);
   },
 
-  materializeId: function(id) {
-    set(this, 'id', id);
-  },
-
-  materializeAttributes: function(attributes) {
-    Ember.assert("Must pass an object to materializeAttributes", !!attributes);
-    merge(this._data, attributes);
-  },
-
-  materializeAttribute: function(name, value) {
-    this._data[name] = value;
-  },
-
   /**
     If the model `isDirty` this function will discard any unsaved
     changes. If the model `isNew` it will be removed from the store.
