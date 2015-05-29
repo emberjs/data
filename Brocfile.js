@@ -7,11 +7,11 @@ var uglify          = require('broccoli-uglify-js');
 var es3SafeRecast   = require('broccoli-es3-safe-recast');
 var env             = process.env.EMBER_ENV;
 var amdBuild        = require('./lib/amd-build');
-var testTree        = require('./lib/test-tree');
-var libTree         = require('./lib/lib-tree');
 var pickFiles       = require('broccoli-static-compiler');
 var merge           = require('broccoli-merge-trees');
 var moveFile        = require('broccoli-file-mover');
+var wrap            = require('broccoli-wrap');
+var jshint          = require('broccoli-jshint');
 var defeatureify    = require('broccoli-defeatureify');
 var version         = require('git-repo-version')(10);
 var yuidoc          = require('broccoli-yuidoc');
@@ -19,25 +19,20 @@ var replace         = require('broccoli-replace');
 var stew            = require('broccoli-stew');
 var path            = require('path');
 var fs              = require('fs');
+var jscsTree        = require('broccoli-jscs');
 var babel           = require('broccoli-babel-transpiler');
 var babelOptions    = require('./config/babel');
-var fileCreator     = require('broccoli-file-creator');
-var jscs            = require('broccoli-jscs');
+var sourcemapConcat = require('broccoli-sourcemap-concat');
 
 function minify(tree, name){
   var config = require('./config/ember-defeatureify');
   tree = defeatureify(tree, {
     debugStatements: config.options.debugStatements,
-    enableStripDebug: config.stripDebug
+    enableStripDebug: config.enableStripDebug
   });
   tree = moveFile(tree, {
     srcFile: name + '.js',
     destFile: '/' + name + '.prod.js'
-  });
-  tree = pickFiles(tree, {
-    srcDir: '/',
-    destDir: '/',
-    files: [ name + '.prod.js' ]
   });
   tree = removeSourceMappingURL(tree);
   var uglified = moveFile(uglify(tree, {mangle: true}),{
@@ -45,6 +40,27 @@ function minify(tree, name){
     destFile: '/' + name + '.min.js'
   });
   return merge([uglified, tree], {overwrite: true});
+}
+
+function testTree(packageName){
+  var test = pickFiles('packages/' + packageName + '/tests', {
+    srcDir: '/',
+    files: [ '**/*.js' ],
+    destDir: '/' + packageName
+  });
+  test = babel(test, babelOptions);
+  var jshinted = jshint('packages/' + packageName + '/', {
+    jshintrcPath: path.join(__dirname, '.jshintrc')
+  });
+  jshinted = wrap(jshinted, {
+    wrapper: [ "if (!QUnit.urlParams.nojshint) {\n", "\n}"],
+  });
+  jshinted = pickFiles(jshinted, {
+    files: ['{lib,tests}/**/*.js'],
+    srcDir: '/',
+    destDir: '/' + packageName + '-jshint'
+  });
+  return merge([jshinted, test]);
 }
 
 var yuidocTree = yuidoc('packages', {
@@ -72,7 +88,7 @@ var yuidocTree = yuidoc('packages', {
 function package(packagePath, vendorPath) {
   vendorPath = vendorPath || 'packages/';
   return pickFiles(vendorPath + packagePath, {
-    files: [ '**/*.js' ],
+    files: [ 'lib/**/*.js' ],
     srcDir: '/',
     destDir: '/' + packagePath
   });
@@ -99,33 +115,30 @@ packages = babel(packages, babelOptions);
 
 // Bundle formatter for smaller payload
 if (env === 'production') {
-  globalBuild = es6(libTree(packages), {
+  globalBuild = es6(packages, {
     inputFiles: ['ember-data'],
     output: '/ember-data.js',
     resolvers: [PackageResolver],
     formatter: 'bundle'
   });
-
-  var tests = testTree(packages, amdBuild(packages));
-  globalBuild = merge([globalBuild, tests]);
 } else {
 // Use AMD for faster rebuilds in dev
-  var bootFile = fileCreator('/boot.js', 'require("ember-data");');
-
-  var compiled = amdBuild(packages);
-  var libFiles = libTree(compiled);
-
-  var emberData = merge([bootFile, libFiles]);
-
-  var emberData = concat(emberData, {
-    inputFiles: ['ember-data/**/*.js', 'boot.js'],
-    outputFile: '/ember-data.js',
-    wrapInEval: false,
-    wrapInFunction: false
-  });
-
-  globalBuild = merge([emberData, testTree(packages, compiled)]);
+  globalBuild = amdBuild(packages);
 }
+
+var testFiles = merge([
+  testTree('ember-data'),
+  testTree('activemodel-adapter')
+]);
+
+if (env === 'production'){
+  testFiles = es3SafeRecast(testFiles);
+}
+
+testFiles = sourcemapConcat(testFiles, {
+  inputFiles: ['**/*.js'],
+  outputFile: '/ember-data-tests.js'
+});
 
 var testRunner = pickFiles('tests', {
   srcDir: '/',
@@ -166,13 +179,14 @@ function removeSourceMappingURL(tree) {
 
 configurationFiles = versionStamp(configurationFiles);
 
-var jscsTree = jscs('packages');
+var jscsFiles = jscsTree("packages");
 
 var trees = [
-  jscsTree,
+  testFiles,
   testRunner,
   bower,
-  configurationFiles
+  configurationFiles,
+  jscsFiles
 ];
 
 if (env === 'production') {
