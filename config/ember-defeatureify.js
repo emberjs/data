@@ -10,15 +10,8 @@ module.exports = {
       "Ember.debug",
       "emberDebug",
       "Ember.Logger.info",
-      "Ember.runInDebug",
-      "runInDebug"
+      "Ember.runInDebug"
     ]
   },
-  stripDebug: {
-    options: {
-      enableStripDebug: true
-    },
-    src: 'dist/ember-data.js',
-    dest: 'dist/ember-data.prod.js'
-  }
+  enableStripDebug: true
 };
