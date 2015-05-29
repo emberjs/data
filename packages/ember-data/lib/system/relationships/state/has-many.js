@@ -98,6 +98,10 @@ ManyRelationship.prototype.notifyRecordRelationshipAdded = function(record, idx)
   this.record.notifyHasManyAdded(this.key, record, idx);
 };
 
+ManyRelationship.prototype.notifyRecordRelationshipRemoved = function(record) {
+  this.record.notifyHasManyRemoved(this.key, record);
+};
+
 ManyRelationship.prototype.reload = function() {
   var self = this;
   if (this.link) {
@@ -160,7 +164,7 @@ ManyRelationship.prototype.findRecords = function() {
   });
 };
 ManyRelationship.prototype.notifyHasManyChanged = function() {
-  this.record.notifyHasManyAdded(this.key);
+  this.record.notifyPropertyChange(this.key);
 };
 
 ManyRelationship.prototype.getRecords = function() {
@@ -188,6 +192,31 @@ ManyRelationship.prototype.getRecords = function() {
     }
     return this.manyArray;
   }
+};
+
+ManyRelationship.prototype.rollback = function() {
+  var canonicalMembers = this.canonicalMembers;
+  var canonicalState = this.canonicalState;
+  var currentState = this.manyArray.currentState;
+  var l = canonicalMembers.size;
+  var i;
+
+  for (i = 0; i < l; i++) {
+    var canonicalRecord = canonicalState[i];
+    var currentRecord = currentState[i];
+
+    if (canonicalRecord === currentRecord) { continue; }
+
+    if (!canonicalMembers.has(currentRecord)) {
+      this.removeRecord(currentRecord);
+    }
+
+    this.removeRecord(canonicalRecord);
+    this.addRecord(canonicalRecord, i);
+  }
+  this.removeRecords(currentState.slice(canonicalState.length));
+  this.record.notifyPropertyChange(this.key);
+  this.record.send('propertyWasReset', this.key);
 };
 
 function setForArray(array) {

@@ -263,7 +263,7 @@ test("Rollbacking a created record that has a ManyToMany relationship works corr
   });
 });
 
-test("Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync", function () {
+test("Creating a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync", function () {
   var account, user;
   run(function() {
     account = store.push('account', { id: 2 , state: 'lonely' });
@@ -275,6 +275,46 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
   });
   equal(account.get('users.length'), 0, 'Users got removed');
   equal(user.get('accounts.length'), undefined, 'Accounts got rolledback correctly');
+});
+
+test("Rollbacking a record that has a ManyToMany relationship works correctly - async", function () {
+  var user, topic1, topic2;
+  run(function() {
+    user = store.push('user', { id: 1, name: 'Stanley', topics: [1] });
+    topic1 = store.push('topic', { id: 1, title: "This year's EmberFest was great" });
+    topic2 = store.push('topic', { id: 2, title: "Last year's EmberFest was great" });
+  });
+  run(function() {
+    topic2.get('users').addObject(user);
+    topic2.rollback();
+  });
+  run(function() {
+    topic1.get('users').then(async(function(fetchedUsers) {
+      deepEqual(fetchedUsers.toArray(), [user], 'Users are still there');
+    }));
+    topic2.get('users').then(async(function(fetchedUsers) {
+      deepEqual(fetchedUsers.toArray(), [], 'Users are still empty');
+    }));
+    user.get('topics').then(async(function(fetchedTopics) {
+      deepEqual(fetchedTopics.toArray(), [topic1], 'Topics are still there');
+    }));
+  });
+});
+
+test("Rollbacking a record that has a ManyToMany relationship works correctly - sync", function () {
+  var user, account1, account2;
+  run(function() {
+    user = store.push('user', { id: 1, name: 'Stanley', accounts: [1] });
+    account1 = store.push('account', { id: 1 , state: 'lonely' });
+    account2 = store.push('account', { id: 2 , state: 'content' });
+  });
+  run(function() {
+    account2.get('users').addObject(user);
+    account2.rollback();
+  });
+  deepEqual(user.get('accounts').toArray(), [account1], 'Accounts are still there');
+  deepEqual(account1.get('users').toArray(), [user], 'Users are still there');
+  deepEqual(account2.get('users').toArray(), [], 'Users are still empty');
 });
 
 

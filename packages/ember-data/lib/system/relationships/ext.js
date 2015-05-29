@@ -134,7 +134,7 @@ Model.reopen({
       // populated by the `DS.belongsTo` helper when it is creating
       // the computed property.
       var meta = value.meta();
-
+      meta.key = key;
       meta.parentType = proto.constructor;
     }
   }

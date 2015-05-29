@@ -774,6 +774,15 @@ var Model = Ember.Object.extend(Ember.Evented, {
     });
   },
 
+  rollbackRelationships: function() {
+    this.eachRelationship(function(name, relationship) {
+      this._relationships[name].rollback();
+    }, this);
+    var model = this;
+    forEach.call(Ember.keys(this._implicitRelationships), function(key) {
+      model._implicitRelationships[key].rollback();
+    });
+  },
 
   /**
     @method updateRecordArrays
@@ -997,15 +1006,14 @@ var Model = Ember.Object.extend(Ember.Evented, {
       set(this, 'isError', false);
     }
 
-    //Eventually rollback will always work for relationships
-    //For now we support it only out of deleted state, because we
-    //have an explicit way of knowing when the server acked the relationship change
-    if (get(this, 'isDeleted')) {
-      this.reconnectRelationships();
-    }
+    var isDeleted = get(this, 'isDeleted');
+    var isNew = get(this, 'isNew');
 
-    if (get(this, 'isNew')) {
-      this.clearRelationships();
+    if (isDeleted || isNew) {
+      if (isDeleted) { this.reconnectRelationships(); }
+      if (isNew) { this.clearRelationships(); }
+    } else {
+      this.rollbackRelationships();
     }
 
     if (!get(this, 'isValid')) {

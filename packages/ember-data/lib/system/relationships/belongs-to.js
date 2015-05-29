@@ -112,7 +112,15 @@ function belongsTo(modelName, options) {
 */
 Model.reopen({
   notifyBelongsToChanged: function(key) {
+    var relationship = this._relationships[key];
     this.notifyPropertyChange(key);
+    this.send('didSetProperty', {
+      key: key,
+      kind: 'belongsTo',
+      isRelationship: true,
+      originalValue: relationship.canonicalState,
+      value: relationship.inverseRecord
+    });
   }
 });
 
