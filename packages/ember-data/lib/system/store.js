@@ -11,8 +11,7 @@ import {
   modelFactoryFor
 } from 'ember-data/system/store/factory-locators';
 import {
-  InvalidError,
-  Adapter
+  InvalidError
 } from "ember-data/system/adapter";
 import {
   Map
@@ -43,8 +42,10 @@ import {
 } from "ember-data/system/store/finders";
 
 import RecordArrayManager from "ember-data/system/record-array-manager";
+import ContainerInstanceCache from 'ember-data/system/store/container-instance-cache';
 
 import Model from "ember-data/system/model";
+
 var Backburner = Ember.Backburner || Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
 
 //Shim Backburner.join
@@ -210,7 +211,7 @@ Store = Service.extend({
       store: this
     });
     this._pendingSave = [];
-    this._containerCache = Ember.create(null);
+    this._instanceCache = new ContainerInstanceCache(this.container);
     //Used to keep track of all the find requests that need to be coalesced
     this._pendingFetch = Map.create();
   },
@@ -269,18 +270,9 @@ Store = Service.extend({
   defaultAdapter: Ember.computed('adapter', function() {
     var adapter = get(this, 'adapter');
 
-    Ember.assert('You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a name or a factory', !(adapter instanceof Adapter));
+    Ember.assert('You tried to set `adapter` property to an instance of `DS.Adapter`, where it should be a name', typeof adapter === 'string');
 
-    if (typeof adapter === 'string') {
-      adapter = this.container.lookup('adapter:' + adapter) || this.container.lookup('adapter:application') || this.container.lookup('adapter:-rest');
-    }
-
-    if (DS.Adapter.detect(adapter)) {
-      adapter = adapter.create({
-        container: this.container,
-        store: this
-      });
-    }
+    adapter = this.retrieveManagedInstance('adapter', adapter);
 
     return adapter;
   }),
@@ -1819,9 +1811,7 @@ Store = Service.extend({
       modelName = modelOrClass;
     }
 
-    var adapter = this.lookupAdapter(modelName) || this.lookupAdapter('application');
-
-    return adapter || get(this, 'defaultAdapter');
+    return this.lookupAdapter(modelName);
   },
 
   _adapterRun: function (fn) {
@@ -1863,17 +1853,15 @@ Store = Service.extend({
       modelName = modelOrClass;
     }
 
-    var serializer = this.lookupSerializer(modelName) || this.lookupSerializer('application');
+    var fallbacks = [
+      'application',
+      this.adapterFor(modelName).get('defaultSerializer'),
+      '-default'
+    ];
 
-    if (!serializer) {
-      var adapter = this.adapterFor(modelName);
-      serializer = this.lookupSerializer(get(adapter, 'defaultSerializer'));
-    }
+    fallbacks = map(fallbacks, name => `serializer:${name}`);
 
-    if (!serializer) {
-      serializer = this.lookupSerializer('-default');
-    }
-
+    var serializer = this.lookupSerializer(modelName, fallbacks);
     return serializer;
   },
 
@@ -1887,32 +1875,32 @@ Store = Service.extend({
 
     @method retrieveManagedInstance
     @private
-    @param {String} type the object modelName
-    @param {String} type the object name
+    @param {String} type the object type (serializer or adapter)
+    @param {String} modelName the object's modelName (like 'post')
+    @param {Object} fallback the fallback object to return if the lookup for modelName or 'application' fails
     @return {Ember.Object}
   */
-  retrieveManagedInstance: function(modelName, name) {
-    var normalizedTypeKey = normalizeModelName(modelName);
-    var key = normalizedTypeKey + ":" +name;
+  retrieveManagedInstance: function(type, modelName, fallbacks) {
+    var normalizedModelName = normalizeModelName(modelName);
 
-    if (!this._containerCache[key]) {
-      var instance = this.container.lookup(key);
-
-      if (instance) {
-        set(instance, 'store', this);
-        this._containerCache[key] = instance;
-      }
-    }
-
-    return this._containerCache[key];
+    var instance = this._instanceCache.get(type, normalizedModelName, fallbacks);
+    set(instance, 'store', this);
+    return instance;
   },
 
   lookupAdapter: function(name) {
-    return this.retrieveManagedInstance('adapter', name);
+    return this.retrieveManagedInstance('adapter', name, this.get('_adapterFallbacks'));
   },
 
-  lookupSerializer: function(name) {
-    return this.retrieveManagedInstance('serializer', name);
+  _adapterFallbacks: Ember.computed('adapter', function() {
+    var adapter = this.get('adapter');
+    var fallbacks = ['application', adapter, '-rest'];
+
+    return map(fallbacks, name => `adapter:${name}`);
+  }),
+
+  lookupSerializer: function(name, fallbacks) {
+    return this.retrieveManagedInstance('serializer', name, fallbacks);
   },
 
   willDestroy: function() {
