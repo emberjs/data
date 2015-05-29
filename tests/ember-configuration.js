@@ -67,8 +67,13 @@
       }
     };
 
-    var adapter = env.adapter = (options.adapter || DS.Adapter);
+    var adapter = env.adapter = (options.adapter || '-default');
     delete options.adapter;
+
+    if (typeof adapter !== 'string') {
+      env.registry.register('adapter:-ember-data-test-custom', adapter);
+      adapter = '-ember-data-test-custom';
+    }
 
     for (var prop in options) {
       registry.register('model:' + Ember.String.dasherize(prop), options[prop]);
@@ -80,9 +85,12 @@
 
     registry.optionsForType('serializer', { singleton: false });
     registry.optionsForType('adapter', { singleton: false });
+    registry.register('adapter:-default', DS.Adapter);
 
     registry.register('serializer:-default', DS.JSONSerializer);
     registry.register('serializer:-rest', DS.RESTSerializer);
+    registry.register('adapter:-active-model', DS.ActiveModelAdapter);
+    registry.register('serializer:-active-model', DS.ActiveModelSerializer);
     registry.register('adapter:-rest', DS.RESTAdapter);
 
     registry.injection('serializer', 'store', 'store:main');
