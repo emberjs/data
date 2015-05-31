@@ -116,7 +116,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
    @method normalize
    @param {subclass of DS.Model} typeClass
    @param {Object} hash to be normalized
-   @param {String} key the hash has been referenced by
+   @param {String} key the hash has been ghostd by
    @return {Object} the normalized hash
   **/
   normalize: function(typeClass, hash, prop) {
@@ -463,7 +463,7 @@ function extractEmbeddedBelongsTo(store, key, embeddedTypeClass, hash) {
   store.push(embeddedTypeClass, embeddedRecord);
 
   hash[key] = embeddedRecord.id;
-  //TODO Need to add a reference to the parent later so relationship works between both `belongsTo` records
+  //TODO Need to add a ghost to the parent later so relationship works between both `belongsTo` records
   return hash;
 }
 

@@ -148,7 +148,7 @@ export default Ember.Object.extend(Ember.MutableArray, Ember.Evented, {
       this.get('relationship').removeRecords(records);
     }
     if (objects) {
-      this.get('relationship').addRecords(map(objects, function(obj) { return obj.reference; }), idx);
+      this.get('relationship').addRecords(map(objects, function(obj) { return obj._ghost; }), idx);
     }
   },
   /**

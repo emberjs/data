@@ -158,7 +158,7 @@ ManyRelationship.prototype.fetchLink = function() {
 ManyRelationship.prototype.findRecords = function() {
   var manyArray = this.manyArray;
   //TODO CLEANUP
-  return this.store.findMany(map(manyArray.toArray(), function(rec) { return rec.reference; })).then(function() {
+  return this.store.findMany(map(manyArray.toArray(), function(rec) { return rec._ghost; })).then(function() {
     //Goes away after the manyArray refactor
     manyArray.set('isLoaded', true);
     return manyArray;

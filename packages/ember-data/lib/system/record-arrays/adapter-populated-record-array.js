@@ -43,7 +43,7 @@ export default RecordArray.extend({
     var meta = store.metadataFor(type);
 
     //TODO Optimize
-    var refs = Ember.A(records).mapBy('reference');
+    var refs = Ember.A(records).mapBy('_ghost');
     this.setProperties({
       content: Ember.A(refs),
       isLoaded: true,

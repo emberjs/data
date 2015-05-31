@@ -141,14 +141,14 @@ test("a collision of a record's id with object function's name", function() {
 });
 
 /*
-test("it should use `_reference` and not `reference` to store its reference", function() {
+test("it should use `_ghost` and not `ghost` to store its ghost", function() {
   expect(1);
 
   run(function() {
     store.push(Person, { id: 1 });
 
     store.find(Person, 1).then(function(record) {
-      equal(record.get('reference'), undefined, "doesn't shadow reference key");
+      equal(record.get('_ghost'), undefined, "doesn't shadow ghost key");
     });
   });
 });
@@ -409,15 +409,15 @@ test("setting a property back to its original value removes the property from th
 
   run(function() {
     store.find(Person, 1).then(function(person) {
-      equal(person.reference._attributes.name, undefined, "the `_attributes` hash is clean");
+      equal(person._ghost._attributes.name, undefined, "the `_attributes` hash is clean");
 
       set(person, 'name', "Niceguy Dale");
 
-      equal(person.reference._attributes.name, "Niceguy Dale", "the `_attributes` hash contains the changed value");
+      equal(person._ghost._attributes.name, "Niceguy Dale", "the `_attributes` hash contains the changed value");
 
       set(person, 'name', "Scumbag Dale");
 
-      equal(person.reference._attributes.name, undefined, "the `_attributes` hash is reset");
+      equal(person._ghost._attributes.name, undefined, "the `_attributes` hash is reset");
     });
   });
 });

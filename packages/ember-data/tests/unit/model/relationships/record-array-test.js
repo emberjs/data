@@ -11,19 +11,19 @@ test("updating the content of a RecordArray updates its content", function() {
 
   var env = setupStore({ tag: Tag });
   var store = env.store;
-  var records, tags, references;
+  var records, tags, ghosts;
 
   run(function() {
     records = store.pushMany('tag', [{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }, { id: 12, name: "oohlala" }]);
-    references = Ember.A(records).mapBy('reference');
-    tags = DS.RecordArray.create({ content: Ember.A(references.slice(0, 2)), store: store, type: Tag });
+    ghosts = Ember.A(records).mapBy('_ghost');
+    tags = DS.RecordArray.create({ content: Ember.A(ghosts.slice(0, 2)), store: store, type: Tag });
   });
 
   var tag = tags.objectAt(0);
   equal(get(tag, 'name'), "friendly", "precond - we're working with the right tags");
 
   run(function() {
-    set(tags, 'content', Ember.A(references.slice(1, 3)));
+    set(tags, 'content', Ember.A(ghosts.slice(1, 3)));
   });
 
   tag = tags.objectAt(0);

@@ -20,7 +20,7 @@
 import Transform from "ember-data/transforms/base";
 
 // Date.prototype.toISOString shim
-// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Reference/Global_Objects/Date/toISOString
+// https://developer.mozilla.org/en-US/docs/Web/JavaScript/Ghost/Global_Objects/Date/toISOString
 var toISOString = Date.prototype.toISOString || function() {
   function pad(number) {
     if ( number < 10 ) {
