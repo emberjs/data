@@ -217,10 +217,12 @@ test("invalid record can be rollbacked", function() {
 
   run(function() {
     dog.save().then(null, async(function() {
+      equal(dog.get('isValid'), false);
       dog.rollback();
 
       equal(dog.get('name'), "Pluto");
       ok(dog.get('isValid'));
+      equal(dog.get('isDirty'), false);
     }));
   });
 });
@@ -326,6 +328,52 @@ test("when destroying a record setup the record state to invalid, the record can
       equal(dog.get('isDeleted'), false, "must not be deleted after `rollback`");
       equal(dog.get('isValid'), true, "must be valid after `rollback`");
       ok(dog.get('errors.length') === 0, "must not have errors");
+    }));
+  });
+});
+
+test("invalid new record can be rollbacked", function() {
+  var person;
+  var adapter = DS.RESTAdapter.extend({
+    ajax: function(url, type, hash) {
+      var adapter = this;
+
+      return new Ember.RSVP.Promise(function(resolve, reject) {
+        /* If InvalidError is passed back in the reject it will throw the
+           exception which will bubble up the call stack (crashing the test)
+           instead of hitting the failure route of the promise.
+           So wrapping the reject in an Ember.run.next makes it so save
+           completes without failure and the failure hits the failure route
+           of the promise instead of crashing the save. */
+        Ember.run.next(function() {
+          reject(adapter.ajaxError({ name: 'is invalid' }));
+        });
+      });
+    },
+
+    ajaxError: function(jqXHR) {
+      return new DS.InvalidError(jqXHR);
+    }
+  });
+
+  env = setupStore({ person: Person, adapter: adapter });
+
+  run(function() {
+    person = env.store.createRecord('person', { id: 1 });
+  });
+
+  equal(person.get('isNew'), true, "must be new");
+  equal(person.get('isDirty'), true, "must be dirty");
+
+  run(function() {
+    person.save().then(null, async(function() {
+      equal(person.get('isValid'), false);
+      Ember.run(person, 'rollback');
+
+      // assertions taken from the test 'new record can be rollbacked' http://git.io/vTsKR
+      equal(person.get('isNew'), false, "must not be new");
+      equal(person.get('isDirty'), false, "must not be dirty");
+      equal(person.get('isDeleted'), true, "must be deleted");
     }));
   });
 });

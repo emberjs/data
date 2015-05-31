@@ -336,6 +336,8 @@ var DirtyState = {
 
     becomeDirty: Ember.K,
 
+    pushedData: Ember.K,
+
     willCommit: function(record) {
       get(record, 'errors').clear();
       record.transitionTo('inFlight');
@@ -343,7 +345,13 @@ var DirtyState = {
 
     rolledBack: function(record) {
       get(record, 'errors').clear();
-      record.triggerLater('ready');
+
+      if (record.get('isNew')) {
+        DirtyState.uncommitted.rollback.apply(this, arguments);
+        record.transitionTo('deleted.saved');
+      } else {
+        record.transitionTo('loaded.saved');
+      }
     },
 
     becameValid: function(record) {
