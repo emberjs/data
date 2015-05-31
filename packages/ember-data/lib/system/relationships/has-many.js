@@ -123,14 +123,14 @@ function hasMany(type, options) {
 
   return computedPolyfill({
     get: function(key) {
-      var relationship = this.reference._relationships[key];
+      var relationship = this._internalModel._relationships[key];
       return relationship.getRecords();
     },
     set: function(key, records) {
-      var relationship = this.reference._relationships[key];
+      var relationship = this._internalModel._relationships[key];
       relationship.clear();
       Ember.assert("You must pass an array of records to set a hasMany relationship", Ember.isArray(records));
-      relationship.addRecords(Ember.A(records).mapBy('reference'));
+      relationship.addRecords(Ember.A(records).mapBy('_internalModel'));
       return relationship.getRecords();
     }
   }).meta(meta);

@@ -40,7 +40,7 @@ import {
 
 import RecordArrayManager from "ember-data/system/record-array-manager";
 
-import Reference from "ember-data/system/reference";
+import Reference from "ember-data/system/internal-model";
 
 import Model from "ember-data/system/model";
 
@@ -88,13 +88,13 @@ if (!Backburner.prototype.join) {
 }
 
 
-function promiseRecord(reference, label) {
+function promiseRecord(internalModel, label) {
   //TODO cleanup
-  var toReturn = reference;
-  if (!reference.then) {
-    toReturn = reference.getRecord();
+  var toReturn = internalModel;
+  if (!internalModel.then) {
+    toReturn = internalModel.getRecord();
   } else {
-    toReturn = reference.then(function(ref) {
+    toReturn = internalModel.then(function(ref) {
       return ref.getRecord();
     });
   }
@@ -127,7 +127,7 @@ if (!Service) {
 //   * +clientId+ means a transient numerical identifier generated at runtime by
 //     the data store. It is important primarily because newly created objects may
 //     not yet have an externally generated id.
-//   * +reference+ means a record reference object, which holds metadata about a
+//   * +internalModel+ means a record internalModel object, which holds metadata about a
 //     record, even if it has not yet been fully materialized.
 //   * +type+ means a subclass of DS.Model.
 
@@ -335,19 +335,19 @@ Store = Service.extend({
     // Coerce ID to a string
     properties.id = coerceId(properties.id);
 
-    var reference = this.buildReference(typeClass, properties.id);
-    var record = reference.getRecord();
+    var internalModel = this.buildReference(typeClass, properties.id);
+    var record = internalModel.getRecord();
 
     // Move the record out of its initial `empty` state into
     // the `loaded` state.
-    reference.loadedData();
+    internalModel.loadedData();
 
     // Set the properties specified on the record.
     record.setProperties(properties);
 
     //TODO Bring baaaaack
-    reference.eachRelationship(function(key, descriptor) {
-      reference._relationships[key].setHasData(true);
+    internalModel.eachRelationship(function(key, descriptor) {
+      internalModel._relationships[key].setHasData(true);
     });
 
     return record;
@@ -615,26 +615,26 @@ Store = Service.extend({
   findById: function(modelName, id, preload) {
 
     var type = this.modelFor(modelName);
-    var reference = this.referenceForId(type, id);
+    var internalModel = this._internalModelForId(type, id);
 
-    return this._findByRecord(reference, preload);
+    return this._findByRecord(internalModel, preload);
   },
 
-  _findByReference: function(reference, preload) {
+  _findByReference: function(internalModel, preload) {
     var fetchedReference;
 
     if (preload) {
-      reference._preloadData(preload);
+      internalModel._preloadData(preload);
     }
 
-    if (reference.isEmpty()) {
-      fetchedReference = this.scheduleFetch(reference);
+    if (internalModel.isEmpty()) {
+      fetchedReference = this.scheduleFetch(internalModel);
       //TODO double check about reloading
-    } else if (reference.isLoading()) {
-      fetchedReference = reference._loadingPromise;
+    } else if (internalModel.isLoading()) {
+      fetchedReference = internalModel._loadingPromise;
     }
 
-    return promiseRecord(fetchedReference || reference, "DS: Store#findByRecord " + reference.typeKey + " with id: " + get(reference, 'id'));
+    return promiseRecord(fetchedReference || internalModel, "DS: Store#findByRecord " + internalModel.typeKey + " with id: " + get(internalModel, 'id'));
   },
 
 
@@ -696,8 +696,8 @@ Store = Service.extend({
   },
 
   scheduleFetchMany: function(records) {
-    var references = map(records, function(record) { return record.reference; });
-    return Promise.all(map(references, this.scheduleFetch, this));
+    var internalModel = map(records, function(record) { return record._internalModel; });
+    return Promise.all(map(internalModel, this.scheduleFetch, this));
   },
 
   scheduleFetch: function(record) {
@@ -802,7 +802,7 @@ Store = Service.extend({
       var snapshots = Ember.A(records).invoke('_createSnapshot');
       var groups = adapter.groupRecordsForFindMany(this, snapshots);
       forEach(groups, function (groupOfSnapshots) {
-        var groupOfRecords = Ember.A(groupOfSnapshots).mapBy('record.reference');
+        var groupOfRecords = Ember.A(groupOfSnapshots).mapBy('record._internalModel');
         var requestedRecords = Ember.A(groupOfRecords);
         var ids = requestedRecords.mapBy('id');
         if (ids.length > 1) {
@@ -844,7 +844,7 @@ Store = Service.extend({
   */
   getById: function(type, id) {
     if (this.hasRecordForId(type, id)) {
-      return this.referenceForId(type, id).getRecord();
+      return this._internalModelForId(type, id).getRecord();
     } else {
       return null;
     }
@@ -900,10 +900,10 @@ Store = Service.extend({
     @return {DS.Model} record
   */
   recordForId: function(modelName, id) {
-    return this.referenceForId(modelName, id).getRecord();
+    return this._internalModelForId(modelName, id).getRecord();
   },
 
-  referenceForId: function(typeName, inputId) {
+  _internalModelForId: function(typeName, inputId) {
     var typeClass = this.modelFor(typeName);
     var id = coerceId(inputId);
     var idToRecord = this.typeMapFor(typeClass).idToRecord;
@@ -1445,13 +1445,13 @@ Store = Service.extend({
   */
   _load: function(type, data) {
     var id = coerceId(data.id);
-    var reference = this.referenceForId(type, id);
+    var internalModel = this._internalModelForId(type, id);
 
-    reference.setupData(data);
+    internalModel.setupData(data);
 
-    this.recordArrayManager.recordDidChange(reference);
+    this.recordArrayManager.recordDidChange(internalModel);
 
-    return reference;
+    return internalModel;
   },
 
   /*
@@ -1633,15 +1633,15 @@ Store = Service.extend({
     }
 
     // Actually load the record into the store.
-    var reference = this._load(type, data);
+    var internalModel = this._load(type, data);
 
     var store = this;
 
     this._backburner.join(function() {
-      store._backburner.schedule('normalizeRelationships', store, '_setupRelationships', reference, type, data);
+      store._backburner.schedule('normalizeRelationships', store, '_setupRelationships', internalModel, type, data);
     });
 
-    return reference.getRecord();
+    return internalModel.getRecord();
   },
 
   _setupRelationships: function(record, type, data) {
@@ -1809,17 +1809,17 @@ Store = Service.extend({
 
     // lookupFactory should really return an object that creates
     // instances with the injections applied
-    var reference = new Reference(type, id, this, this.container, data);
+    var internalModel = new Reference(type, id, this, this.container, data);
 
     // if we're creating an item, this process will be done
     // later, once the object has been persisted.
     if (id) {
-      idToRecord[id] = reference;
+      idToRecord[id] = internalModel;
     }
 
-    typeMap.records.push(reference);
+    typeMap.records.push(internalModel);
 
-    return reference;
+    return internalModel;
   },
 
   //Called by the state machine to notify the store that the record is ready to be interacted with
@@ -2019,7 +2019,7 @@ function deserializeRecordId(store, data, key, relationship, id) {
 
   //If record objects were given to push directly, uncommon, not sure whether we should actually support
   if (id instanceof Model) {
-    data[key] = id.reference;
+    data[key] = id._internalModel;
     return;
   }
 
@@ -2029,11 +2029,11 @@ function deserializeRecordId(store, data, key, relationship, id) {
 
   if (typeof id === 'number' || typeof id === 'string') {
     type = typeFor(relationship, key, data);
-    data[key] = store.referenceForId(type, id);
+    data[key] = store._internalModelForId(type, id);
   } else if (typeof id === 'object') {
     // hasMany polymorphic
     Ember.assert('Ember Data expected a number or string to represent the record(s) in the `' + relationship.key + '` relationship instead it found an object. If this is a polymorphic relationship please specify a `type` key. If this is an embedded relationship please include the `DS.EmbeddedRecordsMixin` and specify the `' + relationship.key +'` property in your serializer\'s attrs object.', id.type);
-    data[key] = store.referenceForId(id.type, id.id);
+    data[key] = store._internalModelForId(id.type, id.id);
   }
 }
 

@@ -127,7 +127,7 @@ test("adapter.findMany only gets unique IDs even if duplicate IDs are present in
 });
 
 // This tests the case where a serializer materializes a has-many
-// relationship as a reference that it can fetch lazily. The most
+// relationship as a internalModel that it can fetch lazily. The most
 // common use case of this is to provide a URL to a collection that
 // is loaded later.
 test("A serializer can materialize a hasMany as an opaque token that can be lazily fetched via the adapter's findHasMany hook", function() {
@@ -970,7 +970,7 @@ test("dual non-async HM <-> BT", function() {
 
       deepEqual(post, commentPost, 'expect the new comments post, to be the correct post');
       ok(postComments, "comments should exist");
-      equal(postCommentsLength, 2, "comment's post should have a reference back to comment");
+      equal(postCommentsLength, 2, "comment's post should have a internalModel back to comment");
       ok(postComments && postComments.indexOf(firstComment) !== -1, 'expect to contain first comment');
       ok(postComments && postComments.indexOf(comment) !== -1, 'expected to contain the new comment');
     });
@@ -1218,7 +1218,7 @@ test("Relationship.clear removes all records correctly", function() {
   });
 
   run(function() {
-    post.reference._relationships['comments'].clear();
+    post._internalModel._relationships['comments'].clear();
     var comments = Ember.A(env.store.all('comment'));
     deepEqual(comments.mapBy('post'), [null, null, null]);
   });
@@ -1350,7 +1350,7 @@ test("hasMany hasData async loaded", function () {
 
   run(function() {
     store.find('chapter', 1).then(function(chapter) {
-      var relationship = chapter.reference._relationships['pages'];
+      var relationship = chapter._internalModel._relationships['pages'];
       equal(relationship.hasData, true, 'relationship has data');
     });
   });
@@ -1365,7 +1365,7 @@ test("hasMany hasData sync loaded", function () {
 
   run(function() {
     store.find('chapter', 1).then(function(chapter) {
-      var relationship = chapter.reference._relationships['pages'];
+      var relationship = chapter._internalModel._relationships['pages'];
       equal(relationship.hasData, true, 'relationship has data');
     });
   });
@@ -1384,7 +1384,7 @@ test("hasMany hasData async not loaded", function () {
 
   run(function() {
     store.find('chapter', 1).then(function(chapter) {
-      var relationship = chapter.reference._relationships['pages'];
+      var relationship = chapter._internalModel._relationships['pages'];
       equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
@@ -1399,7 +1399,7 @@ test("hasMany hasData sync not loaded", function () {
 
   run(function() {
     store.find('chapter', 1).then(function(chapter) {
-      var relationship = chapter.reference._relationships['pages'];
+      var relationship = chapter._internalModel._relationships['pages'];
       equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
@@ -1414,7 +1414,7 @@ test("hasMany hasData async created", function () {
 
   run(function() {
     var chapter = store.createRecord('chapter', { title: 'The Story Begins' });
-    var relationship = chapter.reference._relationships['pages'];
+    var relationship = chapter._internalModel._relationships['pages'];
     equal(relationship.hasData, true, 'relationship has data');
   });
 });
@@ -1424,7 +1424,7 @@ test("hasMany hasData sync created", function () {
 
   run(function() {
     var chapter = store.createRecord('chapter', { title: 'The Story Begins' });
-    var relationship = chapter.reference._relationships['pages'];
+    var relationship = chapter._internalModel._relationships['pages'];
     equal(relationship.hasData, true, 'relationship has data');
   });
 });

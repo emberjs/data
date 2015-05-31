@@ -94,7 +94,7 @@ Reference.prototype = {
       store: this.store,
       container: this.container
     });
-    this.record.reference = this;
+    this.record._internalModel = this;
     //TODO Probably should call deferred triggers here
   },
 
@@ -341,7 +341,7 @@ Reference.prototype = {
   */
   transitionTo: function(name) {
     // POSSIBLE TODO: Remove this code and replace with
-    // always having direct references to state objects
+    // always having direct reference to state objects
 
     var pivotName = extractPivotName(name);
     var currentState = get(this, 'currentState');
@@ -520,13 +520,13 @@ Reference.prototype = {
     this._relationships[key].setRecord(recordToSet);
   },
 
-  //TODO Rename to reference
+  //TODO Rename to internalModel
   _convertStringOrNumberIntoRecord: function(value, type) {
     if (Ember.typeOf(value) === 'string' || Ember.typeOf(value) === 'number') {
-      return this.store.referenceForId(type, value);
+      return this.store._internalModelForId(type, value);
     }
-    if (value.reference) {
-      return value.reference;
+    if (value._internalModel) {
+      return value._internalModel;
     }
     return value;
   },

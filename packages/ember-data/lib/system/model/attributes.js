@@ -300,27 +300,27 @@ export default function attr(type, options) {
 
   return computedPolyfill({
     get: function(key) {
-      var reference = this.reference;
-      if (hasValue(reference, key)) {
-        return getValue(reference, key);
+      var internalModel = this._internalModel;
+      if (hasValue(internalModel, key)) {
+        return getValue(internalModel, key);
       } else {
         return getDefaultValue(this, options, key);
       }
     },
     set: function(key, value) {
       Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
-      var reference = this.reference;
-      var oldValue = getValue(reference, key);
+      var internalModel = this._internalModel;
+      var oldValue = getValue(internalModel, key);
 
       if (value !== oldValue) {
         // Add the new value to the changed attributes hash; it will get deleted by
         // the 'didSetProperty' handler if it is no different from the original value
-        reference._attributes[key] = value;
+        internalModel._attributes[key] = value;
 
-        this.reference.send('didSetProperty', {
+        this._internalModel.send('didSetProperty', {
           name: key,
           oldValue: oldValue,
-          originalValue: reference._data[key],
+          originalValue: internalModel._data[key],
           value: value
         });
       }
