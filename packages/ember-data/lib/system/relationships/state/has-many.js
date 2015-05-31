@@ -87,10 +87,10 @@ ManyRelationship.prototype.removeRecordFromOwn = function(record, idx) {
 
 ManyRelationship.prototype.notifyRecordRelationshipAdded = function(record, idx) {
   var type = this.relationshipMeta.type;
-  //TODO GAAAAAA, we need to do a subclass check here insted of instance of
   Ember.assert("You cannot add '" + record.type.modelName + "' records to the " + this.record.type.modelName + "." + this.key + " relationship (only '" + this.belongsToType.modelName + "' allowed)", (function () {
     if (type.__isMixin) {
-      //TODO What am I doing here, ask Stef/Wycats what to do
+      //TODO Need to do this in order to support mixins, should convert to public api
+      //once it exists in Ember
       return type.__mixin.detect(record.type.PrototypeMixin);
     }
     if (Ember.MODEL_FACTORY_INJECTIONS) {
@@ -158,7 +158,7 @@ ManyRelationship.prototype.fetchLink = function() {
 ManyRelationship.prototype.findRecords = function() {
   var manyArray = this.manyArray;
   //TODO CLEANUP
-  return this.store.findMany(map(manyArray.toArray(), function(rec) { return rec.reference; })).then(function() {
+  return this.store.findMany(map(manyArray.toArray(), function(rec) { return rec._internalModel; })).then(function() {
     //Goes away after the manyArray refactor
     manyArray.set('isLoaded', true);
     return manyArray;

@@ -90,8 +90,8 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   */
   objectAtContent: function(index) {
     var content = get(this, 'content');
-    var reference = content.objectAt(index);
-    return reference && reference.getRecord();
+    var internalModel = content.objectAt(index);
+    return internalModel && internalModel.getRecord();
   },
 
   /**

@@ -28,7 +28,7 @@ export function _find(adapter, store, typeClass, id, record) {
 
       //TODO Optimize
       var record = store.push(typeClass, payload);
-      return record.reference;
+      return record._internalModel;
     });
   }, function(error) {
     record.notFound();
@@ -62,7 +62,7 @@ export function _findMany(adapter, store, typeClass, ids, records) {
 
       //TODO Optimize, no need to materialize here
       var records = store.pushMany(typeClass, payload);
-      return map(records, function(record) { return record.reference; });
+      return map(records, function(record) { return record._internalModel; });
     });
   }, null, "DS: Extract payload of " + typeClass);
 }
@@ -85,7 +85,7 @@ export function _findHasMany(adapter, store, record, link, relationship) {
 
       //TODO Use a non record creating push
       var records = store.pushMany(relationship.type, payload);
-      return map(records, function(record) { return record.reference; });
+      return map(records, function(record) { return record._internalModel; });
     });
   }, null, "DS: Extract payload of " + record + " : hasMany " + relationship.type);
 }
@@ -110,7 +110,7 @@ export function _findBelongsTo(adapter, store, record, link, relationship) {
 
       var record = store.push(relationship.type, payload);
       //TODO Optimize
-      return record.reference;
+      return record._internalModel;
     });
   }, null, "DS: Extract payload of " + record + " : " + relationship.type);
 }

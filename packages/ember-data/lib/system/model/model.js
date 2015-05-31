@@ -12,13 +12,17 @@ var RESERVED_MODEL_PROPS = [
 ];
 
 var retrieveFromCurrentState = Ember.computed('currentState', function(key) {
-  return get(this.reference.currentState, key);
+  return get(this._internalModel.currentState, key);
 }).readOnly();
 
 
 /**
 
   The model class that all Ember Data records descend from.
+  This is the public API of Ember Data models. If you are using Ember Data
+  in your application, this is the class you should use.
+  If you are working on Ember Data internals, you most likely want to be dealing
+  with `InternalModel`
 
   @class Model
   @namespace DS
@@ -238,6 +242,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @readOnly
   */
   isError: false,
+
   /**
     If `true` the store is attempting to reload the record form the adapter.
 
@@ -255,7 +260,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   isReloading: false,
 
-  clientId: null,
   /**
     All ember models have an id property. This is an identifier
     managed by an external source. These are always coerced to be
@@ -277,12 +281,10 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   id: null,
 
-  //TODO proxy from internal
   /**
     @property currentState
     @private
     @type {Object}
-  currentState: RootState.empty,
   */
 
   /**
@@ -337,7 +339,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @type {DS.Errors}
   */
   errors: Ember.computed(function() {
-    return this.reference.getErrors();
+    return this._internalModel.getErrors();
   }).readOnly(),
 
   /**
@@ -448,54 +450,27 @@ var Model = Ember.Object.extend(Ember.Evented, {
   }).readOnly(),
 
 
-  //TODO Enable this as public props once we are not using them internally
+  //TODO Do we want to deprecate these?
   /**
     @method send
     @private
     @param {String} name
     @param {Object} context
+  */
   send: function(name, context) {
-    return this.reference.send(name, context);
+    return this._internalModel.send(name, context);
   },
 
   /**
     @method transitionTo
     @private
     @param {String} name
-  transitionTo: function(name) {
-    return this.reference.transitionTo(name);
-  },
-
-
-  /**
-    @method loadingData
-    @private
-    @param {Promise} promise
-  loadingData: function(promise) {
-    this.send('loadingData', promise);
-  },
-
-  /**
-    @method loadedData
-    @private
-  loadedData: function() {
-    this.send('loadedData');
-  },
-
-  /**
-    @method notFound
-    @private
-  notFound: function() {
-    this.send('notFound');
-  },
-
-  /**
-    @method pushedData
-    @private
-  pushedData: function() {
-    this.send('pushedData');
-  },
   */
+  transitionTo: function(name) {
+    return this._internalModel.transitionTo(name);
+  },
+
+
   /**
     Marks the record as deleted but does not save it. You must call
     `save` afterwards if you want to persist it. You might use this
@@ -523,7 +498,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @method deleteRecord
   */
   deleteRecord: function() {
-    this.reference.deleteRecord();
+    this._internalModel.deleteRecord();
   },
 
   /**
@@ -559,7 +534,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   unloadRecord: function() {
     if (this.isDestroyed) { return; }
-    this.reference.unloadRecord();
+    this._internalModel.unloadRecord();
   },
 
   /**
@@ -599,8 +574,8 @@ var Model = Ember.Object.extend(Ember.Evented, {
       and value is an [oldProp, newProp] array.
   */
   changedAttributes: function() {
-    var oldData = get(this.reference, '_data');
-    var newData = get(this.reference, '_attributes');
+    var oldData = get(this._internalModel, '_data');
+    var newData = get(this._internalModel, '_attributes');
     var diffData = {};
     var prop;
 
@@ -611,6 +586,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     return diffData;
   },
 
+  //TODO discuss with tomhuda about events/hooks
   //Bring back as hooks?
   /**
     @method adapterWillCommit
@@ -646,17 +622,16 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @method rollback
   */
   rollback: function() {
-    this.reference.rollback();
+    this._internalModel.rollback();
   },
 
 
-  //TODO not sure what to do
   /*
     @method _createSnapshot
     @private
   */
   _createSnapshot: function() {
-    return this.reference._createSnapshot();
+    return this._internalModel._createSnapshot();
   },
 
   toStringExtension: function() {
@@ -684,7 +659,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   save: function() {
     var model = this;
     return PromiseObject.create({
-      promise: this.reference.save().then(function() {
+      promise: this._internalModel.save().then(function() {
         return model;
       })
     });
@@ -719,7 +694,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   reload: function() {
     var model = this;
     return PromiseObject.create({
-      promise: this.reference.reload().then(function() {
+      promise: this._internalModel.reload().then(function() {
         return model;
       })
     });
@@ -749,10 +724,10 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
   willDestroy: function() {
     //TODO Move!
-    this.reference.clearRelationships();
-    this.reference.recordObjectWillDestroy();
+    this._internalModel.clearRelationships();
+    this._internalModel.recordObjectWillDestroy();
     this._super.apply(this, arguments);
-    //TODO should we set reference to null here?
+    //TODO should we set internalModel to null here?
   },
 
   // This is a temporary solution until we refactor DS.Model to not

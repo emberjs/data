@@ -31,6 +31,32 @@ test("a record receives a didLoad callback when it has finished loading", functi
   });
 });
 
+test("TEMPORARY: a record receives a didLoad callback once it materializes if it wasn't materialized when loaded", function() {
+  expect(2);
+  var didLoadCalled = 0;
+  var Person = DS.Model.extend({
+    name: DS.attr(),
+    didLoad: function() {
+      didLoadCalled++;
+    }
+  });
+
+  var store = createStore({
+    person: Person
+  });
+
+  run(function() {
+    store._pushInternalModel('person', { id: 1 });
+    equal(didLoadCalled, 0, "didLoad was not called");
+  });
+  run(function() {
+    store.getById('person', 1);
+  });
+  run(function() {
+    equal(didLoadCalled, 1, "didLoad was called");
+  });
+});
+
 test("a record receives a didUpdate callback when it has finished updating", function() {
   expect(5);
 

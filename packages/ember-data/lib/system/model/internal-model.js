@@ -31,7 +31,21 @@ function retrieveFromCurrentState(key) {
   };
 }
 
-var Reference = function(type, id, store, container, data) {
+/*
+  `InternalModel` is the Model class that we use internally inside Ember Data to represent models.
+  Internal ED methods should only deal with `InternalModel` objects. It is a fast, plain Javascript class.
+
+  We expose `DS.Model` to application code, by materializing a `DS.Model` from `InternalModel` lazily, as
+  a performance optimization.
+
+  `InternalModel` should never be exposed to application code. At the boundaries of the system, in places
+  like `find`, `push`, etc. we convert between Models and InternalModels.
+
+  We need to make sure that the properties from `InternalModel` are correctly exposed/proxied on `Model`
+  if they are needed.
+*/
+
+var InternalModel = function(type, id, store, container, data) {
   this.type = type;
   this.id = id;
   this.store = store;
@@ -74,7 +88,7 @@ var Reference = function(type, id, store, container, data) {
   });
 };
 
-Reference.prototype = {
+InternalModel.prototype = {
   isEmpty: retrieveFromCurrentState('isEmpty'),
   isLoading: retrieveFromCurrentState('isLoading'),
   isLoaded: retrieveFromCurrentState('isLoaded'),
@@ -85,7 +99,7 @@ Reference.prototype = {
   isValid: retrieveFromCurrentState('isValid'),
   dirtyType: retrieveFromCurrentState('dirtyType'),
 
-  constructor: Reference,
+  constructor: InternalModel,
   materializeRecord: function() {
     // lookupFactory should really return an object that creates
     // instances with the injections applied
@@ -94,8 +108,8 @@ Reference.prototype = {
       store: this.store,
       container: this.container
     });
-    this.record.reference = this;
-    //TODO Probably should call deferred triggers here
+    this.record._internalModel = this;
+    this._triggerDeferredTriggers();
   },
 
   recordObjectWillDestroy: function() {
@@ -139,8 +153,6 @@ Reference.prototype = {
     return new Promise(function(resolve) {
       record.send('reloadRecord', resolve);
     }, promiseLabel).then(function() {
-      //TODO FIXMEMEMEMEME
-      record.record.set('isReloading', false);
       record.didCleanError();
       return record;
     }, function(reason) {
@@ -302,6 +314,7 @@ Reference.prototype = {
       this.record.notifyPropertyChange(key);
     }
   },
+
   rollback: function() {
     var dirtyKeys = Ember.keys(this._attributes);
 
@@ -341,7 +354,7 @@ Reference.prototype = {
   */
   transitionTo: function(name) {
     // POSSIBLE TODO: Remove this code and replace with
-    // always having direct references to state objects
+    // always having direct reference to state objects
 
     var pivotName = extractPivotName(name);
     var currentState = get(this, 'currentState');
@@ -407,10 +420,10 @@ Reference.prototype = {
     Ember.run.schedule('actions', this, '_triggerDeferredTriggers');
   },
 
-  //TODO double check whether we care about having the record
   _triggerDeferredTriggers: function() {
-    //TODO Worry about didLoad etc. that people might be defining/using
-    //Queue up, to be ran once there is a record
+    //TODO: Before 1.0 we want to remove all the events that happen on the pre materialized record,
+    //but for now, we queue up all the events triggered before the record was materialized, and flush
+    //them once we have the record
     if (!this.record) {
       return;
     }
@@ -505,7 +518,7 @@ Reference.prototype = {
     var record = this;
 
     var recordsToSet = map.call(preloadValue, function(recordToPush) {
-      return record._convertStringOrNumberIntoRecord(recordToPush, type);
+      return record._convertStringOrNumberIntoInternalModel(recordToPush, type);
     });
     //We use the pathway of setting the hasMany as if it came from the adapter
     //because the user told us that they know this relationships exists already
@@ -513,20 +526,19 @@ Reference.prototype = {
   },
 
   _preloadBelongsTo: function(key, preloadValue, type) {
-    var recordToSet = this._convertStringOrNumberIntoRecord(preloadValue, type);
+    var recordToSet = this._convertStringOrNumberIntoInternalModel(preloadValue, type);
 
     //We use the pathway of setting the hasMany as if it came from the adapter
     //because the user told us that they know this relationships exists already
     this._relationships[key].setRecord(recordToSet);
   },
 
-  //TODO Rename to reference
-  _convertStringOrNumberIntoRecord: function(value, type) {
+  _convertStringOrNumberIntoInternalModel: function(value, type) {
     if (Ember.typeOf(value) === 'string' || Ember.typeOf(value) === 'number') {
-      return this.store.referenceForId(type, value);
+      return this.store._internalModelForId(type, value);
     }
-    if (value.reference) {
-      return value.reference;
+    if (value._internalModel) {
+      return value._internalModel;
     }
     return value;
   },
@@ -678,4 +690,4 @@ function mergeAndReturnChangedKeys(original, updates) {
   return changedKeys;
 }
 
-export default Reference;
+export default InternalModel;

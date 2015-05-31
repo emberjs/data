@@ -62,10 +62,10 @@ BelongsToRelationship.prototype._super$addRecord = Relationship.prototype.addRec
 BelongsToRelationship.prototype.addRecord = function(newRecord) {
   if (this.members.has(newRecord)) { return;}
   var type = this.relationshipMeta.type;
-  //TODO GAAAAAA, we need to do a subclass check here insted of instance of
   Ember.assert("You cannot add a '" + newRecord.type.modelName + "' record to the '" + this.record.type.modelName + "." + this.key +"'. " + "You can only add a '" + type.modelName + "' record to this relationship.", (function () {
     if (type.__isMixin) {
-      //TODO What am I doing here, ask Stef/Wycats what to do
+      //TODO Need to do this in order to support mixins, should convert to public api
+      //once it exists in Ember
       return type.__mixin.detect(newRecord.type.PrototypeMixin);
     }
     if (Ember.MODEL_FACTORY_INJECTIONS) {
