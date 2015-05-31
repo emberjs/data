@@ -2,7 +2,6 @@ import merge from "ember-data/system/merge";
 import RootState from "ember-data/system/model/states";
 import createRelationshipFor from "ember-data/system/relationships/state/create";
 import Snapshot from "ember-data/system/snapshot";
-import { PromiseObject } from "ember-data/system/promise-proxies";
 import Errors from "ember-data/system/model/errors";
 
 var Promise = Ember.RSVP.Promise;
@@ -116,9 +115,7 @@ Reference.prototype = {
     this._inFlightAttributes = this._attributes;
     this._attributes = Ember.create(null);
 
-    return PromiseObject.create({
-      promise: resolver.promise
-    });
+    return resolver.promise;
   },
 
   startedReloading: function() {
@@ -184,7 +181,7 @@ Reference.prototype = {
     if (this.record) {
       this.record._notifyProperties(changedKeys);
     }
-    this.didIinitalizeData();
+    this.didInitalizeData();
   },
 
   becameReady: function() {
@@ -194,7 +191,7 @@ Reference.prototype = {
     });
   },
 
-  didIinitalizeData: function() {
+  didInitalizeData: function() {
     if (!this.dataHasInitialized) {
       this.becameReady();
       this.dataHasInitialized = true;
@@ -230,7 +227,7 @@ Reference.prototype = {
   */
   loadedData: function() {
     this.send('loadedData');
-    this.didIinitalizeData();
+    this.didInitalizeData();
   },
 
   /**
