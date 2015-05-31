@@ -12,7 +12,7 @@ var RESERVED_MODEL_PROPS = [
 ];
 
 var retrieveFromCurrentState = Ember.computed('currentState', function(key) {
-  return get(this.reference.currentState, key);
+  return get(this._ghost.currentState, key);
 }).readOnly();
 
 
@@ -337,7 +337,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @type {DS.Errors}
   */
   errors: Ember.computed(function() {
-    return this.reference.getErrors();
+    return this._ghost.getErrors();
   }).readOnly(),
 
   /**
@@ -455,7 +455,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @param {String} name
     @param {Object} context
   send: function(name, context) {
-    return this.reference.send(name, context);
+    return this._ghost.send(name, context);
   },
 
   /**
@@ -463,7 +463,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @private
     @param {String} name
   transitionTo: function(name) {
-    return this.reference.transitionTo(name);
+    return this._ghost.transitionTo(name);
   },
 
 
@@ -523,7 +523,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @method deleteRecord
   */
   deleteRecord: function() {
-    this.reference.deleteRecord();
+    this._ghost.deleteRecord();
   },
 
   /**
@@ -559,7 +559,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   unloadRecord: function() {
     if (this.isDestroyed) { return; }
-    this.reference.unloadRecord();
+    this._ghost.unloadRecord();
   },
 
   /**
@@ -599,8 +599,8 @@ var Model = Ember.Object.extend(Ember.Evented, {
       and value is an [oldProp, newProp] array.
   */
   changedAttributes: function() {
-    var oldData = get(this.reference, '_data');
-    var newData = get(this.reference, '_attributes');
+    var oldData = get(this._ghost, '_data');
+    var newData = get(this._ghost, '_attributes');
     var diffData = {};
     var prop;
 
@@ -646,7 +646,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @method rollback
   */
   rollback: function() {
-    this.reference.rollback();
+    this._ghost.rollback();
   },
 
 
@@ -656,7 +656,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @private
   */
   _createSnapshot: function() {
-    return this.reference._createSnapshot();
+    return this._ghost._createSnapshot();
   },
 
   toStringExtension: function() {
@@ -683,7 +683,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   save: function() {
     var model = this;
-    return this.reference.save().then(function() {
+    return this._ghost.save().then(function() {
       return model;
     });
   },
@@ -717,7 +717,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   reload: function() {
     var model = this;
     return PromiseObject.create({
-      promise: this.reference.reload().then(function() {
+      promise: this._ghost.reload().then(function() {
         return model;
       })
     });
@@ -747,10 +747,10 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
   willDestroy: function() {
     //TODO Move!
-    this.reference.clearRelationships();
-    this.reference.recordObjectWillDestroy();
+    this._ghost.clearRelationships();
+    this._ghost.recordObjectWillDestroy();
     this._super.apply(this, arguments);
-    //TODO should we set reference to null here?
+    //TODO should we set ghost to null here?
   },
 
   // This is a temporary solution until we refactor DS.Model to not

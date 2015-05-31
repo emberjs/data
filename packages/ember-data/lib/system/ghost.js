@@ -32,7 +32,7 @@ function retrieveFromCurrentState(key) {
   };
 }
 
-var Reference = function(type, id, store, container, data) {
+var Ghost = function(type, id, store, container, data) {
   this.type = type;
   this.id = id;
   this.store = store;
@@ -75,7 +75,7 @@ var Reference = function(type, id, store, container, data) {
   });
 };
 
-Reference.prototype = {
+Ghost.prototype = {
   isEmpty: retrieveFromCurrentState('isEmpty'),
   isLoading: retrieveFromCurrentState('isLoading'),
   isLoaded: retrieveFromCurrentState('isLoaded'),
@@ -86,7 +86,7 @@ Reference.prototype = {
   isValid: retrieveFromCurrentState('isValid'),
   dirtyType: retrieveFromCurrentState('dirtyType'),
 
-  constructor: Reference,
+  constructor: Ghost,
   materializeRecord: function() {
     // lookupFactory should really return an object that creates
     // instances with the injections applied
@@ -95,7 +95,7 @@ Reference.prototype = {
       store: this.store,
       container: this.container
     });
-    this.record.reference = this;
+    this.record._ghost = this;
     //TODO Probably should call deferred triggers here
   },
 
@@ -344,7 +344,7 @@ Reference.prototype = {
   */
   transitionTo: function(name) {
     // POSSIBLE TODO: Remove this code and replace with
-    // always having direct references to state objects
+    // always having direct ghosts to state objects
 
     var pivotName = extractPivotName(name);
     var currentState = get(this, 'currentState');
@@ -523,13 +523,13 @@ Reference.prototype = {
     this._relationships[key].setRecord(recordToSet);
   },
 
-  //TODO Rename to reference
+  //TODO Rename to ghost
   _convertStringOrNumberIntoRecord: function(value, type) {
     if (Ember.typeOf(value) === 'string' || Ember.typeOf(value) === 'number') {
-      return this.store.referenceForId(type, value);
+      return this.store._ghostForId(type, value);
     }
-    if (value.reference) {
-      return value.reference;
+    if (value._ghost) {
+      return value._ghost;
     }
     return value;
   },
@@ -681,4 +681,4 @@ function mergeAndReturnChangedKeys(original, updates) {
   return changedKeys;
 }
 
-export default Reference;
+export default Ghost;
