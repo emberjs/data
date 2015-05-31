@@ -6,6 +6,7 @@ import JSONSerializer from "ember-data/serializers/json-serializer";
 import normalizeModelName from "ember-data/system/normalize-model-name";
 import {singularize} from "ember-inflector/lib/system/string";
 import coerceId from "ember-data/system/coerce-id";
+import { pushPayload } from "ember-data/system/store/serializer-response";
 
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
@@ -55,6 +56,7 @@ var camelize = Ember.String.camelize;
   @extends DS.JSONSerializer
 */
 var RESTSerializer = JSONSerializer.extend({
+
   /**
     If you want to do normalizations specific to some part of the payload, you
     can specify those under `normalizeHash`.
@@ -173,6 +175,11 @@ var RESTSerializer = JSONSerializer.extend({
     @return {Object}
   */
   normalize: function(typeClass, hash, prop) {
+    if (Ember.FEATURES.isEnabled('ds-new-serializer-api') && this.get('isNewSerializerAPI')) {
+      _newNormalize.apply(this, arguments);
+      return this._super(...arguments);
+    }
+
     this.normalizeId(hash);
     this.normalizeAttributes(typeClass, hash);
     this.normalizeRelationships(typeClass, hash);
@@ -187,6 +194,150 @@ var RESTSerializer = JSONSerializer.extend({
     return hash;
   },
 
+  /*
+    Normalizes an array of resource payloads and returns a JSON-API Document
+    with primary data and, if any, included data as `{ data, included }`.
+
+    @method normalizeArray
+    @param {DS.Store} store
+    @param {String} modelName
+    @param {Object} arrayHash
+    @param {String} prop
+    @return {Object}
+  */
+  normalizeArray: function(store, modelName, arrayHash, prop) {
+    let documentHash = {
+      data: [],
+      included: []
+    };
+
+    let modelClass = store.modelFor(modelName);
+    let serializer = store.serializerFor(modelName);
+
+    /*jshint loopfunc:true*/
+    forEach.call(arrayHash, (hash) => {
+      let { data, included } = serializer.normalize(modelClass, hash, prop);
+      documentHash.data.push(data);
+      documentHash.included.push(...included);
+    }, this);
+
+    return documentHash;
+  },
+
+  /*
+    @method _normalizeResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @param {Boolean} isSingle
+    @return {Object} JSON-API Document
+    @private
+  */
+  _normalizeResponse: function(store, primaryModelClass, payload, id, requestType, isSingle) {
+    var document = {
+      data: null,
+      included: []
+    };
+
+    Ember.keys(payload).forEach((prop) => {
+      var modelName = prop;
+      var forcedSecondary = false;
+
+      /*
+        If you want to provide sideloaded records of the same type that the
+        primary data you can do that by prefixing the key with `_`.
+
+        Example
+
+        ```
+        {
+          users: [
+            { id: 1, title: 'Tom', manager: 3 },
+            { id: 2, title: 'Yehuda', manager: 3 }
+          ],
+          _users: [
+            { id: 3, title: 'Tomster' }
+          ]
+        }
+        ```
+
+        This forces `_users` to be added to `included` instead of `data`.
+       */
+      if (prop.charAt(0) === '_') {
+        forcedSecondary = true;
+        modelName = prop.substr(1);
+      }
+
+      var typeName = this.modelNameFromPayloadKey(modelName);
+      if (!store.modelFactoryFor(typeName)) {
+        Ember.warn(this.warnMessageNoModelForKey(modelName, typeName), false);
+        return;
+      }
+
+      var isPrimary = (!forcedSecondary && this.isPrimaryType(store, typeName, primaryModelClass));
+      var value = payload[prop];
+
+      if (value === null) {
+        return;
+      }
+
+      /*
+        Support primary data as an object instead of an array.
+
+        Example
+
+        ```
+        {
+          user: { id: 1, title: 'Tom', manager: 3 }
+        }
+        ```
+       */
+      if (isPrimary && Ember.typeOf(value) !== 'array') {
+        let { data, included } = this.normalize(primaryModelClass, value, prop);
+        document.data = data;
+        document.included.push(...included);
+        return;
+      }
+
+      let { data, included } = this.normalizeArray(store, typeName, value, prop);
+
+      document.included.push(...included);
+
+      if (isSingle) {
+        /*jshint loopfunc:true*/
+        forEach.call(data, function(resource) {
+
+          /*
+            Figures out if this is the primary record or not.
+
+            It's either:
+
+            1. The record with the same ID as the original request
+            2. If it's a newly created record without an ID, the first record
+               in the array
+           */
+          var isUpdatedRecord = isPrimary && coerceId(resource.id) === id;
+          var isFirstCreatedRecord = isPrimary && !id && !document.data;
+
+          if (isFirstCreatedRecord || isUpdatedRecord) {
+            document.data = resource;
+          } else {
+            document.included.push(resource);
+          }
+        });
+      } else {
+        if (isPrimary) {
+          document.data = data;
+        } else {
+          document.included.push(...data);
+        }
+      }
+    });
+
+    return document;
+  },
 
   /**
     Called when the server has returned a payload representing
@@ -494,6 +645,11 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} rawPayload
   */
   pushPayload: function(store, rawPayload) {
+    if (Ember.FEATURES.isEnabled('ds-new-serializer-api') && this.get('isNewSerializerAPI')) {
+      _newPushPayload.apply(this, arguments);
+      return;
+    }
+
     var payload = this.normalizePayload(rawPayload);
 
     for (var prop in payload) {
@@ -855,3 +1011,49 @@ Ember.runInDebug(function() {
 });
 
 export default RESTSerializer;
+
+/*
+  @method _newNormalize
+  @param {DS.Model} modelClass
+  @param {Object} resourceHash
+  @param {String} prop
+  @return {Object}
+  @private
+*/
+function _newNormalize(modelClass, resourceHash, prop) {
+  if (this.normalizeHash && this.normalizeHash[prop]) {
+    this.normalizeHash[prop](resourceHash);
+  }
+}
+
+/*
+  @method _newPushPayload
+  @param {DS.Store} store
+  @param {Object} rawPayload
+*/
+function _newPushPayload(store, rawPayload) {
+  let documentHash = {
+    data: [],
+    included: []
+  };
+  let payload = this.normalizePayload(rawPayload);
+
+  for (var prop in payload) {
+    var modelName = this.modelNameFromPayloadKey(prop);
+    if (!store.modelFactoryFor(modelName)) {
+      Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false);
+      continue;
+    }
+    var type = store.modelFor(modelName);
+    var typeSerializer = store.serializerFor(type);
+
+    /*jshint loopfunc:true*/
+    forEach.call(Ember.makeArray(payload[prop]), (hash) => {
+      let { data, included } = typeSerializer.normalize(type, hash, prop);
+      documentHash.data.push(data);
+      documentHash.included.push(...included);
+    }, this);
+  }
+
+  pushPayload(store, documentHash);
+}
