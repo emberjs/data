@@ -256,7 +256,7 @@ test("a record array should return a promise when updating", function() {
     return Ember.RSVP.resolve(array);
   };
 
-  recordArray = store.all(Person);
+  recordArray = store.all('person');
   run(function() {
     promise = recordArray.update();
   });

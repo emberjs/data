@@ -378,7 +378,7 @@ test("filter with query persists query on the resulting filteredRecordArray", fu
   var filter;
 
   run(function() {
-    filter = store.filter(Person, { foo: 1 }, function(person) {
+    filter = store.filter('person', { foo: 1 }, function(person) {
       return true;
     });
   });
@@ -400,7 +400,7 @@ test("it is possible to filter by state flags", function() {
       }
     }));
 
-    filter = store.filter(Person, function(person) {
+    filter = store.filter('person', function(person) {
       return person.get('isLoaded');
     });
   });

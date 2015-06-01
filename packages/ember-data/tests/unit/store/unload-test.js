@@ -4,17 +4,20 @@ var store, tryToFind, Record;
 
 module("unit/store/unload - Store unloading records", {
   setup: function() {
-    store = createStore({ adapter: DS.Adapter.extend({
-        find: function(store, type, id, snapshot) {
-          tryToFind = true;
-          return Ember.RSVP.resolve({ id: id, wasFetched: true });
-        }
-      })
-    });
 
     Record = DS.Model.extend({
       title: DS.attr('string'),
       wasFetched: DS.attr('boolean')
+    });
+
+    store = createStore({
+      adapter: DS.Adapter.extend({
+        find: function(store, type, id, snapshot) {
+          tryToFind = true;
+          return Ember.RSVP.resolve({ id: id, wasFetched: true });
+        }
+      }),
+      record: Record
     });
   },
 
@@ -54,8 +57,8 @@ test("unload a record", function() {
   expect(5);
 
   run(function() {
-    store.push(Record, { id: 1, title: 'toto' });
-    store.find(Record, 1).then(function(record) {
+    store.push('record', { id: 1, title: 'toto' });
+    store.find('record', 1).then(function(record) {
       equal(get(record, 'id'), 1, "found record with id 1");
       equal(get(record, 'isDirty'), false, "record is not dirty");
 
@@ -67,7 +70,7 @@ test("unload a record", function() {
       equal(get(record, 'isDeleted'), true, "record is deleted");
 
       tryToFind = false;
-      return store.find(Record, 1).then(function() {
+      return store.find('record', 1).then(function() {
         equal(tryToFind, true, "not found record with id 1");
       });
     });

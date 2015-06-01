@@ -134,11 +134,11 @@ test("A dirty record can be reloaded", function() {
     }
   });
 
-  var store = createStore({ adapter: adapter });
+  var store = createStore({ adapter: adapter, person: Person });
   var person;
 
   run(function() {
-    person = store.push(Person, { id: 1, name: "Tom Dale" });
+    person = store.push('person', { id: 1, name: "Tom Dale" });
     person.set('name', "Tomasz Dale");
   });
 
