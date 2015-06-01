@@ -1254,8 +1254,9 @@ Store = Service.extend({
     @param {Resolver} resolver
   */
   scheduleSave: function(record, resolver) {
+    var snapshot = record._createSnapshot();
     record.adapterWillCommit();
-    this._pendingSave.push([record, resolver]);
+    this._pendingSave.push([snapshot, resolver]);
     once(this, 'flushPendingSave');
   },
 
@@ -1271,8 +1272,9 @@ Store = Service.extend({
     this._pendingSave = [];
 
     forEach(pending, function(tuple) {
-      var record = tuple[0];
+      var snapshot = tuple[0];
       var resolver = tuple[1];
+      var record = snapshot.record;
       var adapter = this.adapterFor(record.constructor);
       var operation;
 
@@ -1286,7 +1288,7 @@ Store = Service.extend({
         operation = 'updateRecord';
       }
 
-      resolver.resolve(_commit(adapter, this, operation, record));
+      resolver.resolve(_commit(adapter, this, operation, snapshot));
     }, this);
   },
 
@@ -2022,9 +2024,9 @@ function defaultSerializer(container) {
          container.lookup('serializer:-default');
 }
 
-function _commit(adapter, store, operation, record) {
-  var type = record.constructor;
-  var snapshot = record._createSnapshot();
+function _commit(adapter, store, operation, snapshot) {
+  var record = snapshot.record;
+  var type = snapshot.type;
   var promise = adapter[operation](store, type, snapshot);
   var serializer = serializerForAdapter(store, adapter, type);
   var label = "DS: Extract and notify about " + operation + " completion of " + record;
@@ -2040,7 +2042,7 @@ function _commit(adapter, store, operation, record) {
 
     store._adapterRun(function() {
       if (adapterPayload) {
-        payload = serializer.extract(store, type, adapterPayload, get(record, 'id'), operation);
+        payload = serializer.extract(store, type, adapterPayload, get(snapshot, 'id'), operation);
       }
       store.didSaveRecord(record, payload);
     });
@@ -2048,7 +2050,7 @@ function _commit(adapter, store, operation, record) {
     return record;
   }, function(reason) {
     if (reason instanceof InvalidError) {
-      var errors = serializer.extractErrors(store, type, reason.errors, get(record, 'id'));
+      var errors = serializer.extractErrors(store, type, reason.errors, get(snapshot, 'id'));
       store.recordWasInvalid(record, errors);
       reason = new InvalidError(errors);
     } else {

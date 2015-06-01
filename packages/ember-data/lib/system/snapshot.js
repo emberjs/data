@@ -27,6 +27,8 @@ function Snapshot(record) {
   this.type = record.constructor;
   this.modelName = record.constructor.modelName;
 
+  this._changedAttributes = record.changedAttributes();
+
   // The following code is here to keep backwards compatibility when accessing
   // `constructor` directly.
   //
@@ -135,7 +137,7 @@ Snapshot.prototype = {
     Example
 
     ```javascript
-    // store.push('post', { id: 1, author: 'Tomster', title: 'Hello World' });
+    // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
     postSnapshot.attributes(); // => { author: 'Tomster', title: 'Ember.js rocks' }
     ```
 
@@ -144,6 +146,31 @@ Snapshot.prototype = {
   */
   attributes: function() {
     return Ember.copy(this._attributes);
+  },
+
+  /**
+    Returns all changed attributes and their old and new values.
+
+    Example
+
+    ```javascript
+    // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
+    postModel.set('title', 'Ember.js rocks!');
+    postSnapshot.changedAttributes(); // => { title: ['Ember.js rocks', 'Ember.js rocks!'] }
+    ```
+
+    @method changedAttributes
+    @return {Object} All changed attributes of the current snapshot
+  */
+  changedAttributes: function() {
+    var prop;
+    var changedAttributes = Ember.create(null);
+
+    for (prop in this._changedAttributes) {
+      changedAttributes[prop] = Ember.copy(this._changedAttributes[prop]);
+    }
+
+    return changedAttributes;
   },
 
   /**
