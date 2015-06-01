@@ -99,7 +99,7 @@ import BuildURLMixin from "ember-data/adapters/build-url-mixin";
   property on the adapter:
 
   ```js
-  DS.RESTAdapter.reopen({
+  App.ApplicationAdapter = DS.RESTAdapter.extend({
     namespace: 'api/1'
   });
   ```
@@ -110,7 +110,7 @@ import BuildURLMixin from "ember-data/adapters/build-url-mixin";
   An adapter can target other hosts by setting the `host` property.
 
   ```js
-  DS.RESTAdapter.reopen({
+  App.ApplicationAdapter = DS.RESTAdapter.extend({
     host: 'https://api.example.com'
   });
   ```
@@ -281,7 +281,7 @@ export default Adapter.extend(BuildURLMixin, {
     property on the adapter:
 
     ```javascript
-    DS.RESTAdapter.reopen({
+    App.ApplicationAdapter = DS.RESTAdapter.extend({
       namespace: 'api/1'
     });
     ```
@@ -296,7 +296,7 @@ export default Adapter.extend(BuildURLMixin, {
     An adapter can target other hosts by setting the `host` property.
 
     ```javascript
-    DS.RESTAdapter.reopen({
+    App.ApplicationAdapter = DS.RESTAdapter.extend({
       host: 'https://api.example.com'
     });
     ```
