@@ -1,4 +1,5 @@
-import setupContainer from 'ember-data/setup-container';
+import { initializeInjects } from 'ember-data/setup-container';
+import initializeStore from 'ember-data/initializers/store';
 
 var K = Ember.K;
 
@@ -40,9 +41,17 @@ var K = Ember.K;
 
 Ember.onLoad('Ember.Application', function(Application) {
 
+  var instanceInitializer = Application.instanceInitializer || Application.initializer;
+  instanceInitializer = instanceInitializer.bind(Application);
+
   Application.initializer({
     name:       "ember-data",
-    initialize: setupContainer
+    initialize: initializeInjects
+  });
+
+  instanceInitializer({
+    name:       "ember-data-instance-initializer",
+    initialize: initializeStore
   });
 
   // Deprecated initializers to satisfy old code that depended on them
