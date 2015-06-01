@@ -118,7 +118,7 @@ test("embedded records should be created in multiple stores", function() {
 
   run(function() {
     json_main = serializer_main.extractSingle(env.store, HomePlanet, json_hash_main);
-    equal(env.store.hasRecordForId("superVillain", "1"), true, "superVillain should exist in store:main");
+    equal(env.store.hasRecordForId("superVillain", "1"), true, "superVillain should exist in store:application");
   });
 
   run(function() {
