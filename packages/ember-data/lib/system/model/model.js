@@ -889,7 +889,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   changedAttributes: function() {
     var oldData = get(this, '_data');
     var newData = get(this, '_attributes');
-    var diffData = {};
+    var diffData = Ember.create(null);
     var prop;
 
     for (prop in newData) {
@@ -899,11 +899,17 @@ var Model = Ember.Object.extend(Ember.Evented, {
     return diffData;
   },
 
+  flushChangedAttributes: function() {
+    this._inFlightAttributes = this._attributes;
+    this._attributes = Ember.create(null);
+  },
+
   /**
     @method adapterWillCommit
     @private
   */
   adapterWillCommit: function() {
+    this.flushChangedAttributes();
     this.send('willCommit');
   },
 
@@ -1052,8 +1058,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var resolver = Ember.RSVP.defer(promiseLabel);
 
     this.store.scheduleSave(this, resolver);
-    this._inFlightAttributes = this._attributes;
-    this._attributes = Ember.create(null);
 
     return PromiseObject.create({
       promise: resolver.promise
