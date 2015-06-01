@@ -1165,6 +1165,63 @@ test("extractSingle with polymorphic hasMany", function() {
 
 });
 
+test("extractSingle with polymorphic hasMany and custom primary key", function() {
+  SuperVillain.reopen({
+    secretWeapons: DS.hasMany("secretWeapon", { polymorphic: true })
+  });
+
+  env.registry.register('adapter:super-villain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:light-saber', DS.ActiveModelSerializer.extend({
+    primaryKey: 'custom'
+  }));
+  env.registry.register('serializer:super-villain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      secretWeapons: { embedded: 'always' }
+    }
+  }));
+  var serializer = env.container.lookup("serializer:super-villain");
+
+  var json_hash = {
+    super_villain: {
+      id: "1",
+      first_name: "Tom",
+      last_name: "Dale",
+      secret_weapons: [
+        {
+          custom: "1",
+          type: "LightSaber",
+          name: "Tom's LightSaber",
+          color: "Red"
+        },
+        {
+          id: "1",
+          type: "SecretWeapon",
+          name: "The Death Star"
+        }
+      ]
+    }
+  };
+  var json;
+
+  run(function() {
+    json = serializer.extractSingle(env.store, SuperVillain, json_hash);
+  });
+
+  deepEqual(json, {
+    id: "1",
+    firstName: "Tom",
+    lastName: "Dale",
+    secretWeapons: [
+      { id: "1", type: "light-saber" },
+      { id: "1", type: "secret-weapon" }
+    ]
+  }, "Custom primary key of embedded hasMany is correctly normalized");
+
+  equal(env.store.recordForId("lightSaber", "1").get("name"), "Tom's LightSaber", "Embedded polymorphic LightSaber with custom primary key is found");
+  equal(env.store.recordForId("secretWeapon", "1").get("name"), "The Death Star", "Embedded polymorphic SecretWeapon found");
+
+});
+
 test("extractSingle with polymorphic belongsTo", function() {
   expect(2);
 
@@ -1208,6 +1265,55 @@ test("extractSingle with polymorphic belongsTo", function() {
   }, "Primary has was correct");
 
   equal(env.store.recordForId("batCave", "1").get("infiltrated"), true, "Embedded polymorphic BatCave was found");
+
+});
+
+test("extractSingle with polymorphic belongsTo and custom primary key", function() {
+  expect(2);
+
+  SuperVillain.reopen({
+    secretLab: DS.belongsTo("secretLab", { polymorphic: true })
+  });
+
+  env.registry.register('adapter:super-villain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:super-villain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      secretLab: { embedded: 'always' }
+    }
+  }));
+  env.registry.register('serializer:bat-cave', DS.ActiveModelSerializer.extend({
+    primaryKey: 'custom'
+  }));
+  var serializer = env.container.lookup("serializer:super-villain");
+
+  var json_hash = {
+    super_villain: {
+      id: "1",
+      first_name: "Tom",
+      last_name: "Dale",
+      secret_lab: {
+        custom: "1",
+        type: "bat-cave",
+        infiltrated: true
+      }
+    }
+  };
+
+  var json;
+
+  run(function() {
+    json = serializer.extractSingle(env.store, SuperVillain, json_hash);
+  });
+
+  deepEqual(json, {
+    id: "1",
+    firstName: "Tom",
+    lastName: "Dale",
+    secretLab: "1",
+    secretLabType: "bat-cave"
+  }, "Custom primary key is correctly normalized");
+
+  equal(env.store.recordForId("batCave", "1").get("infiltrated"), true, "Embedded polymorphic BatCave with custom primary key is found");
 
 });
 

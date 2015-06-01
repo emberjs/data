@@ -1,4 +1,3 @@
-var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
 var camelize = Ember.String.camelize;
 
@@ -442,11 +441,10 @@ function extractEmbeddedHasManyPolymorphic(store, key, hash) {
     var modelName = data.type;
     var embeddedSerializer = store.serializerFor(modelName);
     var embeddedTypeClass = store.modelFor(modelName);
-    var primaryKey = get(embeddedSerializer, 'primaryKey');
 
     var embeddedRecord = embeddedSerializer.normalize(embeddedTypeClass, data, null);
     store.push(embeddedTypeClass, embeddedRecord);
-    ids.push({ id: embeddedRecord[primaryKey], type: modelName });
+    ids.push({ id: embeddedRecord.id, type: modelName });
   });
 
   hash[key] = ids;
@@ -476,12 +474,11 @@ function extractEmbeddedBelongsToPolymorphic(store, key, hash) {
   var modelName = data.type;
   var embeddedSerializer = store.serializerFor(modelName);
   var embeddedTypeClass = store.modelFor(modelName);
-  var primaryKey = get(embeddedSerializer, 'primaryKey');
 
   var embeddedRecord = embeddedSerializer.normalize(embeddedTypeClass, data, null);
   store.push(embeddedTypeClass, embeddedRecord);
 
-  hash[key] = embeddedRecord[primaryKey];
+  hash[key] = embeddedRecord.id;
   hash[key + 'Type'] = modelName;
   return hash;
 }
