@@ -1262,12 +1262,13 @@ Store = Service.extend({
 
     @method scheduleSave
     @private
-    @param {DS.Model} record
+    @param {InternalModel} record
     @param {Resolver} resolver
   */
-  scheduleSave: function(record, resolver) {
-    var snapshot = record._createSnapshot();
-    record.adapterWillCommit();
+  scheduleSave: function(internalModel, resolver) {
+    var snapshot = internalModel._createSnapshot();
+    internalModel.flushChangedAttributes();
+    internalModel.adapterWillCommit();
     this._pendingSave.push([snapshot, resolver]);
     once(this, 'flushPendingSave');
   },
@@ -2061,7 +2062,7 @@ function _commit(adapter, store, operation, snapshot) {
 
     store._adapterRun(function() {
       if (adapterPayload) {
-        payload = serializer.extract(store, type, adapterPayload, get(snapshot, 'id'), operation);
+        payload = serializer.extract(store, type, adapterPayload, snapshot.id, operation);
       }
       store.didSaveRecord(record, payload);
     });
@@ -2069,7 +2070,7 @@ function _commit(adapter, store, operation, snapshot) {
     return record;
   }, function(reason) {
     if (reason instanceof InvalidError) {
-      var errors = serializer.extractErrors(store, type, reason.errors, get(snapshot, 'id'));
+      var errors = serializer.extractErrors(store, type, reason.errors, snapshot.id);
       store.recordWasInvalid(record, errors);
       reason = new InvalidError(errors);
     } else {

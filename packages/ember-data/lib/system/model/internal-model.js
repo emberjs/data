@@ -266,7 +266,6 @@ InternalModel.prototype = {
     @private
   */
   adapterWillCommit: function() {
-    this.flushChangedAttributes();
     this.send('willCommit');
   },
 
