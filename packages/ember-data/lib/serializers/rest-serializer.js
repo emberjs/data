@@ -791,7 +791,7 @@ var RESTSerializer = JSONSerializer.extend({
   },
 
   /**
-   Deprecated. Use payloadKeyFromModelName instead
+   Deprecated. Use modelNameFromPayloadKey instead
 
     @method typeForRoot
     @param {String} modelName
