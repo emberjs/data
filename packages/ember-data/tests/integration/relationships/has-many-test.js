@@ -1428,3 +1428,42 @@ test("hasMany hasData sync created", function () {
     equal(relationship.hasData, true, 'relationship has data');
   });
 });
+
+// this depends on unique keys for all the records that can show up in the relationship
+test("Polymorphic relationships with hasMany, which are materialized as an array of IDs without a type use the parent type until loaded", function () {
+  expect(4);
+
+  env.adapter.findMany = function (store, type, ids, snapshots) {
+    equal(type, 'message', "The requested type should equal the parent type of the related records");
+    return Ember.RSVP.resolve([
+      {
+        id: 2,
+        type: 'post',
+        title: 'Post'
+      },
+      {
+        id: 3,
+        type: 'comment',
+        body: 'Comment'
+      }
+    ]);
+  };
+
+  run(function () {
+    env.store.push('user', {
+      id: 1,
+      messages: [2, 3]
+    });
+
+    env.store.find('user', 1)
+      .then(function (user) {
+        return user.get('messages');
+      })
+      .then(function (messages) {
+        equal(messages.get('length'), 2, "The messages relationship has been set up");
+        equal(messages.objectAt(0).get('title'), 'Post', "Polymorphic record at index 0 has the correct fields and data");
+        equal(messages.objectAt(1).get('body'), 'Comment', "Polymorphic record at index 1 has the correct fields and data");
+      });
+  });
+
+});
