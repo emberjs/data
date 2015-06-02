@@ -1,0 +1,7 @@
+# Save as .codeclimate.yml (note leading .) in project root directory
+languages:
+  JavaScript: true
+ exclude_paths:
+  - "packages/activemodel-adapter/tests/*"
+  - "packages/ember/tests/*"
+  - "packages/ember-data/tests/*"
