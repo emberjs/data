@@ -1,5 +1,3 @@
-/* globals syncForTest */
-
 ;(function(){
 
   Ember.RSVP.configure('onerror', function(reason) {

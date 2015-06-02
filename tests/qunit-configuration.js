@@ -1,85 +1,87 @@
 (function() {
+  /*global namespace: true */
+  
   window.EmberDev = window.EmberDev || {};
 
   EmberDev.afterEach = function() {
-      if (Ember && Ember.View) {
-        var viewIds = [], id;
-        for (id in Ember.View.views) {
-          if (Ember.View.views[id] != null) {
-            viewIds.push(id);
-          }
-        }
-
-        if (viewIds.length > 0) {
-          deepEqual(viewIds, [], "Ember.View.views should be empty");
-          Ember.View.views = [];
+    if (Ember && Ember.View) {
+      var viewIds = [], id;
+      for (id in Ember.View.views) {
+        if (Ember.View.views[id] != null) {
+          viewIds.push(id);
         }
       }
 
-      if (Ember && Ember.TEMPLATES) {
-        var templateNames = [], name;
-        for (name in Ember.TEMPLATES) {
-          if (Ember.TEMPLATES[name] != null) {
-            templateNames.push(name);
-          }
-        }
+      if (viewIds.length > 0) {
+        deepEqual(viewIds, [], "Ember.View.views should be empty");
+        Ember.View.views = [];
+      }
+    }
 
-        if (templateNames.length > 0) {
-          deepEqual(templateNames, [], "Ember.TEMPLATES should be empty");
-          Ember.TEMPLATES = {};
+    if (Ember && Ember.TEMPLATES) {
+      var templateNames = [], name;
+      for (name in Ember.TEMPLATES) {
+        if (Ember.TEMPLATES[name] != null) {
+          templateNames.push(name);
         }
       }
+
+      if (templateNames.length > 0) {
+        deepEqual(templateNames, [], "Ember.TEMPLATES should be empty");
+        Ember.TEMPLATES = {};
+      }
+    }
+  };
+
+  window.globalFailedTests  = [];
+  window.globalTestResults = null;
+  window.lastAssertionTime = new Date().getTime();
+
+  var currentTest, assertCount;
+
+  QUnit.testStart(function(data) {
+    // Reset the assertion count
+    assertCount = 0;
+
+    currentTest = {
+      name: data.name,
+      failedAssertions: [],
+      total: 0,
+      passed: 0,
+      failed: 0,
+      start: new Date(),
+      time: 0
     };
 
-   window.globalFailedTests  = [];
-      window.globalTestResults = null;
-      window.lastAssertionTime = new Date().getTime();
+  });
 
-      var currentTest, assertCount;
+  QUnit.log(function(data) {
+    assertCount++;
+    lastAssertionTime = new Date().getTime();
 
-      QUnit.testStart(function(data) {
-        // Reset the assertion count
-        assertCount = 0;
+    // Ignore passing assertions
+    if (!data.result) {
+      currentTest.failedAssertions.push(data);
+    }
+  });
 
-        currentTest = {
-          name: data.name,
-          failedAssertions: [],
-          total: 0,
-          passed: 0,
-          failed: 0,
-          start: new Date(),
-          time: 0
-        };
+  QUnit.testDone(function(data) {
+    currentTest.time = (new Date()).getTime() - currentTest.start.getTime();  // ms
+    currentTest.total = data.total;
+    currentTest.passed = data.passed;
+    currentTest.failed = data.failed;
 
-      })
+    if (currentTest.failed > 0)
+      window.globalFailedTests.push(currentTest);
 
-      QUnit.log(function(data) {
-        assertCount++;
-        lastAssertionTime = new Date().getTime();
+    currentTest = null;
+  });
 
-        // Ignore passing assertions
-        if (!data.result) {
-          currentTest.failedAssertions.push(data);
-        }
-      });
+  QUnit.done(function( details ) {
+    details.failedTests = globalFailedTests;
 
-      QUnit.testDone(function(data) {
-        currentTest.time = (new Date()).getTime() - currentTest.start.getTime();  // ms
-        currentTest.total = data.total;
-        currentTest.passed = data.passed;
-        currentTest.failed = data.failed;
-
-        if (currentTest.failed > 0)
-          window.globalFailedTests.push(currentTest)
-
-        currentTest = null;
-      });
-
-      QUnit.done(function( details ) {
-        details.failedTests = globalFailedTests;
-
-        window.globalTestResults = details;
-      });
+    window.globalTestResults = details;
+  });
 
   // hack qunit to not suck for Ember objects
   var originalTypeof = QUnit.jsDump.typeOf;
@@ -174,7 +176,7 @@
   function MethodCallExpectation(target, property){
     this.target = target;
     this.property = property;
-  };
+  }
 
   MethodCallExpectation.prototype = {
     handleCall: function(){
@@ -208,7 +210,8 @@
   function AssertExpectation(message){
     MethodCallExpectation.call(this, Ember, 'assert');
     this.expectedMessage = message;
-  };
+  }
+
   AssertExpectation.Error = function(){};
   AssertExpectation.prototype = o_create(MethodCallExpectation.prototype);
   AssertExpectation.prototype.handleCall = function(message, test){
@@ -281,7 +284,7 @@
   // Ember.deprecate("Old And Busted");
   //
   window.expectNoDeprecation = function(message) {
-    if (typeof EmberDev.deprecations.expecteds === 'array') {
+    if (Ember.isArray(EmberDev.deprecations.expecteds)) {
       throw("No deprecation was expected after expectDeprecation was called!");
     }
     EmberDev.deprecations.stubEmber();
@@ -344,15 +347,15 @@
 
     if (expecteds === EmberDev.deprecations.NONE) {
       var actualMessages = [];
-      for (var actual in actuals) {
-        actualMessages.push(actual[0]);
+      for (var _actual in actuals) {
+        actualMessages.push(_actual[0]);
       }
       ok(actuals.length === 0, "Expected no deprecation call, got: "+actualMessages.join(', '));
     } else {
       for (var o=0;o < expecteds.length; o++) {
-        var expected = expecteds[o], match;
+        var expected = expecteds[o], match, actual;
         for (var i=0;i < actuals.length; i++) {
-          var actual = actuals[i];
+          actual = actuals[i];
           if (!actual[1]) {
             if (expected instanceof RegExp) {
               if (expected.test(actual[0])) {

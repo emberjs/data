@@ -6,7 +6,7 @@ function fileMap(revision,tag,date) {
     'ember-data.prod.js': fileObject('ember-data.prod',   '.js',   'text/javascript',  revision, tag, date),
     'docs/data.json':  fileObject('ember-data-docs',   '.json', 'application/json', revision, tag, date)
   };
-};
+}
 
 function fileObject(baseName, extension, contentType, currentRevision, tag, date){
   var fullName = '/' + baseName + extension;
