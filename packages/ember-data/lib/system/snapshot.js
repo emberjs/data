@@ -394,6 +394,15 @@ Snapshot.prototype = {
   },
 
   /**
+    @method serialize
+    @param {Object} options
+    @return {Object} an object whose values are primitive JSON values only
+   */
+  serialize: function(options) {
+    return this.record.store.serializerFor(this.modelName).serialize(this, options);
+  },
+
+  /**
     @method unknownProperty
     @param {String} keyName
     @return {Object} The property value

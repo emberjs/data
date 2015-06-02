@@ -254,7 +254,7 @@ Store = Service.extend({
   */
   serialize: function(record, options) {
     var snapshot = record._internalModel.createSnapshot();
-    return this.serializerFor(snapshot.modelName).serialize(snapshot, options);
+    return snapshot.serialize(options);
   },
 
   /**
