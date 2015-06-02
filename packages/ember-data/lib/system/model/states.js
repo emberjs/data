@@ -396,6 +396,9 @@ var createdState = dirtyState({
   isNew: true
 });
 
+createdState.invalid.rolledBack = function(record) {
+  record.transitionTo('deleted.saved');
+};
 createdState.uncommitted.rolledBack = function(record) {
   record.transitionTo('deleted.saved');
 };
