@@ -1,9 +1,69 @@
 import Serializer from "ember-data/system/serializer";
+import coerceId from "ember-data/system/coerce-id";
 
 var get = Ember.get;
 var isNone = Ember.isNone;
 var map = Ember.ArrayPolyfills.map;
 var merge = Ember.merge;
+
+/*
+  Ember Data 2.0 Serializer:
+
+  In Ember Data a Serializer is used to serialize and deserialize
+  records when they are transferred in and out of an external source.
+  This process involves normalizing property names, transforming
+  attribute values and serializing relationships.
+
+  By default Ember Data recommends using the JSONApiSerializer.
+
+  `JSONSerializer` is useful for simpler or legacy backends that may
+  not support the http://jsonapi.org/ spec.
+
+  `JSONSerializer` normalizes a JSON payload that looks like:
+
+  ```js
+    App.User = DS.Model.extend({
+      name: DS.attr(),
+      friends: DS.hasMany('user'),
+      house: DS.belongsTo('location'),
+    });
+  ```
+  ```js
+    { id: 1,
+      name: 'Sebastian',
+      friends: [3, 4],
+      links: {
+        house: '/houses/lefkada'
+      }
+    }
+  ```
+  to JSONApi format that the Ember Data store expects.
+
+  You can customize how JSONSerializer processes it's payload by passing options in
+  the attrs hash or by subclassing the JSONSerializer and overriding hooks:
+
+    -To customize how a single record is normalized, use the `normalize` hook
+    -To customize how JSONSerializer normalizes the whole server response, use the
+      normalizeResponse hook
+    -To customize how JSONSerializer normalizes a specific response from the server,
+      use one of the many specific normalizeResponse hooks
+    -To customize how JSONSerializer normalizes your attributes or relationships,
+      use the extractAttributes and extractRelationships hooks.
+
+  JSONSerializer normalization process follows these steps:
+    - `normalizeResponse` - entry method to the Serializer
+    - `normalizeCreateRecordResponse` - a normalizeResponse for a specific operation is called
+    - `normalizeSingleResponse`|`normalizeArrayResponse` - for methods like `createRecord` we expect
+      a single record back, while for methods like `findAll` we expect multiple methods back
+    - `normalize` - normalizeArray iterates and calls normalize for each of it's records while normalizeSingle
+      calls it once. This is the method you most likely want to subclass
+    - `extractId` | `extractAttributes` | `extractRelationships` - normalize delegates to these methods to
+      turn the record payload into the JSONApi format
+
+  @class JSONSerializer
+  @namespace DS
+  @extends DS.Serializer
+*/
 
 /**
   In Ember Data a Serializer is used to serialize and deserialize
@@ -22,6 +82,7 @@ var merge = Ember.merge;
   @extends DS.Serializer
 */
 export default Serializer.extend({
+
   /**
     The primaryKey is used when serializing and deserializing
     data. Ember Data always uses the `id` property to store the id of
@@ -134,6 +195,252 @@ export default Serializer.extend({
     return data;
   },
 
+  /*
+    The `normalizeResponse` method is used to normalize a payload from the
+    server to a JSON-API Document.
+
+    http://jsonapi.org/format/#document-structure
+
+    This method delegates to a more specific normalize method based on
+    the `requestType`.
+
+    To override this method with a custom one, make sure to call
+    `return this._super(store, primaryModelClass, payload, id, requestType)` with your
+    pre-processed data.
+
+    Here's an example of using `normalizeResponse` manually:
+
+    ```javascript
+    socket.on('message', function(message) {
+      var data = message.data;
+      var modelClass = store.modelFor(data.modelName);
+      var serializer = store.serializerFor(data.modelName);
+      var json = serializer.normalizeSingleResponse(store, modelClass, data, data.id);
+
+      store.push(normalized);
+    });
+    ```
+
+    @method normalizeResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @return {Object} JSON-API Document
+  */
+  normalizeResponse: function(store, primaryModelClass, payload, id, requestType) {
+    switch (requestType) {
+      case 'find':
+        return this.normalizeFindResponse(...arguments);
+      case 'findAll':
+        return this.normalizeFindAllResponse(...arguments);
+      case 'findBelongsTo':
+        return this.normalizeFindBelongsToResponse(...arguments);
+      case 'findHasMany':
+        return this.normalizeFindHasManyResponse(...arguments);
+      case 'findMany':
+        return this.normalizeFindManyResponse(...arguments);
+      case 'findQuery':
+        return this.normalizeFindQueryResponse(...arguments);
+      case 'createRecord':
+        return this.normalizeCreateRecordResponse(...arguments);
+      case 'deleteRecord':
+        return this.normalizeDeleteRecordResponse(...arguments);
+      case 'updateRecord':
+        return this.normalizeUpdateRecordResponse(...arguments);
+    }
+  },
+
+  /*
+    @method normalizeFindResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @return {Object} JSON-API Document
+  */
+  normalizeFindResponse: function(store, primaryModelClass, payload, id, requestType) {
+    return this.normalizeSingleResponse(...arguments);
+  },
+
+  /*
+    @method normalizeFindAllResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @return {Object} JSON-API Document
+  */
+  normalizeFindAllResponse: function(store, primaryModelClass, payload, id, requestType) {
+    return this.normalizeArrayResponse(...arguments);
+  },
+
+  /*
+    @method normalizeFindBelongsToResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @return {Object} JSON-API Document
+  */
+  normalizeFindBelongsToResponse: function(store, primaryModelClass, payload, id, requestType) {
+    return this.normalizeSingleResponse(...arguments);
+  },
+
+  /*
+    @method normalizeFindHasManyResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @return {Object} JSON-API Document
+  */
+  normalizeFindHasManyResponse: function(store, primaryModelClass, payload, id, requestType) {
+    return this.normalizeArrayResponse(...arguments);
+  },
+
+  /*
+    @method normalizeFindManyResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @return {Object} JSON-API Document
+  */
+  normalizeFindManyResponse: function(store, primaryModelClass, payload, id, requestType) {
+    return this.normalizeArrayResponse(...arguments);
+  },
+
+  /*
+    @method normalizeFindQueryResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @return {Object} JSON-API Document
+  */
+  normalizeFindQueryResponse: function(store, primaryModelClass, payload, id, requestType) {
+    return this.normalizeArrayResponse(...arguments);
+  },
+
+  /*
+    @method normalizeCreateRecordResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @return {Object} JSON-API Document
+  */
+  normalizeCreateRecordResponse: function(store, primaryModelClass, payload, id, requestType) {
+    return this.normalizeSaveResponse(...arguments);
+  },
+
+  /*
+    @method normalizeDeleteRecordResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @return {Object} JSON-API Document
+  */
+  normalizeDeleteRecordResponse: function(store, primaryModelClass, payload, id, requestType) {
+    return this.normalizeSaveResponse(...arguments);
+  },
+
+  /*
+    @method normalizeUpdateRecordResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @return {Object} JSON-API Document
+  */
+  normalizeUpdateRecordResponse: function(store, primaryModelClass, payload, id, requestType) {
+    return this.normalizeSaveResponse(...arguments);
+  },
+
+  /*
+    @method normalizeSaveResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @return {Object} JSON-API Document
+  */
+  normalizeSaveResponse: function(store, primaryModelClass, payload, id, requestType) {
+    return this.normalizeSingleResponse(...arguments);
+  },
+
+  /*
+    @method normalizeSingleResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @return {Object} JSON-API Document
+  */
+  normalizeSingleResponse: function(store, primaryModelClass, payload, id, requestType) {
+    return this._normalizeResponse(store, primaryModelClass, payload, id, requestType, true);
+  },
+
+  /*
+    @method normalizeArrayResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @return {Object} JSON-API Document
+  */
+  normalizeArrayResponse: function(store, primaryModelClass, payload, id, requestType) {
+    return this._normalizeResponse(store, primaryModelClass, payload, id, requestType, false);
+  },
+
+  /*
+    @method _normalizeResponse
+    @param {DS.Store} store
+    @param {DS.Model} primaryModelClass
+    @param {Object} payload
+    @param {String|Number} id
+    @param {String} requestType
+    @param {Boolean} isSingle
+    @return {Object} JSON-API Document
+    @private
+  */
+  _normalizeResponse: function(store, primaryModelClass, payload, id, requestType, isSingle) {
+    let documentHash = {
+      data: null,
+      included: []
+    };
+
+    payload = this.normalizePayload(payload);
+
+    if (isSingle) {
+      let { data } = this.normalize(primaryModelClass, payload);
+      documentHash.data = data;
+    } else {
+      documentHash.data = payload.map((item) => {
+        let { data } = this.normalize(primaryModelClass, item);
+        return data;
+      });
+    }
+
+    return documentHash;
+  },
+
+
   /**
     Normalizes a part of the JSON payload returned by
     the server. You should override this method, munge the hash
@@ -172,6 +479,10 @@ export default Serializer.extend({
     @return {Object}
   */
   normalize: function(typeClass, hash) {
+    if (Ember.FEATURES.isEnabled('ds-new-serializer-api') && this.get('isNewSerializerAPI')) {
+      return _newNormalize.apply(this, arguments);
+    }
+
     if (!hash) { return hash; }
 
     this.normalizeId(hash);
@@ -181,6 +492,115 @@ export default Serializer.extend({
     this.normalizeUsingDeclaredMapping(typeClass, hash);
     this.applyTransforms(typeClass, hash);
     return hash;
+  },
+
+  /*
+    Returns the resource's ID.
+
+    @method extractId
+    @param {Object} resourceHash
+    @return {String}
+  */
+  extractId: function(resourceHash) {
+    var primaryKey = get(this, 'primaryKey');
+    var id = resourceHash[primaryKey];
+    return coerceId(id);
+  },
+
+  /*
+    Returns the resource's attributes formatted as a JSON-API "attributes object".
+
+    http://jsonapi.org/format/#document-resource-object-attributes
+
+    @method extractId
+    @param {Object} resourceHash
+    @return {Object}
+  */
+  extractAttributes: function(modelClass, resourceHash) {
+    var attributeKey;
+    var attributes = {};
+
+    modelClass.eachAttribute(function(key) {
+      attributeKey = this.keyForAttribute(key, 'deserialize');
+      if (resourceHash.hasOwnProperty(attributeKey)) {
+        attributes[key] = resourceHash[attributeKey];
+      }
+    }, this);
+
+    return attributes;
+  },
+
+  /*
+    Returns a relationship formatted as a JSON-API "relationship object".
+
+    http://jsonapi.org/format/#document-resource-object-relationships
+
+    @method extractRelationship
+    @param {Object} relationshipModelName
+    @param {Object} relationshipHash
+    @return {Object}
+  */
+  extractRelationship: function(relationshipModelName, relationshipHash) {
+    if (Ember.isNone(relationshipHash)) { return null; }
+    /*
+      When `relationshipHash` is an object it usually means that the relationship
+      is polymorphic. It could however also be embedded resources that the
+      EmbeddedRecordsMixin has be able to process.
+    */
+    if (Ember.typeOf(relationshipHash) === 'object') {
+      if (relationshipHash.id) {
+        relationshipHash.id = coerceId(relationshipHash.id);
+      }
+      if (relationshipHash.type) {
+        relationshipHash.type = this.modelNameFromPayloadKey(relationshipHash.type);
+      }
+      return relationshipHash;
+    }
+    return { id: coerceId(relationshipHash), type: relationshipModelName };
+  },
+
+  /*
+    Returns the resource's relationships formatted as a JSON-API "relationships object".
+
+    http://jsonapi.org/format/#document-resource-object-relationships
+
+    @method extractRelationships
+    @param {Object} modelClass
+    @param {Object} resourceHash
+    @return {Object}
+  */
+  extractRelationships: function(modelClass, resourceHash) {
+    let relationships = {};
+
+    modelClass.eachRelationship(function(key, relationshipMeta) {
+      let relationship = null;
+      let relationshipKey = this.keyForRelationship(key, relationshipMeta.kind, 'deserialize');
+      if (resourceHash.hasOwnProperty(relationshipKey)) {
+        let data = null;
+        let relationshipHash = resourceHash[relationshipKey];
+        if (relationshipMeta.kind === 'belongsTo') {
+          data = this.extractRelationship(relationshipMeta.type, relationshipHash);
+        } else if (relationshipMeta.kind === 'hasMany') {
+          data = Ember.A(relationshipHash).map(function(item) {
+            return this.extractRelationship(relationshipMeta.type, item);
+          }, this);
+        }
+        relationship = { data };
+      }
+
+      let linkKey = this.keyForLink(key, relationshipMeta.kind);
+      if (resourceHash.links && resourceHash.links.hasOwnProperty(linkKey)) {
+        let related = resourceHash.links[linkKey];
+        relationship = relationship || {};
+        relationship.links = { related };
+      }
+
+      if (relationship) {
+        relationships[key] = relationship;
+      }
+    }, this);
+
+    return relationships;
   },
 
   /**
@@ -1114,8 +1534,20 @@ export default Serializer.extend({
    @param {String} method
    @return {String} normalized key
   */
-
   keyForRelationship: function(key, typeClass, method) {
+    return key;
+  },
+
+  /**
+   `keyForLink` can be used to define a custom key when deserializing link
+   properties.
+
+   @method keyForLink
+   @param {String} key
+   @param {String} kind `belongsTo` or `hasMany`
+   @return {String} normalized key
+  */
+  keyForLink: function(key, kind) {
     return key;
   },
 
@@ -1134,3 +1566,29 @@ export default Serializer.extend({
     return transform;
   }
 });
+
+/*
+  @method _newNormalize
+  @param {DS.Model} modelClass
+  @param {Object} resourceHash
+  @return {Object}
+  @private
+*/
+function _newNormalize(modelClass, resourceHash) {
+  let data = null;
+
+  if (resourceHash) {
+    this.normalizeUsingDeclaredMapping(modelClass, resourceHash);
+
+    data = {
+      id:            this.extractId(resourceHash),
+      type:          modelClass.modelName,
+      attributes:    this.extractAttributes(modelClass, resourceHash),
+      relationships: this.extractRelationships(modelClass, resourceHash)
+    };
+
+    this.applyTransforms(modelClass, data.attributes);
+  }
+
+  return { data };
+}
