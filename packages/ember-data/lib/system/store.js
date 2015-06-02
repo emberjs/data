@@ -859,8 +859,8 @@ Store = Service.extend({
   hasRecordForId: function(modelName, inputId) {
     var typeClass = this.modelFor(modelName);
     var id = coerceId(inputId);
-    var record = this.typeMapFor(typeClass).idToRecord[id];
-    return !!record && record.isLoaded();
+    var internalModel = this.typeMapFor(typeClass).idToRecord[id];
+    return !!internalModel && internalModel.isLoaded();
   },
 
   /**
@@ -1244,10 +1244,10 @@ Store = Service.extend({
     @method dataWasUpdated
     @private
     @param {Class} type
-    @param {DS.Model} record
+    @param {InternalModel} record
   */
-  dataWasUpdated: function(type, record) {
-    this.recordArrayManager.recordDidChange(record);
+  dataWasUpdated: function(type, internalModel) {
+    this.recordArrayManager.recordDidChange(internalModel);
   },
 
   // ..............
@@ -1315,19 +1315,19 @@ Store = Service.extend({
 
     @method didSaveRecord
     @private
-    @param {DS.Model} record the in-flight record
+    @param {InternalModel} record the in-flight record
     @param {Object} data optional data (see above)
   */
-  didSaveRecord: function(record, data) {
+  didSaveRecord: function(internalModel, data) {
     if (data) {
       // normalize relationship IDs into records
-      this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', record, record.type, data);
-      this.updateId(record, data);
+      this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', internalModel, internalModel.type, data);
+      this.updateId(internalModel, data);
     }
 
     //We first make sure the primary data has been updated
     //TODO try to move notification to the user to the end of the runloop
-    record.adapterDidCommit(data);
+    internalModel.adapterDidCommit(data);
   },
 
   /**
@@ -1337,11 +1337,11 @@ Store = Service.extend({
 
     @method recordWasInvalid
     @private
-    @param {DS.Model} record
+    @param {InternalModel} record
     @param {Object} errors
   */
-  recordWasInvalid: function(record, errors) {
-    record.adapterDidInvalidate(errors);
+  recordWasInvalid: function(internalModel, errors) {
+    internalModel.adapterDidInvalidate(errors);
   },
 
   /**
@@ -1351,10 +1351,10 @@ Store = Service.extend({
 
     @method recordWasError
     @private
-    @param {DS.Model} record
+    @param {InternalModel} record
   */
-  recordWasError: function(record) {
-    record.adapterDidError();
+  recordWasError: function(internalModel) {
+    internalModel.adapterDidError();
   },
 
   /**
@@ -1364,18 +1364,18 @@ Store = Service.extend({
 
     @method updateId
     @private
-    @param {DS.Model} record
+    @param {InternalModel} record
     @param {Object} data
   */
-  updateId: function(record, data) {
-    var oldId = get(record, 'id');
+  updateId: function(internalModel, data) {
+    var oldId = internalModel.id;
     var id = coerceId(data.id);
 
-    Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + record + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId);
+    Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + internalModel + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId);
 
-    this.typeMapFor(record.type).idToRecord[id] = record;
+    this.typeMapFor(internalModel.type).idToRecord[id] = internalModel;
 
-    record.setId(id);
+    internalModel.setId(id);
   },
 
   /**
@@ -1777,7 +1777,7 @@ Store = Service.extend({
     @param {subclass of DS.Model} type
     @param {String} id
     @param {Object} data
-    @return {DS.Model} record
+    @return {InternalModel} record
   */
   buildInternalModel: function(type, id, data) {
     var typeMap = this.typeMapFor(type);
@@ -1827,20 +1827,20 @@ Store = Service.extend({
 
     @method _dematerializeRecord
     @private
-    @param {DS.Model} record
+    @param {InternalModel} record
   */
-  _dematerializeRecord: function(record) {
-    var type = record.type;
+  _dematerializeRecord: function(internalModel) {
+    var type = internalModel.type;
     var typeMap = this.typeMapFor(type);
-    var id = get(record, 'id');
+    var id = internalModel.id;
 
-    record.updateRecordArrays();
+    internalModel.updateRecordArrays();
 
     if (id) {
       delete typeMap.idToRecord[id];
     }
 
-    var loc = indexOf(typeMap.records, record);
+    var loc = indexOf(typeMap.records, internalModel);
     typeMap.records.splice(loc, 1);
   },
 
