@@ -135,22 +135,6 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     }
   },
 
-  _pushRecord: function(record) {
-    get(this, 'content').pushObject(record);
-  },
-
-  /**
-    Adds a record to the `RecordArray`, but allows duplicates
-
-    @deprecated
-    @method pushRecord
-    @private
-    @param {DS.Model} record
-  */
-  pushRecord: function(record) {
-    Ember.deprecate('Usage of `recordArray.pushRecord` is deprecated, use `recordArray.addObject` instead');
-    this._pushRecord(record);
-  },
   /**
     Removes a record to the `RecordArray`.
 
