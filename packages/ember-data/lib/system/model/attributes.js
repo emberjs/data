@@ -220,7 +220,7 @@ function getDefaultValue(record, options, key) {
 function hasValue(record, key) {
   return key in record._attributes ||
          key in record._inFlightAttributes ||
-         record._data.hasOwnProperty(key);
+         key in record._data;
 }
 
 function getValue(record, key) {

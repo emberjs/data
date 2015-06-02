@@ -12,8 +12,8 @@ import {
 var Promise = Ember.RSVP.Promise;
 var map = Ember.EnumerableUtils.map;
 
-export function _find(adapter, store, typeClass, id, record) {
-  var snapshot = record._createSnapshot();
+export function _find(adapter, store, typeClass, id, internalModel) {
+  var snapshot = internalModel.createSnapshot();
   var promise = adapter.find(store, typeClass, id, snapshot);
   var serializer = serializerForAdapter(store, adapter, typeClass);
   var label = "DS: Handle Adapter#find of " + typeClass + " with id: " + id;
@@ -31,9 +31,9 @@ export function _find(adapter, store, typeClass, id, record) {
       return record._internalModel;
     });
   }, function(error) {
-    record.notFound();
-    if (record.isEmpty()) {
-      record.unloadRecord();
+    internalModel.notFound();
+    if (internalModel.isEmpty()) {
+      internalModel.unloadRecord();
     }
 
     throw error;
@@ -41,8 +41,8 @@ export function _find(adapter, store, typeClass, id, record) {
 }
 
 
-export function _findMany(adapter, store, typeClass, ids, records) {
-  var snapshots = Ember.A(records).invoke('_createSnapshot');
+export function _findMany(adapter, store, typeClass, ids, internalModels) {
+  var snapshots = Ember.A(internalModels).invoke('createSnapshot');
   var promise = adapter.findMany(store, typeClass, ids, snapshots);
   var serializer = serializerForAdapter(store, adapter, typeClass);
   var label = "DS: Handle Adapter#findMany of " + typeClass;
@@ -67,15 +67,15 @@ export function _findMany(adapter, store, typeClass, ids, records) {
   }, null, "DS: Extract payload of " + typeClass);
 }
 
-export function _findHasMany(adapter, store, record, link, relationship) {
-  var snapshot = record._createSnapshot();
+export function _findHasMany(adapter, store, internalModel, link, relationship) {
+  var snapshot = internalModel.createSnapshot();
   var promise = adapter.findHasMany(store, snapshot, link, relationship);
   var serializer = serializerForAdapter(store, adapter, relationship.type);
-  var label = "DS: Handle Adapter#findHasMany of " + record + " : " + relationship.type;
+  var label = "DS: Handle Adapter#findHasMany of " + internalModel + " : " + relationship.type;
 
   promise = Promise.cast(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
-  promise = _guard(promise, _bind(_objectIsAlive, record));
+  promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
   return promise.then(function(adapterPayload) {
     return store._adapterRun(function() {
@@ -87,18 +87,18 @@ export function _findHasMany(adapter, store, record, link, relationship) {
       var records = store.pushMany(relationship.type, payload);
       return map(records, function(record) { return record._internalModel; });
     });
-  }, null, "DS: Extract payload of " + record + " : hasMany " + relationship.type);
+  }, null, "DS: Extract payload of " + internalModel + " : hasMany " + relationship.type);
 }
 
-export function _findBelongsTo(adapter, store, record, link, relationship) {
-  var snapshot = record._createSnapshot();
+export function _findBelongsTo(adapter, store, internalModel, link, relationship) {
+  var snapshot = internalModel.createSnapshot();
   var promise = adapter.findBelongsTo(store, snapshot, link, relationship);
   var serializer = serializerForAdapter(store, adapter, relationship.type);
-  var label = "DS: Handle Adapter#findBelongsTo of " + record + " : " + relationship.type;
+  var label = "DS: Handle Adapter#findBelongsTo of " + internalModel + " : " + relationship.type;
 
   promise = Promise.cast(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
-  promise = _guard(promise, _bind(_objectIsAlive, record));
+  promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
   return promise.then(function(adapterPayload) {
     return store._adapterRun(function() {
@@ -112,7 +112,7 @@ export function _findBelongsTo(adapter, store, record, link, relationship) {
       //TODO Optimize
       return record._internalModel;
     });
-  }, null, "DS: Extract payload of " + record + " : " + relationship.type);
+  }, null, "DS: Extract payload of " + internalModel + " : " + relationship.type);
 }
 
 export function _findAll(adapter, store, typeClass, sinceToken) {
