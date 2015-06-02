@@ -19,6 +19,8 @@ import "ember-data/ext/date";
 
 import normalizeModelName from "ember-data/system/normalize-model-name";
 
+import InternalModel from "ember-data/system/model/internal-model";
+
 import {
   PromiseArray,
   PromiseObject,
@@ -85,6 +87,7 @@ DS.RootState = RootState;
 DS.attr      = attr;
 DS.Errors    = Errors;
 
+DS.InternalModel = InternalModel;
 DS.Snapshot = Snapshot;
 
 DS.Adapter      = Adapter;

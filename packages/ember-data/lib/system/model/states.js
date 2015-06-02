@@ -3,7 +3,6 @@
 */
 
 var get = Ember.get;
-var set = Ember.set;
 /*
   This file encapsulates the various states that a record can transition
   through during its lifecycle.
@@ -291,9 +290,7 @@ var DirtyState = {
     becomeDirty: Ember.K,
     pushedData: Ember.K,
 
-    unloadRecord: function(record) {
-      Ember.assert("You can only unload a record which is not inFlight. `" + Ember.inspect(record) + " `", false);
-    },
+    unloadRecord: assertAgainstUnloadRecord,
 
     // TODO: More robust semantics around save-while-in-flight
     willCommit: Ember.K,
@@ -329,7 +326,7 @@ var DirtyState = {
     },
 
     didSetProperty: function(record, context) {
-      get(record, 'errors').remove(context.name);
+      record.getErrors().remove(context.name);
 
       didSetProperty(record, context);
     },
@@ -337,12 +334,12 @@ var DirtyState = {
     becomeDirty: Ember.K,
 
     willCommit: function(record) {
-      get(record, 'errors').clear();
+      record.getErrors().clear();
       record.transitionTo('inFlight');
     },
 
     rolledBack: function(record) {
-      get(record, 'errors').clear();
+      record.getErrors().clear();
       record.triggerLater('ready');
     },
 
@@ -426,7 +423,7 @@ createdState.uncommitted.pushedData = function(record) {
 createdState.uncommitted.propertyWasReset = Ember.K;
 
 function assertAgainstUnloadRecord(record) {
-  Ember.assert("You can only unload a record which is not inFlight. `" + Ember.inspect(record) + "`", false);
+  Ember.assert("You can only unload a record which is not inFlight. `" + Ember.inspect(record.record) + "`", false);
 }
 
 updatedState.inFlight.unloadRecord = assertAgainstUnloadRecord;
@@ -511,7 +508,8 @@ var RootState = {
       record.transitionTo('loaded.saved');
       record.triggerLater('didLoad');
       record.triggerLater('ready');
-      set(record, 'isError', false);
+      //TODO this seems out of place here
+      record.didCleanError();
     },
 
     becameError: function(record) {
@@ -700,7 +698,7 @@ var RootState = {
       isValid: false,
 
       didSetProperty: function(record, context) {
-        get(record, 'errors').remove(context.name);
+        record.getErrors().remove(context.name);
 
         didSetProperty(record, context);
       },
@@ -711,7 +709,7 @@ var RootState = {
 
 
       rolledBack: function(record) {
-        get(record, 'errors').clear();
+        record.getErrors().clear();
         record.transitionTo('loaded.saved');
         record.triggerLater('ready');
       },

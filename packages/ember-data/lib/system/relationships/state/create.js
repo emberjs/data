@@ -3,7 +3,7 @@ import BelongsToRelationship from "ember-data/system/relationships/state/belongs
 
 var createRelationshipFor = function(record, relationshipMeta, store) {
   var inverseKey;
-  var inverse = record.constructor.inverseFor(relationshipMeta.key);
+  var inverse = record.type.inverseFor(relationshipMeta.key);
 
   if (inverse) {
     inverseKey = inverse.name;
