@@ -253,7 +253,7 @@ Store = Service.extend({
     @param {Object} options an options hash
   */
   serialize: function(record, options) {
-    var snapshot = record._createSnapshot();
+    var snapshot = record._internalModel.createSnapshot();
     return this.serializerFor(snapshot.modelName).serialize(snapshot, options);
   },
 
@@ -315,7 +315,7 @@ Store = Service.extend({
   */
   createRecord: function(modelName, inputProperties) {
     var typeClass = this.modelFor(modelName);
-    var properties = copy(inputProperties) || {};
+    var properties = copy(inputProperties) || Ember.create(null);
 
     // If the passed properties do not include a primary key,
     // give the adapter an opportunity to generate one. Typically,
@@ -606,7 +606,6 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findById: function(modelName, id, preload) {
-
     var type = this.modelFor(modelName);
     var internalModel = this._internalModelForId(type, id);
 
@@ -654,40 +653,39 @@ Store = Service.extend({
 
     @method fetchRecord
     @private
-    @param {DS.Model} record
+    @param {InternalModel} internal model
     @return {Promise} promise
   */
-  fetchRecord: function(record) {
-    var typeClass = record.type;
-    var id = get(record, 'id');
+  fetchRecord: function(internalModel) {
+    var typeClass = internalModel.type;
+    var id = internalModel.id;
     var adapter = this.adapterFor(typeClass);
 
     Ember.assert("You tried to find a record but you have no adapter (for " + typeClass + ")", adapter);
     Ember.assert("You tried to find a record but your adapter (for " + typeClass + ") does not implement 'find'", typeof adapter.find === 'function');
 
-    var promise = _find(adapter, this, typeClass, id, record);
+    var promise = _find(adapter, this, typeClass, id, internalModel);
     return promise;
   },
 
   scheduleFetchMany: function(records) {
-    var internalModel = map(records, function(record) { return record._internalModel; });
-    return Promise.all(map(internalModel, this.scheduleFetch, this));
+    var internalModels = map(records, function(record) { return record._internalModel; });
+    return Promise.all(map(internalModels, this.scheduleFetch, this));
   },
 
-  scheduleFetch: function(record) {
-    var typeClass = record.type;
+  scheduleFetch: function(internalModel) {
+    var typeClass = internalModel.type;
 
-    if (isNone(record)) { return null; }
-    if (record._loadingPromise) { return record._loadingPromise; }
+    if (internalModel._loadingPromise) { return internalModel._loadingPromise; }
 
-    var resolver = Ember.RSVP.defer('Fetching ' + typeClass + 'with id: ' + record.id);
+    var resolver = Ember.RSVP.defer('Fetching ' + typeClass + 'with id: ' + internalModel.id);
     var recordResolverPair = {
-      record: record,
+      record: internalModel,
       resolver: resolver
     };
     var promise = resolver.promise;
 
-    record.loadingData(promise);
+    internalModel.loadingData(promise);
 
     if (!this._pendingFetch.get(typeClass)) {
       this._pendingFetch.set(typeClass, [recordResolverPair]);
@@ -773,10 +771,10 @@ Store = Service.extend({
       // records from the grouped snapshots even though the _findMany() finder
       // will once again convert the records to snapshots for adapter.findMany()
 
-      var snapshots = Ember.A(records).invoke('_createSnapshot');
+      var snapshots = Ember.A(records).invoke('createSnapshot');
       var groups = adapter.groupRecordsForFindMany(this, snapshots);
       forEach(groups, function (groupOfSnapshots) {
-        var groupOfRecords = Ember.A(groupOfSnapshots).mapBy('record._internalModel');
+        var groupOfRecords = Ember.A(groupOfSnapshots).mapBy('_internalModel');
         var requestedRecords = Ember.A(groupOfRecords);
         var ids = requestedRecords.mapBy('id');
         if (ids.length > 1) {
@@ -836,16 +834,16 @@ Store = Service.extend({
     @param {DS.Model} record
     @return {Promise} promise
   */
-  reloadRecord: function(record) {
-    var type = record.constructor;
+  reloadRecord: function(internalModel) {
+    var type = internalModel.type;
     var adapter = this.adapterFor(type);
-    var id = get(record, 'id');
+    var id = internalModel.id;
 
     Ember.assert("You cannot reload a record without an ID", id);
     Ember.assert("You tried to reload a record but you have no adapter (for " + type + ")", adapter);
     Ember.assert("You tried to reload a record but your adapter does not implement `find`", typeof adapter.find === 'function');
 
-    return this.scheduleFetch(record);
+    return this.scheduleFetch(internalModel);
   },
 
   /**
@@ -1244,7 +1242,7 @@ Store = Service.extend({
     @method dataWasUpdated
     @private
     @param {Class} type
-    @param {InternalModel} record
+    @param {InternalModel} internal model
   */
   dataWasUpdated: function(type, internalModel) {
     this.recordArrayManager.recordDidChange(internalModel);
@@ -1262,11 +1260,11 @@ Store = Service.extend({
 
     @method scheduleSave
     @private
-    @param {InternalModel} record
+    @param {InternalModel} internal model
     @param {Resolver} resolver
   */
   scheduleSave: function(internalModel, resolver) {
-    var snapshot = internalModel._createSnapshot();
+    var snapshot = internalModel.createSnapshot();
     internalModel.flushChangedAttributes();
     internalModel.adapterWillCommit();
     this._pendingSave.push([snapshot, resolver]);
@@ -1315,7 +1313,7 @@ Store = Service.extend({
 
     @method didSaveRecord
     @private
-    @param {InternalModel} record the in-flight record
+    @param {InternalModel} internal model the in-flight internal model
     @param {Object} data optional data (see above)
   */
   didSaveRecord: function(internalModel, data) {
@@ -1337,7 +1335,7 @@ Store = Service.extend({
 
     @method recordWasInvalid
     @private
-    @param {InternalModel} record
+    @param {InternalModel} internal model
     @param {Object} errors
   */
   recordWasInvalid: function(internalModel, errors) {
@@ -1351,7 +1349,7 @@ Store = Service.extend({
 
     @method recordWasError
     @private
-    @param {InternalModel} record
+    @param {InternalModel} internal model
   */
   recordWasError: function(internalModel) {
     internalModel.adapterDidError();
@@ -1364,7 +1362,7 @@ Store = Service.extend({
 
     @method updateId
     @private
-    @param {InternalModel} record
+    @param {InternalModel} internal model
     @param {Object} data
   */
   updateId: function(internalModel, data) {
@@ -1777,7 +1775,7 @@ Store = Service.extend({
     @param {subclass of DS.Model} type
     @param {String} id
     @param {Object} data
-    @return {InternalModel} record
+    @return {InternalModel} internal model
   */
   buildInternalModel: function(type, id, data) {
     var typeMap = this.typeMapFor(type);
@@ -1827,7 +1825,7 @@ Store = Service.extend({
 
     @method _dematerializeRecord
     @private
-    @param {InternalModel} record
+    @param {InternalModel} internal model
   */
   _dematerializeRecord: function(internalModel) {
     var type = internalModel.type;

@@ -52,16 +52,15 @@ var InternalModel = function InternalModel(type, id, store, container, data) {
   this.id = id;
   this.store = store;
   this.container = container;
-  this._data = data || {};
+  this._data = data || Ember.create(null);
   this.modelName = type.modelName;
   this.errors = null;
   this.dataHasInitialized = false;
   //Look into making this lazy
   this._deferredTriggers = [];
-  this._data = {};
   this._attributes = Ember.create(null);
   this._inFlightAttributes = Ember.create(null);
-  this._relationships = {};
+  this._relationships = Ember.create(null);
   this.currentState = RootState.empty;
   this.isReloading = false;
   /*
@@ -215,10 +214,10 @@ InternalModel.prototype = {
   },
 
   /**
-    @method _createSnapshot
+    @method createSnapshot
     @private
   */
-  _createSnapshot: function() {
+  createSnapshot: function() {
     return new Snapshot(this);
   },
 
@@ -660,6 +659,14 @@ InternalModel.prototype = {
       }
     }
     this._inFlightAttributes = Ember.create(null);
+  },
+
+  toString: function() {
+    if (this.record) {
+      return this.record.toString();
+    } else {
+      return `<${this.modelName}:${this.id}>`;
+    }
   }
 };
 

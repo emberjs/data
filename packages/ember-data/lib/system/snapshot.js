@@ -236,7 +236,7 @@ Snapshot.prototype = {
         if (id) {
           result = get(inverseRecord, 'id');
         } else {
-          result = inverseRecord._createSnapshot();
+          result = inverseRecord.createSnapshot();
         }
       } else {
         result = null;
@@ -306,9 +306,9 @@ Snapshot.prototype = {
       results = [];
       members.forEach(function(member) {
         if (ids) {
-          results.push(get(member, 'id'));
+          results.push(member.id);
         } else {
-          results.push(member._createSnapshot());
+          results.push(member.createSnapshot());
         }
       });
     }

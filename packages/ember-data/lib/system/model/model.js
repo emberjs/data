@@ -377,7 +377,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   toJSON: function(options) {
     // container is for lazy transform lookups
     var serializer = JSONSerializer.create({ container: this.container });
-    var snapshot = this._createSnapshot();
+    var snapshot = this._internalModel.createSnapshot();
 
     return serializer.serialize(snapshot, options);
   },
@@ -444,11 +444,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @private
     @type {Object}
   */
-  data: Ember.computed(function() {
-    this._data = this._data || {};
-    return this._data;
-  }).readOnly(),
-
+  data: Ember.computed.readOnly('_internalModel._data'),
 
   //TODO Do we want to deprecate these?
   /**
@@ -624,13 +620,12 @@ var Model = Ember.Object.extend(Ember.Evented, {
     this._internalModel.rollback();
   },
 
-
   /*
     @method _createSnapshot
     @private
   */
   _createSnapshot: function() {
-    return this._internalModel._createSnapshot();
+    return this._internalModel.createSnapshot();
   },
 
   toStringExtension: function() {
