@@ -119,31 +119,31 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   },
 
   /**
-    Adds a record to the `RecordArray` without duplicates
+    Adds an internal model to the `RecordArray` without duplicates
 
-    @method addRecord
+    @method addInternalModel
     @private
-    @param {DS.Model} record
-    @param {DS.Model} idx an optional index to insert at
+    @param {InternalModel} internalModel
+    @param {number} an optional index to insert at
   */
-  addRecord: function(record, idx) {
+  addInternalModel: function(internalModel, idx) {
     var content = get(this, 'content');
     if (idx === undefined) {
-      content.addObject(record);
-    } else if (!content.contains(record)) {
-      content.insertAt(idx, record);
+      content.addObject(internalModel);
+    } else if (!content.contains(internalModel)) {
+      content.insertAt(idx, internalModel);
     }
   },
 
   /**
-    Removes a record to the `RecordArray`.
+    Removes an internalModel to the `RecordArray`.
 
-    @method removeRecord
+    @method removeInternalModel
     @private
-    @param {DS.Model} record
+    @param {InternalModel} internalModel
   */
-  removeRecord: function(record) {
-    get(this, 'content').removeObject(record);
+  removeInternalModel: function(internalModel) {
+    get(this, 'content').removeObject(internalModel);
   },
 
   /**
