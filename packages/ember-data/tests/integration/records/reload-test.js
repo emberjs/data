@@ -147,3 +147,55 @@ test("When a record is reloaded, its async hasMany relationships still work", fu
     });
   });
 });
+
+test("When a reload is issued while another reload is in flight, the data comes back and isReloading makes sense", function() {
+  var resolve1, resolve2, tom;
+  var count = 0;
+
+  run(function() {
+    tom = env.store.push('person', { id: 1, name: 'Tom Dale' });
+  });
+
+  env.adapter.find = function(store, type, id, snapshot) {
+    count++;
+    return new Ember.RSVP.Promise((resolve, reject) => {
+      if (count === 1) {
+        resolve1 = resolve;
+      } else if (count === 2) {
+        resolve2 = resolve;
+      } else {
+        ok(false, "Should not get here");
+      }
+    });
+  };
+
+  run(function() {
+    var promise1 = tom.reload();
+    equal(get(tom, 'isReloading'), true, 'Person is reloading after issuing first reload');
+
+    promise1.then(function(person) {
+      equal(get(person, 'name'), 'Tom Dale', 'First reload returns correct data');
+      equal(get(person, 'isReloading'), true, 'Person is still reloading after first reload finishes, but second is still working');
+      equal(person, tom, 'First reload updates the model accordingly');
+    });
+  });
+
+  run(function() {
+    var promise2 = tom.reload();
+    equal(get(tom, 'isReloading'), true, 'Person is still reloading after issuing second reload');
+
+    promise2.then(function(person) {
+      equal(get(person, 'name'), 'Yehuda Katz', 'Second reload returns correct data');
+      equal(get(person, 'isReloading'), false, 'Person is not reloading after second reload finishes');
+      equal(person, tom, 'Second reload updates the model accordingly');
+    });
+  });
+
+  run(function() {
+    resolve1({ id: 1, name: 'Tom Dale' });
+  });
+
+  run(function() {
+    resolve2({ id: 1, name: 'Yehuda Katz' });
+  });
+});

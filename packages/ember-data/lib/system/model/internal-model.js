@@ -63,6 +63,8 @@ var InternalModel = function InternalModel(type, id, store, container, data) {
   this._relationships = new Relationships(this);
   this.currentState = RootState.empty;
   this.isReloading = false;
+  this._lastReloadingPromise = Ember.RSVP.resolve();
+  this._currentReloadCount = 0;
   /*
     implicit relationships are relationship which have not been declared but the inverse side exists on
     another record somewhere
@@ -135,6 +137,7 @@ InternalModel.prototype = {
   },
 
   startedReloading: function() {
+    this._currentReloadCount++;
     this.isReloading = true;
     if (this.record) {
       set(this.record, 'isReloading', true);
@@ -142,9 +145,12 @@ InternalModel.prototype = {
   },
 
   finishedReloading: function() {
-    this.isReloading = false;
-    if (this.record) {
-      set(this.record, 'isReloading', false);
+    this._currentReloadCount--;
+    if (this._currentReloadCount === 0) {
+      this.isReloading = false;
+      if (this.record) {
+        set(this.record, 'isReloading', false);
+      }
     }
   },
 
@@ -152,18 +158,23 @@ InternalModel.prototype = {
     this.startedReloading();
     var record = this;
     var promiseLabel = "DS: Model#reload of " + this;
-    return new Promise(function(resolve) {
-      record.send('reloadRecord', resolve);
-    }, promiseLabel).then(function() {
-      record.didCleanError();
-      return record;
-    }, function(reason) {
-      record.didError();
-      throw reason;
-    }, "DS: Model#reload complete, update flags").finally(function () {
-      record.finishedReloading();
-      record.updateRecordArrays();
+
+    this._lastReloadingPromise = this._lastReloadingPromise.then(function() {
+      return new Promise(function(resolve) {
+        record.send('reloadRecord', resolve);
+      }, promiseLabel).then(function() {
+        record.didCleanError();
+        return record;
+      }, function(reason) {
+        record.didError();
+        throw reason;
+      }, "DS: Model#reload complete, update flags").finally(function () {
+        record.finishedReloading();
+        record.updateRecordArrays();
+      });
     });
+
+    return this._lastReloadingPromise;
   },
 
   getRecord: function() {
