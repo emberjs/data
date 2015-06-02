@@ -5,14 +5,11 @@
 import JSONSerializer from "ember-data/serializers/json-serializer";
 import normalizeModelName from "ember-data/system/normalize-model-name";
 import {singularize} from "ember-inflector/lib/system/string";
+import coerceId from "ember-data/system/coerce-id";
 
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
 var camelize = Ember.String.camelize;
-
-function coerceId(id) {
-  return id == null ? null : id + '';
-}
 
 /**
   Normally, applications will use the `RESTSerializer` by implementing
