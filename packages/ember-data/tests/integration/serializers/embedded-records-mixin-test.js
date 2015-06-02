@@ -609,6 +609,32 @@ test("serialize with embedded objects (hasMany relationship)", function() {
   });
 });
 
+test("serialize with embedded objects (unknown hasMany relationship)", function() {
+  var league;
+  run(function() {
+    league = env.store.push(HomePlanet, { name: "Villain League", id: "123" });
+  });
+
+  env.registry.register('serializer:home-planet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      villains: { embedded: 'always' }
+    }
+  }));
+
+  var serializer, json;
+  warns(function() {
+    run(function() {
+      serializer = env.container.lookup("serializer:home-planet");
+      json = serializer.serialize(league._createSnapshot());
+    });
+  }, /The embedded relationship 'villains' is undefined for 'home-planet' with id '123'. Please include it in your original payload./);
+
+  deepEqual(json, {
+    name: "Villain League",
+    villains: []
+  });
+});
+
 test("serialize with embedded objects (hasMany relationship) supports serialize:false", function() {
   run(function() {
     league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });

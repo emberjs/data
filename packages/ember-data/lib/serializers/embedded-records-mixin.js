@@ -298,13 +298,17 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     }
     var includeIds = this.hasSerializeIdsOption(attr);
     var includeRecords = this.hasSerializeRecordsOption(attr);
-    var key;
+    var key, hasMany;
     if (includeIds) {
       key = this.keyForRelationship(attr, relationship.kind, 'serialize');
       json[key] = snapshot.hasMany(attr, { ids: true });
     } else if (includeRecords) {
       key = this.keyForAttribute(attr, 'serialize');
-      json[key] = snapshot.hasMany(attr).map(function(embeddedSnapshot) {
+      hasMany = snapshot.hasMany(attr);
+
+      Ember.warn("The embedded relationship '" + key + "' is undefined for '" + snapshot.modelName + "' with id '" + snapshot.id + "'. Please include it in your original payload.", Ember.typeOf(hasMany) !== 'undefined');
+
+      json[key] = Ember.A(hasMany).map(function(embeddedSnapshot) {
         var embeddedJson = embeddedSnapshot.record.serialize({ includeId: true });
         this.removeEmbeddedForeignKey(snapshot, embeddedSnapshot, relationship, embeddedJson);
         return embeddedJson;
