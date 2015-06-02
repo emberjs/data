@@ -773,3 +773,9 @@ test("Pushing a record into the store should transition it to the loaded state",
     equal(person.get('isNew'), false, 'push should put records into the loaded state');
   });
 });
+
+test("A subclass of DS.Model throws an error when calling create() directly", function() {
+  throws(function() {
+    Person.create();
+  }, /You should not call `create` on a model/, "Throws an error when calling create() on model");
+});
