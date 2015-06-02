@@ -18,7 +18,7 @@ Car.toString = function() { return "Car"; };
 
 var manager;
 
-module("integration/record_array_manager- destroy", {
+module("integration/record_array_manager", {
   setup: function() {
     env = setupStore({
       adapter: DS.RESTAdapter.extend()
@@ -72,40 +72,44 @@ test("destroying the store correctly cleans everything up", function() {
 
   var filterd = manager.createFilteredRecordArray(Person, function() { return true; });
   var filterd2 = manager.createFilteredRecordArray(Person, function() { return true; });
+  var all = store.all('person');
   var adapterPopulated = manager.createAdapterPopulatedRecordArray(Person, query);
 
   var filterdSummary = tap(filterd, 'willDestroy');
   var filterd2Summary = tap(filterd2, 'willDestroy');
-
+  var allSummary = tap(all, 'willDestroy');
   var adapterPopulatedSummary = tap(adapterPopulated, 'willDestroy');
 
   equal(filterdSummary.called.length, 0);
+  equal(filterd2Summary.called.length, 0);
+  equal(allSummary.called.length, 0);
   equal(adapterPopulatedSummary.called.length, 0);
 
-  equal(filterd2Summary.called.length, 0);
-
-  equal(person._internalModel._recordArrays.list.length, 2, 'expected the person to be a member of 2 recordArrays');
+  equal(person._internalModel._recordArrays.list.length, 3, 'expected the person to be a member of 3 recordArrays');
 
   Ember.run(filterd2, filterd2.destroy);
-
-  equal(person._internalModel._recordArrays.list.length, 1, 'expected the person to be a member of 1 recordArrays');
-
+  equal(person._internalModel._recordArrays.list.length, 2, 'expected the person to be a member of 2 recordArrays');
   equal(filterd2Summary.called.length, 1);
+
+  equal(manager.liveRecordArrays.has(all.type), true);
+  Ember.run(all, all.destroy);
+  equal(person._internalModel._recordArrays.list.length, 1, 'expected the person to be a member of 1 recordArrays');
+  equal(allSummary.called.length, 1);
+  equal(manager.liveRecordArrays.has(all.type), false);
 
   Ember.run(manager, manager.destroy);
-
   equal(person._internalModel._recordArrays.list.length, 0, 'expected the person to be a member of no recordArrays');
-
-  equal(filterd2Summary.called.length, 1);
-
   equal(filterdSummary.called.length, 1);
+  equal(filterd2Summary.called.length, 1);
+  equal(allSummary.called.length, 1);
   equal(adapterPopulatedSummary.called.length, 1);
 });
 
-
-test("Should not filter a stor.all() array when a record property is changed", function() {
+test("Should not filter a store.all() array when a record property is changed", function() {
   var car;
-  var filterdSummary = tap(store.recordArrayManager, 'updateRecordArray');
+
+  var populateLiveRecordArray = tap(store.recordArrayManager, 'populateLiveRecordArray');
+  var updateFilterRecordArray = tap(store.recordArrayManager, 'updateFilterRecordArray');
 
   store.all('car');
 
@@ -118,12 +122,14 @@ test("Should not filter a stor.all() array when a record property is changed", f
     });
   });
 
-  equal(filterdSummary.called.length, 1);
+  equal(populateLiveRecordArray.called.length, 1);
+  equal(updateFilterRecordArray.called.length, 0);
 
   run(function() {
     car.set('model', 'Mini');
   });
 
-  equal(filterdSummary.called.length, 1);
+  equal(populateLiveRecordArray.called.length, 1);
+  equal(updateFilterRecordArray.called.length, 0);
 
 });

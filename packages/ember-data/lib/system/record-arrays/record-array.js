@@ -190,7 +190,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   */
   _unregisterFromManager: function() {
     var manager = get(this, 'manager');
-    manager.unregisterFilteredRecordArray(this);
+    manager.unregisterRecordArray(this);
   },
 
   willDestroy: function() {

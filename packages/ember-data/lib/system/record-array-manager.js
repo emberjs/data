@@ -27,6 +27,12 @@ export default Ember.Object.extend({
       defaultValue: function() { return []; }
     });
 
+    this.liveRecordArrays = MapWithDefault.create({
+      defaultValue: (typeClass) => {
+        return this.createRecordArray(typeClass);
+      }
+    });
+
     this.changedRecords = [];
     this._adapterPopulatedRecordArrays = [];
   },
@@ -77,7 +83,6 @@ export default Ember.Object.extend({
   },
 
 
-  //Don't need to update non filtered arrays on simple changes
   _recordWasChanged: function (record) {
     var typeClass = record.type;
     var recordArrays = this.filteredRecordArrays.get(typeClass);
@@ -85,9 +90,7 @@ export default Ember.Object.extend({
 
     forEach(recordArrays, function(array) {
       filter = get(array, 'filterFunction');
-      if (filter) {
-        this.updateRecordArray(array, filter, typeClass, record);
-      }
+      this.updateFilterRecordArray(array, filter, typeClass, record);
     }, this);
   },
 
@@ -99,37 +102,54 @@ export default Ember.Object.extend({
 
     forEach(recordArrays, function(array) {
       filter = get(array, 'filterFunction');
-      this.updateRecordArray(array, filter, typeClass, record);
+      this.updateFilterRecordArray(array, filter, typeClass, record);
     }, this);
+
+    if (this.liveRecordArrays.has(typeClass)) {
+      var liveRecordArray = this.liveRecordArrays.get(typeClass);
+      this._addRecordToRecordArray(liveRecordArray, record);
+    }
   },
   /**
     Update an individual filter.
 
-    @method updateRecordArray
+    @method updateFilterRecordArray
     @param {DS.FilteredRecordArray} array
     @param {Function} filter
     @param {DS.Model} typeClass
     @param {InternalModel} record
   */
-  updateRecordArray: function(array, filter, typeClass, record) {
-    var shouldBeInArray;
-
-    if (!filter) {
-      shouldBeInArray = true;
-    } else {
-      shouldBeInArray = filter(record.getRecord());
-    }
-
+  updateFilterRecordArray: function(array, filter, typeClass, record) {
+    var shouldBeInArray = filter(record.getRecord());
     var recordArrays = this.recordArraysForRecord(record);
 
     if (shouldBeInArray) {
-      if (!recordArrays.has(array)) {
-        array.addInternalModel(record);
-        recordArrays.add(array);
-      }
-    } else if (!shouldBeInArray) {
+      this._addRecordToRecordArray(array, record);
+    } else {
       recordArrays.delete(array);
       array.removeInternalModel(record);
+    }
+  },
+
+  _addRecordToRecordArray: function(array, record) {
+    var recordArrays = this.recordArraysForRecord(record);
+    if (!recordArrays.has(array)) {
+      array.addInternalModel(record);
+      recordArrays.add(array);
+    }
+  },
+
+  populateLiveRecordArray: function(array, modelName) {
+    var typeMap = this.store.typeMapFor(modelName);
+    var records = typeMap.records;
+    var record;
+
+    for (var i = 0, l = records.length; i < l; i++) {
+      record = records[i];
+
+      if (!record.isDeleted() && !record.isEmpty()) {
+        this._addRecordToRecordArray(array, record);
+      }
     }
   },
 
@@ -154,13 +174,25 @@ export default Ember.Object.extend({
       record = records[i];
 
       if (!record.isDeleted() && !record.isEmpty()) {
-        this.updateRecordArray(array, filter, modelName, record);
+        this.updateFilterRecordArray(array, filter, modelName, record);
       }
     }
   },
 
   /**
-    Create a `DS.RecordArray` for a type and register it for updates.
+    Get the `DS.RecordArray` for a type, which contains all loaded records of
+    given type.
+
+    @method liveRecordArrayFor
+    @param {Class} typeClass
+    @return {DS.RecordArray}
+  */
+  liveRecordArrayFor: function(typeClass) {
+    return this.liveRecordArrays.get(typeClass);
+  },
+
+  /**
+    Create a `DS.RecordArray` for a type.
 
     @method createRecordArray
     @param {Class} typeClass
@@ -174,8 +206,6 @@ export default Ember.Object.extend({
       isLoaded: true,
       manager: this
     });
-
-    this.registerFilteredRecordArray(array, typeClass);
 
     return array;
   },
@@ -245,16 +275,28 @@ export default Ember.Object.extend({
   },
 
   /**
-    Unregister a FilteredRecordArray.
+    Unregister a RecordArray.
     So manager will not update this array.
 
-    @method unregisterFilteredRecordArray
+    @method unregisterRecordArray
     @param {DS.RecordArray} array
   */
-  unregisterFilteredRecordArray: function(array) {
-    var recordArrays = this.filteredRecordArrays.get(array.type);
+  unregisterRecordArray: function(array) {
+    var typeClass = array.type;
+
+    // unregister filtered record array
+    var recordArrays = this.filteredRecordArrays.get(typeClass);
     var index = indexOf(recordArrays, array);
-    recordArrays.splice(index, 1);
+    if (index !== -1) {
+      recordArrays.splice(index, 1);
+
+    // unregister live record array
+    } else if (this.liveRecordArrays.has(typeClass)) {
+      var liveRecordArrayForType = this.liveRecordArrayFor(typeClass);
+      if (array === liveRecordArrayForType) {
+        this.liveRecordArrays.remove(typeClass);
+      }
+    }
   },
 
   willDestroy: function() {
@@ -263,6 +305,7 @@ export default Ember.Object.extend({
     this.filteredRecordArrays.forEach(function(value) {
       forEach(flatten(value), destroy);
     });
+    forEach(this.liveRecordArrays, destroy);
     forEach(this._adapterPopulatedRecordArrays, destroy);
   }
 });

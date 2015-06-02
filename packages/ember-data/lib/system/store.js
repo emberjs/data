@@ -1031,8 +1031,8 @@ Store = Service.extend({
     @private
   */
   didUpdateAll: function(typeClass) {
-    var findAllCache = this.typeMapFor(typeClass).findAllCache;
-    set(findAllCache, 'isUpdating', false);
+    var liveRecordArray = this.recordArrayManager.liveRecordArrayFor(typeClass);
+    set(liveRecordArray, 'isUpdating', false);
   },
 
   /**
@@ -1061,18 +1061,11 @@ Store = Service.extend({
   all: function(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
-    var typeMap = this.typeMapFor(typeClass);
-    var findAllCache = typeMap.findAllCache;
 
-    if (findAllCache) {
-      this.recordArrayManager.updateFilter(findAllCache, typeClass);
-      return findAllCache;
-    }
+    var liveRecordArray = this.recordArrayManager.liveRecordArrayFor(typeClass);
+    this.recordArrayManager.populateLiveRecordArray(liveRecordArray, typeClass);
 
-    var array = this.recordArrayManager.createRecordArray(typeClass);
-
-    typeMap.findAllCache = array;
-    return array;
+    return liveRecordArray;
   },
 
   /**
@@ -1109,7 +1102,6 @@ Store = Service.extend({
         record.destroy(); // maybe within unloadRecord
       }
 
-      typeMap.findAllCache = null;
       typeMap.metadata = Ember.create(null);
     }
 
