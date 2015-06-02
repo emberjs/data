@@ -277,6 +277,24 @@ export default Adapter.extend(BuildURLMixin, {
   coalesceFindRequests: false,
 
   /**
+    By default the RESTAdapter will expect response data to be in json format. Override `responseDataType`
+    to specify a different type.
+
+    ```javascript
+    App.ApplicationAdapter = DS.RESTAdapter.extend({
+      responseDataType: 'jsonp'
+    });
+    ```
+
+    Response data types are limited to types accepted by the [jQuery library](http://api.jquery.com/jQuery.ajax/).
+
+    @property responseDataType
+    @type {String}
+    @default 'json'
+  */
+  responseDataType: 'json',
+
+  /**
     Endpoint paths can be prefixed with a `namespace` by setting the namespace
     property on the adapter:
 
@@ -809,7 +827,7 @@ export default Adapter.extend(BuildURLMixin, {
     var hash = options || {};
     hash.url = url;
     hash.type = type;
-    hash.dataType = 'json';
+    hash.dataType = get(this, 'responseDataType');
     hash.context = this;
 
     if (hash.data && type !== 'GET') {
