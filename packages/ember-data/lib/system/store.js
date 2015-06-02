@@ -975,9 +975,9 @@ Store = Service.extend({
     @param {any} query an opaque query to be used by the adapter
     @return {Promise} promise
   */
-  findQuery: function(typeName, query) {
+  findQuery: function(typeName, query, array) {
     var type = this.modelFor(typeName);
-    var array = this.recordArrayManager
+    array = array || this.recordArrayManager
       .createAdapterPopulatedRecordArray(type, query);
 
     var adapter = this.adapterFor(type);
