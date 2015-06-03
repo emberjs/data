@@ -71,8 +71,10 @@ import BuildURLMixin from "ember-data/adapters/build-url-mixin";
 
   For example, if you have a `Person` model:
 
-  ```js
-  App.Person = DS.Model.extend({
+  ```app/models/person.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
     firstName: DS.attr('string'),
     lastName: DS.attr('string'),
     occupation: DS.attr('string')
@@ -99,8 +101,10 @@ import BuildURLMixin from "ember-data/adapters/build-url-mixin";
   Endpoint paths can be prefixed with a `namespace` by setting the namespace
   property on the adapter:
 
-  ```js
-  App.ApplicationAdapter = DS.RESTAdapter.extend({
+  ```app/adapters/application.js
+  import DS from 'ember-data';
+
+  export default DS.RESTAdapter.extend({
     namespace: 'api/1'
   });
   ```
@@ -110,8 +114,10 @@ import BuildURLMixin from "ember-data/adapters/build-url-mixin";
 
   An adapter can target other hosts by setting the `host` property.
 
-  ```js
-  App.ApplicationAdapter = DS.RESTAdapter.extend({
+  ```app/adapters/application.js
+  import DS from 'ember-data';
+
+  export default DS.RESTAdapter.extend({
     host: 'https://api.example.com'
   });
   ```
@@ -123,8 +129,10 @@ import BuildURLMixin from "ember-data/adapters/build-url-mixin";
   object and Ember Data will send them along with each ajax request.
 
 
-  ```js
-  App.ApplicationAdapter = DS.RESTAdapter.extend({
+  ```app/adapters/application.js
+  import DS from 'ember-data';
+
+  export default DS.RESTAdapter.extend({
     headers: {
       "API_KEY": "secret key",
       "ANOTHER_HEADER": "Some header value"
@@ -136,8 +144,10 @@ import BuildURLMixin from "ember-data/adapters/build-url-mixin";
   headers. In the example below, the `session` object has been
   injected into an adapter by Ember's container.
 
-  ```js
-  App.ApplicationAdapter = DS.RESTAdapter.extend({
+  ```app/adapters/application.js
+  import DS from 'ember-data';
+
+  export default DS.RESTAdapter.extend({
     headers: function() {
       return {
         "API_KEY": this.get("session.authToken"),
@@ -154,8 +164,10 @@ import BuildURLMixin from "ember-data/adapters/build-url-mixin";
   function to set the property into a non-cached mode causing the headers to
   be recomputed with every request.
 
-  ```js
-  App.ApplicationAdapter = DS.RESTAdapter.extend({
+  ```app/adapters/application.js
+  import DS from 'ember-data';
+
+  export default DS.RESTAdapter.extend({
     headers: function() {
       return {
         "API_KEY": Ember.get(document.cookie.match(/apiKey\=([^;]*)/), "1"),
@@ -195,7 +207,9 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     In case you want to sort the query parameters with a different criteria, set
     `sortQueryParams` to your custom sort function.
 
-    ```js
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
     export default DS.RESTAdapter.extend({
       sortQueryParams: function(params) {
         var sortedKeys = Object.keys(params).sort().reverse();
@@ -281,8 +295,10 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     Endpoint paths can be prefixed with a `namespace` by setting the namespace
     property on the adapter:
 
-    ```javascript
-    App.ApplicationAdapter = DS.RESTAdapter.extend({
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.RESTAdapter.extend({
       namespace: 'api/1'
     });
     ```
@@ -296,8 +312,10 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
   /**
     An adapter can target other hosts by setting the `host` property.
 
-    ```javascript
-    App.ApplicationAdapter = DS.RESTAdapter.extend({
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.RESTAdapter.extend({
       host: 'https://api.example.com'
     });
     ```
@@ -315,8 +333,10 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     along with each ajax request. For dynamic headers see [headers
     customization](/api/data/classes/DS.RESTAdapter.html#toc_headers-customization).
 
-    ```javascript
-    App.ApplicationAdapter = DS.RESTAdapter.extend({
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.RESTAdapter.extend({
       headers: {
         "API_KEY": "secret key",
         "ANOTHER_HEADER": "Some header value"
@@ -680,8 +700,10 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
 
     Example
 
-    ```javascript
-    App.ApplicationAdapter = DS.RESTAdapter.extend({
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.RESTAdapter.extend({
       ajaxError: function(jqXHR) {
         var error = this._super(jqXHR);
 

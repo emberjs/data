@@ -250,8 +250,10 @@ export default Ember.Mixin.create({
     For example if you have an object LineItem with an
     endpoint of "/line_items/".
 
-    ```js
-    App.ApplicationAdapter = DS.RESTAdapter.extend({
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.RESTAdapter.extend({
       pathForType: function(modelName) {
         var decamelized = Ember.String.decamelize(modelName);
         return Ember.String.pluralize(decamelized);
