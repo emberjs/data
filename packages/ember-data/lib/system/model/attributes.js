@@ -144,7 +144,7 @@ Model.reopenClass({
 
     @method eachAttribute
     @param {Function} callback The callback to execute
-    @param {Object} [target] The target object to use
+    @param {Object} [binding] the value to which the callback's `this` should be bound
     @static
   */
   eachAttribute: function(callback, binding) {
@@ -192,7 +192,7 @@ Model.reopenClass({
 
     @method eachTransformedAttribute
     @param {Function} callback The callback to execute
-    @param {Object} [target] The target object to use
+    @param {Object} [binding] the value to which the callback's `this` should be bound
     @static
   */
   eachTransformedAttribute: function(callback, binding) {
