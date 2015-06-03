@@ -53,7 +53,7 @@ Ember.onLoad('Ember.Application', function(Application) {
       initialize: initializeStoreService
     });
   } else {
-    Ember.initializer({
+    Application.initializer({
       name:       "ember-data-store-service",
       after:       "ember-data",
       initialize: initializeStoreService
