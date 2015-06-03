@@ -637,6 +637,20 @@ test("snapshot.get() proxies property to record unless identified as id, attribu
   });
 });
 
+test("snapshot.serialize() serializes itself", function() {
+  expect(2);
+
+  run(function() {
+    var post = env.store.push('post', { id: 1, title: 'Hello World' });
+    var snapshot = post._createSnapshot();
+
+    post.set('title', 'New Title');
+
+    deepEqual(snapshot.serialize(), { author: undefined, title: 'Hello World' }, 'shapshot serializes correctly');
+    deepEqual(snapshot.serialize({ includeId: true }), { id: "1", author: undefined, title: 'Hello World' }, 'serialize takes options')
+  });
+});
+
 test('snapshot.typeKey is deprecated', function() {
   expect(1);
 
