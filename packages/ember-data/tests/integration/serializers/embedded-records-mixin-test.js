@@ -1343,6 +1343,55 @@ test("extractSingle with polymorphic belongsTo and custom primary key", function
 
 });
 
+test("extractSingle with polymorphic belongsTo and custom primary key", function() {
+  expect(2);
+
+  SuperVillain.reopen({
+    secretLab: DS.belongsTo("secretLab", { polymorphic: true })
+  });
+
+  env.registry.register('adapter:super-villain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:super-villain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      secretLab: { embedded: 'always' }
+    }
+  }));
+  env.registry.register('serializer:bat-cave', DS.ActiveModelSerializer.extend({
+    primaryKey: 'custom'
+  }));
+  var serializer = env.container.lookup("serializer:super-villain");
+
+  var json_hash = {
+    super_villain: {
+      id: "1",
+      first_name: "Tom",
+      last_name: "Dale",
+      secret_lab: {
+        custom: "1",
+        type: "bat-cave",
+        infiltrated: true
+      }
+    }
+  };
+
+  var json;
+
+  run(function() {
+    json = serializer.extractSingle(env.store, SuperVillain, json_hash);
+  });
+
+  deepEqual(json, {
+    id: "1",
+    firstName: "Tom",
+    lastName: "Dale",
+    secretLab: "1",
+    secretLabType: "bat-cave"
+  }, "Custom primary key is correctly normalized");
+
+  equal(env.store.recordForId("batCave", "1").get("infiltrated"), true, "Embedded polymorphic BatCave with custom primary key is found");
+
+});
+
 test("Mixin can be used with RESTSerializer which does not define keyForAttribute", function() {
   run(function() {
     homePlanet = env.store.createRecord('home-planet', { name: "Villain League", id: "123" });

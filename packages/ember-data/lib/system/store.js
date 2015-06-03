@@ -43,8 +43,8 @@ import coerceId from "ember-data/system/coerce-id";
 import RecordArrayManager from "ember-data/system/record-array-manager";
 
 import InternalModel from "ember-data/system/model/internal-model";
-
 import Model from "ember-data/system/model";
+
 var Backburner = Ember.Backburner || Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
 
 //Shim Backburner.join

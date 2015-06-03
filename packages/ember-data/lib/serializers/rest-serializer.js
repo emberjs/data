@@ -269,7 +269,6 @@ var RESTSerializer = JSONSerializer.extend({
         Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false);
         continue;
       }
-
       var isPrimary = this.isPrimaryType(store, modelName, primaryTypeClass);
       var value = payload[prop];
 

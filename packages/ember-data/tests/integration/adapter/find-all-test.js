@@ -113,6 +113,11 @@ test("When all records for a type are requested, records that are already loaded
 test("When all records for a type are requested, records that are created on the client should be added to the record array.", function() {
   expect(3);
 
+  store = createStore({
+    adapter: DS.Adapter.extend(),
+    person: Person
+  });
+
   allRecords = store.all('person');
 
   equal(get(allRecords, 'length'), 0, "precond - the record array's length is zero before any records are loaded");
