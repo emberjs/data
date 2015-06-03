@@ -21,12 +21,18 @@ var map = Ember.EnumerableUtils.map;
   an inverse. For example, imagine the following models are
   defined:
 
-  ```javascript
-  App.Post = DS.Model.extend({
+  ```app/models/post.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
     comments: DS.hasMany('comment')
   });
+  ```
 
-  App.Comment = DS.Model.extend({
+  ```app/models/comment.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
     post: DS.belongsTo('post')
   });
   ```
