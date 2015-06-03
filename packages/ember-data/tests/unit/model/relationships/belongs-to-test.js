@@ -134,7 +134,7 @@ test("calling createRecord and passing in an undefined value for a relationship 
   });
 
   run(function() {
-    store.find(Person, 1).then(async(function(person) {
+    store.find('person', 1).then(async(function(person) {
       strictEqual(person.get('tag'), null, "undefined values should return null relationships");
     }));
   });
@@ -249,7 +249,7 @@ test("belongsTo supports relationships to models with id 0", function() {
       equal(get(person, 'tag.name'), "friendly", "the tag should have name");
 
       strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
-      asyncEqual(get(person, 'tag'), store.find(Tag, 0), "relationship object is the same as object retrieved directly");
+      asyncEqual(get(person, 'tag'), store.find('tag', 0), "relationship object is the same as object retrieved directly");
     }));
   });
 });

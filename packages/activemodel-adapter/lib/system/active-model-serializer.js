@@ -117,12 +117,12 @@ var ActiveModelSerializer = RESTSerializer.extend({
     relationship keys.
 
     @method keyForRelationship
-    @param {String} relationshipTypeKey
+    @param {String} relationshipModelName
     @param {String} kind
     @return String
   */
-  keyForRelationship: function(relationshipTypeKey, kind) {
-    var key = decamelize(relationshipTypeKey);
+  keyForRelationship: function(relationshipModelName, kind) {
+    var key = decamelize(relationshipModelName);
     if (kind === "belongsTo") {
       return key + "_id";
     } else if (kind === "hasMany") {

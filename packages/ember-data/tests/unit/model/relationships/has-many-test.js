@@ -64,7 +64,7 @@ test("hasMany handles pre-loaded relationships", function() {
       equal(get(get(person, 'tags'), 'length'), 2, "the length is updated after new data is loaded");
 
       strictEqual(get(person, 'tags').objectAt(0), get(person, 'tags').objectAt(0), "the returned object is always the same");
-      asyncEqual(get(person, 'tags').objectAt(0), store.find(Tag, 5), "relationship objects are the same as objects retrieved directly");
+      asyncEqual(get(person, 'tags').objectAt(0), store.find('tag', 5), "relationship objects are the same as objects retrieved directly");
 
       run(function() {
         store.push('person', { id: 3, name: "KSelden" });
@@ -86,7 +86,7 @@ test("hasMany handles pre-loaded relationships", function() {
       equal(get(pets.objectAt(0), 'name'), "fluffy", "the first pet should be correct");
 
       run(function() {
-        store.push(Person, { id: 4, name: "Cyvid Hamluck", pets: [4, 12] });
+        store.push('person', { id: 4, name: "Cyvid Hamluck", pets: [4, 12] });
       });
 
       equal(pets, get(cyvid, 'pets'), "a relationship returns the same object every time");
@@ -152,13 +152,13 @@ test("hasMany lazily loads async relationships", function() {
       equal(get(records.tags.objectAt(0), 'name'), "oohlala", "the first tag should be a Tag");
 
       strictEqual(records.tags.objectAt(0), records.tags.objectAt(0), "the returned object is always the same");
-      asyncEqual(records.tags.objectAt(0), store.find(Tag, 12), "relationship objects are the same as objects retrieved directly");
+      asyncEqual(records.tags.objectAt(0), store.find('tag', 12), "relationship objects are the same as objects retrieved directly");
 
       return get(wycats, 'tags');
     }).then(function(tags) {
       var newTag;
       run(function() {
-        newTag = store.createRecord(Tag);
+        newTag = store.createRecord('tag');
         tags.pushObject(newTag);
       });
     });
@@ -177,7 +177,7 @@ test("should be able to retrieve the type for a hasMany relationship without spe
     person: Person
   });
 
-  equal(env.store.modelFor('person').typeForRelationship('tags'), Tag, "returns the relationship type");
+  equal(env.store.modelFor('person').typeForRelationship('tags', env.store), Tag, "returns the relationship type");
 });
 
 test("should be able to retrieve the type for a hasMany relationship specified using a string from its metadata", function() {
@@ -192,7 +192,7 @@ test("should be able to retrieve the type for a hasMany relationship specified u
     person: Person
   });
 
-  equal(env.store.modelFor('person').typeForRelationship('tags'), Tag, "returns the relationship type");
+  equal(env.store.modelFor('person').typeForRelationship('tags', env.store), Tag, "returns the relationship type");
 });
 
 test("should be able to retrieve the type for a belongsTo relationship without specifying a type from its metadata", function() {
@@ -207,7 +207,7 @@ test("should be able to retrieve the type for a belongsTo relationship without s
     person: Person
   });
 
-  equal(env.store.modelFor('person').typeForRelationship('tag'), Tag, "returns the relationship type");
+  equal(env.store.modelFor('person').typeForRelationship('tag', env.store), Tag, "returns the relationship type");
 });
 
 test("should be able to retrieve the type for a belongsTo relationship specified using a string from its metadata", function() {
@@ -224,7 +224,7 @@ test("should be able to retrieve the type for a belongsTo relationship specified
     person: Person
   });
 
-  equal(env.store.modelFor('person').typeForRelationship('tags'), Tag, "returns the relationship type");
+  equal(env.store.modelFor('person').typeForRelationship('tags', env.store), Tag, "returns the relationship type");
 });
 
 test("relationships work when declared with a string path", function() {
@@ -335,12 +335,12 @@ test("it is possible to add a new item to a relationship", function() {
   });
 
   run(function() {
-    store.find(Person, 1).then(function(person) {
+    store.find('person', 1).then(function(person) {
       var tag = get(person, 'tags').objectAt(0);
 
       equal(get(tag, 'name'), "ember", "precond - relationships work");
 
-      tag = store.createRecord(Tag, { name: "js" });
+      tag = store.createRecord('tag', { name: "js" });
       get(person, 'tags').pushObject(tag);
 
       equal(get(person, 'tags').objectAt(1), tag, "newly added relationship works");

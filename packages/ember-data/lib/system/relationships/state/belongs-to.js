@@ -61,17 +61,17 @@ BelongsToRelationship.prototype.flushCanonical = function() {
 BelongsToRelationship.prototype._super$addRecord = Relationship.prototype.addRecord;
 BelongsToRelationship.prototype.addRecord = function(newRecord) {
   if (this.members.has(newRecord)) { return;}
-  var type = this.relationshipMeta.type;
-  Ember.assert("You cannot add a '" + newRecord.type.modelName + "' record to the '" + this.record.type.modelName + "." + this.key +"'. " + "You can only add a '" + type.modelName + "' record to this relationship.", (function () {
-    if (type.__isMixin) {
+  var typeClass = this.store.modelFor(this.relationshipMeta.type);
+  Ember.assert("You cannot add a '" + newRecord.type.modelName + "' record to the '" + this.record.type.modelName + "." + this.key +"'. " + "You can only add a '" + typeClass.modelName + "' record to this relationship.", (function () {
+    if (typeClass.__isMixin) {
       //TODO Need to do this in order to support mixins, should convert to public api
       //once it exists in Ember
-      return type.__mixin.detect(newRecord.type.PrototypeMixin);
+      return typeClass.__mixin.detect(newRecord.type.PrototypeMixin);
     }
     if (Ember.MODEL_FACTORY_INJECTIONS) {
-      type = type.superclass;
+      typeClass = typeClass.superclass;
     }
-    return type.detect(newRecord.type);
+    return typeClass.detect(newRecord.type);
   })());
 
   if (this.inverseRecord) {

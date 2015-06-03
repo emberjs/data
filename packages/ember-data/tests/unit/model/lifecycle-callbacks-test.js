@@ -131,14 +131,15 @@ test("a record receives a didCreate callback when it has finished updating", fun
   });
 
   var store = createStore({
-    adapter: adapter
+    adapter: adapter,
+    person: Person
   });
 
   equal(callCount, 0, "precond - didCreate callback was not called yet");
   var person;
 
   run(function() {
-    person = store.createRecord(Person, { id: 69, name: "Newt Gingrich" });
+    person = store.createRecord('person', { id: 69, name: "Newt Gingrich" });
   });
 
 
@@ -219,12 +220,13 @@ test("an uncommited record also receives a didDelete callback when it is deleted
   });
 
   var store = createStore({
-    adapter: DS.Adapter.extend()
+    adapter: DS.Adapter.extend(),
+    person: Person
   });
 
   var person;
   run(function() {
-    person = store.createRecord(Person, { name: 'Tomster' });
+    person = store.createRecord('person', { name: 'Tomster' });
   });
 
   equal(callCount, 0, "precond - didDelete callback was not called yet");
@@ -291,15 +293,18 @@ test("a record receives a becameInvalid callback when it became invalid", functi
 });
 
 test("an ID of 0 is allowed", function() {
-  var store = createStore();
 
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });
 
-  run(function() {
-    store.push(Person, { id: 0, name: "Tom Dale" });
+  var store = createStore({
+    person: Person
   });
 
-  equal(store.all(Person).objectAt(0).get('name'), "Tom Dale", "found record with id 0");
+  run(function() {
+    store.push('person', { id: 0, name: "Tom Dale" });
+  });
+
+  equal(store.all('person').objectAt(0).get('name'), "Tom Dale", "found record with id 0");
 });

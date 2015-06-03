@@ -3,7 +3,6 @@ var run = Ember.run;
 
 module("unit/store/createRecord - Store creating records", {
   setup: function() {
-
     Record = DS.Model.extend({
       title: DS.attr('string')
     });
@@ -24,8 +23,8 @@ module("unit/store/createRecord - Store creating records", {
 test("doesn't modify passed in properties hash", function() {
   var attributes = { foo: 'bar' };
   run(function() {
-    store.createRecord(Record, attributes);
-    store.createRecord(Record, attributes);
+    store.createRecord('record', attributes);
+    store.createRecord('record', attributes);
   });
 
   deepEqual(attributes, { foo: 'bar' }, "The properties hash is not modified");
@@ -34,8 +33,8 @@ test("doesn't modify passed in properties hash", function() {
 test("allow passing relationships as well as attributes", function() {
   var records, storage;
   run(function() {
-    records = store.pushMany(Record, [{ id: 1, title: "it's a beautiful day" }, { id: 2, title: "it's a beautiful day" }]);
-    storage = store.createRecord(Storage, { name: 'Great store', records: records });
+    records = store.pushMany('record', [{ id: 1, title: "it's a beautiful day" }, { id: 2, title: "it's a beautiful day" }]);
+    storage = store.createRecord('storage', { name: 'Great store', records: records });
   });
 
   equal(storage.get('name'), 'Great store', "The attribute is well defined");
@@ -57,7 +56,7 @@ test("creating a record by camel-case string finds the model", function() {
   var record;
 
   run(function() {
-    record = store.createRecord('someThing', attributes);
+    record = store.createRecord('some-thing', attributes);
   });
 
   equal(record.get('foo'), attributes.foo, "The record is created");
@@ -91,7 +90,7 @@ test("creating a record by camel-case string finds the model", function() {
   var record;
 
   run(function() {
-    record = store.createRecord('someThing', attributes);
+    record = store.createRecord('some-thing', attributes);
   });
 
   equal(record.get('foo'), attributes.foo, "The record is created");

@@ -651,7 +651,7 @@ export default Serializer.extend({
         payloadKey = this.keyForRelationship(key, "hasMany", "serialize");
       }
 
-      var relationshipType = snapshot.type.determineRelationshipType(relationship);
+      var relationshipType = snapshot.type.determineRelationshipType(relationship, this.store);
 
       if (relationshipType === 'manyToNone' || relationshipType === 'manyToMany') {
         json[payloadKey] = snapshot.hasMany(key, { ids: true });
@@ -729,7 +729,7 @@ export default Serializer.extend({
     @return {Object} json The deserialized payload
   */
   extract: function(store, typeClass, payload, id, requestType) {
-    this.extractMeta(store, typeClass, payload);
+    this.extractMeta(store, typeClass.modelName, payload);
 
     var specificExtract = "extract" + requestType.charAt(0).toUpperCase() + requestType.substr(1);
     return this[specificExtract](store, typeClass, payload, id, requestType);

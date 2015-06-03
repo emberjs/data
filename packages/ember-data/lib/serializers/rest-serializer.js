@@ -263,13 +263,13 @@ var RESTSerializer = JSONSerializer.extend({
     var primaryRecord;
 
     for (var prop in payload) {
-      var typeName  = this.modelNameFromPayloadKey(prop);
+      var modelName = this.modelNameFromPayloadKey(prop);
 
-      if (!store.modelFactoryFor(typeName)) {
-        Ember.warn(this.warnMessageNoModelForKey(prop, typeName), false);
+      if (!store.modelFactoryFor(modelName)) {
+        Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false);
         continue;
       }
-      var isPrimary = this.isPrimaryType(store, typeName, primaryTypeClass);
+      var isPrimary = this.isPrimaryType(store, modelName, primaryTypeClass);
       var value = payload[prop];
 
       if (value === null) {
@@ -282,7 +282,7 @@ var RESTSerializer = JSONSerializer.extend({
         continue;
       }
 
-      var normalizedArray = this.normalizeArray(store, typeName, value, prop);
+      var normalizedArray = this.normalizeArray(store, modelName, value, prop);
 
       /*jshint loopfunc:true*/
       forEach.call(normalizedArray, function(hash) {
@@ -298,7 +298,7 @@ var RESTSerializer = JSONSerializer.extend({
         if (isFirstCreatedRecord || isUpdatedRecord) {
           primaryRecord = hash;
         } else {
-          store.push(typeName, hash);
+          store.push(modelName, hash);
         }
       }, this);
     }
@@ -440,7 +440,7 @@ var RESTSerializer = JSONSerializer.extend({
 
   normalizeArray: function(store, typeName, arrayHash, prop) {
     var typeClass = store.modelFor(typeName);
-    var typeSerializer = store.serializerFor(typeClass);
+    var typeSerializer = store.serializerFor(typeName);
 
     /*jshint loopfunc:true*/
     return map.call(arrayHash, function(hash) {
@@ -493,12 +493,12 @@ var RESTSerializer = JSONSerializer.extend({
         Ember.warn(this.warnMessageNoModelForKey(prop, modelName), false);
         continue;
       }
-      var type = store.modelFor(modelName);
-      var typeSerializer = store.serializerFor(type);
+      var typeClass = store.modelFor(modelName);
+      var typeSerializer = store.serializerFor(modelName);
 
       /*jshint loopfunc:true*/
       var normalizedArray = map.call(Ember.makeArray(payload[prop]), function(hash) {
-        return typeSerializer.normalize(type, hash, prop);
+        return typeSerializer.normalize(typeClass, hash, prop);
       }, this);
 
       store.pushMany(modelName, normalizedArray);

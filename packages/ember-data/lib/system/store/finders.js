@@ -15,7 +15,7 @@ var map = Ember.EnumerableUtils.map;
 export function _find(adapter, store, typeClass, id, internalModel) {
   var snapshot = internalModel.createSnapshot();
   var promise = adapter.find(store, typeClass, id, snapshot);
-  var serializer = serializerForAdapter(store, adapter, typeClass);
+  var serializer = serializerForAdapter(store, adapter, internalModel.type.modelName);
   var label = "DS: Handle Adapter#find of " + typeClass + " with id: " + id;
 
   promise = Promise.cast(promise, label);
@@ -27,7 +27,7 @@ export function _find(adapter, store, typeClass, id, internalModel) {
       var payload = serializer.extract(store, typeClass, adapterPayload, id, 'find');
 
       //TODO Optimize
-      var record = store.push(typeClass, payload);
+      var record = store.push(typeClass.modelName, payload);
       return record._internalModel;
     });
   }, function(error) {
@@ -44,7 +44,7 @@ export function _find(adapter, store, typeClass, id, internalModel) {
 export function _findMany(adapter, store, typeClass, ids, internalModels) {
   var snapshots = Ember.A(internalModels).invoke('createSnapshot');
   var promise = adapter.findMany(store, typeClass, ids, snapshots);
-  var serializer = serializerForAdapter(store, adapter, typeClass);
+  var serializer = serializerForAdapter(store, adapter, typeClass.modelName);
   var label = "DS: Handle Adapter#findMany of " + typeClass;
 
   if (promise === undefined) {
@@ -61,7 +61,7 @@ export function _findMany(adapter, store, typeClass, ids, internalModels) {
       Ember.assert("The response from a findMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
       //TODO Optimize, no need to materialize here
-      var records = store.pushMany(typeClass, payload);
+      var records = store.pushMany(typeClass.modelName, payload);
       return map(records, function(record) { return record._internalModel; });
     });
   }, null, "DS: Extract payload of " + typeClass);
@@ -69,6 +69,7 @@ export function _findMany(adapter, store, typeClass, ids, internalModels) {
 
 export function _findHasMany(adapter, store, internalModel, link, relationship) {
   var snapshot = internalModel.createSnapshot();
+  var typeClass = store.modelFor(relationship.type);
   var promise = adapter.findHasMany(store, snapshot, link, relationship);
   var serializer = serializerForAdapter(store, adapter, relationship.type);
   var label = "DS: Handle Adapter#findHasMany of " + internalModel + " : " + relationship.type;
@@ -79,7 +80,7 @@ export function _findHasMany(adapter, store, internalModel, link, relationship) 
 
   return promise.then(function(adapterPayload) {
     return store._adapterRun(function() {
-      var payload = serializer.extract(store, relationship.type, adapterPayload, null, 'findHasMany');
+      var payload = serializer.extract(store, typeClass, adapterPayload, null, 'findHasMany');
 
       Ember.assert("The response from a findHasMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
@@ -92,6 +93,7 @@ export function _findHasMany(adapter, store, internalModel, link, relationship) 
 
 export function _findBelongsTo(adapter, store, internalModel, link, relationship) {
   var snapshot = internalModel.createSnapshot();
+  var typeClass = store.modelFor(relationship.type);
   var promise = adapter.findBelongsTo(store, snapshot, link, relationship);
   var serializer = serializerForAdapter(store, adapter, relationship.type);
   var label = "DS: Handle Adapter#findBelongsTo of " + internalModel + " : " + relationship.type;
@@ -102,7 +104,7 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
 
   return promise.then(function(adapterPayload) {
     return store._adapterRun(function() {
-      var payload = serializer.extract(store, relationship.type, adapterPayload, null, 'findBelongsTo');
+      var payload = serializer.extract(store, typeClass, adapterPayload, null, 'findBelongsTo');
 
       if (!payload) {
         return null;
@@ -117,7 +119,8 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
 
 export function _findAll(adapter, store, typeClass, sinceToken) {
   var promise = adapter.findAll(store, typeClass, sinceToken);
-  var serializer = serializerForAdapter(store, adapter, typeClass);
+  var modelName = typeClass.modelName;
+  var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Handle Adapter#findAll of " + typeClass;
 
   promise = Promise.cast(promise, label);
@@ -129,17 +132,18 @@ export function _findAll(adapter, store, typeClass, sinceToken) {
 
       Ember.assert("The response from a findAll must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
-      store.pushMany(typeClass, payload);
+      store.pushMany(modelName, payload);
     });
 
     store.didUpdateAll(typeClass);
-    return store.all(typeClass);
+    return store.all(modelName);
   }, null, "DS: Extract payload of findAll " + typeClass);
 }
 
 export function _findQuery(adapter, store, typeClass, query, recordArray) {
+  var modelName = typeClass.modelName;
   var promise = adapter.findQuery(store, typeClass, query, recordArray);
-  var serializer = serializerForAdapter(store, adapter, typeClass);
+  var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Handle Adapter#findQuery of " + typeClass;
 
   promise = Promise.cast(promise, label);

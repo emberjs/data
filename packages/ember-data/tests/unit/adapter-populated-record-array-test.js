@@ -9,24 +9,24 @@ var adapter = DS.Adapter.extend({
 
 module("unit/adapter_populated_record_array - DS.AdapterPopulatedRecordArray", {
   setup: function() {
-
-    store = createStore({
-      adapter: adapter
+    Person = DS.Model.extend({
+      name: DS.attr('string')
     });
 
+    store = createStore({
+      adapter: adapter,
+      person: Person
+    });
     array = [{ id: '1', name: "Scumbag Dale" },
              { id: '2', name: "Scumbag Katz" },
              { id: '3', name: "Scumbag Bryn" }];
 
-    Person = DS.Model.extend({
-      name: DS.attr('string')
-    });
   }
 });
 
 test("when a record is deleted in an adapter populated record array, it should be removed", function() {
   var recordArray = store.recordArrayManager
-    .createAdapterPopulatedRecordArray(Person, null);
+    .createAdapterPopulatedRecordArray(store.modelFor('person'), null);
 
   run(function() {
     recordArray.load(array);

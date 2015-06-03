@@ -26,7 +26,7 @@ module('integration/inverse_test - inverseFor', {
     Job.toString = stringify('job');
 
     ReflexiveModel = DS.Model.extend({
-      reflexiveProp: belongsTo('reflexiveModel')
+      reflexiveProp: belongsTo('reflexive-model')
     });
 
     ReflexiveModel.toString = stringify('reflexiveModel');
@@ -38,6 +38,10 @@ module('integration/inverse_test - inverseFor', {
     });
 
     store = env.store;
+
+    Job = store.modelFor('job');
+    User = store.modelFor('user');
+    ReflexiveModel = store.modelFor('reflexive-model');
   },
 
   teardown: function() {
@@ -49,7 +53,7 @@ test("Finds the inverse when there is only one possible available", function () 
   //Maybe store is evaluated lazily, so we need this :(
   run(store, 'push', 'user', { id: 1 });
 
-  deepEqual(Job.inverseFor('user'), {
+  deepEqual(Job.inverseFor('user', store), {
     type: User,
     name: 'job',
     kind: 'belongsTo'
@@ -72,13 +76,13 @@ test("Finds the inverse when only one side has defined it manually", function ()
     job = store.push('user', { id: 1 });
   });
 
-  deepEqual(Job.inverseFor('owner'), {
+  deepEqual(Job.inverseFor('owner', store), {
     type: User, //the model's type
     name: 'previousJob', //the models relationship key
     kind: 'belongsTo'
   }, 'Gets correct type, name and kind');
 
-  deepEqual(User.inverseFor('previousJob'), {
+  deepEqual(User.inverseFor('previousJob', store), {
     type: Job, //the model's type
     name: 'owner', //the models relationship key
     kind: 'belongsTo'
@@ -99,7 +103,7 @@ test("Returns null if inverse relationship it is manually set with a different r
     user = store.push('user', { id: 1 });
   });
 
-  equal(User.inverseFor('job'), null, 'There is no inverse');
+  equal(User.inverseFor('job', store), null, 'There is no inverse');
 });
 
 test("Errors out if you define 2 inverses to the same model", function () {
@@ -117,7 +121,7 @@ test("Errors out if you define 2 inverses to the same model", function () {
     run(function() {
       store.push('user', { id: 1 });
     });
-    User.inverseFor('job');
+    User.inverseFor('job', store);
   }, "You defined the 'job' relationship on user, but you defined the inverse relationships of type job multiple times. Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses");
 });
 
@@ -129,12 +133,12 @@ test("Caches findInverseFor return value", function () {
     store.push('user', { id: 1 });
   });
 
-  var inverseForUser = Job.inverseFor('user');
+  var inverseForUser = Job.inverseFor('user', store);
   Job.findInverseFor = function() {
     ok(false, 'Find is not called anymore');
   };
 
-  equal(inverseForUser, Job.inverseFor('user'), 'Inverse cached succesfully');
+  equal(inverseForUser, Job.inverseFor('user', store), 'Inverse cached succesfully');
 });
 
 test("Errors out if you do not define an inverse for a reflexive relationship", function () {
@@ -143,7 +147,7 @@ test("Errors out if you do not define an inverse for a reflexive relationship", 
   warns(function() {
     var reflexiveModel;
     run(function() {
-      reflexiveModel = store.push('reflexiveModel', { id: 1 });
+      reflexiveModel = store.push('reflexive-model', { id: 1 });
     });
   }, /Detected a reflexive relationship by the name of 'reflexiveProp'/);
 });

@@ -1,5 +1,4 @@
 var get = Ember.get;
-var set = Ember.set;
 var run = Ember.run;
 var Occupation, Person, store;
 
@@ -18,7 +17,7 @@ module("unit/model/relationships - DS.Model", {
       person: Person
     });
 
-    set(Person, 'store', store);
+    Person = store.modelFor('person');
   }
 });
 
@@ -31,11 +30,11 @@ test("exposes a hash of the relationships on a model", function() {
   });
 
   var relationships = get(Person, 'relationships');
-  deepEqual(relationships.get(Person), [
+  deepEqual(relationships.get('person'), [
     { name: "people", kind: "hasMany" },
     { name: "parent", kind: "belongsTo" }
   ]);
-  deepEqual(relationships.get(Occupation), [
+  deepEqual(relationships.get('occupation'), [
     { name: "occupations", kind: "hasMany" }
   ]);
 });
@@ -48,8 +47,8 @@ test("relationshipNames a hash of the relationships on a model with type as a ke
 test("eachRelatedType() iterates over relations without duplication", function() {
   var relations = [];
 
-  Person.eachRelatedType(function(typeClass) {
-    relations.push(typeClass.modelName);
+  Person.eachRelatedType(function(modelName) {
+    relations.push(modelName);
   });
 
   deepEqual(relations, ['occupation', 'person']);

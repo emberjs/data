@@ -339,7 +339,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
       var parentRecord = snapshot.type.inverseFor(relationship.key);
       if (parentRecord) {
         var name = parentRecord.name;
-        var embeddedSerializer = this.store.serializerFor(embeddedSnapshot.type);
+        var embeddedSerializer = this.store.serializerFor(embeddedSnapshot.modelName);
         var parentKey = embeddedSerializer.keyForRelationship(name, parentRecord.kind, 'deserialize');
         if (parentKey) {
           delete json[parentKey];
@@ -394,7 +394,7 @@ function extractEmbeddedRecords(serializer, store, typeClass, partial) {
 
   typeClass.eachRelationship(function(key, relationship) {
     if (serializer.hasDeserializeRecordsOption(key)) {
-      var embeddedTypeClass = store.modelFor(relationship.type.modelName);
+      var embeddedTypeClass = store.modelFor(relationship.type);
       if (relationship.kind === "hasMany") {
         if (relationship.options.polymorphic) {
           extractEmbeddedHasManyPolymorphic(store, key, partial);
@@ -426,7 +426,7 @@ function extractEmbeddedHasMany(store, key, embeddedTypeClass, hash) {
   var embeddedSerializer = store.serializerFor(embeddedTypeClass.modelName);
   forEach(hash[key], function(data) {
     var embeddedRecord = embeddedSerializer.normalize(embeddedTypeClass, data, null);
-    store.push(embeddedTypeClass, embeddedRecord);
+    store.push(embeddedTypeClass.modelName, embeddedRecord);
     ids.push(embeddedRecord.id);
   });
 
@@ -445,9 +445,10 @@ function extractEmbeddedHasManyPolymorphic(store, key, hash) {
     var modelName = data.type;
     var embeddedSerializer = store.serializerFor(modelName);
     var embeddedTypeClass = store.modelFor(modelName);
+    // var primaryKey = embeddedSerializer.get('primaryKey');
 
     var embeddedRecord = embeddedSerializer.normalize(embeddedTypeClass, data, null);
-    store.push(embeddedTypeClass, embeddedRecord);
+    store.push(embeddedTypeClass.modelName, embeddedRecord);
     ids.push({ id: embeddedRecord.id, type: modelName });
   });
 
@@ -462,7 +463,7 @@ function extractEmbeddedBelongsTo(store, key, embeddedTypeClass, hash) {
 
   var embeddedSerializer = store.serializerFor(embeddedTypeClass.modelName);
   var embeddedRecord = embeddedSerializer.normalize(embeddedTypeClass, hash[key], null);
-  store.push(embeddedTypeClass, embeddedRecord);
+  store.push(embeddedTypeClass.modelName, embeddedRecord);
 
   hash[key] = embeddedRecord.id;
   //TODO Need to add a reference to the parent later so relationship works between both `belongsTo` records
@@ -480,7 +481,7 @@ function extractEmbeddedBelongsToPolymorphic(store, key, hash) {
   var embeddedTypeClass = store.modelFor(modelName);
 
   var embeddedRecord = embeddedSerializer.normalize(embeddedTypeClass, data, null);
-  store.push(embeddedTypeClass, embeddedRecord);
+  store.push(embeddedTypeClass.modelName, embeddedRecord);
 
   hash[key] = embeddedRecord.id;
   hash[key + 'Type'] = modelName;

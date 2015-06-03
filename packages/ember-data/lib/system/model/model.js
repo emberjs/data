@@ -15,7 +15,6 @@ var retrieveFromCurrentState = Ember.computed('currentState', function(key) {
   return get(this._internalModel.currentState, key);
 }).readOnly();
 
-
 /**
 
   The model class that all Ember Data records descend from.

@@ -150,7 +150,7 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
     equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
-    equal(relationship.type.modelName, "comment", "relationship was passed correctly");
+    equal(relationship.type, "comment", "relationship was passed correctly");
 
     return Ember.RSVP.resolve([
       { id: 1, body: "First" },
@@ -340,7 +340,7 @@ test("A hasMany relationship can be reloaded if it was fetched via a link", func
   };
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    equal(relationship.type, Comment, "findHasMany relationship type was Comment");
+    equal(relationship.type, 'comment', "findHasMany relationship type was Comment");
     equal(relationship.key, 'comments', "findHasMany relationship key was comments");
     equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
 
@@ -358,7 +358,7 @@ test("A hasMany relationship can be reloaded if it was fetched via a link", func
       equal(comments.get('length'), 2, "comments have 2 length");
 
       env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-        equal(relationship.type, Comment, "findHasMany relationship type was Comment");
+        equal(relationship.type, 'comment', "findHasMany relationship type was Comment");
         equal(relationship.key, 'comments', "findHasMany relationship key was comments");
         equal(link, "/posts/1/comments", "findHasMany link was /posts/1/comments");
 
@@ -570,7 +570,7 @@ test("An updated `links` value should invalidate a relationship cache", function
   });
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    equal(relationship.type.modelName, "comment", "relationship was passed correctly");
+    equal(relationship.type, "comment", "relationship was passed correctly");
 
     if (link === '/first') {
       return Ember.RSVP.resolve([

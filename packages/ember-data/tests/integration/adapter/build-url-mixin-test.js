@@ -28,6 +28,10 @@ module("integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter", {
     store = env.store;
     adapter = env.adapter;
 
+    Post = store.modelFor('post');
+    Comment = store.modelFor('comment');
+    SuperUser = store.modelFor('super-user');
+
     passedUrl = null;
   }
 });
@@ -154,7 +158,7 @@ test('buildURL - with camelized names', function() {
   ajaxResponse({ superUsers: [{ id: 1 }] });
 
   run(function() {
-    store.find('superUser', 1).then(async(function(post) {
+    store.find('super-user', 1).then(async(function(post) {
       equal(passedUrl, "/super_users/1");
     }));
   });

@@ -15,6 +15,9 @@ module("DS.DebugAdapter", {
       App.Post = DS.Model.extend({
         title: DS.attr('string')
       });
+      App.Post.reopenClass({
+        modelName: 'post'
+      });
 
     });
 
@@ -23,7 +26,7 @@ module("DS.DebugAdapter", {
 
     debugAdapter.reopen({
       getModelTypes: function() {
-        return Ember.A([{ klass: App.Post, name: 'App.Post' }]);
+        return Ember.A([{ klass: App.__container__.lookupFactory('model:post'), name: 'App.Post' }]);
       }
     });
   },
@@ -39,7 +42,7 @@ test("Watching Model Types", function() {
     equal(types.length, 1);
     equal(types[0].name, 'App.Post');
     equal(types[0].count, 0);
-    strictEqual(types[0].object, App.Post);
+    strictEqual(types[0].object, store.modelFor('post'));
   };
 
   var updated = function(types) {
@@ -71,7 +74,7 @@ test("Watching Records", function() {
     removedCount = count;
   };
 
-  debugAdapter.watchRecords(App.Post, recordsAdded, recordsUpdated, recordsRemoved);
+  debugAdapter.watchRecords(App.__container__.lookupFactory('model:post'), recordsAdded, recordsUpdated, recordsRemoved);
 
   equal(get(addedRecords, 'length'), 1);
   record = addedRecords[0];

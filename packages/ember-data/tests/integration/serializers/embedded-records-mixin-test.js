@@ -10,32 +10,32 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
     SuperVillain = DS.Model.extend({
       firstName:       DS.attr('string'),
       lastName:        DS.attr('string'),
-      homePlanet:      DS.belongsTo("homePlanet", { inverse: 'villains' }),
-      secretLab:       DS.belongsTo("secretLab"),
-      secretWeapons:   DS.hasMany("secretWeapon"),
-      evilMinions:     DS.hasMany("evilMinion")
+      homePlanet:      DS.belongsTo('home-planet', { inverse: 'villains' }),
+      secretLab:       DS.belongsTo('secret-lab'),
+      secretWeapons:   DS.hasMany('secret-weapon'),
+      evilMinions:     DS.hasMany('evil-minion')
     });
     HomePlanet = DS.Model.extend({
       name:            DS.attr('string'),
-      villains:        DS.hasMany('superVillain', { inverse: 'homePlanet' })
+      villains:        DS.hasMany('super-villain', { inverse: 'homePlanet' })
     });
     SecretLab = DS.Model.extend({
       minionCapacity:  DS.attr('number'),
       vicinity:        DS.attr('string'),
-      superVillain:    DS.belongsTo('superVillain')
+      superVillain:    DS.belongsTo('super-villain')
     });
     BatCave = SecretLab.extend({
       infiltrated:     DS.attr('boolean')
     });
     SecretWeapon = DS.Model.extend({
       name:            DS.attr('string'),
-      superVillain:    DS.belongsTo('superVillain')
+      superVillain:    DS.belongsTo('super-villain')
     });
     LightSaber = SecretWeapon.extend({
       color:           DS.attr('string')
     });
     EvilMinion = DS.Model.extend({
-      superVillain:    DS.belongsTo('superVillain'),
+      superVillain:    DS.belongsTo('super-villain'),
       name:            DS.attr('string')
     });
     Comment = DS.Model.extend({
@@ -53,13 +53,13 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
       evilMinion:      EvilMinion,
       comment:         Comment
     });
-    env.store.modelFor('superVillain');
-    env.store.modelFor('homePlanet');
-    env.store.modelFor('secretLab');
-    env.store.modelFor('batCave');
-    env.store.modelFor('secretWeapon');
-    env.store.modelFor('lightSaber');
-    env.store.modelFor('evilMinion');
+    env.store.modelFor('super-villain');
+    env.store.modelFor('home-planet');
+    env.store.modelFor('secret-lab');
+    env.store.modelFor('bat-cave');
+    env.store.modelFor('secret-weapon');
+    env.store.modelFor('light-saber');
+    env.store.modelFor('evil-minion');
     env.store.modelFor('comment');
     env.registry.register('serializer:application', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin));
     env.registry.register('serializer:-active-model', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin));
@@ -105,7 +105,7 @@ test("extractSingle with embedded objects", function() {
     villains: ["1"]
   });
   run(function() {
-    env.store.find("superVillain", 1).then(function(minion) {
+    env.store.find('super-villain', 1).then(function(minion) {
       equal(minion.get('firstName'), "Tom");
     });
   });
@@ -152,14 +152,14 @@ test("extractSingle with embedded objects inside embedded objects", function() {
     villains: ["1"]
   });
   run(function() {
-    env.store.find("superVillain", 1).then(async(function(villain) {
+    env.store.find('super-villain', 1).then(function(villain) {
       equal(villain.get('firstName'), "Tom");
       equal(villain.get('evilMinions.length'), 1, "Should load the embedded child");
       equal(villain.get('evilMinions.firstObject.name'), "Alex", "Should load the embedded child");
-    }));
-    env.store.find("evilMinion", 1).then(async(function(minion) {
+    });
+    env.store.find('evil-minion', 1).then(function(minion) {
       equal(minion.get('name'), "Alex");
-    }));
+    });
   });
 });
 
@@ -200,8 +200,8 @@ test("extractSingle with embedded objects of same type", function() {
     root: true,
     children: ["2", "3"]
   }, "Primary record was correct");
-  equal(env.store.recordForId("comment", "2").get("body"), "World", "Secondary records found in the store");
-  equal(env.store.recordForId("comment", "3").get("body"), "Foo", "Secondary records found in the store");
+  equal(env.store.recordForId('comment', "2").get("body"), "World", "Secondary records found in the store");
+  equal(env.store.recordForId('comment', "3").get("body"), "Foo", "Secondary records found in the store");
 });
 
 test("extractSingle with embedded objects inside embedded objects of same type", function() {
@@ -246,16 +246,16 @@ test("extractSingle with embedded objects inside embedded objects of same type",
     root: true,
     children: ["2", "3"]
   }, "Primary record was correct");
-  equal(env.store.recordForId("comment", "2").get("body"), "World", "Secondary records found in the store");
-  equal(env.store.recordForId("comment", "3").get("body"), "Foo", "Secondary records found in the store");
-  equal(env.store.recordForId("comment", "4").get("body"), "Another", "Secondary records found in the store");
-  equal(env.store.recordForId("comment", "2").get("children.length"), 1, "Should have one embedded record");
-  equal(env.store.recordForId("comment", "2").get("children.firstObject.body"), "Another", "Should have one embedded record");
+  equal(env.store.recordForId('comment', "2").get("body"), "World", "Secondary records found in the store");
+  equal(env.store.recordForId('comment', "3").get("body"), "Foo", "Secondary records found in the store");
+  equal(env.store.recordForId('comment', "4").get("body"), "Another", "Secondary records found in the store");
+  equal(env.store.recordForId('comment', "2").get("children.length"), 1, "Should have one embedded record");
+  equal(env.store.recordForId('comment', "2").get("children.firstObject.body"), "Another", "Should have one embedded record");
 });
 
 test("extractSingle with embedded objects of same type, but from separate attributes", function() {
   HomePlanet.reopen({
-    reformedVillains: DS.hasMany('superVillain', { inverse: null })
+    reformedVillains: DS.hasMany('super-villain', { inverse: null })
   });
 
   env.registry.register('adapter:home-planet', DS.ActiveModelAdapter);
@@ -299,10 +299,10 @@ test("extractSingle with embedded objects of same type, but from separate attrib
     reformedVillains: ["2", "4"]
   }, "Primary hash was correct");
 
-  equal(env.store.recordForId("superVillain", "1").get("firstName"), "Tom", "Secondary records found in the store");
-  equal(env.store.recordForId("superVillain", "2").get("firstName"), "Alex", "Secondary records found in the store");
-  equal(env.store.recordForId("superVillain", "3").get("firstName"), "Yehuda", "Secondary records found in the store");
-  equal(env.store.recordForId("superVillain", "4").get("firstName"), "Erik", "Secondary records found in the store");
+  equal(env.store.recordForId('super-villain', "1").get("firstName"), "Tom", "Secondary records found in the store");
+  equal(env.store.recordForId('super-villain', "2").get("firstName"), "Alex", "Secondary records found in the store");
+  equal(env.store.recordForId('super-villain', "3").get("firstName"), "Yehuda", "Secondary records found in the store");
+  equal(env.store.recordForId('super-villain', "4").get("firstName"), "Erik", "Secondary records found in the store");
 });
 
 test("extractArray with embedded objects", function() {
@@ -339,7 +339,7 @@ test("extractArray with embedded objects", function() {
   }]);
 
   run(function() {
-    env.store.find("superVillain", 1).then(function(minion) {
+    env.store.find('super-villain', 1).then(function(minion) {
       equal(minion.get('firstName'), "Tom");
     });
   });
@@ -383,8 +383,8 @@ test("extractArray with embedded objects with custom primary key", function() {
   }]);
 
   run(function() {
-    return env.store.find("superVillain", 1).then(function(minion) {
-      env.registry.unregister('serializer:super-villain');
+    return env.store.find('super-villain', 1).then(function(minion) {
+      env.registry.unregister('serializer:superVillain');
       equal(minion.get('firstName'), "Alex");
     });
   });
@@ -428,7 +428,7 @@ test("extractArray with embedded objects with identical relationship and attribu
   }]);
 
   run(function() {
-    env.store.find("superVillain", 1).then(function(minion) {
+    env.store.find('super-villain', 1).then(function(minion) {
       equal(minion.get('firstName'), "Alex");
     });
   });
@@ -473,13 +473,13 @@ test("extractArray with embedded objects of same type as primary type", function
     children: ["2", "3"]
   }], "Primary array is correct");
 
-  equal(env.store.recordForId("comment", "2").get("body"), "World", "Secondary record found in the store");
-  equal(env.store.recordForId("comment", "3").get("body"), "Foo", "Secondary record found in the store");
+  equal(env.store.recordForId('comment', "2").get("body"), "World", "Secondary record found in the store");
+  equal(env.store.recordForId('comment', "3").get("body"), "Foo", "Secondary record found in the store");
 });
 
 test("extractArray with embedded objects of same type, but from separate attributes", function() {
   HomePlanet.reopen({
-    reformedVillains: DS.hasMany('superVillain')
+    reformedVillains: DS.hasMany('super-villain')
   });
 
   env.registry.register('adapter:home-planet', DS.ActiveModelAdapter);
@@ -545,18 +545,18 @@ test("extractArray with embedded objects of same type, but from separate attribu
     reformedVillains: ["5", "6"]
   }], "Primary array was correct");
 
-  equal(env.store.recordForId("superVillain", "1").get("firstName"), "Tom", "Secondary records found in the store");
-  equal(env.store.recordForId("superVillain", "2").get("firstName"), "Alex", "Secondary records found in the store");
-  equal(env.store.recordForId("superVillain", "3").get("firstName"), "Yehuda", "Secondary records found in the store");
-  equal(env.store.recordForId("superVillain", "4").get("firstName"), "Erik", "Secondary records found in the store");
-  equal(env.store.recordForId("superVillain", "5").get("firstName"), "Peter", "Secondary records found in the store");
-  equal(env.store.recordForId("superVillain", "6").get("firstName"), "Trek", "Secondary records found in the store");
+  equal(env.store.recordForId('super-villain', "1").get("firstName"), "Tom", "Secondary records found in the store");
+  equal(env.store.recordForId('super-villain', "2").get("firstName"), "Alex", "Secondary records found in the store");
+  equal(env.store.recordForId('super-villain', "3").get("firstName"), "Yehuda", "Secondary records found in the store");
+  equal(env.store.recordForId('super-villain', "4").get("firstName"), "Erik", "Secondary records found in the store");
+  equal(env.store.recordForId('super-villain', "5").get("firstName"), "Peter", "Secondary records found in the store");
+  equal(env.store.recordForId('super-villain', "6").get("firstName"), "Trek", "Secondary records found in the store");
 });
 
 test("serialize supports serialize:false on non-relationship properties", function() {
   var tom;
   run(function() {
-    tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", id: '1' });
+    tom = env.store.createRecord('super-villain', { firstName: "Tom", lastName: "Dale", id: '1' });
   });
 
   env.registry.register('serializer:super-villain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
@@ -580,8 +580,8 @@ test("serialize supports serialize:false on non-relationship properties", functi
 test("serialize with embedded objects (hasMany relationship)", function() {
   var tom, league;
   run(function() {
-    league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
-    tom = env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league, id: '1' });
+    league = env.store.createRecord('home-planet', { name: "Villain League", id: "123" });
+    tom = env.store.createRecord('super-villain', { firstName: "Tom", lastName: "Dale", homePlanet: league, id: '1' });
   });
 
   env.registry.register('serializer:home-planet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
@@ -612,7 +612,7 @@ test("serialize with embedded objects (hasMany relationship)", function() {
 test("serialize with embedded objects (unknown hasMany relationship)", function() {
   var league;
   run(function() {
-    league = env.store.push(HomePlanet, { name: "Villain League", id: "123" });
+    league = env.store.push('home-planet', { name: "Villain League", id: "123" });
   });
 
   env.registry.register('serializer:home-planet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
@@ -637,8 +637,8 @@ test("serialize with embedded objects (unknown hasMany relationship)", function(
 
 test("serialize with embedded objects (hasMany relationship) supports serialize:false", function() {
   run(function() {
-    league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
-    env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league, id: '1' });
+    league = env.store.createRecord('home-planet', { name: "Villain League", id: "123" });
+    env.store.createRecord('super-villain', { firstName: "Tom", lastName: "Dale", homePlanet: league, id: '1' });
   });
 
   env.registry.register('serializer:home-planet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
@@ -660,8 +660,8 @@ test("serialize with embedded objects (hasMany relationship) supports serialize:
 
 test("serialize with (new) embedded objects (hasMany relationship)", function() {
   run(function() {
-    league = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
-    env.store.createRecord(SuperVillain, { firstName: "Tom", lastName: "Dale", homePlanet: league });
+    league = env.store.createRecord('home-planet', { name: "Villain League", id: "123" });
+    env.store.createRecord('super-villain', { firstName: "Tom", lastName: "Dale", homePlanet: league });
   });
 
   env.registry.register('serializer:home-planet', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
@@ -688,9 +688,9 @@ test("serialize with (new) embedded objects (hasMany relationship)", function() 
 
 test("serialize with embedded objects (hasMany relationships, including related objects not embedded)", function() {
   run(function() {
-    superVillain = env.store.createRecord(SuperVillain, { id: 1, firstName: "Super", lastName: "Villian" });
-    evilMinion = env.store.createRecord(EvilMinion, { id: 1, name: "Evil Minion", superVillian: superVillain });
-    secretWeapon = env.store.createRecord(SecretWeapon, { id: 1, name: "Secret Weapon", superVillain: superVillain });
+    superVillain = env.store.createRecord('super-villain', { id: 1, firstName: "Super", lastName: "Villian" });
+    evilMinion = env.store.createRecord('evil-minion', { id: 1, name: "Evil Minion", superVillian: superVillain });
+    secretWeapon = env.store.createRecord('secret-weapon', { id: 1, name: "Secret Weapon", superVillain: superVillain });
     superVillain.get('evilMinions').pushObject(evilMinion);
     superVillain.get('secretWeapons').pushObject(secretWeapon);
   });
@@ -764,7 +764,7 @@ test("extractSingle with embedded object (belongsTo relationship)", function() {
   });
 
   run(function() {
-    env.store.find("secretLab", 101).then(function(secretLab) {
+    env.store.find('secret-lab', 101).then(function(secretLab) {
       equal(secretLab.get('id'), '101');
       equal(secretLab.get('minionCapacity'), 5000);
       equal(secretLab.get('vicinity'), 'California, USA');
@@ -786,10 +786,10 @@ test("serialize with embedded object (belongsTo relationship)", function() {
     // records with an id, persisted
 
     tom = env.store.createRecord(
-      SuperVillain,
+      'super-villain',
       { firstName: "Tom", lastName: "Dale", id: "1",
-        secretLab: env.store.createRecord(SecretLab, { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
-        homePlanet: env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" })
+        secretLab: env.store.createRecord('secret-lab', { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
+        homePlanet: env.store.createRecord('home-planet', { name: "Villain League", id: "123" })
       }
     );
   });
@@ -829,7 +829,7 @@ test("serialize with embedded object (belongsTo relationship) works with differe
 
   run(function() {
     tom = env.store.createRecord(
-      SuperVillain,
+      'super-villain',
       { firstName: "Tom", lastName: "Dale", id: "1",
         secretLab: env.store.createRecord('secret-lab', { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
         homePlanet: env.store.createRecord('home-planet', { name: "Villain League", id: "123" })
@@ -868,10 +868,10 @@ test("serialize with embedded object (belongsTo relationship, new no id)", funct
 
   run(function() {
     tom = env.store.createRecord(
-      SuperVillain,
+      'super-villain',
       { firstName: "Tom", lastName: "Dale",
-        secretLab: env.store.createRecord(SecretLab, { minionCapacity: 5000, vicinity: "California, USA" }),
-        homePlanet: env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" })
+        secretLab: env.store.createRecord('secret-lab', { minionCapacity: 5000, vicinity: "California, USA" }),
+        homePlanet: env.store.createRecord('home-planet', { name: "Villain League", id: "123" })
       }
     );
   });
@@ -905,10 +905,10 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
 
   run(function() {
     tom = env.store.createRecord(
-      SuperVillain,
+      'super-villain',
       { firstName: "Tom", lastName: "Dale", id: "1",
-        secretLab: env.store.createRecord(SecretLab, { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
-        homePlanet: env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" })
+        secretLab: env.store.createRecord('secret-lab', { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
+        homePlanet: env.store.createRecord('home-planet', { name: "Villain League", id: "123" })
       }
     );
   });
@@ -940,10 +940,10 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
 
   run(function() {
     tom = env.store.createRecord(
-      SuperVillain,
+      'super-villain',
       { firstName: "Tom", lastName: "Dale", id: "1",
-        secretLab: env.store.createRecord(SecretLab, { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
-        homePlanet: env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" })
+        secretLab: env.store.createRecord('secret-lab', { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
+        homePlanet: env.store.createRecord('home-planet', { name: "Villain League", id: "123" })
       }
     );
   });
@@ -975,10 +975,10 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
 
   run(function() {
     tom = env.store.createRecord(
-      SuperVillain,
+      'super-villain',
       { firstName: "Tom", lastName: "Dale", id: "1",
-        secretLab: env.store.createRecord('secretLab', { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
-        homePlanet: env.store.createRecord('homePlanet', { name: "Villain League", id: "123" })
+        secretLab: env.store.createRecord('secret-lab', { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
+        homePlanet: env.store.createRecord('home-planet', { name: "Villain League", id: "123" })
       }
     );
   });
@@ -1008,10 +1008,10 @@ test("serialize with embedded object (belongsTo relationship) supports serialize
   var tom, json;
   run(function() {
     tom = env.store.createRecord(
-      SuperVillain,
+      'super-villain',
       { firstName: "Tom", lastName: "Dale", id: "1",
-        secretLab: env.store.createRecord(SecretLab, { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
-        homePlanet: env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" })
+        secretLab: env.store.createRecord('secret-lab', { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
+        homePlanet: env.store.createRecord('home-planet', { name: "Villain League", id: "123" })
       }
     );
   });
@@ -1038,10 +1038,10 @@ test("serialize with embedded object (belongsTo relationship) serializes the id 
 
   run(function() {
     tom = env.store.createRecord(
-      SuperVillain,
+      'super-villain',
       { firstName: "Tom", lastName: "Dale", id: "1",
-        secretLab: env.store.createRecord(SecretLab, { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
-        homePlanet: env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" })
+        secretLab: env.store.createRecord('secret-lab', { minionCapacity: 5000, vicinity: "California, USA", id: "101" }),
+        homePlanet: env.store.createRecord('home-planet', { name: "Villain League", id: "123" })
       }
     );
   });
@@ -1070,9 +1070,9 @@ test("when related record is not present, serialize embedded record (with a belo
 
   run(function() {
     tom = env.store.createRecord(
-      SuperVillain,
+      'super-villain',
       { firstName: "Tom", lastName: "Dale", id: "1",
-        homePlanet: env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" })
+        homePlanet: env.store.createRecord('home-planet', { name: "Villain League", id: "123" })
       }
     );
   });
@@ -1132,13 +1132,13 @@ test("extractSingle with multiply-nested belongsTo", function() {
     superVillain: "1"
   }, "Primary hash was correct");
 
-  equal(env.store.recordForId("superVillain", "1").get("firstName"), "Tom", "Secondary record, Tom, found in the steore");
-  equal(env.store.recordForId("homePlanet", "1").get("name"), "Umber", "Nested Secondary record, Umber, found in the store");
+  equal(env.store.recordForId('super-villain', "1").get("firstName"), "Tom", "Secondary record, Tom, found in the steore");
+  equal(env.store.recordForId('home-planet', "1").get("name"), "Umber", "Nested Secondary record, Umber, found in the store");
 });
 
 test("extractSingle with polymorphic hasMany", function() {
   SuperVillain.reopen({
-    secretWeapons: DS.hasMany("secretWeapon", { polymorphic: true })
+    secretWeapons: DS.hasMany('secret-weapon', { polymorphic: true })
   });
 
   env.registry.register('adapter:super-villain', DS.ActiveModelAdapter);
@@ -1185,8 +1185,8 @@ test("extractSingle with polymorphic hasMany", function() {
     ]
   }, "Primary hash was correct");
 
-  equal(env.store.recordForId("secretWeapon", "1").get("name"), "The Death Star", "Embedded polymorphic SecretWeapon found");
-  equal(env.store.recordForId("lightSaber", "1").get("name"), "Tom's LightSaber", "Embedded polymorphic LightSaber found");
+  equal(env.store.recordForId('secret-weapon', "1").get("name"), "The Death Star", "Embedded polymorphic SecretWeapon found");
+  equal(env.store.recordForId('light-saber', "1").get("name"), "Tom's LightSaber", "Embedded polymorphic LightSaber found");
 
 
 });
@@ -1252,7 +1252,7 @@ test("extractSingle with polymorphic belongsTo", function() {
   expect(2);
 
   SuperVillain.reopen({
-    secretLab: DS.belongsTo("secretLab", { polymorphic: true })
+    secretLab: DS.belongsTo('secret-lab', { polymorphic: true })
   });
 
   env.registry.register('adapter:super-villain', DS.ActiveModelAdapter);
@@ -1290,7 +1290,56 @@ test("extractSingle with polymorphic belongsTo", function() {
     secretLabType: "bat-cave"
   }, "Primary has was correct");
 
-  equal(env.store.recordForId("batCave", "1").get("infiltrated"), true, "Embedded polymorphic BatCave was found");
+  equal(env.store.recordForId('bat-cave', "1").get("infiltrated"), true, "Embedded polymorphic BatCave was found");
+
+});
+
+test("extractSingle with polymorphic belongsTo and custom primary key", function() {
+  expect(2);
+
+  SuperVillain.reopen({
+    secretLab: DS.belongsTo("secretLab", { polymorphic: true })
+  });
+
+  env.registry.register('adapter:super-villain', DS.ActiveModelAdapter);
+  env.registry.register('serializer:super-villain', DS.ActiveModelSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      secretLab: { embedded: 'always' }
+    }
+  }));
+  env.registry.register('serializer:bat-cave', DS.ActiveModelSerializer.extend({
+    primaryKey: 'custom'
+  }));
+  var serializer = env.container.lookup("serializer:super-villain");
+
+  var json_hash = {
+    super_villain: {
+      id: "1",
+      first_name: "Tom",
+      last_name: "Dale",
+      secret_lab: {
+        custom: "1",
+        type: "bat-cave",
+        infiltrated: true
+      }
+    }
+  };
+
+  var json;
+
+  run(function() {
+    json = serializer.extractSingle(env.store, SuperVillain, json_hash);
+  });
+
+  deepEqual(json, {
+    id: "1",
+    firstName: "Tom",
+    lastName: "Dale",
+    secretLab: "1",
+    secretLabType: "bat-cave"
+  }, "Custom primary key is correctly normalized");
+
+  equal(env.store.recordForId("batCave", "1").get("infiltrated"), true, "Embedded polymorphic BatCave with custom primary key is found");
 
 });
 
@@ -1345,14 +1394,14 @@ test("extractSingle with polymorphic belongsTo and custom primary key", function
 
 test("Mixin can be used with RESTSerializer which does not define keyForAttribute", function() {
   run(function() {
-    homePlanet = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
-    secretLab = env.store.createRecord(SecretLab, { minionCapacity: 5000, vicinity: "California, USA", id: "101" });
-    superVillain = env.store.createRecord(SuperVillain, {
+    homePlanet = env.store.createRecord('home-planet', { name: "Villain League", id: "123" });
+    secretLab = env.store.createRecord('secret-lab', { minionCapacity: 5000, vicinity: "California, USA", id: "101" });
+    superVillain = env.store.createRecord('super-villain', {
       id: "1", firstName: "Super", lastName: "Villian", homePlanet: homePlanet, secretLab: secretLab
     });
-    secretWeapon = env.store.createRecord(SecretWeapon, { id: "1", name: "Secret Weapon", superVillain: superVillain });
+    secretWeapon = env.store.createRecord('secret-weapon', { id: "1", name: "Secret Weapon", superVillain: superVillain });
     superVillain.get('secretWeapons').pushObject(secretWeapon);
-    evilMinion = env.store.createRecord(EvilMinion, { id: "1", name: "Evil Minion", superVillian: superVillain });
+    evilMinion = env.store.createRecord('evil-minion', { id: "1", name: "Evil Minion", superVillian: superVillain });
     superVillain.get('evilMinions').pushObject(evilMinion);
   });
 
@@ -1420,19 +1469,19 @@ test("normalize with custom belongsTo primary key", function() {
     superVillain: "1"
   }, "Primary hash was correct");
 
-  equal(env.store.recordForId("superVillain", "1").get("firstName"), "Tom", "Secondary record, Tom, found in the steore");
+  equal(env.store.recordForId('super-villain', "1").get("firstName"), "Tom", "Secondary record, Tom, found in the steore");
 });
 
 test("serializing relationships with an embedded and without calls super when not attr not present", function() {
   run(function() {
-    homePlanet = env.store.createRecord(HomePlanet, { name: "Villain League", id: "123" });
-    secretLab = env.store.createRecord(SecretLab, { minionCapacity: 5000, vicinity: "California, USA", id: "101" });
-    superVillain = env.store.createRecord(SuperVillain, {
+    homePlanet = env.store.createRecord('home-planet', { name: "Villain League", id: "123" });
+    secretLab = env.store.createRecord('secret-lab', { minionCapacity: 5000, vicinity: "California, USA", id: "101" });
+    superVillain = env.store.createRecord('super-villain', {
       id: "1", firstName: "Super", lastName: "Villian", homePlanet: homePlanet, secretLab: secretLab
     });
-    secretWeapon = env.store.createRecord(SecretWeapon, { id: "1", name: "Secret Weapon", superVillain: superVillain });
+    secretWeapon = env.store.createRecord('secret-weapon', { id: "1", name: "Secret Weapon", superVillain: superVillain });
     superVillain.get('secretWeapons').pushObject(secretWeapon);
-    evilMinion = env.store.createRecord(EvilMinion, { id: "1", name: "Evil Minion", superVillian: superVillain });
+    evilMinion = env.store.createRecord('evil-minion', { id: "1", name: "Evil Minion", superVillian: superVillain });
     superVillain.get('evilMinions').pushObject(evilMinion);
   });
 

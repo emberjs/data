@@ -13,7 +13,7 @@ var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
     canonicalState: this.canonicalState,
     store: this.store,
     relationship: this,
-    type: this.belongsToType,
+    type: this.store.modelFor(this.belongsToType),
     record: record
   });
   this.isPolymorphic = relationshipMeta.options.polymorphic;
@@ -86,17 +86,15 @@ ManyRelationship.prototype.removeRecordFromOwn = function(record, idx) {
 };
 
 ManyRelationship.prototype.notifyRecordRelationshipAdded = function(record, idx) {
-  var type = this.relationshipMeta.type;
-  Ember.assert("You cannot add '" + record.type.modelName + "' records to the " + this.record.type.modelName + "." + this.key + " relationship (only '" + this.belongsToType.modelName + "' allowed)", (function () {
-    if (type.__isMixin) {
-      //TODO Need to do this in order to support mixins, should convert to public api
-      //once it exists in Ember
-      return type.__mixin.detect(record.type.PrototypeMixin);
+  var typeClass = this.store.modelFor(this.relationshipMeta.type);
+  Ember.assert("You cannot add '" + record.type.modelName + "' records to the " + this.record.type.modelName + "." + this.key + " relationship (only '" + typeClass.modelName + "' allowed)", (function () {
+    if (typeClass.__isMixin) {
+      return typeClass.__mixin.detect(record.type.PrototypeMixin);
     }
     if (Ember.MODEL_FACTORY_INJECTIONS) {
-      type = type.superclass;
+      typeClass = typeClass.superclass;
     }
-    return type.detect(record.type);
+    return typeClass.detect(record.type);
   })());
 
   this.record.notifyHasManyAdded(this.key, record, idx);

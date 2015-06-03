@@ -1,6 +1,7 @@
 var get = Ember.get;
 var Person, store, allRecords;
 var run = Ember.run;
+var env;
 
 module("integration/adapter/find_all - Finding All Records of a Type", {
   setup: function() {
@@ -12,6 +13,11 @@ module("integration/adapter/find_all - Finding All Records of a Type", {
     });
 
     allRecords = null;
+
+    env = setupStore({
+      person: Person
+    });
+    store = env.store;
   },
 
   teardown: function() {
@@ -25,16 +31,14 @@ module("integration/adapter/find_all - Finding All Records of a Type", {
 test("When all records for a type are requested, the store should call the adapter's `findAll` method.", function() {
   expect(5);
 
-  store = createStore({
-    adapter: DS.Adapter.extend({
-      findAll: function(store, type, since) {
-        // this will get called twice
-        ok(true, "the adapter's findAll method should be invoked");
-        return Ember.RSVP.resolve([{ id: 1, name: "Braaaahm Dale" }]);
-      }
-    }),
-    person: Person
-  });
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    findAll: function(store, type, since) {
+      // this will get called twice
+      ok(true, "the adapter's findAll method should be invoked");
+
+      return Ember.RSVP.resolve([{ id: 1, name: "Braaaahm Dale" }]);
+    }
+  }));
 
   var allRecords;
 
@@ -58,21 +62,18 @@ test("When all records for a type are requested, a rejection should reject the p
   expect(5);
 
   var count = 0;
-  store = createStore({
-    adapter: DS.Adapter.extend({
-      findAll: function(store, type, since) {
-        // this will get called twice
-        ok(true, "the adapter's findAll method should be invoked");
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    findAll: function(store, type, since) {
+      // this will get called twice
+      ok(true, "the adapter's findAll method should be invoked");
 
-        if (count++ === 0) {
-          return Ember.RSVP.reject();
-        } else {
-          return Ember.RSVP.resolve([{ id: 1, name: "Braaaahm Dale" }]);
-        }
+      if (count++ === 0) {
+        return Ember.RSVP.reject();
+      } else {
+        return Ember.RSVP.resolve([{ id: 1, name: "Braaaahm Dale" }]);
       }
-    }),
-    person: Person
-  });
+    }
+  }));
 
   var allRecords;
 

@@ -193,7 +193,7 @@ test("a Record Array can update its filter", function() {
     asyncBryn = store.find('person', 3);
   });
 
-  store.filter(Person, function(hash) {
+  store.filter('person', function(hash) {
     if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
   }).then(async(function(recordArray) {
 
@@ -253,7 +253,7 @@ test("a Record Array can update its filter and notify array observers", function
     asyncBryn = store.find('person', 3);
   });
 
-  store.filter(Person, function(hash) {
+  store.filter('person', function(hash) {
     if (hash.get('name').match(/Scumbag [KD]/)) { return true; }
   }).then(async(function(recordArray) {
 

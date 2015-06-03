@@ -9,7 +9,6 @@ module("unit/store/unload - Store unloading records", {
       title: DS.attr('string'),
       wasFetched: DS.attr('boolean')
     });
-
     store = createStore({
       adapter: DS.Adapter.extend({
         find: function(store, type, id, snapshot) {
@@ -30,12 +29,12 @@ test("unload a dirty record", function() {
   expect(2);
 
   run(function() {
-    store.push(Record, {
+    store.push('record', {
       id: 1,
       title: 'toto'
     });
 
-    store.find(Record, 1).then(function(record) {
+    store.find('record', 1).then(function(record) {
       record.set('title', 'toto2');
       record._internalModel.send('willCommit');
 
@@ -114,19 +113,19 @@ test("can commit store after unload record with relationships", function() {
   var asyncRecords;
 
   run(function() {
-    store.push(Brand, { id: 1, name: 'EmberJS' });
-    store.push(Product, { id: 1, description: 'toto', brand: 1 });
+    store.push('brand', { id: 1, name: 'EmberJS' });
+    store.push('product', { id: 1, description: 'toto', brand: 1 });
     asyncRecords = Ember.RSVP.hash({
-      brand: store.find(Brand, 1),
-      product: store.find(Product, 1)
+      brand: store.find('brand', 1),
+      product: store.find('product', 1)
     });
     asyncRecords.then(function(records) {
-      like = store.createRecord(Like, { id: 1, product: product });
+      like = store.createRecord('like', { id: 1, product: product });
       records.like = like.save();
       return Ember.RSVP.hash(records);
     }).then(function(records) {
       store.unloadRecord(records.product);
-      return store.find(Product, 1);
+      return store.find('product', 1);
     }).then(function(product) {
       equal(product.get('description'), 'cuisinart', "The record was unloaded and the adapter's `find` was called");
       store.destroy();
