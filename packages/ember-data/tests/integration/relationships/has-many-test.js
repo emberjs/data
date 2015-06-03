@@ -1322,7 +1322,7 @@ test("adding and removing records from hasMany relationship #2666", function() {
         return comments.get('lastObject').destroyRecord();
       }).then(function() {
         var comments = post.get('comments');
-        equal(comments.get('length'), 3, "Comments count after delete");
+        equal(comments.get('length'), 3, "Comments count after destroy");
 
         // Add another comment #4
         var comment = env.store.createRecord('comment');

@@ -171,10 +171,10 @@ test("Removing a record from a hasMany reflects on the other hasMany side - sync
 });
 
 /*
-Deleting tests
+Deleting
 */
 
-test("Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - async", function () {
+test("Deleting a record that has a hasMany relationship does not remove it from the otherMany array and does not remove the other record from itself - async", function () {
   var user, topic;
   run(function() {
     user = store.push('user', { id: 1, name: 'Stanley', topics: [2] });
@@ -183,24 +183,23 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
   run(topic, 'deleteRecord');
   run(function() {
     topic.get('users').then(async(function(fetchedUsers) {
-      equal(fetchedUsers.get('length'), 1, 'Users are still there');
+      equal(fetchedUsers.objectAt(0), user, 'Topic still has the user');
     }));
     user.get('topics').then(async(function(fetchedTopics) {
-      equal(fetchedTopics.get('length'), 0, 'Topic got removed from the user');
-      equal(fetchedTopics.objectAt(0), null, "Topic can't be fetched");
+      equal(fetchedTopics.objectAt(0), topic, 'User still has the topic');
     }));
   });
 });
 
-test("Deleting a record that has a hasMany relationship removes it from the otherMany array but does not remove the other record from itself - sync", function () {
+test("Deleting a record that has a hasMany relationship does not remove it from the otherMany array and does not remove the other record from itself - sync", function () {
   var account, user;
   run(function() {
     account = store.push('account', { id: 2 , state: 'lonely' });
     user = store.push('user', { id: 1, name: 'Stanley', accounts: [2] });
   });
   run(account, 'deleteRecord');
-  equal(account.get('users.length'), 1, 'Users are still there');
-  equal(user.get('accounts.length'), 0, 'Acocount got removed from the user');
+  equal(account.get('users').objectAt(0), user, 'Account still has the user');
+  equal(user.get('accounts').objectAt(0), account, 'User still has the account');
 });
 
 /*
