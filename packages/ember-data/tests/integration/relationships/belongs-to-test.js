@@ -320,6 +320,34 @@ test("A record with an async belongsTo relationship returning null should resolv
   }));
 });
 
+test("A record can be created with a resolved belongsTo promise", function() {
+  expect(1);
+
+  var Group = DS.Model.extend({
+    people: DS.hasMany()
+  });
+
+  var Person = DS.Model.extend({
+    group: DS.belongsTo({ async: true })
+  });
+
+  env.registry.register('model:group', Group);
+  env.registry.register('model:person', Person);
+
+  var group;
+  run(function() {
+    group = store.push('group', { id: 1 });
+  });
+
+  var groupPromise = store.find('group', 1);
+  groupPromise.then(async(function(group) {
+    var person = env.store.createRecord('person', {
+      group: groupPromise
+    });
+    equal(person.get('group.content'), group);
+  }));
+});
+
 test("polymorphic belongsTo type-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled", function() {
   expect(1);
 
