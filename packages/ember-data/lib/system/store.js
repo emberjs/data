@@ -810,7 +810,7 @@ Store = Service.extend({
     ```
 
     @method getById
-    @param {String or DS.Model} type
+    @param {(String|DS.Model)} type
     @param {String|Integer} id
     @return {DS.Model|null} record
   */
@@ -850,7 +850,7 @@ Store = Service.extend({
     Returns true if a record for a given type and ID is already loaded.
 
     @method hasRecordForId
-    @param {String or DS.Model} modelName
+    @param {(String|DS.Model)} modelName
     @param {String|Integer} inputId
     @return {Boolean}
   */
@@ -919,7 +919,7 @@ Store = Service.extend({
     @private
     @param {DS.Model} owner
     @param {any} link
-    @param {String or DS.Model} type
+    @param {(String|DS.Model)} type
     @return {Promise} promise
   */
   findHasMany: function(owner, link, type) {
@@ -961,7 +961,7 @@ Store = Service.extend({
 
     @method findQuery
     @private
-    @param {String or DS.Model} typeName
+    @param {(String|DS.Model)} typeName
     @param {any} query an opaque query to be used by the adapter
     @return {Promise} promise
   */
@@ -1148,7 +1148,7 @@ Store = Service.extend({
     ```
 
     @method filter
-    @param {String or DS.Model} type
+    @param {(String|DS.Model)} type
     @param {Object} query optional query
     @param {Function} filter
     @return {DS.PromiseArray}
@@ -1196,7 +1196,7 @@ Store = Service.extend({
     ```
 
     @method recordIsLoaded
-    @param {String or DS.Model} type
+    @param {(String|DS.Model)} type
     @param {string} id
     @return {boolean}
   */
@@ -1208,7 +1208,7 @@ Store = Service.extend({
     This method returns the metadata for a specific type.
 
     @method metadataFor
-    @param {String or DS.Model} typeName
+    @param {(String|DS.Model)} typeName
     @return {object}
   */
   metadataFor: function(typeName) {
@@ -1220,7 +1220,7 @@ Store = Service.extend({
     This method sets the metadata for a specific type.
 
     @method setMetadataFor
-    @param {String or DS.Model} typeName
+    @param {(String|DS.Model)} typeName
     @param {Object} metadata metadata to set
     @return {object}
   */
@@ -1412,7 +1412,7 @@ Store = Service.extend({
 
     @method _load
     @private
-    @param {String or DS.Model} type
+    @param {(String|DS.Model)} type
     @param {Object} data
   */
   _load: function(type, data) {
@@ -1465,7 +1465,7 @@ Store = Service.extend({
     etc.)
 
     @method modelFor
-    @param {String or DS.Model} key
+    @param {(String|DS.Model)} key
     @return {DS.Model}
   */
   modelFor: function(key) {
@@ -1579,7 +1579,7 @@ Store = Service.extend({
     records, as well as to update existing records.
 
     @method push
-    @param {String or DS.Model} modelName
+    @param {(String|DS.Model)} modelName
     @param {Object} data
     @return {DS.Model} the record that was created or
       updated.
@@ -1740,7 +1740,7 @@ Store = Service.extend({
     call `push` repeatedly for you.
 
     @method pushMany
-    @param {String or DS.Model} type
+    @param {(String|DS.Model)} type
     @param {Array} datas
     @return {Array}
   */
@@ -1757,7 +1757,7 @@ Store = Service.extend({
 
   /**
     @method metaForType
-    @param {String or DS.Model} typeName
+    @param {(String|DS.Model)} typeName
     @param {Object} metadata
     @deprecated Use [setMetadataFor](#method_setMetadataFor) instead
   */
@@ -1860,7 +1860,7 @@ Store = Service.extend({
 
     @method adapterFor
     @private
-    @param {String or DS.Model} type
+    @param {(String|DS.Model)} type
     @return DS.Adapter
   */
   adapterFor: function(type) {
@@ -1899,7 +1899,7 @@ Store = Service.extend({
 
     @method serializerFor
     @private
-    @param {String or DS.Model} type the record to serialize
+    @param {(String|DS.Model)} type the record to serialize
     @return {DS.Serializer}
   */
   serializerFor: function(type) {
