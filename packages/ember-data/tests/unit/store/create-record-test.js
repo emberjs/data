@@ -2,7 +2,7 @@ var store, container, Record, Storage;
 var run = Ember.run;
 
 module("unit/store/createRecord - Store creating records", {
-  setup: function() {
+  setup() {
 
     Record = DS.Model.extend({
       title: DS.attr('string')
@@ -44,7 +44,7 @@ test("allow passing relationships as well as attributes", function() {
 });
 
 module("unit/store/createRecord - Store with models by dash", {
-  setup: function() {
+  setup() {
     var env = setupStore({
       someThing: DS.Model.extend({ foo: DS.attr('string') })
     });
@@ -77,7 +77,7 @@ test("creating a record by dasherize string finds the model", function() {
 });
 
 module("unit/store/createRecord - Store with models by camelCase", {
-  setup: function() {
+  setup() {
     var env = setupStore({
       someThing: DS.Model.extend({ foo: DS.attr('string') })
     });

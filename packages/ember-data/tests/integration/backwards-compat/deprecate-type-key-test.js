@@ -1,13 +1,13 @@
 var Post, env;
 module('integration/backwards-compat/deprecate-type-key', {
-  setup: function() {
+  setup() {
     env = setupStore({
       post: DS.Model.extend()
     });
     Post = env.store.modelFor('post');
   },
 
-  teardown: function() {
+  teardown() {
   }
 });
 

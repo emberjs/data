@@ -1,11 +1,11 @@
 var errors;
 
 module("unit/model/errors", {
-  setup: function() {
+  setup() {
     errors = DS.Errors.create();
   },
 
-  teardown: function() {
+  teardown() {
   }
 });
 

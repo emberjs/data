@@ -2,7 +2,7 @@ var env, store, Person, Dog;
 var run = Ember.run;
 
 module("unit/model/rollback - model.rollback()", {
-  setup: function() {
+  setup() {
     Person = DS.Model.extend({
       firstName: DS.attr(),
       lastName: DS.attr()
@@ -162,7 +162,7 @@ test("new record can be rollbacked", function() {
 test("invalid new record can be rollbacked", function() {
   var person;
   var adapter = DS.RESTAdapter.extend({
-    ajax: function(url, type, hash) {
+    ajax(url, type, hash) {
       var adapter = this;
 
       return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -178,7 +178,7 @@ test("invalid new record can be rollbacked", function() {
       });
     },
 
-    ajaxError: function(jqXHR) {
+    ajaxError(jqXHR) {
       return new DS.InvalidError(jqXHR);
     }
   });
@@ -232,7 +232,7 @@ test("invalid record can be rollbacked", function() {
   });
 
   var adapter = DS.RESTAdapter.extend({
-    ajax: function(url, type, hash) {
+    ajax(url, type, hash) {
       var adapter = this;
 
       return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -248,7 +248,7 @@ test("invalid record can be rollbacked", function() {
       });
     },
 
-    ajaxError: function(jqXHR) {
+    ajaxError(jqXHR) {
       return new DS.InvalidError(jqXHR);
     }
   });
@@ -277,7 +277,7 @@ test("invalid record is rolled back to correct state after set", function() {
   });
 
   var adapter = DS.RESTAdapter.extend({
-    ajax: function(url, type, hash) {
+    ajax(url, type, hash) {
       var adapter = this;
 
       return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -293,7 +293,7 @@ test("invalid record is rolled back to correct state after set", function() {
       });
     },
 
-    ajaxError: function(jqXHR) {
+    ajaxError(jqXHR) {
       return new Error(jqXHR);
     }
   });
@@ -335,7 +335,7 @@ test("when destroying a record setup the record state to invalid, the record can
   });
 
   var adapter = DS.RESTAdapter.extend({
-    ajax: function(url, type, hash) {
+    ajax(url, type, hash) {
       var adapter = this;
 
       return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -345,7 +345,7 @@ test("when destroying a record setup the record state to invalid, the record can
       });
     },
 
-    ajaxError: function(jqXHR) {
+    ajaxError(jqXHR) {
       return new DS.InvalidError(jqXHR);
     }
   });

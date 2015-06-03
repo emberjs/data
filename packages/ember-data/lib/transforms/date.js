@@ -46,7 +46,7 @@ if (Ember.SHIM_ES5) {
 }
 
 export default Transform.extend({
-  deserialize: function(serialized) {
+  deserialize(serialized) {
     var type = typeof serialized;
 
     if (type === "string") {
@@ -62,7 +62,7 @@ export default Transform.extend({
     }
   },
 
-  serialize: function(date) {
+  serialize(date) {
     if (date instanceof Date) {
       return toISOString.call(date);
     } else {

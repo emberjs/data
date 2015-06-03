@@ -4,7 +4,7 @@ var resolve = Ember.RSVP.resolve;
 var run = Ember.run;
 
 module("integration/lifecycle_hooks - Lifecycle Hooks", {
-  setup: function() {
+  setup() {
     Person = DS.Model.extend({
       name: attr('string')
     });
@@ -14,7 +14,7 @@ module("integration/lifecycle_hooks - Lifecycle Hooks", {
     });
   },
 
-  teardown: function() {
+  teardown() {
     run(env.container, 'destroy');
   }
 });

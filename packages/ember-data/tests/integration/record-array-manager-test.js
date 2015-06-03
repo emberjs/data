@@ -19,7 +19,7 @@ Car.toString = function() { return "Car"; };
 var manager;
 
 module("integration/record_array_manager- destroy", {
-  setup: function() {
+  setup() {
     env = setupStore({
       adapter: DS.RESTAdapter.extend()
     });

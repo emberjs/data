@@ -13,7 +13,7 @@ var container, registry;
 */
 
 module("integration/setup-container - Setting up a container", {
-  setup: function() {
+  setup() {
     if (Registry) {
       registry = new Registry();
       container = registry.container();
@@ -24,7 +24,7 @@ module("integration/setup-container - Setting up a container", {
     setupContainer(registry);
   },
 
-  teardown: function() {
+  teardown() {
     run(container, container.destroy);
   }
 });

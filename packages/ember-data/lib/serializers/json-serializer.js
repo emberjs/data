@@ -113,7 +113,7 @@ export default Serializer.extend({
    @param {Object} data The data to transform
    @return {Object} data The transformed data object
   */
-  applyTransforms: function(typeClass, data) {
+  applyTransforms(typeClass, data) {
     typeClass.eachTransformedAttribute(function applyTransform(key, typeClass) {
       if (!data.hasOwnProperty(key)) { return; }
 
@@ -140,7 +140,7 @@ export default Serializer.extend({
 
     ```javascript
     App.ApplicationSerializer = DS.JSONSerializer.extend({
-      normalize: function(typeClass, hash) {
+      normalize(typeClass, hash) {
         var fields = Ember.get(typeClass, 'fields');
         fields.forEach(function(field) {
           var payloadField = Ember.String.underscore(field);
@@ -159,7 +159,7 @@ export default Serializer.extend({
     @param {Object} hash
     @return {Object}
   */
-  normalize: function(typeClass, hash) {
+  normalize(typeClass, hash) {
     if (!hash) { return hash; }
 
     this.normalizeId(hash);
@@ -179,7 +179,7 @@ export default Serializer.extend({
 
     ```js
     App.ApplicationSerializer = DS.JSONSerializer.extend({
-      normalizePayload: function(payload) {
+      normalizePayload(payload) {
         delete payload.version;
         delete payload.status;
         return payload;
@@ -191,7 +191,7 @@ export default Serializer.extend({
     @param {Object} payload
     @return {Object} the normalized payload
   */
-  normalizePayload: function(payload) {
+  normalizePayload(payload) {
     return payload;
   },
 
@@ -199,7 +199,7 @@ export default Serializer.extend({
     @method normalizeAttributes
     @private
   */
-  normalizeAttributes: function(typeClass, hash) {
+  normalizeAttributes(typeClass, hash) {
     var payloadKey;
 
     if (this.keyForAttribute) {
@@ -218,7 +218,7 @@ export default Serializer.extend({
     @method normalizeRelationships
     @private
   */
-  normalizeRelationships: function(typeClass, hash) {
+  normalizeRelationships(typeClass, hash) {
     var payloadKey;
 
     if (this.keyForRelationship) {
@@ -237,7 +237,7 @@ export default Serializer.extend({
     @method normalizeUsingDeclaredMapping
     @private
   */
-  normalizeUsingDeclaredMapping: function(typeClass, hash) {
+  normalizeUsingDeclaredMapping(typeClass, hash) {
     var attrs = get(this, 'attrs');
     var payloadKey, key;
 
@@ -258,7 +258,7 @@ export default Serializer.extend({
     @method normalizeId
     @private
   */
-  normalizeId: function(hash) {
+  normalizeId(hash) {
     var primaryKey = get(this, 'primaryKey');
 
     if (primaryKey === 'id') { return; }
@@ -271,7 +271,7 @@ export default Serializer.extend({
     @method normalizeErrors
     @private
   */
-  normalizeErrors: function(typeClass, hash) {
+  normalizeErrors(typeClass, hash) {
     this.normalizeId(hash);
     this.normalizeAttributes(typeClass, hash);
     this.normalizeRelationships(typeClass, hash);
@@ -287,7 +287,7 @@ export default Serializer.extend({
     @param {String} key
     @return {String} key
   */
-  _getMappedKey: function(key) {
+  _getMappedKey(key) {
     var attrs = get(this, 'attrs');
     var mappedKey;
     if (attrs && attrs[key]) {
@@ -314,7 +314,7 @@ export default Serializer.extend({
     @param {String} key
     @return {boolean} true if the key can be serialized
   */
-  _canSerialize: function(key) {
+  _canSerialize(key) {
     var attrs = get(this, 'attrs');
 
     return !attrs || !attrs[key] || attrs[key].serialize !== false;
@@ -376,7 +376,7 @@ export default Serializer.extend({
 
     ```javascript
     App.PostSerializer = DS.JSONSerializer.extend({
-      serialize: function(snapshot, options) {
+      serialize(snapshot, options) {
         var json = {
           POST_TTL: snapshot.attr('title'),
           POST_BDY: snapshot.attr('body'),
@@ -400,7 +400,7 @@ export default Serializer.extend({
 
     ```javascript
     App.ApplicationSerializer = DS.JSONSerializer.extend({
-      serialize: function(snapshot, options) {
+      serialize(snapshot, options) {
         var json = {};
 
         snapshot.eachAttribute(function(name) {
@@ -448,7 +448,7 @@ export default Serializer.extend({
 
     ```javascript
     App.PostSerializer = DS.JSONSerializer.extend({
-      serialize: function(snapshot, options) {
+      serialize(snapshot, options) {
         var json = this._super.apply(this, arguments);
 
         json.subject = json.title;
@@ -464,7 +464,7 @@ export default Serializer.extend({
     @param {Object} options
     @return {Object} json
   */
-  serialize: function(snapshot, options) {
+  serialize(snapshot, options) {
     var json = {};
 
     if (options && options.includeId) {
@@ -501,7 +501,7 @@ export default Serializer.extend({
 
     ```js
     App.ApplicationSerializer = DS.RESTSerializer.extend({
-      serializeIntoHash: function(data, type, snapshot, options) {
+      serializeIntoHash(data, type, snapshot, options) {
         var root = Ember.String.decamelize(type.modelName);
         data[root] = this.serialize(snapshot, options);
       }
@@ -514,7 +514,7 @@ export default Serializer.extend({
     @param {DS.Snapshot} snapshot
     @param {Object} options
   */
-  serializeIntoHash: function(hash, typeClass, snapshot, options) {
+  serializeIntoHash(hash, typeClass, snapshot, options) {
     merge(hash, this.serialize(snapshot, options));
   },
 
@@ -528,7 +528,7 @@ export default Serializer.extend({
 
    ```javascript
    App.ApplicationSerializer = DS.JSONSerializer.extend({
-     serializeAttribute: function(snapshot, json, key, attributes) {
+     serializeAttribute(snapshot, json, key, attributes) {
        json.attributes = json.attributes || {};
        this._super(snapshot, json.attributes, key, attributes);
      }
@@ -541,7 +541,7 @@ export default Serializer.extend({
    @param {String} key
    @param {Object} attribute
   */
-  serializeAttribute: function(snapshot, json, key, attribute) {
+  serializeAttribute(snapshot, json, key, attribute) {
     var type = attribute.type;
 
     if (this._canSerialize(key)) {
@@ -571,7 +571,7 @@ export default Serializer.extend({
 
    ```javascript
    App.PostSerializer = DS.JSONSerializer.extend({
-     serializeBelongsTo: function(snapshot, json, relationship) {
+     serializeBelongsTo(snapshot, json, relationship) {
        var key = relationship.key;
 
        var belongsTo = snapshot.belongsTo(key);
@@ -588,7 +588,7 @@ export default Serializer.extend({
    @param {Object} json
    @param {Object} relationship
   */
-  serializeBelongsTo: function(snapshot, json, relationship) {
+  serializeBelongsTo(snapshot, json, relationship) {
     var key = relationship.key;
 
     if (this._canSerialize(key)) {
@@ -622,7 +622,7 @@ export default Serializer.extend({
 
    ```javascript
    App.PostSerializer = DS.JSONSerializer.extend({
-     serializeHasMany: function(snapshot, json, relationship) {
+     serializeHasMany(snapshot, json, relationship) {
        var key = relationship.key;
        if (key === 'comments') {
          return;
@@ -638,7 +638,7 @@ export default Serializer.extend({
    @param {Object} json
    @param {Object} relationship
   */
-  serializeHasMany: function(snapshot, json, relationship) {
+  serializeHasMany(snapshot, json, relationship) {
     var key = relationship.key;
 
     if (this._canSerialize(key)) {
@@ -670,7 +670,7 @@ export default Serializer.extend({
 
     ```javascript
     App.CommentSerializer = DS.JSONSerializer.extend({
-      serializePolymorphicType: function(snapshot, json, relationship) {
+      serializePolymorphicType(snapshot, json, relationship) {
         var key = relationship.key,
             belongsTo = snapshot.belongsTo(key);
         key = this.keyForAttribute ? this.keyForAttribute(key, "serialize") : key;
@@ -728,7 +728,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extract: function(store, typeClass, payload, id, requestType) {
+  extract(store, typeClass, payload, id, requestType) {
     this.extractMeta(store, typeClass, payload);
 
     var specificExtract = "extract" + requestType.charAt(0).toUpperCase() + requestType.substr(1);
@@ -748,7 +748,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindAll: function(store, typeClass, payload, id, requestType) {
+  extractFindAll(store, typeClass, payload, id, requestType) {
     return this.extractArray(store, typeClass, payload, id, requestType);
   },
   /**
@@ -764,7 +764,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindQuery: function(store, typeClass, payload, id, requestType) {
+  extractFindQuery(store, typeClass, payload, id, requestType) {
     return this.extractArray(store, typeClass, payload, id, requestType);
   },
   /**
@@ -780,7 +780,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindMany: function(store, typeClass, payload, id, requestType) {
+  extractFindMany(store, typeClass, payload, id, requestType) {
     return this.extractArray(store, typeClass, payload, id, requestType);
   },
   /**
@@ -796,7 +796,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractFindHasMany: function(store, typeClass, payload, id, requestType) {
+  extractFindHasMany(store, typeClass, payload, id, requestType) {
     return this.extractArray(store, typeClass, payload, id, requestType);
   },
 
@@ -813,7 +813,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractCreateRecord: function(store, typeClass, payload, id, requestType) {
+  extractCreateRecord(store, typeClass, payload, id, requestType) {
     return this.extractSave(store, typeClass, payload, id, requestType);
   },
   /**
@@ -829,7 +829,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractUpdateRecord: function(store, typeClass, payload, id, requestType) {
+  extractUpdateRecord(store, typeClass, payload, id, requestType) {
     return this.extractSave(store, typeClass, payload, id, requestType);
   },
   /**
@@ -845,7 +845,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractDeleteRecord: function(store, typeClass, payload, id, requestType) {
+  extractDeleteRecord(store, typeClass, payload, id, requestType) {
     return this.extractSave(store, typeClass, payload, id, requestType);
   },
 
@@ -862,7 +862,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractFind: function(store, typeClass, payload, id, requestType) {
+  extractFind(store, typeClass, payload, id, requestType) {
     return this.extractSingle(store, typeClass, payload, id, requestType);
   },
   /**
@@ -878,7 +878,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractFindBelongsTo: function(store, typeClass, payload, id, requestType) {
+  extractFindBelongsTo(store, typeClass, payload, id, requestType) {
     return this.extractSingle(store, typeClass, payload, id, requestType);
   },
   /**
@@ -894,7 +894,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractSave: function(store, typeClass, payload, id, requestType) {
+  extractSave(store, typeClass, payload, id, requestType) {
     return this.extractSingle(store, typeClass, payload, id, requestType);
   },
 
@@ -906,7 +906,7 @@ export default Serializer.extend({
 
     ```javascript
     App.PostSerializer = DS.JSONSerializer.extend({
-      extractSingle: function(store, typeClass, payload) {
+      extractSingle(store, typeClass, payload) {
         payload.comments = payload._embedded.comment;
         delete payload._embedded;
 
@@ -923,7 +923,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
-  extractSingle: function(store, typeClass, payload, id, requestType) {
+  extractSingle(store, typeClass, payload, id, requestType) {
     var normalizedPayload = this.normalizePayload(payload);
     return this.normalize(typeClass, normalizedPayload);
   },
@@ -936,7 +936,7 @@ export default Serializer.extend({
 
     ```javascript
     App.PostSerializer = DS.JSONSerializer.extend({
-      extractArray: function(store, typeClass, payload) {
+      extractArray(store, typeClass, payload) {
         return payload.map(function(json) {
           return this.extractSingle(store, typeClass, json);
         }, this);
@@ -952,7 +952,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
-  extractArray: function(store, typeClass, arrayPayload, id, requestType) {
+  extractArray(store, typeClass, arrayPayload, id, requestType) {
     var normalizedPayload = this.normalizePayload(arrayPayload);
     var serializer = this;
 
@@ -970,7 +970,7 @@ export default Serializer.extend({
 
     ```javascript
     App.PostSerializer = DS.JSONSerializer.extend({
-      extractMeta: function(store, typeClass, payload) {
+      extractMeta(store, typeClass, payload) {
         if (payload && payload._pagination) {
           store.setMetadataFor(typeClass, payload._pagination);
           delete payload._pagination;
@@ -984,7 +984,7 @@ export default Serializer.extend({
     @param {DS.Model} typeClass
     @param {Object} payload
   */
-  extractMeta: function(store, typeClass, payload) {
+  extractMeta(store, typeClass, payload) {
     if (payload && payload.meta) {
       store.setMetadataFor(typeClass, payload.meta);
       delete payload.meta;
@@ -1001,7 +1001,7 @@ export default Serializer.extend({
 
     ```javascript
     App.PostSerializer = DS.JSONSerializer.extend({
-      extractErrors: function(store, typeClass, payload, id) {
+      extractErrors(store, typeClass, payload, id) {
         if (payload && typeof payload === 'object' && payload._problems) {
           payload = payload._problems;
           this.normalizeErrors(typeClass, payload);
@@ -1018,7 +1018,7 @@ export default Serializer.extend({
     @param {(String|Number)} id
     @return {Object} json The deserialized errors
   */
-  extractErrors: function(store, typeClass, payload, id) {
+  extractErrors(store, typeClass, payload, id) {
     if (payload && typeof payload === 'object' && payload.errors) {
       payload = payload.errors;
       this.normalizeErrors(typeClass, payload);
@@ -1034,7 +1034,7 @@ export default Serializer.extend({
 
    ```javascript
    App.ApplicationSerializer = DS.RESTSerializer.extend({
-     keyForAttribute: function(attr, method) {
+     keyForAttribute(attr, method) {
        return Ember.String.underscore(attr).toUpperCase();
      }
    });
@@ -1045,7 +1045,7 @@ export default Serializer.extend({
    @param {String} method
    @return {String} normalized key
   */
-  keyForAttribute: function(key, method) {
+  keyForAttribute(key, method) {
     return key;
   },
 
@@ -1058,7 +1058,7 @@ export default Serializer.extend({
 
     ```javascript
     App.PostSerializer = DS.JSONSerializer.extend({
-      keyForRelationship: function(key, relationship, method) {
+      keyForRelationship(key, relationship, method) {
         return 'rel_' + Ember.String.underscore(key);
       }
     });
@@ -1071,7 +1071,7 @@ export default Serializer.extend({
    @return {String} normalized key
   */
 
-  keyForRelationship: function(key, typeClass, method) {
+  keyForRelationship(key, typeClass, method) {
     return key;
   },
 
@@ -1084,7 +1084,7 @@ export default Serializer.extend({
    @param {Boolean} skipAssertion
    @return {DS.Transform} transform
   */
-  transformFor: function(attributeType, skipAssertion) {
+  transformFor(attributeType, skipAssertion) {
     var transform = this.container.lookup('transform:' + attributeType);
     Ember.assert("Unable to find transform for '" + attributeType + "'", skipAssertion || !!transform);
     return transform;

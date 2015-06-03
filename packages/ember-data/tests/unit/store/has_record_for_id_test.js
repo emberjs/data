@@ -5,7 +5,7 @@ var belongsTo = DS.belongsTo;
 var run = Ember.run;
 
 module("unit/store/hasRecordForId - Store hasRecordForId", {
-  setup: function() {
+  setup() {
 
     Person = DS.Model.extend({
       firstName: attr('string'),
@@ -33,7 +33,7 @@ module("unit/store/hasRecordForId - Store hasRecordForId", {
 
   },
 
-  teardown: function() {
+  teardown() {
     Ember.run(store, 'destroy');
   }
 });

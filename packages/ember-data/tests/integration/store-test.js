@@ -28,7 +28,7 @@ function initializeStore(adapter) {
 }
 
 module("integration/store - destroy", {
-  setup: function() {
+  setup() {
     initializeStore(DS.Adapter.extend());
   }
 });
@@ -54,7 +54,7 @@ asyncTest("destroying record during find doesn't cause error", function() {
   expect(0);
 
   var TestAdapter = DS.Adapter.extend({
-    find: function(store, type, id, snapshot) {
+    find(store, type, id, snapshot) {
       return new Ember.RSVP.Promise(function(resolve, reject) {
         Ember.run.next(function() {
           store.unloadAll(type);
@@ -82,7 +82,7 @@ asyncTest("find calls do not resolve when the store is destroyed", function() {
   expect(0);
 
   var TestAdapter = DS.Adapter.extend({
-    find: function(store, type, id, snapshot) {
+    find(store, type, id, snapshot) {
       store.destroy();
       Ember.RSVP.resolve(null);
     }
@@ -180,7 +180,7 @@ test("destroying the store correctly cleans everything up", function() {
 });
 
 module("integration/store - fetch", {
-  setup: function() {
+  setup() {
     initializeStore(DS.RESTAdapter.extend());
   }
 });
@@ -214,7 +214,7 @@ test("Using store#fetch is deprecated", function() {
 });
 
 module("integration/store - fetchById", {
-  setup: function() {
+  setup() {
     initializeStore(DS.RESTAdapter.extend());
   }
 });
@@ -270,7 +270,7 @@ test("Using store#fetchById on existing record reloads it", function() {
 });
 
 module("integration/store - fetchAll", {
-  setup: function() {
+  setup() {
     initializeStore(DS.RESTAdapter.extend());
   }
 });
@@ -417,7 +417,7 @@ test("Using store#serializerFor should not throw an error when looking up the ap
 });
 
 module("integration/store - deleteRecord", {
-  setup: function() {
+  setup() {
     initializeStore(DS.RESTAdapter.extend());
   }
 });

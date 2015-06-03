@@ -88,7 +88,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @param {Number} index
     @return {DS.Model} record
   */
-  objectAtContent: function(index) {
+  objectAtContent(index) {
     var content = get(this, 'content');
     var internalModel = content.objectAt(index);
     return internalModel && internalModel.getRecord();
@@ -109,7 +109,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
 
     @method update
   */
-  update: function() {
+  update() {
     if (get(this, 'isUpdating')) { return; }
 
     var store = get(this, 'store');
@@ -126,7 +126,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @param {DS.Model} record
     @param {DS.Model} idx an optional index to insert at
   */
-  addRecord: function(record, idx) {
+  addRecord(record, idx) {
     var content = get(this, 'content');
     if (idx === undefined) {
       content.addObject(record);
@@ -142,7 +142,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @private
     @param {DS.Model} record
   */
-  removeRecord: function(record) {
+  removeRecord(record) {
     get(this, 'content').removeObject(record);
   },
 
@@ -162,7 +162,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method save
     @return {DS.PromiseArray} promise
   */
-  save: function() {
+  save() {
     var recordArray = this;
     var promiseLabel = "DS: RecordArray#save " + get(this, 'type');
     var promise = Ember.RSVP.all(this.invoke("save"), promiseLabel).then(function(array) {
@@ -172,7 +172,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     return PromiseArray.create({ promise: promise });
   },
 
-  _dissociateFromOwnRecords: function() {
+  _dissociateFromOwnRecords() {
     var array = this;
 
     this.get('content').forEach(function(record) {
@@ -188,12 +188,12 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method _unregisterFromManager
     @private
   */
-  _unregisterFromManager: function() {
+  _unregisterFromManager() {
     var manager = get(this, 'manager');
     manager.unregisterFilteredRecordArray(this);
   },
 
-  willDestroy: function() {
+  willDestroy() {
     this._unregisterFromManager();
     this._dissociateFromOwnRecords();
     set(this, 'content', undefined);

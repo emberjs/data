@@ -13,7 +13,7 @@ function stringify(string) {
 }
 
 module("integration/relationships/has_many - Has-Many Relationships", {
-  setup: function() {
+  setup() {
     User = DS.Model.extend({
       name: attr('string'),
       messages: hasMany('message', { polymorphic: true }),
@@ -84,7 +84,7 @@ module("integration/relationships/has_many - Has-Many Relationships", {
     store = env.store;
   },
 
-  teardown: function() {
+  teardown() {
     run(env.container, 'destroy');
   }
 });
@@ -1137,12 +1137,12 @@ test("ManyArray notifies the array observers and flushes bindings when removing"
     page2 = env.store.push('page', { id: 2, number: 2 });
     chapter = env.store.push('chapter', { id: 1, title: 'Sailing the Seven Seas', pages: [1, 2] });
     chapter.get('pages').addEnumerableObserver(this, {
-      willChange: function(pages, removing, addCount) {
+      willChange(pages, removing, addCount) {
         if (observe) {
           equal(removing[0], page2, 'page2 is passed to willChange');
         }
       },
-      didChange: function(pages, removeCount, adding) {
+      didChange(pages, removeCount, adding) {
         if (observe) {
           equal(removeCount, 1, 'removeCount is correct');
         }
@@ -1166,12 +1166,12 @@ test("ManyArray notifies the array observers and flushes bindings when adding", 
     page2 = env.store.push('page', { id: 2, number: 2 });
     chapter = env.store.push('chapter', { id: 1, title: 'Sailing the Seven Seas', pages: [1] });
     chapter.get('pages').addEnumerableObserver(this, {
-      willChange: function(pages, removing, addCount) {
+      willChange(pages, removing, addCount) {
         if (observe) {
           equal(addCount, 1, 'addCount is correct');
         }
       },
-      didChange: function(pages, removeCount, adding) {
+      didChange(pages, removeCount, adding) {
         if (observe) {
           equal(adding[0], page2, 'page2 is passed to didChange');
         }
@@ -1289,13 +1289,13 @@ test("adding and removing records from hasMany relationship #2666", function() {
   });
 
   env.registry.register('adapter:comment', DS.RESTAdapter.extend({
-    deleteRecord: function(record) {
+    deleteRecord(record) {
       return Ember.RSVP.resolve();
     },
-    updateRecord: function(record) {
+    updateRecord(record) {
       return Ember.RSVP.resolve();
     },
-    createRecord: function() {
+    createRecord() {
       return Ember.RSVP.resolve();
     }
   }));

@@ -2,7 +2,7 @@ var Post, post, Comment, comment, Favorite, favorite, env;
 var run = Ember.run;
 
 module("integration/serializer/json - JSONSerializer", {
-  setup: function() {
+  setup() {
     Post = DS.Model.extend({
       title: DS.attr('string'),
       comments: DS.hasMany('comment', { inverse: null })
@@ -24,7 +24,7 @@ module("integration/serializer/json - JSONSerializer", {
     env.store.modelFor('favorite');
   },
 
-  teardown: function() {
+  teardown() {
     run(env.store, 'destroy');
   }
 });
@@ -44,7 +44,7 @@ test("serializeAttribute", function() {
 
 test("serializeAttribute respects keyForAttribute", function() {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
-    keyForAttribute: function(key) {
+    keyForAttribute(key) {
       return key.toUpperCase();
     }
   }));
@@ -103,7 +103,7 @@ test("async serializeBelongsTo with null", function() {
 
 test("serializeBelongsTo respects keyForRelationship", function() {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
-    keyForRelationship: function(key, type) {
+    keyForRelationship(key, type) {
       return key.toUpperCase();
     }
   }));
@@ -122,7 +122,7 @@ test("serializeBelongsTo respects keyForRelationship", function() {
 
 test("serializeHasMany respects keyForRelationship", function() {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
-    keyForRelationship: function(key, type) {
+    keyForRelationship(key, type) {
       return key.toUpperCase();
     }
   }));
@@ -160,7 +160,7 @@ test("serializePolymorphicType sync", function() {
   expect(1);
 
   env.registry.register('serializer:comment', DS.JSONSerializer.extend({
-    serializePolymorphicType: function(record, json, relationship) {
+    serializePolymorphicType(record, json, relationship) {
       var key = relationship.key;
       var belongsTo = record.belongsTo(key);
       json[relationship.key + "TYPE"] = belongsTo.modelName;
@@ -185,7 +185,7 @@ test("serializePolymorphicType async", function() {
   });
 
   env.registry.register('serializer:comment', DS.JSONSerializer.extend({
-    serializePolymorphicType: function(record, json, relationship) {
+    serializePolymorphicType(record, json, relationship) {
       ok(true, 'serializePolymorphicType is called when serialize a polymorphic belongsTo');
     }
   }));
@@ -206,7 +206,7 @@ test("extractArray normalizes each record in the array", function() {
   ];
 
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
-    normalize: function () {
+    normalize () {
       postNormalizeCount++;
       return this._super.apply(this, arguments);
     }
@@ -380,7 +380,7 @@ test("Serializer should respect the primaryKey attribute when serializing record
 
 test("Serializer should respect keyForAttribute when extracting records", function() {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
-    keyForAttribute: function(key) {
+    keyForAttribute(key) {
       return key.toUpperCase();
     }
   }));
@@ -395,7 +395,7 @@ test("Serializer should respect keyForAttribute when extracting records", functi
 
 test("Serializer should respect keyForRelationship when extracting records", function() {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
-    keyForRelationship: function(key, type) {
+    keyForRelationship(key, type) {
       return key.toUpperCase();
     }
   }));
@@ -409,7 +409,7 @@ test("Serializer should respect keyForRelationship when extracting records", fun
 
 test("normalizePayload is called during extractSingle", function() {
   env.registry.register('serializer:post', DS.JSONSerializer.extend({
-    normalizePayload: function(payload) {
+    normalizePayload(payload) {
       return payload.response;
     }
   }));
@@ -470,7 +470,7 @@ test('serializeBelongsTo with async polymorphic', function() {
   var expected = { post: '1', postTYPE: 'post' };
 
   env.registry.register('serializer:favorite', DS.JSONSerializer.extend({
-    serializePolymorphicType: function(snapshot, json, relationship) {
+    serializePolymorphicType(snapshot, json, relationship) {
       var key = relationship.key;
       json[key + 'TYPE'] = snapshot.belongsTo(key).modelName;
     }

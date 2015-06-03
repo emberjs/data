@@ -4,7 +4,7 @@ var Person, env;
 var run = Ember.run;
 
 module("integration/reload - Reloading Records", {
-  setup: function() {
+  setup() {
     Person = DS.Model.extend({
       updatedAt: attr('string'),
       name: attr('string'),
@@ -17,7 +17,7 @@ module("integration/reload - Reloading Records", {
     env = setupStore({ person: Person });
   },
 
-  teardown: function() {
+  teardown() {
     run(env.container, 'destroy');
   }
 });

@@ -9,7 +9,7 @@ function stringify(string) {
 }
 
 module('integration/relationships/one_to_one_test - OneToOne relationships', {
-  setup: function() {
+  setup() {
     User = DS.Model.extend({
       name: attr('string'),
       bestFriend: belongsTo('user', { async: true, inverse: 'bestFriend' }),
@@ -31,7 +31,7 @@ module('integration/relationships/one_to_one_test - OneToOne relationships', {
     store = env.store;
   },
 
-  teardown: function() {
+  teardown() {
     run(env.container, 'destroy');
   }
 });

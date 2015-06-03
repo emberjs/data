@@ -13,7 +13,7 @@ var get = Ember.get;
 
   ```javascript
   export default DS.Adapter.extend(BuildURLMixin, {
-    find: function(store, type, id, snapshot) {
+    find(store, type, id, snapshot) {
       var url = this.buildURL(type.modelName, id, snapshot, 'find');
       return this.ajax(url, 'GET');
     }
@@ -49,7 +49,7 @@ export default Ember.Mixin.create({
     @param {Object} query object of query parameters to send for findQuery requests.
     @return {String} url
   */
-  buildURL: function(modelName, id, snapshot, requestType, query) {
+  buildURL(modelName, id, snapshot, requestType, query) {
     switch (requestType) {
       case 'find':
         return this.urlForFind(id, modelName, snapshot);
@@ -81,7 +81,7 @@ export default Ember.Mixin.create({
     @param {String} id
     @return {String} url
   */
-  _buildURL: function(modelName, id) {
+  _buildURL(modelName, id) {
     var url = [];
     var host = get(this, 'host');
     var prefix = this.urlPrefix();
@@ -110,7 +110,7 @@ export default Ember.Mixin.create({
    * @param {DS.Snapshot} snapshot
    * @return {String} url
    */
-  urlForFind: function(id, modelName, snapshot) {
+  urlForFind(id, modelName, snapshot) {
     return this._buildURL(modelName, id);
   },
 
@@ -119,7 +119,7 @@ export default Ember.Mixin.create({
    * @param {String} modelName
    * @return {String} url
    */
-  urlForFindAll: function(modelName) {
+  urlForFindAll(modelName) {
     return this._buildURL(modelName);
   },
 
@@ -129,7 +129,7 @@ export default Ember.Mixin.create({
    * @param {String} modelName
    * @return {String} url
    */
-  urlForFindQuery: function(query, modelName) {
+  urlForFindQuery(query, modelName) {
     return this._buildURL(modelName);
   },
 
@@ -140,7 +140,7 @@ export default Ember.Mixin.create({
    * @param {Array} snapshots
    * @return {String} url
    */
-  urlForFindMany: function(ids, modelName, snapshots) {
+  urlForFindMany(ids, modelName, snapshots) {
     return this._buildURL(modelName);
   },
 
@@ -150,7 +150,7 @@ export default Ember.Mixin.create({
    * @param {String} modelName
    * @return {String} url
    */
-  urlForFindHasMany: function(id, modelName) {
+  urlForFindHasMany(id, modelName) {
     return this._buildURL(modelName, id);
   },
 
@@ -160,7 +160,7 @@ export default Ember.Mixin.create({
    * @param {String} modelName
    * @return {String} url
    */
-  urlForFindBelongsTo: function(id, modelName) {
+  urlForFindBelongsTo(id, modelName) {
     return this._buildURL(modelName, id);
   },
 
@@ -170,7 +170,7 @@ export default Ember.Mixin.create({
    * @param {DS.Snapshot} snapshot
    * @return {String} url
    */
-  urlForCreateRecord: function(modelName, snapshot) {
+  urlForCreateRecord(modelName, snapshot) {
     return this._buildURL(modelName);
   },
 
@@ -181,7 +181,7 @@ export default Ember.Mixin.create({
    * @param {DS.Snapshot} snapshot
    * @return {String} url
    */
-  urlForUpdateRecord: function(id, modelName, snapshot) {
+  urlForUpdateRecord(id, modelName, snapshot) {
     return this._buildURL(modelName, id);
   },
 
@@ -192,7 +192,7 @@ export default Ember.Mixin.create({
    * @param {DS.Snapshot} snapshot
    * @return {String} url
    */
-  urlForDeleteRecord: function(id, modelName, snapshot) {
+  urlForDeleteRecord(id, modelName, snapshot) {
     return this._buildURL(modelName, id);
   },
 
@@ -203,7 +203,7 @@ export default Ember.Mixin.create({
     @param {String} parentURL
     @return {String} urlPrefix
   */
-  urlPrefix: function(path, parentURL) {
+  urlPrefix(path, parentURL) {
     var host = get(this, 'host');
     var namespace = get(this, 'namespace');
     var url = [];
@@ -252,7 +252,7 @@ export default Ember.Mixin.create({
 
     ```js
     App.ApplicationAdapter = DS.RESTAdapter.extend({
-      pathForType: function(modelName) {
+      pathForType(modelName) {
         var decamelized = Ember.String.decamelize(modelName);
         return Ember.String.pluralize(decamelized);
       }
@@ -263,7 +263,7 @@ export default Ember.Mixin.create({
     @param {String} modelName
     @return {String} path
   **/
-  pathForType: function(modelName) {
+  pathForType(modelName) {
     var camelized = Ember.String.camelize(modelName);
     return Ember.String.pluralize(camelized);
   }

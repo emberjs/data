@@ -11,7 +11,7 @@ function stringify(string) {
 }
 
 module('integration/relationships/one_to_many_test - OneToMany relationships', {
-  setup: function() {
+  setup() {
     User = DS.Model.extend({
       name: attr('string'),
       messages: hasMany('message', { async: true }),
@@ -40,7 +40,7 @@ module('integration/relationships/one_to_many_test - OneToMany relationships', {
     store = env.store;
   },
 
-  teardown: function() {
+  teardown() {
     run(env.container, 'destroy');
   }
 });

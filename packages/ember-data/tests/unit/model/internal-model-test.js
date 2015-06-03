@@ -1,11 +1,11 @@
 module("unit/model/internal-model - Internal Model");
 
 var mockModelFactory = {
-  _create: function() {
-    return { trigger: function() {} };
+  _create() {
+    return { trigger() {} };
   },
 
-  eachRelationship: function() {
+  eachRelationship() {
   }
 };
 test("Materializing a model twice errors out", function() {

@@ -122,11 +122,11 @@ function hasMany(type, options) {
   };
 
   return computedPolyfill({
-    get: function(key) {
+    get(key) {
       var relationship = this._internalModel._relationships[key];
       return relationship.getRecords();
     },
-    set: function(key, records) {
+    set(key, records) {
       var relationship = this._internalModel._relationships[key];
       relationship.clear();
       Ember.assert("You must pass an array of records to set a hasMany relationship", Ember.isArray(records));
@@ -137,7 +137,7 @@ function hasMany(type, options) {
 }
 
 Model.reopen({
-  notifyHasManyAdded: function(key) {
+  notifyHasManyAdded(key) {
     //We need to notifyPropertyChange in the adding case because we need to make sure
     //we fetch the newly added record in case it is unloaded
     //TODO(Igor): Consider whether we could do this only if the record state is unloaded

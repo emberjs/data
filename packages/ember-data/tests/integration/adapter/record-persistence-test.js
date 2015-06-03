@@ -16,7 +16,7 @@ function assertClean(promise) {
 
 
 module("integration/adapter/record_persistence - Persisting Records", {
-  setup: function() {
+  setup() {
     Person = DS.Model.extend({
       updatedAt: attr('string'),
       name: attr('string'),
@@ -29,7 +29,7 @@ module("integration/adapter/record_persistence - Persisting Records", {
     store = env.store;
   },
 
-  teardown: function() {
+  teardown() {
     run(env.container, 'destroy');
   }
 });

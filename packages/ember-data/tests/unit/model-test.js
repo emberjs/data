@@ -5,7 +5,7 @@ var run = Ember.run;
 var Person, store, array;
 
 module("unit/model - DS.Model", {
-  setup: function() {
+  setup() {
     store = createStore();
 
     Person = DS.Model.extend({
@@ -14,7 +14,7 @@ module("unit/model - DS.Model", {
     });
   },
 
-  teardown: function() {
+  teardown() {
     run(function() {
       store.destroy();
     });
@@ -276,7 +276,7 @@ test("supports pushedData in root.deleted.uncommitted", function() {
 
 
 module("unit/model - DS.Model updating", {
-  setup: function() {
+  setup() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
     Person = DS.Model.extend({ name: DS.attr('string') });
     store = createStore();
@@ -284,7 +284,7 @@ module("unit/model - DS.Model updating", {
       store.pushMany(Person, array);
     });
   },
-  teardown: function() {
+  teardown() {
     run(function() {
       store.destroy();
       Person = null;
@@ -329,7 +329,7 @@ test("a DS.model can define 'setUnknownProperty'", function() {
   var Tag = DS.Model.extend({
     name: DS.attr("string"),
 
-    setUnknownProperty: function(key, value) {
+    setUnknownProperty(key, value) {
       if (key === "title") {
         this.set("name", value);
       }
@@ -347,7 +347,7 @@ test("a DS.model can define 'setUnknownProperty'", function() {
 test("a defaultValue for an attribute can be a function", function() {
   var Tag = DS.Model.extend({
     createdAt: DS.attr('string', {
-      defaultValue: function() {
+      defaultValue() {
         return "le default value";
       }
     })
@@ -365,7 +365,7 @@ test("a defaultValue function gets the record, options, and key", function() {
 
   var Tag = DS.Model.extend({
     createdAt: DS.attr('string', {
-      defaultValue: function(record, options, key) {
+      defaultValue(record, options, key) {
         deepEqual(record, tag, "the record is passed in properly");
         equal(key, 'createdAt', "the attribute being defaulted is passed in properly");
         return "le default value";
@@ -423,7 +423,7 @@ test("setting a property back to its original value removes the property from th
 });
 
 module("unit/model - with a simple Person model", {
-  setup: function() {
+  setup() {
     array = [
       { id: 1, name: "Scumbag Dale" },
       { id: 2, name: "Scumbag Katz" },
@@ -439,7 +439,7 @@ module("unit/model - with a simple Person model", {
       store.pushMany(Person, array);
     });
   },
-  teardown: function() {
+  teardown() {
     run(function() {
       store.destroy();
       Person = null;
@@ -681,7 +681,7 @@ test("ensure model exits loading state, materializes data and fulfills promise o
 
   var store = createStore({
     adapter: DS.Adapter.extend({
-      find: function(store, type, id, snapshot) {
+      find(store, type, id, snapshot) {
         return Ember.RSVP.resolve({ id: 1, name: "John" });
       }
     }),

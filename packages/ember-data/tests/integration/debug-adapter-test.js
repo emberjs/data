@@ -3,7 +3,7 @@ var get = Ember.get;
 var run = Ember.run;
 
 module("DS.DebugAdapter", {
-  setup: function() {
+  setup() {
     Ember.run(function() {
       App = Ember.Application.create();
       App.toString = function() { return 'App'; };
@@ -22,12 +22,12 @@ module("DS.DebugAdapter", {
     debugAdapter = App.__container__.lookup('data-adapter:main');
 
     debugAdapter.reopen({
-      getModelTypes: function() {
+      getModelTypes() {
         return Ember.A([{ klass: App.Post, name: 'App.Post' }]);
       }
     });
   },
-  teardown: function() {
+  teardown() {
     run(App, App.destroy);
   }
 });

@@ -75,7 +75,7 @@ var Serializer = Ember.Object.extend({
     @param {Object} hash
     @return {Object}
   */
-  normalize: function(typeClass, hash) {
+  normalize(typeClass, hash) {
     return hash;
   }
 

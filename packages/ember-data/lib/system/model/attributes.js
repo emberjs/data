@@ -38,9 +38,9 @@ Model.reopenClass({
     });
 
     // prints:
-    // firstName {type: "string", isAttribute: true, options: Object, parentType: function, name: "firstName"}
-    // lastName {type: "string", isAttribute: true, options: Object, parentType: function, name: "lastName"}
-    // birthday {type: "date", isAttribute: true, options: Object, parentType: function, name: "birthday"}
+    // firstName {type: "string", isAttribute: true, options: Object, parentType, name: "firstName"}
+    // lastName {type: "string", isAttribute: true, options: Object, parentType, name: "lastName"}
+    // birthday {type: "date", isAttribute: true, options: Object, parentType, name: "birthday"}
     ```
 
     @property attributes
@@ -137,9 +137,9 @@ Model.reopenClass({
     });
 
     // prints:
-    // firstName {type: "string", isAttribute: true, options: Object, parentType: function, name: "firstName"}
-    // lastName {type: "string", isAttribute: true, options: Object, parentType: function, name: "lastName"}
-    // birthday {type: "date", isAttribute: true, options: Object, parentType: function, name: "birthday"}
+    // firstName {type: "string", isAttribute: true, options: Object, parentType, name: "firstName"}
+    // lastName {type: "string", isAttribute: true, options: Object, parentType, name: "lastName"}
+    // birthday {type: "date", isAttribute: true, options: Object, parentType, name: "birthday"}
    ```
 
     @method eachAttribute
@@ -147,7 +147,7 @@ Model.reopenClass({
     @param {Object} [target] The target object to use
     @static
   */
-  eachAttribute: function(callback, binding) {
+  eachAttribute(callback, binding) {
     get(this, 'attributes').forEach(function(meta, name) {
       callback.call(binding, name, meta);
     }, binding);
@@ -195,7 +195,7 @@ Model.reopenClass({
     @param {Object} [target] The target object to use
     @static
   */
-  eachTransformedAttribute: function(callback, binding) {
+  eachTransformedAttribute(callback, binding) {
     get(this, 'transformedAttributes').forEach(function(type, name) {
       callback.call(binding, name, type);
     });
@@ -204,7 +204,7 @@ Model.reopenClass({
 
 
 Model.reopen({
-  eachAttribute: function(callback, binding) {
+  eachAttribute(callback, binding) {
     this.constructor.eachAttribute(callback, binding);
   }
 });
@@ -270,7 +270,7 @@ function getValue(record, key) {
   App.User = DS.Model.extend({
     username: attr('string'),
     email: attr('string'),
-    settings: attr({defaultValue: function() {
+    settings: attr({defaultValue() {
       return {};
     }})
   });
@@ -299,7 +299,7 @@ export default function attr(type, options) {
   };
 
   return computedPolyfill({
-    get: function(key) {
+    get(key) {
       var internalModel = this._internalModel;
       if (hasValue(internalModel, key)) {
         return getValue(internalModel, key);
@@ -307,7 +307,7 @@ export default function attr(type, options) {
         return getDefaultValue(this, options, key);
       }
     },
-    set: function(key, value) {
+    set(key, value) {
       Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.constructor.toString(), key !== 'id');
       var internalModel = this._internalModel;
       var oldValue = getValue(internalModel, key);

@@ -9,7 +9,7 @@ function stringify(string) {
 }
 
 module('integration/relationships/polymorphic_mixins_belongs_to_test - Polymorphic belongsTo relationships with mixins', {
-  setup: function() {
+  setup() {
     User = DS.Model.extend({
       name: attr('string'),
       bestMessage: belongsTo('message', { async: true, polymorphic: true })
@@ -40,7 +40,7 @@ module('integration/relationships/polymorphic_mixins_belongs_to_test - Polymorph
     store = env.store;
   },
 
-  teardown: function() {
+  teardown() {
     run(env.container, 'destroy');
   }
 });

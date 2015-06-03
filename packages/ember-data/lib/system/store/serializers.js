@@ -7,7 +7,7 @@ export function serializerForAdapter(store, adapter, type) {
 
   if (serializer === null || serializer === undefined) {
     serializer = {
-      extract: function(store, type, payload) { return payload; }
+      extract(store, type, payload) { return payload; }
     };
   }
 

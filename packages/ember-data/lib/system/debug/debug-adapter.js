@@ -15,7 +15,7 @@ var underscore = Ember.String.underscore;
   @private
 */
 export default Ember.DataAdapter.extend({
-  getFilters: function() {
+  getFilters() {
     return [
       { name: 'isNew', desc: 'New' },
       { name: 'isModified', desc: 'Modified' },
@@ -23,11 +23,11 @@ export default Ember.DataAdapter.extend({
     ];
   },
 
-  detect: function(typeClass) {
+  detect(typeClass) {
     return typeClass !== Model && Model.detect(typeClass);
   },
 
-  columnsForType: function(typeClass) {
+  columnsForType(typeClass) {
     var columns = [{
       name: 'id',
       desc: 'Id'
@@ -42,11 +42,11 @@ export default Ember.DataAdapter.extend({
     return columns;
   },
 
-  getRecords: function(modelName) {
+  getRecords(modelName) {
     return this.get('store').all(modelName);
   },
 
-  getRecordColumnValues: function(record) {
+  getRecordColumnValues(record) {
     var self = this;
     var count = 0;
     var columnValues = { id: get(record, 'id') };
@@ -61,7 +61,7 @@ export default Ember.DataAdapter.extend({
     return columnValues;
   },
 
-  getRecordKeywords: function(record) {
+  getRecordKeywords(record) {
     var keywords = [];
     var keys = Ember.A(['id']);
     record.eachAttribute(function(key) {
@@ -73,7 +73,7 @@ export default Ember.DataAdapter.extend({
     return keywords;
   },
 
-  getRecordFilterValues: function(record) {
+  getRecordFilterValues(record) {
     return {
       isNew: record.get('isNew'),
       isModified: record.get('isDirty') && !record.get('isNew'),
@@ -81,7 +81,7 @@ export default Ember.DataAdapter.extend({
     };
   },
 
-  getRecordColor: function(record) {
+  getRecordColor(record) {
     var color = 'black';
     if (record.get('isNew')) {
       color = 'green';
@@ -91,7 +91,7 @@ export default Ember.DataAdapter.extend({
     return color;
   },
 
-  observeRecord: function(record, recordUpdated) {
+  observeRecord(record, recordUpdated) {
     var releaseMethods = Ember.A();
     var self = this;
     var keysToObserve = Ember.A(['id', 'isNew', 'isDirty']);

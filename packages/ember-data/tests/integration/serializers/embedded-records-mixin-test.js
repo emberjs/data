@@ -6,7 +6,7 @@ var run = Ember.run;
 var LightSaber;
 
 module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
-  setup: function() {
+  setup() {
     SuperVillain = DS.Model.extend({
       firstName:       DS.attr('string'),
       lastName:        DS.attr('string'),
@@ -68,7 +68,7 @@ module("integration/embedded_records_mixin - EmbeddedRecordsMixin", {
     env.amsAdapter    = env.container.lookup("adapter:-active-model");
   },
 
-  teardown: function() {
+  teardown() {
     run(env.store, 'destroy');
   }
 });
@@ -397,7 +397,7 @@ test("extractArray with embedded objects with identical relationship and attribu
       villains: { embedded: 'always' }
     },
     //Makes the keyForRelationship and keyForAttribute collide.
-    keyForRelationship: function(key, type) {
+    keyForRelationship(key, type) {
       return this.keyForAttribute(key, type);
     }
   }));
@@ -1440,11 +1440,11 @@ test("serializing relationships with an embedded and without calls super when no
   var calledSerializeHasMany = false;
 
   var Serializer = DS.RESTSerializer.extend({
-    serializeBelongsTo: function(snapshot, json, relationship) {
+    serializeBelongsTo(snapshot, json, relationship) {
       calledSerializeBelongsTo = true;
       return this._super(snapshot, json, relationship);
     },
-    serializeHasMany: function(snapshot, json, relationship) {
+    serializeHasMany(snapshot, json, relationship) {
       calledSerializeHasMany = true;
       var key = relationship.key;
       var payloadKey = this.keyForRelationship ? this.keyForRelationship(key, "hasMany") : key;

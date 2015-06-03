@@ -3,14 +3,14 @@ var store;
 var run = Ember.run;
 
 module("unit/store/metadata_for - DS.Store#metadataFor", {
-  setup: function() {
+  setup() {
     store = createStore({
       post: DS.Model.extend(),
       comment: DS.Model.extend()
     });
   },
 
-  teardown: function() {
+  teardown() {
     run(function() {
       store.destroy();
     });

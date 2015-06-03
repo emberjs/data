@@ -3,7 +3,7 @@ var HomePlanet, league, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, 
 var run = Ember.run;
 
 module("integration/serializer/rest - RESTSerializer", {
-  setup: function() {
+  setup() {
     HomePlanet = DS.Model.extend({
       name:          DS.attr('string'),
       superVillains: DS.hasMany('superVillain')
@@ -44,7 +44,7 @@ module("integration/serializer/rest - RESTSerializer", {
     env.store.modelFor('comment');
   },
 
-  teardown: function() {
+  teardown() {
     run(env.store, 'destroy');
   }
 });
@@ -160,7 +160,7 @@ test("extractSingle warning with custom modelNameFromPayloadKey", function() {
 test("pushPayload - single record payload - warning with custom modelNameFromPayloadKey", function() {
   var homePlanet;
   var HomePlanetRestSerializer = DS.RESTSerializer.extend({
-    modelNameFromPayloadKey: function(root) {
+    modelNameFromPayloadKey(root) {
       //return some garbage that won"t resolve in the container
       if (root === "home_planet") {
         return "garbage";
@@ -191,7 +191,7 @@ test("pushPayload - single record payload - warning with custom modelNameFromPay
   // Serializers are singletons, so that"s why we use the store which
   // looks at the container to look it up
   env.store.serializerFor("homePlanet").reopen({
-    modelNameFromPayloadKey: function(root) {
+    modelNameFromPayloadKey(root) {
       // should not warn if a model is found.
       return Ember.String.camelize(Ember.String.singularize(root));
     }
@@ -216,7 +216,7 @@ test("pushPayload - single record payload - warning with custom modelNameFromPay
 test("pushPayload - multiple record payload (extractArray) - warning with custom modelNameFromPayloadKey", function() {
   var homePlanet;
   var HomePlanetRestSerializer = DS.RESTSerializer.extend({
-    modelNameFromPayloadKey: function(root) {
+    modelNameFromPayloadKey(root) {
       //return some garbage that won"t resolve in the container
       if (root === "home_planets") {
         return "garbage";
@@ -246,7 +246,7 @@ test("pushPayload - multiple record payload (extractArray) - warning with custom
   // Serializers are singletons, so that"s why we use the store which
   // looks at the container to look it up
   env.store.serializerFor("homePlanet").reopen({
-    modelNameFromPayloadKey: function(root) {
+    modelNameFromPayloadKey(root) {
       // should not warn if a model is found.
       return Ember.String.camelize(Ember.String.singularize(root));
     }
@@ -299,7 +299,7 @@ test("serialize polymorphicType with decamelized modelName", function() {
 
 test("normalizePayload is called during extractSingle", function() {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
-    normalizePayload: function(payload) {
+    normalizePayload(payload) {
       return payload.response;
     }
   }));
@@ -363,7 +363,7 @@ test("extractSingle loads secondary records with correct serializer", function()
   var superVillainNormalizeCount = 0;
 
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend({
-    normalize: function() {
+    normalize() {
       superVillainNormalizeCount++;
       return this._super.apply(this, arguments);
     }
@@ -400,7 +400,7 @@ test("extractArray loads secondary records with correct serializer", function() 
   var superVillainNormalizeCount = 0;
 
   env.registry.register('serializer:super-villain', DS.RESTSerializer.extend({
-    normalize: function() {
+    normalize() {
       superVillainNormalizeCount++;
       return this._super.apply(this, arguments);
     }
@@ -421,7 +421,7 @@ test("extractArray loads secondary records with correct serializer", function() 
 test('normalizeHash normalizes specific parts of the payload', function() {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
     normalizeHash: {
-      homePlanets: function(hash) {
+      homePlanets(hash) {
         hash.id = hash._id;
         delete hash._id;
         return hash;
@@ -448,7 +448,7 @@ test('normalizeHash normalizes specific parts of the payload', function() {
 test('normalizeHash works with transforms', function() {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
     normalizeHash: {
-      evilMinions: function(hash) {
+      evilMinions(hash) {
         hash.condition = hash._condition;
         delete hash._condition;
         return hash;
@@ -457,14 +457,14 @@ test('normalizeHash works with transforms', function() {
   }));
 
   env.registry.register('transform:condition', DS.Transform.extend({
-    deserialize: function(serialized) {
+    deserialize(serialized) {
       if (serialized === 1) {
         return "healing";
       } else {
         return "unknown";
       }
     },
-    serialize: function(deserialized) {
+    serialize(deserialized) {
       if (deserialized === "healing") {
         return 1;
       } else {
@@ -492,7 +492,7 @@ test('normalize should allow for different levels of normalization', function() 
     attrs: {
       superVillain: 'is_super_villain'
     },
-    keyForAttribute: function(attr) {
+    keyForAttribute(attr) {
       return Ember.String.decamelize(attr);
     }
   }));
@@ -561,7 +561,7 @@ test('serializeIntoHash uses payloadKeyFromModelName to normalize the payload ro
   });
   var json = {};
   env.registry.register('serializer:home-planet', DS.RESTSerializer.extend({
-    payloadKeyFromModelName: function(modelName) {
+    payloadKeyFromModelName(modelName) {
       return Ember.String.dasherize(modelName);
     }
   }));

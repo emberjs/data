@@ -2,7 +2,7 @@ var env, store, Person;
 var run = Ember.run;
 
 module("unit/store/getById - Store getById", {
-  setup: function() {
+  setup() {
 
     Person = DS.Model.extend();
     Person.toString = function() {
@@ -15,7 +15,7 @@ module("unit/store/getById - Store getById", {
     store = env.store;
   },
 
-  teardown: function() {
+  teardown() {
     Ember.run(store, 'destroy');
   }
 });

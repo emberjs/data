@@ -3,7 +3,7 @@ var Person, env, store, adapter;
 var run = Ember.run;
 
 module("integration/adapter/queries - Queries", {
-  setup: function() {
+  setup() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
@@ -16,7 +16,7 @@ module("integration/adapter/queries - Queries", {
     adapter = env.adapter;
   },
 
-  teardown: function() {
+  teardown() {
     run(env.container, 'destroy');
   }
 });

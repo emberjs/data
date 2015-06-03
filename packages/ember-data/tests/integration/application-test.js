@@ -21,7 +21,7 @@ function lookup(thing) {
 }
 
 module("integration/application - Injecting a Custom Store", {
-  setup: function() {
+  setup() {
     run(function() {
       app = Application.create({
         ApplicationStore: Store.extend({ isCustom: true }),
@@ -36,7 +36,7 @@ module("integration/application - Injecting a Custom Store", {
     container = app.__container__;
   },
 
-  teardown: function() {
+  teardown() {
     run(app, app.destroy);
     Ember.BOOTED = false;
   }
@@ -79,7 +79,7 @@ test("registering App.Store is deprecated but functional", function() {
 });
 
 module("integration/application - Injecting the Default Store", {
-  setup: function() {
+  setup() {
     run(function() {
       app = Application.create({
         FooController: Controller.extend(),
@@ -92,7 +92,7 @@ module("integration/application - Injecting the Default Store", {
     container = app.__container__;
   },
 
-  teardown: function() {
+  teardown() {
     run(app, 'destroy');
     Ember.BOOTED = false;
   }
@@ -117,7 +117,7 @@ test("the DS namespace should be accessible", function() {
 
 if (Ember.inject && Ember.inject.service) {
   module("integration/application - Using the store as a service", {
-    setup: function() {
+    setup() {
       run(function() {
         app = Application.create({
           DoodleService: Ember.Object.extend({ store: Ember.inject.service() })
@@ -127,7 +127,7 @@ if (Ember.inject && Ember.inject.service) {
       container = app.__container__;
     },
 
-    teardown: function() {
+    teardown() {
       run(app, 'destroy');
       Ember.BOOTED = false;
     }
@@ -142,11 +142,11 @@ if (Ember.inject && Ember.inject.service) {
 }
 
 module("integration/application - Attaching initializer", {
-  setup: function() {
+  setup() {
     App = Application.extend();
   },
 
-  teardown: function() {
+  teardown() {
     if (app) {
       run(app, app.destroy);
     }
@@ -159,7 +159,7 @@ test("ember-data initializer is run", function() {
   App.initializer({
     name:       "after-ember-data",
     after:      "ember-data",
-    initialize: function() { ran = true; }
+    initialize() { ran = true; }
   });
 
   run(function() {
@@ -174,7 +174,7 @@ test("store initializer is run (DEPRECATED)", function() {
   App.initializer({
     name:       "after-store",
     after:      'store',
-    initialize: function() { ran = true; }
+    initialize() { ran = true; }
   });
 
   run(function() {
@@ -189,7 +189,7 @@ test("injectStore initializer is run (DEPRECATED)", function() {
   App.initializer({
     name:       "after-store",
     after:      'injectStore',
-    initialize: function() { ran = true; }
+    initialize() { ran = true; }
   });
 
   run(function() {
@@ -204,7 +204,7 @@ test("transforms initializer is run (DEPRECATED)", function() {
   App.initializer({
     name:       "after-store",
     after:      'transforms',
-    initialize: function() { ran = true; }
+    initialize() { ran = true; }
   });
 
   run(function() {
@@ -219,7 +219,7 @@ test("activeModelAdapter initializer is run (DEPRECATED)", function() {
   App.initializer({
     name:       "after-store",
     after:      'activeModelAdapter',
-    initialize: function() { ran = true; }
+    initialize() { ran = true; }
   });
 
   run(function() {

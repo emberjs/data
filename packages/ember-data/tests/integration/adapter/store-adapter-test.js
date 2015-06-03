@@ -17,7 +17,7 @@ var run = Ember.run;
 var Person, Dog, env, store, adapter;
 
 module("integration/adapter/store_adapter - DS.Store and DS.Adapter integration test", {
-  setup: function() {
+  setup() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
@@ -34,7 +34,7 @@ module("integration/adapter/store_adapter - DS.Store and DS.Adapter integration 
     adapter = env.adapter;
   },
 
-  teardown: function() {
+  teardown() {
     run(env.container, 'destroy');
   }
 });

@@ -22,22 +22,22 @@ var indexOf = Ember.EnumerableUtils.indexOf;
   @extends Ember.Object
 */
 export default Ember.Object.extend({
-  init: function() {
+  init() {
     this.filteredRecordArrays = MapWithDefault.create({
-      defaultValue: function() { return []; }
+      defaultValue() { return []; }
     });
 
     this.changedRecords = [];
     this._adapterPopulatedRecordArrays = [];
   },
 
-  recordDidChange: function(record) {
+  recordDidChange(record) {
     if (this.changedRecords.push(record) !== 1) { return; }
 
     Ember.run.schedule('actions', this, this.updateRecordArrays);
   },
 
-  recordArraysForRecord: function(record) {
+  recordArraysForRecord(record) {
     record._recordArrays = record._recordArrays || OrderedSet.create();
     return record._recordArrays;
   },
@@ -52,7 +52,7 @@ export default Ember.Object.extend({
 
     @method updateRecordArrays
   */
-  updateRecordArrays: function() {
+  updateRecordArrays() {
     forEach(this.changedRecords, function(record) {
       if (record.isDeleted()) {
         this._recordWasDeleted(record);
@@ -64,7 +64,7 @@ export default Ember.Object.extend({
     this.changedRecords.length = 0;
   },
 
-  _recordWasDeleted: function (record) {
+  _recordWasDeleted (record) {
     var recordArrays = record._recordArrays;
 
     if (!recordArrays) { return; }
@@ -78,7 +78,7 @@ export default Ember.Object.extend({
 
 
   //Don't need to update non filtered arrays on simple changes
-  _recordWasChanged: function (record) {
+  _recordWasChanged (record) {
     var typeClass = record.type;
     var recordArrays = this.filteredRecordArrays.get(typeClass);
     var filter;
@@ -92,7 +92,7 @@ export default Ember.Object.extend({
   },
 
   //Need to update live arrays on loading
-  recordWasLoaded: function(record) {
+  recordWasLoaded(record) {
     var typeClass = record.type;
     var recordArrays = this.filteredRecordArrays.get(typeClass);
     var filter;
@@ -111,7 +111,7 @@ export default Ember.Object.extend({
     @param {DS.Model} typeClass
     @param {(Number|String)} clientId
   */
-  updateRecordArray: function(array, filter, typeClass, record) {
+  updateRecordArray(array, filter, typeClass, record) {
     var shouldBeInArray;
 
     if (!filter) {
@@ -145,7 +145,7 @@ export default Ember.Object.extend({
     @param {String} modelName
     @param {Function} filter
   */
-  updateFilter: function(array, modelName, filter) {
+  updateFilter(array, modelName, filter) {
     var typeMap = this.store.typeMapFor(modelName);
     var records = typeMap.records;
     var record;
@@ -166,7 +166,7 @@ export default Ember.Object.extend({
     @param {Class} typeClass
     @return {DS.RecordArray}
   */
-  createRecordArray: function(typeClass) {
+  createRecordArray(typeClass) {
     var array = RecordArray.create({
       type: typeClass,
       content: Ember.A(),
@@ -189,7 +189,7 @@ export default Ember.Object.extend({
     @param {Object} query (optional
     @return {DS.FilteredRecordArray}
   */
-  createFilteredRecordArray: function(typeClass, filter, query) {
+  createFilteredRecordArray(typeClass, filter, query) {
     var array = FilteredRecordArray.create({
       query: query,
       type: typeClass,
@@ -212,7 +212,7 @@ export default Ember.Object.extend({
     @param {Object} query
     @return {DS.AdapterPopulatedRecordArray}
   */
-  createAdapterPopulatedRecordArray: function(typeClass, query) {
+  createAdapterPopulatedRecordArray(typeClass, query) {
     var array = AdapterPopulatedRecordArray.create({
       type: typeClass,
       query: query,
@@ -237,7 +237,7 @@ export default Ember.Object.extend({
     @param {DS.Model} typeClass
     @param {Function} filter
   */
-  registerFilteredRecordArray: function(array, typeClass, filter) {
+  registerFilteredRecordArray(array, typeClass, filter) {
     var recordArrays = this.filteredRecordArrays.get(typeClass);
     recordArrays.push(array);
 
@@ -251,13 +251,13 @@ export default Ember.Object.extend({
     @method unregisterFilteredRecordArray
     @param {DS.RecordArray} array
   */
-  unregisterFilteredRecordArray: function(array) {
+  unregisterFilteredRecordArray(array) {
     var recordArrays = this.filteredRecordArrays.get(array.type);
     var index = indexOf(recordArrays, array);
     recordArrays.splice(index, 1);
   },
 
-  willDestroy: function() {
+  willDestroy() {
     this._super.apply(this, arguments);
 
     this.filteredRecordArrays.forEach(function(value) {

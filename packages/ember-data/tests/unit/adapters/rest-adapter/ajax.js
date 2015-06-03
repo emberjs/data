@@ -2,7 +2,7 @@ var Person, Place, store, adapter, env;
 var run = Ember.run;
 
 module("integration/adapter/ajax - building requests", {
-  setup: function() {
+  setup() {
     Person = { modelName: 'person' };
     Place = { modelName: 'place' };
     env = setupStore({ adapter: DS.RESTAdapter, person: Person, place: Place });
@@ -10,7 +10,7 @@ module("integration/adapter/ajax - building requests", {
     adapter = env.adapter;
   },
 
-  teardown: function() {
+  teardown() {
     run(function() {
       store.destroy();
       env.container.destroy();

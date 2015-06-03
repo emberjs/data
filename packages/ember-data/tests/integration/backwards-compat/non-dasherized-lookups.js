@@ -2,7 +2,7 @@ var App, store;
 
 var run = Ember.run;
 module('integration/backwards-compat/non-dasherized-lookups - non dasherized lookups in application code finders', {
-  setup: function() {
+  setup() {
     run(function() {
       App = Ember.Application.create();
       App.PostNote = DS.Model.extend({
@@ -11,7 +11,7 @@ module('integration/backwards-compat/non-dasherized-lookups - non dasherized loo
     });
     store = App.__container__.lookup('store:main');
   },
-  teardown: function() {
+  teardown() {
     run(App, 'destroy');
     App = null;
   }
@@ -53,7 +53,7 @@ test('can lookup models using underscored strings', function() {
 });
 
 module('integration/backwards-compat/non-dasherized-lookups - non dasherized lookups in application code relationship macros', {
-  setup: function() {
+  setup() {
     run(function() {
       App = Ember.Application.create();
       App.PostNote = DS.Model.extend({
@@ -70,7 +70,7 @@ module('integration/backwards-compat/non-dasherized-lookups - non dasherized loo
     store = App.__container__.lookup('store:main');
   },
 
-  teardown: function() {
+  teardown() {
     run(App, 'destroy');
     App = null;
   }
