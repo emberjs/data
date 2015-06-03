@@ -415,3 +415,32 @@ test("Using store#serializerFor should not throw an error when looking up the ap
     ok(applicationSerializer);
   });
 });
+
+module("integration/store - deleteRecord", {
+  setup: function() {
+    initializeStore(DS.RESTAdapter.extend());
+  }
+});
+
+test("Using store#deleteRecord should mark the model for removal", function() {
+  expect(3);
+  var person;
+
+  run(function() {
+    person = store.push('person', {
+      id: 1,
+      name: 'Tom Dale'
+    });
+  });
+
+  ok(store.hasRecordForId('person', 1), 'expected the record to be in the store');
+
+  var personDeleteRecord = tap(person, 'deleteRecord');
+
+  run(function() {
+    store.deleteRecord(person);
+  });
+
+  equal(personDeleteRecord.called.length, 1, 'expected person.deleteRecord to have been called');
+  ok(person.get('isDeleted'), 'expect person to be isDeleted');
+});
