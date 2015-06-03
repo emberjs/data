@@ -2,13 +2,13 @@ var Person, array, store;
 var run = Ember.run;
 
 var adapter = DS.Adapter.extend({
-  deleteRecord: function() {
+  deleteRecord() {
     return Ember.RSVP.Promise.resolve();
   }
 });
 
 module("unit/adapter_populated_record_array - DS.AdapterPopulatedRecordArray", {
-  setup: function() {
+  setup() {
 
     store = createStore({
       adapter: adapter

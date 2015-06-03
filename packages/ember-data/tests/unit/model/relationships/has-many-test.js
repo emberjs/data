@@ -3,7 +3,7 @@ var run = Ember.run;
 var env;
 
 module("unit/model/relationships - DS.hasMany", {
-  setup: function() {
+  setup() {
     env = setupStore();
   }
 });

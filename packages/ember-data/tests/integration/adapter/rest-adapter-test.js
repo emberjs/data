@@ -3,7 +3,7 @@ var passedUrl, passedVerb, passedHash;
 var run = Ember.run;
 
 module("integration/adapter/rest_adapter - REST Adapter", {
-  setup: function() {
+  setup() {
     Post = DS.Model.extend({
       name: DS.attr("string")
     });
@@ -311,7 +311,7 @@ test("create - a serializer's attribute mapping takes precdence over keyForAttri
       name: 'given_name'
     },
 
-    keyForAttribute: function(attr) {
+    keyForAttribute(attr) {
       return attr.toUpperCase();
     }
   }));
@@ -333,7 +333,7 @@ test("create - a serializer's attribute mapping takes precedence over keyForRela
       post: 'article'
     },
 
-    keyForRelationship: function(attr, kind) {
+    keyForRelationship(attr, kind) {
       return attr.toUpperCase();
     }
   }));
@@ -358,7 +358,7 @@ test("create - a serializer's attribute mapping takes precedence over keyForRela
       comments: 'opinions'
     },
 
-    keyForRelationship: function(attr, kind) {
+    keyForRelationship(attr, kind) {
       return attr.toUpperCase();
     }
   }));
@@ -1603,14 +1603,14 @@ test('groupRecordsForFindMany groups records correctly when singular URLs are en
 
 test('normalizeKey - to set up _ids and _id', function() {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
-    keyForAttribute: function(attr) {
+    keyForAttribute(attr) {
       return Ember.String.underscore(attr);
     },
 
-    keyForBelongsTo: function(belongsTo) {
+    keyForBelongsTo(belongsTo) {
     },
 
-    keyForRelationship: function(rel, kind) {
+    keyForRelationship(rel, kind) {
       if (kind === 'belongsTo') {
         var underscored = Ember.String.underscore(rel);
         return underscored + '_id';

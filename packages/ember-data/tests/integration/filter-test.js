@@ -15,14 +15,14 @@ var shouldNotContain = function(array, item) {
 };
 
 module("integration/filter - DS.Model updating", {
-  setup: function() {
+  setup() {
     array = [{ id: 1, name: "Scumbag Dale", bestFriend: 2 }, { id: 2, name: "Scumbag Katz" }, { id: 3, name: "Scumbag Bryn" }];
     Person = DS.Model.extend({ name: DS.attr('string'), bestFriend: DS.belongsTo('person', { inverse: null }) });
 
     env = setupStore({ person: Person });
     store = env.store;
   },
-  teardown: function() {
+  teardown() {
     run(store, 'destroy');
     Person = null;
     array = null;
@@ -170,7 +170,7 @@ test("a filtered record array includes created elements", function() {
 test("a Record Array can update its filter", function() {
   run(function() {
     set(store, 'adapter', DS.Adapter.extend({
-      deleteRecord: function(store, type, snapshot) {
+      deleteRecord(store, type, snapshot) {
         return Ember.RSVP.resolve();
       }
     }));
@@ -229,7 +229,7 @@ test("a Record Array can update its filter", function() {
 test("a Record Array can update its filter and notify array observers", function() {
   run(function() {
     set(store, 'adapter', DS.Adapter.extend({
-      deleteRecord: function(store, type, snapshot) {
+      deleteRecord(store, type, snapshot) {
         return Ember.RSVP.resolve();
       }
     }));
@@ -264,7 +264,7 @@ test("a Record Array can update its filter and notify array observers", function
     var arrayObserver = {
       arrayWillChange: Ember.K,
 
-      arrayDidChange: function(array, idx, removed, added) {
+      arrayDidChange(array, idx, removed, added) {
         didChangeIdx = idx;
         didChangeRemoved += removed;
         didChangeAdded += added;
@@ -368,7 +368,7 @@ test("a filter created after a record is already loaded works", function() {
 
 test("filter with query persists query on the resulting filteredRecordArray", function() {
   set(store, 'adapter', DS.Adapter.extend({
-    findQuery: function(store, type, id) {
+    findQuery(store, type, id) {
       return Ember.RSVP.resolve([{
         id: id,
         name: "Tom Dale"
@@ -395,7 +395,7 @@ test("it is possible to filter by state flags", function() {
   var filter;
   run(function() {
     set(store, 'adapter', DS.Adapter.extend({
-      find: function(store, type, id, snapshot) {
+      find(store, type, id, snapshot) {
         return Ember.RSVP.resolve({ id: id, name: "Tom Dale" });
       }
     }));
@@ -424,7 +424,7 @@ test("it is possible to filter by state flags", function() {
 
 test("it is possible to filter loaded records by dirtiness", function() {
   set(store, 'adapter', DS.Adapter.extend({
-    updateRecord: function() {
+    updateRecord() {
       return Ember.RSVP.resolve();
     }
   }));
@@ -457,7 +457,7 @@ test("it is possible to filter loaded records by dirtiness", function() {
 test("it is possible to filter created records by dirtiness", function() {
   run(function() {
     set(store, 'adapter', DS.Adapter.extend({
-      createRecord: function() {
+      createRecord() {
         return Ember.RSVP.resolve();
       }
     }));
@@ -491,7 +491,7 @@ test("it is possible to filter created records by dirtiness", function() {
 
 test("it is possible to filter created records by isReloading", function() {
   set(store, 'adapter', DS.Adapter.extend({
-    find: function(store, type, id, snapshot) {
+    find(store, type, id, snapshot) {
       return Ember.RSVP.resolve({
         id: 1,
         name: "Tom Dalle"
@@ -564,7 +564,7 @@ var setup = function(serverCallbacks) {
 
 test("a Record Array can update its filter after server-side updates one record", function() {
   setup({
-    updateRecord: function(store, type, snapshot) {
+    updateRecord(store, type, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Scumbag Server-side Dale" });
     }
   });
@@ -578,7 +578,7 @@ test("a Record Array can update its filter after server-side updates one record"
 
 test("a Record Array can update its filter after server-side updates multiple records", function() {
   setup({
-    updateRecord: function(store, type, snapshot) {
+    updateRecord(store, type, snapshot) {
       switch (snapshot.id) {
         case "1":
           return Ember.RSVP.resolve({ id: 1, name: "Scumbag Server-side Dale" });
@@ -597,7 +597,7 @@ test("a Record Array can update its filter after server-side updates multiple re
 
 test("a Record Array can update its filter after server-side creates one record", function() {
   setup({
-    createRecord: function(store, type, snapshot) {
+    createRecord(store, type, snapshot) {
       return Ember.RSVP.resolve({ id: 4, name: "Scumbag Server-side Tim" });
     }
   });
@@ -611,7 +611,7 @@ test("a Record Array can update its filter after server-side creates one record"
 
 test("a Record Array can update its filter after server-side creates multiple records", function() {
   setup({
-    createRecord: function(store, type, snapshot) {
+    createRecord(store, type, snapshot) {
       switch (snapshot.attr('name')) {
         case "Client-side Mike":
           return Ember.RSVP.resolve({ id: 4, name: "Scumbag Server-side Mike" });
@@ -630,7 +630,7 @@ test("a Record Array can update its filter after server-side creates multiple re
 
 test("a Record Array can update its filter after server-side creates multiple records", function() {
   setup({
-    createRecord: function(store, type, snapshot) {
+    createRecord(store, type, snapshot) {
       switch (snapshot.attr('name')) {
         case "Client-side Mike":
           return Ember.RSVP.resolve({ id: 4, name: "Scumbag Server-side Mike" });

@@ -3,7 +3,7 @@ var SuperVillain, HomePlanet, EvilMinion;
 var run = Ember.run;
 
 module("integration/multiple_stores - Multiple Stores Tests", {
-  setup: function() {
+  setup() {
     SuperVillain = DS.Model.extend({
       firstName:       DS.attr('string'),
       lastName:        DS.attr('string'),
@@ -36,7 +36,7 @@ module("integration/multiple_stores - Multiple Stores Tests", {
     env.store_b = env.container.lookup('store:store-b');
   },
 
-  teardown: function() {
+  teardown() {
     run(env.store, 'destroy');
   }
 });

@@ -1,7 +1,7 @@
 var filteredArray;
 
 module("unit/record-arrays/filtered-record-array - DS.FilteredRecordArray", {
-  setup: function() {
+  setup() {
     filteredArray = DS.FilteredRecordArray.create({ type: 'recordType' })
   }
 });

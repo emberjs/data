@@ -3,7 +3,7 @@ var Person, env;
 var run = Ember.run;
 
 module("integration/deletedRecord - Deleting Records", {
-  setup: function() {
+  setup() {
     Person = DS.Model.extend({
       name: attr('string')
     });
@@ -15,7 +15,7 @@ module("integration/deletedRecord - Deleting Records", {
     });
   },
 
-  teardown: function() {
+  teardown() {
     Ember.run(function() {
       env.container.destroy();
     });

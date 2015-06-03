@@ -3,7 +3,7 @@ var Person, store, allRecords;
 var run = Ember.run;
 
 module("integration/adapter/find_all - Finding All Records of a Type", {
-  setup: function() {
+  setup() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
@@ -14,7 +14,7 @@ module("integration/adapter/find_all - Finding All Records of a Type", {
     allRecords = null;
   },
 
-  teardown: function() {
+  teardown() {
     run(function() {
       if (allRecords) { allRecords.destroy(); }
       store.destroy();
@@ -27,7 +27,7 @@ test("When all records for a type are requested, the store should call the adapt
 
   store = createStore({
     adapter: DS.Adapter.extend({
-      findAll: function(store, type, since) {
+      findAll(store, type, since) {
         // this will get called twice
         ok(true, "the adapter's findAll method should be invoked");
         return Ember.RSVP.resolve([{ id: 1, name: "Braaaahm Dale" }]);
@@ -60,7 +60,7 @@ test("When all records for a type are requested, a rejection should reject the p
   var count = 0;
   store = createStore({
     adapter: DS.Adapter.extend({
-      findAll: function(store, type, since) {
+      findAll(store, type, since) {
         // this will get called twice
         ok(true, "the adapter's findAll method should be invoked");
 

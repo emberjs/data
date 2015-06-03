@@ -2,7 +2,7 @@ var Person, store;
 var run = Ember.run;
 
 module("integration/adapter/find - Finding Records", {
-  setup: function() {
+  setup() {
     Person = DS.Model.extend({
       updatedAt: DS.attr('string'),
       name: DS.attr('string'),
@@ -11,7 +11,7 @@ module("integration/adapter/find - Finding Records", {
     });
   },
 
-  teardown: function() {
+  teardown() {
     run(store, 'destroy');
   }
 });
@@ -45,7 +45,7 @@ test("When a single record is requested, the adapter's find method should be cal
 
   store = createStore({
     adapter: DS.Adapter.extend({
-      find: function(store, type, id, snapshot) {
+      find(store, type, id, snapshot) {
         equal(type, Person, "the find method is called with the correct type");
         equal(count, 0, "the find method is only called once");
 
@@ -67,7 +67,7 @@ test("When a single record is requested multiple times, all .find() calls are re
 
   store = createStore({
     adapter: DS.Adapter.extend({
-      find: function(store, type, id, snapshot) {
+      find(store, type, id, snapshot) {
         return deferred.promise;
       }
     }),
@@ -115,7 +115,7 @@ test("When a single record is requested multiple times, all .find() calls are re
 test("When a single record is requested, and the promise is rejected, .find() is rejected.", function() {
   store = createStore({
     adapter: DS.Adapter.extend({
-      find: function(store, type, id, snapshot) {
+      find(store, type, id, snapshot) {
         return Ember.RSVP.reject();
       }
     }),
@@ -134,7 +134,7 @@ test("When a single record is requested, and the promise is rejected, the record
 
   store = createStore({
     adapter: DS.Adapter.extend({
-      find: function(store, type, id, snapshot) {
+      find(store, type, id, snapshot) {
         return Ember.RSVP.reject();
       }
     }),

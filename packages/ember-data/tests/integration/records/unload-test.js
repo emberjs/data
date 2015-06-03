@@ -26,7 +26,7 @@ var Car = DS.Model.extend({
 Car.toString = function() { return "Car"; };
 
 module("integration/unload - Unloading Records", {
-  setup: function() {
+  setup() {
     env = setupStore({
       person: Person,
       car: Car,
@@ -34,7 +34,7 @@ module("integration/unload - Unloading Records", {
     });
   },
 
-  teardown: function() {
+  teardown() {
     Ember.run(function() {
       env.container.destroy();
     });

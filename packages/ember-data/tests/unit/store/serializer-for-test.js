@@ -2,14 +2,14 @@ var container, store, registry;
 var run = Ember.run;
 
 module("unit/store/serializer_for - DS.Store#serializerFor", {
-  setup: function() {
+  setup() {
     var env = setupStore({ person: DS.Model.extend() });
     store = env.store;
     container = store.container;
     registry = env.registry;
   },
 
-  teardown: function() {
+  teardown() {
     run(function() {
       container.destroy();
       store.destroy();

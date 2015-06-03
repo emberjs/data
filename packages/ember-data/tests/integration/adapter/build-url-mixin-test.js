@@ -3,7 +3,7 @@ var passedUrl;
 var run = Ember.run;
 
 module("integration/adapter/build-url-mixin - BuildURLMixin with RESTAdapter", {
-  setup: function() {
+  setup() {
     Post = DS.Model.extend({
       name: DS.attr("string")
     });
@@ -145,7 +145,7 @@ test('buildURL - with full URLs in links', function() {
 
 test('buildURL - with camelized names', function() {
   adapter.setProperties({
-    pathForType: function(type) {
+    pathForType(type) {
       var decamelized = Ember.String.decamelize(type);
       return Ember.String.underscore(Ember.String.pluralize(decamelized));
     }

@@ -3,7 +3,7 @@ var Post, Comment, env;
 var run = Ember.run;
 
 module("integration/load - Loading Records", {
-  setup: function() {
+  setup() {
     Post = DS.Model.extend({
       comments: hasMany({ async: true })
     });
@@ -16,7 +16,7 @@ module("integration/load - Loading Records", {
     env = setupStore({ post: Post, comment: Comment });
   },
 
-  teardown: function() {
+  teardown() {
     run(env.container, 'destroy');
   }
 });

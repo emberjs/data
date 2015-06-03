@@ -10,7 +10,7 @@ function stringify(string) {
 }
 
 module('integration/relationships/polymorphic_mixins_has_many_test - Polymorphic hasMany relationships with mixins', {
-  setup: function() {
+  setup() {
     User = DS.Model.extend({
       name: attr('string'),
       messages: hasMany('message', { async: true, polymorphic: true })
@@ -41,7 +41,7 @@ module('integration/relationships/polymorphic_mixins_has_many_test - Polymorphic
     store = env.store;
   },
 
-  teardown: function() {
+  teardown() {
     run(env.container, 'destroy');
   }
 });

@@ -9,7 +9,7 @@ function stringify(string) {
 }
 
 module('integration/inverse_test - inverseFor', {
-  setup: function() {
+  setup() {
     User = DS.Model.extend({
       name: attr('string'),
       bestFriend: belongsTo('user', { async: true, inverse: null }),
@@ -40,7 +40,7 @@ module('integration/inverse_test - inverseFor', {
     store = env.store;
   },
 
-  teardown: function() {
+  teardown() {
     run(env.container, 'destroy');
   }
 });

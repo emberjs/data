@@ -4,14 +4,14 @@ var run = Ember.run;
 var Person, store, array, moreArray;
 
 module("integration/all - DS.Store#all()", {
-  setup: function() {
+  setup() {
     array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }];
     moreArray = [{ id: 3, name: "Scumbag Bryn" }];
     Person = DS.Model.extend({ name: DS.attr('string') });
 
     store = createStore({ person: Person });
   },
-  teardown: function() {
+  teardown() {
     run(store, 'destroy');
     Person = null;
     array = null;
