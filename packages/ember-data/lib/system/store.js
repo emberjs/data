@@ -339,7 +339,7 @@ Store = Service.extend({
     record.setProperties(properties);
 
     internalModel.eachRelationship(function(key, descriptor) {
-      internalModel._relationships[key].setHasData(true);
+      internalModel._relationships.get(key).setHasData(true);
     });
 
     return record;
@@ -2111,16 +2111,19 @@ function setupRelationships(store, record, data) {
   typeClass.eachRelationship(function(key, descriptor) {
     var kind = descriptor.kind;
     var value = data[key];
-    var relationship = record._relationships[key];
+    var relationship;
 
     if (data.links && data.links[key]) {
+      relationship = record._relationships.get(key);
       relationship.updateLink(data.links[key]);
     }
 
     if (value !== undefined) {
       if (kind === 'belongsTo') {
+        relationship = record._relationships.get(key);
         relationship.setCanonicalRecord(value);
       } else if (kind === 'hasMany') {
+        relationship = record._relationships.get(key);
         relationship.updateRecordsFromAdapter(value);
       }
     }

@@ -1,6 +1,6 @@
 import merge from "ember-data/system/merge";
 import RootState from "ember-data/system/model/states";
-import createRelationshipFor from "ember-data/system/relationships/state/create";
+import Relationships from "ember-data/system/relationships/state/create";
 import Snapshot from "ember-data/system/snapshot";
 import Errors from "ember-data/system/model/errors";
 
@@ -60,7 +60,7 @@ var InternalModel = function InternalModel(type, id, store, container, data) {
   this._deferredTriggers = [];
   this._attributes = Ember.create(null);
   this._inFlightAttributes = Ember.create(null);
-  this._relationships = Ember.create(null);
+  this._relationships = new Relationships(this);
   this.currentState = RootState.empty;
   this.isReloading = false;
   /*
@@ -84,11 +84,6 @@ var InternalModel = function InternalModel(type, id, store, container, data) {
     when we are deleted
   */
   this._implicitRelationships = Ember.create(null);
-  var model = this;
-  //TODO Move into a getter for better perf
-  this.eachRelationship(function(key, descriptor) {
-    model._relationships[key] = createRelationshipFor(model, descriptor, model.store);
-  });
 };
 
 InternalModel.prototype = {
@@ -441,8 +436,8 @@ InternalModel.prototype = {
   */
   clearRelationships: function() {
     this.eachRelationship(function(name, relationship) {
-      var rel = this._relationships[name];
-      if (rel) {
+      if (this._relationships.has(name)) {
+        var rel = this._relationships.get(name);
         //TODO(Igor) figure out whether we want to clear or disconnect
         rel.clear();
         rel.destroy();
@@ -457,7 +452,7 @@ InternalModel.prototype = {
 
   disconnectRelationships: function() {
     this.eachRelationship(function(name, relationship) {
-      this._relationships[name].disconnect();
+      this._relationships.get(name).disconnect();
     }, this);
     var model = this;
     forEach.call(Ember.keys(this._implicitRelationships), function(key) {
@@ -467,7 +462,7 @@ InternalModel.prototype = {
 
   reconnectRelationships: function() {
     this.eachRelationship(function(name, relationship) {
-      this._relationships[name].reconnect();
+      this._relationships.get(name).reconnect();
     }, this);
     var model = this;
     forEach.call(Ember.keys(this._implicitRelationships), function(key) {
@@ -524,7 +519,7 @@ InternalModel.prototype = {
     });
     //We use the pathway of setting the hasMany as if it came from the adapter
     //because the user told us that they know this relationships exists already
-    this._relationships[key].updateRecordsFromAdapter(recordsToSet);
+    this._relationships.get(key).updateRecordsFromAdapter(recordsToSet);
   },
 
   _preloadBelongsTo: function(key, preloadValue, type) {
@@ -532,7 +527,7 @@ InternalModel.prototype = {
 
     //We use the pathway of setting the hasMany as if it came from the adapter
     //because the user told us that they know this relationships exists already
-    this._relationships[key].setRecord(recordToSet);
+    this._relationships.get(key).setRecord(recordToSet);
   },
 
   _convertStringOrNumberIntoInternalModel: function(value, type) {
