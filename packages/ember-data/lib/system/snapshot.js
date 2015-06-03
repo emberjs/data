@@ -232,7 +232,7 @@ Snapshot.prototype = {
     inverseRecord = get(relationship, 'inverseRecord');
 
     if (hasData) {
-      if (inverseRecord) {
+      if (inverseRecord && !inverseRecord.isDeleted()) {
         if (id) {
           result = get(inverseRecord, 'id');
         } else {
@@ -305,10 +305,12 @@ Snapshot.prototype = {
     if (hasData) {
       results = [];
       members.forEach(function(member) {
-        if (ids) {
-          results.push(member.id);
-        } else {
-          results.push(member.createSnapshot());
+        if (!member.isDeleted()) {
+          if (ids) {
+            results.push(member.id);
+          } else {
+            results.push(member.createSnapshot());
+          }
         }
       });
     }
