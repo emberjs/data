@@ -97,7 +97,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     @param {Function} becameInvalid
     @param {Function} becameValid
   */
-  registerHandlers: function(target, becameInvalid, becameValid) {
+  registerHandlers(target, becameInvalid, becameValid) {
     this.on('becameInvalid', target, becameInvalid);
     this.on('becameValid', target, becameValid);
   },
@@ -108,21 +108,21 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     @private
   */
   errorsByAttributeName: Ember.reduceComputed("content", {
-    initialValue: function() {
+    initialValue() {
       return MapWithDefault.create({
-        defaultValue: function() {
+        defaultValue() {
           return Ember.A();
         }
       });
     },
 
-    addedItem: function(errors, error) {
+    addedItem(errors, error) {
       errors.get(error.attribute).pushObject(error);
 
       return errors;
     },
 
-    removedItem: function(errors, error) {
+    removedItem(errors, error) {
       errors.get(error.attribute).removeObject(error);
 
       return errors;
@@ -147,7 +147,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     @param {String} attribute
     @return {Array}
   */
-  errorsFor: function(attribute) {
+  errorsFor(attribute) {
     return get(this, 'errorsByAttributeName').get(attribute);
   },
 
@@ -181,7 +181,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     @method unknownProperty
     @private
   */
-  unknownProperty: function(attribute) {
+  unknownProperty(attribute) {
     var errors = this.errorsFor(attribute);
     if (isEmpty(errors)) { return null; }
     return errors;
@@ -191,7 +191,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     @method nextObject
     @private
   */
-  nextObject: function(index, previousObject, context) {
+  nextObject(index, previousObject, context) {
     return get(this, 'content').objectAt(index);
   },
 
@@ -227,7 +227,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     @param {String} attribute
     @param {(Array|String)} messages
   */
-  add: function(attribute, messages) {
+  add(attribute, messages) {
     var wasEmpty = get(this, 'isEmpty');
 
     messages = this._findOrCreateMessages(attribute, messages);
@@ -245,7 +245,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     @method _findOrCreateMessages
     @private
   */
-  _findOrCreateMessages: function(attribute, messages) {
+  _findOrCreateMessages(attribute, messages) {
     var errors = this.errorsFor(attribute);
 
     return map(Ember.makeArray(messages), function(message) {
@@ -271,7 +271,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
 
     App.UserEditRoute = Ember.Route.extend({
       actions: {
-        save: function(user) {
+        save(user) {
            if (!user.get('twoFactorAuth')) {
              user.get('errors').remove('phone');
            }
@@ -284,7 +284,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     @method remove
     @param {String} attribute
   */
-  remove: function(attribute) {
+  remove(attribute) {
     if (get(this, 'isEmpty')) { return; }
 
     var content = get(this, 'content').rejectBy('attribute', attribute);
@@ -307,7 +307,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     ```javascript
     App.UserEditRoute = Ember.Route.extend({
       actions: {
-        retrySave: function(user) {
+        retrySave(user) {
            user.get('errors').clear();
            user.save();
          }
@@ -317,7 +317,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
 
     @method clear
   */
-  clear: function() {
+  clear() {
     if (get(this, 'isEmpty')) { return; }
 
     get(this, 'content').clear();
@@ -332,7 +332,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     ```javascript
     App.UserEditRoute = Ember.Route.extend({
       actions: {
-        save: function(user) {
+        save(user) {
            if (user.get('errors').has('email')) {
              return alert('Please update your email before attempting to save.');
            }
@@ -346,7 +346,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     @param {String} attribute
     @return {Boolean} true if there some errors on given attribute
   */
-  has: function(attribute) {
+  has(attribute) {
     return !isEmpty(this.errorsFor(attribute));
   }
 });

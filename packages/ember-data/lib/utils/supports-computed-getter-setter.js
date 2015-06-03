@@ -2,8 +2,8 @@ var supportsComputedGetterSetter;
 
 try {
   Ember.computed({
-    get: function() { },
-    set: function() { }
+    get() { },
+    set() { }
   });
   supportsComputedGetterSetter = true;
 } catch(e) {

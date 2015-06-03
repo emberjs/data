@@ -28,7 +28,7 @@ var EmberError = Ember.Error;
 
   ```js
   App.PostAdapter = DS.RESTAdapter.extend({
-    updateRecord: function() {
+    updateRecord() {
       // Fictional adapter that always rejects
       return Ember.RSVP.reject(new DS.InvalidError({
         title: ['Must be unique'],
@@ -48,7 +48,7 @@ var EmberError = Ember.Error;
 
   ```javascript
   App.ApplicationAdapter = DS.RESTAdapter.extend({
-    ajaxError: function(jqXHR) {
+    ajaxError(jqXHR) {
       var error = this._super(jqXHR);
 
       // 422 is used by this fictional server to signal a validation error

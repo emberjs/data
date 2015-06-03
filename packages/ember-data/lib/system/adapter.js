@@ -95,7 +95,7 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      find: function(store, type, id, snapshot) {
+      find(store, type, id, snapshot) {
         var url = [type.modelName, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -127,7 +127,7 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      findAll: function(store, type, sinceToken) {
+      findAll(store, type, sinceToken) {
         var url = type;
         var query = { since: sinceToken };
         return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -160,7 +160,7 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      findQuery: function(store, type, query) {
+      findQuery(store, type, query) {
         var url = type;
         return new Ember.RSVP.Promise(function(resolve, reject) {
           jQuery.getJSON(url, query).then(function(data) {
@@ -199,7 +199,7 @@ var Adapter = Ember.Object.extend({
     the first parameter and the newly created record as the second parameter:
 
     ```javascript
-    generateIdForRecord: function(store, inputProperties) {
+    generateIdForRecord(store, inputProperties) {
       var uuid = App.generateUUIDWithStatisticallyLowOddsOfCollision();
       return uuid;
     }
@@ -221,7 +221,7 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      createRecord: function(store, type, snapshot) {
+      createRecord(store, type, snapshot) {
         var data = this.serialize(snapshot, { includeId: true });
         var url = type;
 
@@ -235,7 +235,7 @@ var Adapter = Ember.Object.extend({
     @param {Object}   options
     @return {Object} serialized snapshot
   */
-  serialize: function(snapshot, options) {
+  serialize(snapshot, options) {
     return get(snapshot.record, 'store').serializerFor(snapshot.modelName).serialize(snapshot, options);
   },
 
@@ -249,7 +249,7 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      createRecord: function(store, type, snapshot) {
+      createRecord(store, type, snapshot) {
         var data = this.serialize(snapshot, { includeId: true });
         var url = type;
 
@@ -288,7 +288,7 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      updateRecord: function(store, type, snapshot) {
+      updateRecord(store, type, snapshot) {
         var data = this.serialize(snapshot, { includeId: true });
         var id = snapshot.id;
         var url = [type, id].join('/');
@@ -328,7 +328,7 @@ var Adapter = Ember.Object.extend({
 
     ```javascript
     App.ApplicationAdapter = DS.Adapter.extend({
-      deleteRecord: function(store, type, snapshot) {
+      deleteRecord(store, type, snapshot) {
         var data = this.serialize(snapshot, { includeId: true });
         var id = snapshot.id;
         var url = [type, id].join('/');
@@ -395,7 +395,7 @@ var Adapter = Ember.Object.extend({
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
   */
-  groupRecordsForFindMany: function(store, snapshots) {
+  groupRecordsForFindMany(store, snapshots) {
     return [snapshots];
   }
 });

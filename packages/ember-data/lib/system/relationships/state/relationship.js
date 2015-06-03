@@ -23,7 +23,7 @@ Relationship.prototype = {
 
   destroy: Ember.K,
 
-  clear: function() {
+  clear() {
     var members = this.members.list;
     var member;
 
@@ -33,26 +33,26 @@ Relationship.prototype = {
     }
   },
 
-  disconnect: function() {
+  disconnect() {
     this.members.forEach(function(member) {
       this.removeRecordFromInverse(member);
     }, this);
   },
 
-  reconnect: function() {
+  reconnect() {
     this.members.forEach(function(member) {
       this.addRecordToInverse(member);
     }, this);
   },
 
-  removeRecords: function(records) {
+  removeRecords(records) {
     var self = this;
     forEach(records, function(record) {
       self.removeRecord(record);
     });
   },
 
-  addRecords: function(records, idx) {
+  addRecords(records, idx) {
     var self = this;
     forEach(records, function(record) {
       self.addRecord(record, idx);
@@ -62,7 +62,7 @@ Relationship.prototype = {
     });
   },
 
-  addCanonicalRecords: function(records, idx) {
+  addCanonicalRecords(records, idx) {
     for (var i=0; i<records.length; i++) {
       if (idx !== undefined) {
         this.addCanonicalRecord(records[i], i+idx);
@@ -72,7 +72,7 @@ Relationship.prototype = {
     }
   },
 
-  addCanonicalRecord: function(record, idx) {
+  addCanonicalRecord(record, idx) {
     if (!this.canonicalMembers.has(record)) {
       this.canonicalMembers.add(record);
       if (this.inverseKey) {
@@ -88,7 +88,7 @@ Relationship.prototype = {
     this.setHasData(true);
   },
 
-  removeCanonicalRecords: function(records, idx) {
+  removeCanonicalRecords(records, idx) {
     for (var i=0; i<records.length; i++) {
       if (idx !== undefined) {
         this.removeCanonicalRecord(records[i], i+idx);
@@ -98,7 +98,7 @@ Relationship.prototype = {
     }
   },
 
-  removeCanonicalRecord: function(record, idx) {
+  removeCanonicalRecord(record, idx) {
     if (this.canonicalMembers.has(record)) {
       this.removeCanonicalRecordFromOwn(record);
       if (this.inverseKey) {
@@ -112,7 +112,7 @@ Relationship.prototype = {
     this.flushCanonicalLater();
   },
 
-  addRecord: function(record, idx) {
+  addRecord(record, idx) {
     if (!this.members.has(record)) {
       this.members.addWithIndex(record, idx);
       this.notifyRecordRelationshipAdded(record, idx);
@@ -129,7 +129,7 @@ Relationship.prototype = {
     this.setHasData(true);
   },
 
-  removeRecord: function(record) {
+  removeRecord(record) {
     if (this.members.has(record)) {
       this.removeRecordFromOwn(record);
       if (this.inverseKey) {
@@ -142,13 +142,13 @@ Relationship.prototype = {
     }
   },
 
-  addRecordToInverse: function(record) {
+  addRecordToInverse(record) {
     if (this.inverseKey) {
       record._relationships[this.inverseKey].addRecord(this.record);
     }
   },
 
-  removeRecordFromInverse: function(record) {
+  removeRecordFromInverse(record) {
     var inverseRelationship = record._relationships[this.inverseKey];
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
@@ -156,13 +156,13 @@ Relationship.prototype = {
     }
   },
 
-  removeRecordFromOwn: function(record) {
+  removeRecordFromOwn(record) {
     this.members.delete(record);
     this.notifyRecordRelationshipRemoved(record);
     this.record.updateRecordArrays();
   },
 
-  removeCanonicalRecordFromInverse: function(record) {
+  removeCanonicalRecordFromInverse(record) {
     var inverseRelationship = record._relationships[this.inverseKey];
     //Need to check for existence, as the record might unloading at the moment
     if (inverseRelationship) {
@@ -170,12 +170,12 @@ Relationship.prototype = {
     }
   },
 
-  removeCanonicalRecordFromOwn: function(record) {
+  removeCanonicalRecordFromOwn(record) {
     this.canonicalMembers.delete(record);
     this.flushCanonicalLater();
   },
 
-  flushCanonical: function() {
+  flushCanonical() {
     this.willSync = false;
     //a hack for not removing new records
     //TODO remove once we have proper diffing
@@ -192,7 +192,7 @@ Relationship.prototype = {
     }
   },
 
-  flushCanonicalLater: function() {
+  flushCanonicalLater() {
     if (this.willSync) {
       return;
     }
@@ -203,7 +203,7 @@ Relationship.prototype = {
     });
   },
 
-  updateLink: function(link) {
+  updateLink(link) {
     Ember.warn("You have pushed a record of type '" + this.record.type.modelName + "' with '" + this.key + "' as a link, but the association is not an async relationship.", this.isAsync);
     Ember.assert("You have pushed a record of type '" + this.record.type.modelName + "' with '" + this.key + "' as a link, but the value of that link is not a string.", typeof link === 'string' || link === null);
     if (link !== this.link) {
@@ -213,7 +213,7 @@ Relationship.prototype = {
     }
   },
 
-  findLink: function() {
+  findLink() {
     if (this.linkPromise) {
       return this.linkPromise;
     } else {
@@ -225,7 +225,7 @@ Relationship.prototype = {
     }
   },
 
-  updateRecordsFromAdapter: function(records) {
+  updateRecordsFromAdapter(records) {
     //TODO(Igor) move this to a proper place
     var self = this;
     //TODO Once we have adapter support, we need to handle updated and canonical changes
@@ -236,7 +236,7 @@ Relationship.prototype = {
   notifyRecordRelationshipAdded: Ember.K,
   notifyRecordRelationshipRemoved: Ember.K,
 
-  setHasData: function(value) {
+  setHasData(value) {
     this.hasData = value;
   }
 };

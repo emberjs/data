@@ -208,7 +208,7 @@ Store = Service.extend({
     @method init
     @private
   */
-  init: function() {
+  init() {
     this._backburner = new Backburner(['normalizeRelationships', 'syncRelationships', 'finished']);
     // internal bookkeeping; not observable
     this.typeMaps = {};
@@ -252,7 +252,7 @@ Store = Service.extend({
     @param {DS.Model} record the record to serialize
     @param {Object} options an options hash
   */
-  serialize: function(record, options) {
+  serialize(record, options) {
     var snapshot = record._internalModel.createSnapshot();
     return this.serializerFor(snapshot.modelName).serialize(snapshot, options);
   },
@@ -313,7 +313,7 @@ Store = Service.extend({
       newly created record.
     @return {DS.Model} record
   */
-  createRecord: function(modelName, inputProperties) {
+  createRecord(modelName, inputProperties) {
     var typeClass = this.modelFor(modelName);
     var properties = copy(inputProperties) || Ember.create(null);
 
@@ -356,7 +356,7 @@ Store = Service.extend({
     @param {Object} properties from the new record
     @return {String} if the adapter can generate one, an ID
   */
-  _generateId: function(modelName, properties) {
+  _generateId(modelName, properties) {
     var adapter = this.adapterFor(modelName);
 
     if (adapter && adapter.generateIdForRecord) {
@@ -386,7 +386,7 @@ Store = Service.extend({
     @method deleteRecord
     @param {DS.Model} record
   */
-  deleteRecord: function(record) {
+  deleteRecord(record) {
     record.deleteRecord();
   },
 
@@ -405,7 +405,7 @@ Store = Service.extend({
     @method unloadRecord
     @param {DS.Model} record
   */
-  unloadRecord: function(record) {
+  unloadRecord(record) {
     record.unloadRecord();
   },
 
@@ -518,7 +518,7 @@ Store = Service.extend({
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
-  find: function(modelName, id, preload) {
+  find(modelName, id, preload) {
     Ember.assert("You need to pass a type to the store's find method", arguments.length >= 1);
     Ember.assert("You may not pass `" + id + "` as id to the store's find method", arguments.length === 1 || !Ember.isNone(id));
 
@@ -548,7 +548,7 @@ Store = Service.extend({
 
     ```javascript
     App.PostRoute = Ember.Route.extend({
-      model: function(params) {
+      model(params) {
         return this.store.fetchById('post', params.post_id);
       }
     });
@@ -560,7 +560,7 @@ Store = Service.extend({
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
-  fetchById: function(modelName, id, preload) {
+  fetchById(modelName, id, preload) {
     if (this.hasRecordForId(modelName, id)) {
       return this.getById(modelName, id).reload();
     } else {
@@ -576,7 +576,7 @@ Store = Service.extend({
     @param {String} modelName
     @return {Promise} promise
   */
-  fetchAll: function(modelName) {
+  fetchAll(modelName) {
     var typeClass = this.modelFor(modelName);
 
     return this._fetchAll(typeClass, this.all(modelName));
@@ -590,7 +590,7 @@ Store = Service.extend({
     @return {Promise} promise
     @deprecated Use [fetchById](#method_fetchById) instead
   */
-  fetch: function(modelName, id, preload) {
+  fetch(modelName, id, preload) {
     Ember.deprecate('Using store.fetch() has been deprecated. Use store.fetchById for fetching individual records or store.fetchAll for collections');
     return this.fetchById(modelName, id, preload);
   },
@@ -605,14 +605,14 @@ Store = Service.extend({
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
-  findById: function(modelName, id, preload) {
+  findById(modelName, id, preload) {
     var type = this.modelFor(modelName);
     var internalModel = this._internalModelForId(type, id);
 
     return this._findByInternalModel(internalModel, preload);
   },
 
-  _findByInternalModel: function(internalModel, preload) {
+  _findByInternalModel(internalModel, preload) {
     var fetchedInternalModel;
 
     if (preload) {
@@ -638,7 +638,7 @@ Store = Service.extend({
     @param {Array} ids
     @return {Promise} promise
   */
-  findByIds: function(modelName, ids) {
+  findByIds(modelName, ids) {
     var store = this;
 
     return promiseArray(Ember.RSVP.all(map(ids, function(id) {
@@ -656,7 +656,7 @@ Store = Service.extend({
     @param {InternalModel} internalModel model
     @return {Promise} promise
   */
-  fetchRecord: function(internalModel) {
+  fetchRecord(internalModel) {
     var typeClass = internalModel.type;
     var id = internalModel.id;
     var adapter = this.adapterFor(typeClass);
@@ -668,12 +668,12 @@ Store = Service.extend({
     return promise;
   },
 
-  scheduleFetchMany: function(records) {
+  scheduleFetchMany(records) {
     var internalModels = map(records, function(record) { return record._internalModel; });
     return Promise.all(map(internalModels, this.scheduleFetch, this));
   },
 
-  scheduleFetch: function(internalModel) {
+  scheduleFetch(internalModel) {
     var typeClass = internalModel.type;
 
     if (internalModel._loadingPromise) { return internalModel._loadingPromise; }
@@ -697,7 +697,7 @@ Store = Service.extend({
     return promise;
   },
 
-  flushAllPendingFetches: function() {
+  flushAllPendingFetches() {
     if (this.isDestroyed || this.isDestroying) {
       return;
     }
@@ -706,7 +706,7 @@ Store = Service.extend({
     this._pendingFetch = Map.create();
   },
 
-  _flushPendingFetchForType: function (recordResolverPairs, typeClass) {
+  _flushPendingFetchForType (recordResolverPairs, typeClass) {
     var store = this;
     var adapter = store.adapterFor(typeClass);
     var shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
@@ -814,7 +814,7 @@ Store = Service.extend({
     @param {(String|Integer)} id
     @return {(DS.Model|null)} record
   */
-  getById: function(type, id) {
+  getById(type, id) {
     if (this.hasRecordForId(type, id)) {
       return this._internalModelForId(type, id).getRecord();
     } else {
@@ -834,7 +834,7 @@ Store = Service.extend({
     @param {DS.Model} internalModel
     @return {Promise} promise
   */
-  reloadRecord: function(internalModel) {
+  reloadRecord(internalModel) {
     var type = internalModel.type;
     var adapter = this.adapterFor(type);
     var id = internalModel.id;
@@ -854,7 +854,7 @@ Store = Service.extend({
     @param {(String|Integer)} inputId
     @return {Boolean}
   */
-  hasRecordForId: function(modelName, inputId) {
+  hasRecordForId(modelName, inputId) {
     var typeClass = this.modelFor(modelName);
     var id = coerceId(inputId);
     var internalModel = this.typeMapFor(typeClass).idToRecord[id];
@@ -871,11 +871,11 @@ Store = Service.extend({
     @param {(String|Integer)} id
     @return {DS.Model} record
   */
-  recordForId: function(modelName, id) {
+  recordForId(modelName, id) {
     return this._internalModelForId(modelName, id).getRecord();
   },
 
-  _internalModelForId: function(typeName, inputId) {
+  _internalModelForId(typeName, inputId) {
     var typeClass = this.modelFor(typeName);
     var id = coerceId(inputId);
     var idToRecord = this.typeMapFor(typeClass).idToRecord;
@@ -896,7 +896,7 @@ Store = Service.extend({
     @param {Array} internalModels
     @return {Promise} promise
   */
-  findMany: function(internalModels) {
+  findMany(internalModels) {
     var store = this;
     return Promise.all(map(internalModels, function(internalModel) {
       return store._findByInternalModel(internalModel);
@@ -922,7 +922,7 @@ Store = Service.extend({
     @param {(String|DS.Model)} type
     @return {Promise} promise
   */
-  findHasMany: function(owner, link, type) {
+  findHasMany(owner, link, type) {
     var adapter = this.adapterFor(owner.type);
 
     Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + owner.type + ")", adapter);
@@ -939,7 +939,7 @@ Store = Service.extend({
     @param {Relationship} relationship
     @return {Promise} promise
   */
-  findBelongsTo: function(owner, link, relationship) {
+  findBelongsTo(owner, link, relationship) {
     var adapter = this.adapterFor(owner.type);
 
     Ember.assert("You tried to load a belongsTo relationship but you have no adapter (for " + owner.type + ")", adapter);
@@ -965,7 +965,7 @@ Store = Service.extend({
     @param {any} query an opaque query to be used by the adapter
     @return {Promise} promise
   */
-  findQuery: function(typeName, query) {
+  findQuery(typeName, query) {
     var type = this.modelFor(typeName);
     var array = this.recordArrayManager
       .createAdapterPopulatedRecordArray(type, query);
@@ -988,7 +988,7 @@ Store = Service.extend({
     @param {String} modelName
     @return {DS.AdapterPopulatedRecordArray}
   */
-  findAll: function(modelName) {
+  findAll(modelName) {
     return this.fetchAll(modelName);
   },
 
@@ -999,7 +999,7 @@ Store = Service.extend({
     @param {DS.RecordArray} array
     @return {Promise} promise
   */
-  _fetchAll: function(typeClass, array) {
+  _fetchAll(typeClass, array) {
     var adapter = this.adapterFor(typeClass);
     var sinceToken = this.typeMapFor(typeClass).metadata.since;
 
@@ -1015,7 +1015,7 @@ Store = Service.extend({
     @method didUpdateAll
     @param {DS.Model} typeClass
   */
-  didUpdateAll: function(typeClass) {
+  didUpdateAll(typeClass) {
     var findAllCache = this.typeMapFor(typeClass).findAllCache;
     set(findAllCache, 'isUpdating', false);
   },
@@ -1043,7 +1043,7 @@ Store = Service.extend({
     @param {String} modelName
     @return {DS.RecordArray}
   */
-  all: function(modelName) {
+  all(modelName) {
     var typeClass = this.modelFor(modelName);
     var typeMap = this.typeMapFor(typeClass);
     var findAllCache = typeMap.findAllCache;
@@ -1072,7 +1072,7 @@ Store = Service.extend({
    @method unloadAll
    @param {String=} modelName
   */
-  unloadAll: function(modelName) {
+  unloadAll(modelName) {
     if (arguments.length === 0) {
       var typeMaps = this.typeMaps;
       var keys = Ember.keys(typeMaps);
@@ -1153,7 +1153,7 @@ Store = Service.extend({
     @param {Function} filter
     @return {DS.PromiseArray}
   */
-  filter: function(type, query, filter) {
+  filter(type, query, filter) {
     var promise;
     var length = arguments.length;
     var array;
@@ -1200,7 +1200,7 @@ Store = Service.extend({
     @param {string} id
     @return {boolean}
   */
-  recordIsLoaded: function(type, id) {
+  recordIsLoaded(type, id) {
     return this.hasRecordForId(type, id);
   },
 
@@ -1211,7 +1211,7 @@ Store = Service.extend({
     @param {(String|DS.Model)} typeName
     @return {object}
   */
-  metadataFor: function(typeName) {
+  metadataFor(typeName) {
     var typeClass = this.modelFor(typeName);
     return this.typeMapFor(typeClass).metadata;
   },
@@ -1224,7 +1224,7 @@ Store = Service.extend({
     @param {Object} metadata metadata to set
     @return {object}
   */
-  setMetadataFor: function(typeName, metadata) {
+  setMetadataFor(typeName, metadata) {
     var typeClass = this.modelFor(typeName);
     Ember.merge(this.typeMapFor(typeClass).metadata, metadata);
   },
@@ -1244,7 +1244,7 @@ Store = Service.extend({
     @param {Class} type
     @param {InternalModel} internalModel
   */
-  dataWasUpdated: function(type, internalModel) {
+  dataWasUpdated(type, internalModel) {
     this.recordArrayManager.recordDidChange(internalModel);
   },
 
@@ -1263,7 +1263,7 @@ Store = Service.extend({
     @param {InternalModel} internalModel
     @param {Resolver} resolver
   */
-  scheduleSave: function(internalModel, resolver) {
+  scheduleSave(internalModel, resolver) {
     var snapshot = internalModel.createSnapshot();
     internalModel.flushChangedAttributes();
     internalModel.adapterWillCommit();
@@ -1278,7 +1278,7 @@ Store = Service.extend({
     @method flushPendingSave
     @private
   */
-  flushPendingSave: function() {
+  flushPendingSave() {
     var pending = this._pendingSave.slice();
     this._pendingSave = [];
 
@@ -1316,7 +1316,7 @@ Store = Service.extend({
     @param {InternalModel} internalModel the in-flight internal model
     @param {Object} data optional data (see above)
   */
-  didSaveRecord: function(internalModel, data) {
+  didSaveRecord(internalModel, data) {
     if (data) {
       // normalize relationship IDs into records
       this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', internalModel, internalModel.type, data);
@@ -1338,7 +1338,7 @@ Store = Service.extend({
     @param {InternalModel} internalModel
     @param {Object} errors
   */
-  recordWasInvalid: function(internalModel, errors) {
+  recordWasInvalid(internalModel, errors) {
     internalModel.adapterDidInvalidate(errors);
   },
 
@@ -1351,7 +1351,7 @@ Store = Service.extend({
     @private
     @param {InternalModel} internalModel
   */
-  recordWasError: function(internalModel) {
+  recordWasError(internalModel) {
     internalModel.adapterDidError();
   },
 
@@ -1365,7 +1365,7 @@ Store = Service.extend({
     @param {InternalModel} internalModel
     @param {Object} data
   */
-  updateId: function(internalModel, data) {
+  updateId(internalModel, data) {
     var oldId = internalModel.id;
     var id = coerceId(data.id);
 
@@ -1384,7 +1384,7 @@ Store = Service.extend({
     @param {DS.Model} typeClass
     @return {Object} typeMap
   */
-  typeMapFor: function(typeClass) {
+  typeMapFor(typeClass) {
     var typeMaps = get(this, 'typeMaps');
     var guid = Ember.guidFor(typeClass);
     var typeMap = typeMaps[guid];
@@ -1415,7 +1415,7 @@ Store = Service.extend({
     @param {(String|DS.Model)} type
     @param {Object} data
   */
-  _load: function(type, data) {
+  _load(type, data) {
     var id = coerceId(data.id);
     var internalModel = this._internalModelForId(type, id);
 
@@ -1442,7 +1442,7 @@ Store = Service.extend({
     in this case
   */
 
-  _modelForMixin: function(modelName) {
+  _modelForMixin(modelName) {
     var normalizedTypeKey = normalizeModelName(modelName);
     var registry = this.container._registry ? this.container._registry : this.container;
     var mixin = registry.resolve('mixin:' + normalizedTypeKey);
@@ -1468,7 +1468,7 @@ Store = Service.extend({
     @param {(String|DS.Model)} key
     @return {DS.Model}
   */
-  modelFor: function(key) {
+  modelFor(key) {
     var factory;
 
     if (typeof key === 'string') {
@@ -1494,7 +1494,7 @@ Store = Service.extend({
       Ember.defineProperty(factory, 'typeKey', {
         enumerable: true,
         configurable: false,
-        get: function() {
+        get() {
           Ember.deprecate('Usage of `typeKey` has been deprecated and will be removed in Ember Data 1.0. It has been replaced by `modelName` on the model class.');
           var typeKey = this.modelName;
           if (typeKey) {
@@ -1502,7 +1502,7 @@ Store = Service.extend({
           }
           return typeKey;
         },
-        set: function() {
+        set() {
           Ember.assert('Setting typeKey is not supported. In addition, typeKey has also been deprecated in favor of modelName. Setting modelName is also not supported.');
         }
       });
@@ -1512,7 +1512,7 @@ Store = Service.extend({
     return factory;
   },
 
-  modelFactoryFor: function(key) {
+  modelFactoryFor(key) {
     var normalizedKey = normalizeModelName(key);
     return this.container.lookupFactory('model:' + normalizedKey);
   },
@@ -1584,12 +1584,12 @@ Store = Service.extend({
     @return {DS.Model} the record that was created or
       updated.
   */
-  push: function(modelName, data) {
+  push(modelName, data) {
     var internalModel = this._pushInternalModel(modelName, data);
     return internalModel.getRecord();
   },
 
-  _pushInternalModel: function(modelName, data) {
+  _pushInternalModel(modelName, data) {
     Ember.assert("Expected an object as `data` in a call to `push` for " + modelName + " , but was " + data, Ember.typeOf(data) === 'object');
     Ember.assert("You must include an `id` for " + modelName + " in an object passed to `push`", data.id != null && data.id !== '');
 
@@ -1621,7 +1621,7 @@ Store = Service.extend({
     return internalModel;
   },
 
-  _setupRelationships: function(record, type, data) {
+  _setupRelationships(record, type, data) {
     // If the payload contains relationships that are specified as
     // IDs, normalizeRelationships will convert them into DS.Model instances
     // (possibly unloaded) before we push the payload into the
@@ -1680,7 +1680,7 @@ Store = Service.extend({
     @param {String} type Optionally, a model used to determine which serializer will be used
     @param {Object} inputPayload
   */
-  pushPayload: function (type, inputPayload) {
+  pushPayload (type, inputPayload) {
     var serializer;
     var payload;
     if (!inputPayload) {
@@ -1716,7 +1716,7 @@ Store = Service.extend({
     @param {Object} payload
     @return {Object} The normalized payload
   */
-  normalize: function (type, payload) {
+  normalize (type, payload) {
     var serializer = this.serializerFor(type);
     var model = this.modelFor(type);
     return serializer.normalize(model, payload);
@@ -1729,7 +1729,7 @@ Store = Service.extend({
     @return {DS.Model} the record that was updated.
     @deprecated Use [push](#method_push) instead
   */
-  update: function(type, data) {
+  update(type, data) {
     Ember.deprecate('Using store.update() has been deprecated since store.push() now handles partial updates. You should use store.push() instead.');
     return this.push(type, data);
   },
@@ -1744,7 +1744,7 @@ Store = Service.extend({
     @param {Array} datas
     @return {Array}
   */
-  pushMany: function(type, datas) {
+  pushMany(type, datas) {
     var length = datas.length;
     var result = new Array(length);
 
@@ -1761,7 +1761,7 @@ Store = Service.extend({
     @param {Object} metadata
     @deprecated Use [setMetadataFor](#method_setMetadataFor) instead
   */
-  metaForType: function(typeName, metadata) {
+  metaForType(typeName, metadata) {
     Ember.deprecate('Using store.metaForType() has been deprecated. Use store.setMetadataFor() to set metadata for a specific type.');
     this.setMetadataFor(typeName, metadata);
   },
@@ -1777,7 +1777,7 @@ Store = Service.extend({
     @param {Object} data
     @return {InternalModel} internal model
   */
-  buildInternalModel: function(type, id, data) {
+  buildInternalModel(type, id, data) {
     var typeMap = this.typeMapFor(type);
     var idToRecord = typeMap.idToRecord;
 
@@ -1800,7 +1800,7 @@ Store = Service.extend({
   },
 
   //Called by the state machine to notify the store that the record is ready to be interacted with
-  recordWasLoaded: function(record) {
+  recordWasLoaded(record) {
     this.recordArrayManager.recordWasLoaded(record);
   },
 
@@ -1814,7 +1814,7 @@ Store = Service.extend({
     @param {DS.Model} record
     @deprecated Use [unloadRecord](#method_unloadRecord) instead
   */
-  dematerializeRecord: function(record) {
+  dematerializeRecord(record) {
     Ember.deprecate('Using store.dematerializeRecord() has been deprecated since it was intended for private use only. You should use store.unloadRecord() instead.');
     this._dematerializeRecord(record);
   },
@@ -1827,7 +1827,7 @@ Store = Service.extend({
     @private
     @param {InternalModel} internalModel
   */
-  _dematerializeRecord: function(internalModel) {
+  _dematerializeRecord(internalModel) {
     var type = internalModel.type;
     var typeMap = this.typeMapFor(type);
     var id = internalModel.id;
@@ -1863,7 +1863,7 @@ Store = Service.extend({
     @param {(String|DS.Model)} type
     @return DS.Adapter
   */
-  adapterFor: function(type) {
+  adapterFor(type) {
     if (type !== 'application') {
       type = this.modelFor(type);
     }
@@ -1873,7 +1873,7 @@ Store = Service.extend({
     return adapter || get(this, 'defaultAdapter');
   },
 
-  _adapterRun: function (fn) {
+  _adapterRun (fn) {
     return this._backburner.run(fn);
   },
 
@@ -1902,7 +1902,7 @@ Store = Service.extend({
     @param {(String|DS.Model)} type the record to serialize
     @return {DS.Serializer}
   */
-  serializerFor: function(type) {
+  serializerFor(type) {
     if (type !== 'application') {
       type = this.modelFor(type);
     }
@@ -1935,7 +1935,7 @@ Store = Service.extend({
     @param {String} name the object name
     @return {Ember.Object}
   */
-  retrieveManagedInstance: function(modelName, name) {
+  retrieveManagedInstance(modelName, name) {
     var normalizedTypeKey = normalizeModelName(modelName);
     var key = normalizedTypeKey + ":" +name;
 
@@ -1951,15 +1951,15 @@ Store = Service.extend({
     return this._containerCache[key];
   },
 
-  lookupAdapter: function(name) {
+  lookupAdapter(name) {
     return this.retrieveManagedInstance('adapter', name);
   },
 
-  lookupSerializer: function(name) {
+  lookupSerializer(name) {
     return this.retrieveManagedInstance('serializer', name);
   },
 
-  willDestroy: function() {
+  willDestroy() {
     this.recordArrayManager.destroy();
 
     this.unloadAll();

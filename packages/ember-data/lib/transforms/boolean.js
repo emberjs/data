@@ -22,7 +22,7 @@ import Transform from "ember-data/transforms/base";
   @namespace DS
  */
 export default Transform.extend({
-  deserialize: function(serialized) {
+  deserialize(serialized) {
     var type = typeof serialized;
 
     if (type === "boolean") {
@@ -36,7 +36,7 @@ export default Transform.extend({
     }
   },
 
-  serialize: function(deserialized) {
+  serialize(deserialized) {
     return Boolean(deserialized);
   }
 });

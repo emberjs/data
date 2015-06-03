@@ -37,7 +37,7 @@ var camelize = Ember.String.camelize;
 
   ```js
   App.ApplicationSerializer = DS.RESTSerializer.extend({
-    keyForAttribute: function(attr, method) {
+    keyForAttribute(attr, method) {
       return Ember.String.underscore(attr).toUpperCase();
     }
   });
@@ -82,7 +82,7 @@ var RESTSerializer = JSONSerializer.extend({
     ```javascript
     App.PostSerializer = DS.RESTSerializer.extend({
       normalizeHash: {
-        comments: function(hash) {
+        comments(hash) {
           hash.id = hash._id;
           delete hash._id;
           return hash;
@@ -148,7 +148,7 @@ var RESTSerializer = JSONSerializer.extend({
     ```js
     App.PostSerializer = DS.RESTSerializer.extend({
       normalizeHash: {
-        comments: function(hash) {
+        comments(hash) {
           hash.id = hash._id;
           delete hash._id;
           return hash;
@@ -166,7 +166,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {String} prop
     @return {Object}
   */
-  normalize: function(typeClass, hash, prop) {
+  normalize(typeClass, hash, prop) {
     this.normalizeId(hash);
     this.normalizeAttributes(typeClass, hash);
     this.normalizeRelationships(typeClass, hash);
@@ -218,7 +218,7 @@ var RESTSerializer = JSONSerializer.extend({
     ```js
     App.PostSerializer = DS.RESTSerializer.extend({
       // First, restructure the top-level so it's organized by type
-      extractSingle: function(store, typeClass, payload, id) {
+      extractSingle(store, typeClass, payload, id) {
         var comments = payload._embedded.comment;
         delete payload._embedded;
 
@@ -229,7 +229,7 @@ var RESTSerializer = JSONSerializer.extend({
       normalizeHash: {
         // Next, normalize individual comments, which (after `extract`)
         // are now located under `comments`
-        comments: function(hash) {
+        comments(hash) {
           hash.id = hash._id;
           hash.title = hash.comment_title;
           delete hash._id;
@@ -258,7 +258,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {String} recordId
     @return {Object} the primary response to the original request
   */
-  extractSingle: function(store, primaryTypeClass, rawPayload, recordId) {
+  extractSingle(store, primaryTypeClass, rawPayload, recordId) {
     var payload = this.normalizePayload(rawPayload);
     var primaryRecord;
 
@@ -349,7 +349,7 @@ var RESTSerializer = JSONSerializer.extend({
     App.PostSerializer = DS.RESTSerializer.extend({
       // First, restructure the top-level so it's organized by type
       // and the comments are listed under a post's `comments` key.
-      extractArray: function(store, type, payload) {
+      extractArray(store, type, payload) {
         var posts = payload._embedded.post;
         var comments = [];
         var postCache = {};
@@ -373,7 +373,7 @@ var RESTSerializer = JSONSerializer.extend({
       normalizeHash: {
         // Next, normalize individual comments, which (after `extract`)
         // are now located under `comments`
-        comments: function(hash) {
+        comments(hash) {
           hash.id = hash._id;
           hash.title = hash.comment_title;
           delete hash._id;
@@ -406,7 +406,7 @@ var RESTSerializer = JSONSerializer.extend({
     @return {Array} The primary array that was returned in response
       to the original query.
   */
-  extractArray: function(store, primaryTypeClass, rawPayload) {
+  extractArray(store, primaryTypeClass, rawPayload) {
     var payload = this.normalizePayload(rawPayload);
     var primaryArray;
 
@@ -438,7 +438,7 @@ var RESTSerializer = JSONSerializer.extend({
     return primaryArray;
   },
 
-  normalizeArray: function(store, typeName, arrayHash, prop) {
+  normalizeArray(store, typeName, arrayHash, prop) {
     var typeClass = store.modelFor(typeName);
     var typeSerializer = store.serializerFor(typeClass);
 
@@ -448,7 +448,7 @@ var RESTSerializer = JSONSerializer.extend({
     }, this);
   },
 
-  isPrimaryType: function(store, typeName, primaryTypeClass) {
+  isPrimaryType(store, typeName, primaryTypeClass) {
     var typeClass = store.modelFor(typeName);
     return typeClass.modelName === primaryTypeClass.modelName;
   },
@@ -484,7 +484,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {DS.Store} store
     @param {Object} rawPayload
   */
-  pushPayload: function(store, rawPayload) {
+  pushPayload(store, rawPayload) {
     var payload = this.normalizePayload(rawPayload);
 
     for (var prop in payload) {
@@ -541,7 +541,7 @@ var RESTSerializer = JSONSerializer.extend({
     import DS from 'ember-data';
 
     export default DS.RESTSerializer.extend({
-      modelNameFromPayloadKey: function(payloadKey) {
+      modelNameFromPayloadKey(payloadKey) {
         if (payloadKey === 'blog/post') {
           return this._super(payloadKey.replace('blog/', ''));
         } else {
@@ -563,7 +563,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {String} key
     @return {String} the model's modelName
   */
-  modelNameFromPayloadKey: function(key) {
+  modelNameFromPayloadKey(key) {
     return singularize(normalizeModelName(key));
   },
 
@@ -624,7 +624,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     ```js
     App.PostSerializer = DS.RESTSerializer.extend({
-      serialize: function(snapshot, options) {
+      serialize(snapshot, options) {
         var json = {
           POST_TTL: snapshot.attr('title'),
           POST_BDY: snapshot.attr('body'),
@@ -648,7 +648,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     ```js
     App.ApplicationSerializer = DS.RESTSerializer.extend({
-      serialize: function(snapshot, options) {
+      serialize(snapshot, options) {
         var json = {};
 
         snapshot.eachAttribute(function(name) {
@@ -696,7 +696,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     ```js
     App.PostSerializer = DS.RESTSerializer.extend({
-      serialize: function(snapshot, options) {
+      serialize(snapshot, options) {
         var json = this._super(snapshot, options);
 
         json.subject = json.title;
@@ -712,7 +712,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} options
     @return {Object} json
   */
-  serialize: function(snapshot, options) {
+  serialize(snapshot, options) {
     return this._super.apply(this, arguments);
   },
 
@@ -725,7 +725,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     ```js
     App.ApplicationSerializer = DS.RESTSerializer.extend({
-      serializeIntoHash: function(data, type, record, options) {
+      serializeIntoHash(data, type, record, options) {
         var root = Ember.String.decamelize(type.modelName);
         data[root] = this.serialize(record, options);
       }
@@ -738,7 +738,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {DS.Snapshot} snapshot
     @param {Object} options
   */
-  serializeIntoHash: function(hash, typeClass, snapshot, options) {
+  serializeIntoHash(hash, typeClass, snapshot, options) {
     var normalizedRootKey = this.payloadKeyFromModelName(typeClass.modelName);
     hash[normalizedRootKey] = this.serialize(snapshot, options);
   },
@@ -764,7 +764,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     ```js
     App.ApplicationSerializer = DS.RESTSerializer.extend({
-      payloadKeyFromModelName: function(modelName) {
+      payloadKeyFromModelName(modelName) {
         return Ember.String.dasherize(modelName);
       }
     });
@@ -786,7 +786,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {String} modelName
     @return {String}
   */
-  payloadKeyFromModelName: function(modelName) {
+  payloadKeyFromModelName(modelName) {
     return camelize(modelName);
   },
 
@@ -798,7 +798,7 @@ var RESTSerializer = JSONSerializer.extend({
     @return {String}
     @deprecated
   */
-  typeForRoot: function(modelName) {
+  typeForRoot(modelName) {
     Ember.deprecate("typeForRoot is deprecated. Use modelNameFromPayloadKey instead.");
     return this.modelNameFromPayloadKey(modelName);
   },
@@ -813,7 +813,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} json
     @param {Object} relationship
   */
-  serializePolymorphicType: function(snapshot, json, relationship) {
+  serializePolymorphicType(snapshot, json, relationship) {
     var key = relationship.key;
     var belongsTo = snapshot.belongsTo(key);
     key = this.keyForAttribute ? this.keyForAttribute(key, "serialize") : key;
@@ -827,7 +827,7 @@ var RESTSerializer = JSONSerializer.extend({
 
 Ember.runInDebug(function() {
   RESTSerializer.reopen({
-    warnMessageNoModelForKey: function(prop, typeKey) {
+    warnMessageNoModelForKey(prop, typeKey) {
       return 'Encountered "' + prop + '" in payload, but no model was found for model name "' + typeKey + '" (resolved model name using ' + this.constructor.toString() + '.modelNameFromPayloadKey("' + prop + '"))';
     }
   });

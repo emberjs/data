@@ -137,7 +137,7 @@ import BuildURLMixin from "ember-data/adapters/build-url-mixin";
 
   ```js
   App.ApplicationAdapter = DS.RESTAdapter.extend({
-    headers: function() {
+    headers() {
       return {
         "API_KEY": this.get("session.authToken"),
         "ANOTHER_HEADER": "Some header value"
@@ -155,7 +155,7 @@ import BuildURLMixin from "ember-data/adapters/build-url-mixin";
 
   ```js
   App.ApplicationAdapter = DS.RESTAdapter.extend({
-    headers: function() {
+    headers() {
       return {
         "API_KEY": Ember.get(document.cookie.match(/apiKey\=([^;]*)/), "1"),
         "ANOTHER_HEADER": "Some header value"
@@ -196,7 +196,7 @@ export default Adapter.extend(BuildURLMixin, {
 
     ```js
     export default DS.RESTAdapter.extend({
-      sortQueryParams: function(params) {
+      sortQueryParams(params) {
         var sortedKeys = Object.keys(params).sort().reverse();
         var len = sortedKeys.length, newParams = {};
 
@@ -212,7 +212,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {Object} obj
     @return {Object}
   */
-  sortQueryParams: function(obj) {
+  sortQueryParams(obj) {
     var keys = Ember.keys(obj);
     var len = keys.length;
     if (len < 2) {
@@ -343,7 +343,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  find: function(store, type, id, snapshot) {
+  find(store, type, id, snapshot) {
     return this.ajax(this.buildURL(type.modelName, id, snapshot, 'find'), 'GET');
   },
 
@@ -361,7 +361,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {String} sinceToken
     @return {Promise} promise
   */
-  findAll: function(store, type, sinceToken) {
+  findAll(store, type, sinceToken) {
     var query, url;
 
     if (sinceToken) {
@@ -390,7 +390,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {Object} query
     @return {Promise} promise
   */
-  findQuery: function(store, type, query) {
+  findQuery(store, type, query) {
     var url = this.buildURL(type.modelName, null, null, 'findQuery', query);
 
     if (this.sortQueryParams) {
@@ -433,7 +433,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {Array} snapshots
     @return {Promise} promise
   */
-  findMany: function(store, type, ids, snapshots) {
+  findMany(store, type, ids, snapshots) {
     var url = this.buildURL(type.modelName, ids, snapshots, 'findMany');
     return this.ajax(url, 'GET', { data: { ids: ids } });
   },
@@ -465,7 +465,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {String} url
     @return {Promise} promise
   */
-  findHasMany: function(store, snapshot, url, relationship) {
+  findHasMany(store, snapshot, url, relationship) {
     var id   = snapshot.id;
     var type = snapshot.modelName;
 
@@ -501,7 +501,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {String} url
     @return {Promise} promise
   */
-  findBelongsTo: function(store, snapshot, url, relationship) {
+  findBelongsTo(store, snapshot, url, relationship) {
     var id   = snapshot.id;
     var type = snapshot.modelName;
 
@@ -525,7 +525,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  createRecord: function(store, type, snapshot) {
+  createRecord(store, type, snapshot) {
     var data = {};
     var serializer = store.serializerFor(type.modelName);
     var url = this.buildURL(type.modelName, null, snapshot, 'createRecord');
@@ -551,7 +551,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  updateRecord: function(store, type, snapshot) {
+  updateRecord(store, type, snapshot) {
     var data = {};
     var serializer = store.serializerFor(type.modelName);
 
@@ -574,13 +574,13 @@ export default Adapter.extend(BuildURLMixin, {
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  deleteRecord: function(store, type, snapshot) {
+  deleteRecord(store, type, snapshot) {
     var id = snapshot.id;
 
     return this.ajax(this.buildURL(type.modelName, id, snapshot, 'deleteRecord'), "DELETE");
   },
 
-  _stripIDFromURL: function(store, snapshot) {
+  _stripIDFromURL(store, snapshot) {
     var url = this.buildURL(snapshot.modelName, snapshot.id, snapshot);
 
     var expandedURL = url.split('/');
@@ -622,8 +622,8 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Array}  an array of arrays of records, each of which is to be
                       loaded separately by `findMany`.
   */
-  groupRecordsForFindMany: function (store, snapshots) {
-    var groups = MapWithDefault.create({ defaultValue: function() { return []; } });
+  groupRecordsForFindMany (store, snapshots) {
+    var groups = MapWithDefault.create({ defaultValue() { return []; } });
     var adapter = this;
     var maxUrlLength = this.maxUrlLength;
 
@@ -681,7 +681,7 @@ export default Adapter.extend(BuildURLMixin, {
 
     ```javascript
     App.ApplicationAdapter = DS.RESTAdapter.extend({
-      ajaxError: function(jqXHR) {
+      ajaxError(jqXHR) {
         var error = this._super(jqXHR);
 
         if (jqXHR && jqXHR.status === 422) {
@@ -708,7 +708,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param  {Object} errorThrown
     @return {Object} jqXHR
   */
-  ajaxError: function(jqXHR, responseText, errorThrown) {
+  ajaxError(jqXHR, responseText, errorThrown) {
     var isObject = jqXHR !== null && typeof jqXHR === 'object';
 
     if (isObject) {
@@ -746,7 +746,7 @@ export default Adapter.extend(BuildURLMixin, {
     @return {Object} jsonPayload
   */
 
-  ajaxSuccess: function(jqXHR, jsonPayload) {
+  ajaxSuccess(jqXHR, jsonPayload) {
     return jsonPayload;
   },
 
@@ -774,7 +774,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {Object} options
     @return {Promise} promise
   */
-  ajax: function(url, type, options) {
+  ajax(url, type, options) {
     var adapter = this;
 
     return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -805,7 +805,7 @@ export default Adapter.extend(BuildURLMixin, {
     @param {Object} options
     @return {Object}
   */
-  ajaxOptions: function(url, type, options) {
+  ajaxOptions(url, type, options) {
     var hash = options || {};
     hash.url = url;
     hash.type = type;

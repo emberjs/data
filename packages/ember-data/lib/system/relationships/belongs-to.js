@@ -88,10 +88,10 @@ function belongsTo(modelName, options) {
   };
 
   return computedPolyfill({
-    get: function(key) {
+    get(key) {
       return this._internalModel._relationships[key].getRecord();
     },
-    set: function(key, value) {
+    set(key, value) {
       if (value === undefined) {
         value = null;
       }
@@ -113,7 +113,7 @@ function belongsTo(modelName, options) {
   `relationships/ext` to see how these observers get their dependencies.
 */
 Model.reopen({
-  notifyBelongsToChanged: function(key) {
+  notifyBelongsToChanged(key) {
     this.notifyPropertyChange(key);
   }
 });

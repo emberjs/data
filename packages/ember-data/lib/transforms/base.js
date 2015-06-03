@@ -10,10 +10,10 @@
   ```javascript
   // Converts centigrade in the JSON to fahrenheit in the app
   App.TemperatureTransform = DS.Transform.extend({
-    deserialize: function(serialized) {
+    deserialize(serialized) {
       return (serialized *  1.8) + 32;
     },
-    serialize: function(deserialized) {
+    serialize(deserialized) {
       return (deserialized - 32) / 1.8;
     }
   });
@@ -40,7 +40,7 @@ export default Ember.Object.extend({
     Example
 
     ```javascript
-    serialize: function(deserialized) {
+    serialize(deserialized) {
       return Ember.isEmpty(deserialized) ? null : Number(deserialized);
     }
     ```
@@ -58,7 +58,7 @@ export default Ember.Object.extend({
     Example
 
     ```javascript
-    deserialize: function(serialized) {
+    deserialize(serialized) {
       return empty(serialized) ? null : Number(serialized);
     }
     ```

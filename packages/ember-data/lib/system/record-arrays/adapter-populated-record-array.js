@@ -26,7 +26,7 @@ function cloneNull(source) {
 export default RecordArray.extend({
   query: null,
 
-  replace: function() {
+  replace() {
     var type = get(this, 'type').toString();
     throw new Error("The result of a server query (on " + type + ") is immutable.");
   },
@@ -36,7 +36,7 @@ export default RecordArray.extend({
     @private
     @param {Array} data
   */
-  load: function(data) {
+  load(data) {
     var store = get(this, 'store');
     var type = get(this, 'type');
     var records = store.pushMany(type, data);

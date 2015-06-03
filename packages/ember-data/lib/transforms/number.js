@@ -28,7 +28,7 @@ function isNumber(value) {
   @namespace DS
  */
 export default Transform.extend({
-  deserialize: function(serialized) {
+  deserialize(serialized) {
     var transformed;
 
     if (empty(serialized)) {
@@ -40,7 +40,7 @@ export default Transform.extend({
     }
   },
 
-  serialize: function(deserialized) {
+  serialize(deserialized) {
     var transformed;
 
     if (empty(deserialized)) {

@@ -17,7 +17,7 @@ var relationshipsDescriptor = Ember.computed(function() {
   }
 
   var map = new MapWithDefault({
-    defaultValue: function() { return []; }
+    defaultValue() { return []; }
   });
 
   // Loop through each computed property on the class
@@ -126,7 +126,7 @@ Model.reopen({
     @param {String} key
     @param {Ember.ComputedProperty} value
   */
-  didDefineProperty: function(proto, key, value) {
+  didDefineProperty(proto, key, value) {
     // Check if the value being set is a computed property.
     if (value instanceof Ember.ComputedProperty) {
 
@@ -177,7 +177,7 @@ Model.reopenClass({
     @param {String} name the name of the relationship
     @return {DS.Model} the type of the relationship, or undefined
   */
-  typeForRelationship: function(name) {
+  typeForRelationship(name) {
     var relationship = get(this, 'relationshipsByName').get(name);
     return relationship && relationship.type;
   },
@@ -209,7 +209,7 @@ Model.reopenClass({
     @param {String} name the name of the relationship
     @return {Object} the inverse relationship, or null
   */
-  inverseFor: function(name) {
+  inverseFor(name) {
     var inverseMap = get(this, 'inverseMap');
     if (inverseMap[name]) {
       return inverseMap[name];
@@ -221,7 +221,7 @@ Model.reopenClass({
   },
 
   //Calculate the inverse, ignoring the cache
-  _findInverseFor: function(name) {
+  _findInverseFor(name) {
 
     var inverseType = this.typeForRelationship(name);
     if (!inverseType) {
@@ -512,7 +512,7 @@ Model.reopenClass({
     @param {Function} callback the callback to invoke
     @param {any} binding the value to which the callback's `this` should be bound
   */
-  eachRelationship: function(callback, binding) {
+  eachRelationship(callback, binding) {
     get(this, 'relationshipsByName').forEach(function(relationship, name) {
       callback.call(binding, name, relationship);
     });
@@ -529,13 +529,13 @@ Model.reopenClass({
     @param {Function} callback the callback to invoke
     @param {any} binding the value to which the callback's `this` should be bound
   */
-  eachRelatedType: function(callback, binding) {
+  eachRelatedType(callback, binding) {
     get(this, 'relatedTypes').forEach(function(type) {
       callback.call(binding, type);
     });
   },
 
-  determineRelationshipType: function(knownSide) {
+  determineRelationshipType(knownSide) {
     var knownKey = knownSide.key;
     var knownKind = knownSide.kind;
     var inverse = this.inverseFor(knownKey);
@@ -589,7 +589,7 @@ Model.reopen({
 
     ```javascript
     App.ApplicationSerializer = DS.JSONSerializer.extend({
-      serialize: function(record, options) {
+      serialize(record, options) {
         var json = {};
 
         record.eachRelationship(function(name, descriptor) {
@@ -608,15 +608,15 @@ Model.reopen({
     @param {Function} callback the callback to invoke
     @param {any} binding the value to which the callback's `this` should be bound
   */
-  eachRelationship: function(callback, binding) {
+  eachRelationship(callback, binding) {
     this.constructor.eachRelationship(callback, binding);
   },
 
-  relationshipFor: function(name) {
+  relationshipFor(name) {
     return get(this.constructor, 'relationshipsByName').get(name);
   },
 
-  inverseFor: function(key) {
+  inverseFor(key) {
     return this.constructor.inverseFor(key);
   }
 
