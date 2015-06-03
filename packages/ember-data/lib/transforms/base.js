@@ -46,8 +46,8 @@ export default Ember.Object.extend({
     ```
 
     @method serialize
-    @param {mixed} deserialized The deserialized value
-    @return {mixed} The serialized value
+    @param deserialized The deserialized value
+    @return The serialized value
   */
   serialize: null,
 
@@ -64,8 +64,8 @@ export default Ember.Object.extend({
     ```
 
     @method deserialize
-    @param {mixed} serialized The serialized value
-    @return {mixed} The deserialized value
+    @param serialized The serialized value
+    @return The deserialized value
   */
   deserialize: null
 });
