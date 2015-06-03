@@ -339,7 +339,7 @@ Store = Service.extend({
     record.setProperties(properties);
 
     internalModel.eachRelationship(function(key, descriptor) {
-      internalModel._relationships[key].setHasData(true);
+      internalModel._relationships.get(key).setHasData(true);
     });
 
     return record;

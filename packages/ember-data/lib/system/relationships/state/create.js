@@ -29,7 +29,7 @@ Relationships.prototype.has = function(key) {
 
 Relationships.prototype.get = function(key) {
   var relationships = this.initializedRelationships;
-  var relationshipsByName = get(this.record.constructor, 'relationshipsByName');
+  var relationshipsByName = get(this.record.type, 'relationshipsByName');
   if (!relationships[key] && relationshipsByName.get(key)) {
     relationships[key] = createRelationshipFor(this.record, relationshipsByName.get(key), this.record.store);
   }

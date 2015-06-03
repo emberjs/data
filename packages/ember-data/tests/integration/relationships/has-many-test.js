@@ -1350,7 +1350,7 @@ test("hasMany hasData async loaded", function () {
 
   run(function() {
     store.find('chapter', 1).then(function(chapter) {
-      var relationship = chapter._internalModel._relationships['pages'];
+      var relationship = chapter._internalModel._relationships.get('pages');
       equal(relationship.hasData, true, 'relationship has data');
     });
   });
@@ -1365,7 +1365,7 @@ test("hasMany hasData sync loaded", function () {
 
   run(function() {
     store.find('chapter', 1).then(function(chapter) {
-      var relationship = chapter._internalModel._relationships['pages'];
+      var relationship = chapter._internalModel._relationships.get('pages');
       equal(relationship.hasData, true, 'relationship has data');
     });
   });
@@ -1384,7 +1384,7 @@ test("hasMany hasData async not loaded", function () {
 
   run(function() {
     store.find('chapter', 1).then(function(chapter) {
-      var relationship = chapter._internalModel._relationships['pages'];
+      var relationship = chapter._internalModel._relationships.get('pages');
       equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
@@ -1399,7 +1399,7 @@ test("hasMany hasData sync not loaded", function () {
 
   run(function() {
     store.find('chapter', 1).then(function(chapter) {
-      var relationship = chapter._internalModel._relationships['pages'];
+      var relationship = chapter._internalModel._relationships.get('pages');
       equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
@@ -1414,7 +1414,7 @@ test("hasMany hasData async created", function () {
 
   run(function() {
     var chapter = store.createRecord('chapter', { title: 'The Story Begins' });
-    var relationship = chapter._internalModel._relationships['pages'];
+    var relationship = chapter._internalModel._relationships.get('pages');
     equal(relationship.hasData, true, 'relationship has data');
   });
 });
@@ -1424,7 +1424,7 @@ test("hasMany hasData sync created", function () {
 
   run(function() {
     var chapter = store.createRecord('chapter', { title: 'The Story Begins' });
-    var relationship = chapter._internalModel._relationships['pages'];
+    var relationship = chapter._internalModel._relationships.get('pages');
     equal(relationship.hasData, true, 'relationship has data');
   });
 });
@@ -1432,8 +1432,8 @@ test("hasMany hasData sync created", function () {
 test("Model's hasMany relationship should not be created during model creation", function () {
   var user;
   run(function () {
-    user = env.store.createRecord('user');
-    ok(!user._relationships.has('messages'), 'Newly created record should not have relationships');
+    user = env.store.push('user', { id: 1 });
+    ok(!user._internalModel._relationships.has('messages'), 'Newly created record should not have relationships');
   });
 });
 
@@ -1442,6 +1442,6 @@ test("Model's belongsTo relationship should be created during 'get' method", fun
   run(function () {
     user = env.store.createRecord('user');
     user.get('messages');
-    ok(user._relationships.has('messages'), "Newly created record with relationships in params passed in its constructor should have relationships");
+    ok(user._internalModel._relationships.has('messages'), "Newly created record with relationships in params passed in its constructor should have relationships");
   });
 });
