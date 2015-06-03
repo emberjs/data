@@ -724,7 +724,7 @@ export default Serializer.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
     @param {Object} payload
-    @param {String or Number} id
+    @param {(String|Number)} id
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
@@ -744,7 +744,7 @@ export default Serializer.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
     @param {Object} payload
-    @param {String or Number} id
+    @param {(String|Number)} id
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
@@ -760,7 +760,7 @@ export default Serializer.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
     @param {Object} payload
-    @param {String or Number} id
+    @param {(String|Number)} id
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
@@ -776,7 +776,7 @@ export default Serializer.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
     @param {Object} payload
-    @param {String or Number} id
+    @param {(String|Number)} id
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
@@ -792,7 +792,7 @@ export default Serializer.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
     @param {Object} payload
-    @param {String or Number} id
+    @param {(String|Number)} id
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
@@ -809,7 +809,7 @@ export default Serializer.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
     @param {Object} payload
-    @param {String or Number} id
+    @param {(String|Number)} id
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
@@ -825,7 +825,7 @@ export default Serializer.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
     @param {Object} payload
-    @param {String or Number} id
+    @param {(String|Number)} id
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
@@ -841,7 +841,7 @@ export default Serializer.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
     @param {Object} payload
-    @param {String or Number} id
+    @param {(String|Number)} id
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
@@ -858,7 +858,7 @@ export default Serializer.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
     @param {Object} payload
-    @param {String or Number} id
+    @param {(String|Number)} id
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
@@ -874,7 +874,7 @@ export default Serializer.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
     @param {Object} payload
-    @param {String or Number} id
+    @param {(String|Number)} id
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
@@ -890,7 +890,7 @@ export default Serializer.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
     @param {Object} payload
-    @param {String or Number} id
+    @param {(String|Number)} id
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
@@ -919,7 +919,7 @@ export default Serializer.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
     @param {Object} payload
-    @param {String or Number} id
+    @param {(String|Number)} id
     @param {String} requestType
     @return {Object} json The deserialized payload
   */
@@ -948,7 +948,7 @@ export default Serializer.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
     @param {Object} arrayPayload
-    @param {String or Number} id
+    @param {(String|Number)} id
     @param {String} requestType
     @return {Array} array An array of deserialized objects
   */
@@ -1015,7 +1015,7 @@ export default Serializer.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
     @param {Object} payload
-    @param {String or Number} id
+    @param {(String|Number)} id
     @return {Object} json The deserialized errors
   */
   extractErrors: function(store, typeClass, payload, id) {
