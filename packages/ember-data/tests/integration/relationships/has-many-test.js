@@ -1428,3 +1428,32 @@ test("hasMany hasData sync created", function () {
     equal(relationship.hasData, true, 'relationship has data');
   });
 });
+
+test("metadata is accessible", function() {
+  expect(1);
+
+  env.adapter.findHasMany = function() {
+    return resolve({
+      meta: {
+        foo: 'bar'
+      },
+      chapters: [
+        { id: '2' },
+        { id: '3' }
+      ]
+    });
+  };
+
+  var book;
+
+  run(function() {
+    book = env.store.push('book', { id: 1, title: 'Sailing the Seven Seas', links: { chapters: '/chapters' } });
+  });
+
+  run(function() {
+    book.get('chapters').then(function(chapters) {
+      var meta = chapters.get('meta');
+      equal(get(meta, 'foo'), 'bar', 'metadata is available');
+    });
+  });
+});

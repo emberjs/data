@@ -1,17 +1,11 @@
 import RecordArray from "ember-data/system/record-arrays/record-array";
+import cloneNull from "ember-data/system/clone-null";
+
 /**
   @module ember-data
 */
 
 var get = Ember.get;
-
-function cloneNull(source) {
-  var clone = Ember.create(null);
-  for (var key in source) {
-    clone[key] = source[key];
-  }
-  return clone;
-}
 
 /**
   Represents an ordered list of records whose order and membership is
