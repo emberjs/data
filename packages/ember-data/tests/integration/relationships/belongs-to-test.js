@@ -609,7 +609,7 @@ test("belongsTo hasData async loaded", function () {
 
   run(function() {
     store.find('book', 1).then(function(book) {
-      var relationship = book._relationships['author'];
+      var relationship = book._internalModel._relationships['author'];
       equal(relationship.hasData, true, 'relationship has data');
     });
   });
@@ -624,7 +624,7 @@ test("belongsTo hasData sync loaded", function () {
 
   run(function() {
     store.find('book', 1).then(function(book) {
-      var relationship = book._relationships['author'];
+      var relationship = book._internalModel._relationships['author'];
       equal(relationship.hasData, true, 'relationship has data');
     });
   });
@@ -643,7 +643,7 @@ test("belongsTo hasData async not loaded", function () {
 
   run(function() {
     store.find('book', 1).then(function(book) {
-      var relationship = book._relationships['author'];
+      var relationship = book._internalModel._relationships['author'];
       equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
@@ -658,7 +658,7 @@ test("belongsTo hasData sync not loaded", function () {
 
   run(function() {
     store.find('book', 1).then(function(book) {
-      var relationship = book._relationships['author'];
+      var relationship = book._internalModel._relationships['author'];
       equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
@@ -673,7 +673,7 @@ test("belongsTo hasData async created", function () {
 
   run(function() {
     var book = store.createRecord('book', { name: 'The Greatest Book' });
-    var relationship = book._relationships['author'];
+    var relationship = book._internalModel._relationships['author'];
     equal(relationship.hasData, true, 'relationship has data');
   });
 });
@@ -683,7 +683,7 @@ test("belongsTo hasData sync created", function () {
 
   run(function() {
     var book = store.createRecord('book', { name: 'The Greatest Book' });
-    var relationship = book._relationships['author'];
+    var relationship = book._internalModel._relationships['author'];
     equal(relationship.hasData, true, 'relationship has data');
   });
 });

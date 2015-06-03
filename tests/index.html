@@ -44,9 +44,9 @@
     <script type="text/javascript">
       var emberChannel = QUnit.urlParams.emberchannel || "release", emberPath;
       if (emberChannel === "release") {
-        emberPath = "/bower_components/ember/ember.js";
+        emberPath = "/bower_components/ember/ember.debug.js";
       } else {
-        emberPath = 'https://s3.amazonaws.com/builds.emberjs.com/' + emberChannel + '/ember.js';
+        emberPath = 'https://s3.amazonaws.com/builds.emberjs.com/' + emberChannel + '/ember.debug.js';
       }
       loadScript(emberPath);
     </script>

@@ -54,7 +54,7 @@ export default Ember.Object.extend({
   */
   updateRecordArrays: function() {
     forEach(this.changedRecords, function(record) {
-      if (get(record, 'isDeleted')) {
+      if (record.isDeleted()) {
         this._recordWasDeleted(record);
       } else {
         this._recordWasChanged(record);
@@ -79,7 +79,7 @@ export default Ember.Object.extend({
 
   //Don't need to update non filtered arrays on simple changes
   _recordWasChanged: function (record) {
-    var typeClass = record.constructor;
+    var typeClass = record.type;
     var recordArrays = this.filteredRecordArrays.get(typeClass);
     var filter;
 
@@ -93,7 +93,7 @@ export default Ember.Object.extend({
 
   //Need to update live arrays on loading
   recordWasLoaded: function(record) {
-    var typeClass = record.constructor;
+    var typeClass = record.type;
     var recordArrays = this.filteredRecordArrays.get(typeClass);
     var filter;
 
@@ -117,14 +117,14 @@ export default Ember.Object.extend({
     if (!filter) {
       shouldBeInArray = true;
     } else {
-      shouldBeInArray = filter(record);
+      shouldBeInArray = filter(record.getRecord());
     }
 
     var recordArrays = this.recordArraysForRecord(record);
 
     if (shouldBeInArray) {
       if (!recordArrays.has(array)) {
-        array._pushRecord(record);
+        array.addRecord(record);
         recordArrays.add(array);
       }
     } else if (!shouldBeInArray) {
@@ -153,7 +153,7 @@ export default Ember.Object.extend({
     for (var i = 0, l = records.length; i < l; i++) {
       record = records[i];
 
-      if (!get(record, 'isDeleted') && !get(record, 'isEmpty')) {
+      if (!record.isDeleted() && !record.isEmpty()) {
         this.updateRecordArray(array, filter, modelName, record);
       }
     }

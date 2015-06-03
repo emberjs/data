@@ -90,8 +90,8 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   */
   objectAtContent: function(index) {
     var content = get(this, 'content');
-
-    return content.objectAt(index);
+    var internalModel = content.objectAt(index);
+    return internalModel && internalModel.getRecord();
   },
 
   /**
@@ -135,22 +135,6 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     }
   },
 
-  _pushRecord: function(record) {
-    get(this, 'content').pushObject(record);
-  },
-
-  /**
-    Adds a record to the `RecordArray`, but allows duplicates
-
-    @deprecated
-    @method pushRecord
-    @private
-    @param {DS.Model} record
-  */
-  pushRecord: function(record) {
-    Ember.deprecate('Usage of `recordArray.pushRecord` is deprecated, use `recordArray.addObject` instead');
-    this._pushRecord(record);
-  },
   /**
     Removes a record to the `RecordArray`.
 
@@ -191,7 +175,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   _dissociateFromOwnRecords: function() {
     var array = this;
 
-    this.forEach(function(record) {
+    this.get('content').forEach(function(record) {
       var recordArrays = record._recordArrays;
 
       if (recordArrays) {
@@ -206,10 +190,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
   */
   _unregisterFromManager: function() {
     var manager = get(this, 'manager');
-    //We will stop needing this stupid if statement soon, once manyArray are refactored to not be RecordArrays
-    if (manager) {
-      manager.unregisterFilteredRecordArray(this);
-    }
+    manager.unregisterFilteredRecordArray(this);
   },
 
   willDestroy: function() {

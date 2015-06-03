@@ -112,6 +112,20 @@ test("snapshot.attributes() returns a copy of all attributes for the current sna
   });
 });
 
+test("snapshot.changedAttributes() returns a copy of all changed attributes for the current snapshot", function() {
+  expect(1);
+
+  run(function() {
+    var post = env.store.push('post', { id: 1, title: 'Hello World' });
+    post.set('title', 'Hello World!');
+    var snapshot = post._createSnapshot();
+
+    var changes = snapshot.changedAttributes();
+
+    deepEqual(changes, { title: ['Hello World', 'Hello World!'] }, 'changed attributes are returned correctly');
+  });
+});
+
 test("snapshot.belongsTo() returns undefined if relationship is undefined", function() {
   expect(1);
 

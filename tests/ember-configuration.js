@@ -65,7 +65,7 @@
       } else {
         env.container.normalize = fn;
       }
-    }
+    };
 
     var adapter = env.adapter = (options.adapter || DS.Adapter);
     delete options.adapter;

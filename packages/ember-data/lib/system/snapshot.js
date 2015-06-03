@@ -11,21 +11,25 @@ var get = Ember.get;
   @constructor
   @param {DS.Model} record The record to create a snapshot from
 */
-function Snapshot(record) {
+function Snapshot(internalModel) {
   this._attributes = Ember.create(null);
   this._belongsToRelationships = Ember.create(null);
   this._belongsToIds = Ember.create(null);
   this._hasManyRelationships = Ember.create(null);
   this._hasManyIds = Ember.create(null);
 
+  var record = internalModel.getRecord();
+  this.record = record;
   record.eachAttribute(function(keyName) {
     this._attributes[keyName] = get(record, keyName);
   }, this);
 
-  this.id = get(record, 'id');
-  this.record = record;
-  this.type = record.constructor;
-  this.modelName = record.constructor.modelName;
+  this.id = internalModel.id;
+  this._internalModel = internalModel;
+  this.type = internalModel.type;
+  this.modelName = internalModel.type.modelName;
+
+  this._changedAttributes = record.changedAttributes();
 
   // The following code is here to keep backwards compatibility when accessing
   // `constructor` directly.
@@ -135,7 +139,7 @@ Snapshot.prototype = {
     Example
 
     ```javascript
-    // store.push('post', { id: 1, author: 'Tomster', title: 'Hello World' });
+    // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
     postSnapshot.attributes(); // => { author: 'Tomster', title: 'Ember.js rocks' }
     ```
 
@@ -144,6 +148,31 @@ Snapshot.prototype = {
   */
   attributes: function() {
     return Ember.copy(this._attributes);
+  },
+
+  /**
+    Returns all changed attributes and their old and new values.
+
+    Example
+
+    ```javascript
+    // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
+    postModel.set('title', 'Ember.js rocks!');
+    postSnapshot.changedAttributes(); // => { title: ['Ember.js rocks', 'Ember.js rocks!'] }
+    ```
+
+    @method changedAttributes
+    @return {Object} All changed attributes of the current snapshot
+  */
+  changedAttributes: function() {
+    var prop;
+    var changedAttributes = Ember.create(null);
+
+    for (prop in this._changedAttributes) {
+      changedAttributes[prop] = Ember.copy(this._changedAttributes[prop]);
+    }
+
+    return changedAttributes;
   },
 
   /**
@@ -194,7 +223,7 @@ Snapshot.prototype = {
       return this._belongsToRelationships[keyName];
     }
 
-    relationship = this.record._relationships[keyName];
+    relationship = this._internalModel._relationships[keyName];
     if (!(relationship && relationship.relationshipMeta.kind === 'belongsTo')) {
       throw new Ember.Error("Model '" + Ember.inspect(this.record) + "' has no belongsTo relationship named '" + keyName + "' defined.");
     }
@@ -207,7 +236,7 @@ Snapshot.prototype = {
         if (id) {
           result = get(inverseRecord, 'id');
         } else {
-          result = inverseRecord._createSnapshot();
+          result = inverseRecord.createSnapshot();
         }
       } else {
         result = null;
@@ -265,7 +294,7 @@ Snapshot.prototype = {
       return this._hasManyRelationships[keyName];
     }
 
-    relationship = this.record._relationships[keyName];
+    relationship = this._internalModel._relationships[keyName];
     if (!(relationship && relationship.relationshipMeta.kind === 'hasMany')) {
       throw new Ember.Error("Model '" + Ember.inspect(this.record) + "' has no hasMany relationship named '" + keyName + "' defined.");
     }
@@ -277,9 +306,9 @@ Snapshot.prototype = {
       results = [];
       members.forEach(function(member) {
         if (ids) {
-          results.push(get(member, 'id'));
+          results.push(member.id);
         } else {
-          results.push(member._createSnapshot());
+          results.push(member.createSnapshot());
         }
       });
     }
@@ -350,7 +379,7 @@ Snapshot.prototype = {
       return this.attr(keyName);
     }
 
-    var relationship = this.record._relationships[keyName];
+    var relationship = this._internalModel._relationships[keyName];
 
     if (relationship && relationship.relationshipMeta.kind === 'belongsTo') {
       return this.belongsTo(keyName);

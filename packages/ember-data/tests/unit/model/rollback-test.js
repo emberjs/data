@@ -159,6 +159,51 @@ test("new record can be rollbacked", function() {
   equal(person.get('isDeleted'), true, "must be deleted");
 });
 
+test("invalid new record can be rollbacked", function() {
+  var person;
+  var adapter = DS.RESTAdapter.extend({
+    ajax: function(url, type, hash) {
+      var adapter = this;
+
+      return new Ember.RSVP.Promise(function(resolve, reject) {
+        /* If InvalidError is passed back in the reject it will throw the
+           exception which will bubble up the call stack (crashing the test)
+           instead of hitting the failure route of the promise.
+           So wrapping the reject in an Ember.run.next makes it so save
+           completes without failure and the failure hits the failure route
+           of the promise instead of crashing the save. */
+        Ember.run.next(function() {
+          reject(adapter.ajaxError({ name: 'is invalid' }));
+        });
+      });
+    },
+
+    ajaxError: function(jqXHR) {
+      return new DS.InvalidError(jqXHR);
+    }
+  });
+
+  env = setupStore({ person: Person, adapter: adapter });
+
+  run(function() {
+    person = env.store.createRecord('person', { id: 1 });
+  });
+
+  equal(person.get('isNew'), true, "must be new");
+  equal(person.get('isDirty'), true, "must be dirty");
+
+  run(function() {
+    person.save().then(null, async(function() {
+      equal(person.get('isValid'), false);
+      person.rollback();
+
+      equal(person.get('isNew'), false, "must not be new");
+      equal(person.get('isDirty'), false, "must not be dirty");
+      equal(person.get('isDeleted'), true, "must be deleted");
+    }));
+  });
+});
+
 test("deleted record can be rollbacked", function() {
   var person, people;
 

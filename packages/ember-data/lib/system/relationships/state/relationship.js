@@ -181,7 +181,7 @@ Relationship.prototype = {
     //TODO remove once we have proper diffing
     var newRecords = [];
     for (var i=0; i<this.members.list.length; i++) {
-      if (this.members.list[i].get('isNew')) {
+      if (this.members.list[i].isNew()) {
         newRecords.push(this.members.list[i]);
       }
     }
@@ -204,8 +204,8 @@ Relationship.prototype = {
   },
 
   updateLink: function(link) {
-    Ember.warn("You have pushed a record of type '" + this.record.constructor.modelName + "' with '" + this.key + "' as a link, but the association is not an async relationship.", this.isAsync);
-    Ember.assert("You have pushed a record of type '" + this.record.constructor.modelName + "' with '" + this.key + "' as a link, but the value of that link is not a string.", typeof link === 'string' || link === null);
+    Ember.warn("You have pushed a record of type '" + this.record.type.modelName + "' with '" + this.key + "' as a link, but the association is not an async relationship.", this.isAsync);
+    Ember.assert("You have pushed a record of type '" + this.record.type.modelName + "' with '" + this.key + "' as a link, but the value of that link is not a string.", typeof link === 'string' || link === null);
     if (link !== this.link) {
       this.link = link;
       this.linkPromise = null;

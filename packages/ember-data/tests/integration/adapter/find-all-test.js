@@ -91,6 +91,10 @@ test("When all records for a type are requested, a rejection should reject the p
 
 test("When all records for a type are requested, records that are already loaded should be returned immediately.", function() {
   expect(3);
+  store = createStore({
+    adapter: DS.Adapter.extend(),
+    person: Person
+  });
 
   run(function() {
     // Load a record from the server
