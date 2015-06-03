@@ -35,8 +35,10 @@ var camelize = Ember.String.camelize;
   can implement across-the-board rules for how to convert an attribute
   name in your model to a key in your JSON.
 
-  ```js
-  App.ApplicationSerializer = DS.RESTSerializer.extend({
+  ```app/serializers/application.js
+  import DS from 'ember-data';
+
+  export default DS.RESTSerializer.extend({
     keyForAttribute: function(attr, method) {
       return Ember.String.underscore(attr).toUpperCase();
     }
@@ -79,8 +81,10 @@ var RESTSerializer = JSONSerializer.extend({
 
     You use `normalizeHash` to normalize just the comments:
 
-    ```javascript
-    App.PostSerializer = DS.RESTSerializer.extend({
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+
+    export default DS.RESTSerializer.extend({
       normalizeHash: {
         comments: function(hash) {
           hash.id = hash._id;
@@ -145,8 +149,10 @@ var RESTSerializer = JSONSerializer.extend({
     For example, if the `IDs` under `"comments"` are provided as `_id` instead of
     `id`, you can specify how to normalize just the comments:
 
-    ```js
-    App.PostSerializer = DS.RESTSerializer.extend({
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+
+    export default DS.RESTSerializer.extend({
       normalizeHash: {
         comments: function(hash) {
           hash.id = hash._id;
@@ -215,8 +221,10 @@ var RESTSerializer = JSONSerializer.extend({
     You could implement a serializer that looks like this to get your payload
     into shape:
 
-    ```js
-    App.PostSerializer = DS.RESTSerializer.extend({
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+
+    export default DS.RESTSerializer.extend({
       // First, restructure the top-level so it's organized by type
       extractSingle: function(store, typeClass, payload, id) {
         var comments = payload._embedded.comment;
@@ -345,8 +353,10 @@ var RESTSerializer = JSONSerializer.extend({
     You could implement a serializer that looks like this to get your payload
     into shape:
 
-    ```js
-    App.PostSerializer = DS.RESTSerializer.extend({
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+
+    export default DS.RESTSerializer.extend({
       // First, restructure the top-level so it's organized by type
       // and the comments are listed under a post's `comments` key.
       extractArray: function(store, type, payload) {
@@ -514,10 +524,11 @@ var RESTSerializer = JSONSerializer.extend({
     the name of the model in your app. Let's take a look at an example model,
     and an example payload:
 
-    ```javascript
-    // Located in the file app/models/post.js
+    ```app/models/post.js
     import DS from 'ember-data';
-    export default var Post = DS.Model.extend();
+
+    export default DS.Model.extend({
+    });
     ```
 
     ```javascript
@@ -536,8 +547,7 @@ var RESTSerializer = JSONSerializer.extend({
     Since we want to remove this namespace, we can define a serializer for the application that will
     remove "blog/" from the payload key whenver it's encountered by Ember Data:
 
-    ```javascript
-    // located in app/serializers/application.js
+    ```app/serializers/application.js
     import DS from 'ember-data';
 
     export default DS.RESTSerializer.extend({
@@ -578,8 +588,10 @@ var RESTSerializer = JSONSerializer.extend({
 
     For example, consider this model:
 
-    ```js
-    App.Comment = DS.Model.extend({
+    ```app/models/comment.js
+    import DS from 'ember-data';
+
+    export default DS.Model.extend({
       title: DS.attr(),
       body: DS.attr(),
 
@@ -622,8 +634,10 @@ var RESTSerializer = JSONSerializer.extend({
     In that case, you can implement `serialize` yourself and
     return a JSON hash of your choosing.
 
-    ```js
-    App.PostSerializer = DS.RESTSerializer.extend({
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+
+    export default DS.RESTSerializer.extend({
       serialize: function(snapshot, options) {
         var json = {
           POST_TTL: snapshot.attr('title'),
@@ -646,8 +660,10 @@ var RESTSerializer = JSONSerializer.extend({
     application, you'll probably want to use `eachAttribute`
     and `eachRelationship` on the record.
 
-    ```js
-    App.ApplicationSerializer = DS.RESTSerializer.extend({
+    ```app/serializers/application.js
+    import DS from 'ember-data';
+
+    export default DS.RESTSerializer.extend({
       serialize: function(snapshot, options) {
         var json = {};
 
@@ -694,8 +710,10 @@ var RESTSerializer = JSONSerializer.extend({
     you can call super first and make the tweaks on the returned
     JSON.
 
-    ```js
-    App.PostSerializer = DS.RESTSerializer.extend({
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+
+    export default DS.RESTSerializer.extend({
       serialize: function(snapshot, options) {
         var json = this._super(snapshot, options);
 
@@ -723,8 +741,10 @@ var RESTSerializer = JSONSerializer.extend({
 
     For example, your server may expect underscored root objects.
 
-    ```js
-    App.ApplicationSerializer = DS.RESTSerializer.extend({
+    ```app/serializers/application.js
+    import DS from 'ember-data';
+
+    export default DS.RESTSerializer.extend({
       serializeIntoHash: function(data, type, record, options) {
         var root = Ember.String.decamelize(type.modelName);
         data[root] = this.serialize(record, options);
@@ -762,8 +782,10 @@ var RESTSerializer = JSONSerializer.extend({
 
     For example, your server may expect dasherized root objects:
 
-    ```js
-    App.ApplicationSerializer = DS.RESTSerializer.extend({
+    ```app/serializers/application.js
+    import DS from 'ember-data';
+
+    export default DS.RESTSerializer.extend({
       payloadKeyFromModelName: function(modelName) {
         return Ember.String.dasherize(modelName);
       }

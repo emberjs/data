@@ -32,8 +32,10 @@ export default Serializer.extend({
 
     Example
 
-    ```javascript
-    App.ApplicationSerializer = DS.JSONSerializer.extend({
+    ```app/serializers/application.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer.extend({
       primaryKey: '_id'
     });
     ```
@@ -53,15 +55,21 @@ export default Serializer.extend({
 
     Example
 
-    ```javascript
-    App.Person = DS.Model.extend({
+    ```app/models/person.js
+    import DS from 'ember-data';
+
+    export default DS.Model.extend({
       firstName: DS.attr('string'),
       lastName: DS.attr('string'),
       occupation: DS.attr('string'),
       admin: DS.attr('boolean')
     });
+    ```
 
-    App.PersonSerializer = DS.JSONSerializer.extend({
+    ```app/serializers/person.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer.extend({
       attrs: {
         admin: 'is_admin',
         occupation: {key: 'career'}
@@ -74,8 +82,10 @@ export default Serializer.extend({
 
     Example
 
-    ```javascript
-    App.PersonSerializer = DS.JSONSerializer.extend({
+    ```app/serializers/person.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer.extend({
       attrs: {
         admin: {serialize: false},
         occupation: {key: 'career'}
@@ -138,8 +148,10 @@ export default Serializer.extend({
 
     Example
 
-    ```javascript
-    App.ApplicationSerializer = DS.JSONSerializer.extend({
+    ```app/serializers/application.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer.extend({
       normalize: function(typeClass, hash) {
         var fields = Ember.get(typeClass, 'fields');
         fields.forEach(function(field) {
@@ -177,8 +189,10 @@ export default Serializer.extend({
 
     For example, you might want to remove some extraneous data from the payload:
 
-    ```js
-    App.ApplicationSerializer = DS.JSONSerializer.extend({
+    ```app/serializers/application.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer.extend({
       normalizePayload: function(payload) {
         delete payload.version;
         delete payload.status;
@@ -330,8 +344,10 @@ export default Serializer.extend({
 
     For example, consider this model:
 
-    ```javascript
-    App.Comment = DS.Model.extend({
+    ```app/models/comment.js
+    import DS from 'ember-data';
+
+    export default DS.Model.extend({
       title: DS.attr(),
       body: DS.attr(),
 
@@ -374,8 +390,10 @@ export default Serializer.extend({
     In that case, you can implement `serialize` yourself and
     return a JSON hash of your choosing.
 
-    ```javascript
-    App.PostSerializer = DS.JSONSerializer.extend({
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer.extend({
       serialize: function(snapshot, options) {
         var json = {
           POST_TTL: snapshot.attr('title'),
@@ -398,8 +416,10 @@ export default Serializer.extend({
     application, you'll probably want to use `eachAttribute`
     and `eachRelationship` on the record.
 
-    ```javascript
-    App.ApplicationSerializer = DS.JSONSerializer.extend({
+    ```app/serializers/application.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer.extend({
       serialize: function(snapshot, options) {
         var json = {};
 
@@ -446,8 +466,10 @@ export default Serializer.extend({
     you can call super first and make the tweaks on the returned
     JSON.
 
-    ```javascript
-    App.PostSerializer = DS.JSONSerializer.extend({
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer.extend({
       serialize: function(snapshot, options) {
         var json = this._super.apply(this, arguments);
 
@@ -499,8 +521,10 @@ export default Serializer.extend({
 
     For example, your server may expect underscored root objects.
 
-    ```js
-    App.ApplicationSerializer = DS.RESTSerializer.extend({
+    ```app/serializers/application.js
+    import DS from 'ember-data';
+
+    export default DS.RESTSerializer.extend({
       serializeIntoHash: function(data, type, snapshot, options) {
         var root = Ember.String.decamelize(type.modelName);
         data[root] = this.serialize(snapshot, options);
@@ -526,8 +550,10 @@ export default Serializer.extend({
    serialized as properties on an `attributes` object you could
    write:
 
-   ```javascript
-   App.ApplicationSerializer = DS.JSONSerializer.extend({
+   ```app/serializers/application.js
+   import DS from 'ember-data';
+
+   export default DS.JSONSerializer.extend({
      serializeAttribute: function(snapshot, json, key, attributes) {
        json.attributes = json.attributes || {};
        this._super(snapshot, json.attributes, key, attributes);
@@ -569,8 +595,10 @@ export default Serializer.extend({
 
    Example
 
-   ```javascript
-   App.PostSerializer = DS.JSONSerializer.extend({
+   ```app/serializers/post.js
+   import DS from 'ember-data';
+
+   export default DS.JSONSerializer.extend({
      serializeBelongsTo: function(snapshot, json, relationship) {
        var key = relationship.key;
 
@@ -620,8 +648,10 @@ export default Serializer.extend({
 
    Example
 
-   ```javascript
-   App.PostSerializer = DS.JSONSerializer.extend({
+   ```app/serializers/post.js
+   import DS from 'ember-data';
+
+   export default DS.JSONSerializer.extend({
      serializeHasMany: function(snapshot, json, relationship) {
        var key = relationship.key;
        if (key === 'comments') {
@@ -668,8 +698,10 @@ export default Serializer.extend({
 
     Example
 
-    ```javascript
-    App.CommentSerializer = DS.JSONSerializer.extend({
+    ```app/serializers/comment.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer.extend({
       serializePolymorphicType: function(snapshot, json, relationship) {
         var key = relationship.key,
             belongsTo = snapshot.belongsTo(key);
@@ -682,7 +714,7 @@ export default Serializer.extend({
         }
       }
     });
-   ```
+    ```
 
     @method serializePolymorphicType
     @param {DS.Snapshot} snapshot
@@ -904,8 +936,10 @@ export default Serializer.extend({
 
     Example
 
-    ```javascript
-    App.PostSerializer = DS.JSONSerializer.extend({
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer.extend({
       extractSingle: function(store, typeClass, payload) {
         payload.comments = payload._embedded.comment;
         delete payload._embedded;
@@ -934,8 +968,10 @@ export default Serializer.extend({
 
     Example
 
-    ```javascript
-    App.PostSerializer = DS.JSONSerializer.extend({
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer.extend({
       extractArray: function(store, typeClass, payload) {
         return payload.map(function(json) {
           return this.extractSingle(store, typeClass, json);
@@ -968,8 +1004,10 @@ export default Serializer.extend({
 
     Example
 
-    ```javascript
-    App.PostSerializer = DS.JSONSerializer.extend({
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer.extend({
       extractMeta: function(store, typeClass, payload) {
         if (payload && payload._pagination) {
           store.setMetadataFor(typeClass, payload._pagination);
@@ -999,8 +1037,10 @@ export default Serializer.extend({
 
     Example
 
-    ```javascript
-    App.PostSerializer = DS.JSONSerializer.extend({
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer.extend({
       extractErrors: function(store, typeClass, payload, id) {
         if (payload && typeof payload === 'object' && payload._problems) {
           payload = payload._problems;
@@ -1032,8 +1072,10 @@ export default Serializer.extend({
 
    Example
 
-   ```javascript
-   App.ApplicationSerializer = DS.RESTSerializer.extend({
+   ```app/serializers/application.js
+   import DS from 'ember-data';
+
+   export default DS.RESTSerializer.extend({
      keyForAttribute: function(attr, method) {
        return Ember.String.underscore(attr).toUpperCase();
      }
@@ -1056,8 +1098,10 @@ export default Serializer.extend({
 
    Example
 
-    ```javascript
-    App.PostSerializer = DS.JSONSerializer.extend({
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer.extend({
       keyForRelationship: function(key, relationship, method) {
         return 'rel_' + Ember.String.underscore(key);
       }

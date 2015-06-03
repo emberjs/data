@@ -11,8 +11,10 @@ var camelize = Ember.String.camelize;
 
   Below is an example of a per-type serializer ('post' type).
 
-  ```js
-  App.PostSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+  ```app/serializers/post.js
+  import DS from 'ember-data';
+
+  export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
     attrs: {
       author: { embedded: 'always' },
       comments: { serialize: 'ids' }
@@ -152,8 +154,10 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
 
     Use a custom (type) serializer for the post model to configure embedded author
 
-    ```js
-    App.PostSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    ```app/serializers/post.js
+    import DS from 'ember-data;
+
+    export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
         author: {embedded: 'always'}
       }
@@ -229,8 +233,10 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
 
     Use a custom (type) serializer for the post model to configure embedded comments
 
-    ```js
-    App.PostSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    ```app/serializers/post.js
+    import DS from 'ember-data;
+
+    export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
         comments: {embedded: 'always'}
       }
@@ -266,8 +272,10 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
 
     To embed the `ids` for a related object (using a hasMany relationship):
 
-    ```js
-    App.PostSerializer = DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    ```app/serializers/post.js
+    import DS from 'ember-data;
+
+    export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
         comments: {serialize: 'ids', deserialize: 'records'}
       }
