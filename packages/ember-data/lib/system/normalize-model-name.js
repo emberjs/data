@@ -3,7 +3,7 @@
   require changes to other normalization hooks (such as typeForRoot).
   @method normalizeModelName
   @public
-  @param {String} type
+  @param {String} modelName
   @return {String} if the adapter can generate one, an ID
   @for DS
 */

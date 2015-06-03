@@ -113,9 +113,9 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     }
     ```
    @method normalize
-   @param {subclass of DS.Model} typeClass
+   @param {DS.Model} typeClass
    @param {Object} hash to be normalized
-   @param {String} key the hash has been referenced by
+   @param {String} prop the hash has been referenced by
    @return {Object} the normalized hash
   **/
   normalize: function(typeClass, hash, prop) {

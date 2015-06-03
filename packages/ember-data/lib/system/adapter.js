@@ -112,7 +112,7 @@ var Adapter = Ember.Object.extend({
 
     @method find
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {DS.Model} type
     @param {String} id
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
@@ -145,7 +145,7 @@ var Adapter = Ember.Object.extend({
     @private
     @method findAll
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {DS.Model} type
     @param {String} sinceToken
     @return {Promise} promise
   */
@@ -177,7 +177,7 @@ var Adapter = Ember.Object.extend({
     @private
     @method findQuery
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {DS.Model} type
     @param {Object} query
     @param {DS.AdapterPopulatedRecordArray} recordArray
     @return {Promise} promise
@@ -207,10 +207,10 @@ var Adapter = Ember.Object.extend({
 
     @method generateIdForRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} type   the DS.Model class of the record
     @param {Object} inputProperties a hash of properties to set on the
       newly created record.
-    @return {String|Number} id
+    @return {(String|Number)} id
   */
   generateIdForRecord: null,
 
@@ -272,7 +272,7 @@ var Adapter = Ember.Object.extend({
 
     @method createRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} type   the DS.Model class of the record
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
@@ -312,7 +312,7 @@ var Adapter = Ember.Object.extend({
 
     @method updateRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} type   the DS.Model class of the record
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
@@ -352,7 +352,7 @@ var Adapter = Ember.Object.extend({
 
     @method deleteRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} type   the DS.Model class of the record
+    @param {DS.Model} type   the DS.Model class of the record
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
@@ -374,7 +374,7 @@ var Adapter = Ember.Object.extend({
 
     @method findMany
     @param {DS.Store} store
-    @param {subclass of DS.Model} type   the DS.Model class of the records
+    @param {DS.Model} type   the DS.Model class of the records
     @param {Array}    ids
     @param {Array} snapshots
     @return {Promise} promise

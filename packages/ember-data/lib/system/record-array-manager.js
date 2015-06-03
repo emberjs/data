@@ -108,8 +108,8 @@ export default Ember.Object.extend({
     @method updateRecordArray
     @param {DS.FilteredRecordArray} array
     @param {Function} filter
-    @param {subclass of DS.Model} typeClass
-    @param {Number|String} clientId
+    @param {DS.Model} typeClass
+    @param {(Number|String)} clientId
   */
   updateRecordArray: function(array, filter, typeClass, record) {
     var shouldBeInArray;
@@ -184,7 +184,7 @@ export default Ember.Object.extend({
     Create a `DS.FilteredRecordArray` for a type and register it for updates.
 
     @method createFilteredRecordArray
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Function} filter
     @param {Object} query (optional
     @return {DS.FilteredRecordArray}
@@ -208,7 +208,7 @@ export default Ember.Object.extend({
     Create a `DS.AdapterPopulatedRecordArray` for a type with given query.
 
     @method createAdapterPopulatedRecordArray
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} query
     @return {DS.AdapterPopulatedRecordArray}
   */
@@ -234,7 +234,7 @@ export default Ember.Object.extend({
 
     @method registerFilteredRecordArray
     @param {DS.RecordArray} array
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Function} filter
   */
   registerFilteredRecordArray: function(array, typeClass, filter) {
