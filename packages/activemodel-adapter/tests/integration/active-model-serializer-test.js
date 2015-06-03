@@ -3,7 +3,7 @@ var HomePlanet, league, SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, 
 var run = Ember.run;
 
 module("integration/active_model - ActiveModelSerializer", {
-  setup: function() {
+  setup() {
     SuperVillain = DS.Model.extend({
       firstName:     DS.attr('string'),
       lastName:      DS.attr('string'),
@@ -48,7 +48,7 @@ module("integration/active_model - ActiveModelSerializer", {
     env.amsAdapter    = env.container.lookup("adapter:-active-model");
   },
 
-  teardown: function() {
+  teardown() {
     run(env.store, 'destroy');
   }
 });

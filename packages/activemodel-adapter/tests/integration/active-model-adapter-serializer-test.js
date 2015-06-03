@@ -2,7 +2,7 @@ var env, store, adapter, User;
 var originalAjax;
 
 module("integration/active_model_adapter_serializer - AMS Adapter and Serializer", {
-  setup: function() {
+  setup() {
     originalAjax = Ember.$.ajax;
 
     User = DS.Model.extend({
@@ -20,7 +20,7 @@ module("integration/active_model_adapter_serializer - AMS Adapter and Serializer
     env.registry.register('serializer:application', DS.ActiveModelSerializer);
   },
 
-  teardown: function() {
+  teardown() {
     Ember.$.ajax = originalAjax;
   }
 });

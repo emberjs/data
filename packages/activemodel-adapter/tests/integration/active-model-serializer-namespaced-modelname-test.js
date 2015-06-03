@@ -2,7 +2,7 @@ var SuperVillain, EvilMinion, YellowMinion, DoomsdayDevice, MediocreVillain, env
 var run = Ember.run;
 
 module("integration/active_model - AMS-namespaced-model-names", {
-  setup: function() {
+  setup() {
     SuperVillain = DS.Model.extend({
       firstName:     DS.attr('string'),
       lastName:      DS.attr('string'),
@@ -41,7 +41,7 @@ module("integration/active_model - AMS-namespaced-model-names", {
     env.amsAdapter    = env.container.lookup("adapter:-active-model");
   },
 
-  teardown: function() {
+  teardown() {
     run(env.store, 'destroy');
   }
 });

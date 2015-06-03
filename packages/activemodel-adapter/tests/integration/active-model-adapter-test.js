@@ -1,7 +1,7 @@
 var env, store, adapter, SuperUser;
 var passedUrl, passedVerb, passedHash;
 module("integration/active_model_adapter - AMS Adapter", {
-  setup: function() {
+  setup() {
     SuperUser = DS.Model.extend();
 
     env = setupStore({
