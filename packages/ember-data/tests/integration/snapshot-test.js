@@ -99,6 +99,19 @@ test("snapshot.attr() does not change when record changes", function() {
   });
 });
 
+test("snapshot.attr() throws an error attribute not found", function() {
+  expect(1);
+
+  run(function() {
+    var post = env.store.push('post', { id: 1, title: 'Hello World' });
+    var snapshot = post._createSnapshot();
+
+    throws(function() {
+      snapshot.attr('unknown');
+    }, /has no attribute named 'unknown' defined/, 'attr throws error');
+  });
+});
+
 test("snapshot.attributes() returns a copy of all attributes for the current snapshot", function() {
   expect(1);
 
@@ -191,6 +204,19 @@ test("snapshot.belongsTo() returns undefined if relationship is a link", functio
     var relationship = snapshot.belongsTo('post');
 
     equal(relationship, undefined, 'relationship is undefined');
+  });
+});
+
+test("snapshot.belongsTo() throws error if relation doesn't exist", function() {
+  expect(1);
+
+  run(function() {
+    var post = env.store.push('post', { id: 1, title: 'Hello World' });
+    var snapshot = post._createSnapshot();
+
+    throws(function() {
+      snapshot.belongsTo('unknown');
+    }, /has no belongsTo relationship named 'unknown'/, 'throws error')
   });
 });
 
@@ -420,6 +446,19 @@ test("snapshot.hasMany() returns array of snapshots if relationship link has bee
   });
 });
 
+test("snapshot.hasMany() throws error if relation doesn't exist", function() {
+  expect(1);
+
+  run(function() {
+    var post = env.store.push('post', { id: 1, title: 'Hello World' });
+    var snapshot = post._createSnapshot();
+
+    throws(function() {
+      snapshot.hasMany('unknown');
+    }, /has no hasMany relationship named 'unknown'/, 'throws error')
+  });
+});
+
 test("snapshot.hasMany() respects the order of items in the relationship", function() {
   expect(3);
 
@@ -595,6 +634,20 @@ test("snapshot.get() proxies property to record unless identified as id, attribu
     expectDeprecation(function() {
       equal(snapshot.get('category'), 'Ember.js', 'snapshot proxies unknown property correctly');
     });
+  });
+});
+
+test("snapshot.serialize() serializes itself", function() {
+  expect(2);
+
+  run(function() {
+    var post = env.store.push('post', { id: 1, title: 'Hello World' });
+    var snapshot = post._createSnapshot();
+
+    post.set('title', 'New Title');
+
+    deepEqual(snapshot.serialize(), { author: undefined, title: 'Hello World' }, 'shapshot serializes correctly');
+    deepEqual(snapshot.serialize({ includeId: true }), { id: "1", author: undefined, title: 'Hello World' }, 'serialize takes options')
   });
 });
 

@@ -1,24 +1,27 @@
 var get = Ember.get;
 var run = Ember.run;
+var Occupation, Person, store;
 
-module("unit/model/relationships - DS.Model");
+module("unit/model/relationships - DS.Model", {
+  setup: function() {
+    Occupation = DS.Model.extend();
+
+    Person = DS.Model.extend({
+      occupations: DS.hasMany('occupation'),
+      people: DS.hasMany('person', { inverse: 'parent' }),
+      parent: DS.belongsTo('person', { inverse: 'people' })
+    });
+
+    store = createStore({
+      occupation: Occupation,
+      person: Person
+    });
+
+    Person = store.modelFor('person');
+  }
+});
 
 test("exposes a hash of the relationships on a model", function() {
-  var Occupation = DS.Model.extend();
-
-  var Person = DS.Model.extend({
-    occupations: DS.hasMany('occupation')
-  });
-
-  Person.reopen({
-    people: DS.hasMany('person', { inverse: 'parent' }),
-    parent: DS.belongsTo('person', { inverse: 'people' })
-  });
-
-  var store = createStore({
-    occupation: Occupation,
-    person: Person
-  });
   var person, occupation;
 
   run(function() {
@@ -34,4 +37,19 @@ test("exposes a hash of the relationships on a model", function() {
   deepEqual(relationships.get('occupation'), [
     { name: "occupations", kind: "hasMany" }
   ]);
+});
+
+test("relationshipNames a hash of the relationships on a model with type as a key", function() {
+  deepEqual(get(Person, 'relationshipNames'),
+    { hasMany: ['occupations', 'people'], belongsTo: ["parent"] });
+});
+
+test("eachRelatedType() iterates over relations without duplication", function() {
+  var relations = [];
+
+  Person.eachRelatedType(function(modelName) {
+    relations.push(modelName);
+  });
+
+  deepEqual(relations, ['occupation', 'person']);
 });

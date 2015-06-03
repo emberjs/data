@@ -176,7 +176,7 @@ Model.reopenClass({
     @static
     @param {String} name the name of the relationship
     @param {store} store an instance of DS.Store
-    @return {subclass of DS.Model} the type of the relationship, or undefined
+    @return {DS.Model} the type of the relationship, or undefined
   */
   typeForRelationship: function(name, store) {
     var relationship = get(this, 'relationshipsByName').get(name);

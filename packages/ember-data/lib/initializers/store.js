@@ -18,7 +18,7 @@ export default function initializeStore(registry, application) {
   registry.optionsForType('serializer', { singleton: false });
   registry.optionsForType('adapter', { singleton: false });
 
-  registry.register('store:main', registry.lookupFactory('store:application') || (application && application.Store) || Store);
+  registry.register('store:application', application && application.Store || Store);
 
   // allow older names to be looked up
 
@@ -26,16 +26,12 @@ export default function initializeStore(registry, application) {
   proxy.registerDeprecations([
     { deprecated: 'serializer:_default',  valid: 'serializer:-default' },
     { deprecated: 'serializer:_rest',     valid: 'serializer:-rest' },
-    { deprecated: 'adapter:_rest',        valid: 'adapter:-rest' }
+    { deprecated: 'adapter:_rest',        valid: 'adapter:-rest' },
+    { deprecated: 'store:main',        valid: 'store:application' }
   ]);
 
   // new go forward paths
   registry.register('serializer:-default', JSONSerializer);
   registry.register('serializer:-rest', RESTSerializer);
   registry.register('adapter:-rest', RESTAdapter);
-
-  // Eagerly generate the store so defaultStore is populated.
-  // TODO: Do this in a finisher hook
-  var store = registry.lookup('store:main');
-  registry.register('service:store', store, { instantiate: false });
 }

@@ -131,7 +131,7 @@ if (!Service) {
 //     not yet have an externally generated id.
 //   * +internalModel+ means a record internalModel object, which holds metadata about a
 //     record, even if it has not yet been fully materialized.
-//   * +type+ means a subclass of DS.Model.
+//   * +type+ means a DS.Model.
 
 /**
   The store contains all of the data for records loaded from the server.
@@ -232,7 +232,7 @@ Store = Service.extend({
 
     @property adapter
     @default DS.RESTAdapter
-    @type {DS.Adapter|String}
+    @type {(DS.Adapter|String)}
   */
   adapter: '-rest',
 
@@ -252,7 +252,7 @@ Store = Service.extend({
   */
   serialize: function(record, options) {
     var snapshot = record._internalModel.createSnapshot();
-    return this.serializerFor(snapshot.modelName).serialize(snapshot, options);
+    return snapshot.serialize(options);
   },
 
   /**
@@ -307,7 +307,7 @@ Store = Service.extend({
 
     @method createRecord
     @param {String} modelName
-    @param {Object} properties a hash of properties to set on the
+    @param {Object} inputProperties a hash of properties to set on the
       newly created record.
     @return {DS.Model} record
   */
@@ -513,7 +513,7 @@ Store = Service.extend({
 
     @method find
     @param {String} modelName
-    @param {Object|String|Integer|null} id
+    @param {(Object|String|Integer|null)} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
@@ -556,7 +556,7 @@ Store = Service.extend({
 
     @method fetchById
     @param {String} modelName
-    @param {String|Integer} id
+    @param {(String|Integer)} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
@@ -587,7 +587,7 @@ Store = Service.extend({
   /**
     @method fetch
     @param {String} modelName
-    @param {String|Integer} id
+    @param {(String|Integer)} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
     @deprecated Use [fetchById](#method_fetchById) instead
@@ -604,7 +604,7 @@ Store = Service.extend({
     @method findById
     @private
     @param {String} modelName
-    @param {String|Integer} id
+    @param {(String|Integer)} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
@@ -657,7 +657,7 @@ Store = Service.extend({
 
     @method fetchRecord
     @private
-    @param {InternalModel} internal model
+    @param {InternalModel} internalModel model
     @return {Promise} promise
   */
   fetchRecord: function(internalModel) {
@@ -836,7 +836,7 @@ Store = Service.extend({
 
     @method reloadRecord
     @private
-    @param {DS.Model} record
+    @param {DS.Model} internalModel
     @return {Promise} promise
   */
   reloadRecord: function(internalModel) {
@@ -855,8 +855,8 @@ Store = Service.extend({
     Returns true if a record for a given type and ID is already loaded.
 
     @method hasRecordForId
-    @param {String or subclass of DS.Model} type
-    @param {String|Integer} id
+    @param {(String|DS.Model)} modelName
+    @param {(String|Integer)} inputId
     @return {Boolean}
   */
   hasRecordForId: function(modelName, inputId) {
@@ -874,7 +874,7 @@ Store = Service.extend({
     @method recordForId
     @private
     @param {String} modelName
-    @param {String|Integer} id
+    @param {(String|Integer)} id
     @return {DS.Model} record
   */
   recordForId: function(modelName, id) {
@@ -926,7 +926,7 @@ Store = Service.extend({
     @private
     @param {DS.Model} owner
     @param {any} link
-    @param {String or subclass of DS.Model} type
+    @param {(String|DS.Model)} type
     @return {Promise} promise
   */
   findHasMany: function(owner, link, type) {
@@ -1081,7 +1081,7 @@ Store = Service.extend({
    ```
 
    @method unloadAll
-   @param {String} optional modelName
+   @param {String=} modelName
   */
   unloadAll: function(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), !modelName || typeof modelName === 'string');
@@ -1222,7 +1222,7 @@ Store = Service.extend({
     This method returns the metadata for a specific type.
 
     @method metadataFor
-    @param {String or subclass of DS.Model} modelName
+    @param {String} modelName
     @return {object}
   */
   metadataFor: function(modelName) {
@@ -1258,7 +1258,7 @@ Store = Service.extend({
     @method dataWasUpdated
     @private
     @param {Class} type
-    @param {InternalModel} internal model
+    @param {InternalModel} internalModel
   */
   dataWasUpdated: function(type, internalModel) {
     this.recordArrayManager.recordDidChange(internalModel);
@@ -1276,7 +1276,7 @@ Store = Service.extend({
 
     @method scheduleSave
     @private
-    @param {InternalModel} internal model
+    @param {InternalModel} internalModel
     @param {Resolver} resolver
   */
   scheduleSave: function(internalModel, resolver) {
@@ -1329,7 +1329,7 @@ Store = Service.extend({
 
     @method didSaveRecord
     @private
-    @param {InternalModel} internal model the in-flight internal model
+    @param {InternalModel} internalModel the in-flight internal model
     @param {Object} data optional data (see above)
   */
   didSaveRecord: function(internalModel, data) {
@@ -1351,7 +1351,7 @@ Store = Service.extend({
 
     @method recordWasInvalid
     @private
-    @param {InternalModel} internal model
+    @param {InternalModel} internalModel
     @param {Object} errors
   */
   recordWasInvalid: function(internalModel, errors) {
@@ -1365,7 +1365,7 @@ Store = Service.extend({
 
     @method recordWasError
     @private
-    @param {InternalModel} internal model
+    @param {InternalModel} internalModel
   */
   recordWasError: function(internalModel) {
     internalModel.adapterDidError();
@@ -1378,7 +1378,7 @@ Store = Service.extend({
 
     @method updateId
     @private
-    @param {InternalModel} internal model
+    @param {InternalModel} internalModel
     @param {Object} data
   */
   updateId: function(internalModel, data) {
@@ -1397,7 +1397,7 @@ Store = Service.extend({
 
     @method typeMapFor
     @private
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @return {Object} typeMap
   */
   typeMapFor: function(typeClass) {
@@ -1428,7 +1428,7 @@ Store = Service.extend({
 
     @method _load
     @private
-    @param {String or subclass of DS.Model} type
+    @param {(String|DS.Model)} type
     @param {Object} data
   */
   _load: function(type, data) {
@@ -1482,7 +1482,7 @@ Store = Service.extend({
 
     @method modelFor
     @param {String} modelName
-    @return {subclass of DS.Model}
+    @return {DS.Model}
   */
   modelFor: function(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
@@ -1687,7 +1687,7 @@ Store = Service.extend({
 
     @method pushPayload
     @param {String} modelName Optionally, a model type used to determine which serializer will be used
-    @param {Object} payload
+    @param {Object} inputPayload
   */
   pushPayload: function (modelName, inputPayload) {
     var serializer;
@@ -1770,7 +1770,7 @@ Store = Service.extend({
 
   /**
     @method metaForType
-    @param {String or subclass of DS.Model} modelName
+    @param {String} modelName
     @param {Object} metadata
     @deprecated Use [setMetadataFor](#method_setMetadataFor) instead
   */
@@ -1786,7 +1786,7 @@ Store = Service.extend({
 
     @method buildRecord
     @private
-    @param {subclass of DS.Model} type
+    @param {DS.Model} type
     @param {String} id
     @param {Object} data
     @return {InternalModel} internal model
@@ -1839,7 +1839,7 @@ Store = Service.extend({
 
     @method _dematerializeRecord
     @private
-    @param {InternalModel} internal model
+    @param {InternalModel} internalModel
   */
   _dematerializeRecord: function(internalModel) {
     var type = internalModel.type;
@@ -1925,7 +1925,7 @@ Store = Service.extend({
   serializerFor: function(modelOrClass) {
     var modelName;
 
-    Ember.deprecate('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelOrClass === 'string');
+    Ember.deprecate('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelOrClass), typeof modelOrClass === 'string');
     if (typeof modelOrClass !== 'string') {
       modelName = modelOrClass.modelName;
     } else {
@@ -1956,8 +1956,8 @@ Store = Service.extend({
 
     @method retrieveManagedInstance
     @private
-    @param {String} type the object modelName
-    @param {String} type the object name
+    @param {String} modelName the object modelName
+    @param {String} name the object name
     @return {Ember.Object}
   */
   retrieveManagedInstance: function(modelName, name) {

@@ -60,7 +60,7 @@ export default Adapter.extend({
     Implement this method in order to provide data associated with a type
 
     @method fixturesForType
-    @param {Subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @return {Array}
   */
   fixturesForType: function(typeClass) {
@@ -82,10 +82,10 @@ export default Adapter.extend({
     Implement this method in order to query fixtures data
 
     @method queryFixtures
-    @param {Array} fixture
+    @param {Array} fixtures
     @param {Object} query
-    @param {Subclass of DS.Model} typeClass
-    @return {Promise|Array}
+    @param {DS.Model} typeClass
+    @return {(Promise|Array)}
   */
   queryFixtures: function(fixtures, query, typeClass) {
     Ember.assert('Not implemented: You must override the DS.FixtureAdapter::queryFixtures method to support querying the fixture store.');
@@ -93,7 +93,7 @@ export default Adapter.extend({
 
   /**
     @method updateFixtures
-    @param {Subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Array} fixture
   */
   updateFixtures: function(typeClass, fixture) {
@@ -113,7 +113,7 @@ export default Adapter.extend({
 
     @method mockJSON
     @param {DS.Store} store
-    @param {Subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {DS.Snapshot} snapshot
   */
   mockJSON: function(store, typeClass, snapshot) {
@@ -123,7 +123,6 @@ export default Adapter.extend({
   /**
     @method generateIdForRecord
     @param {DS.Store} store
-    @param {DS.Model} record
     @return {String} id
   */
   generateIdForRecord: function(store) {
@@ -133,7 +132,7 @@ export default Adapter.extend({
   /**
     @method find
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {String} id
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
@@ -158,7 +157,7 @@ export default Adapter.extend({
   /**
     @method findMany
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Array} ids
     @param {Array} snapshots
     @return {Promise} promise
@@ -185,8 +184,7 @@ export default Adapter.extend({
     @private
     @method findAll
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
-    @param {String} sinceToken
+    @param {DS.Model} typeClass
     @return {Promise} promise
   */
   findAll: function(store, typeClass) {
@@ -203,9 +201,9 @@ export default Adapter.extend({
     @private
     @method findQuery
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} query
-    @param {DS.AdapterPopulatedRecordArray} recordArray
+    @param {DS.AdapterPopulatedRecordArray} array
     @return {Promise} promise
   */
   findQuery: function(store, typeClass, query, array) {
@@ -225,7 +223,7 @@ export default Adapter.extend({
   /**
     @method createRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
@@ -242,7 +240,7 @@ export default Adapter.extend({
   /**
     @method updateRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {DS.Model} typeClass
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
@@ -259,7 +257,7 @@ export default Adapter.extend({
   /**
     @method deleteRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */

@@ -9,7 +9,7 @@ var get = Ember.get;
   @namespace DS
   @private
   @constructor
-  @param {DS.Model} record The record to create a snapshot from
+  @param {DS.Model} internalModel The model to create a snapshot from
 */
 function Snapshot(internalModel) {
   this._attributes = Ember.create(null);
@@ -94,10 +94,10 @@ Snapshot.prototype = {
   record: null,
 
   /**
-    The type of the underlying record for this snapshot, as a subclass of DS.Model.
+    The type of the underlying record for this snapshot, as a DS.Model.
 
     @property type
-    @type {subclass of DS.Model}
+    @type {DS.Model}
   */
   type: null,
 
@@ -206,7 +206,7 @@ Snapshot.prototype = {
     @method belongsTo
     @param {String} keyName
     @param {Object} [options]
-    @return {DS.Snapshot|String|null|undefined} A snapshot or ID of a known
+    @return {(DS.Snapshot|String|null|undefined)} A snapshot or ID of a known
       relationship or null if the relationship is known but unset. undefined
       will be returned if the contents of the relationship is unknown.
   */
@@ -277,7 +277,7 @@ Snapshot.prototype = {
     @method hasMany
     @param {String} keyName
     @param {Object} [options]
-    @return {Array|undefined} An array of snapshots or IDs of a known
+    @return {(Array|undefined)} An array of snapshots or IDs of a known
       relationship or an empty array if the relationship is known but unset.
       undefined will be returned if the contents of the relationship is unknown.
   */
@@ -391,6 +391,15 @@ Snapshot.prototype = {
     }
 
     return get(this.record, keyName);
+  },
+
+  /**
+    @method serialize
+    @param {Object} options
+    @return {Object} an object whose values are primitive JSON values only
+   */
+  serialize: function(options) {
+    return this.record.store.serializerFor(this.modelName).serialize(this, options);
   },
 
   /**

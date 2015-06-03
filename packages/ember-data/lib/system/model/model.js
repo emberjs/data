@@ -702,10 +702,9 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @private
     @param {String} name
   */
-  trigger: function() {
+  trigger: function(name) {
     var length = arguments.length;
     var args = new Array(length - 1);
-    var name = arguments[0];
 
     for (var i = 1; i < length; i++) {
       args[i - 1] = arguments[i];
