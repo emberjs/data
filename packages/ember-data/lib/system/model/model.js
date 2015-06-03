@@ -704,14 +704,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @param {String} name
   */
   trigger: function(name) {
-    var length = arguments.length;
-    var args = new Array(length - 1);
-
-    for (var i = 1; i < length; i++) {
-      args[i - 1] = arguments[i];
-    }
-
-    Ember.tryInvoke(this, name, args);
+    Ember.tryInvoke(this, name, arguments.slice(1));
     this._super.apply(this, arguments);
   },
 
