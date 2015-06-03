@@ -9,12 +9,13 @@ var none = Ember.isNone;
 
   Usage
 
-  ```javascript
-  var attr = DS.attr;
-  App.User = DS.Model.extend({
-    isAdmin: attr('boolean'),
-    name: attr('string'),
-    email: attr('string')
+  ```app/models/user.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
+    isAdmin: DS.attr('boolean'),
+    name: DS.attr('string'),
+    email: DS.attr('string')
   });
   ```
 

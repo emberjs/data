@@ -4,12 +4,13 @@
   when `date` is passed as the type parameter to the
   [DS.attr](../../data#method_attr) function.
 
-  ```javascript
-  var attr = DS.attr;
-  App.Score = DS.Model.extend({
-    value: attr('number'),
+  ```app/models/score.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
+    value: DS.attr('number'),
     player: DS.belongsTo('player'),
-    date: attr('date')
+    date: DS.attr('date')
   });
   ```
 

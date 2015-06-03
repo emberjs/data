@@ -7,9 +7,11 @@
 
   Example
 
-  ```javascript
+  ```app/transforms/temperature.js
+  import DS from 'ember-data';
+
   // Converts centigrade in the JSON to fahrenheit in the app
-  App.TemperatureTransform = DS.Transform.extend({
+  export default DS.Transform.extend({
     deserialize: function(serialized) {
       return (serialized *  1.8) + 32;
     },
@@ -21,11 +23,12 @@
 
   Usage
 
-  ```javascript
-  var attr = DS.attr;
-  App.Requirement = DS.Model.extend({
-    name: attr('string'),
-    temperature: attr('temperature')
+  ```app/models/requirement.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
+    name: DS.attr('string'),
+    temperature: DS.attr('temperature')
   });
   ```
 
