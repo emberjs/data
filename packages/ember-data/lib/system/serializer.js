@@ -42,7 +42,7 @@ var Serializer = Ember.Object.extend({
     @param {DS.Store} store
     @param {DS.Model} typeClass
     @param {Object} payload
-    @param {String|Number} id
+    @param {(String|Number)} id
     @param {String} requestType
     @return {Object}
   */

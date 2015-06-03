@@ -85,7 +85,7 @@ export default Adapter.extend({
     @param {Array} fixtures
     @param {Object} query
     @param {DS.Model} typeClass
-    @return {Promise|Array}
+    @return {(Promise|Array)}
   */
   queryFixtures: function(fixtures, query, typeClass) {
     Ember.assert('Not implemented: You must override the DS.FixtureAdapter::queryFixtures method to support querying the fixture store.');

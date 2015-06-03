@@ -206,7 +206,7 @@ Snapshot.prototype = {
     @method belongsTo
     @param {String} keyName
     @param {Object} [options]
-    @return {DS.Snapshot|String|null|undefined} A snapshot or ID of a known
+    @return {(DS.Snapshot|String|null|undefined)} A snapshot or ID of a known
       relationship or null if the relationship is known but unset. undefined
       will be returned if the contents of the relationship is unknown.
   */
@@ -277,7 +277,7 @@ Snapshot.prototype = {
     @method hasMany
     @param {String} keyName
     @param {Object} [options]
-    @return {Array|undefined} An array of snapshots or IDs of a known
+    @return {(Array|undefined)} An array of snapshots or IDs of a known
       relationship or an empty array if the relationship is known but unset.
       undefined will be returned if the contents of the relationship is unknown.
   */

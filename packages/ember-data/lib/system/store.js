@@ -234,7 +234,7 @@ Store = Service.extend({
 
     @property adapter
     @default DS.RESTAdapter
-    @type {DS.Adapter|String}
+    @type {(DS.Adapter|String)}
   */
   adapter: '-rest',
 
@@ -514,7 +514,7 @@ Store = Service.extend({
 
     @method find
     @param {String} modelName
-    @param {Object|String|Integer|null} id
+    @param {(Object|String|Integer|null)} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
@@ -556,7 +556,7 @@ Store = Service.extend({
 
     @method fetchById
     @param {String} modelName
-    @param {String|Integer} id
+    @param {(String|Integer)} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
@@ -585,7 +585,7 @@ Store = Service.extend({
   /**
     @method fetch
     @param {String} modelName
-    @param {String|Integer} id
+    @param {(String|Integer)} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
     @deprecated Use [fetchById](#method_fetchById) instead
@@ -601,7 +601,7 @@ Store = Service.extend({
     @method findById
     @private
     @param {String} modelName
-    @param {String|Integer} id
+    @param {(String|Integer)} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
   */
@@ -811,8 +811,8 @@ Store = Service.extend({
 
     @method getById
     @param {(String|DS.Model)} type
-    @param {String|Integer} id
-    @return {DS.Model|null} record
+    @param {(String|Integer)} id
+    @return {(DS.Model|null)} record
   */
   getById: function(type, id) {
     if (this.hasRecordForId(type, id)) {
@@ -851,7 +851,7 @@ Store = Service.extend({
 
     @method hasRecordForId
     @param {(String|DS.Model)} modelName
-    @param {String|Integer} inputId
+    @param {(String|Integer)} inputId
     @return {Boolean}
   */
   hasRecordForId: function(modelName, inputId) {
@@ -868,7 +868,7 @@ Store = Service.extend({
     @method recordForId
     @private
     @param {String} modelName
-    @param {String|Integer} id
+    @param {(String|Integer)} id
     @return {DS.Model} record
   */
   recordForId: function(modelName, id) {

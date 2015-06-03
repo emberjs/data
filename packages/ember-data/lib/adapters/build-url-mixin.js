@@ -43,8 +43,8 @@ export default Ember.Mixin.create({
 
     @method buildURL
     @param {String} modelName
-    @param {String|Array|Object} id single id or array of ids or query
-    @param {DS.Snapshot|Array} snapshot single snapshot or array of snapshots
+    @param {(String|Array|Object)} id single id or array of ids or query
+    @param {(DS.Snapshot|Array)} snapshot single snapshot or array of snapshots
     @param {String} requestType
     @param {Object} query object of query parameters to send for findQuery requests.
     @return {String} url

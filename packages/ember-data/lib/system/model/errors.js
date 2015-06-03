@@ -225,7 +225,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
 
     @method add
     @param {String} attribute
-    @param {Array|String} messages
+    @param {(Array|String)} messages
   */
   add: function(attribute, messages) {
     var wasEmpty = get(this, 'isEmpty');
