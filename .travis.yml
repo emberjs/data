@@ -16,8 +16,8 @@ script:
   - npm run-script test:beta
   - npm run-script test:canary
 after_success:
-- npm run-script publish-build
-- "./bin/bower-ember-data-build"
+  - npm run-script publish-build:prebuilt
+  - "./bin/bower-ember-data-build"
 env:
   global:
   - BROCCOLI_ENV="production"
