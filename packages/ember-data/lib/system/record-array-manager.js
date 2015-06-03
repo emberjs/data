@@ -109,7 +109,7 @@ export default Ember.Object.extend({
     @param {DS.FilteredRecordArray} array
     @param {Function} filter
     @param {DS.Model} typeClass
-    @param {(Number|String)} clientId
+    @param {InternalModel} record
   */
   updateRecordArray: function(array, filter, typeClass, record) {
     var shouldBeInArray;
