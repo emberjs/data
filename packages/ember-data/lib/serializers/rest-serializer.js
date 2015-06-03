@@ -254,7 +254,7 @@ var RESTSerializer = JSONSerializer.extend({
     @method extractSingle
     @param {DS.Store} store
     @param {subclass of DS.Model} primaryTypeClass
-    @param {Object} payload
+    @param {Object} rawPayload
     @param {String} recordId
     @return {Object} the primary response to the original request
   */
@@ -402,7 +402,7 @@ var RESTSerializer = JSONSerializer.extend({
     @method extractArray
     @param {DS.Store} store
     @param {subclass of DS.Model} primaryTypeClass
-    @param {Object} payload
+    @param {Object} rawPayload
     @return {Array} The primary array that was returned in response
       to the original query.
   */
@@ -482,7 +482,7 @@ var RESTSerializer = JSONSerializer.extend({
 
     @method pushPayload
     @param {DS.Store} store
-    @param {Object} payload
+    @param {Object} rawPayload
   */
   pushPayload: function(store, rawPayload) {
     var payload = this.normalizePayload(rawPayload);

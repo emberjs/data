@@ -309,7 +309,7 @@ Store = Service.extend({
 
     @method createRecord
     @param {String} modelName
-    @param {Object} properties a hash of properties to set on the
+    @param {Object} inputProperties a hash of properties to set on the
       newly created record.
     @return {DS.Model} record
   */
@@ -653,7 +653,7 @@ Store = Service.extend({
 
     @method fetchRecord
     @private
-    @param {InternalModel} internal model
+    @param {InternalModel} internalModel model
     @return {Promise} promise
   */
   fetchRecord: function(internalModel) {
@@ -831,7 +831,7 @@ Store = Service.extend({
 
     @method reloadRecord
     @private
-    @param {DS.Model} record
+    @param {DS.Model} internalModel
     @return {Promise} promise
   */
   reloadRecord: function(internalModel) {
@@ -850,8 +850,8 @@ Store = Service.extend({
     Returns true if a record for a given type and ID is already loaded.
 
     @method hasRecordForId
-    @param {String or subclass of DS.Model} type
-    @param {String|Integer} id
+    @param {String or subclass of DS.Model} modelName
+    @param {String|Integer} inputId
     @return {Boolean}
   */
   hasRecordForId: function(modelName, inputId) {
@@ -961,7 +961,7 @@ Store = Service.extend({
 
     @method findQuery
     @private
-    @param {String or subclass of DS.Model} type
+    @param {String or subclass of DS.Model} typeName
     @param {any} query an opaque query to be used by the adapter
     @return {Promise} promise
   */
@@ -1070,7 +1070,7 @@ Store = Service.extend({
    ```
 
    @method unloadAll
-   @param {String} optional modelName
+   @param {String=} modelName
   */
   unloadAll: function(modelName) {
     if (arguments.length === 0) {
@@ -1242,7 +1242,7 @@ Store = Service.extend({
     @method dataWasUpdated
     @private
     @param {Class} type
-    @param {InternalModel} internal model
+    @param {InternalModel} internalModel
   */
   dataWasUpdated: function(type, internalModel) {
     this.recordArrayManager.recordDidChange(internalModel);
@@ -1260,7 +1260,7 @@ Store = Service.extend({
 
     @method scheduleSave
     @private
-    @param {InternalModel} internal model
+    @param {InternalModel} internalModel
     @param {Resolver} resolver
   */
   scheduleSave: function(internalModel, resolver) {
@@ -1313,7 +1313,7 @@ Store = Service.extend({
 
     @method didSaveRecord
     @private
-    @param {InternalModel} internal model the in-flight internal model
+    @param {InternalModel} internalModel the in-flight internal model
     @param {Object} data optional data (see above)
   */
   didSaveRecord: function(internalModel, data) {
@@ -1335,7 +1335,7 @@ Store = Service.extend({
 
     @method recordWasInvalid
     @private
-    @param {InternalModel} internal model
+    @param {InternalModel} internalModel
     @param {Object} errors
   */
   recordWasInvalid: function(internalModel, errors) {
@@ -1349,7 +1349,7 @@ Store = Service.extend({
 
     @method recordWasError
     @private
-    @param {InternalModel} internal model
+    @param {InternalModel} internalModel
   */
   recordWasError: function(internalModel) {
     internalModel.adapterDidError();
@@ -1362,7 +1362,7 @@ Store = Service.extend({
 
     @method updateId
     @private
-    @param {InternalModel} internal model
+    @param {InternalModel} internalModel
     @param {Object} data
   */
   updateId: function(internalModel, data) {
@@ -1678,7 +1678,7 @@ Store = Service.extend({
 
     @method pushPayload
     @param {String} type Optionally, a model used to determine which serializer will be used
-    @param {Object} payload
+    @param {Object} inputPayload
   */
   pushPayload: function (type, inputPayload) {
     var serializer;
@@ -1825,7 +1825,7 @@ Store = Service.extend({
 
     @method _dematerializeRecord
     @private
-    @param {InternalModel} internal model
+    @param {InternalModel} internalModel
   */
   _dematerializeRecord: function(internalModel) {
     var type = internalModel.type;
@@ -1931,8 +1931,8 @@ Store = Service.extend({
 
     @method retrieveManagedInstance
     @private
-    @param {String} type the object modelName
-    @param {String} type the object name
+    @param {String} modelName the object modelName
+    @param {String} name the object name
     @return {Ember.Object}
   */
   retrieveManagedInstance: function(modelName, name) {

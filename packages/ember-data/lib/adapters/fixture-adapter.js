@@ -82,7 +82,7 @@ export default Adapter.extend({
     Implement this method in order to query fixtures data
 
     @method queryFixtures
-    @param {Array} fixture
+    @param {Array} fixtures
     @param {Object} query
     @param {Subclass of DS.Model} typeClass
     @return {Promise|Array}
@@ -123,7 +123,6 @@ export default Adapter.extend({
   /**
     @method generateIdForRecord
     @param {DS.Store} store
-    @param {DS.Model} record
     @return {String} id
   */
   generateIdForRecord: function(store) {
@@ -186,7 +185,6 @@ export default Adapter.extend({
     @method findAll
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
-    @param {String} sinceToken
     @return {Promise} promise
   */
   findAll: function(store, typeClass) {
@@ -205,7 +203,7 @@ export default Adapter.extend({
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
     @param {Object} query
-    @param {DS.AdapterPopulatedRecordArray} recordArray
+    @param {DS.AdapterPopulatedRecordArray} array
     @return {Promise} promise
   */
   findQuery: function(store, typeClass, query, array) {
@@ -242,7 +240,7 @@ export default Adapter.extend({
   /**
     @method updateRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */

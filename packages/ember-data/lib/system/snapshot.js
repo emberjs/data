@@ -9,7 +9,7 @@ var get = Ember.get;
   @namespace DS
   @private
   @constructor
-  @param {DS.Model} record The record to create a snapshot from
+  @param {DS.Model} internalModel The model to create a snapshot from
 */
 function Snapshot(internalModel) {
   this._attributes = Ember.create(null);

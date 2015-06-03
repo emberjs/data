@@ -136,7 +136,7 @@ export default Ember.Mixin.create({
   /**
    * @method urlForFindMany
    * @param {Array} ids
-   * @param {String} type
+   * @param {String} modelName
    * @param {Array} snapshots
    * @return {String} url
    */
@@ -200,7 +200,7 @@ export default Ember.Mixin.create({
     @method urlPrefix
     @private
     @param {String} path
-    @param {String} parentUrl
+    @param {String} parentURL
     @return {String} urlPrefix
   */
   urlPrefix: function(path, parentURL) {

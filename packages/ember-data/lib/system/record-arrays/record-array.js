@@ -124,7 +124,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     @method addRecord
     @private
     @param {DS.Model} record
-    @param {DS.Model} an optional index to insert at
+    @param {DS.Model} idx an optional index to insert at
   */
   addRecord: function(record, idx) {
     var content = get(this, 'content');

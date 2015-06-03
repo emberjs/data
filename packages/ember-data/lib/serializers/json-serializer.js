@@ -758,7 +758,7 @@ export default Serializer.extend({
 
     @method extractFindQuery
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
@@ -888,7 +888,7 @@ export default Serializer.extend({
 
     @method extractSave
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {subclass of DS.Model} typeClass
     @param {Object} payload
     @param {String or Number} id
     @param {String} requestType
@@ -947,7 +947,7 @@ export default Serializer.extend({
     @method extractArray
     @param {DS.Store} store
     @param {subclass of DS.Model} typeClass
-    @param {Object} payload
+    @param {Object} arrayPayload
     @param {String or Number} id
     @param {String} requestType
     @return {Array} array An array of deserialized objects
@@ -1066,7 +1066,7 @@ export default Serializer.extend({
 
    @method keyForRelationship
    @param {String} key
-   @param {String} relationship typeClass
+   @param {String} typeClass
    @param {String} method
    @return {String} normalized key
   */
