@@ -108,7 +108,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param {String} attribute
     @return String
   */
-  keyForAttribute: function(attr) {
+  keyForAttribute(attr) {
     return decamelize(attr);
   },
 
@@ -121,7 +121,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param {String} kind
     @return String
   */
-  keyForRelationship: function(relationshipTypeKey, kind) {
+  keyForRelationship(relationshipTypeKey, kind) {
     var key = decamelize(relationshipTypeKey);
     if (kind === "belongsTo") {
       return key + "_id";
@@ -144,7 +144,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param {String} modelName
     @return {String}
   */
-  payloadKeyFromModelName: function(modelName) {
+  payloadKeyFromModelName(modelName) {
     return underscore(decamelize(modelName));
   },
 
@@ -156,7 +156,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param {Object} json
     @param {Object} relationship
   */
-  serializePolymorphicType: function(snapshot, json, relationship) {
+  serializePolymorphicType(snapshot, json, relationship) {
     var key = relationship.key;
     var belongsTo = snapshot.belongsTo(key);
     var jsonKey = underscore(key + "_type");
@@ -206,7 +206,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @return Object
   */
 
-  normalize: function(typeClass, hash, prop) {
+  normalize(typeClass, hash, prop) {
     this.normalizeLinks(hash);
 
     return this._super(typeClass, hash, prop);
@@ -219,7 +219,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param {Object} data
   */
 
-  normalizeLinks: function(data) {
+  normalizeLinks(data) {
     if (data.links) {
       var links = data.links;
 
@@ -257,7 +257,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @method normalizeRelationships
     @private
   */
-  normalizeRelationships: function(typeClass, hash) {
+  normalizeRelationships(typeClass, hash) {
 
     if (this.keyForRelationship) {
       typeClass.eachRelationship(function(key, relationship) {
@@ -287,7 +287,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
       }, this);
     }
   },
-  modelNameFromPayloadKey: function(key) {
+  modelNameFromPayloadKey(key) {
     var convertedFromRubyModule = camelize(singularize(key)).replace(/(^|\:)([A-Z])/g, function(match, separator, chr) {
       return match.toLowerCase();
     }).replace('::', '/');

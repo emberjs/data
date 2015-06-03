@@ -115,7 +115,7 @@ var ActiveModelAdapter = RESTAdapter.extend({
     @param {String} modelName
     @return String
   */
-  pathForType: function(modelName) {
+  pathForType(modelName) {
     var decamelized = decamelize(modelName);
     var underscored = underscore(decamelized);
     return pluralize(underscored);
@@ -137,7 +137,7 @@ var ActiveModelAdapter = RESTAdapter.extend({
     @param {Object} jqXHR
     @return error
   */
-  ajaxError: function(jqXHR) {
+  ajaxError(jqXHR) {
     var error = this._super.apply(this, arguments);
 
     if (jqXHR && jqXHR.status === 422) {
