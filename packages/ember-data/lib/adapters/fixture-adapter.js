@@ -60,7 +60,7 @@ export default Adapter.extend({
     Implement this method in order to provide data associated with a type
 
     @method fixturesForType
-    @param {Subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @return {Array}
   */
   fixturesForType: function(typeClass) {
@@ -84,7 +84,7 @@ export default Adapter.extend({
     @method queryFixtures
     @param {Array} fixtures
     @param {Object} query
-    @param {Subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @return {Promise|Array}
   */
   queryFixtures: function(fixtures, query, typeClass) {
@@ -93,7 +93,7 @@ export default Adapter.extend({
 
   /**
     @method updateFixtures
-    @param {Subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Array} fixture
   */
   updateFixtures: function(typeClass, fixture) {
@@ -113,7 +113,7 @@ export default Adapter.extend({
 
     @method mockJSON
     @param {DS.Store} store
-    @param {Subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {DS.Snapshot} snapshot
   */
   mockJSON: function(store, typeClass, snapshot) {
@@ -132,7 +132,7 @@ export default Adapter.extend({
   /**
     @method find
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {String} id
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
@@ -157,7 +157,7 @@ export default Adapter.extend({
   /**
     @method findMany
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Array} ids
     @param {Array} snapshots
     @return {Promise} promise
@@ -184,7 +184,7 @@ export default Adapter.extend({
     @private
     @method findAll
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @return {Promise} promise
   */
   findAll: function(store, typeClass) {
@@ -201,7 +201,7 @@ export default Adapter.extend({
     @private
     @method findQuery
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} query
     @param {DS.AdapterPopulatedRecordArray} array
     @return {Promise} promise
@@ -223,7 +223,7 @@ export default Adapter.extend({
   /**
     @method createRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
@@ -240,7 +240,7 @@ export default Adapter.extend({
   /**
     @method updateRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
@@ -257,7 +257,7 @@ export default Adapter.extend({
   /**
     @method deleteRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */

@@ -94,10 +94,10 @@ Snapshot.prototype = {
   record: null,
 
   /**
-    The type of the underlying record for this snapshot, as a subclass of DS.Model.
+    The type of the underlying record for this snapshot, as a DS.Model.
 
     @property type
-    @type {subclass of DS.Model}
+    @type {DS.Model}
   */
   type: null,
 

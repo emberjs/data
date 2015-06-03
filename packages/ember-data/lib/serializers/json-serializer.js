@@ -109,7 +109,7 @@ export default Serializer.extend({
 
    @method applyTransforms
    @private
-   @param {subclass of DS.Model} typeClass
+   @param {DS.Model} typeClass
    @param {Object} data The data to transform
    @return {Object} data The transformed data object
   */
@@ -155,7 +155,7 @@ export default Serializer.extend({
     ```
 
     @method normalize
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} hash
     @return {Object}
   */
@@ -510,7 +510,7 @@ export default Serializer.extend({
 
     @method serializeIntoHash
     @param {Object} hash
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {DS.Snapshot} snapshot
     @param {Object} options
   */
@@ -722,7 +722,7 @@ export default Serializer.extend({
 
     @method extract
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} payload
     @param {(String|Number)} id
     @param {String} requestType
@@ -742,7 +742,7 @@ export default Serializer.extend({
 
     @method extractFindAll
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} payload
     @param {(String|Number)} id
     @param {String} requestType
@@ -758,7 +758,7 @@ export default Serializer.extend({
 
     @method extractFindQuery
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} payload
     @param {(String|Number)} id
     @param {String} requestType
@@ -774,7 +774,7 @@ export default Serializer.extend({
 
     @method extractFindMany
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} payload
     @param {(String|Number)} id
     @param {String} requestType
@@ -790,7 +790,7 @@ export default Serializer.extend({
 
     @method extractFindHasMany
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} payload
     @param {(String|Number)} id
     @param {String} requestType
@@ -807,7 +807,7 @@ export default Serializer.extend({
 
     @method extractCreateRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} payload
     @param {(String|Number)} id
     @param {String} requestType
@@ -823,7 +823,7 @@ export default Serializer.extend({
 
     @method extractUpdateRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} payload
     @param {(String|Number)} id
     @param {String} requestType
@@ -839,7 +839,7 @@ export default Serializer.extend({
 
     @method extractDeleteRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} payload
     @param {(String|Number)} id
     @param {String} requestType
@@ -856,7 +856,7 @@ export default Serializer.extend({
 
     @method extractFind
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} payload
     @param {(String|Number)} id
     @param {String} requestType
@@ -872,7 +872,7 @@ export default Serializer.extend({
 
     @method extractFindBelongsTo
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} payload
     @param {(String|Number)} id
     @param {String} requestType
@@ -888,7 +888,7 @@ export default Serializer.extend({
 
     @method extractSave
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} payload
     @param {(String|Number)} id
     @param {String} requestType
@@ -917,7 +917,7 @@ export default Serializer.extend({
 
     @method extractSingle
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} payload
     @param {(String|Number)} id
     @param {String} requestType
@@ -946,7 +946,7 @@ export default Serializer.extend({
 
     @method extractArray
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} arrayPayload
     @param {(String|Number)} id
     @param {String} requestType
@@ -981,7 +981,7 @@ export default Serializer.extend({
 
     @method extractMeta
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} payload
   */
   extractMeta: function(store, typeClass, payload) {
@@ -1013,7 +1013,7 @@ export default Serializer.extend({
 
     @method extractErrors
     @param {DS.Store} store
-    @param {subclass of DS.Model} typeClass
+    @param {DS.Model} typeClass
     @param {Object} payload
     @param {(String|Number)} id
     @return {Object} json The deserialized errors

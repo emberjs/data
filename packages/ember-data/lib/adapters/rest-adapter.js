@@ -338,7 +338,7 @@ export default Adapter.extend(BuildURLMixin, {
 
     @method find
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {DS.Model} type
     @param {String} id
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
@@ -357,7 +357,7 @@ export default Adapter.extend(BuildURLMixin, {
     @private
     @method findAll
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {DS.Model} type
     @param {String} sinceToken
     @return {Promise} promise
   */
@@ -386,7 +386,7 @@ export default Adapter.extend(BuildURLMixin, {
     @private
     @method findQuery
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {DS.Model} type
     @param {Object} query
     @return {Promise} promise
   */
@@ -428,7 +428,7 @@ export default Adapter.extend(BuildURLMixin, {
 
     @method findMany
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {DS.Model} type
     @param {Array} ids
     @param {Array} snapshots
     @return {Promise} promise
@@ -521,7 +521,7 @@ export default Adapter.extend(BuildURLMixin, {
 
     @method createRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {DS.Model} type
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
@@ -547,7 +547,7 @@ export default Adapter.extend(BuildURLMixin, {
 
     @method updateRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {DS.Model} type
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
@@ -570,7 +570,7 @@ export default Adapter.extend(BuildURLMixin, {
 
     @method deleteRecord
     @param {DS.Store} store
-    @param {subclass of DS.Model} type
+    @param {DS.Model} type
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
