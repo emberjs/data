@@ -237,6 +237,27 @@ test('Serializer should respect the attrs hash when extracting records', functio
   deepEqual(post.comments, [1,2]);
 });
 
+test('Serializer should respect the attrs hash in links', function() {
+  env.registry.register("serializer:post", DS.JSONSerializer.extend({
+    attrs: {
+      title: "title_payload_key",
+      comments: { key: 'my_comments' }
+    }
+  }));
+
+  var jsonHash = {
+    title_payload_key: "Rails is omakase",
+    links: {
+      my_comments: 'posts/1/comments'
+    }
+  };
+
+  var post = env.container.lookup("serializer:post").extractSingle(env.store, Post, jsonHash);
+
+  equal(post.title, "Rails is omakase");
+  equal(post.links.comments, 'posts/1/comments');
+});
+
 test('Serializer should respect the attrs hash when serializing records', function() {
   Post.reopen({
     parentPost: DS.belongsTo('post', { inverse: null })
