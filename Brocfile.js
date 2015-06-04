@@ -1,7 +1,5 @@
 /* jshint node: true */
 
-var es6             = require('broccoli-es6-module-transpiler');
-var PackageResolver = require('es6-module-transpiler-package-resolver');
 var concat          = require('broccoli-sourcemap-concat');
 var uglify          = require('broccoli-uglify-js');
 var es3SafeRecast   = require('broccoli-es3-safe-recast');
@@ -96,35 +94,32 @@ var packages = merge([
 var globalBuild;
 
 var withFeatures = features(packages);
-var transpiledPackages = babel(withFeatures, babelOptions);
+var transpiledPackages = amdBuild(babel(withFeatures, babelOptions));
 
-// Bundle formatter for smaller payload
-if (env === 'production') {
-  globalBuild = es6(libTree(transpiledPackages), {
-    inputFiles: ['ember-data'],
-    output: '/ember-data.js',
-    resolvers: [PackageResolver],
-    formatter: 'bundle'
-  });
+var loaderDef = fileCreator('loader-begin.js', '(function(){\n');
+var loaderEnd = fileCreator('loader-end.js', '\n})();');
+var loaderJS = pickFiles('bower_components/loader.js', {
+  srcDir: '/',
+  files: ['loader.js'],
+  destDir: '/'
+});
+var bootFile = fileCreator('/boot.js', 'require("ember-data");');
 
-  var tests = testTree(packages, amdBuild(transpiledPackages));
-  globalBuild = merge([globalBuild, tests]);
-} else {
-// Use AMD for faster rebuilds in dev
-  var bootFile = fileCreator('/boot.js', 'require("ember-data");');
+var libFiles = libTree(transpiledPackages);
 
-  var compiled = amdBuild(transpiledPackages);
-  var libFiles = libTree(compiled);
+var emberData = merge([loaderDef, loaderEnd, bootFile, libFiles, loaderJS]);
 
-  var emberData = merge([bootFile, libFiles]);
+var withoutLoaderJS = concat(emberData, {
+  inputFiles: ['{ember,ember-inflector,ember-data,activemodel-adapter}/**/*.js', 'boot.js'],
+  outputFile: '/ember-data-for-tests.js'
+});
 
-  var emberData = concat(emberData, {
-    inputFiles: ['ember-data/**/*.js', 'boot.js'],
-    outputFile: '/ember-data.js'
-  });
+emberData = concat(merge([withoutLoaderJS, emberData]), {
+  inputFiles: ['loader-begin.js', 'loader.js', 'ember-data-for-tests.js', 'loader-end.js'],
+  outputFile: '/ember-data.js'
+});
 
-  globalBuild = merge([emberData, testTree(packages, compiled)]);
-}
+globalBuild = merge([emberData, withoutLoaderJS, testTree(packages, transpiledPackages)]);
 
 var testRunner = pickFiles('tests', {
   srcDir: '/',
