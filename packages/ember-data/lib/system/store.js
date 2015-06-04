@@ -1375,12 +1375,30 @@ Store = Service.extend({
   updateId: function(internalModel, data) {
     var oldId = internalModel.id;
     var id = coerceId(data.id);
+    var isLoading = internalModel.isLoading();
 
-    Ember.assert("An adapter cannot assign a new id to a record that already has an id. " + internalModel + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId);
+    Ember.assert("An adapter cannot assign a new id to a record that already has an id after the record has entered the loaded state." + internalModel + " had id: " + oldId + " and you tried to update it with " + id + ". This likely happened because your server returned data in response to a find or update that had a different id than the one you sent.", oldId === null || id === oldId || isLoading);
 
-    this.typeMapFor(internalModel.type).idToRecord[id] = internalModel;
+    var typeMap = this.typeMapFor(internalModel.type);
+
+    if (oldId && oldId !== id) {
+      // Old ID and new ID do not match. The internalModel should be
+      // moved in the identity map
+      if (typeMap.idToRecord[id]) {
+        // Record already exists for that id. Destroy this
+        // internalModel so we can merge it with the existing
+        // internalModel.
+        this._dematerializeRecord(internalModel);
+        internalModel = typeMap.idToRecord[id];
+      } else {
+        // Remove internalModel from its existing slot in the typeMap
+        delete typeMap.idToRecord[oldId];
+      }
+    }
+    typeMap.idToRecord[id] = internalModel;
 
     internalModel.setId(id);
+    return internalModel;
   },
 
   /**

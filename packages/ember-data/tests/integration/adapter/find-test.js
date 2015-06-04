@@ -138,3 +138,59 @@ test("When a single record is requested, and the promise is rejected, the record
 
   ok(!store.hasRecordForId('person', 1), "The record has been unloaded");
 });
+
+test("When a record is requested its id can change if the record is not in the loaded state.", function() {
+  expect(4);
+
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    find: function(store, type, id, snapshot) {
+      return Ember.RSVP.resolve({
+        id: 2,
+        name: 'person 2'
+      });
+    }
+  }));
+
+  run(function() {
+    store.find('person', 1).then(function(person) {
+      equal(person.get('id'), '2');
+      equal(person.get('name'), 'person 2');
+      ok(store.hasRecordForId('person', 2), "The record is loaded with the new id");
+
+
+      var type = store.modelFor('person');
+      var typeMap = store.typeMapFor(type);
+
+      ok(!typeMap.idToRecord[1], "The old internalModel has been removed from the typeMap");
+    });
+  });
+});
+
+
+test("When a loading record changes its id the record should merge with a record that already has the new id.", function() {
+  expect(2);
+
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    find: function(store, type, id, snapshot) {
+      return Ember.RSVP.resolve({
+        id: 2,
+        name: 'person 2'
+      });
+    }
+  }));
+
+  var personTwo;
+  run(function() {
+    personTwo = store.push('person', {
+      id: 2,
+      lastName: 'last name'
+    });
+  });
+
+  run(function() {
+    store.find('person', 1).then(function(person) {
+      equal(person.get('id'), '2');
+      equal(person.get('lastName'), 'last name');
+    });
+  });
+});
