@@ -18,7 +18,11 @@ export default function initializeStoreService(applicationOrRegistry) {
     // an instanceInitializer. The first argument is a registy. This
     // case allows ED to support Ember pre 1.12
     registry = applicationOrRegistry;
-    container = registry.container();
+    if (registry.container) { // Support Ember 1.10 - 1.11
+      container = registry.container();
+    } else { // Support Ember 1.9
+      container = registry;
+    }
   }
   // Eagerly generate the store so defaultStore is populated.
   var store = container.lookup('store:application');
