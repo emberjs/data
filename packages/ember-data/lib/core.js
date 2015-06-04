@@ -24,4 +24,8 @@ if (Ember.libraries) {
   Ember.libraries.registerCoreLibrary('Ember Data', DS.VERSION);
 }
 
+var EMBER_DATA_FEATURES = EMBER_DATA_FEATURES_PLACEHOLDER; //jshint ignore: line
+
+Ember.merge(Ember.FEATURES, EMBER_DATA_FEATURES);
+
 export default DS;

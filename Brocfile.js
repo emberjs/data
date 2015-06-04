@@ -21,12 +21,14 @@ var babel           = require('broccoli-babel-transpiler');
 var babelOptions    = require('./config/babel');
 var fileCreator     = require('broccoli-file-creator');
 var jscs            = require('broccoli-jscs');
+var features        = require('./lib/feature-flags');
 
 function minify(tree, name){
   var config = require('./config/ember-defeatureify');
   tree = defeatureify(tree, {
     debugStatements: config.options.debugStatements,
-    enableStripDebug: config.enableStripDebug
+    enableStripDebug: config.enableStripDebug,
+    features: require('./config/features')
   });
   tree = moveFile(tree, {
     srcFile: name + '.js',
@@ -93,7 +95,8 @@ var packages = merge([
 
 var globalBuild;
 
-var transpiledPackages = babel(packages, babelOptions);
+var withFeatures = features(packages);
+var transpiledPackages = babel(withFeatures, babelOptions);
 
 // Bundle formatter for smaller payload
 if (env === 'production') {

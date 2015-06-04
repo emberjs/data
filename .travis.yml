@@ -12,6 +12,7 @@ before_install:
 install:
 - "npm install"
 script:
+  - ./bin/lint-features
   - npm run-script test
   - npm run-script test:beta
   - npm run-script test:canary
