@@ -320,6 +320,34 @@ test("A record with an async belongsTo relationship returning null should resolv
   }));
 });
 
+test("A record can be created with a resolved belongsTo promise", function() {
+  expect(1);
+
+  var Group = DS.Model.extend({
+    people: DS.hasMany()
+  });
+
+  var Person = DS.Model.extend({
+    group: DS.belongsTo({ async: true })
+  });
+
+  env.registry.register('model:group', Group);
+  env.registry.register('model:person', Person);
+
+  var group;
+  run(function() {
+    group = store.push('group', { id: 1 });
+  });
+
+  var groupPromise = store.find('group', 1);
+  groupPromise.then(async(function(group) {
+    var person = env.store.createRecord('person', {
+      group: groupPromise
+    });
+    equal(person.get('group.content'), group);
+  }));
+});
+
 test("polymorphic belongsTo type-checks check the superclass when MODEL_FACTORY_INJECTIONS is enabled", function() {
   expect(1);
 
@@ -609,7 +637,7 @@ test("belongsTo hasData async loaded", function () {
 
   run(function() {
     store.find('book', 1).then(function(book) {
-      var relationship = book._internalModel._relationships['author'];
+      var relationship = book._internalModel._relationships.get('author');
       equal(relationship.hasData, true, 'relationship has data');
     });
   });
@@ -624,7 +652,7 @@ test("belongsTo hasData sync loaded", function () {
 
   run(function() {
     store.find('book', 1).then(function(book) {
-      var relationship = book._internalModel._relationships['author'];
+      var relationship = book._internalModel._relationships.get('author');
       equal(relationship.hasData, true, 'relationship has data');
     });
   });
@@ -643,7 +671,7 @@ test("belongsTo hasData async not loaded", function () {
 
   run(function() {
     store.find('book', 1).then(function(book) {
-      var relationship = book._internalModel._relationships['author'];
+      var relationship = book._internalModel._relationships.get('author');
       equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
@@ -658,7 +686,7 @@ test("belongsTo hasData sync not loaded", function () {
 
   run(function() {
     store.find('book', 1).then(function(book) {
-      var relationship = book._internalModel._relationships['author'];
+      var relationship = book._internalModel._relationships.get('author');
       equal(relationship.hasData, false, 'relationship does not have data');
     });
   });
@@ -673,7 +701,7 @@ test("belongsTo hasData async created", function () {
 
   run(function() {
     var book = store.createRecord('book', { name: 'The Greatest Book' });
-    var relationship = book._internalModel._relationships['author'];
+    var relationship = book._internalModel._relationships.get('author');
     equal(relationship.hasData, true, 'relationship has data');
   });
 });
@@ -683,7 +711,46 @@ test("belongsTo hasData sync created", function () {
 
   run(function() {
     var book = store.createRecord('book', { name: 'The Greatest Book' });
-    var relationship = book._internalModel._relationships['author'];
+    var relationship = book._internalModel._relationships.get('author');
     equal(relationship.hasData, true, 'relationship has data');
+  });
+});
+
+test("Model's belongsTo relationship should not be created during model creation", function () {
+  var user;
+  run(function () {
+    user = env.store.push('user', { id: 1 });
+    ok(!user._internalModel._relationships.has('favouriteMessage'), 'Newly created record should not have relationships');
+  });
+});
+
+test("Model's belongsTo relationship should be created during model creation if relationship passed in constructor", function () {
+  var user, message;
+  run(function () {
+    message = env.store.createRecord('message');
+    user = env.store.createRecord('user', {
+      name: 'John Doe',
+      favouriteMessage: message
+    });
+    ok(user._internalModel._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
+  });
+});
+
+test("Model's belongsTo relationship should be created during 'set' method", function () {
+  var user, message;
+  run(function () {
+    message = env.store.createRecord('message');
+    user = env.store.createRecord('user');
+    user.set('favouriteMessage', message);
+    ok(user._internalModel._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
+  });
+});
+
+test("Model's belongsTo relationship should be created during 'get' method", function () {
+  var user;
+  run(function () {
+    user = env.store.createRecord('user');
+    user.get('favouriteMessage');
+    ok(user._internalModel._relationships.has('favouriteMessage'), "Newly created record with relationships in params passed in its constructor should have relationships");
   });
 });

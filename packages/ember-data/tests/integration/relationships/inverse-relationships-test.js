@@ -423,14 +423,15 @@ test("Inverse relationships that don't exist throw a nice error for a hasMany", 
   });
 
   var env = setupStore({ post: Post, comment: Comment, user: User });
-  var comment;
+  var comment, post;
   run(function() {
     comment = env.store.createRecord('comment');
   });
 
   expectAssertion(function() {
     run(function() {
-      env.store.createRecord('post');
+      post = env.store.createRecord('post');
+      post.get('comments');
     });
   }, /We found no inverse relationships by the name of 'testPost' on the 'comment' model/);
 });
@@ -444,14 +445,15 @@ test("Inverse relationships that don't exist throw a nice error for a belongsTo"
   });
 
   var env = setupStore({ post: Post, comment: Comment, user: User });
-  var user;
+  var user, post;
   run(function() {
     user = env.store.createRecord('user');
   });
 
   expectAssertion(function() {
     run(function() {
-      env.store.createRecord('post');
+      post = env.store.createRecord('post');
+      post.get('user');
     });
   }, /We found no inverse relationships by the name of 'testPost' on the 'user' model/);
 });

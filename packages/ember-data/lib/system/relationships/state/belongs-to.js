@@ -86,7 +86,7 @@ BelongsToRelationship.prototype.addRecord = function(newRecord) {
 BelongsToRelationship.prototype.setRecordPromise = function(newPromise) {
   var content = newPromise.get && newPromise.get('content');
   Ember.assert("You passed in a promise that did not originate from an EmberData relationship. You can only pass promises that come from a belongsTo or hasMany relationship to the get call.", content !== undefined);
-  this.setRecord(content);
+  this.setRecord(content ? content._internalModel : content);
 };
 
 BelongsToRelationship.prototype._super$removeRecordFromOwn = Relationship.prototype.removeRecordFromOwn;
@@ -137,7 +137,7 @@ BelongsToRelationship.prototype.getRecord = function() {
 
     return PromiseObject.create({
       promise: promise,
-      content: this.inverseRecord
+      content: this.inverseRecord ? this.inverseRecord.getRecord() : null
     });
   } else {
     if (this.inverseRecord === null) {

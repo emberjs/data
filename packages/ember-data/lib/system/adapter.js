@@ -83,6 +83,7 @@ var Adapter = Ember.Object.extend({
     @property defaultSerializer
     @type {String}
   */
+  defaultSerializer: '-default',
 
   /**
     The `find()` method is invoked when the store is asked for a record that
