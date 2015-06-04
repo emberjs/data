@@ -28,15 +28,12 @@ test('Adapter can be set as a name', function() {
 });
 
 test('Adapter can not be set as an instance', function() {
-  expect(5);
+  expect(1);
 
   store = DS.Store.create({
     adapter: DS.Adapter.create()
   });
-  var assert = Ember.assert;
-  Ember.assert = function() { ok(true, "raises an error when passing in an instance"); };
-  store.get('defaultAdapter');
-  Ember.assert = assert;
+  expectAssertion(() => store.get('defaultAdapter'));
 });
 
 test("Calling Store#find invokes its adapter#find", function() {
