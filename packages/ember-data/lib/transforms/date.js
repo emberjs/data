@@ -54,8 +54,8 @@ export default Transform.extend({
     } else if (type === "number") {
       return new Date(serialized);
     } else if (serialized === null || serialized === undefined) {
-      // if the value is not present in the data,
-      // return undefined, not null.
+      // if the value is null return null
+      // if the value is not present in the data return undefined
       return serialized;
     } else {
       return null;
