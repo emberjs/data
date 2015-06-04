@@ -1,184 +1,28 @@
 /* jshint node: true */
 
-var es6             = require('broccoli-es6-module-transpiler');
-var PackageResolver = require('es6-module-transpiler-package-resolver');
-var concat          = require('broccoli-sourcemap-concat');
-var uglify          = require('broccoli-uglify-js');
-var es3SafeRecast   = require('broccoli-es3-safe-recast');
-var env             = process.env.EMBER_ENV;
-var amdBuild        = require('./lib/amd-build');
-var testTree        = require('./lib/test-tree');
-var libTree         = require('./lib/lib-tree');
-var pickFiles       = require('broccoli-static-compiler');
-var merge           = require('broccoli-merge-trees');
-var moveFile        = require('broccoli-file-mover');
-var defeatureify    = require('broccoli-defeatureify');
-var version         = require('git-repo-version')(10);
-var yuidoc          = require('broccoli-yuidoc');
-var replace         = require('broccoli-replace');
-var stew            = require('broccoli-stew');
-var babel           = require('broccoli-babel-transpiler');
-var babelOptions    = require('./config/babel');
-var fileCreator     = require('broccoli-file-creator');
-var jscs            = require('broccoli-jscs');
+// To create fast production builds (without ES3 support, minification, derequire, or JSHint)
+// run the following:
+//
+// DISABLE_ES3=true DISABLE_JSCS=true DISABLE_JSHINT=true DISABLE_MIN=true DISABLE_DEREQUIRE=true ember serve --environment=production
 
-function minify(tree, name){
-  var config = require('./config/ember-defeatureify');
-  tree = defeatureify(tree, {
-    debugStatements: config.options.debugStatements,
-    enableStripDebug: config.enableStripDebug
-  });
-  tree = moveFile(tree, {
-    srcFile: name + '.js',
-    destFile: '/' + name + '.prod.js'
-  });
-  tree = pickFiles(tree, {
-    srcDir: '/',
-    destDir: '/',
-    files: [ name + '.prod.js' ]
-  });
-  tree = removeSourceMappingURL(tree);
-  var uglified = moveFile(uglify(tree, {mangle: true}),{
-    srcFile: name + '.prod.js',
-    destFile: '/' + name + '.min.js'
-  });
-  return merge([uglified, tree], {overwrite: true});
-}
+var EmberBuild         = require('emberjs-build');
+var packages           = require('./lib/packages');
+var vendoredPackage    = require('emberjs-build/lib/vendored-package');
+var vendoredES6Package = require('emberjs-build/lib/es6-vendored-package');
 
-var yuidocTree = yuidoc('packages', {
-  srcDir: '/',
-  destDir: 'docs',
-  yuidoc: {
-    "name": "The ember-data API",
-    "description": "The ember-data API: a data persistence library for Ember.js",
-    "version": version,
-    "logo": "http://f.cl.ly/items/1A1L432s022u1O1q1V3p/ember%20logo.png",
-    "url": "https://github.com/emberjs/data",
-    "options": {
-      "paths": [
-        "packages/ember-data/lib",
-        "packages/activemodel-adapter/lib",
-        "packages/ember-inflector/addon"
-      ],
-      "exclude": "vendor",
-      "outdir":   "docs/build"
-    }
+var emberBuild = new EmberBuild({
+  name: 'ember-data',
+  namespace: 'DS',
+  packages: packages,
+  skipTemplates: true,
+  skipRuntime: true,
+  vendoredPackages: {
+    'loader': vendoredPackage('loader'),
+    'ember-inflector': vendoredES6Package('ember-inflector', {
+      libPath: 'bower_components/ember-inflector/packages/ember-inflector/lib',
+      destDir: '/ember-inflector'
+    })
   }
 });
 
-// Excludes tests files from package path
-function package(packagePath, vendorPath) {
-  vendorPath = vendorPath || 'packages/';
-  return pickFiles(vendorPath + packagePath, {
-    files: [ '**/*.js' ],
-    srcDir: '/',
-    destDir: '/' + packagePath
-  });
-}
-
-function packageAddon(packagePath, vendorPath) {
-  return stew.rename(pickFiles(vendorPath + packagePath, {
-    files: [ '**/*.js' ],
-    srcDir: '/addon',
-    destDir: '/' + packagePath + '/lib'
-  }), 'index.js', 'main.js');
-}
-
-var packages = merge([
-  packageAddon('ember-inflector', 'node_modules/'),
-  package('ember-data'),
-  package('activemodel-adapter'),
-  package('ember')
-]);
-
-var globalBuild;
-
-packages = babel(packages, babelOptions);
-
-// Bundle formatter for smaller payload
-if (env === 'production') {
-  globalBuild = es6(libTree(packages), {
-    inputFiles: ['ember-data'],
-    output: '/ember-data.js',
-    resolvers: [PackageResolver],
-    formatter: 'bundle'
-  });
-
-  var tests = testTree(packages, amdBuild(packages));
-  globalBuild = merge([globalBuild, tests]);
-} else {
-// Use AMD for faster rebuilds in dev
-  var bootFile = fileCreator('/boot.js', 'require("ember-data");');
-
-  var compiled = amdBuild(packages);
-  var libFiles = libTree(compiled);
-
-  var emberData = merge([bootFile, libFiles]);
-
-  var emberData = concat(emberData, {
-    inputFiles: ['ember-data/**/*.js', 'boot.js'],
-    outputFile: '/ember-data.js'
-  });
-
-  globalBuild = merge([emberData, testTree(packages, compiled)]);
-}
-
-var testRunner = pickFiles('tests', {
-  srcDir: '/',
-  files: [ '**/*' ],
-  destDir: '/'
-});
-
-var bower = pickFiles('bower_components', {
-  srcDir: '/',
-  destDir: '/bower_components'
-});
-
-var configurationFiles = pickFiles('config/package-manager-files', {
-  srcDir: '/',
-  destDir: '/',
-  files: [ '**/*.json' ]
-});
-
-function versionStamp(tree) {
-  return replace(tree, {
-    files: ['**/*'],
-    patterns: [{
-      match: /VERSION_STRING_PLACEHOLDER/g,
-      replacement: version
-    }]
-  });
-}
-
-function removeSourceMappingURL(tree) {
-  return replace(tree, {
-    files: ['**/*'],
-    patterns: [{
-      match: /\/\/(.*)sourceMappingURL=(.*)/g,
-      replacement: ''
-    }]
-  });
-}
-
-configurationFiles = versionStamp(configurationFiles);
-
-var jscsTree = jscs('packages');
-
-var trees = [
-  jscsTree,
-  testRunner,
-  bower,
-  configurationFiles
-];
-
-if (env === 'production') {
-  globalBuild = versionStamp(globalBuild);
-  globalBuild = es3SafeRecast(globalBuild);
-  var minifiedGlobals = minify(globalBuild, 'ember-data');
-  trees.push(yuidocTree);
-  trees.push(minifiedGlobals);
-}
-
-trees.push(globalBuild);
-
-module.exports = merge(trees, {overwrite: true});
+module.exports = emberBuild.getDistTrees();

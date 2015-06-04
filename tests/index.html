@@ -3,14 +3,15 @@
   <head>
     <meta charset="utf-8">
     <title>Ember Data</title>
-    <link rel="stylesheet" href="/bower_components/qunit/qunit/qunit.css">
-    <script src="/bower_components/qunit/qunit/qunit.js"></script>
+
+    <link rel="stylesheet" href="../qunit/qunit.css">
+    <script src="../qunit/qunit.js"></script>
     <script src="qunit-configuration.js"></script>
-    <script src="/bower_components/handlebars/handlebars.js" ></script>
+    <script src="../handlebars/handlebars.js" ></script>
 
     <script type="text/javascript">
       window.loadScript = function(url) {
-            document.write(unescape('%3Cscript src="'+url+'"%3E%3C/script%3E'));
+        document.write(unescape('%3Cscript src="'+url+'"%3E%3C/script%3E'));
       };
     </script>
 
@@ -20,26 +21,22 @@
       if (jQueryVersion) {
         loadScript('https://code.jquery.com/jquery-'+jQueryVersion+'.js');
       }
-      // Close the script tag to make sure document.write happens
-    </script>
-
-    <script type="text/javascript">
       // Fallback to default jQuery
       if (jQueryVersion !== 'none' && !window.jQuery) {
-        loadScript('/bower_components/jquery/jquery.js');
+        loadScript('../jquery/jquery.js');
       }
       // Close the script tag to make sure document.write happens
     </script>
 
+    <script src="ember-configuration.js"></script>
+
     <script type="text/javascript">
       var emberChannel = QUnit.urlParams.emberchannel || "release";
-      if (emberChannel === 'canary' || emberChannel === 'beta') {
+      if (emberChannel.match(/beta|canary/)) {
         window.Handlebars = null;
         loadScript("http://builds.handlebarsjs.com.s3.amazonaws.com/handlebars-v2.0.0.js");
       }
     </script>
-
-    <script src="ember-configuration.js"></script>
 
     <script type="text/javascript">
       var emberChannel = QUnit.urlParams.emberchannel || "release", emberPath;
@@ -50,15 +47,48 @@
       }
       loadScript(emberPath);
     </script>
+
     <!--[if lte IE 8]>
-      <script src="/bower_components/es5-shim/es5-shim.js"></script>
-      <script src="/bower_components/es5-shim/es5-sham.js"></script>
+      <script src="../es5-shim/es5-shim.js"></script>
+      <script src="../es5-shim/es5-sham.js"></script>
     <![endif]]-->
 
     <script src="/bower_components/loader.js/loader.js"></script>
     <script src="/ember-data.js"></script>
     <script src="ember-data-setup.js"></script>
     <script src="ember-data-tests.js"></script>
+
+    <script>
+      (function() {
+        window.EmberDev = window.EmberDev || {};
+        EmberDev.runningProdBuild = !!QUnit.urlParams.prod;
+        // hack qunit to not suck for Ember objects
+        var originalTypeof = QUnit.jsDump.typeOf;
+        QUnit.jsDump.typeOf = function(obj) {
+          if (Ember && Ember.Object && Ember.Object.detectInstance(obj)) {
+            return "emberObject";
+          }
+          return originalTypeof.call(this, obj);
+        };
+        // raises is deprecated, but we likely want to keep it around for our es3
+        // test runs.
+        QUnit.constructor.prototype.raises = QUnit['throws'];
+        window.raises = QUnit['throws'];
+        QUnit.jsDump.parsers.emberObject = function(obj) {
+          return obj.toString();
+        };
+        var EmberDevTestHelperAssert = window.Ember.__loader.require('ember-dev/test-helper/index')['default'];
+        var setupQUnit = window.Ember.__loader.require('ember-dev/test-helper/setup-qunit')['default'];
+        var testHelpers = new EmberDevTestHelperAssert(window.Ember, EmberDev.runningProdBuild);
+        setupQUnit(testHelpers, QUnit);
+        window.module = QUnit.module;
+
+        // Tests should time out after 5 seconds
+        QUnit.config.testTimeout = 5000;
+        // Hide passed tests by default
+        QUnit.config.hidepassed = true;
+      })();
+    </script>
 
     <script type="text/javascript">
       (function(){
@@ -79,6 +109,7 @@
           if (moduleName.match(skipPackageRegexp)) { continue; }
           if (moduleName.match(/[_-]test$/)) { require(moduleName); }
           if (!QUnit.urlParams.nojshint && moduleName.match(/[-_.]jshint$/)) { require(moduleName); }
+          if (!QUnit.urlParams.nojscs && moduleName.match(/[-_.]jscs$/)) { require(moduleName); }
         }
       })();
     </script>
@@ -86,6 +117,5 @@
 <body>
   <div id="qunit"></div>
   <div id="qunit-fixture"></div>
-  <script src="/testem.js"></script>
 </body>
 </html>
