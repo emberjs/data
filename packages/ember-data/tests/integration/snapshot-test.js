@@ -216,7 +216,7 @@ test("snapshot.belongsTo() throws error if relation doesn't exist", function() {
 
     throws(function() {
       snapshot.belongsTo('unknown');
-    }, /has no belongsTo relationship named 'unknown'/, 'throws error')
+    }, /has no belongsTo relationship named 'unknown'/, 'throws error');
   });
 });
 
@@ -455,7 +455,7 @@ test("snapshot.hasMany() throws error if relation doesn't exist", function() {
 
     throws(function() {
       snapshot.hasMany('unknown');
-    }, /has no hasMany relationship named 'unknown'/, 'throws error')
+    }, /has no hasMany relationship named 'unknown'/, 'throws error');
   });
 });
 
@@ -647,7 +647,7 @@ test("snapshot.serialize() serializes itself", function() {
     post.set('title', 'New Title');
 
     deepEqual(snapshot.serialize(), { author: undefined, title: 'Hello World' }, 'shapshot serializes correctly');
-    deepEqual(snapshot.serialize({ includeId: true }), { id: "1", author: undefined, title: 'Hello World' }, 'serialize takes options')
+    deepEqual(snapshot.serialize({ includeId: true }), { id: "1", author: undefined, title: 'Hello World' }, 'serialize takes options');
   });
 });
 

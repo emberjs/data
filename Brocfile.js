@@ -93,24 +93,24 @@ var packages = merge([
 
 var globalBuild;
 
-packages = babel(packages, babelOptions);
+var transpiledPackages = babel(packages, babelOptions);
 
 // Bundle formatter for smaller payload
 if (env === 'production') {
-  globalBuild = es6(libTree(packages), {
+  globalBuild = es6(libTree(transpiledPackages), {
     inputFiles: ['ember-data'],
     output: '/ember-data.js',
     resolvers: [PackageResolver],
     formatter: 'bundle'
   });
 
-  var tests = testTree(packages, amdBuild(packages));
+  var tests = testTree(packages, amdBuild(transpiledPackages));
   globalBuild = merge([globalBuild, tests]);
 } else {
 // Use AMD for faster rebuilds in dev
   var bootFile = fileCreator('/boot.js', 'require("ember-data");');
 
-  var compiled = amdBuild(packages);
+  var compiled = amdBuild(transpiledPackages);
   var libFiles = libTree(compiled);
 
   var emberData = merge([bootFile, libFiles]);

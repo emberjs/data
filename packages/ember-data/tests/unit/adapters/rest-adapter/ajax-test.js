@@ -52,7 +52,7 @@ test("ajaxOptions() headers are set", function() {
   var receivedHeaders = [];
   var fakeXHR = {
     setRequestHeader: function(key, value) {
-      receivedHeaders.push([key, value])
+      receivedHeaders.push([key, value]);
     }
   };
   ajaxOptions.beforeSend(fakeXHR);
