@@ -5,6 +5,7 @@
     "ember": "~1.12.1"
   },
   "devDependencies": {
+    "backburner": "https://github.com/ebryn/backburner.js.git#4a0105a4a0bc4cf73bdf3e554aea14f3f438876c",
     "qunit": "~1.17.0",
     "jquery": "~1.10.x",
     "loader.js": "~1.0.0",
