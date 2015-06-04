@@ -931,11 +931,14 @@ Store = Service.extend({
   */
   findHasMany: function(owner, link, type) {
     var adapter = this.adapterFor(owner.type.modelName);
+    var _type = Ember.typeOf(type, 'string') ?
+      this.container.lookupFactory('model:' + type) :
+      type;
 
     Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + owner.type + ")", adapter);
     Ember.assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", typeof adapter.findHasMany === 'function');
 
-    return _findHasMany(adapter, this, owner, link, type);
+    return _findHasMany(adapter, this, owner, link, _type);
   },
 
   /**

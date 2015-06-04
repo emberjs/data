@@ -69,10 +69,10 @@ export function _findMany(adapter, store, typeClass, ids, internalModels) {
 
 export function _findHasMany(adapter, store, internalModel, link, relationship) {
   var snapshot = internalModel.createSnapshot();
-  var typeClass = store.modelFor(relationship.type);
+  var typeClass = store.modelFor(relationship);
   var promise = adapter.findHasMany(store, snapshot, link, relationship);
-  var serializer = serializerForAdapter(store, adapter, relationship.type);
-  var label = "DS: Handle Adapter#findHasMany of " + internalModel + " : " + relationship.type;
+  var serializer = serializerForAdapter(store, adapter, relationship);
+  var label = "DS: Handle Adapter#findHasMany of " + internalModel + " : " + relationship;
 
   promise = Promise.cast(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
@@ -85,18 +85,18 @@ export function _findHasMany(adapter, store, internalModel, link, relationship) 
       Ember.assert("The response from a findHasMany must be an Array, not " + Ember.inspect(payload), Ember.typeOf(payload) === 'array');
 
       //TODO Use a non record creating push
-      var records = store.pushMany(relationship.type, payload);
+      var records = store.pushMany(relationship, payload);
       return map(records, function(record) { return record._internalModel; });
     });
-  }, null, "DS: Extract payload of " + internalModel + " : hasMany " + relationship.type);
+  }, null, "DS: Extract payload of " + internalModel + " : hasMany " + relationship);
 }
 
 export function _findBelongsTo(adapter, store, internalModel, link, relationship) {
   var snapshot = internalModel.createSnapshot();
-  var typeClass = store.modelFor(relationship.type);
+  var typeClass = store.modelFor(relationship);
   var promise = adapter.findBelongsTo(store, snapshot, link, relationship);
-  var serializer = serializerForAdapter(store, adapter, relationship.type);
-  var label = "DS: Handle Adapter#findBelongsTo of " + internalModel + " : " + relationship.type;
+  var serializer = serializerForAdapter(store, adapter, relationship);
+  var label = "DS: Handle Adapter#findBelongsTo of " + internalModel + " : " + relationship;
 
   promise = Promise.cast(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
@@ -110,11 +110,11 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
         return null;
       }
 
-      var record = store.push(relationship.type, payload);
+      var record = store.push(relationship, payload);
       //TODO Optimize
       return record._internalModel;
     });
-  }, null, "DS: Extract payload of " + internalModel + " : " + relationship.type);
+  }, null, "DS: Extract payload of " + internalModel + " : " + relationship);
 }
 
 export function _findAll(adapter, store, typeClass, sinceToken) {
