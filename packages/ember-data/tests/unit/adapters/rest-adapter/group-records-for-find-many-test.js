@@ -18,7 +18,7 @@ module("unit/adapters/rest_adapter/group_records_for_find_many_test - DS.RESTAda
         }).join('&');
         var fullUrl = url + '?' + queryString;
 
-        maxLength = this.get('maxUrlLength');
+        maxLength = this.get('maxURLLength');
         lengths.push(fullUrl.length);
 
         var testRecords = options.data.ids.map(function(id) {

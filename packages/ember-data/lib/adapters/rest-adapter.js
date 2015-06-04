@@ -10,6 +10,7 @@ import {
   MapWithDefault
 } from "ember-data/system/map";
 var get = Ember.get;
+var set = Ember.set;
 var forEach = Ember.ArrayPolyfills.forEach;
 
 import BuildURLMixin from "ember-data/adapters/build-url-mixin";
@@ -170,7 +171,7 @@ import BuildURLMixin from "ember-data/adapters/build-url-mixin";
   @extends DS.Adapter
   @uses DS.BuildURLMixin
 */
-export default Adapter.extend(BuildURLMixin, {
+var RestAdapter = Adapter.extend(BuildURLMixin, {
   defaultSerializer: '-rest',
 
   /**
@@ -598,7 +599,7 @@ export default Adapter.extend(BuildURLMixin, {
   },
 
   // http://stackoverflow.com/questions/417142/what-is-the-maximum-length-of-a-url-in-different-browsers
-  maxUrlLength: 2048,
+  maxURLLength: 2048,
 
   /**
     Organize records into groups, each of which is to be passed to separate
@@ -625,21 +626,21 @@ export default Adapter.extend(BuildURLMixin, {
   groupRecordsForFindMany: function (store, snapshots) {
     var groups = MapWithDefault.create({ defaultValue: function() { return []; } });
     var adapter = this;
-    var maxUrlLength = this.maxUrlLength;
+    var maxURLLength = this.maxURLLength;
 
     forEach.call(snapshots, function(snapshot) {
       var baseUrl = adapter._stripIDFromURL(store, snapshot);
       groups.get(baseUrl).push(snapshot);
     });
 
-    function splitGroupToFitInUrl(group, maxUrlLength, paramNameLength) {
+    function splitGroupToFitInUrl(group, maxURLLength, paramNameLength) {
       var baseUrl = adapter._stripIDFromURL(store, group[0]);
       var idsSize = 0;
       var splitGroups = [[]];
 
       forEach.call(group, function(snapshot) {
         var additionalLength = encodeURIComponent(snapshot.id).length + paramNameLength;
-        if (baseUrl.length + idsSize + additionalLength >= maxUrlLength) {
+        if (baseUrl.length + idsSize + additionalLength >= maxURLLength) {
           idsSize = 0;
           splitGroups.push([]);
         }
@@ -656,7 +657,7 @@ export default Adapter.extend(BuildURLMixin, {
     var groupsArray = [];
     groups.forEach(function(group, key) {
       var paramNameLength = '&ids%5B%5D='.length;
-      var splitGroups = splitGroupToFitInUrl(group, maxUrlLength, paramNameLength);
+      var splitGroups = splitGroupToFitInUrl(group, maxURLLength, paramNameLength);
 
       forEach.call(splitGroups, function(splitGroup) {
         groupsArray.push(splitGroup);
@@ -838,3 +839,20 @@ function endsWith(string, suffix) {
     return string.endsWith(suffix);
   }
 }
+
+if (Ember.platform.hasPropertyAccessors) {
+  Ember.defineProperty(RestAdapter.prototype, 'maxUrlLength', {
+    enumerable: false,
+    get: function() {
+      Ember.deprecate('maxUrlLength has been deprecated (wrong casing). You should use maxURLLength instead.');
+      return this.maxURLLength;
+    },
+
+    set: function(value) {
+      Ember.deprecate('maxUrlLength has been deprecated (wrong casing). You should use maxURLLength instead.');
+      set(this, 'maxURLLength', value);
+    }
+  });
+}
+
+export default RestAdapter;
