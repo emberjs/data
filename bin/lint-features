@@ -1,0 +1,16 @@
+#!/usr/bin/env node
+
+var features = require('../config/features');
+
+var beginsWithDS = /^ds-/;
+
+var violations = Object.keys(features).filter(function(feature){
+  return !beginsWithDS.exec(feature);
+});
+
+if (violations.length) {
+  console.log('Features in features.json MUST begin with `ds-`! These features do not:', violations.join(' '));
+  process.exit(1);
+} else {
+  console.log('Features passed linting!');
+}
