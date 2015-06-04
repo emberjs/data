@@ -47,5 +47,5 @@ test('recordArray.replace() throws error', function() {
 
   throws(function() {
     recordArray.replace();
-  }, Error("The result of a server query (on (subclass of DS.Model)) is immutable."), 'throws error')
+  }, Error("The result of a server query (on (subclass of DS.Model)) is immutable."), 'throws error');
 });
