@@ -26,6 +26,8 @@ export function _find(adapter, store, typeClass, id, internalModel) {
     return store._adapterRun(function() {
       var payload = serializer.extract(store, typeClass, adapterPayload, id, 'find');
 
+      internalModel = store.updateId(internalModel, payload);
+
       //TODO Optimize
       var record = store.push(typeClass.modelName, payload);
       return record._internalModel;
