@@ -333,6 +333,8 @@ var DirtyState = {
 
     becomeDirty: Ember.K,
 
+    pushedData: Ember.K,
+
     willCommit: function(internalModel) {
       internalModel.getErrors().clear();
       internalModel.transitionTo('inFlight');
