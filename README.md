@@ -52,31 +52,9 @@ controllers in your app.
 
 First thing's first: tell Ember Data about the models in your
 application. For example, imagine we're writing a blog reader app.
+
 Here's what your model definition would look like if you're using
-globals (that is, not something like  or ember-cli):
-
-```js
-var attr = DS.attr;
-var hasMany = DS.hasMany;
-var belongsTo = DS.belongsTo;
-
-App.BlogPost = DS.Model.extend({
-  title: attr(),
-  createdAt: attr('date'),
-
-  comments: hasMany('comment')
-});
-
-App.Comment = DS.Model.extend({
-  body: attr(),
-  username: attr(),
-
-  post: belongsTo('blogPost')
-});
-```
-
-If you're using ES6 modules (via ember-cli), your
-models would look like this:
+ES6 modules (via ember-cli):
 
 ```js
 // app/models/blog-post.js
@@ -97,6 +75,29 @@ export default DS.Model.extend({
   username: DS.attr(),
 
   post: DS.belongsTo('blogPost')
+});
+```
+
+If you're using globals (that is, not something like  or ember-cli), your
+models would look like this:
+
+```js
+var attr = DS.attr;
+var hasMany = DS.hasMany;
+var belongsTo = DS.belongsTo;
+
+App.BlogPost = DS.Model.extend({
+  title: attr(),
+  createdAt: attr('date'),
+
+  comments: hasMany('comment')
+});
+
+App.Comment = DS.Model.extend({
+  body: attr(),
+  username: attr(),
+
+  post: belongsTo('blogPost')
 });
 ```
 
