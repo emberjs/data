@@ -318,6 +318,86 @@ test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo`
   ok(!payload.hasOwnProperty(serializedProperty), "Does not add the key to instance");
 });
 
+test('Serializer respects `serialize: false` on the attrs hash for a `hasMany` property', function() {
+  expect(1);
+  env.registry.register("serializer:post", DS.JSONSerializer.extend({
+    attrs: {
+      comments: { serialize: false }
+    }
+  }));
+
+  run(function() {
+    post = env.store.createRecord('post', { title: "Rails is omakase" });
+    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
+  });
+
+  var serializer = env.container.lookup("serializer:post");
+  var serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
+
+  var payload = serializer.serialize(post._createSnapshot());
+  ok(!payload.hasOwnProperty(serializedProperty), "Does not add the key to instance");
+});
+
+test('Serializer respects `serialize: false` on the attrs hash for a `belongsTo` property', function() {
+  expect(1);
+  env.registry.register("serializer:comment", DS.JSONSerializer.extend({
+    attrs: {
+      post: { serialize: false }
+    }
+  }));
+
+  run(function() {
+    post = env.store.createRecord('post', { title: "Rails is omakase" });
+    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
+  });
+
+  var serializer = env.container.lookup("serializer:comment");
+  var serializedProperty = serializer.keyForRelationship('post', 'belongsTo');
+
+  var payload = serializer.serialize(comment._createSnapshot());
+  ok(!payload.hasOwnProperty(serializedProperty), "Does not add the key to instance");
+});
+
+test('Serializer respects `serialize: true` on the attrs hash for a `hasMany` property', function() {
+  expect(1);
+  env.registry.register("serializer:post", DS.JSONSerializer.extend({
+    attrs: {
+      comments: { serialize: true }
+    }
+  }));
+
+  run(function() {
+    post = env.store.createRecord('post', { title: "Rails is omakase" });
+    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
+  });
+
+  var serializer = env.container.lookup("serializer:post");
+  var serializedProperty = serializer.keyForRelationship('comments', 'hasMany');
+
+  var payload = serializer.serialize(post._createSnapshot());
+  ok(payload.hasOwnProperty(serializedProperty), "Add the key to instance");
+});
+
+test('Serializer respects `serialize: true` on the attrs hash for a `belongsTo` property', function() {
+  expect(1);
+  env.registry.register("serializer:comment", DS.JSONSerializer.extend({
+    attrs: {
+      post: { serialize: true }
+    }
+  }));
+
+  run(function() {
+    post = env.store.createRecord('post', { title: "Rails is omakase" });
+    comment = env.store.createRecord('comment', { body: "Omakase is delicious", post: post });
+  });
+
+  var serializer = env.container.lookup("serializer:comment");
+  var serializedProperty = serializer.keyForRelationship('post', 'belongsTo');
+
+  var payload = serializer.serialize(comment._createSnapshot());
+  ok(payload.hasOwnProperty(serializedProperty), "Add the key to instance");
+});
+
 test("Serializer should merge attrs from superclasses", function() {
   expect(4);
   Post.reopen({
