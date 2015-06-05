@@ -1,6 +1,6 @@
 /* globals ENV, QUnit */
 
-(function (){
+(function () {
   window.Ember = window.Ember || {};
 
   Ember.config = {};
@@ -37,7 +37,7 @@
   };
 
   window.asyncEqual = function(a, b, message) {
-    Ember.RSVP.all([ Ember.RSVP.resolve(a), Ember.RSVP.resolve(b) ]).then(async(function(array) {
+    Ember.RSVP.all([Ember.RSVP.resolve(a), Ember.RSVP.resolve(b)]).then(async(function(array) {
       /*globals QUnit*/
       QUnit.push(array[0] === array[1], array[0], array[1], message);
     }));
@@ -110,7 +110,7 @@
     return setupStore(options).store;
   };
 
-  QUnit.begin(function(){
+  QUnit.begin(function() {
     Ember.RSVP.configure('onerror', function(reason) {
       // only print error messages if they're exceptions;
       // otherwise, let a future turn of the event loop
@@ -141,10 +141,10 @@
   // to make the QUnit global check run clean
   jQuery(window).data('testing', true);
 
-  window.warns = function(callback, regex){
+  window.warns = function(callback, regex) {
     var warnWasCalled = false;
     var oldWarn = Ember.warn;
-    Ember.warn = function Ember_assertWarning(message, test){
+    Ember.warn = function Ember_assertWarning(message, test) {
       if (!test) {
         warnWasCalled = true;
         if (regex) {
@@ -160,10 +160,10 @@
     }
   };
 
-  window.noWarns = function(callback){
+  window.noWarns = function(callback) {
     var oldWarn = Ember.warn;
     var warnWasCalled = false;
-    Ember.warn = function Ember_noWarn(message, test){
+    Ember.warn = function Ember_noWarn(message, test) {
       warnWasCalled = !test;
     };
     try {

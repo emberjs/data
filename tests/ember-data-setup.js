@@ -1,4 +1,4 @@
-;(function(){
+;(function() {
 
   Ember.RSVP.configure('onerror', function(reason) {
     // only print error messages if they're exceptions;
