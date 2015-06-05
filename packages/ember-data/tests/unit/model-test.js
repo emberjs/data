@@ -299,6 +299,16 @@ test("supports pushedData in root.deleted.uncommitted", function() {
   });
 });
 
+test("accessing the `container` property throws an error", function() {
+  run(function() {
+    var record = store.createRecord('person');
+
+    /* jshint expr:true */
+    throws(function() {
+      record.container;
+    }, /Model instances no longer have access to a container./, "Throws an error when accessing `container` on a model");
+  });
+});
 
 module("unit/model - DS.Model updating", {
   setup: function() {

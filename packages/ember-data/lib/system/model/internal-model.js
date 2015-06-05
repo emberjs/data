@@ -47,11 +47,10 @@ function retrieveFromCurrentState(key) {
   @class InternalModel
 */
 
-var InternalModel = function InternalModel(type, id, store, container, data) {
+var InternalModel = function InternalModel(type, id, store, data) {
   this.type = type;
   this.id = id;
   this.store = store;
-  this.container = container;
   this._data = data || Ember.create(null);
   this.modelName = type.modelName;
   this.errors = null;
@@ -107,15 +106,26 @@ InternalModel.prototype = {
   constructor: InternalModel,
   materializeRecord: function() {
     Ember.assert("Materialized " + this.modelName + " record with id:" + this.id + "more than once", this.record === null || this.record === undefined);
-    // lookupFactory should really return an object that creates
-    // instances with the injections applied
-    this.record = this.type._create({
+
+    var record = this.record = this.type._create({
       id: this.id,
-      store: this.store,
-      container: this.container
+      store: this.store
     });
-    this.record._internalModel = this;
+    record._internalModel = this;
     this._triggerDeferredTriggers();
+
+    // Remove support for `record.container`. Note that this must be done after
+    // the instance has been created, or merging mixins can trigger the getter
+    // and throw the error when MODEL_FACTORY_INJECTIONS is true
+    Ember.runInDebug(function() {
+      Ember.defineProperty(record, 'container', {
+        enumerable: true,
+        configurable: false,
+        get: function() {
+          throw new Error("Model instances no longer have access to a container. Injecting services into models is discouraged and can have unintended consequences.");
+        }
+      });
+    });
   },
 
   recordObjectWillDestroy: function() {

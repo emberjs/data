@@ -1813,9 +1813,7 @@ Store = Service.extend({
     Ember.assert('The id ' + id + ' has already been used with another record of type ' + type.toString() + '.', !id || !idToRecord[id]);
     Ember.assert("`" + Ember.inspect(type)+ "` does not appear to be an ember-data model", (typeof type._create === 'function') );
 
-    // lookupFactory should really return an object that creates
-    // instances with the injections applied
-    var internalModel = new InternalModel(type, id, this, this.container, data);
+    var internalModel = new InternalModel(type, id, this, data);
 
     // if we're creating an item, this process will be done
     // later, once the object has been persisted.

@@ -373,7 +373,6 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @return {Object} A JSON representation of the object.
   */
   toJSON: function(options) {
-    // container is for lazy transform lookups
     var serializer = this.store.serializerFor('-default');
     var snapshot = this._internalModel.createSnapshot();
 
