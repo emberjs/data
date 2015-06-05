@@ -490,12 +490,19 @@ var RESTSerializer = JSONSerializer.extend({
     in data streaming in from your server structured the same way
     that fetches and saves are structured.
 
+    Meta properties are silently ignored, as they are handled by the store's
+    pushPayload method directly.
+
     @method pushPayload
     @param {DS.Store} store
     @param {Object} rawPayload
   */
   pushPayload: function(store, rawPayload) {
-    var payload = this.normalizePayload(rawPayload);
+    // Run the custom defined normalization methods
+    var payload = this.normalizePayload(Ember.copy(rawPayload));
+
+    // We don't process metadata here, it should be done by setMetadataFor
+    delete payload.meta;
 
     for (var prop in payload) {
       var modelName = this.modelNameFromPayloadKey(prop);

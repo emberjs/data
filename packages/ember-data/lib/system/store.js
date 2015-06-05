@@ -1717,6 +1717,9 @@ Store = Service.extend({
       serializer = this.serializerFor(modelName);
     }
     var store = this;
+    if (payload.meta) {
+      store.setMetadataFor(type, payload.meta);
+    }
     this._adapterRun(function() {
       serializer.pushPayload(store, payload);
     });
