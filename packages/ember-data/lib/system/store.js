@@ -530,7 +530,7 @@ Store = Service.extend({
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var options = deprecatePreload(preload, this.modelFor(modelName), 'fetchById');
     if (this.hasRecordForId(modelName, id)) {
-      return this.getById(modelName, id).reload();
+      return this.peekRecord(modelName, id).reload();
     } else {
       return this.findRecord(modelName, id, options);
     }
@@ -801,6 +801,31 @@ Store = Service.extend({
     @return {DS.Model|null} record
   */
   getById: function(modelName, id) {
+    Ember.deprecate('Using store.getById() has been deprecated. Use store.peekRecord to get a record by a given type and ID without triggering a fetch.');
+    return this.peekRecord(modelName, id);
+  },
+
+  /**
+    Get a record by a given type and ID without triggering a fetch.
+
+    This method will synchronously return the record if it is available in the store,
+    otherwise it will return `null`. A record is available if it has been fetched earlier, or
+    pushed manually into the store.
+
+    _Note: This is an synchronous method and does not return a promise._
+
+    ```js
+    var post = store.peekRecord('post', 1);
+
+    post.get('id'); // 1
+    ```
+
+    @method peekRecord
+    @param {String} modelName
+    @param {String|Integer} id
+    @return {DS.Model|null} record
+  */
+  peekRecord: function(modelName, id) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     if (this.hasRecordForId(modelName, id)) {
       return this._internalModelForId(modelName, id).getRecord();

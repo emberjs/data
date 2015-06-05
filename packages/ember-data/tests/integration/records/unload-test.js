@@ -204,7 +204,7 @@ test("unloading a record also clears the implicit inverse relationships", functi
   run(function() {
     env.store.find('group', 1).then(function(group) {
       equal(group.get('people.length'), 1, 'The inital length of people is correct');
-      var person = env.store.getById('person', 1);
+      var person = env.store.peekRecord('person', 1);
       run(function() {
         person.unloadRecord();
       });

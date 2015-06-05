@@ -446,7 +446,7 @@ test("initial values of belongsTo can be passed in as the third argument to find
 
   run(function() {
     store.find('person', 1, { preload: { friend: 2 } }).then(async(function() {
-      store.getById('person', 1).get('friend').then(async(function(friend) {
+      store.peekRecord('person', 1).get('friend').then(async(function(friend) {
         equal(friend.get('id'), '2', 'Preloaded belongsTo set');
       }));
     }));
