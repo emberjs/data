@@ -12,6 +12,9 @@
   var extendPrototypes = QUnit.urlParams.extendprototypes;
   ENV['EXTEND_PROTOTYPES'] = !!extendPrototypes;
 
+  // Handle testing feature flags
+  ENV['ENABLE_OPTIONAL_FEATURES'] = !!QUnit.urlParams.enableoptionalfeatures;
+
   window.async = function(callback, timeout) {
     var timer;
     stop();
