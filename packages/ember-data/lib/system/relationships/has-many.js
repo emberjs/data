@@ -20,12 +20,18 @@ import normalizeModelName from "ember-data/system/normalize-model-name";
   To declare a one-to-many relationship between two models, use
   `DS.belongsTo` in combination with `DS.hasMany`, like this:
 
-  ```javascript
-  App.Post = DS.Model.extend({
+  ```app/models/post.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
     comments: DS.hasMany('comment')
   });
+  ```
 
-  App.Comment = DS.Model.extend({
+  ```app/models/comment.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
     post: DS.belongsTo('post')
   });
   ```
@@ -34,12 +40,18 @@ import normalizeModelName from "ember-data/system/normalize-model-name";
   To declare a many-to-many relationship between two models, use
   `DS.hasMany`:
 
-  ```javascript
-  App.Post = DS.Model.extend({
+  ```app/models/post.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
     tags: DS.hasMany('tag')
   });
+  ```
 
-  App.Tag = DS.Model.extend({
+  ```app/models/tag.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
     posts: DS.hasMany('post')
   });
   ```
@@ -47,8 +59,10 @@ import normalizeModelName from "ember-data/system/normalize-model-name";
   You can avoid passing a string as the first parameter. In that case Ember Data
   will infer the type from the singularized key name.
 
-  ```javascript
-  App.Post = DS.Model.extend({
+  ```app/models/post.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
     tags: DS.hasMany()
   });
   ```
@@ -67,19 +81,22 @@ import normalizeModelName from "ember-data/system/normalize-model-name";
   same type. You can specify which property on the related model is
   the inverse using `DS.hasMany`'s `inverse` option:
 
-  ```javascript
-  var belongsTo = DS.belongsTo,
-      hasMany = DS.hasMany;
+  ```app/models/comment.js
+  import DS from 'ember-data';
 
-  App.Comment = DS.Model.extend({
-    onePost: belongsTo('post'),
-    twoPost: belongsTo('post'),
-    redPost: belongsTo('post'),
-    bluePost: belongsTo('post')
+  export default DS.Model.extend({
+    onePost: DS.belongsTo('post'),
+    twoPost: DS.belongsTo('post'),
+    redPost: DS.belongsTo('post'),
+    bluePost: DS.belongsTo('post')
   });
+  ```
 
-  App.Post = DS.Model.extend({
-    comments: hasMany('comment', {
+  ```app/models/post.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
+    comments: DS.hasMany('comment', {
       inverse: 'redPost'
     })
   });
