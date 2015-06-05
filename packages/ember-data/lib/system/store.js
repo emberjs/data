@@ -141,8 +141,11 @@ if (!Service) {
 
   Define your application's store like this:
 
-  ```javascript
-  MyApp.ApplicationStore = DS.Store.extend();
+  ```app/stores/application.js
+  import DS from 'ember-data';
+
+  export default DS.Store.extend({
+  });
   ```
 
   Most Ember.js applications will only have a single `DS.Store` that is
@@ -160,8 +163,11 @@ if (!Service) {
   REST mechanism. You can customize how the store talks to your
   backend by specifying a custom adapter:
 
-  ```javascript
-  MyApp.ApplicationAdapter = MyApp.CustomAdapter
+  ```app/adapters/application.js
+  import DS from 'ember-data';
+
+  export default DS.Adapter.extend({
+  });
   ```
 
   You can learn more about writing a custom adapter by reading the `DS.Adapter`
@@ -224,7 +230,7 @@ Store = Service.extend({
 
     This can be specified as an instance, class, or string.
 
-    If you want to specify `App.CustomAdapter` as a string, do:
+    If you want to specify `app/adapters/custom.js` as a string, do:
 
     ```js
     adapter: 'custom'
@@ -537,8 +543,10 @@ Store = Service.extend({
 
     Example
 
-    ```javascript
-    App.PostRoute = Ember.Route.extend({
+    ```app/routes/post.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
       model: function(params) {
         return this.store.fetchById('post', params.post_id);
       }
@@ -1531,8 +1539,10 @@ Store = Service.extend({
 
     For this model:
 
-    ```js
-    App.Person = DS.Model.extend({
+    ```app/models/person.js
+    import DS from 'ember-data';
+
+    export default DS.Model.extend({
       firstName: DS.attr(),
       lastName: DS.attr(),
 
@@ -1645,9 +1655,13 @@ Store = Service.extend({
     All objects should be in the format expected by the
     serializer.
 
-    ```js
-    App.ApplicationSerializer = DS.ActiveModelSerializer;
+    ```app/serializers/application.js
+    import DS from 'ember-data';
 
+    export default DS.ActiveModelSerializer;
+    ```
+
+    ```js
     var pushData = {
       posts: [
         {id: 1, post_title: "Great post", comment_ids: [2]}
@@ -1669,11 +1683,21 @@ Store = Service.extend({
     `normalizePayload`) will not know which model it is
     deserializing.
 
+    ```app/serializers/application.js
+    import DS from 'ember-data';
+
+    export default DS.ActiveModelSerializer;
+    ```
+
+    ```app/serializers/post.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer;
+    ```
+
     ```js
-    App.ApplicationSerializer = DS.ActiveModelSerializer;
-    App.PostSerializer = DS.JSONSerializer;
-    store.pushPayload('comment', pushData); // Will use the ApplicationSerializer
-    store.pushPayload('post', pushData); // Will use the PostSerializer
+    store.pushPayload('comment', pushData); // Will use the application serializer
+    store.pushPayload('post', pushData); // Will use the post serializer
     ```
 
     @method pushPayload
