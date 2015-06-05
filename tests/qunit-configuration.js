@@ -1,6 +1,6 @@
 (function() {
   /*global namespace: true */
-  
+
   window.EmberDev = window.EmberDev || {};
 
   EmberDev.afterEach = function() {
@@ -170,6 +170,9 @@
       return new F();
     };
   }());
+
+  // Handle testing feature flags
+  QUnit.config.urlConfig.push({ id: 'enableoptionalfeatures', label: "Enable Opt Features"});
 
   // A light class for stubbing
   //
