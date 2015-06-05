@@ -5,6 +5,7 @@ import Model from "ember-data/system/model";
 var get = Ember.get;
 var capitalize = Ember.String.capitalize;
 var underscore = Ember.String.underscore;
+const { assert } = Ember;
 
 /**
   Extend `Ember.DataAdapter` with ED specific code.
@@ -42,11 +43,18 @@ export default Ember.DataAdapter.extend({
     return columns;
   },
 
-  getRecords: function(modelNameOrFactory) {
-    // TODO: Ask Teddy what we should do here.
-    // Ideally this should always get passed a string.
-
-    var modelName = typeof modelNameOrFactory === 'string' ? modelNameOrFactory : modelNameOrFactory.modelName;
+  getRecords: function(modelClass, modelName) {
+    if (arguments.length < 2) {
+      // Legacy Ember.js < 1.13 support
+      let containerKey = modelClass._debugContainerKey;
+      if (containerKey) {
+        let match = containerKey.match(/model:(.*)/);
+        if (match) {
+          modelName = match[1];
+        }
+      }
+    }
+    assert("Cannot find model name. Please upgrade to Ember.js >= 1.13 for Ember Inspector support", !!modelName);
     return this.get('store').all(modelName);
   },
 
