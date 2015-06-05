@@ -1,5 +1,3 @@
-import Ember from 'ember';
-
 /**
  * The `ContainerInstanceCache` serves as a lazy cache for looking up
  * instances of serializers and adapters. It has some additional logic for
