@@ -23,7 +23,7 @@ var fileCreator     = require('broccoli-file-creator');
 var jscs            = require('broccoli-jscs');
 var features        = require('./lib/feature-flags');
 
-function minify(tree, name){
+function minify(tree, name) {
   var config = require('./config/ember-defeatureify');
   tree = defeatureify(tree, {
     debugStatements: config.options.debugStatements,
@@ -37,14 +37,14 @@ function minify(tree, name){
   tree = pickFiles(tree, {
     srcDir: '/',
     destDir: '/',
-    files: [ name + '.prod.js' ]
+    files: [name + '.prod.js']
   });
   tree = removeSourceMappingURL(tree);
-  var uglified = moveFile(uglify(tree, {mangle: true}),{
+  var uglified = moveFile(uglify(tree, { mangle: true }), {
     srcFile: name + '.prod.js',
     destFile: '/' + name + '.min.js'
   });
-  return merge([uglified, tree], {overwrite: true});
+  return merge([uglified, tree], { overwrite: true });
 }
 
 var yuidocTree = yuidoc('packages', {
@@ -72,7 +72,7 @@ var yuidocTree = yuidoc('packages', {
 function package(packagePath, vendorPath) {
   vendorPath = vendorPath || 'packages/';
   return pickFiles(vendorPath + packagePath, {
-    files: [ '**/*.js' ],
+    files: ['**/*.js'],
     srcDir: '/',
     destDir: '/' + packagePath
   });
@@ -80,7 +80,7 @@ function package(packagePath, vendorPath) {
 
 function packageAddon(packagePath, vendorPath) {
   return stew.rename(pickFiles(vendorPath + packagePath, {
-    files: [ '**/*.js' ],
+    files: ['**/*.js'],
     srcDir: '/addon',
     destDir: '/' + packagePath + '/lib'
   }), 'index.js', 'main.js');
@@ -110,7 +110,7 @@ if (env === 'production') {
   var tests = testTree(packages, amdBuild(transpiledPackages));
   globalBuild = merge([globalBuild, tests]);
 } else {
-// Use AMD for faster rebuilds in dev
+  // Use AMD for faster rebuilds in dev
   var bootFile = fileCreator('/boot.js', 'require("ember-data");');
 
   var compiled = amdBuild(transpiledPackages);
@@ -118,7 +118,7 @@ if (env === 'production') {
 
   var emberData = merge([bootFile, libFiles]);
 
-  var emberData = concat(emberData, {
+  emberData = concat(emberData, {
     inputFiles: ['ember-data/**/*.js', 'boot.js'],
     outputFile: '/ember-data.js'
   });
@@ -128,7 +128,7 @@ if (env === 'production') {
 
 var testRunner = pickFiles('tests', {
   srcDir: '/',
-  files: [ '**/*' ],
+  files: ['**/*'],
   destDir: '/'
 });
 
@@ -140,7 +140,7 @@ var bower = pickFiles('bower_components', {
 var configurationFiles = pickFiles('config/package-manager-files', {
   srcDir: '/',
   destDir: '/',
-  files: [ '**/*.json' ]
+  files: ['**/*.json']
 });
 
 function versionStamp(tree) {
@@ -184,4 +184,4 @@ if (env === 'production') {
 
 trees.push(globalBuild);
 
-module.exports = merge(trees, {overwrite: true});
+module.exports = merge(trees, { overwrite: true });
