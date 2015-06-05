@@ -15,8 +15,10 @@ var EmberError = Ember.Error;
   namespaced under a key that matches the property name. For example
   if you had a Post model that looked like this.
 
-  ```js
-  App.Post = DS.Model.extend({
+  ```app/models/post.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
     title: DS.attr('string'),
     content: DS.attr('string')
   });
@@ -26,8 +28,11 @@ var EmberError = Ember.Error;
   `content` properties your adapter could return a promise that
   rejects with a `DS.InvalidError` object that looks like this:
 
-  ```js
-  App.PostAdapter = DS.RESTAdapter.extend({
+  ```app/adapters/post.js
+  import Ember from 'ember';
+  import DS from 'ember-data';
+
+  export default DS.RESTAdapter.extend({
     updateRecord: function() {
       // Fictional adapter that always rejects
       return Ember.RSVP.reject(new DS.InvalidError({
@@ -46,8 +51,11 @@ var EmberError = Ember.Error;
 
   Example
 
-  ```javascript
-  App.ApplicationAdapter = DS.RESTAdapter.extend({
+  ```app/adapters/application.js
+  import Ember from 'ember';
+  import DS from 'ember-data';
+
+  export default DS.RESTAdapter.extend({
     ajaxError: function(jqXHR) {
       var error = this._super(jqXHR);
 

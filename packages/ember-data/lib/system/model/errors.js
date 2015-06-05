@@ -22,8 +22,10 @@ import {
 
   For Example, if you had an `User` model that looked like this:
 
-  ```javascript
-  App.User = DS.Model.extend({
+  ```app/models/user.js
+  import DS from 'ember-data';
+
+  export default DS.Model.extend({
     username: attr('string'),
     email: attr('string')
   });
@@ -262,14 +264,20 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
 
     Example:
 
-    ```javascript
-    App.User = DS.Model.extend({
+    ```app/models/user.js
+    import DS from 'ember-data';
+
+    export default DS.Model.extend({
       email: DS.attr('string'),
       twoFactorAuth: DS.attr('boolean'),
       phone: DS.attr('string')
     });
+    ```
 
-    App.UserEditRoute = Ember.Route.extend({
+    ```app/routes/user/edit.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
       actions: {
         save: function(user) {
            if (!user.get('twoFactorAuth')) {
@@ -304,8 +312,10 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
 
     Example:
 
-    ```javascript
-    App.UserEditRoute = Ember.Route.extend({
+    ```app/routes/user/edit.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
       actions: {
         retrySave: function(user) {
            user.get('errors').clear();
@@ -329,8 +339,10 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
   /**
     Checks if there is error messages for the given attribute.
 
-    ```javascript
-    App.UserEditRoute = Ember.Route.extend({
+    ```app/routes/user/edit.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
       actions: {
         save: function(user) {
            if (user.get('errors').has('email')) {

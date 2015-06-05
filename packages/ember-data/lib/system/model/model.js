@@ -473,8 +473,10 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     Example
 
-    ```javascript
-    App.ModelDeleteRoute = Ember.Route.extend({
+    ```app/routes/model/delete.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
       actions: {
         softDelete: function() {
           this.controller.get('model').deleteRecord();
@@ -500,8 +502,10 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     Example
 
-    ```javascript
-    App.ModelDeleteRoute = Ember.Route.extend({
+    ```app/routes/model/delete.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
       actions: {
         delete: function() {
           var controller = this.controller;
@@ -551,12 +555,15 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     Example
 
-    ```javascript
-    var attr = DS.attr;
-    App.Mascot = DS.Model.extend({
+    ```app/models/mascot.js
+    import DS from 'ember-data';
+
+    export default DS.Model.extend({
       name: attr('string')
     });
+    ```
 
+    ```javascript
     var mascot = store.createRecord('mascot');
     mascot.changedAttributes(); // {}
     mascot.set('name', 'Tomster');
@@ -666,8 +673,10 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     Example
 
-    ```javascript
-    App.ModelViewRoute = Ember.Route.extend({
+    ```app/routes/model/view.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
       actions: {
         reload: function() {
           this.controller.get('model').reload().then(function(model) {
