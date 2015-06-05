@@ -1,5 +1,4 @@
 import { PromiseObject } from "ember-data/system/promise-proxies";
-import JSONSerializer from "ember-data/serializers/json-serializer";
 
 /**
   @module ember-data
@@ -375,7 +374,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
   */
   toJSON: function(options) {
     // container is for lazy transform lookups
-    var serializer = JSONSerializer.create({ container: this.container });
+    var serializer = this.store.serializerFor('-default');
     var snapshot = this._internalModel.createSnapshot();
 
     return serializer.serialize(snapshot, options);
