@@ -588,10 +588,9 @@ InternalModel.prototype = {
     this.didCleanError();
     var changedKeys = this._changedKeys(data);
 
+    merge(this._data, this._inFlightAttributes);
     if (data) {
       merge(this._data, data);
-    } else {
-      merge(this._data, this._inFlightAttributes);
     }
 
     this._inFlightAttributes = Ember.create(null);
@@ -664,27 +663,72 @@ InternalModel.prototype = {
     this._inFlightAttributes = Ember.create(null);
   },
 
-    /**
+  /**
     @method _changedKeys
+
+    Ember Data has 3 buckets for storing the value of an attribute on an internalModel.
+
+    `_data` holds all of the attributes that have been acknowledged by
+    a backend via the adapter. When rollback is called on a model all
+    attributes will revert to the record's state in `_data`.
+
+    `_attributes` holds any change the user has made to an attribute
+    that has not been acknowledged by the adapter. Any values in
+    `_attributes` are have priority over values in `_data`.
+
+    `_inFlightAttributes`. When a record is being synced with the
+    backend the values in `_attributes` are copied to
+    `_inFlightAttributes`. This way if the backend acknowledges the
+    save but does not return the new state Ember Data can copy the
+    values from `_inFlightAttributes` to `_data`. Without having to
+    worry about changes made to `_attributes` while the save was
+    happenign.
+
+
+    Changed keys builds a list of all of the values that may have been
+    changed by the backend after a successful save.
+
+    It does this by iterating over each key, value pair in the payload
+    returned from the server after a save. If the `key` is found in
+    `_attributes` then the user has a local changed to the attribute
+    that has not been synced with the server and the key is not
+    included in the list of changed keys.
+
+
+
+    If the value, for a key differs from the value in what Ember Data
+    believes to be the truth about the backend state (A merger of the
+    `_data` and `_inFlightAttributes` objects where
+    `_inFlightAttributes` has priority) then that means the backend
+    has updated the value and the key is added to the list of changed
+    keys.
+
     @private
   */
   _changedKeys: function(updates) {
     var changedKeys = [];
 
-    if (updates && typeof updates === 'object') {
+    if (updates) {
       var original, i, value, key;
       var keys = Ember.keys(updates);
       var length = keys.length;
 
-      original = merge({}, this._data);
-      original = merge(original, this._attributes);
+      original = merge(Ember.create(null), this._data);
       original = merge(original, this._inFlightAttributes);
 
       for (i = 0; i < length; i++) {
         key = keys[i];
         value = updates[key];
 
-        if (original[key] !== value) {
+        // A value in _attributes means the user has a local change to
+        // this attributes. We never override this value when merging
+        // updates from the backend so we should not sent a change
+        // notification if the server value differs from the original.
+        if (this._attributes[key] !== undefined) {
+          continue;
+        }
+
+        if (!Ember.isEqual(original[key], value)) {
           changedKeys.push(key);
         }
       }

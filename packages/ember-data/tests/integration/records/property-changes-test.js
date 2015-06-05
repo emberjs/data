@@ -113,3 +113,34 @@ test('Saving a record trigger observers for locally changed attributes with the 
     person.save();
   });
 });
+
+test('store.push should not override a modified attribute', function() {
+  expect(1);
+  var person;
+
+  run(function() {
+    person = store.push('person', {
+      id: 'wat',
+      firstName: 'Yehuda',
+      lastName: 'Katz'
+    });
+
+    person.set('lastName', 'Katz!');
+  });
+
+  person.addObserver('firstName', function() {
+    ok(true, 'firstName observer should be triggered');
+  });
+
+  person.addObserver('lastName', function() {
+    ok(false, 'lastName observer should not be triggered');
+  });
+
+  run(function() {
+    person = store.push('person', {
+      id: 'wat',
+      firstName: 'Tom',
+      lastName: 'Dale'
+    });
+  });
+});
