@@ -236,10 +236,16 @@ var RESTSerializer = JSONSerializer.extend({
     @private
   */
   _normalizeResponse: function(store, primaryModelClass, payload, id, requestType, isSingle) {
-    var document = {
+    let documentHash = {
       data: null,
       included: []
     };
+
+    let meta = this.extractMeta(store, primaryModelClass, payload);
+    if (meta) {
+      Ember.assert('The `meta` returned from `extractMeta` has to be an object, not "' + Ember.typeOf(meta) + '".', Ember.typeOf(meta) === 'object');
+      documentHash.meta = meta;
+    }
 
     Ember.keys(payload).forEach((prop) => {
       var modelName = prop;
@@ -296,14 +302,14 @@ var RESTSerializer = JSONSerializer.extend({
        */
       if (isPrimary && Ember.typeOf(value) !== 'array') {
         let { data, included } = this.normalize(primaryModelClass, value, prop);
-        document.data = data;
-        document.included.push(...included);
+        documentHash.data = data;
+        documentHash.included.push(...included);
         return;
       }
 
       let { data, included } = this.normalizeArray(store, typeName, value, prop);
 
-      document.included.push(...included);
+      documentHash.included.push(...included);
 
       if (isSingle) {
         /*jshint loopfunc:true*/
@@ -319,24 +325,24 @@ var RESTSerializer = JSONSerializer.extend({
                in the array
            */
           var isUpdatedRecord = isPrimary && coerceId(resource.id) === id;
-          var isFirstCreatedRecord = isPrimary && !id && !document.data;
+          var isFirstCreatedRecord = isPrimary && !id && !documentHash.data;
 
           if (isFirstCreatedRecord || isUpdatedRecord) {
-            document.data = resource;
+            documentHash.data = resource;
           } else {
-            document.included.push(resource);
+            documentHash.included.push(resource);
           }
         });
       } else {
         if (isPrimary) {
-          document.data = data;
+          documentHash.data = data;
         } else {
-          document.included.push(...data);
+          documentHash.included.push(...data);
         }
       }
     });
 
-    return document;
+    return documentHash;
   },
 
   /**
