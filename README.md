@@ -80,25 +80,23 @@ models would look like this:
 
 ```js
 // app/models/blog-post.js
-var attr = DS.attr;
-var hasMany = DS.hasMany;
+import DS from 'ember-data';
 
 export default DS.Model.extend({
-  title: attr(),
-  createdAt: attr('date'),
+  title: DS.attr(),
+  createdAt: DS.attr('date'),
 
-  comments: hasMany('comment')
+  comments: DS.hasMany('comment')
 });
 
 // app/models/comment.js
-var attr = DS.attr;
-var belongsTo = DS.belongsTo;
+import DS from 'ember-data';
 
 export default DS.Model.extend({
-  body: attr(),
-  username: attr(),
+  body: DS.attr(),
+  username: DS.attr(),
 
-  post: belongsTo('blogPost')
+  post: DS.belongsTo('blogPost')
 });
 ```
 
