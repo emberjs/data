@@ -57,69 +57,73 @@ test("modelNameFromPayloadKey returns always same modelName even for uncountable
   equal(env.restSerializer.modelNameFromPayloadKey('multi-words'), expectedModelName);
 });
 
-test("extractArray with custom modelNameFromPayloadKey", function() {
-  env.restSerializer.modelNameFromPayloadKey = function(root) {
-    var camelized = Ember.String.camelize(root);
-    return Ember.String.singularize(camelized);
-  };
+if (!Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
+  test("extractArray with custom modelNameFromPayloadKey", function() {
+    env.restSerializer.modelNameFromPayloadKey = function(root) {
+      var camelized = Ember.String.camelize(root);
+      return Ember.String.singularize(camelized);
+    };
 
-  var jsonHash = {
-    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }],
-    super_villains: [{ id: "1", firstName: "Tom", lastName: "Dale", homePlanet: "1" }]
-  };
-  var array;
+    var jsonHash = {
+      home_planets: [{ id: "1", name: "Umber", superVillains: [1] }],
+      super_villains: [{ id: "1", firstName: "Tom", lastName: "Dale", homePlanet: "1" }]
+    };
+    var array;
 
-  run(function() {
-    array = env.restSerializer.extractArray(env.store, HomePlanet, jsonHash);
-  });
-
-  deepEqual(array, [{
-    id: "1",
-    name: "Umber",
-    superVillains: [1]
-  }]);
-
-  run(function() {
-    env.store.find('super-villain', 1).then(function(minion) {
-      equal(minion.get('firstName'), "Tom");
-    });
-  });
-});
-
-test("extractArray warning with custom modelNameFromPayloadKey", function() {
-  var homePlanets;
-  env.restSerializer.modelNameFromPayloadKey = function(root) {
-    //return some garbage that won"t resolve in the container
-    return "garbage";
-  };
-
-  var jsonHash = {
-    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }]
-  };
-
-  warns(function() {
-    env.restSerializer.extractArray(env.store, HomePlanet, jsonHash);
-  }, /Encountered "home_planets" in payload, but no model was found for model name "garbage"/);
-
-  // should not warn if a model is found.
-  env.restSerializer.modelNameFromPayloadKey = function(root) {
-    return Ember.String.camelize(Ember.String.singularize(root));
-  };
-
-  jsonHash = {
-    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }]
-  };
-
-  noWarns(function() {
     run(function() {
-      homePlanets = Ember.A(env.restSerializer.extractArray(env.store, HomePlanet, jsonHash));
+      array = env.restSerializer.extractArray(env.store, HomePlanet, jsonHash);
+    });
+
+    deepEqual(array, [{
+      id: "1",
+      name: "Umber",
+      superVillains: [1]
+    }]);
+
+    run(function() {
+      env.store.find('super-villain', 1).then(function(minion) {
+        equal(minion.get('firstName'), "Tom");
+      });
     });
   });
+}
 
-  equal(get(homePlanets, "length"), 1);
-  equal(get(homePlanets, "firstObject.name"), "Umber");
-  deepEqual(get(homePlanets, "firstObject.superVillains"), [1]);
-});
+if (!Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
+  test("extractArray warning with custom modelNameFromPayloadKey", function() {
+    var homePlanets;
+    env.restSerializer.modelNameFromPayloadKey = function(root) {
+      //return some garbage that won"t resolve in the container
+      return "garbage";
+    };
+
+    var jsonHash = {
+      home_planets: [{ id: "1", name: "Umber", superVillains: [1] }]
+    };
+
+    warns(function() {
+      env.restSerializer.extractArray(env.store, HomePlanet, jsonHash);
+    }, /Encountered "home_planets" in payload, but no model was found for model name "garbage"/);
+
+    // should not warn if a model is found.
+    env.restSerializer.modelNameFromPayloadKey = function(root) {
+      return Ember.String.camelize(Ember.String.singularize(root));
+    };
+
+    jsonHash = {
+      home_planets: [{ id: "1", name: "Umber", superVillains: [1] }]
+    };
+
+    noWarns(function() {
+      run(function() {
+        homePlanets = Ember.A(env.restSerializer.extractArray(env.store, HomePlanet, jsonHash));
+      });
+    });
+
+    equal(get(homePlanets, "length"), 1);
+    equal(get(homePlanets, "firstObject.name"), "Umber");
+    deepEqual(get(homePlanets, "firstObject.superVillains"), [1]);
+  });
+}
 
 test("extractSingle warning with custom modelNameFromPayloadKey", function() {
   var homePlanet;
@@ -157,116 +161,120 @@ test("extractSingle warning with custom modelNameFromPayloadKey", function() {
   deepEqual(get(homePlanet, "superVillains"), [1]);
 });
 
-test("pushPayload - single record payload - warning with custom modelNameFromPayloadKey", function() {
-  var homePlanet;
-  var HomePlanetRestSerializer = DS.RESTSerializer.extend({
-    modelNameFromPayloadKey: function(root) {
-      //return some garbage that won"t resolve in the container
-      if (root === "home_planet") {
-        return "garbage";
-      } else {
-        return Ember.String.singularize(Ember.String.camelize(root));
+if (!Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
+  test("pushPayload - single record payload - warning with custom modelNameFromPayloadKey", function() {
+    var homePlanet;
+    var HomePlanetRestSerializer = DS.RESTSerializer.extend({
+      modelNameFromPayloadKey: function(root) {
+        //return some garbage that won"t resolve in the container
+        if (root === "home_planet") {
+          return "garbage";
+        } else {
+          return Ember.String.singularize(Ember.String.camelize(root));
+        }
       }
-    }
-  });
-
-  env.registry.register("serializer:home-planet", HomePlanetRestSerializer);
-
-  var jsonHash = {
-    home_planet: { id: "1", name: "Umber", superVillains: [1] },
-    super_villains: [{ id: "1", firstName: "Stanley" }]
-  };
-
-  warns(function() {
-    run(function() {
-      env.store.pushPayload('home-planet', jsonHash);
     });
-  }, /Encountered "home_planet" in payload, but no model was found for model name "garbage"/);
+
+    env.registry.register("serializer:home-planet", HomePlanetRestSerializer);
+
+    var jsonHash = {
+      home_planet: { id: "1", name: "Umber", superVillains: [1] },
+      super_villains: [{ id: "1", firstName: "Stanley" }]
+    };
+
+    warns(function() {
+      run(function() {
+        env.store.pushPayload('home-planet', jsonHash);
+      });
+    }, /Encountered "home_planet" in payload, but no model was found for model name "garbage"/);
 
 
-  // assert non-warned records get pushed into store correctly
-  var superVillain = env.store.getById('super-villain', "1");
-  equal(get(superVillain, "firstName"), "Stanley");
+    // assert non-warned records get pushed into store correctly
+    var superVillain = env.store.getById('super-villain', "1");
+    equal(get(superVillain, "firstName"), "Stanley");
 
-  // Serializers are singletons, so that"s why we use the store which
-  // looks at the container to look it up
-  env.store.serializerFor('home-planet').reopen({
-    modelNameFromPayloadKey: function(root) {
-      // should not warn if a model is found.
-      return Ember.String.camelize(Ember.String.singularize(root));
-    }
-  });
-
-  jsonHash = {
-    home_planet: { id: "1", name: "Umber", superVillains: [1] },
-    super_villains: [{ id: "1", firstName: "Stanley" }]
-  };
-
-  noWarns(function() {
-    run(function() {
-      env.store.pushPayload('home-planet', jsonHash);
-      homePlanet = env.store.getById('home-planet', "1");
-    });
-  });
-
-  equal(get(homePlanet, "name"), "Umber");
-  deepEqual(get(homePlanet, "superVillains.firstObject.firstName"), "Stanley");
-});
-
-test("pushPayload - multiple record payload (extractArray) - warning with custom modelNameFromPayloadKey", function() {
-  var homePlanet;
-  var HomePlanetRestSerializer = DS.RESTSerializer.extend({
-    modelNameFromPayloadKey: function(root) {
-      //return some garbage that won"t resolve in the container
-      if (root === "home_planets") {
-        return "garbage";
-      } else {
-        return Ember.String.singularize(Ember.String.camelize(root));
+    // Serializers are singletons, so that"s why we use the store which
+    // looks at the container to look it up
+    env.store.serializerFor('home-planet').reopen({
+      modelNameFromPayloadKey: function(root) {
+        // should not warn if a model is found.
+        return Ember.String.camelize(Ember.String.singularize(root));
       }
-    }
-  });
-
-  env.registry.register("serializer:home-planet", HomePlanetRestSerializer);
-
-  var jsonHash = {
-    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }],
-    super_villains: [{ id: "1", firstName: "Stanley" }]
-  };
-
-  warns(function() {
-    run(function() {
-      env.store.pushPayload('home-planet', jsonHash);
     });
-  }, /Encountered "home_planets" in payload, but no model was found for model name "garbage"/);
 
-  // assert non-warned records get pushed into store correctly
-  var superVillain = env.store.getById('super-villain', "1");
-  equal(get(superVillain, "firstName"), "Stanley");
+    jsonHash = {
+      home_planet: { id: "1", name: "Umber", superVillains: [1] },
+      super_villains: [{ id: "1", firstName: "Stanley" }]
+    };
 
-  // Serializers are singletons, so that"s why we use the store which
-  // looks at the container to look it up
-  env.store.serializerFor('home-planet').reopen({
-    modelNameFromPayloadKey: function(root) {
-      // should not warn if a model is found.
-      return Ember.String.camelize(Ember.String.singularize(root));
-    }
-  });
-
-  jsonHash = {
-    home_planets: [{ id: "1", name: "Umber", superVillains: [1] }],
-    super_villains: [{ id: "1", firstName: "Stanley" }]
-  };
-
-  noWarns(function() {
-    run(function() {
-      env.store.pushPayload('home-planet', jsonHash);
-      homePlanet = env.store.getById('home-planet', "1");
+    noWarns(function() {
+      run(function() {
+        env.store.pushPayload('home-planet', jsonHash);
+        homePlanet = env.store.getById('home-planet', "1");
+      });
     });
-  });
 
-  equal(get(homePlanet, "name"), "Umber");
-  deepEqual(get(homePlanet, "superVillains.firstObject.firstName"), "Stanley");
-});
+    equal(get(homePlanet, "name"), "Umber");
+    deepEqual(get(homePlanet, "superVillains.firstObject.firstName"), "Stanley");
+  });
+}
+
+if (!Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
+  test("pushPayload - multiple record payload (extractArray) - warning with custom modelNameFromPayloadKey", function() {
+    var homePlanet;
+    var HomePlanetRestSerializer = DS.RESTSerializer.extend({
+      modelNameFromPayloadKey: function(root) {
+        //return some garbage that won"t resolve in the container
+        if (root === "home_planets") {
+          return "garbage";
+        } else {
+          return Ember.String.singularize(Ember.String.camelize(root));
+        }
+      }
+    });
+
+    env.registry.register("serializer:home-planet", HomePlanetRestSerializer);
+
+    var jsonHash = {
+      home_planets: [{ id: "1", name: "Umber", superVillains: [1] }],
+      super_villains: [{ id: "1", firstName: "Stanley" }]
+    };
+
+    warns(function() {
+      run(function() {
+        env.store.pushPayload('home-planet', jsonHash);
+      });
+    }, /Encountered "home_planets" in payload, but no model was found for model name "garbage"/);
+
+    // assert non-warned records get pushed into store correctly
+    var superVillain = env.store.getById('super-villain', "1");
+    equal(get(superVillain, "firstName"), "Stanley");
+
+    // Serializers are singletons, so that"s why we use the store which
+    // looks at the container to look it up
+    env.store.serializerFor('home-planet').reopen({
+      modelNameFromPayloadKey: function(root) {
+        // should not warn if a model is found.
+        return Ember.String.camelize(Ember.String.singularize(root));
+      }
+    });
+
+    jsonHash = {
+      home_planets: [{ id: "1", name: "Umber", superVillains: [1] }],
+      super_villains: [{ id: "1", firstName: "Stanley" }]
+    };
+
+    noWarns(function() {
+      run(function() {
+        env.store.pushPayload('home-planet', jsonHash);
+        homePlanet = env.store.getById('home-planet', "1");
+      });
+    });
+
+    equal(get(homePlanet, "name"), "Umber");
+    deepEqual(get(homePlanet, "superVillains.firstObject.firstName"), "Stanley");
+  });
+}
 
 test("serialize polymorphicType", function() {
   var tom, ray;
@@ -332,32 +340,34 @@ test("serialize polymorphic when associated object is null", function() {
   deepEqual(json["evilMinionType"], null);
 });
 
-test("extractArray can load secondary records of the same type without affecting the query count", function() {
-  var jsonHash = {
-    comments: [{ id: "1", body: "Parent Comment", root: true, children: [2, 3] }],
-    _comments: [
-      { id: "2", body: "Child Comment 1", root: false },
-      { id: "3", body: "Child Comment 2", root: false }
-    ]
-  };
-  var array;
+if (!Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
+  test("extractArray can load secondary records of the same type without affecting the query count", function() {
+    var jsonHash = {
+      comments: [{ id: "1", body: "Parent Comment", root: true, children: [2, 3] }],
+      _comments: [
+        { id: "2", body: "Child Comment 1", root: false },
+        { id: "3", body: "Child Comment 2", root: false }
+      ]
+    };
+    var array;
 
-  run(function() {
-    array = env.restSerializer.extractArray(env.store, Comment, jsonHash);
+    run(function() {
+      array = env.restSerializer.extractArray(env.store, Comment, jsonHash);
+    });
+
+    deepEqual(array, [{
+      "id": "1",
+      "body": "Parent Comment",
+      "root": true,
+      "children": [2, 3]
+    }]);
+
+    equal(array.length, 1, "The query count is unaffected");
+
+    equal(env.store.recordForId('comment', "2").get("body"), "Child Comment 1", "Secondary records are in the store");
+    equal(env.store.recordForId('comment', "3").get("body"), "Child Comment 2", "Secondary records are in the store");
   });
-
-  deepEqual(array, [{
-    "id": "1",
-    "body": "Parent Comment",
-    "root": true,
-    "children": [2, 3]
-  }]);
-
-  equal(array.length, 1, "The query count is unaffected");
-
-  equal(env.store.recordForId('comment', "2").get("body"), "Child Comment 1", "Secondary records are in the store");
-  equal(env.store.recordForId('comment', "3").get("body"), "Child Comment 2", "Secondary records are in the store");
-});
+}
 
 test("extractSingle loads secondary records with correct serializer", function() {
   var superVillainNormalizeCount = 0;

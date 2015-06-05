@@ -132,6 +132,19 @@ var ActiveModelSerializer = RESTSerializer.extend({
     }
   },
 
+  /**
+   `keyForLink` can be used to define a custom key when deserializing link
+   properties. The `ActiveModelSerializer` camelizes link keys by default.
+
+   @method keyForLink
+   @param {String} key
+   @param {String} kind `belongsTo` or `hasMany`
+   @return {String} normalized key
+  */
+  keyForLink: function(key, relationshipKind) {
+    return camelize(key);
+  },
+
   /*
     Does not serialize hasMany relationships by default.
   */
@@ -205,10 +218,8 @@ var ActiveModelSerializer = RESTSerializer.extend({
     @param {String} prop
     @return Object
   */
-
   normalize: function(typeClass, hash, prop) {
     this.normalizeLinks(hash);
-
     return this._super(typeClass, hash, prop);
   },
 

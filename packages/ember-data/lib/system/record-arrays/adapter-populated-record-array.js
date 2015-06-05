@@ -41,6 +41,19 @@ export default RecordArray.extend({
     var type = get(this, 'type');
     var modelName = type.modelName;
     var records = store.pushMany(modelName, data);
+
+    this.loadRecords(records);
+  },
+
+  /**
+    @method loadRecords
+    @param {Array} records
+    @private
+  */
+  loadRecords: function(records) {
+    var store = get(this, 'store');
+    var type = get(this, 'type');
+    var modelName = type.modelName;
     var meta = store.metadataFor(modelName);
 
     //TODO Optimize

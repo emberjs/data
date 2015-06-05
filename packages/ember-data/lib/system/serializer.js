@@ -23,6 +23,37 @@
 */
 
 var Serializer = Ember.Object.extend({
+
+  /*
+    This is only to be used temporarily during the transition from the old
+    serializer API to the new one.
+
+    To activate the new Serializer API you need to enable the feature flag
+    `ds-new-serializer-api`.
+
+    http://guides.emberjs.com/v1.12.0/configuring-ember/feature-flags/
+
+    This makes the store and the built-in serializers use the new Serializer API.
+
+
+    ## Custom Serializers
+
+    If you have custom serializers you need to do the following:
+
+    1. Opt-in to the new Serializer API by setting `isNewSerializerAPI` to `true`
+        when extending one of the built-in serializers. This indicates that the
+        store should call `normalizeResponse` instead of `extract` and to expect
+        a JSON-API Document back.
+    2. If you have a custom `extract` hooks you need to refactor it to the new
+        `normalizeResponse` hooks and make sure it returns a JSON-API Document.
+    3. If you have a custom `normalize` method you need to make sure it also
+        returns a JSON-API Document with the record in question as the primary
+        data.
+
+    @property isNewSerializerAPI
+  */
+  isNewSerializerAPI: false,
+
   /**
     The `store` property is the application's `store` that contains all records.
     It's injected as a service.
