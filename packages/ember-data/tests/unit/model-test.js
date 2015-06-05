@@ -833,3 +833,39 @@ test("A subclass of DS.Model throws an error when calling create() directly", fu
     Person.create();
   }, /You should not call `create` on a model/, "Throws an error when calling create() on model");
 });
+
+test('toJSON looks up the JSONSerializer using the store instead of using JSONSerializer.create', function() {
+  var Person = DS.Model.extend({
+    posts: DS.hasMany('post')
+  });
+  var Post = DS.Model.extend({
+    person: DS.belongsTo('person')
+  });
+
+  var env = setupStore({
+    person: Person,
+    post: Post
+  });
+  var store = env.store;
+
+  var person, json;
+  // Loading the person without explicitly
+  // loading its relationships seems to trigger the
+  // original bug where `this.store` was not
+  // present on the serializer due to using .create
+  // instead of `store.serializerFor`.
+  run(() => {
+    person = store.push('person', {
+      id: 1
+    });
+  });
+  var errorThrown = false;
+  try {
+    json = run(person, 'toJSON');
+  } catch (e) {
+    errorThrown = true;
+  }
+
+  ok(!errorThrown, 'error not thrown due to missing store');
+  deepEqual(json, {});
+});
