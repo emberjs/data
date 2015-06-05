@@ -2,9 +2,40 @@
 
 ### Master
 
+### Release 1.0.0-beta.19 (June 5, 2015)
+
 - Removed support for DS.FixtureAdapter. You can use it as an addon, or
   build it using [Ember Giftwrap](https://github.com/ef4/ember-giftwrap).
   https://github.com/emberjs/ember-data-fixture-adapter/tree/master
+- Removed support for passing factories to store methods. An example
+  would be `store.find(App.Post, '1')`. Use the string form instead:
+  `post` instead of `App.Post`. You can also use this [Ember Watson
+  command](https://github.com/abuiles/ember-watson#ember-watsonconvert-ember-data-model-lookups)
+- [#3074](https://github.com/emberjs/data/pull/3074) remove passing factories to store methods [@fivetanley](https://github.com/fivetanley)
+- [#3083](https://github.com/emberjs/data/pull/3083) A new record which is marked as invalid can be rollbacked [@pangratz](https://github.com/pangratz)
+- [#3102](https://github.com/emberjs/data/pull/3102) Updated copyright year [@perlun](https://github.com/perlun)
+- [#3091](https://github.com/emberjs/data/pull/3091) deprecate support for DS.FixtureAdapter [@emberjs](https://github.com/emberjs)
+- [#3097](https://github.com/emberjs/data/pull/3097) fix bower publishing [@emberjs](https://github.com/emberjs)
+- [#3094](https://github.com/emberjs/data/pull/3094) Lazily materialize DS.Models for app code, use InternalModel inside ED otherwise [@emberjs](https://github.com/emberjs)
+- [#3119](https://github.com/emberjs/data/pull/3119) maxUrlLength -> maxURLLength [@sly7-7](https://github.com/sly7-7)
+- [#3110](https://github.com/emberjs/data/pull/3110) Cleanup unused 'materialize' records in model [@tonywok](https://github.com/tonywok)
+- [#3182](https://github.com/emberjs/data/pull/3182) initialize lives on the application instance not the Ember namespace [@bmac](https://github.com/bmac)
+- [#3126](https://github.com/emberjs/data/pull/3126) Guard for embedded unknown hasMany relationship [@wecc](https://github.com/wecc)
+- [#3133](https://github.com/emberjs/data/pull/3133) Create snapshots on save not on flush [@tchak](https://github.com/tchak)
+- [#3136](https://github.com/emberjs/data/pull/3136) Lookup the store using store:application instead of store:main [@bmac](https://github.com/bmac)
+- [#3139](https://github.com/emberjs/data/pull/3139) Extend adapter instead of reopening it [@BookingSync](https://github.com/BookingSync)
+- [#3138](https://github.com/emberjs/data/pull/3138) Custom primaryKey for embedded polymorphic relations work [@pangratz](https://github.com/pangratz)
+- [#3174](https://github.com/emberjs/data/pull/3174) Adjust code samples to ember-cli [@Turbo87](https://github.com/Turbo87)
+- [#3148](https://github.com/emberjs/data/pull/3148) add Snapshot#serialize method [@yratanov/feature](https://github.com/yratanov/feature)
+- [#3170](https://github.com/emberjs/data/pull/3170) Ensure snapshot.belongsTo() and hasMany() do not return deleted records [@ianstarz](https://github.com/ianstarz)
+- [#3156](https://github.com/emberjs/data/pull/3156) Remove deprecated push record [@sly7-7](https://github.com/sly7-7)
+- [#3169](https://github.com/emberjs/data/pull/3169) rename add/removeRecord to add/removeInternalModel in record array [@sly7-7](https://github.com/sly7-7)
+- [#3183](https://github.com/emberjs/data/pull/3183) fix belongs-to when set with a resolved promise [@sly7-7](https://github.com/sly7-7)
+- [#3195](https://github.com/emberjs/data/pull/3195) Update comment to make its intention clearer [@bmac](https://github.com/bmac)
+- [#3191](https://github.com/emberjs/data/pull/3191) refactor store managed instances [@fivetanley](https://github.com/fivetanley)
+- [#3203](https://github.com/emberjs/data/pull/3203) Use string model names in debug adapter [@teddyzeenny](https://github.com/teddyzeenny)
+- [#3208](https://github.com/emberjs/data/pull/3208) DirtyState.invalid handle pushedData event [@bmac](https://github.com/bmac)
+- [#3211](https://github.com/emberjs/data/pull/3211) lookup JSONSerializer instance through store instead of manual instan… [@emberjs](https://github.com/emberjs)
 
 ### Release 1.0.0-beta.18 (May 18, 2015)
 
