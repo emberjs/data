@@ -16,26 +16,25 @@ var get = Ember.get;
 
   ### Creating an Adapter
 
-  Create a new subclass of `DS.Adapter`, then assign
-  it to the `ApplicationAdapter` property of the application.
+  Create a new subclass of `DS.Adapter` in the `app/adapters` folder:
 
-  ```javascript
-  var MyAdapter = DS.Adapter.extend({
+  ```app/adapters/application.js
+  import DS from 'ember-data';
+
+  export default DS.Adapter.extend({
     // ...your code here
   });
-
-  App.ApplicationAdapter = MyAdapter;
   ```
 
-  Model-specific adapters can be created by assigning your adapter
-  class to the `ModelName` + `Adapter` property of the application.
+  Model-specific adapters can be created by putting your adapter
+  class in an `app/adapters/` + `model-name` + `.js` file of the application.
 
-  ```javascript
-  var MyPostAdapter = DS.Adapter.extend({
+  ```app/adapters/post.js
+  import DS from 'ember-data';
+
+  export default DS.Adapter.extend({
     // ...Post-specific adapter code goes here
   });
-
-  App.PostAdapter = MyPostAdapter;
   ```
 
   `DS.Adapter` is an abstract base class that you should override in your
@@ -74,8 +73,10 @@ var Adapter = Ember.Object.extend({
     a model specific serializer (i.e. `PostSerializer`) or the
     `application` serializer.
 
-    ```javascript
-    var DjangoAdapter = DS.Adapter.extend({
+    ```app/adapters/django.js
+    import DS from 'ember-data';
+
+    export default DS.Adapter.extend({
       defaultSerializer: 'django'
     });
     ```
@@ -94,8 +95,10 @@ var Adapter = Ember.Object.extend({
 
     Here is an example `find` implementation:
 
-    ```javascript
-    App.ApplicationAdapter = DS.Adapter.extend({
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.Adapter.extend({
       find: function(store, type, id, snapshot) {
         var url = [type.modelName, id].join('/');
 
@@ -126,8 +129,10 @@ var Adapter = Ember.Object.extend({
 
     Example
 
-    ```javascript
-    App.ApplicationAdapter = DS.Adapter.extend({
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.Adapter.extend({
       findAll: function(store, type, sinceToken) {
         var url = type;
         var query = { since: sinceToken };
@@ -159,8 +164,10 @@ var Adapter = Ember.Object.extend({
 
     Example
 
-    ```javascript
-    App.ApplicationAdapter = DS.Adapter.extend({
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.Adapter.extend({
       findQuery: function(store, type, query) {
         var url = type;
         return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -220,8 +227,10 @@ var Adapter = Ember.Object.extend({
 
     Example
 
-    ```javascript
-    App.ApplicationAdapter = DS.Adapter.extend({
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.Adapter.extend({
       createRecord: function(store, type, snapshot) {
         var data = this.serialize(snapshot, { includeId: true });
         var url = type;
@@ -248,8 +257,10 @@ var Adapter = Ember.Object.extend({
 
     Example
 
-    ```javascript
-    App.ApplicationAdapter = DS.Adapter.extend({
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.Adapter.extend({
       createRecord: function(store, type, snapshot) {
         var data = this.serialize(snapshot, { includeId: true });
         var url = type;
@@ -287,8 +298,10 @@ var Adapter = Ember.Object.extend({
 
     Example
 
-    ```javascript
-    App.ApplicationAdapter = DS.Adapter.extend({
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.Adapter.extend({
       updateRecord: function(store, type, snapshot) {
         var data = this.serialize(snapshot, { includeId: true });
         var id = snapshot.id;
@@ -327,8 +340,10 @@ var Adapter = Ember.Object.extend({
 
     Example
 
-    ```javascript
-    App.ApplicationAdapter = DS.Adapter.extend({
+    ```app/adapters/application.js
+    import DS from 'ember-data';
+
+    export default DS.Adapter.extend({
       deleteRecord: function(store, type, snapshot) {
         var data = this.serialize(snapshot, { includeId: true });
         var id = snapshot.id;

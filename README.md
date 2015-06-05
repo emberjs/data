@@ -52,8 +52,34 @@ controllers in your app.
 
 First thing's first: tell Ember Data about the models in your
 application. For example, imagine we're writing a blog reader app.
+
 Here's what your model definition would look like if you're using
-globals (that is, not something like  or ember-cli):
+ES6 modules (via ember-cli):
+
+```js
+// app/models/blog-post.js
+import DS from 'ember-data';
+
+export default DS.Model.extend({
+  title: DS.attr(),
+  createdAt: DS.attr('date'),
+
+  comments: DS.hasMany('comment')
+});
+
+// app/models/comment.js
+import DS from 'ember-data';
+
+export default DS.Model.extend({
+  body: DS.attr(),
+  username: DS.attr(),
+
+  post: DS.belongsTo('blogPost')
+});
+```
+
+If you're using globals (that is, not something like  or ember-cli), your
+models would look like this:
 
 ```js
 var attr = DS.attr;
@@ -68,33 +94,6 @@ App.BlogPost = DS.Model.extend({
 });
 
 App.Comment = DS.Model.extend({
-  body: attr(),
-  username: attr(),
-
-  post: belongsTo('blogPost')
-});
-```
-
-If you're using ES6 modules (via ember-cli), your
-models would look like this:
-
-```js
-// app/models/blog-post.js
-var attr = DS.attr;
-var hasMany = DS.hasMany;
-
-export default DS.Model.extend({
-  title: attr(),
-  createdAt: attr('date'),
-
-  comments: hasMany('comment')
-});
-
-// app/models/comment.js
-var attr = DS.attr;
-var belongsTo = DS.belongsTo;
-
-export default DS.Model.extend({
   body: attr(),
   username: attr(),
 

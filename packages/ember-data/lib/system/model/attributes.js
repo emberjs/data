@@ -23,15 +23,21 @@ Model.reopenClass({
 
     Example
 
-    ```javascript
+    ```app/models/person.js
+    import DS from 'ember-data';
 
-    App.Person = DS.Model.extend({
+    export default DS.Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
       birthday: attr('date')
     });
+    ```
 
-    var attributes = Ember.get(App.Person, 'attributes')
+    ```javascript
+    import Ember from 'ember';
+    import Person from 'app/models/person';
+
+    var attributes = Ember.get(Person, 'attributes')
 
     attributes.forEach(function(name, meta) {
       console.log(name, meta);
@@ -71,14 +77,21 @@ Model.reopenClass({
 
     Example
 
-    ```javascript
-    App.Person = DS.Model.extend({
+    ```app/models/person.js
+    import DS from 'ember-data';
+
+    export default DS.Model.extend({
       firstName: attr(),
       lastName: attr('string'),
       birthday: attr('date')
     });
+    ```
 
-    var transformedAttributes = Ember.get(App.Person, 'transformedAttributes')
+    ```javascript
+    import Ember from 'ember';
+    import Person from 'app/models/person';
+
+    var transformedAttributes = Ember.get(Person, 'transformedAttributes')
 
     transformedAttributes.forEach(function(field, type) {
       console.log(field, type);
@@ -126,13 +139,15 @@ Model.reopenClass({
     Example
 
     ```javascript
-    App.Person = DS.Model.extend({
+    import DS from 'ember-data';
+
+    var Person = DS.Model.extend({
       firstName: attr('string'),
       lastName: attr('string'),
       birthday: attr('date')
     });
 
-    App.Person.eachAttribute(function(name, meta) {
+    Person.eachAttribute(function(name, meta) {
       console.log(name, meta);
     });
 
@@ -175,13 +190,15 @@ Model.reopenClass({
     Example
 
     ```javascript
-    App.Person = DS.Model.extend({
+    import DS from 'ember-data';
+
+    var Person = DS.Model.extend({
       firstName: attr(),
       lastName: attr('string'),
       birthday: attr('date')
     });
 
-    App.Person.eachTransformedAttribute(function(name, type) {
+    Person.eachTransformedAttribute(function(name, type) {
       console.log(name, type);
     });
 
@@ -251,23 +268,23 @@ function getValue(record, key) {
 
   Example
 
-  ```javascript
-  var attr = DS.attr;
+  ```app/models/user.js
+  import DS from 'ember-data';
 
-  App.User = DS.Model.extend({
-    username: attr('string'),
-    email: attr('string'),
-    verified: attr('boolean', {defaultValue: false})
+  export default DS.Model.extend({
+    username: DS.attr('string'),
+    email: DS.attr('string'),
+    verified: DS.attr('boolean', {defaultValue: false})
   });
   ```
 
   Default value can also be a function. This is useful it you want to return
   a new object for each attribute.
 
-  ```javascript
-  var attr = DS.attr;
+  ```app/models/user.js
+  import DS from 'ember-data';
 
-  App.User = DS.Model.extend({
+  export default DS.Model.extend({
     username: attr('string'),
     email: attr('string'),
     settings: attr({defaultValue: function() {

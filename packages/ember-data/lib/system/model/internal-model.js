@@ -67,17 +67,24 @@ var InternalModel = function InternalModel(type, id, store, container, data) {
     implicit relationships are relationship which have not been declared but the inverse side exists on
     another record somewhere
     For example if there was
+
+    ```app/models/comment.js
+    import DS from 'ember-data';
+
+    export default DS.Model.extend({
+      name: DS.attr()
+    })
     ```
-      App.Comment = DS.Model.extend({
-        name: DS.attr()
-      })
-    ```
+
     but there is also
-    ```
-      App.Post = DS.Model.extend({
-        name: DS.attr(),
-        comments: DS.hasMany('comment')
-      })
+
+    ```app/models/post.js
+    import DS from 'ember-data';
+
+    export default DS.Model.extend({
+      name: DS.attr(),
+      comments: DS.hasMany('comment')
+    })
     ```
 
     would have a implicit post relationship in order to be do things like remove ourselves from the post

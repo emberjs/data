@@ -164,8 +164,10 @@ Model.reopenClass({
 
     For example, if you define a model like this:
 
-   ```javascript
-    App.Post = DS.Model.extend({
+    ```app/models/post.js
+    import DS from 'ember-data';
+
+    export default DS.Model.extend({
       comments: DS.hasMany('comment')
     });
    ```
@@ -192,14 +194,20 @@ Model.reopenClass({
 
     For example, if you define models like this:
 
-   ```javascript
-      App.Post = DS.Model.extend({
-        comments: DS.hasMany('message')
-      });
+    ```app/models/post.js
+    import DS from 'ember-data';
 
-      App.Message = DS.Model.extend({
-        owner: DS.belongsTo('post')
-      });
+    export default DS.Model.extend({
+      comments: DS.hasMany('message')
+    });
+    ```
+
+    ```app/models/message.js
+    import DS from 'ember-data';
+
+    export default DS.Model.extend({
+      owner: DS.belongsTo('post')
+    });
     ```
 
     App.Post.inverseFor('comments') -> {type: App.Message, name:'owner', kind:'belongsTo'}
@@ -319,8 +327,10 @@ Model.reopenClass({
 
     For example, given the following model definition:
 
-    ```javascript
-    App.Blog = DS.Model.extend({
+    ```app/models/blog.js
+    import DS from 'ember-data';
+
+    export default DS.Model.extend({
       users: DS.hasMany('user'),
       owner: DS.belongsTo('user'),
       posts: DS.hasMany('post')
@@ -331,7 +341,10 @@ Model.reopenClass({
     relationships, like this:
 
     ```javascript
-    var relationships = Ember.get(App.Blog, 'relationships');
+    import Ember from 'ember';
+    import Blog from 'app/models/blog';
+
+    var relationships = Ember.get(Blog, 'relationships');
     relationships.get(App.User);
     //=> [ { name: 'users', kind: 'hasMany' },
     //     { name: 'owner', kind: 'belongsTo' } ]
@@ -352,8 +365,10 @@ Model.reopenClass({
     by the relationship kind. For example, given a model with this
     definition:
 
-    ```javascript
-    App.Blog = DS.Model.extend({
+    ```app/models/blog.js
+    import DS from 'ember-data';
+
+    export default DS.Model.extend({
       users: DS.hasMany('user'),
       owner: DS.belongsTo('user'),
 
@@ -364,7 +379,10 @@ Model.reopenClass({
     This property would contain the following:
 
     ```javascript
-    var relationshipNames = Ember.get(App.Blog, 'relationshipNames');
+    import Ember from 'ember';
+    import Blog from 'app/models/blog';
+
+    var relationshipNames = Ember.get(Blog, 'relationshipNames');
     relationshipNames.hasMany;
     //=> ['users', 'posts']
     relationshipNames.belongsTo;
@@ -398,8 +416,10 @@ Model.reopenClass({
 
     For example, given a model with this definition:
 
-    ```javascript
-    App.Blog = DS.Model.extend({
+    ```app/models/blog.js
+    import DS from 'ember-data';
+
+    export default DS.Model.extend({
       users: DS.hasMany('user'),
       owner: DS.belongsTo('user'),
 
@@ -410,7 +430,10 @@ Model.reopenClass({
     This property would contain the following:
 
     ```javascript
-    var relatedTypes = Ember.get(App.Blog, 'relatedTypes');
+    import Ember from 'ember';
+    import Blog from 'app/models/blog';
+
+    var relatedTypes = Ember.get(Blog, 'relatedTypes');
     //=> [ App.User, App.Post ]
     ```
 
@@ -428,8 +451,10 @@ Model.reopenClass({
     For example, given a model with this
     definition:
 
-    ```javascript
-    App.Blog = DS.Model.extend({
+    ```app/models/blog.js
+    import DS from 'ember-data';
+
+    export default DS.Model.extend({
       users: DS.hasMany('user'),
       owner: DS.belongsTo('user'),
 
@@ -440,7 +465,10 @@ Model.reopenClass({
     This property would contain the following:
 
     ```javascript
-    var relationshipsByName = Ember.get(App.Blog, 'relationshipsByName');
+    import Ember from 'ember';
+    import Blog from 'app/models/blog';
+
+    var relationshipsByName = Ember.get(Blog, 'relationshipsByName');
     relationshipsByName.get('users');
     //=> { key: 'users', kind: 'hasMany', type: App.User }
     relationshipsByName.get('owner');
@@ -461,9 +489,10 @@ Model.reopenClass({
 
     For example:
 
-    ```javascript
+    ```app/models/blog.js
+    import DS from 'ember-data';
 
-    App.Blog = DS.Model.extend({
+    export default DS.Model.extend({
       users: DS.hasMany('user'),
       owner: DS.belongsTo('user'),
 
@@ -471,8 +500,13 @@ Model.reopenClass({
 
       title: DS.attr('string')
     });
+    ```
 
-    var fields = Ember.get(App.Blog, 'fields');
+    ```js
+    import Ember from 'ember';
+    import Blog from 'app/models/blog';
+
+    var fields = Ember.get(Blog, 'fields');
     fields.forEach(function(kind, field) {
       console.log(field, kind);
     });
@@ -588,8 +622,10 @@ Model.reopen({
 
     Example
 
-    ```javascript
-    App.ApplicationSerializer = DS.JSONSerializer.extend({
+    ```app/serializers/application.js
+    import DS from 'ember-data';
+
+    export default DS.JSONSerializer.extend({
       serialize: function(record, options) {
         var json = {};
 
