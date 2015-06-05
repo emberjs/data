@@ -10,9 +10,6 @@ import normalizeModelName from "ember-data/system/normalize-model-name";
 import {
   InvalidError
 } from 'ember-data/adapters/errors';
-import {
-  Map
-} from "ember-data/system/map";
 
 import {
   promiseArray,
@@ -55,6 +52,7 @@ import InternalModel from "ember-data/system/model/internal-model";
 import EmptyObject from "ember-data/system/empty-object";
 
 var Backburner = Ember._Backburner || Ember.Backburner || Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
+var Map = Ember.Map;
 
 //Shim Backburner.join
 if (!Backburner.prototype.join) {

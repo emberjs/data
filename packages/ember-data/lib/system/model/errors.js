@@ -3,9 +3,7 @@ var set = Ember.set;
 var isEmpty = Ember.isEmpty;
 var makeArray = Ember.makeArray;
 
-import {
-  MapWithDefault
-} from "ember-data/system/map";
+var MapWithDefault = Ember.MapWithDefault;
 
 /**
 @module ember-data

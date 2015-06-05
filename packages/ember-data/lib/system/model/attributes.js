@@ -1,13 +1,11 @@
 import Model from "ember-data/system/model/model";
-import {
-  Map
-} from "ember-data/system/map";
 
 /**
   @module ember-data
 */
 
 var get = Ember.get;
+var Map = Ember.Map;
 
 /**
   @class Model
