@@ -105,13 +105,13 @@ test("destroying the store correctly cleans everything up", function() {
   equal(adapterPopulatedSummary.called.length, 1);
 });
 
-test("Should not filter a store.all() array when a record property is changed", function() {
+test("Should not filter a store.peekAll() array when a record property is changed", function() {
   var car;
 
   var populateLiveRecordArray = tap(store.recordArrayManager, 'populateLiveRecordArray');
   var updateFilterRecordArray = tap(store.recordArrayManager, 'updateFilterRecordArray');
 
-  store.all('car');
+  store.peekAll('car');
 
   run(function() {
     car = store.push('car', {

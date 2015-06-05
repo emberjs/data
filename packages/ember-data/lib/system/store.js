@@ -203,7 +203,7 @@ if (!Service) {
 
   Note: When creating a new record using any of the above methods
   Ember Data will update `DS.RecordArray`s such as those returned by
-  `store#all()`, `store#findAll()` or `store#filter()`. This means any
+  `store#peekAll()`, `store#findAll()` or `store#filter()`. This means any
   data bindings or computed properties that depend on the RecordArray
   will automatically be synced to include the new or updated record
   values.
@@ -1049,7 +1049,7 @@ Store = Service.extend({
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
 
-    return this._fetchAll(typeClass, this.all(modelName));
+    return this._fetchAll(typeClass, this.peekAll(modelName));
   },
 
   /**
@@ -1105,6 +1105,34 @@ Store = Service.extend({
     @return {DS.RecordArray}
   */
   all: function(modelName) {
+    Ember.deprecate('Using store.all() has been deprecated. Use store.peekAll() to get all records by a given type without triggering a fetch.');
+    return this.peekAll(modelName);
+  },
+
+  /**
+    This method returns a filtered array that contains all of the
+    known records for a given type in the store.
+
+    Note that because it's just a filter, the result will contain any
+    locally created records of the type, however, it will not make a
+    request to the backend to retrieve additional records. If you
+    would like to request all the records from the backend please use
+    [store.find](#method_find).
+
+    Also note that multiple calls to `peekAll` for a given type will always
+    return the same `RecordArray`.
+
+    Example
+
+    ```javascript
+    var localPosts = store.peekAll('post');
+    ```
+
+    @method peekAll
+    @param {String} modelName
+    @return {DS.RecordArray}
+  */
+  peekAll: function(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
 

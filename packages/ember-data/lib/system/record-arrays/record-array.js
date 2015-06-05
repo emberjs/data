@@ -46,7 +46,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var people = store.all('person');
+    var people = store.peekAll('person');
     people.get('isLoaded'); // true
     ```
 
@@ -60,7 +60,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var people = store.all('person');
+    var people = store.peekAll('person');
     people.get('isUpdating'); // false
     people.update();
     people.get('isUpdating'); // true
@@ -101,7 +101,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var people = store.all('person');
+    var people = store.peekAll('person');
     people.get('isUpdating'); // false
     people.update();
     people.get('isUpdating'); // true
@@ -152,7 +152,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     Example
 
     ```javascript
-    var messages = store.all('message');
+    var messages = store.peekAll('message');
     messages.forEach(function(message) {
       message.set('hasBeenSeen', true);
     });

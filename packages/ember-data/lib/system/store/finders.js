@@ -135,7 +135,7 @@ export function _findAll(adapter, store, typeClass, sinceToken) {
     });
 
     store.didUpdateAll(typeClass);
-    return store.all(modelName);
+    return store.peekAll(modelName);
   }, null, "DS: Extract payload of findAll " + typeClass);
 }
 

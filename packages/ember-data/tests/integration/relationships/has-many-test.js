@@ -1219,7 +1219,7 @@ test("Relationship.clear removes all records correctly", function() {
 
   run(function() {
     post._internalModel._relationships.get('comments').clear();
-    var comments = Ember.A(env.store.all('comment'));
+    var comments = Ember.A(env.store.peekAll('comment'));
     deepEqual(comments.mapBy('post'), [null, null, null]);
   });
 

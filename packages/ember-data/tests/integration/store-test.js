@@ -324,7 +324,7 @@ test("Using store#findAll with no records triggers a query", function() {
     }]
   });
 
-  var cars = store.all('car');
+  var cars = store.peekAll('car');
   ok(!cars.get('length'), 'There is no cars in the store');
 
   run(function() {
@@ -358,7 +358,7 @@ test("Using store#findAll with existing records performs a query, updating exist
     }]
   });
 
-  var cars = store.all('car');
+  var cars = store.peekAll('car');
   equal(cars.get('length'), 1, 'There is one car in the store');
 
   run(function() {
@@ -386,7 +386,7 @@ test("store#findAll should return all known records even if they are not in the 
     }]
   });
 
-  var cars = store.all('car');
+  var cars = store.peekAll('car');
   equal(cars.get('length'), 2, 'There is two cars in the store');
 
   run(function() {
@@ -395,7 +395,7 @@ test("store#findAll should return all known records even if they are not in the 
       var mini = cars.findBy('id', '1');
       equal(mini.get('model'), 'New Mini', 'Existing records have been updated');
 
-      var carsInStore = store.all('car');
+      var carsInStore = store.peekAll('car');
       equal(carsInStore.get('length'), 2, 'There is 2 cars in the store');
     });
   });

@@ -103,7 +103,7 @@ test("When all records for a type are requested, records that are already loaded
     store.createRecord('person', { name: "Alex MacCaw" });
   });
 
-  allRecords = store.all('person');
+  allRecords = store.peekAll('person');
 
   equal(get(allRecords, 'length'), 2, "the record array's length is 2");
   equal(allRecords.objectAt(0).get('name'), "Jeremy Ashkenas", "the first item in the record array is Jeremy Ashkenas");
@@ -118,7 +118,7 @@ test("When all records for a type are requested, records that are created on the
     person: Person
   });
 
-  allRecords = store.all('person');
+  allRecords = store.peekAll('person');
 
   equal(get(allRecords, 'length'), 0, "precond - the record array's length is zero before any records are loaded");
 

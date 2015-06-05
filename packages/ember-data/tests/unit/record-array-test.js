@@ -37,7 +37,7 @@ test("acts as a live query", function() {
   var store = createStore({
     person: Person
   });
-  var recordArray = store.all('person');
+  var recordArray = store.peekAll('person');
   run(function() {
     store.push('person', { id: 1, name: 'wycats' });
   });
@@ -60,7 +60,7 @@ test("stops updating when destroyed", function() {
   // is on the release branch
   var emptyLength = Ember.meta(store).descs ? undefined : 0;
 
-  var recordArray = store.all('person');
+  var recordArray = store.peekAll('person');
   run(function() {
     store.push('person', { id: 1, name: 'wycats' });
   });
@@ -188,7 +188,7 @@ test("a newly created record is removed from a record array when it is deleted",
   var store = createStore({
     person: Person
   });
-  var recordArray = store.all('person');
+  var recordArray = store.peekAll('person');
   var scumbag;
 
   run(function() {
@@ -231,7 +231,7 @@ test("a record array returns undefined when asking for a member outside of its c
     store.pushMany('person', array);
   });
 
-  var recordArray = store.all('person');
+  var recordArray = store.peekAll('person');
 
   strictEqual(recordArray.objectAt(20), undefined, "objects outside of the range just return undefined");
 });
@@ -245,7 +245,7 @@ test("a record array should be able to be enumerated in any order", function() {
     store.pushMany('person', array);
   });
 
-  var recordArray = store.all('person');
+  var recordArray = store.peekAll('person');
 
   equal(get(recordArray.objectAt(2), 'id'), 3, "should retrieve correct record at index 2");
   equal(get(recordArray.objectAt(1), 'id'), 2, "should retrieve correct record at index 1");
@@ -278,7 +278,7 @@ test("a record array should return a promise when updating", function() {
     return Ember.RSVP.resolve(array);
   };
 
-  recordArray = store.all('person');
+  recordArray = store.peekAll('person');
   run(function() {
     promise = recordArray.update();
   });

@@ -28,7 +28,7 @@ test("records can be deleted during record array enumeration", function () {
     adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
     dave = env.store.push('person', { id: 2, name: "Dave Sunderland" });
   });
-  var all  = env.store.all('person');
+  var all = env.store.peekAll('person');
 
   // pre-condition
   equal(all.get('length'), 2, 'expected 2 records');
@@ -49,7 +49,7 @@ test("when deleted records are rolled back, they are still in their previous rec
     jaime = env.store.push('person', { id: 1, name: "Jaime Lannister" });
     cersei = env.store.push('person', { id: 2, name: "Cersei Lannister" });
   });
-  var all = env.store.all('person');
+  var all = env.store.peekAll('person');
   var filtered;
   run(function() {
     filtered = env.store.filter('person', function () {

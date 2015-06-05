@@ -51,7 +51,7 @@ test("can unload a single record", function () {
     adam.unloadRecord();
   });
 
-  equal(env.store.all('person').get('length'), 0);
+  equal(env.store.peekAll('person').get('length'), 0);
 });
 
 test("can unload all records for a given type", function () {
@@ -74,8 +74,8 @@ test("can unload all records for a given type", function () {
     env.store.unloadAll('person');
   });
 
-  equal(env.store.all('person').get('length'), 0);
-  equal(env.store.all('car').get('length'), 1);
+  equal(env.store.peekAll('person').get('length'), 0);
+  equal(env.store.peekAll('car').get('length'), 1);
 });
 
 test("can unload all records", function () {
@@ -98,8 +98,8 @@ test("can unload all records", function () {
     env.store.unloadAll();
   });
 
-  equal(env.store.all('person').get('length'), 0);
-  equal(env.store.all('car').get('length'), 0);
+  equal(env.store.peekAll('person').get('length'), 0);
+  equal(env.store.peekAll('car').get('length'), 0);
 });
 
 test("Unloading all records for a given type clears saved meta data.", function () {
@@ -128,20 +128,20 @@ test("removes findAllCache after unloading all records", function () {
   });
 
   Ember.run(function() {
-    env.store.all('person');
+    env.store.peekAll('person');
     env.store.unloadAll('person');
   });
 
-  equal(env.store.all('person').get('length'), 0);
+  equal(env.store.peekAll('person').get('length'), 0);
 });
 
-test("unloading all records also updates record array from all()", function() {
+test("unloading all records also updates record array from peekAll()", function() {
   var adam, bob;
   run(function() {
     adam = env.store.push('person', { id: 1, name: "Adam Sunderland" });
     bob = env.store.push('person', { id: 2, name: "Bob Bobson" });
   });
-  var all = env.store.all('person');
+  var all = env.store.peekAll('person');
 
   equal(all.get('length'), 2);
 

@@ -306,5 +306,5 @@ test("an ID of 0 is allowed", function() {
     store.push('person', { id: 0, name: "Tom Dale" });
   });
 
-  equal(store.all('person').objectAt(0).get('name'), "Tom Dale", "found record with id 0");
+  equal(store.peekAll('person').objectAt(0).get('name'), "Tom Dale", "found record with id 0");
 });

@@ -55,7 +55,7 @@ export default Ember.DataAdapter.extend({
       }
     }
     assert("Cannot find model name. Please upgrade to Ember.js >= 1.13 for Ember Inspector support", !!modelName);
-    return this.get('store').all(modelName);
+    return this.get('store').peekAll(modelName);
   },
 
   getRecordColumnValues: function(record) {

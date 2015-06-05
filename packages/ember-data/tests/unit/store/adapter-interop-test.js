@@ -255,7 +255,7 @@ test("Find with query calls the correct extract", function() {
   equal(callCount, 1, 'extractFindQuery was called');
 });
 
-test("all(type) returns a record array of all records of a specific type", function() {
+test("peekAll(type) returns a record array of all records of a specific type", function() {
   var Person = DS.Model.extend({
     name: DS.attr('string')
   });
@@ -268,7 +268,7 @@ test("all(type) returns a record array of all records of a specific type", funct
     store.push('person', { id: 1, name: "Tom Dale" });
   });
 
-  var results = store.all('person');
+  var results = store.peekAll('person');
   equal(get(results, 'length'), 1, "record array should have the original object");
   equal(get(results.objectAt(0), 'name'), "Tom Dale", "record has the correct information");
 
@@ -278,7 +278,7 @@ test("all(type) returns a record array of all records of a specific type", funct
   equal(get(results, 'length'), 2, "record array should have the new object");
   equal(get(results.objectAt(1), 'name'), "Yehuda Katz", "record has the correct information");
 
-  strictEqual(results, store.all('person'), "subsequent calls to all return the same recordArray)");
+  strictEqual(results, store.peekAll('person'), "subsequent calls to peekAll return the same recordArray)");
 });
 
 test("a new record of a particular type is created via store.createRecord(type)", function() {
@@ -527,7 +527,7 @@ test("records should have their ids updated when the adapter returns the id data
     person: Person
   });
 
-  var people = store.all('person');
+  var people = store.peekAll('person');
   var tom, yehuda;
 
   run(function() {
