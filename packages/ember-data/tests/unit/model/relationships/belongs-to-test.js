@@ -253,3 +253,61 @@ test("belongsTo supports relationships to models with id 0", function() {
     }));
   });
 });
+
+test("belongsTo gives a warning when provided with a serialize option", function() {
+  var Hobby = DS.Model.extend({
+    name: DS.attr('string')
+  });
+  Hobby.toString = function() { return "Hobby"; };
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    hobby: DS.belongsTo('hobby', { serialize: true })
+  });
+  Person.toString = function() { return "Person"; };
+
+  var env = setupStore({ hobby: Hobby, person: Person });
+  var store = env.store;
+
+  run(function() {
+    store.pushMany('hobby', [{ id: 1, name: "fishing" }, { id: 1, name: "coding" }]);
+    store.push('person', { id: 1, name: "Tom Dale", hobby: 1 });
+  });
+
+  warns(function() {
+    run(function() {
+      store.find('person', 1).then(async(function(person) {
+        get(person, 'hobby');
+      }));
+    });
+  }, /You provided a serialize option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.Serializer and it's implementations/);
+});
+
+test("belongsTo gives a warning when provided with an embedded option", function() {
+  var Hobby = DS.Model.extend({
+    name: DS.attr('string')
+  });
+  Hobby.toString = function() { return "Hobby"; };
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+    hobby: DS.belongsTo('hobby', { embedded: true })
+  });
+  Person.toString = function() { return "Person"; };
+
+  var env = setupStore({ hobby: Hobby, person: Person });
+  var store = env.store;
+
+  run(function() {
+    store.pushMany('hobby', [{ id: 1, name: "fishing" }, { id: 1, name: "coding" }]);
+    store.push('person', { id: 1, name: "Tom Dale", hobby: 1 });
+  });
+
+  warns(function() {
+    run(function() {
+      store.find('person', 1).then(async(function(person) {
+        get(person, 'hobby');
+      }));
+    });
+  }, /You provided an embedded option on the "hobby" property in the "person" class, this belongs in the serializer. See DS.EmbeddedRecordsMixin/);
+});
