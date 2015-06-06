@@ -534,7 +534,7 @@ Store = Service.extend({
       return this.findQuery(modelName, id);
     }
 
-    return this.findById(modelName, coerceId(id), preload);
+    return this.findByRecord(modelName, coerceId(id), preload);
   },
 
   /**
@@ -614,6 +614,21 @@ Store = Service.extend({
     @return {Promise} promise
   */
   findById: function(modelName, id, preload) {
+    Ember.deprecate('Using store.findById() has been deprecated. Use store.findByRecord() to return a record for a given type and id combination.');
+    return this.findByRecord(modelName, id, preload);
+  },
+
+  /**
+    This method returns a record for a given type and id combination.
+
+    @method findByRecord
+    @private
+    @param {String} modelName
+    @param {(String|Integer)} id
+    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
+    @return {Promise} promise
+  */
+  findByRecord: function(modelName, id, preload) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var internalModel = this._internalModelForId(modelName, id);
 
@@ -651,12 +666,12 @@ Store = Service.extend({
     var store = this;
 
     return promiseArray(Ember.RSVP.all(map(ids, function(id) {
-      return store.findById(modelName, id);
+      return store.findByRecord(modelName, id);
     })).then(Ember.A, null, "DS: Store#findByIds of " + modelName + " complete"));
   },
 
   /**
-    This method is called by `findById` if it discovers that a particular
+    This method is called by `findByRecord` if it discovers that a particular
     type/id pair hasn't been loaded yet to kick off a request to the
     adapter.
 
