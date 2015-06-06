@@ -25,7 +25,8 @@
     "test:local": "testem -R dot ci",
     "test:beta": "testem -f config/testem-beta.json -R dot ci",
     "test:canary": "testem -f config/testem-canary.json -R dot ci",
-    "test:stable": "testem -f config/testem-stable.json -R dot ci"
+    "test:stable": "testem -f config/testem-stable.json -R dot ci",
+    "test:optional-features": "testem -f config/testem-optional-features.json -R dot ci"
   },
   "devDependencies": {
     "aws-sdk": "~2.0.0-rc8",
