@@ -584,10 +584,8 @@ Store = Service.extend({
     @return {Promise} promise
   */
   fetchAll: function(modelName) {
-    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    var typeClass = this.modelFor(modelName);
-
-    return this._fetchAll(typeClass, this.all(modelName));
+    Ember.deprecate('Using store.fetchAll(type) has been deprecated. Use store.findAll(type) to retrieve all records for a given type.');
+    return this.findAll(modelName);
   },
 
   /**
@@ -1003,7 +1001,9 @@ Store = Service.extend({
   */
   findAll: function(modelName) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    return this.fetchAll(modelName);
+    var typeClass = this.modelFor(modelName);
+
+    return this._fetchAll(typeClass, this.all(modelName));
   },
 
   /**
