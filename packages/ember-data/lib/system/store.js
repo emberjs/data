@@ -462,10 +462,10 @@ Store = Service.extend({
 
     ---
 
-    To find all records for a type, call `find` with no additional parameters:
+    To find all records for a type, call `findAll`:
 
     ```javascript
-    store.find('person');
+    store.findAll('person');
     ```
 
     This will ask the adapter's `findAll` method to find the records for the
@@ -526,6 +526,7 @@ Store = Service.extend({
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
     if (arguments.length === 1) {
+      Ember.deprecate('Using store.find(type) has been deprecated. Use store.findAll(type) to retrieve all records for a given type.');
       return this.findAll(modelName);
     }
 
@@ -997,7 +998,6 @@ Store = Service.extend({
     the array with records of that type.
 
     @method findAll
-    @private
     @param {String} modelName
     @return {DS.AdapterPopulatedRecordArray}
   */

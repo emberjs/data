@@ -43,7 +43,7 @@ test("When all records for a type are requested, the store should call the adapt
   var allRecords;
 
   run(function() {
-    store.find('person').then(function(all) {
+    store.findAll('person').then(function(all) {
       allRecords = all;
       equal(get(all, 'length'), 1, "the record array's length is 1 after a record is loaded into it");
       equal(all.objectAt(0).get('name'), "Braaaahm Dale", "the first item in the record array is Braaaahm Dale");
@@ -51,7 +51,7 @@ test("When all records for a type are requested, the store should call the adapt
   });
 
   run(function() {
-    store.find('person').then(function(all) {
+    store.findAll('person').then(function(all) {
       // Only one record array per type should ever be created (identity map)
       strictEqual(allRecords, all, "the same record array is returned every time all records of a type are requested");
     });
@@ -78,9 +78,9 @@ test("When all records for a type are requested, a rejection should reject the p
   var allRecords;
 
   run(function() {
-    store.find('person').then(null, function() {
+    store.findAll('person').then(null, function() {
       ok(true, "The rejection should get here");
-      return store.find('person');
+      return store.findAll('person');
     }).then(function(all) {
       allRecords = all;
       equal(get(all, 'length'), 1, "the record array's length is 1 after a record is loaded into it");

@@ -22,14 +22,12 @@ module("integration/adapter/find - Finding Records", {
 });
 
 test("It raises an assertion when no type is passed", function() {
-
   expectAssertion(function() {
     store.find();
   }, "You need to pass a type to the store's find method");
 });
 
 test("It raises an assertion when `undefined` is passed as id (#1705)", function() {
-
   expectAssertion(function() {
     store.find('person', undefined);
   }, "You may not pass `undefined` as id to the store's find method");
@@ -37,6 +35,23 @@ test("It raises an assertion when `undefined` is passed as id (#1705)", function
   expectAssertion(function() {
     store.find('person', null);
   }, "You may not pass `null` as id to the store's find method");
+});
+
+test("store.find(type) is deprecated", function() {
+  env.registry.register('adapter:person', DS.Adapter.extend({
+    findAll: function(store, typeClass) {
+      return [];
+    }
+  }));
+
+  expectDeprecation(
+    function() {
+      run(function() {
+        store.find('person');
+      });
+    },
+    'Using store.find(type) has been deprecated. Use store.findAll(type) to retrieve all records for a given type.'
+  );
 });
 
 test("When a single record is requested, the adapter's find method should be called unless it's loaded.", function() {

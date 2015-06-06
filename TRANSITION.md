@@ -28,7 +28,7 @@ Ember Data 1.0.beta.1:
 ```js
 App.PostsRoute = Ember.Route.extend({
   model: function() {
-    return this.store.find('post');
+    return this.store.findAll('post');
   }
 });
 
@@ -180,7 +180,7 @@ App.NewPostRoute = Ember.Route.extend({
 });
 ```
 
-You also no longer need transactions to save relationships independently 
+You also no longer need transactions to save relationships independently
 of the model it belongs to, e.g. comments of a post.
 
 Ember Data 0.13:
@@ -295,7 +295,7 @@ function retry(promise, retryCallback, nTimes) {
   });
 }
 
-// try to save the person up to 5 times 
+// try to save the person up to 5 times
 retry(person.save(), function() {
   return person.save();
 }, 5);
@@ -305,7 +305,7 @@ Because all async operations in Ember Data 1.0.beta.1 are promises, you
 can combine them together using normal promise primitives.
 
 ```js
-this.store.find('person').then(function(people) {
+this.store.findAll('person').then(function(people) {
   people.forEach(function(person) {
     person.set('isPaidUp', true);
   });
@@ -533,7 +533,7 @@ App.PostSerializer = DS.RESTSerializer.extend({
     });
 
     post.comments = commentIds;
-    
+
     var post_payload = { post: post, comments: comments };
 
     return this._super(store, type, post_payload, id);
@@ -559,7 +559,7 @@ App.PostSerializer = DS.RESTSerializer.extend({
     // below in `normalizeHash`
     var comments = payload._embedded.comments;
     post.comments = comments.mapBy('ID_');
-    
+
     var post_payload = { post: post, comments: comments };
 
     return this._super(store, type, post_payload, id);
@@ -620,7 +620,7 @@ App.PostSerializer = DS.RESTSerializer.extend({
 
     // normalize the underscored properties
     for (var prop in hash) {
-      json[prop.camelize()] = hash[prop]; 
+      json[prop.camelize()] = hash[prop];
     }
 
     // delegate to any type-specific normalizations
@@ -648,14 +648,14 @@ In 0.13, the REST Adapter automatically camelized incoming keys for
 you. It also expected `belongsTo` relationships to be listed under
 `name_id` and `hasMany` relationships to be listed under `name_ids`.
 
-If your application returns json with underscored attributes and `_id` or `_ids` 
+If your application returns json with underscored attributes and `_id` or `_ids`
 for relation, you can extend `ActiveModelSerializer` and all will work out of the box.
 
 ```js
 App.ApplicationSerializer = DS.ActiveModelSerializer.extend({});
 ```
 
-Note: DS.ActiveModelSerializer is not to be confused with the ActiveModelSerializer gem 
+Note: DS.ActiveModelSerializer is not to be confused with the ActiveModelSerializer gem
 that is part of Rails API project. A conventional Rails API project with produce underscored output
 and the `DS.ActiveModelSerializer` will perform the expected normalization behavior such as camelizing
 property keys in your JSON.
