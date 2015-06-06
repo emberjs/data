@@ -2,7 +2,6 @@ import { PromiseManyArray } from "ember-data/system/promise-proxies";
 import Relationship from "ember-data/system/relationships/state/relationship";
 import OrderedSet from "ember-data/system/ordered-set";
 import ManyArray from "ember-data/system/many-array";
-import cloneNull from "ember-data/system/clone-null";
 
 var map = Ember.EnumerableUtils.map;
 
@@ -27,6 +26,12 @@ ManyRelationship.prototype._super$constructor = Relationship;
 
 ManyRelationship.prototype.destroy = function() {
   this.manyArray.destroy();
+};
+
+ManyRelationship.prototype._super$updateMeta = Relationship.prototype.updateMeta;
+ManyRelationship.prototype.updateMeta = function(meta) {
+  this._super$updateMeta(meta);
+  this.manyArray.set('meta', meta);
 };
 
 ManyRelationship.prototype._super$addCanonicalRecord = Relationship.prototype.addCanonicalRecord;
@@ -145,15 +150,14 @@ ManyRelationship.prototype.computeChanges = function(records) {
 };
 
 ManyRelationship.prototype.fetchLink = function() {
-  var self = this;
-  return this.store.findHasMany(this.record, this.link, this.relationshipMeta).then(function(records) {
-    var meta = self.store.metadataFor(self.relationshipMeta.type);
-    self.manyArray.set('meta', cloneNull(meta));
-
-    self.store._backburner.join(function() {
-      self.updateRecordsFromAdapter(records);
+  return this.store.findHasMany(this.record, this.link, this.relationshipMeta).then((records) => {
+    if (records.hasOwnProperty('meta')) {
+      this.updateMeta(records.meta);
+    }
+    this.store._backburner.join(() => {
+      this.updateRecordsFromAdapter(records);
     });
-    return self.manyArray;
+    return this.manyArray;
   });
 };
 

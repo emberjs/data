@@ -83,7 +83,11 @@ export function _findHasMany(adapter, store, internalModel, link, relationship) 
       var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findHasMany');
       //TODO Use a non record creating push
       var records = pushPayload(store, payload);
-      return map(records, function(record) { return record._internalModel; });
+      var recordArray = map(records, function(record) { return record._internalModel; });
+      if (Ember.FEATURES.isEnabled('ds-new-serializer-api') && serializer.get('isNewSerializerAPI')) {
+        recordArray.meta = payload.meta;
+      }
+      return recordArray;
     });
   }, null, "DS: Extract payload of " + internalModel + " : hasMany " + relationship.type);
 }

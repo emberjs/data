@@ -1443,33 +1443,100 @@ test("Model's belongsTo relationship should be created during 'get' method", fun
     user = env.store.createRecord('user');
     user.get('messages');
     ok(user._internalModel._relationships.has('messages'), "Newly created record with relationships in params passed in its constructor should have relationships");
-});
-
-test("metadata is accessible", function() {
-  expect(1);
-
-  env.adapter.findHasMany = function() {
-    return resolve({
-      meta: {
-        foo: 'bar'
-      },
-      chapters: [
-        { id: '2' },
-        { id: '3' }
-      ]
-    });
-  };
-
-  var book;
-
-  run(function() {
-    book = env.store.push('book', { id: 1, title: 'Sailing the Seven Seas', links: { chapters: '/chapters' } });
-  });
-
-  run(function() {
-    book.get('chapters').then(function(chapters) {
-      var meta = chapters.get('meta');
-      equal(get(meta, 'foo'), 'bar', 'metadata is available');
-    });
   });
 });
+
+if (Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
+
+  test("metadata is accessible when pushed as a meta property for a relationship", function() {
+    expect(1);
+    var book;
+    env.adapter.findHasMany = function() {
+      return resolve({});
+    };
+
+    run(function() {
+      book = env.store.push('book', { id: 1, title: 'Sailing the Seven Seas', meta: { chapters: 'the lefkada sea' }, links: { chapters: '/chapters' } });
+    });
+
+    run(function() {
+      equal(book._internalModel._relationships.get('chapters').meta, 'the lefkada sea', 'meta is there');
+    });
+  });
+
+  test("metadata is accessible when return from a fetchLink", function() {
+    expect(1);
+    env.registry.register('serializer:application', DS.RESTSerializer.extend({ isNewSerializerAPI: true }));
+
+    env.adapter.findHasMany = function() {
+      return resolve({
+        meta: {
+          foo: 'bar'
+        },
+        chapters: [
+          { id: '2' },
+          { id: '3' }
+        ]
+      });
+    };
+
+    var book;
+
+    run(function() {
+      book = env.store.push('book', { id: 1, title: 'Sailing the Seven Seas', links: { chapters: '/chapters' } });
+    });
+
+    run(function() {
+      book.get('chapters').then(function(chapters) {
+        var meta = chapters.get('meta');
+        equal(get(meta, 'foo'), 'bar', 'metadata is available');
+      });
+    });
+  });
+
+  test("metadata should be reset between requests", function() {
+    var counter = 0;
+    env.registry.register('serializer:application', DS.RESTSerializer.extend({ isNewSerializerAPI: true }));
+
+    env.adapter.findHasMany = function() {
+      var data = {
+        meta: {
+          foo: 'bar'
+        },
+        chapters: [
+          { id: '2' },
+          { id: '3' }
+        ]
+      };
+
+      ok(true, 'findHasMany should be called twice');
+
+      if (counter === 1) {
+        delete data.meta;
+      }
+
+      counter++;
+
+      return resolve(data);
+    };
+
+    var book1, book2;
+
+    run(function() {
+      book1 = env.store.push('book', { id: 1, title: 'Sailing the Seven Seas', links: { chapters: 'chapters' } });
+      book2 = env.store.push('book', { id: 2, title: 'Another book title', links: { chapters: 'chapters' } });
+    });
+
+    run(function() {
+      book1.get('chapters').then(function(chapters) {
+        var meta = chapters.get('meta');
+        equal(get(meta, 'foo'), 'bar', 'metadata should available');
+
+        book2.get('chapters').then(function(chapters) {
+          var meta = chapters.get('meta');
+          equal(meta, undefined, 'metadata should not be available');
+        });
+      });
+    });
+  });
+}

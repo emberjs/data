@@ -2139,6 +2139,11 @@ function setupRelationships(store, record, data) {
       relationship.updateLink(data.links[key]);
     }
 
+    if (data.meta && data.meta.hasOwnProperty(key)) {
+      relationship = record._relationships.get(key);
+      relationship.updateMeta(data.meta[key]);
+    }
+
     if (value !== undefined) {
       if (kind === 'belongsTo') {
         relationship = record._relationships.get(key);
