@@ -105,6 +105,25 @@ if (Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
     });
   });
 
+  test('normalizeArrayResponse should extract meta using extractMeta', function() {
+    env.registry.register("serializer:home-planet", TestSerializer.extend({
+      extractMeta: function(store, modelClass, payload) {
+        let meta = this._super(...arguments);
+        meta.authors.push('Tomhuda');
+        return meta;
+      }
+    }));
+
+    var jsonHash = {
+      meta: { authors: ['Tomster'] },
+      home_planets: [{ id: "1", name: "Umber", superVillains: [1] }]
+    };
+
+    var json = env.container.lookup("serializer:home-planet").normalizeArrayResponse(env.store, HomePlanet, jsonHash, null, 'findAll');
+
+    deepEqual(json.meta.authors, ['Tomster', 'Tomhuda']);
+  });
+
   test("normalizeArrayResponse warning with custom modelNameFromPayloadKey", function() {
     var homePlanets;
     env.restNewSerializer.modelNameFromPayloadKey = function(root) {

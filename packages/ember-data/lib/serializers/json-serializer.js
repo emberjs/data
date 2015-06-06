@@ -425,7 +425,11 @@ export default Serializer.extend({
       included: []
     };
 
-    payload = this.normalizePayload(payload);
+    let meta = this.extractMeta(store, primaryModelClass, payload);
+    if (meta) {
+      Ember.assert('The `meta` returned from `extractMeta` has to be an object, not "' + Ember.typeOf(meta) + '".', Ember.typeOf(meta) === 'object');
+      documentHash.meta = meta;
+    }
 
     if (isSingle) {
       let { data } = this.normalize(primaryModelClass, payload);
@@ -1443,6 +1447,10 @@ export default Serializer.extend({
     @param {Object} payload
   */
   extractMeta: function(store, typeClass, payload) {
+    if (Ember.FEATURES.isEnabled('ds-new-serializer-api') && this.get('isNewSerializerAPI')) {
+      return _newExtractMeta.apply(this, arguments);
+    }
+
     if (payload && payload.meta) {
       store.setMetadataFor(typeClass, payload.meta);
       delete payload.meta;
@@ -1591,4 +1599,20 @@ function _newNormalize(modelClass, resourceHash) {
   }
 
   return { data };
+}
+
+/*
+  @method _newExtractMeta
+  @param {DS.Store} store
+  @param {DS.Model} modelClass
+  @param {Object} payload
+  @return {Object}
+  @private
+*/
+function _newExtractMeta(store, modelClass, payload) {
+  if (payload && payload.hasOwnProperty('meta')) {
+    let meta = payload.meta;
+    delete payload.meta;
+    return meta;
+  }
 }

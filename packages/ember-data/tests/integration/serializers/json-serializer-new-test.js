@@ -76,6 +76,29 @@ if (Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
     deepEqual(post.data.relationships.comments.data, [{ id: "1", type: "comment" }, { id: "2", type: "comment" }]);
   });
 
+  test('normalizeSingleResponse should extract meta using extractMeta', function() {
+    env.registry.register("serializer:post", TestSerializer.extend({
+      extractMeta: function(store, modelClass, payload) {
+        let meta = this._super(...arguments);
+        meta.authors.push('Tomhuda');
+        return meta;
+      }
+    }));
+
+    var jsonHash = {
+      id: "1",
+      title_payload_key: "Rails is omakase",
+      my_comments: [1, 2],
+      meta: {
+        authors: ['Tomster']
+      }
+    };
+
+    var post = env.container.lookup("serializer:post").normalizeSingleResponse(env.store, Post, jsonHash, '1', 'find');
+
+    deepEqual(post.meta.authors, ['Tomster', 'Tomhuda']);
+  });
+
   test("Serializer should respect the primaryKey attribute when extracting records", function() {
     env.registry.register('serializer:post', TestSerializer.extend({
       primaryKey: '_ID_'
@@ -118,32 +141,6 @@ if (Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
     post = env.container.lookup("serializer:post").normalize(Post, jsonHash);
 
     deepEqual(post.data.relationships.comments.data, [{ id: "1", type: "comment" }]);
-  });
-
-  test("normalizePayload is called during normalizeSingleResponse", function() {
-    var counter = 0;
-
-    env.registry.register('serializer:post', TestSerializer.extend({
-      normalizePayload: function(payload) {
-        counter++;
-        return payload.response;
-      }
-    }));
-
-    var jsonHash = {
-      response: {
-        id: 1,
-        title: "Rails is omakase"
-      }
-    };
-
-    run(function() {
-      post = env.container.lookup("serializer:post").normalizeSingleResponse(env.store, Post, jsonHash, '1', 'find');
-    });
-
-    equal(counter, 1);
-    equal(post.data.id, "1");
-    equal(post.data.attributes.title, "Rails is omakase");
   });
 
   test("Calling normalize should normalize the payload (only the passed keys)", function () {
