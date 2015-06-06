@@ -1,5 +1,8 @@
+import Model from 'ember-data/system/model/model';
+
 var forEach = Ember.ArrayPolyfills.forEach;
 var map = Ember.ArrayPolyfills.map;
+var get = Ember.get;
 
 /**
   This is a helper method that always returns a JSON-API Document.
@@ -84,24 +87,36 @@ export function _normalizeSerializerPayloadItem(modelClass, itemPayload) {
     if (itemPayload.hasOwnProperty(key)) {
       relationship = {};
       value = itemPayload[key];
-
       let normalizeRelationshipData = function(value, relationshipMeta) {
         if (Ember.isNone(value)) {
           return null;
         }
+        //Temporary support for https://github.com/emberjs/data/issues/3271
+        if (value instanceof Model) {
+          value = { id: value.id, type: value.constructor.modelName };
+        }
         if (Ember.typeOf(value) === 'object') {
+          Ember.assert('Ember Data expected a number or string to represent the record(s) in the `' + key + '` relationship instead it found an object. If this is a polymorphic relationship please specify a `type` key. If this is an embedded relationship please include the `DS.EmbeddedRecordsMixin` and specify the `' + key +'` property in your serializer\'s attrs object.', value.type);
           if (value.id) {
             value.id = `${value.id}`;
           }
           return value;
         }
+
+        Ember.assert("A " + relationshipMeta.parentType + " record was pushed into the store with the value of " + key + " being " + Ember.inspect(value) + ", but " + key + " is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.", !Ember.isArray(value));
         return { id: `${value}`, type: relationshipMeta.type };
       };
 
       if (relationshipMeta.kind === 'belongsTo') {
         relationship.data = normalizeRelationshipData(value, relationshipMeta);
+        //handle the belongsTo polymorphic case, where { post:1, postType: 'video' }
+        if (relationshipMeta.options && relationshipMeta.options.polymorphic && itemPayload[key + 'Type']) {
+          relationship.data.type = itemPayload[key + 'Type'];
+        }
       } else if (relationshipMeta.kind === 'hasMany') {
-        relationship.data = map.call(Ember.A(value), function(item) {
+        //|| [] because the hasMany could be === null
+        Ember.assert("A " + relationshipMeta.parentType + " record was pushed into the store with the value of " + key + " being '" + Ember.inspect(value) + "', but " + key + " is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.", Ember.isArray(value) || value === null);
+        relationship.data = Ember.A(value || []).map(function(item) {
           return normalizeRelationshipData(item, relationshipMeta);
         });
       }
@@ -117,6 +132,7 @@ export function _normalizeSerializerPayloadItem(modelClass, itemPayload) {
     }
 
     if (relationship) {
+      relationship.meta = get(itemPayload, `meta.${key}`);
       item.relationships[key] = relationship;
     }
   });
@@ -194,7 +210,7 @@ export function pushPayloadIncluded(store, payload) {
   @return {DS.Model} a record
 */
 export function _pushResourceObject(store, resourceObject) {
-  return store.push(resourceObject.type, convertResourceObject(resourceObject));
+  return store.push({ data: resourceObject });
 }
 
 /**

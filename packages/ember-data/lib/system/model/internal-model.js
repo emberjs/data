@@ -191,8 +191,8 @@ InternalModel.prototype = {
   },
 
   setupData: function(data) {
-    var changedKeys = this._changedKeys(data);
-    merge(this._data, data);
+    var changedKeys = this._changedKeys(data.attributes);
+    merge(this._data, data.attributes);
     this.pushedData();
     if (this.record) {
       this.record._notifyProperties(changedKeys);
@@ -589,6 +589,10 @@ InternalModel.prototype = {
     @method adapterDidCommit
   */
   adapterDidCommit: function(data) {
+    if (data) {
+      data = data.attributes;
+    }
+
     this.didCleanError();
     var changedKeys = this._changedKeys(data);
 

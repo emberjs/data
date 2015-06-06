@@ -240,6 +240,7 @@ module("integration/store - findRecord { reload: true }", {
 test("Using store#findRecord on non existing record fetches it from the server", function() {
   expect(2);
 
+  env.registry.register('serializer:application', DS.RESTSerializer.extend({ isNewSerializerAPI: true }));
   ajaxResponse({
     cars: [{
       id: 20,

@@ -27,7 +27,7 @@ import {
 import {
   convertResourceObject,
   normalizeResponseHelper,
-  pushPayload
+  _normalizeSerializerPayload
 } from "ember-data/system/store/serializer-response";
 
 import {
@@ -50,7 +50,6 @@ import RecordArrayManager from "ember-data/system/record-array-manager";
 import ContainerInstanceCache from 'ember-data/system/store/container-instance-cache';
 
 import InternalModel from "ember-data/system/model/internal-model";
-import Model from "ember-data/system/model";
 
 var Backburner = Ember._Backburner || Ember.Backburner || Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
 
@@ -1508,7 +1507,11 @@ Store = Service.extend({
     @param {InternalModel} internalModel the in-flight internal model
     @param {Object} data optional data (see above)
   */
-  didSaveRecord: function(internalModel, data) {
+  didSaveRecord: function(internalModel, dataArg) {
+    var data;
+    if (dataArg) {
+      data = dataArg.data;
+    }
     if (data) {
       // normalize relationship IDs into records
       this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', internalModel, internalModel.type, data);
@@ -1607,9 +1610,9 @@ Store = Service.extend({
     @param {(String|DS.Model)} type
     @param {Object} data
   */
-  _load: function(type, data) {
+  _load: function(data) {
     var id = coerceId(data.id);
-    var internalModel = this._internalModelForId(type, id);
+    var internalModel = this._internalModelForId(data.type, id);
 
     internalModel.setupData(data);
 
@@ -1770,9 +1773,22 @@ Store = Service.extend({
     @return {DS.Model|Array} the record(s) that was created or
       updated.
   */
-  push: function(modelName, data) {
+  push: function(modelNameArg, dataArg) {
+    var data, modelName;
+
+    if (Ember.typeOf(modelNameArg) === 'object' && Ember.typeOf(dataArg) === 'undefined') {
+      data = modelNameArg;
+      modelName = data.data.type;
+    } else {
+      Ember.assert("Expected an object as `data` in a call to `push` for " + modelNameArg + " , but was " + Ember.typeOf(dataArg), Ember.typeOf(dataArg) === 'object');
+      Ember.assert("You must include an `id` for " + modelNameArg + " in an object passed to `push`", dataArg.id != null && dataArg.id !== '');
+      data = _normalizeSerializerPayload(this.modelFor(modelNameArg), dataArg);
+      modelName = modelNameArg;
+      Ember.deprecate('store.push(type, data) has been deprecated. Please provide a JSON-API document object as the first and only argument to store.push.');
+    }
+
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string' || typeof data === 'undefined');
-    var internalModel = this._pushInternalModel(modelName, data);
+    var internalModel = this._pushInternalModel(data.data || data);
     if (Ember.isArray(internalModel)) {
       return map.call(internalModel, (item) => {
         return item.getRecord();
@@ -1781,26 +1797,17 @@ Store = Service.extend({
     return internalModel.getRecord();
   },
 
-  _pushInternalModel: function(modelName, data) {
-    if (Ember.typeOf(modelName) === 'object' && Ember.typeOf(data) === 'undefined') {
-      //TODO Remove once the transition is complete
-      var result = pushPayload(this, modelName);
-      if (Ember.isArray(result)) {
-        return map.call(result, (item) => {
-          return item._internalModel;
-        });
-      }
-      return result._internalModel;
-    }
+  _pushInternalModel: function(data) {
+    var modelName = data.type;
     Ember.assert("Expected an object as `data` in a call to `push` for " + modelName + " , but was " + Ember.typeOf(data), Ember.typeOf(data) === 'object');
     Ember.assert("You must include an `id` for " + modelName + " in an object passed to `push`", data.id != null && data.id !== '');
-    Ember.deprecate('store.push(type, data) has been deprecated. Please provide a JSON-API document object as the first and only argument to store.push.');
 
     var type = this.modelFor(modelName);
     var filter = Ember.ArrayPolyfills.filter;
 
     // If Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS is set to true and the payload
     // contains unknown keys, log a warning.
+
     if (Ember.ENV.DS_WARN_ON_UNKNOWN_KEYS) {
       Ember.warn("The payload for '" + type.modelName + "' contains these unknown keys: " +
         Ember.inspect(filter.call(Ember.keys(data), function(key) {
@@ -1813,7 +1820,7 @@ Store = Service.extend({
     }
 
     // Actually load the record into the store.
-    var internalModel = this._load(modelName, data);
+    var internalModel = this._load(data);
 
     var store = this;
 
@@ -2202,62 +2209,41 @@ Store = Service.extend({
 
 
 function normalizeRelationships(store, type, data, record) {
+  data.relationships = data.relationships || {};
   type.eachRelationship(function(key, relationship) {
     var kind = relationship.kind;
-    var value = data[key];
-    if (kind === 'belongsTo') {
-      deserializeRecordId(store, data, key, relationship, value);
-    } else if (kind === 'hasMany') {
-      deserializeRecordIds(store, data, key, relationship, value);
+    var value;
+    if (data.relationships[key] && data.relationships[key].data) {
+      value = data.relationships[key].data;
+      if (kind === 'belongsTo') {
+        data.relationships[key].data = deserializeRecordId(store,  key, relationship, value);
+      } else if (kind === 'hasMany') {
+        data.relationships[key].data = deserializeRecordIds(store, key, relationship, value);
+      }
     }
   });
 
   return data;
 }
 
-function deserializeRecordId(store, data, key, relationship, id) {
+function deserializeRecordId(store, key, relationship, id) {
   if (isNone(id)) {
-    return;
-  }
-
-  //If record objects were given to push directly, uncommon, not sure whether we should actually support
-  if (id instanceof Model) {
-    Ember.deprecate("You tried to push a record '" + relationship.parentType + "'' with id '" + Ember.inspect(id) + "' and passed a DS.Model instance as a value for the relationship '" + key + "'. You should instead pass a numerical or string id to represent the record.");
-    data[key] = id._internalModel;
     return;
   }
 
   Ember.assert("A " + relationship.parentType + " record was pushed into the store with the value of " + key + " being " + Ember.inspect(id) + ", but " + key + " is a belongsTo relationship so the value must not be an array. You should probably check your data payload or serializer.", !Ember.isArray(id));
 
-  var type;
-
-  if (typeof id === 'number' || typeof id === 'string') {
-    type = typeFor(relationship, key, data);
-    data[key] = store._internalModelForId(type, id);
-  } else if (typeof id === 'object') {
-    // hasMany polymorphic
-    Ember.assert('Ember Data expected a number or string to represent the record(s) in the `' + relationship.key + '` relationship instead it found an object. If this is a polymorphic relationship please specify a `type` key. If this is an embedded relationship please include the `DS.EmbeddedRecordsMixin` and specify the `' + relationship.key +'` property in your serializer\'s attrs object.', id.type);
-    data[key] = store._internalModelForId(id.type, id.id);
-  }
+  //TODO:Better asserts
+  return store._internalModelForId(id.type, id.id);
 }
 
-function typeFor(relationship, key, data) {
-  if (relationship.options.polymorphic) {
-    return data[key + "Type"];
-  } else {
-    return relationship.type;
-  }
-}
-
-function deserializeRecordIds(store, data, key, relationship, ids) {
+function deserializeRecordIds(store, key, relationship, ids) {
   if (isNone(ids)) {
     return;
   }
 
   Ember.assert("A " + relationship.parentType + " record was pushed into the store with the value of " + key + " being '" + Ember.inspect(ids) + "', but " + key + " is a hasMany relationship so the value must be an array. You should probably check your data payload or serializer.", Ember.isArray(ids));
-  for (var i=0, l=ids.length; i<l; i++) {
-    deserializeRecordId(store, ids, i, relationship, ids[i]);
-  }
+  return map.call(ids, (id) => deserializeRecordId(store, key, relationship, id));
 }
 
 // Delegation to the adapter and promise management
@@ -2290,7 +2276,7 @@ function _commit(adapter, store, operation, snapshot) {
         payload = normalizeResponseHelper(serializer, store, type, adapterPayload, snapshot.id, operation);
         data = convertResourceObject(payload.data);
       }
-      store.didSaveRecord(record, data);
+      store.didSaveRecord(record, _normalizeSerializerPayload(record.type, data));
     });
 
     return record;
@@ -2309,21 +2295,28 @@ function _commit(adapter, store, operation, snapshot) {
 
 function setupRelationships(store, record, data) {
   var typeClass = record.type;
+  if (!data.relationships) {
+    return;
+  }
 
   typeClass.eachRelationship(function(key, descriptor) {
     var kind = descriptor.kind;
-    var value = data[key];
+    if (!data.relationships[key]) {
+      return;
+    }
+
     var relationship;
 
-    if (data.links && data.links[key]) {
+    if (data.relationships[key].links && data.relationships[key].links.related) {
       relationship = record._relationships.get(key);
-      relationship.updateLink(data.links[key]);
+      relationship.updateLink(data.relationships[key].links.related);
     }
 
-    if (data.meta && data.meta.hasOwnProperty(key)) {
+    if (data.relationships[key].meta) {
       relationship = record._relationships.get(key);
-      relationship.updateMeta(data.meta[key]);
+      relationship.updateMeta(data.relationships[key].meta);
     }
+    var value = data.relationships[key].data;
 
     if (value !== undefined) {
       if (kind === 'belongsTo') {
