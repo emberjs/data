@@ -47,7 +47,7 @@ test("TEMPORARY: a record receives a didLoad callback once it materializes if it
   });
 
   run(function() {
-    store._pushInternalModel('person', { id: 1 });
+    store._pushInternalModel({ id: 1, type: 'person' });
     equal(didLoadCalled, 0, "didLoad was not called");
   });
   run(function() {

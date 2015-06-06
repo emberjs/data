@@ -420,7 +420,6 @@ test("Calling pushPayload allows partial updates with raw JSON", function () {
 
 test('calling push without data argument as an object raises an error', function() {
   var invalidValues = [
-    undefined,
     null,
     1,
     'string',
