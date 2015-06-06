@@ -29,9 +29,14 @@ test("unload a dirty record", function() {
   expect(2);
 
   run(function() {
-    store.push('record', {
-      id: 1,
-      title: 'toto'
+    store.push({
+      data: {
+        type: 'record',
+        id: 1,
+        attributes: {
+          title: 'toto'
+        }
+      }
     });
 
     store.findRecord('record', 1).then(function(record) {
@@ -56,7 +61,15 @@ test("unload a record", function() {
   expect(5);
 
   run(function() {
-    store.push('record', { id: 1, title: 'toto' });
+    store.push({
+      data: {
+        type: 'record',
+        id: 1,
+        attributes: {
+          title: 'toto'
+        }
+      }
+    });
     store.findRecord('record', 1).then(function(record) {
       equal(get(record, 'id'), 1, "found record with id 1");
       equal(get(record, 'hasDirtyAttributes'), false, "record is not dirty");
@@ -113,8 +126,32 @@ test("can commit store after unload record with relationships", function() {
   var asyncRecords;
 
   run(function() {
-    store.push('brand', { id: 1, name: 'EmberJS' });
-    store.push('product', { id: 1, description: 'toto', brand: 1 });
+    store.push({
+      data: {
+        type: 'brand',
+        id: 1,
+        attributes: {
+          name: 'EmberJS'
+        }
+      }
+    });
+    store.push({
+      data: {
+        type: 'product',
+        id: 1,
+        attributes: {
+          description: 'toto'
+        },
+        relationships: {
+          brand: {
+            data: {
+              type: 'brand',
+              id: 1
+            }
+          }
+        }
+      }
+    });
     asyncRecords = Ember.RSVP.hash({
       brand: store.findRecord('brand', 1),
       product: store.findRecord('product', 1)
