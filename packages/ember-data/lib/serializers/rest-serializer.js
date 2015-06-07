@@ -451,7 +451,7 @@ var RESTSerializer = JSONSerializer.extend({
       forEach.call(value, function(hash) {
         var typeName = this.modelNameFromPayloadKey(prop);
         var type = store.modelFor(typeName);
-        var typeSerializer = store.serializerFor(type);
+        var typeSerializer = store.serializerFor(type.modelName);
 
         hash = typeSerializer.normalize(type, hash, prop);
 
