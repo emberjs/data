@@ -54,7 +54,15 @@ test("Watching Model Types", function() {
   debugAdapter.watchModelTypes(added, updated);
 
   run(function() {
-    store.push('post', { id: 1, title: 'Post Title' });
+    store.push({
+      data: {
+        type: 'post',
+        id: 1,
+        attributes: {
+          title: 'Post Title'
+        }
+      }
+    });
   });
 });
 
@@ -62,7 +70,15 @@ test("Watching Records", function() {
   var post, record, addedRecords, updatedRecords, removedIndex, removedCount;
 
   Ember.run(function() {
-    store.push('post', { id: '1', title: 'Clean Post' });
+    store.push({
+      data: {
+        type: 'post',
+        id: 1,
+        attributes: {
+          title: 'Clean Post'
+        }
+      }
+    });
   });
 
   var recordsAdded = function(wrappedRecords) {
