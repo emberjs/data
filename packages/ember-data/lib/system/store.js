@@ -40,7 +40,7 @@ import {
   _findHasMany,
   _findBelongsTo,
   _findAll,
-  _findQuery
+  _query
 } from "ember-data/system/store/finders";
 
 import coerceId from "ember-data/system/coerce-id";
@@ -473,47 +473,6 @@ Store = Service.extend({
     returns the values. The promise will resolve into all records of this type
     present in the store, even if the server only returns a subset of them.
 
-    ---
-
-    To find a record by a query, call `find` with a hash as the second
-    parameter:
-
-    ```javascript
-    store.find('person', { page: 1 });
-    ```
-
-    By passing an object `{page: 1}` as an argument to the find method, it
-    delegates to the adapter's findQuery method. The adapter then makes
-    a call to the server, transforming the object `{page: 1}` as parameters
-    that are sent along, and will return a RecordArray when the promise
-    resolves.
-
-    Exposing queries this way seems preferable to creating an abstract query
-    language for all server-side queries, and then require all adapters to
-    implement them.
-
-    The call made to the server, using a Rails backend, will look something like this:
-
-    ```
-    Started GET "/api/v1/person?page=1"
-    Processing by Api::V1::PersonsController#index as HTML
-    Parameters: {"page"=>"1"}
-    ```
-
-    If you do something like this:
-
-    ```javascript
-    store.find('person', {ids: [1, 2, 3]});
-    ```
-
-    The call to the server, using a Rails backend, will look something like this:
-
-    ```
-    Started GET "/api/v1/person?ids%5B%5D=1&ids%5B%5D=2&ids%5B%5D=3"
-    Processing by Api::V1::PersonsController#index as HTML
-    Parameters: {"ids"=>["1", "2", "3"]}
-    ```
-
     @method find
     @param {String} modelName
     @param {(Object|String|Integer|null)} id
@@ -531,7 +490,8 @@ Store = Service.extend({
 
     // We are passed a query instead of an id.
     if (Ember.typeOf(id) === 'object') {
-      return this.findQuery(modelName, id);
+      Ember.deprecate('Calling store.find() with a query object is deprecated. Use store.query() instead.');
+      return this.query(modelName, id);
     }
 
     return this.findByRecord(modelName, coerceId(id), preload);
@@ -983,16 +943,37 @@ Store = Service.extend({
     language for all server-side queries, and then require all adapters to
     implement them.
 
+    The call made to the server, using a Rails backend, will look something like this:
+
+    ```
+    Started GET "/api/v1/person?page=1"
+    Processing by Api::V1::PersonsController#index as HTML
+    Parameters: {"page"=>"1"}
+    ```
+
+    If you do something like this:
+
+    ```javascript
+    store.query('person', {ids: [1, 2, 3]});
+    ```
+
+    The call to the server, using a Rails backend, will look something like this:
+
+    ```
+    Started GET "/api/v1/person?ids%5B%5D=1&ids%5B%5D=2&ids%5B%5D=3"
+    Processing by Api::V1::PersonsController#index as HTML
+    Parameters: {"ids"=>["1", "2", "3"]}
+    ```
+
     This method returns a promise, which is resolved with a `RecordArray`
     once the server returns.
 
-    @method findQuery
-    @private
+    @method query
     @param {String} modelName
     @param {any} query an opaque query to be used by the adapter
     @return {Promise} promise
   */
-  findQuery: function(modelName, query) {
+  query: function(modelName, query) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
     var array = this.recordArrayManager
@@ -1003,7 +984,29 @@ Store = Service.extend({
     Ember.assert("You tried to load a query but you have no adapter (for " + typeClass + ")", adapter);
     Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", typeof adapter.findQuery === 'function');
 
-    return promiseArray(_findQuery(adapter, this, typeClass, query, array));
+    return promiseArray(_query(adapter, this, typeClass, query, array));
+  },
+
+  /**
+    This method delegates a query to the adapter. This is the one place where
+    adapter-level semantics are exposed to the application.
+
+    Exposing queries this way seems preferable to creating an abstract query
+    language for all server-side queries, and then require all adapters to
+    implement them.
+
+    This method returns a promise, which is resolved with a `RecordArray`
+    once the server returns.
+
+    @method query
+    @param {String} modelName
+    @param {any} query an opaque query to be used by the adapter
+    @return {Promise} promise
+    @deprecated Use `store.query instead`
+  */
+  findQuery: function(modelName, query) {
+    Ember.deprecate('store#findQuery is deprecated. You should use store#query instead.');
+    return this.query(modelName, query);
   },
 
   /**
@@ -1186,7 +1189,7 @@ Store = Service.extend({
 
     // allow an optional server query
     if (hasQuery) {
-      promise = this.findQuery(modelName, query);
+      promise = this.query(modelName, query);
     } else if (arguments.length === 2) {
       filter = query;
     }

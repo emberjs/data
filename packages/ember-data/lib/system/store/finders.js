@@ -135,7 +135,7 @@ export function _findAll(adapter, store, typeClass, sinceToken) {
   }, null, "DS: Extract payload of findAll " + typeClass);
 }
 
-export function _findQuery(adapter, store, typeClass, query, recordArray) {
+export function _query(adapter, store, typeClass, query, recordArray) {
   var modelName = typeClass.modelName;
   var promise = adapter.findQuery(store, typeClass, query, recordArray);
   var serializer = serializerForAdapter(store, adapter, modelName);

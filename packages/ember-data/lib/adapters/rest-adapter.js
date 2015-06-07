@@ -193,7 +193,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     For example:
 
     ```js
-      store.find('posts', {sort: 'price', category: 'pets'});
+      store.query('posts', {sort: 'price', category: 'pets'});
     ```
 
     will generate a requests like this `/posts?category=pets&sort=price`, even if the

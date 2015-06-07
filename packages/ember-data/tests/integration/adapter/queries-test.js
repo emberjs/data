@@ -28,7 +28,7 @@ test("When a query is made, the adapter should receive a record array it can pop
     return Ember.RSVP.resolve([{ id: 1, name: "Peter Wagenet" }, { id: 2, name: "Brohuda Katz" }]);
   };
 
-  store.find('person', { page: 1 }).then(async(function(queryResults) {
+  store.query('person', { page: 1 }).then(async(function(queryResults) {
     equal(get(queryResults, 'length'), 2, "the record array has a length of 2 after the results are loaded");
     equal(get(queryResults, 'isLoaded'), true, "the record array's `isLoaded` property should be true");
 

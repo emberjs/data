@@ -961,7 +961,7 @@ test("findQuery - if `sortQueryParams` option is not provided, query params are 
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
   };
 
-  store.findQuery('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
+  store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
     // Noop
   }));
 });
@@ -977,7 +977,7 @@ test("findQuery - passes buildURL the requestType", function() {
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
   };
 
-  store.findQuery('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
+  store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
     // NOOP
   }));
 });
@@ -995,7 +995,7 @@ test("findQuery - if `sortQueryParams` is falsey, query params are not sorted at
 
   adapter.sortQueryParams = null;
 
-  store.findQuery('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
+  store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
     // Noop
   }));
 });
@@ -1022,7 +1022,7 @@ test("findQuery - if `sortQueryParams` is a custom function, query params passed
     return newQueryParams;
   };
 
-  store.findQuery('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
+  store.query('post', { "params": 1, "in": 2, "wrong": 3, "order": 4 }).then(async(function() {
     // Noop
   }));
 });
@@ -1033,7 +1033,7 @@ test("findQuery - payload 'meta' is accessible on the record array", function() 
     posts: [{ id: 1, name: "Rails is very expensive sushi" }]
   });
 
-  store.findQuery('post', { page: 2 }).then(async(function(posts) {
+  store.query('post', { page: 2 }).then(async(function(posts) {
     equal(
       posts.get('meta.offset'),
       5,
@@ -1048,7 +1048,7 @@ test("findQuery - each record array can have it's own meta object", function() {
     posts: [{ id: 1, name: "Rails is very expensive sushi" }]
   });
 
-  store.findQuery('post', { page: 2 }).then(async(function(posts) {
+  store.query('post', { page: 2 }).then(async(function(posts) {
     equal(
       posts.get('meta.offset'),
       5,
@@ -1058,7 +1058,7 @@ test("findQuery - each record array can have it's own meta object", function() {
       meta: { offset: 1 },
       posts: [{ id: 1, name: "Rails is very expensive sushi" }]
     });
-    store.findQuery('post', { page: 1 }).then(async(function(newPosts) {
+    store.query('post', { page: 1 }).then(async(function(newPosts) {
       equal(newPosts.get('meta.offset'), 1, 'new array has correct metadata');
       equal(posts.get('meta.offset'), 5, 'metadata on the old array hasnt been clobbered');
     }));
@@ -1073,7 +1073,7 @@ test("findQuery - returning an array populates the array", function() {
       { id: 2, name: "The Parley Letter" }]
   });
 
-  store.findQuery('post', { page: 1 }).then(async(function(posts) {
+  store.query('post', { page: 1 }).then(async(function(posts) {
     equal(passedUrl, '/posts');
     equal(passedVerb, 'GET');
     deepEqual(passedHash.data, { page: 1 });
@@ -1111,7 +1111,7 @@ test("findQuery - returning sideloaded data loads the data", function() {
     comments: [{ id: 1, name: "FIRST" }]
   });
 
-  store.findQuery('post', { page: 1 }).then(async(function(posts) {
+  store.query('post', { page: 1 }).then(async(function(posts) {
     var comment = store.getById('comment', 1);
 
     deepEqual(comment.getProperties('id', 'name'), { id: "1", name: "FIRST" });
@@ -1129,7 +1129,7 @@ test("findQuery - data is normalized through custom serializers", function() {
             { _ID_: 2, _NAME_: "The Parley Letter" }]
   });
 
-  store.findQuery('post', { page: 1 }).then(async(function(posts) {
+  store.query('post', { page: 1 }).then(async(function(posts) {
     var post1 = store.getById('post', 1);
     var post2 = store.getById('post', 2);
 

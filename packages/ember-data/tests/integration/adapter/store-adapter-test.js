@@ -50,8 +50,8 @@ test("Records loaded multiple times and retrieved in recordArray are ready to se
     }]);
   };
 
-  run(store, 'findQuery', 'person', { q: 'bla' }).then(async(function(people) {
-    var people2 = store.findQuery('person', { q: 'bla2' });
+  run(store, 'query', 'person', { q: 'bla' }).then(async(function(people) {
+    var people2 = store.query('person', { q: 'bla2' });
 
     return Ember.RSVP.hash({ people: people, people2: people2 });
   })).then(async(function(results) {

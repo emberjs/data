@@ -158,9 +158,7 @@ var Adapter = Ember.Object.extend({
   findAll: null,
 
   /**
-    This method is called when you call `find` on the store with a
-    query object as the second parameter (i.e. `store.find('person', {
-    page: 1 })`).
+    This method is called when you call `query` on the store.
 
     Example
 
