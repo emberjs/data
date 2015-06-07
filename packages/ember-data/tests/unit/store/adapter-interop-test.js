@@ -60,7 +60,7 @@ test("Calling Store#find invokes its adapter#find", function() {
   });
 });
 
-test("Calling Store#findByRecord multiple times coalesces the calls into a adapter#findMany call", function() {
+test("Calling Store#findRecord multiple times coalesces the calls into a adapter#findMany call", function() {
   expect(2);
 
   var adapter = TestAdapter.extend({

@@ -193,7 +193,7 @@ test("store.findById() is deprecated", function() {
         store.findById('person', 1);
       });
     },
-    'Using store.findById() has been deprecated. Use store.findByRecord() to return a record for a given type and id combination.'
+    'Using store.findById() has been deprecated. Use store.findRecord() to return a record for a given type and id combination.'
   );
 });
 
