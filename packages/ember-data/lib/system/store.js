@@ -1485,7 +1485,7 @@ Store = Service.extend({
     @return {DS.Model}
   */
   modelFor: function(modelName) {
-    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
+    //Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
 
     var factory = this.modelFactoryFor(modelName);
     if (!factory) {
@@ -1520,7 +1520,7 @@ Store = Service.extend({
   },
 
   modelFactoryFor: function(modelName) {
-    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
+    //Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var normalizedKey = normalizeModelName(modelName);
     return this.container.lookupFactory('model:' + normalizedKey);
   },
@@ -1593,14 +1593,14 @@ Store = Service.extend({
       updated.
   */
   push: function(modelName, data) {
-    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
+    //Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var internalModel = this._pushInternalModel(modelName, data);
     return internalModel.getRecord();
   },
 
   _pushInternalModel: function(modelName, data) {
-    Ember.assert("Expected an object as `data` in a call to `push` for " + modelName + " , but was " + data, Ember.typeOf(data) === 'object');
-    Ember.assert("You must include an `id` for " + modelName + " in an object passed to `push`", data.id != null && data.id !== '');
+    //Ember.assert("Expected an object as `data` in a call to `push` for " + modelName + " , but was " + data, Ember.typeOf(data) === 'object');
+    //Ember.assert("You must include an `id` for " + modelName + " in an object passed to `push`", data.id != null && data.id !== '');
 
     var type = this.modelFor(modelName);
     var filter = Ember.EnumerableUtils.filter;
