@@ -294,7 +294,7 @@ export default Ember.Object.extend({
     } else if (this.liveRecordArrays.has(typeClass)) {
       var liveRecordArrayForType = this.liveRecordArrayFor(typeClass);
       if (array === liveRecordArrayForType) {
-        this.liveRecordArrays.remove(typeClass);
+        this.liveRecordArrays.delete(typeClass);
       }
     }
   },
