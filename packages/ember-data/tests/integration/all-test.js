@@ -5,8 +5,8 @@ var Person, store, array, moreArray;
 
 module("integration/all - DS.Store#all()", {
   setup: function() {
-    array = [{ id: 1, name: "Scumbag Dale" }, { id: 2, name: "Scumbag Katz" }];
-    moreArray = [{ id: 3, name: "Scumbag Bryn" }];
+    array = [{ "id": "1", "type": "person", "attributes": { "name": "Scumbag Dale" } }, { "id": 2, "type": "person", "attributes": { "name": "Scumbag Katz" } }];
+    moreArray = [{ id: 3, type: 'person', attributes: { name: "Scumbag Bryn" } }];
     Person = DS.Model.extend({ name: DS.attr('string') });
 
     store = createStore({ person: Person });
@@ -20,14 +20,14 @@ module("integration/all - DS.Store#all()", {
 
 test("store.all('person') should return all records and should update with new ones", function() {
   run(function() {
-    store.pushMany('person', array);
+    store.push({ "data": array });
   });
 
   var all = store.all('person');
   equal(get(all, 'length'), 2);
 
   run(function() {
-    store.pushMany('person', moreArray);
+    store.push({ "data": moreArray });
   });
 
   equal(get(all, 'length'), 3);
@@ -40,7 +40,8 @@ test("Calling store.all() multiple times should update immediately inside the ru
     equal(get(store.all('person'), 'length'), 0, 'should initially be empty');
     store.createRecord('person', { name: "Tomster" });
     equal(get(store.all('person'), 'length'), 1, 'should contain one person');
-    store.push('person', { id: 1, name: "Tomster's friend" });
+    store.push({ "id": 1, "type": "person", "attributes": { "name": "Tomster's friend" } });
+
     equal(get(store.all('person'), 'length'), 2, 'should contain two people');
   });
 });
