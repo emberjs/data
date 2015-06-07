@@ -199,3 +199,50 @@ test("When a reload is issued while another reload is in flight, the data comes 
     resolve2({ id: 1, name: 'Yehuda Katz' });
   });
 });
+
+test('When two reloads are issued, the first does not resolve until the second is resolved', function() {
+  var resolve1, resolve2, tom;
+  var promise1resolved = false;
+  var promise2resolved = false;
+  var count = 0;
+
+  run(function() {
+    tom = env.store.push('person', { id: 1, name: 'Tom Dale' });
+  });
+
+  env.adapter.find = function(store, type, id, snapshot) {
+    count++;
+    return new Ember.RSVP.Promise((resolve, reject) => {
+      if (count === 1) {
+        resolve1 = resolve;
+      } else if (count === 2) {
+        resolve2 = resolve;
+      } else {
+        ok(false, "Should not get here");
+      }
+    });
+  };
+
+  run(function() {
+    tom.reload().then(function() {
+      promise1resolved = true;
+    });
+    tom.reload().then(function() {
+      promise2resolved = true;
+    });
+  });
+
+  run(function() {
+    resolve1({ id: 1, name: 'Tom Dale' });
+  });
+
+  run(function() {
+    equal(promise1resolved, false, 'The first promise should not be resolved while the second is still in flight');
+    resolve2({ id: 1, name: 'Yehuda Katz' });
+  });
+
+  run(function() {
+    equal(promise1resolved, true, 'The first promise should be resolved when the second is finished');
+    equal(promise2resolved, true, 'The second promise should be resolved');
+  });
+});
