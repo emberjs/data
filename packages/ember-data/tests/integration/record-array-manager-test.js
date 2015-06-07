@@ -54,19 +54,39 @@ test("destroying the store correctly cleans everything up", function() {
   var person;
 
   run(function() {
-    store.push('car', {
-      id: 1,
-      make: 'BMC',
-      model: 'Mini Cooper',
-      person: 1
+    store.push({
+      data: {
+        type: 'car',
+        id: 1,
+        attributes: {
+          make: 'BMC',
+          model: 'Mini Cooper'
+        },
+        relationships: {
+          person: {
+            data: { type: 'person', id: 1 }
+          }
+        }
+      }
     });
   });
 
   run(function() {
-    person = store.push('person', {
-      id: 1,
-      name: 'Tom Dale',
-      cars: [1]
+    person = store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          name: 'Tom Dale'
+        },
+        relationships: {
+          cars: {
+            data: [
+              { type: 'car', id: 1 }
+            ]
+          }
+        }
+      }
     });
   });
 
@@ -114,11 +134,20 @@ test("Should not filter a store.peekAll() array when a record property is change
   store.peekAll('car');
 
   run(function() {
-    car = store.push('car', {
-      id: 1,
-      make: 'BMC',
-      model: 'Mini Cooper',
-      person: 1
+    car = store.push({
+      data: {
+        type: 'car',
+        id: 1,
+        attributes: {
+          make: 'BMC',
+          model: 'Mini Cooper'
+        },
+        relationships: {
+          person: {
+            data: { type: 'person', id: 1 }
+          }
+        }
+      }
     });
   });
 
