@@ -72,8 +72,18 @@ test("Finds the inverse when only one side has defined it manually", function ()
   //Maybe store is evaluated lazily, so we need this :(
   var user, job;
   run(function() {
-    user = store.push('user', { id: 1 });
-    job = store.push('user', { id: 1 });
+    user = store.push({
+      data: {
+        type: 'user',
+        id: 1
+      }
+    });
+    job = store.push({
+      data: {
+        type: 'user',
+        id: 1
+      }
+    });
   });
 
   deepEqual(Job.inverseFor('owner', store), {
@@ -100,7 +110,12 @@ test("Returns null if inverse relationship it is manually set with a different r
   //Maybe store is evaluated lazily, so we need this :(
   var user;
   run(function() {
-    user = store.push('user', { id: 1 });
+    user = store.push({
+      data: {
+        type: 'user',
+        id: 1
+      }
+    });
   });
 
   equal(User.inverseFor('job', store), null, 'There is no inverse');
@@ -119,7 +134,12 @@ test("Errors out if you define 2 inverses to the same model", function () {
   //Maybe store is evaluated lazily, so we need this :(
   expectAssertion(function() {
     run(function() {
-      store.push('user', { id: 1 });
+      store.push({
+        data: {
+          type: 'user',
+          id: 1
+        }
+      });
     });
     User.inverseFor('job', store);
   }, "You defined the 'job' relationship on user, but you defined the inverse relationships of type job multiple times. Look at http://emberjs.com/guides/models/defining-models/#toc_explicit-inverses for how to explicitly specify inverses");
@@ -130,7 +150,12 @@ test("Caches findInverseFor return value", function () {
   expect(1);
   //Maybe store is evaluated lazily, so we need this :(
   run(function() {
-    store.push('user', { id: 1 });
+    store.push({
+      data: {
+        type: 'user',
+        id: 1
+      }
+    });
   });
 
   var inverseForUser = Job.inverseFor('user', store);
@@ -147,7 +172,12 @@ test("Errors out if you do not define an inverse for a reflexive relationship", 
   warns(function() {
     var reflexiveModel;
     run(function() {
-      reflexiveModel = store.push('reflexive-model', { id: 1 });
+      reflexiveModel = store.push({
+        data: {
+          type: 'reflexive-model',
+          id: 1
+        }
+      });
       reflexiveModel.get('reflexiveProp');
     });
   }, /Detected a reflexive relationship by the name of 'reflexiveProp'/);
