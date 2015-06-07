@@ -596,7 +596,7 @@ var RESTSerializer = JSONSerializer.extend({
         continue;
       }
       var type = store.modelFor(typeName);
-      var typeSerializer = store.serializerFor(type);
+      var typeSerializer = store.serializerFor(type.modelName);
       var isPrimary = (!forcedSecondary && this.isPrimaryType(store, typeName, primaryTypeClass));
 
       /*jshint loopfunc:true*/
@@ -1051,7 +1051,7 @@ function _newPushPayload(store, rawPayload) {
       continue;
     }
     var type = store.modelFor(modelName);
-    var typeSerializer = store.serializerFor(type);
+    var typeSerializer = store.serializerFor(type.modelName);
 
     /*jshint loopfunc:true*/
     forEach.call(Ember.makeArray(payload[prop]), (hash) => {
