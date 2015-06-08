@@ -445,7 +445,7 @@ Store = Service.extend({
     without fetching the post you can pass in the post to the `find` call:
 
     ```javascript
-    store.find('comment', 2, { post: 1 });
+    store.find('comment', 2, { preload: { post: 1 } });
     ```
 
     If you have access to the post model you can also pass the model itself:
@@ -476,7 +476,7 @@ Store = Service.extend({
     @method find
     @param {String} modelName
     @param {(Object|String|Integer|null)} id
-    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
+    @param {Object} options
     @return {Promise} promise
   */
   find: function(modelName, id, preload) {
@@ -494,8 +494,8 @@ Store = Service.extend({
       Ember.deprecate('Calling store.find() with a query object is deprecated. Use store.query() instead.');
       return this.query(modelName, id);
     }
-
-    return this.findRecord(modelName, coerceId(id), preload);
+    var options = deprecatePreload(preload, this.modelFor(modelName), 'find');
+    return this.findRecord(modelName, coerceId(id), options);
   },
 
   /**
@@ -523,15 +523,16 @@ Store = Service.extend({
     @method fetchById
     @param {String} modelName
     @param {(String|Integer)} id
-    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
+    @param {Object} options
     @return {Promise} promise
   */
   fetchById: function(modelName, id, preload) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
+    var options = deprecatePreload(preload, this.modelFor(modelName), 'fetchById');
     if (this.hasRecordForId(modelName, id)) {
       return this.getById(modelName, id).reload();
     } else {
-      return this.find(modelName, id, preload);
+      return this.findRecord(modelName, id, options);
     }
   },
 
@@ -569,12 +570,13 @@ Store = Service.extend({
     @private
     @param {String} modelName
     @param {(String|Integer)} id
-    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
+    @param {Object} options
     @return {Promise} promise
   */
   findById: function(modelName, id, preload) {
     Ember.deprecate('Using store.findById() has been deprecated. Use store.findRecord() to return a record for a given type and id combination.');
-    return this.findRecord(modelName, id, preload);
+    var options = deprecatePreload(preload, this.modelFor(modelName), 'findById');
+    return this.findRecord(modelName, id, options);
   },
 
   /**
@@ -583,21 +585,23 @@ Store = Service.extend({
     @method findRecord
     @param {String} modelName
     @param {(String|Integer)} id
-    @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
+    @param {Object} options
     @return {Promise} promise
   */
-  findRecord: function(modelName, id, preload) {
+  findRecord: function(modelName, id, options) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var internalModel = this._internalModelForId(modelName, id);
 
-    return this._findByInternalModel(internalModel, preload);
+    return this._findByInternalModel(internalModel, options);
   },
 
-  _findByInternalModel: function(internalModel, preload) {
+  _findByInternalModel: function(internalModel, options) {
     var fetchedInternalModel;
+    options = options || {};
 
-    if (preload) {
-      internalModel._preloadData(preload);
+
+    if (options.preload) {
+      internalModel._preloadData(options.preload);
     }
 
     if (internalModel.isEmpty()) {
@@ -2170,6 +2174,27 @@ function setupRelationships(store, record, data) {
       }
     }
   });
+}
+
+function deprecatePreload(preloadOrOptions, type, methodName) {
+  if (preloadOrOptions) {
+    var modelProperties = [];
+    var fields = Ember.get(type, 'fields');
+    fields.forEach(function(fieldType, key) {
+      modelProperties.push(key);
+    });
+    var preloadDetected = modelProperties.reduce(function(memo, key) {
+      return typeof preloadOrOptions[key] !== 'undefined' || memo;
+    }, false);
+    if (preloadDetected) {
+      Ember.deprecate(`Passing a preload argument to \`store.${methodName}\` is deprecated. Please move it to the preload key on the ${methodName} \`options\` argument.`);
+      var preload = preloadOrOptions;
+      return {
+        preload: preload
+      };
+    }
+  }
+  return preloadOrOptions;
 }
 
 export { Store };

@@ -178,7 +178,7 @@ test('buildURL - buildURL takes a record from find', function() {
   });
 
   run(function() {
-    store.find('comment', 1, { post: post }).then(async(function(post) {
+    store.find('comment', 1, { preload: { post: post } }).then(async(function(post) {
       equal(passedUrl, "/posts/2/comments/1");
     }));
   });
