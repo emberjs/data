@@ -483,9 +483,9 @@ test("create - response can contain relationships the client doesn't yet know ab
   run(function() {
     post.save().then(async(function(post) {
       equal(post.get('comments.firstObject.post'), post, "the comments are related to the correct post model");
-      equal(store.typeMapFor(Post).records.length, 1, "There should only be one post record in the store");
+      equal(store._typeMapFor(Post).records.length, 1, "There should only be one post record in the store");
 
-      var postRecords = store.typeMapFor(Post).records;
+      var postRecords = store._typeMapFor(Post).records;
       for (var i = 0; i < postRecords.length; i++) {
         equal(post, postRecords[i].getRecord(), "The object in the identity map is the same");
       }
@@ -930,7 +930,7 @@ test("findAll - since token is passed to the adapter", function() {
   store.findAll('post').then(async(function(posts) {
     equal(passedUrl, '/posts');
     equal(passedVerb, 'GET');
-    equal(store.typeMapFor(Post).metadata.since, 'later');
+    equal(store._typeMapFor(Post).metadata.since, 'later');
     deepEqual(passedHash.data, { since: 'now' });
   }));
 });

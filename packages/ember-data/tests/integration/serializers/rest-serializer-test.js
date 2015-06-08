@@ -364,8 +364,8 @@ if (!Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
 
     equal(array.length, 1, "The query count is unaffected");
 
-    equal(env.store.recordForId('comment', "2").get("body"), "Child Comment 1", "Secondary records are in the store");
-    equal(env.store.recordForId('comment', "3").get("body"), "Child Comment 2", "Secondary records are in the store");
+    equal(env.store._recordForId('comment', "2").get("body"), "Child Comment 1", "Secondary records are in the store");
+    equal(env.store._recordForId('comment', "3").get("body"), "Child Comment 2", "Secondary records are in the store");
   });
 }
 

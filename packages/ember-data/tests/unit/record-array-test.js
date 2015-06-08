@@ -24,7 +24,7 @@ test("a record array is backed by records", function() {
   });
 
   run(function() {
-    store.findByIds('person', [1,2,3]).then(function(records) {
+    store._findByIds('person', [1,2,3]).then(function(records) {
       for (var i=0, l=get(array, 'length'); i<l; i++) {
         deepEqual(records[i].getProperties('id', 'name'), array[i], "a record array materializes objects on demand");
       }
