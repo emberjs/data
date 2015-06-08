@@ -582,7 +582,7 @@ Store = Service.extend({
     return this.findRecord(modelName, id, preload);
   },
   findById: function(modelName, id, preload) {
-    Ember.deprecate('findById was documented as private and will be removed in the next version of Ember Data.');
+    Ember.deprecate('Using store.findById() has been deprecated. Use store.findRecord() to return a record for a given type and id combination.');
     return this._findById(modelName, id, preload);
   },
 
@@ -878,6 +878,7 @@ Store = Service.extend({
   */
   _recordForId: function(modelName, id) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
+    Ember.deprecate('Using store._recordForId() has been deprecated. Use store.getById() to return a record for a given type and id combination.');
     return this._internalModelForId(modelName, id).getRecord();
   },
   recordForId: function(modelName, id) {
