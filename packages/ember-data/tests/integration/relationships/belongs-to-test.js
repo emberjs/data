@@ -206,7 +206,7 @@ test("The store can serialize a polymorphic belongsTo association", function() {
     env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
 
     store.find('comment', 2).then(function(comment) {
-      var serialized = store.serialize(comment, { includeId: true });
+      var serialized = store._serialize(comment, { includeId: true });
       equal(serialized['message'], 1);
       equal(serialized['message_type'], 'post');
     });

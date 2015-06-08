@@ -130,7 +130,7 @@ InternalModel.prototype = {
     var promiseLabel = "DS: Model#save " + this;
     var resolver = Ember.RSVP.defer(promiseLabel);
 
-    this.store.scheduleSave(this, resolver);
+    this.store._scheduleSave(this, resolver);
     return resolver.promise;
   },
 
@@ -555,7 +555,7 @@ InternalModel.prototype = {
   */
   updateRecordArrays: function() {
     this._updatingRecordArraysLater = false;
-    this.store.dataWasUpdated(this.type, this);
+    this.store._dataWasUpdated(this.type, this);
   },
 
   setId: function(id) {

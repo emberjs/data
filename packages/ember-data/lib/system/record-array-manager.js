@@ -140,7 +140,7 @@ export default Ember.Object.extend({
   },
 
   populateLiveRecordArray: function(array, modelName) {
-    var typeMap = this.store.typeMapFor(modelName);
+    var typeMap = this.store._typeMapFor(modelName);
     var records = typeMap.records;
     var record;
 
@@ -166,7 +166,7 @@ export default Ember.Object.extend({
     @param {Function} filter
   */
   updateFilter: function(array, modelName, filter) {
-    var typeMap = this.store.typeMapFor(modelName);
+    var typeMap = this.store._typeMapFor(modelName);
     var records = typeMap.records;
     var record;
 

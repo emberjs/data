@@ -200,8 +200,8 @@ test("extractSingle with embedded objects of same type", function() {
     root: true,
     children: ["2", "3"]
   }, "Primary record was correct");
-  equal(env.store.recordForId('comment', "2").get("body"), "World", "Secondary records found in the store");
-  equal(env.store.recordForId('comment', "3").get("body"), "Foo", "Secondary records found in the store");
+  equal(env.store._recordForId('comment', "2").get("body"), "World", "Secondary records found in the store");
+  equal(env.store._recordForId('comment', "3").get("body"), "Foo", "Secondary records found in the store");
 });
 
 test("extractSingle with embedded objects inside embedded objects of same type", function() {
@@ -246,11 +246,11 @@ test("extractSingle with embedded objects inside embedded objects of same type",
     root: true,
     children: ["2", "3"]
   }, "Primary record was correct");
-  equal(env.store.recordForId('comment', "2").get("body"), "World", "Secondary records found in the store");
-  equal(env.store.recordForId('comment', "3").get("body"), "Foo", "Secondary records found in the store");
-  equal(env.store.recordForId('comment', "4").get("body"), "Another", "Secondary records found in the store");
-  equal(env.store.recordForId('comment', "2").get("children.length"), 1, "Should have one embedded record");
-  equal(env.store.recordForId('comment', "2").get("children.firstObject.body"), "Another", "Should have one embedded record");
+  equal(env.store._recordForId('comment', "2").get("body"), "World", "Secondary records found in the store");
+  equal(env.store._recordForId('comment', "3").get("body"), "Foo", "Secondary records found in the store");
+  equal(env.store._recordForId('comment', "4").get("body"), "Another", "Secondary records found in the store");
+  equal(env.store._recordForId('comment', "2").get("children.length"), 1, "Should have one embedded record");
+  equal(env.store._recordForId('comment', "2").get("children.firstObject.body"), "Another", "Should have one embedded record");
 });
 
 test("extractSingle with embedded objects of same type, but from separate attributes", function() {
@@ -299,10 +299,10 @@ test("extractSingle with embedded objects of same type, but from separate attrib
     reformedVillains: ["2", "4"]
   }, "Primary hash was correct");
 
-  equal(env.store.recordForId('super-villain', "1").get("firstName"), "Tom", "Secondary records found in the store");
-  equal(env.store.recordForId('super-villain', "2").get("firstName"), "Alex", "Secondary records found in the store");
-  equal(env.store.recordForId('super-villain', "3").get("firstName"), "Yehuda", "Secondary records found in the store");
-  equal(env.store.recordForId('super-villain', "4").get("firstName"), "Erik", "Secondary records found in the store");
+  equal(env.store._recordForId('super-villain', "1").get("firstName"), "Tom", "Secondary records found in the store");
+  equal(env.store._recordForId('super-villain', "2").get("firstName"), "Alex", "Secondary records found in the store");
+  equal(env.store._recordForId('super-villain', "3").get("firstName"), "Yehuda", "Secondary records found in the store");
+  equal(env.store._recordForId('super-villain', "4").get("firstName"), "Erik", "Secondary records found in the store");
 });
 
 test("extractArray with embedded objects", function() {
@@ -473,8 +473,8 @@ test("extractArray with embedded objects of same type as primary type", function
     children: ["2", "3"]
   }], "Primary array is correct");
 
-  equal(env.store.recordForId('comment', "2").get("body"), "World", "Secondary record found in the store");
-  equal(env.store.recordForId('comment', "3").get("body"), "Foo", "Secondary record found in the store");
+  equal(env.store._recordForId('comment', "2").get("body"), "World", "Secondary record found in the store");
+  equal(env.store._recordForId('comment', "3").get("body"), "Foo", "Secondary record found in the store");
 });
 
 test("extractArray with embedded objects of same type, but from separate attributes", function() {
@@ -545,12 +545,12 @@ test("extractArray with embedded objects of same type, but from separate attribu
     reformedVillains: ["5", "6"]
   }], "Primary array was correct");
 
-  equal(env.store.recordForId('super-villain', "1").get("firstName"), "Tom", "Secondary records found in the store");
-  equal(env.store.recordForId('super-villain', "2").get("firstName"), "Alex", "Secondary records found in the store");
-  equal(env.store.recordForId('super-villain', "3").get("firstName"), "Yehuda", "Secondary records found in the store");
-  equal(env.store.recordForId('super-villain', "4").get("firstName"), "Erik", "Secondary records found in the store");
-  equal(env.store.recordForId('super-villain', "5").get("firstName"), "Peter", "Secondary records found in the store");
-  equal(env.store.recordForId('super-villain', "6").get("firstName"), "Trek", "Secondary records found in the store");
+  equal(env.store._recordForId('super-villain', "1").get("firstName"), "Tom", "Secondary records found in the store");
+  equal(env.store._recordForId('super-villain', "2").get("firstName"), "Alex", "Secondary records found in the store");
+  equal(env.store._recordForId('super-villain', "3").get("firstName"), "Yehuda", "Secondary records found in the store");
+  equal(env.store._recordForId('super-villain', "4").get("firstName"), "Erik", "Secondary records found in the store");
+  equal(env.store._recordForId('super-villain', "5").get("firstName"), "Peter", "Secondary records found in the store");
+  equal(env.store._recordForId('super-villain', "6").get("firstName"), "Trek", "Secondary records found in the store");
 });
 
 test("serialize supports serialize:false on non-relationship properties", function() {
@@ -1132,8 +1132,8 @@ test("extractSingle with multiply-nested belongsTo", function() {
     superVillain: "1"
   }, "Primary hash was correct");
 
-  equal(env.store.recordForId('super-villain', "1").get("firstName"), "Tom", "Secondary record, Tom, found in the steore");
-  equal(env.store.recordForId('home-planet', "1").get("name"), "Umber", "Nested Secondary record, Umber, found in the store");
+  equal(env.store._recordForId('super-villain', "1").get("firstName"), "Tom", "Secondary record, Tom, found in the steore");
+  equal(env.store._recordForId('home-planet', "1").get("name"), "Umber", "Nested Secondary record, Umber, found in the store");
 });
 
 test("extractSingle with polymorphic hasMany", function() {
@@ -1185,8 +1185,8 @@ test("extractSingle with polymorphic hasMany", function() {
     ]
   }, "Primary hash was correct");
 
-  equal(env.store.recordForId('secret-weapon', "1").get("name"), "The Death Star", "Embedded polymorphic SecretWeapon found");
-  equal(env.store.recordForId('light-saber', "1").get("name"), "Tom's LightSaber", "Embedded polymorphic LightSaber found");
+  equal(env.store._recordForId('secret-weapon', "1").get("name"), "The Death Star", "Embedded polymorphic SecretWeapon found");
+  equal(env.store._recordForId('light-saber', "1").get("name"), "Tom's LightSaber", "Embedded polymorphic LightSaber found");
 
 
 });
@@ -1243,8 +1243,8 @@ test("extractSingle with polymorphic hasMany and custom primary key", function()
     ]
   }, "Custom primary key of embedded hasMany is correctly normalized");
 
-  equal(env.store.recordForId("lightSaber", "1").get("name"), "Tom's LightSaber", "Embedded polymorphic LightSaber with custom primary key is found");
-  equal(env.store.recordForId("secretWeapon", "1").get("name"), "The Death Star", "Embedded polymorphic SecretWeapon found");
+  equal(env.store._recordForId("lightSaber", "1").get("name"), "Tom's LightSaber", "Embedded polymorphic LightSaber with custom primary key is found");
+  equal(env.store._recordForId("secretWeapon", "1").get("name"), "The Death Star", "Embedded polymorphic SecretWeapon found");
 
 });
 
@@ -1290,7 +1290,7 @@ test("extractSingle with polymorphic belongsTo", function() {
     secretLabType: "bat-cave"
   }, "Primary has was correct");
 
-  equal(env.store.recordForId('bat-cave', "1").get("infiltrated"), true, "Embedded polymorphic BatCave was found");
+  equal(env.store._recordForId('bat-cave', "1").get("infiltrated"), true, "Embedded polymorphic BatCave was found");
 
 });
 
@@ -1339,7 +1339,7 @@ test("extractSingle with polymorphic belongsTo and custom primary key", function
     secretLabType: "bat-cave"
   }, "Custom primary key is correctly normalized");
 
-  equal(env.store.recordForId("batCave", "1").get("infiltrated"), true, "Embedded polymorphic BatCave with custom primary key is found");
+  equal(env.store._recordForId("batCave", "1").get("infiltrated"), true, "Embedded polymorphic BatCave with custom primary key is found");
 
 });
 
@@ -1388,7 +1388,7 @@ test("extractSingle with polymorphic belongsTo and custom primary key", function
     secretLabType: "bat-cave"
   }, "Custom primary key is correctly normalized");
 
-  equal(env.store.recordForId("batCave", "1").get("infiltrated"), true, "Embedded polymorphic BatCave with custom primary key is found");
+  equal(env.store._recordForId("batCave", "1").get("infiltrated"), true, "Embedded polymorphic BatCave with custom primary key is found");
 
 });
 
@@ -1469,7 +1469,7 @@ test("normalize with custom belongsTo primary key", function() {
     superVillain: "1"
   }, "Primary hash was correct");
 
-  equal(env.store.recordForId('super-villain', "1").get("firstName"), "Tom", "Secondary record, Tom, found in the steore");
+  equal(env.store._recordForId('super-villain', "1").get("firstName"), "Tom", "Secondary record, Tom, found in the steore");
 });
 
 test("serializing relationships with an embedded and without calls super when not attr not present", function() {

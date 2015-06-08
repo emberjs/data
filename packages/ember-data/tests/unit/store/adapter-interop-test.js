@@ -614,9 +614,9 @@ test("store.scheduleFetchMany should not resolve until all the records are resol
   });
 
   var records = Ember.A([
-    store.recordForId('test', 10),
-    store.recordForId('phone', 20),
-    store.recordForId('phone', 21)
+    store._recordForId('test', 10),
+    store._recordForId('phone', 20),
+    store._recordForId('phone', 21)
   ]);
 
   run(function() {
@@ -664,9 +664,9 @@ test("the store calls adapter.findMany according to groupings returned by adapte
   });
 
   var records = Ember.A([
-    store.recordForId('test', 10),
-    store.recordForId('test', 20),
-    store.recordForId('test', 21)
+    store._recordForId('test', 10),
+    store._recordForId('test', 20),
+    store._recordForId('test', 21)
   ]);
 
   run(function() {

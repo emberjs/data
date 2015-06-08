@@ -179,21 +179,21 @@ test("destroying the store correctly cleans everything up", function() {
   equal(filterdPeopleWillDestroy.called.length, 1, 'expected filterdPeople.willDestroy to have been called once');
 });
 
-module("integration/store - findById() [deprecated]", {
+module("integration/store - _findById() [deprecated]", {
   setup: function() {
     initializeStore(DS.RESTAdapter.extend());
   }
 });
 
-test("store.findById() is deprecated", function() {
+test("store._findById() is deprecated", function() {
   expectDeprecation(
     function() {
       run(function() {
         store.push('person', { id: 1, name: "Tomster" });
-        store.findById('person', 1);
+        store._findById('person', 1);
       });
     },
-    'Using store.findById() has been deprecated. Use store.findRecord() to return a record for a given type and id combination.'
+    'Using store._findById() has been deprecated. Use store.findRecord() to return a record for a given type and id combination.'
   );
 });
 
@@ -420,7 +420,7 @@ test("Using store#fetch on an empty record calls find", function() {
     });
   });
 
-  var car = store.recordForId('car', 20);
+  var car = store._recordForId('car', 20);
   ok(car.get('isEmpty'), 'Car with id=20 should be empty');
 
   run(function() {
