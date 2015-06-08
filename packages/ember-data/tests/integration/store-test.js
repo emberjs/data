@@ -287,13 +287,28 @@ test("Using store#fetchById on existing record reloads it", function() {
   });
 });
 
-module("integration/store - fetchAll", {
+module("integration/store - findAll", {
   setup: function() {
     initializeStore(DS.RESTAdapter.extend());
   }
 });
 
-test("Using store#fetchAll with no records triggers a query", function() {
+test("store#fetchAll() is deprecated", function() {
+  ajaxResponse({
+    cars: []
+  });
+
+  expectDeprecation(
+    function() {
+      run(function() {
+        store.fetchAll('car');
+      });
+    },
+    'Using store.fetchAll(type) has been deprecated. Use store.findAll(type) to retrieve all records for a given type.'
+  );
+});
+
+test("Using store#findAll with no records triggers a query", function() {
   expect(2);
 
   ajaxResponse({
@@ -313,13 +328,13 @@ test("Using store#fetchAll with no records triggers a query", function() {
   ok(!cars.get('length'), 'There is no cars in the store');
 
   run(function() {
-    store.fetchAll('car').then(function(cars) {
+    store.findAll('car').then(function(cars) {
       equal(cars.get('length'), 2, 'Two car were fetched');
     });
   });
 });
 
-test("Using store#fetchAll with existing records performs a query, updating existing records and returning new ones", function() {
+test("Using store#findAll with existing records performs a query, updating existing records and returning new ones", function() {
   expect(3);
 
   run(function() {
@@ -347,7 +362,7 @@ test("Using store#fetchAll with existing records performs a query, updating exis
   equal(cars.get('length'), 1, 'There is one car in the store');
 
   run(function() {
-    store.fetchAll('car').then(function(cars) {
+    store.findAll('car').then(function(cars) {
       equal(cars.get('length'), 2, 'There is 2 cars in the store now');
       var mini = cars.findBy('id', '1');
       equal(mini.get('model'), 'New Mini', 'Existing records have been updated');
@@ -355,7 +370,7 @@ test("Using store#fetchAll with existing records performs a query, updating exis
   });
 });
 
-test("store#fetchAll should return all known records even if they are not in the adapter response", function() {
+test("store#findAll should return all known records even if they are not in the adapter response", function() {
   expect(4);
 
   run(function() {
@@ -375,7 +390,7 @@ test("store#fetchAll should return all known records even if they are not in the
   equal(cars.get('length'), 2, 'There is two cars in the store');
 
   run(function() {
-    store.fetchAll('car').then(function(cars) {
+    store.findAll('car').then(function(cars) {
       equal(cars.get('length'), 2, 'It returns all cars');
       var mini = cars.findBy('id', '1');
       equal(mini.get('model'), 'New Mini', 'Existing records have been updated');

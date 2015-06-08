@@ -124,8 +124,7 @@ var Adapter = Ember.Object.extend({
   find: null,
 
   /**
-    The `findAll()` method is called when you call `find` on the store
-    without an ID (i.e. `store.find('post')`).
+    The `findAll()` method is used to retrieve all records for a given type.
 
     Example
 
@@ -148,7 +147,6 @@ var Adapter = Ember.Object.extend({
     });
     ```
 
-    @private
     @method findAll
     @param {DS.Store} store
     @param {DS.Model} type

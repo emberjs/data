@@ -126,7 +126,7 @@ Server](http://emberjs.com/guides/models/connecting-to-an-http-server/).
 From your route or controller:
 
 ```js
-this.store.find('blogPost');
+this.store.findAll('blogPost');
 ```
 
 This returns a promise that resolves to the collection of records.
