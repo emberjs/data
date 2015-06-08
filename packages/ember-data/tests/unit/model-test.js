@@ -869,3 +869,23 @@ test('toJSON looks up the JSONSerializer using the store instead of using JSONSe
   ok(!errorThrown, 'error not thrown due to missing store');
   deepEqual(json, {});
 });
+
+
+test('accessing attributes in the initializer should not throw an error', function() {
+  expect(1);
+  var Person = DS.Model.extend({
+    name: DS.attr('string'),
+
+    init: function() {
+      this._super.apply(this, arguments);
+      ok(!this.get('name'));
+    }
+  });
+
+  var env = setupStore({
+    person: Person
+  });
+  var store = env.store;
+
+  run(_ => store.createRecord('person'));
+});

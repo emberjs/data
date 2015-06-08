@@ -112,9 +112,9 @@ InternalModel.prototype = {
     this.record = this.type._create({
       id: this.id,
       store: this.store,
-      container: this.container
+      container: this.container,
+      _internalModel: this
     });
-    this.record._internalModel = this;
     this._triggerDeferredTriggers();
   },
 
