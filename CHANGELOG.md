@@ -4,6 +4,15 @@
 
 ### Release 1.0.0-beta.19 (June 5, 2015)
 
+#### Breaking Changes
+
+##### Store Service moved to an Instance Initializer
+
+In order to fix deprecations warning induced by Ember 1.12, the store service 
+is now injected as an instanceInitializer. As a consequence, if you had initializers 
+depending on the store, you should move them to an instance initializer as well, 
+and mark it as after: 'ember-data'.
+
 - Removed support for DS.FixtureAdapter. You can use it as an addon, or
   build it using [Ember Giftwrap](https://github.com/ef4/ember-giftwrap).
   https://github.com/emberjs/ember-data-fixture-adapter/tree/master
