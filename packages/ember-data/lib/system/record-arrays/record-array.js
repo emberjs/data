@@ -8,6 +8,21 @@ import SnapshotRecordArray from "ember-data/system/snapshot-record-array";
 var get = Ember.get;
 var set = Ember.set;
 
+var FilteredSubset = Ember.ArrayProxy.extend({
+  init: function() {
+    this._super(...arguments);
+
+    var { filterByArgs, recordArray } = this.getProperties('filterByArgs', 'recordArray');
+    var [key] = filterByArgs;
+
+    var path = `recordArray.@each.${key}`;
+    Ember.defineProperty(this, 'content', Ember.computed(path, function() {
+      return this.filterBy.apply(recordArray, filterByArgs);
+    }));
+  }
+});
+
+
 /**
   A record array is an array that contains records of a certain type. The record
   array materializes records as needed when they are retrieved for the first
@@ -94,6 +109,44 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     var content = get(this, 'content');
     var internalModel = content.objectAt(index);
     return internalModel && internalModel.getRecord();
+  },
+
+  /**
+    Get a filtered subset of the underlying `RecordArray`.
+    The subset updates when a record would match or mismatch the
+    specified filter parameters.
+
+    Example
+
+    ```javascript
+    var allToms = store.all('person').filterBy('name', 'Tom');
+
+    allToms.get('length'); // 0, since no toms yet in store
+
+    var tom = store.push('person', { id: 1, name: 'Tom' });
+    allToms.get('length'); // Tom is added
+
+    tom.set('name', 'Thomas');
+    allToms.get('length'); // 0, since no more records with name === 'Tom'
+    ```
+
+    @method filterBy
+    @param {String} key property path
+    @param {*} value optional
+
+  */
+  filterBy: function(key, value) {
+    // only pass value to the arguments if it is present; this mimics the same
+    // behavior for `filterBy`: http://git.io/vIurH
+    var filterByArgs = [key];
+    if (arguments.length === 2) {
+      filterByArgs.push(value);
+    }
+
+    return FilteredSubset.create({
+      filterByArgs,
+      recordArray: this
+    });
   },
 
   /**

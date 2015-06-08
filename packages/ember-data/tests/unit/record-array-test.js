@@ -284,3 +284,91 @@ test("a record array should return a promise when updating", function() {
   });
   ok(promise.then && typeof promise.then === "function", "#update returns a promise");
 });
+
+test('filterBy - returns a filtered subset', function() {
+  var store = createStore({
+    person: Person
+  });
+
+  run(function() {
+    store.pushMany('person', [{ id: '1', name: "Tom" }, { id: '2', name: "Yehuda" }, { id: '3', name: "Alex" }]);
+  });
+
+  var all = store.all('person');
+  var toms = all.filterBy('name', 'Tom');
+  equal(toms.get('length'), 1);
+  deepEqual(toms.getEach('id'), ['1']);
+
+  // a new record is added if filter matches
+  run(function() {
+    store.push('person', { id: '4', name: "Tom" });
+  });
+  equal(toms.get('length'), 2);
+  deepEqual(toms.getEach('id'), ['1', '4']);
+
+  // a new record is not added if filter doesn't match
+  run(function() {
+    store.push('person', { id: '5', name: "Igor" });
+  });
+  equal(toms.get('length'), 2);
+  deepEqual(toms.getEach('id'), ['1', '4']);
+
+  // changing the filtered value remvoves the record from the list
+  run(function() {
+    // we are using a private method here to get the record immediatly
+    store.recordForId('person', '1').set('name', "Thomas");
+  });
+  equal(toms.get('length'), 1);
+  deepEqual(toms.getEach('id'), ['4']);
+
+  // change value back to original
+  run(function() {
+    store.recordForId('person', '1').set('name', "Tom");
+  });
+  equal(toms.get('length'), 2);
+  deepEqual(toms.getEach('id'), ['1', '4']);
+});
+
+test('filterBy - value is optional', function() {
+  var store = createStore({
+    person: Person
+  });
+
+  run(function() {
+    store.pushMany('person', [{ id: '1', name: "Tom" }, { id: '2' }]);
+  });
+
+  var all = store.all('person');
+  var allWithNames = all.filterBy('name');
+  equal(allWithNames.get('length'), 1);
+  deepEqual(allWithNames.getEach('id'), ['1']);
+
+  // a new record is added if filter matches
+  run(function() {
+    store.push('person', { id: '3', name: "Igor" });
+  });
+  equal(allWithNames.get('length'), 2);
+  deepEqual(allWithNames.getEach('id'), ['1', '3']);
+
+  // a new record is not added if filter doesn't match
+  run(function() {
+    store.push('person', { id: '4' });
+  });
+  equal(allWithNames.get('length'), 2);
+  deepEqual(allWithNames.getEach('id'), ['1', '3']);
+
+  // changing the filtered value remvoves the record from the list
+  run(function() {
+    // we are using a private method here to get the record immediatly
+    store.recordForId('person', '1').set('name', null);
+  });
+  equal(allWithNames.get('length'), 1);
+  deepEqual(allWithNames.getEach('id'), ['3']);
+
+  // change value back to original
+  run(function() {
+    store.recordForId('person', '1').set('name', "Tom");
+  });
+  equal(allWithNames.get('length'), 2);
+  deepEqual(allWithNames.getEach('id'), ['1', '3']);
+});
