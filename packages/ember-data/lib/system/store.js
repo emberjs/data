@@ -263,9 +263,12 @@ Store = Service.extend({
     @param {Object} options an options hash
   */
   _serialize: function(record, options) {
-    Ember.deprecate('_serialize was documented as private and will be removed in the next version of Ember Data.');
     var snapshot = record._internalModel.createSnapshot();
     return snapshot.serialize(options);
+  },
+  serialize: function(record, options) {
+    Ember.deprecate('serialize was documented as private and will be removed in the next version of Ember Data.');
+    return this._serialize(record, options);
   },
 
   /**
@@ -576,8 +579,11 @@ Store = Service.extend({
   */
   _findById: function(modelName, id, preload) {
     Ember.deprecate('Using store._findById() has been deprecated. Use store.findRecord() to return a record for a given type and id combination.');
-    Ember.deprecate('_findById was documented as private and will be removed in the next version of Ember Data.');
     return this.findRecord(modelName, id, preload);
+  },
+  findById: function(modelName, id, preload) {
+    Ember.deprecate('findById was documented as private and will be removed in the next version of Ember Data.');
+    return this._findById(modelName, id, preload);
   },
 
   /**
@@ -623,13 +629,16 @@ Store = Service.extend({
     @return {Promise} promise
   */
   _findByIds: function(modelName, ids) {
-    Ember.deprecate('_findByIds was documented as private and will be removed in the next version of Ember Data.');
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var store = this;
 
     return promiseArray(Ember.RSVP.all(map(ids, function(id) {
       return store.findRecord(modelName, id);
     })).then(Ember.A, null, "DS: Store#_findByIds of " + modelName + " complete"));
+  },
+  findByIds: function(modelName, ids) {
+    Ember.deprecate('_findByIds was documented as private and will be removed in the next version of Ember Data.');
+    return this._findByIds(modelName, ids);
   },
 
   /**
@@ -643,7 +652,6 @@ Store = Service.extend({
     @return {Promise} promise
   */
   _fetchRecord: function(internalModel) {
-    Ember.deprecate('_fetchRecord was documented as private and will be removed in the next version of Ember Data.');
     var typeClass = internalModel.type;
     var id = internalModel.id;
     var adapter = this.adapterFor(typeClass.modelName);
@@ -653,6 +661,10 @@ Store = Service.extend({
 
     var promise = _find(adapter, this, typeClass, id, internalModel);
     return promise;
+  },
+  fetchRecord: function(internalModel) {
+    Ember.deprecate('fetchRecord was documented as private and will be removed in the next version of Ember Data.');
+    return this._fetchRecord(internalModel);
   },
 
   scheduleFetchMany: function(records) {
@@ -823,7 +835,6 @@ Store = Service.extend({
     @return {Promise} promise
   */
   _reloadRecord: function(internalModel) {
-    Ember.deprecate('_reloadRecord was documented as private and will be removed in the next version of Ember Data.');
     var modelName = internalModel.type.modelName;
     var adapter = this.adapterFor(modelName);
     var id = internalModel.id;
@@ -833,6 +844,10 @@ Store = Service.extend({
     Ember.assert("You tried to reload a record but your adapter does not implement `find`", typeof adapter.find === 'function');
 
     return this.scheduleFetch(internalModel);
+  },
+  reloadRecord: function(internalModel) {
+    Ember.deprecate('reloadRecord was documented as private and will be removed in the next version of Ember Data.');
+    return this._reloadRecord(internalModel);
   },
 
   /**
@@ -862,9 +877,12 @@ Store = Service.extend({
     @return {DS.Model} record
   */
   _recordForId: function(modelName, id) {
-    Ember.deprecate('_recordForId was documented as private and will be removed in the next version of Ember Data.');
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     return this._internalModelForId(modelName, id).getRecord();
+  },
+  recordForId: function(modelName, id) {
+    Ember.deprecate('recordForId was documented as private and will be removed in the next version of Ember Data.');
+    return this._recordForId(modelName, id);
   },
 
   _internalModelForId: function(typeName, inputId) {
@@ -889,11 +907,14 @@ Store = Service.extend({
     @return {Promise} promise
   */
   _findMany: function(internalModels) {
-    Ember.deprecate('_findMany was documented as private and will be removed in the next version of Ember Data.');
     var store = this;
     return Promise.all(map(internalModels, function(internalModel) {
       return store._findByInternalModel(internalModel);
     }));
+  },
+  findMany: function(internalModels) {
+    Ember.deprecate('findMany was documented as private and will be removed in the next version of Ember Data.');
+    return this._findMany(internalModels);
   },
 
 
@@ -916,13 +937,16 @@ Store = Service.extend({
     @return {Promise} promise
   */
   _findHasMany: function(owner, link, relationship) {
-    Ember.deprecate('_findHasMany was documented as private and will be removed in the next version of Ember Data.');
     var adapter = this.adapterFor(owner.type.modelName);
 
     Ember.assert("You tried to load a hasMany relationship but you have no adapter (for " + owner.type + ")", adapter);
     Ember.assert("You tried to load a hasMany relationship from a specified `link` in the original payload but your adapter does not implement `findHasMany`", typeof adapter.findHasMany === 'function');
 
     return _findHasMany(adapter, this, owner, link, relationship);
+  },
+  findHasMany: function(owner, link, relationship) {
+    Ember.deprecate('findHasMany was documented as private and will be removed in the next version of Ember Data.');
+    return this._findHasMany(owner, link, relationship);
   },
 
   /**
@@ -934,13 +958,16 @@ Store = Service.extend({
     @return {Promise} promise
   */
   _findBelongsTo: function(owner, link, relationship) {
-    Ember.deprecate('_findBelongsTo was documented as private and will be removed in the next version of Ember Data.');
     var adapter = this.adapterFor(owner.type.modelName);
 
     Ember.assert("You tried to load a belongsTo relationship but you have no adapter (for " + owner.type + ")", adapter);
     Ember.assert("You tried to load a belongsTo relationship from a specified `link` in the original payload but your adapter does not implement `findBelongsTo`", typeof adapter.findBelongsTo === 'function');
 
     return _findBelongsTo(adapter, this, owner, link, relationship);
+  },
+  findBelongsTo: function(owner, link, relationship) {
+    Ember.deprecate('findBelongsTo was documented as private and will be removed in the next version of Ember Data.');
+    return this._findBelongsTo(owner, link, relationship);
   },
 
   /**
@@ -1056,9 +1083,12 @@ Store = Service.extend({
     @private
   */
   _didUpdateAll: function(typeClass) {
-    Ember.deprecate('_didUpdateAll was documented as private and will be removed in the next version of Ember Data.');
     var liveRecordArray = this.recordArrayManager.liveRecordArrayFor(typeClass);
     set(liveRecordArray, 'isUpdating', false);
+  },
+  didUpdateAll: function(typeClass) {
+    Ember.deprecate('didUpdateAll was documented as private and will be removed in the next version of Ember Data.');
+    return this._didUpdateAll(typeClass);
   },
 
   /**
@@ -1284,8 +1314,11 @@ Store = Service.extend({
     @param {InternalModel} internalModel
   */
   _dataWasUpdated: function(type, internalModel) {
-    Ember.deprecate('_dataWasUpdated was documented as private and will be removed in the next version of Ember Data.');
     this.recordArrayManager.recordDidChange(internalModel);
+  },
+  dataWasUpdated: function(type, internalModel) {
+    Ember.deprecate('dataWasUpdated was documented as private and will be removed in the next version of Ember Data.');
+    return this._dataWasUpdated(type, internalModel);
   },
 
   // ..............
@@ -1304,12 +1337,15 @@ Store = Service.extend({
     @param {Resolver} resolver
   */
   _scheduleSave: function(internalModel, resolver) {
-    Ember.deprecate('_scheduleSave was documented as private and will be removed in the next version of Ember Data.');
     var snapshot = internalModel.createSnapshot();
     internalModel.flushChangedAttributes();
     internalModel.adapterWillCommit();
     this._pendingSave.push([snapshot, resolver]);
     once(this, '_flushPendingSave');
+  },
+  scheduleSave: function(internalModel, resolver) {
+    Ember.deprecate('scheduleSave was documented as private and will be removed in the next version of Ember Data.');
+    return this._scheduleSave(internalModel, resolver);
   },
 
   /**
@@ -1320,7 +1356,6 @@ Store = Service.extend({
     @private
   */
   _flushPendingSave: function() {
-    Ember.deprecate('_flushPendingSave was documented as private and will be removed in the next version of Ember Data.');
     var pending = this._pendingSave.slice();
     this._pendingSave = [];
 
@@ -1344,6 +1379,10 @@ Store = Service.extend({
       resolver.resolve(_commit(adapter, this, operation, snapshot));
     }, this);
   },
+  flushPendingSave: function() {
+    Ember.deprecate('flushPendingSave was documented as private and will be removed in the next version of Ember Data.');
+    return this._flushPendingSave();
+  },
 
   /**
     This method is called once the promise returned by an
@@ -1359,7 +1398,6 @@ Store = Service.extend({
     @param {Object} data optional data (see above)
   */
   _didSaveRecord: function(internalModel, data) {
-    Ember.deprecate('_didSaveRecord was documented as private and will be removed in the next version of Ember Data.');
     if (data) {
       // normalize relationship IDs into records
       this._backburner.schedule('normalizeRelationships', this, '_setupRelationships', internalModel, internalModel.type, data);
@@ -1369,6 +1407,10 @@ Store = Service.extend({
     //We first make sure the primary data has been updated
     //TODO try to move notification to the user to the end of the runloop
     internalModel.adapterDidCommit(data);
+  },
+  didSaveRecord: function(internalModel, data) {
+    Ember.deprecate('didSaveRecord was documented as private and will be removed in the next version of Ember Data.');
+    return this._didSaveRecord(internalModel, data);
   },
 
   /**
@@ -1382,8 +1424,11 @@ Store = Service.extend({
     @param {Object} errors
   */
   _recordWasInvalid: function(internalModel, errors) {
-    Ember.deprecate('_recordWasInvalid was documented as private and will be removed in the next version of Ember Data.');
     internalModel.adapterDidInvalidate(errors);
+  },
+  recordWasInvalid: function(internalModel, errors) {
+    Ember.deprecate('recordWasInvalid was documented as private and will be removed in the next version of Ember Data.');
+    return this._recordWasInvalid(internalModel, errors);
   },
 
   /**
@@ -1396,8 +1441,11 @@ Store = Service.extend({
     @param {InternalModel} internalModel
   */
   _recordWasError: function(internalModel) {
-    Ember.deprecate('_recordWasError was documented as private and will be removed in the next version of Ember Data.');
     internalModel.adapterDidError();
+  },
+  recordWasError: function(internalModel) {
+    Ember.deprecate('recordWasError was documented as private and will be removed in the next version of Ember Data.');
+    return this._recordWasError(internalModel);
   },
 
   /**
@@ -1411,7 +1459,6 @@ Store = Service.extend({
     @param {Object} data
   */
   _updateId: function(internalModel, data) {
-    Ember.deprecate('_updateId was documented as private and will be removed in the next version of Ember Data.');
     var oldId = internalModel.id;
     var id = coerceId(data.id);
 
@@ -1420,6 +1467,10 @@ Store = Service.extend({
     this._typeMapFor(internalModel.type).idToRecord[id] = internalModel;
 
     internalModel.setId(id);
+  },
+  updateId: function(internalModel, data) {
+    Ember.deprecate('updateId was documented as private and will be removed in the next version of Ember Data.');
+    return this._updateId(internalModel, data);
   },
 
   /**
@@ -1431,7 +1482,6 @@ Store = Service.extend({
     @return {Object} typeMap
   */
   _typeMapFor: function(typeClass) {
-    Ember.deprecate('_typeMapFor was documented as private and will be removed in the next version of Ember Data.');
     var typeMaps = get(this, 'typeMaps');
     var guid = Ember.guidFor(typeClass);
     var typeMap = typeMaps[guid];
@@ -1448,6 +1498,10 @@ Store = Service.extend({
     typeMaps[guid] = typeMap;
 
     return typeMap;
+  },
+  typeMapFor: function(typeClass) {
+    Ember.deprecate('typeMapFor was documented as private and will be removed in the next version of Ember Data.');
+    return this._typeMapFor(typeClass);
   },
 
   // ................
@@ -1847,7 +1901,6 @@ Store = Service.extend({
     @return {InternalModel} internal model
   */
   _buildInternalModel: function(type, id, data) {
-    Ember.deprecate('_buildInternalModel was documented as private and will be removed in the next version of Ember Data.');
     var typeMap = this._typeMapFor(type);
     var idToRecord = typeMap.idToRecord;
 
@@ -1867,6 +1920,10 @@ Store = Service.extend({
     typeMap.records.push(internalModel);
 
     return internalModel;
+  },
+  buildInternalModel: function(type, id, data) {
+    Ember.deprecate('buildInternalModel was documented as private and will be removed in the next version of Ember Data.');
+    return this._buildInternalModel(type, id, data);
   },
 
   //Called by the state machine to notify the store that the record is ready to be interacted with
