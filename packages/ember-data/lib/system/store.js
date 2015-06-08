@@ -637,7 +637,7 @@ Store = Service.extend({
     })).then(Ember.A, null, "DS: Store#_findByIds of " + modelName + " complete"));
   },
   findByIds: function(modelName, ids) {
-    Ember.deprecate('_findByIds was documented as private and will be removed in the next version of Ember Data.');
+    Ember.deprecate('findByIds was documented as private and will be removed in the next version of Ember Data.');
     return this._findByIds(modelName, ids);
   },
 
