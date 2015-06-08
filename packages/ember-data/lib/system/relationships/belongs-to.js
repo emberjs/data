@@ -1,6 +1,5 @@
 import Model from 'ember-data/system/model';
-
-import computedPolyfill from "ember-data/utils/computed-polyfill";
+import computedPolyfill from "ember-new-computed";
 import normalizeModelName from "ember-data/system/normalize-model-name";
 
 /**

@@ -88,6 +88,7 @@ function packageAddon(packagePath, vendorPath) {
 
 var packages = merge([
   packageAddon('ember-inflector', 'node_modules/'),
+  packageAddon('ember-new-computed', 'node_modules/'),
   package('ember-data'),
   package('activemodel-adapter'),
   package('ember')
