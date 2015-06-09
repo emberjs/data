@@ -6,6 +6,8 @@
 
 - Fix a regression where a `DS.Model`'s `InternalModel` would not be set
   on init - @bmac https://github.com/emberjs/data/pull/3262
+- Pass store to inverseFor in removeEmbeddedForeignKey #3270 - @wecc
+  https://github.com/emberjs/data/pull/3270
 
 ### Release 1.0.0-beta.19 (June 5, 2015)
 
