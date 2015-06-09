@@ -494,8 +494,8 @@ var Model = Ember.Object.extend(Ember.Evented, {
 
     @method deleteRecord
   */
-  deleteRecord: function() {
-    this._internalModel.deleteRecord();
+  deleteRecord: function(options) {
+    this._internalModel.deleteRecord(options);
   },
 
   /**
@@ -519,12 +519,13 @@ var Model = Ember.Object.extend(Ember.Evented, {
     ```
 
     @method destroyRecord
+    @param {Object} options
     @return {Promise} a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
   */
-  destroyRecord: function() {
+  destroyRecord: function(options) {
     this.deleteRecord();
-    return this.save();
+    return this.save(options);
   },
 
   /**
@@ -653,7 +654,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     });
     ```
     @method save
-    @param {Object} options a hash specifying save options sent to the server.
+    @param {Object} options
     @return {Promise} a promise that will be resolved when the adapter returns
     successfully or rejected if the adapter returns with an error.
   */
