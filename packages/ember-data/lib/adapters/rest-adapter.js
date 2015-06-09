@@ -613,6 +613,13 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     } else if (endsWith(lastSegment, '?id=' + id)) {
       //Case when the url is of the format ...something?id=:id
       expandedURL[expandedURL.length - 1] = lastSegment.substring(0, lastSegment.length - id.length - 1);
+    } else if (expandedURL.length > 1) {
+      // Case when the url is of the format ...something/:id.format
+      var pattern = '^' + id + '\\.\\w+$';
+      if (new RegExp(pattern).test(lastSegment)) {
+        expandedURL[expandedURL.length - 1] = "";
+        expandedURL[expandedURL.length - 2] += lastSegment.substring(id.length, lastSegment.length);
+      }
     }
 
     return expandedURL.join('/');

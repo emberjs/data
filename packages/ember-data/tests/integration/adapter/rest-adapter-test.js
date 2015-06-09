@@ -1602,6 +1602,41 @@ test('groupRecordsForFindMany groups records correctly when singular URLs are en
   });
 });
 
+test('groupRecordsForFindMany groups records correctly when singular URLs contains a format', function() {
+  expect(2);
+
+  Comment.reopen({ post: DS.belongsTo('post') });
+  Post.reopen({ comments: DS.hasMany('comment', { async: true }) });
+  adapter.coalesceFindRequests = true;
+
+  adapter.buildURL = function(type, id, record) {
+    if (id === '1') {
+      return '/comments/1.json';
+    } else {
+      return '/other_comments/' + id + '.xml';
+    }
+  };
+
+  adapter.find = function(store, type, id, record ) {
+    equal(id, '1');
+    return Ember.RSVP.resolve({ comments: { id: 1 } });
+  };
+
+  adapter.findMany = function(store, type, ids, records ) {
+    deepEqual(ids, ['2', '3']);
+    return Ember.RSVP.resolve({ comments: [{ id: 2 }, { id: 3 }] });
+  };
+  var post;
+
+  run(function() {
+    post = store.push('post', { id: 2, comments: [1, 2, 3] });
+  });
+
+  run(function() {
+    post.get('comments');
+  });
+});
+
 test('normalizeKey - to set up _ids and _id', function() {
   env.registry.register('serializer:application', DS.RESTSerializer.extend({
     keyForAttribute: function(attr) {
