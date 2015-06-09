@@ -221,20 +221,23 @@ export function convertResourceObject(payload) {
     links: {}
   };
 
-  var attributeKeys = Ember.keys(payload.attributes);
-  forEach(attributeKeys, function(key) {
-    var attribute = payload.attributes[key];
-    data[key] = attribute;
-  });
-
-  var relationshipKeys = Ember.keys(payload.relationships);
-  forEach(relationshipKeys, function(key) {
-    var relationship = payload.relationships[key];
-    if (relationship.hasOwnProperty('data')) {
-      data[key] = relationship.data;
-    } else if (relationship.links && relationship.links.related) {
-      data.links[key] = relationship.links.related;
-    }
-  });
+  if (payload.attributes) {
+    var attributeKeys = Ember.keys(payload.attributes);
+    forEach(attributeKeys, function(key) {
+      var attribute = payload.attributes[key];
+      data[key] = attribute;
+    });
+  }
+  if (payload.relationships) {
+    var relationshipKeys = Ember.keys(payload.relationships);
+    forEach(relationshipKeys, function(key) {
+      var relationship = payload.relationships[key];
+      if (relationship.hasOwnProperty('data')) {
+        data[key] = relationship.data;
+      } else if (relationship.links && relationship.links.related) {
+        data.links[key] = relationship.links.related;
+      }
+    });
+  }
   return data;
 }
