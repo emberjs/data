@@ -238,6 +238,18 @@ export default Ember.Mixin.create({
     return url.join('/');
   },
 
+  /**
+    Builds a URL for hasMany associations given relationshipName, recordName and record.
+
+    Optionally used to generate a URL if payload does not include links or ids.
+
+    @method buildURLForHasMany
+    @param {String} relationshipName
+    @param {String} recordName
+    @param {DS.Model} record
+    @return {String} url
+  */
+  buildURLForHasMany: null,
 
   /**
     Determines the pathname for a given type.

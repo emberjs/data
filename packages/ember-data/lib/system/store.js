@@ -2139,24 +2139,9 @@ function setupRelationships(store, record, data) {
   var typeClass = record.type;
 
   typeClass.eachRelationship(function(key, descriptor) {
-    var kind = descriptor.kind;
-    var value = data[key];
-    var relationship;
+    var relationship = record._relationships.get(key);
 
-    if (data.links && data.links[key]) {
-      relationship = record._relationships.get(key);
-      relationship.updateLink(data.links[key]);
-    }
-
-    if (value !== undefined) {
-      if (kind === 'belongsTo') {
-        relationship = record._relationships.get(key);
-        relationship.setCanonicalRecord(value);
-      } else if (kind === 'hasMany') {
-        relationship = record._relationships.get(key);
-        relationship.updateRecordsFromAdapter(value);
-      }
-    }
+    relationship.updateFromAdapter(data);
   });
 }
 
