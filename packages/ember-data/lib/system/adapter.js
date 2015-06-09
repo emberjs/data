@@ -151,6 +151,7 @@ var Adapter = Ember.Object.extend({
     @param {DS.Store} store
     @param {DS.Model} type
     @param {String} sinceToken
+    @param {DS.SnapshotRecordArray} snapshotRecordArray
     @return {Promise} promise
   */
   findAll: null,
@@ -282,7 +283,6 @@ var Adapter = Ember.Object.extend({
     @param {DS.Store} store
     @param {DS.Model} type   the DS.Model class of the record
     @param {DS.Snapshot} snapshot
-    @param {Object} options
     @return {Promise} promise
   */
   createRecord: null,
@@ -325,7 +325,6 @@ var Adapter = Ember.Object.extend({
     @param {DS.Store} store
     @param {DS.Model} type   the DS.Model class of the record
     @param {DS.Snapshot} snapshot
-    @param {Object} options
     @return {Promise} promise
   */
   updateRecord: null,
@@ -368,7 +367,6 @@ var Adapter = Ember.Object.extend({
     @param {DS.Store} store
     @param {DS.Model} type   the DS.Model class of the record
     @param {DS.Snapshot} snapshot
-    @param {Object} options
     @return {Promise} promise
   */
   deleteRecord: null,
