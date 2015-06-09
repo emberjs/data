@@ -13,7 +13,7 @@ var K = Ember.K;
   This code initializes Ember-Data onto an Ember application.
 
   If an Ember.js developer defines a subclass of DS.Store on their application,
-  as `App.ApplicationStore` (or via a module system that resolves to `store:application`)
+  as `App.StoreService` (or via a module system that resolves to `service:store`)
   this code will automatically instantiate it and make it available on the
   router.
 
@@ -22,7 +22,7 @@ var K = Ember.K;
 
   For example, imagine an Ember.js application with the following classes:
 
-  App.ApplicationStore = DS.Store.extend({
+  App.StoreService = DS.Store.extend({
     adapter: 'custom'
   });
 

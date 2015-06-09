@@ -13,7 +13,7 @@ var app, App, container;
 */
 
 function getStore() {
-  return lookup('store:main');
+  return lookup('service:store');
 }
 
 function lookup(thing) {
@@ -69,7 +69,7 @@ test("registering App.Store is deprecated but functional", function() {
      'has been deprecated. Please use `App.ApplicationStore` instead.');
 
   run(function() {
-    ok(lookup('store:main').get('isCustomButDeprecated'), "the custom store was instantiated");
+    ok(lookup('service:store').get('isCustomButDeprecated'), "the custom store was instantiated");
   });
 
   var fooController = lookup('controller:foo');

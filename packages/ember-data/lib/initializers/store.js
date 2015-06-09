@@ -17,6 +17,9 @@ export default function initializeStore(registry, application) {
   registry.optionsForType('serializer', { singleton: false });
   registry.optionsForType('adapter', { singleton: false });
 
+  // This will get deprecated later in the instace
+  // initializer. However we register it here so we have access to
+  // application.Store in the instance initializer.
   if (application && application.Store) {
     registry.register('store:application', application.Store);
   }
