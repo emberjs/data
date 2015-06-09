@@ -274,7 +274,7 @@ function getValue(record, key) {
   export default DS.Model.extend({
     username: DS.attr('string'),
     email: DS.attr('string'),
-    verified: DS.attr('boolean', {defaultValue: false})
+    verified: DS.attr('boolean', { defaultValue: false })
   });
   ```
 

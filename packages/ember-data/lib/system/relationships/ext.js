@@ -210,8 +210,8 @@ Model.reopenClass({
     });
     ```
 
-    App.Post.inverseFor('comments') -> {type: App.Message, name:'owner', kind:'belongsTo'}
-    App.Message.inverseFor('owner') -> {type: App.Post, name:'comments', kind:'hasMany'}
+    App.Post.inverseFor('comments') -> { type: App.Message, name: 'owner', kind: 'belongsTo' }
+    App.Message.inverseFor('owner') -> { type: App.Post, name: 'comments', kind: 'hasMany' }
 
     @method inverseFor
     @static
@@ -238,7 +238,7 @@ Model.reopenClass({
     }
 
     var propertyMeta = this.metaForProperty(name);
-    //If inverse is manually specified to be null, like  `comments: DS.hasMany('message', {inverse: null})`
+    //If inverse is manually specified to be null, like  `comments: DS.hasMany('message', { inverse: null })`
     var options = propertyMeta.options;
     if (options.inverse === null) { return null; }
 
