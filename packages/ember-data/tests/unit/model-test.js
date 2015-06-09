@@ -887,5 +887,5 @@ test('accessing attributes in the initializer should not throw an error', functi
   });
   var store = env.store;
 
-  run(_ => store.createRecord('person'));
+  run(() => store.createRecord('person'));
 });
