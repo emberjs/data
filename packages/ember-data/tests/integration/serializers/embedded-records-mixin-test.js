@@ -1537,3 +1537,38 @@ test("serializing relationships with an embedded and without calls super when no
   ok(calledSerializeBelongsTo);
   ok(calledSerializeHasMany);
 });
+
+test("serializing belongsTo correctly removes embedded foreign key", function() {
+  SecretWeapon.reopen({
+    superVillain: null
+  });
+  EvilMinion.reopen({
+    secretWeapon: DS.belongsTo('secret-weapon'),
+    superVillain: null
+  });
+
+  run(function() {
+    secretWeapon = env.store.createRecord('secret-weapon', { name: "Secret Weapon" });
+    evilMinion = env.store.createRecord('evil-minion', { name: "Evil Minion", secretWeapon: secretWeapon });
+  });
+
+  env.registry.register('serializer:evil-minion', DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
+    attrs: {
+      secretWeapon: { embedded: 'always' }
+    }
+  }));
+
+  var serializer = env.container.lookup("serializer:evil-minion");
+  var json;
+
+  run(function() {
+    json = serializer.serialize(evilMinion._createSnapshot());
+  });
+
+  deepEqual(json, {
+    name: "Evil Minion",
+    secretWeapon: {
+      name: "Secret Weapon"
+    }
+  });
+});

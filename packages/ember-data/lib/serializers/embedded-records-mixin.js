@@ -346,7 +346,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     if (relationship.kind === 'hasMany') {
       return;
     } else if (relationship.kind === 'belongsTo') {
-      var parentRecord = snapshot.type.inverseFor(relationship.key);
+      var parentRecord = snapshot.type.inverseFor(relationship.key, this.store);
       if (parentRecord) {
         var name = parentRecord.name;
         var embeddedSerializer = this.store.serializerFor(embeddedSnapshot.modelName);
