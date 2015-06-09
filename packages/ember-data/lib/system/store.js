@@ -445,7 +445,7 @@ Store = Service.extend({
     without fetching the post you can pass in the post to the `find` call:
 
     ```javascript
-    store.find('comment', 2, {post: 1});
+    store.find('comment', 2, { post: 1 });
     ```
 
     If you have access to the post model you can also pass the model itself:
@@ -1687,10 +1687,10 @@ Store = Service.extend({
     ```js
     var pushData = {
       posts: [
-        {id: 1, post_title: "Great post", comment_ids: [2]}
+        { id: 1, post_title: "Great post", comment_ids: [2] }
       ],
       comments: [
-        {id: 2, comment_body: "Insightful comment"}
+        { id: 2, comment_body: "Insightful comment" }
       ]
     }
 

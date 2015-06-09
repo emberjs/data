@@ -133,7 +133,7 @@ export default Serializer.extend({
     export default DS.JSONSerializer.extend({
       attrs: {
         admin: 'is_admin',
-        occupation: {key: 'career'}
+        occupation: { key: 'career' }
       }
     });
     ```
@@ -149,7 +149,7 @@ export default Serializer.extend({
     export default DS.JSONSerializer.extend({
       attrs: {
         admin: {serialize: false},
-        occupation: {key: 'career'}
+        occupation: { key: 'career' }
       }
     });
     ```
@@ -730,8 +730,8 @@ export default Serializer.extend({
     var mappedKey;
     if (attrs && attrs[key]) {
       mappedKey = attrs[key];
-      //We need to account for both the {title: 'post_title'} and
-      //{title: {key: 'post_title'}} forms
+      //We need to account for both the { title: 'post_title' } and
+      //{ title: { key: 'post_title' }} forms
       if (mappedKey.key) {
         mappedKey = mappedKey.key;
       }
@@ -1117,7 +1117,7 @@ export default Serializer.extend({
   /**
     You can use this method to customize how polymorphic objects are
     serialized. Objects are considered to be polymorphic if
-    `{polymorphic: true}` is pass as the second argument to the
+    `{ polymorphic: true }` is pass as the second argument to the
     `DS.belongsTo` function.
 
     Example

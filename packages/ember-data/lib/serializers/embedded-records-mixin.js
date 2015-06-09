@@ -161,7 +161,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
 
     export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
-        author: {embedded: 'always'}
+        author: { embedded: 'always' }
       }
     })
     ```
@@ -269,8 +269,8 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     serializing. When serializing, an option to embed `ids` or `records` can be set.
     When extracting the only option is `records`.
 
-    So `{embedded: 'always'}` is shorthand for:
-    `{serialize: 'records', deserialize: 'records'}`
+    So `{ embedded: 'always' }` is shorthand for:
+    `{ serialize: 'records', deserialize: 'records' }`
 
     To embed the `ids` for a related object (using a hasMany relationship):
 
@@ -279,7 +279,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
 
     export default DS.RESTSerializer.extend(DS.EmbeddedRecordsMixin, {
       attrs: {
-        comments: {serialize: 'ids', deserialize: 'records'}
+        comments: { serialize: 'ids', deserialize: 'records' }
       }
     })
     ```
