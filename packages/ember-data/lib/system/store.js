@@ -1621,7 +1621,14 @@ Store = Service.extend({
 
   _pushInternalModel: function(modelName, data) {
     if (Ember.typeOf(modelName) === 'object' && Ember.typeOf(data) === 'undefined') {
-      return pushPayload(this, modelName);
+      //TODO Remove once the transition is complete
+      var result = pushPayload(this, modelName);
+      if (Ember.isArray(result)) {
+        return map(result, (item) => {
+          return item._internalModel;
+        });
+      }
+      return result._internalModel;
     }
     Ember.assert("Expected an object as `data` in a call to `push` for " + modelName + " , but was " + Ember.typeOf(data), Ember.typeOf(data) === 'object');
     Ember.assert("You must include an `id` for " + modelName + " in an object passed to `push`", data.id != null && data.id !== '');
