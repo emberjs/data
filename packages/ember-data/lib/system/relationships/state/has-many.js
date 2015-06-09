@@ -28,6 +28,12 @@ ManyRelationship.prototype.destroy = function() {
   this.manyArray.destroy();
 };
 
+ManyRelationship.prototype._super$updateMeta = Relationship.prototype.updateMeta;
+ManyRelationship.prototype.updateMeta = function(meta) {
+  this._super$updateMeta(meta);
+  this.manyArray.set('meta', meta);
+};
+
 ManyRelationship.prototype._super$addCanonicalRecord = Relationship.prototype.addCanonicalRecord;
 ManyRelationship.prototype.addCanonicalRecord = function(record, idx) {
   if (this.canonicalMembers.has(record)) {
@@ -144,12 +150,14 @@ ManyRelationship.prototype.computeChanges = function(records) {
 };
 
 ManyRelationship.prototype.fetchLink = function() {
-  var self = this;
-  return this.store.findHasMany(this.record, this.link, this.relationshipMeta).then(function(records) {
-    self.store._backburner.join(function() {
-      self.updateRecordsFromAdapter(records);
+  return this.store.findHasMany(this.record, this.link, this.relationshipMeta).then((records) => {
+    if (records.hasOwnProperty('meta')) {
+      this.updateMeta(records.meta);
+    }
+    this.store._backburner.join(() => {
+      this.updateRecordsFromAdapter(records);
     });
-    return self.manyArray;
+    return this.manyArray;
   });
 };
 

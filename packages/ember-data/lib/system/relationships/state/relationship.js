@@ -15,6 +15,7 @@ function Relationship(store, record, inverseKey, relationshipMeta) {
   //multiple possible modelNames
   this.inverseKeyForImplicit = this.record.constructor.modelName + this.key;
   this.linkPromise = null;
+  this.meta = null;
   this.hasData = false;
 }
 
@@ -22,6 +23,10 @@ Relationship.prototype = {
   constructor: Relationship,
 
   destroy: Ember.K,
+
+  updateMeta: function(meta) {
+    this.meta = meta;
+  },
 
   clear: function() {
     var members = this.members.list;
