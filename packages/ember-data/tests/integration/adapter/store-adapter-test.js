@@ -947,3 +947,115 @@ test("findBelongsTo receives a snapshot", function() {
     person.get('dog');
   });
 });
+
+test("record.save should pass adapterOptions to the updateRecord method", function() {
+  expect(1);
+
+  env.adapter.updateRecord = async(function(store, type, snapshot, adapterOptions) {
+    deepEqual(adapterOptions, { subscribe: true });
+    return Ember.RSVP.resolve({ id: 1 });
+  });
+
+  run(function() {
+    var person = store.push('person', { id: 1, name: 'Tom' });
+    person.save({ adapterOptions: { subscribe: true } });
+  });
+});
+
+test("record.save should pass adapterOptions to the createRecord method", function() {
+  expect(1);
+
+  env.adapter.createRecord = async(function(store, type, snapshot, adapterOptions) {
+    deepEqual(adapterOptions, { subscribe: true });
+    return Ember.RSVP.resolve({ id: 1 });
+  });
+
+  run(function() {
+    var person = store.createRecord('person', { name: 'Tom' });
+    person.save({ adapterOptions: { subscribe: true } });
+  });
+});
+
+test("record.save should pass adapterOptions to the deleteRecord method", function() {
+  expect(1);
+
+  env.adapter.deleteRecord = async(function(store, type, snapshot, adapterOptions) {
+    deepEqual(adapterOptions, { subscribe: true });
+    return Ember.RSVP.resolve({ id: 1 });
+  });
+
+  run(function() {
+    var person = store.push('person', { id: 1, name: 'Tom' });
+    person.destroyRecord({ adapterOptions: { subscribe: true } });
+  });
+});
+
+
+test("findRecord should pass adapterOptions to the find method", function() {
+  expect(1);
+
+  env.adapter.find = async(function(store, type, id, snapshot, adapterOptions) {
+    deepEqual(adapterOptions, { query: { embed: true } });
+    return Ember.RSVP.resolve({ id: 1 });
+  });
+
+  run(function() {
+    store.findRecord('person', 1, { adapterOptions: { query: { embed: true } } });
+  });
+});
+
+
+test("findRecord should pass adapterOptions to the find method", function() {
+  expect(1);
+
+  env.adapter.find = async(function(store, type, id, snapshot, adapterOptions) {
+    deepEqual(adapterOptions, { query: { embed: true } });
+    return Ember.RSVP.resolve({ id: 1 });
+  });
+
+  run(function() {
+    store.findRecord('person', 1, { adapterOptions: { query: { embed: true } } });
+  });
+});
+
+
+test("findAll should pass adapterOptions to the findAll method", function() {
+  expect(1);
+
+  env.adapter.findAll = async(function(store, type, sinceToken, adapterOptions) {
+    deepEqual(adapterOptions, { query: { embed: true } });
+    return Ember.RSVP.resolve([{ id: 1 }]);
+  });
+
+  run(function() {
+    store.findAll('person', { adapterOptions: { query: { embed: true } } });
+  });
+});
+
+
+test("query should pass adapterOptions to the findQuery method", function() {
+  expect(1);
+
+  env.adapter.findQuery = async(function(store, type, query, recordArray, adapterOptions) {
+    deepEqual(adapterOptions, { subscribe: true });
+    return Ember.RSVP.resolve([{ id: 1 }]);
+  });
+
+  run(function() {
+    store.query('person', {}, { adapterOptions: { subscribe: true } });
+  });
+});
+
+
+// test("queryRecord should pass adapterOptions to the findQueryRecord method", function() {
+//   expect(1);
+
+//   env.adapter.findQueryRecord = async(function(store, type, query, recordArray, adapterOptions) {
+//     deepEqual(adapterOptions, { subscribe: true });
+//     return Ember.RSVP.resolve([{ id: 1 }]);
+//   });
+
+//   run(function() {
+//     store.queryRecord('person', {}, { adapterOptions: { subscribe: true } });
+//   });
+// });
