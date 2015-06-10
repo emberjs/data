@@ -827,6 +827,7 @@ module("unit/store/adapter_interop - find preload deprecations", {
         return Ember.RSVP.resolve({ id: id });
       }
     });
+
     store = createStore({
       adapter: TestAdapter,
       person: Person
@@ -837,6 +838,28 @@ module("unit/store/adapter_interop - find preload deprecations", {
       if (store) { store.destroy(); }
     });
   }
+});
+
+test("store#find with deprecated preload passes correct options to store#findRecord", function() {
+  expect(2);
+
+  var expectedOptions = { preload: { name: 'Tom' } };
+
+  store.reopen({
+    findRecord: function(modelName, id, options) {
+      deepEqual(options, expectedOptions,
+        'deprecated preload transformed to new options store#findRecord');
+    }
+  });
+
+  expectDeprecation(
+    function() {
+      run(function() {
+        store.find('person', 1, { name: 'Tom' });
+      });
+    },
+    /Passing a preload argument to `store.find` is deprecated./
+  );
 });
 
 test("Using store#find with preload is deprecated", function() {
