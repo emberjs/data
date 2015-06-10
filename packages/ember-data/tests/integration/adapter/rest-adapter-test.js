@@ -99,7 +99,7 @@ test("find - payload with sideloaded records of the same type", function() {
     equal(post.get('id'), "1");
     equal(post.get('name'), "Rails is omakase");
 
-    var post2 = store.getById('post', 2);
+    var post2 = store.peekRecord('post', 2);
     equal(post2.get('id'), "2");
     equal(post2.get('name'), "The Parley Letter");
   }));
@@ -119,7 +119,7 @@ test("find - payload with sideloaded records of a different type", function() {
     equal(post.get('id'), "1");
     equal(post.get('name'), "Rails is omakase");
 
-    var comment = store.getById('comment', 1);
+    var comment = store.peekRecord('comment', 1);
     equal(comment.get('id'), "1");
     equal(comment.get('name'), "FIRST");
   }));
@@ -246,7 +246,7 @@ test("create - findMany doesn't overwrite owner", function() {
   run(function() {
     store.push('post', { id: 1, name: "Rails is omakase", comments: [] });
   });
-  var post = store.getById('post', 1);
+  var post = store.peekRecord('post', 1);
 
   run(function() {
     comment = store.createRecord('comment', { name: "The Parley Letter" });
@@ -413,7 +413,7 @@ test("create - a record on the many side of a hasMany relationship should update
     store.push('comment', { id: 1, name: "Dat Parlay Letter", post: 1 });
   });
 
-  var post = store.getById('post', 1);
+  var post = store.peekRecord('post', 1);
   var commentCount = post.get('comments.length');
   equal(commentCount, 1, "the post starts life with a comment");
 
@@ -448,8 +448,8 @@ test("create - sideloaded belongsTo relationships are both marked as loaded", fu
 
   run(function() {
     post.save().then(async(function(record) {
-      equal(store.getById('post', 1).get('comment.isLoaded'), true, "post's comment isLoaded (via store)");
-      equal(store.getById('comment', 1).get('post.isLoaded'), true, "comment's post isLoaded (via store)");
+      equal(store.peekRecord('post', 1).get('comment.isLoaded'), true, "post's comment isLoaded (via store)");
+      equal(store.peekRecord('comment', 1).get('post.isLoaded'), true, "comment's post isLoaded (via store)");
       equal(record.get('comment.isLoaded'), true, "post's comment isLoaded (via record)");
       equal(record.get('comment.post.isLoaded'), true, "post's comment's post isLoaded (via record)");
     }));
@@ -618,7 +618,7 @@ test("update - a payload with sideloaded updates pushes the updates", function()
       equal(post.get('isDirty'), false, "the post isn't dirty anymore");
       equal(post.get('name'), "Dat Parley Letter", "the post was updated");
 
-      var comment = store.getById('comment', 1);
+      var comment = store.peekRecord('comment', 1);
       equal(comment.get('name'), "FIRST", "The comment was sideloaded");
     }));
   });
@@ -645,7 +645,7 @@ test("update - a payload with sideloaded updates pushes the updates", function()
     equal(post.get('isDirty'), false, "the post isn't dirty anymore");
     equal(post.get('name'), "Dat Parley Letter", "the post was updated");
 
-    var comment = store.getById('comment', 1);
+    var comment = store.peekRecord('comment', 1);
     equal(comment.get('name'), "FIRST", "The comment was sideloaded");
   }));
 });
@@ -689,7 +689,7 @@ test("update - hasMany relationships faithfully reflect simultaneous adds and re
   store.find('comment', 2).then(async(function() {
     return store.find('post', 1);
   })).then(async(function(post) {
-    var newComment = store.getById('comment', 2);
+    var newComment = store.peekRecord('comment', 2);
     var comments = post.get('comments');
 
     // Replace the comment with a new one
@@ -760,7 +760,7 @@ test("delete - a payload with sideloaded updates pushes the updates", function()
     equal(post.get('isDirty'), false, "the post isn't dirty anymore");
     equal(post.get('isDeleted'), true, "the post is now deleted");
 
-    var comment = store.getById('comment', 1);
+    var comment = store.peekRecord('comment', 1);
     equal(comment.get('name'), "FIRST", "The comment was sideloaded");
   }));
 });
@@ -783,7 +783,7 @@ test("delete - a payload with sidloaded updates pushes the updates when the orig
     equal(post.get('isDirty'), false, "the original post isn't dirty anymore");
     equal(post.get('isDeleted'), true, "the original post is now deleted");
 
-    var newPost = store.getById('post', 2);
+    var newPost = store.peekRecord('post', 2);
     equal(newPost.get('name'), "The Parley Letter", "The new post was added to the store");
   }));
 });
@@ -820,8 +820,8 @@ test("findAll - returning an array populates the array", function() {
     equal(passedVerb, "GET");
     equal(passedHash.data, undefined);
 
-    var post1 = store.getById('post', 1);
-    var post2 = store.getById('post', 2);
+    var post1 = store.peekRecord('post', 1);
+    var post2 = store.peekRecord('post', 2);
 
     deepEqual(
       post1.getProperties('id', 'name'),
@@ -872,7 +872,7 @@ test("findAll - returning sideloaded data loads the data", function() {
     comments: [{ id: 1, name: "FIRST" }] });
 
   store.findAll('post').then(async(function(posts) {
-    var comment = store.getById('comment', 1);
+    var comment = store.peekRecord('comment', 1);
 
     deepEqual(comment.getProperties('id', 'name'), { id: "1", name: "FIRST" });
   }));
@@ -892,8 +892,8 @@ test("findAll - data is normalized through custom serializers", function() {
   });
 
   store.findAll('post').then(async(function(posts) {
-    var post1 = store.getById('post', 1);
-    var post2 = store.getById('post', 2);
+    var post1 = store.peekRecord('post', 1);
+    var post2 = store.peekRecord('post', 2);
 
     deepEqual(
       post1.getProperties('id', 'name'),
@@ -1078,8 +1078,8 @@ test("findQuery - returning an array populates the array", function() {
     equal(passedVerb, 'GET');
     deepEqual(passedHash.data, { page: 1 });
 
-    var post1 = store.getById('post', 1);
-    var post2 = store.getById('post', 2);
+    var post1 = store.peekRecord('post', 1);
+    var post2 = store.peekRecord('post', 2);
 
     deepEqual(
       post1.getProperties('id', 'name'),
@@ -1112,7 +1112,7 @@ test("findQuery - returning sideloaded data loads the data", function() {
   });
 
   store.query('post', { page: 1 }).then(async(function(posts) {
-    var comment = store.getById('comment', 1);
+    var comment = store.peekRecord('comment', 1);
 
     deepEqual(comment.getProperties('id', 'name'), { id: "1", name: "FIRST" });
   }));
@@ -1130,8 +1130,8 @@ test("findQuery - data is normalized through custom serializers", function() {
   });
 
   store.query('post', { page: 1 }).then(async(function(posts) {
-    var post1 = store.getById('post', 1);
-    var post2 = store.getById('post', 2);
+    var post1 = store.peekRecord('post', 1);
+    var post2 = store.peekRecord('post', 2);
 
     deepEqual(
       post1.getProperties('id', 'name'),
@@ -1163,7 +1163,7 @@ test("findMany - findMany uses a correct URL to access the records", function() 
     store.push('post', { id: 1, name: "Rails is omakase", comments: [1, 2, 3] });
   });
 
-  var post = store.getById('post', 1);
+  var post = store.peekRecord('post', 1);
   ajaxResponse({
     comments: [
       { id: 1, name: "FIRST" },
@@ -1189,7 +1189,7 @@ test("findMany - passes buildURL the requestType", function() {
     store.push('post', { id: 1, name: "Rails is omakase", comments: [1, 2, 3] });
   });
 
-  var post = store.getById('post', 1);
+  var post = store.peekRecord('post', 1);
   ajaxResponse({
     comments: [
       { id: 1, name: "FIRST" },
@@ -1209,7 +1209,7 @@ test("findMany - findMany does not coalesce by default", function() {
     store.push('post', { id: 1, name: "Rails is omakase", comments: [1, 2, 3] });
   });
 
-  var post = store.getById('post', 1);
+  var post = store.peekRecord('post', 1);
   //It's still ok to return this even without coalescing  because RESTSerializer supports sideloading
   ajaxResponse({
     comments: [
@@ -1243,9 +1243,9 @@ test("findMany - returning an array populates the array", function() {
 
     return post.get('comments');
   })).then(async(function(comments) {
-    var comment1 = store.getById('comment', 1);
-    var comment2 = store.getById('comment', 2);
-    var comment3 = store.getById('comment', 3);
+    var comment1 = store.peekRecord('comment', 1);
+    var comment2 = store.peekRecord('comment', 2);
+    var comment3 = store.peekRecord('comment', 3);
 
     deepEqual(comment1.getProperties('id', 'name'), { id: "1", name: "FIRST" });
     deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });
@@ -1280,11 +1280,11 @@ test("findMany - returning sideloaded data loads the data", function() {
 
     return post.get('comments');
   })).then(async(function(comments) {
-    var comment1 = store.getById('comment', 1);
-    var comment2 = store.getById('comment', 2);
-    var comment3 = store.getById('comment', 3);
-    var comment4 = store.getById('comment', 4);
-    var post2    = store.getById('post', 2);
+    var comment1 = store.peekRecord('comment', 1);
+    var comment2 = store.peekRecord('comment', 2);
+    var comment3 = store.peekRecord('comment', 3);
+    var comment4 = store.peekRecord('comment', 4);
+    var post2    = store.peekRecord('post', 2);
 
     deepEqual(
       comments.toArray(),
@@ -1325,9 +1325,9 @@ test("findMany - a custom serializer is used if present", function() {
 
     return post.get('comments');
   })).then(async(function(comments) {
-    var comment1 = store.getById('comment', 1);
-    var comment2 = store.getById('comment', 2);
-    var comment3 = store.getById('comment', 3);
+    var comment1 = store.peekRecord('comment', 1);
+    var comment2 = store.peekRecord('comment', 2);
+    var comment3 = store.peekRecord('comment', 3);
 
     deepEqual(comment1.getProperties('id', 'name'), { id: "1", name: "FIRST" });
     deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });
@@ -1366,9 +1366,9 @@ test("findHasMany - returning an array populates the array", function() {
     equal(passedVerb, 'GET');
     equal(passedHash, undefined);
 
-    var comment1 = store.getById('comment', 1);
-    var comment2 = store.getById('comment', 2);
-    var comment3 = store.getById('comment', 3);
+    var comment1 = store.peekRecord('comment', 1);
+    var comment2 = store.peekRecord('comment', 2);
+    var comment3 = store.peekRecord('comment', 3);
 
     deepEqual(comment1.getProperties('id', 'name'), { id: "1", name: "FIRST" });
     deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });
@@ -1440,10 +1440,10 @@ test("findMany - returning sideloaded data loads the data", function() {
 
     return post.get('comments');
   })).then(async(function(comments) {
-    var comment1 = store.getById('comment', 1);
-    var comment2 = store.getById('comment', 2);
-    var comment3 = store.getById('comment', 3);
-    var post2    = store.getById('post', 2);
+    var comment1 = store.peekRecord('comment', 1);
+    var comment2 = store.peekRecord('comment', 2);
+    var comment3 = store.peekRecord('comment', 3);
+    var post2    = store.peekRecord('post', 2);
 
     deepEqual(comments.toArray(), [comment1, comment2, comment3], "The correct records are in the array");
 
@@ -1485,9 +1485,9 @@ test("findMany - a custom serializer is used if present", function() {
     });
     return post.get('comments');
   })).then(async(function(comments) {
-    var comment1 = store.getById('comment', 1);
-    var comment2 = store.getById('comment', 2);
-    var comment3 = store.getById('comment', 3);
+    var comment1 = store.peekRecord('comment', 1);
+    var comment2 = store.peekRecord('comment', 2);
+    var comment3 = store.peekRecord('comment', 3);
 
     deepEqual(comment1.getProperties('id', 'name'), { id: "1", name: "FIRST" });
     deepEqual(comment2.getProperties('id', 'name'), { id: "2", name: "Rails is unagi" });

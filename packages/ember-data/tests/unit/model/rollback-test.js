@@ -118,7 +118,7 @@ test("a deleted record can be rollbacked if it fails to save, record arrays are 
 
   run(function() {
     person = store.push('person', { id: 1, firstName: "Tom", lastName: "Dale" });
-    people = store.all('person');
+    people = store.peekAll('person');
   });
 
   run(function() {
@@ -209,7 +209,7 @@ test("deleted record can be rollbacked", function() {
 
   run(function() {
     person = store.push('person', { id: 1 });
-    people = store.all('person');
+    people = store.peekAll('person');
     person.deleteRecord();
   });
 

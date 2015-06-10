@@ -24,7 +24,7 @@ export default RecordArray.extend({
     Example
 
     ```javascript
-    var allPeople = store.all('person');
+    var allPeople = store.peekAll('person');
     allPeople.mapBy('name'); // ["Tom Dale", "Yehuda Katz", "Trek Glowacki"]
 
     var people = store.filter('person', function(person) {

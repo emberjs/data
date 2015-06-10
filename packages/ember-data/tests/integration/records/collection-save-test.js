@@ -24,7 +24,7 @@ test("Collection will resolve save on success", function() {
     env.store.createRecord('post', { title: 'World' });
   });
 
-  var posts = env.store.all('post');
+  var posts = env.store.peekAll('post');
 
   env.adapter.createRecord = function(store, type, snapshot) {
     return Ember.RSVP.resolve({ id: 123 });
@@ -43,7 +43,7 @@ test("Collection will reject save on error", function() {
     env.store.createRecord('post', { title: 'World' });
   });
 
-  var posts = env.store.all('post');
+  var posts = env.store.peekAll('post');
 
   env.adapter.createRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject();
@@ -62,7 +62,7 @@ test("Retry is allowed in a failure handler", function() {
     env.store.createRecord('post', { title: 'World' });
   });
 
-  var posts = env.store.all('post');
+  var posts = env.store.peekAll('post');
 
   var count = 0;
 
@@ -94,7 +94,7 @@ test("Collection will reject save on invalid", function() {
     env.store.createRecord('post', { title: 'World' });
   });
 
-  var posts = env.store.all('post');
+  var posts = env.store.peekAll('post');
 
   env.adapter.createRecord = function(store, type, snapshot) {
     return Ember.RSVP.reject({ title: 'invalid' });

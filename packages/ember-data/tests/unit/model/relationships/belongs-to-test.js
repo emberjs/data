@@ -214,7 +214,7 @@ test("When finding a belongsTo relationship the inverse belongsTo relationship i
   });
 
   run(function() {
-    store.getById('person', 1).get('occupation');
+    store.peekRecord('person', 1).get('occupation');
   });
 });
 

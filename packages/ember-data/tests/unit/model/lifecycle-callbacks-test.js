@@ -51,7 +51,7 @@ test("TEMPORARY: a record receives a didLoad callback once it materializes if it
     equal(didLoadCalled, 0, "didLoad was not called");
   });
   run(function() {
-    store.getById('person', 1);
+    store.peekRecord('person', 1);
   });
   run(function() {
     equal(didLoadCalled, 1, "didLoad was called");
@@ -306,5 +306,5 @@ test("an ID of 0 is allowed", function() {
     store.push('person', { id: 0, name: "Tom Dale" });
   });
 
-  equal(store.all('person').objectAt(0).get('name'), "Tom Dale", "found record with id 0");
+  equal(store.peekAll('person').objectAt(0).get('name'), "Tom Dale", "found record with id 0");
 });

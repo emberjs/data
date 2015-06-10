@@ -374,15 +374,15 @@ test("possible to replace items in a relationship using setObjects w/ Ember Enum
   var tom, sylvain;
 
   run(function() {
-    tom = store.getById('person', '1');
-    sylvain = store.getById('person', '2');
+    tom = store.peekRecord('person', '1');
+    sylvain = store.peekRecord('person', '2');
     // Test that since sylvain.get('tags') instanceof DS.ManyArray,
     // addRecords on Relationship iterates correctly.
     tom.get('tags').setObjects(sylvain.get('tags'));
   });
 
   equal(tom.get('tags.length'), 1);
-  equal(tom.get('tags.firstObject'), store.getById('tag', 2));
+  equal(tom.get('tags.firstObject'), store.peekRecord('tag', 2));
 });
 
 test("it is possible to remove an item from a relationship", function() {

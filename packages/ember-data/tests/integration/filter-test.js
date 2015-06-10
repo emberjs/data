@@ -109,8 +109,8 @@ test("when a DS.Model updates its relationships, its changes affect its filtered
 
   equal(get(people, 'length'), 0, "there are now 0 items");
 
-  var erik = store.getById('person', 3);
-  var yehuda = store.getById('person', 2);
+  var erik = store.peekRecord('person', 3);
+  var yehuda = store.peekRecord('person', 2);
   run(function() {
     erik.set('bestFriend', yehuda);
   });

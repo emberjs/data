@@ -92,7 +92,7 @@ test('looks up using camelCase string', function() {
 
   run(function() {
     store.find('postNote', 1).then(function(postNote) {
-      equal(postNote.get('notePost'), store.getById('notePost', 1));
+      equal(postNote.get('notePost'), store.peekRecord('notePost', 1));
     });
   });
 });
@@ -114,7 +114,7 @@ test('looks up using under_score string', function() {
 
   run(function() {
     store.find('long_model_name', 1).then(function(longModelName) {
-      deepEqual(longModelName.get('postNotes').toArray(), [store.getById('postNote', 1)]);
+      deepEqual(longModelName.get('postNotes').toArray(), [store.peekRecord('postNote', 1)]);
     });
   });
 

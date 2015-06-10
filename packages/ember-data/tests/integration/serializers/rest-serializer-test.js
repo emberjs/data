@@ -188,9 +188,8 @@ if (!Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
       });
     }, /Encountered "home_planet" in payload, but no model was found for model name "garbage"/);
 
-
     // assert non-warned records get pushed into store correctly
-    var superVillain = env.store.getById('super-villain', "1");
+    var superVillain = env.store.peekRecord('super-villain', "1");
     equal(get(superVillain, "firstName"), "Stanley");
 
     // Serializers are singletons, so that"s why we use the store which
@@ -210,7 +209,7 @@ if (!Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
     noWarns(function() {
       run(function() {
         env.store.pushPayload('home-planet', jsonHash);
-        homePlanet = env.store.getById('home-planet', "1");
+        homePlanet = env.store.peekRecord('home-planet', "1");
       });
     });
 
@@ -247,7 +246,7 @@ if (!Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
     }, /Encountered "home_planets" in payload, but no model was found for model name "garbage"/);
 
     // assert non-warned records get pushed into store correctly
-    var superVillain = env.store.getById('super-villain', "1");
+    var superVillain = env.store.peekRecord('super-villain', "1");
     equal(get(superVillain, "firstName"), "Stanley");
 
     // Serializers are singletons, so that"s why we use the store which
@@ -267,7 +266,7 @@ if (!Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
     noWarns(function() {
       run(function() {
         env.store.pushPayload('home-planet', jsonHash);
-        homePlanet = env.store.getById('home-planet', "1");
+        homePlanet = env.store.peekRecord('home-planet', "1");
       });
     });
 

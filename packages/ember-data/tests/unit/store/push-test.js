@@ -250,7 +250,7 @@ test("Calling pushPayload allows pushing raw JSON", function () {
     });
   });
 
-  var post = store.getById('post', 1);
+  var post = store.peekRecord('post', 1);
 
   equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
 
@@ -276,7 +276,7 @@ test("Calling pushPayload allows pushing singular payload properties", function 
     });
   });
 
-  var post = store.getById('post', 1);
+  var post = store.peekRecord('post', 1);
 
   equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
 
@@ -320,11 +320,11 @@ test("Calling pushPayload should use the type's serializer for normalizing", fun
     });
   });
 
-  var post = store.getById('post', 1);
+  var post = store.peekRecord('post', 1);
 
   equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
 
-  var person = store.getById('person', 2);
+  var person = store.peekRecord('person', 2);
 
   equal(person.get('firstName'), "Yehuda", "you can push raw JSON into the store");
 });
@@ -376,11 +376,11 @@ test("Calling pushPayload without a type should use a model's serializer when no
     });
   });
 
-  var post = store.getById('post', 1);
+  var post = store.peekRecord('post', 1);
 
   equal(post.get('postTitle'), "Ember rocks", "you can push raw JSON into the store");
 
-  var person = store.getById('person', 2);
+  var person = store.peekRecord('person', 2);
 
   equal(person.get('firstName'), "Yehuda", "you can push raw JSON into the store");
 });
@@ -400,7 +400,7 @@ test("Calling pushPayload allows partial updates with raw JSON", function () {
     });
   });
 
-  person = store.getById('person', 1);
+  person = store.peekRecord('person', 1);
 
   equal(person.get('firstName'), "Robert", "you can push raw JSON into the store");
   equal(person.get('lastName'), "Jackson", "you can push raw JSON into the store");
@@ -487,7 +487,7 @@ test('Calling push with a link containing the value null', function() {
     });
   });
 
-  var person = store.getById('person', 1);
+  var person = store.peekRecord('person', 1);
 
   equal(person.get('firstName'), "Tan", "you can use links that contain null as a value");
 });
