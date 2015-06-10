@@ -41,11 +41,20 @@ module("unit/store/hasRecordForId - Store hasRecordForId", {
 test("hasRecordForId should return false for records in the empty state ", function() {
 
   run(function() {
-    store.push('person', {
-      id: 1,
-      firstName: "Yehuda",
-      lastName: "Katz",
-      phoneNumbers: [1]
+    store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz'
+        },
+        relationships: {
+          phoneNumbers: {
+            data: [{ type: 'phone-number', id: 1 }]
+          }
+        }
+      }
     });
 
     equal(false, store.hasRecordForId('phone-number', 1), 'hasRecordForId only returns true for loaded records');
@@ -55,11 +64,20 @@ test("hasRecordForId should return false for records in the empty state ", funct
 
 test("hasRecordForId should return true for records in the loaded state ", function() {
   run(function() {
-    store.push('person', {
-      id: 1,
-      firstName: "Yehuda",
-      lastName: "Katz",
-      phoneNumbers: [1]
+    store.push({
+      data: {
+        type: 'person',
+        id: 1,
+        attributes: {
+          firstName: 'Yehuda',
+          lastName: 'Katz'
+        },
+        relationships: {
+          phoneNumbers: {
+            data: [{ type: 'phone-number', id: 1 }]
+          }
+        }
+      }
     });
 
     equal(true, store.hasRecordForId('person', 1), 'hasRecordForId returns true for records loaded into the store');
