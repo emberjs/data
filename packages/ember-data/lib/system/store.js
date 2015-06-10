@@ -1666,7 +1666,7 @@ Store = Service.extend({
       updated.
   */
   push: function(modelName, data) {
-    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
+    Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string' || typeof data === 'undefined');
     var internalModel = this._pushInternalModel(modelName, data);
     if (Ember.isArray(internalModel)) {
       return map(internalModel, (item) => {
