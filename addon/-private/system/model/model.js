@@ -2,6 +2,7 @@ import Ember from 'ember';
 import { assert, deprecate } from "ember-data/-private/debug";
 import { PromiseObject } from "ember-data/-private/system/promise-proxies";
 import Errors from "ember-data/-private/system/model/errors";
+import isEnabled from 'ember-data/-private/features';
 
 /**
   @module ember-data
@@ -845,6 +846,130 @@ if (Ember.setOwner) {
       return this.store.container;
     }
   });
+}
+
+if (isEnabled("ds-references")) {
+
+  Model.reopen({
+
+    /**
+      Get the reference for the specified belongsTo relationship.
+
+      Example
+
+      ```javascript
+      // models/blog.js
+      export default DS.Model.extend({
+        user: DS.belongsTo({ async: true })
+      });
+
+      store.push({
+        type: 'blog',
+        id: 1,
+        relationships: {
+          user: { type: 'user', id: 1 }
+        }
+      });
+      var userRef = blog.belongsTo('user');
+
+      // check if the user relationship is loaded
+      var isLoaded = userRef.value() !== null;
+
+      // get the record of the reference (null if not yet available)
+      var user = userRef.value();
+
+      // get the identifier of the reference
+      if (userRef.remoteType() === "id") {
+        var id = userRef.id();
+      } else if (userRef.remoteType() === "link") {
+        var link = userRef.link();
+      }
+
+      // load user (via store.find or store.findBelongsTo)
+      userRef.load().then(...)
+
+      // or trigger a reload
+      userRef.reload().then(...)
+
+      // provide data for reference
+      userRef.push({
+        type: 'user',
+        id: 1,
+        attributes: {
+          username: "@user"
+        }
+      }).then(function(user) {
+        userRef.value() === user;
+      });
+      ```
+
+      @method belongsTo
+      @param {String} name of the relationship
+      @return {BelongsToReference} reference for this relationship
+    */
+    belongsTo: function(name) {
+      return this._internalModel.referenceFor('belongsTo', name);
+    },
+
+    /**
+      Get the reference for the specified hasMany relationship.
+
+      Example
+
+      ```javascript
+      // models/blog.js
+      export default DS.Model.extend({
+        comments: DS.hasMany({ async: true })
+      });
+
+      store.push({
+        type: 'blog',
+        id: 1,
+        relationships: {
+          comments: {
+            data: [
+              { type: 'comment', id: 1 },
+              { type: 'comment', id: 2 }
+            ]
+          }
+        }
+      });
+      var commentsRef = blog.hasMany('comments');
+
+      // check if the comments are loaded already
+      var isLoaded = commentsRef.value() !== null;
+
+      // get the records of the reference (null if not yet available)
+      var comments = commentsRef.value();
+
+      // get the identifier of the reference
+      if (commentsRef.remoteType() === "ids") {
+        var ids = commentsRef.ids();
+      } else if (commentsRef.remoteType() === "link") {
+        var link = commentsRef.link();
+      }
+
+      // load comments (via store.findMany or store.findHasMany)
+      commentsRef.load().then(...)
+
+      // or trigger a reload
+      commentsRef.reload().then(...)
+
+      // provide data for reference
+      commentsRef.push([{ type: 'comment', id: 1 }, { type: 'comment', id: 2 }]).then(function(comments) {
+        commentsRef.value() === comments;
+      });
+      ```
+
+      @method hasMany
+      @param {String} name of the relationship
+      @return {HasManyReference} reference for this relationship
+    */
+    hasMany: function(name) {
+      return this._internalModel.referenceFor('hasMany', name);
+    }
+  });
+
 }
 
 export default Model;

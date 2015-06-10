@@ -10,6 +10,12 @@ import {
   getOwner
 } from 'ember-data/-private/utils';
 
+import {
+  RecordReference,
+  BelongsToReference,
+  HasManyReference
+} from "ember-data/-private/system/references";
+
 var Promise = Ember.RSVP.Promise;
 var get = Ember.get;
 var set = Ember.set;
@@ -67,6 +73,8 @@ export default function InternalModel(type, id, store, _, data) {
   this._relationships = new Relationships(this);
   this._recordArrays = undefined;
   this.currentState = RootState.empty;
+  this.recordReference = new RecordReference(store, this);
+  this.references = {};
   this.isReloading = false;
   this.isError = false;
   this.error = null;
@@ -592,6 +600,24 @@ InternalModel.prototype = {
       return value._internalModel;
     }
     return value;
+  },
+
+  referenceFor: function(type, name) {
+    var reference = this.references[name];
+
+    if (!reference) {
+      var relationship = this._relationships.get(name);
+
+      if (type === "belongsTo") {
+        reference = new BelongsToReference(this.store, this, relationship);
+      } else if (type === "hasMany") {
+        reference = new HasManyReference(this.store, this, relationship);
+      }
+
+      this.references[name] = reference;
+    }
+
+    return reference;
   },
 
 

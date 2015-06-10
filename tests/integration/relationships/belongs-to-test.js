@@ -1121,3 +1121,137 @@ test("Updated related link should take precedence over local data", function(ass
     });
   });
 });
+
+if (Ember.FEATURES.isEnabled('ds-references')) {
+
+  test("A belongsTo relationship can be reloaded using the reference if it was fetched via link", function(assert) {
+    var done = assert.async();
+
+    Chapter.reopen({
+      book: DS.belongsTo({ async: true })
+    });
+
+    env.adapter.findRecord = function() {
+      return Ember.RSVP.resolve({
+        id: 1,
+        links: { book: '/books/1' }
+      });
+    };
+
+    env.adapter.findBelongsTo = function() {
+      return Ember.RSVP.resolve({ id: 1, name: "book title" });
+    };
+
+    run(function() {
+      var chapter;
+      store.find('chapter', 1).then(function(_chapter) {
+        chapter = _chapter;
+
+        return chapter.get('book');
+      }).then(function(book) {
+        assert.equal(book.get('name'), "book title");
+
+        env.adapter.findBelongsTo = function() {
+          return Ember.RSVP.resolve({ id: 1, name: "updated book title" });
+        };
+
+        return chapter.belongsTo('book').reload();
+      }).then(function(book) {
+        assert.equal(book.get('name'), "updated book title");
+
+        done();
+      });
+    });
+  });
+
+  test("A sync belongsTo relationship can be reloaded using a reference if it was fetched via id", function(assert) {
+    var done = assert.async();
+
+    Chapter.reopen({
+      book: DS.belongsTo()
+    });
+
+    var chapter;
+    run(function() {
+      chapter = env.store.push({
+        data: {
+          type: 'chapter',
+          id: 1,
+          relationships: {
+            book: {
+              data: { type: 'book', id: 1 }
+            }
+          }
+        }
+      });
+      env.store.push({
+        data: {
+          type: 'book',
+          id: 1,
+          attributes: {
+            name: "book title"
+          }
+        }
+      });
+    });
+
+    env.adapter.findRecord = function() {
+      return Ember.RSVP.resolve({ id: 1, name: "updated book title" });
+    };
+
+    run(function() {
+      var book = chapter.get('book');
+      assert.equal(book.get('name'), "book title");
+
+      chapter.belongsTo('book').reload().then(function(book) {
+        assert.equal(book.get('name'), "updated book title");
+
+        done();
+      });
+    });
+  });
+
+  test("A belongsTo relationship can be reloaded using a reference if it was fetched via id", function(assert) {
+    var done = assert.async();
+
+    Chapter.reopen({
+      book: DS.belongsTo({ async: true })
+    });
+
+    var chapter;
+    run(function() {
+      chapter = env.store.push({
+        data: {
+          type: 'chapter',
+          id: 1,
+          relationships: {
+            book: {
+              data: { type: 'book', id: 1 }
+            }
+          }
+        }
+      });
+    });
+
+    env.adapter.findRecord = function() {
+      return Ember.RSVP.resolve({ id: 1, name: "book title" });
+    };
+
+    run(function() {
+      chapter.get('book').then(function(book) {
+        assert.equal(book.get('name'), "book title");
+
+        env.adapter.findRecord = function() {
+          return Ember.RSVP.resolve({ id: 1, name: "updated book title" });
+        };
+
+        return chapter.belongsTo('book').reload();
+      }).then(function(book) {
+        assert.equal(book.get('name'), "updated book title");
+
+        done();
+      });
+    });
+  });
+
+}

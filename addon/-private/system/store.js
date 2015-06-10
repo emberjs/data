@@ -56,6 +56,8 @@ import InternalModel from "ember-data/-private/system/model/internal-model";
 
 import EmptyObject from "ember-data/-private/system/empty-object";
 
+import isEnabled from 'ember-data/-private/features';
+
 export let badIdFormatAssertion = '`id` has to be non-empty string or number';
 
 var Backburner = Ember._Backburner || Ember.Backburner || Ember.__loader.require('backburner')['default'] || Ember.__loader.require('backburner')['Backburner'];
@@ -2036,6 +2038,52 @@ Store = Service.extend({
   }
 
 });
+
+if (isEnabled("ds-references")) {
+
+  Store.reopen({
+    /**
+      Get the reference for the specified record.
+
+      Example
+
+      ```javascript
+      var userRef = store.getReference('user', 1);
+
+      // check if the user is loaded
+      var isLoaded = userRef.value() !== null;
+
+      // get the record of the reference (null if not yet available)
+      var user = userRef.value();
+
+      // get the identifier of the reference
+      if (userRef.remoteType() === "id") {
+      var id = userRef.id();
+      }
+
+      // load user (via store.find)
+      userRef.load().then(...)
+
+      // or trigger a reload
+      userRef.reload().then(...)
+
+      // provide data for reference
+      userRef.push({ id: 1, username: "@user" }).then(function(user) {
+        userRef.value() === user;
+      });
+    ```
+
+    @method getReference
+    @param {String} type
+    @param {String|Integer} id
+    @return {RecordReference}
+    */
+    getReference: function(type, id) {
+      return this._internalModelForId(type, id).recordReference;
+    }
+  });
+
+}
 
 function deserializeRecordId(store, key, relationship, id) {
   if (isNone(id)) {

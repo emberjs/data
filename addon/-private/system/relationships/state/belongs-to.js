@@ -144,3 +144,18 @@ BelongsToRelationship.prototype.getRecord = function() {
     return toReturn;
   }
 };
+
+BelongsToRelationship.prototype.reload = function() {
+  // TODO handle case when reload() is triggered multiple times
+
+  if (this.link) {
+    return this.fetchLink();
+  }
+
+  // reload record, if it is already loaded
+  if (this.inverseRecord && this.inverseRecord.record) {
+    return this.inverseRecord.record.reload();
+  }
+
+  return this.findRecord();
+};

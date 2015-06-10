@@ -11,4 +11,6 @@ entry in `config/features.json`.
 
 ## Feature Flags
 
+- `ds-references`
 
+  Adds references as described in [RFC 57](https://github.com/emberjs/rfcs/pull/57)
