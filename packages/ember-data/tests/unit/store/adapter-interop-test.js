@@ -391,7 +391,7 @@ test("initial values of attributes can be passed in as the third argument to fin
   });
 
   run(function() {
-    store.find('test', 1, { name: 'Test' });
+    store.find('test', 1, { preload: { name: 'Test' } });
   });
 });
 
@@ -419,7 +419,7 @@ test("initial values of belongsTo can be passed in as the third argument to find
 
   run(function() {
     tom = store.push('person', { id: 2, name: 'Tom' });
-    store.find('person', 1, { friend: tom });
+    store.find('person', 1, { preload: { friend: tom } });
   });
 });
 
@@ -445,7 +445,7 @@ test("initial values of belongsTo can be passed in as the third argument to find
   env.registry.register('model:person', Person);
 
   run(function() {
-    store.find('person', 1, { friend: 2 }).then(async(function() {
+    store.find('person', 1, { preload: { friend: 2 } }).then(async(function() {
       store.getById('person', 1).get('friend').then(async(function(friend) {
         equal(friend.get('id'), '2', 'Preloaded belongsTo set');
       }));
@@ -477,7 +477,7 @@ test("initial values of hasMany can be passed in as the third argument to find a
 
   run(function() {
     tom = store.push('person', { id: 2, name: 'Tom' });
-    store.find('person', 1, { friends: [tom] });
+    store.find('person', 1, { preload: { friends: [tom] } });
   });
 });
 
@@ -504,7 +504,7 @@ test("initial values of hasMany can be passed in as the third argument to find a
   env.registry.register('model:person', Person);
 
   run(function() {
-    store.find('person', 1, { friends: [2] });
+    store.find('person', 1, { preload: { friends: [2] } });
   });
 });
 
@@ -813,4 +813,90 @@ test("store.fetchRecord reject records that were not found, even when those requ
       }));
     });
   }, /expected to find records with the following ids in the adapter response but they were missing/);
+});
+
+module("unit/store/adapter_interop - find preload deprecations", {
+  setup: function() {
+    var Person = DS.Model.extend({
+      name: DS.attr('string')
+    });
+
+    var TestAdapter = DS.Adapter.extend({
+      find: function(store, type, id, snapshot) {
+        equal(snapshot.attr('name'), 'Tom');
+        return Ember.RSVP.resolve({ id: id });
+      }
+    });
+
+    store = createStore({
+      adapter: TestAdapter,
+      person: Person
+    });
+  },
+  teardown: function() {
+    run(function() {
+      if (store) { store.destroy(); }
+    });
+  }
+});
+
+test("store#find with deprecated preload passes correct options to store#findRecord", function() {
+  expect(2);
+
+  var expectedOptions = { preload: { name: 'Tom' } };
+
+  store.reopen({
+    findRecord: function(modelName, id, options) {
+      deepEqual(options, expectedOptions,
+        'deprecated preload transformed to new options store#findRecord');
+    }
+  });
+
+  expectDeprecation(
+    function() {
+      run(function() {
+        store.find('person', 1, { name: 'Tom' });
+      });
+    },
+    /Passing a preload argument to `store.find` is deprecated./
+  );
+});
+
+test("Using store#find with preload is deprecated", function() {
+  expect(2);
+
+  expectDeprecation(
+    function() {
+      run(function() {
+        store.find('person', 1, { name: 'Tom' });
+      });
+    },
+    /Passing a preload argument to `store.find` is deprecated./
+  );
+});
+
+test("Using store#fetchById with preload is deprecated", function() {
+  expect(2);
+
+  expectDeprecation(
+    function() {
+      run(function() {
+        store.fetchById('person', 1, { name: 'Tom' });
+      });
+    },
+    /Passing a preload argument to `store.fetchById` is deprecated./
+  );
+});
+
+test("Using store#findById with preload is deprecated", function() {
+  expect(2);
+
+  expectDeprecation(
+    function() {
+      run(function() {
+        store.findById('person', 1, { name: 'Tom' });
+      });
+    },
+    /Passing a preload argument to `store.findById` is deprecated/
+  );
 });
