@@ -92,6 +92,10 @@ function belongsTo(modelName, options) {
 
   opts = opts || {};
 
+  if (typeof opts.async === 'undefined') {
+    Ember.deprecate('In the future, relationships will be asynchronous by default. You must set { async: false } if you wish for a relationship remain synchronous.');
+  }
+
   var meta = {
     type: userEnteredModelName,
     isRelationship: true,

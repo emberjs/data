@@ -466,3 +466,22 @@ test("it is possible to add an item to a relationship, remove it, then add it ag
   equal(tags.objectAt(1), tag1);
   equal(tags.objectAt(2), tag3);
 });
+
+module("unit/model/relationships - DS.hasMany async by default deprecations", {
+  setup: function() {
+    env = setupStore();
+  }
+});
+
+test("setting DS.hasMany without async false triggers deprecation", function() {
+  expectDeprecation(
+    function() {
+      run(function() {
+        DS.Model.extend({
+          comments: DS.hasMany('comment')
+        });
+      });
+    },
+    'In the future, relationships will be asynchronous by default. You must set { async: false } if you wish for a relationship remain synchronous.'
+  );
+});
