@@ -2058,6 +2058,7 @@ function deserializeRecordId(store, data, key, relationship, id) {
 
   //If record objects were given to push directly, uncommon, not sure whether we should actually support
   if (id instanceof Model) {
+    Ember.deprecate("Passing a record object to push directly into the store has been deprecated. Pass a number or string as a value to represent the record.");
     data[key] = id._internalModel;
     return;
   }
