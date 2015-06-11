@@ -122,6 +122,14 @@ InternalModel.prototype = {
     this.record = null;
   },
 
+  dematerializeRecord: function() {
+    if (this.record) {
+      this.record.destroy();
+      this.updateRecordArrays();
+      this.record = null;
+    }
+  },
+
   deleteRecord: function() {
     this.send('deleteRecord');
   },
@@ -173,8 +181,63 @@ InternalModel.prototype = {
     return this.record;
   },
 
+  directlyRelatedRecords: function() {
+    var array = [];
+    this.type.eachRelationship((key, relationship) => {
+      if (this._relationships.has(key)) {
+        var related = this._relationships.get(key).members.toArray();
+        array.push(...related);
+      }
+    });
+    return array;
+  },
+
+  allRelatedRecords: function() {
+    let array = [];
+    let queue = [];
+    queue.push(this);
+    this._breadthFirstSeen = true;
+    while (queue.length > 0) {
+      let node = queue.shift();
+      array.push(node);
+      let related = node.directlyRelatedRecords();
+      forEach.call(related, function(internalModel) {
+        if (!internalModel._breadthFirstSeen) {
+          queue.push(internalModel);
+          internalModel._breadthFirstSeen = true;
+        }
+      });
+    }
+    return array;
+  },
+
   unloadRecord: function() {
     this.send('unloadRecord');
+    //TODO: optimize to not always collect all the records but rather break early
+    this.dematerializeRecord();
+    var relatedRecords = this.allRelatedRecords();
+    var allUnloaded = true;
+    for (var i=0; i < relatedRecords.length; i++) {
+      if (relatedRecords[i].record) {
+        allUnloaded = false;
+        break;
+      }
+    }
+    if (allUnloaded) {
+      forEach.call(relatedRecords, (internalModel) => {
+        if (!internalModel.isDestroyed) {
+          internalModel.destroy();
+        }
+      });
+    }
+  },
+
+  destroy: function() {
+    Ember.assert("Cannot destroy an internalModel while it's record is materialized", !this.record);
+    this.clearRelationships();
+    this.store._removeFromIdMap(this);
+    this.isDestroyed = true;
+    //other cleanup
   },
 
   eachRelationship: function(callback, binding) {
@@ -207,12 +270,6 @@ InternalModel.prototype = {
     if (!this.dataHasInitialized) {
       this.becameReady();
       this.dataHasInitialized = true;
-    }
-  },
-
-  destroy: function() {
-    if (this.record) {
-      return this.record.destroy();
     }
   },
 

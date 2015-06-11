@@ -52,6 +52,7 @@ test("can unload a single record", function () {
   });
 
   equal(env.store.peekAll('person').get('length'), 0);
+  equal(adam.isDestroyed, true);
 });
 
 test("can unload all records for a given type", function () {
