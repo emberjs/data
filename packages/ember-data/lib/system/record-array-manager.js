@@ -14,7 +14,6 @@ import OrderedSet from "ember-data/system/ordered-set";
 var get = Ember.get;
 var forEach = Ember.EnumerableUtils.forEach;
 var indexOf = Ember.EnumerableUtils.indexOf;
-var Promise = Ember.RSVP.Promise;
 var guidFor = Ember.guidFor;
 
 /**
@@ -123,29 +122,31 @@ export default Ember.Object.extend({
   */
   updateFilterRecordArray: function(array, filter, typeClass, record) {
     var shouldBeInArray = filter(record.getRecord());
-    var self = this;
     var key = guidFor(record);
-    var currentPromise = null;
+    if (shouldBeInArray && shouldBeInArray.then) {
+      array.lastFilterPromises[key] = shouldBeInArray;
+      shouldBeInArray.then((result) => {
+        // fighting race conditions here
+        if (shouldBeInArray !== array.lastFilterPromises[key]) {
+          return;
+        }
 
-    currentPromise = Promise.resolve(shouldBeInArray);
-    array.lastFilterPromises[key] = currentPromise;
+        delete array.lastFilterPromises[key];
+        this._updateFilterRecordArray(array, result, typeClass, record);
+      });
+    } else {
+      this._updateFilterRecordArray(array, shouldBeInArray, typeClass, record);
+    }
+  },
 
-    currentPromise.then(function(shouldBeInArray) {
-      // fighting race conditions here
-      if (currentPromise !== array.lastFilterPromises[key]) {
-        return;
-      }
-
-      delete array.lastFilterPromises[key];
-
-      var recordArrays = self.recordArraysForRecord(record);
-      if (shouldBeInArray) {
-        self._addRecordToRecordArray(array, record);
-      } else if (!shouldBeInArray) {
-        recordArrays.delete(array);
-        array.removeInternalModel(record);
-      }
-    });
+  _updateFilterRecordArray: function(array, shouldBeInArray, typeClass, record) {
+    var recordArrays = this.recordArraysForRecord(record);
+    if (shouldBeInArray) {
+      this._addRecordToRecordArray(array, record);
+    } else if (!shouldBeInArray) {
+      recordArrays.delete(array);
+      array.removeInternalModel(record);
+    }
   },
 
   _addRecordToRecordArray: function(array, record) {

@@ -514,6 +514,7 @@ test("it is possible to filter created records by isReloading", function() {
 });
 
 test("it is possible to filter by async value", function() {
+  var recordArray;
   var filterFn = function(obj) {
     return new Ember.RSVP.resolve( obj.get('id') === "42");
   };
@@ -521,7 +522,9 @@ test("it is possible to filter by async value", function() {
     store.pushMany('person', [{ id: "42" }, { id: "2" }]);
   });
 
-  var recordArray = store.filter('person', filterFn);
+  run(function() {
+    recordArray = store.filter('person', filterFn);
+  });
 
   equal(recordArray.get('length'), 1, 'expected the filter array to have one record');
 });
