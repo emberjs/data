@@ -120,7 +120,7 @@ test("normalizeSingleResponse", function() {
 
   var json;
   run(function() {
-    json = env.amsSerializer.normalizeSingleResponse(env.store, HomePlanet, json_hash, '1', 'find');
+    json = env.amsSerializer.normalizeSingleResponse(env.store, HomePlanet, json_hash, '1', 'findRecord');
   });
 
   deepEqual(json, {
@@ -210,7 +210,7 @@ test("extractPolymorphic hasMany", function() {
   var json;
 
   run(function() {
-    json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json_hash, '1', 'find');
+    json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json_hash, '1', 'findRecord');
   });
 
   deepEqual(json, {
@@ -251,7 +251,7 @@ test("extractPolymorphic belongsTo", function() {
   var json;
 
   run(function() {
-    json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'find');
+    json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'findRecord');
   });
 
   deepEqual(json, {
@@ -285,7 +285,7 @@ test("extractPolymorphic when the related data is not specified", function() {
   };
 
   run(function() {
-    json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json, '1', 'find');
+    json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json, '1', 'findRecord');
   });
 
   deepEqual(json, {
@@ -314,7 +314,7 @@ test("extractPolymorphic hasMany when the related data is not specified", functi
   };
 
   run(function() {
-    json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json, '1', 'find');
+    json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json, '1', 'findRecord');
   });
 
   deepEqual(json, {
@@ -336,7 +336,7 @@ test("extractPolymorphic does not break hasMany relationships", function() {
   };
 
   run(function () {
-    json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json, '1', 'find');
+    json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json, '1', 'findRecord');
   });
 
   deepEqual(json, {

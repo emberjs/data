@@ -71,7 +71,7 @@ test("normalizeSingleResponse with custom modelNameFromPayloadKey", function() {
   var array;
 
   run(function() {
-    array = env.container.lookup("serializer:application").normalizeSingleResponse(env.store, HomePlanet, jsonHash, '1', 'find');
+    array = env.container.lookup("serializer:application").normalizeSingleResponse(env.store, HomePlanet, jsonHash, '1', 'findRecord');
   });
 
   deepEqual(array, {
@@ -171,7 +171,7 @@ test("normalizeSingleResponse warning with custom modelNameFromPayloadKey", func
 
   warns(Ember.run.bind(null, function() {
     run(function() {
-      env.restNewSerializer.normalizeSingleResponse(env.store, HomePlanet, jsonHash, '1', 'find');
+      env.restNewSerializer.normalizeSingleResponse(env.store, HomePlanet, jsonHash, '1', 'findRecord');
     });
   }), /Encountered "home_planet" in payload, but no model was found for model name "garbage"/);
 
@@ -183,7 +183,8 @@ test("normalizeSingleResponse warning with custom modelNameFromPayloadKey", func
 
   noWarns(function() {
     run(function() {
-      homePlanet = env.restNewSerializer.normalizeSingleResponse(env.store, HomePlanet, jsonHash, 1, 'find');
+
+      homePlanet = env.restNewSerializer.normalizeSingleResponse(env.store, HomePlanet, jsonHash, 1, 'findRecord');
     });
   });
 
@@ -202,7 +203,7 @@ test("normalizeResponse can load secondary records of the same type without affe
   var array;
 
   run(function() {
-    array = env.restNewSerializer.normalizeResponse(env.store, Comment, jsonHash, '1', 'find');
+    array = env.restNewSerializer.normalizeResponse(env.store, Comment, jsonHash, '1', 'findRecord');
   });
 
   deepEqual(array, {
@@ -262,7 +263,7 @@ test("normalizeSingleResponse loads secondary records with correct serializer", 
   };
 
   run(function() {
-    env.restNewSerializer.normalizeSingleResponse(env.store, EvilMinion, jsonHash, '1', 'find');
+    env.restNewSerializer.normalizeSingleResponse(env.store, EvilMinion, jsonHash, '1', 'findRecord');
   });
 
   equal(superVillainNormalizeCount, 1, "superVillain is normalized once");
@@ -277,7 +278,7 @@ test("normalizeSingleResponse returns null if payload contains null", function()
   var value;
 
   run(function() {
-    value = env.restNewSerializer.normalizeSingleResponse(env.store, EvilMinion, jsonHash, null, 'find');
+    value = env.restNewSerializer.normalizeSingleResponse(env.store, EvilMinion, jsonHash, null, 'findRecord');
   });
 
   deepEqual(value, { data: null, included: [] }, "returned value is null");

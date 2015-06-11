@@ -15,10 +15,17 @@ import {
 
 var Promise = Ember.RSVP.Promise;
 var map = Ember.EnumerableUtils.map;
+var get = Ember.get;
 
 export function _find(adapter, store, typeClass, id, internalModel, options) {
   var snapshot = internalModel.createSnapshot(options);
-  var promise = adapter.find(store, typeClass, id, snapshot);
+  var promise;
+  if (!adapter.findRecord) {
+    Ember.deprecate('Adapter#find has been deprecated and renamed to `findRecord`.');
+    promise = adapter.find(store, typeClass, id, snapshot);
+  } else {
+    promise = adapter.findRecord(store, typeClass, id, snapshot);
+  }
   var serializer = serializerForAdapter(store, adapter, internalModel.type.modelName);
   var label = "DS: Handle Adapter#find of " + typeClass + " with id: " + id;
 
@@ -28,7 +35,8 @@ export function _find(adapter, store, typeClass, id, internalModel, options) {
   return promise.then(function(adapterPayload) {
     Ember.assert("You made a request for a " + typeClass.typeClassKey + " with id " + id + ", but the adapter's response did not have any data", adapterPayload);
     return store._adapterRun(function() {
-      var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, id, 'find');
+      var requestType = get(serializer, 'isNewSerializerAPI') ? 'findRecord' : 'find';
+      var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, id, requestType);
       //TODO Optimize
       var record = pushPayload(store, payload);
       return record._internalModel;
@@ -143,7 +151,15 @@ export function _findAll(adapter, store, typeClass, sinceToken, options) {
 
 export function _query(adapter, store, typeClass, query, recordArray) {
   var modelName = typeClass.modelName;
-  var promise = adapter.findQuery(store, typeClass, query, recordArray);
+  var promise;
+
+  if (!adapter.query) {
+    Ember.deprecate('Adapter#findQuery has been deprecated and renamed to `query`.');
+    promise = adapter.findQuery(store, typeClass, query, recordArray);
+  } else {
+    promise = adapter.query(store, typeClass, query, recordArray);
+  }
+
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Handle Adapter#findQuery of " + typeClass;
 
@@ -153,7 +169,8 @@ export function _query(adapter, store, typeClass, query, recordArray) {
   return promise.then(function(adapterPayload) {
     var records;
     store._adapterRun(function() {
-      var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findQuery');
+      var requestType = get(serializer, 'isNewSerializerAPI') ? 'query' : 'findQuery';
+      var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, requestType);
       //TODO Optimize
       records = pushPayload(store, payload);
     });

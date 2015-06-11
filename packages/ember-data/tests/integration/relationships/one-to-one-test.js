@@ -208,7 +208,7 @@ test("Setting a BelongsTo to a promise multiple times is resistant to race condi
     igor = store.push('user', { id: 3, name: "Igor", bestFriend: 5 });
     newFriend = store.push('user', { id: 7, name: "New friend" });
   });
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     if (id === '5') {
       return Ember.RSVP.resolve({ id: 5, name: "Igor's friend" });
     } else if (id === '2') {

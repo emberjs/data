@@ -55,7 +55,7 @@ test('buildURL - with host and namespace', function() {
 
   ajaxResponse({ posts: [{ id: 1 }] });
 
-  run(store, 'find', 'post', 1).then(async(function(post) {
+  run(store, 'findRecord', 'post', 1).then(async(function(post) {
     equal(passedUrl, "http://example.com/api/v1/posts/1");
   }));
 });
@@ -72,7 +72,7 @@ test('buildURL - with relative paths in links', function() {
 
   ajaxResponse({ posts: [{ id: 1, links: { comments: 'comments' } }] });
 
-  run(store, 'find', 'post', '1').then(async(function(post) {
+  run(store, 'findRecord', 'post', '1').then(async(function(post) {
     ajaxResponse({ comments: [{ id: 1 }] });
     return post.get('comments');
   })).then(async(function (comments) {
@@ -92,7 +92,7 @@ test('buildURL - with absolute paths in links', function() {
 
   ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
 
-  run(store, 'find', 'post', 1).then(async(function(post) {
+  run(store, 'findRecord', 'post', 1).then(async(function(post) {
     ajaxResponse({ comments: [{ id: 1 }] });
     return post.get('comments');
   })).then(async(function (comments) {
@@ -113,7 +113,7 @@ test('buildURL - with absolute paths in links and protocol relative host', funct
 
   ajaxResponse({ posts: [{ id: 1, links: { comments: '/api/v1/posts/1/comments' } }] });
 
-  run(store, 'find', 'post', 1).then(async(function(post) {
+  run(store, 'findRecord', 'post', 1).then(async(function(post) {
     ajaxResponse({ comments: [{ id: 1 }] });
     return post.get('comments');
   })).then(async(function (comments) {
@@ -138,7 +138,7 @@ test('buildURL - with full URLs in links', function() {
   });
 
   run(function() {
-    store.find('post', 1).then(async(function(post) {
+    store.findRecord('post', 1).then(async(function(post) {
       ajaxResponse({ comments: [{ id: 1 }] });
       return post.get('comments');
     })).then(async(function (comments) {
@@ -158,7 +158,7 @@ test('buildURL - with camelized names', function() {
   ajaxResponse({ superUsers: [{ id: 1 }] });
 
   run(function() {
-    store.find('super-user', 1).then(async(function(post) {
+    store.findRecord('super-user', 1).then(async(function(post) {
       equal(passedUrl, "/super_users/1");
     }));
   });
@@ -178,7 +178,7 @@ test('buildURL - buildURL takes a record from find', function() {
   });
 
   run(function() {
-    store.find('comment', 1, { preload: { post: post } }).then(async(function(post) {
+    store.findRecord('comment', 1, { preload: { post: post } }).then(async(function(post) {
       equal(passedUrl, "/posts/2/comments/1");
     }));
   });
@@ -231,7 +231,7 @@ test('buildURL - buildURL takes a record from create to query a resolved async b
   ajaxResponse({ posts: [{ id: 2 }] });
 
   run(function() {
-    store.find('post', 2).then(async(function(post) {
+    store.findRecord('post', 2).then(async(function(post) {
       equal(post.get('id'), 2);
 
       adapter.buildURL = function(type, id, snapshot) {
@@ -304,7 +304,37 @@ test('buildURL - with absolute namespace', function() {
 
   ajaxResponse({ posts: [{ id: 1 }] });
 
-  run(store, 'find', 'post', 1).then(async(function(post) {
+  run(store, 'findRecord', 'post', 1).then(async(function(post) {
     equal(passedUrl, "/api/v1/posts/1");
   }));
+});
+
+
+test('buildURL - urlForFindRecord calls deprecated urlForFind', function() {
+  expect(2);
+
+  var adapter = DS.RESTAdapter.extend({
+    urlForFind: function() {
+      ok(true, 'urlForFind should be called');
+    }
+  }).create();
+
+  expectDeprecation(function() {
+    adapter.buildURL('post', 1, {}, 'findRecord');
+  }, /urlForFindRecord/);
+});
+
+
+test('buildURL - urlForQuery calls deprecated urlForFindQuery', function() {
+  expect(2);
+
+  var adapter = DS.RESTAdapter.extend({
+    urlForFindQuery: function() {
+      ok(true, 'urlForFindQuery should be called');
+    }
+  }).create();
+
+  expectDeprecation(function() {
+    adapter.buildURL('post', 1, {}, 'query');
+  }, /urlForQuery/);
 });

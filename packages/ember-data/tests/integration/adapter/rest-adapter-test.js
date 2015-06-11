@@ -57,7 +57,7 @@ test("find - basic payload", function() {
 });
 
 
-test("find - passes buildURL a requestType", function() {
+test("findRecord - passes buildURL a requestType", function() {
   adapter.buildURL = function(type, id, snapshot, requestType) {
     return "/" + requestType + "/post/" + id;
   };
@@ -65,8 +65,8 @@ test("find - passes buildURL a requestType", function() {
   ajaxResponse({ posts: [{ id: 1, name: "Rails is omakase" }] });
 
 
-  run(store, 'find', 'post', 1).then(async(function(post) {
-    equal(passedUrl, "/find/post/1");
+  run(store, 'findRecord', 'post', 1).then(async(function(post) {
+    equal(passedUrl, "/findRecord/post/1");
   }));
 });
 
@@ -972,7 +972,7 @@ test("findQuery - passes buildURL the requestType", function() {
   };
 
   adapter.ajax = function(url, verb, hash) {
-    equal(url, '/findQuery/posts');
+    equal(url, '/query/posts');
 
     return run(Ember.RSVP, 'resolve', { posts: [{ id: 1, name: "Rails is very expensive sushi" }] });
   };
@@ -1549,7 +1549,7 @@ test('groupRecordsForFindMany groups records based on their url', function() {
     }
   };
 
-  adapter.find = function(store, type, id, snapshot) {
+  adapter.findRecord = function(store, type, id, snapshot) {
     equal(id, '1');
     return Ember.RSVP.resolve({ comments: { id: 1 } });
   };
@@ -1582,7 +1582,7 @@ test('groupRecordsForFindMany groups records correctly when singular URLs are en
     }
   };
 
-  adapter.find = function(store, type, id, snapshot) {
+  adapter.findRecord = function(store, type, id, snapshot) {
     equal(id, '1');
     return Ember.RSVP.resolve({ comments: { id: 1 } });
   };
@@ -1689,7 +1689,7 @@ test('groupRecordsForFindMany splits up calls for large ids', function() {
 
   adapter.coalesceFindRequests = true;
 
-  adapter.find = function(store, type, id, snapshot) {
+  adapter.findRecord = function(store, type, id, snapshot) {
     if (id === a2000 || id === b2000) {
       ok(true, "Found " + id);
     }
@@ -1727,7 +1727,7 @@ test('groupRecordsForFindMany groups calls for small ids', function() {
 
   adapter.coalesceFindRequests = true;
 
-  adapter.find = function(store, type, id, snapshot) {
+  adapter.findRecord = function(store, type, id, snapshot) {
     ok(false, "find should not be called - we expect 1 call to findMany for a100 and b100");
     return Ember.RSVP.reject();
   };

@@ -27,14 +27,14 @@ test("belongsTo lazily loads relationships as needed", function() {
   });
 
   run(function() {
-    store.find('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(async(function(person) {
       equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
       equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
       equal(get(person, 'tag.name'), "friendly", "the tag shuld have name");
 
       strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
-      asyncEqual(get(person, 'tag'), store.find('tag', 5), "relationship object is the same as object retrieved directly");
+      asyncEqual(get(person, 'tag'), store.findRecord('tag', 5), "relationship object is the same as object retrieved directly");
     }));
   });
 });
@@ -54,7 +54,7 @@ test("async belongsTo relationships work when the data hash has not been loaded"
   var env = setupStore({ tag: Tag, person: Person });
   var store = env.store;
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     if (type === Person) {
       equal(id, 1, "id should be 1");
 
@@ -67,7 +67,7 @@ test("async belongsTo relationships work when the data hash has not been loaded"
   };
 
   run(function() {
-    store.find('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(async(function(person) {
       equal(get(person, 'name'), "Tom Dale", "The person is now populated");
 
       return run(function() {
@@ -101,7 +101,7 @@ test("async belongsTo relationships work when the data hash has already been loa
   });
 
   run(function() {
-    store.find('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(async(function(person) {
       equal(get(person, 'name'), "Tom Dale", "The person is now populated");
       return run(function() {
         return get(person, 'tag');
@@ -134,7 +134,7 @@ test("calling createRecord and passing in an undefined value for a relationship 
   });
 
   run(function() {
-    store.find('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(async(function(person) {
       strictEqual(person.get('tag'), null, "undefined values should return null relationships");
     }));
   });
@@ -170,7 +170,7 @@ test("When finding a hasMany relationship the inverse belongsTo relationship is 
   });
 
   run(function() {
-    store.find('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(async(function(person) {
       equal(get(person, 'isLoaded'), true, "isLoaded should be true");
       equal(get(person, 'name'), "Tom Dale", "the person is still Tom Dale");
 
@@ -204,7 +204,7 @@ test("When finding a belongsTo relationship the inverse belongsTo relationship i
   var env = setupStore({ occupation: Occupation, person: Person });
   var store = env.store;
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     equal(snapshot.belongsTo('person').id, '1');
     return Ember.RSVP.resolve({ id: 5, description: "fifth" });
   };
@@ -242,14 +242,14 @@ test("belongsTo supports relationships to models with id 0", function() {
   });
 
   run(function() {
-    store.find('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(async(function(person) {
       equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
       equal(get(person, 'tag') instanceof Tag, true, "the tag property should return a tag");
       equal(get(person, 'tag.name'), "friendly", "the tag should have name");
 
       strictEqual(get(person, 'tag'), get(person, 'tag'), "the returned object is always the same");
-      asyncEqual(get(person, 'tag'), store.find('tag', 0), "relationship object is the same as object retrieved directly");
+      asyncEqual(get(person, 'tag'), store.findRecord('tag', 0), "relationship object is the same as object retrieved directly");
     }));
   });
 });

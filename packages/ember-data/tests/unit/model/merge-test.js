@@ -204,7 +204,7 @@ test("A dirty record can be reloaded", function() {
   expect(3);
 
   var adapter = DS.Adapter.extend({
-    find: function(store, type, id, snapshot) {
+    findRecord: function(store, type, id, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Thomas Dale", city: "Portland" });
     }
   });

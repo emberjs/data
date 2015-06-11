@@ -22,7 +22,7 @@ module("integration/adapter/queries - Queries", {
 });
 
 test("When a query is made, the adapter should receive a record array it can populate with the results of the query.", function() {
-  adapter.findQuery = function(store, type, query, recordArray) {
+  adapter.query = function(store, type, query, recordArray) {
     equal(type, Person, "the find method is called with the correct type");
 
     return Ember.RSVP.resolve([{ id: 1, name: "Peter Wagenet" }, { id: 2, name: "Brohuda Katz" }]);
