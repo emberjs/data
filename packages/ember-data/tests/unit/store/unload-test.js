@@ -80,7 +80,7 @@ module("DS.Store - unload record with relationships");
 
 
 test("can commit store after unload record with relationships", function() {
-  expect(1);
+  expect(6);
 
   var like, product;
 
@@ -125,10 +125,23 @@ test("can commit store after unload record with relationships", function() {
       return Ember.RSVP.hash(records);
     }).then(function(records) {
       store.unloadRecord(records.product);
-      return store.find('product', 1);
-    }).then(function(product) {
-      equal(product.get('description'), 'cuisinart', "The record was unloaded and the adapter's `find` was called");
-      store.destroy();
+      ok(store.typeMapFor(Product).idToRecord[1], "The product's internalModel is still in the id map");
+      records.product = store.find('product', 1);
+      return Ember.RSVP.hash(records);
+    }).then(function(records) {
+      equal(records.product.get('description'), 'cuisinart', "The record was unloaded and the adapter's `find` was called");
+      store.unloadRecord(records.product);
+      ok(store.typeMapFor(Product).idToRecord[1],
+        "No related records unloaded, product's internalModel is still in the id map");
+
+      store.unloadRecord(records.brand);
+      ok(!store.typeMapFor(Brand).idToRecord[1],
+        "This model has no relations, so it's remove from the id map");
+      ok(!store.typeMapFor(Product).idToRecord[1],
+        "All related records unloaded, product's internalModel is removed from the id map");
+
+      store.unloadRecord(records.like);
+      ok(!store.typeMapFor(Like).idToRecord[1], "the related records are also unloaded, so it's removed from the id map");
     });
   });
 });
