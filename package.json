@@ -36,9 +36,7 @@
     "broccoli-concat": "0.0.12",
     "broccoli-defeatureify": "^1.0.0",
     "broccoli-env": "0.0.1",
-    "broccoli-es3-safe-recast": "0.0.8",
-    "broccoli-es6-module-transpiler": "^0.5.0",
-    "broccoli-es6-transpiler": "^0.1.0",
+    "broccoli-es6modules": "^0.6.0",
     "broccoli-file-creator": "^0.1.0",
     "broccoli-file-mover": "~0.2.0",
     "broccoli-jscs": "0.0.22",
@@ -54,20 +52,15 @@
     "broccoli-yuidoc": "^1.3.0",
     "defeatureify": "~0.1.4",
     "ejs": "^1.0.0",
-    "ember-cli": "^0.1.15",
-    "ember-new-computed": "1.0.1",
+    "ember-cli": "^0.2.7",
     "ember-inflector": "^1.5.0",
+    "ember-new-computed": "1.0.1",
     "ember-publisher": "0.0.7",
-    "es6-module-transpiler": "^0.9.5",
-    "es6-module-transpiler-amd-formatter": "^0.2.4",
-    "es6-module-transpiler-package-resolver": "^1.0.1",
     "git-repo-version": "0.0.2",
     "github": "^0.2.4",
     "jscs": "^1.12.0",
     "testem": "^0.6.19",
-    "yuidocjs": "~0.3.46"
-  },
-  "dependencies": {
+    "yuidocjs": "~0.3.46",
     "rsvp": "^3.0.18"
   }
 }
