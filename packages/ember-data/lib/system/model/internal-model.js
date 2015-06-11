@@ -181,7 +181,7 @@ InternalModel.prototype = {
     return this.record;
   },
 
-  directlyRelatedRecords: function() {
+  directlyRelatedInternalModels: function() {
     var array = [];
     this.type.eachRelationship((key, relationship) => {
       if (this._relationships.has(key)) {
@@ -192,7 +192,7 @@ InternalModel.prototype = {
     return array;
   },
 
-  allRelatedRecords: function() {
+  allRelatedInternalModels: function() {
     let array = [];
     let queue = [];
     queue.push(this);
@@ -200,7 +200,7 @@ InternalModel.prototype = {
     while (queue.length > 0) {
       let node = queue.shift();
       array.push(node);
-      let related = node.directlyRelatedRecords();
+      let related = node.directlyRelatedInternalModels();
       forEach.call(related, function(internalModel) {
         if (!internalModel._breadthFirstSeen) {
           queue.push(internalModel);
@@ -215,16 +215,16 @@ InternalModel.prototype = {
     this.send('unloadRecord');
     //TODO: optimize to not always collect all the records but rather break early
     this.dematerializeRecord();
-    var relatedRecords = this.allRelatedRecords();
+    var relatedInternalModels = this.allRelatedInternalModels();
     var allUnloaded = true;
-    for (var i=0; i < relatedRecords.length; i++) {
-      if (relatedRecords[i].record) {
+    for (var i=0; i < relatedInternalModels.length; i++) {
+      if (relatedInternalModels[i].record) {
         allUnloaded = false;
         break;
       }
     }
     if (allUnloaded) {
-      forEach.call(relatedRecords, (internalModel) => {
+      forEach.call(relatedInternalModels, (internalModel) => {
         if (!internalModel.isDestroyed) {
           internalModel.destroy();
         }
