@@ -113,7 +113,8 @@ InternalModel.prototype = {
       id: this.id,
       store: this.store,
       container: this.container,
-      _internalModel: this
+      _internalModel: this,
+      currentState: get(this, 'currentState')
     });
     this._triggerDeferredTriggers();
   },
