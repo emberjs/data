@@ -446,10 +446,10 @@ test("When deleting a record that has a hasMany it is removed from the belongsTo
 });
 
 /*
-Rollback from deleted state
+Rollback attributes from deleted state
 */
 
-test("Rollbacking a deleted record works correctly when the hasMany side has been deleted - async", function () {
+test("Rollbacking attributes of a deleted record works correctly when the hasMany side has been deleted - async", function () {
   var user, message;
   run(function() {
     user = store.push('user', { id: 1, name: 'Stanley', messages: [2] });
@@ -457,7 +457,7 @@ test("Rollbacking a deleted record works correctly when the hasMany side has bee
   });
   run(function() {
     message.deleteRecord();
-    message.rollback();
+    message.rollbackAttributes();
   });
   run(function() {
     message.get('user').then(function(fetchedUser) {
@@ -469,7 +469,7 @@ test("Rollbacking a deleted record works correctly when the hasMany side has bee
   });
 });
 
-test("Rollbacking a deleted record works correctly when the hasMany side has been deleted - sync", function () {
+test("Rollbacking attributes of a deleted record works correctly when the hasMany side has been deleted - sync", function () {
   var account, user;
   run(function() {
     account = store.push('account', { id: 2 , state: 'lonely' });
@@ -477,13 +477,13 @@ test("Rollbacking a deleted record works correctly when the hasMany side has bee
   });
   run(function() {
     account.deleteRecord();
-    account.rollback();
+    account.rollbackAttributes();
   });
   equal(user.get('accounts.length'), 1, "Accounts are rolled back");
   equal(account.get('user'), user, 'Account still has the user');
 });
 
-test("Rollbacking a deleted record works correctly when the belongsTo side has been deleted - async", function () {
+test("Rollbacking attributes of deleted record works correctly when the belongsTo side has been deleted - async", function () {
   var user, message;
   run(function() {
     user = store.push('user', { id: 1, name: 'Stanley', messages: [2] });
@@ -491,7 +491,7 @@ test("Rollbacking a deleted record works correctly when the belongsTo side has b
   });
   run(function() {
     user.deleteRecord();
-    user.rollback();
+    user.rollbackAttributes();
   });
   run(function() {
     message.get('user').then(function(fetchedUser) {
@@ -503,7 +503,7 @@ test("Rollbacking a deleted record works correctly when the belongsTo side has b
   });
 });
 
-test("Rollbacking a deleted record works correctly when the belongsTo side has been deleted - sync", function () {
+test("Rollbacking attributes of a deleted record works correctly when the belongsTo side has been deleted - sync", function () {
   var account, user;
   run(function() {
     account = store.push('account', { id: 2 , state: 'lonely' });
@@ -511,23 +511,23 @@ test("Rollbacking a deleted record works correctly when the belongsTo side has b
   });
   run(function() {
     user.deleteRecord();
-    user.rollback();
+    user.rollbackAttributes();
   });
   equal(user.get('accounts.length'), 1, "User still has the accounts");
   equal(account.get('user'), user, 'Account has the user again');
 });
 
 /*
-Rollback from created state
+Rollback attributes from created state
 */
 
-test("Rollbacking a created record works correctly when the hasMany side has been created - async", function () {
+test("Rollbacking attributes of a created record works correctly when the hasMany side has been created - async", function () {
   var user, message;
   run(function() {
     user = store.push('user', { id: 1, name: 'Stanley' });
     message = store.createRecord('message', { user: user });
   });
-  run(message, 'rollback');
+  run(message, 'rollbackAttributes');
   run(function() {
     message.get('user').then(function(fetchedUser) {
       equal(fetchedUser, null, 'Message does not have the user anymore');
@@ -539,18 +539,18 @@ test("Rollbacking a created record works correctly when the hasMany side has bee
   });
 });
 
-test("Rollbacking a created record works correctly when the hasMany side has been created - sync", function () {
+test("Rollbacking attributes of a created record works correctly when the hasMany side has been created - sync", function () {
   var user, account;
   run(function() {
     user = store.push('user', { id: 1, name: 'Stanley' });
     account = store.createRecord('account', { user: user });
   });
-  run(account, 'rollback');
+  run(account, 'rollbackAttributes');
   equal(user.get('accounts.length'), 0, "Accounts are rolled back");
   equal(account.get('user'), null, 'Account does not have the user anymore');
 });
 
-test("Rollbacking a created record works correctly when the belongsTo side has been created - async", function () {
+test("Rollbacking attributes of a created record works correctly when the belongsTo side has been created - async", function () {
   var message, user;
   run(function() {
     message = store.push('message', { id: 2, title: 'EmberFest was great' });
@@ -559,7 +559,7 @@ test("Rollbacking a created record works correctly when the belongsTo side has b
   run(function() {
     user.get('messages').then(function(messages) {
       messages.pushObject(message);
-      user.rollback();
+      user.rollbackAttributes();
       message.get('user').then(function(fetchedUser) {
         equal(fetchedUser, null, 'Message does not have the user anymore');
       });
@@ -571,7 +571,7 @@ test("Rollbacking a created record works correctly when the belongsTo side has b
   });
 });
 
-test("Rollbacking a created record works correctly when the belongsTo side has been created - sync", function () {
+test("Rollbacking attributes of a created record works correctly when the belongsTo side has been created - sync", function () {
   var account, user;
   run(function() {
     account = store.push('account', { id: 2 , state: 'lonely' });
@@ -580,7 +580,7 @@ test("Rollbacking a created record works correctly when the belongsTo side has b
   run(function() {
     user.get('accounts').pushObject(account);
   });
-  run(user, 'rollback');
+  run(user, 'rollbackAttributes');
   equal(user.get('accounts.length'), undefined, "User does not have the account anymore");
   equal(account.get('user'), null, 'Account does not have the user anymore');
 });

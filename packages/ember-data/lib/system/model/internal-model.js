@@ -320,7 +320,7 @@ InternalModel.prototype = {
     }
   },
 
-  rollback: function() {
+  rollbackAttributes: function() {
     var dirtyKeys = Ember.keys(this._attributes);
 
     this._attributes = Ember.create(null);
@@ -669,7 +669,7 @@ InternalModel.prototype = {
     Ember Data has 3 buckets for storing the value of an attribute on an internalModel.
 
     `_data` holds all of the attributes that have been acknowledged by
-    a backend via the adapter. When rollback is called on a model all
+    a backend via the adapter. When rollbackAttributes is called on a model all
     attributes will revert to the record's state in `_data`.
 
     `_attributes` holds any change the user has made to an attribute

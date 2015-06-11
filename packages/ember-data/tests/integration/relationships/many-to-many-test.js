@@ -204,10 +204,10 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
 });
 
 /*
-  Rollback tests
+  Rollback Attributes tests
 */
 
-test("Rollbacking a deleted record that has a ManyToMany relationship works correctly - async", function () {
+test("Rollbacking attributes for a deleted record that has a ManyToMany relationship works correctly - async", function () {
   var user, topic;
   run(function() {
     user = store.push('user', { id: 1, name: 'Stanley', topics: [2] });
@@ -215,7 +215,7 @@ test("Rollbacking a deleted record that has a ManyToMany relationship works corr
   });
   run(function() {
     topic.deleteRecord();
-    topic.rollback();
+    topic.rollbackAttributes();
   });
   run(function() {
     topic.get('users').then(async(function(fetchedUsers) {
@@ -235,13 +235,13 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
   });
   run(function() {
     account.deleteRecord();
-    account.rollback();
+    account.rollbackAttributes();
   });
   equal(account.get('users.length'), 1, 'Users are still there');
   equal(user.get('accounts.length'), 1, 'Account got rolledback correctly into the user');
 });
 
-test("Rollbacking a created record that has a ManyToMany relationship works correctly - async", function () {
+test("Rollbacking attributes for a created record that has a ManyToMany relationship works correctly - async", function () {
   var user, topic;
   run(function() {
     user = store.push('user', { id: 1, name: 'Stanley' });
@@ -250,7 +250,7 @@ test("Rollbacking a created record that has a ManyToMany relationship works corr
   run(function() {
     user.get('topics').then(async(function(fetchedTopics) {
       fetchedTopics.pushObject(topic);
-      topic.rollback();
+      topic.rollbackAttributes();
       topic.get('users').then(async(function(fetchedUsers) {
         equal(fetchedUsers.get('length'), 0, 'Users got removed');
         equal(fetchedUsers.objectAt(0), null, "User can't be fetched");
@@ -271,7 +271,7 @@ test("Deleting a record that has a hasMany relationship removes it from the othe
   });
   run(function() {
     account.get('users').pushObject(user);
-    user.rollback();
+    user.rollbackAttributes();
   });
   equal(account.get('users.length'), 0, 'Users got removed');
   equal(user.get('accounts.length'), undefined, 'Accounts got rolledback correctly');

@@ -347,10 +347,10 @@ test("When deleting a record that has a belongsTo relationship, the record is re
 });
 
 /*
-Rollback tests
+Rollback attributes tests
 */
 
-test("Rollbacking a deleted record restores the relationship on both sides - async", function () {
+test("Rollbacking attributes of deleted record restores the relationship on both sides - async", function () {
   var stanley, stanleysFriend;
   run(function() {
     stanley = store.push('user', { id: 1, name: 'Stanley', bestFriend: 2 });
@@ -360,7 +360,7 @@ test("Rollbacking a deleted record restores the relationship on both sides - asy
     stanley.deleteRecord();
   });
   run(function() {
-    stanley.rollback();
+    stanley.rollbackAttributes();
     stanleysFriend.get('bestFriend').then(function(fetchedUser) {
       equal(fetchedUser, stanley, 'Stanley got rollbacked correctly');
     });
@@ -370,7 +370,7 @@ test("Rollbacking a deleted record restores the relationship on both sides - asy
   });
 });
 
-test("Rollbacking a deleted record restores the relationship on both sides - sync", function () {
+test("Rollbacking attributes of deleted record restores the relationship on both sides - sync", function () {
   var job, user;
   run(function() {
     job = store.push('job', { id: 2 , isGood: true });
@@ -378,20 +378,20 @@ test("Rollbacking a deleted record restores the relationship on both sides - syn
   });
   run(function() {
     job.deleteRecord();
-    job.rollback();
+    job.rollbackAttributes();
   });
   equal(user.get('job'), job, 'Job got rollbacked correctly');
   equal(job.get('user'), user, 'Job still has the user');
 });
 
-test("Rollbacking a created record removes the relationship on both sides - async", function () {
+test("Rollbacking attributes of created record removes the relationship on both sides - async", function () {
   var stanleysFriend, stanley;
   run(function() {
     stanleysFriend = store.push('user', { id: 2, name: "Stanley's friend" });
     stanley = store.createRecord('user', { bestFriend: stanleysFriend });
   });
   run(function() {
-    stanley.rollback();
+    stanley.rollbackAttributes();
     stanleysFriend.get('bestFriend').then(function(fetchedUser) {
       equal(fetchedUser, null, 'Stanley got rollbacked correctly');
     });
@@ -401,14 +401,14 @@ test("Rollbacking a created record removes the relationship on both sides - asyn
   });
 });
 
-test("Rollbacking a created record removes the relationship on both sides - sync", function () {
+test("Rollbacking attributes of created record removes the relationship on both sides - sync", function () {
   var user, job;
   run(function() {
     user = store.push('user', { id: 1, name: 'Stanley' });
     job = store.createRecord('job', { user: user });
   });
   run(function() {
-    job.rollback();
+    job.rollbackAttributes();
   });
   equal(user.get('job'), null, 'Job got rollbacked correctly');
   equal(job.get('user'), null, 'Job does not have user anymore');
