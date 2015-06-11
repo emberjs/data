@@ -44,7 +44,7 @@ export default Ember.Mixin.create({
     @method buildURL
     @param {String} modelName
     @param {(String|Array|Object)} id single id or array of ids or query
-    @param {(DS.Snapshot|Array)} snapshot single snapshot or array of snapshots
+    @param {(DS.AdapterSnapshot|Array)} snapshot single snapshot or array of snapshots
     @param {String} requestType
     @param {Object} query object of query parameters to send for findQuery requests.
     @return {String} url
@@ -107,7 +107,7 @@ export default Ember.Mixin.create({
    * @method urlForFind
    * @param {String} id
    * @param {String} modelName
-   * @param {DS.Snapshot} snapshot
+   * @param {DS.AdapterSnapshot} snapshot
    * @return {String} url
    */
   urlForFind: function(id, modelName, snapshot) {
@@ -167,7 +167,7 @@ export default Ember.Mixin.create({
   /**
    * @method urlForCreateRecord
    * @param {String} modelName
-   * @param {DS.Snapshot} snapshot
+   * @param {DS.AdapterSnapshot} snapshot
    * @return {String} url
    */
   urlForCreateRecord: function(modelName, snapshot) {
@@ -178,7 +178,7 @@ export default Ember.Mixin.create({
    * @method urlForUpdateRecord
    * @param {String} id
    * @param {String} modelName
-   * @param {DS.Snapshot} snapshot
+   * @param {DS.AdapterSnapshot} snapshot
    * @return {String} url
    */
   urlForUpdateRecord: function(id, modelName, snapshot) {
@@ -189,7 +189,7 @@ export default Ember.Mixin.create({
    * @method urlForDeleteRecord
    * @param {String} id
    * @param {String} modelName
-   * @param {DS.Snapshot} snapshot
+   * @param {DS.AdapterSnapshot} snapshot
    * @return {String} url
    */
   urlForDeleteRecord: function(id, modelName, snapshot) {

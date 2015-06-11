@@ -183,7 +183,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     ```
 
     @method serializeBelongsTo
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */
@@ -296,7 +296,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     ```
 
     @method serializeHasMany
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */
@@ -337,8 +337,8 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
     the parent record.
 
     @method removeEmbeddedForeignKey
-    @param {DS.Snapshot} snapshot
-    @param {DS.Snapshot} embeddedSnapshot
+    @param {DS.AdapterSnapshot} snapshot
+    @param {DS.AdapterSnapshot} embeddedSnapshot
     @param {Object} relationship
     @param {Object} json
   */

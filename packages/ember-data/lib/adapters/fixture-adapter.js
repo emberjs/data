@@ -114,7 +114,7 @@ export default Adapter.extend({
     @method mockJSON
     @param {DS.Store} store
     @param {DS.Model} typeClass
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
   */
   mockJSON: function(store, typeClass, snapshot) {
     return store.serializerFor(snapshot.modelName).serialize(snapshot, { includeId: true });
@@ -134,7 +134,7 @@ export default Adapter.extend({
     @param {DS.Store} store
     @param {DS.Model} typeClass
     @param {String} id
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @return {Promise} promise
   */
   find: function(store, typeClass, id, snapshot) {
@@ -224,7 +224,7 @@ export default Adapter.extend({
     @method createRecord
     @param {DS.Store} store
     @param {DS.Model} typeClass
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @return {Promise} promise
   */
   createRecord: function(store, typeClass, snapshot) {
@@ -241,7 +241,7 @@ export default Adapter.extend({
     @method updateRecord
     @param {DS.Store} store
     @param {DS.Model} typeClass
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @return {Promise} promise
   */
   updateRecord: function(store, typeClass, snapshot) {
@@ -258,7 +258,7 @@ export default Adapter.extend({
     @method deleteRecord
     @param {DS.Store} store
     @param {DS.Model} typeClass
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @return {Promise} promise
   */
   deleteRecord: function(store, typeClass, snapshot) {

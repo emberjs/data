@@ -5,13 +5,13 @@
 var get = Ember.get;
 
 /**
-  @class Snapshot
+  @class AdapterSnapshot
   @namespace DS
   @private
   @constructor
   @param {DS.Model} internalModel The model to create a snapshot from
 */
-function Snapshot(internalModel) {
+function AdapterSnapshot(internalModel) {
   this._attributes = Ember.create(null);
   this._belongsToRelationships = Ember.create(null);
   this._belongsToIds = Ember.create(null);
@@ -60,8 +60,8 @@ function Snapshot(internalModel) {
   }
 }
 
-Snapshot.prototype = {
-  constructor: Snapshot,
+AdapterSnapshot.prototype = {
+  constructor: AdapterSnapshot,
 
   /**
     The id of the snapshot's underlying record
@@ -70,7 +70,7 @@ Snapshot.prototype = {
 
     ```javascript
     // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
-    postSnapshot.id; // => '1'
+    postAdapterSnapshot.id; // => '1'
     ```
 
     @property id
@@ -116,8 +116,8 @@ Snapshot.prototype = {
 
     ```javascript
     // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
-    postSnapshot.attr('author'); // => 'Tomster'
-    postSnapshot.attr('title'); // => 'Ember.js rocks'
+    postAdapterSnapshot.attr('author'); // => 'Tomster'
+    postAdapterSnapshot.attr('title'); // => 'Ember.js rocks'
     ```
 
     Note: Values are loaded eagerly and cached when the snapshot is created.
@@ -140,7 +140,7 @@ Snapshot.prototype = {
 
     ```javascript
     // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
-    postSnapshot.attributes(); // => { author: 'Tomster', title: 'Ember.js rocks' }
+    postAdapterSnapshot.attributes(); // => { author: 'Tomster', title: 'Ember.js rocks' }
     ```
 
     @method attributes
@@ -158,7 +158,7 @@ Snapshot.prototype = {
     ```javascript
     // store.push('post', { id: 1, author: 'Tomster', title: 'Ember.js rocks' });
     postModel.set('title', 'Ember.js rocks!');
-    postSnapshot.changedAttributes(); // => { title: ['Ember.js rocks', 'Ember.js rocks!'] }
+    postAdapterSnapshot.changedAttributes(); // => { title: ['Ember.js rocks', 'Ember.js rocks!'] }
     ```
 
     @method changedAttributes
@@ -189,14 +189,14 @@ Snapshot.prototype = {
     ```javascript
     // store.push('post', { id: 1, title: 'Hello World' });
     // store.createRecord('comment', { body: 'Lorem ipsum', post: post });
-    commentSnapshot.belongsTo('post'); // => DS.Snapshot
-    commentSnapshot.belongsTo('post', { id: true }); // => '1'
+    commentAdapterSnapshot.belongsTo('post'); // => DS.AdapterSnapshot
+    commentAdapterSnapshot.belongsTo('post', { id: true }); // => '1'
 
     // store.push('comment', { id: 1, body: 'Lorem ipsum' });
-    commentSnapshot.belongsTo('post'); // => undefined
+    commentAdapterSnapshot.belongsTo('post'); // => undefined
     ```
 
-    Calling `belongsTo` will return a new Snapshot as long as there's any known
+    Calling `belongsTo` will return a new AdapterSnapshot as long as there's any known
     data for the relationship available, such as an ID. If the relationship is
     known but unset, `belongsTo` will return `null`. If the contents of the
     relationship is unknown `belongsTo` will return `undefined`.
@@ -206,7 +206,7 @@ Snapshot.prototype = {
     @method belongsTo
     @param {String} keyName
     @param {Object} [options]
-    @return {(DS.Snapshot|String|null|undefined)} A snapshot or ID of a known
+    @return {(DS.AdapterSnapshot|String|null|undefined)} A snapshot or ID of a known
       relationship or null if the relationship is known but unset. undefined
       will be returned if the contents of the relationship is unknown.
   */
@@ -265,11 +265,11 @@ Snapshot.prototype = {
 
     ```javascript
     // store.push('post', { id: 1, title: 'Hello World', comments: [2, 3] });
-    postSnapshot.hasMany('comments'); // => [DS.Snapshot, DS.Snapshot]
-    postSnapshot.hasMany('comments', { ids: true }); // => ['2', '3']
+    postAdapterSnapshot.hasMany('comments'); // => [DS.AdapterSnapshot, DS.AdapterSnapshot]
+    postAdapterSnapshot.hasMany('comments', { ids: true }); // => ['2', '3']
 
     // store.push('post', { id: 1, title: 'Hello World' });
-    postSnapshot.hasMany('comments'); // => undefined
+    postAdapterSnapshot.hasMany('comments'); // => undefined
     ```
 
     Note: Relationships are loaded lazily and cached upon first access.
@@ -371,7 +371,7 @@ Snapshot.prototype = {
     @deprecated Use [attr](#method_attr), [belongsTo](#method_belongsTo) or [hasMany](#method_hasMany) instead
   */
   get: function(keyName) {
-    Ember.deprecate('Using DS.Snapshot.get() is deprecated. Use .attr(), .belongsTo() or .hasMany() instead.');
+    Ember.deprecate('Using DS.AdapterSnapshot.get() is deprecated. Use .attr(), .belongsTo() or .hasMany() instead.');
 
     if (keyName === 'id') {
       return this.id;
@@ -417,20 +417,20 @@ Snapshot.prototype = {
     @private
   */
   _createSnapshot: function() {
-    Ember.deprecate("You called _createSnapshot on what's already a DS.Snapshot. You shouldn't manually create snapshots in your adapter since the store passes snapshots to adapters by default.");
+    Ember.deprecate("You called _createSnapshot on what's already a DS.AdapterSnapshot. You shouldn't manually create snapshots in your adapter since the store passes snapshots to adapters by default.");
     return this;
   }
 };
 
-Ember.defineProperty(Snapshot.prototype, 'typeKey', {
+Ember.defineProperty(AdapterSnapshot.prototype, 'typeKey', {
   enumerable: false,
   get: function() {
-    Ember.deprecate('Snapshot.typeKey is deprecated. Use snapshot.modelName instead.');
+    Ember.deprecate('AdapterSnapshot.typeKey is deprecated. Use snapshot.modelName instead.');
     return this.modelName;
   },
   set: function() {
-    Ember.assert('Setting snapshot.typeKey is not supported. In addition, Snapshot.typeKey has been deprecated for Snapshot.modelName.');
+    Ember.assert('Setting snapshot.typeKey is not supported. In addition, AdapterSnapshot.typeKey has been deprecated for AdapterSnapshot.modelName.');
   }
 });
 
-export default Snapshot;
+export default AdapterSnapshot;

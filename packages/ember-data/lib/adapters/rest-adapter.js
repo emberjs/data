@@ -361,7 +361,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     @param {DS.Store} store
     @param {DS.Model} type
     @param {String} id
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @return {Promise} promise
   */
   find: function(store, type, id, snapshot) {
@@ -482,7 +482,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
 
     @method findHasMany
     @param {DS.Store} store
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @param {String} url
     @return {Promise} promise
   */
@@ -518,7 +518,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
 
     @method findBelongsTo
     @param {DS.Store} store
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @param {String} url
     @return {Promise} promise
   */
@@ -543,7 +543,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     @method createRecord
     @param {DS.Store} store
     @param {DS.Model} type
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @return {Promise} promise
   */
   createRecord: function(store, type, snapshot) {
@@ -569,7 +569,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     @method updateRecord
     @param {DS.Store} store
     @param {DS.Model} type
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @return {Promise} promise
   */
   updateRecord: function(store, type, snapshot) {
@@ -592,7 +592,7 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     @method deleteRecord
     @param {DS.Store} store
     @param {DS.Model} type
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @return {Promise} promise
   */
   deleteRecord: function(store, type, snapshot) {

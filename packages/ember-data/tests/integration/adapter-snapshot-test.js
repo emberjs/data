@@ -1,13 +1,14 @@
 var run = Ember.run;
 var env, Post, Comment;
 
-module("integration/snapshot - DS.Snapshot", {
+module("integration/snapshot - DS.AdapterSnapshot", {
   setup: function() {
     Post = DS.Model.extend({
       author: DS.attr(),
       title: DS.attr(),
       comments: DS.hasMany({ async: true })
     });
+
     Comment = DS.Model.extend({
       body: DS.attr(),
       post: DS.belongsTo({ async: true })
@@ -33,7 +34,7 @@ test("record._createSnapshot() returns a snapshot", function() {
     var post = env.store.push('post', { id: 1, title: 'Hello World' });
     var snapshot = post._createSnapshot();
 
-    ok(snapshot instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
+    ok(snapshot instanceof DS.AdapterSnapshot, 'snapshot is an instance of DS.AdapterSnapshot');
   });
 });
 
@@ -47,7 +48,7 @@ test("snapshot._createSnapshot() returns a snapshot (self) but is deprecated", f
 
     expectDeprecation(function() {
       snapshot2 = snapshot1._createSnapshot();
-    }, /You called _createSnapshot on what's already a DS.Snapshot. You shouldn't manually create snapshots in your adapter since the store passes snapshots to adapters by default./);
+    }, /You called _createSnapshot on what's already a DS.AdapterSnapshot. You shouldn't manually create snapshots in your adapter since the store passes snapshots to adapters by default./);
 
     ok(snapshot2 === snapshot1, 'snapshot._createSnapshot() returns self');
   });
@@ -73,15 +74,15 @@ test("snapshot.constructor is unique and deprecated", function() {
   run(function() {
     var comment = env.store.push('comment', { id: 1, body: 'This is comment' });
     var post = env.store.push('post', { id: 2, title: 'Hello World' });
-    var commentSnapshot = comment._createSnapshot();
-    var postSnapshot = post._createSnapshot();
+    var commentAdapterSnapshot = comment._createSnapshot();
+    var postAdapterSnapshot = post._createSnapshot();
 
     expectDeprecation(function() {
-      equal(commentSnapshot.constructor.modelName, 'comment', 'constructor.modelName is unique per type');
+      equal(commentAdapterSnapshot.constructor.modelName, 'comment', 'constructor.modelName is unique per type');
     });
 
     expectDeprecation(function() {
-      equal(postSnapshot.constructor.modelName, 'post', 'constructor.modelName is unique per type');
+      equal(postAdapterSnapshot.constructor.modelName, 'post', 'constructor.modelName is unique per type');
     });
   });
 });
@@ -173,7 +174,7 @@ test("snapshot.belongsTo() returns a snapshot if relationship is set", function(
     var snapshot = comment._createSnapshot();
     var relationship = snapshot.belongsTo('post');
 
-    ok(relationship instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
+    ok(relationship instanceof DS.AdapterSnapshot, 'snapshot is an instance of DS.AdapterSnapshot');
     equal(relationship.id, '1', 'post id is correct');
     equal(relationship.attr('title'), 'Hello World', 'post title is correct');
   });
@@ -234,7 +235,7 @@ test("snapshot.belongsTo() returns a snapshot if relationship link has been fetc
       var snapshot = comment._createSnapshot();
       var relationship = snapshot.belongsTo('post');
 
-      ok(relationship instanceof DS.Snapshot, 'snapshot is an instance of DS.Snapshot');
+      ok(relationship instanceof DS.AdapterSnapshot, 'snapshot is an instance of DS.AdapterSnapshot');
       equal(relationship.id, '1', 'post id is correct');
     });
   });
@@ -250,16 +251,16 @@ test("snapshot.belongsTo() and snapshot.hasMany() returns correctly when adding 
     post.get('comments').then(function(comments) {
       comments.addObject(comment);
 
-      var postSnapshot = post._createSnapshot();
-      var commentSnapshot = comment._createSnapshot();
+      var postAdapterSnapshot = post._createSnapshot();
+      var commentAdapterSnapshot = comment._createSnapshot();
 
-      var hasManyRelationship = postSnapshot.hasMany('comments');
-      var belongsToRelationship = commentSnapshot.belongsTo('post');
+      var hasManyRelationship = postAdapterSnapshot.hasMany('comments');
+      var belongsToRelationship = commentAdapterSnapshot.belongsTo('post');
 
       ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
       equal(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
 
-      ok(belongsToRelationship instanceof DS.Snapshot, 'belongsTo relationship is an instance of DS.Snapshot');
+      ok(belongsToRelationship instanceof DS.AdapterSnapshot, 'belongsTo relationship is an instance of DS.AdapterSnapshot');
       equal(belongsToRelationship.attr('title'), 'Hello World', 'belongsTo relationship contains related object');
     });
   });
@@ -274,16 +275,16 @@ test("snapshot.belongsTo() and snapshot.hasMany() returns correctly when setting
 
     comment.set('post', post);
 
-    var postSnapshot = post._createSnapshot();
-    var commentSnapshot = comment._createSnapshot();
+    var postAdapterSnapshot = post._createSnapshot();
+    var commentAdapterSnapshot = comment._createSnapshot();
 
-    var hasManyRelationship = postSnapshot.hasMany('comments');
-    var belongsToRelationship = commentSnapshot.belongsTo('post');
+    var hasManyRelationship = postAdapterSnapshot.hasMany('comments');
+    var belongsToRelationship = commentAdapterSnapshot.belongsTo('post');
 
     ok(hasManyRelationship instanceof Array, 'hasMany relationship is an instance of Array');
     equal(hasManyRelationship.length, 1, 'hasMany relationship contains related object');
 
-    ok(belongsToRelationship instanceof DS.Snapshot, 'belongsTo relationship is an instance of DS.Snapshot');
+    ok(belongsToRelationship instanceof DS.AdapterSnapshot, 'belongsTo relationship is an instance of DS.AdapterSnapshot');
     equal(belongsToRelationship.attr('title'), 'Hello World', 'belongsTo relationship contains related object');
   });
 });
@@ -357,7 +358,7 @@ test("snapshot.hasMany() returns array of snapshots if relationship is set", fun
 
     var relationship1 = relationship[0];
 
-    ok(relationship1 instanceof DS.Snapshot, 'relationship item is an instance of DS.Snapshot');
+    ok(relationship1 instanceof DS.AdapterSnapshot, 'relationship item is an instance of DS.AdapterSnapshot');
 
     equal(relationship1.id, '1', 'relationship item id is correct');
     equal(relationship1.attr('body'), 'This is the first comment', 'relationship item body is correct');
@@ -558,7 +559,7 @@ test("snapshot.get() is deprecated", function() {
 
     expectDeprecation(function() {
       snapshot.get('title');
-    }, 'Using DS.Snapshot.get() is deprecated. Use .attr(), .belongsTo() or .hasMany() instead.');
+    }, 'Using DS.AdapterSnapshot.get() is deprecated. Use .attr(), .belongsTo() or .hasMany() instead.');
   });
 });
 
@@ -600,7 +601,7 @@ test("snapshot.get() returns belongsTo", function() {
       relationship = snapshot.get('post');
     });
 
-    ok(relationship instanceof DS.Snapshot, 'relationship is an instance of DS.Snapshot');
+    ok(relationship instanceof DS.AdapterSnapshot, 'relationship is an instance of DS.AdapterSnapshot');
     equal(relationship.id, '2', 'relationship id is correct');
   });
 });

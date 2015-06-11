@@ -812,7 +812,7 @@ test("createRecord receives a snapshot", function() {
   expect(1);
 
   adapter.createRecord = function(store, type, snapshot) {
-    ok(snapshot instanceof DS.Snapshot, "snapshot is an instance of DS.Snapshot");
+    ok(snapshot instanceof DS.AdapterSnapshot, "snapshot is an instance of DS.AdapterSnapshot");
     return Ember.RSVP.resolve();
   };
 
@@ -828,7 +828,7 @@ test("updateRecord receives a snapshot", function() {
   expect(1);
 
   adapter.updateRecord = function(store, type, snapshot) {
-    ok(snapshot instanceof DS.Snapshot, "snapshot is an instance of DS.Snapshot");
+    ok(snapshot instanceof DS.AdapterSnapshot, "snapshot is an instance of DS.AdapterSnapshot");
     return Ember.RSVP.resolve();
   };
 
@@ -848,7 +848,7 @@ test("deleteRecord receives a snapshot", function() {
   expect(1);
 
   adapter.deleteRecord = function(store, type, snapshot) {
-    ok(snapshot instanceof DS.Snapshot, "snapshot is an instance of DS.Snapshot");
+    ok(snapshot instanceof DS.AdapterSnapshot, "snapshot is an instance of DS.AdapterSnapshot");
     return Ember.RSVP.resolve();
   };
 
@@ -868,7 +868,7 @@ test("find receives a snapshot", function() {
   expect(1);
 
   adapter.find = function(store, type, id, snapshot) {
-    ok(snapshot instanceof DS.Snapshot, "snapshot is an instance of DS.Snapshot");
+    ok(snapshot instanceof DS.AdapterSnapshot, "snapshot is an instance of DS.AdapterSnapshot");
     return Ember.RSVP.resolve({ id: 1 });
   };
 
@@ -886,8 +886,8 @@ test("findMany receives an array of snapshots", function() {
 
   adapter.coalesceFindRequests = true;
   adapter.findMany = function(store, type, ids, snapshots) {
-    ok(snapshots[0] instanceof DS.Snapshot, "snapshots[0] is an instance of DS.Snapshot");
-    ok(snapshots[1] instanceof DS.Snapshot, "snapshots[1] is an instance of DS.Snapshot");
+    ok(snapshots[0] instanceof DS.AdapterSnapshot, "snapshots[0] is an instance of DS.AdapterSnapshot");
+    ok(snapshots[1] instanceof DS.AdapterSnapshot, "snapshots[1] is an instance of DS.AdapterSnapshot");
     return Ember.RSVP.resolve([{ id: 2 }, { id: 3 }]);
   };
 
@@ -910,7 +910,7 @@ test("findHasMany receives a snapshot", function() {
   });
 
   env.adapter.findHasMany = function(store, snapshot, link, relationship) {
-    ok(snapshot instanceof DS.Snapshot, "snapshot is an instance of DS.Snapshot");
+    ok(snapshot instanceof DS.AdapterSnapshot, "snapshot is an instance of DS.AdapterSnapshot");
     return Ember.RSVP.resolve([{ id: 2 }, { id: 3 }]);
   };
 
@@ -933,7 +933,7 @@ test("findBelongsTo receives a snapshot", function() {
   });
 
   env.adapter.findBelongsTo = async(function(store, snapshot, link, relationship) {
-    ok(snapshot instanceof DS.Snapshot, "snapshot is an instance of DS.Snapshot");
+    ok(snapshot instanceof DS.AdapterSnapshot, "snapshot is an instance of DS.AdapterSnapshot");
     return Ember.RSVP.resolve({ id: 2 });
   });
 

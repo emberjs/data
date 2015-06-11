@@ -35,7 +35,7 @@ import {
   attr
 } from "ember-data/system/model";
 import Model from "ember-data/system/model";
-import Snapshot from "ember-data/system/snapshot";
+import AdapterSnapshot from "ember-data/system/adapter-snapshot";
 import { Adapter } from "ember-data/system/adapter";
 import Serializer from "ember-data/system/serializer";
 import DebugAdapter from "ember-data/system/debug";
@@ -88,7 +88,7 @@ DS.attr      = attr;
 DS.Errors    = Errors;
 
 DS.InternalModel = InternalModel;
-DS.Snapshot = Snapshot;
+DS.AdapterSnapshot = AdapterSnapshot;
 
 DS.Adapter      = Adapter;
 DS.InvalidError = InvalidError;
