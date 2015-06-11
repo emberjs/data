@@ -680,3 +680,28 @@ test("belongsTo hasData sync created", function () {
     equal(relationship.hasData, true, 'relationship has data');
   });
 });
+
+// this depends on unique keys for all the records that can show up in the relationship
+test("Polymorphic relationships with belongsTo, which are materialized as an array of IDs without a type use the parent type until loaded", function () {
+  expect(1);
+
+  env.adapter.find = function(store, type, id, snapshot) {
+    return Ember.RSVP.resolve({ id: 2, type: 'post', title: 'Post' });
+  };
+
+  run(function () {
+    env.store.push('user', {
+      id: 1,
+      favouriteMessage: [2]
+    });
+
+    env.store.find('user', 1)
+      .then(function (user) {
+        return user.get('favouriteMessage');
+      })
+      .then(function (message) {
+        equal(message.get('title'), 'Post', "The messages relationship has been set up");
+      });
+  });
+
+});
