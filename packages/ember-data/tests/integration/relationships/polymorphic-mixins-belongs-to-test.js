@@ -96,7 +96,7 @@ test("Setting the polymorphic belongsTo with an object that does not implement t
   run(function() {
     expectAssertion(function() {
       user.set('bestMessage', video);
-    }, /You can only add a 'message' record to this relationship/);
+    }, /You cannot add a record of type 'not-message' to the 'user.bestMessage' relationship \(only 'message' allowed\)/);
   });
 });
 
@@ -141,7 +141,7 @@ test("Setting the polymorphic belongsTo with an object that does not implement t
     run(function() {
       expectAssertion(function() {
         user.set('bestMessage', video);
-      }, /You can only add a 'message' record to this relationship/);
+      }, /You cannot add a record of type 'not-message' to the 'user.bestMessage' relationship \(only 'message' allowed\)/);
     });
   } finally {
     Ember.MODEL_FACTORY_INJECTIONS = injectionValue;

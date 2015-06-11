@@ -782,7 +782,7 @@ test("Only records of the same type can be added to a monomorphic hasMany relati
     ]).then(function(records) {
       expectAssertion(function() {
         records[0].get('comments').pushObject(records[1]);
-      }, /You cannot add 'post' records to the post.comments relationship \(only 'comment' allowed\)/);
+      }, /You cannot add a record of type 'post' to the 'post.comments' relationship \(only 'comment' allowed\)/);
     });
   });
 });
@@ -815,7 +815,7 @@ test("Only records of the same base type can be added to a polymorphic hasMany r
 
       expectAssertion(function() {
         records.messages.pushObject(records.anotherUser);
-      }, /You cannot add 'user' records to the user.messages relationship \(only 'message' allowed\)/);
+      }, /You cannot add a record of type 'user' to the 'user.messages' relationship \(only 'message' allowed\)/);
     });
   });
 });

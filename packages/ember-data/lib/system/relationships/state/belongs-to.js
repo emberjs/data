@@ -2,6 +2,8 @@ import {
   PromiseObject
 } from "ember-data/system/promise-proxies";
 
+import { assertPolymorphicType } from "ember-data/utils";
+
 import Relationship from "ember-data/system/relationships/state/relationship";
 
 var BelongsToRelationship = function(store, record, inverseKey, relationshipMeta) {
@@ -61,18 +63,8 @@ BelongsToRelationship.prototype.flushCanonical = function() {
 BelongsToRelationship.prototype._super$addRecord = Relationship.prototype.addRecord;
 BelongsToRelationship.prototype.addRecord = function(newRecord) {
   if (this.members.has(newRecord)) { return;}
-  var typeClass = this.store.modelFor(this.relationshipMeta.type);
-  Ember.assert("You cannot add a '" + newRecord.type.modelName + "' record to the '" + this.record.type.modelName + "." + this.key +"'. " + "You can only add a '" + typeClass.modelName + "' record to this relationship.", (function () {
-    if (typeClass.__isMixin) {
-      //TODO Need to do this in order to support mixins, should convert to public api
-      //once it exists in Ember
-      return typeClass.__mixin.detect(newRecord.type.PrototypeMixin);
-    }
-    if (Ember.MODEL_FACTORY_INJECTIONS) {
-      typeClass = typeClass.superclass;
-    }
-    return typeClass.detect(newRecord.type);
-  })());
+
+  assertPolymorphicType(this.record, this.relationshipMeta, newRecord);
 
   if (this.inverseRecord) {
     this.removeRecord(this.inverseRecord);
