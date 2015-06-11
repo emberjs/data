@@ -692,7 +692,7 @@ test("Polymorphic relationships with belongsTo, which are materialized as an arr
   run(function () {
     env.store.push('user', {
       id: 1,
-      favouriteMessage: [2]
+      favouriteMessage: 2
     });
 
     env.store.find('user', 1)
