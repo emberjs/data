@@ -1,7 +1,6 @@
 import {JSONSerializer, RESTSerializer} from "ember-data/serializers";
 import {RESTAdapter} from "ember-data/adapters";
 import ContainerProxy from "ember-data/system/container-proxy";
-import Store from "ember-data/system/store";
 
 /**
   Configures a registry for use with an Ember-Data
@@ -18,7 +17,9 @@ export default function initializeStore(registry, application) {
   registry.optionsForType('serializer', { singleton: false });
   registry.optionsForType('adapter', { singleton: false });
 
-  registry.register('store:application', application && application.Store || Store);
+  if (application && application.Store) {
+    registry.register('store:application', application.Store);
+  }
 
   // allow older names to be looked up
 
@@ -26,8 +27,7 @@ export default function initializeStore(registry, application) {
   proxy.registerDeprecations([
     { deprecated: 'serializer:_default',  valid: 'serializer:-default' },
     { deprecated: 'serializer:_rest',     valid: 'serializer:-rest' },
-    { deprecated: 'adapter:_rest',        valid: 'adapter:-rest' },
-    { deprecated: 'store:main',        valid: 'store:application' }
+    { deprecated: 'adapter:_rest',        valid: 'adapter:-rest' }
   ]);
 
   // new go forward paths

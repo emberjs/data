@@ -1,3 +1,4 @@
+import Store from "ember-data/system/store";
 /**
  Configures a registry for use with an Ember-Data
  store.
@@ -24,7 +25,14 @@ export default function initializeStoreService(applicationOrRegistry) {
       container = registry;
     }
   }
+  if (registry.has('store:application')) {
+    var customStoreFactory = container.lookupFactory('store:application');
+    registry.register('store:main', customStoreFactory);
+  } else {
+    registry.register('store:main', Store);
+  }
+
   // Eagerly generate the store so defaultStore is populated.
-  var store = container.lookup('store:application');
+  var store = container.lookup('store:main');
   registry.register('service:store', store, { instantiate: false });
 }

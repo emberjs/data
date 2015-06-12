@@ -9,7 +9,7 @@ module('integration/backwards-compat/non-dasherized-lookups - non dasherized loo
         name: DS.attr()
       });
     });
-    store = App.__container__.lookup('store:application');
+    store = App.__container__.lookup('store:main');
   },
   teardown: function() {
     run(App, 'destroy');
@@ -67,7 +67,7 @@ module('integration/backwards-compat/non-dasherized-lookups - non dasherized loo
         postNotes: DS.hasMany('post_note')
       });
     });
-    store = App.__container__.lookup('store:application');
+    store = App.__container__.lookup('store:main');
   },
 
   teardown: function() {
