@@ -23,7 +23,7 @@ module("DS.DebugAdapter", {
 
     });
 
-    store = App.__container__.lookup('store:application');
+    store = App.__container__.lookup('store:main');
     debugAdapter = App.__container__.lookup('data-adapter:main');
 
     debugAdapter.reopen({

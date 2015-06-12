@@ -6,7 +6,7 @@
   @param {Ember.Registry} registry
 */
 export default function initializeStoreInjections(registry) {
-  registry.injection('controller', 'store', 'store:application');
-  registry.injection('route', 'store', 'store:application');
-  registry.injection('data-adapter', 'store', 'store:application');
+  registry.injection('controller', 'store', 'store:main');
+  registry.injection('route', 'store', 'store:main');
+  registry.injection('data-adapter', 'store', 'store:main');
 }
