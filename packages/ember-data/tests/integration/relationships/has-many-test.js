@@ -1060,7 +1060,7 @@ test("If reordered hasMany data has been pushed to the store, the many array ref
   deepEqual(post.get('comments').toArray(), [comment4, comment2, comment3, comment1], 'Updated ordering is correct');
 });
 
-test("Rollbacking a deleted record restores implicit relationship correctly when the hasMany side has been deleted - async", function () {
+test("Rollbacking attributes for deleted record restores implicit relationship correctly when the hasMany side has been deleted - async", function () {
   var book, chapter;
   run(function() {
     book = env.store.push('book', { id: 1, title: "Stanley's Amazing Adventures", chapters: [2] });
@@ -1068,16 +1068,16 @@ test("Rollbacking a deleted record restores implicit relationship correctly when
   });
   run(function() {
     chapter.deleteRecord();
-    chapter.rollback();
+    chapter.rollbackAttributes();
   });
   run(function() {
     book.get('chapters').then(function(fetchedChapters) {
-      equal(fetchedChapters.objectAt(0), chapter, 'Book has a chapter after rollback');
+      equal(fetchedChapters.objectAt(0), chapter, 'Book has a chapter after rollback attributes');
     });
   });
 });
 
-test("Rollbacking a deleted record restores implicit relationship correctly when the hasMany side has been deleted - sync", function () {
+test("Rollbacking attributes for deleted record restores implicit relationship correctly when the hasMany side has been deleted - sync", function () {
   var book, chapter;
   run(function() {
     book = env.store.push('book', { id: 1, title: "Stanley's Amazing Adventures", chapters: [2] });
@@ -1085,14 +1085,14 @@ test("Rollbacking a deleted record restores implicit relationship correctly when
   });
   run(function() {
     chapter.deleteRecord();
-    chapter.rollback();
+    chapter.rollbackAttributes();
   });
   run(function() {
-    equal(book.get('chapters.firstObject'), chapter, "Book has a chapter after rollback");
+    equal(book.get('chapters.firstObject'), chapter, "Book has a chapter after rollback attributes");
   });
 });
 
-test("Rollbacking a deleted record restores implicit relationship correctly when the belongsTo side has been deleted - async", function () {
+test("Rollbacking attributes for deleted record restores implicit relationship correctly when the belongsTo side has been deleted - async", function () {
   Page.reopen({
     chapter: DS.belongsTo('chapter', { async: true })
   });
@@ -1103,16 +1103,16 @@ test("Rollbacking a deleted record restores implicit relationship correctly when
   });
   run(function() {
     chapter.deleteRecord();
-    chapter.rollback();
+    chapter.rollbackAttributes();
   });
   run(function() {
     page.get('chapter').then(function(fetchedChapter) {
-      equal(fetchedChapter, chapter, 'Page has a chapter after rollback');
+      equal(fetchedChapter, chapter, 'Page has a chapter after rollback attributes');
     });
   });
 });
 
-test("Rollbacking a deleted record restores implicit relationship correctly when the belongsTo side has been deleted - sync", function () {
+test("Rollbacking attributes for deleted record restores implicit relationship correctly when the belongsTo side has been deleted - sync", function () {
   var chapter, page;
   run(function() {
     chapter = env.store.push('chapter', { id: 2, title: 'Sailing the Seven Seas' });
@@ -1120,10 +1120,10 @@ test("Rollbacking a deleted record restores implicit relationship correctly when
   });
   run(function() {
     chapter.deleteRecord();
-    chapter.rollback();
+    chapter.rollbackAttributes();
   });
   run(function() {
-    equal(page.get('chapter'), chapter, "Page has a chapter after rollback");
+    equal(page.get('chapter'), chapter, "Page has a chapter after rollback attributes");
   });
 });
 

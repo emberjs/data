@@ -581,7 +581,7 @@ test("A sync belongsTo errors out if the record is unlaoded", function() {
   }, /You looked up the 'user' relationship on a 'message' with id 1 but some of the associated records were not loaded. Either make sure they are all loaded together with the parent record, or specify that the relationship is async \(`DS.belongsTo\({ async: true }\)`\)/);
 });
 
-test("Rollbacking a deleted record restores implicit relationship - async", function () {
+test("Rollbacking attributes for a deleted record restores implicit relationship - async", function () {
   Book.reopen({
     author: DS.belongsTo('author', { async: true })
   });
@@ -592,14 +592,14 @@ test("Rollbacking a deleted record restores implicit relationship - async", func
   });
   run(function() {
     author.deleteRecord();
-    author.rollback();
+    author.rollbackAttributes();
     book.get('author').then(function(fetchedAuthor) {
-      equal(fetchedAuthor, author, 'Book has an author after rollback');
+      equal(fetchedAuthor, author, 'Book has an author after rollback attributes');
     });
   });
 });
 
-test("Rollbacking a deleted record restores implicit relationship - sync", function () {
+test("Rollbacking attributes for a deleted record restores implicit relationship - sync", function () {
   var book, author;
   run(function() {
     book = env.store.push('book', { id: 1, name: "Stanley's Amazing Adventures", author: 2 });
@@ -607,9 +607,9 @@ test("Rollbacking a deleted record restores implicit relationship - sync", funct
   });
   run(function() {
     author.deleteRecord();
-    author.rollback();
+    author.rollbackAttributes();
   });
-  equal(book.get('author'), author, 'Book has an author after rollback');
+  equal(book.get('author'), author, 'Book has an author after rollback attributes');
 });
 
 test("Passing a model as type to belongsTo should not work", function () {

@@ -219,9 +219,9 @@ test("changedAttributes() return correct values", function() {
   deepEqual({ name: [undefined, 'Tomster'], likes: ['JavaScript', 'Ember.js'] }, mascot.changedAttributes(), 'attributes has changed');
 
   run(function() {
-    mascot.rollback();
+    mascot.rollbackAttributes();
   });
-  deepEqual({}, mascot.changedAttributes(), 'after rollback there are no changes');
+  deepEqual({}, mascot.changedAttributes(), 'after rollback attributes there are no changes');
 });
 
 test("a DS.Model does not require an attribute type", function() {

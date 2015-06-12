@@ -62,7 +62,7 @@ test("when deleted records are rolled back, they are still in their previous rec
 
   run(function() {
     jaime.deleteRecord();
-    jaime.rollback();
+    jaime.rollbackAttributes();
   });
   equal(all.get('length'), 2, 'record was not removed');
   equal(filtered.get('length'), 2, 'record was not removed');

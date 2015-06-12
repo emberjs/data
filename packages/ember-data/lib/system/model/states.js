@@ -273,7 +273,7 @@ var DirtyState = {
     },
 
     rollback: function(internalModel) {
-      internalModel.rollback();
+      internalModel.rollbackAttributes();
       internalModel.triggerLater('ready');
     }
   },
@@ -632,7 +632,7 @@ var RootState = {
       },
 
       rollback: function(internalModel) {
-        internalModel.rollback();
+        internalModel.rollbackAttributes();
         internalModel.triggerLater('ready');
       },
 

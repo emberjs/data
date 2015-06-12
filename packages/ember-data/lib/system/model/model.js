@@ -469,8 +469,8 @@ var Model = Ember.Object.extend(Ember.Evented, {
   /**
     Marks the record as deleted but does not save it. You must call
     `save` afterwards if you want to persist it. You might use this
-    method if you want to allow the user to still `rollback()` a
-    delete after it was made.
+    method if you want to allow the user to still `rollbackAttributes()`
+    after a delete it was made.
 
     Example
 
@@ -486,7 +486,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
           this.controller.get('model').save();
         },
         undo: function() {
-          this.controller.get('model').rollback();
+          this.controller.get('model').rollbackAttributes();
         }
       }
     });
@@ -621,9 +621,31 @@ var Model = Ember.Object.extend(Ember.Evented, {
     ```
 
     @method rollback
+    @deprecated Use `addAttributes()` instead
   */
   rollback: function() {
-    this._internalModel.rollback();
+    Ember.deprecate('Using model.rollback() has been deprecated. Use model.rollbackAttributes() to discard any unsaved changes to a model.');
+    this.rollbackAttributes();
+  },
+
+  /**
+    If the model `isDirty` this function will discard any unsaved
+    changes. If the model `isNew` it will be removed from the store.
+
+    Example
+
+    ```javascript
+    record.get('name'); // 'Untitled Document'
+    record.set('name', 'Doc 1');
+    record.get('name'); // 'Doc 1'
+    record.rollbackAttributes();
+    record.get('name'); // 'Untitled Document'
+    ```
+
+    @method rollbackAttributes
+  */
+  rollbackAttributes: function() {
+    this._internalModel.rollbackAttributes();
   },
 
   /*
