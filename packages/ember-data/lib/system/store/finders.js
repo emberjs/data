@@ -13,8 +13,6 @@ import {
   serializerForAdapter
 } from "ember-data/system/store/serializers";
 
-import SnapshotRecordArray from "ember-data/system/snapshot-record-array";
-
 var Promise = Ember.RSVP.Promise;
 var map = Ember.EnumerableUtils.map;
 
@@ -121,9 +119,9 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
 }
 
 export function _findAll(adapter, store, typeClass, sinceToken, options) {
-  var adapterOptions = options && options.adapterOptions;
   var modelName = typeClass.modelName;
-  var snapshotArray = SnapshotRecordArray.fromRecordArray(store.peekAll(modelName), adapterOptions);
+  var recordArray = store.peekAll(modelName);
+  var snapshotArray = recordArray.createSnapshot(options);
   var promise = adapter.findAll(store, typeClass, sinceToken, snapshotArray);
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Handle Adapter#findAll of " + typeClass;

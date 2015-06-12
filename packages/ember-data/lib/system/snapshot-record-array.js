@@ -18,19 +18,6 @@ function SnapshotRecordArray(recordArray, meta, adapterOptions) {
   this.adapterOptions = adapterOptions;
 }
 
-/**
-  @method fromRecordArray
-  @private
-  @static
-  @param {DS.RecordArray} recordArray
-  @param {Object} adapterOptions
-  @return SnapshotRecordArray
-*/
-SnapshotRecordArray.fromRecordArray = function(recordArray, adapterOptions) {
-  var meta = recordArray.get('meta');
-  return new SnapshotRecordArray(recordArray, meta, adapterOptions);
-};
-
 SnapshotRecordArray.prototype.snapshots = function() {
   if (this._snapshots) {
     return this._snapshots;

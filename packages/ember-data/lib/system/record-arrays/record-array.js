@@ -3,6 +3,8 @@
 */
 
 import { PromiseArray } from "ember-data/system/promise-proxies";
+import SnapshotRecordArray from "ember-data/system/snapshot-record-array";
+
 var get = Ember.get;
 var set = Ember.set;
 
@@ -198,5 +200,11 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     this._dissociateFromOwnRecords();
     set(this, 'content', undefined);
     this._super.apply(this, arguments);
+  },
+
+  createSnapshot(options) {
+    var adapterOptions = options && options.adapterOptions;
+    var meta = this.get('meta');
+    return new SnapshotRecordArray(this, meta, adapterOptions);
   }
 });

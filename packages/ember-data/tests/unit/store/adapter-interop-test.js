@@ -815,6 +815,389 @@ test("store.fetchRecord reject records that were not found, even when those requ
   }, /expected to find records with the following ids in the adapter response but they were missing/);
 });
 
+test("store should not call shouldReloadRecord when the record is not in the store", function() {
+  expect(1);
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var TestAdapter = DS.Adapter.extend({
+    shouldReloadRecord: function(store, type, id, snapshot) {
+      ok(false, 'shouldReloadRecord should not be called when the record is not loaded');
+      return false;
+    },
+    find: function() {
+      ok(true, 'find is always called when the record is not in the store');
+      return { id: 1 };
+    }
+  });
+
+  store = createStore({
+    adapter: TestAdapter,
+    person: Person
+  });
+
+  run(function() {
+    store.findRecord('person', 1);
+  });
+});
+
+test("store should not reload record when shouldReloadRecord returns false", function() {
+  expect(1);
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var TestAdapter = DS.Adapter.extend({
+    shouldReloadRecord: function(store, type, id, snapshot) {
+      ok(true, 'shouldReloadRecord should be called when the record is in the store');
+      return false;
+    },
+    find: function() {
+      ok(false, 'find should not be called when shouldReloadRecord returns false');
+    }
+  });
+
+  store = createStore({
+    adapter: TestAdapter,
+    person: Person
+  });
+
+  run(function() {
+    store.push('person', { id: 1 });
+    store.findRecord('person', 1);
+  });
+});
+
+test("store should reload record when shouldReloadRecord returns true", function() {
+  expect(3);
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var TestAdapter = DS.Adapter.extend({
+    shouldReloadRecord: function(store, type, id, snapshot) {
+      ok(true, 'shouldReloadRecord should be called when the record is in the store');
+      return true;
+    },
+    find: function() {
+      ok(true, 'find should not be called when shouldReloadRecord returns false');
+      return { id: 1, name: 'Tom' };
+    }
+  });
+
+  store = createStore({
+    adapter: TestAdapter,
+    person: Person
+  });
+
+  run(function() {
+    store.push('person', { id: 1 });
+    store.findRecord('person', 1).then(function(record) {
+      equal(record.get('name'), 'Tom');
+    });
+  });
+});
+
+test("store should not call shouldBackgroundReloadRecord when the store is already loading the record", function() {
+  expect(2);
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var TestAdapter = DS.Adapter.extend({
+    shouldReloadRecord: function(store, type, id, snapshot) {
+      return true;
+    },
+    shouldBackgroundReloadRecord: function(store, type, id, snapshot) {
+      ok(false, 'shouldBackgroundReloadRecord is not called when shouldReloadRecord returns true');
+    },
+    find: function() {
+      ok(true, 'find should be called');
+      return { id: 1, name: 'Tom' };
+    }
+  });
+
+  store = createStore({
+    adapter: TestAdapter,
+    person: Person
+  });
+
+  run(function() {
+    store.push('person', { id: 1 });
+    store.findRecord('person', 1).then(function(record) {
+      equal(record.get('name'), 'Tom');
+    });
+  });
+});
+
+test("store should not reload a record when `shouldBackgroundReloadRecord` is false", function() {
+  expect(2);
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var TestAdapter = DS.Adapter.extend({
+    shouldBackgroundReloadRecord: function(store, type, id, snapshot) {
+      ok(true, 'shouldBackgroundReloadRecord is called when record is loaded form the cache');
+      return false;
+    },
+    find: function() {
+      ok(false, 'find should not be called');
+      return { id: 1, name: 'Tom' };
+    }
+  });
+
+  store = createStore({
+    adapter: TestAdapter,
+    person: Person
+  });
+
+  run(function() {
+    store.push('person', { id: 1 });
+    store.findRecord('person', 1).then(function(record) {
+      equal(record.get('name'), undefined);
+    });
+  });
+});
+
+
+test("store should reload the record in the background when `shouldBackgroundReloadRecord` is true", function() {
+  expect(4);
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var TestAdapter = DS.Adapter.extend({
+    shouldBackgroundReloadRecord: function(store, type, id, snapshot) {
+      ok(true, 'shouldBackgroundReloadRecord is called when record is loaded form the cache');
+      return true;
+    },
+    find: function() {
+      ok(true, 'find should not be called');
+      return { id: 1, name: 'Tom' };
+    }
+  });
+
+  store = createStore({
+    adapter: TestAdapter,
+    person: Person
+  });
+
+  run(function() {
+    store.push('person', { id: 1 });
+    store.findRecord('person', 1).then(function(record) {
+      equal(record.get('name'), undefined);
+    });
+  });
+
+  equal(store.peekRecord('person', 1).get('name'), 'Tom');
+});
+
+
+test("store should not call shouldReloadAll when the recordArary is not loaded", function() {
+  expect(1);
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var TestAdapter = DS.Adapter.extend({
+    shouldReloadAll: function(store, type, id, snapshot) {
+      ok(false, 'shouldReloadRecord should not be called when the record is not loaded');
+      return false;
+    },
+    findAll: function() {
+      ok(true, 'find is always called when the record is not in the store');
+      return [{ id: 1 }];
+    }
+  });
+
+  store = createStore({
+    adapter: TestAdapter,
+    person: Person
+  });
+
+  run(function() {
+    store.findAll('person');
+  });
+});
+
+test("store should not reload record array when shouldReloadAll returns false", function() {
+  expect(1);
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var TestAdapter = DS.Adapter.extend({
+    shouldReloadAll: function(store, snapshot) {
+      ok(true, 'shouldReloadAll should be called when the record is in the store');
+      return false;
+    },
+    shouldBackgroundReloadAll: function(store, snapshot) {
+      return false;
+    },
+    findAll: function() {
+      ok(false, 'findAll should not be called when shouldReloadAll returns false');
+    }
+  });
+
+  store = createStore({
+    adapter: TestAdapter,
+    person: Person
+  });
+
+  run(function() {
+    store.peekAll('person').set('__isLoaded', true);
+    store.find('person');
+  });
+});
+
+test("store should reload all records when shouldReloadAll returns true", function() {
+  expect(3);
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var TestAdapter = DS.Adapter.extend({
+    shouldReloadAll: function(store, type, id, snapshot) {
+      ok(true, 'shouldReloadAll should be called when the record is in the store');
+      return true;
+    },
+    findAll: function() {
+      ok(true, 'findAll should be called when shouldReloadAll returns true');
+      return [{ id: 1, name: 'Tom' }];
+    }
+  });
+
+  store = createStore({
+    adapter: TestAdapter,
+    person: Person
+  });
+
+  run(function() {
+    store.peekAll('person').set('__isLoaded', true);
+    store.findAll('person').then(function(records) {
+      equal(records.get('firstObject.name'), 'Tom');
+    });
+  });
+});
+
+test("store should not call shouldBackgroundReloadAll when the store is already loading all records", function() {
+  expect(2);
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var TestAdapter = DS.Adapter.extend({
+    shouldReloadAll: function(store, type, id, snapshot) {
+      return true;
+    },
+    shouldBackgroundReloadAll: function(store, type, id, snapshot) {
+      ok(false, 'shouldBackgroundReloadRecord is not called when shouldReloadRecord returns true');
+    },
+    findAll: function() {
+      ok(true, 'find should be called');
+      return [{ id: 1, name: 'Tom' }];
+    }
+  });
+
+  store = createStore({
+    adapter: TestAdapter,
+    person: Person
+  });
+
+  run(function() {
+    store.peekAll('person').set('__isLoaded', true);
+    store.findAll('person').then(function(records) {
+      equal(records.get('firstObject.name'), 'Tom');
+    });
+  });
+});
+
+test("store should not reload all records when `shouldBackgroundReloadAll` is false", function() {
+  expect(3);
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var TestAdapter = DS.Adapter.extend({
+    shouldReloadAll: function(store, type, id, snapshot) {
+      ok(true, 'shouldReloadAll is called when record is loaded form the cache');
+      return false;
+    },
+    shouldBackgroundReloadAll: function(store, type, id, snapshot) {
+      ok(true, 'shouldBackgroundReloadAll is called when record is loaded form the cache');
+      return false;
+    },
+    findAll: function() {
+      ok(false, 'findAll should not be called');
+      return [{ id: 1, name: 'Tom' }];
+    }
+  });
+
+  store = createStore({
+    adapter: TestAdapter,
+    person: Person
+  });
+
+  run(function() {
+    store.peekAll('person').set('__isLoaded', true);
+    store.findAll('person').then(function(records) {
+      equal(records.get('firstObject'), undefined);
+    });
+  });
+});
+
+
+test("store should reload all records in the background when `shouldBackgroundReloadAll` is true", function() {
+  expect(5);
+
+  var Person = DS.Model.extend({
+    name: DS.attr('string')
+  });
+
+  var TestAdapter = DS.Adapter.extend({
+    shouldReloadAll: function() {
+      ok(true, 'shouldReloadAll is called');
+      return false;
+    },
+    shouldBackgroundReloadAll: function(store, snapshot) {
+      ok(true, 'shouldBackgroundReloadAll is called when record is loaded form the cache');
+      return true;
+    },
+    findAll: function() {
+      ok(true, 'find should not be called');
+      return [{ id: 1, name: 'Tom' }];
+    }
+  });
+
+  store = createStore({
+    adapter: TestAdapter,
+    person: Person
+  });
+
+  run(function() {
+    store.peekAll('person').set('__isLoaded', true);
+    store.findAll('person').then(function(records) {
+      equal(records.get('firstObject.name'), undefined);
+    });
+  });
+
+  equal(store.peekRecord('person', 1).get('name'), 'Tom');
+});
+
+
 module("unit/store/adapter_interop - find preload deprecations", {
   setup: function() {
     var Person = DS.Model.extend({

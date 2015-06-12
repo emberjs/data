@@ -448,6 +448,85 @@ var Adapter = Ember.Object.extend({
   */
   groupRecordsForFindMany: function(store, snapshots) {
     return [snapshots];
+  },
+
+
+  /**
+    This method is used by the store to determine if the store should
+    reload a record from the adapter when a record is requested by
+    `store.findRecord`.
+
+    If this method returns true the store will re fetch a record form
+    the adapter. If is method returns false the store will resolve
+    immediately using the cached record.
+
+    @method shouldReloadRecord
+    @param {DS.Store} store
+    @param {DS.Snapshot} snapshot
+    @return {Boolean}
+  */
+  shouldReloadRecord: function(store, snapshot) {
+    return false;
+  },
+
+  /**
+    This method is used by the store to determine if the store should
+    reload all records from the adapter when records are requested by
+    `store.findAll`.
+
+    If this method returns true the store will re fetch all records form
+    the adapter. If is method returns false the store will resolve
+    immediately using the cached record.
+
+    @method shouldReloadRecord
+    @param {DS.Store} store
+    @param {DS.SnapshotRecordArray} snapshotRecordArray
+    @return {Boolean}
+  */
+  shouldReloadAll: function(store, snapshotRecordArray) {
+    Ember.deprecate('The default behavior of `shouldBackgroundReloadAll` will change in Ember Data 2.0 to always return false. If you would like to preserve the current behavior please override `shouldReloadAll` in you adapter:application and return true.');
+    return true;
+  },
+
+  /**
+    This method is used by the store to determine if the store should
+    reload a record after the `store.findRecord` method resolves a
+    chached record.
+
+    This method is *only* checked by the store when the store is
+    returning a cached record.
+
+    If this method returns true the store will re-fetch a record form
+    the adapter.
+
+    @method shouldBackgroundReloadRecord
+    @param {DS.Store} store
+    @param {DS.Snapshot} snapshot
+    @return {Boolean}
+  */
+  shouldBackgroundReloadRecord: function(store, snapshot) {
+    Ember.deprecate('The default behavior of `shouldBackgroundReloadRecord` will change in Ember Data 2.0 to always return true. If you would like to preserve the current behavior please override `shouldBackgroundReloadRecord` in you adapter:application and return false.');
+    return false;
+  },
+
+  /**
+    This method is used by the store to determine if the store should
+    reload a record array after the `store.findAll` method resolves
+    with a chached record array.
+
+    This method is *only* checked by the store when the store is
+    returning a cached record array.
+
+    If this method returns true the store will re-fetch all records
+    form the adapter.
+
+    @method shouldBackgroundReloadAll
+    @param {DS.Store} store
+    @param {DS.SnapshotRecordArray} snapshotRecordArray
+    @return {Boolean}
+  */
+  shouldBackgroundReloadAll: function(store, snapshotRecordArray) {
+    return true;
   }
 });
 
