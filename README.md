@@ -6,7 +6,7 @@ Ember.js applications.
 Ember Data is designed to be agnostic to the underlying persistence
 mechanism, so it works just as well with JSON APIs over HTTP as it does
 with streaming WebSockets or local IndexedDB storage.
-
+n
 It provides many of the facilities you'd find in server-side ORMs like
 ActiveRecord, but is designed specifically for the unique environment of
 JavaScript in the browser.
@@ -78,7 +78,7 @@ export default DS.Model.extend({
 });
 ```
 
-If you're using globals (that is, not something like  or ember-cli), your
+If you're using globals (that is, not something like ember-cli), your
 models would look like this:
 
 ```js
