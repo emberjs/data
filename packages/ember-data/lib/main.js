@@ -10,6 +10,10 @@ if (Ember.VERSION.match(/^1\.[0-7]\./)) {
                         ". Please upgrade your version of Ember, then upgrade Ember Data");
 }
 
+if (Ember.VERSION.match(/^1\.12\.0/)) {
+  throw new Ember.Error("Ember Data does not work with Ember 1.12.0. Please upgrade to Ember 1.12.1 or higher.");
+}
+
 // support RSVP 2.x via resolve,  but prefer RSVP 3.x's Promise.cast
 Ember.RSVP.Promise.cast = Ember.RSVP.Promise.cast || Ember.RSVP.resolve;
 
