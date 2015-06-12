@@ -191,7 +191,7 @@ test("it should cache attributes", function() {
 });
 
 test("changedAttributes() return correct values", function() {
-  expect(3);
+  expect(4);
 
   var Mascot = DS.Model.extend({
     name: DS.attr('string'),
@@ -210,18 +210,20 @@ test("changedAttributes() return correct values", function() {
     mascot = store.push('mascot', { id: 1, likes: 'JavaScript', isMascot: true });
   });
 
-  deepEqual({}, mascot.changedAttributes(), 'there are no initial changes');
+  equal(Ember.keys(mascot.changedAttributes()).length, 0, 'there are no initial changes');
   run(function() {
     mascot.set('name', 'Tomster');   // new value
     mascot.set('likes', 'Ember.js'); // changed value
     mascot.set('isMascot', true);    // same value
   });
-  deepEqual({ name: [undefined, 'Tomster'], likes: ['JavaScript', 'Ember.js'] }, mascot.changedAttributes(), 'attributes has changed');
+  var changedAttributes = mascot.changedAttributes();
+  deepEqual(changedAttributes.name, [undefined, 'Tomster']);
+  deepEqual(changedAttributes.likes, ['JavaScript', 'Ember.js']);
 
   run(function() {
     mascot.rollbackAttributes();
   });
-  deepEqual({}, mascot.changedAttributes(), 'after rollback attributes there are no changes');
+  equal(Ember.keys(mascot.changedAttributes()).length, 0, 'after rollback attributes there are no changes');
 });
 
 test("a DS.Model does not require an attribute type", function() {

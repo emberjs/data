@@ -93,18 +93,18 @@ test("a record's changes can be made if it fails to save", function() {
     person.set('firstName', "Thomas");
   });
 
-  deepEqual(person.changedAttributes(), { firstName: ["Tom", "Thomas"] });
+  deepEqual(person.changedAttributes().firstName, ["Tom", "Thomas"]);
 
   run(function() {
     person.save().then(null, function() {
       equal(person.get('isError'), true);
-      deepEqual(person.changedAttributes(), { firstName: ["Tom", "Thomas"] });
+      deepEqual(person.changedAttributes().firstName, ["Tom", "Thomas"]);
 
       person.rollbackAttributes();
 
       equal(person.get('firstName'), "Tom");
       equal(person.get('isError'), false);
-      deepEqual(person.changedAttributes(), {});
+      equal(Ember.keys(person.changedAttributes()).length, 0);
     });
   });
 });

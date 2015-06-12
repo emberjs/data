@@ -67,24 +67,26 @@ test("snapshot.id, snapshot.type and snapshot.modelName returns correctly", func
   });
 });
 
-test("snapshot.constructor is unique and deprecated", function() {
-  expect(4);
+if (Ember.platform.hasPropertyAccessors) {
+  test("snapshot.constructor is unique and deprecated", function() {
+    expect(4);
 
-  run(function() {
-    var comment = env.store.push('comment', { id: 1, body: 'This is comment' });
-    var post = env.store.push('post', { id: 2, title: 'Hello World' });
-    var commentSnapshot = comment._createSnapshot();
-    var postSnapshot = post._createSnapshot();
+    run(function() {
+      var comment = env.store.push('comment', { id: 1, body: 'This is comment' });
+      var post = env.store.push('post', { id: 2, title: 'Hello World' });
+      var commentSnapshot = comment._createSnapshot();
+      var postSnapshot = post._createSnapshot();
 
-    expectDeprecation(function() {
-      equal(commentSnapshot.constructor.modelName, 'comment', 'constructor.modelName is unique per type');
-    });
+      expectDeprecation(function() {
+        equal(commentSnapshot.constructor.modelName, 'comment', 'constructor.modelName is unique per type');
+      });
 
-    expectDeprecation(function() {
-      equal(postSnapshot.constructor.modelName, 'post', 'constructor.modelName is unique per type');
+      expectDeprecation(function() {
+        equal(postSnapshot.constructor.modelName, 'post', 'constructor.modelName is unique per type');
+      });
     });
   });
-});
+}
 
 test("snapshot.attr() does not change when record changes", function() {
   expect(2);
@@ -135,7 +137,7 @@ test("snapshot.changedAttributes() returns a copy of all changed attributes for 
 
     var changes = snapshot.changedAttributes();
 
-    deepEqual(changes, { title: ['Hello World', 'Hello World!'] }, 'changed attributes are returned correctly');
+    deepEqual(changes.title, ['Hello World', 'Hello World!'], 'changed attributes are returned correctly');
   });
 });
 
@@ -651,16 +653,18 @@ test("snapshot.serialize() serializes itself", function() {
   });
 });
 
-test('snapshot.typeKey is deprecated', function() {
-  expect(1);
+if (Ember.platform.hasPropertyAccessors) {
+  test('snapshot.typeKey is deprecated', function() {
+    expect(1);
 
-  run(function() {
-    var post = env.store.push('post', { id: 1, title: 'Hello World' });
-    var snapshot = post._createSnapshot();
+    run(function() {
+      var post = env.store.push('post', { id: 1, title: 'Hello World' });
+      var snapshot = post._createSnapshot();
 
-    expectDeprecation(function() {
-      return snapshot.typeKey;
+      expectDeprecation(function() {
+        return snapshot.typeKey;
+      });
     });
-  });
 
-});
+  });
+}
