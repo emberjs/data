@@ -275,15 +275,15 @@ test("Calling attr(), belongsTo() or hasMany() throws a warning", function() {
 
     throws(function() {
       person.attr();
-    }, /The `attr` method is not available on DS.Model, a DS.Snapshot was probably expected/, "attr() throws a warning");
+    }, /The `attr` method is not available on DS.Model, a DS.AdapterSnapshot was probably expected/, "attr() throws a warning");
 
     throws(function() {
       person.belongsTo();
-    }, /The `belongsTo` method is not available on DS.Model, a DS.Snapshot was probably expected/, "belongTo() throws a warning");
+    }, /The `belongsTo` method is not available on DS.Model, a DS.AdapterSnapshot was probably expected/, "belongTo() throws a warning");
 
     throws(function() {
       person.hasMany();
-    }, /The `hasMany` method is not available on DS.Model, a DS.Snapshot was probably expected/, "hasMany() throws a warning");
+    }, /The `hasMany` method is not available on DS.Model, a DS.AdapterSnapshot was probably expected/, "hasMany() throws a warning");
   });
 });
 

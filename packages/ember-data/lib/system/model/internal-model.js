@@ -1,7 +1,7 @@
 import merge from "ember-data/system/merge";
 import RootState from "ember-data/system/model/states";
 import Relationships from "ember-data/system/relationships/state/create";
-import Snapshot from "ember-data/system/snapshot";
+import AdapterSnapshot from "ember-data/system/adapter-snapshot";
 import Errors from "ember-data/system/model/errors";
 
 var Promise = Ember.RSVP.Promise;
@@ -222,7 +222,7 @@ InternalModel.prototype = {
     @private
   */
   createSnapshot: function() {
-    return new Snapshot(this);
+    return new AdapterSnapshot(this);
   },
 
   /**

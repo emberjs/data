@@ -165,7 +165,7 @@ var ActiveModelSerializer = RESTSerializer.extend({
     Serializes a polymorphic type as a fully capitalized model name.
 
     @method serializePolymorphicType
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */

@@ -761,15 +761,15 @@ var Model = Ember.Object.extend(Ember.Evented, {
   },
 
   attr: function() {
-    Ember.assert("The `attr` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
+    Ember.assert("The `attr` method is not available on DS.Model, a DS.AdapterSnapshot was probably expected. Are you passing a DS.Model instead of a DS.AdapterSnapshot to your serializer?", false);
   },
 
   belongsTo: function() {
-    Ember.assert("The `belongsTo` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
+    Ember.assert("The `belongsTo` method is not available on DS.Model, a DS.AdapterSnapshot was probably expected. Are you passing a DS.Model instead of a DS.AdapterSnapshot to your serializer?", false);
   },
 
   hasMany: function() {
-    Ember.assert("The `hasMany` method is not available on DS.Model, a DS.Snapshot was probably expected. Are you passing a DS.Model instead of a DS.Snapshot to your serializer?", false);
+    Ember.assert("The `hasMany` method is not available on DS.Model, a DS.AdapterSnapshot was probably expected. Are you passing a DS.Model instead of a DS.AdapterSnapshot to your serializer?", false);
   }
 });
 

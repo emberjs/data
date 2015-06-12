@@ -887,7 +887,7 @@ var RESTSerializer = JSONSerializer.extend({
     ```
 
     @method serialize
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @param {Object} options
     @return {Object} json
   */
@@ -916,7 +916,7 @@ var RESTSerializer = JSONSerializer.extend({
     @method serializeIntoHash
     @param {Object} hash
     @param {DS.Model} typeClass
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @param {Object} options
   */
   serializeIntoHash: function(hash, typeClass, snapshot, options) {
@@ -992,7 +992,7 @@ var RESTSerializer = JSONSerializer.extend({
     the attribute and value from the model's camelcased model name.
 
     @method serializePolymorphicType
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */

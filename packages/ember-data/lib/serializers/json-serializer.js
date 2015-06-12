@@ -941,7 +941,7 @@ export default Serializer.extend({
     ```
 
     @method serialize
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @param {Object} options
     @return {Object} json
   */
@@ -994,7 +994,7 @@ export default Serializer.extend({
     @method serializeIntoHash
     @param {Object} hash
     @param {DS.Model} typeClass
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @param {Object} options
   */
   serializeIntoHash: function(hash, typeClass, snapshot, options) {
@@ -1021,7 +1021,7 @@ export default Serializer.extend({
    ```
 
    @method serializeAttribute
-   @param {DS.Snapshot} snapshot
+   @param {DS.AdapterSnapshot} snapshot
    @param {Object} json
    @param {String} key
    @param {Object} attribute
@@ -1071,7 +1071,7 @@ export default Serializer.extend({
    ```
 
    @method serializeBelongsTo
-   @param {DS.Snapshot} snapshot
+   @param {DS.AdapterSnapshot} snapshot
    @param {Object} json
    @param {Object} relationship
   */
@@ -1123,7 +1123,7 @@ export default Serializer.extend({
    ```
 
    @method serializeHasMany
-   @param {DS.Snapshot} snapshot
+   @param {DS.AdapterSnapshot} snapshot
    @param {Object} json
    @param {Object} relationship
   */
@@ -1171,7 +1171,7 @@ export default Serializer.extend({
     ```
 
     @method serializePolymorphicType
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @param {Object} json
     @param {Object} relationship
   */

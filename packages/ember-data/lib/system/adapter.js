@@ -118,7 +118,7 @@ var Adapter = Ember.Object.extend({
     @param {DS.Store} store
     @param {DS.Model} type
     @param {String} id
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @return {Promise} promise
   */
   find: null,
@@ -237,7 +237,7 @@ var Adapter = Ember.Object.extend({
     ```
 
     @method serialize
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @param {Object}   options
     @return {Object} serialized snapshot
   */
@@ -281,7 +281,7 @@ var Adapter = Ember.Object.extend({
     @method createRecord
     @param {DS.Store} store
     @param {DS.Model} type   the DS.Model class of the record
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @return {Promise} promise
   */
   createRecord: null,
@@ -323,7 +323,7 @@ var Adapter = Ember.Object.extend({
     @method updateRecord
     @param {DS.Store} store
     @param {DS.Model} type   the DS.Model class of the record
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @return {Promise} promise
   */
   updateRecord: null,
@@ -365,7 +365,7 @@ var Adapter = Ember.Object.extend({
     @method deleteRecord
     @param {DS.Store} store
     @param {DS.Model} type   the DS.Model class of the record
-    @param {DS.Snapshot} snapshot
+    @param {DS.AdapterSnapshot} snapshot
     @return {Promise} promise
   */
   deleteRecord: null,
