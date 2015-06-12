@@ -579,10 +579,12 @@ var Model = Ember.Object.extend(Ember.Evented, {
     var oldData = get(this._internalModel, '_data');
     var newData = get(this._internalModel, '_attributes');
     var diffData = Ember.create(null);
-    var prop;
 
-    for (prop in newData) {
-      diffData[prop] = [oldData[prop], newData[prop]];
+    var newDataKeys = Ember.keys(newData);
+
+    for (let i = 0, length = newDataKeys.length; i < length; i++) {
+      let key = newDataKeys[i];
+      diffData[key] = [oldData[key], newData[key]];
     }
 
     return diffData;

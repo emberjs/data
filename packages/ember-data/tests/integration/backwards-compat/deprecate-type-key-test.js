@@ -11,14 +11,16 @@ module('integration/backwards-compat/deprecate-type-key', {
   }
 });
 
-test('typeKey is deprecated', function() {
-  expectDeprecation(function() {
-    return Post.typeKey;
+if (Ember.platform.hasPropertyAccessors) {
+  test('typeKey is deprecated', function() {
+    expectDeprecation(function() {
+      return Post.typeKey;
+    });
   });
-});
 
-test('setting typeKey is not allowed', function() {
-  throws(function() {
-    Post.typeKey = 'hello';
+  test('setting typeKey is not allowed', function() {
+    throws(function() {
+      Post.typeKey = 'hello';
+    });
   });
-});
+}

@@ -165,11 +165,12 @@ Snapshot.prototype = {
     @return {Object} All changed attributes of the current snapshot
   */
   changedAttributes: function() {
-    var prop;
-    var changedAttributes = Ember.create(null);
+    let changedAttributes = Ember.create(null);
+    let changedAttributeKeys = Ember.keys(this._changedAttributes);
 
-    for (prop in this._changedAttributes) {
-      changedAttributes[prop] = Ember.copy(this._changedAttributes[prop]);
+    for (let i=0, length = changedAttributeKeys.length; i < length; i++) {
+      let key = changedAttributeKeys[i];
+      changedAttributes[key] = Ember.copy(this._changedAttributes[key]);
     }
 
     return changedAttributes;
