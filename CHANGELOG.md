@@ -2,6 +2,13 @@
 
 ### Master
 
+### Release 1.0.0-beta.19.2 (June 12, 2015)
+
+- Fix a regression with Ember CLI users who have defined a custom
+  store in `app/store.js` - https://github.com/emberjs/data/pull/3316
+- Fix a regression where `currentState` was not defined on a record
+  until the record a state change occured. https://github.com/emberjs/data/pull/3311
+
 ### Release 1.0.0-beta.19.1 (June 9, 2015)
 
 - Fix a regression where a `DS.Model`'s `InternalModel` would not be set
