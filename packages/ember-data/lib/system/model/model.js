@@ -623,7 +623,7 @@ var Model = Ember.Object.extend(Ember.Evented, {
     ```
 
     @method rollback
-    @deprecated Use `addAttributes()` instead
+    @deprecated Use `rollbackAttributes()` instead
   */
   rollback: function() {
     Ember.deprecate('Using model.rollback() has been deprecated. Use model.rollbackAttributes() to discard any unsaved changes to a model.');
