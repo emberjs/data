@@ -605,7 +605,7 @@ Store = Service.extend({
     }
 
     if (internalModel.isEmpty()) {
-      fetchedInternalModel = this.scheduleFetch(internalModel);
+      fetchedInternalModel = this.scheduleFetch(internalModel, options);
       //TODO double check about reloading
     } else if (internalModel.isLoading()) {
       fetchedInternalModel = internalModel._loadingPromise;
@@ -641,8 +641,9 @@ Store = Service.extend({
     @private
     @param {InternalModel} internalModel model
     @return {Promise} promise
-  */
-  fetchRecord: function(internalModel) {
+   */
+  // TODO rename this to have an underscore
+  fetchRecord: function(internalModel, options) {
     var typeClass = internalModel.type;
     var id = internalModel.id;
     var adapter = this.adapterFor(typeClass.modelName);
@@ -650,7 +651,7 @@ Store = Service.extend({
     Ember.assert("You tried to find a record but you have no adapter (for " + typeClass + ")", adapter);
     Ember.assert("You tried to find a record but your adapter (for " + typeClass + ") does not implement 'find'", typeof adapter.find === 'function');
 
-    var promise = _find(adapter, this, typeClass, id, internalModel);
+    var promise = _find(adapter, this, typeClass, id, internalModel, options);
     return promise;
   },
 
@@ -659,24 +660,25 @@ Store = Service.extend({
     return Promise.all(map(internalModels, this.scheduleFetch, this));
   },
 
-  scheduleFetch: function(internalModel) {
+  scheduleFetch: function(internalModel, options) {
     var typeClass = internalModel.type;
 
     if (internalModel._loadingPromise) { return internalModel._loadingPromise; }
 
     var resolver = Ember.RSVP.defer('Fetching ' + typeClass + 'with id: ' + internalModel.id);
-    var recordResolverPair = {
+    var pendingFetchItem = {
       record: internalModel,
-      resolver: resolver
+      resolver: resolver,
+      options: options
     };
     var promise = resolver.promise;
 
     internalModel.loadingData(promise);
 
     if (!this._pendingFetch.get(typeClass)) {
-      this._pendingFetch.set(typeClass, [recordResolverPair]);
+      this._pendingFetch.set(typeClass, [pendingFetchItem]);
     } else {
-      this._pendingFetch.get(typeClass).push(recordResolverPair);
+      this._pendingFetch.get(typeClass).push(pendingFetchItem);
     }
     Ember.run.scheduleOnce('afterRender', this, this.flushAllPendingFetches);
 
@@ -692,19 +694,19 @@ Store = Service.extend({
     this._pendingFetch = Map.create();
   },
 
-  _flushPendingFetchForType: function (recordResolverPairs, typeClass) {
+  _flushPendingFetchForType: function (pendingFetchItems, typeClass) {
     var store = this;
     var adapter = store.adapterFor(typeClass.modelName);
     var shouldCoalesce = !!adapter.findMany && adapter.coalesceFindRequests;
-    var records = Ember.A(recordResolverPairs).mapBy('record');
+    var records = Ember.A(pendingFetchItems).mapBy('record');
 
     function _fetchRecord(recordResolverPair) {
-      recordResolverPair.resolver.resolve(store.fetchRecord(recordResolverPair.record));
+      recordResolverPair.resolver.resolve(store.fetchRecord(recordResolverPair.record, recordResolverPair.options)); // TODO adapter options
     }
 
     function resolveFoundRecords(records) {
       forEach(records, function(record) {
-        var pair = Ember.A(recordResolverPairs).findBy('record', record);
+        var pair = Ember.A(pendingFetchItems).findBy('record', record);
         if (pair) {
           var resolver = pair.resolver;
           resolver.resolve(record);
@@ -734,7 +736,7 @@ Store = Service.extend({
 
     function rejectRecords(records, error) {
       forEach(records, function(record) {
-        var pair = Ember.A(recordResolverPairs).findBy('record', record);
+        var pair = Ember.A(pendingFetchItems).findBy('record', record);
         if (pair) {
           var resolver = pair.resolver;
           resolver.reject(error);
@@ -742,8 +744,8 @@ Store = Service.extend({
       });
     }
 
-    if (recordResolverPairs.length === 1) {
-      _fetchRecord(recordResolverPairs[0]);
+    if (pendingFetchItems.length === 1) {
+      _fetchRecord(pendingFetchItems[0]);
     } else if (shouldCoalesce) {
 
       // TODO: Improve records => snapshots => records => snapshots
@@ -769,14 +771,14 @@ Store = Service.extend({
             then(makeMissingRecordsRejector(requestedRecords)).
             then(null, makeRecordsRejector(requestedRecords));
         } else if (ids.length === 1) {
-          var pair = Ember.A(recordResolverPairs).findBy('record', groupOfRecords[0]);
+          var pair = Ember.A(pendingFetchItems).findBy('record', groupOfRecords[0]);
           _fetchRecord(pair);
         } else {
           Ember.assert("You cannot return an empty array from adapter's method groupRecordsForFindMany", false);
         }
       });
     } else {
-      forEach(recordResolverPairs, _fetchRecord);
+      forEach(pendingFetchItems, _fetchRecord);
     }
   },
 
@@ -1043,13 +1045,14 @@ Store = Service.extend({
 
     @method findAll
     @param {String} modelName
+    @param {Object} options
     @return {DS.AdapterPopulatedRecordArray}
   */
-  findAll: function(modelName) {
+  findAll: function(modelName, options) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var typeClass = this.modelFor(modelName);
 
-    return this._fetchAll(typeClass, this.peekAll(modelName));
+    return this._fetchAll(typeClass, this.peekAll(modelName), options);
   },
 
   /**
@@ -1059,7 +1062,7 @@ Store = Service.extend({
     @param {DS.RecordArray} array
     @return {Promise} promise
   */
-  _fetchAll: function(typeClass, array) {
+  _fetchAll: function(typeClass, array, options) {
     var adapter = this.adapterFor(typeClass.modelName);
     var sinceToken = this.typeMapFor(typeClass).metadata.since;
 
@@ -1068,7 +1071,7 @@ Store = Service.extend({
     Ember.assert("You tried to load all records but you have no adapter (for " + typeClass + ")", adapter);
     Ember.assert("You tried to load all records but your adapter does not implement `findAll`", typeof adapter.findAll === 'function');
 
-    return promiseArray(_findAll(adapter, this, typeClass, sinceToken));
+    return promiseArray(_findAll(adapter, this, typeClass, sinceToken, options));
   },
 
   /**
@@ -1349,12 +1352,16 @@ Store = Service.extend({
     @private
     @param {InternalModel} internalModel
     @param {Resolver} resolver
+    @param {Object} options
   */
-  scheduleSave: function(internalModel, resolver) {
-    var snapshot = internalModel.createSnapshot();
+  scheduleSave: function(internalModel, resolver, options) {
+    var snapshot = internalModel.createSnapshot(options);
     internalModel.flushChangedAttributes();
     internalModel.adapterWillCommit();
-    this._pendingSave.push([snapshot, resolver]);
+    this._pendingSave.push({
+      snapshot: snapshot,
+      resolver: resolver
+    });
     once(this, 'flushPendingSave');
   },
 
@@ -1369,9 +1376,9 @@ Store = Service.extend({
     var pending = this._pendingSave.slice();
     this._pendingSave = [];
 
-    forEach(pending, function(tuple) {
-      var snapshot = tuple[0];
-      var resolver = tuple[1];
+    forEach(pending, function(pendingItem) {
+      var snapshot = pendingItem.snapshot;
+      var resolver = pendingItem.resolver;
       var record = snapshot._internalModel;
       var adapter = this.adapterFor(record.type.modelName);
       var operation;
