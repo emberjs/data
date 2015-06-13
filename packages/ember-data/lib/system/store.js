@@ -501,26 +501,8 @@ Store = Service.extend({
   /**
     This method returns a fresh record for a given type and id combination.
 
-    If a record is available for the given type/id combination, then
-    it will fetch this record from the store and call `reload()` on it.
-    That will fire a request to server and return a promise that will
-    resolve once the record has been reloaded.
-    If there's no record corresponding in the store it will simply call
-    `store.find`.
-
-    Example
-
-    ```app/routes/post.js
-    import Ember from 'ember';
-
-    export default Ember.Route.extend({
-      model: function(params) {
-        return this.store.fetchById('post', params.post_id);
-      }
-    });
-    ```
-
     @method fetchById
+    @deprecated Use [findRecord](#method_findRecord) instead
     @param {String} modelName
     @param {(String|Integer)} id
     @param {Object} options
@@ -529,6 +511,7 @@ Store = Service.extend({
   fetchById: function(modelName, id, preload) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var options = deprecatePreload(preload, this.modelFor(modelName), 'fetchById');
+    Ember.deprecate('Using store.fetchById(type, id) has been deprecated. Use store.findRecord(type, id, { reload: true }) to reload a record for a given type.');
     if (this.hasRecordForId(modelName, id)) {
       return this.peekRecord(modelName, id).reload();
     } else {
@@ -541,12 +524,13 @@ Store = Service.extend({
     in the store or not.
 
     @method fetchAll
+    @deprecated Use [findAll](#method_findAll) instead
     @param {String} modelName
     @return {Promise} promise
   */
   fetchAll: function(modelName) {
-    Ember.deprecate('Using store.fetchAll(type) has been deprecated. Use store.findAll(type) to retrieve all records for a given type.');
-    return this.findAll(modelName);
+    Ember.deprecate('Using store.fetchAll(type) has been deprecated. Use store.findAll(type, { reload: true }) to retrieve all records for a given type.');
+    return this.findAll(modelName, { reload: true });
   },
 
   /**
@@ -555,12 +539,12 @@ Store = Service.extend({
     @param {(String|Integer)} id
     @param {Object} preload - optional set of attributes and relationships passed in either as IDs or as actual models
     @return {Promise} promise
-    @deprecated Use [fetchById](#method_fetchById) instead
+    @deprecated Use [findRecord](#method_findRecord) instead
   */
   fetch: function(modelName, id, preload) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    Ember.deprecate('Using store.fetch() has been deprecated. Use store.fetchById for fetching individual records or store.fetchAll for collections');
-    return this.fetchById(modelName, id, preload);
+    Ember.deprecate('Using store.fetch() has been deprecated. Use store.findRecord for fetching individual records or store.fetchAll for collections');
+    return this.findRecord(modelName, id, { reload: true, preload: preload });
   },
 
   /**
@@ -582,6 +566,40 @@ Store = Service.extend({
   /**
     This method returns a record for a given type and id combination.
 
+    The `find` method will always return a **promise** that will be
+    resolved with the record. If the record was already in the store,
+    the promise will be resolved immediately. Otherwise, the store
+    will ask the adapter's `find` method to find the necessary data.
+
+    The `find` method will always resolve its promise with the same
+    object for a given type and `id`.
+
+    Example
+
+    ```app/routes/post.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
+      model: function(params) {
+        return this.store.findRecord('post', params.post_id);
+      }
+    });
+    ```
+
+    If you would like to force the record to reload, instead of
+    loading it from the cache when present you can set `reload: true`
+    in the options object for `findRecord`.
+
+    ```app/routes/post/edit.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
+      model: function(params) {
+        return this.store.findRecord('post', params.post_id, { reload: true });
+      }
+    });
+    ```
+
     @method findRecord
     @param {String} modelName
     @param {(String|Integer)} id
@@ -591,7 +609,11 @@ Store = Service.extend({
   findRecord: function(modelName, id, options) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
     var internalModel = this._internalModelForId(modelName, id);
+    options = options || {};
 
+    if (options.reload && this.hasRecordForId(modelName, id)) {
+      return this.peekRecord(modelName, id).reload();
+    }
     return this._findByInternalModel(internalModel, options);
   },
 
@@ -1039,9 +1061,21 @@ Store = Service.extend({
   },
 
   /**
-    This method returns an array of all records adapter can find.
-    It triggers the adapter's `findAll` method to give it an opportunity to populate
-    the array with records of that type.
+    `findAll` ask the adapter's `findAll` method to find the records
+    for the given type, and return a promise that will be resolved
+    once the server returns the values. The promise will resolve into
+    all records of this type present in the store, even if the server
+    only returns a subset of them.
+
+    ```app/routes/authors.js
+    import Ember from 'ember';
+
+    export default Ember.Route.extend({
+      model: function(params) {
+        return this.store.findAll('author');
+      }
+    });
+    ```
 
     @method findAll
     @param {String} modelName

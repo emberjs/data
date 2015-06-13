@@ -115,8 +115,7 @@ export default Ember.ArrayProxy.extend(Ember.Evented, {
     var store = get(this, 'store');
     var modelName = get(this, 'type.modelName');
 
-    // TODO change this to store.findAll(modelName, { reload: true });
-    return store.findAll(modelName);
+    return store.findAll(modelName, { reload: true });
   },
 
   /**
