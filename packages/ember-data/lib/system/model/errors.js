@@ -109,26 +109,12 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     @type {Ember.MapWithDefault}
     @private
   */
-  errorsByAttributeName: Ember.reduceComputed("content", {
-    initialValue: function() {
-      return MapWithDefault.create({
-        defaultValue: function() {
-          return Ember.A();
-        }
-      });
-    },
-
-    addedItem: function(errors, error) {
-      errors.get(error.attribute).pushObject(error);
-
-      return errors;
-    },
-
-    removedItem: function(errors, error) {
-      errors.get(error.attribute).removeObject(error);
-
-      return errors;
-    }
+  errorsByAttributeName: Ember.computed(function() {
+    return MapWithDefault.create({
+      defaultValue: function() {
+        return Ember.A();
+      }
+    });
   }),
 
   /**
@@ -234,6 +220,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
 
     messages = this._findOrCreateMessages(attribute, messages);
     get(this, 'content').addObjects(messages);
+    get(this, 'errorsByAttributeName').get(attribute).addObjects(messages);
 
     this.notifyPropertyChange(attribute);
     this.enumerableContentDidChange();
@@ -297,6 +284,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
 
     var content = get(this, 'content').rejectBy('attribute', attribute);
     get(this, 'content').setObjects(content);
+    get(this, 'errorsByAttributeName').delete(attribute);
 
     this.notifyPropertyChange(attribute);
     this.enumerableContentDidChange();
@@ -331,6 +319,7 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     if (get(this, 'isEmpty')) { return; }
 
     get(this, 'content').clear();
+    get(this, 'errorsByAttributeName').clear();
     this.enumerableContentDidChange();
 
     this.trigger('becameValid');
