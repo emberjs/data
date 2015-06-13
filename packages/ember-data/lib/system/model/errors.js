@@ -110,6 +110,8 @@ export default Ember.Object.extend(Ember.Enumerable, Ember.Evented, {
     @private
   */
   errorsByAttributeName: Ember.reduceComputed("content", {
+    _suppressDeprecation: true,
+
     initialValue: function() {
       return MapWithDefault.create({
         defaultValue: function() {
