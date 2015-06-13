@@ -584,3 +584,15 @@ test("Calling push with unknown keys should not warn by default", function() {
     });
   }, /The payload for 'person' contains these unknown keys: \[emailAddress,isMascot\]. Make sure they've been defined in your model./);
 });
+
+test("Calling pushMany is deprecated", function() {
+  var person1, person2;
+  expectDeprecation(function() {
+    run(function() {
+      person1 = { id: 1, firstName: 'John', lastName: 'Smith' };
+      person2 = { id: 2, firstName: 'Suzie', lastName: 'Q' };
+
+      store.pushMany('person', [person1, person2]);
+    });
+  }, 'Using store.pushMany() has been deprecated since store.push() now handles multiple items. You should use store.push() instead.');
+});
