@@ -142,7 +142,7 @@ test("Only a record of the same type can be used with a monomorphic belongsTo re
     }).then(function(records) {
       expectAssertion(function() {
         records.post.set('user', records.comment);
-      }, /You can only add a 'user' record to this relationship/);
+      }, /You cannot add a record of type 'comment' to the 'post.user' relationship/);
     });
   });
 });
@@ -173,7 +173,7 @@ test("Only a record of the same base type can be used with a polymorphic belongs
 
       expectAssertion(function() {
         comment.set('message', records.user);
-      }, /You cannot add a 'user' record to the 'comment.message'. You can only add a 'message' record to this relationship./);
+      }, /You cannot add a record of type 'user' to the 'comment.message' relationship \(only 'message' allowed\)/);
     });
   });
 });

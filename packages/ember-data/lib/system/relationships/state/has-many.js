@@ -3,6 +3,8 @@ import Relationship from "ember-data/system/relationships/state/relationship";
 import OrderedSet from "ember-data/system/ordered-set";
 import ManyArray from "ember-data/system/many-array";
 
+import { assertPolymorphicType } from "ember-data/utils";
+
 var map = Ember.EnumerableUtils.map;
 
 var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
@@ -92,16 +94,7 @@ ManyRelationship.prototype.removeRecordFromOwn = function(record, idx) {
 };
 
 ManyRelationship.prototype.notifyRecordRelationshipAdded = function(record, idx) {
-  var typeClass = this.store.modelFor(this.relationshipMeta.type);
-  Ember.assert("You cannot add '" + record.type.modelName + "' records to the " + this.record.type.modelName + "." + this.key + " relationship (only '" + typeClass.modelName + "' allowed)", (function () {
-    if (typeClass.__isMixin) {
-      return typeClass.__mixin.detect(record.type.PrototypeMixin);
-    }
-    if (Ember.MODEL_FACTORY_INJECTIONS) {
-      typeClass = typeClass.superclass;
-    }
-    return typeClass.detect(record.type);
-  })());
+  assertPolymorphicType(this.record, this.relationshipMeta, record);
 
   this.record.notifyHasManyAdded(this.key, record, idx);
 };
