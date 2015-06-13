@@ -127,11 +127,11 @@ InternalModel.prototype = {
     this.send('deleteRecord');
   },
 
-  save: function() {
+  save: function(options) {
     var promiseLabel = "DS: Model#save " + this;
     var resolver = Ember.RSVP.defer(promiseLabel);
 
-    this.store.scheduleSave(this, resolver);
+    this.store.scheduleSave(this, resolver, options);
     return resolver.promise;
   },
 

@@ -16,9 +16,10 @@ import {
 var Promise = Ember.RSVP.Promise;
 var map = Ember.EnumerableUtils.map;
 
-export function _find(adapter, store, typeClass, id, internalModel) {
+export function _find(adapter, store, typeClass, id, internalModel, options) {
+  var adapterOptions = options && options.adapterOptions;
   var snapshot = internalModel.createSnapshot();
-  var promise = adapter.find(store, typeClass, id, snapshot);
+  var promise = adapter.find(store, typeClass, id, snapshot, adapterOptions);
   var serializer = serializerForAdapter(store, adapter, internalModel.type.modelName);
   var label = "DS: Handle Adapter#find of " + typeClass + " with id: " + id;
 
@@ -118,8 +119,9 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
   }, null, "DS: Extract payload of " + internalModel + " : " + relationship.type);
 }
 
-export function _findAll(adapter, store, typeClass, sinceToken) {
-  var promise = adapter.findAll(store, typeClass, sinceToken);
+export function _findAll(adapter, store, typeClass, sinceToken, options) {
+  var adapterOptions = options && options.adapterOptions;
+  var promise = adapter.findAll(store, typeClass, sinceToken, adapterOptions);
   var modelName = typeClass.modelName;
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Handle Adapter#findAll of " + typeClass;
@@ -139,9 +141,10 @@ export function _findAll(adapter, store, typeClass, sinceToken) {
   }, null, "DS: Extract payload of findAll " + typeClass);
 }
 
-export function _query(adapter, store, typeClass, query, recordArray) {
+export function _query(adapter, store, typeClass, query, recordArray, options) {
   var modelName = typeClass.modelName;
-  var promise = adapter.findQuery(store, typeClass, query, recordArray);
+  var adapterOptions = options && options.adapterOptions;
+  var promise = adapter.findQuery(store, typeClass, query, recordArray, adapterOptions);
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Handle Adapter#findQuery of " + typeClass;
 
