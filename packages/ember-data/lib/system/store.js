@@ -1901,6 +1901,7 @@ Store = Service.extend({
   */
   pushMany: function(modelName, datas) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
+    Ember.deprecate('Using store.pushMany() has been deprecated since store.push() now handles multiple items. You should use store.push() instead.');
     var length = datas.length;
     var result = new Array(length);
 
