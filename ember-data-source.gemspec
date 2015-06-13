@@ -12,7 +12,7 @@ Gem::Specification.new do |gem|
   gem.version       = Ember::Data::VERSION
   gem.license       = "MIT"
 
-  gem.add_dependency "ember-source", "~> 1.8"
+  gem.add_dependency "ember-source", ">= 1.8", "< 3.0"
 
   gem.files = %w(package.json) + Dir['dist/ember-data*.js', 'dist/ember-data.js.map', 'lib/ember/data/*.rb']
 end
