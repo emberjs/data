@@ -24,7 +24,7 @@ module("integration/application - Injecting a Custom Store", {
   setup: function() {
     run(function() {
       app = Application.create({
-        ApplicationStore: Store.extend({ isCustom: true }),
+        StoreService: Store.extend({ isCustom: true }),
         FooController: Controller.extend(),
         ApplicationView: View.extend(),
         BazController: {},
