@@ -596,3 +596,23 @@ test("Calling pushMany is deprecated", function() {
     });
   }, 'Using store.pushMany() has been deprecated since store.push() now handles multiple items. You should use store.push() instead.');
 });
+
+test("Calling push with a model in the relationship should be deprecated", function() {
+  var number1, person;
+  expectDeprecation(function() {
+    run(function() {
+      number1 = store.push('phone-number', {
+        id: 1,
+        number: '5551212',
+        person: 'someid'
+      });
+
+      person = store.push('person', {
+        id: 'someid',
+        firstName: 'John',
+        lastName: 'Smith',
+        phoneNumbers: [number1]
+      });
+    });
+  }, "You tried to push a record of type 'Person' with id 'someid' and passed a DS.Model instance as a value for the relationship 'phoneNumbers'. You should instead pass a numerical or string id to represent the record.");
+});
