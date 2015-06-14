@@ -143,7 +143,7 @@ export default Ember.Object.extend({
     var recordArrays = this.recordArraysForRecord(record);
     if (shouldBeInArray) {
       this._addRecordToRecordArray(array, record);
-    } else if (!shouldBeInArray) {
+    } else {
       recordArrays.delete(array);
       array.removeInternalModel(record);
     }
