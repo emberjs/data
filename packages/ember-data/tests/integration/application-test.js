@@ -117,7 +117,7 @@ if (Ember.inject && Ember.inject.service) {
     setup: function() {
       run(function() {
         app = Application.create({
-          DoodleService: Ember.Object.extend({ store: Ember.inject.service() })
+          DoodleService: Ember.Service.extend({ store: Ember.inject.service() })
         });
       });
 
