@@ -1254,6 +1254,24 @@ export default Serializer.extend({
     return this.extractArray(store, typeClass, payload, id, requestType);
   },
   /**
+    TODO: remove this in a couple of days
+
+    `extractQueryRecord` is a hook into the extract method used when a
+    call is made to `DS.Store#queryRecord`. By default this method is an
+    alias for [extractSingle](#method_extractSingle).
+
+    @method extractQueryRecord
+    @param {DS.Store} store
+    @param {DS.Model} typeClass
+    @param {Object} payload
+    @param {(String|Number)} id
+    @param {String} requestType
+    @return {Object} object A hash of deserialized object
+  */
+  extractQueryRecord: function(store, typeClass, payload, id, requestType) {
+    return this.extractSingle(store, typeClass, payload, id, requestType);
+  },
+  /**
     `extractFindMany` is a hook into the extract method used when a
     call is made to `DS.Store#findMany`. By default this method is
     alias for [extractArray](#method_extractArray).

@@ -165,3 +165,25 @@ export function _query(adapter, store, typeClass, query, recordArray) {
 
   }, null, "DS: Extract payload of findQuery " + typeClass);
 }
+
+export function _queryRecord(adapter, store, typeClass, query) {
+  var modelName = typeClass.modelName;
+  var promise = adapter.queryRecord(store, typeClass, query);
+  var serializer = serializerForAdapter(store, adapter, modelName);
+  var label = "DS: Handle Adapter#queryRecord of " + typeClass;
+
+  promise = Promise.cast(promise, label);
+  promise = _guard(promise, _bind(_objectIsAlive, store));
+
+  return promise.then(function(adapterPayload) {
+    var record;
+    store._adapterRun(function() {
+      var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'queryRecord');
+      //TODO Optimize
+      record = pushPayload(store, payload);
+    });
+
+    return record;
+
+  }, null, "DS: Extract payload of queryRecord " + typeClass);
+}
