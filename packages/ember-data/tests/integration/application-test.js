@@ -1,7 +1,6 @@
 var run = Ember.run;
 var Application = Ember.Application;
 var Controller = Ember.Controller;
-var View = Ember.View;
 var Store = DS.Store;
 var Namespace = Ember.Namespace;
 
@@ -24,9 +23,8 @@ module("integration/application - Injecting a Custom Store", {
   setup: function() {
     run(function() {
       app = Application.create({
-        ApplicationStore: Store.extend({ isCustom: true }),
+        StoreService: Store.extend({ isCustom: true }),
         FooController: Controller.extend(),
-        ApplicationView: View.extend(),
         BazController: {},
         ApplicationController: Controller.extend(),
         rootElement: '#qunit-fixture'
@@ -83,7 +81,6 @@ module("integration/application - Injecting the Default Store", {
     run(function() {
       app = Application.create({
         FooController: Controller.extend(),
-        ApplicationView: View.extend(),
         BazController: {},
         ApplicationController: Controller.extend()
       });
@@ -120,7 +117,7 @@ if (Ember.inject && Ember.inject.service) {
     setup: function() {
       run(function() {
         app = Application.create({
-          DoodleService: Ember.Object.extend({ store: Ember.inject.service() })
+          DoodleService: Ember.Service.extend({ store: Ember.inject.service() })
         });
       });
 
