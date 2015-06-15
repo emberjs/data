@@ -49,78 +49,74 @@ module("integration/active_model - AMS-namespaced-model-names (new API)", {
   }
 });
 
-if (Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
+test("extractPolymorphic hasMany", function() {
+  var json_hash = {
+    mediocre_villain: { id: 1, name: "Dr Horrible", evil_minion_ids: [{ type: "EvilMinions::YellowMinion", id: 12 }] },
+    "evil-minions/yellow-minion":    [{ id: 12, name: "Alex", doomsday_device_ids: [1] }]
+  };
+  var json;
 
-  test("extractPolymorphic hasMany", function() {
-    var json_hash = {
-      mediocre_villain: { id: 1, name: "Dr Horrible", evil_minion_ids: [{ type: "EvilMinions::YellowMinion", id: 12 }] },
-      "evil-minions/yellow-minion":    [{ id: 12, name: "Alex", doomsday_device_ids: [1] }]
-    };
-    var json;
-
-    run(function() {
-      json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json_hash, '1', 'find');
-    });
-
-    deepEqual(json, {
-      "data": {
-        "id": "1",
-        "type": "mediocre-villain",
-        "attributes": {
-          "name": "Dr Horrible"
-        },
-        "relationships": {
-          "evilMinions": {
-            "data": [
-              { "id": "12", "type": "evil-minions/yellow-minion" }
-            ]
-          }
-        }
-      },
-      "included": [{
-        "id": "12",
-        "type": "evil-minions/yellow-minion",
-        "attributes": {
-          "name": "Alex"
-        },
-        "relationships": {}
-      }]
-    });
+  run(function() {
+    json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json_hash, '1', 'find');
   });
 
-  test("extractPolymorphic belongsTo", function() {
-    var json_hash = {
-      doomsday_device: { id: 1, name: "DeathRay", evil_minion_id: { type: "EvilMinions::YellowMinion", id: 12 } },
-      "evil-minions/yellow-minion":    [{ id: 12, name: "Alex", doomsday_device_ids: [1] }]
-    };
-    var json;
-
-    run(function() {
-      json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'find');
-    });
-
-    deepEqual(json, {
-      "data": {
-        "id": "1",
-        "type": "doomsday-device",
-        "attributes": {
-          "name": "DeathRay"
-        },
-        "relationships": {
-          "evilMinion": {
-            "data": { "id": "12", "type": "evil-minions/yellow-minion" }
-          }
-        }
+  deepEqual(json, {
+    "data": {
+      "id": "1",
+      "type": "mediocre-villain",
+      "attributes": {
+        "name": "Dr Horrible"
       },
-      "included": [{
-        "id": "12",
-        "type": "evil-minions/yellow-minion",
-        "attributes": {
-          "name": "Alex"
-        },
-        "relationships": {}
-      }]
-    });
+      "relationships": {
+        "evilMinions": {
+          "data": [
+            { "id": "12", "type": "evil-minions/yellow-minion" }
+          ]
+        }
+      }
+    },
+    "included": [{
+      "id": "12",
+      "type": "evil-minions/yellow-minion",
+      "attributes": {
+        "name": "Alex"
+      },
+      "relationships": {}
+    }]
+  });
+});
+
+test("extractPolymorphic belongsTo", function() {
+  var json_hash = {
+    doomsday_device: { id: 1, name: "DeathRay", evil_minion_id: { type: "EvilMinions::YellowMinion", id: 12 } },
+    "evil-minions/yellow-minion":    [{ id: 12, name: "Alex", doomsday_device_ids: [1] }]
+  };
+  var json;
+
+  run(function() {
+    json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'find');
   });
 
-}
+  deepEqual(json, {
+    "data": {
+      "id": "1",
+      "type": "doomsday-device",
+      "attributes": {
+        "name": "DeathRay"
+      },
+      "relationships": {
+        "evilMinion": {
+          "data": { "id": "12", "type": "evil-minions/yellow-minion" }
+        }
+      }
+    },
+    "included": [{
+      "id": "12",
+      "type": "evil-minions/yellow-minion",
+      "attributes": {
+        "name": "Alex"
+      },
+      "relationships": {}
+    }]
+  });
+});
