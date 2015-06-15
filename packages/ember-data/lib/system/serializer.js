@@ -28,11 +28,6 @@ var Serializer = Ember.Object.extend({
     This is only to be used temporarily during the transition from the old
     serializer API to the new one.
 
-    To activate the new Serializer API you need to enable the feature flag
-    `ds-new-serializer-api`.
-
-    http://guides.emberjs.com/v1.12.0/configuring-ember/feature-flags/
-
     This makes the store and the built-in serializers use the new Serializer API.
 
 

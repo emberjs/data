@@ -402,7 +402,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
    @private
   */
   _extractEmbeddedRecords: function(serializer, store, typeClass, partial) {
-    if (Ember.FEATURES.isEnabled('ds-new-serializer-api') && this.get('isNewSerializerAPI')) {
+    if (this.get('isNewSerializerAPI')) {
       return _newExtractEmbeddedRecords.apply(this, arguments);
     }
 
@@ -434,7 +434,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
    @private
   */
   _extractEmbeddedHasMany: function(store, key, embeddedTypeClass, hash) {
-    if (Ember.FEATURES.isEnabled('ds-new-serializer-api') && this.get('isNewSerializerAPI')) {
+    if (this.get('isNewSerializerAPI')) {
       return _newExtractEmbeddedHasMany.apply(this, arguments);
     }
 
@@ -486,7 +486,7 @@ var EmbeddedRecordsMixin = Ember.Mixin.create({
    @private
   */
   _extractEmbeddedBelongsTo: function(store, key, embeddedTypeClass, hash) {
-    if (Ember.FEATURES.isEnabled('ds-new-serializer-api') && this.get('isNewSerializerAPI')) {
+    if (this.get('isNewSerializerAPI')) {
       return _newExtractEmbeddedBelongsTo.apply(this, arguments);
     }
 

@@ -175,7 +175,7 @@ var RESTSerializer = JSONSerializer.extend({
     @return {Object}
   */
   normalize: function(typeClass, hash, prop) {
-    if (Ember.FEATURES.isEnabled('ds-new-serializer-api') && this.get('isNewSerializerAPI')) {
+    if (this.get('isNewSerializerAPI')) {
       _newNormalize.apply(this, arguments);
       return this._super(...arguments);
     }
@@ -651,7 +651,7 @@ var RESTSerializer = JSONSerializer.extend({
     @param {Object} rawPayload
   */
   pushPayload: function(store, rawPayload) {
-    if (Ember.FEATURES.isEnabled('ds-new-serializer-api') && this.get('isNewSerializerAPI')) {
+    if (this.get('isNewSerializerAPI')) {
       _newPushPayload.apply(this, arguments);
       return;
     }
