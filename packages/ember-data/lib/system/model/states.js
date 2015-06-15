@@ -326,7 +326,7 @@ var DirtyState = {
     },
 
     didSetProperty: function(internalModel, context) {
-      internalModel.getErrors().remove(context.name);
+      internalModel.removeErrorMessageFromAttribute(context.name);
 
       didSetProperty(internalModel, context);
     },
@@ -336,12 +336,12 @@ var DirtyState = {
     pushedData: Ember.K,
 
     willCommit: function(internalModel) {
-      internalModel.getErrors().clear();
+      internalModel.clearErrorMessages();
       internalModel.transitionTo('inFlight');
     },
 
     rolledBack: function(internalModel) {
-      internalModel.getErrors().clear();
+      internalModel.clearErrorMessages();
       internalModel.triggerLater('ready');
     },
 
@@ -703,7 +703,7 @@ var RootState = {
       isValid: false,
 
       didSetProperty: function(internalModel, context) {
-        internalModel.getErrors().remove(context.name);
+        internalModel.removeErrorMessageFromAttribute(context.name);
 
         didSetProperty(internalModel, context);
       },
@@ -714,7 +714,7 @@ var RootState = {
 
 
       rolledBack: function(internalModel) {
-        internalModel.getErrors().clear();
+        internalModel.clearErrorMessages();
         internalModel.transitionTo('loaded.saved');
         internalModel.triggerLater('ready');
       },

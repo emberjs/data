@@ -2,10 +2,13 @@
   @module ember-data
 */
 
+import Adapter from "ember-data/system/adapter";
 import {
-  Adapter,
-  InvalidError
-} from "ember-data/system/adapter";
+  AdapterError,
+  InvalidError,
+  TimeoutError,
+  AbortError
+} from 'ember-data/adapters/errors';
 import {
   MapWithDefault
 } from "ember-data/system/map";
@@ -745,86 +748,89 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
   /**
     Takes an ajax response, and returns an error payload.
 
-    Returning a `DS.InvalidError` from this method will cause the
-    record to transition into the `invalid` state and make the
-    `errors` object available on the record. When returning an
-    `InvalidError` the store will attempt to normalize the error data
-    returned from the server using the serializer's `extractErrors`
-    method.
-
-    Example
-
-    ```app/adapters/application.js
-    import DS from 'ember-data';
-
-    export default DS.RESTAdapter.extend({
-      ajaxError: function(jqXHR) {
-        var error = this._super(jqXHR);
-
-        if (jqXHR && jqXHR.status === 422) {
-          var jsonErrors = Ember.$.parseJSON(jqXHR.responseText);
-
-          return new DS.InvalidError(jsonErrors);
-        } else {
-          return error;
-        }
-      }
-    });
-    ```
-
-    Note: As a correctness optimization, the default implementation of
-    the `ajaxError` method strips out the `then` method from jquery's
-    ajax response (jqXHR). This is important because the jqXHR's
-    `then` method fulfills the promise with itself resulting in a
-    circular "thenable" chain which may cause problems for some
-    promise libraries.
-
     @method ajaxError
+    @deprecated Use [handleResponse](#method_handleResponse) instead
     @param  {Object} jqXHR
     @param  {Object} responseText
     @param  {Object} errorThrown
     @return {Object} jqXHR
   */
-  ajaxError: function(jqXHR, responseText, errorThrown) {
-    var isObject = jqXHR !== null && typeof jqXHR === 'object';
-
-    if (isObject) {
-      jqXHR.then = null;
-      if (!jqXHR.errorThrown) {
-        if (typeof errorThrown === 'string') {
-          jqXHR.errorThrown = new Error(errorThrown);
-        } else {
-          jqXHR.errorThrown = errorThrown;
-        }
-      }
-    }
-
-    return jqXHR;
-  },
 
   /**
     Takes an ajax response, and returns the json payload.
 
-    By default this hook just returns the jsonPayload passed to it.
-    You might want to override it in two cases:
-
-    1. Your API might return useful results in the request headers.
-    If you need to access these, you can override this hook to copy them
-    from jqXHR to the payload object so they can be processed in you serializer.
-
-    2. Your API might return errors as successful responses with status code
-    200 and an Errors text or object. You can return a DS.InvalidError from
-    this hook and it will automatically reject the promise and put your record
-    into the invalid state.
-
     @method ajaxSuccess
+    @deprecated Use [handleResponse](#method_handleResponse) instead
     @param  {Object} jqXHR
     @param  {Object} jsonPayload
     @return {Object} jsonPayload
   */
 
-  ajaxSuccess: function(jqXHR, jsonPayload) {
-    return jsonPayload;
+  /**
+    Takes an ajax response, and returns the json payload or an error.
+
+    By default this hook just returns the json payload passed to it.
+    You might want to override it in two cases:
+
+    1. Your API might return useful results in the response headers.
+    Response headers are passed in as the second argument.
+
+    2. Your API might return errors as successful responses with status code
+    200 and an Errors text or object. You can return a `DS.InvalidError` or a
+    `DS.AdapterError` (or a sub class) from this hook and it will automatically
+    reject the promise and put your record into the invalid or error state.
+
+    Returning a `DS.InvalidError` from this method will cause the
+    record to transition into the `invalid` state and make the
+    `errors` object available on the record. When returning an
+    `DS.InvalidError` the store will attempt to normalize the error data
+    returned from the server using the serializer's `extractErrors`
+    method.
+
+    @method handleResponse
+    @param  {Number} status
+    @param  {Object} headers
+    @param  {Object} payload
+    @return {Object | DS.AdapterError} response
+  */
+  handleResponse: function(status, headers, payload) {
+    if (this.isSuccess(status, headers, payload)) {
+      return payload;
+    } else if (this.isInvalid(status, headers, payload)) {
+      return new InvalidError(payload.errors);
+    }
+
+    let errors = this.normalizeErrorResponse(status, headers, payload);
+
+    return new AdapterError(errors);
+  },
+
+  /**
+    Default `handleResponse` implementation uses this hook to decide if the
+    response is a success.
+
+    @method isSuccess
+    @param  {Number} status
+    @param  {Object} headers
+    @param  {Object} payload
+    @return {Boolean}
+  */
+  isSuccess: function(status, headers, payload) {
+    return status >= 200 && status < 300 || status === 304;
+  },
+
+  /**
+    Default `handleResponse` implementation uses this hook to decide if the
+    response is a an invalid error.
+
+    @method isInvalid
+    @param  {Number} status
+    @param  {Object} headers
+    @param  {Object} payload
+    @return {Boolean}
+  */
+  isInvalid: function(status, headers, payload) {
+    return status === 422;
   },
 
   /**
@@ -857,17 +863,58 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     return new Ember.RSVP.Promise(function(resolve, reject) {
       var hash = adapter.ajaxOptions(url, type, options);
 
-      hash.success = function(json, textStatus, jqXHR) {
-        json = adapter.ajaxSuccess(jqXHR, json);
-        if (json instanceof InvalidError) {
-          Ember.run(null, reject, json);
+      hash.success = function(payload, textStatus, jqXHR) {
+        let response;
+
+        if (adapter.ajaxSuccess) {
+          Ember.deprecate("`ajaxSuccess` has been deprecated. Use `isSuccess`, `isInvalid` or `handleResponse` instead.");
+          response = adapter.ajaxSuccess(jqXHR, payload);
+        }
+
+        if (!(response instanceof AdapterError)) {
+          response = adapter.handleResponse(
+            jqXHR.status,
+            parseResponseHeaders(jqXHR.getAllResponseHeaders()),
+            response || payload
+          );
+        }
+
+        if (response instanceof AdapterError) {
+          Ember.run(null, reject, response);
         } else {
-          Ember.run(null, resolve, json);
+          Ember.run(null, resolve, response);
         }
       };
 
       hash.error = function(jqXHR, textStatus, errorThrown) {
-        Ember.run(null, reject, adapter.ajaxError(jqXHR, jqXHR.responseText, errorThrown));
+        let error;
+
+        if (adapter.ajaxError) {
+          Ember.deprecate("`ajaxError` has been deprecated. Use `isSuccess`, `isInvalid` or `handleResponse` instead.");
+          error = adapter.ajaxError(jqXHR, textStatus, errorThrown);
+        }
+
+        if (typeof errorThrown === 'string') {
+          errorThrown = new Error(errorThrown);
+        }
+
+        if (!(error instanceof Error)) {
+          if (errorThrown instanceof Error) {
+            error = errorThrown;
+          } else if (textStatus === 'timeout') {
+            error = new TimeoutError();
+          } else if (textStatus === 'abort') {
+            error = new AbortError();
+          } else {
+            error = adapter.handleResponse(
+              jqXHR.status,
+              parseResponseHeaders(jqXHR.getAllResponseHeaders()),
+              adapter.parseErrorResponse(jqXHR.responseText)
+            );
+          }
+        }
+
+        Ember.run(null, reject, error);
       };
 
       Ember.$.ajax(hash);
@@ -904,8 +951,66 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     }
 
     return hash;
+  },
+
+  /**
+    @method parseErrorResponse
+    @private
+    @param {String} responseText
+    @return {Object}
+  */
+  parseErrorResponse: function(responseText) {
+    var json = responseText;
+
+    try {
+      json = Ember.$.parseJSON(responseText);
+    } catch (e) {}
+
+    return json;
+  },
+
+  /**
+    @method normalizeErrorResponse
+    @private
+    @param  {Number} status
+    @param  {Object} headers
+    @param  {Object} payload
+    @return {Object} errors payload
+  */
+  normalizeErrorResponse: function(status, headers, payload) {
+    if (payload && typeof payload === 'object' && payload.errors) {
+      return payload.errors;
+    } else {
+      return [
+        {
+          status: `${status}`,
+          title: "The backend responded with an error",
+          details: `${payload}`
+        }
+      ];
+    }
   }
 });
+
+function parseResponseHeaders(headerStr) {
+  var headers = Ember.create(null);
+  if (!headerStr) { return headers; }
+
+  var headerPairs = headerStr.split('\u000d\u000a');
+  for (var i = 0; i < headerPairs.length; i++) {
+    var headerPair = headerPairs[i];
+    // Can't use split() here because it does the wrong thing
+    // if the header value has the string ": " in it.
+    var index = headerPair.indexOf('\u003a\u0020');
+    if (index > 0) {
+      var key = headerPair.substring(0, index);
+      var val = headerPair.substring(index + 2);
+      headers[key] = val;
+    }
+  }
+
+  return headers;
+}
 
 //From http://stackoverflow.com/questions/280634/endswith-in-javascript
 function endsWith(string, suffix) {

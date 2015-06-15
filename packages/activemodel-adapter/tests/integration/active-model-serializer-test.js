@@ -327,14 +327,21 @@ test("extractPolymorphic does not break hasMany relationships", function() {
 });
 
 test("extractErrors camelizes keys", function() {
-  var payload = {
-    errors: {
-      first_name: ["firstName not evil enough"]
-    }
+  var error = {
+    errors: [
+      {
+        source: {
+          pointer: 'data/attributes/first_name'
+        },
+        details: "firstName not evil enough"
+      }
+    ]
   };
 
+  var payload;
+
   run(function() {
-    payload = env.amsSerializer.extractErrors(env.store, SuperVillain, payload);
+    payload = env.amsSerializer.extractErrors(env.store, SuperVillain, error);
   });
 
   deepEqual(payload, {

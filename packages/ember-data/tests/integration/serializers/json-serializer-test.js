@@ -575,10 +575,16 @@ test('extractErrors respects custom key mappings', function() {
   }));
 
   var payload = {
-    errors: {
-      le_title: ["title errors"],
-      my_comments: ["comments errors"]
-    }
+    errors: [
+      {
+        source: { pointer: 'data/attributes/le_title' },
+        details: "title errors"
+      },
+      {
+        source: { pointer: 'data/attributes/my_comments' },
+        details: "comments errors"
+      }
+    ]
   };
 
   var errors = env.container.lookup('serializer:post').extractErrors(env.store, Post, payload);
@@ -594,9 +600,12 @@ test('extractErrors expects error information located on the errors property of 
 
   var payload = {
     attributeWhichWillBeRemovedinExtractErrors: ["true"],
-    errors: {
-      title: ["title errors"]
-    }
+    errors: [
+      {
+        source: { pointer: 'data/attributes/title' },
+        details: "title errors"
+      }
+    ]
   };
 
   var errors = env.container.lookup('serializer:post').extractErrors(env.store, Post, payload);

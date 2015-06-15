@@ -28,6 +28,7 @@ module("integration/active_model_adapter_serializer - AMS Adapter and Serializer
 test('errors are camelCased and are expected under the `errors` property of the payload', function() {
   var jqXHR = {
     status: 422,
+    getAllResponseHeaders: function() { return ''; },
     responseText: JSON.stringify({
       errors: {
         first_name: ["firstName error"]

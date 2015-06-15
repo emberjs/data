@@ -475,7 +475,7 @@ test("if a created record is marked as invalid by the server, you can attempt th
   Ember.run(function() {
     yehuda.save().then(null, async(function(reason) {
       equal(saveCount, 1, "The record has been saved once");
-      ok(reason.message.match("The backend rejected the commit because it was invalid"), "It should fail due to being invalid");
+      ok(reason.message.match("The adapter rejected the commit because it was invalid"), "It should fail due to being invalid");
       equal(get(yehuda, 'isValid'), false, "the record is invalid");
       equal(get(yehuda, 'hasDirtyAttributes'), true, "the record has outstanding changes");
       ok(get(yehuda, 'errors.name'), "The errors.name property exists");
@@ -483,7 +483,7 @@ test("if a created record is marked as invalid by the server, you can attempt th
       return yehuda.save();
     })).then(null, async(function(reason) {
       equal(saveCount, 2, "The record has been saved twice");
-      ok(reason.message.match("The backend rejected the commit because it was invalid"), "It should fail due to being invalid");
+      ok(reason.message.match("The adapter rejected the commit because it was invalid"), "It should fail due to being invalid");
       equal(get(yehuda, 'isValid'), false, "the record is still invalid");
       equal(get(yehuda, 'hasDirtyAttributes'), true, "the record has outstanding changes");
       ok(get(yehuda, 'errors.name'), "The errors.name property exists");
@@ -637,13 +637,13 @@ test("if an updated record is marked as invalid by the server, you can attempt t
       return yehuda.save();
     })).then(null, async(function(reason) {
       equal(saveCount, 1, "The record has been saved once");
-      ok(reason.message.match("The backend rejected the commit because it was invalid"), "It should fail due to being invalid");
+      ok(reason.message.match("The adapter rejected the commit because it was invalid"), "It should fail due to being invalid");
       equal(get(yehuda, 'hasDirtyAttributes'), true, "the record is still dirty");
       equal(get(yehuda, 'isValid'), false, "the record is invalid");
       return yehuda.save();
     })).then(null, async(function(reason) {
       equal(saveCount, 2, "The record has been saved twice");
-      ok(reason.message.match("The backend rejected the commit because it was invalid"), "It should fail due to being invalid");
+      ok(reason.message.match("The adapter rejected the commit because it was invalid"), "It should fail due to being invalid");
       equal(get(yehuda, 'isValid'), false, "record is still invalid");
       equal(get(yehuda, 'hasDirtyAttributes'), true, "record is still dirty");
       set(yehuda, 'name', 'Brohuda Brokatz');

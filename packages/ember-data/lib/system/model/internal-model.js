@@ -2,7 +2,6 @@ import merge from "ember-data/system/merge";
 import RootState from "ember-data/system/model/states";
 import Relationships from "ember-data/system/relationships/state/create";
 import Snapshot from "ember-data/system/snapshot";
-import Errors from "ember-data/system/model/errors";
 
 var Promise = Ember.RSVP.Promise;
 var get = Ember.get;
@@ -54,7 +53,6 @@ var InternalModel = function InternalModel(type, id, store, container, data) {
   this.container = container;
   this._data = data || Ember.create(null);
   this.modelName = type.modelName;
-  this.errors = null;
   this.dataHasInitialized = false;
   //Look into making this lazy
   this._deferredTriggers = [];
@@ -63,6 +61,8 @@ var InternalModel = function InternalModel(type, id, store, container, data) {
   this._relationships = new Relationships(this);
   this.currentState = RootState.empty;
   this.isReloading = false;
+  this.isError = false;
+  this.error = null;
   /*
     implicit relationships are relationship which have not been declared but the inverse side exists on
     another record somewhere
@@ -114,7 +114,9 @@ InternalModel.prototype = {
       store: this.store,
       container: this.container,
       _internalModel: this,
-      currentState: get(this, 'currentState')
+      currentState: get(this, 'currentState'),
+      isError: this.isError,
+      error: this.error
     });
     this._triggerDeferredTriggers();
   },
@@ -158,9 +160,9 @@ InternalModel.prototype = {
     }, promiseLabel).then(function() {
       record.didCleanError();
       return record;
-    }, function(reason) {
-      record.didError();
-      throw reason;
+    }, function(error) {
+      record.didError(error);
+      throw error;
     }, "DS: Model#reload complete, update flags").finally(function () {
       record.finishedReloading();
       record.updateRecordArrays();
@@ -568,17 +570,25 @@ InternalModel.prototype = {
     set(this.record, 'id', id);
   },
 
-  didError: function() {
+  didError: function(error) {
+    this.error = error;
     this.isError = true;
+
     if (this.record) {
-      this.record.set('isError', true);
+      this.record.setProperties({
+        isError: true,
+        error: error
+      });
     }
   },
 
   didCleanError: function() {
     this.isError = false;
     if (this.record) {
-      this.record.set('isError', false);
+      this.record.setProperties({
+        isError: false,
+        error: null
+      });
     }
   },
   /**
@@ -622,21 +632,21 @@ InternalModel.prototype = {
     Ember.run.schedule('actions', this, this.updateRecordArrays);
   },
 
-  getErrors: function() {
-    if (this.errors) {
-      return this.errors;
-    }
-    var errors = Errors.create();
-
-    errors.registerHandlers(this, function() {
-      this.send('becameInvalid');
-    }, function() {
-      this.send('becameValid');
-    });
-
-    this.errors = errors;
-    return errors;
+  addErrorMessageToAttribute: function(attribute, message) {
+    var record = this.getRecord();
+    get(record, 'errors').add(attribute, message);
   },
+
+  removeErrorMessageFromAttribute: function(attribute) {
+    var record = this.getRecord();
+    get(record, 'errors').remove(attribute);
+  },
+
+  clearErrorMessages: function() {
+    var record = this.getRecord();
+    get(record, 'errors').clear();
+  },
+
   // FOR USE DURING COMMIT PROCESS
 
   /**
@@ -644,10 +654,14 @@ InternalModel.prototype = {
     @private
   */
   adapterDidInvalidate: function(errors) {
-    var recordErrors = this.getErrors();
-    forEach.call(Ember.keys(errors), (key) => {
-      recordErrors.add(key, errors[key]);
-    });
+    var attribute;
+
+    for (attribute in errors) {
+      if (errors.hasOwnProperty(attribute)) {
+        this.addErrorMessageToAttribute(attribute, errors[attribute]);
+      }
+    }
+
     this._saveWasRejected();
   },
 
@@ -655,9 +669,9 @@ InternalModel.prototype = {
     @method adapterDidError
     @private
   */
-  adapterDidError: function() {
+  adapterDidError: function(error) {
     this.send('becameError');
-    this.didError();
+    this.didError(error);
     this._saveWasRejected();
   },
 
