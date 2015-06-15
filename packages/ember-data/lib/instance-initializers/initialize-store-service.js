@@ -28,8 +28,14 @@ export default function initializeStoreService(applicationOrRegistry) {
     }
   }
 
-  // Eagerly generate the store so defaultStore is populated.
   var store;
+  
+  // If there is a store registered as a service, skip generation
+  if (registry.has('service:store')) {
+    return;
+  }
+  
+  // Eagerly generate the store so defaultStore is populated.
   if (registry.has('store:main')) {
     Ember.deprecate('Registering a custom store as `store:main` or defining a store in app/store.js has been deprecated. Please move you store to `service:store` or define your custom store in `app/services/store.js`');
     store = container.lookup('store:main');
