@@ -99,13 +99,7 @@ if (!Backburner.prototype.join) {
 //an internal model and return it in a promiseObject. Useful for returning
 //from find methods
 function promiseRecord(internalModel, label) {
-  //TODO cleanup
-  var toReturn = internalModel;
-  if (!internalModel.then) {
-    toReturn = internalModel.getRecord();
-  } else {
-    toReturn = internalModel.then((model) => model.getRecord());
-  }
+  var toReturn = internalModel.then((model) => model.getRecord());
   return promiseObject(toReturn, label);
 }
 
@@ -612,29 +606,53 @@ Store = Service.extend({
     var internalModel = this._internalModelForId(modelName, id);
     options = options || {};
 
-    if (options.reload && this.hasRecordForId(modelName, id)) {
-      return this.peekRecord(modelName, id).reload();
-    }
     return this._findByInternalModel(internalModel, options);
   },
 
   _findByInternalModel: function(internalModel, options) {
-    var fetchedInternalModel;
     options = options || {};
-
 
     if (options.preload) {
       internalModel._preloadData(options.preload);
     }
 
+    var fetchedInternalModel = this._fetchOrResolveInternalModel(internalModel, options);
+
+    return promiseRecord(fetchedInternalModel, "DS: Store#findRecord " + internalModel.typeKey + " with id: " + get(internalModel, 'id'));
+  },
+
+  _fetchOrResolveInternalModel: function(internalModel, options) {
+    var typeClass = internalModel.type;
+    var adapter = this.adapterFor(typeClass.modelName);
+    // Always fetch the model if it is not loaded
     if (internalModel.isEmpty()) {
-      fetchedInternalModel = this.scheduleFetch(internalModel, options);
-      //TODO double check about reloading
-    } else if (internalModel.isLoading()) {
-      fetchedInternalModel = internalModel._loadingPromise;
+      return this.scheduleFetch(internalModel, options);
     }
 
-    return promiseRecord(fetchedInternalModel || internalModel, "DS: Store#findRecord " + internalModel.typeKey + " with id: " + get(internalModel, 'id'));
+    //TODO double check about reloading
+    if (internalModel.isLoading()) {
+      return internalModel._loadingPromise;
+    }
+
+    // Refetch if the reload option is passed
+    if (options.reload) {
+      return this.scheduleFetch(internalModel, options);
+    }
+
+    // Refetch the record if the adapter thinks the record is stale
+    var snapshot = internalModel.createSnapshot();
+    snapshot.adapterOptions = options && options.adapterOptions;
+    if (adapter.shouldReloadRecord(this, snapshot)) {
+      return this.scheduleFetch(internalModel, options);
+    }
+
+    // Trigger the background refetch if all the previous checks fail
+    if (adapter.shouldBackgroundReloadRecord(this, snapshot)) {
+      this.scheduleFetch(internalModel, options);
+    }
+
+    // Return the cached record
+    return Promise.resolve(internalModel);
   },
   /**
     This method makes a series of requests to the adapter's `find` method
@@ -1128,6 +1146,7 @@ Store = Service.extend({
     @return {Promise} promise
   */
   _fetchAll: function(typeClass, array, options) {
+    options = options || {};
     var adapter = this.adapterFor(typeClass.modelName);
     var sinceToken = this.typeMapFor(typeClass).metadata.since;
 
@@ -1135,8 +1154,22 @@ Store = Service.extend({
 
     Ember.assert("You tried to load all records but you have no adapter (for " + typeClass + ")", adapter);
     Ember.assert("You tried to load all records but your adapter does not implement `findAll`", typeof adapter.findAll === 'function');
-
-    return promiseArray(_findAll(adapter, this, typeClass, sinceToken, options));
+    if (!get(array, '__isLoaded')) {
+      var arrayPromise = promiseArray(_findAll(adapter, this, typeClass, sinceToken, options));
+      arrayPromise.then(() => set(array, '__isLoaded', true));
+      return arrayPromise;
+    }
+    if (options.reload) {
+      return promiseArray(_findAll(adapter, this, typeClass, sinceToken, options));
+    }
+    var snapshotArray = array.createSnapshot(options);
+    if (adapter.shouldReloadAll(this, snapshotArray)) {
+      return promiseArray(_findAll(adapter, this, typeClass, sinceToken, options));
+    }
+    if (adapter.shouldBackgroundReloadAll(this, snapshotArray)) {
+      promiseArray(_findAll(adapter, this, typeClass, sinceToken, options));
+    }
+    return promiseArray(Promise.resolve(array));
   },
 
   /**
