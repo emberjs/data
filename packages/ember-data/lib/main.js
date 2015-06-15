@@ -51,12 +51,16 @@ import {
 import ManyArray from "ember-data/system/many-array";
 import RecordArrayManager from "ember-data/system/record-array-manager";
 import {
-  RESTAdapter,
-  FixtureAdapter
+  FixtureAdapter,
+  JSONAPIAdapter,
+  RESTAdapter
 } from "ember-data/adapters";
 import BuildURLMixin from "ember-data/adapters/build-url-mixin";
-import JSONSerializer from "ember-data/serializers/json-serializer";
-import RESTSerializer from "ember-data/serializers/rest-serializer";
+import {
+  JSONAPISerializer,
+  JSONSerializer,
+  RESTSerializer
+} from "ember-data/serializers";
 import "ember-inflector";
 import EmbeddedRecordsMixin from "ember-data/serializers/embedded-records-mixin";
 import {
@@ -113,6 +117,9 @@ DS.BuildURLMixin  = BuildURLMixin;
 
 DS.RESTSerializer = RESTSerializer;
 DS.JSONSerializer = JSONSerializer;
+
+DS.JSONAPIAdapter = JSONAPIAdapter;
+DS.JSONAPISerializer = JSONAPISerializer;
 
 DS.Transform       = Transform;
 DS.DateTransform   = DateTransform;
