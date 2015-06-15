@@ -12,6 +12,7 @@ import Ember from 'ember';
   information about the relationship, retrieved via
   `record.relationshipFor(key)`.
 
+  @method assertPolymorphicType
   @param {InternalModel} record
   @param {RelationshipMeta} relationshipMeta retrieved via
          `record.relationshipFor(key)`
