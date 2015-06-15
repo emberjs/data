@@ -544,7 +544,7 @@ Store = Service.extend({
   */
   fetch: function(modelName, id, preload) {
     Ember.assert('Passing classes to store methods has been removed. Please pass a dasherized string instead of '+ Ember.inspect(modelName), typeof modelName === 'string');
-    Ember.deprecate('Using store.fetch() has been deprecated. Use store.findRecord for fetching individual records or store.fetchAll for collections');
+    Ember.deprecate('Using store.fetch() has been deprecated. Use store.findRecord for fetching individual records or store.findAll for collections');
     return this.findRecord(modelName, id, { reload: true, preload: preload });
   },
 

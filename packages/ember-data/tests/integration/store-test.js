@@ -227,7 +227,7 @@ test("Using store#fetch is deprecated", function() {
         store.fetch('car', 1);
       });
     },
-    'Using store.fetch() has been deprecated. Use store.findRecord for fetching individual records or store.fetchAll for collections'
+    'Using store.fetch() has been deprecated. Use store.findRecord for fetching individual records or store.findAll for collections'
   );
 });
 
