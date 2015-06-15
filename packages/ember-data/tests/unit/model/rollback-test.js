@@ -32,5 +32,5 @@ test("changes to attributes can be rolled back - deprecated", function() {
   );
 
   equal(person.get('firstName'), 'Tom');
-  equal(person.get('isDirty'), false);
+  equal(person.get('hasDirtyAttributes'), false);
 });

@@ -103,8 +103,38 @@ var Model = Ember.Object.extend(Ember.Evented, {
     @property isDirty
     @type {Boolean}
     @readOnly
+    @deprecated
   */
-  isDirty: retrieveFromCurrentState,
+  isDirty: Ember.computed('currentState.isDirty', function() {
+    Ember.deprecate('DS.Model#isDirty has been deprecated please use hasDirtyAttributes instead');
+    return this.get('currentState.isDirty');
+  }),
+  /**
+    If this property is `true` the record is in the `dirty` state. The
+    record has local changes that have not yet been saved by the
+    adapter. This includes records that have been created (but not yet
+    saved) or deleted.
+
+    Example
+
+    ```javascript
+    var record = store.createRecord('model');
+    record.get('hasDirtyAttributes'); // true
+
+    store.find('model', 1).then(function(model) {
+      model.get('hasDirtyAttributes'); // false
+      model.set('foo', 'some value');
+      model.get('hasDirtyAttributes'); // true
+    });
+    ```
+
+    @property hasDirtyAttributes
+    @type {Boolean}
+    @readOnly
+  */
+  hasDirtyAttributes: Ember.computed('currentState.isDirty', function() {
+    return this.get('currentState.isDirty');
+  }),
   /**
     If this property is `true` the record is in the `saving` state. A
     record enters the saving state when `save` is called, but the

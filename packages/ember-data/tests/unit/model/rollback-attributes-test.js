@@ -27,7 +27,7 @@ test("changes to attributes can be rolled back", function() {
   });
 
   equal(person.get('firstName'), "Tom");
-  equal(person.get('isDirty'), false);
+  equal(person.get('hasDirtyAttributes'), false);
 });
 
 test("changes to unassigned attributes can be rolled back", function() {
@@ -44,7 +44,7 @@ test("changes to unassigned attributes can be rolled back", function() {
   });
 
   equal(person.get('firstName'), undefined);
-  equal(person.get('isDirty'), false);
+  equal(person.get('hasDirtyAttributes'), false);
 });
 
 test("changes to attributes made after a record is in-flight only rolls back the local changes", function() {
@@ -77,7 +77,7 @@ test("changes to attributes made after a record is in-flight only rolls back the
     equal(person.get('isSaving'), true);
 
     saving.then(async(function() {
-      equal(person.get('isDirty'), false, "The person is now clean");
+      equal(person.get('hasDirtyAttributes'), false, "The person is now clean");
     }));
   });
 });
@@ -150,12 +150,12 @@ test("new record's attributes can be rollbacked", function() {
   });
 
   equal(person.get('isNew'), true, "must be new");
-  equal(person.get('isDirty'), true, "must be dirty");
+  equal(person.get('hasDirtyAttributes'), true, "must be dirty");
 
   Ember.run(person, 'rollbackAttributes');
 
   equal(person.get('isNew'), false, "must not be new");
-  equal(person.get('isDirty'), false, "must not be dirty");
+  equal(person.get('hasDirtyAttributes'), false, "must not be dirty");
   equal(person.get('isDeleted'), true, "must be deleted");
 });
 
@@ -190,7 +190,7 @@ test("invalid new record's attributes can be rollbacked", function() {
   });
 
   equal(person.get('isNew'), true, "must be new");
-  equal(person.get('isDirty'), true, "must be dirty");
+  equal(person.get('hasDirtyAttributes'), true, "must be dirty");
 
   run(function() {
     person.save().then(null, async(function() {
@@ -198,7 +198,7 @@ test("invalid new record's attributes can be rollbacked", function() {
       person.rollbackAttributes();
 
       equal(person.get('isNew'), false, "must not be new");
-      equal(person.get('isDirty'), false, "must not be dirty");
+      equal(person.get('hasDirtyAttributes'), false, "must not be dirty");
       equal(person.get('isDeleted'), true, "must be deleted");
     }));
   });
@@ -223,7 +223,7 @@ test("deleted record's attributes can be rollbacked", function() {
   });
   equal(people.get('length'), 1, "the rollbacked record should appear again in the record array");
   equal(person.get('isDeleted'), false, "must not be deleted");
-  equal(person.get('isDirty'), false, "must not be dirty");
+  equal(person.get('hasDirtyAttributes'), false, "must not be dirty");
 });
 
 test("invalid record's attributes can be rollbacked", function() {

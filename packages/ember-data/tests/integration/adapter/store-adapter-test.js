@@ -206,10 +206,10 @@ test("calling store.didSaveRecord can provide an optional hash", function() {
     var tom = records.tom;
     var yehuda = records.yehuda;
 
-    equal(get(tom, 'isDirty'), false, "the record should not be dirty");
+    equal(get(tom, 'hasDirtyAttributes'), false, "the record should not be dirty");
     equal(get(tom, 'updatedAt'), "now", "the hash was updated");
 
-    equal(get(yehuda, 'isDirty'), false, "the record should not be dirty");
+    equal(get(yehuda, 'hasDirtyAttributes'), false, "the record should not be dirty");
     equal(get(yehuda, 'updatedAt'), "now!", "the hash was updated");
   }));
 });
@@ -327,12 +327,12 @@ test("if an existing model is edited then deleted, deleteRecord is called on the
   run(store, 'findRecord', 'person', 'deleted-record').then(async(function(tom) {
     tom.set('name', "Tom Mothereffin' Dale");
 
-    equal(get(tom, 'isDirty'), true, "precond - record should be dirty after editing");
+    equal(get(tom, 'hasDirtyAttributes'), true, "precond - record should be dirty after editing");
 
     tom.deleteRecord();
     return tom.save();
   })).then(async(function(tom) {
-    equal(get(tom, 'isDirty'), false, "record should not be dirty");
+    equal(get(tom, 'hasDirtyAttributes'), false, "record should not be dirty");
     equal(get(tom, 'isDeleted'), true, "record should be considered deleted");
   }));
 });
@@ -397,7 +397,7 @@ test("if a created record is marked as invalid by the server, it enters an error
       set(yehuda, 'name', "Brohuda Brokatz");
 
       equal(get(yehuda, 'isValid'), true, "the record is no longer invalid after changing");
-      equal(get(yehuda, 'isDirty'), true, "the record has outstanding changes");
+      equal(get(yehuda, 'hasDirtyAttributes'), true, "the record has outstanding changes");
 
       equal(get(yehuda, 'isNew'), true, "precond - record is still new");
 
@@ -438,7 +438,7 @@ test("allows errors on arbitrary properties on create", function() {
       set(yehuda, 'name', "Brohuda Brokatz");
 
       equal(get(yehuda, 'isValid'), false, "the record is still invalid as far as we know");
-      equal(get(yehuda, 'isDirty'), true, "the record has outstanding changes");
+      equal(get(yehuda, 'hasDirtyAttributes'), true, "the record has outstanding changes");
 
       equal(get(yehuda, 'isNew'), true, "precond - record is still new");
 
@@ -477,7 +477,7 @@ test("if a created record is marked as invalid by the server, you can attempt th
       equal(saveCount, 1, "The record has been saved once");
       ok(reason.message.match("The backend rejected the commit because it was invalid"), "It should fail due to being invalid");
       equal(get(yehuda, 'isValid'), false, "the record is invalid");
-      equal(get(yehuda, 'isDirty'), true, "the record has outstanding changes");
+      equal(get(yehuda, 'hasDirtyAttributes'), true, "the record has outstanding changes");
       ok(get(yehuda, 'errors.name'), "The errors.name property exists");
       equal(get(yehuda, 'isNew'), true, "precond - record is still new");
       return yehuda.save();
@@ -485,7 +485,7 @@ test("if a created record is marked as invalid by the server, you can attempt th
       equal(saveCount, 2, "The record has been saved twice");
       ok(reason.message.match("The backend rejected the commit because it was invalid"), "It should fail due to being invalid");
       equal(get(yehuda, 'isValid'), false, "the record is still invalid");
-      equal(get(yehuda, 'isDirty'), true, "the record has outstanding changes");
+      equal(get(yehuda, 'hasDirtyAttributes'), true, "the record has outstanding changes");
       ok(get(yehuda, 'errors.name'), "The errors.name property exists");
       equal(get(yehuda, 'isNew'), true, "precond - record is still new");
       set(yehuda, 'name', 'Brohuda Brokatz');
@@ -493,7 +493,7 @@ test("if a created record is marked as invalid by the server, you can attempt th
     })).then(async(function(person) {
       equal(saveCount, 3, "The record has been saved thrice");
       equal(get(yehuda, 'isValid'), true, "record is valid");
-      equal(get(yehuda, 'isDirty'), false, "record is not dirty");
+      equal(get(yehuda, 'hasDirtyAttributes'), false, "record is not dirty");
       equal(get(yehuda, 'errors.isEmpty'), true, "record has no errors");
     }));
   });
@@ -536,11 +536,11 @@ test("if an updated record is marked as invalid by the server, it enters an erro
       set(yehuda, 'name', "Yehuda Katz");
       equal(get(yehuda, 'isValid'), true, "precond - the record is still valid as far as we know");
 
-      equal(get(yehuda, 'isDirty'), true, "the record is dirty");
+      equal(get(yehuda, 'hasDirtyAttributes'), true, "the record is dirty");
 
       return yehuda.save();
     })).then(null, async(function(reason) {
-      equal(get(yehuda, 'isDirty'), true, "the record is still dirty");
+      equal(get(yehuda, 'hasDirtyAttributes'), true, "the record is still dirty");
       equal(get(yehuda, 'isValid'), false, "the record is invalid");
 
       set(yehuda, 'updatedAt', true);
@@ -548,12 +548,12 @@ test("if an updated record is marked as invalid by the server, it enters an erro
 
       set(yehuda, 'name', "Brohuda Brokatz");
       equal(get(yehuda, 'isValid'), true, "the record is no longer invalid after changing");
-      equal(get(yehuda, 'isDirty'), true, "the record has outstanding changes");
+      equal(get(yehuda, 'hasDirtyAttributes'), true, "the record has outstanding changes");
 
       return yehuda.save();
     })).then(async(function(yehuda) {
       equal(get(yehuda, 'isValid'), true, "record remains valid after committing");
-      equal(get(yehuda, 'isDirty'), false, "record is no longer new");
+      equal(get(yehuda, 'hasDirtyAttributes'), false, "record is no longer new");
     }));
   });
 });
@@ -580,11 +580,11 @@ test("records can have errors on arbitrary properties after update", function() 
       set(yehuda, 'name', "Yehuda Katz");
       equal(get(yehuda, 'isValid'), true, "precond - the record is still valid as far as we know");
 
-      equal(get(yehuda, 'isDirty'), true, "the record is dirty");
+      equal(get(yehuda, 'hasDirtyAttributes'), true, "the record is dirty");
 
       return yehuda.save();
     })).then(null, async(function(reason) {
-      equal(get(yehuda, 'isDirty'), true, "the record is still dirty");
+      equal(get(yehuda, 'hasDirtyAttributes'), true, "the record is still dirty");
       equal(get(yehuda, 'isValid'), false, "the record is invalid");
       ok(get(yehuda, 'errors.base'), "The errors.base property exists");
       deepEqual(get(yehuda, 'errors').errorsFor('base'), [{ attribute: 'base', message: "is a generally unsavoury character" }]);
@@ -594,12 +594,12 @@ test("records can have errors on arbitrary properties after update", function() 
 
       set(yehuda, 'name', "Brohuda Brokatz");
       equal(get(yehuda, 'isValid'), false, "the record is still invalid after changing (only server can know if it's now valid)");
-      equal(get(yehuda, 'isDirty'), true, "the record has outstanding changes");
+      equal(get(yehuda, 'hasDirtyAttributes'), true, "the record has outstanding changes");
 
       return yehuda.save();
     })).then(async(function(yehuda) {
       equal(get(yehuda, 'isValid'), true, "record remains valid after committing");
-      equal(get(yehuda, 'isDirty'), false, "record is no longer new");
+      equal(get(yehuda, 'hasDirtyAttributes'), false, "record is no longer new");
       ok(!get(yehuda, 'errors.base'), "The errors.base property does not exist");
       deepEqual(get(yehuda, 'errors').errorsFor('base'), []);
     }));
@@ -632,26 +632,26 @@ test("if an updated record is marked as invalid by the server, you can attempt t
       set(yehuda, 'name', "Yehuda Katz");
       equal(get(yehuda, 'isValid'), true, "precond - the record is still valid as far as we know");
 
-      equal(get(yehuda, 'isDirty'), true, "the record is dirty");
+      equal(get(yehuda, 'hasDirtyAttributes'), true, "the record is dirty");
 
       return yehuda.save();
     })).then(null, async(function(reason) {
       equal(saveCount, 1, "The record has been saved once");
       ok(reason.message.match("The backend rejected the commit because it was invalid"), "It should fail due to being invalid");
-      equal(get(yehuda, 'isDirty'), true, "the record is still dirty");
+      equal(get(yehuda, 'hasDirtyAttributes'), true, "the record is still dirty");
       equal(get(yehuda, 'isValid'), false, "the record is invalid");
       return yehuda.save();
     })).then(null, async(function(reason) {
       equal(saveCount, 2, "The record has been saved twice");
       ok(reason.message.match("The backend rejected the commit because it was invalid"), "It should fail due to being invalid");
       equal(get(yehuda, 'isValid'), false, "record is still invalid");
-      equal(get(yehuda, 'isDirty'), true, "record is still dirty");
+      equal(get(yehuda, 'hasDirtyAttributes'), true, "record is still dirty");
       set(yehuda, 'name', 'Brohuda Brokatz');
       return yehuda.save();
     })).then(async(function(person) {
       equal(saveCount, 3, "The record has been saved thrice");
       equal(get(yehuda, 'isValid'), true, "record is valid");
-      equal(get(yehuda, 'isDirty'), false, "record is not dirty");
+      equal(get(yehuda, 'hasDirtyAttributes'), false, "record is not dirty");
       equal(get(yehuda, 'errors.isEmpty'), true, "record has no errors");
     }));
   });
