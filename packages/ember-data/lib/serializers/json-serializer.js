@@ -1,5 +1,6 @@
 import Serializer from "ember-data/system/serializer";
 import coerceId from "ember-data/system/coerce-id";
+import normalizeModelName from "ember-data/system/normalize-model-name";
 
 var get = Ember.get;
 var isNone = Ember.isNone;
@@ -606,6 +607,16 @@ export default Serializer.extend({
 
     return relationships;
   },
+
+  /**
+    @method modelNameFromPayloadKey
+    @param {String} key
+    @return {String} the model's modelName
+  */
+  modelNameFromPayloadKey: function(key) {
+    return normalizeModelName(key);
+  },
+
 
   /**
     You can use this method to normalize all payloads, regardless of whether they
