@@ -2,8 +2,6 @@ import customAdapter from 'ember-data/tests/helpers/custom-adapter';
 
 var get = Ember.get;
 var set = Ember.set;
-var forEach = Ember.ArrayPolyfills.forEach;
-var indexOf = Ember.ArrayPolyfills.indexOf;
 var run = Ember.run;
 
 var Person, store, env, array, recordArray;
@@ -13,7 +11,7 @@ var shouldContain = function(array, item) {
 };
 
 var shouldNotContain = function(array, item) {
-  ok(indexOf.call(array, item) === -1, "array should not contain "+item.get('name'));
+  ok(array.indexOf(item) === -1, "array should not contain "+item.get('name'));
 };
 
 module("integration/filter - DS.Model updating", {
@@ -520,7 +518,7 @@ var edited;
 var clientEdits = function(ids) {
   edited = [];
 
-  forEach.call(ids, function(id) {
+  ids.forEach((id) => {
     // wrap in an Ember.run to guarantee coalescence of the
     // iterated `set` calls and promise resolution.
     Ember.run(function() {
@@ -538,14 +536,14 @@ var clientCreates = function(names) {
   // wrap in an Ember.run to guarantee coalescence of the
   // iterated `set` calls.
   Ember.run(function() {
-    forEach.call(names, function(name) {
+    names.forEach(function(name) {
       edited.push(store.createRecord('person', { name: 'Client-side ' + name }));
     });
   });
 };
 
 var serverResponds = function() {
-  forEach.call(edited, function(person) { run(person, 'save'); });
+  edited.forEach(function(person) { run(person, 'save'); });
 };
 
 var setup = function(serverCallbacks) {

@@ -3,7 +3,6 @@
 */
 var get = Ember.get;
 var fmt = Ember.String.fmt;
-var indexOf = Ember.ArrayPolyfills.indexOf;
 
 var counter = 0;
 
@@ -65,8 +64,7 @@ export default Adapter.extend({
   */
   fixturesForType: function(typeClass) {
     if (typeClass.FIXTURES) {
-      var fixtures = Ember.A(typeClass.FIXTURES);
-      return fixtures.map(function(fixture) {
+      return typeClass.FIXTURES.map((fixture) => {
         var fixtureIdType = typeof fixture.id;
         if (fixtureIdType !== "number" && fixtureIdType !== "string") {
           throw new Error(fmt('the id property must be defined as a number or string for fixture %@', [fixture]));
@@ -148,9 +146,7 @@ export default Adapter.extend({
     }
 
     if (fixture) {
-      return this.simulateRemoteCall(function() {
-        return fixture;
-      }, this);
+      return this.simulateRemoteCall(() => fixture);
     }
   },
 
@@ -168,15 +164,11 @@ export default Adapter.extend({
     Ember.assert("Unable to find fixtures for model type "+typeClass.toString(), fixtures);
 
     if (fixtures) {
-      fixtures = fixtures.filter(function(item) {
-        return indexOf.call(ids, item.id) !== -1;
-      });
+      fixtures = fixtures.filter((item) => ids.indexOf(item.id) !== -1);
     }
 
     if (fixtures) {
-      return this.simulateRemoteCall(function() {
-        return fixtures;
-      }, this);
+      return this.simulateRemoteCall(() => fixtures);
     }
   },
 
@@ -192,9 +184,7 @@ export default Adapter.extend({
 
     Ember.assert("Unable to find fixtures for model type "+typeClass.toString(), fixtures);
 
-    return this.simulateRemoteCall(function() {
-      return fixtures;
-    }, this);
+    return this.simulateRemoteCall(() => fixtures);
   },
 
   /**
@@ -214,9 +204,7 @@ export default Adapter.extend({
     fixtures = this.queryFixtures(fixtures, query, typeClass);
 
     if (fixtures) {
-      return this.simulateRemoteCall(function() {
-        return fixtures;
-      }, this);
+      return this.simulateRemoteCall(() => fixtures);
     }
   },
 
@@ -232,9 +220,7 @@ export default Adapter.extend({
 
     this.updateFixtures(typeClass, fixture);
 
-    return this.simulateRemoteCall(function() {
-      return fixture;
-    }, this);
+    return this.simulateRemoteCall(() => fixture);
   },
 
   /**
@@ -249,9 +235,7 @@ export default Adapter.extend({
 
     this.updateFixtures(typeClass, fixture);
 
-    return this.simulateRemoteCall(function() {
-      return fixture;
-    }, this);
+    return this.simulateRemoteCall(() => fixture);
   },
 
   /**
@@ -264,10 +248,7 @@ export default Adapter.extend({
   deleteRecord: function(store, typeClass, snapshot) {
     this.deleteLoadedFixture(typeClass, snapshot);
 
-    return this.simulateRemoteCall(function() {
-      // no payload in a deletion
-      return null;
-    });
+    return this.simulateRemoteCall(() => null);
   },
 
   /*
@@ -280,7 +261,7 @@ export default Adapter.extend({
     var existingFixture = this.findExistingFixture(typeClass, snapshot);
 
     if (existingFixture) {
-      var index = indexOf.call(typeClass.FIXTURES, existingFixture);
+      var index = typeClass.FIXTURES.indexOf(existingFixture);
       typeClass.FIXTURES.splice(index, 1);
       return true;
     }
@@ -306,7 +287,7 @@ export default Adapter.extend({
     @param id
   */
   findFixtureById: function(fixtures, id) {
-    return Ember.A(fixtures).find(function(r) {
+    return Ember.A(fixtures).find((r) => {
       if (''+get(r, 'id') === ''+id) {
         return true;
       } else {
@@ -324,18 +305,14 @@ export default Adapter.extend({
   simulateRemoteCall: function(callback, context) {
     var adapter = this;
 
-    return new Ember.RSVP.Promise(function(resolve) {
+    return new Ember.RSVP.Promise((resolve) => {
       var value = Ember.copy(callback.call(context), true);
       if (get(adapter, 'simulateRemoteResponse')) {
         // Schedule with setTimeout
-        Ember.run.later(function() {
-          resolve(value);
-        }, get(adapter, 'latency'));
+        Ember.run.later(() => resolve(value), get(adapter, 'latency'));
       } else {
         // Asynchronous, but at the of the runloop with zero latency
-        Ember.run.schedule('actions', null, function() {
-          resolve(value);
-        });
+        Ember.run.schedule('actions', null, () => resolve(value));
       }
     }, "DS: FixtureAdapter#simulateRemoteCall");
   }

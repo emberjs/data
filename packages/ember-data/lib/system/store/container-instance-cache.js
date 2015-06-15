@@ -18,12 +18,12 @@ import Ember from 'ember';
  * @class ContainerInstanceCache
  *
 */
-function ContainerInstanceCache(container) {
-  this._container  = container;
-  this._cache      = Ember.create(null);
+export default function ContainerInstanceCache(container) {
+  this._container = container;
+  this._cache     = Object.create(null);
 }
 
-ContainerInstanceCache.prototype = Ember.create(null);
+ContainerInstanceCache.prototype = Object.create(null);
 
 Ember.merge(ContainerInstanceCache.prototype, {
   get: function(type, preferredKey, fallbacks) {
@@ -68,7 +68,7 @@ Ember.merge(ContainerInstanceCache.prototype, {
 
   destroy: function() {
     let cache = this._cache;
-    let cacheEntries = Ember.keys(cache);
+    let cacheEntries = Object.keys(cache);
 
     for (let i = 0, length = cacheEntries.length; i < length; i++) {
       let cacheKey = cacheEntries[i];
@@ -86,5 +86,3 @@ Ember.merge(ContainerInstanceCache.prototype, {
     return 'ContainerInstanceCache';
   }
 });
-
-export default ContainerInstanceCache;

@@ -27,7 +27,7 @@ var get = Ember.get;
   @class BuildURLMixin
   @namespace DS
 */
-var BuildURLMixin = Ember.Mixin.create({
+export default Ember.Mixin.create({
   /**
     Builds a URL for a given type and optional ID.
 
@@ -313,5 +313,3 @@ function urlForFindQuery(query, modelName) {
   Ember.deprecate('BuildURLMixin#urlForFindQuery has been deprecated and renamed to `urlForQuery`.');
   return this._buildURL(modelName);
 }
-
-export default BuildURLMixin;

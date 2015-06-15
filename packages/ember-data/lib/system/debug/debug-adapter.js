@@ -35,7 +35,7 @@ export default Ember.DataAdapter.extend({
     }];
     var count = 0;
     var self = this;
-    get(typeClass, 'attributes').forEach(function(meta, name) {
+    get(typeClass, 'attributes').forEach((meta, name) => {
       if (count++ > self.attributeLimit) { return false; }
       var desc = capitalize(underscore(name).replace('_', ' '));
       columns.push({ name: name, desc: desc });
@@ -59,12 +59,11 @@ export default Ember.DataAdapter.extend({
   },
 
   getRecordColumnValues: function(record) {
-    var self = this;
     var count = 0;
     var columnValues = { id: get(record, 'id') };
 
-    record.eachAttribute(function(key) {
-      if (count++ > self.attributeLimit) {
+    record.eachAttribute((key) => {
+      if (count++ > this.attributeLimit) {
         return false;
       }
       var value = get(record, key);
@@ -76,12 +75,8 @@ export default Ember.DataAdapter.extend({
   getRecordKeywords: function(record) {
     var keywords = [];
     var keys = Ember.A(['id']);
-    record.eachAttribute(function(key) {
-      keys.push(key);
-    });
-    keys.forEach(function(key) {
-      keywords.push(get(record, key));
-    });
+    record.eachAttribute((key) => keys.push(key));
+    keys.forEach((key) => keywords.push(get(record, key)));
     return keywords;
   },
 
@@ -105,16 +100,14 @@ export default Ember.DataAdapter.extend({
 
   observeRecord: function(record, recordUpdated) {
     var releaseMethods = Ember.A();
-    var self = this;
     var keysToObserve = Ember.A(['id', 'isNew', 'hasDirtyAttributes']);
 
-    record.eachAttribute(function(key) {
-      keysToObserve.push(key);
-    });
+    record.eachAttribute((key) => keysToObserve.push(key));
+    var adapter = this;
 
     keysToObserve.forEach(function(key) {
       var handler = function() {
-        recordUpdated(self.wrapRecord(record));
+        recordUpdated(adapter.wrapRecord(record));
       };
       Ember.addObserver(record, key, handler);
       releaseMethods.push(function() {
@@ -123,10 +116,9 @@ export default Ember.DataAdapter.extend({
     });
 
     var release = function() {
-      releaseMethods.forEach(function(fn) { fn(); } );
+      releaseMethods.forEach((fn) => fn());
     };
 
     return release;
   }
-
 });

@@ -160,18 +160,6 @@
     return str + "\n" + len + ' error' + ((len === 1) ? '' : 's');
   };
 
-  var o_create = Object.create || (function() {
-    function F() {}
-
-    return function(o) {
-      if (arguments.length !== 1) {
-        throw new Error('Object.create implementation only accepts one parameter.');
-      }
-      F.prototype = o;
-      return new F();
-    };
-  }());
-
   // Handle testing feature flags
   QUnit.config.urlConfig.push({ id: 'enableoptionalfeatures', label: "Enable Opt Features" });
 
@@ -217,7 +205,7 @@
   }
 
   AssertExpectation.Error = function() {};
-  AssertExpectation.prototype = o_create(MethodCallExpectation.prototype);
+  AssertExpectation.prototype = Object.create(MethodCallExpectation.prototype);
   AssertExpectation.prototype.handleCall = function(message, test) {
     this.sawCall = true;
     if (test) { return; } // Only get message for failures

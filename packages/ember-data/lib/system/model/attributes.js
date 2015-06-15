@@ -57,7 +57,7 @@ Model.reopenClass({
   attributes: Ember.computed(function() {
     var map = Map.create();
 
-    this.eachComputedProperty(function(name, meta) {
+    this.eachComputedProperty((name, meta) => {
       if (meta.isAttribute) {
         Ember.assert("You may not set `id` as an attribute on your model. Please remove any lines that look like: `id: DS.attr('<type>')` from " + this.toString(), name !== 'id');
 
@@ -110,7 +110,7 @@ Model.reopenClass({
   transformedAttributes: Ember.computed(function() {
     var map = Map.create();
 
-    this.eachAttribute(function(key, meta) {
+    this.eachAttribute((key, meta) => {
       if (meta.type) {
         map.set(key, meta.type);
       }
@@ -163,9 +163,9 @@ Model.reopenClass({
     @static
   */
   eachAttribute: function(callback, binding) {
-    get(this, 'attributes').forEach(function(meta, name) {
+    get(this, 'attributes').forEach((meta, name) => {
       callback.call(binding, name, meta);
-    }, binding);
+    });
   },
 
   /**
@@ -213,7 +213,7 @@ Model.reopenClass({
     @static
   */
   eachTransformedAttribute: function(callback, binding) {
-    get(this, 'transformedAttributes').forEach(function(type, name) {
+    get(this, 'transformedAttributes').forEach((type, name) => {
       callback.call(binding, name, type);
     });
   }

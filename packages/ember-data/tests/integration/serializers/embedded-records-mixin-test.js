@@ -1,7 +1,6 @@
 var get = Ember.get;
 var HomePlanet, SuperVillain, EvilMinion, SecretLab, SecretWeapon, BatCave, Comment,
   league, superVillain, evilMinion, secretWeapon, homePlanet, secretLab, env;
-var indexOf = Ember.ArrayPolyfills.indexOf;
 var run = Ember.run;
 var LightSaber;
 
@@ -1500,7 +1499,7 @@ test("serializing relationships with an embedded and without calls super when no
       var relationshipType = snapshot.type.determineRelationshipType(relationship);
       // "manyToOne" not supported in DS.RESTSerializer.prototype.serializeHasMany
       var relationshipTypes = Ember.String.w('manyToNone manyToMany manyToOne');
-      if (indexOf.call(relationshipTypes, relationshipType) > -1) {
+      if (relationshipTypes.indexOf(relationshipType) > -1) {
         json[payloadKey] = snapshot.hasMany(key, { ids: true });
       }
     }

@@ -3,7 +3,7 @@ import BelongsToRelationship from "ember-data/system/relationships/state/belongs
 
 var get = Ember.get;
 
-var createRelationshipFor = function(record, relationshipMeta, store) {
+function createRelationshipFor(record, relationshipMeta, store) {
   var inverseKey;
   var inverse = record.type.inverseFor(relationshipMeta.key, store);
 
@@ -16,12 +16,12 @@ var createRelationshipFor = function(record, relationshipMeta, store) {
   } else {
     return new BelongsToRelationship(store, record, inverseKey, relationshipMeta);
   }
-};
+}
 
-var Relationships = function(record) {
+export default function Relationships(record) {
   this.record = record;
-  this.initializedRelationships = Ember.create(null);
-};
+  this.initializedRelationships = Object.create(null);
+}
 
 Relationships.prototype.has = function(key) {
   return !!this.initializedRelationships[key];
@@ -35,5 +35,3 @@ Relationships.prototype.get = function(key) {
   }
   return relationships[key];
 };
-
-export default Relationships;

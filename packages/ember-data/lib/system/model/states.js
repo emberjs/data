@@ -246,7 +246,7 @@ var DirtyState = {
     loadingData: Ember.K,
 
     propertyWasReset: function(internalModel, name) {
-      var length = Ember.keys(internalModel._attributes).length;
+      var length = Object.keys(internalModel._attributes).length;
       var stillDirty = length > 0;
 
       if (!stillDirty) { internalModel.send('rolledBack'); }
@@ -740,7 +740,7 @@ var RootState = {
 function wireState(object, parent, name) {
   /*jshint proto:true*/
   // TODO: Use Object.create and copy instead
-  object = mixin(parent ? Ember.create(parent) : {}, object);
+  object = mixin(parent ? Object.create(parent) : {}, object);
   object.parentState = parent;
   object.stateName = name;
 

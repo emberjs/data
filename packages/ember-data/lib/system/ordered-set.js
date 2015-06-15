@@ -1,16 +1,16 @@
 var EmberOrderedSet = Ember.OrderedSet;
 var guidFor = Ember.guidFor;
 
-var OrderedSet = function() {
+export default function OrderedSet() {
   this._super$constructor();
-};
+}
 
 OrderedSet.create = function() {
   var Constructor = this;
   return new Constructor();
 };
 
-OrderedSet.prototype = Ember.create(EmberOrderedSet.prototype);
+OrderedSet.prototype = Object.create(EmberOrderedSet.prototype);
 OrderedSet.prototype.constructor = OrderedSet;
 OrderedSet.prototype._super$constructor = EmberOrderedSet;
 
@@ -35,5 +35,3 @@ OrderedSet.prototype.addWithIndex = function(obj, idx) {
 
   return this;
 };
-
-export default OrderedSet;

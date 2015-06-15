@@ -22,7 +22,7 @@
   @extends Ember.Object
 */
 
-var Serializer = Ember.Object.extend({
+export default Ember.Object.extend({
 
   /*
     This is only to be used temporarily during the transition from the old
@@ -106,5 +106,3 @@ var Serializer = Ember.Object.extend({
   }
 
 });
-
-export default Serializer;

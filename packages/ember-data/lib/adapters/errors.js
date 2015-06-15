@@ -1,27 +1,23 @@
 const EmberError = Ember.Error;
-const create = Ember.create;
 
-const forEach = Ember.ArrayPolyfills.forEach;
 const SOURCE_POINTER_REGEXP = /data\/(attributes|relationships)\/(.*)/;
 
 /**
   @class AdapterError
   @namespace DS
 */
-export function AdapterError(errors, message) {
-  message = message || "Adapter operation failed";
-
+export function AdapterError(errors, message = 'Adapter operation failed') {
   EmberError.call(this, message);
 
   this.errors = errors || [
     {
-      title: "Adapter Error",
+      title: 'Adapter Error',
       details: message
     }
   ];
 }
 
-AdapterError.prototype = create(EmberError.prototype);
+AdapterError.prototype = Object.create(EmberError.prototype);
 
 /**
   A `DS.InvalidError` is used by an adapter to signal the external API
@@ -83,33 +79,33 @@ AdapterError.prototype = create(EmberError.prototype);
 */
 export function InvalidError(errors) {
   if (!Ember.isArray(errors)) {
-    Ember.deprecate("`InvalidError` expects json-api formatted errors.");
+    Ember.deprecate('`InvalidError` expects json-api formatted errors.');
     errors = errorsHashToArray(errors);
   }
-  AdapterError.call(this, errors, "The adapter rejected the commit because it was invalid");
+  AdapterError.call(this, errors, 'The adapter rejected the commit because it was invalid');
 }
 
-InvalidError.prototype = create(AdapterError.prototype);
+InvalidError.prototype = Object.create(AdapterError.prototype);
 
 /**
   @class TimeoutError
   @namespace DS
 */
 export function TimeoutError() {
-  AdapterError.call(this, null, "The adapter operation timed out");
+  AdapterError.call(this, null, 'The adapter operation timed out');
 }
 
-TimeoutError.prototype = create(AdapterError.prototype);
+TimeoutError.prototype = Object.create(AdapterError.prototype);
 
 /**
   @class AbortError
   @namespace DS
 */
 export function AbortError() {
-  AdapterError.call(this, null, "The adapter operation was aborted");
+  AdapterError.call(this, null, 'The adapter operation was aborted');
 }
 
-AbortError.prototype = create(AdapterError.prototype);
+AbortError.prototype = Object.create(AdapterError.prototype);
 
 /**
   @private
@@ -118,7 +114,7 @@ export function errorsHashToArray(errors) {
   let out = [];
 
   if (Ember.isPresent(errors)) {
-    forEach.call(Ember.keys(errors), function(key) {
+    Object.keys(errors).forEach((key) => {
       let messages = Ember.makeArray(errors[key]);
       for (let i = 0; i < messages.length; i++) {
         out.push({
@@ -139,7 +135,7 @@ export function errorsArrayToHash(errors) {
   let out = {};
 
   if (Ember.isPresent(errors)) {
-    forEach.call(errors, function(error) {
+    errors.forEach((error) => {
       if (error.source && error.source.pointer) {
         let key = error.source.pointer.match(SOURCE_POINTER_REGEXP);
 

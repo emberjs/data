@@ -1,9 +1,9 @@
-function merge(original, updates) {
+export default function merge(original, updates) {
   if (!updates || typeof updates !== 'object') {
     return original;
   }
 
-  var props = Ember.keys(updates);
+  var props = Object.keys(updates);
   var prop;
   var length = props.length;
 
@@ -14,5 +14,3 @@ function merge(original, updates) {
 
   return original;
 }
-
-export default merge;

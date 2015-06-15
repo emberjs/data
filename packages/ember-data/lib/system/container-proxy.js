@@ -6,18 +6,16 @@
   @namespace DS
   @private
 */
-function ContainerProxy(container) {
+export default function ContainerProxy(container) {
   this.container = container;
 }
 
 ContainerProxy.prototype.aliasedFactory = function(path, preLookup) {
-  var _this = this;
-
   return {
-    create: function() {
+    create: () => {
       if (preLookup) { preLookup(); }
 
-      return _this.container.lookup(path);
+      return this.container.lookup(path);
     }
   };
 };
@@ -48,5 +46,3 @@ ContainerProxy.prototype.registerDeprecations = function(proxyPairs) {
     this.registerDeprecation(deprecated, valid);
   }
 };
-
-export default ContainerProxy;

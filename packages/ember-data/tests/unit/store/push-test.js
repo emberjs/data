@@ -3,7 +3,6 @@ var attr = DS.attr;
 var hasMany = DS.hasMany;
 var belongsTo = DS.belongsTo;
 var run = Ember.run;
-var forEach = Ember.ArrayPolyfills.forEach;
 
 module("unit/store/push - DS.Store#push", {
   setup: function() {
@@ -431,7 +430,7 @@ test('calling push without data argument as an object raises an error', function
 
   expect(invalidValues.length);
 
-  forEach.call(invalidValues, function(invalidValue) {
+  invalidValues.forEach(function(invalidValue) {
     throws(function() {
       run(function() {
         store.push('person', invalidValue);
@@ -503,7 +502,7 @@ test('calling push with hasMany relationship the value must be an array', functi
 
   expect(invalidValues.length);
 
-  forEach.call(invalidValues, function(invalidValue) {
+  invalidValues.forEach(function(invalidValue) {
     throws(function() {
       run(function() {
         store.push('person', { id: 1, phoneNumbers: invalidValue });
@@ -521,7 +520,7 @@ test('calling push with missing or invalid `id` throws assertion error', functio
 
   expect(invalidValues.length);
 
-  forEach.call(invalidValues, function(invalidValue) {
+  invalidValues.forEach(function(invalidValue) {
     throws(function() {
       run(function() {
         store.push('person', invalidValue);

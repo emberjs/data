@@ -14,7 +14,6 @@ import {
 } from "ember-data/system/store/serializers";
 
 var Promise = Ember.RSVP.Promise;
-var map = Ember.ArrayPolyfills.map;
 var get = Ember.get;
 
 export function _find(adapter, store, typeClass, id, internalModel, options) {
@@ -29,7 +28,7 @@ export function _find(adapter, store, typeClass, id, internalModel, options) {
   var serializer = serializerForAdapter(store, adapter, internalModel.type.modelName);
   var label = "DS: Handle Adapter#find of " + typeClass + " with id: " + id;
 
-  promise = Promise.cast(promise, label);
+  promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(function(adapterPayload) {
@@ -62,7 +61,7 @@ export function _findMany(adapter, store, typeClass, ids, internalModels) {
     throw new Error('adapter.findMany returned undefined, this was very likely a mistake');
   }
 
-  promise = Promise.cast(promise, label);
+  promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(function(adapterPayload) {
@@ -70,7 +69,7 @@ export function _findMany(adapter, store, typeClass, ids, internalModels) {
       var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findMany');
       //TODO Optimize, no need to materialize here
       var records = pushPayload(store, payload);
-      return map.call(records, function(record) { return record._internalModel; });
+      return records.map((record) => record._internalModel);
     });
   }, null, "DS: Extract payload of " + typeClass);
 }
@@ -82,7 +81,7 @@ export function _findHasMany(adapter, store, internalModel, link, relationship) 
   var serializer = serializerForAdapter(store, adapter, relationship.type);
   var label = "DS: Handle Adapter#findHasMany of " + internalModel + " : " + relationship.type;
 
-  promise = Promise.cast(promise, label);
+  promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
   promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
@@ -91,7 +90,7 @@ export function _findHasMany(adapter, store, internalModel, link, relationship) 
       var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findHasMany');
       //TODO Use a non record creating push
       var records = pushPayload(store, payload);
-      var recordArray = map.call(records, function(record) { return record._internalModel; });
+      var recordArray = records.map((record) => record._internalModel);
       if (serializer.get('isNewSerializerAPI')) {
         recordArray.meta = payload.meta;
       }
@@ -107,7 +106,7 @@ export function _findBelongsTo(adapter, store, internalModel, link, relationship
   var serializer = serializerForAdapter(store, adapter, relationship.type);
   var label = "DS: Handle Adapter#findBelongsTo of " + internalModel + " : " + relationship.type;
 
-  promise = Promise.cast(promise, label);
+  promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
   promise = _guard(promise, _bind(_objectIsAlive, internalModel));
 
@@ -134,7 +133,7 @@ export function _findAll(adapter, store, typeClass, sinceToken, options) {
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Handle Adapter#findAll of " + typeClass;
 
-  promise = Promise.cast(promise, label);
+  promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(function(adapterPayload) {
@@ -163,7 +162,7 @@ export function _query(adapter, store, typeClass, query, recordArray) {
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Handle Adapter#findQuery of " + typeClass;
 
-  promise = Promise.cast(promise, label);
+  promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(function(adapterPayload) {
@@ -187,7 +186,7 @@ export function _queryRecord(adapter, store, typeClass, query) {
   var serializer = serializerForAdapter(store, adapter, modelName);
   var label = "DS: Handle Adapter#queryRecord of " + typeClass;
 
-  promise = Promise.cast(promise, label);
+  promise = Promise.resolve(promise, label);
   promise = _guard(promise, _bind(_objectIsAlive, store));
 
   return promise.then(function(adapterPayload) {
