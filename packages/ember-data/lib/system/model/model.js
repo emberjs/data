@@ -5,7 +5,20 @@ import { PromiseObject } from "ember-data/system/promise-proxies";
 */
 
 var get = Ember.get;
-var intersection = Ember.EnumerableUtils.intersection;
+var forEach = Ember.ArrayPolyfills.forEach;
+var indexOf = Ember.ArrayPolyfills.indexOf;
+
+function intersection (array1, array2) {
+  var result = [];
+  forEach.call(array1, (element) => {
+    if (indexOf.call(array2, element) >= 0) {
+      result.push(element);
+    }
+  });
+
+  return result;
+}
+
 var RESERVED_MODEL_PROPS = [
   'currentState', 'data', 'store'
 ];

@@ -14,7 +14,7 @@ import {
 } from "ember-data/system/store/serializers";
 
 var Promise = Ember.RSVP.Promise;
-var map = Ember.EnumerableUtils.map;
+var map = Ember.ArrayPolyfills.map;
 var get = Ember.get;
 
 export function _find(adapter, store, typeClass, id, internalModel, options) {
@@ -70,7 +70,7 @@ export function _findMany(adapter, store, typeClass, ids, internalModels) {
       var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findMany');
       //TODO Optimize, no need to materialize here
       var records = pushPayload(store, payload);
-      return map(records, function(record) { return record._internalModel; });
+      return map.call(records, function(record) { return record._internalModel; });
     });
   }, null, "DS: Extract payload of " + typeClass);
 }
@@ -91,7 +91,7 @@ export function _findHasMany(adapter, store, internalModel, link, relationship) 
       var payload = normalizeResponseHelper(serializer, store, typeClass, adapterPayload, null, 'findHasMany');
       //TODO Use a non record creating push
       var records = pushPayload(store, payload);
-      var recordArray = map(records, function(record) { return record._internalModel; });
+      var recordArray = map.call(records, function(record) { return record._internalModel; });
       if (serializer.get('isNewSerializerAPI')) {
         recordArray.meta = payload.meta;
       }

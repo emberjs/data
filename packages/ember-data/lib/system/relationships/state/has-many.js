@@ -5,7 +5,8 @@ import ManyArray from "ember-data/system/many-array";
 
 import { assertPolymorphicType } from "ember-data/utils";
 
-var map = Ember.EnumerableUtils.map;
+var map = Ember.ArrayPolyfills.map;
+
 
 var ManyRelationship = function(store, record, inverseKey, relationshipMeta) {
   this._super$constructor(store, record, inverseKey, relationshipMeta);
@@ -157,7 +158,7 @@ ManyRelationship.prototype.fetchLink = function() {
 ManyRelationship.prototype.findRecords = function() {
   var manyArray = this.manyArray;
   //TODO CLEANUP
-  return this.store.findMany(map(manyArray.toArray(), function(rec) { return rec._internalModel; })).then(function() {
+  return this.store.findMany(map.call(manyArray.toArray(), function(rec) { return rec._internalModel; })).then(function() {
     //Goes away after the manyArray refactor
     manyArray.set('isLoaded', true);
     return manyArray;

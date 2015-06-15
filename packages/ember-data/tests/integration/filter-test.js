@@ -2,18 +2,18 @@ import customAdapter from 'ember-data/tests/helpers/custom-adapter';
 
 var get = Ember.get;
 var set = Ember.set;
-var forEach = Ember.EnumerableUtils.forEach;
-var indexOf = Ember.EnumerableUtils.indexOf;
+var forEach = Ember.ArrayPolyfills.forEach;
+var indexOf = Ember.ArrayPolyfills.indexOf;
 var run = Ember.run;
 
 var Person, store, env, array, recordArray;
 
 var shouldContain = function(array, item) {
-  ok(indexOf(array, item) !== -1, "array should contain "+item.get('name'));
+  ok(array.indexOf(item) !== -1, "array should contain "+item.get('name'));
 };
 
 var shouldNotContain = function(array, item) {
-  ok(indexOf(array, item) === -1, "array should not contain "+item.get('name'));
+  ok(indexOf.call(array, item) === -1, "array should not contain "+item.get('name'));
 };
 
 module("integration/filter - DS.Model updating", {
@@ -520,7 +520,7 @@ var edited;
 var clientEdits = function(ids) {
   edited = [];
 
-  forEach(ids, function(id) {
+  forEach.call(ids, function(id) {
     // wrap in an Ember.run to guarantee coalescence of the
     // iterated `set` calls and promise resolution.
     Ember.run(function() {
@@ -538,14 +538,14 @@ var clientCreates = function(names) {
   // wrap in an Ember.run to guarantee coalescence of the
   // iterated `set` calls.
   Ember.run(function() {
-    forEach(names, function(name) {
+    forEach.call(names, function(name) {
       edited.push(store.createRecord('person', { name: 'Client-side ' + name }));
     });
   });
 };
 
 var serverResponds = function() {
-  forEach(edited, function(person) { run(person, 'save'); });
+  forEach.call(edited, function(person) { run(person, 'save'); });
 };
 
 var setup = function(serverCallbacks) {

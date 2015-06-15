@@ -1,6 +1,6 @@
 import OrderedSet from "ember-data/system/ordered-set";
 
-var forEach = Ember.EnumerableUtils.forEach;
+var forEach = Ember.ArrayPolyfills.forEach;
 
 function Relationship(store, record, inverseKey, relationshipMeta) {
   this.members = new OrderedSet();
@@ -52,14 +52,14 @@ Relationship.prototype = {
 
   removeRecords: function(records) {
     var self = this;
-    forEach(records, function(record) {
+    forEach.call(records, function(record) {
       self.removeRecord(record);
     });
   },
 
   addRecords: function(records, idx) {
     var self = this;
-    forEach(records, function(record) {
+    forEach.call(records, function(record) {
       self.addRecord(record, idx);
       if (idx !== undefined) {
         idx++;
