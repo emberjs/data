@@ -28,8 +28,8 @@ test("When an id is searched, the correct url should be generated", function() {
     return Ember.RSVP.resolve();
   };
   run(function() {
-    adapter.find(store, Person, 1);
-    adapter.find(store, Place, 1);
+    adapter.findRecord(store, Person, 1);
+    adapter.findRecord(store, Place, 1);
   });
 });
 
@@ -40,7 +40,7 @@ test("id's should be sanatized", function() {
     return Ember.RSVP.resolve();
   };
   run(function() {
-    adapter.find(store, Person, '../place/1');
+    adapter.findRecord(store, Person, '../place/1');
   });
 });
 

@@ -51,7 +51,7 @@ test("can create child record from a hasMany relationship", function() {
   });
 
   run(function() {
-    store.find('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(async(function(person) {
       person.get("tags").createRecord({ name: "cool" });
 
       equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");

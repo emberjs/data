@@ -13,8 +13,8 @@ var get = Ember.get;
 
   ```javascript
   export default DS.Adapter.extend(BuildURLMixin, {
-    find: function(store, type, id, snapshot) {
-      var url = this.buildURL(type.modelName, id, snapshot, 'find');
+    findRecord: function(store, type, id, snapshot) {
+      var url = this.buildURL(type.modelName, id, snapshot, 'findRecord');
       return this.ajax(url, 'GET');
     }
   });
@@ -27,7 +27,7 @@ var get = Ember.get;
   @class BuildURLMixin
   @namespace DS
 */
-export default Ember.Mixin.create({
+var BuildURLMixin = Ember.Mixin.create({
   /**
     Builds a URL for a given type and optional ID.
 
@@ -46,17 +46,23 @@ export default Ember.Mixin.create({
     @param {(String|Array|Object)} id single id or array of ids or query
     @param {(DS.Snapshot|Array)} snapshot single snapshot or array of snapshots
     @param {String} requestType
-    @param {Object} query object of query parameters to send for findQuery requests.
+    @param {Object} query object of query parameters to send for query requests.
     @return {String} url
   */
   buildURL: function(modelName, id, snapshot, requestType, query) {
     switch (requestType) {
       case 'find':
+        // The `find` case is deprecated
         return this.urlForFind(id, modelName, snapshot);
+      case 'findRecord':
+        return this.urlForFindRecord(id, modelName, snapshot);
       case 'findAll':
         return this.urlForFindAll(modelName);
       case 'findQuery':
+        // The `findQuery` case is deprecated
         return this.urlForFindQuery(query, modelName);
+      case 'query':
+        return this.urlForQuery(query, modelName);
       case 'findMany':
         return this.urlForFindMany(id, modelName, snapshot);
       case 'findHasMany':
@@ -109,8 +115,22 @@ export default Ember.Mixin.create({
    * @param {String} modelName
    * @param {DS.Snapshot} snapshot
    * @return {String} url
+   * @deprecated Use [urlForFindRecord](#method_urlForFindRecord) instead
    */
-  urlForFind: function(id, modelName, snapshot) {
+  urlForFind: urlForFind,
+
+  /**
+   * @method urlForFind
+   * @param {String} id
+   * @param {String} modelName
+   * @param {DS.Snapshot} snapshot
+   * @return {String} url
+   */
+  urlForFindRecord: function(id, modelName, snapshot) {
+    if (this.urlForFind !== urlForFind) {
+      Ember.deprecate('BuildURLMixin#urlForFind has been deprecated and renamed to `urlForFindRecord`.');
+      return this.urlForFind(id, modelName, snapshot);
+    }
     return this._buildURL(modelName, id);
   },
 
@@ -128,8 +148,21 @@ export default Ember.Mixin.create({
    * @param {Object} query
    * @param {String} modelName
    * @return {String} url
+   * @deprecated Use [urlForQuery](#method_urlForQuery) instead
    */
-  urlForFindQuery: function(query, modelName) {
+  urlForFindQuery: urlForFindQuery,
+
+  /**
+   * @method urlForQuery
+   * @param {Object} query
+   * @param {String} modelName
+   * @return {String} url
+   */
+  urlForQuery: function(query, modelName) {
+    if (this.urlForFindQuery !== urlForFindQuery) {
+      Ember.deprecate('BuildURLMixin#urlForFindQuery has been deprecated and renamed to `urlForQuery`.');
+      return this.urlForFindQuery(query, modelName);
+    }
     return this._buildURL(modelName);
   },
 
@@ -270,3 +303,15 @@ export default Ember.Mixin.create({
     return Ember.String.pluralize(camelized);
   }
 });
+
+function urlForFind(id, modelName, snapshot) {
+  Ember.deprecate('BuildURLMixin#urlForFind has been deprecated and renamed to `urlForFindRecord`.');
+  return this._buildURL(modelName, id);
+}
+
+function urlForFindQuery(query, modelName) {
+  Ember.deprecate('BuildURLMixin#urlForFindQuery has been deprecated and renamed to `urlForQuery`.');
+  return this._buildURL(modelName);
+}
+
+export default BuildURLMixin;

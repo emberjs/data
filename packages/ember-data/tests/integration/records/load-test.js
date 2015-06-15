@@ -22,12 +22,12 @@ module("integration/load - Loading Records", {
 });
 
 test("When loading a record fails, the isLoading is set to false", function() {
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     return Ember.RSVP.reject();
   };
 
   run(function() {
-    env.store.find('post', 1).then(null, async(function() {
+    env.store.findRecord('post', 1).then(null, async(function() {
       // store.recordForId is private, but there is currently no other way to
       // get the specific record instance, since it is not passed to this
       // rejection handler

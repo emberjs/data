@@ -25,7 +25,7 @@ module("integration/reload - Reloading Records", {
 test("When a single record is requested, the adapter's find method should be called unless it's loaded.", function() {
   var count = 0;
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     if (count === 0) {
       count++;
       return Ember.RSVP.resolve({ id: id, name: "Tom Dale" });
@@ -38,7 +38,7 @@ test("When a single record is requested, the adapter's find method should be cal
   };
 
   run(function() {
-    env.store.find('person', 1).then(function(person) {
+    env.store.findRecord('person', 1).then(function(person) {
       equal(get(person, 'name'), "Tom Dale", "The person is loaded with the right name");
       equal(get(person, 'isLoaded'), true, "The person is now loaded");
       var promise = person.reload();
@@ -58,7 +58,7 @@ test("When a record is reloaded and fails, it can try again", function() {
   });
 
   var count = 0;
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     equal(tom.get('isReloading'), true, "Tom is reloading");
     if (count++ === 0) {
       return Ember.RSVP.reject();
@@ -87,7 +87,7 @@ test("When a record is loaded a second time, isLoaded stays true", function() {
   });
 
   run(function() {
-    env.store.find('person', 1).then(function(person) {
+    env.store.findRecord('person', 1).then(function(person) {
       equal(get(person, 'isLoaded'), true, "The person is loaded");
       person.addObserver('isLoaded', isLoadedDidChange);
 
@@ -117,7 +117,7 @@ test("When a record is reloaded, its async hasMany relationships still work", fu
 
   var tags = { 1: "hipster", 2: "hair" };
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     switch (type.modelName) {
       case 'person':
         return Ember.RSVP.resolve({ id: 1, name: "Tom", tags: [1, 2] });
@@ -129,7 +129,7 @@ test("When a record is reloaded, its async hasMany relationships still work", fu
   var tom;
 
   run(function() {
-    env.store.find('person', 1).then(function(person) {
+    env.store.findRecord('person', 1).then(function(person) {
       tom = person;
       equal(person.get('name'), "Tom", "precond");
 

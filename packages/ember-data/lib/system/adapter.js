@@ -41,12 +41,12 @@ var get = Ember.get;
   application to customize it for your backend. The minimum set of methods
   that you should implement is:
 
-    * `find()`
+    * `findRecord()`
     * `createRecord()`
     * `updateRecord()`
     * `deleteRecord()`
     * `findAll()`
-    * `findQuery()`
+    * `query()`
 
   To improve the network performance of your application, you can optimize
   your adapter by overriding these lower-level methods:
@@ -87,19 +87,19 @@ var Adapter = Ember.Object.extend({
   defaultSerializer: '-default',
 
   /**
-    The `find()` method is invoked when the store is asked for a record that
-    has not previously been loaded. In response to `find()` being called, you
+    The `findRecord()` method is invoked when the store is asked for a record that
+    has not previously been loaded. In response to `findRecord()` being called, you
     should query your persistence layer for a record with the given ID. Once
     found, you can asynchronously call the store's `push()` method to push
     the record into the store.
 
-    Here is an example `find` implementation:
+    Here is an example `findRecord` implementation:
 
     ```app/adapters/application.js
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
-      find: function(store, type, id, snapshot) {
+      findRecord: function(store, type, id, snapshot) {
         var url = [type.modelName, id].join('/');
 
         return new Ember.RSVP.Promise(function(resolve, reject) {
@@ -114,14 +114,14 @@ var Adapter = Ember.Object.extend({
     });
     ```
 
-    @method find
+    @method findRecord
     @param {DS.Store} store
     @param {DS.Model} type
     @param {String} id
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
   */
-  find: null,
+  findRecord: null,
 
   /**
     The `findAll()` method is used to retrieve all records for a given type.
@@ -165,7 +165,7 @@ var Adapter = Ember.Object.extend({
     import DS from 'ember-data';
 
     export default DS.Adapter.extend({
-      findQuery: function(store, type, query) {
+      query: function(store, type, query) {
         var url = type;
         return new Ember.RSVP.Promise(function(resolve, reject) {
           jQuery.getJSON(url, query).then(function(data) {
@@ -180,14 +180,14 @@ var Adapter = Ember.Object.extend({
     ```
 
     @private
-    @method findQuery
+    @method query
     @param {DS.Store} store
     @param {DS.Model} type
     @param {Object} query
     @param {DS.AdapterPopulatedRecordArray} recordArray
     @return {Promise} promise
   */
-  findQuery: null,
+  query: null,
 
   /**
     The `queryRecord()` method is invoked when the store is asked for a single

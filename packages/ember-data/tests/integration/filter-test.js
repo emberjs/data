@@ -188,9 +188,9 @@ test("a Record Array can update its filter", function() {
   var asyncDale, asyncKatz, asyncBryn;
 
   run(function() {
-    asyncDale = store.find('person', 1);
-    asyncKatz = store.find('person', 2);
-    asyncBryn = store.find('person', 3);
+    asyncDale = store.findRecord('person', 1);
+    asyncKatz = store.findRecord('person', 2);
+    asyncBryn = store.findRecord('person', 3);
   });
 
   store.filter('person', function(hash) {
@@ -246,9 +246,9 @@ test("a Record Array can update its filter and notify array observers", function
   var asyncDale, asyncKatz, asyncBryn;
 
   run(function() {
-    asyncDale = store.find('person', 1);
-    asyncKatz = store.find('person', 2);
-    asyncBryn = store.find('person', 3);
+    asyncDale = store.findRecord('person', 1);
+    asyncKatz = store.findRecord('person', 2);
+    asyncBryn = store.findRecord('person', 3);
   });
 
   store.filter('person', function(hash) {
@@ -332,7 +332,7 @@ test("it is possible to filter by computed properties", function() {
 
   equal(filter.get('length'), 1, "the filter now has a record in it");
 
-  store.find('person', 1).then(async(function(person) {
+  store.findRecord('person', 1).then(async(function(person) {
     Ember.run(function() {
       person.set('name', "Yehuda Katz");
     });
@@ -361,12 +361,12 @@ test("a filter created after a record is already loaded works", function() {
   });
 
   equal(filter.get('length'), 1, "the filter now has a record in it");
-  asyncEqual(filter.objectAt(0), store.find('person', 1));
+  asyncEqual(filter.objectAt(0), store.findRecord('person', 1));
 });
 
 test("filter with query persists query on the resulting filteredRecordArray", function() {
   customAdapter(env, DS.Adapter.extend({
-    findQuery: function(store, type, id) {
+    query: function(store, type, id) {
       return Ember.RSVP.resolve([{
         id: id,
         name: "Tom Dale"
@@ -394,7 +394,7 @@ test("it is possible to filter by state flags", function() {
   var filter;
 
   customAdapter(env, DS.Adapter.extend({
-    find: function(store, type, id, snapshot) {
+    findRecord: function(store, type, id, snapshot) {
       return Ember.RSVP.resolve({ id: id, name: "Tom Dale" });
     }
   }));
@@ -408,7 +408,7 @@ test("it is possible to filter by state flags", function() {
   equal(filter.get('length'), 0, "precond - there are no records yet");
 
   Ember.run(function() {
-    var asyncPerson = store.find('person', 1);
+    var asyncPerson = store.findRecord('person', 1);
 
     // Ember.run will block `find` from being synchronously
     // resolved in test mode
@@ -417,7 +417,7 @@ test("it is possible to filter by state flags", function() {
 
     asyncPerson.then(async(function(person) {
       equal(filter.get('length'), 1, "the now-loaded record is in the filter");
-      asyncEqual(filter.objectAt(0), store.find('person', 1));
+      asyncEqual(filter.objectAt(0), store.findRecord('person', 1));
     }));
   });
 });
@@ -437,7 +437,7 @@ test("it is possible to filter loaded records by dirtiness", function() {
     store.push('person', { id: 1, name: "Tom Dale" });
   });
 
-  store.find('person', 1).then(async(function(person) {
+  store.findRecord('person', 1).then(async(function(person) {
     equal(filter.get('length'), 1, "the clean record is in the filter");
 
     // Force synchronous update of the filter, even though
@@ -491,7 +491,7 @@ test("it is possible to filter created records by dirtiness", function() {
 
 test("it is possible to filter created records by isReloading", function() {
   customAdapter(env, DS.Adapter.extend({
-    find: function(store, type, id, snapshot) {
+    findRecord: function(store, type, id, snapshot) {
       return Ember.RSVP.resolve({
         id: 1,
         name: "Tom Dalle"
@@ -524,7 +524,7 @@ var clientEdits = function(ids) {
     // wrap in an Ember.run to guarantee coalescence of the
     // iterated `set` calls and promise resolution.
     Ember.run(function() {
-      store.find('person', id).then(function(person) {
+      store.findRecord('person', id).then(function(person) {
         edited.push(person);
         person.set('name', 'Client-side ' + id );
       });

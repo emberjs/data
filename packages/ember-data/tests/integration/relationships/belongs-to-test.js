@@ -106,7 +106,7 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
     })
   });
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     ok(true, "The adapter's find method should be called");
     return Ember.RSVP.resolve({
       id: 1
@@ -121,7 +121,7 @@ test("The store can materialize a non loaded monomorphic belongsTo association",
   });
 
   run(function() {
-    env.store.find('post', 1).then(function(post) {
+    env.store.findRecord('post', 1).then(function(post) {
       post.get('user');
     });
   });
@@ -137,8 +137,8 @@ test("Only a record of the same type can be used with a monomorphic belongsTo re
 
   run(function() {
     hash({
-      post: store.find('post', 1),
-      comment: store.find('comment', 2)
+      post: store.findRecord('post', 1),
+      comment: store.findRecord('comment', 2)
     }).then(function(records) {
       expectAssertion(function() {
         records.post.set('user', records.comment);
@@ -158,10 +158,10 @@ test("Only a record of the same base type can be used with a polymorphic belongs
 
   run(function() {
     var asyncRecords = hash({
-      user: store.find('user', 3),
-      post: store.find('post', 1),
-      comment: store.find('comment', 1),
-      anotherComment: store.find('comment', 2)
+      user: store.findRecord('user', 3),
+      post: store.findRecord('post', 1),
+      comment: store.findRecord('comment', 1),
+      anotherComment: store.findRecord('comment', 2)
     });
 
     asyncRecords.then(function(records) {
@@ -186,8 +186,8 @@ test("The store can load a polymorphic belongsTo association", function() {
 
   run(function() {
     hash({
-      message: store.find('post', 1),
-      comment: store.find('comment', 2)
+      message: store.findRecord('post', 1),
+      comment: store.findRecord('comment', 2)
     }).then(function(records) {
       equal(records.comment.get('message'), records.message);
     });
@@ -205,7 +205,7 @@ test("The store can serialize a polymorphic belongsTo association", function() {
     env.store.push('post', { id: 1 });
     env.store.push('comment', { id: 2, message: 1, messageType: 'post' });
 
-    store.find('comment', 2).then(function(comment) {
+    store.findRecord('comment', 2).then(function(comment) {
       var serialized = store.serialize(comment, { includeId: true });
       equal(serialized['message'], 1);
       equal(serialized['message_type'], 'post');
@@ -229,7 +229,7 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
     store.push('person', { id: 1, links: { group: '/people/1/group' } });
   });
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     throw new Error("Adapter's find method should not be called");
   };
 
@@ -242,7 +242,7 @@ test("A serializer can materialize a belongsTo as a link that gets sent back to 
   });
 
   run(function() {
-    env.store.find('person', 1).then(function(person) {
+    env.store.findRecord('person', 1).then(function(person) {
       return person.get('group');
     }).then(function(group) {
       ok(group instanceof Group, "A group object is loaded");
@@ -267,7 +267,7 @@ test('A record with an async belongsTo relationship always returns a promise for
     store.push('person', { id: 1, links: { seat: '/people/1/seat' } });
   });
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     throw new Error("Adapter's find method should not be called");
   };
 
@@ -276,7 +276,7 @@ test('A record with an async belongsTo relationship always returns a promise for
   });
 
   run(function() {
-    env.store.find('person', 1).then(function(person) {
+    env.store.findRecord('person', 1).then(function(person) {
       person.get('seat').then(function(seat) {
         // this assertion fails too
         // ok(seat.get('person') === person, 'parent relationship should be populated');
@@ -305,7 +305,7 @@ test("A record with an async belongsTo relationship returning null should resolv
     store.push('person', { id: 1, links: { group: '/people/1/group' } });
   });
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     throw new Error("Adapter's find method should not be called");
   };
 
@@ -313,7 +313,7 @@ test("A record with an async belongsTo relationship returning null should resolv
     return Ember.RSVP.resolve(null);
   });
 
-  env.store.find('person', 1).then(async(function(person) {
+  env.store.findRecord('person', 1).then(async(function(person) {
     return person.get('group');
   })).then(async(function(group) {
     ok(group === null, "group should be null");
@@ -339,7 +339,7 @@ test("A record can be created with a resolved belongsTo promise", function() {
     group = store.push('group', { id: 1 });
   });
 
-  var groupPromise = store.find('group', 1);
+  var groupPromise = store.findRecord('group', 1);
   groupPromise.then(async(function(group) {
     var person = env.store.createRecord('person', {
       group: groupPromise
@@ -552,7 +552,7 @@ test("Destroying a record with an unloaded aync belongsTo association does not f
     });
   });
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     throw new Error("Adapter's find method should not be called");
   };
 
@@ -631,12 +631,12 @@ test("belongsTo hasData async loaded", function () {
     author: belongsTo('author', { async: true })
   });
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     return Ember.RSVP.resolve({ id: 1, name: 'The Greatest Book', author: 2 });
   };
 
   run(function() {
-    store.find('book', 1).then(function(book) {
+    store.findRecord('book', 1).then(function(book) {
       var relationship = book._internalModel._relationships.get('author');
       equal(relationship.hasData, true, 'relationship has data');
     });
@@ -646,12 +646,12 @@ test("belongsTo hasData async loaded", function () {
 test("belongsTo hasData sync loaded", function () {
   expect(1);
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     return Ember.RSVP.resolve({ id: 1, name: 'The Greatest Book', author: 2 });
   };
 
   run(function() {
-    store.find('book', 1).then(function(book) {
+    store.findRecord('book', 1).then(function(book) {
       var relationship = book._internalModel._relationships.get('author');
       equal(relationship.hasData, true, 'relationship has data');
     });
@@ -665,12 +665,12 @@ test("belongsTo hasData async not loaded", function () {
     author: belongsTo('author', { async: true })
   });
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     return Ember.RSVP.resolve({ id: 1, name: 'The Greatest Book', links: { author: 'author' } });
   };
 
   run(function() {
-    store.find('book', 1).then(function(book) {
+    store.findRecord('book', 1).then(function(book) {
       var relationship = book._internalModel._relationships.get('author');
       equal(relationship.hasData, false, 'relationship does not have data');
     });
@@ -680,12 +680,12 @@ test("belongsTo hasData async not loaded", function () {
 test("belongsTo hasData sync not loaded", function () {
   expect(1);
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     return Ember.RSVP.resolve({ id: 1, name: 'The Greatest Book' });
   };
 
   run(function() {
-    store.find('book', 1).then(function(book) {
+    store.findRecord('book', 1).then(function(book) {
       var relationship = book._internalModel._relationships.get('author');
       equal(relationship.hasData, false, 'relationship does not have data');
     });

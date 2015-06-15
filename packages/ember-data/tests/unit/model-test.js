@@ -41,7 +41,7 @@ test("setting a property on a record that has not changed does not cause it to b
 
   run(function() {
     store.push('person', { id: 1, name: "Peter", isDrugAddict: true });
-    store.find('person', 1).then(function(person) {
+    store.findRecord('person', 1).then(function(person) {
       equal(person.get('isDirty'), false, "precond - person record should not be dirty");
 
       person.set('name', "Peter");
@@ -57,7 +57,7 @@ test("resetting a property on a record cause it to become clean again", function
 
   run(function() {
     store.push('person', { id: 1, name: "Peter", isDrugAddict: true });
-    store.find('person', 1).then(function(person) {
+    store.findRecord('person', 1).then(function(person) {
       equal(person.get('isDirty'), false, "precond - person record should not be dirty");
       person.set('isDrugAddict', false);
       equal(person.get('isDirty'), true, "record becomes dirty after setting property to a new value");
@@ -72,7 +72,7 @@ test("a record becomes clean again only if all changed properties are reset", fu
 
   run(function() {
     store.push('person', { id: 1, name: "Peter", isDrugAddict: true });
-    store.find('person', 1).then(function(person) {
+    store.findRecord('person', 1).then(function(person) {
       equal(person.get('isDirty'), false, "precond - person record should not be dirty");
       person.set('isDrugAddict', false);
       equal(person.get('isDirty'), true, "record becomes dirty after setting one property to a new value");
@@ -91,7 +91,7 @@ test("a record reports its unique id via the `id` property", function() {
 
   run(function() {
     store.push('person', { id: 1 });
-    store.find('person', 1).then(function(record) {
+    store.findRecord('person', 1).then(function(record) {
       equal(get(record, 'id'), 1, "reports id as id by default");
     });
   });
@@ -102,7 +102,7 @@ test("a record's id is included in its toString representation", function() {
 
   run(function() {
     store.push('person', { id: 1 });
-    store.find('person', 1).then(function(record) {
+    store.findRecord('person', 1).then(function(record) {
       equal(record.toString(), '<(subclass of DS.Model):'+Ember.guidFor(record)+':1>', "reports id in toString");
     });
   });
@@ -121,7 +121,7 @@ test("trying to set an `id` attribute should raise", function() {
   expectAssertion(function() {
     run(function() {
       store.push('person', { id: 1, name: "Scumdale" });
-      store.find('person', 1);
+      store.findRecord('person', 1);
     });
   }, /You may not set `id`/);
 });
@@ -136,7 +136,7 @@ test("a collision of a record's id with object function's name", function() {
     }
     run(function() {
       store.push('person', { id: 'watch' });
-      store.find('person', 'watch').then(function(record) {
+      store.findRecord('person', 'watch').then(function(record) {
         equal(get(record, 'id'), 'watch', "record is successfully created and could be found by its id");
       });
     });
@@ -154,7 +154,7 @@ test("it should use `_internalModel` and not `internalModel` to store its intern
   run(function() {
     store.push('person', { id: 1 });
 
-    store.find(Person, 1).then(function(record) {
+    store.findRecord(Person, 1).then(function(record) {
       equal(record.get('_internalModel'), undefined, "doesn't shadow internalModel key");
     });
   });
@@ -177,7 +177,7 @@ test("it should cache attributes", function() {
 
   run(function() {
     store.push('post', { id: 1 });
-    store.find('post', 1).then(function(record) {
+    store.findRecord('post', 1).then(function(record) {
       run(function() {
         record.set('updatedAt', date);
       });
@@ -338,7 +338,7 @@ test("a DS.Model can update its attributes", function() {
   expect(1);
 
   run(function() {
-    store.find('person', 2).then(function(person) {
+    store.findRecord('person', 2).then(function(person) {
       set(person, 'name', "Brohuda Katz");
       equal(get(person, 'name'), "Brohuda Katz", "setting took hold");
     });
@@ -469,7 +469,7 @@ test("setting a property back to its original value removes the property from th
   expect(3);
 
   run(function() {
-    store.find('person', 1).then(function(person) {
+    store.findRecord('person', 1).then(function(person) {
       equal(person._internalModel._attributes.name, undefined, "the `_attributes` hash is clean");
 
       set(person, 'name', "Niceguy Dale");
@@ -601,7 +601,7 @@ var converts = function(type, provided, expected) {
   run(function() {
     testStore.push('model', serializer.normalize(Model, { id: 1, name: provided }));
     testStore.push('model', serializer.normalize(Model, { id: 2 }));
-    testStore.find('model', 1).then(function(record) {
+    testStore.findRecord('model', 1).then(function(record) {
       deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
     });
   });
@@ -633,7 +633,7 @@ var convertsFromServer = function(type, provided, expected) {
 
   run(function() {
     testStore.push('model', serializer.normalize(Model, { id: "1", name: provided }));
-    testStore.find('model', 1).then(function(record) {
+    testStore.findRecord('model', 1).then(function(record) {
       deepEqual(get(record, 'name'), expected, type + " coerces " + provided + " to " + expected);
     });
   });
@@ -648,7 +648,7 @@ var convertsWhenSet = function(type, provided, expected) {
 
   run(function() {
     testStore.push('model', { id: 2 });
-    testStore.find('model', 2).then(function(record) {
+    testStore.findRecord('model', 2).then(function(record) {
       set(record, 'name', provided);
       deepEqual(record.serialize().name, expected, type + " saves " + provided + " as " + expected);
     });
@@ -712,7 +712,7 @@ test("a DS.Model can describe Date attributes", function() {
 
   run(function() {
     store.push('person', { id: 1 });
-    store.find('person', 1).then(function(record) {
+    store.findRecord('person', 1).then(function(record) {
       run(function() {
         record.set('updatedAt', date);
       });
@@ -747,7 +747,7 @@ test("ensure model exits loading state, materializes data and fulfills promise o
 
   var store = createStore({
     adapter: DS.Adapter.extend({
-      find: function(store, type, id, snapshot) {
+      findRecord: function(store, type, id, snapshot) {
         return Ember.RSVP.resolve({ id: 1, name: "John" });
       }
     }),
@@ -755,7 +755,7 @@ test("ensure model exits loading state, materializes data and fulfills promise o
   });
 
   run(function() {
-    store.find('person', 1).then(function(person) {
+    store.findRecord('person', 1).then(function(person) {
       equal(get(person, 'currentState.stateName'), 'root.loaded.saved', 'model is in loaded state');
       equal(get(person, 'isLoaded'), true, 'model is loaded');
     });

@@ -57,7 +57,7 @@ test("extractPolymorphic hasMany", function() {
   var json;
 
   run(function() {
-    json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json_hash, '1', 'find');
+    json = env.amsSerializer.normalizeResponse(env.store, MediocreVillain, json_hash, '1', 'findRecord');
   });
 
   deepEqual(json, {
@@ -94,7 +94,7 @@ test("extractPolymorphic belongsTo", function() {
   var json;
 
   run(function() {
-    json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'find');
+    json = env.amsSerializer.normalizeResponse(env.store, DoomsdayDevice, json_hash, '1', 'findRecord');
   });
 
   deepEqual(json, {

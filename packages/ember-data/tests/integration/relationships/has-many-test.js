@@ -99,7 +99,7 @@ test("When a hasMany relationship is accessed, the adapter's findMany method sho
   run(function() {
     env.store.push('post', { id: 1, comments: [1] });
     env.store.push('comment', { id: 1 });
-    env.store.find('post', 1).then(function(post) {
+    env.store.findRecord('post', 1).then(function(post) {
       return post.get('comments');
     });
   });
@@ -120,7 +120,7 @@ test("adapter.findMany only gets unique IDs even if duplicate IDs are present in
 
   run(function() {
     env.store.push('book', { id: 1, chapters: [2, 3, 3] });
-    env.store.find('book', 1).then(function(book) {
+    env.store.findRecord('book', 1).then(function(book) {
       return book.get('chapters');
     });
   });
@@ -137,7 +137,7 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
 
   // When the store asks the adapter for the record with ID 1,
   // provide some fake data.
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     equal(type, Post, "find type was Post");
     equal(id, "1", "find id was 1");
 
@@ -159,7 +159,7 @@ test("A serializer can materialize a hasMany as an opaque token that can be lazi
   };
 
   run(function() {
-    env.store.find('post', 1).then(async(function(post) {
+    env.store.findRecord('post', 1).then(async(function(post) {
       return post.get('comments');
     })).then(async(function(comments) {
       equal(comments.get('isLoaded'), true, "comments are loaded");
@@ -332,7 +332,7 @@ test("A hasMany relationship can be reloaded if it was fetched via a link", func
     comments: DS.hasMany('comment', { async: true })
   });
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     equal(type, Post, "find type was Post");
     equal(id, "1", "find id was 1");
 
@@ -351,7 +351,7 @@ test("A hasMany relationship can be reloaded if it was fetched via a link", func
   };
 
   run(function() {
-    run(env.store, 'find', 'post', 1).then(function(post) {
+    run(env.store, 'findRecord', 'post', 1).then(function(post) {
       return post.get('comments');
     }).then(function(comments) {
       equal(comments.get('isLoaded'), true, "comments are loaded");
@@ -381,7 +381,7 @@ test("A sync hasMany relationship can be reloaded if it was fetched via ids", fu
     comments: DS.hasMany('comment')
   });
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     equal(type, Post, "find type was Post");
     equal(id, "1", "find id was 1");
 
@@ -391,7 +391,7 @@ test("A sync hasMany relationship can be reloaded if it was fetched via ids", fu
   run(function() {
     env.store.pushMany('comment', [{ id: 1, body: "First" }, { id: 2, body: "Second" }]);
 
-    env.store.find('post', '1').then(function(post) {
+    env.store.findRecord('post', '1').then(function(post) {
       var comments = post.get('comments');
       equal(comments.get('isLoaded'), true, "comments are loaded");
       equal(comments.get('length'), 2, "comments have a length of 2");
@@ -415,7 +415,7 @@ test("A hasMany relationship can be reloaded if it was fetched via ids", functio
     comments: DS.hasMany('comment', { async: true })
   });
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     equal(type, Post, "find type was Post");
     equal(id, "1", "find id was 1");
 
@@ -430,7 +430,7 @@ test("A hasMany relationship can be reloaded if it was fetched via ids", functio
   };
 
   run(function() {
-    env.store.find('post', 1).then(function(post) {
+    env.store.findRecord('post', 1).then(function(post) {
       return post.get('comments');
     }).then(function(comments) {
       equal(comments.get('isLoaded'), true, "comments are loaded");
@@ -455,7 +455,7 @@ test("A hasMany relationship can be directly reloaded if it was fetched via ids"
     comments: DS.hasMany('comment', { async: true })
   });
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     equal(type, Post, "find type was Post");
     equal(id, "1", "find id was 1");
 
@@ -470,7 +470,7 @@ test("A hasMany relationship can be directly reloaded if it was fetched via ids"
   };
 
   run(function() {
-    env.store.find('post', 1).then(function(post) {
+    env.store.findRecord('post', 1).then(function(post) {
       return post.get('comments').reload().then(function(comments) {
         equal(comments.get('isLoaded'), true, "comments are loaded");
         equal(comments.get('length'), 2, "comments have 2 length");
@@ -620,7 +620,7 @@ test("When a polymorphic hasMany relationship is accessed, the adapter's findMan
   });
 
   run(function() {
-    env.store.find('user', 1).then(function(user) {
+    env.store.findRecord('user', 1).then(function(user) {
       var messages = user.get('messages');
       equal(messages.get('length'), 2, "The messages are correctly loaded");
     });
@@ -632,7 +632,7 @@ test("When a polymorphic hasMany relationship is accessed, the store can call mu
     messages: hasMany('message', { polymorphic: true, async: true })
   });
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     if (type === Post) {
       return Ember.RSVP.resolve({ id: 1 });
     } else if (type === Comment) {
@@ -645,7 +645,7 @@ test("When a polymorphic hasMany relationship is accessed, the store can call mu
   });
 
   run(function() {
-    env.store.find('user', 1).then(function(user) {
+    env.store.findRecord('user', 1).then(function(user) {
       return user.get('messages');
     }).then(function(messages) {
       equal(messages.get('length'), 2, "The messages are correctly loaded");
@@ -682,7 +682,7 @@ test("Type can be inferred from the key of a hasMany relationship", function() {
     env.store.push('contact', { id: 1 });
   });
   run(function() {
-    env.store.find('user', 1).then(function(user) {
+    env.store.findRecord('user', 1).then(function(user) {
       return user.get('contacts');
     }).then(function(contacts) {
       equal(contacts.get('length'), 1, "The contacts relationship is correctly set up");
@@ -701,7 +701,7 @@ test("Type can be inferred from the key of an async hasMany relationship", funct
     env.store.push('contact', { id: 1 });
   });
   run(function() {
-    env.store.find('user', 1).then(function(user) {
+    env.store.findRecord('user', 1).then(function(user) {
       return user.get('contacts');
     }).then(function(contacts) {
       equal(contacts.get('length'), 1, "The contacts relationship is correctly set up");
@@ -721,7 +721,7 @@ test("Polymorphic relationships work with a hasMany whose type is inferred", fun
     env.store.push('phone', { id: 2 });
   });
   run(function() {
-    env.store.find('user', 1).then(function(user) {
+    env.store.findRecord('user', 1).then(function(user) {
       return user.get('contacts');
     }).then(function(contacts) {
       equal(contacts.get('length'), 2, "The contacts relationship is correctly set up");
@@ -758,7 +758,7 @@ test("A record can't be created from a polymorphic hasMany relationship", functi
   });
 
   run(function() {
-    env.store.find('user', 1).then(function(user) {
+    env.store.findRecord('user', 1).then(function(user) {
       return user.get('messages');
     }).then(function(messages) {
       expectAssertion(function() {
@@ -777,8 +777,8 @@ test("Only records of the same type can be added to a monomorphic hasMany relati
 
   run(function() {
     Ember.RSVP.all([
-      env.store.find('post', 1),
-      env.store.find('post', 2)
+      env.store.findRecord('post', 1),
+      env.store.findRecord('post', 2)
     ]).then(function(records) {
       expectAssertion(function() {
         records[0].get('comments').pushObject(records[1]);
@@ -799,10 +799,10 @@ test("Only records of the same base type can be added to a polymorphic hasMany r
 
   run(function() {
     asyncRecords = Ember.RSVP.hash({
-      user: env.store.find('user', 1),
-      anotherUser: env.store.find('user', 2),
-      post: env.store.find('post', 1),
-      comment: env.store.find('comment', 3)
+      user: env.store.findRecord('user', 1),
+      anotherUser: env.store.findRecord('user', 2),
+      post: env.store.findRecord('post', 1),
+      comment: env.store.findRecord('comment', 3)
     });
 
     asyncRecords.then(function(records) {
@@ -831,8 +831,8 @@ test("A record can be removed from a polymorphic association", function() {
 
   run(function() {
     asyncRecords = Ember.RSVP.hash({
-      user: env.store.find('user', 1),
-      comment: env.store.find('comment', 3)
+      user: env.store.findRecord('user', 1),
+      comment: env.store.findRecord('comment', 3)
     });
 
     asyncRecords.then(function(records) {
@@ -986,7 +986,7 @@ test("When an unloaded record is added to the hasMany, it gets fetched once the 
     return resolve([{ id: 1, body: 'first' }, { id: 2, body: 'second' }]);
   };
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     return resolve({ id: 3, body: 'third' });
   };
   var post;
@@ -1307,7 +1307,7 @@ test("adding and removing records from hasMany relationship #2666", function() {
 
   run(function() {
     stop();
-    env.store.find('post', 1).then(function (post) {
+    env.store.findRecord('post', 1).then(function (post) {
       var comments = post.get('comments');
       equal(comments.get('length'), 3, "Initial comments count");
 
@@ -1344,12 +1344,12 @@ test("hasMany hasData async loaded", function () {
     pages: hasMany('pages', { async: true })
   });
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     return Ember.RSVP.resolve({ id: 1, title: 'The Story Begins', pages: [2, 3] });
   };
 
   run(function() {
-    store.find('chapter', 1).then(function(chapter) {
+    store.findRecord('chapter', 1).then(function(chapter) {
       var relationship = chapter._internalModel._relationships.get('pages');
       equal(relationship.hasData, true, 'relationship has data');
     });
@@ -1359,12 +1359,12 @@ test("hasMany hasData async loaded", function () {
 test("hasMany hasData sync loaded", function () {
   expect(1);
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     return Ember.RSVP.resolve({ id: 1, title: 'The Story Begins', pages: [2, 3] });
   };
 
   run(function() {
-    store.find('chapter', 1).then(function(chapter) {
+    store.findRecord('chapter', 1).then(function(chapter) {
       var relationship = chapter._internalModel._relationships.get('pages');
       equal(relationship.hasData, true, 'relationship has data');
     });
@@ -1378,12 +1378,12 @@ test("hasMany hasData async not loaded", function () {
     pages: hasMany('pages', { async: true })
   });
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     return Ember.RSVP.resolve({ id: 1, title: 'The Story Begins', links: { pages: 'pages' } });
   };
 
   run(function() {
-    store.find('chapter', 1).then(function(chapter) {
+    store.findRecord('chapter', 1).then(function(chapter) {
       var relationship = chapter._internalModel._relationships.get('pages');
       equal(relationship.hasData, false, 'relationship does not have data');
     });
@@ -1393,12 +1393,12 @@ test("hasMany hasData async not loaded", function () {
 test("hasMany hasData sync not loaded", function () {
   expect(1);
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     return Ember.RSVP.resolve({ id: 1, title: 'The Story Begins' });
   };
 
   run(function() {
-    store.find('chapter', 1).then(function(chapter) {
+    store.findRecord('chapter', 1).then(function(chapter) {
       var relationship = chapter._internalModel._relationships.get('pages');
       equal(relationship.hasData, false, 'relationship does not have data');
     });

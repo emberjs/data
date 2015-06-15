@@ -81,7 +81,7 @@ var merge = Ember.merge;
   @namespace DS
   @extends DS.Serializer
 */
-export default Serializer.extend({
+var JSONSerializer = Serializer.extend({
 
   /**
     The primaryKey is used when serializing and deserializing
@@ -231,8 +231,8 @@ export default Serializer.extend({
   */
   normalizeResponse: function(store, primaryModelClass, payload, id, requestType) {
     switch (requestType) {
-      case 'find':
-        return this.normalizeFindResponse(...arguments);
+      case 'findRecord':
+        return this.normalizeFindRecordResponse(...arguments);
       case 'findAll':
         return this.normalizeFindAllResponse(...arguments);
       case 'findBelongsTo':
@@ -241,8 +241,8 @@ export default Serializer.extend({
         return this.normalizeFindHasManyResponse(...arguments);
       case 'findMany':
         return this.normalizeFindManyResponse(...arguments);
-      case 'findQuery':
-        return this.normalizeFindQueryResponse(...arguments);
+      case 'query':
+        return this.normalizeQueryResponse(...arguments);
       case 'createRecord':
         return this.normalizeCreateRecordResponse(...arguments);
       case 'deleteRecord':
@@ -253,7 +253,7 @@ export default Serializer.extend({
   },
 
   /*
-    @method normalizeFindResponse
+    @method normalizeFindRecordResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
     @param {Object} payload
@@ -261,7 +261,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeFindResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeFindRecordResponse: function(store, primaryModelClass, payload, id, requestType) {
     return this.normalizeSingleResponse(...arguments);
   },
 
@@ -318,7 +318,7 @@ export default Serializer.extend({
   },
 
   /*
-    @method normalizeFindQueryResponse
+    @method normalizeQueryResponse
     @param {DS.Store} store
     @param {DS.Model} primaryModelClass
     @param {Object} payload
@@ -326,7 +326,7 @@ export default Serializer.extend({
     @param {String} requestType
     @return {Object} JSON-API Document
   */
-  normalizeFindQueryResponse: function(store, primaryModelClass, payload, id, requestType) {
+  normalizeQueryResponse: function(store, primaryModelClass, payload, id, requestType) {
     return this.normalizeArrayResponse(...arguments);
   },
 
@@ -1369,6 +1369,7 @@ export default Serializer.extend({
   extractFind: function(store, typeClass, payload, id, requestType) {
     return this.extractSingle(store, typeClass, payload, id, requestType);
   },
+
   /**
     `extractFindBelongsTo` is a hook into the extract method used when
     a call is made to `DS.Store#findBelongsTo`. By default this method is
@@ -1664,3 +1665,5 @@ function _newExtractMeta(store, modelClass, payload) {
     return meta;
   }
 }
+
+export default JSONSerializer;

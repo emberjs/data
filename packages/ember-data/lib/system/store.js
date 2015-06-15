@@ -690,7 +690,7 @@ Store = Service.extend({
     var adapter = this.adapterFor(typeClass.modelName);
 
     Ember.assert("You tried to find a record but you have no adapter (for " + typeClass + ")", adapter);
-    Ember.assert("You tried to find a record but your adapter (for " + typeClass + ") does not implement 'find'", typeof adapter.find === 'function');
+    Ember.assert("You tried to find a record but your adapter (for " + typeClass + ") does not implement 'findRecord'", typeof adapter.findRecord === 'function' || typeof adapter.find === 'function');
 
     var promise = _find(adapter, this, typeClass, id, internalModel, options);
     return promise;
@@ -896,7 +896,7 @@ Store = Service.extend({
 
     Ember.assert("You cannot reload a record without an ID", id);
     Ember.assert("You tried to reload a record but you have no adapter (for " + modelName + ")", adapter);
-    Ember.assert("You tried to reload a record but your adapter does not implement `find`", typeof adapter.find === 'function');
+    Ember.assert("You tried to reload a record but your adapter does not implement `findRecord`", typeof adapter.findRecord === 'function' || typeof adapter.find === 'function');
 
     return this.scheduleFetch(internalModel);
   },
@@ -1052,7 +1052,7 @@ Store = Service.extend({
     var adapter = this.adapterFor(modelName);
 
     Ember.assert("You tried to load a query but you have no adapter (for " + typeClass + ")", adapter);
-    Ember.assert("You tried to load a query but your adapter does not implement `findQuery`", typeof adapter.findQuery === 'function');
+    Ember.assert("You tried to load a query but your adapter does not implement `query`", typeof adapter.query === 'function' || typeof adapter.findQuery === 'function');
 
     return promiseArray(_query(adapter, this, typeClass, query, array));
   },

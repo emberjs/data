@@ -277,8 +277,8 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     relationships accessed within the same runloop. If you set `coalesceFindRequests: true`
 
     ```javascript
-    store.find('comment', 1);
-    store.find('comment', 2);
+    store.findRecord('comment', 1);
+    store.findRecord('comment', 2);
     ```
 
     will also send a request to: `GET /comments?ids[]=1&ids[]=2`
@@ -346,26 +346,45 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
 
     @property headers
     @type {Object}
-  */
+   */
 
   /**
-    Called by the store in order to fetch the JSON for a given
-    type and ID.
-
-    The `find` method makes an Ajax request to a URL computed by `buildURL`, and returns a
-    promise for the resulting payload.
-
-    This method performs an HTTP `GET` request with the id provided as part of the query string.
-
     @method find
     @param {DS.Store} store
     @param {DS.Model} type
     @param {String} id
     @param {DS.Snapshot} snapshot
     @return {Promise} promise
+    @deprecated Use [findRecord](#method_findRecord) instead
   */
   find: function(store, type, id, snapshot) {
+    Ember.deprecate('RestAdapter#find has been deprecated and renamed to `findRecord`.');
     return this.ajax(this.buildURL(type.modelName, id, snapshot, 'find'), 'GET');
+  },
+
+  /**
+    Called by the store in order to fetch the JSON for a given
+    type and ID.
+
+    The `findRecord` method makes an Ajax request to a URL computed by
+    `buildURL`, and returns a promise for the resulting payload.
+
+    This method performs an HTTP `GET` request with the id provided as part of the query string.
+
+    @method findRecord
+    @param {DS.Store} store
+    @param {DS.Model} type
+    @param {String} id
+    @param {DS.Snapshot} snapshot
+    @return {Promise} promise
+  */
+  findRecord: function(store, type, id, snapshot) {
+    var find = RestAdapter.prototype.find;
+    if (find !== this.find) {
+      Ember.deprecate('RestAdapter#find has been deprecated and renamed to `findRecord`.');
+      return this.find(store, type, id, snapshot);
+    }
+    return this.ajax(this.buildURL(type.modelName, id, snapshot, 'findRecord'), 'GET');
   },
 
   /**
@@ -410,9 +429,44 @@ var RestAdapter = Adapter.extend(BuildURLMixin, {
     @param {DS.Model} type
     @param {Object} query
     @return {Promise} promise
+    @deprecated Use [query](#method_query) instead
   */
   findQuery: function(store, type, query) {
+    Ember.deprecate('RestAdapter#findQuery has been deprecated and renamed to `query`.');
     var url = this.buildURL(type.modelName, null, null, 'findQuery', query);
+
+    if (this.sortQueryParams) {
+      query = this.sortQueryParams(query);
+    }
+
+    return this.ajax(url, 'GET', { data: query });
+  },
+
+  /**
+    Called by the store in order to fetch a JSON array for
+    the records that match a particular query.
+
+    The `findQuery` method makes an Ajax (HTTP GET) request to a URL computed by `buildURL`, and returns a
+    promise for the resulting payload.
+
+    The `query` argument is a simple JavaScript object that will be passed directly
+    to the server as parameters.
+
+    @private
+    @method query
+    @param {DS.Store} store
+    @param {DS.Model} type
+    @param {Object} query
+    @return {Promise} promise
+  */
+  query: function(store, type, query) {
+    var findQuery = RestAdapter.prototype.findQuery;
+    if (findQuery !== this.findQuery) {
+      Ember.deprecate('RestAdapter#findQuery has been deprecated and renamed to `query`.');
+      return this.findQuery(store, type, query);
+    }
+
+    var url = this.buildURL(type.modelName, null, null, 'query', query);
 
     if (this.sortQueryParams) {
       query = this.sortQueryParams(query);

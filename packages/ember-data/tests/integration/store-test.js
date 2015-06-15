@@ -54,7 +54,7 @@ asyncTest("destroying record during find doesn't cause error", function() {
   expect(0);
 
   var TestAdapter = DS.Adapter.extend({
-    find: function(store, type, id, snapshot) {
+    findRecord: function(store, type, id, snapshot) {
       return new Ember.RSVP.Promise(function(resolve, reject) {
         Ember.run.next(function() {
           store.unloadAll(type.modelName);
@@ -74,7 +74,7 @@ asyncTest("destroying record during find doesn't cause error", function() {
   }
 
   run(function() {
-    store.find(type, id).then(done, done);
+    store.findRecord(type, id).then(done, done);
   });
 });
 
@@ -82,7 +82,7 @@ asyncTest("find calls do not resolve when the store is destroyed", function() {
   expect(0);
 
   var TestAdapter = DS.Adapter.extend({
-    find: function(store, type, id, snapshot) {
+    findRecord: function(store, type, id, snapshot) {
       store.destroy();
       Ember.RSVP.resolve(null);
     }
@@ -101,7 +101,7 @@ asyncTest("find calls do not resolve when the store is destroyed", function() {
   };
 
   run(function() {
-    store.find(type, id);
+    store.findRecord(type, id);
   });
 
   setTimeout(function() {
@@ -131,7 +131,7 @@ test("destroying the store correctly cleans everything up", function() {
   var carWillDestroy = tap(car, 'willDestroy');
   var carsWillDestroy = tap(car.get('person.cars'), 'willDestroy');
 
-  env.adapter.findQuery = function() {
+  env.adapter.query = function() {
     return [{
       id: 2,
       name: 'Yehuda'
@@ -153,7 +153,7 @@ test("destroying the store correctly cleans everything up", function() {
   var adapterPopulatedPeopleWillDestroy = tap(adapterPopulatedPeople.content, 'willDestroy');
 
   run(function() {
-    store.find('person', 2);
+    store.findRecord('person', 2);
   });
 
   equal(personWillDestroy.called.length, 0, 'expected person.willDestroy to not have been called');

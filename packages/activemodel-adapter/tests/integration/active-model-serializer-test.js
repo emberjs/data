@@ -156,7 +156,7 @@ test("extractSingle", function() {
   });
 
   run(function() {
-    env.store.find('super-villain', 1).then(function(minion) {
+    env.store.findRecord('super-villain', 1).then(function(minion) {
       equal(minion.get('firstName'), "Tom");
     });
   });
@@ -182,7 +182,7 @@ test("extractArray", function() {
   }]);
 
   run(function() {
-    env.store.find('super-villain', 1).then(function(minion) {
+    env.store.findRecord('super-villain', 1).then(function(minion) {
       equal(minion.get('firstName'), "Tom");
     });
   });

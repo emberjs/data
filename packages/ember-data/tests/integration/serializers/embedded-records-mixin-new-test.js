@@ -95,7 +95,7 @@ test("normalizeSingleResponse with embedded objects", function() {
   var json;
 
   run(function() {
-    json = serializer.normalizeSingleResponse(env.store, HomePlanet, json_hash, '1', 'find');
+    json = serializer.normalizeSingleResponse(env.store, HomePlanet, json_hash, '1', 'findRecord');
   });
 
   deepEqual(json, {
@@ -160,7 +160,7 @@ test("normalizeSingleResponse with embedded objects inside embedded objects", fu
   var json;
 
   run(function() {
-    json = serializer.normalizeSingleResponse(env.store, HomePlanet, json_hash, '1', 'find');
+    json = serializer.normalizeSingleResponse(env.store, HomePlanet, json_hash, '1', 'findRecord');
   });
 
   deepEqual(json, {
@@ -231,7 +231,7 @@ test("normalizeSingleResponse with embedded objects of same type", function() {
   };
   var json;
   run(function() {
-    json = serializer.normalizeSingleResponse(env.store, Comment, json_hash, '1', 'find');
+    json = serializer.normalizeSingleResponse(env.store, Comment, json_hash, '1', 'findRecord');
   });
 
   deepEqual(json, {
@@ -304,7 +304,7 @@ test("normalizeSingleResponse with embedded objects inside embedded objects of s
   };
   var json;
   run(function() {
-    json = serializer.normalizeSingleResponse(env.store, Comment, json_hash, '1', 'find');
+    json = serializer.normalizeSingleResponse(env.store, Comment, json_hash, '1', 'findRecord');
   });
 
   deepEqual(json, {
@@ -395,7 +395,7 @@ test("normalizeSingleResponse with embedded objects of same type, but from separ
   };
   var json;
   run(function() {
-    json = serializer.normalizeSingleResponse(env.store, HomePlanet, json_hash, '1', 'find');
+    json = serializer.normalizeSingleResponse(env.store, HomePlanet, json_hash, '1', 'findRecord');
   });
 
   deepEqual(json, {
@@ -883,7 +883,7 @@ test("normalizeSingleResponse with embedded object (belongsTo relationship)", fu
   var json;
 
   run(function() {
-    json = serializer.normalizeSingleResponse(env.store, SuperVillain, json_hash, '1', 'find');
+    json = serializer.normalizeSingleResponse(env.store, SuperVillain, json_hash, '1', 'findRecord');
   });
 
   deepEqual(json, {
@@ -959,7 +959,7 @@ test("normalizeSingleResponse with multiply-nested belongsTo", function() {
   var json;
 
   run(function() {
-    json = serializer.normalizeSingleResponse(env.store, EvilMinion, json_hash, '1', 'find');
+    json = serializer.normalizeSingleResponse(env.store, EvilMinion, json_hash, '1', 'findRecord');
   });
 
   deepEqual(json, {
@@ -1113,7 +1113,7 @@ test("normalizeSingleResponse with polymorphic belongsTo", function() {
   var json;
 
   run(function() {
-    json = serializer.normalizeSingleResponse(env.store, SuperVillain, json_hash, '1', 'find');
+    json = serializer.normalizeSingleResponse(env.store, SuperVillain, json_hash, '1', 'findRecord');
   });
 
   deepEqual(json, {
@@ -1167,7 +1167,7 @@ test("normalize with custom belongsTo primary key", function() {
   var json;
 
   run(function() {
-    json = serializer.normalizeResponse(env.store, EvilMinion, json_hash, '1', 'find');
+    json = serializer.normalizeResponse(env.store, EvilMinion, json_hash, '1', 'findRecord');
   });
 
   deepEqual(json, {

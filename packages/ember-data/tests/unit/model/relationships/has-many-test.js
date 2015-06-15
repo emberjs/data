@@ -31,11 +31,11 @@ test("hasMany handles pre-loaded relationships", function() {
   env.registry.register('model:pet', Pet);
   env.registry.register('model:person', Person);
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     if (type === Tag && id === '12') {
       return Ember.RSVP.resolve({ id: 12, name: "oohlala" });
     } else {
-      ok(false, "find() should not be called with these values");
+      ok(false, "findRecord() should not be called with these values");
     }
   };
 
@@ -49,7 +49,7 @@ test("hasMany handles pre-loaded relationships", function() {
   });
 
   run(function() {
-    store.find('person', 1).then(function(person) {
+    store.findRecord('person', 1).then(function(person) {
       equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
 
       var tags = get(person, 'tags');
@@ -64,20 +64,20 @@ test("hasMany handles pre-loaded relationships", function() {
       equal(get(get(person, 'tags'), 'length'), 2, "the length is updated after new data is loaded");
 
       strictEqual(get(person, 'tags').objectAt(0), get(person, 'tags').objectAt(0), "the returned object is always the same");
-      asyncEqual(get(person, 'tags').objectAt(0), store.find('tag', 5), "relationship objects are the same as objects retrieved directly");
+      asyncEqual(get(person, 'tags').objectAt(0), store.findRecord('tag', 5), "relationship objects are the same as objects retrieved directly");
 
       run(function() {
         store.push('person', { id: 3, name: "KSelden" });
       });
 
-      return store.find('person', 3);
+      return store.findRecord('person', 3);
     }).then(function(kselden) {
       equal(get(get(kselden, 'tags'), 'length'), 0, "a relationship that has not been supplied returns an empty array");
 
       run(function() {
         store.push('person', { id: 4, name: "Cyvid Hamluck", pets: [4] });
       });
-      return store.find('person', 4);
+      return store.findRecord('person', 4);
     }).then(function(cyvid) {
       equal(get(cyvid, 'name'), "Cyvid Hamluck", "precond - retrieves person record from store");
 
@@ -118,11 +118,11 @@ test("hasMany lazily loads async relationships", function() {
   env.registry.register('model:pet', Pet);
   env.registry.register('model:person', Person);
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     if (type === Tag && id === '12') {
       return Ember.RSVP.resolve({ id: 12, name: "oohlala" });
     } else {
-      ok(false, "find() should not be called with these values");
+      ok(false, "findRecord() should not be called with these values");
     }
   };
 
@@ -138,7 +138,7 @@ test("hasMany lazily loads async relationships", function() {
   var wycats;
 
   run(function() {
-    store.find('person', 2).then(function(person) {
+    store.findRecord('person', 2).then(function(person) {
       wycats = person;
 
       equal(get(wycats, 'name'), "Yehuda Katz", "precond - retrieves person record from store");
@@ -152,7 +152,7 @@ test("hasMany lazily loads async relationships", function() {
       equal(get(records.tags.objectAt(0), 'name'), "oohlala", "the first tag should be a Tag");
 
       strictEqual(records.tags.objectAt(0), records.tags.objectAt(0), "the returned object is always the same");
-      asyncEqual(records.tags.objectAt(0), store.find('tag', 12), "relationship objects are the same as objects retrieved directly");
+      asyncEqual(records.tags.objectAt(0), store.findRecord('tag', 12), "relationship objects are the same as objects retrieved directly");
 
       return get(wycats, 'tags');
     }).then(function(tags) {
@@ -252,7 +252,7 @@ test("relationships work when declared with a string path", function() {
   });
 
   run(function() {
-    env.store.find('person', 1).then(function(person) {
+    env.store.findRecord('person', 1).then(function(person) {
       equal(get(person, 'name'), "Tom Dale", "precond - retrieves person record from store");
       equal(get(person, 'tags.length'), 2, "the list of tags should have the correct length");
     });
@@ -287,7 +287,7 @@ test("hasMany relationships work when the data hash has not been loaded", functi
     return Ember.RSVP.resolve([{ id: 5, name: "friendly" }, { id: 2, name: "smarmy" }]);
   };
 
-  env.adapter.find = function(store, type, id, snapshot) {
+  env.adapter.findRecord = function(store, type, id, snapshot) {
     equal(type, Person, "type should be Person");
     equal(id, 1, "id should be 1");
 
@@ -295,7 +295,7 @@ test("hasMany relationships work when the data hash has not been loaded", functi
   };
 
   run(function() {
-    store.find('person', 1).then(function(person) {
+    store.findRecord('person', 1).then(function(person) {
       equal(get(person, 'name'), "Tom Dale", "The person is now populated");
 
       return run(function() {
@@ -335,7 +335,7 @@ test("it is possible to add a new item to a relationship", function() {
   });
 
   run(function() {
-    store.find('person', 1).then(function(person) {
+    store.findRecord('person', 1).then(function(person) {
       var tag = get(person, 'tags').objectAt(0);
 
       equal(get(tag, 'name'), "ember", "precond - relationships work");
@@ -407,7 +407,7 @@ test("it is possible to remove an item from a relationship", function() {
   });
 
   run(function() {
-    store.find('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(async(function(person) {
       var tag = get(person, 'tags').objectAt(0);
 
       equal(get(tag, 'name'), "ember", "precond - relationships work");

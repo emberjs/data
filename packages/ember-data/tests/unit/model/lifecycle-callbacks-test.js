@@ -14,7 +14,7 @@ test("a record receives a didLoad callback when it has finished loading", functi
   });
 
   var adapter = DS.Adapter.extend({
-    find: function(store, type, id, snapshot) {
+    findRecord: function(store, type, id, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Foo" });
     }
   });
@@ -25,7 +25,7 @@ test("a record receives a didLoad callback when it has finished loading", functi
   });
 
   run(function() {
-    store.find('person', 1).then(function(person) {
+    store.findRecord('person', 1).then(function(person) {
       equal(person.get('id'), "1", "The person's ID is available");
       equal(person.get('name'), "Foo", "The person's properties are available");
     });
@@ -75,7 +75,7 @@ test("a record receives a didUpdate callback when it has finished updating", fun
   });
 
   var adapter = DS.Adapter.extend({
-    find: function(store, type, id, snapshot) {
+    findRecord: function(store, type, id, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Foo" });
     },
 
@@ -93,7 +93,7 @@ test("a record receives a didUpdate callback when it has finished updating", fun
   var asyncPerson;
 
   run(function() {
-    asyncPerson = store.find('person', 1);
+    asyncPerson = store.findRecord('person', 1);
   });
   equal(callCount, 0, "precond - didUpdate callback was not called yet");
 
@@ -168,7 +168,7 @@ test("a record receives a didDelete callback when it has finished deleting", fun
   });
 
   var adapter = DS.Adapter.extend({
-    find: function(store, type, id, snapshot) {
+    findRecord: function(store, type, id, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Foo" });
     },
 
@@ -186,7 +186,7 @@ test("a record receives a didDelete callback when it has finished deleting", fun
   var asyncPerson;
 
   run(function() {
-    asyncPerson = store.find('person', 1);
+    asyncPerson = store.findRecord('person', 1);
   });
 
   equal(callCount, 0, "precond - didDelete callback was not called yet");
@@ -256,7 +256,7 @@ test("a record receives a becameInvalid callback when it became invalid", functi
   });
 
   var adapter = DS.Adapter.extend({
-    find: function(store, type, id, snapshot) {
+    findRecord: function(store, type, id, snapshot) {
       return Ember.RSVP.resolve({ id: 1, name: "Foo" });
     },
 
@@ -274,7 +274,7 @@ test("a record receives a becameInvalid callback when it became invalid", functi
   var asyncPerson;
 
   run(function() {
-    asyncPerson = store.find('person', 1);
+    asyncPerson = store.findRecord('person', 1);
   });
   equal(callCount, 0, "precond - becameInvalid callback was not called yet");
 

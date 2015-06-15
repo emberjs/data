@@ -40,7 +40,7 @@ module("integration/adapter/store_adapter - DS.Store and DS.Adapter integration 
 });
 
 test("Records loaded multiple times and retrieved in recordArray are ready to send state events", function() {
-  adapter.findQuery = function(store, type, query, recordArray) {
+  adapter.query = function(store, type, query, recordArray) {
     return Ember.RSVP.resolve([{
       id: 1,
       name: "Mickael Ramírez"
@@ -105,8 +105,8 @@ test("by default, createRecords calls createRecord once per record", function() 
     tom = records.tom;
     yehuda = records.yehuda;
 
-    asyncEqual(tom, store.find('person', 1), "Once an ID is in, find returns the same object");
-    asyncEqual(yehuda, store.find('person', 2), "Once an ID is in, find returns the same object");
+    asyncEqual(tom, store.findRecord('person', 1), "Once an ID is in, find returns the same object");
+    asyncEqual(yehuda, store.findRecord('person', 2), "Once an ID is in, find returns the same object");
     equal(get(tom, 'updatedAt'), "now", "The new information is received");
     equal(get(yehuda, 'updatedAt'), "now", "The new information is received");
   }));
@@ -140,8 +140,8 @@ test("by default, updateRecords calls updateRecord once per record", function() 
 
   var promise = run(function() {
     return Ember.RSVP.hash({
-      tom: store.find('person', 1),
-      yehuda: store.find('person', 2)
+      tom: store.findRecord('person', 1),
+      yehuda: store.findRecord('person', 2)
     });
   });
 
@@ -190,8 +190,8 @@ test("calling store.didSaveRecord can provide an optional hash", function() {
 
   var promise = run(function() {
     return Ember.RSVP.hash({
-      tom: store.find('person', 1),
-      yehuda: store.find('person', 2)
+      tom: store.findRecord('person', 1),
+      yehuda: store.findRecord('person', 2)
     });
   });
   promise.then(async(function(records) {
@@ -242,8 +242,8 @@ test("by default, deleteRecord calls deleteRecord once per record", function() {
 
   var promise = run(function() {
     return Ember.RSVP.hash({
-      tom: store.find('person', 1),
-      yehuda: store.find('person', 2)
+      tom: store.findRecord('person', 1),
+      yehuda: store.findRecord('person', 2)
     });
   });
 
@@ -287,8 +287,8 @@ test("by default, destroyRecord calls deleteRecord once per record without requi
 
   var promise = run(function() {
     return Ember.RSVP.hash({
-      tom: store.find('person', 1),
-      yehuda: store.find('person', 2)
+      tom: store.findRecord('person', 1),
+      yehuda: store.findRecord('person', 2)
     });
   });
 
@@ -324,7 +324,7 @@ test("if an existing model is edited then deleted, deleteRecord is called on the
   });
 
   // Retrieve that loaded record and edit it so it becomes dirty
-  run(store, 'find', 'person', 'deleted-record').then(async(function(tom) {
+  run(store, 'findRecord', 'person', 'deleted-record').then(async(function(tom) {
     tom.set('name', "Tom Mothereffin' Dale");
 
     equal(get(tom, 'isDirty'), true, "precond - record should be dirty after editing");
@@ -355,7 +355,7 @@ test("if a deleted record errors, it enters the error state", function() {
   var tom;
 
   run(function() {
-    store.find('person', 'deleted-record').then(async(function(person) {
+    store.findRecord('person', 'deleted-record').then(async(function(person) {
       tom = person;
       person.deleteRecord();
       return person.save();
@@ -529,7 +529,7 @@ test("if an updated record is marked as invalid by the server, it enters an erro
   });
 
   Ember.run(function() {
-    store.find('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(async(function(person) {
       equal(person, yehuda, "The same object is passed through");
 
       equal(get(yehuda, 'isValid'), true, "precond - the record is valid");
@@ -573,7 +573,7 @@ test("records can have errors on arbitrary properties after update", function() 
   });
 
   run(function() {
-    store.find('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(async(function(person) {
       equal(person, yehuda, "The same object is passed through");
 
       equal(get(yehuda, 'isValid'), true, "precond - the record is valid");
@@ -625,7 +625,7 @@ test("if an updated record is marked as invalid by the server, you can attempt t
   });
 
   Ember.run(function() {
-    store.find('person', 1).then(async(function(person) {
+    store.findRecord('person', 1).then(async(function(person) {
       equal(person, yehuda, "The same object is passed through");
 
       equal(get(yehuda, 'isValid'), true, "precond - the record is valid");
@@ -667,7 +667,7 @@ test("if a updated record is marked as erred by the server, it enters an error s
     return store.push('person', { id: 1, name: "John Doe" });
   });
 
-  run(store, 'find', 'person', 1).then(async(function(record) {
+  run(store, 'findRecord', 'person', 1).then(async(function(record) {
     equal(record, person, "The person was resolved");
     person.set('name', "Jonathan Doe");
     return person.save();
@@ -679,18 +679,18 @@ test("if a updated record is marked as erred by the server, it enters an error s
 test("can be created after the DS.Store", function() {
   expect(1);
 
-  adapter.find = function(store, type, id, snapshot) {
+  adapter.findRecord = function(store, type, id, snapshot) {
     equal(type, Person, "the type is correct");
     return Ember.RSVP.resolve({ id: 1 });
   };
 
   run(function() {
-    store.find('person', 1);
+    store.findRecord('person', 1);
   });
 });
 
 test("the filter method can optionally take a server query as well", function() {
-  adapter.findQuery = function(store, type, query, array) {
+  adapter.query = function(store, type, query, array) {
     return Ember.RSVP.resolve([
       { id: 1, name: "Yehuda Katz" },
       { id: 2, name: "Tom Dale" }
@@ -705,7 +705,7 @@ test("the filter method can optionally take a server query as well", function() 
 
   asyncFilter.then(async(function(filter) {
     loadedFilter = filter;
-    return store.find('person', 2);
+    return store.findRecord('person', 2);
   })).then(async(function(tom) {
     equal(get(loadedFilter, 'length'), 1, "The filter has an item in it");
     deepEqual(loadedFilter.toArray(), [tom], "The filter has a single entry in it");
@@ -721,7 +721,7 @@ test("relationships returned via `commit` do not trigger additional findManys", 
     store.push('dog', { id: 1, name: "Scruffy" });
   });
 
-  adapter.find = function(store, type, id, snapshot) {
+  adapter.findRecord = function(store, type, id, snapshot) {
     return Ember.RSVP.resolve({ id: 1, name: "Tom Dale", dogs: [1] });
   };
 
@@ -738,8 +738,8 @@ test("relationships returned via `commit` do not trigger additional findManys", 
   };
 
   run(function() {
-    store.find('person', 1).then(async(function(person) {
-      return Ember.RSVP.hash({ tom: person, dog: store.find('dog', 1) });
+    store.findRecord('person', 1).then(async(function(person) {
+      return Ember.RSVP.hash({ tom: person, dog: store.findRecord('dog', 1) });
     })).then(async(function(records) {
       records.tom.get('dogs');
       return records.dog.save();
@@ -768,7 +768,7 @@ test("relationships don't get reset if the links is the same", function() {
 
   var tom, dogs;
 
-  run(store, 'find', 'person', 1).then(async(function(person) {
+  run(store, 'findRecord', 'person', 1).then(async(function(person) {
     tom = person;
     dogs = tom.get('dogs');
     return dogs;
@@ -867,13 +867,13 @@ test("deleteRecord receives a snapshot", function() {
 test("find receives a snapshot", function() {
   expect(1);
 
-  adapter.find = function(store, type, id, snapshot) {
+  adapter.findRecord = function(store, type, id, snapshot) {
     ok(snapshot instanceof DS.Snapshot, "snapshot is an instance of DS.Snapshot");
     return Ember.RSVP.resolve({ id: 1 });
   };
 
   run(function() {
-    store.find('person', 1);
+    store.findRecord('person', 1);
   });
 });
 

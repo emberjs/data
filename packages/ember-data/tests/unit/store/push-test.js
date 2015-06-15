@@ -57,8 +57,8 @@ test("Calling push with a normalized hash returns a record", function() {
       firstName: "Yehuda",
       lastName: "Katz"
     });
-    store.find('person', 'wat').then(function(foundPerson) {
-      equal(foundPerson, person, "record returned via load() is the same as the record returned from find()");
+    store.findRecord('person', 'wat').then(function(foundPerson) {
+      equal(foundPerson, person, "record returned via load() is the same as the record returned from findRecord()");
       deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
         id: 'wat',
         firstName: "Yehuda",
@@ -81,7 +81,7 @@ test("Supplying a model class for `push` is the same as supplying a string", fun
       lastName: "Katz"
     });
 
-    store.find('programmer', 'wat').then(function(foundProgrammer) {
+    store.findRecord('programmer', 'wat').then(function(foundProgrammer) {
       deepEqual(foundProgrammer.getProperties('id', 'firstName', 'lastName'), {
         id: 'wat',
         firstName: "Yehuda",
@@ -132,8 +132,8 @@ test("Calling push with partial records updates just those attributes", function
       lastName: "Katz!"
     });
 
-    store.find('person', 'wat').then(function(foundPerson) {
-      equal(foundPerson, person, "record returned via load() is the same as the record returned from find()");
+    store.findRecord('person', 'wat').then(function(foundPerson) {
+      equal(foundPerson, person, "record returned via load() is the same as the record returned from findRecord()");
       deepEqual(foundPerson.getProperties('id', 'firstName', 'lastName'), {
         id: 'wat',
         firstName: "Yehuda",
@@ -198,7 +198,7 @@ test("Calling push with a normalized hash containing IDs of related records retu
     phoneNumbers: hasMany('phone-number', { async: true })
   });
 
-  env.adapter.find = function(store, type, id) {
+  env.adapter.findRecord = function(store, type, id) {
     if (id === "1") {
       return Ember.RSVP.resolve({
         id: 1,

@@ -37,17 +37,17 @@ test('buildURL - works with empty paths', function() {
   equal(adapter.buildURL('rootModel', 1), "/1");
 });
 
-test('buildURL - find requestType delegates to urlForFind', function() {
+test('buildURL - find requestType delegates to urlForFindRecord', function() {
   expect(4);
   var snapshotStub = { snapshot: true };
-  var originalMethod = adapter.urlForFind;
-  adapter.urlForFind = function(id, type, snapshot) {
+  var originalMethod = adapter.urlForFindRecord;
+  adapter.urlForFindRecord = function(id, type, snapshot) {
     equal(id, 1);
     equal(type, 'super-user');
     equal(snapshot, snapshotStub);
     return originalMethod.apply(this, arguments);
   };
-  equal(adapter.buildURL('super-user', 1, snapshotStub, 'find'), '/superUsers/1');
+  equal(adapter.buildURL('super-user', 1, snapshotStub, 'findRecord'), '/superUsers/1');
 });
 
 test('buildURL - findAll requestType delegates to urlForFindAll', function() {
@@ -60,16 +60,16 @@ test('buildURL - findAll requestType delegates to urlForFindAll', function() {
   equal(adapter.buildURL('super-user', null, null, 'findAll'), '/superUsers');
 });
 
-test('buildURL - findQuery requestType delegates to urlForFindQuery', function() {
+test('buildURL - query requestType delegates to urlForQuery', function() {
   expect(3);
-  var originalMethod = adapter.urlForFindQuery;
+  var originalMethod = adapter.urlForQuery;
   var queryStub = { limit: 10 };
-  adapter.urlForFindQuery = function(query, type) {
+  adapter.urlForQuery = function(query, type) {
     equal(query, queryStub);
     equal(type, 'super-user');
     return originalMethod.apply(this, arguments);
   };
-  equal(adapter.buildURL('super-user', null, null, 'findQuery', queryStub), '/superUsers');
+  equal(adapter.buildURL('super-user', null, null, 'query', queryStub), '/superUsers');
 });
 
 test('buildURL - findMany requestType delegates to urlForFindMany', function() {

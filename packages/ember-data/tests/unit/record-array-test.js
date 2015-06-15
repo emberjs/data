@@ -103,8 +103,8 @@ test("a loaded record is removed from a record array when it is deleted", functi
 
   run(function() {
     var asyncRecords = Ember.RSVP.hash({
-      scumbag: store.find('person', 1),
-      tag: store.find('tag', 1)
+      scumbag: store.findRecord('person', 1),
+      tag: store.findRecord('tag', 1)
     });
 
     asyncRecords.then(function(records) {
@@ -258,7 +258,7 @@ test("an AdapterPopulatedRecordArray knows if it's loaded or not", function() {
   var env = setupStore({ person: Person });
   var store = env.store;
 
-  env.adapter.findQuery = function(store, type, query, recordArray) {
+  env.adapter.query = function(store, type, query, recordArray) {
     return Ember.RSVP.resolve(array);
   };
 
