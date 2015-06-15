@@ -14,6 +14,7 @@ function SnapshotRecordArray(recordArray, meta, adapterOptions) {
   this._snapshots = null;
   this._recordArray = recordArray;
   this.length = recordArray.get('length');
+  this.type = recordArray.get('type');
   this.meta = meta;
   this.adapterOptions = adapterOptions;
 }

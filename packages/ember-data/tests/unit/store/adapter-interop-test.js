@@ -1000,35 +1000,6 @@ test("store should reload the record in the background when `shouldBackgroundRel
   equal(store.peekRecord('person', 1).get('name'), 'Tom');
 });
 
-
-test("store should not call shouldReloadAll when the recordArary is not loaded", function() {
-  expect(1);
-
-  var Person = DS.Model.extend({
-    name: DS.attr('string')
-  });
-
-  var TestAdapter = DS.Adapter.extend({
-    shouldReloadAll: function(store, type, id, snapshot) {
-      ok(false, 'shouldReloadRecord should not be called when the record is not loaded');
-      return false;
-    },
-    findAll: function() {
-      ok(true, 'find is always called when the record is not in the store');
-      return [{ id: 1 }];
-    }
-  });
-
-  store = createStore({
-    adapter: TestAdapter,
-    person: Person
-  });
-
-  run(function() {
-    store.findAll('person');
-  });
-});
-
 test("store should not reload record array when shouldReloadAll returns false", function() {
   expect(1);
 
@@ -1055,7 +1026,6 @@ test("store should not reload record array when shouldReloadAll returns false", 
   });
 
   run(function() {
-    store.peekAll('person').set('__isLoaded', true);
     store.find('person');
   });
 });
@@ -1084,7 +1054,6 @@ test("store should reload all records when shouldReloadAll returns true", functi
   });
 
   run(function() {
-    store.peekAll('person').set('__isLoaded', true);
     store.findAll('person').then(function(records) {
       equal(records.get('firstObject.name'), 'Tom');
     });
@@ -1117,7 +1086,6 @@ test("store should not call shouldBackgroundReloadAll when the store is already 
   });
 
   run(function() {
-    store.peekAll('person').set('__isLoaded', true);
     store.findAll('person').then(function(records) {
       equal(records.get('firstObject.name'), 'Tom');
     });
@@ -1152,7 +1120,6 @@ test("store should not reload all records when `shouldBackgroundReloadAll` is fa
   });
 
   run(function() {
-    store.peekAll('person').set('__isLoaded', true);
     store.findAll('person').then(function(records) {
       equal(records.get('firstObject'), undefined);
     });
@@ -1188,7 +1155,6 @@ test("store should reload all records in the background when `shouldBackgroundRe
   });
 
   run(function() {
-    store.peekAll('person').set('__isLoaded', true);
     store.findAll('person').then(function(records) {
       equal(records.get('firstObject.name'), undefined);
     });
