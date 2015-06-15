@@ -483,7 +483,7 @@ export default Serializer.extend({
     @return {Object}
   */
   normalize: function(typeClass, hash) {
-    if (Ember.FEATURES.isEnabled('ds-new-serializer-api') && this.get('isNewSerializerAPI')) {
+    if (this.get('isNewSerializerAPI')) {
       return _newNormalize.apply(this, arguments);
     }
 
@@ -1495,7 +1495,7 @@ export default Serializer.extend({
     @param {Object} payload
   */
   extractMeta: function(store, typeClass, payload) {
-    if (Ember.FEATURES.isEnabled('ds-new-serializer-api') && this.get('isNewSerializerAPI')) {
+    if (this.get('isNewSerializerAPI')) {
       return _newExtractMeta.apply(this, arguments);
     }
 

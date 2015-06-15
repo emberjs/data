@@ -4,9 +4,8 @@ var map = Ember.EnumerableUtils.map;
 /**
   This is a helper method that always returns a JSON-API Document.
 
-  If the feature flag `ds-new-serializer-api` is enabled and the current serializer
-  has `isNewSerializerAPI` set to `true` this helper calls `normalizeResponse`
-  instead of `extract`.
+  If the current serializer has `isNewSerializerAPI` set to `true`
+  this helper calls `normalizeResponse` instead of `extract`.
 
   All the built-in serializers get `isNewSerializerAPI` set to `true` automatically
   if the feature flag is enabled.
@@ -21,12 +20,10 @@ var map = Ember.EnumerableUtils.map;
   @return {Object} JSON-API Document
 */
 export function normalizeResponseHelper(serializer, store, modelClass, payload, id, requestType) {
-  if (Ember.FEATURES.isEnabled('ds-new-serializer-api') && serializer.get('isNewSerializerAPI')) {
+  if (serializer.get('isNewSerializerAPI')) {
     return serializer.normalizeResponse(store, modelClass, payload, id, requestType);
   } else {
-    if (Ember.FEATURES.isEnabled('ds-new-serializer-api')) {
-      Ember.deprecate('Your custom serializer uses the old version of the Serializer API, with `extract` hooks. Please upgrade your serializers to the new Serializer API using `normalizeResponse` hooks instead.');
-    }
+    Ember.deprecate('Your custom serializer uses the old version of the Serializer API, with `extract` hooks. Please upgrade your serializers to the new Serializer API using `normalizeResponse` hooks instead.');
     let serializerPayload = serializer.extract(store, modelClass, payload, id, requestType);
     return _normalizeSerializerPayload(modelClass, serializerPayload);
   }
