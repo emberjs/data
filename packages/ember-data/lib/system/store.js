@@ -567,12 +567,12 @@ Store = Service.extend({
   /**
     This method returns a record for a given type and id combination.
 
-    The `find` method will always return a **promise** that will be
+    The `findRecord` method will always return a **promise** that will be
     resolved with the record. If the record was already in the store,
     the promise will be resolved immediately. Otherwise, the store
     will ask the adapter's `find` method to find the necessary data.
 
-    The `find` method will always resolve its promise with the same
+    The `findRecord` method will always resolve its promise with the same
     object for a given type and `id`.
 
     Example
